@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HaQei パーソナルOS発見レポート - 入力</title>
+    <title>HaQei - あなたの物語を読み解く、次世代の自己分析</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,136 +13,126 @@
         .brand-text {
             background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
             -webkit-background-clip: text;
-            background-clip: text;
             -webkit-text-fill-color: transparent;
-            color: transparent;
+        }
+        .hero-bg {
+            background-color: #111827;
+            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 min-h-screen p-4 flex items-center justify-center">
-    <div class="w-full max-w-5xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10">
-        
-        <header class="text-center mb-10">
-            <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">HaQei</h1>
-            <p class="text-gray-400 mt-3 text-xl">パーソナルOS発見レポート</p>
-        </header>
-        
-        <div class="bg-gray-900/50 p-6 rounded-xl mb-10 space-y-6">
-            <p class="text-center text-gray-300">あなたのタイプを選択し、「OSを特定する」ボタンを押してください。</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                <div>
-                    <label for="mbtiSelect" class="block text-sm font-medium text-gray-300 mb-1">MBTIタイプ</label>
-                    <select id="mbtiSelect" class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"></select>
-                </div>
-                 <div class="space-y-4">
-                        <div>
-                            <label for="enneagramSelect1" class="block text-sm font-medium text-gray-300 mb-1">エニアグラムタイプ 1 (主要)</label>
-                            <select id="enneagramSelect1" class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"></select>
-                        </div>
-                        <div>
-                            <label for="enneagramSelect2" class="block text-sm font-medium text-gray-300 mb-1">エニアグラムタイプ 2 (任意)</label>
-                            <select id="enneagramSelect2" class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"></select>
-                        </div>
-                        <div>
-                            <label for="enneagramSelect3" class="block text-sm font-medium text-gray-300 mb-1">エニアグラムタイプ 3 (任意)</label>
-                            <select id="enneagramSelect3" class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"></select>
-                        </div>
+<body class="bg-gray-900 text-gray-200">
+
+    <!-- ヘッダー -->
+    <header class="bg-gray-800/80 backdrop-blur-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold brand-text tracking-wider">HaQei</div>
+            <div>
+                <a href="#services" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">サービス</a>
+                <a href="#about" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">HaQeiとは</a>
+                <a href="#contact" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition duration-300">お問い合わせ</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- ヒーローセクション -->
+        <section class="hero-bg py-20 sm:py-32">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl sm:text-6xl font-extrabold text-white leading-tight">
+                    あなたの<span class="brand-text">取扱説明書</span>と<br class="sm:hidden">
+                    <span class="brand-text">人生の地図</span>を、今、一つに。
+                </h1>
+                <p class="mt-6 max-w-2xl mx-auto text-lg sm:text-xl text-gray-300">
+                    性格分析だけでは、人生の「なぜ？」は解けない。HaQeiは、あなたの「人格OS」と「今の状況」を掛け合わせ、あなただけの最適な戦略を導き出す、次世代の自己分析メソッドです。
+                </p>
+                <div class="mt-10">
+                    <a href="#services" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-full text-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        サービスを見る
+                    </a>
                 </div>
             </div>
-            <button id="analyzeBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105">
-                OSを特定する
-            </button>
+        </section>
+
+        <!-- サービス紹介セクション -->
+        <section id="services" class="py-20 bg-gray-900">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white">HaQeiが提供するサービス</h2>
+                    <p class="mt-4 text-gray-400">あなたの悩みや目的に合わせて、最適な分析ツールとコンサルティングをご提供します。</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    
+                    <!-- パーソナルOS発見レポート -->
+                    <div class="bg-gray-800 rounded-xl p-8 card-hover">
+                        <h3 class="text-2xl font-bold text-indigo-300 mb-4">パーソナルOS発見レポート</h3>
+                        <p class="text-gray-400 mb-6">MBTI/エニアグラムから、あなたの魂のOS（人格卦）を特定。強み、課題、陥りがちな罠までを網羅した、あなただけの取扱説明書です。</p>
+                        <a href="os_report.html" class="font-bold text-white hover:text-indigo-300 transition duration-300">ツールを試す →</a>
+                    </div>
+
+                    <!-- 未来分岐図ジェネレーター -->
+                    <div class="bg-gray-800 rounded-xl p-8 card-hover">
+                        <h3 class="text-2xl font-bold text-indigo-300 mb-4">未来分岐図ジェネレーター</h3>
+                        <p class="text-gray-400 mb-6">今のあなたの選択が、未来をどう変えるか。「行動」と「停滞」の8通りの未来をシミュレーションし、運命の軌跡を可視化します。</p>
+                        <!-- ★★★ ここを修正しました ★★★ -->
+                        <a href="8stories.html" class="font-bold text-white hover:text-indigo-300 transition duration-300">ツールを試す →</a>
+                    </div>
+                    
+                    <!-- 個別コンサルティング -->
+                    <div class="bg-gray-800 rounded-xl p-8 card-hover">
+                        <h3 class="text-2xl font-bold text-indigo-300 mb-4">個別コンサルティング</h3>
+                        <p class="text-gray-400 mb-6">チャットまたは音声通話で、あなたの固有の悩みに深く寄り添います。人格と状況をクロス分析し、具体的なアクションプランを共に創り上げます。</p>
+                        <a href="#contact" class="font-bold text-white hover:text-indigo-300 transition duration-300">詳細を見る →</a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- HaQeiとはセクション -->
+        <section id="about" class="py-20">
+            <div class="container mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
+                <div class="md:w-1/2">
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white">なぜ、HaQeiは生まれたのか？</h2>
+                    <p class="mt-6 text-gray-300 leading-relaxed">
+                        私自身、数々の自己分析を繰り返しながらも、憧れの人と同じステージに立とうとしては、全くついていけず、絶望する経験をしました。その絶望の先で見つけたのは、「自分にできること」と「できないこと」を知り、その上で「自分だけの道」を見つけ出すことの重要性でした。<br><br>
+                        HaQeiは、あなたが「自分でも、楽しく、楽にできて、しかも人の役に立てること」が必ずあると伝えるために生まれました。過去を智慧に変え、未来の可能性を照らし出す、あなたのための羅針盤です。
+                    </p>
+                </div>
+                <div class="md:w-1/2">
+                    <img src="https://placehold.co/600x400/1f2937/a5b4fc?text=HaQei" alt="HaQeiのイメージ画像" class="rounded-xl shadow-lg w-full">
+                </div>
+            </div>
+        </section>
+        
+        <!-- お問い合わせ(CTA)セクション -->
+        <section id="contact" class="bg-gray-900 py-20">
+             <div class="container mx-auto px-6 text-center">
+                 <h2 class="text-3xl sm:text-4xl font-bold text-white">あなたの物語を、始めましょう</h2>
+                 <p class="mt-4 max-w-xl mx-auto text-gray-400">まず、あなたのOSを知ることから。ご質問や個別コンサルティングのご依頼は、こちらからお気軽にお問い合わせください。</p>
+                 <div class="mt-8">
+                     <a href="mailto:info@haqei.example.com" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-full text-lg transition duration-300 ease-in-out transform hover:scale-105">
+                         お問い合わせはこちら
+                     </a>
+                 </div>
+             </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="bg-gray-800">
+        <div class="container mx-auto px-6 py-4 text-center text-gray-400">
+            <p>&copy; 2025 HaQei. All Rights Reserved.</p>
         </div>
+    </footer>
 
-    </div>
-
-    <script>
-        const mbtiSelect = document.getElementById('mbtiSelect');
-        const enneagramSelect1 = document.getElementById('enneagramSelect1');
-        const enneagramSelect2 = document.getElementById('enneagramSelect2');
-        const enneagramSelect3 = document.getElementById('enneagramSelect3');
-        const analyzeBtn = document.getElementById('analyzeBtn');
-
-        // 選択肢用のデータ
-        const DB_M = [
-            { "MBTIタイプ": "ISTJ", "ニックネーム": "管理者" }, { "MBTIタイプ": "ISFJ", "ニックネーム": "擁護者" },
-            { "MBTIタイプ": "INFJ", "ニックネーム": "提唱者" }, { "MBTIタイプ": "INTJ", "ニックネーム": "建築家" },
-            { "MBTIタイプ": "ISTP", "ニックネーム": "巨匠" }, { "MBTIタイプ": "ISFP", "ニックネーム": "冒険家" },
-            { "MBTIタイプ": "INFP", "ニックネーム": "仲介者" }, { "MBTIタイプ": "INTP", "ニックネーム": "論理学者" },
-            { "MBTIタイプ": "ESTP", "ニックネーム": "起業家" }, { "MBTIタイプ": "ESFP", "ニックネーム": "エンターテイナー" },
-            { "MBTIタイプ": "ENFP", "ニックネーム": "広報運動家" }, { "MBTIタイプ": "ENTP", "ニックネーム": "討論者" },
-            { "MBTIタイプ": "ESTJ", "ニックネーム": "幹部" }, { "MBTIタイプ": "ESFJ", "ニックネーム": "領事官" },
-            { "MBTIタイプ": "ENFJ", "ニックネーム": "主人公" }, { "MBTIタイプ": "ENTJ", "ニックネーム": "指揮官" }
-        ];
-        const DB_E = [
-            {"タイプ":"1","ニックネーム":"改革する人"}, {"タイプ":"2","ニックネーム":"助ける人"},
-            {"タイプ":"3","ニックネーム":"達成する人"}, {"タイプ":"4","ニックネーム":"個性的な人"},
-            {"タイプ":"5","ニックネーム":"調べる人"}, {"タイプ":"6","ニックネーム":"忠実な人"},
-            {"タイプ":"7","ニックネーム":"熱中する人"}, {"タイプ":"8","ニックネーム":"挑戦する人"},
-            {"タイプ":"9","ニックネーム":"平和を好む人"}
-        ];
-
-        const populateSelect = (selectElement, data, valueKey, labelKey, isOptional = false) => {
-            selectElement.innerHTML = `<option value="">${isOptional ? '---' : '選択してください'}</option>`;
-            data.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item[valueKey];
-                option.textContent = `${item[valueKey]} ${item[labelKey]}`;
-                selectElement.appendChild(option);
-            });
-        };
-
-        analyzeBtn.addEventListener('click', async () => {
-            const mbtiType = mbtiSelect.value;
-            const enneagramTypes = [enneagramSelect1.value, enneagramSelect2.value, enneagramSelect3.value].filter(type => type);
-
-            if (!mbtiType || enneagramTypes.length === 0) {
-                alert('MBTIと、主要なエニアグラムタイプを少なくとも1つ選択してください。');
-                return;
-            }
-            
-            analyzeBtn.disabled = true;
-            analyzeBtn.textContent = '分析中...';
-
-            try {
-                // バックエンドの /analyze エンドポイントにデータを送信
-                const response = await fetch('/analyze', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        mbti: mbtiType,
-                        enneagram: enneagramTypes
-                    })
-                });
-
-                if (!response.ok) throw new Error(`サーバーエラー: ${response.status}`);
-
-                const result = await response.json();
-                
-                if (result.error) throw new Error(result.error);
-                
-                // ★★★ ここが重要な変更点 ★★★
-                // 1. 受け取った結果をsessionStorageに保存
-                sessionStorage.setItem('analysisResult', JSON.stringify(result));
-                
-                // 2. 結果表示ページ(os_report2.html)に移動
-                window.location.href = 'os_report2.html';
-
-            } catch (error) {
-                console.error('分析エラー:', error);
-                alert(`分析中にエラーが発生しました。\n${error.message}`);
-                // エラーが発生したらボタンを元に戻す
-                analyzeBtn.disabled = false;
-                analyzeBtn.textContent = 'OSを特定する';
-            }
-        });
-
-        window.onload = () => {
-            populateSelect(mbtiSelect, DB_M, 'MBTIタイプ', 'ニックネーム');
-            populateSelect(enneagramSelect1, DB_E, 'タイプ', 'ニックネーム');
-            populateSelect(enneagramSelect2, DB_E, 'タイプ', 'ニックネーム', true);
-            populateSelect(enneagramSelect3, DB_E, 'タイプ', 'ニックネーム', true);
-        };
-    </script>
 </body>
 </html>
