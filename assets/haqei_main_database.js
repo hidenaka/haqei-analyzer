@@ -1,69 +1,31 @@
-// HaQei Project Main Database File
-
-const HDB = {
-  "trigrams_master": [
-    {
-      "trigram_id": 1,
-      "name_jp": "乾",
-      "name_en": "天",
-      "element": "金"
-    },
-    {
-      "trigram_id": 2,
-      "name_jp": "兌",
-      "name_en": "沢",
-      "element": "金"
-    },
-    {
-      "trigram_id": 3,
-      "name_jp": "離",
-      "name_en": "火",
-      "element": "火"
-    },
-    {
-      "trigram_id": 4,
-      "name_jp": "震",
-      "name_en": "雷",
-      "element": "木"
-    },
-    {
-      "trigram_id": 5,
-      "name_jp": "巽",
-      "name_en": "風",
-      "element": "木"
-    },
-    {
-      "trigram_id": 6,
-      "name_jp": "坎",
-      "name_en": "水",
-      "element": "水"
-    },
-    {
-      "trigram_id": 7,
-      "name_jp": "艮",
-      "name_en": "山",
-      "element": "土"
-    },
-    {
-      "trigram_id": 8,
-      "name_jp": "坤",
-      "name_en": "地",
-      "element": "土"
-    }
+// HaQei Project Main Database File v3.0
+// 全ての静的データはこのオブジェクトに集約されます。
+const HAQEI_DATA = {
+  // --- 基本データ ---
+  trigrams_master: [
+    { trigram_id: 1, name_jp: "乾", name_en: "天", element: "金" },
+    { trigram_id: 2, name_jp: "兌", name_en: "沢", element: "金" },
+    { trigram_id: 3, name_jp: "離", name_en: "火", element: "火" },
+    { trigram_id: 4, name_jp: "震", name_en: "雷", element: "木" },
+    { trigram_id: 5, name_jp: "巽", name_en: "風", element: "木" },
+    { trigram_id: 6, name_jp: "坎", name_en: "水", element: "水" },
+    { trigram_id: 7, name_jp: "艮", name_en: "山", element: "土" },
+    { trigram_id: 8, name_jp: "坤", name_en: "地", element: "土" }
   ],
-  "element_relationships": [
-    { "source_element": "木", "target_element": "火", "relationship_type": "相生", "metaphor_text": "{source}の持つ「発想」は、{target}の「情熱」に火をつけ、インスピレーションを加速させます。" },
-    { "source_element": "火", "target_element": "土", "relationship_type": "相生", "metaphor_text": "{source}の持つ「情熱」は、{target}の「現実」を温め、行動を促す土台を築きます。" },
-    { "source_element": "土", "target_element": "金", "relationship_type": "相生", "metaphor_text": "{source}の持つ「現実」的な視点が、{target}の「喜び」や「達成」に具体的な形を与えます。" },
-    { "source_element": "金", "target_element": "水", "relationship_type": "相生", "metaphor_text": "{source}の持つ「喜び」や「達成」が、{target}の「知性」に潤いと深みをもたらします。" },
-    { "source_element": "水", "target_element": "木", "relationship_type": "相生", "metaphor_text": "{source}の持つ「知性」は、{target}の「発想」に栄養を与え、新たなアイデアの芽を育てます。" },
-    { "source_element": "木", "target_element": "土", "relationship_type": "相剋", "metaphor_text": "{source}の「発想」が自由すぎると、{target}の「現実」的な計画性が損なわれることがあります。" },
-    { "source_element": "土", "target_element": "水", "relationship_type": "相剋", "metaphor_text": "{source}の「現実」主義が強すぎると、{target}の「知性」や深い探求心が堰き止められることがあります。" },
-    { "source_element": "水", "target_element": "火", "relationship_type": "相剋", "metaphor_text": "{source}の「知性」や冷静さが、{target}の「情熱」の炎を消してしまうことがあります。" },
-    { "source_element": "火", "target_element": "金", "relationship_type": "相剋", "metaphor_text": "{source}の「情熱」が激しすぎると、{target}の「喜び」や純粋な楽しみを焼き尽くすことがあります。" },
-    { "source_element": "金", "target_element": "木", "relationship_type": "相剋", "metaphor_text": "{source}の「喜び」や「達成」への固執が、{target}の自由な「発想」の芽を摘んでしまうことがあります。" }
-],
-  "hexagrams_master": [
+  element_relationships: [
+    { source_element: "木", target_element: "火", relationship_type: "相生", metaphor_text: "{source}が持つ木のエネルギーは、{target}が持つ火の炎を燃え上がらせます。" },
+    { source_element: "火", target_element: "土", relationship_type: "相生", metaphor_text: "{source}が持つ火のエネルギーは、{target}が持つ土の大地を温め、育みます。" },
+    { source_element: "土", target_element: "金", relationship_type: "相生", metaphor_text: "{source}が持つ土のエネルギーは、{target}から金という貴い鉱石を産み出します。" },
+    { source_element: "金", target_element: "水", relationship_type: "相生", metaphor_text: "{source}が持つ金のエネルギーの表面には、{target}という清らかな水滴が生まれます。" },
+    { source_element: "水", target_element: "木", relationship_type: "相生", metaphor_text: "{source}が持つ水のエネルギーは、{target}という若木を育む、生命の源です。" },
+    { source_element: "木", target_element: "土", relationship_type: "相剋", metaphor_text: "{source}が持つ木のエネルギーは、{target}が持つ土の養分を吸い上げ、その力を抑制します。" },
+    { source_element: "土", target_element: "水", relationship_type: "相剋", metaphor_text: "{source}が持つ土のエネルギーは、{target}が持つ水の流れを堰き止め、その自由を奪います。" },
+    { source_element: "水", target_element: "火", relationship_type: "相剋", metaphor_text: "{source}が持つ水のエネルギーは、{target}が持つ火の炎を消し止め、その輝きを失わせます。" },
+    { source_element: "火", target_element: "金", relationship_type: "相剋", metaphor_text: "{source}が持つ火のエネルギーは、{target}が持つ金の金属を溶かし、その形を変えてしまいます。" },
+    { source_element: "金", target_element: "木", relationship_type: "相剋", metaphor_text: "{source}が持つ金のエネルギーは、{target}が持つ木の若木を切り倒す斧にもなります。" }
+  ],
+  
+  hexagrams_master: [
     {
       "hexagram_id": 1,
       "name_jp": "乾為天",
@@ -576,98 +538,284 @@ const HDB = {
       "description": "慎重、思慮深い、混乱の中でも希望を失わない",
       "keywords": "未完成,継続,希望"
     }
-  ],
-  "mbti_map": [
+  ]  ,
+
+  // --- 性格分析マッピングデータ ---
+  mbti_map: [
     {
       "mbti_type": "INTJ",
-      "hexagram_id": 52
+      "scores": [
+        { "trigram_id": 1, "score": 5 }, { "trigram_id": 2, "score": 3 },
+        { "trigram_id": 3, "score": 4 }, { "trigram_id": 4, "score": 2 },
+        { "trigram_id": 5, "score": 1 }, { "trigram_id": 6, "score": 3 },
+        { "trigram_id": 7, "score": 2 }, { "trigram_id": 8, "score": 1 }
+      ]
     },
     {
       "mbti_type": "INTP",
-      "hexagram_id": 52
+      "scores": [
+        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 2 },
+        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 1 },
+        { "trigram_id": 5, "score": 4 }, { "trigram_id": 6, "score": 3 },
+        { "trigram_id": 7, "score": 5 }, { "trigram_id": 8, "score": 1 }
+      ]
     },
     {
       "mbti_type": "ENTJ",
-      "hexagram_id": 1
+      "scores": [
+        { "trigram_id": 1, "score": 5 }, { "trigram_id": 2, "score": 1 },
+        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 5 },
+        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 2 },
+        { "trigram_id": 7, "score": 1 }, { "trigram_id": 8, "score": 1 }
+      ]
     },
     {
       "mbti_type": "ENTP",
-      "hexagram_id": 51
+      "scores": [
+        { "trigram_id": 1, "score": 2 }, { "trigram_id": 2, "score": 3 },
+        { "trigram_id": 3, "score": 3 }, { "trigram_id": 4, "score": 2 },
+        { "trigram_id": 5, "score": 5 }, { "trigram_id": 6, "score": 2 },
+        { "trigram_id": 7, "score": 3 }, { "trigram_id": 8, "score": 1 }
+      ]
     },
     {
       "mbti_type": "INFJ",
-      "hexagram_id": 7
+      "scores": [
+        { "trigram_id": 1, "score": 4 }, { "trigram_id": 2, "score": 4 },
+        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 1 },
+        { "trigram_id": 5, "score": 4 }, { "trigram_id": 6, "score": 3 },
+        { "trigram_id": 7, "score": 2 }, { "trigram_id": 8, "score": 1 }
+      ]
     },
     {
       "mbti_type": "INFP",
-      "hexagram_id": 37
+      "scores": [
+        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 5 },
+        { "trigram_id": 3, "score": 5 }, { "trigram_id": 4, "score": 1 },
+        { "trigram_id": 5, "score": 4 }, { "trigram_id": 6, "score": 2 },
+        { "trigram_id": 7, "score": 2 }, { "trigram_id": 8, "score": 1 }
+      ]
+    },
+    {
+      "mbti_type": "ENFJ",
+      "scores": [
+        { "trigram_id": 1, "score": 3 }, { "trigram_id": 2, "score": 5 },
+        { "trigram_id": 3, "score": 3 }, { "trigram_id": 4, "score": 2 },
+        { "trigram_id": 5, "score": 5 }, { "trigram_id": 6, "score": 2 },
+        { "trigram_id": 7, "score": 1 }, { "trigram_id": 8, "score": 1 }
+      ]
     },
     {
       "mbti_type": "ENFP",
-      "hexagram_id": 51
+      "scores": [
+        { "trigram_id": 1, "score": 2 }, { "trigram_id": 2, "score": 4 },
+        { "trigram_id": 3, "score": 5 }, { "trigram_id": 4, "score": 2 },
+        { "trigram_id": 5, "score": 5 }, { "trigram_id": 6, "score": 1 },
+        { "trigram_id": 7, "score": 1 }, { "trigram_id": 8, "score": 1 }
+      ]
     },
     {
       "mbti_type": "ISTJ",
-      "hexagram_id": 2
+      "scores": [
+        { "trigram_id": 1, "score": 3 }, { "trigram_id": 2, "score": 1 },
+        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 2 },
+        { "trigram_id": 5, "score": 1 }, { "trigram_id": 6, "score": 2 },
+        { "trigram_id": 7, "score": 5 }, { "trigram_id": 8, "score": 5 }
+      ]
     },
     {
       "mbti_type": "ISFJ",
-      "hexagram_id": 2
+      "scores": [
+        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 4 },
+        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 1 },
+        { "trigram_id": 5, "score": 3 }, { "trigram_id": 6, "score": 2 },
+        { "trigram_id": 7, "score": 4 }, { "trigram_id": 8, "score": 5 }
+      ]
     },
     {
       "mbti_type": "ESTJ",
-      "hexagram_id": 34
+      "scores": [
+        { "trigram_id": 1, "score": 4 }, { "trigram_id": 2, "score": 1 },
+        { "trigram_id": 3, "score": 1 }, { "trigram_id": 4, "score": 5 },
+        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 1 },
+        { "trigram_id": 7, "score": 3 }, { "trigram_id": 8, "score": 4 }
+      ]
     },
     {
       "mbti_type": "ESFJ",
-      "hexagram_id": 8
+      "scores": [
+        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 5 },
+        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 2 },
+        { "trigram_id": 5, "score": 4 }, { "trigram_id": 6, "score": 1 },
+        { "trigram_id": 7, "score": 2 }, { "trigram_id": 8, "score": 4 }
+      ]
     },
     {
       "mbti_type": "ISTP",
-      "hexagram_id": 52
+      "scores": [
+        { "trigram_id": 1, "score": 2 }, { "trigram_id": 2, "score": 2 },
+        { "trigram_id": 3, "score": 1 }, { "trigram_id": 4, "score": 2 },
+        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 4 },
+        { "trigram_id": 7, "score": 5 }, { "trigram_id": 8, "score": 3 }
+      ]
     },
     {
       "mbti_type": "ISFP",
-      "hexagram_id": 58
+      "scores": [
+        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 5 },
+        { "trigram_id": 3, "score": 5 }, { "trigram_id": 4, "score": 2 },
+        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 2 },
+        { "trigram_id": 7, "score": 1 }, { "trigram_id": 8, "score": 3 }
+      ]
     },
     {
       "mbti_type": "ESTP",
-      "hexagram_id": 51
+      "scores": [
+        { "trigram_id": 1, "score": 2 }, { "trigram_id": 2, "score": 3 },
+        { "trigram_id": 3, "score": 1 }, { "trigram_id": 4, "score": 5 },
+        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 2 },
+        { "trigram_id": 7, "score": 3 }, { "trigram_id": 8, "score": 5 }
+      ]
     },
     {
       "mbti_type": "ESFP",
-      "hexagram_id": 58
+      "scores": [
+        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 4 },
+        { "trigram_id": 3, "score": 5 }, { "trigram_id": 4, "score": 4 },
+        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 1 },
+        { "trigram_id": 7, "score": 1 }, { "trigram_id": 8, "score": 5 }
+      ]
     }
   ],
-  "enneagram_map": [
-    { "enneagram_type": 1, "hexagram_id": 34 }, { "enneagram_type": 2, "hexagram_id": 45 },
-    { "enneagram_type": 3, "hexagram_id": 14 }, { "enneagram_type": 4, "hexagram_id": 38 },
-    { "enneagram_type": 5, "hexagram_id": 52 }, { "enneagram_type": 6, "hexagram_id": 7 },
-    { "enneagram_type": 7, "hexagram_id": 51 }, { "enneagram_type": 8, "hexagram_id": 1 },
-    { "enneagram_type": 9, "hexagram_id": 2 }
+enneagram_map: [
+    {
+      "enneagram_type": "1",
+      "nickname": "改革する人",
+      "scores": [
+        { "trigram_id": 7, "score": 2.5 },
+        { "trigram_id": 4, "score": 1.5 },
+        { "trigram_id": 1, "score": 1.0 }
+      ]
+    },
+    {
+      "enneagram_type": "2",
+      "nickname": "助ける人",
+      "scores": [
+        { "trigram_id": 8, "score": 2.0 },
+        { "trigram_id": 2, "score": 1.5 },
+        { "trigram_id": 3, "score": 1.0 },
+        { "trigram_id": 5, "score": 0.5 }
+      ]
+    },
+    {
+      "enneagram_type": "3",
+      "nickname": "達成する人",
+      "scores": [
+        { "trigram_id": 3, "score": 2.5 },
+        { "trigram_id": 4, "score": 1.5 },
+        { "trigram_id": 5, "score": 1.0 }
+      ]
+    },
+    {
+      "enneagram_type": "4",
+      "nickname": "個性的な人",
+      "scores": [
+        { "trigram_id": 3, "score": 2.0 },
+        { "trigram_id": 6, "score": 2.0 },
+        { "trigram_id": 7, "score": 1.0 }
+      ]
+    },
+    {
+      "enneagram_type": "5",
+      "nickname": "調べる人",
+      "scores": [
+        { "trigram_id": 7, "score": 2.5 },
+        { "trigram_id": 6, "score": 1.5 },
+        { "trigram_id": 1, "score": 1.0 }
+      ]
+    },
+    {
+      "enneagram_type": "6",
+      "nickname": "忠実な人",
+      "scores": [
+        { "trigram_id": 8, "score": 2.0 },
+        { "trigram_id": 7, "score": 1.5 },
+        { "trigram_id": 6, "score": 1.5 }
+      ]
+    },
+    {
+      "enneagram_type": "7",
+      "nickname": "熱中する人",
+      "scores": [
+        { "trigram_id": 5, "score": 2.5 },
+        { "trigram_id": 2, "score": 1.5 },
+        { "trigram_id": 3, "score": 1.0 }
+      ]
+    },
+    {
+      "enneagram_type": "8",
+      "nickname": "挑戦する人",
+      "scores": [
+        { "trigram_id": 4, "score": 2.5 },
+        { "trigram_id": 1, "score": 1.5 },
+        { "trigram_id": 8, "score": 1.0 }
+      ]
+    },
+    {
+      "enneagram_type": "9",
+      "nickname": "平和を好む人",
+      "scores": [
+        { "trigram_id": 8, "score": 2.5 },
+        { "trigram_id": 5, "score": 1.5 },
+        { "trigram_id": 2, "score": 1.0 }
+      ]
+    }
   ],
   "strengthsfinder_map": [
-    { "strength_name": "運命思考", "base_trigram_id": 6 }, { "strength_name": "回復志向", "base_trigram_id": 7 },
-    { "strength_name": "活発性", "base_trigram_id": 4 },   { "strength_name": "学習欲", "base_trigram_id": 6 },
-    { "strength_name": "共感性", "base_trigram_id": 8 },   { "strength_name": "規律性", "base_trigram_id": 7 },
-    { "strength_name": "原点思考", "base_trigram_id": 7 }, { "strength_name": "公平性", "base_trigram_id": 8 },
-    { "strength_name": "コミュニケーション", "base_trigram_id": 2 }, { "strength_name": "個別化", "base_trigram_id": 8 },
-    { "strength_name": "最上志向", "base_trigram_id": 1 }, { "strength_name": "自我", "base_trigram_id": 1 },
-    { "strength_name": "自己確信", "base_trigram_id": 1 }, { "strength_name": "社交性", "base_trigram_id": 2 },
-    { "strength_name": "収集心", "base_trigram_id": 6 },   { "strength_name": "指令性", "base_trigram_id": 1 },
-    { "strength_name": "慎重さ", "base_trigram_id": 7 },   { "strength_name": "信念", "base_trigram_id": 8 },
-    { "strength_name": "親密性", "base_trigram_id": 8 },   { "strength_name": "成長促進", "base_trigram_id": 8 },
-    { "strength_name": "責任感", "base_trigram_id": 7 },   { "strength_name": "戦略性", "base_trigram_id": 5 },
-    { "strength_name": "達成欲", "base_trigram_id": 4 },   { "strength_name": "着想", "base_trigram_id": 5 },
-    { "strength_name": "調和性", "base_trigram_id": 8 },   { "strength_name": "内省", "base_trigram_id": 6 },
-    { "strength_name": "分析思考", "base_trigram_id": 6 }, { "strength_name": "包含", "base_trigram_id": 8 },
-    { "strength_name": "ポジティブ", "base_trigram_id": 3 }, { "strength_name": "未来志向", "base_trigram_id": 3 },
-    { "strength_name": "目標志向", "base_trigram_id": 1 }, { "strength_name": "アレンジ", "base_trigram_id": 4 },
-    { "strength_name": "競争性", "base_trigram_id": 1 },   { "strength_name": "適応性", "base_trigram_id": 5 }
-  ]
-};
+    // 【実行力】
+    { "strength_finder_talent": "達成欲", "domain": "実行力", "scores": [ { "trigram_id": 4, "score": 2.0 }, { "trigram_id": 3, "score": 0.5 }, { "trigram_id": 7, "score": 0.5 } ] },
+    { "strength_finder_talent": "アレンジ", "domain": "実行力", "scores": [ { "trigram_id": 5, "score": 1.5 }, { "trigram_id": 8, "score": 1.0 }, { "trigram_id": 2, "score": 0.5 } ] },
+    { "strength_finder_talent": "信念", "domain": "実行力", "scores": [ { "trigram_id": 7, "score": 2.5 }, { "trigram_id": 1, "score": 0.5 } ] },
+    { "strength_finder_talent": "公平性", "domain": "実行力", "scores": [ { "trigram_id": 7, "score": 2.0 }, { "trigram_id": 1, "score": 1.0 } ] },
+    { "strength_finder_talent": "慎重さ", "domain": "実行力", "scores": [ { "trigram_id": 6, "score": 2.0 }, { "trigram_id": 7, "score": 1.0 } ] },
+    { "strength_finder_talent": "規律性", "domain": "実行力", "scores": [ { "trigram_id": 7, "score": 2.5 }, { "trigram_id": 8, "score": 0.5 } ] },
+    { "strength_finder_talent": "責任感", "domain": "実行力", "scores": [ { "trigram_id": 8, "score": 2.5 }, { "trigram_id": 7, "score": 0.5 } ] },
+    { "strength_finder_talent": "回復志向", "domain": "実行力", "scores": [ { "trigram_id": 6, "score": 1.5 }, { "trigram_id": 4, "score": 1.0 }, { "trigram_id": 2, "score": 0.5 } ] },
+    { "strength_finder_talent": "目標志向", "domain": "実行力", "scores": [ { "trigram_id": 1, "score": 1.5 }, { "trigram_id": 4, "score": 1.5 } ] }, //旧「集中」
+    // 【影響力】
+    { "strength_finder_talent": "活発性", "domain": "影響力", "scores": [ { "trigram_id": 4, "score": 2.5 }, { "trigram_id": 3, "score": 0.5 } ] },
+    { "strength_finder_talent": "指令性", "domain": "影響力", "scores": [ { "trigram_id": 1, "score": 1.5 }, { "trigram_id": 4, "score": 1.5 } ] },
+    { "strength_finder_talent": "コミュニケーション", "domain": "影響力", "scores": [ { "trigram_id": 5, "score": 1.5 }, { "trigram_id": 2, "score": 1.0 }, { "trigram_id": 3, "score": 0.5 } ] },
+    { "strength_finder_talent": "競争性", "domain": "影響力", "scores": [ { "trigram_id": 4, "score": 1.5 }, { "trigram_id": 3, "score": 1.5 } ] },
+    { "strength_finder_talent": "最上志向", "domain": "影響力", "scores": [ { "trigram_id": 3, "score": 1.5 }, { "trigram_id": 2, "score": 1.0 }, { "trigram_id": 1, "score": 0.5 } ] },
+    { "strength_finder_talent": "自己確信", "domain": "影響力", "scores": [ { "trigram_id": 1, "score": 2.0 }, { "trigram_id": 7, "score": 1.0 } ] },
+    { "strength_finder_talent": "自我", "domain": "影響力", "scores": [ { "trigram_id": 3, "score": 2.0 }, { "trigram_id": 1, "score": 1.0 } ] },
+    { "strength_finder_talent": "社交性", "domain": "影響力", "scores": [ { "trigram_id": 3, "score": 1.5 }, { "trigram_id": 2, "score": 1.5 } ] },
+    // 【人間関係構築力】
+    { "strength_finder_talent": "適応性", "domain": "人間関係構築力", "scores": [ { "trigram_id": 6, "score": 1.5 }, { "trigram_id": 5, "score": 1.5 } ] },
+    { "strength_finder_talent": "運命思考", "domain": "人間関係構築力", "scores": [ { "trigram_id": 8, "score": 1.5 }, { "trigram_id": 5, "score": 1.0 }, { "trigram_id": 6, "score": 0.5 } ] },
+    { "strength_finder_talent": "成長促進", "domain": "人間関係構築力", "scores": [ { "trigram_id": 8, "score": 1.5 }, { "trigram_id": 3, "score": 1.0 }, { "trigram_id": 2, "score": 0.5 } ] },
+    { "strength_finder_talent": "調和性", "domain": "人間関係構築力", "scores": [ { "trigram_id": 8, "score": 1.5 }, { "trigram_id": 2, "score": 1.5 } ] },
+    { "strength_finder_talent": "包含", "domain": "人間関係構築力", "scores": [ { "trigram_id": 8, "score": 2.0 }, { "trigram_id": 2, "score": 1.0 } ] },
+    { "strength_finder_talent": "共感性", "domain": "人間関係構築力", "scores": [ { "trigram_id": 2, "score": 1.5 }, { "trigram_id": 6, "score": 1.5 } ] },
+    { "strength_finder_talent": "親密性", "domain": "人間関係構築力", "scores": [ { "trigram_id": 6, "score": 1.5 }, { "trigram_id": 8, "score": 1.5 } ] },
+    { "strength_finder_talent": "ポジティブ", "domain": "人間関係構築力", "scores": [ { "trigram_id": 3, "score": 1.5 }, { "trigram_id": 2, "score": 1.5 } ] },
+    { "strength_finder_talent": "個別化", "domain": "人間関係構築力", "scores": [ { "trigram_id": 3, "score": 1.0 }, { "trigram_id": 6, "score": 1.0 }, { "trigram_id": 2, "score": 1.0 } ] },
+    // 【戦略的思考力】
+    { "strength_finder_talent": "分析思考", "domain": "戦略的思考力", "scores": [ { "trigram_id": 6, "score": 1.5 }, { "trigram_id": 7, "score": 1.5 } ] },
+    { "strength_finder_talent": "原点思考", "domain": "戦略的思考力", "scores": [ { "trigram_id": 8, "score": 1.5 }, { "trigram_id": 7, "score": 1.5 } ] },
+    { "strength_finder_talent": "未来志向", "domain": "戦略的思考力", "scores": [ { "trigram_id": 1, "score": 1.5 }, { "trigram_id": 5, "score": 1.0 }, { "trigram_id": 3, "score": 0.5 } ] },
+    { "strength_finder_talent": "着想", "domain": "戦略的思考力", "scores": [ { "trigram_id": 5, "score": 2.0 }, { "trigram_id": 3, "score": 1.0 } ] },
+    { "strength_finder_talent": "収集心", "domain": "戦略的思考力", "scores": [ { "trigram_id": 8, "score": 1.5 }, { "trigram_id": 7, "score": 1.5 } ] },
+    { "strength_finder_talent": "内省", "domain": "戦略的思考力", "scores": [ { "trigram_id": 6, "score": 2.0 }, { "trigram_id": 7, "score": 1.0 } ] },
+    { "strength_finder_talent": "学習欲", "domain": "戦略的思考力", "scores": [ { "trigram_id": 6, "score": 1.5 }, { "trigram_id": 7, "score": 1.5 } ] },
+    { "strength_finder_talent": "戦略性", "domain": "戦略的思考力", "scores": [ { "trigram_id": 1, "score": 1.5 }, { "trigram_id": 6, "score": 1.0 }, { "trigram_id": 5, "score": 0.5 } ] }
+  ],
 
-const H384_DATA = [
+
+
+  // --- Future Simulator用データ (後方互換性のため残す) ---
+  h384: [
   {
     "爻名": "乾為天 初九",
     "通し番号": 1,
@@ -8774,9 +8922,9 @@ const H384_DATA = [
     "S7_総合評価スコア": 42.0,
     "論理キーワードタグ": "状況:終極期, 力学:協力者あり"
   }
-];
+],
 
-const H64_DATA = [
+H64_DATA: [
   {
     "卦番号": 1,
     "名前": "乾為天",
@@ -9417,5 +9565,10 @@ const H64_DATA = [
     "五爻変": 37,
     "上爻変": 63
   }
-];
+],
+};
 
+// --- 下位互換性のためのグローバル変数定義 ---
+// これにより、既存の future_simulator.html も変更なしで動作します。
+const H384_DATA = HAQEI_DATA.h384;
+const H64_DATA = HAQEI_DATA.h64;
