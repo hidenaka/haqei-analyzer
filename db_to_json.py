@@ -2,6 +2,7 @@ import sqlite3
 import json
 import os
 
+
 # --- パス設定 ---
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # 入力DBのパス (databasemakeフォルダの中のdbファイル)
