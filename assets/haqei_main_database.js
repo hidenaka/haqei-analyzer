@@ -52,77 +52,17 @@ const HDB = {
     }
   ],
   "element_relationships": [
-    {
-      "relationship_id": 1,
-      "source_element": "木",
-      "target_element": "火",
-      "relationship_type": "相生",
-      "metaphor_text": "..."
-    },
-    {
-      "relationship_id": 2,
-      "source_element": "火",
-      "target_element": "土",
-      "relationship_type": "相生",
-      "metaphor_text": "..."
-    },
-    {
-      "relationship_id": 3,
-      "source_element": "土",
-      "target_element": "金",
-      "relationship_type": "相生",
-      "metaphor_text": "..."
-    },
-    {
-      "relationship_id": 4,
-      "source_element": "金",
-      "target_element": "水",
-      "relationship_type": "相生",
-      "metaphor_text": "..."
-    },
-    {
-      "relationship_id": 5,
-      "source_element": "水",
-      "target_element": "木",
-      "relationship_type": "相生",
-      "metaphor_text": "..."
-    },
-    {
-      "relationship_id": 6,
-      "source_element": "木",
-      "target_element": "土",
-      "relationship_type": "相剋",
-      "metaphor_text": "..."
-    },
-    {
-      "relationship_id": 7,
-      "source_element": "土",
-      "target_element": "水",
-      "relationship_type": "相剋",
-      "metaphor_text": "..."
-    },
-    {
-      "relationship_id": 8,
-      "source_element": "水",
-      "target_element": "火",
-      "relationship_type": "相剋",
-      "metaphor_text": "..."
-    },
-    {
-      "relationship_id": 9,
-      "source_element": "火",
-      "target_element": "金",
-      "relationship_type": "相剋",
-      "metaphor_text": "..."
-    },
-    {
-      "relationship_id": 10,
-      "source_element": "金",
-      "target_element": "木",
-      "relationship_type": "相剋",
-      "metaphor_text": "..."
-    }
-  ],
+    { "source_element": "木", "target_element": "火", "relationship_type": "相生", "metaphor_text": "{source}の持つ「発想」は、{target}の「情熱」に火をつけ、インスピレーションを加速させます。" },
+    { "source_element": "火", "target_element": "土", "relationship_type": "相生", "metaphor_text": "{source}の持つ「情熱」は、{target}の「現実」を温め、行動を促す土台を築きます。" },
+    { "source_element": "土", "target_element": "金", "relationship_type": "相生", "metaphor_text": "{source}の持つ「現実」的な視点が、{target}の「喜び」や「達成」に具体的な形を与えます。" },
+    { "source_element": "金", "target_element": "水", "relationship_type": "相生", "metaphor_text": "{source}の持つ「喜び」や「達成」が、{target}の「知性」に潤いと深みをもたらします。" },
+    { "source_element": "水", "target_element": "木", "relationship_type": "相生", "metaphor_text": "{source}の持つ「知性」は、{target}の「発想」に栄養を与え、新たなアイデアの芽を育てます。" },
+    { "source_element": "木", "target_element": "土", "relationship_type": "相剋", "metaphor_text": "{source}の「発想」が自由すぎると、{target}の「現実」的な計画性が損なわれることがあります。" },
+    { "source_element": "土", "target_element": "水", "relationship_type": "相剋", "metaphor_text": "{source}の「現実」主義が強すぎると、{target}の「知性」や深い探求心が堰き止められることがあります。" },
+    { "source_element": "水", "target_element": "火", "relationship_type": "相剋", "metaphor_text": "{source}の「知性」や冷静さが、{target}の「情熱」の炎を消してしまうことがあります。" },
+    { "source_element": "火", "target_element": "金", "relationship_type": "相剋", "metaphor_text": "{source}の「情熱」が激しすぎると、{target}の「喜び」や純粋な楽しみを焼き尽くすことがあります。" },
+    { "source_element": "金", "target_element": "木", "relationship_type": "相剋", "metaphor_text": "{source}の「喜び」や「達成」への固執が、{target}の自由な「発想」の芽を摘んでしまうことがあります。" }
+],
   "hexagrams_master": [
     {
       "hexagram_id": 1,
@@ -698,6 +638,32 @@ const HDB = {
       "mbti_type": "ESFP",
       "hexagram_id": 58
     }
+  ],
+  "enneagram_map": [
+    { "enneagram_type": 1, "hexagram_id": 34 }, { "enneagram_type": 2, "hexagram_id": 45 },
+    { "enneagram_type": 3, "hexagram_id": 14 }, { "enneagram_type": 4, "hexagram_id": 38 },
+    { "enneagram_type": 5, "hexagram_id": 52 }, { "enneagram_type": 6, "hexagram_id": 7 },
+    { "enneagram_type": 7, "hexagram_id": 51 }, { "enneagram_type": 8, "hexagram_id": 1 },
+    { "enneagram_type": 9, "hexagram_id": 2 }
+  ],
+  "strengthsfinder_map": [
+    { "strength_name": "運命思考", "base_trigram_id": 6 }, { "strength_name": "回復志向", "base_trigram_id": 7 },
+    { "strength_name": "活発性", "base_trigram_id": 4 },   { "strength_name": "学習欲", "base_trigram_id": 6 },
+    { "strength_name": "共感性", "base_trigram_id": 8 },   { "strength_name": "規律性", "base_trigram_id": 7 },
+    { "strength_name": "原点思考", "base_trigram_id": 7 }, { "strength_name": "公平性", "base_trigram_id": 8 },
+    { "strength_name": "コミュニケーション", "base_trigram_id": 2 }, { "strength_name": "個別化", "base_trigram_id": 8 },
+    { "strength_name": "最上志向", "base_trigram_id": 1 }, { "strength_name": "自我", "base_trigram_id": 1 },
+    { "strength_name": "自己確信", "base_trigram_id": 1 }, { "strength_name": "社交性", "base_trigram_id": 2 },
+    { "strength_name": "収集心", "base_trigram_id": 6 },   { "strength_name": "指令性", "base_trigram_id": 1 },
+    { "strength_name": "慎重さ", "base_trigram_id": 7 },   { "strength_name": "信念", "base_trigram_id": 8 },
+    { "strength_name": "親密性", "base_trigram_id": 8 },   { "strength_name": "成長促進", "base_trigram_id": 8 },
+    { "strength_name": "責任感", "base_trigram_id": 7 },   { "strength_name": "戦略性", "base_trigram_id": 5 },
+    { "strength_name": "達成欲", "base_trigram_id": 4 },   { "strength_name": "着想", "base_trigram_id": 5 },
+    { "strength_name": "調和性", "base_trigram_id": 8 },   { "strength_name": "内省", "base_trigram_id": 6 },
+    { "strength_name": "分析思考", "base_trigram_id": 6 }, { "strength_name": "包含", "base_trigram_id": 8 },
+    { "strength_name": "ポジティブ", "base_trigram_id": 3 }, { "strength_name": "未来志向", "base_trigram_id": 3 },
+    { "strength_name": "目標志向", "base_trigram_id": 1 }, { "strength_name": "アレンジ", "base_trigram_id": 4 },
+    { "strength_name": "競争性", "base_trigram_id": 1 },   { "strength_name": "適応性", "base_trigram_id": 5 }
   ]
 };
 
