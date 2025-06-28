@@ -9453,5 +9453,3 @@ const H64_DATA = [
   }
 ];
 
-const koudoShishinData = [];
-

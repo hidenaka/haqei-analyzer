@@ -202,8 +202,8 @@
 
     <datalist id="hexagram-names"></datalist>
 
-    <script src="H384H64database.js"></script>
-    <script src="koudo_shishin_database.js"></script>
+    <script src="assets/haqei_main_database.js"></script>
+    <script src="assets/koudo_shishin_database.js"></script>
 
     <script>
     // ====[ HaQei アプリケーション・ロジック v9.9 ]====
@@ -254,8 +254,8 @@ function updateUI(sortedPaths) {
     
     const startState = sortedPaths[0][0];
     
-    document.getElementById('currentTitle').innerText = `現在地: ${startState.卦名} ${startState.爻}`;
-    document.getElementById('currentKeywords').innerText = `テーマ: ${(startState.キーワード || []).join(', ')}`;
+    document.getElementById('currentTitle').innerText = `現在地: ${startState['親となる卦']} ${startState.爻}`;
+    document.getElementById('currentKeywords').innerText = `テーマ: ${startState.キーワード || ''}`;
     document.getElementById('currentSummary').innerText = startState.現代解釈の要約;
 
     const currentScore = startState.S7_総合評価スコア;
@@ -335,11 +335,12 @@ function updateUI(sortedPaths) {
 
     function evaluateSpiralProgress(currentState, futureState) {
         const changes = {
-            sogo: futureState.S7_総合評価スコア - currentState.S7_総合評価スコア,
-            antei: futureState.S3_安定性スコア - currentState.S3_安定性スコア,
-            senzai: futureState.S2_ポテンシャル - currentState.S2_ポテンシャル,
-            risk: futureState.S4_リスク - currentState.S4_リスク,
-        };
+                sogo: futureState.S7_総合評価スコア - currentState.S7_総合評価スコア,
+                antei: futureState.S3_安定性スコア - currentState.S3_安定性スコア,
+                senzai: futureState.S2_ポテンシャル - currentState.S2_ポテンシャル,
+                // リスクは値が小さいほど良いため、変化の計算を反転させる
+                risk: currentState.S4_リスク - futureState.S4_リスク,
+            };
         const EXCELLENT_SCORE_THRESHOLD = 75, SOGO_LARGE_UP_THRESHOLD = 15, SOGO_UP_THRESHOLD = 5, SOGO_STAGNATE_THRESHOLD = -2, SENZAI_LARGE_UP_THRESHOLD = 10, ANTEI_UP_THRESHOLD = 5, RISK_LARGE_DOWN_THRESHOLD = 10, STAGNATE_THRESHOLD = 2;
         if (changes.sogo >= SOGO_LARGE_UP_THRESHOLD) return futureState.S7_総合評価スコア >= EXCELLENT_SCORE_THRESHOLD ? { trend: "飛躍的成長", message: "素晴らしい飛躍です！状況が劇的に好転し、高評価の領域に到達しました。", colorClass: "trend-up" } : { trend: "急回復", message: "危機的状況から急速に回復しています。大きな前進ですが、まだ道半ばです。", colorClass: "trend-recovery" };
         if (changes.sogo >= SOGO_UP_THRESHOLD) {
@@ -411,7 +412,7 @@ function updateUI(sortedPaths) {
             card.addEventListener('click', () => showScenarioModal(path, index, overallTrend, firstStepTrend));
             
             const pathHistory = path.slice(1).map(p => p.choice === 'change' ? '変' : '進').join(' → ');
-            const finalStateTitle = `${finalState.卦名} ${finalState.爻}`;
+            const finalStateTitle = `${finalState['親となる卦']} ${finalState.爻}`;
             
             card.innerHTML = `
                 <div class="flex items-start justify-between mb-2">
@@ -522,7 +523,10 @@ function updateUI(sortedPaths) {
         if (firstStepTrend && firstStepTrend.trend === '危険な下降') {
             trendHtml = `<div class="p-3 rounded-lg mb-4 bg-red-900/80 border border-red-600 text-sm"><p class="font-bold text-red-200">【注意】最初のステップは危険な下降です</p><p class="text-xs text-gray-200 mt-1">このシナリオは最終的に「${overallTrend.trend}」を目指しますが、初期段階で状況が大きく悪化するリスクを伴います。</p></div>`;
         } else {
-            trendHtml = `<div class="p-3 rounded-lg mb-4 border ${overallTrend.colorClass.replace('bg-', 'border-').replace(/ \w+-/g, ' ')}" style="background-color: ${overallTrend.colorClass.split(' ')[0].replace('bg', 'rgba').replace(']', ', 0.15)')};"><h3 class="font-bold text-lg ${overallTrend.colorClass.replace('bg-', 'text-')}">${overallTrend.trend}</h3><p class="text-sm text-gray-200 mt-1">${overallTrend.message}</p></div>`;
+            trendHtml = `<div class="p-3 rounded-lg mb-4 ${overallTrend.colorClass}">
+                <h3 class="font-bold text-lg">${overallTrend.trend}</h3>
+                <p class="text-sm mt-1">${overallTrend.message}</p>
+            </div>`;
         }
         let modalContentHtml = `
             <div class="flex items-center justify-between mb-4">
@@ -553,8 +557,8 @@ function updateUI(sortedPaths) {
             const s6_diff = getScoreDiffHtml(step.S6_変動性スコア, previousStep?.S6_変動性スコア);
             const s7_diff = getScoreDiffHtml(step.S7_総合評価スコア, previousStep?.S7_総合評価スコア);
             let stepHtml = `<div class="py-4 px-4 border-b border-gray-700 last:border-b-0 ${stepWrapperClass}">
-                <h4 class="text-lg font-semibold text-gray-100 flex items-center">${phaseLabels[stepIndex]}: ${step.卦名} ${step.爻} ${stepTitleIcon}</h4>
-                <p class="text-sm text-yellow-300 my-1">テーマ: ${(step.キーワード || []).join(', ')}</p>
+                <h4 class="text-lg font-semibold text-gray-100 flex items-center">${phaseLabels[stepIndex]}: ${step['親となる卦']} ${step.爻} ${stepTitleIcon}</h4>
+                <p class="text-sm text-yellow-300 my-1">テーマ: ${step.キーワード || ''}</p>
                 <p class="text-xs text-gray-400 mt-1">${step.現代解釈の要約}</p>
                 <div class="mt-4 grid grid-cols-2 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs">
                     <div class="flex justify-between items-center"><span class="text-gray-400">基本:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${step.S1_基本スコア}</span>${s1_diff}</div></div>
@@ -562,7 +566,7 @@ function updateUI(sortedPaths) {
                     <div class="flex justify-between items-center"><span class="text-gray-400">安定性:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${step.S3_安定性スコア}</span>${s3_diff}</div></div>
                     <div class="flex justify-between items-center"><span class="text-gray-400">リスク:</span><div class="flex items-center"><span class="font-mono w-6 text-right text-red-400">${step.S4_リスク}</span>${s4_diff}</div></div>
                     <div class="flex justify-between items-center"><span class="text-gray-400">変動性:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${step.S6_変動性スコア}</span>${s6_diff}</div></div>
-                    <div class="flex justify-between items-center"><span class="text-gray-400">主体性:</span><span>${step.S5_主体性推奨スタンス}</span></div>
+                    <div class="flex justify-between items-center"><span class="text-gray-400">主体性:</span><span>${step.S5_主体性}</span></div>
                     <div class="col-span-full flex justify-between items-center font-bold border-t border-gray-600 pt-2 mt-2">
                         <span class="text-gray-300">総合評価:</span>
                         <div class="flex items-center">
@@ -573,7 +577,7 @@ function updateUI(sortedPaths) {
                 </div>`;
             if (stepIndex < path.length - 1) {
                 const nextStep = path[stepIndex + 1];
-                const targetName = `${step.卦名} ${step.爻}`;
+                const targetName = `${step['親となる卦']} ${step.爻}`;
                 const guidelineData = (typeof koudoShishinData !== 'undefined') ? koudoShishinData.find(item => item.name === targetName) : null;
                 let actionGuidelineTitle = '', actionGuidelineText = '', bgColor = '';
                 if (guidelineData) {
