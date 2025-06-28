@@ -74,17 +74,19 @@
     </div>
 
     <!-- データベースJSONファイルを読み込む -->
-    <script src="haqei_database_updated.json"></script>
+    <script src="assets/haqei_main_database.js"></script>
+    <script src="assets/koudo_shishin_database.js"></script>
 
     <script>
-        // グローバルなHDBが未定義の場合のエラーを防ぐ
-        const HDB = (typeof HDB === 'undefined') ? {} : HDB;
+
 
         // --- 分析ロジック (JavaScript移植版) ---
         const HELPERS = HDB.trigrams_master ? {
             id_to_trigram: Object.fromEntries(HDB.trigrams_master.map(item => [item.trigram_id, item.name_jp])),
             trigram_to_element: Object.fromEntries(HDB.trigrams_master.map(item => [item.name_jp, item.element])),
-            name_to_trigram_id: Object.fromEntries(HDB.trigrams_master.map(item => [item.name_jp, item.trigram_id]))
+            name_to_trigram_id: Object.fromEntries(HDB.trigrams_master.map(item => [item.name_jp, item.trigram_id])),
+            // ↓↓↓ この行を追加してください ↓↓↓
+            jp_to_en: Object.fromEntries(HDB.trigrams_master.map(item => [item.name_jp, item.name_en]))
         } : {};
 
         const calculateMbtiPoints = (mbtiType, scores) => { /* ... */ return scores; };
@@ -94,7 +96,32 @@
         const generateBunjinAnalysisText = (finalScores) => { /* ... */ };
         const generateHexagramProfileText = (finalScores) => { /* ... */ };
         const analyzeUserProfile = (userInputs) => { /* ... */ };
-        
+        // --- ここからが画面表示とインタラクションのロジック ---
+
+        /**
+         * 分析結果のテキストをHTML表示用に変換する関数
+         * @param {string} text - 変換するテキスト
+         * @returns {string} - HTMLに変換されたテキスト
+         */
+        function formatTextToHtml(text) {
+            if (typeof text !== 'string') {
+                return '';
+            }
+            // 1. 安全対策として基本的なHTMLエスケープを行う
+            let escapedText = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
+            // 2. **太字** を <strong> タグに変換して強調表示する
+            escapedText = escapedText.replace(/\*\*(.*?)\*\*/g, '<strong class="text-yellow-300">$1</strong>');
+            
+            // 3. 改行文字を <br> タグに変換する
+            return escapedText.replace(/\n/g, '<br>');
+        }
+
         // --- ここから下が画面表示とインタラクションのロジック ---
         document.addEventListener('DOMContentLoaded', () => {
             const inputContainer = document.getElementById('input-container');
@@ -173,8 +200,8 @@
         const calculateEnneagramPoints_full = (enneaTypeList, scores) => { const pointsByRank = [10, 5, 3]; enneaTypeList.forEach((enneaType, i) => { if (i >= pointsByRank.length) return; const points = pointsByRank[i]; const mapping = HDB.enneagram_map?.find(m => m.enneagram_type === parseInt(enneaType)); if (mapping && mapping.hexagram_id) { const hexData = HDB.hexagrams_master?.find(h => h.hexagram_id === mapping.hexagram_id); if (hexData) { const upperName = HELPERS.id_to_trigram[hexData.upper_trigram_id]; const lowerName = HELPERS.id_to_trigram[hexData.lower_trigram_id]; if (upperName === lowerName) { scores[upperName] += points * 2; } else { scores[upperName] += points; scores[lowerName] += points; } } } }); return scores; };
         const calculateSfPoints_full = (strengths, scores) => { const pointsByRank = [15, 12, 10, 8, 5]; strengths.forEach((strengthName, i) => { if (!strengthName || i >= pointsByRank.length) return; const points = pointsByRank[i]; const mapping = HDB.strengthsfinder_map?.find(m => m.strength_name === strengthName); if (mapping && mapping.base_trigram_id) { const trigramName = HELPERS.id_to_trigram[mapping.base_trigram_id]; if (trigramName) { scores[trigramName] += points; } } }); return scores; };
         const getPermutations_full = (array, size) => { function* p(array, length) { if (length === 1) { for (const e of array) yield [e]; return; } for (let i = 0; i < array.length; i++) { const first = array[i]; const rest = [...array.slice(0, i), ...array.slice(i + 1)]; for (const perm of p(rest, length - 1)) yield [first, ...perm]; } } return Array.from(p(array, size)); }
-        const generateBunjinAnalysisText_full = (finalScores) => { const sortedScores = Object.entries(finalScores).sort((a, b) => b[1] - a[1]); const top3Trigrams = sortedScores.slice(0, 3).filter(item => item[1] > 0).map(item => item[0]); if (top3Trigrams.length < 2) return "（分析に必要なエネルギーが不足しています）"; let bunjinIntro = `あなたの個性は、主に${top3Trigrams.length}つの「分人」が動かしています。\n\n`; top3Trigrams.forEach((name, i) => { bunjinIntro += `${i + 1}. 【${name}の分人】\n`; }); const synergyTexts = [], conflictTexts = []; const permutations = getPermutations_full(top3Trigrams, 2); permutations.forEach(([sourceName, targetName]) => { const sourceElement = HELPERS.trigram_to_element[sourceName]; const targetElement = HELPERS.trigram_to_element[targetName]; const rel = HDB.element_relationships?.find(r => r.source_element === sourceElement && r.target_element === targetElement); if (rel) { const text = rel.metaphor_text.replace('{source}', `【${sourceName}】`).replace('{target}', `【${targetName}】`); if (rel.relationship_type === '相生') { synergyTexts.push("・ " + text); } else { conflictTexts.push("・ " + text); } } }); let finalText = bunjinIntro; if (synergyTexts.length > 0) finalText += "\n✅ **シナジー（あなたの強みが生まれる流れ）**\n" + synergyTexts.join("\n"); if (conflictTexts.length > 0) finalText += "\n\n⚠️ **葛藤（あなたが成長するための課題）**\n" + conflictTexts.join("\n"); return finalText; };
-        const generateHexagramProfileText_full = (finalScores) => { const sortedScores = Object.entries(finalScores).sort((a, b) => b[1] - a[1]); if (sortedScores.length < 2 || sortedScores[1][1] === 0) return "あなたを象徴する卦を決定できませんでした。"; const upperTrigramName = sortedScores[0][0]; const lowerTrigramName = sortedScores[1][0]; const upperTrigramId = HELPERS.name_to_trigram_id[upperTrigramName]; const lowerTrigramId = HELPERS.name_to_trigram_id[lowerTrigramName]; const profileHex = HDB.hexagrams_master?.find(h => h.upper_trigram_id === upperTrigramId && h.lower_trigram_id === lowerTrigramId); if (profileHex) { let text = `あなたの統合的な人格は、64卦の中で**「${profileHex.hexagram_id}. ${profileHex.name_jp}」**として象徴されます。\n\n`; text += `これは、あなたのエネルギー1位である**【${upperTrigramName}】が「外卦（社会に見せる顔）」**、2位の**【${lowerTrigramName}】が「内卦（内面的な本質）」**となる組み合わせです。\n\n`; text += `**【${profileHex.name_jp}のキーワード】**\n${profileHex.keywords}\n\n`; text += `**【${profileHex.name_jp}の解説】**\n`; text += profileHex.description || "（詳細な解説はデータベースにありません）"; return text; } return `あなたを象徴する卦（上卦：${upperTrigramName}, 下卦：${lowerTrigramName}）は見つかりませんでした。`; };
+        const generateBunjinAnalysisText_full = (finalScores) => { const sortedScores = Object.entries(finalScores).sort((a, b) => b[1] - a[1]); const top3Trigrams = sortedScores.slice(0, 3).filter(item => item[1] > 0).map(item => item[0]); if (top3Trigrams.length < 2) return "（分析に必要なエネルギーが不足しています）"; let bunjinIntro = `あなたの個性は、主に${top3Trigrams.length}つの「分人」が動かしています。\n\n`; top3Trigrams.forEach((name, i) => { bunjinIntro += `${i + 1}. 【${HELPERS.jp_to_en[name] || name}の分人】\n`; }); const synergyTexts = [], conflictTexts = []; const permutations = getPermutations_full(top3Trigrams, 2); permutations.forEach(([sourceName, targetName]) => { const sourceElement = HELPERS.trigram_to_element[sourceName]; const targetElement = HELPERS.trigram_to_element[targetName]; const rel = HDB.element_relationships?.find(r => r.source_element === sourceElement && r.target_element === targetElement); if (rel) { const text = rel.metaphor_text.replace('{source}', `【${HELPERS.jp_to_en[sourceName] || sourceName}】`).replace('{target}', `【${HELPERS.jp_to_en[targetName] || targetName}】`);if (rel.relationship_type === '相生') { synergyTexts.push("・ " + text); } else { conflictTexts.push("・ " + text); } } }); let finalText = bunjinIntro; if (synergyTexts.length > 0) finalText += "\n✅ **シナジー（あなたの強みが生まれる流れ）**\n" + synergyTexts.join("\n"); if (conflictTexts.length > 0) finalText += "\n\n⚠️ **葛藤（あなたが成長するための課題）**\n" + conflictTexts.join("\n"); return finalText; };
+        const generateHexagramProfileText_full = (finalScores) => { const sortedScores = Object.entries(finalScores).sort((a, b) => b[1] - a[1]); if (sortedScores.length < 2 || sortedScores[1][1] === 0) return "あなたを象徴する卦を決定できませんでした。"; const upperTrigramName = sortedScores[0][0]; const lowerTrigramName = sortedScores[1][0]; const upperTrigramId = HELPERS.name_to_trigram_id[upperTrigramName]; const lowerTrigramId = HELPERS.name_to_trigram_id[lowerTrigramName]; const profileHex = HDB.hexagrams_master?.find(h => h.upper_trigram_id === upperTrigramId && h.lower_trigram_id === lowerTrigramId); if (profileHex) { let text = `あなたの統合的な人格は、64卦の中で**「${profileHex.hexagram_id}. ${profileHex.name_jp}」**として象徴されます。\n\n`; text += `これは、あなたのエネルギー1位である**【${HELPERS.jp_to_en[upperTrigramName] || upperTrigramName}】が「外卦（社会に見せる顔）」**、2位の**【${HELPERS.jp_to_en[lowerTrigramName] || lowerTrigramName}】が「内卦（内面的な本質）」**となる組み合わせです。\n\n`; text += `**【${profileHex.name_jp}のキーワード】**\n${profileHex.keywords}\n\n`; text += `**【${profileHex.name_jp}の解説】**\n`; text += profileHex.description || "（詳細な解説はデータベースにありません）"; return text; } return `あなたを象徴する卦（上卦：${upperTrigramName}, 下卦：${lowerTrigramName}）は見つかりませんでした。`; };
         const analyzeUserProfile_full = (userInputs) => { let scores = {'乾': 0, '兌': 0, '離': 0, '震': 0, '巽': 0, '坎': 0, '艮': 0, '坤': 0}; if (userInputs.mbti) scores = calculateMbtiPoints_full(userInputs.mbti, scores); if (userInputs.enneagram) scores = calculateEnneagramPoints_full(userInputs.enneagram, scores); if (userInputs.strengths && userInputs.strengths.length > 0) { scores = calculateSfPoints_full(userInputs.strengths, scores); } const finalScores = Object.fromEntries(Object.entries(scores).map(([k, v]) => [k, Math.round(v)])); const finalReport = { bunjin_analysis: generateBunjinAnalysisText_full(finalScores), hexagram_profile: generateHexagramProfileText_full(finalScores) }; return {'scores': finalScores, 'report': finalReport}; };
         document.getElementById('analyzeBtn').addEventListener('click', () => {
             const mbtiType = document.getElementById('mbtiSelect').value;
@@ -183,7 +210,7 @@
             if (!mbtiType || enneagramTypes.length === 0) { alert('MBTIと、主要なエニアグラムタイプを少なくとも1つ選択してください。'); return; }
             try {
                 const result = analyzeUserProfile_full({mbti: mbtiType, enneagram: enneagramTypes, strengths: strengths});
-                document.getElementById('scores-container').innerHTML = `<h3 class="text-2xl font-bold mb-4 text-indigo-300">あなたのOS構成エネルギー</h3><div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-lg">${Object.entries(result.scores).sort((a,b)=>b[1]-a[1]).map(([n,s])=>`<div><span class="font-bold text-gray-100">${n}:</span> <span class="text-indigo-300">${s}</span></div>`).join('')}</div>`;
+                document.getElementById('scores-container').innerHTML = `<h3 class="text-2xl font-bold mb-4 text-indigo-300">あなたのOS構成エネルギー</h3><div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-lg">${Object.entries(result.scores).sort((a,b)=>b[1]-a[1]).map(([n,s])=>`<div><span class="font-bold text-gray-100">${HELPERS.jp_to_en[n] || n}:</span> <span class="text-indigo-300">${s}</span></div>`).join('')}</div>`;
                 document.getElementById('bunjin-analysis-container').innerHTML = `<h3 class="text-2xl font-bold mb-4 text-indigo-300">Part A: あなたの人格OSの内部構造（分人分析）</h3><div class="prose-custom">${formatTextToHtml(result.report.bunjin_analysis)}</div>`;
                 document.getElementById('hexagram-profile-container').innerHTML = `<h3 class="text-2xl font-bold mb-4 text-indigo-300">Part B: あなたを象徴する64卦プロファイル</h3><div class="prose-custom">${formatTextToHtml(result.report.hexagram_profile)}</div>`;
                 document.getElementById('input-container').classList.add('hidden');
