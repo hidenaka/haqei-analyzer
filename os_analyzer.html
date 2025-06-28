@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HaQei 人格OS 分析レポート v7.0</title>
+    <title>HaQei 人格OS 分析レポート v8.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
         .brand-text { background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
-        .report-section { border-left: 3px solid #4f46e5; padding-left: 1.5rem; margin-top: 2.5rem; }
-        .report-section h3 { font-size: 1.5rem; font-weight: bold; color: #a5b4fc; margin-bottom: 1rem; }
+        .report-section { border-left: 3px solid #6366f1; padding-left: 1.5rem; margin-top: 3rem; }
+        .report-section h3 { font-size: 1.75rem; font-weight: bold; color: #a5b4fc; margin-bottom: 1.25rem; }
+        .report-section h4 { font-size: 1.1rem; font-weight: bold; color: #818cf8; margin-top: 1.5rem; margin-bottom: 0.75rem; padding-bottom: 0.25rem; border-bottom: 1px solid #374151;}
         .report-section p { color: #d1d5db; line-height: 1.8; }
-        .report-section strong { color: #fde047; font-weight: 600; }
-        .trigram-chip { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.9rem; margin: 0.25rem; border: 1px solid; }
+        .report-section strong { color: #facc15; font-weight: 600; }
+        .phase-card { background: rgba(17, 24, 39, 0.5); border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem; }
+        .phase-card h5 { font-size: 1.25rem; font-weight: bold; color: #a5b4fc; margin-bottom: 0.75rem; }
+        select optgroup { background-color: #1f2937; color: #d1d5db; }
         .trigram-bar-bg { background-color: #374151; }
         .trigram-bar { transition: width 0.5s ease-in-out; }
-        select optgroup { background-color: #1f2937; color: #d1d5db; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
@@ -26,7 +28,7 @@
         <header class="text-center mb-10">
             <a href="index.html" class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block">← トップページへ戻る</a>
             <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">HaQei</h1>
-            <p class="text-gray-400 mt-3 text-xl">人格OS 分析レポート v7.0</p>
+            <p class="text-gray-400 mt-3 text-xl">人格OS 分析レポート</p>
         </header>
         
         <div id="input-container" class="bg-gray-900/50 p-6 rounded-xl mb-10 space-y-6">
@@ -54,11 +56,12 @@
     </div>
 
     <script src="assets/haqei_main_database.js"></script>
+    <script src="assets/koudo_shishin_database.js"></script>
     
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        if (typeof HAQEI_DATA === 'undefined') {
-            document.body.innerHTML = '<div class="text-red-400 text-center p-10">エラー: データベースファイル `assets/haqei_main_database.js` が正しく読み込まれていません。</div>';
+        if (typeof HAQEI_DATA === 'undefined' || typeof koudoShishinData === 'undefined') {
+            document.body.innerHTML = '<div class="text-red-400 text-center p-10">エラー: データベースファイルが正しく読み込まれていません。`haqei_main_database.js`と`koudo_shishin_database.js`を確認してください。</div>';
             return;
         }
 
@@ -115,75 +118,89 @@
                 return;
             }
 
-            const result = analyzeOS(HAQEI_DATA, userProfile);
-            displayAnalyticalReport(result, userProfile);
+            const result = runFullAnalysis(HAQEI_DATA, userProfile);
+            displayFullReport(result);
             
             inputContainer.classList.add('hidden');
             resultAreaContainer.classList.remove('hidden');
             resultAreaContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
-        // 分析エンジン (v5.1のロジックをそのまま利用)
-        const analyzeOS = (db, profile) => {
+        const runFullAnalysis = (db, profile, top_n = 5) => {
             const total_scores = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
-            const source_contribution = { mbti: {}, enneagram: {}, sf: {} };
-            for(let i=1; i<=8; i++){
-                source_contribution.mbti[i] = 0;
-                source_contribution.enneagram[i] = 0;
-                source_contribution.sf[i] = 0;
-            }
+            const source_contribution = { 
+                os: {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}, 
+                cpu: {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}, 
+                accel: {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0} 
+            };
 
             const mbtiItem = db.mbti_map.find(item => item.mbti_type === profile.mbti);
             if (mbtiItem) (mbtiItem.scores || []).forEach(s => {
                 total_scores[s.trigram_id] += s.score;
-                source_contribution.mbti[s.trigram_id] += s.score;
+                source_contribution.os[s.trigram_id] += s.score;
             });
-
             profile.enneagram.forEach((type, index) => {
                 const weight = 3 - index;
                 const enneaItem = db.enneagram_map.find(item => String(item.enneagram_type) === type);
                 if (enneaItem) (enneaItem.scores || []).forEach(s => {
                     const score = s.score * weight;
                     total_scores[s.trigram_id] += score;
-                    source_contribution.enneagram[s.trigram_id] += score;
+                    source_contribution.cpu[s.trigram_id] += score;
                 });
             });
-
             profile.sf.forEach((talent, index) => {
                 const weight = (5 - index) * 0.4;
                 const sfItem = db.strengthsfinder_map.find(item => item.strength_finder_talent === talent);
                 if (sfItem) (sfItem.scores || []).forEach(s => {
                     const score = s.score * weight;
                     total_scores[s.trigram_id] += score;
-                    source_contribution.sf[s.trigram_id] += score;
+                    source_contribution.accel[s.trigram_id] += score;
                 });
             });
             
-            const trigram_profile = Object.keys(total_scores).map(id_str => {
-                const id = parseInt(id_str, 10);
-                const info = db.trigrams_master.find(t => t.trigram_id === id);
-                return { ...info, score: Math.round(total_scores[id] * 10) / 10 };
-            }).sort((a, b) => b.score - a.score);
+            const trigram_profile = Object.keys(total_scores).map(id_str => ({
+                trigram_id: parseInt(id_str, 10),
+                ...db.trigrams_master.find(t => t.trigram_id === parseInt(id_str, 10)),
+                score: Math.round(total_scores[id_str] * 10) / 10
+            })).sort((a, b) => b.score - a.score);
 
+            const os_keywords = new Set();
+            if(mbtiItem && mbtiItem.hexagram_id) (db.hexagrams_master.find(h => h.hexagram_id === mbtiItem.hexagram_id)?.keywords || '').split(',').forEach(k => os_keywords.add(k));
+            
+            const cpu_keywords = new Set();
+            profile.enneagram.forEach(type => {
+                const enneaItem = db.enneagram_map.find(e => String(e.enneagram_type) === type);
+                if(enneaItem && enneaItem.hexagram_id) (db.hexagrams_master.find(h => h.hexagram_id === enneaItem.hexagram_id)?.keywords || '').split(',').forEach(k => cpu_keywords.add(k));
+            });
+            
+            const accel_keywords = new Set();
+            profile.sf.forEach(talent => {
+                const sfItem = db.strengthsfinder_map.find(s => s.strength_finder_talent === talent);
+                if(sfItem && sfItem.hexagram_id) (db.hexagrams_master.find(h => h.hexagram_id === sfItem.hexagram_id)?.keywords || '').split(',').forEach(k => accel_keywords.add(k));
+            });
+            
             const hexagram_candidates = db.hexagrams_master.map(hex => {
-                const lower_score = total_scores[hex.lower_trigram_id] || 0;
-                const upper_score = total_scores[hex.upper_trigram_id] || 0;
-                const penalty = (hex.lower_trigram_id === hex.upper_trigram_id) ? 0.95 : 1.0;
-                return { ...hex, total_score: Math.round((lower_score + upper_score) * penalty * 10) / 10 };
-            }).sort((a, b) => b.total_score - a.total_score);
+                const score_base = (total_scores[hex.lower_trigram_id] + total_scores[hex.upper_trigram_id]) * (hex.lower_trigram_id === hex.upper_trigram_id ? 0.95 : 1.0);
+                const hex_kw = new Set((hex.keywords || '').split(','));
+                const match_os = [...hex_kw].filter(k => os_keywords.has(k)).length;
+                const match_cpu = [...hex_kw].filter(k => cpu_keywords.has(k)).length;
+                const match_accel = [...hex_kw].filter(k => accel_keywords.has(k)).length;
+                const score_keyword = (match_os * 1.5) + (match_cpu * 1.2) + (match_accel * 1.0);
+                return { ...hex, final_score: score_base + score_keyword, match_os, match_cpu, match_accel };
+            }).sort((a, b) => b.final_score - a.final_score);
 
-            return { trigram_profile, hexagram_candidates, source_contribution };
+            return { trigram_profile, hexagram_candidates: hexagram_candidates.slice(0, top_n), source_contribution };
         };
 
-        // 結果表示 (論理分析レポート形式)
-        const displayAnalyticalReport = (result, profile) => {
+        const displayFullReport = (result) => {
             const { trigram_profile, hexagram_candidates, source_contribution } = result;
             const topOS = hexagram_candidates[0];
-            const upperTrigram = HAQEI_DATA.trigrams_master.find(t => t.trigram_id === topOS.upper_trigram_id);
-            const lowerTrigram = HAQEI_DATA.trigrams_master.find(t => t.trigram_id === topOS.lower_trigram_id);
+            const insights = (HAQEI_DATA.hexagram_insights || []).find(i => i.hexagram_id === topOS.hexagram_id);
+            const getTrigramInfo = (id) => HAQEI_DATA.trigrams_master.find(t => t.trigram_id === id) || {};
+            const upperTrigram = getTrigramInfo(topOS.upper_trigram_id);
+            const lowerTrigram = getTrigramInfo(topOS.lower_trigram_id);
             const weakestTrigram = trigram_profile[trigram_profile.length - 1];
 
-            // 五行関係のテキストを生成
             const findRelationship = (el1, el2) => HAQEI_DATA.element_relationships.find(r => (r.source_element === el1 && r.target_element === el2) || (r.source_element === el2 && r.target_element === el1));
             const relationship = findRelationship(upperTrigram.element, lowerTrigram.element);
             let relationshipText = `このOSは、上卦の<strong>${upperTrigram.name_jp}</strong>と下卦の<strong>${lowerTrigram.name_jp}</strong>が相互作用することで成り立っています。`;
@@ -191,81 +208,79 @@
                 relationshipText += ` 五行思想では、これは「${relationship.relationship_type}」の関係にあたり、${relationship.metaphor_text.replace('{source}', `<strong>${upperTrigram.name_jp}</strong>`).replace('{target}', `<strong>${lowerTrigram.name_jp}</strong>`)}`;
             }
 
-            // レポート全体のHTMLを生成
             let html = `
-                <div class="space-y-10">
+                <div class="space-y-12">
                     <section>
                         <h2 class="text-3xl font-bold brand-text mb-4">人格OS 分析レポート</h2>
-                        <p class="text-gray-300">本レポートは、ご入力いただいた性格指標データを基に、あなたの思考と行動の根幹をなす「人格OS」を多角的に分析し、その構造と力学を論理的に解説するものです。</p>
-                    </section>
-
-                    <section class="report-section">
-                        <h3>分析結論：あなたの最有力OS</h3>
                         <div class="bg-gray-900/50 p-6 rounded-lg">
-                            <p class="text-lg text-gray-400">分析の結果、あなたの最も有力な人格OSは</p>
-                            <p class="text-4xl font-bold text-center my-4 text-yellow-300">${topOS.name_jp}</p>
-                            <p class="text-right text-gray-400">である可能性が極めて高いと結論付けられました。</p>
-                            <p class="mt-4 text-gray-300"><strong>論理的根拠:</strong> このOSは、あなたの統合エネルギー構成で最も優位な<strong>上卦【${upperTrigram.name_jp}】</strong>と、それに準ずる<strong>下卦【${lowerTrigram.name_jp}】</strong>の組み合わせから成立しており、あなたの特性を最も的確に表現しています。</p>
+                            <h3 class="text-lg font-bold text-indigo-300 mb-3">分析結果サマリー</h3>
+                            <p class="text-gray-400">ご入力いただいた性格指標データを多角的に分析した結果、あなたの根源的なエネルギー構成とOSの可能性が明らかになりました。</p>
+                            
+                            <h4 class="text-base font-semibold text-gray-200 mt-4">総合八卦プロファイル（トップ3）:</h4>
+                            <p class="text-gray-300">${trigram_profile.slice(0,3).map((t,i) => `${i+1}位: <strong>${t.name_jp}</strong> (${t.score})`).join(' / ')}</p>
+                            
+                            <h4 class="text-base font-semibold text-gray-200 mt-3">人格OS 可能性ランキング（トップ5）:</h4>
+                            <div class="text-xs space-y-1 mt-1 pl-4 text-gray-400">${hexagram_candidates.map((h, i) => `<div><strong>${i+1}位: ${h.name_jp}</strong> (スコア: ${h.final_score.toFixed(1)}) | 構成: ${getTrigramInfo(h.upper_trigram_id).name_jp}/${getTrigramInfo(h.lower_trigram_id).name_jp} | 一致度 OS:${h.match_os}, CPU:${h.match_cpu}, Accel:${h.match_accel}</div>`).join('')}</div>
+                            
+                            <p class="mt-4 border-t border-gray-700 pt-4 text-gray-300"><strong>総評:</strong> あなたは、<strong>『${trigram_profile[0].name_jp}』</strong>のエネルギーを根源としながら、その現れ方としては<strong>『${topOS.name_jp}』</strong>の資質を最も強く発揮する可能性が高いことを示唆しています。</p>
                         </div>
                     </section>
 
                     <section class="report-section">
-                        <h3>あなたのエネルギー構成比（八卦プロファイル）</h3>
-                        <p>あなたの性格指標を統合・分析した結果、8つの根源的エネルギー（八卦）の構成比は以下のようになりました。これがあなたの人格OSを決定する、最も基本的なデータです。</p>
-                        <div class="mt-4 p-6 bg-gray-900/50 rounded-lg space-y-3">`;
-            
-            const maxScore = Math.max(...trigram_profile.map(p => p.score), 0) || 1;
-            trigram_profile.forEach(item => {
-                const barWidth = (item.score / maxScore) * 100;
-                html += `
-                    <div class="grid grid-cols-6 items-center gap-3 text-base">
-                        <span class="font-semibold col-span-2">${item.name_jp} (${item.element})</span>
-                        <div class="col-span-4 trigram-bar-bg rounded-full h-6">
-                            <div class="trigram-bar bg-indigo-500 h-6 rounded-full flex items-center justify-end px-2 text-white text-sm font-bold" style="width: ${barWidth}%">${item.score}</div>
-                        </div>
-                    </div>`;
-            });
-
-            html += `   </div>
+                        <h3>2. 論理的根拠：エネルギー構成の内訳</h3>
+                        <p>あなたの総合的な八卦エネルギーは、各性格指標が持つエネルギーの総和です。ここでは、どの指標がどのエネルギーに貢献しているかを分解して示します。これにより「なぜ、その結論に至ったのか」を論理的に理解することができます。</p>
+                        ${createContributionChart('OS (MBTI): 人格の基本設計', source_contribution.os)}
+                        ${createContributionChart('CPU (エニアグラム): 動機の中核', source_contribution.cpu)}
+                        ${createContributionChart('Accel (ストレングスファインダー): 具体的な才能', source_contribution.accel)}
                     </section>
 
                     <section class="report-section">
-                        <h3>人格OS【${topOS.name_jp}】詳細解説</h3>
-                        <div class="space-y-6 bg-gray-900/50 p-6 rounded-lg">
+                        <h3>3. 人格OS【${topOS.name_jp}】の取扱説明書</h3>
+                        <p>分析結果から導き出されたあなたのOSについて、その特性を最大限に活かすための具体的な指針です。</p>
+                        <div class="bg-gray-900/50 p-6 rounded-lg mt-4 space-y-8">
                             <div>
-                                <h4 class="font-semibold text-lg text-indigo-300">基本特性</h4>
-                                <p>${topOS.description}</p>
+                                <h4 class="text-indigo-300">基本特性と内部力学</h4>
+                                <p>${topOS.description}。${relationshipText}</p>
                             </div>
                             <div>
-                                <h4 class="font-semibold text-lg text-indigo-300">関連キーワード</h4>
-                                <p>${topOS.keywords.split(',').map(k => `<span class="trigram-chip border-gray-500 text-gray-300">${k}</span>`).join('')}</p>
+                                <h4 class="text-indigo-300">✅ 強みの活かし方</h4>
+                                ${insights ? `<p>${insights.strength_summary}</p><ul class="list-disc list-inside space-y-2 mt-3 text-gray-300">${insights.strength_details.map(d => `<li>${d}</li>`).join('')}</ul>` : '<p class="text-gray-500">（詳細な強みデータが登録されていません）</p>'}
                             </div>
                             <div>
-                                <h4 class="font-semibold text-lg text-indigo-300">内部力学（五行分析）</h4>
-                                <p>${relationshipText}</p>
-                            </div>
-                             <div>
-                                <h4 class="font-semibold text-lg text-indigo-300">潜在的課題（ウィークポイント）</h4>
-                                <p>あなたのエネルギー構成で最も作用が弱いのは<strong>【${weakestTrigram.name_jp}】</strong>です。これは、あなたが無意識に避けているテーマや、成長の伸びしろを示唆しています。<strong>「${weakestTrigram.name_jp}」</strong>が象徴するテーマ（例：受容性、計画性、情熱など）を意識的に取り入れることが、あなたのOSをアップデートする鍵となります。</p>
+                                <h4 class="text-indigo-300">⚠️ 陥りやすい失敗と対策</h4>
+                                ${insights ? `<p>${insights.pitfall_summary}</p><ul class="list-disc list-inside space-y-2 mt-3 text-gray-300">${insights.pitfall_details.map(d => `<li>${d}</li>`).join('')}</ul>` : '<p class="text-gray-500">（詳細な失敗パターンデータが登録されていません）</p>'}
                             </div>
                         </div>
                     </section>
-
-                     <section class="report-section">
-                         <h3>参考情報：人格OS候補リスト</h3>
-                         <p>今回の分析で上位に挙がったOS候補は以下の通りです。1位のOSがしっくりこない場合、これらのOSの特性も参考にしてください。</p>
-                         <div class="mt-4 text-sm text-gray-400 space-y-2">`;
-            
-            hexagram_candidates.slice(1, 6).forEach((item, index) => {
-                html += `<div class="p-3 rounded bg-gray-900/50"><strong>${index + 2}位: ${item.name_jp}</strong> - ${item.description}</div>`;
-            });
-
-            html += `   </div>
-                    </section>
-                </div>
-            `;
+                </div>`;
 
             resultAreaContainer.innerHTML = html;
+        };
+        
+        const createContributionChart = (title, contribution_data) => {
+            const sorted_profile = Object.keys(contribution_data)
+                .map(id_str => ({ id: parseInt(id_str), score: Math.round(contribution_data[id_str] * 10) / 10 }))
+                .filter(item => item.score > 0)
+                .sort((a, b) => b.score - a.score);
+
+            if(sorted_profile.length === 0) return '';
+            const maxScore = sorted_profile[0].score > 0 ? sorted_profile[0].score : 1;
+
+            let chartHtml = `<div class="mt-4"><h4 class="text-gray-200">${title}</h4><div class="mt-2 p-4 bg-gray-900/50 rounded-lg space-y-2">`;
+            sorted_profile.forEach(item => {
+                const info = HAQEI_DATA.trigrams_master.find(t => t.trigram_id === item.id);
+                const barWidth = (item.score / maxScore) * 100;
+                chartHtml += `
+                    <div class="grid grid-cols-6 items-center gap-3 text-sm">
+                        <span class="font-semibold col-span-2">${info.name_jp} (${info.element})</span>
+                        <div class="col-span-4 trigram-bar-bg rounded-full h-5">åå
+                            <div class="trigram-bar bg-sky-600 h-5 rounded-full flex items-center justify-end px-2 text-white text-xs" style="width: ${barWidth}%">${item.score}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            chartHtml += `</div></div>`;
+            return chartHtml;
         };
     });
     </script>
