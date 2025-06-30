@@ -52,237 +52,394 @@
             <button id="analyzeBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 mt-4">分析を実行</button>
         </div>
 
-        <div id="result-area-container" class="hidden"></div>
+        <div id="report-container" class="hidden space-y-12">
+        </div>
     </div>
 
     <script src="assets/haqei_main_database.js"></script>
     <script src="assets/koudo_shishin_database.js"></script>
     
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof HAQEI_DATA === 'undefined' || typeof koudoShishinData === 'undefined') {
-            document.body.innerHTML = '<div class="text-red-400 text-center p-10">エラー: データベースファイルが正しく読み込まれていません。`haqei_main_database.js`と`koudo_shishin_database.js`を確認してください。</div>';
-            return;
-        }
+    // HaQei OS Analyzer - Ultrasync-Enhanced Edition JavaScript v1.0
+const HDB = HAQEI_DATA;
+document.addEventListener('DOMContentLoaded', () => {
+    // ---- 必要な要素の取得 ----
+    const mbtiSelect = document.getElementById('mbtiSelect');
+    const enneaSelects = Array.from(document.querySelectorAll('.enneagram-select'));
+    const sfSelects = Array.from(document.querySelectorAll('.sf-select'));
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const inputContainer = document.getElementById('input-container');
+    const reportContainer = document.getElementById('report-container');
 
-        const inputContainer = document.getElementById('input-container');
-        const resultAreaContainer = document.getElementById('result-area-container');
-        const analyzeBtn = document.getElementById('analyzeBtn');
+    // ---- ヘルパーデータ・関数の定義 ----
+    const HELPERS = {
+        id_to_jp: Object.fromEntries(HDB.trigrams_master.map(item => [item.trigram_id, item.name_jp])),
+        id_to_en: Object.fromEntries(HDB.trigrams_master.map(item => [item.trigram_id, item.name_en])),
+        getTrigramById: (id) => HDB.trigrams_master.find(t => t.trigram_id === id) || {},
+        getHexagramById: (id) => HDB.hexagrams_master.find(h => h.hexagram_id === id) || {},
+    };
 
-        const populateSelects = () => {
-            const mbtiSelect = document.getElementById('mbtiSelect');
-            mbtiSelect.innerHTML = '<option value="">選択してください</option>' + HAQEI_DATA.mbti_map.map(i => `<option value="${i.mbti_type}">${i.mbti_type}</option>`).join('');
-
-            const enneaSelects = document.querySelectorAll('.enneagram-select');
-            const enneaOptions = '<option value="">(任意)</option>' + HAQEI_DATA.enneagram_map.map(i => `<option value="${i.enneagram_type}">${i.enneagram_type}: ${i.nickname}</option>`).join('');
-            enneaSelects.forEach(s => s.innerHTML = enneaOptions);
-            enneaSelects[0].querySelector('option[value=""]').innerText = '選択してください (必須)';
-
-            const sfContainer = document.getElementById('sf-select-container');
-            const groupedSF = HAQEI_DATA.strengthsfinder_map.reduce((acc, talent) => {
-                const domain = talent.domain || 'その他';
-                if (!acc[domain]) acc[domain] = [];
-                acc[domain].push(talent);
-                return acc;
-            }, {});
-
-            let sfOptions = '<option value="">(任意)</option>';
-            const domainOrder = ["実行力", "影響力", "人間関係構築力", "戦略的思考力"];
-            domainOrder.forEach(domain => {
-                if(groupedSF[domain]) {
-                    sfOptions += `<optgroup label="--- ${domain} ---">`;
-                    groupedSF[domain].sort((a,b) => a.strength_finder_talent.localeCompare(b.strength_finder_talent)).forEach(talent => {
-                        sfOptions += `<option value="${talent.strength_finder_talent}">${talent.strength_finder_talent}</option>`;
-                    });
-                    sfOptions += `</optgroup>`;
-                }
-            });
-            
-            let sfHtml = '';
-            for(let i=1; i<=5; i++){
-                sfHtml += `<div class="flex items-center gap-x-3"><span class="font-mono text-sm text-gray-400 w-8 text-center">${i}位:</span><select id="sf${i}" class="sf-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 flex-1">${sfOptions}</select></div>`;
+    // ---- プルダウンメニューの初期化 ----
+    const populateSelects = () => {
+        // MBTI
+        mbtiSelect.innerHTML = '<option value="" selected disabled>MBTIタイプを選択</option>';
+        const mbtiGroups = HDB.mbti_map.reduce((acc, type) => {
+            const groupKey = type.mbti_type.includes('N') ? '直観型' : '感覚型';
+            if (!acc[groupKey]) acc[groupKey] = [];
+            acc[groupKey].push(type);
+            return acc;
+        }, {});
+        
+        ['直観型', '感覚型'].forEach(group => {
+            if(mbtiGroups[group]){
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = `--- ${group} ---`;
+                mbtiGroups[group].forEach(type => {
+                    const mbtiNickname = HDB.mbti_nicknames.find(n => n.type === type.mbti_type)?.nickname || '';
+                    const option = document.createElement('option');
+                    option.value = type.mbti_type;
+                    option.textContent = `${type.mbti_type} (${mbtiNickname})`;
+                    optgroup.appendChild(option);
+                });
+                mbtiSelect.appendChild(optgroup);
             }
-            sfContainer.innerHTML = sfHtml;
-        };
-        populateSelects();
-
-        analyzeBtn.addEventListener('click', () => {
-            const userProfile = {
-                mbti: document.getElementById('mbtiSelect').value,
-                enneagram: Array.from(document.querySelectorAll('.enneagram-select')).map(s => s.value).filter(Boolean),
-                sf: Array.from(document.querySelectorAll('.sf-select')).map(s => s.value).filter(Boolean)
-            };
-
-            if (!userProfile.mbti || userProfile.enneagram.length === 0) {
-                alert('MBTIと、主要なエニアグラムタイプを少なくとも1つ選択してください。');
-                return;
-            }
-
-            const result = runFullAnalysis(HAQEI_DATA, userProfile);
-            displayFullReport(result);
-            
-            inputContainer.classList.add('hidden');
-            resultAreaContainer.classList.remove('hidden');
-            resultAreaContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
-        const runFullAnalysis = (db, profile, top_n = 5) => {
-            const total_scores = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
-            const source_contribution = { 
-                os: {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}, 
-                cpu: {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}, 
-                accel: {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0} 
-            };
+        // エニアグラム
+        const enneaTypes = HDB.enneagram_map.map(e => ({
+            type: e.enneagram_type,
+            name: e.nickname
+        }));
+        
+        enneaSelects.forEach((select, index) => {
+            select.innerHTML = `<option value="">${index === 0 ? "主要タイプを選択" : "任意タイプ"}</option>`;
+            if (index === 0) select.querySelector('option').disabled = true;
 
-            const mbtiItem = db.mbti_map.find(item => item.mbti_type === profile.mbti);
-            if (mbtiItem) (mbtiItem.scores || []).forEach(s => {
-                total_scores[s.trigram_id] += s.score;
-                source_contribution.os[s.trigram_id] += s.score;
+            enneaTypes.forEach(e => {
+                const option = document.createElement('option');
+                option.value = e.type;
+                option.textContent = `タイプ${e.type}: ${e.name}`;
+                select.appendChild(option);
             });
-            profile.enneagram.forEach((type, index) => {
-                const weight = 3 - index;
-                const enneaItem = db.enneagram_map.find(item => String(item.enneagram_type) === type);
-                if (enneaItem) (enneaItem.scores || []).forEach(s => {
-                    const score = s.score * weight;
-                    total_scores[s.trigram_id] += score;
-                    source_contribution.cpu[s.trigram_id] += score;
+            select.addEventListener('change', () => handleDuplicateSelection(enneaSelects));
+        });
+
+        // ストレングスファインダー
+        const sfContainer = document.getElementById('sf-select-container');
+        const sfDomains = HDB.strengthsfinder_map.reduce((acc, sf) => {
+            const domain = sf.domain;
+            if (!acc[domain]) acc[domain] = [];
+            acc[domain].push(sf);
+            return acc;
+        }, {});
+
+        let sfOptionsHtml = '<option value="">(任意)</option>';
+        const domainOrder = ["実行力", "影響力", "人間関係構築力", "戦略的思考力"];
+        domainOrder.forEach(domain => {
+            if(sfDomains[domain]) {
+                sfOptionsHtml += `<optgroup label="--- ${domain} ---">`;
+                sfDomains[domain].forEach(sf => {
+                    // ★★★ ここのキー名を修正しました ★★★
+                    sfOptionsHtml += `<option value="${sf.strength_finder_talent}">${sf.strength_finder_talent}</option>`;
                 });
-            });
-            profile.sf.forEach((talent, index) => {
-                const weight = (5 - index) * 0.4;
-                const sfItem = db.strengthsfinder_map.find(item => item.strength_finder_talent === talent);
-                if (sfItem) (sfItem.scores || []).forEach(s => {
-                    const score = s.score * weight;
-                    total_scores[s.trigram_id] += score;
-                    source_contribution.accel[s.trigram_id] += score;
+                sfOptionsHtml += `</optgroup>`;
+            }
+        });
+        
+        let sfSelectsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            sfSelectsHtml += `<div class="flex items-center gap-x-3"><span class="font-mono text-sm text-gray-400 w-8 text-center">${i}位:</span><select id="sf${i}" class="sf-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 flex-1">${sfOptionsHtml}</select></div>`;
+        }
+        sfContainer.innerHTML = sfSelectsHtml;
+        
+        // 生成されたsf-selectにイベントリスナーを再度設定
+        document.querySelectorAll('.sf-select').forEach(select => {
+            select.addEventListener('change', () => handleDuplicateSelection(document.querySelectorAll('.sf-select')));
+        });
+    };
+
+        // ストレングスファインダー
+        const sfDomains = HDB.strengthsfinder_map.reduce((acc, sf) => {
+            const domain = sf.domain;
+            if (!acc[domain]) acc[domain] = [];
+            acc[domain].push(sf);
+            return acc;
+        }, {});
+        sfSelects.forEach(select => {
+            select.innerHTML = '<option value="">資質を選択 (任意)</option>';
+            Object.keys(sfDomains).forEach(domain => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = `--- ${domain} ---`;
+                sfDomains[domain].forEach(sf => {
+                    const option = document.createElement('option');
+                    option.value = sf.strength_name;
+                    option.textContent = sf.strength_name;
+                    optgroup.appendChild(option);
                 });
+                select.appendChild(optgroup);
             });
-            
-            const trigram_profile = Object.keys(total_scores).map(id_str => ({
-                trigram_id: parseInt(id_str, 10),
-                ...db.trigrams_master.find(t => t.trigram_id === parseInt(id_str, 10)),
-                score: Math.round(total_scores[id_str] * 10) / 10
-            })).sort((a, b) => b.score - a.score);
-
-            const os_keywords = new Set();
-            if(mbtiItem && mbtiItem.hexagram_id) (db.hexagrams_master.find(h => h.hexagram_id === mbtiItem.hexagram_id)?.keywords || '').split(',').forEach(k => os_keywords.add(k));
-            
-            const cpu_keywords = new Set();
-            profile.enneagram.forEach(type => {
-                const enneaItem = db.enneagram_map.find(e => String(e.enneagram_type) === type);
-                if(enneaItem && enneaItem.hexagram_id) (db.hexagrams_master.find(h => h.hexagram_id === enneaItem.hexagram_id)?.keywords || '').split(',').forEach(k => cpu_keywords.add(k));
+             select.addEventListener('change', () => handleDuplicateSelection(sfSelects));
+        });
+    
+    
+    const handleDuplicateSelection = (selects) => {
+        const selectedValues = new Set(selects.map(s => s.value).filter(Boolean));
+        selects.forEach(select => {
+            Array.from(select.options).forEach(option => {
+                option.disabled = selectedValues.has(option.value) && option.value !== select.value && option.value !== "";
             });
-            
-            const accel_keywords = new Set();
-            profile.sf.forEach(talent => {
-                const sfItem = db.strengthsfinder_map.find(s => s.strength_finder_talent === talent);
-                if(sfItem && sfItem.hexagram_id) (db.hexagrams_master.find(h => h.hexagram_id === sfItem.hexagram_id)?.keywords || '').split(',').forEach(k => accel_keywords.add(k));
+        });
+    };
+
+    populateSelects();
+
+    // ---- 分析エンジンの定義 ----
+    const runAdvancedAnalysis = (userProfile) => {
+        // --- 設定値 ---
+        const weights = {"mbti": 1.0, "enneagram": 1.0, "sf": 0.4};
+        const ennea_weights = [1.0, 0.8, 0.6]; 
+        const sf_weights = [1.0, 0.9, 0.8, 0.7, 0.6];
+        const keyword_weight = 1.5; 
+        const duplicationPenalty = 0.95; 
+
+        // 1. 八卦エネルギーのスコア計算
+        let total_scores = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
+
+        // MBTI
+        const mbtiData = HDB.mbti_map.find(m => m.mbti_type === userProfile.mbti);
+        if (mbtiData && mbtiData.scores) {
+            mbtiData.scores.forEach(s => {
+                total_scores[s.trigram_id] += (s.score || 0) * weights.mbti;
             });
-            
-            const hexagram_candidates = db.hexagrams_master.map(hex => {
-                const score_base = (total_scores[hex.lower_trigram_id] + total_scores[hex.upper_trigram_id]) * (hex.lower_trigram_id === hex.upper_trigram_id ? 0.95 : 1.0);
-                const hex_kw = new Set((hex.keywords || '').split(','));
-                const match_os = [...hex_kw].filter(k => os_keywords.has(k)).length;
-                const match_cpu = [...hex_kw].filter(k => cpu_keywords.has(k)).length;
-                const match_accel = [...hex_kw].filter(k => accel_keywords.has(k)).length;
-                const score_keyword = (match_os * 1.5) + (match_cpu * 1.2) + (match_accel * 1.0);
-                return { ...hex, final_score: score_base + score_keyword, match_os, match_cpu, match_accel };
-            }).sort((a, b) => b.final_score - a.final_score);
+        }
 
-            return { trigram_profile, hexagram_candidates: hexagram_candidates.slice(0, top_n), source_contribution };
-        };
+        // Enneagram
+        userProfile.enneagram.forEach((e_type, index) => {
+            const enneaData = HDB.enneagram_map.find(e => e.enneagram_type == e_type);
+            if (enneaData && enneaData.scores) {
+                const weight = ennea_weights[index] * weights.enneagram;
+                enneaData.scores.forEach(s => {
+                    total_scores[s.trigram_id] += (s.score || 0) * weight;
+                });
+            }
+        });
 
-        const displayFullReport = (result) => {
-            const { trigram_profile, hexagram_candidates, source_contribution } = result;
-            const topOS = hexagram_candidates[0];
-            const insights = (HAQEI_DATA.hexagram_insights || []).find(i => i.hexagram_id === topOS.hexagram_id);
-            const getTrigramInfo = (id) => HAQEI_DATA.trigrams_master.find(t => t.trigram_id === id) || {};
-            const upperTrigram = getTrigramInfo(topOS.upper_trigram_id);
-            const lowerTrigram = getTrigramInfo(topOS.lower_trigram_id);
-            const weakestTrigram = trigram_profile[trigram_profile.length - 1];
+        // StrengthsFinder
+        userProfile.sf.forEach((talent, index) => {
+            const sfData = HDB.strengthsfinder_map.find(s => s.strength_finder_talent === talent);
+            if (sfData && sfData.scores) {
+                const weight = sf_weights[index] * weights.sf;
+                sfData.scores.forEach(s => {
+                    total_scores[s.trigram_id] += (s.score || 0) * weight;
+                });
+            }
+        });
 
-            const findRelationship = (el1, el2) => HAQEI_DATA.element_relationships.find(r => (r.source_element === el1 && r.target_element === el2) || (r.source_element === el2 && r.target_element === el1));
-            const relationship = findRelationship(upperTrigram.element, lowerTrigram.element);
-            let relationshipText = `このOSは、上卦の<strong>${upperTrigram.name_jp}</strong>と下卦の<strong>${lowerTrigram.name_jp}</strong>が相互作用することで成り立っています。`;
-            if (relationship) {
-                relationshipText += ` 五行思想では、これは「${relationship.relationship_type}」の関係にあたり、${relationship.metaphor_text.replace('{source}', `<strong>${upperTrigram.name_jp}</strong>`).replace('{target}', `<strong>${lowerTrigram.name_jp}</strong>`)}`;
+        // 2. キーワードセットの準備
+        const mbtiKeywords = new Set(HDB.keyword_map[userProfile.mbti] || []);
+        
+        // 3. 64卦候補のスコアリング
+        const hexagram_candidates = HDB.hexagrams_master.map(hexagram => {
+            const lower_id = hexagram.lower_trigram_id;
+            const upper_id = hexagram.upper_trigram_id;
+
+            let energy_score = total_scores[lower_id] + total_scores[upper_id];
+            if (lower_id === upper_id) {
+                energy_score *= duplicationPenalty;
             }
 
-            let html = `
-                <div class="space-y-12">
-                    <section>
-                        <h2 class="text-3xl font-bold brand-text mb-4">人格OS 分析レポート</h2>
-                        <div class="bg-gray-900/50 p-6 rounded-lg">
-                            <h3 class="text-lg font-bold text-indigo-300 mb-3">分析結果サマリー</h3>
-                            <p class="text-gray-400">ご入力いただいた性格指標データを多角的に分析した結果、あなたの根源的なエネルギー構成とOSの可能性が明らかになりました。</p>
-                            
-                            <h4 class="text-base font-semibold text-gray-200 mt-4">総合八卦プロファイル（トップ3）:</h4>
-                            <p class="text-gray-300">${trigram_profile.slice(0,3).map((t,i) => `${i+1}位: <strong>${t.name_jp}</strong> (${t.score})`).join(' / ')}</p>
-                            
-                            <h4 class="text-base font-semibold text-gray-200 mt-3">人格OS 可能性ランキング（トップ5）:</h4>
-                            <div class="text-xs space-y-1 mt-1 pl-4 text-gray-400">${hexagram_candidates.map((h, i) => `<div><strong>${i+1}位: ${h.name_jp}</strong> (スコア: ${h.final_score.toFixed(1)}) | 構成: ${getTrigramInfo(h.upper_trigram_id).name_jp}/${getTrigramInfo(h.lower_trigram_id).name_jp} | 一致度 OS:${h.match_os}, CPU:${h.match_cpu}, Accel:${h.match_accel}</div>`).join('')}</div>
-                            
-                            <p class="mt-4 border-t border-gray-700 pt-4 text-gray-300"><strong>総評:</strong> あなたは、<strong>『${trigram_profile[0].name_jp}』</strong>のエネルギーを根源としながら、その現れ方としては<strong>『${topOS.name_jp}』</strong>の資質を最も強く発揮する可能性が高いことを示唆しています。</p>
-                        </div>
-                    </section>
+            const hex_keywords = new Set(HDB.keyword_map[hexagram.name_jp] || []);
+            const matches = [...hex_keywords].filter(k => mbtiKeywords.has(k));
+            const keyword_score = matches.length * keyword_weight;
+            
+            const final_score = energy_score + keyword_score;
 
-                    <section class="report-section">
-                        <h3>2. 論理的根拠：エネルギー構成の内訳</h3>
-                        <p>あなたの総合的な八卦エネルギーは、各性格指標が持つエネルギーの総和です。ここでは、どの指標がどのエネルギーに貢献しているかを分解して示します。これにより「なぜ、その結論に至ったのか」を論理的に理解することができます。</p>
-                        ${createContributionChart('OS (MBTI): 人格の基本設計', source_contribution.os)}
-                        ${createContributionChart('CPU (エニアグラム): 動機の中核', source_contribution.cpu)}
-                        ${createContributionChart('Accel (ストレングスファインダー): 具体的な才能', source_contribution.accel)}
-                    </section>
+            return {
+                ...hexagram,
+                final_score: Math.round(final_score * 10) / 10,
+                energy_balance_score: Math.round(energy_score * 10) / 10,
+                keyword_resonance_score: Math.round(keyword_score * 10) / 10,
+                matched_keywords: matches,
+            };
+        }).sort((a, b) => b.final_score - a.final_score);
 
-                    <section class="report-section">
-                        <h3>3. 人格OS【${topOS.name_jp}】の取扱説明書</h3>
-                        <p>分析結果から導き出されたあなたのOSについて、その特性を最大限に活かすための具体的な指針です。</p>
-                        <div class="bg-gray-900/50 p-6 rounded-lg mt-4 space-y-8">
-                            <div>
-                                <h4 class="text-indigo-300">基本特性と内部力学</h4>
-                                <p>${topOS.description}。${relationshipText}</p>
-                            </div>
-                            <div>
-                                <h4 class="text-indigo-300">✅ 強みの活かし方</h4>
-                                ${insights ? `<p>${insights.strength_summary}</p><ul class="list-disc list-inside space-y-2 mt-3 text-gray-300">${insights.strength_details.map(d => `<li>${d}</li>`).join('')}</ul>` : '<p class="text-gray-500">（詳細な強みデータが登録されていません）</p>'}
-                            </div>
-                            <div>
-                                <h4 class="text-indigo-300">⚠️ 陥りやすい失敗と対策</h4>
-                                ${insights ? `<p>${insights.pitfall_summary}</p><ul class="list-disc list-inside space-y-2 mt-3 text-gray-300">${insights.pitfall_details.map(d => `<li>${d}</li>`).join('')}</ul>` : '<p class="text-gray-500">（詳細な失敗パターンデータが登録されていません）</p>'}
-                            </div>
-                        </div>
-                    </section>
-                </div>`;
+        const trigram_profile = Object.entries(total_scores)
+            .map(([id, score]) => ({ 
+                id: parseInt(id), 
+                name_en: HELPERS.id_to_en[id], 
+                score: Math.round(score * 10) / 10 
+            }))
+            .sort((a, b) => b.score - a.score);
 
-            resultAreaContainer.innerHTML = html;
+        return {
+            trigram_profile,
+            hexagram_candidates: hexagram_candidates.slice(0, 10)
         };
+    };
+
+    // ---- レポート生成関数の定義 ----
+    const renderUltrasyncReport = (userProfile, result) => {
+        reportContainer.innerHTML = ''; // クリア
+
+        const { trigram_profile, hexagram_candidates } = result;
+
+        // --- イントロダクション ---
+        const introSection = `
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-white mb-2">HaQei パーソナルOS発見レポート</h2>
+                <p class="brand-text font-semibold">【Ultrasync-Enhanced Edition】</p>
+            </div>
+            <div class="prose prose-invert max-w-none">
+                <p>このレポートは、あなたのユニークな資質を、西洋の心理学と東洋の叡智を融合させた独自のフレームワークで解析したものです。単なる結果の提示ではなく、あなたという存在の「OSアーキテクチャ（構造）」を解き明かし、自己理解を新たな次元へと引き上げることを目的とします。</p>
+                <div class="bg-gray-700/50 p-4 rounded-lg my-6">
+                    <h4 class="font-bold text-lg text-indigo-300">入力プロファイル:</h4>
+                    <ul>
+                        <li><strong>MBTI:</strong> ${userProfile.mbti} (${HDB.mbti_map.find(m => m.mbti_type === userProfile.mbti)?.nickname_jp || ''})</li>
+                        <li><strong>エニアグラム:</strong> ${userProfile.enneagram.join(', ')}</li>
+                        ${userProfile.sf.length > 0 ? `<li><strong>ストレングスファインダー:</strong> ${userProfile.sf.join(', ')}</li>` : ''}
+                    </ul>
+                </div>
+                <h3 class="text-xl font-bold text-yellow-300">はじめに：あなたのOSを紐解く分析アプローチ</h3>
+                <p>あなたの多面的なプロファイルは、その資質が持つエネルギーの性質に基づき、易経の八卦エネルギーへと変換・分析されました。これは絶対的な定義ではありませんが、私たちの分析における「思考のレンズ」とお考え下さい。</p>
+            </div>
+        `;
+
+        // --- エネルギープロファイル & 潜在能力 ---
+        const sortedTrigrams = [...trigram_profile].sort((a, b) => a.score - b.score);
+        const latentEnergies = sortedTrigrams.slice(0, 2);
         
-        const createContributionChart = (title, contribution_data) => {
-            const sorted_profile = Object.keys(contribution_data)
-                .map(id_str => ({ id: parseInt(id_str), score: Math.round(contribution_data[id_str] * 10) / 10 }))
-                .filter(item => item.score > 0)
-                .sort((a, b) => b.score - a.score);
-
-            if(sorted_profile.length === 0) return '';
-            const maxScore = sorted_profile[0].score > 0 ? sorted_profile[0].score : 1;
-
-            let chartHtml = `<div class="mt-4"><h4 class="text-gray-200">${title}</h4><div class="mt-2 p-4 bg-gray-900/50 rounded-lg space-y-2">`;
-            sorted_profile.forEach(item => {
-                const info = HAQEI_DATA.trigrams_master.find(t => t.trigram_id === item.id);
-                const barWidth = (item.score / maxScore) * 100;
-                chartHtml += `
-                    <div class="grid grid-cols-6 items-center gap-3 text-sm">
-                        <span class="font-semibold col-span-2">${info.name_jp} (${info.element})</span>
-                        <div class="col-span-4 trigram-bar-bg rounded-full h-5">
-                            <div class="trigram-bar bg-sky-600 h-5 rounded-full flex items-center justify-end px-2 text-white text-xs" style="width: ${barWidth}%">${item.score}</div>
-                        </div>
-                    </div>
+        let latentHtml = '';
+        latentEnergies.forEach(latent => {
+            const trigramData = HELPERS.getTrigramById(latent.id);
+            const hexagramId = HDB.hexagrams_master.find(h => h.upper_trigram_id === latent.id && h.lower_trigram_id === latent.id)?.hexagram_id;
+            const hexagramName = hexagramId ? HELPERS.getHexagramById(hexagramId).name_jp : '';
+            
+            let actionPlan = '';
+            if (hexagramName === '坤為地') {
+                actionPlan = `
+                    <p class="font-bold text-gray-300 mt-2">アクションプラン:</p>
+                    <ul class="text-sm">
+                        <li>1日15分、スマートフォンの通知を切り、思考を止め、ただ自然の音に耳を澄ませる。</li>
+                        <li>週に一度、誰かの話を評価や反論をせずに最後まで聴く「傾聴の時間」を設ける。</li>
+                    </ul>
                 `;
-            });
-            chartHtml += `</div></div>`;
-            return chartHtml;
+            } else if (hexagramName === '艮為山') {
+                 actionPlan = `
+                    <p class="font-bold text-gray-300 mt-2">アクションプラン:</p>
+                    <ul class="text-sm">
+                        <li>大きな決断をする前に、必ず一晩寝かせるルールを作る。</li>
+                        <li>一日の終わりに、その日の行動と感情を3行だけジャーナリング（記録）し、客観的に自分を振り返る。</li>
+                    </ul>
+                `;
+            }
+
+            latentHtml += `
+                <div class="mt-4">
+                    <h5 class="font-semibold text-lg text-indigo-300">${trigramData.name_en} (${trigramData.element}) のエネルギーを育むために:</h5>
+                    <p class="text-sm"><strong class="text-yellow-300">${hexagramName}</strong> の教え：${HELPERS.getTrigramById(latent.id).name_jp}が持つ「${HELPERS.getTrigramById(latent.id).keywords || ''}」の力を意識します。</p>
+                    ${actionPlan}
+                </div>
+            `;
+        });
+
+
+        const profileSection = `
+            <div class="bg-gray-700/50 p-6 rounded-lg prose prose-invert max-w-none">
+                <h3 class="text-xl font-bold text-yellow-300">総合エネルギープロファイルと育成すべき潜在能力</h3>
+                <p>あなたの資質は、以下の八卦のエネルギーバランスで構成されています。</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-4 text-center">
+                    ${trigram_profile.map(t => `
+                        <div class="p-2 bg-gray-600/50 rounded-lg">
+                            <p class="font-bold text-lg">${t.name_en}</p>
+                            <p class="text-2xl font-bold text-indigo-300">${t.score}</p>
+                        </div>
+                    `).join('')}
+                </div>
+                <h4 class="font-semibold text-lg">主要なエネルギー傾向:</h4>
+                <p>あなたの核には、特に<strong>「${trigram_profile[0].name_en}」</strong>と<strong>「${trigram_profile[1].name_en}」</strong>のエネルギーが強く影響しています。</p>
+                <h4 class="font-semibold text-lg mt-4">あなたの潜在能力と育成すべきエネルギー:</h4>
+                <p>あなたの強力な推進力は、時に足元を不安定にさせることがあります。未来を創造するためには、大地と静寂の力、すなわち<strong>「${latentEnergies[0].name_en}」</strong>と<strong>「${latentEnergies[1].name_en}」</strong>のエネルギーを意識的に育成することが、あなたの持続的な成長と成功の鍵となります。</p>
+                ${latentHtml}
+            </div>
+        `;
+        
+        // --- OSアーキテクチャ ---
+        const osSections = hexagram_candidates.slice(0, 3).map((os, index) => {
+            const osTypes = [
+                { title: 'プライマリOS', subtitle: '内なる葛藤と創造の源泉', color: 'yellow' },
+                { title: 'セカンダリOS', subtitle: '世界を照らす成功の姿', color: 'indigo' },
+                { title: 'グロースOS', subtitle: '帰るべき心の礎', color: 'teal' },
+            ];
+            const upperTrigram = HELPERS.getTrigramById(os.upper_trigram_id);
+            const lowerTrigram = HELPERS.getTrigramById(os.lower_trigram_id);
+            
+            let osExplanation = "";
+            switch(index) {
+                case 0: // プライマリOS
+                    osExplanation = `あなたの魂のOSです。「${upperTrigram.name_en}（${upperTrigram.element}）」と「${lowerTrigram.name_en}（${lowerTrigram.element}）」のエネルギーがあなたの根幹をなしています。この組み合わせが、あなたの基本的な思考パターンや反応、そして世界との関わり方を決定づけています。このOSの特性を理解することが、自己理解の第一歩です。`;
+                    break;
+                case 1: // セカンダリOS
+                    osExplanation = `これは、プライマリOSのエネルギーが社会的な場面で表現される際の「ペルソナ（表の顔）」です。「${upperTrigram.name_en}」と「${lowerTrigram.name_en}」の組み合わせは、あなたが他者と関わる時や、目標を達成しようとする時に現れる行動特性を示しています。プライマリOSが内的動機なら、セカンダリOSは外的行動と言えるでしょう。`;
+                    break;
+                case 2: // グロースOS
+                    osExplanation = `このOSは、普段は意識の影に隠れているかもしれませんが、あなたの成長を促す「課題」と「可能性」を秘めたOSです。「${upperTrigram.name_en}」と「${lowerTrigram.name_en}」のエネルギーは、あなたが困難に直面した時や、人生の転機に立った時に、新たな視点や解決策を与えてくれます。これは克服すべき弱点ではなく、意識的に取り入れるべき「成長のためのOS」です。`;
+                    break;
+            }
+            
+            return `
+                <div class="bg-gray-700/50 p-6 rounded-lg prose prose-invert max-w-none">
+                    <h3 class="text-xl font-bold text-${osTypes[index].color}-300">${index + 1}. ${os.name_jp} - 【${osTypes[index].title}：${osTypes[index].subtitle}】</h3>
+                    <p class="text-sm text-gray-400">総合スコア: ${os.final_score} [エネルギーバランス: ${os.energy_balance_score} / キーワード共鳴: ${os.keyword_resonance_score}]</p>
+                    <div class="my-4">
+                        <p><strong>OS解説:</strong> ${osExplanation}</p>
+                        <p class="mt-2">${os.description}</p>
+                    </div>
+                    <p><strong>関連キーワード:</strong> ${os.keywords}</p>
+                </div>
+            `;
+        }).join('');
+        
+        const architectureSection = `
+            <div>
+                <h3 class="text-2xl text-center font-bold text-white mb-6">あなたのOSアーキテクチャ：Top3 OSの構造的解説</h3>
+                <div class="space-y-6">${osSections}</div>
+            </div>
+        `;
+
+        // --- 総合的な傾向と未来への活かし方 ---
+        const finalSection = `
+            <div class="bg-gray-700/50 p-6 rounded-lg prose prose-invert max-w-none">
+                <h3 class="text-xl font-bold text-yellow-300">総合的な傾向と未来への活かし方</h3>
+                <h4 class="font-semibold text-lg mt-4">強みとポテンシャル</h4>
+                <p>あなたの真の強みは、「${hexagram_candidates[0].name_jp}」の独創的な視点と「${hexagram_candidates[1].name_jp}」の圧倒的な実行力という、相反するようなOSを内包している点にあります。この二つのOSを使い分けることで、革新的なビジョンを掲げ、それを現実世界で形にするという、稀有なリーダーシップを発揮できます。</p>
+                <h4 class="font-semibold text-lg mt-4">陥りやすいパターンと課題</h4>
+                <p>「${hexagram_candidates[1].name_jp}」の成功体験に酔いしれると、足元を支える「地」や「山」のエネルギーを忘れ、燃え尽き症候群に陥る危険があります。また、「${hexagram_candidates[0].name_jp}」の葛藤が強すぎると、孤立を深めるでしょう。その時こそ、あなたのグロースOS「${hexagram_candidates[2].name_jp}」を思い出してください。あなたにとっての「帰るべき場所」や「守るべき規律」が、あなたを健全な道へと引き戻す羅針盤となります。</p>
+                <h4 class="font-semibold text-lg mt-4">未来への活かし方</h4>
+                <p><a href="future_simulator.html" class="text-indigo-400 hover:underline">未来分岐シミュレーター</a>を活用する際は、あなたの持つ<strong>「${trigram_profile[0].name_en}」と「${trigram_profile[1].name_en}」</strong>のエネルギーを最大限に活かすシナリオに注目してください。あなたの内なる情熱が、テーマを深化させ、周囲を巻き込む力となります。</p>
+            </div>
+        `;
+        
+        reportContainer.innerHTML = introSection + profileSection + architectureSection + finalSection;
+        inputContainer.classList.add('hidden');
+        reportContainer.classList.remove('hidden');
+        reportContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    // ---- イベントリスナーの設定 ----
+    analyzeBtn.addEventListener('click', () => {
+        const userProfile = {
+            mbti: mbtiSelect.value,
+            enneagram: enneaSelects.map(s => s.value).filter(Boolean),
+            sf: sfSelects.map(s => s.value).filter(Boolean)
         };
+        if (!userProfile.mbti || userProfile.enneagram.length === 0) {
+            alert('MBTIと、主要なエニアグラムタイプを少なくとも1つ選択してください。');
+            return;
+        }
+        const result = runAdvancedAnalysis(userProfile);
+        renderUltrasyncReport(userProfile, result);
     });
+});
     </script>
 </body>
 </html>
