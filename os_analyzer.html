@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HaQei 人格OS 分析レポート v12.8</title>
+    <title>HaQei 人格OS 分析レポート v13.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,7 +38,7 @@
         .hex-cell.highlight-souka { border: 2px dashed #0ea5e9; box-shadow: 0 0 10px #0ea5e9; }
         .hex-cell.highlight-goke { border: 2px dotted #34d399; box-shadow: 0 0 10px #34d399; }
         
-        /* ▼▼▼【v12.8 追加】マップ情報パネル内の詳細表示スタイル ▼▼▼ */
+        /* マップ情報パネル内の詳細表示スタイル */
         #hex-map-info details summary { cursor: pointer; display: inline-block; font-size: 0.75rem; color: #9ca3af; margin-top: 0.25rem;}
         #hex-map-info details summary:hover { color: #e5e7eb; }
         #hex-map-info details div { background-color: rgba(0,0,0,0.2); padding: 0.5rem 0.75rem; margin-top: 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; line-height: 1.6; }
@@ -94,7 +94,7 @@
     <script src="assets/haqei_main_database.js"></script>
     
     <script>
-    // HaQei OS Analyzer - JavaScript v12.8 (解説機能追加版)
+    // HaQei OS Analyzer - JavaScript v13.1 (最終FIX版)
     const HDB = HAQEI_DATA;
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -116,6 +116,16 @@
             getH64ById: (id) => HDB.H64_DATA.find(h => h.卦番号 === id) || {},
             getActionPlan: (core_id, extension_id) => {
                 try { return HDB.action_plans[extension_id][core_id]; } catch (e) { return "現在、この組み合わせのアクションプランは準備中です。"; }
+            },
+            trigram_colors: {
+                1: '#FFFFFF', // 天 (乾) - 白
+                2: '#EC4899', // 沢 (兌) - ピンク
+                3: '#EF4444', // 火 (離) - 赤
+                4: '#FACC15', // 雷 (震) - 黄
+                5: '#86EFAC', // 風 (巽) - 緑
+                6: '#3B82F6', // 水 (坎) - 青
+                7: '#F97316', // 山 (艮) - オレンジ
+                8: '#4B5563'  // 地 (坤) - 濃いグレー
             }
         };
 
@@ -254,6 +264,7 @@
         const renderReport = (userProfile, result) => {
             reportContainer.innerHTML = '';
             const { trigram_profile, hexagram_candidates, score_breakdown } = result;
+
             const createIntroSection = () => {
                 const mbtiNickname = HDB.mbti_nicknames.find(n => n.type === userProfile.mbti)?.nickname || '';
                 const enneaNicknames = userProfile.enneagram.map(type => `タイプ${type}: ${HDB.enneagram_map.find(e => e.enneagram_type == type)?.nickname || ''}`).join(', ');
@@ -285,8 +296,10 @@
                             <div class="space-y-3 mt-4">
                             ${trigram_profile.map(t => `
                                 <div class="w-full">
-                                    <div class="flex justify-between mb-1 text-sm"><span class="font-bold text-indigo-300">${t.name_en} (${HELPERS.id_to_jp[t.id]})</span><span>${t.score}</span></div>
-                                    <div class="w-full bg-gray-700 rounded-full h-2.5"><div class="bg-indigo-500 h-2.5 rounded-full" style="width: ${t.score * 10}%"></div></div>
+                                    <div class="flex justify-between mb-1 text-sm"><span class="font-bold" style="color: ${HELPERS.trigram_colors[t.id]}">${t.name_en} (${HELPERS.id_to_jp[t.id]})</span><span>${t.score}</span></div>
+                                    <div class="w-full bg-gray-700 rounded-full h-2.5">
+                                        <div class="h-2.5 rounded-full" style="background-color: ${HELPERS.trigram_colors[t.id]}; width: ${t.score * 10}%"></div>
+                                    </div>
                                 </div>`).join('')}
                             </div>
                         </div>
@@ -346,7 +359,11 @@
                 `;
             };
             const createArchitectureSection = () => {
-                const osTypes = [{ title: 'プライマリOS', subtitle: 'あなたの本質と、創造の源泉', highlightClass: 'highlight-primary' },{ title: 'セカンダリOS', subtitle: '社会的な場面で見せる成功の姿', highlightClass: 'highlight-secondary' },{ title: 'グロースOS', subtitle: 'あなたが成長するために向き合うべき心の礎', highlightClass: 'highlight-growth' }];
+                const osTypes = [
+                    { title: '本質OS', subtitle: 'あなたの魂の設計図、全ての力の源泉', highlightClass: 'highlight-primary' },
+                    { title: '表舞台のOS', subtitle: '社会的な役割を演じ、成功を掴むための姿', highlightClass: 'highlight-secondary' },
+                    { title: '可能性のOS', subtitle: '統合すれば、あなたの世界がさらに広がる未来の鍵', highlightClass: 'highlight-growth' }
+                ];
                 const osSections = hexagram_candidates.slice(0, 3).map((os, index) => {
                     const manualData = HDB.os_manual[os.hexagram_id];
                     const osExplanation = manualData ? manualData.summary : (HELPERS.getHexagramById(os.hexagram_id)?.description || '詳細な説明は準備中です');
@@ -388,7 +405,7 @@
                         </div>
                     </div>`;
 
-                return `<div><h3 class="text-2xl text-center font-bold text-white mt-12 mb-6">あなたのOSアーキテクチャ：Top3 OSの構造的解説</h3>${mapHtml}<div class="space-y-8 mt-8">${osSections}</div></div>`;
+                return `<div><h3 class="text-2xl text-center font-bold text-white mt-12 mb-6">あなたのOSアーキテクチャ</h3>${mapHtml}<div class="space-y-8 mt-8">${osSections}</div></div>`;
             };
             
             const createFinalSection = () => `
@@ -428,16 +445,42 @@
                     labels: sortedProfile.map(t => `${t.name_en} (${HELPERS.id_to_jp[t.id]})`),
                     datasets: [{
                         label: 'エネルギー強度', data: sortedProfile.map(t => t.score),
-                        fill: true, backgroundColor: 'rgba(99, 102, 241, 0.2)', borderColor: '#a5b4fc',
-                        pointBackgroundColor: '#a5b4fc', pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff', pointHoverBorderColor: '#a5b4fc' }]
+                        fill: true, 
+                        backgroundColor: 'rgba(165, 180, 252, 0.2)', // 背景色は固定
+                        borderColor: '#a5b4fc', // 線の色は固定
+                        pointBackgroundColor: sortedProfile.map(t => HELPERS.trigram_colors[t.id]), // ポイントの色を八卦の色に
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: sortedProfile.map(t => HELPERS.trigram_colors[t.id])
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { r: {
-                    angleLines: { color: 'rgba(255, 255, 255, 0.2)' }, grid: { color: 'rgba(255, 255, 255, 0.2)' },
-                    pointLabels: { color: '#d1d5db', font: { size: 12 } },
-                    ticks: { color: 'rgba(255,255,255,0.7)', backdropColor: 'rgba(0,0,0,0)', stepSize: 2 },
-                    suggestedMin: 0
-                }}, plugins: { legend: { display: false } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.2)' }, 
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' },
+                            pointLabels: { 
+                                color: '#d1d5db',
+                                font: { size: 12 },
+                                // ▼▼▼【v13.0 修正】ラベルの背景色を追加して視認性確保 ▼▼▼
+                                backdropColor: 'rgba(0, 0, 0, 0.5)',
+                                backdropPadding: 2,
+                                borderRadius: 4
+                            },
+                            ticks: { 
+                                color: 'rgba(255,255,255,0.7)', 
+                                backdropColor: 'rgba(0,0,0,0)', 
+                                stepSize: 2 
+                            },
+                            suggestedMin: 0
+                        }
+                    }, 
+                    plugins: { 
+                        legend: { display: false } 
+                    } 
+                }
             });
         };
         
@@ -450,7 +493,6 @@
             const osTypes = ['highlight-primary', 'highlight-secondary', 'highlight-growth'];
             const trigramOrder = [1, 2, 3, 4, 5, 6, 7, 8];
 
-            // --- マップのセル生成（変更なし） ---
             container.appendChild(document.createElement('div'));
             trigramOrder.forEach(id => {
                 const headerCell = document.createElement('div');
@@ -483,7 +525,6 @@
                 });
             });
             
-            // --- マップのインタラクションを設定 ---
             const cells = container.querySelectorAll('.hex-cell');
             cells.forEach(cell => {
                 cell.addEventListener('click', (e) => {
@@ -518,44 +559,23 @@
                         const sakkaData = HELPERS.getH64ById(h64Data.saku_id);
                         const soukaData = HELPERS.getH64ById(h64Data.sou_id);
                         const gokeData = HELPERS.getH64ById(h64Data.go_id);
-
-                        // ▼▼▼【v12.10 修正】ここからが情報パネルのHTML生成ロジックです ▼▼▼
-                        let sakkaHtml, soukaHtml, gokeHtml;
-
-                        // 錯卦の表示ロジック
-                        if (h64Data.saku_id === id) {
-                            sakkaHtml = `<p><span class="text-orange-400 font-semibold">錯卦: このOS自身</span><br><span class="text-xs text-gray-400">陰陽を反転させても同じ構造を持つ、完全なOSです。</span></p>`;
-                        } else {
-                            sakkaHtml = `
-                                <p><span class="text-orange-400 font-semibold">錯卦: ${sakkaData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSの全陰陽を反転させた「真逆の性質」。最大の課題と可能性を示します。</span></p>
-                                <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(sakkaData.卦番号)}</div></details>`;
-                        }
-
-                        // 綜卦の表示ロジック
-                        if (h64Data.sou_id === id) {
-                            soukaHtml = `<p><span class="text-blue-400 font-semibold">綜卦: このOS自身</span><br><span class="text-xs text-gray-400">上下を反転させても同じ構造を持つ、安定したOSです。</span></p>`;
-                        } else {
-                            soukaHtml = `
-                                <p><span class="text-blue-400 font-semibold">綜卦: ${soukaData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSを上下反転させた「裏側の性質」。他者からの見え方や隠れた側面を示します。</span></p>
-                                <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(soukaData.卦番号)}</div></details>`;
-                        }
-
-                        // 互卦の表示ロジック
-                        if (h64Data.go_id === id) {
-                            gokeHtml = `<p><span class="text-green-400 font-semibold">互卦: このOS自身</span><br><span class="text-xs text-gray-400">内に同じ構造を内包する、自己完結したエネルギーを持ちます。</span></p>`;
-                        } else {
-                            gokeHtml = `
-                                <p><span class="text-green-400 font-semibold">互卦: ${gokeData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSの内に秘められた「隠れた本質」。ポテンシャルや問題の核心を示します。</span></p>
-                                <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(gokeData.卦番号)}</div></details>`;
-                        }
-
+                        
                         mapInfo.innerHTML = `
                             <div class="w-full text-left">
                                 <p class="font-bold text-white text-base text-center mb-2 pb-2 border-b border-gray-700">${h64Data.名前}</p>
                                 <div class="space-y-2">
-                                    <div class="relation-block">${sakkaHtml}</div>
-                                    <div class="relation-block">${soukaHtml}</div>
-                                    <div class="relation-block">${gokeHtml}</div>
+                                    <div class="relation-block">
+                                        <p><span class="text-orange-400 font-semibold">錯卦: ${sakkaData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSの全陰陽を反転させた、真逆の性質。最大の課題と可能性を示す。</span></p>
+                                        <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(sakkaData.卦番号)}</div></details>
+                                    </div>
+                                    <div class="relation-block">
+                                        <p><span class="text-blue-400 font-semibold">綜卦: ${soukaData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSを上下反転させた、裏側の性質。他者からの見え方や、隠れた側面を示す。</span></p>
+                                        <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(soukaData.卦番号)}</div></details>
+                                    </div>
+                                    <div class="relation-block">
+                                        <p><span class="text-green-400 font-semibold">互卦: ${gokeData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSの内に秘められた、隠れた本質やポテンシャルを示す。</span></p>
+                                        <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(gokeData.卦番号)}</div></details>
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -567,26 +587,30 @@
         const showModal = (content) => {
             modalBody.innerHTML = content;
             modalContainer.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden'; // 背景のスクロールを禁止
             setTimeout(() => {
                 modalOverlay.classList.remove('opacity-0');
                 document.getElementById('modalContent').classList.remove('scale-95');
-            }, 10);
+            }, 10); // CSSトランジションを適用するための僅かな遅延
         };
+
         const hideModal = () => {
             document.getElementById('modalOverlay').classList.add('opacity-0');
             document.getElementById('modalContent').classList.add('scale-95');
             setTimeout(() => { 
                 modalContainer.classList.add('hidden');
-                document.body.style.overflow = '';
-            }, 300);
+                document.body.style.overflow = ''; // 背景のスクロール禁止を解除
+            }, 300); // transitionのdurationと合わせる
         };
+        
         const showBreakdownModal = (breakdownData) => {
             let contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-4">OSスコア算出根拠</h3><p class="text-sm text-gray-400 mb-4">あなたの性格特性が、8つの基本エネルギー（八卦）にどのように貢献しているかの内訳です。各数値は、特性の親和性と重み付けを掛け合わせたスコアを示します。</p><div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-400">`;
             contentHtml += `<thead class="text-xs text-gray-300 uppercase bg-gray-700"><tr><th scope="col" class="px-4 py-3">分析項目</th>`;
-            const trigramHeaders = [...HDB.trigrams_master].sort((a,b) => a.id - b.id);
+            
+            const trigramHeaders = [...HDB.trigrams_master].sort((a,b) => a.trigram_id - b.trigram_id);
             trigramHeaders.forEach(t => { contentHtml += `<th scope="col" class="px-4 py-3 text-center" title="${t.name_jp}">${t.name_en}</th>`; });
             contentHtml += `</tr></thead><tbody>`;
+
             const sources = [breakdownData.mbti, ...breakdownData.enneagram, ...breakdownData.sf];
             sources.forEach(source => {
                 if(source){
@@ -598,6 +622,7 @@
                     contentHtml += `</tr>`;
                 }
             });
+
             contentHtml += `</tbody></table></div>`;
             showModal(contentHtml);
         };
