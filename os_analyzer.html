@@ -307,57 +307,64 @@
                 </div>
             `;
             const createExtensionOSSection = () => {
-                const coreOS1 = trigram_profile[0];
-                const coreOS2 = trigram_profile[1];
-                const extensionOS1 = trigram_profile[trigram_profile.length - 1];
-                const extensionOS2 = trigram_profile[trigram_profile.length - 2];
-                const getReasonText = (coreOS, extOS) => `あなたのコアOS「${coreOS.name_en}」の力を最大限に引き出すため、その対極の性質を持つ「${extOS.name_en}」の視点を取り入れます。`;
-                return `
-                    <div class="report-section">
-                        <h3>コア能力と「拡張OS」による可能性</h3>
-                        <p>あなたの資質を最大限に活かすため、「コアOS」と「拡張OS」という概念で解説します。弱点を克服するのではなく、強みをさらに輝かせるための戦略です。</p>
-                        <h4>コアOS：あなたの揺るぎない強み</h4>
-                        <div class="space-y-4 my-4">
-                            <div class="p-4 bg-gray-900/40 rounded-lg border border-gray-700">
-                                <p class="text-xl font-bold text-yellow-300">${coreOS1.name_en} (${HELPERS.id_to_jp[coreOS1.id]})</p>
-                                <p class="mt-1 text-gray-300">${coreOS1.strength_description || ''}</p>
-                            </div>
-                            <div class="p-4 bg-gray-900/40 rounded-lg border border-gray-700">
-                                <p class="text-xl font-bold text-yellow-300">${coreOS2.name_en} (${HELPERS.id_to_jp[coreOS2.id]})</p>
-                                <p class="mt-1 text-gray-300">${coreOS2.strength_description || ''}</p>
-                            </div>
+            const coreOS1 = trigram_profile[0];
+            const coreOS2 = trigram_profile[1];
+            const extensionOS1 = trigram_profile[trigram_profile.length - 1];
+            const extensionOS2 = trigram_profile[trigram_profile.length - 2];
+            
+            // ▼▼▼【v15.0 修正】八卦の名称に色を適用するためのHTML生成ロジック ▼▼▼
+            const createTrigramNameHtml = (trigram) => {
+                return `<span style="color: ${HELPERS.trigram_colors[trigram.id]}">${trigram.name_en} (${HELPERS.id_to_jp[trigram.id]})</span>`;
+            };
+
+            const getReasonText = (coreOS, extOS) => `あなたのコアOS<strong style="color: ${HELPERS.trigram_colors[coreOS.id]}">「${coreOS.name_en}」</strong>の力を最大限に引き出すため、その対極の性質を持つ<strong style="color: ${HELPERS.trigram_colors[extOS.id]}">「${extOS.name_en}」</strong>の視点を取り入れます。`;
+
+            return `
+                <div class="report-section">
+                    <h3>コア能力と「拡張OS」による可能性</h3>
+                    <p>あなたの資質を最大限に活かすため、「コアOS」と「拡張OS」という概念で解説します。弱点を克服するのではなく、強みをさらに輝かせるための戦略です。</p>
+                    <h4>コアOS：あなたの揺るぎない強み</h4>
+                    <div class="space-y-4 my-4">
+                        <div class="p-4 bg-gray-900/40 rounded-lg border border-gray-700">
+                            <p class="text-xl font-bold" style="color: ${HELPERS.trigram_colors[coreOS1.id]}">${coreOS1.name_en} (${HELPERS.id_to_jp[coreOS1.id]})</p>
+                            <p class="mt-1 text-gray-300">${coreOS1.strength_description || ''}</p>
                         </div>
-                        <h4>拡張OS：あなたの新たな可能性</h4>
-                        <p>あなたが意識的に使うことで、表現の幅を広げ、新たな可能性の扉を開くのが「拡張OS」です。今回は、あなたのエネルギーの中で最も遠い位置にある2つのOSをインストールしてみましょう。</p>
-                        <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            <div class="p-4 border border-teal-500/50 rounded-lg bg-teal-900/30">
-                                <h5 class="font-bold text-lg text-teal-300">【拡張OS 1：${extensionOS1.name_en}のインストール】</h5>
-                                <p class="text-xs text-teal-200 mb-2">${getReasonText(coreOS1, extensionOS1)}</p>
-                                <p class="mt-2 font-semibold text-gray-300">コアOS「${coreOS1.name_en}」を活かすプラン：</p>
-                                <p class="text-sm text-gray-200">${HELPERS.getActionPlan(coreOS1.id, extensionOS1.id)}</p>
-                            </div>
-                             <div class="p-4 border border-teal-500/50 rounded-lg bg-teal-900/30">
-                                <h5 class="font-bold text-lg text-teal-300">【拡張OS 1：${extensionOS1.name_en}のインストール】</h5>
-                                <p class="text-xs text-teal-200 mb-2">${getReasonText(coreOS2, extensionOS1)}</p>
-                                <p class="mt-2 font-semibold text-gray-300">コアOS「${coreOS2.name_en}」を活かすプラン：</p>
-                                <p class="text-sm text-gray-200">${HELPERS.getActionPlan(coreOS2.id, extensionOS1.id)}</p>
-                            </div>
-                            <div class="p-4 border border-violet-500/50 rounded-lg bg-violet-900/30">
-                                <h5 class="font-bold text-lg text-violet-300">【拡張OS 2：${extensionOS2.name_en}のインストール】</h5>
-                                <p class="text-xs text-violet-200 mb-2">${getReasonText(coreOS1, extensionOS2)}</p>
-                                <p class="mt-2 font-semibold text-gray-300">コアOS「${coreOS1.name_en}」を活かすプラン：</p>
-                                <p class="text-sm text-gray-200">${HELPERS.getActionPlan(coreOS1.id, extensionOS2.id)}</p>
-                            </div>
-                             <div class="p-4 border border-violet-500/50 rounded-lg bg-violet-900/30">
-                                <h5 class="font-bold text-lg text-violet-300">【拡張OS 2：${extensionOS2.name_en}のインストール】</h5>
-                                <p class="text-xs text-violet-200 mb-2">${getReasonText(coreOS2, extensionOS2)}</p>
-                                <p class="mt-2 font-semibold text-gray-300">コアOS「${coreOS2.name_en}」を活かすプラン：</p>
-                                <p class="text-sm text-gray-200">${HELPERS.getActionPlan(coreOS2.id, extensionOS2.id)}</p>
-                            </div>
+                        <div class="p-4 bg-gray-900/40 rounded-lg border border-gray-700">
+                            <p class="text-xl font-bold" style="color: ${HELPERS.trigram_colors[coreOS2.id]}">${coreOS2.name_en} (${HELPERS.id_to_jp[coreOS2.id]})</p>
+                            <p class="mt-1 text-gray-300">${coreOS2.strength_description || ''}</p>
                         </div>
                     </div>
-                `;
-            };
+                    <h4>拡張OS：あなたの新たな可能性</h4>
+                    <p>あなたが意識的に使うことで、表現の幅を広げ、新たな可能性の扉を開くのが「拡張OS」です。今回は、あなたのエネルギーの中で最も遠い位置にある2つのOSをインストールしてみましょう。</p>
+                    <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="p-4 border border-teal-500/50 rounded-lg bg-teal-900/30">
+                            <h5 class="font-bold text-lg text-teal-300">【拡張OS 1：${createTrigramNameHtml(extensionOS1)}のインストール】</h5>
+                            <p class="text-xs text-teal-200 mb-2">${getReasonText(coreOS1, extensionOS1)}</p>
+                            <p class="mt-2 font-semibold text-gray-300">コアOS<strong style="color: ${HELPERS.trigram_colors[coreOS1.id]}">「${coreOS1.name_en}」</strong>を活かすプラン：</p>
+                            <p class="text-sm text-gray-200">${HELPERS.getActionPlan(coreOS1.id, extensionOS1.id)}</p>
+                        </div>
+                         <div class="p-4 border border-teal-500/50 rounded-lg bg-teal-900/30">
+                            <h5 class="font-bold text-lg text-teal-300">【拡張OS 1：${createTrigramNameHtml(extensionOS1)}のインストール】</h5>
+                            <p class="text-xs text-teal-200 mb-2">${getReasonText(coreOS2, extensionOS1)}</p>
+                            <p class="mt-2 font-semibold text-gray-300">コアOS<strong style="color: ${HELPERS.trigram_colors[coreOS2.id]}">「${coreOS2.name_en}」</strong>を活かすプラン：</p>
+                            <p class="text-sm text-gray-200">${HELPERS.getActionPlan(coreOS2.id, extensionOS1.id)}</p>
+                        </div>
+                        <div class="p-4 border border-violet-500/50 rounded-lg bg-violet-900/30">
+                            <h5 class="font-bold text-lg text-violet-300">【拡張OS 2：${createTrigramNameHtml(extensionOS2)}のインストール】</h5>
+                            <p class="text-xs text-violet-200 mb-2">${getReasonText(coreOS1, extensionOS2)}</p>
+                            <p class="mt-2 font-semibold text-gray-300">コアOS<strong style="color: ${HELPERS.trigram_colors[coreOS1.id]}">「${coreOS1.name_en}」</strong>を活かすプラン：</p>
+                            <p class="text-sm text-gray-200">${HELPERS.getActionPlan(coreOS1.id, extensionOS2.id)}</p>
+                        </div>
+                         <div class="p-4 border border-violet-500/50 rounded-lg bg-violet-900/30">
+                            <h5 class="font-bold text-lg text-violet-300">【拡張OS 2：${createTrigramNameHtml(extensionOS2)}のインストール】</h5>
+                            <p class="text-xs text-violet-200 mb-2">${getReasonText(coreOS2, extensionOS2)}</p>
+                            <p class="mt-2 font-semibold text-gray-300">コアOS<strong style="color: ${HELPERS.trigram_colors[coreOS2.id]}">「${coreOS2.name_en}」</strong>を活かすプラン：</p>
+                            <p class="text-sm text-gray-200">${HELPERS.getActionPlan(coreOS2.id, extensionOS2.id)}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
             const createArchitectureSection = () => {
                 const osTypes = [
                     { title: '本質OS', subtitle: 'あなたの魂の設計図、全ての力の源泉', highlightClass: 'highlight-primary' },
@@ -441,10 +448,12 @@
             const ctx = document.getElementById('energyRadarChart').getContext('2d');
             const sortedProfile = [...trigram_profile].sort((a,b) => a.id - b.id);
             new Chart(ctx, {
-                type: 'radar', data: {
+                type: 'radar', 
+                data: {
                     labels: sortedProfile.map(t => `${t.name_en} (${HELPERS.id_to_jp[t.id]})`),
                     datasets: [{
-                        label: 'エネルギー強度', data: sortedProfile.map(t => t.score),
+                        label: 'エネルギー強度', 
+                        data: sortedProfile.map(t => t.score),
                         fill: true, 
                         backgroundColor: 'rgba(165, 180, 252, 0.2)',
                         borderColor: '#a5b4fc',
@@ -454,18 +463,33 @@
                         pointHoverBorderColor: sortedProfile.map(t => HELPERS.trigram_colors[t.id])
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { r: {
-                    angleLines: { color: 'rgba(255, 255, 255, 0.2)' }, grid: { color: 'rgba(255, 255, 255, 0.2)' },
-                    pointLabels: { 
-                        color: '#d1d5db',
-                        font: { size: 12 },
-                        backdropColor: 'rgba(0, 0, 0, 0.5)',
-                        backdropPadding: 2,
-                        borderRadius: 4
-                    },
-                    ticks: { color: 'rgba(255,255,255,0.7)', backdropColor: 'rgba(0,0,0,0)', stepSize: 2 },
-                    suggestedMin: 0
-                }}, plugins: { legend: { display: false } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.2)' }, 
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' },
+                            pointLabels: { 
+                                // ▼▼▼【v15.2 修正】フォントサイズを大きくしました ▼▼▼
+                                font: { size: 14 },
+                                color: sortedProfile.map(t => HELPERS.trigram_colors[t.id]),
+                                backdropColor: 'rgba(0, 0, 0, 0.5)',
+                                backdropPadding: 2,
+                                borderRadius: 4
+                            },
+                            ticks: { 
+                                color: 'rgba(255,255,255,0.7)', 
+                                backdropColor: 'rgba(0,0,0,0)', 
+                                stepSize: 2 
+                            },
+                            suggestedMin: 0
+                        }
+                    }, 
+                    plugins: { 
+                        legend: { display: false } 
+                    } 
+                }
             });
         };
         
