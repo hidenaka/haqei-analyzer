@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
         .brand-text { background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
@@ -21,6 +22,7 @@
         select optgroup { background-color: #1f2937; color: #d1d5db; }
         .trigram-bar-bg { background-color: #374151; }
         .trigram-bar { transition: width 0.5s ease-in-out; }
+        .modal-content {transition: transform 0.3s ease;}
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
@@ -53,14 +55,24 @@
         </div>
 
         <div id="report-container" class="hidden space-y-12">
+                <div id="ultrasyncReport"></div>
+
+                <div class="bg-gray-700/50 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-yellow-300 mb-4">エネルギープロファイル レーダーチャート</h3>
+                    <div class="relative h-80 sm:h-96">
+                        <canvas id="energyRadarChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="assets/haqei_main_database.js"></script>
+    <script src="assets/action_plan_database.js"></script>
     <script src="assets/koudo_shishin_database.js"></script>
     
     <script>
-    // HaQei OS Analyzer - JavaScript v2.0 (Complete)
+    // HaQei OS Analyzer - JavaScript v3.0 (Data-Integrated)
 const HDB = HAQEI_DATA;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -281,44 +293,87 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${userProfile.sf.length > 0 ? `<li><strong>ストレングスファインダー:</strong> ${userProfile.sf.join(', ')}</li>` : ''}
                     </ul>
                 </div>
-                <h3 class="text-xl font-bold text-yellow-300">はじめに：あなたのOSを紐解く分析アプローチ</h3>
-                <p>あなたの多面的なプロファイルは、その資質が持つエネルギーの性質に基づき、易経の八卦エネルギーへと変換・分析されました。これは絶対的な定義ではありませんが、私たちの分析における「思考のレンズ」とお考え下さい。</p>
-            </div>
-        `;
+            </div>`;
 
-        const sortedTrigrams = [...trigram_profile].sort((a, b) => a.score - b.score);
-        const latentEnergies = sortedTrigrams.slice(0, 2);
-        
-        let latentHtml = '';
-        latentEnergies.forEach(latent => {
-            const trigramData = HELPERS.getTrigramById(latent.id);
-            const hexagram = HDB.hexagrams_master.find(h => h.upper_trigram_id === latent.id && h.lower_trigram_id === latent.id);
-            if(hexagram) {
-                const hexagramName = hexagram.name_jp;
-                let actionPlan = '';
-                if (hexagramName === '坤為地') {
-                    actionPlan = `<p class="font-bold text-gray-300 mt-2">アクションプラン:</p><ul class="text-sm"><li>1日15分、スマートフォンの通知を切り、思考を止め、ただ自然の音に耳を澄ませる。</li><li>週に一度、誰かの話を評価や反論をせずに最後まで聴く「傾聴の時間」を設ける。</li></ul>`;
-                } else if (hexagramName === '艮為山') {
-                    actionPlan = `<p class="font-bold text-gray-300 mt-2">アクションプラン:</p><ul class="text-sm"><li>大きな決断をする前に、必ず一晩寝かせるルールを作る。</li><li>一日の終わりに、その日の行動と感情を3行だけジャーナリング（記録）し、客観的に自分を振り返る。</li></ul>`;
-                }
-                latentHtml += `<div class="mt-4"><h5 class="font-semibold text-lg text-indigo-300">${trigramData.name_en} (${trigramData.element}) のエネルギーを育むために:</h5><p class="text-sm"><strong class="text-yellow-300">${hexagramName}</strong> の教え：${trigramData.name_jp}が持つ「${hexagram.keywords || ''}」の力を意識します。</p>${actionPlan}</div>`;
+        // ★★★ ここからが新しい「拡張OS」のロジックです ★★★
+        const coreOS1 = trigram_profile[0];
+        const coreOS2 = trigram_profile[1];
+        const extensionOS1 = trigram_profile[trigram_profile.length - 1];
+        const extensionOS2 = trigram_profile[trigram_profile.length - 2];
+
+        const getActionPlan = (core, extension) => {
+            try {
+                // HDBに統合されたaction_plansを参照します
+                return HDB.action_plans[extension.id][core.id];
+            } catch (e) {
+                return "現在、この組み合わせのアクションプランは準備中です。";
             }
-        });
+        };
 
-        const profileSection = `<div class="bg-gray-700/50 p-6 rounded-lg prose prose-invert max-w-none"><h3 class="text-xl font-bold text-yellow-300">総合エネルギープロファイルと育成すべき潜在能力</h3><p>あなたの資質は、以下の八卦のエネルギーバランスで構成されています。</p><div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-4 text-center">${trigram_profile.map(t => `<div class="p-2 bg-gray-600/50 rounded-lg"><p class="font-bold text-lg">${t.name_en}</p><p class="text-2xl font-bold text-indigo-300">${t.score}</p></div>`).join('')}</div><h4 class="font-semibold text-lg">主要なエネルギー傾向:</h4><p>あなたの核には、特に<strong>「${trigram_profile[0].name_en}」</strong>と<strong>「${trigram_profile[1].name_en}」</strong>のエネルギーが強く影響しています。</p><h4 class="font-semibold text-lg mt-4">あなたの潜在能力と育成すべきエネルギー:</h4><p>あなたの強力な推進力は、時に足元を不安定にさせることがあります。未来を創造するためには、大地と静寂の力、すなわち<strong>「${latentEnergies[0].name_en}」</strong>と<strong>「${latentEnergies[1].name_en}」</strong>のエネルギーを意識的に育成することが、あなたの持続的な成長と成功の鍵となります。</p>${latentHtml}</div>`;
+        const getHexagramForTrigram = (trigram_id) => {
+             return HDB.hexagrams_master.find(h => h.upper_trigram_id === trigram_id && h.lower_trigram_id === trigram_id) || {};
+        }
+
+        const extensionOS1Hex = getHexagramForTrigram(extensionOS1.id);
+        const extensionOS2Hex = getHexagramForTrigram(extensionOS2.id);
+
+        const profileSection = `
+        <div class="bg-gray-800/60 p-6 rounded-2xl prose prose-invert max-w-none report-section">
+            <h3 class="text-yellow-300">あなたのコア能力と、可能性を広げる「拡張OS」</h3>
+            <p>あなたの資質は、以下の八卦のエネルギーバランスで構成されています。</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-6 text-center">
+                ${trigram_profile.map(t => `<div class="p-3 bg-gray-900/70 rounded-lg shadow-lg"><p class="font-bold text-lg">${t.name_en}</p><p class="text-3xl font-bold text-indigo-300 tracking-tighter">${t.score}</p></div>`).join('')}
+            </div>
+            
+            <h4>コアOS（あなたの強み）:</h4>
+            <p>あなたの核となる素晴らしい能力は、<strong>「${coreOS1.name_en}」</strong>と<strong>「${coreOS2.name_en}」</strong>のエネルギーです。これらはあなたが自然体でいる時に、最も輝く力です。</p>
+            
+            <h4>拡張OS（新たな可能性）:</h4>
+            <p>あなたのコア能力は、新しいOSをインストールすることで、さらに活躍の場が広がります。今回は、あなたのコア能力をより輝かせるため、<strong>「${extensionOS2.name_en}」</strong>と<strong>「${extensionOS1.name_en}」</strong>のエネルギー（拡張OS）を導入してみましょう。これは弱点を補うのではなく、あなたの表現レパートリーを増やすためのポジティブな試みです。</p>
+
+            <div class="mt-6 space-y-4">
+                <div class="p-4 border border-teal-500/50 rounded-lg bg-teal-900/30">
+                    <h5 class="font-bold text-lg text-teal-300">【拡張OS 1：${extensionOS2.name_en}（${getHexagramForTrigram(extensionOS2.id).keywords || ''}）のインストール】</h5>
+                    <p class="mt-2 font-semibold">強みを活かすアクションプラン：</p>
+                    <p class="text-sm">${getActionPlan(coreOS1, extensionOS2)}</p>
+                </div>
+                <div class="p-4 border border-violet-500/50 rounded-lg bg-violet-900/30">
+                    <h5 class="font-bold text-lg text-violet-300">【拡張OS 2：${extensionOS1.name_en}（${getHexagramForTrigram(extensionOS1.id).keywords || ''}）のインストール】</h5>
+                    <p class="mt-2 font-semibold">強みを活かすアクションプラン：</p>
+                    <p class="text-sm">${getActionPlan(coreOS1, extensionOS1)}</p>
+                </div>
+            </div>
+        </div>`;
         
         const osSections = hexagram_candidates.slice(0, 3).map((os, index) => {
             const osTypes = [{ title: 'プライマリOS', subtitle: '内なる葛藤と創造の源泉', color: 'yellow' },{ title: 'セカンダリOS', subtitle: '世界を照らす成功の姿', color: 'indigo' },{ title: 'グロースOS', subtitle: '帰るべき心の礎', color: 'teal' }];
-            const upperTrigram = HELPERS.getTrigramById(os.upper_trigram_id);
-            const lowerTrigram = HELPERS.getTrigramById(os.lower_trigram_id);
-            let osExplanation = ["あなたの魂のOSです。", "これは、プライマリOSのエネルギーが社会的な場面で表現される際の「ペルソナ（表の顔）」です。", "このOSは、普段は意識の影に隠れているかもしれませんが、あなたの成長を促す「課題」と「可能性」を秘めたOSです。"][index];
-            osExplanation += `「${upperTrigram.name_en}（${upperTrigram.element}）」と「${lowerTrigram.name_en}（${lowerTrigram.element}）」のエネルギーの組み合わせが、あなたの基本的な思考パターンを決定づけています。`;
-            return `<div class="bg-gray-700/50 p-6 rounded-lg prose prose-invert max-w-none"><h3 class="text-xl font-bold text-${osTypes[index].color}-300">${index + 1}. ${os.name_jp} - 【${osTypes[index].title}：${osTypes[index].subtitle}】</h3><p class="text-sm text-gray-400">総合スコア: ${os.final_score} [エネルギー: ${os.energy_balance_score} / キーワード: ${os.keyword_resonance_score}]</p><div class="my-4"><p><strong>OS解説:</strong> ${osExplanation}</p><p class="mt-2">${os.description}</p></div><p><strong>関連キーワード:</strong> ${os.keywords}</p></div>`;
+            // HDBに統合されたos_manualを参照します
+            const manualData = HDB.os_manual[os.hexagram_id];
+            let osExplanation = manualData ? manualData.summary : os.description;
+            
+            let manualHtml = '';
+            if (manualData) {
+                manualHtml = `
+                    <div class="mt-6">
+                        <details class="group">
+                            <summary class="flex items-center justify-between cursor-pointer text-indigo-300 font-semibold">
+                                <span>OS取扱説明書を見る</span>
+                                <svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                            </summary>
+                            <div class="mt-4 pt-4 border-t border-gray-600 space-y-4 text-sm">
+                                <div><h5 class="font-bold text-yellow-400">暴走パターン (Debug Mode)</h5><p>${manualData.debug_pattern}</p></div>
+                                <div><h5 class="font-bold text-green-400">脱出方法 (Debug Method)</h5><p>${manualData.debug_method}</p></div>
+                                <div><h5 class="font-bold text-cyan-400">最適化クエスト</h5><ul class="list-disc list-inside space-y-1">${manualData.quests.map(q => `<li>${q}</li>`).join('')}</ul></div>
+                            </div>
+                        </details>
+                    </div>`;
+            }
+
+            return `<div class="bg-gray-800/60 p-6 rounded-2xl prose prose-invert max-w-none report-section"><h3 class="text-xl font-bold text-${osTypes[index].color}-300">${index + 1}. ${os.name_jp} - 【${osTypes[index].title}】</h3><p class="text-sm text-gray-400">${osTypes[index].subtitle}</p><p class="text-sm text-gray-500">総合スコア: ${os.final_score}</p><div class="my-4"><p>${osExplanation}</p></div><p><strong>関連キーワード:</strong> ${os.keywords}</p>${manualHtml}</div>`;
         }).join('');
         
-        const architectureSection = `<div><h3 class="text-2xl text-center font-bold text-white mb-6">あなたのOSアーキテクチャ：Top3 OSの構造的解説</h3><div class="space-y-6">${osSections}</div></div>`;
-        
-        const finalSection = `<div class="bg-gray-700/50 p-6 rounded-lg prose prose-invert max-w-none"><h3 class="text-xl font-bold text-yellow-300">総合的な傾向と未来への活かし方</h3><h4 class="font-semibold text-lg mt-4">強みとポテンシャル</h4><p>あなたの真の強みは、「${hexagram_candidates[0].name_jp}」の独創的な視点と「${hexagram_candidates[1].name_jp}」の圧倒的な実行力という、相反するようなOSを内包している点にあります。この二つのOSを使い分けることで、革新的なビジョンを掲げ、それを現実世界で形にするという、稀有なリーダーシップを発揮できます。</p><h4 class="font-semibold text-lg mt-4">陥りやすいパターンと課題</h4><p>「${hexagram_candidates[1].name_jp}」の成功体験に酔いしれると、足元を支える「地」や「山」のエネルギーを忘れ、燃え尽き症候群に陥る危険があります。また、「${hexagram_candidates[0].name_jp}」の葛藤が強すぎると、孤立を深めるでしょう。その時こそ、あなたのグロースOS「${hexagram_candidates[2].name_jp}」を思い出してください。あなたにとっての「帰るべき場所」や「守るべき規律」が、あなたを健全な道へと引き戻す羅針盤となります。</p><h4 class="font-semibold text-lg mt-4">未来への活かし方</h4><p><a href="future_simulator.html" class="text-indigo-400 hover:underline">未来分岐シミュレーター</a>を活用する際は、あなたの持つ<strong>「${trigram_profile[0].name_en}」と「${trigram_profile[1].name_en}」</strong>のエネルギーを最大限に活かすシナリオに注目してください。あなたの内なる情熱が、テーマを深化させ、周囲を巻き込む力となります。</p></div>`;
+        const architectureSection = `<div><h3 class="text-2xl text-center font-bold text-white mb-6">あなたのOSアーキテクチャ：Top3 OSの構造的解説</h3><div class="space-y-8">${osSections}</div></div>`;
+        const finalSection = `<div class="bg-gray-800/60 p-6 mt-8 rounded-2xl prose prose-invert max-w-none report-section"><h3 class="text-yellow-300">最後に：未来への活かし方</h3><p><a href="future_simulator.html" class="text-indigo-400 hover:underline">未来分岐シミュレーター</a>を活用する際は、あなたの持つ<strong>「${coreOS1.name_en}」と「${coreOS2.name_en}」</strong>のエネルギーを最大限に活かすシナリオに注目してください。あなたの内なる情熱が、テーマを深化させ、周囲を巻き込む力となります。</p></div>`;
         
         reportContainer.innerHTML = introSection + profileSection + architectureSection + finalSection;
         inputContainer.classList.add('hidden');
@@ -336,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
             enneagram: enneaSelects.map(s => s.value).filter(Boolean),
             sf: Array.from(sfSelects).map(s => s.value).filter(Boolean)
         };
-        if (!userProfile.mbti || userProfile.enneagram[0] === "") {
+        if (!userProfile.mbti || !userProfile.enneagram[0]) {
             alert('MBTIと、主要なエニアグラムタイプ（1番目）を必ず選択してください。');
             return;
         }
