@@ -450,6 +450,7 @@
             const osTypes = ['highlight-primary', 'highlight-secondary', 'highlight-growth'];
             const trigramOrder = [1, 2, 3, 4, 5, 6, 7, 8];
 
+            // --- マップのセル生成（変更なし） ---
             container.appendChild(document.createElement('div'));
             trigramOrder.forEach(id => {
                 const headerCell = document.createElement('div');
@@ -482,6 +483,7 @@
                 });
             });
             
+            // --- マップのインタラクションを設定 ---
             const cells = container.querySelectorAll('.hex-cell');
             cells.forEach(cell => {
                 cell.addEventListener('click', (e) => {
@@ -516,24 +518,44 @@
                         const sakkaData = HELPERS.getH64ById(h64Data.saku_id);
                         const soukaData = HELPERS.getH64ById(h64Data.sou_id);
                         const gokeData = HELPERS.getH64ById(h64Data.go_id);
-                        
-                        // ▼▼▼【v12.8 修正】解説機能付きのHTMLを生成 ▼▼▼
+
+                        // ▼▼▼【v12.10 修正】ここからが情報パネルのHTML生成ロジックです ▼▼▼
+                        let sakkaHtml, soukaHtml, gokeHtml;
+
+                        // 錯卦の表示ロジック
+                        if (h64Data.saku_id === id) {
+                            sakkaHtml = `<p><span class="text-orange-400 font-semibold">錯卦: このOS自身</span><br><span class="text-xs text-gray-400">陰陽を反転させても同じ構造を持つ、完全なOSです。</span></p>`;
+                        } else {
+                            sakkaHtml = `
+                                <p><span class="text-orange-400 font-semibold">錯卦: ${sakkaData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSの全陰陽を反転させた「真逆の性質」。最大の課題と可能性を示します。</span></p>
+                                <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(sakkaData.卦番号)}</div></details>`;
+                        }
+
+                        // 綜卦の表示ロジック
+                        if (h64Data.sou_id === id) {
+                            soukaHtml = `<p><span class="text-blue-400 font-semibold">綜卦: このOS自身</span><br><span class="text-xs text-gray-400">上下を反転させても同じ構造を持つ、安定したOSです。</span></p>`;
+                        } else {
+                            soukaHtml = `
+                                <p><span class="text-blue-400 font-semibold">綜卦: ${soukaData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSを上下反転させた「裏側の性質」。他者からの見え方や隠れた側面を示します。</span></p>
+                                <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(soukaData.卦番号)}</div></details>`;
+                        }
+
+                        // 互卦の表示ロジック
+                        if (h64Data.go_id === id) {
+                            gokeHtml = `<p><span class="text-green-400 font-semibold">互卦: このOS自身</span><br><span class="text-xs text-gray-400">内に同じ構造を内包する、自己完結したエネルギーを持ちます。</span></p>`;
+                        } else {
+                            gokeHtml = `
+                                <p><span class="text-green-400 font-semibold">互卦: ${gokeData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSの内に秘められた「隠れた本質」。ポテンシャルや問題の核心を示します。</span></p>
+                                <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(gokeData.卦番号)}</div></details>`;
+                        }
+
                         mapInfo.innerHTML = `
                             <div class="w-full text-left">
                                 <p class="font-bold text-white text-base text-center mb-2 pb-2 border-b border-gray-700">${h64Data.名前}</p>
                                 <div class="space-y-2">
-                                    <div class="relation-block">
-                                        <p><span class="text-orange-400 font-semibold">錯卦: ${sakkaData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSの全陰陽を反転させた、真逆の性質。最大の課題と可能性を示す。</span></p>
-                                        <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(sakkaData.卦番号)}</div></details>
-                                    </div>
-                                    <div class="relation-block">
-                                        <p><span class="text-blue-400 font-semibold">綜卦: ${soukaData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSを上下反転させた、裏側の性質。他者からの見え方や、隠れた側面を示す。</span></p>
-                                        <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(soukaData.卦番号)}</div></details>
-                                    </div>
-                                    <div class="relation-block">
-                                        <p><span class="text-green-400 font-semibold">互卦: ${gokeData.名前}</span><br><span class="text-xs text-gray-400">あなたのOSの内に秘められた、隠れた本質やポテンシャルを示す。</span></p>
-                                        <details><summary>▼ 詳細を見る</summary><div>${getHexSummary(gokeData.卦番号)}</div></details>
-                                    </div>
+                                    <div class="relation-block">${sakkaHtml}</div>
+                                    <div class="relation-block">${soukaHtml}</div>
+                                    <div class="relation-block">${gokeHtml}</div>
                                 </div>
                             </div>
                         `;
