@@ -3,15 +3,15 @@
 const HAQEI_DATA = {
   // --- 基本データ ---
   trigrams_master: [
-    { trigram_id: 1, name_jp: "乾", name_en: "天", element: "金" },
-    { trigram_id: 2, name_jp: "兌", name_en: "沢", element: "金" },
-    { trigram_id: 3, name_jp: "離", name_en: "火", element: "火" },
-    { trigram_id: 4, name_jp: "震", name_en: "雷", element: "木" },
-    { trigram_id: 5, name_jp: "巽", name_en: "風", element: "木" },
-    { trigram_id: 6, name_jp: "坎", name_en: "水", element: "水" },
-    { trigram_id: 7, name_jp: "艮", name_en: "山", element: "土" },
-    { trigram_id: 8, name_jp: "坤", name_en: "地", element: "土" }
-  ],
+    { trigram_id: 1, name_jp: "乾", name_en: "天", element: "金", strength_description: "理想を掲げ、人々を牽引する天性のリーダーシップと、困難を乗り越える実行力。" },
+    { trigram_id: 2, name_jp: "兌", name_en: "沢", element: "金", strength_description: "喜びや楽しみを通じて人と繋がり、場を和ませるコミュニケーション能力と表現力。" },
+    { trigram_id: 3, name_jp: "離", name_en: "火", element: "火", strength_description: "物事の本質を照らし出す知性と、芸術的なセンスや情熱。人を惹きつける華やかさ。" },
+    { trigram_id: 4, name_jp: "震", name_en: "雷", element: "木", strength_description: "若々しいエネルギーで、停滞した状況を打ち破る行動力と決断力。人を奮い立たせる力。" },
+    { trigram_id: 5, name_jp: "巽", name_en: "風", element: "木", strength_description: "相手の心に寄り添い、隅々まで意思を浸透させる共感力と調整能力。しなやかな影響力。" },
+    { trigram_id: 6, name_jp: "坎", name_en: "水", element: "水", strength_description: "困難な状況でも本質を探求し続ける精神的な強さと、深い洞察力。粘り強さ。" },
+    { trigram_id: 7, name_jp: "艮", name_en: "山", element: "土", strength_description: "何事にも動じない不動の精神と、物事をじっくりと内省し、継続する力。安定感。" },
+    { trigram_id: 8, name_jp: "坤", name_en: "地", element: "土", strength_description: "すべてを受け入れ、育む大地の包容力と、縁の下で組織を支える献身的なサポート能力。" }
+],
   element_relationships: [
     { source_element: "木", target_element: "火", relationship_type: "相生", metaphor_text: "{source}が持つ木のエネルギーは、{target}が持つ火の炎を燃え上がらせます。" },
     { source_element: "火", target_element: "土", relationship_type: "相生", metaphor_text: "{source}が持つ火のエネルギーは、{target}が持つ土の大地を温め、育みます。" },
