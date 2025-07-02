@@ -12670,8 +12670,7 @@ bible: {
             "next_id": 41,
             "next_name": "山沢損",
             "explanation": "緩めば、必ず何かを損なう（損）ことになります。"
-    }
-  },
+    }},
     "41": {
         "from_prev": {
             "prev_id": 40,
