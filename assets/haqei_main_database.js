@@ -1,4 +1,4 @@
-// HaQei Project Main Database File v3.0
+// HaQei Project Main Database File v4.1 - Complete Edition
 // 全ての静的データはこのオブジェクトに集約されます。
 const HAQEI_DATA = {
   // --- 基本データ ---
@@ -11,7 +11,7 @@ const HAQEI_DATA = {
     { trigram_id: 6, name_jp: "坎", name_en: "水", element: "水", strength_description: "困難な状況でも本質を探求し続ける精神的な強さと、深い洞察力。粘り強さ。" },
     { trigram_id: 7, name_jp: "艮", name_en: "山", element: "土", strength_description: "何事にも動じない不動の精神と、物事をじっくりと内省し、継続する力。安定感。" },
     { trigram_id: 8, name_jp: "坤", name_en: "地", element: "土", strength_description: "すべてを受け入れ、育む大地の包容力と、縁の下で組織を支える献身的なサポート能力。" }
-],
+  ],
   element_relationships: [
     { source_element: "木", target_element: "火", relationship_type: "相生", metaphor_text: "{source}が持つ木のエネルギーは、{target}が持つ火の炎を燃え上がらせます。" },
     { source_element: "火", target_element: "土", relationship_type: "相生", metaphor_text: "{source}が持つ火のエネルギーは、{target}が持つ土の大地を温め、育みます。" },
@@ -24,814 +24,174 @@ const HAQEI_DATA = {
     { source_element: "火", target_element: "金", relationship_type: "相剋", metaphor_text: "{source}が持つ火のエネルギーは、{target}が持つ金の金属を溶かし、その形を変えてしまいます。" },
     { source_element: "金", target_element: "木", relationship_type: "相剋", metaphor_text: "{source}が持つ金のエネルギーは、{target}が持つ木の若木を切り倒す斧にもなります。" }
   ],
-  
   hexagrams_master: [
-    {
-      "hexagram_id": 1,
-      "name_jp": "乾為天",
-      "upper_trigram_id": 1,
-      "lower_trigram_id": 1,
-      "description": "積極的、エネルギッシュ、プライドが高い、自己中心的、正義感が強い",
-      "keywords": "創造,リーダーシップ,力"
-    },
-    {
-      "hexagram_id": 2,
-      "name_jp": "坤為地",
-      "upper_trigram_id": 8,
-      "lower_trigram_id": 8,
-      "description": "穏やか、従順、勤勉、受動的、包容力がある、縁の下の力持ち",
-      "keywords": "受容,育成,サポート"
-    },
-    {
-      "hexagram_id": 3,
-      "name_jp": "水雷屯",
-      "upper_trigram_id": 6,
-      "lower_trigram_id": 4,
-      "description": "悩みやすい、慎重、粘り強い、内向的、苦労性",
-      "keywords": "産みの苦しみ,混沌,始まり"
-    },
-    {
-      "hexagram_id": 4,
-      "name_jp": "山水蒙",
-      "upper_trigram_id": 7,
-      "lower_trigram_id": 6,
-      "description": "未熟、子供っぽい、無邪気、教えを請うことに抵抗がない",
-      "keywords": "未熟,教育,啓蒙"
-    },
-    {
-      "hexagram_id": 5,
-      "name_jp": "水天需",
-      "upper_trigram_id": 6,
-      "lower_trigram_id": 1,
-      "description": "どっしりしている、焦らない、いずれ良くなると信じている",
-      "keywords": "待機,準備,忍耐"
-    },
-    {
-      "hexagram_id": 6,
-      "name_jp": "天水訟",
-      "upper_trigram_id": 1,
-      "lower_trigram_id": 6,
-      "description": "理屈っぽい、負けず嫌い、争いごとを好む、正義感が強い",
-      "keywords": "争い,対立,訴訟"
-    },
-    {
-      "hexagram_id": 7,
-      "name_jp": "地水師",
-      "upper_trigram_id": 8,
-      "lower_trigram_id": 6,
-      "description": "厳格、規律を重んじる、目的意識が強い、大衆心理を読む",
-      "keywords": "組織,規律,リーダーシップ"
-    },
-    {
-      "hexagram_id": 8,
-      "name_jp": "水地比",
-      "upper_trigram_id": 6,
-      "lower_trigram_id": 8,
-      "description": "社交的、情が深い、誰とでも仲良くなれる、リーダーを支える",
-      "keywords": "協力,親密,結束"
-    },
-    {
-      "hexagram_id": 9,
-      "name_jp": "風天小畜",
-      "upper_trigram_id": 5,
-      "lower_trigram_id": 1,
-      "description": "控えめ、真面目、コツコツ努力する、少し頼りない印象",
-      "keywords": "小さな蓄積,一時的な停滞"
-    },
-    {
-      "hexagram_id": 10,
-      "name_jp": "天澤履",
-      "upper_trigram_id": 1,
-      "lower_trigram_id": 2,
-      "description": "謙虚、真面目、目上を敬う、慎重に行動する",
-      "keywords": "礼儀,慎重,危険回避"
-    },
-    {
-      "hexagram_id": 11,
-      "name_jp": "地天泰",
-      "upper_trigram_id": 8,
-      "lower_trigram_id": 1,
-      "description": "穏やか、社交的、誰とでもうまくやれる、包容力がある",
-      "keywords": "平和,繁栄,調和"
-    },
-    {
-      "hexagram_id": 12,
-      "name_jp": "天地否",
-      "upper_trigram_id": 1,
-      "lower_trigram_id": 8,
-      "description": "内向的、非社交的、頑固、人を寄せ付けない雰囲気",
-      "keywords": "閉塞,不調和,停滞"
-    },
-    {
-      "hexagram_id": 13,
-      "name_jp": "天火同人",
-      "upper_trigram_id": 1,
-      "lower_trigram_id": 3,
-      "description": "社交的、誰とでも分け隔てなく接する、オープンな性格",
-      "keywords": "協力,大同団結,公正"
-    },
-    {
-      "hexagram_id": 14,
-      "name_jp": "火天大有",
-      "upper_trigram_id": 3,
-      "lower_trigram_id": 1,
-      "description": "明るく、寛大、おおらか、多くの人に慕われる",
-      "keywords": "大いなる所有,繁栄,公正な分配"
-    },
-    {
-      "hexagram_id": 15,
-      "name_jp": "地山謙",
-      "upper_trigram_id": 8,
-      "lower_trigram_id": 7,
-      "description": "腰が低い、実力があるのにひけらかさない、誰からも好かれる",
-      "keywords": "謙虚,有能,持続"
-    },
-    {
-      "hexagram_id": 16,
-      "name_jp": "雷地豫",
-      "upper_trigram_id": 4,
-      "lower_trigram_id": 8,
-      "description": "用意周到、楽観的、音楽や楽しいことが好き、人を喜ばせるのが好き",
-      "keywords": "喜び,準備,油断"
-    },
-    {
-      "hexagram_id": 17,
-      "name_jp": "沢雷随",
-      "upper_trigram_id": 2,
-      "lower_trigram_id": 4,
-      "description": "素直、社交的、人に合わせるのが上手、軽率な面も",
-      "keywords": "追随,変化への適応"
-    },
-    {
-      "hexagram_id": 18,
-      "name_jp": "山風蠱",
-      "upper_trigram_id": 7,
-      "lower_trigram_id": 5,
-      "description": "責任感が強い、困難に立ち向かう、厳しい、物事を根本から立て直したい",
-      "keywords": "腐敗の立て直し,改革"
-    },
-    {
-      "hexagram_id": 19,
-      "name_jp": "地沢臨",
-      "upper_trigram_id": 8,
-      "lower_trigram_id": 2,
-      "description": "明るく、おおらか、親分肌・姉御肌、人を育てるのが好き",
-      "keywords": "成長,接近,リーダーシップ"
-    },
-    {
-      "hexagram_id": 20,
-      "name_jp": "風地観",
-      "upper_trigram_id": 5,
-      "lower_trigram_id": 8,
-      "description": "静か、思慮深い、物事の本質を見抜く、精神性が高い",
-      "keywords": "観察,洞察,自己反省"
-    },
-    {
-      "hexagram_id": 21,
-      "name_jp": "火雷噬嗑",
-      "upper_trigram_id": 3,
-      "lower_trigram_id": 4,
-      "description": "歯に衣着せぬ、情熱的、正義感が強い、怒りっぽい",
-      "keywords": "困難の排除,公正な裁き"
-    },
-    {
-      "hexagram_id": 22,
-      "name_jp": "山火賁",
-      "upper_trigram_id": 7,
-      "lower_trigram_id": 3,
-      "description": "おしゃれ、外面を気にする、優雅、見栄っ張り",
-      "keywords": "飾り,美しさ,調和"
-    },
-    {
-      "hexagram_id": 23,
-      "name_jp": "山地剝",
-      "upper_trigram_id": 7,
-      "lower_trigram_id": 8,
-      "description": "保守的、現状にしがみつく、衰運にある",
-      "keywords": "衰退,崩壊,変化の時"
-    },
-    {
-      "hexagram_id": 24,
-      "name_jp": "地雷復",
-      "upper_trigram_id": 8,
-      "lower_trigram_id": 4,
-      "description": "前向き、失敗を恐れない、素直、根本に戻って考える",
-      "keywords": "回復,回帰,新たな始まり"
-    },
-    {
-      "hexagram_id": 25,
-      "name_jp": "天雷无妄",
-      "upper_trigram_id": 1,
-      "lower_trigram_id": 4,
-      "description": "天真爛漫、正直、裏表がない、自然のまま",
-      "keywords": "無垢,自然体,予期せぬ災難"
-    },
-    {
-      "hexagram_id": 26,
-      "name_jp": "山天大畜",
-      "upper_trigram_id": 7,
-      "lower_trigram_id": 1,
-      "description": "どっしりと構えている、思慮深い、忍耐強い、内面に大きなエネルギーを秘めている",
-      "keywords": "大いなる蓄積,才能の開花"
-    },
-    {
-      "hexagram_id": 27,
-      "name_jp": "山雷頤",
-      "upper_trigram_id": 7,
-      "lower_trigram_id": 4,
-      "description": "おっとりしている、自分のペースを大事にする、食いしん坊、言葉を慎む",
-      "keywords": "養う,口,正しい食と情報"
-    },
-    {
-      "hexagram_id": 28,
-      "name_jp": "澤風大過",
-      "upper_trigram_id": 2,
-      "lower_trigram_id": 5,
-      "description": "型破り、大胆不敵、やりすぎてしまう、責任感が強い",
-      "keywords": "異常事態,危機,覚悟"
-    },
-    {
-      "hexagram_id": 29,
-      "name_jp": "坎為水",
-      "upper_trigram_id": 6,
-      "lower_trigram_id": 6,
-      "description": "苦労性、内省的、悩みやすい、粘り強い、真理を求める",
-      "keywords": "困難,危険,陥る"
-    },
-    {
-      "hexagram_id": 30,
-      "name_jp": "離為火",
-      "upper_trigram_id": 3,
-      "lower_trigram_id": 3,
-      "description": "明るく華やか、感情の起伏が激しい、知的、プライドが高い",
-      "keywords": "輝き,依存,明智"
-    },
-    {
-      "hexagram_id": 31,
-      "name_jp": "沢山咸",
-      "upper_trigram_id": 2,
-      "lower_trigram_id": 7,
-      "description": "感受性が豊か、デリケート、ロマンチスト、影響されやすい",
-      "keywords": "感応,共感,相互作用"
-    },
-    {
-      "hexagram_id": 32,
-      "name_jp": "雷風恒",
-      "upper_trigram_id": 4,
-      "lower_trigram_id": 5,
-      "description": "地道、真面目、一度決めたことはやり通す、変化を嫌う",
-      "keywords": "持続,恒久,安定"
-    },
-    {
-      "hexagram_id": 33,
-      "name_jp": "天山遯",
-      "upper_trigram_id": 1,
-      "lower_trigram_id": 7,
-      "description": "賢い、逃げ上手、深入りしない、冷静",
-      "keywords": "撤退,身を引く,自己防衛"
-    },
-    {
-      "hexagram_id": 34,
-      "name_jp": "雷天大壮",
-      "upper_trigram_id": 4,
-      "lower_trigram_id": 1,
-      "description": "血気盛ん、猪突猛進、エネルギッシュ、正義感が強い",
-      "keywords": "大いなる勢い,力強い前進"
-    },
-    {
-      "hexagram_id": 35,
-      "name_jp": "火地晋",
-      "upper_trigram_id": 3,
-      "lower_trigram_id": 8,
-      "description": "明るい、前向き、目標に向かって進む、人に認められたい",
-      "keywords": "進展,昇進,光明"
-    },
-    {
-      "hexagram_id": 36,
-      "name_jp": "地火明夷",
-      "upper_trigram_id": 8,
-      "lower_trigram_id": 3,
-      "description": "苦労性、用心深い、本心を明かさない、内に強い意志を持つ",
-      "keywords": "光明の隠蔽,困難,忍耐"
-    },
-    {
-      "hexagram_id": 37,
-      "name_jp": "風火家人",
-      "upper_trigram_id": 5,
-      "lower_trigram_id": 3,
-      "description": "真面目、規律正しい、情愛深い、内向き",
-      "keywords": "家族,秩序,内部統制"
-    },
-    {
-      "hexagram_id": 38,
-      "name_jp": "火沢睽",
-      "upper_trigram_id": 3,
-      "lower_trigram_id": 2,
-      "description": "あまのじゃく、反骨精神が旺盛、人と同じことを嫌う、疑り深い",
-      "keywords": "対立,不和,相互理解の困難"
-    },
-    {
-      "hexagram_id": 39,
-      "name_jp": "水山蹇",
-      "upper_trigram_id": 6,
-      "lower_trigram_id": 7,
-      "description": "苦労性、悩みが多い、進退窮まる、助けを求めるのが上手",
-      "keywords": "困難,足踏み,立ち往生"
-    },
-    {
-      "hexagram_id": 40,
-      "name_jp": "雷水解",
-      "upper_trigram_id": 4,
-      "lower_trigram_id": 6,
-      "description": "さっぱりしている、過去にこだわらない、行動が早い、寛大",
-      "keywords": "解決,解放,新たな始まり"
-    },
-    {
-      "hexagram_id": 41,
-      "name_jp": "山沢損",
-      "upper_trigram_id": 7,
-      "lower_trigram_id": 2,
-      "description": "控えめ、我慢強い、自分のことを後回しにする",
-      "keywords": "損失,削減,自己犠牲"
-    },
-    {
-      "hexagram_id": 42,
-      "name_jp": "風雷益",
-      "upper_trigram_id": 5,
-      "lower_trigram_id": 4,
-      "description": "親切、行動的、自己犠牲をいとわない、前向き",
-      "keywords": "増益,貢献,成長"
-    },
-    {
-      "hexagram_id": 43,
-      "name_jp": "沢天夬",
-      "upper_trigram_id": 2,
-      "lower_trigram_id": 1,
-      "description": "大胆不敵、決断が速い、白黒はっきりさせたい、短気な面も",
-      "keywords": "決断,決行,突破"
-    },
-    {
-      "hexagram_id": 44,
-      "name_jp": "天風姤",
-      "upper_trigram_id": 1,
-      "lower_trigram_id": 5,
-      "description": "魅力的、積極的、油断しやすい、移り気",
-      "keywords": "予期せぬ出会い,影響力"
-    },
-    {
-      "hexagram_id": 45,
-      "name_jp": "沢地萃",
-      "upper_trigram_id": 2,
-      "lower_trigram_id": 8,
-      "description": "明るい、社交的、お祭り好き、リーダーシップがある",
-      "keywords": "結集,結束,喜び"
-    },
-    {
-      "hexagram_id": 46,
-      "name_jp": "地風升",
-      "upper_trigram_id": 8,
-      "lower_trigram_id": 5,
-      "description": "謙虚、真面目、努力家、目上を敬う",
-      "keywords": "上昇,成長,着実な進歩"
-    },
-    {
-      "hexagram_id": 47,
-      "name_jp": "沢水困",
-      "upper_trigram_id": 2,
-      "lower_trigram_id": 6,
-      "description": "苦労性、悲観的、口が重い、内に強い意志を秘めている",
-      "keywords": "困窮,逆境,忍耐"
-    },
-    {
-      "hexagram_id": 48,
-      "name_jp": "水風井",
-      "upper_trigram_id": 6,
-      "lower_trigram_id": 5,
-      "description": "穏やか、縁の下の力持ち、誰にでも公平、地味",
-      "keywords": "供給,安定,継続的改善"
-    },
-    {
-      "hexagram_id": 49,
-      "name_jp": "沢火革",
-      "upper_trigram_id": 2,
-      "lower_trigram_id": 3,
-      "description": "ラディカル、現状に満足しない、理想主義者",
-      "keywords": "改革,変革,革命"
-    },
-    {
-      "hexagram_id": 50,
-      "name_jp": "火風鼎",
-      "upper_trigram_id": 3,
-      "lower_trigram_id": 5,
-      "description": "どっしりしている、人を受け入れる、三方よしの精神を持つ",
-      "keywords": "形成,安定,文化の確立"
-    },
-    {
-      "hexagram_id": 51,
-      "name_jp": "震為雷",
-      "upper_trigram_id": 4,
-      "lower_trigram_id": 4,
-      "description": "活発、エネルギッシュ、驚きやすい、短気、声が大きい",
-      "keywords": "衝撃,覚醒,急変"
-    },
-    {
-      "hexagram_id": 52,
-      "name_jp": "艮為山",
-      "upper_trigram_id": 7,
-      "lower_trigram_id": 7,
-      "description": "冷静沈着、動じない、無口、頑固、自分の世界を持つ",
-      "keywords": "静止,休息,自己抑制"
-    },
-    {
-      "hexagram_id": 53,
-      "name_jp": "風山漸",
-      "upper_trigram_id": 5,
-      "lower_trigram_id": 7,
-      "description": "真面目、慎重、一歩一歩進む、時間をかける",
-      "keywords": "漸進,着実な成長,婚姻"
-    },
-    {
-      "hexagram_id": 54,
-      "name_jp": "雷沢帰妹",
-      "upper_trigram_id": 4,
-      "lower_trigram_id": 2,
-      "description": "情熱的、衝動的、後先を考えない、わがまま",
-      "keywords": "不自然な関係,秩序の乱れ"
-    },
-    {
-      "hexagram_id": 55,
-      "name_jp": "雷火豊",
-      "upper_trigram_id": 4,
-      "lower_trigram_id": 3,
-      "description": "明るく、派手好き、エネルギッシュ、自信家",
-      "keywords": "繁栄の極み,豊かさ,光明"
-    },
-    {
-      "hexagram_id": 56,
-      "name_jp": "火山旅",
-      "upper_trigram_id": 3,
-      "lower_trigram_id": 7,
-      "description": "孤独を好む、根無し草、慎み深い、常にアウェイな感覚",
-      "keywords": "旅,変化,異郷での適応"
-    },
-    {
-      "hexagram_id": 57,
-      "name_jp": "巽為風",
-      "upper_trigram_id": 5,
-      "lower_trigram_id": 5,
-      "description": "穏やか、優柔不断、人に合わせるのがうまい、社交的",
-      "keywords": "浸透,影響,柔軟性"
-    },
-    {
-      "hexagram_id": 58,
-      "name_jp": "兌為沢",
-      "upper_trigram_id": 2,
-      "lower_trigram_id": 2,
-      "description": "明るい、おしゃべり好き、楽しいことが好き、愛嬌がある",
-      "keywords": "喜び,コミュニケーション"
-    },
-    {
-      "hexagram_id": 59,
-      "name_jp": "風水渙",
-      "upper_trigram_id": 5,
-      "lower_trigram_id": 6,
-      "description": "大局的な視点を持つ、私心がない、人々をまとめるのが上手",
-      "keywords": "困難の解消,分散"
-    },
-    {
-      "hexagram_id": 60,
-      "name_jp": "水沢節",
-      "upper_trigram_id": 6,
-      "lower_trigram_id": 2,
-      "description": "ケジメを大事にする、自己管理ができる、真面目、少し窮屈",
-      "keywords": "節度,規律,抑制"
-    },
-    {
-      "hexagram_id": 61,
-      "name_jp": "風沢中孚",
-      "upper_trigram_id": 5,
-      "lower_trigram_id": 2,
-      "description": "裏表がない、正直、素直、誠意がある",
-      "keywords": "真心,信頼,共感"
-    },
-    {
-      "hexagram_id": 62,
-      "name_jp": "雷山小過",
-      "upper_trigram_id": 4,
-      "lower_trigram_id": 7,
-      "description": "控えめ、臆病、石橋を叩いて渡る、自分に自信がない",
-      "keywords": "少し行き過ぎ,異常事態"
-    },
-    {
-      "hexagram_id": 63,
-      "name_jp": "水火既済",
-      "upper_trigram_id": 6,
-      "lower_trigram_id": 3,
-      "description": "整然としている、完璧主義、安定を好む、保守的",
-      "keywords": "完成,調和,維持"
-    },
-    {
-      "hexagram_id": 64,
-      "name_jp": "火水未済",
-      "upper_trigram_id": 3,
-      "lower_trigram_id": 6,
-      "description": "慎重、思慮深い、混乱の中でも希望を失わない",
-      "keywords": "未完成,継続,希望"
-    }
-  ]  ,
+    {"hexagram_id":1,"name_jp":"乾為天","upper_trigram_id":1,"lower_trigram_id":1,"description":"積極的、エネルギッシュ、プライドが高い、自己中心的、正義感が強い","keywords":"創造,リーダーシップ,力"},
+    {"hexagram_id":2,"name_jp":"坤為地","upper_trigram_id":8,"lower_trigram_id":8,"description":"穏やか、従順、勤勉、受動的、包容力がある、縁の下の力持ち","keywords":"受容,育成,サポート"},
+    {"hexagram_id":3,"name_jp":"水雷屯","upper_trigram_id":6,"lower_trigram_id":4,"description":"悩みやすい、慎重、粘り強い、内向的、苦労性","keywords":"産みの苦しみ,混沌,始まり"},
+    {"hexagram_id":4,"name_jp":"山水蒙","upper_trigram_id":7,"lower_trigram_id":6,"description":"未熟、子供っぽい、無邪気、教えを請うことに抵抗がない","keywords":"未熟,教育,啓蒙"},
+    {"hexagram_id":5,"name_jp":"水天需","upper_trigram_id":6,"lower_trigram_id":1,"description":"どっしりしている、焦らない、いずれ良くなると信じている","keywords":"待機,準備,忍耐"},
+    {"hexagram_id":6,"name_jp":"天水訟","upper_trigram_id":1,"lower_trigram_id":6,"description":"理屈っぽい、負けず嫌い、争いごとを好む、正義感が強い","keywords":"争い,対立,訴訟"},
+    {"hexagram_id":7,"name_jp":"地水師","upper_trigram_id":8,"lower_trigram_id":6,"description":"厳格、規律を重んじる、目的意識が強い、大衆心理を読む","keywords":"組織,規律,リーダーシップ"},
+    {"hexagram_id":8,"name_jp":"水地比","upper_trigram_id":6,"lower_trigram_id":8,"description":"社交的、情が深い、誰とでも仲良くなれる、リーダーを支える","keywords":"協力,親密,結束"},
+    {"hexagram_id":9,"name_jp":"風天小畜","upper_trigram_id":5,"lower_trigram_id":1,"description":"控えめ、真面目、コツコツ努力する、少し頼りない印象","keywords":"小さな蓄積,一時的な停滞"},
+    {"hexagram_id":10,"name_jp":"天澤履","upper_trigram_id":1,"lower_trigram_id":2,"description":"謙虚、真面目、目上を敬う、慎重に行動する","keywords":"礼儀,慎重,危険回避"},
+    {"hexagram_id":11,"name_jp":"地天泰","upper_trigram_id":8,"lower_trigram_id":1,"description":"穏やか、社交的、誰とでもうまくやれる、包容力がある","keywords":"平和,繁栄,調和"},
+    {"hexagram_id":12,"name_jp":"天地否","upper_trigram_id":1,"lower_trigram_id":8,"description":"内向的、非社交的、頑固、人を寄せ付けない雰囲気","keywords":"閉塞,不調和,停滞"},
+    {"hexagram_id":13,"name_jp":"天火同人","upper_trigram_id":1,"lower_trigram_id":3,"description":"社交的、誰とでも分け隔てなく接する、オープンな性格","keywords":"協力,大同団結,公正"},
+    {"hexagram_id":14,"name_jp":"火天大有","upper_trigram_id":3,"lower_trigram_id":1,"description":"明るく、寛大、おおらか、多くの人に慕われる","keywords":"大いなる所有,繁栄,公正な分配"},
+    {"hexagram_id":15,"name_jp":"地山謙","upper_trigram_id":8,"lower_trigram_id":7,"description":"腰が低い、実力があるのにひけらかさない、誰からも好かれる","keywords":"謙虚,有能,持続"},
+    {"hexagram_id":16,"name_jp":"雷地豫","upper_trigram_id":4,"lower_trigram_id":8,"description":"用意周到、楽観的、音楽や楽しいことが好き、人を喜ばせるのが好き","keywords":"喜び,準備,油断"},
+    {"hexagram_id":17,"name_jp":"沢雷随","upper_trigram_id":2,"lower_trigram_id":4,"description":"素直、社交的、人に合わせるのが上手、軽率な面も","keywords":"追随,変化への適応"},
+    {"hexagram_id":18,"name_jp":"山風蠱","upper_trigram_id":7,"lower_trigram_id":5,"description":"責任感が強い、困難に立ち向かう、厳しい、物事を根本から立て直したい","keywords":"腐敗の立て直し,改革"},
+    {"hexagram_id":19,"name_jp":"地沢臨","upper_trigram_id":8,"lower_trigram_id":2,"description":"明るく、おおらか、親分肌・姉御肌、人を育てるのが好き","keywords":"成長,接近,リーダーシップ"},
+    {"hexagram_id":20,"name_jp":"風地観","upper_trigram_id":5,"lower_trigram_id":8,"description":"静か、思慮深い、物事の本質を見抜く、精神性が高い","keywords":"観察,洞察,自己反省"},
+    {"hexagram_id":21,"name_jp":"火雷噬嗑","upper_trigram_id":3,"lower_trigram_id":4,"description":"歯に衣着せぬ、情熱的、正義感が強い、怒りっぽい","keywords":"困難の排除,公正な裁き"},
+    {"hexagram_id":22,"name_jp":"山火賁","upper_trigram_id":7,"lower_trigram_id":3,"description":"おしゃれ、外面を気にする、優雅、見栄っ張り","keywords":"飾り,美しさ,調和"},
+    {"hexagram_id":23,"name_jp":"山地剝","upper_trigram_id":7,"lower_trigram_id":8,"description":"保守的、現状にしがみつく、衰運にある","keywords":"衰退,崩壊,変化の時"},
+    {"hexagram_id":24,"name_jp":"地雷復","upper_trigram_id":8,"lower_trigram_id":4,"description":"前向き、失敗を恐れない、素直、根本に戻って考える","keywords":"回復,回帰,新たな始まり"},
+    {"hexagram_id":25,"name_jp":"天雷无妄","upper_trigram_id":1,"lower_trigram_id":4,"description":"天真爛漫、正直、裏表がない、自然のまま","keywords":"無垢,自然体,予期せぬ災難"},
+    {"hexagram_id":26,"name_jp":"山天大畜","upper_trigram_id":7,"lower_trigram_id":1,"description":"どっしりと構えている、思慮深い、忍耐強い、内面に大きなエネルギーを秘めている","keywords":"大いなる蓄積,才能の開花"},
+    {"hexagram_id":27,"name_jp":"山雷頤","upper_trigram_id":7,"lower_trigram_id":4,"description":"おっとりしている、自分のペースを大事にする、食いしん坊、言葉を慎む","keywords":"養う,口,正しい食と情報"},
+    {"hexagram_id":28,"name_jp":"澤風大過","upper_trigram_id":2,"lower_trigram_id":5,"description":"型破り、大胆不敵、やりすぎてしまう、責任感が強い","keywords":"異常事態,危機,覚悟"},
+    {"hexagram_id":29,"name_jp":"坎為水","upper_trigram_id":6,"lower_trigram_id":6,"description":"苦労性、内省的、悩みやすい、粘り強い、真理を求める","keywords":"困難,危険,陥る"},
+    {"hexagram_id":30,"name_jp":"離為火","upper_trigram_id":3,"lower_trigram_id":3,"description":"明るく華やか、感情の起伏が激しい、知的、プライドが高い","keywords":"輝き,依存,明智"},
+    {"hexagram_id":31,"name_jp":"沢山咸","upper_trigram_id":2,"lower_trigram_id":7,"description":"感受性が豊か、デリケート、ロマンチスト、影響されやすい","keywords":"感応,共感,相互作用"},
+    {"hexagram_id":32,"name_jp":"雷風恒","upper_trigram_id":4,"lower_trigram_id":5,"description":"地道、真面目、一度決めたことはやり通す、変化を嫌う","keywords":"持続,恒久,安定"},
+    {"hexagram_id":33,"name_jp":"天山遯","upper_trigram_id":1,"lower_trigram_id":7,"description":"賢い、逃げ上手、深入りしない、冷静","keywords":"撤退,身を引く,自己防衛"},
+    {"hexagram_id":34,"name_jp":"雷天大壮","upper_trigram_id":4,"lower_trigram_id":1,"description":"血気盛ん、猪突猛進、エネルギッシュ、正義感が強い","keywords":"大いなる勢い,力強い前進"},
+    {"hexagram_id":35,"name_jp":"火地晋","upper_trigram_id":3,"lower_trigram_id":8,"description":"明るい、前向き、目標に向かって進む、人に認められたい","keywords":"進展,昇進,光明"},
+    {"hexagram_id":36,"name_jp":"地火明夷","upper_trigram_id":8,"lower_trigram_id":3,"description":"苦労性、用心深い、本心を明かさない、内に強い意志を持つ","keywords":"光明の隠蔽,困難,忍耐"},
+    {"hexagram_id":37,"name_jp":"風火家人","upper_trigram_id":5,"lower_trigram_id":3,"description":"真面目、規律正しい、情愛深い、内向き","keywords":"家族,秩序,内部統制"},
+    {"hexagram_id":38,"name_jp":"火沢睽","upper_trigram_id":3,"lower_trigram_id":2,"description":"あまのじゃく、反骨精神が旺盛、人と同じことを嫌う、疑り深い","keywords":"対立,不和,相互理解の困難"},
+    {"hexagram_id":39,"name_jp":"水山蹇","upper_trigram_id":6,"lower_trigram_id":7,"description":"苦労性、悩みが多い、進退窮まる、助けを求めるのが上手","keywords":"困難,足踏み,立ち往生"},
+    {"hexagram_id":40,"name_jp":"雷水解","upper_trigram_id":4,"lower_trigram_id":6,"description":"さっぱりしている、過去にこだわらない、行動が早い、寛大","keywords":"解決,解放,新たな始まり"},
+    {"hexagram_id":41,"name_jp":"山沢損","upper_trigram_id":7,"lower_trigram_id":2,"description":"控えめ、我慢強い、自分のことを後回しにする","keywords":"損失,削減,自己犠牲"},
+    {"hexagram_id":42,"name_jp":"風雷益","upper_trigram_id":5,"lower_trigram_id":4,"description":"親切、行動的、自己犠牲をいとわない、前向き","keywords":"増益,貢献,成長"},
+    {"hexagram_id":43,"name_jp":"沢天夬","upper_trigram_id":2,"lower_trigram_id":1,"description":"大胆不敵、決断が速い、白黒はっきりさせたい、短気な面も","keywords":"決断,決行,突破"},
+    {"hexagram_id":44,"name_jp":"天風姤","upper_trigram_id":1,"lower_trigram_id":5,"description":"魅力的、積極的、油断しやすい、移り気","keywords":"予期せぬ出会い,影響力"},
+    {"hexagram_id":45,"name_jp":"沢地萃","upper_trigram_id":2,"lower_trigram_id":8,"description":"明るい、社交的、お祭り好き、リーダーシップがある","keywords":"結集,結束,喜び"},
+    {"hexagram_id":46,"name_jp":"地風升","upper_trigram_id":8,"lower_trigram_id":5,"description":"謙虚、真面目、努力家、目上を敬う","keywords":"上昇,成長,着実な進歩"},
+    {"hexagram_id":47,"name_jp":"沢水困","upper_trigram_id":2,"lower_trigram_id":6,"description":"苦労性、悲観的、口が重い、内に強い意志を秘めている","keywords":"困窮,逆境,忍耐"},
+    {"hexagram_id":48,"name_jp":"水風井","upper_trigram_id":6,"lower_trigram_id":5,"description":"穏やか、縁の下の力持ち、誰にでも公平、地味","keywords":"供給,安定,継続的改善"},
+    {"hexagram_id":49,"name_jp":"沢火革","upper_trigram_id":2,"lower_trigram_id":3,"description":"ラディカル、現状に満足しない、理想主義者","keywords":"改革,変革,革命"},
+    {"hexagram_id":50,"name_jp":"火風鼎","upper_trigram_id":3,"lower_trigram_id":5,"description":"どっしりしている、人を受け入れる、三方よしの精神を持つ","keywords":"形成,安定,文化の確立"},
+    {"hexagram_id":51,"name_jp":"震為雷","upper_trigram_id":4,"lower_trigram_id":4,"description":"活発、エネルギッシュ、驚きやすい、短気、声が大きい","keywords":"衝撃,覚醒,急変"},
+    {"hexagram_id":52,"name_jp":"艮為山","upper_trigram_id":7,"lower_trigram_id":7,"description":"冷静沈着、動じない、無口、頑固、自分の世界を持つ","keywords":"静止,休息,自己抑制"},
+    {"hexagram_id":53,"name_jp":"風山漸","upper_trigram_id":5,"lower_trigram_id":7,"description":"真面目、慎重、一歩一歩進む、時間をかける","keywords":"漸進,着実な成長,婚姻"},
+    {"hexagram_id":54,"name_jp":"雷沢帰妹","upper_trigram_id":4,"lower_trigram_id":2,"description":"情熱的、衝動的、後先を考えない、わがまま","keywords":"不自然な関係,秩序の乱れ"},
+    {"hexagram_id":55,"name_jp":"雷火豊","upper_trigram_id":4,"lower_trigram_id":3,"description":"明るく、派手好き、エネルギッシュ、自信家","keywords":"繁栄の極み,豊かさ,光明"},
+    {"hexagram_id":56,"name_jp":"火山旅","upper_trigram_id":3,"lower_trigram_id":7,"description":"孤独を好む、根無し草、慎み深い、常にアウェイな感覚","keywords":"旅,変化,異郷での適応"},
+    {"hexagram_id":57,"name_jp":"巽為風","upper_trigram_id":5,"lower_trigram_id":5,"description":"穏やか、優柔不断、人に合わせるのがうまい、社交的","keywords":"浸透,影響,柔軟性"},
+    {"hexagram_id":58,"name_jp":"兌為沢","upper_trigram_id":2,"lower_trigram_id":2,"description":"明るい、おしゃべり好き、楽しいことが好き、愛嬌がある","keywords":"喜び,コミュニケーション"},
+    {"hexagram_id":59,"name_jp":"風水渙","upper_trigram_id":5,"lower_trigram_id":6,"description":"大局的な視点を持つ、私心がない、人々をまとめるのが上手","keywords":"困難の解消,分散"},
+    {"hexagram_id":60,"name_jp":"水沢節","upper_trigram_id":6,"lower_trigram_id":2,"description":"ケジメを大事にする、自己管理ができる、真面目、少し窮屈","keywords":"節度,規律,抑制"},
+    {"hexagram_id":61,"name_jp":"風沢中孚","upper_trigram_id":5,"lower_trigram_id":2,"description":"裏表がない、正直、素直、誠意がある","keywords":"真心,信頼,共感"},
+    {"hexagram_id":62,"name_jp":"雷山小過","upper_trigram_id":4,"lower_trigram_id":7,"description":"控えめ、臆病、石橋を叩いて渡る、自分に自信がない","keywords":"少し行き過ぎ,異常事態"},
+    {"hexagram_id":63,"name_jp":"水火既済","upper_trigram_id":6,"lower_trigram_id":3,"description":"整然としている、完璧主義、安定を好む、保守的","keywords":"完成,調和,維持"},
+    {"hexagram_id":64,"name_jp":"火水未済","upper_trigram_id":3,"lower_trigram_id":6,"description":"慎重、思慮深い、混乱の中でも希望を失わない","keywords":"未完成,継続,希望"}
+  ],
 
   // --- 性格分析マッピングデータ ---
   mbti_map: [
-    {
-      "mbti_type": "INTJ",
-      "scores": [
-        { "trigram_id": 1, "score": 5 }, { "trigram_id": 2, "score": 3 },
-        { "trigram_id": 3, "score": 4 }, { "trigram_id": 4, "score": 2 },
-        { "trigram_id": 5, "score": 1 }, { "trigram_id": 6, "score": 3 },
-        { "trigram_id": 7, "score": 2 }, { "trigram_id": 8, "score": 1 }
-      ]
-    },
-    {
-      "mbti_type": "INTP",
-      "scores": [
-        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 2 },
-        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 1 },
-        { "trigram_id": 5, "score": 4 }, { "trigram_id": 6, "score": 3 },
-        { "trigram_id": 7, "score": 5 }, { "trigram_id": 8, "score": 1 }
-      ]
-    },
-    {
-      "mbti_type": "ENTJ",
-      "scores": [
-        { "trigram_id": 1, "score": 5 }, { "trigram_id": 2, "score": 1 },
-        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 5 },
-        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 2 },
-        { "trigram_id": 7, "score": 1 }, { "trigram_id": 8, "score": 1 }
-      ]
-    },
-    {
-      "mbti_type": "ENTP",
-      "scores": [
-        { "trigram_id": 1, "score": 2 }, { "trigram_id": 2, "score": 3 },
-        { "trigram_id": 3, "score": 3 }, { "trigram_id": 4, "score": 2 },
-        { "trigram_id": 5, "score": 5 }, { "trigram_id": 6, "score": 2 },
-        { "trigram_id": 7, "score": 3 }, { "trigram_id": 8, "score": 1 }
-      ]
-    },
-    {
-      "mbti_type": "INFJ",
-      "scores": [
-        { "trigram_id": 1, "score": 4 }, { "trigram_id": 2, "score": 4 },
-        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 1 },
-        { "trigram_id": 5, "score": 4 }, { "trigram_id": 6, "score": 3 },
-        { "trigram_id": 7, "score": 2 }, { "trigram_id": 8, "score": 1 }
-      ]
-    },
-    {
-      "mbti_type": "INFP",
-      "scores": [
-        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 5 },
-        { "trigram_id": 3, "score": 5 }, { "trigram_id": 4, "score": 1 },
-        { "trigram_id": 5, "score": 4 }, { "trigram_id": 6, "score": 2 },
-        { "trigram_id": 7, "score": 2 }, { "trigram_id": 8, "score": 1 }
-      ]
-    },
-    {
-      "mbti_type": "ENFJ",
-      "scores": [
-        { "trigram_id": 1, "score": 3 }, { "trigram_id": 2, "score": 5 },
-        { "trigram_id": 3, "score": 3 }, { "trigram_id": 4, "score": 2 },
-        { "trigram_id": 5, "score": 5 }, { "trigram_id": 6, "score": 2 },
-        { "trigram_id": 7, "score": 1 }, { "trigram_id": 8, "score": 1 }
-      ]
-    },
-    {
-      "mbti_type": "ENFP",
-      "scores": [
-        { "trigram_id": 1, "score": 2 }, { "trigram_id": 2, "score": 4 },
-        { "trigram_id": 3, "score": 5 }, { "trigram_id": 4, "score": 2 },
-        { "trigram_id": 5, "score": 5 }, { "trigram_id": 6, "score": 1 },
-        { "trigram_id": 7, "score": 1 }, { "trigram_id": 8, "score": 1 }
-      ]
-    },
-    {
-      "mbti_type": "ISTJ",
-      "scores": [
-        { "trigram_id": 1, "score": 3 }, { "trigram_id": 2, "score": 1 },
-        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 2 },
-        { "trigram_id": 5, "score": 1 }, { "trigram_id": 6, "score": 2 },
-        { "trigram_id": 7, "score": 5 }, { "trigram_id": 8, "score": 5 }
-      ]
-    },
-    {
-      "mbti_type": "ISFJ",
-      "scores": [
-        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 4 },
-        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 1 },
-        { "trigram_id": 5, "score": 3 }, { "trigram_id": 6, "score": 2 },
-        { "trigram_id": 7, "score": 4 }, { "trigram_id": 8, "score": 5 }
-      ]
-    },
-    {
-      "mbti_type": "ESTJ",
-      "scores": [
-        { "trigram_id": 1, "score": 4 }, { "trigram_id": 2, "score": 1 },
-        { "trigram_id": 3, "score": 1 }, { "trigram_id": 4, "score": 5 },
-        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 1 },
-        { "trigram_id": 7, "score": 3 }, { "trigram_id": 8, "score": 4 }
-      ]
-    },
-    {
-      "mbti_type": "ESFJ",
-      "scores": [
-        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 5 },
-        { "trigram_id": 3, "score": 2 }, { "trigram_id": 4, "score": 2 },
-        { "trigram_id": 5, "score": 4 }, { "trigram_id": 6, "score": 1 },
-        { "trigram_id": 7, "score": 2 }, { "trigram_id": 8, "score": 4 }
-      ]
-    },
-    {
-      "mbti_type": "ISTP",
-      "scores": [
-        { "trigram_id": 1, "score": 2 }, { "trigram_id": 2, "score": 2 },
-        { "trigram_id": 3, "score": 1 }, { "trigram_id": 4, "score": 2 },
-        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 4 },
-        { "trigram_id": 7, "score": 5 }, { "trigram_id": 8, "score": 3 }
-      ]
-    },
-    {
-      "mbti_type": "ISFP",
-      "scores": [
-        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 5 },
-        { "trigram_id": 3, "score": 5 }, { "trigram_id": 4, "score": 2 },
-        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 2 },
-        { "trigram_id": 7, "score": 1 }, { "trigram_id": 8, "score": 3 }
-      ]
-    },
-    {
-      "mbti_type": "ESTP",
-      "scores": [
-        { "trigram_id": 1, "score": 2 }, { "trigram_id": 2, "score": 3 },
-        { "trigram_id": 3, "score": 1 }, { "trigram_id": 4, "score": 5 },
-        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 2 },
-        { "trigram_id": 7, "score": 3 }, { "trigram_id": 8, "score": 5 }
-      ]
-    },
-    {
-      "mbti_type": "ESFP",
-      "scores": [
-        { "trigram_id": 1, "score": 1 }, { "trigram_id": 2, "score": 4 },
-        { "trigram_id": 3, "score": 5 }, { "trigram_id": 4, "score": 4 },
-        { "trigram_id": 5, "score": 2 }, { "trigram_id": 6, "score": 1 },
-        { "trigram_id": 7, "score": 1 }, { "trigram_id": 8, "score": 5 }
-      ]
-    }
+    {"mbti_type":"INTJ","scores":[{"trigram_id":1,"score":5},{"trigram_id":2,"score":3},{"trigram_id":3,"score":4},{"trigram_id":4,"score":2},{"trigram_id":5,"score":1},{"trigram_id":6,"score":3},{"trigram_id":7,"score":2},{"trigram_id":8,"score":1}]},
+    {"mbti_type":"INTP","scores":[{"trigram_id":1,"score":1},{"trigram_id":2,"score":2},{"trigram_id":3,"score":2},{"trigram_id":4,"score":1},{"trigram_id":5,"score":4},{"trigram_id":6,"score":3},{"trigram_id":7,"score":5},{"trigram_id":8,"score":1}]},
+    {"mbti_type":"ENTJ","scores":[{"trigram_id":1,"score":5},{"trigram_id":2,"score":1},{"trigram_id":3,"score":2},{"trigram_id":4,"score":5},{"trigram_id":5,"score":2},{"trigram_id":6,"score":2},{"trigram_id":7,"score":1},{"trigram_id":8,"score":1}]},
+    {"mbti_type":"ENTP","scores":[{"trigram_id":1,"score":2},{"trigram_id":2,"score":3},{"trigram_id":3,"score":3},{"trigram_id":4,"score":2},{"trigram_id":5,"score":5},{"trigram_id":6,"score":2},{"trigram_id":7,"score":3},{"trigram_id":8,"score":1}]},
+    {"mbti_type":"INFJ","scores":[{"trigram_id":1,"score":4},{"trigram_id":2,"score":4},{"trigram_id":3,"score":2},{"trigram_id":4,"score":1},{"trigram_id":5,"score":4},{"trigram_id":6,"score":3},{"trigram_id":7,"score":2},{"trigram_id":8,"score":1}]},
+    {"mbti_type":"INFP","scores":[{"trigram_id":1,"score":1},{"trigram_id":2,"score":5},{"trigram_id":3,"score":5},{"trigram_id":4,"score":1},{"trigram_id":5,"score":4},{"trigram_id":6,"score":2},{"trigram_id":7,"score":2},{"trigram_id":8,"score":1}]},
+    {"mbti_type":"ENFJ","scores":[{"trigram_id":1,"score":3},{"trigram_id":2,"score":5},{"trigram_id":3,"score":3},{"trigram_id":4,"score":2},{"trigram_id":5,"score":5},{"trigram_id":6,"score":2},{"trigram_id":7,"score":1},{"trigram_id":8,"score":1}]},
+    {"mbti_type":"ENFP","scores":[{"trigram_id":1,"score":2},{"trigram_id":2,"score":4},{"trigram_id":3,"score":5},{"trigram_id":4,"score":2},{"trigram_id":5,"score":5},{"trigram_id":6,"score":1},{"trigram_id":7,"score":1},{"trigram_id":8,"score":1}]},
+    {"mbti_type":"ISTJ","scores":[{"trigram_id":1,"score":3},{"trigram_id":2,"score":1},{"trigram_id":3,"score":2},{"trigram_id":4,"score":2},{"trigram_id":5,"score":1},{"trigram_id":6,"score":2},{"trigram_id":7,"score":5},{"trigram_id":8,"score":5}]},
+    {"mbti_type":"ISFJ","scores":[{"trigram_id":1,"score":1},{"trigram_id":2,"score":4},{"trigram_id":3,"score":2},{"trigram_id":4,"score":1},{"trigram_id":5,"score":3},{"trigram_id":6,"score":2},{"trigram_id":7,"score":4},{"trigram_id":8,"score":5}]},
+    {"mbti_type":"ESTJ","scores":[{"trigram_id":1,"score":4},{"trigram_id":2,"score":1},{"trigram_id":3,"score":1},{"trigram_id":4,"score":5},{"trigram_id":5,"score":2},{"trigram_id":6,"score":1},{"trigram_id":7,"score":3},{"trigram_id":8,"score":4}]},
+    {"mbti_type":"ESFJ","scores":[{"trigram_id":1,"score":1},{"trigram_id":2,"score":5},{"trigram_id":3,"score":2},{"trigram_id":4,"score":2},{"trigram_id":5,"score":4},{"trigram_id":6,"score":1},{"trigram_id":7,"score":2},{"trigram_id":8,"score":4}]},
+    {"mbti_type":"ISTP","scores":[{"trigram_id":1,"score":2},{"trigram_id":2,"score":2},{"trigram_id":3,"score":1},{"trigram_id":4,"score":2},{"trigram_id":5,"score":2},{"trigram_id":6,"score":4},{"trigram_id":7,"score":5},{"trigram_id":8,"score":3}]},
+    {"mbti_type":"ISFP","scores":[{"trigram_id":1,"score":1},{"trigram_id":2,"score":5},{"trigram_id":3,"score":5},{"trigram_id":4,"score":2},{"trigram_id":5,"score":2},{"trigram_id":6,"score":2},{"trigram_id":7,"score":1},{"trigram_id":8,"score":3}]},
+    {"mbti_type":"ESTP","scores":[{"trigram_id":1,"score":2},{"trigram_id":2,"score":3},{"trigram_id":3,"score":1},{"trigram_id":4,"score":5},{"trigram_id":5,"score":2},{"trigram_id":6,"score":2},{"trigram_id":7,"score":3},{"trigram_id":8,"score":5}]},
+    {"mbti_type":"ESFP","scores":[{"trigram_id":1,"score":1},{"trigram_id":2,"score":4},{"trigram_id":3,"score":5},{"trigram_id":4,"score":4},{"trigram_id":5,"score":2},{"trigram_id":6,"score":1},{"trigram_id":7,"score":1},{"trigram_id":8,"score":5}]}
   ],
-mbti_nicknames: [
-    { "type": "ISTJ", "nickname": "管理者" },
-    { "type": "ISFJ", "nickname": "擁護者" },
-    { "type": "INFJ", "nickname": "提唱者" },
-    { "type": "INTJ", "nickname": "建築家" },
-    { "type": "ISTP", "nickname": "巨匠" },
-    { "type": "ISFP", "nickname": "冒険家" },
-    { "type": "INFP", "nickname": "仲介者" },
-    { "type": "INTP", "nickname": "論理学者" },
-    { "type": "ESTP", "nickname": "起業家" },
-    { "type": "ESFP", "nickname": "エンターテイナー" },
-    { "type": "ENFP", "nickname": "広報運動家" },
-    { "type": "ENTP", "nickname": "討論者" },
-    { "type": "ESTJ", "nickname": "幹部" },
-    { "type": "ESFJ", "nickname": "領事官" },
-    { "type": "ENFJ", "nickname": "主人公" },
-    { "type": "ENTJ", "nickname": "指揮官" }
-],
-keyword_map: {
-    "乾為天": ["創造・革新", "リーダーシップ", "実行・達成", "父性・厳格"],
-    "坤為地": ["共感・受容", "育成・支援", "持続・安定", "調和・平和", "母性・慈愛"],
-    "水雷屯": ["創造・革新", "挑戦・困難", "戦略・計画", "困難・停滞"],
-    "山水蒙": ["知性・学習", "育成・支援", "困難・停滞"],
-    "水天需": ["内省・静観", "持続・安定", "戦略・計画"],
-    "天水訟": ["葛藤・矛盾", "正義・改善", "困難・停滞"],
-    "地水師": ["リーダーシップ", "構造化・秩序", "奉仕・貢献", "権威・支配", "追従・服従"],
-    "水地比": ["調和・平和", "社交性・人脈", "奉仕・貢献"],
-    "風天小畜": ["困難・停滞", "持続・安定", "受動・待機"],
-    "天澤履": ["挑戦・困難", "構造化・秩序", "慎重さ"],
-    "地天泰": ["調和・平和", "成長・発展", "共感・受容"],
-    "天地否": ["困難・停滞", "内省・静観"],
-    "天火同人": ["社交性・人脈", "リーダーシップ", "奉仕・貢献"],
-    "火天大有": ["実行・達成", "リーダーシップ", "成長・発展", "富・豊かさ"],
-    "地山謙": ["奉仕・貢献", "調和・平和", "内省・静観", "分配・贈与"],
-    "雷地豫": ["調和・平和", "表現・伝達", "成長・発展"],
-    "沢雷随": ["追従・服従", "調和・平和", "変動・転換"],
-    "山風蠱": ["困難・停滞", "正義・改善", "自己変容・脱皮"],
-    "地沢臨": ["リーダーシップ", "成長・発展", "育成・支援", "母性・慈愛"],
-    "風地観": ["内省・静観", "先見・大局観", "直感・感性"],
-    "火雷噬嗑": ["正義・改善", "困難・停滞", "権威・支配"],
-    "山火賁": ["美的感覚・洗練", "表現・伝達", "本質・真実"],
-    "山地剝": ["困難・停滞", "自己変容・脱皮", "本質・真実", "損失・浪費"],
-    "地雷復": ["始動・萌芽", "循環・継続", "内省・静観"],
-    "天雷无妄": ["本質・真実", "直感・感性", "受動・待機"],
-    "山天大畜": ["持続・安定", "育成・支援", "富・豊かさ"],
-    "山雷頤": ["育成・支援", "内省・静観", "持続・安定"],
-    "澤風大過": ["困難・停滞", "挑戦・困難", "変動・転換", "特殊・異端"],
-    "坎為水": ["困難・停滞", "内省・静観", "本質・真実", "分析・探求"],
-    "離為火": ["知性・学習", "表現・伝達", "美的感覚・洗練", "依存・付着"],
-    "沢山咸": ["共感・受容", "感情・情熱", "直感・感性", "始動・萌芽"],
-    "雷風恒": ["循環・継続", "持続・安定", "調和・平和"],
-    "天山遯": ["内省・静観", "戦略・計画", "困難・停滞"],
-    "雷天大壮": ["実行・達成", "権威・支配", "挑戦・困難", "富・豊かさ"],
-    "火地晋": ["成長・発展", "表現・伝達", "リーダーシップ", "奉仕・貢献"],
-    "地火明夷": ["困難・停滞", "内省・静観", "秘密・潜在"],
-    "風火家人": ["家族・家庭", "構造化・秩序", "父性・厳格", "母性・慈愛"],
-    "火沢睽": ["葛藤・矛盾", "困難・停滞"],
-    "水山蹇": ["困難・停滞", "内省・静観", "戦略・計画"],
-    "雷水解": ["困難・停滞", "実行・達成", "正義・改善"],
-    "山沢損": ["損失・浪費", "自己変容・脱皮", "奉仕・貢献", "分配・贈与"],
-    "風雷益": ["成長・発展", "奉仕・貢献", "知性・学習", "富・豊かさ", "分配・贈与"],
-    "沢天夬": ["リーダーシップ", "実行・達成", "変動・転換", "権威・支配"],
-    "天風姤": ["変動・転換", "直感・感性", "秘密・潜在", "葛藤・矛盾"],
-    "沢地萃": ["社交性・人脈", "リーダーシップ", "奉仕・貢献", "追従・服従"],
-    "地風升": ["成長・発展", "持続・安定", "育成・支援"],
-    "沢水困": ["困難・停滞", "内省・静観", "本質・真実"],
-    "水風井": ["奉仕・貢献", "持続・安定", "本質・真実", "循環・継続"],
-    "沢火革": ["変動・転換", "創造・革新", "リーダーシップ"],
-    "火風鼎": ["構造化・秩序", "育成・支援", "奉仕・貢献"],
-    "震為雷": ["変動・転換", "挑戦・困難", "実行・達成"],
-    "艮為山": ["内省・静観", "困難・停滞", "持続・安定", "受動・待機"],
-    "風山漸": ["成長・発展", "持続・安定", "構造化・秩序", "家族・家庭"],
-    "雷沢帰妹": ["困難・停滞", "構造化・秩序", "感情・情熱", "家族・家庭"],
-    "雷火豊": ["完成・集大成", "リーダーシップ", "成長・発展"],
-    "火山旅": ["内省・静観", "困難・停滞", "葛藤・矛盾", "放浪・自由", "特殊・異端"],
-    "巽為風": ["内省・静観", "表現・伝達", "追従・服従"],
-    "兌為沢": ["調和・平和", "表現・伝達", "社交性・人脈"],
-    "風水渙": ["リーダーシップ", "表現・伝達", "困難・停滞"],
-    "水沢節": ["構造化・秩序", "内省・静観", "持続・安定"],
-    "風沢中孚": ["本質・真実", "共感・受容", "正義・改善"],
-    "雷山小過": ["内省・静観", "構造化・秩序", "損失・浪費", "正義・改善"],
-    "水火既済": ["完成・集大成", "構造化・秩序", "困難・停滞"],
-    "火水未済": ["始動・萌芽", "変動・転換", "挑戦・困難"],
-    "INTP": ["分析・探求", "内省・静観", "創造・革新", "特殊・異端", "困難・停滞"],
-    "ENTJ": ["リーダーシップ", "実行・達成", "戦略・計画", "権威・支配"],
-    "INFP": ["内省・静観", "共感・受容", "感情・情熱", "正義・改善", "自己変容・脱皮"],
-    "ESTP": ["実行・達成", "挑戦・困難", "戦略・計画", "変動・転換"],
-    "ISTJ": ["実行・達成", "持続・安定", "正義・改善", "構造化・秩序"],
-    "ENFP": ["創造・革新", "感情・情熱", "表現・伝達", "リーダーシップ"],
-    "ISTP": ["実行・達成", "分析・探求", "挑戦・困難", "放浪・自由"],
-    "ESFJ": ["育成・支援", "奉仕・貢献", "社交性・人脈", "調和・平和", "家族・家庭"],
-    "ISFJ": ["育成・支援", "奉仕・貢献", "持続・安定", "共感・受容", "家族・家庭"],
-    "ESTJ": ["リーダーシップ", "実行・達成", "構造化・秩序", "正義・改善", "権威・支配"],
-    "ISFP": ["美的感覚・洗練", "創造・革新", "感情・情熱", "挑戦・困難"],
-    "ENTP": ["知性・学習", "挑戦・困難", "創造・革新", "葛藤・矛盾"],
-    "INFJ": ["先見・大局観", "奉仕・貢献", "正義・改善", "本質・真実", "直感・感性"],
-    "ENFJ": ["リーダーシップ", "育成・支援", "社交性・人脈", "奉仕・貢献"],
-    "ESFP": ["表現・伝達", "社交性・人脈", "挑戦・困難", "美的感覚・洗練", "依存・付着"],
-    "INTJ": ["戦略・計画", "分析・探求", "先見・大局観", "構造化・秩序", "秘密・潜在"],
-    "e1": ["正義・改善", "本質・真実", "実行・達成", "父性・厳格", "構造化・秩序"],
-    "e2": ["育成・支援", "共感・受容", "感情・情熱", "分配・贈与"],
-    "e3": ["実行・達成", "成長・発展", "表現・伝達", "リーダーシップ"],
-    "e4": ["感情・情熱", "創造・革新", "美的感覚・洗練", "葛藤・矛盾", "特殊・異端"],
-    "e5": ["分析・探求", "内省・静観", "先見・大局観", "秘密・潜在"],
-    "e6": ["持続・安定", "分析・探求", "困難・停滞", "奉仕・貢献", "追従・服従"],
-    "e7": ["創造・革新", "挑戦・困難", "成長・発展"],
-    "e8": ["権威・支配", "リーダーシップ", "正義・改善", "挑戦・困難", "富・豊かさ"],
-    "e9": ["調和・平和", "共感・受容", "持続・安定", "受動・待機"],
-    "戦略性": ["戦略・計画", "先見・大局観", "分析・探求"],
-    "達成欲": ["実行・達成", "持続・安定", "情熱・感情"],
-    "着想": ["創造・革新", "分析・探求", "特殊・異端"],
-    "共感性": ["共感・受容", "感情・情熱"],
-    "調和性": ["調和・平和", "共感・受容"],
-    "内省": ["内省・静観", "分析・探求"],
-    "未来志向": ["先見・大局観", "創造・革新", "情熱・感情"],
-    "責任感": ["実行・達成", "正義・改善", "持続・安定", "父性・厳格"],
-    "回復志向": ["困難・停滞", "正義・改善", "分析・探求", "損失・浪費"],
-    "運命思考": ["本質・真実", "共感・受容", "先見・大局観", "直感・感性"],
-    "分析思考": ["分析・探求", "本質・真実"],
-    "公平性": ["正義・改善", "持続・安定", "調和・平和"],
-    "慎重さ": ["内省・静観", "戦略・計画", "困難・停滞", "構造化・秩序"],
-    "コミュニケーション": ["表現・伝達", "リーダーシップ", "共感・受容"],
-    "社交性": ["社交性・人脈", "表現・伝達", "挑戦・困難"],
-    "包含": ["共感・受容", "奉仕・貢献", "調和・平和", "母性・慈愛"],
-    "アレンジ": ["戦略・計画", "構造化・秩序", "実行・達成"],
-    "規律性": ["構造化・秩序", "実行・達成", "持続・安定"],
-    "自我": ["リーダーシップ", "表現・伝達", "社交性・人脈"],
-    "学習欲": ["知性・学習", "分析・探求", "内省・静観"],
-    "収集心": ["知性・学習", "分析・探求"],
-    "原点思考": ["知性・学習", "分析・探訪", "本質・真実"],
-    "活発性": ["実行・達成", "挑戦・困難", "情熱・感情", "始動・萌芽"],
-    "目標志向": ["実行・達成", "戦略・計画", "完成・集大成", "富・豊かさ"],
-    "信念": ["本質・真実", "持続・安定", "循環・継続"],
-    "適応性": ["変動・転換", "共感・受容", "実行・達成", "挑戦・困難"],
-    "自己確信": ["実行・達成", "リーダーシップ", "直感・感性", "権威・支配"],
-    "指令性": ["権威・支配", "リーダーシップ", "実行・達成", "挑戦・困難"],
-    "育成": ["育成・支援", "成長・発展", "母性・慈愛"],
-    "ポジティブ": ["感情・情熱", "表現・伝達", "成長・発展", "社交性・人脈"],
-    "個別化": ["分析・探求", "育成・支援", "特殊・異端", "本質・真実"],
-    "親密性": ["共感・受容", "家族・家庭", "本質・真実", "持続・安定"],
-    "最上志向": ["美的感覚・洗練", "成長・発展", "正義・改善", "富・豊かさ"],
-    "競争性": ["挑戦・困難", "実行・達成", "権威・支配", "損失・浪費"]
-},
-line_keyword_map: {
-    "乾為天 初九": ["内省・静観", "困難・停滞", "秘密・潜在", "受動・待機"],
+  mbti_nicknames: [
+    { "type": "ISTJ", "nickname": "管理者" }, { "type": "ISFJ", "nickname": "擁護者" },
+    { "type": "INFJ", "nickname": "提唱者" }, { "type": "INTJ", "nickname": "建築家" },
+    { "type": "ISTP", "nickname": "巨匠" }, { "type": "ISFP", "nickname": "冒険家" },
+    { "type": "INFP", "nickname": "仲介者" }, { "type": "INTP", "nickname": "論理学者" },
+    { "type": "ESTP", "nickname": "起業家" }, { "type": "ESFP", "nickname": "エンターテイナー" },
+    { "type": "ENFP", "nickname": "広報運動家" }, { "type": "ENTP", "nickname": "討論者" },
+    { "type": "ESTJ", "nickname": "幹部" }, { "type": "ESFJ", "nickname": "領事官" },
+    { "type": "ENFJ", "nickname": "主人公" }, { "type": "ENTJ", "nickname": "指揮官" }
+  ],
+  enneagram_map: [
+    {"enneagram_type":"1","nickname":"改革する人","scores":[{"trigram_id":7,"score":2.5},{"trigram_id":4,"score":1.5},{"trigram_id":1,"score":1}]},
+    {"enneagram_type":"2","nickname":"助ける人","scores":[{"trigram_id":8,"score":2},{"trigram_id":2,"score":1.5},{"trigram_id":3,"score":1},{"trigram_id":5,"score":0.5}]},
+    {"enneagram_type":"3","nickname":"達成する人","scores":[{"trigram_id":3,"score":2.5},{"trigram_id":4,"score":1.5},{"trigram_id":5,"score":1}]},
+    {"enneagram_type":"4","nickname":"個性的な人","scores":[{"trigram_id":3,"score":2},{"trigram_id":6,"score":2},{"trigram_id":7,"score":1}]},
+    {"enneagram_type":"5","nickname":"調べる人","scores":[{"trigram_id":7,"score":2.5},{"trigram_id":6,"score":1.5},{"trigram_id":1,"score":1}]},
+    {"enneagram_type":"6","nickname":"忠実な人","scores":[{"trigram_id":8,"score":2},{"trigram_id":7,"score":1.5},{"trigram_id":6,"score":1.5}]},
+    {"enneagram_type":"7","nickname":"熱中する人","scores":[{"trigram_id":5,"score":2.5},{"trigram_id":2,"score":1.5},{"trigram_id":3,"score":1}]},
+    {"enneagram_type":"8","nickname":"挑戦する人","scores":[{"trigram_id":4,"score":2.5},{"trigram_id":1,"score":1.5},{"trigram_id":8,"score":1}]},
+    {"enneagram_type":"9","nickname":"平和を好む人","scores":[{"trigram_id":8,"score":2.5},{"trigram_id":5,"score":1.5},{"trigram_id":2,"score":1}]}
+  ],
+  strengthsfinder_map: [
+    {"strength_finder_talent":"達成欲","domain":"実行力","scores":[{"trigram_id":4,"score":2},{"trigram_id":3,"score":0.5},{"trigram_id":7,"score":0.5}]},
+    {"strength_finder_talent":"アレンジ","domain":"実行力","scores":[{"trigram_id":5,"score":1.5},{"trigram_id":8,"score":1},{"trigram_id":2,"score":0.5}]},
+    {"strength_finder_talent":"信念","domain":"実行力","scores":[{"trigram_id":7,"score":2.5},{"trigram_id":1,"score":0.5}]},
+    {"strength_finder_talent":"公平性","domain":"実行力","scores":[{"trigram_id":7,"score":2},{"trigram_id":1,"score":1}]},
+    {"strength_finder_talent":"慎重さ","domain":"実行力","scores":[{"trigram_id":6,"score":2},{"trigram_id":7,"score":1}]},
+    {"strength_finder_talent":"規律性","domain":"実行力","scores":[{"trigram_id":7,"score":2.5},{"trigram_id":8,"score":0.5}]},
+    {"strength_finder_talent":"責任感","domain":"実行力","scores":[{"trigram_id":8,"score":2.5},{"trigram_id":7,"score":0.5}]},
+    {"strength_finder_talent":"回復志向","domain":"実行力","scores":[{"trigram_id":6,"score":1.5},{"trigram_id":4,"score":1},{"trigram_id":2,"score":0.5}]},
+    {"strength_finder_talent":"目標志向","domain":"実行力","scores":[{"trigram_id":1,"score":1.5},{"trigram_id":4,"score":1.5}]},
+    {"strength_finder_talent":"活発性","domain":"影響力","scores":[{"trigram_id":4,"score":2.5},{"trigram_id":3,"score":0.5}]},
+    {"strength_finder_talent":"指令性","domain":"影響力","scores":[{"trigram_id":1,"score":1.5},{"trigram_id":4,"score":1.5}]},
+    {"strength_finder_talent":"コミュニケーション","domain":"影響力","scores":[{"trigram_id":5,"score":1.5},{"trigram_id":2,"score":1},{"trigram_id":3,"score":0.5}]},
+    {"strength_finder_talent":"競争性","domain":"影響力","scores":[{"trigram_id":4,"score":1.5},{"trigram_id":3,"score":1.5}]},
+    {"strength_finder_talent":"最上志向","domain":"影響力","scores":[{"trigram_id":3,"score":1.5},{"trigram_id":2,"score":1},{"trigram_id":1,"score":0.5}]},
+    {"strength_finder_talent":"自己確信","domain":"影響力","scores":[{"trigram_id":1,"score":2},{"trigram_id":7,"score":1}]},
+    {"strength_finder_talent":"自我","domain":"影響力","scores":[{"trigram_id":3,"score":2},{"trigram_id":1,"score":1}]},
+    {"strength_finder_talent":"社交性","domain":"影響力","scores":[{"trigram_id":3,"score":1.5},{"trigram_id":2,"score":1.5}]},
+    {"strength_finder_talent":"適応性","domain":"人間関係構築力","scores":[{"trigram_id":6,"score":1.5},{"trigram_id":5,"score":1.5}]},
+    {"strength_finder_talent":"運命思考","domain":"人間関係構築力","scores":[{"trigram_id":8,"score":1.5},{"trigram_id":5,"score":1},{"trigram_id":6,"score":0.5}]},
+    {"strength_finder_talent":"成長促進","domain":"人間関係構築力","scores":[{"trigram_id":8,"score":1.5},{"trigram_id":3,"score":1},{"trigram_id":2,"score":0.5}]},
+    {"strength_finder_talent":"調和性","domain":"人間関係構築力","scores":[{"trigram_id":8,"score":1.5},{"trigram_id":2,"score":1.5}]},
+    {"strength_finder_talent":"包含","domain":"人間関係構築力","scores":[{"trigram_id":8,"score":2},{"trigram_id":2,"score":1}]},
+    {"strength_finder_talent":"共感性","domain":"人間関係構築力","scores":[{"trigram_id":2,"score":1.5},{"trigram_id":6,"score":1.5}]},
+    {"strength_finder_talent":"親密性","domain":"人間関係構築力","scores":[{"trigram_id":6,"score":1.5},{"trigram_id":8,"score":1.5}]},
+    {"strength_finder_talent":"ポジティブ","domain":"人間関係構築力","scores":[{"trigram_id":3,"score":1.5},{"trigram_id":2,"score":1.5}]},
+    {"strength_finder_talent":"個別化","domain":"人間関係構築力","scores":[{"trigram_id":3,"score":1},{"trigram_id":6,"score":1},{"trigram_id":2,"score":1}]},
+    {"strength_finder_talent":"分析思考","domain":"戦略的思考力","scores":[{"trigram_id":6,"score":1.5},{"trigram_id":7,"score":1.5}]},
+    {"strength_finder_talent":"原点思考","domain":"戦略的思考力","scores":[{"trigram_id":8,"score":1.5},{"trigram_id":7,"score":1.5}]},
+    {"strength_finder_talent":"未来志向","domain":"戦略的思考力","scores":[{"trigram_id":1,"score":1.5},{"trigram_id":5,"score":1},{"trigram_id":3,"score":0.5}]},
+    {"strength_finder_talent":"着想","domain":"戦略的思考力","scores":[{"trigram_id":5,"score":2},{"trigram_id":3,"score":1}]},
+    {"strength_finder_talent":"収集心","domain":"戦略的思考力","scores":[{"trigram_id":8,"score":1.5},{"trigram_id":7,"score":1.5}]},
+    {"strength_finder_talent":"内省","domain":"戦略的思考力","scores":[{"trigram_id":6,"score":2},{"trigram_id":7,"score":1}]},
+    {"strength_finder_talent":"学習欲","domain":"戦略的思考力","scores":[{"trigram_id":6,"score":1.5},{"trigram_id":7,"score":1.5}]},
+    {"strength_finder_talent":"戦略性","domain":"戦略的思考力","scores":[{"trigram_id":1,"score":1.5},{"trigram_id":6,"score":1},{"trigram_id":5,"score":0.5}]}
+  ],
+  keyword_map: {
+    "乾為天": ["創造・革新", "リーダーシップ", "実行・達成", "父性・厳格"], "坤為地": ["共感・受容", "育成・支援", "持続・安定", "調和・平和", "母性・慈愛"], "水雷屯": ["創造・革新", "挑戦・困難", "戦略・計画", "困難・停滞"], "山水蒙": ["知性・学習", "育成・支援", "困難・停滞"],
+    "水天需": ["内省・静観", "持続・安定", "戦略・計画"], "天水訟": ["葛藤・矛盾", "正義・改善", "困難・停滞"], "地水師": ["リーダーシップ", "構造化・秩序", "奉仕・貢献", "権威・支配", "追従・服従"],
+    "水地比": ["調和・平和", "社交性・人脈", "奉仕・貢献"], "風天小畜": ["困難・停滞", "持続・安定", "受動・待機"], "天澤履": ["挑戦・困難", "構造化・秩序", "慎重さ"], "地天泰": ["調和・平和", "成長・発展", "共感・受容"],
+    "天地否": ["困難・停滞", "内省・静観"], "天火同人": ["社交性・人脈", "リーダーシップ", "奉仕・貢献"], "火天大有": ["実行・達成", "リーダーシップ", "成長・発展", "富・豊かさ"], "地山謙": ["奉仕・貢献", "調和・平和", "内省・静観", "分配・贈与"],
+    "雷地豫": ["調和・平和", "表現・伝達", "成長・発展"], "沢雷随": ["追従・服従", "調和・平和", "変動・転換"], "山風蠱": ["困難・停滞", "正義・改善", "自己変容・脱皮"], "地沢臨": ["リーダーシップ", "成長・発展", "育成・支援", "母性・慈愛"],
+    "風地観": ["内省・静観", "先見・大局観", "直感・感性"], "火雷噬嗑": ["正義・改善", "困難・停滞", "権威・支配"], "山火賁": ["美的感覚・洗練", "表現・伝達", "本質・真実"], "山地剝": ["困難・停滞", "自己変容・脱皮", "本質・真実", "損失・浪費"],
+    "地雷復": ["始動・萌芽", "循環・継続", "内省・静観"], "天雷无妄": ["本質・真実", "直感・感性", "受動・待機"], "山天大畜": ["持続・安定", "育成・支援", "富・豊かさ"], "山雷頤": ["育成・支援", "内省・静観", "持続・安定"],
+    "澤風大過": ["困難・停滞", "挑戦・困難", "変動・転換", "特殊・異端"], "坎為水": ["困難・停滞", "内省・静観", "本質・真実", "分析・探求"], "離為火": ["知性・学習", "表現・伝達", "美的感覚・洗練", "依存・付着"],
+    "沢山咸": ["共感・受容", "感情・情熱", "直感・感性", "始動・萌芽"], "雷風恒": ["循環・継続", "持続・安定", "調和・平和"], "天山遯": ["内省・静観", "戦略・計画", "困難・停滞"], "雷天大壮": ["実行・達成", "権威・支配", "挑戦・困難", "富・豊かさ"],
+    "火地晋": ["成長・発展", "表現・伝達", "リーダーシップ", "奉仕・貢献"], "地火明夷": ["困難・停滞", "内省・静観", "秘密・潜在"], "風火家人": ["家族・家庭", "構造化・秩序", "父性・厳格", "母性・慈愛"], "火沢睽": ["葛藤・矛盾", "困難・停滞"],
+    "水山蹇": ["困難・停滞", "内省・静観", "戦略・計画"], "雷水解": ["困難・停滞", "実行・達成", "正義・改善"], "山沢損": ["損失・浪費", "自己変容・脱皮", "奉仕・貢献", "分配・贈与"], "風雷益": ["成長・発展", "奉仕・貢献", "知性・学習", "富・豊かさ", "分配・贈与"],
+    "沢天夬": ["リーダーシップ", "実行・達成", "変動・転換", "権威・支配"], "天風姤": ["変動・転換", "直感・感性", "秘密・潜在", "葛藤・矛盾"], "沢地萃": ["社交性・人脈", "リーダーシップ", "奉仕・貢献", "追従・服従"], "地風升": ["成長・発展", "持続・安定", "育成・支援"],
+    "沢水困": ["困難・停滞", "内省・静観", "本質・真実"], "水風井": ["奉仕・貢献", "持続・安定", "本質・真実", "循環・継続"], "沢火革": ["変動・転換", "創造・革新", "リーダーシップ"], "火風鼎": ["構造化・秩序", "育成・支援", "奉仕・貢献"],
+    "震為雷": ["変動・転換", "挑戦・困難", "実行・達成"], "艮為山": ["内省・静観", "困難・停滞", "持続・安定", "受動・待機"], "風山漸": ["成長・発展", "持続・安定", "構造化・秩序", "家族・家庭"], "雷沢帰妹": ["困難・停滞", "構造化・秩序", "感情・情熱", "家族・家庭"],
+    "雷火豊": ["完成・集大成", "リーダーシップ", "成長・発展"], "火山旅": ["内省・静観", "困難・停滞", "葛藤・矛盾", "放浪・自由", "特殊・異端"], "巽為風": ["内省・静観", "表現・伝達", "追従・服従"], "兌為沢": ["調和・平和", "表現・伝達", "社交性・人脈"],
+    "風水渙": ["リーダーシップ", "表現・伝達", "困難・停滞"], "水沢節": ["構造化・秩序", "内省・静観", "持続・安定"], "風沢中孚": ["本質・真実", "共感・受容", "正義・改善"], "雷山小過": ["内省・静観", "構造化・秩序", "損失・浪費", "正義・改善"],
+    "水火既済": ["完成・集大成", "構造化・秩序", "困難・停滞"], "火水未済": ["始動・萌芽", "変動・転換", "挑戦・困難"], "INTP": ["分析・探求", "内省・静観", "創造・革新", "特殊・異端", "困難・停滞"],
+    "ENTJ": ["リーダーシップ", "実行・達成", "戦略・計画", "権威・支配"], "INFP": ["内省・静観", "共感・受容", "感情・情熱", "正義・改善", "自己変容・脱皮"], "ESTP": ["実行・達成", "挑戦・困難", "戦略・計画", "変動・転換"],
+    "ISTJ": ["実行・達成", "持続・安定", "正義・改善", "構造化・秩序"], "ENFP": ["創造・革新", "感情・情熱", "表現・伝達", "リーダーシップ"], "ISTP": ["実行・達成", "分析・探求", "挑戦・困難", "放浪・自由"],
+    "ESFJ": ["育成・支援", "奉仕・貢献", "社交性・人脈", "調和・平和", "家族・家庭"], "ISFJ": ["育成・支援", "奉仕・貢献", "持続・安定", "共感・受容", "家族・家庭"], "ESTJ": ["リーダーシップ", "実行・達成", "構造化・秩序", "正義・改善", "権威・支配"],
+    "ISFP": ["美的感覚・洗練", "創造・革新", "感情・情熱", "挑戦・困難"], "ENTP": ["知性・学習", "挑戦・困難", "創造・革新", "葛藤・矛盾"], "INFJ": ["先見・大局観", "奉仕・貢献", "正義・改善", "本質・真実", "直感・感性"],
+    "ENFJ": ["リーダーシップ", "育成・支援", "社交性・人脈", "奉仕・貢献"], "ESFP": ["表現・伝達", "社交性・人脈", "挑戦・困難", "美的感覚・洗練", "依存・付着"], "INTJ": ["戦略・計画", "分析・探求", "先見・大局観", "構造化・秩序", "秘密・潜在"]
+  },
+  line_keyword_map: {"乾為天 初九": ["内省・静観", "困難・停滞", "秘密・潜在", "受動・待機"],
     "乾為天 九二": ["成長・発展", "育成・支援", "奉仕・貢献", "始動・萌芽"],
     "乾為天 九三": ["実行・達成", "挑戦・困難", "内省・静観", "持続・安定"],
     "乾為天 九四": ["変動・転換", "挑戦・困難", "戦略・計画"],
@@ -1215,139 +575,10 @@ line_keyword_map: {
     "火水未済 九四": ["実行・達成", "リーダーシップ", "富・豊かさ"],
     "火水未済 六五": ["リーダーシップ", "本質・真実", "完成・集大成"],
     "火水未済 上九": ["完成・集大成", "富・豊かさ", "損失・浪費"]
-},
+}, 
 
-
-
-enneagram_map: [
-    {
-      "enneagram_type": "1",
-      "nickname": "改革する人",
-      "scores": [
-        { "trigram_id": 7, "score": 2.5 },
-        { "trigram_id": 4, "score": 1.5 },
-        { "trigram_id": 1, "score": 1.0 }
-      ]
-    },
-    {
-      "enneagram_type": "2",
-      "nickname": "助ける人",
-      "scores": [
-        { "trigram_id": 8, "score": 2.0 },
-        { "trigram_id": 2, "score": 1.5 },
-        { "trigram_id": 3, "score": 1.0 },
-        { "trigram_id": 5, "score": 0.5 }
-      ]
-    },
-    {
-      "enneagram_type": "3",
-      "nickname": "達成する人",
-      "scores": [
-        { "trigram_id": 3, "score": 2.5 },
-        { "trigram_id": 4, "score": 1.5 },
-        { "trigram_id": 5, "score": 1.0 }
-      ]
-    },
-    {
-      "enneagram_type": "4",
-      "nickname": "個性的な人",
-      "scores": [
-        { "trigram_id": 3, "score": 2.0 },
-        { "trigram_id": 6, "score": 2.0 },
-        { "trigram_id": 7, "score": 1.0 }
-      ]
-    },
-    {
-      "enneagram_type": "5",
-      "nickname": "調べる人",
-      "scores": [
-        { "trigram_id": 7, "score": 2.5 },
-        { "trigram_id": 6, "score": 1.5 },
-        { "trigram_id": 1, "score": 1.0 }
-      ]
-    },
-    {
-      "enneagram_type": "6",
-      "nickname": "忠実な人",
-      "scores": [
-        { "trigram_id": 8, "score": 2.0 },
-        { "trigram_id": 7, "score": 1.5 },
-        { "trigram_id": 6, "score": 1.5 }
-      ]
-    },
-    {
-      "enneagram_type": "7",
-      "nickname": "熱中する人",
-      "scores": [
-        { "trigram_id": 5, "score": 2.5 },
-        { "trigram_id": 2, "score": 1.5 },
-        { "trigram_id": 3, "score": 1.0 }
-      ]
-    },
-    {
-      "enneagram_type": "8",
-      "nickname": "挑戦する人",
-      "scores": [
-        { "trigram_id": 4, "score": 2.5 },
-        { "trigram_id": 1, "score": 1.5 },
-        { "trigram_id": 8, "score": 1.0 }
-      ]
-    },
-    {
-      "enneagram_type": "9",
-      "nickname": "平和を好む人",
-      "scores": [
-        { "trigram_id": 8, "score": 2.5 },
-        { "trigram_id": 5, "score": 1.5 },
-        { "trigram_id": 2, "score": 1.0 }
-      ]
-    }
-  ],
-  "strengthsfinder_map": [
-    // 【実行力】
-    { "strength_finder_talent": "達成欲", "domain": "実行力", "scores": [ { "trigram_id": 4, "score": 2.0 }, { "trigram_id": 3, "score": 0.5 }, { "trigram_id": 7, "score": 0.5 } ] },
-    { "strength_finder_talent": "アレンジ", "domain": "実行力", "scores": [ { "trigram_id": 5, "score": 1.5 }, { "trigram_id": 8, "score": 1.0 }, { "trigram_id": 2, "score": 0.5 } ] },
-    { "strength_finder_talent": "信念", "domain": "実行力", "scores": [ { "trigram_id": 7, "score": 2.5 }, { "trigram_id": 1, "score": 0.5 } ] },
-    { "strength_finder_talent": "公平性", "domain": "実行力", "scores": [ { "trigram_id": 7, "score": 2.0 }, { "trigram_id": 1, "score": 1.0 } ] },
-    { "strength_finder_talent": "慎重さ", "domain": "実行力", "scores": [ { "trigram_id": 6, "score": 2.0 }, { "trigram_id": 7, "score": 1.0 } ] },
-    { "strength_finder_talent": "規律性", "domain": "実行力", "scores": [ { "trigram_id": 7, "score": 2.5 }, { "trigram_id": 8, "score": 0.5 } ] },
-    { "strength_finder_talent": "責任感", "domain": "実行力", "scores": [ { "trigram_id": 8, "score": 2.5 }, { "trigram_id": 7, "score": 0.5 } ] },
-    { "strength_finder_talent": "回復志向", "domain": "実行力", "scores": [ { "trigram_id": 6, "score": 1.5 }, { "trigram_id": 4, "score": 1.0 }, { "trigram_id": 2, "score": 0.5 } ] },
-    { "strength_finder_talent": "目標志向", "domain": "実行力", "scores": [ { "trigram_id": 1, "score": 1.5 }, { "trigram_id": 4, "score": 1.5 } ] }, //旧「集中」
-    // 【影響力】
-    { "strength_finder_talent": "活発性", "domain": "影響力", "scores": [ { "trigram_id": 4, "score": 2.5 }, { "trigram_id": 3, "score": 0.5 } ] },
-    { "strength_finder_talent": "指令性", "domain": "影響力", "scores": [ { "trigram_id": 1, "score": 1.5 }, { "trigram_id": 4, "score": 1.5 } ] },
-    { "strength_finder_talent": "コミュニケーション", "domain": "影響力", "scores": [ { "trigram_id": 5, "score": 1.5 }, { "trigram_id": 2, "score": 1.0 }, { "trigram_id": 3, "score": 0.5 } ] },
-    { "strength_finder_talent": "競争性", "domain": "影響力", "scores": [ { "trigram_id": 4, "score": 1.5 }, { "trigram_id": 3, "score": 1.5 } ] },
-    { "strength_finder_talent": "最上志向", "domain": "影響力", "scores": [ { "trigram_id": 3, "score": 1.5 }, { "trigram_id": 2, "score": 1.0 }, { "trigram_id": 1, "score": 0.5 } ] },
-    { "strength_finder_talent": "自己確信", "domain": "影響力", "scores": [ { "trigram_id": 1, "score": 2.0 }, { "trigram_id": 7, "score": 1.0 } ] },
-    { "strength_finder_talent": "自我", "domain": "影響力", "scores": [ { "trigram_id": 3, "score": 2.0 }, { "trigram_id": 1, "score": 1.0 } ] },
-    { "strength_finder_talent": "社交性", "domain": "影響力", "scores": [ { "trigram_id": 3, "score": 1.5 }, { "trigram_id": 2, "score": 1.5 } ] },
-    // 【人間関係構築力】
-    { "strength_finder_talent": "適応性", "domain": "人間関係構築力", "scores": [ { "trigram_id": 6, "score": 1.5 }, { "trigram_id": 5, "score": 1.5 } ] },
-    { "strength_finder_talent": "運命思考", "domain": "人間関係構築力", "scores": [ { "trigram_id": 8, "score": 1.5 }, { "trigram_id": 5, "score": 1.0 }, { "trigram_id": 6, "score": 0.5 } ] },
-    { "strength_finder_talent": "成長促進", "domain": "人間関係構築力", "scores": [ { "trigram_id": 8, "score": 1.5 }, { "trigram_id": 3, "score": 1.0 }, { "trigram_id": 2, "score": 0.5 } ] },
-    { "strength_finder_talent": "調和性", "domain": "人間関係構築力", "scores": [ { "trigram_id": 8, "score": 1.5 }, { "trigram_id": 2, "score": 1.5 } ] },
-    { "strength_finder_talent": "包含", "domain": "人間関係構築力", "scores": [ { "trigram_id": 8, "score": 2.0 }, { "trigram_id": 2, "score": 1.0 } ] },
-    { "strength_finder_talent": "共感性", "domain": "人間関係構築力", "scores": [ { "trigram_id": 2, "score": 1.5 }, { "trigram_id": 6, "score": 1.5 } ] },
-    { "strength_finder_talent": "親密性", "domain": "人間関係構築力", "scores": [ { "trigram_id": 6, "score": 1.5 }, { "trigram_id": 8, "score": 1.5 } ] },
-    { "strength_finder_talent": "ポジティブ", "domain": "人間関係構築力", "scores": [ { "trigram_id": 3, "score": 1.5 }, { "trigram_id": 2, "score": 1.5 } ] },
-    { "strength_finder_talent": "個別化", "domain": "人間関係構築力", "scores": [ { "trigram_id": 3, "score": 1.0 }, { "trigram_id": 6, "score": 1.0 }, { "trigram_id": 2, "score": 1.0 } ] },
-    // 【戦略的思考力】
-    { "strength_finder_talent": "分析思考", "domain": "戦略的思考力", "scores": [ { "trigram_id": 6, "score": 1.5 }, { "trigram_id": 7, "score": 1.5 } ] },
-    { "strength_finder_talent": "原点思考", "domain": "戦略的思考力", "scores": [ { "trigram_id": 8, "score": 1.5 }, { "trigram_id": 7, "score": 1.5 } ] },
-    { "strength_finder_talent": "未来志向", "domain": "戦略的思考力", "scores": [ { "trigram_id": 1, "score": 1.5 }, { "trigram_id": 5, "score": 1.0 }, { "trigram_id": 3, "score": 0.5 } ] },
-    { "strength_finder_talent": "着想", "domain": "戦略的思考力", "scores": [ { "trigram_id": 5, "score": 2.0 }, { "trigram_id": 3, "score": 1.0 } ] },
-    { "strength_finder_talent": "収集心", "domain": "戦略的思考力", "scores": [ { "trigram_id": 8, "score": 1.5 }, { "trigram_id": 7, "score": 1.5 } ] },
-    { "strength_finder_talent": "内省", "domain": "戦略的思考力", "scores": [ { "trigram_id": 6, "score": 2.0 }, { "trigram_id": 7, "score": 1.0 } ] },
-    { "strength_finder_talent": "学習欲", "domain": "戦略的思考力", "scores": [ { "trigram_id": 6, "score": 1.5 }, { "trigram_id": 7, "score": 1.5 } ] },
-    { "strength_finder_talent": "戦略性", "domain": "戦略的思考力", "scores": [ { "trigram_id": 1, "score": 1.5 }, { "trigram_id": 6, "score": 1.0 }, { "trigram_id": 5, "score": 0.5 } ] }
-  ],
-
-
-
-  // --- Future Simulator用データ (後方互換性のため残す) ---
-  h384: [
+  // --- 後方互換性 & 詳細データ ---
+  384: [
   {
     "爻名": "乾為天 初九",
     "通し番号": 1,
@@ -9455,10 +8686,7 @@ enneagram_map: [
     "論理キーワードタグ": "状況:終極期, 力学:協力者あり"
   }
 ],
-
-// HAQEI_DATAオブジェクト内の H64_DATA を、以下の新しい配列で置き換えてください。
-// saku_id (錯卦) と sou_id (綜卦) が追加されています。/ HAQEI_DATAオブジェクト内の H64_DATA を、以下のmaster.csvと完全に一致させた配列で置き換えてください。
-H64_DATA: [
+  H64_DATA: [
     {"卦番号":1,"名前":"乾為天","初爻変":44,"二爻変":13,"三爻変":10,"四爻変":9,"五爻変":14,"上爻変":43,"saku_id":2,"sou_id":1,"go_id":1},
     {"卦番号":2,"名前":"坤為地","初爻変":24,"二爻変":7,"三爻変":15,"四爻変":16,"五爻変":8,"上爻変":23,"saku_id":1,"sou_id":2,"go_id":2},
     {"卦番号":3,"名前":"水雷屯","初爻変":8,"二爻変":60,"三爻変":63,"四爻変":42,"五爻変":24,"上爻変":17,"saku_id":38,"sou_id":4,"go_id":24},
@@ -9524,18 +8752,7 @@ H64_DATA: [
     {"卦番号":63,"名前":"水火既済","初爻変":63,"二爻変":62,"三爻変":49,"四爻変":36,"五爻変":37,"上爻変":64,"saku_id":64,"sou_id":64,"go_id":30},
     {"卦番号":64,"名前":"火水未済","初爻変":64,"二爻変":62,"三爻変":63,"四爻変":49,"五爻変":37,"上爻変":63,"saku_id":63,"sou_id":63,"go_id":29}
 ]
-// HAQEI_DATAオブジェクトの最後に、以下のプロパティを追加します。
-// ファイルの末尾にある H64_DATA の定義の後に追加してください。
-
-// 元の HAQEI_DATA オブジェクトの閉じ括弧 } の直前に、以下のコードを挿入します。
-// 具体的には、"h64" の配列の後のカンマ(,)を忘れないようにし、
-// os_manual と action_plans を追加してください。
-// ファイルの末尾に、元のコードを壊さないように慎重に追加してください。
-
-// ↓↓↓↓ この部分を haqei_main_database.js の HAQEI_DATA オブジェクト内、h64 の後に追加 ↓↓↓↓
-, // ← ★★★★★★★ H64_DATAの後のカンマを忘れずに！ ★★★★★★★
-
-  // ===== OS取扱説明書データ (os_manual) =====
+,
   os_manual: {
     "1":{name:"乾為天",summary:"純粋な創造エネルギーと、天性のリーダーシップを持つOS。理想を掲げ、他者を牽引する力があるが、エネルギーが過剰になりがち。",debug_pattern:"自分の正しさを疑わず、他者の意見を一切聞かなくなる。計画が完璧でないと気が済まず、周囲に過度なプレッシャーを与え、孤立する。",debug_method:"意図的に『何もしない時間』を作ることが特効薬。具体的な成果を求めず、ただ散歩する、音楽を聴くなど、目的のない行動が暴走と思考のループを鎮める。",quests:["今週、自分の意見と正反対の意見を持つ人の話を、評価や反論をせずに最後まで聞いてみる。","タスクリストの中の一つを、あえて人に任せてみる。結果が自分の理想と違っても、それを受け入れる。"]},
     "2":{name:"坤為地",summary:"すべてを受け入れ、育む大地のエネルギーを持つOS。献身的でサポート能力に長けるが、自己主張が苦手な側面も持つ。",debug_pattern:"他者の要求をすべて受け入れてしまい、自分のキャパシティを超えて疲弊する。断ることができず、不満を溜め込み、最終的に無気力になる。",debug_method:"物理的に『自分のための領域』を確保することが重要。自分のデスクを整える、一人の時間を作るなど、他者に侵害されない聖域を持つことで、健全な境界線を引く感覚を取り戻せる。",quests:["今週、誰かからの小さな頼み事に対して、一度「少し考えさせてください」と保留の返事をしてみる。","自分が本当にやりたいこと、食べたいものを基準に、一日の予定を一つ決めてみる。"]},
@@ -9601,17 +8818,19 @@ H64_DATA: [
     "62":{name:"雷山小過",summary:"大きな目標よりも、目の前の小さなことを、少しだけ度を過ごすくらい丁寧にこなすOS。慎重で謙虚だが、大きなビジョンを描いたり、大胆な行動を取ったりするのが苦手。",debug_pattern:"失敗を恐れるあまり、石橋を叩きすぎて壊してしまう。過剰な配慮が、かえって相手を疲れさせたり、行動を阻害したりする原因になる。",debug_method:"「少しだけ過ぎる（小過）」エネルギーを、ポジティブな方向に使うこと。他者への配慮ではなく、自分へのご褒美や、仕事のクオリティを「少しだけ」上げる方向で、その丁寧さを発揮する。",quests:["資料作成などで、「もうこれで十分」と思った後、さらに5分だけ時間を使って、より良くするための改善を一つ加える。","あえて「70点の完成度で、一度提出（共有）してみる」という挑戦をする。"]},
     "63":{name:"水火既済",summary:"物事を完璧な形で完成させ、秩序と安定を維持することができるOS。しかし、完成した状態に固執し、次の変化に対応するのが遅れるという弱点を持つ。",debug_pattern:"「せっかく完成したのに」と、あらゆる変化を拒絶する。過去の成功体験に縛られ、新しいやり方や価値観を受け入れられなくなる。",debug_method:"「完成（既済）」は「終わり」ではなく、「次の未済（みせい）の始まり」であると認識すること。安定を維持しつつも、常に次の改善点やリスクを探す視点が、あなたを時代の変化から取り残されるのを防ぐ。",quests:["完成したプロジェクトや製品について、あえて「改善できる点」を3つ書き出してみる。","自分の専門分野について、最新の動向や新しいツールを調べる時間を、週に30分設ける。"]},
     "64":{name:"火水未済",summary:"物事がまだ完成していない、混乱と可能性が入り混じったOS。慎重に状況を見極め、困難を乗り越えることで、大きな成功を掴むポテンシャルを秘めている。",debug_pattern:"混乱した状況に耐えきれず、準備不足のまま無謀な挑戦に出て、失敗する。あるいは、「まだ完成しない」と言い訳をし、永遠に物事を先延ばしにする。",debug_method:"「未済（未完成）」の状態そのものを楽しむこと。ゴールに到達することだけが目的ではなく、試行錯誤のプロセス自体が学びであり、価値なのだと捉え直すことが、焦りからあなたを解放する。",quests:["うまくいっていないプロジェクトについて、「この失敗から学べることは何か？」を書き出してみる。","完璧なゴールを目指すのではなく、「今できる、次の一歩」だけを考えて実行してみる。"]}
-  }
-
-// assets/haqei_main_database.js に追加するコード
-// HAQEI_DATAオブジェクトの末尾など、分かりやすい位置に以下のbibleオブジェクトを追記してください。
-
-, // 直前のオブジェクトの末尾にカンマを追加するのを忘れないでください
-
-// ===================================================
-// ===== HaQei Bible (十翼解説データ) =====
-// ===================================================
-bible: {
+  },
+  action_plans: {
+    "1":{"2":"あなたの対話力（沢）を使い、会議でファシリテーター役を務め、多様な意見を引き出しまとめてみましょう。「場を支配する」のではなく「場を喜ばせる」リーダーシップが、あなたらしい天の力の使い方です。","3":"あなたの情熱（火）をビジョンに変え、チームやプロジェクトが目指すべき未来を熱く語ってみましょう。論理だけでなく、感情に訴えかけることが人々を動かす原動力になります。","4":"あなたの行動力（雷）を「まず自分が動く」という形で発揮してみましょう。他者を動かす前に、自らが率先して動く背中を見せることが、最もシンプルで強力なリーダーシップです。","5":"あなたの浸透力（風）を使い、組織のビジョンや目標を、丁寧な対話を通じて隅々まで浸透させましょう。トップダウンの命令ではなく、共感を広げることがあなたらしいやり方です。","6":"あなたの探求心（水）を活かし、困難なプロジェクトの「真の問題」を特定し、解決策を提示してみましょう。複雑な状況を乗りこなす知性が、あなたのリーダーシップの源泉となります。","7":"あなたの洞察力（山）を使い、チームの未来像（ビジョン）を静かに考え、言語化して提示してみましょう。動的なリーダーシップだけでなく、静的な思慮深さもまた、人を導く大きな力です。","8":"あなたの受容力（坤）を活かし、メンバー一人ひとりの意見や能力を受け止め、それを活かす「場」を作ることに専念しましょう。サーバント・リーダーシップがあなたの才能を輝かせます。"},
+    "2":{"1":"あなたのリーダーシップ（天）を使い、チームの成功を祝う「場」を企画してみましょう。ただ楽しむだけでなく、皆の功績を称え、喜びを分かち合う文化を創り出すことが、あなたらしい対話力の使い方です。","3":"あなたの知性（火）を使い、複雑な問題を分かりやすく解説するプレゼンテーションや勉強会を開いてみましょう。知的な喜びを分かち合うことが、質の高いコミュニケーションを生み出します。","4":"あなたの行動力（雷）を使い、停滞している会議や人間関係に、あえてユーモアや遊び心のある発言を投げかけてみましょう。場を動かす「起爆剤」としての対話力を発揮できます。","5":"あなたの共感力（風）を使い、1対1の対話の時間を設け、相手の話を深く聞いてみましょう。情報を伝えるだけでなく、相手の心に寄り添うコミュニケーションが、あなたの武器になります。","6":"あなたの探求心（水）を使い、対立する意見の裏にある、両者の「本音」や「恐れ」を探ってみましょう。表面的な言葉ではなく、深層心理を読み解く対話が、問題解決の鍵を握ります。","7":"あなたの不動の精神（山）を使い、感情的な議論が白熱した際に、冷静に場を収める仲裁役を担ってみましょう。動じない姿勢が、人々に安心感と信頼を与えます。","8":"あなたの受容力（坤）を使い、チームの誰よりも聞き上手になることを目指しましょう。ただ聞くだけで、相手は自ら答えを見つけ出し、あなたは最高の支援者として評価されます。"},
+    "3":{ "1": "あなたの創造力（天）を使い、既存の知識を組み合わせ、全く新しい独自の理論やアイデアを構築してみましょう。その知的な成果が、あなたの情熱の新たな源泉となります。","2":"あなたの表現力（沢）を使い、自分が情熱を注いでいることを、ブログやSNS、プレゼンで発信してみましょう。人に伝えることで、自分の知識はより体系化され、情熱はさらに燃え上がります。","4":"あなたの行動力（雷）を使い、情熱を感じる分野に、まず飛び込んでみましょう。知的な理解は後からで構いません。体験から得る「生きた知性」が、あなたを輝かせます。","5":"あなたの共感力（風）を使い、自分が学んだ知識が「誰の役に立つか」を考えてみましょう。他者への貢献を意識することで、あなたの知性は単なる知識から「智慧」へと昇華します。","6":"あなたの探求心（水）を使い、一つのテーマをとことん掘り下げてみましょう。表面的な理解で終わらせず、困難な専門書に挑戦するなど、知性の深さを追求することが、揺るぎない自信に繋がります。","7":"あなたの探求心（山）を使い、一つの分野の「歴史」や「哲学」を学んでみましょう。知識の背景にある思想や文脈を理解することで、あなたの知性は深みを増し、情熱は静かに燃え続けます。","8":"あなたの育成力（坤）を使い、自分が持つ知識や情熱を、後輩や初心者に教え、育ててみましょう。人に教えることは、最も効果的な学習方法の一つです。"},
+    "4":{ "1": "あなたのリーダーシップ（天）を使い、新しいプロジェクトの「キックオフミーティング」を主催してみましょう。ビジョンを示し、人々のエネルギーを一つの方向に向けることで、あなた自身も行動せざるを得ない状況を作り出せます。","2":"あなたの表現力（沢）を使い、「やります！」と宣言してみましょう。言葉にすることで、行動へのコミットメントが生まれ、やらざるを得ない良いプレッシャーがかかります。","3":"あなたの知性（火）を使い、行動計画を詳細に分析するのではなく、「最初の三歩」だけを具体的に計画してみましょう。完璧な計画よりも、不完全でも素早い一歩が、状況を動かします。","5":"あなたの共感力（風）を使い、「誰かと一緒ならできそう」な仲間を探してみましょう。一人で始めるのが億劫でも、誰かとの約束があれば、行動へのハードルはぐっと下がります。","6":"あなたの探求心（水）を使い、行動できない原因となっている「心の奥の恐れ」は何かを探ってみましょう。失敗への恐れ、批判への恐れなど、困難の正体を見極めることが、行動への第一歩です。","7":"あなたの不動の精神（山）を使い、「動かない」という選択を意識的に行ってみましょう。行動しない自分を責めるのではなく、「今はエネルギーを蓄える時期だ」と決めることで、無駄な焦りから解放され、次の行動へのエネルギーが溜まります。","8":"あなたの受容力（坤）を使い、他者のプロジェクトをサポートすることから始めてみましょう。他者の行動を支援する経験を通じて、行動の起こし方やリズムを、安全な形で学ぶことができます。"},
+    "5":{ "1": "あなたのリーダーシップ（天）を使い、ビジョンを語るだけでなく、「なぜそのビジョンが大切なのか」という背景にある想いや物語を語ってみましょう。論理（天）と感情（風）が結びついた時、メッセージは人々の心に深く浸透します。","2":"あなたの対話力（沢）を使い、自分の意見を言う時間を半分にして、相手への質問の時間を2倍にしてみましょう。相手を理解しようとする姿勢そのものが、最高の共感力を育みます。","3":"あなたの知性（火）を使い、相手の感情や状況を、小説の登場人物を分析するように客観的に観察・描写してみましょう。感情移入しすぎず、冷静に相手を理解する訓練になります。","4":"あなたの行動力（雷）を使い、誰かのために、言葉だけでなく、具体的な行動でサポートを示してみましょう。小さな手伝いや差し入れなど、行動で示す共感が、信頼関係を築きます。","6":"あなたの探求心（水）を使い、相手がなぜそう感じるのか、その発言の裏にある価値観や経験は何かを、探偵のように探ってみましょう。表面的な言葉の奥にある「本音」に寄り添うことが、真の共感です。","7": "あなたの不動の精神（山）を使い、相手が感情的になっている時も、ただ黙って、静かにそばにいてあげましょう。あなたの動じない存在が、相手にとっての安全な「山の避難所」となります。","8":"あなたの受容力（坤）を使い、相手の意見を評価・判断せず、ただ「そうなんですね」「そう感じているのですね」とオウム返しで受け止める練習をしましょう。これが共感の第一歩です。"},
+    "6":{ "1": "あなたの創造力（天）を使い、困難な状況を「壮大な物語の序章」と捉え直してみましょう。この困難を乗り越えた先にどんな未来が待っているか、英雄になったつもりでビジョンを描くことで、困難は希望に変わります。","2":"あなたの表現力（沢）を使い、今抱えている困難を一つの「物語」や人に語る「面白エピソード」に昇華させてみましょう。困難を客観視し、その中にあるドラマ性を「楽しむ」視点に変換することで、創造的に乗りこなすことができます。","3":"あなたの情熱（火）を、困難の根本原因を解明する「知的な探求」に向けてみましょう。なぜこの問題は解決しないのか？その構造的な欠陥は何か？知的好奇心が、困難に立ち向かうエネルギーになります。","4":"あなたの行動力（雷）を使い、巨大な困難を、今日できる「5分で終わるタスク」に分解してみましょう。大きな壁を前に動けなくなるのではなく、小さな一歩を確実に踏み出すことが、沼から抜け出す唯一の方法です。","5":"あなたの共感力（風）を使い、同じような困難を経験した人の話を聞いたり、本を読んだりしてみましょう。自分だけではないと知ることが、孤独な探求の旅の支えとなります。","7":"あなたの探求心（山）を活かし、「困難」というテーマについて歴史や心理学から深く学んでみましょう。困難を一般化・抽象化することで、個人的な悩みから客観的な研究対象へと変化させ、冷静に対処する道筋が見えてきます。","8":"あなたの受容力（坤）を使い、「今は困難な時期である」という事実を、ただ静かに受け入れてみましょう。無理に解決しようともがくのをやめ、大地に根を下ろすように、状況を受け入れる覚悟が、新たな力を与えてくれます。"},
+    "7":{ "1": "あなたの創造力（天）を使い、壮大なビジョンを考えた後、あえてそれを「一週間寝かせる」というルールを設けてみましょう。時間を置くことで、アイデアはより深く、地に足のついたものに熟成されます。","2":"あなたの対話力（沢）を使い、人と話す時間と同じくらい、「一人で静かに振り返る時間」をスケジュールに組み込みましょう。インプットとアウトプットのバランスが、あなたの思考を深めます。","3":"あなたの情熱（火）の炎を、外部に向けるだけでなく、内なる洞察を深めるための「内なるランプ」として使ってみましょう。自分の感情がなぜそう動くのかを、静かに観察します。","4":"あなたの行動力（雷）を使い、「何もしない」ということを積極的に計画し、実行してみましょう。スケジュール帳に「内省」と書き込み、他の予定と同じようにそれを守ることが、静止する力を育てます。","5":"あなたの共感力（風）を、他者だけでなく、自分自身の内なる声に向ける練習をしましょう。静かな時間を作り、「今、本当はどう感じている？」と自分に問いかける習慣が、探求心を育てます。","6":"あなたの探求心（水）を、外の世界だけでなく、自分の内面に向けてみましょう。なぜ自分はこのパターンを繰り返すのか？過去の経験が今の自分にどう影響しているのか？自己という最も深い謎を探求します。","8":"あなたの受容力（坤）を使い、ただ情報を受け入れるだけでなく、その情報が自分の中でどう消化され、根付いていくかを、時間をかけて観察しましょう。すぐに結論を出さない「待つ力」が、探求心を深めます。"},
+    "8":{ "1": "あなたのリーダーシップ（天）を、指示や命令ではなく、「場作り」のために使ってみましょう。メンバーが安心して意見を言え、能力を発揮できる「土壌」を整えることが、あなたらしい育成の形です。","2":"あなたの表現力（沢）を、自分の話をするためでなく、相手の素晴らしい点を「言語化して伝える」ために使ってみましょう。具体的な賞賛の言葉が、相手の成長を力強く後押しします。","3":"あなたの知性（火）を使い、相手の潜在能力や可能性を分析し、それを本人にフィードバックしてみましょう。「あなたにはこういう才能がある」という客観的な指摘が、相手の自己認識を助けます。","4": "あなたの行動力（雷）を使い、誰かが困っている時に、すぐに手伝う（行動する）のではなく、まず「何か手伝えることはありますか？」と相手の意志を尊重する一言を挟んでみましょう。","5":"あなたの共感力（風）を使い、相手の成長を願う気持ちを、直接的な言葉で伝えてみましょう。「応援しています」「期待しています」という言葉が、相手の心を育む栄養になります。","6":"あなたの探求心（水）を使い、相手を育てる上での「困難」や「課題」から逃げずに向き合いましょう。なぜこの人は伸び悩んでいるのか、その本質的な原因を探求することが、真の育成に繋がります。","7":"あなたの不動の精神（山）を使い、相手が失敗したり、成長が停滞したりしても、どっしりと構えて信じ、待ち続けてあげましょう。あなたの変わらない存在が、相手にとっての最大の安全基地となります。"}
+  },
+  // ▼▼▼【重要】ここに bible オブジェクトを追加する必要があります ▼▼▼
+  bible: {
     // 彖伝（たんでん）：卦全体のテーマ解説
     tuan_den: {
     "1": {
@@ -12670,8 +11889,7 @@ bible: {
             "next_id": 41,
             "next_name": "山沢損",
             "explanation": "緩めば、必ず何かを損なう（損）ことになります。"
-    }
-  },
+    }},
     "41": {
         "from_prev": {
             "prev_id": 40,
@@ -12957,28 +12175,9 @@ bible: {
         "to_next": null
     }
 }
-},
-
-
-
-
-  // ===================================================
-  // ===== アクションプランデータ (action_plans) =====
-  // ===================================================
-  action_plans: {
-    "1":{"2":"あなたの対話力（沢）を使い、会議でファシリテーター役を務め、多様な意見を引き出しまとめてみましょう。「場を支配する」のではなく「場を喜ばせる」リーダーシップが、あなたらしい天の力の使い方です。","3":"あなたの情熱（火）をビジョンに変え、チームやプロジェクトが目指すべき未来を熱く語ってみましょう。論理だけでなく、感情に訴えかけることが人々を動かす原動力になります。","4":"あなたの行動力（雷）を「まず自分が動く」という形で発揮してみましょう。他者を動かす前に、自らが率先して動く背中を見せることが、最もシンプルで強力なリーダーシップです。","5":"あなたの浸透力（風）を使い、組織のビジョンや目標を、丁寧な対話を通じて隅々まで浸透させましょう。トップダウンの命令ではなく、共感を広げることがあなたらしいやり方です。","6":"あなたの探求心（水）を活かし、困難なプロジェクトの「真の問題」を特定し、解決策を提示してみましょう。複雑な状況を乗りこなす知性が、あなたのリーダーシップの源泉となります。","7":"あなたの洞察力（山）を使い、チームの未来像（ビジョン）を静かに考え、言語化して提示してみましょう。動的なリーダーシップだけでなく、静的な思慮深さもまた、人を導く大きな力です。","8":"あなたの受容力（坤）を活かし、メンバー一人ひとりの意見や能力を受け止め、それを活かす「場」を作ることに専念しましょう。サーバント・リーダーシップがあなたの才能を輝かせます。"},
-    "2":{"1":"あなたのリーダーシップ（天）を使い、チームの成功を祝う「場」を企画してみましょう。ただ楽しむだけでなく、皆の功績を称え、喜びを分かち合う文化を創り出すことが、あなたらしい対話力の使い方です。","3":"あなたの知性（火）を使い、複雑な問題を分かりやすく解説するプレゼンテーションや勉強会を開いてみましょう。知的な喜びを分かち合うことが、質の高いコミュニケーションを生み出します。","4":"あなたの行動力（雷）を使い、停滞している会議や人間関係に、あえてユーモアや遊び心のある発言を投げかけてみましょう。場を動かす「起爆剤」としての対話力を発揮できます。","5":"あなたの共感力（風）を使い、1対1の対話の時間を設け、相手の話を深く聞いてみましょう。情報を伝えるだけでなく、相手の心に寄り添うコミュニケーションが、あなたの武器になります。","6":"あなたの探求心（水）を使い、対立する意見の裏にある、両者の「本音」や「恐れ」を探ってみましょう。表面的な言葉ではなく、深層心理を読み解く対話が、問題解決の鍵を握ります。","7":"あなたの不動の精神（山）を使い、感情的な議論が白熱した際に、冷静に場を収める仲裁役を担ってみましょう。動じない姿勢が、人々に安心感と信頼を与えます。","8":"あなたの受容力（坤）を使い、チームの誰よりも聞き上手になることを目指しましょう。ただ聞くだけで、相手は自ら答えを見つけ出し、あなたは最高の支援者として評価されます。"},
-    "3":{ "1": "あなたの創造力（天）を使い、既存の知識を組み合わせ、全く新しい独自の理論やアイデアを構築してみましょう。その知的な成果が、あなたの情熱の新たな源泉となります。","2":"あなたの表現力（沢）を使い、自分が情熱を注いでいることを、ブログやSNS、プレゼンで発信してみましょう。人に伝えることで、自分の知識はより体系化され、情熱はさらに燃え上がります。","4":"あなたの行動力（雷）を使い、情熱を感じる分野に、まず飛び込んでみましょう。知的な理解は後からで構いません。体験から得る「生きた知性」が、あなたを輝かせます。","5":"あなたの共感力（風）を使い、自分が学んだ知識が「誰の役に立つか」を考えてみましょう。他者への貢献を意識することで、あなたの知性は単なる知識から「智慧」へと昇華します。","6":"あなたの探求心（水）を使い、一つのテーマをとことん掘り下げてみましょう。表面的な理解で終わらせず、困難な専門書に挑戦するなど、知性の深さを追求することが、揺るぎない自信に繋がります。","7":"あなたの探求心（山）を使い、一つの分野の「歴史」や「哲学」を学んでみましょう。知識の背景にある思想や文脈を理解することで、あなたの知性は深みを増し、情熱は静かに燃え続けます。","8":"あなたの育成力（坤）を使い、自分が持つ知識や情熱を、後輩や初心者に教え、育ててみましょう。人に教えることは、最も効果的な学習方法の一つです。"},
-    "4":{ "1": "あなたのリーダーシップ（天）を使い、新しいプロジェクトの「キックオフミーティング」を主催してみましょう。ビジョンを示し、人々のエネルギーを一つの方向に向けることで、あなた自身も行動せざるを得ない状況を作り出せます。","2":"あなたの表現力（沢）を使い、「やります！」と宣言してみましょう。言葉にすることで、行動へのコミットメントが生まれ、やらざるを得ない良いプレッシャーがかかります。","3":"あなたの知性（火）を使い、行動計画を詳細に分析するのではなく、「最初の三歩」だけを具体的に計画してみましょう。完璧な計画よりも、不完全でも素早い一歩が、状況を動かします。","5":"あなたの共感力（風）を使い、「誰かと一緒ならできそう」な仲間を探してみましょう。一人で始めるのが億劫でも、誰かとの約束があれば、行動へのハードルはぐっと下がります。","6":"あなたの探求心（水）を使い、行動できない原因となっている「心の奥の恐れ」は何かを探ってみましょう。失敗への恐れ、批判への恐れなど、困難の正体を見極めることが、行動への第一歩です。","7":"あなたの不動の精神（山）を使い、「動かない」という選択を意識的に行ってみましょう。行動しない自分を責めるのではなく、「今はエネルギーを蓄える時期だ」と決めることで、無駄な焦りから解放され、次の行動へのエネルギーが溜まります。","8":"あなたの受容力（坤）を使い、他者のプロジェクトをサポートすることから始めてみましょう。他者の行動を支援する経験を通じて、行動の起こし方やリズムを、安全な形で学ぶことができます。"},
-    "5":{ "1": "あなたのリーダーシップ（天）を使い、ビジョンを語るだけでなく、「なぜそのビジョンが大切なのか」という背景にある想いや物語を語ってみましょう。論理（天）と感情（風）が結びついた時、メッセージは人々の心に深く浸透します。","2":"あなたの対話力（沢）を使い、自分の意見を言う時間を半分にして、相手への質問の時間を2倍にしてみましょう。相手を理解しようとする姿勢そのものが、最高の共感力を育みます。","3":"あなたの知性（火）を使い、相手の感情や状況を、小説の登場人物を分析するように客観的に観察・描写してみましょう。感情移入しすぎず、冷静に相手を理解する訓練になります。","4":"あなたの行動力（雷）を使い、誰かのために、言葉だけでなく、具体的な行動でサポートを示してみましょう。小さな手伝いや差し入れなど、行動で示す共感が、信頼関係を築きます。","6":"あなたの探求心（水）を使い、相手がなぜそう感じるのか、その発言の裏にある価値観や経験は何かを、探偵のように探ってみましょう。表面的な言葉の奥にある「本音」に寄り添うことが、真の共感です。","7": "あなたの不動の精神（山）を使い、相手が感情的になっている時も、ただ黙って、静かにそばにいてあげましょう。あなたの動じない存在が、相手にとっての安全な「山の避難所」となります。","8":"あなたの受容力（坤）を使い、相手の意見を評価・判断せず、ただ「そうなんですね」「そう感じているのですね」とオウム返しで受け止める練習をしましょう。これが共感の第一歩です。"},
-    "6":{ "1": "あなたの創造力（天）を使い、困難な状況を「壮大な物語の序章」と捉え直してみましょう。この困難を乗り越えた先にどんな未来が待っているか、英雄になったつもりでビジョンを描くことで、困難は希望に変わります。","2":"あなたの表現力（沢）を使い、今抱えている困難を一つの「物語」や人に語る「面白エピソード」に昇華させてみましょう。困難を客観視し、その中にあるドラマ性を「楽しむ」視点に変換することで、創造的に乗りこなすことができます。","3":"あなたの情熱（火）を、困難の根本原因を解明する「知的な探求」に向けてみましょう。なぜこの問題は解決しないのか？その構造的な欠陥は何か？知的好奇心が、困難に立ち向かうエネルギーになります。","4":"あなたの行動力（雷）を使い、巨大な困難を、今日できる「5分で終わるタスク」に分解してみましょう。大きな壁を前に動けなくなるのではなく、小さな一歩を確実に踏み出すことが、沼から抜け出す唯一の方法です。","5":"あなたの共感力（風）を使い、同じような困難を経験した人の話を聞いたり、本を読んだりしてみましょう。自分だけではないと知ることが、孤独な探求の旅の支えとなります。","7":"あなたの探求心（山）を活かし、「困難」というテーマについて歴史や心理学から深く学んでみましょう。困難を一般化・抽象化することで、個人的な悩みから客観的な研究対象へと変化させ、冷静に対処する道筋が見えてきます。","8":"あなたの受容力（坤）を使い、「今は困難な時期である」という事実を、ただ静かに受け入れてみましょう。無理に解決しようともがくのをやめ、大地に根を下ろすように、状況を受け入れる覚悟が、新たな力を与えてくれます。"},
-    "7":{ "1": "あなたの創造力（天）を使い、壮大なビジョンを考えた後、あえてそれを「一週間寝かせる」というルールを設けてみましょう。時間を置くことで、アイデアはより深く、地に足のついたものに熟成されます。","2":"あなたの対話力（沢）を使い、人と話す時間と同じくらい、「一人で静かに振り返る時間」をスケジュールに組み込みましょう。インプットとアウトプットのバランスが、あなたの思考を深めます。","3":"あなたの情熱（火）の炎を、外部に向けるだけでなく、内なる洞察を深めるための「内なるランプ」として使ってみましょう。自分の感情がなぜそう動くのかを、静かに観察します。","4":"あなたの行動力（雷）を使い、「何もしない」ということを積極的に計画し、実行してみましょう。スケジュール帳に「内省」と書き込み、他の予定と同じようにそれを守ることが、静止する力を育てます。","5":"あなたの共感力（風）を、他者だけでなく、自分自身の内なる声に向ける練習をしましょう。静かな時間を作り、「今、本当はどう感じている？」と自分に問いかける習慣が、探求心を育てます。","6":"あなたの探求心（水）を、外の世界だけでなく、自分の内面に向けてみましょう。なぜ自分はこのパターンを繰り返すのか？過去の経験が今の自分にどう影響しているのか？自己という最も深い謎を探求します。","8":"あなたの受容力（坤）を使い、ただ情報を受け入れるだけでなく、その情報が自分の中でどう消化され、根付いていくかを、時間をかけて観察しましょう。すぐに結論を出さない「待つ力」が、探求心を深めます。"},
-    "8":{ "1": "あなたのリーダーシップ（天）を、指示や命令ではなく、「場作り」のために使ってみましょう。メンバーが安心して意見を言え、能力を発揮できる「土壌」を整えることが、あなたらしい育成の形です。","2":"あなたの表現力（沢）を、自分の話をするためでなく、相手の素晴らしい点を「言語化して伝える」ために使ってみましょう。具体的な賞賛の言葉が、相手の成長を力強く後押しします。","3":"あなたの知性（火）を使い、相手の潜在能力や可能性を分析し、それを本人にフィードバックしてみましょう。「あなたにはこういう才能がある」という客観的な指摘が、相手の自己認識を助けます。","4": "あなたの行動力（雷）を使い、誰かが困っている時に、すぐに手伝う（行動する）のではなく、まず「何か手伝えることはありますか？」と相手の意志を尊重する一言を挟んでみましょう。","5":"あなたの共感力（風）を使い、相手の成長を願う気持ちを、直接的な言葉で伝えてみましょう。「応援しています」「期待しています」という言葉が、相手の心を育む栄養になります。","6":"あなたの探求心（水）を使い、相手を育てる上での「困難」や「課題」から逃げずに向き合いましょう。なぜこの人は伸び悩んでいるのか、その本質的な原因を探求することが、真の育成に繋がります。","7":"あなたの不動の精神（山）を使い、相手が失敗したり、成長が停滞したりしても、どっしりと構えて信じ、待ち続けてあげましょう。あなたの変わらない存在が、相手にとっての最大の安全基地となります。"}
-  }
-// ↑↑↑↑ この部分を haqei_main_database.js の HAQEI_DATA オブジェクト内に追加 ↑↑↑↑
+  },
 };
 
 // --- 下位互換性のためのグローバル変数定義 ---
-// これにより、既存の future_simulator.html も変更なしで動作します。
-const H384_DATA = HAQEI_DATA.h384;
-const H64_DATA = HAQEI_DATA.h64;
+const H384_DATA = HAQEI_DATA['384'];
+const H64_DATA = HAQEI_DATA['H64_DATA'];
