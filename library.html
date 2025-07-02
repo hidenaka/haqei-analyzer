@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HaQei ライブラリ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .brand-text { background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+        .mincho-font { font-family: 'Shippori Mincho', serif; }
+        
+        .tab-btn { transition: all 0.2s ease-in-out; }
+        .tab-btn.active { background-color: #4f46e5; color: #fff; }
+        .tab-btn:not(.active):hover { background-color: #374151; }
+        
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        
+        /* 序卦伝タイムライン */
+        .timeline { position: relative; padding-left: 3rem; margin: 2rem 0; }
+        .timeline::before { content: ''; position: absolute; left: 0.5rem; top: 0; bottom: 0; width: 4px; background-color: #374151; border-radius: 2px; }
+        .timeline-item { position: relative; margin-bottom: 2rem; }
+        .timeline-item:last-child { margin-bottom: 0; }
+        .timeline-dot { position: absolute; left: -2.75rem; top: 0.3rem; height: 1.5rem; width: 1.5rem; background-color: #4f46e5; border-radius: 9999px; border: 4px solid #1f2937; }
+        .timeline-content { cursor: pointer; }
+        .timeline-content:hover h4 { color: #a5b4fc; }
+
+        /* 小象伝アコーディオン */
+        .accordion-item summary { cursor: pointer; padding: 1rem; background-color: #1f2937; border-radius: 0.5rem; transition: background-color 0.2s; }
+        .accordion-item summary:hover { background-color: #374151; }
+        .accordion-item-content { padding: 1rem; border-top: 1px solid #374151; }
+        .accordion-item[open] summary { background-color: #4338ca; }
+        
+        /* モーダル */
+        .modal-overlay { transition: opacity 0.3s ease; }
+        .modal-content { transition: transform 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+    <div class="w-full max-w-5xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10">
+        <header class="text-center mb-10">
+            <a href="index.html" class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block">← トップページへ戻る</a>
+            <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider mincho-font">HaQei Library</h1>
+            <p class="text-gray-400 mt-3 text-xl">プロジェクトの根幹を成す、易経「十翼」の知識体系</p>
+        </header>
+
+        <div class="mb-8">
+            <input type="text" id="searchInput" class="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="卦の名前、番号、キーワードで検索... (例: 乾為天, 困難, リーダーシップ)">
+        </div>
+
+        <div id="tab-container" class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-8 bg-gray-900/50 p-3 rounded-lg">
+            <button class="tab-btn px-4 py-2 rounded-md font-semibold" data-tab="tuan">彖伝 (全体テーマ)</button>
+            <button class="tab-btn px-4 py-2 rounded-md font-semibold" data-tab="sho">小象伝 (各爻の理由)</button>
+            <button class="tab-btn px-4 py-2 rounded-md font-semibold" data-tab="zatsu">雑卦伝 (二元論)</button>
+            <button class="tab-btn px-4 py-2 rounded-md font-semibold" data-tab="jo">序卦伝 (物語の流れ)</button>
+        </div>
+
+        <main id="content-area">
+            <section id="tuan-content" class="content-section prose prose-invert max-w-none">
+                <h2 class="text-3xl font-bold text-white mb-4 mincho-font border-b-2 border-indigo-500 pb-2">彖伝 <span class="text-base text-gray-400 ml-2">- 卦全体のテーマ解説</span></h2>
+                <div id="tuan-list" class="space-y-6"></div>
+            </section>
+            <section id="sho-content" class="content-section">
+                <h2 class="text-3xl font-bold text-white mb-4 mincho-font border-b-2 border-indigo-500 pb-2">小象伝 <span class="text-base text-gray-400 ml-2">- 各爻の行動理由</span></h2>
+                <div id="sho-list" class="space-y-2"></div>
+            </section>
+            <section id="zatsu-content" class="content-section">
+                <h2 class="text-3xl font-bold text-white mb-4 mincho-font border-b-2 border-indigo-500 pb-2">雑卦伝 <span class="text-base text-gray-400 ml-2">- 二元論による本質解説</span></h2>
+                <div id="zatsu-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            </section>
+            <section id="jo-content" class="content-section">
+                <h2 class="text-3xl font-bold text-white mb-4 mincho-font border-b-2 border-indigo-500 pb-2">序卦伝 <span class="text-base text-gray-400 ml-2">- 64卦の物語</span></h2>
+                <p class="mb-6 text-gray-300">64卦がなぜこの順番で並んでいるのか、その壮大な物語の流れを示します。各項目をクリックすると、その卦の解説が表示されます。</p>
+                <div id="jo-list" class="timeline"></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="modalContainer" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div id="modalOverlay" class="absolute inset-0 bg-black/70 modal-overlay opacity-0"></div>
+        <div id="modalContent" class="modal-content bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto p-8 relative transform scale-95">
+            <button id="modalCloseBtn" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="assets/haqei_main_database.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const HDB = window.HAQEI_DATA;
+        if (!HDB || !HDB.bible) {
+            console.error("HaQeiデータベースが読み込めませんでした。");
+            return;
+        }
+
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.content-section');
+        const searchInput = document.getElementById('searchInput');
+
+        // --- タブ切り替えロジック ---
+        function switchTab(tabName) {
+            tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === tabName));
+            contents.forEach(content => content.classList.toggle('active', content.id === `${tabName}-content`));
+            searchInput.value = ''; // タブ切り替え時に検索をリセット
+            filterContent(''); // フィルタリングをリセット
+        }
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+        });
+
+        // --- 検索機能ロジック ---
+        function filterContent(query) {
+            const normalizedQuery = query.toLowerCase().trim();
+            const activeContent = document.querySelector('.content-section.active');
+            if (!activeContent) return;
+
+            const items = activeContent.querySelectorAll('.filterable-item');
+            items.forEach(item => {
+                const text = item.dataset.searchText.toLowerCase();
+                item.style.display = text.includes(normalizedQuery) ? '' : 'none';
+            });
+        }
+        searchInput.addEventListener('keyup', (e) => filterContent(e.target.value));
+
+        // --- モーダルロジック ---
+        const modalContainer = document.getElementById('modalContainer');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const modalBody = document.getElementById('modalBody');
+
+        function showModal(title, content) {
+            modalBody.innerHTML = `<h3 class="text-2xl font-bold text-indigo-300 mb-4">${title}</h3><div class="prose prose-invert max-w-none">${content}</div>`;
+            modalContainer.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                modalOverlay.classList.remove('opacity-0');
+                document.getElementById('modalContent').classList.remove('scale-95');
+            }, 10);
+        }
+
+        function hideModal() {
+            modalOverlay.classList.add('opacity-0');
+            document.getElementById('modalContent').classList.add('scale-95');
+            setTimeout(() => {
+                modalContainer.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+        modalOverlay.addEventListener('click', hideModal);
+        modalCloseBtn.addEventListener('click', hideModal);
+
+        // --- コンテンツ描画ロジック ---
+        function renderTuanDen() {
+            const container = document.getElementById('tuan-list');
+            let html = '';
+            for (let i = 1; i <= 64; i++) {
+                const tuan = HDB.bible.tuan_den[i];
+                const hex = HDB.hexagrams_master.find(h => h.hexagram_id === i);
+                if (tuan && hex) {
+                    const searchText = `${i} ${hex.name_jp} ${tuan.title} ${tuan.summary} ${tuan.haqei_interpretation} ${hex.keywords}`;
+                    // ▼▼▼【エラー修正箇所】正規表現を使わない形に変更 ▼▼▼
+                    const interpretationHtml = tuan.haqei_interpretation.split('\n').join('<br>');
+                    html += `
+                        <div class="filterable-item py-4 border-b border-gray-700" data-search-text="${searchText}">
+                            <h3 class="text-2xl font-bold text-white mb-2 mincho-font">${i}. ${tuan.title}</h3>
+                            <p class="text-indigo-300 font-semibold mb-3">${tuan.summary}</p>
+                            <div class="pl-4 border-l-2 border-gray-600">
+                                <p class="text-gray-300 italic">"${tuan.points.join('"<br>"')}"</p>
+                                <p class="mt-4 text-gray-400">${interpretationHtml}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        function renderShoDen() {
+            const container = document.getElementById('sho-list');
+            let html = '';
+            // h384のデータが存在し、386まであると仮定してループ
+            for (let i = 1; i <= 386; i++) {
+                const sho = HDB.bible.sho_den[i];
+                const h384 = HDB.h384.find(h => h.通し番号 === i);
+                if (sho && h384) {
+                    const searchText = `${h384.爻名} ${sho.title} ${sho.reason}`;
+                    html += `
+                        <details class="accordion-item filterable-item" data-search-text="${searchText}">
+                            <summary class="flex justify-between items-center">
+                                <span class="font-semibold text-lg">${h384.爻名}：<span class="text-indigo-300">${sho.title}</span></span>
+                                <span class="text-gray-400 text-sm transform transition-transform duration-200">▼</span>
+                            </summary>
+                            <div class="accordion-item-content bg-gray-900/50 rounded-b-lg">
+                                <p><strong>【なぜ、その行動が推奨されるのか？】</strong><br>${sho.reason}</p>
+                            </div>
+                        </details>
+                    `;
+                }
+            }
+            container.innerHTML = html;
+        }
+        
+        function renderZatsuKaDen() {
+            const container = document.getElementById('zatsu-list');
+            let html = '';
+            const processedPairs = new Set();
+            for (let i = 1; i <= 64; i++) {
+                if (processedPairs.has(i)) continue;
+                
+                const zatsu = HDB.bible.zatsu_ka_den[i];
+                if (zatsu) {
+                    const hex1 = HDB.hexagrams_master.find(h => h.hexagram_id === i);
+                    const hex2 = HDB.hexagrams_master.find(h => h.hexagram_id === zatsu.pair_id);
+                    if (hex1 && hex2) {
+                        const searchText = `${hex1.name_jp} ${hex2.name_jp} ${zatsu.contrast_theme} ${zatsu.explanation}`;
+                        html += `
+                            <div class="filterable-item bg-gray-900/50 rounded-lg p-6" data-search-text="${searchText}">
+                                <h3 class="text-center text-xl font-bold text-indigo-300 mb-3">${zatsu.contrast_theme}</h3>
+                                <div class="grid grid-cols-2 gap-4 text-center">
+                                    <div class="border-r border-gray-600 pr-4">
+                                        <p class="font-bold text-lg">${hex1.hexagram_id}. ${hex1.name_jp}</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-lg">${hex2.hexagram_id}. ${hex2.name_jp}</p>
+                                    </div>
+                                </div>
+                                <p class="mt-4 text-center text-gray-400 text-sm">${zatsu.explanation}</p>
+                            </div>
+                        `;
+                        processedPairs.add(i);
+                        processedPairs.add(zatsu.pair_id);
+                    }
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        function renderJoKaDen() {
+            const container = document.getElementById('jo-list');
+            let html = '';
+            for (const key in HDB.bible.jo_ka_den) {
+                const [start, end] = key.split('-').map(Number);
+                const hex = HDB.hexagrams_master.find(h => h.hexagram_id === start);
+                const explanation = HDB.bible.jo_ka_den[key];
+                if (hex) {
+                    const searchText = `${start} ${hex.name_jp} ${explanation}`;
+                    html += `
+                        <div class="timeline-item filterable-item" data-search-text="${searchText}">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content" data-hex-id="${start}">
+                                <h4 class="text-xl font-bold">${start}. ${hex.name_jp}</h4>
+                                <p class="text-sm text-gray-400">${explanation}</p>
+                            </div>
+                        </div>`;
+                }
+            }
+            container.innerHTML = html;
+            
+            container.querySelectorAll('.timeline-content').forEach(item => {
+                item.addEventListener('click', () => {
+                    const hexId = parseInt(item.dataset.hexId);
+                    const tuan = HDB.bible.tuan_den[hexId];
+                    const daisho = HDB.bible.tai_sho_den[hexId];
+                    // ▼▼▼【エラー修正箇所】正規表現を使わない形に変更 ▼▼▼
+                    const daishoHtml = daisho.explanation
+                        .split('\n')
+                        .map(line => line.replace('【象徴】', '<strong>【象徴】</strong>').replace('【戦略】', '<strong>【戦略】</strong>'))
+                        .join('<br>');
+
+                    let modalHtml = `<p class="mb-4">${tuan.summary}</p><p class="text-indigo-300 font-semibold mt-6 mb-2">【基本戦略 / 大象伝】</p><p>${daishoHtml}</p>`;
+                    showModal(`${hexId}. ${tuan.title}`, modalHtml);
+                });
+            });
+        }
+        
+        // --- 初期化 ---
+        renderTuanDen();
+        renderShoDen();
+        renderZatsuKaDen();
+        renderJoKaDen();
+        switchTab('tuan'); // 初期表示タブ
+    });
+    </script>
+</body>
+</html>
