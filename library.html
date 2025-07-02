@@ -92,10 +92,10 @@
 
     <script src="assets/haqei_main_database.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const HDB = window.HAQEI_DATA;
+    window.onload = () => {
+        const HDB = HAQEI_DATA;
         if (!HDB || !HDB.bible) {
-            console.error("HaQeiデータベースが読み込めませんでした。");
+            console.error("HaQeiデータベースが読み込めませんでした。bibleオブジェクトが存在するか確認してください。");
             return;
         }
 
@@ -156,6 +156,12 @@
         modalOverlay.addEventListener('click', hideModal);
         modalCloseBtn.addEventListener('click', hideModal);
 
+        // 改行を<br>に変換する安全な関数
+        const escapeHTML = (str) => str.replace(/[&<>"']/g, (match) => {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
+        });
+        const nl2br = (str) => escapeHTML(str).split('\n').join('<br>');
+        
         // --- コンテンツ描画ロジック ---
         function renderTuanDen() {
             const container = document.getElementById('tuan-list');
@@ -165,14 +171,14 @@
                 const hex = HDB.hexagrams_master.find(h => h.hexagram_id === i);
                 if (tuan && hex) {
                     const searchText = `${i} ${hex.name_jp} ${tuan.title} ${tuan.summary} ${tuan.haqei_interpretation} ${hex.keywords}`;
-                    // ▼▼▼【エラー修正箇所】正規表現を使わない形に変更 ▼▼▼
-                    const interpretationHtml = tuan.haqei_interpretation.split('\n').join('<br>');
+                    const interpretationHtml = nl2br(tuan.haqei_interpretation);
+                    const pointsHtml = tuan.points.map(escapeHTML).join('"<br>"');
                     html += `
                         <div class="filterable-item py-4 border-b border-gray-700" data-search-text="${searchText}">
                             <h3 class="text-2xl font-bold text-white mb-2 mincho-font">${i}. ${tuan.title}</h3>
-                            <p class="text-indigo-300 font-semibold mb-3">${tuan.summary}</p>
+                            <p class="text-indigo-300 font-semibold mb-3">${escapeHTML(tuan.summary)}</p>
                             <div class="pl-4 border-l-2 border-gray-600">
-                                <p class="text-gray-300 italic">"${tuan.points.join('"<br>"')}"</p>
+                                <p class="text-gray-300 italic">"${pointsHtml}"</p>
                                 <p class="mt-4 text-gray-400">${interpretationHtml}</p>
                             </div>
                         </div>
@@ -185,20 +191,19 @@
         function renderShoDen() {
             const container = document.getElementById('sho-list');
             let html = '';
-            // h384のデータが存在し、386まであると仮定してループ
             for (let i = 1; i <= 386; i++) {
                 const sho = HDB.bible.sho_den[i];
-                const h384 = HDB.h384.find(h => h.通し番号 === i);
+                const h384 = HDB['384'].find(h => h.通し番号 === i);
                 if (sho && h384) {
                     const searchText = `${h384.爻名} ${sho.title} ${sho.reason}`;
                     html += `
                         <details class="accordion-item filterable-item" data-search-text="${searchText}">
                             <summary class="flex justify-between items-center">
-                                <span class="font-semibold text-lg">${h384.爻名}：<span class="text-indigo-300">${sho.title}</span></span>
+                                <span class="font-semibold text-lg">${escapeHTML(h384.爻名)}：<span class="text-indigo-300">${escapeHTML(sho.title)}</span></span>
                                 <span class="text-gray-400 text-sm transform transition-transform duration-200">▼</span>
                             </summary>
                             <div class="accordion-item-content bg-gray-900/50 rounded-b-lg">
-                                <p><strong>【なぜ、その行動が推奨されるのか？】</strong><br>${sho.reason}</p>
+                                <p><strong>【なぜ、その行動が推奨されるのか？】</strong><br>${nl2br(sho.reason)}</p>
                             </div>
                         </details>
                     `;
@@ -222,16 +227,16 @@
                         const searchText = `${hex1.name_jp} ${hex2.name_jp} ${zatsu.contrast_theme} ${zatsu.explanation}`;
                         html += `
                             <div class="filterable-item bg-gray-900/50 rounded-lg p-6" data-search-text="${searchText}">
-                                <h3 class="text-center text-xl font-bold text-indigo-300 mb-3">${zatsu.contrast_theme}</h3>
+                                <h3 class="text-center text-xl font-bold text-indigo-300 mb-3">${escapeHTML(zatsu.contrast_theme)}</h3>
                                 <div class="grid grid-cols-2 gap-4 text-center">
                                     <div class="border-r border-gray-600 pr-4">
-                                        <p class="font-bold text-lg">${hex1.hexagram_id}. ${hex1.name_jp}</p>
+                                        <p class="font-bold text-lg">${hex1.hexagram_id}. ${escapeHTML(hex1.name_jp)}</p>
                                     </div>
                                     <div>
-                                        <p class="font-bold text-lg">${hex2.hexagram_id}. ${hex2.name_jp}</p>
+                                        <p class="font-bold text-lg">${hex2.hexagram_id}. ${escapeHTML(hex2.name_jp)}</p>
                                     </div>
                                 </div>
-                                <p class="mt-4 text-center text-gray-400 text-sm">${zatsu.explanation}</p>
+                                <p class="mt-4 text-center text-gray-400 text-sm">${nl2br(zatsu.explanation)}</p>
                             </div>
                         `;
                         processedPairs.add(i);
@@ -245,22 +250,24 @@
         function renderJoKaDen() {
             const container = document.getElementById('jo-list');
             let html = '';
-            for (const key in HDB.bible.jo_ka_den) {
+            const joKeys = Object.keys(HDB.bible.jo_ka_den).sort((a,b) => parseInt(a) - parseInt(b));
+            joKeys.forEach(key => {
                 const [start, end] = key.split('-').map(Number);
                 const hex = HDB.hexagrams_master.find(h => h.hexagram_id === start);
-                const explanation = HDB.bible.jo_ka_den[key];
-                if (hex) {
+                const explanation = HDB.bible.jo_ka_den[key].explanation;
+                if (hex && explanation) {
                     const searchText = `${start} ${hex.name_jp} ${explanation}`;
                     html += `
                         <div class="timeline-item filterable-item" data-search-text="${searchText}">
                             <div class="timeline-dot"></div>
                             <div class="timeline-content" data-hex-id="${start}">
-                                <h4 class="text-xl font-bold">${start}. ${hex.name_jp}</h4>
-                                <p class="text-sm text-gray-400">${explanation}</p>
+                                <h4 class="text-xl font-bold">${start}. ${escapeHTML(hex.name_jp)}</h4>
+                                <p class="text-sm text-gray-400">${nl2br(explanation)}</p>
                             </div>
                         </div>`;
                 }
-            }
+            });
+
             container.innerHTML = html;
             
             container.querySelectorAll('.timeline-content').forEach(item => {
@@ -268,14 +275,13 @@
                     const hexId = parseInt(item.dataset.hexId);
                     const tuan = HDB.bible.tuan_den[hexId];
                     const daisho = HDB.bible.tai_sho_den[hexId];
-                    // ▼▼▼【エラー修正箇所】正規表現を使わない形に変更 ▼▼▼
-                    const daishoHtml = daisho.explanation
-                        .split('\n')
-                        .map(line => line.replace('【象徴】', '<strong>【象徴】</strong>').replace('【戦略】', '<strong>【戦略】</strong>'))
-                        .join('<br>');
-
-                    let modalHtml = `<p class="mb-4">${tuan.summary}</p><p class="text-indigo-300 font-semibold mt-6 mb-2">【基本戦略 / 大象伝】</p><p>${daishoHtml}</p>`;
-                    showModal(`${hexId}. ${tuan.title}`, modalHtml);
+                    if(tuan && daisho) {
+                        const daishoHtml = nl2br(daisho.explanation)
+                            .replace('【象徴】', '<strong>【象徴】</strong>')
+                            .replace('【戦略】', '<strong>【戦略】</strong>');
+                        let modalHtml = `<p class="mb-4">${nl2br(tuan.summary)}</p><p class="text-indigo-300 font-semibold mt-6 mb-2">【基本戦略 / 大象伝】</p><p>${daishoHtml}</p>`;
+                        showModal(`${hexId}. ${tuan.title}`, modalHtml);
+                    }
                 });
             });
         }
@@ -286,7 +292,9 @@
         renderZatsuKaDen();
         renderJoKaDen();
         switchTab('tuan'); // 初期表示タブ
-    });
+    };
+    
+
     </script>
 </body>
 </html>
