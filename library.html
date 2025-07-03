@@ -13,11 +13,10 @@
       rel="stylesheet"
     />
     <style>
-      /* --- デザイン調整 --- */
       body {
         font-family: "Inter", "Noto Sans JP", sans-serif;
-        background-color: #111827; /* bg-gray-900 */
-        line-height: 1.75; /* 行間を広げる */
+        background-color: #111827;
+        line-height: 1.75;
       }
       .brand-text {
         background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
@@ -30,13 +29,13 @@
         font-family: "Shippori Mincho", serif;
       }
       .card {
-        background-color: #1f2937; /* bg-gray-800 */
-        border: 1px solid #374151; /* border-gray-700 */
-        border-radius: 0.75rem; /* rounded-lg */
+        background-color: #1f2937;
+        border: 1px solid #374151;
+        border-radius: 0.75rem;
       }
       .section-title {
         font-family: "Shippori Mincho", serif;
-        border-bottom: 1px solid #4a5568; /* border-gray-600 */
+        border-bottom: 1px solid #4a5568;
         padding-bottom: 0.75rem;
         margin-bottom: 1.5rem;
       }
@@ -106,19 +105,10 @@
       .accordion-item[open] summary {
         background-color: #4338ca;
       }
-      .modal-overlay {
-        transition: opacity 0.3s ease;
-      }
-      .modal-content {
-        transition: transform 0.3s ease;
-      }
-      .clickable-hex {
-        cursor: pointer;
-        transition: color 0.2s;
-      }
       .clickable-hex:hover {
         color: #a5b4fc;
         text-decoration: underline;
+        cursor: pointer;
       }
     </style>
   </head>
@@ -207,7 +197,6 @@
             </div>
             <div id="radar-chart" class="space-y-2 mt-6"></div>
           </div>
-
           <div id="structure-analyzer" class="hidden">
             <button
               id="backToRadarBtn"
@@ -260,10 +249,7 @@
               </button>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-              <div
-                id="analyzer-chart-container"
-                class="w-full h-96 bg-gray-900/50 rounded-lg p-4"
-              >
+              <div class="w-full h-96 bg-gray-900/50 rounded-lg p-4">
                 <canvas id="analyzer-chart"></canvas>
               </div>
               <div
@@ -271,12 +257,8 @@
                 class="h-96 overflow-y-auto bg-gray-900/50 rounded-lg p-6 space-y-4"
               ></div>
             </div>
-
             <div class="mt-8 space-y-8">
-              <div
-                id="additional-info-container"
-                class="bg-gray-900/50 rounded-lg p-6 border border-gray-700"
-              >
+              <div class="bg-gray-900/50 rounded-lg p-6 border border-gray-700">
                 <h3
                   class="text-xl font-bold text-gray-100 mb-6 border-b border-gray-700 pb-3"
                 >
@@ -285,7 +267,7 @@
                 <div
                   class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8"
                 >
-                  <div id="basic-char-container">
+                  <div>
                     <h4 class="font-bold text-lg text-indigo-300">
                       基本的な特徴
                     </h4>
@@ -295,7 +277,7 @@
                       <span id="basic-keywords"></span>
                     </p>
                   </div>
-                  <div id="goka-container">
+                  <div>
                     <h4 class="font-bold text-lg text-indigo-300">
                       互卦 (ごか)
                     </h4>
@@ -309,7 +291,7 @@
                       class="mt-2 text-sm text-gray-400"
                     ></p>
                   </div>
-                  <div id="sakka-container">
+                  <div>
                     <h4 class="font-bold text-lg text-indigo-300">
                       錯卦 (さっか)
                     </h4>
@@ -323,7 +305,7 @@
                       class="mt-2 text-sm text-gray-400"
                     ></p>
                   </div>
-                  <div id="souka-container">
+                  <div>
                     <h4 class="font-bold text-lg text-indigo-300">
                       綜卦 (そうか)
                     </h4>
@@ -339,7 +321,6 @@
                   </div>
                 </div>
               </div>
-
               <div
                 id="modern-interpretation-container"
                 class="bg-gray-900/50 rounded-lg p-6 border border-gray-700"
@@ -385,7 +366,6 @@
             </div>
           </div>
         </section>
-
         <section
           id="tuan-content"
           class="content-section card p-6 sm:p-8 space-y-6"
@@ -404,7 +384,6 @@
           />
           <div id="tuan-list" class="space-y-8"></div>
         </section>
-
         <section
           id="sho-content"
           class="content-section card p-6 sm:p-8 space-y-6"
@@ -421,7 +400,6 @@
           />
           <div id="sho-list" class="space-y-4"></div>
         </section>
-
         <section
           id="zatsu-content"
           class="content-section card p-6 sm:p-8 space-y-6"
@@ -443,7 +421,6 @@
             class="grid grid-cols-1 md:grid-cols-2 gap-6"
           ></div>
         </section>
-
         <section
           id="jo-content"
           class="content-section card p-6 sm:p-8 space-y-6"
@@ -466,65 +443,34 @@
       </main>
     </div>
 
-    <div
-      id="modalContainer"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden"
-    >
-      <div
-        id="modalOverlay"
-        class="absolute inset-0 bg-black/70 modal-overlay opacity-0"
-      ></div>
-      <div
-        id="modalContent"
-        class="modal-content bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto p-8 relative transform scale-95"
-      >
-        <button
-          id="modalCloseBtn"
-          class="absolute top-4 right-4 text-gray-400 hover:text-white"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <div id="modalBody"></div>
-      </div>
-    </div>
-
     <script src="assets/haqei_main_database.js"></script>
+
     <script>
+      // ✅ これが完全で修正済みの最終版スクリプトです
       window.onload = () => {
+        // --- 1. データベースと主要なDOM要素の存在を最初に確認 ---
         if (
           typeof HAQEI_DATA === "undefined" ||
           typeof haqei_potential_scores === "undefined" ||
           typeof haqeiMainDatabase === "undefined"
         ) {
-          document.getElementById("content-area").innerHTML =
-            '<p class="text-red-400 p-4 text-center">エラー: データベース(HAQEI_DATA, haqei_potential_scores, haqeiMainDatabase)の読み込みに失敗しました。</p>';
+          document.body.innerHTML =
+            '<p class="text-red-400 text-center p-8">致命的なエラー: データベースファイル(haqei_main_database.js)が読み込めませんでした。</p>';
           return;
         }
+        if (!document.getElementById("content-area")) {
+          document.body.innerHTML =
+            '<p class="text-red-400 text-center p-8">致命的なエラー: HTMLの構造が正しくありません。id="content-area"を持つmainタグが必要です。</p>';
+          return;
+        }
+
+        // --- 2. グローバル変数と定数の定義 ---
         const HDB = HAQEI_DATA;
         const SCORES = haqei_potential_scores;
         const MAIN_DB = haqeiMainDatabase;
-
-        const tabs = document.querySelectorAll(".tab-btn");
-        const contents = document.querySelectorAll(".content-section");
-        const sortOrderSelect = document.getElementById("sortOrder");
-        const radarContainer = document.getElementById("radar-container");
-        const structureAnalyzer = document.getElementById("structure-analyzer");
-        const helpIcon = document.getElementById("help-icon");
         let lineChartInstance = null;
 
+        // --- 3. ユーティリティ関数 ---
         const hexStartIndices = (() => {
           const indices = [0];
           let currentIndex = 1;
@@ -534,56 +480,24 @@
           }
           return indices;
         })();
-
-        const hexagramScores = HDB.hexagrams_master.map((hex) => {
-          if (!hex || typeof hex.hexagram_id === "undefined")
-            return { id: 0, name: "不明", score: null };
-          const startNum = hexStartIndices[hex.hexagram_id];
-          if (typeof startNum === "undefined" || SCORES.length <= startNum)
-            return {
-              id: hex.hexagram_id,
-              name: hex.name_jp,
-              keywords: hex.keywords,
-              score: null,
-            };
-          const lineScores = SCORES.slice(startNum, startNum + 6).filter(
-            (s) => typeof s === "number"
-          );
-          if (lineScores.length < 6)
-            return {
-              id: hex.hexagram_id,
-              name: hex.name_jp,
-              keywords: hex.keywords,
-              score: null,
-            };
-          const average =
-            lineScores.reduce((a, b) => a + b, 0) / lineScores.length;
-          return {
-            id: hex.hexagram_id,
-            name: hex.name_jp,
-            keywords: hex.keywords,
-            score: parseFloat(average.toFixed(2)),
-          };
-        });
-
         const escapeHTML = (str) =>
           str
-            ? str.toString().replace(
-                /[&<>"']/g,
-                (match) =>
-                  ({
-                    "&": "&amp;",
-                    "<": "&lt;",
-                    ">": "&gt;",
-                    '"': "&quot;",
-                    "'": "&#39;",
-                  }[match])
-              )
+            ? str
+                .toString()
+                .replace(
+                  /[&<>"']/g,
+                  (match) =>
+                    ({
+                      "&": "&amp;",
+                      "<": "&lt;",
+                      ">": "&gt;",
+                      '"': "&quot;",
+                      "'": "&#39;",
+                    }[match])
+                )
             : "";
         const nl2br = (str) =>
           str ? escapeHTML(str).replace(/\n/g, "<br>") : "";
-        const helpContentHtml = `<div class="space-y-4 text-gray-300"><p>ポテンシャルスコアは、その状況が持つ「変化のエネルギー状態」を示す客観的な指標です。スコアを天気のように捉えると、戦略が立てやすくなります。</p><div class="p-4 bg-gray-900 rounded-lg"><h4 class="font-bold text-lg text-indigo-300">スコアが低い時 (1-2)：晴れの日 ☀️</h4><p class="mt-1">状況は安定しており、変化の主導権はあなたにあります。この安定を活かして…</p><ul class="list-disc list-inside mt-2 space-y-1"><li><strong class="text-white">現状を維持し、力を蓄える。</strong></li><li><strong class="text-white">安全地帯から、新しい挑戦を始める。</strong></li></ul></div><div class="p-4 bg-gray-900 rounded-lg"><h4 class="font-bold text-lg text-yellow-300">スコアが中間の時 (3)：曇りのち晴れ/雨 🌥️</h4><p class="mt-1">安定と不安定の境目であり、あなたの行動や選択が未来を左右する「岐路」です。この中立的な状態を活かして…</p><ul class="list-disc list-inside mt-2 space-y-1"><li><strong class="text-white">能動的に仕掛け、望む未来へ状況を傾ける。</strong></li><li><strong class="text-white">嵐に備えて守りを固める、あるいは好機を待つ。</strong></li></ul></div><div class="p-4 bg-gray-900 rounded-lg"><h4 class="font-bold text-lg text-red-300">スコアが高い時 (4-5)：嵐の日 ⚡️</h4><p class="mt-1">状況は流動的で、外部からの変化への対応を迫られています。このエネルギーを利用して…</p><ul class="list-disc list-inside mt-2 space-y-1"><li><strong class="text-white">変化の波に乗り、飛躍を狙う。</strong></li><li><strong class="text-white">防御に徹し、被害を最小限に抑える。</strong></li></ul></div><p class="pt-2">このスコアで<strong class="text-white">「今のゲームのルール」</strong>を客観的に理解し、あなた自身の意志で<strong class="text-white">「どうプレイするか」</strong>を決めるためのツールです。</p></div>`;
-
         const trigramToLines = {
           1: [1, 1, 1],
           2: [0, 1, 1],
@@ -610,67 +524,47 @@
           7: 2,
           8: 1,
         };
-
-        const getLines = (hex) => {
-          if (
-            !hex ||
-            !trigramToLines[hex.upper_trigram_id] ||
-            !trigramToLines[hex.lower_trigram_id]
-          )
-            return null;
-          return [
-            ...trigramToLines[hex.upper_trigram_id],
-            ...trigramToLines[hex.lower_trigram_id],
-          ];
-        };
-
+        const getLines = (hex) =>
+          !hex ||
+          !trigramToLines[hex.upper_trigram_id] ||
+          !trigramToLines[hex.lower_trigram_id]
+            ? null
+            : [
+                ...trigramToLines[hex.upper_trigram_id],
+                ...trigramToLines[hex.lower_trigram_id],
+              ];
         const findGoka = (hex) => {
           const allLines = getLines(hex);
           if (!allLines) return null;
-          const newLowerLines = [allLines[2], allLines[3], allLines[4]].join(
-            ""
-          );
-          const newUpperLines = [allLines[1], allLines[2], allLines[3]].join(
-            ""
-          );
-          const newLowerId = linesToTrigram[newLowerLines];
-          const newUpperId = linesToTrigram[newUpperLines];
+          const newLowerId =
+            linesToTrigram[[allLines[2], allLines[3], allLines[4]].join("")];
+          const newUpperId =
+            linesToTrigram[[allLines[1], allLines[2], allLines[3]].join("")];
           return HDB.hexagrams_master.find(
             (h) =>
               h.upper_trigram_id === newUpperId &&
               h.lower_trigram_id === newLowerId
           );
         };
-
-        const findSakka = (hex) => {
-          if (!hex) return null;
-          const newUpperId = oppositeTrigram[hex.upper_trigram_id];
-          const newLowerId = oppositeTrigram[hex.lower_trigram_id];
-          return HDB.hexagrams_master.find(
+        const findSakka = (hex) =>
+          HDB.hexagrams_master.find(
             (h) =>
-              h.upper_trigram_id === newUpperId &&
-              h.lower_trigram_id === newLowerId
+              h.upper_trigram_id === oppositeTrigram[hex.upper_trigram_id] &&
+              h.lower_trigram_id === oppositeTrigram[hex.lower_trigram_id]
           );
-        };
-
-        const findSouka = (hex) => {
-          if (!hex) return null;
-          return HDB.hexagrams_master.find(
+        const findSouka = (hex) =>
+          HDB.hexagrams_master.find(
             (h) =>
               h.upper_trigram_id === hex.lower_trigram_id &&
               h.lower_trigram_id === hex.upper_trigram_id
           );
-        };
-
         const findHenko = (hex, lineIndex) => {
           const allLines = getLines(hex);
           if (!allLines) return null;
           const changedLines = [...allLines];
           changedLines[5 - lineIndex] = 1 - changedLines[5 - lineIndex];
-          const newUpperLines = changedLines.slice(0, 3).join("");
-          const newLowerLines = changedLines.slice(3, 6).join("");
-          const newUpperId = linesToTrigram[newUpperLines];
-          const newLowerId = linesToTrigram[newLowerLines];
+          const newUpperId = linesToTrigram[changedLines.slice(0, 3).join("")];
+          const newLowerId = linesToTrigram[changedLines.slice(3, 6).join("")];
           return HDB.hexagrams_master.find(
             (h) =>
               h.upper_trigram_id === newUpperId &&
@@ -678,17 +572,31 @@
           );
         };
 
-        function showModal(title, content) {
-          document.getElementById(
-            "modalBody"
-          ).innerHTML = `<h3 class="text-2xl font-bold text-indigo-300 mb-4">${title}</h3><div class="prose prose-invert max-w-none">${content}</div>`;
-          document.getElementById("modalContainer").classList.remove("hidden");
-        }
-        function hideModal() {
-          document.getElementById("modalContainer").classList.add("hidden");
-        }
-
+        // --- 4. メインの描画関数群 ---
         function renderRadarChart() {
+          const container = document.getElementById("radar-chart");
+          const sortOrderSelect = document.getElementById("sortOrder");
+          if (!container || !sortOrderSelect) return;
+
+          const hexagramScores = HDB.hexagrams_master.map((hex) => {
+            if (!hex || typeof hex.hexagram_id === "undefined")
+              return { id: 0, score: null };
+            const startNum = hexStartIndices[hex.hexagram_id];
+            if (typeof startNum === "undefined")
+              return { id: hex.hexagram_id, name: hex.name_jp, score: null };
+            const lineScores = SCORES.slice(startNum, startNum + 6).filter(
+              (s) => typeof s === "number"
+            );
+            if (lineScores.length < 6)
+              return { id: hex.hexagram_id, name: hex.name_jp, score: null };
+            const average =
+              lineScores.reduce((a, b) => a + b, 0) / lineScores.length;
+            return {
+              id: hex.hexagram_id,
+              name: hex.name_jp,
+              score: parseFloat(average.toFixed(2)),
+            };
+          });
           const sortedHexagrams = [...hexagramScores].sort((a, b) => {
             const scoreA = a && typeof a.score === "number" ? a.score : -1;
             const scoreB = b && typeof b.score === "number" ? b.score : -1;
@@ -701,18 +609,9 @@
                 return scoreB - scoreA;
             }
           });
-          const chartContainer = document.getElementById("radar-chart");
-          chartContainer.innerHTML = sortedHexagrams
+          container.innerHTML = sortedHexagrams
             .map((hex) => {
-              if (!hex || hex.score === null) {
-                return `<div class="flex items-center group p-1 rounded-md" data-hex-id="${
-                  hex ? hex.id : ""
-                }"><div class="w-28 sm:w-32 text-sm truncate pr-2 text-right text-gray-500">${
-                  hex ? hex.id : ""
-                }. ${
-                  hex ? escapeHTML(hex.name) : "データエラー"
-                }</div><div class="flex-1 text-gray-500">スコア計算不能</div></div>`;
-              }
+              if (!hex || hex.score === null) return "";
               const scorePercentage = (hex.score / 5) * 100;
               const color = `hsl(${240 - (hex.score - 1) * 60}, 70%, 60%)`;
               return `<div class="flex items-center group cursor-pointer p-1 rounded-md hover:bg-gray-700" data-hex-id="${
@@ -721,283 +620,24 @@
                 hex.id
               }. ${escapeHTML(
                 hex.name
-              )}</div><div class="flex-1 bg-gray-600 rounded-full h-6 p-0.5"><div class="h-full rounded-full transition-all duration-300" style="width: ${scorePercentage}%; background-color: ${color};"></div></div><div class="w-12 text-left pl-3 font-bold text-base text-gray-200">${hex.score.toFixed(
+              )}</div><div class="flex-1 bg-gray-600 rounded-full h-6 p-0.5"><div class="h-full rounded-full" style="width: ${scorePercentage}%; background-color: ${color};"></div></div><div class="w-12 text-left pl-3 font-bold text-base text-gray-200">${hex.score.toFixed(
                 2
               )}</div></div>`;
             })
             .join("");
-          chartContainer
+          container
             .querySelectorAll(".group[data-hex-id]")
-            .forEach((el) => {
-              const hexScore = hexagramScores.find(
-                (h) => h && h.id == el.dataset.hexId
-              );
-              if (hexScore && hexScore.score !== null) {
-                el.addEventListener("click", () =>
-                  showStructureAnalyzer(parseInt(el.dataset.hexId, 10))
-                );
-              }
-            });
-        }
-
-        // --- ▼▼▼ 循環ナビゲーションを実装 ▼▼▼ ---
-        function showStructureAnalyzer(hexId) {
-          radarContainer.classList.add("hidden");
-          structureAnalyzer.classList.remove("hidden");
-
-          const setupNavButton = (id, currentHexId, direction) => {
-            let newHexId = currentHexId + direction;
-            if (newHexId < 1) newHexId = 64;
-            if (newHexId > 64) newHexId = 1;
-
-            const btn = document.getElementById(id);
-            // イベントリスナーを毎回リセットして再設定
-            const newBtn = btn.cloneNode(true);
-            btn.parentNode.replaceChild(newBtn, btn);
-            newBtn.addEventListener("click", () =>
-              showStructureAnalyzer(newHexId)
+            .forEach((el) =>
+              el.addEventListener("click", () =>
+                showStructureAnalyzer(parseInt(el.dataset.hexId, 10))
+              )
             );
-          };
-
-          setupNavButton("prev-hex-btn", hexId, -1);
-          setupNavButton("next-hex-btn", hexId, 1);
-
-          const hexData = HDB.hexagrams_master.find(
-            (h) => h.hexagram_id === hexId
-          );
-          const tuanData = HDB.bible.tuan_den[hexId];
-          if (!hexData || !tuanData) {
-            document.getElementById(
-              "analyzer-title-container"
-            ).innerHTML = `<h3 class="text-3xl font-bold text-red-400">エラー</h3>`;
-            document.getElementById(
-              "analyzer-text"
-            ).innerHTML = `<p>卦(ID: ${hexId})の基本データが見つかりません。データベースを確認してください。</p>`;
-            if (lineChartInstance) {
-              lineChartInstance.destroy();
-              lineChartInstance = null;
-            }
-            return;
-          }
-          document.getElementById(
-            "analyzer-title-container"
-          ).innerHTML = `<h3 class="text-3xl lg:text-4xl font-bold text-gray-100 mincho-font">${
-            hexData.hexagram_id
-          }. ${escapeHTML(
-            tuanData.title
-          )}</h3><p class="text-indigo-300 font-semibold mt-2">${escapeHTML(
-            tuanData.summary
-          )}</p>`;
-          document.getElementById("basic-description").textContent =
-            hexData.description;
-          document.getElementById("basic-keywords").textContent =
-            hexData.keywords;
-
-          const setupRelatedHexLink = (linkId, relatedHex) => {
-            const linkEl = document.getElementById(linkId);
-            if (relatedHex) {
-              linkEl.textContent = `${relatedHex.hexagram_id}. ${escapeHTML(
-                relatedHex.name_jp
-              )}`;
-              const newLinkEl = linkEl.cloneNode(true);
-              linkEl.parentNode.replaceChild(newLinkEl, linkEl);
-              newLinkEl.addEventListener("click", () =>
-                showStructureAnalyzer(relatedHex.hexagram_id)
-              );
-            } else {
-              linkEl.textContent = "なし";
-            }
-          };
-
-          setupRelatedHexLink("goka-link", findGoka(hexData));
-          setupRelatedHexLink("sakka-link", findSakka(hexData));
-          setupRelatedHexLink("souka-link", findSouka(hexData));
-
-          const mainData = MAIN_DB.find((d) => d.卦番号 === hexId);
-          const modernContainer = document.getElementById(
-            "modern-interpretation-container"
-          );
-
-          if (mainData) {
-            document.getElementById("goka-description").textContent =
-              mainData["互卦との関係性"] || "";
-            document.getElementById("sakka-description").textContent =
-              mainData["錯卦との関係性（対極の世界）"] || "";
-            document.getElementById("souka-description").textContent =
-              mainData["綜卦との関係性（裏の視点）"] || "";
-            if (modernContainer) {
-              modernContainer.style.display = "block";
-              document.getElementById("archetype").textContent =
-                mainData["アーキタイプ（原型）"] || "---";
-              document.getElementById("summary-modern").textContent =
-                mainData["現代解釈の要約"] || "---";
-              document.getElementById("feeling").textContent =
-                mainData["出た時の気持ち"] || "---";
-              document.getElementById("action-guideline").textContent =
-                mainData["どうすればいい"] || "---";
-              document.getElementById("consultant").textContent =
-                mainData["相談すべき人"] || "---";
-            }
-          } else {
-            document.getElementById("goka-description").textContent = "";
-            document.getElementById("sakka-description").textContent = "";
-            document.getElementById("souka-description").textContent = "";
-            if (modernContainer) {
-              modernContainer.style.display = "none";
-            }
-          }
-
-          const isSpecialHex = hexId === 1 || hexId === 2;
-          const numLines = isSpecialHex ? 7 : 6;
-          const labels = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"];
-          if (isSpecialHex) labels.push(hexId === 1 ? "用九" : "用六");
-          const startNum = hexStartIndices[hexId];
-          const lineScores = Array.from(
-            { length: numLines },
-            (_, i) => SCORES[startNum + i]
-          );
-          const setActiveLine = (index) => {
-            lineChartInstance.data.datasets[0].pointBackgroundColor = Array(
-              numLines
-            )
-              .fill("#fff")
-              .map((c, i) => (i === index ? "#facc15" : c));
-            lineChartInstance.data.datasets[0].pointRadius = Array(numLines)
-              .fill(5)
-              .map((r, i) => (i === index ? 10 : r));
-            lineChartInstance.update("none");
-            updateAnalyzerText(hexData, index);
-          };
-          const ctx = document
-            .getElementById("analyzer-chart")
-            .getContext("2d");
-          if (lineChartInstance) lineChartInstance.destroy();
-          lineChartInstance = new Chart(ctx, {
-            type: "line",
-            data: {
-              labels,
-              datasets: [
-                {
-                  data: lineScores,
-                  borderColor: "#a5b4fc",
-                  pointBorderColor: "#a5b4fc",
-                  tension: 0.1,
-                  fill: true,
-                  backgroundColor: "rgba(129, 140, 248, 0.2)",
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  min: 0.5,
-                  max: 5.5,
-                  ticks: { stepSize: 1, color: "#9ca3af" },
-                  grid: { color: "#374151" },
-                },
-                x: {
-                  ticks: { color: "#9ca3af" },
-                  grid: { color: "#374151" },
-                },
-              },
-              plugins: {
-                legend: { display: false },
-                tooltip: { enabled: false },
-              },
-              onHover: (e, el) =>
-                (e.native.target.style.cursor = el.length
-                  ? "pointer"
-                  : "default"),
-              onClick: (e, el) => el.length > 0 && setActiveLine(el[0].index),
-            },
-          });
-          setActiveLine(0);
         }
 
-        function updateAnalyzerText(currentHex, lineIndex) {
-          const textContainer = document.getElementById("analyzer-text");
-          const startNum = hexStartIndices[currentHex.hexagram_id];
-          const lineNum = startNum + lineIndex;
-          const shoData = HDB.bible.sho_den[lineNum];
-          const h384Data = HDB["384"].find((h) => h.通し番号 === lineNum);
-          const score = SCORES[lineNum];
-          const scoreLevels = {
-            1: "平穏",
-            2: "順風",
-            3: "岐路",
-            4: "逆風",
-            5: "嵐",
-          };
-
-          let henkoHtml = "";
-          const mainData = MAIN_DB.find(
-            (d) => d.卦番号 === currentHex.hexagram_id
-          );
-
-          if (lineIndex < 6) {
-            const henkoHex = findHenko(currentHex, lineIndex);
-            if (henkoHex) {
-              const henkoLinkHtml = `<a class="font-bold text-lg text-green-300 clickable-hex" data-hex-id="${
-                henkoHex.hexagram_id
-              }">${henkoHex.hexagram_id}. ${escapeHTML(
-                henkoHex.name_jp
-              )}</a><p class="text-sm text-gray-400">に変わります。（之卦）</p>`;
-
-              const lineNames = ["初", "二", "三", "四", "五", "上"];
-              const relationKey = `${lineNames[lineIndex]}爻変との関係性`;
-              let relationText = "";
-              if (mainData && mainData[relationKey]) {
-                relationText = `<div class="mt-2 text-sm text-gray-300">${nl2br(
-                  mainData[relationKey]
-                )}</div>`;
-              }
-
-              henkoHtml = `<div class="mt-4 pt-4 border-t border-gray-700"><p class="text-sm text-gray-400">この爻が変化すると...</p>${henkoLinkHtml}${relationText}</div>`;
-            }
-          } else if (lineIndex === 6) {
-            let relationKey = "";
-            if (currentHex.hexagram_id === 1) relationKey = "用九変との関係性";
-            if (currentHex.hexagram_id === 2) relationKey = "用六変との関係性";
-
-            let relationText = "";
-            if (mainData && mainData[relationKey]) {
-              relationText = `<div class="mt-2 text-sm text-gray-300">${nl2br(
-                mainData[relationKey]
-              )}</div>`;
-            }
-            if (relationText) {
-              henkoHtml = `<div class="mt-4 pt-4 border-t border-gray-700">${relationText}</div>`;
-            }
-          }
-
-          if (shoData && h384Data && typeof score !== "undefined") {
-            textContainer.innerHTML = `<h4 class="text-xl font-bold text-indigo-300 mb-2">${escapeHTML(
-              h384Data.爻名
-            )}：${escapeHTML(
-              shoData.title
-            )}</h4><p class="mb-4 font-semibold text-gray-200">ポテンシャルスコア: ${score} <span class="text-gray-400">- ${
-              scoreLevels[score] || "特別"
-            } -</span></p><div><strong class="text-gray-200">【推奨される行動理由】</strong><br>${nl2br(
-              shoData.reason
-            )}</div>${henkoHtml}`;
-
-            const henkoLink = textContainer.querySelector(".clickable-hex");
-            if (henkoLink) {
-              henkoLink.addEventListener("click", (e) => {
-                const hexId = parseInt(e.target.dataset.hexId, 10);
-                showStructureAnalyzer(hexId);
-              });
-            }
-          } else {
-            textContainer.innerHTML = `<p class="text-gray-400">この爻のデータが見つかりません。（通し番号: ${lineNum}）</p>`;
-          }
-        }
-
-        function renderJuyokuContent() {
-          const tuanContainer = document.getElementById("tuan-list");
-          tuanContainer.innerHTML = HDB.hexagrams_master
+        function renderTuanContent() {
+          const container = document.getElementById("tuan-list");
+          if (!container) return;
+          container.innerHTML = Object.values(HDB.hexagrams_master)
             .map((hex) => {
               const tuan = HDB.bible.tuan_den[hex.hexagram_id];
               if (!tuan) return "";
@@ -1017,70 +657,405 @@
             .join("");
         }
 
-        function filterContent(tabName, query) {
-          const normalizedQuery = query.toLowerCase().trim();
-          document
-            .querySelectorAll(`#${tabName}-content .filterable-item`)
-            .forEach((item) => {
-              item.style.display = (item.dataset.searchText || "")
-                .toLowerCase()
-                .includes(normalizedQuery)
-                ? ""
-                : "none";
-            });
-        }
-        function switchTab(tabName) {
-          tabs.forEach((tab) =>
-            tab.classList.toggle("active", tab.dataset.tab === tabName)
-          );
-          contents.forEach((content) =>
-            content.classList.toggle(
-              "active",
-              content.id === `${tabName}-content`
-            )
-          );
+        function renderShoContent() {
+          const container = document.getElementById("sho-list");
+          if (!container) return;
+          container.innerHTML = HDB.hexagrams_master
+            .map((hex) => {
+              const startNum = hexStartIndices[hex.hexagram_id];
+              const lineCount =
+                hex.hexagram_id === 1 || hex.hexagram_id === 2 ? 7 : 6;
+              const linesHtml = Array.from({ length: lineCount }, (_, i) => {
+                const lineNum = startNum + i;
+                const shoData = HDB.bible.sho_den[lineNum];
+                const h384Data = HDB["384"].find((h) => h.通し番号 === lineNum);
+                if (!shoData || !h384Data) return "";
+                return `<div class="filterable-item p-4 border-t border-gray-600" data-search-text="${`${h384Data.爻名} ${shoData.title} ${shoData.reason}`.toLowerCase()}"><h5 class="font-bold text-indigo-300">${escapeHTML(
+                  h384Data.爻名
+                )}: ${escapeHTML(
+                  shoData.title
+                )}</h5><p class="text-sm text-gray-300 mt-1">${nl2br(
+                  shoData.reason
+                )}</p></div>`;
+              }).join("");
+              return `<details class="accordion-item filterable-item bg-gray-800 rounded-lg overflow-hidden" data-search-text="${`${hex.hexagram_id} ${hex.name_jp} ${hex.keywords}`.toLowerCase()}"><summary class="font-semibold text-lg flex justify-between items-center"><span>${
+                hex.hexagram_id
+              }. ${escapeHTML(
+                hex.name_jp
+              )}</span><span class="text-gray-400 text-sm mr-2">+</span></summary><div class="bg-gray-800">${linesHtml}</div></details>`;
+            })
+            .join("");
         }
 
-        (function main() {
-          renderRadarChart();
-          renderJuyokuContent(); // 他のタブのコンテンツも最初にレンダリングしておく
-          document
-            .getElementById("modalOverlay")
-            .addEventListener("click", hideModal);
-          document
-            .getElementById("modalCloseBtn")
-            .addEventListener("click", hideModal);
-          document
-            .getElementById("backToRadarBtn")
-            .addEventListener("click", () => {
-              structureAnalyzer.classList.add("hidden");
-              radarContainer.classList.remove("hidden");
-            });
-          sortOrderSelect.addEventListener("change", renderRadarChart);
-          helpIcon.addEventListener("click", () =>
-            showModal("「ポテンシャルスコア」の見方", helpContentHtml)
+        function renderZatsuContent() {
+          const container = document.getElementById("zatsu-list");
+          if (!container) return;
+          const zatsuData = HDB.bible.zatsu_ka_den;
+          let html = "";
+          const processed = new Set();
+          for (const hexIdStr in zatsuData) {
+            const hexId = parseInt(hexIdStr, 10);
+            if (processed.has(hexId)) continue;
+            const item = zatsuData[hexIdStr];
+            const pairId = item.pair_id;
+            const hexA = HDB.hexagrams_master.find(
+              (h) => h.hexagram_id === hexId
+            );
+            const hexB = HDB.hexagrams_master.find(
+              (h) => h.hexagram_id === pairId
+            );
+            if (hexA && hexB) {
+              const searchText = `${hexA.name_jp} ${hexB.name_jp} ${item.contrast_theme} ${item.explanation}`;
+              html += `<div class="filterable-item bg-gray-800 p-6 rounded-lg" data-search-text="${searchText.toLowerCase()}"><h4 class="text-xl font-bold text-center text-indigo-300 mb-3">${escapeHTML(
+                item.contrast_theme
+              )}</h4><p class="text-gray-300 text-center">${nl2br(
+                item.explanation
+              )}</p><div class="mt-4 flex justify-around items-center border-t border-gray-700 pt-4"><div class="text-center font-bold text-lg">${
+                hexA.hexagram_id
+              }. ${escapeHTML(
+                hexA.name_jp
+              )}</div><div class="text-center font-bold text-lg">${
+                hexB.hexagram_id
+              }. ${escapeHTML(hexB.name_jp)}</div></div></div>`;
+              processed.add(pairId);
+            }
+          }
+          container.innerHTML = html;
+        }
+
+        function renderJoContent() {
+          const container = document.getElementById("jo-list");
+          if (!container) return;
+          const joData = HDB.bible.jo_ka_den;
+          let html = "";
+          for (let i = 1; i < 64; i++) {
+            // 1から63までループ
+            const item = joData[i];
+            if (!item || !item.to_next) continue;
+            const currentHex = HDB.hexagrams_master.find(
+              (h) => h.hexagram_id === i
+            );
+            const nextHex = HDB.hexagrams_master.find(
+              (h) => h.hexagram_id === item.to_next.next_id
+            );
+            if (currentHex && nextHex) {
+              const reason = item.to_next.explanation;
+              const searchText = `${currentHex.name_jp} ${nextHex.name_jp} ${reason}`;
+              html += `<div class="timeline-item filterable-item" data-search-text="${searchText.toLowerCase()}"><div class="timeline-dot"></div><div class="timeline-content" onclick="showStructureAnalyzer(${
+                nextHex.hexagram_id
+              })"><p class="text-sm text-gray-400">${
+                currentHex.hexagram_id
+              }. ${escapeHTML(currentHex.name_jp)} → ${
+                nextHex.hexagram_id
+              }. ${escapeHTML(
+                nextHex.name_jp
+              )}</p><h4 class="text-xl font-bold text-gray-100 mt-1">${nl2br(
+                reason
+              )}</h4></div></div>`;
+            }
+          }
+          container.innerHTML = html;
+        }
+
+        // --- 5. Analyzer関連の関数 ---
+        function showStructureAnalyzer(hexId) {
+          const radarContainer = document.getElementById("radar-container");
+          const structureAnalyzer =
+            document.getElementById("structure-analyzer");
+          if (!radarContainer || !structureAnalyzer) return;
+
+          radarContainer.classList.add("hidden");
+          structureAnalyzer.classList.remove("hidden");
+
+          const setupNavButton = (id, currentHexId, direction) => {
+            let newHexId = currentHexId + direction;
+            if (newHexId < 1) newHexId = 64;
+            if (newHexId > 64) newHexId = 1;
+            const btn = document.getElementById(id);
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener("click", () =>
+              showStructureAnalyzer(newHexId)
+            );
+          };
+          setupNavButton("prev-hex-btn", hexId, -1);
+          setupNavButton("next-hex-btn", hexId, 1);
+
+          const hexData = HDB.hexagrams_master.find(
+            (h) => h.hexagram_id === hexId
           );
+          const tuanData = HDB.bible.tuan_den[hexId];
+          if (!hexData || !tuanData) return;
+
+          document.getElementById(
+            "analyzer-title-container"
+          ).innerHTML = `<h3 class="text-3xl lg:text-4xl font-bold text-gray-100 mincho-font">${
+            hexData.hexagram_id
+          }. ${escapeHTML(
+            tuanData.title
+          )}</h3><p class="text-indigo-300 font-semibold mt-2">${escapeHTML(
+            tuanData.summary
+          )}</p>`;
+          document.getElementById("basic-description").textContent =
+            hexData.description;
+          document.getElementById("basic-keywords").textContent =
+            hexData.keywords;
+
+          const setupRelatedHexLink = (linkId, relatedHex) => {
+            const linkEl = document.getElementById(linkId);
+            if (!linkEl) return;
+            const newLinkEl = linkEl.cloneNode(true);
+            if (relatedHex) {
+              newLinkEl.textContent = `${relatedHex.hexagram_id}. ${escapeHTML(
+                relatedHex.name_jp
+              )}`;
+              newLinkEl.onclick = () =>
+                showStructureAnalyzer(relatedHex.hexagram_id);
+            } else {
+              newLinkEl.textContent = "なし";
+              newLinkEl.onclick = null;
+            }
+            linkEl.parentNode.replaceChild(newLinkEl, linkEl);
+          };
+          setupRelatedHexLink("goka-link", findGoka(hexData));
+          setupRelatedHexLink("sakka-link", findSakka(hexData));
+          setupRelatedHexLink("souka-link", findSouka(hexData));
+
+          const mainData = MAIN_DB.find((d) => d.卦番号 === hexId);
+          const modernContainer = document.getElementById(
+            "modern-interpretation-container"
+          );
+          if (modernContainer) {
+            if (mainData) {
+              modernContainer.style.display = "block";
+              document.getElementById("goka-description").textContent =
+                mainData["互卦との関係性"] || "";
+              document.getElementById("sakka-description").textContent =
+                mainData["錯卦との関係性（対極の世界）"] || "";
+              document.getElementById("souka-description").textContent =
+                mainData["綜卦との関係性（裏の視点）"] || "";
+              document.getElementById("archetype").textContent =
+                mainData["アーキタイプ（原型）"] || "---";
+              document.getElementById("summary-modern").textContent =
+                mainData["現代解釈の要約"] || "---";
+              document.getElementById("feeling").textContent =
+                mainData["出た時の気持ち"] || "---";
+              document.getElementById("action-guideline").textContent =
+                mainData["どうすればいい"] || "---";
+              document.getElementById("consultant").textContent =
+                mainData["相談すべき人"] || "---";
+            } else {
+              modernContainer.style.display = "none";
+            }
+          }
+
+          const ctx = document
+            .getElementById("analyzer-chart")
+            .getContext("2d");
+          const isSpecialHex = hexId === 1 || hexId === 2;
+          const numLines = isSpecialHex ? 7 : 6;
+          const labels = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"];
+          if (isSpecialHex) labels.push(hexId === 1 ? "用九" : "用六");
+          const startNum = hexStartIndices[hexId];
+          const lineScores = Array.from(
+            { length: numLines },
+            (_, i) => SCORES[startNum + i]
+          );
+
+          if (lineChartInstance) lineChartInstance.destroy();
+          lineChartInstance = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels,
+              datasets: [
+                {
+                  data: lineScores,
+                  borderColor: "#a5b4fc",
+                  tension: 0.1,
+                  fill: true,
+                  backgroundColor: "rgba(129, 140, 248, 0.2)",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  min: 0.5,
+                  max: 5.5,
+                  ticks: { color: "#9ca3af" },
+                  grid: { color: "#374151" },
+                },
+                x: { ticks: { color: "#9ca3af" }, grid: { color: "#374151" } },
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false },
+              },
+              onHover: (e, el) =>
+                (e.native.target.style.cursor = el.length
+                  ? "pointer"
+                  : "default"),
+              onClick: (e, el) => {
+                if (el.length > 0) {
+                  lineChartInstance.data.datasets[0].pointBackgroundColor =
+                    labels.map((_, i) =>
+                      i === el[0].index ? "#facc15" : "#fff"
+                    );
+                  lineChartInstance.data.datasets[0].pointRadius = labels.map(
+                    (_, i) => (i === el[0].index ? 10 : 5)
+                  );
+                  lineChartInstance.update("none");
+                  updateAnalyzerText(hexData, el[0].index);
+                }
+              },
+            },
+          });
+          // 初期表示
+          lineChartInstance.data.datasets[0].pointBackgroundColor = labels.map(
+            (_, i) => (i === 0 ? "#facc15" : "#fff")
+          );
+          lineChartInstance.data.datasets[0].pointRadius = labels.map((_, i) =>
+            i === 0 ? 10 : 5
+          );
+          lineChartInstance.update("none");
+          updateAnalyzerText(hexData, 0);
+        }
+
+        function updateAnalyzerText(currentHex, lineIndex) {
+          const textContainer = document.getElementById("analyzer-text");
+          if (!textContainer) return;
+          const startNum = hexStartIndices[currentHex.hexagram_id];
+          const lineNum = startNum + lineIndex;
+          const shoData = HDB.bible.sho_den[lineNum];
+          const h384Data = HDB["384"].find((h) => h.通し番号 === lineNum);
+          const score = SCORES[lineNum];
+          const scoreLevels = {
+            1: "平穏",
+            2: "順風",
+            3: "岐路",
+            4: "逆風",
+            5: "嵐",
+          };
+          let henkoHtml = "";
+          const mainData = MAIN_DB.find(
+            (d) => d.卦番号 === currentHex.hexagram_id
+          );
+          if (lineIndex < 6) {
+            const henkoHex = findHenko(currentHex, lineIndex);
+            if (henkoHex) {
+              const lineNames = ["初", "二", "三", "四", "五", "上"];
+              const relationKey = `${lineNames[lineIndex]}爻変との関係性`;
+              const relationText =
+                mainData && mainData[relationKey]
+                  ? `<div class="mt-2 text-sm text-gray-300">${nl2br(
+                      mainData[relationKey]
+                    )}</div>`
+                  : "";
+              henkoHtml = `<div class="mt-4 pt-4 border-t border-gray-700"><p class="text-sm text-gray-400">この爻が変化すると...</p><a class="font-bold text-lg text-green-300 clickable-hex" onclick="showStructureAnalyzer(${
+                henkoHex.hexagram_id
+              })">${henkoHex.hexagram_id}. ${escapeHTML(
+                henkoHex.name_jp
+              )}</a><p class="text-sm text-gray-400">に変わります。（之卦）</p>${relationText}</div>`;
+            }
+          }
+          if (shoData && h384Data && typeof score !== "undefined") {
+            textContainer.innerHTML = `<h4 class="text-xl font-bold text-indigo-300 mb-2">${escapeHTML(
+              h384Data.爻名
+            )}：${escapeHTML(
+              shoData.title
+            )}</h4><p class="mb-4 font-semibold text-gray-200">ポテンシャルスコア: ${score} <span class="text-gray-400">- ${
+              scoreLevels[score] || "特別"
+            } -</span></p><div><strong class="text-gray-200">【推奨される行動理由】</strong><br>${nl2br(
+              shoData.reason
+            )}</div>${henkoHtml}`;
+          } else {
+            textContainer.innerHTML = `<p class="text-gray-400">この爻のデータが見つかりません。（通し番号: ${lineNum}）</p>`;
+          }
+        }
+
+        // --- 6. イベントリスナーの設定と初期化 ---
+        function initialize() {
+          const tabs = document.querySelectorAll(".tab-btn");
+          const contents = document.querySelectorAll(".content-section");
+          const sortOrderSelect = document.getElementById("sortOrder");
+          const helpIcon = document.getElementById("help-icon");
+          const backToRadarBtn = document.getElementById("backToRadarBtn");
+
+          const switchTab = (tabName) => {
+            tabs.forEach((tab) =>
+              tab.classList.toggle("active", tab.dataset.tab === tabName)
+            );
+            contents.forEach((content) =>
+              content.classList.toggle(
+                "active",
+                content.id === `${tabName}-content`
+              )
+            );
+          };
+
+          // 全ての描画関数を呼び出す
+          renderRadarChart();
+          renderTuanContent();
+          renderShoContent();
+          renderZatsuContent();
+          renderJoContent();
+
+          // イベントリスナーを設定
+          if (sortOrderSelect)
+            sortOrderSelect.addEventListener("change", renderRadarChart);
+          if (helpIcon)
+            helpIcon.addEventListener("click", () =>
+              alert(
+                "ポテンシャルスコアは、その状況が持つ「変化のエネルギー状態」を示す指標です。"
+              )
+            );
+          if (backToRadarBtn)
+            backToRadarBtn.addEventListener("click", () => {
+              document
+                .getElementById("structure-analyzer")
+                ?.classList.add("hidden");
+              document
+                .getElementById("radar-container")
+                ?.classList.remove("hidden");
+            });
+
           tabs.forEach((tab) =>
             tab.addEventListener("click", () => switchTab(tab.dataset.tab))
           );
+
           const searchInputs = {
-            tuan: document.getElementById("tuan-search"),
-            sho: document.getElementById("sho-search"),
-            zatsu: document.getElementById("zatsu-search"),
-            jo: document.getElementById("jo-search"),
+            tuan: "tuan-search",
+            sho: "sho-search",
+            zatsu: "zatsu-search",
+            jo: "jo-search",
           };
-          Object.keys(searchInputs).forEach(
-            (key) =>
-              searchInputs[key] &&
-              searchInputs[key].addEventListener(
-                "input",
-                (
-                  e // keyupからinputへ変更
-                ) => filterContent(key, e.target.value)
-              )
-          );
+          const filterContent = (tabName, query) => {
+            const normalizedQuery = query.toLowerCase().trim();
+            document
+              .querySelectorAll(`#${tabName}-content .filterable-item`)
+              .forEach((item) => {
+                item.style.display = (item.dataset.searchText || "").includes(
+                  normalizedQuery
+                )
+                  ? ""
+                  : "none";
+              });
+          };
+          Object.entries(searchInputs).forEach(([key, id]) => {
+            const inputElement = document.getElementById(id);
+            if (inputElement)
+              inputElement.addEventListener("input", (e) =>
+                filterContent(key, e.target.value)
+              );
+          });
+
+          // 初期タブを表示
           switchTab("analyzer");
-        })();
+        }
+
+        initialize();
       };
     </script>
   </body>
