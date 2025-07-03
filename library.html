@@ -284,8 +284,12 @@
                   <p class="text-sm text-gray-500">内なる本質</p>
                   <a
                     id="goka-link"
-                    class="mt-2 text-gray-200 text-lg font-semibold clickable-hex"
+                    class="mt-1 text-gray-200 text-lg font-semibold clickable-hex"
                   ></a>
+                  <p
+                    id="goka-description"
+                    class="mt-2 text-xs text-gray-400"
+                  ></p>
                 </div>
                 <div id="sakka-container">
                   <h4 class="font-bold text-lg text-indigo-300">
@@ -294,8 +298,12 @@
                   <p class="text-sm text-gray-500">逆の視点</p>
                   <a
                     id="sakka-link"
-                    class="mt-2 text-gray-200 text-lg font-semibold clickable-hex"
+                    class="mt-1 text-gray-200 text-lg font-semibold clickable-hex"
                   ></a>
+                  <p
+                    id="sakka-description"
+                    class="mt-2 text-xs text-gray-400"
+                  ></p>
                 </div>
                 <div id="souka-container">
                   <h4 class="font-bold text-lg text-indigo-300">
@@ -304,8 +312,12 @@
                   <p class="text-sm text-gray-500">裏からの視点</p>
                   <a
                     id="souka-link"
-                    class="mt-2 text-gray-200 text-lg font-semibold clickable-hex"
+                    class="mt-1 text-gray-200 text-lg font-semibold clickable-hex"
                   ></a>
+                  <p
+                    id="souka-description"
+                    class="mt-2 text-xs text-gray-400"
+                  ></p>
                 </div>
               </div>
             </div>
@@ -477,7 +489,6 @@
     <script src="assets/haqei_main_database.js"></script>
     <script>
       window.onload = () => {
-        // ★★★ 修正点: `haqeiMainDatabase`の存在もチェック ★★★
         if (
           typeof HAQEI_DATA === "undefined" ||
           typeof haqei_potential_scores === "undefined" ||
@@ -489,7 +500,6 @@
         }
         const HDB = HAQEI_DATA;
         const SCORES = haqei_potential_scores;
-        // メインデータベースも定数に
         const MAIN_DB = haqeiMainDatabase;
 
         const tabs = document.querySelectorAll(".tab-btn");
@@ -781,28 +791,45 @@
           setupRelatedHexLink("sakka-link", findSakka(hexData));
           setupRelatedHexLink("souka-link", findSouka(hexData));
 
-          // ▼▼▼ ここから追加 ▼▼▼
           const mainData = MAIN_DB.find((d) => d.卦番号 === hexId);
           const modernContainer = document.getElementById(
             "modern-interpretation-container"
           );
 
-          if (mainData && modernContainer) {
-            modernContainer.style.display = "block";
-            document.getElementById("archetype").textContent =
-              mainData["アーキタイプ（原型）"] || "---";
-            document.getElementById("summary-modern").textContent =
-              mainData["現代解釈の要約"] || "---";
-            document.getElementById("feeling").textContent =
-              mainData["出た時の気持ち"] || "---";
-            document.getElementById("action-guideline").textContent =
-              mainData["どうすればいい"] || "---";
-            document.getElementById("consultant").textContent =
-              mainData["相談すべき人"] || "---";
-          } else if (modernContainer) {
-            modernContainer.style.display = "none";
+          if (mainData) {
+            // ▼▼▼ ここから変更 ▼▼▼
+            // 「卦の構造分析」の関係性テキストをセット
+            document.getElementById("goka-description").textContent =
+              mainData["互卦との関係性"] || "";
+            document.getElementById("sakka-description").textContent =
+              mainData["錯卦との関係性（対極の世界）"] || "";
+            document.getElementById("souka-description").textContent =
+              mainData["綜卦との関係性（裏の視点）"] || "";
+            // ▲▲▲ ここまで変更 ▲▲▲
+
+            // 「現代的アプローチ」セクションをセット
+            if (modernContainer) {
+              modernContainer.style.display = "block";
+              document.getElementById("archetype").textContent =
+                mainData["アーキタイプ（原型）"] || "---";
+              document.getElementById("summary-modern").textContent =
+                mainData["現代解釈の要約"] || "---";
+              document.getElementById("feeling").textContent =
+                mainData["出た時の気持ち"] || "---";
+              document.getElementById("action-guideline").textContent =
+                mainData["どうすればいい"] || "---";
+              document.getElementById("consultant").textContent =
+                mainData["相談すべき人"] || "---";
+            }
+          } else {
+            // データがない場合は両方のセクションをクリア/非表示
+            document.getElementById("goka-description").textContent = "";
+            document.getElementById("sakka-description").textContent = "";
+            document.getElementById("souka-description").textContent = "";
+            if (modernContainer) {
+              modernContainer.style.display = "none";
+            }
           }
-          // ▲▲▲ ここまで追加 ▲▲▲
 
           const isSpecialHex = hexId === 1 || hexId === 2;
           const numLines = isSpecialHex ? 7 : 6;
