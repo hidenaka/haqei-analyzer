@@ -13,8 +13,11 @@
       rel="stylesheet"
     />
     <style>
+      /* --- デザイン調整 --- */
       body {
         font-family: "Inter", "Noto Sans JP", sans-serif;
+        background-color: #111827; /* bg-gray-900 */
+        line-height: 1.75; /* 行間を広げる */
       }
       .brand-text {
         background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
@@ -25,6 +28,17 @@
       }
       .mincho-font {
         font-family: "Shippori Mincho", serif;
+      }
+      .card {
+        background-color: #1f2937; /* bg-gray-800 */
+        border: 1px solid #374151; /* border-gray-700 */
+        border-radius: 0.75rem; /* rounded-lg */
+      }
+      .section-title {
+        font-family: "Shippori Mincho", serif;
+        border-bottom: 1px solid #4a5568; /* border-gray-600 */
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.5rem;
       }
       .tab-btn {
         transition: all 0.2s ease-in-out;
@@ -53,13 +67,12 @@
         left: 0.5rem;
         top: 0;
         bottom: 0;
-        width: 4px;
-        background-color: #374151;
-        border-radius: 2px;
+        width: 2px;
+        background-color: #4a5568;
       }
       .timeline-item {
         position: relative;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
       }
       .timeline-item:last-child {
         margin-bottom: 0;
@@ -83,12 +96,12 @@
       .accordion-item summary {
         cursor: pointer;
         padding: 1rem;
-        background-color: #1f2937;
+        background-color: #374151;
         border-radius: 0.5rem;
         transition: background-color 0.2s;
       }
       .accordion-item summary:hover {
-        background-color: #374151;
+        background-color: #4b5563;
       }
       .accordion-item[open] summary {
         background-color: #4338ca;
@@ -109,11 +122,9 @@
       }
     </style>
   </head>
-  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
-    <div
-      class="w-full max-w-5xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10"
-    >
-      <header class="text-center mb-10">
+  <body class="text-gray-300 min-h-screen p-4 sm:p-8">
+    <div class="w-full max-w-5xl mx-auto space-y-10">
+      <header class="text-center">
         <a
           href="index.html"
           class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block"
@@ -124,52 +135,54 @@
         >
           HaQei Library
         </h1>
-        <p class="text-gray-400 mt-3 text-xl">
+        <p class="text-gray-400 mt-3 text-lg">
           プロジェクトの根幹を成す、易経「十翼」の知識体系
         </p>
       </header>
 
-      <div
-        id="tab-container"
-        class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mb-8 bg-gray-900/50 p-3 rounded-lg"
-      >
-        <button
-          class="tab-btn px-4 py-2 rounded-md font-semibold"
-          data-tab="analyzer"
+      <div class="card p-3">
+        <div
+          id="tab-container"
+          class="flex flex-wrap items-center justify-center gap-2 sm:gap-4"
         >
-          卦の分析 (Analyzer)
-        </button>
-        <button
-          class="tab-btn px-4 py-2 rounded-md font-semibold"
-          data-tab="tuan"
-        >
-          彖伝 (全体テーマ)
-        </button>
-        <button
-          class="tab-btn px-4 py-2 rounded-md font-semibold"
-          data-tab="sho"
-        >
-          小象伝 (各爻の理由)
-        </button>
-        <button
-          class="tab-btn px-4 py-2 rounded-md font-semibold"
-          data-tab="zatsu"
-        >
-          雑卦伝 (二元論)
-        </button>
-        <button
-          class="tab-btn px-4 py-2 rounded-md font-semibold"
-          data-tab="jo"
-        >
-          序卦伝 (物語の流れ)
-        </button>
+          <button
+            class="tab-btn px-4 py-2 rounded-md font-semibold"
+            data-tab="analyzer"
+          >
+            卦の分析 (Analyzer)
+          </button>
+          <button
+            class="tab-btn px-4 py-2 rounded-md font-semibold"
+            data-tab="tuan"
+          >
+            彖伝 (全体テーマ)
+          </button>
+          <button
+            class="tab-btn px-4 py-2 rounded-md font-semibold"
+            data-tab="sho"
+          >
+            小象伝 (各爻の理由)
+          </button>
+          <button
+            class="tab-btn px-4 py-2 rounded-md font-semibold"
+            data-tab="zatsu"
+          >
+            雑卦伝 (二元論)
+          </button>
+          <button
+            class="tab-btn px-4 py-2 rounded-md font-semibold"
+            data-tab="jo"
+          >
+            序卦伝 (物語の流れ)
+          </button>
+        </div>
       </div>
 
       <main id="content-area">
-        <section id="analyzer-content" class="content-section">
+        <section id="analyzer-content" class="content-section card p-6 sm:p-8">
           <div id="radar-container">
             <h2
-              class="text-3xl font-bold text-white mb-2 mincho-font border-b-2 border-indigo-500 pb-2 flex items-center gap-3"
+              class="section-title text-3xl font-bold flex items-center gap-3"
             >
               <span>64卦 ポテンシャルレーダー</span>
               <span
@@ -178,11 +191,11 @@
                 >?</span
               >
             </h2>
-            <p class="text-gray-400 my-4">
+            <p class="text-gray-400 mb-6">
               各卦が持つ「変化のエネルギー状態」を可視化します。スコアが高いほど挑戦的で飛躍の可能性を、低いほど安定し物事を固める好機を示します。バーをクリックすると詳細分析を表示します。
             </p>
             <div class="my-4 flex items-center gap-4">
-              <label for="sortOrder" class="mr-2">並び順:</label>
+              <label for="sortOrder" class="mr-2 text-gray-400">並び順:</label>
               <select
                 id="sortOrder"
                 class="bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 p-2"
@@ -192,23 +205,23 @@
                 <option value="id_asc" selected>卦の番号順</option>
               </select>
             </div>
-            <div id="radar-chart" class="space-y-2"></div>
+            <div id="radar-chart" class="space-y-2 mt-6"></div>
           </div>
 
-          <div id="structure-analyzer" class="hidden mt-12">
+          <div id="structure-analyzer" class="hidden">
             <button
               id="backToRadarBtn"
-              class="mb-4 text-indigo-400 hover:text-indigo-300"
+              class="mb-6 text-indigo-400 hover:text-indigo-300"
             >
               ← レーダーに戻る
             </button>
             <div
               id="analyzer-header"
-              class="text-center mb-6 flex items-center justify-between"
+              class="text-center mb-8 flex items-center justify-between"
             >
               <button
                 id="prev-hex-btn"
-                class="p-2 rounded-full hover:bg-gray-700 disabled:opacity-20 disabled:cursor-not-allowed"
+                class="p-2 rounded-full hover:bg-gray-700"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -225,10 +238,10 @@
                   />
                 </svg>
               </button>
-              <div id="analyzer-title-container"></div>
+              <div id="analyzer-title-container" class="px-4"></div>
               <button
                 id="next-hex-btn"
-                class="p-2 rounded-full hover:bg-gray-700 disabled:opacity-20 disabled:cursor-not-allowed"
+                class="p-2 rounded-full hover:bg-gray-700"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -246,7 +259,7 @@
                 </svg>
               </button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
               <div
                 id="analyzer-chart-container"
                 class="w-full h-96 bg-gray-900/50 rounded-lg p-4"
@@ -255,112 +268,118 @@
               </div>
               <div
                 id="analyzer-text"
-                class="h-96 overflow-y-auto bg-gray-900/50 rounded-lg p-6"
+                class="h-96 overflow-y-auto bg-gray-900/50 rounded-lg p-6 space-y-4"
               ></div>
             </div>
 
-            <div
-              id="additional-info-container"
-              class="mt-8 bg-gray-900/50 rounded-lg p-6"
-            >
-              <h3
-                class="text-2xl font-bold text-white mb-4 mincho-font border-b border-indigo-500 pb-2"
+            <div class="mt-8 space-y-8">
+              <div
+                id="additional-info-container"
+                class="bg-gray-900/50 rounded-lg p-6 border border-gray-700"
               >
-                卦の構造分析
-              </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div id="basic-char-container">
-                  <h4 class="font-bold text-lg text-indigo-300">
-                    基本的な特徴
-                  </h4>
-                  <p id="basic-description" class="mt-2 text-gray-300"></p>
-                  <p class="mt-2 text-sm">
-                    <strong class="text-gray-400">キーワード:</strong>
-                    <span id="basic-keywords"></span>
-                  </p>
-                </div>
-                <div id="goka-container">
-                  <h4 class="font-bold text-lg text-indigo-300">互卦 (ごか)</h4>
-                  <p class="text-sm text-gray-500">内なる本質</p>
-                  <a
-                    id="goka-link"
-                    class="mt-1 text-gray-200 text-lg font-semibold clickable-hex"
-                  ></a>
-                  <p
-                    id="goka-description"
-                    class="mt-2 text-xs text-gray-400"
-                  ></p>
-                </div>
-                <div id="sakka-container">
-                  <h4 class="font-bold text-lg text-indigo-300">
-                    錯卦 (さっか)
-                  </h4>
-                  <p class="text-sm text-gray-500">逆の視点</p>
-                  <a
-                    id="sakka-link"
-                    class="mt-1 text-gray-200 text-lg font-semibold clickable-hex"
-                  ></a>
-                  <p
-                    id="sakka-description"
-                    class="mt-2 text-xs text-gray-400"
-                  ></p>
-                </div>
-                <div id="souka-container">
-                  <h4 class="font-bold text-lg text-indigo-300">
-                    綜卦 (そうか)
-                  </h4>
-                  <p class="text-sm text-gray-500">裏からの視点</p>
-                  <a
-                    id="souka-link"
-                    class="mt-1 text-gray-200 text-lg font-semibold clickable-hex"
-                  ></a>
-                  <p
-                    id="souka-description"
-                    class="mt-2 text-xs text-gray-400"
-                  ></p>
+                <h3
+                  class="text-xl font-bold text-gray-100 mb-6 border-b border-gray-700 pb-3"
+                >
+                  卦の構造分析
+                </h3>
+                <div
+                  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8"
+                >
+                  <div id="basic-char-container">
+                    <h4 class="font-bold text-lg text-indigo-300">
+                      基本的な特徴
+                    </h4>
+                    <p id="basic-description" class="mt-2 text-gray-300"></p>
+                    <p class="mt-2 text-sm">
+                      <strong class="text-gray-400">キーワード:</strong>
+                      <span id="basic-keywords"></span>
+                    </p>
+                  </div>
+                  <div id="goka-container">
+                    <h4 class="font-bold text-lg text-indigo-300">
+                      互卦 (ごか)
+                    </h4>
+                    <p class="text-sm text-gray-500">内なる本質</p>
+                    <a
+                      id="goka-link"
+                      class="mt-1 text-gray-200 text-lg font-semibold clickable-hex"
+                    ></a>
+                    <p
+                      id="goka-description"
+                      class="mt-2 text-sm text-gray-400"
+                    ></p>
+                  </div>
+                  <div id="sakka-container">
+                    <h4 class="font-bold text-lg text-indigo-300">
+                      錯卦 (さっか)
+                    </h4>
+                    <p class="text-sm text-gray-500">逆の視点</p>
+                    <a
+                      id="sakka-link"
+                      class="mt-1 text-gray-200 text-lg font-semibold clickable-hex"
+                    ></a>
+                    <p
+                      id="sakka-description"
+                      class="mt-2 text-sm text-gray-400"
+                    ></p>
+                  </div>
+                  <div id="souka-container">
+                    <h4 class="font-bold text-lg text-indigo-300">
+                      綜卦 (そうか)
+                    </h4>
+                    <p class="text-sm text-gray-500">裏からの視点</p>
+                    <a
+                      id="souka-link"
+                      class="mt-1 text-gray-200 text-lg font-semibold clickable-hex"
+                    ></a>
+                    <p
+                      id="souka-description"
+                      class="mt-2 text-sm text-gray-400"
+                    ></p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div
-              id="modern-interpretation-container"
-              class="mt-8 bg-gray-900/50 rounded-lg p-6"
-            >
-              <h3
-                class="text-2xl font-bold text-white mb-4 mincho-font border-b border-indigo-500 pb-2"
+              <div
+                id="modern-interpretation-container"
+                class="bg-gray-900/50 rounded-lg p-6 border border-gray-700"
               >
-                現代的アプローチ
-              </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                <div>
-                  <h4 class="font-bold text-lg text-indigo-300">
-                    アーキタイプ（原型）
-                  </h4>
-                  <p id="archetype" class="mt-1 text-gray-300"></p>
-                </div>
-                <div>
-                  <h4 class="font-bold text-lg text-indigo-300">
-                    現代解釈の要約
-                  </h4>
-                  <p id="summary-modern" class="mt-1 text-gray-300"></p>
-                </div>
-                <div class="md:col-span-2">
-                  <h4 class="font-bold text-lg text-indigo-300">
-                    出た時の気持ち
-                  </h4>
-                  <p id="feeling" class="mt-1 text-gray-300"></p>
-                </div>
-                <div class="md:col-span-2">
-                  <h4 class="font-bold text-lg text-indigo-300">
-                    どうすればいい？（行動指針）
-                  </h4>
-                  <p id="action-guideline" class="mt-1 text-gray-300"></p>
-                </div>
-                <div class="md:col-span-2">
-                  <h4 class="font-bold text-lg text-indigo-300">
-                    相談すべき人
-                  </h4>
-                  <p id="consultant" class="mt-1 text-gray-300"></p>
+                <h3
+                  class="text-xl font-bold text-gray-100 mb-6 border-b border-gray-700 pb-3"
+                >
+                  現代的アプローチ
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                  <div>
+                    <h4 class="font-bold text-lg text-indigo-300">
+                      アーキタイプ（原型）
+                    </h4>
+                    <p id="archetype" class="mt-1 text-gray-300"></p>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-lg text-indigo-300">
+                      現代解釈の要約
+                    </h4>
+                    <p id="summary-modern" class="mt-1 text-gray-300"></p>
+                  </div>
+                  <div class="md:col-span-2">
+                    <h4 class="font-bold text-lg text-indigo-300">
+                      出た時の気持ち
+                    </h4>
+                    <p id="feeling" class="mt-1 text-gray-300"></p>
+                  </div>
+                  <div class="md:col-span-2">
+                    <h4 class="font-bold text-lg text-indigo-300">
+                      どうすればいい？（行動指針）
+                    </h4>
+                    <p id="action-guideline" class="mt-1 text-gray-300"></p>
+                  </div>
+                  <div class="md:col-span-2">
+                    <h4 class="font-bold text-lg text-indigo-300">
+                      相談すべき人
+                    </h4>
+                    <p id="consultant" class="mt-1 text-gray-300"></p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -369,83 +388,79 @@
 
         <section
           id="tuan-content"
-          class="content-section prose prose-invert max-w-none"
+          class="content-section card p-6 sm:p-8 space-y-6"
         >
-          <h2
-            class="text-3xl font-bold text-white mb-4 mincho-font border-b-2 border-indigo-500 pb-2"
-          >
+          <h2 class="section-title text-3xl font-bold">
             彖伝
             <span class="text-base text-gray-400 ml-2"
               >- 卦全体のテーマ解説</span
             >
           </h2>
-          <div class="mb-4">
-            <input
-              type="text"
-              id="tuan-search"
-              class="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="キーワードで検索..."
-            />
-          </div>
-          <div id="tuan-list" class="space-y-6"></div>
+          <input
+            type="text"
+            id="tuan-search"
+            class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="キーワードで検索..."
+          />
+          <div id="tuan-list" class="space-y-8"></div>
         </section>
-        <section id="sho-content" class="content-section">
-          <h2
-            class="text-3xl font-bold text-white mb-4 mincho-font border-b-2 border-indigo-500 pb-2"
-          >
+
+        <section
+          id="sho-content"
+          class="content-section card p-6 sm:p-8 space-y-6"
+        >
+          <h2 class="section-title text-3xl font-bold">
             小象伝
             <span class="text-base text-gray-400 ml-2">- 各爻の行動理由</span>
           </h2>
-          <div class="mb-4">
-            <input
-              type="text"
-              id="sho-search"
-              class="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="キーワードで検索..."
-            />
-          </div>
-          <div id="sho-list" class="space-y-2"></div>
+          <input
+            type="text"
+            id="sho-search"
+            class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="キーワードで検索..."
+          />
+          <div id="sho-list" class="space-y-4"></div>
         </section>
-        <section id="zatsu-content" class="content-section">
-          <h2
-            class="text-3xl font-bold text-white mb-4 mincho-font border-b-2 border-indigo-500 pb-2"
-          >
+
+        <section
+          id="zatsu-content"
+          class="content-section card p-6 sm:p-8 space-y-6"
+        >
+          <h2 class="section-title text-3xl font-bold">
             雑卦伝
             <span class="text-base text-gray-400 ml-2"
               >- 二元論による本質解説</span
             >
           </h2>
-          <div class="mb-4">
-            <input
-              type="text"
-              id="zatsu-search"
-              class="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="キーワードで検索..."
-            />
-          </div>
+          <input
+            type="text"
+            id="zatsu-search"
+            class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="キーワードで検索..."
+          />
           <div
             id="zatsu-list"
             class="grid grid-cols-1 md:grid-cols-2 gap-6"
           ></div>
         </section>
-        <section id="jo-content" class="content-section">
-          <h2
-            class="text-3xl font-bold text-white mb-4 mincho-font border-b-2 border-indigo-500 pb-2"
-          >
+
+        <section
+          id="jo-content"
+          class="content-section card p-6 sm:p-8 space-y-6"
+        >
+          <h2 class="section-title text-3xl font-bold">
             序卦伝
             <span class="text-base text-gray-400 ml-2">- 64卦の物語</span>
           </h2>
-          <p class="mb-6 text-gray-300">
+          <p class="text-gray-400">
             64卦がなぜこの順番で並んでいるのか、その壮大な物語の流れを示します。各項目をクリックすると、その卦の解説が表示されます。
           </p>
-          <div class="mb-4">
-            <input
-              type="text"
-              id="jo-search"
-              class="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="キーワードで検索..."
-            />
-          </div>
+          <input
+            type="text"
+            id="jo-search"
+            class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="キーワードで検索..."
+          />
           <div id="jo-list" class="timeline"></div>
         </section>
       </main>
@@ -702,11 +717,11 @@
               const color = `hsl(${240 - (hex.score - 1) * 60}, 70%, 60%)`;
               return `<div class="flex items-center group cursor-pointer p-1 rounded-md hover:bg-gray-700" data-hex-id="${
                 hex.id
-              }"><div class="w-28 sm:w-32 text-sm truncate pr-2 text-right">${
+              }"><div class="w-28 sm:w-32 text-sm truncate pr-2 text-right text-gray-200">${
                 hex.id
               }. ${escapeHTML(
                 hex.name
-              )}</div><div class="flex-1 bg-gray-600 rounded-full h-6 p-0.5"><div class="h-full rounded-full transition-all duration-300" style="width: ${scorePercentage}%; background-color: ${color};"></div></div><div class="w-12 text-left pl-3 font-bold text-base">${hex.score.toFixed(
+              )}</div><div class="flex-1 bg-gray-600 rounded-full h-6 p-0.5"><div class="h-full rounded-full transition-all duration-300" style="width: ${scorePercentage}%; background-color: ${color};"></div></div><div class="w-12 text-left pl-3 font-bold text-base text-gray-200">${hex.score.toFixed(
                 2
               )}</div></div>`;
             })
@@ -725,25 +740,28 @@
             });
         }
 
+        // --- ▼▼▼ 循環ナビゲーションを実装 ▼▼▼ ---
         function showStructureAnalyzer(hexId) {
           radarContainer.classList.add("hidden");
           structureAnalyzer.classList.remove("hidden");
+
           const setupNavButton = (id, currentHexId, direction) => {
             let newHexId = currentHexId + direction;
-            if (newHexId < 1) {
-              newHexId = 64;
-            } else if (newHexId > 64) {
-              newHexId = 1;
-            }
+            if (newHexId < 1) newHexId = 64;
+            if (newHexId > 64) newHexId = 1;
+
             const btn = document.getElementById(id);
+            // イベントリスナーを毎回リセットして再設定
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
             newBtn.addEventListener("click", () =>
               showStructureAnalyzer(newHexId)
             );
           };
+
           setupNavButton("prev-hex-btn", hexId, -1);
           setupNavButton("next-hex-btn", hexId, 1);
+
           const hexData = HDB.hexagrams_master.find(
             (h) => h.hexagram_id === hexId
           );
@@ -751,7 +769,7 @@
           if (!hexData || !tuanData) {
             document.getElementById(
               "analyzer-title-container"
-            ).innerHTML = `<h3 class="text-2xl font-bold text-red-400">エラー</h3>`;
+            ).innerHTML = `<h3 class="text-3xl font-bold text-red-400">エラー</h3>`;
             document.getElementById(
               "analyzer-text"
             ).innerHTML = `<p>卦(ID: ${hexId})の基本データが見つかりません。データベースを確認してください。</p>`;
@@ -763,7 +781,7 @@
           }
           document.getElementById(
             "analyzer-title-container"
-          ).innerHTML = `<h3 class="text-3xl font-bold text-white mincho-font">${
+          ).innerHTML = `<h3 class="text-3xl lg:text-4xl font-bold text-gray-100 mincho-font">${
             hexData.hexagram_id
           }. ${escapeHTML(
             tuanData.title
@@ -801,15 +819,12 @@
           );
 
           if (mainData) {
-            // 「卦の構造分析」の関係性テキストをセット
             document.getElementById("goka-description").textContent =
               mainData["互卦との関係性"] || "";
             document.getElementById("sakka-description").textContent =
               mainData["錯卦との関係性（対極の世界）"] || "";
             document.getElementById("souka-description").textContent =
               mainData["綜卦との関係性（裏の視点）"] || "";
-
-            // 「現代的アプローチ」セクションをセット
             if (modernContainer) {
               modernContainer.style.display = "block";
               document.getElementById("archetype").textContent =
@@ -824,7 +839,6 @@
                 mainData["相談すべき人"] || "---";
             }
           } else {
-            // データがない場合は両方のセクションをクリア/非表示
             document.getElementById("goka-description").textContent = "";
             document.getElementById("sakka-description").textContent = "";
             document.getElementById("souka-description").textContent = "";
@@ -881,8 +895,12 @@
                   min: 0.5,
                   max: 5.5,
                   ticks: { stepSize: 1, color: "#9ca3af" },
+                  grid: { color: "#374151" },
                 },
-                x: { ticks: { color: "#9ca3af" } },
+                x: {
+                  ticks: { color: "#9ca3af" },
+                  grid: { color: "#374151" },
+                },
               },
               plugins: {
                 legend: { display: false },
@@ -898,7 +916,6 @@
           setActiveLine(0);
         }
 
-        // ▼▼▼ ここから変更 ▼▼▼
         function updateAnalyzerText(currentHex, lineIndex) {
           const textContainer = document.getElementById("analyzer-text");
           const startNum = hexStartIndices[currentHex.hexagram_id];
@@ -919,7 +936,6 @@
             (d) => d.卦番号 === currentHex.hexagram_id
           );
 
-          // 通常の爻変 (初爻から上爻まで)
           if (lineIndex < 6) {
             const henkoHex = findHenko(currentHex, lineIndex);
             if (henkoHex) {
@@ -940,9 +956,7 @@
 
               henkoHtml = `<div class="mt-4 pt-4 border-t border-gray-700"><p class="text-sm text-gray-400">この爻が変化すると...</p>${henkoLinkHtml}${relationText}</div>`;
             }
-          }
-          // 用九・用六の特殊なケース
-          else if (lineIndex === 6) {
+          } else if (lineIndex === 6) {
             let relationKey = "";
             if (currentHex.hexagram_id === 1) relationKey = "用九変との関係性";
             if (currentHex.hexagram_id === 2) relationKey = "用六変との関係性";
@@ -963,13 +977,12 @@
               h384Data.爻名
             )}：${escapeHTML(
               shoData.title
-            )}</h4><p class="mb-4 font-semibold">ポテンシャルスコア: ${score} <span class="text-gray-400">- ${
+            )}</h4><p class="mb-4 font-semibold text-gray-200">ポテンシャルスコア: ${score} <span class="text-gray-400">- ${
               scoreLevels[score] || "特別"
-            } -</span></p><div class="prose prose-invert max-w-none text-gray-300"><strong>【推奨される行動理由】</strong><br>${nl2br(
+            } -</span></p><div><strong class="text-gray-200">【推奨される行動理由】</strong><br>${nl2br(
               shoData.reason
             )}</div>${henkoHtml}`;
 
-            // henkoHtml内に生成されたリンクにイベントリスナーを再設定
             const henkoLink = textContainer.querySelector(".clickable-hex");
             if (henkoLink) {
               henkoLink.addEventListener("click", (e) => {
@@ -981,7 +994,6 @@
             textContainer.innerHTML = `<p class="text-gray-400">この爻のデータが見つかりません。（通し番号: ${lineNum}）</p>`;
           }
         }
-        // ▲▲▲ ここまで変更 ▲▲▲
 
         function renderJuyokuContent() {
           const tuanContainer = document.getElementById("tuan-list");
@@ -990,97 +1002,19 @@
               const tuan = HDB.bible.tuan_den[hex.hexagram_id];
               if (!tuan) return "";
               const searchText = `${hex.hexagram_id} ${hex.name_jp} ${tuan.title} ${tuan.summary} ${tuan.haqei_interpretation} ${hex.keywords}`;
-              return `<div class="filterable-item py-4 border-b border-gray-700" data-search-text="${searchText.toLowerCase()}"><h3 class="text-2xl font-bold text-white mb-2 mincho-font">${
+              return `<div class="filterable-item py-6 border-b border-gray-700" data-search-text="${searchText.toLowerCase()}"><h3 class="text-2xl font-bold text-gray-100 mb-2 mincho-font">${
                 hex.hexagram_id
               }. ${escapeHTML(
                 tuan.title
               )}</h3><p class="text-indigo-300 font-semibold mb-3">${escapeHTML(
                 tuan.summary
-              )}</p><div class="pl-4 border-l-2 border-gray-600"><p class="text-gray-300 italic">"${nl2br(
+              )}</p><div class="pl-4 border-l-2 border-gray-600 space-y-4"><p class="text-gray-300 italic">"${nl2br(
                 tuan.points.join('"<br>"')
-              )}"</p><p class="mt-4 text-gray-400">${nl2br(
+              )}"</p><p class="text-gray-400">${nl2br(
                 tuan.haqei_interpretation
               )}</p></div></div>`;
             })
             .join("");
-          const shoContainer = document.getElementById("sho-list");
-          shoContainer.innerHTML = HDB["384"]
-            .map((h384) => {
-              const sho = HDB.bible.sho_den[h384.通し番号];
-              if (!sho) return "";
-              const searchText = `${h384.爻名} ${sho.title} ${sho.reason}`;
-              return `<details class="accordion-item filterable-item" data-search-text="${searchText.toLowerCase()}"><summary class="flex justify-between items-center"><span class="font-semibold text-lg">${escapeHTML(
-                h384.爻名
-              )}：<span class="text-indigo-300">${escapeHTML(
-                sho.title
-              )}</span></span><span class="text-gray-400 text-sm">▼</span></summary><div class="accordion-item-content bg-gray-900/50 rounded-b-lg p-4"><p><strong>【なぜ、その行動が推奨されるのか？】</strong><br>${nl2br(
-                sho.reason
-              )}</p></div></details>`;
-            })
-            .join("");
-          const zatsuContainer = document.getElementById("zatsu-list");
-          let zatsuHtml = "";
-          const processedPairs = new Set();
-          HDB.hexagrams_master.forEach((hex1) => {
-            if (processedPairs.has(hex1.hexagram_id)) return;
-            const zatsu = HDB.bible.zatsu_ka_den[hex1.hexagram_id];
-            if (!zatsu) return;
-            const hex2 = HDB.hexagrams_master.find(
-              (h) => h.hexagram_id === zatsu.pair_id
-            );
-            if (!hex2) return;
-            const searchText = `${hex1.name_jp} ${hex2.name_jp} ${zatsu.contrast_theme} ${zatsu.explanation}`;
-            zatsuHtml += `<div class="filterable-item bg-gray-900/50 rounded-lg p-6" data-search-text="${searchText.toLowerCase()}"><h3 class="text-center text-xl font-bold text-indigo-300 mb-3">${escapeHTML(
-              zatsu.contrast_theme
-            )}</h3><div class="grid grid-cols-2 gap-4 text-center"><div class="border-r border-gray-600 pr-4"><p class="font-bold text-lg">${
-              hex1.hexagram_id
-            }. ${escapeHTML(
-              hex1.name_jp
-            )}</p></div><div><p class="font-bold text-lg">${
-              hex2.hexagram_id
-            }. ${escapeHTML(
-              hex2.name_jp
-            )}</p></div></div><p class="mt-4 text-center text-gray-400 text-sm">${nl2br(
-              zatsu.explanation
-            )}</p></div>`;
-            processedPairs.add(hex1.hexagram_id);
-            processedPairs.add(zatsu.pair_id);
-          });
-          zatsuContainer.innerHTML = zatsuHtml;
-          const joContainer = document.getElementById("jo-list");
-          let joHtml = "";
-          const firstHex = HDB.hexagrams_master.find(
-            (h) => h.hexagram_id === 1
-          );
-          if (firstHex) {
-            joHtml += `<div class="timeline-item filterable-item" data-search-text="1 ${
-              firstHex.name_jp
-            } 物語の始まり"><div class="timeline-dot"></div><div class="timeline-content" data-hex-id="1"><h4 class="text-xl font-bold">1. ${escapeHTML(
-              firstHex.name_jp
-            )}</h4><p class="text-sm text-gray-400">物語の始まり。</p></div></div>`;
-          }
-          joHtml += Object.keys(HDB.bible.jo_ka_den)
-            .sort((a, b) => parseInt(a) - parseInt(b))
-            .map((key) => {
-              const jo_item = HDB.bible.jo_ka_den[key];
-              if (!jo_item || !jo_item.to_next) return "";
-              const { next_id, next_name, explanation } = jo_item.to_next;
-              const searchText = `${next_id} ${next_name} ${explanation}`;
-              return `<div class="timeline-item filterable-item" data-search-text="${searchText.toLowerCase()}"><div class="timeline-dot"></div><div class="timeline-content" data-hex-id="${next_id}"><h4 class="text-xl font-bold">${next_id}. ${escapeHTML(
-                next_name
-              )}</h4><p class="text-sm text-gray-400">${nl2br(
-                explanation
-              )}</p></div></div>`;
-            })
-            .join("");
-          joContainer.innerHTML = joHtml;
-          joContainer.querySelectorAll(".timeline-content").forEach((item) => {
-            item.addEventListener("click", () => {
-              const hexId = parseInt(item.dataset.hexId, 10);
-              showStructureAnalyzer(hexId);
-              switchTab("analyzer");
-            });
-          });
         }
 
         function filterContent(tabName, query) {
@@ -1109,7 +1043,7 @@
 
         (function main() {
           renderRadarChart();
-          renderJuyokuContent();
+          renderJuyokuContent(); // 他のタブのコンテンツも最初にレンダリングしておく
           document
             .getElementById("modalOverlay")
             .addEventListener("click", hideModal);
@@ -1138,8 +1072,11 @@
           Object.keys(searchInputs).forEach(
             (key) =>
               searchInputs[key] &&
-              searchInputs[key].addEventListener("keyup", (e) =>
-                filterContent(key, e.target.value)
+              searchInputs[key].addEventListener(
+                "input",
+                (
+                  e // keyupからinputへ変更
+                ) => filterContent(key, e.target.value)
               )
           );
           switchTab("analyzer");
