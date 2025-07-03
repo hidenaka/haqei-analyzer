@@ -728,18 +728,22 @@
         function showStructureAnalyzer(hexId) {
           radarContainer.classList.add("hidden");
           structureAnalyzer.classList.remove("hidden");
-          const setupNavButton = (id, newHexId) => {
+          const setupNavButton = (id, currentHexId, direction) => {
+            let newHexId = currentHexId + direction;
+            if (newHexId < 1) {
+              newHexId = 64;
+            } else if (newHexId > 64) {
+              newHexId = 1;
+            }
             const btn = document.getElementById(id);
-            btn.disabled = newHexId < 1 || newHexId > 64;
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
-            if (!newBtn.disabled)
-              newBtn.addEventListener("click", () =>
-                showStructureAnalyzer(newHexId)
-              );
+            newBtn.addEventListener("click", () =>
+              showStructureAnalyzer(newHexId)
+            );
           };
-          setupNavButton("prev-hex-btn", hexId - 1);
-          setupNavButton("next-hex-btn", hexId + 1);
+          setupNavButton("prev-hex-btn", hexId, -1);
+          setupNavButton("next-hex-btn", hexId, 1);
           const hexData = HDB.hexagrams_master.find(
             (h) => h.hexagram_id === hexId
           );
