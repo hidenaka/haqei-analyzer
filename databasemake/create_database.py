@@ -1,184 +1,85 @@
 import sqlite3
-import csv
+import pandas as pd
+import glob
 import os
 
-# --- パス設定 ---
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_FILE = os.path.join(SCRIPT_DIR, "haqei_database.db")
+DB_FILE = 'haqei_database.db'
+CSV_DIR = 'databasemake/'
 
-# --- 読み込むCSVファイル名の定義 ---
-CSV_FILES = {
-    'master_info': '1.csv',
-    'features':    '2.csv',
-    'mbti':        '3.csv',
-    'h384':        'H384.csv' # 384爻のデータ
-}
+def create_hexagrams_master_table(cursor):
+    """ 64卦マスターテーブルを新しいスキーマで作成する """
+    cursor.execute('DROP TABLE IF EXISTS hexagrams_master')
+    # ★★★ CSVの列構成に完全に一致させる ★★★
+    cursor.execute('''
+    CREATE TABLE hexagrams_master (
+        hexagram_id INTEGER PRIMARY KEY,
+        name_jp TEXT,
+        description TEXT,
+        keywords TEXT,
+        goka_name TEXT,
+        goka_description TEXT,
+        sakka_name TEXT,
+        sakka_description TEXT,
+        souka_name TEXT,
+        souka_description TEXT,
+        henko_1_name TEXT,
+        henko_2_name TEXT,
+        henko_3_name TEXT,
+        henko_4_name TEXT,
+        henko_5_name TEXT,
+        henko_6_name TEXT
+    )
+    ''')
+    print("テーブル 'hexagrams_master' を新しいスキーマで作成しました。")
 
-# ★★★★★【修正点】必須の定義情報を再度追加しました ★★★★★
-# 64卦の構成（上卦・下卦）
-HEXAGRAM_COMPOSITION = {
-    1: (1, 1), 2: (8, 8), 3: (6, 4), 4: (7, 6), 5: (6, 1), 6: (1, 6), 7: (8, 6), 8: (6, 8),
-    9: (5, 1), 10: (1, 2), 11: (8, 1), 12: (1, 8), 13: (1, 3), 14: (3, 1), 15: (8, 7), 16: (4, 8),
-    17: (2, 4), 18: (7, 5), 19: (8, 2), 20: (5, 8), 21: (3, 4), 22: (7, 3), 23: (7, 8), 24: (8, 4),
-    25: (1, 4), 26: (7, 1), 27: (7, 4), 28: (2, 5), 29: (6, 6), 30: (3, 3), 31: (2, 7), 32: (4, 5),
-    33: (1, 7), 34: (4, 1), 35: (3, 8), 36: (8, 3), 37: (5, 3), 38: (3, 2), 39: (6, 7), 40: (4, 6),
-    41: (7, 2), 42: (5, 4), 43: (2, 1), 44: (1, 5), 45: (2, 8), 46: (8, 5), 47: (2, 6), 48: (6, 5),
-    49: (2, 3), 50: (3, 5), 51: (4, 4), 52: (7, 7), 53: (5, 7), 54: (4, 2), 55: (4, 3), 56: (3, 7),
-    57: (5, 5), 58: (2, 2), 59: (5, 6), 60: (6, 2), 61: (5, 2), 62: (4, 7), 63: (6, 3), 64: (3, 6)
-}
-
-# 64卦の爻変データ（8stories.htmlから抽出・固定化）
-HEXAGRAM_CHANGES = {
-    1: {"名前": "乾為天", "初爻変": 44, "二爻変": 13, "三爻変": 10, "四爻変": 9, "五爻変": 14, "上爻変": 43},
-    2: {"名前": "坤為地", "初爻変": 24, "二爻変": 7, "三爻変": 15, "四爻変": 16, "五爻変": 8, "上爻変": 23},
-    3: {"名前": "水雷屯", "初爻変": 8, "二爻変": 60, "三爻変": 63, "四爻変": 42, "五爻変": 24, "上爻変": 17},
-    4: {"名前": "山水蒙", "初爻変": 41, "二爻変": 23, "三爻変": 18, "四爻変": 59, "五爻変": 7, "上爻変": 64},
-    5: {"名前": "水天需", "初爻変": 63, "二爻変": 60, "三爻変": 9, "四爻変": 43, "五爻変": 11, "上爻変": 48},
-    6: {"名前": "天水訟", "初爻変": 36, "二爻変": 10, "三爻変": 12, "四爻変": 44, "五爻変": 59, "上爻変": 47},
-    7: {"名前": "地水師", "初爻変": 19, "二爻変": 2, "三爻変": 46, "四爻変": 40, "五爻変": 29, "上爻変": 4},
-    8: {"名前": "水地比", "初爻変": 3, "二爻変": 29, "三爻変": 39, "四爻変": 45, "五爻変": 2, "上爻変": 20},
-    9: {"名前": "風天小畜", "初爻変": 10, "二爻変": 16, "三爻変": 57, "四爻変": 37, "五爻変": 61, "上爻変": 1},
-    10: {"名前": "天沢履", "初爻変": 9, "二爻変": 15, "三爻変": 6, "四爻変": 25, "五爻変": 1, "上爻変": 61},
-    11: {"名前": "地天泰", "初爻変": 12, "二爻変": 46, "三爻変": 36, "四爻変": 19, "五爻変": 34, "上爻変": 5},
-    12: {"名前": "天地否", "初爻変": 11, "二爻変": 25, "三爻変": 6, "四爻変": 33, "五爻変": 20, "上爻変": 35},
-    13: {"名前": "天火同人", "初爻変": 14, "二爻変": 7, "三爻変": 37, "四爻変": 30, "五爻変": 33, "上爻変": 49},
-    14: {"名前": "火天大有", "初爻変": 13, "二爻変": 8, "三爻変": 50, "四爻変": 30, "五爻変": 38, "上爻変": 26},
-    15: {"名前": "地山謙", "初爻変": 16, "二爻変": 10, "三爻変": 39, "四爻変": 52, "五爻変": 2, "上爻変": 62},
-    16: {"名前": "雷地豫", "初爻変": 15, "二爻変": 9, "三爻変": 51, "四爻変": 40, "五爻変": 62, "上爻変": 2},
-    17: {"名前": "沢雷随", "初爻変": 18, "二爻変": 18, "三爻変": 3, "四爻変": 51, "五爻変": 25, "上爻変": 45},
-    18: {"名前": "山風蠱", "初爻変": 17, "二爻変": 17, "三爻変": 50, "四爻変": 57, "五爻変": 46, "上爻変": 26},
-    19: {"名前": "地沢臨", "初爻変": 20, "二爻変": 33, "三爻変": 7, "四爻変": 24, "五爻変": 11, "上爻変": 54},
-    20: {"名前": "風地観", "初爻変": 19, "二爻変": 34, "三爻変": 12, "四爻変": 23, "五爻変": 8, "上爻変": 42},
-    21: {"名前": "火雷噬嗑", "初爻変": 22, "二爻変": 48, "三爻変": 27, "四爻変": 25, "五爻変": 51, "上爻変": 35},
-    22: {"名前": "山火賁", "初爻変": 21, "二爻変": 47, "三爻変": 30, "四爻変": 37, "五爻変": 52, "上爻変": 26},
-    23: {"名前": "山地剝", "初爻変": 24, "二爻変": 43, "三爻変": 27, "四爻変": 4, "五爻変": 52, "上爻変": 35},
-    24: {"名前": "地雷復", "初爻変": 2, "二爻変": 36, "三爻変": 19, "四爻変": 21, "五爻変": 17, "上爻変": 25},
-    25: {"名前": "天雷无妄", "初爻変": 26, "二爻変": 46, "三爻変": 42, "四爻変": 21, "五爻変": 17, "上爻変": 12},
-    26: {"名前": "山天大畜", "初爻変": 25, "二爻変": 45, "三爻変": 14, "四爻変": 9, "五爻変": 11, "上爻変": 18},
-    27: {"名前": "山雷頤", "初爻変": 28, "二爻変": 27, "三爻変": 21, "四爻変": 42, "五爻変": 24, "上爻変": 23},
-    28: {"名前": "澤風大過", "初爻変": 27, "二爻変": 28, "三爻変": 48, "四爻変": 32, "五爻変": 47, "上爻変": 43},
-    29: {"名前": "坎為水", "初爻変": 29, "二爻変": 30, "三爻変": 60, "四爻変": 8, "五爻変": 48, "上爻変": 47},
-    30: {"名前": "離為火", "初爻変": 30, "二爻変": 29, "三爻変": 22, "四爻変": 13, "五爻変": 55, "上爻変": 56},
-    31: {"名前": "沢山咸", "初爻変": 32, "二爻変": 41, "三爻変": 39, "四爻変": 62, "五爻変": 33, "上爻変": 49},
-    32: {"名前": "雷風恒", "初爻変": 31, "二爻変": 42, "三爻変": 46, "四爻変": 28, "五爻変": 50, "上爻変": 34},
-    33: {"名前": "天山遯", "初爻変": 34, "二爻変": 19, "三爻変": 53, "四爻変": 56, "五爻変": 31, "上爻変": 13},
-    34: {"名前": "雷天大壮", "初爻変": 33, "二爻変": 20, "三爻変": 11, "四爻変": 43, "五爻変": 16, "上爻変": 14},
-    35: {"名前": "火地晋", "初爻変": 36, "二爻変": 5, "三爻変": 23, "四爻変": 12, "五爻変": 16, "上爻変": 21},
-    36: {"名前": "地火明夷", "初爻変": 35, "二爻変": 6, "三爻変": 55, "四爻変": 63, "五爻変": 22, "上爻変": 15},
-    37: {"名前": "風火家人", "初爻変": 38, "二爻変": 40, "三爻変": 13, "四爻変": 22, "五爻変": 63, "上爻変": 53},
-    38: {"名前": "火沢睽", "初爻変": 37, "二爻変": 39, "三爻変": 41, "四爻変": 10, "五爻変": 54, "上爻変": 64},
-    39: {"名前": "水山蹇", "初爻変": 40, "二爻変": 38, "三爻変": 31, "四爻変": 15, "五爻変": 53, "上爻変": 63},
-    40: {"名前": "雷水解", "初爻変": 39, "二爻変": 37, "三爻変": 7, "四爻変": 47, "五爻変": 16, "上爻変": 54},
-    41: {"名前": "山沢損", "初爻変": 42, "二爻変": 31, "三爻変": 61, "四爻変": 60, "五爻変": 19, "上爻変": 4},
-    42: {"名前": "風雷益", "初爻変": 41, "二爻変": 32, "三爻変": 25, "四爻変": 27, "五爻変": 3, "上爻変": 20},
-    43: {"名前": "沢天夬", "初爻変": 44, "二爻変": 23, "三爻変": 5, "四爻変": 34, "五爻変": 1, "上爻変": 28},
-    44: {"名前": "天風姤", "初爻変": 43, "二爻変": 24, "三爻変": 57, "四爻変": 50, "五爻変": 28, "上爻変": 1},
-    45: {"名前": "沢地萃", "初爻変": 46, "二爻変": 26, "三爻変": 8, "四爻変": 16, "五爻変": 12, "上爻変": 17},
-    46: {"名前": "地風升", "初爻変": 45, "二爻変": 25, "三爻変": 32, "四爻変": 48, "五爻変": 18, "上爻変": 11},
-    47: {"名前": "沢水困", "初爻変": 48, "二爻変": 22, "三爻変": 29, "四爻変": 40, "五爻変": 6, "上爻変": 58},
-    48: {"名前": "水風井", "初爻変": 47, "二爻変": 21, "三爻変": 28, "四爻変": 46, "五爻変": 57, "上爻変": 5},
-    49: {"名前": "沢火革", "初爻変": 50, "二爻変": 4, "三爻変": 63, "四爻変": 55, "五爻変": 13, "上爻変": 31},
-    50: {"名前": "火風鼎", "初爻変": 49, "二爻変": 3, "三爻変": 18, "四爻変": 44, "五爻変": 32, "上爻変": 14},
-    51: {"名前": "震為雷", "初爻変": 52, "二爻変": 57, "三爻変": 24, "四爻変": 17, "五爻変": 21, "上爻変": 16},
-    52: {"名前": "艮為山", "初爻変": 51, "二爻変": 58, "三爻変": 22, "四爻変": 18, "五爻変": 23, "上爻変": 56},
-    53: {"名前": "風山漸", "初爻変": 54, "二爻変": 54, "三爻変": 33, "四爻変": 52, "五爻変": 39, "上爻変": 37},
-    54: {"名前": "雷沢帰妹", "初爻変": 53, "二爻変": 53, "三爻変": 19, "四爻変": 58, "五爻変": 38, "上爻変": 40},
-    55: {"名前": "雷火豊", "初爻変": 56, "二爻変": 59, "三爻変": 36, "四爻変": 49, "五爻変": 30, "上爻変": 62},
-    56: {"名前": "火山旅", "初爻変": 55, "二爻変": 60, "三爻変": 30, "四爻変": 50, "五爻変": 35, "上爻変": 52},
-    57: {"名前": "巽為風", "初爻変": 58, "二爻変": 51, "三爻変": 44, "四爻変": 18, "五爻変": 48, "上爻変": 9},
-    58: {"名前": "兌為沢", "初爻変": 57, "二爻変": 52, "三爻変": 60, "四爻変": 47, "五爻変": 17, "上爻変": 10},
-    59: {"名前": "風水渙", "初爻変": 60, "二爻変": 55, "三爻変": 6, "四爻変": 4, "五爻変": 29, "上爻変": 61},
-    60: {"名前": "水沢節", "初爻変": 59, "二爻変": 56, "三爻変": 58, "四爻変": 19, "五爻変": 61, "上爻変": 29},
-    61: {"名前": "風沢中孚", "初爻変": 62, "二爻変": 62, "三爻変": 10, "四爻変": 41, "五爻変": 60, "上爻変": 59},
-    62: {"名前": "雷山小過", "初爻変": 61, "二爻変": 61, "三爻変": 15, "四爻変": 31, "五爻変": 56, "上爻変": 55},
-    63: {"名前": "水火既済", "初爻変": 63, "二爻変": 62, "三爻変": 49, "四爻変": 36, "五爻変": 37, "上爻変": 64},
-    64: {"名前": "火水未済", "初爻変": 64, "二爻変": 62, "三爻変": 63, "四爻変": 49, "五爻変": 37, "上爻変": 63}
-}
-
-
-def create_database():
-    print(f"データベースファイル '{DB_FILE}' を構築します。")
-    if os.path.exists(DB_FILE):
-        os.remove(DB_FILE)
-
-    conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-
-    print("テーブルを作成中...")
-    # テーブル定義
-    cursor.execute('CREATE TABLE trigrams_master (trigram_id INTEGER PRIMARY KEY, name_jp TEXT, name_en TEXT, element TEXT)')
-    cursor.execute('CREATE TABLE element_relationships (relationship_id INTEGER PRIMARY KEY, source_element TEXT, target_element TEXT, relationship_type TEXT, metaphor_text TEXT)')
-    cursor.execute('CREATE TABLE hexagrams_master (hexagram_id INTEGER PRIMARY KEY, name_jp TEXT, upper_trigram_id INTEGER, lower_trigram_id INTEGER, description TEXT, keywords TEXT)')
-    cursor.execute('CREATE TABLE mbti_map (mbti_type TEXT PRIMARY KEY, hexagram_id INTEGER)')
-    # H384.csvのヘッダーに合わせたテーブル定義
-    cursor.execute('CREATE TABLE "384_master" (爻名 TEXT, 通し番号 INTEGER PRIMARY KEY, 卦番号 INTEGER, 爻 TEXT, 爻辞 TEXT, 現代解釈の要約 TEXT, パターンの分類 TEXT, 点数 REAL, キーワード TEXT, 親となる卦 TEXT, キーワードタグ TEXT, S1_基本スコア REAL, S2_ポテンシャル REAL, S3_安定性スコア REAL, S4_リスク REAL, S5_主体性 TEXT, S6_変動性スコア REAL, S7_総合評価スコア REAL, 論理キーワードタグ TEXT)')
-    cursor.execute('CREATE TABLE "64_master" (卦番号 INTEGER PRIMARY KEY, 名前 TEXT, 初爻変 INTEGER, 二爻変 INTEGER, 三爻変 INTEGER, 四爻変 INTEGER, 五爻変 INTEGER, 上爻変 INTEGER)')
+def import_hexagrams_from_csv(conn, cursor):
+    """ CSVから64卦データをインポートする """
+    # 読み込むCSVファイル名を指定
+    csv_file_path = os.path.join(CSV_DIR, "６４卦　錯卦綜卦互卦変爻卦　テキスト.csv")
+    
+    if not os.path.exists(csv_file_path):
+        print(f"エラー: CSVファイルが見つかりません: {csv_file_path}")
+        return
+        
+    print(f"'{csv_file_path}' からデータを読み込みます...")
     
     try:
-        # 静的データの挿入 (五行の関係性テキストは省略)
-        trigrams_data = [(1, '乾', '天', '金'),(2, '兌', '沢', '金'),(3, '離', '火', '火'),(4, '震', '雷', '木'),(5, '巽', '風', '木'),(6, '坎', '水', '水'),(7, '艮', '山', '土'),(8, '坤', '地', '土')]
-        cursor.executemany('INSERT INTO trigrams_master VALUES (?, ?, ?, ?)', trigrams_data)
-        metaphors = [('木','火','相生','...'),('火','土','相生','...'),('土','金','相生','...'),('金','水','相生','...'),('水','木','相生','...'),('木','土','相剋','...'),('土','水','相剋','...'),('水','火','相剋','...'),('火','金','相剋','...'),('金','木','相剋','...')]
-        # metaphor_textが5番目のカラムなのでNULLを1つ追加
-        cursor.executemany('INSERT INTO element_relationships VALUES (NULL, ?, ?, ?, ?)', metaphors)
-
-        print("CSVデータをインポート中...")
-        # 1,2,3.csvから人格OSデータをインポート
-        with open(os.path.join(SCRIPT_DIR, CSV_FILES['master_info']), 'r', encoding='utf-8-sig') as f_master, \
-             open(os.path.join(SCRIPT_DIR, CSV_FILES['features']), 'r', encoding='utf-8-sig') as f_feat:
-            master_reader = csv.reader(f_master); next(master_reader, None)
-            features_reader = csv.reader(f_feat); next(features_reader, None)
-            master_info_map = {row[0].strip(): {'name': row[1].strip(), 'keywords': row[6].strip()} for row in master_reader if row and len(row) > 6 and row[0].isdigit()}
-            features_data = {row[0].strip(): row[5].strip() for row in features_reader if row and len(row) > 5 and row[0].isdigit()}
-            
-            hex_data_to_insert = []
-            for hex_id_str, info in master_info_map.items():
-                hex_id = int(hex_id_str)
-                composition = HEXAGRAM_COMPOSITION.get(hex_id)
-                if composition:
-                    hex_data_to_insert.append((hex_id, info.get('name', ''), composition[0], composition[1], features_data.get(hex_id_str, ''), info.get('keywords', '')))
-            cursor.executemany("INSERT INTO hexagrams_master VALUES (?, ?, ?, ?, ?, ?)", hex_data_to_insert)
-            print(f" - hexagrams_master に {len(hex_data_to_insert)} 件挿入しました。")
-        
-        with open(os.path.join(SCRIPT_DIR, CSV_FILES['mbti']), 'r', encoding='utf-8-sig') as f:
-             conn.row_factory = sqlite3.Row
-             temp_cursor = conn.cursor()
-             hex_name_to_id = {row['name_jp'].strip(): row['hexagram_id'] for row in temp_cursor.execute('SELECT name_jp, hexagram_id FROM hexagrams_master').fetchall()}
-             conn.row_factory = None
-             mbti_to_insert = []
-             reader = csv.reader(f); next(reader, None)
-             for row in reader:
-                 if row and len(row) > 2:
-                     hex_id = hex_name_to_id.get(row[2].strip())
-                     if hex_id: mbti_to_insert.append((row[0].strip(), hex_id))
-             cursor.executemany('INSERT INTO mbti_map VALUES (?,?)', mbti_to_insert)
-             print(f" - mbti_map に {len(mbti_to_insert)} 件挿入しました。")
-
-        # H384.csvから384_masterのデータをインポート
-        with open(os.path.join(SCRIPT_DIR, CSV_FILES['h384']), 'r', encoding='utf-8-sig') as f:
-            reader = csv.reader(f); next(reader, None) # ヘッダーをスキップ
-            h384_to_insert = [tuple(row) for row in reader]
-            cursor.executemany('INSERT INTO "384_master" VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', h384_to_insert)
-            print(f" - 384_master に {len(h384_to_insert)} 件挿入しました。")
-        
-        # 静的データから64_masterのデータをインポート
-        h64_to_insert = []
-        for hex_id, data in HEXAGRAM_CHANGES.items():
-            h64_row = (hex_id, data['名前'], data['初爻変'], data['二爻変'], data['三爻変'], data['四爻変'], data['五爻変'], data['上爻変'])
-            h64_to_insert.append(h64_row)
-        cursor.executemany('INSERT INTO "64_master" VALUES (?,?,?,?,?,?,?,?)', h64_to_insert)
-        print(f" - 64_master に {len(h64_to_insert)} 件挿入しました。")
-            
-    except FileNotFoundError as e:
-        print(f"\n[致命的エラー] CSVファイルが見つかりません: {e.filename}")
-    except Exception as e:
-        print(f"\n[致命的エラー] データベース構築中に予期せぬエラーが発生しました: {e}")
-        import traceback
-        traceback.print_exc()
-    finally:
+        df = pd.read_csv(csv_file_path)
+        # ★★★ 実際のCSV列名に合わせてデータを挿入 ★★★
+        for index, row in df.iterrows():
+            cursor.execute('''
+                INSERT INTO hexagrams_master (
+                    hexagram_id, name_jp, description, keywords, 
+                    goka_name, goka_description, 
+                    sakka_name, sakka_description, 
+                    souka_name, souka_description,
+                    henko_1_name, henko_2_name, henko_3_name,
+                    henko_4_name, henko_5_name, henko_6_name
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                row['卦番号'], row['卦名'], row['基本的な特徴'], row['キーワード'],
+                row['互卦'], row['内なる本質'], row['錯卦'], row['逆の視点'],
+                row['綜卦'], row['裏からの視点'], row['初爻変'], row['二爻変'],
+                row['三爻変'], row['四爻変'], row['五爻変'], row['上爻変']
+            ))
         conn.commit()
-        conn.close()
-        print(f"\nデータベース '{DB_FILE}' の構築が完了しました。")
+        print(f"{len(df)} 件のデータを 'hexagrams_master' に挿入しました。")
+    except KeyError as e:
+        print(f"エラー: CSVファイルに予期された列が見つかりません: {e}")
+    except Exception as e:
+        print(f"予期せぬエラーが発生しました: {e}")
+
+def main():
+    """ メインの処理 """
+    db_path = os.path.join(os.path.dirname(__file__), '..', DB_FILE)
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    create_hexagrams_master_table(cursor)
+    import_hexagrams_from_csv(conn, cursor)
+    
+    conn.close()
+    print("データベースの更新が完了しました。")
 
 if __name__ == '__main__':
-    create_database()
+    main()
