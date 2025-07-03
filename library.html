@@ -797,7 +797,6 @@
           );
 
           if (mainData) {
-            // ▼▼▼ ここから変更 ▼▼▼
             // 「卦の構造分析」の関係性テキストをセット
             document.getElementById("goka-description").textContent =
               mainData["互卦との関係性"] || "";
@@ -805,7 +804,6 @@
               mainData["錯卦との関係性（対極の世界）"] || "";
             document.getElementById("souka-description").textContent =
               mainData["綜卦との関係性（裏の視点）"] || "";
-            // ▲▲▲ ここまで変更 ▲▲▲
 
             // 「現代的アプローチ」セクションをセット
             if (modernContainer) {
@@ -896,6 +894,7 @@
           setActiveLine(0);
         }
 
+        // ▼▼▼ ここから変更 ▼▼▼
         function updateAnalyzerText(currentHex, lineIndex) {
           const textContainer = document.getElementById("analyzer-text");
           const startNum = hexStartIndices[currentHex.hexagram_id];
@@ -912,14 +911,46 @@
           };
 
           let henkoHtml = "";
+          const mainData = MAIN_DB.find(
+            (d) => d.卦番号 === currentHex.hexagram_id
+          );
+
+          // 通常の爻変 (初爻から上爻まで)
           if (lineIndex < 6) {
             const henkoHex = findHenko(currentHex, lineIndex);
             if (henkoHex) {
-              henkoHtml = `<div class="mt-4 pt-4 border-t border-gray-700"><p class="text-sm text-gray-400">この爻が変化すると...</p><a class="font-bold text-lg text-green-300 clickable-hex" data-hex-id="${
+              const henkoLinkHtml = `<a class="font-bold text-lg text-green-300 clickable-hex" data-hex-id="${
                 henkoHex.hexagram_id
               }">${henkoHex.hexagram_id}. ${escapeHTML(
                 henkoHex.name_jp
-              )}</a><p class="text-sm text-gray-400">に変わります。（之卦）</p></div>`;
+              )}</a><p class="text-sm text-gray-400">に変わります。（之卦）</p>`;
+
+              const lineNames = ["初", "二", "三", "四", "五", "上"];
+              const relationKey = `${lineNames[lineIndex]}爻変との関係性`;
+              let relationText = "";
+              if (mainData && mainData[relationKey]) {
+                relationText = `<div class="mt-2 text-sm text-gray-300">${nl2br(
+                  mainData[relationKey]
+                )}</div>`;
+              }
+
+              henkoHtml = `<div class="mt-4 pt-4 border-t border-gray-700"><p class="text-sm text-gray-400">この爻が変化すると...</p>${henkoLinkHtml}${relationText}</div>`;
+            }
+          }
+          // 用九・用六の特殊なケース
+          else if (lineIndex === 6) {
+            let relationKey = "";
+            if (currentHex.hexagram_id === 1) relationKey = "用九変との関係性";
+            if (currentHex.hexagram_id === 2) relationKey = "用六変との関係性";
+
+            let relationText = "";
+            if (mainData && mainData[relationKey]) {
+              relationText = `<div class="mt-2 text-sm text-gray-300">${nl2br(
+                mainData[relationKey]
+              )}</div>`;
+            }
+            if (relationText) {
+              henkoHtml = `<div class="mt-4 pt-4 border-t border-gray-700">${relationText}</div>`;
             }
           }
 
@@ -933,6 +964,8 @@
             } -</span></p><div class="prose prose-invert max-w-none text-gray-300"><strong>【推奨される行動理由】</strong><br>${nl2br(
               shoData.reason
             )}</div>${henkoHtml}`;
+
+            // henkoHtml内に生成されたリンクにイベントリスナーを再設定
             const henkoLink = textContainer.querySelector(".clickable-hex");
             if (henkoLink) {
               henkoLink.addEventListener("click", (e) => {
@@ -944,6 +977,7 @@
             textContainer.innerHTML = `<p class="text-gray-400">この爻のデータが見つかりません。（通し番号: ${lineNum}）</p>`;
           }
         }
+        // ▲▲▲ ここまで変更 ▲▲▲
 
         function renderJuyokuContent() {
           const tuanContainer = document.getElementById("tuan-list");
