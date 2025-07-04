@@ -1,6 +1,4 @@
 // ファイルパス: /netlify/functions/professional-ai.js (最終・完成版)
-// これまでの全てのバグを修正し、データ構造に完全に準拠した最終バージョンです。
-
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
