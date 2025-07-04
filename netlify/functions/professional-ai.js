@@ -1,4 +1,4 @@
-// ファイルパス: /netlify/functions/professional-ai.js (v3.3 最終改善版)
+// ファイルパス: /netlify/functions/professional-ai.js (v3.5 最終修正版)
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
@@ -58,19 +58,18 @@ async function generateProfessionalReportSections(
 ) {
   const os1 = analysisResult.hexagram_candidates[0];
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-
   const hasContext =
     userContext.issue &&
     userContext.issue.trim() &&
     userContext.issue !== "特になし";
 
-  const prompt = `あなたは「HaQei アナライザー」の最高専門家AIです。東洋哲学と心理学の深い知識を持ち、ユーザーの分析結果と個人的な状況を統合し、ユーザーが「これは私のための戦略書だ」と感じ、次の一歩を踏み出したくなるような、希望に満ちた具体的なレポートを作成してください。
+  const prompt = `あなたは「HaQei アナライザー」の最高専門家AIです。東洋哲学と心理学の叡智を統合した「HaQei アナライザー」の最高専門家AIです。ユーザーの分析結果と個人的な状況を深く洞察し、ユーザーが「これは私のための戦略書だ」と感じ、次の一歩を踏み出したくなるような、希望に満ちた具体的なレポートを作成してください。
 
 # 絶対的ルール
 - **出力は必ず、以下のキーを持つJSONオブジェクトのみ**とします: \`{"dynamics": "...", "overview": "...", "action": "...", "next_steps": "..."}\`
 - 各キーの値は、HTMLのpタグやulタグで構成される文字列とします。
 - hタグなどの見出しタグは**一切含めないでください**。
-- 文章は、ユーザーに深く寄り添い、希望を与えるような、プロフェッショナルかつ温かいトーンで記述してください。
+- 文章は、ユーザーに深く寄り添い、希望と具体的な気づきを与える、プロフェッショナルかつ温かいトーンで記述してください。
 - ${
     hasContext
       ? "ユーザーの「課題」と「OSの力学」を具体的に結びつけて解説してください。"
@@ -112,7 +111,7 @@ async function generateProfessionalReportSections(
 ### 4. "next_steps" (さらなる探求へ)
 今回の分析結果を手に、「未来分岐シミュレーター」を使うと、どのような気づきが得られるかを具体的に示唆してください。${
     hasContext
-      ? `「あなたのエンジンOSである【${os1.name_jp}】を携えて、もし現在の課題に対して『進』のアクションを取ると、どのような未来が展開されるか見てみましょう」`
+      ? `「あなたのエンジンOSである【${os1.name_jp}】を携えて、もし現在の課題『${userContext.issue}』に対して『進』のアクションを取ると、どのような未来が展開されるか見てみましょう」`
       : `「あなたのエンジンOS【${os1.name_jp}】の力を、もし『進』のアクションで使い続けると、3ステップ先でどのような状況に至るか見てみましょう」`
   }といった形で、次のツール利用へと自然に誘導してください。
 `;
@@ -137,7 +136,6 @@ function assembleFullReportHtml(analysisResult, userContext, aiSectionsObject) {
   const os2 = analysisResult.hexagram_candidates[1];
   const os3 = analysisResult.hexagram_candidates[2];
 
-  // ★★★ 色の定義を追加 ★★★
   const trigram_colors = {
     1: "#F9FAFB",
     2: "#70D6FF",
@@ -149,9 +147,8 @@ function assembleFullReportHtml(analysisResult, userContext, aiSectionsObject) {
     8: "#A16207",
   };
   const getBorderColor = (hexagram) =>
-    trigram_colors[hexagram.upper_trigram_id] || "#6b7280"; // デフォルトはグレー
+    trigram_colors[hexagram.upper_trigram_id] || "#6b7280";
 
-  // ★★★ 入力値の有無で分岐するロジックを強化 ★★★
   const hasContext =
     userContext.issue &&
     userContext.issue.trim() &&
@@ -173,33 +170,35 @@ function assembleFullReportHtml(analysisResult, userContext, aiSectionsObject) {
   const contextSection = `<div class="report-block"><h4>0. はじめに - あなたの現在地</h4>${contextHtml}</div>`;
 
   const os_manual = HAQEI_DATA.os_manual || {};
-  const tai_sho_den = HAQEI_DATA.bible?.tai_sho_den || {};
-  const zatsu_ka_den = HAQEI_DATA.bible?.zatsu_ka_den || {};
+  const bibleData = HAQEI_DATA.bible || {};
+  const tai_sho_den = bibleData.tai_sho_den || {};
+  const zatsu_ka_den = bibleData.zatsu_ka_den || {};
 
-  // ★★★ OS解説カード生成ヘルパー関数を新設 ★★★
+  // ★★★ ここで変数名のタイプミスを修正 ★★★
   const createOsItem = (os, type, color) => {
     const manual = os_manual[os.hexagram_id] || {};
-    const taisyo = tai_sho_den[os.hexagram_id] || "";
-    const zatsu = zatsu_ka_den ? zatsu_ka_den[os.hexagram_id] : null;
+    const taishoText = tai_sho_den[os.hexagram_id] || ""; // 変数名を'taishoText'に統一
+    const zatsuData = zatsu_ka_den[os.hexagram_id];
     const zatsu_pair_name =
-      zatsu && HAQEI_DATA.hexagrams_master
+      zatsuData && HAQEI_DATA.hexagrams_master
         ? HAQEI_DATA.hexagrams_master.find(
-            (h) => h.hexagram_id === zatsu.pair_id
+            (h) => h.hexagram_id === zatsuData.pair_id
           )?.name_jp || ""
         : "";
 
     let extended_info = `<div class="mt-3 pt-3 border-t border-gray-700/50 text-xs space-y-2">`;
-    if (taisho) {
-      extended_info += `<p><strong>自然からの教え（大象伝）:</strong> ${taisho.replace(
+    if (taishoText) {
+      // 正しい変数名でチェック
+      extended_info += `<p><strong>自然からの教え（大象伝）:</strong> ${taishoText.replace(
         /\n/g,
         " "
       )}</p>`;
     }
-    if (zatsu) {
+    if (zatsuData && zatsu_pair_name) {
       extended_info += `<p><strong>本質の対比（雑卦伝）:</strong> このOSは<strong>「${
-        zatsu.contrast_theme.split("と")[0]
+        zatsuData.contrast_theme.split("と")[0]
       }」</strong>を象徴し、対となる<strong>${zatsu_pair_name}</strong>の「${
-        zatsu.contrast_theme.split("と")[1]
+        zatsuData.contrast_theme.split("と")[1]
       }」と対比することで、その本質がより明確になります。</p>`;
     }
     extended_info += `</div>`;
@@ -207,7 +206,7 @@ function assembleFullReportHtml(analysisResult, userContext, aiSectionsObject) {
     return `<li class="p-4 bg-gray-900/50 rounded-lg border-l-4" style="border-color: ${color};">
                 <strong>【${type}：${os.name_jp}】</strong><br>
                 <span class="text-sm">${manual.summary || os.description}</span>
-                ${taisho || zatsu ? extended_info : ""}
+                ${taishoText || zatsuData ? extended_info : ""}
               </li>`;
   };
 
