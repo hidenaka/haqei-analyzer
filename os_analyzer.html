@@ -55,8 +55,6 @@
         background-color: #1f2937;
         color: #d1d5db;
       }
-
-      /* 64卦マップのスタイル */
       .hex-map-container {
         display: grid;
         grid-template-columns: 2.5rem repeat(8, 1fr);
@@ -156,7 +154,6 @@
         border: 2px dotted #34d399;
         box-shadow: 0 0 10px #34d399;
       }
-
       #hex-map-info details summary {
         cursor: pointer;
         display: inline-block;
@@ -182,7 +179,6 @@
       #hex-map-info .relation-block:last-child {
         border-bottom: none;
       }
-
       .modal-overlay {
         transition: opacity 0.3s ease;
       }
@@ -206,7 +202,6 @@
         </h1>
         <p class="text-gray-400 mt-3 text-xl">人格OS 分析レポート</p>
       </header>
-
       <div
         id="input-container"
         class="bg-gray-900/50 p-6 rounded-xl mb-10 space-y-6"
@@ -257,10 +252,8 @@
           分析を実行
         </button>
       </div>
-
       <div id="report-container" class="hidden"></div>
     </div>
-
     <div
       id="modalContainer"
       class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden"
@@ -338,7 +331,6 @@
             8: "#A16207",
           },
         };
-        // --- プルダウンの重複選択防止と初期化 ---
         const handleDuplicateSelection = (selects) => {
           const selectedValues = new Set();
           selects.forEach((s) => {
@@ -452,7 +444,16 @@
           const sf_weights = [1.0, 0.9, 0.8, 0.7, 0.6];
           const keyword_weight = 1.5;
           const duplicationPenalty = 0.95;
-          let total_scores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+          let total_scores = {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0,
+            6: 0,
+            7: 0,
+            8: 0,
+          };
           let score_breakdown = { mbti: null, enneagram: [], sf: [] };
           const mbtiData = HDB.mbti_map.find(
             (m) => m.mbti_type === userProfile.mbti
@@ -544,11 +545,10 @@
             score_breakdown,
           };
         };
+
         const renderReport = (userProfile, result) => {
           const { trigram_profile, hexagram_candidates, score_breakdown } =
             result;
-
-          // 各セクションを生成するヘルパー関数
           const createIntroSection = () => {
             const mbtiNickname =
               HDB.mbti_nicknames.find((n) => n.type === userProfile.mbti)
@@ -620,6 +620,95 @@
                     </div>
                 </div>
             `;
+          const createTrinityModelSection = () => {
+            const os1 = hexagram_candidates[0]; // Engine
+            const os2 = hexagram_candidates[1]; // Interface
+            const os3 = hexagram_candidates[2]; // Safe Mode
+
+            const createOsCard = (osData) => {
+              return `
+                <div class="bg-gray-900/40 border border-${osData.color}-500/30 p-5 rounded-xl shadow-lg h-full flex flex-col">
+                    <h4 class="text-lg font-bold text-${osData.color}-300 flex items-center">
+                    <span class="text-2xl mr-2">${osData.icon}</span>
+                    ${osData.title}
+                    </h4>
+                    <p class="text-base font-semibold text-gray-200 mt-1">${osData.hex.name_jp}</p>
+                    <p class="text-xs text-gray-400 mt-1 mb-3">${osData.subtitle}</p>
+                    <p class="text-sm leading-relaxed flex-grow">${osData.explanation}</p>
+                </div>
+                `;
+            };
+
+            const osInfo = {
+              engine: {
+                title: "エンジンOS",
+                subtitle: "無意識にあなたを動かす、魂の動力源",
+                hex: os1,
+                color: "orange",
+                icon: "🔥",
+                explanation:
+                  "あなたが意識する・しないに関わらず、最も自然で強力にあなたを突き動かす根源的なエネルギー。あなたの行動や価値観の「なぜ？」に答える、魂のエンジンです。自分では当たり前すぎて気づかないことが多い、本来の姿です。",
+              },
+              interface: {
+                title: "インターフェースOS",
+                subtitle: "世界と関わるための、あなたの社会的な仮面",
+                hex: os2,
+                color: "sky",
+                icon: "🎭",
+                explanation:
+                  "「エンジンOS」の力を、社会や他者との関わりの中で、どのように表現しているかを示すOS。いわば、世界と接続するための「ペルソナ」や「コミュニケーションスタイル」です。ここを理解することで「内なる自分」と「他人から見られる自分」のギャップが腑に落ちます。",
+              },
+              safe_mode: {
+                title: "セーフモードOS",
+                subtitle: "困難な時に立ち返る、あなたの心の安全地帯",
+                hex: os3,
+                color: "green",
+                icon: "🛡️",
+                explanation:
+                  "あなたがストレスを感じたり、困難に直面した時に、無意識に立ち返る「心の安全地帯」または「初期設定」です。良くも悪くも、あなたの思考や行動の土台となるOSであり、自分の「癖」や「原点」を教えてくれます。",
+              },
+            };
+
+            return `
+                <div class="report-section">
+                    <h3>あなたのOS「三位一体」モデル</h3>
+                    <p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p>
+                    
+                    <div class="mt-8">
+                        <div class="hidden md:grid md:grid-cols-3 md:gap-8 md:items-start">
+                            <div class="flex flex-col justify-center items-center h-full">
+                                ${createOsCard(osInfo.engine)}
+                            </div>
+                            <div class="flex flex-col justify-center items-center h-full px-4">
+                                <img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="w-full h-auto max-w-sm">
+                            </div>
+                            <div class="flex flex-col justify-center items-center h-full space-y-8">
+                                ${createOsCard(osInfo.interface)}
+                                ${createOsCard(osInfo.safe_mode)}
+                            </div>
+                        </div>
+
+                        <div class="md:hidden mt-6 flex flex-col items-center">
+                            <div class="w-full max-w-md">${createOsCard(
+                              osInfo.engine
+                            )}</div>
+                            <div class="text-center text-3xl font-thin text-gray-500 my-4">↓</div>
+                            <div class="w-full max-w-md">${createOsCard(
+                              osInfo.interface
+                            )}</div>
+                            <div class="text-center text-3xl font-thin text-gray-500 my-4">↓</div>
+                            <div class="w-full max-w-md">${createOsCard(
+                              osInfo.safe_mode
+                            )}</div>
+                            <div class="my-8">
+                                <img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="w-full h-auto max-w-xs">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+          };
+
           const createArchitectureSection = () => {
             const osTypes = [
               {
@@ -707,82 +796,6 @@
 
             return `<div><h3 class="text-2xl text-center font-bold text-white mt-12 mb-6">あなたのOSアーキテクチャ</h3>${mapHtml}<div class="space-y-8 mt-8">${osSections}</div></div>`;
           };
-
-          // ▼▼▼【v19.0 追加】三位一体モデルの解説セクション生成関数 ▼▼▼
-
-          const createTrinityModelSection = () => {
-            const os1 = hexagram_candidates[0]; // Engine
-            const os2 = hexagram_candidates[1]; // Interface
-            const os3 = hexagram_candidates[2]; // Safe Mode
-
-            const osData = [
-              {
-                title: "エンジンOS",
-                subtitle: "無意識にあなたを動かす、魂の動力源",
-                hex: os1,
-                color: "orange",
-                icon: "🔥",
-                explanation:
-                  "あなたが意識する・しないに関わらず、最も自然で強力にあなたを突き動かす根源的なエネルギー。あなたの行動や価値観の「なぜ？」に答える、魂のエンジンです。自分では当たり前すぎて気づかないことが多い、本来の姿です。",
-                positionClasses:
-                  "md:top-1/2 md:right-full md:-translate-y-1/2 md:mr-8",
-              },
-              {
-                title: "インターフェースOS",
-                subtitle: "世界と関わるための、あなたの社会的な仮面",
-                hex: os2,
-                color: "sky",
-                icon: "🎭",
-                explanation:
-                  "「エンジンOS」の力を、社会や他者との関わりの中で、どのように表現しているかを示すOS。いわば、世界と接続するための「ペルソナ」や「コミュニケーションスタイル」です。ここを理解することで「内なる自分」と「他人から見られる自分」のギャップが腑に落ちます。",
-                positionClasses: "md:top-0 md:left-full md:ml-8",
-              },
-              {
-                title: "セーフモードOS",
-                subtitle: "困難な時に立ち返る、あなたの心の安全地帯",
-                hex: os3,
-                color: "green",
-                icon: "🛡️",
-                explanation:
-                  "あなたがストレスを感じたり、困難に直面した時に、無意識に立ち返る「心の安全地帯」または「初期設定」です。良くも悪くも、あなたの思考や行動の土台となるOSであり、自分の「癖」や「原点」を教えてくれます。",
-                positionClasses: "md:bottom-0 md:left-full md:ml-8",
-              },
-            ];
-
-            let osCardsHtml = osData
-              .map(
-                (os) => `
-        <div class="md:absolute ${os.positionClasses} w-full md:max-w-xs mb-8 md:mb-0">
-            <div class="bg-gray-900/50 border border-${os.color}-500/30 p-5 rounded-xl shadow-lg h-full">
-                <h4 class="text-lg font-bold text-${os.color}-300 flex items-center">
-                    <span class="text-2xl mr-2">${os.icon}</span>
-                    ${os.title}
-                </h4>
-                <p class="text-base font-semibold text-gray-200 mt-1">${os.hex.name_jp}</p>
-                <p class="text-xs text-gray-400 mt-1 mb-3">${os.subtitle}</p>
-                <p class="text-sm leading-relaxed">${os.explanation}</p>
-            </div>
-        </div>
-    `
-              )
-              .join("");
-
-            return `
-        <div class="report-section">
-            <h3>あなたのOS「三位一体」モデル</h3>
-            <p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p>
-            
-            <div class="mt-12 relative">
-                <div class="flex justify-center items-center max-w-sm mx-auto">
-                    <img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="w-full h-auto">
-                </div>
-                
-                ${osCardsHtml}
-            </div>
-        </div>
-    `;
-          };
-          // ▼▼▼【v19.0 追加】HaQeiプロフェッショナル機能へのCTAセクション ▼▼▼
           const createProfessionalCtaSection = () => {
             return `
                     <div class="report-section mt-12 border-l-4 border-amber-400">
@@ -797,8 +810,6 @@
                     </div>
                 `;
           };
-
-          // レポート全体のHTMLを構成
           reportContainer.innerHTML =
             createIntroSection() +
             createProfileSection() +
@@ -822,364 +833,7 @@
             .addEventListener("click", showProfessionalInputModal);
 
           window.scrollTo({ top: 0, behavior: "smooth" });
-        }; // --- ▼▼▼【v18.0 追加】HaQeiプロフェッショナル機能関連の関数群 ▼▼▼ ---
-
-        /**
-         * ユーザーの追加情報を入力するモーダルを表示する関数
-         * @param {object} analysisResult - OS分析の結果オブジェクト
-         */
-        const showProfessionalInputModal = () => {
-          const modalContent = `
-                <h3 class="text-xl font-bold text-amber-300 mb-4">HaQeiプロフェッショナル 総合解説</h3>
-                <p class="text-sm text-gray-400 mb-6">あなたのOS分析結果と、以下の任意項目を統合し、あなただけの戦略レポートを生成します。よりパーソナルなアドバイスのために、可能な範囲でご入力ください。</p>
-                <div class="space-y-4">
-                    <div>
-                        <label for="prof-age" class="block text-sm font-medium text-gray-300">年代 (任意)</label>
-                        <select id="prof-age" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5">
-                            <option value="">選択しない</option>
-                            <option value="10代">10代</option>
-                            <option value="20代">20代</option>
-                            <option value="30代">30代</option>
-                            <option value="40代">40代</option>
-                            <option value="50代">50代</option>
-                            <option value="60代以上">60代以上</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="prof-occupation" class="block text-sm font-medium text-gray-300">職業・業界 (任意)</label>
-                        <input type="text" id="prof-occupation" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: ITエンジニア, 医療従事者, 学生">
-                    </div>
-                    <div>
-                        <label for="prof-role" class="block text-sm font-medium text-gray-300">現在の立場・役割 (任意)</label>
-                        <input type="text" id="prof-role" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: チームリーダー, 転職活動中, 二児の母">
-                    </div>
-                     <div>
-                        <label for="prof-issue" class="block text-sm font-medium text-gray-300">今、最も関心のある課題 (任意)</label>
-                        <textarea id="prof-issue" rows="3" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: 部下の育成に悩んでいる, 新しいキャリアパスが見えない"></textarea>
-                    </div>
-                </div>
-                <button id="generate-professional-report-btn" class="w-full mt-8 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">
-                    特別レポートのページへ進む
-                </button>
-            `;
-          showModal(modalContent);
-          document
-            .getElementById("generate-professional-report-btn")
-            .addEventListener("click", redirectToProfessionalReport);
         };
-
-        const redirectToProfessionalReport = () => {
-          const userContext = {
-            age: document.getElementById("prof-age")?.value || "",
-            occupation: document.getElementById("prof-occupation")?.value || "",
-            role: document.getElementById("prof-role")?.value || "",
-            issue: document.getElementById("prof-issue")?.value || "",
-          };
-          const professionalData = {
-            analysis: lastAnalysisResult,
-            profile: lastUserProfile,
-            context: userContext,
-          };
-
-          try {
-            localStorage.setItem(
-              "haqeiProfessionalData",
-              JSON.stringify(professionalData)
-            );
-            window.location.href = "professional_report.html";
-          } catch (e) {
-            console.error("localStorageへの保存に失敗しました: ", e);
-            alert(
-              "レポートデータの保存に失敗しました。ブラウザのプライベートモード等をご利用の場合、機能しない可能性があります。"
-            );
-          }
-        };
-        /**
-         * AIが生成したレポートを表示する関数
-         * @param {object} analysisResult - OS分析の結果オブジェクト
-         * @param {object} userContext - ユーザーが任意で入力した情報
-         */
-        const renderProfessionalReport = (analysisResult, userContext) => {
-          const outputContainer = document.getElementById(
-            "professional-report-output"
-          );
-          outputContainer.innerHTML = `
-                <div class="p-6 bg-gray-900 rounded-lg text-center">
-                    <p class="text-amber-300 animate-pulse">HaQeiプロフェッショナルがあなたのためのレポートを生成中...</p>
-                </div>
-            `;
-
-          // AIの思考時間をシミュレート
-          setTimeout(() => {
-            const reportText = generateProfessionalReportText(
-              analysisResult,
-              userContext
-            );
-            outputContainer.innerHTML = `
-                <div class="p-6 md:p-8 bg-gray-900/50 rounded-2xl border border-amber-400/30 prose prose-invert max-w-none">
-                    ${reportText}
-                </div>`;
-          }, 1500);
-        };
-
-        /**
-         * AIの解説テキストを生成する（シミュレーション）関数
-         */
-        const generateProfessionalReportText = (
-          analysisResult,
-          userContext
-        ) => {
-          const os1 = analysisResult.hexagram_candidates[0];
-          const os2 = analysisResult.hexagram_candidates[1];
-          const os3 = analysisResult.hexagram_candidates[2];
-          const profile = analysisResult.trigram_profile;
-
-          // 各セクションのテキストを生成
-          const contextText =
-            userContext.age ||
-            userContext.occupation ||
-            userContext.role ||
-            userContext.issue
-              ? `<h4>1. ご入力いただいた状況の確認</h4><p class="text-sm">「${
-                  userContext.age || ""
-                } ${userContext.occupation || ""} ${
-                  userContext.role || ""
-                }」で、「${
-                  userContext.issue || "特になし"
-                }」という課題意識をお持ちなのですね。承知いたしました。その状況を踏まえ、あなたのOSを読み解いていきましょう。</p>`
-              : "";
-
-          const profileText = `<h4>2. エネルギープロファイルから見るあなたの「基本性質」</h4><p class="text-sm">あなたのエネルギーは、<strong style="color:${
-            HELPERS.trigram_colors[profile[0].id]
-          }">${profile[0].name_en}</strong>の「${
-            HELPERS.id_to_jp[profile[0].id]
-          }」と<strong style="color:${HELPERS.trigram_colors[profile[1].id]}">${
-            profile[1].name_en
-          }</strong>の「${
-            HELPERS.id_to_jp[profile[1].id]
-          }」が際立っています。これは、あなたの基本性質が「${
-            profile[0].strength_description
-          }」や「${
-            profile[1].strength_description
-          }」という点にあることを示唆しています。一方で、<strong style="color:${
-            HELPERS.trigram_colors[profile[7].id]
-          }">${
-            profile[7].name_en
-          }</strong>のエネルギーが最も低いため、${profile[7].strength_description.slice(
-            0,
-            -1
-          )}のは少し苦手かもしれません。</p>`;
-
-          const trinityText = `<h4>3. 「三位一体OSモデル」の構造的解説</h4><p class="text-sm">あなたのOS構造は非常に興味深い連携をしています。あなたの根源的な動力源である<strong>【エンジンOS：${os1.name_jp}】</strong>が放つエネルギーは、<strong>【インターフェースOS：${os2.name_jp}】</strong>というフィルターを通して社会に表現されます。しかし、ストレスがかかると<strong>【セーフモードOS：${os3.name_jp}】</strong>が起動し、無意識に初期設定の行動パターンに立ち返る傾向があります。この3つのOSの関係性を理解することが、自己を乗りこなす鍵となります。</p>`;
-
-          const adviceText = `<h4>4. 総合所見とあなたへの戦略的アドバイス</h4><p class="text-sm">（ここに、全ての情報を統合した、AIによる具体的なアドバイスが生成されます。例：${
-            userContext.issue || "あなたの現在の課題"
-          }に対して、エンジンOSの力をインターフェースOSを通してどう活かすべきか、セーフモードOSの暴走にどう備えるべきか、等々...）</p>`;
-
-          return `
-                <h3 class="text-2xl font-bold text-amber-300 mb-6 text-center">HaQeiプロフェッショナル<br>総合解説レポート</h3>
-                ${contextText}
-                ${profileText}
-                ${trinityText}
-                ${adviceText}
-                <h4 class="mt-6">5. 次の具体的な一歩</h4>
-                <ul class="text-sm">
-                    <li>（AIが具体的なアクションプランを2〜3個提案します）</li>
-                </ul>
-            `;
-        };
-
-        const renderRadarChart = (trigram_profile) => {
-          const ctx = document
-            .getElementById("energyRadarChart")
-            .getContext("2d");
-          const sortedProfile = [...trigram_profile].sort(
-            (a, b) => a.id - b.id
-          );
-          new Chart(ctx, {
-            type: "radar",
-            data: {
-              labels: sortedProfile.map(
-                (t) => `${t.name_en} (${HELPERS.id_to_jp[t.id]})`
-              ),
-              datasets: [
-                {
-                  label: "エネルギー強度",
-                  data: sortedProfile.map((t) => t.score),
-                  fill: true,
-                  backgroundColor: "rgba(165, 180, 252, 0.2)",
-                  borderColor: "#a5b4fc",
-                  pointBackgroundColor: sortedProfile.map(
-                    (t) => HELPERS.trigram_colors[t.id]
-                  ),
-                  pointBorderColor: "#fff",
-                  pointHoverBackgroundColor: "#fff",
-                  pointHoverBorderColor: sortedProfile.map(
-                    (t) => HELPERS.trigram_colors[t.id]
-                  ),
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                r: {
-                  angleLines: { color: "rgba(255, 255, 255, 0.2)" },
-                  grid: { color: "rgba(255, 255, 255, 0.2)" },
-                  pointLabels: {
-                    font: { size: 14 },
-                    color: sortedProfile.map(
-                      (t) => HELPERS.trigram_colors[t.id]
-                    ),
-                    backdropColor: "rgba(0, 0, 0, 0.5)",
-                    backdropPadding: 2,
-                    borderRadius: 4,
-                  },
-                  ticks: {
-                    color: "rgba(255,255,255,0.7)",
-                    backdropColor: "rgba(0,0,0,0)",
-                    stepSize: 2,
-                  },
-                  suggestedMin: 0,
-                },
-              },
-              plugins: {
-                legend: { display: false },
-              },
-            },
-          });
-        };
-
-        const renderHexagramMap = (hexagram_candidates) => {
-          const container = document.querySelector(".hex-map-container");
-          if (!container) return;
-          container.innerHTML = "";
-
-          const top3Ids = hexagram_candidates
-            .slice(0, 3)
-            .map((h) => h.hexagram_id);
-          const osTypes = [
-            "highlight-primary",
-            "highlight-secondary",
-            "highlight-growth",
-          ];
-          const trigramOrder = [1, 2, 3, 4, 5, 6, 7, 8];
-
-          container.appendChild(document.createElement("div"));
-          trigramOrder.forEach((id) => {
-            const headerCell = document.createElement("div");
-            headerCell.className = "map-header";
-            headerCell.textContent = HELPERS.getTrigramById(id).name_jp;
-            headerCell.title = `外卦(上卦): ${
-              HELPERS.getTrigramById(id).name_en
-            }`;
-            container.appendChild(headerCell);
-          });
-          trigramOrder.forEach((lowerId) => {
-            const headerCell = document.createElement("div");
-            headerCell.className = "map-header";
-            headerCell.textContent = HELPERS.getTrigramById(lowerId).name_jp;
-            headerCell.title = `内卦(下卦): ${
-              HELPERS.getTrigramById(lowerId).name_en
-            }`;
-            container.appendChild(headerCell);
-            trigramOrder.forEach((upperId) => {
-              const hexData = HDB.hexagrams_master.find(
-                (h) =>
-                  h.upper_trigram_id === upperId &&
-                  h.lower_trigram_id === lowerId
-              );
-              const cell = document.createElement("div");
-              if (hexData) {
-                cell.className = "hex-cell";
-                cell.dataset.id = hexData.hexagram_id;
-                cell.title = `${hexData.hexagram_id}: ${hexData.name_jp}`;
-                const content = document.createElement("div");
-                content.className = "hex-cell-content";
-                content.innerHTML = `<span class="hex-name">${hexData.name_jp}</span><span class="hex-id">${hexData.hexagram_id}</span>`;
-                cell.appendChild(content);
-                const topIndex = top3Ids.indexOf(hexData.hexagram_id);
-                if (topIndex !== -1) cell.classList.add(osTypes[topIndex]);
-              }
-              container.appendChild(cell);
-            });
-          });
-
-          const cells = container.querySelectorAll(".hex-cell");
-          cells.forEach((cell) => {
-            cell.addEventListener("click", (e) => {
-              e.stopPropagation();
-              const id = parseInt(cell.dataset.id);
-              if (isNaN(id)) return;
-              const h64Data = HELPERS.getH64ById(id);
-              if (!h64Data) return;
-
-              cells.forEach((c) =>
-                c.classList.remove(
-                  "selected",
-                  "highlight-sakka",
-                  "highlight-souka",
-                  "highlight-goke"
-                )
-              );
-              cell.classList.add("selected");
-
-              if (h64Data.saku_id !== id)
-                container
-                  .querySelector(`.hex-cell[data-id='${h64Data.saku_id}']`)
-                  ?.classList.add("highlight-sakka");
-              if (h64Data.sou_id !== id)
-                container
-                  .querySelector(`.hex-cell[data-id='${h64Data.sou_id}']`)
-                  ?.classList.add("highlight-souka");
-              if (h64Data.go_id !== id)
-                container
-                  .querySelector(`.hex-cell[data-id='${h64Data.go_id}']`)
-                  ?.classList.add("highlight-goke");
-
-              const mapInfo = document.getElementById("hex-map-info");
-              if (mapInfo) {
-                const getHexSummary = (hexId) => {
-                  const manual = HDB.os_manual[hexId];
-                  if (manual && manual.summary) return manual.summary;
-                  const hex = HELPERS.getHexagramById(hexId);
-                  return hex ? hex.description : "解説が見つかりませんでした。";
-                };
-                const sakkaData = HELPERS.getH64ById(h64Data.saku_id);
-                const soukaData = HELPERS.getH64ById(h64Data.sou_id);
-                const gokeData = HELPERS.getH64ById(h64Data.go_id);
-                let sakkaHtml, soukaHtml, gokeHtml;
-                if (h64Data.saku_id === id)
-                  sakkaHtml = `<p><span class="text-orange-400 font-semibold">錯卦: このOS自身</span><br><span class="text-xs text-gray-400">陰陽を反転させても同じ構造を持つ、完全なOSです。</span></p>`;
-                else
-                  sakkaHtml = `<p><span class="text-orange-400 font-semibold">錯卦: ${
-                    sakkaData.名前
-                  }</span><br><span class="text-xs text-gray-400">あなたのOSの全陰陽を反転させた「真逆の性質」。最大の課題と可能性を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                    sakkaData.卦番号
-                  )}</div></details>`;
-                if (h64Data.sou_id === id)
-                  soukaHtml = `<p><span class="text-blue-400 font-semibold">綜卦: このOS自身</span><br><span class="text-xs text-gray-400">上下を反転させても同じ構造を持つ、安定したOSです。</span></p>`;
-                else
-                  soukaHtml = `<p><span class="text-blue-400 font-semibold">綜卦: ${
-                    soukaData.名前
-                  }</span><br><span class="text-xs text-gray-400">あなたのOSを上下反転させた「裏側の性質」。他者からの見え方や隠れた側面を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                    soukaData.卦番号
-                  )}</div></details>`;
-                if (h64Data.go_id === id)
-                  gokeHtml = `<p><span class="text-green-400 font-semibold">互卦: このOS自身</span><br><span class="text-xs text-gray-400">内に同じ構造を内包する、自己完結したエネルギーを持ちます。</span></p>`;
-                else
-                  gokeHtml = `<p><span class="text-green-400 font-semibold">互卦: ${
-                    gokeData.名前
-                  }</span><br><span class="text-xs text-gray-400">あなたのOSの内に秘められた「隠れた本質」。ポテンシャルや問題の核心を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                    gokeData.卦番号
-                  )}</div></details>`;
-                mapInfo.innerHTML = `<div class="w-full text-left"><p class="font-bold text-white text-base text-center mb-2 pb-2 border-b border-gray-700">${h64Data.名前}</p><div class="space-y-2"><div class="relation-block">${sakkaHtml}</div><div class="relation-block">${soukaHtml}</div><div class="relation-block">${gokeHtml}</div></div></div>`;
-              }
-            });
-          });
-        };
-
         const showModal = (content) => {
           modalBody.innerHTML = content;
           modalContainer.classList.remove("hidden");
@@ -1233,11 +887,9 @@
         populateSelects();
         modalOverlay.addEventListener("click", hideModal);
         modalCloseBtn.addEventListener("click", hideModal);
-
         analyzeBtn.addEventListener("click", () => {
           const sfSelects = document.querySelectorAll(".sf-select");
           lastUserProfile = {
-            // グローバル変数にユーザープロファイルを保存
             mbti: mbtiSelect.value,
             enneagram: enneaSelects.map((s) => s.value).filter(Boolean),
             sf: Array.from(sfSelects)
@@ -1250,7 +902,7 @@
             );
             return;
           }
-          lastAnalysisResult = runAdvancedAnalysis(lastUserProfile); // グローバル変数に結果を保存
+          lastAnalysisResult = runAdvancedAnalysis(lastUserProfile);
           renderReport(lastUserProfile, lastAnalysisResult);
         });
       });
