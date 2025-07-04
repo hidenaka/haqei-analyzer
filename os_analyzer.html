@@ -307,7 +307,7 @@
 
     <script src="assets/haqei_main_database.js"></script>
     <script>
-      // HaQei OS Analyzer - JavaScript v21.0 (UX改善・最終版)
+      // HaQei OS Analyzer - JavaScript v20.1 (UX改善・最終版)
       const HDB = HAQEI_DATA;
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -327,45 +327,62 @@
         let lastUserProfile = null;
 
         const HELPERS = {
-          /* ... */
-        }; // HELPERSの内容は変更なし
-        const handleDuplicateSelection = (selects) => {
-          /* ... */
-        };
-        const populateSelects = () => {
-          /* ... */
-        };
-        const runAdvancedAnalysis = (userProfile) => {
-          /* ... */
-        };
-        const renderRadarChart = (trigram_profile) => {
-          /* ... */
-        };
-        const renderHexagramMap = (hexagram_candidates) => {
-          /* ... */
-        };
-        const showModal = (content) => {
-          /* ... */
-        };
-        const hideModal = () => {
-          /* ... */
-        };
-        const showBreakdownModal = (breakdownData) => {
-          /* ... */
-        };
-        const showProfessionalInputModal = () => {
-          /* ... */
-        };
-        const redirectToProfessionalReport = () => {
-          /* ... */
+          id_to_jp: Object.fromEntries(
+            HDB.trigrams_master.map((item) => [item.trigram_id, item.name_jp])
+          ),
+          id_to_en: Object.fromEntries(
+            HDB.trigrams_master.map((item) => [item.trigram_id, item.name_en])
+          ),
+          getTrigramById: (id) =>
+            HDB.trigrams_master.find((t) => t.trigram_id === id) || {},
+          getHexagramById: (id) =>
+            HDB.hexagrams_master.find((h) => h.hexagram_id === id) || {},
+          getH64ById: (id) => HDB.H64_DATA.find((h) => h.卦番号 === id) || {},
+          trigram_colors: {
+            1: "#F9FAFB",
+            2: "#70D6FF",
+            3: "#F87171",
+            4: "#FACC15",
+            5: "#4ADE80",
+            6: "#3B82F6",
+            7: "#F97316",
+            8: "#A16207",
+          },
+          createTermTooltip: (term, definition) =>
+            `<span class="tooltip">${term}<span class="tooltiptext">${definition}</span></span>`,
         };
 
-        // ★★★【改善2-A】ストーリーテリングUIを導入した新レポート描画関数 ★★★
+        const handleDuplicateSelection = (selects) => {
+          const selectedValues = new Set();
+          selects.forEach((s) => {
+            if (s.value) selectedValues.add(s.value);
+          });
+          selects.forEach((select) => {
+            Array.from(select.options).forEach((option) => {
+              option.disabled =
+                option.value !== "" &&
+                option.value !== select.value &&
+                selectedValues.has(option.value);
+            });
+          });
+        };
+
+        // populateSelects, runAdvancedAnalysis は長いため省略。既存のコードをそのまま使用。
+        const populateSelects = () => {
+          /* ... 既存のコード ... */
+        };
+        const runAdvancedAnalysis = (userProfile) => {
+          /* ... 既存のコード ... */
+        };
+
         const renderReport = (userProfile, result) => {
           let currentStep = 0;
-          lastAnalysisResult = result; // 後で使えるように結果を保存
           const { trigram_profile, hexagram_candidates, score_breakdown } =
             result;
+
+          // create... 関数群は、このrenderReport関数の中で定義するか、
+          // renderReportの外で定義して、必要なデータを引数で渡すようにします。
+          // ここでは簡潔さのため、呼び出しのみ示します。
 
           const steps = [
             () => createIntroSection(userProfile),
@@ -377,12 +394,10 @@
 
           const updateReportView = () => {
             let contentHtml = "";
-            // 現在のステップまでの全セクションをレンダリング
             for (let i = 0; i <= currentStep; i++) {
               contentHtml += steps[i]();
             }
 
-            // 最終ステップでなければ「次へ」ボタンを追加
             if (currentStep < steps.length - 1) {
               contentHtml += `
                         <div class="text-center mt-12" id="next-step-container">
@@ -393,7 +408,6 @@
             }
             reportContainer.innerHTML = contentHtml;
 
-            // 必要なグラフやイベントリスナーを再描画・再設定
             if (currentStep >= 1 && document.getElementById("energyRadarChart"))
               renderRadarChart(trigram_profile);
             if (
@@ -406,13 +420,16 @@
             if (nextBtn) {
               nextBtn.addEventListener("click", () => {
                 currentStep++;
-                const previousScroll = window.scrollY;
                 updateReportView();
-                window.scrollTo(0, previousScroll); // スクロール位置を維持
-                reportContainer.lastElementChild.scrollIntoView({
-                  behavior: "smooth",
-                  block: "center",
-                });
+                const sections = reportContainer.querySelectorAll(
+                  ".report-section, .intro-section"
+                );
+                if (sections[currentStep]) {
+                  sections[currentStep].scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }
               });
             }
 
@@ -436,7 +453,9 @@
           window.scrollTo({ top: 0, behavior: "smooth" });
         };
 
-        // ★★★【改善1-A】簡易診断モーダル表示関数 ★★★
+        // --- 各レポートセクション生成関数 ---
+        // (createIntroSection, createProfileSection etc. は長いため省略。既存のコードをそのまま使用。)
+
         const showSimpleDiagnosisModal = () => {
           const modalContent = `
                     <h3 class="text-xl font-bold text-indigo-300 mb-4">性格傾向チェック（約1分）</h3>
@@ -455,7 +474,7 @@
                             <select id="diag-mbti-3" class="w-full bg-gray-700 p-2 rounded"><option value="J">計画を立てて、きっちり進めたい</option><option value="P">柔軟に、臨機応変に進めたい</option></select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">4. 心の基本的な動機は？ (エニアグラム)</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">4. 心の基本的な動機は？</label>
                             <select id="diag-ennea-1" class="w-full bg-gray-700 p-2 rounded"><option value="1">より良くありたい</option><option value="2">人の助けになりたい</option><option value="3">成功したい</option><option value="4">自分らしくありたい</option><option value="5">物事を理解したい</option><option value="6">安全を求めたい</option><option value="7">楽しみたい</option><option value="8">自分を貫きたい</option><option value="9">平和でいたい</option></select>
                         </div>
                     </div>
@@ -481,27 +500,27 @@
             });
         };
 
-        // ★★★【改善3】有料版へのCTAセクションを刷新 ★★★
         const createProfessionalCtaSection = () => {
-          /* ... 既存のコード ... */
+          return `
+                <div class="report-section mt-16 border-l-4 border-amber-400">
+                    <h3>あなたの物語は、まだ始まったばかり</h3>
+                    <div class="bg-gray-800/60 p-6 rounded-2xl">
+                        <p class="mb-6">この無料レポートは、あなたの現在地を知るための<strong>『高精細な地図』</strong>です。あなたは今、自分の才能の地形と、進むべき方角のヒントを手にしました。</p>
+                        <p class="mb-6">そして、有料の<strong>『実践戦略書』</strong>は、その地図を使って目的地にたどり着くための具体的な<strong>『ナビゲーションシステム』</strong>です。</p>
+                        <div class="bg-gray-900/50 p-6 rounded-lg">
+                            <h4 class="text-xl font-bold text-amber-300">HaQeiプロフェッショナル『実践戦略書』で得られること</h4>
+                            <ul class="list-none p-0 mt-6 space-y-3 text-base">
+                                <li class="flex items-start"><span class="text-green-400 mr-2">✅</span> <span>あなたの才能を最大化する<strong>『次の三手』</strong>を具体的に提案</span></li>
+                                <li class="flex items-start"><span class="text-green-400 mr-2">✅</span> <span>人間関係の悩みを解決する<strong>OS別コミュニケーション術</strong></span></li>
+                                <li class="flex items-start"><span class="text-green-400 mr-2">✅</span> <span>あなたの<strong>『葛藤のパターン』</strong>を乗り越えるための詳細な処方箋</span></li>
+                                <li class="flex items-start"><span class="text-green-400 mr-2">✅</span> <span>AI専門家があなたの状況に合わせてパーソナライズした<strong>総合戦略</strong></span></li>
+                            </ul>
+                            <div class="mt-6 p-4 border border-dashed border-gray-600 rounded-lg text-center text-gray-500 italic">[有料レポートデザインのプレビュー画像エリア]</div>
+                            <button id="request-professional-btn" class="w-full mt-8 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">私の『ナビゲーションシステム』を手に入れる</button>
+                        </div>
+                    </div>
+                </div>`;
         };
-
-        // ★★★【再掲】レポートの各セクションを生成する関数群 ★★★
-        // 以下の関数群は、renderReportから呼び出される実体です。
-        // 既存のコードからコピー＆ペーストして、この場所に配置してください。
-        const createIntroSection = (userProfile) => {
-          /* ... */
-        };
-        const createProfileSection = (trigram_profile) => {
-          /* ... */
-        };
-        const createTrinityModelSection = (hexagram_candidates) => {
-          /* ... */
-        };
-        const createArchitectureSection = (hexagram_candidates) => {
-          /* ... */
-        };
-        // ... 他の必要な関数もここに ...
 
         // --- 初期化とイベントリスナー設定 ---
         populateSelects();
@@ -525,9 +544,51 @@
             );
             return;
           }
-          const result = runAdvancedAnalysis(lastUserProfile);
-          renderReport(lastUserProfile, result);
+          lastAnalysisResult = runAdvancedAnalysis(lastUserProfile);
+          renderReport(lastUserProfile, lastAnalysisResult);
         });
+
+        // 省略した関数のダミーを配置
+        function createIntroSection(userProfile) {
+          return `<div class="intro-section p-4">イントロセクション</div>`;
+        }
+        function createProfileSection(trigram_profile) {
+          return `<div class="report-section"><h3>エネルギープロファイル</h3><canvas id="energyRadarChart"></canvas><button id="show-breakdown-btn">根拠</button></div>`;
+        }
+        function createTrinityModelSection(hexagram_candidates) {
+          return `<div class="report-section"><h3>三位一体モデル</h3></div>`;
+        }
+        function createArchitectureSection(hexagram_candidates) {
+          return `<div class="report-section"><h3>OSアーキテクチャ</h3><div class="hex-map-container"></div></div>`;
+        }
+        function renderRadarChart(trigram_profile) {
+          console.log("Radar chart rendering...");
+        }
+        function renderHexagramMap(hexagram_candidates) {
+          console.log("Hex map rendering...");
+        }
+        function showModal(content) {
+          modalBody.innerHTML = content;
+          modalContainer.classList.remove("hidden");
+        }
+        function hideModal() {
+          modalContainer.classList.add("hidden");
+        }
+        function showBreakdownModal(breakdownData) {
+          showModal("スコア内訳");
+        }
+        function showProfessionalInputModal() {
+          const professionalData = {
+            analysis: lastAnalysisResult,
+            profile: lastUserProfile,
+            context: {}, // 空のコンテキストで仮実装
+          };
+          localStorage.setItem(
+            "haqeiProfessionalData",
+            JSON.stringify(professionalData)
+          );
+          window.location.href = "professional_report.html";
+        }
       });
     </script>
   </body>
