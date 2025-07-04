@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HaQei 人格OS 分析レポート v15.2</title>
+    <title>HaQei 人格OS 分析レポート v15.3</title>
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
@@ -209,9 +209,9 @@
       }
     </style>
   </head>
-  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8 flex flex-col">
     <div
-      class="w-full max-w-4xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10"
+      class="w-full max-w-4xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10 flex-grow"
     >
       <header class="text-center mb-10">
         <a
@@ -249,12 +249,13 @@
             なぜ３つの診断結果が必要なのか？
           </h4>
           <p class="leading-relaxed">
-            西洋の心理学 (MBTI) と東洋の叡智 (易経)、そして個人の才能
-            (ストレングスファインダー)
-            を掛け合わせることで、HaQeiはあなたの魂の『OS』を世界で初めて多角的に解き明かします。これは「面倒な入力」ではなく<strong
-              class="text-amber-400"
-              >「すごい分析のための準備」</strong
-            >です。
+            西洋の性格心理学 (<strong class="text-white"
+              >MBTI, エニアグラム</strong
+            >) と東洋の叡智 (<strong class="text-white">易経</strong
+            >)、そして個人の才能 (<strong class="text-white"
+              >ストレングスファインダー</strong
+            >)
+            を掛け合わせることで、HaQeiはあなたの魂の『OS』を世界で初めて多角的に解き明かします。
           </p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start pt-4">
@@ -304,6 +305,12 @@
       <div id="report-container" class="hidden"></div>
     </div>
 
+    <footer class="text-center p-4 mt-auto">
+      <p class="text-xs text-gray-500">
+        ※MBTI®, CliftonStrengths®(ストレングスファインダー®),
+        およびエニアグラムは、各所有者の登録商標または商標です。当サイトは、各所有者と提携・承認されているものではありません。
+      </p>
+    </footer>
     <div
       id="modalContainer"
       class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden"
@@ -341,200 +348,11 @@
 
     <script src="assets/haqei_main_database.js"></script>
     <script>
-      // ▼▼▼ 機能A: 簡易診断機能のためのデータとロジック ▼▼▼
-      const DIAGNOSTIC_QUIZ_DATA = {
-        mbti: [
-          {
-            id: "IE",
-            q: "アクティビティの後、あなたは…",
-            a: {
-              text: "疲れて、一人の時間で充電したくなる (内向)",
-              value: "I",
-            },
-            b: {
-              text: "元気になり、もっと人と話したくなる (外向)",
-              value: "E",
-            },
-          },
-          {
-            id: "SN",
-            q: "新しいことを学ぶとき、あなたは…",
-            a: {
-              text: "事実や具体的な詳細、過去の経験に注目する (感覚)",
-              value: "S",
-            },
-            b: {
-              text: "可能性や全体像、未来の洞察に惹かれる (直観)",
-              value: "N",
-            },
-          },
-          {
-            id: "TF",
-            q: "決断を下すとき、あなたがより重視するのは…",
-            a: { text: "論理的な正しさや、客観的な基準 (思考)", value: "T" },
-            b: { text: "関係者への影響や、全体の調和 (感情)", value: "F" },
-          },
-          {
-            id: "JP",
-            q: "あなたの普段の生活スタイルは…",
-            a: {
-              text: "計画を立て、物事をきっちり終わらせる方を好む (判断)",
-              value: "J",
-            },
-            b: {
-              text: "柔軟性を保ち、選択肢を広く持っておくことを好む (知覚)",
-              value: "P",
-            },
-          },
-        ],
-        enneagram: [
-          {
-            type: 1,
-            name: "改革する人",
-            desc: "物事を正しく、完璧に行いたい。向上心が高く、白黒はっきりさせたい。",
-          },
-          {
-            type: 2,
-            name: "助ける人",
-            desc: "人の役に立ち、必要とされたい。思いやりが深く、他人の感情に敏感。",
-          },
-          {
-            type: 3,
-            name: "達成する人",
-            desc: "成功して価値を証明したい。目標志向で、効率と成果を重視する。",
-          },
-          {
-            type: 4,
-            name: "個性的な人",
-            desc: "自分らしく、特別な存在でありたい。感受性が豊かで、独自の美意識を持つ。",
-          },
-          {
-            type: 5,
-            name: "調べる人",
-            desc: "世界を理解し、有能でありたい。知的好奇心が強く、一人の時間を大切にする。",
-          },
-          {
-            type: 6,
-            name: "忠実な人",
-            desc: "安全と安心を求め、周りに尽くす。責任感が強く、慎重に物事を進める。",
-          },
-          {
-            type: 7,
-            name: "熱中する人",
-            desc: "楽しく、多くのことを経験したい。楽観的で、新しい刺激や可能性を追い求める。",
-          },
-          {
-            type: 8,
-            name: "挑戦する人",
-            desc: "自分のことは自分で決め、主導権を握りたい。パワフルで、正義感が強い。",
-          },
-          {
-            type: 9,
-            name: "平和をもたらす人",
-            desc: "穏やかで、争いを避けたい。受容力があり、全体の調和を願う。",
-          },
-        ],
-      };
-
-      let diagnosticAnswers = {};
-
-      const showDiagnosticModal = () => {
-        diagnosticAnswers = { mbti: "" };
-        renderDiagnosticStep("mbti", 0);
-      };
-
-      const applyDiagnosticResults = (mbtiType, enneaType) => {
-        document.getElementById("mbtiSelect").value = mbtiType;
-        const enneaSelect1 = document.getElementById("enneagramSelect1");
-        enneaSelect1.value = enneaType;
-
-        // エニアグラムの重複選択防止ロジックをトリガー
-        const changeEvent = new Event("change");
-        enneaSelect1.dispatchEvent(changeEvent);
-
-        hideModal();
-      };
-
-      const renderDiagnosticStep = (stage, questionIndex = 0) => {
-        const modalBody = document.getElementById("modalBody");
-        let contentHtml = "";
-
-        if (stage === "mbti") {
-          const qData = DIAGNOSTIC_QUIZ_DATA.mbti[questionIndex];
-          contentHtml = `
-                <h3 class="text-xl font-bold text-indigo-300 mb-2">簡易MBTI診断 (${
-                  questionIndex + 1
-                }/4)</h3>
-                <p class="text-gray-300 mb-6">${qData.q}</p>
-                <div class="space-y-3">
-                    <a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
-                      qData.a.value
-                    }', ${questionIndex})">${qData.a.text}</a>
-                    <a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
-                      qData.b.value
-                    }', ${questionIndex})">${qData.b.text}</a>
-                </div>
-            `;
-        } else if (stage === "enneagram") {
-          contentHtml = `
-                <h3 class="text-xl font-bold text-indigo-300 mb-2">簡易エニアグラム診断</h3>
-                <p class="text-gray-300 mb-6">以下のうち、あなたの最も深い動機や価値観に一番近いものを一つ選んでください。</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    ${DIAGNOSTIC_QUIZ_DATA.enneagram
-                      .map(
-                        (e) => `
-                        <div class="diagnostic-option text-sm flex flex-col h-full" onclick="handleEnneagramAnswer(${e.type})">
-                            <p class="font-bold text-indigo-300">タイプ${e.type}: ${e.name}</p>
-                            <p class="text-gray-400 mt-1">${e.desc}</p>
-                        </div>
-                    `
-                      )
-                      .join("")}
-                </div>
-            `;
-        } else if (stage === "result") {
-          const mbtiResult = diagnosticAnswers.mbti;
-          const enneaResult = diagnosticAnswers.enneagram;
-          contentHtml = `
-                <div class="text-center">
-                    <h3 class="text-xl font-bold text-indigo-300 mb-4">簡易診断結果</h3>
-                    <p class="text-gray-300">あなたのタイプは以下と推定されます。</p>
-                    <div class="my-6 space-y-3">
-                        <p class="text-2xl font-bold">MBTI: <span class="text-amber-400">${mbtiResult}</span></p>
-                        <p class="text-2xl font-bold">エニアグラム: <span class="text-amber-400">タイプ${enneaResult}</span></p>
-                    </div>
-                    <p class="text-xs text-gray-500 mb-6">※これは簡易的な診断です。より正確なタイプをご存知の場合は、そちらを優先してください。</p>
-                    <button onclick="applyDiagnosticResults('${mbtiResult}', '${enneaResult}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">
-                        この結果を利用する
-                    </button>
-                </div>
-            `;
-        }
-        modalBody.innerHTML = contentHtml;
-        showModal(modalBody.innerHTML, false);
-      };
-
-      const handleMbtiAnswer = (answer, questionIndex) => {
-        event.preventDefault();
-        diagnosticAnswers.mbti += answer;
-        if (questionIndex < DIAGNOSTIC_QUIZ_DATA.mbti.length - 1) {
-          renderDiagnosticStep("mbti", questionIndex + 1);
-        } else {
-          renderDiagnosticStep("enneagram");
-        }
-      };
-
-      const handleEnneagramAnswer = (answer) => {
-        event.preventDefault();
-        diagnosticAnswers.enneagram = answer;
-        renderDiagnosticStep("result");
-      };
-      // ▲▲▲ 機能A ▲▲▲
-
-      // HaQei OS Analyzer - JavaScript v15.2 (リファクタリング・安定版)
+      // HaQei OS Analyzer - JavaScript v15.3
       const HDB = HAQEI_DATA;
 
       document.addEventListener("DOMContentLoaded", () => {
+        // --- DOM要素の取得 ---
         const mbtiSelect = document.getElementById("mbtiSelect");
         const enneaSelects = Array.from(
           document.querySelectorAll(".enneagram-select")
@@ -546,18 +364,16 @@
         const modalOverlay = document.getElementById("modalOverlay");
         const modalCloseBtn = document.getElementById("modalCloseBtn");
         const modalBody = document.getElementById("modalBody");
-
-        // 機能A: 簡易診断開始ボタンのイベントリスナー
         const startDiagnosticBtn = document.getElementById(
           "start-diagnostic-btn"
         );
-        startDiagnosticBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          showDiagnosticModal();
-        });
 
+        // --- グローバル変数 ---
         let lastAnalysisResult = null;
         let lastUserProfile = null;
+        let diagnosticAnswers = {};
+
+        // --- ヘルパー関数群 ---
         const HELPERS = {
           id_to_jp: Object.fromEntries(
             HDB.trigrams_master.map((item) => [item.trigram_id, item.name_jp])
@@ -581,6 +397,211 @@
             8: "#A16207",
           },
         };
+
+        // --- モーダル制御 ---
+        const showModal = (content) => {
+          modalBody.innerHTML = content;
+          modalContainer.classList.remove("hidden");
+          document.body.style.overflow = "hidden";
+          setTimeout(() => {
+            modalOverlay.classList.remove("opacity-0");
+            document
+              .getElementById("modalContent")
+              .classList.remove("scale-95");
+          }, 10);
+        };
+        const hideModal = () => {
+          document.getElementById("modalOverlay").classList.add("opacity-0");
+          document.getElementById("modalContent").classList.add("scale-95");
+          setTimeout(() => {
+            modalContainer.classList.add("hidden");
+            document.body.style.overflow = "";
+            modalBody.innerHTML = ""; // モーダルを閉じる時に中身を空にする
+          }, 300);
+        };
+
+        // ▼▼▼ 機能A: 簡易診断機能のためのデータとロジック (エラー修正のため移動) ▼▼▼
+        const DIAGNOSTIC_QUIZ_DATA = {
+          mbti: [
+            {
+              id: "IE",
+              q: "アクティビティの後、あなたは…",
+              a: {
+                text: "疲れて、一人の時間で充電したくなる (内向)",
+                value: "I",
+              },
+              b: {
+                text: "元気になり、もっと人と話したくなる (外向)",
+                value: "E",
+              },
+            },
+            {
+              id: "SN",
+              q: "新しいことを学ぶとき、あなたは…",
+              a: {
+                text: "事実や具体的な詳細、過去の経験に注目する (感覚)",
+                value: "S",
+              },
+              b: {
+                text: "可能性や全体像、未来の洞察に惹かれる (直観)",
+                value: "N",
+              },
+            },
+            {
+              id: "TF",
+              q: "決断を下すとき、あなたがより重視するのは…",
+              a: { text: "論理的な正しさや、客観的な基準 (思考)", value: "T" },
+              b: { text: "関係者への影響や、全体の調和 (感情)", value: "F" },
+            },
+            {
+              id: "JP",
+              q: "あなたの普段の生活スタイルは…",
+              a: {
+                text: "計画を立て、物事をきっちり終わらせる方を好む (判断)",
+                value: "J",
+              },
+              b: {
+                text: "柔軟性を保ち、選択肢を広く持っておくことを好む (知覚)",
+                value: "P",
+              },
+            },
+          ],
+          enneagram: [
+            {
+              type: 1,
+              name: "改革する人",
+              desc: "物事を正しく、完璧に行いたい。向上心が高く、白黒はっきりさせたい。",
+            },
+            {
+              type: 2,
+              name: "助ける人",
+              desc: "人の役に立ち、必要とされたい。思いやりが深く、他人の感情に敏感。",
+            },
+            {
+              type: 3,
+              name: "達成する人",
+              desc: "成功して価値を証明したい。目標志向で、効率と成果を重視する。",
+            },
+            {
+              type: 4,
+              name: "個性的な人",
+              desc: "自分らしく、特別な存在でありたい。感受性が豊かで、独自の美意識を持つ。",
+            },
+            {
+              type: 5,
+              name: "調べる人",
+              desc: "世界を理解し、有能でありたい。知的好奇心が強く、一人の時間を大切にする。",
+            },
+            {
+              type: 6,
+              name: "忠実な人",
+              desc: "安全と安心を求め、周りに尽くす。責任感が強く、慎重に物事を進める。",
+            },
+            {
+              type: 7,
+              name: "熱中する人",
+              desc: "楽しく、多くのことを経験したい。楽観的で、新しい刺激や可能性を追い求める。",
+            },
+            {
+              type: 8,
+              name: "挑戦する人",
+              desc: "自分のことは自分で決め、主導権を握りたい。パワフルで、正義感が強い。",
+            },
+            {
+              type: 9,
+              name: "平和をもたらす人",
+              desc: "穏やかで、争いを避けたい。受容力があり、全体の調和を願う。",
+            },
+          ],
+        };
+
+        const showDiagnosticModal = () => {
+          diagnosticAnswers = { mbti: "" };
+          renderDiagnosticStep("mbti", 0);
+        };
+
+        const applyDiagnosticResults = (mbtiType, enneaType) => {
+          mbtiSelect.value = mbtiType;
+          enneaSelects[0].value = enneaType;
+
+          const changeEvent = new Event("change");
+          enneaSelects[0].dispatchEvent(changeEvent); // 重複選択防止ロジックをトリガー
+
+          hideModal();
+        };
+
+        const renderDiagnosticStep = (stage, questionIndex = 0) => {
+          let contentHtml = "";
+
+          if (stage === "mbti") {
+            const qData = DIAGNOSTIC_QUIZ_DATA.mbti[questionIndex];
+            contentHtml = `
+                    <h3 class="text-xl font-bold text-indigo-300 mb-2">簡易MBTI診断 (${
+                      questionIndex + 1
+                    }/4)</h3>
+                    <p class="text-gray-300 mb-6">${qData.q}</p>
+                    <div class="space-y-3">
+                        <a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
+                          qData.a.value
+                        }', ${questionIndex})">${qData.a.text}</a>
+                        <a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
+                          qData.b.value
+                        }', ${questionIndex})">${qData.b.text}</a>
+                    </div>`;
+          } else if (stage === "enneagram") {
+            contentHtml = `
+                    <h3 class="text-xl font-bold text-indigo-300 mb-2">簡易エニアグラム診断</h3>
+                    <p class="text-gray-300 mb-6">以下のうち、あなたの最も深い動機や価値観に一番近いものを一つ選んでください。</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        ${DIAGNOSTIC_QUIZ_DATA.enneagram
+                          .map(
+                            (e) => `
+                            <div class="diagnostic-option text-sm flex flex-col h-full" onclick="handleEnneagramAnswer(${e.type})">
+                                <p class="font-bold text-indigo-300">タイプ${e.type}: ${e.name}</p>
+                                <p class="text-gray-400 mt-1">${e.desc}</p>
+                            </div>`
+                          )
+                          .join("")}
+                    </div>`;
+          } else if (stage === "result") {
+            const mbtiResult = diagnosticAnswers.mbti;
+            const enneaResult = diagnosticAnswers.enneagram;
+            contentHtml = `
+                    <div class="text-center">
+                        <h3 class="text-xl font-bold text-indigo-300 mb-4">簡易診断結果</h3>
+                        <p class="text-gray-300">あなたのタイプは以下と推定されます。</p>
+                        <div class="my-6 space-y-3">
+                            <p class="text-2xl font-bold">MBTI: <span class="text-amber-400">${mbtiResult}</span></p>
+                            <p class="text-2xl font-bold">エニアグラム: <span class="text-amber-400">タイプ${enneaResult}</span></p>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-6">※これは簡易的な診断です。より正確なタイプをご存知の場合は、そちらを優先してください。</p>
+                        <button onclick="applyDiagnosticResults('${mbtiResult}', '${enneaResult}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">
+                            この結果を利用する
+                        </button>
+                    </div>`;
+          }
+          showModal(contentHtml);
+        };
+
+        // windowオブジェクトに関数をアタッチして、onclickから呼べるようにする
+        window.handleMbtiAnswer = (answer, questionIndex) => {
+          event.preventDefault();
+          diagnosticAnswers.mbti += answer;
+          if (questionIndex < DIAGNOSTIC_QUIZ_DATA.mbti.length - 1) {
+            renderDiagnosticStep("mbti", questionIndex + 1);
+          } else {
+            renderDiagnosticStep("enneagram");
+          }
+        };
+        window.handleEnneagramAnswer = (answer) => {
+          event.preventDefault();
+          diagnosticAnswers.enneagram = answer;
+          renderDiagnosticStep("result");
+        };
+        window.applyDiagnosticResults = applyDiagnosticResults;
+
+        // ▲▲▲ 機能A ▲▲▲
+
         // --- プルダウンの重複選択防止と初期化 ---
         const handleDuplicateSelection = (selects) => {
           const selectedValues = new Set();
@@ -787,9 +808,8 @@
             score_breakdown,
           };
         };
-        /**
-         * 0. イントロセクションのHTMLを生成する関数
-         */
+
+        // --- レポート描画関連 ---
         const createIntroSection = () => {
           const { mbti, enneagram, sf } = lastUserProfile;
           const enneaText = enneagram.map((e) => `タイプ${e}`).join(", ");
@@ -806,14 +826,9 @@
             sfText ? `| <strong>${sfText}</strong>` : ""
           }
                 </p>
-            </div>
-            `;
+            </div>`;
         };
 
-        /**
-         * 1. エネルギープロファイルセクションのHTMLを生成する関数
-         * ★この関数が energyRadarChart を含みます
-         */
         const createProfileSection = () => {
           return `
             <div class="report-section">
@@ -827,14 +842,8 @@
                         スコアの算出根拠を見る
                     </button>
                 </div>
-            </div>
-            `;
+            </div>`;
         };
-
-        /**
-         * 3. 三位一体モデルセクションのHTMLを生成する関数
-         */
-        // ▼▼▼【v19.0 追加】三位一体モデルの解説セクション生成関数 ▼▼▼
 
         const createTrinityModelSection = () => {
           const { hexagram_candidates } = lastAnalysisResult;
@@ -850,7 +859,6 @@
               explanation:
                 "「エンジンOS」の力を、社会や他者との関わりの中でどう表現しているかを示すOS。いわば、世界と接続するための「ペルソナ」や「コミュニケーションスタイル」です。",
             },
-
             {
               title: "エンジンOS",
               hex: os1,
@@ -858,7 +866,6 @@
               explanation:
                 "あなたが意識する・しないに関わらず、最も自然で強力にあなたを突き動かす根源的なエネルギー。あなたの行動や価値観の「なぜ？」に答える、魂のエンジンです。",
             },
-
             {
               title: "セーフモードOS",
               hex: os3,
@@ -871,72 +878,49 @@
           const osCardsHtml = osData
             .map(
               (os) => `
-      <div class="p-5 rounded-xl shadow-lg flex flex-col bg-gray-900/50 border border-gray-700">
-          <h4 class="text-lg font-bold text-indigo-300 flex items-center mb-2">
-              <span class="text-2xl mr-2">${os.icon}</span>
-              ${os.title}
-          </h4>
-          <p class="text-xl font-semibold text-gray-100">${os.hex.name_jp}</p>
-          <p class="text-sm leading-relaxed text-gray-400 mt-3 break-words">${os.explanation}</p>
-      </div>
-    `
+              <div class="p-5 rounded-xl shadow-lg flex flex-col bg-gray-900/50 border border-gray-700">
+                  <h4 class="text-lg font-bold text-indigo-300 flex items-center mb-2"><span class="text-2xl mr-2">${os.icon}</span>${os.title}</h4>
+                  <p class="text-xl font-semibold text-gray-100">${os.hex.name_jp}</p>
+                  <p class="text-sm leading-relaxed text-gray-400 mt-3 break-words">${os.explanation}</p>
+              </div>`
             )
             .join("");
 
           return `
-    <div class="report-section">
-        <h3><span class="text-2xl mr-2">✨</span>あなたのOS「三位一体」モデル</h3>
-        <p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p>
-        
-        <div class="mt-8 text-center">
-            <img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="max-w-sm mx-auto mb-8">
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-6 mt-6">
-          ${osCardsHtml}
-        </div>
-    </div>
-  `;
+            <div class="report-section">
+                <h3><span class="text-2xl mr-2">✨</span>あなたのOS「三位一体」モデル</h3>
+                <p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p>
+                <div class="mt-8 text-center"><img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="max-w-sm mx-auto mb-8"></div>
+                <div class="grid md:grid-cols-3 gap-6 mt-6">${osCardsHtml}</div>
+            </div>`;
         };
 
-        /**
-         * 4. 有料版へのCTAセクションのHTMLを生成する関数
-         */
         const createProfessionalCtaSection = () => {
           return `
             <div class="mt-16 p-8 bg-gradient-to-br from-amber-500/20 to-gray-800/20 rounded-2xl text-center border border-amber-500/30">
                 <h3 class="text-2xl font-bold text-amber-300">より深い自己理解へ</h3>
-                <p class="mt-4 text-gray-300 max-w-2xl mx-auto">
-                    今回の分析結果とあなたの現状を組み合わせ、AIパーソナリティコーチ「HaQeiプロフェッショナル」が、あなただけの戦略的アドバイスを生成します。
-                </p>
-                <button id="request-professional-btn" class="mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">
-                    特別レポートをリクエストする (任意)
-                </button>
-            </div>
-            `;
+                <p class="mt-4 text-gray-300 max-w-2xl mx-auto">今回の分析結果とあなたの現状を組み合わせ、AIパーソナリティコーチ「HaQeiプロフェッショナル」が、あなただけの戦略的アドバイスを生成します。</p>
+                <button id="request-professional-btn" class="mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">特別レポートをリクエストする (任意)</button>
+            </div>`;
         };
 
-        // ▼▼▼【v19.3 修正版】レポート描画関数 ▼▼▼
         const renderReport = (userProfile, result) => {
           const { trigram_profile, hexagram_candidates, score_breakdown } =
             result;
 
-          // ★★★ レポート全体のHTML構成と順番を変更 ★★★
           reportContainer.innerHTML =
-            createIntroSection() + // 0. イントロ
-            createProfileSection() + // 1. エネルギープロファイル
-            createTrinityModelSection() + // 2. 三位一体モデル
-            createArchitectureSection() + // 3. あなたのOSアーキテクチャ（旧OS詳細）
-            createProfessionalCtaSection(); // 4. 有料版へのCTA
+            createIntroSection() +
+            createProfileSection() +
+            createTrinityModelSection() +
+            createArchitectureSection() +
+            createProfessionalCtaSection();
 
           inputContainer.classList.add("hidden");
           reportContainer.classList.remove("hidden");
 
-          // グラフとマップの描画
           renderRadarChart(trigram_profile);
           renderHexagramMap(hexagram_candidates);
 
-          // イベントリスナーの設定
           document
             .getElementById("show-breakdown-btn")
             .addEventListener("click", () =>
@@ -945,15 +929,11 @@
           document
             .getElementById("request-professional-btn")
             .addEventListener("click", showProfessionalInputModal);
-
           window.scrollTo({ top: 0, behavior: "smooth" });
         };
 
-        // ▼▼▼【v19.3 修正版】OSアーキテクチャセクション生成関数 ▼▼▼
         const createArchitectureSection = () => {
-          const { hexagram_candidates } = lastAnalysisResult; // グローバル変数から結果を取得
-
-          // ★★★ OSの役割定義を「三位一体モデル」の表現に統一 ★★★
+          const { hexagram_candidates } = lastAnalysisResult;
           const osTypes = [
             {
               title: "表舞台のOS (インターフェース)",
@@ -967,7 +947,6 @@
               highlightClass: "highlight-primary",
               icon: "🔥",
             },
-
             {
               title: "可能性のOS (セーフモード)",
               subtitle: "困難な時に立ち返る、あなたの心の安全地帯",
@@ -976,7 +955,6 @@
             },
           ];
 
-          // ★★★ 各OS詳細カードの生成ロジック ★★★
           const osSections = hexagram_candidates
             .slice(0, 3)
             .map((os, index) => {
@@ -1017,10 +995,9 @@
 
               return `
         <div class="bg-gray-800/60 p-6 rounded-2xl">
-            <h3 class="text-xl font-bold text-indigo-300 flex items-center">
-                <span class="text-2xl mr-3">${osTypeDef.icon}</span>
-                ${index + 1}. ${os.name_jp} - 【${osTypeDef.title}】
-            </h3>
+            <h3 class="text-xl font-bold text-indigo-300 flex items-center"><span class="text-2xl mr-3">${
+              osTypeDef.icon
+            }</span>${index + 1}. ${os.name_jp} - 【${osTypeDef.title}】</h3>
             <p class="text-sm text-gray-400 ml-10">${osTypeDef.subtitle}</p>
             <p class="text-sm text-gray-500 ml-10">総合スコア: ${
               os.final_score
@@ -1033,68 +1010,33 @@
             })
             .join("");
 
-          // ★★★ 64卦マップの生成ロジック ★★★
           const mapHtml = `
-    <div class="mt-12">
-        <h3 class="text-xl font-bold text-indigo-300">人格OS相関図（64卦マップ）</h3>
-        <p class="mt-2">あなたのOSが、易経の宇宙観の中でどのような位置にあるかを示します。クリックで各OSの関係性を探求できます。</p>
-        <div id="hex-map-info" class="my-3 p-3 bg-gray-900/50 rounded-lg">
-            <p class="text-center text-sm text-gray-400">マップ上のOSをクリックして、そのOSの関連性を表示します。</p>
-        </div>
-        <div class="hex-map-container mt-4"></div>
-        <div class="flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs mt-2">
-            <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-orange-400 rounded-sm"></span>錯卦(真逆)</span>
-            <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dashed border-blue-400 rounded-sm"></span>綜卦(裏側)</span>
-            <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dotted border-green-400 rounded-sm"></span>互卦(内包)</span>
-        </div>
-    </div>`;
+            <div class="mt-12">
+                <h3 class="text-xl font-bold text-indigo-300">人格OS相関図（64卦マップ）</h3>
+                <p class="mt-2">あなたのOSが、易経の宇宙観の中でどのような位置にあるかを示します。クリックで各OSの関係性を探求できます。</p>
+                <div id="hex-map-info" class="my-3 p-3 bg-gray-900/50 rounded-lg"><p class="text-center text-sm text-gray-400">マップ上のOSをクリックして、そのOSの関連性を表示します。</p></div>
+                <div class="hex-map-container mt-4"></div>
+                <div class="flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs mt-2">
+                    <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-orange-400 rounded-sm"></span>錯卦(真逆)</span>
+                    <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dashed border-blue-400 rounded-sm"></span>綜卦(裏側)</span>
+                    <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dotted border-green-400 rounded-sm"></span>互卦(内包)</span>
+                </div>
+            </div>`;
 
-          // ★★★ セクション全体のHTML構造（OS詳細が先、マップが後） ★★★
-          return `
-    <div class="report-section">
-        <h3>あなたのOSアーキテクチャ</h3>
-        <div class="space-y-8 mt-8">${osSections}</div>
-        ${mapHtml}
-    </div>`;
+          return `<div class="report-section"><h3>あなたのOSアーキテクチャ</h3><div class="space-y-8 mt-8">${osSections}</div>${mapHtml}</div>`;
         };
-        /**
-         * ユーザーの追加情報を入力するモーダルを表示する関数
-         * @param {object} analysisResult - OS分析の結果オブジェクト
-         */
+
         const showProfessionalInputModal = () => {
           const modalContent = `
                 <h3 class="text-xl font-bold text-amber-300 mb-4">HaQeiプロフェッショナル 総合解説</h3>
                 <p class="text-sm text-gray-400 mb-6">あなたのOS分析結果と、以下の任意項目を統合し、あなただけの戦略レポートを生成します。よりパーソナルなアドバイスのために、可能な範囲でご入力ください。</p>
                 <div class="space-y-4">
-                    <div>
-                        <label for="prof-age" class="block text-sm font-medium text-gray-300">年代 (任意)</label>
-                        <select id="prof-age" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5">
-                            <option value="">選択しない</option>
-                            <option value="10代">10代</option>
-                            <option value="20代">20代</option>
-                            <option value="30代">30代</option>
-                            <option value="40代">40代</option>
-                            <option value="50代">50代</option>
-                            <option value="60代以上">60代以上</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="prof-occupation" class="block text-sm font-medium text-gray-300">職業・業界 (任意)</label>
-                        <input type="text" id="prof-occupation" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: ITエンジニア, 医療従事者, 学生">
-                    </div>
-                    <div>
-                        <label for="prof-role" class="block text-sm font-medium text-gray-300">現在の立場・役割 (任意)</label>
-                        <input type="text" id="prof-role" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: チームリーダー, 転職活動中, 二児の母">
-                    </div>
-                     <div>
-                        <label for="prof-issue" class="block text-sm font-medium text-gray-300">今、最も関心のある課題 (任意)</label>
-                        <textarea id="prof-issue" rows="3" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: 部下の育成に悩んでいる, 新しいキャリアパスが見えない"></textarea>
-                    </div>
+                    <div><label for="prof-age" class="block text-sm font-medium text-gray-300">年代 (任意)</label><select id="prof-age" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5"><option value="">選択しない</option><option value="10代">10代</option><option value="20代">20代</option><option value="30代">30代</option><option value="40代">40代</option><option value="50代">50代</option><option value="60代以上">60代以上</option></select></div>
+                    <div><label for="prof-occupation" class="block text-sm font-medium text-gray-300">職業・業界 (任意)</label><input type="text" id="prof-occupation" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: ITエンジニア, 医療従事者, 学生"></div>
+                    <div><label for="prof-role" class="block text-sm font-medium text-gray-300">現在の立場・役割 (任意)</label><input type="text" id="prof-role" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: チームリーダー, 転職活動中, 二児の母"></div>
+                    <div><label for="prof-issue" class="block text-sm font-medium text-gray-300">今、最も関心のある課題 (任意)</label><textarea id="prof-issue" rows="3" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: 部下の育成に悩んでいる, 新しいキャリアパスが見えない"></textarea></div>
                 </div>
-                <button id="generate-professional-report-btn" class="w-full mt-8 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">
-                    特別レポートのページへ進む
-                </button>
-            `;
+                <button id="generate-professional-report-btn" class="w-full mt-8 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">特別レポートのページへ進む</button>`;
           showModal(modalContent);
           document
             .getElementById("generate-professional-report-btn")
@@ -1113,7 +1055,6 @@
             profile: lastUserProfile,
             context: userContext,
           };
-
           try {
             localStorage.setItem(
               "haqeiProfessionalData",
@@ -1126,100 +1067,6 @@
               "レポートデータの保存に失敗しました。ブラウザのプライベートモード等をご利用の場合、機能しない可能性があります。"
             );
           }
-        };
-        /**
-         * AIが生成したレポートを表示する関数
-         * @param {object} analysisResult - OS分析の結果オブジェクト
-         * @param {object} userContext - ユーザーが任意で入力した情報
-         */
-        const renderProfessionalReport = (analysisResult, userContext) => {
-          const outputContainer = document.getElementById(
-            "professional-report-output"
-          );
-          outputContainer.innerHTML = `
-                <div class="p-6 bg-gray-900 rounded-lg text-center">
-                    <p class="text-amber-300 animate-pulse">HaQeiプロフェッショナルがあなたのためのレポートを生成中...</p>
-                </div>
-            `;
-
-          // AIの思考時間をシミュレート
-          setTimeout(() => {
-            const reportText = generateProfessionalReportText(
-              analysisResult,
-              userContext
-            );
-            outputContainer.innerHTML = `
-                <div class="p-6 md:p-8 bg-gray-900/50 rounded-2xl border border-amber-400/30 prose prose-invert max-w-none">
-                    ${reportText}
-                </div>`;
-          }, 1500);
-        };
-
-        /**
-         * AIの解説テキストを生成する（シミュレーション）関数
-         */
-        const generateProfessionalReportText = (
-          analysisResult,
-          userContext
-        ) => {
-          const os1 = analysisResult.hexagram_candidates[0];
-          const os2 = analysisResult.hexagram_candidates[1];
-          const os3 = analysisResult.hexagram_candidates[2];
-          const profile = analysisResult.trigram_profile;
-
-          // 各セクションのテキストを生成
-          const contextText =
-            userContext.age ||
-            userContext.occupation ||
-            userContext.role ||
-            userContext.issue
-              ? `<h4>1. ご入力いただいた状況の確認</h4><p class="text-sm">「${
-                  userContext.age || ""
-                } ${userContext.occupation || ""} ${
-                  userContext.role || ""
-                }」で、「${
-                  userContext.issue || "特になし"
-                }」という課題意識をお持ちなのですね。承知いたしました。その状況を踏まえ、あなたのOSを読み解いていきましょう。</p>`
-              : "";
-
-          const profileText = `<h4>2. エネルギープロファイルから見るあなたの「基本性質」</h4><p class="text-sm">あなたのエネルギーは、<strong style="color:${
-            HELPERS.trigram_colors[profile[0].id]
-          }">${profile[0].name_en}</strong>の「${
-            HELPERS.id_to_jp[profile[0].id]
-          }」と<strong style="color:${HELPERS.trigram_colors[profile[1].id]}">${
-            profile[1].name_en
-          }</strong>の「${
-            HELPERS.id_to_jp[profile[1].id]
-          }」が際立っています。これは、あなたの基本性質が「${
-            profile[0].strength_description
-          }」や「${
-            profile[1].strength_description
-          }」という点にあることを示唆しています。一方で、<strong style="color:${
-            HELPERS.trigram_colors[profile[7].id]
-          }">${
-            profile[7].name_en
-          }</strong>のエネルギーが最も低いため、${profile[7].strength_description.slice(
-            0,
-            -1
-          )}のは少し苦手かもしれません。</p>`;
-
-          const trinityText = `<h4>3. 「三位一体OSモデル」の構造的解説</h4><p class="text-sm">あなたのOS構造は非常に興味深い連携をしています。あなたの根源的な動力源である<strong>【エンジンOS：${os1.name_jp}】</strong>が放つエネルギーは、<strong>【インターフェースOS：${os2.name_jp}】</strong>というフィルターを通して社会に表現されます。しかし、ストレスがかかると<strong>【セーフモードOS：${os3.name_jp}】</strong>が起動し、無意識に初期設定の行動パターンに立ち返る傾向があります。この3つのOSの関係性を理解することが、自己を乗りこなす鍵となります。</p>`;
-
-          const adviceText = `<h4>4. 総合所見とあなたへの戦略的アドバイス</h4><p class="text-sm">（ここに、全ての情報を統合した、AIによる具体的なアドバイスが生成されます。例：${
-            userContext.issue || "あなたの現在の課題"
-          }に対して、エンジンOSの力をインターフェースOSを通してどう活かすべきか、セーフモードOSの暴走にどう備えるべきか、等々...）</p>`;
-
-          return `
-                <h3 class="text-2xl font-bold text-amber-300 mb-6 text-center">HaQeiプロフェッショナル<br>総合解説レポート</h3>
-                ${contextText}
-                ${profileText}
-                ${trinityText}
-                ${adviceText}
-                <h4 class="mt-6">5. 次の具体的な一歩</h4>
-                <ul class="text-sm">
-                    <li>（AIが具体的なアクションプランを2〜3個提案します）</li>
-                </ul>
-            `;
         };
 
         const renderRadarChart = (trigram_profile) => {
@@ -1277,9 +1124,7 @@
                   suggestedMin: 0,
                 },
               },
-              plugins: {
-                legend: { display: false },
-              },
+              plugins: { legend: { display: false } },
             },
           });
         };
@@ -1288,7 +1133,6 @@
           const container = document.querySelector(".hex-map-container");
           if (!container) return;
           container.innerHTML = "";
-
           const top3Ids = hexagram_candidates
             .slice(0, 3)
             .map((h) => h.hexagram_id);
@@ -1298,7 +1142,6 @@
             "highlight-growth",
           ];
           const trigramOrder = [1, 2, 3, 4, 5, 6, 7, 8];
-
           container.appendChild(document.createElement("div"));
           trigramOrder.forEach((id) => {
             const headerCell = document.createElement("div");
@@ -1338,26 +1181,24 @@
               container.appendChild(cell);
             });
           });
-
-          const cells = container.querySelectorAll(".hex-cell");
-          cells.forEach((cell) => {
+          container.querySelectorAll(".hex-cell").forEach((cell) => {
             cell.addEventListener("click", (e) => {
               e.stopPropagation();
               const id = parseInt(cell.dataset.id);
               if (isNaN(id)) return;
               const h64Data = HELPERS.getH64ById(id);
               if (!h64Data) return;
-
-              cells.forEach((c) =>
-                c.classList.remove(
-                  "selected",
-                  "highlight-sakka",
-                  "highlight-souka",
-                  "highlight-goke"
-                )
-              );
+              container
+                .querySelectorAll(".hex-cell")
+                .forEach((c) =>
+                  c.classList.remove(
+                    "selected",
+                    "highlight-sakka",
+                    "highlight-souka",
+                    "highlight-goke"
+                  )
+                );
               cell.classList.add("selected");
-
               if (h64Data.saku_id !== id)
                 container
                   .querySelector(`.hex-cell[data-id='${h64Data.saku_id}']`)
@@ -1370,73 +1211,46 @@
                 container
                   .querySelector(`.hex-cell[data-id='${h64Data.go_id}']`)
                   ?.classList.add("highlight-goke");
-
               const mapInfo = document.getElementById("hex-map-info");
               if (mapInfo) {
-                const getHexSummary = (hexId) => {
-                  const manual = HDB.os_manual[hexId];
-                  if (manual && manual.summary) return manual.summary;
-                  const hex = HELPERS.getHexagramById(hexId);
-                  return hex ? hex.description : "解説が見つかりませんでした。";
-                };
+                const getHexSummary = (hexId) =>
+                  HELPERS.getHexagramById(hexId)?.description ||
+                  "解説が見つかりませんでした。";
                 const sakkaData = HELPERS.getH64ById(h64Data.saku_id);
                 const soukaData = HELPERS.getH64ById(h64Data.sou_id);
                 const gokeData = HELPERS.getH64ById(h64Data.go_id);
-                let sakkaHtml, soukaHtml, gokeHtml;
-                if (h64Data.saku_id === id)
-                  sakkaHtml = `<p><span class="text-orange-400 font-semibold">錯卦: このOS自身</span><br><span class="text-xs text-gray-400">陰陽を反転させても同じ構造を持つ、完全なOSです。</span></p>`;
-                else
-                  sakkaHtml = `<p><span class="text-orange-400 font-semibold">錯卦: ${
-                    sakkaData.名前
-                  }</span><br><span class="text-xs text-gray-400">あなたのOSの全陰陽を反転させた「真逆の性質」。最大の課題と可能性を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                    sakkaData.卦番号
-                  )}</div></details>`;
-                if (h64Data.sou_id === id)
-                  soukaHtml = `<p><span class="text-blue-400 font-semibold">綜卦: このOS自身</span><br><span class="text-xs text-gray-400">上下を反転させても同じ構造を持つ、安定したOSです。</span></p>`;
-                else
-                  soukaHtml = `<p><span class="text-blue-400 font-semibold">綜卦: ${
-                    soukaData.名前
-                  }</span><br><span class="text-xs text-gray-400">あなたのOSを上下反転させた「裏側の性質」。他者からの見え方や隠れた側面を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                    soukaData.卦番号
-                  )}</div></details>`;
-                if (h64Data.go_id === id)
-                  gokeHtml = `<p><span class="text-green-400 font-semibold">互卦: このOS自身</span><br><span class="text-xs text-gray-400">内に同じ構造を内包する、自己完結したエネルギーを持ちます。</span></p>`;
-                else
-                  gokeHtml = `<p><span class="text-green-400 font-semibold">互卦: ${
-                    gokeData.名前
-                  }</span><br><span class="text-xs text-gray-400">あなたのOSの内に秘められた「隠れた本質」。ポテンシャルや問題の核心を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                    gokeData.卦番号
-                  )}</div></details>`;
-                mapInfo.innerHTML = `<div class="w-full text-left"><p class="font-bold text-white text-base text-center mb-2 pb-2 border-b border-gray-700">${h64Data.名前}</p><div class="space-y-2"><div class="relation-block">${sakkaHtml}</div><div class="relation-block">${soukaHtml}</div><div class="relation-block">${gokeHtml}</div></div></div>`;
+                mapInfo.innerHTML = `<div class="w-full text-left"><p class="font-bold text-white text-base text-center mb-2 pb-2 border-b border-gray-700">${
+                  h64Data.名前
+                }</p><div class="space-y-2"><div class="relation-block">${
+                  h64Data.saku_id === id
+                    ? `<p><span class="text-orange-400 font-semibold">錯卦: このOS自身</span><br><span class="text-xs text-gray-400">陰陽を反転させても同じ構造を持つ、完全なOSです。</span></p>`
+                    : `<p><span class="text-orange-400 font-semibold">錯卦: ${
+                        sakkaData.名前
+                      }</span><br><span class="text-xs text-gray-400">あなたのOSの全陰陽を反転させた「真逆の性質」。最大の課題と可能性を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
+                        sakkaData.卦番号
+                      )}</div></details>`
+                }</div><div class="relation-block">${
+                  h64Data.sou_id === id
+                    ? `<p><span class="text-blue-400 font-semibold">綜卦: このOS自身</span><br><span class="text-xs text-gray-400">上下を反転させても同じ構造を持つ、安定したOSです。</span></p>`
+                    : `<p><span class="text-blue-400 font-semibold">綜卦: ${
+                        soukaData.名前
+                      }</span><br><span class="text-xs text-gray-400">あなたのOSを上下反転させた「裏側の性質」。他者からの見え方や隠れた側面を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
+                        soukaData.卦番号
+                      )}</div></details>`
+                }</div><div class="relation-block">${
+                  h64Data.go_id === id
+                    ? `<p><span class="text-green-400 font-semibold">互卦: このOS自身</span><br><span class="text-xs text-gray-400">内に同じ構造を内包する、自己完結したエネルギーを持ちます。</span></p>`
+                    : `<p><span class="text-green-400 font-semibold">互卦: ${
+                        gokeData.名前
+                      }</span><br><span class="text-xs text-gray-400">あなたのOSの内に秘められた「隠れた本質」。ポテンシャルや問題の核心を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
+                        gokeData.卦番号
+                      )}</div></details>`
+                }</div></div></div>`;
               }
             });
           });
         };
 
-        const showModal = (content, useOriginalStyling = true) => {
-          if (useOriginalStyling) {
-            modalBody.innerHTML = content;
-          } else {
-            // For diagnostic modal, content is already fully formed.
-          }
-          modalContainer.classList.remove("hidden");
-          document.body.style.overflow = "hidden";
-          setTimeout(() => {
-            modalOverlay.classList.remove("opacity-0");
-            document
-              .getElementById("modalContent")
-              .classList.remove("scale-95");
-          }, 10);
-        };
-        const hideModal = () => {
-          document.getElementById("modalOverlay").classList.add("opacity-0");
-          document.getElementById("modalContent").classList.add("scale-95");
-          setTimeout(() => {
-            modalContainer.classList.add("hidden");
-            document.body.style.overflow = "";
-            modalBody.innerHTML = ""; // モーダルを閉じる時に中身を空にする
-          }, 300);
-        };
         const showBreakdownModal = (breakdownData) => {
           let contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-4">OSスコア算出根拠</h3><p class="text-sm text-gray-400 mb-4">あなたの性格特性が、8つの基本エネルギー（八卦）にどのように貢献しているかの内訳です。各数値は、特性の親和性と重み付けを掛け合わせたスコアを示します。</p><div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-400">`;
           contentHtml += `<thead class="text-xs text-gray-300 uppercase bg-gray-700"><tr><th scope="col" class="px-4 py-3">分析項目</th>`;
@@ -1468,14 +1282,18 @@
           showModal(contentHtml);
         };
 
+        // --- 初期化とイベントリスナー設定 ---
         populateSelects();
         modalOverlay.addEventListener("click", hideModal);
         modalCloseBtn.addEventListener("click", hideModal);
+        startDiagnosticBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          showDiagnosticModal();
+        });
 
         analyzeBtn.addEventListener("click", () => {
           const sfSelects = document.querySelectorAll(".sf-select");
           lastUserProfile = {
-            // グローバル変数にユーザープロファイルを保存
             mbti: mbtiSelect.value,
             enneagram: enneaSelects.map((s) => s.value).filter(Boolean),
             sf: Array.from(sfSelects)
@@ -1488,7 +1306,7 @@
             );
             return;
           }
-          lastAnalysisResult = runAdvancedAnalysis(lastUserProfile); // グローバル変数に結果を保存
+          lastAnalysisResult = runAdvancedAnalysis(lastUserProfile);
           renderReport(lastUserProfile, lastAnalysisResult);
         });
       });
