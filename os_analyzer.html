@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HaQei 人格OS 分析レポート v19.0</title>
+    <title>HaQei 人格OS 分析レポート v15.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -55,6 +55,8 @@
         background-color: #1f2937;
         color: #d1d5db;
       }
+
+      /* 64卦マップのスタイル */
       .hex-map-container {
         display: grid;
         grid-template-columns: 2.5rem repeat(8, 1fr);
@@ -154,6 +156,7 @@
         border: 2px dotted #34d399;
         box-shadow: 0 0 10px #34d399;
       }
+
       #hex-map-info details summary {
         cursor: pointer;
         display: inline-block;
@@ -179,6 +182,7 @@
       #hex-map-info .relation-block:last-child {
         border-bottom: none;
       }
+
       .modal-overlay {
         transition: opacity 0.3s ease;
       }
