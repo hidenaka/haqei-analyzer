@@ -144,6 +144,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 1,
       name_jp: "乾為天",
+      reading: "けんいてん",
+      catchphrase: "天翔ける龍のような、天性のリーダー",
       upper_trigram_id: 1,
       lower_trigram_id: 1,
       description:
@@ -153,6 +155,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 2,
       name_jp: "坤為地",
+      reading: "こんいち",
+      catchphrase: "大地の母のように、すべてを受け入れる人",
       upper_trigram_id: 8,
       lower_trigram_id: 8,
       description: "穏やか、従順、勤勉、受動的、包容力がある、縁の下の力持ち",
@@ -161,6 +165,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 3,
       name_jp: "水雷屯",
+      reading: "すいらいちゅん",
+      catchphrase: "産みの苦しみを乗り越える、粘り強い開拓者",
       upper_trigram_id: 6,
       lower_trigram_id: 4,
       description: "悩みやすい、慎重、粘り強い、内向的、苦労性",
@@ -169,6 +175,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 4,
       name_jp: "山水蒙",
+      reading: "さんすいもう",
+      catchphrase: "未知を恐れず、何事も素直に学べる学習者",
       upper_trigram_id: 7,
       lower_trigram_id: 6,
       description: "未熟、子供っぽい、無邪気、教えを請うことに抵抗がない",
@@ -177,6 +185,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 5,
       name_jp: "水天需",
+      reading: "すいてんじゅ",
+      catchphrase: "最善の時を待てる、辛抱強い戦略家",
       upper_trigram_id: 6,
       lower_trigram_id: 1,
       description: "どっしりしている、焦らない、いずれ良くなると信じている",
@@ -185,6 +195,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 6,
       name_jp: "天水訟",
+      reading: "てんすいしょう",
+      catchphrase: "信念を貫き、正義を問う論客",
       upper_trigram_id: 1,
       lower_trigram_id: 6,
       description: "理屈っぽい、負けず嫌い、争いごとを好む、正義感が強い",
@@ -193,6 +205,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 7,
       name_jp: "地水師",
+      reading: "ちすいし",
+      catchphrase: "規律と統率力で、組織を導く司令官",
       upper_trigram_id: 8,
       lower_trigram_id: 6,
       description: "厳格、規律を重んじる、目的意識が強い、大衆心理を読む",
@@ -201,6 +215,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 8,
       name_jp: "水地比",
+      reading: "すいちひ",
+      catchphrase: "心で繋がり、人を支えるサポーター",
       upper_trigram_id: 6,
       lower_trigram_id: 8,
       description: "社交的、情が深い、誰とでも仲良くなれる、リーダーを支える",
@@ -209,6 +225,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 9,
       name_jp: "風天小畜",
+      reading: "ふうてんしょうちく",
+      catchphrase: "小さな努力を積み重ねる、堅実な実務家",
       upper_trigram_id: 5,
       lower_trigram_id: 1,
       description: "控えめ、真面目、コツコツ努力する、少し頼りない印象",
@@ -217,6 +235,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 10,
       name_jp: "天澤履",
+      reading: "てんたくり",
+      catchphrase: "礼節をわきまえ、慎重に進むチャレンジャー",
       upper_trigram_id: 1,
       lower_trigram_id: 2,
       description: "謙虚、真面目、目上を敬う、慎重に行動する",
@@ -225,6 +245,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 11,
       name_jp: "地天泰",
+      reading: "ちてんたい",
+      catchphrase: "異なる要素を調和させる、平和を愛する調整役",
       upper_trigram_id: 8,
       lower_trigram_id: 1,
       description: "穏やか、社交的、誰とでもうまくやれる、包容力がある",
@@ -233,6 +255,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 12,
       name_jp: "天地否",
+      reading: "てんちひ",
+      catchphrase: "自分の内なる世界を、深く追求する思想家",
       upper_trigram_id: 1,
       lower_trigram_id: 8,
       description: "内向的、非社交的、頑固、人を寄せ付けない雰囲気",
@@ -241,6 +265,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 13,
       name_jp: "天火同人",
+      reading: "てんかどうじん",
+      catchphrase: "公平な理念で、人々を団結させるまとめ役",
       upper_trigram_id: 1,
       lower_trigram_id: 3,
       description: "社交的、誰とでも分け隔てなく接する、オープンな性格",
@@ -249,6 +275,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 14,
       name_jp: "火天大有",
+      reading: "かてんたいゆう",
+      catchphrase: "太陽のように、寛大さで人を照らすリーダー",
       upper_trigram_id: 3,
       lower_trigram_id: 1,
       description: "明るく、寛大、おおらか、多くの人に慕われる",
@@ -257,6 +285,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 15,
       name_jp: "地山謙",
+      reading: "ちさんけん",
+      catchphrase: "実力があっても、常に謙虚でいられる人格者",
       upper_trigram_id: 8,
       lower_trigram_id: 7,
       description: "腰が低い、実力があるのにひけらかさない、誰からも好かれる",
@@ -265,6 +295,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 16,
       name_jp: "雷地豫",
+      reading: "らいちよ",
+      catchphrase: "周到な準備で、人を楽しませるエンターテイナー",
       upper_trigram_id: 4,
       lower_trigram_id: 8,
       description:
@@ -274,6 +306,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 17,
       name_jp: "沢雷随",
+      reading: "たくらいずい",
+      catchphrase: "変化の波に乗りこなす、柔軟なフォロワー",
       upper_trigram_id: 2,
       lower_trigram_id: 4,
       description: "素直、社交的、人に合わせるのが上手、軽率な面も",
@@ -282,6 +316,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 18,
       name_jp: "山風蠱",
+      reading: "さんぷうこ",
+      catchphrase: "根本原因を立て直す、情熱的な改革者",
       upper_trigram_id: 7,
       lower_trigram_id: 5,
       description:
@@ -291,6 +327,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 19,
       name_jp: "地沢臨",
+      reading: "ちたくりん",
+      catchphrase: "人を育て導く、面倒見のいいリーダー",
       upper_trigram_id: 8,
       lower_trigram_id: 2,
       description: "明るく、おおらか、親分肌・姉御肌、人を育てるのが好き",
@@ -299,6 +337,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 20,
       name_jp: "風地観",
+      reading: "ふうちかん",
+      catchphrase: "物事の本質を見抜く、静かな観察者",
       upper_trigram_id: 5,
       lower_trigram_id: 8,
       description: "静か、思慮深い、物事の本質を見抜く、精神性が高い",
@@ -307,6 +347,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 21,
       name_jp: "火雷噬嗑",
+      reading: "からいぜいごう",
+      catchphrase: "障害を噛み砕き、断固として進む実行者",
       upper_trigram_id: 3,
       lower_trigram_id: 4,
       description: "歯に衣着せぬ、情熱的、正義感が強い、怒りっぽい",
@@ -315,6 +357,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 22,
       name_jp: "山火賁",
+      reading: "さんかひ",
+      catchphrase: "本質を美しく彩る、天性のアーティスト",
       upper_trigram_id: 7,
       lower_trigram_id: 3,
       description: "おしゃれ、外面を気にする、優雅、見栄っ張り",
@@ -323,6 +367,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 23,
       name_jp: "山地剝",
+      reading: "さんちはく",
+      catchphrase: "古いものを手放し、本質を見出す変革者",
       upper_trigram_id: 7,
       lower_trigram_id: 8,
       description: "保守的、現状にしがみつく、衰運にある",
@@ -331,6 +377,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 24,
       name_jp: "地雷復",
+      reading: "ちらいふく",
+      catchphrase: "失敗を次に活かす、しなやかな挑戦者",
       upper_trigram_id: 8,
       lower_trigram_id: 4,
       description: "前向き、失敗を恐れない、素直、根本に戻って考える",
@@ -339,6 +387,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 25,
       name_jp: "天雷无妄",
+      reading: "てんらいむぼう",
+      catchphrase: "自然体で、あるがままを受け入れる楽天家",
       upper_trigram_id: 1,
       lower_trigram_id: 4,
       description: "天真爛漫、正直、裏表がない、自然のまま",
@@ -347,6 +397,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 26,
       name_jp: "山天大畜",
+      reading: "さんてんたいちく",
+      catchphrase: "内に力を蓄え、好機を待つ大器晩成の人",
       upper_trigram_id: 7,
       lower_trigram_id: 1,
       description:
@@ -356,6 +408,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 27,
       name_jp: "山雷頤",
+      reading: "さんらいい",
+      catchphrase: "言葉と時間をかけて、物事を育む専門家",
       upper_trigram_id: 7,
       lower_trigram_id: 4,
       description:
@@ -365,6 +419,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 28,
       name_jp: "澤風大過",
+      reading: "たくふうたいか",
+      catchphrase: "常識の枠を超える、大胆なゲームチェンジャー",
       upper_trigram_id: 2,
       lower_trigram_id: 5,
       description: "型破り、大胆不敵、やりすぎてしまう、責任感が強い",
@@ -373,6 +429,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 29,
       name_jp: "坎為水",
+      reading: "かんいすい",
+      catchphrase: "困難の渦中で、真理を見出す不屈の探求者",
       upper_trigram_id: 6,
       lower_trigram_id: 6,
       description: "苦労性、内省的、悩みやすい、粘り強い、真理を求める",
@@ -381,6 +439,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 30,
       name_jp: "離為火",
+      reading: "りいか",
+      catchphrase: "情熱と知性で、人を惹きつける華やかなスター",
       upper_trigram_id: 3,
       lower_trigram_id: 3,
       description: "明るく華やか、感情の起伏が激しい、知的、プライドが高い",
@@ -389,6 +449,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 31,
       name_jp: "沢山咸",
+      reading: "たくざんかん",
+      catchphrase: "理屈抜きに、心で感じ取れる共感者",
       upper_trigram_id: 2,
       lower_trigram_id: 7,
       description: "感受性が豊か、デリケート、ロマンチスト、影響されやすい",
@@ -397,6 +459,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 32,
       name_jp: "雷風恒",
+      reading: "らいふうこう",
+      catchphrase: "決めた道を、着実に歩み続ける継続者",
       upper_trigram_id: 4,
       lower_trigram_id: 5,
       description: "地道、真面目、一度決めたことはやり通す、変化を嫌う",
@@ -405,6 +469,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 33,
       name_jp: "天山遯",
+      reading: "てんざんとん",
+      catchphrase: "賢明な距離感を保つ、クールな戦略家",
       upper_trigram_id: 1,
       lower_trigram_id: 7,
       description: "賢い、逃げ上手、深入りしない、冷静",
@@ -413,6 +479,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 34,
       name_jp: "雷天大壮",
+      reading: "らいてんたいそう",
+      catchphrase: "目標に向かって、力強く進むチャレンジャー",
       upper_trigram_id: 4,
       lower_trigram_id: 1,
       description: "血気盛ん、猪突猛進、エネルギッシュ、正義感が強い",
@@ -421,6 +489,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 35,
       name_jp: "火地晋",
+      reading: "かちしん",
+      catchphrase: "周りを明るく照らし、前進を促すプロモーター",
       upper_trigram_id: 3,
       lower_trigram_id: 8,
       description: "明るい、前向き、目標に向かって進む、人に認められたい",
@@ -429,6 +499,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 36,
       name_jp: "地火明夷",
+      reading: "ちかめいい",
+      catchphrase: "逆境にあっても、希望を失わない芯の強い人",
       upper_trigram_id: 8,
       lower_trigram_id: 3,
       description: "苦労性、用心深い、本心を明かさない、内に強い意志を持つ",
@@ -437,6 +509,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 37,
       name_jp: "風火家人",
+      reading: "ふうかかじん",
+      catchphrase: "自分の居場所を、大切に守り育てる人",
       upper_trigram_id: 5,
       lower_trigram_id: 3,
       description: "真面目、規律正しい、情愛深い、内向き",
@@ -445,6 +519,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 38,
       name_jp: "火沢睽",
+      reading: "かたくけい",
+      catchphrase: "あえて人と違う道を行く、個性的な独創家",
       upper_trigram_id: 3,
       lower_trigram_id: 2,
       description: "あまのじゃく、反骨精神が旺盛、人と同じことを嫌う、疑り深い",
@@ -453,6 +529,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 39,
       name_jp: "水山蹇",
+      reading: "すいざんけん",
+      catchphrase: "困難な状況を、知恵と工夫で乗り越える策士",
       upper_trigram_id: 6,
       lower_trigram_id: 7,
       description: "苦労性、悩みが多い、進退窮まる、助けを求めるのが上手",
@@ -461,6 +539,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 40,
       name_jp: "雷水解",
+      reading: "らいすいかい",
+      catchphrase: "問題をスピーディに解決する、決断力のある人",
       upper_trigram_id: 4,
       lower_trigram_id: 6,
       description: "さっぱりしている、過去にこだわらない、行動が早い、寛大",
@@ -469,6 +549,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 41,
       name_jp: "山沢損",
+      reading: "さんたくそん",
+      catchphrase: "人のために自分を役立てる、誠実な貢献者",
       upper_trigram_id: 7,
       lower_trigram_id: 2,
       description: "控えめ、我慢強い、自分のことを後回しにする",
@@ -477,6 +559,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 42,
       name_jp: "風雷益",
+      reading: "ふうらいえき",
+      catchphrase: "善意の循環を生み出す、心優しいサポーター",
       upper_trigram_id: 5,
       lower_trigram_id: 4,
       description: "親切、行動的、自己犠牲をいとわない、前向き",
@@ -485,6 +569,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 43,
       name_jp: "沢天夬",
+      reading: "たくてんかい",
+      catchphrase: "ためらわずに決断し、道を拓く突破役",
       upper_trigram_id: 2,
       lower_trigram_id: 1,
       description: "大胆不敵、決断が速い、白黒はっきりさせたい、短気な面も",
@@ -493,6 +579,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 44,
       name_jp: "天風姤",
+      reading: "てんぷうこう",
+      catchphrase: "偶然の出会いをチャンスに変える、天性のネットワーカー",
       upper_trigram_id: 1,
       lower_trigram_id: 5,
       description: "魅力的、積極的、油断しやすい、移り気",
@@ -501,6 +589,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 45,
       name_jp: "沢地萃",
+      reading: "たくちすい",
+      catchphrase: "人と喜びが集まる場を創る、中心人物",
       upper_trigram_id: 2,
       lower_trigram_id: 8,
       description: "明るい、社交的、お祭り好き、リーダーシップがある",
@@ -509,6 +599,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 46,
       name_jp: "地風升",
+      reading: "ちふうしょう",
+      catchphrase: "地道な努力で、着実に成長できる人",
       upper_trigram_id: 8,
       lower_trigram_id: 5,
       description: "謙虚、真面目、努力家、目上を敬う",
@@ -517,6 +609,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 47,
       name_jp: "沢水困",
+      reading: "たくすいこん",
+      catchphrase: "苦しい状況でも、自分を見失わない哲学者",
       upper_trigram_id: 2,
       lower_trigram_id: 6,
       description: "苦労性、悲観的、口が重い、内に強い意志を秘めている",
@@ -525,6 +619,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 48,
       name_jp: "水風井",
+      reading: "すいふうせい",
+      catchphrase: "誰にでも公平に尽くせる、縁の下の力持ち",
       upper_trigram_id: 6,
       lower_trigram_id: 5,
       description: "穏やか、縁の下の力持ち、誰にでも公平、地味",
@@ -533,6 +629,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 49,
       name_jp: "沢火革",
+      reading: "たくかかく",
+      catchphrase: "古い常識を刷新する、情熱を持った改革者",
       upper_trigram_id: 2,
       lower_trigram_id: 3,
       description: "ラディカル、現状に満足しない、理想主義者",
@@ -541,6 +639,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 50,
       name_jp: "火風鼎",
+      reading: "かふうてい",
+      catchphrase: "新たな安定を築き上げる、懐の深いまとめ役",
       upper_trigram_id: 3,
       lower_trigram_id: 5,
       description: "どっしりしている、人を受け入れる、三方よしの精神を持つ",
@@ -549,6 +649,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 51,
       name_jp: "震為雷",
+      reading: "しんいらい",
+      catchphrase: "変化をチャンスに変える、瞬発力のある行動派",
       upper_trigram_id: 4,
       lower_trigram_id: 4,
       description: "活発、エネルギッシュ、驚きやすい、短気、声が大きい",
@@ -557,6 +659,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 52,
       name_jp: "艮為山",
+      reading: "ごんいさん",
+      catchphrase: "動じない自己を確立した、静かな求道者",
       upper_trigram_id: 7,
       lower_trigram_id: 7,
       description: "冷静沈着、動じない、無口、頑固、自分の世界を持つ",
@@ -565,6 +669,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 53,
       name_jp: "風山漸",
+      reading: "ふうざんぜん",
+      catchphrase: "物事を一歩ずつ、着実に進める誠実な人",
       upper_trigram_id: 5,
       lower_trigram_id: 7,
       description: "真面目、慎重、一歩一歩進む、時間をかける",
@@ -573,6 +679,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 54,
       name_jp: "雷沢帰妹",
+      reading: "らいたくきまい",
+      catchphrase: "自分の情熱に正直に生きる、純粋な情熱家",
       upper_trigram_id: 4,
       lower_trigram_id: 2,
       description: "情熱的、衝動的、後先を考えない、わがまま",
@@ -581,6 +689,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 55,
       name_jp: "雷火豊",
+      reading: "らいかほう",
+      catchphrase: "豊かさを創り出し、分かち合うカリスマ",
       upper_trigram_id: 4,
       lower_trigram_id: 3,
       description: "明るく、派手好き、エネルギッシュ、自信家",
@@ -589,6 +699,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 56,
       name_jp: "火山旅",
+      reading: "かざんりょ",
+      catchphrase: "一箇所に留まらない、自由な旅人",
       upper_trigram_id: 3,
       lower_trigram_id: 7,
       description: "孤独を好む、根無し草、慎み深い、常にアウェイな感覚",
@@ -597,6 +709,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 57,
       name_jp: "巽為風",
+      reading: "そんいふう",
+      catchphrase: "隅々まで心配りができる、しなやかな調整役",
       upper_trigram_id: 5,
       lower_trigram_id: 5,
       description: "穏やか、優柔不断、人に合わせるのがうまい、社交的",
@@ -605,6 +719,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 58,
       name_jp: "兌為沢",
+      reading: "だいたく",
+      catchphrase: "人と話すこと、喜ばせることが好きなエンターテイナー",
       upper_trigram_id: 2,
       lower_trigram_id: 2,
       description: "明るい、おしゃべり好き、楽しいことが好き、愛嬌がある",
@@ -613,6 +729,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 59,
       name_jp: "風水渙",
+      reading: "ふうすいかん",
+      catchphrase: "心の壁を溶かし、風通しを良くする調整役",
       upper_trigram_id: 5,
       lower_trigram_id: 6,
       description: "大局的な視点を持つ、私心がない、人々をまとめるのが上手",
@@ -621,6 +739,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 60,
       name_jp: "水沢節",
+      reading: "すいたくせつ",
+      catchphrase: "自分を律し、節度を保つことができる人",
       upper_trigram_id: 6,
       lower_trigram_id: 2,
       description: "ケジメを大事にする、自己管理ができる、真面目、少し窮屈",
@@ -629,6 +749,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 61,
       name_jp: "風沢中孚",
+      reading: "ふうたくちゅうふ",
+      catchphrase: "誠実さで、人の心を動かすことができる人",
       upper_trigram_id: 5,
       lower_trigram_id: 2,
       description: "裏表がない、正直、素直、誠意がある",
@@ -637,6 +759,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 62,
       name_jp: "雷山小過",
+      reading: "らいざんしょうか",
+      catchphrase: "謙虚すぎるほどに、丁寧さを重んじる人",
       upper_trigram_id: 4,
       lower_trigram_id: 7,
       description: "控えめ、臆病、石橋を叩いて渡る、自分に自信がない",
@@ -645,6 +769,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 63,
       name_jp: "水火既済",
+      reading: "すいかきせい",
+      catchphrase: "完璧なバランスを求める、秩序の番人",
       upper_trigram_id: 6,
       lower_trigram_id: 3,
       description: "整然としている、完璧主義、安定を好む、保守的",
@@ -653,6 +779,8 @@ const HAQEI_DATA = {
     {
       hexagram_id: 64,
       name_jp: "火水未済",
+      reading: "かすいびせい",
+      catchphrase: "未完成の中に、無限の可能性を見出す探求者",
       upper_trigram_id: 3,
       lower_trigram_id: 6,
       description: "慎重、思慮深い、混乱の中でも希望を失わない",

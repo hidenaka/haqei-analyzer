@@ -3,6 +3,85 @@ const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// ★ 新機能1: ユーザーからのフィードバックに基づき、レポートの表示要素を生成する関数をここに追加
+/**
+ * ユーザーの分析結果に基づいて、レポートの改善要素を生成します。
+ * @param {object} userProfile - ユーザーの分析結果
+ * @param {string} userProfile.mbti - ユーザーのMBTIタイプ
+ * @param {number} userProfile.engineOsId - エンジンOSの卦番号
+ * @param {number} userProfile.interfaceOsId - インターフェースOSの卦番号
+ * @param {number} userProfile.safeModeOsId - セーフモードOSの卦番号
+ * @param {object} db - HAQEI_DATA データベース
+ * @returns {object} レポートに追加する改善要素のオブジェクト
+ */
+function generateReportImprovements(userProfile, db) {
+  const getHexagramById = (id) =>
+    db.hexagrams_master.find((h) => h.hexagram_id === id);
+  const getTrigramById = (id) =>
+    db.trigrams_master.find((t) => t.trigram_id === id);
+
+  // ふりがなとキャッチコピーを取得するヘルパー
+  const getEnhancedInfoForOS = (osId) => {
+    const osData = getHexagramById(osId);
+    if (!osData) return { name: "不明", reading: "", catchphrase: "" };
+    // 最終版のキャッチコピーをhexagrams_masterから直接取得
+    return {
+      name: osData.name_jp,
+      reading: osData.reading,
+      catchphrase: osData.catchphrase || "キャッチコピー未設定",
+    };
+  };
+
+  const enhancedOsInfo = {
+    engine: getEnhancedInfoForOS(userProfile.engineOsId),
+    interface: getEnhancedInfoForOS(userProfile.interfaceOsId),
+    safe_mode: getEnhancedInfoForOS(userProfile.safeModeOsId),
+  };
+
+  // 分析ロジックの可視化
+  const mbtiData = db.mbti_map.find((m) => m.mbti_type === userProfile.mbti);
+  let logicExplanation = "";
+  if (mbtiData) {
+    const topTrigramScore = [...mbtiData.scores].sort(
+      (a, b) => b.score - a.score
+    )[0];
+    const topTrigram = getTrigramById(topTrigramScore.trigram_id);
+    const mbtiNickname =
+      db.mbti_nicknames.find((n) => n.type === userProfile.mbti)?.nickname ||
+      userProfile.mbti;
+
+    logicExplanation = `<p class="text-sm">あなたのMBTIタイプ「<strong>${userProfile.mbti}（${mbtiNickname}）</strong>」が持つ特性は、特に<strong>【${topTrigram.name_en}】</strong>のエネルギーと強く共鳴しています。この「${topTrigram.strength_description}」という性質が、あなたの中心的な力であるエンジンOS<strong>【${enhancedOsInfo.engine.name}】</strong>の「${enhancedOsInfo.engine.catchphrase}」という資質の大きな根拠の一つとなっています。</p>`;
+  }
+
+  // インフォグラフィック用データ
+  const getOsNode = (osId) => {
+    const hex = getHexagramById(osId);
+    if (!hex) return null;
+    const upperEl = getTrigramById(hex.upper_trigram_id)?.element;
+    const lowerEl = getTrigramById(hex.lower_trigram_id)?.element;
+    return {
+      id: osId,
+      name: hex.name_jp,
+      elements: [upperEl, lowerEl].filter(
+        (e, i, self) => e && self.indexOf(e) === i
+      ),
+    };
+  };
+
+  const nodes = [
+    getOsNode(userProfile.engineOsId),
+    getOsNode(userProfile.interfaceOsId),
+    getOsNode(userProfile.safeModeOsId),
+  ].filter(Boolean); // nullを除外
+
+  const infographicData = { nodes, links: [] }; // linksは今後拡張
+
+  return {
+    enhancedOsInfo,
+    logicExplanation,
+    infographicData,
+  };
+}
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -13,13 +92,7 @@ exports.handler = async (event) => {
     const requestData = JSON.parse(event.body);
     const { analysis, context, profile } = requestData;
 
-    if (
-      !analysis ||
-      !analysis.hexagram_candidates ||
-      !analysis.trigram_profile ||
-      !context ||
-      !profile
-    ) {
+    if (!analysis || !context || !profile) {
       throw new Error("分析データまたはコンテキストが不完全です。");
     }
 
@@ -28,9 +101,12 @@ exports.handler = async (event) => {
       context,
       profile
     );
+
+    // ★ HTML生成時に `profile` を渡すように修正
     const fullReportHtml = assembleFullReportHtml(
       analysis,
       context,
+      profile, // ★ 追加
       aiSectionsObject
     );
 
@@ -131,7 +207,24 @@ async function generateProfessionalReportSections(
   }
 }
 
-function assembleFullReportHtml(analysisResult, userContext, aiSectionsObject) {
+// ★ HTML生成関数を修正
+function assembleFullReportHtml(
+  analysisResult,
+  userContext,
+  userProfile, // ★ userProfile を受け取る
+  aiSectionsObject
+) {
+  // ★ 新機能2: 改善プランのデータを生成
+  const improvedReport = generateReportImprovements(
+    {
+      mbti: userProfile.mbti,
+      engineOsId: analysisResult.hexagram_candidates[0].hexagram_id,
+      interfaceOsId: analysisResult.hexagram_candidates[1].hexagram_id,
+      safeModeOsId: analysisResult.hexagram_candidates[2].hexagram_id,
+    },
+    HAQEI_DATA
+  );
+
   const os1 = analysisResult.hexagram_candidates[0];
   const os2 = analysisResult.hexagram_candidates[1];
   const os3 = analysisResult.hexagram_candidates[2];
@@ -169,53 +262,63 @@ function assembleFullReportHtml(analysisResult, userContext, aiSectionsObject) {
   const header = `<h3 class="text-2xl font-bold text-indigo-300 mb-8 text-center" style="font-family: 'Shippori Mincho', serif;">あなたの物語を読み解く<br>HaQei 統合分析レポート</h3>`;
   const contextSection = `<div class="report-block"><h4>0. はじめに - あなたの現在地</h4>${contextHtml}</div>`;
 
-  const os_manual = HAQEI_DATA.os_manual || {};
-  const bibleData = HAQEI_DATA.bible || {};
-  const tai_sho_den = bibleData.tai_sho_den || {};
-  const zatsu_ka_den = bibleData.zatsu_ka_den || {};
-
-  // ★★★ ここで変数名のタイプミスを修正 ★★★
-  const createOsItem = (os, type, color) => {
-    const manual = os_manual[os.hexagram_id] || {};
-    const taishoText = tai_sho_den[os.hexagram_id] || ""; // 変数名を'taishoText'に統一
-    const zatsuData = zatsu_ka_den[os.hexagram_id];
-    const zatsu_pair_name =
-      zatsuData && HAQEI_DATA.hexagrams_master
-        ? HAQEI_DATA.hexagrams_master.find(
-            (h) => h.hexagram_id === zatsuData.pair_id
-          )?.name_jp || ""
-        : "";
-
-    let extended_info = `<div class="mt-3 pt-3 border-t border-gray-700/50 text-xs space-y-2">`;
-    if (taishoText) {
-      // 正しい変数名でチェック
-      extended_info += `<p><strong>自然からの教え（大象伝）:</strong> ${taishoText.replace(
-        /\n/g,
-        " "
-      )}</p>`;
-    }
-    if (zatsuData && zatsu_pair_name) {
-      extended_info += `<p><strong>本質の対比（雑卦伝）:</strong> このOSは<strong>「${
-        zatsuData.contrast_theme.split("と")[0]
-      }」</strong>を象徴し、対となる<strong>${zatsu_pair_name}</strong>の「${
-        zatsuData.contrast_theme.split("と")[1]
-      }」と対比することで、その本質がより明確になります。</p>`;
-    }
-    extended_info += `</div>`;
+  // ★ 新機能3: キャッチコピーとふりがなを表示する `createOsItem` に修正
+  const createOsItem = (os, type, color, enhancedInfo) => {
+    const bibleData = HAQEI_DATA.bible || {};
+    const tai_sho_den = bibleData.tai_sho_den || {};
+    const taishoText = tai_sho_den[os.hexagram_id] || "";
+    // 他の雑卦伝などのロジックは必要に応じて追加
 
     return `<li class="p-4 bg-gray-900/50 rounded-lg border-l-4" style="border-color: ${color};">
-                <strong>【${type}：${os.name_jp}】</strong><br>
-                <span class="text-sm">${manual.summary || os.description}</span>
-                ${taishoText || zatsuData ? extended_info : ""}
-              </li>`;
+              <strong>【${type}：<ruby>${enhancedInfo.name}<rt>${
+      enhancedInfo.reading
+    }</rt></ruby>】</strong><br>
+              <span class="text-indigo-300 font-bold">${
+                enhancedInfo.catchphrase
+              }</span>
+              <div class="mt-3 pt-3 border-t border-gray-700/50 text-xs space-y-2">
+                <p><strong>自然からの教え（大象伝）:</strong> ${taishoText.replace(
+                  /\n/g,
+                  " "
+                )}</p>
+              </div>
+            </li>`;
   };
 
   const trinityText = `<div class="report-block"><h4>1. あなたのOSアーキテクチャ - 三位一体モデルの構造</h4><p class="text-sm">あなたのOS構造は、以下の3つのOSが連携して機能しています。それぞれの役割と、その根底にある思想を理解することが、自己を乗りこなす第一歩です。</p>
     <ul class="text-sm list-none space-y-3 mt-4">
-      ${createOsItem(os1, "エンジンOS", getBorderColor(os1))}
-      ${createOsItem(os2, "インターフェースOS", getBorderColor(os2))}
-      ${createOsItem(os3, "セーフモードOS", getBorderColor(os3))}
+      ${createOsItem(
+        os1,
+        "エンジンOS",
+        getBorderColor(os1),
+        improvedReport.enhancedOsInfo.engine
+      )}
+      ${createOsItem(
+        os2,
+        "インターフェースOS",
+        getBorderColor(os2),
+        improvedReport.enhancedOsInfo.interface
+      )}
+      ${createOsItem(
+        os3,
+        "セーフモードOS",
+        getBorderColor(os3),
+        improvedReport.enhancedOsInfo.safe_mode
+      )}
     </ul>
+  </div>`;
+
+  // ★ 新機能4: 分析ロジック可視化セクションを追加
+  const logicSection = `<div class="report-block"><h4>分析ロジックの根拠</h4>${improvedReport.logicExplanation}</div>`;
+
+  // ★ 新機能5: インフォグラフィック用データをHTMLに埋め込む
+  const infographicSection = `<div class="report-block">
+    <h4>OSアーキテクチャ図</h4>
+    <p class="text-sm mb-4">あなたの3つのOSの関係性を可視化したものです。今後のアップデートで、より詳細な力学が表示されるようになります。</p>
+    <div id="os-infographic-placeholder" class="bg-gray-900/50 p-4 rounded-lg text-center text-sm text-gray-400">[インフォグラフィック表示エリア]</div>
+    <script id="infographic-data" type="application/json">${JSON.stringify(
+      improvedReport.infographicData
+    )}</script>
   </div>`;
 
   const aiSection1 = `<div class="report-block"><h4>2. OSの力学 - ポテンシャルを最大化する鍵</h4>${
@@ -231,10 +334,13 @@ function assembleFullReportHtml(analysisResult, userContext, aiSectionsObject) {
     aiSectionsObject.next_steps || ""
   }</div>`;
 
+  // ★ レポートの構成を修正し、新しいセクションを追加
   return (
     header +
     contextSection +
     trinityText +
+    logicSection + // ★追加
+    infographicSection + // ★追加
     aiSection1 +
     aiSection2 +
     aiSection3 +
