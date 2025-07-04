@@ -52,113 +52,48 @@
 
     <script src="assets/haqei_main_database.js"></script>
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const outputContainer = document.getElementById(
-          "professional-report-content"
-        );
-        const storedData = localStorage.getItem("haqeiProfessionalData");
+    document.addEventListener('DOMContentLoaded', async () => {
+        const outputContainer = document.getElementById('professional-report-content');
+        const storedData = localStorage.getItem('haqeiProfessionalData');
 
         if (!storedData) {
-          outputContainer.innerHTML =
-            '<p class="text-red-400 text-center">エラー: 分析データが見つかりません。お手数ですが、もう一度OS分析レポートページから操作をやり直してください。</p>';
-          return;
+            outputContainer.innerHTML = '<p class="text-red-400 text-center py-8">エラー: 分析データが見つかりません。お手数ですが、もう一度OS分析レポートページから操作をやり直してください。</p>';
+            return;
         }
 
         try {
-          const professionalData = JSON.parse(storedData);
-          const { analysis, profile, context } = professionalData;
+            // これからサーバーレス関数に送るデータを準備
+            const requestPayload = JSON.parse(storedData);
 
-          // レポート生成（os_analyzer.htmlからロジックを流用・発展させる）
-          const reportText = generateProfessionalReportText(analysis, context);
-          outputContainer.innerHTML = `
-                    <div class="p-6 md:p-8 bg-gray-900/50 rounded-2xl border border-amber-400/30 prose prose-invert max-w-none">
-                        ${reportText}
-                    </div>`;
+            // Netlify上のサーバーレス関数を呼び出す
+            const response = await fetch('/.netlify/functions/professional-ai', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestPayload),
+            });
+
+            if (!response.ok) {
+                throw new Error(`サーバーでエラーが発生しました: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                // 返ってきたHTMLをレポートとして表示
+                outputContainer.innerHTML = `<div class="p-6 md:p-8 bg-gray-900/50 rounded-2xl border border-amber-400/30 prose prose-invert max-w-none">${result.report}</div>`;
+            } else {
+                throw new Error('AIによるレポート生成に失敗しました。');
+            }
+
         } catch (e) {
-          console.error("レポートデータの解析に失敗しました: ", e);
-          outputContainer.innerHTML =
-            '<p class="text-red-400 text-center">エラー: レポートデータの解析に失敗しました。データが破損している可能性があります。</p>';
+            console.error("レポート生成プロセスでエラーが発生しました: ", e);
+            outputContainer.innerHTML = `<p class="text-red-400 text-center py-8">エラー: レポートの生成に失敗しました。時間をおいて再度お試しください。</p>`;
         }
-      });
-
-      const generateProfessionalReportText = (analysisResult, userContext) => {
-        const os1 = analysisResult.hexagram_candidates[0];
-        const os2 = analysisResult.hexagram_candidates[1];
-        const os3 = analysisResult.hexagram_candidates[2];
-        const profile = analysisResult.trigram_profile;
-
-        const HELPERS = {
-          id_to_jp: Object.fromEntries(
-            HAQEI_DATA.trigrams_master.map((item) => [
-              item.trigram_id,
-              item.name_jp,
-            ])
-          ),
-          trigram_colors: {
-            1: "#F9FAFB",
-            2: "#70D6FF",
-            3: "#F87171",
-            4: "#FACC15",
-            5: "#4ADE80",
-            6: "#3B82F6",
-            7: "#F97316",
-            8: "#A16207",
-          },
-        };
-
-        const contextText =
-          userContext.age ||
-          userContext.occupation ||
-          userContext.role ||
-          userContext.issue
-            ? `<h4>1. ご入力いただいた状況の確認</h4><p class="text-sm">「${
-                userContext.age || ""
-              } ${userContext.occupation || ""} ${
-                userContext.role || ""
-              }」で、「${
-                userContext.issue || "特になし"
-              }」という課題意識をお持ちなのですね。承知いたしました。その状況を踏まえ、あなたのOSを読み解いていきましょう。</p>`
-            : '<p class="text-sm text-gray-500 italic">（ユーザーの追加情報が入力されなかったため、OSの基本構造のみを解説します）</p>';
-
-        const profileText = `<h4>2. エネルギープロファイルから見るあなたの「基本性質」</h4><p class="text-sm">あなたのエネルギーは、<strong style="color:${
-          HELPERS.trigram_colors[profile[0].id]
-        }">${profile[0].name_en}</strong>の「${
-          HELPERS.id_to_jp[profile[0].id]
-        }」と<strong style="color:${HELPERS.trigram_colors[profile[1].id]}">${
-          profile[1].name_en
-        }</strong>の「${
-          HELPERS.id_to_jp[profile[1].id]
-        }」が際立っています。これは、あなたの基本性質が「${
-          profile[0].strength_description
-        }」や「${
-          profile[1].strength_description
-        }」という点にあることを示唆しています。一方で、<strong style="color:${
-          HELPERS.trigram_colors[profile[7].id]
-        }">${
-          profile[7].name_en
-        }</strong>のエネルギーが最も低いため、${profile[7].strength_description.slice(
-          0,
-          -1
-        )}のは少し苦手かもしれません。</p>`;
-
-        const trinityText = `<h4>3. 「三位一体OSモデル」の構造的解説</h4><p class="text-sm">あなたのOS構造は非常に興味深い連携をしています。あなたの根源的な動力源である<strong>【エンジンOS：${os1.name_jp}】</strong>が放つエネルギーは、<strong>【インターフェースOS：${os2.name_jp}】</strong>というフィルターを通して社会に表現されます。しかし、ストレスがかかると<strong>【セーフモードOS：${os3.name_jp}】</strong>が起動し、無意識に初期設定の行動パターンに立ち返る傾向があります。この3つのOSの関係性を理解することが、自己を乗りこなす鍵となります。</p>`;
-
-        const adviceText = `<h4>4. 総合所見とあなたへの戦略的アドバイス</h4><p class="text-sm">（ここに、全ての情報を統合した、AIによる具体的なアドバイスが生成されます。例：${
-          userContext.issue || "あなたの現在の課題"
-        }に対して、エンジンOSの力をインターフェースOSを通してどう活かすべきか、セーフモードOSの暴走にどう備えるべきか、等々...）</p>`;
-
-        return `
-                <h3 class="text-2xl font-bold text-amber-300 mb-6 text-center">HaQeiプロフェッショナル<br>総合解説レポート</h3>
-                ${contextText}
-                ${profileText}
-                ${trinityText}
-                ${adviceText}
-                <h4 class="mt-6">5. 次の具体的な一歩</h4>
-                <ul class="text-sm list-disc pl-5">
-                    <li>（AIが具体的なアクションプランを2〜3個提案します）</li>
-                </ul>
-            `;
-      };
-    </script>
+    });
+</script>
+</body>
+</html>
   </body>
 </html>
