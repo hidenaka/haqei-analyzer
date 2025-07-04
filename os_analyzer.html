@@ -264,6 +264,20 @@
         background-color: #4b5563;
         border-color: #6366f1;
       }
+
+      /* グラフ切り替えタブ */
+      .chart-tab {
+        cursor: pointer;
+        padding: 0.5rem 1.25rem;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+        color: #9ca3af;
+      }
+      .chart-tab.active {
+        color: #a5b4fc;
+        border-bottom-color: #a5b4fc;
+        font-weight: 600;
+      }
     </style>
   </head>
   <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8 flex flex-col">
@@ -405,7 +419,8 @@
 
     <script src="assets/haqei_main_database.js"></script>
     <script>
-      // HaQei OS Analyzer - JavaScript v15.6
+      // HaQei OS Analyzer - JavaScript v15.7
+      // 棒グラフと特徴ハイライト機能を追加
       const HDB = HAQEI_DATA;
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -431,6 +446,7 @@
         let diagnosticAnswers = {};
         let storySteps = [];
         let currentStepIndex = 0;
+        let activeChart = "radar"; // 'radar' or 'bar'
 
         // --- ヘルパー関数群 ---
         const HELPERS = {
@@ -446,14 +462,14 @@
             HDB.hexagrams_master.find((h) => h.hexagram_id === id) || {},
           getH64ById: (id) => HDB.H64_DATA.find((h) => h.卦番号 === id) || {},
           trigram_colors: {
-            1: "#F9FAFB",
-            2: "#70D6FF",
-            3: "#F87171",
-            4: "#FACC15",
-            5: "#4ADE80",
-            6: "#3B82F6",
-            7: "#F97316",
-            8: "#A16207",
+            1: "#F9FAFB", // 乾 (天) - White
+            2: "#70D6FF", // 兌 (沢) - Light Blue
+            3: "#F87171", // 離 (火) - Red
+            4: "#FACC15", // 震 (雷) - Yellow
+            5: "#4ADE80", // 巽 (風) - Green
+            6: "#3B82F6", // 坎 (水) - Blue
+            7: "#F97316", // 艮 (山) - Orange
+            8: "#A16207", // 坤 (地) - Brown/Gold
           },
           createTermTooltip: (term, explanation) => {
             if (!explanation) return term;
@@ -577,19 +593,16 @@
             },
           ],
         };
-
         const showDiagnosticModal = () => {
           diagnosticAnswers = { mbti: "" };
           renderDiagnosticStep("mbti", 0);
         };
-
         const applyDiagnosticResults = (mbtiType, enneaType) => {
           mbtiSelect.value = mbtiType;
           enneaSelects[0].value = enneaType;
           enneaSelects[0].dispatchEvent(new Event("change"));
           hideModal();
         };
-
         const renderDiagnosticStep = (stage, questionIndex = 0) => {
           let contentHtml = "";
           if (stage === "mbti") {
@@ -619,7 +632,6 @@
           }
           showModal(contentHtml);
         };
-
         window.handleMbtiAnswer = (answer, questionIndex) => {
           event.preventDefault();
           diagnosticAnswers.mbti += answer;
@@ -830,9 +842,12 @@
           const trigram_profile = Object.entries(total_scores)
             .map(([id, score]) => ({
               id: parseInt(id),
+              name_jp: HELPERS.id_to_jp[id],
               name_en: HELPERS.id_to_en[id],
               strength_description: HELPERS.getTrigramById(parseInt(id))
                 .strength_description,
+              weakness_description: HELPERS.getTrigramById(parseInt(id))
+                .weakness_description,
               score: Math.round(score * 10) / 10,
             }))
             .sort((a, b) => b.score - a.score);
@@ -866,7 +881,79 @@
         };
 
         const createProfileSection = () => {
-          return `<div class="report-section"><h3><span class="text-2xl mr-2">📊</span>まず、あなたのエネルギーの全体像を見てみましょう</h3><p>あなたの8つの基本エネルギー（八卦）の強度を可視化します。これは、あなたの思考や行動の根源的な傾向や、備わっている潜在能力のバランスを示しています。</p><div class="mt-8 relative mx-auto" style="height: 400px; max-width: 500px;"><canvas id="energyRadarChart"></canvas></div><div class="mt-6 text-center"><button id="show-breakdown-btn" class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors">スコアの算出根拠を見る</button></div></div>`;
+          // 棒グラフとエネルギー解説を追加
+          return `<div class="report-section">
+                <h3><span class="text-2xl mr-2">📊</span>まず、あなたのエネルギーの全体像を見てみましょう</h3>
+                <p>あなたの8つの基本エネルギー（八卦）の強度を可視化します。これは、あなたの思考や行動の根源的な傾向や、備わっている潜在能力のバランスを示しています。グラフを切り替えて、多角的に自分を捉えてみましょう。</p>
+
+                <div class="mt-8">
+                    <div class="flex justify-center border-b border-gray-700 mb-4">
+                        <button id="radar-tab" class="chart-tab active" onclick="switchChart('radar')">全体バランス (レーダー)</button>
+                        <button id="bar-tab" class="chart-tab" onclick="switchChart('bar')">強度ランキング (棒グラフ)</button>
+                    </div>
+                    <div id="radar-chart-container" class="relative mx-auto" style="height: 400px; max-width: 500px;">
+                        <canvas id="energyRadarChart"></canvas>
+                    </div>
+                    <div id="bar-chart-container" class="relative mx-auto hidden" style="height: 400px; max-width: 600px;">
+                        <canvas id="energyBarChart"></canvas>
+                    </div>
+                </div>
+
+                <div id="energy-highlights" class="mt-10"></div>
+
+                <div class="mt-6 text-center">
+                    <button id="show-breakdown-btn" class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors">スコアの算出根拠を見る</button>
+                </div>
+            </div>`;
+        };
+
+        const createEnergyHighlights = () => {
+          const { trigram_profile } = lastAnalysisResult;
+          const strengths = trigram_profile.slice(0, 2);
+          const weakness = trigram_profile[trigram_profile.length - 1];
+
+          let strengthHtml = strengths
+            .map(
+              (t) => `
+                <div class="bg-gray-900/50 p-4 rounded-lg border-l-4" style="border-color: ${
+                  HELPERS.trigram_colors[t.id]
+                }">
+                    <h5 class="font-bold text-lg" style="color: ${
+                      HELPERS.trigram_colors[t.id]
+                    }">
+                        ${t.name_jp} (${t.name_en})
+                    </h5>
+                    <p class="mt-2 text-sm text-gray-300">${
+                      t.strength_description || "解説準備中..."
+                    }</p>
+                </div>
+            `
+            )
+            .join("");
+
+          let weaknessHtml = `
+                <div class="bg-gray-900/50 p-4 rounded-lg border-l-4 border-gray-500">
+                    <h5 class="font-bold text-lg text-gray-400">
+                        ${weakness.name_jp} (${weakness.name_en})
+                    </h5>
+                    <p class="mt-2 text-sm text-gray-300">${
+                      weakness.weakness_description || "解説準備中..."
+                    }</p>
+                </div>
+            `;
+
+          return `
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-lg text-green-400 mb-3">💡 あなたの強みとなるエネルギー</h4>
+                        <div class="space-y-4">${strengthHtml}</div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-lg text-amber-400 mb-3">🌱 あなたの課題・伸びしろとなるエネルギー</h4>
+                        <div class="space-y-4">${weaknessHtml}</div>
+                    </div>
+                </div>
+            `;
         };
 
         const createTrinityModelSection = () => {
@@ -980,9 +1067,7 @@
           return `<div class="report-section"><h3><span class="text-2xl mr-2">🗺️</span>それらが広大な世界の中でどこに位置するか見てみましょう</h3><div class="space-y-8 mt-8">${osSections}</div>${mapHtml}</div>`;
         };
 
-        // ========== ▼▼▼ ここからが修正箇所です ▼▼▼ ==========
         const createProfessionalCtaSection = () => {
-          // 【改善提案 B】 無料版と有料版の役割の明確化（メタファー）
           const metaphorHtml = `
           <div class="my-8 p-6 bg-gray-900/50 rounded-lg border-l-4 border-indigo-400">
               <h4 class="font-semibold text-lg text-indigo-300">【無料レポート】と【実践戦略書】の関係</h4>
@@ -996,8 +1081,6 @@
                   地図を手に入れた今、最高のナビで旅を始めませんか？
               </p>
           </div>`;
-
-          // 【改善提案 A】 有料版コンテンツの「チラ見せ」（ビジュアル例）の刷新
           const visualPreviewHtml = `
           <div class="relative mt-8 p-6 rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
               <div class="absolute inset-0 bg-gradient-to-tr from-amber-400 to-indigo-500 opacity-20 blur-2xl"></div>
@@ -1018,8 +1101,6 @@
                   <div class="absolute inset-0 bg-gradient-to-t from-gray-800/80 via-transparent to-transparent"></div>
               </div>
           </div>`;
-
-          // 【改善提案 A】 有料版コンテンツの「チラ見せ」（テキスト例・項目例）の刷新
           const previewHtml = `
           <div class="mt-8 text-left">
               <h4 class="text-xl font-bold text-amber-300 text-center">
@@ -1036,7 +1117,7 @@
                   </li>
                   <li class="flex items-start">
                       <span class="text-green-400 mr-3 mt-1">✅</span>
-                      <span class="text-gray-300">あなたが陥りがちな<strong class="text-white">『葛藤のパターン』の克服法。</strong>OSレベルで原因を分析し、乗り越え方を処方します。</span>
+                      <span class="text-gray-300">あなたが陥りがちな<strong class="text-white">『葛藤のパターン』の克服法。</strong>OSレベルでその仕組みを理解し、あなたの強みとして活かすための視点を提供します。</span>
                   </li>
                   <li class="flex items-start">
                       <span class="text-green-400 mr-3 mt-1">✅</span>
@@ -1052,13 +1133,13 @@
                       <h3 class="text-3xl font-bold text-amber-300">最終ステップ：あなたの『実践戦略書』へ</h3>
                       <p class="mt-3 text-gray-300">分析お疲れ様でした。ここからは、自己理解を「行動」に変えるステップです。</p>
                   </div>
-                  
+
                   ${metaphorHtml}
-                  
+
                   ${visualPreviewHtml}
-      
+
                   ${previewHtml}
-                  
+
                   <div class="mt-10 text-center">
                       <button id="request-professional-btn" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 px-10 rounded-lg text-xl transition duration-300 transform hover:scale-105 shadow-lg shadow-amber-600/20">
                           あなたの『実践戦略書』を手に入れる
@@ -1079,16 +1160,24 @@
           const contentContainer = document.createElement("div");
           reportContainer.appendChild(contentContainer);
           const currentStepFunction = storySteps[currentStepIndex];
+
           if (typeof currentStepFunction === "function") {
             const stepContent = currentStepFunction();
             contentContainer.innerHTML = stepContent;
 
             // 動的に追加された要素へのイベントリスナー再設定
             if (currentStepIndex === 0) {
-              setTimeout(
-                () => renderRadarChart(lastAnalysisResult.trigram_profile),
-                0
-              );
+              // 新機能の呼び出しを追加
+              setTimeout(() => {
+                switchChart(activeChart);
+                const energyHighlightsContainer =
+                  document.getElementById("energy-highlights");
+                if (energyHighlightsContainer) {
+                  energyHighlightsContainer.innerHTML =
+                    createEnergyHighlights();
+                }
+              }, 0);
+
               document
                 .getElementById("show-breakdown-btn")
                 .addEventListener("click", () =>
@@ -1181,12 +1270,39 @@
           }
         };
 
+        window.switchChart = (type) => {
+          activeChart = type;
+          const radarContainer = document.getElementById(
+            "radar-chart-container"
+          );
+          const barContainer = document.getElementById("bar-chart-container");
+          const radarTab = document.getElementById("radar-tab");
+          const barTab = document.getElementById("bar-tab");
+
+          if (type === "radar") {
+            radarContainer.classList.remove("hidden");
+            barContainer.classList.add("hidden");
+            radarTab.classList.add("active");
+            barTab.classList.remove("active");
+            renderRadarChart(lastAnalysisResult.trigram_profile);
+          } else {
+            radarContainer.classList.add("hidden");
+            barContainer.classList.remove("hidden");
+            radarTab.classList.remove("active");
+            barTab.classList.add("active");
+            renderBarChart(lastAnalysisResult.trigram_profile);
+          }
+        };
+
         const renderRadarChart = (trigram_profile) => {
           const canvasElement = document.getElementById("energyRadarChart");
-          if (!canvasElement) {
-            console.error("Canvas element for radar chart not found!");
-            return;
+          if (!canvasElement) return;
+          // 既存のChartインスタンスがあれば破棄
+          const existingChart = Chart.getChart(canvasElement);
+          if (existingChart) {
+            existingChart.destroy();
           }
+
           const ctx = canvasElement.getContext("2d");
           const sortedProfile = [...trigram_profile].sort(
             (a, b) => a.id - b.id
@@ -1194,9 +1310,7 @@
           new Chart(ctx, {
             type: "radar",
             data: {
-              labels: sortedProfile.map(
-                (t) => `${t.name_en} (${HELPERS.id_to_jp[t.id]})`
-              ),
+              labels: sortedProfile.map((t) => `${t.name_jp} (${t.name_en})`),
               datasets: [
                 {
                   label: "エネルギー強度",
@@ -1223,13 +1337,10 @@
                   angleLines: { color: "rgba(255, 255, 255, 0.2)" },
                   grid: { color: "rgba(255, 255, 255, 0.2)" },
                   pointLabels: {
-                    font: { size: 14 },
+                    font: { size: 12 },
                     color: sortedProfile.map(
                       (t) => HELPERS.trigram_colors[t.id]
                     ),
-                    backdropColor: "rgba(0, 0, 0, 0.5)",
-                    backdropPadding: 2,
-                    borderRadius: 4,
                   },
                   ticks: {
                     color: "rgba(255,255,255,0.7)",
@@ -1240,6 +1351,65 @@
                 },
               },
               plugins: { legend: { display: false } },
+            },
+          });
+        };
+
+        const renderBarChart = (trigram_profile) => {
+          const canvasElement = document.getElementById("energyBarChart");
+          if (!canvasElement) return;
+          const existingChart = Chart.getChart(canvasElement);
+          if (existingChart) {
+            existingChart.destroy();
+          }
+
+          const ctx = canvasElement.getContext("2d");
+          // データはスコアの高い順にソートされている
+          const sortedProfile = trigram_profile;
+
+          new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: sortedProfile.map((t) => `${t.name_jp} (${t.name_en})`),
+              datasets: [
+                {
+                  label: "エネルギー強度",
+                  data: sortedProfile.map((t) => t.score),
+                  backgroundColor: sortedProfile.map(
+                    (t) => HELPERS.trigram_colors[t.id]
+                  ),
+                  borderColor: sortedProfile.map(
+                    (t) => HELPERS.trigram_colors[t.id]
+                  ),
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              indexAxis: "y", // 横棒グラフにする
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: {
+                  beginAtZero: true,
+                  grid: { color: "rgba(255, 255, 255, 0.1)" },
+                  ticks: { color: "#d1d5db" },
+                },
+                y: {
+                  grid: { color: "rgba(255, 255, 255, 0.1)" },
+                  ticks: { color: "#d1d5db", font: { size: 14 } },
+                },
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      return `スコア: ${context.raw}`;
+                    },
+                  },
+                },
+              },
             },
           });
         };
@@ -1426,7 +1596,7 @@
           }
           lastAnalysisResult = runAdvancedAnalysis(lastUserProfile);
 
-          // ストーリーのステップを定義（関数を返すように変更）
+          // ストーリーのステップを定義
           storySteps = [
             () => createProfileSection(),
             () => createTrinityModelSection(),
@@ -1437,7 +1607,7 @@
           inputContainer.classList.add("hidden");
           reportContainer.classList.remove("hidden");
           currentStepIndex = 0;
-          displayStoryView(); // 新しいUI制御関数を呼び出す
+          displayStoryView();
         });
       });
     </script>
