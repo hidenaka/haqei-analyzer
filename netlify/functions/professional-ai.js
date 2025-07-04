@@ -1,5 +1,5 @@
-// ファイルパス: /netlify/functions/professional-ai.js (最終確定版)
-// 提供されたデータ構造に100%準拠し、エラーハンドリングを強化しています。
+// ファイルパス: /netlify/functions/professional-ai.js (最終修正版 v2)
+// プロンプト内の変数埋め込みエラーを完全に修正しました。
 
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -63,7 +63,6 @@ async function generateProfessionalReportText(
   const os3 = analysisResult.hexagram_candidates[2];
   const trigram_profile = analysisResult.trigram_profile;
 
-  // ▼▼▼ ご教示いただいたデータ構造を100%遵守して参照します ▼▼▼
   const os_manuals = HAQEI_DATA.os_manual || {};
   const os1_manual = os_manuals[os1.hexagram_id] || {};
   const os2_manual = os_manuals[os2.hexagram_id] || {};
@@ -89,20 +88,21 @@ ${format_os_manual(os3, os3_manual, "セーフモードOS")}
 
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-latest" });
 
+  // ▼▼▼ ここからがプロンプトの修正箇所です ▼▼▼
   const prompt = `あなたは「HaQei アナライザー」の最高専門家AIです。東洋哲学と心理学の深い知識を持ち、ユーザーの分析結果と個人的な状況を統合して、ユーザーが具体的にどう行動すれば良いかの指針となるアドバイスを生成してください。
 
 # ルール
-- 出力は必ずHTML形式とし、'<h4>4. 総合所見とあなたへの戦略的アドバイス</h4>' と '<h4>5. 次の具体的な一歩</h4>' の2つのセクションのみを生成してください。
+- 出力は必ずHTML形式とし、'<h4>4. 総合所見とあなたへの戦略的アドバイス</h4>' と '<h4>5. 次の具体的な一歩</h4>' の2つのセクションのみを生成してください。レポート全体のヘッダー等は不要です。
 - 文章は、ユーザーに寄り添い、希望を与えるような、プロフェッショナルかつ温かいトーンで記述してください。専門用語は避け、誰にでも理解しやすい言葉を使ってください。
 - アドバイスは、必ずOSの三位一体モデル（エンジン、インターフェース、セーフモード）の力学と、ユーザーの課題を結びつけて具体的に解説してください。
 - 「具体的な一歩」は、ユーザーが明日から実践できる、具体的で小さな行動を2〜3個提案してください。
 - pタグには 'class="text-sm"' を、ulタグには 'class="text-sm list-disc pl-5"' を付与してください。強調したいキーワードは<strong>タグで囲んでください。
 
 # ユーザー情報
-- **プロファイル**: MBTI(${userProfile.mbti}), エニアグラム(${
+- **ユーザープロファイル**: MBTI(${userProfile.mbti}), エニアグラム(${
     userProfile.enneagram.join(", ") || "未入力"
   })
-- **状況**: 年代(${userContext.age || "未入力"}), 職業(${
+- **ユーザーの状況**: 年代(${userContext.age || "未入力"}), 職業(${
     userContext.occupation || "未入力"
   }), 役割(${userContext.role || "未入力"}), 課題(${
     userContext.issue || "特になし"
@@ -112,10 +112,13 @@ ${format_os_manual(os3, os3_manual, "セーフモードOS")}
 ${os_manual_details}
 
 # 分析結果：エネルギープロファイル
-${trigram_profile.map((p) => `- ${p.name_en}: ${p.score}点`).join("\n")}
+${trigram_profile
+  .map((p) => `- ${p.name_en} (${p.strength_description}): ${p.score}点`)
+  .join("\n")}
 
 上記情報を統合し、HTML形式でレポートを作成してください。
 `;
+  // ▲▲▲ ここまでがプロンプトの修正箇所です ▲▲▲
 
   try {
     const result = await model.generateContent(prompt);
