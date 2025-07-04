@@ -1,4 +1,4 @@
-// ファイルパス: /netlify/functions/professional-ai.js (v3.0 ウルトラシンク版)
+// ファイルパス: /netlify/functions/professional-ai.js (v3.1 JSON連携 安定版)
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
@@ -23,7 +23,7 @@ exports.handler = async (event) => {
       throw new Error("分析データまたはコンテキストが不完全です。");
     }
 
-    const aiGeneratedSections = await generateProfessionalReportSections(
+    const aiSectionsObject = await generateProfessionalReportSections(
       analysis,
       context,
       profile
@@ -31,7 +31,7 @@ exports.handler = async (event) => {
     const fullReportHtml = assembleFullReportHtml(
       analysis,
       context,
-      aiGeneratedSections
+      aiSectionsObject
     );
 
     return {
@@ -86,12 +86,13 @@ async function generateProfessionalReportSections(
 
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
-  // ★★★ プロンプトを全面刷新 ★★★
+  // ★★★ プロンプトをJSON出力形式に修正 ★★★
   const prompt = `あなたは、東洋哲学と心理学の叡智を統合した「HaQei アナライザー」の最高専門家AIです。ユーザーの分析結果と個人的な状況を深く洞察し、ユーザーが「これは私のための戦略書だ」と感じ、次の一歩を踏み出したくなるような、希望に満ちた具体的なレポートを作成してください。
 
 # 絶対的ルール
-- **出力は必ず4つのセクションからなるHTMLの断片のみ**とします。各セクションは必ず \`\` で区切ってください。
-- 各セクションの本文は、\`<p class="text-sm">\` や \`<ul>\` タグから始めてください。\`<h4>\` などの見出しタグは**一切含めないでください**。
+- **出力は必ず、以下のキーを持つJSONオブジェクトのみ**とします: \`{"dynamics": "...", "overview": "...", "action": "...", "next_steps": "..."}\`
+- 各キーの値は、HTMLのpタグやulタグで構成される文字列とします。
+- hタグなどの見出しタグは**一切含めないでください**。
 - 文章は、ユーザーに深く寄り添い、希望と具体的な気づきを与える、プロフェッショナルかつ温かいトーンで記述してください。
 - ユーザーの「課題」と「OSの力学」を具体的に結びつけ、単なる性格診断ではない、実践的な戦略を提示してください。
 - 強調したいキーワードは\`<strong>\`タグで囲んでください。
@@ -113,64 +114,61 @@ async function generateProfessionalReportSections(
     .map((p) => `${p.name_en}(${p.score})`)
     .join(", ")}
 
-# 生成すべき4つのセクション
+# 生成すべきJSONの各キーの内容
 
-### セクション1: OSの力学 - あなたのポテンシャルを最大化する鍵
+### 1. "dynamics" (OSの力学)
 あなたの3つのOSが、互いにどう作用し合っているかを解説してください。特に、ユーザーの「課題」が、このOSの力学によってどのように生み出されているのかを、具体的に、そして優しく指摘してください。
 
-### セクション2: 総合所見 - あなたの物語の現在地と未来への羅針盤
+### 2. "overview" (総合所見)
 分析結果全体を統合し、ユーザーの「現在地」を物語的に表現してください。そして、このOS構造を活かすことで、どのような素晴らしい未来の可能性があるのか、希望に満ちた展望を提示してください。
 
-### セクション3: Next Action - 次の具体的な一歩
+### 3. "action" (Next Action)
 ユーザーが明日から実践できる、非常に具体的で小さな行動を2〜3個提案してください。各アクションが、OSのどの部分を最適化するのかを明確に示してください。（例：「エンジンOSの『雷』のエネルギーを健全に使うために、週に一度、5分だけ全力で部屋を掃除してみましょう」など）
 
-### セクション4: さらなる探求へ - 未来分岐シミュレーターの活用法
+### 4. "next_steps" (さらなる探求へ)
 今回の分析結果を手に、「未来分岐シミュレーター」を使うと、どのような気づきが得られるかを具体的に示唆してください。「あなたのエンジンOSである【${
     os1.name_jp
   }】を携えて、もし現在の課題に対して『進』のアクションを取ると、どのような未来が展開されるか見てみましょう」といった形で、次のツール利用へと自然に誘導してください。
-
----
-上記情報を統合し、指定されたルールに従って、4つのセクションからなるHTMLの断片を生成してください。`;
+`;
 
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    // AIの出力をセパレーターで確実に4分割する
-    const sections = response.text().split("");
-    while (sections.length < 4) {
-      sections.push("<p>（現在、このセクションは準備中です）</p>"); // 足りない部分を補完
-    }
-    return sections;
+    const text = response
+      .text()
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+    // AIの返答をJSONとしてパース
+    return JSON.parse(text);
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Gemini APIとの通信に失敗しました。詳細: " + error.message);
+    console.error("Gemini API Error or JSON Parse Error:", error);
+    throw new Error("AIの応答形式が不正か、APIとの通信に失敗しました。");
   }
 }
 
-// ★★★ HTML組み立て関数を新構成に合わせて修正 ★★★
-function assembleFullReportHtml(
-  analysisResult,
-  userContext,
-  aiGeneratedSections
-) {
+// ★★★ HTML組み立て関数をJSONオブジェクトを受け取るように修正 ★★★
+function assembleFullReportHtml(analysisResult, userContext, aiSectionsObject) {
   const os1 = analysisResult.hexagram_candidates[0];
   const os2 = analysisResult.hexagram_candidates[1];
   const os3 = analysisResult.hexagram_candidates[2];
 
-  // ユーザー入力がない場合の代替テキスト
-  const age = userContext.age ? `${userContext.age}` : "ある年代";
-  const occupation = userContext.occupation
-    ? `${userContext.occupation}として`
-    : "";
-  const role = userContext.role ? `${userContext.role}という役割で` : "";
-  const issue = userContext.issue
-    ? `「${userContext.issue}」`
-    : "「特になし（現状のポテンシャル分析）」";
+  const age = userContext.age || "";
+  const occupation = userContext.occupation || "";
+  const role = userContext.role || "";
+  const issue = userContext.issue || "特になし（現状のポテンシャル分析）";
 
-  // 静的HTMLパーツをここで定義
+  // ユーザー状況のテキストを動的に生成
+  let contextParts = [];
+  if (age) contextParts.push(age);
+  if (occupation) contextParts.push(occupation);
+  if (role) contextParts.push(`${role}という役割`);
+  const contextSummary =
+    contextParts.length > 0 ? contextParts.join("、") + "で、" : "";
+
   const header = `<h3 class="text-2xl font-bold text-indigo-300 mb-8 text-center" style="font-family: 'Shippori Mincho', serif;">あなたの物語を読み解く<br>HaQei 統合分析レポート</h3>`;
 
-  const contextText = `<div class="report-block"><h4>0. はじめに - あなたの現在地</h4><p class="text-sm">${age}、${occupation}${role}、「${issue}」という課題意識をお持ちなのですね。承知いたしました。その状況と、あなたが持つ素晴らしいOSの可能性を掛け合わせ、物語の次章へと進むための羅針盤をここに提示します。</p></div>`;
+  const contextText = `<div class="report-block"><h4>0. はじめに - あなたの現在地</h4><p class="text-sm">${contextSummary}「${issue}」という課題意識をお持ちなのですね。承知いたしました。その状況と、あなたが持つ素晴らしいOSの可能性を掛け合わせ、物語の次章へと進むための羅針盤をここに提示します。</p></div>`;
 
   const trinityText = `<div class="report-block"><h4>1. あなたのOSアーキテクチャ - 三位一体モデルの構造</h4><p class="text-sm">あなたのOS構造は、以下の3つのOSが連携して機能しています。それぞれの役割を理解することが、自己を乗りこなす第一歩です。</p>
     <ul class="text-sm list-none space-y-3 mt-4">
@@ -192,18 +190,17 @@ function assembleFullReportHtml(
     </ul>
   </div>`;
 
-  // AIが生成したHTMLを、各セクションの見出しの下に配置
   const section1 = `<div class="report-block"><h4>2. OSの力学 - ポテンシャルを最大化する鍵</h4>${
-    aiGeneratedSections[0] || ""
+    aiSectionsObject.dynamics || ""
   }</div>`;
   const section2 = `<div class="report-block"><h4>3. 総合所見 - あなたの物語の現在地と未来への羅針盤</h4>${
-    aiGeneratedSections[1] || ""
+    aiSectionsObject.overview || ""
   }</div>`;
   const section3 = `<div class="report-block"><h4>4. Next Action - 次の具体的な一歩</h4>${
-    aiGeneratedSections[2] || ""
+    aiSectionsObject.action || ""
   }</div>`;
   const section4 = `<div class="report-block"><h4>5. さらなる探求へ - 未来分岐シミュレーターの活用</h4>${
-    aiGeneratedSections[3] || ""
+    aiSectionsObject.next_steps || ""
   }</div>`;
 
   return (
