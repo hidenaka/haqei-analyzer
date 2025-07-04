@@ -1,8 +1,7 @@
-// ファイルパス: /netlify/functions/professional-ai.js (v2.0 改善版)
+// ファイルパス: /netlify/functions/professional-ai.js (v3.0 ウルトラシンク版)
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// APIキーを環境変数から取得
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 exports.handler = async (event) => {
@@ -24,18 +23,15 @@ exports.handler = async (event) => {
       throw new Error("分析データまたはコンテキストが不完全です。");
     }
 
-    // AIに本文の生成を依頼
-    const aiGeneratedHtml = await generateProfessionalReportText(
+    const aiGeneratedSections = await generateProfessionalReportSections(
       analysis,
       context,
       profile
     );
-
-    // 静的パーツとAI生成パーツを結合して最終的なHTMLを生成
     const fullReportHtml = assembleFullReportHtml(
       analysis,
       context,
-      aiGeneratedHtml
+      aiGeneratedSections
     );
 
     return {
@@ -55,7 +51,7 @@ exports.handler = async (event) => {
   }
 };
 
-async function generateProfessionalReportText(
+async function generateProfessionalReportSections(
   analysisResult,
   userContext,
   userProfile
@@ -64,6 +60,7 @@ async function generateProfessionalReportText(
   const os2 = analysisResult.hexagram_candidates[1];
   const os3 = analysisResult.hexagram_candidates[2];
   const trigram_profile = analysisResult.trigram_profile;
+
   const os_manuals = HAQEI_DATA.os_manual || {};
   const os1_manual = os_manuals[os1.hexagram_id] || {};
   const os2_manual = os_manuals[os2.hexagram_id] || {};
@@ -72,15 +69,9 @@ async function generateProfessionalReportText(
   const format_os_manual = (os, manual, type) => {
     if (!manual || !manual.summary)
       return `【${type}】: ${os.name_jp} (詳細データなし)`;
-    const quests =
-      manual.quests && Array.isArray(manual.quests)
-        ? manual.quests.join(" / ")
-        : "N/A";
     return `【${type}】: ${os.name_jp} - 概要: ${
       manual.summary || "N/A"
-    }, 暴走パターン: ${manual.debug_pattern || "N/A"}, 脱出方法: ${
-      manual.debug_method || "N/A"
-    }, 最適化クエスト: ${quests}`;
+    }, 暴走パターン: ${manual.debug_pattern || "N/A"}`.trim();
   };
 
   const os_manual_details = `${format_os_manual(
@@ -95,82 +86,133 @@ async function generateProfessionalReportText(
 
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
-  // ★★★ プロンプトを修正 ★★★
-  const prompt = `あなたは「HaQei アナライザー」の最高専門家AIです。東洋哲学と心理学の深い知識を持ち、ユーザーの分析結果と個人的な状況を統合して、ユーザーが具体的にどう行動すれば良いかの指針となるアドバイスを生成してください。
+  // ★★★ プロンプトを全面刷新 ★★★
+  const prompt = `あなたは、東洋哲学と心理学の叡智を統合した「HaQei アナライザー」の最高専門家AIです。ユーザーの分析結果と個人的な状況を深く洞察し、ユーザーが「これは私のための戦略書だ」と感じ、次の一歩を踏み出したくなるような、希望に満ちた具体的なレポートを作成してください。
 
 # 絶対的ルール
-- **出力は必ずHTMLの断片のみ**とします。\`<h4>\`タグやその他の見出しタグは**一切含めず**、\`<p class="text-sm">\` や \`<ul>\` タグから始まるコンテンツ部分のみを生成してください。
-- 生成する内容は、「4. 総合所見とあなたへの戦略的アドバイス」と「5. 次の具体的な一歩」の2つのセクションの**本文に相当する部分だけ**です。
-- 文章は、ユーザーに寄り添い、希望を与えるような、プロフェッショナルかつ温かいトーンで記述してください。専門用語は避け、誰にでも理解しやすい言葉を使ってください。
-- アドバイスは、必ずOSの三位一体モデル（エンジン、インターフェース、セーフモード）の力学と、ユーザーの課題を結びつけて具体的に解説してください。
-- 「具体的な一歩」は、ユーザーが明日から実践できる、具体的で小さな行動を2〜3個提案してください。
+- **出力は必ず4つのセクションからなるHTMLの断片のみ**とします。各セクションは必ず \`\` で区切ってください。
+- 各セクションの本文は、\`<p class="text-sm">\` や \`<ul>\` タグから始めてください。\`<h4>\` などの見出しタグは**一切含めないでください**。
+- 文章は、ユーザーに深く寄り添い、希望と具体的な気づきを与える、プロフェッショナルかつ温かいトーンで記述してください。
+- ユーザーの「課題」と「OSの力学」を具体的に結びつけ、単なる性格診断ではない、実践的な戦略を提示してください。
 - 強調したいキーワードは\`<strong>\`タグで囲んでください。
-- リストは\`<ul class="text-sm list-disc pl-5"><li>リスト項目</li></ul>\`の形式を使用してください。
+- 箇条書きは\`<ul class="text-sm list-disc pl-5"><li>リスト項目</li></ul>\`の形式を使用してください。
 
 # ユーザー情報
-- **ユーザープロファイル**: MBTI(${userProfile.mbti}), エニアグラム(${
+- ユーザープロファイル: MBTI(${userProfile.mbti}), エニアグラム(${
     userProfile.enneagram.join(", ") || "未入力"
   })
-- **ユーザーの状況**: 年代(${userContext.age || "未入力"}), 職業(${
+- ユーザーの状況: 年代(${userContext.age || "未入力"}), 職業(${
     userContext.occupation || "未入力"
   }), 役割(${userContext.role || "未入力"}), 課題(${
     userContext.issue || "特になし"
   })
 
-# 分析結果：三位一体OSモデル詳細解説
-${os_manual_details}
+# 分析結果サマリー
+- 三位一体OSモデル: ${os_manual_details}
+- エネルギープロファイル: ${trigram_profile
+    .map((p) => `${p.name_en}(${p.score})`)
+    .join(", ")}
 
-# 分析結果：エネルギープロファイル
-${trigram_profile
-  .map((p) => `- ${p.name_en} (${p.strength_description}): ${p.score}点`)
-  .join("\n")}
+# 生成すべき4つのセクション
 
-上記情報を統合し、指定されたルールに従って、HTMLの断片を生成してください。`;
+### セクション1: OSの力学 - あなたのポテンシャルを最大化する鍵
+あなたの3つのOSが、互いにどう作用し合っているかを解説してください。特に、ユーザーの「課題」が、このOSの力学によってどのように生み出されているのかを、具体的に、そして優しく指摘してください。
+
+### セクション2: 総合所見 - あなたの物語の現在地と未来への羅針盤
+分析結果全体を統合し、ユーザーの「現在地」を物語的に表現してください。そして、このOS構造を活かすことで、どのような素晴らしい未来の可能性があるのか、希望に満ちた展望を提示してください。
+
+### セクション3: Next Action - 次の具体的な一歩
+ユーザーが明日から実践できる、非常に具体的で小さな行動を2〜3個提案してください。各アクションが、OSのどの部分を最適化するのかを明確に示してください。（例：「エンジンOSの『雷』のエネルギーを健全に使うために、週に一度、5分だけ全力で部屋を掃除してみましょう」など）
+
+### セクション4: さらなる探求へ - 未来分岐シミュレーターの活用法
+今回の分析結果を手に、「未来分岐シミュレーター」を使うと、どのような気づきが得られるかを具体的に示唆してください。「あなたのエンジンOSである【${
+    os1.name_jp
+  }】を携えて、もし現在の課題に対して『進』のアクションを取ると、どのような未来が展開されるか見てみましょう」といった形で、次のツール利用へと自然に誘導してください。
+
+---
+上記情報を統合し、指定されたルールに従って、4つのセクションからなるHTMLの断片を生成してください。`;
 
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    return response.text();
+    // AIの出力をセパレーターで確実に4分割する
+    const sections = response.text().split("");
+    while (sections.length < 4) {
+      sections.push("<p>（現在、このセクションは準備中です）</p>"); // 足りない部分を補完
+    }
+    return sections;
   } catch (error) {
     console.error("Gemini API Error:", error);
     throw new Error("Gemini APIとの通信に失敗しました。詳細: " + error.message);
   }
 }
 
-// ★★★ HTML組み立て関数を修正 ★★★
-function assembleFullReportHtml(analysisResult, userContext, aiGeneratedHtml) {
+// ★★★ HTML組み立て関数を新構成に合わせて修正 ★★★
+function assembleFullReportHtml(
+  analysisResult,
+  userContext,
+  aiGeneratedSections
+) {
   const os1 = analysisResult.hexagram_candidates[0];
   const os2 = analysisResult.hexagram_candidates[1];
   const os3 = analysisResult.hexagram_candidates[2];
-  const trigram_profile = analysisResult.trigram_profile;
 
-  // 静的なHTMLパーツをここで定義
-  const header = `<h3 class="text-2xl font-bold text-indigo-300 mb-6 text-center" style="font-family: 'Shippori Mincho', serif;">HaQeiプロフェッショナル<br>総合解説レポート</h3>`;
-  const contextText = `<div class="report-block"><h4>1. ご入力いただいた状況の確認</h4><p class="text-sm">「${
-    userContext.age || ""
-  } ${userContext.occupation || ""} ${userContext.role || ""}」で、「${
-    userContext.issue || "特になし"
-  }」という課題意識をお持ちなのですね。承知いたしました。その状況を踏まえ、あなたのOSを読み解いていきましょう。</p></div>`;
-  const profileText = `<div class="report-block"><h4>2. エネルギープロファイルから見るあなたの「基本性質」</h4><p class="text-sm">あなたのエネルギーは、<strong>${
-    trigram_profile[0].name_en
-  }</strong>（${trigram_profile[0].strength_description}）と<strong>${
-    trigram_profile[1].name_en
-  }</strong>（${
-    trigram_profile[1].strength_description
-  }）が際立っています。一方で、<strong>${
-    trigram_profile[7].name_en
-  }</strong>のエネルギーが最も低いため、${trigram_profile[7].strength_description.slice(
-    0,
-    -1
-  )}のは少し苦手かもしれません。</p></div>`;
-  const trinityText = `<div class="report-block"><h4>3. 「三位一体OSモデル」の構造的解説</h4><p class="text-sm">あなたのOS構造は非常に興味深い連携をしています。あなたの根源的な動力源である<strong>【エンジンOS：${os1.name_jp}】</strong>が放つエネルギーは、<strong>【インターフェースOS：${os2.name_jp}】</strong>というフィルターを通して社会に表現されます。しかし、ストレスがかかると<strong>【セーフモードOS：${os3.name_jp}】</strong>が起動し、無意識に初期設定の行動パターンに立ち返る傾向があります。この3つのOSの関係性を理解することが、自己を乗りこなす鍵となります。</p></div>`;
+  // ユーザー入力がない場合の代替テキスト
+  const age = userContext.age ? `${userContext.age}` : "ある年代";
+  const occupation = userContext.occupation
+    ? `${userContext.occupation}として`
+    : "";
+  const role = userContext.role ? `${userContext.role}という役割で` : "";
+  const issue = userContext.issue
+    ? `「${userContext.issue}」`
+    : "「特になし（現状のポテンシャル分析）」";
 
-  // AIが生成したHTMLを、静的な見出しの下に配置
-  const aiSection = `<div class="report-block"><h4>4. 総合所見とあなたへの戦略的アドバイス</h4>${
-    aiGeneratedHtml.split("<h4>5. 次の具体的な一歩</h4>")[0] || ""
-  }<h4>5. 次の具体的な一歩</h4>${
-    aiGeneratedHtml.split("<h4>5. 次の具体的な一歩</h4>")[1] || ""
+  // 静的HTMLパーツをここで定義
+  const header = `<h3 class="text-2xl font-bold text-indigo-300 mb-8 text-center" style="font-family: 'Shippori Mincho', serif;">あなたの物語を読み解く<br>HaQei 統合分析レポート</h3>`;
+
+  const contextText = `<div class="report-block"><h4>0. はじめに - あなたの現在地</h4><p class="text-sm">${age}、${occupation}${role}、「${issue}」という課題意識をお持ちなのですね。承知いたしました。その状況と、あなたが持つ素晴らしいOSの可能性を掛け合わせ、物語の次章へと進むための羅針盤をここに提示します。</p></div>`;
+
+  const trinityText = `<div class="report-block"><h4>1. あなたのOSアーキテクチャ - 三位一体モデルの構造</h4><p class="text-sm">あなたのOS構造は、以下の3つのOSが連携して機能しています。それぞれの役割を理解することが、自己を乗りこなす第一歩です。</p>
+    <ul class="text-sm list-none space-y-3 mt-4">
+      <li class="p-4 bg-gray-900/50 rounded-lg border-l-4 border-yellow-400"><strong>【エンジンOS：${
+        os1.name_jp
+      }】</strong><br>${
+    HAQEI_DATA.os_manual[os1.hexagram_id]?.summary || os1.description
+  }</li>
+      <li class="p-4 bg-gray-900/50 rounded-lg border-l-4 border-cyan-400"><strong>【インターフェースOS：${
+        os2.name_jp
+      }】</strong><br>${
+    HAQEI_DATA.os_manual[os2.hexagram_id]?.summary || os2.description
+  }</li>
+      <li class="p-4 bg-gray-900/50 rounded-lg border-l-4 border-rose-400"><strong>【セーフモードOS：${
+        os3.name_jp
+      }】</strong><br>${
+    HAQEI_DATA.os_manual[os3.hexagram_id]?.summary || os3.description
+  }</li>
+    </ul>
+  </div>`;
+
+  // AIが生成したHTMLを、各セクションの見出しの下に配置
+  const section1 = `<div class="report-block"><h4>2. OSの力学 - ポテンシャルを最大化する鍵</h4>${
+    aiGeneratedSections[0] || ""
+  }</div>`;
+  const section2 = `<div class="report-block"><h4>3. 総合所見 - あなたの物語の現在地と未来への羅針盤</h4>${
+    aiGeneratedSections[1] || ""
+  }</div>`;
+  const section3 = `<div class="report-block"><h4>4. Next Action - 次の具体的な一歩</h4>${
+    aiGeneratedSections[2] || ""
+  }</div>`;
+  const section4 = `<div class="report-block"><h4>5. さらなる探求へ - 未来分岐シミュレーターの活用</h4>${
+    aiGeneratedSections[3] || ""
   }</div>`;
 
-  return header + contextText + profileText + trinityText + aiSection;
+  return (
+    header +
+    contextText +
+    trinityText +
+    section1 +
+    section2 +
+    section3 +
+    section4
+  );
 }
