@@ -4,10 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HaQei Library</title>
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
-    />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -450,18 +446,16 @@
     <script src="assets/haqei_main_database.js"></script>
 
     <script>
-      // HaQei Library - JavaScript v2.2 (新DB構造対応版)
+      // ✅ これが完全で修正済みの最終版スクリプトです
       window.onload = () => {
         // --- 1. データベースと主要なDOM要素の存在を最初に確認 ---
         if (
           typeof HAQEI_DATA === "undefined" ||
-          !HAQEI_DATA.potential_scores ||
-          !HAQEI_DATA.h64_details ||
-          !HAQEI_DATA.H64 ||
-          !HAQEI_DATA.H384
+          typeof haqei_potential_scores === "undefined" ||
+          typeof haqeiMainDatabase === "undefined"
         ) {
           document.body.innerHTML =
-            '<p class="text-red-400 text-center p-8">致命的なエラー: データベースファイル(haqei_main_database.js)の構造が正しくないか、読み込めませんでした。</p>';
+            '<p class="text-red-400 text-center p-8">致命的なエラー: データベースファイル(haqei_main_database.js)が読み込めませんでした。</p>';
           return;
         }
         if (!document.getElementById("content-area")) {
@@ -472,13 +466,11 @@
 
         // --- 2. グローバル変数と定数の定義 ---
         const HDB = HAQEI_DATA;
-        const SCORES = HDB.potential_scores;
-        const MAIN_DB = HDB.h64_details;
-        const H64 = HDB.H64;
-        const H384 = HDB.H384;
+        const SCORES = haqei_potential_scores;
+        const MAIN_DB = haqeiMainDatabase;
         let lineChartInstance = null;
 
-        // --- 3. ユーティリティ関数 (変更なし) ---
+        // --- 3. ユーティリティ関数 ---
         const hexStartIndices = (() => {
           const indices = [0];
           let currentIndex = 1;
@@ -603,7 +595,6 @@
               score: parseFloat(average.toFixed(2)),
             };
           });
-
           const sortedHexagrams = [...hexagramScores].sort((a, b) => {
             const scoreA = a && typeof a.score === "number" ? a.score : -1;
             const scoreB = b && typeof b.score === "number" ? b.score : -1;
@@ -616,7 +607,6 @@
                 return scoreB - scoreA;
             }
           });
-
           container.innerHTML = sortedHexagrams
             .map((hex) => {
               if (!hex || hex.score === null) return "";
@@ -633,7 +623,6 @@
               )}</div></div>`;
             })
             .join("");
-
           container
             .querySelectorAll(".group[data-hex-id]")
             .forEach((el) =>
@@ -677,7 +666,7 @@
               const linesHtml = Array.from({ length: lineCount }, (_, i) => {
                 const lineNum = startNum + i;
                 const shoData = HDB.bible.sho_den[lineNum];
-                const h384Data = H384.find((h) => h.通し番号 === lineNum);
+                const h384Data = HDB["384"].find((h) => h.通し番号 === lineNum);
                 if (!shoData || !h384Data) return "";
                 return `<div class="filterable-item p-4 border-t border-gray-600" data-search-text="${`${h384Data.爻名} ${shoData.title} ${shoData.reason}`.toLowerCase()}"><h5 class="font-bold text-indigo-300">${escapeHTML(
                   h384Data.爻名
@@ -738,6 +727,7 @@
           const joData = HDB.bible.jo_ka_den;
           let html = "";
           for (let i = 1; i < 64; i++) {
+            // 1から63までループ
             const item = joData[i];
             if (!item || !item.to_next) continue;
             const currentHex = HDB.hexagrams_master.find(
@@ -775,13 +765,12 @@
           radarContainer.classList.add("hidden");
           structureAnalyzer.classList.remove("hidden");
 
-          // 前後の卦へ移動するナビゲーションボタンを設定
           const setupNavButton = (id, currentHexId, direction) => {
             let newHexId = currentHexId + direction;
             if (newHexId < 1) newHexId = 64;
             if (newHexId > 64) newHexId = 1;
             const btn = document.getElementById(id);
-            const newBtn = btn.cloneNode(true); // イベントリスナーをクリーンにするため複製
+            const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
             newBtn.addEventListener("click", () =>
               showStructureAnalyzer(newHexId)
@@ -796,27 +785,24 @@
           const tuanData = HDB.bible.tuan_den[hexId];
           if (!hexData || !tuanData) return;
 
-          // メインタイトルの設定
-          document.getElementById("analyzer-title-container").innerHTML = `
-        <h3 class="text-3xl lg:text-4xl font-bold text-gray-100 mincho-font">${
-          hexData.hexagram_id
-        }. ${escapeHTML(tuanData.title)}</h3>
-        <p class="text-indigo-300 font-semibold mt-2">${escapeHTML(
-          tuanData.summary
-        )}</p>
-    `;
-
-          // 基本情報の設定
+          document.getElementById(
+            "analyzer-title-container"
+          ).innerHTML = `<h3 class="text-3xl lg:text-4xl font-bold text-gray-100 mincho-font">${
+            hexData.hexagram_id
+          }. ${escapeHTML(
+            tuanData.title
+          )}</h3><p class="text-indigo-300 font-semibold mt-2">${escapeHTML(
+            tuanData.summary
+          )}</p>`;
           document.getElementById("basic-description").textContent =
             hexData.description;
           document.getElementById("basic-keywords").textContent =
             hexData.keywords;
 
-          // 関連する卦（互卦、錯卦、綜卦）のリンクと説明を設定
           const setupRelatedHexLink = (linkId, relatedHex) => {
             const linkEl = document.getElementById(linkId);
             if (!linkEl) return;
-            const newLinkEl = linkEl.cloneNode(true); // イベントリスナーをクリーンにするため複製
+            const newLinkEl = linkEl.cloneNode(true);
             if (relatedHex) {
               newLinkEl.textContent = `${relatedHex.hexagram_id}. ${escapeHTML(
                 relatedHex.name_jp
@@ -833,7 +819,6 @@
           setupRelatedHexLink("sakka-link", findSakka(hexData));
           setupRelatedHexLink("souka-link", findSouka(hexData));
 
-          // 現代的アプローチのセクションを設定
           const mainData = MAIN_DB.find((d) => d.卦番号 === hexId);
           const modernContainer = document.getElementById(
             "modern-interpretation-container"
@@ -862,7 +847,6 @@
             }
           }
 
-          // 爻のポテンシャルスコアグラフを描画
           const ctx = document
             .getElementById("analyzer-chart")
             .getContext("2d");
@@ -926,8 +910,7 @@
               },
             },
           });
-
-          // 初期表示として最初の爻を選択状態にする
+          // 初期表示
           lineChartInstance.data.datasets[0].pointBackgroundColor = labels.map(
             (_, i) => (i === 0 ? "#facc15" : "#fff")
           );
@@ -937,13 +920,14 @@
           lineChartInstance.update("none");
           updateAnalyzerText(hexData, 0);
         }
+
         function updateAnalyzerText(currentHex, lineIndex) {
           const textContainer = document.getElementById("analyzer-text");
           if (!textContainer) return;
           const startNum = hexStartIndices[currentHex.hexagram_id];
           const lineNum = startNum + lineIndex;
           const shoData = HDB.bible.sho_den[lineNum];
-          const h384Data = H384.find((h) => h.通し番号 === lineNum);
+          const h384Data = HDB["384"].find((h) => h.通し番号 === lineNum);
           const score = SCORES[lineNum];
           const scoreLevels = {
             1: "平穏",
@@ -967,7 +951,7 @@
                       mainData[relationKey]
                     )}</div>`
                   : "";
-              henkoHtml = `<div class="mt-4 pt-4 border-t border-gray-700/50"><p class="text-sm text-gray-400">この爻が変化すると...</p><a class="font-bold text-lg text-green-300 clickable-hex" onclick="showStructureAnalyzer(${
+              henkoHtml = `<div class="mt-4 pt-4 border-t border-gray-700"><p class="text-sm text-gray-400">この爻が変化すると...</p><a class="font-bold text-lg text-green-300 clickable-hex" onclick="showStructureAnalyzer(${
                 henkoHex.hexagram_id
               })">${henkoHex.hexagram_id}. ${escapeHTML(
                 henkoHex.name_jp
@@ -988,6 +972,7 @@
             textContainer.innerHTML = `<p class="text-gray-400">この爻のデータが見つかりません。（通し番号: ${lineNum}）</p>`;
           }
         }
+
         // --- 6. イベントリスナーの設定と初期化 ---
         function initialize() {
           const tabs = document.querySelectorAll(".tab-btn");
