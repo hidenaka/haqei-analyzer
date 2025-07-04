@@ -1401,6 +1401,7 @@
           });
         };
 
+        // ▼▼▼ この関数全体を差し替えてください ▼▼▼
         const renderBarChart = (trigram_profile) => {
           const canvasElement = document.getElementById("energyBarChart");
           if (!canvasElement) return;
@@ -1424,10 +1425,9 @@
                   backgroundColor: sortedProfile.map(
                     (t) => HELPERS.trigram_colors[t.id]
                   ),
-                  borderColor: sortedProfile.map(
-                    (t) => HELPERS.trigram_colors[t.id]
-                  ),
-                  borderWidth: 1,
+                  // ---【修正ポイント①：角を丸くする】---
+                  borderRadius: 10, // この行を追加して角を丸くします
+                  borderSkipped: false, // 角丸を全ての辺に適用するために追加
                 },
               ],
             },
@@ -1436,13 +1436,20 @@
               responsive: true,
               maintainAspectRatio: false,
               scales: {
+                // ---【修正ポイント②：見た目をオシャレに】---
                 x: {
                   beginAtZero: true,
-                  grid: { color: "rgba(255, 255, 255, 0.1)" },
+                  grid: {
+                    display: false, // X軸の背景線を非表示に
+                    drawBorder: false, // X軸の線を非表示に
+                  },
                   ticks: { color: "#d1d5db" },
                 },
                 y: {
-                  grid: { color: "rgba(255, 255, 255, 0.1)" },
+                  grid: {
+                    display: false, // Y軸の背景線を非表示に
+                    drawBorder: false, // Y軸の線を非表示に
+                  },
                   ticks: { color: "#d1d5db", font: { size: 14 } },
                 },
               },
@@ -1459,7 +1466,6 @@
             },
           });
         };
-
         const renderHexagramMap = (hexagram_candidates) => {
           const container = document.querySelector(".hex-map-container");
           if (!container) return;
