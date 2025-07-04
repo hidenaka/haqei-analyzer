@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HaQei 人格OS 分析レポート v15.4</title>
+    <title>HaQei 人格OS 分析レポート v15.5</title>
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
@@ -405,7 +405,7 @@
 
     <script src="assets/haqei_main_database.js"></script>
     <script>
-      // HaQei OS Analyzer - JavaScript v15.4
+      // HaQei OS Analyzer - JavaScript v15.5
       const HDB = HAQEI_DATA;
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -1173,10 +1173,14 @@
         };
 
         const renderRadarChart = (trigram_profile) => {
-          // ... (この関数の内容は変更なし) ...
-          const ctx = document
-            .getElementById("energyRadarChart")
-            .getContext("2d");
+          const canvasElement = document.getElementById("energyRadarChart");
+          // ★★★★★ 修正点 ★★★★★
+          // canvas要素が存在しない場合は処理を中断
+          if (!canvasElement) {
+            console.error("Canvas element for radar chart not found!");
+            return;
+          }
+          const ctx = canvasElement.getContext("2d");
           const sortedProfile = [...trigram_profile].sort(
             (a, b) => a.id - b.id
           );
@@ -1426,7 +1430,12 @@
             () => {
               reportContainer.innerHTML =
                 createIntroSection() + createProfileSection();
-              renderRadarChart(lastAnalysisResult.trigram_profile);
+              // ★★★★★ 修正点 ★★★★★
+              // 次のtickでグラフを描画することで、DOMの準備が整うのを待つ
+              setTimeout(
+                () => renderRadarChart(lastAnalysisResult.trigram_profile),
+                0
+              );
               document
                 .getElementById("show-breakdown-btn")
                 .addEventListener("click", () =>
