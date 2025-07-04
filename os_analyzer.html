@@ -193,6 +193,20 @@
       .modal-content {
         transition: transform 0.3s ease;
       }
+      /* --- 簡易診断用スタイル --- */
+      .diagnostic-option {
+        display: block;
+        padding: 0.75rem 1.25rem;
+        border: 1px solid #4b5563;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: #374151;
+      }
+      .diagnostic-option:hover {
+        background-color: #4b5563;
+        border-color: #6366f1;
+      }
     </style>
   </head>
   <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
@@ -215,10 +229,35 @@
         id="input-container"
         class="bg-gray-900/50 p-6 rounded-xl mb-10 space-y-6"
       >
-        <p class="text-center text-gray-300">
-          あなたのタイプを選択し、「分析を実行」ボタンを押してください。
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <div class="text-center">
+          <p class="text-gray-300">
+            あなたのタイプを選択し、「分析を実行」ボタンを押してください。
+          </p>
+          <a
+            href="#"
+            id="start-diagnostic-btn"
+            class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors"
+          >
+            自分のタイプがわからない方はこちら (簡易診断)
+          </a>
+        </div>
+
+        <div
+          class="text-center text-sm text-gray-400 bg-gray-800/60 p-4 rounded-lg border border-gray-700/80"
+        >
+          <h4 class="font-semibold text-indigo-300 mb-2 text-base">
+            なぜ３つの診断結果が必要なのか？
+          </h4>
+          <p class="leading-relaxed">
+            西洋の心理学 (MBTI) と東洋の叡智 (易経)、そして個人の才能
+            (ストレングスファインダー)
+            を掛け合わせることで、HaQeiはあなたの魂の『OS』を世界で初めて多角的に解き明かします。これは「面倒な入力」ではなく<strong
+              class="text-amber-400"
+              >「すごい分析のための準備」</strong
+            >です。
+          </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start pt-4">
           <div>
             <label
               for="mbtiSelect"
@@ -302,6 +341,196 @@
 
     <script src="assets/haqei_main_database.js"></script>
     <script>
+      // ▼▼▼ 機能A: 簡易診断機能のためのデータとロジック ▼▼▼
+      const DIAGNOSTIC_QUIZ_DATA = {
+        mbti: [
+          {
+            id: "IE",
+            q: "アクティビティの後、あなたは…",
+            a: {
+              text: "疲れて、一人の時間で充電したくなる (内向)",
+              value: "I",
+            },
+            b: {
+              text: "元気になり、もっと人と話したくなる (外向)",
+              value: "E",
+            },
+          },
+          {
+            id: "SN",
+            q: "新しいことを学ぶとき、あなたは…",
+            a: {
+              text: "事実や具体的な詳細、過去の経験に注目する (感覚)",
+              value: "S",
+            },
+            b: {
+              text: "可能性や全体像、未来の洞察に惹かれる (直観)",
+              value: "N",
+            },
+          },
+          {
+            id: "TF",
+            q: "決断を下すとき、あなたがより重視するのは…",
+            a: { text: "論理的な正しさや、客観的な基準 (思考)", value: "T" },
+            b: { text: "関係者への影響や、全体の調和 (感情)", value: "F" },
+          },
+          {
+            id: "JP",
+            q: "あなたの普段の生活スタイルは…",
+            a: {
+              text: "計画を立て、物事をきっちり終わらせる方を好む (判断)",
+              value: "J",
+            },
+            b: {
+              text: "柔軟性を保ち、選択肢を広く持っておくことを好む (知覚)",
+              value: "P",
+            },
+          },
+        ],
+        enneagram: [
+          {
+            type: 1,
+            name: "改革する人",
+            desc: "物事を正しく、完璧に行いたい。向上心が高く、白黒はっきりさせたい。",
+          },
+          {
+            type: 2,
+            name: "助ける人",
+            desc: "人の役に立ち、必要とされたい。思いやりが深く、他人の感情に敏感。",
+          },
+          {
+            type: 3,
+            name: "達成する人",
+            desc: "成功して価値を証明したい。目標志向で、効率と成果を重視する。",
+          },
+          {
+            type: 4,
+            name: "個性的な人",
+            desc: "自分らしく、特別な存在でありたい。感受性が豊かで、独自の美意識を持つ。",
+          },
+          {
+            type: 5,
+            name: "調べる人",
+            desc: "世界を理解し、有能でありたい。知的好奇心が強く、一人の時間を大切にする。",
+          },
+          {
+            type: 6,
+            name: "忠実な人",
+            desc: "安全と安心を求め、周りに尽くす。責任感が強く、慎重に物事を進める。",
+          },
+          {
+            type: 7,
+            name: "熱中する人",
+            desc: "楽しく、多くのことを経験したい。楽観的で、新しい刺激や可能性を追い求める。",
+          },
+          {
+            type: 8,
+            name: "挑戦する人",
+            desc: "自分のことは自分で決め、主導権を握りたい。パワフルで、正義感が強い。",
+          },
+          {
+            type: 9,
+            name: "平和をもたらす人",
+            desc: "穏やかで、争いを避けたい。受容力があり、全体の調和を願う。",
+          },
+        ],
+      };
+
+      let diagnosticAnswers = {};
+
+      const showDiagnosticModal = () => {
+        diagnosticAnswers = { mbti: "" };
+        renderDiagnosticStep("mbti", 0);
+      };
+
+      const applyDiagnosticResults = (mbtiType, enneaType) => {
+        document.getElementById("mbtiSelect").value = mbtiType;
+        const enneaSelect1 = document.getElementById("enneagramSelect1");
+        enneaSelect1.value = enneaType;
+
+        // エニアグラムの重複選択防止ロジックをトリガー
+        const changeEvent = new Event("change");
+        enneaSelect1.dispatchEvent(changeEvent);
+
+        hideModal();
+      };
+
+      const renderDiagnosticStep = (stage, questionIndex = 0) => {
+        const modalBody = document.getElementById("modalBody");
+        let contentHtml = "";
+
+        if (stage === "mbti") {
+          const qData = DIAGNOSTIC_QUIZ_DATA.mbti[questionIndex];
+          contentHtml = `
+                <h3 class="text-xl font-bold text-indigo-300 mb-2">簡易MBTI診断 (${
+                  questionIndex + 1
+                }/4)</h3>
+                <p class="text-gray-300 mb-6">${qData.q}</p>
+                <div class="space-y-3">
+                    <a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
+                      qData.a.value
+                    }', ${questionIndex})">${qData.a.text}</a>
+                    <a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
+                      qData.b.value
+                    }', ${questionIndex})">${qData.b.text}</a>
+                </div>
+            `;
+        } else if (stage === "enneagram") {
+          contentHtml = `
+                <h3 class="text-xl font-bold text-indigo-300 mb-2">簡易エニアグラム診断</h3>
+                <p class="text-gray-300 mb-6">以下のうち、あなたの最も深い動機や価値観に一番近いものを一つ選んでください。</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    ${DIAGNOSTIC_QUIZ_DATA.enneagram
+                      .map(
+                        (e) => `
+                        <div class="diagnostic-option text-sm flex flex-col h-full" onclick="handleEnneagramAnswer(${e.type})">
+                            <p class="font-bold text-indigo-300">タイプ${e.type}: ${e.name}</p>
+                            <p class="text-gray-400 mt-1">${e.desc}</p>
+                        </div>
+                    `
+                      )
+                      .join("")}
+                </div>
+            `;
+        } else if (stage === "result") {
+          const mbtiResult = diagnosticAnswers.mbti;
+          const enneaResult = diagnosticAnswers.enneagram;
+          contentHtml = `
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-indigo-300 mb-4">簡易診断結果</h3>
+                    <p class="text-gray-300">あなたのタイプは以下と推定されます。</p>
+                    <div class="my-6 space-y-3">
+                        <p class="text-2xl font-bold">MBTI: <span class="text-amber-400">${mbtiResult}</span></p>
+                        <p class="text-2xl font-bold">エニアグラム: <span class="text-amber-400">タイプ${enneaResult}</span></p>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-6">※これは簡易的な診断です。より正確なタイプをご存知の場合は、そちらを優先してください。</p>
+                    <button onclick="applyDiagnosticResults('${mbtiResult}', '${enneaResult}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">
+                        この結果を利用する
+                    </button>
+                </div>
+            `;
+        }
+        modalBody.innerHTML = contentHtml;
+        showModal(modalBody.innerHTML, false);
+      };
+
+      const handleMbtiAnswer = (answer, questionIndex) => {
+        event.preventDefault();
+        diagnosticAnswers.mbti += answer;
+        if (questionIndex < DIAGNOSTIC_QUIZ_DATA.mbti.length - 1) {
+          renderDiagnosticStep("mbti", questionIndex + 1);
+        } else {
+          renderDiagnosticStep("enneagram");
+        }
+      };
+
+      const handleEnneagramAnswer = (answer) => {
+        event.preventDefault();
+        diagnosticAnswers.enneagram = answer;
+        renderDiagnosticStep("result");
+      };
+      // ▲▲▲ 機能A ▲▲▲
+
       // HaQei OS Analyzer - JavaScript v15.2 (リファクタリング・安定版)
       const HDB = HAQEI_DATA;
 
@@ -317,6 +546,16 @@
         const modalOverlay = document.getElementById("modalOverlay");
         const modalCloseBtn = document.getElementById("modalCloseBtn");
         const modalBody = document.getElementById("modalBody");
+
+        // 機能A: 簡易診断開始ボタンのイベントリスナー
+        const startDiagnosticBtn = document.getElementById(
+          "start-diagnostic-btn"
+        );
+        startDiagnosticBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          showDiagnosticModal();
+        });
+
         let lastAnalysisResult = null;
         let lastUserProfile = null;
         const HELPERS = {
@@ -1174,8 +1413,12 @@
           });
         };
 
-        const showModal = (content) => {
-          modalBody.innerHTML = content;
+        const showModal = (content, useOriginalStyling = true) => {
+          if (useOriginalStyling) {
+            modalBody.innerHTML = content;
+          } else {
+            // For diagnostic modal, content is already fully formed.
+          }
           modalContainer.classList.remove("hidden");
           document.body.style.overflow = "hidden";
           setTimeout(() => {
@@ -1191,6 +1434,7 @@
           setTimeout(() => {
             modalContainer.classList.add("hidden");
             document.body.style.overflow = "";
+            modalBody.innerHTML = ""; // モーダルを閉じる時に中身を空にする
           }, 300);
         };
         const showBreakdownModal = (breakdownData) => {
