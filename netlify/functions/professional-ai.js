@@ -1,5 +1,5 @@
-// ファイルパス: /netlify/functions/professional-ai.js (最終修正版 v3)
-// プロンプト生成時の文法エラーを完全に修正しました。
+// ファイルパス: /netlify/functions/professional-ai.js (最終・完成版)
+// これまでの全てのバグを修正し、データ構造に完全に準拠した最終バージョンです。
 
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -71,12 +71,16 @@ async function generateProfessionalReportText(
   const format_os_manual = (os, manual, type) => {
     if (!manual || !manual.summary)
       return `【${type}】: ${os.name_jp} (詳細データなし)`;
+    const quests =
+      manual.quests && Array.isArray(manual.quests)
+        ? manual.quests.join(" / ")
+        : "N/A";
     return `
 【${type}】: ${os.name_jp}
   - 概要: ${manual.summary || "N/A"}
   - 暴走パターン: ${manual.debug_pattern || "N/A"}
   - 脱出方法: ${manual.debug_method || "N/A"}
-  - 最適化クエスト: ${(manual.quests || []).join(" / ")}
+  - 最適化クエスト: ${quests}
     `.trim();
   };
 
