@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HaQei 人格OS 分析レポート v15.3</title>
+    <title>HaQei 人格OS 分析レポート v15.4</title>
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
@@ -31,6 +31,17 @@
         border-left: 3px solid #6366f1;
         padding-left: 1.5rem;
         margin-top: 3rem;
+        animation: fadeIn 0.5s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .report-section h3 {
         font-size: 1.75rem;
@@ -58,6 +69,52 @@
       select optgroup {
         background-color: #1f2937;
         color: #d1d5db;
+      }
+
+      /* --- B) 専門用語への「オンデマンド解説」 --- */
+      .tooltip {
+        position: relative;
+        cursor: help;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        text-decoration-color: #9ca3af;
+      }
+      .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 220px;
+        background-color: #111827;
+        color: #e5e7eb;
+        text-align: left;
+        border-radius: 8px;
+        padding: 10px;
+        position: absolute;
+        z-index: 100;
+        bottom: 130%;
+        left: 50%;
+        margin-left: -110px; /* Use half of the width */
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        font-weight: normal;
+        font-family: "Inter", "Noto Sans JP", sans-serif;
+        border: 1px solid #4b5563;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+      }
+      .tooltip .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #111827 transparent transparent transparent;
+      }
+      .tooltip:hover .tooltip-text,
+      .tooltip:focus .tooltip-text {
+        visibility: visible;
+        opacity: 1;
       }
 
       /* 64卦マップのスタイル */
@@ -348,7 +405,7 @@
 
     <script src="assets/haqei_main_database.js"></script>
     <script>
-      // HaQei OS Analyzer - JavaScript v15.3
+      // HaQei OS Analyzer - JavaScript v15.4
       const HDB = HAQEI_DATA;
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -372,6 +429,8 @@
         let lastAnalysisResult = null;
         let lastUserProfile = null;
         let diagnosticAnswers = {};
+        let storySteps = []; // A) ストーリーテリングUI用
+        let currentStepIndex = 0; // A) ストーリーテリングUI用
 
         // --- ヘルパー関数群 ---
         const HELPERS = {
@@ -395,6 +454,11 @@
             6: "#3B82F6",
             7: "#F97316",
             8: "#A16207",
+          },
+          // B) ツールチップ生成関数
+          createTermTooltip: (term, explanation) => {
+            if (!explanation) return term;
+            return `<span class="tooltip">${term}<span class="tooltip-text">${explanation}</span></span>`;
           },
         };
 
@@ -420,7 +484,7 @@
           }, 300);
         };
 
-        // ▼▼▼ 機能A: 簡易診断機能のためのデータとロジック (エラー修正のため移動) ▼▼▼
+        // ▼▼▼ 簡易診断機能のためのデータとロジック ▼▼▼
         const DIAGNOSTIC_QUIZ_DATA = {
           mbti: [
             {
@@ -583,7 +647,6 @@
           showModal(contentHtml);
         };
 
-        // windowオブジェクトに関数をアタッチして、onclickから呼べるようにする
         window.handleMbtiAnswer = (answer, questionIndex) => {
           event.preventDefault();
           diagnosticAnswers.mbti += answer;
@@ -599,10 +662,8 @@
           renderDiagnosticStep("result");
         };
         window.applyDiagnosticResults = applyDiagnosticResults;
+        // ▲▲▲ 簡易診断機能 ▲▲▲
 
-        // ▲▲▲ 機能A ▲▲▲
-
-        // --- プルダウンの重複選択防止と初期化 ---
         const handleDuplicateSelection = (selects) => {
           const selectedValues = new Set();
           selects.forEach((s) => {
@@ -711,6 +772,7 @@
         };
 
         const runAdvancedAnalysis = (userProfile) => {
+          // ... (この関数の内容は変更なし) ...
           const weights = { mbti: 1.0, enneagram: 1.0, sf: 0.4 };
           const ennea_weights = [1.0, 0.8, 0.6];
           const sf_weights = [1.0, 0.9, 0.8, 0.7, 0.6];
@@ -817,12 +879,20 @@
             sf.length > 0
               ? `SF: ${sf.slice(0, 3).join(", ")}${sf.length > 3 ? "..." : ""}`
               : "";
+          const stepTitles = [
+            "ステップ1：あなたのエネルギーの全体像",
+            "ステップ2：あなたの中心となる3つのOS",
+            "ステップ3：広大な世界の中でのあなたの位置",
+            "最終ステップ：より深い自己理解へ",
+          ];
 
           return `
-            <div class="text-center mb-12 border-b border-gray-700 pb-8">
-                <h2 class="text-2xl font-bold text-gray-100">分析結果サマリー</h2>
-                <p class="text-gray-400 mt-2 max-w-xl mx-auto">
-                    MBTI: <strong>${mbti}</strong> | エニアグラム: <strong>${enneaText}</strong> ${
+            <div class="text-center mb-8 border-b border-gray-700 pb-6">
+                <h2 class="text-xl font-bold text-gray-100">${
+                  stepTitles[currentStepIndex]
+                }</h2>
+                <p class="text-sm text-gray-400 mt-2 max-w-xl mx-auto">
+                    分析対象 - MBTI: <strong>${mbti}</strong> | エニアグラム: <strong>${enneaText}</strong> ${
             sfText ? `| <strong>${sfText}</strong>` : ""
           }
                 </p>
@@ -832,7 +902,7 @@
         const createProfileSection = () => {
           return `
             <div class="report-section">
-                <h3><span class="text-2xl mr-2">📊</span>あなたのエネルギープロファイル</h3>
+                <h3><span class="text-2xl mr-2">📊</span>まず、あなたのエネルギーの全体像を見てみましょう</h3>
                 <p>あなたの8つの基本エネルギー（八卦）の強度を可視化します。これは、あなたの思考や行動の根源的な傾向や、備わっている潜在能力のバランスを示しています。</p>
                 <div class="mt-8 relative mx-auto" style="height: 400px; max-width: 500px;">
                     <canvas id="energyRadarChart"></canvas>
@@ -888,68 +958,28 @@
 
           return `
             <div class="report-section">
-                <h3><span class="text-2xl mr-2">✨</span>あなたのOS「三位一体」モデル</h3>
-                <p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p>
+                <h3><span class="text-2xl mr-2">✨</span>次に、あなたの中心となる３つのOSを紹介します</h3>
+                 <p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p>
                 <div class="mt-8 text-center"><img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="max-w-sm mx-auto mb-8"></div>
                 <div class="grid md:grid-cols-3 gap-6 mt-6">${osCardsHtml}</div>
             </div>`;
-        };
-
-        const createProfessionalCtaSection = () => {
-          return `
-            <div class="mt-16 p-8 bg-gradient-to-br from-amber-500/20 to-gray-800/20 rounded-2xl text-center border border-amber-500/30">
-                <h3 class="text-2xl font-bold text-amber-300">より深い自己理解へ</h3>
-                <p class="mt-4 text-gray-300 max-w-2xl mx-auto">今回の分析結果とあなたの現状を組み合わせ、AIパーソナリティコーチ「HaQeiプロフェッショナル」が、あなただけの戦略的アドバイスを生成します。</p>
-                <button id="request-professional-btn" class="mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">特別レポートをリクエストする (任意)</button>
-            </div>`;
-        };
-
-        const renderReport = (userProfile, result) => {
-          const { trigram_profile, hexagram_candidates, score_breakdown } =
-            result;
-
-          reportContainer.innerHTML =
-            createIntroSection() +
-            createProfileSection() +
-            createTrinityModelSection() +
-            createArchitectureSection() +
-            createProfessionalCtaSection();
-
-          inputContainer.classList.add("hidden");
-          reportContainer.classList.remove("hidden");
-
-          renderRadarChart(trigram_profile);
-          renderHexagramMap(hexagram_candidates);
-
-          document
-            .getElementById("show-breakdown-btn")
-            .addEventListener("click", () =>
-              showBreakdownModal(score_breakdown)
-            );
-          document
-            .getElementById("request-professional-btn")
-            .addEventListener("click", showProfessionalInputModal);
-          window.scrollTo({ top: 0, behavior: "smooth" });
         };
 
         const createArchitectureSection = () => {
           const { hexagram_candidates } = lastAnalysisResult;
           const osTypes = [
             {
-              title: "表舞台のOS (インターフェース)",
-              subtitle: "世界と関わるための、あなたの社会的な仮面",
-              highlightClass: "highlight-secondary",
-              icon: "🎭",
-            },
-            {
               title: "本質OS (エンジン)",
-              subtitle: "無意識にあなたを動かす、魂の動力源",
               highlightClass: "highlight-primary",
               icon: "🔥",
             },
             {
+              title: "表舞台のOS (インターフェース)",
+              highlightClass: "highlight-secondary",
+              icon: "🎭",
+            },
+            {
               title: "可能性のOS (セーフモード)",
-              subtitle: "困難な時に立ち返る、あなたの心の安全地帯",
               highlightClass: "highlight-growth",
               icon: "🛡️",
             },
@@ -969,7 +999,13 @@
 
               let architectureExplanation = `<p>${osExplanation}</p>`;
               if (upperTrigram && lowerTrigram) {
-                architectureExplanation += `<p class="text-sm mt-4 italic text-gray-400">このOSは、上卦（外面・精神）に<strong>【${upperTrigram.name_jp}】</strong>の性質、下卦（内面・行動）に<strong>【${lowerTrigram.name_jp}】</strong>の性質を併せ持ちます。</p>`;
+                architectureExplanation += `<p class="text-sm mt-4 italic text-gray-400">このOSは、上卦（外面・精神）に<strong class="text-indigo-300">【${HELPERS.createTermTooltip(
+                  upperTrigram.name_jp,
+                  upperTrigram.strength_description
+                )}】</strong>の性質、下卦（内面・行動）に<strong class="text-indigo-300">【${HELPERS.createTermTooltip(
+                  lowerTrigram.name_jp,
+                  lowerTrigram.strength_description
+                )}】</strong>の性質を併せ持ちます。</p>`;
               }
 
               let manualHtml = "";
@@ -994,19 +1030,20 @@
               }
 
               return `
-        <div class="bg-gray-800/60 p-6 rounded-2xl">
-            <h3 class="text-xl font-bold text-indigo-300 flex items-center"><span class="text-2xl mr-3">${
-              osTypeDef.icon
-            }</span>${index + 1}. ${os.name_jp} - 【${osTypeDef.title}】</h3>
-            <p class="text-sm text-gray-400 ml-10">${osTypeDef.subtitle}</p>
-            <p class="text-sm text-gray-500 ml-10">総合スコア: ${
-              os.final_score
-            }</p>
-            <div class="my-4 pl-10">${architectureExplanation}</div>
-            <div class="pl-10"><p><strong>関連キーワード:</strong> ${
-              os.keywords
-            }</p>${manualHtml}</div>
-        </div>`;
+                <div class="bg-gray-800/60 p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold text-indigo-300 flex items-center"><span class="text-2xl mr-3">${
+                      osTypeDef.icon
+                    }</span>${index + 1}. ${os.name_jp} - 【${
+                osTypeDef.title
+              }】</h3>
+                    <p class="text-sm text-gray-500 ml-10">総合スコア: ${
+                      os.final_score
+                    }</p>
+                    <div class="my-4 pl-10">${architectureExplanation}</div>
+                    <div class="pl-10"><p><strong>関連キーワード:</strong> ${
+                      os.keywords
+                    }</p>${manualHtml}</div>
+                </div>`;
             })
             .join("");
 
@@ -1023,10 +1060,75 @@
                 </div>
             </div>`;
 
-          return `<div class="report-section"><h3>あなたのOSアーキテクチャ</h3><div class="space-y-8 mt-8">${osSections}</div>${mapHtml}</div>`;
+          return `<div class="report-section"><h3><span class="text-2xl mr-2">🗺️</span>それらが広大な世界の中でどこに位置するか見てみましょう</h3><div class="space-y-8 mt-8">${osSections}</div>${mapHtml}</div>`;
+        };
+
+        const createProfessionalCtaSection = () => {
+          return `
+            <div class="report-section">
+                <div class="p-8 bg-gradient-to-br from-amber-500/20 to-gray-800/20 rounded-2xl text-center border border-amber-500/30">
+                    <h3 class="text-2xl font-bold text-amber-300">より深い自己理解へ</h3>
+                    <p class="mt-4 text-gray-300 max-w-2xl mx-auto">今回の分析結果とあなたの現状を組み合わせ、AIパーソナリティコーチ「HaQeiプロフェッショナル」が、あなただけの戦略的アドバイスを生成します。</p>
+                    <button id="request-professional-btn" class="mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">特別レポートをリクエストする (任意)</button>
+                </div>
+            </div>
+            `;
+        };
+
+        // --- A) ストーリーテリングUI制御関数 ---
+        const displayStoryView = () => {
+          // 現在のステップに応じたコンテンツを描画
+          storySteps[currentStepIndex]();
+
+          // ナビゲーションボタンを追加
+          const navHtml = `
+            <div class="flex justify-between items-center mt-12 pt-6 border-t border-gray-700">
+                <button id="prev-btn" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition ${
+                  currentStepIndex === 0 ? "invisible" : ""
+                }">
+                    &larr; 戻る
+                </button>
+                <div class="text-sm text-gray-400">
+                    ステップ ${currentStepIndex + 1} / ${storySteps.length}
+                </div>
+                <button id="next-btn" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition">
+                    ${
+                      currentStepIndex === storySteps.length - 1
+                        ? "もう一度最初から"
+                        : "次へ &rarr;"
+                    }
+                </button>
+            </div>
+        `;
+          reportContainer.innerHTML += navHtml;
+          window.scrollTo({ top: 0, behavior: "smooth" });
+
+          // ナビゲーションボタンにイベントリスナーを設定
+          const prevBtn = document.getElementById("prev-btn");
+          if (prevBtn) {
+            prevBtn.addEventListener("click", () => {
+              if (currentStepIndex > 0) {
+                currentStepIndex--;
+                displayStoryView();
+              }
+            });
+          }
+
+          const nextBtn = document.getElementById("next-btn");
+          if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+              if (currentStepIndex < storySteps.length - 1) {
+                currentStepIndex++;
+              } else {
+                currentStepIndex = 0; // 最後なら最初に戻る
+              }
+              displayStoryView();
+            });
+          }
         };
 
         const showProfessionalInputModal = () => {
+          // ... (この関数の内容は変更なし) ...
           const modalContent = `
                 <h3 class="text-xl font-bold text-amber-300 mb-4">HaQeiプロフェッショナル 総合解説</h3>
                 <p class="text-sm text-gray-400 mb-6">あなたのOS分析結果と、以下の任意項目を統合し、あなただけの戦略レポートを生成します。よりパーソナルなアドバイスのために、可能な範囲でご入力ください。</p>
@@ -1044,6 +1146,7 @@
         };
 
         const redirectToProfessionalReport = () => {
+          // ... (この関数の内容は変更なし) ...
           const userContext = {
             age: document.getElementById("prof-age")?.value || "",
             occupation: document.getElementById("prof-occupation")?.value || "",
@@ -1070,6 +1173,7 @@
         };
 
         const renderRadarChart = (trigram_profile) => {
+          // ... (この関数の内容は変更なし) ...
           const ctx = document
             .getElementById("energyRadarChart")
             .getContext("2d");
@@ -1144,21 +1248,27 @@
           const trigramOrder = [1, 2, 3, 4, 5, 6, 7, 8];
           container.appendChild(document.createElement("div"));
           trigramOrder.forEach((id) => {
+            const trigramData = HELPERS.getTrigramById(id);
             const headerCell = document.createElement("div");
             headerCell.className = "map-header";
-            headerCell.textContent = HELPERS.getTrigramById(id).name_jp;
-            headerCell.title = `外卦(上卦): ${
-              HELPERS.getTrigramById(id).name_en
-            }`;
+            // B) ツールチップをヘッダーに追加
+            headerCell.innerHTML = HELPERS.createTermTooltip(
+              trigramData.name_jp,
+              `${trigramData.name_en}: ${trigramData.strength_description}`
+            );
+            headerCell.title = `外卦(上卦): ${trigramData.name_en}`;
             container.appendChild(headerCell);
           });
           trigramOrder.forEach((lowerId) => {
+            const trigramData = HELPERS.getTrigramById(lowerId);
             const headerCell = document.createElement("div");
             headerCell.className = "map-header";
-            headerCell.textContent = HELPERS.getTrigramById(lowerId).name_jp;
-            headerCell.title = `内卦(下卦): ${
-              HELPERS.getTrigramById(lowerId).name_en
-            }`;
+            // B) ツールチップをヘッダーに追加
+            headerCell.innerHTML = HELPERS.createTermTooltip(
+              trigramData.name_jp,
+              `${trigramData.name_en}: ${trigramData.strength_description}`
+            );
+            headerCell.title = `内卦(下卦): ${trigramData.name_en}`;
             container.appendChild(headerCell);
             trigramOrder.forEach((upperId) => {
               const hexData = HDB.hexagrams_master.find(
@@ -1183,6 +1293,7 @@
           });
           container.querySelectorAll(".hex-cell").forEach((cell) => {
             cell.addEventListener("click", (e) => {
+              // ... (この関数の残りの部分は変更なし) ...
               e.stopPropagation();
               const id = parseInt(cell.dataset.id);
               if (isNaN(id)) return;
@@ -1252,6 +1363,7 @@
         };
 
         const showBreakdownModal = (breakdownData) => {
+          // ... (この関数の内容は変更なし) ...
           let contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-4">OSスコア算出根拠</h3><p class="text-sm text-gray-400 mb-4">あなたの性格特性が、8つの基本エネルギー（八卦）にどのように貢献しているかの内訳です。各数値は、特性の親和性と重み付けを掛け合わせたスコアを示します。</p><div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-400">`;
           contentHtml += `<thead class="text-xs text-gray-300 uppercase bg-gray-700"><tr><th scope="col" class="px-4 py-3">分析項目</th>`;
           const trigramHeaders = [...HDB.trigrams_master].sort(
@@ -1307,7 +1419,45 @@
             return;
           }
           lastAnalysisResult = runAdvancedAnalysis(lastUserProfile);
-          renderReport(lastUserProfile, lastAnalysisResult);
+
+          // A) ストーリーテリングUIの開始
+          storySteps = [
+            // Step 0: エネルギープロファイル
+            () => {
+              reportContainer.innerHTML =
+                createIntroSection() + createProfileSection();
+              renderRadarChart(lastAnalysisResult.trigram_profile);
+              document
+                .getElementById("show-breakdown-btn")
+                .addEventListener("click", () =>
+                  showBreakdownModal(lastAnalysisResult.score_breakdown)
+                );
+            },
+            // Step 1: 三位一体モデル
+            () => {
+              reportContainer.innerHTML =
+                createIntroSection() + createTrinityModelSection();
+            },
+            // Step 2: OSアーキテクチャ & 64卦マップ
+            () => {
+              reportContainer.innerHTML =
+                createIntroSection() + createArchitectureSection();
+              renderHexagramMap(lastAnalysisResult.hexagram_candidates);
+            },
+            // Step 3: 特別レポートCTA
+            () => {
+              reportContainer.innerHTML =
+                createIntroSection() + createProfessionalCtaSection();
+              document
+                .getElementById("request-professional-btn")
+                .addEventListener("click", showProfessionalInputModal);
+            },
+          ];
+
+          inputContainer.classList.add("hidden");
+          reportContainer.classList.remove("hidden");
+          currentStepIndex = 0;
+          displayStoryView();
         });
       });
     </script>
