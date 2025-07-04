@@ -1,5 +1,5 @@
-// ファイルパス: /netlify/functions/professional-ai.js (最終修正版 v2)
-// プロンプト内の変数埋め込みエラーを完全に修正しました。
+// ファイルパス: /netlify/functions/professional-ai.js (最終修正版 v3)
+// プロンプト生成時の文法エラーを完全に修正しました。
 
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -86,13 +86,12 @@ ${format_os_manual(os2, os2_manual, "インターフェースOS")}
 ${format_os_manual(os3, os3_manual, "セーフモードOS")}
   `.trim();
 
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-latest" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
-  // ▼▼▼ ここからがプロンプトの修正箇所です ▼▼▼
   const prompt = `あなたは「HaQei アナライザー」の最高専門家AIです。東洋哲学と心理学の深い知識を持ち、ユーザーの分析結果と個人的な状況を統合して、ユーザーが具体的にどう行動すれば良いかの指針となるアドバイスを生成してください。
 
 # ルール
-- 出力は必ずHTML形式とし、'<h4>4. 総合所見とあなたへの戦略的アドバイス</h4>' と '<h4>5. 次の具体的な一歩</h4>' の2つのセクションのみを生成してください。レポート全体のヘッダー等は不要です。
+- 出力は必ずHTML形式とし、'<h4>4. 総合所見とあなたへの戦略的アドバイス</h4>' と '<h4>5. 次の具体的な一歩</h4>' の2つのセクションのみを生成してください。
 - 文章は、ユーザーに寄り添い、希望を与えるような、プロフェッショナルかつ温かいトーンで記述してください。専門用語は避け、誰にでも理解しやすい言葉を使ってください。
 - アドバイスは、必ずOSの三位一体モデル（エンジン、インターフェース、セーフモード）の力学と、ユーザーの課題を結びつけて具体的に解説してください。
 - 「具体的な一歩」は、ユーザーが明日から実践できる、具体的で小さな行動を2〜3個提案してください。
@@ -118,7 +117,6 @@ ${trigram_profile
 
 上記情報を統合し、HTML形式でレポートを作成してください。
 `;
-  // ▲▲▲ ここまでがプロンプトの修正箇所です ▲▲▲
 
   try {
     const result = await model.generateContent(prompt);
@@ -126,7 +124,7 @@ ${trigram_profile
     return response.text();
   } catch (error) {
     console.error("Gemini API Error:", error);
-    throw new Error("Gemini APIとの通信に失敗しました。");
+    throw new Error("Gemini APIとの通信に失敗しました。詳細: " + error.message);
   }
 }
 
