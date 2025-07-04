@@ -1,226 +1,142 @@
-// ファイルパス: /netlify/functions/professional-ai.js (最終確定版) //
-提供されたデータ構造に100%準拠し、エラーハンドリングを強化しています。 const {
-HAQEI_DATA } = require("../../assets/haqei_main_database.js"); const {
-GoogleGenerativeAI } = require("@google/generative-ai"); const genAI = new
-GoogleGenerativeAI(process.env.GEMINI_API_KEY); exports.handler = async (event)
-=> { if (event.httpMethod !== 'POST') { return { statusCode: 405, body: 'Method
-Not Allowed' }; } try { const requestData = JSON.parse(event.body); const {
-analysis, context, profile } = requestData; if (!analysis ||
-!analysis.hexagram_candidates || !analysis.trigram_profile || !context ||
-!profile) { throw new Error("分析データまたはコンテキストが不完全です。"); }
-const generatedHtml = await generateProfessionalReportText(analysis, context,
-profile); const fullReportHtml = assembleFullReportHtml(analysis, context,
-generatedHtml); return { statusCode: 200, headers: { "Content-Type":
-"application/json; charset=utf-8" }, body: JSON.stringify({ success: true,
-report: fullReportHtml }), }; } catch (error) { console.error("Function Error:",
-error); return { statusCode: 500, body: JSON.stringify({ success: false, error:
-"AIレポートの生成中にエラーが発生しました: " + error.message }), }; } }; async
-function generateProfessionalReportText(analysisResult, userContext,
-userProfile) { const os1 = analysisResult.hexagram_candidates[0]; const os2 =
-analysisResult.hexagram_candidates[1]; const os3 =
-analysisResult.hexagram_candidates[2]; const trigram_profile =
-analysisResult.trigram_profile; // ▼▼▼
-ご教示いただいたデータ構造を100%遵守して参照します ▼▼▼ const os_manuals =
-HAQEI_DATA.os_manual || {}; const os1_manual = os_manuals[os1.hexagram_id] ||
-{}; const os2_manual = os_manuals[os2.hexagram_id] || {}; const os3_manual =
-os_manuals[os3.hexagram_id] || {}; const format_os_manual = (os, manual, type)
-=> { if (!manual || !manual.summary) return `【${type}】: ${os.name_jp}
-(詳細データなし)`; return ` 【${type}】: ${os.name_jp} - 概要: ${manual.summary
-|| 'N/A'} - 暴走パターン: ${manual.debug_pattern || 'N/A'} - 脱出方法:
-${manual.debug_method || 'N/A'} - 最適化クエスト: ${(manual.quests || []).join("
-/ ")} `.trim(); }; const os_manual_details = ` ${format_os_manual(os1,
-os1_manual, 'エンジンOS')} ${format_os_manual(os2, os2_manual,
-'インターフェースOS')} ${format_os_manual(os3, os3_manual, 'セーフモードOS')}
-`.trim(); const model = genAI.getGenerativeModel({ model:
-"gemini-2.5-flash-latest" }); const prompt = `あなたは「HaQei
-アナライザー」の最高専門家AIです。東洋哲学と心理学の深い知識を持ち、ユーザーの分析結果と個人的な状況を統合して、ユーザーが具体的にどう行動すれば良いかの指針となるアドバイスを生成してください。
-# ルール - 出力は必ずHTML形式とし、'
-<h4>4. 総合所見とあなたへの戦略的アドバイス</h4>
-' と '
-<h4>5. 次の具体的な一歩</h4>
-' の2つのセクションのみを生成してください。 -
-文章は、ユーザーに寄り添い、希望を与えるような、プロフェッショナルかつ温かいトーンで記述してください。専門用語は避け、誰にでも理解しやすい言葉を使ってください。
--
-アドバイスは、必ずOSの三位一体モデル（エンジン、インターフェース、セーフモード）の力学と、ユーザーの課題を結びつけて具体的に解説してください。
--
-「具体的な一歩」は、ユーザーが明日から実践できる、具体的で小さな行動を2〜3個提案してください。
-- pタグには 'class="text-sm"' を、ulタグには 'class="text-sm list-disc pl-5"'
-を付与してください。強調したいキーワードは<strong
-  >タグで囲んでください。 # ユーザー情報 - **プロファイル**:
-  MBTI(${userProfile.mbti}), エニアグラム(${userProfile.enneagram.join(", ") ||
-  "未入力"}) - **状況**: 年代(${userContext.age || "未入力"}),
-  職業(${userContext.occupation || "未入力"}), 役割(${userContext.role ||
-  "未入力"}), 課題(${userContext.issue || "特になし"}) #
-  分析結果：三位一体OSモデル詳細解説 ${os_manual_details} #
-  分析結果：エネルギープロファイル ${trigram_profile.map(p => `- ${p.name_en}:
-  ${p.score}点`).join("\n")}
-  <!DOCTYPE html>
-  <html lang="ja">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>HaQeiプロフェッショナル 総合解説レポート</title>
-      <script src="https://cdn.tailwindcss.com"></script>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;700&display=swap"
-        rel="stylesheet"
-      />
-      <style>
-        body {
-          font-family: "Inter", "Noto Sans JP", sans-serif;
-          line-height: 1.75;
-        }
-        .brand-text {
-          background: -webkit-linear-gradient(45deg, #fde047, #f59e0b);
-          -webkit-background-clip: text;
-          background-clip: text;
-          -webkit-text-fill-color: transparent;
-          color: transparent;
-        }
-        /* レポートの各セクションのスタイル */
-        .report-section h4 {
-          margin-top: 2rem;
-          margin-bottom: 0.75rem;
-          font-size: 1.125rem;
-          font-weight: 600;
-          color: #fcd34d; /* text-amber-300 */
-          padding-bottom: 0.5rem;
-          border-bottom: 1px solid #4b5563;
-        }
-        .report-section p,
-        .report-section ul {
-          margin-bottom: 1rem;
-        }
-        .report-section ul {
-          line-height: 1.75;
-        }
-        .report-section strong {
-          color: #fef08a; /* text-yellow-200 */
-        }
-      </style>
-    </head>
-    <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
-      <div
-        class="w-full max-w-4xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10"
-      >
-        <header class="text-center mb-10">
-          <a
-            href="os_analyzer.html"
-            class="text-amber-400 hover:text-amber-300 mb-4 inline-block"
-            >← 分析レポートへ戻る</a
-          >
-          <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">
-            HaQei Professional
-          </h1>
-          <p class="text-gray-400 mt-3 text-xl">総合解説レポート</p>
-        </header>
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HaQeiプロフェッショナル 総合解説レポート</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", "Noto Sans JP", sans-serif;
+        line-height: 1.8; /* 行間を少し広めに設定 */
+      }
+      .brand-text {
+        /* ★★★ サイトのトーンに合わせて色を修正 ★★★ */
+        background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+      .report-block {
+        margin-bottom: 2.5rem; /* 各ブロックの間隔を調整 */
+      }
+      .report-block h3 {
+        font-family: "Shippori Mincho", serif;
+        font-size: 1.75rem; /* 28px */
+        font-weight: 700;
+        color: #c7d2fe; /* indigo-200 */
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #4f46e5; /* indigo-600 */
+        text-align: center;
+      }
+      .report-block h4 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-size: 1.25rem; /* 20px */
+        font-weight: 600;
+        color: #a5b4fc; /* indigo-300 */
+        padding-left: 1rem;
+        border-left: 4px solid #818cf8; /* indigo-400 */
+      }
+      .report-block p,
+      .report-block ul {
+        color: #d1d5db; /* gray-300 */
+        font-size: 0.95rem; /* 少し大きく */
+        margin-bottom: 1rem;
+      }
+      .report-block ul {
+        list-style-position: inside;
+        padding-left: 0.5rem;
+      }
+      .report-block strong {
+        color: #facc15; /* yellow-400 */
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+    <div
+      class="w-full max-w-4xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10"
+    >
+      <header class="text-center mb-10">
+        <a
+          href="os_analyzer.html"
+          class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block"
+          >← 分析レポートへ戻る</a
+        >
+        <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">
+          HaQei Professional
+        </h1>
+        <p class="text-gray-400 mt-3 text-xl">総合解説レポート</p>
+      </header>
 
-        <div id="professional-report-content" class="mt-8">
-          <div class="flex justify-center items-center py-16">
-            <div
-              class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-300"
-            ></div>
-            <p class="ml-4 text-gray-400">
-              AIがあなたのためのレポートを生成しています...
-            </p>
-          </div>
+      <div id="professional-report-content">
+        <div
+          id="loading-indicator"
+          class="flex justify-center items-center py-16"
+        >
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-300"
+          ></div>
+          <p class="ml-4 text-gray-400">
+            AIがあなたのためのレポートを生成しています...
+          </p>
         </div>
       </div>
+    </div>
 
-      <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-          const outputContainer = document.getElementById(
-            "professional-report-content"
-          );
-          const storedData = localStorage.getItem("haqeiProfessionalData");
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const outputContainer = document.getElementById(
+          "professional-report-content"
+        );
+        const loadingIndicator = document.getElementById("loading-indicator");
+        const storedData = localStorage.getItem("haqeiProfessionalData");
 
-          if (!storedData) {
-            outputContainer.innerHTML =
-              '<p class="text-red-400 text-center py-8">エラー: 分析データが見つかりません。お手数ですが、もう一度OS分析レポートページから操作をやり直してください。</p>';
-            return;
+        if (!storedData) {
+          outputContainer.innerHTML =
+            '<p class="text-red-400 text-center py-8">エラー: 分析データが見つかりません。お手数ですが、もう一度OS分析レポートページから操作をやり直してください。</p>';
+          return;
+        }
+
+        try {
+          const requestPayload = JSON.parse(storedData);
+
+          // Netlify Functionを呼び出し
+          const response = await fetch("/.netlify/functions/professional-ai", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestPayload),
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(result.error || "サーバーでエラーが発生しました。");
           }
 
-          try {
-            const requestPayload = JSON.parse(storedData);
-
-            const response = await fetch(
-              "/.netlify/functions/professional-ai",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(requestPayload),
-              }
+          if (result.success) {
+            // ★★★ HTML構造をここで組み立てる ★★★
+            outputContainer.innerHTML = result.report;
+          } else {
+            throw new Error(
+              result.error || "AIによるレポート生成に失敗しました。"
             );
-
-            // サーバーからの応答をJSONとして解析
-            const result = await response.json();
-
-            // サーバーがエラーを返した場合（status 4xx, 5xxなど）
-            if (!response.ok) {
-              // result.error にサーバーからのエラーメッセージが入っている
-              throw new Error(
-                result.error || "サーバーでエラーが発生しました。"
-              );
-            }
-
-            // AIの処理が成功した場合
-            if (result.success) {
-              // report-sectionクラスを持つdivで全体を囲む
-              outputContainer.innerHTML = `<div class="report-section p-6 md:p-8 bg-gray-900/50 rounded-2xl border border-amber-400/30">${result.report}</div>`;
-            } else {
-              // AIの処理が失敗した場合
-              throw new Error(
-                result.error || "AIによるレポート生成に失敗しました。"
-              );
-            }
-          } catch (e) {
-            console.error("レポート生成プロセスでエラーが発生しました: ", e);
-            outputContainer.innerHTML = `<p class="text-red-400 text-center py-8">エラー: レポートの生成に失敗しました。<br><span class="text-sm text-gray-400 mt-2 block">${e.message}</span></p>`;
           }
-        });
-      </script>
-    </body>
-  </html>
-  上記情報を統合し、HTML形式でレポートを作成してください。 `; try { const result
-  = await model.generateContent(prompt); const response = await result.response;
-  return response.text(); } catch (error) { console.error('Gemini API Error:',
-  error); throw new Error('Gemini APIとの通信に失敗しました。'); } } function
-  assembleFullReportHtml(analysisResult, userContext, aiGeneratedHtml) { const
-  os1 = analysisResult.hexagram_candidates[0]; const os2 =
-  analysisResult.hexagram_candidates[1]; const os3 =
-  analysisResult.hexagram_candidates[2]; const trigram_profile =
-  analysisResult.trigram_profile; const contextText = `
-  <h4>1. ご入力いただいた状況の確認</h4>
-  <p class="text-sm">
-    「${userContext.age || ''} ${userContext.occupation || ''}
-    ${userContext.role || ''}」で、「${userContext.issue ||
-    '特になし'}」という課題意識をお持ちなのですね。承知いたしました。その状況を踏まえ、あなたのOSを読み解いていきましょう。
-  </p>
-  `; const profileText = `
-  <h4>2. エネルギープロファイルから見るあなたの「基本性質」</h4>
-  <p class="text-sm">
-    あなたのエネルギーは、<strong>${trigram_profile[0].name_en}</strong>（${trigram_profile[0].strength_description}）と<strong>${trigram_profile[1].name_en}</strong>（${trigram_profile[1].strength_description}）が際立っています。一方で、<strong>${trigram_profile[7].name_en}</strong>のエネルギーが最も低いため、${trigram_profile[7].strength_description.slice(0,
-    -1)}のは少し苦手かもしれません。
-  </p>
-  `; const trinityText = `
-  <h4>3. 「三位一体OSモデル」の構造的解説</h4>
-  <p class="text-sm">
-    あなたのOS構造は非常に興味深い連携をしています。あなたの根源的な動力源である<strong>【エンジンOS：${os1.name_jp}】</strong>が放つエネルギーは、<strong>【インターフェースOS：${os2.name_jp}】</strong>というフィルターを通して社会に表現されます。しかし、ストレスがかかると<strong>【セーフモードOS：${os3.name_jp}】</strong>が起動し、無意識に初期設定の行動パターンに立ち返る傾向があります。この3つのOSの関係性を理解することが、自己を乗りこなす鍵となります。
-  </p>
-  `; return `
-  <h3
-    class="text-2xl font-bold text-amber-300 mb-6 text-center"
-    style="font-family: 'Shippori Mincho', serif"
-  >
-    HaQeiプロフェッショナル<br />総合解説レポート
-  </h3>
-  <div class="report-block">${contextText}</div>
-  <div class="report-block">${profileText}</div>
-  <div class="report-block">${trinityText}</div>
-  <div class="report-block">${aiGeneratedHtml}</div>
-  `; }</strong
->
+        } catch (e) {
+          console.error("レポート生成プロセスでエラーが発生しました: ", e);
+          loadingIndicator.style.display = "none";
+          outputContainer.innerHTML = `<p class="text-red-400 text-center py-8">エラー: レポートの生成に失敗しました。<br><span class="text-sm text-gray-400 mt-2 block">${e.message}</span></p>`;
+        }
+      });
+    </script>
+  </body>
+</html>
