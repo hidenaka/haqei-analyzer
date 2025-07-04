@@ -970,36 +970,33 @@
             )
             .join("");
 
-          // 戦略セクション全体のHTML
-          const strategySectionHtml = `
-                <h4 class="font-semibold text-lg text-cyan-400 mb-3">🎯 才能を活かすための生存戦略</h4>
-                <div class="bg-gray-900/50 p-4 rounded-lg space-y-4">
-                    <div>
-                        <p class="text-sm font-semibold text-gray-400">Step 1: 自分に「向いていない」環境を知る</p>
-                        <p class="mt-1 text-sm text-gray-300">あなたの才能の構成上、<strong class="text-white">【${lowPriorityEnergy.name_jp}】</strong>の力が求められる<strong class="text-white">「${unfittingEnvText}」</strong>は、エネルギー消費が激しく、楽しさを感じにくいかもしれません。</p>
-                    </div>
-                    <div class="border-t border-gray-700 pt-4">
-                        <p class="text-sm font-semibold text-gray-400">Step 2:「環境を選ぶ」か「やり方を変える」</p>
-                        <p class="mt-1 text-sm text-gray-300">最も重要な戦略は、<strong class="text-amber-400">自分の才能が活きる環境を意識的に選ぶこと</strong>です。それが、あなたが最も輝く道です。</p>
-                        <p class="mt-3 text-sm text-gray-300">もし、上記の環境や役割を<strong class="text-red-400">どうしても避けられない場合</strong>は、<strong class="text-amber-400">やり方を自分の得意なスタイルにハックしてしまいましょう。</strong></p>
-                    </div>
-                    <div class="border-t border-gray-700 pt-4">
-                         <p class="text-sm font-semibold text-gray-400 mb-2">具体的な応用戦略:</p>
-                         <div class="space-y-3">
-                            ${alternativeStrategiesHtml}
-                         </div>
-                    </div>
-                </div>
-            `;
-
+          // 全体を上下構造に変更
           return `
-                <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-8">
                     <div>
                         <h4 class="font-semibold text-lg text-green-400 mb-3">💡 あなたの才能の源泉（向いていること）</h4>
-                        <div class="space-y-4">${strengthHtml}</div>
+                        <div class="grid md:grid-cols-2 gap-4">${strengthHtml}</div>
                     </div>
-                    <div>
-                        ${strategySectionHtml}
+                    
+                    <div class="border-t border-gray-700 pt-8">
+                        <h4 class="font-semibold text-lg text-cyan-400 mb-3">🎯 才能を活かすための生存戦略</h4>
+                        <div class="bg-gray-900/50 p-4 rounded-lg space-y-4">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-400">Step 1: 自分に「向いていない」環境を知る</p>
+                                <p class="mt-1 text-sm text-gray-300">あなたの才能の構成上、<strong class="text-white">【${lowPriorityEnergy.name_jp}】</strong>の力が求められる<strong class="text-white">「${unfittingEnvText}」</strong>は、エネルギー消費が激しく、楽しさを感じにくいかもしれません。</p>
+                            </div>
+                            <div class="border-t border-gray-700 pt-4">
+                                <p class="text-sm font-semibold text-gray-400">Step 2:「環境を選ぶ」か「やり方を変える」</p>
+                                <p class="mt-1 text-sm text-gray-300">最も重要な戦略は、<strong class="text-amber-400">自分の才能が活きる環境を意識的に選ぶこと</strong>です。それが、あなたが最も輝く道です。</p>
+                                <p class="mt-3 text-sm text-gray-300">もし、上記の環境や役割を<strong class="text-red-400">どうしても避けられない場合</strong>は、<strong class="text-amber-400">やり方を自分の得意なスタイルにハックしてしまいましょう。</strong></p>
+                            </div>
+                            <div class="border-t border-gray-700 pt-4">
+                                 <p class="text-sm font-semibold text-gray-400 mb-2">具体的な応用戦略:</p>
+                                 <div class="space-y-3">
+                                    ${alternativeStrategiesHtml}
+                                 </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
