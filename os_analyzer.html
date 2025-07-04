@@ -1402,6 +1402,7 @@
         };
 
         // ▼▼▼ この関数全体を差し替えてください ▼▼▼
+        // ▼▼▼ この renderBarChart 関数全体を、以下のコードに差し替えてください ▼▼▼
         const renderBarChart = (trigram_profile) => {
           const canvasElement = document.getElementById("energyBarChart");
           if (!canvasElement) return;
@@ -1411,8 +1412,30 @@
           }
 
           const ctx = canvasElement.getContext("2d");
-          // データはスコアの高い順にソートされている
           const sortedProfile = trigram_profile;
+          const maxScore = Math.max(...sortedProfile.map((p) => p.score), 6); // 最大スコアを動的に設定し、最低でも6は確保
+
+          // ラベルを右側に表示するためのカスタムプラグイン
+          const outsideLabels = {
+            id: "outsideLabels",
+            afterDatasetsDraw(chart, args, options) {
+              const { ctx } = chart;
+              ctx.save();
+              ctx.font = 'normal 14px "Inter"';
+              ctx.fillStyle = "#d1d5db";
+              ctx.textAlign = "left";
+
+              for (let i = 0; i < chart.getDatasetMeta(0).data.length; i++) {
+                const yPos = chart.getDatasetMeta(0).data[i].y;
+                const xPos = chart.scales.x.right + 15; // グラフエリアの右端から15px右に配置
+                const text = sortedProfile[i].score.toFixed(1);
+
+                ctx.textBaseline = "middle";
+                ctx.fillText(text, xPos, yPos);
+              }
+              ctx.restore();
+            },
+          };
 
           new Chart(ctx, {
             type: "bar",
@@ -1425,45 +1448,51 @@
                   backgroundColor: sortedProfile.map(
                     (t) => HELPERS.trigram_colors[t.id]
                   ),
-                  // ---【修正ポイント①：角を丸くする】---
-                  borderRadius: 10, // この行を追加して角を丸くします
-                  borderSkipped: false, // 角丸を全ての辺に適用するために追加
+                  borderRadius: 5,
+                  borderSkipped: false,
+                },
+                {
+                  label: "背景トラック",
+                  data: sortedProfile.map((t) => maxScore - t.score),
+                  backgroundColor: "#374151", // トラックの色
+                  borderRadius: 5,
+                  borderSkipped: false,
                 },
               ],
             },
             options: {
-              indexAxis: "y", // 横棒グラフにする
+              indexAxis: "y",
               responsive: true,
               maintainAspectRatio: false,
+              layout: {
+                padding: {
+                  right: 50, // 右側のラベル表示領域を確保
+                },
+              },
               scales: {
-                // ---【修正ポイント②：見た目をオシャレに】---
                 x: {
-                  beginAtZero: true,
-                  grid: {
-                    display: false, // X軸の背景線を非表示に
-                    drawBorder: false, // X軸の線を非表示に
-                  },
-                  ticks: { color: "#d1d5db" },
+                  stacked: true, // グラフを積み上げ式にする
+                  display: false, // X軸（下部の目盛り）を非表示
                 },
                 y: {
+                  stacked: true, // グラフを積み上げ式にする
                   grid: {
-                    display: false, // Y軸の背景線を非表示に
-                    drawBorder: false, // Y軸の線を非表示に
+                    display: false, // Y軸の背景線を非表示
+                    drawBorder: false,
                   },
-                  ticks: { color: "#d1d5db", font: { size: 14 } },
+                  ticks: {
+                    color: (context) =>
+                      HELPERS.trigram_colors[sortedProfile[context.index].id], // ラベルを各々の色に
+                    font: { size: 14, weight: "bold" },
+                  },
                 },
               },
               plugins: {
                 legend: { display: false },
-                tooltip: {
-                  callbacks: {
-                    label: function (context) {
-                      return `スコア: ${context.raw}`;
-                    },
-                  },
-                },
+                tooltip: { enabled: false }, // 元のツールチップは不要なので非表示
               },
             },
+            plugins: [outsideLabels], // 作成したカスタムプラグインを登録
           });
         };
         const renderHexagramMap = (hexagram_candidates) => {
