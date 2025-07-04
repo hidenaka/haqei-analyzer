@@ -997,28 +997,29 @@
               </p>
           </div>`;
 
-          // 【改善提案 A】 有料版コンテンツの「チラ見せ」（ビジュアル例）
+          // 【改善提案 A】 有料版コンテンツの「チラ見せ」（ビジュアル例）の刷新
           const visualPreviewHtml = `
           <div class="relative mt-8 p-6 rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
               <div class="absolute inset-0 bg-gradient-to-tr from-amber-400 to-indigo-500 opacity-20 blur-2xl"></div>
               <div class="relative">
                   <h5 class="text-center text-white font-bold">有料レポート プレビュー</h5>
-                  <div class="mt-4 p-4 bg-black/30 rounded-md">
-                      <p class="text-gray-400 font-mono text-sm opacity-50 select-none">
-                          # 実践戦略書: ${lastUserProfile.mbti} x タイプ${lastUserProfile.enneagram[0]}<br><br>
-                          ## 1. コアOSの連携戦略<br><br>
-                          ### 1.1. エンジンOS「${lastAnalysisResult.hexagram_candidates[0].name_jp}」の活用法<br>
-                          あなたの根源的エネルギーである「${lastAnalysisResult.hexagram_candidates[0].name_jp}」は、特に[...テキストのぼかし...]な状況でその真価を発揮します。しかし、ストレス下では[...テキストのぼかし...]という暴走パターンに陥りがちです。これを防ぎ、エネルギーを最大化するための具体的なアクションは以下の3つです。<br><br>
-                          1.  **アクション１:** [...テキストのぼかし...]<br>
-                          2.  **アクション２:** [...テキストのぼかし...]<br>
-                          3.  **アクション３:** [...テキストのぼかし...]
-                      </p>
+                  <div class="mt-4 p-4 bg-black/30 rounded-md text-gray-400 text-sm space-y-3">
+                      <p class="font-bold text-base text-white mb-2">2. OS力学と現在地 - あなたのエネルギーは今、どう使われているか</p>
+                      <div class="border-l-2 border-yellow-400 pl-3">
+                          <p><strong class="text-yellow-400">強みの源泉:</strong> あなたの${lastUserProfile.mbti}としての繊細な感性は、エンジンOS<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[0].name_jp}』</strong>のエネルギーと深く共鳴し、内なる情熱を具体的な行動へ変換する力強いエンジンとなっています。あなたは独自のビジョンを持ち、それを実現するために[...続きを読む]</p>
+                      </div>
+                      <div class="border-l-2 border-blue-400 pl-3">
+                          <p><strong class="text-blue-400">OSの連携:</strong> あなたのパワフルなエンジンは、インターフェースOS<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[1].name_jp}』</strong>という柔軟で的確なコミュニケーション能力によって補完され、絶妙なバランスを保っています。そして万が一、行き詰まったときには[...続きを読む]</p>
+                      </div>
+                      <div class="border-l-2 border-red-400 pl-3">
+                          <p><strong class="text-red-400">葛藤のパターン:</strong> この強力な布陣だからこそ、完璧主義に陥りやすいという罠があります。<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[0].name_jp}』</strong>の勢いが時に焦燥感や自己批判へ転じることも。この葛藤を乗り越えることが、あなたの更なる成長と[...続きを読む]</p>
+                      </div>
                   </div>
-                   <div class="absolute inset-0 bg-gradient-to-t from-gray-800/80 via-transparent to-transparent"></div>
+                  <div class="absolute inset-0 bg-gradient-to-t from-gray-800/80 via-transparent to-transparent"></div>
               </div>
           </div>`;
 
-          // 【改善提案 A】 有料版コンテンツの「チラ見せ」（テキスト例・項目例）
+          // 【改善提案 A】 有料版コンテンツの「チラ見せ」（テキスト例・項目例）の刷新
           const previewHtml = `
           <div class="mt-8 text-left">
               <h4 class="text-xl font-bold text-amber-300 text-center">
@@ -1027,19 +1028,19 @@
               <ul class="mt-6 space-y-4 max-w-lg mx-auto">
                   <li class="flex items-start">
                       <span class="text-green-400 mr-3 mt-1">✅</span>
-                      <span class="text-gray-300">あなたの才能を最大化し、弱みを管理するための<strong class="text-white">『次の三手』</strong>を具体的に提案</span>
+                      <span class="text-gray-300">あなたの<strong class="text-white">才能の源泉</strong>を詳細に解説。MBTIやエニアグラムが3つのコアOSとどう共鳴しているのかを解き明かします。</span>
                   </li>
                   <li class="flex items-start">
                       <span class="text-green-400 mr-3 mt-1">✅</span>
-                      <span class="text-gray-300">キャリア、恋愛、対人関係の悩みを解決する<strong class="text-white">OS別コミュニケーション術</strong></span>
+                      <span class="text-gray-300">ポテンシャルを最大化する<strong class="text-white">具体的な『次の三手』</strong>を提案。「明日から何をすべきか」が明確になります。</span>
                   </li>
                   <li class="flex items-start">
                       <span class="text-green-400 mr-3 mt-1">✅</span>
-                      <span class="text-gray-300">あなたが陥りがちな<strong class="text-white">『葛藤のパターン』</strong>を乗り越えるための詳細な処方箋</span>
+                      <span class="text-gray-300">あなたが陥りがちな<strong class="text-white">『葛藤のパターン』の克服法。</strong>OSレベルで原因を分析し、乗り越え方を処方します。</span>
                   </li>
                   <li class="flex items-start">
                       <span class="text-green-400 mr-3 mt-1">✅</span>
-                      <span class="text-gray-300">あなたの<strong class="text-white">3つのコアOS</strong>の連携を最適化する具体的なアクションプラン</span>
+                      <span class="text-gray-300">提示された戦略が未来にどう影響するかを探る<strong class="text-white">「未来分岐シミュレーター」</strong>の活用ガイド。</span>
                   </li>
               </ul>
           </div>`;
@@ -1081,16 +1082,6 @@
           if (typeof currentStepFunction === "function") {
             const stepContent = currentStepFunction();
             contentContainer.innerHTML = stepContent;
-            const scripts = contentContainer.querySelectorAll("script");
-            scripts.forEach((script) => {
-              const newScript = document.createElement("script");
-              if (script.src) {
-                newScript.src = script.src;
-              } else {
-                newScript.innerHTML = script.innerHTML;
-              }
-              document.body.appendChild(newScript);
-            });
 
             // 動的に追加された要素へのイベントリスナー再設定
             if (currentStepIndex === 0) {
