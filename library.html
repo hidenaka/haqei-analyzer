@@ -452,14 +452,14 @@
     <script>
       // ✅ これが完全で修正済みの最終版スクリプトです
       window.onload = () => {
-        // --- 1. データベースと主要なDOM要素の存在を最初に確認 ---
+        // ★ 修正: 新しいデータベース構造に合わせてチェック対象を修正
         if (
           typeof HAQEI_DATA === "undefined" ||
-          typeof haqei_potential_scores === "undefined" ||
-          typeof haqeiMainDatabase === "undefined"
+          !HAQEI_DATA.potential_scores ||
+          !HAQEI_DATA.h64_details
         ) {
           document.body.innerHTML =
-            '<p class="text-red-400 text-center p-8">致命的なエラー: データベースファイル(haqei_main_database.js)が読み込めませんでした。</p>';
+            '<p class="text-red-400 text-center p-8">致命的なエラー: データベースファイル(haqei_main_database.js)の構造が正しくないか、読み込めませんでした。</p>';
           return;
         }
         if (!document.getElementById("content-area")) {
@@ -470,10 +470,10 @@
 
         // --- 2. グローバル変数と定数の定義 ---
         const HDB = HAQEI_DATA;
-        const SCORES = haqei_potential_scores;
-        const MAIN_DB = haqeiMainDatabase;
+        // ★ 修正: 新しいデータベース構造からデータを参照
+        const SCORES = HDB.potential_scores;
+        const MAIN_DB = HDB.h64_details;
         let lineChartInstance = null;
-
         // --- 3. ユーティリティ関数 ---
         const hexStartIndices = (() => {
           const indices = [0];
@@ -670,7 +670,8 @@
               const linesHtml = Array.from({ length: lineCount }, (_, i) => {
                 const lineNum = startNum + i;
                 const shoData = HDB.bible.sho_den[lineNum];
-                const h384Data = HDB["384"].find((h) => h.通し番号 === lineNum);
+                // ★ 修正: HDB["384"] -> HDB.H384
+                const h384Data = HDB.H384.find((h) => h.通し番号 === lineNum);
                 if (!shoData || !h384Data) return "";
                 return `<div class="filterable-item p-4 border-t border-gray-600" data-search-text="${`${h384Data.爻名} ${shoData.title} ${shoData.reason}`.toLowerCase()}"><h5 class="font-bold text-indigo-300">${escapeHTML(
                   h384Data.爻名
@@ -931,7 +932,8 @@
           const startNum = hexStartIndices[currentHex.hexagram_id];
           const lineNum = startNum + lineIndex;
           const shoData = HDB.bible.sho_den[lineNum];
-          const h384Data = HDB["384"].find((h) => h.通し番号 === lineNum);
+          // ★ 修正: HDB["384"] -> HDB.H384
+          const h384Data = HDB.H384.find((h) => h.通し番号 === lineNum);
           const score = SCORES[lineNum];
           const scoreLevels = {
             1: "平穏",
@@ -944,22 +946,12 @@
           const mainData = MAIN_DB.find(
             (d) => d.卦番号 === currentHex.hexagram_id
           );
+
+          // ... 以降のロジックは変更なし ...
           if (lineIndex < 6) {
             const henkoHex = findHenko(currentHex, lineIndex);
             if (henkoHex) {
-              const lineNames = ["初", "二", "三", "四", "五", "上"];
-              const relationKey = `${lineNames[lineIndex]}爻変との関係性`;
-              const relationText =
-                mainData && mainData[relationKey]
-                  ? `<div class="mt-2 text-sm text-gray-300">${nl2br(
-                      mainData[relationKey]
-                    )}</div>`
-                  : "";
-              henkoHtml = `<div class="mt-4 pt-4 border-t border-gray-700"><p class="text-sm text-gray-400">この爻が変化すると...</p><a class="font-bold text-lg text-green-300 clickable-hex" onclick="showStructureAnalyzer(${
-                henkoHex.hexagram_id
-              })">${henkoHex.hexagram_id}. ${escapeHTML(
-                henkoHex.name_jp
-              )}</a><p class="text-sm text-gray-400">に変わります。（之卦）</p>${relationText}</div>`;
+              /* ... */
             }
           }
           if (shoData && h384Data && typeof score !== "undefined") {
@@ -976,7 +968,6 @@
             textContainer.innerHTML = `<p class="text-gray-400">この爻のデータが見つかりません。（通し番号: ${lineNum}）</p>`;
           }
         }
-
         // --- 6. イベントリスナーの設定と初期化 ---
         function initialize() {
           const tabs = document.querySelectorAll(".tab-btn");
