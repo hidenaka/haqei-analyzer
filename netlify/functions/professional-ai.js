@@ -1,30 +1,19 @@
-// ファイルパス: /netlify/functions/professional-ai.js (v3.5 最終修正版)
+// ファイルパス: /netlify/functions/professional-ai.js (v3.7 色とSVGグラフ実装版)
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-// ★ 新機能1: ユーザーからのフィードバックに基づき、レポートの表示要素を生成する関数をここに追加
-/**
- * ユーザーの分析結果に基づいて、レポートの改善要素を生成します。
- * @param {object} userProfile - ユーザーの分析結果
- * @param {string} userProfile.mbti - ユーザーのMBTIタイプ
- * @param {number} userProfile.engineOsId - エンジンOSの卦番号
- * @param {number} userProfile.interfaceOsId - インターフェースOSの卦番号
- * @param {number} userProfile.safeModeOsId - セーフモードOSの卦番号
- * @param {object} db - HAQEI_DATA データベース
- * @returns {object} レポートに追加する改善要素のオブジェクト
- */
+
 function generateReportImprovements(userProfile, db) {
+  // ... この関数の内容は変更ありません ...
   const getHexagramById = (id) =>
     db.hexagrams_master.find((h) => h.hexagram_id === id);
   const getTrigramById = (id) =>
     db.trigrams_master.find((t) => t.trigram_id === id);
 
-  // ふりがなとキャッチコピーを取得するヘルパー
   const getEnhancedInfoForOS = (osId) => {
     const osData = getHexagramById(osId);
     if (!osData) return { name: "不明", reading: "", catchphrase: "" };
-    // 最終版のキャッチコピーをhexagrams_masterから直接取得
     return {
       name: osData.name_jp,
       reading: osData.reading,
@@ -38,7 +27,6 @@ function generateReportImprovements(userProfile, db) {
     safe_mode: getEnhancedInfoForOS(userProfile.safeModeOsId),
   };
 
-  // 分析ロジックの可視化
   const mbtiData = db.mbti_map.find((m) => m.mbti_type === userProfile.mbti);
   let logicExplanation = "";
   if (mbtiData) {
@@ -53,8 +41,7 @@ function generateReportImprovements(userProfile, db) {
     logicExplanation = `<p class="text-sm">あなたのMBTIタイプ「<strong>${userProfile.mbti}（${mbtiNickname}）</strong>」が持つ特性は、特に<strong>【${topTrigram.name_en}】</strong>のエネルギーと強く共鳴しています。この「${topTrigram.strength_description}」という性質が、あなたの中心的な力であるエンジンOS<strong>【${enhancedOsInfo.engine.name}】</strong>の「${enhancedOsInfo.engine.catchphrase}」という資質の大きな根拠の一つとなっています。</p>`;
   }
 
-  // インフォグラフィック用データ
-  const getOsNode = (osId) => {
+  const getOsNode = (osId, type) => {
     const hex = getHexagramById(osId);
     if (!hex) return null;
     const upperEl = getTrigramById(hex.upper_trigram_id)?.element;
@@ -62,6 +49,7 @@ function generateReportImprovements(userProfile, db) {
     return {
       id: osId,
       name: hex.name_jp,
+      type: type,
       elements: [upperEl, lowerEl].filter(
         (e, i, self) => e && self.indexOf(e) === i
       ),
@@ -69,12 +57,12 @@ function generateReportImprovements(userProfile, db) {
   };
 
   const nodes = [
-    getOsNode(userProfile.engineOsId),
-    getOsNode(userProfile.interfaceOsId),
-    getOsNode(userProfile.safeModeOsId),
-  ].filter(Boolean); // nullを除外
+    getOsNode(userProfile.engineOsId, "エンジン"),
+    getOsNode(userProfile.interfaceOsId, "インターフェース"),
+    getOsNode(userProfile.safeModeOsId, "セーフモード"),
+  ].filter(Boolean);
 
-  const infographicData = { nodes, links: [] }; // linksは今後拡張
+  const infographicData = { nodes, links: [] };
 
   return {
     enhancedOsInfo,
@@ -84,6 +72,7 @@ function generateReportImprovements(userProfile, db) {
 }
 
 exports.handler = async (event) => {
+  // ... この関数の内容は変更ありません ...
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
@@ -102,11 +91,10 @@ exports.handler = async (event) => {
       profile
     );
 
-    // ★ HTML生成時に `profile` を渡すように修正
     const fullReportHtml = assembleFullReportHtml(
       analysis,
       context,
-      profile, // ★ 追加
+      profile,
       aiSectionsObject
     );
 
@@ -132,6 +120,7 @@ async function generateProfessionalReportSections(
   userContext,
   userProfile
 ) {
+  // ... この関数の内容は変更ありません ...
   const os1 = analysisResult.hexagram_candidates[0];
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
   const hasContext =
@@ -207,14 +196,12 @@ async function generateProfessionalReportSections(
   }
 }
 
-// ★ HTML生成関数を修正
 function assembleFullReportHtml(
   analysisResult,
   userContext,
-  userProfile, // ★ userProfile を受け取る
+  userProfile,
   aiSectionsObject
 ) {
-  // ★ 新機能2: 改善プランのデータを生成
   const improvedReport = generateReportImprovements(
     {
       mbti: userProfile.mbti,
@@ -229,6 +216,7 @@ function assembleFullReportHtml(
   const os2 = analysisResult.hexagram_candidates[1];
   const os3 = analysisResult.hexagram_candidates[2];
 
+  // ★ 八卦の色定義
   const trigram_colors = {
     1: "#F9FAFB",
     2: "#70D6FF",
@@ -239,45 +227,37 @@ function assembleFullReportHtml(
     7: "#F97316",
     8: "#A16207",
   };
-  const getBorderColor = (hexagram) =>
+  const getOsColor = (hexagram) =>
     trigram_colors[hexagram.upper_trigram_id] || "#6b7280";
 
   const hasContext =
     userContext.issue &&
     userContext.issue.trim() &&
     userContext.issue !== "特になし";
-  let contextHtml;
-  if (hasContext) {
-    const contextParts = [];
-    if (userContext.age) contextParts.push(userContext.age);
-    if (userContext.occupation) contextParts.push(userContext.occupation);
-    if (userContext.role) contextParts.push(`${userContext.role}という役割`);
-    const contextSummary =
-      contextParts.length > 0 ? contextParts.join("、") + "で、" : "";
-    contextHtml = `<p class="text-sm">${contextSummary}「${userContext.issue}」という課題意識をお持ちなのですね。承知いたしました。その状況と、あなたが持つ素晴らしいOSの可能性を掛け合わせ、物語の次章へと進むための羅針盤をここに提示します。</p>`;
-  } else {
-    contextHtml = `<p class="text-sm">今回は、特定の状況設定なしでの分析となりますね。承知いたしました。あなたの純粋なOS構造が持つ、普遍的なポテンシャルと可能性の物語を、これから読み解いていきましょう。</p>`;
-  }
+  let contextHtml = hasContext
+    ? `<p class="text-sm">年代(${userContext.age || "未設定"}), 職業(${
+        userContext.occupation || "未設定"
+      }), 役割(${userContext.role || "未設定"})で、「${
+        userContext.issue
+      }」という課題意識をお持ちなのですね。承知いたしました。</p>`
+    : `<p class="text-sm">今回は、特定の状況設定なしでの分析となりますね。承知いたしました。</p>`;
 
   const header = `<h3 class="text-2xl font-bold text-indigo-300 mb-8 text-center" style="font-family: 'Shippori Mincho', serif;">あなたの物語を読み解く<br>HaQei 統合分析レポート</h3>`;
   const contextSection = `<div class="report-block"><h4>0. はじめに - あなたの現在地</h4>${contextHtml}</div>`;
 
-  // ★ 新機能3: キャッチコピーとふりがなを表示する `createOsItem` に修正
-  const createOsItem = (os, type, color, enhancedInfo) => {
+  const createOsItem = (os, type, enhancedInfo) => {
+    const color = getOsColor(os);
     const bibleData = HAQEI_DATA.bible || {};
-    const tai_sho_den = bibleData.tai_sho_den || {};
-    const taishoText = tai_sho_den[os.hexagram_id] || "";
-    // 他の雑卦伝などのロジックは必要に応じて追加
+    const taishoText = bibleData.tai_sho_den?.[os.hexagram_id] || "";
 
+    // ★ OS名のテキストに色を適用
     return `<li class="p-4 bg-gray-900/50 rounded-lg border-l-4" style="border-color: ${color};">
-              <strong>【${type}：<ruby>${enhancedInfo.name}<rt>${
-      enhancedInfo.reading
-    }</rt></ruby>】</strong><br>
-              <span class="text-indigo-300 font-bold">${
-                enhancedInfo.catchphrase
-              }</span>
+              <strong style="color: ${color};">【${type}：<ruby>${
+      enhancedInfo.name
+    }<rt>${enhancedInfo.reading}</rt></ruby>】</strong><br>
+              <span class="font-bold">${enhancedInfo.catchphrase}</span>
               <div class="mt-3 pt-3 border-t border-gray-700/50 text-xs space-y-2">
-                <p><strong>自然からの教え（大象伝）:</strong> ${taishoText.replace(
+                <p><strong>自然からの教え:</strong> ${taishoText.replace(
                   /\n/g,
                   " "
                 )}</p>
@@ -285,40 +265,63 @@ function assembleFullReportHtml(
             </li>`;
   };
 
-  const trinityText = `<div class="report-block"><h4>1. あなたのOSアーキテクチャ - 三位一体モデルの構造</h4><p class="text-sm">あなたのOS構造は、以下の3つのOSが連携して機能しています。それぞれの役割と、その根底にある思想を理解することが、自己を乗りこなす第一歩です。</p>
+  const trinityText = `<div class="report-block"><h4>1. あなたのOSアーキテクチャ</h4><p class="text-sm">あなたのOS構造は、以下の3つのOSが連携して機能します。</p>
     <ul class="text-sm list-none space-y-3 mt-4">
-      ${createOsItem(
-        os1,
-        "エンジンOS",
-        getBorderColor(os1),
-        improvedReport.enhancedOsInfo.engine
-      )}
+      ${createOsItem(os1, "エンジンOS", improvedReport.enhancedOsInfo.engine)}
       ${createOsItem(
         os2,
         "インターフェースOS",
-        getBorderColor(os2),
         improvedReport.enhancedOsInfo.interface
       )}
       ${createOsItem(
         os3,
         "セーフモードOS",
-        getBorderColor(os3),
         improvedReport.enhancedOsInfo.safe_mode
       )}
     </ul>
   </div>`;
 
-  // ★ 新機能4: 分析ロジック可視化セクションを追加
   const logicSection = `<div class="report-block"><h4>分析ロジックの根拠</h4>${improvedReport.logicExplanation}</div>`;
 
-  // ★ 新機能5: インフォグラフィック用データをHTMLに埋め込む
+  // ★ SVGインフォグラフィック生成
+  const createInfographicSvg = (nodes) => {
+    const positions = [
+      { cx: 150, cy: 60 },
+      { cx: 75, cy: 180 },
+      { cx: 225, cy: 180 },
+    ];
+    const gearIcon = `<path d="M16.9,9.4l-2.4-0.4c-0.3-1-0.7-1.9-1.2-2.7l1.4-2c-0.6-0.8-1.3-1.5-2.1-2.1l-2,1.4C9.8,3.2,8.9,2.8,8,2.5L7.6,0.1H5.4L5.1,2.5C4.1,2.8,3.2,3.2,2.5,3.7l-2-1.4c-0.8,0.6-1.5,1.3-2.1,2.1l1.4,2c-0.5,0.8-0.9,1.7-1.2,2.7L-1.9,9.4v2.3l2.4,0.4c0.3,1,0.7,1.9,1.2,2.7l-1.4,2c0.6,0.8,1.3,1.5,2.1,2.1l2-1.4c0.8,0.5,1.7,0.9,2.7,1.2l0.4,2.4h2.3l0.4-2.4c1-0.3,1.9-0.7,2.7-1.2l2,1.4c0.8-0.6,1.5-1.3,2.1-2.1l-1.4-2c0.5-0.8,0.9-1.7,1.2-2.7l2.4-0.4V9.4z M6.5,14.4c-1.9,0-3.4-1.5-3.4-3.4s1.5-3.4,3.4-3.4s3.4,1.5,3.4,3.4S8.4,14.4,6.5,14.4z" />`;
+
+    let svgContent = `<svg viewBox="0 0 300 250" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">`;
+    // Lines connecting gears
+    svgContent += `<line x1="150" y1="60" x2="75" y2="180" stroke="#4b5563" stroke-width="1.5" stroke-dasharray="4"/>`;
+    svgContent += `<line x1="75" y1="180" x2="225" y2="180" stroke="#4b5563" stroke-width="1.5" stroke-dasharray="4"/>`;
+    svgContent += `<line x1="225" y1="180" x2="150" y2="60" stroke="#4b5563" stroke-width="1.5" stroke-dasharray="4"/>`;
+
+    nodes.forEach((node, i) => {
+      const pos = positions[i];
+      const color = getOsColor(
+        analysisResult.hexagram_candidates.find(
+          (c) => c.hexagram_id === node.id
+        )
+      );
+      svgContent += `<g transform="translate(${pos.cx}, ${pos.cy})">
+              <g transform="scale(3)">${gearIcon}</g>
+              <circle r="38" fill="#111827" opacity="0.8"/>
+              <text y="-8" text-anchor="middle" fill="${color}" font-size="14" font-weight="bold">${node.type}</text>
+              <text y="12" text-anchor="middle" fill="#d1d5db" font-size="16" font-weight="bold">${node.name}</text>
+          </g>`;
+    });
+    svgContent += `</svg>`;
+    return svgContent;
+  };
+
   const infographicSection = `<div class="report-block">
     <h4>OSアーキテクチャ図</h4>
-    <p class="text-sm mb-4">あなたの3つのOSの関係性を可視化したものです。今後のアップデートで、より詳細な力学が表示されるようになります。</p>
-    <div id="os-infographic-placeholder" class="bg-gray-900/50 p-4 rounded-lg text-center text-sm text-gray-400">[インフォグラフィック表示エリア]</div>
-    <script id="infographic-data" type="application/json">${JSON.stringify(
-      improvedReport.infographicData
-    )}</script>
+    <p class="text-sm mb-4">あなたの3つのOSの関係性を可視化したものです。</p>
+    <div class="bg-gray-900/50 p-4 rounded-lg">
+        ${createInfographicSvg(improvedReport.infographicData.nodes)}
+    </div>
   </div>`;
 
   const aiSection1 = `<div class="report-block"><h4>2. OSの力学 - ポテンシャルを最大化する鍵</h4>${
@@ -334,13 +337,12 @@ function assembleFullReportHtml(
     aiSectionsObject.next_steps || ""
   }</div>`;
 
-  // ★ レポートの構成を修正し、新しいセクションを追加
   return (
     header +
     contextSection +
     trinityText +
-    logicSection + // ★追加
-    infographicSection + // ★追加
+    logicSection +
+    infographicSection +
     aiSection1 +
     aiSection2 +
     aiSection3 +
