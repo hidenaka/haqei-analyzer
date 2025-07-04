@@ -18513,3 +18513,8 @@ const haqeiMainDatabase = [
 // --- 下位互換性のためのグローバル変数定義 ---
 const H384_DATA = HAQEI_DATA["384"];
 const H64_DATA = HAQEI_DATA["H64_DATA"];
+
+// ▼▼▼【v19.2 修正】Node.js環境でも読み込めるように追記 ▼▼▼
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { HAQEI_DATA };
+}
