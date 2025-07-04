@@ -548,6 +548,79 @@
             score_breakdown,
           };
         };
+        /**
+         * 0. イントロセクションのHTMLを生成する関数
+         */
+        const createIntroSection = () => {
+          const { mbti, enneagram, sf } = lastUserProfile;
+          const enneaText = enneagram.map((e) => `タイプ${e}`).join(", ");
+          const sfText =
+            sf.length > 0
+              ? `SF: ${sf.slice(0, 3).join(", ")}${sf.length > 3 ? "..." : ""}`
+              : "";
+
+          return `
+            <div class="text-center mb-12 border-b border-gray-700 pb-8">
+                <h2 class="text-2xl font-bold text-gray-100">分析結果サマリー</h2>
+                <p class="text-gray-400 mt-2 max-w-xl mx-auto">
+                    MBTI: <strong>${mbti}</strong> | エニアグラム: <strong>${enneaText}</strong> ${
+            sfText ? `| <strong>${sfText}</strong>` : ""
+          }
+                </p>
+            </div>
+            `;
+        };
+
+        /**
+         * 1. エネルギープロファイルセクションのHTMLを生成する関数
+         * ★この関数が energyRadarChart を含みます
+         */
+        const createProfileSection = () => {
+          return `
+            <div class="report-section">
+                <h3><span class="text-2xl mr-2">📊</span>あなたのエネルギープロファイル</h3>
+                <p>あなたの8つの基本エネルギー（八卦）の強度を可視化します。これは、あなたの思考や行動の根源的な傾向や、備わっている潜在能力のバランスを示しています。</p>
+                <div class="mt-8 relative mx-auto" style="height: 400px; max-width: 500px;">
+                    <canvas id="energyRadarChart"></canvas>
+                </div>
+                <div class="mt-6 text-center">
+                    <button id="show-breakdown-btn" class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors">
+                        スコアの算出根拠を見る
+                    </button>
+                </div>
+            </div>
+            `;
+        };
+
+        /**
+         * 3. 三位一体モデルセクションのHTMLを生成する関数
+         */
+        const createTrinityModelSection = () => {
+          return `
+            <div class="report-section">
+                <h3><span class="text-2xl mr-2">🧩</span>三位一体OSモデルとは？</h3>
+                <p>HaQeiでは、あなたの個性を役割の異なる3つのOSの相互作用として捉えます。<strong>「本質OS（エンジン）」</strong>があなたを突き動かし、その力が<strong>「表舞台のOS（インターフェース）」</strong>を通じて世界に現れます。そして困難な時には<strong>「可能性のOS（セーフモード）」</strong>があなたを守ります。この3つの関係性を理解することが、自己を効果的に乗りこなす鍵となります。</p>
+            </div>
+            `;
+        };
+
+        /**
+         * 4. 有料版へのCTAセクションのHTMLを生成する関数
+         */
+        const createProfessionalCtaSection = () => {
+          return `
+            <div class="mt-16 p-8 bg-gradient-to-br from-amber-500/20 to-gray-800/20 rounded-2xl text-center border border-amber-500/30">
+                <h3 class="text-2xl font-bold text-amber-300">より深い自己理解へ</h3>
+                <p class="mt-4 text-gray-300 max-w-2xl mx-auto">
+                    今回の分析結果とあなたの現状を組み合わせ、AIパーソナリティコーチ「HaQeiプロフェッショナル」が、あなただけの戦略的アドバイスを生成します。
+                </p>
+                <button id="request-professional-btn" class="mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">
+                    特別レポートをリクエストする (任意)
+                </button>
+            </div>
+            `;
+        };
+
         // ▼▼▼【v19.3 修正版】レポート描画関数 ▼▼▼
         const renderReport = (userProfile, result) => {
           const { trigram_profile, hexagram_candidates, score_breakdown } =
