@@ -980,25 +980,140 @@
           return `<div class="report-section"><h3><span class="text-2xl mr-2">🗺️</span>それらが広大な世界の中でどこに位置するか見てみましょう</h3><div class="space-y-8 mt-8">${osSections}</div>${mapHtml}</div>`;
         };
 
+        // ========== ▼▼▼ ここからが修正箇所です ▼▼▼ ==========
         const createProfessionalCtaSection = () => {
-          return `<div class="report-section"><div class="p-8 bg-gradient-to-br from-amber-500/20 to-gray-800/20 rounded-2xl text-center border border-amber-500/30"><h3 class="text-2xl font-bold text-amber-300">より深い自己理解へ</h3><p class="mt-4 text-gray-300 max-w-2xl mx-auto">今回の分析結果とあなたの現状を組み合わせ、AIパーソナリティコーチ「HaQeiプロフェッショナル」が、あなただけの戦略的アドバイスを生成します。</p><button id="request-professional-btn" class="mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">特別レポートをリクエストする (任意)</button></div></div>`;
+          // 【改善提案 B】 無料版と有料版の役割の明確化（メタファー）
+          const metaphorHtml = `
+          <div class="my-8 p-6 bg-gray-900/50 rounded-lg border-l-4 border-indigo-400">
+              <h4 class="font-semibold text-lg text-indigo-300">【無料レポート】と【実践戦略書】の関係</h4>
+              <p class="mt-3 text-gray-300">
+                  今ご覧になっているこの無料レポートは、あなたの現在地と特性を知るための<strong class="text-white">『高精細な地図』</strong>です。
+              </p>
+              <p class="mt-2 text-gray-300">
+                  そして、有料の『実践戦略書』は、その地図を使ってあなたの目的地（目標達成、悩み解決など）へたどり着くための具体的な<strong class="text-white">『ナビゲーションシステム』</strong>の役割を果たします。
+              </p>
+              <p class="mt-4 text-center text-amber-400 font-semibold text-lg">
+                  地図を手に入れた今、最高のナビで旅を始めませんか？
+              </p>
+          </div>`;
+
+          // 【改善提案 A】 有料版コンテンツの「チラ見せ」（ビジュアル例）
+          const visualPreviewHtml = `
+          <div class="relative mt-8 p-6 rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-tr from-amber-400 to-indigo-500 opacity-20 blur-2xl"></div>
+              <div class="relative">
+                  <h5 class="text-center text-white font-bold">有料レポート プレビュー</h5>
+                  <div class="mt-4 p-4 bg-black/30 rounded-md">
+                      <p class="text-gray-400 font-mono text-sm opacity-50 select-none">
+                          # 実践戦略書: ${lastUserProfile.mbti} x タイプ${lastUserProfile.enneagram[0]}<br><br>
+                          ## 1. コアOSの連携戦略<br><br>
+                          ### 1.1. エンジンOS「${lastAnalysisResult.hexagram_candidates[0].name_jp}」の活用法<br>
+                          あなたの根源的エネルギーである「${lastAnalysisResult.hexagram_candidates[0].name_jp}」は、特に[...テキストのぼかし...]な状況でその真価を発揮します。しかし、ストレス下では[...テキストのぼかし...]という暴走パターンに陥りがちです。これを防ぎ、エネルギーを最大化するための具体的なアクションは以下の3つです。<br><br>
+                          1.  **アクション１:** [...テキストのぼかし...]<br>
+                          2.  **アクション２:** [...テキストのぼかし...]<br>
+                          3.  **アクション３:** [...テキストのぼかし...]
+                      </p>
+                  </div>
+                   <div class="absolute inset-0 bg-gradient-to-t from-gray-800/80 via-transparent to-transparent"></div>
+              </div>
+          </div>`;
+
+          // 【改善提案 A】 有料版コンテンツの「チラ見せ」（テキスト例・項目例）
+          const previewHtml = `
+          <div class="mt-8 text-left">
+              <h4 class="text-xl font-bold text-amber-300 text-center">
+                  あなたのOSを使いこなし、人生の目標を達成する<br>『実践戦略書』で得られること：
+              </h4>
+              <ul class="mt-6 space-y-4 max-w-lg mx-auto">
+                  <li class="flex items-start">
+                      <span class="text-green-400 mr-3 mt-1">✅</span>
+                      <span class="text-gray-300">あなたの才能を最大化し、弱みを管理するための<strong class="text-white">『次の三手』</strong>を具体的に提案</span>
+                  </li>
+                  <li class="flex items-start">
+                      <span class="text-green-400 mr-3 mt-1">✅</span>
+                      <span class="text-gray-300">キャリア、恋愛、対人関係の悩みを解決する<strong class="text-white">OS別コミュニケーション術</strong></span>
+                  </li>
+                  <li class="flex items-start">
+                      <span class="text-green-400 mr-3 mt-1">✅</span>
+                      <span class="text-gray-300">あなたが陥りがちな<strong class="text-white">『葛藤のパターン』</strong>を乗り越えるための詳細な処方箋</span>
+                  </li>
+                  <li class="flex items-start">
+                      <span class="text-green-400 mr-3 mt-1">✅</span>
+                      <span class="text-gray-300">あなたの<strong class="text-white">3つのコアOS</strong>の連携を最適化する具体的なアクションプラン</span>
+                  </li>
+              </ul>
+          </div>`;
+
+          return `
+          <div class="report-section">
+              <div class="p-6 sm:p-8 bg-gradient-to-br from-gray-900 via-indigo-900/20 to-gray-900 rounded-2xl border border-amber-500/30">
+                  <div class="text-center">
+                      <h3 class="text-3xl font-bold text-amber-300">最終ステップ：あなたの『実践戦略書』へ</h3>
+                      <p class="mt-3 text-gray-300">分析お疲れ様でした。ここからは、自己理解を「行動」に変えるステップです。</p>
+                  </div>
+                  
+                  ${metaphorHtml}
+                  
+                  ${visualPreviewHtml}
+      
+                  ${previewHtml}
+                  
+                  <div class="mt-10 text-center">
+                      <button id="request-professional-btn" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 px-10 rounded-lg text-xl transition duration-300 transform hover:scale-105 shadow-lg shadow-amber-600/20">
+                          あなたの『実践戦略書』を手に入れる
+                      </button>
+                      <p class="text-xs text-gray-500 mt-3">(有料機能・購入は任意です)</p>
+                  </div>
+              </div>
+          </div>`;
         };
+        // ========== ▲▲▲ ここまでが修正箇所です ▲▲▲ ==========
 
         // --- ストーリーテリングUI制御関数 ---
         const displayStoryView = () => {
-          // ★★★★★ 修正点 ★★★★★
-          // `innerHTML +=` を使うとイベントリスナが消えるため、
-          // `appendChild` を使うように修正
+          reportContainer.innerHTML = ""; // コンテナをクリア
+          const intro = document.createElement("div");
+          intro.innerHTML = createIntroSection();
+          reportContainer.appendChild(intro);
+          const contentContainer = document.createElement("div");
+          reportContainer.appendChild(contentContainer);
+          const currentStepFunction = storySteps[currentStepIndex];
+          if (typeof currentStepFunction === "function") {
+            const stepContent = currentStepFunction();
+            contentContainer.innerHTML = stepContent;
+            const scripts = contentContainer.querySelectorAll("script");
+            scripts.forEach((script) => {
+              const newScript = document.createElement("script");
+              if (script.src) {
+                newScript.src = script.src;
+              } else {
+                newScript.innerHTML = script.innerHTML;
+              }
+              document.body.appendChild(newScript);
+            });
 
-          // 1. 現在のステップに応じたコンテンツを描画
-          storySteps[currentStepIndex]();
-
-          // 2. ナビゲーション用のコンテナを新規作成
+            // 動的に追加された要素へのイベントリスナー再設定
+            if (currentStepIndex === 0) {
+              setTimeout(
+                () => renderRadarChart(lastAnalysisResult.trigram_profile),
+                0
+              );
+              document
+                .getElementById("show-breakdown-btn")
+                .addEventListener("click", () =>
+                  showBreakdownModal(lastAnalysisResult.score_breakdown)
+                );
+            } else if (currentStepIndex === 2) {
+              renderHexagramMap(lastAnalysisResult.hexagram_candidates);
+            } else if (currentStepIndex === 3) {
+              document
+                .getElementById("request-professional-btn")
+                .addEventListener("click", showProfessionalInputModal);
+            }
+          }
           const navContainer = document.createElement("div");
           navContainer.className =
             "flex justify-between items-center mt-12 pt-6 border-t border-gray-700";
-
-          // 3. ナビゲーションボタンのHTMLを生成
           const navHtml = `
             <button id="prev-btn" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition ${
               currentStepIndex === 0 ? "invisible" : ""
@@ -1017,13 +1132,8 @@
             </button>
         `;
           navContainer.innerHTML = navHtml;
-
-          // 4. 作成したコンテナをレポートコンテナの末尾に追加
           reportContainer.appendChild(navContainer);
-
           window.scrollTo({ top: 0, behavior: "smooth" });
-
-          // 5. ナビゲーションボタンにイベントリスナーを設定
           const prevBtn = navContainer.querySelector("#prev-btn");
           if (prevBtn) {
             prevBtn.addEventListener("click", () => {
@@ -1033,14 +1143,13 @@
               }
             });
           }
-
           const nextBtn = navContainer.querySelector("#next-btn");
           if (nextBtn) {
             nextBtn.addEventListener("click", () => {
               if (currentStepIndex < storySteps.length - 1) {
                 currentStepIndex++;
               } else {
-                currentStepIndex = 0; // 最後なら最初に戻る
+                currentStepIndex = 0;
               }
               displayStoryView();
             });
@@ -1326,42 +1435,18 @@
           }
           lastAnalysisResult = runAdvancedAnalysis(lastUserProfile);
 
+          // ストーリーのステップを定義（関数を返すように変更）
           storySteps = [
-            () => {
-              reportContainer.innerHTML =
-                createIntroSection() + createProfileSection();
-              setTimeout(
-                () => renderRadarChart(lastAnalysisResult.trigram_profile),
-                0
-              );
-              document
-                .getElementById("show-breakdown-btn")
-                .addEventListener("click", () =>
-                  showBreakdownModal(lastAnalysisResult.score_breakdown)
-                );
-            },
-            () => {
-              reportContainer.innerHTML =
-                createIntroSection() + createTrinityModelSection();
-            },
-            () => {
-              reportContainer.innerHTML =
-                createIntroSection() + createArchitectureSection();
-              renderHexagramMap(lastAnalysisResult.hexagram_candidates);
-            },
-            () => {
-              reportContainer.innerHTML =
-                createIntroSection() + createProfessionalCtaSection();
-              document
-                .getElementById("request-professional-btn")
-                .addEventListener("click", showProfessionalInputModal);
-            },
+            () => createProfileSection(),
+            () => createTrinityModelSection(),
+            () => createArchitectureSection(),
+            () => createProfessionalCtaSection(),
           ];
 
           inputContainer.classList.add("hidden");
           reportContainer.classList.remove("hidden");
           currentStepIndex = 0;
-          displayStoryView();
+          displayStoryView(); // 新しいUI制御関数を呼び出す
         });
       });
     </script>
