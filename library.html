@@ -482,19 +482,17 @@
         })();
         const escapeHTML = (str) =>
           str
-            ? str
-                .toString()
-                .replace(
-                  /[&<>"']/g,
-                  (match) =>
-                    ({
-                      "&": "&amp;",
-                      "<": "&lt;",
-                      ">": "&gt;",
-                      '"': "&quot;",
-                      "'": "&#39;",
-                    }[match])
-                )
+            ? str.toString().replace(
+                /[&<>"']/g,
+                (match) =>
+                  ({
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#39;",
+                  }[match])
+              )
             : "";
         const nl2br = (str) =>
           str ? escapeHTML(str).replace(/\n/g, "<br>") : "";
