@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HaQeiプロフェッショナル 総合解説レポート</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", "Noto Sans JP", sans-serif;
+      }
+      .brand-text {
+        background: -webkit-linear-gradient(45deg, #fde047, #f59e0b);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+      .report-block {
+        margin-top: 2rem;
+        border-left: 3px solid #f59e0b;
+        padding-left: 1.5rem;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+    <div
+      class="w-full max-w-4xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10"
+    >
+      <header class="text-center mb-10">
+        <a
+          href="os_analyzer.html"
+          class="text-amber-400 hover:text-amber-300 mb-4 inline-block"
+          >← 分析レポートへ戻る</a
+        >
+        <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">
+          HaQei Professional
+        </h1>
+        <p class="text-gray-400 mt-3 text-xl">総合解説レポート</p>
+      </header>
+
+      <div id="professional-report-content">
+        <p class="text-center text-gray-500">レポートを生成しています...</p>
+      </div>
+    </div>
+
+    <script src="assets/haqei_main_database.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const outputContainer = document.getElementById(
+          "professional-report-content"
+        );
+        const storedData = localStorage.getItem("haqeiProfessionalData");
+
+        if (!storedData) {
+          outputContainer.innerHTML =
+            '<p class="text-red-400 text-center">エラー: 分析データが見つかりません。お手数ですが、もう一度OS分析レポートページから操作をやり直してください。</p>';
+          return;
+        }
+
+        try {
+          const professionalData = JSON.parse(storedData);
+          const { analysis, profile, context } = professionalData;
+
+          // レポート生成（os_analyzer.htmlからロジックを流用・発展させる）
+          const reportText = generateProfessionalReportText(analysis, context);
+          outputContainer.innerHTML = `
+                    <div class="p-6 md:p-8 bg-gray-900/50 rounded-2xl border border-amber-400/30 prose prose-invert max-w-none">
+                        ${reportText}
+                    </div>`;
+        } catch (e) {
+          console.error("レポートデータの解析に失敗しました: ", e);
+          outputContainer.innerHTML =
+            '<p class="text-red-400 text-center">エラー: レポートデータの解析に失敗しました。データが破損している可能性があります。</p>';
+        }
+      });
+
+      const generateProfessionalReportText = (analysisResult, userContext) => {
+        const os1 = analysisResult.hexagram_candidates[0];
+        const os2 = analysisResult.hexagram_candidates[1];
+        const os3 = analysisResult.hexagram_candidates[2];
+        const profile = analysisResult.trigram_profile;
+
+        const HELPERS = {
+          id_to_jp: Object.fromEntries(
+            HAQEI_DATA.trigrams_master.map((item) => [
+              item.trigram_id,
+              item.name_jp,
+            ])
+          ),
+          trigram_colors: {
+            1: "#F9FAFB",
+            2: "#70D6FF",
+            3: "#F87171",
+            4: "#FACC15",
+            5: "#4ADE80",
+            6: "#3B82F6",
+            7: "#F97316",
+            8: "#A16207",
+          },
+        };
+
+        const contextText =
+          userContext.age ||
+          userContext.occupation ||
+          userContext.role ||
+          userContext.issue
+            ? `<h4>1. ご入力いただいた状況の確認</h4><p class="text-sm">「${
+                userContext.age || ""
+              } ${userContext.occupation || ""} ${
+                userContext.role || ""
+              }」で、「${
+                userContext.issue || "特になし"
+              }」という課題意識をお持ちなのですね。承知いたしました。その状況を踏まえ、あなたのOSを読み解いていきましょう。</p>`
+            : '<p class="text-sm text-gray-500 italic">（ユーザーの追加情報が入力されなかったため、OSの基本構造のみを解説します）</p>';
+
+        const profileText = `<h4>2. エネルギープロファイルから見るあなたの「基本性質」</h4><p class="text-sm">あなたのエネルギーは、<strong style="color:${
+          HELPERS.trigram_colors[profile[0].id]
+        }">${profile[0].name_en}</strong>の「${
+          HELPERS.id_to_jp[profile[0].id]
+        }」と<strong style="color:${HELPERS.trigram_colors[profile[1].id]}">${
+          profile[1].name_en
+        }</strong>の「${
+          HELPERS.id_to_jp[profile[1].id]
+        }」が際立っています。これは、あなたの基本性質が「${
+          profile[0].strength_description
+        }」や「${
+          profile[1].strength_description
+        }」という点にあることを示唆しています。一方で、<strong style="color:${
+          HELPERS.trigram_colors[profile[7].id]
+        }">${
+          profile[7].name_en
+        }</strong>のエネルギーが最も低いため、${profile[7].strength_description.slice(
+          0,
+          -1
+        )}のは少し苦手かもしれません。</p>`;
+
+        const trinityText = `<h4>3. 「三位一体OSモデル」の構造的解説</h4><p class="text-sm">あなたのOS構造は非常に興味深い連携をしています。あなたの根源的な動力源である<strong>【エンジンOS：${os1.name_jp}】</strong>が放つエネルギーは、<strong>【インターフェースOS：${os2.name_jp}】</strong>というフィルターを通して社会に表現されます。しかし、ストレスがかかると<strong>【セーフモードOS：${os3.name_jp}】</strong>が起動し、無意識に初期設定の行動パターンに立ち返る傾向があります。この3つのOSの関係性を理解することが、自己を乗りこなす鍵となります。</p>`;
+
+        const adviceText = `<h4>4. 総合所見とあなたへの戦略的アドバイス</h4><p class="text-sm">（ここに、全ての情報を統合した、AIによる具体的なアドバイスが生成されます。例：${
+          userContext.issue || "あなたの現在の課題"
+        }に対して、エンジンOSの力をインターフェースOSを通してどう活かすべきか、セーフモードOSの暴走にどう備えるべきか、等々...）</p>`;
+
+        return `
+                <h3 class="text-2xl font-bold text-amber-300 mb-6 text-center">HaQeiプロフェッショナル<br>総合解説レポート</h3>
+                ${contextText}
+                ${profileText}
+                ${trinityText}
+                ${adviceText}
+                <h4 class="mt-6">5. 次の具体的な一歩</h4>
+                <ul class="text-sm list-disc pl-5">
+                    <li>（AIが具体的なアクションプランを2〜3個提案します）</li>
+                </ul>
+            `;
+      };
+    </script>
+  </body>
+</html>
