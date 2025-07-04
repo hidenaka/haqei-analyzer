@@ -712,8 +712,7 @@
             return `<div><h3 class="text-2xl text-center font-bold text-white mt-12 mb-6">あなたのOSアーキテクチャ</h3>${mapHtml}<div class="space-y-8 mt-8">${osSections}</div></div>`;
           };
 
-          // ▼▼▼【v19.0 追加】三位一体モデルの解説セクション生成関数 ▼▼▼
-
+          // ▼▼▼【v19.1 修正版】三位一体モデルの解説セクション生成関数 ▼▼▼
           const createTrinityModelSection = () => {
             const os1 = hexagram_candidates[0]; // Engine
             const os2 = hexagram_candidates[1]; // Interface
@@ -722,66 +721,60 @@
             const osData = [
               {
                 title: "エンジンOS",
-                subtitle: "無意識にあなたを動かす、魂の動力源",
                 hex: os1,
                 color: "orange",
                 icon: "🔥",
                 explanation:
-                  "あなたが意識する・しないに関わらず、最も自然で強力にあなたを突き動かす根源的なエネルギー。あなたの行動や価値観の「なぜ？」に答える、魂のエンジンです。自分では当たり前すぎて気づかないことが多い、本来の姿です。",
-                positionClasses:
-                  "md:top-1/2 md:right-full md:-translate-y-1/2 md:mr-8",
+                  "あなたが意識する・しないに関わらず、最も自然で強力にあなたを突き動かす根源的なエネルギー。あなたの行動や価値観の「なぜ？」に答える、魂のエンジンです。",
               },
               {
                 title: "インターフェースOS",
-                subtitle: "世界と関わるための、あなたの社会的な仮面",
                 hex: os2,
                 color: "sky",
                 icon: "🎭",
                 explanation:
-                  "「エンジンOS」の力を、社会や他者との関わりの中で、どのように表現しているかを示すOS。いわば、世界と接続するための「ペルソナ」や「コミュニケーションスタイル」です。ここを理解することで「内なる自分」と「他人から見られる自分」のギャップが腑に落ちます。",
-                positionClasses: "md:top-0 md:left-full md:ml-8",
+                  "「エンジンOS」の力を、社会や他者との関わりの中でどう表現しているかを示すOS。いわば、世界と接続するための「ペルソナ」や「コミュニケーションスタイル」です。",
               },
               {
                 title: "セーフモードOS",
-                subtitle: "困難な時に立ち返る、あなたの心の安全地帯",
                 hex: os3,
                 color: "green",
                 icon: "🛡️",
                 explanation:
-                  "あなたがストレスを感じたり、困難に直面した時に、無意識に立ち返る「心の安全地帯」または「初期設定」です。良くも悪くも、あなたの思考や行動の土台となるOSであり、自分の「癖」や「原点」を教えてくれます。",
-                positionClasses: "md:bottom-0 md:left-full md:ml-8",
+                  "ストレスを感じたり、困難に直面した時に、無意識に立ち返る「心の安全地帯」。自分の「癖」や「原点」を教えてくれます。",
               },
             ];
 
+            // ★★★ OS解説カードのHTMLを生成する部分 ★★★
             let osCardsHtml = osData
               .map(
                 (os) => `
-        <div class="md:absolute ${os.positionClasses} w-full md:max-w-xs mb-8 md:mb-0">
-            <div class="bg-gray-900/50 border border-${os.color}-500/30 p-5 rounded-xl shadow-lg h-full">
-                <h4 class="text-lg font-bold text-${os.color}-300 flex items-center">
-                    <span class="text-2xl mr-2">${os.icon}</span>
-                    ${os.title}
-                </h4>
-                <p class="text-base font-semibold text-gray-200 mt-1">${os.hex.name_jp}</p>
-                <p class="text-xs text-gray-400 mt-1 mb-3">${os.subtitle}</p>
-                <p class="text-sm leading-relaxed">${os.explanation}</p>
-            </div>
+        <div class="bg-gray-900/50 border border-gray-700 p-4 rounded-xl shadow-lg flex flex-col">
+            <h4 class="text-base font-bold text-${os.color}-300 flex items-center">
+                <span class="text-xl mr-2">${os.icon}</span>
+                ${os.title}
+            </h4>
+            <p class="text-lg font-semibold text-gray-100 mt-1">${os.hex.name_jp}</p>
+            <p class="text-xs text-gray-400 mt-2 flex-grow">${os.explanation}</p>
         </div>
     `
               )
               .join("");
 
+            // ★★★ 全体のHTML構造を修正 ★★★
             return `
         <div class="report-section">
             <h3>あなたのOS「三位一体」モデル</h3>
             <p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p>
             
-            <div class="mt-12 relative">
-                <div class="flex justify-center items-center max-w-sm mx-auto">
+            <div class="mt-8">
+                <div class="w-full max-w-md mx-auto">
                     <img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="w-full h-auto">
                 </div>
                 
-                ${osCardsHtml}
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    ${osCardsHtml}
+                </div>
             </div>
         </div>
     `;
