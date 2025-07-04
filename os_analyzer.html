@@ -548,267 +548,27 @@
             score_breakdown,
           };
         };
+        // ▼▼▼【v19.3 修正版】レポート描画関数 ▼▼▼
         const renderReport = (userProfile, result) => {
           const { trigram_profile, hexagram_candidates, score_breakdown } =
             result;
 
-          // 各セクションを生成するヘルパー関数
-          const createIntroSection = () => {
-            const mbtiNickname =
-              HDB.mbti_nicknames.find((n) => n.type === userProfile.mbti)
-                ?.nickname || "";
-            const enneaNicknames = userProfile.enneagram
-              .map(
-                (type) =>
-                  `タイプ${type}: ${
-                    HDB.enneagram_map.find((e) => e.enneagram_type == type)
-                      ?.nickname || ""
-                  }`
-              )
-              .join(", ");
-            return `
-                    <div class="text-center mb-12">
-                        <h2 class="text-3xl font-bold text-white mb-2">HaQei パーソナルOS発見レポート</h2>
-                        <p class="brand-text font-semibold">【ポテンシャル拡張（Expansion）レポート】</p>
-                    </div>
-                    <div class="prose prose-invert max-w-none mb-12">
-                        <p>このレポートは、あなたのユニークな資質を、西洋の心理学と東洋の叡智を融合させた独自のフレームワークで解析したものです。単なる結果の提示ではなく、あなたという存在の「OSアーキテクチャ（構造）」を解き明かし、自己理解を新たな次元へと引き上げることを目的とします。</p>
-                        <div class="bg-gray-700/50 p-4 rounded-lg my-6 text-sm">
-                            <h4 class="font-bold text-lg text-indigo-300">入力プロファイル:</h4>
-                            <ul class="list-none p-0">
-                                <li><strong>MBTI:</strong> ${
-                                  userProfile.mbti
-                                } (${mbtiNickname})</li>
-                                <li><strong>エニアグラム:</strong> ${enneaNicknames}</li>
-                                ${
-                                  userProfile.sf.length > 0
-                                    ? `<li><strong>ストレングスファインダー:</strong> ${userProfile.sf.join(
-                                        ", "
-                                      )}</li>`
-                                    : ""
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                `;
-          };
-          const createProfileSection = () => `
-                <div class="report-section">
-                    <h3>あなたのエネルギープロファイル</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                        <div class="relative h-80 sm:h-96"><canvas id="energyRadarChart"></canvas></div>
-                        <div>
-                            <p>あなたの内なるエネルギーの構成比です。数値が高いほど、あなたが自然に発揮しやすい能力や性質を示しています。<br><button id="show-breakdown-btn" class="text-sm text-indigo-400 hover:underline mt-2">スコアの算出根拠を見る</button></p>
-                            <div class="space-y-3 mt-4">
-                            ${trigram_profile
-                              .map(
-                                (t) => `
-                                <div class="w-full">
-                                    <div class="flex justify-between mb-1 text-sm"><span class="font-bold" style="color: ${
-                                      t.id === 8
-                                        ? "#F9FAFB"
-                                        : HELPERS.trigram_colors[t.id]
-                                    }">${t.name_en} (${
-                                  HELPERS.id_to_jp[t.id]
-                                })</span><span>${t.score}</span></div>
-                                    <div class="w-full bg-gray-700 rounded-full h-2.5">
-                                        <div class="h-2.5 rounded-full" style="background-color: ${
-                                          HELPERS.trigram_colors[t.id]
-                                        }; width: ${t.score * 10}%"></div>
-                                    </div>
-                                </div>`
-                              )
-                              .join("")}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-          const createArchitectureSection = () => {
-            const osTypes = [
-              {
-                title: "本質OS",
-                subtitle: "あなたの魂の設計図、全ての力の源泉",
-                highlightClass: "highlight-primary",
-              },
-              {
-                title: "表舞台のOS",
-                subtitle: "社会的な役割を演じ、成功を掴むための姿",
-                highlightClass: "highlight-secondary",
-              },
-              {
-                title: "可能性のOS",
-                subtitle: "統合すれば、あなたの世界がさらに広がる未来の鍵",
-                highlightClass: "highlight-growth",
-              },
-            ];
-            const osSections = hexagram_candidates
-              .slice(0, 3)
-              .map((os, index) => {
-                const manualData = HDB.os_manual[os.hexagram_id];
-                const osExplanation = manualData
-                  ? manualData.summary
-                  : HELPERS.getHexagramById(os.hexagram_id)?.description ||
-                    "詳細な説明は準備中です";
-                const upperTrigram = HELPERS.getTrigramById(
-                  os.upper_trigram_id
-                );
-                const lowerTrigram = HELPERS.getTrigramById(
-                  os.lower_trigram_id
-                );
-                let architectureExplanation = `<p>${osExplanation}</p>`;
-                if (upperTrigram && lowerTrigram) {
-                  architectureExplanation += `<p class="text-sm mt-4 italic text-gray-400">このOSは、上卦（外面・精神）に<strong>【${upperTrigram.name_jp}】</strong>の性質、下卦（内面・行動）に<strong>【${lowerTrigram.name_jp}】</strong>の性質を併せ持ちます。これにより、単体のエネルギーにはない、複雑で深遠な個性が生まれています。</p>`;
-                }
-                let manualHtml = "";
-                if (manualData) {
-                  manualHtml = `
-                            <div class="mt-6">
-                                <details class="group">
-                                    <summary class="flex items-center justify-between cursor-pointer text-indigo-300 font-semibold"><span>OS取扱説明書を見る</span><svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></summary>
-                                    <div class="mt-4 pt-4 border-t border-gray-600 space-y-4 text-sm">
-                                        <div><h5 class="font-bold text-yellow-400">暴走パターン (Debug Mode)</h5><p>${
-                                          manualData.debug_pattern
-                                        }</p></div>
-                                        <div><h5 class="font-bold text-green-400">脱出方法 (Debug Method)</h5><p>${
-                                          manualData.debug_method
-                                        }</p></div>
-                                        <div><h5 class="font-bold text-cyan-400">最適化クエスト</h5><ul class="list-disc list-inside space-y-1">${manualData.quests
-                                          .map((q) => `<li>${q}</li>`)
-                                          .join("")}</ul></div>
-                                    </div>
-                                </details>
-                            </div>`;
-                }
-                return `<div class="bg-gray-800/60 p-6 rounded-2xl report-section"><h3 class="text-xl font-bold text-indigo-400">${
-                  index + 1
-                }. ${os.name_jp} - 【${
-                  osTypes[index].title
-                }】</h3><p class="text-sm text-gray-400">${
-                  osTypes[index].subtitle
-                }</p><p class="text-sm text-gray-500">総合スコア: ${
-                  os.final_score
-                }</p><div class="my-4">${architectureExplanation}</div><p><strong>関連キーワード:</strong> ${
-                  os.keywords
-                }</p>${manualHtml}</div>`;
-              })
-              .join("");
-
-            let mapHtml = `
-                    <div class="report-section">
-                        <h3>人格OS相関図（64卦マップ）</h3>
-                        <p>あなたのOSが、易経の宇宙観の中でどのような位置にあるかを示します。縦軸が内面（下卦）、横軸が外面（上卦）のエネルギーです。クリックで各OSの関係性を探求できます。</p>
-                        <div id="hex-map-info" class="my-3 p-3 bg-gray-900/50 rounded-lg">
-                            <p class="text-center text-sm text-gray-400">マップ上のOSをクリックして、そのOSの関連性を表示します。</p>
-                        </div>
-                        <div class="hex-map-container mt-4"></div>
-                        <div class="flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs mt-2">
-                            <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-orange-400 rounded-sm"></span>錯卦 (真逆)</span>
-                            <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dashed border-blue-400 rounded-sm"></span>綜卦 (裏側)</span>
-                            <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dotted border-green-400 rounded-sm"></span>互卦 (内包)</span>
-                        </div>
-                    </div>`;
-
-            return `<div><h3 class="text-2xl text-center font-bold text-white mt-12 mb-6">あなたのOSアーキテクチャ</h3>${mapHtml}<div class="space-y-8 mt-8">${osSections}</div></div>`;
-          };
-
-          // ▼▼▼【v19.1 修正版】三位一体モデルの解説セクション生成関数 ▼▼▼
-          const createTrinityModelSection = () => {
-            const os1 = hexagram_candidates[0]; // Engine
-            const os2 = hexagram_candidates[1]; // Interface
-            const os3 = hexagram_candidates[2]; // Safe Mode
-
-            const osData = [
-              {
-                title: "エンジンOS",
-                hex: os1,
-                color: "orange",
-                icon: "🔥",
-                explanation:
-                  "あなたが意識する・しないに関わらず、最も自然で強力にあなたを突き動かす根源的なエネルギー。あなたの行動や価値観の「なぜ？」に答える、魂のエンジンです。",
-              },
-              {
-                title: "インターフェースOS",
-                hex: os2,
-                color: "sky",
-                icon: "🎭",
-                explanation:
-                  "「エンジンOS」の力を、社会や他者との関わりの中でどう表現しているかを示すOS。いわば、世界と接続するための「ペルソナ」や「コミュニケーションスタイル」です。",
-              },
-              {
-                title: "セーフモードOS",
-                hex: os3,
-                color: "green",
-                icon: "🛡️",
-                explanation:
-                  "ストレスを感じたり、困難に直面した時に、無意識に立ち返る「心の安全地帯」。自分の「癖」や「原点」を教えてくれます。",
-              },
-            ];
-
-            // ★★★ OS解説カードのHTMLを生成する部分 ★★★
-            let osCardsHtml = osData
-              .map(
-                (os) => `
-        <div class="bg-gray-900/50 border border-gray-700 p-4 rounded-xl shadow-lg flex flex-col">
-            <h4 class="text-base font-bold text-${os.color}-300 flex items-center">
-                <span class="text-xl mr-2">${os.icon}</span>
-                ${os.title}
-            </h4>
-            <p class="text-lg font-semibold text-gray-100 mt-1">${os.hex.name_jp}</p>
-            <p class="text-xs text-gray-400 mt-2 flex-grow">${os.explanation}</p>
-        </div>
-    `
-              )
-              .join("");
-
-            // ★★★ 全体のHTML構造を修正 ★★★
-            return `
-        <div class="report-section">
-            <h3>あなたのOS「三位一体」モデル</h3>
-            <p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p>
-            
-            <div class="mt-8">
-                <div class="w-full max-w-md mx-auto">
-                    <img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="w-full h-auto">
-                </div>
-                
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    ${osCardsHtml}
-                </div>
-            </div>
-        </div>
-    `;
-          };
-          // ▼▼▼【v19.0 追加】HaQeiプロフェッショナル機能へのCTAセクション ▼▼▼
-          const createProfessionalCtaSection = () => {
-            return `
-                    <div class="report-section mt-12 border-l-4 border-amber-400">
-                        <h3>あなたの可能性を最大限に引き出す</h3>
-                        <div class="bg-gray-800/60 p-6 rounded-2xl">
-                            <h4 class="text-xl font-bold text-amber-300">HaQeiプロフェッショナル 総合解説</h4>
-                            <p class="mt-4">この分析結果を、あなたの実生活にどう活かすか？<br>AI専門家「HaQeiプロフェッショナル」が、あなたのOS構造と人生の状況を掛け合わせ、今あなたに必要なオーダーメイドの戦略を解説します。</p>
-                            <button id="request-professional-btn" class="w-full mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">
-                                総合解説をリクエストする（有料機能）
-                            </button>
-                        </div>
-                    </div>
-                `;
-          };
-
-          // レポート全体のHTMLを構成
+          // ★★★ レポート全体のHTML構成と順番を変更 ★★★
           reportContainer.innerHTML =
-            createIntroSection() +
-            createProfileSection() +
-            createTrinityModelSection() +
-            createArchitectureSection() +
-            createProfessionalCtaSection();
+            createIntroSection() + // 0. イントロ
+            createProfileSection() + // 1. エネルギープロファイル
+            createArchitectureSection() + // 2. あなたのOSアーキテクチャ（旧OS詳細）
+            createTrinityModelSection() + // 3. 三位一体モデル
+            createProfessionalCtaSection(); // 4. 有料版へのCTA
 
           inputContainer.classList.add("hidden");
           reportContainer.classList.remove("hidden");
 
+          // グラフとマップの描画
           renderRadarChart(trigram_profile);
           renderHexagramMap(hexagram_candidates);
 
+          // イベントリスナーの設定
           document
             .getElementById("show-breakdown-btn")
             .addEventListener("click", () =>
@@ -819,8 +579,115 @@
             .addEventListener("click", showProfessionalInputModal);
 
           window.scrollTo({ top: 0, behavior: "smooth" });
-        }; // --- ▼▼▼【v18.0 追加】HaQeiプロフェッショナル機能関連の関数群 ▼▼▼ ---
+        };
 
+        // ▼▼▼【v19.3 修正版】OSアーキテクチャセクション生成関数 ▼▼▼
+        const createArchitectureSection = () => {
+          const { hexagram_candidates } = lastAnalysisResult; // グローバル変数から結果を取得
+
+          // ★★★ OSの役割定義を「三位一体モデル」の表現に統一 ★★★
+          const osTypes = [
+            {
+              title: "本質OS (エンジン)",
+              subtitle: "無意識にあなたを動かす、魂の動力源",
+              highlightClass: "highlight-primary",
+              icon: "🔥",
+            },
+            {
+              title: "表舞台のOS (インターフェース)",
+              subtitle: "世界と関わるための、あなたの社会的な仮面",
+              highlightClass: "highlight-secondary",
+              icon: "🎭",
+            },
+            {
+              title: "可能性のOS (セーフモード)",
+              subtitle: "困難な時に立ち返る、あなたの心の安全地帯",
+              highlightClass: "highlight-growth",
+              icon: "🛡️",
+            },
+          ];
+
+          // ★★★ 各OS詳細カードの生成ロジック ★★★
+          const osSections = hexagram_candidates
+            .slice(0, 3)
+            .map((os, index) => {
+              const osTypeDef = osTypes[index];
+              const manualData = HDB.os_manual[os.hexagram_id];
+              const osExplanation =
+                manualData?.summary ||
+                HELPERS.getHexagramById(os.hexagram_id)?.description ||
+                "詳細な説明は準備中です";
+              const upperTrigram = HELPERS.getTrigramById(os.upper_trigram_id);
+              const lowerTrigram = HELPERS.getTrigramById(os.lower_trigram_id);
+
+              let architectureExplanation = `<p>${osExplanation}</p>`;
+              if (upperTrigram && lowerTrigram) {
+                architectureExplanation += `<p class="text-sm mt-4 italic text-gray-400">このOSは、上卦（外面・精神）に<strong>【${upperTrigram.name_jp}】</strong>の性質、下卦（内面・行動）に<strong>【${lowerTrigram.name_jp}】</strong>の性質を併せ持ちます。</p>`;
+              }
+
+              let manualHtml = "";
+              if (manualData) {
+                manualHtml = `
+            <div class="mt-6">
+                <details class="group">
+                    <summary class="flex items-center justify-between cursor-pointer text-indigo-300 font-semibold"><span>OS取扱説明書を見る</span><svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></summary>
+                    <div class="mt-4 pt-4 border-t border-gray-600 space-y-4 text-sm">
+                        <div><h5 class="font-bold text-yellow-400">暴走パターン</h5><p>${
+                          manualData.debug_pattern
+                        }</p></div>
+                        <div><h5 class="font-bold text-green-400">脱出方法</h5><p>${
+                          manualData.debug_method
+                        }</p></div>
+                        <div><h5 class="font-bold text-cyan-400">最適化クエスト</h5><ul class="list-disc list-inside space-y-1">${manualData.quests
+                          .map((q) => `<li>${q}</li>`)
+                          .join("")}</ul></div>
+                    </div>
+                </details>
+            </div>`;
+              }
+
+              return `
+        <div class="bg-gray-800/60 p-6 rounded-2xl">
+            <h3 class="text-xl font-bold text-indigo-300 flex items-center">
+                <span class="text-2xl mr-3">${osTypeDef.icon}</span>
+                ${index + 1}. ${os.name_jp} - 【${osTypeDef.title}】
+            </h3>
+            <p class="text-sm text-gray-400 ml-10">${osTypeDef.subtitle}</p>
+            <p class="text-sm text-gray-500 ml-10">総合スコア: ${
+              os.final_score
+            }</p>
+            <div class="my-4 pl-10">${architectureExplanation}</div>
+            <div class="pl-10"><p><strong>関連キーワード:</strong> ${
+              os.keywords
+            }</p>${manualHtml}</div>
+        </div>`;
+            })
+            .join("");
+
+          // ★★★ 64卦マップの生成ロジック ★★★
+          const mapHtml = `
+    <div class="mt-12">
+        <h3 class="text-xl font-bold text-indigo-300">人格OS相関図（64卦マップ）</h3>
+        <p class="mt-2">あなたのOSが、易経の宇宙観の中でどのような位置にあるかを示します。クリックで各OSの関係性を探求できます。</p>
+        <div id="hex-map-info" class="my-3 p-3 bg-gray-900/50 rounded-lg">
+            <p class="text-center text-sm text-gray-400">マップ上のOSをクリックして、そのOSの関連性を表示します。</p>
+        </div>
+        <div class="hex-map-container mt-4"></div>
+        <div class="flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs mt-2">
+            <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-orange-400 rounded-sm"></span>錯卦(真逆)</span>
+            <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dashed border-blue-400 rounded-sm"></span>綜卦(裏側)</span>
+            <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dotted border-green-400 rounded-sm"></span>互卦(内包)</span>
+        </div>
+    </div>`;
+
+          // ★★★ セクション全体のHTML構造（OS詳細が先、マップが後） ★★★
+          return `
+    <div class="report-section">
+        <h3>あなたのOSアーキテクチャ</h3>
+        <div class="space-y-8 mt-8">${osSections}</div>
+        ${mapHtml}
+    </div>`;
+        };
         /**
          * ユーザーの追加情報を入力するモーダルを表示する関数
          * @param {object} analysisResult - OS分析の結果オブジェクト
