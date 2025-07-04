@@ -598,6 +598,8 @@
         // ▼▼▼【v19.0 追加】三位一体モデルの解説セクション生成関数 ▼▼▼
 
         const createTrinityModelSection = () => {
+          const { hexagram_candidates } = lastAnalysisResult;
+
           const os1 = hexagram_candidates[0]; // Engine
           const os2 = hexagram_candidates[1]; // Interface
           const os3 = hexagram_candidates[2]; // Safe Mode
