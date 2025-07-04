@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HaQei 人格OS 分析レポート v15.5</title>
+    <title>HaQei 人格OS 分析レポート v15.6</title>
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
@@ -405,7 +405,7 @@
 
     <script src="assets/haqei_main_database.js"></script>
     <script>
-      // HaQei OS Analyzer - JavaScript v15.5
+      // HaQei OS Analyzer - JavaScript v15.6
       const HDB = HAQEI_DATA;
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -429,8 +429,8 @@
         let lastAnalysisResult = null;
         let lastUserProfile = null;
         let diagnosticAnswers = {};
-        let storySteps = []; // A) ストーリーテリングUI用
-        let currentStepIndex = 0; // A) ストーリーテリングUI用
+        let storySteps = [];
+        let currentStepIndex = 0;
 
         // --- ヘルパー関数群 ---
         const HELPERS = {
@@ -455,7 +455,6 @@
             7: "#F97316",
             8: "#A16207",
           },
-          // B) ツールチップ生成関数
           createTermTooltip: (term, explanation) => {
             if (!explanation) return term;
             return `<span class="tooltip">${term}<span class="tooltip-text">${explanation}</span></span>`;
@@ -480,11 +479,11 @@
           setTimeout(() => {
             modalContainer.classList.add("hidden");
             document.body.style.overflow = "";
-            modalBody.innerHTML = ""; // モーダルを閉じる時に中身を空にする
+            modalBody.innerHTML = "";
           }, 300);
         };
 
-        // ▼▼▼ 簡易診断機能のためのデータとロジック ▼▼▼
+        // --- 簡易診断機能 ---
         const DIAGNOSTIC_QUIZ_DATA = {
           mbti: [
             {
@@ -587,62 +586,36 @@
         const applyDiagnosticResults = (mbtiType, enneaType) => {
           mbtiSelect.value = mbtiType;
           enneaSelects[0].value = enneaType;
-
-          const changeEvent = new Event("change");
-          enneaSelects[0].dispatchEvent(changeEvent); // 重複選択防止ロジックをトリガー
-
+          enneaSelects[0].dispatchEvent(new Event("change"));
           hideModal();
         };
 
         const renderDiagnosticStep = (stage, questionIndex = 0) => {
           let contentHtml = "";
-
           if (stage === "mbti") {
             const qData = DIAGNOSTIC_QUIZ_DATA.mbti[questionIndex];
-            contentHtml = `
-                    <h3 class="text-xl font-bold text-indigo-300 mb-2">簡易MBTI診断 (${
-                      questionIndex + 1
-                    }/4)</h3>
-                    <p class="text-gray-300 mb-6">${qData.q}</p>
-                    <div class="space-y-3">
-                        <a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
-                          qData.a.value
-                        }', ${questionIndex})">${qData.a.text}</a>
-                        <a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
-                          qData.b.value
-                        }', ${questionIndex})">${qData.b.text}</a>
-                    </div>`;
+            contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-2">簡易MBTI診断 (${
+              questionIndex + 1
+            }/4)</h3><p class="text-gray-300 mb-6">${
+              qData.q
+            }</p><div class="space-y-3"><a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
+              qData.a.value
+            }', ${questionIndex})">${
+              qData.a.text
+            }</a><a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
+              qData.b.value
+            }', ${questionIndex})">${qData.b.text}</a></div>`;
           } else if (stage === "enneagram") {
-            contentHtml = `
-                    <h3 class="text-xl font-bold text-indigo-300 mb-2">簡易エニアグラム診断</h3>
-                    <p class="text-gray-300 mb-6">以下のうち、あなたの最も深い動機や価値観に一番近いものを一つ選んでください。</p>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        ${DIAGNOSTIC_QUIZ_DATA.enneagram
-                          .map(
-                            (e) => `
-                            <div class="diagnostic-option text-sm flex flex-col h-full" onclick="handleEnneagramAnswer(${e.type})">
-                                <p class="font-bold text-indigo-300">タイプ${e.type}: ${e.name}</p>
-                                <p class="text-gray-400 mt-1">${e.desc}</p>
-                            </div>`
-                          )
-                          .join("")}
-                    </div>`;
+            contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-2">簡易エニアグラム診断</h3><p class="text-gray-300 mb-6">以下のうち、あなたの最も深い動機や価値観に一番近いものを一つ選んでください。</p><div class="grid grid-cols-1 md:grid-cols-3 gap-3">${DIAGNOSTIC_QUIZ_DATA.enneagram
+              .map(
+                (e) =>
+                  `<div class="diagnostic-option text-sm flex flex-col h-full" onclick="handleEnneagramAnswer(${e.type})"><p class="font-bold text-indigo-300">タイプ${e.type}: ${e.name}</p><p class="text-gray-400 mt-1">${e.desc}</p></div>`
+              )
+              .join("")}</div>`;
           } else if (stage === "result") {
             const mbtiResult = diagnosticAnswers.mbti;
             const enneaResult = diagnosticAnswers.enneagram;
-            contentHtml = `
-                    <div class="text-center">
-                        <h3 class="text-xl font-bold text-indigo-300 mb-4">簡易診断結果</h3>
-                        <p class="text-gray-300">あなたのタイプは以下と推定されます。</p>
-                        <div class="my-6 space-y-3">
-                            <p class="text-2xl font-bold">MBTI: <span class="text-amber-400">${mbtiResult}</span></p>
-                            <p class="text-2xl font-bold">エニアグラム: <span class="text-amber-400">タイプ${enneaResult}</span></p>
-                        </div>
-                        <p class="text-xs text-gray-500 mb-6">※これは簡易的な診断です。より正確なタイプをご存知の場合は、そちらを優先してください。</p>
-                        <button onclick="applyDiagnosticResults('${mbtiResult}', '${enneaResult}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">
-                            この結果を利用する
-                        </button>
-                    </div>`;
+            contentHtml = `<div class="text-center"><h3 class="text-xl font-bold text-indigo-300 mb-4">簡易診断結果</h3><p class="text-gray-300">あなたのタイプは以下と推定されます。</p><div class="my-6 space-y-3"><p class="text-2xl font-bold">MBTI: <span class="text-amber-400">${mbtiResult}</span></p><p class="text-2xl font-bold">エニアグラム: <span class="text-amber-400">タイプ${enneaResult}</span></p></div><p class="text-xs text-gray-500 mb-6">※これは簡易的な診断です。より正確なタイプをご存知の場合は、そちらを優先してください。</p><button onclick="applyDiagnosticResults('${mbtiResult}', '${enneaResult}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">この結果を利用する</button></div>`;
           }
           showModal(contentHtml);
         };
@@ -662,8 +635,8 @@
           renderDiagnosticStep("result");
         };
         window.applyDiagnosticResults = applyDiagnosticResults;
-        // ▲▲▲ 簡易診断機能 ▲▲▲
 
+        // --- フォーム初期化 ---
         const handleDuplicateSelection = (selects) => {
           const selectedValues = new Set();
           selects.forEach((s) => {
@@ -772,7 +745,6 @@
         };
 
         const runAdvancedAnalysis = (userProfile) => {
-          // ... (この関数の内容は変更なし) ...
           const weights = { mbti: 1.0, enneagram: 1.0, sf: 0.4 };
           const ennea_weights = [1.0, 0.8, 0.6];
           const sf_weights = [1.0, 0.9, 0.8, 0.7, 0.6];
@@ -886,33 +858,15 @@
             "最終ステップ：より深い自己理解へ",
           ];
 
-          return `
-            <div class="text-center mb-8 border-b border-gray-700 pb-6">
-                <h2 class="text-xl font-bold text-gray-100">${
-                  stepTitles[currentStepIndex]
-                }</h2>
-                <p class="text-sm text-gray-400 mt-2 max-w-xl mx-auto">
-                    分析対象 - MBTI: <strong>${mbti}</strong> | エニアグラム: <strong>${enneaText}</strong> ${
+          return `<div class="text-center mb-8 border-b border-gray-700 pb-6"><h2 class="text-xl font-bold text-gray-100">${
+            stepTitles[currentStepIndex]
+          }</h2><p class="text-sm text-gray-400 mt-2 max-w-xl mx-auto">分析対象 - MBTI: <strong>${mbti}</strong> | エニアグラム: <strong>${enneaText}</strong> ${
             sfText ? `| <strong>${sfText}</strong>` : ""
-          }
-                </p>
-            </div>`;
+          }</p></div>`;
         };
 
         const createProfileSection = () => {
-          return `
-            <div class="report-section">
-                <h3><span class="text-2xl mr-2">📊</span>まず、あなたのエネルギーの全体像を見てみましょう</h3>
-                <p>あなたの8つの基本エネルギー（八卦）の強度を可視化します。これは、あなたの思考や行動の根源的な傾向や、備わっている潜在能力のバランスを示しています。</p>
-                <div class="mt-8 relative mx-auto" style="height: 400px; max-width: 500px;">
-                    <canvas id="energyRadarChart"></canvas>
-                </div>
-                <div class="mt-6 text-center">
-                    <button id="show-breakdown-btn" class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors">
-                        スコアの算出根拠を見る
-                    </button>
-                </div>
-            </div>`;
+          return `<div class="report-section"><h3><span class="text-2xl mr-2">📊</span>まず、あなたのエネルギーの全体像を見てみましょう</h3><p>あなたの8つの基本エネルギー（八卦）の強度を可視化します。これは、あなたの思考や行動の根源的な傾向や、備わっている潜在能力のバランスを示しています。</p><div class="mt-8 relative mx-auto" style="height: 400px; max-width: 500px;"><canvas id="energyRadarChart"></canvas></div><div class="mt-6 text-center"><button id="show-breakdown-btn" class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors">スコアの算出根拠を見る</button></div></div>`;
         };
 
         const createTrinityModelSection = () => {
@@ -947,22 +901,12 @@
 
           const osCardsHtml = osData
             .map(
-              (os) => `
-              <div class="p-5 rounded-xl shadow-lg flex flex-col bg-gray-900/50 border border-gray-700">
-                  <h4 class="text-lg font-bold text-indigo-300 flex items-center mb-2"><span class="text-2xl mr-2">${os.icon}</span>${os.title}</h4>
-                  <p class="text-xl font-semibold text-gray-100">${os.hex.name_jp}</p>
-                  <p class="text-sm leading-relaxed text-gray-400 mt-3 break-words">${os.explanation}</p>
-              </div>`
+              (os) =>
+                `<div class="p-5 rounded-xl shadow-lg flex flex-col bg-gray-900/50 border border-gray-700"><h4 class="text-lg font-bold text-indigo-300 flex items-center mb-2"><span class="text-2xl mr-2">${os.icon}</span>${os.title}</h4><p class="text-xl font-semibold text-gray-100">${os.hex.name_jp}</p><p class="text-sm leading-relaxed text-gray-400 mt-3 break-words">${os.explanation}</p></div>`
             )
             .join("");
 
-          return `
-            <div class="report-section">
-                <h3><span class="text-2xl mr-2">✨</span>次に、あなたの中心となる３つのOSを紹介します</h3>
-                 <p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p>
-                <div class="mt-8 text-center"><img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="max-w-sm mx-auto mb-8"></div>
-                <div class="grid md:grid-cols-3 gap-6 mt-6">${osCardsHtml}</div>
-            </div>`;
+          return `<div class="report-section"><h3><span class="text-2xl mr-2">✨</span>次に、あなたの中心となる３つのOSを紹介します</h3><p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p><div class="mt-8 text-center"><img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="max-w-sm mx-auto mb-8"></div><div class="grid md:grid-cols-3 gap-6 mt-6">${osCardsHtml}</div></div>`;
         };
 
         const createArchitectureSection = () => {
@@ -1010,101 +954,77 @@
 
               let manualHtml = "";
               if (manualData) {
-                manualHtml = `
-            <div class="mt-6">
-                <details class="group">
-                    <summary class="flex items-center justify-between cursor-pointer text-indigo-300 font-semibold"><span>OS取扱説明書を見る</span><svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></summary>
-                    <div class="mt-4 pt-4 border-t border-gray-600 space-y-4 text-sm">
-                        <div><h5 class="font-bold text-yellow-400">暴走パターン</h5><p>${
-                          manualData.debug_pattern
-                        }</p></div>
-                        <div><h5 class="font-bold text-green-400">脱出方法</h5><p>${
-                          manualData.debug_method
-                        }</p></div>
-                        <div><h5 class="font-bold text-cyan-400">最適化クエスト</h5><ul class="list-disc list-inside space-y-1">${manualData.quests
-                          .map((q) => `<li>${q}</li>`)
-                          .join("")}</ul></div>
-                    </div>
-                </details>
-            </div>`;
+                manualHtml = `<div class="mt-6"><details class="group"><summary class="flex items-center justify-between cursor-pointer text-indigo-300 font-semibold"><span>OS取扱説明書を見る</span><svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></summary><div class="mt-4 pt-4 border-t border-gray-600 space-y-4 text-sm"><div><h5 class="font-bold text-yellow-400">暴走パターン</h5><p>${
+                  manualData.debug_pattern
+                }</p></div><div><h5 class="font-bold text-green-400">脱出方法</h5><p>${
+                  manualData.debug_method
+                }</p></div><div><h5 class="font-bold text-cyan-400">最適化クエスト</h5><ul class="list-disc list-inside space-y-1">${manualData.quests
+                  .map((q) => `<li>${q}</li>`)
+                  .join("")}</ul></div></div></details></div>`;
               }
 
-              return `
-                <div class="bg-gray-800/60 p-6 rounded-2xl">
-                    <h3 class="text-xl font-bold text-indigo-300 flex items-center"><span class="text-2xl mr-3">${
-                      osTypeDef.icon
-                    }</span>${index + 1}. ${os.name_jp} - 【${
+              return `<div class="bg-gray-800/60 p-6 rounded-2xl"><h3 class="text-xl font-bold text-indigo-300 flex items-center"><span class="text-2xl mr-3">${
+                osTypeDef.icon
+              }</span>${index + 1}. ${os.name_jp} - 【${
                 osTypeDef.title
-              }】</h3>
-                    <p class="text-sm text-gray-500 ml-10">総合スコア: ${
-                      os.final_score
-                    }</p>
-                    <div class="my-4 pl-10">${architectureExplanation}</div>
-                    <div class="pl-10"><p><strong>関連キーワード:</strong> ${
-                      os.keywords
-                    }</p>${manualHtml}</div>
-                </div>`;
+              }】</h3><p class="text-sm text-gray-500 ml-10">総合スコア: ${
+                os.final_score
+              }</p><div class="my-4 pl-10">${architectureExplanation}</div><div class="pl-10"><p><strong>関連キーワード:</strong> ${
+                os.keywords
+              }</p>${manualHtml}</div></div>`;
             })
             .join("");
 
-          const mapHtml = `
-            <div class="mt-12">
-                <h3 class="text-xl font-bold text-indigo-300">人格OS相関図（64卦マップ）</h3>
-                <p class="mt-2">あなたのOSが、易経の宇宙観の中でどのような位置にあるかを示します。クリックで各OSの関係性を探求できます。</p>
-                <div id="hex-map-info" class="my-3 p-3 bg-gray-900/50 rounded-lg"><p class="text-center text-sm text-gray-400">マップ上のOSをクリックして、そのOSの関連性を表示します。</p></div>
-                <div class="hex-map-container mt-4"></div>
-                <div class="flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs mt-2">
-                    <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-orange-400 rounded-sm"></span>錯卦(真逆)</span>
-                    <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dashed border-blue-400 rounded-sm"></span>綜卦(裏側)</span>
-                    <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dotted border-green-400 rounded-sm"></span>互卦(内包)</span>
-                </div>
-            </div>`;
+          const mapHtml = `<div class="mt-12"><h3 class="text-xl font-bold text-indigo-300">人格OS相関図（64卦マップ）</h3><p class="mt-2">あなたのOSが、易経の宇宙観の中でどのような位置にあるかを示します。クリックで各OSの関係性を探求できます。</p><div id="hex-map-info" class="my-3 p-3 bg-gray-900/50 rounded-lg"><p class="text-center text-sm text-gray-400">マップ上のOSをクリックして、そのOSの関連性を表示します。</p></div><div class="hex-map-container mt-4"></div><div class="flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs mt-2"><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-orange-400 rounded-sm"></span>錯卦(真逆)</span><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dashed border-blue-400 rounded-sm"></span>綜卦(裏側)</span><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dotted border-green-400 rounded-sm"></span>互卦(内包)</span></div></div>`;
 
           return `<div class="report-section"><h3><span class="text-2xl mr-2">🗺️</span>それらが広大な世界の中でどこに位置するか見てみましょう</h3><div class="space-y-8 mt-8">${osSections}</div>${mapHtml}</div>`;
         };
 
         const createProfessionalCtaSection = () => {
-          return `
-            <div class="report-section">
-                <div class="p-8 bg-gradient-to-br from-amber-500/20 to-gray-800/20 rounded-2xl text-center border border-amber-500/30">
-                    <h3 class="text-2xl font-bold text-amber-300">より深い自己理解へ</h3>
-                    <p class="mt-4 text-gray-300 max-w-2xl mx-auto">今回の分析結果とあなたの現状を組み合わせ、AIパーソナリティコーチ「HaQeiプロフェッショナル」が、あなただけの戦略的アドバイスを生成します。</p>
-                    <button id="request-professional-btn" class="mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">特別レポートをリクエストする (任意)</button>
-                </div>
-            </div>
-            `;
+          return `<div class="report-section"><div class="p-8 bg-gradient-to-br from-amber-500/20 to-gray-800/20 rounded-2xl text-center border border-amber-500/30"><h3 class="text-2xl font-bold text-amber-300">より深い自己理解へ</h3><p class="mt-4 text-gray-300 max-w-2xl mx-auto">今回の分析結果とあなたの現状を組み合わせ、AIパーソナリティコーチ「HaQeiプロフェッショナル」が、あなただけの戦略的アドバイスを生成します。</p><button id="request-professional-btn" class="mt-6 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">特別レポートをリクエストする (任意)</button></div></div>`;
         };
 
-        // --- A) ストーリーテリングUI制御関数 ---
+        // --- ストーリーテリングUI制御関数 ---
         const displayStoryView = () => {
-          // 現在のステップに応じたコンテンツを描画
+          // ★★★★★ 修正点 ★★★★★
+          // `innerHTML +=` を使うとイベントリスナが消えるため、
+          // `appendChild` を使うように修正
+
+          // 1. 現在のステップに応じたコンテンツを描画
           storySteps[currentStepIndex]();
 
-          // ナビゲーションボタンを追加
+          // 2. ナビゲーション用のコンテナを新規作成
+          const navContainer = document.createElement("div");
+          navContainer.className =
+            "flex justify-between items-center mt-12 pt-6 border-t border-gray-700";
+
+          // 3. ナビゲーションボタンのHTMLを生成
           const navHtml = `
-            <div class="flex justify-between items-center mt-12 pt-6 border-t border-gray-700">
-                <button id="prev-btn" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition ${
-                  currentStepIndex === 0 ? "invisible" : ""
-                }">
-                    &larr; 戻る
-                </button>
-                <div class="text-sm text-gray-400">
-                    ステップ ${currentStepIndex + 1} / ${storySteps.length}
-                </div>
-                <button id="next-btn" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition">
-                    ${
-                      currentStepIndex === storySteps.length - 1
-                        ? "もう一度最初から"
-                        : "次へ &rarr;"
-                    }
-                </button>
+            <button id="prev-btn" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition ${
+              currentStepIndex === 0 ? "invisible" : ""
+            }">
+                &larr; 戻る
+            </button>
+            <div class="text-sm text-gray-400">
+                ステップ ${currentStepIndex + 1} / ${storySteps.length}
             </div>
+            <button id="next-btn" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition">
+                ${
+                  currentStepIndex === storySteps.length - 1
+                    ? "もう一度最初から"
+                    : "次へ &rarr;"
+                }
+            </button>
         `;
-          reportContainer.innerHTML += navHtml;
+          navContainer.innerHTML = navHtml;
+
+          // 4. 作成したコンテナをレポートコンテナの末尾に追加
+          reportContainer.appendChild(navContainer);
+
           window.scrollTo({ top: 0, behavior: "smooth" });
 
-          // ナビゲーションボタンにイベントリスナーを設定
-          const prevBtn = document.getElementById("prev-btn");
+          // 5. ナビゲーションボタンにイベントリスナーを設定
+          const prevBtn = navContainer.querySelector("#prev-btn");
           if (prevBtn) {
             prevBtn.addEventListener("click", () => {
               if (currentStepIndex > 0) {
@@ -1114,7 +1034,7 @@
             });
           }
 
-          const nextBtn = document.getElementById("next-btn");
+          const nextBtn = navContainer.querySelector("#next-btn");
           if (nextBtn) {
             nextBtn.addEventListener("click", () => {
               if (currentStepIndex < storySteps.length - 1) {
@@ -1128,17 +1048,7 @@
         };
 
         const showProfessionalInputModal = () => {
-          // ... (この関数の内容は変更なし) ...
-          const modalContent = `
-                <h3 class="text-xl font-bold text-amber-300 mb-4">HaQeiプロフェッショナル 総合解説</h3>
-                <p class="text-sm text-gray-400 mb-6">あなたのOS分析結果と、以下の任意項目を統合し、あなただけの戦略レポートを生成します。よりパーソナルなアドバイスのために、可能な範囲でご入力ください。</p>
-                <div class="space-y-4">
-                    <div><label for="prof-age" class="block text-sm font-medium text-gray-300">年代 (任意)</label><select id="prof-age" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5"><option value="">選択しない</option><option value="10代">10代</option><option value="20代">20代</option><option value="30代">30代</option><option value="40代">40代</option><option value="50代">50代</option><option value="60代以上">60代以上</option></select></div>
-                    <div><label for="prof-occupation" class="block text-sm font-medium text-gray-300">職業・業界 (任意)</label><input type="text" id="prof-occupation" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: ITエンジニア, 医療従事者, 学生"></div>
-                    <div><label for="prof-role" class="block text-sm font-medium text-gray-300">現在の立場・役割 (任意)</label><input type="text" id="prof-role" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: チームリーダー, 転職活動中, 二児の母"></div>
-                    <div><label for="prof-issue" class="block text-sm font-medium text-gray-300">今、最も関心のある課題 (任意)</label><textarea id="prof-issue" rows="3" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: 部下の育成に悩んでいる, 新しいキャリアパスが見えない"></textarea></div>
-                </div>
-                <button id="generate-professional-report-btn" class="w-full mt-8 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">特別レポートのページへ進む</button>`;
+          const modalContent = `<h3 class="text-xl font-bold text-amber-300 mb-4">HaQeiプロフェッショナル 総合解説</h3><p class="text-sm text-gray-400 mb-6">あなたのOS分析結果と、以下の任意項目を統合し、あなただけの戦略レポートを生成します。よりパーソナルなアドバイスのために、可能な範囲でご入力ください。</p><div class="space-y-4"><div><label for="prof-age" class="block text-sm font-medium text-gray-300">年代 (任意)</label><select id="prof-age" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5"><option value="">選択しない</option><option value="10代">10代</option><option value="20代">20代</option><option value="30代">30代</option><option value="40代">40代</option><option value="50代">50代</option><option value="60代以上">60代以上</option></select></div><div><label for="prof-occupation" class="block text-sm font-medium text-gray-300">職業・業界 (任意)</label><input type="text" id="prof-occupation" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: ITエンジニア, 医療従事者, 学生"></div><div><label for="prof-role" class="block text-sm font-medium text-gray-300">現在の立場・役割 (任意)</label><input type="text" id="prof-role" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: チームリーダー, 転職活動中, 二児の母"></div><div><label for="prof-issue" class="block text-sm font-medium text-gray-300">今、最も関心のある課題 (任意)</label><textarea id="prof-issue" rows="3" class="mt-1 bg-gray-700 border border-gray-600 text-white text-base rounded-lg block w-full p-2.5" placeholder="例: 部下の育成に悩んでいる, 新しいキャリアパスが見えない"></textarea></div></div><button id="generate-professional-report-btn" class="w-full mt-8 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">特別レポートのページへ進む</button>`;
           showModal(modalContent);
           document
             .getElementById("generate-professional-report-btn")
@@ -1146,7 +1056,6 @@
         };
 
         const redirectToProfessionalReport = () => {
-          // ... (この関数の内容は変更なし) ...
           const userContext = {
             age: document.getElementById("prof-age")?.value || "",
             occupation: document.getElementById("prof-occupation")?.value || "",
@@ -1174,8 +1083,6 @@
 
         const renderRadarChart = (trigram_profile) => {
           const canvasElement = document.getElementById("energyRadarChart");
-          // ★★★★★ 修正点 ★★★★★
-          // canvas要素が存在しない場合は処理を中断
           if (!canvasElement) {
             console.error("Canvas element for radar chart not found!");
             return;
@@ -1255,7 +1162,6 @@
             const trigramData = HELPERS.getTrigramById(id);
             const headerCell = document.createElement("div");
             headerCell.className = "map-header";
-            // B) ツールチップをヘッダーに追加
             headerCell.innerHTML = HELPERS.createTermTooltip(
               trigramData.name_jp,
               `${trigramData.name_en}: ${trigramData.strength_description}`
@@ -1267,7 +1173,6 @@
             const trigramData = HELPERS.getTrigramById(lowerId);
             const headerCell = document.createElement("div");
             headerCell.className = "map-header";
-            // B) ツールチップをヘッダーに追加
             headerCell.innerHTML = HELPERS.createTermTooltip(
               trigramData.name_jp,
               `${trigramData.name_en}: ${trigramData.strength_description}`
@@ -1297,7 +1202,6 @@
           });
           container.querySelectorAll(".hex-cell").forEach((cell) => {
             cell.addEventListener("click", (e) => {
-              // ... (この関数の残りの部分は変更なし) ...
               e.stopPropagation();
               const id = parseInt(cell.dataset.id);
               if (isNaN(id)) return;
@@ -1367,9 +1271,7 @@
         };
 
         const showBreakdownModal = (breakdownData) => {
-          // ... (この関数の内容は変更なし) ...
-          let contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-4">OSスコア算出根拠</h3><p class="text-sm text-gray-400 mb-4">あなたの性格特性が、8つの基本エネルギー（八卦）にどのように貢献しているかの内訳です。各数値は、特性の親和性と重み付けを掛け合わせたスコアを示します。</p><div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-400">`;
-          contentHtml += `<thead class="text-xs text-gray-300 uppercase bg-gray-700"><tr><th scope="col" class="px-4 py-3">分析項目</th>`;
+          let contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-4">OSスコア算出根拠</h3><p class="text-sm text-gray-400 mb-4">あなたの性格特性が、8つの基本エネルギー（八卦）にどのように貢献しているかの内訳です。各数値は、特性の親和性と重み付けを掛け合わせたスコアを示します。</p><div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-400"><thead class="text-xs text-gray-300 uppercase bg-gray-700"><tr><th scope="col" class="px-4 py-3">分析項目</th>`;
           const trigramHeaders = [...HDB.trigrams_master].sort(
             (a, b) => a.trigram_id - b.trigram_id
           );
@@ -1424,14 +1326,10 @@
           }
           lastAnalysisResult = runAdvancedAnalysis(lastUserProfile);
 
-          // A) ストーリーテリングUIの開始
           storySteps = [
-            // Step 0: エネルギープロファイル
             () => {
               reportContainer.innerHTML =
                 createIntroSection() + createProfileSection();
-              // ★★★★★ 修正点 ★★★★★
-              // 次のtickでグラフを描画することで、DOMの準備が整うのを待つ
               setTimeout(
                 () => renderRadarChart(lastAnalysisResult.trigram_profile),
                 0
@@ -1442,18 +1340,15 @@
                   showBreakdownModal(lastAnalysisResult.score_breakdown)
                 );
             },
-            // Step 1: 三位一体モデル
             () => {
               reportContainer.innerHTML =
                 createIntroSection() + createTrinityModelSection();
             },
-            // Step 2: OSアーキテクチャ & 64卦マップ
             () => {
               reportContainer.innerHTML =
                 createIntroSection() + createArchitectureSection();
               renderHexagramMap(lastAnalysisResult.hexagram_candidates);
             },
-            // Step 3: 特別レポートCTA
             () => {
               reportContainer.innerHTML =
                 createIntroSection() + createProfessionalCtaSection();
