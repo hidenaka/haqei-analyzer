@@ -65,7 +65,7 @@ exports.handler = async (event) => {
   }
 };
 
-// ★★★ AIへの指示（プロンプト）を3つの改善要件に基づき全面改訂 ★★★
+// ★★★ AIへの指示とエラーハンドリングを強化した改訂版 ★★★
 async function generateProfessionalReportSections(
   analysisResult,
   userContext,
@@ -79,6 +79,7 @@ async function generateProfessionalReportSections(
   const hasStrengths =
     userProfile.strengthsFinder && userProfile.strengthsFinder.length > 0;
 
+  // (変更なし) プロンプト部分はそのままです
   const prompt = `
 あなたは、東洋哲学と心理学を統合した「HaQei」の最高専門家AIです。ユーザーの分析結果と状況を深く洞察し、これが「私のための戦略書だ」と実感できる、論理的で希望に満ちた具体的なレポートを作成してください。
 
@@ -176,20 +177,39 @@ async function generateProfessionalReportSections(
 提示した「次の三手」を【実行した場合の3ヶ月後】と【実行しなかった場合の3ヶ月後】を想像させ、それぞれの未来でユーザーの課題がどう変化している可能性があるか、具体的に記述してください。行動の重要性をリアルに感じさせ、次の一歩を力強く後押しします。
 `;
 
+  // --- ▼▼▼ ここからが変更箇所です ▼▼▼ ---
+  let responseText = ""; // AIからの応答テキストを保持する変数を定義
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    // 応答テキストからJSON部分を安全に抽出
-    const text = response.text();
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("AIの応答が有効なJSON形式ではありません。");
+    responseText = response.text(); // まず生のテキストを取得
+
+    let jsonString = responseText;
+
+    // AIが応答を```json ...```で囲む場合があるため、その中身を抽出する
+    const jsonBlockMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
+    if (jsonBlockMatch && jsonBlockMatch[1]) {
+      jsonString = jsonBlockMatch[1];
+    } else {
+      // マークダウンブロックがない場合、最初に見つかる波括弧から最後までを抽出する（フォールバック）
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        jsonString = jsonMatch[0];
+      } else {
+        // それでもJSONが見つからない場合はエラー
+        throw new Error("AIの応答からJSONオブジェクトを抽出できませんでした。");
+      }
     }
-    return JSON.parse(jsonMatch[0]);
+
+    // 抽出した文字列をJSONとしてパース
+    return JSON.parse(jsonString);
   } catch (error) {
-    console.error("Gemini API Error or JSON Parse Error:", error);
+    // 【重要】エラー発生時に、AIからの生の応答テキストをサーバーログに出力する
+    console.error("【!!!】Gemini API Error or JSON Parse Error:", error);
+    console.error("【!!!】AIからの生の応答テキスト:", responseText);
     throw new Error("AIの応答形式が不正か、APIとの通信に失敗しました。");
   }
+  // --- ▲▲▲ ここまでが変更箇所です ▲▲▲ ---
 }
 
 // ★★★ HTML組み立て関数を3つの改善要件に基づき全面改訂 ★★★
