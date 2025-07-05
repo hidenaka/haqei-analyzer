@@ -1,6 +1,6 @@
 // professional-ai.js for Cloudflare Pages
 
-import { HAQEI_DATA } from "../public/js/haqei_main_database.js";
+import { HAQEI_DATA } from "./lib/database.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // AIへのリクエストを並行実行するためのヘルパー関数
