@@ -1,8 +1,161 @@
-// ファイルパス: /netlify/functions/professional-ai.js (最終完成版 v6.0)
+// ファイルパス: /netlify/functions/professional-ai.js (リクエスト分割・並行実行版 v7.0)
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// ★★★ ここからが変更箇所です ★★★
+
+// AIへのリクエストを並行実行するためのヘルパー関数
+async function callGenerativeAI(prompt) {
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
+  const generationConfig = { response_mime_type: "application/json" };
+  const safetySettings = [
+    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+    {
+      category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      threshold: "BLOCK_ONLY_HIGH",
+    },
+    {
+      category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+      threshold: "BLOCK_ONLY_HIGH",
+    },
+  ];
+
+  const result = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    generationConfig,
+    safetySettings,
+  });
+
+  return JSON.parse(result.response.text());
+}
+
+// レポートの前半部分を生成するプロンプトを作成・実行
+function generatePart1(commonPromptData) {
+  const prompt = `
+    ${commonPromptData.header}
+
+    # 生成すべきJSONの構造と各キーの内容
+    \`\`\`json
+    {
+      "introduction": "<p>...</p>",
+      "diagnosis_rationale": "<p>...</p><ul><li>...</li></ul>",
+      "dynamics_and_location": "<p>...</p>"
+    }
+    \`\`\`
+    ## 各キーの詳細な生成指示
+    ### "introduction" (0. はじめに - あなただけの戦略書)
+    ユーザーの状況と課題を踏まえ、このレポートがその人だけのOS設計図を基にした、具体的な『取扱説明書』と『実践戦略』であることを伝えてください。
+
+    ### "diagnosis_rationale" (1.5. あなたのOSが導き出された根拠)
+    【根拠の超高解像度化】なぜこのOS構成になったのか、論理の橋を架けてください。ユーザーの性格（MBTI、エニアグラム、ストレングスファインダー）の各特性が、3つのOSとどのように結びついているのかを具体的に解説してください。
+
+    ### "dynamics_and_location" (2. OS力学と現在地)
+    ユーザーのエネルギーがどう使われているかを物語として解説してください。3つのOSがどう連携し強みとなっているか、そしてその強みゆえに生じる葛藤や課題を指摘してください。
+  `;
+  return callGenerativeAI(prompt);
+}
+
+// レポートの後半部分を生成するプロンプトを作成・実行
+function generatePart2(commonPromptData) {
+  const prompt = `
+    ${commonPromptData.header}
+    # 生成すべきJSONの構造と各キーの内容
+    \`\`\`json
+    {
+      "next_three_steps": [
+        { "what": "...", "how": ["...", "..."] }
+      ],
+      "defensive_strategy": {
+        "scenarios": [
+          { "stress_scenario": "...", "mental_defense": "...", "recovery_action": "..." }
+        ]
+      },
+      "for_simulator": "<p>...</p>"
+    }
+    \`\`\`
+    ## 各キーの詳細な生成指示
+    ### "next_three_steps" (3. 未来への羅針盤 - ポテンシャルを最大化する「次の三手」)
+    【アクションの戦術レベル化】ユーザーが明日から実践できる、非常に具体的な行動を「三手」として提案してください。各手について、まず'what'に「何をすべきか」を定義し、次に'how'にそのアクションを「どう実行するか」について、ユーザーのエンジンOS「${commonPromptData.os1_name}」とインターフェースOS「${commonPromptData.os2_name}」の特性を活かした具体的なアイデアや企画案を2〜3個提示してください。
+
+    ### "defensive_strategy" (3.5. 守りの戦略 - ネガティブシナリオへの備え)
+    【リスク対応戦略の実装】ユーザーの課題「${commonPromptData.issue}」で想定される具体的なストレスを2〜3個リストアップしてください。それぞれのシナリオに対して、ユーザーのセーフモードOS「${commonPromptData.os3_name}」の特性を活かした具体的な「心の守り方('mental_defense')」と「回復アクション('recovery_action')」を防衛戦略として提示してください。
+
+    ### "for_simulator" (4. 未来への思考実験)
+    提示した「次の三手」を【実行した場合の3ヶ月後】と【実行しなかった場合の3ヶ月後】を想像させ、それぞれの未来でユーザーの課題がどう変化している可能性があるか、具体的に記述してください。
+  `;
+  return callGenerativeAI(prompt);
+}
+
+async function generateProfessionalReportSections(
+  analysisResult,
+  userContext,
+  userProfile
+) {
+  const os1 = analysisResult.hexagram_candidates[0];
+  const os2 = analysisResult.hexagram_candidates[1];
+  const os3 = analysisResult.hexagram_candidates[2];
+
+  const hasStrengths =
+    userProfile.strengthsFinder && userProfile.strengthsFinder.length > 0;
+
+  // 全てのプロンプトで共通して使用するヘッダー情報
+  const commonPromptHeader = `
+    あなたは、東洋哲学と心理学を統合した「HaQei」の最高専門家AIです。ユーザーの分析結果と状況を深く洞察し、これが「私のための戦略書だ」と実感できる、論理的で希望に満ちた具体的なレポートを作成してください。
+
+    # 絶対的ルール
+    - 出力は必ず、指示された構造のJSONオブジェクトのみとします。JSON以外のテキストは一切含めないでください。
+    - 各キーの値に含まれるHTMLは、p, ul, li, strong, brタグのみ使用可能です。見出しタグ(h1,h2,h3,h4)は絶対に含めないでください。
+
+    # ユーザー情報
+    - ユーザー名: ${userContext.name || "利用者"}様
+    - プロファイル: MBTI(${userProfile.mbti}), エニアグラム(${
+    userProfile.enneagram.join(", ") || "未入力"
+  })${
+    hasStrengths
+      ? `, ストレングスファインダーTOP5(${userProfile.strengthsFinder.join(
+          ", "
+        )})`
+      : ""
+  }
+    - 状況: 年代(${userContext.age}), 職業(${userContext.occupation}), 役割(${
+    userContext.role
+  }), 課題(${userContext.issue})
+
+    # 分析結果サマリー
+    - エンジンOS: ${os1.name_jp}
+    - インターフェースOS: ${os2.name_jp}
+    - セーフモードOS: ${os3.name_jp}
+  `;
+
+  const commonPromptData = {
+    header: commonPromptHeader,
+    issue: userContext.issue,
+    os1_name: os1.name_jp,
+    os2_name: os2.name_jp,
+    os3_name: os3.name_jp,
+  };
+
+  try {
+    // 2つのリクエストを並行して実行し、両方の完了を待つ
+    const [part1Result, part2Result] = await Promise.all([
+      generatePart1(commonPromptData),
+      generatePart2(commonPromptData),
+    ]);
+
+    // 2つの結果を一つのオブジェクトに結合して返す
+    return { ...part1Result, ...part2Result };
+  } catch (error) {
+    console.error("【!!!】Gemini API Error:", error);
+    throw new Error(
+      "AIとの通信中にエラーが発生しました。時間をおいて再度お試しください。"
+    );
+  }
+}
+
+// ★★★ ここまでが変更箇所です ★★★
 
 // レポート表示に必要な補助データを生成する関数 (変更なし)
 function generateReportImprovements(userProfile, db) {
@@ -65,99 +218,7 @@ exports.handler = async (event) => {
   }
 };
 
-// ★★★ AIに完全なJSONを安定して生成させる最終対策版 ★★★
-async function generateProfessionalReportSections(
-  analysisResult,
-  userContext,
-  userProfile
-) {
-  const os1 = analysisResult.hexagram_candidates[0];
-  const os2 = analysisResult.hexagram_candidates[1];
-  const os3 = analysisResult.hexagram_candidates[2];
-
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
-  });
-
-  const hasStrengths =
-    userProfile.strengthsFinder && userProfile.strengthsFinder.length > 0;
-
-  const prompt = `
-あなたは、東洋哲学と心理学を統合した「HaQei」の最高専門家AIです。ユーザーの分析結果と状況を深く洞察し、これが「私のための戦略書だ」と実感できる、論理的で希望に満ちた具体的なレポートを作成してください。
-
-# 絶対的ルール
-- **出力は必ず、指示された構造のJSONオブジェクトのみ**とします。JSON以外のテキストは一切含めないでください。
-- 各キーの値に含まれるHTMLは、p, ul, li, strong, brタグのみ使用可能です。見出しタグ(h1,h2,h3,h4)は**絶対に含めないでください**。
-- **【最重要最終命令】** 万が一、いずれかのキーの内容を生成できない場合でも、そのキーを省略してはいけません。**必ずキーは含めた上で、値に空の文字列 "" を設定**してください。
-- ユーザーの個人的な課題（${
-    userContext.issue
-  }）に寄り添い、レポート全体を通して、その解決の糸口となるように記述してください。
-
-# ユーザー情報
-- ユーザー名: ${userContext.name || "利用者"}様
-- プロファイル: MBTI(${userProfile.mbti}), エニアグラム(${
-    userProfile.enneagram.join(", ") || "未入力"
-  })${
-    hasStrengths
-      ? `, ストレングスファインダーTOP5(${userProfile.strengthsFinder.join(
-          ", "
-        )})`
-      : ""
-  }
-- 状況: 年代(${userContext.age}), 職業(${userContext.occupation}), 役割(${
-    userContext.role
-  }), 課題(${userContext.issue})
-
-# 分析結果サマリー
-- エンジンOS: ${os1.name_jp}
-- インターフェースOS: ${os2.name_jp}
-- セーフモードOS: ${os3.name_jp}
-
-# 生成すべきJSONの構造と各キーの内容
-（JSON構造の指示はプロンプト内に記述済みのため、ここでは省略）
-
-## 各キーの詳細な生成指示
-（各セクションの指示はプロンプト内に記述済みのため、ここでは省略）
-`;
-
-  // GeminiにJSONモードを強制する設定
-  const generationConfig = {
-    response_mime_type: "application/json",
-  };
-
-  // 【対策1】安全フィルターの基準を緩和し、過剰なコンテンツ削除を防ぐ
-  const safetySettings = [
-    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
-    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
-    {
-      category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-      threshold: "BLOCK_ONLY_HIGH",
-    },
-    {
-      category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-      threshold: "BLOCK_ONLY_HIGH",
-    },
-  ];
-
-  try {
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig,
-      safetySettings, // 安全設定を適用
-    });
-
-    const response = result.response;
-    const responseJson = JSON.parse(response.text());
-    return responseJson;
-  } catch (error) {
-    console.error("【!!!】Gemini API Error:", error);
-    throw new Error(
-      "AIとの通信中にエラーが発生しました。時間をおいて再度お試しください。"
-    );
-  }
-}
-
-// ★★★ 万が一のデータ欠損にも対応する最終版HTML組み立て関数 ★★★
+// HTML組み立て関数 (変更なし)
 function assembleFullReportHtml(
   analysisResult,
   userContext,
@@ -229,7 +290,6 @@ function assembleFullReportHtml(
       </ul>
     </div>`;
 
-  // || '' を追加し、万が一のデータ欠損時もundefinedと表示されないようにする (安全対策)
   const section0 = `<div class="report-block"><h3>0. はじめに - あなただけの戦略書</h3>${
     aiSectionsObject.introduction || ""
   }</div>`;
