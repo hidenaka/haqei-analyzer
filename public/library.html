@@ -443,35 +443,62 @@
       </main>
     </div>
 
-    <script type="module">
-      // importを使ってデータベースを読み込む
-      import { HAQEI_DATA } from "./js/haqei_main_database.js";
+    <script>
+      // ✅ これがAPI経由でデータを取得する、完全で修正済みの最終版スクリプトです
+      // エラーの原因となっていた外部JSファイルの読み込みは削除しました。
 
-      // ✅ これが完全で修正済みの最終版スクリプトです
-      window.onload = () => {
-        // --- 1. データベースと主要なDOM要素の存在を最初に確認 ---
-        if (
-          typeof HAQEI_DATA === "undefined" ||
-          typeof haqei_potential_scores === "undefined" ||
-          typeof haqeiMainDatabase === "undefined"
-        ) {
-          document.body.innerHTML =
-            '<p class="text-red-400 text-center p-8">致命的なエラー: データベースファイル(haqei_main_database.js)が読み込めませんでした。</p>';
-          return;
+      window.onload = async () => {
+        try {
+          // --- 1. /api/data からデータベースを取得 ---
+          const response = await fetch("/api/data");
+          if (!response.ok) {
+            throw new Error(
+              `APIサーバーがエラーを返しました: ${response.status}`
+            );
+          }
+          const db = await response.json();
+
+          // --- 2. 取得したデータをグローバル変数に格納 ---
+          window.HAQEI_DATA = db.HAQEI_DATA;
+          window.haqei_potential_scores = db.haqei_potential_scores;
+          window.haqeiMainDatabase = db.haqeiMainDatabase;
+
+          // --- 3. データベースの存在を最終確認し、ページ初期化処理を呼び出す ---
+          if (
+            typeof HAQEI_DATA === "undefined" ||
+            typeof haqei_potential_scores === "undefined" ||
+            typeof haqeiMainDatabase === "undefined"
+          ) {
+            throw new Error(
+              "データベースオブジェクトの構造が正しくありません。"
+            );
+          }
+
+          initializeLibraryPage();
+        } catch (error) {
+          console.error("致命的なエラー:", error);
+          const contentArea = document.getElementById("content-area");
+          if (contentArea) {
+            contentArea.innerHTML = `<div class="card p-8 text-center"><h2 class="text-2xl font-bold text-red-400">データベースの読み込みに失敗しました</h2><p class="text-gray-400 mt-4">サーバーが起動しているか、APIのエンドポイントが正しいか確認してください。<br>エラー: ${error.message}</p></div>`;
+          }
         }
+      };
+
+      // ページ全体の初期化とイベント設定を行うメイン関数
+      function initializeLibraryPage() {
         if (!document.getElementById("content-area")) {
           document.body.innerHTML =
             '<p class="text-red-400 text-center p-8">致命的なエラー: HTMLの構造が正しくありません。id="content-area"を持つmainタグが必要です。</p>';
           return;
         }
 
-        // --- 2. グローバル変数と定数の定義 ---
+        // --- グローバル変数と定数の定義 ---
         const HDB = HAQEI_DATA;
         const SCORES = haqei_potential_scores;
         const MAIN_DB = haqeiMainDatabase;
         let lineChartInstance = null;
 
-        // --- 3. ユーティリティ関数 ---
+        // --- ユーティリティ関数 ---
         const hexStartIndices = (() => {
           const indices = [0];
           let currentIndex = 1;
@@ -571,7 +598,7 @@
           );
         };
 
-        // --- 4. メインの描画関数群 ---
+        // --- メインの描画関数群 ---
         function renderRadarChart() {
           const container = document.getElementById("radar-chart");
           const sortOrderSelect = document.getElementById("sortOrder");
@@ -638,6 +665,7 @@
           if (!container) return;
           container.innerHTML = Object.values(HDB.hexagrams_master)
             .map((hex) => {
+              if (!HDB.bible || !HDB.bible.tuan_den) return "";
               const tuan = HDB.bible.tuan_den[hex.hexagram_id];
               if (!tuan) return "";
               const searchText = `${hex.hexagram_id} ${hex.name_jp} ${tuan.title} ${tuan.summary} ${tuan.haqei_interpretation} ${hex.keywords}`;
@@ -661,6 +689,7 @@
           if (!container) return;
           container.innerHTML = HDB.hexagrams_master
             .map((hex) => {
+              if (!HDB.bible || !HDB.bible.sho_den) return "";
               const startNum = hexStartIndices[hex.hexagram_id];
               const lineCount =
                 hex.hexagram_id === 1 || hex.hexagram_id === 2 ? 7 : 6;
@@ -688,7 +717,7 @@
 
         function renderZatsuContent() {
           const container = document.getElementById("zatsu-list");
-          if (!container) return;
+          if (!container || !HDB.bible || !HDB.bible.zatsu_ka_den) return;
           const zatsuData = HDB.bible.zatsu_ka_den;
           let html = "";
           const processed = new Set();
@@ -724,7 +753,7 @@
 
         function renderJoContent() {
           const container = document.getElementById("jo-list");
-          if (!container) return;
+          if (!container || !HDB.bible || !HDB.bible.jo_ka_den) return;
           const joData = HDB.bible.jo_ka_den;
           let html = "";
           for (let i = 1; i < 64; i++) {
@@ -756,8 +785,9 @@
           container.innerHTML = html;
         }
 
-        // --- 5. Analyzer関連の関数 ---
-        function showStructureAnalyzer(hexId) {
+        // --- Analyzer関連の関数 ---
+        window.showStructureAnalyzer = (hexId) => {
+          // グローバルスコープに関数を定義
           const radarContainer = document.getElementById("radar-container");
           const structureAnalyzer =
             document.getElementById("structure-analyzer");
@@ -765,6 +795,7 @@
 
           radarContainer.classList.add("hidden");
           structureAnalyzer.classList.remove("hidden");
+          window.scrollTo(0, 0);
 
           const setupNavButton = (id, currentHexId, direction) => {
             let newHexId = currentHexId + direction;
@@ -911,7 +942,6 @@
               },
             },
           });
-          // 初期表示
           lineChartInstance.data.datasets[0].pointBackgroundColor = labels.map(
             (_, i) => (i === 0 ? "#facc15" : "#fff")
           );
@@ -920,13 +950,14 @@
           );
           lineChartInstance.update("none");
           updateAnalyzerText(hexData, 0);
-        }
+        };
 
         function updateAnalyzerText(currentHex, lineIndex) {
           const textContainer = document.getElementById("analyzer-text");
           if (!textContainer) return;
           const startNum = hexStartIndices[currentHex.hexagram_id];
           const lineNum = startNum + lineIndex;
+          if (!HDB.bible || !HDB.bible.sho_den) return;
           const shoData = HDB.bible.sho_den[lineNum];
           const h384Data = HDB["384"].find((h) => h.通し番号 === lineNum);
           const score = SCORES[lineNum];
@@ -974,8 +1005,8 @@
           }
         }
 
-        // --- 6. イベントリスナーの設定と初期化 ---
-        function initialize() {
+        // --- イベントリスナーの設定と初期化 ---
+        function initializeDomEvents() {
           const tabs = document.querySelectorAll(".tab-btn");
           const contents = document.querySelectorAll(".content-section");
           const sortOrderSelect = document.getElementById("sortOrder");
@@ -1054,8 +1085,8 @@
           switchTab("analyzer");
         }
 
-        initialize();
-      };
+        initializeDomEvents();
+      }
     </script>
   </body>
 </html>

@@ -426,7 +426,7 @@
             throw new Error("データ取得に失敗しました");
           }
           const HAQEI_DATA = await response.json();
-          const HDB = HAQEI_DATA;
+          const HDB = HAQEI_DATA.HAQEI_DATA;
 
           // --- ここから下は、データ取得後に実行したい元々のコード ---
 

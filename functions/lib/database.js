@@ -16012,7 +16012,7 @@ export const HAQEI_DATA = {
   },
 };
 
-const haqei_potential_scores = [
+export const haqei_potential_scores = [
   // 0番目はダミー
   0,
   // 1. 乾為天 (6爻 + 用九)
@@ -16144,7 +16144,7 @@ const haqei_potential_scores = [
   // 64. 火水未済
   4, 3, 5, 2, 2, 4,
 ];
-const haqeiMainDatabase = [
+export const haqeiMainDatabase = [
   {
     卦番号: 1,
     卦名: "乾為天",
@@ -18638,9 +18638,7 @@ const haqeiMainDatabase = [
     相談すべき人: "プロジェクトマネージャー、メンター",
   },
 ];
-// --- 下位互換性のためのグローバル変数定義 ---
-const H384_DATA = HAQEI_DATA["384"];
-const H64_DATA = HAQEI_DATA["H64_DATA"];
+
 
 // ▼▼▼【v19.2 修正】Node.js環境でも読み込めるように追記 ▼▼▼
 if (typeof module !== "undefined" && module.exports) {

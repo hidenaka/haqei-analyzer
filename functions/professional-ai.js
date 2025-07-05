@@ -83,6 +83,7 @@ function generatePart2(commonPromptData, env) {
   return callGenerativeAI(prompt, env);
 }
 
+// ▼▼▼【修正版】 `generateProfessionalReportSections` 関数はここに一つだけ定義します ▼▼▼
 // レポートの各セクションを生成するメインの非同期関数
 async function generateProfessionalReportSections(
   analysisResult,
@@ -90,6 +91,27 @@ async function generateProfessionalReportSections(
   userProfile,
   env
 ) {
+  //【安全対策】analysisResult や hexagram_candidates が存在しない場合にエラーにならないようにします
+  if (
+    !analysisResult ||
+    !analysisResult.hexagram_candidates ||
+    analysisResult.hexagram_candidates.length < 3
+  ) {
+    console.error(
+      "【!!!】分析データ(hexagram_candidates)が不完全、または存在しません。"
+    );
+    // この場合、AIを呼び出さずに、レポート生成が不可能なことを示すオブジェクトを返す
+    return {
+      introduction:
+        "<p>分析データが不足しているため、レポートを生成できませんでした。お手数ですが、最初のOS分析からやり直してください。</p>",
+      diagnosis_rationale: "",
+      dynamics_and_location: "",
+      next_three_steps: [],
+      defensive_strategy: { scenarios: [] },
+      for_simulator: "",
+    };
+  }
+
   const os1 = analysisResult.hexagram_candidates[0];
   const os2 = analysisResult.hexagram_candidates[1];
   const os3 = analysisResult.hexagram_candidates[2];
@@ -216,6 +238,19 @@ function assembleFullReportHtml(
   userProfile,
   aiSectionsObject
 ) {
+  //【安全対策】ここでもデータチェックを行い、早期リターンする
+  if (
+    !analysisResult ||
+    !analysisResult.hexagram_candidates ||
+    analysisResult.hexagram_candidates.length < 3
+  ) {
+    // データ不足の場合、AIからのエラーメッセージ（または固定メッセージ）を表示
+    return (
+      aiSectionsObject.introduction ||
+      "<p>分析データ不足のため、レポートを表示できません。</p>"
+    );
+  }
+
   const enhancedOsInfo = generateReportImprovements(
     {
       mbti: userProfile.mbti,
