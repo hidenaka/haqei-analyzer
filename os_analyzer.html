@@ -1136,86 +1136,89 @@
         };
 
         const createProfessionalCtaSection = () => {
+          const { hexagram_candidates } = lastAnalysisResult;
+          const os1 = hexagram_candidates[0];
+          const os2 = hexagram_candidates[1];
+
           const metaphorHtml = `
-                <div class="my-8 p-6 bg-gray-900/50 rounded-lg border-l-4 border-indigo-400">
-                    <h4 class="font-semibold text-lg text-indigo-300">【無料レポート】と【実践戦略書】の関係</h4>
-                    <p class="mt-3 text-gray-300">
-                        今ご覧になっているこの無料レポートは、あなたの現在地と特性を知るための<strong class="text-white">『高精細な地図』</strong>です。
-                    </p>
-                    <p class="mt-2 text-gray-300">
-                        そして、有料の『実践戦略書』は、その地図を使ってあなたの目的地（目標達成、悩み解決など）へたどり着くための具体的な<strong class="text-white">『ナビゲーションシステム』</strong>の役割を果たします。
-                    </p>
-                    <p class="mt-4 text-center text-amber-400 font-semibold text-lg">
-                        地図を手に入れた今、最高のナビで旅を始めませんか？
-                    </p>
-                </div>`;
-          const visualPreviewHtml = `
-                <div class="relative mt-8 p-6 rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-tr from-amber-400 to-indigo-500 opacity-20 blur-2xl"></div>
-                    <div class="relative">
-                        <h5 class="text-center text-white font-bold">有料レポート プレビュー</h5>
-                        <div class="mt-4 p-4 bg-black/30 rounded-md text-gray-400 text-sm space-y-3">
-                            <p class="font-bold text-base text-white mb-2">2. OS力学と現在地 - あなたのエネルギーは今、どう使われているか</p>
-                            <div class="border-l-2 border-yellow-400 pl-3">
-                                <p><strong class="text-yellow-400">強みの源泉:</strong> あなたの${lastUserProfile.mbti}としての繊細な感性は、エンジンOS<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[0].name_jp}』</strong>のエネルギーと深く共鳴し、内なる情熱を具体的な行動へ変換する力強いエンジンとなっています。あなたは独自のビジョンを持ち、それを実現するために[...続きを読む]</p>
-                            </div>
-                            <div class="border-l-2 border-blue-400 pl-3">
-                                <p><strong class="text-blue-400">OSの連携:</strong> あなたのパワフルなエンジンは、インターフェースOS<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[1].name_jp}』</strong>という柔軟で的確なコミュニケーション能力によって補完され、絶妙なバランスを保っています。そして万が一、行き詰まったときには[...続きを読む]</p>
-                            </div>
-                            <div class="border-l-2 border-red-400 pl-3">
-                                <p><strong class="text-red-400">葛藤のパターン:</strong> この強力な布陣だからこそ、完璧主義に陥りやすいという罠があります。<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[0].name_jp}』</strong>の勢いが時に焦燥感や自己批判へ転じることも。この葛藤を乗り越えることが、あなたの更なる成長と[...続きを読む]</p>
-                            </div>
-                        </div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-gray-800/80 via-transparent to-transparent"></div>
-                    </div>
-                </div>`;
+    <div class="my-8 p-6 bg-gray-900/50 rounded-lg border-l-4 border-indigo-400">
+      <h4 class="font-semibold text-lg text-indigo-300">【無料レポート】と【実践戦略書】の関係</h4>
+      <p class="mt-3 text-gray-300">
+        今ご覧になった無料レポートは、あなたの現在地と才能の地形を知るための<strong class="text-white">『高精細な地図』</strong>です。
+      </p>
+      <p class="mt-2 text-gray-300">
+        しかし、最高の地図があっても、なぜ目的地にたどり着けないことがあるのでしょうか？ それは、あなたの強み（エンジン）が、不得意な道（ぬかるみ）で空転しているからです。
+      </p>
+      <p class="mt-4 text-gray-300">
+        有料の『実践戦略書』は、その地図を使い、あなたの才能が最も輝くルートを導き出す<strong class="text-white">『ナビゲーションシステム』</strong>の役割を果たします。
+      </p>
+    </div>`;
+
+          const benefitListHtml = `
+    <div class="mt-10 text-left">
+      <h4 class="text-xl font-bold text-amber-300 text-center">
+        あなたのOSを使いこなし、人生の目標を達成する<br>『実践戦略書』で得られること：
+      </h4>
+      <ul class="mt-6 space-y-4 max-w-2xl mx-auto">
+        <li class="flex items-start">
+          <span class="text-green-400 mr-3 mt-1 flex-shrink-0">✅</span>
+          <span class="text-gray-300">あなたの<strong class="text-white">「最強の武器」</strong>とその<strong class="text-white">「最適な使い方」</strong>の解明。あなたの才能の源泉を詳細に解説し、無意識に使っている力を特定します。</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-400 mr-3 mt-1 flex-shrink-0">✅</span>
+          <span class="text-gray-300"><strong class="text-white">「明日、何をすべきか？」</strong>に終止符を打つ、具体的な<strong class="text-white">『次の三手』</strong>。ポテンシャルを最大化するアクションプランで、もう迷いません。</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-400 mr-3 mt-1 flex-shrink-0">✅</span>
+          <span class="text-gray-300">あなたが無意識に繰り返す<strong class="text-white">「失敗のループ」</strong>を断ち切る<strong class="text-white">『OSハッキング術』</strong>。弱点さえも強みに変える、具体的な視点と戦略を伝授します。</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-400 mr-3 mt-1 flex-shrink-0">✅</span>
+          <span class="text-gray-300">提示された戦略が未来にどう影響するかを探る<strong class="text-white">「未来分岐シミュレーター」</strong>の活用ガイド。自信を持って「次の一歩」を踏み出すための羅針盤です。</span>
+        </li>
+      </ul>
+    </div>`;
+
           const previewHtml = `
-                <div class="mt-8 text-left">
-                    <h4 class="text-xl font-bold text-amber-300 text-center">
-                        あなたのOSを使いこなし、人生の目標を達成する<br>『実践戦略書』で得られること：
-                    </h4>
-                    <ul class="mt-6 space-y-4 max-w-lg mx-auto">
-                        <li class="flex items-start">
-                            <span class="text-green-400 mr-3 mt-1">✅</span>
-                            <span class="text-gray-300">あなたの<strong class="text-white">才能の源泉</strong>を詳細に解説。MBTIやエニアグラムが3つのコアOSとどう共鳴しているのかを解き明かします。</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-400 mr-3 mt-1">✅</span>
-                            <span class="text-gray-300">ポテンシャルを最大化する<strong class="text-white">具体的な『次の三手』</strong>を提案。「明日から何をすべきか」が明確になります。</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-400 mr-3 mt-1">✅</span>
-                            <span class="text-gray-300">あなたが陥りがちな<strong class="text-white">『葛藤のパターン』の克服法。</strong>OSレベルでその仕組みを理解し、あなたの強みとして活かすための視点を提供します。</span>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="text-green-400 mr-3 mt-1">✅</span>
-                            <span class="text-gray-300">提示された戦略が未来にどう影響するかを探る<strong class="text-white">「未来分岐シミュレーター」</strong>の活用ガイド。</span>
-                        </li>
-                    </ul>
-                </div>`;
+    <div class="mt-12">
+        <h5 class="text-center text-white font-bold">有料レポート プレビュー</h5>
+        <div class="relative mt-4 p-6 rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
+            <div class="relative">
+                <div class="p-4 bg-black/30 rounded-md text-gray-400 text-sm space-y-3">
+                    <p class="font-bold text-base text-white mb-2">2. OS力学と現在地 - あなたのエネルギーは今、どう使われているか</p>
+                    <div class="border-l-2 border-yellow-400 pl-3">
+                        <p><strong class="text-yellow-400">強みの源泉:</strong> あなたの${lastUserProfile.mbti}としての繊細な感性は、エンジンOS<strong class="text-white">『${os1.name_jp}』</strong>のエネルギーと深く共鳴し、内なる情熱を具体的な行動へ変換する力強いエンジンとなっています。あなたは独自のビジョンを持ち、それを実現するために[...続きを読む]</p>
+                    </div>
+                    <div class="border-l-2 border-blue-400 pl-3">
+                        <p><strong class="text-blue-400">OSの連携:</strong> あなたのパワフルなエンジンは、インターフェースOS<strong class="text-white">『${os2.name_jp}』</strong>という柔軟で的確なコミュニケーション能力によって補完され、絶妙なバランスを保っています。そして万が一、行き詰まったときには[...続きを読む]</p>
+                    </div>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-800/80 via-transparent to-transparent"></div>
+            </div>
+        </div>
+    </div>`;
+
+          const ctaButtonHtml = `
+    <div class="mt-12 text-center">
+        <h3 class="text-2xl font-bold text-white">自己分析の旅は、ここで終わりです。</h3>
+        <p class="mt-2 text-gray-400">ここからは、戦略を手に、現実を変える「実践の旅」が始まります。</p>
+        <div class="mt-8">
+            <button id="request-professional-btn" class="bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-4 px-10 rounded-lg text-xl transition duration-300 transform hover:scale-105 shadow-lg shadow-amber-500/30">
+                あなたの『実践戦略書』を手に入れる
+            </button>
+            <p class="text-xs text-gray-500 mt-3">(有料機能・購入は任意です)</p>
+        </div>
+    </div>`;
 
           return `
-                <div class="report-section">
-                    <div class="p-6 sm:p-8 bg-gradient-to-br from-gray-900 via-indigo-900/20 to-gray-900 rounded-2xl border border-amber-500/30">
-                        <div class="text-center">
-                            <h3 class="text-3xl font-bold text-amber-300">最終ステップ：あなたの『実践戦略書』へ</h3>
-                            <p class="mt-3 text-gray-300">分析お疲れ様でした。ここからは、自己理解を「行動」に変えるステップです。</p>
-                        </div>
-
-                        ${metaphorHtml}
-
-                        ${visualPreviewHtml}
-
-                        ${previewHtml}
-
-                        <div class="mt-10 text-center">
-                            <button id="request-professional-btn" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 px-10 rounded-lg text-xl transition duration-300 transform hover:scale-105 shadow-lg shadow-amber-600/20">
-                                あなたの『実践戦略書』を手に入れる
-                            </button>
-                            <p class="text-xs text-gray-500 mt-3">(有料機能・購入は任意です)</p>
-                        </div>
-                    </div>
-                </div>`;
+    <div class="report-section">
+      <div class="p-0 sm:p-4">
+        ${metaphorHtml}
+        ${previewHtml}
+        ${benefitListHtml}
+        ${ctaButtonHtml}
+      </div>
+    </div>`;
         };
         // ========== ▲▲▲ ここまでが修正箇所です ▲▲▲ ==========
 
