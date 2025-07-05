@@ -109,7 +109,7 @@
 
         try {
           const requestPayload = JSON.parse(storedData);
-          const response = await fetch("/.netlify/functions/professional-ai", {
+          const response = await fetch("/functions/professional-ai", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(requestPayload),
