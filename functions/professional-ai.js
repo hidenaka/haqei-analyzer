@@ -4,10 +4,6 @@ import { HAQEI_DATA } from "./lib/database.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // AIへのリクエストを並行実行するためのヘルパー関数
-// professional-ai.js の中の callGenerativeAI 関数を書き換える
-
-// professional-ai.js の中の callGenerativeAI 関数を書き換える
-
 async function callGenerativeAI(prompt, env) {
   // この関数内でAPIキーを使って初期化する
   const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
@@ -34,8 +30,6 @@ async function callGenerativeAI(prompt, env) {
 
   const response = result.response;
 
-  // ▼▼▼【ここから修正】▼▼▼
-
   // 1. まず、セーフティ設定でブロックされていないかを確認する
   if (response.promptFeedback?.blockReason) {
     const blockReason = response.promptFeedback.blockReason;
@@ -49,7 +43,6 @@ async function callGenerativeAI(prompt, env) {
   }
 
   // 2. レスポンスのテキストを取得する
-  // candidatesが空、またはcandidates[0].contentがない場合も考慮
   if (!response.candidates?.[0]?.content?.parts?.[0]?.text) {
     console.error(
       "【!!!】AIからのレスポンスに有効なテキストコンテンツが含まれていません。"
@@ -72,7 +65,6 @@ async function callGenerativeAI(prompt, env) {
     // より具体的なエラーを投げる
     throw new Error("AIが予期せぬ形式のデータを返しました。");
   }
-  // ▲▲▲【ここまで修正】▲▲▲
 }
 
 // レポートの前半部分を生成するプロンプトを作成・実行
@@ -90,8 +82,14 @@ function generatePart1(commonPromptData, env) {
     ## 各キーの詳細な生成指示
     ### "introduction" (0. はじめに - あなただけの戦略書)
     ユーザーの状況と課題を踏まえ、このレポートがその人だけのOS設計図を基にした、具体的な『取扱説明書』と『実践戦略』であることを伝えてください。
+
     ### "diagnosis_rationale" (1.5. あなたのOSが導き出された根拠)
     【根拠の超高解像度化】なぜこのOS構成になったのか、論理の橋を架けてください。ユーザーの性格（MBTI、エニアグラム、ストレングスファインダー）の各特性が、3つのOSとどのように結びついているのかを具体的に解説してください。
+    
+    // ▼▼▼【ここが修正点】▼▼▼
+    その際、エニアグラムの「3w8」のような専門用語については、「タイプ3（達成者）にタイプ8（挑戦者）の性質が加わった野心的な性格」のように、必ず簡単な解説を一言添えてから、OSとの関連性を説明してください。
+    // ▲▲▲【ここまでが修正点】▲▲▲
+
     ### "dynamics_and_location" (2. OS力学と現在地)
     ユーザーのエネルギーがどう使われているかを物語として解説してください。3つのOSがどう連携し強みとなっているか、そしてその強みゆえに生じる葛藤や課題を指摘してください。
   `;
@@ -127,7 +125,6 @@ function generatePart2(commonPromptData, env) {
   return callGenerativeAI(prompt, env);
 }
 
-// ▼▼▼【修正版】 `generateProfessionalReportSections` 関数はここに一つだけ定義します ▼▼▼
 // レポートの各セクションを生成するメインの非同期関数
 async function generateProfessionalReportSections(
   analysisResult,
