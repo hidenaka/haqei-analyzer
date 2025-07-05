@@ -1,4 +1,4 @@
-// ファイルパス: /netlify/functions/professional-ai.js (v5.1 改善プラン反映版)
+// ファイルパス: /netlify/functions/professional-ai.js (最終完成版 v6.0)
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
@@ -65,8 +65,7 @@ exports.handler = async (event) => {
   }
 };
 
-// ★★★ AIへの指示とエラーハンドリングを強化した改訂版 ★★★
-// ★★★ タイムアウト対策としてGeminiの「JSONモード」を導入した最終改訂版 ★★★
+// ★★★ AIに完全なJSONを安定して生成させる最終対策版 ★★★
 async function generateProfessionalReportSections(
   analysisResult,
   userContext,
@@ -76,7 +75,6 @@ async function generateProfessionalReportSections(
   const os2 = analysisResult.hexagram_candidates[1];
   const os3 = analysisResult.hexagram_candidates[2];
 
-  // JSONモードをサポートするモデルを指定
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash-latest",
   });
@@ -84,14 +82,13 @@ async function generateProfessionalReportSections(
   const hasStrengths =
     userProfile.strengthsFinder && userProfile.strengthsFinder.length > 0;
 
-  // プロンプトは変更なし
   const prompt = `
 あなたは、東洋哲学と心理学を統合した「HaQei」の最高専門家AIです。ユーザーの分析結果と状況を深く洞察し、これが「私のための戦略書だ」と実感できる、論理的で希望に満ちた具体的なレポートを作成してください。
 
 # 絶対的ルール
 - **出力は必ず、指示された構造のJSONオブジェクトのみ**とします。JSON以外のテキストは一切含めないでください。
 - 各キーの値に含まれるHTMLは、p, ul, li, strong, brタグのみ使用可能です。見出しタグ(h1,h2,h3,h4)は**絶対に含めないでください**。
-- 文章はプロフェッショナルかつ温かいトーンで記述し、強調したいキーワードは\`<strong>\`タグで囲んでください。
+- **【最重要最終命令】** 万が一、いずれかのキーの内容を生成できない場合でも、そのキーを省略してはいけません。**必ずキーは含めた上で、値に空の文字列 "" を設定**してください。
 - ユーザーの個人的な課題（${
     userContext.issue
   }）に寄り添い、レポート全体を通して、その解決の糸口となるように記述してください。
@@ -123,34 +120,44 @@ async function generateProfessionalReportSections(
 （各セクションの指示はプロンプト内に記述済みのため、ここでは省略）
 `;
 
-  // --- ▼▼▼ ここからが変更箇所です ▼▼▼ ---
-
   // GeminiにJSONモードを強制する設定
   const generationConfig = {
     response_mime_type: "application/json",
   };
 
+  // 【対策1】安全フィルターの基準を緩和し、過剰なコンテンツ削除を防ぐ
+  const safetySettings = [
+    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+    {
+      category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      threshold: "BLOCK_ONLY_HIGH",
+    },
+    {
+      category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+      threshold: "BLOCK_ONLY_HIGH",
+    },
+  ];
+
   try {
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig, // 上記のJSONモード設定を適用
+      generationConfig,
+      safetySettings, // 安全設定を適用
     });
 
     const response = result.response;
-    const responseJson = JSON.parse(response.text()); // AIはJSON文字列を直接返すので、パースするだけでOK
+    const responseJson = JSON.parse(response.text());
     return responseJson;
   } catch (error) {
-    // エラーハンドリングはシンプルに
     console.error("【!!!】Gemini API Error:", error);
-    // タイムアウトやAPIからのエラーを捕捉
     throw new Error(
       "AIとの通信中にエラーが発生しました。時間をおいて再度お試しください。"
     );
   }
-  // --- ▲▲▲ ここまでが変更箇所です ▲▲▲ ---
 }
 
-// ★★★ HTML組み立て関数を3つの改善要件に基づき全面改訂 ★★★
+// ★★★ 万が一のデータ欠損にも対応する最終版HTML組み立て関数 ★★★
 function assembleFullReportHtml(
   analysisResult,
   userContext,
@@ -222,8 +229,10 @@ function assembleFullReportHtml(
       </ul>
     </div>`;
 
-  // --- レポートセクションの組み立て ---
-  const section0 = `<div class="report-block"><h3>0. はじめに - あなただけの戦略書</h3>${aiSectionsObject.introduction}</div>`;
+  // || '' を追加し、万が一のデータ欠損時もundefinedと表示されないようにする (安全対策)
+  const section0 = `<div class="report-block"><h3>0. はじめに - あなただけの戦略書</h3>${
+    aiSectionsObject.introduction || ""
+  }</div>`;
   const section1 = `<div class="report-block"><h3>1. OSアーキテクチャ・プロファイル - あなたの才能の源泉</h3>
     <ul class="list-none space-y-3 mt-4">
       ${createOsProfileItem(
@@ -246,41 +255,43 @@ function assembleFullReportHtml(
       )}
     </ul>
   </div>`;
-
-  const section1_5 = `<div class="report-block"><h3>1.5. あなたのOSが導き出された根拠 - なぜ、この設計図なのか？</h3>${aiSectionsObject.diagnosis_rationale}</div>`;
-
-  const section2 = `<div class="report-block"><h3>2. OS力学と現在地 - あなたのエネルギーは今、どう使われているか</h3>${aiSectionsObject.dynamics_and_location}</div>`;
-
-  // --- 【要件2：アクションの戦術レベル化】に対応したHTML生成 ---
+  const section1_5 = `<div class="report-block"><h3>1.5. あなたのOSが導き出された根拠 - なぜ、この設計図なのか？</h3>${
+    aiSectionsObject.diagnosis_rationale || ""
+  }</div>`;
+  const section2 = `<div class="report-block"><h3>2. OS力学と現在地 - あなたのエネルギーは今、どう使われているか</h3>${
+    aiSectionsObject.dynamics_and_location || ""
+  }</div>`;
   const section3_moves = (aiSectionsObject.next_three_steps || [])
     .map(
       (step) => `
     <div class="step-item mt-6">
-      <p class="what-title font-bold text-lg text-cyan-300">${step.what}</p>
+      <p class="what-title font-bold text-lg text-cyan-300">${
+        step.what || ""
+      }</p>
       <ul class="list-disc list-inside mt-2 space-y-2 pl-4">
-        ${(step.how || []).map((h) => `<li>${h}</li>`).join("")}
+        ${(step.how || []).map((h) => `<li>${h || ""}</li>`).join("")}
       </ul>
     </div>
   `
     )
     .join("");
   const section3 = `<div class="report-block"><h3>3. 未来への羅針盤 - ポテンシャルを最大化する「次の三手」</h3>${section3_moves}</div>`;
-
-  // --- 【要件3：リスク対応戦略の実装】に対応したHTML生成 ---
   const section3_5_scenarios = (
     aiSectionsObject.defensive_strategy?.scenarios || []
   )
     .map(
       (s) => `
     <div class="scenario-item mt-6 p-4 bg-gray-900/50 rounded-lg">
-      <p class="stress-scenario-title font-bold text-red-300">想定ストレス： ${s.stress_scenario}</p>
+      <p class="stress-scenario-title font-bold text-red-300">想定ストレス： ${
+        s.stress_scenario || ""
+      }</p>
       <div class="mt-3">
         <p class="font-semibold text-gray-300">心の守り方:</p>
-        <div class="text-gray-400 pl-4">${s.mental_defense}</div>
+        <div class="text-gray-400 pl-4">${s.mental_defense || ""}</div>
       </div>
       <div class="mt-3">
         <p class="font-semibold text-gray-300">回復アクション:</p>
-        <div class="text-gray-400 pl-4">${s.recovery_action}</div>
+        <div class="text-gray-400 pl-4">${s.recovery_action || ""}</div>
       </div>
     </div>
   `
@@ -289,10 +300,10 @@ function assembleFullReportHtml(
   const section3_5 = section3_5_scenarios
     ? `<div class="report-block"><h3>3.5. 守りの戦略 - ネガティブシナリオへの備え</h3>${section3_5_scenarios}</div>`
     : "";
+  const section4 = `<div class="report-block"><h3>4. 未来への思考実験 - あなたの決断が創る未来</h3>${
+    aiSectionsObject.for_simulator || ""
+  }</div>`;
 
-  const section4 = `<div class="report-block"><h3>4. 未来への思考実験 - あなたの決断が創る未来</h3>${aiSectionsObject.for_simulator}</div>`;
-
-  // --- 全セクションを結合して最終的なHTMLを返す ---
   return (
     personalizationHeader +
     section0 +
@@ -300,7 +311,7 @@ function assembleFullReportHtml(
     section1_5 +
     section2 +
     section3 +
-    section3_5 + // 新しいセクションを追加
+    section3_5 +
     section4
   );
 }
