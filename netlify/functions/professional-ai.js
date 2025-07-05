@@ -76,7 +76,7 @@ async function generateProfessionalReportSections(
   const os3 = analysisResult.hexagram_candidates[2];
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash-latest",
+    model: "gemini-2.5-flash",
   });
 
   const hasStrengths =
