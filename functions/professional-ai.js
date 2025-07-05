@@ -4,6 +4,8 @@ import { HAQEI_DATA } from "./lib/database.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // AIへのリクエストを並行実行するためのヘルパー関数
+// professional-ai.js の中の callGenerativeAI 関数を書き換える
+
 async function callGenerativeAI(prompt, env) {
   // この関数内でAPIキーを使って初期化する
   const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
@@ -28,7 +30,22 @@ async function callGenerativeAI(prompt, env) {
     safetySettings,
   });
 
-  return JSON.parse(result.response.text());
+  const responseText = result.response.text();
+
+  // ▼▼▼【ここから修正】▼▼▼
+  try {
+    // まずJSONとして解析を試みる
+    return JSON.parse(responseText);
+  } catch (e) {
+    // 解析に失敗した場合、AIが返した生の内容をログに出力する
+    console.error(
+      "【!!!】AIからのレスポンスがJSONとして解析できませんでした。"
+    );
+    console.error("AI Response Text:", responseText);
+    // より具体的なエラーを投げる
+    throw new Error("AIが予期せぬ形式のデータを返しました。");
+  }
+  // ▲▲▲【ここまで修正】▲▲▲
 }
 
 // レポートの前半部分を生成するプロンプトを作成・実行
