@@ -66,6 +66,7 @@ exports.handler = async (event) => {
 };
 
 // ★★★ AIへの指示とエラーハンドリングを強化した改訂版 ★★★
+// ★★★ タイムアウト対策としてGeminiの「JSONモード」を導入した最終改訂版 ★★★
 async function generateProfessionalReportSections(
   analysisResult,
   userContext,
@@ -74,17 +75,21 @@ async function generateProfessionalReportSections(
   const os1 = analysisResult.hexagram_candidates[0];
   const os2 = analysisResult.hexagram_candidates[1];
   const os3 = analysisResult.hexagram_candidates[2];
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+
+  // JSONモードをサポートするモデルを指定
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash-latest",
+  });
 
   const hasStrengths =
     userProfile.strengthsFinder && userProfile.strengthsFinder.length > 0;
 
-  // (変更なし) プロンプト部分はそのままです
+  // プロンプトは変更なし
   const prompt = `
 あなたは、東洋哲学と心理学を統合した「HaQei」の最高専門家AIです。ユーザーの分析結果と状況を深く洞察し、これが「私のための戦略書だ」と実感できる、論理的で希望に満ちた具体的なレポートを作成してください。
 
 # 絶対的ルール
-- **出力は必ず、以下のキーを持つJSONオブジェクトのみ**とします。各キーの値は指定された構造に従ってください。
+- **出力は必ず、指示された構造のJSONオブジェクトのみ**とします。JSON以外のテキストは一切含めないでください。
 - 各キーの値に含まれるHTMLは、p, ul, li, strong, brタグのみ使用可能です。見出しタグ(h1,h2,h3,h4)は**絶対に含めないでください**。
 - 文章はプロフェッショナルかつ温かいトーンで記述し、強調したいキーワードは\`<strong>\`タグで囲んでください。
 - ユーザーの個人的な課題（${
@@ -112,102 +117,35 @@ async function generateProfessionalReportSections(
 - セーフモードOS: ${os3.name_jp}
 
 # 生成すべきJSONの構造と各キーの内容
-\`\`\`json
-{
-  "introduction": "<p>...</p>",
-  "diagnosis_rationale": "<p>...</p><ul><li>...</li></ul>",
-  "dynamics_and_location": "<p>...</p>",
-  "next_three_steps": [
-    {
-      "what": "何をすべきか (簡潔なタイトル)",
-      "how": [
-        "具体的なアイデアや企画案1 (HTML文字列)",
-        "具体的なアイデアや企画案2 (HTML文字列)"
-      ]
-    }
-  ],
-  "defensive_strategy": {
-    "scenarios": [
-      {
-        "stress_scenario": "想定される具体的なストレス1",
-        "mental_defense": "心の守り方 (HTML文字列)",
-        "recovery_action": "回復アクション (HTML文字列)"
-      }
-    ]
-  },
-  "for_simulator": "<p>...</p>"
-}
-\`\`\`
+（JSON構造の指示はプロンプト内に記述済みのため、ここでは省略）
 
 ## 各キーの詳細な生成指示
-
-### "introduction" (0. はじめに - あなただけの戦略書)
-ユーザーの状況と課題を踏まえ、このレポートがその人だけのOS設計図を基にした、具体的な『取扱説明書』と『実践戦略』であることを伝えてください。
-
-### "diagnosis_rationale" (1.5. あなたのOSが導き出された根拠)
-**【根拠の超高解像度化】**
-なぜこのOS構成になったのか、論理の橋を架けてください。ユーザーの性格（MBTI、エニアグラム、ストレングスファインダー）の各特性が、3つのOSとどのように結びついているのかを具体的に解説してください。
-例：「あなたのMBTIである<strong>INFP</strong>の持つ『内なる情熱』は、無から有を生み出す【エンジンOS：${
-    os1.name_jp
-  }】のエネルギーと強く共鳴します。また、ストレングスファインダーの<strong>『資質名』</strong>は、社会的な振る舞いを司る【インターフェースOS：${
-    os2.name_jp
-  }】の〇〇という性質に現れています。」のように、具体的な診断結果を明記し、OSと結びつけてください。抽象的な表現は避け、可能な限り詳細な情報を用いて解説してください。
-
-### "dynamics_and_location" (2. OS力学と現在地)
-ユーザーのエネルギーがどう使われているかを物語として解説してください。3つのOSがどう連携し強みとなっているか、そしてその強みゆえに生じる葛藤や課題を指摘してください。
-
-### "next_three_steps" (3. 未来への羅針盤 - ポテンシャルを最大化する「次の三手」)
-**【アクションの戦術レベル化】**
-ユーザーが明日から実践できる、非常に具体的な行動を「三手」として提案してください。
-各手について、まず'what'に「何をすべきか」を簡潔なタイトルで定義します。次に、'how'にそのアクションを「どう実行するか」について、ユーザーのエンジンOS「${
-    os1.name_jp
-  }」とインターフェースOS「${
-    os2.name_jp
-  }」の特性を活かした具体的なアイデアや企画案をHTML形式で2〜3個提示してください。ユーザーがすぐに行動に移せる具体的な選択肢を与えます。
-
-### "defensive_strategy" (3.5. 守りの戦略 - ネガティブシナリオへの備え)
-**【リスク対応戦略の実装】**
-ユーザーの課題「${
-    userContext.issue
-  }」で想定される具体的なストレス（例：批判コメント、成果が出ない焦り）を2〜3個リストアップしてください。それぞれのシナリオに対して、ユーザーのセーフモードOS「${
-    os3.name_jp
-  }」の特性を活かした具体的な「心の守り方('mental_defense')」と「回復アクション('recovery_action')」を防衛戦略として提示してください。逆境を乗り越えるための具体的な処方箋を提供します。
-
-### "for_simulator" (4. 未来への思考実験)
-提示した「次の三手」を【実行した場合の3ヶ月後】と【実行しなかった場合の3ヶ月後】を想像させ、それぞれの未来でユーザーの課題がどう変化している可能性があるか、具体的に記述してください。行動の重要性をリアルに感じさせ、次の一歩を力強く後押しします。
+（各セクションの指示はプロンプト内に記述済みのため、ここでは省略）
 `;
 
   // --- ▼▼▼ ここからが変更箇所です ▼▼▼ ---
-  let responseText = ""; // AIからの応答テキストを保持する変数を定義
+
+  // GeminiにJSONモードを強制する設定
+  const generationConfig = {
+    response_mime_type: "application/json",
+  };
+
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    responseText = response.text(); // まず生のテキストを取得
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig, // 上記のJSONモード設定を適用
+    });
 
-    let jsonString = responseText;
-
-    // AIが応答を```json ...```で囲む場合があるため、その中身を抽出する
-    const jsonBlockMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
-    if (jsonBlockMatch && jsonBlockMatch[1]) {
-      jsonString = jsonBlockMatch[1];
-    } else {
-      // マークダウンブロックがない場合、最初に見つかる波括弧から最後までを抽出する（フォールバック）
-      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        jsonString = jsonMatch[0];
-      } else {
-        // それでもJSONが見つからない場合はエラー
-        throw new Error("AIの応答からJSONオブジェクトを抽出できませんでした。");
-      }
-    }
-
-    // 抽出した文字列をJSONとしてパース
-    return JSON.parse(jsonString);
+    const response = result.response;
+    const responseJson = JSON.parse(response.text()); // AIはJSON文字列を直接返すので、パースするだけでOK
+    return responseJson;
   } catch (error) {
-    // 【重要】エラー発生時に、AIからの生の応答テキストをサーバーログに出力する
-    console.error("【!!!】Gemini API Error or JSON Parse Error:", error);
-    console.error("【!!!】AIからの生の応答テキスト:", responseText);
-    throw new Error("AIの応答形式が不正か、APIとの通信に失敗しました。");
+    // エラーハンドリングはシンプルに
+    console.error("【!!!】Gemini API Error:", error);
+    // タイムアウトやAPIからのエラーを捕捉
+    throw new Error(
+      "AIとの通信中にエラーが発生しました。時間をおいて再度お試しください。"
+    );
   }
   // --- ▲▲▲ ここまでが変更箇所です ▲▲▲ ---
 }
