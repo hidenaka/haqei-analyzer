@@ -1,14 +1,11 @@
+# macOS
 .DS_Store
 
-# Cloudflare local development secrets
-.dev.vars.wrangler/
-
-# .gitignore
-
+# Cloudflare Wrangler
+# ローカル開発用の設定とシークレットファイル
 .wrangler/
-bk/
-databasemake/.DS_Store
 .dev.vars
 
-# ローカル環境の秘密情報をGitの管理対象外にする
-.dev.vars
+# その他
+# バックアップフォルダなど
+bk/
