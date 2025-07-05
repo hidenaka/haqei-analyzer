@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HaQei パーソナルOS発見レポート v5.1 - Grouped SF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .brand-text { background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+        .report-card { background-color: rgba(31, 41, 55, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); }
+        select optgroup { background-color: #1f2937; color: #d1d5db; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+    <div class="w-full max-w-7xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10">
+        <header class="text-center mb-10">
+            <a href="index.html" class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block">← トップページへ戻る</a>
+            <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">HaQei</h1>
+            <p class="text-gray-400 mt-3 text-xl">パーソナルOS発見レポート v5.1</p>
+        </header>
+        
+        <div id="input-container" class="bg-gray-900/50 p-6 rounded-xl mb-10 space-y-6">
+             <p class="text-center text-gray-300">あなたのタイプを選択し、「OSを特定する」ボタンを押してください。</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                <div>
+                    <label for="mbtiSelect" class="block text-sm font-medium text-gray-300 mb-2">MBTIタイプ</label>
+                    <select id="mbtiSelect" class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"></select>
+                </div>
+                 <div class="space-y-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">エニアグラムタイプ (重要度順)</label>
+                    <select id="enneagramSelect1" class="enneagram-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3" aria-label="エニアグラムタイプ 1 (主要)"></select>
+                    <select id="enneagramSelect2" class="enneagram-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3" aria-label="エニアグラムタイプ 2 (任意)"></select>
+                    <select id="enneagramSelect3" class="enneagram-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3" aria-label="エニアグラムタイプ 3 (任意)"></select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">ストレングスファインダー TOP5 (任意)</label>
+                    <div class="space-y-3 mt-2">
+                        <div class="flex items-center gap-x-3"><span class="font-mono text-sm text-gray-400 w-8 text-center">1位:</span><select id="sf1" class="sf-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 flex-1"></select></div>
+                        <div class="flex items-center gap-x-3"><span class="font-mono text-sm text-gray-400 w-8 text-center">2位:</span><select id="sf2" class="sf-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 flex-1"></select></div>
+                        <div class="flex items-center gap-x-3"><span class="font-mono text-sm text-gray-400 w-8 text-center">3位:</span><select id="sf3" class="sf-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 flex-1"></select></div>
+                        <div class="flex items-center gap-x-3"><span class="font-mono text-sm text-gray-400 w-8 text-center">4位:</span><select id="sf4" class="sf-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 flex-1"></select></div>
+                        <div class="flex items-center gap-x-3"><span class="font-mono text-sm text-gray-400 w-8 text-center">5位:</span><select id="sf5" class="sf-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 flex-1"></select></div>
+                    </div>
+                </div>
+            </div>
+            <button id="analyzeBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 mt-4">OSを特定する</button>
+        </div>
+
+        <div id="result-area-container" class="hidden space-y-12">
+            <div id="integrated-summary-container" class="p-6 rounded-lg report-card border-2 border-yellow-400/50 bg-yellow-400/10"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div id="engine-a-container" class="p-6 rounded-lg report-card"></div>
+                <div id="engine-b-container" class="p-6 rounded-lg report-card"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/haqei_main_database.js"></script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof HAQEI_DATA === 'undefined') {
+            document.body.innerHTML = '<div class="text-red-400 text-center p-10">エラー: データベースファイル `assets/haqei_main_database.js` が正しく読み込まれていません。</div>';
+            return;
+        }
+
+        const inputContainer = document.getElementById('input-container');
+        const resultAreaContainer = document.getElementById('result-area-container');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+
+        // --- ★★★ 変更点 ★★★ ---
+        // プルダウンメニュー生成ロジック
+        const populateSelects = () => {
+            // MBTI
+            const mbtiSelect = document.getElementById('mbtiSelect');
+            mbtiSelect.innerHTML = '<option value="">選択してください</option>' + 
+                HAQEI_DATA.mbti_map.map(i => `<option value="${i.mbti_type}">${i.mbti_type}</option>`).join('');
+
+            // Enneagram
+            const enneaSelects = document.querySelectorAll('.enneagram-select');
+            const enneaOptions = '<option value="">(任意)</option>' + 
+                HAQEI_DATA.enneagram_map.map(i => `<option value="${i.enneagram_type}">${i.enneagram_type}: ${i.nickname}</option>`).join('');
+            enneaSelects.forEach(s => s.innerHTML = enneaOptions);
+            enneaSelects[0].querySelector('option[value=""]').innerText = '選択してください (必須)';
+
+            // StrengthsFinder (ドメイン別にグループ化)
+            const sfSelects = document.querySelectorAll('.sf-select');
+            const groupedSF = HAQEI_DATA.strengthsfinder_map.reduce((acc, talent) => {
+                const domain = talent.domain || 'その他';
+                if (!acc[domain]) acc[domain] = [];
+                acc[domain].push(talent);
+                return acc;
+            }, {});
+
+            let sfOptions = '<option value="">(任意)</option>';
+            for (const domain in groupedSF) {
+                sfOptions += `<optgroup label="--- ${domain} ---">`;
+                groupedSF[domain].forEach(talent => {
+                    sfOptions += `<option value="${talent.strength_finder_talent}">${talent.strength_finder_talent}</option>`;
+                });
+                sfOptions += `</optgroup>`;
+            }
+            sfSelects.forEach(s => s.innerHTML = sfOptions);
+        };
+        populateSelects();
+        // --- ★★★ 変更ここまで ★★★ ---
+
+
+        // 分析ボタンのイベントリスナー
+        analyzeBtn.addEventListener('click', () => {
+            const userProfile = {
+                mbti: document.getElementById('mbtiSelect').value,
+                enneagram: Array.from(document.querySelectorAll('.enneagram-select')).map(s => s.value).filter(Boolean),
+                sf: Array.from(document.querySelectorAll('.sf-select')).map(s => s.value).filter(Boolean)
+            };
+
+            if (!userProfile.mbti || userProfile.enneagram.length === 0) {
+                alert('MBTIと、主要なエニアグラムタイプを少なくとも1つ選択してください。');
+                return;
+            }
+
+            const resultB = runEngineB(HAQEI_DATA, userProfile);
+            displayResults(resultB); // Engine Bの結果のみでレポートを生成
+
+            inputContainer.classList.add('hidden');
+            resultAreaContainer.classList.remove('hidden');
+            resultAreaContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        // 分析エンジン (スコアリングモデル)
+        const runEngineB = (db, profile, top_n = 10) => {
+            const total_scores = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0};
+            
+            const mbtiItem = db.mbti_map.find(item => item.mbti_type === profile.mbti);
+            if (mbtiItem) (mbtiItem.scores || []).forEach(s => total_scores[s.trigram_id] += s.score);
+
+            profile.enneagram.forEach((type, index) => {
+                const weight = 3 - index;
+                const enneaItem = db.enneagram_map.find(item => String(item.enneagram_type) === type);
+                if (enneaItem) (enneaItem.scores || []).forEach(s => total_scores[s.trigram_id] += s.score * weight);
+            });
+
+            profile.sf.forEach((talent, index) => {
+                const weight = (5 - index) * 0.4;
+                const sfItem = db.strengthsfinder_map.find(item => item.strength_finder_talent === talent);
+                if (sfItem) (sfItem.scores || []).forEach(s => total_scores[s.trigram_id] += s.score * weight);
+            });
+
+            const trigram_profile = Object.keys(total_scores).map(id_str => {
+                const id = parseInt(id_str, 10);
+                const info = db.trigrams_master.find(t => t.trigram_id === id);
+                return { ...info, score: Math.round(total_scores[id] * 10) / 10 };
+            }).sort((a, b) => b.score - a.score);
+
+            const hexagram_candidates = db.hexagrams_master.map(hex => {
+                const lower_score = total_scores[hex.lower_trigram_id] || 0;
+                const upper_score = total_scores[hex.upper_trigram_id] || 0;
+                const penalty = (hex.lower_trigram_id === hex.upper_trigram_id) ? 0.95 : 1.0;
+                return { ...hex, total_score: Math.round((lower_score + upper_score) * penalty * 10) / 10 };
+            }).sort((a, b) => b.total_score - a.total_score);
+
+            return {
+                trigram_profile: trigram_profile,
+                hexagram_candidates: hexagram_candidates.slice(0, top_n)
+            };
+        };
+        
+        // 結果表示ロジック (v5.0ベースから簡略化し、単一エンジン対応に)
+        const displayResults = (result) => {
+            const { trigram_profile, hexagram_candidates } = result;
+
+            document.getElementById('integrated-summary-container').innerHTML = `
+                <h3 class="text-2xl font-bold mb-3 text-indigo-300">分析サマリー</h3>
+                <p class="text-gray-200">あなたの最も優位なOS（人格卦）は <strong class="text-yellow-200 text-2xl mx-1">${hexagram_candidates[0].name_jp}</strong> です。これはあなたの根源的なエネルギーである <strong class="text-yellow-200">${trigram_profile[0].name_jp}(${trigram_profile[0].element})</strong> と <strong class="text-yellow-200">${trigram_profile[1].name_jp}(${trigram_profile[1].element})</strong> の組み合わせから導き出されています。</p>
+            `;
+            
+            const rankingContainer = document.getElementById('engine-a-container');
+            let rankingHtml = `<h3 class="text-2xl font-bold mb-4 text-indigo-300">人格OS候補 Top10</h3><div class="space-y-4">`;
+            hexagram_candidates.forEach((item, index) => {
+                const upper = HAQEI_DATA.trigrams_master.find(t => t.trigram_id === item.upper_trigram_id);
+                const lower = HAQEI_DATA.trigrams_master.find(t => t.trigram_id === item.lower_trigram_id);
+                rankingHtml += `
+                    <div class="p-4 rounded-lg border border-gray-700">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-xl font-bold text-yellow-300">${index + 1}位: ${item.name_jp}</span>
+                                <span class="ml-3 text-gray-400">${upper.name_jp} / ${lower.name_jp}</span>
+                            </div>
+                            <div class="text-xl font-bold">${item.total_score}</div>
+                        </div>
+                        <p class="text-sm text-gray-300 mt-2">${item.description}</p>
+                        <p class="text-xs text-gray-400 mt-1">キーワード: ${item.keywords}</p>
+                    </div>`;
+            });
+            rankingHtml += `</div>`;
+            rankingContainer.innerHTML = rankingHtml;
+            
+            const profileContainer = document.getElementById('engine-b-container');
+            let profileHtml = `<h3 class="text-2xl font-bold mb-4 text-indigo-300">あなたの八卦エネルギー</h3><div class="space-y-3">`;
+            const maxScore = Math.max(...trigram_profile.map(p => p.score), 0) || 1;
+            trigram_profile.forEach(item => {
+                const barWidth = (item.score / maxScore) * 100;
+                profileHtml += `
+                    <div class="grid grid-cols-5 items-center gap-3 text-base">
+                        <span class="font-semibold col-span-2">${item.name_jp} (${item.element})</span>
+                        <div class="col-span-3 trigram-bar-bg rounded-full h-5">
+                            <div class="trigram-bar bg-indigo-500 h-5 rounded-full flex items-center justify-end pr-2 text-white text-xs font-bold" style="width: ${barWidth}%">${item.score}</div>
+                        </div>
+                    </div>`;
+            });
+            profileHtml += `</div>`;
+            profileContainer.innerHTML = profileHtml;
+            
+            // 片方のエンジンしか使わないので、レイアウトを調整
+            rankingContainer.className = 'lg:col-span-3 p-6 rounded-lg report-card';
+            profileContainer.className = 'lg:col-span-2 p-6 rounded-lg report-card';
+        };
+
+    });
+    </script>
+</body>
+</html>

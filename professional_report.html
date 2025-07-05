@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HaQeiプロフェッショナル 実践戦略書</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", "Noto Sans JP", sans-serif;
+        line-height: 1.8;
+      }
+      .brand-text {
+        background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+      .report-block {
+        margin-bottom: 3rem;
+      }
+      /* ★★★ 新構成案に合わせて見出しスタイルを修正 ★★★ */
+      .report-block h3 {
+        font-family: "Shippori Mincho", serif;
+        font-size: 1.5rem; /* 24px */
+        font-weight: 700;
+        color: #c7d2fe; /* indigo-200 */
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #4f46e5; /* indigo-600 */
+      }
+      .report-block p,
+      .report-block ul {
+        color: #d1d5db; /* gray-300 */
+        font-size: 1rem; /* 16px */
+        margin-bottom: 1rem;
+      }
+      .report-block strong {
+        color: #facc15; /* yellow-400 */
+        font-weight: 600;
+      }
+      .os-role-text {
+        display: block;
+        font-size: 0.875rem; /* 14px */
+        color: #93c5fd; /* blue-300 */
+        font-weight: 500;
+        margin-top: 0.25rem;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+    <div
+      class="w-full max-w-4xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10"
+    >
+      <header class="text-center mb-10">
+        <a
+          href="os_analyzer.html"
+          class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block"
+          >← 分析レポートへ戻る</a
+        >
+        <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">
+          HaQei Professional
+        </h1>
+        <p class="text-gray-400 mt-3 text-xl">
+          あなたのOSを使いこなすための『実践戦略書』
+        </p>
+      </header>
+
+      <div id="professional-report-content">
+        <div
+          id="loading-indicator"
+          class="flex justify-center items-center py-16"
+        >
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-300"
+          ></div>
+          <p class="ml-4 text-gray-400">
+            AIがあなたのための戦略書を作成しています...
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const outputContainer = document.getElementById(
+          "professional-report-content"
+        );
+        const loadingIndicator = document.getElementById("loading-indicator");
+        const storedData = localStorage.getItem("haqeiProfessionalData");
+
+        if (!storedData) {
+          outputContainer.innerHTML =
+            '<p class="text-red-400 text-center py-8">エラー: 分析データが見つかりません。お手数ですが、もう一度OS分析レポートページから操作をやり直してください。</p>';
+          return;
+        }
+
+        try {
+          const requestPayload = JSON.parse(storedData);
+          const response = await fetch("/.netlify/functions/professional-ai", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestPayload),
+          });
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(result.error || "サーバーでエラーが発生しました。");
+          }
+
+          if (result.success) {
+            outputContainer.innerHTML = result.report;
+          } else {
+            throw new Error(
+              result.error || "AIによるレポート生成に失敗しました。"
+            );
+          }
+        } catch (e) {
+          console.error("レポート生成プロセスでエラーが発生しました: ", e);
+          loadingIndicator.style.display = "none";
+          outputContainer.innerHTML = `<p class="text-red-400 text-center py-8">エラー: レポートの生成に失敗しました。<br><span class="text-sm text-gray-400 mt-2 block">${e.message}</span></p>`;
+        }
+      });
+    </script>
+  </body>
+</html>
