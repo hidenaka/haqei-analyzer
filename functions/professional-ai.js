@@ -1,13 +1,12 @@
-// ファイルパス: /netlify/functions/professional-ai.js (リクエスト分割・並行実行版 v7.0)
-const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
+// professional-ai.js for Cloudflare Pages
+
+const { HAQEI_DATA } = require("../public/js/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// ★★★ ここからが変更箇所です ★★★
-
 // AIへのリクエストを並行実行するためのヘルパー関数
-async function callGenerativeAI(prompt) {
+async function callGenerativeAI(prompt, env) {
+  // この関数内でAPIキーを使って初期化する
+  const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
   const generationConfig = { response_mime_type: "application/json" };
   const safetySettings = [
@@ -33,10 +32,9 @@ async function callGenerativeAI(prompt) {
 }
 
 // レポートの前半部分を生成するプロンプトを作成・実行
-function generatePart1(commonPromptData) {
+function generatePart1(commonPromptData, env) {
   const prompt = `
     ${commonPromptData.header}
-
     # 生成すべきJSONの構造と各キーの内容
     \`\`\`json
     {
@@ -48,18 +46,16 @@ function generatePart1(commonPromptData) {
     ## 各キーの詳細な生成指示
     ### "introduction" (0. はじめに - あなただけの戦略書)
     ユーザーの状況と課題を踏まえ、このレポートがその人だけのOS設計図を基にした、具体的な『取扱説明書』と『実践戦略』であることを伝えてください。
-
     ### "diagnosis_rationale" (1.5. あなたのOSが導き出された根拠)
     【根拠の超高解像度化】なぜこのOS構成になったのか、論理の橋を架けてください。ユーザーの性格（MBTI、エニアグラム、ストレングスファインダー）の各特性が、3つのOSとどのように結びついているのかを具体的に解説してください。
-
     ### "dynamics_and_location" (2. OS力学と現在地)
     ユーザーのエネルギーがどう使われているかを物語として解説してください。3つのOSがどう連携し強みとなっているか、そしてその強みゆえに生じる葛藤や課題を指摘してください。
   `;
-  return callGenerativeAI(prompt);
+  return callGenerativeAI(prompt, env);
 }
 
 // レポートの後半部分を生成するプロンプトを作成・実行
-function generatePart2(commonPromptData) {
+function generatePart2(commonPromptData, env) {
   const prompt = `
     ${commonPromptData.header}
     # 生成すべきJSONの構造と各キーの内容
@@ -79,20 +75,20 @@ function generatePart2(commonPromptData) {
     ## 各キーの詳細な生成指示
     ### "next_three_steps" (3. 未来への羅針盤 - ポテンシャルを最大化する「次の三手」)
     【アクションの戦術レベル化】ユーザーが明日から実践できる、非常に具体的な行動を「三手」として提案してください。各手について、まず'what'に「何をすべきか」を定義し、次に'how'にそのアクションを「どう実行するか」について、ユーザーのエンジンOS「${commonPromptData.os1_name}」とインターフェースOS「${commonPromptData.os2_name}」の特性を活かした具体的なアイデアや企画案を2〜3個提示してください。
-
     ### "defensive_strategy" (3.5. 守りの戦略 - ネガティブシナリオへの備え)
     【リスク対応戦略の実装】ユーザーの課題「${commonPromptData.issue}」で想定される具体的なストレスを2〜3個リストアップしてください。それぞれのシナリオに対して、ユーザーのセーフモードOS「${commonPromptData.os3_name}」の特性を活かした具体的な「心の守り方('mental_defense')」と「回復アクション('recovery_action')」を防衛戦略として提示してください。
-
     ### "for_simulator" (4. 未来への思考実験)
     提示した「次の三手」を【実行した場合の3ヶ月後】と【実行しなかった場合の3ヶ月後】を想像させ、それぞれの未来でユーザーの課題がどう変化している可能性があるか、具体的に記述してください。
   `;
-  return callGenerativeAI(prompt);
+  return callGenerativeAI(prompt, env);
 }
 
+// レポートの各セクションを生成するメインの非同期関数
 async function generateProfessionalReportSections(
   analysisResult,
   userContext,
-  userProfile
+  userProfile,
+  env
 ) {
   const os1 = analysisResult.hexagram_candidates[0];
   const os2 = analysisResult.hexagram_candidates[1];
@@ -101,14 +97,11 @@ async function generateProfessionalReportSections(
   const hasStrengths =
     userProfile.strengthsFinder && userProfile.strengthsFinder.length > 0;
 
-  // 全てのプロンプトで共通して使用するヘッダー情報
   const commonPromptHeader = `
     あなたは、東洋哲学と心理学を統合した「HaQei」の最高専門家AIです。ユーザーの分析結果と状況を深く洞察し、これが「私のための戦略書だ」と実感できる、論理的で希望に満ちた具体的なレポートを作成してください。
-
     # 絶対的ルール
     - 出力は必ず、指示された構造のJSONオブジェクトのみとします。JSON以外のテキストは一切含めないでください。
     - 各キーの値に含まれるHTMLは、p, ul, li, strong, brタグのみ使用可能です。見出しタグ(h1,h2,h3,h4)は絶対に含めないでください。
-
     # ユーザー情報
     - ユーザー名: ${userContext.name || "利用者"}様
     - プロファイル: MBTI(${userProfile.mbti}), エニアグラム(${
@@ -123,7 +116,6 @@ async function generateProfessionalReportSections(
     - 状況: 年代(${userContext.age}), 職業(${userContext.occupation}), 役割(${
     userContext.role
   }), 課題(${userContext.issue})
-
     # 分析結果サマリー
     - エンジンOS: ${os1.name_jp}
     - インターフェースOS: ${os2.name_jp}
@@ -139,11 +131,15 @@ async function generateProfessionalReportSections(
   };
 
   try {
-    // ✅ 2つのリクエストを1つずつ順番に実行する
-    const part1Result = await generatePart1(commonPromptData);
-    const part2Result = await generatePart2(commonPromptData);
+    // 2つのリクエストを並行実行して高速化
+    const part1Promise = generatePart1(commonPromptData, env);
+    const part2Promise = generatePart2(commonPromptData, env);
 
-    // 2つの結果を一つのオブジェクトに結合して返す
+    const [part1Result, part2Result] = await Promise.all([
+      part1Promise,
+      part2Promise,
+    ]);
+
     return { ...part1Result, ...part2Result };
   } catch (error) {
     console.error("【!!!】Gemini API Error:", error);
@@ -153,9 +149,7 @@ async function generateProfessionalReportSections(
   }
 }
 
-// ★★★ ここまでが変更箇所です ★★★
-
-// レポート表示に必要な補助データを生成する関数 (変更なし)
+// レポート表示に必要な補助データを生成する関数
 function generateReportImprovements(userProfile, db) {
   const getHexagramById = (id) =>
     db.hexagrams_master.find((h) => h.hexagram_id === id);
@@ -175,14 +169,12 @@ function generateReportImprovements(userProfile, db) {
   };
 }
 
-// メインのハンドラ関数 (変更なし)
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
+// Cloudflare Pages Functions用のメインハンドラ
+export async function onRequestPost(requestContext) {
   try {
-    const requestData = JSON.parse(event.body);
+    const requestData = await requestContext.request.json();
     const { analysis, context, profile } = requestData;
+
     if (!analysis || !context || !profile) {
       throw new Error("分析データまたはコンテキストが不完全です。");
     }
@@ -190,7 +182,8 @@ exports.handler = async (event) => {
     const aiSectionsObject = await generateProfessionalReportSections(
       analysis,
       context,
-      profile
+      profile,
+      requestContext.env
     );
     const fullReportHtml = assembleFullReportHtml(
       analysis,
@@ -199,24 +192,24 @@ exports.handler = async (event) => {
       aiSectionsObject
     );
 
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json; charset=utf-8" },
-      body: JSON.stringify({ success: true, report: fullReportHtml }),
-    };
+    const headers = { "Content-Type": "application/json; charset=utf-8" };
+    const body = JSON.stringify({ success: true, report: fullReportHtml });
+
+    return new Response(body, { status: 200, headers: headers });
   } catch (error) {
     console.error("Function Error:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        success: false,
-        error: "AIレポートの生成中にエラーが発生しました: " + error.message,
-      }),
-    };
+    const errorBody = JSON.stringify({
+      success: false,
+      error: "AIレポートの生成中にエラーが発生しました: " + error.message,
+    });
+    return new Response(errorBody, {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-};
+}
 
-// HTML組み立て関数 (変更なし)
+// HTML組み立て関数
 function assembleFullReportHtml(
   analysisResult,
   userContext,
