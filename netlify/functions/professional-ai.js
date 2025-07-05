@@ -8,7 +8,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // AIへのリクエストを並行実行するためのヘルパー関数
 async function callGenerativeAI(prompt) {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
   const generationConfig = { response_mime_type: "application/json" };
   const safetySettings = [
     { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
@@ -139,11 +139,9 @@ async function generateProfessionalReportSections(
   };
 
   try {
-    // 2つのリクエストを並行して実行し、両方の完了を待つ
-    const [part1Result, part2Result] = await Promise.all([
-      generatePart1(commonPromptData),
-      generatePart2(commonPromptData),
-    ]);
+    // ✅ 2つのリクエストを1つずつ順番に実行する
+    const part1Result = await generatePart1(commonPromptData);
+    const part2Result = await generatePart2(commonPromptData);
 
     // 2つの結果を一つのオブジェクトに結合して返す
     return { ...part1Result, ...part2Result };
