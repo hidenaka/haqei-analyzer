@@ -237,6 +237,8 @@ function generateReportImprovements(userProfile, db) {
 
 // Cloudflare Pages Functions用のメインハンドラ
 export async function onRequestPost(requestContext) {
+  console.log("【読み込まれたキー】:", requestContext.env.GEMINI_API_KEY);
+
   try {
     const requestData = await requestContext.request.json();
     const { analysis, context, profile } = requestData;
