@@ -1,4 +1,4 @@
-// ファイルパス: /netlify/functions/professional-ai.js (v5.0 最終改善版)
+// ファイルパス: /netlify/functions/professional-ai.js (v5.1 改善プラン反映版)
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
@@ -76,10 +76,6 @@ async function generateProfessionalReportSections(
   const os3 = analysisResult.hexagram_candidates[2];
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
-  const hasContext =
-    userContext.issue &&
-    userContext.issue.trim() &&
-    userContext.issue !== "特になし";
   const hasStrengths =
     userProfile.strengthsFinder && userProfile.strengthsFinder.length > 0;
 
@@ -87,8 +83,8 @@ async function generateProfessionalReportSections(
 あなたは、東洋哲学と心理学を統合した「HaQei」の最高専門家AIです。ユーザーの分析結果と状況を深く洞察し、これが「私のための戦略書だ」と実感できる、論理的で希望に満ちた具体的なレポートを作成してください。
 
 # 絶対的ルール
-- **出力は必ず、以下のキーを持つJSONオブジェクトのみ**とします: \`{"introduction": "...", "diagnosis_rationale": "...", "dynamics_and_location": "...", "next_three_steps": "...", "for_simulator": "..."}\`
-- 各キーの値は、HTMLのpタグやul/liタグで構成される文字列とします。見出しタグ(h1,h2,h3,h4)は**絶対に含めないでください**。
+- **出力は必ず、以下のキーを持つJSONオブジェクトのみ**とします。各キーの値は指定された構造に従ってください。
+- 各キーの値に含まれるHTMLは、p, ul, li, strong, brタグのみ使用可能です。見出しタグ(h1,h2,h3,h4)は**絶対に含めないでください**。
 - 文章はプロフェッショナルかつ温かいトーンで記述し、強調したいキーワードは\`<strong>\`タグで囲んでください。
 - ユーザーの個人的な課題（${
     userContext.issue
@@ -114,33 +110,70 @@ async function generateProfessionalReportSections(
 - インターフェースOS: ${os2.name_jp}
 - セーフモードOS: ${os3.name_jp}
 
-# 生成すべきJSONの各キーの内容
+# 生成すべきJSONの構造と各キーの内容
+\`\`\`json
+{
+  "introduction": "<p>...</p>",
+  "diagnosis_rationale": "<p>...</p><ul><li>...</li></ul>",
+  "dynamics_and_location": "<p>...</p>",
+  "next_three_steps": [
+    {
+      "what": "何をすべきか (簡潔なタイトル)",
+      "how": [
+        "具体的なアイデアや企画案1 (HTML文字列)",
+        "具体的なアイデアや企画案2 (HTML文字列)"
+      ]
+    }
+  ],
+  "defensive_strategy": {
+    "scenarios": [
+      {
+        "stress_scenario": "想定される具体的なストレス1",
+        "mental_defense": "心の守り方 (HTML文字列)",
+        "recovery_action": "回復アクション (HTML文字列)"
+      }
+    ]
+  },
+  "for_simulator": "<p>...</p>"
+}
+\`\`\`
+
+## 各キーの詳細な生成指示
 
 ### "introduction" (0. はじめに - あなただけの戦略書)
 ユーザーの状況と課題を踏まえ、このレポートがその人だけのOS設計図を基にした、具体的な『取扱説明書』と『実践戦略』であることを伝えてください。
 
 ### "diagnosis_rationale" (1.5. あなたのOSが導き出された根拠)
-**【最重要】** なぜこのOS構成になったのか、論理の橋を架けてください。ユーザーの性格（MBTI、エニアグラム、ストレングスファインダー）の各特性が、3つのOS（エンジン、インターフェース、セーフモード）とどのように結びついているのかを具体的に解説してください。
-例：「あなたのMBTIである**INFP**の持つ『内なる情熱』は、無から有を生み出す【エンジンOS：${
+**【根拠の超高解像度化】**
+なぜこのOS構成になったのか、論理の橋を架けてください。ユーザーの性格（MBTI、エニアグラム、ストレングスファインダー）の各特性が、3つのOSとどのように結びついているのかを具体的に解説してください。
+例：「あなたのMBTIである<strong>INFP</strong>の持つ『内なる情熱』は、無から有を生み出す【エンジンOS：${
     os1.name_jp
-  }】のエネルギーと強く共鳴します。また、ストレングスファインダーの**『資質名』**は、社会的な振る舞いを司る【インターフェースOS：${
+  }】のエネルギーと強く共鳴します。また、ストレングスファインダーの<strong>『資質名』</strong>は、社会的な振る舞いを司る【インターフェースOS：${
     os2.name_jp
-  }】の〇〇という性質に現れています。」
+  }】の〇〇という性質に現れています。」のように、具体的な診断結果を明記し、OSと結びつけてください。抽象的な表現は避け、可能な限り詳細な情報を用いて解説してください。
 
 ### "dynamics_and_location" (2. OS力学と現在地)
-以下の3部構成で、ユーザーのエネルギーがどう使われているかを物語として解説してください。
-1.  **OSの連携（現在の強み）:** 3つのOSがどう連携し、ユーザーの状況（役割や課題）において、どのような強力な布陣となっているかを解説。
-2.  **葛藤のパターン（課題の核心）:** その強力な布陣だからこそ起こりやすい葛藤やエネルギーの罠を、ユーザーの課題（${
-    userContext.issue
-  }）と関連付けながら優しく指摘。
+ユーザーのエネルギーがどう使われているかを物語として解説してください。3つのOSがどう連携し強みとなっているか、そしてその強みゆえに生じる葛藤や課題を指摘してください。
 
-### "next_three_steps" (3. 未来への羅針盤 - 次の三手)
-ユーザーが明日から実践できる、非常に具体的で小さな行動を「三手」として提案してください。各アクションが、どのOSをどのように育てる、またはバランスを取るためのものかを明確に結びつけてください。
+### "next_three_steps" (3. 未来への羅針盤 - ポテンシャルを最大化する「次の三手」)
+**【アクションの戦術レベル化】**
+ユーザーが明日から実践できる、非常に具体的な行動を「三手」として提案してください。
+各手について、まず'what'に「何をすべきか」を簡潔なタイトルで定義します。次に、'how'にそのアクションを「どう実行するか」について、ユーザーのエンジンOS「${
+    os1.name_jp
+  }」とインターフェースOS「${
+    os2.name_jp
+  }」の特性を活かした具体的なアイデアや企画案をHTML形式で2〜3個提示してください。ユーザーがすぐに行動に移せる具体的な選択肢を与えます。
+
+### "defensive_strategy" (3.5. 守りの戦略 - ネガティブシナリオへの備え)
+**【リスク対応戦略の実装】**
+ユーザーの課題「${
+    userContext.issue
+  }」で想定される具体的なストレス（例：批判コメント、成果が出ない焦り）を2〜3個リストアップしてください。それぞれのシナリオに対して、ユーザーのセーフモードOS「${
+    os3.name_jp
+  }」の特性を活かした具体的な「心の守り方('mental_defense')」と「回復アクション('recovery_action')」を防衛戦略として提示してください。逆境を乗り越えるための具体的な処方箋を提供します。
 
 ### "for_simulator" (4. 未来への思考実験)
-**【重要】** 抽象的な機能紹介ではなく、その場でできる思考実験を提供してください。提示した「次の三手」を【実行した場合の3ヶ月後】と【実行しなかった場合の3ヶ月後】を想像させ、それぞれの未来でユーザーの課題（${
-    userContext.issue
-  }）がどう変化している可能性があるか、具体的に記述してください。これにより、行動の重要性をリアルに感じさせ、次の一歩を力強く後押しします。
+提示した「次の三手」を【実行した場合の3ヶ月後】と【実行しなかった場合の3ヶ月後】を想像させ、それぞれの未来でユーザーの課題がどう変化している可能性があるか、具体的に記述してください。行動の重要性をリアルに感じさせ、次の一歩を力強く後押しします。
 `;
 
   try {
@@ -202,15 +235,11 @@ function assembleFullReportHtml(
             </li>`;
   };
 
-  // --- 【要件2：個別化の明示】パーソナライズ宣言ブロックの生成 ---
-  const personalizationHeader = `
-    <div class="p-4 bg-gray-700/50 rounded-lg mb-10 border-l-4 border-indigo-400">
-      <h3 class="font-bold text-lg text-indigo-300">
-        この戦略書は、${userContext.name || "利用者"}様のために作成されました
-      </h3>
-      <p class="text-sm text-gray-400 mt-2">
-        以下の入力情報に基づき、あなたのポテンシャルを最大化するための戦略をAIが生成しました。
-      </p>
+  const personalizationHeader = `<div class="p-4 bg-gray-700/50 rounded-lg mb-10 border-l-4 border-indigo-400">
+      <h3 class="font-bold text-lg text-indigo-300">この戦略書は、${
+        userContext.name || "利用者"
+      }様のために作成されました</h3>
+      <p class="text-sm text-gray-400 mt-2">以下の入力情報に基づき、あなたのポテンシャルを最大化するための戦略をAIが生成しました。</p>
       <ul class="text-sm list-disc list-inside mt-3 space-y-1 text-gray-300">
         ${
           userContext.age
@@ -260,13 +289,49 @@ function assembleFullReportHtml(
     </ul>
   </div>`;
 
-  // --- 【要件1：透明性の担保】診断の根拠セクションの生成 ---
   const section1_5 = `<div class="report-block"><h3>1.5. あなたのOSが導き出された根拠 - なぜ、この設計図なのか？</h3>${aiSectionsObject.diagnosis_rationale}</div>`;
 
   const section2 = `<div class="report-block"><h3>2. OS力学と現在地 - あなたのエネルギーは今、どう使われているか</h3>${aiSectionsObject.dynamics_and_location}</div>`;
-  const section3 = `<div class="report-block"><h3>3. 未来への羅針盤 - ポテンシャルを最大化する「次の三手」</h3>${aiSectionsObject.next_three_steps}</div>`;
 
-  // --- 【要件3：具体的な次の行動】思考実験セクションの生成 ---
+  // --- 【要件2：アクションの戦術レベル化】に対応したHTML生成 ---
+  const section3_moves = (aiSectionsObject.next_three_steps || [])
+    .map(
+      (step) => `
+    <div class="step-item mt-6">
+      <p class="what-title font-bold text-lg text-cyan-300">${step.what}</p>
+      <ul class="list-disc list-inside mt-2 space-y-2 pl-4">
+        ${(step.how || []).map((h) => `<li>${h}</li>`).join("")}
+      </ul>
+    </div>
+  `
+    )
+    .join("");
+  const section3 = `<div class="report-block"><h3>3. 未来への羅針盤 - ポテンシャルを最大化する「次の三手」</h3>${section3_moves}</div>`;
+
+  // --- 【要件3：リスク対応戦略の実装】に対応したHTML生成 ---
+  const section3_5_scenarios = (
+    aiSectionsObject.defensive_strategy?.scenarios || []
+  )
+    .map(
+      (s) => `
+    <div class="scenario-item mt-6 p-4 bg-gray-900/50 rounded-lg">
+      <p class="stress-scenario-title font-bold text-red-300">想定ストレス： ${s.stress_scenario}</p>
+      <div class="mt-3">
+        <p class="font-semibold text-gray-300">心の守り方:</p>
+        <div class="text-gray-400 pl-4">${s.mental_defense}</div>
+      </div>
+      <div class="mt-3">
+        <p class="font-semibold text-gray-300">回復アクション:</p>
+        <div class="text-gray-400 pl-4">${s.recovery_action}</div>
+      </div>
+    </div>
+  `
+    )
+    .join("");
+  const section3_5 = section3_5_scenarios
+    ? `<div class="report-block"><h3>3.5. 守りの戦略 - ネガティブシナリオへの備え</h3>${section3_5_scenarios}</div>`
+    : "";
+
   const section4 = `<div class="report-block"><h3>4. 未来への思考実験 - あなたの決断が創る未来</h3>${aiSectionsObject.for_simulator}</div>`;
 
   // --- 全セクションを結合して最終的なHTMLを返す ---
@@ -277,6 +342,7 @@ function assembleFullReportHtml(
     section1_5 +
     section2 +
     section3 +
+    section3_5 + // 新しいセクションを追加
     section4
   );
 }
