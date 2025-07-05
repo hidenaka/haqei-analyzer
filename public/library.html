@@ -443,9 +443,10 @@
       </main>
     </div>
 
-    <script src="js/haqei_main_database.js"></script>
+    <script type="module">
+      // importを使ってデータベースを読み込む
+      import { HAQEI_DATA } from "./js/haqei_main_database.js";
 
-    <script>
       // ✅ これが完全で修正済みの最終版スクリプトです
       window.onload = () => {
         // --- 1. データベースと主要なDOM要素の存在を最初に確認 ---

@@ -364,10 +364,11 @@
 
     <datalist id="hexagram-names"></datalist>
 
-    <script src="js/haqei_main_database.js"></script>
-    <script src="js/koudo_shishin_database.js"></script>
+    <script type="module">
+      // importを使ってデータベースを読み込む
+      import { HAQEI_DATA } from "./js/haqei_main_database.js";
+      import { koudou } from "./js/koudo_shishin_database.js";
 
-    <script>
       // ====[ HaQei アプリケーション・ロジック v9.9 ]====
       let summaryChartInstance = null;
 

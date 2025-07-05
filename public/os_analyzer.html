@@ -417,8 +417,9 @@
       </div>
     </div>
 
-    <script src="js/haqei_main_database.js"></script>
-    <script>
+    <script type="module">
+      // importを使ってデータベースを読み込む
+      import { HAQEI_DATA } from "./js/haqei_main_database.js";
       // HaQei OS Analyzer - JavaScript v15.7
       // 棒グラフと特徴ハイライト機能を追加
       const HDB = HAQEI_DATA;

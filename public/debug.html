@@ -51,8 +51,9 @@
     </p>
     <div id="results"></div>
 
-    <script src="js/haqei_main_database.js"></script>
-    <script>
+    <script type="module">
+      // importを使ってデータベースを読み込む
+      import { HAQEI_DATA } from "./js/haqei_main_database.js";
       window.onload = () => {
         const resultsDiv = document.getElementById("results");
         let html = "";
