@@ -883,28 +883,28 @@
         const createProfileSection = () => {
           // 棒グラフとエネルギー解説を追加
           return `<div class="report-section">
-                <h3><span class="text-2xl mr-2">📊</span>まず、あなたのエネルギーの全体像を見てみましょう</h3>
-                <p>あなたの8つの基本エネルギー（八卦）の強度を可視化します。これは、あなたの思考や行動の根源的な傾向や、備わっている潜在能力のバランスを示しています。グラフを切り替えて、多角的に自分を捉えてみましょう。</p>
+                        <h3><span class="text-2xl mr-2">📊</span>まず、あなたのエネルギーの全体像を見てみましょう</h3>
+                        <p>あなたの8つの基本エネルギー（八卦）の強度を可視化します。これは、あなたの思考や行動の根源的な傾向や、備わっている潜在能力のバランスを示しています。グラフを切り替えて、多角的に自分を捉えてみましょう。</p>
 
-                <div class="mt-8">
-                    <div class="flex justify-center border-b border-gray-700 mb-4">
-                        <button id="radar-tab" class="chart-tab active" onclick="switchChart('radar')">全体バランス (レーダー)</button>
-                        <button id="bar-tab" class="chart-tab" onclick="switchChart('bar')">強度ランキング (棒グラフ)</button>
-                    </div>
-                    <div id="radar-chart-container" class="relative mx-auto" style="height: 400px; max-width: 500px;">
-                        <canvas id="energyRadarChart"></canvas>
-                    </div>
-                    <div id="bar-chart-container" class="relative mx-auto hidden" style="height: 400px; max-width: 600px;">
-                        <canvas id="energyBarChart"></canvas>
-                    </div>
-                </div>
+                        <div class="mt-8">
+                            <div class="flex justify-center border-b border-gray-700 mb-4">
+                                <button id="radar-tab" class="chart-tab active" onclick="switchChart('radar')">全体バランス (レーダー)</button>
+                                <button id="bar-tab" class="chart-tab" onclick="switchChart('bar')">強度ランキング (棒グラフ)</button>
+                            </div>
+                            <div id="radar-chart-container" class="relative mx-auto" style="height: 400px; max-width: 500px;">
+                                <canvas id="energyRadarChart"></canvas>
+                            </div>
+                            <div id="bar-chart-container" class="relative mx-auto hidden" style="height: 400px; max-width: 600px;">
+                                <canvas id="energyBarChart"></canvas>
+                            </div>
+                        </div>
 
-                <div id="energy-highlights" class="mt-10"></div>
+                        <div id="energy-highlights" class="mt-10"></div>
 
-                <div class="mt-6 text-center">
-                    <button id="show-breakdown-btn" class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors">スコアの算出根拠を見る</button>
-                </div>
-            </div>`;
+                        <div class="mt-6 text-center">
+                            <button id="show-breakdown-btn" class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors">スコアの算出根拠を見る</button>
+                        </div>
+                    </div>`;
         };
 
         // 既存の createEnergyHighlights 関数を、この新しい関数に丸ごと差し替えてください。
@@ -917,19 +917,19 @@
           const strengthHtml = strengths
             .map(
               (t) => `
-                <div class="bg-gray-900/50 p-4 rounded-lg border-l-4" style="border-color: ${
-                  HELPERS.trigram_colors[t.id]
-                }">
-                    <h5 class="font-bold text-lg" style="color: ${
-                      HELPERS.trigram_colors[t.id]
-                    }">
-                        ${t.name_jp} (${t.name_en})
-                    </h5>
-                    <p class="mt-2 text-sm text-gray-300">${
-                      t.strength_description || "解説準備中..."
-                    }</p>
-                </div>
-            `
+                        <div class="bg-gray-900/50 p-4 rounded-lg border-l-4" style="border-color: ${
+                          HELPERS.trigram_colors[t.id]
+                        }">
+                            <h5 class="font-bold text-lg" style="color: ${
+                              HELPERS.trigram_colors[t.id]
+                            }">
+                                ${t.name_jp} (${t.name_en})
+                            </h5>
+                            <p class="mt-2 text-sm text-gray-300">${
+                              t.strength_description || "解説準備中..."
+                            }</p>
+                        </div>
+                    `
             )
             .join("");
 
@@ -953,53 +953,53 @@
           const alternativeStrategiesHtml = strengths
             .map(
               (strength) => `
-                <div class="p-3 bg-gray-800/50 rounded-lg ring-1 ring-gray-700">
-                     <p class="text-sm text-gray-300">
-                        <strong style="color:${
-                          HELPERS.trigram_colors[strength.id]
-                        }">【${strength.name_jp}のアプローチ】</strong>
-                        <br>
-                        無理に<strong class="text-amber-400">${
-                          lowPriorityEnergy.name_jp
-                        }</strong>のように振る舞うのではなく、あなたの得意な<strong class="text-white">「${
+                        <div class="p-3 bg-gray-800/50 rounded-lg ring-1 ring-gray-700">
+                             <p class="text-sm text-gray-300">
+                                <strong style="color:${
+                                  HELPERS.trigram_colors[strength.id]
+                                }">【${strength.name_jp}のアプローチ】</strong>
+                                <br>
+                                無理に<strong class="text-amber-400">${
+                                  lowPriorityEnergy.name_jp
+                                }</strong>のように振る舞うのではなく、あなたの得意な<strong class="text-white">「${
                 strength.strength_description
               }」</strong>を全面に押し出し、全く違うやり方で貢献し、状況を解決します。
-                     </p>
-                </div>
-            `
+                             </p>
+                        </div>
+                    `
             )
             .join("");
 
           // 全体を上下構造に変更
           return `
-                <div class="space-y-8">
-                    <div>
-                        <h4 class="font-semibold text-lg text-green-400 mb-3">💡 あなたの才能の源泉（向いていること）</h4>
-                        <div class="grid md:grid-cols-2 gap-4">${strengthHtml}</div>
-                    </div>
-                    
-                    <div class="border-t border-gray-700 pt-8">
-                        <h4 class="font-semibold text-lg text-cyan-400 mb-3">🎯 才能を活かすための生存戦略</h4>
-                        <div class="bg-gray-900/50 p-4 rounded-lg space-y-4">
+                        <div class="space-y-8">
                             <div>
-                                <p class="text-sm font-semibold text-gray-400">Step 1: 自分に「向いていない」環境を知る</p>
-                                <p class="mt-1 text-sm text-gray-300">あなたの才能の構成上、<strong class="text-white">【${lowPriorityEnergy.name_jp}】</strong>の力が求められる<strong class="text-white">「${unfittingEnvText}」</strong>は、エネルギー消費が激しく、楽しさを感じにくいかもしれません。</p>
+                                <h4 class="font-semibold text-lg text-green-400 mb-3">💡 あなたの才能の源泉（向いていること）</h4>
+                                <div class="grid md:grid-cols-2 gap-4">${strengthHtml}</div>
                             </div>
-                            <div class="border-t border-gray-700 pt-4">
-                                <p class="text-sm font-semibold text-gray-400">Step 2:「環境を選ぶ」か「やり方を変える」</p>
-                                <p class="mt-1 text-sm text-gray-300">最も重要な戦略は、<strong class="text-amber-400">自分の才能が活きる環境を意識的に選ぶこと</strong>です。それが、あなたが最も輝く道です。</p>
-                                <p class="mt-3 text-sm text-gray-300">もし、上記の環境や役割を<strong class="text-red-400">どうしても避けられない場合</strong>は、<strong class="text-amber-400">やり方を自分の得意なスタイルにハックしてしまいましょう。</strong></p>
-                            </div>
-                            <div class="border-t border-gray-700 pt-4">
-                                 <p class="text-sm font-semibold text-gray-400 mb-2">具体的な応用戦略:</p>
-                                 <div class="space-y-3">
-                                    ${alternativeStrategiesHtml}
-                                 </div>
+                            
+                            <div class="border-t border-gray-700 pt-8">
+                                <h4 class="font-semibold text-lg text-cyan-400 mb-3">🎯 才能を活かすための生存戦略</h4>
+                                <div class="bg-gray-900/50 p-4 rounded-lg space-y-4">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-400">Step 1: 自分に「向いていない」環境を知る</p>
+                                        <p class="mt-1 text-sm text-gray-300">あなたの才能の構成上、<strong class="text-white">【${lowPriorityEnergy.name_jp}】</strong>の力が求められる<strong class="text-white">「${unfittingEnvText}」</strong>は、エネルギー消費が激しく、楽しさを感じにくいかもしれません。</p>
+                                    </div>
+                                    <div class="border-t border-gray-700 pt-4">
+                                        <p class="text-sm font-semibold text-gray-400">Step 2:「環境を選ぶ」か「やり方を変える」</p>
+                                        <p class="mt-1 text-sm text-gray-300">最も重要な戦略は、<strong class="text-amber-400">自分の才能が活きる環境を意識的に選ぶこと</strong>です。それが、あなたが最も輝く道です。</p>
+                                        <p class="mt-3 text-sm text-gray-300">もし、上記の環境や役割を<strong class="text-red-400">どうしても避けられない場合</strong>は、<strong class="text-amber-400">やり方を自分の得意なスタイルにハックしてしまいましょう。</strong></p>
+                                    </div>
+                                    <div class="border-t border-gray-700 pt-4">
+                                         <p class="text-sm font-semibold text-gray-400 mb-2">具体的な応用戦略:</p>
+                                         <div class="space-y-3">
+                                            ${alternativeStrategiesHtml}
+                                         </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            `;
+                    `;
         };
         const createTrinityModelSection = () => {
           const { hexagram_candidates } = lastAnalysisResult;
@@ -1038,7 +1038,16 @@
             )
             .join("");
 
-          return `<div class="report-section"><h3><span class="text-2xl mr-2">✨</span>次に、あなたの中心となる３つのOSを紹介します</h3><p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p><div class="mt-8 text-center"><img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="max-w-sm mx-auto mb-8"></div><div class="grid md:grid-cols-3 gap-6 mt-6">${osCardsHtml}</div></div>`;
+          // 案内文のHTMLを追加
+          const detailsLinkHtml = `
+              <div class="mt-8 p-4 bg-gray-900/50 rounded-lg text-center border border-gray-700">
+                <p class="text-sm text-gray-300">
+                  💡 各OSの詳しい機能や、OS同士の相互作用（相関図マップ）については、次のページで解説します。
+                </p>
+              </div>
+            `;
+
+          return `<div class="report-section"><h3><span class="text-2xl mr-2">✨</span>次に、あなたの中心となる３つのOSを紹介します</h3><p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p><div class="mt-8 text-center"><img src="https://startling-cactus-557732.netlify.app/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="block max-w-sm mx-auto mb-8"></div><div class="grid md:grid-cols-3 gap-6 mt-6">${osCardsHtml}</div>${detailsLinkHtml}</div>`;
         };
 
         const createArchitectureSection = () => {
@@ -1107,92 +1116,106 @@
             })
             .join("");
 
-          const mapHtml = `<div class="mt-12"><h3 class="text-xl font-bold text-indigo-300">人格OS相関図（64卦マップ）</h3><p class="mt-2">あなたのOSが、易経の宇宙観の中でどのような位置にあるかを示します。クリックで各OSの関係性を探求できます。</p><div id="hex-map-info" class="my-3 p-3 bg-gray-900/50 rounded-lg"><p class="text-center text-sm text-gray-400">マップ上のOSをクリックして、そのOSの関連性を表示します。</p></div><div class="hex-map-container mt-4"></div><div class="flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs mt-2"><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-orange-400 rounded-sm"></span>錯卦(真逆)</span><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dashed border-blue-400 rounded-sm"></span>綜卦(裏側)</span><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dotted border-green-400 rounded-sm"></span>互卦(内包)</span></div></div>`;
+          const mapHtml = `<div class="mt-12">
+                                <h3 class="text-xl font-bold text-indigo-300">人格OS相関図（64卦マップ）</h3>
+                                <p class="mt-2">あなたのOSが、易経の宇宙観の中でどのような位置にあるかを示します。クリックで各OSの関係性を探求できます。</p>
+                                <div id="hex-map-info" class="my-3 p-3 bg-gray-900/50 rounded-lg">
+                                    <p class="text-center text-sm text-gray-400">マップ上のOSをクリックして、そのOSの関連性を表示します。</p>
+                                </div>
+                                <div class="overflow-x-auto rounded-lg border border-gray-700 p-2 bg-gray-900/30">
+                                    <div class="hex-map-container mt-2" style="min-width: 500px;"></div>
+                                </div>
+                                <div class="flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs mt-2">
+                                    <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-orange-400 rounded-sm"></span>錯卦(真逆)</span>
+                                    <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dashed border-blue-400 rounded-sm"></span>綜卦(裏側)</span>
+                                    <span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dotted border-green-400 rounded-sm"></span>互卦(内包)</span>
+                                </div>
+                            </div>`;
 
           return `<div class="report-section"><h3><span class="text-2xl mr-2">🗺️</span>それらが広大な世界の中でどこに位置するか見てみましょう</h3><div class="space-y-8 mt-8">${osSections}</div>${mapHtml}</div>`;
         };
 
         const createProfessionalCtaSection = () => {
           const metaphorHtml = `
-          <div class="my-8 p-6 bg-gray-900/50 rounded-lg border-l-4 border-indigo-400">
-              <h4 class="font-semibold text-lg text-indigo-300">【無料レポート】と【実践戦略書】の関係</h4>
-              <p class="mt-3 text-gray-300">
-                  今ご覧になっているこの無料レポートは、あなたの現在地と特性を知るための<strong class="text-white">『高精細な地図』</strong>です。
-              </p>
-              <p class="mt-2 text-gray-300">
-                  そして、有料の『実践戦略書』は、その地図を使ってあなたの目的地（目標達成、悩み解決など）へたどり着くための具体的な<strong class="text-white">『ナビゲーションシステム』</strong>の役割を果たします。
-              </p>
-              <p class="mt-4 text-center text-amber-400 font-semibold text-lg">
-                  地図を手に入れた今、最高のナビで旅を始めませんか？
-              </p>
-          </div>`;
+                <div class="my-8 p-6 bg-gray-900/50 rounded-lg border-l-4 border-indigo-400">
+                    <h4 class="font-semibold text-lg text-indigo-300">【無料レポート】と【実践戦略書】の関係</h4>
+                    <p class="mt-3 text-gray-300">
+                        今ご覧になっているこの無料レポートは、あなたの現在地と特性を知るための<strong class="text-white">『高精細な地図』</strong>です。
+                    </p>
+                    <p class="mt-2 text-gray-300">
+                        そして、有料の『実践戦略書』は、その地図を使ってあなたの目的地（目標達成、悩み解決など）へたどり着くための具体的な<strong class="text-white">『ナビゲーションシステム』</strong>の役割を果たします。
+                    </p>
+                    <p class="mt-4 text-center text-amber-400 font-semibold text-lg">
+                        地図を手に入れた今、最高のナビで旅を始めませんか？
+                    </p>
+                </div>`;
           const visualPreviewHtml = `
-          <div class="relative mt-8 p-6 rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
-              <div class="absolute inset-0 bg-gradient-to-tr from-amber-400 to-indigo-500 opacity-20 blur-2xl"></div>
-              <div class="relative">
-                  <h5 class="text-center text-white font-bold">有料レポート プレビュー</h5>
-                  <div class="mt-4 p-4 bg-black/30 rounded-md text-gray-400 text-sm space-y-3">
-                      <p class="font-bold text-base text-white mb-2">2. OS力学と現在地 - あなたのエネルギーは今、どう使われているか</p>
-                      <div class="border-l-2 border-yellow-400 pl-3">
-                          <p><strong class="text-yellow-400">強みの源泉:</strong> あなたの${lastUserProfile.mbti}としての繊細な感性は、エンジンOS<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[0].name_jp}』</strong>のエネルギーと深く共鳴し、内なる情熱を具体的な行動へ変換する力強いエンジンとなっています。あなたは独自のビジョンを持ち、それを実現するために[...続きを読む]</p>
-                      </div>
-                      <div class="border-l-2 border-blue-400 pl-3">
-                          <p><strong class="text-blue-400">OSの連携:</strong> あなたのパワフルなエンジンは、インターフェースOS<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[1].name_jp}』</strong>という柔軟で的確なコミュニケーション能力によって補完され、絶妙なバランスを保っています。そして万が一、行き詰まったときには[...続きを読む]</p>
-                      </div>
-                      <div class="border-l-2 border-red-400 pl-3">
-                          <p><strong class="text-red-400">葛藤のパターン:</strong> この強力な布陣だからこそ、完璧主義に陥りやすいという罠があります。<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[0].name_jp}』</strong>の勢いが時に焦燥感や自己批判へ転じることも。この葛藤を乗り越えることが、あなたの更なる成長と[...続きを読む]</p>
-                      </div>
-                  </div>
-                  <div class="absolute inset-0 bg-gradient-to-t from-gray-800/80 via-transparent to-transparent"></div>
-              </div>
-          </div>`;
+                <div class="relative mt-8 p-6 rounded-lg bg-gray-800/50 border border-gray-700 overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-amber-400 to-indigo-500 opacity-20 blur-2xl"></div>
+                    <div class="relative">
+                        <h5 class="text-center text-white font-bold">有料レポート プレビュー</h5>
+                        <div class="mt-4 p-4 bg-black/30 rounded-md text-gray-400 text-sm space-y-3">
+                            <p class="font-bold text-base text-white mb-2">2. OS力学と現在地 - あなたのエネルギーは今、どう使われているか</p>
+                            <div class="border-l-2 border-yellow-400 pl-3">
+                                <p><strong class="text-yellow-400">強みの源泉:</strong> あなたの${lastUserProfile.mbti}としての繊細な感性は、エンジンOS<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[0].name_jp}』</strong>のエネルギーと深く共鳴し、内なる情熱を具体的な行動へ変換する力強いエンジンとなっています。あなたは独自のビジョンを持ち、それを実現するために[...続きを読む]</p>
+                            </div>
+                            <div class="border-l-2 border-blue-400 pl-3">
+                                <p><strong class="text-blue-400">OSの連携:</strong> あなたのパワフルなエンジンは、インターフェースOS<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[1].name_jp}』</strong>という柔軟で的確なコミュニケーション能力によって補完され、絶妙なバランスを保っています。そして万が一、行き詰まったときには[...続きを読む]</p>
+                            </div>
+                            <div class="border-l-2 border-red-400 pl-3">
+                                <p><strong class="text-red-400">葛藤のパターン:</strong> この強力な布陣だからこそ、完璧主義に陥りやすいという罠があります。<strong class="text-white">『${lastAnalysisResult.hexagram_candidates[0].name_jp}』</strong>の勢いが時に焦燥感や自己批判へ転じることも。この葛藤を乗り越えることが、あなたの更なる成長と[...続きを読む]</p>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-800/80 via-transparent to-transparent"></div>
+                    </div>
+                </div>`;
           const previewHtml = `
-          <div class="mt-8 text-left">
-              <h4 class="text-xl font-bold text-amber-300 text-center">
-                  あなたのOSを使いこなし、人生の目標を達成する<br>『実践戦略書』で得られること：
-              </h4>
-              <ul class="mt-6 space-y-4 max-w-lg mx-auto">
-                  <li class="flex items-start">
-                      <span class="text-green-400 mr-3 mt-1">✅</span>
-                      <span class="text-gray-300">あなたの<strong class="text-white">才能の源泉</strong>を詳細に解説。MBTIやエニアグラムが3つのコアOSとどう共鳴しているのかを解き明かします。</span>
-                  </li>
-                  <li class="flex items-start">
-                      <span class="text-green-400 mr-3 mt-1">✅</span>
-                      <span class="text-gray-300">ポテンシャルを最大化する<strong class="text-white">具体的な『次の三手』</strong>を提案。「明日から何をすべきか」が明確になります。</span>
-                  </li>
-                  <li class="flex items-start">
-                      <span class="text-green-400 mr-3 mt-1">✅</span>
-                      <span class="text-gray-300">あなたが陥りがちな<strong class="text-white">『葛藤のパターン』の克服法。</strong>OSレベルでその仕組みを理解し、あなたの強みとして活かすための視点を提供します。</span>
-                  </li>
-                  <li class="flex items-start">
-                      <span class="text-green-400 mr-3 mt-1">✅</span>
-                      <span class="text-gray-300">提示された戦略が未来にどう影響するかを探る<strong class="text-white">「未来分岐シミュレーター」</strong>の活用ガイド。</span>
-                  </li>
-              </ul>
-          </div>`;
+                <div class="mt-8 text-left">
+                    <h4 class="text-xl font-bold text-amber-300 text-center">
+                        あなたのOSを使いこなし、人生の目標を達成する<br>『実践戦略書』で得られること：
+                    </h4>
+                    <ul class="mt-6 space-y-4 max-w-lg mx-auto">
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-3 mt-1">✅</span>
+                            <span class="text-gray-300">あなたの<strong class="text-white">才能の源泉</strong>を詳細に解説。MBTIやエニアグラムが3つのコアOSとどう共鳴しているのかを解き明かします。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-3 mt-1">✅</span>
+                            <span class="text-gray-300">ポテンシャルを最大化する<strong class="text-white">具体的な『次の三手』</strong>を提案。「明日から何をすべきか」が明確になります。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-3 mt-1">✅</span>
+                            <span class="text-gray-300">あなたが陥りがちな<strong class="text-white">『葛藤のパターン』の克服法。</strong>OSレベルでその仕組みを理解し、あなたの強みとして活かすための視点を提供します。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-green-400 mr-3 mt-1">✅</span>
+                            <span class="text-gray-300">提示された戦略が未来にどう影響するかを探る<strong class="text-white">「未来分岐シミュレーター」</strong>の活用ガイド。</span>
+                        </li>
+                    </ul>
+                </div>`;
 
           return `
-          <div class="report-section">
-              <div class="p-6 sm:p-8 bg-gradient-to-br from-gray-900 via-indigo-900/20 to-gray-900 rounded-2xl border border-amber-500/30">
-                  <div class="text-center">
-                      <h3 class="text-3xl font-bold text-amber-300">最終ステップ：あなたの『実践戦略書』へ</h3>
-                      <p class="mt-3 text-gray-300">分析お疲れ様でした。ここからは、自己理解を「行動」に変えるステップです。</p>
-                  </div>
+                <div class="report-section">
+                    <div class="p-6 sm:p-8 bg-gradient-to-br from-gray-900 via-indigo-900/20 to-gray-900 rounded-2xl border border-amber-500/30">
+                        <div class="text-center">
+                            <h3 class="text-3xl font-bold text-amber-300">最終ステップ：あなたの『実践戦略書』へ</h3>
+                            <p class="mt-3 text-gray-300">分析お疲れ様でした。ここからは、自己理解を「行動」に変えるステップです。</p>
+                        </div>
 
-                  ${metaphorHtml}
+                        ${metaphorHtml}
 
-                  ${visualPreviewHtml}
+                        ${visualPreviewHtml}
 
-                  ${previewHtml}
+                        ${previewHtml}
 
-                  <div class="mt-10 text-center">
-                      <button id="request-professional-btn" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 px-10 rounded-lg text-xl transition duration-300 transform hover:scale-105 shadow-lg shadow-amber-600/20">
-                          あなたの『実践戦略書』を手に入れる
-                      </button>
-                      <p class="text-xs text-gray-500 mt-3">(有料機能・購入は任意です)</p>
-                  </div>
-              </div>
-          </div>`;
+                        <div class="mt-10 text-center">
+                            <button id="request-professional-btn" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-4 px-10 rounded-lg text-xl transition duration-300 transform hover:scale-105 shadow-lg shadow-amber-600/20">
+                                あなたの『実践戦略書』を手に入れる
+                            </button>
+                            <p class="text-xs text-gray-500 mt-3">(有料機能・購入は任意です)</p>
+                        </div>
+                    </div>
+                </div>`;
         };
         // ========== ▲▲▲ ここまでが修正箇所です ▲▲▲ ==========
 
@@ -1241,22 +1264,22 @@
           navContainer.className =
             "flex justify-between items-center mt-12 pt-6 border-t border-gray-700";
           const navHtml = `
-            <button id="prev-btn" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition ${
-              currentStepIndex === 0 ? "invisible" : ""
-            }">
-                &larr; 戻る
-            </button>
-            <div class="text-sm text-gray-400">
-                ステップ ${currentStepIndex + 1} / ${storySteps.length}
-            </div>
-            <button id="next-btn" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition">
-                ${
-                  currentStepIndex === storySteps.length - 1
-                    ? "もう一度最初から"
-                    : "次へ &rarr;"
-                }
-            </button>
-        `;
+                <button id="prev-btn" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition ${
+                  currentStepIndex === 0 ? "invisible" : ""
+                }">
+                    &larr; 戻る
+                </button>
+                <div class="text-sm text-gray-400">
+                    ステップ ${currentStepIndex + 1} / ${storySteps.length}
+                </div>
+                <button id="next-btn" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition">
+                    ${
+                      currentStepIndex === storySteps.length - 1
+                        ? "もう一度最初から"
+                        : "次へ &rarr;"
+                    }
+                </button>
+            `;
           navContainer.innerHTML = navHtml;
           reportContainer.appendChild(navContainer);
           window.scrollTo({ top: 0, behavior: "smooth" });
