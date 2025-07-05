@@ -6,6 +6,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // AIへのリクエストを並行実行するためのヘルパー関数
 // professional-ai.js の中の callGenerativeAI 関数を書き換える
 
+// professional-ai.js の中の callGenerativeAI 関数を書き換える
+
 async function callGenerativeAI(prompt, env) {
   // この関数内でAPIキーを使って初期化する
   const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
@@ -30,11 +32,36 @@ async function callGenerativeAI(prompt, env) {
     safetySettings,
   });
 
-  const responseText = result.response.text();
+  const response = result.response;
 
   // ▼▼▼【ここから修正】▼▼▼
+
+  // 1. まず、セーフティ設定でブロックされていないかを確認する
+  if (response.promptFeedback?.blockReason) {
+    const blockReason = response.promptFeedback.blockReason;
+    console.error(
+      `【!!!】AIレスポンスがセーフティ設定によりブロックされました。理由: ${blockReason}`
+    );
+    // ユーザーにはより分かりやすいエラーを返す
+    throw new Error(
+      `AIがコンテンツ生成を拒否しました。入力内容（特に「課題」）が不適切と判断された可能性があります。内容を修正して再度お試しください。 [理由: ${blockReason}]`
+    );
+  }
+
+  // 2. レスポンスのテキストを取得する
+  // candidatesが空、またはcandidates[0].contentがない場合も考慮
+  if (!response.candidates?.[0]?.content?.parts?.[0]?.text) {
+    console.error(
+      "【!!!】AIからのレスポンスに有効なテキストコンテンツが含まれていません。"
+    );
+    console.error("Full AI Response:", JSON.stringify(response, null, 2));
+    throw new Error("AIが空のレスポンスを返しました。");
+  }
+
+  const responseText = response.text();
+
+  // 3. JSONパースを試みる
   try {
-    // まずJSONとして解析を試みる
     return JSON.parse(responseText);
   } catch (e) {
     // 解析に失敗した場合、AIが返した生の内容をログに出力する
