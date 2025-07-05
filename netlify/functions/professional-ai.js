@@ -1,4 +1,4 @@
-// ファイルパス: /netlify/functions/professional-ai.js (v4.0 戦略書構成案・実装版)
+// ファイルパス: /netlify/functions/professional-ai.js (v4.1 ストレングスファインダー対応版)
 const { HAQEI_DATA } = require("../../assets/haqei_main_database.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
@@ -64,7 +64,7 @@ exports.handler = async (event) => {
   }
 };
 
-// ★★★ AIへの指示（プロンプト）を新構成案に合わせて全面刷新 ★★★
+// ★★★ AIへの指示（プロンプト）をストレングスファインダー対応に更新 ★★★
 async function generateProfessionalReportSections(
   analysisResult,
   userContext,
@@ -78,6 +78,10 @@ async function generateProfessionalReportSections(
     userContext.issue &&
     userContext.issue.trim() &&
     userContext.issue !== "特になし";
+
+  // ストレングスファインダーのデータが存在するかチェック
+  const hasStrengths =
+    userProfile.strengthsFinder && userProfile.strengthsFinder.length > 0;
 
   const prompt = `
 あなたは、東洋哲学と心理学を統合した「HaQei」の最高専門家AIです。ユーザーの分析結果と状況を深く洞察し、これが「私のための戦略書だ」と感じられるような、希望に満ちた具体的なレポートを作成してください。
@@ -95,7 +99,13 @@ async function generateProfessionalReportSections(
 # ユーザー情報
 - プロファイル: MBTI(${userProfile.mbti}), エニアグラム(${
     userProfile.enneagram.join(", ") || "未入力"
-  })
+  })${
+    hasStrengths
+      ? `, ストレングスファインダーTOP5(${userProfile.strengthsFinder.join(
+          ", "
+        )})`
+      : ""
+  }
 - 状況: ${
     hasContext
       ? `年代(${userContext.age}), 職業(${userContext.occupation}), 役割(${userContext.role}), 課題(${userContext.issue})`
@@ -114,7 +124,9 @@ async function generateProfessionalReportSections(
 
 ### 2. "dynamics_and_location" (OS力学と現在地)
 以下の3部構成で、ユーザーのエネルギーがどう使われているかを物語として解説してください。
-1.  **強みの源泉:** なぜこのOS構成になったのか、ユーザーの性格(MBTI等)とOSのエネルギーを結びつけて解説。例：「あなたのMBTIが持つ〇〇という性質が、【卦名】のエネルギーと共鳴しています…」
+1.  **強みの源泉:** なぜこのOS構成になったのか、ユーザーの性格(MBTI, エニアグラム${
+    hasStrengths ? ", ストレングスファインダー" : ""
+  })とOSのエネルギーを結びつけて解説。例：「あなたのMBTIが持つ〇〇という性質や、**ストレングスファインダーの『資質名』が**、【卦名】のエネルギーと共鳴しています…」
 2.  **OSの連携（現在の強み）:** 3つのOSがどう連携し、どのような強力な布陣となっているかを解説。
 3.  **葛藤のパターン（課題の核心）:** その布陣だからこそ起こりやすい葛藤や、エネルギーの罠について優しく指摘。
 
@@ -140,7 +152,7 @@ async function generateProfessionalReportSections(
   }
 }
 
-// ★★★ HTML組み立て関数を新構成案に合わせて全面刷新 ★★★
+// ★★★ HTML組み立て関数は、AIの出力結果をはめ込むだけなので変更なし ★★★
 function assembleFullReportHtml(
   analysisResult,
   userContext,
