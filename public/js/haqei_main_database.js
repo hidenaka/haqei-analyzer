@@ -1,6 +1,6 @@
 // HaQei Project Main Database File v4.1 - Complete Edition
-// 全ての静的データはこのオブジェクトに集約されます。
-const HAQEI_DATA = {
+
+export const HAQEI_DATA = {
   // --- 基本データ ---
   trigrams_master: [
     {

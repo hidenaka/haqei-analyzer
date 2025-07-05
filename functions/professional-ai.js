@@ -1,7 +1,7 @@
 // professional-ai.js for Cloudflare Pages
 
-const { HAQEI_DATA } = require("../public/js/haqei_main_database.js");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+import { HAQEI_DATA } from "../public/js/haqei_main_database.js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // AIへのリクエストを並行実行するためのヘルパー関数
 async function callGenerativeAI(prompt, env) {
