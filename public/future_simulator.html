@@ -423,7 +423,7 @@
 
         <div>
           <h2 class="text-2xl font-bold mb-6 text-center text-indigo-300">
-            8つの未来の最終到達点
+            8つの未来シナリオ
           </h2>
           <div
             id="detailCardsContainer"
@@ -1558,12 +1558,7 @@
         };
 
         path.forEach((step, stepIndex) => {
-          const phaseLabels = [
-            "現在地",
-            "フェーズ1",
-            "フェーズ2",
-            "最終到達点",
-          ];
+          const phaseLabels = ["現在地", "フェーズ1", "フェーズ2", "フェーズ3"];
           const isYongYao = step.爻 === "用九" || step.爻 === "用六";
           const previousStep = stepIndex > 0 ? path[stepIndex - 1] : null;
           const stepWrapperClass = isYongYao ? "yong-yao-step" : "";
@@ -1735,7 +1730,7 @@
             <ul class="list-disc list-inside space-y-3 text-gray-300">
                 <li><strong>分析サマリー:</strong> あなたの「現在地」の評価と、状況が変化しやすい時期かどうか（移行コスト）を確認できます。</li>
                 <li><strong>未来分岐グラフ:</strong> 8つのシナリオが今後どのように推移するかを「総合評価」のスコアで示します。線が上に行くほど好ましい未来です。</li>
-                <li><strong>8つの未来の最終到達点:</strong> 各シナリオが最終的に行き着く未来の状態をカードで示します。カードをクリックすると、そこに至るまでの詳細なステップ（行動指針）を確認できます。</li>
+                <li><strong>8つの未来のシナリオ:</strong> 各シナリオが最終的に行き着く未来の状態をカードで示します。カードをクリックすると、そこに至るまでの詳細なステップ（行動指針）を確認できます。</li>
             </ul>
         `;
         showModal(helpContent);
