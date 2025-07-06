@@ -174,9 +174,9 @@
         color: #9ca3af;
       }
       .full-text {
-        white-space: normal; /* テキストを通常通り折り返す */
-        overflow: visible; /* はみ出た部分を表示する */
-        text-overflow: clip; /* 省略記号(...)を無効にする */
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
       }
       #aiReasoningContainer {
         border-left: 3px solid #a5b4fc;
@@ -184,6 +184,7 @@
       }
     </style>
     <script src="./js/koudo_shishin_database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js"></script>
   </head>
   <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-6">
     <div
@@ -458,25 +459,65 @@
       let H64_DATA = null;
       let H384_DATA = null;
       let summaryChartInstance = null;
+      let kuromojiTokenizer = null;
 
       // --- アプリケーション初期化 ---
       async function initializeApp() {
+        const aiGuessBtn = document.getElementById("aiGuessBtn");
+        const analyzeBtn = document.getElementById("analyzeBtn");
+
+        const showLoadingState = (message) => {
+          aiGuessBtn.disabled = true;
+          analyzeBtn.disabled = true;
+          aiGuessBtn.innerHTML = message;
+          analyzeBtn.textContent = message;
+        };
+
+        showLoadingState("辞書データ読込中...");
+
         try {
-          const response = await fetch("/api/data");
-          if (!response.ok) {
-            throw new Error(
-              `APIの呼び出しに失敗しました: ${response.statusText}`
-            );
-          }
-          const apiData = await response.json();
+          // kuromoji.jsの初期化処理
+          const tokenizerPromise = new Promise((resolve, reject) => {
+            kuromoji
+              .builder({
+                dicPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/",
+              })
+              .build((err, tokenizer) => {
+                if (err) {
+                  return reject(err);
+                }
+                kuromojiTokenizer = tokenizer;
+                console.log("Kuromoji tokenizer is ready.");
+                resolve();
+              });
+          });
+
+          // APIデータのフェッチ
+          const fetchDataPromise = fetch("/api/data").then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                `APIの呼び出しに失敗しました: ${response.statusText}`
+              );
+            }
+            return response.json();
+          });
+
+          // 両方の非同期処理が完了するのを待つ
+          const [, apiData] = await Promise.all([
+            tokenizerPromise,
+            fetchDataPromise,
+          ]);
+
           HAQEI_DATA = apiData.HAQEI_DATA;
           H64_DATA = HAQEI_DATA.H64_DATA;
           H384_DATA = HAQEI_DATA["384"];
 
           setupDatalist();
-          document.getElementById("analyzeBtn").disabled = false;
-          document.getElementById("aiGuessBtn").disabled = false;
-          document.getElementById("analyzeBtn").textContent = "予測実行";
+          aiGuessBtn.disabled = false;
+          analyzeBtn.disabled = false;
+          aiGuessBtn.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" /></svg> AIに状況を推測させる';
+          analyzeBtn.textContent = "予測実行";
           document.getElementById("initialMessage").innerHTML =
             "まずは、あなたの「ありのままの言葉」を、<br />上のテキストボックスに入力してください。";
         } catch (error) {
@@ -484,9 +525,7 @@
           showModal(
             `<h2 class="text-2xl font-bold text-red-400 mb-4">初期化エラー</h2><p>アプリケーションの起動に必要なデータを読み込めませんでした。ページを再読み込みするか、開発者に連絡してください。</p><p class="mt-2 text-sm text-gray-500">${error.message}</p>`
           );
-          document.getElementById("analyzeBtn").disabled = true;
-          document.getElementById("aiGuessBtn").disabled = true;
-          document.getElementById("analyzeBtn").textContent = "読込失敗";
+          showLoadingState("読込失敗");
         }
       }
 
@@ -507,6 +546,7 @@
         analyzeBtn.disabled = true;
         aiGuessBtn.disabled = true;
         analyzeBtn.textContent = "データ読込中...";
+        aiGuessBtn.innerHTML = "データ読込中...";
 
         initializeApp();
 
@@ -566,39 +606,129 @@
         }
       }
 
-      async function callAIAssistant(worryText, h384Data) {
-        let bestMatch = { score: 0, line: null, matchedKeywords: [] };
+      // kuromoji.jsでテキストを解析し、重要な単語（名詞、動詞、形容詞）の基本形を抽出する関数
+      function extractWords(text) {
+        if (!kuromojiTokenizer || !text) {
+          return [];
+        }
+        const tokens = kuromojiTokenizer.tokenize(text);
+        const targetPos = ["名詞", "動詞", "形容詞"];
+        const words = tokens
+          .filter(
+            (token) =>
+              targetPos.includes(token.pos) &&
+              token.pos_detail_1 !== "非自立" &&
+              token.pos_detail_1 !== "接尾" &&
+              token.surface_form.length > 1 // 1文字の単語（助詞的なものが多い）を除外
+          )
+          .map((token) => token.basic_form); // 単語の原型（基本形）を使用する
+        return [...new Set(words)]; // 重複を除外して返す
+      }
+
+      // kuromoji.js を使うように刷新した callAIAssistant 関数
+      // ★★★ データベース拡張に対応した、新しい思考ルーチンの callAIAssistant 関数 ★★★
+      async function callAIAssistant(worryText, h384Data, futureThemeMap) {
+        // future_theme_mapを引数で受け取る
+        if (!kuromojiTokenizer) {
+          showModal(
+            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">AI準備中</h2><p>AIの言語解析エンジンの準備がまだ完了していません。</p>`
+          );
+          return null;
+        }
+
+        const SCORE_WEIGHTS = {
+          POSITIVE_KEYWORD: 30,
+          EXISTING_KEYWORD: 10,
+          GENERAL_WORD_SIMILARITY: 15,
+          NEGATIVE_KEYWORD_PENALTY: -20,
+        };
+
+        let bestMatch = { score: -Infinity, line: null, reason: "" };
         const lineMap = ["初", "二", "三", "四", "五", "上"];
+        const worryWords = extractWords(worryText);
 
         h384Data.forEach((lineData) => {
+          // lineData.通し番号 を使って futureThemeMap からキーワードを取得
+          const themeData = futureThemeMap[lineData.通し番号];
+          if (!themeData) return; // 対応するテーマがなければスキップ
+
           let currentScore = 0;
-          let currentMatched = [];
+          let matchedPositiveKeywords = [];
+          let reasonKeywords = []; // 表示用のキーワードを格納
 
-          const keywords = lineData.キーワード
-            ? lineData.キーワード.split("、")
-            : [];
-          keywords.forEach((kw) => {
-            if (worryText.includes(kw)) {
-              currentScore += 5;
-              if (!currentMatched.includes(kw)) currentMatched.push(kw);
-            }
-          });
-
-          if (lineData.現代解釈の要約 && worryText.length > 3) {
-            let matchCount = 0;
-            worryText.split("").forEach((char) => {
-              if (lineData.現代解釈の要約.includes(char)) {
-                matchCount++;
+          // 1.【改善版】象徴キーワード（positive_keywords）とのマッチング
+          if (
+            themeData.positive_keywords &&
+            Array.isArray(themeData.positive_keywords)
+          ) {
+            themeData.positive_keywords.forEach((keywordGroup) => {
+              // グループ内のどれか一つでもマッチすれば加点
+              if (
+                keywordGroup.some(
+                  (kw) => worryText.includes(kw) || worryWords.includes(kw)
+                )
+              ) {
+                currentScore += SCORE_WEIGHTS.POSITIVE_KEYWORD;
+                reasonKeywords.push(keywordGroup[0]); // 代表キーワードを理由として格納
               }
             });
-            currentScore += (matchCount / worryText.length) * 2;
+          }
+
+          // 2.【加点】既存キーワードとのマッチング (変更なし)
+          if (lineData.キーワード) {
+            const keywords = lineData.キーワード.split("、");
+            keywords.forEach((kw) => {
+              if (worryText.includes(kw)) {
+                currentScore += SCORE_WEIGHTS.EXISTING_KEYWORD;
+              }
+            });
+          }
+
+          // 3.【補助】単語の類似度 (変更なし)
+          if (lineData.現代解釈の要約 && worryWords.length > 0) {
+            const summaryWords = extractWords(lineData.現代解釈の要約);
+            const commonWords = worryWords.filter((word) =>
+              summaryWords.includes(word)
+            );
+            if (commonWords.length > 0) {
+              const unionSize = new Set([...worryWords, ...summaryWords]).size;
+              const similarity =
+                unionSize > 0 ? commonWords.length / unionSize : 0;
+              currentScore +=
+                similarity * SCORE_WEIGHTS.GENERAL_WORD_SIMILARITY;
+            }
+          }
+
+          // 4.【改善版】ネガティブキーワードとのマッチング
+          if (
+            themeData.negative_keywords &&
+            Array.isArray(themeData.negative_keywords)
+          ) {
+            themeData.negative_keywords.forEach((keywordGroup) => {
+              if (
+                keywordGroup.some(
+                  (kw) => worryText.includes(kw) || worryWords.includes(kw)
+                )
+              ) {
+                currentScore += SCORE_WEIGHTS.NEGATIVE_KEYWORD_PENALTY;
+              }
+            });
           }
 
           if (currentScore > bestMatch.score) {
+            let reasonText = "";
+            if (reasonKeywords.length > 0) {
+              reasonText = `AIの推測: この爻を特徴付ける「<b>${reasonKeywords.join(
+                "、"
+              )}</b>」というテーマに、あなたの悩みが強く関連していると判断しました。`;
+            } else {
+              reasonText = `AIの推測: あなたの悩みの文脈から、<b>${lineData["親となる卦"]} ${lineData.爻}</b> の持つテーマが、現在の状況を理解する鍵になると判断しました。`;
+            }
+
             bestMatch = {
               score: currentScore,
               line: lineData,
-              matchedKeywords: currentMatched,
+              reason: reasonText,
             };
           }
         });
@@ -606,17 +736,6 @@
         if (bestMatch.line) {
           const lineNum =
             lineMap.findIndex((l) => bestMatch.line.爻.includes(l)) + 1;
-          let reason;
-
-          if (bestMatch.matchedKeywords.length > 0) {
-            reason = `AIの推測: あなたの悩みは特に「<b>${bestMatch.matchedKeywords.join(
-              "、"
-            )}</b>」というテーマとの関連性が高いと判断しました。`;
-          } else {
-            const lineKeywords = bestMatch.line.キーワード || "不明なテーマ";
-            reason = `AIの推測: あなたの悩みの文脈から、<b>${bestMatch.line["親となる卦"]} ${bestMatch.line.爻}</b> の持つ「<b>${lineKeywords}</b>」というテーマが、現在の状況を理解する鍵になると判断しました。`;
-          }
-
           const summary = bestMatch.line.現代解釈の要約 || "";
           const shortSummary =
             summary.length > 80 ? summary.substring(0, 80) + "…" : summary;
@@ -625,13 +744,12 @@
           return {
             卦番号: bestMatch.line.卦番号,
             爻番号: lineNum,
-            根拠: reason,
+            根拠: bestMatch.reason,
             解説: explanation,
           };
         }
         return null;
       }
-
       // --- 分析実行とUI更新 ---
       function handleAnalysis(
         hexNum = null,
@@ -741,12 +859,10 @@
           showCurrentStateModal(startState);
         const targetName = `${startState["親となる卦"]} ${startState.爻}`;
 
-        // ★★★ ここから修正 ★★★
         const guidelineData =
           typeof window.koudoShishinData !== "undefined"
             ? window.koudoShishinData.find((item) => item.name === targetName)
             : null;
-        // ★★★ ここまで修正 ★★★
 
         const actionContainer = document.getElementById("firstActionContainer");
 
@@ -1226,14 +1342,12 @@
           if (stepIndex < path.length - 1) {
             const nextStep = path[stepIndex + 1];
             const targetName = `${step["親となる卦"]} ${step.爻}`;
-            // ★★★ ここから修正 ★★★
             const guidelineData =
               typeof window.koudoShishinData !== "undefined"
                 ? window.koudoShishinData.find(
                     (item) => item.name === targetName
                   )
                 : null;
-            // ★★★ ここまで修正 ★★★
             let actionGuidelineTitle = "",
               actionGuidelineText = "",
               bgColor = "";
@@ -1260,9 +1374,64 @@
         showModal(modalContentHtml);
       }
 
-      function showHelpModal() {
-        showModal(`...`);
+      function showCurrentStateModal(state) {
+        const content = `
+              <h2 class="text-2xl font-bold text-indigo-300 mb-4">現在地の詳細: ${
+                state["親となる卦"]
+              } ${state.爻}</h2>
+              <p class="text-sm text-yellow-300 my-1">テーマ: ${
+                state.キーワード || ""
+              }</p>
+              <p class="text-sm text-gray-300 mt-3">${
+                state.現代解釈の全文 || state.現代解釈の要約
+              }</p>
+              <div class="mt-6 pt-4 border-t border-gray-700 grid grid-cols-2 gap-4 text-sm">
+                  <div><span class="font-bold text-gray-400">基本スコア:</span> ${
+                    state.S1_基本スコア
+                  }</div>
+                  <div><span class="font-bold text-gray-400">ポテンシャル:</span> ${
+                    state.S2_ポテンシャル
+                  }</div>
+                  <div><span class="font-bold text-gray-400">安定性スコア:</span> ${
+                    state.S3_安定性スコア
+                  }</div>
+                  <div><span class="font-bold text-gray-400">リスク:</span> ${
+                    state.S4_リスク
+                  }</div>
+                  <div><span class="font-bold text-gray-400">主体性:</span> ${
+                    state.S5_主体性
+                  }</div>
+                  <div><span class="font-bold text-gray-400">変動性スコア:</span> ${
+                    state.S6_変動性スコア
+                  }</div>
+                  <div class="col-span-2 mt-2 pt-2 border-t border-gray-600"><span class="font-bold text-indigo-300">総合評価スコア:</span> ${
+                    state.S7_総合評価スコア
+                  }</div>
+              </div>
+          `;
+        showModal(content);
       }
+
+      function showHelpModal() {
+        const helpContent = `
+            <h2 class="text-2xl font-bold text-indigo-300 mb-4">HaQei マルチバース・アナライザーとは？</h2>
+            <p class="text-gray-300 mb-3">このツールは、古代の知恵である「易経」と現代のAI技術を融合させ、あなたの現状を多角的に分析し、未来の可能性を可視化するためのものです。</p>
+            <h3 class="text-lg font-semibold text-indigo-300 mt-6 mb-2">使い方</h3>
+            <ol class="list-decimal list-inside space-y-3 text-gray-300">
+                <li><strong>AIによる状況推測:</strong> あなたが今抱えている悩みや状況を、感じたままの「生の言葉」で入力し、「AIに状況を推測させる」ボタンを押してください。AIがあなたの言葉から最も近い状況（卦と爻）を自動で設定します。</li>
+                <li><strong>手動設定:</strong> もし占いたい状況が明確な場合は、AIの推測を使わずに「状況卦」と「現在の爻」を手動で入力することも可能です。</li>
+                <li><strong>予測実行:</strong> 状況が設定されたら、「予測実行」ボタンを押します。あなたの現在地から分岐する8つの未来シナリオがグラフとカードで表示されます。</li>
+            </ol>
+            <h3 class="text-lg font-semibold text-indigo-300 mt-6 mb-2">結果の見方</h3>
+            <ul class="list-disc list-inside space-y-3 text-gray-300">
+                <li><strong>分析サマリー:</strong> あなたの「現在地」の評価と、状況が変化しやすい時期かどうか（移行コスト）を確認できます。</li>
+                <li><strong>未来分岐グラフ:</strong> 8つのシナリオが今後どのように推移するかを「総合評価」のスコアで示します。線が上に行くほど好ましい未来です。</li>
+                <li><strong>8つの未来の最終到達点:</strong> 各シナリオが最終的に行き着く未来の状態をカードで示します。カードをクリックすると、そこに至るまでの詳細なステップ（行動指針）を確認できます。</li>
+            </ul>
+        `;
+        showModal(helpContent);
+      }
+
       function hideModal() {
         const modalContainer = document.getElementById("modalContainer");
         document.getElementById("modalOverlay").classList.add("opacity-0");
@@ -1272,6 +1441,7 @@
           document.body.style.overflow = "";
         }, 300);
       }
+
       function highlightScenario(index) {
         if (summaryChartInstance) {
           summaryChartInstance.data.datasets.forEach((dataset, i) => {
@@ -1287,6 +1457,7 @@
           .querySelector(`.toggle-label[data-index='${index}']`)
           ?.classList.add("highlighted");
       }
+
       function clearHighlights() {
         if (summaryChartInstance) {
           summaryChartInstance.data.datasets.forEach((dataset, i) => {
@@ -1298,6 +1469,7 @@
           el.classList.remove("highlighted");
         });
       }
+
       function setupInteraction() {
         const chartToggles = document.getElementById("chartToggles");
         const detailCards = document.getElementById("detailCardsContainer");
@@ -1326,6 +1498,7 @@
           }
         };
       }
+
       const findLineDataByNum = (hexNum, lineNum) => {
         if (lineNum < 1 || lineNum > 6 || !H384_DATA) return null;
         const lineName = ["初", "二", "三", "四", "五", "上"][lineNum - 1];
@@ -1333,6 +1506,7 @@
           (line) => line.卦番号 === hexNum && line.爻.includes(lineName)
         );
       };
+
       const findYongYaoData = (hexNum) => {
         if (!H384_DATA) return null;
         const yongName = hexNum === 1 ? "用九" : "用六";
@@ -1340,10 +1514,12 @@
           (line) => line.卦番号 === hexNum && line.爻 === yongName
         );
       };
+
       const findHexData = (hexNum) => {
         if (!H64_DATA) return null;
         return H64_DATA.find((hex) => hex.卦番号 === hexNum);
       };
+
       const getNextState = (currentState, choice) => {
         let nextHexNum, nextLineNum;
         const { lineNum: currentLineNum, 卦番号: currentHexNum } = currentState;
@@ -1383,6 +1559,7 @@
         const data = findLineDataByNum(nextHexNum, nextLineNum);
         return data ? { ...data, lineNum: nextLineNum, choice: choice } : null;
       };
+
       function generateAllPaths(startHex, startLine) {
         const startData = findLineDataByNum(startHex, startLine);
         if (!startData) return [];
