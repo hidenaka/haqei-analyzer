@@ -6,7 +6,7 @@
  * shin: 「進」の行動指針テキスト
  * hen: 「変」の行動指針テキスト
  */
-const koudoShishinData = [
+window.koudoShishinData = [
   {
     id: 1,
     name: "乾為天 初九",

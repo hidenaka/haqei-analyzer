@@ -398,7 +398,25 @@
             </div>
             <div
               id="chartToggles"
-              class="flex flex-wrap gap-x-4 gap-y-2 justify-center mt-4"
+              class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"
+            ></div>
+          </div>
+        </div>
+
+        <div id="futureChoiceContainer" class="my-12 hidden">
+          <h2 class="text-2xl font-bold mb-6 text-center text-indigo-300">
+            最初の選択：あなたはどちらの道を選ぶか？
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+              id="choiceCardShin"
+              data-choice="stagnate"
+              class="card p-6 rounded-xl border-2 border-transparent transition-all duration-300 bg-gray-900/50 hover:border-teal-500 hover:shadow-lg hover:shadow-teal-500/10"
+            ></div>
+            <div
+              id="choiceCardHen"
+              data-choice="change"
+              class="card p-6 rounded-xl border-2 border-transparent transition-all duration-300 bg-gray-900/50 hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/10"
             ></div>
           </div>
         </div>
@@ -460,34 +478,28 @@
 
     <script type="module">
       // --- グローバル変数 ---
-      // isLocal の定義は不要になります
       let kuromojiTokenizer = null;
-
       let HAQEI_DATA = null;
       let H64_DATA = null;
       let H384_DATA = null;
       let summaryChartInstance = null;
-      // ... (他の変数はそのまま)
 
       // --- アプリケーション初期化 ---
       async function initializeApp() {
         const aiGuessBtn = document.getElementById("aiGuessBtn");
         const analyzeBtn = document.getElementById("analyzeBtn");
 
-        // ★★★ この関数定義を追加します ★★★
         const showLoadingState = (message) => {
           aiGuessBtn.disabled = true;
           analyzeBtn.disabled = true;
           aiGuessBtn.innerHTML = message;
           analyzeBtn.textContent = message;
         };
-        // ★★★ ここまで ★★★
+
         showLoadingState("辞書データ読込中...");
 
         try {
-          // kuromojiの初期化処理 (修正点2で説明)
           const tokenizerPromise = new Promise((resolve, reject) => {
-            // ★★★ 辞書パスをローカルパスに統一します ★★★
             const dicPath = "./dict/";
             kuromoji.builder({ dicPath: dicPath }).build((err, tokenizer) => {
               if (err) {
@@ -500,13 +512,11 @@
             });
           });
 
-          // ★★★ 常にAPIからデータを取得するように簡素化 ★★★
           const fetchDataPromise = fetch("/api/data").then((res) => {
             if (!res.ok) throw new Error(`APIエラー: ${res.status}`);
             return res.json();
           });
 
-          // Promise.allで両方の完了を待つ
           const [apiData, _] = await Promise.all([
             fetchDataPromise,
             tokenizerPromise,
@@ -582,14 +592,11 @@
         aiGuessBtn.innerHTML = "AIが解析中...";
 
         try {
-          // ▼▼▼【ここが修正点です】▼▼▼
-          // AIの推論ロジックを呼び出し、結果を`result`変数に格納します。
           const result = await callAIAssistant(
             worryText,
             H384_DATA,
-            window.futureThemeMap // ai_theme_database.jsから読み込まれる変数を指定
+            window.futureThemeMap
           );
-          // ▲▲▲【ここまでが修正点です】▲▲▲
 
           if (result) {
             document.getElementById("hexagramInput").value = result.卦番号;
@@ -617,7 +624,6 @@
         }
       }
 
-      // kuromoji.jsでテキストを解析し、重要な単語（名詞、動詞、形容詞）の基本形を抽出する関数
       function extractWords(text) {
         if (!kuromojiTokenizer || !text) {
           return [];
@@ -630,17 +636,12 @@
               targetPos.includes(token.pos) &&
               token.pos_detail_1 !== "非自立" &&
               token.pos_detail_1 !== "接尾" &&
-              token.surface_form.length > 1 // 1文字の単語（助詞的なものが多い）を除外
+              token.surface_form.length > 1
           )
-          .map((token) => token.basic_form); // 単語の原型（基本形）を使用する
-        return [...new Set(words)]; // 重複を除外して返す
+          .map((token) => token.basic_form);
+        return [...new Set(words)];
       }
 
-      // kuromoji.js を使うように刷新した callAIAssistant 関数
-      // ★★★ データベース拡張に対応した、新しい思考ルーチンの callAIAssistant 関数 ★★★
-      // ★★★ データベース拡張と新しい思考ルーチンに対応した、最新の callAIAssistant 関数 ★★★
-      // ★★★【v10.5】文脈（話者の立ち位置）判断ロジックを導入した最終版 ★★★
-      // ★★★【v10.6】行動指針【進】【変】を統合した最終解説ロジック ★★★
       async function callAIAssistant(worryText, h384Data, futureThemeMap) {
         if (!kuromojiTokenizer) {
           showModal(
@@ -794,9 +795,10 @@
             interpretation = `この爻が示す<strong>「${summary}」</strong>という状況が、現在の${subjectPossessive}心境と深く関わっていると判断しました。`;
           }
 
-          // ▼▼▼【今回の主な修正点】「締めの一文」を【進】【変】の解説に置き換え ▼▼▼
           let closingStatement = "";
+          // 修正点 1: `step` を `line` に変更
           const targetName = `${line["親となる卦"]} ${line.爻}`;
+
           const guidelineData =
             typeof window.koudoShishinData !== "undefined"
               ? window.koudoShishinData.find((item) => item.name === targetName)
@@ -804,22 +806,21 @@
 
           if (guidelineData) {
             closingStatement = `
-                  <div class="mt-4 pt-4 border-t border-gray-600/50">
-                      <p class="text-sm text-gray-300 mb-3">この状況に対して、HaQeiは2つの異なるアプローチを提示します。</p>
-                      <div class="space-y-3">
-                          <div class="p-3 rounded-lg bg-teal-900/40 border border-teal-700/60">
-                              <p class="font-bold text-teal-300">【進】テーマを深化させる道</p>
-                              <p class="text-xs text-gray-300 mt-1">${guidelineData.shin}</p>
-                          </div>
-                          <div class="p-3 rounded-lg bg-purple-900/40 border border-purple-700/60">
-                              <p class="font-bold text-purple-300">【変】状況を転換する道</p>
-                              <p class="text-xs text-gray-300 mt-1">${guidelineData.hen}</p>
-                          </div>
+              <div class="mt-4 pt-4 border-t border-gray-600/50">
+                  <p class="text-sm text-gray-300 mb-3">この状況に対して、HaQeiは2つの異なるアプローチを提示します。</p>
+                  <div class="space-y-3">
+                      <div class="p-3 rounded-lg bg-teal-900/40 border border-teal-700/60">
+                          <p class="font-bold text-teal-300">【進】テーマを深化させる道</p>
+                          <p class="text-xs text-gray-300 mt-1">${guidelineData.shin}</p>
                       </div>
-                      <p class="text-sm text-gray-300 mt-3">どちらの道を選ぶか、あるいは両方の視点をどう統合するかが、今の${subjectPossessive}にとっての重要なテーマとなるでしょう。</p>
-                  </div>`;
+                      <div class="p-3 rounded-lg bg-purple-900/40 border border-purple-700/60">
+                          <p class="font-bold text-purple-300">【変】状況を転換する道</p>
+                          <p class="text-xs text-gray-300 mt-1">${guidelineData.hen}</p>
+                      </div>
+                  </div>
+                  <p class="text-sm text-gray-300 mt-3">どちらの道を選ぶか、あるいは両方の視点をどう統合するかが、今の${subjectPossessive}にとっての重要なテーマとなるでしょう。</p>
+              </div>`;
           } else {
-            // 行動指針が見つからない場合のフォールバック
             closingStatement = `<p class="mt-4 text-sm text-gray-400">この爻の視点から現状を見つめ直すことが、新たな気づきを得るための鍵となるかもしれません。</p>`;
           }
 
@@ -835,6 +836,7 @@
 
         return null;
       }
+
       // --- 分析実行とUI更新 ---
       function handleAnalysis(
         hexNum = null,
@@ -891,7 +893,6 @@
         updateUI(sortedPaths, reasoning, explanation);
       }
 
-      // ▼▼▼【v11.1 修正】行動指針が表示されない不具合を修正 ▼▼▼
       function updateUI(sortedPaths, reasoning = null, explanation = null) {
         document.getElementById("initialMessage").classList.add("hidden");
         document.getElementById("resultArea").classList.remove("hidden");
@@ -901,9 +902,9 @@
         );
         if (reasoning) {
           reasoningContainer.innerHTML = `
-            <p class="text-sm text-green-200">${reasoning}</p>
-            <p class="text-xs text-gray-400 mt-2">${explanation || ""}</p>
-        `;
+        <p class="text-sm text-green-200">${reasoning}</p>
+        <p class="text-xs text-gray-400 mt-2">${explanation || ""}</p>
+      `;
           reasoningContainer.classList.remove("hidden");
         } else {
           reasoningContainer.classList.add("hidden");
@@ -911,9 +912,6 @@
         }
 
         const startState = sortedPaths[0][0];
-
-        // ★★★ ここが修正点です ★★★
-        // 「卦名」ではなく、正しいプロパティ名「親となる卦」を参照するように修正しました。
         const targetName = `${startState["親となる卦"]} ${startState.爻}`;
 
         document.getElementById(
@@ -960,30 +958,87 @@
         const actionContainer = document.getElementById("firstActionContainer");
         if (guidelineData) {
           actionContainer.innerHTML = `
-            <div class="mt-4 pt-4 border-t border-yellow-400/30">
-                <h4 class="font-bold text-yellow-300 mb-3 flex items-center">
-                    最初の行動選択
-                    <span class="ml-2 text-xs bg-gray-600 rounded-full h-4 w-4 flex items-center justify-center cursor-help" title="【進】とは現在のテーマに沿って着実に進む選択です。【変】とは、状況を打開するために異なるアプローチを取り入れる選択です。">?</span>
-                </h4>
-                <div class="space-y-3">
-                    <div class="p-3 rounded-lg bg-teal-900/40 border border-teal-700/60">
-                        <p class="font-bold text-teal-300 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" /></svg>【進】テーマを深化させる</p>
-                        <p class="text-xs text-gray-300 mt-1 full-text">${guidelineData.shin}</p>
-                    </div>
-                    <div class="p-3 rounded-lg bg-purple-900/40 border border-purple-700/60">
-                        <p class="font-bold text-purple-300 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" /></svg>【変】状況を転換する</p>
-                        <p class="text-xs text-gray-300 mt-1 full-text">${guidelineData.hen}</p>
-                    </div>
+        <div class="mt-4 pt-4 border-t border-yellow-400/30">
+            <h4 class="font-bold text-yellow-300 mb-3 flex items-center">
+                最初の行動選択
+                <span class="ml-2 text-xs bg-gray-600 rounded-full h-4 w-4 flex items-center justify-center cursor-help" title="【進】とは現在のテーマに沿って着実に進む選択です。【変】とは、状況を打開するために異なるアプローチを取り入れる選択です。">?</span>
+            </h4>
+            <div class="space-y-3">
+                <div class="p-3 rounded-lg bg-teal-900/40 border border-teal-700/60">
+                    <p class="font-bold text-teal-300 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" /></svg>【進】テーマを深化させる</p>
+                    <p class="text-xs text-gray-300 mt-1 full-text">${guidelineData.shin}</p>
                 </div>
-            </div>`;
+                <div class="p-3 rounded-lg bg-purple-900/40 border border-purple-700/60">
+                    <p class="font-bold text-purple-300 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" /></svg>【変】状況を転換する</p>
+                    <p class="text-xs text-gray-300 mt-1 full-text">${guidelineData.hen}</p>
+                </div>
+            </div>
+        </div>`;
         } else {
           actionContainer.innerHTML = "";
+        }
+
+        const futureChoiceContainer = document.getElementById(
+          "futureChoiceContainer"
+        );
+        const choiceCardShin = document.getElementById("choiceCardShin");
+        const choiceCardHen = document.getElementById("choiceCardHen");
+
+        const firstStepShin = getNextState(startState, "stagnate");
+        const firstStepHen = getNextState(startState, "change");
+
+        const createChoiceCardHTML = (state, choiceType) => {
+          if (!state) return "";
+          const startStateData = sortedPaths[0][0];
+          let title = "";
+          let choiceDescription = "";
+          const color = choiceType === "shin" ? "teal" : "purple";
+          const stateTitle = `${state["親となる卦"]} ${state.爻}`;
+
+          if (choiceType === "shin") {
+            title = "【進】テーマを深化させる";
+            choiceDescription = `現在のテーマである<strong>「${
+              startStateData.キーワード || "現状"
+            }」</strong>の、次の段階を体験する自然な成り行きの道です。今の状況を維持したまま、時間と共に訪れる次なる展開を探求します。`;
+          } else {
+            title = "【変】状況を転換する";
+            choiceDescription = `現在のテーマである<strong>「${
+              startStateData.キーワード || "現状"
+            }」</strong>に、あえて異なる要素を加え、状況そのものを全く新しいものへと転換させる道です。行き詰まりの打開や、現状とは違う可能性を模索することを目指します。`;
+          }
+
+          return `
+            <h3 class="text-lg font-bold text-${color}-300 flex items-center mb-3">${title}</h3>
+            <p class="text-sm text-gray-300 mb-3">${choiceDescription}</p>
+            <div class="p-4 rounded-lg bg-gray-800/50">
+                <p class="font-semibold text-gray-200 text-sm">フェーズ1の到達点:</p>
+                <p class="text-base font-bold text-indigo-300 mt-1">${stateTitle}</p>
+                <p class="text-xs text-yellow-300 my-1">テーマ: ${
+                  state.キーワード || ""
+                }</p>
+                <p class="text-xs text-gray-400 mt-2">${
+                  state.現代解釈の要約
+                }</p>
+            </div>
+            <p class="text-xs text-center text-gray-500 mt-4">フェーズ2以降のより詳細な分岐は、実践戦略レポート（有料）でご確認いただけます。</p>
+        `;
+        };
+
+        if (firstStepShin && firstStepHen) {
+          choiceCardShin.innerHTML = createChoiceCardHTML(
+            firstStepShin,
+            "shin"
+          );
+          choiceCardHen.innerHTML = createChoiceCardHTML(firstStepHen, "hen");
+          futureChoiceContainer.classList.remove("hidden");
+        } else {
+          futureChoiceContainer.classList.add("hidden");
         }
 
         renderSummaryChart(sortedPaths);
         renderDetailCards(sortedPaths);
         renderChartToggles(sortedPaths);
-        setupInteraction();
+        setupInteraction(sortedPaths);
       }
 
       function getScoreEvaluation(score) {
@@ -1153,19 +1208,25 @@
         const topColors = ["#4ade80", "#2dd4bf", "#60a5fa", "#a5b4fc"];
         const bottomColors = ["#fde047", "#fb923c", "#f87171", "#ef4444"];
         const currentScore = sortedPaths[0][0].S7_総合評価スコア;
+
         const datasets = sortedPaths.map((path, index) => {
           const isTop = index < 4;
+          const color = isTop ? topColors[index] : bottomColors[index - 4];
           return {
             label: `シナリオ ${index + 1}`,
             data: path.map((p) => p.S7_総合評価スコア),
-            borderColor: isTop ? topColors[index] : bottomColors[index - 4],
+            borderColor: color,
+            originalBorderColor: color,
             borderWidth: isTop ? 3.5 : 1.5,
+            originalBorderWidth: isTop ? 3.5 : 1.5,
             tension: 0.1,
             pointRadius: 4,
             pointBackgroundColor: "white",
+            originalPointBackgroundColor: "white", // 点の元の色を保存
             pointHoverRadius: 6,
           };
         });
+
         summaryChartInstance = new Chart(ctx, {
           type: "line",
           data: {
@@ -1213,6 +1274,81 @@
             },
           },
         });
+      }
+
+      function highlightScenario(index) {
+        if (summaryChartInstance) {
+          summaryChartInstance.data.datasets.forEach((dataset, i) => {
+            if (i === index) {
+              // アクティブな線
+              dataset.borderWidth = 5;
+              dataset.borderColor = dataset.originalBorderColor;
+              dataset.pointBackgroundColor =
+                dataset.originalPointBackgroundColor; // 点の色も元に戻す
+            } else {
+              // 非アクティブな線
+              dataset.borderWidth = 1;
+              dataset.borderColor = "rgba(107, 114, 128, 0.5)"; // 線をグレーアウト
+              dataset.pointBackgroundColor = "rgba(107, 114, 128, 0.5)"; // 点もグレーアウト
+            }
+          });
+          summaryChartInstance.update("none");
+        }
+        document.querySelectorAll(".card, .toggle-label").forEach((el) => {
+          el.classList.remove("highlighted");
+        });
+        document.getElementById(`card-${index}`)?.classList.add("highlighted");
+        document
+          .querySelector(`.toggle-label[data-index='${index}']`)
+          ?.classList.add("highlighted");
+      }
+
+      function resetChartHighlights() {
+        if (summaryChartInstance) {
+          summaryChartInstance.data.datasets.forEach((dataset) => {
+            // 保存しておいた元のスタイルに戻す
+            dataset.borderWidth = dataset.originalBorderWidth;
+            dataset.borderColor = dataset.originalBorderColor;
+            dataset.pointBackgroundColor = dataset.originalPointBackgroundColor; // 点の色も元に戻す
+          });
+          summaryChartInstance.update("none");
+        }
+        document.querySelectorAll(".card, .toggle-label").forEach((el) => {
+          el.classList.remove("highlighted");
+        });
+      }
+
+      function highlightMultipleScenarios(choiceType, sortedPaths) {
+        if (summaryChartInstance) {
+          summaryChartInstance.data.datasets.forEach((dataset, i) => {
+            // グラフの線の数と未来シナリオの数が一致しているか安全確認
+            if (i < sortedPaths.length) {
+              // 各シナリオの最初の選択（進 or 変）を取得
+              const pathChoice = sortedPaths[i][1]?.choice;
+
+              // カードの選択タイプ（進 or 変）とシナリオの選択が一致したら
+              if (pathChoice === choiceType) {
+                // 線をハッキリと表示する
+                dataset.borderWidth = dataset.originalBorderWidth;
+                dataset.borderColor = dataset.originalBorderColor;
+                dataset.pointBackgroundColor =
+                  dataset.originalPointBackgroundColor;
+              } else {
+                // 一致しない線は薄く表示する
+                dataset.borderWidth = 1;
+                dataset.borderColor = "rgba(107, 114, 128, 0.5)";
+                dataset.pointBackgroundColor = "rgba(107, 114, 128, 0.5)";
+              }
+            } else {
+              // 万が一、線の数が多い場合の安全策
+              dataset.borderWidth = 1;
+              dataset.borderColor = "rgba(107, 114, 128, 0.5)";
+              dataset.pointBackgroundColor = "rgba(107, 114, 128, 0.5)";
+            }
+          });
+          // グラフの表示を更新
+          summaryChartInstance.update("none");
+        }
       }
 
       function renderDetailCards(sortedPaths) {
@@ -1311,34 +1447,67 @@
       function renderChartToggles(sortedPaths) {
         const container = document.getElementById("chartToggles");
         container.innerHTML = "";
+
+        const getScenarioSummary = (path) => {
+          const route = path
+            .slice(1)
+            .map((p) => (p.choice === "change" ? "変" : "進"));
+          const routeText = route.join("→");
+          const summaries = {
+            "進→進→進": "信じた道を、まっすぐ進んでいく未来",
+            "進→進→変": "じっくり育てたチカラを、新しい世界で試す未来",
+            "進→変→進": "寄り道で得たヒントで、本来の道を豊かにする未来",
+            "進→変→変": "変化の波を乗りこなし、軽やかに進んでいく未来",
+            "変→進→進":
+              "新しい世界に飛び込み、そこを「自分の居場所」にする未来",
+            "変→進→変": "ひとつの場所に安住せず、自由に可能性を試す未来",
+            "変→変→進": "試行錯誤の旅を経て、「これだ」と思える道に出会う未来",
+            "変→変→変": "常識を塗り替え、新しい時代を切り拓いていく未来",
+          };
+          return summaries[routeText] || "カスタム経路";
+        };
+
         sortedPaths.forEach((path, index) => {
-          const color = summaryChartInstance.data.datasets[index].borderColor;
+          const color =
+            summaryChartInstance.data.datasets[index].originalBorderColor;
           const finalScore = path[path.length - 1].S7_総合評価スコア;
-          const overallTrend = evaluateSpiralProgress(path[0], path[3]);
-          const wrapper = document.createElement("div");
-          wrapper.className = "w-full sm:w-auto";
+          const scenarioSummary = getScenarioSummary(path);
+
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.id = `toggle-${index}`;
           checkbox.checked = true;
           checkbox.className = "hidden";
+
           const label = document.createElement("label");
           label.htmlFor = `toggle-${index}`;
-          label.className = "toggle-label text-xs p-2 mb-1";
+          label.className =
+            "toggle-label text-xs p-2 rounded-lg bg-gray-800/50 border border-gray-700/50 w-full flex-col h-full";
           label.dataset.index = index;
-          label.title = `最終スコア: ${finalScore}, 全体トレンド: ${overallTrend.trend} (${overallTrend.message})`;
-          label.innerHTML = `<span class="toggle-legend" style="background-color: ${color};"></span><span>シナリオ ${
-            index + 1
-          } (${finalScore}点)</span>`;
+          label.title = `シナリオ ${index + 1}: ${path
+            .slice(1)
+            .map((p) => (p.choice === "change" ? "変" : "進"))
+            .join("→")}`;
+
+          label.innerHTML = `
+          <div class="flex items-center w-full mb-1">
+            <span class="toggle-legend" style="background-color: ${color};"></span>
+            <span class="font-bold text-gray-200">シナリオ ${
+              index + 1
+            } (${finalScore}点)</span>
+          </div>
+          <span class="text-gray-400 text-[10px] w-full text-left">${scenarioSummary}</span>
+        `;
+
           checkbox.addEventListener("change", () => {
             const isVisible = checkbox.checked;
             summaryChartInstance.setDatasetVisibility(index, isVisible);
             label.style.opacity = isVisible ? "1" : "0.5";
             summaryChartInstance.update();
           });
-          wrapper.appendChild(checkbox);
-          wrapper.appendChild(label);
-          container.appendChild(wrapper);
+
+          container.appendChild(checkbox);
+          container.appendChild(label);
         });
       }
 
@@ -1367,6 +1536,7 @@
         } の詳細</h2><span class="rank-badge ${rankClass} text-lg">${
           rankLabels[index]
         }</span></div>${trendHtml}`;
+
         const getScoreDiffHtml = (currentScore, prevScore) => {
           if (typeof prevScore !== "number") return "";
           const diff = Math.round((currentScore - prevScore) * 10) / 10;
@@ -1385,6 +1555,7 @@
             diff
           )}</span>`;
         };
+
         path.forEach((step, stepIndex) => {
           const phaseLabels = [
             "現在地",
@@ -1398,6 +1569,7 @@
           const stepTitleIcon = isYongYao
             ? '<span class="yong-yao-title-icon">☯</span>'
             : "";
+
           const s1_diff = getScoreDiffHtml(
             step.S1_基本スコア,
             previousStep?.S1_基本スコア
@@ -1422,43 +1594,31 @@
             step.S7_総合評価スコア,
             previousStep?.S7_総合評価スコア
           );
-          let stepHtml = `<div class="py-4 px-4 border-b border-gray-700 last:border-b-0 ${stepWrapperClass}"><h4 class="text-lg font-semibold text-gray-100 flex items-center">${
-            phaseLabels[stepIndex]
-          }: ${step["親となる卦"]} ${
-            step.爻
-          } ${stepTitleIcon}</h4><p class="text-sm text-yellow-300 my-1">テーマ: ${
-            step.キーワード || ""
-          }</p><p class="text-xs text-gray-400 mt-1">${
-            step.現代解釈の要約
-          }</p><div class="mt-4 grid grid-cols-2 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs"><div class="flex justify-between items-center"><span class="text-gray-400">基本:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
-            step.S1_基本スコア
-          }</span>${s1_diff}</div></div><div class="flex justify-between items-center"><span class="text-gray-400">ポテンシャル:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
-            step.S2_ポテンシャル
-          }</span>${s2_diff}</div></div><div class="flex justify-between items-center"><span class="text-gray-400">安定性:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
-            step.S3_安定性スコア
-          }</span>${s3_diff}</div></div><div class="flex justify-between items-center"><span class="text-gray-400">リスク:</span><div class="flex items-center"><span class="font-mono w-6 text-right text-red-400">${
-            step.S4_リスク
-          }</span>${s4_diff}</div></div><div class="flex justify-between items-center"><span class="text-gray-400">変動性:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
-            step.S6_変動性スコア
-          }</span>${s6_diff}</div></div><div class="flex justify-between items-center"><span class="text-gray-400">主体性:</span><span>${
-            step.S5_主体性
-          }</span></div><div class="col-span-full flex justify-between items-center font-bold border-t border-gray-600 pt-2 mt-2"><span class="text-gray-300">総合評価:</span><div class="flex items-center"><span class="font-mono text-lg text-indigo-300">${
-            step.S7_総合評価スコア
-          }</span>${s7_diff
-            .replace("text-xs", "text-sm")
-            .replace("w-10", "w-12")}</div></div></div>`;
+
+          let guidelineHtml = "";
           if (stepIndex < path.length - 1) {
             const nextStep = path[stepIndex + 1];
+
             const targetName = `${step["親となる卦"]} ${step.爻}`;
+
+            // ★★★★★ 修正箇所 ★★★★★
+            // データベースのキーと完全に一致するように、スペースを半角スペース1つに正規化します。
+            const normalizedTargetName = `${step["親となる卦"]} ${step.爻}`
+              .replace(/\s+/g, " ")
+              .trim();
+
             const guidelineData =
               typeof window.koudoShishinData !== "undefined"
                 ? window.koudoShishinData.find(
-                    (item) => item.name === targetName
+                    (item) =>
+                      item.name.replace(/\s+/g, " ").trim() === targetName
                   )
                 : null;
+
             let actionGuidelineTitle = "",
               actionGuidelineText = "",
               bgColor = "";
+
             if (guidelineData) {
               if (nextStep.choice === "change") {
                 actionGuidelineTitle = `<p class="font-bold text-purple-300">行動指針【変】：状況を転換する</p>`;
@@ -1474,49 +1634,89 @@
               actionGuidelineText = `<p class="text-xs text-gray-500 mt-1">（行動指針データが見つかりませんでした。）</p>`;
               bgColor = "bg-gray-700/50 border border-gray-600";
             }
-            stepHtml += `<div class="mt-4 pt-4 border-t border-gray-700/50"><div class="p-3 rounded-lg text-sm ${bgColor}">${actionGuidelineTitle}${actionGuidelineText}</div></div>`;
+            guidelineHtml = `<div class="mt-4 pt-4 border-t border-gray-700/50"><div class="p-3 rounded-lg text-sm ${bgColor}">${actionGuidelineTitle}${actionGuidelineText}</div></div>`;
           }
-          stepHtml += `</div>`;
-          modalContentHtml += stepHtml;
+
+          modalContentHtml += `
+    <div class="py-4 px-4 border-b border-gray-700 last:border-b-0 ${stepWrapperClass}">
+      <h4 class="text-lg font-semibold text-gray-100 flex items-center">${
+        phaseLabels[stepIndex]
+      }: ${step["親となる卦"]} ${step.爻} ${stepTitleIcon}</h4>
+      <p class="text-sm text-yellow-300 my-1">テーマ: ${
+        step.キーワード || ""
+      }</p>
+      <p class="text-xs text-gray-400 mt-1">${step.現代解釈の要約}</p>
+      <div class="mt-4 grid grid-cols-2 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs">
+        <div class="flex justify-between items-center"><span class="text-gray-400">基本:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
+          step.S1_基本スコア
+        }</span>${s1_diff}</div></div>
+        <div class="flex justify-between items-center"><span class="text-gray-400">ポテンシャル:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
+          step.S2_ポテンシャル
+        }</span>${s2_diff}</div></div>
+        <div class="flex justify-between items-center"><span class="text-gray-400">安定性:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
+          step.S3_安定性スコア
+        }</span>${s3_diff}</div></div>
+        <div class="flex justify-between items-center"><span class="text-gray-400">リスク:</span><div class="flex items-center"><span class="font-mono w-6 text-right text-red-400">${
+          step.S4_リスク
+        }</span>${s4_diff}</div></div>
+        <div class="flex justify-between items-center"><span class="text-gray-400">変動性:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
+          step.S6_変動性スコア
+        }</span>${s6_diff}</div></div>
+        <div class="flex justify-between items-center"><span class="text-gray-400">主体性:</span><span>${
+          step.S5_主体性
+        }</span></div>
+        <div class="col-span-full flex justify-between items-center font-bold border-t border-gray-600 pt-2 mt-2">
+          <span class="text-gray-300">総合評価:</span>
+          <div class="flex items-center">
+            <span class="font-mono text-lg text-indigo-300">${
+              step.S7_総合評価スコア
+            }</span>
+            ${s7_diff.replace("text-xs", "text-sm").replace("w-10", "w-12")}
+          </div>
+        </div>
+      </div>
+      ${guidelineHtml}
+    </div>
+  `;
         });
         showModal(modalContentHtml);
       }
 
       function showCurrentStateModal(state) {
         const content = `
-              <h2 class="text-2xl font-bold text-indigo-300 mb-4">現在地の詳細: ${
-                state["親となる卦"]
-              } ${state.爻}</h2>
-              <p class="text-sm text-yellow-300 my-1">テーマ: ${
-                state.キーワード || ""
-              }</p>
-              <p class="text-sm text-gray-300 mt-3">${
-                state.現代解釈の全文 || state.現代解釈の要約
-              }</p>
-              <div class="mt-6 pt-4 border-t border-gray-700 grid grid-cols-2 gap-4 text-sm">
-                  <div><span class="font-bold text-gray-400">基本スコア:</span> ${
-                    state.S1_基本スコア
-                  }</div>
-                  <div><span class="font-bold text-gray-400">ポテンシャル:</span> ${
-                    state.S2_ポテンシャル
-                  }</div>
-                  <div><span class="font-bold text-gray-400">安定性スコア:</span> ${
-                    state.S3_安定性スコア
-                  }</div>
-                  <div><span class="font-bold text-gray-400">リスク:</span> ${
-                    state.S4_リスク
-                  }</div>
-                  <div><span class="font-bold text-gray-400">主体性:</span> ${
-                    state.S5_主体性
-                  }</div>
-                  <div><span class="font-bold text-gray-400">変動性スコア:</span> ${
-                    state.S6_変動性スコア
-                  }</div>
-                  <div class="col-span-2 mt-2 pt-2 border-t border-gray-600"><span class="font-bold text-indigo-300">総合評価スコア:</span> ${
-                    state.S7_総合評価スコア
-                  }</div>
-              </div>
-          `;
+                <h2 class="text-2xl font-bold text-indigo-300 mb-4">現在地の詳細: ${
+                  state["親となる卦"]
+                } ${state.爻}</h2>
+                <p class="text-sm text-yellow-300 my-1">テーマ: ${
+                  state.キーワード || ""
+                }</p>
+                <p class="text-sm text-gray-300 mt-3">${
+                  state.現代解釈の全文 || state.現代解釈の要約
+                }</p>
+                <div class="mt-6 pt-4 border-t border-gray-700 grid grid-cols-2 gap-4 text-sm">
+                    <div><span class="font-bold text-gray-400">基本スコア:</span> ${
+                      state.S1_基本スコア
+                    }</div>
+                    <div><span class="font-bold text-gray-400">ポテンシャル:</span> ${
+                      state.S2_ポテンシャル
+                    }</div>
+                    <div><span class="font-bold text-gray-400">安定性スコア:</span> ${
+                      state.S3_安定性スコア
+                    }</div>
+                    <div><span class="font-bold text-gray-400">リスク:</span> ${
+                      state.S4_リスク
+                    }</div>
+                    <div><span class="font-bold text-gray-400">主体性:</span> ${
+                      state.S5_主体性
+                    }</div>
+                    <div><span class="font-bold text-gray-400">変動性スコア:</span> ${
+                      state.S6_変動性スコア
+                    }</div>
+                    <div class="col-span-2 mt-2 pt-2 border-t border-gray-600"><span class="font-bold text-indigo-300">総合評価スコア:</span> ${
+                      state.S7_総合評価スコア
+                    }</div>
+                </div>
+            `;
         showModal(content);
       }
 
@@ -1550,38 +1750,13 @@
         }, 300);
       }
 
-      function highlightScenario(index) {
-        if (summaryChartInstance) {
-          summaryChartInstance.data.datasets.forEach((dataset, i) => {
-            dataset.borderWidth = i === index ? 5 : i < 4 ? 3.5 : 1.5;
-          });
-          summaryChartInstance.update("none");
-        }
-        document.querySelectorAll(".card, .toggle-label").forEach((el) => {
-          el.classList.remove("highlighted");
-        });
-        document.getElementById(`card-${index}`)?.classList.add("highlighted");
-        document
-          .querySelector(`.toggle-label[data-index='${index}']`)
-          ?.classList.add("highlighted");
-      }
+      // 修正点 3: 不要な関数 `highlightScenario1` と `clearHighlights` を削除
 
-      function clearHighlights() {
-        if (summaryChartInstance) {
-          summaryChartInstance.data.datasets.forEach((dataset, i) => {
-            dataset.borderWidth = i < 4 ? 3.5 : 1.5;
-          });
-          summaryChartInstance.update("none");
-        }
-        document.querySelectorAll(".card, .toggle-label").forEach((el) => {
-          el.classList.remove("highlighted");
-        });
-      }
-
-      function setupInteraction() {
+      function setupInteraction(sortedPaths) {
         const chartToggles = document.getElementById("chartToggles");
         const detailCards = document.getElementById("detailCardsContainer");
         const chartCanvas = document.getElementById("summaryChart");
+
         const handleMouseOver = (e) => {
           const target = e.target.closest("[data-index]");
           if (target) {
@@ -1589,11 +1764,13 @@
             highlightScenario(index);
           }
         };
+
         chartToggles.addEventListener("mouseover", handleMouseOver);
         detailCards.addEventListener("mouseover", handleMouseOver);
-        chartToggles.addEventListener("mouseleave", clearHighlights);
-        detailCards.addEventListener("mouseleave", clearHighlights);
-        chartCanvas.addEventListener("mouseleave", clearHighlights);
+        chartToggles.addEventListener("mouseleave", resetChartHighlights);
+        detailCards.addEventListener("mouseleave", resetChartHighlights);
+        chartCanvas.addEventListener("mouseleave", resetChartHighlights);
+
         chartCanvas.onmousemove = (evt) => {
           const activeElements = summaryChartInstance.getElementsAtEventForMode(
             evt,
@@ -1605,6 +1782,23 @@
             highlightScenario(activeElements[0].datasetIndex);
           }
         };
+
+        const choiceCardShin = document.getElementById("choiceCardShin");
+        const choiceCardHen = document.getElementById("choiceCardHen");
+
+        if (choiceCardShin) {
+          choiceCardShin.addEventListener("mouseover", () => {
+            highlightMultipleScenarios("stagnate", sortedPaths);
+          });
+          choiceCardShin.addEventListener("mouseleave", resetChartHighlights);
+        }
+
+        if (choiceCardHen) {
+          choiceCardHen.addEventListener("mouseover", () => {
+            highlightMultipleScenarios("change", sortedPaths);
+          });
+          choiceCardHen.addEventListener("mouseleave", resetChartHighlights);
+        }
       }
 
       const findLineDataByNum = (hexNum, lineNum) => {
