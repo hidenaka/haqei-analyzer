@@ -460,57 +460,56 @@
 
     <script type="module">
       // --- グローバル変数 ---
+      // isLocal の定義は不要になります
+      let kuromojiTokenizer = null;
+
       let HAQEI_DATA = null;
       let H64_DATA = null;
       let H384_DATA = null;
       let summaryChartInstance = null;
-      let kuromojiTokenizer = null;
+      // ... (他の変数はそのまま)
 
       // --- アプリケーション初期化 ---
       async function initializeApp() {
         const aiGuessBtn = document.getElementById("aiGuessBtn");
         const analyzeBtn = document.getElementById("analyzeBtn");
 
+        // ★★★ この関数定義を追加します ★★★
         const showLoadingState = (message) => {
           aiGuessBtn.disabled = true;
           analyzeBtn.disabled = true;
           aiGuessBtn.innerHTML = message;
           analyzeBtn.textContent = message;
         };
-
+        // ★★★ ここまで ★★★
         showLoadingState("辞書データ読込中...");
 
         try {
-          // kuromoji.jsの初期化処理
+          // kuromojiの初期化処理 (修正点2で説明)
           const tokenizerPromise = new Promise((resolve, reject) => {
-            kuromoji
-              .builder({
-                dicPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/",
-              })
-              .build((err, tokenizer) => {
-                if (err) {
-                  return reject(err);
-                }
-                kuromojiTokenizer = tokenizer;
-                console.log("Kuromoji tokenizer is ready.");
-                resolve();
-              });
+            // ★★★ 辞書パスをローカルパスに統一します ★★★
+            const dicPath = "./dict/";
+            kuromoji.builder({ dicPath: dicPath }).build((err, tokenizer) => {
+              if (err) {
+                console.error("Kuromojiのビルドに失敗:", err);
+                return reject(err);
+              }
+              kuromojiTokenizer = tokenizer;
+              console.log("Kuromoji tokenizer is ready.");
+              resolve();
+            });
           });
 
-          // APIデータのフェッチ
-          const fetchDataPromise = fetch("/api/data").then((response) => {
-            if (!response.ok) {
-              throw new Error(
-                `APIの呼び出しに失敗しました: ${response.statusText}`
-              );
-            }
-            return response.json();
+          // ★★★ 常にAPIからデータを取得するように簡素化 ★★★
+          const fetchDataPromise = fetch("/api/data").then((res) => {
+            if (!res.ok) throw new Error(`APIエラー: ${res.status}`);
+            return res.json();
           });
 
-          // 両方の非同期処理が完了するのを待つ
-          const [, apiData] = await Promise.all([
-            tokenizerPromise,
+          // Promise.allで両方の完了を待つ
+          const [apiData, _] = await Promise.all([
             fetchDataPromise,
+            tokenizerPromise,
           ]);
 
           HAQEI_DATA = apiData.HAQEI_DATA;
