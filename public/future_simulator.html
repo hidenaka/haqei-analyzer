@@ -422,16 +422,14 @@
         </div>
         <div id="proReportCtaTop" class="my-8 text-center hidden">
           <a
-            href="#"
+            href="pro_future_report.html"
             id="goToProReportBtnTop"
             class="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
             【有料】AIによる全8シナリオの未来予測レポートを見る
           </a>
         </div>
-        <h2 class="text-2xl font-bold mb-6 text-center text-indigo-300">
-          8つの未来の最終到達点
-        </h2>
+
         <div>
           <h2 class="text-2xl font-bold mb-6 text-center text-indigo-300">
             8つの未来シナリオ
@@ -443,7 +441,7 @@
 
           <div id="proReportCtaBottom" class="my-12 text-center hidden">
             <a
-              href="#"
+              href="pro_future_report.html"
               id="goToProReportBtnBottom"
               class="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
@@ -601,6 +599,16 @@
       // --- AIによる状況推測 ---
       async function handleAiGuess() {
         const worryText = document.getElementById("worryInput").value.trim();
+
+        // ▼▼▼ ここからバリデーション処理を追加 ▼▼▼
+        const validationResult = isInputSufficient(worryText);
+        if (!validationResult.isValid) {
+          showModal(
+            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力内容のご確認</h2><p>${validationResult.message}</p><p class="mt-2 text-sm text-gray-400">あなたの状況をより深く理解するために、もう少し詳しく教えていただけますでしょうか。</p>`
+          );
+          return; // 処理を中断
+        }
+        // ▲▲▲ バリデーション処理ここまで ▲▲▲
         if (!worryText) {
           showModal(
             `<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力エラー</h2><p>悩みや状況をテキストエリアに入力してください。</p>`
@@ -609,6 +617,51 @@
         }
 
         const aiGuessBtn = document.getElementById("aiGuessBtn");
+        // ▼▼▼ 新しく追加する判定関数 ▼▼▼
+        function isInputSufficient(text) {
+          // 第1層：基本的な形式チェック
+          if (text.length < 10) {
+            return {
+              isValid: false,
+              message:
+                "入力された内容が短すぎます。10文字以上で入力してください。",
+            };
+          }
+
+          // 第2層：言語的な内容チェック
+          if (!kuromojiTokenizer) {
+            // kuromojiがまだ準備できていない場合
+            return {
+              isValid: false,
+              message:
+                "AIの言語解析エンジンの準備ができていません。少し待ってから再度お試しください。",
+            };
+          }
+
+          const tokens = kuromojiTokenizer.tokenize(text);
+          const meaningfulPos = ["名詞", "動詞", "形容詞"]; // 必要であれば "副詞" も追加
+
+          const meaningfulWordCount = tokens.filter((token) => {
+            // "非自立"（例: "こと", "もの"）や助数詞などを除外して精度を上げる
+            return (
+              meaningfulPos.includes(token.pos) &&
+              token.pos_detail_1 !== "非自立" &&
+              token.pos_detail_1 !== "接尾" &&
+              token.pos_detail_1 !== "数"
+            );
+          }).length;
+
+          if (meaningfulWordCount < 3) {
+            return {
+              isValid: false,
+              message:
+                "文章に含まれる具体的な単語（名詞、動詞、形容詞）が少ないようです。",
+            };
+          }
+
+          return { isValid: true, message: "" };
+        }
+
         aiGuessBtn.disabled = true;
         aiGuessBtn.innerHTML = "AIが解析中...";
 
@@ -917,6 +970,10 @@
       function updateUI(sortedPaths, reasoning = null, explanation = null) {
         document.getElementById("initialMessage").classList.add("hidden");
         document.getElementById("resultArea").classList.remove("hidden");
+        document.getElementById("proReportCtaTop").classList.remove("hidden");
+        document
+          .getElementById("proReportCtaBottom")
+          .classList.remove("hidden");
 
         const reasoningContainer = document.getElementById(
           "aiReasoningContainer"
