@@ -347,27 +347,31 @@
             <div class="space-y-4">
               <div
                 id="summaryCard"
-                class="p-4 rounded-lg border border-yellow-400/50 bg-yellow-400/10"
+                class="p-4 rounded-lg border border-gray-600/50 bg-gray-900/30"
               >
-                <h3
-                  id="currentTitle"
-                  class="text-lg font-semibold text-yellow-300"
-                ></h3>
-                <p
-                  id="currentKeywords"
-                  class="text-sm text-yellow-200 mt-1"
-                ></p>
-                <p id="currentSummary" class="text-gray-300 mt-2 text-sm"></p>
-                <div class="mt-3 pt-3 border-t border-yellow-400/30">
-                  <h4 class="font-bold text-yellow-300">現在地の総合評価</h4>
+                <div
+                  class="bg-yellow-400/10 border-l-4 border-yellow-400 p-3 rounded-md"
+                >
+                  <h4
+                    id="currentTitle"
+                    class="text-lg font-semibold text-yellow-300"
+                  ></h4>
+                  <p
+                    id="currentKeywords"
+                    class="text-sm text-yellow-200 mt-1"
+                  ></p>
+                  <p id="currentSummary" class="text-gray-300 mt-2 text-sm"></p>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-700/50">
+                  <h4 class="font-bold text-gray-300">現在地の総合評価</h4>
                   <div class="flex items-baseline">
                     <p id="currentScore" class="text-3xl font-bold"></p>
                     <span id="currentScoreLabel"></span>
                   </div>
                   <p id="currentScoreDesc" class="text-xs"></p>
                 </div>
-                <div class="mt-3 pt-3 border-t border-yellow-400/30">
-                  <h4 class="font-bold text-yellow-300">
+                <div class="mt-4 pt-4 border-t border-gray-700/50">
+                  <h4 class="font-bold text-gray-300">
                     今回の変化のしやすさ (移行コスト)
                   </h4>
                   <div class="flex items-baseline">
@@ -376,7 +380,7 @@
                   </div>
                   <p id="transitionCostDesc" class="text-xs"></p>
                 </div>
-                <div id="firstActionContainer"></div>
+                <div id="firstActionContainer" class="mt-4"></div>
               </div>
             </div>
           </div>
@@ -579,12 +583,15 @@
         aiGuessBtn.innerHTML = "AIが解析中...";
 
         try {
-          // AIの推論ロジックに必要なキーワードマップを第3引数として渡す
+          // ▼▼▼【ここが修正点です】▼▼▼
+          // AIの推論ロジックを呼び出し、結果を`result`変数に格納します。
           const result = await callAIAssistant(
             worryText,
             H384_DATA,
-            window.futureThemeMap
+            window.futureThemeMap // ai_theme_database.jsから読み込まれる変数を指定
           );
+          // ▲▲▲【ここまでが修正点です】▲▲▲
+
           if (result) {
             document.getElementById("hexagramInput").value = result.卦番号;
             document.getElementById("lineInput").value = result.爻番号;
@@ -632,14 +639,39 @@
 
       // kuromoji.js を使うように刷新した callAIAssistant 関数
       // ★★★ データベース拡張に対応した、新しい思考ルーチンの callAIAssistant 関数 ★★★
+      // ★★★ データベース拡張と新しい思考ルーチンに対応した、最新の callAIAssistant 関数 ★★★
+      // ★★★【v10.5】文脈（話者の立ち位置）判断ロジックを導入した最終版 ★★★
+      // ★★★【v10.6】行動指針【進】【変】を統合した最終解説ロジック ★★★
       async function callAIAssistant(worryText, h384Data, futureThemeMap) {
-        // future_theme_mapを引数で受け取る
         if (!kuromojiTokenizer) {
           showModal(
             `<h2 class="text-2xl font-bold text-yellow-400 mb-4">AI準備中</h2><p>AIの言語解析エンジンの準備がまだ完了していません。</p>`
           );
           return null;
         }
+
+        function determinePersona(text) {
+          const trimmedText = text.trim();
+          const strongFirstPersonPattern = /^(私|僕|自分|俺|うち)(は|が)/;
+          if (strongFirstPersonPattern.test(trimmedText))
+            return { isFirstPerson: true };
+          const thirdPersonPattern =
+            /彼|彼女|友人|知人|同僚|上司|部下|クライアント|あの人|[ぁ-んァ-ヶー一-龠々]+さん/;
+          if (thirdPersonPattern.test(trimmedText))
+            return { isFirstPerson: false };
+          const bystanderPattern =
+            /(ですかね|ですよね|らしい|とのこと|だそうだ|でしょうか)\s*[。？]?$/;
+          if (bystanderPattern.test(trimmedText))
+            return { isFirstPerson: false };
+          const firstPersonPattern = /私|僕|自分|俺|うち/;
+          if (firstPersonPattern.test(trimmedText))
+            return { isFirstPerson: true };
+          return { isFirstPerson: false };
+        }
+
+        const { isFirstPerson } = determinePersona(worryText);
+        const subject = isFirstPerson ? "あなた" : "その方";
+        const subjectPossessive = isFirstPerson ? "あなたの" : "その方の";
 
         const SCORE_WEIGHTS = {
           POSITIVE_KEYWORD: 30,
@@ -648,48 +680,46 @@
           NEGATIVE_KEYWORD_PENALTY: -20,
         };
 
-        let bestMatch = { score: -Infinity, line: null, reason: "" };
+        let bestMatch = {
+          score: -Infinity,
+          line: null,
+          matchedWords: [],
+          reasonKeywords: [],
+        };
         const lineMap = ["初", "二", "三", "四", "五", "上"];
         const worryWords = extractWords(worryText);
 
         h384Data.forEach((lineData) => {
-          // lineData.通し番号 を使って futureThemeMap からキーワードを取得
           const themeData = futureThemeMap[lineData.通し番号];
-          if (!themeData) return; // 対応するテーマがなければスキップ
-
+          if (!themeData) return;
           let currentScore = 0;
-          let matchedPositiveKeywords = [];
-          let reasonKeywords = []; // 表示用のキーワードを格納
-
-          // 1.【改善版】象徴キーワード（positive_keywords）とのマッチング
+          let reasonKeywords = [];
+          let currentMatchedWords = [];
           if (
             themeData.positive_keywords &&
             Array.isArray(themeData.positive_keywords)
           ) {
             themeData.positive_keywords.forEach((keywordGroup) => {
-              // グループ内のどれか一つでもマッチすれば加点
-              if (
-                keywordGroup.some(
-                  (kw) => worryText.includes(kw) || worryWords.includes(kw)
-                )
-              ) {
+              const foundKw = keywordGroup.find(
+                (kw) => worryText.includes(kw) || worryWords.includes(kw)
+              );
+              if (foundKw) {
                 currentScore += SCORE_WEIGHTS.POSITIVE_KEYWORD;
-                reasonKeywords.push(keywordGroup[0]); // 代表キーワードを理由として格納
+                reasonKeywords.push(keywordGroup[0]);
+                if (worryText.includes(foundKw)) {
+                  currentMatchedWords.push(foundKw);
+                }
               }
             });
           }
-
-          // 2.【加点】既存キーワードとのマッチング (変更なし)
           if (lineData.キーワード) {
-            const keywords = lineData.キーワード.split("、");
+            const keywords = lineData.キーワード.split(/、|,/);
             keywords.forEach((kw) => {
-              if (worryText.includes(kw)) {
+              if (worryText.includes(kw.trim())) {
                 currentScore += SCORE_WEIGHTS.EXISTING_KEYWORD;
               }
             });
           }
-
-          // 3.【補助】単語の類似度 (変更なし)
           if (lineData.現代解釈の要約 && worryWords.length > 0) {
             const summaryWords = extractWords(lineData.現代解釈の要約);
             const commonWords = worryWords.filter((word) =>
@@ -703,8 +733,6 @@
                 similarity * SCORE_WEIGHTS.GENERAL_WORD_SIMILARITY;
             }
           }
-
-          // 4.【改善版】ネガティブキーワードとのマッチング
           if (
             themeData.negative_keywords &&
             Array.isArray(themeData.negative_keywords)
@@ -719,40 +747,93 @@
               }
             });
           }
-
           if (currentScore > bestMatch.score) {
-            let reasonText = "";
-            if (reasonKeywords.length > 0) {
-              reasonText = `AIの推測: この爻を特徴付ける「<b>${reasonKeywords.join(
-                "、"
-              )}</b>」というテーマに、あなたの悩みが強く関連していると判断しました。`;
-            } else {
-              reasonText = `AIの推測: あなたの悩みの文脈から、<b>${lineData["親となる卦"]} ${lineData.爻}</b> の持つテーマが、現在の状況を理解する鍵になると判断しました。`;
-            }
-
             bestMatch = {
               score: currentScore,
               line: lineData,
-              reason: reasonText,
+              matchedWords: [...new Set(currentMatchedWords)],
+              reasonKeywords: [...new Set(reasonKeywords)],
             };
           }
         });
 
         if (bestMatch.line) {
-          const lineNum =
-            lineMap.findIndex((l) => bestMatch.line.爻.includes(l)) + 1;
-          const summary = bestMatch.line.現代解釈の要約 || "";
-          const shortSummary =
-            summary.length > 80 ? summary.substring(0, 80) + "…" : summary;
-          const explanation = `具体的には、ご相談の内容が持つ雰囲気が、この爻の解釈である「${shortSummary}」という状況と共鳴していると判断しました。この爻の視点から現状を見つめ直すことで、新たな気づきが得られるかもしれません。`;
+          const { line, matchedWords, reasonKeywords } = bestMatch;
+          const lineNum = lineMap.findIndex((l) => line.爻.includes(l)) + 1;
+
+          let quote = "";
+          if (matchedWords.length > 0) {
+            const quoteWords = matchedWords.slice(0, 3).map((w) => `「${w}」`);
+            quote = `${quoteWords.join(
+              "、"
+            )}といった言葉に、特に強い共鳴が見られました。`;
+          } else {
+            quote = "お話いただいた内容全体から、";
+          }
+
+          let mainTheme = "";
+          if (reasonKeywords.length > 0) {
+            mainTheme = reasonKeywords.join("、");
+          } else {
+            mainTheme = `${line["親となる卦"]} ${line.爻}の持つテーマ`;
+          }
+
+          const reasoning = `AIの推測: ${subjectPossessive}ご相談の状況は、<strong>${line["親となる卦"]} ${line.爻}</strong>の持つ<strong>「${mainTheme}」</strong>というテーマと強く結びついていると判断しました。`;
+
+          let interpretation;
+          const summary = line.現代解釈の要約 || "（解釈データなし）";
+
+          if (line.通し番号 === 231) {
+            interpretation = `これは文字通りの「撤退」を意味するのではなく、${subject}が感じている<strong>内面的な抵抗（＝足踏み状態）</strong>を指している可能性があります。無理やり進もうとするとエネルギーを消耗するだけで、結果に繋がりにくい時期であることを示唆しています。`;
+          } else if (matchedWords.length > 0) {
+            interpretation = `${subject}が使われた<strong>${matchedWords
+              .map((w) => `「${w}」`)
+              .join(
+                "や"
+              )}</strong>という言葉は、この爻が持つ<strong>「${summary}」</strong>というテーマの核心に、まさに触れていると言えるでしょう。`;
+          } else {
+            interpretation = `この爻が示す<strong>「${summary}」</strong>という状況が、現在の${subjectPossessive}心境と深く関わっていると判断しました。`;
+          }
+
+          // ▼▼▼【今回の主な修正点】「締めの一文」を【進】【変】の解説に置き換え ▼▼▼
+          let closingStatement = "";
+          const targetName = `${line["親となる卦"]} ${line.爻}`;
+          const guidelineData =
+            typeof window.koudoShishinData !== "undefined"
+              ? window.koudoShishinData.find((item) => item.name === targetName)
+              : null;
+
+          if (guidelineData) {
+            closingStatement = `
+                  <div class="mt-4 pt-4 border-t border-gray-600/50">
+                      <p class="text-sm text-gray-300 mb-3">この状況に対して、HaQeiは2つの異なるアプローチを提示します。</p>
+                      <div class="space-y-3">
+                          <div class="p-3 rounded-lg bg-teal-900/40 border border-teal-700/60">
+                              <p class="font-bold text-teal-300">【進】テーマを深化させる道</p>
+                              <p class="text-xs text-gray-300 mt-1">${guidelineData.shin}</p>
+                          </div>
+                          <div class="p-3 rounded-lg bg-purple-900/40 border border-purple-700/60">
+                              <p class="font-bold text-purple-300">【変】状況を転換する道</p>
+                              <p class="text-xs text-gray-300 mt-1">${guidelineData.hen}</p>
+                          </div>
+                      </div>
+                      <p class="text-sm text-gray-300 mt-3">どちらの道を選ぶか、あるいは両方の視点をどう統合するかが、今の${subjectPossessive}にとっての重要なテーマとなるでしょう。</p>
+                  </div>`;
+          } else {
+            // 行動指針が見つからない場合のフォールバック
+            closingStatement = `<p class="mt-4 text-sm text-gray-400">この爻の視点から現状を見つめ直すことが、新たな気づきを得るための鍵となるかもしれません。</p>`;
+          }
+
+          const explanation = `<div class="space-y-2">${interpretation} ${closingStatement}</div>`;
 
           return {
-            卦番号: bestMatch.line.卦番号,
+            卦番号: line.卦番号,
             爻番号: lineNum,
-            根拠: bestMatch.reason,
+            根拠: reasoning,
             解説: explanation,
           };
         }
+
         return null;
       }
       // --- 分析実行とUI更新 ---
@@ -811,6 +892,7 @@
         updateUI(sortedPaths, reasoning, explanation);
       }
 
+      // ▼▼▼【v11.1 修正】行動指針が表示されない不具合を修正 ▼▼▼
       function updateUI(sortedPaths, reasoning = null, explanation = null) {
         document.getElementById("initialMessage").classList.add("hidden");
         document.getElementById("resultArea").classList.remove("hidden");
@@ -820,9 +902,9 @@
         );
         if (reasoning) {
           reasoningContainer.innerHTML = `
-            <p class="text-sm text-indigo-200">${reasoning}</p>
+            <p class="text-sm text-green-200">${reasoning}</p>
             <p class="text-xs text-gray-400 mt-2">${explanation || ""}</p>
-          `;
+        `;
           reasoningContainer.classList.remove("hidden");
         } else {
           reasoningContainer.classList.add("hidden");
@@ -830,14 +912,20 @@
         }
 
         const startState = sortedPaths[0][0];
+
+        // ★★★ ここが修正点です ★★★
+        // 「卦名」ではなく、正しいプロパティ名「親となる卦」を参照するように修正しました。
+        const targetName = `${startState["親となる卦"]} ${startState.爻}`;
+
         document.getElementById(
           "currentTitle"
-        ).innerText = `現在地: ${startState["親となる卦"]} ${startState.爻}`;
+        ).innerText = `現在地: ${targetName}`;
         document.getElementById("currentKeywords").innerText = `テーマ: ${
           startState.キーワード || ""
         }`;
         document.getElementById("currentSummary").innerText =
           startState.現代解釈の要約;
+
         const currentScore = startState.S7_総合評価スコア;
         const scoreEval = getScoreEvaluation(currentScore);
         document.getElementById(
@@ -849,6 +937,7 @@
         document.getElementById(
           "currentScoreDesc"
         ).innerText = `※ ${scoreEval.desc}`;
+
         const transitionCost = 100 - (startState.S6_変動性スコア || 50);
         const costEval = getTransitionCostEvaluation(transitionCost);
         document.getElementById(
@@ -860,19 +949,34 @@
         document.getElementById(
           "transitionCostDesc"
         ).innerText = `※ ${costEval.desc}`;
+
         document.getElementById("summaryCard").onclick = () =>
           showCurrentStateModal(startState);
-        const targetName = `${startState["親となる卦"]} ${startState.爻}`;
 
         const guidelineData =
-          typeof window.koudoShishinData !== "undefined"
-            ? window.koudoShishinData.find((item) => item.name === targetName)
+          typeof koudoShishinData !== "undefined"
+            ? koudoShishinData.find((item) => item.name === targetName)
             : null;
 
         const actionContainer = document.getElementById("firstActionContainer");
-
         if (guidelineData) {
-          actionContainer.innerHTML = `<div class="mt-4 pt-4 border-t border-yellow-400/30"><h4 class="font-bold text-yellow-300 mb-3 flex items-center">最初の行動選択<span class="ml-2 text-xs bg-gray-600 rounded-full h-4 w-4 flex items-center justify-center cursor-help" title="【進】とは現在のテーマに沿って着実に進む選択です。【変】とは、状況を打開するために異なるアプローチを取り入れる選択です。">?</span></h4><div class="space-y-3"><div class="p-3 rounded-lg bg-teal-900/40 border border-teal-700/60"><p class="font-bold text-teal-300 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" /></svg>【進】テーマを深化させる</p><p class="text-xs text-gray-300 mt-1 full-text">${guidelineData.shin}</p></div><div class="p-3 rounded-lg bg-purple-900/40 border border-purple-700/60"><p class="font-bold text-purple-300 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" /></svg>【変】状況を転換する</p><p class="text-xs text-gray-300 mt-1 full-text">${guidelineData.hen}</p></div></div></div>`;
+          actionContainer.innerHTML = `
+            <div class="mt-4 pt-4 border-t border-yellow-400/30">
+                <h4 class="font-bold text-yellow-300 mb-3 flex items-center">
+                    最初の行動選択
+                    <span class="ml-2 text-xs bg-gray-600 rounded-full h-4 w-4 flex items-center justify-center cursor-help" title="【進】とは現在のテーマに沿って着実に進む選択です。【変】とは、状況を打開するために異なるアプローチを取り入れる選択です。">?</span>
+                </h4>
+                <div class="space-y-3">
+                    <div class="p-3 rounded-lg bg-teal-900/40 border border-teal-700/60">
+                        <p class="font-bold text-teal-300 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" /></svg>【進】テーマを深化させる</p>
+                        <p class="text-xs text-gray-300 mt-1 full-text">${guidelineData.shin}</p>
+                    </div>
+                    <div class="p-3 rounded-lg bg-purple-900/40 border border-purple-700/60">
+                        <p class="font-bold text-purple-300 flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" /></svg>【変】状況を転換する</p>
+                        <p class="text-xs text-gray-300 mt-1 full-text">${guidelineData.hen}</p>
+                    </div>
+                </div>
+            </div>`;
         } else {
           actionContainer.innerHTML = "";
         }
