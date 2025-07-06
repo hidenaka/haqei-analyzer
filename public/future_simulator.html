@@ -502,8 +502,9 @@
       let H64_DATA = null;
       let H384_DATA = null;
       let summaryChartInstance = null;
+      let currentAnalysisData = {};
 
-      // --- アプリケーション初期化 ---
+      // --- アプリケーション初期化とイベントリスナー設定 ---
       async function initializeApp() {
         const aiGuessBtn = document.getElementById("aiGuessBtn");
         const analyzeBtn = document.getElementById("analyzeBtn");
@@ -518,15 +519,14 @@
         showLoadingState("辞書データ読込中...");
 
         try {
+          // kuromojiとAPIデータの読み込みを並列実行
           const tokenizerPromise = new Promise((resolve, reject) => {
-            const dicPath = "./dict/";
-            kuromoji.builder({ dicPath: dicPath }).build((err, tokenizer) => {
+            kuromoji.builder({ dicPath: "./dict/" }).build((err, tokenizer) => {
               if (err) {
                 console.error("Kuromojiのビルドに失敗:", err);
                 return reject(err);
               }
               kuromojiTokenizer = tokenizer;
-              console.log("Kuromoji tokenizer is ready.");
               resolve();
             });
           });
@@ -536,23 +536,24 @@
             return res.json();
           });
 
-          const [apiData, _] = await Promise.all([
-            fetchDataPromise,
-            tokenizerPromise,
-          ]);
+          // 両方のプロミスが完了するのを待つ
+          await Promise.all([fetchDataPromise, tokenizerPromise]);
 
+          const apiData = await fetchDataPromise;
           HAQEI_DATA = apiData.HAQEI_DATA;
           H64_DATA = HAQEI_DATA.H64_DATA;
           H384_DATA = HAQEI_DATA["384"];
 
           setupDatalist();
+
+          // ボタンを有効化し、イベントリスナーを一度だけ設定
           aiGuessBtn.disabled = false;
           analyzeBtn.disabled = false;
           aiGuessBtn.innerHTML =
             '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" /></svg> AIに状況を推測させる';
           analyzeBtn.textContent = "予測実行";
-          document.getElementById("initialMessage").innerHTML =
-            "まずは、あなたの「ありのままの言葉」を、<br />上のテキストボックスに入力してください。";
+
+          console.log("アプリケーションの初期化が完了しました。");
         } catch (error) {
           console.error("データの初期化に失敗しました:", error);
           showModal(
@@ -574,17 +575,22 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-        const analyzeBtn = document.getElementById("analyzeBtn");
-        const aiGuessBtn = document.getElementById("aiGuessBtn");
-        analyzeBtn.disabled = true;
-        aiGuessBtn.disabled = true;
-        analyzeBtn.textContent = "データ読込中...";
-        aiGuessBtn.innerHTML = "データ読込中...";
-
+        // アプリケーションを初期化
         initializeApp();
 
-        aiGuessBtn.addEventListener("click", handleAiGuess);
-        analyzeBtn.addEventListener("click", () => handleAnalysis());
+        // イベントリスナーを一度だけ設定
+        document
+          .getElementById("aiGuessBtn")
+          .addEventListener("click", handleAiGuess);
+        document
+          .getElementById("analyzeBtn")
+          .addEventListener("click", () => handleAnalysis());
+        document
+          .getElementById("goToProReportBtnTop")
+          .addEventListener("click", handleGoToReportClick);
+        document
+          .getElementById("goToProReportBtnBottom")
+          .addEventListener("click", handleGoToReportClick);
         document
           .getElementById("modalOverlay")
           .addEventListener("click", hideModal);
@@ -596,72 +602,39 @@
           .addEventListener("click", showHelpModal);
       });
 
-      // --- AIによる状況推測 ---
+      function handleGoToReportClick(event) {
+        event.preventDefault();
+
+        if (
+          !currentAnalysisData.worry ||
+          !currentAnalysisData.paths ||
+          currentAnalysisData.paths.length === 0
+        ) {
+          showModal(
+            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">エラー</h2><p>まだ分析が実行されていません。先に「予測実行」ボタンを押して、分析を完了させてください。</p>`
+          );
+          return;
+        }
+
+        localStorage.setItem(
+          "proFutureReportData",
+          JSON.stringify(currentAnalysisData)
+        );
+
+        window.location.href = event.currentTarget.href;
+      }
+
       async function handleAiGuess() {
         const worryText = document.getElementById("worryInput").value.trim();
-
-        // ▼▼▼ ここからバリデーション処理を追加 ▼▼▼
         const validationResult = isInputSufficient(worryText);
         if (!validationResult.isValid) {
           showModal(
             `<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力内容のご確認</h2><p>${validationResult.message}</p><p class="mt-2 text-sm text-gray-400">あなたの状況をより深く理解するために、もう少し詳しく教えていただけますでしょうか。</p>`
           );
-          return; // 処理を中断
-        }
-        // ▲▲▲ バリデーション処理ここまで ▲▲▲
-        if (!worryText) {
-          showModal(
-            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力エラー</h2><p>悩みや状況をテキストエリアに入力してください。</p>`
-          );
           return;
         }
 
         const aiGuessBtn = document.getElementById("aiGuessBtn");
-        // ▼▼▼ 新しく追加する判定関数 ▼▼▼
-        function isInputSufficient(text) {
-          // 第1層：基本的な形式チェック
-          if (text.length < 10) {
-            return {
-              isValid: false,
-              message:
-                "入力された内容が短すぎます。10文字以上で入力してください。",
-            };
-          }
-
-          // 第2層：言語的な内容チェック
-          if (!kuromojiTokenizer) {
-            // kuromojiがまだ準備できていない場合
-            return {
-              isValid: false,
-              message:
-                "AIの言語解析エンジンの準備ができていません。少し待ってから再度お試しください。",
-            };
-          }
-
-          const tokens = kuromojiTokenizer.tokenize(text);
-          const meaningfulPos = ["名詞", "動詞", "形容詞"]; // 必要であれば "副詞" も追加
-
-          const meaningfulWordCount = tokens.filter((token) => {
-            // "非自立"（例: "こと", "もの"）や助数詞などを除外して精度を上げる
-            return (
-              meaningfulPos.includes(token.pos) &&
-              token.pos_detail_1 !== "非自立" &&
-              token.pos_detail_1 !== "接尾" &&
-              token.pos_detail_1 !== "数"
-            );
-          }).length;
-
-          if (meaningfulWordCount < 3) {
-            return {
-              isValid: false,
-              message:
-                "文章に含まれる具体的な単語（名詞、動詞、形容詞）が少ないようです。",
-            };
-          }
-
-          return { isValid: true, message: "" };
-        }
-
         aiGuessBtn.disabled = true;
         aiGuessBtn.innerHTML = "AIが解析中...";
 
@@ -698,10 +671,43 @@
         }
       }
 
-      function extractWords(text) {
-        if (!kuromojiTokenizer || !text) {
-          return [];
+      function isInputSufficient(text) {
+        if (text.length < 10) {
+          return {
+            isValid: false,
+            message:
+              "入力された内容が短すぎます。10文字以上で入力してください。",
+          };
         }
+        if (!kuromojiTokenizer) {
+          return {
+            isValid: false,
+            message:
+              "AIの言語解析エンジンの準備ができていません。少し待ってから再度お試しください。",
+          };
+        }
+        const tokens = kuromojiTokenizer.tokenize(text);
+        const meaningfulPos = ["名詞", "動詞", "形容詞"];
+        const meaningfulWordCount = tokens.filter((token) => {
+          return (
+            meaningfulPos.includes(token.pos) &&
+            token.pos_detail_1 !== "非自立" &&
+            token.pos_detail_1 !== "接尾" &&
+            token.pos_detail_1 !== "数"
+          );
+        }).length;
+        if (meaningfulWordCount < 3) {
+          return {
+            isValid: false,
+            message:
+              "文章に含まれる具体的な単語（名詞、動詞、形容詞）が少ないようです。",
+          };
+        }
+        return { isValid: true, message: "" };
+      }
+
+      function extractWords(text) {
+        if (!kuromojiTokenizer || !text) return [];
         const tokens = kuromojiTokenizer.tokenize(text);
         const targetPos = ["名詞", "動詞", "形容詞"];
         const words = tokens
@@ -834,7 +840,6 @@
         if (bestMatch.line) {
           const { line, matchedWords, reasonKeywords } = bestMatch;
           const lineNum = lineMap.findIndex((l) => line.爻.includes(l)) + 1;
-
           let quote = "";
           if (matchedWords.length > 0) {
             const quoteWords = matchedWords.slice(0, 3).map((w) => `「${w}」`);
@@ -844,19 +849,15 @@
           } else {
             quote = "お話いただいた内容全体から、";
           }
-
           let mainTheme = "";
           if (reasonKeywords.length > 0) {
             mainTheme = reasonKeywords.join("、");
           } else {
             mainTheme = `${line["親となる卦"]} ${line.爻}の持つテーマ`;
           }
-
           const reasoning = `AIの推測: ${subjectPossessive}ご相談の状況は、<strong>${line["親となる卦"]} ${line.爻}</strong>の持つ<strong>「${mainTheme}」</strong>というテーマと強く結びついていると判断しました。`;
-
           let interpretation;
           const summary = line.現代解釈の要約 || "（解釈データなし）";
-
           if (line.通し番号 === 231) {
             interpretation = `これは文字通りの「撤退」を意味するのではなく、${subject}が感じている<strong>内面的な抵抗（＝足踏み状態）</strong>を指している可能性があります。無理やり進もうとするとエネルギーを消耗するだけで、結果に繋がりにくい時期であることを示唆しています。`;
           } else if (matchedWords.length > 0) {
@@ -868,16 +869,12 @@
           } else {
             interpretation = `この爻が示す<strong>「${summary}」</strong>という状況が、現在の${subjectPossessive}心境と深く関わっていると判断しました。`;
           }
-
           let closingStatement = "";
-          // 修正点 1: `step` を `line` に変更
           const targetName = `${line["親となる卦"]} ${line.爻}`;
-
           const guidelineData =
             typeof window.koudoShishinData !== "undefined"
               ? window.koudoShishinData.find((item) => item.name === targetName)
               : null;
-
           if (guidelineData) {
             closingStatement = `
               <div class="mt-4 pt-4 border-t border-gray-600/50">
@@ -897,9 +894,7 @@
           } else {
             closingStatement = `<p class="mt-4 text-sm text-gray-400">この爻の視点から現状を見つめ直すことが、新たな気づきを得るための鍵となるかもしれません。</p>`;
           }
-
           const explanation = `<div class="space-y-2">${interpretation} ${closingStatement}</div>`;
-
           return {
             卦番号: line.卦番号,
             爻番号: lineNum,
@@ -907,11 +902,9 @@
             解説: explanation,
           };
         }
-
         return null;
       }
 
-      // --- 分析実行とUI更新 ---
       function handleAnalysis(
         hexNum = null,
         lineNum = null,
@@ -975,14 +968,19 @@
           .getElementById("proReportCtaBottom")
           .classList.remove("hidden");
 
+        const worryText = document.getElementById("worryInput").value;
+        currentAnalysisData = {
+          worry: worryText,
+          paths: sortedPaths,
+        };
+
         const reasoningContainer = document.getElementById(
           "aiReasoningContainer"
         );
         if (reasoning) {
-          reasoningContainer.innerHTML = `
-        <p class="text-sm text-green-200">${reasoning}</p>
-        <p class="text-xs text-gray-400 mt-2">${explanation || ""}</p>
-      `;
+          reasoningContainer.innerHTML = `<p class="text-sm text-green-200">${reasoning}</p><p class="text-xs text-gray-400 mt-2">${
+            explanation || ""
+          }</p>`;
           reasoningContainer.classList.remove("hidden");
         } else {
           reasoningContainer.classList.add("hidden");
@@ -991,7 +989,6 @@
 
         const startState = sortedPaths[0][0];
         const targetName = `${startState["親となる卦"]} ${startState.爻}`;
-
         document.getElementById(
           "currentTitle"
         ).innerText = `現在地: ${targetName}`;
@@ -1000,7 +997,6 @@
         }`;
         document.getElementById("currentSummary").innerText =
           startState.現代解釈の要約;
-
         const currentScore = startState.S7_総合評価スコア;
         const scoreEval = getScoreEvaluation(currentScore);
         document.getElementById(
@@ -1012,7 +1008,6 @@
         document.getElementById(
           "currentScoreDesc"
         ).innerText = `※ ${scoreEval.desc}`;
-
         const transitionCost = 100 - (startState.S6_変動性スコア || 50);
         const costEval = getTransitionCostEvaluation(transitionCost);
         document.getElementById(
@@ -1024,48 +1019,36 @@
         document.getElementById(
           "transitionCostDesc"
         ).innerText = `※ ${costEval.desc}`;
-
         document.getElementById("summaryCard").onclick = () =>
           showCurrentStateModal(startState);
-
         const guidelineData =
           typeof koudoShishinData !== "undefined"
             ? koudoShishinData.find((item) => item.name === targetName)
             : null;
-
         const actionContainer = document.getElementById("firstActionContainer");
-
-        // HAQEI_DATAから小象伝のデータを取得します。キーは現在の爻の「通し番号」です。
-        // ?. (オプショナルチェーン) を使い、データが存在しなくてもエラーにならないようにします。
         const shoDenData = HAQEI_DATA.bible?.sho_den?.[startState.通し番号];
-
         if (shoDenData) {
-          // データが見つかった場合、その内容を表示するHTMLを生成します。
           actionContainer.innerHTML = `
-    <div class="mt-4 pt-4 border-t border-yellow-400/30">
-        <h4 class="font-bold text-yellow-300 mb-3 flex items-center">
-             易経・小象伝が示す「現状の理由」 (HaQei現代解釈)
-        </h4>
-        <div class="space-y-3 p-3 rounded-lg bg-gray-800/50">
-            <p class="font-bold text-gray-200">${shoDenData.title}</p>
-            <p class="text-xs text-gray-300 mt-1 full-text">${shoDenData.reason}</p>
-        </div>
-    </div>`;
+            <div class="mt-4 pt-4 border-t border-yellow-400/30">
+                <h4 class="font-bold text-yellow-300 mb-3 flex items-center">
+                     易経・小象伝が示す「現状の理由」 (HaQei現代解釈)
+                </h4>
+                <div class="space-y-3 p-3 rounded-lg bg-gray-800/50">
+                    <p class="font-bold text-gray-200">${shoDenData.title}</p>
+                    <p class="text-xs text-gray-300 mt-1 full-text">${shoDenData.reason}</p>
+                </div>
+            </div>`;
         } else {
-          // データが見つからなかった場合、コンテナを空にします。
           actionContainer.innerHTML = "";
         }
-        // ▲▲▲ ここまでが書き換え部分です ▲▲▲
 
         const futureChoiceContainer = document.getElementById(
           "futureChoiceContainer"
         );
         const choiceCardShin = document.getElementById("choiceCardShin");
         const choiceCardHen = document.getElementById("choiceCardHen");
-
         const firstStepShin = getNextState(startState, "stagnate");
         const firstStepHen = getNextState(startState, "change");
-
         const createChoiceCardHTML = (state, choiceType) => {
           if (!state) return "";
           const startStateData = sortedPaths[0][0];
@@ -1073,7 +1056,6 @@
           let choiceDescription = "";
           const color = choiceType === "shin" ? "teal" : "purple";
           const stateTitle = `${state["親となる卦"]} ${state.爻}`;
-
           if (choiceType === "shin") {
             title = "【進】テーマを深化させる";
             choiceDescription = `現在のテーマである<strong>「${
@@ -1085,22 +1067,11 @@
               startStateData.キーワード || "現状"
             }」</strong>に、あえて異なる要素を加え、状況そのものを全く新しいものへと転換させる道です。行き詰まりの打開や、現状とは違う可能性を模索することを目指します。`;
           }
-
-          return `
-            <h3 class="text-lg font-bold text-${color}-300 flex items-center mb-3">${title}</h3>
-            <p class="text-sm text-gray-300 mb-3">${choiceDescription}</p>
-            <div class="p-4 rounded-lg bg-gray-800/50">
-                <p class="font-semibold text-gray-200 text-sm">フェーズ1の到達点:</p>
-                <p class="text-base font-bold text-indigo-300 mt-1">${stateTitle}</p>
-                <p class="text-xs text-yellow-300 my-1">テーマ: ${
-                  state.キーワード || ""
-                }</p>
-                <p class="text-xs text-gray-400 mt-2">${
-                  state.現代解釈の要約
-                }</p>
-            </div>
-            <p class="text-xs text-center text-gray-500 mt-4">フェーズ2以降のより詳細な分岐は、実践戦略レポート（有料）でご確認いただけます。</p>
-        `;
+          return `<h3 class="text-lg font-bold text-${color}-300 flex items-center mb-3">${title}</h3><p class="text-sm text-gray-300 mb-3">${choiceDescription}</p><div class="p-4 rounded-lg bg-gray-800/50"><p class="font-semibold text-gray-200 text-sm">フェーズ1の到達点:</p><p class="text-base font-bold text-indigo-300 mt-1">${stateTitle}</p><p class="text-xs text-yellow-300 my-1">テーマ: ${
+            state.キーワード || ""
+          }</p><p class="text-xs text-gray-400 mt-2">${
+            state.現代解釈の要約
+          }</p></div><p class="text-xs text-center text-gray-500 mt-4">フェーズ2以降のより詳細な分岐は、実践戦略レポート（有料）でご確認いただけます。</p>`;
         };
 
         if (firstStepShin && firstStepHen) {
@@ -1119,6 +1090,8 @@
         renderChartToggles(sortedPaths);
         setupInteraction(sortedPaths);
       }
+
+      // ... (これ以降の関数はすべて変更なし)
 
       function getScoreEvaluation(score) {
         if (score >= 80)
@@ -1301,7 +1274,7 @@
             tension: 0.1,
             pointRadius: 4,
             pointBackgroundColor: "white",
-            originalPointBackgroundColor: "white", // 点の元の色を保存
+            originalPointBackgroundColor: "white",
             pointHoverRadius: 6,
           };
         });
@@ -1359,16 +1332,14 @@
         if (summaryChartInstance) {
           summaryChartInstance.data.datasets.forEach((dataset, i) => {
             if (i === index) {
-              // アクティブな線
               dataset.borderWidth = 5;
               dataset.borderColor = dataset.originalBorderColor;
               dataset.pointBackgroundColor =
-                dataset.originalPointBackgroundColor; // 点の色も元に戻す
+                dataset.originalPointBackgroundColor;
             } else {
-              // 非アクティブな線
               dataset.borderWidth = 1;
-              dataset.borderColor = "rgba(107, 114, 128, 0.5)"; // 線をグレーアウト
-              dataset.pointBackgroundColor = "rgba(107, 114, 128, 0.5)"; // 点もグレーアウト
+              dataset.borderColor = "rgba(107, 114, 128, 0.5)";
+              dataset.pointBackgroundColor = "rgba(107, 114, 128, 0.5)";
             }
           });
           summaryChartInstance.update("none");
@@ -1385,10 +1356,9 @@
       function resetChartHighlights() {
         if (summaryChartInstance) {
           summaryChartInstance.data.datasets.forEach((dataset) => {
-            // 保存しておいた元のスタイルに戻す
             dataset.borderWidth = dataset.originalBorderWidth;
             dataset.borderColor = dataset.originalBorderColor;
-            dataset.pointBackgroundColor = dataset.originalPointBackgroundColor; // 点の色も元に戻す
+            dataset.pointBackgroundColor = dataset.originalPointBackgroundColor;
           });
           summaryChartInstance.update("none");
         }
@@ -1400,32 +1370,24 @@
       function highlightMultipleScenarios(choiceType, sortedPaths) {
         if (summaryChartInstance) {
           summaryChartInstance.data.datasets.forEach((dataset, i) => {
-            // グラフの線の数と未来シナリオの数が一致しているか安全確認
             if (i < sortedPaths.length) {
-              // 各シナリオの最初の選択（進 or 変）を取得
               const pathChoice = sortedPaths[i][1]?.choice;
-
-              // カードの選択タイプ（進 or 変）とシナリオの選択が一致したら
               if (pathChoice === choiceType) {
-                // 線をハッキリと表示する
                 dataset.borderWidth = dataset.originalBorderWidth;
                 dataset.borderColor = dataset.originalBorderColor;
                 dataset.pointBackgroundColor =
                   dataset.originalPointBackgroundColor;
               } else {
-                // 一致しない線は薄く表示する
                 dataset.borderWidth = 1;
                 dataset.borderColor = "rgba(107, 114, 128, 0.5)";
                 dataset.pointBackgroundColor = "rgba(107, 114, 128, 0.5)";
               }
             } else {
-              // 万が一、線の数が多い場合の安全策
               dataset.borderWidth = 1;
               dataset.borderColor = "rgba(107, 114, 128, 0.5)";
               dataset.pointBackgroundColor = "rgba(107, 114, 128, 0.5)";
             }
           });
-          // グラフの表示を更新
           summaryChartInstance.update("none");
         }
       }
@@ -1606,7 +1568,7 @@
         const rankClass = `rank-${rankLabels[index].toLowerCase()}`;
         let trendHtml = "";
         if (firstStepTrend && firstStepTrend.trend === "危険な下降") {
-          trendHtml = `<div class="p-3 rounded-lg mb-4 bg-red-900/80 border border-red-600 text-sm"><p class="font-bold text-red-200">【注意】最初のステップは危険な下降です</p><p class="text-xs text-gray-200 mt-1">このシナリオは最終的に「${overallTrend.trend}」を目指しますが、初期段階で状況が大きく悪化するリスクを伴います。</p></div>`;
+          trendHtml = `<div class="p-3 rounded-lg mb-4 bg-red-900/80 border border-red-600 text-sm"><p class="font-bold text-red-200">【注意】最初のステップは危険な下降です</p><p class="text-xs text-gray-200 mt-1">このシナリオは「${overallTrend.trend}」を目指しますが、初期段階で状況が大きく悪化するリスクを伴います。</p></div>`;
         } else {
           trendHtml = `<div class="p-3 rounded-lg mb-4 ${overallTrend.colorClass}"><h3 class="font-bold text-lg">${overallTrend.trend}</h3><p class="text-sm mt-1">${overallTrend.message}</p></div>`;
         }
@@ -1674,9 +1636,6 @@
             const nextStep = path[stepIndex + 1];
 
             const targetName = `${step["親となる卦"]} ${step.爻}`;
-
-            // ★★★★★ 修正箇所 ★★★★★
-            // データベースのキーと完全に一致するように、スペースを半角スペース1つに正規化します。
             const normalizedTargetName = `${step["親となる卦"]} ${step.爻}`
               .replace(/\s+/g, " ")
               .trim();
@@ -1808,7 +1767,7 @@
             <ul class="list-disc list-inside space-y-3 text-gray-300">
                 <li><strong>分析サマリー:</strong> あなたの「現在地」の評価と、状況が変化しやすい時期かどうか（移行コスト）を確認できます。</li>
                 <li><strong>未来分岐グラフ:</strong> 8つのシナリオが今後どのように推移するかを「総合評価」のスコアで示します。線が上に行くほど好ましい未来です。</li>
-                <li><strong>8つの未来のシナリオ:</strong> 各シナリオが最終的に行き着く未来の状態をカードで示します。カードをクリックすると、そこに至るまでの詳細なステップ（行動指針）を確認できます。</li>
+                <li><strong>8つの未来のシナリオ:</strong> 各シナリオが行き着く未来の状態をカードで示します。カードをクリックすると、そこに至るまでの詳細なステップ（行動指針）を確認できます。</li>
             </ul>
         `;
         showModal(helpContent);
@@ -1823,8 +1782,6 @@
           document.body.style.overflow = "";
         }, 300);
       }
-
-      // 修正点 3: 不要な関数 `highlightScenario1` と `clearHighlights` を削除
 
       function setupInteraction(sortedPaths) {
         const chartToggles = document.getElementById("chartToggles");

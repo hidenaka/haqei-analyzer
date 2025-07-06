@@ -439,6 +439,64 @@
           container.appendChild(label);
         });
       }
+      function renderMiniBarChart(canvasId, state) {
+        const ctx = document.getElementById(canvasId)?.getContext("2d");
+        if (!ctx || !state) return;
+
+        const data = [
+          state.S1_基本スコア,
+          state.S2_ポテンシャル,
+          state.S3_安定性スコア,
+          Math.abs(state.S4_リスク),
+          state.S6_変動性スコア,
+        ];
+        const colors = [
+          "rgba(96, 165, 250, 0.7)",
+          "rgba(52, 211, 153, 0.7)",
+          "rgba(167, 139, 250, 0.7)",
+          "rgba(248, 113, 113, 0.7)",
+          "rgba(251, 191, 36, 0.7)",
+        ];
+
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["基本", "潜在力", "安定性", "リスク", "変動性"],
+            datasets: [
+              {
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 0,
+                barPercentage: 0.8,
+                categoryPercentage: 0.9,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: "y",
+            scales: {
+              x: { display: false, min: 0, max: 100 },
+              y: {
+                grid: { display: false, drawBorder: false },
+                ticks: { color: "#d1d5db", font: { size: 12 } },
+              },
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: false },
+            },
+          },
+        });
+      }
+
+      function renderAllScenarioCharts(paths) {
+        paths.forEach((path, index) => {
+          const finalState = path[path.length - 1];
+          renderMiniBarChart(`scenarioChart-${index}`, finalState);
+        });
+      }
 
       document.addEventListener("DOMContentLoaded", async () => {
         const loadingIndicator = document.getElementById("loadingIndicator");
@@ -459,69 +517,19 @@
           return;
         }
 
-        // --- 修正箇所 START ---
-        // 本来はlocalStorageから取得しますが、指定された相談内容を直接設定します。
-        const userWorry = `タクシードライバーをしているかたわら、AIの技術の進歩に可能性を感じて、元々好きだった易経と自己分析を組み合わせて、自分みたいに分析したけど結果がない人にHaQeiを使ってほしいと思って開発を始めた。開発自体はAIが細かい技術を補ってくれてすごく今までエンジニアではない自分ではできないレベルのものがつくれてすごいうれしい。やっている中で大変なこと、エラーが頻発して嫌になることはあるけどやめたいとならないのははじめてかもしれない。私は経済的な問題でタクシードライバーになり、経済的には余裕ができてきたが、このままじゃ体がぼろぼろになるし、なにより自分の人生では自分の事業を持ちたいし、自分のアイデンティティとして自分だけの何かをずっと持ちたいと思っていた。それがやっとできる時代になってきたと思っている。HaQeiのサイト自体はもう現状考えている機能の５０％はできているから、リリースするのには時間の問題だと思う。でも、問題はマーケティングでSNSを活用していくのは前提で動画コンテンツを出すことも決めている。でも、動画コンテンツは過去につくったことがあり、youtubeチャンネルを伸ばしたこともあるから大変さがわかって少し億劫になっている。でも、ここは避けて通れないから、ここからの選択でどうなるか知りたい`;
-
-        // レポート表示に必要なため、ダミーのパスデータを生成します。
-        // これらは実際の分析結果ではありませんが、あなたの相談内容でレポートをテストするために使用します。
-        const dummyPaths = Array.from({ length: 8 }, (_, i) => [
-          {
-            S7_総合評価スコア: 45,
-            親となる卦: "沢火革",
-            爻: "初爻",
-            キーワード: "現状維持",
-            現代解釈の要約: "まだ変革の時ではない。基盤を固めるべき。",
-            卦番号: 49,
-            S4_リスク: 60,
-            choice: "stay",
-          },
-          {
-            S7_総合評価スコア: 55,
-            親となる卦: "天火同人",
-            爻: "二爻",
-            キーワード: "仲間",
-            現代解釈の要約: "志を同じくする仲間と協力する。",
-            卦番号: 13,
-            S4_リスク: 40,
-            choice: "change",
-          },
-          {
-            S7_総合評価スコア: 65 + i * 2,
-            親となる卦: "火天大有",
-            爻: "三爻",
-            キーワード: "豊かさ",
-            現代解釈の要約: "多くのものを得て、驕らずにいる。",
-            卦番号: 14,
-            S4_リスク: 25,
-            choice: "shin",
-          },
-          {
-            S7_総合評価スコア: 85 - i * 3,
-            親となる卦: "乾為天",
-            爻: "上九",
-            キーワード: "頂点",
-            現代解釈の要約: "頂点に達したが、やりすぎには注意が必要。",
-            卦番号: 1,
-            S4_リスク: 15,
-            choice: "shin",
-          },
-        ]);
-
-        const reportData = {
-          worry: userWorry,
-          paths: dummyPaths,
-        };
-        // --- 修正箇所 END ---
-
-        if (!reportData) {
-          // このチェックは形式上残しますが、上記でreportDataは必ず定義されます
+        // ▼▼▼ ここから修正 ▼▼▼
+        // localStorageからデータを正しく取得する処理
+        const dataString = localStorage.getItem("proFutureReportData");
+        if (!dataString) {
           errorIndicator.textContent =
             "レポートデータを取得できませんでした。前のページから再度お試しください。";
           loadingIndicator.classList.add("hidden");
           errorIndicator.classList.remove("hidden");
           return;
         }
+
+        const reportData = JSON.parse(dataString);
+        // ▲▲▲ ここまで修正 ▲▲▲
 
         worryDisplay.innerHTML = `<h3 class="font-bold text-indigo-300 mb-2">あなたの相談内容</h3><p class="text-gray-300 whitespace-pre-wrap text-lg leading-relaxed">${
           reportData.worry || "（相談内容がありません）"
@@ -653,12 +661,27 @@
                                     difficulty.color
                                   }">${difficulty.text}</p>
                               </div>
-                              <span class="rank-badge ${rankClass}">${rankLabel}</span>
+                              <span class="rank-badge ${`rank-${rankLabels[
+                                index
+                              ]?.toLowerCase()}`}">${
+              rankLabels[index] || "不明"
+            }</span>
                           </div>
                       </div>
-                      <div class="prose-custom max-w-none mb-6">${
-                        narrative.narrative || "概要の生成に失敗しました。"
-                      }</div>
+                      
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                        <div class="prose-custom max-w-none">${
+                          narrative.narrative || "概要の生成に失敗しました。"
+                        }</div>
+                        
+                        <div>
+                          <h4 class="font-bold text-lg text-yellow-300 mb-2">フェーズ3の状態</h4>
+                          <div style="height: 160px;">
+                            <canvas id="scenarioChart-${index}"></canvas>
+                          </div>
+                        </div>
+                      </div>
+
 
                       <div class="mt-6 pt-4 border-t border-gray-700/50">
                           <h4 class="font-bold text-lg text-yellow-300">この未来での心構え</h4>
@@ -684,6 +707,8 @@
           });
           reportContainer.innerHTML = html;
           reportContainer.classList.remove("hidden");
+
+          renderAllScenarioCharts(sortedPaths);
         } catch (err) {
           errorIndicator.textContent =
             "レポート生成エラー: " + (err.message || "不明なエラーです。");
