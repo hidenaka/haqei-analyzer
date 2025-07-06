@@ -89,7 +89,7 @@
         border-radius: 0.5rem;
         padding: 1.25rem;
         flex-shrink: 0;
-        width: 320px; /* カード幅を少し広げました */
+        width: 320px;
         display: flex;
         flex-direction: column;
       }
@@ -115,6 +115,29 @@
         background-color: rgba(139, 92, 246, 0.1);
         border: 1px solid rgba(139, 92, 246, 0.3);
         border-radius: 0.5rem;
+      }
+      .toggle-label {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #374151;
+        background-color: #1f2937;
+        transition: all 0.2s ease-in-out;
+      }
+      .toggle-label:hover,
+      .toggle-label.highlighted {
+        transform: translateY(-2px);
+        border-color: #a5b4fc;
+        background-color: #312e81;
+      }
+      .toggle-legend {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        margin-right: 8px;
+        flex-shrink: 0;
       }
     </style>
   </head>
@@ -149,6 +172,10 @@
             <div class="relative" style="height: 400px">
               <canvas id="summaryChart"></canvas>
             </div>
+            <div
+              id="chartToggles"
+              class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6"
+            ></div>
           </div>
         </div>
       </div>
@@ -186,6 +213,109 @@
       let HAQEI_DATA = null;
       let summaryChartInstance = null;
 
+      function updateChartAppearance(activeScenarioIndex = -1) {
+        if (!summaryChartInstance) return;
+
+        const topColors = ["#4ade80", "#2dd4bf", "#60a5fa", "#a5b4fc"];
+        const bottomColors = ["#fde047", "#fb923c", "#f87171", "#ef4444"];
+
+        summaryChartInstance.data.datasets.forEach((dataset, index) => {
+          if (activeScenarioIndex === -1 || index === activeScenarioIndex) {
+            const color =
+              index < 4 ? topColors[index] : bottomColors[index - 4];
+            dataset.borderColor = color;
+            dataset.pointBackgroundColor = "white";
+            dataset.borderWidth = index < 4 ? 3.5 : 1.5;
+          } else {
+            dataset.borderColor = "rgba(107, 114, 128, 0.3)";
+            dataset.pointBackgroundColor = "rgba(107, 114, 128, 0.3)";
+            dataset.borderWidth = 1;
+          }
+        });
+        summaryChartInstance.update("none");
+      }
+
+      function resetChartAppearance() {
+        updateChartAppearance(-1);
+      }
+
+      function renderSummaryChart(sortedPaths) {
+        if (summaryChartInstance) summaryChartInstance.destroy();
+        const ctx = document.getElementById("summaryChart").getContext("2d");
+        const topColors = ["#4ade80", "#2dd4bf", "#60a5fa", "#a5b4fc"];
+        const bottomColors = ["#fde047", "#fb923c", "#f87171", "#ef4444"];
+        const currentScore = sortedPaths[0][0].S7_総合評価スコア;
+
+        const datasets = sortedPaths.map((path, index) => {
+          const isTop = index < 4;
+          const color = isTop ? topColors[index] : bottomColors[index - 4];
+          return {
+            label: `シナリオ ${index + 1}`,
+            data: path.map((p) => p.S7_総合評価スコア),
+            borderColor: color,
+            borderWidth: isTop ? 3.5 : 1.5,
+            tension: 0.1,
+            pointRadius: 4,
+            pointBackgroundColor: "white",
+            pointHoverRadius: 6,
+          };
+        });
+
+        summaryChartInstance = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: ["現在地", "フェーズ1", "フェーズ2", "フェーズ3"],
+            datasets,
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: "index",
+              intersect: false,
+            },
+            scales: {
+              y: {
+                min: 0,
+                max: 100,
+                ticks: { color: "#9ca3af" },
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+              },
+              x: {
+                ticks: { color: "#9ca3af" },
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+              },
+            },
+            plugins: {
+              legend: {
+                display: false,
+              },
+              tooltip: { mode: "index", intersect: false },
+              annotation: {
+                annotations: {
+                  currentScoreLine: {
+                    type: "line",
+                    yMin: currentScore,
+                    yMax: currentScore,
+                    borderColor: "rgb(253, 224, 71)",
+                    borderWidth: 2,
+                    borderDash: [6, 6],
+                    label: {
+                      content: "現在地のスコア",
+                      enabled: true,
+                      position: "end",
+                      backgroundColor: "rgba(253, 224, 71, 0.8)",
+                      color: "black",
+                      font: { size: 10 },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
       function getSituationText(score) {
         if (score >= 80)
           return {
@@ -219,97 +349,6 @@
           (h) => h.hexagram_id === hexNum
         );
         return hexData || { name: "不明", catchphrase: "情報なし" };
-      }
-
-      function renderSummaryChart(sortedPaths) {
-        if (summaryChartInstance) summaryChartInstance.destroy();
-        const ctx = document.getElementById("summaryChart").getContext("2d");
-        const topColors = ["#4ade80", "#2dd4bf", "#60a5fa", "#a5b4fc"];
-        const bottomColors = ["#fde047", "#fb923c", "#f87171", "#ef4444"];
-        const currentScore = sortedPaths[0][0].S7_総合評価スコア;
-
-        const datasets = sortedPaths.map((path, index) => {
-          const isTop = index < 4;
-          const color = isTop ? topColors[index] : bottomColors[index - 4];
-          return {
-            label: `シナリオ ${index + 1}`,
-            data: path.map((p) => p.S7_総合評価スコア),
-            borderColor: color,
-            borderWidth: isTop ? 3.5 : 1.5,
-            tension: 0.1,
-            pointRadius: 4,
-            pointBackgroundColor: "white",
-            pointHoverRadius: 6,
-          };
-        });
-
-        const originalBorderColors = datasets.map((d) => d.borderColor);
-
-        summaryChartInstance = new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: ["現在地", "フェーズ1", "フェーズ2", "フェーズ3"],
-            datasets,
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                min: 0,
-                max: 100,
-                ticks: { color: "#9ca3af" },
-                grid: { color: "rgba(255, 255, 255, 0.1)" },
-              },
-              x: {
-                ticks: { color: "#9ca3af" },
-                grid: { color: "rgba(255, 255, 255, 0.1)" },
-              },
-            },
-            plugins: {
-              legend: {
-                labels: { color: "#d1d5db" },
-                onHover: (event, legendItem, legend) => {
-                  legend.chart.data.datasets.forEach((dataset, index) => {
-                    if (index !== legendItem.datasetIndex) {
-                      dataset.borderColor = "rgba(156, 163, 175, 0.2)";
-                    } else {
-                      dataset.borderColor = originalBorderColors[index];
-                    }
-                  });
-                  legend.chart.update();
-                },
-                onLeave: (event, legendItem, legend) => {
-                  legend.chart.data.datasets.forEach((dataset, index) => {
-                    dataset.borderColor = originalBorderColors[index];
-                  });
-                  legend.chart.update();
-                },
-              },
-              tooltip: { mode: "index", intersect: false },
-              annotation: {
-                annotations: {
-                  currentScoreLine: {
-                    type: "line",
-                    yMin: currentScore,
-                    yMax: currentScore,
-                    borderColor: "rgb(253, 224, 71)",
-                    borderWidth: 2,
-                    borderDash: [6, 6],
-                    label: {
-                      content: "現在地のスコア",
-                      enabled: true,
-                      position: "end",
-                      backgroundColor: "rgba(253, 224, 71, 0.8)",
-                      color: "black",
-                      font: { size: 10 },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        });
       }
 
       function renderSummaryCard(startState) {
@@ -364,6 +403,41 @@
         if (finalDifficulty >= 45)
           return { text: "中", color: "text-yellow-400" };
         return { text: "低", color: "text-green-400" };
+      }
+
+      function renderChartToggles(sortedPaths, narratives) {
+        const container = document.getElementById("chartToggles");
+        container.innerHTML = "";
+        const topColors = ["#4ade80", "#2dd4bf", "#60a5fa", "#a5b4fc"];
+        const bottomColors = ["#fde047", "#fb923c", "#f87171", "#ef4444"];
+
+        sortedPaths.forEach((path, index) => {
+          const color = index < 4 ? topColors[index] : bottomColors[index - 4];
+          const finalScore = path[3].S7_総合評価スコア;
+          const narrative = narratives[index] || {};
+
+          const label = document.createElement("label");
+          label.className = "toggle-label";
+          label.dataset.index = index;
+
+          label.addEventListener("mouseover", () =>
+            updateChartAppearance(index)
+          );
+          label.addEventListener("mouseout", resetChartAppearance);
+
+          label.innerHTML = `
+            <span class="toggle-legend" style="background-color: ${color};"></span>
+            <div class="flex-grow">
+              <span class="font-bold text-gray-200 text-sm">シナリオ ${
+                index + 1
+              } (${finalScore}点)</span>
+              <p class="text-gray-400 text-[11px] leading-tight">${
+                narrative.scenario_summary || "要約の生成に失敗しました。"
+              }</p>
+            </div>
+          `;
+          container.appendChild(label);
+        });
       }
 
       document.addEventListener("DOMContentLoaded", async () => {
@@ -434,6 +508,8 @@
           }
           const narratives = await response.json();
 
+          renderChartToggles(sortedPaths, narratives);
+
           const rankLabels = ["S", "A", "B", "C", "D", "E", "F", "H"];
           let html = "";
           sortedPaths.slice(0, 8).forEach((path, index) => {
@@ -445,10 +521,8 @@
             const rankClass = `rank-${rankLabel.toLowerCase()}`;
             const difficulty = calculateDifficulty(path);
 
-            // ▼▼▼ 修正点1: カード内の情報構造を再設計 ▼▼▼
             const stepCards = path.map((step, stepIndex) => {
               const hexInfo = getHexagramInfo(step.卦番号);
-              const situation = getSituationText(step.S7_総合評価スコア);
               const stepSummary =
                 step_summaries[stepIndex] || "要約を生成できませんでした。";
 
@@ -501,7 +575,6 @@
                   </div>
               `;
             });
-            // ▲▲▲ 修正点1 ▲▲▲
 
             let pathStepsHtml = "";
             for (let i = 0; i < stepCards.length; i++) {
@@ -511,46 +584,49 @@
             }
 
             html += `
-                    <div class="scenario-card">
-                        <div class="flex items-start sm:items-center justify-between mb-4 flex-col sm:flex-row gap-4">
-                           <h3 class="font-bold text-2xl text-cyan-300">${
-                             narrative.scenario_title || "無題のシナリオ"
-                           }</h3>
-                           <div class="flex items-center gap-4">
+                  <div class="scenario-card">
+                      <div class="flex items-start sm:items-center justify-between mb-4 flex-col sm:flex-row gap-4">
+                          <h3 class="font-bold text-2xl text-cyan-300">
+                              <span class="text-indigo-400">シナリオ ${
+                                index + 1
+                              }:</span>
+                              ${narrative.scenario_title || "無題のシナリオ"}
+                          </h3>
+                          <div class="flex items-center gap-4">
                               <div class="text-right">
-                                 <p class="text-xs text-gray-400">困難度</p>
-                                 <p class="font-bold text-lg ${
-                                   difficulty.color
-                                 }">${difficulty.text}</p>
+                                  <p class="text-xs text-gray-400">困難度</p>
+                                  <p class="font-bold text-lg ${
+                                    difficulty.color
+                                  }">${difficulty.text}</p>
                               </div>
                               <span class="rank-badge ${rankClass}">${rankLabel}</span>
-                           </div>
-                        </div>
-                       <div class="prose-custom max-w-none mb-6">${
-                         narrative.narrative || "物語の生成に失敗しました。"
-                       }</div>
-                       
-                       <div class="mt-6 pt-4 border-t border-gray-700/50">
-                         <h4 class="font-bold text-lg text-yellow-300">この未来での心構え</h4>
-                         <p class="text-gray-400 mt-2">${
-                           narrative.advice ||
-                           "アドバイスの生成に失敗しました。"
-                         }</p>
-                       </div>
+                          </div>
+                      </div>
+                      <div class="prose-custom max-w-none mb-6">${
+                        narrative.narrative || "概要の生成に失敗しました。"
+                      }</div>
 
-                       <div class="mt-8 pt-6 border-t border-gray-700/50">
-                           <h4 class="font-bold text-lg text-indigo-300 mb-4">この未来に至るステップ</h4>
-                           <div class="relative">
-                              <div class="flex flex-row items-stretch gap-2 sm:gap-4 overflow-x-auto pb-4">
-                                ${pathStepsHtml}
+                      <div class="mt-6 pt-4 border-t border-gray-700/50">
+                          <h4 class="font-bold text-lg text-yellow-300">この未来での心構え</h4>
+                          <p class="text-gray-400 mt-2">${
+                            narrative.advice ||
+                            "アドバイスの生成に失敗しました。"
+                          }</p>
+                      </div>
+
+                      <div class="mt-8 pt-6 border-t border-gray-700/50">
+                          <h4 class="font-bold text-lg text-indigo-300 mb-4">この未来に至るステップ</h4>
+                          <div class="relative">
+                              <div class="flex flex-row items-stretch gap-2 sm:gap-4 overflow-x-auto pb-4 pr-8">
+                                  ${pathStepsHtml}
                               </div>
                               <div class="absolute top-1/2 right-0 -translate-y-1/2 bg-gradient-to-l from-gray-900 via-gray-900 to-transparent h-full w-20 pointer-events-none sm:flex items-center justify-end pr-4 hidden">
                                   <svg class="w-8 h-8 text-gray-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                               </div>
-                           </div>
-                       </div>
-                    </div>
-                `;
+                          </div>
+                      </div>
+                  </div>
+                  `;
           });
           reportContainer.innerHTML = html;
           reportContainer.classList.remove("hidden");
