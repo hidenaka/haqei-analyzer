@@ -422,6 +422,15 @@
         </div>
 
         <div>
+          <div id="proReportCtaTop" class="my-8 text-center hidden">
+            <a
+              href="#"
+              id="goToProReportBtnTop"
+              class="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              【有料】AIによる全8シナリオの未来予測レポートを見る
+            </a>
+          </div>
           <h2 class="text-2xl font-bold mb-6 text-center text-indigo-300">
             8つの未来の最終到達点
           </h2>
@@ -429,6 +438,15 @@
             id="detailCardsContainer"
             class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
           ></div>
+          <div id="proReportCtaBottom" class="my-12 text-center hidden">
+            <a
+              href="#"
+              id="goToProReportBtnBottom"
+              class="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              あなたのための詳細な未来物語を入手する
+            </a>
+          </div>
         </div>
       </div>
 
@@ -483,6 +501,7 @@
       let H64_DATA = null;
       let H384_DATA = null;
       let summaryChartInstance = null;
+      let analysisDataForProReport = null;
 
       // --- アプリケーション初期化 ---
       async function initializeApp() {
@@ -575,6 +594,36 @@
         document
           .getElementById("helpBtn")
           .addEventListener("click", showHelpModal);
+
+        const setupProReportButton = (buttonId) => {
+          const button = document.getElementById(buttonId);
+          if (button) {
+            button.addEventListener("click", (e) => {
+              e.preventDefault();
+              if (analysisDataForProReport) {
+                try {
+                  // 分析データと相談内容をlocalStorageに保存
+                  localStorage.setItem(
+                    "proFutureReportData",
+                    JSON.stringify(analysisDataForProReport)
+                  );
+                  // 有料レポートページに遷移
+                  window.location.href = "pro_future_report.html";
+                } catch (error) {
+                  console.error("localStorageへの保存に失敗しました:", error);
+                  alert(
+                    "レポートデータの準備に失敗しました。ブラウザのストレージ設定を確認してください。"
+                  );
+                }
+              } else {
+                alert("まず分析を実行してください。");
+              }
+            });
+          }
+        };
+
+        setupProReportButton("goToProReportBtnTop");
+        setupProReportButton("goToProReportBtnBottom");
       });
 
       // --- AIによる状況推測 ---
@@ -890,6 +939,17 @@
         const sortedPaths = allPaths.sort(
           (a, b) => b[3].S7_総合評価スコア - a[3].S7_総合評価スコア
         );
+
+        const worryText = document.getElementById("worryInput").value.trim();
+        // グローバル変数にデータを格納
+        analysisDataForProReport = { worry: worryText, paths: sortedPaths };
+
+        // CTAボタンを表示する
+        document.getElementById("proReportCtaTop").classList.remove("hidden");
+        document
+          .getElementById("proReportCtaBottom")
+          .classList.remove("hidden");
+
         updateUI(sortedPaths, reasoning, explanation);
       }
 

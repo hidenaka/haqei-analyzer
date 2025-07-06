@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>あなたのための未来予測レポート - HaQei</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/1.4.0/chartjs-plugin-annotation.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+      .brand-text {
+          background: -webkit-linear-gradient(45deg, #fde047, #f97316);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+      }
+      .prose-custom { color: #d1d5db; line-height: 1.8; }
+      .prose-custom p { margin-top: 1em; margin-bottom: 1em; }
+      .prose-custom strong { color: #fde047; }
+      .scenario-card {
+          background: rgba(17, 24, 39, 0.5);
+          border: 1px solid rgba(55, 65, 81, 0.5);
+          backdrop-filter: blur(10px);
+          border-radius: 1rem;
+          padding: 1.5rem 2rem;
+          transition: all 0.3s ease;
+      }
+      .rank-badge { font-weight: bold; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 1.25rem; }
+      .rank-s { border: 2px solid #34d399; color: #6ee7b7; text-shadow: 0 0 10px #34d399; }
+      .rank-a { border: 2px solid #2dd4bf; color: #5eead4; }
+      .rank-b { border: 2px solid #60a5fa; color: #93c5fd; }
+      .rank-c { border: 2px solid #a5b4fc; color: #c4b5fd; }
+      .rank-d { border: 2px solid #fcd34d; color: #fde047; }
+      .rank-e { border: 2px solid #fb923c; color: #fdba74; }
+      .rank-f { border: 2px solid #f87171; color: #fca5a5; }
+      .rank-h { border: 2px solid #ef4444; color: #fda4af; }
+
+      /* ▼▼▼【変更点】ステップとトランジションのスタイルを追加 ▼▼▼ */
+      .step-card {
+          background-color: #1f2937; /* bg-gray-800 */
+          border: 1px solid #374151; /* border-gray-700 */
+          border-radius: 0.5rem; /* rounded-lg */
+          padding: 0.75rem; /* p-3 */
+          flex-grow: 1;
+          width: 100%;
+      }
+      .transition-card {
+          flex-shrink: 0;
+          text-align: center;
+          padding: 0.5rem;
+          margin: 0.5rem 0;
+          sm:margin: 0 0.5rem;
+      }
+      .transition-shin {
+          color: #5eead4; /* text-teal-300 */
+          background-color: rgba(20, 184, 166, 0.1);
+          border: 1px solid rgba(20, 184, 166, 0.3);
+          border-radius: 0.5rem;
+      }
+      .transition-hen {
+          color: #c4b5fd; /* text-purple-300 */
+          background-color: rgba(139, 92, 246, 0.1);
+          border: 1px solid rgba(139, 92, 246, 0.3);
+          border-radius: 0.5rem;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+    <div class="max-w-7xl mx-auto">
+      <header class="text-center mb-10">
+        <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">
+          HaQei
+        </h1>
+        <p class="text-gray-400 mt-2 text-xl">あなたのための未来予測レポート</p>
+      </header>
+
+      <div
+        id="worryDisplay"
+        class="bg-gray-800/50 p-6 rounded-xl mb-10 border-l-4 border-indigo-500"
+      >
+        <h3 class="font-bold text-indigo-300 mb-2">あなたの相談内容</h3>
+        <p
+          class="text-gray-300 whitespace-pre-wrap text-lg leading-relaxed"
+        ></p>
+      </div>
+
+      <div class="mb-12 bg-gray-900/50 p-6 rounded-xl">
+        <h2 class="text-2xl font-bold mb-4 text-center text-indigo-300">
+          未来分岐グラフ：総合評価の推移
+        </h2>
+        <div class="relative" style="height: 400px">
+          <canvas id="summaryChart"></canvas>
+        </div>
+      </div>
+
+      <div id="loadingIndicator" class="text-center py-20">
+        <div role="status" class="flex flex-col items-center justify-center">
+          <svg
+            aria-hidden="true"
+            class="w-12 h-12 text-gray-600 animate-spin fill-indigo-500"
+            viewBox="0 0 100 101"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+              fill="currentColor"
+            />
+            <path
+              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0492C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+              fill="currentFill"
+            />
+          </svg>
+          <p class="text-lg text-gray-400 mt-4">
+            AIがあなたの未来を執筆中です...
+          </p>
+          <p class="text-sm text-gray-500">
+            最大で1分ほどかかる場合があります。
+          </p>
+        </div>
+      </div>
+
+      <div id="reportContainer" class="hidden space-y-8"></div>
+
+      <div
+        id="errorIndicator"
+        class="hidden text-center py-20 bg-red-900/20 border border-red-800 rounded-lg"
+      >
+        <p class="text-xl text-red-300 font-bold">
+          レポートの生成に失敗しました
+        </p>
+        <p class="text-gray-400 mt-2">
+          時間をおいて、前のページから再度お試しください。
+        </p>
+        <p id="errorMessage" class="text-xs text-gray-500 mt-4"></p>
+      </div>
+    </div>
+
+    <script type="module">
+      let HAQEI_DATA = null;
+      let summaryChartInstance = null;
+
+      // ▼▼▼【新規】スコアに応じた状況解説テキストを生成する関数 ▼▼▼
+      function getSituationText(score) {
+        if (score >= 80) return "非常に安定し、望ましい状況です。";
+        if (score >= 60) return "物事が順調に進んでいる、好ましい状況です。";
+        if (score >= 40)
+          return "良くも悪くもない、平均的な状況です。油断は禁物です。";
+        if (score >= 20)
+          return "注意が必要な、やや困難な状況です。慎重な判断が求められます。";
+        return "極めて困難で、リスクの高い状況です。抜本的な見直しが必要です。";
+      }
+
+      // ▼▼▼【新規】卦の情報を取得するヘルパー関数 ▼▼▼
+      function getHexagramInfo(hexNum) {
+        if (!HAQEI_DATA) return { name: "不明", catchphrase: "情報なし" };
+        const hexData = HAQEI_DATA.hexagrams_master.find(
+          (h) => h.hexagram_id === hexNum
+        );
+        return hexData || { name: "不明", catchphrase: "情報なし" };
+      }
+
+      function renderSummaryChart(sortedPaths) {
+        if (summaryChartInstance) summaryChartInstance.destroy();
+        const ctx = document.getElementById("summaryChart").getContext("2d");
+        const topColors = ["#4ade80", "#2dd4bf", "#60a5fa", "#a5b4fc"];
+        const bottomColors = ["#fde047", "#fb923c", "#f87171", "#ef4444"];
+        const currentScore = sortedPaths[0][0].S7_総合評価スコア;
+
+        const datasets = sortedPaths.map((path, index) => {
+          const isTop = index < 4;
+          const color = isTop ? topColors[index] : bottomColors[index - 4];
+          return {
+            label: `シナリオ ${index + 1}`,
+            data: path.map((p) => p.S7_総合評価スコア),
+            borderColor: color,
+            borderWidth: isTop ? 3.5 : 1.5,
+            tension: 0.1,
+            pointRadius: 4,
+            pointBackgroundColor: "white",
+            pointHoverRadius: 6,
+          };
+        });
+
+        summaryChartInstance = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: ["現在地", "フェーズ1", "フェーズ2", "最終到達点"],
+            datasets,
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                min: 0,
+                max: 100,
+                ticks: { color: "#9ca3af" },
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+              },
+              x: {
+                ticks: { color: "#9ca3af" },
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+              },
+            },
+            plugins: {
+              legend: { labels: { color: "#d1d5db" } },
+              tooltip: { mode: "index", intersect: false },
+              annotation: {
+                annotations: {
+                  currentScoreLine: {
+                    type: "line",
+                    yMin: currentScore,
+                    yMax: currentScore,
+                    borderColor: "rgb(253, 224, 71)",
+                    borderWidth: 2,
+                    borderDash: [6, 6],
+                    label: {
+                      content: "現在地のスコア",
+                      enabled: true,
+                      position: "end",
+                      backgroundColor: "rgba(253, 224, 71, 0.8)",
+                      color: "black",
+                      font: { size: 10 },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const loadingIndicator = document.getElementById("loadingIndicator");
+        const reportContainer = document.getElementById("reportContainer");
+        const errorIndicator = document.getElementById("errorIndicator");
+        const errorMessageEl = document.getElementById("errorMessage");
+        const worryDisplayP = document.querySelector("#worryDisplay p");
+
+        // まず基本データを取得
+        const dbResponse = await fetch("/api/data").catch((err) =>
+          console.error("DB読込失敗:", err)
+        );
+        if (dbResponse && dbResponse.ok) {
+          const apiData = await dbResponse.json();
+          HAQEI_DATA = apiData.HAQEI_DATA;
+        }
+
+        const dataString = localStorage.getItem("proFutureReportData");
+        if (!dataString) {
+          /* ... エラー処理は変更なし ... */ return;
+        }
+
+        const reportData = JSON.parse(dataString);
+        worryDisplayP.textContent =
+          reportData.worry || "（相談内容がありません）";
+
+        if (reportData.paths) {
+          renderSummaryChart(reportData.paths);
+        }
+
+        try {
+          const response = await fetch("/api/pro-future-ai", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(reportData),
+          });
+          if (!response.ok) {
+            /* ... エラー処理は変更なし ... */
+          }
+
+          const narratives = await response.json();
+
+          // ▼▼▼【変更点】レポート描画ロジックを大幅に更新 ▼▼▼
+          const rankLabels = ["S", "A", "B", "C", "D", "E", "F", "H"];
+          let html = "";
+          reportData.paths.slice(0, 8).forEach((path, index) => {
+            const narrative = narratives[index] || {};
+            const rankLabel = rankLabels[index] || "不明";
+            const rankClass = `rank-${rankLabel.toLowerCase()}`;
+
+            // 各フェーズのカードを生成する
+            const stepCards = path.map((step, stepIndex) => {
+              const hexInfo = getHexagramInfo(step.卦番号);
+              const situationText = getSituationText(step.S7_総合評価スコア);
+              return `
+                            <div class="step-card">
+                                <p class="text-sm font-semibold text-gray-400">${
+                                  [
+                                    "現在地",
+                                    "フェーズ1",
+                                    "フェーズ2",
+                                    "最終到達点",
+                                  ][stepIndex]
+                                }</p>
+                                <p class="font-bold text-lg text-indigo-300">${
+                                  step["親となる卦"]
+                                } ${step.爻}</p>
+                                <p class="text-xs text-yellow-400 mt-1 mb-2">${
+                                  hexInfo.catchphrase
+                                }</p>
+                                <p class="text-[11px] text-gray-400 mb-2">${situationText}</p>
+                                <p class="text-xs text-gray-300 border-t border-gray-600 pt-2 mt-2">${
+                                  step.現代解釈の要約
+                                }</p>
+                            </div>
+                        `;
+            });
+
+            // 各フェーズ間のトランジション（行動選択）を生成する
+            const transitionCards = path.slice(1).map((step) => {
+              const isChange = step.choice === "change";
+              const cardClass = isChange ? "transition-hen" : "transition-shin";
+              const choiceTitle = isChange
+                ? "【変】状況を転換"
+                : "【進】テーマを深化";
+
+              return `
+                            <div class="transition-card ${cardClass}">
+                                <div class="font-bold text-sm">${choiceTitle}</div>
+                                <div class="sm:hidden text-2xl mt-1">↓</div>
+                                <div class="hidden sm:block text-3xl">→</div>
+                            </div>
+                        `;
+            });
+
+            // ステップとトランジションを交互に組み合わせたHTMLを生成
+            let pathStepsHtml = "";
+            for (let i = 0; i < stepCards.length; i++) {
+              pathStepsHtml += stepCards[i];
+              if (i < transitionCards.length) {
+                pathStepsHtml += transitionCards[i];
+              }
+            }
+
+            html += `
+                        <div class="scenario-card">
+                            <div class="flex items-start sm:items-center justify-between mb-4 flex-col sm:flex-row gap-4">
+                               <h3 class="font-bold text-2xl text-cyan-300">${
+                                 narrative.scenario_title || "無題のシナリオ"
+                               }</h3>
+                               <span class="rank-badge ${rankClass}">${rankLabel}</span>
+                            </div>
+                           <div class="prose-custom max-w-none mb-6">${
+                             narrative.narrative || "物語の生成に失敗しました。"
+                           }</div>
+                           
+                           <div class="mt-6 pt-4 border-t border-gray-700/50">
+                             <h4 class="font-bold text-lg text-yellow-300">この未来での心構え</h4>
+                             <p class="text-gray-400 mt-2">${
+                               narrative.advice ||
+                               "アドバイスの生成に失敗しました。"
+                             }</p>
+                           </div>
+
+                           <div class="mt-8 pt-6 border-t border-gray-700/50">
+                               <h4 class="font-bold text-lg text-indigo-300 mb-4">この未来に至るステップ</h4>
+                               <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
+                                  ${pathStepsHtml}
+                               </div>
+                           </div>
+                        </div>
+                    `;
+          });
+          reportContainer.innerHTML = html;
+          reportContainer.classList.remove("hidden");
+        } catch (err) {
+          errorMessageEl.textContent = err.message;
+          errorIndicator.classList.remove("hidden");
+          console.error("レポート生成エラー:", err);
+        } finally {
+          loadingIndicator.classList.add("hidden");
+        }
+      });
+    </script>
+  </body>
+</html>
