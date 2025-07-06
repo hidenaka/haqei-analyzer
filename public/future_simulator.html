@@ -460,39 +460,38 @@
 
     <script type="module">
       // --- グローバル変数 ---
-      const isLocal =
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1";
+      // isLocal の定義は不要になります
+      let kuromojiTokenizer = null;
 
       let HAQEI_DATA = null;
       let H64_DATA = null;
       let H384_DATA = null;
       let summaryChartInstance = null;
-      let kuromojiTokenizer = null;
+      // ... (他の変数はそのまま)
 
       // --- アプリケーション初期化 ---
       async function initializeApp() {
         const aiGuessBtn = document.getElementById("aiGuessBtn");
         const analyzeBtn = document.getElementById("analyzeBtn");
 
+        // ★★★ この関数定義を追加します ★★★
         const showLoadingState = (message) => {
           aiGuessBtn.disabled = true;
           analyzeBtn.disabled = true;
           aiGuessBtn.innerHTML = message;
           analyzeBtn.textContent = message;
         };
-
+        // ★★★ ここまで ★★★
         showLoadingState("辞書データ読込中...");
 
         try {
-          // kuromoji.jsの初期化処理
+          // kuromojiの初期化処理 (修正点2で説明)
           const tokenizerPromise = new Promise((resolve, reject) => {
-            const dicPath = isLocal
-              ? "./js/dict/" // ローカル環境用の辞書パス
-              : "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/"; // Cloudflare環境用のCDNパス
-
+            // ★★★ 辞書パスをローカルパスに統一します ★★★
+            const dicPath = "./dict/";
             kuromoji.builder({ dicPath: dicPath }).build((err, tokenizer) => {
               if (err) {
+                console.error("Kuromojiのビルドに失敗:", err);
                 return reject(err);
               }
               kuromojiTokenizer = tokenizer;
@@ -501,39 +500,21 @@
             });
           });
 
-          // APIデータのフェッチ
-          // ★★★ 修正箇所 ★★★
-          if (isLocal) {
-            // --- ローカル環境の場合：静的ファイルからデータを読み込む ---
-            await tokenizerPromise; // kuromojiの準備完了を待つ
+          // ★★★ 常にAPIからデータを取得するように簡素化 ★★★
+          const fetchDataPromise = fetch("/api/data").then((res) => {
+            if (!res.ok) throw new Error(`APIエラー: ${res.status}`);
+            return res.json();
+          });
 
-            if (typeof HAQEI_DATA === "undefined") {
-              throw new Error("主要データ(HAQEI_DATA)が読み込まれていません。");
-            }
-            // グローバル変数からデータをセット
-            H64_DATA = HAQEI_DATA.H64_DATA;
-            H384_DATA = HAQEI_DATA["384"];
-          } else {
-            // --- Cloudflare環境の場合：APIからデータを取得する ---
-            const fetchDataPromise = fetch("/api/data").then((response) => {
-              if (!response.ok) {
-                throw new Error(
-                  `APIの呼び出しに失敗しました: ${response.statusText}`
-                );
-              }
-              return response.json();
-            });
+          // Promise.allで両方の完了を待つ
+          const [apiData, _] = await Promise.all([
+            fetchDataPromise,
+            tokenizerPromise,
+          ]);
 
-            // 両方の非同期処理が完了するのを待つ
-            const [, apiData] = await Promise.all([
-              tokenizerPromise,
-              fetchDataPromise,
-            ]);
-
-            HAQEI_DATA = apiData.HAQEI_DATA;
-            H64_DATA = HAQEI_DATA.H64_DATA;
-            H384_DATA = HAQEI_DATA["384"];
-          }
+          HAQEI_DATA = apiData.HAQEI_DATA;
+          H64_DATA = HAQEI_DATA.H64_DATA;
+          H384_DATA = HAQEI_DATA["384"];
 
           setupDatalist();
           aiGuessBtn.disabled = false;
