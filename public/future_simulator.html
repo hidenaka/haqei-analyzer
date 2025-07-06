@@ -184,6 +184,7 @@
       }
     </style>
     <script src="./js/koudo_shishin_database.js"></script>
+    <script src="./js/ai_theme_database.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js"></script>
   </head>
   <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-6">
@@ -578,8 +579,12 @@
         aiGuessBtn.innerHTML = "AIが解析中...";
 
         try {
-          const result = await callAIAssistant(worryText, H384_DATA);
-
+          // AIの推論ロジックに必要なキーワードマップを第3引数として渡す
+          const result = await callAIAssistant(
+            worryText,
+            H384_DATA,
+            window.futureThemeMap
+          );
           if (result) {
             document.getElementById("hexagramInput").value = result.卦番号;
             document.getElementById("lineInput").value = result.爻番号;
