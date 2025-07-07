@@ -302,78 +302,60 @@
           placeholder="ここにあなたの「生の言葉」を入力してください..."
         ></textarea>
         <button
-          id="aiGuessBtn"
-          class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 flex items-center justify-center gap-2"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            viewBox="0 0 20 20"
-            fill="currentColor"
+            id="aiGuessBtn"
+            class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 flex items-center justify-center gap-2"
           >
-            <path
-              fill-rule="evenodd"
-              d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
-              clip-rule="evenodd"
-            />
-          </svg>
-          AIに状況を推測させる
-        </button>
+            <svg class="animate-spin h-5 w-5 text-white hidden" id="loadingSpinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <svg
+              id="originalIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <span id="buttonText">AIに状況を推測させる</span>
+          </button>
       </div>
 
-      <div
-        class="bg-gray-900/50 p-6 rounded-xl mb-8 flex flex-col sm:flex-row items-center justify-center gap-4"
-      >
-        <div>
-          <label
-            for="hexagramInput"
-            class="block text-sm font-medium text-gray-300 mb-1"
-            >状況卦（番号または名前）</label
-          >
-          <input
-            type="text"
-            id="hexagramInput"
-            list="hexagram-names"
-            class="bg-gray-700 border border-gray-600 text-white text-lg rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 text-center"
-            placeholder="例: 3"
-          />
+      <div class="bg-gray-900/50 p-6 rounded-xl mb-8 space-y-4">
+    
+    <details class="group">
+        <summary class="text-sm text-center text-indigo-400 hover:text-indigo-300 cursor-pointer transition-colors">
+            または、状況卦と爻を手動で指定して予測する
+        </summary>
+        <div class="mt-4 pt-4 border-t border-gray-700 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div>
+                <label for="hexagramInput" class="block text-sm font-medium text-gray-300 mb-1">状況卦（番号または名前）</label>
+                <input type="text" id="hexagramInput" list="hexagram-names" class="bg-gray-700 border border-gray-600 text-white text-lg rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 text-center" placeholder="例: 3">
+            </div>
+            <div>
+                <label for="lineInput" class="block text-sm font-medium text-gray-300 mb-1">現在の爻（1～6）</label>
+                <input type="number" id="lineInput" min="1" max="6" class="bg-gray-700 border border-gray-600 text-white text-lg rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 text-center" placeholder="例: 1">
+            </div>
+            <button id="manualAnalyzeBtn" class="w-full sm:w-auto mt-4 sm:mt-0 sm:self-end bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                予測実行
+            </button>
         </div>
-        <div>
-          <label
-            for="lineInput"
-            class="block text-sm font-medium text-gray-300 mb-1"
-            >現在の爻（1～6）</label
-          >
-          <input
-            type="number"
-            id="lineInput"
-            min="1"
-            max="6"
-            class="bg-gray-700 border border-gray-600 text-white text-lg rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 text-center"
-            placeholder="例: 1"
-          />
-        </div>
-        <div
-        class="bg-gray-900/50 p-6 rounded-xl mb-8 flex flex-col sm:flex-row items-center justify-center gap-4"
-      >
-        <div> ... </div>
-        <div> ... </div>
-        
-        <div class="w-full sm:w-auto mt-4 sm:mt-0 sm:self-center">
-            <label class="flex items-center justify-center cursor-pointer">
-                <input type="checkbox" id="agreementCheckbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
-                <span class="ml-2 text-sm text-gray-400">
-                    <a href="/terms.html" target="_blank" class="underline hover:text-white">規約等</a>に同意
-                </span>
-            </label>
-        </div>
-        <button
-          id="analyzeBtn"
-          class="w-full sm:w-auto mt-4 sm:mt-0 sm:self-end bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300"
-        >
-          予測実行
-        </button>
-      </div>
+    </details>
+
+    <div class="pt-4 border-t border-gray-700 text-center">
+        <label class="flex items-center justify-center cursor-pointer">
+            <input type="checkbox" id="agreementCheckbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
+            <span class="ml-2 text-sm text-gray-400">
+                <a href="/terms.html" target="_blank" class="underline hover:text-white">利用規約</a>および<a href="/privacy.html" target="_blank" class="underline hover:text-white">プライバシーポリシー</a>に同意します
+            </span>
+        </label>
+    </div>
+</div>
 
       <div id="resultArea" class="hidden">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-12">
@@ -567,16 +549,27 @@
 
       // --- アプリケーション初期化とイベントリスナー設定 ---
       async function initializeApp() {
-        const aiGuessBtn = document.getElementById("aiGuessBtn");
-        const analyzeBtn = document.getElementById("analyzeBtn");
+    const aiGuessBtn = document.getElementById("aiGuessBtn");
+    const manualAnalyzeBtn = document.getElementById("manualAnalyzeBtn");
 
-        const showLoadingState = (message) => {
-          aiGuessBtn.disabled = true;
-          analyzeBtn.disabled = true;
-          aiGuessBtn.innerHTML = message;
-          analyzeBtn.textContent = message;
-        };
-
+    const showLoadingState = (message) => {
+        // AI推測ボタンの表示を更新
+        const spinner = document.getElementById('loadingSpinner');
+        const originalIcon = document.getElementById('originalIcon');
+        const buttonText = document.getElementById('buttonText');
+        
+        if(spinner && originalIcon && buttonText) {
+            spinner.classList.remove('hidden');
+            originalIcon.classList.add('hidden');
+            buttonText.textContent = message;
+        } else {
+            aiGuessBtn.innerHTML = message;
+        }
+        
+        aiGuessBtn.disabled = true;
+        manualAnalyzeBtn.disabled = true;
+        manualAnalyzeBtn.textContent = message;
+    };
         showLoadingState("辞書データ読込中...");
 
         try {
@@ -610,11 +603,20 @@
           setupDatalist();
 
           // ボタンを有効化
-          aiGuessBtn.disabled = false;
-          analyzeBtn.disabled = false;
-          aiGuessBtn.innerHTML =
-            '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" /></svg> AIに状況を推測させる';
-          analyzeBtn.textContent = "予測実行";
+          const spinner = document.getElementById('loadingSpinner');
+        const originalIcon = document.getElementById('originalIcon');
+        const buttonText = document.getElementById('buttonText');
+        
+        if(spinner && originalIcon && buttonText) {
+            spinner.classList.add('hidden');
+            originalIcon.classList.remove('hidden');
+            buttonText.textContent = 'AIに状況を推測させる';
+        }
+        
+        aiGuessBtn.disabled = false;
+        manualAnalyzeBtn.disabled = false;
+        manualAnalyzeBtn.textContent = "予測実行";
+        // ▲▲▲ 置き換えはここまで ▲▲▲
 
           console.log("アプリケーションの初期化が完了しました。");
         } catch (error) {
@@ -637,56 +639,52 @@
         }
       }
 
-      document.addEventListener("DOMContentLoaded", () => {
-        initializeApp();
-        const agreementCheckbox = document.getElementById('agreementCheckbox');
-        const aiGuessBtn = document.getElementById('aiGuessBtn');
-        const analyzeBtn = document.getElementById('analyzeBtn');
+     document.addEventListener("DOMContentLoaded", () => {
+    initializeApp();
 
-        // 最初は両方のボタンを押せなくする
-        aiGuessBtn.disabled = true;
-        analyzeBtn.disabled = true;
+    // --- 同意チェックとボタンのイベントリスナー設定 ---
+    const agreementCheckbox = document.getElementById('agreementCheckbox');
+    const aiGuessBtn = document.getElementById('aiGuessBtn');
+    const manualAnalyzeBtn = document.getElementById('manualAnalyzeBtn');
 
-        agreementCheckbox.addEventListener('change', () => {
-            const isChecked = agreementCheckbox.checked;
-            // チェックが入ったら、両方のボタンを押せるようにする
-            aiGuessBtn.disabled = !isChecked;
-            analyzeBtn.disabled = !isChecked;
-        });
-        document
-          .getElementById("aiGuessBtn")
-          .addEventListener("click", handleAiGuess);
-        document
-          .getElementById("analyzeBtn")
-          .addEventListener("click", () => handleAnalysis());
-        document
-          .getElementById("modalOverlay")
-          .addEventListener("click", hideModal);
-        document
-          .getElementById("modalCloseBtn")
-          .addEventListener("click", hideModal);
-        document
-          .getElementById("helpBtn")
-          .addEventListener("click", showHelpModal);
+    // 「AIに推測させる」ボタンのクリック処理
+    aiGuessBtn.addEventListener("click", () => {
+        if (!agreementCheckbox.checked) {
+            alert('利用規約とプライバシーポリシーに同意してください。');
+            return; // 同意がなければ中断
+        }
+        handleAiGuess(); // 同意があれば実行
+    });
 
-        // イベント委譲を使って、動的に生成される要素のクリックを監視
-        document.body.addEventListener("click", function (event) {
-          const paramHelpBtn = event.target.closest("#paramHelpBtn");
-          if (paramHelpBtn) {
+    // 「手動で予測実行」ボタンのクリック処理
+    manualAnalyzeBtn.addEventListener("click", () => {
+        if (!agreementCheckbox.checked) {
+            alert('利用規約とプライバシーポリシーに同意してください。');
+            return; // 同意がなければ中断
+        }
+        handleAnalysis(); // 同意があれば実行
+    });
+
+    // --- その他のイベントリスナー ---
+    document.getElementById("modalOverlay").addEventListener("click", hideModal);
+    document.getElementById("modalCloseBtn").addEventListener("click", hideModal);
+    document.getElementById("helpBtn").addEventListener("click", showHelpModal);
+    
+    document.body.addEventListener("click", function (event) {
+        const paramHelpBtn = event.target.closest("#paramHelpBtn");
+        if (paramHelpBtn) {
             showParameterHelpModal();
             return;
-          }
-
-          const deepDiveBtn = event.target.closest(".deep-dive-btn");
-          if (deepDiveBtn) {
+        }
+        const deepDiveBtn = event.target.closest(".deep-dive-btn");
+        if (deepDiveBtn) {
             handleDeepDiveClick(event);
             return;
-          }
-        });
+        }
+    });
 
-        restoreState();
-      });
-
+    restoreState();
+});
       function handleGoToReportClick(event) {
         event.preventDefault();
 
@@ -710,51 +708,45 @@
       }
 
       async function handleAiGuess() {
-        const worryText = document.getElementById("worryInput").value.trim();
-        const validationResult = isInputSufficient(worryText);
-        if (!validationResult.isValid) {
-          showModal(
-            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力内容のご確認</h2><p>${validationResult.message}</p><p class="mt-2 text-sm text-gray-400">あなたの状況をより深く理解するために、もう少し詳しく教えていただけますでしょうか。</p>`
-          );
-          return;
-        }
+    // 同意チェックはボタンのイベントリスナーに移動したので、ここでは不要
+    
+    const worryText = document.getElementById("worryInput").value.trim();
+    if (!isInputSufficient(worryText).isValid) {
+        showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力内容のご確認</h2><p>あなたの状況をより深く理解するために、もう少し詳しく教えていただけますでしょうか。</p>`);
+        return;
+    }
 
-        const aiGuessBtn = document.getElementById("aiGuessBtn");
-        aiGuessBtn.disabled = true;
-        aiGuessBtn.innerHTML = "AIが解析中...";
+    const aiGuessBtn = document.getElementById("aiGuessBtn");
+    const spinner = document.getElementById('loadingSpinner');
+    const originalIcon = document.getElementById('originalIcon');
+    const buttonText = document.getElementById('buttonText');
 
-        try {
-          const result = await callAIAssistant(
-            worryText,
-            H384_DATA,
-            window.futureThemeMap
-          );
+    // ローディング表示を開始
+    aiGuessBtn.disabled = true;
+    spinner.classList.remove('hidden');
+    originalIcon.classList.add('hidden');
+    buttonText.textContent = 'AIが解析中...';
 
-          if (result) {
+    try {
+        const result = await callAIAssistant(worryText, H384_DATA, window.futureThemeMap);
+        if (result) {
             document.getElementById("hexagramInput").value = result.卦番号;
             document.getElementById("lineInput").value = result.爻番号;
-            handleAnalysis(
-              result.卦番号,
-              result.爻番号,
-              result.根拠,
-              result.解説
-            );
-          } else {
-            showModal(
-              `<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>状況に合致する卦を見つけられませんでした。表現を変えて再度お試しください。</p>`
-            );
-          }
-        } catch (error) {
-          console.error("AI推測処理でエラー:", error);
-          showModal(
-            `<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>AIによる推測処理中にエラーが発生しました。</p><p class="mt-2 text-sm text-gray-500">${error.message}</p>`
-          );
-        } finally {
-          aiGuessBtn.disabled = false;
-          aiGuessBtn.innerHTML =
-            '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" /></svg> AIに状況を推測させる';
+            handleAnalysis(result.卦番号, result.爻番号, result.根拠, result.解説);
+        } else {
+            showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>状況に合致する卦を見つけられませんでした。表現を変えて再度お試しください。</p>`);
         }
-      }
+    } catch (error) {
+        console.error("AI推測処理でエラー:", error);
+        showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>AIによる推測処理中にエラーが発生しました。</p><p class="mt-2 text-sm text-gray-500">${error.message}</p>`);
+    } finally {
+        // ローディング表示を終了し、ボタンを元の状態に戻す
+        aiGuessBtn.disabled = false;
+        spinner.classList.add('hidden');
+        originalIcon.classList.remove('hidden');
+        buttonText.textContent = 'AIに状況を推測させる';
+    }
+}
 
       function isInputSufficient(text) {
         if (text.length < 10) {
@@ -2402,49 +2394,7 @@
         // 5. professional_report.html へ遷移
         window.location.href = button.href;
       }
-      function sendAnonymousData(professionalData) {
-        if (
-          !professionalData ||
-          !professionalData.profile ||
-          !professionalData.analysis ||
-          !professionalData.selectedFuture
-        ) {
-          console.log("送信するための分析データが不十分です。");
-          return;
-        }
-
-        const anonymousPayload = {
-          mbti: professionalData.profile.mbti,
-          enneagram: professionalData.profile.enneagram,
-          os_engine: professionalData.analysis.hexagram_candidates[0]?.name_jp,
-          os_interface:
-            professionalData.analysis.hexagram_candidates[1]?.name_jp,
-          start_hexagram:
-            professionalData.selectedFuture.path[0]?.["親となる卦"],
-          selected_scenario_rank: professionalData.selectedFuture.rank,
-          selected_scenario_path: professionalData.selectedFuture.path
-            .slice(1)
-            .map((p) => (p.choice === "change" ? "変" : "進"))
-            .join("→"),
-          final_hexagram:
-            professionalData.selectedFuture.path[3]?.["親となる卦"],
-          worry_word_count: extractWords(professionalData.worry).length,
-        };
-
-        const endpoint = "/api/collect-anonymous-data";
-        const dataToSend = JSON.stringify(anonymousPayload);
-
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon(endpoint, dataToSend);
-        } else {
-          fetch(endpoint, {
-            method: "POST",
-            body: dataToSend,
-            keepalive: true,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-      }
+      
     </script>
     <footer class="bg-gray-800">
       <footer class="w-full max-w-4xl mx-auto text-center p-6 mt-8 border-t border-gray-700">
