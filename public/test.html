@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>HaQeiプロフェッショナル 統合戦略レポート</title>
+    <style>
+      /* ... styleは変更なし ... */
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+    <div
+      class="w-full max-w-5xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10"
+    >
+      <h3 class="text-xl font-semibold mb-6 text-gray-300">
+        人格OSプロファイル - あなたの才能の源泉
+      </h3>
+      <div id="os-summary" class="grid md:grid-cols-3 gap-6"></div>
+    </div>
+
+    <script>
+      const HAQEI_DATA = {
+        os_manual: {
+          1: {
+            name: "乾為天",
+            summary:
+              "純粋な創造エネルギーと、天性のリーダーシップを持つOS。理想を掲げ、他者を牽引する力があるが、エネルギーが過剰になりがち。",
+            debug_pattern:
+              "自分の正しさを疑わず、他者の意見を一切聞かなくなる。計画が完璧でないと気が済まず、周囲に過度なプレッシャーを与え、孤立する。",
+            debug_method:
+              "意図的に『何もしない時間』を作ることが特効薬。具体的な成果を求めず、ただ散歩する、音楽を聴くなど、目的のない行動が暴走と思考のループを鎮める。",
+          },
+          46: {
+            name: "地風升",
+            summary:
+              "着実な成長と、積み重ねを力に変えるOS。努力を継続し、段階的に目標を達成する力があるが、変化への対応が遅れがち。",
+            debug_pattern:
+              "過去の成功体験に固執し、新しい方法を試すことを恐れる。",
+            debug_method: "週に一度、全く新しい分野の情報に触れる時間を作る。",
+          },
+        },
+      };
+
+      const DEFAULT_MANUAL = {
+        name: "（データなし）",
+        summary: "このOSに関する解説データは準備中です。",
+        debug_pattern: "---",
+        debug_method: "---",
+      };
+
+      const requestPayload = {
+        profile: { mbti: "ENTJ" },
+        worry: "チームの推進力が落ちてきている。",
+        analysis: {
+          hexagram_candidates: [
+            { hexagram_id: 1, name_jp: "乾為天" },
+            { hexagram_id: 46, name_jp: "地風升" },
+            { hexagram_id: 99, name_jp: "存在しない卦" },
+          ],
+          os_manual: HAQEI_DATA.os_manual,
+        },
+        selectedFuture: { path: [] },
+      };
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const osSummaryContainer = document.getElementById("os-summary");
+        // ... 他の要素取得は変更なし
+
+        try {
+          const { analysis } = requestPayload;
+          const osList = analysis.hexagram_candidates.slice(0, 3);
+          const osManual = analysis.os_manual || {};
+          const osMap = {
+            engine: osList[0],
+            interface: osList[1],
+            safe_mode: osList[2],
+          };
+          const osColors = {
+            engine: "#fde047",
+            interface: "#a5b4fc",
+            safe_mode: "#6ee7b7",
+          };
+          const osIcons = { engine: "🔥", interface: "🎭", safe_mode: "🛡️" };
+          const osRoles = {
+            engine: "魂のエンジン",
+            interface: "ペルソナ",
+            safe_mode: "安全地帯",
+          };
+
+          // ▼▼▼ ここからが最重要の修正箇所 ▼▼▼
+          osSummaryContainer.innerHTML = Object.entries(osMap)
+            .map(([key, os]) => {
+              if (!os) return "";
+
+              const manual = osManual[os.hexagram_id] || DEFAULT_MANUAL;
+
+              // --- 🐛 デバッグ用コンソール出力 ---
+              // このコンソール出力で、ブラウザがどのデータを認識しているか確認できます。
+              console.log(`--- OS: ${os.name_jp} (ID: ${os.hexagram_id}) ---`);
+              console.log("ステップ1: manualオブジェクト全体:", manual);
+              console.log(
+                "ステップ2: manualからsummaryを抽出:",
+                manual.summary
+              );
+              // ------------------------------------
+
+              return `
+              <div class="os-card" style="border-color: ${osColors[key]};">
+                  <div class="os-card-content">
+                      <h4 class="os-card-title text-lg font-bold">
+                        <span class="mr-2">${osIcons[key]}</span>
+                        ${os.name_jp}
+                      </h4>
+                      <div class="mt-4 pt-3 border-t border-gray-600/50">
+                        <p class="text-sm font-semibold mb-1 text-gray-300">OSの特性:</p>
+                        <p class="text-sm">${manual.summary}</p>
+                      </div>
+                  </div>
+              </div>`;
+            })
+            .join("");
+        } catch (e) {
+          console.error("描画プロセスで致命的なエラー:", e);
+        }
+      });
+    </script>
+  </body>
+</html>

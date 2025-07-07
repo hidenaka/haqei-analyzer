@@ -363,7 +363,8 @@
             <h2 class="text-2xl font-bold mb-4 text-center text-indigo-300">
               分析サマリー
             </h2>
-            <div
+            <div class="space-y-4">
+              <div
                 id="summaryCard"
                 class="p-4 rounded-lg border border-gray-600/50 bg-gray-900/30"
               >
@@ -426,6 +427,7 @@
                 <div id="firstActionContainer" class="mt-4"></div>
               </div>
             </div>
+          </div>
           <div class="lg:col-span-2 bg-gray-900/50 p-6 rounded-xl">
             <h2 class="text-2xl font-bold mb-4 text-center text-indigo-300">
               未来分岐グラフ：総合評価の推移
@@ -545,6 +547,35 @@
       let currentStateBarChartInstance = null;
       let currentAnalysisData = {};
 
+      // ▼▼▼【ここから追加】▼▼▼
+      /**
+       * 分析データをlocalStorageに保存し、cockpit.htmlに遷移する関数
+       * @param {Array} paths - 分析された8つの未来シナリオの配列
+       * @param {string} worryText - ユーザーが入力した課題テキスト
+       */
+      function saveAndNavigateToCockpit(paths, worryText) {
+        if (!paths || paths.length === 0) {
+          alert("分析データがありません。");
+          return;
+        }
+        
+        const dataToStore = {
+          worry: worryText,
+          paths: paths,
+        };
+
+        try {
+          // localStorageに 'proFutureReportData' というキーでデータを保存
+          localStorage.setItem("proFutureReportData", JSON.stringify(dataToStore));
+          console.log("Cockpit.htmlへデータを保存しました:", dataToStore);
+          
+          // 保存が成功したら、cockpit.htmlへ遷移
+          window.location.href = "cockpit.html";
+        } catch (e) {
+          console.error("localStorageへのデータ保存に失敗しました:", e);
+          alert("データの保存に失敗しました。ブラウザの設定をご確認ください。");
+        }
+      }
       // --- アプリケーション初期化とイベントリスナー設定 ---
       async function initializeApp() {
     const aiGuessBtn = document.getElementById("aiGuessBtn");
@@ -637,52 +668,60 @@
         }
       }
 
-     document.addEventListener("DOMContentLoaded", () => {
-    initializeApp();
+     // ▼▼▼【ここからコピーして、既存の DOMContentLoaded リスナーを置き換える】▼▼▼
 
-    // --- 同意チェックとボタンのイベントリスナー設定 ---
-    const agreementCheckbox = document.getElementById('agreementCheckbox');
-    const aiGuessBtn = document.getElementById('aiGuessBtn');
-    const manualAnalyzeBtn = document.getElementById('manualAnalyzeBtn');
+      ddocument.addEventListener("DOMContentLoaded", () => {
+        initializeApp();
 
-    // 「AIに推測させる」ボタンのクリック処理
-    aiGuessBtn.addEventListener("click", () => {
-        if (!agreementCheckbox.checked) {
-            alert('利用規約とプライバシーポリシーに同意してください。');
-            return; // 同意がなければ中断
-        }
-        handleAiGuess(); // 同意があれば実行
-    });
+        const agreementCheckbox = document.getElementById('agreementCheckbox');
+        const aiGuessBtn = document.getElementById('aiGuessBtn');
+        const manualAnalyzeBtn = document.getElementById('manualAnalyzeBtn');
 
-    // 「手動で予測実行」ボタンのクリック処理
-    manualAnalyzeBtn.addEventListener("click", () => {
-        if (!agreementCheckbox.checked) {
-            alert('利用規約とプライバシーポリシーに同意してください。');
-            return; // 同意がなければ中断
-        }
-        handleAnalysis(); // 同意があれば実行
-    });
+        // 同意チェックボックスの状態に応じてボタンを有効/無効にする関数
+        const updateButtonState = () => {
+            const isChecked = agreementCheckbox.checked;
+            // 初期化が完了しているかどうかもチェック
+            if(aiGuessBtn.textContent.includes('推測させる') || manualAnalyzeBtn.textContent.includes('予測実行')) {
+                aiGuessBtn.disabled = !isChecked;
+                manualAnalyzeBtn.disabled = !isChecked;
+            }
+        };
 
-    // --- その他のイベントリスナー ---
-    document.getElementById("modalOverlay").addEventListener("click", hideModal);
-    document.getElementById("modalCloseBtn").addEventListener("click", hideModal);
-    document.getElementById("helpBtn").addEventListener("click", showHelpModal);
-    
-    document.body.addEventListener("click", function (event) {
-        const paramHelpBtn = event.target.closest("#paramHelpBtn");
-        if (paramHelpBtn) {
-            showParameterHelpModal();
-            return;
-        }
-        const deepDiveBtn = event.target.closest(".deep-dive-btn");
-        if (deepDiveBtn) {
-            handleDeepDiveClick(event);
-            return;
-        }
-    });
+        agreementCheckbox.addEventListener('change', updateButtonState);
 
-    restoreState();
-});
+        // 「AIに推測させる」ボタンのクリック処理
+        aiGuessBtn.addEventListener("click", () => {
+            if (!agreementCheckbox.checked) {
+                alert('利用規約とプライバシーポリシーに同意してください。');
+                return;
+            }
+            handleAiGuessAndNavigate(); // ★新しい関数を呼び出す
+        });
+
+        // 「手動で予測実行」ボタンのクリック処理
+        manualAnalyzeBtn.addEventListener("click", () => {
+            if (!agreementCheckbox.checked) {
+                alert('利用規約とプライバシーポリシーに同意してください。');
+                return;
+            }
+            handleManualAnalysisAndNavigate(); // ★新しい関数を呼び出す
+        });
+
+        // その他のモーダルやヘルプボタンのイベントリスナー（変更なし）
+        document.getElementById("modalOverlay").addEventListener("click", hideModal);
+        document.getElementById("modalCloseBtn").addEventListener("click", hideModal);
+        document.getElementById("helpBtn").addEventListener("click", showHelpModal);
+        document.body.addEventListener("click", function (event) {
+            if (event.target.closest("#paramHelpBtn")) {
+                showParameterHelpModal();
+            }
+        });
+        
+        // ページ読み込み時にボタンの状態を初期化
+        updateButtonState(); 
+      });
+
+      // ▲▲▲【ここまでをコピー＆ペーストで置き換える】▲▲▲
       function handleGoToReportClick(event) {
         event.preventDefault();
 
@@ -705,46 +744,78 @@
         window.location.href = event.currentTarget.href;
       }
 
+
+
+
       async function handleAiGuess() {
-    // 同意チェックはボタンのイベントリスナーに移動したので、ここでは不要
-    
-    const worryText = document.getElementById("worryInput").value.trim();
-    if (!isInputSufficient(worryText).isValid) {
-        showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力内容のご確認</h2><p>あなたの状況をより深く理解するために、もう少し詳しく教えていただけますでしょうか。</p>`);
-        return;
-    }
-
-    const aiGuessBtn = document.getElementById("aiGuessBtn");
-    const spinner = document.getElementById('loadingSpinner');
-    const originalIcon = document.getElementById('originalIcon');
-    const buttonText = document.getElementById('buttonText');
-
-    // ローディング表示を開始
-    aiGuessBtn.disabled = true;
-    spinner.classList.remove('hidden');
-    originalIcon.classList.add('hidden');
-    buttonText.textContent = 'AIが解析中...';
-
-    try {
-        const result = await callAIAssistant(worryText, H384_DATA, window.futureThemeMap);
-        if (result) {
-            document.getElementById("hexagramInput").value = result.卦番号;
-            document.getElementById("lineInput").value = result.爻番号;
-            handleAnalysis(result.卦番号, result.爻番号, result.根拠, result.解説);
-        } else {
-            showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>状況に合致する卦を見つけられませんでした。表現を変えて再度お試しください。</p>`);
+        const worryText = document.getElementById("worryInput").value.trim();
+        if (!isInputSufficient(worryText).isValid) {
+            showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力内容のご確認</h2><p>あなたの状況をより深く理解するために、もう少し詳しく教えていただけますでしょうか。</p>`);
+            return;
         }
-    } catch (error) {
-        console.error("AI推測処理でエラー:", error);
-        showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>AIによる推測処理中にエラーが発生しました。</p><p class="mt-2 text-sm text-gray-500">${error.message}</p>`);
-    } finally {
-        // ローディング表示を終了し、ボタンを元の状態に戻す
-        aiGuessBtn.disabled = false;
-        spinner.classList.add('hidden');
-        originalIcon.classList.remove('hidden');
-        buttonText.textContent = 'AIに状況を推測させる';
-    }
-}
+
+        const aiGuessBtn = document.getElementById("aiGuessBtn");
+        const spinner = document.getElementById('loadingSpinner');
+        const originalIcon = document.getElementById('originalIcon');
+        const buttonText = document.getElementById('buttonText');
+
+        // ローディング表示を開始
+        aiGuessBtn.disabled = true;
+        document.getElementById('manualAnalyzeBtn').disabled = true; // 手動ボタンも無効化
+        spinner.classList.remove('hidden');
+        originalIcon.classList.add('hidden');
+        buttonText.textContent = 'AIが解析中...';
+
+        try {
+            const result = await callAIAssistant(worryText, H384_DATA, window.futureThemeMap);
+            if (result && result.卦番号 && result.爻番号) {
+                const allPaths = generateAllPaths(result.卦番号, result.爻番号);
+                // AI推測後、データを保存して遷移
+                saveAndNavigateToCockpit(allPaths, worryText);
+            } else {
+                alert('状況に合致する卦を見つけられませんでした。表現を変えて再度お試しください。');
+                // ローディング表示を終了
+                aiGuessBtn.disabled = false;
+                manualAnalyzeBtn.disabled = false;
+                spinner.classList.add('hidden');
+                originalIcon.classList.remove('hidden');
+                buttonText.textContent = 'AIに状況を推測させ、コックピットへ移動';
+            }
+        } catch (error) {
+            console.error("AI推測処理でエラー:", error);
+            alert(`AIによる推測処理中にエラーが発生しました: ${error.message}`);
+            // ローディング表示を終了
+            aiGuessBtn.disabled = false;
+            manualAnalyzeBtn.disabled = false;
+            spinner.classList.add('hidden');
+            originalIcon.classList.remove('hidden');
+            buttonText.textContent = 'AIに状況を推測させ、コックピットへ移動';
+        }
+      }
+
+      // 手動での分析を実行する関数
+      function handleManualAnalysis() {
+          const hexagramInput = document.getElementById("hexagramInput").value.trim();
+          const lineNumber = parseInt(document.getElementById("lineInput").value, 10);
+          
+          let hexagramNumber = parseInt(hexagramInput);
+          if (isNaN(hexagramNumber)) {
+              const foundHex = HAQEI_DATA.hexagrams_master.find((h) => h.name_jp === hexagramInput);
+              hexagramNumber = foundHex ? foundHex.hexagram_id : null;
+          }
+
+          if (!hexagramNumber || isNaN(lineNumber) || lineNumber < 1 || lineNumber > 6) {
+              alert("有効な卦と爻を入力してください。");
+              return;
+          }
+
+          const allPaths = generateAllPaths(hexagramNumber, lineNumber);
+          // 手動の場合は、入力された内容から課題テキストを生成
+          const worryText = `${hexagramInput} ${lineNumber}爻の状況について`;
+          // 手動実行後も、データを保存して遷移
+          saveAndNavigateToCockpit(allPaths, worryText);
+      }
+      
 
       function isInputSufficient(text) {
         if (text.length < 10) {
@@ -927,8 +998,7 @@
           let mainTheme = "";
           if (reasonKeywords.length > 0) {
             mainTheme = reasonKeywords.join("、");
-          }
-          else {
+          } else {
             mainTheme = `${line["親となる卦"]} ${line.爻}の持つテーマ`;
           }
           const reasoning = `AIの推測: ${subjectPossessive}ご相談の状況は、<strong>${line["親となる卦"]} ${line.爻}</strong>の持つ<strong>「${mainTheme}」</strong>というテーマと強く結びついていると判断しました。`;
@@ -980,66 +1050,108 @@
         }
         return null;
       }
+// ▼▼▼【ここからコピーして、既存の handleAiGuess と handleAnalysis を置き換える】▼▼▼
 
-      function handleAnalysis(
-        hexNum = null,
-        lineNum = null,
-        reasoning = null,
-        explanation = null
-      ) {
-        if (!HAQEI_DATA) {
-          showModal(
-            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">データ読込中</h2><p>まだデータの準備が完了していません。もうしばらくお待ちください。</p>`
-          );
+      /**
+       * ★新しい中心的な関数：分析データをlocalStorageに保存し、cockpit.htmlに遷移する
+       * @param {Array} paths - 分析された8つの未来シナリオの配列
+       * @param {string} worryText - ユーザーが入力した課題テキスト
+       */
+      function saveAndNavigateToCockpit(paths, worryText) {
+        if (!paths || paths.length === 0) {
+          alert("分析データの生成に失敗しました。");
           return;
         }
+        
+        const dataToStore = {
+          worry: worryText,
+          paths: paths,
+        };
 
-        let hexagramNumber = hexNum;
-        let lineNumber = lineNum;
-
-        if (hexagramNumber === null || lineNumber === null) {
-          const hexagramInput = document
-            .getElementById("hexagramInput")
-            .value.trim();
-          lineNumber = parseInt(document.getElementById("lineInput").value);
-          let parsedHexNum = parseInt(hexagramInput);
-          if (isNaN(parsedHexNum)) {
-            const foundHex = H64_DATA.find((h) => h.名前 === hexagramInput);
-            hexagramNumber = foundHex ? foundHex.卦番号 : null;
-          } else {
-            hexagramNumber = parsedHexNum;
-          }
+        try {
+          // localStorageに 'proFutureReportData' というキーでデータを保存
+          localStorage.setItem("proFutureReportData", JSON.stringify(dataToStore));
+          console.log("Cockpit.htmlへデータを保存しました:", dataToStore);
+          
+          // 保存が成功したら、cockpit.htmlへ遷移
+          window.location.href = "cockpit.html";
+        } catch (e) {
+          console.error("localStorageへのデータ保存に失敗しました:", e);
+          alert("データの保存に失敗しました。ブラウザの設定をご確認ください。");
         }
-
-        if (
-          !hexagramNumber ||
-          isNaN(lineNumber) ||
-          !H384_DATA ||
-          H384_DATA.length === 0
-        ) {
-          showModal(
-            `<h2 class="text-2xl font-bold text-red-400 mb-4">入力エラー</h2><p>有効な卦と爻を入力してください。</p>`
-          );
-          return;
-        }
-
-        const allPaths = generateAllPaths(hexagramNumber, lineNumber);
-        if (allPaths.length === 0) {
-          showModal(
-            `<h2 class="text-2xl font-bold text-red-400 mb-4">分析エラー</h2><p>未来予測パスを生成できませんでした。入力値またはデータを確認してください。</p>`
-          );
-          return;
-        }
-        const sortedPaths = allPaths.sort(
-          (a, b) => b[3].S7_総合評価スコア - a[3].S7_総合評価スコア
-        );
-
-        const worryText = document.getElementById("worryInput").value.trim();
-        // グローバル変数にデータを格納
-        currentAnalysisData = { worry: worryText, paths: sortedPaths };
-
-        updateUI(sortedPaths, reasoning, explanation);
       }
+
+      // ★AIによる推測を実行し、遷移する新しい関数
+      async function handleAiGuessAndNavigate() {
+        const worryText = document.getElementById("worryInput").value.trim();
+        if (!isInputSufficient(worryText).isValid) {
+            showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力内容のご確認</h2><p>あなたの状況をより深く理解するために、もう少し詳しく教えていただけますでしょうか。</p>`);
+            return;
+        }
+
+        const aiGuessBtn = document.getElementById("aiGuessBtn");
+        const manualAnalyzeBtn = document.getElementById("manualAnalyzeBtn");
+        const spinner = document.getElementById('loadingSpinner');
+        const originalIcon = document.getElementById('originalIcon');
+        const buttonText = document.getElementById('buttonText');
+
+        // ローディング表示を開始
+        aiGuessBtn.disabled = true;
+        manualAnalyzeBtn.disabled = true;
+        spinner.classList.remove('hidden');
+        originalIcon.classList.add('hidden');
+        buttonText.textContent = 'AIが解析中...';
+
+        try {
+            const result = await callAIAssistant(worryText, H384_DATA, window.futureThemeMap);
+            if (result && result.卦番号 && result.爻番号) {
+                const allPaths = generateAllPaths(result.卦番号, result.爻番号);
+                // AI推測後、データを保存して遷移
+                saveAndNavigateToCockpit(allPaths, worryText);
+            } else {
+                showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>状況に合致する卦を見つけられませんでした。表現を変えて再度お試しください。</p>`);
+                aiGuessBtn.disabled = false;
+                manualAnalyzeBtn.disabled = false;
+                spinner.classList.add('hidden');
+                originalIcon.classList.remove('hidden');
+                buttonText.textContent = 'AIに状況を推測させる';
+            }
+        } catch (error) {
+            console.error("AI推測処理でエラー:", error);
+            showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>AIによる推測処理中にエラーが発生しました。</p><p class="mt-2 text-sm text-gray-500">${error.message}</p>`);
+            aiGuessBtn.disabled = false;
+            manualAnalyzeBtn.disabled = false;
+            spinner.classList.add('hidden');
+            originalIcon.classList.remove('hidden');
+            buttonText.textContent = 'AIに状況を推測させる';
+        }
+      }
+
+      // ★手動での分析を実行し、遷移する新しい関数
+      function handleManualAnalysisAndNavigate() {
+          const hexagramInput = document.getElementById("hexagramInput").value.trim();
+          const lineNumber = parseInt(document.getElementById("lineInput").value, 10);
+          
+          let hexagramNumber = parseInt(hexagramInput);
+          if (isNaN(hexagramNumber)) {
+              // H64_DATAではなく、HAQEI_DATA.hexagrams_masterを参照
+              const foundHex = HAQEI_DATA.hexagrams_master.find((h) => h.name_jp === hexagramInput || h.名前 === hexagramInput);
+              hexagramNumber = foundHex ? foundHex.hexagram_id : null;
+          }
+
+          if (!hexagramNumber || isNaN(lineNumber) || lineNumber < 1 || lineNumber > 6) {
+              alert("有効な卦と爻を入力してください。");
+              return;
+          }
+
+          const allPaths = generateAllPaths(hexagramNumber, lineNumber);
+          // 手動の場合は、入力された内容から課題テキストを生成
+          const worryText = `${hexagramInput} ${lineNumber}爻の状況について`;
+          // 手動実行後も、データを保存して遷移
+          saveAndNavigateToCockpit(allPaths, worryText);
+      }
+      
+      // ▲▲▲【ここまでをコピー＆ペーストで置き換える】▲▲▲
 
       function updateUI(sortedPaths, reasoning = null, explanation = null) {
         // 1. 分析データをグローバル変数に保存
@@ -1625,7 +1737,7 @@
             finalState.現代解釈の要約
           }</p>
           <div class="mt-auto pt-4 border-t border-gray-700/50">
-              <a href="professional_report.html" 
+              <a href="cockpit.html" 
                   class="deep-dive-btn inline-block w-full text-center font-bold py-2 px-4 rounded-lg text-sm"
                   data-hexagram-id="${finalState.卦番号}"
                   data-hexagram-name="${finalState["親となる卦"]}"
@@ -1915,52 +2027,193 @@
         </div>
       `;
         });
-
         showModal(modalContentHtml);
       }
 
       function showCurrentStateModal(state) {
-        const scoreEval = getScoreEvaluation(state.S7_総合評価スコア);
-        const costEval = getTransitionCostEvaluation(100 - state.S6_変動性スコア);
+        const content = `
+                      <h2 class="text-2xl font-bold text-indigo-300 mb-4">現在地の詳細: ${
+                        state["親となる卦"]
+                      } ${state.爻}</h2>
+                      <p class="text-sm text-yellow-300 my-1">テーマ: ${
+                        state.キーワード || ""
+                      }</p>
+                      <p class="text-sm text-gray-300 mt-3">${
+                        state.現代解釈の全文 || state.現代解釈の要約
+                      }</p>
+                      <div class="mt-6 pt-4 border-t border-gray-700 grid grid-cols-2 gap-4 text-sm">
+                          <div><span class="font-bold text-gray-400">基本スコア:</span> ${
+                            state.S1_基本スコア
+                          }</div>
+                          <div><span class="font-bold text-gray-400">ポテンシャル:</span> ${
+                            state.S2_ポテンシャル
+                          }</div>
+                          <div><span class="font-bold text-gray-400">安定性スコア:</span> ${
+                            state.S3_安定性スコア
+                          }</div>
+                          <div><span class="font-bold text-gray-400">リスク:</span> ${
+                            state.S4_リスク
+                          }</div>
+                          <div><span class="font-bold text-gray-400">主体性:</span> ${
+                            state.S5_主体性
+                          }</div>
+                          <div><span class="font-bold text-gray-400">変動性スコア:</span> ${
+                            state.S6_変動性スコア
+                          }</div>
+                          <div class="col-span-2 mt-2 pt-2 border-t border-gray-600"><span class="font-bold text-indigo-300">総合評価スコア:</span> ${
+                            state.S7_総合評価スコア
+                          }</div>
+                      </div>
+                  `;
+        showModal(content);
+      }
 
-        const modalContent = `
-          <h2 class="text-2xl font-bold text-indigo-300 mb-4">現在地の詳細分析</h2>
-          <div class="space-y-4">
-            <div>
-              <h3 class="text-xl font-semibold text-yellow-300">現在地: ${state["親となる卦"]} ${state.爻}</h3>
-              <p class="text-sm text-yellow-200 mt-1">テーマ: ${state.キーワード || ""}</p>
-              <p class="text-gray-300 mt-2 text-sm">${state.現代解釈の要約}</p>
-            </div>
-            <div class="border-t border-gray-700/50 pt-4">
-              <h4 class="font-bold text-gray-300">総合評価</h4>
-              <div class="flex items-baseline">
-                <p class="text-3xl font-bold">${state.S7_総合評価スコア} 点</p>
-                <span class="eval-label ${scoreEval.colorClass}">${scoreEval.label}</span>
-              </div>
-              <p class="text-xs">※ ${scoreEval.desc}</p>
-            </div>
-            <div class="border-t border-gray-700/50 pt-4">
-              <h4 class="font-bold text-gray-300">変化のしやすさ (移行コスト)</h4>
-              <div class="flex items-baseline">
-                <p class="text-3xl font-bold">${100 - state.S6_変動性スコア} 点</p>
-                <span class="eval-label ${costEval.colorClass}">${costEval.label}</span>
-              </div>
-              <p class="text-xs">※ ${costEval.desc}</p>
-            </div>
-            <div class="border-t border-gray-700/50 pt-4">
-              <h4 class="font-bold text-gray-300">詳細パラメータ</h4>
-              <ul class="text-sm text-gray-400 space-y-1 mt-2">
-                <li>基本スコア: ${state.S1_基本スコア}</li>
-                <li>ポテンシャル: ${state.S2_ポテンシャル}</li>
-                <li>安定性スコア: ${state.S3_安定性スコア}</li>
-                <li>リスク: ${state.S4_リスク}</li>
-                <li>変動性スコア: ${state.S6_変動性スコア}</li>
-                <li>主体性: ${state.S5_主体性}</li>
-              </ul>
-            </div>
+      function showHelpModal() {
+        const helpContent = `
+                  <h2 class="text-2xl font-bold text-indigo-300 mb-4">HaQei マルチバース・アナライザーとは？</h2>
+                  <p class="text-gray-300 mb-3">このツールは、古代の知恵である「易経」と現代のAI技術を融合させ、あなたの現状を多角的に分析し、未来の可能性を可視化するためのものです。</p>
+                  <h3 class="text-lg font-semibold text-indigo-300 mt-6 mb-2">使い方</h3>
+                  <ol class="list-decimal list-inside space-y-3 text-gray-300">
+                      <li><strong>AIによる状況推測:</strong> あなたが今抱えている悩みや状況を、感じたままの「生の言葉」で入力し、「AIに状況を推測させる」ボタンを押してください。AIがあなたの言葉から最も近い状況（卦と爻）を自動で設定します。</li>
+                      <li><strong>手動設定:</strong> もし占いたい状況が明確な場合は、AIの推測を使わずに「状況卦」と「現在の爻」を手動で入力することも可能です。</li>
+                      <li><strong>予測実行:</strong> 状況が設定されたら、「予測実行」ボタンを押します。あなたの現在地から分岐する8つの未来シナリオがグラフとカードで表示されます。</li>
+                  </ol>
+                  <h3 class="text-lg font-semibold text-indigo-300 mt-6 mb-2">結果の見方</h3>
+                  <ul class="list-disc list-inside space-y-3 text-gray-300">
+                      <li><strong>分析サマリー:</strong> あなたの「現在地」の評価と、状況が変化しやすい時期かどうか（移行コスト）を確認できます。</li>
+                      <li><strong>未来分岐グラフ:</strong> 8つのシナリオが今後どのように推移するかを「総合評価」のスコアで示します。線が上に行くほど好ましい未来です。</li>
+                      <li><strong>8つの未来のシナリオ:</strong> 各シナリオが行き着く未来の状態をカードで示します。カードをクリックすると、そこに至るまでの詳細なステップ（行動指針）を確認できます。</li>
+                  </ul>
+              `;
+        showModal(helpContent);
+      }
+
+      function showParameterHelpModal() {
+        // 保存された現在地のデータを取得
+        const state = currentAnalysisData.startState;
+        // データがない場合はモーダルを開かない
+        if (!state) {
+          alert("先に「予測実行」ボタンを押して、分析を完了させてください。");
+          return;
+        }
+
+        // --- 各スコアに対応する解説文を生成する ---
+        const getDesc = (score, type) => {
+          let highThreshold = 60;
+          let lowThreshold = 40;
+
+          // スコアのレベルを判定（リスクのみ評価が逆転）
+          const getLevel = (currentScore, isReversed = false) => {
+            if (currentScore >= highThreshold)
+              return isReversed ? "low" : "high";
+            if (currentScore <= lowThreshold)
+              return isReversed ? "high" : "low";
+            return "medium";
+          };
+
+          let explanation = "";
+          const level = getLevel(score, type === "risk");
+
+          switch (type) {
+            case "kihon":
+              if (level === "high")
+                explanation = `状況の根本的なエネルギーが<strong class="text-green-300">充実している</strong>ことを示します。物事を推進するための力強い基盤がある状態です。`;
+              else if (level === "low")
+                explanation = `状況の根本的なエネルギーが<strong class="text-red-300">不足している</strong>ことを示します。物事を進める上での土台が弱く、苦労を伴う可能性があります。`;
+              else
+                explanation = `状況の根本的なエネルギーは<strong class="text-yellow-300">標準的</strong>です。安定はしていますが、エネルギーに大きな余裕があるわけではありません。`;
+              break;
+            case "potential":
+              if (level === "high")
+                explanation = `将来的な<strong class="text-green-300">成長の伸びしろが大きい</strong>ことを示します。現状を超えて大きく飛躍する可能性を秘めています。`;
+              else if (level === "low")
+                explanation = `将来的な<strong class="text-red-300">成長の伸びしろが限定的</strong>であることを示します。大きな飛躍よりも、現状の維持や改善がテーマとなります。`;
+              else
+                explanation = `将来的な<strong class="text-yellow-300">成長の伸びしろは標準的</strong>です。着実な前進は期待できますが、ブレークスルーには更なる要素が必要です。`;
+              break;
+            case "antei":
+              if (level === "high")
+                explanation = `状況が<strong class="text-green-300">非常に安定的</strong>であることを示します。外部からの影響を受けにくく、計画通りに物事を進めやすい状態です。`;
+              else if (level === "low")
+                explanation = `状況が<strong class="text-red-300">非常に不安定</strong>であることを示します。予期せぬ変化が起こりやすく、臨機応変な対応が求められます。`;
+              else
+                explanation = `状況の<strong class="text-yellow-300">安定性は標準的</strong>です。大きな動揺はありませんが、不測の事態への備えは必要です。`;
+              break;
+            case "risk":
+              // リスクの説明ではlevelのhigh/lowが直感と合うように表示
+              if (level === "high")
+                explanation = `内在する<strong class="text-red-300">リスクが非常に高い</strong>ことを示します。重大な問題や困難が潜んでいるため、極めて慎重な判断が求められます。`;
+              else if (level === "low")
+                explanation = `内在する<strong class="text-green-300">リスクは低い</strong>状態です。目に見える障害は少なく、比較的安全に行動できます。`;
+              else
+                explanation = `内在する<strong class="text-yellow-300">リスクは標準的</strong>です。注意すべき点はありますが、過度に警戒する必要はありません。`;
+              break;
+            case "hendou":
+              if (level === "high")
+                explanation = `状況の<strong class="text-green-300">変動性が高い</strong>ことを示します。あなたの働きかけが結果に直結しやすく、状況をコントロールしやすい局面です。`;
+              else if (level === "low")
+                explanation = `状況の<strong class="text-red-300">変動性が低い</strong>ことを示します。状況が膠着しており、個人の力で変化を起こすのは困難かもしれません。`;
+              else
+                explanation = `状況の<strong class="text-yellow-300">変動性は標準的</strong>です。あなたの行動は影響を与えますが、結果が表れるまでには時間がかかる可能性があります。`;
+              break;
+          }
+          return `<p class="text-sm mt-1">${explanation}</p>`;
+        };
+
+        const getShutaiDesc = (type) => {
+          if (type === "能動") {
+            return `この状況では<strong class="text-yellow-200">「能動的」</strong>なスタンスが有効とされます。あなた自身の意思決定と行動が、今後の展開を左右する重要な鍵となります。`;
+          }
+          return `この状況では<strong class="text-yellow-200">「受動的」</strong>なスタンスが有効とされます。自ら流れを作ろうとするより、環境やタイミングを見極めて対応することが求められます。`;
+        };
+
+        const helpContent = `
+      <h2 class="text-2xl font-bold text-indigo-300 mb-6">パラメータの見方</h2>
+      <div class="space-y-5 text-left">
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #93c5fd;">■ 基本スコア ${
+                state.S1_基本スコア
+              }点</h3>
+              ${getDesc(state.S1_基本スコア, "kihon")}
           </div>
-        `;
-        showModal(modalContent);
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #6ee7b7;">■ 潜在力 (ポテンシャル) ${
+                state.S2_ポテンシャル
+              }点</h3>
+              ${getDesc(state.S2_ポテンシャル, "potential")}
+          </div>
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #c4b5fd;">■ 安定性スコア ${
+                state.S3_安定性スコア
+              }点</h3>
+              ${getDesc(state.S3_安定性スコア, "antei")}
+          </div>
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #fca5a5;">■ リスク ${
+                state.S4_リスク
+              }点</h3>
+               ${getDesc(state.S4_リスク, "risk")}
+          </div>
+
+           <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #fde047;">■ 変動性スコア ${
+                state.S6_変動性スコア
+              }点</h3>
+               ${getDesc(state.S6_変動性スコア, "hendou")}
+          </div>
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #e5e7eb;">■ 主体性</h3>
+              <p class="text-sm mt-1">${getShutaiDesc(state.S5_主体性)}</p>
+          </div>
+
+      </div>
+  `;
+        showModal(helpContent);
       }
 
       function hideModal() {
@@ -1969,220 +2222,305 @@
         document.getElementById("modalContent").classList.add("scale-95");
         setTimeout(() => {
           modalContainer.classList.add("hidden");
-          document.body.style.overflow = "auto";
+          document.body.style.overflow = "";
         }, 300);
       }
 
-      function showHelpModal() {
-        const helpContent = `
-          <h2 class="text-2xl font-bold text-indigo-300 mb-4">HaQei マルチバース・アナライザーとは？</h2>
-          <div class="prose-custom space-y-4">
-            <p>「HaQei（ハケイ）」は、古代中国の知恵である「易経」と、現代のデータ分析・AI技術を融合させた、全く新しい未来予測ツールです。</p>
-            <p>あなたの「今」の状況を易経の「卦（か）」と「爻（こう）」に照らし合わせ、そこから導き出される8つの異なる未来の可能性を「マルチバース（多次元宇宙）」として可視化します。</p>
-            <p>単なる占いではなく、各未来シナリオが持つ「スコア」や「トレンド」、そして「行動指針」を通じて、あなたがより良い未来を選択するための「羅針盤」となることを目指しています。</p>
-            <h3 class="text-xl font-bold text-yellow-300 mt-6 mb-2">使い方</h3>
-            <ol class="list-decimal list-inside space-y-2">
-              <li><strong>あなたの状況を入力:</strong> テキストボックスに、今抱えている悩みや課題、状況を自由に記述してください。AIがあなたの言葉から最適な「卦」と「爻」を推測します。</li>
-              <li><strong>未来分岐グラフ:</strong> AIが推測した「現在地」から、8つの異なる未来シナリオがどのように展開していくかをグラフで確認できます。各シナリオの最終的な「総合評価スコア」や「トレンド」が一目で分かります。</li>
-              <li><strong>シナリオ詳細:</strong> 気になるシナリオをクリックすると、その未来に至るまでの詳細なステップ、各フェーズでの状況、そして具体的な「行動指針」が表示されます。</li>
-              <li><strong>プロレポート:</strong> より詳細なAIによる物語形式のレポートは、有料版で提供されます。</li>
-            </ol>
-            <h3 class="text-xl font-bold text-yellow-300 mt-6 mb-2">易経とは？</h3>
-            <p>易経は、約3000年前に成立したとされる中国最古の古典の一つで、森羅万象の変化の法則を説いたものです。64の「卦」と384の「爻」によって、あらゆる状況とそれに伴う変化のパターンが示されています。HaQeiは、この普遍的な知恵を現代の文脈に落とし込み、あなたの意思決定をサポートします。</p>
-          </div>
-        `;
-        showModal(helpContent);
-      }
-
-      function showParameterHelpModal() {
-        const helpContent = `
-          <h2 class="text-2xl font-bold text-indigo-300 mb-6">グラフの見方</h2>
-          <div class="prose-custom space-y-4">
-            <p>グラフは、あなたの現在の状況と、そこから展開する未来の各フェーズにおける「総合評価スコア」の推移を示しています。</p>
-            <h3 class="text-xl font-bold text-yellow-300 mt-6 mb-2">スコアの意味</h3>
-            <ul class="list-disc list-inside space-y-2">
-              <li><strong>基本スコア:</strong> あなたの現状の基盤となるエネルギーや安定性を示します。</li>
-              <li><strong>ポテンシャル:</strong> 今後の成長や発展の可能性を示します。</li>
-              <li><strong>安定性スコア:</strong> 状況の安定度、外部からの影響の受けにくさを示します。</li>
-              <li><strong>リスク:</strong> 潜在的な問題や困難の度合いを示します。スコアが高いほどリスクも高いです。</li>
-              <li><strong>変動性スコア:</strong> 状況が変化しやすい度合いを示します。スコアが高いほど、あなたの行動が結果に繋がりやすいです。</li>
-              <li><strong>主体性:</strong> その状況において、あなたが能動的に動くべきか、受動的に待つべきかを示します。</li>
-              <li><strong>総合評価スコア:</strong> 上記の要素を総合した、現在の状況または未来のフェーズの全体的な評価です。</li>
-            </ul>
-            <h3 class="text-xl font-bold text-yellow-300 mt-6 mb-2">トレンドの意味</h3>
-            <p>各シナリオのカードに表示される「全体トレンド」と「初期ステップ」は、そのシナリオがどのような変化の傾向を持つかを示します。</p>
-            <ul class="list-disc list-inside space-y-2">
-              <li><strong>飛躍的成長 / 急回復:</strong> 状況が劇的に好転し、大きくスコアが上昇する傾向です。</li>
-              <li><strong>安定的成長 / 発展的成長 / 成長:</strong> 着実にスコアが上昇し、良い方向へ進む傾向です。</li>
-              <li><strong>未来への投資 / 良い停滞:</strong> スコアは大きく変動しないものの、将来のための準備や基盤固めが進む傾向です。</li>
-              <li><strong>注意すべき停滞:</strong> スコアが停滞し、状況が膠着している傾向です。新たな行動が必要かもしれません。</li>
-              <li><strong>戦略的下降:</strong> 一時的にスコアが下がるものの、リスクを回避したり、長期的な利益のための戦略的な下降です。</li>
-              <li><strong>危険な下降 / 下降傾向:</strong> 状況が悪化し、スコアが下降する傾向です。注意が必要です。</li>
-            </ul>
-          </div>
-        `;
-        showModal(helpContent);
-      }
-
-      function generateAllPaths(hexagramNumber, lineNumber) {
-        const startState = H384_DATA.find(
-          (d) => d.卦番号 === hexagramNumber && d.爻番号 === lineNumber
-        );
-        if (!startState) return [];
-
-        const paths = [];
-        const choices = ["stagnate", "change"];
-
-        // 3フェーズの全ての組み合わせを生成
-        for (const c1 of choices) {
-          for (const c2 of choices) {
-            for (const c3 of choices) {
-              const path = [startState];
-              let currentState = startState;
-
-              // フェーズ1
-              const nextState1 = getNextState(currentState, c1);
-              if (!nextState1) continue;
-              path.push({ ...nextState1, choice: c1 });
-              currentState = nextState1;
-
-              // フェーズ2
-              const nextState2 = getNextState(currentState, c2);
-              if (!nextState2) continue;
-              path.push({ ...nextState2, choice: c2 });
-              currentState = nextState2;
-
-              // フェーズ3
-              const nextState3 = getNextState(currentState, c3);
-              if (!nextState3) continue;
-              path.push({ ...nextState3, choice: c3 });
-
-              paths.push(path);
-            }
-          }
-        }
-        return paths;
-      }
-
-      function getNextState(currentState, choice) {
-        const currentHexagram = currentState.卦番号;
-        const currentLine = currentState.爻番号;
-
-        let nextHexagramId;
-        let nextLineNumber;
-
-        if (choice === "stagnate") {
-          // 「進」の場合：現在の卦の次の爻へ
-          if (currentLine < 6) {
-            nextHexagramId = currentHexagram;
-            nextLineNumber = currentLine + 1;
-          } else {
-            // 6爻の場合は、その卦の「用九」または「用六」へ
-            const yongYao = H384_DATA.find(
-              (d) =>
-                d.卦番号 === currentHexagram &&
-                (d.爻 === "用九" || d.爻 === "用六")
-            );
-            if (yongYao) {
-              nextHexagramId = yongYao.卦番号;
-              nextLineNumber = yongYao.爻番号;
-            } else {
-              return null; // 用爻データがない場合はパスを生成しない
-            }
-          }
-        } else if (choice === "change") {
-          // 「変」の場合：変爻した卦の初爻へ
-          const changedHexagramData = HAQEI_DATA.H64_DATA.find(
-            (h) => h.卦番号 === currentHexagram
-          );
-          if (!changedHexagramData) return null;
-
-          const changedHexagramId = changedHexagramData[
-            `変爻${currentLine}卦番号`
-          ];
-          if (!changedHexagramId) return null;
-
-          nextHexagramId = changedHexagramId;
-          nextLineNumber = 1; // 変爻した卦の初爻
-        } else {
-          return null; // 不明な選択
-        }
-
-        return H384_DATA.find(
-          (d) => d.卦番号 === nextHexagramId && d.爻番号 === nextLineNumber
-        );
-      }
-
       function setupInteraction(sortedPaths) {
-        const choiceCardShin = document.getElementById("choiceCardShin");
-        const choiceCardHen = document.getElementById("choiceCardHen");
-        const detailCards = document.querySelectorAll("#detailCardsContainer .card");
+        const chartToggles = document.getElementById("chartToggles");
+        const detailCards = document.getElementById("detailCardsContainer");
+        const chartCanvas = document.getElementById("summaryChart");
 
+        // カードを個別にハイライトする仕掛け
+        const handleMouseOver = (e) => {
+          const target = e.target.closest("[data-index]");
+          if (target) {
+            const index = parseInt(target.dataset.index, 10);
+            highlightScenario(index);
+          }
+        };
         const resetAllHighlights = () => {
           resetChartHighlights();
-          detailCards.forEach(card => {
+          document.querySelectorAll(".dimmed-by-choice").forEach((card) => {
             card.classList.remove("dimmed-by-choice");
-            card.classList.remove("ai-recommended"); // AI推奨もリセット
           });
-          document.getElementById("aiRecommendationMessage").classList.remove("hidden"); // AI推奨メッセージも再表示
+        };
+        chartToggles.addEventListener("mouseover", handleMouseOver);
+        detailCards.addEventListener("mouseover", handleMouseOver);
+        chartToggles.addEventListener("mouseleave", resetChartHighlights);
+        detailCards.addEventListener("mouseleave", resetChartHighlights);
+        chartCanvas.addEventListener("mouseleave", resetChartHighlights);
+
+        chartCanvas.onmousemove = (evt) => {
+          const activeElements = summaryChartInstance.getElementsAtEventForMode(
+            evt,
+            "index",
+            { intersect: false },
+            true
+          );
+          if (activeElements.length > 0) {
+            highlightScenario(activeElements[0].datasetIndex);
+          }
         };
 
-        choiceCardShin.addEventListener("click", () => {
-          highlightMultipleScenarios("stagnate", sortedPaths);
-          detailCards.forEach(card => {
-            const index = parseInt(card.dataset.index);
-            const pathChoice = sortedPaths[index][1]?.choice;
-            if (pathChoice !== "stagnate") {
-              card.classList.add("dimmed-by-choice");
-            } else {
-              card.classList.remove("dimmed-by-choice");
+        // --- ▼▼▼ 【改造ポイント】「最初の選択」と未来カードを連動させる仕掛け ▼▼▼ ---
+        const choiceCardShin = document.getElementById("choiceCardShin");
+        const choiceCardHen = document.getElementById("choiceCardHen");
+
+        // 関係ないカードを少し暗くする関数
+        const highlightRelatedScenarios = (choiceType) => {
+          sortedPaths.forEach((path, index) => {
+            const card = document.getElementById(`card-${index}`);
+            if (card) {
+              const pathChoice = path[1]?.choice;
+              if (pathChoice !== choiceType) {
+                card.classList.add("dimmed-by-choice");
+              }
             }
-            card.classList.remove("ai-recommended"); // 選択時はAI推奨を解除
           });
-          document.getElementById("aiRecommendationMessage").classList.add("hidden"); // AI推奨メッセージを非表示
-        });
+        };
 
-        choiceCardHen.addEventListener("click", () => {
-          highlightMultipleScenarios("change", sortedPaths);
-          detailCards.forEach(card => {
-            const index = parseInt(card.dataset.index);
-            const pathChoice = sortedPaths[index][1]?.choice;
-            if (pathChoice !== "change") {
-              card.classList.add("dimmed-by-choice");
-            } else {
-              card.classList.remove("dimmed-by-choice");
-            }
-            card.classList.remove("ai-recommended"); // 選択時はAI推奨を解除
+        if (choiceCardShin) {
+          choiceCardShin.addEventListener("mouseover", () => {
+            highlightRelatedScenarios("stagnate"); // "進" の道
+            highlightMultipleScenarios("stagnate", sortedPaths); // グラフも連動
           });
-          document.getElementById("aiRecommendationMessage").classList.add("hidden"); // AI推奨メッセージを非表示
-        });
+          choiceCardShin.addEventListener("mouseleave", resetAllHighlights);
+        }
 
-        // カードやトグルからマウスが離れたらハイライトをリセット
-        document.getElementById("detailCardsContainer").addEventListener("mouseleave", resetAllHighlights);
-        document.getElementById("chartToggles").addEventListener("mouseleave", resetAllHighlights);
-
-        // 各カードにマウスオーバーイベントを追加
-        detailCards.forEach(card => {
-          card.addEventListener("mouseenter", () => {
-            const index = parseInt(card.dataset.index);
-            highlightScenario(index);
+        if (choiceCardHen) {
+          choiceCardHen.addEventListener("mouseover", () => {
+            highlightRelatedScenarios("change"); // "変" の道
+            highlightMultipleScenarios("change", sortedPaths); // グラフも連動
           });
-        });
-
-        // 各トグルにマウスオーバーイベントを追加
-        document.querySelectorAll(".toggle-label").forEach(toggle => {
-          toggle.addEventListener("mouseenter", () => {
-            const index = parseInt(toggle.dataset.index);
-            highlightScenario(index);
-          });
-        });
-
-        // Deep Diveボタンのイベントリスナー
-        document.querySelectorAll(".deep-dive-btn").forEach(button => {
-          button.addEventListener("click", handleGoToReportClick);
-        });
+          choiceCardHen.addEventListener("mouseleave", resetAllHighlights);
+        }
       }
 
+      const findLineDataByNum = (hexNum, lineNum) => {
+        if (lineNum < 1 || lineNum > 6 || !H384_DATA) return null;
+        const lineName = ["初", "二", "三", "四", "五", "上"][lineNum - 1];
+        return H384_DATA.find(
+          (line) => line.卦番号 === hexNum && line.爻.includes(lineName)
+        );
+      };
+
+      const findYongYaoData = (hexNum) => {
+        if (!H384_DATA) return null;
+        const yongName = hexNum === 1 ? "用九" : "用六";
+        return H384_DATA.find(
+          (line) => line.卦番号 === hexNum && line.爻 === yongName
+        );
+      };
+
+      const findHexData = (hexNum) => {
+        if (!H64_DATA) return null;
+        return H64_DATA.find((hex) => hex.卦番号 === hexNum);
+      };
+
+      const getNextState = (currentState, choice) => {
+        let nextHexNum, nextLineNum;
+        const { lineNum: currentLineNum, 卦番号: currentHexNum } = currentState;
+        if (currentState.爻 === "用九") {
+          const data = findLineDataByNum(2, 1);
+          return data ? { ...data, lineNum: 1, choice: "stagnate" } : null;
+        }
+        if (currentState.爻 === "用六") {
+          const data = findLineDataByNum(1, 1);
+          return data ? { ...data, lineNum: 1, choice: "stagnate" } : null;
+        }
+        if (choice === "stagnate") {
+          if (
+            (currentHexNum === 1 || currentHexNum === 2) &&
+            currentLineNum === 6
+          ) {
+            const yongData = findYongYaoData(currentHexNum);
+            if (yongData)
+              return { ...yongData, lineNum: 7, choice: "stagnate" };
+          }
+          nextHexNum = currentHexNum;
+          nextLineNum = currentLineNum >= 6 ? 1 : currentLineNum + 1;
+        } else {
+          const currentHexData = findHexData(currentHexNum);
+          if (!currentHexData) return null;
+          const lineKeys = [
+            "初爻変",
+            "二爻変",
+            "三爻変",
+            "四爻変",
+            "五爻変",
+            "上爻変",
+          ];
+          nextHexNum = currentHexData[lineKeys[currentLineNum - 1]];
+          nextLineNum = currentLineNum;
+        }
+        const data = findLineDataByNum(nextHexNum, nextLineNum);
+        return data ? { ...data, lineNum: nextLineNum, choice: choice } : null;
+      };
+
+      function generateAllPaths(startHex, startLine) {
+        const startData = findLineDataByNum(startHex, startLine);
+        if (!startData) return [];
+        let paths = [[{ ...startData, lineNum: startLine, choice: "start" }]];
+        for (let i = 0; i < 3; i++) {
+          const newPaths = [];
+          for (const path of paths) {
+            const lastState = path[path.length - 1];
+            const stagnateState = getNextState(lastState, "stagnate");
+            if (stagnateState) newPaths.push([...path, stagnateState]);
+            const changeState = getNextState(lastState, "change");
+            if (changeState) newPaths.push([...path, changeState]);
+          }
+          paths = newPaths;
+        }
+        return paths.filter((p) => p.length === 4);
+      }
+      function restoreState() {
+        // localStorageから保存されたデータを読み込む
+        const savedDataString = localStorage.getItem("proFutureReportData");
+
+        if (savedDataString) {
+          const savedData = JSON.parse(savedDataString);
+
+          // 必要なデータ（相談内容と分析結果）が揃っているか確認
+          if (
+            savedData.worry &&
+            savedData.paths &&
+            savedData.paths.length > 0
+          ) {
+            console.log("保存された分析データを復元します。");
+
+            // 相談内容をテキストエリアに再設定
+            document.getElementById("worryInput").value = savedData.worry;
+
+            // 分析結果のUIを再描画
+            // (AIによる推測の根拠などは復元されませんが、グラフやシナリオは復元されます)
+            updateUI(savedData.paths);
+          }
+        }
+      }
+      // future_simulator.html の <script> 内に追加する
+
+      /**
+       * OS分析のデータをlocalStorageから読み込む
+       */
+      function getOsAnalyzerData() {
+        try {
+          const data = localStorage.getItem("haqeiOsAnalyzerData");
+          return data ? JSON.parse(data) : null;
+        } catch (e) {
+          console.error("OS分析データの読み込みに失敗しました。", e);
+          return null;
+        }
+      }
+      function sendAnonymousData(professionalData) {
+        if (
+          !professionalData ||
+          !professionalData.profile ||
+          !professionalData.analysis ||
+          !professionalData.selectedFuture
+        ) {
+          console.log("送信するための分析データが不十分です。");
+          return;
+        }
+
+        const anonymousPayload = {
+          mbti: professionalData.profile.mbti,
+          enneagram: professionalData.profile.enneagram,
+          os_engine: professionalData.analysis.hexagram_candidates[0]?.name_jp,
+          os_interface:
+            professionalData.analysis.hexagram_candidates[1]?.name_jp,
+          start_hexagram:
+            professionalData.selectedFuture.path[0]?.["親となる卦"],
+          selected_scenario_rank: professionalData.selectedFuture.rank,
+          selected_scenario_path: professionalData.selectedFuture.path
+            .slice(1)
+            .map((p) => (p.choice === "change" ? "変" : "進"))
+            .join("→"),
+          final_hexagram:
+            professionalData.selectedFuture.path[3]?.["親となる卦"],
+          worry_word_count: extractWords(professionalData.worry).length,
+        };
+
+        const endpoint = "/api/collect-anonymous-data";
+        const dataToSend = JSON.stringify(anonymousPayload);
+
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(endpoint, dataToSend);
+        } else {
+          fetch(endpoint, {
+            method: "POST",
+            body: dataToSend,
+            keepalive: true,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+      }
+
+      /**
+       * 「深掘り分析」ボタンがクリックされた時の処理
+       * @param {Event} event - クリックイベント
+       */
+      function handleDeepDiveClick(event) {
+        event.preventDefault(); // ページ遷移を一旦停止
+
+        // 1. OS分析の結果をlocalStorageから読み込む
+        const osData = getOsAnalyzerData();
+        if (!osData) {
+          showModal(
+            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">OS分析データがありません</h2><p>この機能を利用するには、先に「人格OS分析」を実行する必要があります。</p><a href="./os_analyzer.html" class="inline-block mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg">OS分析ページへ移動</a>`
+          );
+          return;
+        }
+
+        // 2. 未来予測の分析結果が揃っているか確認
+        if (
+          !currentAnalysisData.worry ||
+          !currentAnalysisData.paths ||
+          currentAnalysisData.paths.length === 0
+        ) {
+          showModal(
+            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">未来予測データがありません</h2><p>先に「予測実行」ボタンを押して、分析を完了させてください。</p>`
+          );
+          return;
+        }
+
+        const button = event.target.closest(".deep-dive-btn");
+        const scenarioIndex = parseInt(button.dataset.scenarioIndex, 10);
+
+        // 3. 必要な情報をすべて統合したデータオブジェクトを作成
+        const professionalData = {
+          analysis: osData.analysisResult, // OS分析結果
+          context: osData.userContext, // OS分析時のユーザー状況
+          profile: osData.userProfile, // OS分析時のユーザープロファイル
+          worry: currentAnalysisData.worry, // 未来予測で入力した課題
+          selectedFuture: {
+            path: currentAnalysisData.paths[scenarioIndex], // 選択した未来シナリオの全ステップ情報
+            rank:
+              ["S", "A", "B", "C", "D", "E", "F", "H"][scenarioIndex] || "N/A",
+          },
+        };
+
+        // 4. localStorageに "haqeiProfessionalData" というキーで保存
+        localStorage.setItem(
+          "haqeiProfessionalData",
+          JSON.stringify(professionalData)
+        );
+        sendAnonymousData(professionalData);
+        // 5. professional_report.html へ遷移
+        window.location.href = button.href;
+      }
+      
     </script>
+    <footer class="bg-gray-800">
+      <footer class="w-full max-w-4xl mx-auto text-center p-6 mt-8 border-t border-gray-700">
+    <div class="space-x-4 mb-4">
+        <a href="/terms.html" target="_blank" class="text-sm text-gray-400 hover:text-white">利用規約</a>
+        <a href="/privacy.html" target="_blank" class="text-sm text-gray-400 hover:text-white">プライバシーポリシー</a>
+    </div>
+      <div class="container mx-auto px-6 py-4 text-center text-gray-400">
+        <p>&copy; 2025 HaQei. All Rights Reserved.</p>
+      </div>
+    </footer>
   </body>
 </html>
