@@ -43,33 +43,12 @@
         border-bottom: 1px solid #4f46e5;
         padding-bottom: 0.75rem;
       }
-      .os-card {
-        background-color: #111827;
+      /* ▼▼▼ 新しいスタイルを追加 ▼▼▼ */
+      .summary-card {
+        background-color: #1f2937;
         border-radius: 0.75rem;
         padding: 1.25rem;
-        text-align: center;
         border: 1px solid #374151;
-      }
-      .os-icon {
-        font-size: 1.5rem;
-        line-height: 1;
-      }
-      .os-type {
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: #9ca3af;
-        margin-top: 0.25rem;
-      }
-      .os-name {
-        font-family: "Shippori Mincho", serif;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #e5e7eb;
-        margin-top: 0.5rem;
-      }
-      .os-reading {
-        font-size: 0.75rem;
-        color: #6b7280;
       }
       .ai-title {
         font-family: "Shippori Mincho", serif;
@@ -77,7 +56,7 @@
         font-weight: 700;
         color: #c7d2fe;
         text-align: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
         line-height: 1.4;
       }
       .ai-text {
@@ -86,31 +65,31 @@
         max-width: 48rem;
         margin-left: auto;
         margin-right: auto;
-        background-color: rgba(17, 24, 39, 0.5);
+        background-color: rgba(31, 41, 55, 0.5);
         padding: 1rem 1.5rem;
         border-radius: 0.5rem;
       }
       .ai-text strong {
         color: #fde047;
       }
-      .special-lens-card {
+      .loading-text {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #9ca3af;
+        padding: 2rem 0;
+      }
+      .os-profile-card {
         background-color: #1f2937;
         border-radius: 0.5rem;
-        padding: 1rem;
+        padding: 1.25rem;
         text-align: center;
         height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
-      .scenario-card {
-        background-color: #1f2937;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        transition: all 0.2s ease-in-out;
-      }
-      .scenario-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2),
-          0 4px 6px -4px rgba(99, 102, 241, 0.2);
-      }
+      /* ▲▲▲ ここまで ▲▲▲ */
     </style>
   </head>
   <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
@@ -125,45 +104,47 @@
       </header>
 
       <div id="module0" class="module hidden">
-        <div
-          id="os-summary-cards"
-          class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8"
-        ></div>
-        <hr class="border-gray-700/50 my-8" />
-        <div id="ai-synthesis-content">
-          <div id="ai-loading-placeholder" class="text-center py-8">
-            <div class="flex justify-center items-center">
-              <div
-                class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-300"
-              ></div>
-              <p class="ml-4 text-gray-400">
-                AIがあなたのための統合分析を生成中...
-              </p>
-            </div>
+        <h2 class="module-title">モジュール0: 総合サマリー・ダッシュボード</h2>
+        <div id="summary-content" class="grid lg:grid-cols-5 gap-6">
+          <div id="os-summary" class="lg:col-span-2 summary-card">
+            <p class="text-center text-gray-400">データがありません</p>
+          </div>
+          <div id="future-summary" class="lg:col-span-3 summary-card">
+            <p class="text-center text-gray-400">データがありません</p>
           </div>
         </div>
-        <div class="mt-8 text-right">
-          <a
-            href="os_analyzer.html"
-            class="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
-          >
-            → OS分析レポート全体を再確認する
-          </a>
+        <hr class="border-gray-700/50 my-6" />
+        <div id="ai-synthesis-content">
+          <div class="loading-text">
+            <svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <span>AIがあなたのOSを統合分析中...</span>
+          </div>
         </div>
       </div>
-
-      <div id="module1" class="module">
-        <h2 class="module-title">モジュール1: あなたの人格OS - 自己の根幹</h2>
-        <div
-          id="module1-content"
-          class="grid md:grid-cols-2 gap-8 items-center"
-        ></div>
+      <div id="module1" class="module hidden">
+        <h2 class="module-title">モジュール1: あなたの人格OS - 3つの側面</h2>
+        <div id="module1-content" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <p class="text-center text-gray-400 col-span-3">
+            OS分析データを読み込んでいます...
+          </p>
+        </div>
       </div>
-
       <div id="module2" class="module hidden">
-        <h2 class="module-title">
-          モジュール2: ３つの特殊レンズ - OSの多角的分析
-        </h2>
+        <h2 class="module-title">モジュール2: 特殊レンズ - OSの多角的分析</h2>
         <div
           id="module2-content"
           class="grid grid-cols-1 md:grid-cols-3 gap-6"
@@ -177,52 +158,13 @@
         <div id="module3-content">
           <div class="bg-gray-900/50 p-4 rounded-lg">
             <p class="text-center mb-4">
-              あなたの「現在地」を入力し、どのような未来の可能性があるかを探りましょう。<br />
+              あなたの「現在地」と、そこから分岐する未来の可能性を表示しています。<br />
               <a
                 href="future_simulator.html"
                 class="text-sm text-indigo-400 hover:text-indigo-300"
                 >→ 未来分岐シミュレーターで再予測する</a
               >
             </p>
-            <div
-              class="flex flex-col sm:flex-row items-center justify-center gap-4"
-            >
-              <div>
-                <label
-                  for="hexagramInput"
-                  class="block text-sm font-medium text-gray-300 mb-1"
-                  >今の状況（卦）</label
-                >
-                <input
-                  type="text"
-                  id="hexagramInput"
-                  list="hexagram-names"
-                  class="bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2 text-center"
-                  placeholder="例: 乾為天 or 1"
-                />
-              </div>
-              <div>
-                <label
-                  for="lineInput"
-                  class="block text-sm font-medium text-gray-300 mb-1"
-                  >あなたの立ち位置（爻）</label
-                >
-                <input
-                  type="number"
-                  id="lineInput"
-                  min="1"
-                  max="6"
-                  class="bg-gray-700 border border-gray-600 text-white rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2 text-center"
-                  placeholder="例: 1"
-                />
-              </div>
-              <button
-                id="predictBtn"
-                class="w-full sm:w-auto mt-4 sm:self-end bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition duration-300"
-              >
-                未来を予測
-              </button>
-            </div>
           </div>
           <div id="prediction-summary" class="mt-6 hidden"></div>
         </div>
@@ -238,7 +180,9 @@
     <script type="module">
       let HAQEI_DATA = null;
       let osAnalysisData = null;
-      let current8Paths = [];
+      let futureSimData = null;
+
+      document.addEventListener("DOMContentLoaded", main);
 
       async function main() {
         try {
@@ -247,157 +191,53 @@
             throw new Error("データベースの読み込みに失敗しました。");
           const apiData = await response.json();
           HAQEI_DATA = apiData.HAQEI_DATA;
-
           setupDatalist();
-          initializeAiSynthesisModule();
-          initializeOSModules();
-          loadAndRenderFutureSimData();
 
-          document
-            .getElementById("predictBtn")
-            .addEventListener("click", handleFuturePrediction);
-        } catch (error) {
-          console.error("初期化エラー:", error);
-          document.getElementById(
-            "module1-content"
-          ).innerHTML = `<p class="text-red-400">システムの起動に失敗しました。ページをリロードしてください。</p>`;
-        }
-      }
-
-      document.addEventListener("DOMContentLoaded", main);
-
-      function initializeAiSynthesisModule() {
-        const module0 = document.getElementById("module0");
-        const osDataString = localStorage.getItem("haqeiOsAnalyzerData");
-
-        if (!osDataString) {
-          module0.style.display = "none";
-          return;
-        }
-
-        module0.classList.remove("hidden");
-        try {
-          const parsedOsData = JSON.parse(osDataString);
-          osAnalysisData = parsedOsData; // グローバル変数に格納
-          renderOsCards(parsedOsData.analysisResult);
-          fetchIntegratedAnalysis(parsedOsData);
-        } catch (e) {
-          console.error("OS分析データの解析に失敗:", e);
-          module0.innerHTML =
-            '<p class="text-center text-red-400">OS分析データの読み込みに失敗しました。</p>';
-        }
-      }
-
-      function getOsIcon(osType) {
-        switch (osType) {
-          case "エンジンOS":
-            return "🔥";
-          case "インターフェースOS":
-            return "🎭";
-          case "セーフモードOS":
-            return "🛡️";
-          default:
-            return "⚙️";
-        }
-      }
-
-      function renderOsCards(analysisResult) {
-        const container = document.getElementById("os-summary-cards");
-        if (
-          !analysisResult ||
-          !analysisResult.hexagram_candidates ||
-          analysisResult.hexagram_candidates.length < 3
-        ) {
-          container.innerHTML = `<p class="col-span-3 text-center text-gray-500">OSデータが見つかりません。</p>`;
-          return;
-        }
-
-        const osTypes = ["エンジンOS", "インターフェースOS", "セーフモードOS"];
-        const osCardsHtml = analysisResult.hexagram_candidates
-          .slice(0, 3)
-          .map((os, index) => {
-            const osType = osTypes[index];
-            return `
-            <div class="os-card">
-              <div class="os-icon">${getOsIcon(osType)}</div>
-              <div class="os-type">${osType}</div>
-              <div class="os-name">${os.name_jp}</div>
-              <div class="os-reading">${os.reading}</div>
-            </div>
-          `;
-          })
-          .join("");
-
-        container.innerHTML = osCardsHtml;
-      }
-
-      async function fetchIntegratedAnalysis(osAnalysisData) {
-        const contentArea = document.getElementById("ai-synthesis-content");
-        const placeholder = document.getElementById("ai-loading-placeholder");
-
-        if (
-          !osAnalysisData ||
-          !osAnalysisData.analysisResult ||
-          !osAnalysisData.userContext ||
-          !osAnalysisData.userProfile
-        ) {
-          console.error(
-            "ローカルストレージのOS分析データが不完全です。",
-            osAnalysisData
-          );
-          placeholder.style.display = "none";
-          contentArea.innerHTML = `
-              <div class="text-center text-red-400">
-                <h2 class="ai-title">データエラー</h2>
-                <p>OS分析データが不完全なため、AI分析を開始できません。<br>お手数ですが、もう一度<a href="os_analyzer.html" class="underline font-bold">OS分析ページ</a>から分析をやり直してください。</p>
-              </div>`;
-          return;
-        }
-
-        try {
-          const payload = {
-            analysis: osAnalysisData.analysisResult,
-            context: osAnalysisData.userContext,
-            profile: {
-              mbti: osAnalysisData.userProfile.mbti,
-              enneagram: osAnalysisData.userProfile.enneagram,
-              sf: osAnalysisData.userProfile.sf,
-            },
-          };
-
-          const response = await fetch("/api/cockpit-ai", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          if (!response.ok) {
-            const errorResult = await response.json().catch(() => ({}));
-            throw new Error(
-              errorResult.error || "AI分析サーバーでエラーが発生しました。"
+          // ローカルストレージからデータを読み込む
+          const osDataString = localStorage.getItem("haqeiOsAnalyzerData");
+          if (!osDataString) {
+            showModule0Error(
+              "OS分析データが見つかりません。",
+              "まずOSアナライザーで分析を行ってください。"
             );
+            return;
+          }
+          osAnalysisData = JSON.parse(osDataString);
+
+          const futureDataString = localStorage.getItem("proFutureReportData");
+          if (futureDataString) {
+            futureSimData = JSON.parse(futureDataString);
           }
 
-          const result = await response.json();
+          // 静的モジュールを先に描画
+          renderModule0_Static();
+          renderModule1_Cards();
+          renderModule2_Lenses();
 
-          placeholder.style.display = "none";
+          if (futureSimData) {
+            renderModule3_Summary();
+            renderModule4_Story();
+          }
 
-          contentArea.innerHTML = `
-            <h2 class="ai-title">${result.title || "AIによる統合分析"}</h2>
-            <div class="ai-text">
-              ${result.analysis_text || "<p>分析結果の取得に失敗しました。</p>"}
-            </div>
-          `;
+          // AI分析は非同期で実行
+          fetchIntegratedAnalysis();
         } catch (error) {
-          console.error("Cockpit AI Error:", error);
-          placeholder.style.display = "none";
-          contentArea.innerHTML = `
-            <div class="text-center text-red-400">
-              <h2 class="ai-title">分析エラー</h2>
-              <p>${error.message}</p>
-            </div>
-          `;
+          console.error("初期化エラー:", error);
+          showModule0Error(
+            "システムの起動に失敗しました。",
+            "ページをリロードしてください。"
+          );
         }
+      }
+
+      function showModule0Error(title, message) {
+        const module0 = document.getElementById("module0");
+        module0.classList.remove("hidden");
+        module0.innerHTML = `
+      <div class="text-center text-red-400 p-8">
+        <h2 class="text-xl font-bold">${title}</h2>
+        <p class="mt-2">${message}</p>
+      </div>`;
       }
 
       function setupDatalist() {
@@ -410,300 +250,171 @@
         });
       }
 
-      function initializeOSModules() {
-        const osDataString = localStorage.getItem("haqeiOsAnalyzerData");
-        if (!osDataString) {
-          document.getElementById("module1").style.display = "none";
-          document.getElementById("module2").style.display = "none";
-          return;
+      // --- モジュール0: 総合サマリー（静的）---
+      function renderModule0_Static() {
+        const module0 = document.getElementById("module0");
+        module0.classList.remove("hidden");
+
+        const osSummaryContainer = document.getElementById("os-summary");
+        const futureSummaryContainer =
+          document.getElementById("future-summary");
+
+        // OS分析サマリーの描画
+        if (osAnalysisData && osAnalysisData.userProfile) {
+          const profile = osAnalysisData.userProfile;
+          const hasStrengths = profile.sf && profile.sf.length > 0;
+          osSummaryContainer.innerHTML = `
+        <h3 class="font-bold text-lg text-center mb-3 text-indigo-300">OS分析プロファイル</h3>
+        <ul class="text-sm space-y-2">
+          <li><strong>MBTI:</strong> ${profile.mbti}</li>
+          <li><strong>エニアグラム:</strong> ${
+            profile.enneagram.join(", ") || "未設定"
+          }</li>
+          ${
+            hasStrengths
+              ? `<li><strong>ストレングスF:</strong> ${profile.sf.join(
+                  ", "
+                )}</li>`
+              : ""
+          }
+        </ul>
+        <div class="mt-4 pt-4 border-t border-gray-600/50" style="height: 180px;">
+          <canvas id="summary-radar-chart"></canvas>
+        </div>
+      `;
+          renderSummaryRadarChart(
+            osAnalysisData.analysisResult.trigram_profile
+          );
+        } else {
+          osSummaryContainer.innerHTML = `<p class="text-center text-gray-400">OS分析データがありません。</p>`;
         }
-        const localOsAnalysisData = JSON.parse(osDataString);
-        renderModule1(localOsAnalysisData.analysisResult);
-        renderModule2(localOsAnalysisData.analysisResult);
-      }
 
-      // ▼▼▼【ここからが修正箇所】▼▼▼
-      /**
-       * future_simulator.htmlから渡されたデータを読み込み、
-       * モジュール3のフォームに自動入力して予測を実行する関数。
-       * * 修正点：
-       * 1. 読み込むlocalStorageのキーを、より実態に即した `haqeiFutureSimData` に変更。
-       * 2. 過去のデータ構造との互換性のため、古いキー `proFutureReportData` もチェックする。
-       * 3. どちらのデータ構造でも正しく卦と爻の番号を取得できるよう、処理を堅牢化。
-       * 4. データ読み込み後は、不要になったキーをlocalStorageから削除する。
-       */
-      function loadAndRenderFutureSimData() {
-        // 新旧両方のキーを試す
-        const keysToCheck = ["haqeiFutureSimData", "proFutureReportData"];
-        let futureDataString = null;
-        let foundKey = null;
-
-        for (const key of keysToCheck) {
-          const data = localStorage.getItem(key);
-          if (data) {
-            futureDataString = data;
-            foundKey = key;
-            break;
-          }
-        }
-
-        if (!futureDataString) return; // データがなければ何もしない
-
-        try {
-          const futureData = JSON.parse(futureDataString);
-          let hexNum = null;
-          let lineNum = null;
-
-          // データ構造を判別して、卦と爻の番号を取得する
-          if (futureData && futureData.startState) {
-            // 新しい構造 { startState: {...} }
-            hexNum = futureData.startState.卦番号;
-            lineNum = futureData.startState.lineNum;
-          } else if (futureData && futureData.paths) {
-            // 古い構造 { paths: [[...]] }
-            const startState = futureData.paths[0][0];
-            hexNum = startState.卦番号;
-            lineNum = startState.lineNum;
-          }
-
-          if (hexNum && lineNum) {
-            const hexInput = document.getElementById("hexagramInput");
-            const lineInput = document.getElementById("lineInput");
-            const hexData = HAQEI_DATA.hexagrams_master.find(
-              (h) => h.hexagram_id === hexNum
-            );
-
-            if (hexData) hexInput.value = hexData.name_jp;
-            lineInput.value = lineNum;
-
-            // フォーム入力後、即座に予測ボタンのクリックをシミュレート
-            document.getElementById("predictBtn").click();
-
-            // 使用済みのデータをlocalStorageから削除
-            localStorage.removeItem(foundKey);
-          }
-        } catch (e) {
-          console.error("未来分岐データの読み込みまたは描画に失敗しました:", e);
-          // エラーが発生しても、他の処理に影響を与えないようにキーを削除
-          if (foundKey) {
-            localStorage.removeItem(foundKey);
-          }
+        // 未来予測サマリーの描画
+        if (futureSimData && futureSimData.paths) {
+          const startState = futureSimData.paths[0][0];
+          futureSummaryContainer.innerHTML = `
+        <h3 class="font-bold text-lg text-center mb-3 text-amber-300">未来予測サマリー</h3>
+        <div class="text-sm space-y-2">
+          <p><strong>相談内容:</strong><br><span class="text-gray-300">${
+            futureSimData.worry || "（設定なし）"
+          }</span></p>
+          <p><strong>AIが推測した現在地:</strong><br><span class="text-gray-300">${
+            startState.親となる卦
+          } ${startState.爻}</span></p>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-600/50" style="height: 150px;">
+           <canvas id="summary-bar-chart"></canvas>
+        </div>
+      `;
+          renderSummaryBarChart(startState);
+        } else {
+          futureSummaryContainer.innerHTML = `<h3 class="font-bold text-lg text-center mb-3 text-amber-300">未来予測サマリー</h3><p class="text-center text-gray-400 mt-4">未来分岐シミュレーターを実行するとここに詳細が表示されます。</p>`;
         }
       }
-      // ▲▲▲【ここまでが修正箇所】▲▲▲
 
-      function renderModule1(analysisResult) {
+      // --- モジュール1: 3つのOSカード ---
+      function renderModule1_Cards() {
+        if (!osAnalysisData) return;
+        const module1 = document.getElementById("module1");
         const container = document.getElementById("module1-content");
-        if (
-          !analysisResult ||
-          !analysisResult.hexagram_candidates ||
-          analysisResult.hexagram_candidates.length === 0
-        )
-          return;
-        const primaryOS = analysisResult.hexagram_candidates[0];
-        const tuanDen = HAQEI_DATA.bible.tuan_den[primaryOS.hexagram_id];
-        const infoHtml = `
-          <div>
-            <p class="text-gray-400 text-sm">あなたの根幹をなす人格OS</p>
-            <h3 class="text-3xl font-bold text-amber-300 mt-1">${
-              primaryOS.hexagram_id
-            }. ${primaryOS.name_jp}（${primaryOS.reading}）</h3>
-            <div class="mt-4 prose prose-invert max-w-none text-gray-300 text-sm">
-              <p><strong>【彖伝による解説】</strong>${
-                tuanDen ? tuanDen.summary : "解説準備中"
-              }</p>
-              <p>${tuanDen ? tuanDen.haqei_interpretation : ""}</p>
+        const oses = osAnalysisData.analysisResult.hexagram_candidates.slice(
+          0,
+          3
+        );
+        const osTypes = ["エンジンOS", "インターフェースOS", "セーフモードOS"];
+        const osIcons = ["🔥", "🎭", "🛡️"];
+        const colors = [
+          "border-amber-400",
+          "border-blue-400",
+          "border-green-400",
+        ];
+
+        container.innerHTML = oses
+          .map((os, index) => {
+            const manual = HAQEI_DATA.os_manual[os.hexagram_id] || {};
+            return `
+          <div class="os-profile-card border-t-4 ${colors[index]}">
+            <div>
+              <p class="text-lg font-semibold text-gray-200 flex items-center justify-center gap-2">${
+                osIcons[index]
+              } ${osTypes[index]}</p>
+              <div class="my-2">
+                  <p class="text-2xl font-bold">${os.name_jp}</p>
+                  <p class="text-xs text-gray-500">${os.reading}</p>
+              </div>
             </div>
-          </div>`;
-        const chartHtml = `<div class="relative mx-auto" style="height: 300px; max-width: 400px;"><canvas id="module1-radar-chart"></canvas></div>`;
-        container.innerHTML = infoHtml + chartHtml;
-        renderRadarChart(analysisResult.trigram_profile);
+            <p class="text-xs text-gray-400 text-left">${
+              manual.summary || os.description || "解説準備中"
+            }</p>
+          </div>
+          `;
+          })
+          .join("");
+        module1.classList.remove("hidden");
       }
 
-      function renderRadarChart(trigram_profile) {
-        const canvas = document.getElementById("module1-radar-chart");
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-        const sortedProfile = [...trigram_profile].sort((a, b) => a.id - b.id);
-        new Chart(ctx, {
-          type: "radar",
-          data: {
-            labels: sortedProfile.map((t) => t.name_jp),
-            datasets: [
-              {
-                label: "エネルギー強度",
-                data: sortedProfile.map((t) => t.score),
-                fill: true,
-                backgroundColor: "rgba(165, 180, 252, 0.2)",
-                borderColor: "#a5b4fc",
-                pointBackgroundColor: "#fff",
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              r: {
-                angleLines: { color: "rgba(255, 255, 255, 0.2)" },
-                grid: { color: "rgba(255, 255, 255, 0.2)" },
-                pointLabels: { font: { size: 12 }, color: "#d1d5db" },
-                ticks: { display: false },
-              },
-            },
-            plugins: { legend: { display: false } },
-          },
-        });
-      }
-
-      function renderModule2(analysisResult) {
+      // --- モジュール2: 特殊レンズ ---
+      function renderModule2_Lenses() {
+        if (!osAnalysisData) return;
         const container = document.getElementById("module2-content");
         const moduleElement = document.getElementById("module2");
-        if (
-          !analysisResult ||
-          !analysisResult.hexagram_candidates ||
-          analysisResult.hexagram_candidates.length === 0
-        )
-          return;
-        const primaryOS_ID = analysisResult.hexagram_candidates[0].hexagram_id;
+        const primaryOS_ID =
+          osAnalysisData.analysisResult.hexagram_candidates[0].hexagram_id;
         const h64Data = HAQEI_DATA.H64_DATA.find(
           (h) => h.卦番号 === primaryOS_ID
         );
         if (!h64Data) return;
-        const lenses = [
-          {
-            type: "錯卦",
-            name: "鏡写しの自分 (最大の課題)",
-            hexId: h64Data.saku_id,
-            color: "border-orange-400",
-          },
-          {
-            type: "綜卦",
-            name: "他者からの視点 (裏側の顔)",
-            hexId: h64Data.sou_id,
-            color: "border-blue-400",
-          },
-          {
-            type: "互卦",
-            name: "内なる本質 (秘めた可能性)",
-            hexId: h64Data.go_id,
-            color: "border-green-400",
-          },
-        ];
-        container.innerHTML = lenses
-          .map((lens) => {
-            const hexData = HAQEI_DATA.hexagrams_master.find(
-              (h) => h.hexagram_id === lens.hexId
-            );
-            return `<div class="special-lens-card border-t-4 ${lens.color}"><p class="text-sm font-bold text-gray-400">${lens.type}</p><p class="text-lg font-semibold text-gray-200">${lens.name}</p><div class="my-3"><p class="text-xl font-bold">${hexData.name_jp}</p><p class="text-xs text-gray-500">${hexData.reading}</p></div><p class="text-xs text-gray-400">${hexData.keywords}</p></div>`;
-          })
-          .join("");
+
+        const createCardHtml = (type, name, hexId, colorClass) => {
+          const hexData = HAQEI_DATA.hexagrams_master.find(
+            (h) => h.hexagram_id === hexId
+          );
+          if (!hexData) return "";
+          return `<div class="os-profile-card border-t-4 ${colorClass}"><p class="text-sm font-bold text-gray-400">${type}</p><p class="text-lg font-semibold text-gray-200">${name}</p><div class="my-3"><p class="text-xl font-bold">${hexData.name_jp}</p><p class="text-xs text-gray-500">${hexData.reading}</p></div><p class="text-xs text-gray-400">${hexData.keywords}</p></div>`;
+        };
+
+        container.innerHTML = `
+          ${createCardHtml(
+            "錯卦",
+            "鏡写しの自分 (最大の課題)",
+            h64Data.saku_id,
+            "border-orange-400"
+          )}
+          ${createCardHtml(
+            "綜卦",
+            "他者からの視点 (裏側の顔)",
+            h64Data.sou_id,
+            "border-cyan-400"
+          )}
+          ${createCardHtml(
+            "互卦",
+            "内なる本質 (秘めた可能性)",
+            h64Data.go_id,
+            "border-fuchsia-400"
+          )}
+      `;
         moduleElement.classList.remove("hidden");
       }
 
-      function handleFuturePrediction() {
-        const hexInput = document.getElementById("hexagramInput").value.trim();
-        const lineNum = parseInt(
-          document.getElementById("lineInput").value,
-          10
-        );
-        let hexNum = parseInt(hexInput, 10);
-        if (isNaN(hexNum)) {
-          const foundHex = HAQEI_DATA.hexagrams_master.find(
-            (h) => h.name_jp === hexInput
-          );
-          hexNum = foundHex ? foundHex.hexagram_id : null;
-        }
-
-        if (!hexNum || isNaN(lineNum) || lineNum < 1 || lineNum > 6) {
-          alert("有効な卦と爻を入力してください。");
-          return;
-        }
-
-        current8Paths = generateAllPaths(hexNum, lineNum);
-        if (current8Paths.length === 0) {
-          document.getElementById(
-            "prediction-summary"
-          ).innerHTML = `<p class="text-center text-red-400">予測データの生成に失敗しました。</p>`;
-          document
-            .getElementById("prediction-summary")
-            .classList.remove("hidden");
-          return;
-        }
-
-        renderModule3Summary();
-        renderModule4(hexNum);
+      // 以下は、future_simulator.html から移植・統合した関数群です
+      function renderModule3_Summary() {
+        // この関数は future_simulator.html のロジックをベースに、
+        // 必要なサマリー情報をここに描画する役割を担います。
+        // 今回は、リンクと基本情報のみを表示します。
+        const container = document.getElementById("module3-content");
+        const startState = futureSimData.paths[0][0];
+        container.innerHTML = `
+        <div class="bg-gray-900/50 p-4 rounded-lg text-center">
+            <p class="mb-4">未来予測シミュレーションが実行されました。</p>
+            <p><strong>現在地:</strong> ${startState.親となる卦} ${startState.爻}</p>
+            <a href="future_simulator.html" class="inline-block mt-4 text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">→ 未来分岐図を詳しく見る</a>
+        </div>
+      `;
       }
 
-      function renderModule3Summary() {
-        const container = document.getElementById("prediction-summary");
-        if (current8Paths.length === 0) {
-          container.innerHTML = `<p class="text-center text-gray-500">予測データがありません。上記フォームから予測を実行してください。</p>`;
-          container.classList.remove("hidden");
-          return;
-        }
-        const sortedPaths = [...current8Paths].sort(
-          (a, b) => b[3].S7_総合評価スコア - a[3].S7_総合評価スコア
-        );
-        const rankLabels = ["S", "A", "B", "C", "D", "E", "F", "H"];
-
-        let summaryHtml = `<h4 class="text-lg font-semibold text-gray-300 mb-4">8つの未来の可能性</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
-
-        sortedPaths.forEach((path, index) => {
-          const originalIndex = current8Paths.findIndex((p) => p === path);
-          const finalState = path[3];
-          const rank = rankLabels[index] || "N/A";
-          summaryHtml += `
-                <div class="scenario-card">
-                    <div class="flex justify-between items-center">
-                        <p class="text-sm font-semibold">シナリオ${
-                          originalIndex + 1
-                        }: <span class="font-bold text-indigo-300">${
-            finalState["親となる卦"]
-          } ${finalState.爻}</span></p>
-                        <span class="font-bold text-sm px-2 py-0.5 rounded-md bg-gray-600">${rank}</span>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-1">${
-                      finalState.現代解釈の要約
-                    }</p>
-                    <button onclick="window.generateReport(${originalIndex})" class="mt-3 w-full bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold py-1 px-3 rounded-md transition">この未来の戦略書を作成 →</button>
-                </div>
-            `;
-        });
-        summaryHtml += `</div>`;
-        container.innerHTML = summaryHtml;
-        container.classList.remove("hidden");
-      }
-
-      window.generateReport = (scenarioIndex) => {
-        if (!osAnalysisData) {
-          alert("先に人格OS分析を完了してください。");
-          location.href = "os_analyzer.html";
-          return;
-        }
-        if (current8Paths.length === 0) {
-          alert("先に未来予測を実行してください。");
-          return;
-        }
-        const professionalData = {
-          analysis: osAnalysisData.analysisResult,
-          context: osAnalysisData.userContext,
-          profile: osAnalysisData.userProfile,
-          worry: `${document.getElementById("hexagramInput").value} ${
-            document.getElementById("lineInput").value
-          }爻の状況について`,
-          selectedFuture: {
-            path: current8Paths[scenarioIndex],
-          },
-        };
-        localStorage.setItem(
-          "haqeiProfessionalData",
-          JSON.stringify(professionalData)
-        );
-        window.location.href = "professional_report.html";
-      };
-
-      function renderModule4(currentHexNum) {
+      function renderModule4_Story() {
+        if (!futureSimData) return;
+        const currentHexNum = futureSimData.paths[0][0].卦番号;
         const container = document.getElementById("module4-content");
         const moduleElement = document.getElementById("module4");
         const story = HAQEI_DATA.bible.jo_ka_den[currentHexNum];
@@ -728,94 +439,140 @@
           ? `<p class="text-sm">次の章: <strong>${nextChapter.name_jp}</strong> - <span class="italic text-gray-400">${story.to_next.explanation}</span></p>`
           : '<p class="text-sm text-gray-400">これにて物語は一区切りです。</p>';
         container.innerHTML = `
-            <p class="mb-4">あなたの現在地は、易経が紡ぐ64の物語の中で、以下の文脈に位置しています。</p>
-            <div class="space-y-4">
-                <div class="p-4 bg-gray-800/50 rounded-lg">${fromHtml}</div>
-                <div class="p-4 bg-indigo-900/30 rounded-lg border-l-4 border-indigo-400">
-                    <p class="text-sm text-gray-300">現在の章: <strong>${
-                      HAQEI_DATA.hexagrams_master.find(
-                        (h) => h.hexagram_id === currentHexNum
-                      ).name_jp
-                    }</strong></p>
-                    <p class="text-xs italic pl-4 text-white mt-2">あなたの選択（爻）が、この大きな物語（卦）にどのような変化をもたらすかが、戦略の鍵となります。</p>
-                </div>
-                <div class="p-4 bg-gray-800/50 rounded-lg">${toHtml}</div>
-            </div>`;
+        <p class="mb-4">あなたの現在地は、易経が紡ぐ64の物語の中で、以下の文脈に位置しています。</p>
+        <div class="space-y-4">
+            <div class="p-4 bg-gray-800/50 rounded-lg">${fromHtml}</div>
+            <div class="p-4 bg-indigo-900/30 rounded-lg border-l-4 border-indigo-400">
+                <p class="text-sm text-gray-300">現在の章: <strong>${
+                  HAQEI_DATA.hexagrams_master.find(
+                    (h) => h.hexagram_id === currentHexNum
+                  ).name_jp
+                }</strong></p>
+            </div>
+            <div class="p-4 bg-gray-800/50 rounded-lg">${toHtml}</div>
+        </div>`;
         moduleElement.classList.remove("hidden");
       }
 
-      function generateAllPaths(startHex, startLine) {
-        if (!HAQEI_DATA) return [];
-        const findLineDataByNum = (hexNum, lineNum) => {
-          if (lineNum < 1 || lineNum > 6) return null;
-          const lineName = ["初", "二", "三", "四", "五", "上"][lineNum - 1];
-          return HAQEI_DATA["384"].find(
-            (line) => line.卦番号 === hexNum && line.爻.includes(lineName)
-          );
-        };
-        const findYongYaoData = (hexNum) =>
-          HAQEI_DATA["384"].find(
-            (line) =>
-              line.卦番号 === hexNum &&
-              line.爻 === (hexNum === 1 ? "用九" : "用六")
-          );
-        const findHexData = (hexNum) =>
-          HAQEI_DATA.H64_DATA.find((hex) => hex.卦番号 === hexNum);
-        const getNextState = (currentState, choice) => {
-          let nextHexNum, nextLineNum;
-          const { lineNum: currentLineNum, 卦番号: currentHexNum } =
-            currentState;
-          if (currentState.爻 === "用九")
-            return findLineDataByNum(2, 1)
-              ? { ...findLineDataByNum(2, 1), lineNum: 1, choice: "stagnate" }
-              : null;
-          if (currentState.爻 === "用六")
-            return findLineDataByNum(1, 1)
-              ? { ...findLineDataByNum(1, 1), lineNum: 1, choice: "stagnate" }
-              : null;
-          if (choice === "stagnate") {
-            if (
-              (currentHexNum === 1 || currentHexNum === 2) &&
-              currentLineNum === 6
-            ) {
-              const yongData = findYongYaoData(currentHexNum);
-              if (yongData)
-                return { ...yongData, lineNum: 7, choice: "stagnate" };
-            }
-            nextHexNum = currentHexNum;
-            nextLineNum = currentLineNum >= 6 ? 1 : currentLineNum + 1;
-          } else {
-            const currentHexData = findHexData(currentHexNum);
-            if (!currentHexData) return null;
-            const lineKeys = [
-              "初爻変",
-              "二爻変",
-              "三爻変",
-              "四爻変",
-              "五爻変",
-              "上爻変",
-            ];
-            nextHexNum = currentHexData[lineKeys[currentLineNum - 1]];
-            nextLineNum = currentLineNum;
+      // --- AI分析の実行と描画 ---
+      async function fetchIntegratedAnalysis() {
+        const contentArea = document.getElementById("ai-synthesis-content");
+
+        try {
+          const payload = {
+            os1: osAnalysisData.analysisResult.hexagram_candidates[0],
+            os2: osAnalysisData.analysisResult.hexagram_candidates[1],
+            os3: osAnalysisData.analysisResult.hexagram_candidates[2],
+            worry:
+              futureSimData?.worry ||
+              osAnalysisData.userContext?.issue ||
+              "OS全体の連携と今後のポテンシャルについて",
+          };
+
+          const response = await fetch("/api/cockpit-ai", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            const errorResult = await response.json().catch(() => ({}));
+            throw new Error(
+              errorResult.error || "AI分析サーバーでエラーが発生しました。"
+            );
           }
-          const data = findLineDataByNum(nextHexNum, nextLineNum);
-          return data ? { ...data, lineNum: nextLineNum, choice } : null;
-        };
-        const startData = findLineDataByNum(startHex, startLine);
-        if (!startData) return [];
-        let paths = [[{ ...startData, lineNum: startLine, choice: "start" }]];
-        for (let i = 0; i < 3; i++) {
-          const newPaths = [];
-          for (const path of paths) {
-            const lastState = path[path.length - 1];
-            const stagnateState = getNextState(lastState, "stagnate");
-            if (stagnateState) newPaths.push([...path, stagnateState]);
-            const changeState = getNextState(lastState, "change");
-            if (changeState) newPaths.push([...path, changeState]);
-          }
-          paths = newPaths;
+
+          const result = await response.json();
+          if (!result.success) throw new Error(result.error);
+
+          const aiData = result.data.engine_os_analysis;
+          contentArea.innerHTML = `
+        <h2 class="ai-title">${aiData.nickname || "AIによる統合分析"}</h2>
+        <div class="ai-text">${
+          aiData.explanation || "<p>解説の生成に失敗しました。</p>"
+        }</div>
+      `;
+        } catch (error) {
+          console.error("Cockpit AI Error:", error);
+          contentArea.innerHTML = `<div class="text-center text-red-400"><h2 class="ai-title">分析エラー</h2><p>${error.message}</p></div>`;
         }
-        return paths.filter((p) => p.length === 4);
+      }
+
+      // --- グラフ描画関数 ---
+      function renderSummaryRadarChart(trigram_profile) {
+        const canvas = document.getElementById("summary-radar-chart");
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const sortedProfile = [...trigram_profile].sort((a, b) => a.id - b.id);
+        new Chart(ctx, {
+          type: "radar",
+          data: {
+            labels: sortedProfile.map((t) => t.name_jp),
+            datasets: [
+              {
+                data: sortedProfile.map((t) => t.score),
+                backgroundColor: "rgba(165, 180, 252, 0.2)",
+                borderColor: "#a5b4fc",
+                pointBackgroundColor: "#fff",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              r: {
+                angleLines: { color: "rgba(255, 255, 255, 0.2)" },
+                grid: { color: "rgba(255, 255, 255, 0.2)" },
+                pointLabels: { font: { size: 11 }, color: "#d1d5db" },
+                ticks: { display: false },
+              },
+            },
+            plugins: { legend: { display: false } },
+          },
+        });
+      }
+
+      function renderSummaryBarChart(state) {
+        const ctx = document
+          .getElementById("summary-bar-chart")
+          ?.getContext("2d");
+        if (!ctx) return;
+        const data = [
+          state.S1_基本スコア,
+          state.S2_ポテンシャル,
+          state.S3_安定性スコア,
+          Math.abs(state.S4_リスク),
+          state.S6_変動性スコア,
+        ];
+        const colors = ["#60a5fa", "#4ade80", "#a78bfa", "#f87171", "#facc15"];
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["基本", "潜在力", "安定性", "リスク", "変動性"],
+            datasets: [
+              {
+                data,
+                backgroundColor: colors,
+                borderWidth: 0,
+                barPercentage: 0.8,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: "y",
+            scales: {
+              x: { display: false, min: 0, max: 100 },
+              y: {
+                grid: { display: false, drawBorder: false },
+                ticks: { color: "#e5e7eb", font: { size: 12, weight: "500" } },
+              },
+            },
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
+          },
+        });
       }
     </script>
   </body>
