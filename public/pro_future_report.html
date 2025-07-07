@@ -139,15 +139,58 @@
         margin-right: 8px;
         flex-shrink: 0;
       }
+      .eval-label {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-left: 10px;
+      }
     </style>
   </head>
   <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+    <div class="max-w-7xl mx-auto mb-4">
+      <a href="future_simulator.html" id="resetAndGoBack" class="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg>
+        最初の分析画面に戻る
+      </a>
+    </div>
+    <div class="max-w-7xl mx-auto">
     <div class="max-w-7xl mx-auto">
       <header class="text-center mb-10">
-        <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">
+        <a
+          href="future_simulator.html"
+          id="resetAndGoBack"
+          class="inline-block"
+        >
+          <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">
           HaQei
         </h1>
         <p class="text-gray-400 mt-2 text-xl">あなたのための未来予測レポート</p>
+
+        <div class="mt-6">
+          <a
+            href="future_simulator.html"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-300 bg-indigo-900/50 border border-indigo-700 rounded-lg hover:bg-indigo-800/50 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            分析画面に戻って内容を確認する
+          </a>
+        </div>
       </header>
 
       <div
@@ -163,7 +206,54 @@
             </h2>
             <div
               class="p-4 rounded-lg border border-gray-600/50 bg-gray-900/30"
-            ></div>
+            >
+              <div
+                class="bg-yellow-400/10 border-l-4 border-yellow-400 p-3 rounded-md"
+              >
+                <h4
+                  id="currentTitle"
+                  class="text-lg font-semibold text-yellow-300"
+                ></h4>
+                <p
+                  id="currentKeywords"
+                  class="text-sm text-yellow-200 mt-1"
+                ></p>
+                <p id="currentSummary" class="text-gray-300 mt-2 text-sm"></p>
+              </div>
+              <div class="mt-4 pt-4 border-t border-gray-700/50">
+                <h4 class="font-bold text-gray-300">現在地の総合評価</h4>
+                <div class="flex items-baseline">
+                  <p id="currentScore" class="text-3xl font-bold"></p>
+                  <span id="currentScoreLabel"></span>
+                </div>
+                <p id="currentScoreDesc" class="text-xs"></p>
+              </div>
+              <div class="mt-4 pt-4 border-t border-gray-700/50">
+                <h4 class="font-bold text-gray-300">
+                  今回の変化のしやすさ (移行コスト)
+                </h4>
+                <div class="flex items-baseline">
+                  <p id="transitionCost" class="text-3xl font-bold"></p>
+                  <span id="transitionCostLabel"></span>
+                </div>
+                <p id="transitionCostDesc" class="text-xs"></p>
+              </div>
+              <div class="mt-4 pt-4 border-t border-gray-700/50">
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-bold text-gray-300">現在地のグラフ</h4>
+                  <button
+                    id="paramHelpBtn"
+                    class="text-yellow-400 hover:text-yellow-300 text-xl cursor-pointer"
+                    title="パラメータの見方"
+                  >
+                    <span>⭐️</span>
+                  </button>
+                </div>
+                <div class="relative" style="height: 150px; padding-left: 5px">
+                  <canvas id="currentStateBarChart"></canvas>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="lg:col-span-2 bg-gray-900/50 p-6 rounded-xl">
             <h2 class="text-2xl font-bold mb-4 text-center text-indigo-300">
@@ -351,29 +441,47 @@
         return hexData || { name: "不明", catchphrase: "情報なし" };
       }
 
+      // ▼▼▼ この関数を丸ごと置き換え ▼▼▼
       function renderSummaryCard(startState) {
-        const container = document.querySelector("#summaryContainer > div");
-        if (!container) return;
-        const scoreEval = getSituationText(startState.S7_総合評価スコア);
-        container.innerHTML = `
-            <div class="bg-yellow-400/10 border-l-4 border-yellow-400 p-3 rounded-md">
-                <h4 class="text-lg font-semibold text-yellow-300">現在地: ${
-                  startState["親となる卦"]
-                } ${startState.爻}</h4>
-                <p class="text-sm text-yellow-200 mt-1">テーマ: ${
-                  startState.キーワード || ""
-                }</p>
-                <p class="text-gray-300 mt-2 text-sm">${
-                  startState.現代解釈の要約
-                }</p>
-            </div>
-            <div class="mt-4 pt-4 border-t border-gray-700/50">
-                <h4 class="font-bold text-gray-300">現在地の総合評価</h4>
-                <p class="text-3xl font-bold ${scoreEval.color}">${
-          startState.S7_総合評価スコア
-        } 点</p>
-                <p class="text-xs ${scoreEval.color}">${scoreEval.text}</p>
-            </div>`;
+        // データをグローバルに保存してモーダルから参照できるようにする
+        currentAnalysisData.startState = startState;
+
+        // --- 各要素にデータを設定 ---
+        document.getElementById(
+          "currentTitle"
+        ).innerText = `現在地: ${startState["親となる卦"]} ${startState.爻}`;
+        document.getElementById("currentKeywords").innerText = `テーマ: ${
+          startState.キーワード || ""
+        }`;
+        document.getElementById("currentSummary").innerText =
+          startState.現代解釈の要約;
+
+        const scoreEval = getScoreEvaluation(startState.S7_総合評価スコア);
+        document.getElementById(
+          "currentScore"
+        ).innerText = `${startState.S7_総合評価スコア} 点`;
+        const scoreLabel = document.getElementById("currentScoreLabel");
+        scoreLabel.innerText = scoreEval.label;
+        scoreLabel.className = `eval-label ${scoreEval.colorClass}`;
+        document.getElementById(
+          "currentScoreDesc"
+        ).innerText = `※ ${scoreEval.desc}`;
+
+        const transitionCost = 100 - (startState.S6_変動性スコア || 50);
+        const costEval = getTransitionCostEvaluation(transitionCost);
+        document.getElementById(
+          "transitionCost"
+        ).innerText = `${transitionCost} 点`;
+        const costLabel = document.getElementById("transitionCostLabel");
+        costLabel.innerText = costEval.label;
+        costLabel.className = `eval-label ${costEval.colorClass}`;
+        document.getElementById(
+          "transitionCostDesc"
+        ).innerText = `※ ${costEval.desc}`;
+
+        // --- グラフを描画 ---
+        renderCurrentStateBarChart(startState);
+
         document
           .getElementById("initialAnalysisArea")
           .classList.remove("hidden");
@@ -437,6 +545,20 @@
             </div>
           `;
           container.appendChild(label);
+          // ▼▼▼ ここから追加 ▼▼▼
+          label.addEventListener("click", function () {
+            const scenarioIndex = this.dataset.scenarioIndex;
+            const scenarioElement = document.getElementById(
+              `scenario-${scenarioIndex}`
+            );
+            if (scenarioElement) {
+              scenarioElement.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+            }
+          });
+          // ▲▲▲ ここまで追加 ▲▲▲
         });
       }
       function renderMiniBarChart(canvasId, state) {
@@ -497,12 +619,309 @@
           renderMiniBarChart(`scenarioChart-${index}`, finalState);
         });
       }
+      // ▼▼▼ この関数群を DOMContentLoaded の前に追加 ▼▼▼
+      let currentStateBarChartInstance = null;
+      let currentAnalysisData = {}; // モーダルで使うために定義
 
+      function getScoreEvaluation(score) {
+        if (score >= 80)
+          return {
+            label: "Excellent",
+            colorClass: "bg-green-500 text-white",
+            desc: "非常に良い状況です。",
+          };
+        if (score >= 60)
+          return {
+            label: "Good",
+            colorClass: "bg-emerald-500 text-white",
+            desc: "良い状況です。チャンスを活かしましょう。",
+          };
+        if (score >= 40)
+          return {
+            label: "Average",
+            colorClass: "bg-yellow-500 text-white",
+            desc: "平均的な状況。油断は禁物です。",
+          };
+        if (score >= 20)
+          return {
+            label: "Poor",
+            colorClass: "bg-orange-500 text-white",
+            desc: "厳しい状況。慎重な判断が必要です。",
+          };
+        return {
+          label: "Critical",
+          colorClass: "bg-red-600 text-white",
+          desc: "極めて危険な状況。抜本的な対策が必要です。",
+        };
+      }
+
+      function getTransitionCostEvaluation(cost) {
+        if (cost <= 20)
+          return {
+            label: "絶好機",
+            colorClass: "bg-sky-500 text-white",
+            desc: "極めて変化しやすい絶好のチャンス期間です。",
+          };
+        if (cost <= 40)
+          return {
+            label: "好機",
+            colorClass: "bg-teal-500 text-white",
+            desc: "変化を起こしやすい好機です。",
+          };
+        if (cost <= 60)
+          return {
+            label: "普通",
+            colorClass: "bg-gray-500 text-white",
+            desc: "変化には相応のエネルギーが必要です。",
+          };
+        if (cost <= 80)
+          return {
+            label: "困難",
+            colorClass: "bg-rose-500 text-white",
+            desc: "変化は困難。現状維持も視野に。",
+          };
+        return {
+          label: "膠着",
+          colorClass: "bg-zinc-700 text-white",
+          desc: "変化は極めて困難。今は動くべき時ではありません。",
+        };
+      }
+
+      function renderCurrentStateBarChart(state) {
+        if (currentStateBarChartInstance) {
+          currentStateBarChartInstance.destroy();
+        }
+        const ctx = document
+          .getElementById("currentStateBarChart")
+          ?.getContext("2d");
+        if (!ctx) return;
+        const data = [
+          state.S1_基本スコア,
+          state.S2_ポテンシャル,
+          state.S3_安定性スコア,
+          Math.abs(state.S4_リスク),
+          state.S6_変動性スコア,
+        ];
+        const colors = [
+          "rgba(96, 165, 250, 0.8)",
+          "rgba(52, 211, 153, 0.8)",
+          "rgba(167, 139, 250, 0.8)",
+          "rgba(248, 113, 113, 0.8)",
+          "rgba(251, 191, 36, 0.8)",
+        ];
+        currentStateBarChartInstance = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["基本", "潜在力", "安定性", "リスク", "変動性"],
+            datasets: [
+              {
+                data,
+                backgroundColor: colors,
+                borderWidth: 0,
+                barPercentage: 0.8,
+                categoryPercentage: 0.9,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: "y",
+            scales: {
+              x: {
+                display: true,
+                min: 0,
+                max: 100,
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+                ticks: { color: "#9ca3af", font: { size: 10 } },
+              },
+              y: {
+                grid: { display: false, drawBorder: false },
+                ticks: { color: "#e5e7eb", font: { size: 12, weight: "500" } },
+              },
+            },
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
+          },
+        });
+      }
+
+      function showModal(content) {
+        document.getElementById("modalBody").innerHTML = content;
+        const modalContainer = document.getElementById("modalContainer");
+        modalContainer.classList.remove("hidden");
+        setTimeout(() => {
+          document.getElementById("modalOverlay").classList.remove("opacity-0");
+          document.getElementById("modalContent").classList.remove("scale-95");
+        }, 10);
+      }
+
+      function hideModal() {
+        const modalContainer = document.getElementById("modalContainer");
+        document.getElementById("modalOverlay").classList.add("opacity-0");
+        document.getElementById("modalContent").classList.add("scale-95");
+        setTimeout(() => {
+          modalContainer.classList.add("hidden");
+        }, 300);
+      }
+
+      function showParameterHelpModal() {
+        // 保存された現在地のデータを取得
+        const state = currentAnalysisData.startState;
+        // データがない場合はモーダルを開かない
+        if (!state) {
+          alert("先に「予測実行」ボタンを押して、分析を完了させてください。");
+          return;
+        }
+
+        // --- 各スコアに対応する解説文を生成する ---
+        const getDesc = (score, type) => {
+          let highThreshold = 60;
+          let lowThreshold = 40;
+
+          // スコアのレベルを判定（リスクのみ評価が逆転）
+          const getLevel = (currentScore, isReversed = false) => {
+            if (currentScore >= highThreshold)
+              return isReversed ? "low" : "high";
+            if (currentScore <= lowThreshold)
+              return isReversed ? "high" : "low";
+            return "medium";
+          };
+
+          let explanation = "";
+          const level = getLevel(score, type === "risk");
+
+          switch (type) {
+            case "kihon":
+              if (level === "high")
+                explanation = `状況の根本的なエネルギーが<strong class="text-green-300">充実している</strong>ことを示します。物事を推進するための力強い基盤がある状態です。`;
+              else if (level === "low")
+                explanation = `状況の根本的なエネルギーが<strong class="text-red-300">不足している</strong>ことを示します。物事を進める上での土台が弱く、苦労を伴う可能性があります。`;
+              else
+                explanation = `状況の根本的なエネルギーは<strong class="text-yellow-300">標準的</strong>です。安定はしていますが、エネルギーに大きな余裕があるわけではありません。`;
+              break;
+            case "potential":
+              if (level === "high")
+                explanation = `将来的な<strong class="text-green-300">成長の伸びしろが大きい</strong>ことを示します。現状を超えて大きく飛躍する可能性を秘めています。`;
+              else if (level === "low")
+                explanation = `将来的な<strong class="text-red-300">成長の伸びしろが限定的</strong>であることを示します。大きな飛躍よりも、現状の維持や改善がテーマとなります。`;
+              else
+                explanation = `将来的な<strong class="text-yellow-300">成長の伸びしろは標準的</strong>です。着実な前進は期待できますが、ブレークスルーには更なる要素が必要です。`;
+              break;
+            case "antei":
+              if (level === "high")
+                explanation = `状況が<strong class="text-green-300">非常に安定的</strong>であることを示します。外部からの影響を受けにくく、計画通りに物事を進めやすい状態です。`;
+              else if (level === "low")
+                explanation = `状況が<strong class="text-red-300">非常に不安定</strong>であることを示します。予期せぬ変化が起こりやすく、臨機応変な対応が求められます。`;
+              else
+                explanation = `状況の<strong class="text-yellow-300">安定性は標準的</strong>です。大きな動揺はありませんが、不測の事態への備えは必要です。`;
+              break;
+            case "risk":
+              // リスクの説明ではlevelのhigh/lowが直感と合うように表示
+              if (level === "high")
+                explanation = `内在する<strong class="text-red-300">リスクが非常に高い</strong>ことを示します。重大な問題や困難が潜んでいるため、極めて慎重な判断が求められます。`;
+              else if (level === "low")
+                explanation = `内在する<strong class="text-green-300">リスクは低い</strong>状態です。目に見える障害は少なく、比較的安全に行動できます。`;
+              else
+                explanation = `内在する<strong class="text-yellow-300">リスクは標準的</strong>です。注意すべき点はありますが、過度に警戒する必要はありません。`;
+              break;
+            case "hendou":
+              if (level === "high")
+                explanation = `状況の<strong class="text-green-300">変動性が高い</strong>ことを示します。あなたの働きかけが結果に直結しやすく、状況をコントロールしやすい局面です。`;
+              else if (level === "low")
+                explanation = `状況の<strong class="text-red-300">変動性が低い</strong>ことを示します。状況が膠着しており、個人の力で変化を起こすのは困難かもしれません。`;
+              else
+                explanation = `状況の<strong class="text-yellow-300">変動性は標準的</strong>です。あなたの行動は影響を与えますが、結果が表れるまでには時間がかかる可能性があります。`;
+              break;
+          }
+          return `<p class="text-sm mt-1">${explanation}</p>`;
+        };
+
+        const getShutaiDesc = (type) => {
+          if (type === "能動") {
+            return `この状況では<strong class="text-yellow-200">「能動的」</strong>なスタンスが有効とされます。あなた自身の意思決定と行動が、今後の展開を左右する重要な鍵となります。`;
+          }
+          return `この状況では<strong class="text-yellow-200">「受動的」</strong>なスタンスが有効とされます。自ら流れを作ろうとするより、環境やタイミングを見極めて対応することが求められます。`;
+        };
+
+        const helpContent = `
+      <h2 class="text-2xl font-bold text-indigo-300 mb-6">パラメータの見方</h2>
+      <div class="space-y-5 text-left">
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #93c5fd;">■ 基本スコア ${
+                state.S1_基本スコア
+              }点</h3>
+              ${getDesc(state.S1_基本スコア, "kihon")}
+          </div>
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #6ee7b7;">■ 潜在力 (ポテンシャル) ${
+                state.S2_ポテンシャル
+              }点</h3>
+              ${getDesc(state.S2_ポテンシャル, "potential")}
+          </div>
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #c4b5fd;">■ 安定性スコア ${
+                state.S3_安定性スコア
+              }点</h3>
+              ${getDesc(state.S3_安定性スコア, "antei")}
+          </div>
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #fca5a5;">■ リスク ${
+                state.S4_リスク
+              }点</h3>
+               ${getDesc(state.S4_リスク, "risk")}
+          </div>
+
+           <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #fde047;">■ 変動性スコア ${
+                state.S6_変動性スコア
+              }点</h3>
+               ${getDesc(state.S6_変動性スコア, "hendou")}
+          </div>
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #e5e7eb;">■ 主体性</h3>
+              <p class="text-sm mt-1">${getShutaiDesc(state.S5_主体性)}</p>
+          </div>
+
+      </div>
+  `;
+        showModal(helpContent);
+      }
+      // ▲▲▲ ここまで追加 ▲▲▲
       document.addEventListener("DOMContentLoaded", async () => {
         const loadingIndicator = document.getElementById("loadingIndicator");
         const reportContainer = document.getElementById("reportContainer");
         const errorIndicator = document.getElementById("errorIndicator");
+        const resetButton = document.getElementById("resetAndGoBack");
+        if (resetButton) {
+          resetButton.addEventListener("click", (event) => {
+            // デフォルトのリンク遷移を一旦停止
+            event.preventDefault();
 
+            // データを削除
+            localStorage.removeItem("proFutureReportData");
+
+            // リンク先に手動で遷移
+            window.location.href = resetButton.href;
+          });
+        }
+        // ▲▲▲ ここまで追加 ▲▲▲
+        // 【追加】モーダル用のイベントリスナー
+        document
+          .getElementById("modalOverlay")
+          .addEventListener("click", hideModal);
+        document
+          .getElementById("modalCloseBtn")
+          .addEventListener("click", hideModal);
+        document.body.addEventListener("click", function (event) {
+          if (event.target.closest("#paramHelpBtn")) {
+            showParameterHelpModal();
+          }
+        });
         try {
           const dbResponse = await fetch("/api/data");
           if (!dbResponse.ok)
@@ -575,12 +994,12 @@
           const rankLabels = ["S", "A", "B", "C", "D", "E", "F", "H"];
           let html = "";
           sortedPaths.slice(0, 8).forEach((path, index) => {
-            const narrative = narratives[index] || {};
+            const narrative = narratives?.[index] || {};
             const step_summaries = narrative.step_summaries || [];
             const transitions = narrative.transitions || [];
 
-            const rankLabel = rankLabels[index] || "不明";
-            const rankClass = `rank-${rankLabel.toLowerCase()}`;
+            const rankLabel = rankLabels?.[index] || "不明";
+            const rankClass = `rank-${rankLabel?.toLowerCase()}`;
             const difficulty = calculateDifficulty(path);
 
             const stepCards = path.map((step, stepIndex) => {
@@ -646,7 +1065,7 @@
             }
 
             html += `
-                  <div class="scenario-card">
+                  <div class="scenario-card" id="scenario-${index}">
                       <div class="flex items-start sm:items-center justify-between mb-4 flex-col sm:flex-row gap-4">
                           <h3 class="font-bold text-2xl text-cyan-300">
                               <span class="text-indigo-400">シナリオ ${
@@ -661,10 +1080,11 @@
                                     difficulty.color
                                   }">${difficulty.text}</p>
                               </div>
-                              <span class="rank-badge ${`rank-${rankLabels[
+                              
+                              <span class="rank-badge ${`rank-${rankLabels?.[
                                 index
                               ]?.toLowerCase()}`}">${
-              rankLabels[index] || "不明"
+              rankLabels?.[index] || "不明"
             }</span>
                           </div>
                       </div>
@@ -673,9 +1093,19 @@
                         <div class="prose-custom max-w-none">${
                           narrative.narrative || "概要の生成に失敗しました。"
                         }</div>
-                        
+
                         <div>
-                          <h4 class="font-bold text-lg text-yellow-300 mb-2">フェーズ3の状態</h4>
+                          <h4 class="font-bold text-lg text-yellow-300 mb-2 flex items-center justify-between">
+                            フェーズ3の状態
+                            <button
+                              class="text-yellow-400 hover:text-yellow-300 text-xl cursor-pointer focus:outline-none"
+                              title="最終スコア解説"
+                              data-scenario-index="${index}"
+                              id="score-info-btn-${index}"
+                            >
+                              <span>⭐️</span>
+                            </button>
+                          </h4>
                           <div style="height: 160px;">
                             <canvas id="scenarioChart-${index}"></canvas>
                           </div>
@@ -709,6 +1139,38 @@
           reportContainer.classList.remove("hidden");
 
           renderAllScenarioCharts(sortedPaths);
+          // ▼▼▼ ここから追加 ▼▼▼
+          const scoreInfoButtons = document.querySelectorAll(
+            '[id^="score-info-btn-"]'
+          );
+          scoreInfoButtons.forEach((button) => {
+            button.addEventListener("click", function () {
+              const scenarioIndex = this.dataset.scenarioIndex;
+              const path = sortedPaths?.[scenarioIndex];
+              if (path) {
+                const finalState = path?.[3];
+                const finalScore = finalState?.S7_総合評価スコア;
+                const scoreEval = getScoreEvaluation(finalScore);
+                const scenarioTitle =
+                  narratives?.[scenarioIndex]?.scenario_title ||
+                  `シナリオ ${parseInt(scenarioIndex) + 1}`;
+                const modalContent = `
+                  <h2 class="text-xl font-bold text-indigo-300 mb-4">${scenarioTitle} - 最終スコア解説</h2>
+                  <p class="text-lg font-semibold text-yellow-300">最終スコア: <span class="${scoreEval.colorClass} px-2 py-1 rounded-md text-white">${finalScore}点 - ${scoreEval.label}</span></p>
+                  <p class="text-gray-300 mt-4">${scoreEval.desc}</p>
+                  <p class="text-sm text-gray-400 mt-2">詳細なパラメータは以下の通りです。</p>
+                  <ul class="list-disc list-inside text-sm text-gray-400 mt-2">
+                    <li>基本スコア: ${finalState?.S1_基本スコア}</li>
+                    <li>潜在力: ${finalState?.S2_ポテンシャル}</li>
+                    <li>安定性スコア: ${finalState?.S3_安定性スコア}</li>
+                    <li>リスク: ${finalState?.S4_リスク}</li>
+                    <li>変動性スコア: ${finalState?.S6_変動性スコア}</li>
+                  </ul>
+                `;
+                showModal(modalContent);
+              }
+            });
+          });
         } catch (err) {
           errorIndicator.textContent =
             "レポート生成エラー: " + (err.message || "不明なエラーです。");
@@ -719,5 +1181,39 @@
         }
       });
     </script>
+    <div
+      id="modalContainer"
+      class="fixed inset-0 z-50 flex items-center justify-center hidden"
+    >
+      <div
+        id="modalOverlay"
+        class="absolute inset-0 bg-black/70 opacity-0 transition-opacity duration-300"
+      ></div>
+      <div
+        id="modalContent"
+        class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-8 relative transform scale-95 transition-transform duration-300"
+      >
+        <button
+          id="modalCloseBtn"
+          class="absolute top-4 right-4 text-gray-400 hover:text-white"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <div id="modalBody"></div>
+      </div>
+    </div>
   </body>
 </html>

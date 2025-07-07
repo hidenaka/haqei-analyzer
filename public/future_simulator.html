@@ -192,10 +192,12 @@
       class="w-full max-w-7xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-8"
     >
       <header class="text-center mb-8 relative">
-        <h1 class="text-3xl sm:text-4xl font-bold brand-text tracking-wider">
-          HaQei
-        </h1>
-        <p class="text-gray-400 mt-2 text-lg">マルチバース・アナライザー</p>
+        <a href="./" class="inline-block">
+          <h1 class="text-3xl sm:text-4xl font-bold brand-text tracking-wider">
+            HaQei
+          </h1>
+          <p class="text-gray-400 mt-2 text-lg">マルチバース・アナライザー</p>
+        </a>
         <button
           id="helpBtn"
           class="absolute top-0 right-0 p-2 text-gray-400 hover:text-white transition-colors"
@@ -380,6 +382,30 @@
                   </div>
                   <p id="transitionCostDesc" class="text-xs"></p>
                 </div>
+                <div class="mt-4 pt-4 border-t border-gray-700/50">
+                  <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-bold text-gray-300">現在地のグラフ</h4>
+                    <button
+                      id="paramHelpBtn"
+                      class="text-yellow-400 hover:text-yellow-300 text-xl cursor-pointer"
+                      title="グラフの見方"
+                    >
+                      <span
+                        style="
+                          display: inline-block;
+                          transform: translateY(-2px);
+                        "
+                        >⭐️</span
+                      >
+                    </button>
+                  </div>
+                  <div
+                    class="relative"
+                    style="height: 150px; padding-left: 5px"
+                  >
+                    <canvas id="currentStateBarChart"></canvas>
+                  </div>
+                </div>
                 <div id="firstActionContainer" class="mt-4"></div>
               </div>
             </div>
@@ -502,6 +528,7 @@
       let H64_DATA = null;
       let H384_DATA = null;
       let summaryChartInstance = null;
+      let currentStateBarChartInstance = null;
       let currentAnalysisData = {};
 
       // --- アプリケーション初期化とイベントリスナー設定 ---
@@ -537,16 +564,18 @@
           });
 
           // 両方のプロミスが完了するのを待つ
-          await Promise.all([fetchDataPromise, tokenizerPromise]);
+          const [apiData] = await Promise.all([
+            fetchDataPromise,
+            tokenizerPromise,
+          ]);
 
-          const apiData = await fetchDataPromise;
           HAQEI_DATA = apiData.HAQEI_DATA;
           H64_DATA = HAQEI_DATA.H64_DATA;
           H384_DATA = HAQEI_DATA["384"];
 
           setupDatalist();
 
-          // ボタンを有効化し、イベントリスナーを一度だけ設定
+          // ボタンを有効化
           aiGuessBtn.disabled = false;
           analyzeBtn.disabled = false;
           aiGuessBtn.innerHTML =
@@ -574,6 +603,9 @@
         }
       }
 
+      // ==================================================================
+      // ▼▼▼ この関数を丸ごと置き換えてください ▼▼▼
+      // ==================================================================
       document.addEventListener("DOMContentLoaded", () => {
         // アプリケーションを初期化
         initializeApp();
@@ -600,7 +632,20 @@
         document
           .getElementById("helpBtn")
           .addEventListener("click", showHelpModal);
+
+        // 【修正点】イベント委譲を使って、#paramHelpBtnへのクリックを監視
+        document.body.addEventListener("click", function (event) {
+          // event.targetが #paramHelpBtn またはその子要素であるかを確認
+          if (event.target.closest("#paramHelpBtn")) {
+            showParameterHelpModal();
+          }
+        });
+
+        restoreState();
       });
+      // ==================================================================
+      // ▲▲▲ 置き換えはここまで ▲▲▲
+      // ==================================================================
 
       function handleGoToReportClick(event) {
         event.preventDefault();
@@ -877,20 +922,20 @@
               : null;
           if (guidelineData) {
             closingStatement = `
-              <div class="mt-4 pt-4 border-t border-gray-600/50">
-                  <p class="text-sm text-gray-300 mb-3">この状況に対して、HaQeiは2つの異なるアプローチを提示します。</p>
-                  <div class="space-y-3">
-                      <div class="p-3 rounded-lg bg-teal-900/40 border border-teal-700/60">
-                          <p class="font-bold text-teal-300">【進】テーマを深化させる道</p>
-                          <p class="text-xs text-gray-300 mt-1">${guidelineData.shin}</p>
-                      </div>
-                      <div class="p-3 rounded-lg bg-purple-900/40 border border-purple-700/60">
-                          <p class="font-bold text-purple-300">【変】状況を転換する道</p>
-                          <p class="text-xs text-gray-300 mt-1">${guidelineData.hen}</p>
-                      </div>
-                  </div>
-                  <p class="text-sm text-gray-300 mt-3">今のテーマで道を進むか、あるいは状況を変化させる行動をするかが、今の${subjectPossessive}にとっての重要なテーマとなるでしょう。</p>
-              </div>`;
+                                  <div class="mt-4 pt-4 border-t border-gray-600/50">
+                                      <p class="text-sm text-gray-300 mb-3">この状況に対して、HaQeiは2つの異なるアプローチを提示します。</p>
+                                      <div class="space-y-3">
+                                          <div class="p-3 rounded-lg bg-teal-900/40 border border-teal-700/60">
+                                              <p class="font-bold text-teal-300">【進】テーマを深化させる道</p>
+                                              <p class="text-xs text-gray-300 mt-1">${guidelineData.shin}</p>
+                                          </div>
+                                          <div class="p-3 rounded-lg bg-purple-900/40 border border-purple-700/60">
+                                              <p class="font-bold text-purple-300">【変】状況を転換する道</p>
+                                              <p class="text-xs text-gray-300 mt-1">${guidelineData.hen}</p>
+                                          </div>
+                                      </div>
+                                      <p class="text-sm text-gray-300 mt-3">今のテーマで道を進むか、あるいは状況を変化させる行動をするかが、今の${subjectPossessive}にとっての重要なテーマとなるでしょう。</p>
+                                  </div>`;
           } else {
             closingStatement = `<p class="mt-4 text-sm text-gray-400">この爻の視点から現状を見つめ直すことが、新たな気づきを得るための鍵となるかもしれません。</p>`;
           }
@@ -961,18 +1006,20 @@
       }
 
       function updateUI(sortedPaths, reasoning = null, explanation = null) {
+        // 1. 先に分析データをグローバル変数に保存する
+        const worryText = document.getElementById("worryInput").value;
+        currentAnalysisData = {
+          worry: worryText,
+          paths: sortedPaths,
+        };
+
+        // 2. その後、UIの表示/非表示を切り替える
         document.getElementById("initialMessage").classList.add("hidden");
         document.getElementById("resultArea").classList.remove("hidden");
         document.getElementById("proReportCtaTop").classList.remove("hidden");
         document
           .getElementById("proReportCtaBottom")
           .classList.remove("hidden");
-
-        const worryText = document.getElementById("worryInput").value;
-        currentAnalysisData = {
-          worry: worryText,
-          paths: sortedPaths,
-        };
 
         const reasoningContainer = document.getElementById(
           "aiReasoningContainer"
@@ -987,7 +1034,9 @@
           reasoningContainer.innerHTML = "";
         }
 
+        // 3. サマリーカードやグラフなど、残りのUIを更新する
         const startState = sortedPaths[0][0];
+        currentAnalysisData.startState = startState;
         const targetName = `${startState["親となる卦"]} ${startState.爻}`;
         document.getElementById(
           "currentTitle"
@@ -997,6 +1046,7 @@
         }`;
         document.getElementById("currentSummary").innerText =
           startState.現代解釈の要約;
+
         const currentScore = startState.S7_総合評価スコア;
         const scoreEval = getScoreEvaluation(currentScore);
         document.getElementById(
@@ -1008,6 +1058,7 @@
         document.getElementById(
           "currentScoreDesc"
         ).innerText = `※ ${scoreEval.desc}`;
+
         const transitionCost = 100 - (startState.S6_変動性スコア || 50);
         const costEval = getTransitionCostEvaluation(transitionCost);
         document.getElementById(
@@ -1019,19 +1070,19 @@
         document.getElementById(
           "transitionCostDesc"
         ).innerText = `※ ${costEval.desc}`;
+
         document.getElementById("summaryCard").onclick = () =>
           showCurrentStateModal(startState);
-        const guidelineData =
-          typeof koudoShishinData !== "undefined"
-            ? koudoShishinData.find((item) => item.name === targetName)
-            : null;
+
+        renderCurrentStateBarChart(startState);
+
         const actionContainer = document.getElementById("firstActionContainer");
         const shoDenData = HAQEI_DATA.bible?.sho_den?.[startState.通し番号];
         if (shoDenData) {
           actionContainer.innerHTML = `
             <div class="mt-4 pt-4 border-t border-yellow-400/30">
                 <h4 class="font-bold text-yellow-300 mb-3 flex items-center">
-                     易経・小象伝が示す「現状の理由」 (HaQei現代解釈)
+                    易経・小象伝が示す「現状の理由」 (HaQei現代解釈)
                 </h4>
                 <div class="space-y-3 p-3 rounded-lg bg-gray-800/50">
                     <p class="font-bold text-gray-200">${shoDenData.title}</p>
@@ -1049,6 +1100,7 @@
         const choiceCardHen = document.getElementById("choiceCardHen");
         const firstStepShin = getNextState(startState, "stagnate");
         const firstStepHen = getNextState(startState, "change");
+
         const createChoiceCardHTML = (state, choiceType) => {
           if (!state) return "";
           const startStateData = sortedPaths[0][0];
@@ -1090,8 +1142,6 @@
         renderChartToggles(sortedPaths);
         setupInteraction(sortedPaths);
       }
-
-      // ... (これ以降の関数はすべて変更なし)
 
       function getScoreEvaluation(score) {
         if (score >= 80)
@@ -1155,6 +1205,83 @@
           colorClass: "bg-zinc-700 text-white",
           desc: "変化は極めて困難。今は動くべき時ではありません。",
         };
+      }
+
+      function renderCurrentStateBarChart(state) {
+        if (currentStateBarChartInstance) {
+          currentStateBarChartInstance.destroy();
+        }
+        const ctx = document
+          .getElementById("currentStateBarChart")
+          .getContext("2d");
+        if (!ctx) return;
+
+        const data = [
+          state.S1_基本スコア,
+          state.S2_ポテンシャル,
+          state.S3_安定性スコア,
+          Math.abs(state.S4_リスク),
+          state.S6_変動性スコア,
+        ];
+        const colors = [
+          "rgba(96, 165, 250, 0.8)",
+          "rgba(52, 211, 153, 0.8)",
+          "rgba(167, 139, 250, 0.8)",
+          "rgba(248, 113, 113, 0.8)",
+          "rgba(251, 191, 36, 0.8)",
+        ];
+
+        currentStateBarChartInstance = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["基本", "潜在力", "安定性", "リスク", "変動性"],
+            datasets: [
+              {
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 0,
+                barPercentage: 0.8,
+                categoryPercentage: 0.9,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: "y",
+            scales: {
+              x: {
+                display: true,
+                min: 0,
+                max: 100,
+                grid: { color: "rgba(255, 255, 255, 0.1)" },
+                ticks: { color: "#9ca3af", font: { size: 10 } },
+              },
+              y: {
+                grid: { display: false, drawBorder: false },
+                ticks: { color: "#e5e7eb", font: { size: 12, weight: "500" } },
+              },
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                enabled: true,
+                callbacks: {
+                  label: function (context) {
+                    let label = context.dataset.label || "";
+                    if (label) {
+                      label += ": ";
+                    }
+                    if (context.parsed.x !== null) {
+                      label += context.parsed.x;
+                    }
+                    return label;
+                  },
+                },
+              },
+            },
+          },
+        });
       }
 
       function evaluateSpiralProgress(currentState, futureState) {
@@ -1302,7 +1429,16 @@
             },
             plugins: {
               legend: { display: false },
-              tooltip: { mode: "index", intersect: false },
+              tooltip: {
+                mode: "index",
+                intersect: false,
+                // 【修正箇所】コールバックを追加して、詳細ラベルを非表示にする
+                callbacks: {
+                  label: function (context) {
+                    return null; // ラベル本体を非表示にする
+                  },
+                },
+              },
               annotation: {
                 annotations: {
                   currentScoreLine: {
@@ -1485,6 +1621,9 @@
         });
       }
 
+      // ==================================================================
+      // ▼▼▼ この関数を丸ごと置き換えてください ▼▼▼
+      // ==================================================================
       function renderChartToggles(sortedPaths) {
         const container = document.getElementById("chartToggles");
         container.innerHTML = "";
@@ -1514,41 +1653,37 @@
           const finalScore = path[path.length - 1].S7_総合評価スコア;
           const scenarioSummary = getScenarioSummary(path);
 
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.id = `toggle-${index}`;
-          checkbox.checked = true;
-          checkbox.className = "hidden";
+          // 【修正点】チェックボックスを無くし、クリックでモーダルを開くdiv要素に変更
+          const legendItem = document.createElement("div");
 
-          const label = document.createElement("label");
-          label.htmlFor = `toggle-${index}`;
-          label.className =
+          legendItem.className =
             "toggle-label text-xs p-2 rounded-lg bg-gray-800/50 border border-gray-700/50 w-full flex-col h-full";
-          label.dataset.index = index;
-          label.title = `シナリオ ${index + 1}: ${path
+          legendItem.dataset.index = index;
+          legendItem.title = `シナリオ ${index + 1}: ${path
             .slice(1)
             .map((p) => (p.choice === "change" ? "変" : "進"))
             .join("→")}`;
 
-          label.innerHTML = `
-          <div class="flex items-center w-full mb-1">
-            <span class="toggle-legend" style="background-color: ${color};"></span>
-            <span class="font-bold text-gray-200">シナリオ ${
-              index + 1
-            } (${finalScore}点)</span>
-          </div>
-          <span class="text-gray-400 text-[10px] w-full text-left">${scenarioSummary}</span>
-        `;
+          legendItem.innerHTML = `
+        <div class="flex items-center w-full mb-1">
+          <span class="toggle-legend" style="background-color: ${color};"></span>
+          <span class="font-bold text-gray-200">シナリオ ${
+            index + 1
+          } (${finalScore}点)</span>
+        </div>
+        <span class="text-gray-400 text-[10px] w-full text-left">${scenarioSummary}</span>
+      `;
 
-          checkbox.addEventListener("change", () => {
-            const isVisible = checkbox.checked;
-            summaryChartInstance.setDatasetVisibility(index, isVisible);
-            label.style.opacity = isVisible ? "1" : "0.5";
-            summaryChartInstance.update();
+          // モーダル表示に必要なデータをあらかじめ計算
+          const overallTrend = evaluateSpiralProgress(path[0], path[3]);
+          const firstStepTrend = evaluateSpiralProgress(path[0], path[1]);
+
+          // 【修正点】クリック時に線の表示/非表示を切り替えるのではなく、showScenarioModal関数を呼び出す
+          legendItem.addEventListener("click", () => {
+            showScenarioModal(path, index, overallTrend, firstStepTrend);
           });
 
-          container.appendChild(checkbox);
-          container.appendChild(label);
+          container.appendChild(legendItem);
         });
       }
 
@@ -1671,105 +1806,236 @@
           }
 
           modalContentHtml += `
-    <div class="py-4 px-4 border-b border-gray-700 last:border-b-0 ${stepWrapperClass}">
-      <h4 class="text-lg font-semibold text-gray-100 flex items-center">${
-        phaseLabels[stepIndex]
-      }: ${step["親となる卦"]} ${step.爻} ${stepTitleIcon}</h4>
-      <p class="text-sm text-yellow-300 my-1">テーマ: ${
-        step.キーワード || ""
-      }</p>
-      <p class="text-xs text-gray-400 mt-1">${step.現代解釈の要約}</p>
-      <div class="mt-4 grid grid-cols-2 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs">
-        <div class="flex justify-between items-center"><span class="text-gray-400">基本:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
-          step.S1_基本スコア
-        }</span>${s1_diff}</div></div>
-        <div class="flex justify-between items-center"><span class="text-gray-400">ポテンシャル:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
-          step.S2_ポテンシャル
-        }</span>${s2_diff}</div></div>
-        <div class="flex justify-between items-center"><span class="text-gray-400">安定性:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
-          step.S3_安定性スコア
-        }</span>${s3_diff}</div></div>
-        <div class="flex justify-between items-center"><span class="text-gray-400">リスク:</span><div class="flex items-center"><span class="font-mono w-6 text-right text-red-400">${
-          step.S4_リスク
-        }</span>${s4_diff}</div></div>
-        <div class="flex justify-between items-center"><span class="text-gray-400">変動性:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
-          step.S6_変動性スコア
-        }</span>${s6_diff}</div></div>
-        <div class="flex justify-between items-center"><span class="text-gray-400">主体性:</span><span>${
-          step.S5_主体性
-        }</span></div>
-        <div class="col-span-full flex justify-between items-center font-bold border-t border-gray-600 pt-2 mt-2">
-          <span class="text-gray-300">総合評価:</span>
-          <div class="flex items-center">
-            <span class="font-mono text-lg text-indigo-300">${
-              step.S7_総合評価スコア
-            }</span>
-            ${s7_diff.replace("text-xs", "text-sm").replace("w-10", "w-12")}
+        <div class="py-4 px-4 border-b border-gray-700 last:border-b-0 ${stepWrapperClass}">
+          <h4 class="text-lg font-semibold text-gray-100 flex items-center">${
+            phaseLabels[stepIndex]
+          }: ${step["親となる卦"]} ${step.爻} ${stepTitleIcon}</h4>
+          <p class="text-sm text-yellow-300 my-1">テーマ: ${
+            step.キーワード || ""
+          }</p>
+          <p class="text-xs text-gray-400 mt-1">${step.現代解釈の要約}</p>
+          <div class="mt-4 grid grid-cols-2 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs">
+            <div class="flex justify-between items-center"><span class="text-gray-400">基本:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
+              step.S1_基本スコア
+            }</span>${s1_diff}</div></div>
+            <div class="flex justify-between items-center"><span class="text-gray-400">ポテンシャル:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
+              step.S2_ポテンシャル
+            }</span>${s2_diff}</div></div>
+            <div class="flex justify-between items-center"><span class="text-gray-400">安定性:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
+              step.S3_安定性スコア
+            }</span>${s3_diff}</div></div>
+            <div class="flex justify-between items-center"><span class="text-gray-400">リスク:</span><div class="flex items-center"><span class="font-mono w-6 text-right text-red-400">${
+              step.S4_リスク
+            }</span>${s4_diff}</div></div>
+            <div class="flex justify-between items-center"><span class="text-gray-400">変動性:</span><div class="flex items-center"><span class="font-mono w-6 text-right">${
+              step.S6_変動性スコア
+            }</span>${s6_diff}</div></div>
+            <div class="flex justify-between items-center"><span class="text-gray-400">主体性:</span><span>${
+              step.S5_主体性
+            }</span></div>
+            <div class="col-span-full flex justify-between items-center font-bold border-t border-gray-600 pt-2 mt-2">
+              <span class="text-gray-300">総合評価:</span>
+              <div class="flex items-center">
+                <span class="font-mono text-lg text-indigo-300">${
+                  step.S7_総合評価スコア
+                }</span>
+                ${s7_diff.replace("text-xs", "text-sm").replace("w-10", "w-12")}
+              </div>
+            </div>
           </div>
+          ${guidelineHtml}
         </div>
-      </div>
-      ${guidelineHtml}
-    </div>
-  `;
+      `;
         });
         showModal(modalContentHtml);
       }
 
       function showCurrentStateModal(state) {
         const content = `
-                <h2 class="text-2xl font-bold text-indigo-300 mb-4">現在地の詳細: ${
-                  state["親となる卦"]
-                } ${state.爻}</h2>
-                <p class="text-sm text-yellow-300 my-1">テーマ: ${
-                  state.キーワード || ""
-                }</p>
-                <p class="text-sm text-gray-300 mt-3">${
-                  state.現代解釈の全文 || state.現代解釈の要約
-                }</p>
-                <div class="mt-6 pt-4 border-t border-gray-700 grid grid-cols-2 gap-4 text-sm">
-                    <div><span class="font-bold text-gray-400">基本スコア:</span> ${
-                      state.S1_基本スコア
-                    }</div>
-                    <div><span class="font-bold text-gray-400">ポテンシャル:</span> ${
-                      state.S2_ポテンシャル
-                    }</div>
-                    <div><span class="font-bold text-gray-400">安定性スコア:</span> ${
-                      state.S3_安定性スコア
-                    }</div>
-                    <div><span class="font-bold text-gray-400">リスク:</span> ${
-                      state.S4_リスク
-                    }</div>
-                    <div><span class="font-bold text-gray-400">主体性:</span> ${
-                      state.S5_主体性
-                    }</div>
-                    <div><span class="font-bold text-gray-400">変動性スコア:</span> ${
-                      state.S6_変動性スコア
-                    }</div>
-                    <div class="col-span-2 mt-2 pt-2 border-t border-gray-600"><span class="font-bold text-indigo-300">総合評価スコア:</span> ${
-                      state.S7_総合評価スコア
-                    }</div>
-                </div>
-            `;
+                      <h2 class="text-2xl font-bold text-indigo-300 mb-4">現在地の詳細: ${
+                        state["親となる卦"]
+                      } ${state.爻}</h2>
+                      <p class="text-sm text-yellow-300 my-1">テーマ: ${
+                        state.キーワード || ""
+                      }</p>
+                      <p class="text-sm text-gray-300 mt-3">${
+                        state.現代解釈の全文 || state.現代解釈の要約
+                      }</p>
+                      <div class="mt-6 pt-4 border-t border-gray-700 grid grid-cols-2 gap-4 text-sm">
+                          <div><span class="font-bold text-gray-400">基本スコア:</span> ${
+                            state.S1_基本スコア
+                          }</div>
+                          <div><span class="font-bold text-gray-400">ポテンシャル:</span> ${
+                            state.S2_ポテンシャル
+                          }</div>
+                          <div><span class="font-bold text-gray-400">安定性スコア:</span> ${
+                            state.S3_安定性スコア
+                          }</div>
+                          <div><span class="font-bold text-gray-400">リスク:</span> ${
+                            state.S4_リスク
+                          }</div>
+                          <div><span class="font-bold text-gray-400">主体性:</span> ${
+                            state.S5_主体性
+                          }</div>
+                          <div><span class="font-bold text-gray-400">変動性スコア:</span> ${
+                            state.S6_変動性スコア
+                          }</div>
+                          <div class="col-span-2 mt-2 pt-2 border-t border-gray-600"><span class="font-bold text-indigo-300">総合評価スコア:</span> ${
+                            state.S7_総合評価スコア
+                          }</div>
+                      </div>
+                  `;
         showModal(content);
       }
 
       function showHelpModal() {
         const helpContent = `
-            <h2 class="text-2xl font-bold text-indigo-300 mb-4">HaQei マルチバース・アナライザーとは？</h2>
-            <p class="text-gray-300 mb-3">このツールは、古代の知恵である「易経」と現代のAI技術を融合させ、あなたの現状を多角的に分析し、未来の可能性を可視化するためのものです。</p>
-            <h3 class="text-lg font-semibold text-indigo-300 mt-6 mb-2">使い方</h3>
-            <ol class="list-decimal list-inside space-y-3 text-gray-300">
-                <li><strong>AIによる状況推測:</strong> あなたが今抱えている悩みや状況を、感じたままの「生の言葉」で入力し、「AIに状況を推測させる」ボタンを押してください。AIがあなたの言葉から最も近い状況（卦と爻）を自動で設定します。</li>
-                <li><strong>手動設定:</strong> もし占いたい状況が明確な場合は、AIの推測を使わずに「状況卦」と「現在の爻」を手動で入力することも可能です。</li>
-                <li><strong>予測実行:</strong> 状況が設定されたら、「予測実行」ボタンを押します。あなたの現在地から分岐する8つの未来シナリオがグラフとカードで表示されます。</li>
-            </ol>
-            <h3 class="text-lg font-semibold text-indigo-300 mt-6 mb-2">結果の見方</h3>
-            <ul class="list-disc list-inside space-y-3 text-gray-300">
-                <li><strong>分析サマリー:</strong> あなたの「現在地」の評価と、状況が変化しやすい時期かどうか（移行コスト）を確認できます。</li>
-                <li><strong>未来分岐グラフ:</strong> 8つのシナリオが今後どのように推移するかを「総合評価」のスコアで示します。線が上に行くほど好ましい未来です。</li>
-                <li><strong>8つの未来のシナリオ:</strong> 各シナリオが行き着く未来の状態をカードで示します。カードをクリックすると、そこに至るまでの詳細なステップ（行動指針）を確認できます。</li>
-            </ul>
-        `;
+                  <h2 class="text-2xl font-bold text-indigo-300 mb-4">HaQei マルチバース・アナライザーとは？</h2>
+                  <p class="text-gray-300 mb-3">このツールは、古代の知恵である「易経」と現代のAI技術を融合させ、あなたの現状を多角的に分析し、未来の可能性を可視化するためのものです。</p>
+                  <h3 class="text-lg font-semibold text-indigo-300 mt-6 mb-2">使い方</h3>
+                  <ol class="list-decimal list-inside space-y-3 text-gray-300">
+                      <li><strong>AIによる状況推測:</strong> あなたが今抱えている悩みや状況を、感じたままの「生の言葉」で入力し、「AIに状況を推測させる」ボタンを押してください。AIがあなたの言葉から最も近い状況（卦と爻）を自動で設定します。</li>
+                      <li><strong>手動設定:</strong> もし占いたい状況が明確な場合は、AIの推測を使わずに「状況卦」と「現在の爻」を手動で入力することも可能です。</li>
+                      <li><strong>予測実行:</strong> 状況が設定されたら、「予測実行」ボタンを押します。あなたの現在地から分岐する8つの未来シナリオがグラフとカードで表示されます。</li>
+                  </ol>
+                  <h3 class="text-lg font-semibold text-indigo-300 mt-6 mb-2">結果の見方</h3>
+                  <ul class="list-disc list-inside space-y-3 text-gray-300">
+                      <li><strong>分析サマリー:</strong> あなたの「現在地」の評価と、状況が変化しやすい時期かどうか（移行コスト）を確認できます。</li>
+                      <li><strong>未来分岐グラフ:</strong> 8つのシナリオが今後どのように推移するかを「総合評価」のスコアで示します。線が上に行くほど好ましい未来です。</li>
+                      <li><strong>8つの未来のシナリオ:</strong> 各シナリオが行き着く未来の状態をカードで示します。カードをクリックすると、そこに至るまでの詳細なステップ（行動指針）を確認できます。</li>
+                  </ul>
+              `;
+        showModal(helpContent);
+      }
+
+      // ==================================================================
+      // ▼▼▼ この関数を丸ごと置き換えてください ▼▼▼
+      // ==================================================================
+      function showParameterHelpModal() {
+        // 保存された現在地のデータを取得
+        const state = currentAnalysisData.startState;
+        // データがない場合はモーダルを開かない
+        if (!state) {
+          alert("先に「予測実行」ボタンを押して、分析を完了させてください。");
+          return;
+        }
+
+        // --- 各スコアに対応する解説文を生成する ---
+        const getDesc = (score, type) => {
+          let highThreshold = 60;
+          let lowThreshold = 40;
+
+          // スコアのレベルを判定（リスクのみ評価が逆転）
+          const getLevel = (currentScore, isReversed = false) => {
+            if (currentScore >= highThreshold)
+              return isReversed ? "low" : "high";
+            if (currentScore <= lowThreshold)
+              return isReversed ? "high" : "low";
+            return "medium";
+          };
+
+          let explanation = "";
+          const level = getLevel(score, type === "risk");
+
+          switch (type) {
+            case "kihon":
+              if (level === "high")
+                explanation = `状況の根本的なエネルギーが<strong class="text-green-300">充実している</strong>ことを示します。物事を推進するための力強い基盤がある状態です。`;
+              else if (level === "low")
+                explanation = `状況の根本的なエネルギーが<strong class="text-red-300">不足している</strong>ことを示します。物事を進める上での土台が弱く、苦労を伴う可能性があります。`;
+              else
+                explanation = `状況の根本的なエネルギーは<strong class="text-yellow-300">標準的</strong>です。安定はしていますが、エネルギーに大きな余裕があるわけではありません。`;
+              break;
+            case "potential":
+              if (level === "high")
+                explanation = `将来的な<strong class="text-green-300">成長の伸びしろが大きい</strong>ことを示します。現状を超えて大きく飛躍する可能性を秘めています。`;
+              else if (level === "low")
+                explanation = `将来的な<strong class="text-red-300">成長の伸びしろが限定的</strong>であることを示します。大きな飛躍よりも、現状の維持や改善がテーマとなります。`;
+              else
+                explanation = `将来的な<strong class="text-yellow-300">成長の伸びしろは標準的</strong>です。着実な前進は期待できますが、ブレークスルーには更なる要素が必要です。`;
+              break;
+            case "antei":
+              if (level === "high")
+                explanation = `状況が<strong class="text-green-300">非常に安定的</strong>であることを示します。外部からの影響を受けにくく、計画通りに物事を進めやすい状態です。`;
+              else if (level === "low")
+                explanation = `状況が<strong class="text-red-300">非常に不安定</strong>であることを示します。予期せぬ変化が起こりやすく、臨機応変な対応が求められます。`;
+              else
+                explanation = `状況の<strong class="text-yellow-300">安定性は標準的</strong>です。大きな動揺はありませんが、不測の事態への備えは必要です。`;
+              break;
+            case "risk":
+              // リスクの説明ではlevelのhigh/lowが直感と合うように表示
+              if (level === "high")
+                explanation = `内在する<strong class="text-red-300">リスクが非常に高い</strong>ことを示します。重大な問題や困難が潜んでいるため、極めて慎重な判断が求められます。`;
+              else if (level === "low")
+                explanation = `内在する<strong class="text-green-300">リスクは低い</strong>状態です。目に見える障害は少なく、比較的安全に行動できます。`;
+              else
+                explanation = `内在する<strong class="text-yellow-300">リスクは標準的</strong>です。注意すべき点はありますが、過度に警戒する必要はありません。`;
+              break;
+            case "hendou":
+              if (level === "high")
+                explanation = `状況の<strong class="text-green-300">変動性が高い</strong>ことを示します。あなたの働きかけが結果に直結しやすく、状況をコントロールしやすい局面です。`;
+              else if (level === "low")
+                explanation = `状況の<strong class="text-red-300">変動性が低い</strong>ことを示します。状況が膠着しており、個人の力で変化を起こすのは困難かもしれません。`;
+              else
+                explanation = `状況の<strong class="text-yellow-300">変動性は標準的</strong>です。あなたの行動は影響を与えますが、結果が表れるまでには時間がかかる可能性があります。`;
+              break;
+          }
+          return `<p class="text-sm mt-1">${explanation}</p>`;
+        };
+
+        const getShutaiDesc = (type) => {
+          if (type === "能動") {
+            return `この状況では<strong class="text-yellow-200">「能動的」</strong>なスタンスが有効とされます。あなた自身の意思決定と行動が、今後の展開を左右する重要な鍵となります。`;
+          }
+          return `この状況では<strong class="text-yellow-200">「受動的」</strong>なスタンスが有効とされます。自ら流れを作ろうとするより、環境やタイミングを見極めて対応することが求められます。`;
+        };
+
+        const helpContent = `
+      <h2 class="text-2xl font-bold text-indigo-300 mb-6">パラメータの見方</h2>
+      <div class="space-y-5 text-left">
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #93c5fd;">■ 基本スコア ${
+                state.S1_基本スコア
+              }点</h3>
+              ${getDesc(state.S1_基本スコア, "kihon")}
+          </div>
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #6ee7b7;">■ 潜在力 (ポテンシャル) ${
+                state.S2_ポテンシャル
+              }点</h3>
+              ${getDesc(state.S2_ポテンシャル, "potential")}
+          </div>
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #c4b5fd;">■ 安定性スコア ${
+                state.S3_安定性スコア
+              }点</h3>
+              ${getDesc(state.S3_安定性スコア, "antei")}
+          </div>
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #fca5a5;">■ リスク ${
+                state.S4_リスク
+              }点</h3>
+               ${getDesc(state.S4_リスク, "risk")}
+          </div>
+
+           <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #fde047;">■ 変動性スコア ${
+                state.S6_変動性スコア
+              }点</h3>
+               ${getDesc(state.S6_変動性スコア, "hendou")}
+          </div>
+
+          <div>
+              <h3 class="text-xl font-semibold mb-1" style="color: #e5e7eb;">■ 主体性</h3>
+              <p class="text-sm mt-1">${getShutaiDesc(state.S5_主体性)}</p>
+          </div>
+
+      </div>
+  `;
         showModal(helpContent);
       }
 
@@ -1909,6 +2175,30 @@
           paths = newPaths;
         }
         return paths.filter((p) => p.length === 4);
+      }
+      function restoreState() {
+        // localStorageから保存されたデータを読み込む
+        const savedDataString = localStorage.getItem("proFutureReportData");
+
+        if (savedDataString) {
+          const savedData = JSON.parse(savedDataString);
+
+          // 必要なデータ（相談内容と分析結果）が揃っているか確認
+          if (
+            savedData.worry &&
+            savedData.paths &&
+            savedData.paths.length > 0
+          ) {
+            console.log("保存された分析データを復元します。");
+
+            // 相談内容をテキストエリアに再設定
+            document.getElementById("worryInput").value = savedData.worry;
+
+            // 分析結果のUIを再描画
+            // (AIによる推測の根拠などは復元されませんが、グラフやシナリオは復元されます)
+            updateUI(savedData.paths);
+          }
+        }
       }
     </script>
   </body>
