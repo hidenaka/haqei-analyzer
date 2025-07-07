@@ -35,10 +35,26 @@ async function callGenerativeAI(prompt, env) {
   const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
   const generationConfig = { response_mime_type: "application/json" };
+  const safetySettings = [
+    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_ONLY_HIGH" },
+    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_ONLY_HIGH" },
+    {
+      category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      threshold: "BLOCK_ONLY_HIGH",
+    },
+    {
+      category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+      threshold: "BLOCK_ONLY_HIGH",
+    },
+  ];
 
-  let responseText = "";
   try {
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig, // ← この行を追加
+      safetySettings, // ← この行も追加
+    });
+
     const response = result.response;
 
     if (response.promptFeedback?.blockReason) {
@@ -47,25 +63,15 @@ async function callGenerativeAI(prompt, env) {
       );
     }
 
-    responseText = response.text();
-    const jsonString = extractJson(responseText);
-
-    if (!jsonString) {
-      throw new Error("AIの応答から有効なJSONを抽出できませんでした。");
+    // responseText以降の処理は変更なし...
+    const responseText = response.text();
+    if (!responseText) {
+      throw new Error("AIからの応答が空です。");
     }
-
-    return JSON.parse(jsonString);
+    return JSON.parse(responseText);
   } catch (error) {
-    console.error("【!!!】Gemini API Error or JSON Parse Error:", error);
-    console.error("Failing Prompt:", prompt);
-    // エラー調査のために、AIが何を返したかログに出力する
-    if (responseText) {
-      console.error("Failing AI Response Text:", responseText);
-    }
-    return {
-      title: "AI分析エラー",
-      analysis_text: `<p>AIとの通信中に問題が発生しました。しばらくしてから、もう一度お試しください。(${error.message})</p>`,
-    };
+    console.error("Gemini API Error or JSON Parse Error:", error);
+    throw new Error("AIとの通信、または応答の解析に失敗しました。");
   }
 }
 
