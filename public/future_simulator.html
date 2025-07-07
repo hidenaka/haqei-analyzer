@@ -182,6 +182,20 @@
         border-left: 3px solid #a5b4fc;
         background: rgba(165, 180, 252, 0.05);
       }
+      .deep-dive-btn {
+        background: linear-gradient(
+          145deg,
+          rgba(253, 224, 71, 0.8),
+          rgba(251, 146, 60, 0.8)
+        );
+        color: #111827;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(253, 224, 71, 0.2);
+      }
+      .deep-dive-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(253, 191, 36, 0.4);
+      }
     </style>
     <script src="./js/koudo_shishin_database.js"></script>
     <script src="./js/ai_theme_database.js"></script>
@@ -446,15 +460,6 @@
             ></div>
           </div>
         </div>
-        <div id="proReportCtaTop" class="my-8 text-center hidden">
-          <a
-            href="pro_future_report.html"
-            id="goToProReportBtnTop"
-            class="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-          >
-            【有料】AIによる全8シナリオの未来予測レポートを見る
-          </a>
-        </div>
 
         <div>
           <h2 class="text-2xl font-bold mb-6 text-center text-indigo-300">
@@ -464,16 +469,6 @@
             id="detailCardsContainer"
             class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
           ></div>
-
-          <div id="proReportCtaBottom" class="my-12 text-center hidden">
-            <a
-              href="pro_future_report.html"
-              id="goToProReportBtnBottom"
-              class="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              あなたのための詳細な未来物語を入手する
-            </a>
-          </div>
         </div>
       </div>
 
@@ -607,22 +602,14 @@
       // ▼▼▼ この関数を丸ごと置き換えてください ▼▼▼
       // ==================================================================
       document.addEventListener("DOMContentLoaded", () => {
-        // アプリケーションを初期化
         initializeApp();
 
-        // イベントリスナーを一度だけ設定
         document
           .getElementById("aiGuessBtn")
           .addEventListener("click", handleAiGuess);
         document
           .getElementById("analyzeBtn")
           .addEventListener("click", () => handleAnalysis());
-        document
-          .getElementById("goToProReportBtnTop")
-          .addEventListener("click", handleGoToReportClick);
-        document
-          .getElementById("goToProReportBtnBottom")
-          .addEventListener("click", handleGoToReportClick);
         document
           .getElementById("modalOverlay")
           .addEventListener("click", hideModal);
@@ -633,11 +620,18 @@
           .getElementById("helpBtn")
           .addEventListener("click", showHelpModal);
 
-        // 【修正点】イベント委譲を使って、#paramHelpBtnへのクリックを監視
+        // 【修正点】イベント委譲を使って、動的に生成される要素のクリックを監視
         document.body.addEventListener("click", function (event) {
-          // event.targetが #paramHelpBtn またはその子要素であるかを確認
-          if (event.target.closest("#paramHelpBtn")) {
+          const paramHelpBtn = event.target.closest("#paramHelpBtn");
+          if (paramHelpBtn) {
             showParameterHelpModal();
+            return;
+          }
+
+          const deepDiveBtn = event.target.closest(".deep-dive-btn");
+          if (deepDiveBtn) {
+            handleDeepDiveClick(event);
+            return;
           }
         });
 
@@ -949,7 +943,44 @@
         }
         return null;
       }
+      function handleDeepDiveClick(event) {
+        event.preventDefault(); // リンクのデフォルトの遷移を一旦停止
 
+        if (
+          !currentAnalysisData.worry ||
+          !currentAnalysisData.paths ||
+          currentAnalysisData.paths.length === 0
+        ) {
+          showModal(
+            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">エラー</h2><p>分析データが見つかりません。先に「予測実行」ボタンを押して、分析を完了させてください。</p>`
+          );
+          return;
+        }
+
+        const button = event.target;
+        const selectedHexagramId = button.dataset.hexagramId;
+        const selectedHexagramName = button.dataset.hexagramName;
+        const scenarioIndex = parseInt(button.dataset.scenarioIndex, 10);
+
+        // 分析データに「どの未来シナリオを選んだか」の情報を追加
+        const dataToSave = {
+          ...currentAnalysisData,
+          selectedFuture: {
+            hexagramId: selectedHexagramId,
+            hexagramName: selectedHexagramName,
+            path: currentAnalysisData.paths[scenarioIndex], // 選択されたシナリオの全パス情報
+          },
+        };
+
+        // localStorageに"professionalReportData"というキーで保存
+        localStorage.setItem(
+          "professionalReportData",
+          JSON.stringify(dataToSave)
+        );
+
+        // professional_report.html へ遷移
+        window.location.href = button.href;
+      }
       function handleAnalysis(
         hexNum = null,
         lineNum = null,
@@ -1016,10 +1047,6 @@
         // 2. その後、UIの表示/非表示を切り替える
         document.getElementById("initialMessage").classList.add("hidden");
         document.getElementById("resultArea").classList.remove("hidden");
-        document.getElementById("proReportCtaTop").classList.remove("hidden");
-        document
-          .getElementById("proReportCtaBottom")
-          .classList.remove("hidden");
 
         const reasoningContainer = document.getElementById(
           "aiReasoningContainer"
@@ -1528,10 +1555,15 @@
         }
       }
 
+      // ==================================================================
+      // ▼▼▼ この関数を丸ごと置き換えてください ▼▼▼
+      // ==================================================================
       function renderDetailCards(sortedPaths) {
         const container = document.getElementById("detailCardsContainer");
         container.innerHTML = "";
         const rankLabels = ["S", "A", "B", "C", "D", "E", "F", "H"];
+
+        // 手順1: まず、全てのカードのHTML要素をDOMに一括で追加します
         sortedPaths.forEach((path, index) => {
           const finalState = path[path.length - 1];
           const overallTrend = evaluateSpiralProgress(path[0], path[3]);
@@ -1542,14 +1574,19 @@
           card.className =
             "card bg-gray-900/50 p-4 rounded-xl border-2 border-transparent transition-all duration-300 flex flex-col";
           card.dataset.index = index;
-          card.addEventListener("click", () =>
-            showScenarioModal(path, index, overallTrend, firstStepTrend)
-          );
+          // モーダルを開くためのイベントリスナーをここで設定
+          card.addEventListener("click", (e) => {
+            // ボタン自身のクリックはモーダルを開かないようにする
+            if (e.target.closest(".deep-dive-btn")) return;
+            showScenarioModal(path, index, overallTrend, firstStepTrend);
+          });
+
           const pathHistory = path
             .slice(1)
             .map((p) => (p.choice === "change" ? "変" : "進"))
             .join(" → ");
           const finalStateTitle = `${finalState["親となる卦"]} ${finalState.爻}`;
+
           card.innerHTML = `<div class="flex items-start justify-between mb-2"><h3 class="text-md font-bold text-gray-300">シナリオ ${
             index + 1
           }</h3><span class="rank-badge ${rankClass}">${
@@ -1562,14 +1599,31 @@
             firstStepTrend.colorClass
           }" title="${firstStepTrend.message}">${
             firstStepTrend.trend
-          }</div></div></div><p class="text-lg font-semibold text-indigo-300 mt-auto pt-2 border-t border-gray-700/50">${finalStateTitle}</p><div class="my-3" style="height: 110px; padding-left: 5px;"><canvas id="miniChart-${index}"></canvas></div><p class="text-xs text-gray-400 mt-1">${
+          }</div></div></div><p class="text-lg font-semibold text-indigo-300">${finalStateTitle}</p><div class="my-3" style="height: 110px; padding-left: 5px;"><canvas id="miniChart-${index}"></canvas></div><p class="text-xs text-gray-400 mt-1 mb-4 flex-grow">${
             finalState.現代解釈の要約
-          }</p>`;
+          }</p>
+    <div class="mt-auto pt-4 border-t border-gray-700/50">
+        <a href="professional_report.html" 
+            class="deep-dive-btn inline-block w-full text-center font-bold py-2 px-4 rounded-lg text-sm"
+            data-hexagram-id="${finalState.卦番号}"
+            data-hexagram-name="${finalState["親となる卦"]}"
+            data-scenario-index="${index}">
+            AIでこの未来を深掘り分析する
+        </a>
+    </div>`;
           container.appendChild(card);
+        });
+
+        // 手順2: 全てのカードがDOMに追加された後で、各ミニグラフを描画します
+        // この時点では、`miniChart-X`というIDを持つcanvasは確実にページ上に存在します
+        sortedPaths.forEach((path, index) => {
+          const finalState = path[path.length - 1];
           renderMiniBarChart(index, finalState);
         });
       }
-
+      // ==================================================================
+      // ▲▲▲ 置き換えはここまで ▲▲▲
+      // ==================================================================
       function renderMiniBarChart(index, state) {
         const ctx = document
           .getElementById(`miniChart-${index}`)
