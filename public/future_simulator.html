@@ -27,7 +27,7 @@
         -webkit-text-fill-color: transparent;
       }
       .card {
-        transition: all 0.2s ease-in-out;
+        transition: all 0.3s ease-in-out;
         cursor: pointer;
       }
       .card:hover,
@@ -63,7 +63,6 @@
         color: #fca5a5;
         border: 1px solid #dc2626;
       }
-
       .toggle-label {
         cursor: pointer;
         display: inline-flex;
@@ -140,7 +139,6 @@
         color: #86efac;
         border: 1px solid #4ade80;
       }
-
       .yong-yao-step {
         background: linear-gradient(
           145deg,
@@ -196,6 +194,19 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(253, 191, 36, 0.4);
       }
+      .future-contents-reveal {
+        opacity: 1 !important;
+      }
+      .ai-recommended {
+        transform: scale(1.03);
+        box-shadow: 0 0 35px rgba(74, 222, 128, 0.5),
+          0 0 0 3px rgba(74, 222, 128, 0.6);
+        border-color: rgba(74, 222, 128, 0.6) !important;
+      }
+      .dimmed-by-choice {
+        opacity: 0.4;
+        transform: scale(0.98);
+      }
     </style>
     <script src="./js/koudo_shishin_database.js"></script>
     <script src="./js/ai_theme_database.js"></script>
@@ -237,7 +248,6 @@
         <h2 class="text-lg font-bold text-indigo-300 mb-3">
           1. AIによる状況推測
         </h2>
-
         <div
           class="border border-gray-700 rounded-lg p-4 mb-4 text-sm text-gray-300 space-y-3"
         >
@@ -256,7 +266,6 @@
           <p>
             なぜなら、AIはあなたが選ぶ一つ一つの単語、表現の揺れ、感情のニュアンスから、あなただけの「思考のクセ」や「心の動き」を読み取るからです。
           </p>
-
           <div class="pt-2">
             <p class="font-bold text-gray-200">【入力のヒント】</p>
             <div
@@ -282,12 +291,10 @@
               </p>
             </div>
           </div>
-
           <p class="font-bold text-center pt-2">
             あなたの「ありのままの言葉」こそが、あなただけの未来を読み解く、最も強力な鍵となります。<br />どうぞ、あなたの心をそのまま、AIにぶつけてみてください。
           </p>
         </div>
-
         <textarea
           id="worryInput"
           class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 mb-4"
@@ -409,8 +416,9 @@
                           display: inline-block;
                           transform: translateY(-2px);
                         "
-                        >⭐️</span
                       >
+                        ⭐️
+                      </span>
                     </button>
                   </div>
                   <div
@@ -424,7 +432,6 @@
               </div>
             </div>
           </div>
-
           <div class="lg:col-span-2 bg-gray-900/50 p-6 rounded-xl">
             <h2 class="text-2xl font-bold mb-4 text-center text-indigo-300">
               未来分岐グラフ：総合評価の推移
@@ -443,32 +450,50 @@
           </div>
         </div>
 
-        <div id="futureChoiceContainer" class="my-12 hidden">
-          <h2 class="text-2xl font-bold mb-6 text-center text-indigo-300">
-            最初の選択：あなたはどちらの道を選ぶか？
-          </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div
-              id="choiceCardShin"
-              data-choice="stagnate"
-              class="card p-6 rounded-xl border-2 border-transparent transition-all duration-300 bg-gray-900/50 hover:border-teal-500 hover:shadow-lg hover:shadow-teal-500/10"
-            ></div>
-            <div
-              id="choiceCardHen"
-              data-choice="change"
-              class="card p-6 rounded-xl border-2 border-transparent transition-all duration-300 bg-gray-900/50 hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/10"
-            ></div>
-          </div>
+        <div id="revealButtonContainer" class="text-center mt-8 hidden">
+          <button
+            id="revealButton"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 transform hover:scale-105 shadow-lg"
+          >
+            未来への選択肢と、8つの全シナリオを見る
+          </button>
         </div>
 
-        <div>
-          <h2 class="text-2xl font-bold mb-6 text-center text-indigo-300">
-            8つの未来シナリオ
-          </h2>
-          <div
-            id="detailCardsContainer"
-            class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
-          ></div>
+        <div
+          id="futureContentsWrapper"
+          class="hidden opacity-0 transition-opacity duration-1000"
+        >
+          <div id="futureChoiceContainer" class="my-12">
+            <h2 class="text-2xl font-bold mb-6 text-center text-indigo-300">
+              最初の選択：あなたはどちらの道を選ぶか？
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div
+                id="choiceCardShin"
+                data-choice="stagnate"
+                class="card p-6 rounded-xl border-2 border-transparent transition-all duration-300 bg-gray-900/50 hover:border-teal-500 hover:shadow-lg hover:shadow-teal-500/10"
+              ></div>
+              <div
+                id="choiceCardHen"
+                data-choice="change"
+                class="card p-6 rounded-xl border-2 border-transparent transition-all duration-300 bg-gray-900/50 hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/10"
+              ></div>
+            </div>
+          </div>
+
+          <div>
+            <h2 class="text-2xl font-bold mb-2 text-center text-indigo-300">
+              8つの未来シナリオ
+            </h2>
+            <p
+              id="aiRecommendationMessage"
+              class="text-center text-amber-300 mb-6 hidden"
+            ></p>
+            <div
+              id="detailCardsContainer"
+              class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
+            ></div>
+          </div>
         </div>
       </div>
 
@@ -598,9 +623,6 @@
         }
       }
 
-      // ==================================================================
-      // ▼▼▼ この関数を丸ごと置き換えてください ▼▼▼
-      // ==================================================================
       document.addEventListener("DOMContentLoaded", () => {
         initializeApp();
 
@@ -620,7 +642,7 @@
           .getElementById("helpBtn")
           .addEventListener("click", showHelpModal);
 
-        // 【修正点】イベント委譲を使って、動的に生成される要素のクリックを監視
+        // イベント委譲を使って、動的に生成される要素のクリックを監視
         document.body.addEventListener("click", function (event) {
           const paramHelpBtn = event.target.closest("#paramHelpBtn");
           if (paramHelpBtn) {
@@ -637,9 +659,6 @@
 
         restoreState();
       });
-      // ==================================================================
-      // ▲▲▲ 置き換えはここまで ▲▲▲
-      // ==================================================================
 
       function handleGoToReportClick(event) {
         event.preventDefault();
@@ -943,44 +962,7 @@
         }
         return null;
       }
-      function handleDeepDiveClick(event) {
-        event.preventDefault(); // リンクのデフォルトの遷移を一旦停止
 
-        if (
-          !currentAnalysisData.worry ||
-          !currentAnalysisData.paths ||
-          currentAnalysisData.paths.length === 0
-        ) {
-          showModal(
-            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">エラー</h2><p>分析データが見つかりません。先に「予測実行」ボタンを押して、分析を完了させてください。</p>`
-          );
-          return;
-        }
-
-        const button = event.target;
-        const selectedHexagramId = button.dataset.hexagramId;
-        const selectedHexagramName = button.dataset.hexagramName;
-        const scenarioIndex = parseInt(button.dataset.scenarioIndex, 10);
-
-        // 分析データに「どの未来シナリオを選んだか」の情報を追加
-        const dataToSave = {
-          ...currentAnalysisData,
-          selectedFuture: {
-            hexagramId: selectedHexagramId,
-            hexagramName: selectedHexagramName,
-            path: currentAnalysisData.paths[scenarioIndex], // 選択されたシナリオの全パス情報
-          },
-        };
-
-        // localStorageに"professionalReportData"というキーで保存
-        localStorage.setItem(
-          "professionalReportData",
-          JSON.stringify(dataToSave)
-        );
-
-        // professional_report.html へ遷移
-        window.location.href = button.href;
-      }
       function handleAnalysis(
         hexNum = null,
         lineNum = null,
@@ -1037,14 +1019,14 @@
       }
 
       function updateUI(sortedPaths, reasoning = null, explanation = null) {
-        // 1. 先に分析データをグローバル変数に保存する
+        // 1. 分析データをグローバル変数に保存
         const worryText = document.getElementById("worryInput").value;
         currentAnalysisData = {
           worry: worryText,
           paths: sortedPaths,
         };
 
-        // 2. その後、UIの表示/非表示を切り替える
+        // 2. UIの基本表示を更新
         document.getElementById("initialMessage").classList.add("hidden");
         document.getElementById("resultArea").classList.remove("hidden");
 
@@ -1061,19 +1043,17 @@
           reasoningContainer.innerHTML = "";
         }
 
-        // 3. サマリーカードやグラフなど、残りのUIを更新する
+        // 3. サマリーカード等の即時表示UIを更新
         const startState = sortedPaths[0][0];
         currentAnalysisData.startState = startState;
-        const targetName = `${startState["親となる卦"]} ${startState.爻}`;
         document.getElementById(
           "currentTitle"
-        ).innerText = `現在地: ${targetName}`;
+        ).innerText = `現在地: ${startState["親となる卦"]} ${startState.爻}`;
         document.getElementById("currentKeywords").innerText = `テーマ: ${
           startState.キーワード || ""
         }`;
         document.getElementById("currentSummary").innerText =
           startState.現代解釈の要約;
-
         const currentScore = startState.S7_総合評価スコア;
         const scoreEval = getScoreEvaluation(currentScore);
         document.getElementById(
@@ -1085,7 +1065,6 @@
         document.getElementById(
           "currentScoreDesc"
         ).innerText = `※ ${scoreEval.desc}`;
-
         const transitionCost = 100 - (startState.S6_変動性スコア || 50);
         const costEval = getTransitionCostEvaluation(transitionCost);
         document.getElementById(
@@ -1097,32 +1076,50 @@
         document.getElementById(
           "transitionCostDesc"
         ).innerText = `※ ${costEval.desc}`;
-
         document.getElementById("summaryCard").onclick = () =>
           showCurrentStateModal(startState);
-
         renderCurrentStateBarChart(startState);
-
         const actionContainer = document.getElementById("firstActionContainer");
         const shoDenData = HAQEI_DATA.bible?.sho_den?.[startState.通し番号];
         if (shoDenData) {
-          actionContainer.innerHTML = `
-            <div class="mt-4 pt-4 border-t border-yellow-400/30">
-                <h4 class="font-bold text-yellow-300 mb-3 flex items-center">
-                    易経・小象伝が示す「現状の理由」 (HaQei現代解釈)
-                </h4>
-                <div class="space-y-3 p-3 rounded-lg bg-gray-800/50">
-                    <p class="font-bold text-gray-200">${shoDenData.title}</p>
-                    <p class="text-xs text-gray-300 mt-1 full-text">${shoDenData.reason}</p>
-                </div>
-            </div>`;
+          actionContainer.innerHTML = `<div class="mt-4 pt-4 border-t border-yellow-400/30"><h4 class="font-bold text-yellow-300 mb-3 flex items-center">易経・小象伝が示す「現状の理由」 (HaQei現代解釈)</h4><div class="space-y-3 p-3 rounded-lg bg-gray-800/50"><p class="font-bold text-gray-200">${shoDenData.title}</p><p class="text-xs text-gray-300 mt-1 full-text">${shoDenData.reason}</p></div></div>`;
         } else {
           actionContainer.innerHTML = "";
         }
 
-        const futureChoiceContainer = document.getElementById(
-          "futureChoiceContainer"
+        // --- ▼▼▼ 【改造ポイント】段階的表示の仕掛け ▼▼▼ ---
+        const futureContentsWrapper = document.getElementById(
+          "futureContentsWrapper"
         );
+        const revealButtonContainer = document.getElementById(
+          "revealButtonContainer"
+        );
+        const revealButton = document.getElementById("revealButton");
+
+        // まずは未来シナリオの「箱」を隠します
+        futureContentsWrapper.classList.add("hidden", "opacity-0");
+        futureContentsWrapper.classList.remove("future-contents-reveal");
+
+        // 「未来を見る」ボタンを表示します
+        revealButtonContainer.classList.remove("hidden");
+        revealButton.style.display = "inline-block";
+
+        // ボタンがクリックされたら、箱をフワッと表示する一度きりの仕掛けです
+        const revealHandler = () => {
+          futureContentsWrapper.classList.remove("hidden");
+          setTimeout(() => {
+            futureContentsWrapper.classList.add("future-contents-reveal");
+            futureContentsWrapper.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }, 100);
+          revealButton.style.display = "none";
+        };
+        revealButton.removeEventListener("click", revealHandler); // 念のため古い仕掛けを解除
+        revealButton.addEventListener("click", revealHandler, { once: true }); // 一度押したらおしまい
+
+        // 4. 残りのUI（ただし非表示状態）を描画します
         const choiceCardShin = document.getElementById("choiceCardShin");
         const choiceCardHen = document.getElementById("choiceCardHen");
         const firstStepShin = getNextState(startState, "stagnate");
@@ -1134,23 +1131,18 @@
           let title = "";
           let choiceDescription = "";
           const color = choiceType === "shin" ? "teal" : "purple";
-          const stateTitle = `${state["親となる卦"]} ${state.爻}`;
           if (choiceType === "shin") {
             title = "【進】テーマを深化させる";
             choiceDescription = `現在のテーマである<strong>「${
               startStateData.キーワード || "現状"
-            }」</strong>の、次の段階を体験する自然な成り行きの道です。今の状況を維持したまま、時間と共に訪れる次なる展開を探求します。`;
+            }」</strong>を維持し、自然な変化の先にある未来を探ります。`;
           } else {
             title = "【変】状況を転換する";
             choiceDescription = `現在のテーマである<strong>「${
               startStateData.キーワード || "現状"
-            }」</strong>に、あえて異なる要素を加え、状況そのものを全く新しいものへと転換させる道です。行き詰まりの打開や、現状とは違う可能性を模索することを目指します。`;
+            }」</strong>にあえて変化を加え、全く新しい可能性を模索します。`;
           }
-          return `<h3 class="text-lg font-bold text-${color}-300 flex items-center mb-3">${title}</h3><p class="text-sm text-gray-300 mb-3">${choiceDescription}</p><div class="p-4 rounded-lg bg-gray-800/50"><p class="font-semibold text-gray-200 text-sm">フェーズ1の到達点:</p><p class="text-base font-bold text-indigo-300 mt-1">${stateTitle}</p><p class="text-xs text-yellow-300 my-1">テーマ: ${
-            state.キーワード || ""
-          }</p><p class="text-xs text-gray-400 mt-2">${
-            state.現代解釈の要約
-          }</p></div><p class="text-xs text-center text-gray-500 mt-4">フェーズ2以降のより詳細な分岐は、実践戦略レポート（有料）でご確認いただけます。</p>`;
+          return `<h3 class="text-lg font-bold text-${color}-300 flex items-center mb-3">${title}</h3><p class="text-sm text-gray-300 mb-4">${choiceDescription}</p><div class="p-3 rounded-lg bg-gray-800/50 text-xs"><p class="font-semibold text-gray-300">→ この選択に続く4つの未来シナリオが下にハイライトされます</p></div>`;
         };
 
         if (firstStepShin && firstStepHen) {
@@ -1159,9 +1151,6 @@
             "shin"
           );
           choiceCardHen.innerHTML = createChoiceCardHTML(firstStepHen, "hen");
-          futureChoiceContainer.classList.remove("hidden");
-        } else {
-          futureChoiceContainer.classList.add("hidden");
         }
 
         renderSummaryChart(sortedPaths);
@@ -1459,7 +1448,6 @@
               tooltip: {
                 mode: "index",
                 intersect: false,
-                // 【修正箇所】コールバックを追加して、詳細ラベルを非表示にする
                 callbacks: {
                   label: function (context) {
                     return null; // ラベル本体を非表示にする
@@ -1555,13 +1543,16 @@
         }
       }
 
-      // ==================================================================
-      // ▼▼▼ この関数を丸ごと置き換えてください ▼▼▼
-      // ==================================================================
       function renderDetailCards(sortedPaths) {
         const container = document.getElementById("detailCardsContainer");
         container.innerHTML = "";
         const rankLabels = ["S", "A", "B", "C", "D", "E", "F", "H"];
+        // --- ▼▼▼ 【改造ポイント】AIのおすすめメッセージを表示 ▼▼▼ ---
+        const recommendationMessageEl = document.getElementById(
+          "aiRecommendationMessage"
+        );
+        recommendationMessageEl.innerHTML = `AIの分析では、<strong class="text-green-300">シナリオ1（Sランク）</strong>があなたの課題解決と成長に最も貢献する可能性があります。<br class="hidden sm:block">まずはこちらの物語から読んでみませんか？`;
+        recommendationMessageEl.classList.remove("hidden");
 
         // 手順1: まず、全てのカードのHTML要素をDOMに一括で追加します
         sortedPaths.forEach((path, index) => {
@@ -1570,13 +1561,16 @@
           const firstStepTrend = evaluateSpiralProgress(path[0], path[1]);
           const card = document.createElement("div");
           const rankClass = `rank-${rankLabels[index].toLowerCase()}`;
+
+          // --- ▼▼▼ 【改造ポイント】一番おすすめのカードに目印をつけます ▼▼▼ ---
+          const isRecommended = index === 0;
           card.id = `card-${index}`;
-          card.className =
-            "card bg-gray-900/50 p-4 rounded-xl border-2 border-transparent transition-all duration-300 flex flex-col";
+          card.className = `card relative bg-gray-900/50 p-4 rounded-xl border-2 border-transparent flex flex-col ${
+            isRecommended ? "ai-recommended" : ""
+          }`;
+
           card.dataset.index = index;
-          // モーダルを開くためのイベントリスナーをここで設定
           card.addEventListener("click", (e) => {
-            // ボタン自身のクリックはモーダルを開かないようにする
             if (e.target.closest(".deep-dive-btn")) return;
             showScenarioModal(path, index, overallTrend, firstStepTrend);
           });
@@ -1587,7 +1581,12 @@
             .join(" → ");
           const finalStateTitle = `${finalState["親となる卦"]} ${finalState.爻}`;
 
-          card.innerHTML = `<div class="flex items-start justify-between mb-2"><h3 class="text-md font-bold text-gray-300">シナリオ ${
+          // --- ▼▼▼ 【改造ポイント】おすすめカードにキラキラバッジを追加 ▼▼▼ ---
+          const badgeHtml = isRecommended
+            ? `<div class="absolute top-2.5 right-2.5 bg-green-400 text-gray-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">✨ AI推奨</div>`
+            : "";
+
+          card.innerHTML = `${badgeHtml}<div class="flex items-start justify-between mb-2"><h3 class="text-md font-bold text-gray-300">シナリオ ${
             index + 1
           }</h3><span class="rank-badge ${rankClass}">${
             rankLabels[index]
@@ -1602,15 +1601,15 @@
           }</div></div></div><p class="text-lg font-semibold text-indigo-300">${finalStateTitle}</p><div class="my-3" style="height: 110px; padding-left: 5px;"><canvas id="miniChart-${index}"></canvas></div><p class="text-xs text-gray-400 mt-1 mb-4 flex-grow">${
             finalState.現代解釈の要約
           }</p>
-    <div class="mt-auto pt-4 border-t border-gray-700/50">
-        <a href="professional_report.html" 
-            class="deep-dive-btn inline-block w-full text-center font-bold py-2 px-4 rounded-lg text-sm"
-            data-hexagram-id="${finalState.卦番号}"
-            data-hexagram-name="${finalState["親となる卦"]}"
-            data-scenario-index="${index}">
-            AIでこの未来を深掘り分析する
-        </a>
-    </div>`;
+          <div class="mt-auto pt-4 border-t border-gray-700/50">
+              <a href="professional_report.html" 
+                  class="deep-dive-btn inline-block w-full text-center font-bold py-2 px-4 rounded-lg text-sm"
+                  data-hexagram-id="${finalState.卦番号}"
+                  data-hexagram-name="${finalState["親となる卦"]}"
+                  data-scenario-index="${index}">
+                  AIでこの未来を深掘り分析する
+              </a>
+          </div>`;
           container.appendChild(card);
         });
 
@@ -1621,9 +1620,7 @@
           renderMiniBarChart(index, finalState);
         });
       }
-      // ==================================================================
-      // ▲▲▲ 置き換えはここまで ▲▲▲
-      // ==================================================================
+
       function renderMiniBarChart(index, state) {
         const ctx = document
           .getElementById(`miniChart-${index}`)
@@ -1675,9 +1672,6 @@
         });
       }
 
-      // ==================================================================
-      // ▼▼▼ この関数を丸ごと置き換えてください ▼▼▼
-      // ==================================================================
       function renderChartToggles(sortedPaths) {
         const container = document.getElementById("chartToggles");
         container.innerHTML = "";
@@ -1707,7 +1701,6 @@
           const finalScore = path[path.length - 1].S7_総合評価スコア;
           const scenarioSummary = getScenarioSummary(path);
 
-          // 【修正点】チェックボックスを無くし、クリックでモーダルを開くdiv要素に変更
           const legendItem = document.createElement("div");
 
           legendItem.className =
@@ -1728,11 +1721,9 @@
         <span class="text-gray-400 text-[10px] w-full text-left">${scenarioSummary}</span>
       `;
 
-          // モーダル表示に必要なデータをあらかじめ計算
           const overallTrend = evaluateSpiralProgress(path[0], path[3]);
           const firstStepTrend = evaluateSpiralProgress(path[0], path[1]);
 
-          // 【修正点】クリック時に線の表示/非表示を切り替えるのではなく、showScenarioModal関数を呼び出す
           legendItem.addEventListener("click", () => {
             showScenarioModal(path, index, overallTrend, firstStepTrend);
           });
@@ -1962,9 +1953,6 @@
         showModal(helpContent);
       }
 
-      // ==================================================================
-      // ▼▼▼ この関数を丸ごと置き換えてください ▼▼▼
-      // ==================================================================
       function showParameterHelpModal() {
         // 保存された現在地のデータを取得
         const state = currentAnalysisData.startState;
@@ -2108,6 +2096,7 @@
         const detailCards = document.getElementById("detailCardsContainer");
         const chartCanvas = document.getElementById("summaryChart");
 
+        // カードを個別にハイライトする仕掛け
         const handleMouseOver = (e) => {
           const target = e.target.closest("[data-index]");
           if (target) {
@@ -2115,7 +2104,12 @@
             highlightScenario(index);
           }
         };
-
+        const resetAllHighlights = () => {
+          resetChartHighlights();
+          document.querySelectorAll(".dimmed-by-choice").forEach((card) => {
+            card.classList.remove("dimmed-by-choice");
+          });
+        };
         chartToggles.addEventListener("mouseover", handleMouseOver);
         detailCards.addEventListener("mouseover", handleMouseOver);
         chartToggles.addEventListener("mouseleave", resetChartHighlights);
@@ -2134,21 +2128,37 @@
           }
         };
 
+        // --- ▼▼▼ 【改造ポイント】「最初の選択」と未来カードを連動させる仕掛け ▼▼▼ ---
         const choiceCardShin = document.getElementById("choiceCardShin");
         const choiceCardHen = document.getElementById("choiceCardHen");
 
+        // 関係ないカードを少し暗くする関数
+        const highlightRelatedScenarios = (choiceType) => {
+          sortedPaths.forEach((path, index) => {
+            const card = document.getElementById(`card-${index}`);
+            if (card) {
+              const pathChoice = path[1]?.choice;
+              if (pathChoice !== choiceType) {
+                card.classList.add("dimmed-by-choice");
+              }
+            }
+          });
+        };
+
         if (choiceCardShin) {
           choiceCardShin.addEventListener("mouseover", () => {
-            highlightMultipleScenarios("stagnate", sortedPaths);
+            highlightRelatedScenarios("stagnate"); // "進" の道
+            highlightMultipleScenarios("stagnate", sortedPaths); // グラフも連動
           });
-          choiceCardShin.addEventListener("mouseleave", resetChartHighlights);
+          choiceCardShin.addEventListener("mouseleave", resetAllHighlights);
         }
 
         if (choiceCardHen) {
           choiceCardHen.addEventListener("mouseover", () => {
-            highlightMultipleScenarios("change", sortedPaths);
+            highlightRelatedScenarios("change"); // "変" の道
+            highlightMultipleScenarios("change", sortedPaths); // グラフも連動
           });
-          choiceCardHen.addEventListener("mouseleave", resetChartHighlights);
+          choiceCardHen.addEventListener("mouseleave", resetAllHighlights);
         }
       }
 
@@ -2253,6 +2263,74 @@
             updateUI(savedData.paths);
           }
         }
+      }
+      // future_simulator.html の <script> 内に追加する
+
+      /**
+       * OS分析のデータをlocalStorageから読み込む
+       */
+      function getOsAnalyzerData() {
+        try {
+          const data = localStorage.getItem("haqeiOsAnalyzerData");
+          return data ? JSON.parse(data) : null;
+        } catch (e) {
+          console.error("OS分析データの読み込みに失敗しました。", e);
+          return null;
+        }
+      }
+
+      /**
+       * 「深掘り分析」ボタンがクリックされた時の処理
+       * @param {Event} event - クリックイベント
+       */
+      function handleDeepDiveClick(event) {
+        event.preventDefault(); // ページ遷移を一旦停止
+
+        // 1. OS分析の結果をlocalStorageから読み込む
+        const osData = getOsAnalyzerData();
+        if (!osData) {
+          showModal(
+            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">OS分析データがありません</h2><p>この機能を利用するには、先に「人格OS分析」を実行する必要があります。</p><a href="./os_analyzer.html" class="inline-block mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg">OS分析ページへ移動</a>`
+          );
+          return;
+        }
+
+        // 2. 未来予測の分析結果が揃っているか確認
+        if (
+          !currentAnalysisData.worry ||
+          !currentAnalysisData.paths ||
+          currentAnalysisData.paths.length === 0
+        ) {
+          showModal(
+            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">未来予測データがありません</h2><p>先に「予測実行」ボタンを押して、分析を完了させてください。</p>`
+          );
+          return;
+        }
+
+        const button = event.target.closest(".deep-dive-btn");
+        const scenarioIndex = parseInt(button.dataset.scenarioIndex, 10);
+
+        // 3. 必要な情報をすべて統合したデータオブジェクトを作成
+        const professionalData = {
+          analysis: osData.analysisResult, // OS分析結果
+          context: osData.userContext, // OS分析時のユーザー状況
+          profile: osData.userProfile, // OS分析時のユーザープロファイル
+          worry: currentAnalysisData.worry, // 未来予測で入力した課題
+          selectedFuture: {
+            path: currentAnalysisData.paths[scenarioIndex], // 選択した未来シナリオの全ステップ情報
+            rank:
+              ["S", "A", "B", "C", "D", "E", "F", "H"][scenarioIndex] || "N/A",
+          },
+        };
+
+        // 4. localStorageに "haqeiProfessionalData" というキーで保存
+        localStorage.setItem(
+          "haqeiProfessionalData",
+          JSON.stringify(professionalData)
+        );
+
+        // 5. professional_report.html へ遷移
+        window.location.href = button.href;
       }
     </script>
   </body>

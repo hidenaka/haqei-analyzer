@@ -1547,6 +1547,24 @@
               return;
             }
             lastAnalysisResult = runAdvancedAnalysis(lastUserProfile);
+            try {
+              const dataToStore = {
+                analysisResult: lastAnalysisResult,
+                userProfile: lastUserProfile,
+                userContext: {
+                  analyzedAt: new Date().toISOString(),
+                  tool: "人格OS 分析レポート",
+                },
+              };
+              // localStorageに 'haqeiOsAnalyzerData' というキーで分析結果を保存します
+              localStorage.setItem(
+                "haqeiOsAnalyzerData",
+                JSON.stringify(dataToStore)
+              );
+              console.log("OS分析データをlocalStorageに保存しました。");
+            } catch (e) {
+              console.error("OS分析データの保存に失敗しました:", e);
+            }
 
             // ▼▼▼【修正点⑥】ストーリーのステップ定義を新しい構成に更新 ▼▼▼
             storySteps = [
