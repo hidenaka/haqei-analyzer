@@ -547,6 +547,35 @@
       let currentStateBarChartInstance = null;
       let currentAnalysisData = {};
 
+      // ▼▼▼【ここから追加】▼▼▼
+      /**
+       * 分析データをlocalStorageに保存し、cockpit.htmlに遷移する関数
+       * @param {Array} paths - 分析された8つの未来シナリオの配列
+       * @param {string} worryText - ユーザーが入力した課題テキスト
+       */
+      function saveAndNavigateToCockpit(paths, worryText) {
+        if (!paths || paths.length === 0) {
+          alert("分析データがありません。");
+          return;
+        }
+        
+        const dataToStore = {
+          worry: worryText,
+          paths: paths,
+        };
+
+        try {
+          // localStorageに 'proFutureReportData' というキーでデータを保存
+          localStorage.setItem("proFutureReportData", JSON.stringify(dataToStore));
+          console.log("Cockpit.htmlへデータを保存しました:", dataToStore);
+          
+          // 保存が成功したら、cockpit.htmlへ遷移
+          window.location.href = "cockpit.html";
+        } catch (e) {
+          console.error("localStorageへのデータ保存に失敗しました:", e);
+          alert("データの保存に失敗しました。ブラウザの設定をご確認ください。");
+        }
+      }
       // --- アプリケーション初期化とイベントリスナー設定 ---
       async function initializeApp() {
     const aiGuessBtn = document.getElementById("aiGuessBtn");
@@ -639,52 +668,60 @@
         }
       }
 
-     document.addEventListener("DOMContentLoaded", () => {
-    initializeApp();
+     // ▼▼▼【ここからコピーして、既存の DOMContentLoaded リスナーを置き換える】▼▼▼
 
-    // --- 同意チェックとボタンのイベントリスナー設定 ---
-    const agreementCheckbox = document.getElementById('agreementCheckbox');
-    const aiGuessBtn = document.getElementById('aiGuessBtn');
-    const manualAnalyzeBtn = document.getElementById('manualAnalyzeBtn');
+      ddocument.addEventListener("DOMContentLoaded", () => {
+        initializeApp();
 
-    // 「AIに推測させる」ボタンのクリック処理
-    aiGuessBtn.addEventListener("click", () => {
-        if (!agreementCheckbox.checked) {
-            alert('利用規約とプライバシーポリシーに同意してください。');
-            return; // 同意がなければ中断
-        }
-        handleAiGuess(); // 同意があれば実行
-    });
+        const agreementCheckbox = document.getElementById('agreementCheckbox');
+        const aiGuessBtn = document.getElementById('aiGuessBtn');
+        const manualAnalyzeBtn = document.getElementById('manualAnalyzeBtn');
 
-    // 「手動で予測実行」ボタンのクリック処理
-    manualAnalyzeBtn.addEventListener("click", () => {
-        if (!agreementCheckbox.checked) {
-            alert('利用規約とプライバシーポリシーに同意してください。');
-            return; // 同意がなければ中断
-        }
-        handleAnalysis(); // 同意があれば実行
-    });
+        // 同意チェックボックスの状態に応じてボタンを有効/無効にする関数
+        const updateButtonState = () => {
+            const isChecked = agreementCheckbox.checked;
+            // 初期化が完了しているかどうかもチェック
+            if(aiGuessBtn.textContent.includes('推測させる') || manualAnalyzeBtn.textContent.includes('予測実行')) {
+                aiGuessBtn.disabled = !isChecked;
+                manualAnalyzeBtn.disabled = !isChecked;
+            }
+        };
 
-    // --- その他のイベントリスナー ---
-    document.getElementById("modalOverlay").addEventListener("click", hideModal);
-    document.getElementById("modalCloseBtn").addEventListener("click", hideModal);
-    document.getElementById("helpBtn").addEventListener("click", showHelpModal);
-    
-    document.body.addEventListener("click", function (event) {
-        const paramHelpBtn = event.target.closest("#paramHelpBtn");
-        if (paramHelpBtn) {
-            showParameterHelpModal();
-            return;
-        }
-        const deepDiveBtn = event.target.closest(".deep-dive-btn");
-        if (deepDiveBtn) {
-            handleDeepDiveClick(event);
-            return;
-        }
-    });
+        agreementCheckbox.addEventListener('change', updateButtonState);
 
-    restoreState();
-});
+        // 「AIに推測させる」ボタンのクリック処理
+        aiGuessBtn.addEventListener("click", () => {
+            if (!agreementCheckbox.checked) {
+                alert('利用規約とプライバシーポリシーに同意してください。');
+                return;
+            }
+            handleAiGuessAndNavigate(); // ★新しい関数を呼び出す
+        });
+
+        // 「手動で予測実行」ボタンのクリック処理
+        manualAnalyzeBtn.addEventListener("click", () => {
+            if (!agreementCheckbox.checked) {
+                alert('利用規約とプライバシーポリシーに同意してください。');
+                return;
+            }
+            handleManualAnalysisAndNavigate(); // ★新しい関数を呼び出す
+        });
+
+        // その他のモーダルやヘルプボタンのイベントリスナー（変更なし）
+        document.getElementById("modalOverlay").addEventListener("click", hideModal);
+        document.getElementById("modalCloseBtn").addEventListener("click", hideModal);
+        document.getElementById("helpBtn").addEventListener("click", showHelpModal);
+        document.body.addEventListener("click", function (event) {
+            if (event.target.closest("#paramHelpBtn")) {
+                showParameterHelpModal();
+            }
+        });
+        
+        // ページ読み込み時にボタンの状態を初期化
+        updateButtonState(); 
+      });
+
+      // ▲▲▲【ここまでをコピー＆ペーストで置き換える】▲▲▲
       function handleGoToReportClick(event) {
         event.preventDefault();
 
@@ -707,46 +744,78 @@
         window.location.href = event.currentTarget.href;
       }
 
+
+
+
       async function handleAiGuess() {
-    // 同意チェックはボタンのイベントリスナーに移動したので、ここでは不要
-    
-    const worryText = document.getElementById("worryInput").value.trim();
-    if (!isInputSufficient(worryText).isValid) {
-        showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力内容のご確認</h2><p>あなたの状況をより深く理解するために、もう少し詳しく教えていただけますでしょうか。</p>`);
-        return;
-    }
-
-    const aiGuessBtn = document.getElementById("aiGuessBtn");
-    const spinner = document.getElementById('loadingSpinner');
-    const originalIcon = document.getElementById('originalIcon');
-    const buttonText = document.getElementById('buttonText');
-
-    // ローディング表示を開始
-    aiGuessBtn.disabled = true;
-    spinner.classList.remove('hidden');
-    originalIcon.classList.add('hidden');
-    buttonText.textContent = 'AIが解析中...';
-
-    try {
-        const result = await callAIAssistant(worryText, H384_DATA, window.futureThemeMap);
-        if (result) {
-            document.getElementById("hexagramInput").value = result.卦番号;
-            document.getElementById("lineInput").value = result.爻番号;
-            handleAnalysis(result.卦番号, result.爻番号, result.根拠, result.解説);
-        } else {
-            showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>状況に合致する卦を見つけられませんでした。表現を変えて再度お試しください。</p>`);
+        const worryText = document.getElementById("worryInput").value.trim();
+        if (!isInputSufficient(worryText).isValid) {
+            showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力内容のご確認</h2><p>あなたの状況をより深く理解するために、もう少し詳しく教えていただけますでしょうか。</p>`);
+            return;
         }
-    } catch (error) {
-        console.error("AI推測処理でエラー:", error);
-        showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>AIによる推測処理中にエラーが発生しました。</p><p class="mt-2 text-sm text-gray-500">${error.message}</p>`);
-    } finally {
-        // ローディング表示を終了し、ボタンを元の状態に戻す
-        aiGuessBtn.disabled = false;
-        spinner.classList.add('hidden');
-        originalIcon.classList.remove('hidden');
-        buttonText.textContent = 'AIに状況を推測させる';
-    }
-}
+
+        const aiGuessBtn = document.getElementById("aiGuessBtn");
+        const spinner = document.getElementById('loadingSpinner');
+        const originalIcon = document.getElementById('originalIcon');
+        const buttonText = document.getElementById('buttonText');
+
+        // ローディング表示を開始
+        aiGuessBtn.disabled = true;
+        document.getElementById('manualAnalyzeBtn').disabled = true; // 手動ボタンも無効化
+        spinner.classList.remove('hidden');
+        originalIcon.classList.add('hidden');
+        buttonText.textContent = 'AIが解析中...';
+
+        try {
+            const result = await callAIAssistant(worryText, H384_DATA, window.futureThemeMap);
+            if (result && result.卦番号 && result.爻番号) {
+                const allPaths = generateAllPaths(result.卦番号, result.爻番号);
+                // AI推測後、データを保存して遷移
+                saveAndNavigateToCockpit(allPaths, worryText);
+            } else {
+                alert('状況に合致する卦を見つけられませんでした。表現を変えて再度お試しください。');
+                // ローディング表示を終了
+                aiGuessBtn.disabled = false;
+                manualAnalyzeBtn.disabled = false;
+                spinner.classList.add('hidden');
+                originalIcon.classList.remove('hidden');
+                buttonText.textContent = 'AIに状況を推測させ、コックピットへ移動';
+            }
+        } catch (error) {
+            console.error("AI推測処理でエラー:", error);
+            alert(`AIによる推測処理中にエラーが発生しました: ${error.message}`);
+            // ローディング表示を終了
+            aiGuessBtn.disabled = false;
+            manualAnalyzeBtn.disabled = false;
+            spinner.classList.add('hidden');
+            originalIcon.classList.remove('hidden');
+            buttonText.textContent = 'AIに状況を推測させ、コックピットへ移動';
+        }
+      }
+
+      // 手動での分析を実行する関数
+      function handleManualAnalysis() {
+          const hexagramInput = document.getElementById("hexagramInput").value.trim();
+          const lineNumber = parseInt(document.getElementById("lineInput").value, 10);
+          
+          let hexagramNumber = parseInt(hexagramInput);
+          if (isNaN(hexagramNumber)) {
+              const foundHex = HAQEI_DATA.hexagrams_master.find((h) => h.name_jp === hexagramInput);
+              hexagramNumber = foundHex ? foundHex.hexagram_id : null;
+          }
+
+          if (!hexagramNumber || isNaN(lineNumber) || lineNumber < 1 || lineNumber > 6) {
+              alert("有効な卦と爻を入力してください。");
+              return;
+          }
+
+          const allPaths = generateAllPaths(hexagramNumber, lineNumber);
+          // 手動の場合は、入力された内容から課題テキストを生成
+          const worryText = `${hexagramInput} ${lineNumber}爻の状況について`;
+          // 手動実行後も、データを保存して遷移
+          saveAndNavigateToCockpit(allPaths, worryText);
+      }
+      
 
       function isInputSufficient(text) {
         if (text.length < 10) {
@@ -981,61 +1050,108 @@
         }
         return null;
       }
+// ▼▼▼【ここからコピーして、既存の handleAiGuess と handleAnalysis を置き換える】▼▼▼
 
-      function handleAnalysis(
-        hexNum = null,
-        lineNum = null,
-        reasoning = null,
-        explanation = null
-      ) {
-        if (!HAQEI_DATA) {
-          showModal(
-            `<h2 class="text-2xl font-bold text-yellow-400 mb-4">データ読込中</h2><p>まだデータの準備が完了していません。もうしばらくお待ちください。</p>`
-          );
+      /**
+       * ★新しい中心的な関数：分析データをlocalStorageに保存し、cockpit.htmlに遷移する
+       * @param {Array} paths - 分析された8つの未来シナリオの配列
+       * @param {string} worryText - ユーザーが入力した課題テキスト
+       */
+      function saveAndNavigateToCockpit(paths, worryText) {
+        if (!paths || paths.length === 0) {
+          alert("分析データの生成に失敗しました。");
           return;
         }
+        
+        const dataToStore = {
+          worry: worryText,
+          paths: paths,
+        };
 
-        let hexagramNumber = hexNum;
-        let lineNumber = lineNum;
-
-        if (hexagramNumber === null || lineNumber === null) {
-          const hexagramInput = document
-            .getElementById("hexagramInput")
-            .value.trim();
-          lineNumber = parseInt(document.getElementById("lineInput").value);
-          let parsedHexNum = parseInt(hexagramInput);
-          if (isNaN(parsedHexNum)) {
-            const foundHex = H64_DATA.find((h) => h.名前 === hexagramInput);
-            hexagramNumber = foundHex ? foundHex.卦番号 : null;
-          } else {
-            hexagramNumber = parsedHexNum;
-          }
+        try {
+          // localStorageに 'proFutureReportData' というキーでデータを保存
+          localStorage.setItem("proFutureReportData", JSON.stringify(dataToStore));
+          console.log("Cockpit.htmlへデータを保存しました:", dataToStore);
+          
+          // 保存が成功したら、cockpit.htmlへ遷移
+          window.location.href = "cockpit.html";
+        } catch (e) {
+          console.error("localStorageへのデータ保存に失敗しました:", e);
+          alert("データの保存に失敗しました。ブラウザの設定をご確認ください。");
         }
-
-        if (
-          !hexagramNumber ||
-          isNaN(lineNumber) ||
-          !H384_DATA ||
-          H384_DATA.length === 0
-        ) {
-          showModal(
-            `<h2 class="text-2xl font-bold text-red-400 mb-4">入力エラー</h2><p>有効な卦と爻を入力してください。</p>`
-          );
-          return;
-        }
-
-        const allPaths = generateAllPaths(hexagramNumber, lineNumber);
-        if (allPaths.length === 0) {
-          showModal(
-            `<h2 class="text-2xl font-bold text-red-400 mb-4">分析エラー</h2><p>未来予測パスを生成できませんでした。入力値またはデータを確認してください。</p>`
-          );
-          return;
-        }
-        const sortedPaths = allPaths.sort(
-          (a, b) => b[3].S7_総合評価スコア - a[3].S7_総合評価スコア
-        );
-        updateUI(sortedPaths, reasoning, explanation);
       }
+
+      // ★AIによる推測を実行し、遷移する新しい関数
+      async function handleAiGuessAndNavigate() {
+        const worryText = document.getElementById("worryInput").value.trim();
+        if (!isInputSufficient(worryText).isValid) {
+            showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力内容のご確認</h2><p>あなたの状況をより深く理解するために、もう少し詳しく教えていただけますでしょうか。</p>`);
+            return;
+        }
+
+        const aiGuessBtn = document.getElementById("aiGuessBtn");
+        const manualAnalyzeBtn = document.getElementById("manualAnalyzeBtn");
+        const spinner = document.getElementById('loadingSpinner');
+        const originalIcon = document.getElementById('originalIcon');
+        const buttonText = document.getElementById('buttonText');
+
+        // ローディング表示を開始
+        aiGuessBtn.disabled = true;
+        manualAnalyzeBtn.disabled = true;
+        spinner.classList.remove('hidden');
+        originalIcon.classList.add('hidden');
+        buttonText.textContent = 'AIが解析中...';
+
+        try {
+            const result = await callAIAssistant(worryText, H384_DATA, window.futureThemeMap);
+            if (result && result.卦番号 && result.爻番号) {
+                const allPaths = generateAllPaths(result.卦番号, result.爻番号);
+                // AI推測後、データを保存して遷移
+                saveAndNavigateToCockpit(allPaths, worryText);
+            } else {
+                showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>状況に合致する卦を見つけられませんでした。表現を変えて再度お試しください。</p>`);
+                aiGuessBtn.disabled = false;
+                manualAnalyzeBtn.disabled = false;
+                spinner.classList.add('hidden');
+                originalIcon.classList.remove('hidden');
+                buttonText.textContent = 'AIに状況を推測させる';
+            }
+        } catch (error) {
+            console.error("AI推測処理でエラー:", error);
+            showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>AIによる推測処理中にエラーが発生しました。</p><p class="mt-2 text-sm text-gray-500">${error.message}</p>`);
+            aiGuessBtn.disabled = false;
+            manualAnalyzeBtn.disabled = false;
+            spinner.classList.add('hidden');
+            originalIcon.classList.remove('hidden');
+            buttonText.textContent = 'AIに状況を推測させる';
+        }
+      }
+
+      // ★手動での分析を実行し、遷移する新しい関数
+      function handleManualAnalysisAndNavigate() {
+          const hexagramInput = document.getElementById("hexagramInput").value.trim();
+          const lineNumber = parseInt(document.getElementById("lineInput").value, 10);
+          
+          let hexagramNumber = parseInt(hexagramInput);
+          if (isNaN(hexagramNumber)) {
+              // H64_DATAではなく、HAQEI_DATA.hexagrams_masterを参照
+              const foundHex = HAQEI_DATA.hexagrams_master.find((h) => h.name_jp === hexagramInput || h.名前 === hexagramInput);
+              hexagramNumber = foundHex ? foundHex.hexagram_id : null;
+          }
+
+          if (!hexagramNumber || isNaN(lineNumber) || lineNumber < 1 || lineNumber > 6) {
+              alert("有効な卦と爻を入力してください。");
+              return;
+          }
+
+          const allPaths = generateAllPaths(hexagramNumber, lineNumber);
+          // 手動の場合は、入力された内容から課題テキストを生成
+          const worryText = `${hexagramInput} ${lineNumber}爻の状況について`;
+          // 手動実行後も、データを保存して遷移
+          saveAndNavigateToCockpit(allPaths, worryText);
+      }
+      
+      // ▲▲▲【ここまでをコピー＆ペーストで置き換える】▲▲▲
 
       function updateUI(sortedPaths, reasoning = null, explanation = null) {
         // 1. 分析データをグローバル変数に保存
@@ -1621,7 +1737,7 @@
             finalState.現代解釈の要約
           }</p>
           <div class="mt-auto pt-4 border-t border-gray-700/50">
-              <a href="professional_report.html" 
+              <a href="cockpit.html" 
                   class="deep-dive-btn inline-block w-full text-center font-bold py-2 px-4 rounded-lg text-sm"
                   data-hexagram-id="${finalState.卦番号}"
                   data-hexagram-name="${finalState["親となる卦"]}"
