@@ -353,6 +353,20 @@
             placeholder="例: 1"
           />
         </div>
+        <div
+        class="bg-gray-900/50 p-6 rounded-xl mb-8 flex flex-col sm:flex-row items-center justify-center gap-4"
+      >
+        <div> ... </div>
+        <div> ... </div>
+        
+        <div class="w-full sm:w-auto mt-4 sm:mt-0 sm:self-center">
+            <label class="flex items-center justify-center cursor-pointer">
+                <input type="checkbox" id="agreementCheckbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
+                <span class="ml-2 text-sm text-gray-400">
+                    <a href="/terms.html" target="_blank" class="underline hover:text-white">規約等</a>に同意
+                </span>
+            </label>
+        </div>
         <button
           id="analyzeBtn"
           class="w-full sm:w-auto mt-4 sm:mt-0 sm:self-end bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300"
@@ -625,7 +639,20 @@
 
       document.addEventListener("DOMContentLoaded", () => {
         initializeApp();
+        const agreementCheckbox = document.getElementById('agreementCheckbox');
+        const aiGuessBtn = document.getElementById('aiGuessBtn');
+        const analyzeBtn = document.getElementById('analyzeBtn');
 
+        // 最初は両方のボタンを押せなくする
+        aiGuessBtn.disabled = true;
+        analyzeBtn.disabled = true;
+
+        agreementCheckbox.addEventListener('change', () => {
+            const isChecked = agreementCheckbox.checked;
+            // チェックが入ったら、両方のボタンを押せるようにする
+            aiGuessBtn.disabled = !isChecked;
+            analyzeBtn.disabled = !isChecked;
+        });
         document
           .getElementById("aiGuessBtn")
           .addEventListener("click", handleAiGuess);
@@ -2278,6 +2305,49 @@
           return null;
         }
       }
+      function sendAnonymousData(professionalData) {
+        if (
+          !professionalData ||
+          !professionalData.profile ||
+          !professionalData.analysis ||
+          !professionalData.selectedFuture
+        ) {
+          console.log("送信するための分析データが不十分です。");
+          return;
+        }
+
+        const anonymousPayload = {
+          mbti: professionalData.profile.mbti,
+          enneagram: professionalData.profile.enneagram,
+          os_engine: professionalData.analysis.hexagram_candidates[0]?.name_jp,
+          os_interface:
+            professionalData.analysis.hexagram_candidates[1]?.name_jp,
+          start_hexagram:
+            professionalData.selectedFuture.path[0]?.["親となる卦"],
+          selected_scenario_rank: professionalData.selectedFuture.rank,
+          selected_scenario_path: professionalData.selectedFuture.path
+            .slice(1)
+            .map((p) => (p.choice === "change" ? "変" : "進"))
+            .join("→"),
+          final_hexagram:
+            professionalData.selectedFuture.path[3]?.["親となる卦"],
+          worry_word_count: extractWords(professionalData.worry).length,
+        };
+
+        const endpoint = "/api/collect-anonymous-data";
+        const dataToSend = JSON.stringify(anonymousPayload);
+
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(endpoint, dataToSend);
+        } else {
+          fetch(endpoint, {
+            method: "POST",
+            body: dataToSend,
+            keepalive: true,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+      }
 
       /**
        * 「深掘り分析」ボタンがクリックされた時の処理
@@ -2328,10 +2398,63 @@
           "haqeiProfessionalData",
           JSON.stringify(professionalData)
         );
-
+        sendAnonymousData(professionalData);
         // 5. professional_report.html へ遷移
         window.location.href = button.href;
       }
+      function sendAnonymousData(professionalData) {
+        if (
+          !professionalData ||
+          !professionalData.profile ||
+          !professionalData.analysis ||
+          !professionalData.selectedFuture
+        ) {
+          console.log("送信するための分析データが不十分です。");
+          return;
+        }
+
+        const anonymousPayload = {
+          mbti: professionalData.profile.mbti,
+          enneagram: professionalData.profile.enneagram,
+          os_engine: professionalData.analysis.hexagram_candidates[0]?.name_jp,
+          os_interface:
+            professionalData.analysis.hexagram_candidates[1]?.name_jp,
+          start_hexagram:
+            professionalData.selectedFuture.path[0]?.["親となる卦"],
+          selected_scenario_rank: professionalData.selectedFuture.rank,
+          selected_scenario_path: professionalData.selectedFuture.path
+            .slice(1)
+            .map((p) => (p.choice === "change" ? "変" : "進"))
+            .join("→"),
+          final_hexagram:
+            professionalData.selectedFuture.path[3]?.["親となる卦"],
+          worry_word_count: extractWords(professionalData.worry).length,
+        };
+
+        const endpoint = "/api/collect-anonymous-data";
+        const dataToSend = JSON.stringify(anonymousPayload);
+
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(endpoint, dataToSend);
+        } else {
+          fetch(endpoint, {
+            method: "POST",
+            body: dataToSend,
+            keepalive: true,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+      }
     </script>
+    <footer class="bg-gray-800">
+      <footer class="w-full max-w-4xl mx-auto text-center p-6 mt-8 border-t border-gray-700">
+    <div class="space-x-4 mb-4">
+        <a href="/terms.html" target="_blank" class="text-sm text-gray-400 hover:text-white">利用規約</a>
+        <a href="/privacy.html" target="_blank" class="text-sm text-gray-400 hover:text-white">プライバシーポリシー</a>
+    </div>
+      <div class="container mx-auto px-6 py-4 text-center text-gray-400">
+        <p>&copy; 2025 HaQei. All Rights Reserved.</p>
+      </div>
+    </footer>
   </body>
 </html>
