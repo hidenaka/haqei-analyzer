@@ -43,6 +43,56 @@
         border-bottom: 1px solid #4f46e5;
         padding-bottom: 0.75rem;
       }
+      .os-card {
+        background-color: #111827;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        text-align: center;
+        border: 1px solid #374151;
+      }
+      .os-icon {
+        font-size: 1.5rem;
+        line-height: 1;
+      }
+      .os-type {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #9ca3af;
+        margin-top: 0.25rem;
+      }
+      .os-name {
+        font-family: "Shippori Mincho", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #e5e7eb;
+        margin-top: 0.5rem;
+      }
+      .os-reading {
+        font-size: 0.75rem;
+        color: #6b7280;
+      }
+      .ai-title {
+        font-family: "Shippori Mincho", serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #c7d2fe;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
+      }
+      .ai-text {
+        color: #d1d5db;
+        line-height: 1.8;
+        max-width: 48rem;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: rgba(17, 24, 39, 0.5);
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+      }
+      .ai-text strong {
+        color: #fde047;
+      }
       .special-lens-card {
         background-color: #1f2937;
         border-radius: 0.5rem;
@@ -73,6 +123,34 @@
           あなたという唯一の存在を、立体的に理解する場所
         </p>
       </header>
+
+      <div id="module0" class="module hidden">
+        <div
+          id="os-summary-cards"
+          class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8"
+        ></div>
+        <hr class="border-gray-700/50 my-8" />
+        <div id="ai-synthesis-content">
+          <div id="ai-loading-placeholder" class="text-center py-8">
+            <div class="flex justify-center items-center">
+              <div
+                class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-300"
+              ></div>
+              <p class="ml-4 text-gray-400">
+                AIがあなたのための統合分析を生成中...
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="mt-8 text-right">
+          <a
+            href="os_analyzer.html"
+            class="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+          >
+            → OS分析レポート全体を再確認する
+          </a>
+        </div>
+      </div>
 
       <div id="module1" class="module">
         <h2 class="module-title">モジュール1: あなたの人格OS - 自己の根幹</h2>
@@ -162,11 +240,6 @@
       let osAnalysisData = null;
       let current8Paths = [];
 
-      // ▼▼▼ 修正点 ▼▼▼
-      // DOMContentLoadedはHTMLの構造が読み込まれた時点で発火します。
-      // fetchが完了する前に、他の処理がHAQEI_DATAを使おうとしてエラーになる可能性を排除するため、
-      // データの取得と初期化を一つの非同期関数にまとめ、それを実行します。
-
       async function main() {
         try {
           const response = await fetch("/api/data");
@@ -176,6 +249,7 @@
           HAQEI_DATA = apiData.HAQEI_DATA;
 
           setupDatalist();
+          initializeAiSynthesisModule();
           initializeOSModules();
           loadAndRenderFutureSimData();
 
@@ -190,9 +264,141 @@
         }
       }
 
-      // ページの読み込み完了後にmain関数を実行します。
       document.addEventListener("DOMContentLoaded", main);
-      // ▲▲▲ 修正点ここまで ▲▲▲
+
+      function initializeAiSynthesisModule() {
+        const module0 = document.getElementById("module0");
+        const osDataString = localStorage.getItem("haqeiOsAnalyzerData");
+
+        if (!osDataString) {
+          module0.style.display = "none";
+          return;
+        }
+
+        module0.classList.remove("hidden");
+        try {
+          const parsedOsData = JSON.parse(osDataString);
+          osAnalysisData = parsedOsData; // グローバル変数に格納
+          renderOsCards(parsedOsData.analysisResult);
+          fetchIntegratedAnalysis(parsedOsData);
+        } catch (e) {
+          console.error("OS分析データの解析に失敗:", e);
+          module0.innerHTML =
+            '<p class="text-center text-red-400">OS分析データの読み込みに失敗しました。</p>';
+        }
+      }
+
+      function getOsIcon(osType) {
+        switch (osType) {
+          case "エンジンOS":
+            return "🔥";
+          case "インターフェースOS":
+            return "🎭";
+          case "セーフモードOS":
+            return "🛡️";
+          default:
+            return "⚙️";
+        }
+      }
+
+      function renderOsCards(analysisResult) {
+        const container = document.getElementById("os-summary-cards");
+        if (
+          !analysisResult ||
+          !analysisResult.hexagram_candidates ||
+          analysisResult.hexagram_candidates.length < 3
+        ) {
+          container.innerHTML = `<p class="col-span-3 text-center text-gray-500">OSデータが見つかりません。</p>`;
+          return;
+        }
+
+        const osTypes = ["エンジンOS", "インターフェースOS", "セーフモードOS"];
+        const osCardsHtml = analysisResult.hexagram_candidates
+          .slice(0, 3)
+          .map((os, index) => {
+            const osType = osTypes[index];
+            return `
+            <div class="os-card">
+              <div class="os-icon">${getOsIcon(osType)}</div>
+              <div class="os-type">${osType}</div>
+              <div class="os-name">${os.name_jp}</div>
+              <div class="os-reading">${os.reading}</div>
+            </div>
+          `;
+          })
+          .join("");
+
+        container.innerHTML = osCardsHtml;
+      }
+
+      async function fetchIntegratedAnalysis(osAnalysisData) {
+        const contentArea = document.getElementById("ai-synthesis-content");
+        const placeholder = document.getElementById("ai-loading-placeholder");
+
+        if (
+          !osAnalysisData ||
+          !osAnalysisData.analysisResult ||
+          !osAnalysisData.userContext ||
+          !osAnalysisData.userProfile
+        ) {
+          console.error(
+            "ローカルストレージのOS分析データが不完全です。",
+            osAnalysisData
+          );
+          placeholder.style.display = "none";
+          contentArea.innerHTML = `
+              <div class="text-center text-red-400">
+                <h2 class="ai-title">データエラー</h2>
+                <p>OS分析データが不完全なため、AI分析を開始できません。<br>お手数ですが、もう一度<a href="os_analyzer.html" class="underline font-bold">OS分析ページ</a>から分析をやり直してください。</p>
+              </div>`;
+          return;
+        }
+
+        try {
+          const payload = {
+            analysis: osAnalysisData.analysisResult,
+            context: osAnalysisData.userContext,
+            profile: {
+              mbti: osAnalysisData.userProfile.mbti,
+              enneagram: osAnalysisData.userProfile.enneagram,
+              sf: osAnalysisData.userProfile.sf,
+            },
+          };
+
+          const response = await fetch("/api/cockpit-ai", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            const errorResult = await response.json().catch(() => ({}));
+            throw new Error(
+              errorResult.error || "AI分析サーバーでエラーが発生しました。"
+            );
+          }
+
+          const result = await response.json();
+
+          placeholder.style.display = "none";
+
+          contentArea.innerHTML = `
+            <h2 class="ai-title">${result.title || "AIによる統合分析"}</h2>
+            <div class="ai-text">
+              ${result.analysis_text || "<p>分析結果の取得に失敗しました。</p>"}
+            </div>
+          `;
+        } catch (error) {
+          console.error("Cockpit AI Error:", error);
+          placeholder.style.display = "none";
+          contentArea.innerHTML = `
+            <div class="text-center text-red-400">
+              <h2 class="ai-title">分析エラー</h2>
+              <p>${error.message}</p>
+            </div>
+          `;
+        }
+      }
 
       function setupDatalist() {
         if (!HAQEI_DATA) return;
@@ -207,53 +413,84 @@
       function initializeOSModules() {
         const osDataString = localStorage.getItem("haqeiOsAnalyzerData");
         if (!osDataString) {
-          document.getElementById("module1-content").innerHTML = `
-            <div class="text-center md:col-span-2">
-              <p class="text-lg text-gray-400">人格OSがまだ分析されていません。</p>
-              <p class="mt-2 text-sm text-gray-500">まずOSアナライザーで、あなたの根幹となるOSを明らかにしましょう。</p>
-              <a href="os_analyzer.html" class="inline-block mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">OS分析を始める</a>
-            </div>`;
+          document.getElementById("module1").style.display = "none";
+          document.getElementById("module2").style.display = "none";
           return;
         }
-        osAnalysisData = JSON.parse(osDataString);
-        renderModule1(osAnalysisData.analysisResult);
-        renderModule2(osAnalysisData.analysisResult);
+        const localOsAnalysisData = JSON.parse(osDataString);
+        renderModule1(localOsAnalysisData.analysisResult);
+        renderModule2(localOsAnalysisData.analysisResult);
       }
 
+      // ▼▼▼【ここからが修正箇所】▼▼▼
+      /**
+       * future_simulator.htmlから渡されたデータを読み込み、
+       * モジュール3のフォームに自動入力して予測を実行する関数。
+       * * 修正点：
+       * 1. 読み込むlocalStorageのキーを、より実態に即した `haqeiFutureSimData` に変更。
+       * 2. 過去のデータ構造との互換性のため、古いキー `proFutureReportData` もチェックする。
+       * 3. どちらのデータ構造でも正しく卦と爻の番号を取得できるよう、処理を堅牢化。
+       * 4. データ読み込み後は、不要になったキーをlocalStorageから削除する。
+       */
       function loadAndRenderFutureSimData() {
-        const futureDataString = localStorage.getItem("proFutureReportData");
-        if (!futureDataString) return;
+        // 新旧両方のキーを試す
+        const keysToCheck = ["haqeiFutureSimData", "proFutureReportData"];
+        let futureDataString = null;
+        let foundKey = null;
+
+        for (const key of keysToCheck) {
+          const data = localStorage.getItem(key);
+          if (data) {
+            futureDataString = data;
+            foundKey = key;
+            break;
+          }
+        }
+
+        if (!futureDataString) return; // データがなければ何もしない
 
         try {
           const futureData = JSON.parse(futureDataString);
-          if (
-            futureData.paths &&
-            futureData.paths.length > 0 &&
-            futureData.paths[0].length > 0
-          ) {
-            const startState = futureData.paths[0][0];
-            const hexNum = startState.卦番号;
-            const lineNum = startState.lineNum;
+          let hexNum = null;
+          let lineNum = null;
 
+          // データ構造を判別して、卦と爻の番号を取得する
+          if (futureData && futureData.startState) {
+            // 新しい構造 { startState: {...} }
+            hexNum = futureData.startState.卦番号;
+            lineNum = futureData.startState.lineNum;
+          } else if (futureData && futureData.paths) {
+            // 古い構造 { paths: [[...]] }
+            const startState = futureData.paths[0][0];
+            hexNum = startState.卦番号;
+            lineNum = startState.lineNum;
+          }
+
+          if (hexNum && lineNum) {
             const hexInput = document.getElementById("hexagramInput");
             const lineInput = document.getElementById("lineInput");
             const hexData = HAQEI_DATA.hexagrams_master.find(
               (h) => h.hexagram_id === hexNum
             );
+
             if (hexData) hexInput.value = hexData.name_jp;
             lineInput.value = lineNum;
 
-            current8Paths = futureData.paths;
+            // フォーム入力後、即座に予測ボタンのクリックをシミュレート
+            document.getElementById("predictBtn").click();
 
-            renderModule3Summary();
-            renderModule4(hexNum);
-
-            localStorage.removeItem("proFutureReportData");
+            // 使用済みのデータをlocalStorageから削除
+            localStorage.removeItem(foundKey);
           }
         } catch (e) {
           console.error("未来分岐データの読み込みまたは描画に失敗しました:", e);
+          // エラーが発生しても、他の処理に影響を与えないようにキーを削除
+          if (foundKey) {
+            localStorage.removeItem(foundKey);
+          }
         }
       }
+      // ▲▲▲【ここまでが修正箇所】▲▲▲
 
       function renderModule1(analysisResult) {
         const container = document.getElementById("module1-content");
@@ -276,9 +513,6 @@
                 tuanDen ? tuanDen.summary : "解説準備中"
               }</p>
               <p>${tuanDen ? tuanDen.haqei_interpretation : ""}</p>
-            </div>
-            <div class="mt-6">
-              <a href="os_analyzer.html" class="text-sm text-indigo-400 hover:text-indigo-300">→ OS分析レポート全体を見る</a>
             </div>
           </div>`;
         const chartHtml = `<div class="relative mx-auto" style="height: 300px; max-width: 400px;"><canvas id="module1-radar-chart"></canvas></div>`;
