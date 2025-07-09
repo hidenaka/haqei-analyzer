@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HaQei 人格OS 分析レポート v15.6</title>
+    <title>HaQei ベーシックOS分析 Final</title>
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
@@ -12,10 +12,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       body {
         font-family: "Inter", "Noto Sans JP", sans-serif;
@@ -25,774 +24,584 @@
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
-        color: transparent;
       }
-      .report-section {
-        border-left: 3px solid #6366f1;
-        padding-left: 1.5rem;
-        margin-top: 3rem;
-        animation: fadeIn 0.5s ease-in-out;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .report-section h3 {
-        font-size: 1.75rem;
-        font-weight: bold;
-        color: #a5b4fc;
-        margin-bottom: 1.25rem;
-      }
-      .report-section h4 {
-        font-size: 1.1rem;
-        font-weight: bold;
-        color: #818cf8;
-        margin-top: 1.5rem;
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.25rem;
-        border-bottom: 1px solid #374151;
-      }
-      .report-section p {
+      .prose-custom {
         color: #d1d5db;
         line-height: 1.8;
       }
-      .report-section strong {
-        color: #facc15;
-        font-weight: 600;
+      .prose-custom p {
+        margin-top: 1em;
+        margin-bottom: 1em;
       }
-      select optgroup {
-        background-color: #1f2937;
-        color: #d1d5db;
+      .prose-custom strong {
+        color: #fde047;
       }
-
-      /* --- B) 専門用語への「オンデマンド解説」 --- */
-      .tooltip {
-        position: relative;
-        cursor: help;
-        text-decoration: underline;
-        text-decoration-style: dotted;
-        text-decoration-color: #9ca3af;
+      .diagnostic-item {
+        background-color: rgba(31, 41, 55, 0.7);
+        border: 1px solid #374151;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
       }
-      .tooltip .tooltip-text {
-        visibility: hidden;
-        width: 220px;
-        background-color: #111827;
-        color: #e5e7eb;
+      .meta-question-item {
+        background-color: rgba(79, 70, 229, 0.1);
+        border: 1px solid #4f46e5;
+      }
+      .question-block {
+        margin-top: 1.25rem;
+      }
+      .question-text {
+        font-weight: 500;
+        color: #a5b4fc;
+        margin-bottom: 0.75rem;
+      }
+      .option-label {
+        display: flex;
+        align-items: center;
         text-align: left;
-        border-radius: 8px;
-        padding: 10px;
-        position: absolute;
-        z-index: 100;
-        bottom: 130%;
-        left: 50%;
-        margin-left: -110px; /* Use half of the width */
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 0.85rem;
-        line-height: 1.6;
-        font-weight: normal;
-        font-family: "Inter", "Noto Sans JP", sans-serif;
-        border: 1px solid #4b5563;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-      }
-      .tooltip .tooltip-text::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #111827 transparent transparent transparent;
-      }
-      .tooltip:hover .tooltip-text,
-      .tooltip:focus .tooltip-text {
-        visibility: visible;
-        opacity: 1;
-      }
-
-      /* 64卦マップのスタイル */
-      .hex-map-container {
-        display: grid;
-        grid-template-columns: 2.5rem repeat(8, 1fr);
-        grid-template-rows: 2.5rem repeat(8, 1fr);
-        gap: 2px;
-      }
-      .map-header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: "Shippori Mincho", serif;
-        font-weight: bold;
-        font-size: 1rem;
-        color: #9ca3af;
-      }
-      .hex-cell {
-        width: 100%;
-        padding-bottom: 100%;
-        position: relative;
-        background-color: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        cursor: pointer;
-      }
-      .hex-cell-content {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.6rem;
-        font-weight: bold;
-        color: #9ca3af;
-        text-align: center;
-        line-height: 1.2;
-        padding: 2px;
-      }
-      .hex-name {
-        font-size: 0.65rem;
-      }
-      .hex-id {
-        font-size: 0.75rem;
-        font-weight: normal;
-        margin-top: 2px;
-        opacity: 0.6;
-      }
-      .hex-cell:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-        transform: scale(1.05);
-        z-index: 5;
-      }
-      .hex-cell.selected {
-        border: 2px solid white;
-        transform: scale(1.15);
-        z-index: 20;
-      }
-      .hex-cell.highlight-primary {
-        background-color: #fde047;
-        color: #111827;
-        box-shadow: 0 0 15px #fde047;
-        z-index: 10;
-      }
-      .hex-cell.highlight-primary .hex-cell-content {
-        color: #111827;
-      }
-      .hex-cell.highlight-secondary {
-        background-color: #a5b4fc;
-        color: #111827;
-        box-shadow: 0 0 15px #a5b4fc;
-        z-index: 10;
-      }
-      .hex-cell.highlight-secondary .hex-cell-content {
-        color: #111827;
-      }
-      .hex-cell.highlight-growth {
-        background-color: #6ee7b7;
-        color: #111827;
-        box-shadow: 0 0 15px #6ee7b7;
-        z-index: 10;
-      }
-      .hex-cell.highlight-growth .hex-cell-content {
-        color: #111827;
-      }
-      .hex-cell.highlight-sakka {
-        border: 2px solid #f97316;
-        box-shadow: 0 0 10px #f97316;
-      }
-      .hex-cell.highlight-souka {
-        border: 2px dashed #0ea5e9;
-        box-shadow: 0 0 10px #0ea5e9;
-      }
-      .hex-cell.highlight-goke {
-        border: 2px dotted #34d399;
-        box-shadow: 0 0 10px #34d399;
-      }
-
-      #hex-map-info details summary {
-        cursor: pointer;
-        display: inline-block;
-        font-size: 0.75rem;
-        color: #9ca3af;
-        margin-top: 0.25rem;
-      }
-      #hex-map-info details summary:hover {
-        color: #e5e7eb;
-      }
-      #hex-map-info details div {
-        background-color: rgba(0, 0, 0, 0.2);
-        padding: 0.5rem 0.75rem;
-        margin-top: 0.5rem;
-        border-radius: 0.375rem;
-        font-size: 0.75rem;
-        line-height: 1.6;
-      }
-      #hex-map-info .relation-block {
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #374151;
-      }
-      #hex-map-info .relation-block:last-child {
-        border-bottom: none;
-      }
-
-      .modal-overlay {
-        transition: opacity 0.3s ease;
-      }
-      .modal-content {
-        transition: transform 0.3s ease;
-      }
-      /* --- 簡易診断用スタイル --- */
-      .diagnostic-option {
-        display: block;
-        padding: 0.75rem 1.25rem;
+        padding: 0.75rem 1rem;
         border: 1px solid #4b5563;
         border-radius: 0.5rem;
         cursor: pointer;
         transition: all 0.2s ease;
+        height: 100%;
         background-color: #374151;
+        font-size: 0.875rem;
+        line-height: 1.5;
       }
-      .diagnostic-option:hover {
+      .option-label:hover {
         background-color: #4b5563;
         border-color: #6366f1;
       }
-
-      /* グラフ切り替えタブ */
-      .chart-tab {
-        cursor: pointer;
-        padding: 0.5rem 1.25rem;
-        border-bottom: 2px solid transparent;
-        transition: all 0.2s ease;
-        color: #9ca3af;
-      }
-      .chart-tab.active {
-        color: #a5b4fc;
-        border-bottom-color: #a5b4fc;
+      input[type="radio"]:checked + .option-label {
+        background-color: #4f46e5;
+        border-color: #a5b4fc;
+        color: #e0e7ff;
         font-weight: 600;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(129, 140, 248, 0.2);
       }
     </style>
   </head>
-  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8 flex flex-col">
+  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-6">
     <div
-      class="w-full max-w-4xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10 flex-grow"
+      class="w-full max-w-4xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10"
     >
       <header class="text-center mb-10">
         <a
-          href="index.html"
-          class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block"
+          href="./"
+          class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block text-sm"
           >← トップページへ戻る</a
         >
-        <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">
-          HaQei
+        <h1 class="text-3xl sm:text-4xl font-bold brand-text tracking-wider">
+          ベーシックOS分析
         </h1>
-        <p class="text-gray-400 mt-3 text-xl">人格OS 分析レポート</p>
+        <p class="text-gray-400 mt-2">
+          あなたという存在の核となる、3つの人格OSを特定します。
+        </p>
       </header>
 
-      <div
-        id="input-container"
-        class="bg-gray-900/50 p-6 rounded-xl mb-10 space-y-6"
-      >
-        <div class="text-center">
-          <p class="text-gray-300">
-            あなたのタイプを選択し、「分析を実行」ボタンを押してください。
+      <div id="input-container" class="space-y-8">
+        <div class="text-center bg-gray-900/50 p-4 rounded-xl">
+          <p>
+            これから提示される8つのシナリオと2つのメタ質問に対し、あなたの「心の中の反応」と「実際の行動」に最も近いものを、それぞれ1つずつ選んでください。
           </p>
-          <a
-            href="#"
-            id="start-diagnostic-btn"
-            class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors"
-          >
-            自分のタイプがわからない方はこちら (簡易診断)
-          </a>
         </div>
+      </div>
 
-        <div
-          class="text-center text-sm text-gray-400 bg-gray-800/60 p-4 rounded-lg border border-gray-700/80"
-        >
-          <h4 class="font-semibold text-indigo-300 mb-2 text-base">
-            なぜ３つの診断結果が必要なのか？
-          </h4>
-          <p class="leading-relaxed">
-            西洋の性格心理学 (<strong class="text-white"
-              >MBTI, エニアグラム</strong
-            >) と東洋の叡智 (<strong class="text-white">易経</strong
-            >)、そして個人の才能 (<strong class="text-white"
-              >ストレングスファインダー</strong
-            >)
-            を掛け合わせることで、HaQeiはあなたの魂の『OS』を世界で初めて多角的に解き明かします。
-          </p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start pt-4">
-          <div>
-            <label
-              for="mbtiSelect"
-              class="block text-sm font-medium text-gray-300 mb-2"
-              >MBTIタイプ</label
-            >
-            <select
-              id="mbtiSelect"
-              class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
-            ></select>
-          </div>
-          <div class="space-y-4">
-            <label class="block text-sm font-medium text-gray-300 mb-2"
-              >エニアグラムタイプ (重要度順)</label
-            >
-            <select
-              id="enneagramSelect1"
-              class="enneagram-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
-            ></select>
-            <select
-              id="enneagramSelect2"
-              class="enneagram-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
-            ></select>
-            <select
-              id="enneagramSelect3"
-              class="enneagram-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
-            ></select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2"
-              >ストレングスファインダー TOP5 (任意)</label
-            >
-            <div id="sf-select-container" class="space-y-3 mt-2"></div>
-          </div>
-        </div>
-        <div class="mt-6 text-center">
-            <label class="flex items-center justify-center cursor-pointer">
-                <input type="checkbox" id="agreementCheckbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
-                <span class="ml-2 text-sm text-gray-400">
-                    <a href="/terms.html" target="_blank" class="underline hover:text-white">利用規約</a>および<a href="/privacy.html" target="_blank" class="underline hover:text-white">プライバシーポリシー</a>に同意します
-                </span>
-            </label>
+      <div id="control-container" class="mt-8 pt-8 border-t border-gray-700">
+        <div class="text-center">
+          <label class="flex items-center justify-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="agreementCheckbox"
+              class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500"
+            />
+            <span class="ml-2 text-sm text-gray-400">
+              <a
+                href="/terms.html"
+                target="_blank"
+                class="underline hover:text-white"
+                >利用規約</a
+              >および<a
+                href="/privacy.html"
+                target="_blank"
+                class="underline hover:text-white"
+                >プライバシーポリシー</a
+              >に同意します
+            </span>
+          </label>
         </div>
         <button
           id="analyzeBtn"
-          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 mt-4"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          分析を実行
+          人格OSを特定する
         </button>
       </div>
 
       <div id="report-container" class="hidden"></div>
     </div>
 
-    <footer class="text-center p-4 mt-auto">
-      <p class="text-xs text-gray-500">
-        ※MBTI®, CliftonStrengths®(ストレングスファインダー®),
-        およびエニアグラムは、各所有者の登録商標または商標です。当サイトは、各所有者と提携・承認されているものではありません。
-      </p>
-    </footer>
-    <div
-      id="modalContainer"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden"
-    >
-      <div
-        id="modalOverlay"
-        class="absolute inset-0 bg-black/70 modal-overlay opacity-0"
-      ></div>
-      <div
-        id="modalContent"
-        class="modal-content bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto p-8 relative transform scale-95"
-      >
-        <button
-          id="modalCloseBtn"
-          class="absolute top-4 right-4 text-gray-400 hover:text-white"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <div id="modalBody"></div>
-      </div>
-    </div>
-
     <script type="module">
       document.addEventListener("DOMContentLoaded", async () => {
         try {
-          // ステップ1: APIからデータを取得する
           const response = await fetch("/api/data");
-          if (!response.ok) {
-            throw new Error("データ取得に失敗しました");
-          }
-          const HAQEI_DATA = await response.json();
-          const HDB = HAQEI_DATA.HAQEI_DATA;
+          if (!response.ok)
+            throw new Error("データベースの読み込みに失敗しました。");
+          const { HAQEI_DATA } = await response.json();
+          const HDB = HAQEI_DATA;
 
-          // --- ここから下は、データ取得後に実行したい元々のコード ---
-
-          // --- DOM要素の取得 ---
-          const mbtiSelect = document.getElementById("mbtiSelect");
-          const enneaSelects = Array.from(
-            document.querySelectorAll(".enneagram-select")
-          );
           const analyzeBtn = document.getElementById("analyzeBtn");
-          const agreementCheckbox = document.getElementById('agreementCheckbox');
-          analyzeBtn.disabled = true; // 初期状態ではボタンを押せなくする
-
-          agreementCheckbox.addEventListener('change', () => {
-              // チェックが入ったら、ボタンを押せるようにする
-              analyzeBtn.disabled = !agreementCheckbox.checked;
-          });
-
+          const agreementCheckbox =
+            document.getElementById("agreementCheckbox");
           const inputContainer = document.getElementById("input-container");
+          const controlContainer = document.getElementById("control-container");
           const reportContainer = document.getElementById("report-container");
-          const modalContainer = document.getElementById("modalContainer");
-          const modalOverlay = document.getElementById("modalOverlay");
-          const modalCloseBtn = document.getElementById("modalCloseBtn");
-          const modalBody = document.getElementById("modalBody");
-          const startDiagnosticBtn = document.getElementById(
-            "start-diagnostic-btn"
-          );
 
-          // --- グローバル変数 ---
-          let lastAnalysisResult = null;
-          let lastUserProfile = null;
-          let diagnosticAnswers = {};
-          // ▼▼▼【修正点①】ストーリーのステップを3つに集約 ▼▼▼
-          let storySteps = [];
-          let currentStepIndex = 0;
-          // ▲▲▲【ここまで】▲▲▲
-          let activeChart = "radar";
-
-          // --- ヘルパー関数群（HDBが定義された後でないと動かない） ---
           const HELPERS = {
-            id_to_jp: Object.fromEntries(
-              HDB.trigrams_master.map((item) => [item.trigram_id, item.name_jp])
-            ),
-            id_to_en: Object.fromEntries(
-              HDB.trigrams_master.map((item) => [item.trigram_id, item.name_en])
-            ),
             getTrigramById: (id) =>
-              HDB.trigrams_master.find((t) => t.trigram_id === id) || {},
+              HDB.trigrams_master.find((t) => t.trigram_id === parseInt(id)) ||
+              {},
             getHexagramById: (id) =>
-              HDB.hexagrams_master.find((h) => h.hexagram_id === id) || {},
-            getH64ById: (id) => HDB.H64_DATA.find((h) => h.卦番号 === id) || {},
-            trigram_colors: {
-              1: "#F9FAFB",
-              2: "#70D6FF",
-              3: "#F87171",
-              4: "#FACC15",
-              5: "#4ADE80",
-              6: "#3B82F6",
-              7: "#F97316",
-              8: "#A16207",
+              HDB.hexagrams_master.find(
+                (h) => h.hexagram_id === parseInt(id)
+              ) || {},
+            // HDB.os_manual を参照するヘルパー関数
+            getOsManualById: (id) => HDB.os_manual[id] || {},
+          };
+          const KEYWORD_RESONANCE_DB = HDB.keyword_map || {};
+          // (設問データとキーワードDBは長いため、内容は変更ありません)
+          const DIAGNOSTIC_QUESTIONS = [
+            {
+              id: "q1",
+              scenario:
+                "友人たちとの楽しい旅行計画が、予期せぬトラブルで完全に白紙に戻ってしまいました。",
+              inner_q:
+                "この時、あなたの「心の中」で、最初に強く湧き上がる感情や思考は？",
+              outer_q: "そして、あなたが「実際にとる行動」に、最も近いのは？",
+              options: {
+                inner: [
+                  {
+                    text: "「残念すぎる…」という喪失感や悲しみに沈む",
+                    scores: { 2: -2, 6: 2, 7: 1 },
+                    keywords: ["損失", "悲嘆"],
+                  },
+                  {
+                    text: "「なぜこうなった？」と原因を分析し、状況を知的に理解しようとする",
+                    scores: { 3: 2, 7: 1, 8: -1 },
+                    keywords: ["分析", "知性", "原因究明"],
+                  },
+                  {
+                    text: "「まあ仕方ない、次どうするか考えよう」と、すぐに気持ちを切り替える",
+                    scores: { 4: 2, 1: 1, 6: -1 },
+                    keywords: ["決断", "前向き", "行動力"],
+                  },
+                ],
+                outer: [
+                  {
+                    text: "「私が新しい計画を立てる！」と率先してリーダーシップを発揮する",
+                    scores: { 1: 3, 4: 1, 8: -2 },
+                    keywords: ["リーダーシップ", "創造", "実行"],
+                  },
+                  {
+                    text: "「皆がっかりしてるだろう」と、まずメンバーのケアや慰めを優先する",
+                    scores: { 8: 2, 5: 2, 1: -1 },
+                    keywords: ["共感", "サポート", "調和"],
+                  },
+                  {
+                    text: "一旦「どうするかは、また後で考えよう」と、状況を静観する",
+                    scores: { 7: 3, 6: 1, 4: -2 },
+                    keywords: ["静止", "内省", "待機"],
+                  },
+                ],
+              },
             },
-            createTermTooltip: (term, explanation) => {
-              if (!explanation) return term;
-              return `<span class="tooltip">${term}<span class="tooltip-text">${explanation}</span></span>`;
+            {
+              id: "q2",
+              scenario:
+                "あなたは全く新しい分野のスキルを、ゼロから学ぶことになりました。",
+              inner_q:
+                "この時、あなたの「心の中」で、最初に強く湧き上がる感情や思考は？",
+              outer_q: "そして、あなたが「実際にとる学び方」に、最も近いのは？",
+              options: {
+                inner: [
+                  {
+                    text: "「面白そう！」という好奇心と、新しい自分になれることへの期待感",
+                    scores: { 4: 2, 3: 2, 7: -1 },
+                    keywords: ["好奇心", "喜び", "変化"],
+                  },
+                  {
+                    text: "「本当に自分にできるだろうか…」という不安と、失敗への恐れ",
+                    scores: { 6: 2, 7: 1, 1: -2 },
+                    keywords: ["困難", "慎重", "不安"],
+                  },
+                  {
+                    text: "「どうせやるなら完璧に」という、知的な探求心と向上心",
+                    scores: { 1: 2, 6: 1, 2: -1 },
+                    keywords: ["完璧主義", "探求", "向上心"],
+                  },
+                ],
+                outer: [
+                  {
+                    text: "まず全体像を把握するため、関連書籍を何冊も読んで体系的に学ぶ",
+                    scores: { 7: 2, 3: 1, 4: -1 },
+                    keywords: ["学習", "分析", "計画"],
+                  },
+                  {
+                    text: "とにかく実践！専門家や経験者に積極的に質問し、試行錯誤しながら学ぶ",
+                    scores: { 4: 3, 2: 1, 7: -2 },
+                    keywords: ["行動力", "挑戦", "コミュニケーション"],
+                  },
+                  {
+                    text: "同じ目標を持つ仲間を見つけ、勉強会を開くなど、協調しながら学ぶ",
+                    scores: { 5: 2, 8: 2, 1: -1 },
+                    keywords: ["協力", "チームワーク", "共感"],
+                  },
+                ],
+              },
+            },
+            {
+              id: "q3",
+              scenario:
+                "あなたの意見が、会議で他のメンバーから真っ向から反対されました。",
+              inner_q:
+                "この時、あなたの「心の中」で、最初に強く湧き上がる感情や思考は？",
+              outer_q: "そして、あなたが「実際にとる行動」に、最も近いのは？",
+              options: {
+                inner: [
+                  {
+                    text: "「なぜ理解できないんだ！」という怒りや、自分の正しさへの確信",
+                    scores: { 1: 2, 3: 1, 8: -2 },
+                    keywords: ["正義感", "対立", "怒り"],
+                  },
+                  {
+                    text: "「私の説明が悪かったのかも…」という自己反省と、関係悪化への不安",
+                    scores: { 8: 2, 5: 1, 1: -1 },
+                    keywords: ["協調性", "内省", "不安"],
+                  },
+                  {
+                    text: "「なるほど、そういう視点もあるのか」という知的な興味",
+                    scores: { 6: 2, 7: 1, 4: -1 },
+                    keywords: ["知的好奇心", "分析", "冷静"],
+                  },
+                ],
+                outer: [
+                  {
+                    text: "感情的にならず、データや論理を用いて、冷静に相手を説得しようと試みる",
+                    scores: { 3: 2, 1: 1, 2: -1 },
+                    keywords: ["論理", "説得", "知性"],
+                  },
+                  {
+                    text: "一旦相手の意見を受け入れ、共通の落としどころを探る対話的なアプローチをとる",
+                    scores: { 5: 3, 8: 1, 1: -1 },
+                    keywords: ["調和", "交渉", "共感"],
+                  },
+                  {
+                    text: "議論を中断し、時間を置いて、別の角度から再度アプローチする",
+                    scores: { 7: 2, 6: 1, 4: -1 },
+                    keywords: ["待機", "戦略", "内省"],
+                  },
+                ],
+              },
+            },
+            {
+              id: "q4",
+              scenario:
+                "あなたはプロジェクトで大きな成功を収め、周囲から絶賛されています。",
+              inner_q:
+                "この時、あなたの「心の中」で、最初に強く湧き上がる感情や思考は？",
+              outer_q: "そして、あなたが「実際にとる行動」に、最も近いのは？",
+              options: {
+                inner: [
+                  {
+                    text: "「最高に気持ちいい！」という達成感と、さらなる成功への意欲",
+                    scores: { 3: 2, 4: 2, 8: -1 },
+                    keywords: ["達成感", "情熱", "野心"],
+                  },
+                  {
+                    text: "「皆のおかげだ」という、周囲への感謝と謙虚な気持ち",
+                    scores: { 8: 2, 2: 1, 1: -2 },
+                    keywords: ["感謝", "謙虚", "チームワーク"],
+                  },
+                  {
+                    text: "「なぜ成功したのか」を冷静に分析し、次への再現性を考える",
+                    scores: { 7: 2, 1: 1, 3: -1 },
+                    keywords: ["分析", "戦略", "再現性"],
+                  },
+                ],
+                outer: [
+                  {
+                    text: "成功を祝う盛大なパーティーを開き、喜びを仲間と分かち合う",
+                    scores: { 2: 3, 3: 1, 7: -1 },
+                    keywords: ["社交性", "喜びの共有", "祝賀"],
+                  },
+                  {
+                    text: "すぐに次の目標を設定し、休みなく次の挑戦へと向かう",
+                    scores: { 1: 2, 4: 1, 8: -1 },
+                    keywords: ["野心", "継続", "挑戦"],
+                  },
+                  {
+                    text: "成功体験をマニュアル化し、後進の育成や組織の発展に貢献する",
+                    scores: { 5: 2, 8: 1, 4: -1 },
+                    keywords: ["育成", "貢献", "体系化"],
+                  },
+                ],
+              },
+            },
+            {
+              id: "q5",
+              scenario:
+                "あなたと親友が、些細なことから気まずい雰囲気になってしまいました。",
+              inner_q:
+                "この時、あなたの「心の中」で、最初に強く湧き上がる感情や思考は？",
+              outer_q: "そして、あなたが「実際にとる行動」に、最も近いのは？",
+              options: {
+                inner: [
+                  {
+                    text: "「自分が何か悪いことをしたかも…」と、自分を責め、不安になる",
+                    scores: { 8: 2, 6: 1 },
+                  },
+                  {
+                    text: "「面倒なことになったな…」と、問題から目をそらし、距離を置きたくなる",
+                    scores: { 7: 2, 5: -1 },
+                  },
+                  {
+                    text: "「早く仲直りしたい」と、解決を焦る気持ちが強くなる",
+                    scores: { 4: 2, 2: 1 },
+                  },
+                ],
+                outer: [
+                  {
+                    text: "自分から「あの時はごめん」と率直に謝り、関係修復を図る",
+                    scores: { 2: 2, 4: 1 },
+                  },
+                  {
+                    text: "しばらく時間を置き、相手からの連絡を待つ",
+                    scores: { 7: 2, 8: 1 },
+                  },
+                  {
+                    text: "共通の友人に相談し、間を取り持ってもらおうとする",
+                    scores: { 5: 3, 2: -1 },
+                  },
+                ],
+              },
+            },
+            {
+              id: "q6",
+              scenario:
+                "あなたに、丸一日、誰にも邪魔されない完全な自由時間が与えられました。",
+              inner_q:
+                "この時、あなたの「心の中」で、最初に強く湧き上がる感情や思考は？",
+              outer_q: "そして、あなたが「実際に過ごす時間」に、最も近いのは？",
+              options: {
+                inner: [
+                  {
+                    text: "「何をしようか？」とワクワクし、やりたいことが次々と思い浮かぶ",
+                    scores: { 3: 2, 4: 2 },
+                  },
+                  {
+                    text: "「やっと休める…」と、心身の休息を最優先にしたいと感じる",
+                    scores: { 8: 2, 7: 1 },
+                  },
+                  {
+                    text: "「どうせなら有意義に」と、普段できない自己投資や勉強を計画する",
+                    scores: { 1: 2, 6: 2 },
+                  },
+                ],
+                outer: [
+                  {
+                    text: "結局、家でゴロゴロしたり、特に何もせずに過ごしてしまう",
+                    scores: { 8: 2, 7: -1 },
+                  },
+                  {
+                    text: "溜まっていた趣味や創作活動に、時間を忘れて没頭する",
+                    scores: { 6: 2, 3: 1 },
+                  },
+                  {
+                    text: "友人を誘って食事に行ったり、イベントに出かけたりして、積極的に人と交流する",
+                    scores: { 2: 3, 5: 1 },
+                  },
+                ],
+              },
+            },
+            {
+              id: "q7",
+              scenario:
+                "これまで順調だった物事が、急に停滞し、先の見えない状況になりました。",
+              inner_q:
+                "この時、あなたの「心の中」で、最初に強く湧き上がる感情や思考は？",
+              outer_q: "そして、あなたが「実際にとる行動」に、最も近いのは？",
+              options: {
+                inner: [
+                  {
+                    text: "「やり方が悪かったのか？」と、過去の行動を分析し、問題点を探す",
+                    scores: { 7: 2, 6: 1 },
+                  },
+                  {
+                    text: "「これも一つの流れだ」と、状況をあるがままに受け入れ、静観する",
+                    scores: { 8: 2, 5: 1 },
+                  },
+                  {
+                    text: "「このままではダメだ！」と、強い危機感と、変化への渇望を感じる",
+                    scores: { 4: 2, 1: 1 },
+                  },
+                ],
+                outer: [
+                  {
+                    text: "根本的な原因が分かるまで、全ての行動を一旦ストップする",
+                    scores: { 7: 3, 6: -1 },
+                  },
+                  {
+                    text: "停滞を打破するため、全く新しいアプローチや、奇抜なアイデアを試す",
+                    scores: { 4: 2, 3: 1 },
+                  },
+                  {
+                    text: "周囲の意見を広く聞き、協力体制を再構築しようと試みる",
+                    scores: { 5: 2, 8: 1 },
+                  },
+                ],
+              },
+            },
+            {
+              id: "q8",
+              scenario:
+                "あなたは、全く興味のなかった分野に、偶然触れる機会がありました。",
+              inner_q:
+                "この時、あなたの「心の中」で、最初に強く湧き上がる感情や思考は？",
+              outer_q: "そして、あなたが「実際にとる行動」に、最も近いのは？",
+              options: {
+                inner: [
+                  {
+                    text: "「意外と面白いかも」と、新しい世界への好奇心が刺激される",
+                    scores: { 2: 2, 5: 1 },
+                  },
+                  {
+                    text: "「自分の専門とは違う」と、知的な壁を作り、深く関わることを避ける",
+                    scores: { 7: 2, 1: -1 },
+                  },
+                  {
+                    text: "「なぜ今まで知らなかったんだろう」と、その分野の歴史や背景を知りたくなる",
+                    scores: { 6: 2, 8: 1 },
+                  },
+                ],
+                outer: [
+                  {
+                    text: "その場でSNSでシェアしたり、誰かにその面白さを話したりする",
+                    scores: { 2: 2, 3: 1 },
+                  },
+                  {
+                    text: "その分野の入門書を数冊購入し、自分の知識体系に組み込もうとする",
+                    scores: { 6: 2, 1: 1 },
+                  },
+                  {
+                    text: "一度きりの体験として楽しみ、それ以上深入りはしない",
+                    scores: { 5: -1, 7: 1 },
+                  },
+                ],
+              },
+            },
+          ];
+
+          const META_QUESTIONS = [
+            {
+              id: "mq1",
+              text: "あなたが物事を判断する際の、最も根源的な「ものさし」はどれですか？",
+              options: [
+                {
+                  text: "その判断は「論理的に正しいか、効率的か」",
+                  intention: "logic",
+                },
+                {
+                  text: "その判断は「皆が納得し、調和が保たれるか」",
+                  intention: "harmony",
+                },
+                {
+                  text: "その判断は「挑戦的で、自分の成長に繋がるか」",
+                  intention: "action",
+                },
+              ],
+            },
+            {
+              id: "mq2",
+              text: "あなたが「最高の状態」だと感じるのは、どんな時ですか？",
+              options: [
+                {
+                  text: "複雑な問題を解き明かし、知的な探求心を満たしている時",
+                  intention: "logic",
+                },
+                {
+                  text: "仲間と喜びを分かち合い、深いつながりを感じている時",
+                  intention: "harmony",
+                },
+                {
+                  text: "困難な目標を達成し、自らの力を証明できた時",
+                  intention: "action",
+                },
+              ],
+            },
+          ];
+          const INTENTION_BONUS_DB = {
+            logic: {
+              hex_ids: [1, 3, 6, 7, 10, 26, 27, 33, 52, 62, 63],
+              bonus: 1.5,
+            },
+            harmony: {
+              hex_ids: [2, 5, 8, 11, 13, 15, 31, 37, 45, 57, 58],
+              bonus: 1.5,
+            },
+            action: {
+              hex_ids: [4, 9, 14, 16, 17, 21, 25, 32, 34, 42, 43, 49, 51, 55],
+              bonus: 1.5,
             },
           };
 
-          // --- モーダル制御 ---
-          const showModal = (content) => {
-            modalBody.innerHTML = content;
-            modalContainer.classList.remove("hidden");
-            document.body.style.overflow = "hidden";
-            setTimeout(() => {
-              modalOverlay.classList.remove("opacity-0");
-              document
-                .getElementById("modalContent")
-                .classList.remove("scale-95");
-            }, 10);
-          };
-          const hideModal = () => {
-            document.getElementById("modalOverlay").classList.add("opacity-0");
-            document.getElementById("modalContent").classList.add("scale-95");
-            setTimeout(() => {
-              modalContainer.classList.add("hidden");
-              document.body.style.overflow = "";
-              modalBody.innerHTML = "";
-            }, 300);
-          };
-
-          // --- 簡易診断機能 ---
-          const DIAGNOSTIC_QUIZ_DATA = {
-            mbti: [
-              {
-                id: "IE",
-                q: "アクティビティの後、あなたは…",
-                a: {
-                  text: "疲れて、一人の時間で充電したくなる (内向)",
-                  value: "I",
-                },
-                b: {
-                  text: "元気になり、もっと人と話したくなる (外向)",
-                  value: "E",
-                },
-              },
-              {
-                id: "SN",
-                q: "新しいことを学ぶとき、あなたは…",
-                a: {
-                  text: "事実や具体的な詳細、過去の経験に注目する (感覚)",
-                  value: "S",
-                },
-                b: {
-                  text: "可能性や全体像、未来の洞察に惹かれる (直観)",
-                  value: "N",
-                },
-              },
-              {
-                id: "TF",
-                q: "決断を下すとき、あなたがより重視するのは…",
-                a: {
-                  text: "論理的な正しさや、客観的な基準 (思考)",
-                  value: "T",
-                },
-                b: { text: "関係者への影響や、全体の調和 (感情)", value: "F" },
-              },
-              {
-                id: "JP",
-                q: "あなたの普段の生活スタイルは…",
-                a: {
-                  text: "計画を立て、物事をきっちり終わらせる方を好む (判断)",
-                  value: "J",
-                },
-                b: {
-                  text: "柔軟性を保ち、選択肢を広く持っておくことを好む (知覚)",
-                  value: "P",
-                },
-              },
-            ],
-            enneagram: [
-              {
-                type: 1,
-                name: "改革する人",
-                desc: "物事を正しく、完璧に行いたい。向上心が高く、白黒はっきりさせたい。",
-              },
-              {
-                type: 2,
-                name: "助ける人",
-                desc: "人の役に立ち、必要とされたい。思いやりが深く、他人の感情に敏感。",
-              },
-              {
-                type: 3,
-                name: "達成する人",
-                desc: "成功して価値を証明したい。目標志向で、効率と成果を重視する。",
-              },
-              {
-                type: 4,
-                name: "個性的な人",
-                desc: "自分らしく、特別な存在でありたい。感受性が豊かで、独自の美意識を持つ。",
-              },
-              {
-                type: 5,
-                name: "調べる人",
-                desc: "世界を理解し、有能でありたい。知的好奇心が強く、一人の時間を大切にする。",
-              },
-              {
-                type: 6,
-                name: "忠実な人",
-                desc: "安全と安心を求め、周りに尽くす。責任感が強く、慎重に物事を進める。",
-              },
-              {
-                type: 7,
-                name: "熱中する人",
-                desc: "楽しく、多くのことを経験したい。楽観的で、新しい刺激や可能性を追い求める。",
-              },
-              {
-                type: 8,
-                name: "挑戦する人",
-                desc: "自分のことは自分で決め、主導権を握りたい。パワフルで、正義感が強い。",
-              },
-              {
-                type: 9,
-                name: "平和をもたらす人",
-                desc: "穏やかで、争いを避けたい。受容力があり、全体の調和を願う。",
-              },
-            ],
-          };
-          const showDiagnosticModal = () => {
-            diagnosticAnswers = { mbti: "" };
-            renderDiagnosticStep("mbti", 0);
-          };
-          const applyDiagnosticResults = (mbtiType, enneaType) => {
-            mbtiSelect.value = mbtiType;
-            enneaSelects[0].value = enneaType;
-            enneaSelects[0].dispatchEvent(new Event("change"));
-            hideModal();
-          };
-          const renderDiagnosticStep = (stage, questionIndex = 0) => {
-            let contentHtml = "";
-            if (stage === "mbti") {
-              const qData = DIAGNOSTIC_QUIZ_DATA.mbti[questionIndex];
-              contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-2">簡易MBTI診断 (${
-                questionIndex + 1
-              }/4)</h3><p class="text-gray-300 mb-6">${
-                qData.q
-              }</p><div class="space-y-3"><a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
-                qData.a.value
-              }', ${questionIndex})">${
-                qData.a.text
-              }</a><a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
-                qData.b.value
-              }', ${questionIndex})">${qData.b.text}</a></div>`;
-            } else if (stage === "enneagram") {
-              contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-2">簡易エニアグラム診断</h3><p class="text-gray-300 mb-6">以下のうち、あなたの最も深い動機や価値観に一番近いものを一つ選んでください。</p><div class="grid grid-cols-1 md:grid-cols-3 gap-3">${DIAGNOSTIC_QUIZ_DATA.enneagram
+          function renderQuestions() {
+            if (!inputContainer) return;
+            let html = inputContainer.querySelector("div").outerHTML; // Keep initial message
+            DIAGNOSTIC_QUESTIONS.forEach((q, index) => {
+              const innerOpts = q.options.inner
                 .map(
-                  (e) =>
-                    `<div class="diagnostic-option text-sm flex flex-col h-full" onclick="handleEnneagramAnswer(${e.type})"><p class="font-bold text-indigo-300">タイプ${e.type}: ${e.name}</p><p class="text-gray-400 mt-1">${e.desc}</p></div>`
+                  (opt, i) =>
+                    `<div><input type="radio" name="${q.id}_inner" value="${i}" id="${q.id}_inner_${i}" class="hidden"><label for="${q.id}_inner_${i}" class="option-label">${opt.text}</label></div>`
                 )
-                .join("")}</div>`;
-            } else if (stage === "result") {
-              const mbtiResult = diagnosticAnswers.mbti;
-              const enneaResult = diagnosticAnswers.enneagram;
-              contentHtml = `<div class="text-center"><h3 class="text-xl font-bold text-indigo-300 mb-4">簡易診断結果</h3><p class="text-gray-300">あなたのタイプは以下と推定されます。</p><div class="my-6 space-y-3"><p class="text-2xl font-bold">MBTI: <span class="text-amber-400">${mbtiResult}</span></p><p class="text-2xl font-bold">エニアグラム: <span class="text-amber-400">タイプ${enneaResult}</span></p></div><p class="text-xs text-gray-500 mb-6">※これは簡易的な診断です。より正確なタイプをご存知の場合は、そちらを優先してください。</p><button onclick="applyDiagnosticResults('${mbtiResult}', '${enneaResult}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">この結果を利用する</button></div>`;
-            }
-            showModal(contentHtml);
-          };
-          window.handleMbtiAnswer = (answer, questionIndex) => {
-            event.preventDefault();
-            diagnosticAnswers.mbti += answer;
-            if (questionIndex < DIAGNOSTIC_QUIZ_DATA.mbti.length - 1) {
-              renderDiagnosticStep("mbti", questionIndex + 1);
-            } else {
-              renderDiagnosticStep("enneagram");
-            }
-          };
-          window.handleEnneagramAnswer = (answer) => {
-            event.preventDefault();
-            diagnosticAnswers.enneagram = answer;
-            renderDiagnosticStep("result");
-          };
-          window.applyDiagnosticResults = applyDiagnosticResults;
-
-          // --- フォーム初期化 ---
-          const handleDuplicateSelection = (selects) => {
-            const selectedValues = new Set();
-            selects.forEach((s) => {
-              if (s.value) selectedValues.add(s.value);
-            });
-            selects.forEach((select) => {
-              Array.from(select.options).forEach((option) => {
-                option.disabled =
-                  option.value !== "" &&
-                  option.value !== select.value &&
-                  selectedValues.has(option.value);
-              });
-            });
-          };
-          const populateSelects = () => {
-            mbtiSelect.innerHTML =
-              '<option value="" selected disabled>MBTIタイプを選択</option>';
-            const mbtiNicknameMap = HDB.mbti_nicknames.reduce(
-              (acc, item) => ({ ...acc, [item.type]: item.nickname }),
-              {}
-            );
-            const mbtiGroups = HDB.mbti_map.reduce((acc, type) => {
-              const groupKey = type.mbti_type.includes("N")
-                ? "直観型 (N)"
-                : "感覚型 (S)";
-              if (!acc[groupKey]) acc[groupKey] = [];
-              acc[groupKey].push(type);
-              return acc;
-            }, {});
-            ["直観型 (N)", "感覚型 (S)"].forEach((group) => {
-              const optgroup = document.createElement("optgroup");
-              optgroup.label = `--- ${group} ---`;
-              (mbtiGroups[group] || [])
-                .sort((a, b) => a.mbti_type.localeCompare(b.mbti_type))
-                .forEach((type) => {
-                  const option = document.createElement("option");
-                  option.value = type.mbti_type;
-                  option.textContent = `${type.mbti_type} (${
-                    mbtiNicknameMap[type.mbti_type] || ""
-                  })`;
-                  optgroup.appendChild(option);
-                });
-              mbtiSelect.appendChild(optgroup);
-            });
-            const enneaTypes = HDB.enneagram_map.map((e) => ({
-              type: e.enneagram_type,
-              name: e.nickname,
-            }));
-            enneaSelects.forEach((select, index) => {
-              const placeholder =
-                index === 0 ? "主要タイプを選択" : "任意タイプ";
-              select.innerHTML = `<option value="">${placeholder}</option>`;
-              if (index === 0) {
-                select.querySelector("option").disabled = true;
-                select.querySelector("option").selected = true;
-              }
-              enneaTypes.forEach((e) => {
-                const option = document.createElement("option");
-                option.value = e.type;
-                option.textContent = `タイプ${e.type}: ${e.name}`;
-                select.appendChild(option);
-              });
-              select.addEventListener("change", () =>
-                handleDuplicateSelection(enneaSelects)
-              );
-            });
-            const sfContainer = document.getElementById("sf-select-container");
-            const sfDomains = HDB.strengthsfinder_map.reduce((acc, sf) => {
-              const domain = sf.domain;
-              if (!acc[domain]) acc[domain] = [];
-              acc[domain].push(sf);
-              return acc;
-            }, {});
-            let sfOptionsHtml = '<option value="">(任意)</option>';
-            const domainOrder = [
-              "実行力",
-              "影響力",
-              "人間関係構築力",
-              "戦略的思考力",
-            ];
-            domainOrder.forEach((domain) => {
-              if (sfDomains[domain]) {
-                sfOptionsHtml += `<optgroup label="--- ${domain} ---">`;
-                sfDomains[domain]
-                  .sort((a, b) =>
-                    a.strength_finder_talent.localeCompare(
-                      b.strength_finder_talent
-                    )
-                  )
-                  .forEach((sf) => {
-                    sfOptionsHtml += `<option value="${sf.strength_finder_talent}">${sf.strength_finder_talent}</option>`;
-                  });
-                sfOptionsHtml += `</optgroup>`;
-              }
-            });
-            let sfSelectsHtml = "";
-            for (let i = 1; i <= 5; i++) {
-              sfSelectsHtml += `<div class="flex items-center gap-x-3 mt-2"><span class="font-mono text-sm text-gray-400 w-8 text-center">${i}位:</span><select id="sf${i}" class="sf-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 flex-1">${sfOptionsHtml}</select></div>`;
-            }
-            sfContainer.innerHTML = sfSelectsHtml;
-            document.querySelectorAll(".sf-select").forEach((select) => {
-              select.addEventListener("change", () =>
-                handleDuplicateSelection(
-                  document.querySelectorAll(".sf-select")
+                .join("");
+              const outerOpts = q.options.outer
+                .map(
+                  (opt, i) =>
+                    `<div><input type="radio" name="${q.id}_outer" value="${i}" id="${q.id}_outer_${i}" class="hidden"><label for="${q.id}_outer_${i}" class="option-label">${opt.text}</label></div>`
                 )
-              );
+                .join("");
+              html += `<div class="diagnostic-item"><p class="text-gray-400 text-sm">シナリオ ${
+                index + 1
+              }/${
+                DIAGNOSTIC_QUESTIONS.length
+              }</p><p class="font-semibold text-gray-200 mb-4">${
+                q.scenario
+              }</p><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="question-block"><p class="question-text">${
+                q.inner_q
+              }</p><div class="space-y-3">${innerOpts}</div></div><div class="question-block"><p class="question-text">${
+                q.outer_q
+              }</p><div class="space-y-3">${outerOpts}</div></div></div></div>`;
             });
-          };
+            html += `<div class="diagnostic-item meta-question-item mt-8"><p class="font-semibold text-indigo-300 text-center mb-4">最後に、あなたの根源的な価値観についてお聞かせください。</p>`;
+            META_QUESTIONS.forEach((q, index) => {
+              const metaOpts = q.options
+                .map(
+                  (opt, i) =>
+                    `<div><input type="radio" name="${q.id}" value="${opt.intention}" id="${q.id}_${i}" class="hidden"><label for="${q.id}_${i}" class="option-label">${opt.text}</label></div>`
+                )
+                .join("");
+              html += `<div class="question-block mt-6"><p class="question-text">${
+                index + 1
+              }. ${q.text}</p><div class="space-y-3">${metaOpts}</div></div>`;
+            });
+            html += `</div>`;
+            inputContainer.innerHTML = html;
+          }
 
-          // --- 分析ロジック ---
-          const runAdvancedAnalysis = (userProfile) => {
-            const weights = { mbti: 1.0, enneagram: 1.0, sf: 0.4 };
-            const ennea_weights = [1.0, 0.8, 0.6];
-            const sf_weights = [1.0, 0.9, 0.8, 0.7, 0.6];
-            const keyword_weight = 1.5;
-            const duplicationPenalty = 0.95;
-            let total_scores = {
+          function runOsAnalysis() {
+            const innerScores = {
               1: 0,
               2: 0,
               3: 0,
@@ -802,815 +611,273 @@
               7: 0,
               8: 0,
             };
-            let score_breakdown = { mbti: null, enneagram: [], sf: [] };
-            const mbtiData = HDB.mbti_map.find(
-              (m) => m.mbti_type === userProfile.mbti
-            );
-            if (mbtiData && mbtiData.scores) {
-              const breakdown = {};
-              mbtiData.scores.forEach((s) => {
-                const score = (s.score || 0) * weights.mbti;
-                total_scores[s.trigram_id] += score;
-                breakdown[s.trigram_id] = score;
-              });
-              score_breakdown.mbti = { type: userProfile.mbti, breakdown };
+            const outerScores = {
+              1: 0,
+              2: 0,
+              3: 0,
+              4: 0,
+              5: 0,
+              6: 0,
+              7: 0,
+              8: 0,
+            };
+            const hexagramResonanceScores = {};
+            for (let i = 1; i <= 64; i++) {
+              hexagramResonanceScores[i] = 0;
             }
-            userProfile.enneagram.forEach((e_type, index) => {
-              const enneaData = HDB.enneagram_map.find(
-                (e) => e.enneagram_type == e_type
+            let allAnswered = true;
+            DIAGNOSTIC_QUESTIONS.forEach((q) => {
+              const innerAnswerNode = document.querySelector(
+                `input[name="${q.id}_inner"]:checked`
               );
-              if (enneaData && enneaData.scores) {
-                const weight = ennea_weights[index] * weights.enneagram;
-                const breakdown = {};
-                enneaData.scores.forEach((s) => {
-                  const score = (s.score || 0) * weight;
-                  total_scores[s.trigram_id] += score;
-                  breakdown[s.trigram_id] = score;
+              const outerAnswerNode = document.querySelector(
+                `input[name="${q.id}_outer"]:checked`
+              );
+              if (!innerAnswerNode || !outerAnswerNode) {
+                allAnswered = false;
+                return;
+              }
+              const innerChoice = q.options.inner[innerAnswerNode.value];
+              for (const trigram_id in innerChoice.scores) {
+                innerScores[trigram_id] += innerChoice.scores[trigram_id];
+              }
+              if (innerChoice.keywords) {
+                innerChoice.keywords.forEach((kw) => {
+                  if (KEYWORD_RESONANCE_DB[kw]) {
+                    KEYWORD_RESONANCE_DB[kw].forEach((hexId) => {
+                      hexagramResonanceScores[hexId] =
+                        (hexagramResonanceScores[hexId] || 0) + 1.2;
+                    });
+                  }
                 });
-                score_breakdown.enneagram.push({
-                  type: `タイプ${e_type}`,
-                  breakdown,
+              }
+              const outerChoice = q.options.outer[outerAnswerNode.value];
+              for (const trigram_id in outerChoice.scores) {
+                outerScores[trigram_id] += outerChoice.scores[trigram_id];
+              }
+              if (outerChoice.keywords) {
+                outerChoice.keywords.forEach((kw) => {
+                  if (KEYWORD_RESONANCE_DB[kw]) {
+                    KEYWORD_RESONANCE_DB[kw].forEach((hexId) => {
+                      hexagramResonanceScores[hexId] =
+                        (hexagramResonanceScores[hexId] || 0) + 1.2;
+                    });
+                  }
                 });
               }
             });
-            userProfile.sf.forEach((talent, index) => {
-              const sfData = HDB.strengthsfinder_map.find(
-                (s) => s.strength_finder_talent === talent
-              );
-              if (sfData && sfData.scores) {
-                const weight = sf_weights[index] * weights.sf;
-                const breakdown = {};
-                sfData.scores.forEach((s) => {
-                  const score = (s.score || 0) * weight;
-                  total_scores[s.trigram_id] += score;
-                  breakdown[s.trigram_id] = score;
-                });
-                score_breakdown.sf.push({ type: talent, breakdown });
-              }
+            META_QUESTIONS.forEach((q) => {
+              if (!document.querySelector(`input[name="${q.id}"]:checked`))
+                allAnswered = false;
             });
-            const mbtiKeywords = new Set(
-              HDB.keyword_map[userProfile.mbti] || []
+            if (!allAnswered) {
+              alert("すべての質問に回答してください。");
+              return null;
+            }
+
+            const intentions = META_QUESTIONS.map(
+              (q) =>
+                document.querySelector(`input[name="${q.id}"]:checked`).value
             );
             const hexagram_candidates = HDB.hexagrams_master
               .map((hexagram) => {
-                const lower_id = hexagram.lower_trigram_id;
-                const upper_id = hexagram.upper_trigram_id;
-                let energy_score =
-                  total_scores[lower_id] + total_scores[upper_id];
-                if (lower_id === upper_id) energy_score *= duplicationPenalty;
-                const hex_keywords = new Set(
-                  HDB.keyword_map[hexagram.name_jp] || []
-                );
-                const matches = [...hex_keywords].filter((k) =>
-                  mbtiKeywords.has(k)
-                );
-                const keyword_score = matches.length * keyword_weight;
-                const final_score = energy_score + keyword_score;
+                const structuralScore =
+                  (outerScores[hexagram.upper_trigram_id] || 0) +
+                  (innerScores[hexagram.lower_trigram_id] || 0);
+                const resonanceScore =
+                  hexagramResonanceScores[hexagram.hexagram_id] || 0;
+                let final_score = structuralScore + resonanceScore;
+                intentions.forEach((intent) => {
+                  if (
+                    INTENTION_BONUS_DB[intent] &&
+                    INTENTION_BONUS_DB[intent].hex_ids.includes(
+                      hexagram.hexagram_id
+                    )
+                  ) {
+                    final_score += INTENTION_BONUS_DB[intent].bonus;
+                  }
+                });
+                if (hexagram.lower_trigram_id === hexagram.upper_trigram_id) {
+                  final_score *= 0.85;
+                }
                 return {
                   ...hexagram,
                   final_score: Math.round(final_score * 10) / 10,
-                  energy_balance_score: Math.round(energy_score * 10) / 10,
-                  keyword_resonance_score: Math.round(keyword_score * 10) / 10,
-                  matched_keywords: matches,
                 };
               })
-              .sort((a, b) => {
-                if (b.final_score !== a.final_score) {
-                  return b.final_score - a.final_score;
-                }
-                return b.energy_balance_score - a.energy_balance_score;
-              });
-            const trigram_profile = Object.entries(total_scores)
-              .map(([id, score]) => ({
-                id: parseInt(id),
-                name_jp: HELPERS.id_to_jp[id],
-                name_en: HELPERS.id_to_en[id],
-                strength_description: HELPERS.getTrigramById(parseInt(id))
-                  .strength_description,
-                weakness_description: HELPERS.getTrigramById(parseInt(id))
-                  .weakness_description,
-                score: Math.round(score * 10) / 10,
-              }))
-              .sort((a, b) => b.score - a.score);
+              .sort((a, b) => b.final_score - a.final_score);
+
             return {
-              trigram_profile,
               hexagram_candidates: hexagram_candidates.slice(0, 10),
-              score_breakdown,
+              innerScores,
+              outerScores,
             };
-          };
+          }
 
-          // --- レポート描画関連 ---
-          // ▼▼▼【修正点②】レポート全体のヘッダーを生成する関数を修正・役割変更 ▼▼▼
-          const createPageHeader = () => {
-            const { mbti, enneagram, sf } = lastUserProfile;
-            const enneaText = enneagram.map((e) => `タイプ${e}`).join(", ");
-            const sfText =
-              sf.length > 0
-                ? `SF: ${sf.slice(0, 3).join(", ")}${
-                    sf.length > 3 ? "..." : ""
-                  }`
-                : "";
-            // ステップごとのタイトル配列
-            const stepTitles = [
-              "ステップ1：あなたの才能の全体像と生存戦略",
-              "ステップ2：あなたの中心を構成する３つの人格OS",
-              "ステップ3：広大な世界の中でのあなたの現在地",
+          function getOsDescription(osId, role) {
+            const manual = HELPERS.getOsManualById(osId);
+            if (!manual)
+              return {
+                role_desc: "解説準備中...",
+                potential: "可能性を分析中...",
+              };
+
+            const role_desc = manual[role] || manual.summary || "解説準備中...";
+            const potential =
+              manual.potential || "このOSの可能性については、現在分析中です。";
+
+            return { role_desc, potential };
+          }
+
+          function displayReport(analysisResult) {
+            const osList = [
+              { role: "engine", data: analysisResult.hexagram_candidates[0] },
+              {
+                role: "interface",
+                data: analysisResult.hexagram_candidates[1],
+              },
+              { role: "safemode", data: analysisResult.hexagram_candidates[2] },
             ];
 
-            return `<div class="text-center mb-8 border-b border-gray-700 pb-6"><h2 class="text-xl font-bold text-gray-100">${
-              stepTitles[currentStepIndex]
-            }</h2><p class="text-sm text-gray-400 mt-2 max-w-xl mx-auto">分析対象 - MBTI: <strong>${mbti}</strong> | エニアグラム: <strong>${enneaText}</strong> ${
-              sfText ? `| <strong>${sfText}</strong>` : ""
-            }</p></div>`;
-          };
-          // ▲▲▲【ここまで】▲▲▲
+            inputContainer.classList.add("hidden");
+            controlContainer.classList.add("hidden");
+            reportContainer.classList.remove("hidden");
 
-          // ▼▼▼【修正点③】ステップ1のコンテンツを生成する関数を修正 ▼▼▼
-          const createProfileSection = () => {
-            // タイトルをより魅力的なものに変更
-            return `<div class="report-section">
-                        <h3><span class="text-2xl mr-2">📊</span>まず、あなたのエネルギーの全体像を見てみましょう</h3>
-                        <p>あなたの8つの基本エネルギー（八卦）の強度を可視化します。これは、あなたの思考や行動の根源的な傾向や、備わっている潜在能力のバランスを示しています。グラフを切り替えて、多角的に自分を捉えてみましょう。</p>
-                        <div class="mt-8">
-                            <div class="flex justify-center border-b border-gray-700 mb-4">
-                                <button id="radar-tab" class="chart-tab active" onclick="switchChart('radar')">全体バランス (レーダー)</button>
-                                <button id="bar-tab" class="chart-tab" onclick="switchChart('bar')">強度ランキング (棒グラフ)</button>
-                            </div>
-                            <div id="radar-chart-container" class="relative mx-auto" style="height: 400px; max-width: 500px;">
-                                <canvas id="energyRadarChart"></canvas>
-                            </div>
-                            <div id="bar-chart-container" class="relative mx-auto hidden" style="height: 400px; max-width: 600px;">
-                                <canvas id="energyBarChart"></canvas>
-                            </div>
-                        </div>
-                        <div class="mt-10">
-                            ${createTalentStrategySection()}
-                        </div>
-                        <div class="mt-6 text-center">
-                            <button id="show-breakdown-btn" class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors">スコアの算出根拠を見る</button>
-                        </div>
-                    </div>`;
-          };
-          // ▲▲▲【ここまで】▲▲▲
-
-          const createTalentStrategySection = () => {
-            const { trigram_profile } = lastAnalysisResult;
-            const strengths = trigram_profile.slice(0, 2);
-            const lowPriorityEnergy =
-              trigram_profile[trigram_profile.length - 1];
-            const strengthHtml = strengths
-              .map(
-                (t) => `
-                        <div class="bg-gray-900/50 p-4 rounded-lg border-l-4" style="border-color: ${
-                          HELPERS.trigram_colors[t.id]
-                        }">
-                            <h5 class="font-bold text-lg" style="color: ${
-                              HELPERS.trigram_colors[t.id]
-                            }">
-                                ${t.name_jp} (${t.name_en})
-                            </h5>
-                            <p class="mt-2 text-sm text-gray-300">${
-                              t.strength_description || "解説準備中..."
-                            }</p>
-                        </div>`
-              )
-              .join("");
-            const environments = {
-              1: "高い理想を掲げ、リーダーとして全体を引っ張っていく環境",
-              2: "社交性が重視され、場を盛り上げる役割が求められる環境",
-              3: "分析力や知性が求められ、物事を明確にする役割",
-              4: "スピード感があり、次々と新しいことを仕掛けていく環境",
-              5: "丁寧なコミュニケーションと調整能力が求められる役割",
-              6: "一つのことを深く掘り下げ、粘り強く探求する環境",
-              7: "物事を着実に継続し、安定を守る役割が求められる環境",
-              8: "献身的なサポートや、縁の下の力持ちとしての役割が求められる環境",
-            };
-            const unfittingEnvText =
-              environments[lowPriorityEnergy.id] ||
-              "特定のスキルが求められる環境";
-            const alternativeStrategiesHtml = strengths
-              .map(
-                (strength) => `
-                        <div class="p-3 bg-gray-800/50 rounded-lg ring-1 ring-gray-700">
-                             <p class="text-sm text-gray-300">
-                                <strong style="color:${
-                                  HELPERS.trigram_colors[strength.id]
-                                }">【${strength.name_jp}のアプローチ】</strong>
-                                <br>
-                                無理に<strong class="text-amber-400">${
-                                  lowPriorityEnergy.name_jp
-                                }</strong>のように振る舞うのではなく、あなたの得意な<strong class="text-white">「${
-                  strength.strength_description
-                }」</strong>を全面に押し出し、全く違うやり方で貢献し、状況を解決します。
-                             </p>
-                        </div>`
-              )
-              .join("");
-            return `<div class="space-y-8"><div><h4 class="font-semibold text-lg text-green-400 mb-3">💡 あなたの才能の源泉（向いていること）</h4><div class="grid md:grid-cols-2 gap-4">${strengthHtml}</div></div><div class="border-t border-gray-700 pt-8"><h4 class="font-semibold text-lg text-cyan-400 mb-3">🎯 才能を活かすための生存戦略</h4><div class="bg-gray-900/50 p-4 rounded-lg space-y-4"><div><p class="text-sm font-semibold text-gray-400">Step 1: 自分に「向いていない」環境を知る</p><p class="mt-1 text-sm text-gray-300">あなたの才能の構成上、<strong class="text-white">【${lowPriorityEnergy.name_jp}】</strong>の力が求められる<strong class="text-white">「${unfittingEnvText}」</strong>は、エネルギー消費が激しく、楽しさを感じにくいかもしれません。</p></div><div class="border-t border-gray-700 pt-4"><p class="text-sm font-semibold text-gray-400">Step 2:「環境を選ぶ」か「やり方を変える」</p><p class="mt-1 text-sm text-gray-300">最も重要な戦略は、<strong class="text-amber-400">自分の才能が活きる環境を意識的に選ぶこと</strong>です。それが、あなたが最も輝く道です。</p><p class="mt-3 text-sm text-gray-300">もし、上記の環境や役割を<strong class="text-red-400">どうしても避けられない場合</strong>は、<strong class="text-amber-400">やり方を自分の得意なスタイルにハックしてしまいましょう。</strong></p></div><div class="border-t border-gray-700 pt-4"><p class="text-sm font-semibold text-gray-400 mb-2">具体的な応用戦略:</p><div class="space-y-3">${alternativeStrategiesHtml}</div></div></div></div></div>`;
-          };
-          const createTrinityModelSection = () => {
-            const { hexagram_candidates } = lastAnalysisResult;
-            const os1 = hexagram_candidates[0]; // Engine
-            const os2 = hexagram_candidates[1]; // Interface
-            const os3 = hexagram_candidates[2]; // Safe Mode
-            const osData = [
-              {
-                title: "インターフェースOS",
-                hex: os2,
-                icon: "🎭",
-                explanation:
-                  "「エンジンOS」の力を、社会や他者との関わりの中でどう表現しているかを示すOS。いわば、世界と接続するための「ペルソナ」や「コミュニケーションスタイル」です。",
-              },
-              {
-                title: "エンジンOS",
-                hex: os1,
-                icon: "🔥",
-                explanation:
-                  "あなたが意識する・しないに関わらず、最も自然で強力にあなたを突き動かす根源的なエネルギー。あなたの行動や価値観の「なぜ？」に答える、魂のエンジンです。",
-              },
-              {
-                title: "セーフモードOS",
-                hex: os3,
-                icon: "🛡️",
-                explanation:
-                  "ストレスを感じたり、困難に直面した時に、無意識に立ち返る「心の安全地帯」。自分の「癖」や「原点」を教えてくれます。",
-              },
-            ];
-            const osCardsHtml = osData
-              .map(
-                (os) =>
-                  `<div class="p-5 rounded-xl shadow-lg flex flex-col bg-gray-900/50 border border-gray-700"><h4 class="text-lg font-bold text-indigo-300 flex items-center mb-2"><span class="text-2xl mr-2">${os.icon}</span>${os.title}</h4><p class="text-xl font-semibold text-gray-100">${os.hex.name_jp}</p><p class="text-sm leading-relaxed text-gray-400 mt-3 break-words">${os.explanation}</p></div>`
-              )
-              .join("");
-            const detailsLinkHtml = `<div class="mt-8 p-4 bg-gray-900/50 rounded-lg text-center border border-gray-700"><p class="text-sm text-gray-300">💡 各OSの詳しい機能や、OS同士の相互作用（相関図マップ）については、次のステップで解説します。</p></div>`;
-            return `<div class="report-section"><h3><span class="text-2xl mr-2">✨</span>あなたの中心を構成する３つの人格OS</h3><p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p><div class="mt-8 text-center"><img src="https://storage.googleapis.com/haqei-public-assets/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="block w-full max-w-sm mx-auto mb-8"></div><div class="grid md:grid-cols-3 gap-6 mt-6">${osCardsHtml}</div>${detailsLinkHtml}</div>`;
-          };
-
-          // ▼▼▼【修正点④】ステップ3のコンテンツを生成する関数を新設・役割変更 ▼▼▼
-          const createArchitectureAndNextStepSection = () => {
-            // --- 既存の `createArchitectureSection` のロジックをここに移動 ---
-            const { hexagram_candidates } = lastAnalysisResult;
-            const osTypes = [
-              {
-                title: "本質OS (エンジン)",
-                highlightClass: "highlight-primary",
-                icon: "🔥",
-              },
-              {
-                title: "表舞台のOS (インターフェース)",
-                highlightClass: "highlight-secondary",
-                icon: "🎭",
-              },
-              {
-                title: "可能性のOS (セーフモード)",
-                highlightClass: "highlight-growth",
-                icon: "🛡️",
-              },
-            ];
-
-            const osSections = hexagram_candidates
-              .slice(0, 3)
-              .map((os, index) => {
-                const osTypeDef = osTypes[index];
-                const manualData = HDB.os_manual[os.hexagram_id];
-                const osExplanation =
-                  manualData?.summary ||
-                  HELPERS.getHexagramById(os.hexagram_id)?.description ||
-                  "詳細な説明は準備中です";
-                const upperTrigram = HELPERS.getTrigramById(
-                  os.upper_trigram_id
+            const osCardsHtml = osList
+              .map((osItem) => {
+                const os = osItem.data;
+                const desc = getOsDescription(
+                  os.hexagram_id,
+                  `as_${osItem.role}`
                 );
-                const lowerTrigram = HELPERS.getTrigramById(
-                  os.lower_trigram_id
-                );
+                const roleInfo = {
+                  engine: { label: "エンジンOS", color: "red" },
+                  interface: { label: "インターフェースOS", color: "blue" },
+                  safemode: { label: "セーフモードOS", color: "gray" },
+                };
+                const info = roleInfo[osItem.role];
 
-                let architectureExplanation = `<p>${osExplanation}</p>`;
-                if (upperTrigram && lowerTrigram) {
-                  architectureExplanation += `<p class="text-sm mt-4 italic text-gray-400">このOSは、上卦（外面・精神）に<strong class="text-indigo-300">【${HELPERS.createTermTooltip(
-                    upperTrigram.name_jp,
-                    upperTrigram.strength_description
-                  )}】</strong>の性質、下卦（内面・行動）に<strong class="text-indigo-300">【${HELPERS.createTermTooltip(
-                    lowerTrigram.name_jp,
-                    lowerTrigram.strength_description
-                  )}】</strong>の性質を併せ持ちます。</p>`;
-                }
-
-                let manualHtml = "";
-                if (manualData) {
-                  manualHtml = `<div class="mt-6"><details class="group"><summary class="flex items-center justify-between cursor-pointer text-indigo-300 font-semibold"><span>OS取扱説明書を見る</span><svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></summary><div class="mt-4 pt-4 border-t border-gray-600 space-y-4 text-sm"><div><h5 class="font-bold text-yellow-400">暴走パターン</h5><p>${
-                    manualData.debug_pattern
-                  }</p></div><div><h5 class="font-bold text-green-400">脱出方法</h5><p>${
-                    manualData.debug_method
-                  }</p></div><div><h5 class="font-bold text-cyan-400">最適化行動</h5><ul class="list-disc list-inside space-y-1">${manualData.quests
-                    .map((q) => `<li>${q}</li>`)
-                    .join("")}</ul></div></div></details></div>`;
-                }
-
-                return `<div class="bg-gray-800/60 p-6 rounded-2xl"><h3 class="text-xl font-bold text-indigo-300 flex items-center"><span class="text-2xl mr-3">${
-                  osTypeDef.icon
-                }</span>${index + 1}. ${os.name_jp} - 【${
-                  osTypeDef.title
-                }】</h3><p class="text-sm text-gray-500 ml-10">総合スコア: ${
-                  os.final_score
-                }</p><div class="my-4 pl-10">${architectureExplanation}</div><div class="pl-10"><p><strong>関連キーワード:</strong> ${
-                  os.keywords
-                }</p>${manualHtml}</div></div>`;
+                return `
+                        <div class="p-4 bg-gray-900/50 rounded-lg border-l-4 border-${info.color}-400">
+                            <p class="text-sm text-${info.color}-300 font-bold">${info.label}</p>
+                            <p class="text-xl font-semibold">${os.name_jp}</p>
+                            <p class="text-sm text-gray-400 mb-4">${os.catchphrase}</p>
+                            <div class="prose-custom text-sm">
+                                <p>${desc.role_desc}</p>
+                                <div class="mt-4 pt-4 border-t border-gray-700/50">
+                                    <p class="font-semibold text-green-400">可能性の種：</p>
+                                    <p>${desc.potential}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
               })
               .join("");
 
-            const mapHtml = `<div class="mt-12"><h3 class="text-xl font-bold text-indigo-300">人格OS相関図（64卦マップ）</h3><p class="mt-2">あなたのOSが、易経の宇宙観の中でどのような位置にあるかを示します。クリックで各OSの関係性を探求できます。</p><div id="hex-map-info" class="my-3 p-3 bg-gray-900/50 rounded-lg"><p class="text-center text-sm text-gray-400">マップ上のOSをクリックして、そのOSの関連性を表示します。</p></div><div class="overflow-x-auto rounded-lg border border-gray-700 p-2 bg-gray-900/30"><div class="hex-map-container mt-2" style="min-width: 500px;"></div></div><div class="flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs mt-2"><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-orange-400 rounded-sm"></span>錯卦(真逆)</span><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dashed border-blue-400 rounded-sm"></span>綜卦(裏側)</span><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dotted border-green-400 rounded-sm"></span>互卦(内包)</span></div></div>`;
-
-            // --- ここからが新設部分 ---
-            const nextStepHtml = `
-                <div class="mt-16 pt-8 border-t-2 border-dashed border-gray-700 text-center">
-                    <h3 class="text-2xl font-bold text-amber-300">あなたの「地図」が完成しました</h3>
-                    <p class="mt-4 text-gray-300 max-w-2xl mx-auto">
-                        これが、あなたというユニークな存在を理解するための最初の地図です。<br>
-                        しかし、最高の地図を手に入れても、次にどこへ向かうべきか、どの道を選ぶべきか、という問いが生まれます。
-                    </p>
-                    <p class="mt-6 text-xl text-white font-semibold">
-                        「自分のOS（地図）は手に入れた。では、このOSを使って、人生という道をどう進んでいけばいいのだろう？」
-                    </p>
-                    <p class="mt-4 text-gray-400">
-                        その問いに答えるための次のツールが「未来分岐シミュレーター」です。<br>
-                        あなたの現在地と選択肢から、未来の可能性を探ってみましょう。
-                    </p>
-                    <div class="mt-8">
-                        <a href="future_simulator.html?mbti=${lastUserProfile.mbti}" class="bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105 shadow-lg shadow-amber-500/30 inline-block">
-                            未来分岐シミュレーターで次の道を探る &rarr;
-                        </a>
-                    </div>
-                </div>
+            reportContainer.innerHTML = `
+                  <div class="text-center">
+                      <h2 class="text-2xl font-bold text-indigo-300">分析完了</h2>
+                      <p class="mt-4 text-gray-300">あなたの3つの人格OSが特定されました。</p>
+                      <div class="mt-6 space-y-4 text-left">${osCardsHtml}</div>
+                      <div class="mt-10 pt-8 border-t border-gray-700">
+                        <h3 class="text-xl font-bold text-amber-300 mb-4">アバターとOSの共鳴</h3>
+                        <div id="narrative-content" class="text-left text-gray-300 prose-custom max-w-none"></div>
+                      </div>
+                      <div class="mt-10">
+                            <a href="future_simulator.html" class="bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105 shadow-lg shadow-amber-500/30 inline-block">
+                                未来分岐シミュレーターで次の道を探る &rarr;
+                            </a>
+                      </div>
+                  </div>
                 `;
 
-            // 全体を結合して返す
-            return `<div class="report-section"><h3><span class="text-2xl mr-2">🗺️</span>広大な世界の中でのあなたの現在地</h3><div class="space-y-8 mt-8">${osSections}</div>${mapHtml}${nextStepHtml}</div>`;
-          };
-          // ▲▲▲【ここまで】▲▲▲
-
-          // --- ストーリーテリングUI制御関数 ---
-          const displayStoryView = () => {
-            reportContainer.innerHTML = ""; // コンテナをクリア
-            const header = document.createElement("div");
-            header.innerHTML = createPageHeader(); // 修正済みのヘッダー関数を呼び出す
-            reportContainer.appendChild(header);
-
-            const contentContainer = document.createElement("div");
-            reportContainer.appendChild(contentContainer);
-            const currentStepFunction = storySteps[currentStepIndex];
-
-            if (typeof currentStepFunction === "function") {
-              const stepContent = currentStepFunction();
-              contentContainer.innerHTML = stepContent;
-
-              // 動的に追加された要素へのイベントリスナー再設定
-              if (currentStepIndex === 0) {
-                setTimeout(() => {
-                  switchChart(activeChart);
-                }, 0);
-                document
-                  .getElementById("show-breakdown-btn")
-                  .addEventListener("click", () =>
-                    showBreakdownModal(lastAnalysisResult.score_breakdown)
-                  );
-              } else if (currentStepIndex === 2) {
-                // ステップ3でマップを描画する
-                renderHexagramMap(lastAnalysisResult.hexagram_candidates);
-              }
-            }
-            const navContainer = document.createElement("div");
-            navContainer.className =
-              "flex justify-between items-center mt-12 pt-6 border-t border-gray-700";
-            // ▼▼▼【修正点⑤】ナビゲーションの文言を3ステップ構成に合わせる ▼▼▼
-            const navHtml = `
-                    <button id="prev-btn" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition ${
-                      currentStepIndex === 0 ? "invisible" : ""
-                    }">
-                        &larr; 戻る
-                    </button>
-                    <div class="text-sm text-gray-400">
-                        ステップ ${currentStepIndex + 1} / ${storySteps.length}
-                    </div>
-                    <button id="next-btn" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition">
-                        ${
-                          currentStepIndex === storySteps.length - 1
-                            ? "もう一度最初から"
-                            : "次へ &rarr;"
-                        }
-                    </button>
-                `;
-            // ▲▲▲【ここまで】▲▲▲
-            navContainer.innerHTML = navHtml;
-            reportContainer.appendChild(navContainer);
-            window.scrollTo({ top: 0, behavior: "smooth" });
-
-            const prevBtn = navContainer.querySelector("#prev-btn");
-            if (prevBtn) {
-              prevBtn.addEventListener("click", () => {
-                if (currentStepIndex > 0) {
-                  currentStepIndex--;
-                  displayStoryView();
-                }
-              });
-            }
-            const nextBtn = navContainer.querySelector("#next-btn");
-            if (nextBtn) {
-              nextBtn.addEventListener("click", () => {
-                if (currentStepIndex < storySteps.length - 1) {
-                  currentStepIndex++;
-                  displayStoryView();
-                } else {
-                  // 最終ステップのボタンは「最初から」なので入力画面に戻す
-                  reportContainer.innerHTML = "";
-                  reportContainer.classList.add("hidden");
-                  inputContainer.classList.remove("hidden");
-                }
-              });
-            }
-          };
-
-          // グラフ描画関数（変更なし）
-          window.switchChart = (type) => {
-            activeChart = type;
-            const radarContainer = document.getElementById(
-              "radar-chart-container"
-            );
-            const barContainer = document.getElementById("bar-chart-container");
-            const radarTab = document.getElementById("radar-tab");
-            const barTab = document.getElementById("bar-tab");
-
-            if (type === "radar") {
-              radarContainer.classList.remove("hidden");
-              barContainer.classList.add("hidden");
-              radarTab.classList.add("active");
-              barTab.classList.remove("active");
-              renderRadarChart(lastAnalysisResult.trigram_profile);
-            } else {
-              radarContainer.classList.add("hidden");
-              barContainer.classList.remove("hidden");
-              radarTab.classList.remove("active");
-              barTab.classList.add("active");
-              renderBarChart(lastAnalysisResult.trigram_profile);
-            }
-          };
-          const renderRadarChart = (trigram_profile) => {
-            const canvasElement = document.getElementById("energyRadarChart");
-            if (!canvasElement) return;
-            const existingChart = Chart.getChart(canvasElement);
-            if (existingChart) existingChart.destroy();
-            const ctx = canvasElement.getContext("2d");
-            const sortedProfile = [...trigram_profile].sort(
-              (a, b) => a.id - b.id
-            );
-            new Chart(ctx, {
-              type: "radar",
-              data: {
-                labels: sortedProfile.map((t) => `${t.name_jp} (${t.name_en})`),
-                datasets: [
-                  {
-                    label: "エネルギー強度",
-                    data: sortedProfile.map((t) => t.score),
-                    fill: true,
-                    backgroundColor: "rgba(165, 180, 252, 0.2)",
-                    borderColor: "#a5b4fc",
-                    pointBackgroundColor: sortedProfile.map(
-                      (t) => HELPERS.trigram_colors[t.id]
-                    ),
-                    pointBorderColor: "#fff",
-                    pointHoverBackgroundColor: "#fff",
-                    pointHoverBorderColor: sortedProfile.map(
-                      (t) => HELPERS.trigram_colors[t.id]
-                    ),
-                  },
-                ],
-              },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                  r: {
-                    angleLines: { color: "rgba(255, 255, 255, 0.2)" },
-                    grid: { color: "rgba(255, 255, 255, 0.2)" },
-                    pointLabels: {
-                      font: { size: 12 },
-                      color: sortedProfile.map(
-                        (t) => HELPERS.trigram_colors[t.id]
-                      ),
-                    },
-                    ticks: {
-                      color: "rgba(255,255,255,0.7)",
-                      backdropColor: "rgba(0,0,0,0)",
-                      stepSize: 2,
-                    },
-                    suggestedMin: 0,
-                  },
-                },
-                plugins: { legend: { display: false } },
-              },
-            });
-          };
-          const renderBarChart = (trigram_profile) => {
-            const canvasElement = document.getElementById("energyBarChart");
-            if (!canvasElement) return;
-            const existingChart = Chart.getChart(canvasElement);
-            if (existingChart) existingChart.destroy();
-            const ctx = canvasElement.getContext("2d");
-            const sortedProfile = trigram_profile;
-            const maxScore = Math.max(...sortedProfile.map((p) => p.score), 6);
-            const outsideLabels = {
-              id: "outsideLabels",
-              afterDatasetsDraw(chart, args, options) {
-                const { ctx } = chart;
-                ctx.save();
-                ctx.font = 'normal 14px "Inter"';
-                ctx.fillStyle = "#d1d5db";
-                ctx.textAlign = "left";
-                for (let i = 0; i < chart.getDatasetMeta(0).data.length; i++) {
-                  const yPos = chart.getDatasetMeta(0).data[i].y;
-                  const xPos = chart.scales.x.right + 15;
-                  const text = sortedProfile[i].score.toFixed(1);
-                  ctx.textBaseline = "middle";
-                  ctx.fillText(text, xPos, yPos);
-                }
-                ctx.restore();
-              },
-            };
-            new Chart(ctx, {
-              type: "bar",
-              data: {
-                labels: sortedProfile.map((t) => `${t.name_jp} (${t.name_en})`),
-                datasets: [
-                  {
-                    label: "エネルギー強度",
-                    data: sortedProfile.map((t) => t.score),
-                    backgroundColor: sortedProfile.map(
-                      (t) => HELPERS.trigram_colors[t.id]
-                    ),
-                    borderRadius: 5,
-                    borderSkipped: false,
-                  },
-                  {
-                    label: "背景トラック",
-                    data: sortedProfile.map((t) => maxScore - t.score),
-                    backgroundColor: "#374151",
-                    borderRadius: 5,
-                    borderSkipped: false,
-                  },
-                ],
-              },
-              options: {
-                indexAxis: "y",
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: { padding: { right: 50 } },
-                scales: {
-                  x: { stacked: true, display: false },
-                  y: {
-                    stacked: true,
-                    grid: { display: false, drawBorder: false },
-                    ticks: {
-                      color: (context) =>
-                        HELPERS.trigram_colors[sortedProfile[context.index].id],
-                      font: { size: 14, weight: "bold" },
-                    },
-                  },
-                },
-                plugins: {
-                  legend: { display: false },
-                  tooltip: { enabled: false },
-                },
-              },
-              plugins: [outsideLabels],
-            });
-          };
-          const renderHexagramMap = (hexagram_candidates) => {
-            const container = document.querySelector(".hex-map-container");
-            if (!container) return;
-            container.innerHTML = "";
-            const top3Ids = hexagram_candidates
-              .slice(0, 3)
-              .map((h) => h.hexagram_id);
-            const osTypes = [
-              "highlight-primary",
-              "highlight-secondary",
-              "highlight-growth",
-            ];
-            const trigramOrder = [1, 2, 3, 4, 5, 6, 7, 8];
-            container.appendChild(document.createElement("div"));
-            trigramOrder.forEach((id) => {
-              const trigramData = HELPERS.getTrigramById(id);
-              const headerCell = document.createElement("div");
-              headerCell.className = "map-header";
-              headerCell.innerHTML = HELPERS.createTermTooltip(
-                trigramData.name_jp,
-                `${trigramData.name_en}: ${trigramData.strength_description}`
-              );
-              headerCell.title = `外卦(上卦): ${trigramData.name_en}`;
-              container.appendChild(headerCell);
-            });
-            trigramOrder.forEach((lowerId) => {
-              const trigramData = HELPERS.getTrigramById(lowerId);
-              const headerCell = document.createElement("div");
-              headerCell.className = "map-header";
-              headerCell.innerHTML = HELPERS.createTermTooltip(
-                trigramData.name_jp,
-                `${trigramData.name_en}: ${trigramData.strength_description}`
-              );
-              headerCell.title = `内卦(下卦): ${trigramData.name_en}`;
-              container.appendChild(headerCell);
-              trigramOrder.forEach((upperId) => {
-                const hexData = HDB.hexagrams_master.find(
-                  (h) =>
-                    h.upper_trigram_id === upperId &&
-                    h.lower_trigram_id === lowerId
+            // ナラティブ表示のロジック
+            const quickData = (() => {
+              try {
+                return JSON.parse(
+                  localStorage.getItem("haqeiQuickAnalyzerData")
                 );
-                const cell = document.createElement("div");
-                if (hexData) {
-                  cell.className = "hex-cell";
-                  cell.dataset.id = hexData.hexagram_id;
-                  cell.title = `${hexData.hexagram_id}: ${hexData.name_jp}`;
-                  const content = document.createElement("div");
-                  content.className = "hex-cell-content";
-                  content.innerHTML = `<span class="hex-name">${hexData.name_jp}</span><span class="hex-id">${hexData.hexagram_id}</span>`;
-                  cell.appendChild(content);
-                  const topIndex = top3Ids.indexOf(hexData.hexagram_id);
-                  if (topIndex !== -1) cell.classList.add(osTypes[topIndex]);
-                }
-                container.appendChild(cell);
-              });
-            });
-            container.querySelectorAll(".hex-cell").forEach((cell) => {
-              cell.addEventListener("click", (e) => {
-                e.stopPropagation();
-                const id = parseInt(cell.dataset.id);
-                if (isNaN(id)) return;
-                const h64Data = HELPERS.getH64ById(id);
-                if (!h64Data) return;
-                container
-                  .querySelectorAll(".hex-cell")
-                  .forEach((c) =>
-                    c.classList.remove(
-                      "selected",
-                      "highlight-sakka",
-                      "highlight-souka",
-                      "highlight-goke"
-                    )
-                  );
-                cell.classList.add("selected");
-                if (h64Data.saku_id !== id)
-                  container
-                    .querySelector(`.hex-cell[data-id='${h64Data.saku_id}']`)
-                    ?.classList.add("highlight-sakka");
-                if (h64Data.sou_id !== id)
-                  container
-                    .querySelector(`.hex-cell[data-id='${h64Data.sou_id}']`)
-                    ?.classList.add("highlight-souka");
-                if (h64Data.go_id !== id)
-                  container
-                    .querySelector(`.hex-cell[data-id='${h64Data.go_id}']`)
-                    ?.classList.add("highlight-goke");
-                const mapInfo = document.getElementById("hex-map-info");
-                if (mapInfo) {
-                  const getHexSummary = (hexId) =>
-                    HELPERS.getHexagramById(hexId)?.description ||
-                    "解説が見つかりませんでした。";
-                  const sakkaData = HELPERS.getH64ById(h64Data.saku_id);
-                  const soukaData = HELPERS.getH64ById(h64Data.sou_id);
-                  const gokeData = HELPERS.getH64ById(h64Data.go_id);
-                  mapInfo.innerHTML = `<div class="w-full text-left"><p class="font-bold text-white text-base text-center mb-2 pb-2 border-b border-gray-700">${
-                    h64Data.名前
-                  }</p><div class="space-y-2"><div class="relation-block">${
-                    h64Data.saku_id === id
-                      ? `<p><span class="text-orange-400 font-semibold">錯卦: このOS自身</span><br><span class="text-xs text-gray-400">陰陽を反転させても同じ構造を持つ、完全なOSです。</span></p>`
-                      : `<p><span class="text-orange-400 font-semibold">錯卦: ${
-                          sakkaData.名前
-                        }</span><br><span class="text-xs text-gray-400">あなたのOSの全陰陽を反転させた「真逆の性質」。最大の課題と可能性を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                          sakkaData.卦番号
-                        )}</div></details>`
-                  }</div><div class="relation-block">${
-                    h64Data.sou_id === id
-                      ? `<p><span class="text-blue-400 font-semibold">綜卦: このOS自身</span><br><span class="text-xs text-gray-400">上下を反転させても同じ構造を持つ、安定したOSです。</span></p>`
-                      : `<p><span class="text-blue-400 font-semibold">綜卦: ${
-                          soukaData.名前
-                        }</span><br><span class="text-xs text-gray-400">あなたのOSを上下反転させた「裏側の性質」。他者からの見え方や隠れた側面を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                          soukaData.卦番号
-                        )}</div></details>`
-                  }</div><div class="relation-block">${
-                    h64Data.go_id === id
-                      ? `<p><span class="text-green-400 font-semibold">互卦: このOS自身</span><br><span class="text-xs text-gray-400">内に同じ構造を内包する、自己完結したエネルギーを持ちます。</span></p>`
-                      : `<p><span class="text-green-400 font-semibold">互卦: ${
-                          gokeData.名前
-                        }</span><br><span class="text-xs text-gray-400">あなたのOSの内に秘められた「隠れた本質」。ポテンシャルや問題の核心を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                          gokeData.卦番号
-                        )}</div></details>`
-                  }</div></div></div>`;
-                }
-              });
-            });
-          };
-          const showBreakdownModal = (breakdownData) => {
-            let contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-4">OSスコア算出根拠</h3><p class="text-sm text-gray-400 mb-4">あなたの性格特性が、8つの基本エネルギー（八卦）にどのように貢献しているかの内訳です。各数値は、特性の親和性と重み付けを掛け合わせたスコアを示します。</p><div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-400"><thead class="text-xs text-gray-300 uppercase bg-gray-700"><tr><th scope="col" class="px-4 py-3">分析項目</th>`;
-            const trigramHeaders = [...HDB.trigrams_master].sort(
-              (a, b) => a.trigram_id - b.trigram_id
-            );
-            trigramHeaders.forEach((t) => {
-              contentHtml += `<th scope="col" class="px-4 py-3 text-center" title="${t.name_jp}">${t.name_en}</th>`;
-            });
-            contentHtml += `</tr></thead><tbody>`;
-            const sources = [
-              breakdownData.mbti,
-              ...breakdownData.enneagram,
-              ...breakdownData.sf,
-            ];
-            sources.forEach((source) => {
-              if (source) {
-                contentHtml += `<tr class="border-b border-gray-700 hover:bg-gray-600/50"><th scope="row" class="px-4 py-3 font-medium text-white whitespace-nowrap">${source.type}</th>`;
-                trigramHeaders.forEach((t) => {
-                  const score = source.breakdown[t.trigram_id] || 0;
-                  contentHtml += `<td class="px-4 py-3 text-center">${score.toFixed(
-                    1
-                  )}</td>`;
-                });
-                contentHtml += `</tr>`;
+              } catch (e) {
+                return null;
               }
-            });
-            contentHtml += `</tbody></table></div>`;
-            showModal(contentHtml);
-          };
+            })();
+            const narrativeContent =
+              document.getElementById("narrative-content");
+            if (quickData && quickData.avatarTrigramId) {
+              const avatar = HELPERS.getTrigramById(quickData.avatarTrigramId);
+              let narrative = `<p>クイック診断で特定されたあなたの『八卦アバター』は<strong>【${avatar.name_jp}】</strong>でした。これは、あなたが他者から見られやすい「第一印象」や、社会と関わる際の「表層的なペルソナ」を象徴する、あなたの大切な「分人」の一つです。</p>`;
+              let foundResonance = false;
+              osList.forEach((osItem) => {
+                if (foundResonance || !osItem.data) return;
+                if (avatar.trigram_id === osItem.data.upper_trigram_id) {
+                  narrative += `<p>この<strong>【${avatar.name_jp}】</strong>のエネルギーは、あなたのOSの一つ<strong>『${osItem.data.name_jp}』</strong>の外面的な側面（上卦）と完全に一致しています。これは、あなたの第一印象と精神的な性質が直結していることを示しており、<strong>あなたの考えや理念がストレートに周囲に伝わりやすい</strong>ことを意味します。</p>`;
+                  foundResonance = true;
+                } else if (avatar.trigram_id === osItem.data.lower_trigram_id) {
+                  narrative += `<p>この<strong>【${avatar.name_jp}】</strong>のエネルギーは、あなたのOSの一つ<strong>『${osItem.data.name_jp}』</strong>の内面的な側面（下卦）と完全に一致しています。これは、あなたの行動原理や無意識の「癖」が、そのままあなたの雰囲気として周囲に伝わっていることを示します。</p>`;
+                  foundResonance = true;
+                }
+              });
+              if (!foundResonance) {
+                narrative +=
+                  "<p>興味深いことに、あなたの『八卦アバター』は、3つのOSを構成するどの八卦とも直接的な関連性が薄いようです。これは、あなたが<strong>社会的な場面で見せる顔と、あなたの内面的なOSの間に、ある種のギャップがある</strong>ことを示唆しています。</p>";
+              }
+              narrativeContent.innerHTML = narrative;
+            } else {
+              narrativeContent.innerHTML = `<p class="text-center text-gray-400">先に「クイック診断」を行うと、あなたのアバターとOSの連携についての特別な解説がここに表示されます。</p>`;
+            }
+          }
 
           // --- 初期化とイベントリスナー設定 ---
-          populateSelects();
-          modalOverlay.addEventListener("click", hideModal);
-          modalCloseBtn.addEventListener("click", hideModal);
-          startDiagnosticBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            showDiagnosticModal();
+          analyzeBtn.disabled = true;
+          agreementCheckbox.addEventListener("change", () => {
+            analyzeBtn.disabled = !agreementCheckbox.checked;
           });
+          renderQuestions();
 
           analyzeBtn.addEventListener("click", () => {
-            const sfSelects = document.querySelectorAll(".sf-select");
-            lastUserProfile = {
-              mbti: mbtiSelect.value,
-              enneagram: enneaSelects.map((s) => s.value).filter(Boolean),
-              sf: Array.from(sfSelects)
-                .map((s) => s.value)
-                .filter(Boolean),
+            const analysisResult = runOsAnalysis();
+            if (!analysisResult) return;
+
+            const quickData = (() => {
+              try {
+                return JSON.parse(
+                  localStorage.getItem("haqeiQuickAnalyzerData")
+                );
+              } catch (e) {
+                return null;
+              }
+            })();
+            const dataToStore = {
+              osEngineId: analysisResult.hexagram_candidates[0].hexagram_id,
+              osInterfaceId: analysisResult.hexagram_candidates[1].hexagram_id,
+              osSafeModeId: analysisResult.hexagram_candidates[2].hexagram_id,
+              avatarTrigramId:
+                quickData && quickData.avatarTrigramId
+                  ? quickData.avatarTrigramId
+                  : null,
+              analysisResult: analysisResult,
             };
-            if (!lastUserProfile.mbti || !lastUserProfile.enneagram[0]) {
-              alert(
-                "MBTIと、主要なエニアグラムタイプ（1番目）を必ず選択してください。"
-              );
-              return;
-            }
-            lastAnalysisResult = runAdvancedAnalysis(lastUserProfile);
+
             try {
-              const dataToStore = {
-                analysisResult: lastAnalysisResult,
-                userProfile: lastUserProfile,
-                userContext: {
-                  analyzedAt: new Date().toISOString(),
-                  tool: "人格OS 分析レポート",
-                },
-              };
-              // localStorageに 'haqeiOsAnalyzerData' というキーで分析結果を保存します
               localStorage.setItem(
                 "haqeiOsAnalyzerData",
                 JSON.stringify(dataToStore)
               );
-              console.log("OS分析データをlocalStorageに保存しました。");
+              console.log(
+                "OS分析データをlocalStorageに保存しました。",
+                dataToStore
+              );
             } catch (e) {
               console.error("OS分析データの保存に失敗しました:", e);
             }
 
-            // ▼▼▼【修正点⑥】ストーリーのステップ定義を新しい構成に更新 ▼▼▼
-            storySteps = [
-              createProfileSection,
-              createTrinityModelSection,
-              createArchitectureAndNextStepSection,
-            ];
-            // ▲▲▲【ここまで】▲▲▲
-
-            inputContainer.classList.add("hidden");
-            reportContainer.classList.remove("hidden");
-            currentStepIndex = 0;
-            displayStoryView();
+            displayReport(analysisResult);
           });
         } catch (error) {
           console.error("初期化に失敗:", error);
-          document.body.innerHTML = "ページの読み込みに失敗しました。";
+          document.body.innerHTML = `<div class="text-center text-red-400 p-8">ページの読み込みに失敗しました: ${error.message}</div>`;
         }
       });
     </script>
-    <footer class="bg-gray-800">
-      <footer class="w-full max-w-4xl mx-auto text-center p-6 mt-8 border-t border-gray-700">
-    <div class="space-x-4 mb-4">
-        <a href="/terms.html" target="_blank" class="text-sm text-gray-400 hover:text-white">利用規約</a>
-        <a href="/privacy.html" target="_blank" class="text-sm text-gray-400 hover:text-white">プライバシーポリシー</a>
-    </div>
-      <div class="container mx-auto px-6 py-4 text-center text-gray-400">
-        <p>&copy; 2025 HaQei. All Rights Reserved.</p>
-      </div>
-    </footer>
   </body>
-  
 </html>
