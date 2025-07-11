@@ -2,6 +2,7 @@
 
 export const HAQEI_DATA = {
   // --- 基本データ ---
+
   trigrams_master: [
     {
       trigram_id: 1,
@@ -11386,7 +11387,15 @@ export const HAQEI_DATA = {
   ],
   os_manual: {
     1: {
+      hexagram_id: 1,
       name: "乾為天",
+      keyword_short: "創造",
+      archetype_icon: "🐉",
+      micro_examples: [
+        "0→1 を生み出す起業家",
+        "大胆なビジョンを掲げるリーダー",
+        "コンセプト・クリエイター",
+      ],
       summary:
         "純粋な創造エネルギーと、理想を追求する推進力を持つOS。すべての物事を始めるための、強力な始動エンジン。",
       strategic_roles: [
@@ -11409,7 +11418,15 @@ export const HAQEI_DATA = {
       ],
     },
     2: {
+      hexagram_id: 2,
       name: "坤為地",
+      keyword_short: "受容",
+      archetype_icon: "🌍",
+      micro_examples: [
+        "最高のNo.2（右腕）",
+        "才能を育てるインキュベーター",
+        "コミュニティ・プラットフォーム",
+      ],
       summary:
         "あらゆる情報や人材を受け入れ、安定した基盤の上で育成するOS。献身的なサポート能力と、物事を着実に実行する力を持つ。",
       strategic_roles: [
@@ -11432,7 +11449,15 @@ export const HAQEI_DATA = {
       ],
     },
     3: {
+      hexagram_id: 3,
       name: "水雷屯",
+      keyword_short: "混沌",
+      archetype_icon: "🌱",
+      micro_examples: [
+        "0→1の新規事業立ち上げ担当者",
+        "混沌から秩序を生み出すPM",
+        "R&D（研究開発）担当者",
+      ],
       summary:
         "混沌とした状況の中から、粘り強い思考力で課題を発見し、新たな可能性を生み出すOS。新規事業や未知の領域で真価を発揮する。",
       strategic_roles: [
@@ -11455,7 +11480,15 @@ export const HAQEI_DATA = {
       ],
     },
     4: {
+      hexagram_id: 4,
       name: "山水蒙",
+      keyword_short: "学習",
+      archetype_icon: "🎓",
+      micro_examples: [
+        "優秀な弟子・見習い",
+        "新規分野の学習者",
+        "常識にとらわれないアイデアパーソン",
+      ],
       summary:
         "未知の世界や新しい情報に対し、先入観なく素直に吸収できるOS。学習能力と、物事の本質を掴むポテンシャルが高い。",
       strategic_roles: [
@@ -11478,7 +11511,15 @@ export const HAQEI_DATA = {
       ],
     },
     5: {
+      hexagram_id: 5,
       name: "水天需",
+      keyword_short: "待機",
+      archetype_icon: "⏳",
+      micro_examples: [
+        "長期戦略家",
+        "粘り強いネゴシエーター",
+        "周到な準備を行うPM",
+      ],
       summary:
         "好機をじっくりと待つことができる、忍耐力と大局観を持つOS。焦らず準備を進める戦略性に長けるが、好機を逃すリスクもある。",
       strategic_roles: [
@@ -11501,7 +11542,11 @@ export const HAQEI_DATA = {
       ],
     },
     6: {
+      hexagram_id: 6,
       name: "天水訟",
+      keyword_short: "議論",
+      archetype_icon: "⚖️",
+      micro_examples: ["ディベーター", "内部監査役", "原則を重んじる批評家"],
       summary:
         "正義感が強く、論理的な議論で白黒つけたがるOS。真実を追求し、問題を明確にする力があるが、人間関係で不必要な対立を生みやすい。",
       strategic_roles: [
@@ -11524,7 +11569,15 @@ export const HAQEI_DATA = {
       ],
     },
     7: {
+      hexagram_id: 7,
       name: "地水師",
+      keyword_short: "統率",
+      archetype_icon: "🏛️",
+      micro_examples: [
+        "軍隊の司令官",
+        "大規模プロジェクトのリーダー",
+        "CEO・COO",
+      ],
       summary:
         "人々をまとめ、大きな目標に向かって導く統率力を持つOS。規律と大義を重んじるが、時に冷徹で非情なリーダーになる危険性も秘めている。",
       strategic_roles: [
@@ -11547,7 +11600,15 @@ export const HAQEI_DATA = {
       ],
     },
     8: {
+      hexagram_id: 8,
       name: "水地比",
+      keyword_short: "協調",
+      archetype_icon: "🤝",
+      micro_examples: [
+        "コミュニティ・ビルダー",
+        "優れたネットワーカー",
+        "組織の潤滑油となる調整役",
+      ],
       summary:
         "誰とでも親しくなれる、社交性と協調性のOS。人々を繋ぎ、助け合うことを喜びとするが、時に馴れ合いに流され、本来の目的を見失う。",
       strategic_roles: [
@@ -11570,7 +11631,15 @@ export const HAQEI_DATA = {
       ],
     },
     9: {
+      hexagram_id: 9,
       name: "風天小畜",
+      keyword_short: "抑制",
+      archetype_icon: "🌦️",
+      micro_examples: [
+        "堅実な実務家",
+        "リスクマネージャー",
+        "品質保証（QA）担当者",
+      ],
       summary:
         "大きな力が、目に見えない障害によって、少しだけ留められているOS。粘り強く、地道な努力で状況を打開する力を持つ。",
       strategic_roles: [
@@ -11593,7 +11662,15 @@ export const HAQEI_DATA = {
       ],
     },
     10: {
+      hexagram_id: 10,
       name: "天沢履",
+      keyword_short: "礼節",
+      archetype_icon: "🐅",
+      micro_examples: [
+        "危機管理のスペシャリスト",
+        "礼節を重んじる交渉人",
+        "コンプライアンス責任者",
+      ],
       summary:
         "虎の尾を踏むような危険な状況でも、礼儀と慎重さで乗り切るOS。高いリスク管理能力と、緊張感のある場での対人スキルを持つ。",
       strategic_roles: [
@@ -11616,7 +11693,15 @@ export const HAQEI_DATA = {
       ],
     },
     11: {
+      hexagram_id: 11,
       name: "地天泰",
+      keyword_short: "調和",
+      archetype_icon: "☯️",
+      micro_examples: [
+        "組織開発コンサルタント",
+        "優れたファシリテーター",
+        "平和を創る調停者",
+      ],
       summary:
         "天地の気が交わるように、すべてがスムーズに流れ、安定と繁栄を享受する調和のOS。誰とでも良好な関係を築き、場を安定させる。",
       strategic_roles: [
@@ -11639,7 +11724,15 @@ export const HAQEI_DATA = {
       ],
     },
     12: {
+      hexagram_id: 12,
       name: "天地否",
+      keyword_short: "閉塞",
+      archetype_icon: "🚧",
+      micro_examples: [
+        "孤高の研究者",
+        "時代を待つ思想家",
+        "内省するアーティスト",
+      ],
       summary:
         "何をしても通じない、完全な閉塞感の中で、じっと耐え、本質を見極めるOS。他者と距離を置き、内なる世界を深く追求する力を持つ。",
       strategic_roles: [
@@ -11662,7 +11755,15 @@ export const HAQEI_DATA = {
       ],
     },
     13: {
+      hexagram_id: 13,
       name: "天火同人",
+      keyword_short: "同志",
+      archetype_icon: "🔥",
+      micro_examples: [
+        "オープンイノベーションの推進者",
+        "NPO・社団法人の設立者",
+        "理念採用の責任者",
+      ],
       summary:
         "公平無私な精神で、多くの人々と協力関係を築くことができるOS。オープンなコミュニケーションを好み、共通の理想のために人々を団結させる。",
       strategic_roles: [
@@ -11685,7 +11786,15 @@ export const HAQEI_DATA = {
       ],
     },
     14: {
+      hexagram_id: 14,
       name: "火天大有",
+      keyword_short: "所有",
+      archetype_icon: "☀️",
+      micro_examples: [
+        "成功した企業のオーナー",
+        "寛大なパトロン・投資家",
+        "人望あるコミュニティリーダー",
+      ],
       summary:
         "太陽のように明るく、多くのものを所有し、人々に与えることができる寛大なOS。その豊かさが慢心や傲慢に繋がる危険性も内包する。",
       strategic_roles: [
@@ -11708,7 +11817,15 @@ export const HAQEI_DATA = {
       ],
     },
     15: {
+      hexagram_id: 15,
       name: "地山謙",
+      keyword_short: "謙虚",
+      archetype_icon: "🌾",
+      micro_examples: [
+        "人徳あるリーダー",
+        "実力と謙虚さを兼ね備えた専門家",
+        "敵を作らない交渉人",
+      ],
       summary:
         "実力（山）を内に秘め、態度はどこまでも低い（地）。その謙虚さゆえに、誰からも愛され、尊敬される人のあり方を体現するOS。",
       strategic_roles: [
@@ -11731,7 +11848,15 @@ export const HAQEI_DATA = {
       ],
     },
     16: {
+      hexagram_id: 16,
       name: "雷地豫",
+      keyword_short: "準備",
+      archetype_icon: "🎉",
+      micro_examples: [
+        "イベントプロデューサー",
+        "ムードメーカー",
+        "プロジェクトのキックオフ担当",
+      ],
       summary:
         "喜びと楽しみを原動力に、人々を巻き込み、物事を進めることができるOS。計画性に優れるが、その楽しさが油断や準備不足に繋がることもある。",
       strategic_roles: [
@@ -11754,7 +11879,15 @@ export const HAQEI_DATA = {
       ],
     },
     17: {
+      hexagram_id: 17,
       name: "沢雷随",
+      keyword_short: "追随",
+      archetype_icon: "🏄‍♂️",
+      micro_examples: [
+        "トレンドフォロワー",
+        "優れたナンバー２・部下",
+        "柔軟なアダプター",
+      ],
       summary:
         "時代の変化や他者の意見に、喜びをもって柔軟に「ついていく」ことができるOS。優れた適応力を持つが、主体性を失いやすい側面もある。",
       strategic_roles: [
@@ -11777,7 +11910,15 @@ export const HAQEI_DATA = {
       ],
     },
     18: {
+      hexagram_id: 18,
       name: "山風蠱",
+      keyword_short: "改革",
+      archetype_icon: "🛠️",
+      micro_examples: [
+        "事業再生コンサルタント",
+        "組織改革の担当者",
+        "問題解決のスペシャリスト",
+      ],
       summary:
         "放置されて腐敗した問題を、根本から立て直す強い意志と責任感を持つOS。改革への情熱が強すぎて、周囲との軋轢を生むことがある。",
       strategic_roles: [
@@ -11800,7 +11941,15 @@ export const HAQEI_DATA = {
       ],
     },
     19: {
+      hexagram_id: 19,
       name: "地沢臨",
+      keyword_short: "育成",
+      archetype_icon: "👨‍🏫",
+      micro_examples: [
+        "育成担当マネージャー",
+        "親分肌のリーダー",
+        "面倒見の良い先輩",
+      ],
       summary:
         "親分肌・姉御肌で、大らかなリーダーシップで人々に臨むOS。人々を育成し、成長させる力があるが、時に甘やかしすぎて、規律が緩むことがある。",
       strategic_roles: [
@@ -11823,7 +11972,15 @@ export const HAQEI_DATA = {
       ],
     },
     20: {
+      hexagram_id: 20,
       name: "風地観",
+      keyword_short: "観察",
+      archetype_icon: "🦉",
+      micro_examples: [
+        "市場アナリスト",
+        "経営コンサルタント",
+        "自己分析の達人",
+      ],
       summary:
         "物事の表面ではなく、その奥にある本質を静かに観察する洞察力のOS。しかし、観察に徹するあまり、行動のタイミングを逃し、傍観者で終わることがある。",
       strategic_roles: [
@@ -11846,7 +12003,15 @@ export const HAQEI_DATA = {
       ],
     },
     21: {
+      hexagram_id: 21,
       name: "火雷噬嗑",
+      keyword_short: "排除",
+      archetype_icon: "🐊",
+      micro_examples: [
+        "トラブルシューター",
+        "不正を追及する監査役",
+        "改革の実行部隊",
+      ],
       summary:
         "行く手を阻む障害を、断固たる決意で噛み砕き、排除する力強いOS。正義感が強く、問題解決能力に長けるが、そのやり方は時に強引すぎることがある。",
       strategic_roles: [
@@ -11869,7 +12034,15 @@ export const HAQEI_DATA = {
       ],
     },
     22: {
+      hexagram_id: 22,
       name: "山火賁",
+      keyword_short: "装飾",
+      archetype_icon: "🎨",
+      micro_examples: [
+        "クリエイティブ・ディレクター",
+        "広報・PR担当者",
+        "プレゼンテーションの達人",
+      ],
       summary:
         "物事を美しく飾り、調和の取れた形に整える美的感覚のOS。洗練された振る舞いをするが、時に外面にこだわりすぎ、本質を見失うことがある。",
       strategic_roles: [
@@ -11892,7 +12065,15 @@ export const HAQEI_DATA = {
       ],
     },
     23: {
+      hexagram_id: 23,
       name: "山地剝",
+      keyword_short: "剥落",
+      archetype_icon: "🍂",
+      micro_examples: [
+        "事業整理・リストラの専門家",
+        "ミニマリスト",
+        "終活アドバイザー",
+      ],
       summary:
         "古いものが剥がれ落ち、時代の終わりと変化の必要性を示すOS。本質を見極め、不要なものを手放すことができるが、衰退のエネルギーに飲まれがち。",
       strategic_roles: [
@@ -11915,7 +12096,15 @@ export const HAQEI_DATA = {
       ],
     },
     24: {
+      hexagram_id: 24,
       name: "地雷復",
+      keyword_short: "回復",
+      archetype_icon: "☀️",
+      micro_examples: [
+        "失敗から学ぶリサーチャー",
+        "再挑戦する起業家",
+        "軌道修正のプロフェッショナル",
+      ],
       summary:
         "一度道を踏み外しても、再び正しい道に立ち返ることができる回復と再生のOS。失敗を恐れず、素直に反省できるが、同じ過ちを繰り返す傾向もある。",
       strategic_roles: [
@@ -11938,7 +12127,15 @@ export const HAQEI_DATA = {
       ],
     },
     25: {
+      hexagram_id: 25,
       name: "天雷无妄",
+      keyword_short: "自然体",
+      archetype_icon: "🍃",
+      micro_examples: [
+        "誠実さが武器の営業担当",
+        "純粋なアーティスト",
+        "裏表のないリーダー",
+      ],
       summary:
         "作為や私心なく、自然体でいることを良しとするOS。誠実で裏表がないが、それ故に予期せぬ災難に巻き込まれやすい側面も持つ。",
       strategic_roles: [
@@ -11961,7 +12158,15 @@ export const HAQEI_DATA = {
       ],
     },
     26: {
+      hexagram_id: 26,
       name: "山天大畜",
+      keyword_short: "蓄積",
+      archetype_icon: "🏛️",
+      micro_examples: [
+        "高度な専門知識を持つ研究者",
+        "人材育成のエキスパート",
+        "大器晩成型の実力者",
+      ],
       summary:
         "内に大きなエネルギーや知識を蓄え、その解放の時を待つOS。忍耐強く、どっしりと構えているが、時にその力を持て余し、内的な葛藤を抱える。",
       strategic_roles: [
@@ -11984,7 +12189,15 @@ export const HAQEI_DATA = {
       ],
     },
     27: {
+      hexagram_id: 27,
       name: "山雷頤",
+      keyword_short: "養育",
+      archetype_icon: "🍽️",
+      micro_examples: [
+        "栄養士・料理人",
+        "情報リテラシーの専門家",
+        "カウンセラー",
+      ],
       summary:
         "自分自身と他者を、物質的・精神的に「養う」ことをテーマとするOS。言葉を慎み、本質的な栄養を求めるが、時に自分の殻に閉じこもりがちになる。",
       strategic_roles: [
@@ -12007,7 +12220,15 @@ export const HAQEI_DATA = {
       ],
     },
     28: {
+      hexagram_id: 28,
       name: "澤風大過",
+      keyword_short: "危機",
+      archetype_icon: "⚖️",
+      micro_examples: [
+        "危機管理コンサルタント",
+        "常識を覆すイノベーター",
+        "限界に挑むアスリート",
+      ],
       summary:
         "常識の枠を超えた、並外れた行動力と責任感を持つOS。異常事態や危機において真価を発揮するが、平時では「やりすぎ」になりがち。",
       strategic_roles: [
@@ -12030,7 +12251,11 @@ export const HAQEI_DATA = {
       ],
     },
     29: {
+      hexagram_id: 29,
       name: "坎為水",
+      keyword_short: "困難",
+      archetype_icon: "🌊",
+      micro_examples: ["リスクアナリスト", "不屈の探求者", "精神的な指導者"],
       summary:
         "困難や危険の真っ只中で、その本質を学ぶ探求者のOS。精神的にタフで、物事の真理を見抜く力があるが、常に悩みや苦労が付きまとう。",
       strategic_roles: [
@@ -12053,7 +12278,15 @@ export const HAQEI_DATA = {
       ],
     },
     30: {
+      hexagram_id: 30,
       name: "離為火",
+      keyword_short: "知性",
+      archetype_icon: "💡",
+      micro_examples: [
+        "学者・研究者",
+        "インフルエンサー",
+        "カリスマ性のあるプレゼンター",
+      ],
       summary:
         "知性と情熱の炎で、周囲を明るく照らすOS。華やかで注目を集めるが、その輝きは他者（燃料）に依存しており、一人では燃え続けられない脆さも持つ。",
       strategic_roles: [
@@ -12076,7 +12309,15 @@ export const HAQEI_DATA = {
       ],
     },
     31: {
+      hexagram_id: 31,
       name: "沢山咸",
+      keyword_short: "感応",
+      archetype_icon: "💞",
+      micro_examples: [
+        "恋愛カウンセラー",
+        "感受性の鋭いアーティスト",
+        "共感を呼ぶマーケター",
+      ],
       summary:
         "言葉にならない空気や感情を敏感に感じ取る、共感と思春期のOS。直感的でデリケートだが、その感受性の鋭さが、感情的な不安定さの原因にもなる。",
       strategic_roles: [
@@ -12099,7 +12340,15 @@ export const HAQEI_DATA = {
       ],
     },
     32: {
+      hexagram_id: 32,
       name: "雷風恒",
+      keyword_short: "持続",
+      archetype_icon: "♾️",
+      micro_examples: [
+        "ブランド・マネージャー",
+        "誠実なパートナー",
+        "習慣化のプロ",
+      ],
       summary:
         "一度決めたことを、地道に長く続けることができる持続性のOS。安定感と信頼性があるが、変化を嫌い、新しい物事に対応するのが苦手な面がある。",
       strategic_roles: [
@@ -12122,7 +12371,15 @@ export const HAQEI_DATA = {
       ],
     },
     33: {
+      hexagram_id: 33,
       name: "天山遯",
+      keyword_short: "撤退",
+      archetype_icon: "🏃‍♂️",
+      micro_examples: [
+        "戦略的撤退の専門家",
+        "リスクマネジメントの達人",
+        "ミニマリスト",
+      ],
       summary:
         "深入りせず、最適なタイミングで引くことができる戦略的撤退のOS。冷静で賢明な判断ができるが、他者と深く関わることを避ける傾向がある。",
       strategic_roles: [
@@ -12145,7 +12402,15 @@ export const HAQEI_DATA = {
       ],
     },
     34: {
+      hexagram_id: 34,
       name: "雷天大壮",
+      keyword_short: "前進",
+      archetype_icon: "🚀",
+      micro_examples: [
+        "エネルギッシュな実行部隊",
+        "プロジェクトの突破役",
+        "情熱的なチャレンジャー",
+      ],
       summary:
         "正義と理想のために、力強く前進するエネルギーに満ちたOS。エネルギッシュで実行力があるが、その力が暴走し、無謀な行動に出ることがある。",
       strategic_roles: [
@@ -12168,7 +12433,15 @@ export const HAQEI_DATA = {
       ],
     },
     35: {
+      hexagram_id: 35,
       name: "火地晋",
+      keyword_short: "進展",
+      archetype_icon: "🌅",
+      micro_examples: [
+        "出世街道を歩むエリート",
+        "人当たりの良いプロモーター",
+        "ポジティブなムードメーカー",
+      ],
       summary:
         "太陽が地を昇るように、着実に前進し、周囲に認められていくOS。明るく社交的だが、他者からの評価を気にしすぎるあまり、自分を見失うことがある。",
       strategic_roles: [
@@ -12191,7 +12464,15 @@ export const HAQEI_DATA = {
       ],
     },
     36: {
+      hexagram_id: 36,
       name: "地火明夷",
+      keyword_short: "忍耐",
+      archetype_icon: "🌑",
+      micro_examples: [
+        "逆境を耐える戦略家",
+        "不遇の天才",
+        "潜入捜査官（スパイ）",
+      ],
       summary:
         "才能や正しさを内に秘め、困難な状況を耐え忍ぶことができるOS。用心深く、戦略的だが、悲観的になり、心を閉ざしてしまう傾向がある。",
       strategic_roles: [
@@ -12214,7 +12495,15 @@ export const HAQEI_DATA = {
       ],
     },
     37: {
+      hexagram_id: 37,
       name: "風火家人",
+      keyword_short: "秩序",
+      archetype_icon: "👨‍👩‍👧‍👦",
+      micro_examples: [
+        "コミュニティの守護者",
+        "組織文化の醸成担当",
+        "家庭を大切にする大黒柱",
+      ],
       summary:
         "家庭や組織といった「内側」の秩序と調和を重んじるOS。情愛深く、真面目だが、内向きになりすぎて、外部の変化に対応するのが遅れがち。",
       strategic_roles: [
@@ -12237,7 +12526,15 @@ export const HAQEI_DATA = {
       ],
     },
     38: {
+      hexagram_id: 38,
       name: "火沢睽",
+      keyword_short: "対立",
+      archetype_icon: "↔️",
+      micro_examples: [
+        "異端の批評家",
+        "カウンターカルチャーの旗手",
+        "あえて逆張りする戦略家",
+      ],
       summary:
         "鋭い知性で物事の「違い」を見抜き、独自の視点を持つOS。反骨精神が旺盛だが、その性質が不必要な対立や孤立を生む原因にもなる。",
       strategic_roles: [
@@ -12260,7 +12557,15 @@ export const HAQEI_DATA = {
       ],
     },
     39: {
+      hexagram_id: 39,
       name: "水山蹇",
+      keyword_short: "足踏",
+      archetype_icon: "🚶‍♂️",
+      micro_examples: [
+        "粘り強い交渉人",
+        "困難なプロジェクトの解決屋",
+        "他者の痛みがわかるカウンセラー",
+      ],
       summary:
         "進むに行き詰まり、困難の中で立ち往生しているOS。苦労が多く、悩みやすいが、この経験が深い人間的成長と問題解決能力を育む。",
       strategic_roles: [
@@ -12283,7 +12588,15 @@ export const HAQEI_DATA = {
       ],
     },
     40: {
+      hexagram_id: 40,
       name: "雷水解",
+      keyword_short: "解放",
+      archetype_icon: "🕊️",
+      micro_examples: [
+        "問題解決のスペシャリスト",
+        "緊張を緩和するムードメーカー",
+        "過去を許し、未来へ向かう改革者",
+      ],
       summary:
         "凍てついた困難な状況を、行動の雷で打ち破り、解放へと導くOS。決断力があり、さっぱりしているが、時に過去の反省を疎かにする傾向がある。",
       strategic_roles: [
@@ -12306,7 +12619,11 @@ export const HAQEI_DATA = {
       ],
     },
     41: {
+      hexagram_id: 41,
       name: "山沢損",
+      keyword_short: "損得",
+      archetype_icon: "💸",
+      micro_examples: ["コストカッター", "ミニマリスト", "誠実な自己犠牲者"],
       summary:
         "自分を損なって他者を益することができる、自己犠牲と抑制のOS。我慢強いが、自分の感情や欲求を無視し続け、心身のバランスを崩すことがある。",
       strategic_roles: [
@@ -12329,7 +12646,15 @@ export const HAQEI_DATA = {
       ],
     },
     42: {
+      hexagram_id: 42,
       name: "風雷益",
+      keyword_short: "貢献",
+      archetype_icon: "💝",
+      micro_examples: [
+        "社会貢献家（フィランソロピスト）",
+        "優れたメンター",
+        "エンジェル投資家",
+      ],
       summary:
         "他者を益し、社会に貢献することで、結果的に自分も豊かになるOS。行動的で前向きだが、時に自分のキャパシティを超えて他者に与えすぎることがある。",
       strategic_roles: [
@@ -12352,7 +12677,15 @@ export const HAQEI_DATA = {
       ],
     },
     43: {
+      hexagram_id: 43,
       name: "沢天夬",
+      keyword_short: "決断",
+      archetype_icon: "⚡️",
+      micro_examples: [
+        "改革の断行者",
+        "不正を断つコンプライアンス責任者",
+        "決断力のあるリーダー",
+      ],
       summary:
         "曖昧な状況に決断を下し、物事を突破する力を持つOS。大胆でリーダーシップがあるが、その決断が強引で、反発を招くこともある。",
       strategic_roles: [
@@ -12375,7 +12708,15 @@ export const HAQEI_DATA = {
       ],
     },
     44: {
+      hexagram_id: 44,
       name: "天風姤",
+      keyword_short: "邂逅",
+      archetype_icon: "💃",
+      micro_examples: [
+        "天性のネットワーカー",
+        "トレンドの初期発見者",
+        "カリスマ的なインフルエンサー",
+      ],
       summary:
         "予期せぬ出会いやチャンスに巡り合う、強い影響力と魅力を持つOS。しかし、その偶然の出会いが、時に計画を乱し、思わぬ危険を招くことがある。",
       strategic_roles: [
@@ -12398,7 +12739,15 @@ export const HAQEI_DATA = {
       ],
     },
     45: {
+      hexagram_id: 45,
       name: "沢地萃",
+      keyword_short: "結集",
+      archetype_icon: "🎪",
+      micro_examples: [
+        "コミュニティ・オーガナイザー",
+        "イベントプロデューサー",
+        "求心力のあるリーダー",
+      ],
       summary:
         "人々が自然と集まってくる、喜びと求心力のOS。社交的でイベント好きだが、集まること自体が目的化し、生産性を失うことがある。",
       strategic_roles: [
@@ -12421,7 +12770,15 @@ export const HAQEI_DATA = {
       ],
     },
     46: {
+      hexagram_id: 46,
       name: "地風升",
+      keyword_short: "成長",
+      archetype_icon: "🌳",
+      micro_examples: [
+        "着実に成果を出す努力家",
+        "後輩を育成するメンター",
+        "大器晩成型のエキスパート",
+      ],
       summary:
         "地道な努力を積み重ね、着実に成長し、昇っていくことができるOS。謙虚で真面目だが、時に要領が悪く、遠回りをしてしまうことがある。",
       strategic_roles: [
@@ -12444,7 +12801,15 @@ export const HAQEI_DATA = {
       ],
     },
     47: {
+      hexagram_id: 47,
       name: "沢水困",
+      keyword_short: "困窮",
+      archetype_icon: "⛓️",
+      micro_examples: [
+        "逆境に強い哲学者",
+        "不屈の精神を持つサバイバー",
+        "デバッグの専門家",
+      ],
       summary:
         "深刻な困窮や逆境の中で、内面的な強さが試されるOS。精神的に鍛えられるが、希望を失い、悲観主義に陥りやすい傾向がある。",
       strategic_roles: [
@@ -12467,7 +12832,15 @@ export const HAQEI_DATA = {
       ],
     },
     48: {
+      hexagram_id: 48,
       name: "水風井",
+      keyword_short: "供給",
+      archetype_icon: "💧",
+      micro_examples: [
+        "インフラを支えるエンジニア",
+        "安定した価値を提供する老舗ブランド",
+        "組織のバックボーン",
+      ],
       summary:
         "井戸のように、変わることなく、人々に価値を提供し続けるOS。安定感があり、公平だが、自己変革やイノベーションが苦手な面がある。",
       strategic_roles: [
@@ -12490,7 +12863,15 @@ export const HAQEI_DATA = {
       ],
     },
     49: {
+      hexagram_id: 49,
       name: "沢火革",
+      keyword_short: "革命",
+      archetype_icon: "💥",
+      micro_examples: [
+        "革命家",
+        "破壊的イノベーター",
+        "常識を覆すゲームチェンジャー",
+      ],
       summary:
         "古い体制や常識を打ち破り、全く新しいものへと変革するOS。理想に燃え、大胆な行動ができるが、その過程で多くのものを破壊し、反発を招く。",
       strategic_roles: [
@@ -12513,7 +12894,15 @@ export const HAQEI_DATA = {
       ],
     },
     50: {
+      hexagram_id: 50,
       name: "火風鼎",
+      keyword_short: "安定",
+      archetype_icon: "🏺",
+      micro_examples: [
+        "組織文化の醸成者",
+        "コミュニティ・ビルダー",
+        "賢明な統治者",
+      ],
       summary:
         "新しい文化や安定した組織を、じっくりと時間をかけて作り上げるOS。三方よしの精神を重んじ、協力体制を築くのが得意だが、動きが遅くなりがち。",
       strategic_roles: [
@@ -12536,7 +12925,15 @@ export const HAQEI_DATA = {
       ],
     },
     51: {
+      hexagram_id: 51,
       name: "震為雷",
+      keyword_short: "衝撃",
+      archetype_icon: "⚡️",
+      micro_examples: [
+        "切り込み隊長",
+        "停滞を打破する起爆剤",
+        "サプライズの演出家",
+      ],
       summary:
         "雷のように、衝撃的な出来事をきっかけに行動を起こし、人々を覚醒させるOS。エネルギッシュで機動力があるが、行動が衝動的で、計画性に欠けることがある。",
       strategic_roles: [
@@ -12559,7 +12956,11 @@ export const HAQEI_DATA = {
       ],
     },
     52: {
+      hexagram_id: 52,
       name: "艮為山",
+      keyword_short: "静止",
+      archetype_icon: "🏔️",
+      micro_examples: ["思慮深い哲学者", "冷静な判断を下す審判役", "瞑想家"],
       summary:
         "山の如く動じない、内省と静止のエネルギーを持つOS。深い思慮と冷静な判断力を持ちますが、時に行動をためらい、好機を逃すことがあります。",
       strategic_roles: [
@@ -12582,7 +12983,15 @@ export const HAQEI_DATA = {
       ],
     },
     53: {
+      hexagram_id: 53,
       name: "風山漸",
+      keyword_short: "漸進",
+      archetype_icon: "🕊️",
+      micro_examples: [
+        "着実なプロジェクトマネージャー",
+        "マニュアル作成の達人",
+        "信頼できる教育者",
+      ],
       summary:
         "物事を順序立てて、一歩一歩着実に進めることができるOS。真面目で信頼性があるが、急な変化への対応が遅く、時間がかかりすぎるのが弱点。",
       strategic_roles: [
@@ -12605,7 +13014,15 @@ export const HAQEI_DATA = {
       ],
     },
     54: {
+      hexagram_id: 54,
       name: "雷沢帰妹",
+      keyword_short: "衝動",
+      archetype_icon: "💘",
+      micro_examples: [
+        "情熱的なアーティスト",
+        "衝動的な恋愛家",
+        "ニッチな分野の開拓者",
+      ],
       summary:
         "情熱や衝動に従って、常識的な順序を無視してでも関係性を築こうとするOS。人間的な魅力にあふれるが、その関係は不安定で、長続きしない傾向がある。",
       strategic_roles: [
@@ -12628,7 +13045,15 @@ export const HAQEI_DATA = {
       ],
     },
     55: {
+      hexagram_id: 55,
       name: "雷火豊",
+      keyword_short: "繁栄",
+      archetype_icon: "🎆",
+      micro_examples: [
+        "ヒットメーカー",
+        "絶頂期の経営者",
+        "カリスマ的なパフォーマー",
+      ],
       summary:
         "花火のように、華やかで豊かなエネルギーで、物事を成功の頂点へと導くOS。自信にあふれ、人を惹きつけるが、その繁栄は永続しないことを忘れがち。",
       strategic_roles: [
@@ -12651,7 +13076,15 @@ export const HAQEI_DATA = {
       ],
     },
     56: {
+      hexagram_id: 56,
       name: "火山旅",
+      keyword_short: "孤独",
+      archetype_icon: "🚶",
+      micro_examples: [
+        "海外特派員・駐在員",
+        "フリーランスの専門家",
+        "孤独を愛する旅人",
+      ],
       summary:
         "一つの場所に留まらず、常にアウェイな環境で自分を試す旅人のOS。適応力が高く、謙虚だが、心から安らげる居場所がなく、孤独を感じやすい。",
       strategic_roles: [
@@ -12674,7 +13107,15 @@ export const HAQEI_DATA = {
       ],
     },
     57: {
+      hexagram_id: 57,
       name: "巽為風",
+      keyword_short: "浸透",
+      archetype_icon: "🍃",
+      micro_examples: [
+        "優れたネゴシエーター",
+        "人心を掴むマーケター",
+        "柔軟な調整役",
+      ],
       summary:
         "風のように、しなやかに、隅々まで浸透していくことができるOS。謙虚で社交的だが、自分の意見がなく、周囲に流されやすいという弱点がある。",
       strategic_roles: [
@@ -12697,7 +13138,15 @@ export const HAQEI_DATA = {
       ],
     },
     58: {
+      hexagram_id: 58,
       name: "兌為沢",
+      keyword_short: "喜悦",
+      archetype_icon: "😊",
+      micro_examples: [
+        "ムードメーカー",
+        "エンターテイナー",
+        "優れたプレゼンター",
+      ],
       summary:
         "喜びや楽しみを通じて、人々と和やかに交流するOS。愛嬌があり、コミュニケーション能力に長けるが、時に快楽に溺れ、軽薄になることがある。",
       strategic_roles: [
@@ -12720,7 +13169,15 @@ export const HAQEI_DATA = {
       ],
     },
     59: {
+      hexagram_id: 59,
       name: "風水渙",
+      keyword_short: "離散",
+      archetype_icon: "💨",
+      micro_examples: [
+        "組織改革のコンサルタント",
+        "対立の仲裁者",
+        "しがらみを断つファシリテーター",
+      ],
       summary:
         "淀んだ状況や、凝り固まった人間関係を、風のように吹き散らし、解消するOS。大局的な視点を持ち、私心がありませんが、時に無責任だと見られることがある。",
       strategic_roles: [
@@ -12743,7 +13200,15 @@ export const HAQEI_DATA = {
       ],
     },
     60: {
+      hexagram_id: 60,
       name: "水沢節",
+      keyword_short: "節度",
+      archetype_icon: "⚖️",
+      micro_examples: [
+        "優れた予算管理者",
+        "ルールブックの作成者",
+        "自己管理の達人",
+      ],
       summary:
         "物事に適切な「けじめ」をつけ、自己管理ができる節度のOS。真面目で信頼できるが、その規律が厳しすぎて、自分や他人を追い詰めることがある。",
       strategic_roles: [
@@ -12766,7 +13231,15 @@ export const HAQEI_DATA = {
       ],
     },
     61: {
+      hexagram_id: 61,
       name: "風沢中孚",
+      keyword_short: "真心",
+      archetype_icon: "💖",
+      micro_examples: [
+        "誠実なリーダー",
+        "信頼を基盤とする交渉人",
+        "心の通うカウンセラー",
+      ],
       summary:
         "真心と誠実さで、他者と深い信頼関係を築くことができるOS。裏表がなく、純粋だが、その誠実さが、時に人を信じすぎる危うさにも繋がる。",
       strategic_roles: [
@@ -12789,7 +13262,15 @@ export const HAQEI_DATA = {
       ],
     },
     62: {
+      hexagram_id: 62,
       name: "雷山小過",
+      keyword_short: "丁寧",
+      archetype_icon: "🙇",
+      micro_examples: [
+        "細やかな配慮ができる秘書",
+        "品質管理のスペシャリスト",
+        "謙虚なナンバー２",
+      ],
       summary:
         "大きな目標よりも、目の前の小さなことを、少しだけ度を過ごすくらい丁寧にこなすOS。慎重で謙虚だが、大胆な行動が苦手。",
       strategic_roles: [
@@ -12812,7 +13293,15 @@ export const HAQEI_DATA = {
       ],
     },
     63: {
+      hexagram_id: 63,
       name: "水火既済",
+      keyword_short: "完成",
+      archetype_icon: "✅",
+      micro_examples: [
+        "保守・運用管理者",
+        "品質保証（QA）の責任者",
+        "安定期のマネージャー",
+      ],
       summary:
         "物事を完璧な形で完成させ、秩序と安定を維持することができるOS。しかし、完成した状態に固執し、次の変化に対応するのが遅れるという弱点を持つ。",
       strategic_roles: [
@@ -12835,7 +13324,15 @@ export const HAQEI_DATA = {
       ],
     },
     64: {
+      hexagram_id: 64,
       name: "火水未済",
+      keyword_short: "未完",
+      archetype_icon: "🏗️",
+      micro_examples: [
+        "R&D部門のリーダー",
+        "新規事業の開拓者",
+        "可能性の探求者",
+      ],
       summary:
         "物事がまだ完成していない、混乱と可能性が入り混じったOS。慎重に状況を見極め、困難を乗り越えることで、大きな成功を掴むポテンシャルを秘めている。",
       strategic_roles: [
@@ -17066,353 +17563,584 @@ export const HAQEI_DATA = {
     },
   },
 };
-// os_manualデータベースに追加する新しいフィールドのデータ
-export const os_manual_extensions:[
-  // ---【最終改訂版】 No.1 ~ 8 ---
+
+export const os_manual_extensions = {
   1: {
     keyword_short: "創造／先導力",
     archetype_icon: "🐉",
-    micro_examples: "□ 新規プロジェクトの立ち上げで燃える;□ ルーティンワークで才能が枯れる;□ 常にトップを目指している"
+    micro_examples: [
+      "新規プロジェクトの立ち上げで燃える",
+      "ルーティンワークで才能が枯れる",
+      "常にトップを目指している",
+    ],
   },
   2: {
     keyword_short: "受容／大地の包容",
     archetype_icon: "🌍",
-    micro_examples: "□ 人を支える役割で輝く;□ 縁の下の力持ちが天職;□ 決断を迫られると固まる"
+    micro_examples: [
+      "人を支える役割で輝く",
+      "縁の下の力持ちが天職",
+      "決断を迫られると固まる",
+    ],
   },
   3: {
     keyword_short: "挑戦／発芽エネルギー",
     archetype_icon: "🌱",
-    micro_examples: "□ 0→1の立ち上げが得意;□ 混乱の中から好機を見出す;□ 計画段階で悩みすぎる"
+    micro_examples: [
+      "0→1の立ち上げが得意",
+      "混乱の中から好機を見出す",
+      "計画段階で悩みすぎる",
+    ],
   },
   4: {
     keyword_short: "学習／学び旺盛",
     archetype_icon: "🎓",
-    micro_examples: "□ 新しい知識を学ぶのが好き;□ 常識を「なぜ？」と疑う;□ 指導者なしでは動けないことがある"
+    micro_examples: [
+      "新しい知識を学ぶのが好き",
+      "常識を「なぜ？」と疑う",
+      "指導者なしでは動けないことがある",
+    ],
   },
   5: {
     keyword_short: "待機／忍耐",
     archetype_icon: "⌛",
-    micro_examples: "□ 焦らず最高のタイミングを待てる;□ 長期的な計画を立てるのが得意;□ 行動するまでに時間がかかりすぎる"
+    micro_examples: [
+      "焦らず最高のタイミングを待てる",
+      "長期的な計画を立てるのが得意",
+      "行動するまでに時間がかかりすぎる",
+    ],
   },
   6: {
     keyword_short: "正義／白黒はっきり",
     archetype_icon: "⚖️",
-    micro_examples: "□ 曖昧なことを嫌い、議論で明確にする;□ 揉め事の仲裁役になることがある;□ 時に対立を恐れない"
+    micro_examples: [
+      "曖昧なことを嫌い、議論で明確にする",
+      "揉め事の仲裁役になることがある",
+      "時に対立を恐れない",
+    ],
   },
   7: {
     keyword_short: "統率力／組織戦略",
     archetype_icon: "🏰",
-    micro_examples: "□ 大人数を率いて目標達成するのが得意;□ 規律やルールを重んじる;□ 個人の感情より全体の利益を優先する"
+    micro_examples: [
+      "大人数を率いて目標達成するのが得意",
+      "規律やルールを重んじる",
+      "個人の感情より全体の利益を優先する",
+    ],
   },
   8: {
     keyword_short: "協力／ネットワーキング",
     archetype_icon: "🤝",
-    micro_examples: "□ 人と人を繋ぎ、輪を広げるのが好き;□ 誰とでも親しくなれる;□ 無目的な集まりは苦手な一面も"
+    micro_examples: [
+      "人と人を繋ぎ、輪を広げるのが好き",
+      "誰とでも親しくなれる",
+      "無目的な集まりは苦手な一面も",
+    ],
   },
-  // --- 【新規作成】 No.9 ~ 16 ---
   9: {
     keyword_short: "抑制／堅実な前進",
     archetype_icon: "🚧",
-    micro_examples: "□ 大きな成功より、小さな失敗を避ける;□ 派手さはないが、粘り強く物事を進める;□ 準備が完璧でないと行動できない"
+    micro_examples: [
+      "大きな成功より、小さな失敗を避ける",
+      "派手さはないが、粘り強く物事を進める",
+      "準備が完璧でないと行動できない",
+    ],
   },
   10: {
     keyword_short: "慎重／危機管理",
     archetype_icon: "🧐",
-    micro_examples: "□ 緊張感のある場面でこそ冷静でいられる;□ ルールや礼儀を非常に重んじる;□ リスクを恐れるあまり、チャンスを逃しがち"
+    micro_examples: [
+      "緊張感のある場面でこそ冷静でいられる",
+      "ルールや礼儀を非常に重んじる",
+      "リスクを恐れるあまり、チャンスを逃しがち",
+    ],
   },
   11: {
     keyword_short: "調和／平和の創造",
     archetype_icon: "🕊️",
-    micro_examples: "□ チームの心理的安全性を高めるのが得意;□ 対立を好みまず、調整役を買って出る;□ 問題の先送りをしがちな一面も"
+    micro_examples: [
+      "チームの心理的安全性を高めるのが得意",
+      "対立を好みまず、調整役を買って出る",
+      "問題の先送りをしがちな一面も",
+    ],
   },
   12: {
     keyword_short: "閉塞／内なる探求",
     archetype_icon: "🚪",
-    micro_examples: "□ 他人に理解されなくても、自分の世界を追求する;□ 孤独な環境でこそ、思索が深まる;□ 社交的な場や集団行動が極端に苦手"
+    micro_examples: [
+      "他人に理解されなくても、自分の世界を追求する",
+      "孤独な環境でこそ、思索が深まる",
+      "社交的な場や集団行動が極端に苦手",
+    ],
   },
   13: {
     keyword_short: "団結／オープンマインド",
     archetype_icon: "🌐",
-    micro_examples: "□ 公平な理念を掲げ、多様な人々をまとめる;□ 派閥や身内びいきを嫌う;□ 理想を語るが、現実とのギャップに苦しむ"
+    micro_examples: [
+      "公平な理念を掲げ、多様な人々をまとめる",
+      "派閥や身内びいきを嫌う",
+      "理想を語るが、現実とのギャップに苦しむ",
+    ],
   },
   14: {
     keyword_short: "所有／寛大な分配",
     archetype_icon: "👑",
-    micro_examples: "□ 多くのものを所有し、それを人に与えることに喜びを感じる;□ リーダーとして、気前よく振る舞う;□ 自分の成功に驕りやすい側面も"
+    micro_examples: [
+      "多くのものを所有し、人に与えることに喜びを感じる",
+      "リーダーとして、気前よく振る舞う",
+      "自分の成功に驕りやすい側面も",
+    ],
   },
   15: {
     keyword_short: "謙虚／隠れた実力",
     archetype_icon: "🌾",
-    micro_examples: "□ 実力があるのに、決して自慢しない;□ 常に他者を立て、自分は一歩引いている;□ 自己評価が低すぎることがある"
+    micro_examples: [
+      "実力があるのに、決して自慢しない",
+      "常に他者を立て、自分は一歩引いている",
+      "自己評価が低すぎることがある",
+    ],
   },
   16: {
     keyword_short: "享楽／周到な準備",
     archetype_icon: "🎉",
-    micro_examples: "□ 人々を楽しませるイベントを企画するのが得意;□ 計画を立てるだけでワクワクする;□ 実行段階の地味な作業は苦手"
-  }
-};
-// os_manualデータベースに追加する新しいフィールドのデータ
-const os_manual_extensions = {
-  // ... (No.1〜16は前回提示したもの) ...
+    micro_examples: [
+      "人々を楽しませるイベントを企画するのが得意",
+      "計画を立てるだけでワクワクする",
+      "実行段階の地味な作業は苦手",
+    ],
+  },
   17: {
     keyword_short: "追随／柔軟な適応",
-    archetype_icon: "🏄‍♂️",
-    micro_examples: "□ 時代の流れやトレンドに素早く乗るのが得意;□ 信頼するリーダーに、とことんついていく;□ 自分の意見をコロコロ変えてしまうことがある"
+    archetype_icon: "🏄",
+    micro_examples: [
+      "時代の流れやトレンドに素早く乗るのが得意",
+      "信頼するリーダーに、とことんついていく",
+      "自分の意見を頻繁に変えてしまうことがある",
+    ],
   },
   18: {
     keyword_short: "改革／根本治療",
     archetype_icon: "🛠️",
-    micro_examples: "□ 古いルールや、淀んだ空気を刷新したくなる;□ 問題の根本原因を、徹底的に追求する;□ 時にやり方が強引だと言われる"
+    micro_examples: [
+      "古いルールや、淀んだ空気を刷新したくなる",
+      "問題の根本原因を、徹底的に追求する",
+      "時にやり方が強引だと言われる",
+    ],
   },
   19: {
     keyword_short: "育成／親分肌",
     archetype_icon: "👨‍🏫",
-    micro_examples: "□ 人の才能を見つけ、育てることに喜びを感じる;□ チームを家族のようにまとめ、面倒見が良い;□ 相手を甘やかしすぎてしまうことがある"
+    micro_examples: [
+      "人の才能を見つけ、育てることに喜びを感じる",
+      "チームを家族のようにまとめ、面倒見が良い",
+      "相手を甘やかしすぎてしまうことがある",
+    ],
   },
   20: {
     keyword_short: "観察／本質の洞察",
     archetype_icon: "🦉",
-    micro_examples: "□ 行動する前に、まず状況をじっくり観察する;□ 物事の裏側や、人の本音を見抜くのが得意;□ 評論家で終わり、行動に移せないことがある"
+    micro_examples: [
+      "行動する前に、まず状況をじっくり観察する",
+      "物事の裏側や、人の本音を見抜くのが得意",
+      "評論家で終わり、行動に移せないことがある",
+    ],
   },
   21: {
     keyword_short: "障害排除／断固たる実行",
     archetype_icon: "💥",
-    micro_examples: "□ 行く手を阻む障害は、断固として噛み砕く;□ 曖昧な問題を、白黒はっきりさせるのが得意;□ 正義感が強いあまり、敵を作りやすい"
+    micro_examples: [
+      "行く手を阻む障害は、断固として噛み砕く",
+      "曖昧な問題を、白黒はっきりさせるのが得意",
+      "正義感が強いあまり、敵を作りやすい",
+    ],
   },
   22: {
     keyword_short: "装飾／美的センス",
     archetype_icon: "🎨",
-    micro_examples: "□ 物事の本質を、美しく魅力的に見せるのが得意;□ プレゼン資料や服装など、見た目にこだわる;□ 中身よりも外面を気にしすぎてしまう"
+    micro_examples: [
+      "物事の本質を、美しく魅力的に見せるのが得意",
+      "プレゼン資料や服装など、見た目にこだわる",
+      "中身よりも外面を気にしすぎてしまう",
+    ],
   },
   23: {
     keyword_short: "手放す／終わりの始まり",
     archetype_icon: "🍂",
-    micro_examples: "□ 不要なものを捨て、本質だけを残そうとする;□ 時代の終わりや、潮時を敏感に察知する;□ 悲観的になり、希望を失いやすい側面も"
+    micro_examples: [
+      "不要なものを捨て、本質だけを残そうとする",
+      "時代の終わりや、潮時を敏感に察知する",
+      "悲観的になり、希望を失いやすい側面も",
+    ],
   },
   24: {
     keyword_short: "回復／再挑戦",
     archetype_icon: "🔄",
-    micro_examples: "□ 失敗しても、それをバネに再挑戦できる;□「またやればいい」と、気持ちの切り替えが早い;□ 同じ過ちを繰り返しがちな一面も"
-  }
-};
-// os_manualデータベースに追加する新しいフィールドのデータ
-const os_manual_extensions = {
-  // ... (No.1〜24は前回までの内容) ...
+    micro_examples: [
+      "失敗しても、それをバネに再挑戦できる",
+      "「またやればいい」と、気持ちの切り替えが早い",
+      "同じ過ちを繰り返しがちな一面も",
+    ],
+  },
   25: {
     keyword_short: "自然体／誠実",
     archetype_icon: "🏞️",
-    micro_examples: "□ 計算や下心なく、ありのままで人と接する;□ 正攻法を好み、駆け引きは苦手;□ 時に、その純粋さが災いを招く"
+    micro_examples: [
+      "計算や下心なく、ありのままで人と接する",
+      "正攻法を好み、駆け引きは苦手",
+      "時に、その純粋さが災いを招く",
+    ],
   },
   26: {
     keyword_short: "蓄積／大器晩成",
     archetype_icon: "🏦",
-    micro_examples: "□ すぐに結果を出さず、じっくり力を蓄える;□ 知識や徳を、内面に溜め込むのが好き;□ アウトプットを求められるとプレッシャーを感じる"
+    micro_examples: [
+      "すぐに結果を出さず、じっくり力を蓄える",
+      "知識や徳を、内面に溜め込むのが好き",
+      "アウトプットを求められるとプレッシャーを感じる",
+    ],
   },
   27: {
     keyword_short: "養う／自己管理",
     archetype_icon: "🍽️",
-    micro_examples: "□ 口に入れるもの（食事、情報）に気を配る;□ 自分の心身を、時間をかけて育むのが得意;□ 不摂生な人や、無駄話が苦手"
+    micro_examples: [
+      "口に入れるもの（食事、情報）に気を配る",
+      "自分の心身を、時間をかけて育むのが得意",
+      "不摂生な人や、無駄話が苦手",
+    ],
   },
   28: {
     keyword_short: "異常事態／限界突破",
-    archetype_icon: "💥",
-    micro_examples: "□ 平時よりも、危機的状況でこそ真価を発揮する;□ 常識を超えた大胆な行動を取ることがある;□ 自分や他人に過剰な負荷をかけがち"
+    archetype_icon: "⚠️",
+    micro_examples: [
+      "平時よりも、危機的状況でこそ真価を発揮する",
+      "常識を超えた大胆な行動を取ることがある",
+      "自分や他人に過剰な負荷をかけがち",
+    ],
   },
   29: {
-    keyword_short: "困難／探求",
+    keyword_short: "困難／本質探求",
     archetype_icon: "🌊",
-    micro_examples: "□ 困難な状況に、あえて飛び込んで本質を学ぶ;□ 悩み、苦しむ経験が、自分を成長させると知っている;□ 平穏な状態が続くと、物足りなさを感じる"
+    micro_examples: [
+      "困難な状況に、あえて飛び込んで本質を学ぶ",
+      "悩み、苦しむ経験が、自分を成長させる",
+      "平穏な状態が続くと、物足りなさを感じる",
+    ],
   },
   30: {
     keyword_short: "知性／華やかさ",
     archetype_icon: "🔥",
-    micro_examples: "□ 知性やセンスで、物事を鮮やかに照らし出す;□ 人から注目され、賞賛されることに喜びを感じる;□ 一人でいると、輝きを失いやすい"
+    micro_examples: [
+      "知性やセンスで、物事を鮮やかに照らし出す",
+      "人から注目され、賞賛されることに喜びを感じる",
+      "一人でいると、輝きを失いやすい",
+    ],
   },
   31: {
     keyword_short: "共感／フィーリング",
     archetype_icon: "💞",
-    micro_examples: "□ 理屈よりも、その場の空気や直感を信じる;□ 人の感情に、敏感に反応してしまう;□ 言葉にならない感覚を、大切にする"
+    micro_examples: [
+      "理屈よりも、その場の空気や直感を信じる",
+      "人の感情に、敏感に反応してしまう",
+      "言葉にならない感覚を、大切にする",
+    ],
   },
   32: {
     keyword_short: "継続／安定",
     archetype_icon: "🕰️",
-    micro_examples: "□ 一度決めたことを、地道に長く続けるのが得意;□ 変化を嫌い、いつも通りであることを好む;□ ルールや習慣が、心の安定に繋がる"
-  }
-};
-// os_manualデータベースに追加する新しいフィールドのデータ
-const os_manual_extensions = {
-  // ... (No.1〜32は前回までの内容) ...
+    micro_examples: [
+      "一度決めたことを、地道に長く続けるのが得意",
+      "変化を嫌い、いつも通りであることを好む",
+      "ルールや習慣が、心の安定に繋がる",
+    ],
+  },
   33: {
     keyword_short: "戦略的撤退／距離感",
-    archetype_icon: "🏃‍♂️",
-    micro_examples: "□ 不利な状況からは、賢明に身を引く;□ 深入りせず、常に適切な距離感を保つ;□ 面倒な人間関係をリセットしがち"
+    archetype_icon: "🏃",
+    micro_examples: [
+      "不利な状況からは、賢明に身を引く",
+      "深入りせず、常に適切な距離感を保つ",
+      "面倒な人間関係をリセットしがち",
+    ],
   },
   34: {
     keyword_short: "力強い前進／突破力",
     archetype_icon: "🐗",
-    micro_examples: "□ 目標に向かって、エネルギッシュに突き進む;□ 正義感が強く、不正を許さない;□ 時に、そのパワーが暴走し、無謀になる"
+    micro_examples: [
+      "目標に向かって、エネルギッシュに突き進む",
+      "正義感が強く、不正を許さない",
+      "時に、そのパワーが暴走し、無謀になる",
+    ],
   },
   35: {
     keyword_short: "進展／認められたい",
     archetype_icon: "☀️",
-    micro_examples: "□ 明るく、社交的で、人から評価されるのが好き;□ 着実にステップアップし、成功への道を歩む;□ 他者からの承認を気にしすぎる側面も"
+    micro_examples: [
+      "明るく、社交的で、人から評価されるのが好き",
+      "着実にステップアップし、成功への道を歩む",
+      "他者からの承認を気にしすぎる側面も",
+    ],
   },
   36: {
     keyword_short: "忍耐／才能を隠す",
     archetype_icon: "🎭",
-    micro_examples: "□ 理不尽な状況でも、本心を隠して耐え忍ぶ;□ 才能があるのに、あえて無能なふりをする;□ 悲観的になり、心を閉ざしやすい"
+    micro_examples: [
+      "理不尽な状況でも、本心を隠して耐え忍ぶ",
+      "才能があるのに、あえて無能なふりをする",
+      "悲観的になり、心を閉ざしやすい",
+    ],
   },
   37: {
-    keyword_short: "家庭・組織／内側の秩序",
-    archetype_icon: "家",
-    micro_examples: "□ チームや家族など、内側の調和を最も大切にする;□ ルールや役割分担を重んじる;□ 身内びいきになり、排他的になることがある"
+    keyword_short: "内部秩序／家族の和",
+    archetype_icon: "🏠",
+    micro_examples: [
+      "チームや家族など、内側の調和を最も大切にする",
+      "ルールや役割分担を重んじる",
+      "身内びいきになり、排他的になることがある",
+    ],
   },
   38: {
     keyword_short: "対立／独自性",
-    archetype_icon: "↔️",
-    micro_examples: "□ 人と違う視点を持ち、あえて逆張りすることがある;□ 議論が好きで、物事の矛盾を鋭く見抜く;□ 常に誰かと対立し、孤立しやすい"
+    archetype_icon: "🤼",
+    micro_examples: [
+      "人と違う視点を持ち、あえて逆張りすることがある",
+      "議論が好きで、物事の矛盾を鋭く見抜く",
+      "常に誰かと対立し、孤立しやすい",
+    ],
   },
   39: {
     keyword_short: "行き詰まり／困難",
     archetype_icon: "🧗",
-    micro_examples: "□ 進むも退くもできない、八方塞がりの状況に陥りやすい;□ 困難の中で、知恵と工夫で道を探す;□ 一人で抱え込み、助けを求めるのが苦手"
+    micro_examples: [
+      "進むも退くもできない、八方塞がりの状況に陥りやすい",
+      "困難の中で、知恵と工夫で道を探す",
+      "一人で抱え込み、助けを求めるのが苦手",
+    ],
   },
   40: {
     keyword_short: "解決／解放",
     archetype_icon: "🔓",
-    micro_examples: "□ 凍てついた問題を、行動力で一気に解決するのが得意;□ 過去にこだわらず、さっぱりしている;□ 問題解決後に、反省を疎かにする傾向も"
-  }
-};
-// os_manualデータベースに追加する新しいフィールドのデータ
-const os_manual_extensions = {
-  // ... (No.1〜40は前回までの内容) ...
+    micro_examples: [
+      "凍てついた問題を、行動力で一気に解決するのが得意",
+      "過去にこだわらず、さっぱりしている",
+      "問題解決後に、反省を疎かにする傾向も",
+    ],
+  },
   41: {
-    keyword_short: "戦略的削減／損して得取れ",
+    keyword_short: "戦略的削減／損して得を取る",
     archetype_icon: "🔪",
-    micro_examples: "□ 無駄なものを切り捨て、本質に集中する;□ 今は損でも、未来のための投資と考える;□ 時に、自分を犠牲にしすぎることがある"
+    micro_examples: [
+      "無駄なものを切り捨て、本質に集中する",
+      "今は損でも、未来のための投資と考える",
+      "時に、自分を犠牲にしすぎることがある",
+    ],
   },
   42: {
-    keyword_short: "貢献／Win-Win",
+    keyword_short: "貢献／共栄",
     archetype_icon: "📈",
-    micro_examples: "□ 他者を助けることで、自分も豊かになる;□ 善意の輪を広げることに喜びを感じる;□ お節介だと思われないか、少し心配"
+    micro_examples: [
+      "他者を助けることで、自分も豊かになる",
+      "善意の輪を広げることに喜びを感じる",
+      "お節介だと思われないか、少し心配",
+    ],
   },
   43: {
     keyword_short: "決断／ブレークスルー",
-    archetype_icon: "⚡️",
-    micro_examples: "□ 曖昧な状況に、断固たる決断を下す;□ 悪しき前例や、不要なものを排除する;□ やり方が強引で、敵を作りやすい"
+    archetype_icon: "⚔️",
+    micro_examples: [
+      "曖昧な状況に、断固たる決断を下す",
+      "悪しき前例や、不要なものを排除する",
+      "やり方が強引で、敵を作りやすい",
+    ],
   },
   44: {
     keyword_short: "偶然の出会い／影響力",
     archetype_icon: "✨",
-    micro_examples: "□ 予期せぬ出会いが、チャンスを運んでくる;□ なぜか人に影響を与えてしまうことがある;□ 軽率な関係に陥りやすい危険性も"
+    micro_examples: [
+      "予期せぬ出会いが、チャンスを運んでくる",
+      "なぜか人に影響を与えてしまうことがある",
+      "軽率な関係に陥りやすい危険性も",
+    ],
   },
   45: {
     keyword_short: "結束／コミュニティ",
     archetype_icon: "🙌",
-    micro_examples: "□ 人々が自然と集まる「場」を作るのが得意;□ チームや組織の、求心力となる;□ 楽しむことが目的化し、本来の目標を忘れがち"
+    micro_examples: [
+      "人々が自然と集まる「場」を作るのが得意",
+      "チームや組織の、求心力となる",
+      "楽しむことが目的化し、本来の目標を忘れがち",
+    ],
   },
   46: {
     keyword_short: "着実な成長／ステップアップ",
     archetype_icon: "🌳",
-    micro_examples: "□ 地道な努力を、コツコツ積み重ねられる;□ 一歩一歩、段階的に成長していくのが好き;□ 効率の悪いやり方に固執してしまうことがある"
+    micro_examples: [
+      "地道な努力を、コツコツ積み重ねられる",
+      "一歩一歩、段階的に成長していくのが好き",
+      "効率の悪いやり方に固執してしまうことがある",
+    ],
   },
   47: {
     keyword_short: "逆境／本質探求",
     archetype_icon: "🧘",
-    micro_examples: "□ 苦しい状況でこそ、物事の本質が見える;□ 精神的にタフで、簡単には希望を失わない;□ 悲観的になり、心を閉ざしやすい側面も"
+    micro_examples: [
+      "苦しい状況でこそ、物事の本質が見える",
+      "精神的にタフで、簡単には希望を失わない",
+      "悲観的になり、心を閉ざしやすい側面も",
+    ],
   },
   48: {
     keyword_short: "安定供給／インフラ",
     archetype_icon: "⛲️",
-    micro_examples: "□ 井戸のように、変わらない価値を提供し続ける;□ 縁の下の力持ちとして、組織を支える;□ 時代の変化に対応するのが苦手"
-  }
-};// os_manualデータベースに追加する新しいフィールドのデータ
-const os_manual_extensions = {
-  // ... (No.1〜48は前回までの内容) ...
+    micro_examples: [
+      "井戸のように、変わらない価値を提供し続ける",
+      "縁の下の力持ちとして、組織を支える",
+      "時代の変化に対応するのが苦手",
+    ],
+  },
   49: {
     keyword_short: "革命／システムチェンジ",
-    archetype_icon: "💥",
-    micro_examples: "□ 古い常識や体制を、根本から変革する;□ 破壊を恐れず、理想の世界を創造する;□ その過程で、多くの反発や抵抗に遭う"
+    archetype_icon: "🧨",
+    micro_examples: [
+      "古い常識や体制を、根本から変革する",
+      "破壊を恐れず、理想の世界を創造する",
+      "その過程で、多くの反発や抵抗に遭う",
+    ],
   },
   50: {
     keyword_short: "安定した器／文化醸成",
     archetype_icon: "🏺",
-    micro_examples: "□ 新しい組織や文化を、じっくりと育む;□ 三方よしの精神で、協力体制を築く;□ 短期的な成果を出すのは苦手"
+    micro_examples: [
+      "新しい組織や文化を、じっくりと育む",
+      "三方よしの精神で、協力体制を築く",
+      "短期的な成果を出すのは苦手",
+    ],
   },
   51: {
     keyword_short: "衝撃／行動開始",
     archetype_icon: "⚡️",
-    micro_examples: "□ 衝撃的な出来事をきっかけに、行動を起こす;□ 停滞した空気を、一瞬で動かす起爆剤になる;□ 行動が衝動的で、計画性に欠けることがある"
+    micro_examples: [
+      "衝撃的な出来事をきっかけに、行動を起こす",
+      "停滞した空気を、一瞬で動かす起爆剤になる",
+      "行動が衝動的で、計画性に欠けることがある",
+    ],
   },
   52: {
     keyword_short: "静止／内省",
     archetype_icon: "🏔️",
-    micro_examples: "□ 動くべき時が来るまで、山のように動かない;□ 外部の情報を遮断し、内なる声に耳を澄ます;□ 行動を起こすのが、極端に遅くなりがち"
+    micro_examples: [
+      "動くべき時が来るまで、山のように動かない",
+      "外部の情報を遮断し、内なる声に耳を澄ます",
+      "行動を起こすのが、極端に遅くなりがち",
+    ],
   },
   53: {
     keyword_short: "着実な前進／順序",
-    archetype_icon: "🪜",
-    micro_examples: "□ 物事を正しい順序で、一歩一歩進めるのが得意;□ プロセスを重視し、大きな失敗をしない;□ 急な変更や、ショートカットが苦手"
+    archetype_icon: "🚶‍♀️",
+    micro_examples: [
+      "物事を正しい順序で、一歩一歩進めるのが得意",
+      "プロセスを重視し、大きな失敗をしない",
+      "急な変更や、ショートカットが苦手",
+    ],
   },
   54: {
     keyword_short: "衝動的な関係／情熱",
     archetype_icon: "❤️‍🔥",
-    micro_examples: "□ 理屈よりも、情熱やフィーリングで行動する;□ 常識的な順序を無視して、関係を築こうとする;□ その関係は、長続きしないことが多い"
+    micro_examples: [
+      "理屈よりも、情熱やフィーリングで行動する",
+      "常識的な順序を無視して、関係を築こうとする",
+      "その関係は、長続きしないことが多い",
+    ],
   },
   55: {
     keyword_short: "豊かさの極み／絶頂期",
     archetype_icon: "🎆",
-    micro_examples: "□ 物事を成功の頂点へと導き、華やかな豊かさを手にする;□ 自信にあふれ、多くの人々を惹きつける;□ 絶頂期が永遠ではないことを、忘れがち"
+    micro_examples: [
+      "物事を成功の頂点へと導き、華やかな豊かさを手にする",
+      "自信にあふれ、多くの人々を惹きつける",
+      "絶頂期が永遠ではないことを、忘れがち",
+    ],
   },
   56: {
     keyword_short: "旅人／アウェイな環境",
     archetype_icon: "🚶‍♂️",
-    micro_examples: "□ 一つの場所に留まらず、常に新しい環境に身を置く;□ 高い適応力で、どんな場所でも生きていける;□ 心から安らげる居場所がなく、孤独を感じやすい"
-  }
-};
-// os_manualデータベースに追加する新しいフィールドのデータ
-const os_manual_extensions = {
-  // ... (No.1〜56は前回までの内容) ...
+    micro_examples: [
+      "一つの場所に留まらず、常に新天地へ",
+      "高い適応力で、どんな場所でも生きていける",
+      "心から安らげる居場所がなく、孤独を感じやすい",
+    ],
+  },
   57: {
     keyword_short: "浸透／柔軟な影響力",
     archetype_icon: "🍃",
-    micro_examples: "□ 強引な説得より、丁寧な根回しが得意;□ 相手の心に、いつの間にか入り込んでいる;□ 決断を迫られると、風のように姿を消しがち"
+    micro_examples: [
+      "強引な説得より、丁寧な根回しが得意",
+      "相手の心に、いつの間にか入り込んでいる",
+      "決断を迫られると、風のように姿を消しがち",
+    ],
   },
   58: {
     keyword_short: "喜悦／コミュニケーション",
     archetype_icon: "😊",
-    micro_examples: "□ 人と楽しくおしゃべりする時間が一番の充電;□ 場のムードメーカーになることが多い;□ 深い話や、地道な作業は少し苦手"
+    micro_examples: [
+      "人と楽しくおしゃべりする時間が一番の充電",
+      "場のムードメーカーになることが多い",
+      "深い話や、地道な作業は少し苦手",
+    ],
   },
   59: {
     keyword_short: "離散／リセット",
     archetype_icon: "💨",
-    micro_examples: "□ 淀んだ空気や、古いしがらみを解消したくなる;□ 問題をリセットし、ゼロから再構築するのが得意;□ 時に無責任だと思われやすい"
+    micro_examples: [
+      "淀んだ空気や、古いしがらみを解消したくなる",
+      "問題をリセットし、ゼロから再構築するのが得意",
+      "時に無責任だと思われやすい",
+    ],
   },
   60: {
     keyword_short: "節度／自己管理",
-    archetype_icon: "⚖️",
-    micro_examples: "□ ルールや予算を、きっちり守るのが得意;□ 自分を律することで、心の安定を保つ;□ 融通が利かない、堅物だと言われることも"
+    archetype_icon: "🪢",
+    micro_examples: [
+      "ルールや予算を、きっちり守るのが得意",
+      "自分を律することで、心の安定を保つ",
+      "融通が利かない、堅物だと言われることも",
+    ],
   },
   61: {
     keyword_short: "真心／誠実",
     archetype_icon: "🤍",
-    micro_examples: "□ 駆け引きや嘘が苦手で、常に誠実でありたい;□ 心からの言葉が、人の心を動かすと信じている;□ 人を信じすぎて、騙されやすい危うさも"
+    micro_examples: [
+      "駆け引きや嘘が苦手で、常に誠実でありたい",
+      "心からの言葉が、人の心を動かすと信じている",
+      "人を信じすぎて、騙されやすい危うさも",
+    ],
   },
   62: {
     keyword_short: "謙虚／細やかな配慮",
     archetype_icon: "🙏",
-    micro_examples: "□ 大きな成功より、小さなことを丁寧に行う;□ 常に謙虚で、目立つことを避ける傾向がある;□ 大胆な決断や、リスクを取るのが苦手"
+    micro_examples: [
+      "大きな成功より、小さなことを丁寧に行う",
+      "常に謙虚で、目立つことを避ける傾向がある",
+      "大胆な決断や、リスクを取るのが苦手",
+    ],
   },
   63: {
     keyword_short: "完成／秩序の維持",
     archetype_icon: "✅",
-    micro_examples: "□ 物事を完璧な形で完成させるのが得意;□ 安定した状態を、維持管理することに長ける;□ 変化を嫌い、新しいやり方を拒絶しがち"
+    micro_examples: [
+      "物事を完璧な形で完成させるのが得意",
+      "安定した状態を、維持管理することに長ける",
+      "変化を嫌い、新しいやり方を拒絶しがち",
+    ],
   },
   64: {
     keyword_short: "未完成／可能性の探求",
     archetype_icon: "🌀",
-    micro_examples: "□ 混乱の中から、新しい可能性を見出すのが好き;□ 失敗を恐れず、様々な試行錯誤を繰り返す;□ 物事をなかなか完成させられない側面も"
-  }
+    micro_examples: [
+      "混乱の中から、新しい可能性を見出すのが好き",
+      "失敗を恐れず、様々な試行錯誤を繰り返す",
+      "物事をなかなか完成させられない側面も",
+    ],
+  },
 };
 export const haqei_potential_scores = [
   // 0番目はダミー
