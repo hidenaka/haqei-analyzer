@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HaQei ベーシックOS分析 V8.4</title>
+    <title>HaQei ベーシックOS分析 V9.0-final</title>
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
     />
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,6 +17,16 @@
       rel="stylesheet"
     />
     <style>
+      .engine-card.selected {
+        /* [最終FIX-C] アクセシビリティのためコントラスト比を確保 */
+        background-color: #264653;
+        color: #ffffff;
+        border-color: #a3e635;
+        box-shadow: 0 0 25px rgba(163, 230, 53, 0.4),
+          0 0 0 3px rgba(163, 230, 53, 0.7);
+        transform: translateY(-5px) scale(1.05);
+      }
+      /* (その他のCSSは変更なし) */
       body {
         font-family: "Inter", "Noto Sans JP", sans-serif;
       }
@@ -58,15 +68,19 @@
         background-color: #374151;
         font-size: 0.875rem;
         line-height: 1.5;
+        color: #d1d5db;
       }
-      .option-label:hover {
+      .option-label:hover,
+      input[type="radio"]:focus-visible + .option-label {
         background-color: #4b5563;
         border-color: #6366f1;
+        color: #ffffff;
       }
       input[type="radio"]:checked + .option-label {
         border-color: #a5b4fc;
         background-color: #4338ca;
         box-shadow: 0 0 10px rgba(165, 180, 252, 0.4);
+        color: #ffffff;
       }
       .report-section h3,
       .report-section h4 {
@@ -84,23 +98,12 @@
         background-color: #1f2937;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       }
-      .engine-card:hover {
+      .engine-card:hover,
+      .engine-card:focus-visible {
         transform: translateY(-5px) scale(1.02);
         box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4);
         border-color: rgba(165, 180, 252, 0.5);
-      }
-      .engine-card.candidate-selected {
-        border-color: #818cf8;
-        border-width: 3px;
-        background-color: #3730a3;
-        box-shadow: 0 0 15px rgba(129, 140, 248, 0.4);
-      }
-      .engine-card.selected {
-        border-color: #a3e635;
-        box-shadow: 0 0 25px rgba(163, 230, 53, 0.4),
-          0 0 0 3px rgba(163, 230, 53, 0.7);
-        transform: translateY(-5px) scale(1.05);
-        background-color: #3f6212;
+        outline: none;
       }
       .engine-card-header {
         text-align: left;
@@ -117,42 +120,41 @@
         font-weight: 700;
         font-size: 1.125rem;
       }
-      .engine-card ul {
-        list-style: none;
-        padding-left: 0;
-        min-height: 4rem;
+      .engine-card-tip {
+        font-size: 0.75rem;
+        margin-top: 0.75rem;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        color: #d1d5db;
+        background-color: rgba(17, 24, 39, 0.6);
+        min-height: 2.5rem;
       }
-      .engine-card li {
+      .radar-container {
         position: relative;
-        padding-left: 1.25rem;
-      }
-      .engine-card li::before {
-        content: "□";
-        position: absolute;
-        left: 0;
-        color: #9ca3af;
-      }
-      .suitability-bars {
-        display: grid;
-        grid-template-columns: 2.5rem 1fr;
-        gap: 0.375rem;
-        align-items: center;
-        font-size: 0.6rem;
-        color: #9ca3af;
-      }
-      .bar-container {
         width: 100%;
-        background-color: #374151;
-        border-radius: 9999px;
-        height: 0.5rem;
+        max-width: 400px;
+        aspect-ratio: 1 / 1;
+        margin: auto;
       }
-      .bar-fill {
-        height: 0.5rem;
-        border-radius: 9999px;
-        transition: width 0.5s ease-in-out;
+      .drag-handle {
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        background-color: rgba(165, 180, 252, 0.3);
+        border: 2px solid rgba(224, 231, 255, 0.7);
+        border-radius: 50%;
+        cursor: grab;
+        transform: translate(-50%, -50%);
+        touch-action: none;
+        z-index: 10;
+        transition: background-color 0.2s;
       }
-      .bar-highlight {
-        box-shadow: 0 0 8px, 0 0 12px;
+      .drag-handle:hover {
+        background-color: rgba(165, 180, 252, 0.6);
+      }
+      .drag-handle:active {
+        cursor: grabbing;
+        background-color: rgba(129, 140, 248, 0.8);
       }
       details summary {
         cursor: pointer;
@@ -187,572 +189,1457 @@
       </header>
       <div id="diagnostic-container"></div>
     </div>
-
-    <template id="os-card-template">
-      <div class="p-6 bg-gray-900/50 rounded-xl border-t-4">
-        <h4 class="text-xl font-bold flex items-center gap-2">
-          <span class="text-3xl" data-role-icon></span>
-          <span data-role-label></span>：<span data-os-name></span>
-        </h4>
-        <p class="mt-2 text-gray-400" data-os-catchphrase></p>
-        <details class="mt-4 group">
-          <summary
-            class="cursor-pointer text-indigo-300 font-semibold hover:text-indigo-200 transition"
-          >
-            OS運用マニュアルを開く
-          </summary>
-          <div class="mt-4 pl-4 border-l-2 border-indigo-700/50 space-y-6">
-            <div class="p-4 bg-gray-800/50 rounded-lg">
-              <p class="font-semibold text-sky-300">■ 陰の機能</p>
-              <p class="text-xs mt-1 text-gray-400" data-yin-mode></p>
-            </div>
-            <div class="p-4 bg-gray-800/50 rounded-lg">
-              <p class="font-semibold text-amber-300">■ 陽の機能</p>
-              <p class="text-xs mt-1 text-gray-400" data-yang-mode></p>
-            </div>
-            <div class="p-4 bg-emerald-900/30 rounded-lg">
-              <p class="font-semibold text-green-300">■ 戦略サマリー</p>
-              <p class="text-xs mt-1 text-gray-300" data-strategic-summary></p>
-            </div>
-          </div>
-        </details>
-      </div>
-    </template>
-
+    <template id="os-card-template"></template>
     <script type="module">
-      import {
-        WORLDVIEW_QUESTIONS,
-        SCENARIO_QUESTIONS,
-      } from "./js/questions.js";
+      const HAQEI_DATA = {
+        element_relationships: [
+          {
+            source_element: "木",
+            target_element: "火",
+            relationship_type: "相生",
+          },
+          {
+            source_element: "火",
+            target_element: "土",
+            relationship_type: "相生",
+          },
+          {
+            source_element: "土",
+            target_element: "金",
+            relationship_type: "相生",
+          },
+          {
+            source_element: "金",
+            target_element: "水",
+            relationship_type: "相生",
+          },
+          {
+            source_element: "水",
+            target_element: "木",
+            relationship_type: "相生",
+          },
+          {
+            source_element: "木",
+            target_element: "土",
+            relationship_type: "相剋",
+          },
+          {
+            source_element: "土",
+            target_element: "水",
+            relationship_type: "相剋",
+          },
+          {
+            source_element: "水",
+            target_element: "火",
+            relationship_type: "相剋",
+          },
+          {
+            source_element: "火",
+            target_element: "金",
+            relationship_type: "相剋",
+          },
+          {
+            source_element: "金",
+            target_element: "木",
+            relationship_type: "相剋",
+          },
+        ],
+        trigrams_master: [
+          { trigram_id: 1, name_jp: "乾", element: "金" },
+          { trigram_id: 2, name_jp: "兌", element: "金" },
+          { trigram_id: 3, name_jp: "離", element: "火" },
+          { trigram_id: 4, name_jp: "震", element: "木" },
+          { trigram_id: 5, name_jp: "巽", element: "木" },
+          { trigram_id: 6, name_jp: "坎", element: "水" },
+          { trigram_id: 7, name_jp: "艮", element: "土" },
+          { trigram_id: 8, name_jp: "坤", element: "土" },
+        ],
+        hexagrams_master: [
+          {
+            hexagram_id: 1,
+            name_jp: "乾為天",
+            upper_trigram_id: 1,
+            lower_trigram_id: 1,
+            catchphrase: "天翔ける龍のような、天性のリーダー",
+          },
+          {
+            hexagram_id: 2,
+            name_jp: "坤為地",
+            upper_trigram_id: 8,
+            lower_trigram_id: 8,
+            catchphrase: "大地の母のように、すべてを受け入れる人",
+          },
+          {
+            hexagram_id: 3,
+            name_jp: "水雷屯",
+            upper_trigram_id: 6,
+            lower_trigram_id: 4,
+            catchphrase: "産みの苦しみを乗り越える、粘り強い開拓者",
+          },
+          {
+            hexagram_id: 4,
+            name_jp: "山水蒙",
+            upper_trigram_id: 7,
+            lower_trigram_id: 6,
+            catchphrase: "未知を恐れず、何事も素直に学べる学習者",
+          },
+          {
+            hexagram_id: 5,
+            name_jp: "水天需",
+            upper_trigram_id: 6,
+            lower_trigram_id: 1,
+            catchphrase: "最善の時を待てる、辛抱強い戦略家",
+          },
+          {
+            hexagram_id: 6,
+            name_jp: "天水訟",
+            upper_trigram_id: 1,
+            lower_trigram_id: 6,
+            catchphrase: "信念を貫き、正義を問う論客",
+          },
+          {
+            hexagram_id: 7,
+            name_jp: "地水師",
+            upper_trigram_id: 8,
+            lower_trigram_id: 6,
+            catchphrase: "規律と統率力で、組織を導く司令官",
+          },
+          {
+            hexagram_id: 8,
+            name_jp: "水地比",
+            upper_trigram_id: 6,
+            lower_trigram_id: 8,
+            catchphrase: "心で繋がり、人を支えるサポーター",
+          },
+          {
+            hexagram_id: 9,
+            name_jp: "風天小畜",
+            upper_trigram_id: 5,
+            lower_trigram_id: 1,
+            catchphrase: "小さな努力を積み重ねる、堅実な実務家",
+          },
+          {
+            hexagram_id: 10,
+            name_jp: "天澤履",
+            upper_trigram_id: 1,
+            lower_trigram_id: 2,
+            catchphrase: "礼節をわきまえ、慎重に進むチャレンジャー",
+          },
+          {
+            hexagram_id: 11,
+            name_jp: "地天泰",
+            upper_trigram_id: 8,
+            lower_trigram_id: 1,
+            catchphrase: "異なる要素を調和させる、平和を愛する調整役",
+          },
+          {
+            hexagram_id: 12,
+            name_jp: "天地否",
+            upper_trigram_id: 1,
+            lower_trigram_id: 8,
+            catchphrase: "自分の内なる世界を、深く追求する思想家",
+          },
+          {
+            hexagram_id: 13,
+            name_jp: "天火同人",
+            upper_trigram_id: 1,
+            lower_trigram_id: 3,
+            catchphrase: "公平な理念で、人々を団結させるまとめ役",
+          },
+          {
+            hexagram_id: 14,
+            name_jp: "火天大有",
+            upper_trigram_id: 3,
+            lower_trigram_id: 1,
+            catchphrase: "太陽のように、寛大さで人を照らすリーダー",
+          },
+          {
+            hexagram_id: 15,
+            name_jp: "地山謙",
+            upper_trigram_id: 8,
+            lower_trigram_id: 7,
+            catchphrase: "実力があっても、常に謙虚でいられる人格者",
+          },
+          {
+            hexagram_id: 16,
+            name_jp: "雷地豫",
+            upper_trigram_id: 4,
+            lower_trigram_id: 8,
+            catchphrase: "周到な準備で、人を楽しませるエンターテイナー",
+          },
+          {
+            hexagram_id: 17,
+            name_jp: "沢雷随",
+            upper_trigram_id: 2,
+            lower_trigram_id: 4,
+            catchphrase: "変化の波に乗りこなす、柔軟なフォロワー",
+          },
+          {
+            hexagram_id: 18,
+            name_jp: "山風蠱",
+            upper_trigram_id: 7,
+            lower_trigram_id: 5,
+            catchphrase: "根本原因を立て直す、情熱的な改革者",
+          },
+          {
+            hexagram_id: 19,
+            name_jp: "地沢臨",
+            upper_trigram_id: 8,
+            lower_trigram_id: 2,
+            catchphrase: "人を育て導く、面倒見のいいリーダー",
+          },
+          {
+            hexagram_id: 20,
+            name_jp: "風地観",
+            upper_trigram_id: 5,
+            lower_trigram_id: 8,
+            catchphrase: "物事の本質を見抜く、静かな観察者",
+          },
+          {
+            hexagram_id: 21,
+            name_jp: "火雷噬嗑",
+            upper_trigram_id: 3,
+            lower_trigram_id: 4,
+            catchphrase: "障害を噛み砕き、断固として進む実行者",
+          },
+          {
+            hexagram_id: 22,
+            name_jp: "山火賁",
+            upper_trigram_id: 7,
+            lower_trigram_id: 3,
+            catchphrase: "本質を美しく彩る、天性のアーティスト",
+          },
+          {
+            hexagram_id: 23,
+            name_jp: "山地剝",
+            upper_trigram_id: 7,
+            lower_trigram_id: 8,
+            catchphrase: "古いものを手放し、本質を見出す変革者",
+          },
+          {
+            hexagram_id: 24,
+            name_jp: "地雷復",
+            upper_trigram_id: 8,
+            lower_trigram_id: 4,
+            catchphrase: "失敗を次に活かす、しなやかな挑戦者",
+          },
+          {
+            hexagram_id: 25,
+            name_jp: "天雷无妄",
+            upper_trigram_id: 1,
+            lower_trigram_id: 4,
+            catchphrase: "自然体で、あるがままを受け入れる楽天家",
+          },
+          {
+            hexagram_id: 26,
+            name_jp: "山天大畜",
+            upper_trigram_id: 7,
+            lower_trigram_id: 1,
+            catchphrase: "内に力を蓄え、好機を待つ大器晩成の人",
+          },
+          {
+            hexagram_id: 27,
+            name_jp: "山雷頤",
+            upper_trigram_id: 7,
+            lower_trigram_id: 4,
+            catchphrase: "言葉と時間をかけて、物事を育む専門家",
+          },
+          {
+            hexagram_id: 28,
+            name_jp: "澤風大過",
+            upper_trigram_id: 2,
+            lower_trigram_id: 5,
+            catchphrase: "常識の枠を超える、大胆なゲームチェンジャー",
+          },
+          {
+            hexagram_id: 29,
+            name_jp: "坎為水",
+            upper_trigram_id: 6,
+            lower_trigram_id: 6,
+            catchphrase: "困難の渦中で、真理を見出す不屈の探求者",
+          },
+          {
+            hexagram_id: 30,
+            name_jp: "離為火",
+            upper_trigram_id: 3,
+            lower_trigram_id: 3,
+            catchphrase: "情熱と知性で、人を惹きつける華やかなスター",
+          },
+          {
+            hexagram_id: 31,
+            name_jp: "沢山咸",
+            upper_trigram_id: 2,
+            lower_trigram_id: 7,
+            catchphrase: "理屈抜きに、心で感じ取れる共感者",
+          },
+          {
+            hexagram_id: 32,
+            name_jp: "雷風恒",
+            upper_trigram_id: 4,
+            lower_trigram_id: 5,
+            catchphrase: "決めた道を、着実に歩み続ける継続者",
+          },
+          {
+            hexagram_id: 33,
+            name_jp: "天山遯",
+            upper_trigram_id: 1,
+            lower_trigram_id: 7,
+            catchphrase: "賢明な距離感を保つ、クールな戦略家",
+          },
+          {
+            hexagram_id: 34,
+            name_jp: "雷天大壮",
+            upper_trigram_id: 4,
+            lower_trigram_id: 1,
+            catchphrase: "目標に向かって、力強く進むチャレンジャー",
+          },
+          {
+            hexagram_id: 35,
+            name_jp: "火地晋",
+            upper_trigram_id: 3,
+            lower_trigram_id: 8,
+            catchphrase: "周りを明るく照らし、前進を促すプロモーター",
+          },
+          {
+            hexagram_id: 36,
+            name_jp: "地火明夷",
+            upper_trigram_id: 8,
+            lower_trigram_id: 3,
+            catchphrase: "逆境にあっても、希望を失わない芯の強い人",
+          },
+          {
+            hexagram_id: 37,
+            name_jp: "風火家人",
+            upper_trigram_id: 5,
+            lower_trigram_id: 3,
+            catchphrase: "自分の居場所を、大切に守り育てる人",
+          },
+          {
+            hexagram_id: 38,
+            name_jp: "火沢睽",
+            upper_trigram_id: 3,
+            lower_trigram_id: 2,
+            catchphrase: "あえて人と違う道を行く、個性的な独創家",
+          },
+          {
+            hexagram_id: 39,
+            name_jp: "水山蹇",
+            upper_trigram_id: 6,
+            lower_trigram_id: 7,
+            catchphrase: "困難な状況を、知恵と工夫で乗り越える策士",
+          },
+          {
+            hexagram_id: 40,
+            name_jp: "雷水解",
+            upper_trigram_id: 4,
+            lower_trigram_id: 6,
+            catchphrase: "問題をスピーディに解決する、決断力のある人",
+          },
+          {
+            hexagram_id: 41,
+            name_jp: "山沢損",
+            upper_trigram_id: 7,
+            lower_trigram_id: 2,
+            catchphrase: "人のために自分を役立てる、誠実な貢献者",
+          },
+          {
+            hexagram_id: 42,
+            name_jp: "風雷益",
+            upper_trigram_id: 5,
+            lower_trigram_id: 4,
+            catchphrase: "善意の循環を生み出す、心優しいサポーター",
+          },
+          {
+            hexagram_id: 43,
+            name_jp: "沢天夬",
+            upper_trigram_id: 2,
+            lower_trigram_id: 1,
+            catchphrase: "ためらわずに決断し、道を拓く突破役",
+          },
+          {
+            hexagram_id: 44,
+            name_jp: "天風姤",
+            upper_trigram_id: 1,
+            lower_trigram_id: 5,
+            catchphrase: "偶然の出会いをチャンスに変える、天性のネットワーカー",
+          },
+          {
+            hexagram_id: 45,
+            name_jp: "沢地萃",
+            upper_trigram_id: 2,
+            lower_trigram_id: 8,
+            catchphrase: "人と喜びが集まる場を創る、中心人物",
+          },
+          {
+            hexagram_id: 46,
+            name_jp: "地風升",
+            upper_trigram_id: 8,
+            lower_trigram_id: 5,
+            catchphrase: "地道な努力で、着実に成長できる人",
+          },
+          {
+            hexagram_id: 47,
+            name_jp: "沢水困",
+            upper_trigram_id: 2,
+            lower_trigram_id: 6,
+            catchphrase: "苦しい状況でも、自分を見失わない哲学者",
+          },
+          {
+            hexagram_id: 48,
+            name_jp: "水風井",
+            upper_trigram_id: 6,
+            lower_trigram_id: 5,
+            catchphrase: "誰にでも公平に尽くせる、縁の下の力持ち",
+          },
+          {
+            hexagram_id: 49,
+            name_jp: "沢火革",
+            upper_trigram_id: 2,
+            lower_trigram_id: 3,
+            catchphrase: "古い常識を刷新する、情熱を持った改革者",
+          },
+          {
+            hexagram_id: 50,
+            name_jp: "火風鼎",
+            upper_trigram_id: 3,
+            lower_trigram_id: 5,
+            catchphrase: "新たな安定を築き上げる、懐の深いまとめ役",
+          },
+          {
+            hexagram_id: 51,
+            name_jp: "震為雷",
+            upper_trigram_id: 4,
+            lower_trigram_id: 4,
+            catchphrase: "変化をチャンスに変える、瞬発力のある行動派",
+          },
+          {
+            hexagram_id: 52,
+            name_jp: "艮為山",
+            upper_trigram_id: 7,
+            lower_trigram_id: 7,
+            catchphrase: "動じない自己を確立した、静かな求道者",
+          },
+          {
+            hexagram_id: 53,
+            name_jp: "風山漸",
+            upper_trigram_id: 5,
+            lower_trigram_id: 7,
+            catchphrase: "物事を一歩ずつ、着実に進める誠実な人",
+          },
+          {
+            hexagram_id: 54,
+            name_jp: "雷沢帰妹",
+            upper_trigram_id: 4,
+            lower_trigram_id: 2,
+            catchphrase: "自分の情熱に正直に生きる、純粋な情熱家",
+          },
+          {
+            hexagram_id: 55,
+            name_jp: "雷火豊",
+            upper_trigram_id: 4,
+            lower_trigram_id: 3,
+            catchphrase: "豊かさを創り出し、分かち合うカリスマ",
+          },
+          {
+            hexagram_id: 56,
+            name_jp: "火山旅",
+            upper_trigram_id: 3,
+            lower_trigram_id: 7,
+            catchphrase: "一箇所に留まらない、自由な旅人",
+          },
+          {
+            hexagram_id: 57,
+            name_jp: "巽為風",
+            upper_trigram_id: 5,
+            lower_trigram_id: 5,
+            catchphrase: "隅々まで心配りができる、しなやかな調整役",
+          },
+          {
+            hexagram_id: 58,
+            name_jp: "兌為沢",
+            upper_trigram_id: 2,
+            lower_trigram_id: 2,
+            catchphrase: "人と話すこと、喜ばせることが好きなエンターテイナー",
+          },
+          {
+            hexagram_id: 59,
+            name_jp: "風水渙",
+            upper_trigram_id: 5,
+            lower_trigram_id: 6,
+            catchphrase: "心の壁を溶かし、風通しを良くする調整役",
+          },
+          {
+            hexagram_id: 60,
+            name_jp: "水沢節",
+            upper_trigram_id: 6,
+            lower_trigram_id: 2,
+            catchphrase: "自分を律し、節度を保つことができる人",
+          },
+          {
+            hexagram_id: 61,
+            name_jp: "風沢中孚",
+            upper_trigram_id: 5,
+            lower_trigram_id: 2,
+            catchphrase: "誠実さで、人の心を動かすことができる人",
+          },
+          {
+            hexagram_id: 62,
+            name_jp: "雷山小過",
+            upper_trigram_id: 4,
+            lower_trigram_id: 7,
+            catchphrase: "謙虚すぎるほどに、丁寧さを重んじる人",
+          },
+          {
+            hexagram_id: 63,
+            name_jp: "水火既済",
+            upper_trigram_id: 6,
+            lower_trigram_id: 3,
+            catchphrase: "完璧なバランスを求める、秩序の番人",
+          },
+          {
+            hexagram_id: 64,
+            name_jp: "火水未済",
+            upper_trigram_id: 3,
+            lower_trigram_id: 6,
+            catchphrase: "未完成の中に、無限の可能性を見出す探求者",
+          },
+        ],
+        H64_DATA: [
+          { hexagram_id: 1, saku_id: 2, sou_id: 1, go_id: 1 },
+          { hexagram_id: 2, saku_id: 1, sou_id: 2, go_id: 2 },
+          { hexagram_id: 3, saku_id: 50, sou_id: 4, go_id: 23 },
+          { hexagram_id: 4, saku_id: 49, sou_id: 3, go_id: 24 },
+          { hexagram_id: 5, saku_id: 38, sou_id: 6, go_id: 64 },
+          { hexagram_id: 6, saku_id: 37, sou_id: 5, go_id: 63 },
+          { hexagram_id: 7, saku_id: 13, sou_id: 8, go_id: 2 },
+          { hexagram_id: 8, saku_id: 14, sou_id: 7, go_id: 2 },
+          { hexagram_id: 9, saku_id: 46, sou_id: 10, go_id: 61 },
+          { hexagram_id: 10, saku_id: 45, sou_id: 9, go_id: 62 },
+          { hexagram_id: 11, saku_id: 12, sou_id: 12, go_id: 54 },
+          { hexagram_id: 12, saku_id: 11, sou_id: 11, go_id: 53 },
+          { hexagram_id: 13, saku_id: 7, sou_id: 14, go_id: 44 },
+          { hexagram_id: 14, saku_id: 8, sou_id: 13, go_id: 43 },
+          { hexagram_id: 15, saku_id: 52, sou_id: 16, go_id: 40 },
+          { hexagram_id: 16, saku_id: 51, sou_id: 15, go_id: 39 },
+          { hexagram_id: 17, saku_id: 18, sou_id: 18, go_id: 27 },
+          { hexagram_id: 18, saku_id: 17, sou_id: 17, go_id: 28 },
+          { hexagram_id: 19, saku_id: 24, sou_id: 20, go_id: 54 },
+          { hexagram_id: 20, saku_id: 23, sou_id: 19, go_id: 53 },
+          { hexagram_id: 21, saku_id: 27, sou_id: 22, go_id: 35 },
+          { hexagram_id: 22, saku_id: 28, sou_id: 21, go_id: 36 },
+          { hexagram_id: 23, saku_id: 20, sou_id: 24, go_id: 2 },
+          { hexagram_id: 24, saku_id: 19, sou_id: 23, go_id: 2 },
+          { hexagram_id: 25, saku_id: 41, sou_id: 26, go_id: 28 },
+          { hexagram_id: 26, saku_id: 42, sou_id: 25, go_id: 27 },
+          { hexagram_id: 27, saku_id: 22, sou_id: 28, go_id: 2 },
+          { hexagram_id: 28, saku_id: 21, sou_id: 27, go_id: 1 },
+          { hexagram_id: 29, saku_id: 30, sou_id: 29, go_id: 29 },
+          { hexagram_id: 30, saku_id: 29, sou_id: 30, go_id: 30 },
+          { hexagram_id: 31, saku_id: 32, sou_id: 32, go_id: 44 },
+          { hexagram_id: 32, saku_id: 31, sou_id: 31, go_id: 43 },
+          { hexagram_id: 33, saku_id: 56, sou_id: 34, go_id: 53 },
+          { hexagram_id: 34, saku_id: 55, sou_id: 33, go_id: 54 },
+          { hexagram_id: 35, saku_id: 6, sou_id: 36, go_id: 63 },
+          { hexagram_id: 36, saku_id: 5, sou_id: 35, go_id: 64 },
+          { hexagram_id: 37, saku_id: 48, sou_id: 38, go_id: 61 },
+          { hexagram_id: 38, saku_id: 47, sou_id: 37, go_id: 62 },
+          { hexagram_id: 39, saku_id: 16, sou_id: 40, go_id: 63 },
+          { hexagram_id: 40, saku_id: 15, sou_id: 39, go_id: 64 },
+          { hexagram_id: 41, saku_id: 26, sou_id: 42, go_id: 24 },
+          { hexagram_id: 42, saku_id: 25, sou_id: 41, go_id: 23 },
+          { hexagram_id: 43, saku_id: 20, sou_id: 44, go_id: 1 },
+          { hexagram_id: 44, saku_id: 19, sou_id: 43, go_id: 1 },
+          { hexagram_id: 45, saku_id: 10, sou_id: 46, go_id: 53 },
+          { hexagram_id: 46, saku_id: 9, sou_id: 45, go_id: 54 },
+          { hexagram_id: 47, saku_id: 38, sou_id: 48, go_id: 37 },
+          { hexagram_id: 48, saku_id: 37, sou_id: 47, go_id: 38 },
+          { hexagram_id: 49, saku_id: 4, sou_id: 50, go_id: 30 },
+          { hexagram_id: 50, saku_id: 3, sou_id: 49, go_id: 29 },
+          { hexagram_id: 51, saku_id: 16, sou_id: 52, go_id: 51 },
+          { hexagram_id: 52, saku_id: 15, sou_id: 51, go_id: 52 },
+          { hexagram_id: 53, saku_id: 34, sou_id: 54, go_id: 40 },
+          { hexagram_id: 54, saku_id: 33, sou_id: 53, go_id: 39 },
+          { hexagram_id: 55, saku_id: 34, sou_id: 56, go_id: 64 },
+          { hexagram_id: 56, saku_id: 33, sou_id: 55, go_id: 63 },
+          { hexagram_id: 57, saku_id: 52, sou_id: 58, go_id: 57 },
+          { hexagram_id: 58, saku_id: 51, sou_id: 57, go_id: 58 },
+          { hexagram_id: 59, saku_id: 62, sou_id: 60, go_id: 40 },
+          { hexagram_id: 60, saku_id: 61, sou_id: 59, go_id: 39 },
+          { hexagram_id: 61, saku_id: 60, sou_id: 62, go_id: 27 },
+          { hexagram_id: 62, saku_id: 59, sou_id: 61, go_id: 28 },
+          { hexagram_id: 63, saku_id: 6, sou_id: 64, go_id: 30 },
+          { hexagram_id: 64, saku_id: 5, sou_id: 63, go_id: 29 },
+        ],
+        os_manual: {},
+      };
 
-      document.addEventListener("DOMContentLoaded", async () => {
+      const osManualData = {};
+
+      const WORLDVIEW_QUESTIONS = [
+        {
+          id: "wvq1",
+          text: "チームプロジェクトで最も重要だと思うのは？",
+          options: [
+            {
+              value: "A",
+              text: "明確なリーダーと目標",
+              scores: { 1: 2, 7: 1 },
+            },
+            {
+              value: "B",
+              text: "メンバー間の信頼と協力",
+              scores: { 8: 2, 2: 1 },
+            },
+          ],
+        },
+        {
+          id: "wvq2",
+          text: "新しいスキルを学ぶとき、あなたのスタイルは？",
+          options: [
+            {
+              value: "A",
+              text: "まず全体像を把握し、理論から入る",
+              scores: { 3: 2, 7: 1 },
+            },
+            {
+              value: "B",
+              text: "とりあえず実践してみて、失敗から学ぶ",
+              scores: { 4: 2, 6: 1 },
+            },
+          ],
+        },
+        {
+          id: "wvq3",
+          text: "ストレスを感じた時、どうやって解消する？",
+          options: [
+            {
+              value: "A",
+              text: "一人で静かに内省し、問題の原因を探る",
+              scores: { 6: 2, 7: 1 },
+            },
+            {
+              value: "B",
+              text: "友人と話したり、楽しいことで発散する",
+              scores: { 2: 2, 5: 1 },
+            },
+          ],
+        },
+        {
+          id: "wvq4",
+          text: "あなたが理想とする社会は？",
+          options: [
+            {
+              value: "A",
+              text: "個々の才能が輝く、活気ある競争社会",
+              scores: { 1: 2, 4: 1 },
+            },
+            {
+              value: "B",
+              text: "誰もが支え合う、穏やかで平和な社会",
+              scores: { 8: 2, 5: 1 },
+            },
+          ],
+        },
+      ];
+
+      const SCENARIO_QUESTIONS = [
+        {
+          id: "scq1",
+          scenario:
+            "あなたのプロジェクトが、予期せぬ外部要因で大炎上。非難の矛先があなたに向かっています。",
+          inner_q: "この時、あなたの心の中で最も強くなる感情は？",
+          outer_q: "この状況で、あなたが最初にとる行動は？",
+          options: {
+            inner: [
+              {
+                text: "「なぜだ！」という怒りと、状況をコントロールしたい欲求",
+                scores: { 1: 2, 4: 1 },
+              },
+              {
+                text: "「どうしよう…」という不安と、誰かに助けを求める気持ち",
+                scores: { 6: 2, 8: 1 },
+              },
+            ],
+            outer: [
+              {
+                text: "即座に関係者を集め、対策会議を開き、主導権を握る",
+                scores: { 1: 2, 3: 1 },
+              },
+              {
+                text: "信頼できる人に個別に連絡を取り、状況を共有し、意見を求める",
+                scores: { 5: 2, 8: 1 },
+              },
+            ],
+          },
+        },
+        {
+          id: "scq2",
+          scenario:
+            "あなたはチームリーダーとして、重要な決断を迫られています。A案はハイリスク・ハイリターン、B案はローリスク・ローリターンです。",
+          inner_q: "この時、あなたの心はどちらに傾きやすい？",
+          outer_q: "最終的に、あなたがチームに提案する可能性が高いのは？",
+          options: {
+            inner: [
+              {
+                text: "「一発逆転を狙いたい！」という興奮と、挑戦への魅力",
+                scores: { 4: 2, 3: 1 },
+              },
+              {
+                text: "「失敗は避けたい…」という慎重さと、安定への欲求",
+                scores: { 7: 2, 6: 1 },
+              },
+            ],
+            outer: [
+              {
+                text: "A案の魅力を熱弁し、チームを鼓舞して挑戦を促す",
+                scores: { 3: 2, 4: 1 },
+              },
+              {
+                text: "B案の堅実さを強調し、リスクを避ける方向で合意形成を図る",
+                scores: { 7: 2, 8: 1 },
+              },
+            ],
+          },
+        },
+      ];
+
+      const analysisState = {
+        trigramScores: null,
+        adjustedTrigramScores: null,
+        engineCandidates: [],
+        selectedEngine: null,
+        lockedEngineOs: null,
+        influentialOses: [],
+      };
+
+      let trigramRadarChart = null;
+      let handlesResizeBound = false;
+      const diagnosticContainer = document.getElementById(
+        "diagnostic-container"
+      );
+
+      function renderTrigramRadar(ctx, scores) {
+        if (trigramRadarChart) {
+          trigramRadarChart.destroy();
+        }
+        const labels = HAQEI_DATA.trigrams_master
+          .sort((a, b) => a.trigram_id - b.trigram_id)
+          .map((t) => t.name_jp);
+        const dataPoints = Object.keys(scores)
+          .sort((a, b) => a - b)
+          .map((key) => scores[key]);
+
+        // [最終FIX-B] グローバルスコープを明示的に参照
+        trigramRadarChart = new window.Chart(ctx, {
+          type: "radar",
+          // (以降のChart.jsオプションは変更なし)
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "八卦スコア",
+                data: dataPoints,
+                backgroundColor: "rgba(165, 180, 252, 0.2)",
+                borderColor: "#a5b4fc",
+                borderWidth: 2,
+                pointBackgroundColor: "#e0e7ff",
+                pointBorderColor: "#a5b4fc",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#6366f1",
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+              r: {
+                angleLines: { color: "rgba(255, 255, 255, 0.2)" },
+                grid: { color: "rgba(255, 255, 255, 0.2)" },
+                pointLabels: {
+                  font: { size: 14, weight: "bold" },
+                  color: "#d1d5db",
+                },
+                ticks: {
+                  display: false,
+                  stepSize: 25,
+                  backdropColor: "transparent",
+                },
+                min: 0,
+                max: 100,
+              },
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (context) =>
+                    `${context.label}: ${context.raw.toFixed(1)}`,
+                },
+              },
+            },
+          },
+        });
+        return trigramRadarChart;
+      }
+      function updateTrigramRadar(chart, newScores) {
+        if (!chart) return;
+        const dataPoints = Object.keys(newScores)
+          .sort((a, b) => a - b)
+          .map((key) => newScores[key]);
+        chart.data.datasets[0].data = dataPoints;
+        chart.update("none");
+      }
+
+      function getTrigramElement(trigramId) {
+        return HAQEI_DATA.trigrams_master.find(
+          (t) => t.trigram_id === trigramId
+        );
+      }
+
+      function getRelationship(elem1, elem2) {
+        if (!elem1 || !elem2) return "無関係";
+        const rel = HAQEI_DATA.element_relationships.find(
+          (r) =>
+            r.source_element === elem1.element &&
+            r.target_element === elem2.element
+        );
+        return rel ? rel.relationship_type : "無関係";
+      }
+
+      function hasXiangSheng(hexA, hexB) {
+        if (!hexA || !hexB) return false;
+        const aUpper = getTrigramElement(hexA.upper_trigram_id);
+        const aLower = getTrigramElement(hexA.lower_trigram_id);
+        const bUpper = getTrigramElement(hexB.upper_trigram_id);
+        const bLower = getTrigramElement(hexB.lower_trigram_id);
+        const pairs = [
+          [aUpper, bUpper],
+          [aUpper, bLower],
+          [aLower, bUpper],
+          [aLower, bLower],
+        ];
+        return pairs.some(
+          (p) =>
+            getRelationship(p[0], p[1]) === "相生" ||
+            getRelationship(p[1], p[0]) === "相生"
+        );
+      }
+
+      function hasXiangKe(hexA, hexB) {
+        if (!hexA || !hexB) return false;
+        const aUpper = getTrigramElement(hexA.upper_trigram_id);
+        const aLower = getTrigramElement(hexA.lower_trigram_id);
+        const bUpper = getTrigramElement(hexB.upper_trigram_id);
+        const bLower = getTrigramElement(hexB.lower_trigram_id);
+        const pairs = [
+          [aUpper, bUpper],
+          [aUpper, bLower],
+          [aLower, bUpper],
+          [aLower, bLower],
+        ];
+        return pairs.some(
+          (p) =>
+            getRelationship(p[0], p[1]) === "相剋" ||
+            getRelationship(p[1], p[0]) === "相剋"
+        );
+      }
+
+      function isZong(hexIdA, hexIdB) {
+        const souId = HAQEI_DATA.H64_DATA.find(
+          (k) => k.hexagram_id === hexIdA
+        )?.sou_id;
+        return souId === hexIdB;
+      }
+
+      function isCuo(hexIdA, hexIdB) {
+        const sakuId = HAQEI_DATA.H64_DATA.find(
+          (k) => k.hexagram_id === hexIdA
+        )?.saku_id;
+        return sakuId === hexIdB;
+      }
+
+      function getEngineCandidates(normalizedScores) {
+        const cand = HAQEI_DATA.hexagrams_master
+          .map((h) => {
+            const s =
+              (normalizedScores[h.upper_trigram_id] || 0) +
+              (normalizedScores[h.lower_trigram_id] || 0);
+            return { ...h, rawScore: s };
+          })
+          .sort((a, b) => b.rawScore - a.rawScore)
+          .slice(0, 4);
+        return cand;
+      }
+
+      function calculateInfluenceScores(candidates, engineId) {
+        const engineHex = HAQEI_DATA.hexagrams_master.find(
+          (h) => h.hexagram_id === engineId
+        );
+        return candidates
+          .filter((c) => c.hexagram_id !== engineId)
+          .map((c) => {
+            const rel = {
+              xiangSheng: hasXiangSheng(engineHex, c),
+              xiangKe: hasXiangKe(engineHex, c),
+              zong: isZong(engineId, c.hexagram_id),
+              cuo: isCuo(engineId, c.hexagram_id),
+            };
+            let score = 0;
+            if (rel.xiangSheng) score += 30;
+            if (rel.xiangKe) score -= 20;
+            if (rel.zong) score += 15;
+            if (rel.cuo) score -= 10;
+            return { id: c.hexagram_id, score, rel };
+          })
+          .sort((a, b) => b.score - a.score);
+      }
+
+      function main() {
         try {
-          const response = await fetch("/api/data");
-          if (!response.ok)
-            throw new Error("データベースの読み込みに失敗しました。");
-          const { HAQEI_DATA } = await response.json();
-          const HDB = HAQEI_DATA;
-
-          const manualById = Object.fromEntries(
-            Object.values(HDB.os_manual).map((m) => [String(m.hexagram_id), m])
-          );
-
-          const state = {
-            trigramScores: null,
-            worldviewHexScores: {},
-            engineCandidates: [],
-            selectedEngineOsIds: [],
-            lockedEngineOs: null,
-          };
-
-          const diagnosticContainer = document.getElementById(
-            "diagnostic-container"
-          );
-
-          function showIntro() {
-            diagnosticContainer.innerHTML = `<div class="text-center bg-gray-900/50 p-6 rounded-xl prose-custom max-w-none text-gray-300"><p class="text-lg">ようこそ。これから、あなただけの「OS設計図」を創るための、対話を始めます。</p><p class="mt-6">HaQeiアナライザーは、3つのステップで、あなたの魂の設計図を共同で構築します。</p><div class="grid md:grid-cols-3 gap-6 my-6 text-left"><div class="bg-gray-800/70 p-4 rounded-lg border border-gray-700"><h4 class="font-bold text-amber-300 flex items-center"><span class="text-xl mr-2">1</span>価値観の明確化</h4><p class="text-xs mt-2">まず、いくつかの問いから、あなたの核となる8つの基本エネルギーのバランスを分析します。</p></div><div class="bg-gray-800/70 p-4 rounded-lg border border-gray-700"><h4 class="font-bold text-indigo-300 flex items-center"><span class="text-xl mr-2">2</span>エンジンOSの選択</h4><p class="text-xs mt-2">次に、提示された候補の中から、あなたの感覚に最も近い<strong class="text-white">「エンジンOS」をあなた自身が選択</strong>します。</p></div><div class="bg-gray-800/70 p-4 rounded-lg border border-gray-700"><h4 class="font-bold text-green-300 flex items-center"><span class="text-xl mr-2">3</span>行動パターンの特定</h4><p class="text-xs mt-2">あなたの選択を基に、残りのOSを特定し、<strong class="text-white">戦略レポート</strong>を生成します。</p></div></div><p>あなたの感覚こそが、最も信頼できる羅針盤です。どうぞ、リラックスして、対話を楽しんでください。</p></div><div class="mt-8 pt-8 border-t border-gray-700 text-center"><button id="startBtn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">対話を開始する</button></div>`;
-            document
-              .getElementById("startBtn")
-              .addEventListener("click", showWorldviewQuestions);
-          }
-
-          function showWorldviewQuestions() {
-            let html = `<h3 class="text-xl font-bold text-amber-300 mb-6 text-center">Step 1：あなたの価値観について教えてください</h3>`;
-            WORLDVIEW_QUESTIONS.forEach((q, index) => {
-              const worldviewOpts = q.options
-                .map(
-                  (opt, i) =>
-                    `<div><input type="radio" name="${q.id}" value="${i}" id="${q.id}_${i}" class="hidden"><label for="${q.id}_${i}" class="option-label">${opt.text}</label></div>`
-                )
-                .join("");
-              html += `<div class="diagnostic-item"><div class="question-block"><p class="question-text">${
-                index + 1
-              }. ${
-                q.text
-              }</p><div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">${worldviewOpts}</div></div></div>`;
-            });
-            html += `<div class="mt-8 text-center"><button id="analyzeEnergyBtn" class="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">エネルギーバランスを分析し、OS候補を生成</button></div>`;
-            diagnosticContainer.innerHTML = html;
-            document
-              .getElementById("analyzeEnergyBtn")
-              .addEventListener("click", handleEnergyAnalysis);
-          }
-
-          function showEngineCandidateSelection() {
-            let html = `
-              <div class="text-center">
-                <h3 class="text-xl font-bold text-indigo-300 mb-4">Step 2-A：エンジンOS候補の絞り込み</h3>
-                <div class="bg-gray-900/50 p-6 rounded-xl prose-custom max-w-none text-gray-300">
-                  <p>あなたの価値観の分析に基づき、エンジンOSの候補が4つ生成されました。以下のカードを読み、最も「腑に落ちる」と感じるものを、<strong>1つか2つ</strong>選んでください。</p>
-                  <p class="text-xs text-gray-400 mt-2">💡 各カードの下にある「適合率」は、あなたの価値観と、各OSを構成する8つの基本エネルギーとの親和性を示しています。また、「詳細」をクリックすると、そのOSが社会で担いやすい役割の例を見ることができます。</p>
-                </div>
-                <div id="engine-candidate-wrapper" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">`;
-
-            state.engineCandidates.forEach((os) => {
-              const osManual = manualById[String(os.hexagram_id)] || {};
-              const keyword = osManual.keyword_short || "???";
-              const icon = osManual.archetype_icon || "❓";
-              const strategicRoles = osManual.strategic_roles || [];
-
-              // --- ⑤ 適合率バー生成ロジック ---
-              const trigramProfile = Object.entries(state.trigramScores).map(
-                ([id, score]) => ({ id: parseInt(id), score })
-              );
-              const maxScore = Math.max(
-                ...trigramProfile.map((t) => t.score),
-                1
-              );
-
-              const barsHtml = trigramProfile
-                .sort((a, b) => a.id - b.id)
-                .map((trigram) => {
-                  const percentage = (trigram.score / maxScore) * 100;
-                  const isHighlight =
-                    os.upper_trigram_id === trigram.id ||
-                    os.lower_trigram_id === trigram.id;
-                  const color = HDB.trigrams_master.find(
-                    (t) => t.trigram_id === trigram.id
-                  )?.color_code;
-                  const highlightClass = isHighlight ? "bar-highlight" : "";
-                  const barStyle = `width:${percentage}%;
-+                   background-color:${color ?? "#4b5563"};
-+                   box-shadow:${
-                    isHighlight ? `0 0 8px ${color}, 0 0 12px ${color}` : "none"
-                  };`;
-
-                  return `
-                  <div class="trigram-name">${
-                    HDB.trigrams_master.find((t) => t.trigram_id === trigram.id)
-                      ?.name_jp
-                  }</div>
-                  <div class="bar-container">
-                    <div class="bar-fill" style="${barStyle}" title="スコア: ${trigram.score.toFixed(
-                    1
-                  )}"></div>
-                  </div>`;
-                })
-                .join("");
-
-              html += `
-                <div id="card-select-${os.hexagram_id}" data-id="${
-                os.hexagram_id
-              }" class="engine-card" role="button" tabindex="0" aria-pressed="false" aria-label="候補OS：${
-                os.name_jp
-              }">
-                    <div class="card-content">
-                        <header class="engine-card-header">
-                            <span role="img" aria-label="${keyword}" class="archetype-icon">${icon}</span>
-                            <div><h4 class="archetype-name">${
-                              os.name_jp
-                            }</h4><span class="text-xs text-indigo-300 font-semibold">${keyword}</span></div>
-                        </header>
-                        <p class="text-sm text-gray-300 mt-3 flex-grow">${
-                          osManual.summary || "解説準備中..."
-                        }</p>
-
-                        <details class="mt-4 text-xs">
-                          <summary class="text-indigo-400 hover:text-indigo-200">このOSが担いやすい役割（詳細）</summary>
-                          <ul class="mt-2 space-y-1 text-slate-300 list-disc list-inside bg-black/20 p-3 rounded-md">
-                            ${strategicRoles
-                              .map((role) => `<li>${role}</li>`)
-                              .join("")}
-                          </ul>
-                        </details>
-
-                        <div class="mt-4 pt-4 border-t border-gray-700/50">
-                            <p class="text-xs font-semibold text-gray-400 mb-2">価値観との適合率</p>
-                            <div class="suitability-bars">${barsHtml}</div>
-                        </div>
-
-                    </div>
-                </div>`;
-            });
-            html += `</div><div class="mt-8 text-center"><button id="nextToCompareBtn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>選択したOSを比較する</button></div></div>`;
-            diagnosticContainer.innerHTML = html;
-
-            document
-              .querySelectorAll(".engine-card")
-              .forEach((card) =>
-                card.addEventListener("click", handleCandidateToggle)
-              );
-            document
-              .getElementById("nextToCompareBtn")
-              .addEventListener("click", showEngineComparison);
-          }
-          function showEngineComparison() {
-            if (state.selectedEngineOsIds.length === 0) {
-              console.warn("比較するOSが選択されていません。");
-              return;
-            }
-            if (state.selectedEngineOsIds.length === 1) {
-              const selectedId = state.selectedEngineOsIds[0];
-              handleEngineLockIn({
-                currentTarget: { dataset: { id: selectedId } },
-              });
-              return;
-            }
-            const [idA, idB] = state.selectedEngineOsIds;
-            const osA = HDB.hexagrams_master.find((h) => h.hexagram_id === idA);
-            const osB = HDB.hexagrams_master.find((h) => h.hexagram_id === idB);
-
-            const createComparisonCard = (os) => {
-              const osManual = manualById[String(os.hexagram_id)] || {};
-              return `<div class="p-6 bg-gray-900/50 rounded-xl flex flex-col">
-                              <h4 class="text-2xl font-bold text-center mb-4">${
-                                os.name_jp
-                              }</h4>
-                              <p class="text-center text-sm text-gray-400 mb-4 flex-grow">${
-                                osManual.summary || ""
-                              }</p>
-                              <button class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition lock-in-btn mt-auto" data-id="${
-                                os.hexagram_id
-                              }">
-                                  これをエンジンOSとしてロックイン
-                              </button>
-                           </div>`;
-            };
-
-            let html = `<div class="text-center">
-                            <h3 class="text-xl font-bold text-indigo-300 mb-4">Step 2-B：最終決定</h3>
-                             <p class="text-sm text-gray-400 mb-6">あなたが選んだ2つのOSの核心的な価値観を比較します。より「これこそが自分だ」と強く感じる方を、あなたの**エンジンOS**としてロックインしてください。</p>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                ${createComparisonCard(osA)}
-                                ${createComparisonCard(osB)}
-                            </div>
-                           <button id="backToSelectionBtn" class="mt-8 text-sm text-gray-400 hover:text-white underline">← 候補を選び直す</button>
-                         </div>`;
-            diagnosticContainer.innerHTML = html;
-            document
-              .querySelectorAll(".lock-in-btn")
-              .forEach((btn) =>
-                btn.addEventListener("click", handleEngineLockIn)
-              );
-            document
-              .getElementById("backToSelectionBtn")
-              .addEventListener("click", showEngineCandidateSelection);
-          }
-
-          function showScenarioQuestions() {
-            let html = `<h3 class="text-xl font-bold text-indigo-300 mb-6 text-center">Step 3：あなたの行動パターンについて教えてください</h3>`;
-            html += `<p class="text-center text-sm text-gray-400 mb-6">エンジンOS【${state.lockedEngineOs.name_jp}】がロックインされました。次に、社会的な場面やストレス下でのあなたの振る舞いを分析し、残りのOSを特定します。</p>`;
-            SCENARIO_QUESTIONS.forEach((q, index) => {
-              const innerOpts = q.options.inner
-                .map(
-                  (opt, i) =>
-                    `<div><input type="radio" name="${q.id}_inner" value="${i}" id="${q.id}_inner_${i}" class="hidden"><label for="${q.id}_inner_${i}" class="option-label">${opt.text}</label></div>`
-                )
-                .join("");
-              const outerOpts = q.options.outer
-                .map(
-                  (opt, i) =>
-                    `<div><input type="radio" name="${q.id}_outer" value="${i}" id="${q.id}_outer_${i}" class="hidden"><label for="${q.id}_outer_${i}" class="option-label">${opt.text}</label></div>`
-                )
-                .join("");
-              html += `<div class="diagnostic-item"><p class="text-gray-400 text-sm">シナリオ ${
-                index + 1
-              }/${
-                SCENARIO_QUESTIONS.length
-              }</p><p class="font-semibold text-gray-200 mb-4">${
-                q.scenario
-              }</p><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="question-block"><p class="question-text">${
-                q.inner_q
-              }</p><div class="space-y-3 mt-4">${innerOpts}</div></div><div class="question-block"><p class="question-text">${
-                q.outer_q
-              }</p><div class="space-y-3 mt-4">${outerOpts}</div></div></div></div>`;
-            });
-            html += `<div class="mt-8 pt-8 border-t border-gray-700">
-                      <div class="text-center">
-                        <label class="flex items-center justify-center cursor-pointer">
-                          <input type="checkbox" id="agreementCheckbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
-                          <span class="ml-2 text-sm text-gray-400">
-                              <a href="/terms.html" target="_blank" class="underline hover:text-white">利用規約</a>および<a href="/privacy.html" target="_blank" class="underline hover:text-white">プライバシーポリシー</a>に同意します
-                          </span>
-                        </label>
-                      </div>
-                      <button id="finalAnalyzeBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105 mt-6 disabled:opacity-50 disabled:cursor-not-allowed" disabled>最終レポートを生成する</button>
-                     </div>`;
-            diagnosticContainer.innerHTML = html;
-            const finalAnalyzeBtn = document.getElementById("finalAnalyzeBtn");
-            const finalAgreementCheckbox =
-              document.getElementById("agreementCheckbox");
-            finalAnalyzeBtn.disabled = true;
-            finalAgreementCheckbox.addEventListener("change", () => {
-              finalAnalyzeBtn.disabled = !finalAgreementCheckbox.checked;
-            });
-            finalAnalyzeBtn.addEventListener("click", handleFinalAnalysis);
-          }
-
-          function displayReport(analysisResult) {
-            diagnosticContainer.innerHTML = "";
-            const { engineOs, interfaceOs, safemodeOs } = analysisResult;
-            let reportHtml = `<div class="text-center space-y-12">
-                                  <div class="report-section">
-                                    <h3 class="text-3xl font-bold text-indigo-300">あなたの3つの人格OS</h3>
-                                    <div class="mt-4 p-4 bg-gray-900/50 rounded-xl"><h4 class="font-bold text-yellow-300">【重要】陰陽についての注意点</h4><p class="text-xs text-gray-400 mt-2">これから表示される「陰の機能」「陽の機能」は、「良い/悪い」といった価値判断を全く含みません。<br>「陰」はエネルギーが内側へ向かう「静・受動・蓄積」の機能、「陽」はエネルギーが外側へ向かう「動・能動・発散」の機能を示します。<br>あなたのOSの性能を最大化するには、この両方のモードを理解し、状況に応じて自在に使い分けることが重要です。</p></div>
-                                    <div id="os-cards-container" class="mt-8 space-y-6 text-left"></div>
-                                  </div>
-                                  <div class="mt-16 pt-8 border-t-2 border-dashed border-gray-700"><h3 class="text-xl font-bold text-amber-300 mb-4">次のステップへ</h3><div class="mt-8"><a href="future_simulator.html" class="bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">未来分岐シミュレーターで、具体的な課題を分析する &rarr;</a></div></div>
-                                </div>`;
-            diagnosticContainer.innerHTML = reportHtml;
-
-            const osCardsContainer =
-              document.getElementById("os-cards-container");
-            const template = document.getElementById("os-card-template");
-
-            const createOsCard = (os, role) => {
-              if (!os) return null;
-              const clone = template.content.cloneNode(true);
-              const card = clone.querySelector("div");
-              const roleInfo = {
-                engine: { label: "エンジンOS", color: "#F87171", icon: "🔥" },
-                interface: {
-                  label: "インターフェースOS",
-                  color: "#60A5FA",
-                  icon: "🎭",
-                },
-                safemode: {
-                  label: "セーフモードOS",
-                  color: "#9CA3AF",
-                  icon: "🛡️",
-                },
-              };
-              const info = roleInfo[role];
-              const manual = manualById[String(os.hexagram_id)] || {};
-              card.style.borderColor = info.color;
-              card.querySelector("[data-role-icon]").textContent = info.icon;
-              card.querySelector("[data-role-label]").textContent = info.label;
-              card.querySelector("[data-os-name]").textContent = os.name_jp;
-              card.querySelector("[data-os-catchphrase]").textContent =
-                os.catchphrase;
-              card.querySelector("[data-yin-mode]").textContent =
-                manual.defensive_use || "設定されていません。";
-              card.querySelector("[data-yang-mode]").textContent =
-                manual.proactive_use || "設定されていません。";
-              card.querySelector("[data-strategic-summary]").textContent =
-                manual.summary || "設定されていません。";
-              return card;
-            };
-
-            [engineOs, interfaceOs, safemodeOs].forEach((os, index) => {
-              const role = ["engine", "interface", "safemode"][index];
-              const cardElement = createOsCard(os, role);
-              if (cardElement) osCardsContainer.appendChild(cardElement);
-            });
-          }
-
-          function handleEnergyAnalysis() {
-            if (
-              !Array.from(
-                document.querySelectorAll('input[name^="wvq"]')
-              ).every((r) =>
-                document.querySelector(`input[name="${r.name}"]:checked`)
-              )
-            ) {
-              alert("Step 1のすべての質問に回答してください。");
-              return;
-            }
-            state.trigramScores = runTrigramAnalysis();
-            state.engineCandidates = getEngineCandidates(state.trigramScores);
-            showEngineCandidateSelection();
-          }
-
-          function handleCandidateToggle(event) {
-            const card = event.currentTarget;
-            const id = parseInt(card.dataset.id);
-            const isSelected = card.classList.contains("candidate-selected");
-            let currentSelection = [...state.selectedEngineOsIds];
-            if (isSelected) {
-              currentSelection = currentSelection.filter(
-                (selectedId) => selectedId !== id
-              );
-            } else {
-              if (currentSelection.length >= 2) {
-                const removedId = currentSelection.shift();
-                const removedCard = document.getElementById(
-                  `card-select-${removedId}`
-                );
-                if (removedCard) {
-                  removedCard.classList.remove("candidate-selected");
-                  removedCard.setAttribute("aria-pressed", "false");
-                }
-              }
-              currentSelection.push(id);
-            }
-            state.selectedEngineOsIds = currentSelection;
-            card.classList.toggle("candidate-selected", !isSelected);
-            card.setAttribute("aria-pressed", String(!isSelected));
-            const nextBtn = document.getElementById("nextToCompareBtn");
-            nextBtn.disabled = currentSelection.length === 0;
-            if (currentSelection.length === 1) {
-              nextBtn.textContent = "このOSで最終決定する";
-            } else {
-              nextBtn.textContent = "選択したOSを比較する";
-            }
-          }
-
-          function handleEngineLockIn(event) {
-            const id = parseInt(event.currentTarget.dataset.id);
-            const os = HDB.hexagrams_master.find((h) => h.hexagram_id === id);
-            if (os) {
-              state.lockedEngineOs = os;
-              showScenarioQuestions();
-            }
-          }
-
-          function handleFinalAnalysis() {
-            if (
-              !Array.from(SCENARIO_QUESTIONS).every(
-                (q) =>
-                  document.querySelector(
-                    `input[name="${q.id}_inner"]:checked`
-                  ) &&
-                  document.querySelector(`input[name="${q.id}_outer"]:checked`)
-              )
-            ) {
-              alert("Step 3のすべてのシナリオに回答してください。");
-              return;
-            }
-            const { interfaceOs, safemodeOs } = determineInterfaceAndSafemode();
-            const finalResult = {
-              engineOs: state.lockedEngineOs,
-              interfaceOs,
-              safemodeOs,
-            };
-            displayReport(finalResult);
-            try {
-              localStorage.setItem(
-                "haqeiOsAnalyzerData",
-                JSON.stringify(finalResult)
-              );
-            } catch (e) {
-              console.error("OS分析データの保存に失敗しました:", e);
-            }
-          }
-
-          function runTrigramAnalysis() {
-            const scores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
-            const worldviewHexScores = {};
-            WORLDVIEW_QUESTIONS.forEach((q) => {
-              const node = document.querySelector(
-                `input[name="${q.id}"]:checked`
-              );
-              const choice = q.options[node.value];
-              for (const id in choice.scores) {
-                if (parseInt(id) <= 8)
-                  scores[id] = (scores[id] || 0) + choice.scores[id];
-                else
-                  worldviewHexScores[id] =
-                    (worldviewHexScores[id] || 0) + choice.scores[id];
-              }
-            });
-            state.worldviewHexScores = worldviewHexScores;
-            return scores;
-          }
-
-          function getEngineCandidates(baseScores) {
-            const sortedRootTrigrams = Object.entries(baseScores).sort(
-              (a, b) => b[1] - a[1]
-            );
-            const rootTrigram1 = parseInt(sortedRootTrigrams[0][0]);
-            const candidates = HDB.hexagrams_master
-              .map((hex) => {
-                let score = state.worldviewHexScores[hex.hexagram_id] || 0;
-                if (hex.upper_trigram_id === rootTrigram1) score += 5;
-                if (hex.lower_trigram_id === rootTrigram1) score += 5;
-                const diversityBoost =
-                  hex.upper_trigram_id !== rootTrigram1 &&
-                  hex.lower_trigram_id !== rootTrigram1
-                    ? 1.5
-                    : 0;
-                score += diversityBoost;
-                return { ...hex, score };
-              })
-              .sort((a, b) => {
-                if (a.score !== b.score) return b.score - a.score;
-                return a.hexagram_id - b.hexagram_id;
-              });
-            const finalCandidates = [];
-            const usedTrigramCombos = new Set();
-            for (const os of candidates) {
-              const combo1 = `${os.upper_trigram_id}-${os.lower_trigram_id}`;
-              const combo2 = `${os.lower_trigram_id}-${os.upper_trigram_id}`;
-              if (
-                !usedTrigramCombos.has(combo1) &&
-                !usedTrigramCombos.has(combo2)
-              ) {
-                finalCandidates.push(os);
-                usedTrigramCombos.add(combo1);
-              }
-              if (finalCandidates.length >= 4) break;
-            }
-            return finalCandidates;
-          }
-
-          function determineInterfaceAndSafemode() {
-            const scenarioTrigramScores = {
-              1: 0,
-              2: 0,
-              3: 0,
-              4: 0,
-              5: 0,
-              6: 0,
-              7: 0,
-              8: 0,
-            };
-            SCENARIO_QUESTIONS.forEach((q) => {
-              const innerNode = document.querySelector(
-                `input[name="${q.id}_inner"]:checked`
-              );
-              const outerNode = document.querySelector(
-                `input[name="${q.id}_outer"]:checked`
-              );
-              const innerChoice = q.options.inner[innerNode.value];
-              for (const id in innerChoice.scores) {
-                scenarioTrigramScores[id] =
-                  (scenarioTrigramScores[id] || 0) + innerChoice.scores[id];
-              }
-              const outerChoice = q.options.outer[outerNode.value];
-              for (const id in outerChoice.scores) {
-                scenarioTrigramScores[id] =
-                  (scenarioTrigramScores[id] || 0) + outerChoice.scores[id];
-              }
-            });
-            const finalOsScores = {};
-            HDB.hexagrams_master.forEach((hex) => {
-              if (hex.hexagram_id === state.lockedEngineOs.hexagram_id) return;
-              const scenarioScore =
-                (scenarioTrigramScores[hex.upper_trigram_id] || 0) +
-                (scenarioTrigramScores[hex.lower_trigram_id] || 0);
-              let worldviewCompatibilityScore = 0;
-              if (state.trigramScores[hex.upper_trigram_id])
-                worldviewCompatibilityScore +=
-                  state.trigramScores[hex.upper_trigram_id];
-              if (state.trigramScores[hex.lower_trigram_id])
-                worldviewCompatibilityScore +=
-                  state.trigramScores[hex.lower_trigram_id];
-              finalOsScores[hex.hexagram_id] =
-                scenarioScore * 0.7 + worldviewCompatibilityScore * 0.3;
-            });
-            const sortedFinalOs = Object.entries(finalOsScores)
-              .sort(([, a], [, b]) => b - a)
-              .map(([id, score]) => ({
-                ...HDB.hexagrams_master.find((h) => h.hexagram_id == id),
-                score,
-              }));
-            return {
-              interfaceOs: sortedFinalOs[0],
-              safemodeOs: sortedFinalOs[1],
-            };
-          }
-
+          Object.assign(osManualData, HAQEI_DATA.os_manual || {});
           showIntro();
         } catch (error) {
           console.error("初期化に失敗:", error);
-          document.getElementById(
-            "diagnostic-container"
-          ).innerHTML = `<div class="text-center text-red-400 p-8">ページの読み込みに失敗しました: ${error.message}</div>`;
+          diagnosticContainer.innerHTML = `<div class="text-center text-red-400 p-8">ページの読み込みに失敗しました: ${error.message}</div>`;
         }
-      });
+      }
+
+      function showIntro() {
+        diagnosticContainer.innerHTML = `<div class="text-center bg-gray-900/50 p-6 rounded-xl prose-custom max-w-none text-gray-300"><p class="text-lg">ようこそ。これから、あなただけの「OS設計図」を創るための、対話を始めます。</p><p class="mt-6">HaQeiアナライザーは、3つのステップで、あなたの魂の設計図を共同で構築します。</p><div class="grid md:grid-cols-3 gap-6 my-6 text-left"><div class="bg-gray-800/70 p-4 rounded-lg border border-gray-700"><h4 class="font-bold text-amber-300 flex items-center"><span class="text-xl mr-2">1</span>価値観の明確化</h4><p class="text-xs mt-2">まず、いくつかの問いから、あなたの核となる8つの基本エネルギーのバランスを分析します。</p></div><div class="bg-gray-800/70 p-4 rounded-lg border border-gray-700"><h4 class="font-bold text-indigo-300 flex items-center"><span class="text-xl mr-2">2</span>エンジンOSの選択</h4><p class="text-xs mt-2">次に、提示された候補の中から、あなたの感覚に最も近い<strong class="text-white">「エンジンOS」をあなた自身が選択</strong>します。</p></div><div class="bg-gray-800/70 p-4 rounded-lg border border-gray-700"><h4 class="font-bold text-green-300 flex items-center"><span class="text-xl mr-2">3</span>行動パターンの特定</h4><p class="text-xs mt-2">あなたの選択を基に、残りのOSを特定し、<strong class="text-white">戦略レポート</strong>を生成します。</p></div></div><p>あなたの感覚こそが、最も信頼できる羅針盤です。どうぞ、リラックスして、対話を楽しんでください。</p></div><div class="mt-8 pt-8 border-t border-gray-700 text-center"><button id="startBtn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">対話を開始する</button></div>`;
+        document
+          .getElementById("startBtn")
+          .addEventListener("click", showWorldviewQuestions);
+      }
+
+      function showWorldviewQuestions() {
+        let html = `<h3 class="text-xl font-bold text-amber-300 mb-6 text-center">Step 1：あなたの価値観について教えてください</h3>`;
+        WORLDVIEW_QUESTIONS.forEach((q, index) => {
+          const worldviewOpts = q.options
+            .map(
+              (opt) =>
+                `<div><input type="radio" name="${q.id}" value="${opt.value}" id="${q.id}_${opt.value}" class="sr-only peer"><label for="${q.id}_${opt.value}" class="option-label">${opt.text}</label></div>`
+            )
+            .join("");
+          html += `<div class="diagnostic-item"><div class="question-block"><p class="question-text">${
+            index + 1
+          }. ${
+            q.text
+          }</p><div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">${worldviewOpts}</div></div></div>`;
+        });
+        html += `<div class="mt-8 text-center"><button id="analyzeEnergyBtn" class="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">価値観を分析する</button></div>`;
+        diagnosticContainer.innerHTML = html;
+        document
+          .getElementById("analyzeEnergyBtn")
+          .addEventListener("click", handleEnergyAnalysis);
+      }
+
+      function handleEnergyAnalysis() {
+        if (
+          !Array.from(document.querySelectorAll('input[name^="wvq"]')).every(
+            (r) => document.querySelector(`input[name="${r.name}"]:checked`)
+          )
+        ) {
+          alert("Step 1のすべての質問に回答してください。");
+          return;
+        }
+        analysisState.trigramScores = runTrigramAnalysis();
+        analysisState.adjustedTrigramScores = {
+          ...analysisState.trigramScores,
+        };
+        showRadarAdjustment();
+      }
+
+      function showRadarAdjustment() {
+        const html = `
+              <h3 class="text-xl font-bold text-amber-300 mb-2 text-center">Step 1-B：価値観の微調整</h3>
+              <p class="text-center text-gray-400 mb-6 text-sm">レーダーチャートは、あなたの価値観のバランスを可視化したものです。<br>もし感覚と違う部分があれば、各頂点のハンドルをドラッグして、よりしっくりくる形に調整してください。</p>
+              <div id="radar-chart-container" class="radar-container">
+                  <canvas id="trigram-radar-chart"></canvas>
+                  <div id="drag-handles-container"></div>
+              </div>
+              <section id="wv-confirm" class="mt-8 text-center">
+                  <button id="confirm-scores-btn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">このバランスでOS候補を生成</button>
+              </section>
+          `;
+        diagnosticContainer.innerHTML = html;
+
+        const radarCtx = document
+          .getElementById("trigram-radar-chart")
+          .getContext("2d");
+        trigramRadarChart = renderTrigramRadar(
+          radarCtx,
+          analysisState.adjustedTrigramScores
+        );
+
+        setupDragHandles(trigramRadarChart);
+
+        if (!handlesResizeBound) {
+          window.addEventListener("resize", () => {
+            if (
+              trigramRadarChart &&
+              document.getElementById("drag-handles-container")
+            ) {
+              updateHandlesPositions(trigramRadarChart);
+            }
+          });
+          handlesResizeBound = true;
+        }
+
+        document
+          .getElementById("confirm-scores-btn")
+          .addEventListener("click", () => {
+            analysisState.engineCandidates = getEngineCandidates(
+              analysisState.adjustedTrigramScores
+            );
+            showEngineCandidateSelection();
+          });
+      }
+
+      let dragAbort;
+      let draggedHandle = null;
+      let isDragging = false;
+
+      const onPointerMove = (e) => {
+        if (!isDragging || !draggedHandle) return;
+        e.preventDefault();
+
+        const chart = trigramRadarChart;
+        const rect = chart.canvas.getBoundingClientRect();
+        const clientX = e.type.startsWith("touch")
+          ? e.touches[0].clientX
+          : e.clientX;
+        const clientY = e.type.startsWith("touch")
+          ? e.touches[0].clientY
+          : e.clientY;
+
+        const chartCenter = {
+          x: chart.scales.r.xCenter,
+          y: chart.scales.r.yCenter,
+        };
+        const canvasX = clientX - rect.left;
+        const canvasY = clientY - rect.top;
+
+        const distance = Math.sqrt(
+          Math.pow(canvasX - chartCenter.x, 2) +
+            Math.pow(canvasY - chartCenter.y, 2)
+        );
+        const scale = chart.scales.r;
+        let newValue = (distance / scale.drawingArea) * 100;
+
+        const index = parseInt(draggedHandle.dataset.index);
+
+        analysisState.adjustedTrigramScores[Number(index) + 1] = Math.max(
+          0,
+          Math.min(100, newValue)
+        );
+
+        requestAnimationFrame(() => {
+          updateTrigramRadar(chart, analysisState.adjustedTrigramScores);
+          updateHandlesPositions(chart);
+        });
+      };
+
+      const onPointerUp = () => {
+        if (dragAbort) dragAbort.abort();
+        isDragging = false;
+        if (draggedHandle) draggedHandle.style.cursor = "grab";
+        draggedHandle = null;
+      };
+
+      const onPointerDown = (e) => {
+        dragAbort?.abort();
+        dragAbort = new AbortController();
+        const opt = { signal: dragAbort.signal, passive: false };
+
+        isDragging = true;
+        draggedHandle = e.target;
+        draggedHandle.style.cursor = "grabbing";
+        window.addEventListener("pointermove", onPointerMove, opt);
+        window.addEventListener("pointerup", onPointerUp, opt);
+        window.addEventListener("pointercancel", onPointerUp, opt);
+        window.addEventListener("touchmove", onPointerMove, opt);
+        window.addEventListener("touchend", onPointerUp, opt);
+      };
+
+      function setupDragHandles(chart) {
+        const handlesContainer = document.getElementById(
+          "drag-handles-container"
+        );
+        if (!handlesContainer) return;
+        handlesContainer.innerHTML = "";
+
+        const pointCoordinates = chart
+          .getDatasetMeta(0)
+          .data.map((p) => ({ x: p.x, y: p.y }));
+
+        pointCoordinates.forEach((p, index) => {
+          const handle = document.createElement("div");
+          handle.className = "drag-handle";
+          handle.setAttribute("role", "slider");
+          handle.setAttribute(
+            "aria-valuenow",
+            chart.data.datasets[0].data[index].toFixed(0)
+          );
+          handle.setAttribute("aria-valuemin", "0");
+          handle.setAttribute("aria-valuemax", "100");
+          handle.style.left = `${p.x}px`;
+          handle.style.top = `${p.y}px`;
+          handle.dataset.index = index;
+          handlesContainer.appendChild(handle);
+          handle.addEventListener("pointerdown", onPointerDown);
+        });
+      }
+
+      function updateHandlesPositions(chart) {
+        const pointCoordinates = chart
+          .getDatasetMeta(0)
+          .data.map((p) => ({ x: p.x, y: p.y }));
+        document.querySelectorAll(".drag-handle").forEach((h, i) => {
+          if (!h) return;
+          h.style.left = `${pointCoordinates[i].x}px`;
+          h.style.top = `${pointCoordinates[i].y}px`;
+          h.setAttribute(
+            "aria-valuenow",
+            chart.data.datasets[0].data[i].toFixed(0)
+          );
+        });
+      }
+
+      function showEngineCandidateSelection() {
+        let html = `
+          <div class="text-center">
+            <h3 class="text-xl font-bold text-indigo-300 mb-4">Step 2：あなたのエンジンOSを選択してください</h3>
+            <div class="bg-gray-900/50 p-6 rounded-xl prose-custom max-w-none text-gray-300">
+              <p>あなたの価値観の分析に基づき、エンジンOSの候補が4つ生成されました。以下のカードを読み、最も「これだ！」と感じるものを<strong>1つだけ</strong>選んでください。</p>
+              <p class="text-xs text-gray-400 mt-2">💡 カード下部の説明は、AIがそのOSを候補として選んだ理由です。</p>
+            </div>
+            <div id="engine-candidate-wrapper" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">`;
+
+        analysisState.engineCandidates.forEach((os) => {
+          const osManual = osManualData[String(os.hexagram_id)] || {};
+          const keyword = osManual.keyword_short || "???";
+          const icon = osManual.archetype_icon || "❓";
+
+          html += `
+            <div id="card-select-${os.hexagram_id}" data-id="${
+            os.hexagram_id
+          }" class="engine-card" role="button" tabindex="0" aria-pressed="false">
+              <div class="card-content">
+                <header class="engine-card-header">
+                  <span role="img" aria-label="${keyword}" class="archetype-icon">${icon}</span>
+                  <div>
+                    <h4 class="archetype-name">${os.name_jp}</h4>
+                    <span class="text-xs text-indigo-400 font-semibold">${keyword}</span>
+                  </div>
+                </header>
+                <p class="text-sm text-gray-300 mt-3 flex-grow">${
+                  osManual.summary || "解説準備中..."
+                }</p>
+                <div class="mt-4 pt-4 border-t border-gray-700/50">
+                  <p class="text-xs font-semibold text-gray-400 mb-2">AIによる選定根拠</p>
+                  <p class="text-sm text-gray-500" data-reason>${
+                    os.reason || ""
+                  }</p>
+                </div>
+                <div class="engine-card-tip" data-tip-for="${
+                  os.hexagram_id
+                }"></div>
+              </div>
+            </div>`;
+        });
+        html += `</div><div class="mt-8 text-center"><button id="lock-in-btn" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>このOSで最終決定する</button></div></div>`;
+        diagnosticContainer.innerHTML = html;
+
+        document.querySelectorAll(".engine-card").forEach((card) => {
+          card.addEventListener("click", handleCandidateSelection);
+          card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleCandidateSelection({ currentTarget: card });
+            }
+          });
+        });
+        document
+          .getElementById("lock-in-btn")
+          .addEventListener("click", handleEngineLockIn);
+      }
+
+      function handleCandidateSelection(event) {
+        const selectedCard = event.currentTarget;
+        const selectedId = parseInt(selectedCard.dataset.id, 10);
+
+        document.querySelectorAll(".engine-card").forEach((card) => {
+          card.classList.remove("selected");
+          card.setAttribute("aria-pressed", "false");
+        });
+
+        selectedCard.classList.add("selected");
+        selectedCard.setAttribute("aria-pressed", "true");
+
+        analysisState.selectedEngine = selectedId;
+
+        document.getElementById("lock-in-btn").disabled = false;
+      }
+
+      function handleEngineLockIn() {
+        const os = HAQEI_DATA.hexagrams_master.find(
+          (h) => h.hexagram_id === analysisState.selectedEngine
+        );
+        if (os) {
+          analysisState.lockedEngineOs = os;
+          analysisState.influentialOses = calculateInfluenceScores(
+            analysisState.engineCandidates,
+            analysisState.selectedEngine
+          );
+          showScenarioQuestions();
+        }
+      }
+
+      function runTrigramAnalysis() {
+        const scores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+        WORLDVIEW_QUESTIONS.forEach((q) => {
+          const node = document.querySelector(`input[name="${q.id}"]:checked`);
+          if (!node) return;
+          const choice = q.options.find((opt) => opt.value === node.value);
+          if (choice && choice.scores) {
+            for (const id in choice.scores) {
+              if (Object.hasOwnProperty.call(choice.scores, id)) {
+                scores[id] = (scores[id] || 0) + choice.scores[id];
+              }
+            }
+          }
+        });
+
+        const maxScore = Math.max(...Object.values(scores), 1);
+        const normalizedScores = {};
+        for (const id in scores) {
+          const normalized = (scores[id] / maxScore) * 100;
+          normalizedScores[id] = Math.max(0, Math.min(100, normalized));
+        }
+        return normalizedScores;
+      }
+
+      function determineInterfaceAndSafemode() {
+        const scenarioTrigramScores = {
+          1: 0,
+          2: 0,
+          3: 0,
+          4: 0,
+          5: 0,
+          6: 0,
+          7: 0,
+          8: 0,
+        };
+        SCENARIO_QUESTIONS.forEach((q) => {
+          const innerNode = document.querySelector(
+            `input[name="${q.id}_inner"]:checked`
+          );
+          const outerNode = document.querySelector(
+            `input[name="${q.id}_outer"]:checked`
+          );
+
+          const innerChoice = q.options.inner[Number(innerNode.value)];
+          if (innerChoice && innerChoice.scores) {
+            for (const id in innerChoice.scores) {
+              if (Object.hasOwnProperty.call(innerChoice.scores, id)) {
+                scenarioTrigramScores[id] =
+                  (scenarioTrigramScores[id] || 0) + innerChoice.scores[id];
+              }
+            }
+          }
+
+          const outerChoice = q.options.outer[Number(outerNode.value)];
+          if (outerChoice && outerChoice.scores) {
+            for (const id in outerChoice.scores) {
+              if (Object.hasOwnProperty.call(outerChoice.scores, id)) {
+                scenarioTrigramScores[id] =
+                  (scenarioTrigramScores[id] || 0) + outerChoice.scores[id];
+              }
+            }
+          }
+        });
+
+        const baseScores = {};
+        HAQEI_DATA.hexagrams_master.forEach((hex) => {
+          if (hex.hexagram_id === analysisState.lockedEngineOs.hexagram_id)
+            return;
+          const scenarioScore =
+            (scenarioTrigramScores[hex.upper_trigram_id] || 0) +
+            (scenarioTrigramScores[hex.lower_trigram_id] || 0);
+          let worldviewCompatibilityScore = 0;
+          if (analysisState.adjustedTrigramScores[hex.upper_trigram_id])
+            worldviewCompatibilityScore +=
+              analysisState.adjustedTrigramScores[hex.upper_trigram_id];
+          if (analysisState.adjustedTrigramScores[hex.lower_trigram_id])
+            worldviewCompatibilityScore +=
+              analysisState.adjustedTrigramScores[hex.lower_trigram_id];
+          baseScores[hex.hexagram_id] =
+            scenarioScore * 0.7 + (worldviewCompatibilityScore / 2) * 0.3;
+        });
+
+        const sortedOs = Object.entries(baseScores).sort(
+          ([, a], [, b]) => b - a
+        );
+        const interfaceOs = HAQEI_DATA.hexagrams_master.find(
+          (h) => h.hexagram_id == sortedOs[0][0]
+        );
+        const safemodeOs = HAQEI_DATA.hexagrams_master.find(
+          (h) => h.hexagram_id == sortedOs[1][0]
+        );
+
+        return { interfaceOs, safemodeOs };
+      }
+
+      function handleFinalAnalysis() {
+        if (!document.getElementById("agreementCheckbox").checked) {
+          alert("利用規約とプライバシーポリシーに同意してください。");
+          return;
+        }
+        if (
+          !Array.from(SCENARIO_QUESTIONS).every(
+            (q) =>
+              document.querySelector(`input[name="${q.id}_inner"]:checked`) &&
+              document.querySelector(`input[name="${q.id}_outer"]:checked`)
+          )
+        ) {
+          alert("Step 3のすべてのシナリオに回答してください。");
+          return;
+        }
+        const { interfaceOs, safemodeOs } = determineInterfaceAndSafemode();
+
+        const analysisResult = {
+          hexagram_candidates: [
+            analysisState.lockedEngineOs,
+            interfaceOs,
+            safemodeOs,
+          ],
+          trigram_profile: Object.entries(
+            analysisState.adjustedTrigramScores
+          ).map(([id, score]) => ({
+            id: parseInt(id),
+            name_jp: HAQEI_DATA.trigrams_master.find((t) => t.trigram_id == id)
+              .name_jp,
+            score: score,
+          })),
+        };
+
+        const dataToStore = {
+          analysisResult: analysisResult,
+          userContext: {},
+          userProfile: {},
+        };
+
+        try {
+          localStorage.setItem(
+            "haqeiOsAnalyzerData",
+            JSON.stringify(dataToStore)
+          );
+          displayReport(analysisResult);
+        } catch (e) {
+          console.error("OS分析データの保存に失敗しました:", e);
+          alert("データの保存に失敗しました。ブラウザの設定をご確認ください。");
+        }
+      }
+
+      function displayReport(analysisResult) {
+        const oses = analysisResult.hexagram_candidates;
+        let reportHtml = `<div class="text-center space-y-12">
+                            <div class="report-section">
+                              <h3 class="text-3xl font-bold text-indigo-300">あなたの3つの人格OS</h3>
+                              <p class="mt-4 max-w-2xl mx-auto text-gray-400">分析が完了しました。以下が、あなたの思考と行動の核となる3つのOSです。各OSの特性を理解し、今後の戦略立案にお役立てください。</p>
+                              <div id="os-cards-container" class="mt-8 space-y-6 text-left"></div>
+                            </div>
+                            <div class="mt-16 pt-8 border-t-2 border-dashed border-gray-700">
+                                <h3 class="text-xl font-bold text-amber-300 mb-4">次のステップへ</h3>
+                                <div class="mt-8">
+                                    <a href="cockpit.html" class="bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">戦略コックピットで全体像を把握する &rarr;</a>
+                                </div>
+                            </div>
+                          </div>`;
+        diagnosticContainer.innerHTML = reportHtml;
+
+        const osCardsContainer = document.getElementById("os-cards-container");
+        const template = document.getElementById("os-card-template");
+        const osTypes = ["エンジンOS", "インターフェースOS", "セーフモードOS"];
+        const osIcons = ["🔥", "🎭", "🛡️"];
+        const colors = ["#F87171", "#60A5FA", "#9CA3AF"];
+
+        oses.forEach((os, index) => {
+          if (!os) return;
+          const role = osTypes[index];
+          const clone = template.content.cloneNode(true);
+          const card = clone.querySelector("div");
+          const manual = osManualData[String(os.hexagram_id)] || {};
+
+          card.style.borderColor = colors[index];
+          card.querySelector("[data-role-icon]").textContent = osIcons[index];
+          card.querySelector("[data-role-label]").textContent = role;
+          card.querySelector("[data-os-name]").textContent = os.name_jp;
+          card.querySelector("[data-os-catchphrase]").textContent =
+            os.catchphrase;
+          card.querySelector("[data-yin-mode]").textContent =
+            manual.defensive_use || "解説準備中";
+          card.querySelector("[data-yang-mode]").textContent =
+            manual.proactive_use || "解説準備中";
+          card.querySelector("[data-strategic-summary]").textContent =
+            manual.summary || "解説準備中";
+
+          osCardsContainer.appendChild(clone);
+        });
+      }
+
+      function showScenarioQuestions() {
+        let html = `<h3 class="text-xl font-bold text-indigo-300 mb-6 text-center">Step 3：あなたの行動パターンについて教えてください</h3>`;
+        html += `<p class="text-center text-sm text-gray-400 mb-6">エンジンOS【${analysisState.lockedEngineOs.name_jp}】がロックインされました。次に、社会的な場面やストレス下でのあなたの振る舞いを分析し、残りのOSを特定します。</p>`;
+        SCENARIO_QUESTIONS.forEach((q, index) => {
+          const innerOpts = q.options.inner
+            .map(
+              (opt, i) =>
+                `<div><input type="radio" name="${q.id}_inner" value="${i}" id="${q.id}_inner_${i}" class="sr-only peer"><label for="${q.id}_inner_${i}" class="option-label">${opt.text}</label></div>`
+            )
+            .join("");
+          const outerOpts = q.options.outer
+            .map(
+              (opt, i) =>
+                `<div><input type="radio" name="${q.id}_outer" value="${i}" id="${q.id}_outer_${i}" class="sr-only peer"><label for="${q.id}_outer_${i}" class="option-label">${opt.text}</label></div>`
+            )
+            .join("");
+          html += `<div class="diagnostic-item"><p class="text-gray-400 text-sm">シナリオ ${
+            index + 1
+          }/${
+            SCENARIO_QUESTIONS.length
+          }</p><p class="font-semibold text-gray-200 mb-4">${
+            q.scenario
+          }</p><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="question-block"><p class="question-text">${
+            q.inner_q
+          }</p><div class="space-y-3 mt-4">${innerOpts}</div></div><div class="question-block"><p class="question-text">${
+            q.outer_q
+          }</p><div class="space-y-3 mt-4">${outerOpts}</div></div></div></div>`;
+        });
+        html += `<div class="mt-8 pt-8 border-t border-gray-700">
+                  <div class="text-center">
+                      <label class="flex items-center justify-center cursor-pointer">
+                      <input type="checkbox" id="agreementCheckbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
+                      <span class="ml-2 text-sm text-gray-400">
+                          <a href="/terms.html" target="_blank" class="underline hover:text-white">利用規約</a>および<a href="/privacy.html" target="_blank" class="underline hover:text-white">プライバシーポリシー</a>に同意します
+                      </span>
+                      </label>
+                  </div>
+                  <button id="finalAnalyzeBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105 mt-6 disabled:opacity-50 disabled:cursor-not-allowed" disabled>最終レポートを生成する</button>
+                  </div>`;
+        diagnosticContainer.innerHTML = html;
+        const finalAnalyzeBtn = document.getElementById("finalAnalyzeBtn");
+        const finalAgreementCheckbox =
+          document.getElementById("agreementCheckbox");
+        finalAnalyzeBtn.disabled = true;
+        finalAgreementCheckbox.addEventListener("change", () => {
+          finalAnalyzeBtn.disabled = !finalAgreementCheckbox.checked;
+        });
+        finalAnalyzeBtn.addEventListener("click", handleFinalAnalysis);
+      }
+
+      document.addEventListener("DOMContentLoaded", main);
     </script>
   </body>
 </html>
