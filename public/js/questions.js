@@ -7,11 +7,19 @@ export const WORLDVIEW_QUESTIONS = [
     options: [
       {
         text: "明確なビジョンと強いリーダーシップで、自ら先頭に立って全体を引っ張っていく。",
-        scores: { 1: 2 },
+        scoring_tags: [
+          { type: "TRIGRAM", key: "乾", value: 2 },
+          { type: "THEME", key: "革新性", value: 2 },
+          { type: "THEME", key: "リーダーシップ", value: 2 },
+        ],
       },
       {
         text: "メンバー一人ひとりの意見に耳を傾け、皆が能力を発揮できる土台や環境を整える。",
-        scores: { 8: 2 },
+        scoring_tags: [
+          { type: "TRIGRAM", key: "坤", value: 2 },
+          { type: "THEME", key: "調和性", value: 2 },
+          { type: "THEME", key: "貢献性", value: 1 },
+        ],
       },
     ],
   },
@@ -21,11 +29,17 @@ export const WORLDVIEW_QUESTIONS = [
     options: [
       {
         text: "まず情報を集め、論理的に分析することで、問題の構造や本質を明らかにする。",
-        scores: { 3: 2 },
+        scoring_tags: [
+          { type: "TRIGRAM", key: "離", value: 2 },
+          { type: "THEME", key: "探求性", value: 2 },
+        ],
       },
       {
         text: "焦らず、困難な状況を耐えながら、物事の真理や核心が見えてくるのを待つ。",
-        scores: { 6: 2 },
+        scoring_tags: [
+          { type: "TRIGRAM", key: "坎", value: 2 },
+          { type: "THEME", key: "安定性", value: 2 },
+        ],
       },
     ],
   },
@@ -35,11 +49,17 @@ export const WORLDVIEW_QUESTIONS = [
     options: [
       {
         text: "まず、インパクトのある「行動」を起こすことで、停滞した空気を打ち破り、チームに刺激を与える。",
-        scores: { 4: 2 },
+        scoring_tags: [
+          { type: "TRIGRAM", key: "震", value: 2 },
+          { type: "THEME", key: "革新性", value: 2 },
+        ],
       },
       {
         text: "まず、なぜ停滞しているのか、その根本原因を一人で静かに考え、内省する時間をとる。",
-        scores: { 7: 2 },
+        scoring_tags: [
+          { type: "TRIGRAM", key: "艮", value: 2 },
+          { type: "THEME", key: "安定性", value: 2 },
+        ],
       },
     ],
   },
@@ -49,11 +69,17 @@ export const WORLDVIEW_QUESTIONS = [
     options: [
       {
         text: "相手の心に寄り添い、丁寧な対話を重ねることで、時間をかけて徐々に信頼を浸透させていく。",
-        scores: { 5: 2 },
+        scoring_tags: [
+          { type: "TRIGRAM", key: "巽", value: 2 },
+          { type: "THEME", key: "調和性", value: 2 },
+        ],
       },
       {
         text: "ユーモアを交え、喜びや楽しみをオープンに分かち合うことで、一気に心の距離を縮める。",
-        scores: { 2: 2 },
+        scoring_tags: [
+          { type: "TRIGRAM", key: "兌", value: 2 },
+          { type: "THEME", key: "表現性", value: 2 },
+        ],
       },
     ],
   },
@@ -63,11 +89,17 @@ export const WORLDVIEW_QUESTIONS = [
     options: [
       {
         text: "古い常識やシステムを大胆に刷新する「革命」によって、全く新しい社会を創造する。",
-        scores: { 49: 1 },
+        scoring_tags: [
+          { type: "TRIGRAM", key: "離", value: 1 },
+          { type: "THEME", key: "革新性", value: 3 },
+        ],
       },
       {
         text: "人々が安心して暮らせる「器」の中で、豊かな文化や人間関係を、時間をかけてじっくりと育む。",
-        scores: { 50: 1 },
+        scoring_tags: [
+          { type: "TRIGRAM", key: "坤", value: 1 },
+          { type: "THEME", key: "安定性", value: 3 },
+        ],
       },
     ],
   },
@@ -84,29 +116,55 @@ export const SCENARIO_QUESTIONS = [
       inner: [
         {
           text: "「残念すぎる…」という喪失感や悲しみに沈む",
-          scores: { 2: -2, 6: 2, 7: 1 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "坎", value: 2 },
+            { type: "TRIGRAM", key: "艮", value: 1 },
+            { type: "THEME", key: "安定性", value: 2 },
+          ],
         },
         {
           text: "「なぜこうなった？」と原因を分析し、状況を知的に理解しようとする",
-          scores: { 3: 2, 7: 1, 8: -1 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "離", value: 2 },
+            { type: "TRIGRAM", key: "艮", value: 1 },
+            { type: "THEME", key: "探求性", value: 2 },
+          ],
         },
         {
           text: "「まあ仕方ない、次どうするか考えよう」と、すぐに気持ちを切り替える",
-          scores: { 4: 2, 1: 1, 6: -1 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "震", value: 2 },
+            { type: "TRIGRAM", key: "乾", value: 1 },
+            { type: "THEME", key: "革新性", value: 2 },
+          ],
         },
       ],
       outer: [
         {
           text: "「私が新しい計画を立てる！」と率先してリーダーシップを発揮する",
-          scores: { 1: 3, 4: 1, 8: -2 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "乾", value: 3 },
+            { type: "TRIGRAM", key: "震", value: 1 },
+            { type: "THEME", key: "リーダーシップ", value: 2 },
+          ],
         },
         {
           text: "「皆がっかりしてるだろう」と、まずメンバーのケアや慰めを優先する",
-          scores: { 8: 2, 5: 2, 1: -1 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "坤", value: 2 },
+            { type: "TRIGRAM", key: "巽", value: 2 },
+            { type: "TRIGRAM", key: "乾", value: -1 },
+            { type: "THEME", key: "貢献性", value: 2 },
+          ],
         },
         {
           text: "一旦「どうするかは、また後で考えよう」と、状況を静観する",
-          scores: { 7: 3, 6: 1, 4: -2 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "艮", value: 3 },
+            { type: "TRIGRAM", key: "坎", value: 1 },
+            { type: "TRIGRAM", key: "震", value: -2 },
+            { type: "THEME", key: "安定性", value: 2 },
+          ],
         },
       ],
     },
@@ -121,29 +179,59 @@ export const SCENARIO_QUESTIONS = [
       inner: [
         {
           text: "「面白そう！」という好奇心と、新しい自分になれることへの期待感",
-          scores: { 4: 2, 3: 2, 7: -1 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "震", value: 2 },
+            { type: "TRIGRAM", key: "離", value: 2 },
+            { type: "TRIGRAM", key: "艮", value: -1 },
+            { type: "THEME", key: "革新性", value: 2 },
+          ],
         },
         {
           text: "「本当に自分にできるだろうか…」という不安と、失敗への恐れ",
-          scores: { 6: 2, 7: 1, 1: -2 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "坎", value: 2 },
+            { type: "TRIGRAM", key: "艮", value: 1 },
+            { type: "TRIGRAM", key: "乾", value: -2 },
+            { type: "THEME", key: "安定性", value: 2 },
+          ],
         },
         {
           text: "「どうせやるなら完璧に」という、知的な探求心と向上心",
-          scores: { 1: 2, 6: 1, 2: -1 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "乾", value: 2 },
+            { type: "TRIGRAM", key: "坎", value: 1 },
+            { type: "TRIGRAM", key: "兌", value: -1 },
+            { type: "THEME", key: "探求性", value: 2 },
+          ],
         },
       ],
       outer: [
         {
           text: "まず全体像を把握するため、関連書籍を何冊も読んで体系的に学ぶ",
-          scores: { 7: 2, 3: 1, 4: -1 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "艮", value: 2 },
+            { type: "TRIGRAM", key: "離", value: 1 },
+            { type: "TRIGRAM", key: "震", value: -1 },
+            { type: "THEME", key: "探求性", value: 2 },
+          ],
         },
         {
           text: "とにかく実践！専門家や経験者に積極的に質問し、試行錯誤しながら学ぶ",
-          scores: { 4: 3, 2: 1, 7: -2 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "震", value: 3 },
+            { type: "TRIGRAM", key: "兌", value: 1 },
+            { type: "TRIGRAM", key: "艮", value: -2 },
+            { type: "THEME", key: "革新性", value: 2 },
+          ],
         },
         {
           text: "同じ目標を持つ仲間を見つけ、勉強会を開くなど、協調しながら学ぶ",
-          scores: { 5: 2, 8: 2, 1: -1 },
+          scoring_tags: [
+            { type: "TRIGRAM", key: "巽", value: 2 },
+            { type: "TRIGRAM", key: "坤", value: 2 },
+            { type: "TRIGRAM", key: "乾", value: -1 },
+            { type: "THEME", key: "調和性", value: 2 },
+          ],
         },
       ],
     },

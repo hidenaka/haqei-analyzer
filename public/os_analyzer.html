@@ -214,6 +214,8 @@
     <template id="os-card-template"></template>
     <div id="trigram-tooltip"></div>
     <script type="module">
+      import { H64_PROFILE_VECTORS } from "../assets/H64_profile_vectors.js";
+
       const HAQEI_DATA = {
         element_relationships: [
           {
@@ -1082,17 +1084,102 @@
         return sakuId === hexIdB;
       }
 
-      function getEngineCandidates(normalizedScores) {
-        const cand = HAQEI_DATA.hexagrams_master
-          .map((h) => {
-            const s =
-              (normalizedScores[h.upper_trigram_id] || 0) +
-              (normalizedScores[h.lower_trigram_id] || 0);
-            return { ...h, rawScore: s };
-          })
-          .sort((a, b) => b.rawScore - a.rawScore)
-          .slice(0, 4);
-        return cand;
+      // コサイン類似度計算
+      function calculateCosineSimilarity(vecA, vecB) {
+        const keys = Object.keys(vecA)
+          .concat(Object.keys(vecB))
+          .filter((v, i, a) => a.indexOf(v) === i);
+        let dot = 0,
+          normA = 0,
+          normB = 0;
+        keys.forEach((k) => {
+          const a = vecA[k] || 0;
+          const b = vecB[k] || 0;
+          dot += a * b;
+          normA += a * a;
+          normB += b * b;
+        });
+        if (normA === 0 || normB === 0) return 0;
+        return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+      }
+
+      // getEngineCandidates: コサイン類似度で上位4つを返す
+      function getEngineCandidates(userProfileVector) {
+        const candidates = Object.values(H64_PROFILE_VECTORS).map((os) => {
+          const similarity = calculateCosineSimilarity(
+            userProfileVector,
+            os.profile_vector
+          );
+          return { ...os, similarity };
+        });
+        candidates.sort((a, b) => b.similarity - a.similarity);
+        return candidates.slice(0, 4);
+      }
+
+      // generateReasoningText: 選定根拠テキスト生成
+      function generateReasoningText(userVector, osVector) {
+        // 共通して値が0より大きいキー
+        const commonKeys = Object.keys(userVector).filter(
+          (k) => userVector[k] > 0 && osVector[k] > 0
+        );
+        // ユーザー側で値が高い順に2-3個
+        const sorted = commonKeys
+          .sort((a, b) => userVector[b] - userVector[a])
+          .slice(0, 3);
+        if (sorted.length === 0)
+          return "あなたの価値観とこのOSの共鳴ポイントが見つかりませんでした。";
+
+        // 八卦名リスト
+        const trigramNames = ["乾", "兌", "離", "震", "巽", "坎", "艮", "坤"];
+        // THEME名リスト（H64_PROFILE_VECTORSの主要キー）
+        const themeNames = [
+          "革新性",
+          "調和性",
+          "探求性",
+          "安定性",
+          "表現性",
+          "貢献性",
+        ];
+
+        // それぞれの説明文テンプレート
+        const themePhrases = {
+          革新性: "『革新性』を求める姿勢",
+          調和性: "『調和性』を大切にする心",
+          探求性: "『探求性』で本質を追い求める姿勢",
+          安定性: "『安定性』を重視する安らぎ",
+          表現性: "『表現性』豊かな自己発信",
+          貢献性: "『貢献性』で人や社会に尽くす力",
+        };
+        const trigramPhrases = {
+          乾: "『乾』が持つリーダーシップのエネルギー",
+          兌: "『兌』が持つ喜び・表現のエネルギー",
+          離: "『離』が持つ知性・情熱のエネルギー",
+          震: "『震』が持つ行動力・決断力のエネルギー",
+          巽: "『巽』が持つ共感・調整のエネルギー",
+          坎: "『坎』が持つ探求・粘り強さのエネルギー",
+          艮: "『艮』が持つ内省・安定のエネルギー",
+          坤: "『坤』が持つ包容・サポートのエネルギー",
+        };
+
+        // 文章パーツを生成
+        const parts = sorted.map((k) => {
+          if (trigramNames.includes(k)) {
+            return trigramPhrases[k] || `『${k}』のエネルギー`;
+          } else if (themeNames.includes(k)) {
+            return themePhrases[k] || `『${k}』の価値観`;
+          } else {
+            return `『${k}』`;
+          }
+        });
+
+        // 文章の組み立て
+        if (parts.length === 1) {
+          return `あなたの${parts[0]}が、このOSの性質と強く共鳴しています。`;
+        } else if (parts.length === 2) {
+          return `あなたの${parts[0]}や、${parts[1]}が、このOSの性質と強く共鳴しています。`;
+        } else {
+          return `あなたの${parts[0]}、${parts[1]}、そして${parts[2]}が、このOSの性質と強く共鳴しています。`;
+        }
       }
 
       function calculateInfluenceScores(candidates, engineId) {
@@ -1167,166 +1254,10 @@
           return;
         }
         analysisState.trigramScores = runTrigramAnalysis();
-        analysisState.adjustedTrigramScores = {
-          ...analysisState.trigramScores,
-        };
-        showRadarAdjustment();
-      }
-
-      function showRadarAdjustment() {
-        const html = `
-              <h3 class="text-xl font-bold text-amber-300 mb-2 text-center">Step 1-B：価値観の微調整</h3>
-              <p class="text-center text-gray-400 mb-6 text-sm">レーダーチャートは、あなたの価値観のバランスを可視化したものです。<br>もし感覚と違う部分があれば、各頂点のハンドルをドラッグして、よりしっくりくる形に調整してください。</p>
-              <div id="radar-chart-container" class="radar-container">
-                  <canvas id="trigram-radar-chart"></canvas>
-                  <div id="drag-handles-container"></div>
-              </div>
-              <section id="wv-confirm" class="mt-8 text-center">
-                  <button id="confirm-scores-btn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">このバランスでOS候補を生成</button>
-              </section>
-          `;
-        diagnosticContainer.innerHTML = html;
-
-        const radarCtx = document
-          .getElementById("trigram-radar-chart")
-          .getContext("2d");
-        trigramRadarChart = renderTrigramRadar(
-          radarCtx,
-          analysisState.adjustedTrigramScores
+        analysisState.engineCandidates = getEngineCandidates(
+          analysisState.trigramScores
         );
-
-        setupDragHandles(trigramRadarChart);
-
-        if (!handlesResizeBound) {
-          window.addEventListener("resize", () => {
-            if (
-              trigramRadarChart &&
-              document.getElementById("drag-handles-container")
-            ) {
-              updateHandlesPositions(trigramRadarChart);
-            }
-          });
-          handlesResizeBound = true;
-        }
-
-        document
-          .getElementById("confirm-scores-btn")
-          .addEventListener("click", () => {
-            analysisState.engineCandidates = getEngineCandidates(
-              analysisState.adjustedTrigramScores
-            );
-            showEngineCandidateSelection();
-          });
-      }
-
-      let dragAbort;
-      let draggedHandle = null;
-      let isDragging = false;
-
-      const onPointerMove = (e) => {
-        if (!isDragging || !draggedHandle) return;
-        e.preventDefault();
-
-        const chart = trigramRadarChart;
-        const rect = chart.canvas.getBoundingClientRect();
-        const clientX = e.type.startsWith("touch")
-          ? e.touches[0].clientX
-          : e.clientX;
-        const clientY = e.type.startsWith("touch")
-          ? e.touches[0].clientY
-          : e.clientY;
-
-        const chartCenter = {
-          x: chart.scales.r.xCenter,
-          y: chart.scales.r.yCenter,
-        };
-        const canvasX = clientX - rect.left;
-        const canvasY = clientY - rect.top;
-
-        const distance = Math.sqrt(
-          Math.pow(canvasX - chartCenter.x, 2) +
-            Math.pow(canvasY - chartCenter.y, 2)
-        );
-        const scale = chart.scales.r;
-        let newValue = (distance / scale.drawingArea) * 100;
-
-        const index = parseInt(draggedHandle.dataset.index);
-
-        analysisState.adjustedTrigramScores[Number(index) + 1] = Math.max(
-          0,
-          Math.min(100, newValue)
-        );
-
-        requestAnimationFrame(() => {
-          updateTrigramRadar(chart, analysisState.adjustedTrigramScores);
-          updateHandlesPositions(chart);
-        });
-      };
-
-      const onPointerUp = () => {
-        if (dragAbort) dragAbort.abort();
-        isDragging = false;
-        if (draggedHandle) draggedHandle.style.cursor = "grab";
-        draggedHandle = null;
-      };
-
-      const onPointerDown = (e) => {
-        dragAbort?.abort();
-        dragAbort = new AbortController();
-        const opt = { signal: dragAbort.signal, passive: false };
-
-        isDragging = true;
-        draggedHandle = e.target;
-        draggedHandle.style.cursor = "grabbing";
-        window.addEventListener("pointermove", onPointerMove, opt);
-        window.addEventListener("pointerup", onPointerUp, opt);
-        window.addEventListener("pointercancel", onPointerUp, opt);
-        window.addEventListener("touchmove", onPointerMove, opt);
-        window.addEventListener("touchend", onPointerUp, opt);
-      };
-
-      function setupDragHandles(chart) {
-        const handlesContainer = document.getElementById(
-          "drag-handles-container"
-        );
-        if (!handlesContainer) return;
-        handlesContainer.innerHTML = "";
-
-        const pointCoordinates = chart
-          .getDatasetMeta(0)
-          .data.map((p) => ({ x: p.x, y: p.y }));
-
-        pointCoordinates.forEach((p, index) => {
-          const handle = document.createElement("div");
-          handle.className = "drag-handle";
-          handle.setAttribute("role", "slider");
-          handle.setAttribute(
-            "aria-valuenow",
-            chart.data.datasets[0].data[index].toFixed(0)
-          );
-          handle.setAttribute("aria-valuemin", "0");
-          handle.setAttribute("aria-valuemax", "100");
-          handle.style.left = `${p.x}px`;
-          handle.style.top = `${p.y}px`;
-          handle.dataset.index = index;
-          handlesContainer.appendChild(handle);
-          handle.addEventListener("pointerdown", onPointerDown);
-        });
-      }
-
-      function updateHandlesPositions(chart) {
-        const pointCoordinates = chart
-          .getDatasetMeta(0)
-          .data.map((p) => ({ x: p.x, y: p.y }));
-        document.querySelectorAll(".drag-handle").forEach((h, i) => {
-          if (!h) return;
-          h.style.left = `${pointCoordinates[i].x}px`;
-          h.style.top = `${pointCoordinates[i].y}px`;
-          h.setAttribute(
-            "aria-valuenow",
-            chart.data.datasets[0].data[i].toFixed(0)
-          );
-        });
+        showEngineCandidateSelection();
       }
 
       function showEngineCandidateSelection() {
@@ -1343,7 +1274,10 @@
           const osManual = osManualData[String(os.hexagram_id)] || {};
           const keyword = osManual.keyword_short || "???";
           const icon = osManual.archetype_icon || "❓";
-
+          const reason = generateReasoningText(
+            analysisState.trigramScores,
+            os.profile_vector
+          );
           html += `
             <div id="card-select-${os.hexagram_id}" data-id="${
             os.hexagram_id
@@ -1361,9 +1295,7 @@
                 }</p>
                 <div class="mt-4 pt-4 border-t border-gray-700/50">
                   <p class="text-xs font-semibold text-gray-400 mb-2">AIによる選定根拠</p>
-                  <p class="text-sm text-gray-500" data-reason>${
-                    os.reason || ""
-                  }</p>
+                  <p class="text-sm text-gray-500" data-reason>${reason}</p>
                 </div>
                 <div class="engine-card-tip" data-tip-for="${
                   os.hexagram_id
@@ -1420,27 +1352,33 @@
       }
 
       function runTrigramAnalysis() {
-        const scores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+        const scores = {
+          乾: 0,
+          兌: 0,
+          離: 0,
+          震: 0,
+          巽: 0,
+          坎: 0,
+          艮: 0,
+          坤: 0,
+        };
         WORLDVIEW_QUESTIONS.forEach((q) => {
           const node = document.querySelector(`input[name="${q.id}"]:checked`);
           if (!node) return;
           const choice = q.options.find((opt) => opt.value === node.value);
           if (choice && choice.scores) {
             for (const id in choice.scores) {
-              if (Object.hasOwnProperty.call(choice.scores, id)) {
-                scores[id] = (scores[id] || 0) + choice.scores[id];
+              // idはtrigram_id(1-8)
+              const trigram = HAQEI_DATA.trigrams_master.find(
+                (t) => t.trigram_id == id
+              );
+              if (trigram) {
+                scores[trigram.name_jp] += choice.scores[id];
               }
             }
           }
         });
-
-        const maxScore = Math.max(...Object.values(scores), 1);
-        const normalizedScores = {};
-        for (const id in scores) {
-          const normalized = (scores[id] / maxScore) * 100;
-          normalizedScores[id] = Math.max(0, Math.min(100, normalized));
-        }
-        return normalizedScores;
+        return scores;
       }
 
       function determineInterfaceAndSafemode() {
