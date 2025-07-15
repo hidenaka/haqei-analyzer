@@ -17,23 +17,32 @@ class Calculator {
   // ユーザー回答から8次元ベクトルを構築
   buildUserVector(answers) {
     const userVector = {};
-
     // 8次元を初期化
     this.dimensionKeys.forEach((key) => {
       userVector[key] = 0;
     });
-
+    // answersが配列でない場合のハンドリング
+    if (!Array.isArray(answers)) {
+      console.warn("⚠️ buildUserVector: answers is not an array");
+      return userVector;
+    }
     // 回答からスコアを加算
     answers.forEach((answer) => {
-      if (answer.scoring_tags) {
+      if (answer && answer.scoring_tags && Array.isArray(answer.scoring_tags)) {
         answer.scoring_tags.forEach((tag) => {
-          if (userVector.hasOwnProperty(tag.key)) {
-            userVector[tag.key] += tag.value;
+          if (
+            tag &&
+            typeof tag.key === "string" &&
+            typeof tag.value === "number"
+          ) {
+            if (Object.prototype.hasOwnProperty.call(userVector, tag.key)) {
+              userVector[tag.key] += tag.value;
+            }
           }
         });
       }
     });
-
+    console.log("📊 Built user vector:", userVector);
     return userVector;
   }
 
@@ -72,6 +81,41 @@ class Calculator {
 
     if (magnitudeA === 0 || magnitudeB === 0) return 0;
 
+    return dotProduct / (magnitudeA * magnitudeB);
+  }
+
+  // H64_8D_VECTORSのオブジェクト形式を配列に変換
+  convertToVectorArray(hexagramData) {
+    // 引数が不正な場合は全て0の配列を返す
+    if (!hexagramData || typeof hexagramData !== "object") {
+      console.warn("⚠️ Invalid hexagramData, returning zero vector array");
+      return [0, 0, 0, 0, 0, 0, 0, 0];
+    }
+    return this.dimensionKeys.map((key) => hexagramData[key] ?? 0);
+  }
+
+  // 配列形式のコサイン類似度
+  calculateCosineSimilarityArray(vectorA, vectorB) {
+    if (
+      !Array.isArray(vectorA) ||
+      !Array.isArray(vectorB) ||
+      vectorA.length !== 8 ||
+      vectorB.length !== 8
+    ) {
+      console.warn("⚠️ Invalid input vectors for cosine similarity (array)");
+      return 0;
+    }
+    const dotProduct = vectorA.reduce((sum, a, i) => sum + a * vectorB[i], 0);
+    const magnitudeA = Math.sqrt(
+      vectorA.reduce((sum, val) => sum + val * val, 0)
+    );
+    const magnitudeB = Math.sqrt(
+      vectorB.reduce((sum, val) => sum + val * val, 0)
+    );
+    if (magnitudeA === 0 || magnitudeB === 0) {
+      console.warn("⚠️ Zero magnitude in cosine similarity (array)");
+      return 0;
+    }
     return dotProduct / (magnitudeA * magnitudeB);
   }
 

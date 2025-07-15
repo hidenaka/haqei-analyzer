@@ -6,6 +6,7 @@ class QuestionFlow extends BaseComponent {
     this.currentQuestionIndex = 0; // 明示的に0に設定
     this.answers = [];
     this.questions = [];
+    this.storageManager = options.storageManager || null;
     console.log(
       "🔧 QuestionFlow constructor: currentQuestionIndex =",
       this.currentQuestionIndex
@@ -14,21 +15,57 @@ class QuestionFlow extends BaseComponent {
 
   init() {
     this.loadQuestions();
+    this.loadPreviousAnswers();
     console.log(
       `🎯 QuestionFlow initialized with ${this.questions.length} questions`
     );
     console.log("🔧 Current question index:", this.currentQuestionIndex);
     super.init();
+    this.render();
+    this.bindEvents();
   }
 
   loadQuestions() {
-    // 価値観設問を読み込み
-    this.questions = WORLDVIEW_QUESTIONS || [];
+    // 価値観設問とシナリオ設問を読み込み
+    if (typeof WORLDVIEW_QUESTIONS === 'undefined') {
+      console.error('❌ WORLDVIEW_QUESTIONS is not defined');
+      this.questions = [];
+      return;
+    }
+    
+    if (typeof SCENARIO_QUESTIONS === 'undefined') {
+      console.error('❌ SCENARIO_QUESTIONS is not defined');
+      this.questions = WORLDVIEW_QUESTIONS || [];
+      return;
+    }
+    
+    // 価値観設問 + シナリオ設問を結合
+    this.questions = [...WORLDVIEW_QUESTIONS, ...SCENARIO_QUESTIONS];
     console.log("📝 Loaded questions:", this.questions.length);
+    console.log("📝 Worldview questions:", WORLDVIEW_QUESTIONS.length);
+    console.log("📝 Scenario questions:", SCENARIO_QUESTIONS.length);
 
     // 念の為、インデックスを再初期化
     this.currentQuestionIndex = 0;
     console.log("🔧 Reset currentQuestionIndex to:", this.currentQuestionIndex);
+  }
+
+  // 以前の回答を読み込み
+  loadPreviousAnswers() {
+    if (this.storageManager) {
+      const savedAnswers = this.storageManager.getAnswers();
+      const savedProgress = this.storageManager.getProgress();
+      
+      if (savedAnswers && savedAnswers.length > 0) {
+        this.answers = savedAnswers;
+        console.log("📋 Loaded previous answers:", this.answers.length);
+      }
+      
+      if (savedProgress) {
+        this.currentQuestionIndex = savedProgress.currentQuestionIndex || 0;
+        console.log("🔄 Restored progress:", this.currentQuestionIndex);
+      }
+    }
   }
 
   get defaultOptions() {
@@ -87,6 +124,7 @@ class QuestionFlow extends BaseComponent {
     `;
 
     this.renderCurrentQuestion();
+    this.bindEvents();
   }
 
   renderCurrentQuestion() {
@@ -111,43 +149,134 @@ class QuestionFlow extends BaseComponent {
       this.answers = [];
     }
 
-    console.log("📝 Rendering question:", question.id, question.text);
+    console.log("📝 Rendering question:", question.id, question.text || question.scenario);
 
-    questionDisplay.innerHTML = `
-      <div class="question-item">
-        <h3 class="question-title">${question.text}</h3>
-        <div class="question-options">
-          ${question.options
-            .map(
-              (option) => `
-            <label class="option-label">
-              <input type="radio" name="question-${question.id}" value="${
-                option.value
-              }" 
-                     data-scoring='${JSON.stringify(option.scoring_tags)}'>
-              <div class="option-content">
-                <span class="option-text">${option.text}</span>
+    // シナリオ設問かどうかを判定
+    const isScenario = question.scenario && question.inner_q && question.outer_q;
+
+    if (isScenario) {
+      // シナリオ設問の場合：inner/outer選択肢を表示
+      questionDisplay.innerHTML = `
+        <div class="question-item scenario-question">
+          <div class="scenario-context">
+            <h3 class="scenario-title">状況設定</h3>
+            <p class="scenario-text">${question.scenario}</p>
+          </div>
+          
+          <div class="scenario-choices">
+            <div class="choice-section inner-choice">
+              <h4 class="choice-title">${question.inner_q}</h4>
+              <div class="question-options">
+                ${question.options.inner
+                  .map(
+                    (option) => `
+                  <label class="option-label">
+                    <input type="radio" name="inner-${question.id}" value="${
+                      option.value
+                    }" 
+                           data-scoring='${JSON.stringify(option.scoring_tags)}'
+                           data-choice-type="inner">
+                    <div class="option-content">
+                      <span class="option-text">${option.text}</span>
+                    </div>
+                  </label>
+                `
+                  )
+                  .join("")}
               </div>
-            </label>
-          `
-            )
-            .join("")}
+            </div>
+            
+            <div class="choice-section outer-choice">
+              <h4 class="choice-title">${question.outer_q}</h4>
+              <div class="question-options">
+                ${question.options.outer
+                  .map(
+                    (option) => `
+                  <label class="option-label">
+                    <input type="radio" name="outer-${question.id}" value="${
+                      option.value
+                    }" 
+                           data-scoring='${JSON.stringify(option.scoring_tags)}'
+                           data-choice-type="outer">
+                    <div class="option-content">
+                      <span class="option-text">${option.text}</span>
+                    </div>
+                  </label>
+                `
+                  )
+                  .join("")}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    } else {
+      // 通常の価値観設問の場合
+      questionDisplay.innerHTML = `
+        <div class="question-item">
+          <h3 class="question-title">${question.text}</h3>
+          <div class="question-options">
+            ${question.options
+              .map(
+                (option) => `
+              <label class="option-label">
+                <input type="radio" name="question-${question.id}" value="${
+                  option.value
+                }" 
+                       data-scoring='${JSON.stringify(option.scoring_tags)}'>
+                <div class="option-content">
+                  <span class="option-text">${option.text}</span>
+                </div>
+              </label>
+            `
+              )
+              .join("")}
+          </div>
+        </div>
+      `;
+    }
 
     // 既存の回答があれば選択状態を復元
+    this.restoreExistingAnswers(question, isScenario);
+  }
+
+  // 既存回答の復元
+  restoreExistingAnswers(question, isScenario) {
     const existingAnswer = this.answers.find(
       (a) => a.questionId === question.id
     );
+    
     if (existingAnswer) {
-      const radio = questionDisplay.querySelector(
-        `input[value="${existingAnswer.selectedValue}"]`
-      );
-      if (radio) {
-        radio.checked = true;
-        this.updateNavigationButtons();
+      if (isScenario) {
+        // シナリオ設問の場合：inner/outerを個別に復元
+        if (existingAnswer.innerChoice) {
+          const innerRadio = this.container.querySelector(
+            `input[name="inner-${question.id}"][value="${existingAnswer.innerChoice.value}"]`
+          );
+          if (innerRadio) {
+            innerRadio.checked = true;
+          }
+        }
+        
+        if (existingAnswer.outerChoice) {
+          const outerRadio = this.container.querySelector(
+            `input[name="outer-${question.id}"][value="${existingAnswer.outerChoice.value}"]`
+          );
+          if (outerRadio) {
+            outerRadio.checked = true;
+          }
+        }
+      } else {
+        // 通常設問の場合
+        const radio = this.container.querySelector(
+          `input[value="${existingAnswer.selectedValue}"]`
+        );
+        if (radio) {
+          radio.checked = true;
+        }
       }
+      
+      this.updateNavigationButtons();
     }
   }
 
@@ -182,33 +311,72 @@ class QuestionFlow extends BaseComponent {
       );
       return;
     }
+
     const selectedValue = radioElement.value;
     const scoringTags = JSON.parse(radioElement.dataset.scoring);
+    const choiceType = radioElement.dataset.choiceType; // inner/outer/undefined
 
-    // 回答を保存
-    const answerIndex = this.answers.findIndex(
+    // シナリオ設問かどうかを判定
+    const isScenario = question.scenario && question.inner_q && question.outer_q;
+
+    // 既存の回答を取得または作成
+    let answerIndex = this.answers.findIndex(
       (a) => a.questionId === question.id
     );
-    const answer = {
-      questionId: question.id,
-      selectedValue: selectedValue,
-      scoring_tags: scoringTags,
-    };
-
+    
+    let answer;
     if (answerIndex >= 0) {
-      this.answers[answerIndex] = answer;
+      answer = this.answers[answerIndex];
     } else {
+      answer = { questionId: question.id };
       this.answers.push(answer);
+      answerIndex = this.answers.length - 1;
+    }
+
+    if (isScenario) {
+      // シナリオ設問の場合：inner/outerを個別に保存
+      if (choiceType === 'inner') {
+        answer.innerChoice = {
+          value: selectedValue,
+          scoring_tags: scoringTags
+        };
+        console.log(`💭 Inner choice saved for ${question.id}:`, answer.innerChoice);
+      } else if (choiceType === 'outer') {
+        answer.outerChoice = {
+          value: selectedValue,
+          scoring_tags: scoringTags
+        };
+        console.log(`👥 Outer choice saved for ${question.id}:`, answer.outerChoice);
+      }
+    } else {
+      // 通常の価値観設問の場合
+      answer.selectedValue = selectedValue;
+      answer.scoring_tags = scoringTags;
+      console.log(`📝 Answer saved for ${question.id}:`, answer);
+    }
+
+    // 回答を更新
+    this.answers[answerIndex] = answer;
+
+    // ストレージに保存
+    if (this.storageManager) {
+      this.storageManager.saveAnswers(this.answers);
     }
 
     this.updateNavigationButtons();
     this.updateProgress();
 
     // 選択肢にアクティブスタイルを追加
-    this.container.querySelectorAll(".option-label").forEach((label) => {
-      label.classList.remove("selected");
-    });
-    radioElement.closest(".option-label").classList.add("selected");
+    const choiceSection = choiceType ? 
+      radioElement.closest('.choice-section') : 
+      radioElement.closest('.question-item');
+    
+    if (choiceSection) {
+      choiceSection.querySelectorAll(".option-label").forEach((label) => {
+        label.classList.remove("selected");
+      });
+      radioElement.closest(".option-label").classList.add("selected");
+    }
   }
 
   updateNavigationButtons() {
@@ -221,9 +389,24 @@ class QuestionFlow extends BaseComponent {
 
     if (nextBtn) {
       const currentQuestion = this.questions[this.currentQuestionIndex];
-      const hasAnswer = this.answers.some(
+      const currentAnswer = this.answers.find(
         (a) => a.questionId === currentQuestion.id
       );
+      
+      // シナリオ設問かどうかを判定
+      const isScenario = currentQuestion.scenario && currentQuestion.inner_q && currentQuestion.outer_q;
+      
+      let hasAnswer = false;
+      if (isScenario) {
+        // シナリオ設問の場合：inner/outerの両方が選択されている必要がある
+        hasAnswer = currentAnswer && 
+                   currentAnswer.innerChoice && 
+                   currentAnswer.outerChoice;
+      } else {
+        // 通常設問の場合：selectedValueが存在する必要がある
+        hasAnswer = currentAnswer && currentAnswer.selectedValue;
+      }
+      
       nextBtn.disabled = !hasAnswer;
 
       // 最後の質問の場合はボタンテキストを変更
@@ -279,6 +462,15 @@ class QuestionFlow extends BaseComponent {
       this.renderCurrentQuestion();
       this.updateNavigationButtons();
       this.updateProgress();
+      
+      // 進行状況をストレージに保存
+      if (this.storageManager) {
+        this.storageManager.saveProgress({
+          currentQuestionIndex: this.currentQuestionIndex,
+          totalQuestions: this.questions.length,
+          completedQuestions: this.answers.length
+        });
+      }
     }
   }
 
@@ -288,6 +480,15 @@ class QuestionFlow extends BaseComponent {
       this.renderCurrentQuestion();
       this.updateNavigationButtons();
       this.updateProgress();
+      
+      // 進行状況をストレージに保存
+      if (this.storageManager) {
+        this.storageManager.saveProgress({
+          currentQuestionIndex: this.currentQuestionIndex,
+          totalQuestions: this.questions.length,
+          completedQuestions: this.answers.length
+        });
+      }
     } else {
       // 最後の質問 - 分析開始
       this.completeQuestions();
@@ -300,9 +501,17 @@ class QuestionFlow extends BaseComponent {
 
       if (this.options.onComplete) {
         this.options.onComplete(this.answers);
+      } else {
+        // デフォルトの処理: グローバル関数を呼び出し
+        if (typeof proceedToAnalysis === 'function') {
+          proceedToAnalysis(this.answers);
+        } else {
+          console.warn('⚠️ No completion handler found');
+        }
       }
     } else {
-      alert("すべての質問にお答えください。");
+      const unansweredQuestions = this.questions.length - this.answers.length;
+      alert(`すべての質問にお答えください。未回答: ${unansweredQuestions}問`);
     }
   }
 }

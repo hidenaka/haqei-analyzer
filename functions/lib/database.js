@@ -22666,6 +22666,7 @@ export const H64_8D_VECTORS = {
     兌_調和性: 2,
   },
 };
+
 // ▼▼▼【v19.2 修正】Node.js環境でも読み込めるように追記 ▼▼▼
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { HAQEI_DATA };
