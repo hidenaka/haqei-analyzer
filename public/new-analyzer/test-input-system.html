@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>HaQei Analyzer - テストデータ入力システム</title>
+    <!-- 既存のCSSを流用 -->
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/test-input.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎯 HaQei Analyzer テストデータ入力システム</h1>
+        <p>30人分の回答データを入力し、一括診断を実行するシステム</p>
+      </div>
+
+      <!-- タブメニュー -->
+      <div class="tabs">
+        <button class="tab active" onclick="showTab('input')">
+          📝 データ入力
+        </button>
+        <button class="tab" onclick="showTab('results')">📊 診断結果</button>
+        <button class="tab" onclick="showTab('feedback')">
+          💬 フィードバック管理
+        </button>
+        <button class="tab" onclick="showTab('analysis')">📈 分析・検証</button>
+      </div>
+
+      <!-- データ入力タブ -->
+      <div id="input-tab" class="tab-content active">
+        <div class="card">
+          <h3>👥 テスト対象者リスト</h3>
+          <div class="form-group">
+            <label>対象者情報（1行1人、形式: ID,名前,年齢,性別,職業）</label>
+            <textarea
+              id="participants-list"
+              rows="10"
+              placeholder="user001,山田太郎,28,男性,エンジニア&#10;user002,佐藤花子,32,女性,デザイナー&#10;user003,田中一郎,25,男性,営業"
+            ></textarea>
+          </div>
+          <button class="btn" onclick="window.testSystem.parseParticipants()">
+            👥 対象者リスト解析
+          </button>
+        </div>
+
+        <div class="card">
+          <h3>📋 回答データ一括入力</h3>
+          <div class="form-group">
+            <label>現在の入力対象者</label>
+            <select id="current-participant">
+              <option value="">対象者を選択してください</option>
+            </select>
+          </div>
+
+          <!-- 価値観設問入力（Q1-Q24） -->
+          <div class="form-section">
+            <h4>💭 価値観設問（Q1-Q24）</h4>
+            <div id="worldview-inputs">
+              <!-- 動的生成 -->
+            </div>
+          </div>
+
+          <!-- シナリオ設問入力（Q25-Q30） -->
+          <div class="form-section">
+            <h4>🎭 シナリオ設問（Q25-Q30）</h4>
+            <div id="scenario-inputs">
+              <!-- 動的生成 -->
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button
+              class="btn btn-success"
+              onclick="window.testSystem.saveCurrentAnswers()"
+            >
+              💾 この回答を保存
+            </button>
+            <button
+              class="btn btn-secondary"
+              onclick="window.testSystem.clearCurrentAnswers()"
+            >
+              🗑️ クリア
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>📊 入力進捗</h3>
+          <div id="input-progress">
+            <!-- 進捗表示 -->
+          </div>
+          <button
+            class="btn btn-primary"
+            onclick="window.testSystem.executeAllDiagnosis(event)"
+          >
+            🔬 全員の診断実行
+          </button>
+        </div>
+      </div>
+
+      <!-- 診断結果タブ -->
+      <div id="results-tab" class="tab-content">
+        <div class="card">
+          <h3>📋 診断結果一覧</h3>
+          <div class="form-group">
+            <label>出力形式</label>
+            <select id="output-format">
+              <option value="detailed">詳細版（ユーザー向け）</option>
+              <option value="summary">要約版（SNS共有用）</option>
+              <option value="analysis">分析用データ</option>
+            </select>
+          </div>
+          <div id="results-list">
+            <!-- 結果一覧 -->
+          </div>
+          <div class="form-actions">
+            <button class="btn" onclick="window.testSystem.exportAllResults()">
+              📄 全結果エクスポート
+            </button>
+            <button
+              class="btn btn-secondary"
+              onclick="window.testSystem.copyResultsForSharing()"
+            >
+              📋 共有用テキストコピー
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- フィードバック管理タブ -->
+      <div id="feedback-tab" class="tab-content">
+        <div class="card">
+          <h3>💬 ユーザーフィードバック入力</h3>
+          <div class="form-group">
+            <label>フィードバック対象者</label>
+            <select id="feedback-participant">
+              <option value="">対象者を選択</option>
+            </select>
+          </div>
+
+          <div class="feedback-form">
+            <div class="form-group">
+              <label>的中度（1-5）</label>
+              <select id="accuracy-rating">
+                <option value="">選択してください</option>
+                <option value="1">1 - 全く当てはまらない</option>
+                <option value="2">2 - あまり当てはまらない</option>
+                <option value="3">3 - どちらとも言えない</option>
+                <option value="4">4 - よく当てはまる</option>
+                <option value="5">5 - 非常によく当てはまる</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>満足度（1-5）</label>
+              <select id="satisfaction-rating">
+                <option value="">選択してください</option>
+                <option value="1">1 - 全く満足していない</option>
+                <option value="2">2 - あまり満足していない</option>
+                <option value="3">3 - どちらとも言えない</option>
+                <option value="4">4 - 満足している</option>
+                <option value="5">5 - 非常に満足している</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>印象に残った内容（複数選択可）</label>
+              <div class="checkbox-group">
+                <label
+                  ><input type="checkbox" value="primary_os" />
+                  メインの人格OS</label
+                >
+                <label
+                  ><input type="checkbox" value="triple_os" /> 3層OS分析</label
+                >
+                <label
+                  ><input type="checkbox" value="dimensions" /> 8次元分析</label
+                >
+                <label
+                  ><input type="checkbox" value="insights" />
+                  洞察・アドバイス</label
+                >
+                <label
+                  ><input type="checkbox" value="accuracy" />
+                  的中度の高さ</label
+                >
+                <label
+                  ><input type="checkbox" value="presentation" />
+                  結果の表現方法</label
+                >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>具体的なコメント</label>
+              <textarea
+                id="user-comments"
+                rows="4"
+                placeholder="ユーザーからの具体的なフィードバック"
+              ></textarea>
+            </div>
+
+            <button
+              class="btn btn-success"
+              onclick="window.testSystem.saveFeedback()"
+            >
+              💾 フィードバック保存
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>📊 フィードバック集計</h3>
+          <div id="feedback-summary">
+            <!-- フィードバック集計結果 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 分析・検証タブ -->
+      <div id="analysis-tab" class="tab-content">
+        <div class="card">
+          <h3>📈 アルゴリズム精度分析</h3>
+          <div id="accuracy-analysis">
+            <!-- 精度分析結果 -->
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🔍 改善点特定</h3>
+          <div id="improvement-analysis">
+            <!-- 改善点分析 -->
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>📊 統計データ</h3>
+          <div id="statistical-analysis">
+            <!-- 統計分析結果 -->
+          </div>
+          <button class="btn" onclick="window.testSystem.generateDebugReport()">
+            📋 開発用レポート生成
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/test-input-system.js"></script>
+  </body>
+</html>

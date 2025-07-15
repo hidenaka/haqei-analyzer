@@ -1,0 +1,50 @@
+/* テスト入力システム専用スタイル */
+.question-input {
+  background: var(--primary-700);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--primary-600);
+}
+
+.scenario-choice {
+  margin-bottom: 1rem;
+}
+
+.scenario-choice label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--primary-200);
+}
+
+.answer-select,
+.inner-choice,
+.outer-choice {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--primary-600);
+  border: 1px solid var(--primary-500);
+  border-radius: 0.25rem;
+  color: var(--primary-100);
+}
+
+.progress-indicator {
+  background: var(--primary-600);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.feedback-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: var(--primary-600);
+  border-radius: 0.25rem;
+}
