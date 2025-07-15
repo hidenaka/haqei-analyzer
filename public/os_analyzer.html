@@ -139,30 +139,7 @@
         aspect-ratio: 1 / 1;
         margin: auto;
       }
-      .drag-handle {
-        position: absolute;
-        width: 32px;
-        height: 32px;
-        background-color: rgba(165, 180, 252, 0.3);
-        border: 2px solid rgba(224, 231, 255, 0.7);
-        border-radius: 50%;
-        cursor: grab;
-        transform: translate(-50%, -50%);
-        touch-action: none;
-        z-index: 10;
-        transition: background-color 0.2s;
-      }
-      .drag-handle:hover {
-        background-color: rgba(165, 180, 252, 0.6);
-      }
-      .drag-handle:active {
-        cursor: grabbing;
-        background-color: rgba(129, 140, 248, 0.8);
-      }
-      .drag-handle:focus-visible {
-        outline: 2px solid #a5b4fc;
-        outline-offset: 2px;
-      }
+
       details summary {
         cursor: pointer;
         padding: 0.5rem 0;
@@ -214,7 +191,10 @@
     <template id="os-card-template"></template>
     <div id="trigram-tooltip"></div>
     <script type="module">
-      import { H64_PROFILE_VECTORS } from "../assets/H64_profile_vectors.js";
+      import {
+        WORLDVIEW_QUESTIONS,
+        SCENARIO_QUESTIONS,
+      } from "./js/questions.js";
 
       const HAQEI_DATA = {
         element_relationships: [
@@ -800,134 +780,6 @@
 
       const osManualData = {};
 
-      const WORLDVIEW_QUESTIONS = [
-        {
-          id: "wvq1",
-          text: "チームプロジェクトで最も重要だと思うのは？",
-          options: [
-            {
-              value: "A",
-              text: "明確なリーダーと目標",
-              scores: { 1: 2, 7: 1 },
-            },
-            {
-              value: "B",
-              text: "メンバー間の信頼と協力",
-              scores: { 8: 2, 2: 1 },
-            },
-          ],
-        },
-        {
-          id: "wvq2",
-          text: "新しいスキルを学ぶとき、あなたのスタイルは？",
-          options: [
-            {
-              value: "A",
-              text: "まず全体像を把握し、理論から入る",
-              scores: { 3: 2, 7: 1 },
-            },
-            {
-              value: "B",
-              text: "とりあえず実践してみて、失敗から学ぶ",
-              scores: { 4: 2, 6: 1 },
-            },
-          ],
-        },
-        {
-          id: "wvq3",
-          text: "ストレスを感じた時、どうやって解消する？",
-          options: [
-            {
-              value: "A",
-              text: "一人で静かに内省し、問題の原因を探る",
-              scores: { 6: 2, 7: 1 },
-            },
-            {
-              value: "B",
-              text: "友人と話したり、楽しいことで発散する",
-              scores: { 2: 2, 5: 1 },
-            },
-          ],
-        },
-        {
-          id: "wvq4",
-          text: "あなたが理想とする社会は？",
-          options: [
-            {
-              value: "A",
-              text: "個々の才能が輝く、活気ある競争社会",
-              scores: { 1: 2, 4: 1 },
-            },
-            {
-              value: "B",
-              text: "誰もが支え合う、穏やかで平和な社会",
-              scores: { 8: 2, 5: 1 },
-            },
-          ],
-        },
-      ];
-
-      const SCENARIO_QUESTIONS = [
-        {
-          id: "scq1",
-          scenario:
-            "あなたのプロジェクトが、予期せぬ外部要因で大炎上。非難の矛先があなたに向かっています。",
-          inner_q: "この時、あなたの心の中で最も強くなる感情は？",
-          outer_q: "この状況で、あなたが最初にとる行動は？",
-          options: {
-            inner: [
-              {
-                text: "「なぜだ！」という怒りと、状況をコントロールしたい欲求",
-                scores: { 1: 2, 4: 1 },
-              },
-              {
-                text: "「どうしよう…」という不安と、誰かに助けを求める気持ち",
-                scores: { 6: 2, 8: 1 },
-              },
-            ],
-            outer: [
-              {
-                text: "即座に関係者を集め、対策会議を開き、主導権を握る",
-                scores: { 1: 2, 3: 1 },
-              },
-              {
-                text: "信頼できる人に個別に連絡を取り、状況を共有し、意見を求める",
-                scores: { 5: 2, 8: 1 },
-              },
-            ],
-          },
-        },
-        {
-          id: "scq2",
-          scenario:
-            "あなたはチームリーダーとして、重要な決断を迫られています。A案はハイリスク・ハイリターン、B案はローリスク・ローリターンです。",
-          inner_q: "この時、あなたの心はどちらに傾きやすい？",
-          outer_q: "最終的に、あなたがチームに提案する可能性が高いのは？",
-          options: {
-            inner: [
-              {
-                text: "「一発逆転を狙いたい！」という興奮と、挑戦への魅力",
-                scores: { 4: 2, 3: 1 },
-              },
-              {
-                text: "「失敗は避けたい…」という慎重さと、安定への欲求",
-                scores: { 7: 2, 6: 1 },
-              },
-            ],
-            outer: [
-              {
-                text: "A案の魅力を熱弁し、チームを鼓舞して挑戦を促す",
-                scores: { 3: 2, 4: 1 },
-              },
-              {
-                text: "B案の堅実さを強調し、リスクを避ける方向で合意形成を図る",
-                scores: { 7: 2, 8: 1 },
-              },
-            ],
-          },
-        },
-      ];
-
       const analysisState = {
         trigramScores: null,
         adjustedTrigramScores: null,
@@ -935,10 +787,104 @@
         selectedEngine: null,
         lockedEngineOs: null,
         influentialOses: [],
+        userProfileVector: null,
       };
 
+      // 新しいベクトルロジック関数
+      function buildUserProfileVector(questions) {
+        // H64_PROFILE_VECTORSのキーを全て取得し、全要素が0の空のベクトルを作成
+        const profileVector = {};
+
+        // 引数で渡されたquestions配列をループ
+        questions.forEach((q) => {
+          // 各設問で、チェックされた選択肢のscoring_tags配列を取得
+          const checkedOption = document.querySelector(
+            `input[name="${q.id}"]:checked`
+          );
+          if (checkedOption) {
+            const selectedOption = q.options.find(
+              (opt) => opt.value === checkedOption.value
+            );
+            if (selectedOption && selectedOption.scoring_tags) {
+              // scoring_tagsの各要素について、profileVectorの対応するキーに値を加算
+              selectedOption.scoring_tags.forEach((tag) => {
+                profileVector[tag.key] =
+                  (profileVector[tag.key] || 0) + tag.value;
+              });
+            }
+          }
+        });
+
+        return profileVector;
+      }
+
+      function calculateCosineSimilarity(vectorA, vectorB) {
+        const keys = new Set([
+          ...Object.keys(vectorA),
+          ...Object.keys(vectorB),
+        ]);
+        let dotProduct = 0;
+        let magnitudeA = 0;
+        let magnitudeB = 0;
+
+        keys.forEach((key) => {
+          const a = vectorA[key] || 0;
+          const b = vectorB[key] || 0;
+          dotProduct += a * b;
+          magnitudeA += a * a;
+          magnitudeB += b * b;
+        });
+
+        const magnitudeProduct = Math.sqrt(magnitudeA) * Math.sqrt(magnitudeB);
+        return magnitudeProduct === 0 ? 0 : dotProduct / magnitudeProduct;
+      }
+
+      function calculateMagnitudeMatchScore(vectorA, vectorB) {
+        const keys = new Set([
+          ...Object.keys(vectorA),
+          ...Object.keys(vectorB),
+        ]);
+        let totalDifference = 0;
+
+        keys.forEach((key) => {
+          const a = vectorA[key] || 0;
+          const b = vectorB[key] || 0;
+          totalDifference += Math.abs(a - b);
+        });
+
+        return Math.max(0, 10 - totalDifference);
+      }
+
+      function getEngineCandidates(userProfileVector) {
+        // H64_PROFILE_VECTORSの全OSデータをループ処理
+        const candidates = HAQEI_DATA.hexagrams_master.map((os) => {
+          // 各OSについて、2つのスコアを計算
+          const similarityScore = calculateCosineSimilarity(
+            userProfileVector,
+            os.profile_vector || {}
+          );
+          const magnitudeScore = calculateMagnitudeMatchScore(
+            userProfileVector,
+            os.profile_vector || {}
+          );
+
+          // normalizedMagnitudeScoreを正規化
+          const normalizedMagnitudeScore = Math.min(magnitudeScore / 10, 1.0);
+
+          // 最終スコアを算出
+          const finalScore =
+            similarityScore * 0.7 + normalizedMagnitudeScore * 0.3;
+
+          return { ...os, finalScore };
+        });
+
+        // スコアの高い順にソートして上位4件を返す
+        return candidates
+          .sort((a, b) => b.finalScore - a.finalScore)
+          .slice(0, 4);
+      }
+
       let trigramRadarChart = null;
-      let handlesResizeBound = false;
       const diagnosticContainer = document.getElementById(
         "diagnostic-container"
       );
@@ -1084,104 +1030,6 @@
         return sakuId === hexIdB;
       }
 
-      // コサイン類似度計算
-      function calculateCosineSimilarity(vecA, vecB) {
-        const keys = Object.keys(vecA)
-          .concat(Object.keys(vecB))
-          .filter((v, i, a) => a.indexOf(v) === i);
-        let dot = 0,
-          normA = 0,
-          normB = 0;
-        keys.forEach((k) => {
-          const a = vecA[k] || 0;
-          const b = vecB[k] || 0;
-          dot += a * b;
-          normA += a * a;
-          normB += b * b;
-        });
-        if (normA === 0 || normB === 0) return 0;
-        return dot / (Math.sqrt(normA) * Math.sqrt(normB));
-      }
-
-      // getEngineCandidates: コサイン類似度で上位4つを返す
-      function getEngineCandidates(userProfileVector) {
-        const candidates = Object.values(H64_PROFILE_VECTORS).map((os) => {
-          const similarity = calculateCosineSimilarity(
-            userProfileVector,
-            os.profile_vector
-          );
-          return { ...os, similarity };
-        });
-        candidates.sort((a, b) => b.similarity - a.similarity);
-        return candidates.slice(0, 4);
-      }
-
-      // generateReasoningText: 選定根拠テキスト生成
-      function generateReasoningText(userVector, osVector) {
-        // 共通して値が0より大きいキー
-        const commonKeys = Object.keys(userVector).filter(
-          (k) => userVector[k] > 0 && osVector[k] > 0
-        );
-        // ユーザー側で値が高い順に2-3個
-        const sorted = commonKeys
-          .sort((a, b) => userVector[b] - userVector[a])
-          .slice(0, 3);
-        if (sorted.length === 0)
-          return "あなたの価値観とこのOSの共鳴ポイントが見つかりませんでした。";
-
-        // 八卦名リスト
-        const trigramNames = ["乾", "兌", "離", "震", "巽", "坎", "艮", "坤"];
-        // THEME名リスト（H64_PROFILE_VECTORSの主要キー）
-        const themeNames = [
-          "革新性",
-          "調和性",
-          "探求性",
-          "安定性",
-          "表現性",
-          "貢献性",
-        ];
-
-        // それぞれの説明文テンプレート
-        const themePhrases = {
-          革新性: "『革新性』を求める姿勢",
-          調和性: "『調和性』を大切にする心",
-          探求性: "『探求性』で本質を追い求める姿勢",
-          安定性: "『安定性』を重視する安らぎ",
-          表現性: "『表現性』豊かな自己発信",
-          貢献性: "『貢献性』で人や社会に尽くす力",
-        };
-        const trigramPhrases = {
-          乾: "『乾』が持つリーダーシップのエネルギー",
-          兌: "『兌』が持つ喜び・表現のエネルギー",
-          離: "『離』が持つ知性・情熱のエネルギー",
-          震: "『震』が持つ行動力・決断力のエネルギー",
-          巽: "『巽』が持つ共感・調整のエネルギー",
-          坎: "『坎』が持つ探求・粘り強さのエネルギー",
-          艮: "『艮』が持つ内省・安定のエネルギー",
-          坤: "『坤』が持つ包容・サポートのエネルギー",
-        };
-
-        // 文章パーツを生成
-        const parts = sorted.map((k) => {
-          if (trigramNames.includes(k)) {
-            return trigramPhrases[k] || `『${k}』のエネルギー`;
-          } else if (themeNames.includes(k)) {
-            return themePhrases[k] || `『${k}』の価値観`;
-          } else {
-            return `『${k}』`;
-          }
-        });
-
-        // 文章の組み立て
-        if (parts.length === 1) {
-          return `あなたの${parts[0]}が、このOSの性質と強く共鳴しています。`;
-        } else if (parts.length === 2) {
-          return `あなたの${parts[0]}や、${parts[1]}が、このOSの性質と強く共鳴しています。`;
-        } else {
-          return `あなたの${parts[0]}、${parts[1]}、そして${parts[2]}が、このOSの性質と強く共鳴しています。`;
-        }
-      }
-
       function calculateInfluenceScores(candidates, engineId) {
         const engineHex = HAQEI_DATA.hexagrams_master.find(
           (h) => h.hexagram_id === engineId
@@ -1228,7 +1076,7 @@
           const worldviewOpts = q.options
             .map(
               (opt) =>
-                `<div><input type="radio" name="${q.id}" value="${opt.value}" id="${q.id}_${opt.value}" class="sr-only peer"><label for="${q.id}_${opt.value}" class="option-label">${opt.text}</label></div>`
+                `<div><input type="radio" name="${q.id}" id="wvq_${q.id}_${opt.value}" value="${opt.value}" class="sr-only peer"><label for="wvq_${q.id}_${opt.value}" class="option-label">${opt.text}</label></div>`
             )
             .join("");
           html += `<div class="diagnostic-item"><div class="question-block"><p class="question-text">${
@@ -1253,11 +1101,46 @@
           alert("Step 1のすべての質問に回答してください。");
           return;
         }
+
+        // 新しいベクトルロジックを使用
+        analysisState.userProfileVector =
+          buildUserProfileVector(WORLDVIEW_QUESTIONS);
         analysisState.trigramScores = runTrigramAnalysis();
-        analysisState.engineCandidates = getEngineCandidates(
-          analysisState.trigramScores
+        analysisState.adjustedTrigramScores = {
+          ...analysisState.trigramScores,
+        };
+        showRadarVisualization();
+      }
+
+      function showRadarVisualization() {
+        const html = `
+              <h3 class="text-xl font-bold text-amber-300 mb-2 text-center">Step 1-B：価値観の分析結果</h3>
+              <p class="text-center text-gray-400 mb-6 text-sm">レーダーチャートは、あなたの価値観のバランスを可視化したものです。<br>この分析結果を土台として、あなたのエンジンOS候補を生成します。</p>
+              <div id="radar-chart-container" class="radar-container">
+                  <canvas id="trigram-radar-chart"></canvas>
+              </div>
+              <section id="wv-confirm" class="mt-8 text-center">
+                  <button id="confirm-scores-btn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">この分析結果でOS候補を生成</button>
+              </section>
+          `;
+        diagnosticContainer.innerHTML = html;
+
+        const radarCtx = document
+          .getElementById("trigram-radar-chart")
+          .getContext("2d");
+        trigramRadarChart = renderTrigramRadar(
+          radarCtx,
+          analysisState.adjustedTrigramScores
         );
-        showEngineCandidateSelection();
+
+        document
+          .getElementById("confirm-scores-btn")
+          .addEventListener("click", () => {
+            analysisState.engineCandidates = getEngineCandidates(
+              analysisState.userProfileVector
+            );
+            showEngineCandidateSelection();
+          });
       }
 
       function showEngineCandidateSelection() {
@@ -1274,10 +1157,7 @@
           const osManual = osManualData[String(os.hexagram_id)] || {};
           const keyword = osManual.keyword_short || "???";
           const icon = osManual.archetype_icon || "❓";
-          const reason = generateReasoningText(
-            analysisState.trigramScores,
-            os.profile_vector
-          );
+
           html += `
             <div id="card-select-${os.hexagram_id}" data-id="${
             os.hexagram_id
@@ -1295,7 +1175,9 @@
                 }</p>
                 <div class="mt-4 pt-4 border-t border-gray-700/50">
                   <p class="text-xs font-semibold text-gray-400 mb-2">AIによる選定根拠</p>
-                  <p class="text-sm text-gray-500" data-reason>${reason}</p>
+                  <p class="text-sm text-gray-500" data-reason>${
+                    os.reason || ""
+                  }</p>
                 </div>
                 <div class="engine-card-tip" data-tip-for="${
                   os.hexagram_id
@@ -1352,33 +1234,47 @@
       }
 
       function runTrigramAnalysis() {
-        const scores = {
-          乾: 0,
-          兌: 0,
-          離: 0,
-          震: 0,
-          巽: 0,
-          坎: 0,
-          艮: 0,
-          坤: 0,
-        };
+        const scores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
         WORLDVIEW_QUESTIONS.forEach((q) => {
           const node = document.querySelector(`input[name="${q.id}"]:checked`);
           if (!node) return;
           const choice = q.options.find((opt) => opt.value === node.value);
-          if (choice && choice.scores) {
+          if (choice && choice.scoring_tags) {
+            // 新しいscoring_tags形式に対応
+            choice.scoring_tags.forEach((tag) => {
+              // 八卦の名前からIDを取得する簡易的なマッピング
+              const trigramMapping = {
+                乾: 1,
+                兌: 2,
+                離: 3,
+                震: 4,
+                巽: 5,
+                坎: 6,
+                艮: 7,
+                坤: 8,
+              };
+              if (trigramMapping[tag.key]) {
+                scores[trigramMapping[tag.key]] =
+                  (scores[trigramMapping[tag.key]] || 0) + tag.value;
+              }
+            });
+          } else if (choice && choice.scores) {
+            // 旧形式のscoresもサポート
             for (const id in choice.scores) {
-              // idはtrigram_id(1-8)
-              const trigram = HAQEI_DATA.trigrams_master.find(
-                (t) => t.trigram_id == id
-              );
-              if (trigram) {
-                scores[trigram.name_jp] += choice.scores[id];
+              if (Object.hasOwnProperty.call(choice.scores, id)) {
+                scores[id] = (scores[id] || 0) + choice.scores[id];
               }
             }
           }
         });
-        return scores;
+
+        const maxScore = Math.max(...Object.values(scores), 1);
+        const normalizedScores = {};
+        for (const id in scores) {
+          const normalized = (scores[id] / maxScore) * 100;
+          normalizedScores[id] = Math.max(0, Math.min(100, normalized));
+        }
+        return normalizedScores;
       }
 
       function determineInterfaceAndSafemode() {
@@ -1401,7 +1297,27 @@
           );
 
           const innerChoice = q.options.inner[Number(innerNode.value)];
-          if (innerChoice && innerChoice.scores) {
+          if (innerChoice && innerChoice.scoring_tags) {
+            // 新しいscoring_tags形式に対応
+            innerChoice.scoring_tags.forEach((tag) => {
+              const trigramMapping = {
+                乾: 1,
+                兌: 2,
+                離: 3,
+                震: 4,
+                巽: 5,
+                坎: 6,
+                艮: 7,
+                坤: 8,
+              };
+              if (trigramMapping[tag.key]) {
+                scenarioTrigramScores[trigramMapping[tag.key]] =
+                  (scenarioTrigramScores[trigramMapping[tag.key]] || 0) +
+                  tag.value;
+              }
+            });
+          } else if (innerChoice && innerChoice.scores) {
+            // 旧形式のscoresもサポート
             for (const id in innerChoice.scores) {
               if (Object.hasOwnProperty.call(innerChoice.scores, id)) {
                 scenarioTrigramScores[id] =
@@ -1411,7 +1327,27 @@
           }
 
           const outerChoice = q.options.outer[Number(outerNode.value)];
-          if (outerChoice && outerChoice.scores) {
+          if (outerChoice && outerChoice.scoring_tags) {
+            // 新しいscoring_tags形式に対応
+            outerChoice.scoring_tags.forEach((tag) => {
+              const trigramMapping = {
+                乾: 1,
+                兌: 2,
+                離: 3,
+                震: 4,
+                巽: 5,
+                坎: 6,
+                艮: 7,
+                坤: 8,
+              };
+              if (trigramMapping[tag.key]) {
+                scenarioTrigramScores[trigramMapping[tag.key]] =
+                  (scenarioTrigramScores[trigramMapping[tag.key]] || 0) +
+                  tag.value;
+              }
+            });
+          } else if (outerChoice && outerChoice.scores) {
+            // 旧形式のscoresもサポート
             for (const id in outerChoice.scores) {
               if (Object.hasOwnProperty.call(outerChoice.scores, id)) {
                 scenarioTrigramScores[id] =
@@ -1557,13 +1493,13 @@
           const innerOpts = q.options.inner
             .map(
               (opt, i) =>
-                `<div><input type="radio" name="${q.id}_inner" value="${i}" id="${q.id}_inner_${i}" class="sr-only peer"><label for="${q.id}_inner_${i}" class="option-label">${opt.text}</label></div>`
+                `<div><input type="radio" name="${q.id}_inner" value="${i}" id="scq_${q.id}_inner_${i}" class="sr-only peer"><label for="scq_${q.id}_inner_${i}" class="option-label">${opt.text}</label></div>`
             )
             .join("");
           const outerOpts = q.options.outer
             .map(
               (opt, i) =>
-                `<div><input type="radio" name="${q.id}_outer" value="${i}" id="${q.id}_outer_${i}" class="sr-only peer"><label for="${q.id}_outer_${i}" class="option-label">${opt.text}</label></div>`
+                `<div><input type="radio" name="${q.id}_outer" value="${i}" id="scq_${q.id}_outer_${i}" class="sr-only peer"><label for="scq_${q.id}_outer_${i}" class="option-label">${opt.text}</label></div>`
             )
             .join("");
           html += `<div class="diagnostic-item"><p class="text-gray-400 text-sm">シナリオ ${
