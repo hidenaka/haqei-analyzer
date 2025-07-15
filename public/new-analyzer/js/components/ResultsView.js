@@ -46,9 +46,9 @@ class ResultsView extends BaseComponent {
               <div class="match-percentage">${primaryOS.matchPercentage.toFixed(
                 1
               )}%</div>
-              <div class="trigram-composition">構成八卦: ${
-                primaryOS.trigramComposition || "乾 + 乾"
-              }</div>
+              <div class="trigram-composition">構成八卦: ${this.getTrigramComposition(
+                primaryOS
+              )}</div>
             </div>
           </div>
         </div>
@@ -205,5 +205,40 @@ class ResultsView extends BaseComponent {
         }
       });
     }
+  }
+
+  // 🔧 trigramComposition安全取得メソッド
+  getTrigramComposition(osData) {
+    // 既存のtrigramCompositionがあればそれを使用
+    if (osData.trigramComposition) {
+      return osData.trigramComposition;
+    }
+    // hexagramInfoから生成
+    if (osData.hexagramInfo) {
+      const upperTrigram = this.getTrigramName(
+        osData.hexagramInfo.upper_trigram_id
+      );
+      const lowerTrigram = this.getTrigramName(
+        osData.hexagramInfo.lower_trigram_id
+      );
+      return `${upperTrigram} + ${lowerTrigram}`;
+    }
+    // フォールバック
+    return "乾 + 乾";
+  }
+
+  // 🔧 八卦名取得ヘルパー
+  getTrigramName(trigramId) {
+    const trigramNames = {
+      1: "乾",
+      2: "兌",
+      3: "離",
+      4: "震",
+      5: "巽",
+      6: "坎",
+      7: "艮",
+      8: "坤",
+    };
+    return trigramNames[trigramId] || "乾";
   }
 }

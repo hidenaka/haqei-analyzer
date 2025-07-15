@@ -297,6 +297,9 @@ class TripleOSResultsView extends BaseComponent {
       <div class="engine-details">
         <h5>主要な八卦エネルギー</h5>
         ${errorMsg}
+        <div class="trigram-composition">
+          構成八卦: ${this.getTrigramComposition(engineOS)}
+        </div>
         <div class="trigram-list">
           ${topTrigrams
             .map(
@@ -330,6 +333,38 @@ class TripleOSResultsView extends BaseComponent {
         </div>
       </div>
     `;
+  }
+
+  // 🔧 trigramComposition安全取得メソッド
+  getTrigramComposition(osData) {
+    if (osData.trigramComposition) {
+      return osData.trigramComposition;
+    }
+    if (osData.hexagramInfo) {
+      const upperTrigram = this.getTrigramName(
+        osData.hexagramInfo.upper_trigram_id
+      );
+      const lowerTrigram = this.getTrigramName(
+        osData.hexagramInfo.lower_trigram_id
+      );
+      return `${upperTrigram} + ${lowerTrigram}`;
+    }
+    return "乾 + 乾";
+  }
+
+  // 🔧 八卦名取得ヘルパー
+  getTrigramName(trigramId) {
+    const trigramNames = {
+      1: "乾",
+      2: "兌",
+      3: "離",
+      4: "震",
+      5: "巽",
+      6: "坎",
+      7: "艮",
+      8: "坤",
+    };
+    return trigramNames[trigramId] || "乾";
   }
 
   // インターフェースOS詳細

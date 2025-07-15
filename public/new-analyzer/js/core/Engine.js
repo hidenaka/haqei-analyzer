@@ -56,19 +56,21 @@ class DiagnosisEngine {
             userVector,
             hexagramInfo
           );
-
+          // 構成八卦を生成
+          const trigramComposition =
+            this.generateTrigramComposition(hexagramInfo);
           return {
             ...candidate,
             hexagramInfo: hexagramInfo,
             matchPercentage: Math.round(candidate.score * 100),
             dominantTrigrams: dominantTrigrams,
+            trigramComposition: trigramComposition, // ← 追加
           };
         } catch (candidateError) {
           console.error(
             `❌ Error enriching candidate ${candidate.osId}:`,
             candidateError
           );
-
           // フォールバック候補データ
           return {
             ...candidate,
@@ -78,6 +80,7 @@ class DiagnosisEngine {
             },
             matchPercentage: Math.round(candidate.score * 100),
             dominantTrigrams: this.getFallbackTrigrams(),
+            trigramComposition: "乾 + 乾", // ← 追加
           };
         }
       });
@@ -96,6 +99,22 @@ class DiagnosisEngine {
       console.log("✅ Analysis completed successfully");
       console.log("Primary OS:", analysisResult.primaryOS?.hexagramInfo?.name);
 
+      // 🔍 デバッグ用（一時的）
+      console.log(
+        "🔍 Primary OS trigramComposition:",
+        analysisResult.primaryOS.trigramComposition
+      );
+      console.log(
+        "🔍 Primary OS hexagramInfo:",
+        analysisResult.primaryOS.hexagramInfo
+      );
+      console.log(
+        "🔍 All candidates trigramComposition:",
+        analysisResult.topCandidates.map((c) => ({
+          name: c.hexagramInfo?.name,
+          trigramComposition: c.trigramComposition,
+        }))
+      );
       return analysisResult;
     } catch (error) {
       console.error("❌ Analysis failed:", error);
@@ -293,6 +312,7 @@ class DiagnosisEngine {
       },
       matchPercentage: 50,
       dominantTrigrams: this.getFallbackTrigrams(),
+      trigramComposition: "乾 + 乾", // ← 追加
     };
 
     return {
@@ -521,5 +541,40 @@ class DiagnosisEngine {
       "強い価値観を基盤として、成長領域にも意識的に取り組んでみましょう",
       "定期的に自己分析を行い、価値観の変化や成長を確認することをお勧めします",
     ];
+  }
+
+  // 🔧 新規追加：構成八卦生成メソッド
+  generateTrigramComposition(hexagramInfo) {
+    try {
+      if (!hexagramInfo) {
+        return "乾 + 乾"; // フォールバック
+      }
+      // 八卦IDから八卦名を取得
+      const upperTrigramName = this.getTrigramName(
+        hexagramInfo.upper_trigram_id
+      );
+      const lowerTrigramName = this.getTrigramName(
+        hexagramInfo.lower_trigram_id
+      );
+      return `${upperTrigramName} + ${lowerTrigramName}`;
+    } catch (error) {
+      console.error("❌ Error generating trigram composition:", error);
+      return "乾 + 乾"; // エラー時のフォールバック
+    }
+  }
+
+  // 🔧 新規追加：八卦名取得ヘルパーメソッド
+  getTrigramName(trigramId) {
+    const trigramNames = {
+      1: "乾", // 天
+      2: "兌", // 沢
+      3: "離", // 火
+      4: "震", // 雷
+      5: "巽", // 風
+      6: "坎", // 水
+      7: "艮", // 山
+      8: "坤", // 地
+    };
+    return trigramNames[trigramId] || "乾"; // デフォルトは乾
   }
 }

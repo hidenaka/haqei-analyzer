@@ -128,6 +128,7 @@ class TripleOSEngine extends DiagnosisEngine {
         keywords: hexagramInfo.keywords,
         upperTrigram: this.getTrigramName(hexagramInfo.upper_trigram_id),
         lowerTrigram: this.getTrigramName(hexagramInfo.lower_trigram_id),
+        trigramComposition: this.generateTrigramComposition(hexagramInfo), // 追加
         trigramScores: this.convertToTrigramScores(userVector),
         cosineSimilarity: bestCandidate.similarity,
         confidence: bestCandidate.score,
@@ -167,6 +168,9 @@ class TripleOSEngine extends DiagnosisEngine {
         matchScore: bestMatch.score,
         keywordMatches: bestMatch.matches,
         outerChoices: outerChoices,
+        trigramComposition: this.generateTrigramComposition(
+          this.dataManager.getHexagramData(bestMatch.hexagramId)
+        ),
       };
     } catch (error) {
       console.error("❌ Interface OS analysis failed:", error);
@@ -198,6 +202,9 @@ class TripleOSEngine extends DiagnosisEngine {
         matchScore: bestMatch.score,
         lineMatches: bestMatch.matches,
         innerChoices: innerChoices,
+        trigramComposition: this.generateTrigramComposition(
+          this.dataManager.getHexagramData(bestMatch.hexagramId)
+        ),
       };
     } catch (error) {
       console.error("❌ SafeMode OS analysis failed:", error);
@@ -489,6 +496,16 @@ class TripleOSEngine extends DiagnosisEngine {
         },
       ];
     }
+  }
+
+  // 🔧 trigramComposition生成メソッド
+  generateTrigramComposition(hexagramInfo) {
+    if (!hexagramInfo) {
+      return "乾 + 乾";
+    }
+    const upperTrigram = this.getTrigramName(hexagramInfo.upper_trigram_id);
+    const lowerTrigram = this.getTrigramName(hexagramInfo.lower_trigram_id);
+    return `${upperTrigram} + ${lowerTrigram}`;
   }
 
   // 8次元から八卦スコアに変換
