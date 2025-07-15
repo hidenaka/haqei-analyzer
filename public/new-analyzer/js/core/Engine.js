@@ -19,13 +19,15 @@ class DiagnosisEngine {
       const { worldviewAnswers, scenarioAnswers } =
         this.separateAnswers(allAnswers);
 
-      console.log(`📊 Separated answers: worldview(${worldviewAnswers.length}), scenario(${scenarioAnswers.length})`);
+      console.log(
+        `📊 Separated answers: worldview(${worldviewAnswers.length}), scenario(${scenarioAnswers.length})`
+      );
 
       // 8次元ユーザーベクトル構築
       const userVector = this.calculator.buildUserVector(worldviewAnswers);
-      
+
       // ユーザーベクトルの検証
-      if (!userVector || typeof userVector !== 'object') {
+      if (!userVector || typeof userVector !== "object") {
         throw new Error("Failed to build user vector");
       }
 
@@ -50,23 +52,32 @@ class DiagnosisEngine {
       const enrichedCandidates = candidates.map((candidate) => {
         try {
           const hexagramInfo = this.dataManager.getHexagramData(candidate.osId);
-          const dominantTrigrams = this.generateDominantTrigrams(userVector, hexagramInfo);
-          
+          const dominantTrigrams = this.generateDominantTrigrams(
+            userVector,
+            hexagramInfo
+          );
+
           return {
             ...candidate,
             hexagramInfo: hexagramInfo,
             matchPercentage: Math.round(candidate.score * 100),
-            dominantTrigrams: dominantTrigrams
+            dominantTrigrams: dominantTrigrams,
           };
         } catch (candidateError) {
-          console.error(`❌ Error enriching candidate ${candidate.osId}:`, candidateError);
-          
+          console.error(
+            `❌ Error enriching candidate ${candidate.osId}:`,
+            candidateError
+          );
+
           // フォールバック候補データ
           return {
             ...candidate,
-            hexagramInfo: { name: "分析エラー", catchphrase: "データ取得に失敗" },
+            hexagramInfo: {
+              name: "分析エラー",
+              catchphrase: "データ取得に失敗",
+            },
             matchPercentage: Math.round(candidate.score * 100),
-            dominantTrigrams: this.getFallbackTrigrams()
+            dominantTrigrams: this.getFallbackTrigrams(),
           };
         }
       });
@@ -74,6 +85,7 @@ class DiagnosisEngine {
       // 分析結果を構築
       const analysisResult = {
         userVector: userVector,
+        eightDimensionVector: userVector, // ← 追加
         topCandidates: enrichedCandidates,
         primaryOS: enrichedCandidates[0],
         analysisDate: new Date().toISOString(),
@@ -83,12 +95,11 @@ class DiagnosisEngine {
 
       console.log("✅ Analysis completed successfully");
       console.log("Primary OS:", analysisResult.primaryOS?.hexagramInfo?.name);
-      
-      return analysisResult;
 
+      return analysisResult;
     } catch (error) {
       console.error("❌ Analysis failed:", error);
-      
+
       // 完全フォールバック
       return this.createFallbackResult(allAnswers);
     }
@@ -98,23 +109,23 @@ class DiagnosisEngine {
   generateDominantTrigrams(userVector, hexagramInfo) {
     try {
       console.log("🔥 Generating dominant trigrams (robust)...");
-      
+
       // 入力検証
-      if (!userVector || typeof userVector !== 'object') {
+      if (!userVector || typeof userVector !== "object") {
         console.error("❌ Invalid userVector for trigrams:", userVector);
         return this.getFallbackTrigrams();
       }
 
       // 8次元を八卦にマッピング
       const trigramMapping = {
-        "乾_創造性": { id: 1, name: "乾", symbol: "☰" },
-        "兌_調和性": { id: 2, name: "兌", symbol: "☱" },
-        "離_表現性": { id: 3, name: "離", symbol: "☲" },
-        "震_行動性": { id: 4, name: "震", symbol: "☳" },
-        "巽_適応性": { id: 5, name: "巽", symbol: "☴" },
-        "坎_探求性": { id: 6, name: "坎", symbol: "☵" },
-        "艮_安定性": { id: 7, name: "艮", symbol: "☶" },
-        "坤_受容性": { id: 8, name: "坤", symbol: "☷" }
+        乾_創造性: { id: 1, name: "乾", symbol: "☰" },
+        兌_調和性: { id: 2, name: "兌", symbol: "☱" },
+        離_表現性: { id: 3, name: "離", symbol: "☲" },
+        震_行動性: { id: 4, name: "震", symbol: "☳" },
+        巽_適応性: { id: 5, name: "巽", symbol: "☴" },
+        坎_探求性: { id: 6, name: "坎", symbol: "☵" },
+        艮_安定性: { id: 7, name: "艮", symbol: "☶" },
+        坤_受容性: { id: 8, name: "坤", symbol: "☷" },
       };
 
       // ユーザーベクトルから八卦スコアを計算
@@ -125,10 +136,10 @@ class DiagnosisEngine {
         try {
           // userVectorから値を安全に取得
           let value = 0;
-          
+
           if (dimensionKey in userVector) {
             const rawValue = userVector[dimensionKey];
-            if (typeof rawValue === 'number' && !isNaN(rawValue)) {
+            if (typeof rawValue === "number" && !isNaN(rawValue)) {
               value = rawValue;
             } else {
               console.warn(`⚠️ Invalid value for ${dimensionKey}:`, rawValue);
@@ -143,14 +154,16 @@ class DiagnosisEngine {
             symbol: trigram.symbol,
             dimensionKey: dimensionKey,
             value: value,
-            percentage: 0 // 後で計算
+            percentage: 0, // 後で計算
           });
-          
-          totalScore += value;
 
+          totalScore += value;
         } catch (trigramError) {
-          console.error(`❌ Error processing trigram ${dimensionKey}:`, trigramError);
-          
+          console.error(
+            `❌ Error processing trigram ${dimensionKey}:`,
+            trigramError
+          );
+
           // エラー時のフォールバック値
           trigramScores.push({
             id: trigram.id,
@@ -158,29 +171,33 @@ class DiagnosisEngine {
             symbol: trigram.symbol,
             dimensionKey: dimensionKey,
             value: 0,
-            percentage: 0
+            percentage: 0,
           });
         }
       });
 
       // パーセンテージを計算
-      trigramScores.forEach(trigram => {
+      trigramScores.forEach((trigram) => {
         try {
           if (totalScore > 0) {
-            trigram.percentage = Math.round((trigram.value / totalScore) * 100 * 10) / 10;
+            trigram.percentage =
+              Math.round((trigram.value / totalScore) * 100 * 10) / 10;
           } else {
             trigram.percentage = 0;
           }
         } catch (percentError) {
-          console.error(`❌ Error calculating percentage for ${trigram.name}:", percentError);
+          console.error(
+            `❌ Error calculating percentage for ${trigram.name}:`,
+            percentError
+          );
           trigram.percentage = 0;
         }
       });
 
       // スコア順でソート（降順）
       trigramScores.sort((a, b) => {
-        const valueA = typeof a.value === 'number' ? a.value : 0;
-        const valueB = typeof b.value === 'number' ? b.value : 0;
+        const valueA = typeof a.value === "number" ? a.value : 0;
+        const valueB = typeof b.value === "number" ? b.value : 0;
         return valueB - valueA;
       });
 
@@ -188,12 +205,13 @@ class DiagnosisEngine {
       const dominantTrigrams = trigramScores.slice(0, 3);
 
       // 最終検証
-      const validTrigrams = dominantTrigrams.every(trigram => 
-        trigram && 
-        typeof trigram === 'object' && 
-        trigram.name && 
-        trigram.symbol &&
-        typeof trigram.value === 'number'
+      const validTrigrams = dominantTrigrams.every(
+        (trigram) =>
+          trigram &&
+          typeof trigram === "object" &&
+          trigram.name &&
+          trigram.symbol &&
+          typeof trigram.value === "number"
       );
 
       if (!validTrigrams) {
@@ -201,15 +219,18 @@ class DiagnosisEngine {
         return this.getFallbackTrigrams();
       }
 
-      console.log("🎯 Dominant trigrams calculated successfully:", 
-        dominantTrigrams.map(t => `${t.name}(${t.value}/${t.percentage}%)`).join(', '));
-      
-      return dominantTrigrams;
+      console.log(
+        "🎯 Dominant trigrams calculated successfully:",
+        dominantTrigrams
+          .map((t) => `${t.name}(${t.value}/${t.percentage}%)`)
+          .join(", ")
+      );
 
+      return dominantTrigrams;
     } catch (error) {
       console.error("❌ Error generating dominant trigrams:", error);
       console.error("Stack trace:", error.stack);
-      
+
       // エラー時のフォールバック
       return this.getFallbackTrigrams();
     }
@@ -224,7 +245,7 @@ class DiagnosisEngine {
         symbol: "☰",
         dimensionKey: "乾_創造性",
         value: 1,
-        percentage: 33.3
+        percentage: 33.3,
       },
       {
         id: 2,
@@ -232,7 +253,7 @@ class DiagnosisEngine {
         symbol: "☱",
         dimensionKey: "兌_調和性",
         value: 1,
-        percentage: 33.3
+        percentage: 33.3,
       },
       {
         id: 3,
@@ -240,24 +261,24 @@ class DiagnosisEngine {
         symbol: "☲",
         dimensionKey: "離_表現性",
         value: 1,
-        percentage: 33.3
-      }
+        percentage: 33.3,
+      },
     ];
   }
 
   // 🔧 新規追加: 完全フォールバック結果
   createFallbackResult(allAnswers) {
     console.log("🚨 Creating fallback analysis result");
-    
+
     const fallbackVector = {
-      "乾_創造性": 5,
-      "震_行動性": 5,
-      "坎_探求性": 5,
-      "艮_安定性": 5,
-      "坤_受容性": 5,
-      "巽_適応性": 5,
-      "離_表現性": 5,
-      "兌_調和性": 5
+      乾_創造性: 5,
+      震_行動性: 5,
+      坎_探求性: 5,
+      艮_安定性: 5,
+      坤_受容性: 5,
+      巽_適応性: 5,
+      離_表現性: 5,
+      兌_調和性: 5,
     };
 
     const fallbackCandidate = {
@@ -268,20 +289,21 @@ class DiagnosisEngine {
       hexagramInfo: {
         name: "乾為天",
         catchphrase: "分析エラーのため既定値",
-        description: "システムエラーが発生しました"
+        description: "システムエラーが発生しました",
       },
       matchPercentage: 50,
-      dominantTrigrams: this.getFallbackTrigrams()
+      dominantTrigrams: this.getFallbackTrigrams(),
     };
 
     return {
       userVector: fallbackVector,
+      eightDimensionVector: fallbackVector, // ← 追加
       topCandidates: [fallbackCandidate],
       primaryOS: fallbackCandidate,
       analysisDate: new Date().toISOString(),
       totalAnswers: allAnswers?.length || 0,
       dimensions: this.analyzeDimensions(fallbackVector),
-      isEmergencyFallback: true
+      isEmergencyFallback: true,
     };
   }
 
@@ -289,22 +311,35 @@ class DiagnosisEngine {
   debugUserVector(userVector) {
     console.log("🔍 User Vector Debug:");
     console.log("- Type:", typeof userVector);
-    console.log("- Is object:", typeof userVector === 'object' && userVector !== null);
-    
+    console.log(
+      "- Is object:",
+      typeof userVector === "object" && userVector !== null
+    );
+
     if (userVector) {
       console.log("- Keys:", Object.keys(userVector));
       console.log("- Values:", Object.values(userVector));
-      
+
       const expectedKeys = [
-        "乾_創造性", "震_行動性", "坎_探求性", "艮_安定性",
-        "坤_受容性", "巽_適応性", "離_表現性", "兌_調和性"
+        "乾_創造性",
+        "震_行動性",
+        "坎_探求性",
+        "艮_安定性",
+        "坤_受容性",
+        "巽_適応性",
+        "離_表現性",
+        "兌_調和性",
       ];
-      
-      expectedKeys.forEach(key => {
+
+      expectedKeys.forEach((key) => {
         const hasKey = key in userVector;
         const value = userVector[key];
-        const isValidValue = typeof value === 'number' && !isNaN(value);
-        console.log(`- ${key}: ${hasKey ? '✅' : '❌'} exists, value: ${value} (${isValidValue ? 'valid' : 'invalid'})`);
+        const isValidValue = typeof value === "number" && !isNaN(value);
+        console.log(
+          `- ${key}: ${hasKey ? "✅" : "❌"} exists, value: ${value} (${
+            isValidValue ? "valid" : "invalid"
+          })`
+        );
       });
     }
   }

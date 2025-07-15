@@ -75,20 +75,24 @@
       </section>
     </div>
 
-    <!-- Core Scripts -->
+    <!-- 1. 基底クラス（必須順序） -->
     <script src="js/core/BaseComponent.js"></script>
-    <script src="js/core/StorageManager.js"></script>
     <script src="js/core/DataManager.js"></script>
     <script src="js/core/Calculator.js"></script>
+
+    <!-- 2. エンジンクラス（基底クラス後に読み込み） -->
     <script src="js/core/Engine.js"></script>
     <script src="js/core/TripleOSEngine.js"></script>
 
-    <!-- Data Scripts -->
+    <!-- 3. ストレージマネージャー（エンジン後でOK） -->
+    <script src="js/core/StorageManager.js"></script>
+
+    <!-- 4. データファイル -->
     <script src="js/data/questions.js"></script>
     <script src="js/data/vectors.js"></script>
     <script src="js/data/hexagrams.js"></script>
 
-    <!-- Component Scripts -->
+    <!-- 5. UIコンポーネント -->
     <script src="js/components/WelcomeScreen.js"></script>
     <script src="js/components/QuestionFlow.js"></script>
     <script src="js/components/AnalysisView.js"></script>
@@ -96,11 +100,38 @@
     <script src="js/components/TripleOSResultsView.js"></script>
     <script src="js/components/InsightPanel.js"></script>
 
-    <!-- Utility Scripts -->
+    <!-- 6. ユーティリティスクリプト -->
     <script src="js/utils/animations.js"></script>
     <script src="js/utils/validators.js"></script>
 
-    <!-- Main Application -->
+    <!-- 7. メインアプリケーション（最後に読み込み） -->
     <script src="js/app.js"></script>
+
+    <!-- 🔧 デバッグ用スクリプト -->
+    <script>
+      // ページ読み込み完了後にクラス定義を確認
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🔍 Class definitions check:");
+        console.log("BaseComponent:", typeof BaseComponent);
+        console.log("DataManager:", typeof DataManager);
+        console.log("Calculator:", typeof Calculator);
+        console.log("DiagnosisEngine:", typeof DiagnosisEngine);
+        console.log("TripleOSEngine:", typeof TripleOSEngine);
+        console.log("StorageManager:", typeof StorageManager);
+
+        // エラーがある場合は警告表示
+        if (typeof DiagnosisEngine === "undefined") {
+          console.error("❌ DiagnosisEngine is not defined!");
+        }
+        if (typeof TripleOSEngine === "undefined") {
+          console.error("❌ TripleOSEngine is not defined!");
+        }
+
+        // データの存在確認
+        console.log("WORLDVIEW_QUESTIONS:", typeof WORLDVIEW_QUESTIONS);
+        console.log("SCENARIO_QUESTIONS:", typeof SCENARIO_QUESTIONS);
+        console.log("H64_8D_VECTORS:", typeof H64_8D_VECTORS);
+      });
+    </script>
   </body>
 </html>
