@@ -3,20 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HaQei 人格OS 分析レポート v15.6</title>
+    <title>HaQei ベーシックOS分析 V9.0-final</title>
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
     />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+      .engine-card.selected {
+        /* [最終FIX-C] アクセシビリティのためコントラスト比を確保 */
+        background-color: #264653;
+        color: #ffffff;
+        border-color: #a3e635;
+        box-shadow: 0 0 25px rgba(163, 230, 53, 0.4),
+          0 0 0 3px rgba(163, 230, 53, 0.7);
+        transform: translateY(-5px) scale(1.05);
+      }
+      /* (その他のCSSは変更なし) */
       body {
         font-family: "Inter", "Noto Sans JP", sans-serif;
       }
@@ -25,1592 +35,2283 @@
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
-        color: transparent;
       }
-      .report-section {
-        border-left: 3px solid #6366f1;
-        padding-left: 1.5rem;
-        margin-top: 3rem;
-        animation: fadeIn 0.5s ease-in-out;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .report-section h3 {
-        font-size: 1.75rem;
-        font-weight: bold;
-        color: #a5b4fc;
-        margin-bottom: 1.25rem;
-      }
-      .report-section h4 {
-        font-size: 1.1rem;
-        font-weight: bold;
-        color: #818cf8;
-        margin-top: 1.5rem;
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.25rem;
-        border-bottom: 1px solid #374151;
-      }
-      .report-section p {
+      .prose-custom {
         color: #d1d5db;
         line-height: 1.8;
       }
-      .report-section strong {
+      .prose-custom p {
+        margin-top: 1em;
+        margin-bottom: 1em;
+      }
+      .prose-custom strong {
         color: #facc15;
-        font-weight: 600;
       }
-      select optgroup {
-        background-color: #1f2937;
-        color: #d1d5db;
+      .diagnostic-item {
+        background-color: rgba(31, 41, 55, 0.7);
+        border: 1px solid #374151;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        margin-bottom: 2rem;
       }
-
-      /* --- B) 専門用語への「オンデマンド解説」 --- */
-      .tooltip {
-        position: relative;
-        cursor: help;
-        text-decoration: underline;
-        text-decoration-style: dotted;
-        text-decoration-color: #9ca3af;
-      }
-      .tooltip .tooltip-text {
-        visibility: hidden;
-        width: 220px;
-        background-color: #111827;
-        color: #e5e7eb;
+      .option-label {
+        display: flex;
+        align-items: center;
         text-align: left;
-        border-radius: 8px;
-        padding: 10px;
-        position: absolute;
-        z-index: 100;
-        bottom: 130%;
-        left: 50%;
-        margin-left: -110px; /* Use half of the width */
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 0.85rem;
-        line-height: 1.6;
-        font-weight: normal;
-        font-family: "Inter", "Noto Sans JP", sans-serif;
-        border: 1px solid #4b5563;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-      }
-      .tooltip .tooltip-text::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #111827 transparent transparent transparent;
-      }
-      .tooltip:hover .tooltip-text,
-      .tooltip:focus .tooltip-text {
-        visibility: visible;
-        opacity: 1;
-      }
-
-      /* 64卦マップのスタイル */
-      .hex-map-container {
-        display: grid;
-        grid-template-columns: 2.5rem repeat(8, 1fr);
-        grid-template-rows: 2.5rem repeat(8, 1fr);
-        gap: 2px;
-      }
-      .map-header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: "Shippori Mincho", serif;
-        font-weight: bold;
-        font-size: 1rem;
-        color: #9ca3af;
-      }
-      .hex-cell {
-        width: 100%;
-        padding-bottom: 100%;
-        position: relative;
-        background-color: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        cursor: pointer;
-      }
-      .hex-cell-content {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.6rem;
-        font-weight: bold;
-        color: #9ca3af;
-        text-align: center;
-        line-height: 1.2;
-        padding: 2px;
-      }
-      .hex-name {
-        font-size: 0.65rem;
-      }
-      .hex-id {
-        font-size: 0.75rem;
-        font-weight: normal;
-        margin-top: 2px;
-        opacity: 0.6;
-      }
-      .hex-cell:hover {
-        background-color: rgba(255, 255, 255, 0.15);
-        transform: scale(1.05);
-        z-index: 5;
-      }
-      .hex-cell.selected {
-        border: 2px solid white;
-        transform: scale(1.15);
-        z-index: 20;
-      }
-      .hex-cell.highlight-primary {
-        background-color: #fde047;
-        color: #111827;
-        box-shadow: 0 0 15px #fde047;
-        z-index: 10;
-      }
-      .hex-cell.highlight-primary .hex-cell-content {
-        color: #111827;
-      }
-      .hex-cell.highlight-secondary {
-        background-color: #a5b4fc;
-        color: #111827;
-        box-shadow: 0 0 15px #a5b4fc;
-        z-index: 10;
-      }
-      .hex-cell.highlight-secondary .hex-cell-content {
-        color: #111827;
-      }
-      .hex-cell.highlight-growth {
-        background-color: #6ee7b7;
-        color: #111827;
-        box-shadow: 0 0 15px #6ee7b7;
-        z-index: 10;
-      }
-      .hex-cell.highlight-growth .hex-cell-content {
-        color: #111827;
-      }
-      .hex-cell.highlight-sakka {
-        border: 2px solid #f97316;
-        box-shadow: 0 0 10px #f97316;
-      }
-      .hex-cell.highlight-souka {
-        border: 2px dashed #0ea5e9;
-        box-shadow: 0 0 10px #0ea5e9;
-      }
-      .hex-cell.highlight-goke {
-        border: 2px dotted #34d399;
-        box-shadow: 0 0 10px #34d399;
-      }
-
-      #hex-map-info details summary {
-        cursor: pointer;
-        display: inline-block;
-        font-size: 0.75rem;
-        color: #9ca3af;
-        margin-top: 0.25rem;
-      }
-      #hex-map-info details summary:hover {
-        color: #e5e7eb;
-      }
-      #hex-map-info details div {
-        background-color: rgba(0, 0, 0, 0.2);
-        padding: 0.5rem 0.75rem;
-        margin-top: 0.5rem;
-        border-radius: 0.375rem;
-        font-size: 0.75rem;
-        line-height: 1.6;
-      }
-      #hex-map-info .relation-block {
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #374151;
-      }
-      #hex-map-info .relation-block:last-child {
-        border-bottom: none;
-      }
-
-      .modal-overlay {
-        transition: opacity 0.3s ease;
-      }
-      .modal-content {
-        transition: transform 0.3s ease;
-      }
-      /* --- 簡易診断用スタイル --- */
-      .diagnostic-option {
-        display: block;
-        padding: 0.75rem 1.25rem;
+        padding: 0.75rem 1rem;
         border: 1px solid #4b5563;
         border-radius: 0.5rem;
         cursor: pointer;
         transition: all 0.2s ease;
+        height: 100%;
         background-color: #374151;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: #d1d5db;
       }
-      .diagnostic-option:hover {
+      .option-label:hover,
+      input[type="radio"]:focus-visible + .option-label {
         background-color: #4b5563;
         border-color: #6366f1;
+        color: #ffffff;
       }
-
-      /* グラフ切り替えタブ */
-      .chart-tab {
+      input[type="radio"]:checked + .option-label {
+        border-color: #a5b4fc;
+        background-color: #4338ca;
+        box-shadow: 0 0 10px rgba(165, 180, 252, 0.4);
+        color: #ffffff;
+      }
+      .report-section h3,
+      .report-section h4 {
+        font-family: "Shippori Mincho", serif;
+      }
+      .engine-card {
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
         cursor: pointer;
-        padding: 0.5rem 1.25rem;
-        border-bottom: 2px solid transparent;
-        transition: all 0.2s ease;
-        color: #9ca3af;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 1.25rem;
+        background-color: #1f2937;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       }
-      .chart-tab.active {
-        color: #a5b4fc;
-        border-bottom-color: #a5b4fc;
-        font-weight: 600;
+      .engine-card:hover,
+      .engine-card:focus-visible {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4);
+        border-color: rgba(165, 180, 252, 0.5);
+        outline: none;
+      }
+      .engine-card-header {
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .engine-card-header .archetype-icon {
+        font-size: 1.75rem;
+        line-height: 1;
+      }
+      .engine-card-header .archetype-name {
+        font-family: "Shippori Mincho", serif;
+        font-weight: 700;
+        font-size: 1.125rem;
+      }
+      .engine-card-tip {
+        font-size: 0.75rem;
+        margin-top: 0.75rem;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        color: #d1d5db;
+        background-color: rgba(17, 24, 39, 0.6);
+        min-height: 2.5rem;
+      }
+      .radar-container {
+        position: relative;
+        width: 100%;
+        max-width: 400px;
+        aspect-ratio: 1 / 1;
+        margin: auto;
+      }
+      .drag-handle {
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        background-color: rgba(165, 180, 252, 0.3);
+        border: 2px solid rgba(224, 231, 255, 0.7);
+        border-radius: 50%;
+        cursor: grab;
+        transform: translate(-50%, -50%);
+        touch-action: none;
+        z-index: 10;
+        transition: background-color 0.2s;
+      }
+      .drag-handle:hover {
+        background-color: rgba(165, 180, 252, 0.6);
+      }
+      .drag-handle:active {
+        cursor: grabbing;
+        background-color: rgba(129, 140, 248, 0.8);
+      }
+      details summary {
+        cursor: pointer;
+        padding: 0.5rem 0;
+        border-radius: 0.375rem;
+        transition: background-color 0.2s ease;
+      }
+      details summary:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      details[open] summary {
+        margin-bottom: 0.5rem;
       }
     </style>
   </head>
-  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8 flex flex-col">
+  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
     <div
-      class="w-full max-w-4xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10 flex-grow"
+      class="w-full max-w-4xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10"
     >
       <header class="text-center mb-10">
         <a
-          href="index.html"
-          class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block"
+          href="./"
+          class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block text-sm"
           >← トップページへ戻る</a
         >
-        <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">
-          HaQei
+        <h1 class="text-3xl sm:text-4xl font-bold brand-text tracking-wider">
+          ベーシックOS分析
         </h1>
-        <p class="text-gray-400 mt-3 text-xl">人格OS 分析レポート</p>
+        <p class="text-gray-400 mt-2">
+          あなたという存在の核となる、3つの人格OSを特定します。
+        </p>
       </header>
-
-      <div
-        id="input-container"
-        class="bg-gray-900/50 p-6 rounded-xl mb-10 space-y-6"
-      >
-        <div class="text-center">
-          <p class="text-gray-300">
-            あなたのタイプを選択し、「分析を実行」ボタンを押してください。
-          </p>
-          <a
-            href="#"
-            id="start-diagnostic-btn"
-            class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors"
-          >
-            自分のタイプがわからない方はこちら (簡易診断)
-          </a>
-        </div>
-
-        <div
-          class="text-center text-sm text-gray-400 bg-gray-800/60 p-4 rounded-lg border border-gray-700/80"
-        >
-          <h4 class="font-semibold text-indigo-300 mb-2 text-base">
-            なぜ３つの診断結果が必要なのか？
-          </h4>
-          <p class="leading-relaxed">
-            西洋の性格心理学 (<strong class="text-white"
-              >MBTI, エニアグラム</strong
-            >) と東洋の叡智 (<strong class="text-white">易経</strong
-            >)、そして個人の才能 (<strong class="text-white"
-              >ストレングスファインダー</strong
-            >)
-            を掛け合わせることで、HaQeiはあなたの魂の『OS』を世界で初めて多角的に解き明かします。
-          </p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start pt-4">
-          <div>
-            <label
-              for="mbtiSelect"
-              class="block text-sm font-medium text-gray-300 mb-2"
-              >MBTIタイプ</label
-            >
-            <select
-              id="mbtiSelect"
-              class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
-            ></select>
-          </div>
-          <div class="space-y-4">
-            <label class="block text-sm font-medium text-gray-300 mb-2"
-              >エニアグラムタイプ (重要度順)</label
-            >
-            <select
-              id="enneagramSelect1"
-              class="enneagram-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
-            ></select>
-            <select
-              id="enneagramSelect2"
-              class="enneagram-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
-            ></select>
-            <select
-              id="enneagramSelect3"
-              class="enneagram-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3"
-            ></select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2"
-              >ストレングスファインダー TOP5 (任意)</label
-            >
-            <div id="sf-select-container" class="space-y-3 mt-2"></div>
-          </div>
-        </div>
-        <div class="mt-6 text-center">
-            <label class="flex items-center justify-center cursor-pointer">
-                <input type="checkbox" id="agreementCheckbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
-                <span class="ml-2 text-sm text-gray-400">
-                    <a href="/terms.html" target="_blank" class="underline hover:text-white">利用規約</a>および<a href="/privacy.html" target="_blank" class="underline hover:text-white">プライバシーポリシー</a>に同意します
-                </span>
-            </label>
-        </div>
-        <button
-          id="analyzeBtn"
-          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 mt-4"
-        >
-          分析を実行
-        </button>
-      </div>
-
-      <div id="report-container" class="hidden"></div>
+      <div id="diagnostic-container"></div>
     </div>
-
-    <footer class="text-center p-4 mt-auto">
-      <p class="text-xs text-gray-500">
-        ※MBTI®, CliftonStrengths®(ストレングスファインダー®),
-        およびエニアグラムは、各所有者の登録商標または商標です。当サイトは、各所有者と提携・承認されているものではありません。
-      </p>
-    </footer>
-    <div
-      id="modalContainer"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden"
-    >
-      <div
-        id="modalOverlay"
-        class="absolute inset-0 bg-black/70 modal-overlay opacity-0"
-      ></div>
-      <div
-        id="modalContent"
-        class="modal-content bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto p-8 relative transform scale-95"
-      >
-        <button
-          id="modalCloseBtn"
-          class="absolute top-4 right-4 text-gray-400 hover:text-white"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <div id="modalBody"></div>
-      </div>
-    </div>
-
+    <template id="os-card-template"></template>
     <script type="module">
-      document.addEventListener("DOMContentLoaded", async () => {
-        try {
-          // ステップ1: APIからデータを取得する
-          const response = await fetch("/api/data");
-          if (!response.ok) {
-            throw new Error("データ取得に失敗しました");
+      import { WORLDVIEW_QUESTIONS } from "./js/questions.js";
+      import { H64_PROFILE_VECTORS } from "./assets/H64_profile_vectors.js";
+
+      // 8次元ユーザープロファイルベクトルを構築
+      function buildUserProfileVector(userAnswers) {
+        const profileVector = {
+          乾_創造性: 0,
+          震_行動性: 0,
+          坎_探求性: 0,
+          艮_安定性: 0,
+          坤_受容性: 0,
+          巽_適応性: 0,
+          離_表現性: 0,
+          兌_調和性: 0,
+        };
+        userAnswers.forEach((answer) => {
+          const question = WORLDVIEW_QUESTIONS.find(
+            (q) => q.id === answer.questionId
+          );
+          const option = question.options.find(
+            (opt) => opt.value === answer.selectedValue
+          );
+          if (option && option.scoring_tags) {
+            option.scoring_tags.forEach((tag) => {
+              profileVector[tag.key] += tag.value;
+            });
           }
-          const HAQEI_DATA = await response.json();
-          const HDB = HAQEI_DATA.HAQEI_DATA;
+        });
+        return profileVector;
+      }
 
-          // --- ここから下は、データ取得後に実行したい元々のコード ---
+      // 8次元正規化
+      function normalize8DVectors(userVector, osVector) {
+        const DIMENSION_KEYS = [
+          "乾_創造性",
+          "震_行動性",
+          "坎_探求性",
+          "艮_安定性",
+          "坤_受容性",
+          "巽_適応性",
+          "離_表現性",
+          "兌_調和性",
+        ];
+        const normalizedUser = {};
+        const normalizedOS = {};
+        DIMENSION_KEYS.forEach((key) => {
+          normalizedUser[key] = userVector[key] || 0;
+          normalizedOS[key] = osVector[key] || 0;
+        });
+        return { normalizedUser, normalizedOS };
+      }
 
-          // --- DOM要素の取得 ---
-          const mbtiSelect = document.getElementById("mbtiSelect");
-          const enneaSelects = Array.from(
-            document.querySelectorAll(".enneagram-select")
-          );
-          const analyzeBtn = document.getElementById("analyzeBtn");
-          const agreementCheckbox = document.getElementById('agreementCheckbox');
-          analyzeBtn.disabled = true; // 初期状態ではボタンを押せなくする
+      // 8次元コサイン類似度
+      function calculate8DCosineSimilarity(vectorA, vectorB) {
+        const { normalizedUser: vecA, normalizedOS: vecB } = normalize8DVectors(
+          vectorA,
+          vectorB
+        );
+        let dotProduct = 0;
+        let magnitudeA = 0;
+        let magnitudeB = 0;
+        Object.keys(vecA).forEach((key) => {
+          dotProduct += vecA[key] * vecB[key];
+          magnitudeA += vecA[key] * vecA[key];
+          magnitudeB += vecB[key] * vecB[key];
+        });
+        magnitudeA = Math.sqrt(magnitudeA);
+        magnitudeB = Math.sqrt(magnitudeB);
+        if (magnitudeA === 0 || magnitudeB === 0) return 0;
+        return dotProduct / (magnitudeA * magnitudeB);
+      }
 
-          agreementCheckbox.addEventListener('change', () => {
-              // チェックが入ったら、ボタンを押せるようにする
-              analyzeBtn.disabled = !agreementCheckbox.checked;
+      // 8次元活性度スコア
+      function calculate8DActivationScore(vectorA, vectorB) {
+        const { normalizedUser: vecA, normalizedOS: vecB } = normalize8DVectors(
+          vectorA,
+          vectorB
+        );
+        let magnitudeA = 0;
+        let magnitudeB = 0;
+        Object.keys(vecA).forEach((key) => {
+          magnitudeA += vecA[key] * vecA[key];
+          magnitudeB += vecB[key] * vecB[key];
+        });
+        magnitudeA = Math.sqrt(magnitudeA);
+        magnitudeB = Math.sqrt(magnitudeB);
+        if (magnitudeA === 0 || magnitudeB === 0) return 0;
+        const magnitudeRatio =
+          Math.min(magnitudeA, magnitudeB) / Math.max(magnitudeA, magnitudeB);
+        return Math.pow(magnitudeRatio, 0.5);
+      }
+
+      // 8次元最終スコア
+      function calculate8DFinalScore(userVector, osVector) {
+        const similarityScore = calculate8DCosineSimilarity(
+          userVector,
+          osVector
+        );
+        const activationScore = calculate8DActivationScore(
+          userVector,
+          osVector
+        );
+        return similarityScore * 0.7 + activationScore * 0.3;
+      }
+
+      // 8次元対応のOS分析関数
+      function analyzePersonalityOS(userAnswers) {
+        const userVector = buildUserProfileVector(userAnswers);
+        const osScores = [];
+        Object.keys(H64_PROFILE_VECTORS).forEach((osId) => {
+          const osVector = H64_PROFILE_VECTORS[osId].profile_vector;
+          const finalScore = calculate8DFinalScore(userVector, osVector);
+          osScores.push({
+            osId: parseInt(osId),
+            score: finalScore,
+            hexagramInfo: H64_PROFILE_VECTORS[osId],
           });
+        });
+        return osScores.sort((a, b) => b.score - a.score).slice(0, 4);
+      }
 
-          const inputContainer = document.getElementById("input-container");
-          const reportContainer = document.getElementById("report-container");
-          const modalContainer = document.getElementById("modalContainer");
-          const modalOverlay = document.getElementById("modalOverlay");
-          const modalCloseBtn = document.getElementById("modalCloseBtn");
-          const modalBody = document.getElementById("modalBody");
-          const startDiagnosticBtn = document.getElementById(
-            "start-diagnostic-btn"
-          );
+      const HAQEI_DATA = {
+        element_relationships: [
+          {
+            source_element: "木",
+            target_element: "火",
+            relationship_type: "相生",
+          },
+          {
+            source_element: "火",
+            target_element: "土",
+            relationship_type: "相生",
+          },
+          {
+            source_element: "土",
+            target_element: "金",
+            relationship_type: "相生",
+          },
+          {
+            source_element: "金",
+            target_element: "水",
+            relationship_type: "相生",
+          },
+          {
+            source_element: "水",
+            target_element: "木",
+            relationship_type: "相生",
+          },
+          {
+            source_element: "木",
+            target_element: "土",
+            relationship_type: "相剋",
+          },
+          {
+            source_element: "土",
+            target_element: "水",
+            relationship_type: "相剋",
+          },
+          {
+            source_element: "水",
+            target_element: "火",
+            relationship_type: "相剋",
+          },
+          {
+            source_element: "火",
+            target_element: "金",
+            relationship_type: "相剋",
+          },
+          {
+            source_element: "金",
+            target_element: "木",
+            relationship_type: "相剋",
+          },
+        ],
+        trigrams_master: [
+          { trigram_id: 1, name_jp: "乾", element: "金" },
+          { trigram_id: 2, name_jp: "兌", element: "金" },
+          { trigram_id: 3, name_jp: "離", element: "火" },
+          { trigram_id: 4, name_jp: "震", element: "木" },
+          { trigram_id: 5, name_jp: "巽", element: "木" },
+          { trigram_id: 6, name_jp: "坎", element: "水" },
+          { trigram_id: 7, name_jp: "艮", element: "土" },
+          { trigram_id: 8, name_jp: "坤", element: "土" },
+        ],
+        hexagrams_master: [
+          {
+            hexagram_id: 1,
+            name_jp: "乾為天",
+            upper_trigram_id: 1,
+            lower_trigram_id: 1,
+            catchphrase: "天翔ける龍のような、天性のリーダー",
+          },
+          {
+            hexagram_id: 2,
+            name_jp: "坤為地",
+            upper_trigram_id: 8,
+            lower_trigram_id: 8,
+            catchphrase: "大地の母のように、すべてを受け入れる人",
+          },
+          {
+            hexagram_id: 3,
+            name_jp: "水雷屯",
+            upper_trigram_id: 6,
+            lower_trigram_id: 4,
+            catchphrase: "産みの苦しみを乗り越える、粘り強い開拓者",
+          },
+          {
+            hexagram_id: 4,
+            name_jp: "山水蒙",
+            upper_trigram_id: 7,
+            lower_trigram_id: 6,
+            catchphrase: "未知を恐れず、何事も素直に学べる学習者",
+          },
+          {
+            hexagram_id: 5,
+            name_jp: "水天需",
+            upper_trigram_id: 6,
+            lower_trigram_id: 1,
+            catchphrase: "最善の時を待てる、辛抱強い戦略家",
+          },
+          {
+            hexagram_id: 6,
+            name_jp: "天水訟",
+            upper_trigram_id: 1,
+            lower_trigram_id: 6,
+            catchphrase: "信念を貫き、正義を問う論客",
+          },
+          {
+            hexagram_id: 7,
+            name_jp: "地水師",
+            upper_trigram_id: 8,
+            lower_trigram_id: 6,
+            catchphrase: "規律と統率力で、組織を導く司令官",
+          },
+          {
+            hexagram_id: 8,
+            name_jp: "水地比",
+            upper_trigram_id: 6,
+            lower_trigram_id: 8,
+            catchphrase: "心で繋がり、人を支えるサポーター",
+          },
+          {
+            hexagram_id: 9,
+            name_jp: "風天小畜",
+            upper_trigram_id: 5,
+            lower_trigram_id: 1,
+            catchphrase: "小さな努力を積み重ねる、堅実な実務家",
+          },
+          {
+            hexagram_id: 10,
+            name_jp: "天澤履",
+            upper_trigram_id: 1,
+            lower_trigram_id: 2,
+            catchphrase: "礼節をわきまえ、慎重に進むチャレンジャー",
+          },
+          {
+            hexagram_id: 11,
+            name_jp: "地天泰",
+            upper_trigram_id: 8,
+            lower_trigram_id: 1,
+            catchphrase: "異なる要素を調和させる、平和を愛する調整役",
+          },
+          {
+            hexagram_id: 12,
+            name_jp: "天地否",
+            upper_trigram_id: 1,
+            lower_trigram_id: 8,
+            catchphrase: "自分の内なる世界を、深く追求する思想家",
+          },
+          {
+            hexagram_id: 13,
+            name_jp: "天火同人",
+            upper_trigram_id: 1,
+            lower_trigram_id: 3,
+            catchphrase: "公平な理念で、人々を団結させるまとめ役",
+          },
+          {
+            hexagram_id: 14,
+            name_jp: "火天大有",
+            upper_trigram_id: 3,
+            lower_trigram_id: 1,
+            catchphrase: "太陽のように、寛大さで人を照らすリーダー",
+          },
+          {
+            hexagram_id: 15,
+            name_jp: "地山謙",
+            upper_trigram_id: 8,
+            lower_trigram_id: 7,
+            catchphrase: "実力があっても、常に謙虚でいられる人格者",
+          },
+          {
+            hexagram_id: 16,
+            name_jp: "雷地豫",
+            upper_trigram_id: 4,
+            lower_trigram_id: 8,
+            catchphrase: "周到な準備で、人を楽しませるエンターテイナー",
+          },
+          {
+            hexagram_id: 17,
+            name_jp: "沢雷随",
+            upper_trigram_id: 2,
+            lower_trigram_id: 4,
+            catchphrase: "変化の波に乗りこなす、柔軟なフォロワー",
+          },
+          {
+            hexagram_id: 18,
+            name_jp: "山風蠱",
+            upper_trigram_id: 7,
+            lower_trigram_id: 5,
+            catchphrase: "根本原因を立て直す、情熱的な改革者",
+          },
+          {
+            hexagram_id: 19,
+            name_jp: "地沢臨",
+            upper_trigram_id: 8,
+            lower_trigram_id: 2,
+            catchphrase: "人を育て導く、面倒見のいいリーダー",
+          },
+          {
+            hexagram_id: 20,
+            name_jp: "風地観",
+            upper_trigram_id: 5,
+            lower_trigram_id: 8,
+            catchphrase: "物事の本質を見抜く、静かな観察者",
+          },
+          {
+            hexagram_id: 21,
+            name_jp: "火雷噬嗑",
+            upper_trigram_id: 3,
+            lower_trigram_id: 4,
+            catchphrase: "障害を噛み砕き、断固として進む実行者",
+          },
+          {
+            hexagram_id: 22,
+            name_jp: "山火賁",
+            upper_trigram_id: 7,
+            lower_trigram_id: 3,
+            catchphrase: "本質を美しく彩る、天性のアーティスト",
+          },
+          {
+            hexagram_id: 23,
+            name_jp: "山地剝",
+            upper_trigram_id: 7,
+            lower_trigram_id: 8,
+            catchphrase: "古いものを手放し、本質を見出す変革者",
+          },
+          {
+            hexagram_id: 24,
+            name_jp: "地雷復",
+            upper_trigram_id: 8,
+            lower_trigram_id: 4,
+            catchphrase: "失敗を次に活かす、しなやかな挑戦者",
+          },
+          {
+            hexagram_id: 25,
+            name_jp: "天雷无妄",
+            upper_trigram_id: 1,
+            lower_trigram_id: 4,
+            catchphrase: "自然体で、あるがままを受け入れる楽天家",
+          },
+          {
+            hexagram_id: 26,
+            name_jp: "山天大畜",
+            upper_trigram_id: 7,
+            lower_trigram_id: 1,
+            catchphrase: "内に力を蓄え、好機を待つ大器晩成の人",
+          },
+          {
+            hexagram_id: 27,
+            name_jp: "山雷頤",
+            upper_trigram_id: 7,
+            lower_trigram_id: 4,
+            catchphrase: "言葉と時間をかけて、物事を育む専門家",
+          },
+          {
+            hexagram_id: 28,
+            name_jp: "澤風大過",
+            upper_trigram_id: 2,
+            lower_trigram_id: 5,
+            catchphrase: "常識の枠を超える、大胆なゲームチェンジャー",
+          },
+          {
+            hexagram_id: 29,
+            name_jp: "坎為水",
+            upper_trigram_id: 6,
+            lower_trigram_id: 6,
+            catchphrase: "困難の渦中で、真理を見出す不屈の探求者",
+          },
+          {
+            hexagram_id: 30,
+            name_jp: "離為火",
+            upper_trigram_id: 3,
+            lower_trigram_id: 3,
+            catchphrase: "情熱と知性で、人を惹きつける華やかなスター",
+          },
+          {
+            hexagram_id: 31,
+            name_jp: "沢山咸",
+            upper_trigram_id: 2,
+            lower_trigram_id: 7,
+            catchphrase: "理屈抜きに、心で感じ取れる共感者",
+          },
+          {
+            hexagram_id: 32,
+            name_jp: "雷風恒",
+            upper_trigram_id: 4,
+            lower_trigram_id: 5,
+            catchphrase: "決めた道を、着実に歩み続ける継続者",
+          },
+          {
+            hexagram_id: 33,
+            name_jp: "天山遯",
+            upper_trigram_id: 1,
+            lower_trigram_id: 7,
+            catchphrase: "賢明な距離感を保つ、クールな戦略家",
+          },
+          {
+            hexagram_id: 34,
+            name_jp: "雷天大壮",
+            upper_trigram_id: 4,
+            lower_trigram_id: 1,
+            catchphrase: "目標に向かって、力強く進むチャレンジャー",
+          },
+          {
+            hexagram_id: 35,
+            name_jp: "火地晋",
+            upper_trigram_id: 3,
+            lower_trigram_id: 8,
+            catchphrase: "周りを明るく照らし、前進を促すプロモーター",
+          },
+          {
+            hexagram_id: 36,
+            name_jp: "地火明夷",
+            upper_trigram_id: 8,
+            lower_trigram_id: 3,
+            catchphrase: "逆境にあっても、希望を失わない芯の強い人",
+          },
+          {
+            hexagram_id: 37,
+            name_jp: "風火家人",
+            upper_trigram_id: 5,
+            lower_trigram_id: 3,
+            catchphrase: "自分の居場所を、大切に守り育てる人",
+          },
+          {
+            hexagram_id: 38,
+            name_jp: "火沢睽",
+            upper_trigram_id: 3,
+            lower_trigram_id: 2,
+            catchphrase: "あえて人と違う道を行く、個性的な独創家",
+          },
+          {
+            hexagram_id: 39,
+            name_jp: "水山蹇",
+            upper_trigram_id: 6,
+            lower_trigram_id: 7,
+            catchphrase: "困難な状況を、知恵と工夫で乗り越える策士",
+          },
+          {
+            hexagram_id: 40,
+            name_jp: "雷水解",
+            upper_trigram_id: 4,
+            lower_trigram_id: 6,
+            catchphrase: "問題をスピーディに解決する、決断力のある人",
+          },
+          {
+            hexagram_id: 41,
+            name_jp: "山沢損",
+            upper_trigram_id: 7,
+            lower_trigram_id: 2,
+            catchphrase: "人のために自分を役立てる、誠実な貢献者",
+          },
+          {
+            hexagram_id: 42,
+            name_jp: "風雷益",
+            upper_trigram_id: 5,
+            lower_trigram_id: 4,
+            catchphrase: "善意の循環を生み出す、心優しいサポーター",
+          },
+          {
+            hexagram_id: 43,
+            name_jp: "沢天夬",
+            upper_trigram_id: 2,
+            lower_trigram_id: 1,
+            catchphrase: "ためらわずに決断し、道を拓く突破役",
+          },
+          {
+            hexagram_id: 44,
+            name_jp: "天風姤",
+            upper_trigram_id: 1,
+            lower_trigram_id: 5,
+            catchphrase: "偶然の出会いをチャンスに変える、天性のネットワーカー",
+          },
+          {
+            hexagram_id: 45,
+            name_jp: "沢地萃",
+            upper_trigram_id: 2,
+            lower_trigram_id: 8,
+            catchphrase: "人と喜びが集まる場を創る、中心人物",
+          },
+          {
+            hexagram_id: 46,
+            name_jp: "地風升",
+            upper_trigram_id: 8,
+            lower_trigram_id: 5,
+            catchphrase: "地道な努力で、着実に成長できる人",
+          },
+          {
+            hexagram_id: 47,
+            name_jp: "沢水困",
+            upper_trigram_id: 2,
+            lower_trigram_id: 6,
+            catchphrase: "苦しい状況でも、自分を見失わない哲学者",
+          },
+          {
+            hexagram_id: 48,
+            name_jp: "水風井",
+            upper_trigram_id: 6,
+            lower_trigram_id: 5,
+            catchphrase: "誰にでも公平に尽くせる、縁の下の力持ち",
+          },
+          {
+            hexagram_id: 49,
+            name_jp: "沢火革",
+            upper_trigram_id: 2,
+            lower_trigram_id: 3,
+            catchphrase: "古い常識を刷新する、情熱を持った改革者",
+          },
+          {
+            hexagram_id: 50,
+            name_jp: "火風鼎",
+            upper_trigram_id: 3,
+            lower_trigram_id: 5,
+            catchphrase: "新たな安定を築き上げる、懐の深いまとめ役",
+          },
+          {
+            hexagram_id: 51,
+            name_jp: "震為雷",
+            upper_trigram_id: 4,
+            lower_trigram_id: 4,
+            catchphrase: "変化をチャンスに変える、瞬発力のある行動派",
+          },
+          {
+            hexagram_id: 52,
+            name_jp: "艮為山",
+            upper_trigram_id: 7,
+            lower_trigram_id: 7,
+            catchphrase: "動じない自己を確立した、静かな求道者",
+          },
+          {
+            hexagram_id: 53,
+            name_jp: "風山漸",
+            upper_trigram_id: 5,
+            lower_trigram_id: 7,
+            catchphrase: "物事を一歩ずつ、着実に進める誠実な人",
+          },
+          {
+            hexagram_id: 54,
+            name_jp: "雷沢帰妹",
+            upper_trigram_id: 4,
+            lower_trigram_id: 2,
+            catchphrase: "自分の情熱に正直に生きる、純粋な情熱家",
+          },
+          {
+            hexagram_id: 55,
+            name_jp: "雷火豊",
+            upper_trigram_id: 4,
+            lower_trigram_id: 3,
+            catchphrase: "豊かさを創り出し、分かち合うカリスマ",
+          },
+          {
+            hexagram_id: 56,
+            name_jp: "火山旅",
+            upper_trigram_id: 3,
+            lower_trigram_id: 7,
+            catchphrase: "一箇所に留まらない、自由な旅人",
+          },
+          {
+            hexagram_id: 57,
+            name_jp: "巽為風",
+            upper_trigram_id: 5,
+            lower_trigram_id: 5,
+            catchphrase: "隅々まで心配りができる、しなやかな調整役",
+          },
+          {
+            hexagram_id: 58,
+            name_jp: "兌為沢",
+            upper_trigram_id: 2,
+            lower_trigram_id: 2,
+            catchphrase: "人と話すこと、喜ばせることが好きなエンターテイナー",
+          },
+          {
+            hexagram_id: 59,
+            name_jp: "風水渙",
+            upper_trigram_id: 5,
+            lower_trigram_id: 6,
+            catchphrase: "心の壁を溶かし、風通しを良くする調整役",
+          },
+          {
+            hexagram_id: 60,
+            name_jp: "水沢節",
+            upper_trigram_id: 6,
+            lower_trigram_id: 2,
+            catchphrase: "自分を律し、節度を保つことができる人",
+          },
+          {
+            hexagram_id: 61,
+            name_jp: "風沢中孚",
+            upper_trigram_id: 5,
+            lower_trigram_id: 2,
+            catchphrase: "誠実さで、人の心を動かすことができる人",
+          },
+          {
+            hexagram_id: 62,
+            name_jp: "雷山小過",
+            upper_trigram_id: 4,
+            lower_trigram_id: 7,
+            catchphrase: "謙虚すぎるほどに、丁寧さを重んじる人",
+          },
+          {
+            hexagram_id: 63,
+            name_jp: "水火既済",
+            upper_trigram_id: 6,
+            lower_trigram_id: 3,
+            catchphrase: "完璧なバランスを求める、秩序の番人",
+          },
+          {
+            hexagram_id: 64,
+            name_jp: "火水未済",
+            upper_trigram_id: 3,
+            lower_trigram_id: 6,
+            catchphrase: "未完成の中に、無限の可能性を見出す探求者",
+          },
+        ],
+        H64_DATA: [
+          { hexagram_id: 1, saku_id: 2, sou_id: 1, go_id: 1 },
+          { hexagram_id: 2, saku_id: 1, sou_id: 2, go_id: 2 },
+          { hexagram_id: 3, saku_id: 50, sou_id: 4, go_id: 23 },
+          { hexagram_id: 4, saku_id: 49, sou_id: 3, go_id: 24 },
+          { hexagram_id: 5, saku_id: 38, sou_id: 6, go_id: 64 },
+          { hexagram_id: 6, saku_id: 37, sou_id: 5, go_id: 63 },
+          { hexagram_id: 7, saku_id: 13, sou_id: 8, go_id: 2 },
+          { hexagram_id: 8, saku_id: 14, sou_id: 7, go_id: 2 },
+          { hexagram_id: 9, saku_id: 46, sou_id: 10, go_id: 61 },
+          { hexagram_id: 10, saku_id: 45, sou_id: 9, go_id: 62 },
+          { hexagram_id: 11, saku_id: 12, sou_id: 12, go_id: 54 },
+          { hexagram_id: 12, saku_id: 11, sou_id: 11, go_id: 53 },
+          { hexagram_id: 13, saku_id: 7, sou_id: 14, go_id: 44 },
+          { hexagram_id: 14, saku_id: 8, sou_id: 13, go_id: 43 },
+          { hexagram_id: 15, saku_id: 52, sou_id: 16, go_id: 40 },
+          { hexagram_id: 16, saku_id: 51, sou_id: 15, go_id: 39 },
+          { hexagram_id: 17, saku_id: 18, sou_id: 18, go_id: 27 },
+          { hexagram_id: 18, saku_id: 17, sou_id: 17, go_id: 28 },
+          { hexagram_id: 19, saku_id: 24, sou_id: 20, go_id: 54 },
+          { hexagram_id: 20, saku_id: 23, sou_id: 19, go_id: 53 },
+          { hexagram_id: 21, saku_id: 27, sou_id: 22, go_id: 35 },
+          { hexagram_id: 22, saku_id: 28, sou_id: 21, go_id: 36 },
+          { hexagram_id: 23, saku_id: 20, sou_id: 24, go_id: 2 },
+          { hexagram_id: 24, saku_id: 19, sou_id: 23, go_id: 2 },
+          { hexagram_id: 25, saku_id: 41, sou_id: 26, go_id: 28 },
+          { hexagram_id: 26, saku_id: 42, sou_id: 25, go_id: 27 },
+          { hexagram_id: 27, saku_id: 22, sou_id: 28, go_id: 2 },
+          { hexagram_id: 28, saku_id: 21, sou_id: 27, go_id: 1 },
+          { hexagram_id: 29, saku_id: 30, sou_id: 29, go_id: 29 },
+          { hexagram_id: 30, saku_id: 29, sou_id: 30, go_id: 30 },
+          { hexagram_id: 31, saku_id: 32, sou_id: 32, go_id: 44 },
+          { hexagram_id: 32, saku_id: 31, sou_id: 31, go_id: 43 },
+          { hexagram_id: 33, saku_id: 56, sou_id: 34, go_id: 53 },
+          { hexagram_id: 34, saku_id: 55, sou_id: 33, go_id: 54 },
+          { hexagram_id: 35, saku_id: 6, sou_id: 36, go_id: 63 },
+          { hexagram_id: 36, saku_id: 5, sou_id: 35, go_id: 64 },
+          { hexagram_id: 37, saku_id: 48, sou_id: 38, go_id: 61 },
+          { hexagram_id: 38, saku_id: 47, sou_id: 37, go_id: 62 },
+          { hexagram_id: 39, saku_id: 16, sou_id: 40, go_id: 63 },
+          { hexagram_id: 40, saku_id: 15, sou_id: 39, go_id: 64 },
+          { hexagram_id: 41, saku_id: 26, sou_id: 42, go_id: 24 },
+          { hexagram_id: 42, saku_id: 25, sou_id: 41, go_id: 23 },
+          { hexagram_id: 43, saku_id: 20, sou_id: 44, go_id: 1 },
+          { hexagram_id: 44, saku_id: 19, sou_id: 43, go_id: 1 },
+          { hexagram_id: 45, saku_id: 10, sou_id: 46, go_id: 53 },
+          { hexagram_id: 46, saku_id: 9, sou_id: 45, go_id: 54 },
+          { hexagram_id: 47, saku_id: 38, sou_id: 48, go_id: 37 },
+          { hexagram_id: 48, saku_id: 37, sou_id: 47, go_id: 38 },
+          { hexagram_id: 49, saku_id: 4, sou_id: 50, go_id: 30 },
+          { hexagram_id: 50, saku_id: 3, sou_id: 49, go_id: 29 },
+          { hexagram_id: 51, saku_id: 16, sou_id: 52, go_id: 51 },
+          { hexagram_id: 52, saku_id: 15, sou_id: 51, go_id: 52 },
+          { hexagram_id: 53, saku_id: 34, sou_id: 54, go_id: 40 },
+          { hexagram_id: 54, saku_id: 33, sou_id: 53, go_id: 39 },
+          { hexagram_id: 55, saku_id: 34, sou_id: 56, go_id: 64 },
+          { hexagram_id: 56, saku_id: 33, sou_id: 55, go_id: 63 },
+          { hexagram_id: 57, saku_id: 52, sou_id: 58, go_id: 57 },
+          { hexagram_id: 58, saku_id: 51, sou_id: 57, go_id: 58 },
+          { hexagram_id: 59, saku_id: 62, sou_id: 60, go_id: 40 },
+          { hexagram_id: 60, saku_id: 61, sou_id: 59, go_id: 39 },
+          { hexagram_id: 61, saku_id: 60, sou_id: 62, go_id: 27 },
+          { hexagram_id: 62, saku_id: 59, sou_id: 61, go_id: 28 },
+          { hexagram_id: 63, saku_id: 6, sou_id: 64, go_id: 30 },
+          { hexagram_id: 64, saku_id: 5, sou_id: 63, go_id: 29 },
+        ],
+        os_manual: {},
+      };
 
-          // --- グローバル変数 ---
-          let lastAnalysisResult = null;
-          let lastUserProfile = null;
-          let diagnosticAnswers = {};
-          // ▼▼▼【修正点①】ストーリーのステップを3つに集約 ▼▼▼
-          let storySteps = [];
-          let currentStepIndex = 0;
-          // ▲▲▲【ここまで】▲▲▲
-          let activeChart = "radar";
+      const osManualData = {};
 
-          // --- ヘルパー関数群（HDBが定義された後でないと動かない） ---
-          const HELPERS = {
-            id_to_jp: Object.fromEntries(
-              HDB.trigrams_master.map((item) => [item.trigram_id, item.name_jp])
-            ),
-            id_to_en: Object.fromEntries(
-              HDB.trigrams_master.map((item) => [item.trigram_id, item.name_en])
-            ),
-            getTrigramById: (id) =>
-              HDB.trigrams_master.find((t) => t.trigram_id === id) || {},
-            getHexagramById: (id) =>
-              HDB.hexagrams_master.find((h) => h.hexagram_id === id) || {},
-            getH64ById: (id) => HDB.H64_DATA.find((h) => h.卦番号 === id) || {},
-            trigram_colors: {
-              1: "#F9FAFB",
-              2: "#70D6FF",
-              3: "#F87171",
-              4: "#FACC15",
-              5: "#4ADE80",
-              6: "#3B82F6",
-              7: "#F97316",
-              8: "#A16207",
-            },
-            createTermTooltip: (term, explanation) => {
-              if (!explanation) return term;
-              return `<span class="tooltip">${term}<span class="tooltip-text">${explanation}</span></span>`;
-            },
-          };
-
-          // --- モーダル制御 ---
-          const showModal = (content) => {
-            modalBody.innerHTML = content;
-            modalContainer.classList.remove("hidden");
-            document.body.style.overflow = "hidden";
-            setTimeout(() => {
-              modalOverlay.classList.remove("opacity-0");
-              document
-                .getElementById("modalContent")
-                .classList.remove("scale-95");
-            }, 10);
-          };
-          const hideModal = () => {
-            document.getElementById("modalOverlay").classList.add("opacity-0");
-            document.getElementById("modalContent").classList.add("scale-95");
-            setTimeout(() => {
-              modalContainer.classList.add("hidden");
-              document.body.style.overflow = "";
-              modalBody.innerHTML = "";
-            }, 300);
-          };
-
-          // --- 簡易診断機能 ---
-          const DIAGNOSTIC_QUIZ_DATA = {
-            mbti: [
+      const SCENARIO_QUESTIONS = [
+        {
+          id: "scq1",
+          scenario:
+            "あなたのプロジェクトが、予期せぬ外部要因で大炎上。非難の矛先があなたに向かっています。",
+          inner_q: "この時、あなたの心の中で最も強くなる感情は？",
+          outer_q: "この状況で、あなたが最初にとる行動は？",
+          options: {
+            inner: [
               {
-                id: "IE",
-                q: "アクティビティの後、あなたは…",
-                a: {
-                  text: "疲れて、一人の時間で充電したくなる (内向)",
-                  value: "I",
-                },
-                b: {
-                  text: "元気になり、もっと人と話したくなる (外向)",
-                  value: "E",
-                },
+                text: "「なぜだ！」という怒りと、状況をコントロールしたい欲求",
+                scores: { 1: 2, 4: 1 },
               },
               {
-                id: "SN",
-                q: "新しいことを学ぶとき、あなたは…",
-                a: {
-                  text: "事実や具体的な詳細、過去の経験に注目する (感覚)",
-                  value: "S",
-                },
-                b: {
-                  text: "可能性や全体像、未来の洞察に惹かれる (直観)",
-                  value: "N",
-                },
-              },
-              {
-                id: "TF",
-                q: "決断を下すとき、あなたがより重視するのは…",
-                a: {
-                  text: "論理的な正しさや、客観的な基準 (思考)",
-                  value: "T",
-                },
-                b: { text: "関係者への影響や、全体の調和 (感情)", value: "F" },
-              },
-              {
-                id: "JP",
-                q: "あなたの普段の生活スタイルは…",
-                a: {
-                  text: "計画を立て、物事をきっちり終わらせる方を好む (判断)",
-                  value: "J",
-                },
-                b: {
-                  text: "柔軟性を保ち、選択肢を広く持っておくことを好む (知覚)",
-                  value: "P",
-                },
+                text: "「どうしよう…」という不安と、誰かに助けを求める気持ち",
+                scores: { 6: 2, 8: 1 },
               },
             ],
-            enneagram: [
+            outer: [
               {
-                type: 1,
-                name: "改革する人",
-                desc: "物事を正しく、完璧に行いたい。向上心が高く、白黒はっきりさせたい。",
+                text: "即座に関係者を集め、対策会議を開き、主導権を握る",
+                scores: { 1: 2, 3: 1 },
               },
               {
-                type: 2,
-                name: "助ける人",
-                desc: "人の役に立ち、必要とされたい。思いやりが深く、他人の感情に敏感。",
-              },
-              {
-                type: 3,
-                name: "達成する人",
-                desc: "成功して価値を証明したい。目標志向で、効率と成果を重視する。",
-              },
-              {
-                type: 4,
-                name: "個性的な人",
-                desc: "自分らしく、特別な存在でありたい。感受性が豊かで、独自の美意識を持つ。",
-              },
-              {
-                type: 5,
-                name: "調べる人",
-                desc: "世界を理解し、有能でありたい。知的好奇心が強く、一人の時間を大切にする。",
-              },
-              {
-                type: 6,
-                name: "忠実な人",
-                desc: "安全と安心を求め、周りに尽くす。責任感が強く、慎重に物事を進める。",
-              },
-              {
-                type: 7,
-                name: "熱中する人",
-                desc: "楽しく、多くのことを経験したい。楽観的で、新しい刺激や可能性を追い求める。",
-              },
-              {
-                type: 8,
-                name: "挑戦する人",
-                desc: "自分のことは自分で決め、主導権を握りたい。パワフルで、正義感が強い。",
-              },
-              {
-                type: 9,
-                name: "平和をもたらす人",
-                desc: "穏やかで、争いを避けたい。受容力があり、全体の調和を願う。",
+                text: "信頼できる人に個別に連絡を取り、状況を共有し、意見を求める",
+                scores: { 5: 2, 8: 1 },
               },
             ],
-          };
-          const showDiagnosticModal = () => {
-            diagnosticAnswers = { mbti: "" };
-            renderDiagnosticStep("mbti", 0);
-          };
-          const applyDiagnosticResults = (mbtiType, enneaType) => {
-            mbtiSelect.value = mbtiType;
-            enneaSelects[0].value = enneaType;
-            enneaSelects[0].dispatchEvent(new Event("change"));
-            hideModal();
-          };
-          const renderDiagnosticStep = (stage, questionIndex = 0) => {
-            let contentHtml = "";
-            if (stage === "mbti") {
-              const qData = DIAGNOSTIC_QUIZ_DATA.mbti[questionIndex];
-              contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-2">簡易MBTI診断 (${
-                questionIndex + 1
-              }/4)</h3><p class="text-gray-300 mb-6">${
-                qData.q
-              }</p><div class="space-y-3"><a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
-                qData.a.value
-              }', ${questionIndex})">${
-                qData.a.text
-              }</a><a href="#" class="diagnostic-option" onclick="handleMbtiAnswer('${
-                qData.b.value
-              }', ${questionIndex})">${qData.b.text}</a></div>`;
-            } else if (stage === "enneagram") {
-              contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-2">簡易エニアグラム診断</h3><p class="text-gray-300 mb-6">以下のうち、あなたの最も深い動機や価値観に一番近いものを一つ選んでください。</p><div class="grid grid-cols-1 md:grid-cols-3 gap-3">${DIAGNOSTIC_QUIZ_DATA.enneagram
-                .map(
-                  (e) =>
-                    `<div class="diagnostic-option text-sm flex flex-col h-full" onclick="handleEnneagramAnswer(${e.type})"><p class="font-bold text-indigo-300">タイプ${e.type}: ${e.name}</p><p class="text-gray-400 mt-1">${e.desc}</p></div>`
-                )
-                .join("")}</div>`;
-            } else if (stage === "result") {
-              const mbtiResult = diagnosticAnswers.mbti;
-              const enneaResult = diagnosticAnswers.enneagram;
-              contentHtml = `<div class="text-center"><h3 class="text-xl font-bold text-indigo-300 mb-4">簡易診断結果</h3><p class="text-gray-300">あなたのタイプは以下と推定されます。</p><div class="my-6 space-y-3"><p class="text-2xl font-bold">MBTI: <span class="text-amber-400">${mbtiResult}</span></p><p class="text-2xl font-bold">エニアグラム: <span class="text-amber-400">タイプ${enneaResult}</span></p></div><p class="text-xs text-gray-500 mb-6">※これは簡易的な診断です。より正確なタイプをご存知の場合は、そちらを優先してください。</p><button onclick="applyDiagnosticResults('${mbtiResult}', '${enneaResult}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">この結果を利用する</button></div>`;
-            }
-            showModal(contentHtml);
-          };
-          window.handleMbtiAnswer = (answer, questionIndex) => {
-            event.preventDefault();
-            diagnosticAnswers.mbti += answer;
-            if (questionIndex < DIAGNOSTIC_QUIZ_DATA.mbti.length - 1) {
-              renderDiagnosticStep("mbti", questionIndex + 1);
-            } else {
-              renderDiagnosticStep("enneagram");
-            }
-          };
-          window.handleEnneagramAnswer = (answer) => {
-            event.preventDefault();
-            diagnosticAnswers.enneagram = answer;
-            renderDiagnosticStep("result");
-          };
-          window.applyDiagnosticResults = applyDiagnosticResults;
-
-          // --- フォーム初期化 ---
-          const handleDuplicateSelection = (selects) => {
-            const selectedValues = new Set();
-            selects.forEach((s) => {
-              if (s.value) selectedValues.add(s.value);
-            });
-            selects.forEach((select) => {
-              Array.from(select.options).forEach((option) => {
-                option.disabled =
-                  option.value !== "" &&
-                  option.value !== select.value &&
-                  selectedValues.has(option.value);
-              });
-            });
-          };
-          const populateSelects = () => {
-            mbtiSelect.innerHTML =
-              '<option value="" selected disabled>MBTIタイプを選択</option>';
-            const mbtiNicknameMap = HDB.mbti_nicknames.reduce(
-              (acc, item) => ({ ...acc, [item.type]: item.nickname }),
-              {}
-            );
-            const mbtiGroups = HDB.mbti_map.reduce((acc, type) => {
-              const groupKey = type.mbti_type.includes("N")
-                ? "直観型 (N)"
-                : "感覚型 (S)";
-              if (!acc[groupKey]) acc[groupKey] = [];
-              acc[groupKey].push(type);
-              return acc;
-            }, {});
-            ["直観型 (N)", "感覚型 (S)"].forEach((group) => {
-              const optgroup = document.createElement("optgroup");
-              optgroup.label = `--- ${group} ---`;
-              (mbtiGroups[group] || [])
-                .sort((a, b) => a.mbti_type.localeCompare(b.mbti_type))
-                .forEach((type) => {
-                  const option = document.createElement("option");
-                  option.value = type.mbti_type;
-                  option.textContent = `${type.mbti_type} (${
-                    mbtiNicknameMap[type.mbti_type] || ""
-                  })`;
-                  optgroup.appendChild(option);
-                });
-              mbtiSelect.appendChild(optgroup);
-            });
-            const enneaTypes = HDB.enneagram_map.map((e) => ({
-              type: e.enneagram_type,
-              name: e.nickname,
-            }));
-            enneaSelects.forEach((select, index) => {
-              const placeholder =
-                index === 0 ? "主要タイプを選択" : "任意タイプ";
-              select.innerHTML = `<option value="">${placeholder}</option>`;
-              if (index === 0) {
-                select.querySelector("option").disabled = true;
-                select.querySelector("option").selected = true;
-              }
-              enneaTypes.forEach((e) => {
-                const option = document.createElement("option");
-                option.value = e.type;
-                option.textContent = `タイプ${e.type}: ${e.name}`;
-                select.appendChild(option);
-              });
-              select.addEventListener("change", () =>
-                handleDuplicateSelection(enneaSelects)
-              );
-            });
-            const sfContainer = document.getElementById("sf-select-container");
-            const sfDomains = HDB.strengthsfinder_map.reduce((acc, sf) => {
-              const domain = sf.domain;
-              if (!acc[domain]) acc[domain] = [];
-              acc[domain].push(sf);
-              return acc;
-            }, {});
-            let sfOptionsHtml = '<option value="">(任意)</option>';
-            const domainOrder = [
-              "実行力",
-              "影響力",
-              "人間関係構築力",
-              "戦略的思考力",
-            ];
-            domainOrder.forEach((domain) => {
-              if (sfDomains[domain]) {
-                sfOptionsHtml += `<optgroup label="--- ${domain} ---">`;
-                sfDomains[domain]
-                  .sort((a, b) =>
-                    a.strength_finder_talent.localeCompare(
-                      b.strength_finder_talent
-                    )
-                  )
-                  .forEach((sf) => {
-                    sfOptionsHtml += `<option value="${sf.strength_finder_talent}">${sf.strength_finder_talent}</option>`;
-                  });
-                sfOptionsHtml += `</optgroup>`;
-              }
-            });
-            let sfSelectsHtml = "";
-            for (let i = 1; i <= 5; i++) {
-              sfSelectsHtml += `<div class="flex items-center gap-x-3 mt-2"><span class="font-mono text-sm text-gray-400 w-8 text-center">${i}位:</span><select id="sf${i}" class="sf-select bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 flex-1">${sfOptionsHtml}</select></div>`;
-            }
-            sfContainer.innerHTML = sfSelectsHtml;
-            document.querySelectorAll(".sf-select").forEach((select) => {
-              select.addEventListener("change", () =>
-                handleDuplicateSelection(
-                  document.querySelectorAll(".sf-select")
-                )
-              );
-            });
-          };
-
-          // --- 分析ロジック ---
-          const runAdvancedAnalysis = (userProfile) => {
-            const weights = { mbti: 1.0, enneagram: 1.0, sf: 0.4 };
-            const ennea_weights = [1.0, 0.8, 0.6];
-            const sf_weights = [1.0, 0.9, 0.8, 0.7, 0.6];
-            const keyword_weight = 1.5;
-            const duplicationPenalty = 0.95;
-            let total_scores = {
-              1: 0,
-              2: 0,
-              3: 0,
-              4: 0,
-              5: 0,
-              6: 0,
-              7: 0,
-              8: 0,
-            };
-            let score_breakdown = { mbti: null, enneagram: [], sf: [] };
-            const mbtiData = HDB.mbti_map.find(
-              (m) => m.mbti_type === userProfile.mbti
-            );
-            if (mbtiData && mbtiData.scores) {
-              const breakdown = {};
-              mbtiData.scores.forEach((s) => {
-                const score = (s.score || 0) * weights.mbti;
-                total_scores[s.trigram_id] += score;
-                breakdown[s.trigram_id] = score;
-              });
-              score_breakdown.mbti = { type: userProfile.mbti, breakdown };
-            }
-            userProfile.enneagram.forEach((e_type, index) => {
-              const enneaData = HDB.enneagram_map.find(
-                (e) => e.enneagram_type == e_type
-              );
-              if (enneaData && enneaData.scores) {
-                const weight = ennea_weights[index] * weights.enneagram;
-                const breakdown = {};
-                enneaData.scores.forEach((s) => {
-                  const score = (s.score || 0) * weight;
-                  total_scores[s.trigram_id] += score;
-                  breakdown[s.trigram_id] = score;
-                });
-                score_breakdown.enneagram.push({
-                  type: `タイプ${e_type}`,
-                  breakdown,
-                });
-              }
-            });
-            userProfile.sf.forEach((talent, index) => {
-              const sfData = HDB.strengthsfinder_map.find(
-                (s) => s.strength_finder_talent === talent
-              );
-              if (sfData && sfData.scores) {
-                const weight = sf_weights[index] * weights.sf;
-                const breakdown = {};
-                sfData.scores.forEach((s) => {
-                  const score = (s.score || 0) * weight;
-                  total_scores[s.trigram_id] += score;
-                  breakdown[s.trigram_id] = score;
-                });
-                score_breakdown.sf.push({ type: talent, breakdown });
-              }
-            });
-            const mbtiKeywords = new Set(
-              HDB.keyword_map[userProfile.mbti] || []
-            );
-            const hexagram_candidates = HDB.hexagrams_master
-              .map((hexagram) => {
-                const lower_id = hexagram.lower_trigram_id;
-                const upper_id = hexagram.upper_trigram_id;
-                let energy_score =
-                  total_scores[lower_id] + total_scores[upper_id];
-                if (lower_id === upper_id) energy_score *= duplicationPenalty;
-                const hex_keywords = new Set(
-                  HDB.keyword_map[hexagram.name_jp] || []
-                );
-                const matches = [...hex_keywords].filter((k) =>
-                  mbtiKeywords.has(k)
-                );
-                const keyword_score = matches.length * keyword_weight;
-                const final_score = energy_score + keyword_score;
-                return {
-                  ...hexagram,
-                  final_score: Math.round(final_score * 10) / 10,
-                  energy_balance_score: Math.round(energy_score * 10) / 10,
-                  keyword_resonance_score: Math.round(keyword_score * 10) / 10,
-                  matched_keywords: matches,
-                };
-              })
-              .sort((a, b) => {
-                if (b.final_score !== a.final_score) {
-                  return b.final_score - a.final_score;
-                }
-                return b.energy_balance_score - a.energy_balance_score;
-              });
-            const trigram_profile = Object.entries(total_scores)
-              .map(([id, score]) => ({
-                id: parseInt(id),
-                name_jp: HELPERS.id_to_jp[id],
-                name_en: HELPERS.id_to_en[id],
-                strength_description: HELPERS.getTrigramById(parseInt(id))
-                  .strength_description,
-                weakness_description: HELPERS.getTrigramById(parseInt(id))
-                  .weakness_description,
-                score: Math.round(score * 10) / 10,
-              }))
-              .sort((a, b) => b.score - a.score);
-            return {
-              trigram_profile,
-              hexagram_candidates: hexagram_candidates.slice(0, 10),
-              score_breakdown,
-            };
-          };
-
-          // --- レポート描画関連 ---
-          // ▼▼▼【修正点②】レポート全体のヘッダーを生成する関数を修正・役割変更 ▼▼▼
-          const createPageHeader = () => {
-            const { mbti, enneagram, sf } = lastUserProfile;
-            const enneaText = enneagram.map((e) => `タイプ${e}`).join(", ");
-            const sfText =
-              sf.length > 0
-                ? `SF: ${sf.slice(0, 3).join(", ")}${
-                    sf.length > 3 ? "..." : ""
-                  }`
-                : "";
-            // ステップごとのタイトル配列
-            const stepTitles = [
-              "ステップ1：あなたの才能の全体像と生存戦略",
-              "ステップ2：あなたの中心を構成する３つの人格OS",
-              "ステップ3：広大な世界の中でのあなたの現在地",
-            ];
-
-            return `<div class="text-center mb-8 border-b border-gray-700 pb-6"><h2 class="text-xl font-bold text-gray-100">${
-              stepTitles[currentStepIndex]
-            }</h2><p class="text-sm text-gray-400 mt-2 max-w-xl mx-auto">分析対象 - MBTI: <strong>${mbti}</strong> | エニアグラム: <strong>${enneaText}</strong> ${
-              sfText ? `| <strong>${sfText}</strong>` : ""
-            }</p></div>`;
-          };
-          // ▲▲▲【ここまで】▲▲▲
-
-          // ▼▼▼【修正点③】ステップ1のコンテンツを生成する関数を修正 ▼▼▼
-          const createProfileSection = () => {
-            // タイトルをより魅力的なものに変更
-            return `<div class="report-section">
-                        <h3><span class="text-2xl mr-2">📊</span>まず、あなたのエネルギーの全体像を見てみましょう</h3>
-                        <p>あなたの8つの基本エネルギー（八卦）の強度を可視化します。これは、あなたの思考や行動の根源的な傾向や、備わっている潜在能力のバランスを示しています。グラフを切り替えて、多角的に自分を捉えてみましょう。</p>
-                        <div class="mt-8">
-                            <div class="flex justify-center border-b border-gray-700 mb-4">
-                                <button id="radar-tab" class="chart-tab active" onclick="switchChart('radar')">全体バランス (レーダー)</button>
-                                <button id="bar-tab" class="chart-tab" onclick="switchChart('bar')">強度ランキング (棒グラフ)</button>
-                            </div>
-                            <div id="radar-chart-container" class="relative mx-auto" style="height: 400px; max-width: 500px;">
-                                <canvas id="energyRadarChart"></canvas>
-                            </div>
-                            <div id="bar-chart-container" class="relative mx-auto hidden" style="height: 400px; max-width: 600px;">
-                                <canvas id="energyBarChart"></canvas>
-                            </div>
-                        </div>
-                        <div class="mt-10">
-                            ${createTalentStrategySection()}
-                        </div>
-                        <div class="mt-6 text-center">
-                            <button id="show-breakdown-btn" class="text-sm text-indigo-400 hover:text-indigo-300 underline transition-colors">スコアの算出根拠を見る</button>
-                        </div>
-                    </div>`;
-          };
-          // ▲▲▲【ここまで】▲▲▲
-
-          const createTalentStrategySection = () => {
-            const { trigram_profile } = lastAnalysisResult;
-            const strengths = trigram_profile.slice(0, 2);
-            const lowPriorityEnergy =
-              trigram_profile[trigram_profile.length - 1];
-            const strengthHtml = strengths
-              .map(
-                (t) => `
-                        <div class="bg-gray-900/50 p-4 rounded-lg border-l-4" style="border-color: ${
-                          HELPERS.trigram_colors[t.id]
-                        }">
-                            <h5 class="font-bold text-lg" style="color: ${
-                              HELPERS.trigram_colors[t.id]
-                            }">
-                                ${t.name_jp} (${t.name_en})
-                            </h5>
-                            <p class="mt-2 text-sm text-gray-300">${
-                              t.strength_description || "解説準備中..."
-                            }</p>
-                        </div>`
-              )
-              .join("");
-            const environments = {
-              1: "高い理想を掲げ、リーダーとして全体を引っ張っていく環境",
-              2: "社交性が重視され、場を盛り上げる役割が求められる環境",
-              3: "分析力や知性が求められ、物事を明確にする役割",
-              4: "スピード感があり、次々と新しいことを仕掛けていく環境",
-              5: "丁寧なコミュニケーションと調整能力が求められる役割",
-              6: "一つのことを深く掘り下げ、粘り強く探求する環境",
-              7: "物事を着実に継続し、安定を守る役割が求められる環境",
-              8: "献身的なサポートや、縁の下の力持ちとしての役割が求められる環境",
-            };
-            const unfittingEnvText =
-              environments[lowPriorityEnergy.id] ||
-              "特定のスキルが求められる環境";
-            const alternativeStrategiesHtml = strengths
-              .map(
-                (strength) => `
-                        <div class="p-3 bg-gray-800/50 rounded-lg ring-1 ring-gray-700">
-                             <p class="text-sm text-gray-300">
-                                <strong style="color:${
-                                  HELPERS.trigram_colors[strength.id]
-                                }">【${strength.name_jp}のアプローチ】</strong>
-                                <br>
-                                無理に<strong class="text-amber-400">${
-                                  lowPriorityEnergy.name_jp
-                                }</strong>のように振る舞うのではなく、あなたの得意な<strong class="text-white">「${
-                  strength.strength_description
-                }」</strong>を全面に押し出し、全く違うやり方で貢献し、状況を解決します。
-                             </p>
-                        </div>`
-              )
-              .join("");
-            return `<div class="space-y-8"><div><h4 class="font-semibold text-lg text-green-400 mb-3">💡 あなたの才能の源泉（向いていること）</h4><div class="grid md:grid-cols-2 gap-4">${strengthHtml}</div></div><div class="border-t border-gray-700 pt-8"><h4 class="font-semibold text-lg text-cyan-400 mb-3">🎯 才能を活かすための生存戦略</h4><div class="bg-gray-900/50 p-4 rounded-lg space-y-4"><div><p class="text-sm font-semibold text-gray-400">Step 1: 自分に「向いていない」環境を知る</p><p class="mt-1 text-sm text-gray-300">あなたの才能の構成上、<strong class="text-white">【${lowPriorityEnergy.name_jp}】</strong>の力が求められる<strong class="text-white">「${unfittingEnvText}」</strong>は、エネルギー消費が激しく、楽しさを感じにくいかもしれません。</p></div><div class="border-t border-gray-700 pt-4"><p class="text-sm font-semibold text-gray-400">Step 2:「環境を選ぶ」か「やり方を変える」</p><p class="mt-1 text-sm text-gray-300">最も重要な戦略は、<strong class="text-amber-400">自分の才能が活きる環境を意識的に選ぶこと</strong>です。それが、あなたが最も輝く道です。</p><p class="mt-3 text-sm text-gray-300">もし、上記の環境や役割を<strong class="text-red-400">どうしても避けられない場合</strong>は、<strong class="text-amber-400">やり方を自分の得意なスタイルにハックしてしまいましょう。</strong></p></div><div class="border-t border-gray-700 pt-4"><p class="text-sm font-semibold text-gray-400 mb-2">具体的な応用戦略:</p><div class="space-y-3">${alternativeStrategiesHtml}</div></div></div></div></div>`;
-          };
-          const createTrinityModelSection = () => {
-            const { hexagram_candidates } = lastAnalysisResult;
-            const os1 = hexagram_candidates[0]; // Engine
-            const os2 = hexagram_candidates[1]; // Interface
-            const os3 = hexagram_candidates[2]; // Safe Mode
-            const osData = [
+          },
+        },
+        {
+          id: "scq2",
+          scenario:
+            "あなたはチームリーダーとして、重要な決断を迫られています。A案はハイリスク・ハイリターン、B案はローリスク・ローリターンです。",
+          inner_q: "この時、あなたの心はどちらに傾きやすい？",
+          outer_q: "最終的に、あなたがチームに提案する可能性が高いのは？",
+          options: {
+            inner: [
               {
-                title: "インターフェースOS",
-                hex: os2,
-                icon: "🎭",
-                explanation:
-                  "「エンジンOS」の力を、社会や他者との関わりの中でどう表現しているかを示すOS。いわば、世界と接続するための「ペルソナ」や「コミュニケーションスタイル」です。",
+                text: "「一発逆転を狙いたい！」という興奮と、挑戦への魅力",
+                scores: { 4: 2, 3: 1 },
               },
               {
-                title: "エンジンOS",
-                hex: os1,
-                icon: "🔥",
-                explanation:
-                  "あなたが意識する・しないに関わらず、最も自然で強力にあなたを突き動かす根源的なエネルギー。あなたの行動や価値観の「なぜ？」に答える、魂のエンジンです。",
+                text: "「失敗は避けたい…」という慎重さと、安定への欲求",
+                scores: { 7: 2, 6: 1 },
+              },
+            ],
+            outer: [
+              {
+                text: "A案の魅力を熱弁し、チームを鼓舞して挑戦を促す",
+                scores: { 3: 2, 4: 1 },
               },
               {
-                title: "セーフモードOS",
-                hex: os3,
-                icon: "🛡️",
-                explanation:
-                  "ストレスを感じたり、困難に直面した時に、無意識に立ち返る「心の安全地帯」。自分の「癖」や「原点」を教えてくれます。",
+                text: "B案の堅実さを強調し、リスクを避ける方向で合意形成を図る",
+                scores: { 7: 2, 8: 1 },
               },
-            ];
-            const osCardsHtml = osData
-              .map(
-                (os) =>
-                  `<div class="p-5 rounded-xl shadow-lg flex flex-col bg-gray-900/50 border border-gray-700"><h4 class="text-lg font-bold text-indigo-300 flex items-center mb-2"><span class="text-2xl mr-2">${os.icon}</span>${os.title}</h4><p class="text-xl font-semibold text-gray-100">${os.hex.name_jp}</p><p class="text-sm leading-relaxed text-gray-400 mt-3 break-words">${os.explanation}</p></div>`
-              )
-              .join("");
-            const detailsLinkHtml = `<div class="mt-8 p-4 bg-gray-900/50 rounded-lg text-center border border-gray-700"><p class="text-sm text-gray-300">💡 各OSの詳しい機能や、OS同士の相互作用（相関図マップ）については、次のステップで解説します。</p></div>`;
-            return `<div class="report-section"><h3><span class="text-2xl mr-2">✨</span>あなたの中心を構成する３つの人格OS</h3><p>HaQeiは、あなたの人格を一つの固定的なタイプではなく、それぞれが役割を持つ3つのOSが連携して機能する「三位一体モデル」として捉えます。これにより、あなたの多面的な姿を立体的に理解することができます。</p><div class="mt-8 text-center"><img src="https://storage.googleapis.com/haqei-public-assets/trinity-os-model.png" alt="三位一体OSモデルのビジュアル" class="block w-full max-w-sm mx-auto mb-8"></div><div class="grid md:grid-cols-3 gap-6 mt-6">${osCardsHtml}</div>${detailsLinkHtml}</div>`;
-          };
+            ],
+          },
+        },
+      ];
 
-          // ▼▼▼【修正点④】ステップ3のコンテンツを生成する関数を新設・役割変更 ▼▼▼
-          const createArchitectureAndNextStepSection = () => {
-            // --- 既存の `createArchitectureSection` のロジックをここに移動 ---
-            const { hexagram_candidates } = lastAnalysisResult;
-            const osTypes = [
+      const analysisState = {
+        trigramScores: null,
+        adjustedTrigramScores: null,
+        engineCandidates: [],
+        selectedEngine: null,
+        lockedEngineOs: null,
+        influentialOses: [],
+      };
+
+      let trigramRadarChart = null;
+      let handlesResizeBound = false;
+      const diagnosticContainer = document.getElementById(
+        "diagnostic-container"
+      );
+
+      function renderTrigramRadar(ctx, scores) {
+        if (trigramRadarChart) {
+          trigramRadarChart.destroy();
+        }
+        const labels = HAQEI_DATA.trigrams_master
+          .sort((a, b) => a.trigram_id - b.trigram_id)
+          .map((t) => t.name_jp);
+        const dataPoints = Object.keys(scores)
+          .sort((a, b) => a - b)
+          .map((key) => scores[key]);
+
+        // [最終FIX-B] グローバルスコープを明示的に参照
+        trigramRadarChart = new window.Chart(ctx, {
+          type: "radar",
+          // (以降のChart.jsオプションは変更なし)
+          data: {
+            labels: labels,
+            datasets: [
               {
-                title: "本質OS (エンジン)",
-                highlightClass: "highlight-primary",
-                icon: "🔥",
+                label: "八卦スコア",
+                data: dataPoints,
+                backgroundColor: "rgba(165, 180, 252, 0.2)",
+                borderColor: "#a5b4fc",
+                borderWidth: 2,
+                pointBackgroundColor: "#e0e7ff",
+                pointBorderColor: "#a5b4fc",
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#6366f1",
               },
-              {
-                title: "表舞台のOS (インターフェース)",
-                highlightClass: "highlight-secondary",
-                icon: "🎭",
-              },
-              {
-                title: "可能性のOS (セーフモード)",
-                highlightClass: "highlight-growth",
-                icon: "🛡️",
-              },
-            ];
-
-            const osSections = hexagram_candidates
-              .slice(0, 3)
-              .map((os, index) => {
-                const osTypeDef = osTypes[index];
-                const manualData = HDB.os_manual[os.hexagram_id];
-                const osExplanation =
-                  manualData?.summary ||
-                  HELPERS.getHexagramById(os.hexagram_id)?.description ||
-                  "詳細な説明は準備中です";
-                const upperTrigram = HELPERS.getTrigramById(
-                  os.upper_trigram_id
-                );
-                const lowerTrigram = HELPERS.getTrigramById(
-                  os.lower_trigram_id
-                );
-
-                let architectureExplanation = `<p>${osExplanation}</p>`;
-                if (upperTrigram && lowerTrigram) {
-                  architectureExplanation += `<p class="text-sm mt-4 italic text-gray-400">このOSは、上卦（外面・精神）に<strong class="text-indigo-300">【${HELPERS.createTermTooltip(
-                    upperTrigram.name_jp,
-                    upperTrigram.strength_description
-                  )}】</strong>の性質、下卦（内面・行動）に<strong class="text-indigo-300">【${HELPERS.createTermTooltip(
-                    lowerTrigram.name_jp,
-                    lowerTrigram.strength_description
-                  )}】</strong>の性質を併せ持ちます。</p>`;
-                }
-
-                let manualHtml = "";
-                if (manualData) {
-                  manualHtml = `<div class="mt-6"><details class="group"><summary class="flex items-center justify-between cursor-pointer text-indigo-300 font-semibold"><span>OS取扱説明書を見る</span><svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></summary><div class="mt-4 pt-4 border-t border-gray-600 space-y-4 text-sm"><div><h5 class="font-bold text-yellow-400">暴走パターン</h5><p>${
-                    manualData.debug_pattern
-                  }</p></div><div><h5 class="font-bold text-green-400">脱出方法</h5><p>${
-                    manualData.debug_method
-                  }</p></div><div><h5 class="font-bold text-cyan-400">最適化行動</h5><ul class="list-disc list-inside space-y-1">${manualData.quests
-                    .map((q) => `<li>${q}</li>`)
-                    .join("")}</ul></div></div></details></div>`;
-                }
-
-                return `<div class="bg-gray-800/60 p-6 rounded-2xl"><h3 class="text-xl font-bold text-indigo-300 flex items-center"><span class="text-2xl mr-3">${
-                  osTypeDef.icon
-                }</span>${index + 1}. ${os.name_jp} - 【${
-                  osTypeDef.title
-                }】</h3><p class="text-sm text-gray-500 ml-10">総合スコア: ${
-                  os.final_score
-                }</p><div class="my-4 pl-10">${architectureExplanation}</div><div class="pl-10"><p><strong>関連キーワード:</strong> ${
-                  os.keywords
-                }</p>${manualHtml}</div></div>`;
-              })
-              .join("");
-
-            const mapHtml = `<div class="mt-12"><h3 class="text-xl font-bold text-indigo-300">人格OS相関図（64卦マップ）</h3><p class="mt-2">あなたのOSが、易経の宇宙観の中でどのような位置にあるかを示します。クリックで各OSの関係性を探求できます。</p><div id="hex-map-info" class="my-3 p-3 bg-gray-900/50 rounded-lg"><p class="text-center text-sm text-gray-400">マップ上のOSをクリックして、そのOSの関連性を表示します。</p></div><div class="overflow-x-auto rounded-lg border border-gray-700 p-2 bg-gray-900/30"><div class="hex-map-container mt-2" style="min-width: 500px;"></div></div><div class="flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs mt-2"><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-orange-400 rounded-sm"></span>錯卦(真逆)</span><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dashed border-blue-400 rounded-sm"></span>綜卦(裏側)</span><span class="flex items-center gap-x-1.5"><span class="w-3 h-3 block border-2 border-dotted border-green-400 rounded-sm"></span>互卦(内包)</span></div></div>`;
-
-            // --- ここからが新設部分 ---
-            const nextStepHtml = `
-                <div class="mt-16 pt-8 border-t-2 border-dashed border-gray-700 text-center">
-                    <h3 class="text-2xl font-bold text-amber-300">あなたの「地図」が完成しました</h3>
-                    <p class="mt-4 text-gray-300 max-w-2xl mx-auto">
-                        これが、あなたというユニークな存在を理解するための最初の地図です。<br>
-                        しかし、最高の地図を手に入れても、次にどこへ向かうべきか、どの道を選ぶべきか、という問いが生まれます。
-                    </p>
-                    <p class="mt-6 text-xl text-white font-semibold">
-                        「自分のOS（地図）は手に入れた。では、このOSを使って、人生という道をどう進んでいけばいいのだろう？」
-                    </p>
-                    <p class="mt-4 text-gray-400">
-                        その問いに答えるための次のツールが「未来分岐シミュレーター」です。<br>
-                        あなたの現在地と選択肢から、未来の可能性を探ってみましょう。
-                    </p>
-                    <div class="mt-8">
-                        <a href="future_simulator.html?mbti=${lastUserProfile.mbti}" class="bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105 shadow-lg shadow-amber-500/30 inline-block">
-                            未来分岐シミュレーターで次の道を探る &rarr;
-                        </a>
-                    </div>
-                </div>
-                `;
-
-            // 全体を結合して返す
-            return `<div class="report-section"><h3><span class="text-2xl mr-2">🗺️</span>広大な世界の中でのあなたの現在地</h3><div class="space-y-8 mt-8">${osSections}</div>${mapHtml}${nextStepHtml}</div>`;
-          };
-          // ▲▲▲【ここまで】▲▲▲
-
-          // --- ストーリーテリングUI制御関数 ---
-          const displayStoryView = () => {
-            reportContainer.innerHTML = ""; // コンテナをクリア
-            const header = document.createElement("div");
-            header.innerHTML = createPageHeader(); // 修正済みのヘッダー関数を呼び出す
-            reportContainer.appendChild(header);
-
-            const contentContainer = document.createElement("div");
-            reportContainer.appendChild(contentContainer);
-            const currentStepFunction = storySteps[currentStepIndex];
-
-            if (typeof currentStepFunction === "function") {
-              const stepContent = currentStepFunction();
-              contentContainer.innerHTML = stepContent;
-
-              // 動的に追加された要素へのイベントリスナー再設定
-              if (currentStepIndex === 0) {
-                setTimeout(() => {
-                  switchChart(activeChart);
-                }, 0);
-                document
-                  .getElementById("show-breakdown-btn")
-                  .addEventListener("click", () =>
-                    showBreakdownModal(lastAnalysisResult.score_breakdown)
-                  );
-              } else if (currentStepIndex === 2) {
-                // ステップ3でマップを描画する
-                renderHexagramMap(lastAnalysisResult.hexagram_candidates);
-              }
-            }
-            const navContainer = document.createElement("div");
-            navContainer.className =
-              "flex justify-between items-center mt-12 pt-6 border-t border-gray-700";
-            // ▼▼▼【修正点⑤】ナビゲーションの文言を3ステップ構成に合わせる ▼▼▼
-            const navHtml = `
-                    <button id="prev-btn" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition ${
-                      currentStepIndex === 0 ? "invisible" : ""
-                    }">
-                        &larr; 戻る
-                    </button>
-                    <div class="text-sm text-gray-400">
-                        ステップ ${currentStepIndex + 1} / ${storySteps.length}
-                    </div>
-                    <button id="next-btn" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition">
-                        ${
-                          currentStepIndex === storySteps.length - 1
-                            ? "もう一度最初から"
-                            : "次へ &rarr;"
-                        }
-                    </button>
-                `;
-            // ▲▲▲【ここまで】▲▲▲
-            navContainer.innerHTML = navHtml;
-            reportContainer.appendChild(navContainer);
-            window.scrollTo({ top: 0, behavior: "smooth" });
-
-            const prevBtn = navContainer.querySelector("#prev-btn");
-            if (prevBtn) {
-              prevBtn.addEventListener("click", () => {
-                if (currentStepIndex > 0) {
-                  currentStepIndex--;
-                  displayStoryView();
-                }
-              });
-            }
-            const nextBtn = navContainer.querySelector("#next-btn");
-            if (nextBtn) {
-              nextBtn.addEventListener("click", () => {
-                if (currentStepIndex < storySteps.length - 1) {
-                  currentStepIndex++;
-                  displayStoryView();
-                } else {
-                  // 最終ステップのボタンは「最初から」なので入力画面に戻す
-                  reportContainer.innerHTML = "";
-                  reportContainer.classList.add("hidden");
-                  inputContainer.classList.remove("hidden");
-                }
-              });
-            }
-          };
-
-          // グラフ描画関数（変更なし）
-          window.switchChart = (type) => {
-            activeChart = type;
-            const radarContainer = document.getElementById(
-              "radar-chart-container"
-            );
-            const barContainer = document.getElementById("bar-chart-container");
-            const radarTab = document.getElementById("radar-tab");
-            const barTab = document.getElementById("bar-tab");
-
-            if (type === "radar") {
-              radarContainer.classList.remove("hidden");
-              barContainer.classList.add("hidden");
-              radarTab.classList.add("active");
-              barTab.classList.remove("active");
-              renderRadarChart(lastAnalysisResult.trigram_profile);
-            } else {
-              radarContainer.classList.add("hidden");
-              barContainer.classList.remove("hidden");
-              radarTab.classList.remove("active");
-              barTab.classList.add("active");
-              renderBarChart(lastAnalysisResult.trigram_profile);
-            }
-          };
-          const renderRadarChart = (trigram_profile) => {
-            const canvasElement = document.getElementById("energyRadarChart");
-            if (!canvasElement) return;
-            const existingChart = Chart.getChart(canvasElement);
-            if (existingChart) existingChart.destroy();
-            const ctx = canvasElement.getContext("2d");
-            const sortedProfile = [...trigram_profile].sort(
-              (a, b) => a.id - b.id
-            );
-            new Chart(ctx, {
-              type: "radar",
-              data: {
-                labels: sortedProfile.map((t) => `${t.name_jp} (${t.name_en})`),
-                datasets: [
-                  {
-                    label: "エネルギー強度",
-                    data: sortedProfile.map((t) => t.score),
-                    fill: true,
-                    backgroundColor: "rgba(165, 180, 252, 0.2)",
-                    borderColor: "#a5b4fc",
-                    pointBackgroundColor: sortedProfile.map(
-                      (t) => HELPERS.trigram_colors[t.id]
-                    ),
-                    pointBorderColor: "#fff",
-                    pointHoverBackgroundColor: "#fff",
-                    pointHoverBorderColor: sortedProfile.map(
-                      (t) => HELPERS.trigram_colors[t.id]
-                    ),
-                  },
-                ],
-              },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                  r: {
-                    angleLines: { color: "rgba(255, 255, 255, 0.2)" },
-                    grid: { color: "rgba(255, 255, 255, 0.2)" },
-                    pointLabels: {
-                      font: { size: 12 },
-                      color: sortedProfile.map(
-                        (t) => HELPERS.trigram_colors[t.id]
-                      ),
-                    },
-                    ticks: {
-                      color: "rgba(255,255,255,0.7)",
-                      backdropColor: "rgba(0,0,0,0)",
-                      stepSize: 2,
-                    },
-                    suggestedMin: 0,
-                  },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+              r: {
+                angleLines: { color: "rgba(255, 255, 255, 0.2)" },
+                grid: { color: "rgba(255, 255, 255, 0.2)" },
+                pointLabels: {
+                  font: { size: 14, weight: "bold" },
+                  color: "#d1d5db",
                 },
-                plugins: { legend: { display: false } },
-              },
-            });
-          };
-          const renderBarChart = (trigram_profile) => {
-            const canvasElement = document.getElementById("energyBarChart");
-            if (!canvasElement) return;
-            const existingChart = Chart.getChart(canvasElement);
-            if (existingChart) existingChart.destroy();
-            const ctx = canvasElement.getContext("2d");
-            const sortedProfile = trigram_profile;
-            const maxScore = Math.max(...sortedProfile.map((p) => p.score), 6);
-            const outsideLabels = {
-              id: "outsideLabels",
-              afterDatasetsDraw(chart, args, options) {
-                const { ctx } = chart;
-                ctx.save();
-                ctx.font = 'normal 14px "Inter"';
-                ctx.fillStyle = "#d1d5db";
-                ctx.textAlign = "left";
-                for (let i = 0; i < chart.getDatasetMeta(0).data.length; i++) {
-                  const yPos = chart.getDatasetMeta(0).data[i].y;
-                  const xPos = chart.scales.x.right + 15;
-                  const text = sortedProfile[i].score.toFixed(1);
-                  ctx.textBaseline = "middle";
-                  ctx.fillText(text, xPos, yPos);
-                }
-                ctx.restore();
-              },
-            };
-            new Chart(ctx, {
-              type: "bar",
-              data: {
-                labels: sortedProfile.map((t) => `${t.name_jp} (${t.name_en})`),
-                datasets: [
-                  {
-                    label: "エネルギー強度",
-                    data: sortedProfile.map((t) => t.score),
-                    backgroundColor: sortedProfile.map(
-                      (t) => HELPERS.trigram_colors[t.id]
-                    ),
-                    borderRadius: 5,
-                    borderSkipped: false,
-                  },
-                  {
-                    label: "背景トラック",
-                    data: sortedProfile.map((t) => maxScore - t.score),
-                    backgroundColor: "#374151",
-                    borderRadius: 5,
-                    borderSkipped: false,
-                  },
-                ],
-              },
-              options: {
-                indexAxis: "y",
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: { padding: { right: 50 } },
-                scales: {
-                  x: { stacked: true, display: false },
-                  y: {
-                    stacked: true,
-                    grid: { display: false, drawBorder: false },
-                    ticks: {
-                      color: (context) =>
-                        HELPERS.trigram_colors[sortedProfile[context.index].id],
-                      font: { size: 14, weight: "bold" },
-                    },
-                  },
+                ticks: {
+                  display: false,
+                  stepSize: 25,
+                  backdropColor: "transparent",
                 },
-                plugins: {
-                  legend: { display: false },
-                  tooltip: { enabled: false },
+                min: 0,
+                max: 100,
+              },
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (context) =>
+                    `${context.label}: ${context.raw.toFixed(1)}`,
                 },
               },
-              plugins: [outsideLabels],
-            });
-          };
-          const renderHexagramMap = (hexagram_candidates) => {
-            const container = document.querySelector(".hex-map-container");
-            if (!container) return;
-            container.innerHTML = "";
-            const top3Ids = hexagram_candidates
-              .slice(0, 3)
-              .map((h) => h.hexagram_id);
-            const osTypes = [
-              "highlight-primary",
-              "highlight-secondary",
-              "highlight-growth",
-            ];
-            const trigramOrder = [1, 2, 3, 4, 5, 6, 7, 8];
-            container.appendChild(document.createElement("div"));
-            trigramOrder.forEach((id) => {
-              const trigramData = HELPERS.getTrigramById(id);
-              const headerCell = document.createElement("div");
-              headerCell.className = "map-header";
-              headerCell.innerHTML = HELPERS.createTermTooltip(
-                trigramData.name_jp,
-                `${trigramData.name_en}: ${trigramData.strength_description}`
-              );
-              headerCell.title = `外卦(上卦): ${trigramData.name_en}`;
-              container.appendChild(headerCell);
-            });
-            trigramOrder.forEach((lowerId) => {
-              const trigramData = HELPERS.getTrigramById(lowerId);
-              const headerCell = document.createElement("div");
-              headerCell.className = "map-header";
-              headerCell.innerHTML = HELPERS.createTermTooltip(
-                trigramData.name_jp,
-                `${trigramData.name_en}: ${trigramData.strength_description}`
-              );
-              headerCell.title = `内卦(下卦): ${trigramData.name_en}`;
-              container.appendChild(headerCell);
-              trigramOrder.forEach((upperId) => {
-                const hexData = HDB.hexagrams_master.find(
-                  (h) =>
-                    h.upper_trigram_id === upperId &&
-                    h.lower_trigram_id === lowerId
-                );
-                const cell = document.createElement("div");
-                if (hexData) {
-                  cell.className = "hex-cell";
-                  cell.dataset.id = hexData.hexagram_id;
-                  cell.title = `${hexData.hexagram_id}: ${hexData.name_jp}`;
-                  const content = document.createElement("div");
-                  content.className = "hex-cell-content";
-                  content.innerHTML = `<span class="hex-name">${hexData.name_jp}</span><span class="hex-id">${hexData.hexagram_id}</span>`;
-                  cell.appendChild(content);
-                  const topIndex = top3Ids.indexOf(hexData.hexagram_id);
-                  if (topIndex !== -1) cell.classList.add(osTypes[topIndex]);
-                }
-                container.appendChild(cell);
-              });
-            });
-            container.querySelectorAll(".hex-cell").forEach((cell) => {
-              cell.addEventListener("click", (e) => {
-                e.stopPropagation();
-                const id = parseInt(cell.dataset.id);
-                if (isNaN(id)) return;
-                const h64Data = HELPERS.getH64ById(id);
-                if (!h64Data) return;
-                container
-                  .querySelectorAll(".hex-cell")
-                  .forEach((c) =>
-                    c.classList.remove(
-                      "selected",
-                      "highlight-sakka",
-                      "highlight-souka",
-                      "highlight-goke"
-                    )
-                  );
-                cell.classList.add("selected");
-                if (h64Data.saku_id !== id)
-                  container
-                    .querySelector(`.hex-cell[data-id='${h64Data.saku_id}']`)
-                    ?.classList.add("highlight-sakka");
-                if (h64Data.sou_id !== id)
-                  container
-                    .querySelector(`.hex-cell[data-id='${h64Data.sou_id}']`)
-                    ?.classList.add("highlight-souka");
-                if (h64Data.go_id !== id)
-                  container
-                    .querySelector(`.hex-cell[data-id='${h64Data.go_id}']`)
-                    ?.classList.add("highlight-goke");
-                const mapInfo = document.getElementById("hex-map-info");
-                if (mapInfo) {
-                  const getHexSummary = (hexId) =>
-                    HELPERS.getHexagramById(hexId)?.description ||
-                    "解説が見つかりませんでした。";
-                  const sakkaData = HELPERS.getH64ById(h64Data.saku_id);
-                  const soukaData = HELPERS.getH64ById(h64Data.sou_id);
-                  const gokeData = HELPERS.getH64ById(h64Data.go_id);
-                  mapInfo.innerHTML = `<div class="w-full text-left"><p class="font-bold text-white text-base text-center mb-2 pb-2 border-b border-gray-700">${
-                    h64Data.名前
-                  }</p><div class="space-y-2"><div class="relation-block">${
-                    h64Data.saku_id === id
-                      ? `<p><span class="text-orange-400 font-semibold">錯卦: このOS自身</span><br><span class="text-xs text-gray-400">陰陽を反転させても同じ構造を持つ、完全なOSです。</span></p>`
-                      : `<p><span class="text-orange-400 font-semibold">錯卦: ${
-                          sakkaData.名前
-                        }</span><br><span class="text-xs text-gray-400">あなたのOSの全陰陽を反転させた「真逆の性質」。最大の課題と可能性を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                          sakkaData.卦番号
-                        )}</div></details>`
-                  }</div><div class="relation-block">${
-                    h64Data.sou_id === id
-                      ? `<p><span class="text-blue-400 font-semibold">綜卦: このOS自身</span><br><span class="text-xs text-gray-400">上下を反転させても同じ構造を持つ、安定したOSです。</span></p>`
-                      : `<p><span class="text-blue-400 font-semibold">綜卦: ${
-                          soukaData.名前
-                        }</span><br><span class="text-xs text-gray-400">あなたのOSを上下反転させた「裏側の性質」。他者からの見え方や隠れた側面を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                          soukaData.卦番号
-                        )}</div></details>`
-                  }</div><div class="relation-block">${
-                    h64Data.go_id === id
-                      ? `<p><span class="text-green-400 font-semibold">互卦: このOS自身</span><br><span class="text-xs text-gray-400">内に同じ構造を内包する、自己完結したエネルギーを持ちます。</span></p>`
-                      : `<p><span class="text-green-400 font-semibold">互卦: ${
-                          gokeData.名前
-                        }</span><br><span class="text-xs text-gray-400">あなたのOSの内に秘められた「隠れた本質」。ポテンシャルや問題の核心を示します。</span></p><details><summary>▼ 詳細を見る</summary><div>${getHexSummary(
-                          gokeData.卦番号
-                        )}</div></details>`
-                  }</div></div></div>`;
-                }
-              });
-            });
-          };
-          const showBreakdownModal = (breakdownData) => {
-            let contentHtml = `<h3 class="text-xl font-bold text-indigo-300 mb-4">OSスコア算出根拠</h3><p class="text-sm text-gray-400 mb-4">あなたの性格特性が、8つの基本エネルギー（八卦）にどのように貢献しているかの内訳です。各数値は、特性の親和性と重み付けを掛け合わせたスコアを示します。</p><div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-400"><thead class="text-xs text-gray-300 uppercase bg-gray-700"><tr><th scope="col" class="px-4 py-3">分析項目</th>`;
-            const trigramHeaders = [...HDB.trigrams_master].sort(
-              (a, b) => a.trigram_id - b.trigram_id
-            );
-            trigramHeaders.forEach((t) => {
-              contentHtml += `<th scope="col" class="px-4 py-3 text-center" title="${t.name_jp}">${t.name_en}</th>`;
-            });
-            contentHtml += `</tr></thead><tbody>`;
-            const sources = [
-              breakdownData.mbti,
-              ...breakdownData.enneagram,
-              ...breakdownData.sf,
-            ];
-            sources.forEach((source) => {
-              if (source) {
-                contentHtml += `<tr class="border-b border-gray-700 hover:bg-gray-600/50"><th scope="row" class="px-4 py-3 font-medium text-white whitespace-nowrap">${source.type}</th>`;
-                trigramHeaders.forEach((t) => {
-                  const score = source.breakdown[t.trigram_id] || 0;
-                  contentHtml += `<td class="px-4 py-3 text-center">${score.toFixed(
-                    1
-                  )}</td>`;
-                });
-                contentHtml += `</tr>`;
-              }
-            });
-            contentHtml += `</tbody></table></div>`;
-            showModal(contentHtml);
-          };
+            },
+          },
+        });
+        return trigramRadarChart;
+      }
+      function updateTrigramRadar(chart, newScores) {
+        if (!chart) return;
+        const dataPoints = Object.keys(newScores)
+          .sort((a, b) => a - b)
+          .map((key) => newScores[key]);
+        chart.data.datasets[0].data = dataPoints;
+        chart.update("none");
+      }
 
-          // --- 初期化とイベントリスナー設定 ---
-          populateSelects();
-          modalOverlay.addEventListener("click", hideModal);
-          modalCloseBtn.addEventListener("click", hideModal);
-          startDiagnosticBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            showDiagnosticModal();
-          });
+      function getTrigramElement(trigramId) {
+        return HAQEI_DATA.trigrams_master.find(
+          (t) => t.trigram_id === trigramId
+        );
+      }
 
-          analyzeBtn.addEventListener("click", () => {
-            const sfSelects = document.querySelectorAll(".sf-select");
-            lastUserProfile = {
-              mbti: mbtiSelect.value,
-              enneagram: enneaSelects.map((s) => s.value).filter(Boolean),
-              sf: Array.from(sfSelects)
-                .map((s) => s.value)
-                .filter(Boolean),
+      function getRelationship(elem1, elem2) {
+        if (!elem1 || !elem2) return "無関係";
+        const rel = HAQEI_DATA.element_relationships.find(
+          (r) =>
+            r.source_element === elem1.element &&
+            r.target_element === elem2.element
+        );
+        return rel ? rel.relationship_type : "無関係";
+      }
+
+      function hasXiangSheng(hexA, hexB) {
+        if (!hexA || !hexB) return false;
+        const aUpper = getTrigramElement(hexA.upper_trigram_id);
+        const aLower = getTrigramElement(hexA.lower_trigram_id);
+        const bUpper = getTrigramElement(hexB.upper_trigram_id);
+        const bLower = getTrigramElement(hexB.lower_trigram_id);
+        const pairs = [
+          [aUpper, bUpper],
+          [aUpper, bLower],
+          [aLower, bUpper],
+          [aLower, bLower],
+        ];
+        return pairs.some(
+          (p) =>
+            getRelationship(p[0], p[1]) === "相生" ||
+            getRelationship(p[1], p[0]) === "相生"
+        );
+      }
+
+      function hasXiangKe(hexA, hexB) {
+        if (!hexA || !hexB) return false;
+        const aUpper = getTrigramElement(hexA.upper_trigram_id);
+        const aLower = getTrigramElement(hexA.lower_trigram_id);
+        const bUpper = getTrigramElement(hexB.upper_trigram_id);
+        const bLower = getTrigramElement(hexB.lower_trigram_id);
+        const pairs = [
+          [aUpper, bUpper],
+          [aUpper, bLower],
+          [aLower, bUpper],
+          [aLower, bLower],
+        ];
+        return pairs.some(
+          (p) =>
+            getRelationship(p[0], p[1]) === "相剋" ||
+            getRelationship(p[1], p[0]) === "相剋"
+        );
+      }
+
+      function isZong(hexIdA, hexIdB) {
+        const souId = HAQEI_DATA.H64_DATA.find(
+          (k) => k.hexagram_id === hexIdA
+        )?.sou_id;
+        return souId === hexIdB;
+      }
+
+      function isCuo(hexIdA, hexIdB) {
+        const sakuId = HAQEI_DATA.H64_DATA.find(
+          (k) => k.hexagram_id === hexIdA
+        )?.saku_id;
+        return sakuId === hexIdB;
+      }
+
+      function getEngineCandidates(normalizedScores) {
+        const cand = HAQEI_DATA.hexagrams_master
+          .map((h) => {
+            const s =
+              (normalizedScores[h.upper_trigram_id] || 0) +
+              (normalizedScores[h.lower_trigram_id] || 0);
+            return { ...h, rawScore: s };
+          })
+          .sort((a, b) => b.rawScore - a.rawScore)
+          .slice(0, 4);
+        return cand;
+      }
+
+      function calculateInfluenceScores(candidates, engineId) {
+        const engineHex = HAQEI_DATA.hexagrams_master.find(
+          (h) => h.hexagram_id === engineId
+        );
+        return candidates
+          .filter((c) => c.hexagram_id !== engineId)
+          .map((c) => {
+            const rel = {
+              xiangSheng: hasXiangSheng(engineHex, c),
+              xiangKe: hasXiangKe(engineHex, c),
+              zong: isZong(engineId, c.hexagram_id),
+              cuo: isCuo(engineId, c.hexagram_id),
             };
-            if (!lastUserProfile.mbti || !lastUserProfile.enneagram[0]) {
-              alert(
-                "MBTIと、主要なエニアグラムタイプ（1番目）を必ず選択してください。"
-              );
-              return;
-            }
-            lastAnalysisResult = runAdvancedAnalysis(lastUserProfile);
-            try {
-              const dataToStore = {
-                analysisResult: lastAnalysisResult,
-                userProfile: lastUserProfile,
-                userContext: {
-                  analyzedAt: new Date().toISOString(),
-                  tool: "人格OS 分析レポート",
-                },
-              };
-              // localStorageに 'haqeiOsAnalyzerData' というキーで分析結果を保存します
-              localStorage.setItem(
-                "haqeiOsAnalyzerData",
-                JSON.stringify(dataToStore)
-              );
-              console.log("OS分析データをlocalStorageに保存しました。");
-            } catch (e) {
-              console.error("OS分析データの保存に失敗しました:", e);
-            }
+            let score = 0;
+            if (rel.xiangSheng) score += 30;
+            if (rel.xiangKe) score -= 20;
+            if (rel.zong) score += 15;
+            if (rel.cuo) score -= 10;
+            return { id: c.hexagram_id, score, rel };
+          })
+          .sort((a, b) => b.score - a.score);
+      }
 
-            // ▼▼▼【修正点⑥】ストーリーのステップ定義を新しい構成に更新 ▼▼▼
-            storySteps = [
-              createProfileSection,
-              createTrinityModelSection,
-              createArchitectureAndNextStepSection,
-            ];
-            // ▲▲▲【ここまで】▲▲▲
-
-            inputContainer.classList.add("hidden");
-            reportContainer.classList.remove("hidden");
-            currentStepIndex = 0;
-            displayStoryView();
-          });
+      function main() {
+        try {
+          Object.assign(osManualData, HAQEI_DATA.os_manual || {});
+          showIntro();
         } catch (error) {
           console.error("初期化に失敗:", error);
-          document.body.innerHTML = "ページの読み込みに失敗しました。";
+          diagnosticContainer.innerHTML = `<div class="text-center text-red-400 p-8">ページの読み込みに失敗しました: ${error.message}</div>`;
         }
+      }
+
+      function showIntro() {
+        diagnosticContainer.innerHTML = `<div class="text-center bg-gray-900/50 p-6 rounded-xl prose-custom max-w-none text-gray-300"><p class="text-lg">ようこそ。これから、あなただけの「OS設計図」を創るための、対話を始めます。</p><p class="mt-6">HaQeiアナライザーは、3つのステップで、あなたの魂の設計図を共同で構築します。</p><div class="grid md:grid-cols-3 gap-6 my-6 text-left"><div class="bg-gray-800/70 p-4 rounded-lg border border-gray-700"><h4 class="font-bold text-amber-300 flex items-center"><span class="text-xl mr-2">1</span>価値観の明確化</h4><p class="text-xs mt-2">まず、いくつかの問いから、あなたの核となる8つの基本エネルギーのバランスを分析します。</p></div><div class="bg-gray-800/70 p-4 rounded-lg border border-gray-700"><h4 class="font-bold text-indigo-300 flex items-center"><span class="text-xl mr-2">2</span>エンジンOSの選択</h4><p class="text-xs mt-2">次に、提示された候補の中から、あなたの感覚に最も近い<strong class="text-white">「エンジンOS」をあなた自身が選択</strong>します。</p></div><div class="bg-gray-800/70 p-4 rounded-lg border border-gray-700"><h4 class="font-bold text-green-300 flex items-center"><span class="text-xl mr-2">3</span>行動パターンの特定</h4><p class="text-xs mt-2">あなたの選択を基に、残りのOSを特定し、<strong class="text-white">戦略レポート</strong>を生成します。</p></div></div><p>あなたの感覚こそが、最も信頼できる羅針盤です。どうぞ、リラックスして、対話を楽しんでください。</p></div><div class="mt-8 pt-8 border-t border-gray-700 text-center"><button id="startBtn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">対話を開始する</button></div>`;
+        document
+          .getElementById("startBtn")
+          .addEventListener("click", showWorldviewQuestions);
+      }
+
+      function showWorldviewQuestions() {
+        let html = `<h3 class="text-xl font-bold text-amber-300 mb-6 text-center">Step 1：あなたの価値観について教えてください</h3>`;
+        WORLDVIEW_QUESTIONS.forEach((q, index) => {
+          const worldviewOpts = q.options
+            .map(
+              (opt) =>
+                `<div><input type="radio" name="${q.id}" value="${opt.value}" id="${q.id}_${opt.value}" class="sr-only peer"><label for="${q.id}_${opt.value}" class="option-label">${opt.text}</label></div>`
+            )
+            .join("");
+          html += `<div class="diagnostic-item"><div class="question-block"><p class="question-text">${
+            index + 1
+          }. ${
+            q.text
+          }</p><div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">${worldviewOpts}</div></div></div>`;
+        });
+        html += `<div class="mt-8 text-center"><button id="analyzeEnergyBtn" class="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">価値観を分析する</button></div>`;
+        diagnosticContainer.innerHTML = html;
+        document
+          .getElementById("analyzeEnergyBtn")
+          .addEventListener("click", handleEnergyAnalysis);
+      }
+
+      function handleEnergyAnalysis() {
+        if (
+          !Array.from(document.querySelectorAll('input[name^="wvq"]')).every(
+            (r) => document.querySelector(`input[name="${r.name}"]:checked`)
+          )
+        ) {
+          alert("Step 1のすべての質問に回答してください。");
+          return;
+        }
+        analysisState.trigramScores = runTrigramAnalysis();
+        analysisState.adjustedTrigramScores = {
+          ...analysisState.trigramScores,
+        };
+        showRadarAdjustment();
+      }
+
+      function showRadarAdjustment() {
+        const html = `
+              <h3 class="text-xl font-bold text-amber-300 mb-2 text-center">Step 1-B：価値観の微調整</h3>
+              <p class="text-center text-gray-400 mb-6 text-sm">レーダーチャートは、あなたの価値観のバランスを可視化したものです。<br>もし感覚と違う部分があれば、各頂点のハンドルをドラッグして、よりしっくりくる形に調整してください。</p>
+              <div id="radar-chart-container" class="radar-container">
+                  <canvas id="trigram-radar-chart"></canvas>
+                  <div id="drag-handles-container"></div>
+              </div>
+              <section id="wv-confirm" class="mt-8 text-center">
+                  <button id="confirm-scores-btn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300">このバランスでOS候補を生成</button>
+              </section>
+          `;
+        diagnosticContainer.innerHTML = html;
+
+        const radarCtx = document
+          .getElementById("trigram-radar-chart")
+          .getContext("2d");
+        trigramRadarChart = renderTrigramRadar(
+          radarCtx,
+          analysisState.adjustedTrigramScores
+        );
+
+        setupDragHandles(trigramRadarChart);
+
+        if (!handlesResizeBound) {
+          window.addEventListener("resize", () => {
+            if (
+              trigramRadarChart &&
+              document.getElementById("drag-handles-container")
+            ) {
+              updateHandlesPositions(trigramRadarChart);
+            }
+          });
+          handlesResizeBound = true;
+        }
+
+        document
+          .getElementById("confirm-scores-btn")
+          .addEventListener("click", () => {
+            analysisState.engineCandidates = getEngineCandidates(
+              analysisState.adjustedTrigramScores
+            );
+            showEngineCandidateSelection();
+          });
+      }
+
+      let dragAbort;
+      let draggedHandle = null;
+      let isDragging = false;
+
+      const onPointerMove = (e) => {
+        if (!isDragging || !draggedHandle) return;
+        e.preventDefault();
+
+        const chart = trigramRadarChart;
+        const rect = chart.canvas.getBoundingClientRect();
+        const clientX = e.type.startsWith("touch")
+          ? e.touches[0].clientX
+          : e.clientX;
+        const clientY = e.type.startsWith("touch")
+          ? e.touches[0].clientY
+          : e.clientY;
+
+        const chartCenter = {
+          x: chart.scales.r.xCenter,
+          y: chart.scales.r.yCenter,
+        };
+        const canvasX = clientX - rect.left;
+        const canvasY = clientY - rect.top;
+
+        const distance = Math.sqrt(
+          Math.pow(canvasX - chartCenter.x, 2) +
+            Math.pow(canvasY - chartCenter.y, 2)
+        );
+        const scale = chart.scales.r;
+        let newValue = (distance / scale.drawingArea) * 100;
+
+        const index = parseInt(draggedHandle.dataset.index);
+
+        analysisState.adjustedTrigramScores[Number(index) + 1] = Math.max(
+          0,
+          Math.min(100, newValue)
+        );
+
+        requestAnimationFrame(() => {
+          updateTrigramRadar(chart, analysisState.adjustedTrigramScores);
+          updateHandlesPositions(chart);
+        });
+      };
+
+      const onPointerUp = () => {
+        if (dragAbort) dragAbort.abort();
+        isDragging = false;
+        if (draggedHandle) draggedHandle.style.cursor = "grab";
+        draggedHandle = null;
+      };
+
+      const onPointerDown = (e) => {
+        dragAbort?.abort();
+        dragAbort = new AbortController();
+        const opt = { signal: dragAbort.signal, passive: false };
+
+        isDragging = true;
+        draggedHandle = e.target;
+        draggedHandle.style.cursor = "grabbing";
+        window.addEventListener("pointermove", onPointerMove, opt);
+        window.addEventListener("pointerup", onPointerUp, opt);
+        window.addEventListener("pointercancel", onPointerUp, opt);
+        window.addEventListener("touchmove", onPointerMove, opt);
+        window.addEventListener("touchend", onPointerUp, opt);
+      };
+
+      function setupDragHandles(chart) {
+        const handlesContainer = document.getElementById(
+          "drag-handles-container"
+        );
+        if (!handlesContainer) return;
+        handlesContainer.innerHTML = "";
+
+        const pointCoordinates = chart
+          .getDatasetMeta(0)
+          .data.map((p) => ({ x: p.x, y: p.y }));
+
+        pointCoordinates.forEach((p, index) => {
+          const handle = document.createElement("div");
+          handle.className = "drag-handle";
+          handle.setAttribute("role", "slider");
+          handle.setAttribute(
+            "aria-valuenow",
+            chart.data.datasets[0].data[index].toFixed(0)
+          );
+          handle.setAttribute("aria-valuemin", "0");
+          handle.setAttribute("aria-valuemax", "100");
+          handle.style.left = `${p.x}px`;
+          handle.style.top = `${p.y}px`;
+          handle.dataset.index = index;
+          handlesContainer.appendChild(handle);
+          handle.addEventListener("pointerdown", onPointerDown);
+        });
+      }
+
+      function updateHandlesPositions(chart) {
+        const pointCoordinates = chart
+          .getDatasetMeta(0)
+          .data.map((p) => ({ x: p.x, y: p.y }));
+        document.querySelectorAll(".drag-handle").forEach((h, i) => {
+          if (!h) return;
+          h.style.left = `${pointCoordinates[i].x}px`;
+          h.style.top = `${pointCoordinates[i].y}px`;
+          h.setAttribute(
+            "aria-valuenow",
+            chart.data.datasets[0].data[i].toFixed(0)
+          );
+        });
+      }
+
+      function showEngineCandidateSelection() {
+        let html = `
+          <div class="text-center">
+            <h3 class="text-xl font-bold text-indigo-300 mb-4">Step 2：あなたのエンジンOSを選択してください</h3>
+            <div class="bg-gray-900/50 p-6 rounded-xl prose-custom max-w-none text-gray-300">
+              <p>あなたの価値観の分析に基づき、エンジンOSの候補が4つ生成されました。以下のカードを読み、最も「これだ！」と感じるものを<strong>1つだけ</strong>選んでください。</p>
+              <p class="text-xs text-gray-400 mt-2">💡 カード下部の説明は、AIがそのOSを候補として選んだ理由です。</p>
+            </div>
+            <div id="engine-candidate-wrapper" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">`;
+
+        analysisState.engineCandidates.forEach((os) => {
+          const osManual = osManualData[String(os.hexagram_id)] || {};
+          const keyword = osManual.keyword_short || "???";
+          const icon = osManual.archetype_icon || "❓";
+
+          html += `
+            <div id="card-select-${os.hexagram_id}" data-id="${
+            os.hexagram_id
+          }" class="engine-card" role="button" tabindex="0" aria-pressed="false">
+              <div class="card-content">
+                <header class="engine-card-header">
+                  <span role="img" aria-label="${keyword}" class="archetype-icon">${icon}</span>
+                  <div>
+                    <h4 class="archetype-name">${os.name_jp}</h4>
+                    <span class="text-xs text-indigo-400 font-semibold">${keyword}</span>
+                  </div>
+                </header>
+                <p class="text-sm text-gray-300 mt-3 flex-grow">${
+                  osManual.summary || "解説準備中..."
+                }</p>
+                <div class="mt-4 pt-4 border-t border-gray-700/50">
+                  <p class="text-xs font-semibold text-gray-400 mb-2">AIによる選定根拠</p>
+                  <p class="text-sm text-gray-500" data-reason>${
+                    os.reason || ""
+                  }</p>
+                </div>
+                <div class="engine-card-tip" data-tip-for="${
+                  os.hexagram_id
+                }"></div>
+              </div>
+            </div>`;
+        });
+        html += `</div><div class="mt-8 text-center"><button id="lock-in-btn" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>このOSで最終決定する</button></div></div>`;
+        diagnosticContainer.innerHTML = html;
+
+        document.querySelectorAll(".engine-card").forEach((card) => {
+          card.addEventListener("click", handleCandidateSelection);
+          card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleCandidateSelection({ currentTarget: card });
+            }
+          });
+        });
+        document
+          .getElementById("lock-in-btn")
+          .addEventListener("click", handleEngineLockIn);
+      }
+
+      function handleCandidateSelection(event) {
+        const selectedCard = event.currentTarget;
+        const selectedId = parseInt(selectedCard.dataset.id, 10);
+
+        document.querySelectorAll(".engine-card").forEach((card) => {
+          card.classList.remove("selected");
+          card.setAttribute("aria-pressed", "false");
+        });
+
+        selectedCard.classList.add("selected");
+        selectedCard.setAttribute("aria-pressed", "true");
+
+        analysisState.selectedEngine = selectedId;
+
+        document.getElementById("lock-in-btn").disabled = false;
+      }
+
+      function handleEngineLockIn() {
+        const os = HAQEI_DATA.hexagrams_master.find(
+          (h) => h.hexagram_id === analysisState.selectedEngine
+        );
+        if (os) {
+          analysisState.lockedEngineOs = os;
+          analysisState.influentialOses = calculateInfluenceScores(
+            analysisState.engineCandidates,
+            analysisState.selectedEngine
+          );
+          showScenarioQuestions();
+        }
+      }
+
+      function runTrigramAnalysis() {
+        const scores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 };
+        WORLDVIEW_QUESTIONS.forEach((q) => {
+          const node = document.querySelector(`input[name="${q.id}"]:checked`);
+          if (!node) return;
+          const choice = q.options.find((opt) => opt.value === node.value);
+          if (choice && choice.scores) {
+            for (const id in choice.scores) {
+              if (Object.hasOwnProperty.call(choice.scores, id)) {
+                scores[id] = (scores[id] || 0) + choice.scores[id];
+              }
+            }
+          }
+        });
+
+        const maxScore = Math.max(...Object.values(scores), 1);
+        const normalizedScores = {};
+        for (const id in scores) {
+          const normalized = (scores[id] / maxScore) * 100;
+          normalizedScores[id] = Math.max(0, Math.min(100, normalized));
+        }
+        return normalizedScores;
+      }
+
+      function determineInterfaceAndSafemode() {
+        const scenarioTrigramScores = {
+          1: 0,
+          2: 0,
+          3: 0,
+          4: 0,
+          5: 0,
+          6: 0,
+          7: 0,
+          8: 0,
+        };
+        SCENARIO_QUESTIONS.forEach((q) => {
+          const innerNode = document.querySelector(
+            `input[name="${q.id}_inner"]:checked`
+          );
+          const outerNode = document.querySelector(
+            `input[name="${q.id}_outer"]:checked`
+          );
+
+          const innerChoice = q.options.inner[Number(innerNode.value)];
+          if (innerChoice && innerChoice.scores) {
+            for (const id in innerChoice.scores) {
+              if (Object.hasOwnProperty.call(innerChoice.scores, id)) {
+                scenarioTrigramScores[id] =
+                  (scenarioTrigramScores[id] || 0) + innerChoice.scores[id];
+              }
+            }
+          }
+
+          const outerChoice = q.options.outer[Number(outerNode.value)];
+          if (outerChoice && outerChoice.scores) {
+            for (const id in outerChoice.scores) {
+              if (Object.hasOwnProperty.call(outerChoice.scores, id)) {
+                scenarioTrigramScores[id] =
+                  (scenarioTrigramScores[id] || 0) + outerChoice.scores[id];
+              }
+            }
+          }
+        });
+
+        const baseScores = {};
+        HAQEI_DATA.hexagrams_master.forEach((hex) => {
+          if (hex.hexagram_id === analysisState.lockedEngineOs.hexagram_id)
+            return;
+          const scenarioScore =
+            (scenarioTrigramScores[hex.upper_trigram_id] || 0) +
+            (scenarioTrigramScores[hex.lower_trigram_id] || 0);
+          let worldviewCompatibilityScore = 0;
+          if (analysisState.adjustedTrigramScores[hex.upper_trigram_id])
+            worldviewCompatibilityScore +=
+              analysisState.adjustedTrigramScores[hex.upper_trigram_id];
+          if (analysisState.adjustedTrigramScores[hex.lower_trigram_id])
+            worldviewCompatibilityScore +=
+              analysisState.adjustedTrigramScores[hex.lower_trigram_id];
+          baseScores[hex.hexagram_id] =
+            scenarioScore * 0.7 + (worldviewCompatibilityScore / 2) * 0.3;
+        });
+
+        const sortedOs = Object.entries(baseScores).sort(
+          ([, a], [, b]) => b - a
+        );
+        const interfaceOs = HAQEI_DATA.hexagrams_master.find(
+          (h) => h.hexagram_id == sortedOs[0][0]
+        );
+        const safemodeOs = HAQEI_DATA.hexagrams_master.find(
+          (h) => h.hexagram_id == sortedOs[1][0]
+        );
+
+        return { interfaceOs, safemodeOs };
+      }
+
+      function handleFinalAnalysis() {
+        if (!document.getElementById("agreementCheckbox").checked) {
+          alert("利用規約とプライバシーポリシーに同意してください。");
+          return;
+        }
+        if (
+          !Array.from(SCENARIO_QUESTIONS).every(
+            (q) =>
+              document.querySelector(`input[name="${q.id}_inner"]:checked`) &&
+              document.querySelector(`input[name="${q.id}_outer"]:checked`)
+          )
+        ) {
+          alert("Step 3のすべてのシナリオに回答してください。");
+          return;
+        }
+        const { interfaceOs, safemodeOs } = determineInterfaceAndSafemode();
+
+        const analysisResult = {
+          hexagram_candidates: [
+            analysisState.lockedEngineOs,
+            interfaceOs,
+            safemodeOs,
+          ],
+          trigram_profile: Object.entries(
+            analysisState.adjustedTrigramScores
+          ).map(([id, score]) => ({
+            id: parseInt(id),
+            name_jp: HAQEI_DATA.trigrams_master.find((t) => t.trigram_id == id)
+              .name_jp,
+            score: score,
+          })),
+        };
+
+        const dataToStore = {
+          analysisResult: analysisResult,
+          userContext: {},
+          userProfile: {},
+        };
+
+        try {
+          localStorage.setItem(
+            "haqeiOsAnalyzerData",
+            JSON.stringify(dataToStore)
+          );
+          displayReport(analysisResult);
+        } catch (e) {
+          console.error("OS分析データの保存に失敗しました:", e);
+          alert("データの保存に失敗しました。ブラウザの設定をご確認ください。");
+        }
+      }
+
+      function displayReport(analysisResult) {
+        const oses = analysisResult.hexagram_candidates;
+        let reportHtml = `<div class="text-center space-y-12">
+                            <div class="report-section">
+                              <h3 class="text-3xl font-bold text-indigo-300">あなたの3つの人格OS</h3>
+                              <p class="mt-4 max-w-2xl mx-auto text-gray-400">分析が完了しました。以下が、あなたの思考と行動の核となる3つのOSです。各OSの特性を理解し、今後の戦略立案にお役立てください。</p>
+                              <div id="os-cards-container" class="mt-8 space-y-6 text-left"></div>
+                            </div>
+                            <div class="mt-16 pt-8 border-t-2 border-dashed border-gray-700">
+                                <h3 class="text-xl font-bold text-amber-300 mb-4">次のステップへ</h3>
+                                <div class="mt-8">
+                                    <a href="cockpit.html" class="bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105">戦略コックピットで全体像を把握する &rarr;</a>
+                                </div>
+                            </div>
+                          </div>`;
+        diagnosticContainer.innerHTML = reportHtml;
+
+        const osCardsContainer = document.getElementById("os-cards-container");
+        const template = document.getElementById("os-card-template");
+        const osTypes = ["エンジンOS", "インターフェースOS", "セーフモードOS"];
+        const osIcons = ["🔥", "🎭", "🛡️"];
+        const colors = ["#F87171", "#60A5FA", "#9CA3AF"];
+
+        oses.forEach((os, index) => {
+          if (!os) return;
+          const role = osTypes[index];
+          const clone = template.content.cloneNode(true);
+          const card = clone.querySelector("div");
+          const manual = osManualData[String(os.hexagram_id)] || {};
+
+          card.style.borderColor = colors[index];
+          card.querySelector("[data-role-icon]").textContent = osIcons[index];
+          card.querySelector("[data-role-label]").textContent = role;
+          card.querySelector("[data-os-name]").textContent = os.name_jp;
+          card.querySelector("[data-os-catchphrase]").textContent =
+            os.catchphrase;
+          card.querySelector("[data-yin-mode]").textContent =
+            manual.defensive_use || "解説準備中";
+          card.querySelector("[data-yang-mode]").textContent =
+            manual.proactive_use || "解説準備中";
+          card.querySelector("[data-strategic-summary]").textContent =
+            manual.summary || "解説準備中";
+
+          osCardsContainer.appendChild(clone);
+        });
+      }
+
+      function showScenarioQuestions() {
+        let html = `<h3 class="text-xl font-bold text-indigo-300 mb-6 text-center">Step 3：あなたの行動パターンについて教えてください</h3>`;
+        html += `<p class="text-center text-sm text-gray-400 mb-6">エンジンOS【${analysisState.lockedEngineOs.name_jp}】がロックインされました。次に、社会的な場面やストレス下でのあなたの振る舞いを分析し、残りのOSを特定します。</p>`;
+        SCENARIO_QUESTIONS.forEach((q, index) => {
+          const innerOpts = q.options.inner
+            .map(
+              (opt, i) =>
+                `<div><input type="radio" name="${q.id}_inner" value="${i}" id="${q.id}_inner_${i}" class="sr-only peer"><label for="${q.id}_inner_${i}" class="option-label">${opt.text}</label></div>`
+            )
+            .join("");
+          const outerOpts = q.options.outer
+            .map(
+              (opt, i) =>
+                `<div><input type="radio" name="${q.id}_outer" value="${i}" id="${q.id}_outer_${i}" class="sr-only peer"><label for="${q.id}_outer_${i}" class="option-label">${opt.text}</label></div>`
+            )
+            .join("");
+          html += `<div class="diagnostic-item"><p class="text-gray-400 text-sm">シナリオ ${
+            index + 1
+          }/${
+            SCENARIO_QUESTIONS.length
+          }</p><p class="font-semibold text-gray-200 mb-4">${
+            q.scenario
+          }</p><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="question-block"><p class="question-text">${
+            q.inner_q
+          }</p><div class="space-y-3 mt-4">${innerOpts}</div></div><div class="question-block"><p class="question-text">${
+            q.outer_q
+          }</p><div class="space-y-3 mt-4">${outerOpts}</div></div></div></div>`;
+        });
+        html += `<div class="mt-8 pt-8 border-t border-gray-700">
+                  <div class="text-center">
+                      <label class="flex items-center justify-center cursor-pointer">
+                      <input type="checkbox" id="agreementCheckbox" class="h-4 w-4 rounded bg-gray-700 border-gray-600 text-indigo-600 focus:ring-indigo-500">
+                      <span class="ml-2 text-sm text-gray-400">
+                          <a href="/terms.html" target="_blank" class="underline hover:text-white">利用規約</a>および<a href="/privacy.html" target="_blank" class="underline hover:text-white">プライバシーポリシー</a>に同意します
+                      </span>
+                      </label>
+                  </div>
+                  <button id="finalAnalyzeBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition duration-300 transform hover:scale-105 mt-6 disabled:opacity-50 disabled:cursor-not-allowed" disabled>最終レポートを生成する</button>
+                  </div>`;
+        diagnosticContainer.innerHTML = html;
+        const finalAnalyzeBtn = document.getElementById("finalAnalyzeBtn");
+        const finalAgreementCheckbox =
+          document.getElementById("agreementCheckbox");
+        finalAnalyzeBtn.disabled = true;
+        finalAgreementCheckbox.addEventListener("change", () => {
+          finalAnalyzeBtn.disabled = !finalAgreementCheckbox.checked;
+        });
+        finalAnalyzeBtn.addEventListener("click", handleFinalAnalysis);
+      }
+
+      document.addEventListener("DOMContentLoaded", main);
+
+      // ===========================================
+      // UI表示の8次元対応実装コード
+      // os_analyzer.html に追加・修正する関数群
+      // ===========================================
+
+      // ===========================================
+      // 1. 表示名変換関数
+      // ===========================================
+
+      // 8次元表示名変換マップ
+      const DIMENSION_DISPLAY_MAP = {
+        乾_創造性: "天_創造性",
+        震_行動性: "雷_行動性",
+        坎_探求性: "水_探求性",
+        艮_安定性: "山_安定性",
+        坤_受容性: "地_受容性",
+        巽_適応性: "風_適応性",
+        離_表現性: "火_表現性",
+        兌_調和性: "沢_調和性",
+      };
+
+      // 逆変換マップ
+      const DISPLAY_TO_INTERNAL_MAP = {
+        天_創造性: "乾_創造性",
+        雷_行動性: "震_行動性",
+        水_探求性: "坎_探求性",
+        山_安定性: "艮_安定性",
+        地_受容性: "坤_受容性",
+        風_適応性: "巽_適応性",
+        火_表現性: "離_表現性",
+        沢_調和性: "兌_調和性",
+      };
+
+      // 8次元説明マップ（ユーザー理解促進用）
+      const DIMENSION_DESCRIPTIONS = {
+        天_創造性: "新しいものを生み出し、リードする力（乾☰）",
+        雷_行動性: "動き、変化を起こし、実行する力（震☳）",
+        水_探求性: "深く追求し、本質を見抜く力（坎☵）",
+        山_安定性: "継続し、基盤を維持する力（艮☶）",
+        地_受容性: "受け入れ、育み、支える力（坤☷）",
+        風_適応性: "柔軟に対応し、調整する力（巽☴）",
+        火_表現性: "明確に示し、輝かせる力（離☲）",
+        沢_調和性: "つながり、喜びを生み出す力（兌☱）",
+      };
+
+      // 内部キー → 表示名変換
+      function convertToDisplayNames(internalVector) {
+        const displayVector = {};
+        Object.keys(internalVector).forEach((key) => {
+          const displayKey = DIMENSION_DISPLAY_MAP[key] || key;
+          displayVector[displayKey] = internalVector[key];
+        });
+        return displayVector;
+      }
+
+      // 表示名 → 内部キー変換
+      function convertToInternalNames(displayVector) {
+        const internalVector = {};
+        Object.keys(displayVector).forEach((key) => {
+          const internalKey = DISPLAY_TO_INTERNAL_MAP[key] || key;
+          internalVector[internalKey] = displayVector[key];
+        });
+        return internalVector;
+      }
+
+      // ===========================================
+      // 2. レーダーチャート8軸対応
+      // ===========================================
+
+      function createRadarChart(userVector, canvasId = "radarChart") {
+        // 内部処理用キー（計算用）
+        const internalKeys = [
+          "乾_創造性",
+          "震_行動性",
+          "坎_探求性",
+          "艮_安定性",
+          "坤_受容性",
+          "巽_適応性",
+          "離_表現性",
+          "兌_調和性",
+        ];
+
+        // ユーザー表示用ラベル
+        const displayLabels = [
+          "天_創造性",
+          "雷_行動性",
+          "水_探求性",
+          "山_安定性",
+          "地_受容性",
+          "風_適応性",
+          "火_表現性",
+          "沢_調和性",
+        ];
+
+        // データ準備
+        const data = internalKeys.map((key) => userVector[key] || 0);
+        const maxValue = Math.max(...data, 10); // 最低10をmax値に設定
+
+        // 既存のチャートを破棄
+        const existingChart = Chart.getChart(canvasId);
+        if (existingChart) {
+          existingChart.destroy();
+        }
+
+        // Canvas要素取得
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) {
+          console.error(`Canvas element with id '${canvasId}' not found`);
+          return null;
+        }
+
+        // Chart.js 8軸レーダーチャート設定
+        const config = {
+          type: "radar",
+          data: {
+            labels: displayLabels, // ユーザーには分かりやすい表示名
+            datasets: [
+              {
+                label: "あなたの価値観プロファイル",
+                data: data,
+                backgroundColor: "rgba(54, 162, 235, 0.2)",
+                borderColor: "rgba(54, 162, 235, 1)",
+                borderWidth: 2,
+                pointBackgroundColor: "rgba(54, 162, 235, 1)",
+                pointBorderColor: "#fff",
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: true,
+                position: "top",
+                labels: {
+                  color: "#333",
+                  font: {
+                    size: 14,
+                  },
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const label = context.label;
+                    const value = context.parsed.r;
+                    const description = DIMENSION_DESCRIPTIONS[label] || "";
+                    return `${label}: ${value}点\n${description}`;
+                  },
+                },
+              },
+            },
+            scales: {
+              r: {
+                beginAtZero: true,
+                max: maxValue,
+                ticks: {
+                  stepSize: Math.ceil(maxValue / 5),
+                  color: "#666",
+                  backdropColor: "transparent",
+                },
+                grid: {
+                  color: "rgba(0, 0, 0, 0.1)",
+                },
+                pointLabels: {
+                  font: {
+                    size: 12,
+                    weight: "bold",
+                  },
+                  color: "#333",
+                  callback: function (label, index) {
+                    // ラベルを2行に分割（長い場合）
+                    if (label.length > 6) {
+                      const parts = label.split("_");
+                      return parts;
+                    }
+                    return label;
+                  },
+                },
+              },
+            },
+            interaction: {
+              intersect: false,
+            },
+          },
+        };
+
+        // チャート作成
+        const chart = new Chart(ctx, config);
+        return chart;
+      }
+
+      // ===========================================
+      // 3. 分析結果表示の8次元対応
+      // ===========================================
+
+      function displayAnalysisResults(analysisResults, userVector) {
+        // userVectorを表示名に変換
+        const displayVector = convertToDisplayNames(userVector);
+
+        // 上位3次元を特定
+        const topDimensions = Object.entries(displayVector)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3);
+
+        // 下位3次元を特定
+        const bottomDimensions = Object.entries(displayVector)
+          .sort((a, b) => a[1] - b[1])
+          .slice(0, 3);
+
+        // 結果表示HTML生成
+        const resultHTML = `
+          <div class="analysis-results-8d">
+            <div class="dimension-summary">
+              <h3>🎯 あなたの価値観の特徴</h3>
+              
+              <div class="top-dimensions">
+                <h4>💪 特に強い価値観</h4>
+                <div class="dimension-list">
+                  ${topDimensions
+                    .map(
+                      (dim, index) => `
+                    <div class="dimension-item strong">
+                      <span class="rank">${index + 1}位</span>
+                      <span class="dimension-name">${dim[0]}</span>
+                      <span class="dimension-score">${dim[1]}点</span>
+                      <div class="dimension-desc">${
+                        DIMENSION_DESCRIPTIONS[dim[0]]
+                      }</div>
+                    </div>
+                  `
+                    )
+                    .join("")}
+                </div>
+              </div>
+              
+              <div class="growth-dimensions">
+                <h4>🌱 成長の余地がある価値観</h4>
+                <div class="dimension-list">
+                  ${bottomDimensions
+                    .map(
+                      (dim) => `
+                    <div class="dimension-item growth">
+                      <span class="dimension-name">${dim[0]}</span>
+                      <span class="dimension-score">${dim[1]}点</span>
+                      <div class="dimension-desc">${
+                        DIMENSION_DESCRIPTIONS[dim[0]]
+                      }</div>
+                    </div>
+                  `
+                    )
+                    .join("")}
+                </div>
+              </div>
+            </div>
+            
+            <div class="os-candidates">
+              <h3>🎭 あなたの人格OS候補</h3>
+              <div class="candidates-list">
+                ${analysisResults
+                  .map(
+                    (result, index) => `
+                  <div class="os-candidate" data-rank="${index + 1}">
+                    <div class="candidate-header">
+                      <span class="rank-badge">${index + 1}位</span>
+                      <span class="os-name">${
+                        result.hexagramInfo?.name_jp || "不明"
+                      }</span>
+                      <span class="similarity-score">${(
+                        result.score * 100
+                      ).toFixed(1)}%一致</span>
+                    </div>
+                    <div class="candidate-description">
+                      ${result.hexagramInfo?.catchphrase || "説明なし"}
+                    </div>
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>
+            </div>
+            
+            <div class="detailed-insights">
+              <h3>🔍 詳細な分析結果</h3>
+              <div class="insights-content">
+                ${generateDetailedInsights(
+                  topDimensions,
+                  bottomDimensions,
+                  analysisResults
+                )}
+              </div>
+            </div>
+          </div>
+        `;
+
+        // 結果表示エリアに挿入
+        const resultContainer = document.getElementById("analysisResults");
+        if (resultContainer) {
+          resultContainer.innerHTML = resultHTML;
+        }
+
+        // CSS動画効果を追加
+        setTimeout(() => {
+          const items = document.querySelectorAll(
+            ".dimension-item, .os-candidate"
+          );
+          items.forEach((item, index) => {
+            setTimeout(() => {
+              item.classList.add("fade-in");
+            }, index * 100);
+          });
+        }, 100);
+      }
+
+      // 詳細洞察生成
+      function generateDetailedInsights(
+        topDimensions,
+        bottomDimensions,
+        osResults
+      ) {
+        const primaryDimension = topDimensions[0];
+        const secondaryDimension = topDimensions[1];
+        const topOS = osResults[0];
+
+        let insights = `
+          <div class="insight-section">
+            <h4>🎯 あなたの核となる価値観</h4>
+            <p>あなたは特に<strong>${
+              primaryDimension[0]
+            }</strong>を重視する傾向があります（${primaryDimension[1]}点）。
+            これは易経の世界観では${
+              DIMENSION_DESCRIPTIONS[primaryDimension[0]]
+            }として表現されます。</p>
+            
+            <p>次に重要な価値観は<strong>${secondaryDimension[0]}</strong>（${
+          secondaryDimension[1]
+        }点）で、
+            これらの組み合わせがあなたの人格の核となっています。</p>
+          </div>
+          
+          <div class="insight-section">
+            <h4>🎭 あなたの人格OS</h4>
+            <p>分析の結果、あなたに最も適合する人格OSは<strong>「${
+              topOS.hexagramInfo?.name_jp
+            }」</strong>です。
+            適合度は${(topOS.score * 100).toFixed(1)}%となりました。</p>
+            
+            <p>${topOS.hexagramInfo?.catchphrase}</p>
+          </div>
+          
+          <div class="insight-section">
+            <h4>🌱 成長へのヒント</h4>
+            <p>現在、${bottomDimensions[0][0]}（${
+          bottomDimensions[0][1]
+        }点）の発達に余地があります。
+            この価値観を意識的に高めることで、より多面的で豊かな人格発達が期待できます。</p>
+          </div>
+        `;
+
+        return insights;
+      }
+
+      // ===========================================
+      // 4. 8次元対応CSS（スタイル調整）
+      // ===========================================
+
+      function inject8DimensionStyles() {
+        const style = document.createElement("style");
+        style.textContent = `
+          /* 8次元対応スタイル */
+          .analysis-results-8d {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          
+          .dimension-summary {
+            margin-bottom: 30px;
+          }
+          
+          .dimension-list {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+          }
+          
+          .dimension-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          
+          .dimension-item.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          
+          .dimension-item.strong {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+          }
+          
+          .dimension-item.growth {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+          }
+          
+          .rank {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 30px;
+          }
+          
+          .dimension-name {
+            font-weight: bold;
+            flex: 1;
+            margin-right: 10px;
+          }
+          
+          .dimension-score {
+            font-size: 1.2em;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: right;
+          }
+          
+          .dimension-desc {
+            font-size: 0.9em;
+            margin-top: 5px;
+            opacity: 0.9;
+            width: 100%;
+          }
+          
+          .candidates-list {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+          }
+          
+          .os-candidate {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          
+          .os-candidate.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          
+          .os-candidate:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+          }
+          
+          .candidate-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+          }
+          
+          .rank-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-right: 15px;
+          }
+          
+          .os-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            flex: 1;
+          }
+          
+          .similarity-score {
+            color: #667eea;
+            font-weight: bold;
+          }
+          
+          .candidate-description {
+            color: #666;
+            line-height: 1.6;
+          }
+          
+          .insight-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+          }
+          
+          .insight-section h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+          }
+          
+          .insight-section p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+          }
+          
+          /* レーダーチャート調整 */
+          .radar-chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+          }
+          
+          /* レスポンシブ対応 */
+          @media (max-width: 768px) {
+            .candidate-header {
+              flex-direction: column;
+              align-items: flex-start;
+            }
+            
+            .rank-badge {
+              margin-bottom: 10px;
+            }
+            
+            .dimension-item {
+              flex-direction: column;
+              align-items: flex-start;
+            }
+            
+            .dimension-score {
+              margin-top: 5px;
+            }
+          }
+        `;
+
+        document.head.appendChild(style);
+      }
+
+      // ===========================================
+      // 5. 初期化関数
+      // ===========================================
+
+      function initialize8DimensionUI() {
+        // CSSスタイルを注入
+        inject8DimensionStyles();
+
+        console.log("8次元UI初期化完了");
+      }
+
+      // ===========================================
+      // 6. 使用例・テスト関数
+      // ===========================================
+
+      function test8DimensionUI() {
+        // テスト用データ
+        const testUserVector = {
+          乾_創造性: 8,
+          震_行動性: 6,
+          坎_探求性: 9,
+          艮_安定性: 4,
+          坤_受容性: 3,
+          巽_適応性: 7,
+          離_表現性: 8,
+          兌_調和性: 5,
+        };
+
+        const testResults = [
+          {
+            osId: 1,
+            score: 0.85,
+            hexagramInfo: {
+              name_jp: "乾為天",
+              catchphrase: "創造力に満ちた天のエネルギーを持つリーダー",
+            },
+          },
+          {
+            osId: 30,
+            score: 0.78,
+            hexagramInfo: {
+              name_jp: "離為火",
+              catchphrase: "明るい表現力で人を魅了するアーティスト",
+            },
+          },
+        ];
+
+        // テスト実行
+        console.log("8次元UIテスト開始");
+        displayAnalysisResults(testResults, testUserVector);
+        createRadarChart(testUserVector);
+      }
+
+      // ===========================================
+      // 7. 公開API（グローバル関数として登録）
+      // ===========================================
+
+      // これらの関数をグローバルスコープで使用可能にする
+      window.convertToDisplayNames = convertToDisplayNames;
+      window.convertToInternalNames = convertToInternalNames;
+      window.createRadarChart = createRadarChart;
+      window.displayAnalysisResults = displayAnalysisResults;
+      window.initialize8DimensionUI = initialize8DimensionUI;
+      window.test8DimensionUI = test8DimensionUI;
+
+      // ページ読み込み時に自動初期化
+      document.addEventListener("DOMContentLoaded", function () {
+        initialize8DimensionUI();
       });
     </script>
-    <footer class="bg-gray-800">
-      <footer class="w-full max-w-4xl mx-auto text-center p-6 mt-8 border-t border-gray-700">
-    <div class="space-x-4 mb-4">
-        <a href="/terms.html" target="_blank" class="text-sm text-gray-400 hover:text-white">利用規約</a>
-        <a href="/privacy.html" target="_blank" class="text-sm text-gray-400 hover:text-white">プライバシーポリシー</a>
-    </div>
-      <div class="container mx-auto px-6 py-4 text-center text-gray-400">
-        <p>&copy; 2025 HaQei. All Rights Reserved.</p>
-      </div>
-    </footer>
   </body>
-  
 </html>
