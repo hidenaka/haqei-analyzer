@@ -191,6 +191,127 @@
     </div>
     <template id="os-card-template"></template>
     <script type="module">
+      import { WORLDVIEW_QUESTIONS } from "./js/questions.js";
+      import { H64_PROFILE_VECTORS } from "./assets/H64_profile_vectors.js";
+
+      // 8次元ユーザープロファイルベクトルを構築
+      function buildUserProfileVector(userAnswers) {
+        const profileVector = {
+          乾_創造性: 0,
+          震_行動性: 0,
+          坎_探求性: 0,
+          艮_安定性: 0,
+          坤_受容性: 0,
+          巽_適応性: 0,
+          離_表現性: 0,
+          兌_調和性: 0,
+        };
+        userAnswers.forEach((answer) => {
+          const question = WORLDVIEW_QUESTIONS.find(
+            (q) => q.id === answer.questionId
+          );
+          const option = question.options.find(
+            (opt) => opt.value === answer.selectedValue
+          );
+          if (option && option.scoring_tags) {
+            option.scoring_tags.forEach((tag) => {
+              profileVector[tag.key] += tag.value;
+            });
+          }
+        });
+        return profileVector;
+      }
+
+      // 8次元正規化
+      function normalize8DVectors(userVector, osVector) {
+        const DIMENSION_KEYS = [
+          "乾_創造性",
+          "震_行動性",
+          "坎_探求性",
+          "艮_安定性",
+          "坤_受容性",
+          "巽_適応性",
+          "離_表現性",
+          "兌_調和性",
+        ];
+        const normalizedUser = {};
+        const normalizedOS = {};
+        DIMENSION_KEYS.forEach((key) => {
+          normalizedUser[key] = userVector[key] || 0;
+          normalizedOS[key] = osVector[key] || 0;
+        });
+        return { normalizedUser, normalizedOS };
+      }
+
+      // 8次元コサイン類似度
+      function calculate8DCosineSimilarity(vectorA, vectorB) {
+        const { normalizedUser: vecA, normalizedOS: vecB } = normalize8DVectors(
+          vectorA,
+          vectorB
+        );
+        let dotProduct = 0;
+        let magnitudeA = 0;
+        let magnitudeB = 0;
+        Object.keys(vecA).forEach((key) => {
+          dotProduct += vecA[key] * vecB[key];
+          magnitudeA += vecA[key] * vecA[key];
+          magnitudeB += vecB[key] * vecB[key];
+        });
+        magnitudeA = Math.sqrt(magnitudeA);
+        magnitudeB = Math.sqrt(magnitudeB);
+        if (magnitudeA === 0 || magnitudeB === 0) return 0;
+        return dotProduct / (magnitudeA * magnitudeB);
+      }
+
+      // 8次元活性度スコア
+      function calculate8DActivationScore(vectorA, vectorB) {
+        const { normalizedUser: vecA, normalizedOS: vecB } = normalize8DVectors(
+          vectorA,
+          vectorB
+        );
+        let magnitudeA = 0;
+        let magnitudeB = 0;
+        Object.keys(vecA).forEach((key) => {
+          magnitudeA += vecA[key] * vecA[key];
+          magnitudeB += vecB[key] * vecB[key];
+        });
+        magnitudeA = Math.sqrt(magnitudeA);
+        magnitudeB = Math.sqrt(magnitudeB);
+        if (magnitudeA === 0 || magnitudeB === 0) return 0;
+        const magnitudeRatio =
+          Math.min(magnitudeA, magnitudeB) / Math.max(magnitudeA, magnitudeB);
+        return Math.pow(magnitudeRatio, 0.5);
+      }
+
+      // 8次元最終スコア
+      function calculate8DFinalScore(userVector, osVector) {
+        const similarityScore = calculate8DCosineSimilarity(
+          userVector,
+          osVector
+        );
+        const activationScore = calculate8DActivationScore(
+          userVector,
+          osVector
+        );
+        return similarityScore * 0.7 + activationScore * 0.3;
+      }
+
+      // 8次元対応のOS分析関数
+      function analyzePersonalityOS(userAnswers) {
+        const userVector = buildUserProfileVector(userAnswers);
+        const osScores = [];
+        Object.keys(H64_PROFILE_VECTORS).forEach((osId) => {
+          const osVector = H64_PROFILE_VECTORS[osId].profile_vector;
+          const finalScore = calculate8DFinalScore(userVector, osVector);
+          osScores.push({
+            osId: parseInt(osId),
+            score: finalScore,
+            hexagramInfo: H64_PROFILE_VECTORS[osId],
+          });
+        });
+        return osScores.sort((a, b) => b.score - a.score).slice(0, 4);
+      }
+
       const HAQEI_DATA = {
         element_relationships: [
           {
@@ -774,73 +895,6 @@
       };
 
       const osManualData = {};
-
-      const WORLDVIEW_QUESTIONS = [
-        {
-          id: "wvq1",
-          text: "チームプロジェクトで最も重要だと思うのは？",
-          options: [
-            {
-              value: "A",
-              text: "明確なリーダーと目標",
-              scores: { 1: 2, 7: 1 },
-            },
-            {
-              value: "B",
-              text: "メンバー間の信頼と協力",
-              scores: { 8: 2, 2: 1 },
-            },
-          ],
-        },
-        {
-          id: "wvq2",
-          text: "新しいスキルを学ぶとき、あなたのスタイルは？",
-          options: [
-            {
-              value: "A",
-              text: "まず全体像を把握し、理論から入る",
-              scores: { 3: 2, 7: 1 },
-            },
-            {
-              value: "B",
-              text: "とりあえず実践してみて、失敗から学ぶ",
-              scores: { 4: 2, 6: 1 },
-            },
-          ],
-        },
-        {
-          id: "wvq3",
-          text: "ストレスを感じた時、どうやって解消する？",
-          options: [
-            {
-              value: "A",
-              text: "一人で静かに内省し、問題の原因を探る",
-              scores: { 6: 2, 7: 1 },
-            },
-            {
-              value: "B",
-              text: "友人と話したり、楽しいことで発散する",
-              scores: { 2: 2, 5: 1 },
-            },
-          ],
-        },
-        {
-          id: "wvq4",
-          text: "あなたが理想とする社会は？",
-          options: [
-            {
-              value: "A",
-              text: "個々の才能が輝く、活気ある競争社会",
-              scores: { 1: 2, 4: 1 },
-            },
-            {
-              value: "B",
-              text: "誰もが支え合う、穏やかで平和な社会",
-              scores: { 8: 2, 5: 1 },
-            },
-          ],
-        },
-      ];
 
       const SCENARIO_QUESTIONS = [
         {
@@ -1640,6 +1694,624 @@
       }
 
       document.addEventListener("DOMContentLoaded", main);
+
+      // ===========================================
+      // UI表示の8次元対応実装コード
+      // os_analyzer.html に追加・修正する関数群
+      // ===========================================
+
+      // ===========================================
+      // 1. 表示名変換関数
+      // ===========================================
+
+      // 8次元表示名変換マップ
+      const DIMENSION_DISPLAY_MAP = {
+        乾_創造性: "天_創造性",
+        震_行動性: "雷_行動性",
+        坎_探求性: "水_探求性",
+        艮_安定性: "山_安定性",
+        坤_受容性: "地_受容性",
+        巽_適応性: "風_適応性",
+        離_表現性: "火_表現性",
+        兌_調和性: "沢_調和性",
+      };
+
+      // 逆変換マップ
+      const DISPLAY_TO_INTERNAL_MAP = {
+        天_創造性: "乾_創造性",
+        雷_行動性: "震_行動性",
+        水_探求性: "坎_探求性",
+        山_安定性: "艮_安定性",
+        地_受容性: "坤_受容性",
+        風_適応性: "巽_適応性",
+        火_表現性: "離_表現性",
+        沢_調和性: "兌_調和性",
+      };
+
+      // 8次元説明マップ（ユーザー理解促進用）
+      const DIMENSION_DESCRIPTIONS = {
+        天_創造性: "新しいものを生み出し、リードする力（乾☰）",
+        雷_行動性: "動き、変化を起こし、実行する力（震☳）",
+        水_探求性: "深く追求し、本質を見抜く力（坎☵）",
+        山_安定性: "継続し、基盤を維持する力（艮☶）",
+        地_受容性: "受け入れ、育み、支える力（坤☷）",
+        風_適応性: "柔軟に対応し、調整する力（巽☴）",
+        火_表現性: "明確に示し、輝かせる力（離☲）",
+        沢_調和性: "つながり、喜びを生み出す力（兌☱）",
+      };
+
+      // 内部キー → 表示名変換
+      function convertToDisplayNames(internalVector) {
+        const displayVector = {};
+        Object.keys(internalVector).forEach((key) => {
+          const displayKey = DIMENSION_DISPLAY_MAP[key] || key;
+          displayVector[displayKey] = internalVector[key];
+        });
+        return displayVector;
+      }
+
+      // 表示名 → 内部キー変換
+      function convertToInternalNames(displayVector) {
+        const internalVector = {};
+        Object.keys(displayVector).forEach((key) => {
+          const internalKey = DISPLAY_TO_INTERNAL_MAP[key] || key;
+          internalVector[internalKey] = displayVector[key];
+        });
+        return internalVector;
+      }
+
+      // ===========================================
+      // 2. レーダーチャート8軸対応
+      // ===========================================
+
+      function createRadarChart(userVector, canvasId = "radarChart") {
+        // 内部処理用キー（計算用）
+        const internalKeys = [
+          "乾_創造性",
+          "震_行動性",
+          "坎_探求性",
+          "艮_安定性",
+          "坤_受容性",
+          "巽_適応性",
+          "離_表現性",
+          "兌_調和性",
+        ];
+
+        // ユーザー表示用ラベル
+        const displayLabels = [
+          "天_創造性",
+          "雷_行動性",
+          "水_探求性",
+          "山_安定性",
+          "地_受容性",
+          "風_適応性",
+          "火_表現性",
+          "沢_調和性",
+        ];
+
+        // データ準備
+        const data = internalKeys.map((key) => userVector[key] || 0);
+        const maxValue = Math.max(...data, 10); // 最低10をmax値に設定
+
+        // 既存のチャートを破棄
+        const existingChart = Chart.getChart(canvasId);
+        if (existingChart) {
+          existingChart.destroy();
+        }
+
+        // Canvas要素取得
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) {
+          console.error(`Canvas element with id '${canvasId}' not found`);
+          return null;
+        }
+
+        // Chart.js 8軸レーダーチャート設定
+        const config = {
+          type: "radar",
+          data: {
+            labels: displayLabels, // ユーザーには分かりやすい表示名
+            datasets: [
+              {
+                label: "あなたの価値観プロファイル",
+                data: data,
+                backgroundColor: "rgba(54, 162, 235, 0.2)",
+                borderColor: "rgba(54, 162, 235, 1)",
+                borderWidth: 2,
+                pointBackgroundColor: "rgba(54, 162, 235, 1)",
+                pointBorderColor: "#fff",
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: true,
+                position: "top",
+                labels: {
+                  color: "#333",
+                  font: {
+                    size: 14,
+                  },
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const label = context.label;
+                    const value = context.parsed.r;
+                    const description = DIMENSION_DESCRIPTIONS[label] || "";
+                    return `${label}: ${value}点\n${description}`;
+                  },
+                },
+              },
+            },
+            scales: {
+              r: {
+                beginAtZero: true,
+                max: maxValue,
+                ticks: {
+                  stepSize: Math.ceil(maxValue / 5),
+                  color: "#666",
+                  backdropColor: "transparent",
+                },
+                grid: {
+                  color: "rgba(0, 0, 0, 0.1)",
+                },
+                pointLabels: {
+                  font: {
+                    size: 12,
+                    weight: "bold",
+                  },
+                  color: "#333",
+                  callback: function (label, index) {
+                    // ラベルを2行に分割（長い場合）
+                    if (label.length > 6) {
+                      const parts = label.split("_");
+                      return parts;
+                    }
+                    return label;
+                  },
+                },
+              },
+            },
+            interaction: {
+              intersect: false,
+            },
+          },
+        };
+
+        // チャート作成
+        const chart = new Chart(ctx, config);
+        return chart;
+      }
+
+      // ===========================================
+      // 3. 分析結果表示の8次元対応
+      // ===========================================
+
+      function displayAnalysisResults(analysisResults, userVector) {
+        // userVectorを表示名に変換
+        const displayVector = convertToDisplayNames(userVector);
+
+        // 上位3次元を特定
+        const topDimensions = Object.entries(displayVector)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3);
+
+        // 下位3次元を特定
+        const bottomDimensions = Object.entries(displayVector)
+          .sort((a, b) => a[1] - b[1])
+          .slice(0, 3);
+
+        // 結果表示HTML生成
+        const resultHTML = `
+          <div class="analysis-results-8d">
+            <div class="dimension-summary">
+              <h3>🎯 あなたの価値観の特徴</h3>
+              
+              <div class="top-dimensions">
+                <h4>💪 特に強い価値観</h4>
+                <div class="dimension-list">
+                  ${topDimensions
+                    .map(
+                      (dim, index) => `
+                    <div class="dimension-item strong">
+                      <span class="rank">${index + 1}位</span>
+                      <span class="dimension-name">${dim[0]}</span>
+                      <span class="dimension-score">${dim[1]}点</span>
+                      <div class="dimension-desc">${
+                        DIMENSION_DESCRIPTIONS[dim[0]]
+                      }</div>
+                    </div>
+                  `
+                    )
+                    .join("")}
+                </div>
+              </div>
+              
+              <div class="growth-dimensions">
+                <h4>🌱 成長の余地がある価値観</h4>
+                <div class="dimension-list">
+                  ${bottomDimensions
+                    .map(
+                      (dim) => `
+                    <div class="dimension-item growth">
+                      <span class="dimension-name">${dim[0]}</span>
+                      <span class="dimension-score">${dim[1]}点</span>
+                      <div class="dimension-desc">${
+                        DIMENSION_DESCRIPTIONS[dim[0]]
+                      }</div>
+                    </div>
+                  `
+                    )
+                    .join("")}
+                </div>
+              </div>
+            </div>
+            
+            <div class="os-candidates">
+              <h3>🎭 あなたの人格OS候補</h3>
+              <div class="candidates-list">
+                ${analysisResults
+                  .map(
+                    (result, index) => `
+                  <div class="os-candidate" data-rank="${index + 1}">
+                    <div class="candidate-header">
+                      <span class="rank-badge">${index + 1}位</span>
+                      <span class="os-name">${
+                        result.hexagramInfo?.name_jp || "不明"
+                      }</span>
+                      <span class="similarity-score">${(
+                        result.score * 100
+                      ).toFixed(1)}%一致</span>
+                    </div>
+                    <div class="candidate-description">
+                      ${result.hexagramInfo?.catchphrase || "説明なし"}
+                    </div>
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>
+            </div>
+            
+            <div class="detailed-insights">
+              <h3>🔍 詳細な分析結果</h3>
+              <div class="insights-content">
+                ${generateDetailedInsights(
+                  topDimensions,
+                  bottomDimensions,
+                  analysisResults
+                )}
+              </div>
+            </div>
+          </div>
+        `;
+
+        // 結果表示エリアに挿入
+        const resultContainer = document.getElementById("analysisResults");
+        if (resultContainer) {
+          resultContainer.innerHTML = resultHTML;
+        }
+
+        // CSS動画効果を追加
+        setTimeout(() => {
+          const items = document.querySelectorAll(
+            ".dimension-item, .os-candidate"
+          );
+          items.forEach((item, index) => {
+            setTimeout(() => {
+              item.classList.add("fade-in");
+            }, index * 100);
+          });
+        }, 100);
+      }
+
+      // 詳細洞察生成
+      function generateDetailedInsights(
+        topDimensions,
+        bottomDimensions,
+        osResults
+      ) {
+        const primaryDimension = topDimensions[0];
+        const secondaryDimension = topDimensions[1];
+        const topOS = osResults[0];
+
+        let insights = `
+          <div class="insight-section">
+            <h4>🎯 あなたの核となる価値観</h4>
+            <p>あなたは特に<strong>${
+              primaryDimension[0]
+            }</strong>を重視する傾向があります（${primaryDimension[1]}点）。
+            これは易経の世界観では${
+              DIMENSION_DESCRIPTIONS[primaryDimension[0]]
+            }として表現されます。</p>
+            
+            <p>次に重要な価値観は<strong>${secondaryDimension[0]}</strong>（${
+          secondaryDimension[1]
+        }点）で、
+            これらの組み合わせがあなたの人格の核となっています。</p>
+          </div>
+          
+          <div class="insight-section">
+            <h4>🎭 あなたの人格OS</h4>
+            <p>分析の結果、あなたに最も適合する人格OSは<strong>「${
+              topOS.hexagramInfo?.name_jp
+            }」</strong>です。
+            適合度は${(topOS.score * 100).toFixed(1)}%となりました。</p>
+            
+            <p>${topOS.hexagramInfo?.catchphrase}</p>
+          </div>
+          
+          <div class="insight-section">
+            <h4>🌱 成長へのヒント</h4>
+            <p>現在、${bottomDimensions[0][0]}（${
+          bottomDimensions[0][1]
+        }点）の発達に余地があります。
+            この価値観を意識的に高めることで、より多面的で豊かな人格発達が期待できます。</p>
+          </div>
+        `;
+
+        return insights;
+      }
+
+      // ===========================================
+      // 4. 8次元対応CSS（スタイル調整）
+      // ===========================================
+
+      function inject8DimensionStyles() {
+        const style = document.createElement("style");
+        style.textContent = `
+          /* 8次元対応スタイル */
+          .analysis-results-8d {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          
+          .dimension-summary {
+            margin-bottom: 30px;
+          }
+          
+          .dimension-list {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+          }
+          
+          .dimension-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          
+          .dimension-item.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          
+          .dimension-item.strong {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+          }
+          
+          .dimension-item.growth {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+          }
+          
+          .rank {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 30px;
+          }
+          
+          .dimension-name {
+            font-weight: bold;
+            flex: 1;
+            margin-right: 10px;
+          }
+          
+          .dimension-score {
+            font-size: 1.2em;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: right;
+          }
+          
+          .dimension-desc {
+            font-size: 0.9em;
+            margin-top: 5px;
+            opacity: 0.9;
+            width: 100%;
+          }
+          
+          .candidates-list {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+          }
+          
+          .os-candidate {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          
+          .os-candidate.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          
+          .os-candidate:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+          }
+          
+          .candidate-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+          }
+          
+          .rank-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-right: 15px;
+          }
+          
+          .os-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            flex: 1;
+          }
+          
+          .similarity-score {
+            color: #667eea;
+            font-weight: bold;
+          }
+          
+          .candidate-description {
+            color: #666;
+            line-height: 1.6;
+          }
+          
+          .insight-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+          }
+          
+          .insight-section h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+          }
+          
+          .insight-section p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+          }
+          
+          /* レーダーチャート調整 */
+          .radar-chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+          }
+          
+          /* レスポンシブ対応 */
+          @media (max-width: 768px) {
+            .candidate-header {
+              flex-direction: column;
+              align-items: flex-start;
+            }
+            
+            .rank-badge {
+              margin-bottom: 10px;
+            }
+            
+            .dimension-item {
+              flex-direction: column;
+              align-items: flex-start;
+            }
+            
+            .dimension-score {
+              margin-top: 5px;
+            }
+          }
+        `;
+
+        document.head.appendChild(style);
+      }
+
+      // ===========================================
+      // 5. 初期化関数
+      // ===========================================
+
+      function initialize8DimensionUI() {
+        // CSSスタイルを注入
+        inject8DimensionStyles();
+
+        console.log("8次元UI初期化完了");
+      }
+
+      // ===========================================
+      // 6. 使用例・テスト関数
+      // ===========================================
+
+      function test8DimensionUI() {
+        // テスト用データ
+        const testUserVector = {
+          乾_創造性: 8,
+          震_行動性: 6,
+          坎_探求性: 9,
+          艮_安定性: 4,
+          坤_受容性: 3,
+          巽_適応性: 7,
+          離_表現性: 8,
+          兌_調和性: 5,
+        };
+
+        const testResults = [
+          {
+            osId: 1,
+            score: 0.85,
+            hexagramInfo: {
+              name_jp: "乾為天",
+              catchphrase: "創造力に満ちた天のエネルギーを持つリーダー",
+            },
+          },
+          {
+            osId: 30,
+            score: 0.78,
+            hexagramInfo: {
+              name_jp: "離為火",
+              catchphrase: "明るい表現力で人を魅了するアーティスト",
+            },
+          },
+        ];
+
+        // テスト実行
+        console.log("8次元UIテスト開始");
+        displayAnalysisResults(testResults, testUserVector);
+        createRadarChart(testUserVector);
+      }
+
+      // ===========================================
+      // 7. 公開API（グローバル関数として登録）
+      // ===========================================
+
+      // これらの関数をグローバルスコープで使用可能にする
+      window.convertToDisplayNames = convertToDisplayNames;
+      window.convertToInternalNames = convertToInternalNames;
+      window.createRadarChart = createRadarChart;
+      window.displayAnalysisResults = displayAnalysisResults;
+      window.initialize8DimensionUI = initialize8DimensionUI;
+      window.test8DimensionUI = test8DimensionUI;
+
+      // ページ読み込み時に自動初期化
+      document.addEventListener("DOMContentLoaded", function () {
+        initialize8DimensionUI();
+      });
     </script>
   </body>
 </html>

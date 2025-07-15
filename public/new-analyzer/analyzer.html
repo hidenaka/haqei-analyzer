@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="HaQei Analyzer - 古代の叡智と現代のテクノロジーが融合した、深い自己洞察体験"
+    />
+    <title>HaQei Analyzer - 深い自己洞察への入り口</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/animations.css" />
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  </head>
+  <body>
+    <!-- Global Progress Indicator -->
+    <div class="global-progress">
+      <div class="progress-bar" style="width: var(--progress, 0%)"></div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div id="app" class="app-container">
+      <!-- Welcome Screen -->
+      <section id="welcome-container" class="screen-container">
+        <!-- WelcomeScreen component will render here -->
+      </section>
+
+      <!-- Questions Flow -->
+      <section
+        id="questions-container"
+        class="screen-container"
+        style="display: none"
+      >
+        <!-- QuestionFlow component will render here -->
+      </section>
+
+      <!-- Analysis View -->
+      <section
+        id="analysis-container"
+        class="screen-container"
+        style="display: none"
+      >
+        <!-- AnalysisView component will render here -->
+      </section>
+
+      <!-- Results View -->
+      <section
+        id="results-container"
+        class="screen-container"
+        style="display: none"
+      >
+        <!-- ResultsView component will render here -->
+      </section>
+
+      <!-- Deep Insights Panel -->
+      <section
+        id="insights-container"
+        class="screen-container"
+        style="display: none"
+      >
+        <!-- InsightPanel component will render here -->
+      </section>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/DataManager.js"></script>
+    <script src="js/core/Calculator.js"></script>
+    <script src="js/core/Engine.js"></script>
+
+    <!-- Data Scripts -->
+    <script src="js/data/questions.js"></script>
+    <script src="js/data/vectors.js"></script>
+    <script src="js/data/hexagrams.js"></script>
+
+    <!-- Component Scripts -->
+    <script src="js/components/WelcomeScreen.js"></script>
+    <script src="js/components/QuestionFlow.js"></script>
+    <script src="js/components/AnalysisView.js"></script>
+    <script src="js/components/ResultsView.js"></script>
+    <script src="js/components/InsightPanel.js"></script>
+
+    <!-- Utility Scripts -->
+    <script src="js/utils/animations.js"></script>
+    <script src="js/utils/validators.js"></script>
+
+    <!-- Main Application -->
+    <script src="js/app.js"></script>
+  </body>
+</html>
