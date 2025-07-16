@@ -76,14 +76,25 @@ class DataManager {
 
   // 64卦データを取得
   getHexagramData(osId) {
-    this.checkDataLoaded();
-    const hexData = this.data.hexagrams[osId];
-    if (!hexData) return null;
+    console.log("🔍 getHexagramData呼び出し:", osId);
+    console.log(
+      "🔍 利用可能なhexagram keys:",
+      Object.keys(this.data.hexagrams || {})
+    );
+    const result = this.data.hexagrams?.[osId] || null;
+    console.log("🔍 getHexagramData結果:", {
+      osId,
+      found: !!result,
+      hasName: !!result?.name,
+      name: result?.name,
+      fullData: result,
+    });
+    if (!result) return null;
 
     // 既存形式に合わせて name_jp プロパティも追加
     return {
-      ...hexData,
-      name_jp: hexData.name, // 既存コードとの互換性のため
+      ...result,
+      name_jp: result.name, // 既存コードとの互換性のため
     };
   }
 

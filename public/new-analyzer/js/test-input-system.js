@@ -1558,23 +1558,58 @@ ${r.resultText}
 
   // TripleOS用テキスト生成
   generateTripleOSText(participant, result, format) {
+    console.log("📝 generateTripleOSText開始:", {
+      participant: participant.name,
+      format,
+      engineOS: {
+        exists: !!result.engineOS,
+        hasHexagramInfo: !!result.engineOS?.hexagramInfo,
+        hasOsName: !!result.engineOS?.osName, // 追加
+        hexagramInfoName: result.engineOS?.hexagramInfo?.name,
+        osName: result.engineOS?.osName, // 追加
+      },
+    });
+
     if (format === "detailed") {
+      // 【修正】エンジンOS名の取得方法を変更
+      // result.engineOS.hexagramInfo?.name ではなく result.engineOS.osName を使用
+      const engineOSName =
+        result.engineOS?.osName || result.engineOS?.hexagramInfo?.name;
+      const engineOSCatchphrase =
+        result.engineOS?.catchphrase ||
+        result.engineOS?.hexagramInfo?.catchphrase ||
+        "";
+
+      console.log("🔧 エンジンOS名取得:", {
+        engineOS: !!result.engineOS,
+        osName: result.engineOS?.osName,
+        hexagramInfoName: result.engineOS?.hexagramInfo?.name,
+        finalName: engineOSName,
+        catchphrase: engineOSCatchphrase,
+      });
+
+      // インターフェースOSとセーフモードOSも同様に修正
+      const interfaceOSName =
+        result.interfaceOS?.hexagramInfo?.name || "データ取得エラー";
+      const safeModeOSName =
+        result.safeModeOS?.hexagramInfo?.name || "データ取得エラー";
+
       return `
 🎯 ${participant.name}さんの HaQei 人格OS診断結果
 
 【あなたの3層人格OS】
 
 🔧 エンジンOS（核となる価値観）
-「${result.engineOS.hexagramInfo?.name || "データ取得エラー"}」
-${result.engineOS.hexagramInfo?.catchphrase || ""}
+「${engineOSName || "データ取得エラー"}」
+${engineOSCatchphrase}
 
 🖥️ インターフェースOS（外面的な行動）
-「${result.interfaceOS.hexagramInfo?.name || "データ取得エラー"}」
-マッチ度: ${Math.round(result.interfaceOS.matchScore || 0)}%
+「${interfaceOSName}」
+マッチ度: ${Math.round(result.interfaceOS?.matchScore || 0)}%
 
 🛡️ セーフモードOS（内面的な防御機制）
-「${result.safeModeOS.hexagramInfo?.name || "データ取得エラー"}」
-マッチ度: ${Math.round(result.safeModeOS.matchScore || 0)}%
+「${safeModeOSName}」
+マッチ度: ${Math.round(result.safeModeOS?.matchScore || 0)}%
 
 【人格一貫性スコア】
 総合: ${Math.round((result.consistencyScore?.overall || 0) * 100)}%
@@ -1592,12 +1627,21 @@ ${
 的中度や印象をお聞かせください 🙏
       `.trim();
     } else if (format === "summary") {
+      // サマリー形式も同様に修正
+      const engineOSName =
+        result.engineOS?.osName ||
+        result.engineOS?.hexagramInfo?.name ||
+        "エラー";
+      const interfaceOSName =
+        result.interfaceOS?.hexagramInfo?.name || "エラー";
+      const safeModeOSName = result.safeModeOS?.hexagramInfo?.name || "エラー";
+
       return `
 🎯 ${participant.name}さんの人格OS診断
 
-エンジンOS: 「${result.engineOS.hexagramInfo?.name || "エラー"}」
-インターフェースOS: 「${result.interfaceOS.hexagramInfo?.name || "エラー"}」
-セーフモードOS: 「${result.safeModeOS.hexagramInfo?.name || "エラー"}」
+エンジンOS: 「${engineOSName}」
+インターフェースOS: 「${interfaceOSName}」
+セーフモードOS: 「${safeModeOSName}」
 
 人格一貫性: ${Math.round((result.consistencyScore?.overall || 0) * 100)}%
 
@@ -1606,14 +1650,15 @@ ${result.integration?.summary || ""}
 #HaQeiAnalyzer #人格診断 #易経
       `.trim();
     } else {
-      // 分析用データ
+      // 分析用データ形式も修正
       return JSON.stringify(
         {
           participantId: participant.id,
           participantName: participant.name,
-          engineOS: result.engineOS.hexagramInfo?.name,
-          interfaceOS: result.interfaceOS.hexagramInfo?.name,
-          safeModeOS: result.safeModeOS.hexagramInfo?.name,
+          engineOS:
+            result.engineOS?.osName || result.engineOS?.hexagramInfo?.name,
+          interfaceOS: result.interfaceOS?.hexagramInfo?.name,
+          safeModeOS: result.safeModeOS?.hexagramInfo?.name,
           consistencyScore: result.consistencyScore?.overall,
           processedAt: new Date().toISOString(),
         },

@@ -94,25 +94,50 @@ class TripleOSEngine extends DiagnosisEngine {
 
   // エンジンOS分析（価値観設問→8次元→64卦ベクトル類似度方式）
   async analyzeEngineOS(worldviewAnswers) {
+    console.log("🔧 === analyzeEngineOS開始 ===");
+    console.log("📝 入力answers:", worldviewAnswers.length, "個");
     try {
-      console.log("🔥 Analyzing Engine OS from worldview questions...");
       // 8次元ユーザーベクトル構築
       const userVector = this.calculator.buildUserVector(worldviewAnswers);
-      console.log("📊 User vector:", userVector);
+      console.log("📊 userVector:", userVector);
       // OS候補分析
       const vectorsData = this.dataManager.getVectorsData();
       const candidates = this.calculator.analyzeOSCandidates(
         userVector,
         vectorsData
       );
+      console.log("📊 candidates:", candidates);
       if (!candidates || candidates.length === 0) {
         throw new Error("No OS candidates found");
       }
       // 最適候補を選択
       const bestCandidate = candidates[0];
+      console.log("🎯 bestCandidate:", {
+        osId: bestCandidate.osId,
+        score: bestCandidate.score,
+        similarity: bestCandidate.similarity,
+        activation: bestCandidate.activation,
+      });
+      // 64卦データを取得
+      console.log("🔍 hexagramInfo取得開始:", bestCandidate.osId);
       const hexagramInfo = this.dataManager.getHexagramData(bestCandidate.osId);
+      console.log("🔍 hexagramInfo取得結果:", {
+        exists: !!hexagramInfo,
+        hasName: !!hexagramInfo?.name,
+        name: hexagramInfo?.name,
+        fullData: hexagramInfo,
+      });
       if (!hexagramInfo) {
-        throw new Error(`Hexagram info not found for OS ${bestCandidate.osId}`);
+        console.error("❌ hexagramInfoがnull:", bestCandidate.osId);
+        throw new Error(
+          `Hexagram data not found for osId: ${bestCandidate.osId}`
+        );
+      }
+      if (!hexagramInfo.name) {
+        console.error("❌ hexagramInfo.nameが空:", hexagramInfo);
+        throw new Error(
+          `Hexagram name not found for osId: ${bestCandidate.osId}`
+        );
       }
       // dominantTrigrams を生成
       const dominantTrigrams = this.generateDominantTrigrams(
@@ -139,7 +164,7 @@ class TripleOSEngine extends DiagnosisEngine {
       console.log("🎯 Dominant trigrams:", dominantTrigrams);
       return engineOSResult;
     } catch (error) {
-      console.error("❌ Error in analyzeEngineOS:", error);
+      console.error("❌ analyzeEngineOSエラー:", error);
       throw error;
     }
   }
