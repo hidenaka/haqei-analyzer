@@ -325,13 +325,33 @@ class TestInputSystem {
 
   // 回答データをエンジン用形式に変換
   convertAnswersToEngineFormat(rawAnswers) {
-    const engineAnswers = {};
+    console.log(
+      "🔄 Converting answers to engine format:",
+      Object.keys(rawAnswers)
+    );
+    const engineAnswers = [];
 
     // 価値観設問（Q1-Q24）を変換
     for (let i = 1; i <= 24; i++) {
       const questionKey = `Q${i}`;
       if (rawAnswers[questionKey]) {
-        engineAnswers[`q${i}`] = rawAnswers[questionKey];
+        const questionData = this.getQuestionData("worldview", `q${i}`);
+        const selectedOption = this.getOptionData(
+          questionData,
+          rawAnswers[questionKey]
+        );
+
+        if (selectedOption && selectedOption.scoring_tags) {
+          engineAnswers.push({
+            questionId: `q${i}`,
+            selectedValue: rawAnswers[questionKey],
+            scoring_tags: selectedOption.scoring_tags,
+          });
+        } else {
+          console.warn(
+            `⚠️ No scoring tags found for ${questionKey}: ${rawAnswers[questionKey]}`
+          );
+        }
       }
     }
 
@@ -341,14 +361,68 @@ class TestInputSystem {
       const outerKey = `Q${i}_外面`;
 
       if (rawAnswers[innerKey] && rawAnswers[outerKey]) {
-        engineAnswers[`q${i}`] = {
-          inner: rawAnswers[innerKey],
-          outer: rawAnswers[outerKey],
-        };
+        const questionData = this.getQuestionData("scenario", `q${i}`);
+        const innerOption = this.getOptionData(
+          questionData,
+          rawAnswers[innerKey],
+          "inner"
+        );
+        const outerOption = this.getOptionData(
+          questionData,
+          rawAnswers[outerKey],
+          "outer"
+        );
+
+        if (
+          innerOption &&
+          outerOption &&
+          innerOption.scoring_tags &&
+          outerOption.scoring_tags
+        ) {
+          engineAnswers.push({
+            questionId: `q${i}`,
+            innerChoice: {
+              value: rawAnswers[innerKey],
+              scoring_tags: innerOption.scoring_tags,
+            },
+            outerChoice: {
+              value: rawAnswers[outerKey],
+              scoring_tags: outerOption.scoring_tags,
+            },
+          });
+        } else {
+          console.warn(
+            `⚠️ No scoring tags found for ${innerKey}/${outerKey}: ${rawAnswers[innerKey]}/${rawAnswers[outerKey]}`
+          );
+        }
       }
     }
 
+    console.log(`✅ Converted ${engineAnswers.length} answers for engine`);
     return engineAnswers;
+  }
+
+  // 質問データを取得
+  getQuestionData(type, questionId) {
+    const questions =
+      type === "worldview"
+        ? this.questions.worldview
+        : this.questions.scenarios;
+    return questions.find((q) => q.id === questionId);
+  }
+
+  // オプションデータを取得
+  getOptionData(questionData, value, choiceType = null) {
+    if (!questionData || !questionData.options) return null;
+
+    if (choiceType) {
+      // シナリオ設問の場合
+      const options = questionData.options[choiceType];
+      return options ? options.find((opt) => opt.value === value) : null;
+    } else {
+      // 価値観設問の場合
+      return questionData.options.find((opt) => opt.value === value);
+    }
   }
 
   // 回答データ一括処理メソッド
@@ -363,8 +437,11 @@ class TestInputSystem {
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
 
-        // 新しい参加者の開始を検出
-        if (line.includes("【参加者情報】")) {
+        // 新しい参加者の開始を検出（複数のパターンに対応）
+        if (
+          line.includes("【参加者情報】") ||
+          line.match(/^###\s*回答\d+\/\d+/)
+        ) {
           if (currentParticipant) {
             participants.push(currentParticipant);
           }
@@ -403,8 +480,8 @@ class TestInputSystem {
           currentParticipant.worldviewAnswers[question] = answer;
         }
 
-        // シナリオ設問回答の解析
-        if (currentSection === "scenario" && line.match(/^Q\d+_/)) {
+        // シナリオ設問回答の解析（Q25-Q30の内面/外面）
+        if (currentSection === "scenario" && line.match(/^Q(2[5-9]|30)_/)) {
           const [question, answer] = line.split(":").map((s) => s.trim());
           currentParticipant.scenarioAnswers[question] = answer;
         }
@@ -429,27 +506,33 @@ class TestInputSystem {
       const participant = {
         id: this.generateParticipantId(participantData.info.name),
         name: participantData.info.name,
-        age: participantData.info.age,
+        age: participantData.info.age.toString().replace("歳", ""),
         gender: participantData.info.gender,
         occupation: participantData.info.occupation,
       };
 
-      // 回答データを変換（既存の形式に合わせる）
+      // 回答データを変換（executeAllDiagnosisと同じ形式に合わせる）
       const answers = {};
 
-      // 価値観設問の変換
+      // 価値観設問の変換（Q1-Q24）
       Object.entries(participantData.worldviewAnswers).forEach(
         ([questionKey, selectedValue]) => {
           answers[questionKey] = selectedValue;
         }
       );
 
-      // シナリオ設問の変換
+      // シナリオ設問の変換（Q25_内面/Q25_外面形式）
       Object.entries(participantData.scenarioAnswers).forEach(
         ([questionKey, selectedValue]) => {
           answers[questionKey] = selectedValue;
         }
       );
+
+      console.log(`🔄 Converted participant: ${participant.name}`, {
+        participant,
+        answersCount: Object.keys(answers).length,
+        scenarioCount: Object.keys(participantData.scenarioAnswers).length,
+      });
 
       return { participant, answers };
     } catch (error) {
@@ -468,6 +551,16 @@ class TestInputSystem {
 
   // 一括処理実行メソッド
   async processBatchAndGenerate(rawAnswersText) {
+    console.log("✅ processBatchAndGenerate メソッドが呼び出されました");
+    console.log(
+      "📝 入力テキスト長:",
+      rawAnswersText ? rawAnswersText.length : "null"
+    );
+    console.log(
+      "📝 入力テキストプレビュー:",
+      rawAnswersText ? rawAnswersText.substring(0, 500) : "null"
+    );
+
     try {
       console.log("🔄 一括処理を開始...");
 
@@ -479,8 +572,18 @@ class TestInputSystem {
       }
 
       // 1. 回答データを解析
+      console.log(
+        "🔍 processBatchAnswersメソッド存在確認:",
+        typeof this.processBatchAnswers
+      );
       const participantsData = this.processBatchAnswers(rawAnswersText);
       console.log(`📝 ${participantsData.length}人の回答データを解析しました`);
+      if (participantsData.length === 0) {
+        throw new Error(
+          "回答データが正しく解析されませんでした。入力形式を確認してください。"
+        );
+      }
+      console.log("🔍 参加者データサンプル:", participantsData[0]);
 
       if (progressDiv) {
         progressDiv.innerHTML =
@@ -492,6 +595,19 @@ class TestInputSystem {
       let successCount = 0;
       let failCount = 0;
       const results = [];
+
+      // 既存のエンジンを使用（統一）
+      console.log("🔍 DataManagerクラス確認:", typeof window.DataManager);
+      console.log("🔍 TripleOSEngineクラス確認:", typeof window.TripleOSEngine);
+
+      const dataManager = new window.DataManager();
+      console.log("✅ DataManagerインスタンス作成完了");
+
+      await dataManager.loadData();
+      console.log("✅ データ読み込み完了");
+
+      const engine = new window.TripleOSEngine(dataManager);
+      console.log("✅ TripleOSEngineインスタンス作成完了");
 
       for (let i = 0; i < participantsData.length; i++) {
         try {
@@ -510,22 +626,27 @@ class TestInputSystem {
           this.participants.push(participant);
           this.answersData[participant.id] = answers;
 
-          // 診断実行
-          const dataManager = new window.DataManager();
-          await dataManager.loadData();
-          const engine = new window.TripleOSEngine(dataManager);
-
+          // 診断実行（executeAllDiagnosisと同じフロー）
           const engineAnswers = this.convertAnswersToEngineFormat(answers);
+          console.log(`🔬 Engine input for ${participant.id}:`, engineAnswers);
           const diagnosisResult = await engine.analyzeTripleOS(engineAnswers);
+          console.log(
+            `✅ Engine output for ${participant.id}:`,
+            diagnosisResult
+          );
 
+          // 結果を統一形式で保存
           this.diagnosisResults[participant.id] = {
             result: diagnosisResult,
             processedAt: new Date().toISOString(),
             participant: participant,
           };
 
+          // 結果の構造を確認してログ出力
+          console.log(`✅ Result for ${participant.id}:`, diagnosisResult);
+
           // 結果テキスト生成
-          const resultText = this.generateProductionLevelText(participant.id);
+          const resultText = this.generateUserText(participant.id, "detailed");
 
           results.push({
             participant,
@@ -540,6 +661,20 @@ class TestInputSystem {
             `❌ ${participantsData[i].info.name} の処理エラー:`,
             error
           );
+
+          // エラーケースも診断結果に保存
+          const { participant } = this.convertToSystemFormat(
+            participantsData[i]
+          );
+          this.participants.push(participant);
+
+          this.diagnosisResults[participant.id] = {
+            error: error.message,
+            errorDetails: error.stack,
+            processedAt: new Date().toISOString(),
+            participant: participant,
+          };
+
           results.push({
             participant: participantsData[i].info,
             error: error.message,
@@ -549,9 +684,10 @@ class TestInputSystem {
         }
       }
 
-      // データ保存
+      // データ保存と表示更新
       this.saveData();
       this.updateDisplay();
+      this.updateResultsList();
 
       if (progressDiv) {
         progressDiv.innerHTML = `
@@ -699,21 +835,59 @@ ${r.resultText}
         '<div class="progress-message">🔄 一括処理を開始しています...</div>';
     }
 
-    this.processBatchAndGenerate(rawText)
-      .then((results) => {
-        console.log("一括処理完了:", results);
-        if (progressElement) {
-          progressElement.innerHTML =
-            '<div class="progress-message success">✅ 一括処理が完了しました！</div>';
-        }
-      })
-      .catch((error) => {
-        console.error("一括処理エラー:", error);
-        if (progressElement) {
-          progressElement.innerHTML = `<div class="progress-message error">❌ エラーが発生しました: ${error.message}</div>`;
-        }
-        alert(`一括処理でエラーが発生しました: ${error.message}`);
-      });
+    // デバッグ: メソッド存在確認
+    console.log(
+      "🔍 processBatchAndGenerate method exists:",
+      typeof this.processBatchAndGenerate
+    );
+    console.log(
+      "🔍 About to call processBatchAndGenerate with text length:",
+      rawText.length
+    );
+
+    try {
+      console.log("🚀 Calling processBatchAndGenerate...");
+      this.processBatchAndGenerate(rawText)
+        .then((results) => {
+          console.log("✅ 一括処理完了:", results);
+
+          // 結果表示を強制更新
+          this.updateDisplay();
+          this.updateResultsList();
+
+          // 診断結果タブに自動切り替え
+          showTab("results");
+
+          // 成功メッセージ表示
+          if (progressElement) {
+            const successCount = results.filter((r) => r.success).length;
+            const totalCount = results.length;
+            progressElement.innerHTML = `<div class="progress-message success">✅ 一括処理が完了しました！ 成功: ${successCount}/${totalCount}人</div>`;
+          }
+
+          // デバッグ情報をコンソールに出力
+          console.log(
+            "🔍 処理後の診断結果:",
+            Object.keys(this.diagnosisResults)
+          );
+          this.debugResults();
+        })
+        .catch((error) => {
+          console.error("❌ 一括処理Promiseエラー:", error);
+          console.error("❌ エラースタック:", error.stack);
+          if (progressElement) {
+            progressElement.innerHTML = `<div class="progress-message error">❌ エラーが発生しました: ${error.message}</div>`;
+          }
+          alert(`一括処理でエラーが発生しました: ${error.message}`);
+        });
+    } catch (syncError) {
+      console.error("❌ 同期エラー 発生:", syncError);
+      console.error("❌ 同期エラースタック:", syncError.stack);
+      if (progressElement) {
+        progressElement.innerHTML = `<div class="progress-message error">❌ 同期エラー: ${syncError.message}</div>`;
+      }
+      alert(`初期化エラーが発生しました: ${syncError.message}`);
+    }
   }
 
   // 参加者情報を更新
@@ -943,8 +1117,13 @@ ${r.resultText}
 
   // 一括診断実行
   async executeAllDiagnosis(event) {
-    if (this.participants.length === 0) {
-      alert("対象者が登録されていません");
+    const completedCount = Object.keys(this.answersData).length;
+    if (completedCount === 0) {
+      alert("回答データがありません");
+      return;
+    }
+
+    if (!confirm(`${completedCount}人分の診断を実行しますか？`)) {
       return;
     }
 
@@ -953,41 +1132,52 @@ ${r.resultText}
     button.textContent = "🔬 診断実行中...";
 
     try {
+      // 既存のエンジンを使用
       const dataManager = new window.DataManager();
       await dataManager.loadData();
       const engine = new window.TripleOSEngine(dataManager);
 
-      let completedCount = 0;
-      const totalCount = this.participants.length;
-
-      for (const participant of this.participants) {
+      let processed = 0;
+      for (const [participantId, answers] of Object.entries(this.answersData)) {
         try {
-          if (this.answersData[participant.id]) {
-            const rawAnswers = this.answersData[participant.id];
-            const answers = this.convertAnswersToEngineFormat(rawAnswers);
-            const result = await engine.analyzeTripleOS(answers);
+          console.log(`🔬 Processing ${participantId}...`);
 
-            this.diagnosisResults[participant.id] = {
-              result,
-              processedAt: new Date().toISOString(),
-              participant: participant,
-            };
+          const result = await engine.analyzeTripleOS(answers);
 
-            completedCount++;
-            this.updateDiagnosisProgress(completedCount, totalCount);
-          }
+          // 結果の構造を確認してログ出力
+          console.log(`✅ Result for ${participantId}:`, result);
+
+          // 結果を適切な形式で保存
+          this.diagnosisResults[participantId] = {
+            result: result,
+            processedAt: new Date().toISOString(),
+            participant: this.participants.find((p) => p.id === participantId),
+          };
+          processed++;
+
+          // プログレス更新
+          button.textContent = `🔬 診断中... (${processed}/${completedCount})`;
         } catch (error) {
-          console.error(`❌ Error processing ${participant.id}:`, error);
+          console.error(`❌ Error processing ${participantId}:`, error);
+          this.diagnosisResults[participantId] = {
+            error: error.message,
+            errorDetails: error.stack,
+            processedAt: new Date().toISOString(),
+            participant: this.participants.find((p) => p.id === participantId),
+          };
         }
       }
 
+      // データ保存と表示更新
       this.saveData();
-      this.updateDisplay();
-      alert(
-        `診断完了！ ${completedCount}/${totalCount} 人の診断が完了しました`
-      );
+      this.updateResultsList();
+
+      // 診断結果タブに自動切り替え
+      showTab("results");
+
+      alert(`診断完了！ ${processed}人の結果を生成しました`);
     } catch (error) {
-      console.error("❌ Diagnosis execution error:", error);
+      console.error("❌ Diagnosis execution failed:", error);
       alert("診断実行中にエラーが発生しました: " + error.message);
     } finally {
       button.disabled = false;
@@ -1021,13 +1211,97 @@ ${r.resultText}
     const result = data.result;
     const participant = data.participant;
 
-    if (format === "detailed") {
-      return this.generateDetailedText(participant, result);
-    } else if (format === "summary") {
-      return this.generateSummaryText(participant, result);
+    // TripleOS結果かどうかを判定
+    if (result.analysisType === "tripleOS") {
+      return this.generateTripleOSText(participant, result, format);
     } else {
-      return this.generateAnalysisData(participant, result);
+      // 従来の結果形式
+      return this.generateLegacyText(participant, result, format);
     }
+  }
+
+  // TripleOS用テキスト生成
+  generateTripleOSText(participant, result, format) {
+    if (format === "detailed") {
+      return `
+🎯 ${participant.name}さんの HaQei 人格OS診断結果
+
+【あなたの3層人格OS】
+
+🔧 エンジンOS（核となる価値観）
+「${result.engineOS.hexagramInfo?.name || "データ取得エラー"}」
+${result.engineOS.hexagramInfo?.catchphrase || ""}
+
+🖥️ インターフェースOS（外面的な行動）
+「${result.interfaceOS.hexagramInfo?.name || "データ取得エラー"}」
+マッチ度: ${Math.round(result.interfaceOS.matchScore || 0)}%
+
+🛡️ セーフモードOS（内面的な防御機制）
+「${result.safeModeOS.hexagramInfo?.name || "データ取得エラー"}」
+マッチ度: ${Math.round(result.safeModeOS.matchScore || 0)}%
+
+【人格一貫性スコア】
+総合: ${Math.round((result.consistencyScore?.overall || 0) * 100)}%
+
+【統合洞察】
+${result.integration?.summary || "洞察を生成中..."}
+
+${
+  result.integration?.recommendations?.map((rec) => `💡 ${rec}`).join("\n") ||
+  ""
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━
+この診断結果はいかがでしたか？
+的中度や印象をお聞かせください 🙏
+      `.trim();
+    } else if (format === "summary") {
+      return `
+🎯 ${participant.name}さんの人格OS診断
+
+エンジンOS: 「${result.engineOS.hexagramInfo?.name || "エラー"}」
+インターフェースOS: 「${result.interfaceOS.hexagramInfo?.name || "エラー"}」
+セーフモードOS: 「${result.safeModeOS.hexagramInfo?.name || "エラー"}」
+
+人格一貫性: ${Math.round((result.consistencyScore?.overall || 0) * 100)}%
+
+${result.integration?.summary || ""}
+
+#HaQeiAnalyzer #人格診断 #易経
+      `.trim();
+    } else {
+      // 分析用データ
+      return JSON.stringify(
+        {
+          participantId: participant.id,
+          participantName: participant.name,
+          engineOS: result.engineOS.hexagramInfo?.name,
+          interfaceOS: result.interfaceOS.hexagramInfo?.name,
+          safeModeOS: result.safeModeOS.hexagramInfo?.name,
+          consistencyScore: result.consistencyScore?.overall,
+          processedAt: new Date().toISOString(),
+        },
+        null,
+        2
+      );
+    }
+  }
+
+  // 従来形式用テキスト生成（フォールバック）
+  // eslint-disable-next-line no-unused-vars
+  generateLegacyText(participant, result, format) {
+    return `
+🎯 ${participant.name}さんの HaQei 診断結果
+
+主要人格OS: 「${result.primaryOS?.hexagramInfo?.name || "データ取得エラー"}」
+適合度: ${Math.round(result.primaryOS?.matchPercentage || 0)}%
+
+${result.insights?.summary || "洞察を生成中..."}
+
+━━━━━━━━━━━━━━━━━━━━━━━
+この診断結果はいかがでしたか？
+的中度や印象をお聞かせください 🙏
+    `.trim();
   }
 
   generateDetailedText(participant, result) {
@@ -1037,24 +1311,27 @@ ${r.resultText}
 【あなたの3層人格OS】
 
 🔧 エンジンOS（核となる価値観）
-「${result.engineOS.hexagramInfo.name}」
-${result.engineOS.hexagramInfo.catchphrase || ""}
+「${result.engineOS?.hexagramInfo?.name || "データ取得エラー"}」
+${result.engineOS?.hexagramInfo?.catchphrase || ""}
 
 🖥️ インターフェースOS（外面的な行動）
-「${result.interfaceOS.hexagramInfo.name}」
-マッチ度: ${Math.round(result.interfaceOS.matchScore)}%
+「${result.interfaceOS?.hexagramInfo?.name || "データ取得エラー"}」
+マッチ度: ${Math.round(result.interfaceOS?.matchScore || 0)}%
 
 🛡️ セーフモードOS（内面的な防御機制）
-「${result.safeModeOS.hexagramInfo.name}」
-マッチ度: ${Math.round(result.safeModeOS.matchScore)}%
+「${result.safeModeOS?.hexagramInfo?.name || "データ取得エラー"}」
+マッチ度: ${Math.round(result.safeModeOS?.matchScore || 0)}%
 
 【人格一貫性スコア】
-総合: ${Math.round(result.consistencyScore.overall * 100)}%
+総合: ${Math.round((result.consistencyScore?.overall || 0) * 100)}%
 
 【統合洞察】
-${result.integration.summary}
+${result.integration?.summary || "洞察を生成中..."}
 
-${result.integration.recommendations.map((rec) => `💡 ${rec}`).join("\n")}
+${
+  result.integration?.recommendations?.map((rec) => `💡 ${rec}`).join("\n") ||
+  ""
+}
 
 ━━━━━━━━━━━━━━━━━━━━━━━
 この診断結果はいかがでしたか？
@@ -1066,13 +1343,13 @@ ${result.integration.recommendations.map((rec) => `💡 ${rec}`).join("\n")}
     return `
 🎯 ${participant.name}さんの人格OS診断
 
-エンジンOS: 「${result.engineOS.hexagramInfo.name}」
-インターフェースOS: 「${result.interfaceOS.hexagramInfo.name}」
-セーフモードOS: 「${result.safeModeOS.hexagramInfo.name}」
+エンジンOS: 「${result.engineOS?.hexagramInfo?.name || "エラー"}」
+インターフェースOS: 「${result.interfaceOS?.hexagramInfo?.name || "エラー"}」
+セーフモードOS: 「${result.safeModeOS?.hexagramInfo?.name || "エラー"}」
 
-人格一貫性: ${Math.round(result.consistencyScore.overall * 100)}%
+人格一貫性: ${Math.round((result.consistencyScore?.overall || 0) * 100)}%
 
-${result.integration.summary}
+${result.integration?.summary || ""}
 
 #HaQeiAnalyzer #人格診断 #易経
         `.trim();
@@ -1305,38 +1582,142 @@ ${result.integration.summary}
   // 結果一覧の更新
   updateResultsList() {
     const container = document.getElementById("results-list");
-    if (!container) return;
+    if (!container) {
+      console.warn("results-list container not found");
+      return;
+    }
 
     const results = Object.keys(this.diagnosisResults);
+    console.log(`🔄 Updating results list with ${results.length} results`);
+
+    // 結果サマリーも更新
+    this.updateResultsSummary();
+
     if (results.length === 0) {
-      container.innerHTML = "<p>診断結果がありません</p>";
+      container.innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: #9ca3af;">
+          <p>診断結果がありません</p>
+          <p>データ入力タブで回答を追加し、診断を実行してください</p>
+        </div>
+      `;
       return;
     }
 
     container.innerHTML = results
       .map((participantId) => {
         const data = this.diagnosisResults[participantId];
-        const participant = data.participant;
+        const participant = data.participant || { name: participantId };
         const hasError = !!data.error;
+        const hasResult = !!data.result;
 
         return `
-        <div class="result-item" style="margin-bottom: 1rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px;">
-          <h4>${participant?.name || participantId}</h4>
+        <div class="result-item" style="
+          margin-bottom: 1rem; 
+          padding: 1rem; 
+          border: 1px solid ${
+            hasError ? "#ef4444" : hasResult ? "#10b981" : "#6b7280"
+          }; 
+          border-radius: 8px;
+          background: ${
+            hasError
+              ? "rgba(239, 68, 68, 0.1)"
+              : hasResult
+              ? "rgba(16, 185, 129, 0.1)"
+              : "rgba(107, 114, 128, 0.1)"
+          };
+        ">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h4 style="margin: 0; color: ${
+              hasError ? "#ef4444" : hasResult ? "#10b981" : "#e5e7eb"
+            };">
+              ${hasError ? "❌" : hasResult ? "✅" : "⚠️"} ${
+          participant.name || participantId
+        }
+            </h4>
+            <small style="color: #9ca3af;">
+              ${
+                data.processedAt
+                  ? new Date(data.processedAt).toLocaleString("ja-JP")
+                  : "未処理"
+              }
+            </small>
+          </div>
+          
+          ${
+            participant.age || participant.gender || participant.occupation
+              ? `<p style="margin: 0.5rem 0; font-size: 0.9rem; color: #d1d5db;">
+              ${participant.age ? participant.age + "歳" : ""} 
+              ${participant.gender || ""} 
+              ${participant.occupation || ""}
+            </p>`
+              : ""
+          }
+          
           ${
             hasError
-              ? `<p style="color: red;">エラー: ${data.error}</p>`
-              : `<p>処理完了 - ${data.processedAt}</p>
-             <button class="btn" onclick="window.testSystem.showResultDetail('${participantId}')">
-               📄 結果を表示
-             </button>
-             <button class="btn btn-secondary" onclick="window.testSystem.copyResult('${participantId}')">
-               📋 コピー
-             </button>`
+              ? `<p style="color: #fca5a5; margin: 0.5rem 0;">エラー: ${data.error}</p>`
+              : hasResult
+              ? `<div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                   <button class="btn btn-primary" onclick="window.testSystem.showResultDetail('${participantId}')" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">
+                     📄 詳細表示
+                   </button>
+                   <button class="btn btn-secondary" onclick="window.testSystem.copyResult('${participantId}')" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">
+                     📋 コピー
+                   </button>
+                   <button class="btn btn-success" onclick="window.testSystem.sendResultToUser('${participantId}')" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">
+                     📧 送信用
+                   </button>
+                 </div>`
+              : `<p style="color: #9ca3af; margin: 0.5rem 0;">診断未実行</p>`
           }
         </div>
       `;
       })
       .join("");
+
+    console.log(`✅ Results list updated with ${results.length} items`);
+  }
+
+  // 結果サマリーの更新
+  updateResultsSummary() {
+    const totalCount = Object.keys(this.diagnosisResults).length;
+    const successCount = Object.values(this.diagnosisResults).filter(
+      (d) => d.result && !d.error
+    ).length;
+    // eslint-disable-next-line no-unused-vars
+    const errorCount = Object.values(this.diagnosisResults).filter(
+      (d) => d.error
+    ).length;
+
+    // 平均一貫性スコア計算
+    const consistencyScores = Object.values(this.diagnosisResults)
+      .filter((d) => d.result && d.result.consistencyScore && !d.error)
+      .map((d) => d.result.consistencyScore.overall || 0);
+    const avgConsistency =
+      consistencyScores.length > 0
+        ? Math.round(
+            (consistencyScores.reduce((a, b) => a + b, 0) /
+              consistencyScores.length) *
+              100
+          )
+        : 0;
+
+    // サマリー要素を更新
+    const elements = {
+      "total-diagnosis-count": totalCount,
+      "completion-rate":
+        totalCount > 0
+          ? Math.round((successCount / totalCount) * 100) + "%"
+          : "0%",
+      "avg-consistency-score": avgConsistency + "%",
+    };
+
+    Object.entries(elements).forEach(([id, value]) => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.textContent = value;
+      }
+    });
   }
 
   updateFeedbackSummary() {
@@ -2000,6 +2381,60 @@ ${resultText}
       diagnosisStatus.innerHTML =
         '<div class="diagnosis-status empty">診断対象者を選択して診断を実行してください</div>';
     }
+  }
+
+  // デバッグ用: 診断結果の構造を確認
+  debugResults() {
+    console.log("🔍 Stored diagnosis results:", this.diagnosisResults);
+    console.log("🔍 Participants:", this.participants);
+    console.log("🔍 Answers data:", Object.keys(this.answersData));
+
+    Object.keys(this.diagnosisResults).forEach((participantId) => {
+      const data = this.diagnosisResults[participantId];
+      console.log(`📊 ${participantId}:`, {
+        hasResult: !!data.result,
+        hasError: !!data.error,
+        resultType: data.result?.analysisType,
+        resultStructure: data.result ? Object.keys(data.result) : "none",
+        participantData: data.participant,
+        processedAt: data.processedAt,
+      });
+
+      if (data.result) {
+        console.log(`  ↳ Result structure:`, {
+          engineOS: !!data.result.engineOS,
+          interfaceOS: !!data.result.interfaceOS,
+          safeModeOS: !!data.result.safeModeOS,
+          consistencyScore: !!data.result.consistencyScore,
+          integration: !!data.result.integration,
+        });
+      }
+    });
+
+    // DOM要素の確認
+    const resultsList = document.getElementById("results-list");
+    console.log(`🔍 results-list element:`, {
+      exists: !!resultsList,
+      innerHTML: resultsList
+        ? resultsList.innerHTML.substring(0, 100) + "..."
+        : "N/A",
+    });
+  }
+
+  // 強制的に結果表示を更新するデバッグメソッド
+  forceUpdateResultsDisplay() {
+    console.log("🔄 強制的に結果表示を更新中...");
+    this.updateResultsList();
+    this.updateDisplay();
+
+    // タブが正しく表示されているかチェック
+    const resultsTab = document.getElementById("results-tab");
+    if (resultsTab) {
+      console.log("📋 Results tab display:", resultsTab.style.display);
+      console.log("📋 Results tab class:", resultsTab.className);
+    }
+
+    console.log("✅ 強制更新完了");
   }
 
   setupEventListeners() {
