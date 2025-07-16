@@ -101,7 +101,7 @@ class TripleOSEngine extends DiagnosisEngine {
       const userVector = this.calculator.buildUserVector(worldviewAnswers);
       console.log("📊 userVector:", userVector);
       // OS候補分析
-      const vectorsData = this.dataManager.getVectorsData();
+      const vectorsData = this.dataManager.getVectors();
       const candidates = this.calculator.analyzeOSCandidates(
         userVector,
         vectorsData
@@ -120,7 +120,8 @@ class TripleOSEngine extends DiagnosisEngine {
       });
       // 64卦データを取得
       console.log("🔍 hexagramInfo取得開始:", bestCandidate.osId);
-      const hexagramInfo = this.dataManager.getHexagramData(bestCandidate.osId);
+      const allHexagrams = this.dataManager.getAllHexagramData();
+      const hexagramInfo = allHexagrams.find(h => h.hexagram_id === bestCandidate.osId);
       console.log("🔍 hexagramInfo取得結果:", {
         exists: !!hexagramInfo,
         hasName: !!hexagramInfo?.name,
@@ -133,8 +134,8 @@ class TripleOSEngine extends DiagnosisEngine {
           `Hexagram data not found for osId: ${bestCandidate.osId}`
         );
       }
-      if (!hexagramInfo.name) {
-        console.error("❌ hexagramInfo.nameが空:", hexagramInfo);
+      if (!hexagramInfo.name_jp) {
+        console.error("❌ hexagramInfo.name_jpが空:", hexagramInfo);
         throw new Error(
           `Hexagram name not found for osId: ${bestCandidate.osId}`
         );
@@ -147,7 +148,7 @@ class TripleOSEngine extends DiagnosisEngine {
       // エンジンOS結果を構築
       const engineOSResult = {
         osId: bestCandidate.osId,
-        osName: hexagramInfo.name || hexagramInfo.name_jp,
+        osName: hexagramInfo.name_jp,
         catchphrase: hexagramInfo.catchphrase,
         description: hexagramInfo.description,
         keywords: hexagramInfo.keywords,
@@ -189,12 +190,12 @@ class TripleOSEngine extends DiagnosisEngine {
       return {
         type: "interface",
         hexagramId: bestMatch.hexagramId,
-        hexagramInfo: this.dataManager.getHexagramData(bestMatch.hexagramId),
+        hexagramInfo: this.dataManager.getAllHexagramData().find(h => h.hexagram_id === bestMatch.hexagramId),
         matchScore: bestMatch.score,
         keywordMatches: bestMatch.matches,
         outerChoices: outerChoices,
         trigramComposition: this.generateTrigramComposition(
-          this.dataManager.getHexagramData(bestMatch.hexagramId)
+          this.dataManager.getAllHexagramData().find(h => h.hexagram_id === bestMatch.hexagramId)
         ),
       };
     } catch (error) {
@@ -223,12 +224,12 @@ class TripleOSEngine extends DiagnosisEngine {
       return {
         type: "safemode",
         hexagramId: bestMatch.hexagramId,
-        hexagramInfo: this.dataManager.getHexagramData(bestMatch.hexagramId),
+        hexagramInfo: this.dataManager.getAllHexagramData().find(h => h.hexagram_id === bestMatch.hexagramId),
         matchScore: bestMatch.score,
         lineMatches: bestMatch.matches,
         innerChoices: innerChoices,
         trigramComposition: this.generateTrigramComposition(
-          this.dataManager.getHexagramData(bestMatch.hexagramId)
+          this.dataManager.getAllHexagramData().find(h => h.hexagram_id === bestMatch.hexagramId)
         ),
       };
     } catch (error) {
@@ -377,8 +378,8 @@ class TripleOSEngine extends DiagnosisEngine {
     return {
       summary: `あなたの人格は3層構造で構成されています。`,
       engineInsight: `エンジンOS「${engineOS.osName}」が核となる価値観を形成しています。`,
-      interfaceInsight: `インターフェースOS「${interfaceOS.hexagramInfo.name}」が外面的な行動パターンを決定しています。`,
-      safeModeInsight: `セーフモードOS「${safeModeOS.hexagramInfo.name}」が内面的な防御機制として働いています。`,
+      interfaceInsight: `インターフェースOS「${interfaceOS.hexagramInfo.name_jp}」が外面的な行動パターンを決定しています。`,
+      safeModeInsight: `セーフモードOS「${safeModeOS.hexagramInfo.name_jp}」が内面的な防御機制として働いています。`,
       consistencyInsight: `全体的な一貫性は${Math.round(
         consistencyScore.overall * 100
       )}%です。`,

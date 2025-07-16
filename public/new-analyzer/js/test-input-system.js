@@ -2,6 +2,13 @@
 
 // グローバル変数として参照（import文は使用しない）
 
+// 先頭付近にInsightEngineのimportを追加
+// import {
+//   getOSDetailText,
+//   getPersonalizedInsight,
+//   getPersonalizedActionPlans,
+// } from "./core/InsightEngine.js";
+
 class TestInputSystem {
   constructor() {
     this.participants = [];
@@ -45,7 +52,8 @@ class TestInputSystem {
     this.generateQuestionInputs();
     this.updateParticipantSelects();
     this.updateInputProgress();
-    this.updateResultsList(); // 追加
+    this.updateResultsList();
+    this.setupEventListeners(); // 追加
     console.log("🎯 Test Input System initialized");
   }
 
@@ -935,7 +943,7 @@ class TestInputSystem {
             participant: participant,
           };
 
-          const resultText = this.generateUserText(participant.id, "detailed");
+          const resultText = this.generateUserText(participant.id, dataManager);
           results.push({ participant, resultText, success: true });
 
           successCount++;
@@ -1540,132 +1548,159 @@ ${r.resultText}
   }
 
   // 診断結果をユーザー向けテキストに変換
-  generateUserText(participantId, format = "detailed") {
+  generateUserText(participantId, dataManager) {
+    return this.generateProductionLevelText(participantId, dataManager);
+  }
+
+  // generateProductionLevelTextを全面改修
+  generateProductionLevelText(participantId, dataManager) {
     const data = this.diagnosisResults[participantId];
     if (!data || !data.result) return "エラー: 診断結果が見つかりません";
-
     const result = data.result;
     const participant = data.participant;
 
-    // TripleOS結果かどうかを判定
-    if (result.analysisType === "tripleOS") {
-      return this.generateTripleOSText(participant, result, format);
-    } else {
-      // 従来の結果形式
-      return this.generateLegacyText(participant, result, format);
-    }
-  }
+    // 安全なID取得
+    const getHexagramIdFromOS = (osObject) => {
+      if (!osObject) return undefined;
+      if (osObject.hexagram_id) return osObject.hexagram_id;
+      if (osObject.osId) return osObject.osId;
+      if (osObject.hexagramId) return osObject.hexagramId;
+      if (osObject.id) return osObject.id;
+      if (osObject.hexagramInfo) {
+        if (osObject.hexagramInfo.hexagram_id)
+          return osObject.hexagramInfo.hexagram_id;
+        if (osObject.hexagramInfo.osId) return osObject.hexagramInfo.osId;
+        if (osObject.hexagramInfo.hexagramId)
+          return osObject.hexagramInfo.hexagramId;
+        if (osObject.hexagramInfo.id) return osObject.hexagramInfo.id;
+      }
+      return undefined;
+    };
+    const engineId = getHexagramIdFromOS(result.engineOS);
+    const interfaceId = getHexagramIdFromOS(result.interfaceOS);
+    const safeId = getHexagramIdFromOS(result.safeModeOS);
 
-  // TripleOS用テキスト生成
-  generateTripleOSText(participant, result, format) {
-    console.log("📝 generateTripleOSText開始:", {
-      participant: participant.name,
-      format,
-      engineOS: {
-        exists: !!result.engineOS,
-        hasHexagramInfo: !!result.engineOS?.hexagramInfo,
-        hasOsName: !!result.engineOS?.osName, // 追加
-        hexagramInfoName: result.engineOS?.hexagramInfo?.name,
-        osName: result.engineOS?.osName, // 追加
-      },
-    });
+    // DataManagerからリッチデータ取得
+    const hexagrams = dataManager.getAllHexagramData();
+    const osManual = dataManager.getOSManual();
+    const trigramsMaster = dataManager.getTrigramsMaster();
+    const elementRelationships = dataManager.getElementRelationships();
+    const actionPlans = dataManager.getActionPlans();
+    const bible = dataManager.getBibleData();
 
-    if (format === "detailed") {
-      // 【修正】エンジンOS名の取得方法を変更
-      // result.engineOS.hexagramInfo?.name ではなく result.engineOS.osName を使用
-      const engineOSName =
-        result.engineOS?.osName || result.engineOS?.hexagramInfo?.name;
-      const engineOSCatchphrase =
-        result.engineOS?.catchphrase ||
-        result.engineOS?.hexagramInfo?.catchphrase ||
-        "";
-
-      console.log("🔧 エンジンOS名取得:", {
-        engineOS: !!result.engineOS,
-        osName: result.engineOS?.osName,
-        hexagramInfoName: result.engineOS?.hexagramInfo?.name,
-        finalName: engineOSName,
-        catchphrase: engineOSCatchphrase,
+    if (
+      engineId === undefined ||
+      interfaceId === undefined ||
+      safeId === undefined
+    ) {
+      console.error("OS IDの取得に失敗しました。", {
+        engineId,
+        interfaceId,
+        safeId,
       });
+      return "エラー: 診断結果のデータ構造が不正です。";
+    }
+    const engineHex = hexagrams[engineId];
+    const interfaceHex = hexagrams[interfaceId];
+    const safeHex = hexagrams[safeId];
+    if (!engineHex || !interfaceHex || !safeHex) {
+      console.error("IDに対応する64卦データが見つかりませんでした。", {
+        engineId,
+        interfaceId,
+        safeId,
+      });
+      return "エラー: データベースとの整合性に問題があります。";
+    }
 
-      // インターフェースOSとセーフモードOSも同様に修正
-      const interfaceOSName =
-        result.interfaceOS?.hexagramInfo?.name || "データ取得エラー";
-      const safeModeOSName =
-        result.safeModeOS?.hexagramInfo?.name || "データ取得エラー";
+    // --- 改善版品質の詳細説明・専門用語解説 ---
+    const engineDetail = window.getOSDetailText(engineHex, osManual[engineId]);
+    const interfaceDetail = window.getOSDetailText(
+      interfaceHex,
+      osManual[interfaceId]
+    );
+    const safeDetail = window.getOSDetailText(safeHex, osManual[safeId]);
 
-      return `
-🎯 ${participant.name}さんの HaQei 人格OS診断結果
+    // 彖伝・大象伝（現代語訳）
+    const tuanDen = dataManager.getTuanDenData(engineId);
+    const taiShoDen = dataManager.getTaiShoDenData(engineId);
+    const tuanDenText = tuanDen
+      ? `
+📖【彖伝】
+${tuanDen.summary || tuanDen.title || ""}
+${tuanDen.haqei_interpretation || ""}`
+      : "";
+    const taiShoDenText = taiShoDen
+      ? `
+🌏【大象伝】
+${taiShoDen}`
+      : "";
+
+    // 一貫性スコア
+    const consistencyScore = window.calculateConsistencyScore(
+      engineHex,
+      interfaceHex,
+      safeHex,
+      trigramsMaster,
+      elementRelationships
+    );
+
+    // 洞察（パーソナライズ統合洞察）
+    const insight = window.getPersonalizedInsight(
+      engineHex,
+      interfaceHex,
+      safeHex,
+      trigramsMaster,
+      elementRelationships,
+      bible
+    );
+
+    // 推奨事項（アクションプラン＋クエスト）
+    const actionPlan = window.getPersonalizedActionPlans(
+      engineId,
+      interfaceId,
+      safeId,
+      actionPlans,
+      osManual
+    );
+
+    // テンプレート出力
+    return `
+🎯 ${participant.name}様への HaQei 人格OS診断結果
+═══════════════════════════════════════════
 
 【あなたの3層人格OS】
 
-🔧 エンジンOS（核となる価値観）
-「${engineOSName || "データ取得エラー"}」
-${engineOSCatchphrase}
+🔧 エンジンOS（根源的な力）
+${engineDetail}
 
-🖥️ インターフェースOS（外面的な行動）
-「${interfaceOSName}」
-マッチ度: ${Math.round(result.interfaceOS?.matchScore || 0)}%
+🖥️ インターフェースOS（表の顔）
+${interfaceDetail}
 
-🛡️ セーフモードOS（内面的な防御機制）
-「${safeModeOSName}」
-マッチ度: ${Math.round(result.safeModeOS?.matchScore || 0)}%
+🛡️ セーフモードOS（内なる顔）
+${safeDetail}
 
+${tuanDenText}
+${taiShoDenText}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 【人格一貫性スコア】
-総合: ${Math.round((result.consistencyScore?.overall || 0) * 100)}%
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${consistencyScore} %
 
-【統合洞察】
-${result.integration?.summary || "洞察を生成中..."}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+【統合洞察＆アクションプラン】
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${insight}
 
-${
-  result.integration?.recommendations?.map((rec) => `💡 ${rec}`).join("\n") ||
-  ""
-}
+${actionPlan}
 
-━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✨ **診断完了日時**: ${new Date(data.processedAt).toLocaleString("ja-JP")}
+🎯 **HaQei Analyzer v1.0**
+
 この診断結果はいかがでしたか？
-的中度や印象をお聞かせください 🙏
-      `.trim();
-    } else if (format === "summary") {
-      // サマリー形式も同様に修正
-      const engineOSName =
-        result.engineOS?.osName ||
-        result.engineOS?.hexagramInfo?.name ||
-        "エラー";
-      const interfaceOSName =
-        result.interfaceOS?.hexagramInfo?.name || "エラー";
-      const safeModeOSName = result.safeModeOS?.hexagramInfo?.name || "エラー";
-
-      return `
-🎯 ${participant.name}さんの人格OS診断
-
-エンジンOS: 「${engineOSName}」
-インターフェースOS: 「${interfaceOSName}」
-セーフモードOS: 「${safeModeOSName}」
-
-人格一貫性: ${Math.round((result.consistencyScore?.overall || 0) * 100)}%
-
-${result.integration?.summary || ""}
-
-#HaQeiAnalyzer #人格診断 #易経
-      `.trim();
-    } else {
-      // 分析用データ形式も修正
-      return JSON.stringify(
-        {
-          participantId: participant.id,
-          participantName: participant.name,
-          engineOS:
-            result.engineOS?.osName || result.engineOS?.hexagramInfo?.name,
-          interfaceOS: result.interfaceOS?.hexagramInfo?.name,
-          safeModeOS: result.safeModeOS?.hexagramInfo?.name,
-          consistencyScore: result.consistencyScore?.overall,
-          processedAt: new Date().toISOString(),
-        },
-        null,
-        2
-      );
-    }
+ぜひあなたの率直なフィードバックをお聞かせください ��
+    `.trim();
   }
 
   // 従来形式用テキスト生成（フォールバック）
@@ -2200,60 +2235,58 @@ ${result.integration?.summary || ""}
 
   // 結果表示・コピー機能
   viewResult(participantId) {
-    const data = this.diagnosisResults[participantId];
-    if (!data || !data.result) {
-      alert("結果が見つかりません");
-      return;
-    }
-
-    const text = this.generateUserText(participantId, "detailed");
-    alert(text);
+    const dataManager = new window.DataManager();
+    dataManager.loadData().then(() => {
+      const text = this.generateUserText(participantId, dataManager);
+      alert(text);
+    });
   }
 
   // 結果詳細表示
   showResultDetail(participantId) {
-    const data = this.diagnosisResults[participantId];
-    if (!data || !data.result) {
-      alert("結果データが見つかりません");
-      return;
-    }
-
-    const userText = this.generateUserText(participantId, "detailed");
-
-    // モーダルまたは新しいウィンドウで表示
-    const popup = window.open(
-      "",
-      "_blank",
-      "width=800,height=600,scrollbars=yes"
-    );
-    popup.document.write(`
-      <html>
-        <head><title>${data.participant.name}さんの診断結果</title></head>
-        <body style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6;">
-          <pre style="white-space: pre-wrap; word-wrap: break-word;">${userText}</pre>
-        </body>
-      </html>
-    `);
-    popup.document.close();
+    const dataManager = new window.DataManager();
+    dataManager.loadData().then(() => {
+      const userText = this.generateUserText(participantId, dataManager);
+      // モーダルまたは新しいウィンドウで表示
+      const popup = window.open(
+        "",
+        "_blank",
+        "width=800,height=600,scrollbars=yes"
+      );
+      popup.document.write(`
+        <html>
+          <head><title>${
+            this.diagnosisResults[participantId]?.participant?.name ||
+            participantId
+          }さんの診断結果</title></head>
+          <body style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6;">
+            <pre style="white-space: pre-wrap; word-wrap: break-word;">${userText}</pre>
+          </body>
+        </html>
+      `);
+      popup.document.close();
+    });
   }
 
   // 結果をクリップボードにコピー
   copyResult(participantId) {
-    const userText = this.generateUserText(participantId, "detailed");
-
-    if (navigator.clipboard) {
-      navigator.clipboard
-        .writeText(userText)
-        .then(() => {
-          alert("結果をクリップボードにコピーしました！");
-        })
-        .catch((err) => {
-          console.error("コピーに失敗:", err);
-          this.fallbackCopyText(userText);
-        });
-    } else {
-      this.fallbackCopyText(userText);
-    }
+    const dataManager = new window.DataManager();
+    dataManager.loadData().then(() => {
+      const userText = this.generateUserText(participantId, dataManager);
+      if (navigator.clipboard) {
+        navigator.clipboard
+          .writeText(userText)
+          .then(() => {
+            alert("結果をクリップボードにコピーしました！");
+          })
+          .catch((err) => {
+            console.error("コピーに失敗:", err);
+            this.fallbackCopyText(userText);
+          });
+      } else {
+        this.fallbackCopyText(userText);
+      }
+    });
   }
 
   // フォールバック用コピー機能
@@ -2369,108 +2402,6 @@ ${result.integration?.summary || ""}
   }
 
   // 本番と同じ結果テキスト生成
-  generateProductionLevelText(participantId) {
-    const data = this.diagnosisResults[participantId];
-    if (!data || !data.result) return "エラー: 診断結果が見つかりません";
-
-    const result = data.result;
-    const participant = data.participant;
-
-    return `
-🎯 ${participant.name}さんの人格OS診断結果
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-【あなたの3層人格OS】
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🔧 **エンジンOS（核となる価値観・動機）**
-「${result.engineOS.hexagramInfo.name}」
-${result.engineOS.hexagramInfo.catchphrase || ""}
-
-${result.engineOS.hexagramInfo.description || ""}
-
-構成八卦: ${this.getTrigramComposition(result.engineOS)}
-エンジン強度: ${Math.round((result.engineOS.strength || 0.8) * 100)}%
-
-🖥️ **インターフェースOS（外面的な行動パターン）**
-「${result.interfaceOS.hexagramInfo.name}」
-マッチ度: ${Math.round(result.interfaceOS.matchScore)}%
-
-${result.interfaceOS.hexagramInfo.description || ""}
-
-あなたは外向きには${
-      result.interfaceOS.hexagramInfo.name
-    }的な振る舞いを示します。
-
-🛡️ **セーフモードOS（内面的な防御機制）**
-「${result.safeModeOS.hexagramInfo.name}」
-マッチ度: ${Math.round(result.safeModeOS.matchScore)}%
-
-${result.safeModeOS.hexagramInfo.description || ""}
-
-ストレス時や困難な状況では、${
-      result.safeModeOS.hexagramInfo.name
-    }の防御パターンが発動します。
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-【人格一貫性分析】
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📊 **総合一貫性スコア: ${Math.round(result.consistencyScore.overall * 100)}%**
-
-🔧↔🖥️ エンジン⇔インターフェース: ${Math.round(
-      result.consistencyScore.engineInterface * 100
-    )}%
-🔧↔🛡️ エンジン⇔セーフモード: ${Math.round(
-      result.consistencyScore.engineSafeMode * 100
-    )}%
-🖥️↔🛡️ インターフェース⇔セーフモード: ${Math.round(
-      result.consistencyScore.interfaceSafeMode * 100
-    )}%
-
-${this.generateConsistencyInsight(result.consistencyScore)}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-【統合的洞察】
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-${result.integration.summary}
-
-💡 **エンジンOSの特徴**
-${result.integration.engineInsight}
-
-💡 **インターフェースOSの特徴**
-${result.integration.interfaceInsight}
-
-💡 **セーフモードOSの特徴**
-${result.integration.safeModeInsight}
-
-💡 **一貫性について**
-${result.integration.consistencyInsight}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-【あなたへの推奨事項】
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-${result.integration.recommendations
-  .map((rec, index) => `${index + 1}. ${rec}`)
-  .join("\n")}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-【8次元バランス概要】
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-${this.generate8DimensionSummary(result.engineOS.userVector)}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-✨ **診断完了日時**: ${new Date(data.processedAt).toLocaleString("ja-JP")}
-🎯 **HaQei Analyzer v1.0** - 古代の叡智と現代のテクノロジーの融合
-
-この診断結果はいかがでしたか？
-ぜひあなたの率直なフィードバックをお聞かせください 🙏
-        `.trim();
-  }
 
   // 8次元バランス要約生成
   generate8DimensionSummary(userVector) {
@@ -2706,8 +2637,10 @@ ${result.integration.summary}
 
   // ユーザー送信用テキスト生成
   sendResultToUser(participantId) {
-    const resultText = this.generateProductionLevelText(participantId);
-    const userText = `
+    const dataManager = new window.DataManager();
+    dataManager.loadData().then(() => {
+      const resultText = this.generateUserText(participantId, dataManager);
+      const userText = `
 ${resultText}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2722,16 +2655,16 @@ ${resultText}
 4. 具体的なコメント: 
 
 ご協力をお願いいたします 🙏
-        `.trim();
-
-    navigator.clipboard
-      .writeText(userText)
-      .then(() => {
-        alert("ユーザー送信用テキストをクリップボードにコピーしました");
-      })
-      .catch(() => {
-        alert("コピーに失敗しました");
-      });
+      `.trim();
+      navigator.clipboard
+        .writeText(userText)
+        .then(() => {
+          alert("ユーザー送信用テキストをクリップボードにコピーしました");
+        })
+        .catch(() => {
+          alert("コピーに失敗しました");
+        });
+    });
   }
   // ... その他のUI更新メソッド
 
@@ -2819,43 +2752,186 @@ ${resultText}
   }
 
   setupEventListeners() {
-    // タブ切り替え
-    document.querySelectorAll(".tab").forEach((button) => {
-      button.addEventListener("click", (e) => {
-        const tabName = e.target
-          .getAttribute("onclick")
-          .match(/showTab\('([^']+)'\)/)?.[1];
-        if (tabName) {
-          this.switchTab(tabName);
-        }
-      });
-    });
+    // 一括処理
+    const batchBtn = document.getElementById("start-batch-processing-btn");
+    if (batchBtn)
+      batchBtn.addEventListener("click", () => this.startBatchProcessing());
 
-    // 参加者選択変更
-    const participantSelect = document.getElementById("participant-select");
-    if (participantSelect) {
-      participantSelect.addEventListener("change", (e) => {
-        this.selectParticipant(e.target.value);
+    // クリップボード貼り付け
+    const pasteBatchBtn = document.getElementById("paste-batch-clipboard-btn");
+    if (pasteBatchBtn)
+      pasteBatchBtn.addEventListener("click", () =>
+        this.pasteBatchAnswersFromClipboard()
+      );
+    const batchClearBtn = document.getElementById("batch-input-clear-btn");
+    if (batchClearBtn)
+      batchClearBtn.addEventListener("click", () => {
+        document.getElementById("batch-answers-input").value = "";
       });
-    }
 
-    // 個別診断対象者選択変更
-    const singleDiagnosisSelect = document.getElementById(
-      "single-diagnosis-participant"
+    // 参加者リスト
+    const pasteParticipantsBtn = document.getElementById(
+      "paste-participants-from-clipboard-btn"
     );
-    if (singleDiagnosisSelect) {
-      singleDiagnosisSelect.addEventListener("change", (e) => {
-        this.updateSingleDiagnosisButtons(e.target.value);
-      });
-    }
+    if (pasteParticipantsBtn)
+      pasteParticipantsBtn.addEventListener("click", () =>
+        this.pasteFromClipboard()
+      );
+    const clearParticipantsBtn = document.getElementById(
+      "clear-participants-list-btn"
+    );
+    if (clearParticipantsBtn)
+      clearParticipantsBtn.addEventListener("click", () =>
+        this.clearParticipantsList()
+      );
+    const parseParticipantsBtn = document.getElementById(
+      "parse-participants-list-btn"
+    );
+    if (parseParticipantsBtn)
+      parseParticipantsBtn.addEventListener("click", () =>
+        this.parseParticipants()
+      );
 
-    // 結果表示対象者選択変更
-    const viewResultSelect = document.getElementById("view-result-participant");
-    if (viewResultSelect) {
-      viewResultSelect.addEventListener("change", (e) => {
-        this.updateResultViewButtons(e.target.value);
+    // 回答書式
+    const pasteAnswersFormatBtn = document.getElementById(
+      "paste-answers-format-btn"
+    );
+    if (pasteAnswersFormatBtn)
+      pasteAnswersFormatBtn.addEventListener("click", () =>
+        this.pasteAnswersFromClipboard()
+      );
+    const parseAnswersFormatBtn = document.getElementById(
+      "parse-answers-format-btn"
+    );
+    if (parseAnswersFormatBtn)
+      parseAnswersFormatBtn.addEventListener("click", () =>
+        this.parseAnswersFormat()
+      );
+    const clearAnswersFormatBtn = document.getElementById(
+      "clear-answers-format-btn"
+    );
+    if (clearAnswersFormatBtn)
+      clearAnswersFormatBtn.addEventListener("click", () =>
+        this.clearAnswersFormat()
+      );
+
+    // 回答保存・クリア
+    const saveCurrentAnswersBtn = document.getElementById(
+      "save-current-answers-btn"
+    );
+    if (saveCurrentAnswersBtn)
+      saveCurrentAnswersBtn.addEventListener("click", () =>
+        this.saveCurrentAnswers()
+      );
+    const clearCurrentAnswersBtn = document.getElementById(
+      "clear-current-answers-btn"
+    );
+    if (clearCurrentAnswersBtn)
+      clearCurrentAnswersBtn.addEventListener("click", () =>
+        this.clearCurrentAnswers()
+      );
+
+    // 個別診断
+    const executeSingleDiagnosisBtn = document.getElementById(
+      "execute-single-diagnosis-btn"
+    );
+    if (executeSingleDiagnosisBtn)
+      executeSingleDiagnosisBtn.addEventListener("click", () => {
+        const pid = document.getElementById(
+          "single-diagnosis-participant"
+        ).value;
+        this.executeSingleDiagnosis(pid);
       });
-    }
+    const showSingleResultBtn = document.getElementById(
+      "show-single-result-btn"
+    );
+    if (showSingleResultBtn)
+      showSingleResultBtn.addEventListener("click", () => {
+        const pid = document.getElementById(
+          "single-diagnosis-participant"
+        ).value;
+        this.showSingleResult(pid);
+      });
+    const copySingleResultBtn = document.getElementById(
+      "copy-single-result-btn"
+    );
+    if (copySingleResultBtn)
+      copySingleResultBtn.addEventListener("click", () => {
+        const pid = document.getElementById(
+          "single-diagnosis-participant"
+        ).value;
+        this.copySingleResult(pid);
+      });
+
+    // 全員診断
+    const executeAllDiagnosisBtn = document.getElementById(
+      "execute-all-diagnosis-btn"
+    );
+    if (executeAllDiagnosisBtn)
+      executeAllDiagnosisBtn.addEventListener("click", (event) =>
+        this.executeAllDiagnosis(event)
+      );
+
+    // 結果エクスポート・コピー・デバッグ
+    const exportAllResultsBtn = document.getElementById(
+      "export-all-results-btn"
+    );
+    if (exportAllResultsBtn)
+      exportAllResultsBtn.addEventListener("click", () =>
+        this.exportAllResults()
+      );
+    const copyResultsForSharingBtn = document.getElementById(
+      "copy-results-for-sharing-btn"
+    );
+    if (copyResultsForSharingBtn)
+      copyResultsForSharingBtn.addEventListener("click", () =>
+        this.copyResultsForSharing()
+      );
+    const generateDebugReportBtn = document.getElementById(
+      "generate-debug-report-btn"
+    );
+    if (generateDebugReportBtn)
+      generateDebugReportBtn.addEventListener("click", () =>
+        this.generateDebugReport()
+      );
+    const generateDebugReportBtn2 = document.getElementById(
+      "generate-debug-report-btn-2"
+    );
+    if (generateDebugReportBtn2)
+      generateDebugReportBtn2.addEventListener("click", () =>
+        this.generateDebugReport()
+      );
+
+    // 結果表示・簡易生成・送信
+    const showSingleResultBtn2 = document.getElementById(
+      "show-single-result-btn-2"
+    );
+    if (showSingleResultBtn2)
+      showSingleResultBtn2.addEventListener("click", () => {
+        const pid = document.getElementById("view-result-participant").value;
+        this.showSingleResult(pid);
+      });
+    const generateQuickResultBtn = document.getElementById(
+      "generate-quick-result-btn"
+    );
+    if (generateQuickResultBtn)
+      generateQuickResultBtn.addEventListener("click", () => {
+        const pid = document.getElementById("view-result-participant").value;
+        this.generateQuickResult(pid);
+      });
+    const sendResultToUserBtn = document.getElementById(
+      "send-result-to-user-btn"
+    );
+    if (sendResultToUserBtn)
+      sendResultToUserBtn.addEventListener("click", () => {
+        const pid = document.getElementById("view-result-participant").value;
+        this.sendResultToUser(pid);
+      });
+
+    // フィードバック
+    const saveFeedbackBtn = document.getElementById("save-feedback-btn");
+    if (saveFeedbackBtn)
+      saveFeedbackBtn.addEventListener("click", () => this.saveFeedback());
   }
 
   // タブ切り替え機能
