@@ -35,7 +35,7 @@ class DataManager {
       // 必須データの確認
       const requiredData = [
         "WORLDVIEW_QUESTIONS",
-        "SCENARIO_QUESTIONS", 
+        "SCENARIO_QUESTIONS",
         "H64_8D_VECTORS",
         "HAQEI_DATA",
       ];
@@ -171,6 +171,79 @@ class DataManager {
       throw new Error("Data not loaded yet");
     }
     return this.data.taiShoDen[hexagramId] || null;
+  }
+
+  // 統一データ取得機能 - 複数のデータソースを統合
+  /**
+   * Returns unified hexagram data for a given hexagramId.
+   * @param {number|string} hexagramId
+   * @returns {UnifiedHexagramData|null}
+   */
+  getUnifiedHexagramData(hexagramId) {
+    if (!this.loaded) {
+      throw new Error("Data not loaded yet");
+    }
+    // 型安全なID変換
+    const id =
+      typeof hexagramId === "string" ? parseInt(hexagramId, 10) : hexagramId;
+
+    // 🔧 データ構造の違いに対応
+    // hexagrams: 配列形式（インデックス0 = ID:1）
+    // osManual: オブジェクト形式（キー1 = ID:1）
+    const hexagramData = Array.isArray(this.data.hexagrams)
+      ? this.data.hexagrams.find((h) => h.hexagram_id === id)
+      : this.data.hexagrams[id];
+    const osManualData = this.data.osManual[id];
+
+    if (!hexagramData && !osManualData) {
+      console.error(`[DataManager] Unified data not found for ID: ${id}`);
+      return null;
+    }
+
+    // 型安全な文字列変換ヘルパー
+    function safeString(val) {
+      if (typeof val === "string") return val;
+      if (val && typeof val === "object") {
+        if (val.text) return val.text;
+        if (val.content) return val.content;
+        if (val.interpretation) return val.interpretation;
+        try {
+          return JSON.stringify(val);
+        } catch {
+          return "";
+        }
+      }
+      return val == null ? "" : String(val);
+    }
+
+    // 優先順位: hexagramData > osManualData
+    return {
+      id: id,
+      name: safeString(hexagramData?.name_jp || osManualData?.name || ""),
+      catchphrase: safeString(
+        hexagramData?.catchphrase || osManualData?.catchphrase || ""
+      ),
+      description: safeString(
+        hexagramData?.description ||
+          osManualData?.summary ||
+          osManualData?.description ||
+          ""
+      ),
+      strategy: safeString(
+        hexagramData?.strategy || osManualData?.strategy || ""
+      ),
+      keywords: Array.isArray(hexagramData?.keywords)
+        ? hexagramData.keywords
+        : Array.isArray(osManualData?.keywords)
+        ? osManualData.keywords
+        : typeof hexagramData?.keywords === "string"
+        ? hexagramData.keywords.split(/[,、\s]+/).filter(Boolean)
+        : typeof osManualData?.keywords === "string"
+        ? osManualData.keywords.split(/[,、\s]+/).filter(Boolean)
+        : [],
+      hexagramData: hexagramData || null,
+      osManualData: osManualData || null,
+    };
   }
 
   // Helper method to get specific data safely

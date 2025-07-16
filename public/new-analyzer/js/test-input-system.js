@@ -1580,31 +1580,13 @@ ${r.resultText}
     const interfaceId = getHexagramIdFromOS(result.interfaceOS);
     const safeId = getHexagramIdFromOS(result.safeModeOS);
 
-    // DataManagerからリッチデータ取得
-    const hexagrams = dataManager.getAllHexagramData();
-    const osManual = dataManager.getOSManual();
-    const trigramsMaster = dataManager.getTrigramsMaster();
-    const elementRelationships = dataManager.getElementRelationships();
-    const actionPlans = dataManager.getActionPlans();
-    const bible = dataManager.getBibleData();
+    // 統一データ取得
+    const engineUnified = dataManager.getUnifiedHexagramData(engineId);
+    const interfaceUnified = dataManager.getUnifiedHexagramData(interfaceId);
+    const safeUnified = dataManager.getUnifiedHexagramData(safeId);
 
-    if (
-      engineId === undefined ||
-      interfaceId === undefined ||
-      safeId === undefined
-    ) {
-      console.error("OS IDの取得に失敗しました。", {
-        engineId,
-        interfaceId,
-        safeId,
-      });
-      return "エラー: 診断結果のデータ構造が不正です。";
-    }
-    const engineHex = hexagrams[engineId];
-    const interfaceHex = hexagrams[interfaceId];
-    const safeHex = hexagrams[safeId];
-    if (!engineHex || !interfaceHex || !safeHex) {
-      console.error("IDに対応する64卦データが見つかりませんでした。", {
+    if (!engineUnified || !interfaceUnified || !safeUnified) {
+      console.error("IDに対応する統一データが見つかりませんでした。", {
         engineId,
         interfaceId,
         safeId,
@@ -1612,56 +1594,67 @@ ${r.resultText}
       return "エラー: データベースとの整合性に問題があります。";
     }
 
-    // --- 改善版品質の詳細説明・専門用語解説 ---
-    const engineDetail = window.getOSDetailText(engineHex, osManual[engineId]);
-    const interfaceDetail = window.getOSDetailText(
-      interfaceHex,
-      osManual[interfaceId]
+    // 詳細テキスト生成
+    const engineDetail = this.generateUnifiedOSDetail(engineUnified);
+    const interfaceDetail = this.generateUnifiedOSDetail(interfaceUnified);
+    const safeDetail = this.generateUnifiedOSDetail(safeUnified);
+
+    // 洞察ロジック
+    const analysis = this.analyzeOSCombination(
+      engineUnified,
+      interfaceUnified,
+      safeUnified
     );
-    const safeDetail = window.getOSDetailText(safeHex, osManual[safeId]);
 
     // 彖伝・大象伝（現代語訳）
     const tuanDen = dataManager.getTuanDenData(engineId);
     const taiShoDen = dataManager.getTaiShoDenData(engineId);
     const tuanDenText = tuanDen
-      ? `
-📖【彖伝】
-${tuanDen.summary || tuanDen.title || ""}
-${tuanDen.haqei_interpretation || ""}`
+      ? `\n📖【彖伝】\n${tuanDen.summary || tuanDen.title || ""}\n${
+          tuanDen.haqei_interpretation || ""
+        }`
       : "";
+
+    // 🔧 オブジェクト型安全表示機能の実装
     const taiShoDenText = taiShoDen
-      ? `
-🌏【大象伝】
-${taiShoDen}`
+      ? `\n🌏【大象伝】\n${this.generateSafeDisplayText(taiShoDen)}`
       : "";
 
-    // 一貫性スコア
-    const consistencyScore = window.calculateConsistencyScore(
-      engineHex,
-      interfaceHex,
-      safeHex,
-      trigramsMaster,
-      elementRelationships
-    );
+    // 一貫性スコア（従来ロジック維持）
+    let consistencyScore = "-";
+    try {
+      if (window.calculateConsistencyScore) {
+        const trigramsMaster = dataManager.getTrigramsMaster();
+        const elementRelationships = dataManager.getElementRelationships();
+        consistencyScore = window.calculateConsistencyScore(
+          engineUnified.hexagramData,
+          interfaceUnified.hexagramData,
+          safeUnified.hexagramData,
+          trigramsMaster,
+          elementRelationships
+        );
+      }
+    } catch (e) {
+      console.error("一貫性スコア計算エラー", e);
+    }
 
-    // 洞察（パーソナライズ統合洞察）
-    const insight = window.getPersonalizedInsight(
-      engineHex,
-      interfaceHex,
-      safeHex,
-      trigramsMaster,
-      elementRelationships,
-      bible
-    );
-
-    // 推奨事項（アクションプラン＋クエスト）
-    const actionPlan = window.getPersonalizedActionPlans(
-      engineId,
-      interfaceId,
-      safeId,
-      actionPlans,
-      osManual
-    );
+    // アクションプラン（従来ロジック維持）
+    let actionPlan = "";
+    try {
+      if (window.getPersonalizedActionPlans) {
+        const actionPlans = dataManager.getActionPlans();
+        const osManual = dataManager.getOSManual();
+        actionPlan = window.getPersonalizedActionPlans(
+          engineId,
+          interfaceId,
+          safeId,
+          actionPlans,
+          osManual
+        );
+      }
+    } catch (e) {
+      console.error("アクションプラン生成エラー", e);
+    }
 
     // テンプレート出力
     return `
@@ -1690,7 +1683,7 @@ ${consistencyScore} %
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 【統合洞察＆アクションプラン】
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${insight}
+${analysis.unifyingMessage}
 
 ${actionPlan}
 
@@ -2607,7 +2600,7 @@ ${bottom2
   }
 
   // 簡易結果生成
-  generateQuickResult(participantId) {
+  async generateQuickResult(participantId) {
     const data = this.diagnosisResults[participantId];
     if (!data || !data.result) {
       alert("診断結果が見つかりません");
@@ -2617,12 +2610,50 @@ ${bottom2
     const result = data.result;
     const participant = data.participant;
 
+    // 🔧 統一データ取得方式に修正
+    const getHexagramIdFromOS = (osObject) => {
+      if (!osObject) return undefined;
+      if (osObject.hexagram_id) return osObject.hexagram_id;
+      if (osObject.osId) return osObject.osId;
+      if (osObject.hexagramId) return osObject.hexagramId;
+      if (osObject.id) return osObject.id;
+      if (osObject.hexagramInfo) {
+        if (osObject.hexagramInfo.hexagram_id)
+          return osObject.hexagramInfo.hexagram_id;
+        if (osObject.hexagramInfo.osId) return osObject.hexagramInfo.osId;
+        if (osObject.hexagramInfo.hexagramId)
+          return osObject.hexagramInfo.hexagramId;
+        if (osObject.hexagramInfo.id) return osObject.hexagramInfo.id;
+      }
+      return undefined;
+    };
+
+    const engineId = getHexagramIdFromOS(result.engineOS);
+    const interfaceId = getHexagramIdFromOS(result.interfaceOS);
+    const safeId = getHexagramIdFromOS(result.safeModeOS);
+
+    console.log("🔍 取得したID:", { engineId, interfaceId, safeId });
+
+    // DataManagerインスタンスを作成してデータを取得
+    const dataManager = new window.DataManager();
+    await dataManager.loadData();
+
+    const engineUnified = dataManager.getUnifiedHexagramData(engineId);
+    const interfaceUnified = dataManager.getUnifiedHexagramData(interfaceId);
+    const safeUnified = dataManager.getUnifiedHexagramData(safeId);
+
+    console.log("🔍 統一データ取得結果:", {
+      engineUnified: !!engineUnified,
+      interfaceUnified: !!interfaceUnified,
+      safeUnified: !!safeUnified,
+    });
+
     const quickText = `
 🎯 ${participant.name}さんの簡易診断結果
 
-🔧 エンジンOS: ${result.engineOS.hexagramInfo.name}
-🖥️ インターフェースOS: ${result.interfaceOS.hexagramInfo.name}
-🛡️ セーフモードOS: ${result.safeModeOS.hexagramInfo.name}
+🔧 エンジンOS: ${engineUnified?.name || "データ取得エラー"}
+🖥️ インターフェースOS: ${interfaceUnified?.name || "データ取得エラー"}
+🛡️ セーフモードOS: ${safeUnified?.name || "データ取得エラー"}
 
 一貫性スコア: ${Math.round(result.consistencyScore.overall * 100)}%
 
@@ -3189,6 +3220,158 @@ ${resultText}
       throw error;
     }
   }
+
+  /**
+   * 統一データから一貫した詳細テキストを生成
+   * @param {UnifiedHexagramData} unifiedData
+   * @returns {string}
+   */
+  generateUnifiedOSDetail(unifiedData) {
+    if (!unifiedData) return "データが見つかりません";
+    let detail = `【${unifiedData.name}】\n`;
+    if (unifiedData.catchphrase)
+      detail += `キャッチコピー: ${unifiedData.catchphrase}\n`;
+    if (unifiedData.description) detail += `説明: ${unifiedData.description}\n`;
+    if (unifiedData.strategy) detail += `戦略: ${unifiedData.strategy}\n`;
+    if (unifiedData.keywords && unifiedData.keywords.length > 0)
+      detail += `キーワード: ${unifiedData.keywords.join(", ")}\n`;
+    return detail.trim();
+  }
+
+  /**
+   * オブジェクト型データを安全に文字列表示に変換
+   * @param {any} data - 変換対象のデータ
+   * @returns {string} - 表示用文字列
+   */
+  generateSafeDisplayText(data) {
+    if (typeof data === "string") {
+      return data;
+    }
+
+    if (data && typeof data === "object") {
+      // 優先順位に従ってプロパティを確認
+      if (data.text) return data.text;
+      if (data.content) return data.content;
+      if (data.interpretation) return data.interpretation;
+      if (data.symbolism && data.strategy) {
+        return `【象徴】 ${data.symbolism}\n【戦略】 ${data.strategy}`;
+      }
+      if (data.symbolism) return `【象徴】 ${data.symbolism}`;
+      if (data.strategy) return `【戦略】 ${data.strategy}`;
+
+      // フォールバック処理
+      try {
+        return JSON.stringify(data, null, 2);
+      } catch {
+        return "[データ表示エラー]";
+      }
+    }
+
+    return data == null ? "" : String(data);
+  }
+
+  /**
+   * OS名や特徴から特性を自動分類
+   * @param {UnifiedHexagramData} osData
+   * @returns {OSCharacteristics}
+   */
+  categorizeOSType(osData) {
+    // シンプルなルールベース分類（拡張可）
+    const name = (osData?.name || "").toLowerCase();
+    const keywords = (osData?.keywords || []).join(",").toLowerCase();
+    // デフォルト
+    let type = "balanced",
+      energy = "moderate",
+      focus = "general";
+    if (keywords.includes("創造") || name.includes("乾")) {
+      type = "creative";
+      energy = "active";
+      focus = "innovation";
+    } else if (
+      keywords.includes("調和") ||
+      name.includes("泰") ||
+      name.includes("比")
+    ) {
+      type = "harmonious";
+      energy = "social";
+      focus = "relationship";
+    } else if (
+      keywords.includes("安定") ||
+      name.includes("坤") ||
+      name.includes("山")
+    ) {
+      type = "stable";
+      energy = "calm";
+      focus = "security";
+    } else if (
+      keywords.includes("分析") ||
+      name.includes("観") ||
+      name.includes("明")
+    ) {
+      type = "analytical";
+      energy = "deep";
+      focus = "understanding";
+    }
+    return { type, energy, focus };
+  }
+
+  /**
+   * 3つのOSの特性分析と分類、矛盾・対比の検出、統合メッセージ生成
+   * @param {UnifiedHexagramData} engineData
+   * @param {UnifiedHexagramData} interfaceData
+   * @param {UnifiedHexagramData} safeData
+   * @returns {OSCombinationAnalysis}
+   */
+  analyzeOSCombination(engineData, interfaceData, safeData) {
+    const characteristics = {
+      engine: this.categorizeOSType(engineData),
+      interface: this.categorizeOSType(interfaceData),
+      safe: this.categorizeOSType(safeData),
+    };
+    // 矛盾・対比の検出（type/energy/focusの違いが大きい場合）
+    const types = [
+      characteristics.engine.type,
+      characteristics.interface.type,
+      characteristics.safe.type,
+    ];
+    const energies = [
+      characteristics.engine.energy,
+      characteristics.interface.energy,
+      characteristics.safe.energy,
+    ];
+    const focuses = [
+      characteristics.engine.focus,
+      characteristics.interface.focus,
+      characteristics.safe.focus,
+    ];
+    const hasContrast =
+      new Set(types).size > 1 ||
+      new Set(energies).size > 1 ||
+      new Set(focuses).size > 1;
+    // 支配的テーマ
+    const dominantTheme = (() => {
+      const freq = {};
+      types.forEach((t) => {
+        freq[t] = (freq[t] || 0) + 1;
+      });
+      return Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+    })();
+    // 統合メッセージ生成
+    let unifyingMessage = "";
+    if (hasContrast) {
+      unifyingMessage = `多面的リーダーシップ: 異なる特性（${types.join(
+        ", "
+      )}）が共存し、状況に応じて柔軟に切り替えられる強みがあります。`;
+    } else {
+      unifyingMessage = `一貫した${dominantTheme}型: あなたの人格OSは全体的に${dominantTheme}の傾向が強く、安定した個性を発揮できます。`;
+    }
+    return {
+      characteristics,
+      hasContrast,
+      dominantTheme,
+      unifyingMessage,
+    };
+  }
 }
 
 // タブ切り替え（クラスメソッドとして実装済みのため削除）
@@ -3199,7 +3382,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // タブ切り替え機能（HTMLから呼び出される）
-// eslint-disable-next-line no-unused-vars
+
 function showTab(tabName) {
   // 全てのタブコンテンツを非表示
   document.querySelectorAll(".tab-content").forEach((content) => {
