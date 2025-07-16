@@ -579,7 +579,15 @@ class DiagnosisEngine {
   }
 }
 
+// 基本Engineクラスを定義（下位互換性のため）
+class Engine extends DiagnosisEngine {
+  constructor(dataManager) {
+    super(dataManager);
+  }
+}
+
 // グローバルスコープで利用可能にする
 if (typeof window !== "undefined") {
   window.DiagnosisEngine = DiagnosisEngine;
+  window.Engine = Engine;
 }

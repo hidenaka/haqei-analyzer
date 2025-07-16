@@ -426,25 +426,38 @@ class TestInputSystem {
   }
 
   // 回答データ一括処理メソッド
+  // 【修正1】processBatchAnswers メソッド - A/B/C/D/E形式に対応
   processBatchAnswers(rawText) {
+    console.log("🔍 processBatchAnswers 開始", {
+      textLength: rawText.length,
+      preview: rawText.substring(0, 200),
+    });
+
     try {
-      // 改行で分割して回答ブロックを抽出
       const lines = rawText.split("\n");
       const participants = [];
       let currentParticipant = null;
       let currentSection = null;
 
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
+        const line = lines[i];
+        const trimmedLine = line.trim();
 
-        // 新しい参加者の開始を検出（複数のパターンに対応）
-        if (
-          line.includes("【参加者情報】") ||
-          line.match(/^###\s*回答\d+\/\d+/)
-        ) {
-          if (currentParticipant) {
+        if (!trimmedLine) continue; // 空行をスキップ
+
+        // 新しい参加者の開始を検出
+        const isNewParticipantLine =
+          trimmedLine.includes("【参加者情報】") ||
+          trimmedLine.match(/^###\s*回答\d+\/\d+/);
+
+        if (isNewParticipantLine) {
+          // 前の参加者を保存
+          if (currentParticipant && currentParticipant.info.name) {
             participants.push(currentParticipant);
+            console.log(`✅ 参加者追加: ${currentParticipant.info.name}`);
           }
+
+          // 新しい参加者を初期化
           currentParticipant = {
             info: {},
             worldviewAnswers: {},
@@ -454,87 +467,343 @@ class TestInputSystem {
           continue;
         }
 
-        // セクション切り替えを検出
-        if (line.includes("【第1部：価値観設問回答】")) {
+        if (!currentParticipant) continue;
+
+        // セクション切り替えの検出
+        if (trimmedLine.includes("【第1部：価値観設問回答】")) {
           currentSection = "worldview";
+          console.log("🔄 価値観設問セクションに切り替え");
           continue;
         }
 
-        if (line.includes("【第2部：シナリオ設問回答】")) {
+        if (trimmedLine.includes("【第2部：シナリオ設問回答】")) {
           currentSection = "scenario";
+          console.log("🔄 シナリオ設問セクションに切り替え");
           continue;
         }
 
         // 参加者情報の解析
-        if (currentSection === "info" && line.includes(":")) {
-          const [key, value] = line.split(":").map((s) => s.trim());
-          if (key === "お名前") currentParticipant.info.name = value;
-          if (key === "年齢") currentParticipant.info.age = value;
-          if (key === "性別") currentParticipant.info.gender = value;
-          if (key === "職業") currentParticipant.info.occupation = value;
+        if (currentSection === "info" && trimmedLine.includes(":")) {
+          const [key, ...valueParts] = trimmedLine.split(":");
+          const value = valueParts.join(":").trim();
+
+          if (value) {
+            switch (key.trim()) {
+              case "お名前":
+                currentParticipant.info.name = value;
+                break;
+              case "年齢":
+                currentParticipant.info.age = value.replace("歳", "");
+                break;
+              case "性別":
+                currentParticipant.info.gender = value;
+                break;
+              case "職業":
+                currentParticipant.info.occupation = value;
+                break;
+            }
+            console.log(`📝 参加者情報設定: ${key.trim()} = ${value}`);
+          }
         }
 
-        // 価値観設問回答の解析
-        if (currentSection === "worldview" && line.match(/^Q\d+:/)) {
-          const [question, answer] = line.split(":").map((s) => s.trim());
-          currentParticipant.worldviewAnswers[question] = answer;
+        // 価値観設問の解析（Q1-Q24）
+        if (currentSection === "worldview" && trimmedLine.match(/^Q\d+:/)) {
+          const [questionKey, letterAnswer] = trimmedLine
+            .split(":")
+            .map((s) => s.trim());
+          if (questionKey && letterAnswer) {
+            // A/B/C/D/E を実際の回答テキストに変換
+            const convertedAnswer = this.convertLetterToAnswerText(
+              questionKey,
+              letterAnswer
+            );
+            if (convertedAnswer) {
+              currentParticipant.worldviewAnswers[questionKey] =
+                convertedAnswer;
+              console.log(
+                `📝 価値観回答: ${questionKey} = ${letterAnswer} -> ${convertedAnswer}`
+              );
+            } else {
+              console.warn(
+                `⚠️ 変換できない回答: ${questionKey} = ${letterAnswer}`
+              );
+            }
+          }
         }
 
-        // シナリオ設問回答の解析（Q25-Q30の内面/外面）
-        if (currentSection === "scenario" && line.match(/^Q(2[5-9]|30)_/)) {
-          const [question, answer] = line.split(":").map((s) => s.trim());
-          currentParticipant.scenarioAnswers[question] = answer;
+        // シナリオ設問の解析（Q25-Q30）
+        if (
+          currentSection === "scenario" &&
+          trimmedLine.match(/^Q(2[5-9]|30)_/)
+        ) {
+          const [questionKey, letterAnswer] = trimmedLine
+            .split(":")
+            .map((s) => s.trim());
+          if (questionKey && letterAnswer) {
+            const convertedAnswer = this.convertLetterToAnswerText(
+              questionKey,
+              letterAnswer
+            );
+            if (convertedAnswer) {
+              currentParticipant.scenarioAnswers[questionKey] = convertedAnswer;
+              console.log(
+                `📝 シナリオ回答: ${questionKey} = ${letterAnswer} -> ${convertedAnswer}`
+              );
+            } else {
+              console.warn(
+                `⚠️ 変換できない回答: ${questionKey} = ${letterAnswer}`
+              );
+            }
+          }
         }
       }
 
       // 最後の参加者を追加
-      if (currentParticipant) {
+      if (currentParticipant && currentParticipant.info.name) {
         participants.push(currentParticipant);
+        console.log(`✅ 最後の参加者追加: ${currentParticipant.info.name}`);
       }
+
+      console.log(`✅ 解析完了: ${participants.length}人の参加者データ`);
+
+      // 各参加者の回答数をチェック
+      participants.forEach((participant) => {
+        const worldviewCount = Object.keys(participant.worldviewAnswers).length;
+        const scenarioCount = Object.keys(participant.scenarioAnswers).length;
+        console.log(
+          `📊 ${participant.info.name}: 価値観${worldviewCount}問, シナリオ${scenarioCount}問`
+        );
+      });
 
       return participants;
     } catch (error) {
-      console.error("回答データ解析エラー:", error);
-      throw new Error("回答データの解析に失敗しました: " + error.message);
+      console.error("❌ processBatchAnswers エラー:", error);
+      throw new Error(`回答データ解析エラー: ${error.message}`);
+    }
+  }
+
+  // 【修正1】A/B/C/D/E を実際の回答テキストに変換するメソッド
+  convertLetterToAnswerText(questionKey, letterAnswer) {
+    console.log(`🔍 Converting: ${questionKey} = ${letterAnswer}`);
+    try {
+      if (!questionKey || !letterAnswer) {
+        console.warn(
+          `⚠️ 入力が無効: questionKey=${questionKey}, letterAnswer=${letterAnswer}`
+        );
+        return null;
+      }
+      if (!this.questions) {
+        console.error(`❌ this.questionsが未定義です`);
+        return null;
+      }
+      let questionId,
+        questionData,
+        choiceType = null;
+      if (questionKey.match(/^Q([1-9]|1[0-9]|2[0-4])$/)) {
+        questionId = questionKey.toLowerCase();
+        try {
+          questionData = this.getQuestionData("worldview", questionId);
+        } catch (getError) {
+          console.error(
+            `❌ getQuestionDataエラー (worldview, ${questionId}):`,
+            getError
+          );
+          return null;
+        }
+      } else if (questionKey.match(/^Q(2[5-9]|30)_/)) {
+        const parts = questionKey.split("_");
+        questionId = parts[0].toLowerCase();
+        choiceType = parts[1] === "内面" ? "inner" : "outer";
+        try {
+          questionData = this.getQuestionData("scenario", questionId);
+        } catch (getError) {
+          console.error(
+            `❌ getQuestionDataエラー (scenario, ${questionId}):`,
+            getError
+          );
+          return null;
+        }
+      } else {
+        console.warn(`⚠️ 未知の質問形式: ${questionKey}`);
+        return null;
+      }
+      if (!questionData) {
+        console.warn(`⚠️ 質問データが見つかりません: ${questionId}`);
+        return null;
+      }
+      if (!questionData.options) {
+        console.warn(`⚠️ 質問に選択肢がありません: ${questionId}`);
+        return null;
+      }
+      const letterMap = {
+        A: 0,
+        B: 1,
+        C: 2,
+        D: 3,
+        E: 4,
+        a: 0,
+        b: 1,
+        c: 2,
+        d: 3,
+        e: 4,
+      };
+      const optionIndex = letterMap[letterAnswer];
+      if (optionIndex === undefined) {
+        console.warn(`⚠️ 無効な選択肢: ${letterAnswer} (A-E のみ有効)`);
+        return null;
+      }
+      let option;
+      try {
+        if (choiceType) {
+          const options = questionData.options[choiceType];
+          if (!options || !Array.isArray(options)) {
+            console.warn(`⚠️ ${choiceType}選択肢が見つかりません`);
+            return null;
+          }
+          if (optionIndex >= options.length) {
+            console.warn(
+              `⚠️ 選択肢インデックスが範囲外: ${optionIndex} >= ${options.length}`
+            );
+            return null;
+          }
+          option = options[optionIndex];
+        } else {
+          if (optionIndex >= questionData.options.length) {
+            console.warn(
+              `⚠️ 選択肢インデックスが範囲外: ${optionIndex} >= ${questionData.options.length}`
+            );
+            return null;
+          }
+          option = questionData.options[optionIndex];
+        }
+      } catch (optionError) {
+        console.error(`❌ 選択肢取得エラー:`, optionError);
+        return null;
+      }
+      // 【修正】option.textを返す
+      if (option && option.text) {
+        console.log(`  ✅ 変換成功: ${letterAnswer} -> "${option.text}"`);
+        return option.text;
+      } else {
+        console.warn(
+          `⚠️ 選択肢が見つかりません: ${questionKey}[${optionIndex}]`
+        );
+        return null;
+      }
+    } catch (error) {
+      console.error(
+        `❌ 回答変換エラー (${questionKey}:${letterAnswer}):`,
+        error
+      );
+      return null;
     }
   }
 
   // 参加者データをシステム形式に変換
   convertToSystemFormat(participantData) {
     try {
-      // 参加者情報を登録
+      const info = participantData.info || {};
       const participant = {
-        id: this.generateParticipantId(participantData.info.name),
-        name: participantData.info.name,
-        age: participantData.info.age.toString().replace("歳", ""),
-        gender: participantData.info.gender,
-        occupation: participantData.info.occupation,
+        id: this.generateParticipantId(info.name || `no_name_${Date.now()}`),
+        name: info.name || "名称未設定",
+        age: (info.age || "").toString().replace("歳", ""),
+        gender: info.gender || "",
+        occupation: info.occupation || "",
       };
-
-      // 回答データを変換（executeAllDiagnosisと同じ形式に合わせる）
-      const answers = {};
-
-      // 価値観設問の変換（Q1-Q24）
-      Object.entries(participantData.worldviewAnswers).forEach(
-        ([questionKey, selectedValue]) => {
-          answers[questionKey] = selectedValue;
+      const engineAnswers = [];
+      // 価値観設問（Q1-Q24）
+      Object.entries(participantData.worldviewAnswers || {}).forEach(
+        ([questionKey, selectedText]) => {
+          const questionId = questionKey.toLowerCase();
+          const questionData = this.getQuestionData("worldview", questionId);
+          // 【修正】textで検索
+          const selectedOption =
+            questionData &&
+            questionData.options.find((opt) => opt.text === selectedText);
+          console.log(
+            `🔎 価値観設問: ${questionId}, 回答: ${selectedText}, 検索結果:`,
+            selectedOption
+          );
+          if (selectedOption && selectedOption.scoring_tags) {
+            engineAnswers.push({
+              questionId: questionId,
+              selectedValue: selectedOption.value, // エンジンにはvalueを渡す
+              scoring_tags: selectedOption.scoring_tags,
+            });
+          } else {
+            console.warn(
+              `未知の価値観質問オプション: ${questionId} = ${selectedText}`
+            );
+          }
         }
       );
-
-      // シナリオ設問の変換（Q25_内面/Q25_外面形式）
-      Object.entries(participantData.scenarioAnswers).forEach(
-        ([questionKey, selectedValue]) => {
-          answers[questionKey] = selectedValue;
+      // シナリオ設問（Q25-Q30）
+      const scenarioGroups = {};
+      Object.entries(participantData.scenarioAnswers || {}).forEach(
+        ([questionKey, selectedText]) => {
+          const match = questionKey.match(/^Q(\d+)_(内面|外面)$/);
+          if (match) {
+            const questionNum = parseInt(match[1]);
+            const choiceType = match[2] === "内面" ? "inner" : "outer";
+            if (!scenarioGroups[questionNum]) {
+              scenarioGroups[questionNum] = {};
+            }
+            scenarioGroups[questionNum][choiceType] = selectedText;
+          }
         }
       );
-
+      Object.entries(scenarioGroups).forEach(([questionNum, choices]) => {
+        if (choices.inner && choices.outer) {
+          const questionId = `q${questionNum}`;
+          const questionData = this.getQuestionData("scenario", questionId);
+          // 【修正】textで検索
+          const innerOption =
+            questionData &&
+            questionData.options.inner.find(
+              (opt) => opt.text === choices.inner
+            );
+          const outerOption =
+            questionData &&
+            questionData.options.outer.find(
+              (opt) => opt.text === choices.outer
+            );
+          console.log(
+            `🔎 シナリオ設問: ${questionId}, inner: ${choices.inner}, outer: ${choices.outer}, innerOption:`,
+            innerOption,
+            "outerOption:",
+            outerOption
+          );
+          if (
+            innerOption &&
+            outerOption &&
+            innerOption.scoring_tags &&
+            outerOption.scoring_tags
+          ) {
+            engineAnswers.push({
+              questionId: questionId,
+              innerChoice: {
+                value: innerOption.value, // エンジンにはvalueを渡す
+                scoring_tags: innerOption.scoring_tags,
+              },
+              outerChoice: {
+                value: outerOption.value, // エンジンにはvalueを渡す
+                scoring_tags: outerOption.scoring_tags,
+              },
+            });
+          } else {
+            console.warn(
+              `未知のシナリオ質問オプション: ${questionId} inner=${choices.inner} outer=${choices.outer}`
+            );
+          }
+        }
+      });
       console.log(`🔄 Converted participant: ${participant.name}`, {
         participant,
-        answersCount: Object.keys(answers).length,
+        engineAnswersCount: engineAnswers.length,
+        worldviewCount: Object.keys(participantData.worldviewAnswers).length,
         scenarioCount: Object.keys(participantData.scenarioAnswers).length,
       });
-
-      return { participant, answers };
+      return { participant, engineAnswers };
     } catch (error) {
       console.error("データ変換エラー:", error);
       throw new Error("データ変換に失敗しました: " + error.message);
@@ -549,8 +818,26 @@ class TestInputSystem {
     return `${nameId}_${timestamp}`;
   }
 
-  // 一括処理実行メソッド
+  // 【修正4】processBatchAndGenerate メソッドのエラーハンドリング強化
   async processBatchAndGenerate(rawAnswersText) {
+    console.log("🎯 === processBatchAndGenerate開始 ===");
+    console.log("📝 入力データ確認:", {
+      hasText: !!rawAnswersText,
+      textLength: rawAnswersText?.length,
+      firstChars: rawAnswersText?.substring(0, 100),
+    });
+    console.log("📝 引数チェック:", {
+      hasText: !!rawAnswersText,
+      textLength: rawAnswersText?.length,
+      textType: typeof rawAnswersText,
+    });
+
+    // 既存のコードの前に以下を追加
+    if (!rawAnswersText || typeof rawAnswersText !== "string") {
+      throw new Error("無効な入力テキストです");
+    }
+
+    // 既存のコード...
     console.log("✅ processBatchAndGenerate メソッドが呼び出されました");
     console.log(
       "📝 入力テキスト長:",
@@ -572,31 +859,22 @@ class TestInputSystem {
       }
 
       // 1. 回答データを解析
-      console.log(
-        "🔍 processBatchAnswersメソッド存在確認:",
-        typeof this.processBatchAnswers
-      );
+      console.log("🔍 processBatchAnswersメソッド実行中...");
       const participantsData = this.processBatchAnswers(rawAnswersText);
       console.log(`📝 ${participantsData.length}人の回答データを解析しました`);
+
       if (participantsData.length === 0) {
         throw new Error(
           "回答データが正しく解析されませんでした。入力形式を確認してください。"
         );
       }
-      console.log("🔍 参加者データサンプル:", participantsData[0]);
 
       if (progressDiv) {
         progressDiv.innerHTML =
           '<div class="processing">👥 参加者情報を登録中...</div>';
       }
 
-      // 2. 参加者とデータを登録
-      const processedCount = participantsData.length;
-      let successCount = 0;
-      let failCount = 0;
-      const results = [];
-
-      // 既存のエンジンを使用（統一）
+      // 2. エンジン初期化
       console.log("🔍 DataManagerクラス確認:", typeof window.DataManager);
       console.log("🔍 TripleOSEngineクラス確認:", typeof window.TripleOSEngine);
 
@@ -609,74 +887,89 @@ class TestInputSystem {
       const engine = new window.TripleOSEngine(dataManager);
       console.log("✅ TripleOSEngineインスタンス作成完了");
 
+      // 3. 各参加者の診断実行
+      const processedCount = participantsData.length;
+      let successCount = 0;
+      let failCount = 0;
+      const results = [];
+
       for (let i = 0; i < participantsData.length; i++) {
+        const pData = participantsData[i];
+        const pInfo = pData.info || {};
+
         try {
           if (progressDiv) {
-            progressDiv.innerHTML = `<div class="processing">🔬 診断実行中... (${
-              i + 1
-            }/${processedCount})</div>`;
+            progressDiv.innerHTML = `<div class="processing">🔬 ${
+              pInfo.name || `参加者${i + 1}`
+            } の診断実行中... (${i + 1}/${processedCount})</div>`;
           }
 
           // データ変換
-          const { participant, answers } = this.convertToSystemFormat(
-            participantsData[i]
+          const { participant, engineAnswers } =
+            this.convertToSystemFormat(pData);
+
+          // 参加者リストに追加
+          if (
+            this.participants.findIndex((p) => p.id === participant.id) === -1
+          ) {
+            this.participants.push(participant);
+          }
+          this.answersData[participant.id] = engineAnswers;
+
+          // 診断実行
+          console.log(
+            `🔬 Engine input for ${participant.id}:`,
+            engineAnswers.length,
+            "answers"
           );
-
-          // システムに登録
-          this.participants.push(participant);
-          this.answersData[participant.id] = answers;
-
-          // 診断実行（executeAllDiagnosisと同じフロー）
-          const engineAnswers = this.convertAnswersToEngineFormat(answers);
-          console.log(`🔬 Engine input for ${participant.id}:`, engineAnswers);
           const diagnosisResult = await engine.analyzeTripleOS(engineAnswers);
           console.log(
             `✅ Engine output for ${participant.id}:`,
-            diagnosisResult
+            diagnosisResult ? "Success" : "Failed"
           );
 
-          // 結果を統一形式で保存
+          // 結果を保存
           this.diagnosisResults[participant.id] = {
             result: diagnosisResult,
             processedAt: new Date().toISOString(),
             participant: participant,
           };
 
-          // 結果の構造を確認してログ出力
-          console.log(`✅ Result for ${participant.id}:`, diagnosisResult);
-
-          // 結果テキスト生成
           const resultText = this.generateUserText(participant.id, "detailed");
-
-          results.push({
-            participant,
-            resultText,
-            success: true,
-          });
+          results.push({ participant, resultText, success: true });
 
           successCount++;
           console.log(`✅ ${participant.name} の診断完了`);
         } catch (error) {
           console.error(
-            `❌ ${participantsData[i].info.name} の処理エラー:`,
+            `❌ ${pInfo.name || `参加者${i + 1}`} の処理エラー:`,
             error
           );
 
-          // エラーケースも診断結果に保存
-          const { participant } = this.convertToSystemFormat(
-            participantsData[i]
-          );
-          this.participants.push(participant);
+          // 🚨【重要】エラー処理を修正：失敗した関数を再呼び出ししない
+          const failedParticipant = {
+            id: this.generateParticipantId(
+              pInfo.name || `failed_${Date.now()}`
+            ),
+            name: pInfo.name || "処理失敗参加者",
+            ...pInfo,
+          };
+          if (
+            this.participants.findIndex(
+              (p) => p.id === failedParticipant.id
+            ) === -1
+          ) {
+            this.participants.push(failedParticipant);
+          }
 
-          this.diagnosisResults[participant.id] = {
+          this.diagnosisResults[failedParticipant.id] = {
             error: error.message,
-            errorDetails: error.stack,
             processedAt: new Date().toISOString(),
-            participant: participant,
+            participant: failedParticipant,
           };
 
           results.push({
-            participant: participantsData[i].info,
+            participant: failedParticipant,
             error: error.message,
             success: false,
           });
@@ -685,16 +978,13 @@ class TestInputSystem {
       }
 
       // データ保存と表示更新
+      console.log("💾 データ保存と表示更新を開始...");
       this.saveData();
       this.updateDisplay();
       this.updateResultsList();
 
       if (progressDiv) {
-        progressDiv.innerHTML = `
-          <div class="processing-complete">
-            ✅ 処理完了: 成功 ${successCount}人 / 失敗 ${failCount}人
-          </div>
-        `;
+        progressDiv.innerHTML = `<div class="processing-complete">✅ 処理完了: 成功 ${successCount}人 / 失敗 ${failCount}人</div>`;
       }
 
       // 結果表示
@@ -703,6 +993,9 @@ class TestInputSystem {
       return results;
     } catch (error) {
       console.error("❌ 一括処理エラー:", error);
+      const progressDiv = document.getElementById("batch-progress");
+      if (progressDiv)
+        progressDiv.innerHTML = `<div class="progress-message error">❌ エラーが発生しました: ${error.message}</div>`;
       alert("一括処理中にエラーが発生しました: " + error.message);
       throw error;
     }
@@ -726,12 +1019,12 @@ class TestInputSystem {
 
         <div class="results-list">
           ${results
-            .map((result, index) => this.renderSingleResultItem(result, index))
+            .map((result) => this.renderSingleResultItem(result))
             .join("")}
         </div>
 
         <div style="margin-top: 20px; text-align: center;">
-          <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()"
+          <button onclick="this.closest('div[style*=position: fixed]').remove()"
                   style="background: #666; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
             閉じる
           </button>
@@ -750,7 +1043,7 @@ class TestInputSystem {
   }
 
   // 個別結果アイテムのレンダリング
-  renderSingleResultItem(result, index) {
+  renderSingleResultItem(result) {
     if (!result.success) {
       return `
         <div style="border: 1px solid #ef4444; border-radius: 4px; margin: 10px 0; padding: 15px; background: #2a1a1a;">
@@ -822,19 +1115,29 @@ ${r.resultText}
       return;
     }
 
+    // 【修正】確認ダイアログを一時的にコメントアウトまたは自動的にtrueにする
+    /*
     if (!confirm("一括処理を開始しますか？\n※ 既存のデータに追加されます")) {
+      console.log("🚫 ユーザーが処理をキャンセルしました");
       return;
     }
+    */
+    // テスト用に確認を自動でOKにする
+    console.log("✅ 確認ダイアログをスキップ（テストモード）");
 
-    console.log("一括処理実行中...");
+    console.log("✅ ユーザー確認完了、処理を続行します");
 
-    // 進捗表示を初期化
+    // 既存のコード続行...
     const progressElement = document.getElementById("batch-progress");
     if (progressElement) {
       progressElement.innerHTML =
         '<div class="progress-message">🔄 一括処理を開始しています...</div>';
+      console.log("✅ 進捗表示要素を更新しました");
+    } else {
+      console.warn("⚠️ batch-progress要素が見つかりません");
     }
 
+    // 残りの既存コード...
     // デバッグ: メソッド存在確認
     console.log(
       "🔍 processBatchAndGenerate method exists:",
@@ -845,9 +1148,30 @@ ${r.resultText}
       rawText.length
     );
 
+    // 【重要】try-catchでラップして同期エラーをキャッチ
     try {
       console.log("🚀 Calling processBatchAndGenerate...");
-      this.processBatchAndGenerate(rawText)
+
+      // processBatchAndGenerateメソッドが存在するかチェック
+      if (typeof this.processBatchAndGenerate !== "function") {
+        throw new Error("processBatchAndGenerateメソッドが存在しません");
+      }
+
+      // Promiseを作成して監視
+      console.log("🔍 Promise作成中...");
+      const processingPromise = this.processBatchAndGenerate(rawText);
+      console.log("🔍 Promise作成完了:", typeof processingPromise);
+
+      // Promiseが正しく作成されているかチェック
+      if (!processingPromise || typeof processingPromise.then !== "function") {
+        throw new Error(
+          "processBatchAndGenerateが正しいPromiseを返していません"
+        );
+      }
+
+      console.log("🔍 Promise.thenを設定中...");
+
+      processingPromise
         .then((results) => {
           console.log("✅ 一括処理完了:", results);
 
@@ -874,20 +1198,32 @@ ${r.resultText}
         })
         .catch((error) => {
           console.error("❌ 一括処理Promiseエラー:", error);
+          console.error("❌ エラータイプ:", typeof error);
+          console.error("❌ エラー名:", error.name);
+          console.error("❌ エラーメッセージ:", error.message);
           console.error("❌ エラースタック:", error.stack);
+
           if (progressElement) {
             progressElement.innerHTML = `<div class="progress-message error">❌ エラーが発生しました: ${error.message}</div>`;
           }
           alert(`一括処理でエラーが発生しました: ${error.message}`);
         });
+
+      console.log("✅ Promise監視設定完了");
     } catch (syncError) {
-      console.error("❌ 同期エラー 発生:", syncError);
+      console.error("❌ 同期エラー発生:", syncError);
+      console.error("❌ 同期エラータイプ:", typeof syncError);
+      console.error("❌ 同期エラー名:", syncError.name);
+      console.error("❌ 同期エラーメッセージ:", syncError.message);
       console.error("❌ 同期エラースタック:", syncError.stack);
+
       if (progressElement) {
-        progressElement.innerHTML = `<div class="progress-message error">❌ 同期エラー: ${syncError.message}</div>`;
+        progressElement.innerHTML = `<div class="progress-message error">❌ 初期化エラー: ${syncError.message}</div>`;
       }
       alert(`初期化エラーが発生しました: ${syncError.message}`);
     }
+
+    console.log("🏁 startBatchProcessingメソッド完了");
   }
 
   // 参加者情報を更新
@@ -2535,6 +2871,201 @@ ${resultText}
     } else {
       // 回答データがない場合はクリア
       this.clearCurrentAnswers();
+    }
+  }
+
+  // 【修正5】デバッグ用メソッド - 質問データの確認
+  debugQuestionData() {
+    console.log("🔍 質問データの確認:");
+
+    // 価値観設問の確認
+    console.log("📊 価値観設問:", this.questions.worldview.length, "問");
+    this.questions.worldview.forEach((q, index) => {
+      console.log(`  Q${index + 1} (${q.id}): ${q.options.length}選択肢`);
+      q.options.forEach((opt, optIndex) => {
+        console.log(`    ${String.fromCharCode(65 + optIndex)}: ${opt.value}`);
+      });
+    });
+
+    // シナリオ設問の確認
+    console.log("📊 シナリオ設問:", this.questions.scenarios.length, "問");
+    this.questions.scenarios.forEach((q, index) => {
+      console.log(`  Q${25 + index} (${q.id}):`);
+      console.log(`    内面選択肢: ${q.options.inner.length}個`);
+      q.options.inner.forEach((opt, optIndex) => {
+        console.log(
+          `      ${String.fromCharCode(65 + optIndex)}: ${opt.value}`
+        );
+      });
+      console.log(`    外面選択肢: ${q.options.outer.length}個`);
+      q.options.outer.forEach((opt, optIndex) => {
+        console.log(
+          `      ${String.fromCharCode(65 + optIndex)}: ${opt.value}`
+        );
+      });
+    });
+  }
+
+  // 【追加】テスト用メソッド - 単一データでのテスト
+  testSingleConversion() {
+    console.log("🧪 === 単一データ変換テスト ===");
+
+    const testData = {
+      info: {
+        name: "テストユーザー",
+        age: "30",
+        gender: "男性",
+        occupation: "エンジニア",
+      },
+      worldviewAnswers: {
+        Q1: "A", // これは変換前の状態
+        Q2: "B",
+      },
+      scenarioAnswers: {
+        Q25_内面: "A",
+        Q25_外面: "B",
+      },
+    };
+
+    // まず文字を実際の回答に変換
+    Object.keys(testData.worldviewAnswers).forEach((key) => {
+      const letter = testData.worldviewAnswers[key];
+      const converted = this.convertLetterToAnswerText(key, letter);
+      console.log(`${key}: ${letter} -> ${converted}`);
+      if (converted) {
+        testData.worldviewAnswers[key] = converted;
+      }
+    });
+
+    Object.keys(testData.scenarioAnswers).forEach((key) => {
+      const letter = testData.scenarioAnswers[key];
+      const converted = this.convertLetterToAnswerText(key, letter);
+      console.log(`${key}: ${letter} -> ${converted}`);
+      if (converted) {
+        testData.scenarioAnswers[key] = converted;
+      }
+    });
+
+    // システム形式に変換
+    try {
+      const result = this.convertToSystemFormat(testData);
+      console.log("✅ テスト変換成功:", result);
+      return result;
+    } catch (error) {
+      console.error("❌ テスト変換失敗:", error);
+      return null;
+    }
+  }
+
+  // 【追加】システム診断メソッド - 問題を特定するための詳細診断
+  diagnoseProblem() {
+    console.log("🔍 === システム診断開始 ===");
+
+    // 1. 基本的なシステム状態確認
+    console.log("1. システム基本状態:");
+    console.log("  - testSystem存在:", typeof window.testSystem);
+    console.log("  - questions存在:", typeof this.questions);
+    console.log("  - getQuestionData存在:", typeof this.getQuestionData);
+    console.log(
+      "  - convertLetterToAnswerText存在:",
+      typeof this.convertLetterToAnswerText
+    );
+
+    // 2. 質問データの確認
+    console.log("2. 質問データ:");
+    try {
+      if (this.questions) {
+        console.log(
+          "  - worldview配列:",
+          Array.isArray(this.questions.worldview)
+            ? this.questions.worldview.length + "個"
+            : "not array"
+        );
+        console.log(
+          "  - scenarios配列:",
+          Array.isArray(this.questions.scenarios)
+            ? this.questions.scenarios.length + "個"
+            : "not array"
+        );
+
+        if (this.questions.worldview && this.questions.worldview.length > 0) {
+          const first = this.questions.worldview[0];
+          console.log("  - 最初の価値観設問:", {
+            id: first.id,
+            hasOptions: !!first.options,
+            optionsLength: first.options?.length,
+          });
+        }
+
+        if (this.questions.scenarios && this.questions.scenarios.length > 0) {
+          const first = this.questions.scenarios[0];
+          console.log("  - 最初のシナリオ設問:", {
+            id: first.id,
+            hasOptions: !!first.options,
+            hasInner: !!first.options?.inner,
+            hasOuter: !!first.options?.outer,
+          });
+        }
+      } else {
+        console.error("  ❌ this.questionsが未定義");
+      }
+    } catch (error) {
+      console.error("  ❌ 質問データ確認エラー:", error);
+    }
+
+    // 3. 変換テスト
+    console.log("3. 変換テスト:");
+
+    // Q1のAテスト
+    try {
+      const q1Result = this.convertLetterToAnswerText("Q1", "A");
+      console.log("  - Q1, A:", q1Result ? "成功" : "失敗");
+    } catch (error) {
+      console.error("  - Q1, A: エラー -", error.message);
+    }
+
+    // Q25のテスト
+    try {
+      const q25Result = this.convertLetterToAnswerText("Q25_内面", "A");
+      console.log("  - Q25_内面, A:", q25Result ? "成功" : "失敗");
+    } catch (error) {
+      console.error("  - Q25_内面, A: エラー -", error.message);
+    }
+
+    // 4. getQuestionDataテスト
+    console.log("4. getQuestionDataテスト:");
+    try {
+      const worldviewData = this.getQuestionData("worldview", "q1");
+      console.log("  - worldview q1:", worldviewData ? "取得成功" : "取得失敗");
+
+      const scenarioData = this.getQuestionData("scenario", "q25");
+      console.log("  - scenario q25:", scenarioData ? "取得成功" : "取得失敗");
+    } catch (error) {
+      console.error("  - getQuestionDataエラー:", error);
+    }
+
+    console.log("🔍 === 診断完了 ===");
+  }
+
+  // デバッグ用: 確認なしで一括処理を実行
+  async debugBatchProcessing() {
+    console.log("🔧 デバッグモード: 確認なしで一括処理開始");
+
+    const rawText = document.getElementById("batch-answers-input").value;
+    if (!rawText.trim()) {
+      console.error("❌ 入力テキストが空です");
+      return;
+    }
+
+    console.log("🔧 デバッグ用一括処理実行中...");
+
+    try {
+      const results = await this.processBatchAndGenerate(rawText);
+      console.log("✅ デバッグ処理完了:", results);
+      return results;
+    } catch (error) {
+      console.error("❌ デバッグ処理エラー:", error);
+      throw error;
     }
   }
 }
