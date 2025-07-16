@@ -88,7 +88,7 @@
     <script src="js/core/StorageManager.js"></script>
 
     <!-- 4. データファイル -->
-    <script type="module" src="js/data/data_box.js"></script>
+    <script src="js/data/data_box.js"></script>
     <script src="js/data/questions.js"></script>
     <script src="js/data/vectors.js"></script>
     <script src="js/data/hexagrams.js"></script>
@@ -303,16 +303,8 @@
           
           console.log("✅ [InitializeApp] アプリケーション初期化完了", initSummary);
           
-          // DataManagerの初期化を試行
-          if (typeof DataManager !== "undefined") {
-            console.log("🔍 [InitializeApp] DataManagerの初期化を試行");
-            try {
-              window.dataManager = new DataManager();
-              console.log("✅ [InitializeApp] DataManagerインスタンス作成完了");
-            } catch (dmError) {
-              console.error("❌ [InitializeApp] DataManagerインスタンス作成エラー:", dmError);
-            }
-          }
+          // App.jsの初期化を呼び出す準備が整った
+          console.log("🔧 [InitializeApp] App.jsの初期化準備完了");
           
         } catch (error) {
           console.error("❌ [InitializeApp] 初期化中にエラーが発生:", error);

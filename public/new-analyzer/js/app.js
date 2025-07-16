@@ -4,43 +4,103 @@ console.log("🎯 HaQei Analyzer starting...");
 let app = null;
 let storageManager = null;
 
+// 拡張スクリプトローディングシステムの完了を待機する関数
+async function waitForScriptLoadingComplete() {
+  return new Promise((resolve) => {
+    const checkInterval = setInterval(() => {
+      if (
+        window.scriptLoadingStatus &&
+        window.scriptLoadingStatus.initializationComplete
+      ) {
+        clearInterval(checkInterval);
+        console.log("✅ [App.js] スクリプト読み込み完了確認");
+        resolve();
+      }
+    }, 50);
+
+    // 10秒後にタイムアウト
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      console.warn(
+        "⚠️ [App.js] スクリプト読み込み完了待機がタイムアウトしました"
+      );
+      resolve(); // タイムアウトでも続行
+    }, 10000);
+  });
+}
+
 // アプリケーション初期化
 document.addEventListener("DOMContentLoaded", async function () {
-  console.log("📱 DOM loaded, initializing components...");
+  console.log("📱 DOM loaded, waiting for script loading to complete...");
+
+  // 拡張スクリプトローディングシステムの完了を待機
+  await waitForScriptLoadingComplete();
+
+  console.log("📱 All scripts loaded, initializing components...");
 
   try {
     // ストレージマネージャー初期化
     storageManager = new StorageManager();
     storageManager.setupAutoSave();
-    
+
     // セッション情報の確認と初期化
     let session = storageManager.getSession();
     if (!session) {
       session = storageManager.startNewSession();
-      console.log('🎆 New session started:', session);
+      console.log("🎆 New session started:", session);
     } else {
-      console.log('🔄 Existing session found:', session);
-      storageManager.updateSession({ stage: 'loading' });
+      console.log("🔄 Existing session found:", session);
+      storageManager.updateSession({ stage: "loading" });
     }
-    
+
     // データマネージャー初期化
+    console.log("🔍 [App.js] DataManager初期化開始");
     const dataManager = new DataManager();
+
+    console.log("🔍 [App.js] DataManager.loadData()実行開始");
     await dataManager.loadData();
+
+    console.log("🔍 [App.js] DataManager.loadData()完了");
 
     // データ統計表示
     const stats = dataManager.getDataStats();
-    console.log("📊 Data stats:", stats);
+    console.log("📊 [App.js] Data stats:", stats);
+
+    // 重要なデータの存在確認
+    if (!stats.loaded) {
+      console.error(
+        "❌ [App.js] DataManagerの読み込みに失敗しました:",
+        stats.error
+      );
+      throw new Error(`DataManager読み込みエラー: ${stats.error}`);
+    }
+
+    // 基本的なデータ検証
+    if (stats.dataStats.hexagrams === 0) {
+      console.warn("⚠️ [App.js] 卦データが読み込まれていません");
+    }
+
+    if (stats.dataStats.worldviewQuestions === 0) {
+      console.warn("⚠️ [App.js] 価値観質問データが読み込まれていません");
+    }
 
     // 診断エンジン初期化（TripleOSEngine使用）
     const engine = new TripleOSEngine(dataManager);
 
     // Welcome Screen 初期化
+    console.log("🔍 [App.js] WelcomeScreen初期化開始");
     const welcomeScreen = new WelcomeScreen("welcome-container", {
       onStart: function () {
         console.log("🚀 Starting real diagnosis flow...");
         startRealDiagnosis();
       },
     });
+    console.log("🔍 [App.js] WelcomeScreen初期化完了");
+
+    // WelcomeScreenを表示
+    console.log("🔍 [App.js] WelcomeScreen表示開始");
+    await welcomeScreen.show();
+    console.log("✅ [App.js] WelcomeScreen表示完了");
 
     // アプリケーション情報をグローバルに保存
     app = {
@@ -49,21 +109,56 @@ document.addEventListener("DOMContentLoaded", async function () {
       engine,
       welcomeScreen,
     };
-    
+
     // セッションステージを更新
-    storageManager.updateSession({ stage: 'welcome' });
+    storageManager.updateSession({ stage: "welcome" });
 
     console.log("✅ All components initialized successfully");
     console.log("📋 Ready for diagnosis!");
-    
+
     // 以前の進行状況をチェック
     checkPreviousProgress();
   } catch (error) {
-    console.error("❌ Initialization failed:", error);
+    console.error("❌ [App.js] Initialization failed:", error);
+    console.error("❌ [App.js] Error stack:", error.stack);
+
+    // エラーの詳細情報を収集
+    const errorInfo = {
+      message: error.message,
+      stack: error.stack,
+      scriptLoadingStatus: window.scriptLoadingStatus || null,
+      globalDataAvailable: {
+        HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
+        WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+        SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
+        H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
+      },
+    };
+
+    console.error("❌ [App.js] Error details:", errorInfo);
+
     if (storageManager) {
-      storageManager.updateSession({ stage: 'error', lastError: error.message });
+      storageManager.updateSession({
+        stage: "error",
+        lastError: error.message,
+      });
     }
-    alert("初期化に失敗しました: " + error.message);
+
+    // ユーザーフレンドリーなエラーメッセージの生成
+    let userMessage = "アプリケーションの初期化に失敗しました。";
+
+    if (error.message.includes("DataManager")) {
+      userMessage =
+        "データの読み込みに失敗しました。ページを再読み込みしてください。";
+    } else if (error.message.includes("TripleOSEngine")) {
+      userMessage =
+        "診断エンジンの初期化に失敗しました。ページを再読み込みしてください。";
+    } else if (error.message.includes("WelcomeScreen")) {
+      userMessage =
+        "画面の初期化に失敗しました。ページを再読み込みしてください。";
+    }
+
+    alert(userMessage + "\n\n詳細: " + error.message);
   }
 });
 
@@ -127,7 +222,7 @@ function startRealDiagnosis() {
     console.log("🔍 WelcomeScreen:", app.welcomeScreen);
 
     // セッションステージを更新
-    app.storageManager.updateSession({ stage: 'questions' });
+    app.storageManager.updateSession({ stage: "questions" });
 
     // Welcome画面を非表示
     console.log("👋 Hiding welcome screen...");
@@ -143,22 +238,22 @@ function startRealDiagnosis() {
           "--progress",
           `${progress}%`
         );
-        
+
         // 進行状況をストレージに保存
         app.storageManager.saveProgress({
           currentQuestionIndex: questionFlow.currentQuestionIndex,
           totalQuestions: questionFlow.questions.length,
           completedQuestions: questionFlow.answers.length,
-          progressPercentage: progress
+          progressPercentage: progress,
         });
       },
       onComplete: function (answers) {
         console.log("✅ All questions completed:", answers);
-        
+
         // 回答をストレージに保存
         app.storageManager.saveAnswers(answers);
-        app.storageManager.updateSession({ stage: 'analysis' });
-        
+        app.storageManager.updateSession({ stage: "analysis" });
+
         // 分析処理に進む
         proceedToAnalysis(answers);
       },
@@ -177,7 +272,10 @@ function startRealDiagnosis() {
   } catch (error) {
     console.error("❌ Real diagnosis failed:", error);
     console.error("Error stack:", error.stack);
-    app.storageManager.updateSession({ stage: 'error', lastError: error.message });
+    app.storageManager.updateSession({
+      stage: "error",
+      lastError: error.message,
+    });
     alert("診断開始に失敗しました: " + error.message);
   }
 }
@@ -186,36 +284,38 @@ function startRealDiagnosis() {
 async function proceedToAnalysis(answers) {
   try {
     console.log("🔬 Proceeding to analysis with answers:", answers);
-    
+
     // セッションステージを更新
-    app.storageManager.updateSession({ stage: 'analysis' });
-    
+    app.storageManager.updateSession({ stage: "analysis" });
+
     // 分析画面を表示
     showAnalysisView();
-    
+
     // Questions画面を非表示
     if (app.questionFlow) {
       await app.questionFlow.hide();
     }
-    
+
     // 実際の分析を実行（TripleOS分析）
     const result = await app.engine.analyzeTripleOS(answers);
     const insights = await app.engine.generateInsights(result);
-    
+
     console.log("🎯 Analysis completed:", result);
     console.log("💡 Insights generated:", insights);
-    
+
     // 結果をストレージに保存
     app.storageManager.saveAnalysisResult(result);
     app.storageManager.saveInsights(insights);
-    app.storageManager.updateSession({ stage: 'results' });
-    
+    app.storageManager.updateSession({ stage: "results" });
+
     // 結果画面を表示
     showResultsView(result, insights);
-    
   } catch (error) {
     console.error("❌ Analysis failed:", error);
-    app.storageManager.updateSession({ stage: 'error', lastError: error.message });
+    app.storageManager.updateSession({
+      stage: "error",
+      lastError: error.message,
+    });
     alert("分析処理でエラーが発生しました: " + error.message);
   }
 }
@@ -225,16 +325,16 @@ function checkPreviousProgress() {
   const session = app.storageManager.getSession();
   const progress = app.storageManager.getProgress();
   const answers = app.storageManager.getAnswers();
-  
+
   if (session && progress && answers.length > 0) {
     const shouldResume = confirm(
       `前回の診断が途中で終了されています。\n` +
-      `進行状況: ${progress.completedQuestions}/${progress.totalQuestions}問完了\n` +
-      `続きから始めますか？\n\n` +
-      `「OK」: 続きから開始\n` +
-      `「キャンセル」: 最初からやり直し`
+        `進行状況: ${progress.completedQuestions}/${progress.totalQuestions}問完了\n` +
+        `続きから始めますか？\n\n` +
+        `「OK」: 続きから開始\n` +
+        `「キャンセル」: 最初からやり直し`
     );
-    
+
     if (shouldResume) {
       resumePreviousSession();
     } else {
@@ -251,26 +351,27 @@ function resumePreviousSession() {
     const answers = app.storageManager.getAnswers();
     const analysisResult = app.storageManager.getAnalysisResult();
     const insights = app.storageManager.getInsights();
-    
+
     console.log("🔄 Resuming previous session:", session);
-    
+
     switch (session.stage) {
-      case 'questions':
+      case "questions":
         // 質問画面を再開
         startRealDiagnosis();
         if (app.questionFlow) {
-          app.questionFlow.currentQuestionIndex = progress.currentQuestionIndex || 0;
+          app.questionFlow.currentQuestionIndex =
+            progress.currentQuestionIndex || 0;
           app.questionFlow.answers = answers || [];
           app.questionFlow.render();
         }
         break;
-        
-      case 'analysis':
+
+      case "analysis":
         // 分析を再実行
         proceedToAnalysis(answers);
         break;
-        
-      case 'results':
+
+      case "results":
         // 結果画面を表示
         if (analysisResult && insights) {
           showResultsView(analysisResult, insights);
@@ -278,10 +379,10 @@ function resumePreviousSession() {
           proceedToAnalysis(answers);
         }
         break;
-        
+
       default:
         // デフォルトはウェルカム画面
-        app.storageManager.updateSession({ stage: 'welcome' });
+        app.storageManager.updateSession({ stage: "welcome" });
         break;
     }
   } catch (error) {
@@ -293,13 +394,13 @@ function resumePreviousSession() {
 // 分析画面を表示
 function showAnalysisView() {
   hideAllScreens();
-  
+
   const analysisView = new AnalysisView("analysis-container", {
-    onAnalysisComplete: function() {
+    onAnalysisComplete: function () {
       console.log("🎊 Analysis view completed");
-    }
+    },
   });
-  
+
   analysisView.show();
   app.analysisView = analysisView;
 }
@@ -307,38 +408,38 @@ function showAnalysisView() {
 // 結果画面を表示
 function showResultsView(analysisResult, insights) {
   hideAllScreens();
-  
+
   // TripleOS分析結果かどうかで表示を分岐
-  if (analysisResult.analysisType === 'tripleOS') {
+  if (analysisResult.analysisType === "tripleOS") {
     // TripleOS結果表示
     const tripleOSResultsView = new TripleOSResultsView("results-container", {
-      onExploreMore: function(result) {
+      onExploreMore: function (result) {
         showInsightPanel(result, insights);
       },
-      onRetakeTest: function() {
+      onRetakeTest: function () {
         app.storageManager.startNewSession();
         location.reload();
       },
-      onGenerateReport: function(result) {
+      onGenerateReport: function (result) {
         generateTripleOSReport(result);
-      }
+      },
     });
-    
+
     tripleOSResultsView.setData(analysisResult);
     tripleOSResultsView.show();
     app.tripleOSResultsView = tripleOSResultsView;
   } else {
     // 従来の結果表示
     const resultsView = new ResultsView("results-container", {
-      onExploreMore: function(result) {
+      onExploreMore: function (result) {
         showInsightPanel(result, insights);
       },
-      onRetakeTest: function() {
+      onRetakeTest: function () {
         app.storageManager.startNewSession();
         location.reload();
-      }
+      },
     });
-    
+
     resultsView.setData(analysisResult, insights);
     resultsView.show();
     app.resultsView = resultsView;
@@ -348,16 +449,16 @@ function showResultsView(analysisResult, insights) {
 // 洞察パネルを表示
 function showInsightPanel(analysisResult, insights) {
   hideAllScreens();
-  
+
   const insightPanel = new InsightPanel("insights-container", {
-    onBack: function() {
+    onBack: function () {
       showResultsView(analysisResult, insights);
     },
-    onGenerateReport: function(result, insights) {
+    onGenerateReport: function (result, insights) {
       generateReport(result, insights);
-    }
+    },
   });
-  
+
   insightPanel.setData(analysisResult, insights);
   insightPanel.show();
   app.insightPanel = insightPanel;
@@ -365,11 +466,17 @@ function showInsightPanel(analysisResult, insights) {
 
 // 全ての画面を非表示
 function hideAllScreens() {
-  const screens = ['welcome-container', 'questions-container', 'analysis-container', 'results-container', 'insights-container'];
-  screens.forEach(screenId => {
+  const screens = [
+    "welcome-container",
+    "questions-container",
+    "analysis-container",
+    "results-container",
+    "insights-container",
+  ];
+  screens.forEach((screenId) => {
     const screen = document.getElementById(screenId);
     if (screen) {
-      screen.style.display = 'none';
+      screen.style.display = "none";
     }
   });
 }
@@ -380,21 +487,21 @@ function generateReport(analysisResult, insights) {
     timestamp: new Date().toISOString(),
     analysisResult: analysisResult,
     insights: insights,
-    session: app.storageManager.getSession()
+    session: app.storageManager.getSession(),
   };
-  
+
   const reportJson = JSON.stringify(reportData, null, 2);
-  const blob = new Blob([reportJson], { type: 'application/json' });
+  const blob = new Blob([reportJson], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
+
+  const a = document.createElement("a");
   a.href = url;
-  a.download = `haqei_analysis_${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `haqei_analysis_${new Date().toISOString().split("T")[0]}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  
+
   console.log("📊 Report generated and downloaded");
 }
 
@@ -402,42 +509,42 @@ function generateReport(analysisResult, insights) {
 function generateTripleOSReport(analysisResult) {
   const reportData = {
     timestamp: new Date().toISOString(),
-    analysisType: 'tripleOS',
+    analysisType: "tripleOS",
     engineOS: {
       name: analysisResult.engineOS.hexagramInfo.name,
       hexagramId: analysisResult.engineOS.hexagramId,
       strength: analysisResult.engineOS.strength,
       dominantTrigrams: analysisResult.engineOS.dominantTrigrams,
-      userVector: analysisResult.engineOS.userVector
+      userVector: analysisResult.engineOS.userVector,
     },
     interfaceOS: {
       name: analysisResult.interfaceOS.hexagramInfo.name,
       hexagramId: analysisResult.interfaceOS.hexagramId,
       matchScore: analysisResult.interfaceOS.matchScore,
-      keywordMatches: analysisResult.interfaceOS.keywordMatches
+      keywordMatches: analysisResult.interfaceOS.keywordMatches,
     },
     safeModeOS: {
       name: analysisResult.safeModeOS.hexagramInfo.name,
       hexagramId: analysisResult.safeModeOS.hexagramId,
       matchScore: analysisResult.safeModeOS.matchScore,
-      lineMatches: analysisResult.safeModeOS.lineMatches
+      lineMatches: analysisResult.safeModeOS.lineMatches,
     },
     consistencyScore: analysisResult.consistencyScore,
     integration: analysisResult.integration,
-    session: app.storageManager.getSession()
+    session: app.storageManager.getSession(),
   };
-  
+
   const reportJson = JSON.stringify(reportData, null, 2);
-  const blob = new Blob([reportJson], { type: 'application/json' });
+  const blob = new Blob([reportJson], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
+
+  const a = document.createElement("a");
   a.href = url;
-  a.download = `haqei_triple_os_${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `haqei_triple_os_${new Date().toISOString().split("T")[0]}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  
+
   console.log("📊 TripleOS Report generated and downloaded");
 }

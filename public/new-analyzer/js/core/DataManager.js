@@ -7,7 +7,11 @@ class DataManager {
     this.loadingErrors = [];
     this.loadingWarnings = [];
     this.loadingInfo = [];
-    this.debugMode = typeof window !== "undefined" && window.location.search.includes("debug=true");
+    this.debugMode =
+      typeof window !== "undefined" &&
+      window.location &&
+      window.location.search &&
+      window.location.search.includes("debug=true");
   }
 
   // 統一されたログ出力関数
@@ -18,7 +22,7 @@ class DataManager {
       level,
       section,
       message,
-      data
+      data,
     };
 
     // レベル別のログ配列に追加
@@ -54,8 +58,8 @@ class DataManager {
       summary: {
         errorCount: this.loadingErrors.length,
         warningCount: this.loadingWarnings.length,
-        infoCount: this.loadingInfo.length
-      }
+        infoCount: this.loadingInfo.length,
+      },
     };
   }
 
@@ -69,12 +73,12 @@ class DataManager {
   // データ構造検証メソッド
   validateDataStructure(data) {
     this.logMessage("info", "validateDataStructure", "データ構造検証開始");
-    
+
     const validationResult = {
       isValid: true,
       errors: [],
       warnings: [],
-      details: {}
+      details: {},
     };
 
     try {
@@ -85,20 +89,22 @@ class DataManager {
           required: true,
           properties: {
             worldview: { type: "array", required: true },
-            scenarios: { type: "array", required: true }
-          }
+            scenarios: { type: "array", required: true },
+          },
         },
         vectors: { type: "object", required: true },
         hexagrams: { type: "object", required: true },
-        osManual: { type: "object", required: true }
+        osManual: { type: "object", required: true },
       };
 
       // 各プロパティの検証
       for (const [propName, propConfig] of Object.entries(requiredProperties)) {
         const value = data[propName];
-        
+
         if (propConfig.required && (value === undefined || value === null)) {
-          validationResult.errors.push(`必須プロパティ '${propName}' が存在しません`);
+          validationResult.errors.push(
+            `必須プロパティ '${propName}' が存在しません`
+          );
           validationResult.isValid = false;
           continue;
         }
@@ -106,29 +112,54 @@ class DataManager {
         if (value !== undefined && value !== null) {
           // 型チェック
           if (propConfig.type === "array" && !Array.isArray(value)) {
-            validationResult.errors.push(`プロパティ '${propName}' は配列である必要があります`);
+            validationResult.errors.push(
+              `プロパティ '${propName}' は配列である必要があります`
+            );
             validationResult.isValid = false;
-          } else if (propConfig.type === "object" && (typeof value !== "object" || Array.isArray(value))) {
-            validationResult.errors.push(`プロパティ '${propName}' はオブジェクトである必要があります`);
+          } else if (
+            propConfig.type === "object" &&
+            (typeof value !== "object" || Array.isArray(value))
+          ) {
+            validationResult.errors.push(
+              `プロパティ '${propName}' はオブジェクトである必要があります`
+            );
             validationResult.isValid = false;
           }
 
           // ネストしたプロパティの検証
           if (propConfig.properties && typeof value === "object") {
-            for (const [nestedProp, nestedConfig] of Object.entries(propConfig.properties)) {
+            for (const [nestedProp, nestedConfig] of Object.entries(
+              propConfig.properties
+            )) {
               const nestedValue = value[nestedProp];
-              
-              if (nestedConfig.required && (nestedValue === undefined || nestedValue === null)) {
-                validationResult.errors.push(`必須プロパティ '${propName}.${nestedProp}' が存在しません`);
+
+              if (
+                nestedConfig.required &&
+                (nestedValue === undefined || nestedValue === null)
+              ) {
+                validationResult.errors.push(
+                  `必須プロパティ '${propName}.${nestedProp}' が存在しません`
+                );
                 validationResult.isValid = false;
               }
 
               if (nestedValue !== undefined && nestedValue !== null) {
-                if (nestedConfig.type === "array" && !Array.isArray(nestedValue)) {
-                  validationResult.errors.push(`プロパティ '${propName}.${nestedProp}' は配列である必要があります`);
+                if (
+                  nestedConfig.type === "array" &&
+                  !Array.isArray(nestedValue)
+                ) {
+                  validationResult.errors.push(
+                    `プロパティ '${propName}.${nestedProp}' は配列である必要があります`
+                  );
                   validationResult.isValid = false;
-                } else if (nestedConfig.type === "object" && (typeof nestedValue !== "object" || Array.isArray(nestedValue))) {
-                  validationResult.errors.push(`プロパティ '${propName}.${nestedProp}' はオブジェクトである必要があります`);
+                } else if (
+                  nestedConfig.type === "object" &&
+                  (typeof nestedValue !== "object" ||
+                    Array.isArray(nestedValue))
+                ) {
+                  validationResult.errors.push(
+                    `プロパティ '${propName}.${nestedProp}' はオブジェクトである必要があります`
+                  );
                   validationResult.isValid = false;
                 }
               }
@@ -139,81 +170,130 @@ class DataManager {
 
       // データの詳細統計
       validationResult.details = {
-        worldviewQuestions: data.questions?.worldview ? data.questions.worldview.length : 0,
-        scenarioQuestions: data.questions?.scenarios ? data.questions.scenarios.length : 0,
-        hexagramCount: Array.isArray(data.hexagrams) ? data.hexagrams.length : (data.hexagrams ? Object.keys(data.hexagrams).length : 0),
+        worldviewQuestions: data.questions?.worldview
+          ? data.questions.worldview.length
+          : 0,
+        scenarioQuestions: data.questions?.scenarios
+          ? data.questions.scenarios.length
+          : 0,
+        hexagramCount: Array.isArray(data.hexagrams)
+          ? data.hexagrams.length
+          : data.hexagrams
+          ? Object.keys(data.hexagrams).length
+          : 0,
         osManualCount: data.osManual ? Object.keys(data.osManual).length : 0,
         vectorCount: data.vectors ? Object.keys(data.vectors).length : 0,
         trigramCount: data.trigramsMaster ? data.trigramsMaster.length : 0,
         hasOptionalData: {
           bible: !!data.bible,
           actionPlans: !!data.actionPlans,
-          elementRelationships: !!data.elementRelationships
-        }
+          elementRelationships: !!data.elementRelationships,
+        },
       };
 
       // 警告チェック
       if (validationResult.details.worldviewQuestions < 20) {
-        validationResult.warnings.push(`価値観質問数が少ないです (${validationResult.details.worldviewQuestions}件)`);
+        validationResult.warnings.push(
+          `価値観質問数が少ないです (${validationResult.details.worldviewQuestions}件)`
+        );
       }
 
       if (validationResult.details.hexagramCount < 60) {
-        validationResult.warnings.push(`卦データ数が少ないです (${validationResult.details.hexagramCount}件)`);
+        validationResult.warnings.push(
+          `卦データ数が少ないです (${validationResult.details.hexagramCount}件)`
+        );
       }
 
       if (validationResult.details.osManualCount < 60) {
-        validationResult.warnings.push(`OSマニュアルデータ数が少ないです (${validationResult.details.osManualCount}件)`);
+        validationResult.warnings.push(
+          `OSマニュアルデータ数が少ないです (${validationResult.details.osManualCount}件)`
+        );
       }
 
       // 検証結果をログに記録
-      this.logMessage("info", "validateDataStructure", "データ構造検証完了", validationResult);
+      this.logMessage(
+        "info",
+        "validateDataStructure",
+        "データ構造検証完了",
+        validationResult
+      );
 
       if (!validationResult.isValid) {
-        this.logMessage("error", "validateDataStructure", "データ構造検証エラー", validationResult.errors);
+        this.logMessage(
+          "error",
+          "validateDataStructure",
+          "データ構造検証エラー",
+          validationResult.errors
+        );
       }
 
       if (validationResult.warnings.length > 0) {
-        this.logMessage("warn", "validateDataStructure", "データ構造検証警告", validationResult.warnings);
+        this.logMessage(
+          "warn",
+          "validateDataStructure",
+          "データ構造検証警告",
+          validationResult.warnings
+        );
       }
 
       return validationResult;
-
     } catch (error) {
-      this.logMessage("error", "validateDataStructure", "データ構造検証中にエラーが発生", error);
+      this.logMessage(
+        "error",
+        "validateDataStructure",
+        "データ構造検証中にエラーが発生",
+        error
+      );
       return {
         isValid: false,
         errors: [`検証プロセスでエラーが発生しました: ${error.message}`],
         warnings: [],
-        details: {}
+        details: {},
       };
     }
   }
 
   // データ変換メソッド（後方互換性のため）
   transformDataForBackwardCompatibility(data) {
-    this.logMessage("info", "transformData", "後方互換性のためのデータ変換開始");
-    
+    this.logMessage(
+      "info",
+      "transformData",
+      "後方互換性のためのデータ変換開始"
+    );
+
     const transformedData = { ...data };
 
     try {
       // hexagramsデータの正規化（配列形式をオブジェクト形式に変換）
       if (Array.isArray(transformedData.hexagrams)) {
         const hexagramsObject = {};
-        transformedData.hexagrams.forEach(hexagram => {
+        transformedData.hexagrams.forEach((hexagram) => {
           if (hexagram.hexagram_id) {
             hexagramsObject[hexagram.hexagram_id] = hexagram;
           }
         });
         transformedData.hexagrams = hexagramsObject;
-        this.logMessage("info", "transformData", `hexagrams配列をオブジェクトに変換: ${Object.keys(hexagramsObject).length}件`);
+        this.logMessage(
+          "info",
+          "transformData",
+          `hexagrams配列をオブジェクトに変換: ${
+            Object.keys(hexagramsObject).length
+          }件`
+        );
       }
-      
+
       // 古い形式のhexagramsデータを新しい形式に変換（後方互換性）
-      if (transformedData.hexagrams && typeof transformedData.hexagrams === "object") {
+      if (
+        transformedData.hexagrams &&
+        typeof transformedData.hexagrams === "object"
+      ) {
         // hexagrams_masterがある場合の処理
-        if (transformedData.hexagrams_master && Array.isArray(transformedData.hexagrams_master)) {
+        if (
+          transformedData.hexagrams_master &&
+          Array.isArray(transformedData.hexagrams_master)
+        ) {
           const hexagramsObject = {};
-          transformedData.hexagrams_master.forEach(hexagram => {
+          transformedData.hexagrams_master.forEach((hexagram) => {
             if (hexagram.hexagram_id) {
               hexagramsObject[hexagram.hexagram_id] = hexagram;
             }
@@ -223,7 +303,10 @@ class DataManager {
       }
 
       // OSマニュアルデータの正規化
-      if (transformedData.osManual && typeof transformedData.osManual === "object") {
+      if (
+        transformedData.osManual &&
+        typeof transformedData.osManual === "object"
+      ) {
         // 各OSエントリの正規化
         for (const [key, value] of Object.entries(transformedData.osManual)) {
           if (value && typeof value === "object") {
@@ -237,62 +320,114 @@ class DataManager {
 
       this.logMessage("info", "transformData", "データ変換完了");
       return transformedData;
-
     } catch (error) {
-      this.logMessage("error", "transformData", "データ変換中にエラーが発生", error);
+      this.logMessage(
+        "error",
+        "transformData",
+        "データ変換中にエラーが発生",
+        error
+      );
       return data; // 変換に失敗した場合は元のデータを返す
     }
   }
 
   // グローバルデータの読み込み待機関数
   async waitForGlobalData(maxRetries = 15, retryDelay = 100) {
-    this.logMessage("info", "waitForGlobalData", "グローバルデータ読み込み待機開始", { maxRetries, retryDelay });
-    
+    this.logMessage(
+      "info",
+      "waitForGlobalData",
+      "グローバルデータ読み込み待機開始",
+      { maxRetries, retryDelay }
+    );
+
     const startTime = Date.now();
-    
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      this.logMessage("debug", "waitForGlobalData", `データ読み込み試行 ${attempt}/${maxRetries}`);
-      
+      this.logMessage(
+        "debug",
+        "waitForGlobalData",
+        `データ読み込み試行 ${attempt}/${maxRetries}`
+      );
+
       const globals = {
-        WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined" ? window.WORLDVIEW_QUESTIONS : null,
-        SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined" ? window.SCENARIO_QUESTIONS : null,
-        H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined" ? window.H64_8D_VECTORS : null,
-        HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined" ? window.HAQEI_DATA : null,
-        BIBLE_DATA: typeof window.BIBLE_DATA !== "undefined" ? window.BIBLE_DATA : null,
+        WORLDVIEW_QUESTIONS:
+          typeof window.WORLDVIEW_QUESTIONS !== "undefined"
+            ? window.WORLDVIEW_QUESTIONS
+            : null,
+        SCENARIO_QUESTIONS:
+          typeof window.SCENARIO_QUESTIONS !== "undefined"
+            ? window.SCENARIO_QUESTIONS
+            : null,
+        H64_8D_VECTORS:
+          typeof window.H64_8D_VECTORS !== "undefined"
+            ? window.H64_8D_VECTORS
+            : null,
+        HAQEI_DATA:
+          typeof window.HAQEI_DATA !== "undefined" ? window.HAQEI_DATA : null,
+        BIBLE_DATA:
+          typeof window.BIBLE_DATA !== "undefined" ? window.BIBLE_DATA : null,
       };
 
-      const requiredData = ["WORLDVIEW_QUESTIONS", "SCENARIO_QUESTIONS", "H64_8D_VECTORS", "HAQEI_DATA"];
-      const availableData = requiredData.filter(key => globals[key] !== null);
+      const requiredData = [
+        "WORLDVIEW_QUESTIONS",
+        "SCENARIO_QUESTIONS",
+        "H64_8D_VECTORS",
+        "HAQEI_DATA",
+      ];
+      const availableData = requiredData.filter((key) => globals[key] !== null);
 
       // データの詳細チェック
       const dataDetails = {
-        WORLDVIEW_QUESTIONS: globals.WORLDVIEW_QUESTIONS ? `${globals.WORLDVIEW_QUESTIONS.length}件` : "未読み込み",
-        SCENARIO_QUESTIONS: globals.SCENARIO_QUESTIONS ? `${globals.SCENARIO_QUESTIONS.length}件` : "未読み込み",
-        H64_8D_VECTORS: globals.H64_8D_VECTORS ? `${Object.keys(globals.H64_8D_VECTORS).length}件` : "未読み込み",
+        WORLDVIEW_QUESTIONS: globals.WORLDVIEW_QUESTIONS
+          ? `${globals.WORLDVIEW_QUESTIONS.length}件`
+          : "未読み込み",
+        SCENARIO_QUESTIONS: globals.SCENARIO_QUESTIONS
+          ? `${globals.SCENARIO_QUESTIONS.length}件`
+          : "未読み込み",
+        H64_8D_VECTORS: globals.H64_8D_VECTORS
+          ? `${Object.keys(globals.H64_8D_VECTORS).length}件`
+          : "未読み込み",
         HAQEI_DATA: globals.HAQEI_DATA ? "読み込み済み" : "未読み込み",
-        BIBLE_DATA: globals.BIBLE_DATA ? "読み込み済み" : "未読み込み"
+        BIBLE_DATA: globals.BIBLE_DATA ? "読み込み済み" : "未読み込み",
       };
 
-      console.log(`🔍 [DataManager] 利用可能なデータ: ${availableData.length}/${requiredData.length}`, dataDetails);
+      console.log(
+        `🔍 [DataManager] 利用可能なデータ: ${availableData.length}/${requiredData.length}`,
+        dataDetails
+      );
 
       // すべての必須データが利用可能な場合
       if (availableData.length === requiredData.length) {
         const loadTime = Date.now() - startTime;
-        this.logMessage("info", "waitForGlobalData", `すべての必須データが利用可能です (${loadTime}ms)`, dataDetails);
+        this.logMessage(
+          "info",
+          "waitForGlobalData",
+          `すべての必須データが利用可能です (${loadTime}ms)`,
+          dataDetails
+        );
         return globals;
       }
 
       // HAQEI_DATAが最重要なので、それだけでも利用可能なら続行
       if (globals.HAQEI_DATA && availableData.length >= 2) {
         const loadTime = Date.now() - startTime;
-        this.logMessage("warn", "waitForGlobalData", `部分的なデータで続行します (${loadTime}ms)`, dataDetails);
+        this.logMessage(
+          "warn",
+          "waitForGlobalData",
+          `部分的なデータで続行します (${loadTime}ms)`,
+          dataDetails
+        );
         return globals;
       }
 
       // 最後の試行でない場合は待機
       if (attempt < maxRetries) {
-        this.logMessage("debug", "waitForGlobalData", `${retryDelay}ms待機後に再試行します`);
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
+        this.logMessage(
+          "debug",
+          "waitForGlobalData",
+          `${retryDelay}ms待機後に再試行します`
+        );
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
         // 遅延を徐々に増加（指数バックオフ）
         retryDelay = Math.min(retryDelay * 1.5, 1000);
       }
@@ -300,14 +435,29 @@ class DataManager {
 
     // タイムアウトした場合でも利用可能なデータを返す
     const loadTime = Date.now() - startTime;
-    this.logMessage("warn", "waitForGlobalData", `データ読み込みタイムアウト、利用可能なデータで続行します (${loadTime}ms)`);
-    
+    this.logMessage(
+      "warn",
+      "waitForGlobalData",
+      `データ読み込みタイムアウト、利用可能なデータで続行します (${loadTime}ms)`
+    );
+
     return {
-      WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined" ? window.WORLDVIEW_QUESTIONS : null,
-      SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined" ? window.SCENARIO_QUESTIONS : null,
-      H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined" ? window.H64_8D_VECTORS : null,
-      HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined" ? window.HAQEI_DATA : null,
-      BIBLE_DATA: typeof window.BIBLE_DATA !== "undefined" ? window.BIBLE_DATA : null,
+      WORLDVIEW_QUESTIONS:
+        typeof window.WORLDVIEW_QUESTIONS !== "undefined"
+          ? window.WORLDVIEW_QUESTIONS
+          : null,
+      SCENARIO_QUESTIONS:
+        typeof window.SCENARIO_QUESTIONS !== "undefined"
+          ? window.SCENARIO_QUESTIONS
+          : null,
+      H64_8D_VECTORS:
+        typeof window.H64_8D_VECTORS !== "undefined"
+          ? window.H64_8D_VECTORS
+          : null,
+      HAQEI_DATA:
+        typeof window.HAQEI_DATA !== "undefined" ? window.HAQEI_DATA : null,
+      BIBLE_DATA:
+        typeof window.BIBLE_DATA !== "undefined" ? window.BIBLE_DATA : null,
     };
   }
 
@@ -329,27 +479,45 @@ class DataManager {
       const missingData = requiredData.filter((key) => !globals[key]);
 
       if (missingData.length > 0) {
-        this.logMessage("warn", "loadData", `不足データ検出: ${missingData.join(", ")}`);
-        
+        this.logMessage(
+          "warn",
+          "loadData",
+          `不足データ検出: ${missingData.join(", ")}`
+        );
+
         // HAQEI_DATAが不足している場合の詳細診断と回復処理
         if (missingData.includes("HAQEI_DATA")) {
           this.logMessage("error", "loadData", "HAQEI_DATA詳細診断開始");
-          
+
           const diagnosticInfo = {
             windowExists: typeof window !== "undefined",
             haqeiDataExists: typeof window.HAQEI_DATA !== "undefined",
             haqeiDataValue: window.HAQEI_DATA,
-            scriptElements: typeof document !== "undefined" ? 
-              Array.from(document.querySelectorAll('script[src*="data_box"]')).map(s => s.src) : [],
-            domReadyState: typeof document !== "undefined" ? document.readyState : "unknown"
+            scriptElements:
+              typeof document !== "undefined"
+                ? Array.from(
+                    document.querySelectorAll('script[src*="data_box"]')
+                  ).map((s) => s.src)
+                : [],
+            domReadyState:
+              typeof document !== "undefined" ? document.readyState : "unknown",
           };
-          
-          this.logMessage("debug", "loadData", "HAQEI_DATA診断情報", diagnosticInfo);
-          
+
+          this.logMessage(
+            "debug",
+            "loadData",
+            "HAQEI_DATA診断情報",
+            diagnosticInfo
+          );
+
           // フォールバック処理を試行
           if (typeof window.HAQEI_DATA === "undefined") {
-            this.logMessage("warn", "loadData", "HAQEI_DATAフォールバック処理を実行");
-            
+            this.logMessage(
+              "warn",
+              "loadData",
+              "HAQEI_DATAフォールバック処理を実行"
+            );
+
             // 最小限のフォールバックデータを作成
             const fallbackData = {
               hexagrams: {},
@@ -362,30 +530,47 @@ class DataManager {
               tai_sho_den: {},
               jo_ka_den: {},
               zatsu_ka_den: {},
-              tuan_den: {}
+              tuan_den: {},
             };
-            
+
             window.HAQEI_DATA = fallbackData;
             globals.HAQEI_DATA = fallbackData;
-            this.logMessage("warn", "loadData", "フォールバックデータを設定しました", fallbackData);
+            this.logMessage(
+              "warn",
+              "loadData",
+              "フォールバックデータを設定しました",
+              fallbackData
+            );
           }
         }
-        
+
         // 他の必須データのフォールバック処理
         if (missingData.includes("WORLDVIEW_QUESTIONS")) {
-          this.logMessage("warn", "loadData", "WORLDVIEW_QUESTIONSフォールバック処理");
+          this.logMessage(
+            "warn",
+            "loadData",
+            "WORLDVIEW_QUESTIONSフォールバック処理"
+          );
           window.WORLDVIEW_QUESTIONS = [];
           globals.WORLDVIEW_QUESTIONS = [];
         }
-        
+
         if (missingData.includes("SCENARIO_QUESTIONS")) {
-          this.logMessage("warn", "loadData", "SCENARIO_QUESTIONSフォールバック処理");
+          this.logMessage(
+            "warn",
+            "loadData",
+            "SCENARIO_QUESTIONSフォールバック処理"
+          );
           window.SCENARIO_QUESTIONS = [];
           globals.SCENARIO_QUESTIONS = [];
         }
-        
+
         if (missingData.includes("H64_8D_VECTORS")) {
-          this.logMessage("warn", "loadData", "H64_8D_VECTORSフォールバック処理");
+          this.logMessage(
+            "warn",
+            "loadData",
+            "H64_8D_VECTORSフォールバック処理"
+          );
           window.H64_8D_VECTORS = {};
           globals.H64_8D_VECTORS = {};
         }
@@ -410,57 +595,97 @@ class DataManager {
         vectors: globals.H64_8D_VECTORS || {},
         hexagrams: (globals.HAQEI_DATA && globals.HAQEI_DATA.hexagrams) || [],
         osManual: (globals.HAQEI_DATA && globals.HAQEI_DATA.os_manual) || {},
-        trigramsMaster: (globals.HAQEI_DATA && globals.HAQEI_DATA.trigrams_master) || [],
-        elementRelationships: (globals.HAQEI_DATA && globals.HAQEI_DATA.element_relationships) || [],
-        actionPlans: (globals.HAQEI_DATA && globals.HAQEI_DATA.action_plans) || {},
+        trigramsMaster:
+          (globals.HAQEI_DATA && globals.HAQEI_DATA.trigrams_master) || [],
+        elementRelationships:
+          (globals.HAQEI_DATA && globals.HAQEI_DATA.element_relationships) ||
+          [],
+        actionPlans:
+          (globals.HAQEI_DATA && globals.HAQEI_DATA.action_plans) || {},
         bible: bible || {}, // 🔧 修正
         tuanDen: (globals.HAQEI_DATA && globals.HAQEI_DATA.tuan_den) || {},
         taiShoDen: (globals.HAQEI_DATA && globals.HAQEI_DATA.tai_sho_den) || {},
         shoDen: (globals.HAQEI_DATA && globals.HAQEI_DATA.sho_den) || {},
         joKaDen: (globals.HAQEI_DATA && globals.HAQEI_DATA.jo_ka_den) || {},
-        zatsuKaDen: (globals.HAQEI_DATA && globals.HAQEI_DATA.zatsu_ka_den) || {},
+        zatsuKaDen:
+          (globals.HAQEI_DATA && globals.HAQEI_DATA.zatsu_ka_den) || {},
       };
 
-      // データ構造検証
-      const validationResult = this.validateDataStructure(rawData);
+      // 後方互換性のためのデータ変換（検証の前に実行）
+      const transformedData =
+        this.transformDataForBackwardCompatibility(rawData);
+
+      // データ構造検証（変換後のデータで実行）
+      const validationResult = this.validateDataStructure(transformedData);
       if (!validationResult.isValid) {
-        this.logMessage("error", "loadData", "データ構造検証に失敗しました", validationResult.errors);
+        this.logMessage(
+          "error",
+          "loadData",
+          "データ構造検証に失敗しました",
+          validationResult.errors
+        );
         // 検証に失敗してもデータを読み込む（フォールバック処理）
       }
 
-      // 後方互換性のためのデータ変換
-      this.data = this.transformDataForBackwardCompatibility(rawData);
+      // 変換済みデータを設定
+      this.data = transformedData;
 
       this.loaded = true;
-      
+
       // 読み込み完了データの統計
       const loadedDataStats = {
         worldview: this.data.questions.worldview?.length || 0,
         scenarios: this.data.questions.scenarios?.length || 0,
-        hexagrams: Array.isArray(this.data.hexagrams) ? this.data.hexagrams.length : Object.keys(this.data.hexagrams).length,
+        hexagrams: Array.isArray(this.data.hexagrams)
+          ? this.data.hexagrams.length
+          : Object.keys(this.data.hexagrams).length,
         bible: Object.keys(this.data.bible).length,
         osManual: Object.keys(this.data.osManual).length,
         vectors: Object.keys(this.data.vectors).length,
-        trigramsMaster: Array.isArray(this.data.trigramsMaster) ? this.data.trigramsMaster.length : 0,
-        elementRelationships: Array.isArray(this.data.elementRelationships) ? this.data.elementRelationships.length : 0,
-        actionPlans: Object.keys(this.data.actionPlans).length
+        trigramsMaster: Array.isArray(this.data.trigramsMaster)
+          ? this.data.trigramsMaster.length
+          : 0,
+        elementRelationships: Array.isArray(this.data.elementRelationships)
+          ? this.data.elementRelationships.length
+          : 0,
+        actionPlans: Object.keys(this.data.actionPlans).length,
       };
-      
-      this.logMessage("info", "loadData", "DataManager.loadData() 完了", loadedDataStats);
-      
+
+      this.logMessage(
+        "info",
+        "loadData",
+        "DataManager.loadData() 完了",
+        loadedDataStats
+      );
+
       // 読み込み結果のサマリー
-      const totalLoadedItems = Object.values(loadedDataStats).reduce((sum, count) => sum + count, 0);
-      this.logMessage("info", "loadData", `データ読み込み完了 - 総項目数: ${totalLoadedItems}`);
-      
+      const totalLoadedItems = Object.values(loadedDataStats).reduce(
+        (sum, count) => sum + count,
+        0
+      );
+      this.logMessage(
+        "info",
+        "loadData",
+        `データ読み込み完了 - 総項目数: ${totalLoadedItems}`
+      );
+
       // 警告レベルの確認
       const warnings = this.getLoadingLogs().warnings;
       if (warnings.length > 0) {
-        this.logMessage("warn", "loadData", `読み込み警告あり: ${warnings.length}件`);
+        this.logMessage(
+          "warn",
+          "loadData",
+          `読み込み警告あり: ${warnings.length}件`
+        );
       }
-      
     } catch (error) {
-      this.logMessage("error", "loadData", "DataManager.loadData() 致命的エラー", error);
-      
+      this.logMessage(
+        "error",
+        "loadData",
+        "DataManager.loadData() 致命的エラー",
+        error
+      );
+
       // エラーの詳細情報を記録
       const errorDetails = {
         errorMessage: error.message,
@@ -468,25 +693,29 @@ class DataManager {
         loadingAttempts: this.loaded ? "完了済み" : "未完了",
         globalDataState: {
           HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
-          WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+          WORLDVIEW_QUESTIONS:
+            typeof window.WORLDVIEW_QUESTIONS !== "undefined",
           SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
-          H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined"
-        }
+          H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
+        },
       };
-      
+
       this.logMessage("error", "loadData", "エラー詳細情報", errorDetails);
-      
+
       // ユーザーフレンドリーなエラーメッセージの生成
       let userFriendlyMessage = "データの読み込み中にエラーが発生しました。";
-      
+
       if (error.message.includes("HAQEI_DATA")) {
-        userFriendlyMessage = "基本データファイルの読み込みに失敗しました。ページを再読み込みしてください。";
+        userFriendlyMessage =
+          "基本データファイルの読み込みに失敗しました。ページを再読み込みしてください。";
       } else if (error.message.includes("timeout")) {
-        userFriendlyMessage = "データ読み込みがタイムアウトしました。ネットワーク接続を確認してページを再読み込みしてください。";
+        userFriendlyMessage =
+          "データ読み込みがタイムアウトしました。ネットワーク接続を確認してページを再読み込みしてください。";
       } else if (error.message.includes("validation")) {
-        userFriendlyMessage = "データ形式に問題があります。管理者にお問い合わせください。";
+        userFriendlyMessage =
+          "データ形式に問題があります。管理者にお問い合わせください。";
       }
-      
+
       throw new Error(userFriendlyMessage);
     }
   }
@@ -1051,7 +1280,7 @@ class DataManager {
         return {
           loaded: false,
           error: "DataManagerが初期化されていません",
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
       }
 
@@ -1060,7 +1289,7 @@ class DataManager {
         return {
           loaded: false,
           error: "データオブジェクトが存在しません",
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
       }
 
@@ -1068,27 +1297,52 @@ class DataManager {
         loaded: true,
         timestamp: new Date().toISOString(),
         dataStats: {
-          worldviewQuestions: Array.isArray(this.data.questions?.worldview) ? this.data.questions.worldview.length : 0,
-          scenarioQuestions: Array.isArray(this.data.questions?.scenarios) ? this.data.questions.scenarios.length : 0,
-          hexagrams: Array.isArray(this.data.hexagrams) ? this.data.hexagrams.length : (this.data.hexagrams ? Object.keys(this.data.hexagrams).length : 0),
-          osManual: this.data.osManual ? Object.keys(this.data.osManual).length : 0,
-          trigramsMaster: Array.isArray(this.data.trigramsMaster) ? this.data.trigramsMaster.length : 0,
-          elementRelationships: Array.isArray(this.data.elementRelationships) ? this.data.elementRelationships.length : 0,
-          actionPlans: this.data.actionPlans ? Object.keys(this.data.actionPlans).length : 0,
-          vectors: this.data.vectors ? Object.keys(this.data.vectors).length : 0,
+          worldviewQuestions: Array.isArray(this.data.questions?.worldview)
+            ? this.data.questions.worldview.length
+            : 0,
+          scenarioQuestions: Array.isArray(this.data.questions?.scenarios)
+            ? this.data.questions.scenarios.length
+            : 0,
+          hexagrams: Array.isArray(this.data.hexagrams)
+            ? this.data.hexagrams.length
+            : this.data.hexagrams
+            ? Object.keys(this.data.hexagrams).length
+            : 0,
+          osManual: this.data.osManual
+            ? Object.keys(this.data.osManual).length
+            : 0,
+          trigramsMaster: Array.isArray(this.data.trigramsMaster)
+            ? this.data.trigramsMaster.length
+            : 0,
+          elementRelationships: Array.isArray(this.data.elementRelationships)
+            ? this.data.elementRelationships.length
+            : 0,
+          actionPlans: this.data.actionPlans
+            ? Object.keys(this.data.actionPlans).length
+            : 0,
+          vectors: this.data.vectors
+            ? Object.keys(this.data.vectors).length
+            : 0,
           bible: this.data.bible ? Object.keys(this.data.bible).length : 0,
-          taiShoDen: this.data.taiShoDen ? Object.keys(this.data.taiShoDen).length : 0,
+          taiShoDen: this.data.taiShoDen
+            ? Object.keys(this.data.taiShoDen).length
+            : 0,
           shoDen: this.data.shoDen ? Object.keys(this.data.shoDen).length : 0,
-          joKaDen: this.data.joKaDen ? Object.keys(this.data.joKaDen).length : 0,
-          zatsuKaDen: this.data.zatsuKaDen ? Object.keys(this.data.zatsuKaDen).length : 0
+          joKaDen: this.data.joKaDen
+            ? Object.keys(this.data.joKaDen).length
+            : 0,
+          zatsuKaDen: this.data.zatsuKaDen
+            ? Object.keys(this.data.zatsuKaDen).length
+            : 0,
         },
         globalDataCheck: {
-          WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+          WORLDVIEW_QUESTIONS:
+            typeof window.WORLDVIEW_QUESTIONS !== "undefined",
           SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
           H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
           HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
-          BIBLE_DATA: typeof window.BIBLE_DATA !== "undefined"
-        }
+          BIBLE_DATA: typeof window.BIBLE_DATA !== "undefined",
+        },
       };
 
       console.log("✅ [DataManager] getDataStats完了", stats);
@@ -1098,7 +1352,7 @@ class DataManager {
       return {
         loaded: false,
         error: `データ統計取得エラー: ${error.message}`,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }

@@ -1,13 +1,13 @@
 # Implementation Plan
 
-- [ ] 1. Fix immediate validation errors in DataManager
+- [x] 1. Fix immediate validation errors in DataManager
 
   - Update validateDataStructure() method to accept both array and object formats for hexagrams
   - Add flexible type checking that can handle data format variations
   - Implement immediate error suppression for known convertible formats
   - _Requirements: 1.1, 2.1, 2.2_
 
-- [ ] 2. Implement automatic data transformation
+- [x] 2. Implement automatic data transformation
 
   - Create normalizeHexagramsData() method to convert array format to object format
   - Add array-to-object conversion using hexagram_id as key

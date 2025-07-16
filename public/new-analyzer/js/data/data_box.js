@@ -1,4 +1,4 @@
-export const hexagrams_master = [
+var hexagrams_master = [
   {
     hexagram_id: 1,
     name_jp: "乾為天",
@@ -705,7 +705,7 @@ export const hexagrams_master = [
   },
 ];
 
-export const os_manual = {
+var os_manual = {
   1: {
     hexagram_id: 1,
     name: "乾為天",
@@ -2610,7 +2610,7 @@ export const os_manual = {
   },
 };
 
-export const trigrams_master = [
+var trigrams_master = [
   {
     trigram_id: 1,
     name_jp: "乾",
@@ -2677,7 +2677,7 @@ export const trigrams_master = [
   },
 ];
 
-export const element_relationships = [
+var element_relationships = [
   {
     source_element: "木",
     target_element: "火",
@@ -2750,7 +2750,7 @@ export const element_relationships = [
   },
 ];
 
-export const action_plans = {
+var action_plans = {
   1: {
     2: "あなたの対話力（沢）を使い、会議でファシリテーター役を務め、多様な意見を引き出しまとめてみましょう。「場を支配する」のではなく「場を喜ばせる」リーダーシップが、あなたらしい天の力の使い方です。",
     3: "あなたの情熱（火）をビジョンに変え、チームやプロジェクトが目指すべき未来を熱く語ってみましょう。論理だけでなく、感情に訴えかけることが人々を動かす原動力になります。",
@@ -2825,7 +2825,7 @@ export const action_plans = {
   },
 };
 
-export const sho_den = {
+var sho_den = {
   1: {
     title: "ステージ1：まだ潜んでいる龍のように、力を蓄える時。",
     reason:
@@ -4519,7 +4519,7 @@ export const sho_den = {
   // "2": { ... }
 };
 
-export const tai_sho_den = {
+var tai_sho_den = {
   1: {
     symbolism: "宇宙（天）が、休むことなく力強く動き続けている風景。",
     strategy: "この姿に倣い、常に自己研鑽に励み、成長のために努力し続ける。",
@@ -4815,7 +4815,7 @@ export const tai_sho_den = {
   },
 };
 
-export const jo_ka_den = {
+var jo_ka_den = {
   1: {
     from_prev: null,
     to_next: {
@@ -5648,7 +5648,7 @@ export const jo_ka_den = {
   },
 };
 
-export const zatsu_ka_den = {
+var zatsu_ka_den = {
   1: {
     pair_id: 2,
     pair_name: "坤為地",

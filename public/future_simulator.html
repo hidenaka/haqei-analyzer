@@ -643,7 +643,25 @@
                         showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">入力内容のご確認</h2><p>あなたの状況をより深く理解するために、もう少し詳しく教えていただけますか。</p>`);
                         return;
                     }
-                    const result = await callAIAssistant(worryText, H384_DATA, window.futureThemeMap);
+
+                    // コンテキスト判定を実行
+                    const contextType = analyzeContextType(worryText);
+                    console.log('コンテキスト分析結果:', contextType);
+
+                    // 確認モーダルを表示
+                    const confirmResult = await showContextConfirmModal(contextType);
+
+                    // ユーザーの選択に応じて処理を分岐
+                    let finalContextType = contextType;
+                    if (!confirmResult) {
+                        // 「いいえ」を選択した場合、コンテキストを切り替えて再度モーダルを表示
+                        const switchedContextType = contextType === 'personal' ? 'social' : 'personal';
+                        await showContextSwitchModal(switchedContextType);
+                        finalContextType = switchedContextType;
+                    }
+
+                    // 選択されたコンテキストに基づき、AIによる状況推測を実行
+                    const result = await callAIAssistant(worryText, H384_DATA, window.futureThemeMap, finalContextType);
                     if (!result) {
                         showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">AI推測エラー</h2><p>状況に合致する卦を見つけられませんでした。表現を変えて再度お試しください。</p>`);
                         return;
@@ -1794,7 +1812,91 @@
         return 'neutral';
       }
 
-      async function callAIAssistant(worryText, h384Data, futureThemeMap) {
+      /**
+       * コンテキスト自動識別エンジン
+       * @param {string} text - 分析対象のテキスト
+       * @returns {string} 'personal', 'social'
+       */
+      function analyzeContextType(text) {
+        const personalKeywords = ['私', '自分', '私の', '不安', 'もどかしい', '悩み', '感じる', '思う', '心配', '困っている', '迷っている', '自信がない', '焦っている'];
+        const socialKeywords = ['会社', 'チーム', '組織', 'プロジェクト', '社会', '経済', '政治', '業界', '部署', '部門', '企業', '市場', '競合', '顧客', 'ユーザー', 'ステークホルダー'];
+
+        const hasPersonalKeywords = personalKeywords.some(keyword => text.includes(keyword));
+        const hasSocialKeywords = socialKeywords.some(keyword => text.includes(keyword));
+
+        if (hasPersonalKeywords || (!hasPersonalKeywords && !hasSocialKeywords)) {
+          return 'personal';
+        } else if (hasSocialKeywords) {
+          return 'social';
+        }
+      }
+
+      /**
+       * コンテキスト確認モーダルの表示
+       * @param {string} contextType - コンテキストタイプ
+       * @returns {Promise<boolean>} ユーザーの選択結果
+       */
+      function showContextConfirmModal(contextType) {
+        return new Promise((resolve) => {
+          const modalContent = `
+            <h2 class="text-2xl font-bold text-indigo-300 mb-4">AIによるコンテキスト分析</h2>
+            <p class="mb-6">
+              ご入力いただいた内容を分析した結果、これは主に<strong class="text-yellow-300">「${
+                contextType === 'personal' ? 'あなた個人の内面的な' : '組織や社会といった外部環境の'
+              }課題」</strong>であると推測しました。<br>
+              この解釈に基づき、分析を進めてよろしいでしょうか？
+            </p>
+            <div class="flex justify-center space-x-4">
+              <button id="confirmYesBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">はい、この解釈で進める</button>
+              <button id="confirmNoBtn" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">いいえ、解釈を切り替える</button>
+            </div>
+          `;
+          showModal(modalContent);
+
+          const confirmYesBtn = document.getElementById('confirmYesBtn');
+          const confirmNoBtn = document.getElementById('confirmNoBtn');
+
+          confirmYesBtn.addEventListener('click', () => {
+            hideModal();
+            resolve(true);
+          });
+
+          confirmNoBtn.addEventListener('click', () => {
+            hideModal();
+            resolve(false);
+          });
+        });
+      }
+
+      /**
+       * コンテキスト切り替え通知モーダルの表示
+       * @param {string} switchedContextType - 切り替え後のコンテキストタイプ
+       * @returns {Promise<void>}
+       */
+      function showContextSwitchModal(switchedContextType) {
+        return new Promise((resolve) => {
+          const modalContent = `
+            <h2 class="text-2xl font-bold text-indigo-300 mb-4">コンテキスト解釈の切り替え</h2>
+            <p class="mb-6">
+              では、<strong class="text-yellow-300">「${
+                switchedContextType === 'personal' ? 'あなた個人の内面的な' : '組織や社会といった外部環境の'  
+              }課題」</strong>として分析を進めます。
+            </p>
+            <div class="flex justify-center">
+              <button id="switchConfirmBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">OK</button>
+            </div>
+          `;
+          showModal(modalContent);
+
+          const switchConfirmBtn = document.getElementById('switchConfirmBtn');
+          switchConfirmBtn.addEventListener('click', () => {
+            hideModal();
+            resolve();  
+          });
+        });
+      }
+
+      async function callAIAssistant(worryText, h384Data, futureThemeMap, contextType = 'personal') {
         if (!kuromojiTokenizer) { 
           showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">AI準備中</h2><p>AIの言語解析エンジンの準備がまだ完了していません。</p>`); 
           return null; 
@@ -1807,7 +1909,7 @@
         const emotionalContext = analyzeEmotionalContext(worryText, worryWords);
         const temporalContext = analyzeTemporalContext(worryText);
         
-        console.log('文脈分析結果:', { emotionalContext, temporalContext });
+        console.log('文脈分析結果:', { emotionalContext, temporalContext, contextType });
         
         h384Data.forEach((lineData) => {
           const themeData = futureThemeMap[lineData.通し番号];
@@ -1868,6 +1970,47 @@
                       lineData.現代解釈の要約.includes('完成') ||
                       lineData.現代解釈の要約.includes('達成')) {
                     keywordScore -= 15;
+                  }
+                }
+
+                // コンテキストに基づくスコアリング調整
+                if (contextType === 'personal') {
+                  // 個人的課題の場合の調整ロジック
+                  if (lineData.現代解釈の要約.includes('自己') ||
+                      lineData.現代解釈の要約.includes('内面') ||
+                      lineData.現代解釈の要約.includes('成長') ||
+                      lineData.現代解釈の要約.includes('自信') ||
+                      lineData.現代解釈の要約.includes('心') ||
+                      lineData.現代解釈の要約.includes('感情')) {
+                    keywordScore += 15;
+                  }
+                  
+                  // 組織・社会的な内容の卦は減点
+                  if (lineData.現代解釈の要約.includes('組織') ||
+                      lineData.現代解釈の要約.includes('社会') ||
+                      lineData.現代解釈の要約.includes('政治') ||
+                      lineData.現代解釈の要約.includes('経済') ||
+                      lineData.現代解釈の要約.includes('市場')) {
+                    keywordScore -= 10;
+                  }
+                } else if (contextType === 'social') {
+                  // 組織・社会的課題の場合の調整ロジック
+                  if (lineData.現代解釈の要約.includes('組織') ||
+                      lineData.現代解釈の要約.includes('社会') ||
+                      lineData.現代解釈の要約.includes('政治') ||
+                      lineData.現代解釈の要約.includes('経済') ||
+                      lineData.現代解釈の要約.includes('市場') ||
+                      lineData.現代解釈の要約.includes('チーム') ||
+                      lineData.現代解釈の要約.includes('プロジェクト')) {
+                    keywordScore += 15;
+                  }
+                  
+                  // 個人的な内容の卦は減点
+                  if (lineData.現代解釈の要約.includes('自己') ||
+                      lineData.現代解釈の要約.includes('内面') ||
+                      lineData.現代解釈の要約.includes('心') ||
+                      lineData.現代解釈の要約.includes('感情')) {
+                    keywordScore -= 10;
                   }
                 }
                 
@@ -1933,6 +2076,10 @@
           if (temporalContext === 'current_struggle') {
             contextInfo += "進行中の取り組みや発展段階にある状況と分析されました。";
           }
+          
+          // コンテキスト情報を追加
+          const contextTypeText = contextType === 'personal' ? '個人の内面的な課題' : '組織や社会といった外部環境の課題';
+          contextInfo += `また、これは<strong>${contextTypeText}</strong>として分析されました。`;
           
           const reasoning = `AIの推測: ${contextInfo}ご相談の状況は、<strong>${line["親となる卦"]} ${line.爻}</strong>の持つ<strong>「${mainTheme}」</strong>というテーマと強く結びついていると判断しました。`;
           
