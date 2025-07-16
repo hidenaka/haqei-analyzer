@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HaQei診断システム - 全体統合テスト</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <style>
+      .integration-test-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .test-section {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .test-controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .test-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .test-btn.primary {
+        background: #007bff;
+        color: white;
+      }
+
+      .test-btn.success {
+        background: #28a745;
+        color: white;
+      }
+
+      .test-btn.warning {
+        background: #ffc107;
+        color: #212529;
+      }
+
+      .test-btn.danger {
+        background: #dc3545;
+        color: white;
+      }
+
+      .test-btn:hover {
+        opacity: 0.8;
+        transform: translateY(-1px);
+      }
+
+      .test-results {
+        background: #f8f9fa;
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .test-item {
+        padding: 8px 12px;
+        margin: 4px 0;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 13px;
+      }
+
+      .test-item.success {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+      }
+
+      .test-item.error {
+        background: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+      }
+
+      .test-item.warning {
+        background: #fff3cd;
+        color: #856404;
+        border-left: 4px solid #ffc107;
+      }
+
+      .test-item.info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border-left: 4px solid #17a2b8;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .summary-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .summary-value {
+        font-size: 2em;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .summary-label {
+        color: #666;
+        font-size: 0.9em;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+        background: #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 10px 0;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        transition: width 0.5s ease;
+        width: 0%;
+      }
+
+      .performance-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      .metric-card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: center;
+      }
+
+      .metric-value {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #007bff;
+      }
+
+      .metric-label {
+        font-size: 0.8em;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .status-indicator.running {
+        background: #ffc107;
+        animation: pulse 1.5s infinite;
+      }
+
+      .status-indicator.success {
+        background: #28a745;
+      }
+
+      .status-indicator.error {
+        background: #dc3545;
+      }
+
+      .status-indicator.idle {
+        background: #6c757d;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .detailed-report {
+        background: #f8f9fa;
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 15px;
+        font-family: monospace;
+        font-size: 12px;
+        white-space: pre-wrap;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="integration-test-container">
+      <h1>🧪 HaQei診断システム - 全体統合テスト</h1>
+
+      <!-- 全体サマリー -->
+      <div class="test-section">
+        <div class="test-header">
+          <h2>
+            <span class="status-indicator idle" id="overall-status"></span
+            >全体テストサマリー
+          </h2>
+          <div class="test-controls">
+            <button class="test-btn success" onclick="runComprehensiveTest()">
+              🚀 全体統合テスト実行
+            </button>
+            <button class="test-btn warning" onclick="runPerformanceTest()">
+              ⚡ パフォーマンステスト
+            </button>
+            <button class="test-btn danger" onclick="clearAllResults()">
+              🗑️ 結果クリア
+            </button>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="summary-value" id="total-tests">0</div>
+            <div class="summary-label">総テスト数</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-value" id="passed-tests" style="color: #28a745">
+              0
+            </div>
+            <div class="summary-label">成功</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-value" id="failed-tests" style="color: #dc3545">
+              0
+            </div>
+            <div class="summary-label">失敗</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-value" id="success-rate">0%</div>
+            <div class="summary-label">成功率</div>
+          </div>
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- データ整合性テスト -->
+      <div class="test-section">
+        <div class="test-header">
+          <h3>
+            <span class="status-indicator idle" id="data-status"></span
+            >データ整合性テスト
+          </h3>
+          <div class="test-controls">
+            <button class="test-btn primary" onclick="runDataIntegrityTests()">
+              データ整合性テスト
+            </button>
+          </div>
+        </div>
+        <div class="test-results" id="data-test-results"></div>
+      </div>
+
+      <!-- オブジェクト表示テスト -->
+      <div class="test-section">
+        <div class="test-header">
+          <h3>
+            <span class="status-indicator idle" id="object-status"></span
+            >オブジェクト表示テスト
+          </h3>
+          <div class="test-controls">
+            <button class="test-btn primary" onclick="runObjectDisplayTests()">
+              オブジェクト表示テスト
+            </button>
+          </div>
+        </div>
+        <div class="test-results" id="object-test-results"></div>
+      </div>
+
+      <!-- 統合洞察テスト -->
+      <div class="test-section">
+        <div class="test-header">
+          <h3>
+            <span class="status-indicator idle" id="insight-status"></span
+            >統合洞察テスト
+          </h3>
+          <div class="test-controls">
+            <button class="test-btn primary" onclick="runInsightQualityTests()">
+              統合洞察テスト
+            </button>
+          </div>
+        </div>
+        <div class="test-results" id="insight-test-results"></div>
+      </div>
+
+      <!-- パフォーマンステスト -->
+      <div class="test-section">
+        <div class="test-header">
+          <h3>
+            <span class="status-indicator idle" id="performance-status"></span
+            >パフォーマンステスト
+          </h3>
+          <div class="test-controls">
+            <button class="test-btn primary" onclick="runPerformanceTest()">
+              パフォーマンステスト
+            </button>
+          </div>
+        </div>
+        <div class="performance-metrics" id="performance-metrics"></div>
+        <div class="test-results" id="performance-test-results"></div>
+      </div>
+
+      <!-- 回帰テスト -->
+      <div class="test-section">
+        <div class="test-header">
+          <h3>
+            <span class="status-indicator idle" id="regression-status"></span
+            >回帰テスト
+          </h3>
+          <div class="test-controls">
+            <button class="test-btn primary" onclick="runRegressionTests()">
+              回帰テスト
+            </button>
+          </div>
+        </div>
+        <div class="test-results" id="regression-test-results"></div>
+      </div>
+
+      <!-- 詳細レポート -->
+      <div class="test-section">
+        <div class="test-header">
+          <h3>📊 詳細テストレポート</h3>
+          <div class="test-controls">
+            <button class="test-btn primary" onclick="generateDetailedReport()">
+              レポート生成
+            </button>
+            <button class="test-btn warning" onclick="exportTestResults()">
+              結果エクスポート
+            </button>
+          </div>
+        </div>
+        <div class="detailed-report" id="detailed-report"></div>
+      </div>
+    </div>
+
+    <!-- 必要なスクリプトを読み込み -->
+    <script type="module" src="js/data/data_box.js"></script>
+    <script src="js/core/DataManager.js"></script>
+    <script src="js/test-input-system.js"></script>
+    <script src="js/comprehensive-integration-test.js"></script>
+  </body>
+</html>

@@ -11,90 +11,625 @@
 
 class TestInputSystem {
   constructor() {
-    this.participants = [];
-    this.answersData = {};
-    this.diagnosisResults = {};
-    this.feedbackData = {};
-    this.questions = {
-      worldview:
-        typeof window.WORLDVIEW_QUESTIONS !== "undefined"
-          ? window.WORLDVIEW_QUESTIONS
-          : [],
-      scenarios:
-        typeof window.SCENARIO_QUESTIONS !== "undefined"
-          ? window.SCENARIO_QUESTIONS
-          : [],
-    };
+    try {
+      console.log("🔍 [TestInputSystem] コンストラクタ開始");
 
-    // 必要なクラスの存在チェック
-    if (typeof window.DataManager === "undefined") {
-      console.error("❌ DataManagerクラスが見つかりません");
-      alert(
-        "DataManagerクラスが読み込まれていません。ページを再読み込みしてください。"
+      // プロパティの初期化
+      this.participants = [];
+      this.answersData = {};
+      this.diagnosisResults = {};
+      this.feedbackData = {};
+      this.isInitialized = false;
+      this.errorState = null;
+
+      // 質問データの安全な取得
+      try {
+        this.questions = {
+          worldview:
+            typeof window.WORLDVIEW_QUESTIONS !== "undefined"
+              ? window.WORLDVIEW_QUESTIONS
+              : [],
+          scenarios:
+            typeof window.SCENARIO_QUESTIONS !== "undefined"
+              ? window.SCENARIO_QUESTIONS
+              : [],
+        };
+        console.log(
+          `✅ 質問データ読み込み完了 - 価値観: ${this.questions.worldview.length}件, シナリオ: ${this.questions.scenarios.length}件`
+        );
+      } catch (questionError) {
+        console.error("❌ 質問データの読み込みに失敗:", questionError);
+        this.questions = { worldview: [], scenarios: [] };
+        this.errorState = "質問データの読み込みに失敗しました";
+      }
+
+      // 必要なクラスの存在チェック
+      const missingClasses = [];
+
+      if (typeof window.DataManager === "undefined") {
+        missingClasses.push("DataManager");
+        console.error("❌ DataManagerクラスが見つかりません");
+      }
+
+      if (typeof window.TripleOSEngine === "undefined") {
+        missingClasses.push("TripleOSEngine");
+        console.error("❌ TripleOSEngineクラスが見つかりません");
+      }
+
+      if (missingClasses.length > 0) {
+        const errorMsg = `必要なクラスが読み込まれていません: ${missingClasses.join(
+          ", "
+        )}。ページを再読み込みしてください。`;
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        this.errorState = errorMsg;
+
+        // ユーザーに分かりやすいエラーメッセージを表示
+        if (typeof alert !== "undefined") {
+          alert(errorMsg);
+        }
+        return;
+      }
+
+      console.log("✅ 必要なクラスが読み込まれています");
+      this.init();
+    } catch (error) {
+      console.error(
+        "❌ [TestInputSystem] コンストラクタでエラーが発生:",
+        error
       );
-      return;
-    }
+      this.errorState = `システムの初期化に失敗しました: ${error.message}`;
 
-    if (typeof window.TripleOSEngine === "undefined") {
-      console.error("❌ TripleOSEngineクラスが見つかりません");
-      alert(
-        "TripleOSEngineクラスが読み込まれていません。ページを再読み込みしてください。"
-      );
-      return;
+      // ユーザーに分かりやすいエラーメッセージを表示
+      if (typeof alert !== "undefined") {
+        alert(
+          "システムの初期化中にエラーが発生しました。ページを再読み込みしてください。"
+        );
+      }
     }
-
-    console.log("✅ 必要なクラスが読み込まれています");
-    this.init();
   }
 
   init() {
-    this.loadSavedData();
-    this.generateQuestionInputs();
-    this.updateParticipantSelects();
-    this.updateInputProgress();
-    this.updateResultsList();
-    this.setupEventListeners(); // 追加
-    console.log("🎯 Test Input System initialized");
+    try {
+      console.log("🔍 [TestInputSystem] init開始");
+
+      // エラー状態チェック
+      if (this.errorState) {
+        console.error(
+          `❌ [TestInputSystem] エラー状態のため初期化をスキップ: ${this.errorState}`
+        );
+        return;
+      }
+
+      // 各初期化処理を安全に実行
+      try {
+        this.loadSavedData();
+      } catch (error) {
+        console.error("❌ [TestInputSystem] loadSavedDataエラー:", error);
+        // 保存データの読み込み失敗は致命的ではないので継続
+      }
+
+      try {
+        this.generateQuestionInputs();
+      } catch (error) {
+        console.error(
+          "❌ [TestInputSystem] generateQuestionInputsエラー:",
+          error
+        );
+        // 質問入力生成失敗は致命的ではないので継続
+      }
+
+      try {
+        this.updateParticipantSelects();
+      } catch (error) {
+        console.error(
+          "❌ [TestInputSystem] updateParticipantSelectsエラー:",
+          error
+        );
+        // 参加者選択更新失敗は致命的ではないので継続
+      }
+
+      try {
+        this.updateInputProgress();
+      } catch (error) {
+        console.error("❌ [TestInputSystem] updateInputProgressエラー:", error);
+        // 進捗更新失敗は致命的ではないので継続
+      }
+
+      try {
+        this.updateResultsList();
+      } catch (error) {
+        console.error("❌ [TestInputSystem] updateResultsListエラー:", error);
+        // 結果リスト更新失敗は致命的ではないので継続
+      }
+
+      try {
+        this.setupEventListeners();
+      } catch (error) {
+        console.error("❌ [TestInputSystem] setupEventListenersエラー:", error);
+        // イベントリスナー設定失敗は致命的ではないので継続
+      }
+
+      try {
+        this.initDataIntegrityTester();
+      } catch (error) {
+        console.error(
+          "❌ [TestInputSystem] initDataIntegrityTesterエラー:",
+          error
+        );
+        // データ整合性テスター初期化失敗は致命的ではないので継続
+      }
+
+      this.isInitialized = true;
+      console.log("✅ [TestInputSystem] 初期化完了");
+    } catch (error) {
+      console.error("❌ [TestInputSystem] init致命的エラー:", error);
+      this.errorState = `初期化中に致命的エラーが発生しました: ${error.message}`;
+
+      // ユーザーに分かりやすいエラーメッセージを表示
+      if (typeof alert !== "undefined") {
+        alert(
+          "システムの初期化中にエラーが発生しました。ページを再読み込みしてください。"
+        );
+      }
+    }
   }
 
   // 対象者リスト解析
   parseParticipants() {
-    const text = document.getElementById("participants-list").value;
-    const lines = text.split("\n").filter((line) => line.trim());
+    try {
+      console.log("🔍 [TestInputSystem] parseParticipants開始");
 
-    this.participants = lines.map((line, index) => {
-      const parts = line.split(",").map((p) => p.trim());
+      // エラー状態チェック
+      if (this.errorState) {
+        const errorMsg = `システムがエラー状態のため処理を実行できません: ${this.errorState}`;
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
+      // DOM要素の存在確認
+      const participantsListElement =
+        document.getElementById("participants-list");
+      if (!participantsListElement) {
+        const errorMsg =
+          "参加者リスト入力欄が見つかりません。ページを再読み込みしてください。";
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
+      const text = participantsListElement.value;
+      if (!text || !text.trim()) {
+        const errorMsg = "参加者リストが入力されていません。";
+        console.warn(`⚠️ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
+      const lines = text.split("\n").filter((line) => line.trim());
+      if (lines.length === 0) {
+        const errorMsg = "有効な参加者データが見つかりません。";
+        console.warn(`⚠️ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
+      this.participants = lines.map((line, index) => {
+        try {
+          const parts = line.split(",").map((p) => p.trim());
+          return {
+            id: parts[0] || `user${String(index + 1).padStart(3, "0")}`,
+            name: parts[1] || `ユーザー${index + 1}`,
+            age: parts[2] || "",
+            gender: parts[3] || "",
+            occupation: parts[4] || "",
+          };
+        } catch (parseError) {
+          console.warn(
+            `⚠️ [TestInputSystem] 参加者データ解析エラー (行${
+              index + 1
+            }): ${line}`,
+            parseError
+          );
+          return {
+            id: `user${String(index + 1).padStart(3, "0")}`,
+            name: `ユーザー${index + 1}`,
+            age: "",
+            gender: "",
+            occupation: "",
+          };
+        }
+      });
+
+      // 後続処理を安全に実行
+      try {
+        this.updateParticipantSelects();
+      } catch (error) {
+        console.error(
+          "❌ [TestInputSystem] updateParticipantSelectsエラー:",
+          error
+        );
+        // 継続処理
+      }
+
+      try {
+        this.updateInputProgress();
+      } catch (error) {
+        console.error("❌ [TestInputSystem] updateInputProgressエラー:", error);
+        // 継続処理
+      }
+
+      try {
+        this.saveData();
+      } catch (error) {
+        console.error("❌ [TestInputSystem] saveDataエラー:", error);
+        // 継続処理
+      }
+
+      console.log(
+        `✅ [TestInputSystem] parseParticipants完了 - ${this.participants.length}人`
+      );
+      alert(`${this.participants.length}人の対象者を登録しました`);
+    } catch (error) {
+      console.error(
+        "❌ [TestInputSystem] parseParticipants致命的エラー:",
+        error
+      );
+      const userMessage = `参加者リストの解析中にエラーが発生しました: ${error.message}`;
+      alert(userMessage);
+    }
+  }
+
+  // データ整合性テスター初期化
+  async initDataIntegrityTester() {
+    try {
+      console.log("🧪 データ整合性テスター初期化開始");
+
+      // DataManagerの初期化
+      this.dataManager = new DataManager();
+      await this.dataManager.loadData();
+
+      // テスト結果を保存する配列
+      this.testResults = [];
+      this.totalTests = 0;
+      this.passedTests = 0;
+      this.failedTests = 0;
+
+      console.log("✅ データ整合性テスター初期化完了");
+    } catch (error) {
+      console.error("❌ データ整合性テスター初期化エラー:", error);
+    }
+  }
+
+  // データ整合性テスト実行
+  async runDataIntegrityTests() {
+    console.log("🧪 データ整合性テスト開始");
+
+    this.testResults = [];
+    this.totalTests = 0;
+    this.passedTests = 0;
+    this.failedTests = 0;
+
+    try {
+      // 基本テスト群
+      await this.runBasicDataTests();
+
+      // 整合性テスト群
+      await this.runConsistencyDataTests();
+
+      // エッジケーステスト群
+      await this.runEdgeCaseDataTests();
+
+      // テスト結果をログ出力
+      this.logDataTestResults();
+
       return {
-        id: parts[0] || `user${String(index + 1).padStart(3, "0")}`,
-        name: parts[1] || `ユーザー${index + 1}`,
-        age: parts[2] || "",
-        gender: parts[3] || "",
-        occupation: parts[4] || "",
+        total: this.totalTests,
+        passed: this.passedTests,
+        failed: this.failedTests,
+        results: this.testResults,
       };
+    } catch (error) {
+      console.error("❌ データ整合性テスト実行エラー:", error);
+      throw error;
+    }
+  }
+
+  // 基本データテスト群
+  async runBasicDataTests() {
+    console.log("🔍 基本データテスト群開始");
+
+    // テスト1: DataManagerが正しく初期化されているか
+    this.runDataTest("DataManager初期化確認", () => {
+      return this.dataManager && this.dataManager.loaded;
     });
 
-    this.updateParticipantSelects();
-    this.updateInputProgress();
-    this.saveData();
+    // テスト2: getUnifiedHexagramDataメソッドが存在するか
+    this.runDataTest("getUnifiedHexagramDataメソッド存在確認", () => {
+      return typeof this.dataManager.getUnifiedHexagramData === "function";
+    });
 
-    alert(`${this.participants.length}人の対象者を登録しました`);
+    // テスト3: 有効なIDでデータが取得できるか
+    this.runDataTest("有効ID(1)でのデータ取得", () => {
+      const data = this.dataManager.getUnifiedHexagramData(1);
+      return data !== null && typeof data === "object";
+    });
+
+    // テスト4: 返されるデータが期待される構造を持つか
+    this.runDataTest("データ構造確認", () => {
+      const data = this.dataManager.getUnifiedHexagramData(1);
+      if (!data) return { success: false, error: "データが取得できません" };
+
+      const requiredFields = [
+        "id",
+        "name",
+        "catchphrase",
+        "description",
+        "strategy",
+        "keywords",
+      ];
+      const missingFields = requiredFields.filter((field) => !(field in data));
+
+      if (missingFields.length > 0) {
+        return {
+          success: false,
+          error: `必須フィールドが不足: ${missingFields.join(", ")}`,
+        };
+      }
+
+      return true;
+    });
+
+    // テスト5: keywordsが配列として返されるか
+    this.runDataTest("keywords配列確認", () => {
+      const data = this.dataManager.getUnifiedHexagramData(1);
+      if (!data) return { success: false, error: "データが取得できません" };
+
+      return Array.isArray(data.keywords);
+    });
+  }
+
+  // 整合性データテスト群
+  async runConsistencyDataTests() {
+    console.log("🔍 データ整合性テスト群開始");
+
+    // 同一IDから複数回取得して一貫性を確認
+    const testIds = [1, 2, 3, 4, 5];
+
+    for (const id of testIds) {
+      this.runDataTest(`ID${id}の一貫性確認`, () => {
+        const data1 = this.dataManager.getUnifiedHexagramData(id);
+        const data2 = this.dataManager.getUnifiedHexagramData(id);
+
+        if (!data1 || !data2) {
+          return { success: false, error: "データが取得できません" };
+        }
+
+        // 主要フィールドの一貫性をチェック
+        const fieldsToCheck = ["id", "name", "catchphrase", "description"];
+        for (const field of fieldsToCheck) {
+          if (data1[field] !== data2[field]) {
+            return {
+              success: false,
+              error: `${field}フィールドが一貫していません`,
+            };
+          }
+        }
+
+        return true;
+      });
+    }
+
+    // hexagramDataとosManualDataの統合確認
+    this.runDataTest("データソース統合確認", () => {
+      const data = this.dataManager.getUnifiedHexagramData(1);
+      if (!data) return { success: false, error: "データが取得できません" };
+
+      // hexagramDataまたはosManualDataのいずれかが存在することを確認
+      const hasHexagramData = data.hexagramData !== null;
+      const hasOsManualData = data.osManualData !== null;
+
+      if (!hasHexagramData && !hasOsManualData) {
+        return { success: false, error: "元データソースが両方ともnullです" };
+      }
+
+      return true;
+    });
+
+    // 文字列変換の安全性確認
+    this.runDataTest("文字列変換安全性確認", () => {
+      const data = this.dataManager.getUnifiedHexagramData(1);
+      if (!data) return { success: false, error: "データが取得できません" };
+
+      const stringFields = ["name", "catchphrase", "description", "strategy"];
+      for (const field of stringFields) {
+        if (typeof data[field] !== "string") {
+          return {
+            success: false,
+            error: `${field}が文字列ではありません: ${typeof data[field]}`,
+          };
+        }
+      }
+
+      return true;
+    });
+  }
+
+  // エッジケースデータテスト群
+  async runEdgeCaseDataTests() {
+    console.log("⚠️ エッジケースデータテスト群開始");
+
+    // テスト1: 存在しないIDでの処理
+    this.runDataTest("存在しないID(999)での処理", () => {
+      const data = this.dataManager.getUnifiedHexagramData(999);
+      return data === null; // nullが返されることを期待
+    });
+
+    // テスト2: 負の数IDでの処理
+    this.runDataTest("負の数ID(-1)での処理", () => {
+      const data = this.dataManager.getUnifiedHexagramData(-1);
+      return data === null; // nullが返されることを期待
+    });
+
+    // テスト3: 文字列IDでの処理
+    this.runDataTest('文字列ID("1")での処理', () => {
+      const data = this.dataManager.getUnifiedHexagramData("1");
+      return data !== null && data.id === 1; // 正しく変換されることを期待
+    });
+
+    // テスト4: 無効な文字列IDでの処理
+    this.runDataTest('無効な文字列ID("abc")での処理', () => {
+      const data = this.dataManager.getUnifiedHexagramData("abc");
+      return data === null; // nullが返されることを期待
+    });
+
+    // テスト5: nullやundefinedでの処理
+    this.runDataTest("null値での処理", () => {
+      try {
+        const data = this.dataManager.getUnifiedHexagramData(null);
+        return data === null;
+      } catch (error) {
+        return { success: false, error: `例外が発生: ${error.message}` };
+      }
+    });
+
+    this.runDataTest("undefined値での処理", () => {
+      try {
+        const data = this.dataManager.getUnifiedHexagramData(undefined);
+        return data === null;
+      } catch (error) {
+        return { success: false, error: `例外が発生: ${error.message}` };
+      }
+    });
+  }
+
+  // データテスト実行ヘルパー
+  runDataTest(testName, testFunction) {
+    this.totalTests++;
+    const timestamp = new Date().toLocaleTimeString();
+
+    try {
+      const result = testFunction();
+      if (result === true || (result && result.success)) {
+        this.passedTests++;
+        this.testResults.push({
+          timestamp,
+          name: testName,
+          status: "success",
+          message: "テスト成功",
+        });
+        console.log(`✅ テスト成功: ${testName}`);
+        return true;
+      } else {
+        this.failedTests++;
+        const errorMsg = result && result.error ? result.error : "不明なエラー";
+        this.testResults.push({
+          timestamp,
+          name: testName,
+          status: "error",
+          message: `テスト失敗: ${errorMsg}`,
+        });
+        console.log(`❌ テスト失敗: ${testName} - ${errorMsg}`);
+        return false;
+      }
+    } catch (error) {
+      this.failedTests++;
+      this.testResults.push({
+        timestamp,
+        name: testName,
+        status: "error",
+        message: `テスト例外: ${error.message}`,
+      });
+      console.log(`❌ テスト例外: ${testName} - ${error.message}`);
+      return false;
+    }
+  }
+
+  // テスト結果をログ出力
+  logDataTestResults() {
+    console.log("📊 データ整合性テスト結果:");
+    console.log(`総テスト数: ${this.totalTests}`);
+    console.log(`成功: ${this.passedTests}`);
+    console.log(`失敗: ${this.failedTests}`);
+    console.log(
+      `成功率: ${
+        this.totalTests > 0
+          ? Math.round((this.passedTests / this.totalTests) * 100)
+          : 0
+      }%`
+    );
+
+    if (this.failedTests === 0) {
+      console.log("🎉 すべてのテストが成功しました！");
+    } else {
+      console.log(`⚠️ ${this.failedTests}件のテストが失敗しました`);
+      console.log("失敗したテスト:");
+      this.testResults
+        .filter((r) => r.status === "error")
+        .forEach((r) => {
+          console.log(`  - [${r.timestamp}] ${r.name}: ${r.message}`);
+        });
+    }
   }
 
   // クリップボードから貼り付け
   async pasteFromClipboard() {
     try {
+      console.log("🔍 [TestInputSystem] pasteFromClipboard開始");
+
+      // エラー状態チェック
+      if (this.errorState) {
+        const errorMsg = `システムがエラー状態のため処理を実行できません: ${this.errorState}`;
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
+      // DOM要素の存在確認
+      const participantsListElement =
+        document.getElementById("participants-list");
+      if (!participantsListElement) {
+        const errorMsg =
+          "参加者リスト入力欄が見つかりません。ページを再読み込みしてください。";
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
+      // クリップボードAPI対応チェック
+      if (!navigator.clipboard || !navigator.clipboard.readText) {
+        const errorMsg =
+          "お使いのブラウザはクリップボード機能に対応していません。手動で貼り付けてください。";
+        console.warn(`⚠️ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
       const text = await navigator.clipboard.readText();
-      if (text) {
-        document.getElementById("participants-list").value = text;
+      if (text && text.trim()) {
+        participantsListElement.value = text;
+        console.log(
+          `✅ [TestInputSystem] クリップボードから貼り付け完了 - ${text.length}文字`
+        );
         alert("クリップボードから貼り付けました");
       } else {
-        alert("クリップボードにテキストがありません");
+        const errorMsg = "クリップボードにテキストがありません";
+        console.warn(`⚠️ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
       }
     } catch (error) {
-      console.error("クリップボード読み取りエラー:", error);
-      alert(
-        "クリップボードへのアクセスが拒否されました。手動で貼り付けてください。"
-      );
+      console.error("❌ [TestInputSystem] pasteFromClipboardエラー:", error);
+
+      // エラーの種類に応じたメッセージ
+      let userMessage = "クリップボードからの貼り付けに失敗しました。";
+      if (error.name === "NotAllowedError") {
+        userMessage =
+          "クリップボードへのアクセスが拒否されました。ブラウザの設定を確認するか、手動で貼り付けてください。";
+      } else if (error.name === "NotFoundError") {
+        userMessage = "クリップボードにデータが見つかりません。";
+      }
+
+      alert(userMessage);
     }
   }
 
@@ -108,36 +643,130 @@ class TestInputSystem {
   // 回答書式をクリップボードから貼り付け
   async pasteAnswersFromClipboard() {
     try {
+      console.log("🔍 [TestInputSystem] pasteAnswersFromClipboard開始");
+
+      // エラー状態チェック
+      if (this.errorState) {
+        const errorMsg = `システムがエラー状態のため処理を実行できません: ${this.errorState}`;
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
+      // DOM要素の存在確認
+      const answersFormatElement = document.getElementById(
+        "answers-format-input"
+      );
+      if (!answersFormatElement) {
+        const errorMsg =
+          "回答書式入力欄が見つかりません。ページを再読み込みしてください。";
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
+      // クリップボードAPI対応チェック
+      if (!navigator.clipboard || !navigator.clipboard.readText) {
+        const errorMsg =
+          "お使いのブラウザはクリップボード機能に対応していません。手動で貼り付けてください。";
+        console.warn(`⚠️ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
       const text = await navigator.clipboard.readText();
-      if (text) {
-        document.getElementById("answers-format-input").value = text;
+      if (text && text.trim()) {
+        answersFormatElement.value = text;
+        console.log(
+          `✅ [TestInputSystem] 回答書式貼り付け完了 - ${text.length}文字`
+        );
         alert("回答書式をクリップボードから貼り付けました");
       } else {
-        alert("クリップボードにテキストがありません");
+        const errorMsg = "クリップボードにテキストがありません";
+        console.warn(`⚠️ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
       }
     } catch (error) {
-      console.error("クリップボード読み取りエラー:", error);
-      alert(
-        "クリップボードへのアクセスが拒否されました。手動で貼り付けてください。"
+      console.error(
+        "❌ [TestInputSystem] pasteAnswersFromClipboardエラー:",
+        error
       );
+
+      // エラーの種類に応じたメッセージ
+      let userMessage = "回答書式の貼り付けに失敗しました。";
+      if (error.name === "NotAllowedError") {
+        userMessage =
+          "クリップボードへのアクセスが拒否されました。ブラウザの設定を確認するか、手動で貼り付けてください。";
+      } else if (error.name === "NotFoundError") {
+        userMessage = "クリップボードにデータが見つかりません。";
+      }
+
+      alert(userMessage);
     }
   }
 
   // 一括処理用のクリップボードから貼り付け
   async pasteBatchAnswersFromClipboard() {
     try {
+      console.log("🔍 [TestInputSystem] pasteBatchAnswersFromClipboard開始");
+
+      // エラー状態チェック
+      if (this.errorState) {
+        const errorMsg = `システムがエラー状態のため処理を実行できません: ${this.errorState}`;
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
+      // DOM要素の存在確認
+      const batchAnswersElement = document.getElementById(
+        "batch-answers-input"
+      );
+      if (!batchAnswersElement) {
+        const errorMsg =
+          "一括回答入力欄が見つかりません。ページを再読み込みしてください。";
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
+      // クリップボードAPI対応チェック
+      if (!navigator.clipboard || !navigator.clipboard.readText) {
+        const errorMsg =
+          "お使いのブラウザはクリップボード機能に対応していません。手動で貼り付けてください。";
+        console.warn(`⚠️ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
+        return;
+      }
+
       const text = await navigator.clipboard.readText();
-      if (text) {
-        document.getElementById("batch-answers-input").value = text;
+      if (text && text.trim()) {
+        batchAnswersElement.value = text;
+        console.log(
+          `✅ [TestInputSystem] 一括回答データ貼り付け完了 - ${text.length}文字`
+        );
         alert("回答データをクリップボードから貼り付けました");
       } else {
-        alert("クリップボードにテキストがありません");
+        const errorMsg = "クリップボードにテキストがありません";
+        console.warn(`⚠️ [TestInputSystem] ${errorMsg}`);
+        alert(errorMsg);
       }
     } catch (error) {
-      console.error("クリップボード読み取りエラー:", error);
-      alert(
-        "クリップボードへのアクセスが拒否されました。手動で貼り付けてください。"
+      console.error(
+        "❌ [TestInputSystem] pasteBatchAnswersFromClipboardエラー:",
+        error
       );
+
+      // エラーの種類に応じたメッセージ
+      let userMessage = "一括回答データの貼り付けに失敗しました。";
+      if (error.name === "NotAllowedError") {
+        userMessage =
+          "クリップボードへのアクセスが拒否されました。ブラウザの設定を確認するか、手動で貼り付けてください。";
+      } else if (error.name === "NotFoundError") {
+        userMessage = "クリップボードにデータが見つかりません。";
+      }
+
+      alert(userMessage);
     }
   }
 
@@ -1549,15 +2178,85 @@ ${r.resultText}
 
   // 診断結果をユーザー向けテキストに変換
   generateUserText(participantId, dataManager) {
-    return this.generateProductionLevelText(participantId, dataManager);
+    try {
+      console.log(
+        `🔍 [TestInputSystem] generateUserText開始 - ID: ${participantId}`
+      );
+
+      // 入力値の検証
+      if (!participantId) {
+        const errorMsg = "参加者IDが指定されていません";
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        return `エラー: ${errorMsg}`;
+      }
+
+      if (!dataManager) {
+        const errorMsg = "DataManagerが指定されていません";
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        return `エラー: ${errorMsg}`;
+      }
+
+      // エラー状態チェック
+      if (this.errorState) {
+        const errorMsg = `システムがエラー状態です: ${this.errorState}`;
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        return `エラー: ${errorMsg}`;
+      }
+
+      const result = this.generateProductionLevelText(
+        participantId,
+        dataManager
+      );
+      console.log(
+        `✅ [TestInputSystem] generateUserText完了 - ID: ${participantId}`
+      );
+      return result;
+    } catch (error) {
+      console.error(`❌ [TestInputSystem] generateUserTextエラー:`, error);
+      return `エラー: ユーザーテキスト生成中にエラーが発生しました: ${error.message}`;
+    }
   }
 
   // generateProductionLevelTextを全面改修
   generateProductionLevelText(participantId, dataManager) {
-    const data = this.diagnosisResults[participantId];
-    if (!data || !data.result) return "エラー: 診断結果が見つかりません";
-    const result = data.result;
-    const participant = data.participant;
+    try {
+      console.log(`🔍 [TestInputSystem] generateProductionLevelText開始 - ID: ${participantId}`);
+      
+      // 入力値の検証
+      if (!participantId) {
+        const errorMsg = "参加者IDが指定されていません";
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        return `エラー: ${errorMsg}`;
+      }
+      
+      if (!dataManager) {
+        const errorMsg = "DataManagerが指定されていません";
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        return `エラー: ${errorMsg}`;
+      }
+      
+      // 診断結果の存在確認
+      const data = this.diagnosisResults[participantId];
+      if (!data) {
+        const errorMsg = `参加者ID ${participantId} の診断結果が見つかりません`;
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        return `エラー: ${errorMsg}`;
+      }
+      
+      if (!data.result) {
+        const errorMsg = `参加者ID ${participantId} の診断結果データが不正です`;
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        return `エラー: ${errorMsg}`;
+      }
+      
+      const result = data.result;
+      const participant = data.participant;
+      
+      if (!participant) {
+        const errorMsg = `参加者ID ${participantId} の参加者情報が見つかりません`;
+        console.error(`❌ [TestInputSystem] ${errorMsg}`);
+        return `エラー: ${errorMsg}`;
+      }
 
     // 安全なID取得
     const getHexagramIdFromOS = (osObject) => {
@@ -2963,6 +3662,77 @@ ${resultText}
     const saveFeedbackBtn = document.getElementById("save-feedback-btn");
     if (saveFeedbackBtn)
       saveFeedbackBtn.addEventListener("click", () => this.saveFeedback());
+
+    // データ整合性テスト用のイベントリスナー（分析タブ用）
+    const runDataIntegrityTestBtn = document.getElementById(
+      "run-data-integrity-test-btn"
+    );
+    if (runDataIntegrityTestBtn) {
+      runDataIntegrityTestBtn.addEventListener("click", async () => {
+        try {
+          console.log("🧪 データ整合性テスト実行開始");
+          const results = await this.runDataIntegrityTests();
+
+          // 結果を分析タブに表示
+          const analysisDiv = document.getElementById("statistical-analysis");
+          if (analysisDiv) {
+            analysisDiv.innerHTML = `
+              <div class="test-results-summary">
+                <h4>📊 データ整合性テスト結果</h4>
+                <div class="test-stats">
+                  <div class="stat-item">
+                    <span class="stat-label">総テスト数:</span>
+                    <span class="stat-value">${results.total}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">成功:</span>
+                    <span class="stat-value success">${results.passed}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">失敗:</span>
+                    <span class="stat-value error">${results.failed}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-label">成功率:</span>
+                    <span class="stat-value">${
+                      results.total > 0
+                        ? Math.round((results.passed / results.total) * 100)
+                        : 0
+                    }%</span>
+                  </div>
+                </div>
+                <div class="test-details">
+                  <h5>テスト詳細:</h5>
+                  <div class="test-log">
+                    ${results.results
+                      .map(
+                        (r) =>
+                          `<div class="test-item ${r.status}">
+                        [${r.timestamp}] ${r.name}: ${r.message}
+                      </div>`
+                      )
+                      .join("")}
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+
+          alert(
+            `データ整合性テスト完了\n成功: ${results.passed}/${
+              results.total
+            } (${
+              results.total > 0
+                ? Math.round((results.passed / results.total) * 100)
+                : 0
+            }%)`
+          );
+        } catch (error) {
+          console.error("❌ データ整合性テスト実行エラー:", error);
+          alert(`データ整合性テスト実行エラー: ${error.message}`);
+        }
+      });
+    }
   }
 
   // タブ切り替え機能
@@ -3227,15 +3997,99 @@ ${resultText}
    * @returns {string}
    */
   generateUnifiedOSDetail(unifiedData) {
-    if (!unifiedData) return "データが見つかりません";
-    let detail = `【${unifiedData.name}】\n`;
-    if (unifiedData.catchphrase)
-      detail += `キャッチコピー: ${unifiedData.catchphrase}\n`;
-    if (unifiedData.description) detail += `説明: ${unifiedData.description}\n`;
-    if (unifiedData.strategy) detail += `戦略: ${unifiedData.strategy}\n`;
-    if (unifiedData.keywords && unifiedData.keywords.length > 0)
-      detail += `キーワード: ${unifiedData.keywords.join(", ")}\n`;
-    return detail.trim();
+    try {
+      console.log(
+        `🔍 [TestInputSystem] generateUnifiedOSDetail開始`,
+        unifiedData?.id
+      );
+
+      if (!unifiedData) {
+        console.warn(
+          `⚠️ [TestInputSystem] unifiedDataがnullまたはundefinedです`
+        );
+        return "データが見つかりません";
+      }
+
+      if (typeof unifiedData !== "object") {
+        console.warn(
+          `⚠️ [TestInputSystem] unifiedDataが期待される形式ではありません:`,
+          typeof unifiedData
+        );
+        return "データ形式が正しくありません";
+      }
+
+      // 安全な文字列取得ヘルパー
+      const safeString = (value, fieldName) => {
+        try {
+          if (typeof value === "string") return value;
+          if (value == null) return "";
+          return String(value);
+        } catch (error) {
+          console.warn(
+            `⚠️ [TestInputSystem] ${fieldName}の文字列変換エラー:`,
+            error
+          );
+          return "";
+        }
+      };
+
+      // 安全な配列処理ヘルパー
+      const safeArray = (value, fieldName) => {
+        try {
+          if (Array.isArray(value)) return value;
+          if (typeof value === "string")
+            return value.split(/[,、\s]+/).filter(Boolean);
+          return [];
+        } catch (error) {
+          console.warn(
+            `⚠️ [TestInputSystem] ${fieldName}の配列変換エラー:`,
+            error
+          );
+          return [];
+        }
+      };
+
+      const name = safeString(unifiedData.name, "name") || "名称不明";
+      let detail = `【${name}】\n`;
+
+      const catchphrase = safeString(unifiedData.catchphrase, "catchphrase");
+      if (catchphrase) {
+        detail += `キャッチコピー: ${catchphrase}\n`;
+      }
+
+      const description = safeString(unifiedData.description, "description");
+      if (description) {
+        detail += `説明: ${description}\n`;
+      }
+
+      const strategy = safeString(unifiedData.strategy, "strategy");
+      if (strategy) {
+        detail += `戦略: ${strategy}\n`;
+      }
+
+      const keywords = safeArray(unifiedData.keywords, "keywords");
+      if (keywords.length > 0) {
+        detail += `キーワード: ${keywords.join(", ")}\n`;
+      }
+
+      const result = detail.trim();
+      console.log(`✅ [TestInputSystem] generateUnifiedOSDetail完了 - ${name}`);
+      return result;
+    } catch (error) {
+      console.error(
+        `❌ [TestInputSystem] generateUnifiedOSDetailエラー:`,
+        error
+      );
+
+      // エラー詳細をログ出力
+      console.error(`❌ [TestInputSystem] エラー詳細:`, {
+        originalError: error,
+        unifiedData: unifiedData,
+        userMessage: "OS詳細テキストの生成に失敗しました",
+      });
+
+      return `OS詳細の生成中にエラーが発生しました: ${error.message}`;
+    }
   }
 
   /**
@@ -3244,91 +4098,246 @@ ${resultText}
    * @returns {string} - 表示用文字列
    */
   generateSafeDisplayText(data) {
-    if (typeof data === "string") {
-      return data;
-    }
-
-    if (data && typeof data === "object") {
-      // 優先順位に従ってプロパティを確認
-      if (data.text) return data.text;
-      if (data.content) return data.content;
-      if (data.interpretation) return data.interpretation;
-      if (data.symbolism && data.strategy) {
-        return `【象徴】 ${data.symbolism}\n【戦略】 ${data.strategy}`;
+    try {
+      console.log(`🔍 [TestInputSystem] generateSafeDisplayText開始`);
+      
+      // null/undefined チェック
+      if (data == null) {
+        console.log(`⚠️ [TestInputSystem] データがnull/undefinedです`);
+        return "";
       }
-      if (data.symbolism) return `【象徴】 ${data.symbolism}`;
-      if (data.strategy) return `【戦略】 ${data.strategy}`;
+      
+      // 文字列の場合はそのまま返す
+      if (typeof data === "string") {
+        console.log(`✅ [TestInputSystem] 文字列データを返します: ${data.length}文字`);
+        return data;
+      }
 
-      // フォールバック処理
+      // オブジェクトの場合は安全に処理
+      if (data && typeof data === "object") {
+        console.log(`🔍 [TestInputSystem] オブジェクトデータを処理中`);
+        
+        // 優先順位に従ってプロパティを確認
+        try {
+          if (data.text && typeof data.text === "string") {
+            console.log(`✅ [TestInputSystem] textプロパティを使用`);
+            return data.text;
+          }
+          if (data.content && typeof data.content === "string") {
+            console.log(`✅ [TestInputSystem] contentプロパティを使用`);
+            return data.content;
+          }
+          if (data.interpretation && typeof data.interpretation === "string") {
+            console.log(`✅ [TestInputSystem] interpretationプロパティを使用`);
+            return data.interpretation;
+          }
+          if (data.symbolism && data.strategy) {
+            console.log(`✅ [TestInputSystem] symbolism+strategyプロパティを使用`);
+            return `【象徴】 ${data.symbolism}\n【戦略】 ${data.strategy}`;
+          }
+          if (data.symbolism && typeof data.symbolism === "string") {
+            console.log(`✅ [TestInputSystem] symbolismプロパティを使用`);
+            return `【象徴】 ${data.symbolism}`;
+          }
+          if (data.strategy && typeof data.strategy === "string") {
+            console.log(`✅ [TestInputSystem] strategyプロパティを使用`);
+            return `【戦略】 ${data.strategy}`;
+          }
+        } catch (propertyError) {
+          console.error(`❌ [TestInputSystem] プロパティアクセスエラー:`, propertyError);
+        }
+
+        // フォールバック処理
+        try {
+          console.log(`⚠️ [TestInputSystem] JSON文字列化を試行`);
+          const jsonString = JSON.stringify(data, null, 2);
+          if (jsonString && jsonString !== "{}") {
+            return jsonString;
+          } else {
+            console.warn(`⚠️ [TestInputSystem] 空のオブジェクトです`);
+            return "[空のデータ]";
+          }
+        } catch (jsonError) {
+          console.error(`❌ [TestInputSystem] JSON変換エラー:`, jsonError);
+          return "[データ表示エラー]";
+        }
+      }
+
+      // その他の型の場合は文字列に変換
       try {
-        return JSON.stringify(data, null, 2);
-      } catch {
-        return "[データ表示エラー]";
+        const stringValue = String(data);
+        console.log(`✅ [TestInputSystem] 文字列変換完了: ${stringValue}`);
+        return stringValue;
+      } catch (stringError) {
+        console.error(`❌ [TestInputSystem] 文字列変換エラー:`, stringError);
+        return "[変換エラー]";
       }
+      
+    } catch (error) {
+      console.error(`❌ [TestInputSystem] generateSafeDisplayText致命的エラー:`, error);
+      return `[エラー: ${error.message}]`;
     }
-
-    return data == null ? "" : String(data);
   }
 
   /**
-   * OS名や特徴から特性を自動分類
+   * OS特性マッピング定義（64卦対応）
+   */
+  static OS_CHARACTERISTICS_MAP = {
+    1: { type: "creative", energy: "active", focus: "innovation" }, // 乾為天 (けんいてん)
+    2: { type: "stable", energy: "calm", focus: "security" }, // 坤為地 (こんいち)
+    3: { type: "creative", energy: "deep", focus: "innovation" }, // 水雷屯 (すいらいちゅん)
+    4: { type: "analytical", energy: "calm", focus: "understanding" }, // 山水蒙 (さんすいもう)
+    5: { type: "stable", energy: "calm", focus: "security" }, // 水天需 (すいてんじゅ)
+    6: { type: "analytical", energy: "active", focus: "understanding" }, // 天水訟 (てんすいしょう)
+    7: { type: "stable", energy: "active", focus: "security" }, // 地水師 (ちすいし)
+    8: { type: "harmonious", energy: "social", focus: "relationship" }, // 水地比 (すいちひ)
+    9: { type: "stable", energy: "calm", focus: "general" }, // 風天小畜 (ふうてんしょうちく)
+    10: { type: "harmonious", energy: "calm", focus: "relationship" }, // 天沢履 (てんたくり)
+    11: { type: "harmonious", energy: "social", focus: "relationship" }, // 地天泰 (ちてんたい)
+    12: { type: "analytical", energy: "calm", focus: "understanding" }, // 天地否 (てんちひ)
+    13: { type: "harmonious", energy: "social", focus: "relationship" }, // 天火同人 (てんかどうじん)
+    14: { type: "creative", energy: "social", focus: "innovation" }, // 火天大有 (かてんたいゆう)
+    15: { type: "harmonious", energy: "calm", focus: "relationship" }, // 地山謙 (ちさんけん)
+    16: { type: "harmonious", energy: "active", focus: "relationship" }, // 雷地豫 (らいちよ)
+    17: { type: "harmonious", energy: "active", focus: "relationship" }, // 沢雷随 (たくらいずい)
+    18: { type: "creative", energy: "deep", focus: "innovation" }, // 山風蠱 (さんぷうこ)
+    19: { type: "harmonious", energy: "active", focus: "relationship" }, // 地沢臨 (ちたくりん)
+    20: { type: "analytical", energy: "calm", focus: "understanding" }, // 風地観 (ふうちかん)
+    21: { type: "creative", energy: "active", focus: "innovation" }, // 火雷噬嗑 (からいぜいごう)
+    22: { type: "harmonious", energy: "social", focus: "general" }, // 山火賁 (さんかひ)
+    23: { type: "analytical", energy: "calm", focus: "understanding" }, // 山地剝 (さんちはく)
+    24: { type: "stable", energy: "active", focus: "security" }, // 地雷復 (ちらいふく)
+    25: { type: "balanced", energy: "moderate", focus: "general" }, // 天雷无妄 (てんらいむぼう)
+    26: { type: "stable", energy: "calm", focus: "security" }, // 山天大畜 (さんてんたいちく)
+    27: { type: "stable", energy: "calm", focus: "security" }, // 山雷頤 (さんらいい)
+    28: { type: "creative", energy: "active", focus: "innovation" }, // 澤風大過 (たくふうたいか)
+    29: { type: "analytical", energy: "deep", focus: "understanding" }, // 坎為水 (かんいすい)
+    30: { type: "analytical", energy: "social", focus: "understanding" }, // 離為火 (りいか)
+    31: { type: "harmonious", energy: "social", focus: "relationship" }, // 沢山咸 (たくざんかん)
+    32: { type: "stable", energy: "calm", focus: "security" }, // 雷風恒 (らいふうこう)
+    33: { type: "analytical", energy: "calm", focus: "security" }, // 天山遯 (てんざんとん)
+    34: { type: "creative", energy: "active", focus: "innovation" }, // 雷天大壮 (らいてんたいそう)
+    35: { type: "harmonious", energy: "active", focus: "relationship" }, // 火地晋 (かちしん)
+    36: { type: "analytical", energy: "deep", focus: "security" }, // 地火明夷 (ちかめいい)
+    37: { type: "harmonious", energy: "calm", focus: "relationship" }, // 風火家人 (ふうかかじん)
+    38: { type: "analytical", energy: "active", focus: "understanding" }, // 火沢睽 (かたくけい)
+    39: { type: "analytical", energy: "deep", focus: "understanding" }, // 水山蹇 (すいざんけん)
+    40: { type: "creative", energy: "active", focus: "general" }, // 雷水解 (らいすいかい)
+    41: { type: "stable", energy: "calm", focus: "security" }, // 山沢損 (さんたくそん)
+    42: { type: "harmonious", energy: "active", focus: "relationship" }, // 風雷益 (ふうらいえき)
+    43: { type: "creative", energy: "active", focus: "innovation" }, // 沢天夬 (たくてんかい)
+    44: { type: "harmonious", energy: "social", focus: "relationship" }, // 天風姤 (てんぷうこう)
+    45: { type: "harmonious", energy: "social", focus: "relationship" }, // 沢地萃 (たくちすい)
+    46: { type: "stable", energy: "calm", focus: "security" }, // 地風升 (ちふうしょう)
+    47: { type: "analytical", energy: "deep", focus: "understanding" }, // 沢水困 (たくすいこん)
+    48: { type: "stable", energy: "calm", focus: "security" }, // 水風井 (すいふうせい)
+    49: { type: "creative", energy: "active", focus: "innovation" }, // 沢火革 (たくかかく)
+    50: { type: "stable", energy: "calm", focus: "security" }, // 火風鼎 (かふうてい)
+    51: { type: "creative", energy: "active", focus: "innovation" }, // 震為雷 (しんいらい)
+    52: { type: "stable", energy: "calm", focus: "security" }, // 艮為山 (ごんいさん)
+    53: { type: "stable", energy: "calm", focus: "security" }, // 風山漸 (ふうざんぜん)
+    54: { type: "balanced", energy: "active", focus: "relationship" }, // 雷沢帰妹 (らいたくきまい)
+    55: { type: "harmonious", energy: "active", focus: "general" }, // 雷火豊 (らいかほう)
+    56: { type: "analytical", energy: "moderate", focus: "understanding" }, // 火山旅 (かざんりょ)
+    57: { type: "harmonious", energy: "moderate", focus: "relationship" }, // 巽為風 (そんいふう)
+    58: { type: "harmonious", energy: "social", focus: "relationship" }, // 兌為沢 (だいたく)
+    59: { type: "creative", energy: "moderate", focus: "general" }, // 風水渙 (ふうすいかん)
+    60: { type: "stable", energy: "calm", focus: "security" }, // 水沢節 (すいたくせつ)
+    61: { type: "harmonious", energy: "calm", focus: "relationship" }, // 風沢中孚 (ふうたくちゅうふ)
+    62: { type: "stable", energy: "calm", focus: "security" }, // 雷山小過 (らいざんしょうか)
+    63: { type: "stable", energy: "calm", focus: "security" }, // 水火既済 (すいかきせい)
+    64: { type: "creative", energy: "deep", focus: "innovation" }, // 火水未済 (かすいびせい)
+    // デフォルト値
+    default: { type: "balanced", energy: "moderate", focus: "general" },
+  };
+
+  /**
+   * OS名や特徴から特性を自動分類（64卦対応版）
    * @param {UnifiedHexagramData} osData
    * @returns {OSCharacteristics}
    */
   categorizeOSType(osData) {
-    // シンプルなルールベース分類（拡張可）
+    console.log("🔍 categorizeOSType called with:", osData);
+
+    // OSデータからIDを取得
+    let hexagramId = null;
+
+    // 1. osData.id から直接取得を試行
+    if (osData?.id && typeof osData.id === "number") {
+      hexagramId = osData.id;
+    }
+    // 2. osData.hexagramId から取得を試行
+    else if (osData?.hexagramId && typeof osData.hexagramId === "number") {
+      hexagramId = osData.hexagramId;
+    }
+    // 3. 文字列の場合は数値に変換を試行
+    else if (osData?.id && typeof osData.id === "string") {
+      const parsed = parseInt(osData.id, 10);
+      if (!isNaN(parsed) && parsed >= 1 && parsed <= 64) {
+        hexagramId = parsed;
+      }
+    } else if (osData?.hexagramId && typeof osData.hexagramId === "string") {
+      const parsed = parseInt(osData.hexagramId, 10);
+      if (!isNaN(parsed) && parsed >= 1 && parsed <= 64) {
+        hexagramId = parsed;
+      }
+    }
+
+    console.log("🔍 Extracted hexagramId:", hexagramId);
+
+    // マッピングから特性を取得
+    if (hexagramId && hexagramId >= 1 && hexagramId <= 64) {
+      const characteristics =
+        TestInputSystem.OS_CHARACTERISTICS_MAP[hexagramId];
+      console.log(
+        "✅ Found characteristics for ID",
+        hexagramId,
+        ":",
+        characteristics
+      );
+      return characteristics;
+    }
+
+    // フォールバック: 従来のキーワードベース分類
+    console.log("⚠️ Using fallback keyword-based classification");
     const name = (osData?.name || "").toLowerCase();
     const keywords = (osData?.keywords || []).join(",").toLowerCase();
-    // デフォルト
-    let type = "balanced",
-      energy = "moderate",
-      focus = "general";
+
     if (keywords.includes("創造") || name.includes("乾")) {
-      type = "creative";
-      energy = "active";
-      focus = "innovation";
+      return { type: "creative", energy: "active", focus: "innovation" };
     } else if (
       keywords.includes("調和") ||
       name.includes("泰") ||
       name.includes("比")
     ) {
-      type = "harmonious";
-      energy = "social";
-      focus = "relationship";
+      return { type: "harmonious", energy: "social", focus: "relationship" };
     } else if (
       keywords.includes("安定") ||
       name.includes("坤") ||
       name.includes("山")
     ) {
-      type = "stable";
-      energy = "calm";
-      focus = "security";
+      return { type: "stable", energy: "calm", focus: "security" };
     } else if (
       keywords.includes("分析") ||
       name.includes("観") ||
       name.includes("明")
     ) {
-      type = "analytical";
-      energy = "deep";
-      focus = "understanding";
+      return { type: "analytical", energy: "deep", focus: "understanding" };
     }
-    return { type, energy, focus };
+
+    // デフォルト値を返す
+    console.log("🔄 Using default characteristics");
+    return TestInputSystem.OS_CHARACTERISTICS_MAP.default;
   }
 
   /**
-   * 3つのOSの特性分析と分類、矛盾・対比の検出、統合メッセージ生成
-   * @param {UnifiedHexagramData} engineData
-   * @param {UnifiedHexagramData} interfaceData
-   * @param {UnifiedHexagramData} safeData
-   * @returns {OSCombinationAnalysis}
+   * 矛盾する特性を検出する
+   * @param {Object} characteristics - 3つのOSの特性オブジェクト
+   * @returns {Object} 矛盾検出結果
    */
-  analyzeOSCombination(engineData, interfaceData, safeData) {
-    const characteristics = {
-      engine: this.categorizeOSType(engineData),
-      interface: this.categorizeOSType(interfaceData),
-      safe: this.categorizeOSType(safeData),
-    };
-    // 矛盾・対比の検出（type/energy/focusの違いが大きい場合）
+  detectContrast(characteristics) {
+    console.log("🔍 矛盾検出を開始:", characteristics);
+
     const types = [
       characteristics.engine.type,
       characteristics.interface.type,
@@ -3344,33 +4353,244 @@ ${resultText}
       characteristics.interface.focus,
       characteristics.safe.focus,
     ];
-    const hasContrast =
-      new Set(types).size > 1 ||
-      new Set(energies).size > 1 ||
-      new Set(focuses).size > 1;
-    // 支配的テーマ
-    const dominantTheme = (() => {
-      const freq = {};
-      types.forEach((t) => {
-        freq[t] = (freq[t] || 0) + 1;
-      });
-      return Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
-    })();
-    // 統合メッセージ生成
-    let unifyingMessage = "";
-    if (hasContrast) {
-      unifyingMessage = `多面的リーダーシップ: 異なる特性（${types.join(
-        ", "
-      )}）が共存し、状況に応じて柔軟に切り替えられる強みがあります。`;
-    } else {
-      unifyingMessage = `一貫した${dominantTheme}型: あなたの人格OSは全体的に${dominantTheme}の傾向が強く、安定した個性を発揮できます。`;
-    }
-    return {
-      characteristics,
-      hasContrast,
-      dominantTheme,
-      unifyingMessage,
+
+    // 各特性の多様性を計算
+    const typeVariety = new Set(types).size;
+    const energyVariety = new Set(energies).size;
+    const focusVariety = new Set(focuses).size;
+
+    // 矛盾の強度を計算（1-3の範囲）
+    const contrastIntensity = Math.max(
+      typeVariety,
+      energyVariety,
+      focusVariety
+    );
+
+    // 矛盾があるかどうかの判定
+    const hasContrast = contrastIntensity > 1;
+
+    // 支配的テーマの計算
+    const dominantTheme = this.calculateDominantTheme(types);
+
+    // 矛盾の詳細分析
+    const contrastDetails = {
+      typeContrast: typeVariety > 1,
+      energyContrast: energyVariety > 1,
+      focusContrast: focusVariety > 1,
+      contrastAreas: [],
     };
+
+    if (contrastDetails.typeContrast) {
+      contrastDetails.contrastAreas.push({
+        area: "type",
+        values: [...new Set(types)],
+        description: "基本的な行動パターンに多様性",
+      });
+    }
+    if (contrastDetails.energyContrast) {
+      contrastDetails.contrastAreas.push({
+        area: "energy",
+        values: [...new Set(energies)],
+        description: "エネルギーの向け方に幅",
+      });
+    }
+    if (contrastDetails.focusContrast) {
+      contrastDetails.contrastAreas.push({
+        area: "focus",
+        values: [...new Set(focuses)],
+        description: "関心領域の多面性",
+      });
+    }
+
+    console.log("✅ 矛盾検出完了:", {
+      hasContrast,
+      contrastIntensity,
+      dominantTheme,
+      contrastDetails,
+    });
+
+    return {
+      hasContrast,
+      contrastIntensity,
+      dominantTheme,
+      contrastDetails,
+      types,
+      energies,
+      focuses,
+    };
+  }
+
+  /**
+   * 支配的テーマを計算する
+   * @param {Array} types - タイプの配列
+   * @returns {string} 支配的テーマ
+   */
+  calculateDominantTheme(types) {
+    const freq = {};
+    types.forEach((t) => {
+      freq[t] = (freq[t] || 0) + 1;
+    });
+    return Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+  }
+
+  /**
+   * 統合洞察メッセージを生成する
+   * @param {Object} contrastResult - detectContrastの結果
+   * @param {Object} characteristics - 3つのOSの特性
+   * @returns {string} 統合洞察メッセージ
+   */
+  generateUnifyingMessage(contrastResult, characteristics) {
+    console.log("🎯 統合メッセージ生成を開始:", {
+      contrastResult,
+      characteristics,
+    });
+
+    const { hasContrast, contrastIntensity, dominantTheme, contrastDetails } =
+      contrastResult;
+
+    if (!hasContrast) {
+      // 調和的組み合わせの場合
+      return this.generateHarmoniousMessage(dominantTheme, characteristics);
+    }
+
+    // 対比的組み合わせの場合
+    return this.generateContrastMessage(
+      contrastDetails,
+      characteristics,
+      contrastIntensity
+    );
+  }
+
+  /**
+   * 調和的組み合わせのメッセージを生成
+   * @param {string} dominantTheme - 支配的テーマ
+   * @param {Object} characteristics - 特性オブジェクト
+   * @returns {string} 調和的メッセージ
+   */
+  generateHarmoniousMessage(dominantTheme, characteristics) {
+    const themeMessages = {
+      creative:
+        "創造性と革新性が一貫してあなたの行動を導いています。新しいアイデアを生み出し、変化を恐れずに挑戦する姿勢が、あなたの安定した強みとなっています。",
+      harmonious:
+        "調和と協調を重視する姿勢が、あなたの人格全体に一貫して現れています。人との関係を大切にし、バランスの取れた判断ができることが、あなたの信頼される理由です。",
+      stable:
+        "安定性と継続性を重視する価値観が、あなたの行動パターンを一貫して支えています。着実に物事を進め、信頼できる基盤を築く能力が、あなたの大きな強みです。",
+      analytical:
+        "論理的思考と深い洞察力が、あなたの判断と行動を一貫して特徴づけています。複雑な問題を整理し、本質を見抜く能力が、あなたの価値ある貢献となっています。",
+      balanced:
+        "バランス感覚と適応力が、あなたの人格全体に安定して現れています。状況に応じて柔軟に対応しながらも、一貫した価値観を保つことができるのが、あなたの特別な才能です。",
+    };
+
+    const baseMessage = themeMessages[dominantTheme] || themeMessages.balanced;
+
+    return `【一貫した${dominantTheme}型の魅力】\n${baseMessage}\n\nあなたの3つの人格OS（Engine・Interface・Safe）は互いに調和し、安定した個性として統合されています。この一貫性こそが、あなたが周囲から信頼され、自分らしさを発揮できる源泉となっています。`;
+  }
+
+  /**
+   * 対比的組み合わせのメッセージを生成
+   * @param {Object} contrastDetails - 矛盾の詳細
+   * @param {Object} characteristics - 特性オブジェクト
+   * @param {number} contrastIntensity - 矛盾の強度
+   * @returns {string} 対比的メッセージ
+   */
+  generateContrastMessage(contrastDetails, characteristics, contrastIntensity) {
+    // 矛盾の強度に応じたメッセージの調整
+    const intensityDescriptions = {
+      2: "適度な多面性",
+      3: "豊かな多面性",
+    };
+
+    const intensityDesc = intensityDescriptions[contrastIntensity] || "多面性";
+
+    // 具体的な矛盾領域の説明を生成
+    const contrastDescriptions = contrastDetails.contrastAreas
+      .map((area) => {
+        return `・${area.description}（${area.values.join("と")}の組み合わせ）`;
+      })
+      .join("\n");
+
+    // 多面的魅力としての表現
+    const unifyingThemes = this.generateUnifyingThemes(characteristics);
+
+    return `【${intensityDesc}による多面的リーダーシップ】
+
+あなたの人格OSには以下の特徴的な多面性があります：
+${contrastDescriptions}
+
+この一見矛盾する特性の組み合わせこそが、あなたの最大の魅力です。${unifyingThemes}
+
+状況に応じて異なる面を発揮できるあなたは、多様な場面でリーダーシップを発揮し、様々な人々との関係を築くことができる貴重な存在です。この多面性を「矛盾」ではなく「豊かさ」として受け入れることで、より自分らしい成長を遂げることができるでしょう。`;
+  }
+
+  /**
+   * 統合テーマを生成する
+   * @param {Object} characteristics - 特性オブジェクト
+   * @returns {string} 統合テーマ
+   */
+  generateUnifyingThemes(characteristics) {
+    const { engine, interface: interfaceChar, safe } = characteristics;
+
+    // 特性の組み合わせパターンを分析
+
+    // よくある組み合わせパターンに対する特別なメッセージ
+    const specialCombinations = {
+      "creative-harmonious": "革新的なアイデアを調和的に実現する力",
+      "creative-stable": "創造性と安定性のバランスを取る能力",
+      "creative-analytical": "論理的な創造性を発揮する才能",
+      "harmonious-stable": "安定した関係性を築く協調力",
+      "harmonious-analytical": "論理的な協調性を示す洞察力",
+      "stable-analytical": "着実で論理的な問題解決能力",
+    };
+
+    // 組み合わせキーを生成
+    const typeSet = new Set([engine.type, interfaceChar.type, safe.type]);
+    const sortedTypes = Array.from(typeSet).sort();
+    const combinationKey = sortedTypes.join("-");
+
+    if (specialCombinations[combinationKey]) {
+      return specialCombinations[combinationKey] + "を持っています。";
+    }
+
+    // デフォルトメッセージ
+    return `${engine.type}な行動力、${interfaceChar.type}な対人関係、${safe.type}な価値観が絶妙に組み合わさっています。`;
+  }
+
+  /**
+   * 3つのOSの特性分析と分類、矛盾・対比の検出、統合メッセージ生成
+   * @param {UnifiedHexagramData} engineData
+   * @param {UnifiedHexagramData} interfaceData
+   * @param {UnifiedHexagramData} safeData
+   * @returns {OSCombinationAnalysis}
+   */
+  analyzeOSCombination(engineData, interfaceData, safeData) {
+    console.log("🔬 OS組み合わせ分析を開始");
+
+    const characteristics = {
+      engine: this.categorizeOSType(engineData),
+      interface: this.categorizeOSType(interfaceData),
+      safe: this.categorizeOSType(safeData),
+    };
+
+    // 矛盾検出
+    const contrastResult = this.detectContrast(characteristics);
+
+    // 統合メッセージ生成
+    const unifyingMessage = this.generateUnifyingMessage(
+      contrastResult,
+      characteristics
+    );
+
+    const result = {
+      characteristics,
+      hasContrast: contrastResult.hasContrast,
+      dominantTheme: contrastResult.dominantTheme,
+      unifyingMessage,
+      contrastDetails: contrastResult.contrastDetails,
+      contrastIntensity: contrastResult.contrastIntensity,
+    };
+
+    console.log("✅ OS組み合わせ分析完了:", result);
+    return result;
   }
 }
 
@@ -3378,7 +4598,14 @@ ${resultText}
 
 // システム初期化
 document.addEventListener("DOMContentLoaded", () => {
-  window.testSystem = new TestInputSystem();
+  try {
+    console.log("🔍 TestInputSystem初期化開始");
+    window.testSystem = new TestInputSystem();
+    console.log("✅ TestInputSystem初期化完了");
+  } catch (error) {
+    console.error("❌ TestInputSystem初期化エラー:", error);
+    alert("TestInputSystemの初期化に失敗しました: " + error.message);
+  }
 });
 
 // タブ切り替え機能（HTMLから呼び出される）

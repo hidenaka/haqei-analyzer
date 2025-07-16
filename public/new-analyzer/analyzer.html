@@ -88,6 +88,7 @@
     <script src="js/core/StorageManager.js"></script>
 
     <!-- 4. データファイル -->
+    <script type="module" src="js/data/data_box.js"></script>
     <script src="js/data/questions.js"></script>
     <script src="js/data/vectors.js"></script>
     <script src="js/data/hexagrams.js"></script>
@@ -107,11 +108,224 @@
     <!-- 7. メインアプリケーション（最後に読み込み） -->
     <script src="js/app.js"></script>
 
-    <!-- 🔧 デバッグ用スクリプト -->
+    <!-- 🔧 強化されたスクリプト読み込み確認 -->
     <script>
-      // ページ読み込み完了後にクラス定義を確認
+      // スクリプト読み込み状態を追跡
+      window.scriptLoadingStatus = {
+        dataBoxLoaded: false,
+        coreClassesLoaded: false,
+        dataFilesLoaded: false,
+        componentsLoaded: false,
+        allLoaded: false,
+        loadAttempts: 0,
+        maxAttempts: 50,
+        startTime: Date.now(),
+        lastCheckTime: Date.now(),
+        detailedStatus: {}
+      };
+
+      // データ読み込み完了チェック関数
+      function checkDataLoadingComplete() {
+        const status = window.scriptLoadingStatus;
+        status.loadAttempts++;
+        status.lastCheckTime = Date.now();
+
+        console.log(`🔍 [LoadingCheck] データ読み込み確認 (${status.loadAttempts}/${status.maxAttempts}) - 経過時間: ${status.lastCheckTime - status.startTime}ms`);
+
+        // data_box.jsの読み込み確認（詳細チェック）
+        status.dataBoxLoaded = typeof window.HAQEI_DATA !== "undefined";
+        status.detailedStatus.haqeiDataContent = status.dataBoxLoaded ? 
+          (window.HAQEI_DATA && typeof window.HAQEI_DATA === "object" ? "valid" : "invalid") : 
+          "undefined";
+        
+        // コアクラスの読み込み確認
+        status.coreClassesLoaded = typeof DataManager !== "undefined" && 
+                                   typeof Calculator !== "undefined" && 
+                                   typeof TripleOSEngine !== "undefined";
+        
+        // データファイルの読み込み確認
+        status.dataFilesLoaded = typeof window.WORLDVIEW_QUESTIONS !== "undefined" && 
+                                 typeof window.H64_8D_VECTORS !== "undefined";
+        
+        // コンポーネントの読み込み確認
+        status.componentsLoaded = typeof WelcomeScreen !== "undefined" && 
+                                  typeof QuestionFlow !== "undefined";
+
+        // 全体の読み込み完了判定
+        status.allLoaded = status.dataBoxLoaded && status.coreClassesLoaded && 
+                          status.dataFilesLoaded && status.componentsLoaded;
+
+        // 詳細ステータスの更新
+        status.detailedStatus = {
+          ...status.detailedStatus,
+          dataBox: status.dataBoxLoaded,
+          coreClasses: status.coreClassesLoaded,
+          dataFiles: status.dataFilesLoaded,
+          components: status.componentsLoaded,
+          allLoaded: status.allLoaded,
+          globalDataCheck: {
+            HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
+            WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+            SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
+            H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined"
+          }
+        };
+
+        console.log("🔍 [LoadingCheck] 読み込み状態:", status.detailedStatus);
+
+        if (status.allLoaded) {
+          const totalLoadTime = status.lastCheckTime - status.startTime;
+          console.log(`✅ [LoadingCheck] すべてのスクリプトが読み込み完了しました (${totalLoadTime}ms)`);
+          return true;
+        }
+
+        if (status.loadAttempts >= status.maxAttempts) {
+          const totalLoadTime = status.lastCheckTime - status.startTime;
+          console.warn(`⚠️ [LoadingCheck] 読み込み確認がタイムアウトしました (${totalLoadTime}ms)`);
+          console.warn("⚠️ [LoadingCheck] 未読み込み要素:", {
+            dataBox: !status.dataBoxLoaded,
+            coreClasses: !status.coreClassesLoaded,
+            dataFiles: !status.dataFilesLoaded,
+            components: !status.componentsLoaded
+          });
+          return false;
+        }
+
+        return false;
+      }
+
+      // DOM読み込み完了後の処理
       document.addEventListener("DOMContentLoaded", function () {
-        console.log("🔍 Class definitions check:");
+        console.log("🔍 [DOMContentLoaded] DOM読み込み完了、スクリプト確認を開始");
+        
+        // 初回チェック
+        if (checkDataLoadingComplete()) {
+          initializeApplication();
+          return;
+        }
+
+        // 定期的なチェック（100ms間隔）
+        const checkInterval = setInterval(() => {
+          if (checkDataLoadingComplete()) {
+            clearInterval(checkInterval);
+            initializeApplication();
+          }
+        }, 100);
+
+        // 5秒後にタイムアウト
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          console.error("❌ [LoadingCheck] スクリプト読み込みタイムアウト");
+          initializeApplication(); // タイムアウトでも初期化を試行
+        }, 5000);
+      });
+
+      // アプリケーション初期化関数
+      function initializeApplication() {
+        const initStartTime = Date.now();
+        console.log("🚀 [InitializeApp] アプリケーション初期化開始");
+        
+        try {
+          // 必須クラスの存在確認
+          const requiredClasses = {
+            BaseComponent: typeof BaseComponent !== "undefined",
+            DataManager: typeof DataManager !== "undefined",
+            Calculator: typeof Calculator !== "undefined",
+            TripleOSEngine: typeof TripleOSEngine !== "undefined",
+            StorageManager: typeof StorageManager !== "undefined",
+            WelcomeScreen: typeof WelcomeScreen !== "undefined",
+            QuestionFlow: typeof QuestionFlow !== "undefined"
+          };
+
+          console.log("🔍 [InitializeApp] クラス定義確認:", requiredClasses);
+
+          // 必須データの存在確認
+          const requiredData = {
+            HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
+            WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+            SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
+            H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined"
+          };
+
+          console.log("🔍 [InitializeApp] データ存在確認:", requiredData);
+
+          // エラーチェック
+          const missingClasses = Object.keys(requiredClasses).filter(key => !requiredClasses[key]);
+          const missingData = Object.keys(requiredData).filter(key => !requiredData[key]);
+
+          if (missingClasses.length > 0) {
+            console.error("❌ [InitializeApp] 不足しているクラス:", missingClasses);
+            
+            // 重要なクラスが不足している場合の処理
+            if (missingClasses.includes("DataManager")) {
+              console.error("❌ [InitializeApp] DataManagerが不足しています - 重要なエラー");
+              window.scriptLoadingStatus.criticalError = "DataManager missing";
+            }
+          }
+          
+          if (missingData.length > 0) {
+            console.error("❌ [InitializeApp] 不足しているデータ:", missingData);
+            
+            // HAQEI_DATAが不足している場合の処理
+            if (missingData.includes("HAQEI_DATA")) {
+              console.error("❌ [InitializeApp] HAQEI_DATAが不足しています - 重要なエラー");
+              window.scriptLoadingStatus.criticalError = "HAQEI_DATA missing";
+              
+              // 緊急フォールバック処理
+              console.warn("⚠️ [InitializeApp] 緊急フォールバック処理を実行");
+              window.HAQEI_DATA = {
+                hexagrams: {},
+                hexagrams_master: [],
+                os_manual: {},
+                trigrams_master: [],
+                element_relationships: [],
+                action_plans: {},
+                sho_den: {},
+                tai_sho_den: {},
+                jo_ka_den: {},
+                zatsu_ka_den: {},
+                tuan_den: {}
+              };
+            }
+          }
+
+          // 初期化完了フラグを設定
+          window.scriptLoadingStatus.initializationComplete = true;
+          window.scriptLoadingStatus.initializationTime = Date.now() - initStartTime;
+          
+          const initSummary = {
+            initializationTime: window.scriptLoadingStatus.initializationTime,
+            missingClasses: missingClasses,
+            missingData: missingData,
+            totalLoadTime: Date.now() - window.scriptLoadingStatus.startTime,
+            criticalError: window.scriptLoadingStatus.criticalError || null
+          };
+          
+          console.log("✅ [InitializeApp] アプリケーション初期化完了", initSummary);
+          
+          // DataManagerの初期化を試行
+          if (typeof DataManager !== "undefined") {
+            console.log("🔍 [InitializeApp] DataManagerの初期化を試行");
+            try {
+              window.dataManager = new DataManager();
+              console.log("✅ [InitializeApp] DataManagerインスタンス作成完了");
+            } catch (dmError) {
+              console.error("❌ [InitializeApp] DataManagerインスタンス作成エラー:", dmError);
+            }
+          }
+          
+        } catch (error) {
+          console.error("❌ [InitializeApp] 初期化中にエラーが発生:", error);
+          window.scriptLoadingStatus.initializationError = error.message;
+        }
+      }
+    </script>
+
+    <!-- 🔧 レガシーデバッグ用スクリプト（後方互換性のため残存） -->
+    <script>
+      // 旧形式のデバッグ確認（後方互換性のため）
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🔍 [Legacy] Class definitions check:");
         console.log("BaseComponent:", typeof BaseComponent);
         console.log("DataManager:", typeof DataManager);
         console.log("Calculator:", typeof Calculator);

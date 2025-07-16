@@ -464,15 +464,8 @@
               最初の選択：あなたはどちらの道を選ぶか？
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div
-                id="choiceCardShin"
-                data-choice="stagnate"
-                class="card p-6 rounded-xl border-2 border-transparent transition-all duration-300 bg-gray-900/50 hover:border-teal-500 hover:shadow-lg hover:shadow-teal-500/10"
-              ></div>
-              <div
-                id="choiceCardHen"
-                data-choice="change"
-                class="card p-6 rounded-xl border-2 border-transparent transition-all duration-300 bg-gray-900/50 hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/10"
+              <div id="choiceCardShin" data-choice="stagnate" class="card p-6 rounded-xl border-2 border-transparent transition-all duration-300 bg-gray-900/50 hover:border-teal-500 hover:shadow-lg hover:shadow-teal-500/10"></div>
+              <div id="choiceCardHen" data-choice="change" class="card p-6 rounded-xl border-2 border-transparent transition-all duration-300 bg-gray-900/50 hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/10"></div>
               ></div>
             </div>
           </div>
@@ -1724,16 +1717,231 @@
         return [...new Set(words)];
       }
 
+      /**
+       * 感情極性の判定を行う
+       * @param {string} text - 分析対象のテキスト
+       * @param {Array} keywords - マッチしたキーワード
+       * @returns {string} 'negative', 'positive', 'neutral'
+       */
+      function analyzeEmotionalContext(text, keywords) {
+        const negativeContextPatterns = [
+          /まだ.*ない/, /なかなか.*ない/, /思うように.*ない/,
+          /苦労/, /困難/, /もどかしい/, /不安/, /悩み/,
+          /進まない/, /見えない/, /足りない/, /限られて/,
+          /先が見えず/, /もどかしさ/, /少しずつ/, /進んでいない/,
+          /リソースが限られ/, /資金/, /投資/, /コスト/
+        ];
+        
+        const positiveContextPatterns = [
+          /順調/, /うまく/, /成功/, /達成/, /完成/, /安定/,
+          /信頼を得/, /評価され/, /認められ/, /収益化/
+        ];
+        
+        // キーワード周辺の文脈をチェック
+        for (const keyword of keywords) {
+          const keywordIndex = text.indexOf(keyword);
+          if (keywordIndex !== -1) {
+            const context = text.substring(
+              Math.max(0, keywordIndex - 50), 
+              keywordIndex + keyword.length + 50
+            );
+            
+            const isNegativeContext = negativeContextPatterns.some(pattern => 
+              pattern.test(context)
+            );
+            
+            if (isNegativeContext) {
+              return 'negative'; // キーワードがネガティブ文脈で使われている
+            }
+          }
+        }
+        
+        // 全体的な感情極性をチェック
+        const negativeCount = negativeContextPatterns.filter(pattern => pattern.test(text)).length;
+        const positiveCount = positiveContextPatterns.filter(pattern => pattern.test(text)).length;
+        
+        if (negativeCount > positiveCount) return 'negative';
+        if (positiveCount > negativeCount) return 'positive';
+        return 'neutral';
+      }
+
+      /**
+       * 時制と状態の分析を行う
+       * @param {string} text - 分析対象のテキスト
+       * @returns {string} 'current_struggle', 'future_aspiration', 'neutral'
+       */
+      function analyzeTemporalContext(text) {
+        const futureAspirationPatterns = [
+          /ために/, /目指して/, /したい/, /なりたい/,
+          /将来の/, /これからの/, /いつかの/, /収益化したい/,
+          /.*のために.*選んだ/
+        ];
+        
+        const currentStrugglePatterns = [
+          /今は/, /現在/, /まだ.*ない/, /途中/, /過程/,
+          /開発中/, /進行中/, /取り組んで/, /先が見えず/,
+          /もどかしさ/, /少しずつ/, /進んでいない/
+        ];
+        
+        if (currentStrugglePatterns.some(pattern => pattern.test(text))) {
+          return 'current_struggle'; // 現在進行中の課題
+        }
+        
+        if (futureAspirationPatterns.some(pattern => pattern.test(text))) {
+          return 'future_aspiration'; // 将来への願望
+        }
+        
+        return 'neutral';
+      }
+
       async function callAIAssistant(worryText, h384Data, futureThemeMap) {
-        if (!kuromojiTokenizer) { showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">AI準備中</h2><p>AIの言語解析エンジンの準備がまだ完了していません。</p>`); return null; }
+        if (!kuromojiTokenizer) { 
+          showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">AI準備中</h2><p>AIの言語解析エンジンの準備がまだ完了していません。</p>`); 
+          return null; 
+        }
+        
         let bestMatch = { score: -Infinity, line: null, matchedWords: [], reasonKeywords: [], };
         const worryWords = extractWords(worryText);
-        h384Data.forEach((lineData) => { const themeData = futureThemeMap[lineData.通し番号]; if (!themeData) return; let currentScore = 0; let reasonKeywords = []; let currentMatchedWords = []; if (themeData.positive_keywords && Array.isArray(themeData.positive_keywords)) { themeData.positive_keywords.forEach((keywordGroup) => { const foundKw = keywordGroup.find((kw) => worryText.includes(kw) || worryWords.includes(kw)); if (foundKw) { currentScore += 30; reasonKeywords.push(keywordGroup[0]); if (worryText.includes(foundKw)) { currentMatchedWords.push(foundKw); } } }); }
-        if (lineData.キーワード) { const keywords = lineData.キーワード.split(/、|,/); keywords.forEach((kw) => { if (worryText.includes(kw.trim())) { currentScore += 10; } }); }
-        if (lineData.現代解釈の要約 && worryWords.length > 0) { const summaryWords = extractWords(lineData.現代解釈の要約); const commonWords = worryWords.filter((word) => summaryWords.includes(word)); if (commonWords.length > 0) { const unionSize = new Set([...worryWords, ...summaryWords]).size; const similarity = unionSize > 0 ? commonWords.length / unionSize : 0; currentScore += similarity * 15; } }
-        if (themeData.negative_keywords && Array.isArray(themeData.negative_keywords)) { themeData.negative_keywords.forEach((keywordGroup) => { if (keywordGroup.some((kw) => worryText.includes(kw) || worryWords.includes(kw))) { currentScore += -20; } }); }
-        if (currentScore > bestMatch.score) { bestMatch = { score: currentScore, line: lineData, matchedWords: [...new Set(currentMatchedWords)], reasonKeywords: [...new Set(reasonKeywords)], }; } });
-        if (bestMatch.line) { const { line, matchedWords, reasonKeywords } = bestMatch; const lineNum = ["初", "二", "三", "四", "五", "上"].findIndex((l) => line.爻.includes(l)) + 1; let mainTheme = reasonKeywords.length > 0 ? reasonKeywords.join("、") : `${line["親となる卦"]} ${line.爻}の持つテーマ`; const reasoning = `AIの推測: ご相談の状況は、<strong>${line["親となる卦"]} ${line.爻}</strong>の持つ<strong>「${mainTheme}」</strong>というテーマと強く結びついていると判断しました。`; return { 卦番号: line.卦番号, 爻番号: lineNum, 根拠: reasoning, }; }
+        
+        // 感情極性と時制を分析
+        const emotionalContext = analyzeEmotionalContext(worryText, worryWords);
+        const temporalContext = analyzeTemporalContext(worryText);
+        
+        console.log('文脈分析結果:', { emotionalContext, temporalContext });
+        
+        h384Data.forEach((lineData) => {
+          const themeData = futureThemeMap[lineData.通し番号];
+          if (!themeData) return;
+          
+          let currentScore = 0;
+          let reasonKeywords = [];
+          let currentMatchedWords = [];
+          
+          // キーワードマッチング（改善されたロジック）
+          if (themeData.positive_keywords && Array.isArray(themeData.positive_keywords)) {
+            themeData.positive_keywords.forEach((keywordGroup) => {
+              const foundKw = keywordGroup.find((kw) => 
+                worryText.includes(kw) || worryWords.includes(kw)
+              );
+              
+              if (foundKw) {
+                let keywordScore = 30;
+                
+                // 文脈に基づく調整
+                if (emotionalContext === 'negative') {
+                  // 完成系の卦（既済、大成など）の場合、大幅減点
+                  if (lineData["親となる卦"].includes('既済') || 
+                      lineData.現代解釈の要約.includes('完成') ||
+                      lineData.現代解釈の要約.includes('達成') ||
+                      lineData.現代解釈の要約.includes('大成')) {
+                    keywordScore = -20; // ペナルティ
+                  }
+                  
+                  // 進行中・困難系の卦により高いスコア
+                  if (lineData["親となる卦"].includes('屯') ||
+                      lineData["親となる卦"].includes('蒙') ||
+                      lineData["親となる卦"].includes('需') ||
+                      lineData["親となる卦"].includes('訟') ||
+                      lineData.現代解釈の要約.includes('困難') ||
+                      lineData.現代解釈の要約.includes('努力') ||
+                      lineData.現代解釈の要約.includes('発展中') ||
+                      lineData.現代解釈の要約.includes('成長中')) {
+                    keywordScore += 25;
+                  }
+                }
+                
+                // 時制による調整
+                if (temporalContext === 'current_struggle') {
+                  // 進行中・困難系の卦により高いスコア
+                  if (lineData["親となる卦"].includes('屯') ||
+                      lineData["親となる卦"].includes('蒙') ||
+                      lineData["親となる卦"].includes('需') ||
+                      lineData.現代解釈の要約.includes('困難') ||
+                      lineData.現代解釈の要約.includes('努力') ||
+                      lineData.現代解釈の要約.includes('発展中') ||
+                      lineData.現代解釈の要約.includes('成長中')) {
+                    keywordScore += 20;
+                  }
+                  
+                  // 完成系の卦は減点
+                  if (lineData["親となる卦"].includes('既済') ||
+                      lineData.現代解釈の要約.includes('完成') ||
+                      lineData.現代解釈の要約.includes('達成')) {
+                    keywordScore -= 15;
+                  }
+                }
+                
+                currentScore += keywordScore;
+                reasonKeywords.push(keywordGroup[0]);
+                if (worryText.includes(foundKw)) {
+                  currentMatchedWords.push(foundKw);
+                }
+              }
+            });
+          }
+          
+          // 既存のキーワードマッチング
+          if (lineData.キーワード) {
+            const keywords = lineData.キーワード.split(/、|,/);
+            keywords.forEach((kw) => {
+              if (worryText.includes(kw.trim())) {
+                currentScore += 10;
+              }
+            });
+          }
+          
+          // 現代解釈の要約との類似度
+          if (lineData.現代解釈の要約 && worryWords.length > 0) {
+            const summaryWords = extractWords(lineData.現代解釈の要約);
+            const commonWords = worryWords.filter((word) => summaryWords.includes(word));
+            if (commonWords.length > 0) {
+              const unionSize = new Set([...worryWords, ...summaryWords]).size;
+              const similarity = unionSize > 0 ? commonWords.length / unionSize : 0;
+              currentScore += similarity * 15;
+            }
+          }
+          
+          // ネガティブキーワードのペナルティ
+          if (themeData.negative_keywords && Array.isArray(themeData.negative_keywords)) {
+            themeData.negative_keywords.forEach((keywordGroup) => {
+              if (keywordGroup.some((kw) => worryText.includes(kw) || worryWords.includes(kw))) {
+                currentScore += -20;
+              }
+            });
+          }
+          
+          if (currentScore > bestMatch.score) {
+            bestMatch = {
+              score: currentScore,
+              line: lineData,
+              matchedWords: [...new Set(currentMatchedWords)],
+              reasonKeywords: [...new Set(reasonKeywords)],
+            };
+          }
+        });
+        
+        if (bestMatch.line) {
+          const { line, matchedWords, reasonKeywords } = bestMatch;
+          const lineNum = ["初", "二", "三", "四", "五", "上"].findIndex((l) => line.爻.includes(l)) + 1;
+          let mainTheme = reasonKeywords.length > 0 ? reasonKeywords.join("、") : `${line["親となる卦"]} ${line.爻}の持つテーマ`;
+          
+          // 文脈分析結果を含めた根拠説明
+          let contextInfo = "";
+          if (emotionalContext === 'negative') {
+            contextInfo += "現在の状況は困難や課題を抱えている状態と判断され、";
+          }
+          if (temporalContext === 'current_struggle') {
+            contextInfo += "進行中の取り組みや発展段階にある状況と分析されました。";
+          }
+          
+          const reasoning = `AIの推測: ${contextInfo}ご相談の状況は、<strong>${line["親となる卦"]} ${line.爻}</strong>の持つ<strong>「${mainTheme}」</strong>というテーマと強く結びついていると判断しました。`;
+          
+          return {
+            卦番号: line.卦番号,
+            爻番号: lineNum,
+            根拠: reasoning,
+          };
+        }
         return null;
       }
     </script>

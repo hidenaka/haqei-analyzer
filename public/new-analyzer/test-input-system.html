@@ -7,6 +7,115 @@
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/components.css" />
     <link rel="stylesheet" href="css/test-input.css" />
+
+    <!-- データ整合性テスト用のスタイル -->
+    <style>
+      .test-results-summary {
+        background: #1e293b;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        border: 1px solid #334155;
+      }
+
+      .test-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem;
+        background: #0f172a;
+        border-radius: 0.25rem;
+        border: 1px solid #475569;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: #cbd5e1;
+      }
+
+      .stat-value {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #e2e8f0;
+      }
+
+      .stat-value.success {
+        color: #10b981;
+      }
+
+      .stat-value.error {
+        color: #ef4444;
+      }
+
+      .test-details {
+        margin-top: 1rem;
+      }
+
+      .test-log {
+        max-height: 300px;
+        overflow-y: auto;
+        background: #0f172a;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        border: 1px solid #475569;
+      }
+
+      .test-item {
+        padding: 0.5rem;
+        margin: 0.25rem 0;
+        border-radius: 0.25rem;
+        border-left: 4px solid #64748b;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .test-item.success {
+        background: rgba(16, 185, 129, 0.1);
+        border-left-color: #10b981;
+        color: #a7f3d0;
+      }
+
+      .test-item.error {
+        background: rgba(239, 68, 68, 0.1);
+        border-left-color: #ef4444;
+        color: #fca5a5;
+      }
+
+      .test-item.info {
+        background: rgba(59, 130, 246, 0.1);
+        border-left-color: #3b82f6;
+        color: #93c5fd;
+      }
+
+      .test-controls {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .btn-primary {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .btn-primary:hover {
+        background: #2563eb;
+      }
+    </style>
     <!-- HAQEI_DATAをグローバルに供給 -->
     <script type="module" src="js/data/data_box.js"></script>
     <!-- BIBLE_DATAをグローバルに供給 -->
@@ -609,9 +718,14 @@ Q30_外面: A</textarea
           <div id="statistical-analysis">
             <!-- 統計分析結果 -->
           </div>
-          <button class="btn" id="generate-debug-report-btn-2">
-            📋 開発用レポート生成
-          </button>
+          <div class="test-controls" style="margin-top: 1rem">
+            <button class="btn btn-primary" id="run-data-integrity-test-btn">
+              🧪 データ整合性テスト実行
+            </button>
+            <button class="btn" id="generate-debug-report-btn-2">
+              📋 開発用レポート生成
+            </button>
+          </div>
         </div>
       </div>
     </div>
