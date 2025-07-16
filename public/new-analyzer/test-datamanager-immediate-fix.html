@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DataManager Immediate Fix Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-result {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .warning {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+      .info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+      }
+      pre {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>DataManager Immediate Fix Test</h1>
+    <div id="test-results"></div>
+
+    <!-- Load required scripts -->
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/DataManager.js"></script>
+    <script src="js/data/data_box.js"></script>
+    <script src="js/data/questions.js"></script>
+    <script src="js/data/vectors.js"></script>
+
+    <script>
+      function addResult(type, message, data = null) {
+        const resultsDiv = document.getElementById("test-results");
+        const resultDiv = document.createElement("div");
+        resultDiv.className = `test-result ${type}`;
+
+        let content = `<strong>${type.toUpperCase()}:</strong> ${message}`;
+        if (data) {
+          content += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        resultDiv.innerHTML = content;
+        resultsDiv.appendChild(resultDiv);
+
+        console.log(`[${type.toUpperCase()}] ${message}`, data || "");
+      }
+
+      async function runTests() {
+        addResult("info", "Starting DataManager immediate fix tests...");
+
+        try {
+          // Test 1: Check if DataManager class exists
+          if (typeof DataManager === "undefined") {
+            addResult("error", "DataManager class is not defined");
+            return;
+          }
+          addResult("success", "DataManager class is defined");
+
+          // Test 2: Create DataManager instance
+          const dataManager = new DataManager();
+          addResult("success", "DataManager instance created");
+
+          // Test 3: Check if getDataStats method exists
+          if (typeof dataManager.getDataStats !== "function") {
+            addResult("error", "getDataStats method is missing");
+            return;
+          }
+          addResult("success", "getDataStats method exists");
+
+          // Test 4: Call getDataStats before loading data (should handle gracefully)
+          try {
+            const statsBeforeLoad = dataManager.getDataStats();
+            addResult(
+              "success",
+              "getDataStats called before loading data",
+              statsBeforeLoad
+            );
+          } catch (error) {
+            addResult(
+              "error",
+              "getDataStats failed before loading data",
+              error.message
+            );
+          }
+
+          // Test 5: Check global data availability
+          const globalDataCheck = {
+            HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
+            WORLDVIEW_QUESTIONS:
+              typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+            SCENARIO_QUESTIONS:
+              typeof window.SCENARIO_QUESTIONS !== "undefined",
+            H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
+          };
+          addResult("info", "Global data availability check", globalDataCheck);
+
+          // Test 6: Try to load data
+          try {
+            addResult("info", "Attempting to load data...");
+            await dataManager.loadData();
+            addResult("success", "Data loaded successfully");
+          } catch (error) {
+            addResult("error", "Data loading failed", error.message);
+
+            // Continue with tests even if loading failed
+          }
+
+          // Test 7: Call getDataStats after loading attempt
+          try {
+            const statsAfterLoad = dataManager.getDataStats();
+            addResult(
+              "success",
+              "getDataStats called after loading attempt",
+              statsAfterLoad
+            );
+          } catch (error) {
+            addResult(
+              "error",
+              "getDataStats failed after loading attempt",
+              error.message
+            );
+          }
+
+          // Test 8: Check data availability validation
+          try {
+            if (dataManager.data) {
+              const dataValidation = {
+                hasQuestions: !!dataManager.data.questions,
+                hasVectors: !!dataManager.data.vectors,
+                hasHexagrams: !!dataManager.data.hexagrams,
+                hasOSManual: !!dataManager.data.osManual,
+              };
+              addResult("info", "Data availability validation", dataValidation);
+            } else {
+              addResult("warning", "dataManager.data is not available");
+            }
+          } catch (error) {
+            addResult(
+              "error",
+              "Data availability validation failed",
+              error.message
+            );
+          }
+
+          addResult("success", "All tests completed");
+        } catch (error) {
+          addResult("error", "Test execution failed", error.message);
+        }
+      }
+
+      // Wait for DOM and scripts to load
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(runTests, 1000); // Give scripts time to load
+      });
+    </script>
+  </body>
+</html>
