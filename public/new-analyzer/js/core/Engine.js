@@ -578,3 +578,8 @@ class DiagnosisEngine {
     return trigramNames[trigramId] || "乾"; // デフォルトは乾
   }
 }
+
+// グローバルスコープで利用可能にする
+if (typeof window !== "undefined") {
+  window.DiagnosisEngine = DiagnosisEngine;
+}

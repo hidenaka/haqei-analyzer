@@ -150,3 +150,8 @@ class DataManager {
     };
   }
 }
+
+// グローバルスコープで利用可能にする
+if (typeof window !== "undefined") {
+  window.DataManager = DataManager;
+}

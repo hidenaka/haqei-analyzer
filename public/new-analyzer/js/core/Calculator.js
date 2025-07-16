@@ -175,3 +175,8 @@ class Calculator {
     return candidates.sort((a, b) => b.score - a.score).slice(0, 4);
   }
 }
+
+// グローバルスコープで利用可能にする
+if (typeof window !== "undefined") {
+  window.Calculator = Calculator;
+}

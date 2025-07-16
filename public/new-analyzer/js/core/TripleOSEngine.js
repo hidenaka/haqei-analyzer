@@ -530,3 +530,8 @@ class TripleOSEngine extends DiagnosisEngine {
     return trigramScores;
   }
 }
+
+// グローバルスコープで利用可能にする
+if (typeof window !== "undefined") {
+  window.TripleOSEngine = TripleOSEngine;
+}

@@ -48,3 +48,606 @@
   background: var(--primary-600);
   border-radius: 0.25rem;
 }
+
+/* テキスト貼り付け機能のスタイル */
+.input-with-paste {
+  position: relative;
+}
+
+.input-with-paste textarea {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.paste-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.paste-controls .btn {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* タブ切り替えのスタイル */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--primary-600);
+}
+
+.tab {
+  padding: 0.75rem 1rem;
+  background: var(--primary-700);
+  border: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+  color: var(--primary-200);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background: var(--primary-600);
+  color: var(--primary-100);
+}
+
+.tab.active {
+  background: var(--primary-500);
+  color: var(--primary-100);
+  font-weight: bold;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* 進捗表示のスタイル */
+.progress-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.progress-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: var(--primary-700);
+  border-radius: 0.25rem;
+}
+
+.progress-label {
+  color: var(--primary-200);
+}
+
+.progress-value {
+  color: var(--primary-100);
+  font-weight: bold;
+}
+
+.progress-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.progress-bar {
+  position: relative;
+  height: 2rem;
+  background: var(--primary-700);
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-400), var(--primary-300));
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--primary-100);
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 診断進捗表示 */
+.progress-info {
+  margin: 10px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  transition: width 0.3s ease;
+  border-radius: 10px;
+}
+
+.progress-text {
+  text-align: center;
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+/* 診断ステータス */
+.diagnosis-status {
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: 4px solid #007bff;
+}
+
+.diagnosis-status.empty {
+  border-left-color: #6c757d;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* 結果表示のスタイル */
+.result-item {
+  background: var(--primary-700);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--primary-600);
+}
+
+.result-item.error {
+  border-color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.result-item.success {
+  border-color: #51cf66;
+  background: rgba(81, 207, 102, 0.1);
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.result-status {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background: var(--primary-600);
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.result-preview {
+  margin-bottom: 0.5rem;
+}
+
+.result-preview p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+}
+
+.result-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+/* フィードバック集計のスタイル */
+.feedback-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem;
+  background: var(--primary-700);
+  border-radius: 0.25rem;
+}
+
+.stat-label {
+  color: var(--primary-200);
+}
+
+.stat-value {
+  color: var(--primary-100);
+  font-weight: bold;
+}
+
+/* 個別診断・結果生成セクション */
+.single-diagnosis-actions {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.single-diagnosis-actions .btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* 個別結果管理セクション */
+.individual-results {
+  margin-bottom: 20px;
+}
+
+.result-actions {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.result-actions .btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+.results-preview {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.results-preview pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 結果サマリー */
+.results-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.summary-item {
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  text-align: center;
+}
+
+.summary-item .label {
+  display: block;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 5px;
+}
+
+.summary-item span:last-child {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #007bff;
+}
+
+/* 結果アクション */
+.results-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.results-actions .btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* 結果リスト */
+.results-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.result-item {
+  padding: 15px;
+  margin-bottom: 10px;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.result-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.result-item h4 {
+  margin: 0 0 10px 0;
+  color: #495057;
+}
+
+.result-item .result-meta {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  color: #6c757d;
+}
+
+.result-item .result-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.result-item .result-actions .btn {
+  padding: 5px 10px;
+  font-size: 0.85em;
+  min-width: auto;
+  flex: none;
+}
+
+/* 一括処理セクション */
+.batch-processing-card {
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  }
+  to {
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+  }
+}
+
+.processing {
+  color: #10b981;
+  padding: 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 0.5rem;
+  text-align: center;
+  animation: pulse 1.5s infinite;
+}
+
+.processing-complete {
+  color: #10b981;
+  padding: 0.75rem;
+  background: rgba(16, 185, 129, 0.2);
+  border-radius: 0.5rem;
+  text-align: center;
+  border: 1px solid #10b981;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 進捗表示スタイル */
+.progress-message {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  font-weight: 600;
+  text-align: center;
+}
+
+.progress-message.success {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #10b981;
+}
+
+.progress-message.error {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+.processing {
+  padding: 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid #3b82f6;
+  border-radius: 0.5rem;
+  color: #60a5fa;
+  text-align: center;
+  font-weight: 600;
+  margin: 1rem 0;
+}
+
+.processing-complete {
+  padding: 1rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid #10b981;
+  border-radius: 0.5rem;
+  color: #10b981;
+  text-align: center;
+  font-weight: 600;
+  margin: 1rem 0;
+}
+
+/* 手動入力セクションの折りたたみ */
+.manual-input-content {
+  display: block;
+  padding-top: 1rem;
+}
+
+.manual-input-header {
+  cursor: pointer;
+  padding: 1rem;
+  background: rgba(107, 114, 128, 0.1);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.manual-input-header:hover {
+  background: rgba(107, 114, 128, 0.2);
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+/* 一括処理カードの強調 */
+.batch-processing-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.batch-processing-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(16, 185, 129, 0.1),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* 入力コントロール */
+.input-with-paste {
+  position: relative;
+}
+
+.paste-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.paste-controls .btn {
+  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+}
+
+/* バッチアクション */
+.batch-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+/* バッチヘルプ */
+.batch-help {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 0.5rem;
+  border-left: 4px solid #3b82f6;
+}
+
+.batch-help h4 {
+  color: #60a5fa;
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+}
+
+.batch-help ol {
+  color: #cbd5e1;
+  margin: 0;
+  padding-left: 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .single-diagnosis-actions,
+  .result-actions,
+  .results-actions {
+    flex-direction: column;
+  }
+
+  .single-diagnosis-actions .btn,
+  .result-actions .btn,
+  .results-actions .btn {
+    flex: none;
+    min-width: auto;
+  }
+
+  .results-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .batch-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .batch-actions .btn {
+    width: 100%;
+  }
+
+  .batch-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .paste-controls {
+    flex-direction: column;
+  }
+
+  .batch-help ol {
+    font-size: 0.8rem;
+  }
+}
