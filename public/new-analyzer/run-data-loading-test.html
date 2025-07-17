@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Data Loading Test Runner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-info { background: #17a2b8; color: white; }
+        #console-output {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 HAQEI Data Loading Test Runner</h1>
+    
+    <div class="test-container">
+        <h2>Test Controls</h2>
+        <button class="btn-primary" onclick="runAllTests()">Run All Tests</button>
+        <button class="btn-success" onclick="testDataManager()">Test DataManager</button>
+        <button class="btn-info" onclick="testQuestionFlow()">Test QuestionFlow</button>
+        <button onclick="clearConsole()">Clear Console</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>Console Output</h2>
+        <div id="console-output"></div>
+    </div>
+    
+    <!-- Load necessary scripts -->
+    <script src="js/core/DataManager.js"></script>
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/components/QuestionFlow.js"></script>
+    <script src="js/data/data_box.js"></script>
+    <script src="js/data/questions.js"></script>
+    <script src="js/data/vectors.js"></script>
+    
+    <script>
+        // Console output capture
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            info: console.info
+        };
+        
+        const consoleOutput = document.getElementById('console-output');
+        
+        function captureConsole() {
+            ['log', 'error', 'warn', 'info'].forEach(method => {
+                console[method] = function(...args) {
+                    const message = args.join(' ');
+                    consoleOutput.textContent += `[${method.toUpperCase()}] ${message}\n`;
+                    consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                    originalConsole[method].apply(console, args);
+                };
+            });
+        }
+        
+        function clearConsole() {
+            consoleOutput.textContent = '';
+        }
+        
+        // Test functions
+        async function runAllTests() {
+            clearConsole();
+            console.log('🚀 Starting comprehensive HAQEI data loading tests...');
+            
+            // Test 1: Global data availability
+            console.log('\n🔍 Test 1: Global Data Availability');
+            const globalData = {
+                HAQEI_DATA: typeof window.HAQEI_DATA !== 'undefined',
+                WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== 'undefined',
+                SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== 'undefined',
+                H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== 'undefined'
+            };
+            
+            Object.entries(globalData).forEach(([key, value]) => {
+                if (value) {
+                    console.log(`✅ ${key} is available`);
+                } else {
+                    console.error(`❌ ${key} is not available`);
+                }
+            });
+            
+            // Test 2: DataManager initialization
+            console.log('\n🔍 Test 2: DataManager Initialization');
+            try {
+                const dataManager = new DataManager();
+                console.log('✅ DataManager instance created');
+                
+                await dataManager.loadData();
+                console.log('✅ DataManager.loadData() completed');
+                
+                const stats = dataManager.getDataStats();
+                console.log(`✅ getDataStats() returned: loaded=${stats.loaded}, hexagrams=${stats.dataStructure.hexagrams}`);
+                
+                if (stats.dataStructure.hexagrams > 0) {
+                    console.log('✅ Hexagram data is properly loaded');
+                } else {
+                    console.warn('⚠️ No hexagram data found');
+                }
+                
+            } catch (error) {
+                console.error('❌ DataManager test failed:', error.message);
+            }
+            
+            // Test 3: QuestionFlow completion methods
+            console.log('\n🔍 Test 3: QuestionFlow Completion Methods');
+            if (typeof QuestionFlow !== 'undefined') {
+                console.log('✅ QuestionFlow class is available');
+                
+                const methods = [
+                    'validateAnswerData',
+                    'findAnswerByQuestionId',
+                    'checkAllQuestionsAnswered',
+                    'performDataIntegrityCheck'
+                ];
+                
+                methods.forEach(method => {
+                    if (typeof QuestionFlow.prototype[method] === 'function') {
+                        console.log(`✅ ${method} method exists`);
+                    } else {
+                        console.error(`❌ ${method} method not found`);
+                    }
+                });
+            } else {
+                console.error('❌ QuestionFlow class not found');
+            }
+            
+            console.log('\n🎯 All tests completed!');
+        }
+        
+        async function testDataManager() {
+            clearConsole();
+            console.log('🔍 Testing DataManager specifically...');
+            
+            try {
+                const dataManager = new DataManager();
+                await dataManager.loadData();
+                
+                const stats = dataManager.getDataStats();
+                console.log('DataManager Stats:', JSON.stringify(stats, null, 2));
+                
+                // Test unified data retrieval
+                const unifiedData = dataManager.getUnifiedHexagramData(1);
+                if (unifiedData) {
+                    console.log(`✅ Unified data for ID 1: ${unifiedData.name}`);
+                } else {
+                    console.error('❌ Failed to get unified data');
+                }
+                
+            } catch (error) {
+                console.error('❌ DataManager test failed:', error);
+            }
+        }
+        
+        function testQuestionFlow() {
+            clearConsole();
+            console.log('🔍 Testing QuestionFlow completion methods...');
+            
+            if (typeof QuestionFlow === 'undefined') {
+                console.error('❌ QuestionFlow class not found');
+                return;
+            }
+            
+            // Create a mock QuestionFlow instance
+            const mockContainer = document.createElement('div');
+            const questionFlow = new QuestionFlow(mockContainer.id, {});
+            
+            // Test validateAnswerData
+            try {
+                const validAnswer = { questionId: 'test1', selectedValue: 'A' };
+                const result = questionFlow.validateAnswerData(validAnswer);
+                console.log('✅ validateAnswerData works with valid data');
+            } catch (error) {
+                console.error('❌ validateAnswerData failed:', error.message);
+            }
+            
+            // Test findAnswerByQuestionId
+            questionFlow.answers = [
+                { questionId: 'test1', selectedValue: 'A' },
+                { questionId: 'test2', selectedValue: 'B' }
+            ];
+            
+            const found = questionFlow.findAnswerByQuestionId('test1');
+            if (found && found.selectedValue === 'A') {
+                console.log('✅ findAnswerByQuestionId works correctly');
+            } else {
+                console.error('❌ findAnswerByQuestionId failed');
+            }
+            
+            console.log('🎯 QuestionFlow test completed!');
+        }
+        
+        // Initialize console capture
+        captureConsole();
+        
+        // Auto-run basic test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔍 Page loaded, running basic checks...');
+            
+            // Check if all required classes are loaded
+            const requiredClasses = ['DataManager', 'QuestionFlow'];
+            requiredClasses.forEach(className => {
+                if (typeof window[className] !== 'undefined') {
+                    console.log(`✅ ${className} is loaded`);
+                } else {
+                    console.error(`❌ ${className} is not loaded`);
+                }
+            });
+            
+            // Check if data files are loaded
+            const dataFiles = ['HAQEI_DATA', 'WORLDVIEW_QUESTIONS', 'H64_8D_VECTORS'];
+            dataFiles.forEach(dataName => {
+                if (typeof window[dataName] !== 'undefined') {
+                    console.log(`✅ ${dataName} is loaded`);
+                } else {
+                    console.error(`❌ ${dataName} is not loaded`);
+                }
+            });
+            
+            console.log('🎯 Basic checks completed. Use the buttons above to run more detailed tests.');
+        });
+    </script>
+</body>
+</html>

@@ -888,11 +888,32 @@ class DataManager {
         throw new Error(errorMsg);
       }
 
-      const result = this.data.hexagrams || {};
-      const count = Array.isArray(result)
-        ? result.length
-        : Object.keys(result).length;
-      console.log(`✅ [DataManager] getAllHexagramData完了 - ${count}件`);
+      const hexagramsData = this.data.hexagrams || {};
+      
+      // hexagramsデータが配列かオブジェクトかを判定し、常に配列を返す
+      let result;
+      if (Array.isArray(hexagramsData)) {
+        result = hexagramsData;
+        console.log(`🔍 [DataManager] hexagramsデータは配列形式 - ${result.length}件`);
+      } else if (typeof hexagramsData === 'object' && hexagramsData !== null) {
+        // オブジェクトの場合は配列に変換
+        result = Object.values(hexagramsData);
+        console.log(`🔍 [DataManager] hexagramsデータをオブジェクト形式から配列に変換 - ${result.length}件`);
+      } else {
+        console.warn(`⚠️ [DataManager] hexagramsデータが予期しない形式:`, typeof hexagramsData);
+        result = [];
+      }
+      
+      // 結果の検証
+      if (!Array.isArray(result)) {
+        const errorMsg = "hexagramsデータを配列に変換できませんでした";
+        console.error(`❌ [DataManager] ${errorMsg}`);
+        throw new Error(errorMsg);
+      }
+      
+      console.log(`✅ [DataManager] getAllHexagramData完了 - ${result.length}件の配列を返却`);
+      console.log(`🔍 [DataManager] サンプルデータ:`, result[0]);
+      
       return result;
     } catch (error) {
       console.error(`❌ [DataManager] getAllHexagramDataエラー:`, error);
@@ -1011,6 +1032,171 @@ class DataManager {
       throw new Error(
         `アクションプランデータの取得に失敗しました: ${error.message}`
       );
+    }
+  }
+
+  // データ統計情報を取得するメソッド（不足していたメソッドを追加）
+  getDataStats() {
+    try {
+      this.logMessage("info", "getDataStats", "データ統計情報取得開始");
+
+      if (!this.loaded) {
+        const errorMsg = "DataManagerが初期化されていません";
+        this.logMessage("error", "getDataStats", errorMsg);
+        
+        // 未初期化でも基本的な統計情報を返す
+        return {
+          loaded: false,
+          error: errorMsg,
+          loadingErrors: this.loadingErrors?.length || 0,
+          loadingWarnings: this.loadingWarnings?.length || 0,
+          dataStructure: {
+            worldviewQuestions: 0,
+            scenarioQuestions: 0,
+            hexagrams: 0,
+            osManual: 0,
+            vectors: 0,
+            trigramsMaster: 0,
+            elementRelationships: 0,
+            actionPlans: 0,
+            bible: 0,
+            tuanDen: 0,
+            taiShoDen: 0,
+            shoDen: 0,
+            joKaDen: 0,
+            zatsuKaDen: 0,
+          },
+          globalDataAvailability: {
+            HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
+            WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+            SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
+            H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
+            BIBLE_DATA: typeof window.BIBLE_DATA !== "undefined",
+          },
+          timestamp: new Date().toISOString(),
+        };
+      }
+
+      if (!this.data) {
+        const errorMsg = "データオブジェクトが存在しません";
+        this.logMessage("error", "getDataStats", errorMsg);
+        
+        // データオブジェクトが存在しない場合でも基本的な統計情報を返す
+        return {
+          loaded: this.loaded,
+          error: errorMsg,
+          loadingErrors: this.loadingErrors?.length || 0,
+          loadingWarnings: this.loadingWarnings?.length || 0,
+          dataStructure: {
+            worldviewQuestions: 0,
+            scenarioQuestions: 0,
+            hexagrams: 0,
+            osManual: 0,
+            vectors: 0,
+            trigramsMaster: 0,
+            elementRelationships: 0,
+            actionPlans: 0,
+            bible: 0,
+            tuanDen: 0,
+            taiShoDen: 0,
+            shoDen: 0,
+            joKaDen: 0,
+            zatsuKaDen: 0,
+          },
+          globalDataAvailability: {
+            HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
+            WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+            SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
+            H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
+            BIBLE_DATA: typeof window.BIBLE_DATA !== "undefined",
+          },
+          timestamp: new Date().toISOString(),
+        };
+      }
+
+      const stats = {
+        loaded: this.loaded,
+        loadingErrors: this.loadingErrors.length,
+        loadingWarnings: this.loadingWarnings.length,
+        dataStructure: {
+          worldviewQuestions: this.data.questions?.worldview?.length || 0,
+          scenarioQuestions: this.data.questions?.scenarios?.length || 0,
+          hexagrams: Array.isArray(this.data.hexagrams)
+            ? this.data.hexagrams.length
+            : Object.keys(this.data.hexagrams || {}).length,
+          osManual: Object.keys(this.data.osManual || {}).length,
+          vectors: Object.keys(this.data.vectors || {}).length,
+          trigramsMaster: Array.isArray(this.data.trigramsMaster)
+            ? this.data.trigramsMaster.length
+            : Object.keys(this.data.trigramsMaster || {}).length,
+          elementRelationships: Array.isArray(this.data.elementRelationships)
+            ? this.data.elementRelationships.length
+            : Object.keys(this.data.elementRelationships || {}).length,
+          actionPlans: Object.keys(this.data.actionPlans || {}).length,
+          bible: Object.keys(this.data.bible || {}).length,
+          tuanDen: Object.keys(this.data.tuanDen || {}).length,
+          taiShoDen: Object.keys(this.data.taiShoDen || {}).length,
+          shoDen: Object.keys(this.data.shoDen || {}).length,
+          joKaDen: Object.keys(this.data.joKaDen || {}).length,
+          zatsuKaDen: Object.keys(this.data.zatsuKaDen || {}).length,
+        },
+        globalDataAvailability: {
+          HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
+          WORLDVIEW_QUESTIONS:
+            typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+          SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
+          H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
+          BIBLE_DATA: typeof window.BIBLE_DATA !== "undefined",
+        },
+        timestamp: new Date().toISOString(),
+      };
+
+      // 総データ項目数を計算
+      const totalItems = Object.values(stats.dataStructure).reduce(
+        (sum, count) => sum + count,
+        0
+      );
+      stats.totalDataItems = totalItems;
+
+      // データ完整性チェック
+      stats.dataIntegrity = {
+        hasRequiredData:
+          stats.dataStructure.worldviewQuestions > 0 &&
+          stats.dataStructure.hexagrams > 0 &&
+          stats.dataStructure.osManual > 0,
+        missingCriticalData: [],
+      };
+
+      if (stats.dataStructure.worldviewQuestions === 0) {
+        stats.dataIntegrity.missingCriticalData.push("worldviewQuestions");
+      }
+      if (stats.dataStructure.hexagrams === 0) {
+        stats.dataIntegrity.missingCriticalData.push("hexagrams");
+      }
+      if (stats.dataStructure.osManual === 0) {
+        stats.dataIntegrity.missingCriticalData.push("osManual");
+      }
+
+      this.logMessage("info", "getDataStats", "データ統計情報取得完了", stats);
+      return stats;
+    } catch (error) {
+      this.logMessage(
+        "error",
+        "getDataStats",
+        "データ統計情報取得エラー",
+        error
+      );
+
+      // エラーが発生した場合でも基本的な統計情報を返す
+      return {
+        loaded: this.loaded || false,
+        loadingErrors: this.loadingErrors?.length || 0,
+        loadingWarnings: this.loadingWarnings?.length || 0,
+        dataStructure: {},
+        globalDataAvailability: {},
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      };
     }
   }
 
@@ -1268,93 +1454,6 @@ class DataManager {
   // Helper method to get specific data safely
   getGlobal(key) {
     return typeof window !== "undefined" && window[key] ? window[key] : null;
-  }
-
-  // データ統計情報を取得するメソッド
-  getDataStats() {
-    try {
-      console.log("🔍 [DataManager] getDataStats開始");
-
-      if (!this.loaded) {
-        console.warn("⚠️ [DataManager] DataManagerが初期化されていません");
-        return {
-          loaded: false,
-          error: "DataManagerが初期化されていません",
-          timestamp: new Date().toISOString(),
-        };
-      }
-
-      if (!this.data) {
-        console.warn("⚠️ [DataManager] データオブジェクトが存在しません");
-        return {
-          loaded: false,
-          error: "データオブジェクトが存在しません",
-          timestamp: new Date().toISOString(),
-        };
-      }
-
-      const stats = {
-        loaded: true,
-        timestamp: new Date().toISOString(),
-        dataStats: {
-          worldviewQuestions: Array.isArray(this.data.questions?.worldview)
-            ? this.data.questions.worldview.length
-            : 0,
-          scenarioQuestions: Array.isArray(this.data.questions?.scenarios)
-            ? this.data.questions.scenarios.length
-            : 0,
-          hexagrams: Array.isArray(this.data.hexagrams)
-            ? this.data.hexagrams.length
-            : this.data.hexagrams
-            ? Object.keys(this.data.hexagrams).length
-            : 0,
-          osManual: this.data.osManual
-            ? Object.keys(this.data.osManual).length
-            : 0,
-          trigramsMaster: Array.isArray(this.data.trigramsMaster)
-            ? this.data.trigramsMaster.length
-            : 0,
-          elementRelationships: Array.isArray(this.data.elementRelationships)
-            ? this.data.elementRelationships.length
-            : 0,
-          actionPlans: this.data.actionPlans
-            ? Object.keys(this.data.actionPlans).length
-            : 0,
-          vectors: this.data.vectors
-            ? Object.keys(this.data.vectors).length
-            : 0,
-          bible: this.data.bible ? Object.keys(this.data.bible).length : 0,
-          taiShoDen: this.data.taiShoDen
-            ? Object.keys(this.data.taiShoDen).length
-            : 0,
-          shoDen: this.data.shoDen ? Object.keys(this.data.shoDen).length : 0,
-          joKaDen: this.data.joKaDen
-            ? Object.keys(this.data.joKaDen).length
-            : 0,
-          zatsuKaDen: this.data.zatsuKaDen
-            ? Object.keys(this.data.zatsuKaDen).length
-            : 0,
-        },
-        globalDataCheck: {
-          WORLDVIEW_QUESTIONS:
-            typeof window.WORLDVIEW_QUESTIONS !== "undefined",
-          SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
-          H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
-          HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
-          BIBLE_DATA: typeof window.BIBLE_DATA !== "undefined",
-        },
-      };
-
-      console.log("✅ [DataManager] getDataStats完了", stats);
-      return stats;
-    } catch (error) {
-      console.error("❌ [DataManager] getDataStatsエラー:", error);
-      return {
-        loaded: false,
-        error: `データ統計取得エラー: ${error.message}`,
-        timestamp: new Date().toISOString(),
-      };
-    }
   }
 }
 

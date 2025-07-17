@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ナビゲーションデバッグテスト</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <style>
+        .debug-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 350px;
+            z-index: 9999;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .debug-controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 9999;
+        }
+        .debug-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            margin: 3px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .debug-btn.danger {
+            background: #dc3545;
+        }
+        .debug-btn.success {
+            background: #28a745;
+        }
+        .button-status {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 3px;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-panel">
+        <div><strong>デバッグ情報</strong></div>
+        <div id="debugOutput">初期化中...</div>
+    </div>
+
+    <div class="debug-controls">
+        <div style="margin-bottom: 10px; font-weight: bold;">ナビゲーションデバッグ</div>
+        
+        <div class="button-status">
+            <div><strong>現在の状態:</strong></div>
+            <div id="currentStatus">未初期化</div>
+        </div>
+        
+        <button class="debug-btn" onclick="testNavigation()">ナビゲーションテスト</button>
+        <button class="debug-btn success" onclick="forceEnableNext()">次へボタン強制有効化</button>
+        <button class="debug-btn" onclick="simulateAnswer()">回答シミュレート</button>
+        <button class="debug-btn danger" onclick="resetToFirst()">最初に戻る</button>
+        <button class="debug-btn" onclick="inspectButtons()">ボタン検査</button>
+        <button class="debug-btn" onclick="clearDebug()">デバッグクリア</button>
+    </div>
+
+    <div id="app" class="app-container">
+        <section id="questions-container" class="screen-container" style="display: block">
+            <!-- QuestionFlow will render here -->
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/StorageManager.js"></script>
+    <script src="js/data/questions.js"></script>
+    <script src="js/data/vectors.js"></script>
+    <script src="js/data/data_box.js"></script>
+    <script src="js/components/QuestionFlow.js"></script>
+
+    <script>
+        let questionFlow = null;
+        let debugMessages = [];
+        
+        function addDebug(message, type = 'INFO') {
+            const time = new Date().toLocaleTimeString();
+            debugMessages.push(`[${time}] ${type}: ${message}`);
+            
+            // 最新の10メッセージを表示
+            const recent = debugMessages.slice(-10).join('<br>');
+            document.getElementById('debugOutput').innerHTML = recent;
+            
+            console.log(`[${type}] ${message}`);
+        }
+
+        function updateStatus() {
+            if (!questionFlow) {
+                document.getElementById('currentStatus').textContent = 'QuestionFlow未初期化';
+                return;
+            }
+
+            const current = questionFlow.currentQuestionIndex;
+            const total = questionFlow.questions.length;
+            const questionNum = current + 1;
+            const isEven = questionNum % 2 === 0;
+            const question = questionFlow.questions[current];
+            
+            const statusHTML = `
+                質問: ${questionNum}/${total} ${isEven ? '(偶数)' : '(奇数)'}<br>
+                ID: ${question?.id || 'N/A'}<br>
+                回答数: ${questionFlow.answers.length}
+            `;
+            
+            document.getElementById('currentStatus').innerHTML = statusHTML;
+        }
+
+        function clearDebug() {
+            debugMessages = [];
+            document.getElementById('debugOutput').textContent = 'デバッグクリア済み';
+        }
+
+        function inspectButtons() {
+            addDebug('ボタン検査開始');
+            
+            const prevBtn = document.querySelector('#prev-btn');
+            const nextBtn = document.querySelector('#next-btn');
+            
+            if (prevBtn) {
+                addDebug(`前へボタン: disabled=${prevBtn.disabled}, visible=${prevBtn.offsetParent !== null}`);
+            } else {
+                addDebug('❌ 前へボタンが見つかりません', 'ERROR');
+            }
+            
+            if (nextBtn) {
+                addDebug(`次へボタン: disabled=${nextBtn.disabled}, text="${nextBtn.textContent}", visible=${nextBtn.offsetParent !== null}`);
+            } else {
+                addDebug('❌ 次へボタンが見つかりません', 'ERROR');
+            }
+            
+            updateStatus();
+        }
+
+        function forceEnableNext() {
+            const nextBtn = document.querySelector('#next-btn');
+            if (nextBtn) {
+                nextBtn.disabled = false;
+                addDebug('次へボタンを強制的に有効化しました', 'SUCCESS');
+            } else {
+                addDebug('❌ 次へボタンが見つかりません', 'ERROR');
+            }
+        }
+
+        function simulateAnswer() {
+            if (!questionFlow) {
+                addDebug('QuestionFlow未初期化', 'ERROR');
+                return;
+            }
+
+            const question = questionFlow.questions[questionFlow.currentQuestionIndex];
+            addDebug(`Q${questionFlow.currentQuestionIndex + 1}に模擬回答を追加`);
+            
+            // 模擬回答を作成
+            const mockAnswer = {
+                questionId: question.id,
+                selectedValue: 'A',
+                scoring_tags: [{ key: 'test', value: 1.0 }],
+                timestamp: new Date().toISOString()
+            };
+            
+            // 回答を追加
+            const existingIndex = questionFlow.answers.findIndex(a => a.questionId === question.id);
+            if (existingIndex >= 0) {
+                questionFlow.answers[existingIndex] = mockAnswer;
+            } else {
+                questionFlow.answers.push(mockAnswer);
+            }
+            
+            // ナビゲーションボタンを更新
+            questionFlow.updateNavigationButtons();
+            
+            addDebug('模擬回答追加完了', 'SUCCESS');
+            updateStatus();
+            inspectButtons();
+        }
+
+        function testNavigation() {
+            if (!questionFlow) {
+                addDebug('QuestionFlow未初期化', 'ERROR');
+                return;
+            }
+
+            const beforeIndex = questionFlow.currentQuestionIndex;
+            addDebug(`ナビゲーションテスト開始: Q${beforeIndex + 1}`);
+            
+            // 次へボタンをクリック
+            const nextBtn = document.querySelector('#next-btn');
+            if (nextBtn && !nextBtn.disabled) {
+                addDebug('次へボタンクリック実行');
+                nextBtn.click();
+                
+                setTimeout(() => {
+                    const afterIndex = questionFlow.currentQuestionIndex;
+                    if (afterIndex !== beforeIndex) {
+                        addDebug(`✅ ナビゲーション成功: Q${beforeIndex + 1} → Q${afterIndex + 1}`, 'SUCCESS');
+                    } else {
+                        addDebug(`❌ ナビゲーション失敗: インデックスが変わりませんでした`, 'ERROR');
+                    }
+                    updateStatus();
+                }, 200);
+            } else if (nextBtn && nextBtn.disabled) {
+                addDebug('❌ 次へボタンが無効化されています', 'WARN');
+                addDebug('模擬回答を追加してから再度試してください', 'INFO');
+            } else {
+                addDebug('❌ 次へボタンが見つかりません', 'ERROR');
+            }
+        }
+
+        function resetToFirst() {
+            if (!questionFlow) {
+                addDebug('QuestionFlow未初期化', 'ERROR');
+                return;
+            }
+
+            questionFlow.currentQuestionIndex = 0;
+            questionFlow.renderCurrentQuestion();
+            questionFlow.updateNavigationButtons();
+            questionFlow.bindNavigationEvents();
+            
+            addDebug('最初の質問に戻りました', 'SUCCESS');
+            updateStatus();
+        }
+
+        // QuestionFlow初期化
+        async function initQuestionFlow() {
+            try {
+                addDebug('QuestionFlow初期化開始');
+                
+                const mockStorage = {
+                    answers: [],
+                    progress: null,
+                    saveAnswers: function(answers) { 
+                        this.answers = [...answers];
+                        addDebug(`ストレージ: ${answers.length}回答保存`);
+                    },
+                    getAnswers: function() { return this.answers; },
+                    saveProgress: function(progress) { 
+                        this.progress = progress;
+                        addDebug(`ストレージ: 進行状況保存 (index: ${progress.currentQuestionIndex})`);
+                    },
+                    getProgress: function() { return this.progress; }
+                };
+
+                questionFlow = new QuestionFlow("questions-container", {
+                    storageManager: mockStorage
+                });
+
+                questionFlow.init();
+                questionFlow.show();
+
+                addDebug(`QuestionFlow初期化完了: ${questionFlow.questions.length}問`, 'SUCCESS');
+                updateStatus();
+                
+                // 初期状態のボタンを検査
+                setTimeout(() => {
+                    inspectButtons();
+                }, 500);
+
+            } catch (error) {
+                addDebug(`初期化エラー: ${error.message}`, 'ERROR');
+                console.error('Initialization error:', error);
+            }
+        }
+
+        // ページ読み込み後に初期化
+        document.addEventListener("DOMContentLoaded", function () {
+            addDebug('ページ読み込み完了');
+            
+            setTimeout(() => {
+                initQuestionFlow();
+            }, 300);
+        });
+    </script>
+</body>
+</html>

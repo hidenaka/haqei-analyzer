@@ -76,11 +76,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     // 基本的なデータ検証
-    if (stats.dataStats.hexagrams === 0) {
+    if (stats.dataStructure.hexagrams === 0) {
       console.warn("⚠️ [App.js] 卦データが読み込まれていません");
     }
 
-    if (stats.dataStats.worldviewQuestions === 0) {
+    if (stats.dataStructure.worldviewQuestions === 0) {
       console.warn("⚠️ [App.js] 価値観質問データが読み込まれていません");
     }
 
@@ -247,15 +247,30 @@ function startRealDiagnosis() {
           progressPercentage: progress,
         });
       },
-      onComplete: function (answers) {
-        console.log("✅ All questions completed:", answers);
+      onComplete: function (answerData) {
+        console.log("✅ All questions completed:", answerData);
+
+        // 回答データの形式を確認
+        let answersToSave, answersToAnalyze;
+        
+        if (answerData.originalAnswers && answerData.preparedAnswers) {
+          // 新しい形式: オブジェクトに両方の回答データが含まれている
+          answersToSave = answerData.originalAnswers;
+          answersToAnalyze = answerData.preparedAnswers;
+          console.log("📊 Using prepared answers for analysis:", answersToAnalyze);
+        } else {
+          // 古い形式: 直接回答配列
+          answersToSave = answerData;
+          answersToAnalyze = answerData;
+          console.log("📊 Using original answers for analysis:", answersToAnalyze);
+        }
 
         // 回答をストレージに保存
-        app.storageManager.saveAnswers(answers);
+        app.storageManager.saveAnswers(answersToSave);
         app.storageManager.updateSession({ stage: "analysis" });
 
         // 分析処理に進む
-        proceedToAnalysis(answers);
+        proceedToAnalysis(answersToAnalyze);
       },
     });
     questionFlow.init(); // ← ここで必ずinit()を呼ぶ

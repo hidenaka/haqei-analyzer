@@ -1,7 +1,7 @@
 // HaQei Analyzer - Analysis View Component
 class AnalysisView extends BaseComponent {
   constructor(containerId, options = {}) {
-    super(containerId, options);
+    // super()を呼ぶ前に分析ステップを初期化（BaseComponentのinit()でrender()が呼ばれるため）
     this.analysisSteps = [
       "価値観データを8次元で解析中...",
       "64卦の特性マトリックスを計算中...",
@@ -9,8 +9,20 @@ class AnalysisView extends BaseComponent {
       "最適な人格OSを特定中...",
       "深い洞察を生成中...",
     ];
+    
     this.currentStep = 0;
     this.analysisInterval = null;
+    
+    // 初期化の確認
+    if (!Array.isArray(this.analysisSteps)) {
+      console.error("AnalysisView: analysisSteps の初期化に失敗しました");
+      this.analysisSteps = ["分析を実行中..."];
+    }
+    
+    console.log("AnalysisView initialized with", this.analysisSteps.length, "steps");
+    
+    // BaseComponentの初期化（この時点でrender()が呼ばれる）
+    super(containerId, options);
   }
 
   get defaultOptions() {
@@ -22,6 +34,31 @@ class AnalysisView extends BaseComponent {
   }
 
   render() {
+    console.log("AnalysisView render() called");
+    console.log("this.analysisSteps:", this.analysisSteps);
+    
+    // 二重の安全性チェック（念のため）
+    if (!Array.isArray(this.analysisSteps)) {
+      console.error("AnalysisView render: analysisSteps is not an array", this.analysisSteps);
+      console.error("this.analysisSteps type:", typeof this.analysisSteps);
+      console.error("this context:", this);
+      // フォールバック用のデフォルト値
+      this.analysisSteps = ["分析を実行中..."];
+    }
+    
+    // ステップリストの生成
+    const stepsHTML = this.analysisSteps.map((step, index) => {
+      return `
+        <div class="step-item" data-step="${index}">
+          <div class="step-icon">
+            <div class="step-number">${index + 1}</div>
+            <div class="step-check">✓</div>
+          </div>
+          <div class="step-text">${step}</div>
+        </div>
+      `;
+    }).join("");
+    
     this.container.innerHTML = `
       <div class="analysis-container">
         <div class="analysis-header">
@@ -51,19 +88,7 @@ class AnalysisView extends BaseComponent {
           </div>
           
           <div class="steps-list">
-            ${this.analysisSteps
-              .map(
-                (step, index) => `
-              <div class="step-item" data-step="${index}">
-                <div class="step-icon">
-                  <div class="step-number">${index + 1}</div>
-                  <div class="step-check">✓</div>
-                </div>
-                <div class="step-text">${step}</div>
-              </div>
-            `
-              )
-              .join("")}
+            ${stepsHTML}
           </div>
         </div>
 
@@ -75,6 +100,10 @@ class AnalysisView extends BaseComponent {
         </div>
       </div>
     `;
+    
+    console.log("AnalysisView render() completed successfully");
+    console.log("Final analysisSteps:", this.analysisSteps);
+    console.log("Container innerHTML length:", this.container.innerHTML.length);
   }
 
   async startAnalysis() {

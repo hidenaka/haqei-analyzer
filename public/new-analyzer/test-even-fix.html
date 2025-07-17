@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Even Question Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 3px; cursor: pointer; }
+        #questionContainer { border: 2px solid #ccc; padding: 20px; margin: 10px 0; min-height: 300px; }
+        .navigation { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Even Question Fix Test</h1>
+    
+    <div class="debug">
+        <h3>Test Status</h3>
+        <div id="status">Initializing...</div>
+    </div>
+
+    <div class="navigation">
+        <button onclick="testSequence()">Test Question Sequence</button>
+        <button onclick="goToQuestion(0)">Go to Q1</button>
+        <button onclick="goToQuestion(1)">Go to Q2</button>
+        <button onclick="goToQuestion(2)">Go to Q3</button>
+        <button onclick="goToQuestion(3)">Go to Q4</button>
+        <button onclick="clearStorage()">Clear Storage</button>
+    </div>
+
+    <div id="questionContainer">
+        QuestionFlow will be rendered here
+    </div>
+
+    <div class="debug">
+        <h3>Debug Output</h3>
+        <pre id="debugOutput" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;"></pre>
+    </div>
+
+    <!-- Load scripts -->
+    <script src="js/data/questions.js"></script>
+    <script src="js/data/vectors.js"></script>
+    <script src="js/data/data_box.js"></script>
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/StorageManager.js"></script>
+    <script src="js/components/QuestionFlow.js"></script>
+
+    <script>
+        let questionFlow = null;
+        let mockStorage = null;
+        let debugOutput = document.getElementById('debugOutput');
+
+        // Capture console output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        function addDebug(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            debugOutput.textContent += `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            debugOutput.scrollTop = debugOutput.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            addDebug(args.join(' '), 'log');
+            originalLog.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            addDebug(args.join(' '), 'error');
+            originalError.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+            addDebug(args.join(' '), 'warn');
+            originalWarn.apply(console, args);
+        };
+
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = type;
+        }
+
+        function clearStorage() {
+            if (mockStorage) {
+                mockStorage.answers = [];
+                mockStorage.progress = null;
+                console.log('Storage cleared');
+                updateStatus('Storage cleared');
+            }
+        }
+
+        function initQuestionFlow() {
+            try {
+                // Create mock storage
+                mockStorage = {
+                    answers: [],
+                    progress: null,
+                    saveAnswers: function(answers) { 
+                        this.answers = [...answers];
+                        console.log(`Storage: Saved ${answers.length} answers`);
+                    },
+                    getAnswers: function() { return this.answers; },
+                    saveProgress: function(progress) { 
+                        this.progress = progress;
+                        console.log(`Storage: Saved progress (index: ${progress.currentQuestionIndex})`);
+                    },
+                    getProgress: function() { return this.progress; }
+                };
+
+                // Initialize QuestionFlow
+                questionFlow = new QuestionFlow('questionContainer', {
+                    storageManager: mockStorage
+                });
+
+                questionFlow.init();
+                
+                updateStatus(`QuestionFlow initialized with ${questionFlow.questions.length} questions`, 'success');
+                console.log('QuestionFlow initialization complete');
+                
+            } catch (error) {
+                updateStatus(`Initialization failed: ${error.message}`, 'error');
+                console.error('QuestionFlow initialization failed:', error);
+            }
+        }
+
+        function goToQuestion(index) {
+            if (!questionFlow) {
+                updateStatus('QuestionFlow not initialized', 'error');
+                return;
+            }
+            
+            console.log(`\n=== Manual Navigation to Question ${index + 1} ===`);
+            questionFlow.currentQuestionIndex = index;
+            questionFlow.renderCurrentQuestion();
+            questionFlow.updateNavigationButtons();
+            questionFlow.updateProgress();
+            
+            updateStatus(`Navigated to Question ${index + 1}`);
+        }
+
+        async function testSequence() {
+            if (!questionFlow) {
+                updateStatus('QuestionFlow not initialized', 'error');
+                return;
+            }
+
+            console.log('\n=== Starting Sequence Test ===');
+            updateStatus('Running sequence test...');
+            
+            // Test first 8 questions to check even/odd pattern
+            for (let i = 0; i < Math.min(8, questionFlow.questions.length); i++) {
+                console.log(`\n--- Testing Question ${i + 1} ---`);
+                
+                questionFlow.currentQuestionIndex = i;
+                questionFlow.renderCurrentQuestion();
+                
+                // Check if content was rendered
+                const questionDisplay = document.querySelector('#question-display');
+                const hasContent = questionDisplay && questionDisplay.innerHTML.trim().length > 0;
+                
+                const isEven = (i + 1) % 2 === 0;
+                console.log(`Question ${i + 1} ${isEven ? '(EVEN)' : '(ODD)'}: ${hasContent ? 'RENDERED' : 'NOT RENDERED'}`);
+                
+                // Small delay for visual effect
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
+            console.log('=== Sequence Test Complete ===');
+            updateStatus('Sequence test complete - check debug output', 'success');
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            console.log('Page loaded, initializing QuestionFlow...');
+            initQuestionFlow();
+        });
+    </script>
+</body>
+</html>

@@ -121,15 +121,37 @@ class TripleOSEngine extends DiagnosisEngine {
       // 64卦データを取得
       console.log("🔍 hexagramInfo取得開始:", bestCandidate.osId);
       const allHexagrams = this.dataManager.getAllHexagramData();
+      
+      // 防御的チェック: allHexagramsが配列であることを確認
+      if (!Array.isArray(allHexagrams)) {
+        console.error("❌ allHexagramsが配列ではありません:", {
+          type: typeof allHexagrams,
+          value: allHexagrams
+        });
+        throw new Error(`getAllHexagramData()が配列を返しませんでした: ${typeof allHexagrams}`);
+      }
+      
+      console.log("🔍 allHexagrams検証成功:", {
+        isArray: Array.isArray(allHexagrams),
+        length: allHexagrams.length,
+        sampleItem: allHexagrams[0]
+      });
+      
       const hexagramInfo = allHexagrams.find(h => h.hexagram_id === bestCandidate.osId);
       console.log("🔍 hexagramInfo取得結果:", {
         exists: !!hexagramInfo,
         hasName: !!hexagramInfo?.name,
         name: hexagramInfo?.name,
+        osId: bestCandidate.osId,
+        searchedIn: allHexagrams.length,
         fullData: hexagramInfo,
       });
       if (!hexagramInfo) {
-        console.error("❌ hexagramInfoがnull:", bestCandidate.osId);
+        console.error("❌ hexagramInfoがnull:", {
+          osId: bestCandidate.osId,
+          totalHexagrams: allHexagrams.length,
+          availableIds: allHexagrams.map(h => h.hexagram_id).slice(0, 10)
+        });
         throw new Error(
           `Hexagram data not found for osId: ${bestCandidate.osId}`
         );
@@ -190,12 +212,12 @@ class TripleOSEngine extends DiagnosisEngine {
       return {
         type: "interface",
         hexagramId: bestMatch.hexagramId,
-        hexagramInfo: this.dataManager.getAllHexagramData().find(h => h.hexagram_id === bestMatch.hexagramId),
+        hexagramInfo: this.findHexagramById(bestMatch.hexagramId),
         matchScore: bestMatch.score,
         keywordMatches: bestMatch.matches,
         outerChoices: outerChoices,
         trigramComposition: this.generateTrigramComposition(
-          this.dataManager.getAllHexagramData().find(h => h.hexagram_id === bestMatch.hexagramId)
+          this.findHexagramById(bestMatch.hexagramId)
         ),
       };
     } catch (error) {
@@ -224,12 +246,12 @@ class TripleOSEngine extends DiagnosisEngine {
       return {
         type: "safemode",
         hexagramId: bestMatch.hexagramId,
-        hexagramInfo: this.dataManager.getAllHexagramData().find(h => h.hexagram_id === bestMatch.hexagramId),
+        hexagramInfo: this.findHexagramById(bestMatch.hexagramId),
         matchScore: bestMatch.score,
         lineMatches: bestMatch.matches,
         innerChoices: innerChoices,
         trigramComposition: this.generateTrigramComposition(
-          this.dataManager.getAllHexagramData().find(h => h.hexagram_id === bestMatch.hexagramId)
+          this.findHexagramById(bestMatch.hexagramId)
         ),
       };
     } catch (error) {
