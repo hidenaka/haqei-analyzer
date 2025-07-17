@@ -1,7 +1,10 @@
 // HaQei Analyzer - Analysis View Component
 class AnalysisView extends BaseComponent {
   constructor(containerId, options = {}) {
-    // super()を呼ぶ前に分析ステップを初期化（BaseComponentのinit()でrender()が呼ばれるため）
+    // まずはsuper()を呼び出してからthisを使用
+    super(containerId, options);
+    
+    // super()後に分析ステップを初期化
     this.analysisSteps = [
       "価値観データを8次元で解析中...",
       "64卦の特性マトリックスを計算中...",
@@ -21,13 +24,14 @@ class AnalysisView extends BaseComponent {
     
     console.log("AnalysisView initialized with", this.analysisSteps.length, "steps");
     
-    // BaseComponentの初期化（この時点でrender()が呼ばれる）
-    super(containerId, options);
+    // BaseComponentのinit()でrender()が呼ばれた後に再度render()して正しい内容を表示
+    this.render();
   }
 
   get defaultOptions() {
     return {
-      ...super.defaultOptions,
+      animation: true,
+      animationDuration: 300,
       onAnalysisComplete: null,
       analysisDuration: 5000, // 5秒
     };
@@ -37,13 +41,71 @@ class AnalysisView extends BaseComponent {
     console.log("AnalysisView render() called");
     console.log("this.analysisSteps:", this.analysisSteps);
     
-    // 二重の安全性チェック（念のため）
+    // 安全性チェック（初期化が完了していない場合のフォールバック）
     if (!Array.isArray(this.analysisSteps)) {
-      console.error("AnalysisView render: analysisSteps is not an array", this.analysisSteps);
-      console.error("this.analysisSteps type:", typeof this.analysisSteps);
-      console.error("this context:", this);
+      console.warn("AnalysisView render: analysisSteps is not yet initialized, using fallback");
+      console.warn("this.analysisSteps type:", typeof this.analysisSteps);
       // フォールバック用のデフォルト値
-      this.analysisSteps = ["分析を実行中..."];
+      const fallbackSteps = [
+        "価値観データを8次元で解析中...",
+        "64卦の特性マトリックスを計算中...",
+        "コサイン類似度を算出中...",
+        "最適な人格OSを特定中...",
+        "深い洞察を生成中...",
+      ];
+      
+      // ステップHTMLを直接生成
+      const stepsHTML = fallbackSteps.map((step, index) => {
+        return `
+          <div class="step-item" data-step="${index}">
+            <div class="step-icon">
+              <div class="step-number">${index + 1}</div>
+              <div class="step-check">✓</div>
+            </div>
+            <div class="step-text">${step}</div>
+          </div>
+        `;
+      }).join("");
+      
+      this.container.innerHTML = `
+        <div class="analysis-container">
+          <div class="analysis-header">
+            <h2 class="analysis-title">🔬 深い洞察を生成中</h2>
+            <p class="analysis-subtitle">古代の叡智と現代の数学が融合する瞬間</p>
+          </div>
+          <div class="analysis-visual">
+            <div class="analysis-spinner">
+              <div class="spinner-ring"></div>
+              <div class="spinner-ring"></div>
+              <div class="spinner-ring"></div>
+            </div>
+            <div class="analysis-progress">
+              <div class="progress-circle">
+                <div class="progress-text">
+                  <span id="progress-percent">0</span>%
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="analysis-steps">
+            <div id="current-step" class="step-text">
+              分析を開始しています...
+            </div>
+            <div class="steps-list">
+              ${stepsHTML}
+            </div>
+          </div>
+          <div class="analysis-footer">
+            <p class="analysis-note">
+              💡 あなたの価値観は8次元ベクトルとして数値化され、<br>
+              64通りの人格OSパターンと照合されています
+            </p>
+          </div>
+        </div>
+      `;
+      
+      console.log("AnalysisView render() completed with fallback");
+      return;
     }
     
     // ステップリストの生成
