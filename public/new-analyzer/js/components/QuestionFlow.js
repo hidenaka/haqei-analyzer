@@ -8,6 +8,7 @@ class QuestionFlow extends BaseComponent {
     this.answers = [];
     this.questions = [];
     this.storageManager = options.storageManager || null;
+    this.changeEventBound = false; // イベント重複防止フラグ
     console.log(
       "🔧 QuestionFlow constructor: currentQuestionIndex =",
       this.currentQuestionIndex
@@ -125,7 +126,6 @@ class QuestionFlow extends BaseComponent {
     `;
 
     this.renderCurrentQuestion();
-    this.bindEvents();
   }
 
   renderCurrentQuestion() {
@@ -285,23 +285,37 @@ class QuestionFlow extends BaseComponent {
   }
 
   bindEvents() {
-    // 選択肢変更イベント
-    this.container.addEventListener("change", (e) => {
-      if (e.target.type === "radio") {
-        this.handleAnswerChange(e.target);
-      }
-    });
+    // 選択肢変更イベント（一度だけ設定）
+    if (!this.changeEventBound) {
+      this.container.addEventListener("change", (e) => {
+        if (e.target.type === "radio") {
+          this.handleAnswerChange(e.target);
+        }
+      });
+      this.changeEventBound = true;
+      console.log("🔧 Change event bound once");
+    }
 
-    // ナビゲーションボタン
+    // ナビゲーションボタン（毎回設定し直す）
+    this.bindNavigationEvents();
+  }
+
+  bindNavigationEvents() {
     const prevBtn = this.container.querySelector("#prev-btn");
     const nextBtn = this.container.querySelector("#next-btn");
 
     if (prevBtn) {
-      prevBtn.addEventListener("click", () => this.goToPrevious());
+      // 既存のイベントリスナーを削除してから新しいものを追加
+      const newPrevBtn = prevBtn.cloneNode(true);
+      prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
+      newPrevBtn.addEventListener("click", () => this.goToPrevious());
     }
 
     if (nextBtn) {
-      nextBtn.addEventListener("click", () => this.goToNext());
+      // 既存のイベントリスナーを削除してから新しいものを追加
+      const newNextBtn = nextBtn.cloneNode(true);
+      nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
+      newNextBtn.addEventListener("click", () => this.goToNext());
     }
   }
 
@@ -532,6 +546,7 @@ class QuestionFlow extends BaseComponent {
     if (this.currentQuestionIndex > 0) {
       this.currentQuestionIndex--;
       this.renderCurrentQuestion();
+      this.bindNavigationEvents();
       this.updateNavigationButtons();
       this.updateProgress();
 
@@ -550,6 +565,7 @@ class QuestionFlow extends BaseComponent {
     if (this.currentQuestionIndex < this.questions.length - 1) {
       this.currentQuestionIndex++;
       this.renderCurrentQuestion();
+      this.bindNavigationEvents();
       this.updateNavigationButtons();
       this.updateProgress();
 
