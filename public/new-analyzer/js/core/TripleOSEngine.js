@@ -68,19 +68,24 @@ class TripleOSEngine extends DiagnosisEngine {
       console.log("📈 Consistency Score:", consistencyScore);
 
       // 5. 統合分析結果構築
+      const dimensions = this.analyzeDimensions(engineOS.userVector);
+
       const tripleOSResult = {
         analysisType: "tripleOS",
+        primaryOS: engineOS, // 🔧 primaryOSを追加
         engineOS: engineOS,
         interfaceOS: interfaceOS,
         safeModeOS: safeModeOS,
         consistencyScore: consistencyScore,
         analysisDate: new Date().toISOString(),
         totalAnswers: allAnswers.length,
+        dimensions: dimensions, // 🔧 追加
         integration: this.generateIntegrationInsights(
           engineOS,
           interfaceOS,
           safeModeOS,
-          consistencyScore
+          consistencyScore,
+          dimensions // 🔧 追加
         ),
       };
 
@@ -97,7 +102,6 @@ class TripleOSEngine extends DiagnosisEngine {
     console.log("🔧 === analyzeEngineOS開始 ===");
     console.log("📝 入力answers:", worldviewAnswers.length, "個");
     try {
-      // 8次元ユーザーベクトル構築
       const userVector = this.calculator.buildUserVector(worldviewAnswers);
       console.log("📊 userVector:", userVector);
       // OS候補分析
@@ -156,6 +160,12 @@ class TripleOSEngine extends DiagnosisEngine {
           `Hexagram data not found for osId: ${bestCandidate.osId}`
         );
       }
+
+      // 互換性のためにnameプロパティを追加
+      if (hexagramInfo.name_jp && !hexagramInfo.name) {
+        hexagramInfo.name = hexagramInfo.name_jp;
+      }
+
       if (!hexagramInfo.name_jp) {
         console.error("❌ hexagramInfo.name_jpが空:", hexagramInfo);
         throw new Error(
@@ -171,6 +181,7 @@ class TripleOSEngine extends DiagnosisEngine {
       const engineOSResult = {
         osId: bestCandidate.osId,
         osName: hexagramInfo.name_jp,
+        hexagramInfo: hexagramInfo, // 🔧 hexagramInfoオブジェクト全体を追加
         catchphrase: hexagramInfo.catchphrase,
         description: hexagramInfo.description,
         keywords: hexagramInfo.keywords,
@@ -182,6 +193,7 @@ class TripleOSEngine extends DiagnosisEngine {
         confidence: bestCandidate.score,
         type: "engine",
         dominantTrigrams: dominantTrigrams,
+        userVector: userVector, // 🔧 userVectorを追加
       };
       console.log("✅ Engine OS determined:", engineOSResult.osName);
       console.log("🎯 Dominant trigrams:", dominantTrigrams);
@@ -207,18 +219,25 @@ class TripleOSEngine extends DiagnosisEngine {
 
       // エンジンOSを除外して最高スコアを選択
       const filteredResults = this.excludeEngineOS(matchingResults, engineOS);
-      const bestMatch = filteredResults[0];
+      const bestMatch = filteredResults[0] || { hexagramId: null, score: 0, matches: [] };
+
+      const hexagramInfo = bestMatch.hexagramId
+        ? this.dataManager.findHexagramById(bestMatch.hexagramId)
+        : null;
+
+      // 互換性のためにnameプロパティを追加
+      if (hexagramInfo && hexagramInfo.name_jp && !hexagramInfo.name) {
+        hexagramInfo.name = hexagramInfo.name_jp;
+      }
 
       return {
         type: "interface",
         hexagramId: bestMatch.hexagramId,
-        hexagramInfo: this.findHexagramById(bestMatch.hexagramId),
+        hexagramInfo: hexagramInfo,
         matchScore: bestMatch.score,
         keywordMatches: bestMatch.matches,
         outerChoices: outerChoices,
-        trigramComposition: this.generateTrigramComposition(
-          this.findHexagramById(bestMatch.hexagramId)
-        ),
+        trigramComposition: this.generateTrigramComposition(hexagramInfo),
       };
     } catch (error) {
       console.error("❌ Interface OS analysis failed:", error);
@@ -241,18 +260,25 @@ class TripleOSEngine extends DiagnosisEngine {
 
       // エンジンOSを除外して最高スコアを選択
       const filteredResults = this.excludeEngineOS(matchingResults, engineOS);
-      const bestMatch = filteredResults[0];
+      const bestMatch = filteredResults[0] || { hexagramId: null, score: 0, matches: [] };
+
+      const hexagramInfo = bestMatch.hexagramId
+        ? this.dataManager.findHexagramById(bestMatch.hexagramId)
+        : null;
+
+      // 互換性のためにnameプロパティを追加
+      if (hexagramInfo && hexagramInfo.name_jp && !hexagramInfo.name) {
+        hexagramInfo.name = hexagramInfo.name_jp;
+      }
 
       return {
         type: "safemode",
         hexagramId: bestMatch.hexagramId,
-        hexagramInfo: this.findHexagramById(bestMatch.hexagramId),
+        hexagramInfo: hexagramInfo,
         matchScore: bestMatch.score,
         lineMatches: bestMatch.matches,
         innerChoices: innerChoices,
-        trigramComposition: this.generateTrigramComposition(
-          this.findHexagramById(bestMatch.hexagramId)
-        ),
+        trigramComposition: this.generateTrigramComposition(hexagramInfo),
       };
     } catch (error) {
       console.error("❌ SafeMode OS analysis failed:", error);
@@ -331,16 +357,83 @@ class TripleOSEngine extends DiagnosisEngine {
 
   // キーワードマッチング（keyword_map使用）
   async performKeywordMatching(choices, type) {
-    // 実装予定：DataManagerからkeyword_mapを取得してマッチング
-    // 暫定的にモック実装
-    return this.mockKeywordMatching(choices, type);
+    const keywordMap = this.dataManager.getKeywordMap();
+    if (!keywordMap || Object.keys(keywordMap).length === 0) {
+      console.warn("Keyword map is not available.");
+      return [];
+    }
+
+    const scores = {};
+    const matches = {};
+
+    choices.forEach(choice => {
+      if (choice.scoring_tags && Array.isArray(choice.scoring_tags)) {
+        choice.scoring_tags.forEach(tag => {
+          const hexagrams = keywordMap[tag];
+          if (hexagrams) {
+            hexagrams.forEach(hexagramId => {
+              if (!scores[hexagramId]) {
+                scores[hexagramId] = 0;
+                matches[hexagramId] = [];
+              }
+              scores[hexagramId]++;
+              if (!matches[hexagramId].includes(tag)) {
+                matches[hexagramId].push(tag);
+              }
+            });
+          }
+        });
+      }
+    });
+
+    const results = Object.keys(scores).map(hexagramId => ({
+      hexagramId: parseInt(hexagramId, 10),
+      score: scores[hexagramId],
+      matches: matches[hexagramId],
+    }));
+
+    return results.sort((a, b) => b.score - a.score);
   }
 
   // 爻キーワードマッチング（line_keyword_map使用）
   async performLineKeywordMatching(choices, type) {
-    // 実装予定：DataManagerからline_keyword_mapを取得してマッチング
-    // 暫定的にモック実装
-    return this.mockLineKeywordMatching(choices, type);
+    const lineKeywordMap = this.dataManager.getLineKeywordMap();
+    if (!lineKeywordMap || Object.keys(lineKeywordMap).length === 0) {
+      console.warn("Line keyword map is not available.");
+      return [];
+    }
+
+    const scores = {};
+    const matches = {};
+
+    choices.forEach(choice => {
+      if (choice.scoring_tags && Array.isArray(choice.scoring_tags)) {
+        choice.scoring_tags.forEach(tag => {
+          const lines = lineKeywordMap[tag];
+          if (lines) {
+            lines.forEach(lineInfo => {
+              const hexagramId = lineInfo.hexagram_id;
+              if (!scores[hexagramId]) {
+                scores[hexagramId] = 0;
+                matches[hexagramId] = [];
+              }
+              scores[hexagramId]++;
+              if (!matches[hexagramId].includes(tag)) {
+                matches[hexagramId].push(tag);
+              }
+            });
+          }
+        });
+      }
+    });
+
+    const results = Object.keys(scores).map(hexagramId => ({
+      hexagramId: parseInt(hexagramId, 10),
+      score: scores[hexagramId],
+      matches: matches[hexagramId],
+    }));
+
+    return results.sort((a, b) => b.score - a.score);
   }
 
   // エンジンOSを除外
@@ -395,13 +488,18 @@ class TripleOSEngine extends DiagnosisEngine {
     engineOS,
     interfaceOS,
     safeModeOS,
-    consistencyScore
+    consistencyScore,
+    dimensions
   ) {
+    const topDimensions = dimensions.slice(0, 3);
+
     return {
-      summary: `あなたの人格は3層構造で構成されています。`,
+      summary: `あなたの人格OSは「${engineOS.osName}」です。特に${topDimensions
+        .map((d) => d.displayName)
+        .join("、")}が強く、これがあなたの核となる価値観を形成しています。`,
       engineInsight: `エンジンOS「${engineOS.osName}」が核となる価値観を形成しています。`,
-      interfaceInsight: `インターフェースOS「${interfaceOS.hexagramInfo.name_jp}」が外面的な行動パターンを決定しています。`,
-      safeModeInsight: `セーフモードOS「${safeModeOS.hexagramInfo.name_jp}」が内面的な防御機制として働いています。`,
+      interfaceInsight: `インターフェースOS「${interfaceOS.hexagramInfo?.name_jp || '未分析'}」が外面的な行動パターンを決定しています。`,
+      safeModeInsight: `セーフモードOS「${safeModeOS.hexagramInfo?.name_jp || '未分析'}」が内面的な防御機制として働いています。`,
       consistencyInsight: `全体的な一貫性は${Math.round(
         consistencyScore.overall * 100
       )}%です。`,
@@ -413,35 +511,7 @@ class TripleOSEngine extends DiagnosisEngine {
     };
   }
 
-  // モックキーワードマッチング
-  mockKeywordMatching(choices, type) {
-    const mockResults = [];
-
-    for (let i = 1; i <= 64; i++) {
-      mockResults.push({
-        hexagramId: i,
-        score: Math.random() * 100,
-        matches: [`mock_keyword_${i}`],
-      });
-    }
-
-    return mockResults.sort((a, b) => b.score - a.score);
-  }
-
-  // モック爻キーワードマッチング
-  mockLineKeywordMatching(choices, type) {
-    const mockResults = [];
-
-    for (let i = 1; i <= 64; i++) {
-      mockResults.push({
-        hexagramId: i,
-        score: Math.random() * 100,
-        matches: [`mock_line_keyword_${i}`],
-      });
-    }
-
-    return mockResults.sort((a, b) => b.score - a.score);
-  }
+  
 
   // 八卦名取得ヘルパー
   getTrigramName(trigramId) {

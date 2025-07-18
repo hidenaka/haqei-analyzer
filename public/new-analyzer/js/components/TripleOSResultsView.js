@@ -180,6 +180,8 @@ class TripleOSResultsView extends BaseComponent {
 
   // OSカードをレンダリング
   renderOSCard(osData, type, icon, title, description) {
+    const hexagramName = osData.hexagramInfo ? osData.hexagramInfo.name : "分析不能";
+    const hexagramReading = osData.hexagramInfo ? osData.hexagramInfo.reading : "";
     const strengthDisplay = this.getStrengthDisplay(osData, type);
     const cardClass = `os-card os-card-${type}`;
 
@@ -195,10 +197,8 @@ class TripleOSResultsView extends BaseComponent {
         
         <div class="os-card-content">
           <div class="hexagram-display">
-            <div class="hexagram-name">${osData.hexagramInfo.name}</div>
-            <div class="hexagram-reading">${
-              osData.hexagramInfo.reading || ""
-            }</div>
+            <div class="hexagram-name">${hexagramName}</div>
+            <div class="hexagram-reading">${hexagramReading}</div>
           </div>
           
           ${strengthDisplay}
@@ -370,6 +370,9 @@ class TripleOSResultsView extends BaseComponent {
   // インターフェースOS詳細
   renderInterfaceDetails(interfaceOS) {
     const matches = interfaceOS.keywordMatches || [];
+    const summaryText = interfaceOS.hexagramInfo
+      ? `<p>外面的な行動において、${interfaceOS.hexagramInfo.name}の特徴が強く現れています。</p>`
+      : `<p>外面的な行動において、特定の強い傾向は検出されませんでした。</p>`;
 
     return `
       <div class="interface-details">
@@ -387,9 +390,7 @@ class TripleOSResultsView extends BaseComponent {
         
         <div class="choice-summary">
           <h6>選択傾向</h6>
-          <p>外面的な行動において、${
-            interfaceOS.hexagramInfo.name
-          }の特徴が強く現れています。</p>
+          ${summaryText}
         </div>
       </div>
     `;
@@ -398,6 +399,9 @@ class TripleOSResultsView extends BaseComponent {
   // セーフモードOS詳細
   renderSafeModeDetails(safeModeOS) {
     const matches = safeModeOS.lineMatches || [];
+    const summaryText = safeModeOS.hexagramInfo
+      ? `<p>ストレスや困難な状況において、${safeModeOS.hexagramInfo.name}の防御機制が作動します。</p>`
+      : `<p>ストレスや困難な状況において、特定の防御パターンは検出されませんでした。</p>`;
 
     return `
       <div class="safemode-details">
@@ -415,9 +419,7 @@ class TripleOSResultsView extends BaseComponent {
         
         <div class="defense-summary">
           <h6>防御パターン</h6>
-          <p>ストレスや困難な状況において、${
-            safeModeOS.hexagramInfo.name
-          }の防御機制が作動します。</p>
+          ${summaryText}
         </div>
       </div>
     `;

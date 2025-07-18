@@ -609,6 +609,10 @@ class DataManager {
         joKaDen: (globals.HAQEI_DATA && globals.HAQEI_DATA.jo_ka_den) || {},
         zatsuKaDen:
           (globals.HAQEI_DATA && globals.HAQEI_DATA.zatsu_ka_den) || {},
+        keyword_map:
+          (globals.HAQEI_DATA && globals.HAQEI_DATA.keyword_map) || {},
+        line_keyword_map:
+          (globals.HAQEI_DATA && globals.HAQEI_DATA.line_keyword_map) || {},
       };
 
       // 後方互換性のためのデータ変換（検証の前に実行）
@@ -1035,6 +1039,14 @@ class DataManager {
     }
   }
 
+  getKeywordMap() {
+    return this.data.keyword_map || {};
+  }
+
+  getLineKeywordMap() {
+    return this.data.line_keyword_map || {};
+  }
+
   // データ統計情報を取得するメソッド（不足していたメソッドを追加）
   getDataStats() {
     try {
@@ -1197,6 +1209,39 @@ class DataManager {
         error: error.message,
         timestamp: new Date().toISOString(),
       };
+    }
+  }
+
+  findHexagramById(hexagramId) {
+    try {
+      console.log(`🔍 [DataManager] findHexagramById開始 - ID: ${hexagramId}`);
+
+      if (!this.loaded) {
+        const errorMsg = "DataManagerが初期化されていません";
+        console.error(`❌ [DataManager] ${errorMsg}`);
+        throw new Error(errorMsg);
+      }
+
+      if (hexagramId == null) {
+        console.warn(`⚠️ [DataManager] hexagramIdがnullまたはundefinedです`);
+        return null;
+      }
+
+      const hexagrams = this.getAllHexagramData();
+      if (!Array.isArray(hexagrams)) {
+        console.error("❌ [DataManager] 卦データが配列ではありません");
+        return null;
+      }
+      
+      const result = hexagrams.find(h => h && h.hexagram_id === hexagramId);
+
+      console.log(
+        `✅ [DataManager] findHexagramById完了 - ID: ${hexagramId}, found: ${!!result}`
+      );
+      return result || null;
+    } catch (error) {
+      console.error(`❌ [DataManager] findHexagramByIdエラー:`, error);
+      throw new Error(`卦データの取得に失敗しました: ${error.message}`);
     }
   }
 
