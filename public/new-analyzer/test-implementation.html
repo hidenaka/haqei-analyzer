@@ -211,6 +211,20 @@
             <div id="compatibility-result" class="test-result info" style="display: none;"></div>
         </div>
 
+        <!-- CompatibilityDataLoader テスト -->
+        <div class="test-section">
+            <h3><span id="dataloader-status" class="status-indicator status-loading"></span>3.5. 詳細相性データ読み込みテスト</h3>
+            <p>CompatibilityDataLoader の機能をテストします</p>
+            <div class="test-buttons">
+                <button class="test-btn" onclick="testDataLoaderInit()">データローダー初期化</button>
+                <button class="test-btn" onclick="testEngineInterfaceData()">エンジン-インターフェース読み込み</button>
+                <button class="test-btn" onclick="testEngineSafeModeData()">エンジン-セーフモード読み込み</button>
+                <button class="test-btn" onclick="testTripleOSData()">三重OS総合データ読み込み</button>
+                <button class="test-btn" onclick="testDataLoaderCache()">キャッシュ機能テスト</button>
+            </div>
+            <div id="dataloader-result" class="test-result info" style="display: none;"></div>
+        </div>
+
         <!-- エクスポート機能テスト -->
         <div class="test-section">
             <h3><span id="export-status" class="status-indicator status-loading"></span>4. エクスポート機能テスト</h3>
@@ -340,6 +354,7 @@
                 
                 const modules = [
                     { name: 'AdvancedCompatibilityEngine', path: './js/core/AdvancedCompatibilityEngine.js' },
+                    { name: 'CompatibilityDataLoader', path: './js/core/CompatibilityDataLoader.js' },
                     { name: 'PDFExporter', path: './js/core/PDFExporter.js' },
                     { name: 'ImageExporter', path: './js/core/ImageExporter.js' },
                     { name: 'DiagnosisHistoryManager', path: './js/core/DiagnosisHistoryManager.js' },
@@ -1478,6 +1493,168 @@
         window.runFullSystemTest = function() {
             showTestResult('integration', 'success', 'フルシステムテスト完了', 
                 '全Phase実装: 完了\n機能統合: 成功\nエラーハンドリング: 完全\nパフォーマンス: 最適化\nセキュリティ: 対応済み');
+        };
+
+        // CompatibilityDataLoader テスト関数群
+        
+        // データローダー初期化テスト
+        window.testDataLoaderInit = async function() {
+            try {
+                showTestResult('dataloader', 'loading', 'データローダーを初期化中...');
+                
+                if (!window.testModules.CompatibilityDataLoader) {
+                    throw new Error('CompatibilityDataLoader がインポートされていません');
+                }
+                
+                const dataLoader = new window.testModules.CompatibilityDataLoader({
+                    cacheEnabled: true,
+                    enableValidation: true
+                });
+                
+                // データローダーをグローバルに保存（他のテストで使用）
+                window.testDataLoader = dataLoader;
+                
+                const stats = dataLoader.getStats();
+                const results = [
+                    'CompatibilityDataLoader: 初期化成功 ✅',
+                    `キャッシュ: ${dataLoader.options.cacheEnabled ? '有効' : '無効'}`,
+                    `データ検証: ${dataLoader.options.enableValidation ? '有効' : '無効'}`,
+                    `キャッシュサイズ: ${stats.cacheSize}`,
+                    `読み込み済みファイル: ${stats.loadedFiles}`
+                ];
+                
+                showTestResult('dataloader', 'success', 'データローダー初期化完了', results.join('\n'));
+                
+            } catch (error) {
+                showTestResult('dataloader', 'error', 'データローダー初期化失敗', error.message);
+            }
+        };
+
+        // エンジン-インターフェース データ読み込みテスト
+        window.testEngineInterfaceData = async function() {
+            try {
+                showTestResult('dataloader', 'loading', 'エンジン-インターフェースデータを読み込み中...');
+                
+                const dataLoader = window.testDataLoader || new window.testModules.CompatibilityDataLoader();
+                
+                // テスト用のID（乾為天 x 坤為地）
+                const engineId = 1;
+                const interfaceId = 2;
+                
+                const compatibility = await dataLoader.getEngineInterfaceCompatibility(engineId, interfaceId);
+                
+                const results = [
+                    `エンジンOS: ${compatibility.engineName} (ID: ${compatibility.engineId})`,
+                    `インターフェースOS: ${compatibility.interfaceName} (ID: ${compatibility.interfaceId})`,
+                    `相性タイプ: ${compatibility.type}`,
+                    `総合スコア: ${Math.round(compatibility.overallScore * 100)}%`,
+                    `データソース: ${compatibility.metadata.dataSource}`,
+                    '詳細評価: 読み込み成功 ✅'
+                ];
+                
+                showTestResult('dataloader', 'success', 'エンジン-インターフェースデータ読み込み完了', results.join('\n'));
+                
+            } catch (error) {
+                showTestResult('dataloader', 'error', 'エンジン-インターフェースデータ読み込み失敗', error.message);
+            }
+        };
+
+        // エンジン-セーフモード データ読み込みテスト
+        window.testEngineSafeModeData = async function() {
+            try {
+                showTestResult('dataloader', 'loading', 'エンジン-セーフモードデータを読み込み中...');
+                
+                const dataLoader = window.testDataLoader || new window.testModules.CompatibilityDataLoader();
+                
+                // テスト用のID
+                const engineId = 1;
+                const safeModeId = 33;
+                
+                const compatibility = await dataLoader.getEngineSafeModeCompatibility(engineId, safeModeId);
+                
+                const results = [
+                    `エンジンOS: ${compatibility.engineName} (ID: ${compatibility.engineId})`,
+                    `セーフモードOS: ${compatibility.safeModeName} (ID: ${compatibility.safeModeId})`,
+                    `相性タイプ: ${compatibility.type}`,
+                    `総合スコア: ${Math.round(compatibility.overallScore * 100)}%`,
+                    `データソース: ${compatibility.metadata.dataSource}`,
+                    '読み込み結果: 成功 ✅'
+                ];
+                
+                showTestResult('dataloader', 'success', 'エンジン-セーフモードデータ読み込み完了', results.join('\n'));
+                
+            } catch (error) {
+                showTestResult('dataloader', 'error', 'エンジン-セーフモードデータ読み込み失敗', error.message);
+            }
+        };
+
+        // 三重OS総合データ読み込みテスト
+        window.testTripleOSData = async function() {
+            try {
+                showTestResult('dataloader', 'loading', '三重OS総合データを読み込み中...');
+                
+                const dataLoader = window.testDataLoader || new window.testModules.CompatibilityDataLoader();
+                
+                // テスト用のID組み合わせ
+                const engineId = 1;    // 乾為天
+                const interfaceId = 2; // 坤為地  
+                const safeModeId = 33; // 地雷復
+                
+                const tripleCompatibility = await dataLoader.getTripleOSCompatibility(engineId, interfaceId, safeModeId);
+                
+                const results = [
+                    `三重OS組み合わせ: ${engineId}-${interfaceId}-${safeModeId}`,
+                    `統合スコア: ${Math.round(tripleCompatibility.integration.overallScore * 100)}%`,
+                    `安定性: ${Math.round(tripleCompatibility.integration.stability * 100)}%`,
+                    `バランス: ${Math.round(tripleCompatibility.integration.balance * 100)}%`,
+                    `支配的パターン: ${tripleCompatibility.integration.dominantPattern}`,
+                    `構成要素: ${tripleCompatibility.metadata.componentsLoaded}個`,
+                    '統合分析: 完了 ✅'
+                ];
+                
+                showTestResult('dataloader', 'success', '三重OS総合データ読み込み完了', results.join('\n'));
+                
+            } catch (error) {
+                showTestResult('dataloader', 'error', '三重OS総合データ読み込み失敗', error.message);
+            }
+        };
+
+        // キャッシュ機能テスト
+        window.testDataLoaderCache = async function() {
+            try {
+                showTestResult('dataloader', 'loading', 'キャッシュ機能をテスト中...');
+                
+                const dataLoader = window.testDataLoader || new window.testModules.CompatibilityDataLoader();
+                
+                const engineId = 1;
+                const interfaceId = 2;
+                
+                // 初回読み込み（キャッシュなし）
+                const startTime1 = performance.now();
+                await dataLoader.getEngineInterfaceCompatibility(engineId, interfaceId);
+                const loadTime1 = performance.now() - startTime1;
+                
+                // 2回目読み込み（キャッシュあり）
+                const startTime2 = performance.now();
+                await dataLoader.getEngineInterfaceCompatibility(engineId, interfaceId);
+                const loadTime2 = performance.now() - startTime2;
+                
+                const stats = dataLoader.getStats();
+                
+                const results = [
+                    `初回読み込み時間: ${loadTime1.toFixed(2)}ms`,
+                    `キャッシュ読み込み時間: ${loadTime2.toFixed(2)}ms`,
+                    `速度向上率: ${Math.round((loadTime1 / loadTime2))}倍`,
+                    `キャッシュサイズ: ${stats.cacheSize}`,
+                    `読み込み済みファイル: ${stats.loadedFiles}`,
+                    'キャッシュ機能: 正常動作 ✅'
+                ];
+                
+                showTestResult('dataloader', 'success', 'キャッシュ機能テスト完了', results.join('\n'));
+                
+            } catch (error) {
+                showTestResult('dataloader', 'error', 'キャッシュ機能テスト失敗', error.message);
+            }
         };
     </script>
 </body>

@@ -598,6 +598,14 @@ ${interpretation}`;
   // AdvancedCompatibilityEngineを初期化
   async initializeAdvancedCompatibilityEngine() {
     try {
+      console.log("🔍 Initializing AdvancedCompatibilityEngine...");
+      console.log("🔍 internalCompatibilityEngine:", this.internalCompatibilityEngine);
+      
+      if (!this.internalCompatibilityEngine) {
+        console.warn("⚠️ internalCompatibilityEngine is not available");
+        return;
+      }
+      
       const { default: AdvancedCompatibilityEngine } = await import('../core/AdvancedCompatibilityEngine.js');
       
       this.advancedCompatibilityEngine = new AdvancedCompatibilityEngine(this.internalCompatibilityEngine);
@@ -626,12 +634,19 @@ ${interpretation}`;
       };
 
       // 高度相性分析を実行
-      const advancedAnalysis = this.advancedCompatibilityEngine.analyzeInternalTeamComposition(
+      console.log("🔍 Starting advanced compatibility analysis...");
+      console.log("🔍 Engine ID:", this.analysisResult.engineOS.hexagramId);
+      console.log("🔍 Interface ID:", this.analysisResult.interfaceOS.hexagramId);
+      console.log("🔍 SafeMode ID:", this.analysisResult.safeModeOS.hexagramId);
+      
+      const advancedAnalysis = await this.advancedCompatibilityEngine.analyzeInternalTeamComposition(
         this.analysisResult.engineOS.hexagramId,
         this.analysisResult.interfaceOS.hexagramId,
         this.analysisResult.safeModeOS.hexagramId,
         defaultUserContext
       );
+      
+      console.log("🔍 Advanced analysis result:", advancedAnalysis);
 
       // 結果をレンダリング
       container.innerHTML = this.renderAdvancedAnalysisResults(advancedAnalysis);
@@ -652,7 +667,23 @@ ${interpretation}`;
 
   // 高度分析結果をレンダリング
   renderAdvancedAnalysisResults(analysis) {
+    console.log("🔍 Analysis object received:", analysis);
+    
+    if (!analysis) {
+      return '<div class="analysis-error">分析結果が取得できませんでした。</div>';
+    }
+    
     const { overallAssessment, specialPattern, historicalMatches, optimizationHints } = analysis;
+    
+    console.log("🔍 overallAssessment:", overallAssessment);
+    
+    if (!overallAssessment) {
+      return '<div class="analysis-error">総合評価データが取得できませんでした。</div>';
+    }
+    
+    if (typeof overallAssessment.teamEffectiveness === 'undefined') {
+      return '<div class="analysis-error">チーム効果性データが見つかりません。</div>';
+    }
     
     let html = `
       <div class="advanced-analysis-results">
@@ -842,7 +873,7 @@ ${interpretation}`;
       updateBtn.textContent = '分析中...';
 
       // 新しいコンテキストで再分析
-      const updatedAnalysis = this.advancedCompatibilityEngine.analyzeInternalTeamComposition(
+      const updatedAnalysis = await this.advancedCompatibilityEngine.analyzeInternalTeamComposition(
         this.analysisResult.engineOS.hexagramId,
         this.analysisResult.interfaceOS.hexagramId,
         this.analysisResult.safeModeOS.hexagramId,
@@ -1662,7 +1693,7 @@ ${interpretation}`;
       // 追加データを収集
       const additionalData = {};
       if (this.advancedCompatibilityEngine) {
-        additionalData.advancedCompatibility = this.advancedCompatibilityEngine.analyzeInternalTeamComposition(
+        additionalData.advancedCompatibility = await this.advancedCompatibilityEngine.analyzeInternalTeamComposition(
           this.analysisResult.engineOS.hexagramId,
           this.analysisResult.interfaceOS.hexagramId,
           this.analysisResult.safeModeOS.hexagramId

@@ -2,10 +2,40 @@
 // HaQei Analyzer - Advanced Internal Team Compatibility Analysis System
 
 class AdvancedCompatibilityEngine {
-    constructor(internalCompatibilityEngine) {
+    constructor(internalCompatibilityEngine, options = {}) {
         this.internalCompatibilityEngine = internalCompatibilityEngine;
+        this.options = {
+            enableDetailedData: true,
+            enableDataLoader: true,
+            ...options
+        };
+        
         this.initializePatternDatabase();
         this.initializeHistoricalDatabase();
+        
+        // CompatibilityDataLoaderを初期化
+        if (this.options.enableDataLoader) {
+            this.initializeDataLoader();
+        }
+    }
+
+    /**
+     * CompatibilityDataLoaderを初期化
+     */
+    async initializeDataLoader() {
+        try {
+            // 動的インポート
+            const { default: CompatibilityDataLoader } = await import('./CompatibilityDataLoader.js');
+            this.dataLoader = new CompatibilityDataLoader({
+                cacheEnabled: true,
+                enableValidation: true
+            });
+            
+            console.log("✅ CompatibilityDataLoader integrated with AdvancedCompatibilityEngine");
+        } catch (error) {
+            console.warn("⚠️ Failed to initialize CompatibilityDataLoader:", error);
+            this.dataLoader = null;
+        }
     }
 
     /**
@@ -161,11 +191,27 @@ class AdvancedCompatibilityEngine {
     /**
      * 包括的な内的チーム分析を実行（タスク12.1）
      */
-    analyzeInternalTeamComposition(engineOsId, interfaceOsId, safeModeOsId, userContext = {}) {
+    async analyzeInternalTeamComposition(engineOsId, interfaceOsId, safeModeOsId, userContext = {}) {
+        console.log("🔍 AdvancedCompatibilityEngine: Starting analysis");
+        console.log("🔍 internalCompatibilityEngine:", this.internalCompatibilityEngine);
+        
+        if (!this.internalCompatibilityEngine) {
+            throw new Error("InternalCompatibilityEngine is not available");
+        }
+        
+        if (typeof this.internalCompatibilityEngine.analyzeTripleOSCompatibility !== 'function') {
+            throw new Error("analyzeTripleOSCompatibility method is not available");
+        }
+        
         // 基本的な相性分析
         const basicCompatibility = this.internalCompatibilityEngine.analyzeTripleOSCompatibility(
             engineOsId, interfaceOsId, safeModeOsId
         );
+        
+        console.log("🔍 basicCompatibility:", basicCompatibility);
+
+        // 詳細データを取得（CompatibilityDataLoaderを使用）
+        const detailedData = await this.getDetailedCompatibilityData(engineOsId, interfaceOsId, safeModeOsId);
 
         // 特殊パターン検出
         const specialPattern = this.detectSpecialPatterns(basicCompatibility, userContext);
@@ -183,6 +229,7 @@ class AdvancedCompatibilityEngine {
 
         return {
             basicCompatibility,
+            detailedData,
             specialPattern,
             historicalMatches,
             contextualAdjustment,
@@ -191,6 +238,29 @@ class AdvancedCompatibilityEngine {
                 basicCompatibility, specialPattern, historicalMatches, contextualAdjustment
             )
         };
+    }
+
+    /**
+     * 詳細な相性データを取得
+     */
+    async getDetailedCompatibilityData(engineOsId, interfaceOsId, safeModeOsId) {
+        if (!this.dataLoader) {
+            console.warn("⚠️ CompatibilityDataLoader not available, returning null");
+            return null;
+        }
+
+        try {
+            const detailedData = await this.dataLoader.getTripleOSCompatibility(
+                engineOsId, interfaceOsId, safeModeOsId
+            );
+
+            console.log(`✅ Retrieved detailed compatibility data for ${engineOsId}-${interfaceOsId}-${safeModeOsId}`);
+            return detailedData;
+
+        } catch (error) {
+            console.warn("⚠️ Failed to get detailed compatibility data:", error.message);
+            return null;
+        }
     }
 
     /**
