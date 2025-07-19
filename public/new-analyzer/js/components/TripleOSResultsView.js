@@ -10,8 +10,14 @@ class TripleOSResultsView extends BaseComponent {
     this.relationshipVisualizationEngine = relationshipVisualizationEngine;
     this.advancedCompatibilityEngine = null;
     this.shareManager = null;
+    this.pdfExporter = null;
+    this.imageExporter = null;
+    this.historyManager = null;
+    this.analyticsCollector = null;
     this.initializeShareManager();
     this.initializeAdvancedCompatibilityEngine();
+    this.initializeExportSystems();
+    this.initializeAnalytics();
   }
 
   get defaultOptions() {
@@ -29,6 +35,22 @@ class TripleOSResultsView extends BaseComponent {
   setData(analysisResult) {
     this.analysisResult = analysisResult;
     console.log("🎯 TripleOSResultsView: Data set", analysisResult);
+    
+    // 履歴に保存
+    if (this.historyManager) {
+      this.historyManager.saveToHistory(analysisResult, {
+        timestamp: Date.now(),
+        version: '1.0'
+      });
+    }
+    
+    // アナリティクス追跡
+    if (this.analyticsCollector) {
+      this.analyticsCollector.trackDiagnosisUsage(analysisResult, {
+        enhancedModeUsed: this.options.enhancedMode,
+        completionTime: Date.now() - (analysisResult.startTime || Date.now())
+      });
+    }
   }
 
   render() {
@@ -187,6 +209,12 @@ class TripleOSResultsView extends BaseComponent {
           <button id="generate-report-btn" class="btn btn-secondary">
             📄 レポート生成
           </button>
+          <button id="export-pdf-btn" class="btn btn-secondary">
+            📄 PDF出力
+          </button>
+          <button id="export-image-btn" class="btn btn-secondary">
+            🖼️ 画像保存
+          </button>
           <button id="share-results-btn" class="btn btn-secondary">
             🔗 結果を共有
           </button>
@@ -324,6 +352,12 @@ class TripleOSResultsView extends BaseComponent {
           </button>
           <button id="generate-report-btn" class="btn btn-secondary">
             📄 レポート生成
+          </button>
+          <button id="export-pdf-btn" class="btn btn-secondary">
+            📄 PDF出力
+          </button>
+          <button id="export-image-btn" class="btn btn-secondary">
+            🖼️ 画像保存
           </button>
           <button id="share-results-btn" class="btn btn-secondary">
             🔗 結果を共有
@@ -935,6 +969,57 @@ ${interpretation}`;
     return html;
   }
 
+  // エクスポートシステムを初期化
+  async initializeExportSystems() {
+    try {
+      // PDFエクスポーターを初期化
+      const { default: PDFExporter } = await import('../core/PDFExporter.js');
+      this.pdfExporter = new PDFExporter({
+        pageFormat: 'A4',
+        includeCharts: true,
+        watermark: 'HaQei Analyzer'
+      });
+
+      // 画像エクスポーターを初期化
+      const { default: ImageExporter } = await import('../core/ImageExporter.js');
+      this.imageExporter = new ImageExporter({
+        format: 'png',
+        quality: 0.9,
+        includeWatermark: true
+      });
+
+      // 履歴マネージャーを初期化
+      const { default: DiagnosisHistoryManager } = await import('../core/DiagnosisHistoryManager.js');
+      this.historyManager = new DiagnosisHistoryManager({
+        maxHistoryCount: 10,
+        enableComparison: true,
+        enableTrends: true
+      });
+
+      console.log("✅ Export systems initialized successfully");
+
+    } catch (error) {
+      console.error("❌ Failed to initialize export systems:", error);
+    }
+  }
+
+  // アナリティクスを初期化
+  async initializeAnalytics() {
+    try {
+      const { default: AnalyticsCollector } = await import('../core/AnalyticsCollector.js');
+      this.analyticsCollector = new AnalyticsCollector({
+        enableTracking: true,
+        anonymizeData: true,
+        enableLocalStorage: true
+      });
+
+      console.log("✅ Analytics initialized successfully");
+
+    } catch (error) {
+      console.error("❌ Failed to initialize analytics:", error);
+    }
+  }
+
   // 🔧 八卦記号取得ヘルパー
   getTrigramSymbol(trigramId) {
     const trigramSymbols = {
@@ -1325,6 +1410,8 @@ ${interpretation}`;
   bindEvents() {
     const exploreBtn = this.container.querySelector("#explore-more-btn");
     const reportBtn = this.container.querySelector("#generate-report-btn");
+    const pdfBtn = this.container.querySelector("#export-pdf-btn");
+    const imageBtn = this.container.querySelector("#export-image-btn");
     const shareBtn = this.container.querySelector("#share-results-btn");
     const retakeBtn = this.container.querySelector("#retake-test-btn");
 
@@ -1341,6 +1428,18 @@ ${interpretation}`;
         if (this.options.onGenerateReport) {
           this.options.onGenerateReport(this.analysisResult);
         }
+      });
+    }
+
+    if (pdfBtn) {
+      pdfBtn.addEventListener("click", () => {
+        this.handlePDFExport();
+      });
+    }
+
+    if (imageBtn) {
+      imageBtn.addEventListener("click", () => {
+        this.handleImageExport();
       });
     }
 
@@ -1543,6 +1642,125 @@ ${interpretation}`;
         }
       }, 300);
     }, 4000);
+  }
+
+  // PDF出力を処理
+  async handlePDFExport() {
+    if (!this.pdfExporter || !this.analysisResult) {
+      this.showMessage('PDF出力機能の初期化中にエラーが発生しました。', 'error');
+      return;
+    }
+
+    try {
+      // ボタンを無効化
+      const pdfBtn = this.container.querySelector("#export-pdf-btn");
+      if (pdfBtn) {
+        pdfBtn.disabled = true;
+        pdfBtn.textContent = '📄 生成中...';
+      }
+
+      // 追加データを収集
+      const additionalData = {};
+      if (this.advancedCompatibilityEngine) {
+        additionalData.advancedCompatibility = this.advancedCompatibilityEngine.analyzeInternalTeamComposition(
+          this.analysisResult.engineOS.hexagramId,
+          this.analysisResult.interfaceOS.hexagramId,
+          this.analysisResult.safeModeOS.hexagramId
+        );
+      }
+
+      // PDF生成・保存
+      const result = await this.pdfExporter.savePDF(this.analysisResult, additionalData);
+
+      if (result.success) {
+        this.showMessage(`PDF が正常に保存されました: ${result.filename}`, 'success');
+        
+        // アナリティクス追跡
+        if (this.analyticsCollector) {
+          this.analyticsCollector.trackUserAction('pdf_export', 'export_button', {
+            filename: result.filename
+          });
+        }
+      } else {
+        throw new Error(result.error);
+      }
+
+    } catch (error) {
+      console.error('PDF export error:', error);
+      this.showMessage('PDF出力中にエラーが発生しました。', 'error');
+      
+      // フォールバック: テキスト保存
+      try {
+        const fallbackResult = await this.pdfExporter.fallbackSave(this.analysisResult);
+        if (fallbackResult.success) {
+          this.showMessage(`テキスト形式で保存されました: ${fallbackResult.filename}`, 'warning');
+        }
+      } catch (fallbackError) {
+        console.error('Fallback save failed:', fallbackError);
+      }
+      
+    } finally {
+      // ボタンを有効化
+      const pdfBtn = this.container.querySelector("#export-pdf-btn");
+      if (pdfBtn) {
+        pdfBtn.disabled = false;
+        pdfBtn.textContent = '📄 PDF出力';
+      }
+    }
+  }
+
+  // 画像出力を処理
+  async handleImageExport() {
+    if (!this.imageExporter) {
+      this.showMessage('画像出力機能の初期化中にエラーが発生しました。', 'error');
+      return;
+    }
+
+    try {
+      // ボタンを無効化
+      const imageBtn = this.container.querySelector("#export-image-btn");
+      if (imageBtn) {
+        imageBtn.disabled = true;
+        imageBtn.textContent = '🖼️ 生成中...';
+      }
+
+      // 結果コンテナ全体をキャプチャ
+      const result = await this.imageExporter.downloadImage(
+        this.container.querySelector('.triple-os-results-container'),
+        null,
+        { 
+          backgroundColor: '#ffffff',
+          scale: 2 
+        }
+      );
+
+      if (result.success) {
+        this.showMessage(`画像が正常に保存されました: ${result.filename}`, 'success');
+        
+        // アナリティクス追跡
+        if (this.analyticsCollector) {
+          this.analyticsCollector.trackUserAction('image_export', 'export_button', {
+            filename: result.filename,
+            width: result.width,
+            height: result.height
+          });
+        }
+      } else {
+        throw new Error(result.error);
+      }
+
+    } catch (error) {
+      console.error('Image export error:', error);
+      this.showMessage('画像出力中にエラーが発生しました。', 'error');
+      
+    } finally {
+      // ボタンを有効化
+      const imageBtn = this.container.querySelector("#export-image-btn");
+      if (imageBtn) {
+        imageBtn.disabled = false;
+        imageBtn.textContent = '🖼️ 画像保存';
+      }
+    }
   }
 
   // アニメーション開始
