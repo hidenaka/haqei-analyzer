@@ -207,6 +207,27 @@
             passed: 0,
             failed: 0
         };
+
+        // グローバルデータの一時保管場所
+        const originalGlobals = {};
+
+        // テストのセットアップ（グローバルデータをバックアップ）
+        function setupTests() {
+            originalGlobals.HAQEI_DATA = window.HAQEI_DATA;
+            originalGlobals.WORLDVIEW_QUESTIONS = window.WORLDVIEW_QUESTIONS;
+            originalGlobals.SCENARIO_QUESTIONS = window.SCENARIO_QUESTIONS;
+            originalGlobals.H64_8D_VECTORS = window.H64_8D_VECTORS;
+            originalGlobals.BIBLE_DATA = window.BIBLE_DATA;
+        }
+
+        // テストのクリーンアップ（グローバルデータを復元）
+        function cleanupTests() {
+            window.HAQEI_DATA = originalGlobals.HAQEI_DATA;
+            window.WORLDVIEW_QUESTIONS = originalGlobals.WORLDVIEW_QUESTIONS;
+            window.SCENARIO_QUESTIONS = originalGlobals.SCENARIO_QUESTIONS;
+            window.H64_8D_VECTORS = originalGlobals.H64_8D_VECTORS;
+            window.BIBLE_DATA = originalGlobals.BIBLE_DATA;
+        }
         
         // テスト結果記録
         function logTestResult(containerId, testName, passed, message = '') {
@@ -217,20 +238,21 @@
             
             const testItem = document.createElement('div');
             testItem.className = `test-item ${className}`;
-            testItem.innerHTML = `[${timestamp}] ${icon} ${testName}${message ? ': ' + message : ''}`;
+            testItem.innerHTML = `[${timestamp}] ${icon} <strong>${testName}</strong>${message ? `: ${message}` : ''}`;
             
             container.appendChild(testItem);
             container.scrollTop = container.scrollHeight;
             
             // 統計更新
-            testStats.total++;
-            if (passed) {
-                testStats.passed++;
-            } else {
-                testStats.failed++;
+            if (!container.hasAttribute('data-test-running')) {
+                 testStats.total++;
+                 if (passed) {
+                    testStats.passed++;
+                } else {
+                    testStats.failed++;
+                }
+                updateStats();
             }
-            
-            updateStats();
         }
         
         // テスト情報記録
@@ -270,161 +292,190 @@
         
         // 基本機能テスト
         async function runBasicTests() {
-            logTestInfo('basic-results', 'DataManager基本機能テスト開始');
+            const containerId = 'basic-results';
+            logTestInfo(containerId, 'DataManager基本機能テスト開始');
             
-            // コンストラクタテスト
             try {
                 const dataManager = new DataManager();
-                logTestResult('basic-results', 'DataManagerコンストラクタ', true);
-                
-                // 初期状態確認
-                logTestResult('basic-results', 'loadedプロパティ初期値', !dataManager.loaded);
-                logTestResult('basic-results', 'dataプロパティ初期値', typeof dataManager.data === 'object');
-                
-                // メソッド存在確認
-                logTestResult('basic-results', 'loadDataメソッド存在', typeof dataManager.loadData === 'function');
-                logTestResult('basic-results', 'getDataStatsメソッド存在', typeof dataManager.getDataStats === 'function');
-                logTestResult('basic-results', 'validateDataStructureメソッド存在', typeof dataManager.validateDataStructure === 'function');
-                logTestResult('basic-results', 'logMessageメソッド存在', typeof dataManager.logMessage === 'function');
-                
+                logTestResult(containerId, 'DataManagerコンストラクタ', true);
+                logTestResult(containerId, 'loadedプロパティ初期値', !dataManager.loaded);
+                logTestResult(containerId, 'dataプロパティ初期値', typeof dataManager.data === 'object');
+                logTestResult(containerId, 'loadDataメソッド存在', typeof dataManager.loadData === 'function');
+                logTestResult(containerId, 'getDataStatsメソッド存在', typeof dataManager.getDataStats === 'function');
+                logTestResult(containerId, 'validateDataStructureメソッド存在', typeof dataManager.validateDataStructure === 'function');
             } catch (error) {
-                logTestResult('basic-results', 'DataManagerコンストラクタ', false, error.message);
+                logTestResult(containerId, 'DataManagerコンストラクタ', false, error.message);
             }
             
-            logTestInfo('basic-results', 'DataManager基本機能テスト完了');
+            logTestInfo(containerId, 'DataManager基本機能テスト完了');
         }
         
         // データ読み込みテスト
         async function runLoadDataTests() {
-            logTestInfo('load-results', 'データ読み込みテスト開始');
+            const containerId = 'load-results';
+            logTestInfo(containerId, 'データ読み込みテスト開始');
             
+            // --- 正常系テスト ---
+            logTestInfo(containerId, '正常なデータ読み込みテスト');
             try {
+                cleanupTests(); // Ensure clean state
                 const dataManager = new DataManager();
-                
-                // loadData実行
                 await dataManager.loadData();
-                logTestResult('load-results', 'loadData実行', true);
-                
-                // loaded状態確認
-                logTestResult('load-results', 'loaded状態', dataManager.loaded);
-                
-                // データ存在確認
-                logTestResult('load-results', 'questionsデータ存在', !!dataManager.data.questions);
-                logTestResult('load-results', 'hexagramsデータ存在', !!dataManager.data.hexagrams);
-                logTestResult('load-results', 'osManualデータ存在', !!dataManager.data.osManual);
-                
-                // getDataStats実行
-                const stats = dataManager.getDataStats();
-                logTestResult('load-results', 'getDataStats実行', !!stats);
-                logTestResult('load-results', 'getDataStats.loaded', stats.loaded);
-                
-                // データ統計確認
-                logTestResult('load-results', 'worldviewQuestions数', stats.dataStats.worldviewQuestions > 0);
-                logTestResult('load-results', 'hexagrams数', stats.dataStats.hexagrams > 0);
-                
+                logTestResult(containerId, 'loadData実行（正常系）', true);
+                logTestResult(containerId, 'loaded状態（正常系）', dataManager.loaded);
+                logTestResult(containerId, 'questionsデータ存在（正常系）', !!dataManager.data.questions && dataManager.data.questions.worldview.length > 0);
+                logTestResult(containerId, 'hexagramsデータ存在（正常系）', !!dataManager.data.hexagrams && Object.keys(dataManager.data.hexagrams).length > 0);
             } catch (error) {
-                logTestResult('load-results', 'データ読み込み', false, error.message);
+                logTestResult(containerId, 'データ読み込み（正常系）', false, error.message);
+            }
+
+            // --- フォールバックテスト（HAQEI_DATA欠損） ---
+            logTestInfo(containerId, 'フォールバックテスト（HAQEI_DATA欠損）');
+            try {
+                cleanupTests();
+                delete window.HAQEI_DATA;
+
+                const dmFallback = new DataManager();
+                await dmFallback.loadData();
+
+                logTestResult(containerId, 'HAQEI_DATA欠損でもloadData完了', dmFallback.loaded);
+                logTestResult(containerId, 'HAQEI_DATA欠損時の警告ログ', dmFallback.getLoadingLogs().warnings.some(w => w.message.includes('不足データ検出')));
+                logTestResult(containerId, 'HAQEI_DATAフォールバックデータ確認', typeof dmFallback.data.hexagrams === 'object' && Object.keys(dmFallback.data.hexagrams).length === 0);
+                logTestResult(containerId, 'HAQEI_DATAフォールバックでも他のデータは読み込み', dmFallback.data.questions.worldview.length > 0);
+
+            } catch (error) {
+                logTestResult(containerId, 'HAQEI_DATA欠損テスト', false, error.message);
+            } finally {
+                cleanupTests();
             }
             
-            logTestInfo('load-results', 'データ読み込みテスト完了');
+            logTestInfo(containerId, 'データ読み込みテスト完了');
         }
         
         // エラーハンドリングテスト
         async function runErrorHandlingTests() {
-            logTestInfo('error-results', 'エラーハンドリングテスト開始');
-            
+            const containerId = 'error-results';
+            logTestInfo(containerId, 'エラーハンドリングテスト開始');
+
+            // --- 未初期化状態でのテスト ---
+            logTestInfo(containerId, '未初期化状態でのAPI呼び出しテスト');
             try {
-                const dataManager = new DataManager();
-                
-                // 未初期化状態でのgetDataStats実行
-                const statsBeforeLoad = dataManager.getDataStats();
-                logTestResult('error-results', '未初期化状態getDataStats', !statsBeforeLoad.loaded);
-                
-                // データ読み込み
-                await dataManager.loadData();
-                
-                // 存在しないhexagramId
+                const dmUninitialized = new DataManager();
+                const stats = dmUninitialized.getDataStats();
+                logTestResult(containerId, '未初期化getDataStats', !stats.loaded && stats.error.includes('初期化されていません'));
                 try {
-                    const nonExistentData = dataManager.getUnifiedHexagramData(999);
-                    logTestResult('error-results', '存在しないhexagramId', nonExistentData === null);
-                } catch (error) {
-                    logTestResult('error-results', '存在しないhexagramId', false, error.message);
+                    dmUninitialized.getWorldviewQuestions();
+                } catch (e) {
+                    logTestResult(containerId, '未初期化getWorldviewQuestions', e.message.includes('初期化されていません'));
                 }
-                
-                // nullとundefinedの処理
-                try {
-                    const nullData = dataManager.getUnifiedHexagramData(null);
-                    logTestResult('error-results', 'nullID処理', nullData === null);
-                } catch (error) {
-                    logTestResult('error-results', 'nullID処理', false, error.message);
-                }
-                
-                // ログ機能テスト
-                dataManager.logMessage('info', 'test', 'テストログメッセージ');
-                const logs = dataManager.getLoadingLogs();
-                logTestResult('error-results', 'ログ機能', logs.info.length > 0);
-                
             } catch (error) {
-                logTestResult('error-results', 'エラーハンドリング', false, error.message);
+                logTestResult(containerId, '未初期化テスト', false, error.message);
+            }
+
+            // --- データ取得エラーテスト ---
+            logTestInfo(containerId, 'データ取得エラーテスト（初期化後）');
+            try {
+                cleanupTests();
+                const dataManager = new DataManager();
+                await dataManager.loadData();
+                logTestResult(containerId, '存在しないhexagramId', dataManager.getUnifiedHexagramData(999) === null);
+                logTestResult(containerId, 'null ID処理', dataManager.getUnifiedHexagramData(null) === null);
+                logTestResult(containerId, '無効なID処理', dataManager.getUnifiedHexagramData('invalid-id') === null);
+            } catch (error) {
+                logTestResult(containerId, 'データ取得エラー', false, error.message);
+            }
+
+            // --- タイムアウトテスト（シミュレーション） ---
+            logTestInfo(containerId, 'タイムアウトテスト（シミュレーション）');
+            try {
+                cleanupTests();
+                delete window.HAQEI_DATA;
+                delete window.WORLDVIEW_QUESTIONS;
+                delete window.SCENARIO_QUESTIONS;
+                delete window.H64_8D_VECTORS;
+
+                const dmTimeout = new DataManager();
+                // DataManager内のwaitForGlobalDataを直接呼び出すことはできないので、loadDataでテスト
+                await dmTimeout.loadData();
+
+                logTestResult(containerId, 'タイムアウト後でもloadData完了', dmTimeout.loaded);
+                const logs = dmTimeout.getLoadingLogs();
+                logTestResult(containerId, 'タイムアウト警告ログ', logs.warnings.some(w => w.message.includes('データ読み込みタイムアウト') || w.message.includes('不足データ検出')));
+                logTestResult(containerId, 'タイムアウト後のフォールバック確認', Object.keys(dmTimeout.data.hexagrams).length === 0 && dmTimeout.data.questions.worldview.length === 0);
+
+            } catch (error) {
+                logTestResult(containerId, 'タイムアウトテスト', false, error.message);
+            } finally {
+                cleanupTests();
             }
             
-            logTestInfo('error-results', 'エラーハンドリングテスト完了');
+            logTestInfo(containerId, 'エラーハンドリングテスト完了');
         }
         
         // データ検証テスト
         async function runValidationTests() {
-            logTestInfo('validation-results', 'データ検証テスト開始');
+            const containerId = 'validation-results';
+            logTestInfo(containerId, 'データ検証テスト開始');
             
             try {
                 const dataManager = new DataManager();
-                await dataManager.loadData();
-                
-                // 正常なデータ検証
+
+                // --- 正常なデータ検証 ---
                 const validData = {
-                    questions: {
-                        worldview: [{ id: 1, text: 'test' }],
-                        scenarios: [{ id: 1, text: 'test' }]
-                    },
+                    questions: { worldview: [{ id: 1, text: 'test' }], scenarios: [{ id: 1, text: 'test' }] },
                     vectors: { test: 'value' },
-                    hexagrams: { 1: { id: 1, name: 'test' } },
-                    osManual: { 1: { id: 1, name: 'test' } }
+                    hexagrams: { '1': { hexagram_id: 1, name: 'test' } },
+                    osManual: { '1': { id: 1, name: 'test' } }
                 };
-                
                 const validResult = dataManager.validateDataStructure(validData);
-                logTestResult('validation-results', '正常データ検証', validResult.isValid);
+                logTestResult(containerId, '正常データ検証', validResult.isValid);
                 
-                // 不正なデータ検証
+                // --- 不正なデータ検証 ---
                 const invalidData = {
-                    questions: 'invalid', // 配列であるべき
-                    vectors: [],         // オブジェクトであるべき
-                    hexagrams: null,     // 必須フィールド
-                    osManual: undefined  // 必須フィールド
+                    questions: 'invalid', 
+                    vectors: [],
+                    hexagrams: null,
+                    osManual: undefined
                 };
-                
                 const invalidResult = dataManager.validateDataStructure(invalidData);
-                logTestResult('validation-results', '不正データ検証', !invalidResult.isValid);
-                logTestResult('validation-results', 'エラー検出', invalidResult.errors.length > 0);
+                logTestResult(containerId, '不正データ検証', !invalidResult.isValid);
+                logTestResult(containerId, 'エラー検出数', invalidResult.errors.length >= 3, `Expected >=3, Got ${invalidResult.errors.length}`);
                 
-                // データ変換テスト
-                const transformedData = dataManager.transformDataForBackwardCompatibility(validData);
-                logTestResult('validation-results', 'データ変換', !!transformedData);
+                // --- 後方互換性（データ変換）テスト ---
+                const legacyData = {
+                    hexagrams: [ { hexagram_id: 1, name_jp: '乾為天' }, { hexagram_id: 2, name_jp: '坤為地' } ],
+                    osManual: { '1': { title: 'OS1' } }
+                };
+                const transformedData = dataManager.transformDataForBackwardCompatibility(legacyData);
+                logTestResult(containerId, 'データ変換（hexagrams配列→オブジェクト）', typeof transformedData.hexagrams === 'object' && !Array.isArray(transformedData.hexagrams));
+                logTestResult(containerId, 'データ変換（hexagramsオブジェクトキー）', !!transformedData.hexagrams['1']);
+                logTestResult(containerId, 'データ変換（osManual name補完）', transformedData.osManual['1'].name === '1');
                 
             } catch (error) {
-                logTestResult('validation-results', 'データ検証', false, error.message);
+                logTestResult(containerId, 'データ検証テスト', false, error.message);
             }
             
-            logTestInfo('validation-results', 'データ検証テスト完了');
+            logTestInfo(containerId, 'データ検証テスト完了');
         }
         
         // 全テスト実行
         async function runAllTests() {
             clearAllResults();
+            document.querySelectorAll('.test-results').forEach(el => el.setAttribute('data-test-running', 'true'));
             
             await runBasicTests();
             await runLoadDataTests();
             await runErrorHandlingTests();
             await runValidationTests();
             
+            document.querySelectorAll('.test-results').forEach(el => el.removeAttribute('data-test-running'));
+            
+            // Final stats update
+            testStats.total = document.querySelectorAll('.test-item.pass, .test-item.fail').length;
+            testStats.passed = document.querySelectorAll('.test-item.pass').length;
+            testStats.failed = document.querySelectorAll('.test-item.fail').length;
+            updateStats();
+
             const successRate = testStats.total > 0 ? Math.round((testStats.passed / testStats.total) * 100) : 0;
             
             if (successRate === 100) {
@@ -437,6 +488,7 @@
         // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', function() {
             console.log('📊 DataManager Unit Tests initialized');
+            setupTests();
             updateStats();
         });
     </script>

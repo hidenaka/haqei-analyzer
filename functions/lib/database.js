@@ -22913,7 +22913,5 @@ export const H64_8D_VECTORS = {
   },
 };
 
-// ▼▼▼【v19.2 修正】Node.js環境でも読み込めるように追記 ▼▼▼
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = { HAQEI_DATA };
-}
+// ▼▼▼【v19.2 修正】ES modules only - CommonJS export removed to fix bundling conflicts ▼▼▼
+// Note: HAQEI_DATA is already exported as ES module at the top of the file

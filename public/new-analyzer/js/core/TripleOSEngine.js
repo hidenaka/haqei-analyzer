@@ -29,6 +29,39 @@ class TripleOSEngine extends DiagnosisEngine {
     this.lineKeywordMap = null;
   }
 
+  // === 追加: 回答分離メソッド ===
+  separateAnswers(allAnswers) {
+    console.log("📝 Separating answers...", {
+      totalAnswers: allAnswers.length,
+      sampleAnswer: allAnswers[0]
+    });
+
+    const worldviewAnswers = [];
+    const scenarioAnswers = [];
+
+    allAnswers.forEach(answer => {
+      // Q1-Q24は価値観設問
+      if (answer.questionId && answer.questionId.match(/^q(\d+)$/)) {
+        const questionNumber = parseInt(answer.questionId.replace('q', ''));
+        
+        if (questionNumber >= 1 && questionNumber <= 24) {
+          // 価値観設問（単一選択）
+          worldviewAnswers.push(answer);
+        } else if (questionNumber >= 25 && questionNumber <= 30) {
+          // シナリオ設問（内面・外面選択）
+          scenarioAnswers.push(answer);
+        }
+      }
+    });
+
+    console.log("✅ Answers separated:", {
+      worldview: worldviewAnswers.length,
+      scenario: scenarioAnswers.length
+    });
+
+    return { worldviewAnswers, scenarioAnswers };
+  }
+
   // メイン3層OS分析
   async analyzeTripleOS(allAnswers) {
     try {
@@ -101,9 +134,22 @@ class TripleOSEngine extends DiagnosisEngine {
   async analyzeEngineOS(worldviewAnswers) {
     console.log("🔧 === analyzeEngineOS開始 ===");
     console.log("📝 入力answers:", worldviewAnswers.length, "個");
+    
+    // デバッグ: 最初の回答を確認
+    if (worldviewAnswers.length > 0) {
+      console.log("🔍 Sample answer:", worldviewAnswers[0]);
+    }
+
     try {
+      // Calculator.jsのbuildUserVectorを呼び出す
       const userVector = this.calculator.buildUserVector(worldviewAnswers);
       console.log("📊 userVector:", userVector);
+      
+      // userVectorが空の場合のチェック
+      if (!userVector || Object.keys(userVector).length === 0) {
+        console.error("❌ userVector is empty!");
+        throw new Error("Failed to build user vector from answers");
+      }
       // OS候補分析
       const vectorsData = this.dataManager.getVectors();
       const candidates = this.calculator.analyzeOSCandidates(
@@ -180,20 +226,21 @@ class TripleOSEngine extends DiagnosisEngine {
       // エンジンOS結果を構築
       const engineOSResult = {
         osId: bestCandidate.osId,
-        osName: hexagramInfo.name_jp,
-        hexagramInfo: hexagramInfo, // 🔧 hexagramInfoオブジェクト全体を追加
+        osName: hexagramInfo.name_jp || hexagramInfo.name,
+        hexagramId: bestCandidate.osId, // 追加: 他のOSとの比較用
+        hexagramInfo: hexagramInfo,
         catchphrase: hexagramInfo.catchphrase,
         description: hexagramInfo.description,
         keywords: hexagramInfo.keywords,
         upperTrigram: this.getTrigramName(hexagramInfo.upper_trigram_id),
         lowerTrigram: this.getTrigramName(hexagramInfo.lower_trigram_id),
-        trigramComposition: this.generateTrigramComposition(hexagramInfo), // 追加
+        trigramComposition: this.generateTrigramComposition(hexagramInfo),
         trigramScores: this.convertToTrigramScores(userVector),
         cosineSimilarity: bestCandidate.similarity,
         confidence: bestCandidate.score,
         type: "engine",
         dominantTrigrams: dominantTrigrams,
-        userVector: userVector, // 🔧 userVectorを追加
+        userVector: userVector,
       };
       console.log("✅ Engine OS determined:", engineOSResult.osName);
       console.log("🎯 Dominant trigrams:", dominantTrigrams);
@@ -204,82 +251,262 @@ class TripleOSEngine extends DiagnosisEngine {
     }
   }
 
-  // インターフェースOS分析（シナリオ設問の外面選択肢）
+  // インターフェースOS分析（8次元から64卦直接マッピング方式）
   async analyzeInterfaceOS(scenarioAnswers, engineOS) {
     try {
+      console.log("🖥️ === analyzeInterfaceOS開始（直接マッピング方式）===");
+      console.log("🔍 DEBUG: scenarioAnswers length:", scenarioAnswers.length);
+      if (scenarioAnswers.length > 0) {
+        console.log("🔍 DEBUG: scenarioAnswers sample:", JSON.stringify(scenarioAnswers[0], null, 2));
+      }
+
       // 外面選択肢を抽出
       const outerChoices = this.extractOuterChoices(scenarioAnswers);
-      console.log("👥 Outer choices:", outerChoices);
-
-      // キーワードマッチング（keyword_map使用）
-      const matchingResults = await this.performKeywordMatching(
-        outerChoices,
-        "interface"
-      );
-
-      // エンジンOSを除外して最高スコアを選択
-      const filteredResults = this.excludeEngineOS(matchingResults, engineOS);
-      const bestMatch = filteredResults[0] || { hexagramId: null, score: 0, matches: [] };
-
-      const hexagramInfo = bestMatch.hexagramId
-        ? this.dataManager.findHexagramById(bestMatch.hexagramId)
-        : null;
+      console.log("🔍 DEBUG: outerChoices:", JSON.stringify(outerChoices, null, 2));
+      
+      // 8次元スコアを集計
+      const dimensionScores = {};
+      outerChoices.forEach(choice => {
+        choice.scoring_tags.forEach(tag => {
+          if (!dimensionScores[tag]) {
+            dimensionScores[tag] = 0;
+          }
+          dimensionScores[tag]++;
+        });
+      });
+      
+      console.log("🔍 DEBUG: dimensionScores:", dimensionScores);
+      
+      // 最も多い次元を取得（上位3つ確保）
+      const sortedDimensions = Object.entries(dimensionScores)
+        .sort((a, b) => b[1] - a[1]);
+      
+      console.log("🔍 DEBUG: sortedDimensions:", sortedDimensions);
+      
+      if (sortedDimensions.length < 2) {
+        console.warn("❌ 十分な次元データがありません");
+        return {
+          type: "interface",
+          hexagramId: null,
+          hexagramInfo: null,
+          matchScore: 0,
+          dimensionMatches: sortedDimensions,
+          outerChoices: outerChoices,
+          trigramComposition: "未分析",
+        };
+      }
+      
+      // 八卦IDに変換
+      const upperTrigramKey = sortedDimensions[0][0];
+      const lowerTrigramKey = sortedDimensions[1][0];
+      
+      console.log("🔍 DEBUG: upperTrigramKey:", upperTrigramKey);
+      console.log("🔍 DEBUG: lowerTrigramKey:", lowerTrigramKey);
+      
+      const upperTrigram = this.trigramMapping[upperTrigramKey];
+      const lowerTrigram = this.trigramMapping[lowerTrigramKey];
+      
+      if (!upperTrigram || !lowerTrigram) {
+        console.error("❌ Trigram mapping failed:", { upperTrigramKey, lowerTrigramKey });
+        return {
+          type: "interface",
+          hexagramId: null,
+          hexagramInfo: null,
+          matchScore: 0,
+          dimensionMatches: sortedDimensions,
+          outerChoices: outerChoices,
+          trigramComposition: "マッピング失敗",
+        };
+      }
+      
+      // 64卦IDを計算
+      let hexagramId = (upperTrigram.id - 1) * 8 + lowerTrigram.id;
+      console.log("🔍 DEBUG: calculated hexagramId:", hexagramId);
+      
+      // エンジンOSと同じ場合は次の候補を選択
+      if (hexagramId === engineOS.osId || hexagramId === engineOS.hexagramId) {
+        console.log("🔍 DEBUG: 重複回避 - エンジンOSと同じため代替候補を選択");
+        
+        // 3番目の次元を使用、なければ2番目と1番目を入れ替え
+        if (sortedDimensions.length >= 3) {
+          const thirdTrigramKey = sortedDimensions[2][0];
+          const thirdTrigram = this.trigramMapping[thirdTrigramKey];
+          if (thirdTrigram) {
+            hexagramId = (upperTrigram.id - 1) * 8 + thirdTrigram.id;
+            console.log("🔍 DEBUG: 3番目次元使用 hexagramId:", hexagramId);
+          }
+        } else {
+          // 上卦と下卦を入れ替え
+          hexagramId = (lowerTrigram.id - 1) * 8 + upperTrigram.id;
+          console.log("🔍 DEBUG: 上下卦入れ替え hexagramId:", hexagramId);
+        }
+      }
+      
+      const hexagramInfo = this.dataManager.findHexagramById(hexagramId);
+      console.log("🔍 DEBUG: hexagramInfo found:", !!hexagramInfo);
+      
+      if (!hexagramInfo) {
+        console.error("❌ Hexagram not found for ID:", hexagramId);
+        return {
+          type: "interface",
+          hexagramId: hexagramId,
+          hexagramInfo: null,
+          matchScore: sortedDimensions[0][1],
+          dimensionMatches: sortedDimensions,
+          outerChoices: outerChoices,
+          trigramComposition: "データ未発見",
+        };
+      }
 
       // 互換性のためにnameプロパティを追加
       if (hexagramInfo && hexagramInfo.name_jp && !hexagramInfo.name) {
         hexagramInfo.name = hexagramInfo.name_jp;
       }
 
-      return {
+      const result = {
         type: "interface",
-        hexagramId: bestMatch.hexagramId,
+        hexagramId: hexagramId,
         hexagramInfo: hexagramInfo,
-        matchScore: bestMatch.score,
-        keywordMatches: bestMatch.matches,
+        matchScore: sortedDimensions[0][1],
+        dimensionMatches: sortedDimensions,
         outerChoices: outerChoices,
         trigramComposition: this.generateTrigramComposition(hexagramInfo),
       };
+      
+      console.log("✅ Interface OS determined:", hexagramInfo.name_jp || hexagramInfo.name);
+      return result;
+      
     } catch (error) {
       console.error("❌ Interface OS analysis failed:", error);
       throw error;
     }
   }
 
-  // セーフモードOS分析（シナリオ設問の内面選択肢）
+  // セーフモードOS分析（8次元から64卦直接マッピング方式）
   async analyzeSafeModeOS(scenarioAnswers, engineOS) {
     try {
+      console.log("🛡️ === analyzeSafeModeOS開始（直接マッピング方式）===");
+      console.log("🔍 DEBUG: scenarioAnswers length:", scenarioAnswers.length);
+      if (scenarioAnswers.length > 0) {
+        console.log("🔍 DEBUG: scenarioAnswers sample:", JSON.stringify(scenarioAnswers[0], null, 2));
+      }
+
       // 内面選択肢を抽出
       const innerChoices = this.extractInnerChoices(scenarioAnswers);
-      console.log("🔒 Inner choices:", innerChoices);
-
-      // 爻キーワードマッチング（line_keyword_map使用）
-      const matchingResults = await this.performLineKeywordMatching(
-        innerChoices,
-        "safemode"
-      );
-
-      // エンジンOSを除外して最高スコアを選択
-      const filteredResults = this.excludeEngineOS(matchingResults, engineOS);
-      const bestMatch = filteredResults[0] || { hexagramId: null, score: 0, matches: [] };
-
-      const hexagramInfo = bestMatch.hexagramId
-        ? this.dataManager.findHexagramById(bestMatch.hexagramId)
-        : null;
+      console.log("🔍 DEBUG: innerChoices:", JSON.stringify(innerChoices, null, 2));
+      
+      // 8次元スコアを集計
+      const dimensionScores = {};
+      innerChoices.forEach(choice => {
+        choice.scoring_tags.forEach(tag => {
+          if (!dimensionScores[tag]) {
+            dimensionScores[tag] = 0;
+          }
+          dimensionScores[tag]++;
+        });
+      });
+      
+      console.log("🔍 DEBUG: SafeMode dimensionScores:", dimensionScores);
+      
+      // 最も多い次元を取得（上位3つ確保）
+      const sortedDimensions = Object.entries(dimensionScores)
+        .sort((a, b) => b[1] - a[1]);
+      
+      console.log("🔍 DEBUG: SafeMode sortedDimensions:", sortedDimensions);
+      
+      if (sortedDimensions.length < 2) {
+        console.warn("❌ SafeMode: 十分な次元データがありません");
+        return {
+          type: "safemode",
+          hexagramId: null,
+          hexagramInfo: null,
+          matchScore: 0,
+          dimensionMatches: sortedDimensions,
+          innerChoices: innerChoices,
+          trigramComposition: "未分析",
+        };
+      }
+      
+      // 八卦IDに変換
+      const upperTrigramKey = sortedDimensions[0][0];
+      const lowerTrigramKey = sortedDimensions[1][0];
+      
+      console.log("🔍 DEBUG: SafeMode upperTrigramKey:", upperTrigramKey);
+      console.log("🔍 DEBUG: SafeMode lowerTrigramKey:", lowerTrigramKey);
+      
+      const upperTrigram = this.trigramMapping[upperTrigramKey];
+      const lowerTrigram = this.trigramMapping[lowerTrigramKey];
+      
+      if (!upperTrigram || !lowerTrigram) {
+        console.error("❌ SafeMode Trigram mapping failed:", { upperTrigramKey, lowerTrigramKey });
+        return {
+          type: "safemode",
+          hexagramId: null,
+          hexagramInfo: null,
+          matchScore: 0,
+          dimensionMatches: sortedDimensions,
+          innerChoices: innerChoices,
+          trigramComposition: "マッピング失敗",
+        };
+      }
+      
+      // 64卦IDを計算
+      let hexagramId = (upperTrigram.id - 1) * 8 + lowerTrigram.id;
+      console.log("🔍 DEBUG: SafeMode calculated hexagramId:", hexagramId);
+      
+      // エンジンOSと同じ場合は次の候補を選択
+      if (hexagramId === engineOS.osId || hexagramId === engineOS.hexagramId) {
+        console.log("🔍 DEBUG: SafeMode 重複回避 - エンジンOSと同じため代替候補を選択");
+        
+        // 3番目の次元を使用、なければ2番目と1番目を入れ替え
+        if (sortedDimensions.length >= 3) {
+          const thirdTrigramKey = sortedDimensions[2][0];
+          const thirdTrigram = this.trigramMapping[thirdTrigramKey];
+          if (thirdTrigram) {
+            hexagramId = (upperTrigram.id - 1) * 8 + thirdTrigram.id;
+            console.log("🔍 DEBUG: SafeMode 3番目次元使用 hexagramId:", hexagramId);
+          }
+        } else {
+          // 上卦と下卦を入れ替え
+          hexagramId = (lowerTrigram.id - 1) * 8 + upperTrigram.id;
+          console.log("🔍 DEBUG: SafeMode 上下卦入れ替え hexagramId:", hexagramId);
+        }
+      }
+      
+      const hexagramInfo = this.dataManager.findHexagramById(hexagramId);
+      console.log("🔍 DEBUG: SafeMode hexagramInfo found:", !!hexagramInfo);
+      
+      if (!hexagramInfo) {
+        console.error("❌ SafeMode Hexagram not found for ID:", hexagramId);
+        return {
+          type: "safemode",
+          hexagramId: hexagramId,
+          hexagramInfo: null,
+          matchScore: sortedDimensions[0][1],
+          dimensionMatches: sortedDimensions,
+          innerChoices: innerChoices,
+          trigramComposition: "データ未発見",
+        };
+      }
 
       // 互換性のためにnameプロパティを追加
       if (hexagramInfo && hexagramInfo.name_jp && !hexagramInfo.name) {
         hexagramInfo.name = hexagramInfo.name_jp;
       }
 
-      return {
+      const result = {
         type: "safemode",
-        hexagramId: bestMatch.hexagramId,
+        hexagramId: hexagramId,
         hexagramInfo: hexagramInfo,
-        matchScore: bestMatch.score,
-        lineMatches: bestMatch.matches,
+        matchScore: sortedDimensions[0][1],
+        dimensionMatches: sortedDimensions,
         innerChoices: innerChoices,
         trigramComposition: this.generateTrigramComposition(hexagramInfo),
       };
+      
+      console.log("✅ SafeMode OS determined:", hexagramInfo.name_jp || hexagramInfo.name);
+      return result;
+      
     } catch (error) {
       console.error("❌ SafeMode OS analysis failed:", error);
       throw error;
@@ -321,56 +548,151 @@ class TripleOSEngine extends DiagnosisEngine {
     return hexagramId;
   }
 
-  // 外面選択肢抽出
+  // === 修正: 外面選択肢抽出 ===
   extractOuterChoices(scenarioAnswers) {
+    console.log("👥 Extracting outer choices from:", scenarioAnswers.length, "answers");
+    
     return scenarioAnswers
       .map((answer) => {
         if (answer.outerChoice) {
-          return {
+          console.log("🔍 DEBUG: Processing outerChoice:", JSON.stringify(answer.outerChoice, null, 2));
+          
+          // scoring_tagsの形式を確認して正規化
+          let scoring_tags = [];
+          
+          if (answer.outerChoice.scoring_tags) {
+            console.log("🔍 DEBUG: Original scoring_tags:", answer.outerChoice.scoring_tags);
+            console.log("🔍 DEBUG: scoring_tags type:", typeof answer.outerChoice.scoring_tags);
+            console.log("🔍 DEBUG: scoring_tags isArray:", Array.isArray(answer.outerChoice.scoring_tags));
+            
+            if (Array.isArray(answer.outerChoice.scoring_tags)) {
+              // すでに文字列配列の場合はそのまま使用
+              if (answer.outerChoice.scoring_tags.every(tag => typeof tag === 'string')) {
+                scoring_tags = answer.outerChoice.scoring_tags;
+                console.log("🔍 DEBUG: Using string array directly:", scoring_tags);
+              } else {
+                // オブジェクト配列の場合、keyを抽出
+                scoring_tags = answer.outerChoice.scoring_tags.map(tag => {
+                  if (typeof tag === 'string') {
+                    return tag;
+                  } else if (tag && tag.key) {
+                    return tag.key;
+                  }
+                  return null;
+                }).filter(tag => tag !== null);
+                console.log("🔍 DEBUG: Extracted keys from objects:", scoring_tags);
+              }
+            } else if (typeof answer.outerChoice.scoring_tags === 'string') {
+              // 単一文字列の場合
+              scoring_tags = [answer.outerChoice.scoring_tags];
+              console.log("🔍 DEBUG: Wrapped single string:", scoring_tags);
+            }
+          }
+
+          const result = {
             questionId: answer.questionId,
             value: answer.outerChoice.value,
             text: answer.outerChoice.text || "",
-            scoring_tags: answer.outerChoice.scoring_tags || [],
+            scoring_tags: scoring_tags,
           };
+          
+          console.log("🔍 DEBUG: Final outer choice result:", JSON.stringify(result, null, 2));
+          return result;
         }
         return null;
       })
       .filter((choice) => choice !== null);
   }
 
-  // 内面選択肢抽出
+  // === 修正: 内面選択肢抽出 ===
   extractInnerChoices(scenarioAnswers) {
+    console.log("🔒 Extracting inner choices from:", scenarioAnswers.length, "answers");
+    
     return scenarioAnswers
       .map((answer) => {
         if (answer.innerChoice) {
-          return {
+          console.log("🔍 DEBUG: Processing innerChoice:", JSON.stringify(answer.innerChoice, null, 2));
+          
+          // scoring_tagsの形式を確認して正規化
+          let scoring_tags = [];
+          
+          if (answer.innerChoice.scoring_tags) {
+            console.log("🔍 DEBUG: Original inner scoring_tags:", answer.innerChoice.scoring_tags);
+            console.log("🔍 DEBUG: inner scoring_tags type:", typeof answer.innerChoice.scoring_tags);
+            console.log("🔍 DEBUG: inner scoring_tags isArray:", Array.isArray(answer.innerChoice.scoring_tags));
+            
+            if (Array.isArray(answer.innerChoice.scoring_tags)) {
+              // すでに文字列配列の場合はそのまま使用
+              if (answer.innerChoice.scoring_tags.every(tag => typeof tag === 'string')) {
+                scoring_tags = answer.innerChoice.scoring_tags;
+                console.log("🔍 DEBUG: Using inner string array directly:", scoring_tags);
+              } else {
+                // オブジェクト配列の場合、keyを抽出
+                scoring_tags = answer.innerChoice.scoring_tags.map(tag => {
+                  if (typeof tag === 'string') {
+                    return tag;
+                  } else if (tag && tag.key) {
+                    return tag.key;
+                  }
+                  return null;
+                }).filter(tag => tag !== null);
+                console.log("🔍 DEBUG: Extracted inner keys from objects:", scoring_tags);
+              }
+            } else if (typeof answer.innerChoice.scoring_tags === 'string') {
+              // 単一文字列の場合
+              scoring_tags = [answer.innerChoice.scoring_tags];
+              console.log("🔍 DEBUG: Wrapped inner single string:", scoring_tags);
+            }
+          }
+
+          const result = {
             questionId: answer.questionId,
             value: answer.innerChoice.value,
             text: answer.innerChoice.text || "",
-            scoring_tags: answer.innerChoice.scoring_tags || [],
+            scoring_tags: scoring_tags,
           };
+          
+          console.log("🔍 DEBUG: Final inner choice result:", JSON.stringify(result, null, 2));
+          return result;
         }
         return null;
       })
       .filter((choice) => choice !== null);
   }
 
-  // キーワードマッチング（keyword_map使用）
+  // === 修正: キーワードマッチング（デバッグ追加） ===
   async performKeywordMatching(choices, type) {
+    console.log(`🔍 Performing keyword matching for ${type}...`);
+    console.log("🔍 DEBUG: Input choices:", JSON.stringify(choices, null, 2));
+
     const keywordMap = this.dataManager.getKeywordMap();
     if (!keywordMap || Object.keys(keywordMap).length === 0) {
-      console.warn("Keyword map is not available.");
+      console.warn("❌ Keyword map is not available.");
       return [];
     }
 
+    console.log("🔍 DEBUG: KeywordMap available, checking tag matches...");
+
     const scores = {};
     const matches = {};
+    let totalMatches = 0;
+    let tagProcessed = 0;
 
-    choices.forEach(choice => {
+    choices.forEach((choice, choiceIndex) => {
+      console.log(`🔍 DEBUG: Processing choice ${choiceIndex}:`, choice);
+      
       if (choice.scoring_tags && Array.isArray(choice.scoring_tags)) {
-        choice.scoring_tags.forEach(tag => {
+        console.log(`🔍 DEBUG: Choice ${choiceIndex} has ${choice.scoring_tags.length} tags:`, choice.scoring_tags);
+        
+        choice.scoring_tags.forEach((tag, tagIndex) => {
+          tagProcessed++;
+          console.log(`🔍 DEBUG: Processing tag ${tagIndex}: "${tag}"`);
+          
           const hexagrams = keywordMap[tag];
           if (hexagrams) {
+            console.log(`🔍 DEBUG: Tag "${tag}" matched ${hexagrams.length} hexagrams:`, hexagrams);
+            totalMatches++;
+            
             hexagrams.forEach(hexagramId => {
               if (!scores[hexagramId]) {
                 scores[hexagramId] = 0;
@@ -381,10 +703,18 @@ class TripleOSEngine extends DiagnosisEngine {
                 matches[hexagramId].push(tag);
               }
             });
+          } else {
+            console.log(`🔍 DEBUG: Tag "${tag}" not found in keywordMap`);
           }
         });
+      } else {
+        console.log(`🔍 DEBUG: Choice ${choiceIndex} has no scoring_tags or not array`);
       }
     });
+
+    console.log(`🔍 DEBUG: Processed ${tagProcessed} tags total`);
+    console.log(`✅ Total keyword matches found: ${totalMatches}`);
+    console.log(`🔍 DEBUG: Final scores:`, scores);
 
     const results = Object.keys(scores).map(hexagramId => ({
       hexagramId: parseInt(hexagramId, 10),
@@ -392,7 +722,10 @@ class TripleOSEngine extends DiagnosisEngine {
       matches: matches[hexagramId],
     }));
 
-    return results.sort((a, b) => b.score - a.score);
+    const sortedResults = results.sort((a, b) => b.score - a.score);
+    console.log(`🔍 DEBUG: Sorted results:`, sortedResults);
+
+    return sortedResults;
   }
 
   // 爻キーワードマッチング（line_keyword_map使用）
@@ -526,6 +859,43 @@ class TripleOSEngine extends DiagnosisEngine {
       8: "坤",
     };
     return trigramNames[trigramId] || "未定義";
+  }
+
+  // === 追加: 8次元分析メソッド ===
+  analyzeDimensions(userVector) {
+    const dimensions = [];
+    const dimensionNames = {
+      "乾_創造性": "創造性",
+      "兌_調和性": "調和性",
+      "離_表現性": "表現性",
+      "震_行動性": "行動性",
+      "巽_適応性": "適応性",
+      "坎_探求性": "探求性",
+      "艮_安定性": "安定性",
+      "坤_受容性": "受容性"
+    };
+
+    Object.entries(userVector).forEach(([key, value]) => {
+      dimensions.push({
+        key: key,
+        displayName: dimensionNames[key] || key,
+        value: value || 0,
+        percentage: 0 // 後で計算
+      });
+    });
+
+    // 合計値を計算
+    const total = dimensions.reduce((sum, dim) => sum + dim.value, 0);
+
+    // パーセンテージを計算
+    dimensions.forEach(dim => {
+      dim.percentage = total > 0 ? Math.round((dim.value / total) * 100) : 0;
+    });
+
+    // 値の大きい順にソート
+    dimensions.sort((a, b) => b.value - a.value);
+
+    return dimensions;
   }
 
   // dominantTrigrams生成メソッド

@@ -2,9 +2,14 @@
 // HaQei Analyzer - Triple OS Results View Component
 
 class TripleOSResultsView extends BaseComponent {
-  constructor(containerId, options = {}) {
+  constructor(containerId, options = {}, eightDimensionAnalysisEngine, internalCompatibilityEngine, relationshipVisualizationEngine) {
     super(containerId, options);
     this.analysisResult = null;
+    this.eightDimensionAnalysisEngine = eightDimensionAnalysisEngine;
+    this.internalCompatibilityEngine = internalCompatibilityEngine;
+    this.relationshipVisualizationEngine = relationshipVisualizationEngine;
+    this.shareManager = null;
+    this.initializeShareManager();
   }
 
   get defaultOptions() {
@@ -14,6 +19,7 @@ class TripleOSResultsView extends BaseComponent {
       onRetakeTest: null,
       onGenerateReport: null,
       showAnimation: true,
+      enhancedMode: false, // 新しいオプション
     };
   }
 
@@ -33,6 +39,18 @@ class TripleOSResultsView extends BaseComponent {
       return;
     }
 
+    if (this.options.enhancedMode) {
+      this.renderEnhanced();
+    } else {
+      this.renderBasic();
+    }
+
+    this.bindEvents();
+    this.startAnimations();
+  }
+
+  // 既存の基本表示をレンダリング
+  renderBasic() {
     const { engineOS, interfaceOS, safeModeOS, consistencyScore, integration } =
       this.analysisResult;
 
@@ -167,6 +185,85 @@ class TripleOSResultsView extends BaseComponent {
           <button id="generate-report-btn" class="btn btn-secondary">
             📄 レポート生成
           </button>
+          <button id="share-results-btn" class="btn btn-secondary">
+            🔗 結果を共有
+          </button>
+          <button id="retake-test-btn" class="btn btn-secondary">
+            🔄 再診断
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // 拡張された表示をレンダリング
+  renderEnhanced() {
+    const { engineOS, interfaceOS, safeModeOS, consistencyScore, integration } =
+      this.analysisResult;
+
+    this.container.innerHTML = `
+      <div class="triple-os-results-container enhanced-mode">
+        <div class="results-header">
+          <h1 class="results-title animate-fade-in">✨ 拡張3層人格OS分析結果 ✨</h1>
+          <p class="results-subtitle animate-fade-in animate-delay-200">
+            あなたのOSをより深く、多角的に分析しました
+          </p>
+        </div>
+
+        <!-- OS詳細情報 -->
+        <div class="enhanced-section">
+            <h3>OS詳細情報</h3>
+            <div class="os-detail-grid">
+                ${this.renderEnhancedOSCard(engineOS, "engine", "エンジンOS")}
+                ${this.renderEnhancedOSCard(interfaceOS, "interface", "インターフェースOS")}
+                ${this.renderEnhancedOSCard(safeModeOS, "safemode", "セーフモードOS")}
+            </div>
+        </div>
+
+        <!-- 8次元プロファイル -->
+        <div class="enhanced-section">
+            <h3>8次元プロファイル</h3>
+            <div class="chart-container">
+                <canvas id="eight-dimension-radar-chart"></canvas>
+            </div>
+            <div id="eight-dimension-details" class="dimension-details"></div>
+        </div>
+
+        <!-- OS間相性分析 -->
+        <div class="enhanced-section">
+            <h3>OS間相性分析</h3>
+            <div id="compatibility-analysis-container">
+                <!-- 相性分析結果がここに入る -->
+                <p>OS間の相性分析結果がここに表示されます。</p>
+            </div>
+        </div>
+
+        <!-- OS関係性アニメーション -->
+        <div class="enhanced-section">
+            <div id="internal-team-dynamics-container">
+                <!-- Internal Team Dynamics Visualizer がここに表示されます -->
+            </div>
+        </div>
+
+        <!-- 内的統合ガイダンス -->
+        <div class="enhanced-section">
+            <h3>内的統合ガイダンス</h3>
+            <div id="guidance-container">
+                <!-- 内的統合ガイダンスがここに入る -->
+                <p>あなたへのパーソナルな統合ガイダンスがここに表示されます。</p>
+            </div>
+        </div>
+
+        <div class="results-actions animate-fade-in animate-delay-1000">
+          <button id="explore-more-btn" class="btn btn-lg">
+            📊 詳細分析を見る
+          </button>
+          <button id="generate-report-btn" class="btn btn-secondary">
+            📄 レポート生成
+          </button>
+          <button id="share-results-btn" class="btn btn-secondary">
+            🔗 結果を共有
+          </button>
           <button id="retake-test-btn" class="btn btn-secondary">
             🔄 再診断
           </button>
@@ -174,8 +271,363 @@ class TripleOSResultsView extends BaseComponent {
       </div>
     `;
 
-    this.bindEvents();
-    this.startAnimations();
+    // 8次元レーダーチャートの描画
+    this.renderEightDimensionRadarChart(engineOS.userVector);
+    this.renderEightDimensionDetails(engineOS.userVector);
+    
+    // 内的チーム力学の可視化を初期化
+    this.initializeInternalTeamDynamics();
+    
+    // インタラクティブシステムを初期化
+    this.initializeInteractiveSystem();
+  }
+
+  // 8次元レーダーチャートを描画するメソッド
+  renderEightDimensionRadarChart(userVector) {
+    const ctx = document.getElementById('eight-dimension-radar-chart').getContext('2d');
+    if (!ctx) return;
+
+    const labels = Object.values(this.eightDimensionAnalysisEngine.dimensions).map(d => d.name);
+    const data = Object.values(userVector);
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'あなたの8次元プロファイル',
+                data: data,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: {
+                        display: false
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 1,
+                    pointLabels: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const dimensionName = context.label;
+                            const value = context.raw;
+                            const interpretation = this.eightDimensionAnalysisEngine._interpretValue(value, dimensionName);
+                            return `${dimensionName}: ${value.toFixed(2)}
+${interpretation}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+  }
+
+  // 8次元の詳細説明をレンダリングするメソッド
+  renderEightDimensionDetails(userVector) {
+    const container = document.getElementById('eight-dimension-details');
+    if (!container) return;
+
+    const analysis = this.eightDimensionAnalysisEngine.analyzeDimensions(userVector);
+    const { strengths, weaknesses } = this.eightDimensionAnalysisEngine.analyzeStrengthsWeaknesses(userVector);
+
+    let html = '<h4>各次元の解釈</h4>';
+    for (const key in analysis) {
+        const dim = analysis[key];
+        html += `
+            <div class="dimension-detail-item">
+                <strong>${dim.name}:</strong> ${dim.interpretation}
+            </div>
+        `;
+    }
+
+    html += '<h4>強みと弱み</h4>';
+    html += '<div class="strength-weakness-section">';
+    html += '<div class="strengths"><h5>強み</h5><ul>';
+    strengths.forEach(s => { html += `<li>${s}</li>`; });
+    html += '</ul></div>';
+    html += '<div class="weaknesses"><h5>弱み</h5><ul>';
+    weaknesses.forEach(w => { html += `<li>${w}</li>`; });
+    html += '</ul></div>';
+    html += '</div>';
+
+    container.innerHTML = html;
+  }
+
+  // 内的チーム力学の可視化を初期化
+  async initializeInternalTeamDynamics() {
+    try {
+      // InternalTeamDynamicsVisualizerをインポート
+      const { default: InternalTeamDynamicsVisualizer } = await import('./InternalTeamDynamicsVisualizer.js');
+      
+      // 相性データを取得
+      const compatibilityData = this.internalCompatibilityEngine ? 
+        this.internalCompatibilityEngine.analyzeTripleOSCompatibility(
+          this.analysisResult.engineOS.hexagramId,
+          this.analysisResult.interfaceOS.hexagramId,
+          this.analysisResult.safeModeOS.hexagramId
+        ) : null;
+
+      // 可視化コンポーネントを作成
+      this.internalTeamDynamicsVisualizer = new InternalTeamDynamicsVisualizer(
+        'internal-team-dynamics-container',
+        {
+          width: 600,
+          height: 400,
+          enableParticles: true,
+          enableRadar: true,
+          animationSpeed: 1.0,
+          particleCount: 50,
+          showLabels: true
+        }
+      );
+
+      // データを設定
+      this.internalTeamDynamicsVisualizer.setDynamicsData(this.analysisResult, compatibilityData);
+      
+      // レンダリング
+      this.internalTeamDynamicsVisualizer.render();
+      
+      console.log("✅ Internal Team Dynamics Visualizer initialized successfully");
+      
+    } catch (error) {
+      console.error("❌ Failed to initialize Internal Team Dynamics Visualizer:", error);
+      
+      // フォールバック表示
+      const container = document.getElementById('internal-team-dynamics-container');
+      if (container) {
+        container.innerHTML = `
+          <div class="dynamics-error">
+            内的チーム力学の可視化を読み込み中にエラーが発生しました。
+            <br>
+            <small>エラー詳細: ${error.message}</small>
+          </div>
+        `;
+      }
+    }
+  }
+
+  // インタラクティブシステムを初期化
+  async initializeInteractiveSystem() {
+    try {
+      // InteractiveSystemをインポート
+      const { default: InteractiveSystem } = await import('./InteractiveSystem.js');
+      
+      // インタラクティブシステムを作成
+      this.interactiveSystem = new InteractiveSystem(
+        this.containerId,
+        {
+          enableCardExpansion: true,
+          enableTooltips: true,
+          enableTabs: true,
+          animationDuration: 300,
+          tooltipDelay: 500,
+          maxExpandedCards: 3,
+        }
+      );
+
+      // システムを有効化
+      this.interactiveSystem.activate();
+      
+      // OSカードにdata-card-id属性を追加
+      this.addCardIdentifiers();
+      
+      console.log("✅ Interactive System initialized successfully");
+      
+    } catch (error) {
+      console.error("❌ Failed to initialize Interactive System:", error);
+    }
+  }
+
+  // OSカードに識別子を追加
+  addCardIdentifiers() {
+    const cards = this.container.querySelectorAll('.os-detail-card, .os-card');
+    
+    cards.forEach((card, index) => {
+      if (card.classList.contains('os-detail-card-engine') || card.classList.contains('os-card-engine')) {
+        card.setAttribute('data-card-id', 'engine');
+      } else if (card.classList.contains('os-detail-card-interface') || card.classList.contains('os-card-interface')) {
+        card.setAttribute('data-card-id', 'interface');
+      } else if (card.classList.contains('os-detail-card-safemode') || card.classList.contains('os-card-safemode')) {
+        card.setAttribute('data-card-id', 'safemode');
+      } else {
+        card.setAttribute('data-card-id', `card-${index}`);
+      }
+    });
+  }
+
+  // ShareManagerを初期化
+  async initializeShareManager() {
+    try {
+      const { default: ShareManager } = await import('../core/ShareManager.js');
+      
+      this.shareManager = new ShareManager({
+        expirationDays: 30,
+        keyPrefix: 'haqei_share_',
+        urlBasePath: '/results',
+        enableAnalytics: true,
+        maxShares: 50
+      });
+      
+      console.log("✅ ShareManager initialized successfully");
+    } catch (error) {
+      console.error("❌ Failed to initialize ShareManager:", error);
+    }
+  }
+
+  // 🔧 八卦記号取得ヘルパー
+  getTrigramSymbol(trigramId) {
+    const trigramSymbols = {
+      1: '☰', // 乾
+      2: '☱', // 兌
+      3: '☲', // 離
+      4: '☳', // 震
+      5: '☴', // 巽
+      6: '☵', // 坎
+      7: '☶', // 艮
+      8: '☷', // 坤
+    };
+    return trigramSymbols[trigramId] || '';
+  }
+
+  // 拡張モード用のOSカードレンダリング
+  renderEnhancedOSCard(osData, type, title) {
+    const hexagramName = osData.hexagramInfo ? osData.hexagramInfo.name : "分析不能";
+    const hexagramId = osData.hexagramId || (osData.hexagramInfo ? osData.hexagramInfo.hexagram_id : null);
+
+    let detailedInfo = {};
+    if (window.HEXAGRAM_DETAILS && hexagramId) {
+        detailedInfo = window.HEXAGRAM_DETAILS[hexagramId] || {};
+    }
+
+    let specificDetailsHtml = '';
+    if (type === 'engine') {
+        const engineDetails = detailedInfo.engine || {};
+        specificDetailsHtml = `
+            <div class="detail-section">
+                <h5>核となる動機</h5>
+                <p>${engineDetails.core_drive || '情報なし'}</p>
+            </div>
+            <div class="detail-section">
+                <h5>強み</h5>
+                <ul>
+                    ${(engineDetails.potential_strengths || []).map(item => `<li>${item}</li>`).join('') || '<li>情報なし</li>'}
+                </ul>
+            </div>
+            <div class="detail-section">
+                <h5>弱み</h5>
+                <ul>
+                    ${(engineDetails.potential_weaknesses || []).map(item => `<li>${item}</li>`).join('') || '<li>情報なし</li>'}
+                </ul>
+            </div>
+        `;
+    } else if (type === 'interface') {
+        const interfaceDetails = detailedInfo.interface || {};
+        specificDetailsHtml = `
+            <div class="detail-section">
+                <h5>発揮場面</h5>
+                <p>${interfaceDetails.how_it_appears || '情報なし'}</p>
+            </div>
+            <div class="detail-section">
+                <h5>行動パターン例</h5>
+                <ul>
+                    ${(interfaceDetails.behavioral_patterns || []).map(item => `<li>${item}</li>`).join('') || '<li>情報なし</li>'}
+                </ul>
+            </div>
+            <div class="detail-section">
+                <h5>他者からの印象</h5>
+                <p>${interfaceDetails.impression_on_others || '情報なし'}</p>
+            </div>
+        `;
+    } else if (type === 'safemode') {
+        const safeModeDetails = detailedInfo.safe_mode || {};
+        specificDetailsHtml = `
+            <div class="detail-section">
+                <h5>発動状況</h5>
+                <ul>
+                    ${(safeModeDetails.trigger_situations || []).map(item => `<li>${item}</li>`).join('') || '<li>情報なし</li>'}
+                </ul>
+            </div>
+            <div class="detail-section">
+                <h5>防御パターン例</h5>
+                <ul>
+                    ${(safeModeDetails.defensive_patterns || []).map(item => `<li>${item}</li>`).join('') || '<li>情報なし</li>'}
+                </ul>
+            </div>
+            <div class="detail-section">
+                <h5>内面の思考・感情</h5>
+                <p>${safeModeDetails.internal_state || '情報なし'}</p>
+            </div>
+        `;
+    }
+
+    let hexagramVisualHtml = '';
+    if (osData.hexagramInfo && osData.hexagramInfo.upper_trigram_id && osData.hexagramInfo.lower_trigram_id) {
+        const upperTrigramId = osData.hexagramInfo.upper_trigram_id;
+        const lowerTrigramId = osData.hexagramInfo.lower_trigram_id;
+        const upperTrigramName = this.getTrigramName(upperTrigramId);
+        const lowerTrigramName = this.getTrigramName(lowerTrigramId);
+        const upperTrigramSymbol = this.getTrigramSymbol(upperTrigramId);
+        const lowerTrigramSymbol = this.getTrigramSymbol(lowerTrigramId);
+
+        hexagramVisualHtml = `
+            <div class="hexagram-visual-section">
+                <div class="hexagram-symbol-large">${upperTrigramSymbol}<br>${lowerTrigramSymbol}</div>
+                <div class="trigram-composition-text">
+                    <p>上卦: ${upperTrigramName} (${upperTrigramSymbol})</p>
+                    <p>下卦: ${lowerTrigramName} (${lowerTrigramSymbol})</p>
+                </div>
+            </div>
+        `;
+    }
+
+    let engineStrengthMeterHtml = '';
+    if (type === 'engine') {
+        const strength = osData.strength || 0; // Assuming strength is a value between 0 and 1
+        engineStrengthMeterHtml = `
+            <div class="engine-strength-meter">
+                <h5>エンジン強度</h5>
+                <div class="strength-bar-visual">
+                    <div class="strength-fill-visual" style="width: ${strength * 100}%"></div>
+                </div>
+                <div class="strength-value-text">${Math.round(strength * 100)}%</div>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="os-detail-card os-detail-card-${type}">
+            <h4>${title}: ${hexagramName}</h4>
+            ${hexagramVisualHtml}
+            <p class="catchphrase">「${detailedInfo.catchphrase || osData.hexagramInfo?.catchphrase || 'キャッチフレーズ不明'}」</p>
+            ${engineStrengthMeterHtml}
+            <div class="detail-section">
+                <h5>説明</h5>
+                <p>${detailedInfo.description || osData.hexagramInfo?.description || '詳細説明なし'}</p>
+            </div>
+            <div class="detail-section">
+                <h5>キーワード</h5>
+                <p>${(detailedInfo.keywords || []).join(', ') || 'キーワードなし'}</p>
+            </div>
+            ${specificDetailsHtml}
+        </div>
+    `;
   }
 
   // OSカードをレンダリング
@@ -429,6 +881,7 @@ class TripleOSResultsView extends BaseComponent {
   bindEvents() {
     const exploreBtn = this.container.querySelector("#explore-more-btn");
     const reportBtn = this.container.querySelector("#generate-report-btn");
+    const shareBtn = this.container.querySelector("#share-results-btn");
     const retakeBtn = this.container.querySelector("#retake-test-btn");
 
     if (exploreBtn) {
@@ -447,6 +900,12 @@ class TripleOSResultsView extends BaseComponent {
       });
     }
 
+    if (shareBtn) {
+      shareBtn.addEventListener("click", () => {
+        this.handleShareResults();
+      });
+    }
+
     if (retakeBtn) {
       retakeBtn.addEventListener("click", () => {
         if (this.options.onRetakeTest) {
@@ -454,6 +913,192 @@ class TripleOSResultsView extends BaseComponent {
         }
       });
     }
+  }
+
+  // 結果共有を処理
+  async handleShareResults() {
+    if (!this.shareManager || !this.analysisResult) {
+      this.showShareMessage('共有機能の初期化中にエラーが発生しました。', 'error');
+      return;
+    }
+
+    try {
+      // 共有ボタンを無効化
+      const shareBtn = this.container.querySelector("#share-results-btn");
+      if (shareBtn) {
+        shareBtn.disabled = true;
+        shareBtn.textContent = '🔗 生成中...';
+      }
+
+      // 共有URLを生成
+      const shareResult = this.shareManager.generateShareableURL(this.analysisResult, {
+        title: '3層人格OS診断結果',
+        description: 'HaQei Analyzerによる詳細診断結果',
+        category: 'personality_analysis'
+      });
+
+      if (shareResult.success) {
+        this.showShareDialog(shareResult);
+      } else {
+        this.showShareMessage(`共有URLの生成に失敗しました: ${shareResult.message}`, 'error');
+      }
+
+    } catch (error) {
+      console.error('Share error:', error);
+      this.showShareMessage('共有処理中にエラーが発生しました。', 'error');
+    } finally {
+      // 共有ボタンを有効化
+      const shareBtn = this.container.querySelector("#share-results-btn");
+      if (shareBtn) {
+        shareBtn.disabled = false;
+        shareBtn.textContent = '🔗 結果を共有';
+      }
+    }
+  }
+
+  // 共有ダイアログを表示
+  showShareDialog(shareResult) {
+    const dialogHtml = `
+      <div class="share-dialog-overlay">
+        <div class="share-dialog">
+          <div class="share-dialog-header">
+            <h3>📤 診断結果の共有</h3>
+            <button class="share-dialog-close">&times;</button>
+          </div>
+          <div class="share-dialog-content">
+            <p class="share-success-message">
+              ✅ 共有URLが正常に生成されました！
+            </p>
+            <div class="share-url-section">
+              <label for="share-url-input">共有URL:</label>
+              <div class="share-url-container">
+                <input 
+                  type="text" 
+                  id="share-url-input" 
+                  value="${shareResult.shareURL}" 
+                  readonly
+                  class="share-url-input"
+                />
+                <button id="copy-url-btn" class="btn btn-primary copy-btn">
+                  📋 コピー
+                </button>
+              </div>
+            </div>
+            <div class="share-info">
+              <div class="share-info-item">
+                <span class="info-label">有効期限:</span>
+                <span class="info-value">${shareResult.expiresAt.toLocaleDateString('ja-JP')} まで</span>
+              </div>
+              <div class="share-info-item">
+                <span class="info-label">共有ID:</span>
+                <span class="info-value">${shareResult.shareId}</span>
+              </div>
+            </div>
+            <div class="share-notice">
+              <p>⚠️ <strong>プライバシーについて:</strong></p>
+              <ul>
+                <li>個人を特定できる情報は共有URLには含まれません</li>
+                <li>データはお使いのブラウザにのみ保存され、サーバーには送信されません</li>
+                <li>30日間の有効期限後は自動的に削除されます</li>
+              </ul>
+            </div>
+          </div>
+          <div class="share-dialog-actions">
+            <button id="share-close-btn" class="btn btn-secondary">閉じる</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ダイアログをページに追加
+    const dialogElement = document.createElement('div');
+    dialogElement.innerHTML = dialogHtml;
+    document.body.appendChild(dialogElement);
+
+    // イベントリスナーを設定
+    this.bindShareDialogEvents(dialogElement, shareResult.shareURL);
+  }
+
+  // 共有ダイアログのイベントを設定
+  bindShareDialogEvents(dialogElement, shareURL) {
+    const overlay = dialogElement.querySelector('.share-dialog-overlay');
+    const closeBtn = dialogElement.querySelector('.share-dialog-close');
+    const closeActionBtn = dialogElement.querySelector('#share-close-btn');
+    const copyBtn = dialogElement.querySelector('#copy-url-btn');
+    const urlInput = dialogElement.querySelector('#share-url-input');
+
+    // ダイアログを閉じる
+    const closeDialog = () => {
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        if (dialogElement.parentNode) {
+          dialogElement.parentNode.removeChild(dialogElement);
+        }
+      }, 300);
+    };
+
+    // イベントリスナー
+    closeBtn.addEventListener('click', closeDialog);
+    closeActionBtn.addEventListener('click', closeDialog);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeDialog();
+    });
+
+    // URLをコピー
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(shareURL);
+        copyBtn.textContent = '✅ コピー済み';
+        copyBtn.style.background = 'var(--synergy-color)';
+        
+        setTimeout(() => {
+          copyBtn.textContent = '📋 コピー';
+          copyBtn.style.background = '';
+        }, 2000);
+        
+        this.showShareMessage('共有URLをクリップボードにコピーしました。', 'success');
+      } catch (error) {
+        // フォールバック: 手動選択
+        urlInput.select();
+        urlInput.setSelectionRange(0, 99999);
+        this.showShareMessage('URLを手動でコピーしてください。', 'warning');
+      }
+    });
+
+    // ESCキーで閉じる
+    document.addEventListener('keydown', function escHandler(e) {
+      if (e.key === 'Escape') {
+        closeDialog();
+        document.removeEventListener('keydown', escHandler);
+      }
+    });
+
+    // フェードイン
+    setTimeout(() => {
+      overlay.style.opacity = '1';
+    }, 10);
+  }
+
+  // 共有メッセージを表示
+  showShareMessage(message, type = 'info') {
+    const messageElement = document.createElement('div');
+    messageElement.className = `share-message ${type}`;
+    messageElement.textContent = message;
+    
+    document.body.appendChild(messageElement);
+    
+    setTimeout(() => {
+      messageElement.classList.add('visible');
+    }, 10);
+
+    setTimeout(() => {
+      messageElement.classList.remove('visible');
+      setTimeout(() => {
+        if (messageElement.parentNode) {
+          messageElement.parentNode.removeChild(messageElement);
+        }
+      }, 300);
+    }, 4000);
   }
 
   // アニメーション開始
