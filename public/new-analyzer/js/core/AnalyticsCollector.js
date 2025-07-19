@@ -800,6 +800,93 @@ class AnalyticsCollector {
     }
 
     /**
+     * 平均スクロール深度を計算
+     */
+    calculateAverageScrollDepth(scrollEvents) {
+        if (scrollEvents.length === 0) return 0;
+        
+        const scrollDepths = scrollEvents
+            .map(event => event.properties?.scrollDepth || 0)
+            .filter(depth => depth > 0);
+            
+        return scrollDepths.length > 0 ? 
+            scrollDepths.reduce((sum, depth) => sum + depth, 0) / scrollDepths.length : 0;
+    }
+
+    /**
+     * 最も閲覧されたセクションを取得
+     */
+    getMostViewedSections(sectionViews) {
+        const sectionCounts = {};
+        
+        sectionViews.forEach(event => {
+            const section = event.properties?.section;
+            if (section) {
+                sectionCounts[section] = (sectionCounts[section] || 0) + 1;
+            }
+        });
+        
+        return Object.entries(sectionCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([section, count]) => ({ section, views: count }));
+    }
+
+    /**
+     * 平均セッション時間を計算
+     */
+    calculateAverageSessionDuration(events) {
+        const sessionStarts = events.filter(e => e.name === 'session_start');
+        const sessionEnds = events.filter(e => e.name === 'session_end');
+        
+        if (sessionStarts.length === 0 || sessionEnds.length === 0) return 0;
+        
+        const durations = [];
+        sessionStarts.forEach(start => {
+            const correspondingEnd = sessionEnds.find(end => 
+                end.sessionId === start.sessionId && end.timestamp > start.timestamp
+            );
+            
+            if (correspondingEnd) {
+                durations.push(correspondingEnd.timestamp - start.timestamp);
+            }
+        });
+        
+        return durations.length > 0 ? 
+            durations.reduce((sum, duration) => sum + duration, 0) / durations.length : 0;
+    }
+
+    /**
+     * ページビュー数を取得
+     */
+    getPageViewCount() {
+        try {
+            const storageKey = this.options.keyPrefix + 'events';
+            const eventsData = localStorage.getItem(storageKey);
+            const events = eventsData ? JSON.parse(eventsData) : [];
+            
+            return events.filter(e => e.name === 'page_view').length;
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    /**
+     * 総イベント数を取得
+     */
+    getTotalEventCount() {
+        try {
+            const storageKey = this.options.keyPrefix + 'events';
+            const eventsData = localStorage.getItem(storageKey);
+            const events = eventsData ? JSON.parse(eventsData) : [];
+            
+            return events.length;
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    /**
      * エクスポート機能
      */
     exportData(format = 'json') {
