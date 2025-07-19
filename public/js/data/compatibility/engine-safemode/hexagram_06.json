@@ -1,1 +1,1224 @@
-{}
+{
+    "hexagram_id": 6,
+    "internal_team_analysis": {
+      "engine_os_name": "天水訟",
+      "safemode_combinations": [
+        {
+          "safemode_id": 1,
+          "safemode_name": "乾為天",
+          "type": "CHAOS",
+          "overall_score": 0.18,
+          "summary": "【絶対正義の暴走】自分の正しさを証明するため、一切の妥協を排し、徹底的に相手を打ち負かそうと暴走する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.2, "description": "柔軟性を完全に失い、硬直化するため、予期せぬ反撃や状況変化に極めて脆い。" },
+            "recovery_potential": { "score": 0.1, "description": "たとえ勝っても、相手を完膚なきまでに叩きのめすため、関係修復は絶望的。深い孤立に陥る。" },
+            "collateral_damage": { "score": 0.95, "description": "自分の正義のために、周囲のすべてを犠牲にし、組織や人間関係を完全に破壊する。" },
+            "lesson_learned": { "score": 0.3, "description": "「勝つこと」の虚しさを学ぶ機会だが、その代償はあまりに大きく、得るものは何もない。" },
+            "integration_difficulty": { "score": 0.15, "description": "争い（訟）が、純粋な攻撃性（乾）と結びつく最も危険なパターン。意識的なコントロールはほぼ不可能。" }
+          },
+          "advice": {
+            "trigger_warning": "自分の信じる「正義」が、少しでも脅かされたと感じた時。議論で、少しでも劣勢になった時。",
+            "meltdown_symptoms": "相手の意見を一切聞かなくなり、人格攻撃を始める。自分の正当性を、大声で、あるいは執拗に主張し続ける。周りがすべて敵に見える。",
+            "recovery_strategies": "物理的に、その場から強制的に離れる。信頼できる第三者の介入を、絶対的に受け入れる。「勝つ」という目的を、「生き残る」あるいは「被害を最小限にする」に切り替える。"
+          }
+        },
+        {
+          "safemode_id": 2,
+          "safemode_name": "坤為地",
+          "type": "SYNERGY",
+          "overall_score": 0.96,
+          "summary": "【沈黙による終戦】争いのエネルギーが燃え尽き、全ての主張を取り下げ、大地のように沈黙し、全てを受け入れる。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.9, "description": "争いを放棄することで、それ以上のダメージを回避できる。相手の攻撃を、無力化する最強の防御。" },
+            "recovery_potential": { "score": 0.98, "description": "完全な受容と休止を通じて、争いで消耗した心身がリセットされ、最も自然で健全な回復が可能になる。" },
+            "collateral_damage": { "score": 0.1, "description": "争いを一方的に終結させることで、相手を戸惑わせるが、破壊的な行動ではないため、ダメージは最小限。" },
+            "lesson_learned": { "score": 1.0, "description": "争うことの不毛さを知り、「受け入れる」ことこそが、真の勝利と平和をもたらすという最高の学びを得る。" },
+            "integration_difficulty": { "score": 0.4, "description": "争いを好む（訟）性質から、真逆の受容（坤）に転じるのは苦痛だが、一度その価値を理解すれば、人生の指針となる。" }
+          },
+          "advice": {
+            "trigger_warning": "争いに心底疲れ果て、何のために戦っているのか分からなくなった時。自分の正義に、微塵の疑いが生じた時。",
+            "meltdown_symptoms": "突然、一切の反論をやめ、沈黙する。相手の言うことを、ただ黙って聞いている。表情がなくなり、全てを諦めたような状態になる。",
+            "recovery_strategies": "無理に言葉を発しようとせず、心と体が求めるままに、沈黙と休息を自分に許可する。争いの場から、物理的に離れる。評価や勝敗を、一切気にしない時間を作る。"
+          }
+        },
+        {
+          "safemode_id": 3,
+          "safemode_name": "水雷屯",
+          "type": "TENSION",
+          "overall_score": 0.4,
+          "summary": "【泥沼の訴訟】争いの初期段階で、何が問題なのか、どう進めれば良いのか分からなくなり、混乱の中で立ち往生する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.3, "description": "混乱しているため、有効な戦略を立てられず、相手のペースに振り回されやすい。" },
+            "recovery_potential": { "score": 0.4, "description": "この混乱を乗り越えれば、粘り強さが身につくが、多くの時間とエネルギーを消耗し、疲弊する。" },
+            "collateral_damage": { "score": 0.7, "description": "一貫性のない主張や行動で、周囲の協力者をも混乱させ、信頼を失う。" },
+            "lesson_learned": { "score": 0.5, "description": "準備不足のまま争いを始めると、いかに困難な状況に陥るかを学ぶ。周到な準備の重要性を知る。" },
+            "integration_difficulty": { "score": 0.45, "description": "争い（訟）が、産みの苦しみ（屯）と結びつき、出口の見えない泥沼の争いとなる。統合は精神的な苦痛を伴う。" }
+          },
+          "advice": {
+            "trigger_warning": "勢いで、訴訟や大きな争いを始めてしまった直後。問題の全体像を把握できていない時。",
+            "meltdown_symptoms": "主張が二転三転する。不安から、衝動的に行動しては失敗する。助けを求めるが、何を助けてほしいかすら、まともに説明できない。",
+            "recovery_strategies": "一旦、争いを中断し、状況を整理する。信頼できる専門家（弁護士など）に相談する。完璧な勝利を目指さず、「最悪を避ける」ことに目標を切り替える。"
+          }
+        },
+        {
+          "safemode_id": 4,
+          "safemode_name": "山水蒙",
+          "type": "CONFLICT",
+          "overall_score": 0.3,
+          "summary": "【子供の喧嘩】自分が何について争っているのかも理解せず、感情的に、あるいは無知ゆえに、無意味な争いを続ける。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.2, "description": "論理も知識も無いため、まともな反論ができず、ただ駄々をこねるだけ。危機対応能力は皆無。" },
+            "recovery_potential": { "score": 0.3, "description": "保護者的な存在に諭されれば、すぐに争いをやめるが、根本的な学びはなく、また同じことを繰り返す。" },
+            "collateral_damage": { "score": 0.7, "description": "その幼稚な争いが、周囲の大人たちを巻き込み、時間とエネルギーを浪費させる。" },
+            "lesson_learned": { "score": 0.4, "description": "争う前に、まず自分が何を知らないかを知る必要がある、という「無知の知」を学ぶ機会。" },
+            "integration_difficulty": { "score": 0.3, "description": "争い（訟）が、無知（蒙）と結びつく。最も幼稚で、不毛な争いの形。成長には繋がりにくい。" }
+          },
+          "advice": {
+            "trigger_warning": "自分の知らない専門分野で、専門家と議論しようとした時。複雑な問題を、単純な善悪で判断しようとした時。",
+            "meltdown_symptoms": "「だって、そっちが悪いもん」と、論理ではなく感情で反論する。自分の主張の根拠を問われると、答えに窮し、逆ギレする。",
+            "recovery_strategies": "争いをやめ、「分かりません、教えてください」と、素直に頭を下げる。信頼できる、中立的な第三者に判断を委ねる。まず、争点について、基礎から学ぶ。"
+          }
+        },
+        {
+          "safemode_id": 5,
+          "safemode_name": "水天需",
+          "type": "SYNERGY",
+          "overall_score": 0.98,
+          "summary": "【賢明なる休戦】感情的な争いを避け、冷静に状況を見極め、勝機が訪れる、あるいは和解の時が来るのを待つ。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.95, "description": "無駄な争いを避けることで、エネルギーの消耗を防ぎ、大局的な視点を保つため、危機に非常に強い。" },
+            "recovery_potential": { "score": 0.95, "description": "最適なタイミングで行動を起こすため、最小限の力で、最大限の効果を得て、問題を解決できる。" },
+            "collateral_damage": { "score": 0.05, "description": "下手に動かないことで、状況の悪化を防ぎ、周囲に安心感を与える。副作用はほぼない。" },
+            "lesson_learned": { "score": 1.0, "description": "争いにおいて「待つ」ことが、いかに強力な戦略であるかを体得する。戦わずして勝つ、あるいは平和的に解決する最高の知恵。" },
+            "integration_difficulty": { "score": 0.8, "description": "争いの危険（訟）を、待つ賢さ（需）で制御する。訟の暴走を防ぐ、最高の組み合わせ。統合は極めて有益。" }
+          },
+          "advice": {
+            "trigger_warning": "相手が感情的になっており、まともな話し合いができない時。状況が自分に不利で、時間が味方になると判断した時。",
+            "meltdown_symptoms": "一切の議論を停止し、「今は話す時ではない」という態度を示す。情報収集と、水面下での準備に徹する。冷静に、ただ時の到来を待つ。",
+            "recovery_strategies": "焦らないこと。相手の挑発に乗らない。待っている間に、自分の主張の正当性を固め、証拠を集める。和解の可能性を、常に探る。"
+          }
+        },
+        {
+          "safemode_id": 6,
+          "safemode_name": "天水訟",
+          "type": "CHAOS",
+          "overall_score": 0.1,
+          "summary": "【訴訟のための訴訟】争うこと自体が目的となり、勝ち負けに異常に固執し、全てを破壊するまで終わらない。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.1, "description": "視野が極端に狭くなり、客観的な判断が全くできないため、危機対応能力はゼロに等しい。" },
+            "recovery_potential": { "score": 0.1, "description": "たとえ勝っても、失うものが多すぎ、心には深い傷と不信感しか残らない。健全な回復は絶望的。" },
+            "collateral_damage": { "score": 1.0, "description": "自分、相手、そして周囲の人間関係、財産、時間、その全てを、争いのために焼き尽くす。最も破壊的な副作用。" },
+            "lesson_learned": { "score": 0.15, "description": "争いの究極的な虚しさを学ぶ機会だが、その代償は人生そのものになりかねない。" },
+            "integration_difficulty": { "score": 0.1, "description": "最も純粋な「争い」の暴走。意識的なコントロールは不可能であり、破滅に至るまで止まらない。" }
+          },
+          "advice": {
+            "trigger_warning": "自分の「正しさ」が、揺るぎないものだと確信している時。相手への憎しみが、コントロールできなくなった時。",
+            "meltdown_symptoms": "本来の目的を忘れ、相手を打ち負かすことだけに執着する。自分の主張を正当化するため、あらゆる理屈をこね、嘘さえもつく。周りの忠告を、全て「敵の味方」と見なす。",
+            "recovery_strategies": "第三者による、強制的な介入が不可欠。物理的に、相手との接触を完全に断つ。弁護士など、代理人を立てて、直接の対話を避ける。「引き分け」や「和解」を、ゴールとして再設定する。"
+          }
+        },
+        {
+          "safemode_id": 7,
+          "safemode_name": "地水師",
+          "type": "TENSION",
+          "overall_score": 0.55,
+          "summary": "【正義の戦争】個人的な争いが、大義名分を得て、組織や仲間を巻き込んだ「戦争」へと発展する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.7, "description": "規律と組織力により、個人の感情的な争いよりも、統制が取れており、危機に強い。" },
+            "recovery_potential": { "score": 0.4, "description": "たとえ勝利しても、多くの犠牲を伴い、その後の関係修復は困難。恨みが残る。" },
+            "collateral_damage": { "score": 0.8, "description": "多くの人々を、自分の争いに巻き込み、犠牲にする。組織全体に、大きな負担を強いる。" },
+            "lesson_learned": { "score": 0.6, "description": "争いを指導するには、大義と、人々の支持、そして規律が不可欠だと学ぶ。リーダーの責任の重さを知る。" },
+            "integration_difficulty": { "score": 0.5, "description": "争い（訟）が、組織戦（師）へとエスカレートする。個人的な感情を、大義名分にすり替える危険性をはらむ。" }
+          },
+          "advice": {
+            "trigger_warning": "自分の主張が、組織やコミュニティ全体の正義だと信じ込んだ時。仲間内で、敵対する相手への結束が高まった時。",
+            "meltdown_symptoms": "「我々の正義のために！」と、人々を扇動する。個人的な感情を隠し、あくまでも「公のため」という建前を貫く。反対意見を、「裏切り者」として粛清しようとする。",
+            "recovery_strategies": "その大義名分が、本当に「公」のものか、私情が混じっていないか、自問する。信頼できる、長老的な人物の意見を聞く。無駄な犠牲を出さないことを、最優先の戦略とする。"
+          }
+        },
+        {
+          "safemode_id": 8,
+          "safemode_name": "水地比",
+          "type": "HARMONY",
+          "overall_score": 0.7,
+          "summary": "【仲裁による和解】争いの当事者が、信頼できる第三者（仲裁者）に判断を委ね、和解し、再び親しむ道を選ぶ。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.6, "description": "争いを直接行わないため、ダメージは少ないが、仲裁者に依存するため、自らの問題解決能力は育たない。" },
+            "recovery_potential": { "score": 0.8, "description": "第三者の助けによって、感情的なしこりを解消し、スムーズに関係を修復できる。" },
+            "collateral_damage": { "score": 0.3, "description": "仲裁者に、大きな負担をかける可能性がある。" },
+            "lesson_learned": { "score": 0.75, "description": "困難な争いは、当事者同士で解決しようとせず、信頼できる第三者に仲裁を頼むことの賢さを学ぶ。" },
+            "integration_difficulty": { "score": 0.65, "description": "争い（訟）から、親しむ（比）へと転じるには、信頼できる仲裁者の存在が不可欠。素直に助けを求めることが統合の鍵。" }
+          },
+          "advice": {
+            "trigger_warning": "当事者同士の話し合いが、完全に膠着状態に陥った時。どちらも、引くに引けなくなった時。",
+            "meltdown_symptoms": "「もう、二人だけではラチがあかない」と、共通の知人や、尊敬する上司に相談を持ちかける。自分の主張だけでなく、相手の言い分も、第三者に聞いてもらおうとする。",
+            "recovery_strategies": "信頼できる、公平な人物を、仲裁者として選ぶ。仲裁者の判断に、素直に従う覚悟を持つ。遅れてでも、和解の道を選んだ自分の決断を褒める。"
+          }
+        },
+        {
+          "safemode_id": 9,
+          "safemode_name": "風天小畜",
+          "type": "HARMONY",
+          "overall_score": 0.78,
+          "summary": "【強制的な冷却期間】些細な障害や、外部からの圧力によって、争いが一時的に抑制され、強制的に冷却期間に入る。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.7, "description": "大きな争いに発展する前に、ブレーキがかかるため、致命的な決裂を防ぐことができる。" },
+            "recovery_potential": { "score": 0.8, "description": "この小休止の間に、頭を冷やし、客観的に状況を見直すことができ、和解への道が開ける。" },
+            "collateral_damage": { "score": 0.2, "description": "争いが少し長引く程度で、大きな損害はない。むしろ、暴走を防ぐ、優れた安全装置として機能する。" },
+            "lesson_learned": { "score": 0.85, "description": "時には、外部からの小さな邪魔が、破壊的な争いを防ぐ、天の恵みであることを学ぶ。" },
+            "integration_difficulty": { "score": 0.75, "description": "争おうとする（訟）力を、風が優しくいなす（小畜）。訟の暴走を防ぐ、理想的なブレーキシステム。調和的に統合される。" }
+          },
+          "advice": {
+            "trigger_warning": "口論が、まさに最高潮に達しようとした瞬間。上司からの急な呼び出しや、子供の夜泣きなど、外的要因で中断された時。",
+            "meltdown_symptoms": "思うように、相手を攻撃できないことに、もどかしさや焦りを感じる。中断させられたことに対して、イライラする。",
+            "recovery_strategies": "この中断を、天の助けと感謝する。冷静になるための時間と捉え、自分の主張や、相手の言い分を、もう一度客観的に整理する。感情的になるのをやめる。"
+          }
+        },
+        {
+          "safemode_id": 10,
+          "safemode_name": "天沢履",
+          "type": "TENSION",
+          "overall_score": 0.45,
+          "summary": "【立場をわきまえた争い】自分の正しさを主張しつつも、相手の立場や、社会的な礼節をわきまえ、一線は越えない。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.5, "description": "常に緊張感を強いられ、大胆な主張ができないが、決定的な破局は避けられる。" },
+            "recovery_potential": { "score": 0.5, "description": "争いが終わっても、礼節を守ったことで、関係修復の余地が残る。" },
+            "collateral_damage": { "score": 0.6, "description": "本音を言えないため、根本的な問題解決に至らず、不満がくすぶり続ける。" },
+            "lesson_learned": { "score": 0.6, "description": "いかに正当な主張でも、礼儀と慎重さを欠いてはならないと学ぶ。" },
+            "integration_difficulty": { "score": 0.4, "description": "争い（訟）と礼儀（履）は、本質的に相性が悪い。感情的な攻撃性を、理性でコントロールする、強い自制心が必要。" }
+          },
+          "advice": {
+            "trigger_warning": "目上の人や、顧客など、立場上、無礼な態度が取れない相手との間で、意見が対立した時。",
+            "meltdown_symptoms": "言いたいことを、丁寧すぎる言葉や、遠回しな表現で伝えようとする。表情は笑っているが、目は笑っていない。常に、一歩引いた、緊張した態度を崩さない。",
+            "recovery_strategies": "自分の立場と、相手の立場を、客観的に認識する。感情的にならず、あくまでも論理と事実に基づいて主張する。落としどころを、常に探る。"
+          }
+        },
+        {
+          "safemode_id": 11,
+          "safemode_name": "地天泰",
+          "type": "SYNERGY",
+          "overall_score": 0.9,
+          "summary": "【対話による平和的解決】争いのエネルギーが、建設的な対話へと昇華され、相互理解と、安定した関係が築かれる。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.8, "description": "対立を、協力関係へと転化させるため、危機を乗り越え、より強い絆を築くことができる。" },
+            "recovery_potential": { "score": 0.95, "description": "争いを通じて、本音をぶつけ合うことで、かえって深いレベルでの和解が可能になり、健全に回復する。" },
+            "collateral_damage": { "score": 0.1, "description": "一時的な緊張はあるが、最終的に、関係者全員に利益をもたらすため、副作用は少ない。" },
+            "lesson_learned": { "score": 0.92, "description": "対立（訟）は、必ずしも悪ではなく、天と地が交わる（泰）ような、相互理解のための重要なプロセスであると学ぶ。" },
+            "integration_difficulty": { "score": 0.7, "description": "争い（訟）から、平和（泰）を生み出すのは、高度なコミュニケーション能力が必要だが、最も理想的な解決策の一つ。" }
+          },
+          "advice": {
+            "trigger_warning": "争いの最中に、相手の言い分にも一理あると気づいた時。このままでは、共倒れになると感じた時。",
+            "meltdown_symptoms": "攻撃的な口調から一転し、「あなたの言いたいことも分かります」と、相手の意見を受け入れる姿勢を見せる。勝ち負けではなく、Win-Winの解決策を探し始める。",
+            "recovery_strategies": "自分の主張の、正当な部分と、感情的な部分を切り分ける。相手の立場を尊重し、共通の利益を探す。小異を捨てて、大同につく。"
+          }
+        },
+        {
+          "safemode_id": 12,
+          "safemode_name": "天地否",
+          "type": "CHAOS",
+          "overall_score": 0.15,
+          "summary": "【断絶と不信】争いの結果、互いに完全に心を閉ざし、一切のコミュニケーションが断絶し、閉塞する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.1, "description": "あらゆる交流が閉ざされ、何をしても状況が好転しないため、精神的な苦痛への耐性は極めて低い。" },
+            "recovery_potential": { "score": 0.1, "description": "自力での和解は、ほぼ不可能。深い不信感が、永続的な関係の断絶をもたらす。" },
+            "collateral_damage": { "score": 0.9, "description": "二人の断絶が、周囲の人間関係（家族や職場）をも分断し、コミュニティ全体を機能不全に陥らせる。" },
+            "lesson_learned": { "score": 0.25, "description": "争いが、いかに回復不能な断絶を生むかを学ぶが、その経験は、深いトラウマとなりやすい。" },
+            "integration_difficulty": { "score": 0.1, "description": "争い（訟）が、完全な断絶（否）という最悪の結果に終わる。統合は、関係の死を意味する。" }
+          },
+          "advice": {
+            "trigger_warning": "決定的な一言によって、相手との信頼関係が、完全に崩壊した時。和解の努力が、全て無駄に終わった時。",
+            "meltdown_symptoms": "相手の存在を、完全に無視するようになる。顔を合わせても、挨拶もしない。共通の知人との間で、陰口を言い合う。",
+            "recovery_strategies": "耐え忍ぶしかない状況だと受け入れる。下手に動かない。内面の徳を養い、時が来るのを待つ。物理的に、その相手と会わない環境に移ることが、唯一の解決策かもしれない。"
+          }
+        },
+        {
+          "safemode_id": 13,
+          "safemode_name": "天火同人",
+          "type": "HARMONY",
+          "overall_score": 0.75,
+          "summary": "【公開討論会】個人的な争いを、オープンな場に持ち出し、広く人々の意見を求め、公平な解決を目指す。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.7, "description": "多くの人々の視点が入ることで、客観的な判断が可能になり、暴走を防ぐことができる。" },
+            "recovery_potential": { "score": 0.8, "description": "公平な裁定によって、双方が納得しやすく、スムーズに和解、回復できる。" },
+            "collateral_damage": { "score": 0.4, "description": "内輪の恥を、公に晒すことになる。多くの人を巻き込む手間がかかる。" },
+            "lesson_learned": { "score": 0.8, "description": "争いは、密室で行うのではなく、公明正大な場で、オープンに議論することの重要性を学ぶ。" },
+            "integration_difficulty": { "score": 0.7, "description": "争い（訟）を、個人的なものではなく、公の議論（同人）へと転換させる。訟の危険性を、同人の公平さでコントロールする、良い組み合わせ。" }
+          },
+          "advice": {
+            "trigger_warning": "密室での話し合いが、感情的な言い争いになるだけで、全く進展しない時。",
+            "meltdown_symptoms": "「皆の前で、はっきりさせようじゃないか」と、問題をオープンにする。SNSや会議の場で、問題を提起する。個人的な感情を抑え、あくまでも公平な視点を装う。",
+            "recovery_strategies": "私心なく、公平な態度で議論に臨む。共通の目標や理念を、判断基準として設定する。隠し事をせず、オープンなコミュニケーションを心がける。"
+          }
+        },
+        {
+          "safemode_id": 14,
+          "safemode_name": "火天大有",
+          "type": "TENSION",
+          "overall_score": 0.6,
+          "summary": "【勝者の驕り】争いに勝ち、全てを手に入れるが、その勝利に驕り、次の争いの種を蒔いてしまう。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.8, "description": "勝利によって、多くのものを所有しているため、物質的な危機には強い。" },
+            "recovery_potential": { "score": 0.5, "description": "驕りを改めない限り、人々の恨みを買い、いつか足元をすくわれる。真の回復とは言えない。" },
+            "collateral_damage": { "score": 0.7, "description": "勝者の傲慢な態度が、敗者や周囲の人々の反感を買い、新たな対立を生む。" },
+            "lesson_learned": { "score": 0.6, "description": "争いに勝つことよりも、勝った後にどう振る舞うかが、重要であると学ぶ。" },
+            "integration_difficulty": { "score": 0.5, "description": "争い（訟）に勝って、全てを得る（大有）。一見、理想的に見えるが、訟の攻撃性が、大有の謙虚さを失わせる危険な組み合わせ。" }
+          },
+          "advice": {
+            "trigger_warning": "訴訟で、完全に勝訴した時。議論で、相手を完璧に論破した時。",
+            "meltdown_symptoms": "勝利を、得意げに吹聴して回る。敗者に対して、追い打ちをかけるような言動をとる。自分は、常に正しいと信じ込み、尊大になる。",
+            "recovery_strategies": "驕りを戒める。悪を抑え、善を揚げる。勝利で得たものを、独り占めせず、社会に還元する。天の意志に従い、謙虚な気持ちを忘れない。"
+          }
+        },
+        {
+          "safemode_id": 15,
+          "safemode_name": "地山謙",
+          "type": "SYNERGY",
+          "overall_score": 0.99,
+          "summary": "【賢者の敗北】争いの途中で、自分の非を悟り、潔く頭を下げ、謙虚になることで、全てを解決する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.98, "description": "謙虚な姿勢は、相手の攻撃性を無力化し、敵意を敬意へと変えるため、危機に最も強い。" },
+            "recovery_potential": { "score": 1.0, "description": "素直に非を認めることで、相手との信頼関係を、以前よりも深く再構築でき、最も健全な回復を遂げる。" },
+            "collateral_damage": { "score": 0.0, "description": "その謙虚な姿勢が、人々に深い感銘を与え、コミュニティ全体の和をもたらす。副作用は一切ない。" },
+            "lesson_learned": { "score": 1.0, "description": "争いにおいて、最も尊い勝利は、「負けるが勝ち」を実践する、謙虚さにあると体得する。" },
+            "integration_difficulty": { "score": 0.85, "description": "争いを好む（訟）性質が、自らの内なる山（艮の要素）の高さに気づき、謙虚（謙）になる。訟の毒を、謙が完全に無害化する、最高の組み合わせ。" }
+          },
+          "advice": {
+            "trigger_warning": "議論の最中に、「もしかしたら、自分が間違っているのかもしれない」と感じた時。相手の主張の正当性に、気づいてしまった時。",
+            "meltdown_symptoms": "突然、攻撃的な態度を改め、「申し訳ありませんでした。私が間違っていました」と、深々と頭を下げる。一切の弁解をせず、相手の言葉を、静かに受け入れる。",
+            "recovery_strategies": "常に謙虚な心を忘れない。有能であっても、それをひけらかさない。自分の非を、素直に認める勇気を持つ。"
+          }
+        },
+        {
+          "safemode_id": 16,
+          "safemode_name": "雷地豫",
+          "type": "TENSION",
+          "overall_score": 0.35,
+          "summary": "【勝利の宴】争いに勝ったことで、浮かれ騒ぎ、準備や反省を怠り、次の危機を招く。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.3, "description": "楽しさに浮かれ、困難な状況への備えを怠るため、危機耐性は低い。" },
+            "recovery_potential": { "score": 0.4, "description": "楽観的な性格が、立ち直りを助けるが、根本的な反省がないため、同じ過ちを繰り返す。" },
+            "collateral_damage": { "score": 0.7, "description": "勝利に浮かれる無神経な態度が、敗者の恨みを増幅させ、周囲のひんしゅくを買う。" },
+            "lesson_learned": { "score": 0.45, "description": "勝った時こそ、兜の緒を締めなければならない、と学ぶ機会。" },
+            "integration_difficulty": { "score": 0.4, "description": "争い（訟）の後に、喜び（豫）が来るのは自然だが、反省を伴わない喜びは、ただの浮ついた騒ぎで終わり、成長に繋がらない。" }
+          },
+          "advice": {
+            "trigger_warning": "裁判や、大きな議論に勝利した直後。アドレナリンが出ている状態の時。",
+            "meltdown_symptoms": "勝利の祝杯を、盛大に挙げる。手柄話を、何度も繰り返す。敗者への配慮が、全くない。すでに、次のことなど、何も考えていない。",
+            "recovery_strategies": "楽しむことと、備えることのバランスを取る。勝利に貢献した、周囲の人々への感謝を忘れない。敗者への配慮を示す。次の争いに備え、準備を怠らない。"
+          }
+        },
+        {
+          "safemode_id": 17,
+          "safemode_name": "沢雷随",
+          "type": "CONFLICT",
+          "overall_score": 0.38,
+          "summary": "【無原則な加担】自分の意見がなく、ただ強い側や、時の勢いに付和雷同し、争いに加担してしまう。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.3, "description": "主体性がないため、加担した側が負ければ、共に破滅する。状況判断能力が低い。" },
+            "recovery_potential": { "score": 0.4, "description": "強い側に乗り換えることで、生き残ることはできるが、信念のない人間として、誰からも信用されなくなる。" },
+            "collateral_damage": { "score": 0.8, "description": "自分の意見がないため、争いをより混乱させる。日和見的な態度が、真剣な議論を台無しにする。" },
+            "lesson_learned": { "score": 0.45, "description": "誰に、何に、なぜ従うのか。主体性を持って争いに臨むことの重要性を、痛みを伴って学ぶ。" },
+            "integration_difficulty": { "score": 0.35, "description": "争い（訟）において、主体性なく、ただ流れに随う（随）のは、最も軽蔑される行為の一つ。統合は、自己の消滅を意味する。" }
+          },
+          "advice": {
+            "trigger_warning": "職場の派閥争いなどで、どちらかにつくことを、強制された時。自分の意見に、自信がない時。",
+            "meltdown_symptoms": "声の大きい人や、優勢な派閥の意見に、安易に同調する。状況によって、言うことがコロコロ変わる。誰かの受け売りばかりを、自分の意見のように話す。",
+            "recovery_strategies": "安易に、どちらかの側に付かない。「中立」の立場を、貫く勇気を持つ。自分の信念や、価値観を確立する。時流ではなく、正義に従う。"
+          }
+        },
+        {
+          "safemode_id": 18,
+          "safemode_name": "山風蠱",
+          "type": "CHAOS",
+          "overall_score": 0.2,
+          "summary": "【腐敗した裁判】争いの根本原因（腐敗）には手を付けず、些細な点を争い続け、問題がさらに悪化する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.1, "description": "問題の本質から、目をそらしているため、いくら争っても、状況は改善されず、腐敗が進行するだけ。" },
+            "recovery_potential": { "score": 0.2, "description": "根本的な原因（蠱）を、全て取り除くという大手術なしには、回復は不可能。手遅れになることが多い。" },
+            "collateral_damage": { "score": 0.9, "description": "不毛な争いを続けることで、時間とリソースを浪費し、組織全体を、内部から崩壊させる。" },
+            "lesson_learned": { "score": 0.3, "description": "争うべきは、目の前の相手ではなく、その背後にある、根本的な腐敗であると学ぶ、非常に困難な機会。" },
+            "integration_difficulty": { "score": 0.2, "description": "争い（訟）が、腐敗（蠱）した問題と結びつくと、出口のない、不毛で破壊的なループに陥る。" }
+          },
+          "advice": {
+            "trigger_warning": "長年の不満や、組織の構造的な問題が、噴出した時。誰か一人の責任にして、問題を終わらせようとしている時。",
+            "meltdown_symptoms": "過去の些細な過ちを、何度も持ち出して、相手を非難する。問題のすり替えが、頻繁に起こる。誰もが、何が本当の問題なのか、分からなくなっている。",
+            "recovery_strategies": "勇気を持って、問題の根本原因を直視する。目先の争いを止め、腐敗そのものを、改革する決意を持つ。過去のしがらみを断ち切る。外部から、改革のためのリーダーを招く。"
+          }
+        },
+        {
+          "safemode_id": 19,
+          "safemode_name": "地沢臨",
+          "type": "HARMONY",
+          "overall_score": 0.8,
+          "summary": "【王の裁き】権威と慈愛を持った、絶対的なリーダーが、争いに臨み、公平な裁定を下す。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.8, "description": "大きな視点と、権威あるリーダーの存在が、争いを鎮静化させ、組織を安定させる。" },
+            "recovery_potential": { "score": 0.8, "description": "公平な裁定によって、双方が納得し、速やかに争いを終結させ、回復に向かうことができる。" },
+            "collateral_damage": { "score": 0.2, "description": "裁定に不満を持つ者が、現れる可能性はあるが、リーダーの徳が高ければ、大きな問題にはならない。" },
+            "lesson_learned": { "score": 0.82, "description": "争いを治めるには、力だけでなく、人々が従う徳と、公平な視点を持った、リーダーシップが不可欠であると学ぶ。" },
+            "integration_difficulty": { "score": 0.7, "description": "争う者（訟）が、裁く者（臨）の視点を学ぶ。攻撃的なエネルギーを、秩序を創るための、建設的な力へと転換させる、良い統合。" }
+          },
+          "advice": {
+            "trigger_warning": "自分が、二者の争いを、仲裁・裁定する立場になった時。コミュニティのリーダーとして、決断を下さなければならない時。",
+            "meltdown_symptoms": "危機的な症状は少ない。むしろ、私情を挟まず、公平な立場で、双方の言い分を聞く。威厳と、慈愛を持って、人々に接する。長期的な視点で、コミュニティ全体の利益を考えて、裁定を下す。",
+            "recovery_strategies": "目先の利益にとらわれず、長期的な視点で判断する。相手の立場に立って、丁寧に話を聞く。油断せず、常に先を見越して備えることを忘れない。"
+          }
+        },
+        {
+          "safemode_id": 20,
+          "safemode_name": "風地観",
+          "type": "SYNERGY",
+          "overall_score": 0.88,
+          "summary": "【静観による自己分析】争いの渦中から一歩退き、なぜ争っているのか、自分の内面と、状況全体を、冷静に観察する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.85, "description": "一歩引いて全体を観察することで、感情的な反応を避け、冷静に状況を分析できるため、危機に強い。" },
+            "recovery_potential": { "score": 0.9, "description": "深い洞察を通じて、問題の本質（自分の側の非など）を理解し、争いを止めることで、質の高い回復が可能。" },
+            "collateral_damage": { "score": 0.1, "description": "行動しないことで、無駄な損失を防ぐ。その静かな佇まいが、相手にも、冷静になるきっかけを与える。" },
+            "lesson_learned": { "score": 0.95, "description": "争う前に、まず自分自身を深く観察し、その動機が、本当に正義なのか、それともエゴなのかを見抜くことの重要性を学ぶ。" },
+            "integration_difficulty": { "score": 0.8, "description": "争い（訟）の渦中にいる自分を、風（観）のように、上から客観的に眺める。訟の暴走を、観の客観性で制御する、優れた組み合わせ。" }
+          },
+          "advice": {
+            "trigger_warning": "争いが長引き、感情的になっている自分に、ふと気づいた時。このまま続けても、意味がないと感じ始めた時。",
+            "meltdown_symptoms": "一切の議論を止め、黙り込む。相手から離れ、一人になる時間を作る。自分の心の動きを、日記に書くなどして、客観的に観察し始める。",
+            "recovery_strategies": "答えを急がない。観察を通じて、自分自身の内面と、相手の状況を、深く理解する。人々の模範となるような、誠実な生き方を思い出す。自分の非を、素直に認める。"
+          }
+        },
+        {
+          "safemode_id": 21,
+          "safemode_name": "火雷噬嗑",
+          "type": "TENSION",
+          "overall_score": 0.48,
+          "summary": "【断絶のための争い】間に挟まった障害（問題）を取り除くために、意を決して、痛みを伴う争いに身を投じる。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.4, "description": "問題を解決しようという、強い意志はあるが、争いの過程で、多くのエネルギーを消耗し、傷つく。" },
+            "recovery_potential": { "score": 0.5, "description": "障害を取り除いた後、スッキリするが、その過程で、関係性に深い亀裂が入ることもあり、回復が困難な場合もある。" },
+            "collateral_damage": { "score": 0.7, "description": "間に挟まっていた障害（問題）だけでなく、人間関係そのものを、噛み砕いてしまう危険性がある。" },
+            "lesson_learned": { "score": 0.6, "description": "問題を解決するためには、時には、痛みを伴う、断固たる決断と行動が必要であることを学ぶ。" },
+            "integration_difficulty": { "score": 0.45, "description": "争い（訟）と、障害物を噛み砕く（噬嗑）のは、親和性があるが、攻撃的すぎる。建設的な解決ではなく、破壊的な結果を招きやすい。" }
+          },
+          "advice": {
+            "trigger_warning": "二人の関係を邪魔する、根本的な問題が存在し、それを避けては通れないと覚悟した時。",
+            "meltdown_symptoms": "溜まっていた不満を、一気にぶちまける。相手との関係を、断ち切ることも辞さない、という強い態度で臨む。情け容赦のない、厳しい言葉を使う。",
+            "recovery_strategies": "感情的に、相手を罰することを、目的としない。あくまでも、障害となっている「問題」を取り除くことを、目的とする。公平なルール（法律など）に則って、事を進める。"
+          }
+        },
+        {
+          "safemode_id": 22,
+          "safemode_name": "山火賁",
+          "type": "CONFLICT",
+          "overall_score": 0.36,
+          "summary": "【体裁のための議論】本質的な問題を解決するためではなく、自分が、いかに知的で、正しく見えるか、という体裁のために議論する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.3, "description": "外面を取り繕うだけで、中身がないため、少し突っ込まれると、すぐに論理が破綻する。" },
+            "recovery_potential": { "score": 0.35, "description": "虚飾が剥がれ、恥をかかない限り、本質的な議論に戻れない。回復には、プライドを捨てる必要がある。" },
+            "collateral_damage": { "score": 0.8, "description": "中身のない美辞麗句や、難解な言葉の応酬は、議論を停滞させ、周囲をうんざりさせる。" },
+            "lesson_learned": { "score": 0.45, "description": "議論は、自分を飾るためのアクセサリーではないと知る。誠実さと、中身のある言葉の重要性を学ぶ。" },
+            "integration_difficulty": { "score": 0.3, "description": "争い（訟）を、虚飾（賁）でごまかす。最も不誠実で、非生産的な議論の形。" }
+          },
+          "advice": {
+            "trigger_warning": "議論の場で、自分が劣勢になり、知的に見せることで、ごまかそうとした時。聴衆の存在を、意識しすぎた時。",
+            "meltdown_symptoms": "話の筋に関係なく、難しい言葉や、有名な哲学者の言葉などを、引用し始める。相手の主張の、些細な言葉尻を捉えて、揚げ足を取る。本質から、巧みに話をそらす。",
+            "recovery_strategies": "飾るのをやめる。ありのままの自分の意見を、正直に話す。分からないことは、「分からない」と認める。内面を磨き、実質的な議論を心がける。"
+          }
+        },
+        {
+          "safemode_id": 23,
+          "safemode_name": "山地剥",
+          "type": "CHAOS",
+          "overall_score": 0.22,
+          "summary": "【論破による崩壊】相手の主張の、土台となる部分を、完全に論破し、相手のプライドや、存在意義そのものを、崩壊させてしまう。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.2, "description": "相手を完膚なきまでに叩きのめすが、その恨みによって、いつか、自分が、足元から崩される危険を招く。" },
+            "recovery_potential": { "score": 0.1, "description": "相手を、再起不能なまでに叩きのめすため、関係の回復は、完全に不可能。敵意だけが残る。" },
+            "collateral_damage": { "score": 0.9, "description": "人の尊厳を、根本から破壊する、最も残酷なコミュニケーション。周囲は、ドン引きする。" },
+            "lesson_learned": { "score": 0.3, "description": "議論において、相手を論破し、全てを剥ぎ落とすことの、恐ろしさと、虚しさを学ぶ。" },
+            "integration_difficulty": { "score": 0.15, "description": "争い（訟）が、相手の存在を、根本から破壊する（剥）という、最悪のコミュニケーションに陥る。" }
+          },
+          "advice": {
+            "trigger_warning": "相手の議論の、根本的な矛盾や、弱点に、気づいてしまった時。相手への、憎しみが、頂点に達した時。",
+            "meltdown_symptoms": "相手の主張の、土台となる価値観や、人格そのものを、攻撃し始める。「あなたの言っていることは、土台から間違っている」と、全否定する。",
+            "recovery_strategies": "流れに逆らわない。相手の主張が、自ら崩れ去るのを待つ。相手に、逃げ道を残す。厚く、徳のある態度で、相手を包み込む。決して、最後のとどめを刺さない。"
+          }
+        },
+        {
+          "safemode_id": 24,
+          "safemode_name": "地雷復",
+          "type": "SYNERGY",
+          "overall_score": 0.92,
+          "summary": "【和解への帰還】争いの後、過ちに気づき、友情や、本来あるべき関係へと、立ち返る。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.8, "description": "争いを経たことで、かえって、関係の重要性を認識し、より、しなやかで強い関係を築ける。" },
+            "recovery_potential": { "score": 0.98, "description": "争いの暗いトンネルを抜けた直後であり、最も自然で力強い、和解へのエネルギーに満ちている。" },
+            "collateral_damage": { "score": 0.1, "description": "その和解の姿が、周囲にも、希望と安心感を与える。" },
+            "lesson_learned": { "score": 0.95, "description": "道に迷っても（争っても）、いつでも正しい道（友好関係）に戻ることができると知る。素直に謝ることの重要性を体得する。" },
+            "integration_difficulty": { "score": 0.85, "description": "争い（訟）という、道を踏み外した状態から、本来の道に復帰（復）する。理想的な回復のストーリー。" }
+          },
+          "advice": {
+            "trigger_warning": "争った後、一人になり、冷静になった時。「なんで、あんなことで」と、後悔の念が湧いてきた時。",
+            "meltdown_symptoms": "クラッシュからの回復プロセスそのもの。自分から、相手に連絡を取り、「あの時は、ごめん」と、素直に謝る。善いと思うことを、少しずつ始める。",
+            "recovery_strategies": "焦らず、自分のペースで、和解に専念する。善いと思うことを、少しずつ始める。同じ過ちを繰り返さないと、心に誓う。七日という短いスパンで、着実に関係を修復する。"
+          }
+        },
+        {
+          "safemode_id": 25,
+          "safemode_name": "天雷无妄",
+          "type": "CONFLICT",
+          "overall_score": 0.33,
+          "summary": "【正義ゆえの災難】自分の正義を、純粋に、無邪気に主張した結果、予期せぬ、大きな災難を招いてしまう。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.3, "description": "作為がないため、策略で危機を乗り切ることができず、運命に翻弄される。耐性は低い。" },
+            "recovery_potential": { "score": 0.4, "description": "災難が過ぎ去るのを待つしかない。誠実な態度が、やがては状況を好転させる助けとなる。" },
+            "collateral_damage": { "score": 0.7, "description": "本人の意図とは無関係に、周囲を大きなトラブルに巻き込んでしまうことがある。" },
+            "lesson_learned": { "score": 0.5, "description": "正義を主張するには、時と場合を見極める、思慮深さが必要であると学ぶ。" },
+            "integration_difficulty": { "score": 0.3, "description": "争い（訟）における、純粋さ（无妄）は、時として、身を滅ぼす。世の中の、悪意や複雑さを、理解する必要がある。" }
+          },
+          "advice": {
+            "trigger_warning": "権力者の不正などを見て、純粋な正義感から、内部告発などをした時。場の空気を読まずに、正論を吐いた時。",
+            "meltdown_symptoms": "「なぜ、正しいことをした自分が、こんな目に遭うんだ」と、理不尽な運命を嘆く。パニックになり、非合理的な行動をとってしまう。",
+            "recovery_strategies": "下手に動かず、天命に任せる。誠実さを失わない。この災難を、薬だと思って受け入れる。時間が解決するのを待つ。"
+          }
+        },
+        {
+          "safemode_id": 26,
+          "safemode_name": "山天大畜",
+          "type": "HARMONY",
+          "overall_score": 0.82,
+          "summary": "【沈黙による抗議】すぐに反論せず、相手の主張を、大きく、深く受け止め、内面に蓄積することで、無言の圧力をかける。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.9, "description": "巨大なエネルギーを、内面に蓄えているため、外部からの攻撃に、動じない。非常に安定している。" },
+            "recovery_potential": { "score": 0.8, "description": "蓄えられた思慮深さによって、相手の主張の弱点を見抜き、最適なタイミングで、的確な反論ができる。" },
+            "collateral_damage": { "score": 0.1, "description": "感情的に反論しないため、関係を悪化させない。その重厚感が、相手に、自らの非を悟らせることもある。" },
+            "lesson_learned": { "score": 0.88, "description": "争いにおいて、沈黙と、内なる力の蓄積が、いかに強力な武器であるかを学ぶ。" },
+            "integration_difficulty": { "score": 0.75, "description": "争い（訟）のエネルギーを、外に放出せず、内に蓄える（大畜）。訟の攻撃性を、大畜の重厚さでコントロールする、高度な技術。" }
+          },
+          "advice": {
+            "trigger_warning": "相手が、感情的に、まくし立てている時。すぐに反論するよりも、まず、相手の言い分を、全て聞くことが重要だと判断した時。",
+            "meltdown_symptoms": "一切、反論せず、ただ、相手の顔をじっと見て、話を聞いている。何を考えているか分からない、不気味さを漂わせる。その沈黙が、相手を、不安にさせる。",
+            "recovery_strategies": "焦って、反論しない。自分の内面を、充実させることに集中する。過去の賢者の知恵に学び、自分の主張を、より強固なものにする。時が来たら、動く。"
+          }
+        },
+        {
+          "safemode_id": 27,
+          "safemode_name": "山雷頤",
+          "type": "TENSION",
+          "overall_score": 0.58,
+          "summary": "【口は災いの元】争いの中で、言葉を慎まず、余計な一言を言ってしまうことで、状況を悪化させる。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.4, "description": "失言によって、相手の怒りを買い、自分の立場を、不利にしてしまう。" },
+            "recovery_potential": { "score": 0.6, "description": "失言を、素直に謝罪し、態度を改めれば、回復は可能。しかし、一度、口から出た言葉は、消せない。" },
+            "collateral_damage": { "score": 0.7, "description": "不必要な発言が、相手を傷つけ、議論の本質から、話を逸らしてしまう。" },
+            "lesson_learned": { "score": 0.65, "description": "争いの場では、いかに「言葉を慎む」ことが重要であるかを学ぶ。沈黙は金、雄弁は銀。" },
+            "integration_difficulty": { "score": 0.55, "description": "争い（訟）の興奮状態では、口（頤）を慎むのは難しい。感情（雷）を、理性（山）で、しっかりと抑える必要がある。" }
+          },
+          "advice": {
+            "trigger_warning": "議論が白熱し、感情的になってきた時。相手を、言い負かしたいという気持ちが、高まってきた時。",
+            "meltdown_symptoms": "つい、相手の人格や、容姿などを、揶揄するようなことを言ってしまう。議論に関係のない、相手の過去の失敗などを、持ち出す。言ってから、「しまった」と後悔する。",
+            "recovery_strategies": "まず、自分自身が、正しい言葉を使うよう、心がける。言葉を慎み、内なる静けさを保つ。相手の言葉に、一々反応しない。沈黙を、恐れない。"
+          }
+        },
+        {
+          "safemode_id": 28,
+          "safemode_name": "沢風大過",
+          "type": "CHAOS",
+          "overall_score": 0.25,
+          "summary": "【正義感の暴発】些細な不正や、小さな矛盾に対して、過剰なまでに正義感を振りかざし、全てを破壊するほどの、大きな争いを引き起こす。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.2, "description": "バランス感覚を、完全に失っており、問題の大きさに、不釣り合いな対応をするため、自滅しやすい。" },
+            "recovery_potential": { "score": 0.2, "description": "やりすぎて、全てを壊した後、深い後悔に襲われるが、失ったものは戻らない。回復は、極めて困難。" },
+            "collateral_damage": { "score": 0.9, "description": "その過剰な正義感が、組織や、人間関係の、屋台骨を、へし折ってしまう。周囲は、ただ、ドン引きするだけ。" },
+            "lesson_learned": { "score": 0.35, "description": "正義も、度を過ぎれば、悪になるということを学ぶが、その授業料は、あまりに高い。" },
+            "integration_difficulty": { "score": 0.2, "description": "争い（訟）が、度を越した（大過）状態。正義感が、暴走する、最も危険なパターンの一つ。" }
+          },
+          "advice": {
+            "trigger_warning": "社会や、組織の、小さな不正義が、どうしても許せないと感じた時。「世直し」への、過剰な使命感に燃えている時。",
+            "meltdown_symptoms": "些細なルール違反を、鬼の首を取ったかのように、糾弾する。全てを、白か黒かで、判断しようとする。妥協や、対話を、悪と見なす。",
+            "recovery_strategies": "ただちに、その場から離れ、一人になる。その問題が、本当に、全てを賭けて戦う価値のあるものか、自問する。信頼できる、冷静な人物に、意見を求める。独立独歩の精神を捨て、誰かに頼る。"
+          }
+        },
+        {
+          "safemode_id": 29,
+          "safemode_name": "坎為水",
+          "type": "CHAOS",
+          "overall_score": 0.24,
+          "summary": "【疑心暗鬼の争い】争いの中で、相手も、自分も、誰も信じられなくなり、困難と、苦しみの罠に、はまり込む。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.1, "description": "困難の連続で、心が擦り切れており、もはや、正常な判断ができない。" },
+            "recovery_potential": { "score": 0.2, "description": "苦難に、慣れてしまい、争うことが、日常だと諦めてしまうため、自力での回復は、非常に難しい。" },
+            "collateral_damage": { "score": 0.8, "description": "常に、誰かを疑い、攻撃するため、全ての人間関係を、破壊する。周囲に、ネガティブな影響を広げる。" },
+            "lesson_learned": { "score": 0.35, "description": "争いの中で、誠実さを失うと、いかに、深い闇に陥るかを学ぶ。しかし、その闇から、抜け出すのは困難。" },
+            "integration_difficulty": { "score": 0.2, "description": "争い（訟）が、困難の連続（坎）と結びつく。出口のない、苦しみのループ。" }
+          },
+          "advice": {
+            "trigger_warning": "信頼していた相手に、裏切られた時。争いが、長期化し、精神的に、追い詰められた時。",
+            "meltdown_symptoms": "常に、不安と恐怖に、苛まれる。周りの人間が、全て、自分の敵に見える。危険な状況に、感覚が、麻痺してしまう。",
+            "recovery_strategies": "これ以上、状況を悪化させないように、行動を、一旦、止める。信頼できる、ただ一人の人物に、助けを求める。学びの姿勢（誠実さ）を、思い出す。困難から、何かを得ようと努める。"
+          }
+        },
+        {
+          "safemode_id": 30,
+          "safemode_name": "離為火",
+          "type": "TENSION",
+          "overall_score": 0.5,
+          "summary": "【知的な論争】感情的な争いを避け、あくまでも、知性と、論理に基づいた、高度な論争を繰り広げる。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.6, "description": "感情に流されないため、冷静な対応ができるが、論理で負けると、脆い。" },
+            "recovery_potential": { "score": 0.5, "description": "論理的に、自分の非が証明されれば、受け入れ、回復に向かうが、プライドが邪魔をすることもある。" },
+            "collateral_damage": { "score": 0.5, "description": "論理で、相手を打ち負かすことで、相手に、劣等感や、恨みを抱かせる可能性がある。" },
+            "lesson_learned": { "score": 0.6, "description": "論理的な正しさと、人間的な正しさは、必ずしも一致しないことを学ぶ。" },
+            "integration_difficulty": { "score": 0.5, "description": "争い（訟）を、知性（離）で、コントロールしようとする。讼の危険な情動を、離の明晰さで、抑える試みだが、冷たい、人間味のない争いになりがち。" }
+          },
+          "advice": {
+            "trigger_warning": "学会や、裁判など、論理的な正しさが、求められる場で、意見が対立した時。",
+            "meltdown_symptoms": "相手の主張の、論理的な矛盾点を、執拗に突く。感情的な議論を、「非合理的だ」と、見下す。自分の主張を、客観的なデータや、証拠で、補強しようとする。",
+            "recovery_strategies": "論理だけでなく、相手の感情にも、配慮する。自分が、本当に、正しいのか、常に、問い続ける。柔順な徳を養い、多様な価値観を受け入れる。"
+          }
+        },
+        {
+          "safemode_id": 31,
+          "safemode_name": "沢山咸",
+          "type": "HARMONY",
+          "overall_score": 0.72,
+          "summary": "【共感による和解】争いの途中で、相手の痛みや、悲しみに、心が感応し、共感から、和解へと至る。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.6, "description": "論理的な危機対応は苦手だが、共感力が、相手の敵意を解き、状況を、好転させることがある。" },
+            "recovery_potential": { "score": 0.85, "description": "心からの共感や、謝罪によって、精神的なダメージから、速やかに回復できる。" },
+            "collateral_damage": { "score": 0.3, "description": "感情に、流されやすい面はあるが、純粋な動機であるため、大きな害はもたらさない。" },
+            "lesson_learned": { "score": 0.8, "description": "争いを、本当に終わらせるのは、論理ではなく、相手の心を感じ、受け入れる、共感の力であると学ぶ。" },
+            "integration_difficulty": { "score": 0.68, "description": "争い（訟）と、共感（咸）は、対極にあるようだが、訟の行き着く先に、相手への共感が生まれれば、それは、真の解決となる。" }
+          },
+          "advice": {
+            "trigger_warning": "相手の、涙や、苦しそうな表情を、目にした時。相手の立場を、想像してみた時。",
+            "meltdown_symptoms": "突然、攻撃的な口調が、和らぐ。「君も、辛かったんだな」と、相手を、気遣う言葉が出てくる。勝ち負けなど、どうでも良くなる。",
+            "recovery_strategies": "心を虚しくして、相手を受け入れる。先入観を持たずに、相手の話を聞く。自分の直感を信じる。言葉だけでなく、態度や行動で、和解の意志を示す。"
+          }
+        },
+        {
+          "safemode_id": 32,
+          "safemode_name": "雷風恒",
+          "type": "TENSION",
+          "overall_score": 0.4,
+          "summary": "【終わらない夫婦喧嘩】同じ主張を、同じやり方で、延々と繰り返し、恒常的な対立状態に陥る。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.4, "description": "変化を、受け入れられないため、状況を打開する、新しい解決策を、見出せない。" },
+            "recovery_potential": { "score": 0.3, "description": "この、不毛な繰り返しから、抜け出すには、どちらかが、自分のやり方を変えるという、大きな決断が必要。" },
+            "collateral_damage": { "score": 0.7, "description": "恒常的な、緊張状態が、家庭や、職場の雰囲気を、悪化させ、周囲の人々を、疲弊させる。" },
+            "lesson_learned": { "score": 0.45, "description": "同じことを、繰り返しているだけでは、問題は、決して解決しないと学ぶ。" },
+            "integration_difficulty": { "score": 0.35, "description": "争い（訟）が、恒常化（恒）する。最も、不毛で、抜け出しにくい、争いの形の一つ。" }
+          },
+          "advice": {
+            "trigger_warning": "長年の、不満が、積み重なっている、夫婦や、親子、同僚との間で、対立した時。",
+            "meltdown_symptoms": "「また、その話か」「いつも、君はそうだ」と、過去の出来事を、持ち出す。お互いに、相手の次の言葉が、予測できる。一種の、安定した、不幸な状態。",
+            "recovery_strategies": "自分の、主張や、やり方を、一度、変えてみる。いつもと違う、場所や、時間で、話し合ってみる。第三者の、カウンセラーなどに、間に入ってもらう。利を得る場所を常に変える（＝やり方を変え続ける）。"
+          }
+        },
+        {
+          "safemode_id": 33,
+          "safemode_name": "天山遯",
+          "type": "SYNERGY",
+          "overall_score": 0.94,
+          "summary": "【逃げるが勝ち】不利な争いから、潔く、戦略的に撤退し、ダメージを最小限に抑え、再起を図る。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.9, "description": "危機を、直接、受け止めず、距離を置くことで、身の安全を、確保できる。賢明な、危機管理能力。" },
+            "recovery_potential": { "score": 0.9, "description": "撤退は、エネルギーの温存に繋がり、力を蓄えた後、有利な状況で、再び、勝負することができる。" },
+            "collateral_damage": { "score": 0.2, "description": "無責任と、見なされるリスクはあるが、共倒れになるよりは、はるかに、被害が少ない。" },
+            "lesson_learned": { "score": 0.95, "description": "戦うことだけが、勇気ではない。「退く」ことの、戦略的な重要性を学ぶ。" },
+            "integration_difficulty": { "score": 0.8, "description": "争い（訟）の、危険性を察知し、賢く、逃れる（遯）。訟の、自己破壊的な側面を、遯の、現実的な判断力が、救う、素晴らしい組み合わせ。" }
+          },
+          "advice": {
+            "trigger_warning": "相手の勢いが、あまりに強く、自分に、勝ち目がないと判断した時。これ以上、関わるのは、時間と、エネルギーの無駄だと感じた時。",
+            "meltdown_symptoms": "突然、連絡を絶ったり、その場から、姿を消したりする。議論を、一方的に、打ち切る。「あなたとは、話にならない」と、相手を、見下すことで、精神的な勝利を得ようとする。",
+            "recovery_strategies": "感情的に、逃げるのではなく、戦略として、「退く」ことを選択する。退くタイミングを、見極める。相手を、憎まず、距離を置く。退いている間に、力を蓄え、次の機会に備える。"
+          }
+        },
+        {
+          "safemode_id": 34,
+          "safemode_name": "雷天大壮",
+          "type": "CHAOS",
+          "overall_score": 0.22,
+          "summary": "【正義の鉄槌】自分の正義を、暴力的なまでに、強力に主張し、相手を、力で、ねじ伏せようとする。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.2, "description": "勢いだけで、思慮に欠けるため、障害にぶつかると、すぐに、頓挫する。反撃に、弱い。" },
+            "recovery_potential": { "score": 0.25, "description": "たとえ、力で勝っても、恨みを買い、いつか、しっぺ返しを食らう。健全な、回復とは言えない。" },
+            "collateral_damage": { "score": 0.9, "description": "その、破壊的なエネルギーで、人間関係や、積み上げてきたものを、破壊する。周囲を、恐怖に陥れる。" },
+            "lesson_learned": { "score": 0.35, "description": "力は、正しくコントロールしなければ、ただの暴力になることを学ぶが、その代償は大きい。" },
+            "integration_difficulty": { "score": 0.2, "description": "争い（訟）が、純粋なパワー（大壮）と結びつく。理性を失った、危険な、暴走状態。" }
+          },
+          "advice": {
+            "trigger_warning": "自分の、肉体的な力や、権力に、自信がある時。相手が、自分より、弱いと判断した時。",
+            "meltdown_symptoms": "威圧的な態度や、大声で、相手を、威嚇する。机を叩いたり、物を投げたりする。後先考えず、衝動的な、暴力に訴える。",
+            "recovery_strategies": "勢いで、行動しない。一度、立ち止まり、冷静になる時間を作る。力の、正しい使い方を知る（非礼を行わない）。そのエネルギーを、建設的な目標に向ける。"
+          }
+        },
+        {
+          "safemode_id": 35,
+          "safemode_name": "火地晋",
+          "type": "TENSION",
+          "overall_score": 0.65,
+          "summary": "【権力者への直訴】自分の正しさを、より、大きな権力を持つ人物に、認めさせ、その力によって、争いに勝利しようとする。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.7, "description": "強力な、後ろ盾を得られれば、争いを、有利に進めることができる。" },
+            "recovery_potential": { "score": 0.6, "description": "権力者の、判断次第で、状況が、一変するため、回復は、不安定。自分の実力での、勝利ではない。" },
+            "collateral_damage": { "score": 0.6, "description": "虎の威を借る狐と、見なされ、周囲の、反感を買うことがある。権力者を、自分の争いに、巻き込む。" },
+            "lesson_learned": { "score": 0.68, "description": "争いを、有利に進めるには、より、大きな権威を、味方につけることの、重要性を学ぶ。" },
+            "integration_difficulty": { "score": 0.58, "description": "争い（訟）を、権力を用いて、進める（晋）やり方。うまく行けば、効果的だが、自分の実力以上の結果を求め、身を滅ぼす危険もある。" }
+          },
+          "advice": {
+            "trigger_warning": "直接の、上司や、相手との交渉が、うまくいかない時。より、上の役職の人物に、話を通そうとする時。",
+            "meltdown_symptoms": "根回しや、派閥争いに、熱心になる。有力者に、取り入ろうとする。自分の主張の、正当性よりも、誰が、味方か、ということを、気にするようになる。",
+            "recovery_strategies": "小さな利益に、こだわらない。常に、平常心を保ち、柔順な態度を、忘れない。有力者の、信頼を、裏切らない。実力も、伴うように、努力する。"
+          }
+        },
+        {
+          "safemode_id": 36,
+          "safemode_name": "地火明夷",
+          "type": "CONFLICT",
+          "overall_score": 0.28,
+          "summary": "【敗者の沈黙】争いに敗れ、あるいは、あまりに、相手が強大で、自分の正義を、心の奥に隠し、傷つきながら、沈黙する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.2, "description": "正義を、押し殺しているため、精神的に、深く傷つき、危機耐性は、極めて低い。" },
+            "recovery_potential": { "score": 0.25, "description": "その、理不尽な環境から、脱しない限り、心の傷は癒えず、回復は困難。人間不信に、陥る。" },
+            "collateral_damage": { "score": 0.8, "description": "不正を、見て見ぬふりをすることで、結果的に、悪を助長する。その、無力感が、自分と、周囲を、蝕む。" },
+            "lesson_learned": { "score": 0.4, "description": "困難な状況で、いかにして、内なる正義の光を、守り抜くかの、重要性を学ぶが、その実践は、非常に難しい。" },
+            "integration_difficulty": { "score": 0.25, "description": "争い（訟）に敗れ、光（離）が、地中に隠れる（明夷）。正義が、踏みにじられる、最も、悲しい形。" }
+          },
+          "advice": {
+            "trigger_warning": "巨大な権力や、理不尽な暴力の前に、自分の正義が、全く、通用しないと、悟った時。",
+            "meltdown_symptoms": "自分の意見や、感情を、完全に、押し殺す。馬鹿なフリをして、その場を、やり過ごす。内心では、深い怒りと、無力感に、苛まれているが、それを、決して、表に出さない。",
+            "recovery_strategies": "可能であれば、その場から、立ち去る。自分の、内なる正義を、完全に、捨てない。内なる明智を、隠しつつも、節度を保つ。いつか、反撃できる日が来ることを、信じて、力を蓄える。"
+          }
+        },
+        {
+          "safemode_id": 37,
+          "safemode_name": "風火家人",
+          "type": "TENSION",
+          "overall_score": 0.62,
+          "summary": "【家庭内紛争】家庭や、組織の内部で、感情的な、しかし、厳格なルールに基づいた、争いが起きる。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.6, "description": "内部の、ルールがあるため、完全に、破壊的な争いには、なりにくいが、感情的な、しこりが残る。" },
+            "recovery_potential": { "score": 0.6, "description": "家族的な、絆があるため、関係修復は可能だが、時間がかかる。ルールを、見直すことで、回復に向かう。" },
+            "collateral_damage": { "score": 0.7, "description": "家庭や、組織の、和やかな雰囲気を、破壊する。外部からの、信用を失う。" },
+            "lesson_learned": { "score": 0.65, "description": "内部の、ルール（家憲）の、重要性と、それが、時には、争いの原因にもなることを学ぶ。" },
+            "integration_difficulty": { "score": 0.55, "description": "争い（訟）が、家庭（家人）という、閉鎖的な空間で起きる。感情的な、厳しさが、伴い、逃げ場がない、苦しい状況になりやすい。" }
+          },
+          "advice": {
+            "trigger_warning": "親子喧嘩や、遺産相続、職場の、派閥争いなど、内部での、対立が、激化した時。",
+            "meltdown_symptoms": "感情的な、非難の応酬になる。「家族（仲間）のくせに」と、相手を、なじる。外部には、問題を隠そうとする。",
+            "recovery_strategies": "言葉と、行動に、一貫性を持たせる。感情に流されず、ルールに、従って、判断する。自分自身を、正すことで、全体の、調和を取り戻す。"
+          }
+        },
+        {
+          "safemode_id": 38,
+          "safemode_name": "火沢睽",
+          "type": "CONFLICT",
+          "overall_score": 0.32,
+          "summary": "【反目の泥沼化】互いに、背き合い、反目し、それが、終わりのない、不毛な対立関係へと、発展する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.25, "description": "常に、仲間割れの、状態にあるため、外部の危機に対して、協力して、当たることができない。" },
+            "recovery_potential": { "score": 0.3, "description": "根本的な、価値観の違いから、和解は困難。関係を続ける限り、精神的な消耗が続く。" },
+            "collateral_damage": { "score": 0.8, "description": "互いに、背き合うことで、生産的な活動が、一切、できなくなる。周囲にも、不和な雰囲気を、まき散らす。" },
+            "lesson_learned": { "score": 0.42, "description": "違いがある中で、いかに、共通点を見出し、協力していくかの、難しさを学ぶ。あるいは、袂を分かつ、決断の重要性を知る。" },
+            "integration_difficulty": { "score": 0.3, "description": "争い（訟）が、反目（睽）と、結びつく。お互いに、そっぽを向いたまま、争う、最も、陰湿で、不毛な関係。" }
+          },
+          "advice": {
+            "trigger_warning": "根本的に、相容れない相手と、行動を、共にせざるを得なくなった時。",
+            "meltdown_symptoms": "相手のやることなすこと、全てに、内心で、反発する。表面上は、取り繕うが、皮肉や、嫌味といった形で、敵意が、漏れ出す。協力が必要な場面で、非協力的な態度をとる。",
+            "recovery_strategies": "大きな目標（大同）は、共有し、細かな違い（小異）には、目をつぶる。共通の敵を、見つけるなどして、一時的に、協力関係を築く。どうしても無理なら、潔く、別れる。"
+          }
+        },
+        {
+          "safemode_id": 39,
+          "safemode_name": "水山蹇",
+          "type": "TENSION",
+          "overall_score": 0.38,
+          "summary": "【訴訟の停滞】争いが、困難な壁にぶつかり、進めることも、退くこともできず、身動きが取れなくなる。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.3, "description": "八方塞がりで、有効な手が打てないため、精神的に、追い詰められやすい。" },
+            "recovery_potential": { "score": 0.4, "description": "この苦難を、耐え抜けば、精神的に、大きく成長できるが、途中で、心が折れる危険も高い。" },
+            "collateral_damage": { "score": 0.7, "description": "停滞することで、時間や、費用がかさみ、周囲に、迷惑をかける。" },
+            "lesson_learned": { "score": 0.5, "description": "困難な時には、無理に、争いを進めようとせず、内省し、賢者の助けを待つことの、重要性を学ぶ。" },
+            "integration_difficulty": { "score": 0.4, "description": "争い（訟）が、困難（蹇）に陥る。エネルギーを、消耗するだけの、苦しい状態。" }
+          },
+          "advice": {
+            "trigger_warning": "訴訟が、泥沼化し、解決の、見通しが、全く立たなくなった時。",
+            "meltdown_symptoms": "何をしても、上手くいかず、途方に暮れる。無力感に、苛まれ、全てを、投げ出したくなる。自分を責め、ふさぎ込む。",
+            "recovery_strategies": "無理に、進めない。その場で、立ち止まり、自分の、内面を、修養する。信頼できる、仲間と、協力する。賢者（優れた弁護士など）の、助けを待つ。"
+          }
+        },
+        {
+          "safemode_id": 40,
+          "safemode_name": "雷水解",
+          "type": "SYNERGY",
+          "overall_score": 0.95,
+          "summary": "【緊張の氷解と赦し】長く続いた、争いや、緊張が解け、互いを赦し、和解する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.85, "description": "困難が、解決に向かう、エネルギーに満ちているため、残された問題にも、力強く、対応できる。" },
+            "recovery_potential": { "score": 0.98, "description": "緊張からの、解放により、心身ともに、リフレッシュされ、最も、スムーズで、穏やかな回復を遂げる。" },
+            "collateral_damage": { "score": 0.1, "description": "過去を、赦し、和解が進むため、人間関係が、修復される。副作用は、ほぼない。" },
+            "lesson_learned": { "score": 0.96, "description": "どんな、困難な争いも、必ず、解ける時が来ること、そして、赦すことの力を学ぶ。" },
+            "integration_difficulty": { "score": 0.9, "description": "困難（蹇）や、争い（訟）の後に、解放（解）が来るのは、自然な流れ。訟の、緊張状態から、解の、解放感への、理想的な移行。" }
+          },
+          "advice": {
+            "trigger_warning": "相手から、謝罪の言葉があった時。第三者の、仲介が、功を奏した時。状況が、好転し、解決の兆しが、見えた時。",
+            "meltdown_symptoms": "クラッシュからの、回復プロセスそのもの。肩の荷が下りて、心から、安堵する。過去の、相手の過ちを、赦す気持ちになる。素早く、やるべきことに、取り掛かる。",
+            "recovery_strategies": "問題が、解決したら、速やかに、行動に移す。過去のことは、水に流し、赦す。才能ある者（自分の中の、寛容さ）を用いる。シンプルで、公平な、関係に戻る。"
+          }
+        },
+        {
+          "safemode_id": 41,
+          "safemode_name": "山沢損",
+          "type": "TENSION",
+          "overall_score": 0.42,
+          "summary": "【和解のための自己犠牲】争いを、終わらせるために、自分の主張を、一部、あるいは、全て取り下げ、自分を、損なう選択をする。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.4, "description": "自分を、犠牲にしているため、不満が残り、真の解決とは言えない。精神的な、安定性に欠ける。" },
+            "recovery_potential": { "score": 0.5, "description": "誠意からの、自己犠牲であれば、相手に、気持ちが伝わり、良い結果に繋がるが、不満からだと、回復は難しい。" },
+            "collateral_damage": { "score": 0.7, "description": "過度な、自己犠牲は、相手に、罪悪感を抱かせたり、逆に、つけあがらせたりする。健全な、関係を損なう。" },
+            "lesson_learned": { "score": 0.55, "description": "誠意を込めて、自分を損なうことが、時には、事態を好転させることを学ぶ。しかし、その見極めは、難しい。" },
+            "integration_difficulty": { "score": 0.45, "description": "争い（訟）を、自分の犠牲（損）で、終わらせようとする。一見、美しく見えるが、被害者意識に、陥りやすい、危険な統合。" }
+          },
+          "advice": {
+            "trigger_warning": "これ以上、争いを続けても、得るものがないと、判断した時。相手の、窮状を見て、同情心が湧いた時。",
+            "meltdown_symptoms": "突然、自分の主張を、取り下げる。「もう、いいです。あなたの、言う通りで」と、諦めたように、宣言する。自分ばかりが、損しているという、被害者意識を、募らせる。",
+            "recovery_strategies": "怒りの感情を、抑圧せず、自分の、本当の気持ちを、確認する。本当に、誠意からなのか、見返りを期待していないか、自分の心に問う。二つの器で、質素に、お祭りする（＝心を込めて、誠意を示す）。"
+          }
+        },
+        {
+          "safemode_id": 42,
+          "safemode_name": "風雷益",
+          "type": "HARMONY",
+          "overall_score": 0.76,
+          "summary": "【相手を利する解決策】自分の、利益だけでなく、相手の利益にもなるような、建設的な解決策を、提示し、共に、利益を得る。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.8, "description": "Win-Winの、解決策は、双方の協力を、引き出し、危機を、チャンスに変える力を持つ。" },
+            "recovery_potential": { "score": 0.85, "description": "双方が、利益を得るため、恨みが残らず、非常に、ポジティブで、スピーディーな回復が、可能。" },
+            "collateral_damage": { "score": 0.1, "description": "周囲にも、利益を、もたらし、社会全体を、良くするため、副作用は、ほぼない。" },
+            "lesson_learned": { "score": 0.82, "description": "真の、勝利とは、相手を、打ち負かすことではなく、相手を、益することで、自分も、益することだ、という、Win-Winの精神を、体得する。" },
+            "integration_difficulty": { "score": 0.7, "description": "争い（訟）を、相互の利益（益）へと、転換させる。高度な、視点の切り替えが、必要だが、非常に、建設的な統合。" }
+          },
+          "advice": {
+            "trigger_warning": "争いが、膠着し、このままでは、共倒れになると、感じた時。相手の、長所や、リソースに、気づいた時。",
+            "meltdown_symptoms": "「待てよ、こうすれば、お互いに、得するんじゃないか？」と、新しい、提案をする。敵対的な、態度から一転し、協力的な、パートナーとしての、態度に変わる。",
+            "recovery_strategies": "善いと、思ったら、ためらわず、速やかに、行動する。自分の、利益だけでなく、全体の利益を、考えて、行動する。その中心に、誠の心を、持つ。"
+          }
+        },
+        {
+          "safemode_id": 43,
+          "safemode_name": "沢天夬",
+          "type": "TENSION",
+          "overall_score": 0.44,
+          "summary": "【最後の通告】これ以上、話し合っても無駄だと判断し、相手との関係を、断ち切る、という、最終決断を下す。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.5, "description": "断固たる、決断力は、状況を、一変させる力を持つが、後戻りできない、危険性もはらむ。" },
+            "recovery_potential": { "score": 0.4, "description": "悪縁を、断ち切ることで、スッキリするが、その決断が、間違いだった場合、回復は、困難。" },
+            "collateral_damage": { "score": 0.7, "description": "一方的な、関係の、断絶は、相手に、深い傷を、与える。周囲を、巻き込む、大きな波紋を呼ぶ。" },
+            "lesson_learned": { "score": 0.55, "description": "時には、非情に見えても、断固たる決断が、必要であることを学ぶ。" },
+            "integration_difficulty": { "score": 0.4, "description": "争い（訟）が、決断（夬）に至る。感情的な、勢いで、決断すると、後悔する可能性が高い。冷静な、判断力が、求められる。" }
+          },
+          "advice": {
+            "trigger_warning": "和解の努力が、全て、無駄に終わり、相手に、改善の、見込みが、全くないと、判断した時。",
+            "meltdown_symptoms": "「もう、終わりだ」と、最終通告を、突きつける。相手の、言い分を、一切聞かず、一方的に、関係を、断ち切る。涙を、見せるなど、情に訴える、戦術は、使わない。",
+            "recovery_strategies": "私情を挟まず、公の立場で、決断する。不正の事実を、公表し、人々の協力を得る。力ずくで、解決しようとしない。誠実な態度で、断固として、臨む。"
+          }
+        },
+        {
+          "safemode_id": 44,
+          "safemode_name": "天風姤",
+          "type": "CONFLICT",
+          "overall_score": 0.26,
+          "summary": "【不倫裁判】偶然の、魅力的な出会いが、やがて、泥沼の、裁判沙汰へと、発展する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.2, "description": "悪意や、災いを、無防備に、受け入れてしまった結果であり、危機管理能力は、皆無。" },
+            "recovery_potential": { "score": 0.2, "description": "一度、関わると、断ち切るのが、非常に困難。社会的信用を失い、回復には、大きな犠牲が、必要になる。" },
+            "collateral_damage": { "score": 0.9, "description": "不適切な関係が、家庭や、組織を崩壊させる。一つの出会いが、全てを、台無しにする。" },
+            "lesson_learned": { "score": 0.35, "description": "偶然の出会いに潜む、危険性を見抜き、安易に関わるべきではないと学ぶが、その代償は、計り知れない。" },
+            "integration_difficulty": { "score": 0.2, "description": "争い（訟）が、不適切な出会い（姤）から、生じる。最も、みっともなく、破壊的な、争いの原因の一つ。" }
+          },
+          "advice": {
+            "trigger_warning": "配偶者や、恋人がいるのに、魅力的な、異性からの、誘惑があった時。危険な、関係に、足を踏み入れてしまった時。",
+            "meltdown_symptoms": "後先のことを、考えず、その場の魅力に、流されてしまう。嘘を、重ねることで、状況が、さらに悪化する。気づいた時には、手遅れになっている。",
+            "recovery_strategies": "絶対に、その誘惑に、関わってはいけない。強い意志で、関係を、断ち切る。災いの元を、大きく育つ前に、摘み取る。長期的な視点で、物事を、判断する。"
+          }
+        },
+        {
+          "safemode_id": 45,
+          "safemode_name": "沢地萃",
+          "type": "TENSION",
+          "overall_score": 0.68,
+          "summary": "【集団訴訟】多くの、人々が、集まり、共通の敵に対して、集団で、訴えを起こす。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.8, "description": "多くの人々や、資源が、集まっているため、組織力が高く、危機に、非常に強い。" },
+            "recovery_potential": { "score": 0.6, "description": "勝利すれば、大きな利益を、得られるが、敗北すれば、集団全体が、大きなダメージを受ける。" },
+            "collateral_damage": { "score": 0.6, "description": "集団が、大きくなることで、内部での、意見対立が、起きる可能性がある。" },
+            "lesson_learned": { "score": 0.7, "description": "大きな、目的を、達成するためには、多くの人々を、集め、団結させる、リーダーシップが、必要だと学ぶ。" },
+            "integration_difficulty": { "score": 0.6, "description": "争い（訟）が、集団（萃）の力と、結びつく。強力な、力を、持つが、その力を、正しく、コントロールする、強いリーダーシップが、不可欠。" }
+          },
+          "advice": {
+            "trigger_warning": "同じ、被害や、不満を持つ、多くの人々が、いると知った時。リーダーとして、人々を、まとめるべき時が来たと感じた時。",
+            "meltdown_symptoms": "デモや、集会を、主催し、人々の、結束を、高めようとする。共通の敵を、設定し、団結を、煽る。祭祀や、イベントを、通じて、一体感を、醸成する。",
+            "recovery_strategies": "常に、不測の事態に、備える。大きな犠牲を払ってでも、集団の、結束を、優先する。王の廟に、詣でる（＝中心となる、理念や、目的を、明確にする）。誠実さと、大きな心で、人々に接する。"
+          }
+        },
+        {
+          "safemode_id": 46,
+          "safemode_name": "地風升",
+          "type": "HARMONY",
+          "overall_score": 0.74,
+          "summary": "【昇進をめぐる争い】争いに、勝利することで、一歩一歩、着実に、地位が、上がっていく。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.7, "description": "着実な、勝利は、盤石な、地盤を築く。足元を、すくわれることなく、危機に強い。" },
+            "recovery_potential": { "score": 0.7, "description": "基礎が、しっかりしているため、多少の、困難があっても、揺らぐことなく、着実に、回復し、さらに、成長できる。" },
+            "collateral_damage": { "score": 0.4, "description": "周囲の、嫉妬や、反感を、買う可能性がある。" },
+            "lesson_learned": { "score": 0.75, "description": "地位を、上げるためには、時には、争いを、勝ち抜く、強さも、必要であると学ぶ。" },
+            "integration_difficulty": { "score": 0.6, "description": "争い（訟）を、経て、昇進（升）する。世俗的な、成功の、一つの形だが、争いの、エネルギーを、成長の、エネルギーに、転換させる、賢さが必要。" }
+          },
+          "advice": {
+            "trigger_warning": "昇進をかけた、ライバルとの、競争が、激化した時。",
+            "meltdown_symptoms": "ライバルを、蹴落とすための、戦略を練る。自分の、実績を、アピールし、相手の、欠点を、指摘する。恐れることなく、目標に、向かって、進む。",
+            "recovery_strategies": "焦らない。一歩一歩、着実に、実績を、積み重ねる。師や、リーダーの、教えに、素直に従う。正々堂々と、戦う。"
+          }
+        },
+        {
+          "safemode_id": 47,
+          "safemode_name": "沢水困",
+          "type": "CHAOS",
+          "overall_score": 0.17,
+          "summary": "【孤立無援の訴訟】争いの中で、誰の助けも、得られず、完全に、困窮し、身動きが、取れなくなる。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.1, "description": "全ての、エネルギーと、資源を、失い、困窮しきっているため、新たな危機に、対応する力は、全くない。" },
+            "recovery_potential": { "score": 0.15, "description": "自力での、回復は、絶望的。外部からの、大きな助けがなければ、そのまま、朽ち果ててしまう危険がある。" },
+            "collateral_damage": { "score": 0.8, "description": "その、苦しむ姿が、周囲に、重苦しい雰囲気を、与える。助けようとする人をも、疲弊させてしまう。" },
+            "lesson_learned": { "score": 0.3, "description": "人望を、失うと、いかに、悲惨な状況に、陥るかを学ぶ。しかし、あまりに、辛い経験となる。" },
+            "integration_difficulty": { "score": 0.15, "description": "争い（訟）が、完全な、困窮（困）に、行き着く。自己破壊の、最悪の、結末の一つ。" }
+          },
+          "advice": {
+            "trigger_warning": "自分の、主張が、誰にも、理解されず、完全に、孤立した時。訴訟費用が、底をついた時。",
+            "meltdown_symptoms": "何を言っても、誰にも、信じてもらえない。行動が、全て、裏目に出る。物理的にも、精神的にも、困窮し、絶望する。ただ、苦しみに、耐えるしかなくなる。",
+            "recovery_strategies": "今は、耐える時と、受け入れる。無駄な、言い訳をしない。楽しむ心を、忘れず、希望を、失わない。やがて来る、助けを待つ。"
+          }
+        },
+        {
+          "safemode_id": 48,
+          "safemode_name": "水風井",
+          "type": "HARMONY",
+          "overall_score": 0.84,
+          "summary": "【不変の原則に基づく争い】流行や、感情に流されず、井戸のように、不変の、法や、原則に基づいて、静かに、正しさを主張する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.8, "description": "常に、中心となる、原則が、安定しており、どんな、反論にも、動じない。" },
+            "recovery_potential": { "score": 0.8, "description": "たとえ、一時的に、不利になっても、原則が、変わらない限り、何度でも、正しさを、主張し、回復できる。" },
+            "collateral_damage": { "score": 0.2, "description": "その、変わらない、主張が、周囲に、安心感と、信頼を、与える。" },
+            "lesson_learned": { "score": 0.88, "description": "争いにおいて、最も、信頼できる武器は、不変の、原則や、法であると、体得する。" },
+            "integration_difficulty": { "score": 0.75, "description": "争い（訟）を、井戸（井）という、不変の、原則に、根ざさせる。訟の、感情的な、揺れを、井の、不動性で、安定させる、良い統合。" }
+          },
+          "advice": {
+            "trigger_warning": "周囲の意見が、二転三転し、何が、正しいか、分からなくなった時。基本に、立ち返る、必要性を感じた時。",
+            "meltdown_symptoms": "流行の、ロジックや、感情論には、目もくれず、ひたすら、基本的な、法律や、原則を、繰り返し、主張する。その、淡々とした態度が、かえって、相手を、動揺させる。",
+            "recovery_strategies": "井戸を、修理する（＝常に、原則や、法律の、解釈を、見直し、向上させる）。中途半端な、主張をしない。その、原則の、恩恵を、独り占めせず、誰にでも、公平に、適用する。"
+          }
+        },
+        {
+          "safemode_id": 49,
+          "safemode_name": "沢火革",
+          "type": "CONFLICT",
+          "overall_score": 0.41,
+          "summary": "【革命裁判】既存の、ルールや、秩序を、覆すために、革命的な、訴えを起こす。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.4, "description": "古い、権力からの、抵抗や、圧力が、激しく、危機に、陥りやすい。" },
+            "recovery_potential": { "score": 0.4, "description": "革命が、成功すれば、新しい、秩序を、作れるが、失敗すれば、反逆者として、全てを失う。" },
+            "collateral_damage": { "score": 0.8, "description": "革命の、過程での、混乱が、社会全体に、大きな、ダメージを、与える。" },
+            "lesson_learned": { "score": 0.55, "description": "社会を、変えるためには、時には、既存の、秩序と、戦う、革命的な、行動が、必要であることを学ぶ。" },
+            "integration_difficulty": { "score": 0.4, "description": "争い（訟）が、革命（革）という、最も、過激な形をとる。高い、理念と、緻密な戦略がなければ、ただの、破壊活動で、終わる。" }
+          },
+          "advice": {
+            "trigger_warning": "既存の、法律や、ルールそのものが、不正義の、根源であると、確信した時。",
+            "meltdown_symptoms": "これまでの、常識を、覆すような、過激な主張を、展開する。古い、権威を、真っ向から、否定する。破壊的な、行動に、快感を、覚えてしまう。",
+            "recovery_strategies": "変革の前に、まず、自分の立場を固める。その日が来るまで、軽々しく動かない。変革の必要性が、誰の目にも明らかになる時を待つ。大義名分と、人々の支持を得て、臨む。"
+          }
+        },
+        {
+          "safemode_id": 50,
+          "safemode_name": "火風鼎",
+          "type": "HARMONY",
+          "overall_score": 0.86,
+          "summary": "【和解の器】争いを、収めるための、安定した「器」となり、双方の、主張を受け止め、新しい、秩序を、築く。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.9, "description": "どっしりと、安定した器（鼎）として、双方の、主張を受け止め、安定させるため、危機に、非常に強い。" },
+            "recovery_potential": { "score": 0.85, "description": "新しい、才能や、意見を、受け入れることで、組織や、社会全体が、活性化し、力強く、発展的な回復を遂げる。" },
+            "collateral_damage": { "score": 0.1, "description": "賢明な、判断で、争いを収め、社会に貢献するため、副作用は、ほぼない。尊敬と、信頼を集める。" },
+            "lesson_learned": { "score": 0.9, "description": "争いを、収めるには、どちらかに、肩入れするのではなく、双方を、受け入れる、安定した「器」としての、役割が、重要だと学ぶ。" },
+            "integration_difficulty": { "score": 0.8, "description": "革命（49）の後に、新しい秩序を、安定させる鼎（50）が来る。争い（訟）の、エネルギーを、新しい秩序を、創造するエネルギーへと、昇華させる、理想的な統合。" }
+          },
+          "advice": {
+            "trigger_warning": "自分が、争いの、仲裁役や、裁判官のような、役割を、担うことになった時。",
+            "meltdown_symptoms": "危機的な症状は、少ない。むしろ、自分の、私利私欲を捨て、公のために、尽くす器となる。双方の、言い分を、公平に聞く。重厚で、賢明な、存在となる。",
+            "recovery_strategies": "器の中身を、きれいにする（＝私欲を捨てる）。実力のある、専門家の、意見を、参考にする。耳や、目を、聡明にし、正しい情報を、受け入れる。柔順な態度で、人々の、意見を聞く。"
+          }
+        },
+        {
+          "safemode_id": 51,
+          "safemode_name": "震為雷",
+          "type": "TENSION",
+          "overall_score": 0.37,
+          "summary": "【感情的な口論】雷に、打たれたような、衝撃的な、相手の一言に、動揺し、感情的な、言い争いに、発展する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.2, "description": "突然の、衝撃に、パニックに陥り、冷静な、判断ができないため、危機対応能力は低い。" },
+            "recovery_potential": { "score": 0.4, "description": "衝撃が、過ぎ去った後、冷静さを、取り戻せれば、回復できるが、感情的な、しこりが残る。" },
+            "collateral_damage": { "score": 0.7, "description": "パニックによる、過剰反応が、周囲に、さらなる混乱を、招く。" },
+            "lesson_learned": { "score": 0.5, "description": "争いの中で、いかに、冷静さを保つかが、重要かを学ぶ。" },
+            "integration_difficulty": { "score": 0.35, "description": "争い（訟）が、突発的な、衝撃（震）と結びつく。理性を失い、感情的な、応酬に陥りやすい、危険なパターン。" }
+          },
+          "advice": {
+            "trigger_warning": "相手から、予期せぬ、人格を否定するような、一言を、浴びせられた時。",
+            "meltdown_symptoms": "大きな声で、言い返したり、パニックで、泣き出したりする。恐怖と、怒りで、体が、震える。論理的な、思考が、できなくなる。",
+            "recovery_strategies": "まずは、落ち着き、自分を、見失わないこと。その場から、一旦、離れ、頭を冷やす。天の、意志だと、受け入れ、内省の機会とする。"
+          }
+        },
+        {
+          "safemode_id": 52,
+          "safemode_name": "艮為山",
+          "type": "SYNERGY",
+          "overall_score": 0.91,
+          "summary": "【沈黙の抗議】山のように、動かず、沈黙することで、争いを、停止させ、自分の、内なる主張と、向き合う。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.9, "description": "動かないことで、相手の、攻撃を、空転させ、争いの、エネルギーを、鎮めることができる。" },
+            "recovery_potential": { "score": 0.85, "description": "深い、静止と、内省を経て、争いの、不毛さに気づき、心の平穏を、取り戻せる。" },
+            "collateral_damage": { "score": 0.2, "description": "相手を、無視していると、受け取られる可能性はあるが、争いを、エスカレートさせない、賢明な対応。" },
+            "lesson_learned": { "score": 0.9, "description": "争いを、止める、最も、効果的な方法は、山のように、動かず、沈黙することであると学ぶ。" },
+            "integration_difficulty": { "score": 0.8, "description": "争い（訟）の、動きを、山（艮）の、不動性で、完全に、停止させる。訟の、暴走を、見事に、コントロールする、優れた統合。" }
+          },
+          "advice": {
+            "trigger_warning": "相手が、あまりに、感情的で、話し合いにならない時。これ以上、言葉を、重ねても、無駄だと悟った時。",
+            "meltdown_symptoms": "一切の、反論を、やめ、口を、固く閉ざす。相手が、何を言っても、微動だにしない。自分の、内面と、深く、向き合う。",
+            "recovery_strategies": "止まるべき時に、潔く、止まる。自分の、欲望（相手を言い負かしたい欲）に気づき、それを、コントロールする。言葉を、慎み、内なる静けさを、守る。"
+          }
+        },
+        {
+          "safemode_id": 53,
+          "safemode_name": "風山漸",
+          "type": "HARMONY",
+          "overall_score": 0.81,
+          "summary": "【順序正しい訴訟手続き】感情的にならず、法や、ルールといった、正しい順序に、従って、ゆっくりと、しかし、着実に、争いを、進める。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.8, "description": "着実で、順序だった、進め方は、急な、トラブルを招かない。盤石の態勢で、危機に強い。" },
+            "recovery_potential": { "score": 0.8, "description": "正しい、プロセスを、踏んでいるため、多少の、困難があっても、軌道修正が、容易で、着実に、回復できる。" },
+            "collateral_damage": { "score": 0.2, "description": "周囲の、理解と、信頼を、得ながら、進めるため、副作用は、ほぼない。" },
+            "lesson_learned": { "score": 0.85, "description": "争いを、解決するためには、焦らず、正しい、順序を、踏むことが、結果的に、最も、確実な道であると、体得する。" },
+            "integration_difficulty": { "score": 0.75, "description": "争い（訟）を、感情的に、進めず、漸進的（漸）に、進める。訟の、危険性を、漸の、着実さで、コントロールする、良い統合。" }
+          },
+          "advice": {
+            "trigger_warning": "裁判や、公式な、調停など、正式な、手続きに、則って、争うことになった時。",
+            "meltdown_symptoms": "危機的な症状は、少ない。むしろ、定められた、手続きや、ルールを、非常に、重んじるようになる。焦らず、一歩一歩、ゆっくりと、事を進める。その、着実さが、周囲に、安心感を、与える。",
+            "recovery_strategies": "焦らない。正しい、順序、手続きを、省略しない。一歩ずつ、着実に、進める。良い、専門家（弁護士など）と、協力しながら、進む。"
+          }
+        },
+        {
+          "safemode_id": 54,
+          "safemode_name": "雷沢帰妹",
+          "type": "CONFLICT",
+          "overall_score": 0.29,
+          "summary": "【衝動的な和解】争いに、疲れて、目先の、楽な道を選び、根本的な、問題解決を、しないまま、衝動的に、和解してしまう。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.2, "description": "順序を、間違えているため、土台が、不安定。すぐに、同じ問題で、再び、争いが、勃発する。" },
+            "recovery_potential": { "score": 0.3, "description": "根本的な、問題が、解決していないため、真の、回復とは、言えない。後悔や、不満が、残る。" },
+            "collateral_damage": { "score": 0.8, "description": "その場しのぎの、和解は、より、大きな、問題の、先延ばしに過ぎず、結局、関係を、破壊する。" },
+            "lesson_learned": { "score": 0.4, "description": "物事には、解決すべき、正しい順序があることを、痛みを伴って学ぶ。近道は、結果的に、遠回りになることを知る。" },
+            "integration_difficulty": { "score": 0.25, "description": "争い（訟）の、解決を、焦り、非正規な（帰妹）形で、終わらせようとする。問題の、再発を、招く、危険な、統合。" }
+          },
+          "advice": {
+            "trigger_warning": "長期化する、争いに、心底、疲れてしまった時。相手から、「もう、終わりにしよう」と、甘い言葉を、かけられた時。",
+            "meltdown_symptoms": "一時的な、感情の、高まりで、「分かった、もういいよ」と、全てを、水に流そうとする。根本的な、問題点には、目をつぶる。すぐに、後悔する。",
+            "recovery_strategies": "その場しのぎの、和解案に、乗らない。問題の、根本原因を、明確にし、その解決を、目指す。誠実な、態度で、最後まで、向き合う。"
+          }
+        },
+        {
+          "safemode_id": 55,
+          "safemode_name": "雷火豊",
+          "type": "TENSION",
+          "overall_score": 0.66,
+          "summary": "【訴訟長者】争いに、次々と勝利し、莫大な、富や、名声を得るが、その、豊かさを、失うことを、恐れ、憂鬱になる。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.7, "description": "豊かな、財産や、権力は、危機対応の、助けになるが、精神的には、「失うことへの恐怖」を、抱えている。" },
+            "recovery_potential": { "score": 0.6, "description": "ピークは、永遠ではないと、受け入れ、次の段階に、備えることができれば、穏やかに、軟着陸できる。" },
+            "collateral_damage": { "score": 0.6, "description": "成功に、驕り、傲慢になる危険性がある。あるいは、不安から、新たな、訴訟を、起こすようになる。" },
+            "lesson_learned": { "score": 0.7, "description": "争いで、豊かさを、得ても、心の平安は、得られないことを学ぶ。ピークにある時こそ、謙虚さが、重要だと知る。" },
+            "integration_difficulty": { "score": 0.58, "description": "争い（訟）によって、豊かさ（豊）を得る。一見、成功に見えるが、讼の、攻撃的な、エネルギーが、豊の、明るさを、憂鬱で、曇らせる。" }
+          },
+          "advice": {
+            "trigger_warning": "大きな、裁判で、連戦連勝している時。辣腕弁護士として、名声を、ほしいままにしている時。",
+            "meltdown_symptoms": "「いつか、負けるのではないか」と、理由のない、不安に、襲われる。些細なことに、過剰に、心配し、ネガティブな、未来を、想像する。勝利を、祝う気に、なれない。",
+            "recovery_strategies": "憂うことはない。日中の、太陽のように、堂々と、振る舞う。豊かさを、独り占めせず、社会貢献などに、使う。賢明な、パートナーの、助言に、耳を傾ける。"
+          }
+        },
+        {
+          "safemode_id": 56,
+          "safemode_name": "火山旅",
+          "type": "CONFLICT",
+          "overall_score": 0.34,
+          "summary": "【異国の地での訴訟】安住の地を、離れた、アウェイの環境で、孤独な、争いを、強いられる。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.3, "description": "常に、アウェイで、頼れる仲間も、いないため、危機に、非常に弱い。法律や、文化の違いが、不利に働く。" },
+            "recovery_potential": { "score": 0.4, "description": "この、孤独な、戦いを、乗り越えれば、精神的に、大きく成長できるが、多くの場合、敗北し、傷つく。" },
+            "collateral_damage": { "score": 0.7, "description": "孤独と、不安から、心を閉ざしたり、逆に、馴れ馴れしくして、トラブルを、招いたりする。" },
+            "lesson_learned": { "score": 0.5, "description": "アウェイで、戦うことの、困難さと、謙虚さ、礼儀正しさの、重要性を、身をもって知る。" },
+            "integration_difficulty": { "score": 0.3, "description": "争い（訟）が、孤独な旅（旅）の、中で起きる。最も、不利で、心細い、状況の一つ。" }
+          },
+          "advice": {
+            "trigger_warning": "海外で、トラブルに巻き込まれた時。転勤先や、新しい、コミュニティで、孤立した時。",
+            "meltdown_symptoms": "常に、落ち着きがなく、ビクビクしている。人を、信用できず、心を閉ざす。些細なことで、見下されたと、感じて、怒り出す。孤独感に、苛まれる。",
+            "recovery_strategies": "謙虚で、礼儀正しい、態度を、心がける。郷に入っては、郷に従う。現地の、法律や、文化に、詳しい、専門家の、助けを求める。旅人としての、自分の立場を、わきまえ、でしゃばらない。"
+          }
+        },
+        {
+          "safemode_id": 57,
+          "safemode_name": "巽為風",
+          "type": "CONFLICT",
+          "overall_score": 0.39,
+          "summary": "【世論に流される裁判】自分の、確固たる主張がなく、風のように、移ろいやすい、世論や、周囲の意見に、流されて、主張を、変えてしまう。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.3, "description": "主体性がないため、風向きが、変わると、一気に、不利になる。自分の、主張を、守れない。" },
+            "recovery_potential": { "score": 0.4, "description": "風向きが、良い方向に、変われば、助かるが、結局は、他力本願で、根本的な、解決にならない。" },
+            "collateral_damage": { "score": 0.8, "description": "優柔不断な、態度は、味方をも、混乱させ、苛立たせる。一貫性がないため、信用を失う。" },
+            "lesson_learned": { "score": 0.45, "description": "争いにおいては、周囲の、意見に、謙虚に、耳を傾けることと、主体性なく、流されることは、全く違うと学ぶ。" },
+            "integration_difficulty": { "score": 0.35, "description": "争い（訟）において、風（巽）のように、従順で、主体性がないのは、致命的。信念のなさが、露呈する。" }
+          },
+          "advice": {
+            "trigger_warning": "裁判員裁判など、世論の、動向が、大きく影響する、争いの時。SNSでの、炎上合戦に、巻き込まれた時。",
+            "meltdown_symptoms": "世論や、コメント欄の、意見に、一喜一憂する。自分の、主張が、コロコロ変わる。より、強い意見に、安易に、なびいてしまう。",
+            "recovery_strategies": "まず、自分の、意志を、明確にする。人の意見を、聞くのは良いが、最終的な、判断は、自分でする。断固たる意志を持って、命令を出す（自分に）。一度、決めたら、迷わない。"
+          }
+        },
+        {
+          "safemode_id": 58,
+          "safemode_name": "兌為沢",
+          "type": "HARMONY",
+          "overall_score": 0.68,
+          "summary": "【ディベート大会】深刻な、争いではなく、友人との、楽しい、おしゃべりや、ディベートとして、言葉の、やり取りを、楽しむ。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.6, "description": "楽しむことが、目的であり、深刻な、対立ではないため、危機には、なりにくい。" },
+            "recovery_potential": { "score": 0.8, "description": "楽しい、交流が、精神的な、ストレスを、癒し、ポジティブな、回復を、促す。" },
+            "collateral_damage": { "score": 0.4, "description": "ただの、おしゃべりで、終わり、本質的な、問題解決に、至らない可能性がある。口先だけの、人間と、見なされることも。" },
+            "lesson_learned": { "score": 0.7, "description": "議論は、必ずしも、深刻な、争いではなく、互いを、理解するための、楽しい、コミュニケーションにも、なり得ると学ぶ。" },
+            "integration_difficulty": { "score": 0.65, "description": "争い（訟）の、エネルギーを、喜び（沢）へと、転換させる。攻撃性を、知的な、ゲームへと、昇華させる、試み。" }
+          },
+          "advice": {
+            "trigger_warning": "信頼できる、友人と、心ゆくまで、語り合いたいと思った時。知的な、刺激を、求めている時。",
+            "meltdown_symptoms": "おしゃべりが、止まらなくなる。相手を、論破することに、快感を覚えるが、そこに、憎しみはない。真面目な、話よりも、楽しく、ウィットに富んだ、会話を好む。",
+            "recovery_strategies": "切磋琢磨できる、良き友人と、の関係を、大切にする。ただ、楽しむだけでなく、共に、学び、成長することを、目指す。誠実な心で、交流する。"
+          }
+        },
+        {
+          "safemode_id": 59,
+          "safemode_name": "風水渙",
+          "type": "TENSION",
+          "overall_score": 0.46,
+          "summary": "【争いによる離散】争いの結果、人心が、バラバラに、離れていき、組織や、家族が、崩壊する。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.4, "description": "求心力を、失っているため、危機対応能力は、低下する。人々が、去っていくのを、止められない。" },
+            "recovery_potential": { "score": 0.5, "description": "一度、バラバラになることで、しがらみが、解消され、新たな形で、再結集できる可能性を、秘めている。" },
+            "collateral_damage": { "score": 0.8, "description": "人心が、離れ、組織が、崩壊することで、目標達成が、困難になる。多くの人を、不幸にする。" },
+            "lesson_learned": { "score": 0.55, "description": "争いが、いかに、人々の心を、離散させるかを学ぶ。固執を、手放すことの、重要性を知る。" },
+            "integration_difficulty": { "score": 0.42, "description": "争い（訟）が、離散（渙）という、悲しい結果を、招く。訟の、破壊的な側面が、強く、表に出る。" }
+          },
+          "advice": {
+            "trigger_warning": "内部での、対立が、激化し、組織の、結束が、失われ始めた時。",
+            "meltdown_symptoms": "「もう、どうにでもなれ」と、諦めの境地に、なる。人々が、去っていくのを、引き止めもせずに、見ている。全てが、バラバラになることに、ある種の、解放感すら、感じる。",
+            "recovery_strategies": "私心を捨て、全体の利益のために、祈る（王の廟に至る）。共通の目標を、再設定し、再び、人心を、集める。困難を乗り越えるための、大きな船を、用意する（＝共通の基盤を作る）。"
+          }
+        },
+        {
+          "safemode_id": 60,
+          "safemode_name": "水沢節",
+          "type": "HARMONY",
+          "overall_score": 0.73,
+          "summary": "【ルールの範囲内での争い】決められた、ルールや、節度を、守りながら、その範囲内で、正々堂々と、争う。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.7, "description": "ルールが、あるため、争いが、無秩序に、エスカレートするのを、防ぐことができる。" },
+            "recovery_potential": { "score": 0.7, "description": "ルールに、従った結果であるため、負けても、納得しやすく、後腐れなく、回復できる。" },
+            "collateral_damage": { "score": 0.4, "description": "ルールに、縛られ、自由な、発想や、主張が、できない、窮屈さを、感じることがある。" },
+            "lesson_learned": { "score": 0.75, "description": "公平な、争いを、実現するためには、双方が、守るべき、適切な、ルール（節度）が、不可欠であると学ぶ。" },
+            "integration_difficulty": { "score": 0.65, "description": "争い（訟）を、節度（節）で、コントロールする。スポーツマンシップに、則った、健全な、争いの形。" }
+          },
+          "advice": {
+            "trigger_warning": "スポーツの、試合や、ルールが、明確に定められた、コンペティションの場。",
+            "meltdown_symptoms": "ルール違反に、非常に、厳しくなる。審判の、判定に、執拗に、抗議する。しかし、自分自身は、ルールを、厳格に、守ろうとする。",
+            "recovery_strategies": "苦しいだけの、節度は、長続きしないと知る。ルールの中で、最大限の、パフォーマンスを、発揮することを、楽しむ。状況に応じた、適切な、節度を心がける。"
+          }
+        },
+        {
+          "safemode_id": 61,
+          "safemode_name": "風沢中孚",
+          "type": "SYNERGY",
+          "overall_score": 0.94,
+          "summary": "【誠意による和解】誠実な、心が、相手に、通じ、争いが、自然と、収まり、深い、信頼関係が、生まれる。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.9, "description": "誠実さは、最強の、信頼関係を築く。どんな、危機も、その信頼によって、乗り越えることができる。" },
+            "recovery_potential": { "score": 0.95, "description": "たとえ、裏切られても、誠実さを貫くことで、最終的には、より大きな、信頼を、得て、力強く、回復する。" },
+            "collateral_damage": { "score": 0.05, "description": "その、誠実さが、人々に、深い感銘と、良い影響を、与えるため、副作用は、ほぼない。" },
+            "lesson_learned": { "score": 0.98, "description": "小手先の、弁論術ではなく、中心にある、「誠」こそが、人の心を動かし、争いを、終わらせる、最も強力な力であると体得する。" },
+            "integration_difficulty": { "score": 0.85, "description": "争い（訟）の、攻撃性を、誠（中孚）の、真心が、完全に、溶かしてしまう。訟の、最も、理想的な、解決策の一つ。" }
+          },
+          "advice": {
+            "trigger_warning": "言葉や、理屈では、到底、分かり合えない、相手と、向き合わなければならなくなった時。自分の、誠意を、信じるしかない時。",
+            "meltdown_symptoms": "危機的な症状は、少ない。むしろ、損得勘定を捨て、ただ、誠実な心で、相手に、接する。言葉よりも、態度や、行動で、自分の誠意を、示す。その純粋さが、奇跡的な、和解を、生むことがある。",
+            "recovery_strategies": "心を、虚しくして、相手を、受け入れる。見返りを、期待しない。言葉と、行動を、一致させる。大きな川を渡る（＝困難な、和解の道を進む）覚悟を持つ。"
+          }
+        },
+        {
+          "safemode_id": 62,
+          "safemode_name": "雷山小過",
+          "type": "HARMONY",
+          "overall_score": 0.69,
+          "summary": "【腰の低い交渉】大きな、要求はせず、少し、行き過ぎなくらいに、謙虚に、低姿勢で、交渉に臨む。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.6, "description": "過剰なまでに、慎重なため、大きな、対立は、避けることができるが、相手に、有利な条件を、のまされやすい。" },
+            "recovery_potential": { "score": 0.7, "description": "その、謙虚な姿勢が、相手の、同情を買い、有利な、和解案を、引き出せることもある。" },
+            "collateral_damage": { "score": 0.3, "description": "本来、主張すべき、正当な、権利を、主張できず、損をすることがある。" },
+            "lesson_learned": { "score": 0.72, "description": "争いの場では、時には、過剰なくらいの、謙虚さが、身を助けることを学ぶ。" },
+            "integration_difficulty": { "score": 0.65, "description": "争い（訟）において、謙虚すぎる（小過）態度をとる。大きな、失敗はしないが、大きな、勝利もない。自己防衛的な、統合。" }
+          },
+          "advice": {
+            "trigger_warning": "相手が、自分より、明らかに、格上である時。事を、荒立てずに、穏便に、済ませたい時。",
+            "meltdown_symptoms": "必要以上に、自分を、卑下する。「こちらの、要求は、これだけですので、何とか、お願いします」と、下手に出る。常に、下を向き、声も、小さくなる。",
+            "recovery_strategies": "大きなことを、望まず、小さな、妥協点を、探る。上を、目指すより、下に、留まることを選ぶ。謙虚な姿勢を、保ちつつも、譲れない、一線は、守る。"
+          }
+  a      },
+        {
+          "safemode_id": 63,
+          "safemode_name": "水火既済",
+          "type": "TENSION",
+          "overall_score": 0.52,
+          "summary": "【勝利後の油断】争いが、完全に、終結し、秩序が、整ったことに、安堵し、次の、争いの火種に、備えない。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.5, "description": "完成された、秩序は、一見、安定しているが、変化への、対応力がなく、未知の危機には、脆い。" },
+            "recovery_potential": { "score": 0.5, "description": "崩壊が、始まってからでは、回復は困難。常に、備えを怠らないことでしか、真の、安定は、保てない。" },
+            "collateral_damage": { "score": 0.6, "description": "現状維持に、固執し、変化を、拒むことで、成長を妨げる。油断が、大きな損失を招く。" },
+            "lesson_learned": { "score": 0.6, "description": "完成は、同時に、崩壊の始まりであるという、真理を学ぶ。安定している時こそ、乱れに、備えることの、重要性を知る。" },
+            "integration_difficulty": { "score": 0.5, "description": "争い（訟）が、終わり、秩序が、整った（既済）状態。しかし、争いの、緊張感を、失い、油断しやすく、次の、危機を、招きやすい。" }
+          },
+          "advice": {
+            "trigger_warning": "和解契約が、無事に、締結された時。全てが、解決したと、思い込んだ時。",
+            "meltdown_symptoms": "過去の、勝利体験に、浸り、警戒心を、解いてしまう。小さな、不満の兆候を、見て見ぬふりをする。現状維持が、最善だと、信じ込んでいる。",
+            "recovery_strategies": "完成した時こそ、始まりの時のように、慎重になる。常に、最悪の事態を、想定し、備えを、怠らない。小さな、綻びも、早期に、修繕する。"
+          }
+        },
+        {
+          "safemode_id": 64,
+          "safemode_name": "火水未済",
+          "type": "HARMONY",
+          "overall_score": 0.77,
+          "summary": "【終わらない調停】争いは、まだ、終わっていないが、希望を失わず、賢明に、和解の道を、探り続ける。",
+          "evaluation": {
+            "crisis_resilience": { "score": 0.7, "description": "混乱の、最中に、あるため、不安定だが、「これから、良くなる」という、希望が、精神的な支えとなる。" },
+            "recovery_potential": { "score": 0.8, "description": "物事を、正しく、配置し直すことで、既済（完成）へと、向かうことができ、発展的な回復が、可能。" },
+            "collateral_damage": { "score": 0.5, "description": "混沌とした、状況が、周囲に、不安を、与えるが、希望を持って、進む姿が、人々を、勇気づけることもある。" },
+            "lesson_learned": { "score": 0.82, "description": "争いの、決着が、つかなくても、希望を、捨てずに、解決を、目指し続けることの、尊さを学ぶ。" },
+            "integration_difficulty": { "score": 0.7, "description": "争い（訟）が、まだ、未完成（未済）の状態。絶望せず、希望を持って、解決を、目指す、賢明な、統合。" }
+          },
+          "advice": {
+            "trigger_warning": "調停が、長引き、終わりが、見えない時。しかし、まだ、和解の、可能性が、残っていると、感じる時。",
+            "meltdown_symptoms": "混乱の中で、途方に暮れる。しかし、その中に、「まだ、やれることはある」という、かすかな希望を、見出す。子狐のように、慎重に、しかし、勇気を持って、次の一手を、考えようとする。",
+            "recovery_strategies": "焦らない。まず、自分の立ち位置と、相手の状況を、注意深く、見極める。喜びと、信じる心を、持って、前進する。そうすれば、やがては、完成に至る。"
+          }
+        }
+      ]
+    }
+  }
