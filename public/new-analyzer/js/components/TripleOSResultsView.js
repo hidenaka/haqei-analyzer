@@ -8,8 +8,10 @@ class TripleOSResultsView extends BaseComponent {
     this.eightDimensionAnalysisEngine = eightDimensionAnalysisEngine;
     this.internalCompatibilityEngine = internalCompatibilityEngine;
     this.relationshipVisualizationEngine = relationshipVisualizationEngine;
+    this.advancedCompatibilityEngine = null;
     this.shareManager = null;
     this.initializeShareManager();
+    this.initializeAdvancedCompatibilityEngine();
   }
 
   get defaultOptions() {
@@ -231,10 +233,72 @@ class TripleOSResultsView extends BaseComponent {
 
         <!-- OS間相性分析 -->
         <div class="enhanced-section">
-            <h3>OS間相性分析</h3>
+            <h3>内的チーム相性分析</h3>
             <div id="compatibility-analysis-container">
-                <!-- 相性分析結果がここに入る -->
-                <p>OS間の相性分析結果がここに表示されます。</p>
+                <!-- 高度相性分析結果がここに入る -->
+                <div class="loading-placeholder">内的チーム相性分析を実行中...</div>
+            </div>
+        </div>
+
+        <!-- 動的コンテキスト評価 -->
+        <div class="enhanced-section">
+            <h3>パーソナライズド洞察</h3>
+            <div id="context-evaluation-container">
+                <!-- コンテキスト評価UI -->
+                <div class="context-input-section">
+                    <h4>現在の状況をお聞かせください</h4>
+                    <div class="context-form">
+                        <div class="form-group">
+                            <label for="life-stage-select">現在のライフステージ:</label>
+                            <select id="life-stage-select" class="context-select">
+                                <option value="">選択してください</option>
+                                <option value="exploring">探索期（新しいことを学び経験を積む時期）</option>
+                                <option value="establishing">確立期（基盤を築き安定を求める時期）</option>
+                                <option value="developing">発展期（スキルを磨き成長する時期）</option>
+                                <option value="mastering">熟練期（専門性を深め指導する時期）</option>
+                                <option value="reflecting">統合期（経験を振り返り智慧を深める時期）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>現在の目標（複数選択可）:</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" value="career_growth"> キャリア成長</label>
+                                <label><input type="checkbox" value="personal_growth"> 個人的成長</label>
+                                <label><input type="checkbox" value="relationship_improvement"> 人間関係の改善</label>
+                                <label><input type="checkbox" value="work_life_balance"> ワークライフバランス</label>
+                                <label><input type="checkbox" value="creative_expression"> 創造的表現</label>
+                                <label><input type="checkbox" value="leadership_development"> リーダーシップ開発</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>現在直面している課題（複数選択可）:</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" value="stress_management"> ストレス管理</label>
+                                <label><input type="checkbox" value="decision_making"> 意思決定</label>
+                                <label><input type="checkbox" value="communication"> コミュニケーション</label>
+                                <label><input type="checkbox" value="time_management"> 時間管理</label>
+                                <label><input type="checkbox" value="conflict_resolution"> 対立解決</label>
+                                <label><input type="checkbox" value="change_adaptation"> 変化への適応</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="environment-select">主な活動環境:</label>
+                            <select id="environment-select" class="context-select">
+                                <option value="">選択してください</option>
+                                <option value="corporate">企業・組織</option>
+                                <option value="startup">スタートアップ・ベンチャー</option>
+                                <option value="creative">クリエイティブ・芸術</option>
+                                <option value="academic">学術・研究</option>
+                                <option value="freelance">フリーランス・個人事業</option>
+                                <option value="education">教育・指導</option>
+                            </select>
+                        </div>
+                        <button id="update-context-btn" class="btn btn-primary">洞察を更新</button>
+                    </div>
+                </div>
+                <div id="contextual-insights-results" class="contextual-results">
+                    <!-- コンテキスト評価結果がここに表示される -->
+                </div>
             </div>
         </div>
 
@@ -280,6 +344,12 @@ class TripleOSResultsView extends BaseComponent {
     
     // インタラクティブシステムを初期化
     this.initializeInteractiveSystem();
+    
+    // 高度相性分析を実行
+    this.renderAdvancedCompatibilityAnalysis();
+    
+    // コンテキスト評価のイベントリスナーを設定
+    this.setupContextEvaluationEvents();
   }
 
   // 8次元レーダーチャートを描画するメソッド
@@ -489,6 +559,380 @@ ${interpretation}`;
     } catch (error) {
       console.error("❌ Failed to initialize ShareManager:", error);
     }
+  }
+
+  // AdvancedCompatibilityEngineを初期化
+  async initializeAdvancedCompatibilityEngine() {
+    try {
+      const { default: AdvancedCompatibilityEngine } = await import('../core/AdvancedCompatibilityEngine.js');
+      
+      this.advancedCompatibilityEngine = new AdvancedCompatibilityEngine(this.internalCompatibilityEngine);
+      
+      console.log("✅ AdvancedCompatibilityEngine initialized successfully");
+    } catch (error) {
+      console.error("❌ Failed to initialize AdvancedCompatibilityEngine:", error);
+    }
+  }
+
+  // 高度相性分析を実行してレンダリング
+  async renderAdvancedCompatibilityAnalysis() {
+    const container = document.getElementById('compatibility-analysis-container');
+    if (!container || !this.advancedCompatibilityEngine) {
+      console.warn("⚠️ AdvancedCompatibilityEngine not available");
+      return;
+    }
+
+    try {
+      // デフォルトのユーザーコンテキスト
+      const defaultUserContext = {
+        lifeStage: 'developing',
+        goals: ['personal_growth'],
+        challenges: [],
+        environment: { type: 'corporate' }
+      };
+
+      // 高度相性分析を実行
+      const advancedAnalysis = this.advancedCompatibilityEngine.analyzeInternalTeamComposition(
+        this.analysisResult.engineOS.hexagramId,
+        this.analysisResult.interfaceOS.hexagramId,
+        this.analysisResult.safeModeOS.hexagramId,
+        defaultUserContext
+      );
+
+      // 結果をレンダリング
+      container.innerHTML = this.renderAdvancedAnalysisResults(advancedAnalysis);
+      
+      console.log("✅ Advanced compatibility analysis rendered successfully");
+      
+    } catch (error) {
+      console.error("❌ Failed to render advanced compatibility analysis:", error);
+      container.innerHTML = `
+        <div class="analysis-error">
+          高度相性分析の実行中にエラーが発生しました。
+          <br>
+          <small>エラー詳細: ${error.message}</small>
+        </div>
+      `;
+    }
+  }
+
+  // 高度分析結果をレンダリング
+  renderAdvancedAnalysisResults(analysis) {
+    const { overallAssessment, specialPattern, historicalMatches, optimizationHints } = analysis;
+    
+    let html = `
+      <div class="advanced-analysis-results">
+        <!-- 総合評価 -->
+        <div class="overall-assessment">
+          <h4>🎯 内的チーム効果性</h4>
+          <div class="effectiveness-score">
+            <div class="score-circle-large">
+              <div class="score-value-large">${Math.round(overallAssessment.teamEffectiveness * 100)}%</div>
+              <div class="score-label-large">チーム効果性</div>
+            </div>
+          </div>
+          
+          <div class="assessment-details">
+            <div class="strength-areas">
+              <h5>✨ 強みエリア</h5>
+              <ul>
+                ${overallAssessment.strengthAreas.map(area => `<li>${area}</li>`).join('')}
+              </ul>
+            </div>
+            
+            <div class="growth-areas">
+              <h5>🌱 成長エリア</h5>
+              <ul>
+                ${overallAssessment.growthAreas.map(area => `<li>${area}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        </div>
+    `;
+
+    // 特殊パターンがあれば表示
+    if (specialPattern) {
+      html += `
+        <div class="special-pattern">
+          <h4>🔍 特殊パターン検出</h4>
+          <div class="pattern-card">
+            <h5>${specialPattern.name}</h5>
+            <p class="pattern-description">${specialPattern.description}</p>
+            <div class="pattern-confidence">
+              信頼度: ${Math.round(specialPattern.confidence * 100)}%
+            </div>
+            
+            <div class="pattern-characteristics">
+              <h6>特徴:</h6>
+              <ul>
+                ${specialPattern.characteristics.map(char => `<li>${char}</li>`).join('')}
+              </ul>
+            </div>
+            
+            <div class="pattern-advice">
+              <h6>アドバイス:</h6>
+              <ul>
+                ${specialPattern.advice.map(advice => `<li>${advice}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 歴史上の人物マッチがあれば表示
+    if (historicalMatches.length > 0) {
+      html += `
+        <div class="historical-matches">
+          <h4>📚 歴史上の人物との類似性</h4>
+          <div class="matches-grid">
+      `;
+      
+      historicalMatches.forEach(match => {
+        html += `
+          <div class="historical-match-card">
+            <h5>${match.name}</h5>
+            <div class="similarity-score">類似度: ${Math.round(match.similarity * 100)}%</div>
+            <p class="match-description">${match.description}</p>
+            <div class="match-traits">
+              <strong>特徴:</strong> ${match.traits.join(', ')}
+            </div>
+            <div class="modern-application">
+              <strong>現代への応用:</strong> ${match.modernApplication}
+            </div>
+          </div>
+        `;
+      });
+      
+      html += `
+          </div>
+        </div>
+      `;
+    }
+
+    // 最適化ヒント
+    if (optimizationHints) {
+      html += `
+        <div class="optimization-hints">
+          <h4>💡 内的バランス最適化ヒント</h4>
+          <div class="hints-tabs">
+            <div class="hints-tab-nav">
+              <button class="hints-tab-btn active" data-tab="immediate">今すぐ</button>
+              <button class="hints-tab-btn" data-tab="shortTerm">短期</button>
+              <button class="hints-tab-btn" data-tab="longTerm">長期</button>
+              <button class="hints-tab-btn" data-tab="lifestyle">ライフスタイル</button>
+            </div>
+            
+            <div class="hints-tab-content">
+              <div class="hints-tab-panel active" id="hints-immediate">
+                <ul>
+                  ${optimizationHints.immediate.map(hint => `<li>${hint}</li>`).join('')}
+                </ul>
+              </div>
+              <div class="hints-tab-panel" id="hints-shortTerm">
+                <ul>
+                  ${optimizationHints.shortTerm.map(hint => `<li>${hint}</li>`).join('')}
+                </ul>
+              </div>
+              <div class="hints-tab-panel" id="hints-longTerm">
+                <ul>
+                  ${optimizationHints.longTerm.map(hint => `<li>${hint}</li>`).join('')}
+                </ul>
+              </div>
+              <div class="hints-tab-panel" id="hints-lifestyle">
+                <ul>
+                  ${optimizationHints.lifestyle.map(hint => `<li>${hint}</li>`).join('')}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    html += `
+      </div>
+    `;
+
+    // ヒントタブの動作を設定
+    setTimeout(() => {
+      this.setupHintsTabNavigation();
+    }, 100);
+
+    return html;
+  }
+
+  // ヒントタブのナビゲーションを設定
+  setupHintsTabNavigation() {
+    const tabButtons = document.querySelectorAll('.hints-tab-btn');
+    const tabPanels = document.querySelectorAll('.hints-tab-panel');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetTab = button.dataset.tab;
+        
+        // アクティブなタブを切り替え
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabPanels.forEach(panel => panel.classList.remove('active'));
+        
+        button.classList.add('active');
+        document.getElementById(`hints-${targetTab}`).classList.add('active');
+      });
+    });
+  }
+
+  // コンテキスト評価のイベントリスナーを設定
+  setupContextEvaluationEvents() {
+    const updateBtn = document.getElementById('update-context-btn');
+    if (!updateBtn) return;
+
+    updateBtn.addEventListener('click', () => {
+      this.updateContextualInsights();
+    });
+  }
+
+  // コンテキストに基づく洞察を更新
+  async updateContextualInsights() {
+    if (!this.advancedCompatibilityEngine) {
+      console.warn("⚠️ AdvancedCompatibilityEngine not available");
+      return;
+    }
+
+    try {
+      // フォームからユーザーコンテキストを取得
+      const userContext = this.getUserContextFromForm();
+      
+      // 更新ボタンを無効化
+      const updateBtn = document.getElementById('update-context-btn');
+      updateBtn.disabled = true;
+      updateBtn.textContent = '分析中...';
+
+      // 新しいコンテキストで再分析
+      const updatedAnalysis = this.advancedCompatibilityEngine.analyzeInternalTeamComposition(
+        this.analysisResult.engineOS.hexagramId,
+        this.analysisResult.interfaceOS.hexagramId,
+        this.analysisResult.safeModeOS.hexagramId,
+        userContext
+      );
+
+      // 結果を表示
+      const resultsContainer = document.getElementById('contextual-insights-results');
+      resultsContainer.innerHTML = this.renderContextualInsights(updatedAnalysis, userContext);
+      
+      // 相性分析結果も更新
+      const compatibilityContainer = document.getElementById('compatibility-analysis-container');
+      compatibilityContainer.innerHTML = this.renderAdvancedAnalysisResults(updatedAnalysis);
+      
+      console.log("✅ Contextual insights updated successfully");
+      
+    } catch (error) {
+      console.error("❌ Failed to update contextual insights:", error);
+    } finally {
+      // ボタンを再有効化
+      const updateBtn = document.getElementById('update-context-btn');
+      updateBtn.disabled = false;
+      updateBtn.textContent = '洞察を更新';
+    }
+  }
+
+  // フォームからユーザーコンテキストを取得
+  getUserContextFromForm() {
+    const lifeStage = document.getElementById('life-stage-select').value;
+    const environment = document.getElementById('environment-select').value;
+    
+    const goals = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+      .filter(cb => cb.closest('.form-group').querySelector('label').textContent.includes('目標'))
+      .map(cb => cb.value);
+    
+    const challenges = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+      .filter(cb => cb.closest('.form-group').querySelector('label').textContent.includes('課題'))
+      .map(cb => cb.value);
+
+    return {
+      lifeStage,
+      goals,
+      challenges,
+      environment: { type: environment }
+    };
+  }
+
+  // コンテキスト洞察をレンダリング
+  renderContextualInsights(analysis, userContext) {
+    const { contextualAdjustment } = analysis;
+    
+    if (!contextualAdjustment) {
+      return '<div class="no-insights">コンテキスト情報が不足しています。</div>';
+    }
+
+    let html = `
+      <div class="contextual-insights">
+        <h4>📊 あなたの状況に基づく洞察</h4>
+        
+        <div class="context-summary">
+          <div class="context-tags">
+    `;
+
+    // ライフステージタグ
+    if (userContext.lifeStage) {
+      const stageLabels = {
+        'exploring': '探索期',
+        'establishing': '確立期', 
+        'developing': '発展期',
+        'mastering': '熟練期',
+        'reflecting': '統合期'
+      };
+      html += `<span class="context-tag stage">${stageLabels[userContext.lifeStage]}</span>`;
+    }
+
+    // 目標タグ
+    userContext.goals.forEach(goal => {
+      const goalLabels = {
+        'career_growth': 'キャリア成長',
+        'personal_growth': '個人成長',
+        'relationship_improvement': '人間関係改善',
+        'work_life_balance': 'ワークライフバランス',
+        'creative_expression': '創造的表現',
+        'leadership_development': 'リーダーシップ開発'
+      };
+      html += `<span class="context-tag goal">${goalLabels[goal]}</span>`;
+    });
+
+    // 課題タグ
+    userContext.challenges.forEach(challenge => {
+      const challengeLabels = {
+        'stress_management': 'ストレス管理',
+        'decision_making': '意思決定',
+        'communication': 'コミュニケーション',
+        'time_management': '時間管理',
+        'conflict_resolution': '対立解決',
+        'change_adaptation': '変化適応'
+      };
+      html += `<span class="context-tag challenge">${challengeLabels[challenge]}</span>`;
+    });
+
+    html += `
+          </div>
+        </div>
+        
+        <div class="contextual-recommendations">
+          <h5>🎯 あなたの状況に特化した推奨事項</h5>
+          <div class="recommendations-grid">
+    `;
+
+    // コンテキスト洞察を表示
+    if (contextualAdjustment.contextualInsights) {
+      contextualAdjustment.contextualInsights.forEach(insight => {
+        html += `<div class="insight-card">${insight}</div>`;
+      });
+    }
+
+    html += `
+          </div>
+        </div>
+      </div>
+    `;
+
+    return html;
   }
 
   // 🔧 八卦記号取得ヘルパー

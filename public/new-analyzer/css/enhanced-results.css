@@ -48,6 +48,15 @@
     --chaos-light: #e8daef;
     --chaos-dark: #7d3c98;
     
+    /* 高度分析用のカラー */
+    --analysis-bg: #f8f9fa;
+    --analysis-border: #dee2e6;
+    --analysis-text: #495057;
+    --analysis-accent: #007bff;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    
     /* 色覚多様性への配慮 */
     --accessible-red: #d73027;
     --accessible-blue: #4575b4;
@@ -1863,4 +1872,479 @@
 
 .strength-weakness-section .weaknesses h5 {
     color: #721c24;
+}
+
+/* ======================================
+   高度相性分析のスタイル（タスク12）
+   ====================================== */
+
+.advanced-analysis-results {
+    background: var(--analysis-bg);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+    border: 1px solid var(--analysis-border);
+}
+
+.overall-assessment {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.effectiveness-score {
+    margin: 20px 0;
+}
+
+.score-circle-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 6px solid var(--analysis-accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.score-value-large {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--analysis-accent);
+}
+
+.score-label-large {
+    font-size: 12px;
+    color: var(--analysis-text);
+    margin-top: 4px;
+}
+
+.assessment-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.strength-areas, .growth-areas {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid var(--success-color);
+}
+
+.growth-areas {
+    border-left-color: var(--warning-color);
+}
+
+.strength-areas h5, .growth-areas h5 {
+    margin: 0 0 12px 0;
+    color: var(--analysis-text);
+}
+
+.strength-areas ul, .growth-areas ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.strength-areas li, .growth-areas li {
+    margin-bottom: 8px;
+    color: var(--analysis-text);
+}
+
+/* 特殊パターンのスタイル */
+.special-pattern {
+    margin: 30px 0;
+}
+
+.pattern-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+.pattern-card h5 {
+    margin: 0 0 12px 0;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.pattern-description {
+    font-size: 16px;
+    margin-bottom: 16px;
+    opacity: 0.9;
+}
+
+.pattern-confidence {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.pattern-characteristics, .pattern-advice {
+    margin-top: 20px;
+}
+
+.pattern-characteristics h6, .pattern-advice h6 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.pattern-characteristics ul, .pattern-advice ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.pattern-characteristics li, .pattern-advice li {
+    margin-bottom: 8px;
+    opacity: 0.85;
+}
+
+/* 歴史上の人物マッチのスタイル */
+.historical-matches {
+    margin: 30px 0;
+}
+
+.matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.historical-match-card {
+    background: white;
+    border: 1px solid var(--analysis-border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.historical-match-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.historical-match-card h5 {
+    margin: 0 0 12px 0;
+    color: var(--analysis-accent);
+    font-size: 18px;
+}
+
+.similarity-score {
+    background: var(--info-color);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+.match-description {
+    margin-bottom: 16px;
+    color: var(--analysis-text);
+    line-height: 1.5;
+}
+
+.match-traits, .modern-application {
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: var(--analysis-text);
+}
+
+.match-traits strong, .modern-application strong {
+    color: var(--analysis-accent);
+}
+
+/* 最適化ヒントのスタイル */
+.optimization-hints {
+    margin: 30px 0;
+}
+
+.hints-tabs {
+    background: white;
+    border: 1px solid var(--analysis-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.hints-tab-nav {
+    display: flex;
+    background: var(--analysis-bg);
+    border-bottom: 1px solid var(--analysis-border);
+}
+
+.hints-tab-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    color: var(--analysis-text);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-right: 1px solid var(--analysis-border);
+}
+
+.hints-tab-btn:last-child {
+    border-right: none;
+}
+
+.hints-tab-btn:hover {
+    background: rgba(0, 123, 255, 0.1);
+}
+
+.hints-tab-btn.active {
+    background: var(--analysis-accent);
+    color: white;
+}
+
+.hints-tab-content {
+    padding: 20px;
+}
+
+.hints-tab-panel {
+    display: none;
+}
+
+.hints-tab-panel.active {
+    display: block;
+}
+
+.hints-tab-panel ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hints-tab-panel li {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    color: var(--analysis-text);
+    line-height: 1.5;
+}
+
+.hints-tab-panel li:last-child {
+    border-bottom: none;
+}
+
+.hints-tab-panel li:before {
+    content: "💡";
+    margin-right: 10px;
+}
+
+/* コンテキスト評価フォームのスタイル */
+.context-input-section {
+    background: white;
+    border: 1px solid var(--analysis-border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.context-input-section h4 {
+    margin: 0 0 20px 0;
+    color: var(--analysis-accent);
+}
+
+.context-form {
+    max-width: 600px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--analysis-text);
+}
+
+.context-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--analysis-border);
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    color: var(--analysis-text);
+}
+
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.checkbox-group label:hover {
+    background: var(--analysis-bg);
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: var(--analysis-accent);
+}
+
+#update-context-btn {
+    background: var(--analysis-accent);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+#update-context-btn:hover {
+    background: #0056b3;
+}
+
+#update-context-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+/* コンテキスト洞察結果のスタイル */
+.contextual-insights {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 24px;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.contextual-insights h4 {
+    margin: 0 0 20px 0;
+    color: white;
+}
+
+.context-summary {
+    margin-bottom: 24px;
+}
+
+.context-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.context-tag {
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.context-tag.stage {
+    background: rgba(40, 167, 69, 0.8);
+}
+
+.context-tag.goal {
+    background: rgba(0, 123, 255, 0.8);
+}
+
+.context-tag.challenge {
+    background: rgba(255, 193, 7, 0.8);
+    color: #333;
+}
+
+.contextual-recommendations h5 {
+    margin: 0 0 16px 0;
+    color: white;
+}
+
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.insight-card {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.loading-placeholder {
+    text-align: center;
+    padding: 40px;
+    color: var(--analysis-text);
+    font-style: italic;
+}
+
+.analysis-error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    text-align: center;
+}
+
+.no-insights {
+    text-align: center;
+    padding: 20px;
+    color: var(--analysis-text);
+    font-style: italic;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .assessment-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .matches-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .hints-tab-nav {
+        flex-wrap: wrap;
+    }
+    
+    .hints-tab-btn {
+        flex: 1 1 50%;
+    }
+    
+    .checkbox-group {
+        grid-template-columns: 1fr;
+    }
+    
+    .context-tags {
+        justify-content: center;
+    }
+    
+    .recommendations-grid {
+        grid-template-columns: 1fr;
+    }
 }
