@@ -1,0 +1,17 @@
+name: Trigger Daily Report
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger memo-haqei workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.MEMO_HAQEI_TOKEN }}
+          repository: hidenaka/memo-haqei
+          event-type: haqei-commit
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.ref }}"}'
