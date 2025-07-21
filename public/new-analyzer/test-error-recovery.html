@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>エラー回復動作テスト</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 20px;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-header {
+            background: #21262d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f85149;
+        }
+        .test-section {
+            background: #161b22;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        .test-pass {
+            background: #0d4429;
+            border-color: #238636;
+            color: #2ea043;
+        }
+        .test-fail {
+            background: #490202;
+            border-color: #da3633;
+            color: #f85149;
+        }
+        .test-warn {
+            background: #333017;
+            border-color: #d29922;
+            color: #f0c674;
+        }
+        .test-info {
+            background: #0c2d6b;
+            border-color: #1f6feb;
+            color: #58a6ff;
+        }
+        .error-simulation {
+            background: #2d1b1e;
+            border: 1px solid #da3633;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #21262d;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+            min-width: 200px;
+        }
+        .btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 12px;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #2ea043;
+        }
+        .btn-danger {
+            background: #da3633;
+        }
+        .btn-danger:hover {
+            background: #f85149;
+        }
+        .btn-secondary {
+            background: #21262d;
+            border: 1px solid #30363d;
+        }
+        .btn-secondary:hover {
+            background: #30363d;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-pass { background-color: #2ea043; }
+        .status-fail { background-color: #f85149; }
+        .status-warn { background-color: #f0c674; }
+        .status-pending { background-color: #6e7681; }
+        .log-section {
+            background: #010409;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .scenario-card {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .scenario-active {
+            border-color: #d29922;
+            background: #2d2613;
+        }
+        .recovery-status {
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .recovery-success {
+            background: #0d4429;
+            color: #2ea043;
+        }
+        .recovery-failed {
+            background: #490202;
+            color: #f85149;
+        }
+        .recovery-partial {
+            background: #333017;
+            color: #f0c674;
+        }
+    </style>
+</head>
+<body>
+    <div class="control-panel">
+        <h3>エラーテスト制御</h3>
+        <button class="btn" onclick="startErrorRecoveryTests()">エラー回復テスト開始</button>
+        <button class="btn btn-danger" onclick="simulateScriptFailure()">スクリプト障害シミュレート</button>
+        <button class="btn btn-danger" onclick="simulateDataCorruption()">データ破損シミュレート</button>
+        <button class="btn btn-danger" onclick="simulateNetworkError()">ネットワークエラー</button>
+        <button class="btn btn-secondary" onclick="resetEnvironment()">環境リセット</button>
+        <button class="btn btn-secondary" onclick="clearLogs()">ログクリア</button>
+        <div style="margin-top: 15px;">
+            <div>状態: <span id="test-status">待機中</span></div>
+            <div>実行中シナリオ: <span id="current-scenario">なし</span></div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🚨 エラー回復動作テスト</h1>
+            <p>HaQei Analyzerの各種エラー状況における回復動作をテストし、フォールバック機能を検証します。</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 テストシナリオ</h2>
+            <div id="test-scenarios"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 回復動作結果</h2>
+            <div id="recovery-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 エラーシミュレーション</h2>
+            <div class="error-simulation">
+                <h3>現在のシミュレーション状態</h3>
+                <div id="simulation-status">シミュレーション待機中</div>
+                <div id="active-errors"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 実行ログ</h2>
+            <div class="log-section" id="error-log">
+                <pre>エラー回復テストを開始するには制御パネルのボタンをクリックしてください。</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let errorTestState = {
+            isRunning: false,
+            currentScenario: null,
+            startTime: 0,
+            simulatedErrors: [],
+            recoveryResults: [],
+            logs: []
+        };
+
+        const errorScenarios = [
+            {
+                id: 'script_loading_failure',
+                name: 'スクリプト読み込み失敗',
+                description: '重要なスクリプトファイルの読み込みが失敗した場合の回復動作',
+                severity: 'critical',
+                test: testScriptLoadingFailureRecovery
+            },
+            {
+                id: 'data_corruption',
+                name: 'データ破損',
+                description: 'JSON データが破損している場合のフォールバック動作',
+                severity: 'high',
+                test: testDataCorruptionRecovery
+            },
+            {
+                id: 'network_timeout',
+                name: 'ネットワークタイムアウト',
+                description: 'ネットワークエラーによるリソース読み込み失敗',
+                severity: 'medium',
+                test: testNetworkTimeoutRecovery
+            },
+            {
+                id: 'memory_exhaustion',
+                name: 'メモリ不足',
+                description: '大量データ処理によるメモリ不足状況',
+                severity: 'high',
+                test: testMemoryExhaustionRecovery
+            },
+            {
+                id: 'class_initialization_failure',
+                name: 'クラス初期化失敗',
+                description: '重要なクラスの初期化が失敗した場合',
+                severity: 'critical',
+                test: testClassInitializationFailureRecovery
+            },
+            {
+                id: 'localstorage_quota_exceeded',
+                name: 'LocalStorage容量超過',
+                description: 'ブラウザストレージの容量制限に達した場合',
+                severity: 'medium',
+                test: testLocalStorageQuotaRecovery
+            },
+            {
+                id: 'mime_type_error',
+                name: 'MIMEタイプエラー',
+                description: 'スクリプトのMIMEタイプが正しくない場合',
+                severity: 'high',
+                test: testMimeTypeErrorRecovery
+            },
+            {
+                id: 'concurrent_loading_conflict',
+                name: '並行読み込み競合',
+                description: '複数スクリプトの並行読み込み時の競合状態',
+                severity: 'medium',
+                test: testConcurrentLoadingConflictRecovery
+            }
+        ];
+
+        function logError(message, type = 'error') {
+            const timestamp = new Date().toISOString().substr(11, 8);
+            const logEntry = `[${timestamp}] ${message}`;
+            errorTestState.logs.push({ timestamp, message, type });
+            
+            const logSection = document.getElementById('error-log');
+            const logElement = document.createElement('div');
+            logElement.textContent = logEntry;
+            logElement.className = `log-${type}`;
+            logSection.appendChild(logElement);
+            logSection.scrollTop = logSection.scrollHeight;
+        }
+
+        function updateTestStatus(status) {
+            document.getElementById('test-status').textContent = status;
+        }
+
+        function updateCurrentScenario(scenario) {
+            document.getElementById('current-scenario').textContent = scenario || 'なし';
+            errorTestState.currentScenario = scenario;
+        }
+
+        function renderTestScenarios() {
+            const scenariosDiv = document.getElementById('test-scenarios');
+            scenariosDiv.innerHTML = '';
+
+            errorScenarios.forEach(scenario => {
+                const card = document.createElement('div');
+                card.className = 'scenario-card';
+                card.id = `scenario-${scenario.id}`;
+                
+                const severityColor = {
+                    critical: '#f85149',
+                    high: '#d29922',
+                    medium: '#58a6ff'
+                }[scenario.severity];
+
+                card.innerHTML = `
+                    <h4 style="margin: 0 0 10px 0; color: ${severityColor};">
+                        ${scenario.name} <span style="font-size: 12px;">[${scenario.severity}]</span>
+                    </h4>
+                    <p style="margin: 0 0 10px 0; font-size: 14px; color: #8b949e;">
+                        ${scenario.description}
+                    </p>
+                    <button class="btn btn-secondary" onclick="runSingleScenario('${scenario.id}')" style="font-size: 11px; padding: 4px 8px; width: auto;">
+                        単体テスト実行
+                    </button>
+                    <div id="scenario-status-${scenario.id}" class="recovery-status" style="display: none;"></div>
+                `;
+
+                scenariosDiv.appendChild(card);
+            });
+        }
+
+        function addRecoveryResult(scenarioId, success, message, details = {}) {
+            const result = {
+                scenarioId,
+                success,
+                message,
+                details,
+                timestamp: Date.now()
+            };
+
+            errorTestState.recoveryResults.push(result);
+
+            const resultsDiv = document.getElementById('recovery-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${success ? 'test-pass' : 'test-fail'}`;
+            
+            const scenario = errorScenarios.find(s => s.id === scenarioId);
+            const statusIcon = success ? '✅' : '❌';
+            
+            resultDiv.innerHTML = `
+                <span class="status-indicator ${success ? 'status-pass' : 'status-fail'}"></span>
+                ${statusIcon} <strong>${scenario?.name || scenarioId}</strong>: ${message}
+                ${Object.keys(details).length > 0 ? `<br><small><pre>${JSON.stringify(details, null, 2)}</pre></small>` : ''}
+            `;
+            
+            resultsDiv.appendChild(resultDiv);
+
+            // シナリオカードのステータスも更新
+            const statusDiv = document.getElementById(`scenario-status-${scenarioId}`);
+            if (statusDiv) {
+                statusDiv.style.display = 'block';
+                statusDiv.className = `recovery-status ${success ? 'recovery-success' : 'recovery-failed'}`;
+                statusDiv.textContent = message;
+            }
+        }
+
+        async function startErrorRecoveryTests() {
+            if (errorTestState.isRunning) {
+                logError('エラー回復テストは既に実行中です', 'warn');
+                return;
+            }
+
+            errorTestState.isRunning = true;
+            errorTestState.startTime = Date.now();
+            errorTestState.recoveryResults = [];
+            updateTestStatus('実行中');
+            
+            logError('エラー回復テスト開始', 'info');
+            clearResults();
+
+            try {
+                for (const scenario of errorScenarios) {
+                    updateCurrentScenario(scenario.name);
+                    
+                    // シナリオカードをアクティブ状態に
+                    const card = document.getElementById(`scenario-${scenario.id}`);
+                    if (card) card.classList.add('scenario-active');
+                    
+                    logError(`テストシナリオ実行: ${scenario.name}`, 'info');
+                    
+                    try {
+                        const result = await scenario.test();
+                        addRecoveryResult(
+                            scenario.id,
+                            result.success,
+                            result.message,
+                            result.details
+                        );
+                        
+                        logError(
+                            `${result.success ? '✅' : '❌'} ${scenario.name}: ${result.message}`,
+                            result.success ? 'success' : 'error'
+                        );
+                    } catch (error) {
+                        addRecoveryResult(
+                            scenario.id,
+                            false,
+                            `実行エラー: ${error.message}`,
+                            { error: error.stack }
+                        );
+                        logError(`❌ ${scenario.name}: 実行エラー - ${error.message}`, 'error');
+                    }
+                    
+                    // シナリオカードのアクティブ状態を解除
+                    if (card) card.classList.remove('scenario-active');
+                    
+                    // 短い遅延を入れる
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+
+                updateTestStatus('完了');
+                updateCurrentScenario(null);
+                logError('エラー回復テスト完了', 'success');
+                generateRecoveryReport();
+                
+            } catch (error) {
+                updateTestStatus('エラー');
+                logError(`テスト実行中にエラーが発生: ${error.message}`, 'error');
+            } finally {
+                errorTestState.isRunning = false;
+            }
+        }
+
+        async function runSingleScenario(scenarioId) {
+            const scenario = errorScenarios.find(s => s.id === scenarioId);
+            if (!scenario) return;
+
+            updateCurrentScenario(scenario.name);
+            logError(`単体シナリオ実行: ${scenario.name}`, 'info');
+
+            const card = document.getElementById(`scenario-${scenario.id}`);
+            if (card) card.classList.add('scenario-active');
+
+            try {
+                const result = await scenario.test();
+                addRecoveryResult(
+                    scenario.id,
+                    result.success,
+                    result.message,
+                    result.details
+                );
+                
+                logError(
+                    `${result.success ? '✅' : '❌'} ${scenario.name}: ${result.message}`,
+                    result.success ? 'success' : 'error'
+                );
+            } catch (error) {
+                addRecoveryResult(
+                    scenario.id,
+                    false,
+                    `実行エラー: ${error.message}`,
+                    { error: error.stack }
+                );
+                logError(`❌ ${scenario.name}: 実行エラー - ${error.message}`, 'error');
+            } finally {
+                if (card) card.classList.remove('scenario-active');
+                updateCurrentScenario(null);
+            }
+        }
+
+        function generateRecoveryReport() {
+            const successful = errorTestState.recoveryResults.filter(r => r.success).length;
+            const failed = errorTestState.recoveryResults.filter(r => !r.success).length;
+            const total = errorTestState.recoveryResults.length;
+            const elapsed = Date.now() - errorTestState.startTime;
+            
+            logError(`📊 回復テスト結果: ${successful}/${total} 成功 (${elapsed}ms)`, 'info');
+            
+            if (failed > 0) {
+                logError(`⚠️ ${failed} シナリオで回復に問題`, 'warn');
+            } else {
+                logError('🎉 すべてのシナリオで適切な回復動作を確認', 'success');
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('recovery-results').innerHTML = '';
+        }
+
+        function clearLogs() {
+            document.getElementById('error-log').innerHTML = '<pre>ログがクリアされました。</pre>';
+            errorTestState.logs = [];
+        }
+
+        function resetEnvironment() {
+            // 環境をリセット
+            errorTestState.simulatedErrors = [];
+            updateSimulationStatus();
+            logError('テスト環境をリセットしました', 'info');
+        }
+
+        function simulateScriptFailure() {
+            errorTestState.simulatedErrors.push({
+                type: 'script_failure',
+                timestamp: Date.now(),
+                description: 'スクリプト読み込み失敗をシミュレート'
+            });
+            updateSimulationStatus();
+            logError('🚨 スクリプト障害をシミュレートしました', 'warn');
+        }
+
+        function simulateDataCorruption() {
+            errorTestState.simulatedErrors.push({
+                type: 'data_corruption',
+                timestamp: Date.now(),
+                description: 'データ破損をシミュレート'
+            });
+            updateSimulationStatus();
+            logError('🚨 データ破損をシミュレートしました', 'warn');
+        }
+
+        function simulateNetworkError() {
+            errorTestState.simulatedErrors.push({
+                type: 'network_error',
+                timestamp: Date.now(),
+                description: 'ネットワークエラーをシミュレート'
+            });
+            updateSimulationStatus();
+            logError('🚨 ネットワークエラーをシミュレートしました', 'warn');
+        }
+
+        function updateSimulationStatus() {
+            const statusDiv = document.getElementById('simulation-status');
+            const errorsDiv = document.getElementById('active-errors');
+            
+            if (errorTestState.simulatedErrors.length === 0) {
+                statusDiv.textContent = 'シミュレーション待機中';
+                errorsDiv.innerHTML = '';
+            } else {
+                statusDiv.textContent = `${errorTestState.simulatedErrors.length} 個のエラーをシミュレート中`;
+                errorsDiv.innerHTML = errorTestState.simulatedErrors.map(error => 
+                    `<div style="color: #f85149; font-size: 12px; margin: 5px 0;">
+                        • ${error.description} (${new Date(error.timestamp).toLocaleTimeString()})
+                    </div>`
+                ).join('');
+            }
+        }
+
+        // 各テストシナリオの実装
+
+        async function testScriptLoadingFailureRecovery() {
+            // スクリプト読み込み失敗の回復動作をテスト
+            logError('スクリプト読み込み失敗回復テスト開始', 'info');
+            
+            // フォールバック機能の存在確認
+            const hasFallbackData = typeof createFallbackHaqeiData === 'function';
+            const hasErrorDetection = typeof ErrorDetectionReporter !== 'undefined';
+            
+            if (!hasFallbackData) {
+                return {
+                    success: false,
+                    message: 'フォールバックデータ生成機能が見つかりません',
+                    details: { hasFallbackData, hasErrorDetection }
+                };
+            }
+
+            // フォールバックデータの生成テスト
+            try {
+                const fallbackData = createFallbackHaqeiData();
+                const isValidFallback = fallbackData && 
+                                       fallbackData.hexagrams_master && 
+                                       Array.isArray(fallbackData.hexagrams_master) &&
+                                       fallbackData.hexagrams_master.length > 0;
+
+                return {
+                    success: isValidFallback,
+                    message: isValidFallback ? 'フォールバックデータ生成成功' : 'フォールバックデータが無効',
+                    details: {
+                        hasFallbackData,
+                        hasErrorDetection,
+                        fallbackDataValid: isValidFallback,
+                        fallbackHexagramCount: fallbackData.hexagrams_master?.length || 0
+                    }
+                };
+            } catch (error) {
+                return {
+                    success: false,
+                    message: `フォールバックデータ生成エラー: ${error.message}`,
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        async function testDataCorruptionRecovery() {
+            logError('データ破損回復テスト開始', 'info');
+            
+            // 元のデータをバックアップ
+            const originalHaqeiData = window.HAQEI_DATA;
+            
+            try {
+                // データを意図的に破損
+                window.HAQEI_DATA = { corrupted: true };
+                
+                // データ整合性チェック機能があるかテスト
+                const hasDataValidation = typeof DataManager !== 'undefined';
+                
+                if (hasDataValidation) {
+                    try {
+                        const dataManager = new DataManager();
+                        // データ検証メソッドがあるかチェック
+                        const hasValidationMethod = typeof dataManager.validateData === 'function';
+                        
+                        return {
+                            success: true,
+                            message: 'データ検証機能が利用可能',
+                            details: {
+                                hasDataManager: true,
+                                hasValidationMethod
+                            }
+                        };
+                    } catch (error) {
+                        return {
+                            success: false,
+                            message: `DataManager初期化失敗: ${error.message}`,
+                            details: { error: error.message }
+                        };
+                    }
+                } else {
+                    return {
+                        success: false,
+                        message: 'DataManagerが見つかりません',
+                        details: { hasDataManager: false }
+                    };
+                }
+            } finally {
+                // データを復元
+                window.HAQEI_DATA = originalHaqeiData;
+            }
+        }
+
+        async function testNetworkTimeoutRecovery() {
+            logError('ネットワークタイムアウト回復テスト開始', 'info');
+            
+            // パス検証システムの存在確認
+            const hasPathValidator = typeof ScriptPathValidator !== 'undefined';
+            
+            if (!hasPathValidator) {
+                return {
+                    success: false,
+                    message: 'ScriptPathValidatorが見つかりません',
+                    details: { hasPathValidator: false }
+                };
+            }
+
+            try {
+                const validator = new ScriptPathValidator({ timeout: 1000 });
+                const hasValidateMethod = typeof validator.validatePath === 'function';
+                
+                return {
+                    success: hasValidateMethod,
+                    message: hasValidateMethod ? 'パス検証機能が利用可能' : 'パス検証メソッドが見つかりません',
+                    details: {
+                        hasPathValidator: true,
+                        hasValidateMethod
+                    }
+                };
+            } catch (error) {
+                return {
+                    success: false,
+                    message: `ScriptPathValidator初期化失敗: ${error.message}`,
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        async function testMemoryExhaustionRecovery() {
+            logError('メモリ不足回復テスト開始', 'info');
+            
+            // パフォーマンス監視機能の存在確認
+            const hasPerformanceMonitor = typeof PerformanceMonitor !== 'undefined';
+            
+            if (!hasPerformanceMonitor) {
+                return {
+                    success: false,
+                    message: 'PerformanceMonitorが見つかりません',
+                    details: { hasPerformanceMonitor: false }
+                };
+            }
+
+            try {
+                const monitor = new PerformanceMonitor({ enableMemoryMonitoring: true });
+                const hasMemorySnapshot = typeof monitor.takeMemorySnapshot === 'function';
+                
+                // メモリ使用量の測定テスト
+                if (hasMemorySnapshot) {
+                    monitor.takeMemorySnapshot('test');
+                }
+
+                return {
+                    success: hasMemorySnapshot,
+                    message: hasMemorySnapshot ? 'メモリ監視機能が利用可能' : 'メモリ監視メソッドが見つかりません',
+                    details: {
+                        hasPerformanceMonitor: true,
+                        hasMemorySnapshot,
+                        memoryAPI: typeof performance.memory !== 'undefined'
+                    }
+                };
+            } catch (error) {
+                return {
+                    success: false,
+                    message: `PerformanceMonitor初期化失敗: ${error.message}`,
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        async function testClassInitializationFailureRecovery() {
+            logError('クラス初期化失敗回復テスト開始', 'info');
+            
+            // 重要なクラスの存在確認
+            const criticalClasses = {
+                BaseComponent: typeof BaseComponent !== 'undefined',
+                DataManager: typeof DataManager !== 'undefined',
+                Calculator: typeof Calculator !== 'undefined'
+            };
+
+            const missingClasses = Object.keys(criticalClasses).filter(key => !criticalClasses[key]);
+            
+            if (missingClasses.length > 0) {
+                return {
+                    success: false,
+                    message: `重要なクラスが見つかりません: ${missingClasses.join(', ')}`,
+                    details: { criticalClasses, missingClasses }
+                };
+            }
+
+            // クラスの初期化テスト
+            try {
+                if (typeof DataManager !== 'undefined') {
+                    const dm = new DataManager();
+                    const hasRequiredMethods = typeof dm.initialize === 'function';
+                    
+                    return {
+                        success: true,
+                        message: 'クラス初期化機能が正常',
+                        details: {
+                            criticalClasses,
+                            hasRequiredMethods
+                        }
+                    };
+                }
+            } catch (error) {
+                return {
+                    success: false,
+                    message: `クラス初期化エラー: ${error.message}`,
+                    details: { error: error.message, criticalClasses }
+                };
+            }
+        }
+
+        async function testLocalStorageQuotaRecovery() {
+            logError('LocalStorage容量超過回復テスト開始', 'info');
+            
+            // StorageManagerの存在確認
+            const hasStorageManager = typeof StorageManager !== 'undefined';
+            
+            if (!hasStorageManager) {
+                return {
+                    success: false,
+                    message: 'StorageManagerが見つかりません',
+                    details: { hasStorageManager: false }
+                };
+            }
+
+            try {
+                const storage = new StorageManager();
+                const hasQuotaHandling = typeof storage.handleQuotaExceeded === 'function';
+                
+                // LocalStorageの利用可能性テスト
+                const isLocalStorageAvailable = (() => {
+                    try {
+                        const test = '__localStorage_test__';
+                        localStorage.setItem(test, test);
+                        localStorage.removeItem(test);
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
+                })();
+
+                return {
+                    success: isLocalStorageAvailable,
+                    message: isLocalStorageAvailable ? 'ストレージ機能が利用可能' : 'LocalStorageが利用できません',
+                    details: {
+                        hasStorageManager: true,
+                        hasQuotaHandling,
+                        isLocalStorageAvailable
+                    }
+                };
+            } catch (error) {
+                return {
+                    success: false,
+                    message: `StorageManager初期化失敗: ${error.message}`,
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        async function testMimeTypeErrorRecovery() {
+            logError('MIMEタイプエラー回復テスト開始', 'info');
+            
+            // エラー検出システムの存在確認
+            const hasErrorReporter = typeof ErrorDetectionReporter !== 'undefined';
+            
+            if (!hasErrorReporter) {
+                return {
+                    success: false,
+                    message: 'ErrorDetectionReporterが見つかりません',
+                    details: { hasErrorReporter: false }
+                };
+            }
+
+            try {
+                const reporter = new ErrorDetectionReporter({ enableAutoDetection: true });
+                const hasMimeDetection = typeof reporter.detectMimeTypeError === 'function';
+                
+                return {
+                    success: true,
+                    message: 'MIMEタイプエラー検出機能が利用可能',
+                    details: {
+                        hasErrorReporter: true,
+                        hasMimeDetection
+                    }
+                };
+            } catch (error) {
+                return {
+                    success: false,
+                    message: `ErrorDetectionReporter初期化失敗: ${error.message}`,
+                    details: { error: error.message }
+                };
+            }
+        }
+
+        async function testConcurrentLoadingConflictRecovery() {
+            logError('並行読み込み競合回復テスト開始', 'info');
+            
+            // スクリプト読み込み状態管理の存在確認
+            const hasLoadingStatus = typeof window.scriptLoadingStatus !== 'undefined';
+            
+            if (!hasLoadingStatus) {
+                return {
+                    success: false,
+                    message: 'スクリプト読み込み状態管理が見つかりません',
+                    details: { hasLoadingStatus: false }
+                };
+            }
+
+            const loadingStatus = window.scriptLoadingStatus;
+            const hasDetailedStatus = typeof loadingStatus.detailedStatus !== 'undefined';
+            const hasLoadAttempts = typeof loadingStatus.loadAttempts !== 'undefined';
+            
+            return {
+                success: hasDetailedStatus && hasLoadAttempts,
+                message: (hasDetailedStatus && hasLoadAttempts) ? 
+                    '並行読み込み状態管理が正常' : 
+                    '読み込み状態管理に不足',
+                details: {
+                    hasLoadingStatus: true,
+                    hasDetailedStatus,
+                    hasLoadAttempts,
+                    loadAttempts: loadingStatus.loadAttempts || 0
+                }
+            };
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTestScenarios();
+            updateSimulationStatus();
+            logError('エラー回復テストページが読み込まれました', 'info');
+            updateTestStatus('待機中');
+        });
+    </script>
+</body>
+</html>

@@ -221,6 +221,34 @@ class TripleOSResultsView extends BaseComponent {
           <button id="retake-test-btn" class="btn btn-secondary">
             🔄 再診断
           </button>
+          <button id="show-compatibility-btn" class="btn btn-secondary">
+            🎯 完全相性分析を見る
+          </button>
+        </div>
+        
+        <!-- 完全相性分析セクション -->
+        <div class="full-compatibility-analysis-section" style="margin-top: 2rem; display: none;" id="full-compatibility-analysis">
+          <h3>🎯 完全内的チーム相性分析</h3>
+          
+          <!-- 分析タブ -->
+          <div class="compatibility-tabs">
+            <button class="tab-btn active" data-tab="engine-interface">エンジン ↔ インターフェース</button>
+            <button class="tab-btn" data-tab="engine-safemode">エンジン ↔ セーフモード</button>
+            <button class="tab-btn" data-tab="overview">総合分析</button>
+          </div>
+          
+          <!-- タブコンテンツ -->
+          <div class="tab-content active" id="tab-engine-interface">
+            <div class="loading">エンジン-インターフェース相性を読み込み中...</div>
+          </div>
+          
+          <div class="tab-content" id="tab-engine-safemode">
+            <div class="loading">エンジン-セーフモード相性を読み込み中...</div>
+          </div>
+          
+          <div class="tab-content" id="tab-overview">
+            <div class="loading">総合分析を準備中...</div>
+          </div>
         </div>
       </div>
     `;
@@ -2142,5 +2170,355 @@ ${integration.basicMindset}
       weeklyQuests: "データ取得をお待ちください。",
       description: "詳細情報を準備中です。",
     };
+  }
+
+  // イベントバインディング（完全実装）
+  bindEvents() {
+    // 完全相性分析ボタンのイベント
+    const showCompatibilityBtn = document.getElementById('show-compatibility-btn');
+    if (showCompatibilityBtn) {
+      showCompatibilityBtn.addEventListener('click', () => {
+        this.toggleFullCompatibilityAnalysis();
+      });
+    }
+    
+    // タブ切り替えイベント
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        this.switchCompatibilityTab(e.target.dataset.tab);
+      });
+    });
+  }
+
+  // 完全相性分析表示の切り替え
+  async toggleFullCompatibilityAnalysis() {
+    const analysisSection = document.getElementById('full-compatibility-analysis');
+    const button = document.getElementById('show-compatibility-btn');
+    
+    if (!analysisSection) return;
+    
+    if (analysisSection.style.display === 'none') {
+      // 表示する
+      analysisSection.style.display = 'block';
+      button.textContent = '🎯 完全相性分析を隠す';
+      
+      // 全ての相性データを読み込んで表示
+      await this.loadFullCompatibilityAnalysis();
+    } else {
+      // 非表示にする
+      analysisSection.style.display = 'none';
+      button.textContent = '🎯 完全相性分析を見る';
+    }
+  }
+
+  // タブ切り替え処理
+  switchCompatibilityTab(tabName) {
+    // 全てのタブボタンとコンテンツを非アクティブにする
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    // 選択されたタブをアクティブにする
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    
+    // 必要に応じてデータを読み込む
+    if (tabName === 'overview') {
+      this.renderOverviewAnalysis();
+    }
+  }
+
+  // 完全相性分析の読み込み
+  async loadFullCompatibilityAnalysis() {
+    if (!this.analysisResult) return;
+    
+    try {
+      // CompatibilityDataLoaderを初期化
+      if (typeof CompatibilityDataLoader === 'undefined') {
+        throw new Error('CompatibilityDataLoader が利用できません');
+      }
+      
+      const dataLoader = new CompatibilityDataLoader();
+      
+      // Engine-Interface相性データを取得
+      const engineInterfaceData = await dataLoader.getEngineInterfaceCompatibility(
+        this.analysisResult.engineOS.hexagramId,
+        this.analysisResult.interfaceOS.hexagramId
+      );
+      
+      // Engine-SafeMode相性データを取得
+      const engineSafeModeData = await dataLoader.getEngineSafeModeCompatibility(
+        this.analysisResult.engineOS.hexagramId,
+        this.analysisResult.safeModeOS.hexagramId
+      );
+      
+      // 各タブにデータを表示
+      this.renderEngineInterfaceAnalysis(engineInterfaceData);
+      this.renderEngineSafeModeAnalysis(engineSafeModeData);
+      
+      // 総合分析を準備
+      this.prepareOverviewAnalysis(engineInterfaceData, engineSafeModeData);
+      
+    } catch (error) {
+      console.error('完全相性分析読み込みエラー:', error);
+      this.showAnalysisError(error);
+    }
+  }
+
+  // Engine-Interface分析の表示
+  renderEngineInterfaceAnalysis(data) {
+    const contentDiv = document.getElementById('tab-engine-interface');
+    if (!contentDiv || !data) return;
+    
+    const interfaceData = data.interface_combinations.find(
+      combo => combo.interface_id === this.analysisResult.interfaceOS.hexagramId
+    );
+    
+    if (!interfaceData) {
+      contentDiv.innerHTML = '<p>該当する詳細データが見つかりませんでした。</p>';
+      return;
+    }
+    
+    contentDiv.innerHTML = this.generateCompatibilityHTML(
+      data.engine_os_name, 
+      interfaceData.interface_name, 
+      interfaceData,
+      'エンジンOSとインターフェースOSの相性分析'
+    );
+  }
+
+  // Engine-SafeMode分析の表示
+  renderEngineSafeModeAnalysis(data) {
+    const contentDiv = document.getElementById('tab-engine-safemode');
+    if (!contentDiv || !data) return;
+    
+    const safeModeData = data.safemode_combinations.find(
+      combo => combo.safemode_id === this.analysisResult.safeModeOS.hexagramId
+    );
+    
+    if (!safeModeData) {
+      contentDiv.innerHTML = '<p>該当する詳細データが見つかりませんでした。</p>';
+      return;
+    }
+    
+    contentDiv.innerHTML = this.generateCompatibilityHTML(
+      data.engine_os_name, 
+      safeModeData.safemode_name, 
+      safeModeData,
+      'エンジンOSとセーフモードOSの相性分析'
+    );
+  }
+
+  // 相性分析HTMLの生成（共通）
+  generateCompatibilityHTML(os1Name, os2Name, compatibilityData, title) {
+    return `
+      <div class="compatibility-detail">
+        <div class="compatibility-header">
+          <h4>${title}</h4>
+          <h5>${os1Name} × ${os2Name}</h5>
+          <div class="compatibility-type ${compatibilityData.type.toLowerCase()}">${compatibilityData.type}</div>
+          <div class="overall-score">総合スコア: ${Math.round(compatibilityData.overall_score * 100)}%</div>
+        </div>
+        
+        <div class="compatibility-summary">
+          <p>${compatibilityData.summary}</p>
+        </div>
+        
+        <div class="evaluation-scores">
+          <h5>📊 評価項目</h5>
+          <div class="score-grid">
+            <div class="score-item">
+              <span class="score-label">機能効率性</span>
+              <span class="score-value">${Math.round(compatibilityData.evaluation.functional_efficiency.score * 100)}%</span>
+              <p class="score-desc">${compatibilityData.evaluation.functional_efficiency.description}</p>
+            </div>
+            <div class="score-item">
+              <span class="score-label">成長ポテンシャル</span>
+              <span class="score-value">${Math.round(compatibilityData.evaluation.growth_potential.score * 100)}%</span>
+              <p class="score-desc">${compatibilityData.evaluation.growth_potential.description}</p>
+            </div>
+            <div class="score-item">
+              <span class="score-label">ストレス耐性</span>
+              <span class="score-value">${Math.round(compatibilityData.evaluation.stress_resilience.score * 100)}%</span>
+              <p class="score-desc">${compatibilityData.evaluation.stress_resilience.description}</p>
+            </div>
+            <div class="score-item">
+              <span class="score-label">創造性</span>
+              <span class="score-value">${Math.round(compatibilityData.evaluation.creativity.score * 100)}%</span>
+              <p class="score-desc">${compatibilityData.evaluation.creativity.description}</p>
+            </div>
+            <div class="score-item">
+              <span class="score-label">統合困難度</span>
+              <span class="score-value">${Math.round(compatibilityData.evaluation.integration_challenge.score * 100)}%</span>
+              <p class="score-desc">${compatibilityData.evaluation.integration_challenge.description}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="advice-section">
+          <div class="strengths">
+            <h5>✨ 強み</h5>
+            <ul>
+              ${compatibilityData.advice.strengths.map(strength => `<li>${strength}</li>`).join('')}
+            </ul>
+          </div>
+          
+          <div class="challenges">
+            <h5>⚠️ 課題</h5>
+            <ul>
+              ${compatibilityData.advice.challenges.map(challenge => `<li>${challenge}</li>`).join('')}
+            </ul>
+          </div>
+          
+          <div class="recommendations">
+            <h5>💡 推奨事項</h5>
+            <ul>
+              ${compatibilityData.advice.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 総合分析の準備
+  prepareOverviewAnalysis(engineInterfaceData, engineSafeModeData) {
+    // 後で総合分析が要求された時に使用するデータを保存
+    this.fullCompatibilityData = {
+      engineInterface: engineInterfaceData,
+      engineSafeMode: engineSafeModeData
+    };
+  }
+
+  // 総合分析の表示
+  renderOverviewAnalysis() {
+    const contentDiv = document.getElementById('tab-overview');
+    if (!contentDiv || !this.fullCompatibilityData) return;
+    
+    const { engineInterface, engineSafeMode } = this.fullCompatibilityData;
+    
+    // Engine-Interface のデータ
+    const eiData = engineInterface.interface_combinations.find(
+      combo => combo.interface_id === this.analysisResult.interfaceOS.hexagramId
+    );
+    
+    // Engine-SafeMode のデータ  
+    const esData = engineSafeMode.safemode_combinations.find(
+      combo => combo.safemode_id === this.analysisResult.safeModeOS.hexagramId
+    );
+    
+    if (!eiData || !esData) {
+      contentDiv.innerHTML = '<p>総合分析に必要なデータが不足しています。</p>';
+      return;
+    }
+    
+    // 総合スコア計算
+    const overallScore = (eiData.overall_score + esData.overall_score) / 2;
+    
+    contentDiv.innerHTML = `
+      <div class="overview-analysis">
+        <div class="overview-header">
+          <h4>🎯 内的チーム総合分析</h4>
+          <div class="total-score">総合調和スコア: ${Math.round(overallScore * 100)}%</div>
+        </div>
+        
+        <div class="comparison-grid">
+          <div class="comparison-item">
+            <h5>エンジン ↔ インターフェース</h5>
+            <div class="mini-score">${Math.round(eiData.overall_score * 100)}%</div>
+            <div class="type-badge ${eiData.type.toLowerCase()}">${eiData.type}</div>
+            <p>${eiData.summary}</p>
+          </div>
+          
+          <div class="comparison-item">
+            <h5>エンジン ↔ セーフモード</h5>
+            <div class="mini-score">${Math.round(esData.overall_score * 100)}%</div>
+            <div class="type-badge ${esData.type.toLowerCase()}">${esData.type}</div>
+            <p>${esData.summary}</p>
+          </div>
+        </div>
+        
+        <div class="integrated-insights">
+          <h5>🔮 統合洞察</h5>
+          <div class="insight-content">
+            ${this.generateIntegratedInsights(eiData, esData, overallScore)}
+          </div>
+        </div>
+        
+        <div class="action-recommendations">
+          <h5>🎯 統合的行動提案</h5>
+          <div class="recommendations-content">
+            ${this.generateIntegratedRecommendations(eiData, esData)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 統合洞察の生成
+  generateIntegratedInsights(eiData, esData, overallScore) {
+    let insights = [];
+    
+    if (overallScore > 0.8) {
+      insights.push("あなたの内的チームは高度に統合されており、各OSが相互にサポートし合う理想的な状態です。");
+    } else if (overallScore > 0.6) {
+      insights.push("内的チームは概ね調和しており、適切な意識により更なる統合が可能です。");
+    } else if (overallScore > 0.4) {
+      insights.push("内的チームには改善の余地があり、意識的な統合努力が必要です。");
+    } else {
+      insights.push("内的チームに大きな葛藤があり、段階的な調整が重要です。");
+    }
+    
+    // タイプ別の追加洞察
+    if (eiData.type === esData.type) {
+      insights.push(`エンジンOSは一貫して${eiData.type}的な関係性を築く傾向があります。`);
+    } else {
+      insights.push(`エンジンOSは状況に応じて${eiData.type}的（対外）と${esData.type}的（内面）の異なる関係性を示します。`);
+    }
+    
+    return insights.map(insight => `<p>${insight}</p>`).join('');
+  }
+
+  // 統合的推奨事項の生成
+  generateIntegratedRecommendations(eiData, esData) {
+    let recommendations = [];
+    
+    // 両方の強みを活かす提案
+    const commonStrengths = eiData.advice.strengths.filter(s => 
+      esData.advice.strengths.some(es => es.includes(s.split('')[0]))
+    );
+    
+    if (commonStrengths.length > 0) {
+      recommendations.push("共通の強み「" + commonStrengths[0] + "」を日常的に活用しましょう。");
+    }
+    
+    // 課題の統合的解決
+    recommendations.push("外向き（インターフェース）と内向き（セーフモード）のバランスを意識的に調整する時間を設けましょう。");
+    
+    // 具体的な行動提案
+    recommendations.push("毎日10分間、3つのOSが協調している瞬間を意識的に観察してみてください。");
+    
+    return recommendations.map(rec => `<p>• ${rec}</p>`).join('');
+  }
+
+  // エラー表示
+  showAnalysisError(error) {
+    const sections = ['tab-engine-interface', 'tab-engine-safemode', 'tab-overview'];
+    sections.forEach(sectionId => {
+      const contentDiv = document.getElementById(sectionId);
+      if (contentDiv) {
+        contentDiv.innerHTML = `
+          <div class="error">
+            <p>分析の読み込みに失敗しました。</p>
+            <p>エラー: ${error.message}</p>
+          </div>
+        `;
+      }
+    });
+  }
+
+  // startAnimations（空の実装）
+  startAnimations() {
+    // アニメーション処理があれば実装
   }
 }

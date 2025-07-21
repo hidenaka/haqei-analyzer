@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>フォールバックシステムテスト</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-result {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+      .info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      pre {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 3px;
+        overflow-x: auto;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .test-btn {
+        background-color: #007bff;
+        color: white;
+      }
+      .reset-btn {
+        background-color: #6c757d;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>フォールバックシステムテスト</h1>
+    <div>
+      <button class="test-btn" onclick="testNormalLoading()">
+        通常読み込みテスト
+      </button>
+      <button class="test-btn" onclick="testFallbackSystem()">
+        フォールバックシステムテスト
+      </button>
+      <button class="reset-btn" onclick="resetTest()">リセット</button>
+    </div>
+    <div id="test-results"></div>
+
+    <!-- フォールバック関数のみを読み込み（データファイルは意図的に読み込まない） -->
+    <script>
+      // 緊急フォールバックデータ作成関数
+      function createFallbackHaqeiData() {
+        console.warn("⚠️ [Fallback] 緊急フォールバックデータを作成中...");
+
+        return {
+          hexagrams: {},
+          hexagrams_master: [
+            {
+              hexagram_id: 1,
+              name_jp: "乾為天",
+              reading: "けんいてん",
+              catchphrase: "天翔ける龍のような、天性のリーダー",
+              upper_trigram_id: 1,
+              lower_trigram_id: 1,
+              description: "フォールバックデータ - 基本的な卦情報",
+              keywords: "創造,リーダーシップ,力",
+            },
+          ],
+          os_manual: {},
+          trigrams_master: [],
+          element_relationships: [],
+          action_plans: {},
+          sho_den: {},
+          tai_sho_den: {},
+          jo_ka_den: {},
+          zatsu_ka_den: {},
+          tuan_den: {},
+        };
+      }
+
+      // 緊急フォールバック質問データ作成関数
+      function createFallbackQuestions() {
+        console.warn("⚠️ [Fallback] 緊急フォールバック質問データを作成中...");
+
+        return [
+          {
+            id: "q1",
+            text: "フォールバック質問: あなたの基本的な価値観は？",
+            options: [
+              {
+                value: "A",
+                text: "創造性を重視する",
+                scoring_tags: [{ key: "乾_創造性", value: 3.0 }],
+              },
+              {
+                value: "B",
+                text: "安定性を重視する",
+                scoring_tags: [{ key: "艮_安定性", value: 3.0 }],
+              },
+            ],
+          },
+        ];
+      }
+
+      // 緊急フォールバックベクトルデータ作成関数
+      function createFallbackVectors() {
+        console.warn(
+          "⚠️ [Fallback] 緊急フォールバックベクトルデータを作成中..."
+        );
+
+        const fallbackVectors = {};
+        for (let i = 1; i <= 64; i++) {
+          fallbackVectors[i] = {
+            乾_創造性: 5,
+            震_行動性: 5,
+            坎_探求性: 5,
+            艮_安定性: 5,
+            坤_受容性: 5,
+            巽_適応性: 5,
+            離_表現性: 5,
+            兌_調和性: 5,
+          };
+        }
+        return fallbackVectors;
+      }
+
+      function addTestResult(message, type = "info") {
+        const resultsDiv = document.getElementById("test-results");
+        const resultDiv = document.createElement("div");
+        resultDiv.className = `test-result ${type}`;
+        resultDiv.innerHTML = message;
+        resultsDiv.appendChild(resultDiv);
+      }
+
+      function resetTest() {
+        document.getElementById("test-results").innerHTML = "";
+        // グローバル変数をクリア
+        delete window.HAQEI_DATA;
+        delete window.WORLDVIEW_QUESTIONS;
+        delete window.SCENARIO_QUESTIONS;
+        delete window.H64_8D_VECTORS;
+        delete window.HEXAGRAM_DETAILS;
+        addTestResult("🔄 テスト環境をリセットしました", "info");
+      }
+
+      function testNormalLoading() {
+        addTestResult("<h3>通常読み込みテスト開始</h3>", "info");
+
+        // 実際のデータファイルを動的に読み込み
+        const dataFiles = [
+          "../js/data/data_box.js",
+          "../js/data/questions.js",
+          "../js/data/vectors.js",
+          "../js/data/hexagram_details.js",
+        ];
+
+        let loadedCount = 0;
+        const totalFiles = dataFiles.length;
+
+        dataFiles.forEach((file, index) => {
+          const script = document.createElement("script");
+          script.src = file;
+          script.onload = () => {
+            loadedCount++;
+            addTestResult(`✅ ${file} が正常に読み込まれました`, "success");
+
+            if (loadedCount === totalFiles) {
+              // すべてのファイルが読み込まれた後の検証
+              setTimeout(() => {
+                validateNormalLoading();
+              }, 100);
+            }
+          };
+          script.onerror = () => {
+            addTestResult(`❌ ${file} の読み込みに失敗しました`, "error");
+          };
+          document.head.appendChild(script);
+        });
+      }
+
+      function validateNormalLoading() {
+        addTestResult("<h4>通常読み込み検証結果</h4>", "info");
+
+        const requiredData = [
+          { name: "HAQEI_DATA", var: window.HAQEI_DATA },
+          { name: "WORLDVIEW_QUESTIONS", var: window.WORLDVIEW_QUESTIONS },
+          { name: "SCENARIO_QUESTIONS", var: window.SCENARIO_QUESTIONS },
+          { name: "H64_8D_VECTORS", var: window.H64_8D_VECTORS },
+          { name: "HEXAGRAM_DETAILS", var: window.HEXAGRAM_DETAILS },
+        ];
+
+        let successCount = 0;
+        requiredData.forEach((data) => {
+          if (typeof data.var !== "undefined") {
+            addTestResult(
+              `✅ ${data.name} が正常に定義されています`,
+              "success"
+            );
+            successCount++;
+          } else {
+            addTestResult(`❌ ${data.name} が定義されていません`, "error");
+          }
+        });
+
+        if (successCount === requiredData.length) {
+          addTestResult(
+            `🎉 通常読み込みテスト成功 (${successCount}/${requiredData.length})`,
+            "success"
+          );
+        } else {
+          addTestResult(
+            `⚠️ 通常読み込みテスト部分的成功 (${successCount}/${requiredData.length})`,
+            "warning"
+          );
+        }
+      }
+
+      function testFallbackSystem() {
+        addTestResult("<h3>フォールバックシステムテスト開始</h3>", "info");
+
+        // データが存在しない状態をシミュレート
+        const missingData = [];
+
+        if (typeof window.HAQEI_DATA === "undefined") {
+          missingData.push("HAQEI_DATA");
+        }
+        if (typeof window.WORLDVIEW_QUESTIONS === "undefined") {
+          missingData.push("WORLDVIEW_QUESTIONS");
+        }
+        if (typeof window.SCENARIO_QUESTIONS === "undefined") {
+          missingData.push("SCENARIO_QUESTIONS");
+        }
+        if (typeof window.H64_8D_VECTORS === "undefined") {
+          missingData.push("H64_8D_VECTORS");
+        }
+
+        addTestResult(
+          `📊 不足しているデータ: ${missingData.join(", ")}`,
+          "info"
+        );
+
+        // フォールバック処理を実行
+        if (missingData.includes("HAQEI_DATA")) {
+          addTestResult(
+            "🔧 HAQEI_DATA フォールバック処理を実行中...",
+            "warning"
+          );
+          window.HAQEI_DATA = createFallbackHaqeiData();
+          addTestResult(
+            "✅ HAQEI_DATA フォールバックデータが作成されました",
+            "success"
+          );
+        }
+
+        if (missingData.includes("WORLDVIEW_QUESTIONS")) {
+          addTestResult(
+            "🔧 WORLDVIEW_QUESTIONS フォールバック処理を実行中...",
+            "warning"
+          );
+          window.WORLDVIEW_QUESTIONS = createFallbackQuestions();
+          addTestResult(
+            "✅ WORLDVIEW_QUESTIONS フォールバックデータが作成されました",
+            "success"
+          );
+        }
+
+        if (missingData.includes("SCENARIO_QUESTIONS")) {
+          addTestResult(
+            "🔧 SCENARIO_QUESTIONS フォールバック処理を実行中...",
+            "warning"
+          );
+          window.SCENARIO_QUESTIONS = createFallbackQuestions();
+          addTestResult(
+            "✅ SCENARIO_QUESTIONS フォールバックデータが作成されました",
+            "success"
+          );
+        }
+
+        if (missingData.includes("H64_8D_VECTORS")) {
+          addTestResult(
+            "🔧 H64_8D_VECTORS フォールバック処理を実行中...",
+            "warning"
+          );
+          window.H64_8D_VECTORS = createFallbackVectors();
+          addTestResult(
+            "✅ H64_8D_VECTORS フォールバックデータが作成されました",
+            "success"
+          );
+        }
+
+        // フォールバック結果の検証
+        setTimeout(() => {
+          validateFallbackData();
+        }, 100);
+      }
+
+      function validateFallbackData() {
+        addTestResult("<h4>フォールバックデータ検証結果</h4>", "info");
+
+        // HAQEI_DATA の検証
+        if (window.HAQEI_DATA && typeof window.HAQEI_DATA === "object") {
+          const keys = Object.keys(window.HAQEI_DATA);
+          addTestResult(
+            `✅ HAQEI_DATA 構造確認: ${keys.join(", ")}`,
+            "success"
+          );
+
+          if (
+            window.HAQEI_DATA.hexagrams_master &&
+            Array.isArray(window.HAQEI_DATA.hexagrams_master)
+          ) {
+            addTestResult(
+              `📊 hexagrams_master 要素数: ${window.HAQEI_DATA.hexagrams_master.length}`,
+              "info"
+            );
+          }
+        }
+
+        // WORLDVIEW_QUESTIONS の検証
+        if (
+          window.WORLDVIEW_QUESTIONS &&
+          Array.isArray(window.WORLDVIEW_QUESTIONS)
+        ) {
+          addTestResult(
+            `✅ WORLDVIEW_QUESTIONS 配列確認: ${window.WORLDVIEW_QUESTIONS.length} 問`,
+            "success"
+          );
+        }
+
+        // H64_8D_VECTORS の検証
+        if (
+          window.H64_8D_VECTORS &&
+          typeof window.H64_8D_VECTORS === "object"
+        ) {
+          const vectorKeys = Object.keys(window.H64_8D_VECTORS);
+          addTestResult(
+            `✅ H64_8D_VECTORS 確認: ${vectorKeys.length} 卦のベクトルデータ`,
+            "success"
+          );
+
+          // サンプルベクトルの確認
+          if (window.H64_8D_VECTORS[1]) {
+            const sampleVector = window.H64_8D_VECTORS[1];
+            const dimensions = Object.keys(sampleVector);
+            addTestResult(`📊 ベクトル次元: ${dimensions.join(", ")}`, "info");
+          }
+        }
+
+        addTestResult("🎉 フォールバックシステムテスト完了", "success");
+      }
+
+      // 初期状態の表示
+      document.addEventListener("DOMContentLoaded", function () {
+        addTestResult("📋 フォールバックシステムテスト準備完了", "info");
+        addTestResult(
+          "💡 「通常読み込みテスト」でデータファイルを読み込み、「フォールバックシステムテスト」で不足データの補完をテストできます",
+          "info"
+        );
+      });
+    </script>
+  </body>
+</html>

@@ -1,5 +1,23 @@
 // WelcomeScreen.js - ウェルカム画面UIコンポーネント（雛形）
 // HaQei Analyzer - Welcome Screen Component
+
+// BaseComponentの存在確認
+if (typeof BaseComponent === "undefined") {
+  console.error("❌ [WelcomeScreen] BaseComponent が定義されていません");
+  // 緊急フォールバック用の最小限BaseComponent
+  window.BaseComponent = class BaseComponent {
+    constructor(container, options = {}) {
+      this.container = container;
+      this.options = { ...this.defaultOptions, ...options };
+    }
+    get defaultOptions() {
+      return {};
+    }
+    render() {}
+    bindEvents() {}
+  };
+}
+
 class WelcomeScreen extends BaseComponent {
   get defaultOptions() {
     return {
@@ -41,3 +59,12 @@ class WelcomeScreen extends BaseComponent {
     }
   }
 }
+
+// グローバルスコープに明示的に登録
+window.WelcomeScreen = WelcomeScreen;
+
+// 読み込み確認ログ
+console.log(
+  "✅ [WelcomeScreen] WelcomeScreen クラスが定義されました:",
+  typeof WelcomeScreen
+);
