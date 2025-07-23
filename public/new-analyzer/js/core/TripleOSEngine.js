@@ -707,22 +707,48 @@ class TripleOSEngine extends DiagnosisEngine {
 
   // 爻キーワードマッチング（line_keyword_map使用）
   async performLineKeywordMatching(choices, type) {
+    console.log(`🔍 Performing LINE keyword matching for ${type}...`);
+    console.log("🔍 DEBUG: Input choices:", JSON.stringify(choices, null, 2));
+
     const lineKeywordMap = this.dataManager.getLineKeywordMap();
     if (!lineKeywordMap || Object.keys(lineKeywordMap).length === 0) {
-      console.warn("Line keyword map is not available.");
+      console.warn("❌ Line keyword map is not available.");
       return [];
     }
 
+    console.log("🔍 DEBUG: LineKeywordMap available, checking tag matches...");
+    console.log("🔍 DEBUG: LineKeywordMap keys count:", Object.keys(lineKeywordMap).length);
+    console.log("🔍 DEBUG: LineKeywordMap keys sample:", Object.keys(lineKeywordMap).slice(0, 10));
+
     const scores = {};
     const matches = {};
+    let totalMatches = 0;
+    let tagProcessed = 0;
 
-    choices.forEach((choice) => {
+    choices.forEach((choice, choiceIndex) => {
+      console.log(`🔍 DEBUG: Processing choice ${choiceIndex}:`, choice);
+
       if (choice.scoring_tags && Array.isArray(choice.scoring_tags)) {
-        choice.scoring_tags.forEach((tag) => {
+        console.log(
+          `🔍 DEBUG: Choice ${choiceIndex} has ${choice.scoring_tags.length} tags:`,
+          choice.scoring_tags
+        );
+
+        choice.scoring_tags.forEach((tag, tagIndex) => {
+          tagProcessed++;
+          console.log(`🔍 DEBUG: Processing tag ${tagIndex}: "${tag}"`);
+
           const lines = lineKeywordMap[tag];
           if (lines) {
-            lines.forEach((lineInfo) => {
-              const hexagramId = lineInfo.hexagram_id;
+            console.log(
+              `🔍 DEBUG: Tag "${tag}" matched ${lines.length} line entries:`,
+              lines
+            );
+            totalMatches++;
+
+            lines.forEach((hexagramId) => {
+              console.log(`🔍 DEBUG: Direct hexagram_id for tag "${tag}": ${hexagramId}`);
+              
               if (!scores[hexagramId]) {
                 scores[hexagramId] = 0;
                 matches[hexagramId] = [];
@@ -732,10 +758,20 @@ class TripleOSEngine extends DiagnosisEngine {
                 matches[hexagramId].push(tag);
               }
             });
+          } else {
+            console.log(`🔍 DEBUG: Tag "${tag}" not found in lineKeywordMap`);
           }
         });
+      } else {
+        console.log(
+          `🔍 DEBUG: Choice ${choiceIndex} has no scoring_tags or not array`
+        );
       }
     });
+
+    console.log(`🔍 DEBUG: Processed ${tagProcessed} tags total`);
+    console.log(`✅ Total LINE keyword matches found: ${totalMatches}`);
+    console.log(`🔍 DEBUG: Final LINE scores:`, scores);
 
     const results = Object.keys(scores).map((hexagramId) => ({
       hexagramId: parseInt(hexagramId, 10),
@@ -743,7 +779,10 @@ class TripleOSEngine extends DiagnosisEngine {
       matches: matches[hexagramId],
     }));
 
-    return results.sort((a, b) => b.score - a.score);
+    const sortedResults = results.sort((a, b) => b.score - a.score);
+    console.log(`🔍 DEBUG: Sorted LINE results:`, sortedResults);
+
+    return sortedResults;
   }
 
   // エンジンOSを除外
