@@ -1187,7 +1187,7 @@ ${interpretation}`;
 
     let engineStrengthMeterHtml = '';
     if (type === 'engine') {
-        const strength = osData.strength || 0; // Assuming strength is a value between 0 and 1
+        const strength = osData.activation || osData.score || osData.strength || 0; // Use activation as primary strength indicator
         engineStrengthMeterHtml = `
             <div class="engine-strength-meter">
                 <h5>エンジン強度</h5>
@@ -1439,9 +1439,9 @@ ${interpretation}`;
   // セーフモードOS詳細
   renderSafeModeDetails(safeModeOS) {
     const matches = safeModeOS.lineMatches || [];
-    const summaryText = safeModeOS.hexagramInfo
+    const summaryText = safeModeOS.hexagramInfo && safeModeOS.hexagramInfo.name
       ? `<p>ストレスや困難な状況において、${safeModeOS.hexagramInfo.name}の防御機制が作動します。</p>`
-      : `<p>ストレスや困難な状況において、特定の防御パターンは検出されませんでした。</p>`;
+      : `<p>分析不能。セーフモードOS情報が読み込めていません。データベースへの接続を確認してください。</p>`;
 
     return `
       <div class="safemode-details">

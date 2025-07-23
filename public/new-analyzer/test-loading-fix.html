@@ -112,10 +112,10 @@
     <script src="js/core/Engine.js"></script>
     <script src="js/core/TripleOSEngine.js"></script>
     <script src="js/core/StorageManager.js"></script>
-    <script src="js/data/data_box.js"></script>
-    <script src="js/data/questions.js"></script>
-    <script src="js/data/vectors.js"></script>
-    <script src="js/data/hexagrams.js"></script>
+    <script src="../js/data/data_box.js"></script>
+    <script src="../js/data/questions.js"></script>
+    <script src="../js/data/vectors.js"></script>
+    <script src="../js/data/hexagrams.js"></script>
     <script src="js/components/WelcomeScreen.js"></script>
     <script src="js/components/QuestionFlow.js"></script>
     <script src="js/components/AnalysisView.js"></script>
@@ -274,6 +274,10 @@
                     
                     // Test 6: WelcomeScreen initialization
                     addResult('info', 'Testing WelcomeScreen initialization...');
+                    
+                    const testDiv = document.createElement('div');
+                    testDiv.id = 'test-container';
+                    document.body.appendChild(testDiv);
                     
                     const welcomeScreen = new WelcomeScreen('test-container', {
                         onStart: () => console.log('Welcome screen start clicked')
