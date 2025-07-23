@@ -112,6 +112,7 @@ class TripleOSResultsView extends BaseComponent {
                             <div class="os-name">${engineOS && engineOS.osName ? engineOS.osName : '不明'}</div>
                             <div class="os-score">${engineOS && engineOS.strength ? Math.round(engineOS.strength * 100) : 0}%</div>
                         </div>
+                        <span class="expand-icon" role="button" tabindex="0" aria-label="詳細を展開" aria-expanded="false">+</span>
                     </div>
                     <div class="os-card-body">
                         ${this.generateOSCardBody(engineOS, 'engine')}
@@ -129,6 +130,7 @@ class TripleOSResultsView extends BaseComponent {
                             <div class="os-name">${interfaceOS && interfaceOS.osName ? interfaceOS.osName : '不明'}</div>
                             <div class="os-score">${interfaceOS && interfaceOS.matchScore ? interfaceOS.matchScore : 0}%</div>
                         </div>
+                        <span class="expand-icon" role="button" tabindex="0" aria-label="詳細を展開" aria-expanded="false">+</span>
                     </div>
                     <div class="os-card-body">
                         ${this.generateOSCardBody(interfaceOS, 'interface')}
@@ -146,6 +148,7 @@ class TripleOSResultsView extends BaseComponent {
                             <div class="os-name">${safeModeOS && safeModeOS.osName ? safeModeOS.osName : '不明'}</div>
                             <div class="os-score">${safeModeOS && safeModeOS.matchScore ? safeModeOS.matchScore : 0}%</div>
                         </div>
+                        <span class="expand-icon" role="button" tabindex="0" aria-label="詳細を展開" aria-expanded="false">+</span>
                     </div>
                     <div class="os-card-body">
                         ${this.generateOSCardBody(safeModeOS, 'safemode')}
@@ -3471,6 +3474,7 @@ ${integration.basicMindset}
             <div class="dynamics-header">
                 <h4>エンジン ⟷ インターフェース</h4>
                 <span class="dynamics-type ${dynamicsType}">${combination.type || 'unknown'}</span>
+                <span class="expand-icon">+</span>
             </div>
             <p class="dynamics-summary">${combination.summary || 'データがありません'}</p>
             <div class="dynamics-details">
@@ -3516,6 +3520,7 @@ ${integration.basicMindset}
             <div class="dynamics-header">
                 <h4>エンジン ⟷ セーフモード</h4>
                 <span class="dynamics-type ${dynamicsType}">${combination.type || 'unknown'}</span>
+                <span class="expand-icon">+</span>
             </div>
             <p class="dynamics-summary">${combination.summary || 'データがありません'}</p>
             <div class="dynamics-details">
@@ -3566,6 +3571,18 @@ ${integration.basicMindset}
                 console.log("🖱️ OSカードがクリックされました:", card.dataset.osType);
                 this.toggleOSCard(card);
             });
+            
+            // キーボードアクセシビリティ
+            const expandIcon = card.querySelector('.expand-icon');
+            if (expandIcon) {
+                expandIcon.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        console.log("⌨️ OSカードがキーボードで操作されました:", card.dataset.osType);
+                        this.toggleOSCard(card);
+                    }
+                });
+            }
         });
 
         // フェーズ3: 力学カードのクリック展開機能
@@ -3576,6 +3593,18 @@ ${integration.basicMindset}
                 console.log("🖱️ 力学カードがクリックされました");
                 this.toggleDynamicsCard(card);
             });
+            
+            // キーボードアクセシビリティ
+            const expandIcon = card.querySelector('.expand-icon');
+            if (expandIcon) {
+                expandIcon.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        console.log("⌨️ 力学カードがキーボードで操作されました");
+                        this.toggleDynamicsCard(card);
+                    }
+                });
+            }
         });
 
         // 従来のモーダル機能も保持（非表示にしているが）
@@ -3627,6 +3656,14 @@ ${integration.basicMindset}
     // クリックされたカードを切り替え
     card.classList.toggle('is-expanded');
     
+    // ARIA更新
+    const expandIcon = card.querySelector('.expand-icon');
+    if (expandIcon) {
+        const newState = card.classList.contains('is-expanded');
+        expandIcon.setAttribute('aria-label', newState ? '詳細を折りたたむ' : '詳細を展開');
+        expandIcon.setAttribute('aria-expanded', newState);
+    }
+    
     console.log(`OSカード ${card.dataset.osType} を${isExpanded ? '折りたたみ' : '展開'}しました`);
   }
 
@@ -3645,6 +3682,14 @@ ${integration.basicMindset}
     
     // クリックされたカードを切り替え
     card.classList.toggle('is-expanded');
+    
+    // ARIA更新
+    const expandIcon = card.querySelector('.expand-icon');
+    if (expandIcon) {
+        const newState = card.classList.contains('is-expanded');
+        expandIcon.setAttribute('aria-label', newState ? '詳細を折りたたむ' : '詳細を展開');
+        expandIcon.setAttribute('aria-expanded', newState);
+    }
     
     console.log(`力学カードを${isExpanded ? '折りたたみ' : '展開'}しました`);
   }
