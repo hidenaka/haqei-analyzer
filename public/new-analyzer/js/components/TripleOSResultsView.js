@@ -666,10 +666,10 @@ ${interpretation}`;
   async initializeAdvancedCompatibilityEngine() {
     try {
       console.log("🔍 Initializing AdvancedCompatibilityEngine...");
-      console.log("🔍 internalCompatibilityEngine:", this.internalCompatibilityEngine);
       
       if (!this.internalCompatibilityEngine) {
-        console.warn("⚠️ internalCompatibilityEngine is not available");
+        // 対話型UIでは必須ではないため、デバッグレベルでログ出力
+        console.debug("🔍 internalCompatibilityEngine is not available (not required for interactive UI)");
         return;
       }
       

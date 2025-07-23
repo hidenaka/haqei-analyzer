@@ -1597,7 +1597,7 @@ class DataManager {
       }
 
       if (!hexagramDetails) {
-        console.warn('HEXAGRAM_DETAILSが見つかりません');
+        console.debug('HEXAGRAM_DETAILSが見つかりません（フォールバックデータを使用）');
         // フォールバック: 基本的な情報のみ返す
         return {
           name_jp: `八卦 ${hexagramId}`,
@@ -1621,7 +1621,7 @@ class DataManager {
         };
       }
 
-      console.warn(`hexagramId ${hexagramId} の詳細情報が見つかりません`);
+      console.debug(`hexagramId ${hexagramId} の詳細情報が見つかりません（フォールバックデータを使用）`);
       // フォールバック情報を返す
       return {
         name_jp: `八卦 ${hexagramId}`,
