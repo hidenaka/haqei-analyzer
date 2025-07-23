@@ -1519,3 +1519,152 @@
     width: 100%;
   }
 }
+
+/* =================================== */
+/* 完全相性分析モーダルスタイル */
+/* =================================== */
+
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.modal-close-button {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.modal-close-button:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.modal-body {
+    line-height: 1.6;
+}
+
+.analysis-card {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #3b82f6;
+}
+
+.analysis-card:last-child {
+    margin-bottom: 0;
+}
+
+.analysis-card h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.analysis-card h5 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.analysis-card p {
+    margin-bottom: 1rem;
+    color: #4b5563;
+}
+
+.analysis-card ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.analysis-card li {
+    margin-bottom: 0.5rem;
+    color: #4b5563;
+}
+
+.loading-text {
+    text-align: center;
+    color: #6b7280;
+    font-style: italic;
+    padding: 2rem;
+}
+
+.error-text {
+    text-align: center;
+    color: #dc2626;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+        max-height: 95vh;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    .analysis-card {
+        padding: 1rem;
+    }
+}

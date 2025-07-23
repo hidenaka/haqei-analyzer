@@ -4,39 +4,42 @@ console.log("🎯 HaQei Analyzer starting...");
 let app = null;
 let storageManager = null;
 
-// 拡張スクリプトローディングシステムの完了を待機する関数
-async function waitForScriptLoadingComplete() {
-  return new Promise((resolve) => {
-    const checkInterval = setInterval(() => {
-      if (
-        window.scriptLoadingStatus &&
-        window.scriptLoadingStatus.initializationComplete
-      ) {
-        clearInterval(checkInterval);
-        console.log("✅ [App.js] スクリプト読み込み完了確認");
-        resolve();
-      }
-    }, 50);
+// 拡張スクリプトローディングシステムの完了を待機する関数（無効化）
+// 注意: 現在はより高機能な読み込みチェック機構 (LoadingCheck) を使用しているため
+// この古い機能はコメントアウトしました
+// async function waitForScriptLoadingComplete() {
+//   return new Promise((resolve) => {
+//     const checkInterval = setInterval(() => {
+//       if (
+//         window.scriptLoadingStatus &&
+//         window.scriptLoadingStatus.initializationComplete
+//       ) {
+//         clearInterval(checkInterval);
+//         console.log("✅ [App.js] スクリプト読み込み完了確認");
+//         resolve();
+//       }
+//     }, 50);
 
-    // 10秒後にタイムアウト
-    setTimeout(() => {
-      clearInterval(checkInterval);
-      console.warn(
-        "⚠️ [App.js] スクリプト読み込み完了待機がタイムアウトしました"
-      );
-      resolve(); // タイムアウトでも続行
-    }, 10000);
-  });
-}
+//     // 10秒後にタイムアウト
+//     setTimeout(() => {
+//       clearInterval(checkInterval);
+//       console.warn(
+//         "⚠️ [App.js] スクリプト読み込み完了待機がタイムアウトしました"
+//       );
+//       resolve(); // タイムアウトでも続行
+//     }, 10000);
+//   });
+// }
 
 // アプリケーション初期化
 document.addEventListener("DOMContentLoaded", async function () {
-  console.log("📱 DOM loaded, waiting for script loading to complete...");
+  console.log("📱 DOM loaded, initializing components...");
 
-  // 拡張スクリプトローディングシステムの完了を待機
-  await waitForScriptLoadingComplete();
+  // 注意: waitForScriptLoadingComplete の呼び出しをコメントアウト
+  // より高機能な読み込みチェック機構 (LoadingCheck) が自動で処理します
+  // await waitForScriptLoadingComplete();
 
-  console.log("📱 All scripts loaded, initializing components...");
+  console.log("📱 Initializing components...");
 
   try {
     // ストレージマネージャー初期化
@@ -58,13 +61,50 @@ document.addEventListener("DOMContentLoaded", async function () {
     const dataManager = new DataManager();
 
     console.log("🔍 [App.js] DataManager.loadData()実行開始");
-    await dataManager.loadData();
-
-    console.log("🔍 [App.js] DataManager.loadData()完了");
+    
+    // データ読み込みにタイムアウトを設定（15秒）
+    const dataLoadingPromise = dataManager.loadData();
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(new Error("データ読み込みがタイムアウトしました（15秒）"));
+      }, 15000);
+    });
+    
+    try {
+      await Promise.race([dataLoadingPromise, timeoutPromise]);
+      console.log("🔍 [App.js] DataManager.loadData()完了");
+    } catch (error) {
+      console.warn("⚠️ [App.js] データ読み込み警告:", error.message);
+      console.log("🔍 [App.js] 利用可能なデータで続行します");
+    }
 
     // データ統計表示
     const stats = dataManager.getDataStats();
     console.log("📊 [App.js] Data stats:", stats);
+    
+    // 重要なデータ内容の検証
+    console.log("🔍 [App.js] データ内容検証:");
+    console.log("  - HAQEI_DATA:", typeof window.HAQEI_DATA, window.HAQEI_DATA ? Object.keys(window.HAQEI_DATA).length : 0);
+    console.log("  - H64_8D_VECTORS:", typeof window.H64_8D_VECTORS, window.H64_8D_VECTORS ? Object.keys(window.H64_8D_VECTORS).length : 0);
+    console.log("  - WORLDVIEW_QUESTIONS:", typeof window.WORLDVIEW_QUESTIONS, window.WORLDVIEW_QUESTIONS ? window.WORLDVIEW_QUESTIONS.length : 0);
+    console.log("  - SCENARIO_QUESTIONS:", typeof window.SCENARIO_QUESTIONS, window.SCENARIO_QUESTIONS ? window.SCENARIO_QUESTIONS.length : 0);
+    
+    // 詳細データ検証
+    if (window.HAQEI_DATA) {
+      console.log("🔍 [App.js] HAQEI_DATA詳細:", {
+        hexagrams_master: window.HAQEI_DATA.hexagrams_master ? window.HAQEI_DATA.hexagrams_master.length : 'missing',
+        os_manual: window.HAQEI_DATA.os_manual ? Object.keys(window.HAQEI_DATA.os_manual).length : 'missing'
+      });
+    }
+    
+    if (window.H64_8D_VECTORS) {
+      const vectorKeys = Object.keys(window.H64_8D_VECTORS);
+      console.log("🔍 [App.js] H64_8D_VECTORS詳細:", {
+        totalHexagrams: vectorKeys.length,
+        firstHexagram: vectorKeys[0],
+        sampleVector: window.H64_8D_VECTORS[vectorKeys[0]]
+      });
+    }
 
     // 重要なデータの存在確認
     if (!stats.loaded) {
@@ -312,8 +352,33 @@ async function proceedToAnalysis(answers) {
     }
 
     // 実際の分析を実行（TripleOS分析）
-    const result = await app.engine.analyzeTripleOS(answers);
-    const insights = await app.engine.generateInsights(result);
+    console.log("🔬 [App] 分析開始 - answers:", answers.length, "個");
+    
+    let result, insights;
+    try {
+      result = await app.engine.analyzeTripleOS(answers);
+      console.log("🔬 [App] 分析結果:", result);
+      
+      if (!result || !result.engineOS) {
+        console.error("❌ [App] 分析結果が不正:", result);
+        throw new Error("分析結果が生成されませんでした");
+      }
+      
+      insights = await app.engine.generateInsights(result);
+      console.log("🔬 [App] 洞察生成完了:", insights);
+      
+    } catch (analysisError) {
+      console.error("❌ [App] 分析処理エラー:", analysisError);
+      
+      // フォールバック結果を生成
+      result = {
+        engineOS: { hexagramId: 1, strength: 50, properties: {} },
+        interfaceOS: { hexagramId: 1, strength: 50, properties: {} },
+        safeModeOS: null,
+        consistencyScore: 0.5
+      };
+      insights = { summary: "分析処理中にエラーが発生しました。", details: [] };
+    }
 
     console.log("🎯 Analysis completed:", result);
     console.log("💡 Insights generated:", insights);
@@ -421,44 +486,32 @@ function showAnalysisView() {
 }
 
 // 結果画面を表示
-function showResultsView(analysisResult, insights) {
-  hideAllScreens();
+function showResultsView(result, insights) {
+    console.log("✅ [App] 結果ビュー表示プロセスを開始します。");
+    hideAllScreens();
+    
+    const compatibilityLoader = new CompatibilityDataLoader();
 
-  // TripleOS分析結果かどうかで表示を分岐
-  if (analysisResult.analysisType === "tripleOS") {
-    // TripleOS結果表示
-    const tripleOSResultsView = new TripleOSResultsView("results-container", {
-      onExploreMore: function (result) {
-        showInsightPanel(result, insights);
-      },
-      onRetakeTest: function () {
-        app.storageManager.startNewSession();
-        location.reload();
-      },
-      onGenerateReport: function (result) {
-        generateTripleOSReport(result);
-      },
-    });
+    // これから渡すオプションオブジェクトを定義
+    const optionsToPass = {
+        analysisResult: result,
+        insights: insights,
+        compatibilityLoader: compatibilityLoader 
+    };
 
-    tripleOSResultsView.setData(analysisResult);
-    tripleOSResultsView.show();
-    app.tripleOSResultsView = tripleOSResultsView;
-  } else {
-    // 従来の結果表示
-    const resultsView = new ResultsView("results-container", {
-      onExploreMore: function (result) {
-        showInsightPanel(result, insights);
-      },
-      onRetakeTest: function () {
-        app.storageManager.startNewSession();
-        location.reload();
-      },
-    });
-
-    resultsView.setData(analysisResult, insights);
-    resultsView.show();
-    app.resultsView = resultsView;
-  }
+    // ★★★ 観測所 ★★★
+    console.log("🕵️‍♂️ [TRACE-CHECKPOINT 2] TripleOSResultsViewを生成する直前のオプション内容を検証します。", optionsToPass);
+    console.log(" -> compatibilityLoaderは有効なインスタンスか？:", optionsToPass.compatibilityLoader instanceof CompatibilityDataLoader);
+    
+    // TripleOSResultsViewのインスタンスを生成
+    app.resultsView = new TripleOSResultsView('results-container', optionsToPass);
+    app.resultsView.render();
+    
+    const container = document.getElementById('results-container');
+    if (container) {
+        container.style.display = 'block';
+        console.log("✅ [App] 結果ビューのコンテナ表示が完了しました。");
+    }
 }
 
 // 洞察パネルを表示

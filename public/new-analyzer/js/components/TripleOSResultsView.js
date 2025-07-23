@@ -2,18 +2,33 @@
 // HaQei Analyzer - Triple OS Results View Component
 
 class TripleOSResultsView extends BaseComponent {
-  constructor(containerId, options = {}, eightDimensionAnalysisEngine, internalCompatibilityEngine, relationshipVisualizationEngine) {
+  constructor(containerId, options = {}) {
     super(containerId, options);
-    this.analysisResult = null;
-    this.eightDimensionAnalysisEngine = eightDimensionAnalysisEngine;
-    this.internalCompatibilityEngine = internalCompatibilityEngine;
-    this.relationshipVisualizationEngine = relationshipVisualizationEngine;
+
+    // ★★★ 観測所 ★★★
+    console.log("🕵️‍♂️ [TRACE-CHECKPOINT 3] TripleOSResultsViewが受け取ったオプション内容を検証します。", options);
+    
+    this.analysisResult = options.analysisResult;
+    this.insights = options.insights;
+    this.compatibilityLoader = options.compatibilityLoader;
+    this.compatibilityAnalysisData = null;
+
+    if (this.compatibilityLoader) {
+        console.log("✅ [TripleOSResultsView] compatibilityLoaderは正常に到着しました。");
+    } else {
+        // もし、ここが実行された場合、app.jsとTripleOSResultsViewの間で何かが起きている
+        console.error("❌ [TripleOSResultsView] 致命的エラー: compatibilityLoaderが到着しませんでした。");
+    }
+
+    // 既存のプロパティも保持
     this.advancedCompatibilityEngine = null;
     this.shareManager = null;
     this.pdfExporter = null;
     this.imageExporter = null;
     this.historyManager = null;
     this.analyticsCollector = null;
+    
+    // 初期化処理
     this.initializeShareManager();
     this.initializeAdvancedCompatibilityEngine();
     this.initializeExportSystems();
@@ -63,13 +78,20 @@ class TripleOSResultsView extends BaseComponent {
       return;
     }
 
+    // ステップA: まず、分析結果のHTML全体を生成します。
+    // (この時点では、まだボタンへのイベント設定は行いません)
     if (this.options.enhancedMode) {
       this.renderEnhanced();
     } else {
       this.renderBasic();
     }
 
-    this.bindEvents();
+    console.log("✅ [TripleOSResultsView] Main analysis HTML has been rendered to the DOM.");
+
+    // ステップB: HTMLが配置された後で、イベントを結びつける関数を呼び出します。
+    this._bindEventListeners();
+    
+    // 最後にアニメーションを開始
     this.startAnimations();
   }
 
@@ -1473,6 +1495,7 @@ ${interpretation}`;
     const imageBtn = this.container.querySelector("#export-image-btn");
     const shareBtn = this.container.querySelector("#share-results-btn");
     const retakeBtn = this.container.querySelector("#retake-test-btn");
+    const compatibilityBtn = this.container.querySelector("#show-compatibility-btn");
 
     if (exploreBtn) {
       exploreBtn.addEventListener("click", () => {
@@ -1514,6 +1537,427 @@ ${interpretation}`;
           this.options.onRetakeTest();
         }
       });
+    }
+
+    // 相性分析表示ボタン
+    if (compatibilityBtn) {
+      compatibilityBtn.addEventListener("click", () => {
+        this.showCompatibilityAnalysis();
+      });
+    }
+
+    // モーダル閉じる処理を設定
+    this.setupModalEventListeners();
+
+    // タブ切り替えイベント
+    const tabBtns = this.container.querySelectorAll(".tab-btn");
+    tabBtns.forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        this.switchCompatibilityTab(e.target.dataset.tab);
+      });
+    });
+  }
+
+  /**
+   * 相性分析セクションの表示/非表示を切り替え
+   */
+  async toggleCompatibilityAnalysis() {
+    const section = this.container.querySelector("#full-compatibility-analysis");
+    const btn = this.container.querySelector("#show-compatibility-btn");
+    
+    if (!section) return;
+
+    if (section.style.display === "none" || !section.style.display) {
+      // 表示する
+      section.style.display = "block";
+      btn.textContent = "🔄 相性分析を隠す";
+      
+      // データを読み込み
+      await this.loadCompatibilityData();
+    } else {
+      // 隠す
+      section.style.display = "none";
+      btn.textContent = "🎯 完全相性分析を見る";
+    }
+  }
+
+  /**
+   * 相性分析データを読み込み、表示する
+   */
+  async loadCompatibilityData() {
+    if (!this.analysisResult) return;
+
+    const { engineOS, interfaceOS, safeModeOS } = this.analysisResult;
+    
+    try {
+      // エンジン-インターフェース相性を読み込み
+      await this.loadEngineInterfaceAnalysis(engineOS.hexagramId, interfaceOS.hexagramId);
+      
+      // エンジン-セーフモード相性を読み込み  
+      await this.loadEngineSafemodeAnalysis(engineOS.hexagramId, safeModeOS.hexagramId);
+      
+      // 総合分析を生成
+      this.generateOverviewAnalysis();
+      
+    } catch (error) {
+      console.error("❌ 相性分析データの読み込みに失敗:", error);
+      this.showCompatibilityError(error.message);
+    }
+  }
+
+  /**
+   * エンジン-インターフェース相性分析を読み込み・表示
+   */
+  async loadEngineInterfaceAnalysis(engineOsId, interfaceOsId) {
+    const container = this.container.querySelector("#tab-engine-interface");
+    
+    try {
+      const data = await this.compatibilityDataLoader.loadInterfaceData(engineOsId);
+      
+      // 該当するInterface OSの組み合わせを探す
+      const combination = data.internal_team_analysis.interface_combinations.find(
+        c => c.interface_id === interfaceOsId
+      );
+
+      if (!combination) {
+        throw new Error(`Interface combination not found for OS ${interfaceOsId}`);
+      }
+
+      // HTMLを生成
+      const html = `
+        <div class="compatibility-analysis">
+          <h4>🤝 チーム相性分析: ${combination.interface_name}</h4>
+          <div class="compatibility-summary">
+            <div class="compatibility-type ${combination.type.toLowerCase()}">
+              <span class="type-label">${combination.type}</span>
+              <span class="score-label">${Math.round(combination.overall_score * 100)}%</span>
+            </div>
+            <p class="summary-text">${combination.summary}</p>
+          </div>
+          
+          <div class="compatibility-details">
+            <h5>📊 詳細評価</h5>
+            <div class="evaluation-grid">
+              ${Object.entries(combination.evaluation).map(([key, evaluation]) => `
+                <div class="evaluation-item">
+                  <div class="eval-header">
+                    <span class="eval-name">${this.getEvaluationName(key)}</span>
+                    <span class="eval-score">${Math.round(evaluation.score * 100)}%</span>
+                  </div>
+                  <p class="eval-desc">${evaluation.description}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div class="compatibility-advice">
+            <div class="advice-section">
+              <h5>💪 強み</h5>
+              <ul>
+                ${combination.advice.strengths.map(strength => `<li>${strength}</li>`).join('')}
+              </ul>
+            </div>
+            <div class="advice-section">
+              <h5>⚠️ 課題</h5>
+              <ul>
+                ${combination.advice.challenges.map(challenge => `<li>${challenge}</li>`).join('')}
+              </ul>
+            </div>
+            <div class="advice-section">
+              <h5>💡 推奨事項</h5>
+              <ul>
+                ${combination.advice.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      container.innerHTML = html;
+
+    } catch (error) {
+      console.error("❌ Interface analysis loading failed:", error);
+      container.innerHTML = `
+        <div class="error-message">
+          <h4>🤝 チーム相性分析</h4>
+          <p>分析データの読み込みに失敗しました: ${error.message}</p>
+        </div>
+      `;
+    }
+  }
+
+  /**
+   * エンジン-セーフモード相性分析を読み込み・表示
+   */
+  async loadEngineSafemodeAnalysis(engineOsId, safemodeOsId) {
+    const container = this.container.querySelector("#tab-engine-safemode");
+    
+    try {
+      // safemodeOsIdがnullの場合の処理
+      if (safemodeOsId === null) {
+        container.innerHTML = `
+          <div class="safemode-null-analysis">
+            <h4>⚠️ ストレス時行動パターン: 分析不能</h4>
+            <div class="null-explanation">
+              <p class="null-summary">
+                内面的な防御機制が複雑なため、特定のパターンに分類できませんでした。
+                これは、あなたが状況に応じて多様な対応ができる一方で、
+                ストレス要因を特定しにくい側面も示唆しています。
+              </p>
+              
+              <div class="null-advice">
+                <h5>💡 代替的アプローチ</h5>
+                <ul>
+                  <li>ストレス反応が複雑で予測しにくいため、定期的な自己点検が重要</li>
+                  <li>特定のパターンに依存せず、柔軟な対処法を複数準備する</li>
+                  <li>ストレス初期段階での早めの対応を心がける</li>
+                  <li>信頼できるサポート体制を構築しておく</li>
+                </ul>
+              </div>
+              
+              <div class="null-interpretation">
+                <h5>🔍 この結果の意味</h5>
+                <p>
+                  セーフモードが特定できない場合、一般的に以下の特徴があります：
+                </p>
+                <ul>
+                  <li>高い適応能力と状況判断力を持つ</li>
+                  <li>ストレス反応が状況によって大きく変わる</li>
+                  <li>内面の複雑さと豊かさを示している</li>
+                  <li>予測可能なパターンに縛られない柔軟性がある</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const data = await this.compatibilityDataLoader.loadSafemodeData(engineOsId);
+      
+      // 該当するSafeMode OSの組み合わせを探す
+      const combination = data.internal_team_analysis.safemode_combinations.find(
+        c => c.safemode_id === safemodeOsId
+      );
+
+      if (!combination) {
+        throw new Error(`Safemode combination not found for OS ${safemodeOsId}`);
+      }
+
+      // HTMLを生成
+      const html = `
+        <div class="safemode-analysis">
+          <h4>⚠️ ストレス時行動パターン: ${combination.safemode_name}</h4>
+          <div class="safemode-summary">
+            <div class="safemode-type ${combination.type.toLowerCase()}">
+              <span class="type-label">${combination.type}</span>
+              <span class="danger-label">危険度: ${Math.round(combination.overall_score * 100)}%</span>
+            </div>
+            <p class="summary-text">${combination.summary}</p>
+          </div>
+          
+          <div class="safemode-details">
+            <h5>📊 詳細評価</h5>
+            <div class="evaluation-grid">
+              ${Object.entries(combination.evaluation).map(([key, evaluation]) => `
+                <div class="evaluation-item">
+                  <div class="eval-header">
+                    <span class="eval-name">${this.getSafemodeEvaluationName(key)}</span>
+                    <span class="eval-score ${evaluation.score > 0.7 ? 'high' : evaluation.score > 0.4 ? 'medium' : 'low'}">${Math.round(evaluation.score * 100)}%</span>
+                  </div>
+                  <p class="eval-desc">${evaluation.description}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          
+          <div class="safemode-advice">
+            <div class="trigger-section">
+              <h5>🚨 トリガー警告</h5>
+              <p class="trigger-warning">${combination.advice.trigger_warning}</p>
+            </div>
+            <div class="symptoms-section">
+              <h5>🔍 メルトダウン症状</h5>
+              <p class="symptoms-text">${combination.advice.meltdown_symptoms}</p>
+            </div>
+            <div class="recovery-section">
+              <h5>🛠️ 回復戦略</h5>
+              <p class="recovery-text">${combination.advice.recovery_strategies}</p>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      container.innerHTML = html;
+
+    } catch (error) {
+      console.error("❌ Safemode analysis loading failed:", error);
+      container.innerHTML = `
+        <div class="error-message">
+          <h4>⚠️ ストレス時行動パターン</h4>
+          <p>分析データの読み込みに失敗しました: ${error.message}</p>
+        </div>
+      `;
+    }
+  }
+
+  /**
+   * 総合分析を生成
+   */
+  generateOverviewAnalysis() {
+    const container = this.container.querySelector("#tab-overview");
+    const { engineOS, interfaceOS, safeModeOS, consistencyScore } = this.analysisResult;
+    
+    const html = `
+      <div class="overview-analysis">
+        <h4>🎯 総合相性分析</h4>
+        
+        <div class="overall-compatibility">
+          <div class="consistency-overview">
+            <h5>人格一貫性</h5>
+            <div class="consistency-meter">
+              <div class="meter-bar">
+                <div class="meter-fill" style="width: ${Math.round(consistencyScore.overall * 100)}%"></div>
+              </div>
+              <span class="meter-value">${Math.round(consistencyScore.overall * 100)}%</span>
+            </div>
+            <p class="consistency-interpretation">
+              ${this.getConsistencyInterpretation(consistencyScore.overall)}
+            </p>
+          </div>
+          
+          <div class="os-harmony">
+            <h5>OS間調和度</h5>
+            <div class="harmony-grid">
+              <div class="harmony-item">
+                <span class="harmony-label">エンジン ↔ インターフェース</span>
+                <span class="harmony-score">${Math.round(consistencyScore.engineInterface * 100)}%</span>
+              </div>
+              <div class="harmony-item">
+                <span class="harmony-label">エンジン ↔ セーフモード</span>
+                <span class="harmony-score">${Math.round(consistencyScore.engineSafeMode * 100)}%</span>
+              </div>
+              <div class="harmony-item">
+                <span class="harmony-label">インターフェース ↔ セーフモード</span>
+                <span class="harmony-score">${Math.round(consistencyScore.interfaceSafeMode * 100)}%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="integration-insights">
+            <h5>統合的洞察</h5>
+            <div class="insights-content">
+              ${this.generateIntegrationInsights()}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    container.innerHTML = html;
+  }
+
+  /**
+   * タブを切り替える
+   */
+  switchCompatibilityTab(tabId) {
+    // タブボタンのアクティブ状態を更新
+    this.container.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.classList.remove("active");
+    });
+    this.container.querySelector(`[data-tab="${tabId}"]`).classList.add("active");
+    
+    // タブコンテンツの表示を更新
+    this.container.querySelectorAll(".tab-content").forEach(content => {
+      content.classList.remove("active");
+    });
+    this.container.querySelector(`#tab-${tabId}`).classList.add("active");
+  }
+
+  /**
+   * 評価項目名を取得
+   */
+  getEvaluationName(key) {
+    const names = {
+      functional_efficiency: "機能効率",
+      growth_potential: "成長可能性", 
+      stress_resilience: "ストレス耐性",
+      creativity: "創造性",
+      integration_challenge: "統合難易度"
+    };
+    return names[key] || key;
+  }
+
+  /**
+   * セーフモード評価項目名を取得
+   */
+  getSafemodeEvaluationName(key) {
+    const names = {
+      crisis_resilience: "危機耐性",
+      recovery_potential: "回復可能性",
+      collateral_damage: "副次的被害",
+      lesson_learned: "学習効果", 
+      integration_difficulty: "統合難易度"
+    };
+    return names[key] || key;
+  }
+
+  /**
+   * 一貫性スコアの解釈を取得
+   */
+  getConsistencyInterpretation(score) {
+    if (score >= 0.8) {
+      return "非常に高い一貫性を持っています。内面と外面、平時とストレス時の行動に大きな矛盾がなく、安定した人格構造を示しています。";
+    } else if (score >= 0.6) {
+      return "適度な一貫性を保っています。時と場合に応じて柔軟に対応しつつ、根本的な価値観は一貫している状態です。";
+    } else if (score >= 0.4) {
+      return "やや一貫性に欠ける面があります。状況によって行動パターンが変わりやすく、内面の複雑さが表れています。";
+    } else {
+      return "一貫性が低く、多面的で複雑な人格構造を持っています。これは豊かな内面性の表れでもありますが、自己理解を深める余地があります。";
+    }
+  }
+
+  /**
+   * 統合的洞察を生成
+   */
+  generateIntegrationInsights() {
+    const { engineOS, interfaceOS, safeModeOS } = this.analysisResult;
+    
+    const insights = [
+      `あなたの核となる価値観（${engineOS.osName}）が、`,
+      `外面的な行動（${interfaceOS.hexagramInfo?.name || '未特定'}）として現れ、`,
+      `ストレス時には${safeModeOS.hexagramId ? safeModeOS.hexagramInfo?.name || '特定の防御機制' : '複雑な防御機制'}が作動します。`
+    ].join('');
+    
+    return `
+      <p class="primary-insight">${insights}</p>
+      <div class="insight-recommendations">
+        <h6>💡 統合的な成長のために</h6>
+        <ul>
+          <li>各OSの特性を理解し、状況に応じて意識的に切り替える</li>
+          <li>ストレス時の反応パターンを事前に把握し、対策を準備する</li>
+          <li>内面と外面のギャップを埋めるための具体的な行動計画を立てる</li>
+        </ul>
+      </div>
+    `;
+  }
+
+  /**
+   * 相性分析エラーを表示
+   */
+  showCompatibilityError(message) {
+    const section = this.container.querySelector("#full-compatibility-analysis");
+    if (section) {
+      section.innerHTML = `
+        <div class="compatibility-error">
+          <h3>❌ 相性分析エラー</h3>
+          <p>相性分析データの読み込み中にエラーが発生しました。</p>
+          <p class="error-detail">${message}</p>
+          <button class="retry-btn" onclick="this.closest('.triple-os-results-container').querySelector('#show-compatibility-btn').click()">
+            🔄 再試行
+          </button>
+        </div>
+      `;
     }
   }
 
@@ -2174,11 +2618,12 @@ ${integration.basicMindset}
 
   // イベントバインディング（完全実装）
   bindEvents() {
-    // 完全相性分析ボタンのイベント
+    // 完全相性分析ボタンのイベント - 修正版
     const showCompatibilityBtn = document.getElementById('show-compatibility-btn');
     if (showCompatibilityBtn) {
       showCompatibilityBtn.addEventListener('click', () => {
-        this.toggleFullCompatibilityAnalysis();
+        console.log("🖱️ [bindEvents] 詳細分析ボタンがクリックされました。");
+        this.showCompatibilityAnalysis(); // toggleではなくshowに統一
       });
     }
     
@@ -2230,34 +2675,29 @@ ${integration.basicMindset}
 
   // 完全相性分析の読み込み
   async loadFullCompatibilityAnalysis() {
+    // 既にデータがあれば再取得しない
+    if (this.compatibilityAnalysisData) return;
+
     if (!this.analysisResult) return;
     
     try {
-      // CompatibilityDataLoaderを初期化
-      if (typeof CompatibilityDataLoader === 'undefined') {
-        throw new Error('CompatibilityDataLoader が利用できません');
-      }
+      // 2. CompatibilityDataLoader.jsに定義された正しいメソッド名を呼び出す
+      const { engineOS, interfaceOS, safeModeOS } = this.analysisResult;
+
+      const [interfaceData, safemodeData] = await Promise.all([
+        this.compatibilityLoader.loadInterfaceData(engineOS.hexagramId),
+        this.compatibilityLoader.loadSafemodeData(engineOS.hexagramId)
+      ]);
+
+      // 標準化されたデータ構造で、クラスのプロパティに結果を保存
+      this.compatibilityAnalysisData = {
+        interfaceData: interfaceData,
+        safemodeData: safemodeData
+      };
       
-      const dataLoader = new CompatibilityDataLoader();
-      
-      // Engine-Interface相性データを取得
-      const engineInterfaceData = await dataLoader.getEngineInterfaceCompatibility(
-        this.analysisResult.engineOS.hexagramId,
-        this.analysisResult.interfaceOS.hexagramId
-      );
-      
-      // Engine-SafeMode相性データを取得
-      const engineSafeModeData = await dataLoader.getEngineSafeModeCompatibility(
-        this.analysisResult.engineOS.hexagramId,
-        this.analysisResult.safeModeOS.hexagramId
-      );
-      
-      // 各タブにデータを表示
-      this.renderEngineInterfaceAnalysis(engineInterfaceData);
-      this.renderEngineSafeModeAnalysis(engineSafeModeData);
-      
-      // 総合分析を準備
-      this.prepareOverviewAnalysis(engineInterfaceData, engineSafeModeData);
+      // 各タブにデータを表示（旧来の関数も保持）
+      this.renderEngineInterfaceAnalysis(interfaceData);
+      this.renderEngineSafeModeAnalysis(safemodeData);
       
     } catch (error) {
       console.error('完全相性分析読み込みエラー:', error);
@@ -2270,7 +2710,17 @@ ${integration.basicMindset}
     const contentDiv = document.getElementById('tab-engine-interface');
     if (!contentDiv || !data) return;
     
-    const interfaceData = data.interface_combinations.find(
+    // --- ▼ここから追加（ガード節）▼ ---
+    if (!data.internal_team_analysis || !Array.isArray(data.internal_team_analysis.interface_combinations)) {
+      console.error('チーム相性分析のデータ構造が不正です:', data);
+      if (contentDiv) {
+        contentDiv.innerHTML = '<div class="analysis-card"><h4>🤝 チーム相性分析</h4><p class="error-text">分析データの構造が不正で表示できません。</p></div>';
+      }
+      return;
+    }
+    // --- ▲ここまで追加▲ ---
+    
+    const interfaceData = data.internal_team_analysis.interface_combinations.find(
       combo => combo.interface_id === this.analysisResult.interfaceOS.hexagramId
     );
     
@@ -2292,7 +2742,17 @@ ${integration.basicMindset}
     const contentDiv = document.getElementById('tab-engine-safemode');
     if (!contentDiv || !data) return;
     
-    const safeModeData = data.safemode_combinations.find(
+    // --- ▼ここから追加（ガード節）▼ ---
+    if (!data.internal_team_analysis || !Array.isArray(data.internal_team_analysis.safemode_combinations)) {
+      console.error('セーフモード相性分析のデータ構造が不正です:', data);
+      if (contentDiv) {
+        contentDiv.innerHTML = '<div class="analysis-card"><h4>🛡️ セーフモード相性分析</h4><p class="error-text">分析データの構造が不正で表示できません。</p></div>';
+      }
+      return;
+    }
+    // --- ▲ここまで追加▲ ---
+    
+    const safeModeData = data.internal_team_analysis.safemode_combinations.find(
       combo => combo.safemode_id === this.analysisResult.safeModeOS.hexagramId
     );
     
@@ -2393,19 +2853,43 @@ ${integration.basicMindset}
   // 総合分析の表示
   renderOverviewAnalysis() {
     const contentDiv = document.getElementById('tab-overview');
-    if (!contentDiv || !this.fullCompatibilityData) return;
+    if (!contentDiv) return;
     
-    const { engineInterface, engineSafeMode } = this.fullCompatibilityData;
+    const data = this.compatibilityAnalysisData; // クラスのプロパティからデータを取得
+
+    // 標準化されたデータ構造をチェックするガード節
+    if (!data || !data.interfaceData || !data.interfaceData.internal_team_analysis) {
+      console.error('総合分析データの内部構造が不正です:', data);
+      if (contentDiv) {
+        contentDiv.innerHTML = '<div class="analysis-card"><h4>📊 総合分析</h4><p class="error-text">総合分析データの内部構造が不正です。</p></div>';
+      }
+      return;
+    }
+
+    // 標準化されたキー名でデータにアクセスする
+    const interfaceCombinations = data.interfaceData.internal_team_analysis.interface_combinations;
+    const safemodeAnalysis = data.safemodeData;
+
+    // さらに詳細なデータ構造チェック
+    if (!Array.isArray(interfaceCombinations)) {
+      console.error('interface_combinations が配列ではありません:', interfaceCombinations);
+      contentDiv.innerHTML = '<div class="analysis-card"><h4>📊 総合分析</h4><p class="error-text">分析データの形式が不正です。</p></div>';
+      return;
+    }
     
     // Engine-Interface のデータ
-    const eiData = engineInterface.interface_combinations.find(
+    const eiData = interfaceCombinations.find(
       combo => combo.interface_id === this.analysisResult.interfaceOS.hexagramId
     );
     
     // Engine-SafeMode のデータ  
-    const esData = engineSafeMode.safemode_combinations.find(
-      combo => combo.safemode_id === this.analysisResult.safeModeOS.hexagramId
-    );
+    let esData = null;
+    if (safemodeAnalysis && safemodeAnalysis.internal_team_analysis && 
+        Array.isArray(safemodeAnalysis.internal_team_analysis.safemode_combinations)) {
+      esData = safemodeAnalysis.internal_team_analysis.safemode_combinations.find(
+        combo => combo.safemode_id === this.analysisResult.safeModeOS?.hexagramId
+      );
+    }
     
     if (!eiData || !esData) {
       contentDiv.innerHTML = '<p>総合分析に必要なデータが不足しています。</p>';
@@ -2520,5 +3004,222 @@ ${integration.basicMindset}
   // startAnimations（空の実装）
   startAnimations() {
     // アニメーション処理があれば実装
+  }
+
+  /**
+   * モーダルイベントリスナーの設定
+   */
+  setupModalEventListeners() {
+    const modal = document.getElementById('compatibility-modal');
+    if (!modal) return;
+
+    const closeButton = modal.querySelector('.modal-close-button');
+    const overlay = modal.querySelector('.modal-overlay');
+
+    if (closeButton) {
+      closeButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+    }
+  }
+
+  /**
+   * 完全相性分析モーダルを表示
+   */
+  async showCompatibilityAnalysis() {
+    const modal = document.getElementById('compatibility-modal');
+    const body = document.getElementById('compatibility-modal-body');
+
+    if (!modal || !body) {
+      console.error('Modal elements not found');
+      return;
+    }
+
+    // モーダルとローディング表示を即座に行う
+    body.innerHTML = '<p class="loading-text">分析データを読み込み中...</p>';
+    modal.style.display = 'flex';
+
+    // ローダーがなければ処理を中断
+    if (!this.compatibilityLoader) {
+      body.innerHTML = '<p class="error-text">エラー: 詳細分析エンジンが初期化されていません。</p>';
+      return;
+    }
+
+    try {
+      // --- データ取得処理 ---
+      // まだデータを取得していなければ（キャッシュがなければ）、非同期で取得する
+      if (!this.compatibilityAnalysisData) {
+        console.log("🔄 詳細分析データをサーバーから取得します...");
+        const { engineOS, interfaceOS, safeModeOS } = this.analysisResult;
+        const [interfaceData, safemodeData] = await Promise.all([
+          this.compatibilityLoader.loadInterfaceData(engineOS.hexagramId),
+          this.compatibilityLoader.loadSafemodeData(engineOS.hexagramId)
+        ]);
+        // 取得したデータをクラス内にキャッシュする
+        this.compatibilityAnalysisData = { interfaceData, safemodeData };
+        console.log("✅ 詳細分析データの取得が完了しました。");
+      }
+
+      // --- UI描画処理 ---
+      // キャッシュしたデータを使ってHTMLを生成する
+      const { interfaceData, safemodeData } = this.compatibilityAnalysisData;
+      const interfaceHtml = this._renderInterfaceHtml(interfaceData, this.analysisResult.interfaceOS.hexagramId);
+      const safemodeHtml = this._renderSafemodeHtml(safemodeData, this.analysisResult.safeModeOS ? this.analysisResult.safeModeOS.hexagramId : null);
+      
+      // タブのHTML構造を生成
+      const finalHtml = `
+        <div class="tab-buttons">
+          <button class="tab-button active" data-tab="interface">エンジン↔インターフェース</button>
+          <button class="tab-button" data-tab="safemode">エンジン↔セーフモード</button>
+        </div>
+        <div class="tab-content-container">
+          <div id="tab-interface" class="tab-content active">${interfaceHtml}</div>
+          <div id="tab-safemode" class="tab-content">${safemodeHtml}</div>
+        </div>
+      `;
+      
+      // データを完全に描画
+      body.innerHTML = finalHtml;
+      
+      // タブ切り替え機能を初期化
+      this._initTabs();
+
+    } catch (error) {
+      console.error("完全相性分析の表示に失敗しました:", error);
+      body.innerHTML = `<p class="error-text">エラー: 詳細データの取得に失敗しました。<br>${error.message}</p>`;
+    }
+  }
+
+  /**
+   * interfaceデータのHTMLを生成するヘルパー関数
+   */
+  _renderInterfaceHtml(data, interfaceOsId) {
+    if (!data || !data.internal_team_analysis || !data.internal_team_analysis.interface_combinations) {
+      return '<div class="analysis-card"><h4>🤝 チーム相性分析</h4><p>データが見つかりません</p></div>';
+    }
+
+    const combination = data.internal_team_analysis.interface_combinations.find(c => c.interface_id === interfaceOsId);
+    if (!combination) {
+      return '<div class="analysis-card"><h4>🤝 チーム相性分析</h4><p>該当データなし</p></div>';
+    }
+
+    return `
+      <div class="analysis-card">
+        <h4>🤝 チーム相性分析 (vs ${combination.interface_name})</h4>
+        <p><strong>タイプ: ${combination.type} / 総合スコア: ${Math.round(combination.overall_score * 100)}%</strong></p>
+        <p>${combination.summary}</p>
+        <h5>詳細評価:</h5>
+        <ul>
+          <li>機能効率: ${combination.evaluation?.functional_efficiency?.description || '情報なし'}</li>
+          <li>成長可能性: ${combination.evaluation?.growth_potential?.description || '情報なし'}</li>
+        </ul>
+      </div>
+    `;
+  }
+
+  /**
+   * safemodeデータのHTMLを生成するヘルパー関数
+   */
+  _renderSafemodeHtml(data, safemodeOsId) {
+    if (!safemodeOsId) {
+      return '<div class="analysis-card"><h4>⚠️ ストレス時行動パターン</h4><p>セーフモードOSが分析不能のため、詳細データはありません</p></div>';
+    }
+
+    if (!data || !data.internal_team_analysis || !data.internal_team_analysis.safemode_combinations) {
+      return '<div class="analysis-card"><h4>⚠️ ストレス時行動パターン</h4><p>データが見つかりません</p></div>';
+    }
+
+    const combination = data.internal_team_analysis.safemode_combinations.find(c => c.safemode_id === safemodeOsId);
+    if (!combination) {
+      return '<div class="analysis-card"><h4>⚠️ ストレス時行動パターン</h4><p>該当データなし</p></div>';
+    }
+
+    return `
+      <div class="analysis-card">
+        <h4>⚠️ ストレス時行動パターン (vs ${combination.safemode_name})</h4>
+        <p><strong>タイプ: ${combination.type} / 危険度: ${Math.round(combination.overall_score * 100)}%</strong></p>
+        <p><strong>概要:</strong> ${combination.summary}</p>
+        <h5>トリガーと症状:</h5>
+        <p><strong>警告:</strong> ${combination.advice?.trigger_warning || '情報なし'}</p>
+        <p><strong>兆候:</strong> ${combination.advice?.meltdown_symptoms || '情報なし'}</p>
+      </div>
+    `;
+  }
+
+  /**
+   * タブ切り替えのためのヘルパー関数
+   */
+  _initTabs() {
+    const modal = document.getElementById('compatibility-modal');
+    const tabButtons = modal.querySelectorAll('.tab-button');
+    const tabContents = modal.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tabName = button.dataset.tab;
+
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        tabContents.forEach(content => {
+          content.classList.remove('active');
+          if (content.id === `tab-${tabName}`) {
+            content.classList.add('active');
+          }
+        });
+      });
+    });
+  }
+
+  /**
+   * イベントリスナーを設定する処理を、独立したメソッドに分離
+   * この関数は、renderによってHTMLが画面に配置された後に呼び出されるため、
+   * document.getElementByIdは100%成功します。
+   */
+  _bindEventListeners() {
+    console.log("✅ [TripleOSResultsView] Binding event listeners...");
+
+    try {
+        const showButton = document.getElementById('show-compatibility-btn');
+        const modal = document.getElementById('compatibility-modal');
+        
+        if (showButton && modal) {
+            const closeButton = modal.querySelector('.modal-close-button');
+            const overlay = modal.querySelector('.modal-overlay');
+
+            // 「詳細分析を見る」ボタンのイベントリスナー
+            showButton.addEventListener('click', () => {
+                console.log("🖱️ 詳細分析ボタンがクリックされました。");
+                this.showCompatibilityAnalysis();
+            });
+
+            // 閉じるボタンのイベントリスナー
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+            }
+
+            // 背景オーバーレイのイベントリスナー
+            if (overlay) {
+                overlay.addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+            }
+            
+            console.log("✅ [TripleOSResultsView] All event listeners have been bound successfully.");
+
+        } else {
+            console.error("❌ [TripleOSResultsView] Could not find essential elements (#show-compatibility-btn or #compatibility-modal) to bind events.");
+        }
+    } catch (error) {
+        console.error("❌ [TripleOSResultsView] An error occurred while binding event listeners:", error);
+    }
   }
 }

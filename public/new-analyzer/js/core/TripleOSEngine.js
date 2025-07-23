@@ -152,11 +152,22 @@ class TripleOSEngine extends DiagnosisEngine {
       }
       // OS候補分析
       const vectorsData = this.dataManager.getVectors();
+      console.log("📊 vectorsData:", vectorsData ? Object.keys(vectorsData).length : 'null', "hexagrams");
+      
+      if (!vectorsData || Object.keys(vectorsData).length === 0) {
+        console.error("❌ vectorsData is empty!");
+        throw new Error("Vector data not available");
+      }
+      
       const candidates = this.calculator.analyzeOSCandidates(
         userVector,
         vectorsData
       );
-      console.log("📊 candidates:", candidates);
+      console.log("📊 candidates:", candidates ? candidates.length : 'null', "found");
+      if (candidates && candidates.length > 0) {
+        console.log("📊 top candidate:", candidates[0]);
+      }
+      
       if (!candidates || candidates.length === 0) {
         throw new Error("No OS candidates found");
       }
@@ -242,6 +253,9 @@ class TripleOSEngine extends DiagnosisEngine {
         trigramScores: this.convertToTrigramScores(userVector),
         cosineSimilarity: bestCandidate.similarity,
         confidence: bestCandidate.score,
+        strength: bestCandidate.similarity, // UI用の強度プロパティ
+        activation: bestCandidate.activation || bestCandidate.similarity, // UI用のアクティベーション
+        score: bestCandidate.score, // UI用のスコア
         type: "engine",
         dominantTrigrams: dominantTrigrams,
         userVector: userVector,
@@ -367,8 +381,8 @@ class TripleOSEngine extends DiagnosisEngine {
         lineKeywordMap ? Object.keys(lineKeywordMap).slice(0, 10) : []
       );
 
-      // 爻キーワードマッチング（line_keyword_map使用）
-      const matchingResults = await this.performLineKeywordMatching(
+      // キーワードマッチング（keyword_map使用）
+      const matchingResults = await this.performKeywordMatching(
         innerChoices,
         "safemode"
       );
@@ -962,6 +976,7 @@ class TripleOSEngine extends DiagnosisEngine {
           totalScore > 0
             ? Math.round((trigram.value / totalScore) * 1000) / 10
             : 0;
+        trigram.energy = trigram.value; // UI用のenergyプロパティを追加
       });
       // スコア順でソート（降順）
       trigramScores.sort((a, b) => b.value - a.value);
@@ -983,6 +998,7 @@ class TripleOSEngine extends DiagnosisEngine {
           dimensionKey: "乾_創造性",
           value: 0,
           percentage: 0,
+          energy: 0,
         },
         {
           id: 2,
@@ -991,6 +1007,7 @@ class TripleOSEngine extends DiagnosisEngine {
           dimensionKey: "兌_調和性",
           value: 0,
           percentage: 0,
+          energy: 0,
         },
         {
           id: 3,
@@ -999,6 +1016,7 @@ class TripleOSEngine extends DiagnosisEngine {
           dimensionKey: "離_表現性",
           value: 0,
           percentage: 0,
+          energy: 0,
         },
       ];
     }

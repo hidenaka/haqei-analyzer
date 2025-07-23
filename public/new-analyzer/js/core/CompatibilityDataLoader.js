@@ -8,6 +8,9 @@ class CompatibilityDataLoader {
     this.lineKeywordMap = {};
     this.isLoaded = false;
     this.loadingPromise = null;
+    // 個別ファイルのキャッシュ
+    this.interfaceDataCache = {};
+    this.safemodeDataCache = {};
   }
 
   /**
@@ -154,10 +157,10 @@ class CompatibilityDataLoader {
 
         // 評価項目からもキーワードを抽出
         if (combination.evaluation) {
-          Object.values(combination.evaluation).forEach((eval) => {
-            if (eval.description) {
+          Object.values(combination.evaluation).forEach((evaluation) => {
+            if (evaluation.description) {
               // 重要なキーワードを抽出（簡易版）
-              const keywords = this._extractKeywords(eval.description);
+              const keywords = this._extractKeywords(evaluation.description);
               keywords.forEach((keyword) => {
                 this._addToKeywordMap(keyword, hexagramId);
               });
@@ -296,6 +299,109 @@ class CompatibilityDataLoader {
     });
 
     return [...new Set(keywords)]; // 重複除去
+  }
+
+  /**
+   * 指定されたengineOsIdに対応するインターフェース相性データを読み込む
+   * @param {number} engineOsId - エンジンOSの卦ID (1-64)
+   * @returns {Promise<Object>} インターフェース相性データ
+   */
+  async loadInterfaceData(engineOsId) {
+    if (!engineOsId || engineOsId < 1 || engineOsId > 64) {
+      throw new Error(`Invalid engineOsId: ${engineOsId}`);
+    }
+
+    // キャッシュから返す
+    if (this.interfaceDataCache[engineOsId]) {
+      console.log(`🔄 [CompatibilityDataLoader] Interface data from cache: ${engineOsId}`);
+      return this.interfaceDataCache[engineOsId];
+    }
+
+    try {
+      const paddedId = engineOsId.toString().padStart(2, "0");
+      const url = `../js/data/compatibility/engine-interface/hexagram_${paddedId}.json`;
+      
+      console.log(`🔄 [CompatibilityDataLoader] Loading interface data: ${url}`);
+      
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTPエラー！ ステータス: ${response.status} ${response.statusText} URL: ${url}`);
+      }
+
+      const data = await response.json();
+      
+      // データ検証
+      if (!data || typeof data !== 'object') {
+        throw new Error(`Invalid data format from ${url}`);
+      }
+      
+      // キャッシュに保存
+      this.interfaceDataCache[engineOsId] = data;
+      
+      console.log(`✅ [CompatibilityDataLoader] Interface data loaded successfully: hexagram_${paddedId}`);
+      return data;
+
+    } catch (error) {
+      console.error(`❌ [CompatibilityDataLoader] 致命的な読み込み失敗: ID ${engineOsId} のインターフェースデータが取得できませんでした。`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * 指定されたengineOsIdに対応するセーフモード相性データを読み込む
+   * @param {number} engineOsId - エンジンOSの卦ID (1-64)
+   * @returns {Promise<Object>} セーフモード相性データ
+   */
+  async loadSafemodeData(engineOsId) {
+    if (!engineOsId || engineOsId < 1 || engineOsId > 64) {
+      throw new Error(`Invalid engineOsId: ${engineOsId}`);
+    }
+
+    // キャッシュから返す
+    if (this.safemodeDataCache[engineOsId]) {
+      console.log(`🔄 [CompatibilityDataLoader] Safemode data from cache: ${engineOsId}`);
+      return this.safemodeDataCache[engineOsId];
+    }
+
+    try {
+      const paddedId = engineOsId.toString().padStart(2, "0");
+      const url = `../js/data/compatibility/engine-safemode/hexagram_${paddedId}.json`;
+      
+      console.log(`🔄 [CompatibilityDataLoader] Loading safemode data: ${url}`);
+      
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTPエラー！ ステータス: ${response.status} ${response.statusText} URL: ${url}`);
+      }
+
+      const data = await response.json();
+      
+      // データ検証
+      if (!data || typeof data !== 'object') {
+        throw new Error(`Invalid data format from ${url}`);
+      }
+      
+      // キャッシュに保存
+      this.safemodeDataCache[engineOsId] = data;
+      
+      console.log(`✅ [CompatibilityDataLoader] Safemode data loaded successfully: hexagram_${paddedId}`);
+      return data;
+
+    } catch (error) {
+      console.error(`❌ [CompatibilityDataLoader] 致命的な読み込み失敗: ID ${engineOsId} のセーフモードデータが取得できませんでした。`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * キャッシュをクリアする
+   */
+  clearCache() {
+    this.interfaceDataCache = {};
+    this.safemodeDataCache = {};
+    console.log("🗑️ [CompatibilityDataLoader] Cache cleared");
   }
 
   /**

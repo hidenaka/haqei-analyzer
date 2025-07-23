@@ -332,7 +332,7 @@ class DataManager {
   }
 
   // グローバルデータの読み込み待機関数
-  async waitForGlobalData(maxRetries = 15, retryDelay = 100) {
+  async waitForGlobalData(maxRetries = 30, retryDelay = 200) {
     this.logMessage(
       "info",
       "waitForGlobalData",

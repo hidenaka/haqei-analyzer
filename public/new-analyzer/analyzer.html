@@ -76,50 +76,28 @@
       </section>
     </div>
 
-    <!-- 1. ユーティリティスクリプト（最優先 - 他のスクリプトが依存する可能性） -->
-    <script src="js/utils/validators.js"></script>
-    <script src="js/utils/animations.js"></script>
-
-    <!-- 2. データファイル（依存関係順に配置） -->
-    <!-- 2.1. 基盤データファイル（最優先 - 他のデータファイルの基盤） -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="../js/data/data_box.js"></script>
-
-    <!-- 2.2. 質問・ベクトルデータ（基盤データに依存） -->
     <script src="../js/data/questions.js"></script>
     <script src="../js/data/vectors.js"></script>
-
-    <!-- 2.3. 卦関連データ（質問・ベクトルデータに依存） -->
     <script src="../js/data/hexagrams.js"></script>
     <script src="../js/data/hexagram_details.js"></script>
-
-    <!-- 2.4. 互換性・アクション関連データ（卦データに依存） -->
     <script src="../js/data/compatibility_definition.js"></script>
     <script src="../js/data/compatibility_matrix.js"></script>
     <script src="../js/data/action_plans.js"></script>
 
-    <!-- 3. 基底クラス（データファイル後に読み込み） -->
+    <script src="js/utils/validators.js"></script>
+    <script src="js/utils/animations.js"></script>
+
     <script src="js/core/BaseComponent.js"></script>
 
-    <!-- 4. コアクラス（基底クラス後に読み込み） -->
-    <script src="js/core/PerformanceMonitor.js"></script>
-    <script src="js/core/MimeTypeErrorHandler.js"></script>
-    <script src="js/core/ServerConfigurationDetector.js"></script>
-    <script src="js/core/ScriptPathValidator.js"></script>
-    <script src="js/core/ErrorDetectionReporter.js"></script>
+    <script src="js/core/StorageManager.js"></script>
     <script src="js/core/DataManager.js"></script>
     <script src="js/core/Calculator.js"></script>
-    <script src="js/core/StorageManager.js"></script>
-
-    <!-- 5. エンジンクラス（コアクラス後に読み込み） -->
+    <script src="js/core/CompatibilityDataLoader.js"></script>
     <script src="js/core/Engine.js"></script>
     <script src="js/core/TripleOSEngine.js"></script>
-    <script src="js/core/EightDimensionAnalysisEngine.js"></script>
-    <script src="js/core/RelationshipVisualizationEngine.js"></script>
 
-    <!-- 5.5. 特殊機能（エンジン後に読み込み） -->
-    <script src="js/core/CompatibilityDataLoader.js"></script>
-
-    <!-- 6. UIコンポーネント（すべてのコア機能後に読み込み） -->
     <script src="js/components/WelcomeScreen.js"></script>
     <script src="js/components/QuestionFlow.js"></script>
     <script src="js/components/AnalysisView.js"></script>
@@ -127,10 +105,13 @@
     <script src="js/components/TripleOSResultsView.js"></script>
     <script src="js/components/InsightPanel.js"></script>
 
-    <!-- 7. メインアプリケーション（最後に読み込み） -->
+    <script>
+        console.log("🕵️‍♂️ [TRACE-CHECKPOINT 1] app.js実行直前のクラス定義を検証します。");
+        console.log(" -> TripleOSResultsViewは存在するか？:", typeof TripleOSResultsView);
+        console.log(" -> CompatibilityDataLoaderは存在するか？:", typeof CompatibilityDataLoader);
+    </script>
     <script src="js/app.js"></script>
 
-    <!-- 🔧 フォールバックデータ作成関数 -->
     <script>
       // 緊急フォールバックデータ作成関数
       function createFallbackHaqeiData() {
@@ -247,7 +228,6 @@
       }
     </script>
 
-    <!-- 🔧 強化されたスクリプト読み込み確認 -->
     <script>
       // スクリプト読み込み状態を追跡
       window.scriptLoadingStatus = {
@@ -268,346 +248,65 @@
 
       // エラー検出・報告システムとパス検証システムの初期化
       function initializeErrorDetectionSystems() {
-        try {
-          // PerformanceMonitor の初期化
-          if (typeof PerformanceMonitor !== "undefined") {
-            window.scriptLoadingStatus.performanceMonitor =
-              new PerformanceMonitor({
-                enableScriptTiming: true,
-                enableMemoryMonitoring: true,
-                enableDetailedLogging: true,
-                reportingInterval: 1000,
-                maxHistorySize: 100,
-              });
-
-            // 初期化フェーズの開始をマーク
-            window.scriptLoadingStatus.performanceMonitor.startInitializationPhase(
-              "error_systems_init"
-            );
-
-            console.log(
-              "✅ [ErrorSystems] PerformanceMonitor を初期化しました"
-            );
-          } else {
-            console.warn(
-              "⚠️ [ErrorSystems] PerformanceMonitor が利用できません"
-            );
-          }
-
-          // ErrorDetectionReporter の初期化
-          if (typeof ErrorDetectionReporter !== "undefined") {
-            window.scriptLoadingStatus.errorReporter =
-              new ErrorDetectionReporter({
-                enableAutoDetection: true,
-                enableConsoleReporting: true,
-                enableDetailedLogging: true,
-                reportingLevel: "detailed",
-              });
-            console.log(
-              "✅ [ErrorSystems] ErrorDetectionReporter を初期化しました"
-            );
-          } else {
-            console.warn(
-              "⚠️ [ErrorSystems] ErrorDetectionReporter が利用できません"
-            );
-          }
-
-          // ScriptPathValidator の初期化 (拡張版)
-          if (typeof ScriptPathValidator !== "undefined") {
-            // 開発モード判定
-            const isDevelopmentMode = location.hostname === 'localhost' || 
-                                    location.hostname === '127.0.0.1' ||
-                                    location.protocol === 'file:';
-            
-            window.scriptLoadingStatus.pathValidator = new ScriptPathValidator({
-              baseUrl:
-                location.origin + location.pathname.replace(/\/[^\/]*$/, ""),
-              timeout: 5000,
-              strictMode: false, // 開発環境では緩い設定
-              developmentMode: isDevelopmentMode,
-              enableGracefulDegradation: true,
-              enableErrorGrouping: true,
-              maxConcurrentValidations: 5
-            });
-            console.log(
-              "✅ [ErrorSystems] Enhanced ScriptPathValidator を初期化しました",
-              { developmentMode: isDevelopmentMode }
-            );
-          } else {
-            console.warn(
-              "⚠️ [ErrorSystems] ScriptPathValidator が利用できません"
-            );
-          }
-
-          // 初期化フェーズの完了をマーク
-          if (window.scriptLoadingStatus.performanceMonitor) {
-            window.scriptLoadingStatus.performanceMonitor.endInitializationPhase(
-              "error_systems_init",
-              true
-            );
-          }
-
-          // スクリプトパスの事前検証を実行
-          performScriptPathValidation();
-        } catch (error) {
-          console.error(
-            "❌ [ErrorSystems] エラー検出システムの初期化に失敗:",
-            error
-          );
-
-          // エラー時もパフォーマンス監視を終了
-          if (window.scriptLoadingStatus.performanceMonitor) {
-            window.scriptLoadingStatus.performanceMonitor.endInitializationPhase(
-              "error_systems_init",
-              false
-            );
-          }
-        }
+        console.log("🔧 [ErrorSystems] 簡易初期化システム開始");
       }
 
       // スクリプトパスの事前検証
       async function performScriptPathValidation() {
-        if (!window.scriptLoadingStatus.pathValidator) {
-          console.warn(
-            "⚠️ [PathValidation] PathValidator が利用できないため、検証をスキップします"
-          );
-          return;
-        }
-
-        console.log("🔍 [PathValidation] スクリプトパスの事前検証を開始");
-
-        // 検証対象のスクリプトパス一覧
-        const scriptPaths = [
-          // データファイル
-          "../js/data/data_box.js",
-          "../js/data/questions.js",
-          "../js/data/vectors.js",
-          "../js/data/hexagrams.js",
-          "../js/data/hexagram_details.js",
-          "../js/data/compatibility_definition.js",
-          "../js/data/compatibility_matrix.js",
-          "../js/data/action_plans.js",
-
-          // コアクラス
-          "js/core/BaseComponent.js",
-          "js/core/DataManager.js",
-          "js/core/Calculator.js",
-          "js/core/StorageManager.js",
-          "js/core/Engine.js",
-          "js/core/TripleOSEngine.js",
-          "js/core/EightDimensionAnalysisEngine.js",
-          "js/core/RelationshipVisualizationEngine.js",
-          "js/core/CompatibilityDataLoader.js",
-
-          // UIコンポーネント
-          "js/components/WelcomeScreen.js",
-          "js/components/QuestionFlow.js",
-          "js/components/AnalysisView.js",
-          "js/components/ResultsView.js",
-          "js/components/TripleOSResultsView.js",
-          "js/components/InsightPanel.js",
-
-          // メインアプリケーション
-          "js/app.js",
-        ];
-
-        try {
-          const validationResults =
-            await window.scriptLoadingStatus.pathValidator.validateMultiplePaths(
-              scriptPaths
-            );
-
-          // 検証結果の分析
-          const issues = validationResults.filter(
-            (result) => !result.isValid || result.warnings.length > 0
-          );
-
-          if (issues.length > 0) {
-            console.group("⚠️ [PathValidation] スクリプトパスの問題を検出:");
-            issues.forEach((issue) => {
-              console.warn(`📁 ${issue.path}:`);
-              if (issue.errors.length > 0) {
-                console.error("  エラー:", issue.errors);
-              }
-              if (issue.warnings.length > 0) {
-                console.warn("  警告:", issue.warnings);
-              }
-            });
-            console.groupEnd();
-
-            // 重要な問題がある場合の対処法提案
-            const criticalIssues = issues.filter(
-              (issue) => issue.errors.length > 0
-            );
-            if (criticalIssues.length > 0) {
-              console.group("💡 [PathValidation] 推奨対処法:");
-              console.log(
-                "1. HTTPサーバーを使用してファイルを配信してください:"
-              );
-              console.log("   python -m http.server 8000");
-              console.log("   または");
-              console.log("   npx http-server -p 8000");
-              console.log("2. ファイルパスと存在を確認してください");
-              console.log("3. サーバーのMIMEタイプ設定を確認してください");
-              console.groupEnd();
-            }
-          } else {
-            console.log("✅ [PathValidation] すべてのスクリプトパスが正常です");
-          }
-
-          // 検証結果をグローバルに保存
-          window.scriptLoadingStatus.pathValidationResults = validationResults;
-        } catch (error) {
-          console.error("❌ [PathValidation] パス検証中にエラーが発生:", error);
-        }
+        console.log("🔍 [PathValidation] 簡易パス検証スキップ");
       }
 
       // データ読み込み完了チェック関数
       function checkDataLoadingComplete() {
         const status = window.scriptLoadingStatus;
         status.loadAttempts++;
-        status.lastCheckTime = Date.now();
 
-        // パフォーマンス監視: データ読み込みチェックフェーズの開始
-        if (status.performanceMonitor && status.loadAttempts === 1) {
-          status.performanceMonitor.startInitializationPhase(
-            "data_loading_check"
-          );
-        }
+        console.log(`🔍 [LoadingCheck] 確認 (${status.loadAttempts}/10)`);
 
-        console.log(
-          `🔍 [LoadingCheck] データ読み込み確認 (${status.loadAttempts}/${
-            status.maxAttempts
-          }) - 経過時間: ${status.lastCheckTime - status.startTime}ms`
-        );
-
-        // 詳細なスクリプト読み込みエラー検出
-        const scriptErrors = [];
-        const expectedScripts = [
-          "BaseComponent",
-          "DataManager",
-          "Calculator",
-          "TripleOSEngine",
-          "StorageManager",
-          "WelcomeScreen",
-          "QuestionFlow",
-        ];
-
-        expectedScripts.forEach((scriptName) => {
-          if (typeof window[scriptName] === "undefined") {
-            scriptErrors.push(`${scriptName}.js が読み込まれていません`);
-          }
-        });
-
-        if (scriptErrors.length > 0) {
-          console.error(
-            "❌ [LoadingCheck] スクリプト読み込みエラー:",
-            scriptErrors
-          );
-          status.detailedStatus.scriptErrors = scriptErrors;
-        }
-
-        // data_box.jsの読み込み確認（詳細チェック）
-        status.dataBoxLoaded = typeof window.HAQEI_DATA !== "undefined";
-        status.detailedStatus.haqeiDataContent = status.dataBoxLoaded
-          ? window.HAQEI_DATA && typeof window.HAQEI_DATA === "object"
-            ? "valid"
-            : "invalid"
-          : "undefined";
-
-        // hexagrams_masterの確認（data_box.jsとhexagrams.jsの両方で定義される可能性）
-        status.detailedStatus.hexagramsMaster =
-          typeof window.hexagrams_master !== "undefined" ? "loaded" : "missing";
-
-        // コアクラスの読み込み確認
-        status.coreClassesLoaded =
+        // 基本的なクラスの存在確認
+        const coreClassesLoaded =
+          typeof BaseComponent !== "undefined" &&
           typeof DataManager !== "undefined" &&
           typeof Calculator !== "undefined" &&
           typeof TripleOSEngine !== "undefined";
 
-        // データファイルの読み込み確認
-        status.dataFilesLoaded =
-          typeof window.WORLDVIEW_QUESTIONS !== "undefined" &&
-          typeof window.SCENARIO_QUESTIONS !== "undefined" &&
-          typeof window.H64_8D_VECTORS !== "undefined" &&
-          typeof window.HEXAGRAM_DETAILS !== "undefined";
+        // 基本的なデータの存在確認
+        const dataLoaded =
+          typeof window.HAQEI_DATA !== "undefined" &&
+          typeof window.WORLDVIEW_QUESTIONS !== "undefined";
 
-        // コンポーネントの読み込み確認
-        status.componentsLoaded =
+        // コンポーネントの存在確認
+        const componentsLoaded =
           typeof WelcomeScreen !== "undefined" &&
-          typeof QuestionFlow !== "undefined";
+          typeof QuestionFlow !== "undefined" &&
+          typeof TripleOSResultsView !== "undefined";
 
-        // 全体の読み込み完了判定
-        status.allLoaded =
-          status.dataBoxLoaded &&
-          status.coreClassesLoaded &&
-          status.dataFilesLoaded &&
-          status.componentsLoaded;
-
-        // 詳細ステータスの更新
-        status.detailedStatus = {
-          ...status.detailedStatus,
-          dataBox: status.dataBoxLoaded,
-          coreClasses: status.coreClassesLoaded,
-          dataFiles: status.dataFilesLoaded,
-          components: status.componentsLoaded,
-          allLoaded: status.allLoaded,
-          globalDataCheck: {
-            HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
-            WORLDVIEW_QUESTIONS:
-              typeof window.WORLDVIEW_QUESTIONS !== "undefined",
-            SCENARIO_QUESTIONS:
-              typeof window.SCENARIO_QUESTIONS !== "undefined",
-            H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
-            HEXAGRAM_DETAILS: typeof window.HEXAGRAM_DETAILS !== "undefined",
-          },
-        };
-
-        console.log("🔍 [LoadingCheck] 読み込み状態:", status.detailedStatus);
+        status.allLoaded = coreClassesLoaded && dataLoaded && componentsLoaded;
 
         if (status.allLoaded) {
-          const totalLoadTime = status.lastCheckTime - status.startTime;
-
-          // パフォーマンス監視: データ読み込みチェックフェーズの完了
-          if (status.performanceMonitor) {
-            status.performanceMonitor.endInitializationPhase(
-              "data_loading_check",
-              true
-            );
-            status.performanceMonitor.takeMemorySnapshot(
-              "data_loading_complete"
-            );
-          }
-
-          console.log(
-            `✅ [LoadingCheck] すべてのスクリプトが読み込み完了しました (${totalLoadTime}ms)`
-          );
+          console.log("✅ [LoadingCheck] すべてのスクリプトが読み込み完了");
           return true;
         }
 
-        if (status.loadAttempts >= status.maxAttempts) {
-          const totalLoadTime = status.lastCheckTime - status.startTime;
-
-          // パフォーマンス監視: データ読み込みチェックフェーズの失敗
-          if (status.performanceMonitor) {
-            status.performanceMonitor.endInitializationPhase(
-              "data_loading_check",
-              false
-            );
-            status.performanceMonitor.takeMemorySnapshot(
-              "data_loading_timeout"
-            );
-          }
-
-          console.warn(
-            `⚠️ [LoadingCheck] 読み込み確認がタイムアウトしました (${totalLoadTime}ms)`
-          );
-          console.warn("⚠️ [LoadingCheck] 未読み込み要素:", {
-            dataBox: !status.dataBoxLoaded,
-            coreClasses: !status.coreClassesLoaded,
-            dataFiles: !status.dataFilesLoaded,
-            components: !status.componentsLoaded,
+        // 個別エラー報告
+        if (!coreClassesLoaded) {
+          console.warn("⚠️ 不足クラス:", {
+            BaseComponent: typeof BaseComponent !== "undefined",
+            DataManager: typeof DataManager !== "undefined",
+            Calculator: typeof Calculator !== "undefined",
+            TripleOSEngine: typeof TripleOSEngine !== "undefined"
           });
+        }
+        if (!componentsLoaded) {
+          console.warn("⚠️ 不足コンポーネント:", {
+            WelcomeScreen: typeof WelcomeScreen !== "undefined",
+            QuestionFlow: typeof QuestionFlow !== "undefined",
+            TripleOSResultsView: typeof TripleOSResultsView !== "undefined"
+          });
+        }
+
+        if (status.loadAttempts >= 10) {
+          console.warn("⚠️ [LoadingCheck] タイムアウト - 強制初期化");
           return false;
         }
 
@@ -616,14 +315,7 @@
 
       // DOM読み込み完了後の処理
       document.addEventListener("DOMContentLoaded", function () {
-        console.log(
-          "🔍 [DOMContentLoaded] DOM読み込み完了、スクリプト確認を開始"
-        );
-
-        // エラー検出システムの初期化
-        setTimeout(() => {
-          initializeErrorDetectionSystems();
-        }, 100);
+        console.log("🔍 [DOMContentLoaded] DOM読み込み完了");
 
         // 初回チェック
         if (checkDataLoadingComplete()) {
@@ -631,285 +323,49 @@
           return;
         }
 
-        // 動的間隔での定期的なチェック
-        let checkIntervalMs = 50; // 初期間隔: 50ms
-        const maxIntervalMs = 500; // 最大間隔: 500ms
-
+        // 定期的なチェック
         const checkInterval = setInterval(() => {
           if (checkDataLoadingComplete()) {
             clearInterval(checkInterval);
-            console.log("🎯 [LoadingCheck] 読み込み確認処理を停止しました");
             initializeApplication();
-          } else {
-            // 時間が経つにつれて確認間隔を長くする（効率化）
-            if (window.scriptLoadingStatus.loadAttempts > 10) {
-              checkIntervalMs = Math.min(checkIntervalMs * 1.2, maxIntervalMs);
-            }
           }
-        }, checkIntervalMs);
+        }, 100);
 
-        // 5秒後にタイムアウト
+        // 2秒後にタイムアウト
         setTimeout(() => {
           clearInterval(checkInterval);
-          console.error("❌ [LoadingCheck] スクリプト読み込みタイムアウト");
-          initializeApplication(); // タイムアウトでも初期化を試行
-        }, 5000);
+          console.warn("⚠️ [LoadingCheck] タイムアウト - 強制初期化実行");
+          initializeApplication();
+        }, 2000);
       });
 
-      // 統計情報表示関数
-      function displayInitializationStats(initSummary) {
-        console.group("📊 [InitStats] 初期化統計情報");
-
-        // 基本統計
-        console.log(`⏱️ 初期化時間: ${initSummary.initializationTime}ms`);
-        console.log(`⏱️ 総読み込み時間: ${initSummary.totalLoadTime}ms`);
-
-        // エラー情報
-        if (initSummary.missingClasses.length > 0) {
-          console.warn(`⚠️ 不足クラス数: ${initSummary.missingClasses.length}`);
-          console.warn(
-            `📋 不足クラス: ${initSummary.missingClasses.join(", ")}`
-          );
-        } else {
-          console.log("✅ すべてのクラスが正常に読み込まれました");
-        }
-
-        if (initSummary.missingData.length > 0) {
-          console.warn(`⚠️ 不足データ数: ${initSummary.missingData.length}`);
-          console.warn(`📋 不足データ: ${initSummary.missingData.join(", ")}`);
-        } else {
-          console.log("✅ すべてのデータファイルが正常に読み込まれました");
-        }
-
-        // 重要なエラー
-        if (initSummary.criticalError) {
-          console.error(`🚨 重要なエラー: ${initSummary.criticalError}`);
-        }
-
-        // パフォーマンス評価
-        const performanceRating =
-          initSummary.totalLoadTime < 1000
-            ? "優秀"
-            : initSummary.totalLoadTime < 3000
-            ? "良好"
-            : initSummary.totalLoadTime < 5000
-            ? "普通"
-            : "改善が必要";
-        console.log(`🎯 パフォーマンス評価: ${performanceRating}`);
-
-        // メモリ使用量（可能な場合）
-        if (performance.memory) {
-          const memoryMB = Math.round(
-            performance.memory.usedJSHeapSize / 1024 / 1024
-          );
-          console.log(`💾 メモリ使用量: ${memoryMB}MB`);
-        }
-
-        console.groupEnd();
-
-        // ユーザーフレンドリーなメッセージ
-        if (initSummary.criticalError) {
-          console.warn(
-            "⚠️ 一部機能が制限される可能性がありますが、アプリケーションは動作します"
-          );
-        } else if (
-          initSummary.missingClasses.length === 0 &&
-          initSummary.missingData.length === 0
-        ) {
-          console.log("🎉 すべてのコンポーネントが正常に初期化されました！");
-        }
-      }
 
       // アプリケーション初期化関数
       function initializeApplication() {
-        const initStartTime = Date.now();
         console.log("🚀 [InitializeApp] アプリケーション初期化開始");
 
-        // パフォーマンス監視: アプリケーション初期化フェーズの開始
-        if (window.scriptLoadingStatus.performanceMonitor) {
-          window.scriptLoadingStatus.performanceMonitor.startInitializationPhase(
-            "application_initialization"
-          );
-          window.scriptLoadingStatus.performanceMonitor.takeMemorySnapshot(
-            "app_init_start"
-          );
-        }
-
         try {
-          // 必須クラスの存在確認
-          const requiredClasses = {
-            BaseComponent: typeof BaseComponent !== "undefined",
-            DataManager: typeof DataManager !== "undefined",
-            Calculator: typeof Calculator !== "undefined",
-            TripleOSEngine: typeof TripleOSEngine !== "undefined",
-            StorageManager: typeof StorageManager !== "undefined",
-            WelcomeScreen: typeof WelcomeScreen !== "undefined",
-            QuestionFlow: typeof QuestionFlow !== "undefined",
-          };
-
-          console.log("🔍 [InitializeApp] クラス定義確認:", requiredClasses);
-
-          // 必須データの存在確認
-          const requiredData = {
-            HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
-            WORLDVIEW_QUESTIONS:
-              typeof window.WORLDVIEW_QUESTIONS !== "undefined",
-            SCENARIO_QUESTIONS:
-              typeof window.SCENARIO_QUESTIONS !== "undefined",
-            H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
-            HEXAGRAM_DETAILS: typeof window.HEXAGRAM_DETAILS !== "undefined",
-          };
-
-          console.log("🔍 [InitializeApp] データ存在確認:", requiredData);
-
-          // エラーチェック
-          const missingClasses = Object.keys(requiredClasses).filter(
-            (key) => !requiredClasses[key]
-          );
-          const missingData = Object.keys(requiredData).filter(
-            (key) => !requiredData[key]
-          );
-
-          if (missingClasses.length > 0) {
-            console.error(
-              "❌ [InitializeApp] 不足しているクラス:",
-              missingClasses
-            );
-
-            // 重要なクラスが不足している場合の処理
-            if (missingClasses.includes("DataManager")) {
-              console.error(
-                "❌ [InitializeApp] DataManagerが不足しています - 重要なエラー"
-              );
-              window.scriptLoadingStatus.criticalError = "DataManager missing";
-            }
+          // 基本フォールバック
+          if (!window.HAQEI_DATA) {
+            console.warn("⚠️ HAQEI_DATA フォールバック作成");
+            window.HAQEI_DATA = createFallbackHaqeiData();
+          }
+          if (!window.WORLDVIEW_QUESTIONS) {
+            console.warn("⚠️ WORLDVIEW_QUESTIONS フォールバック作成");
+            window.WORLDVIEW_QUESTIONS = createFallbackQuestions();
+          }
+          if (!window.SCENARIO_QUESTIONS) {
+            console.warn("⚠️ SCENARIO_QUESTIONS フォールバック作成");
+            window.SCENARIO_QUESTIONS = createFallbackQuestions();
           }
 
-          if (missingData.length > 0) {
-            console.error(
-              "❌ [InitializeApp] 不足しているデータ:",
-              missingData
-            );
-
-            // 各データファイルの個別フォールバック処理
-            if (missingData.includes("HAQEI_DATA")) {
-              console.error(
-                "❌ [InitializeApp] HAQEI_DATAが不足しています - 重要なエラー"
-              );
-              window.scriptLoadingStatus.criticalError = "HAQEI_DATA missing";
-              console.warn(
-                "⚠️ [InitializeApp] HAQEI_DATA緊急フォールバック処理を実行"
-              );
-              window.HAQEI_DATA = createFallbackHaqeiData();
-            }
-
-            if (missingData.includes("WORLDVIEW_QUESTIONS")) {
-              console.warn(
-                "⚠️ [InitializeApp] WORLDVIEW_QUESTIONS緊急フォールバック処理を実行"
-              );
-              window.WORLDVIEW_QUESTIONS = createFallbackQuestions();
-            }
-
-            if (missingData.includes("SCENARIO_QUESTIONS")) {
-              console.warn(
-                "⚠️ [InitializeApp] SCENARIO_QUESTIONS緊急フォールバック処理を実行"
-              );
-              window.SCENARIO_QUESTIONS = createFallbackQuestions();
-            }
-
-            if (missingData.includes("H64_8D_VECTORS")) {
-              console.warn(
-                "⚠️ [InitializeApp] H64_8D_VECTORS緊急フォールバック処理を実行"
-              );
-              window.H64_8D_VECTORS = createFallbackVectors();
-            }
-
-            if (missingData.includes("HEXAGRAM_DETAILS")) {
-              console.warn(
-                "⚠️ [InitializeApp] HEXAGRAM_DETAILS緊急フォールバック処理を実行"
-              );
-              window.HEXAGRAM_DETAILS = createFallbackHexagramDetails();
-            }
-          }
-
-          // パフォーマンス監視: アプリケーション初期化フェーズの完了
-          if (window.scriptLoadingStatus.performanceMonitor) {
-            window.scriptLoadingStatus.performanceMonitor.endInitializationPhase(
-              "application_initialization",
-              missingClasses.length === 0 &&
-                !window.scriptLoadingStatus.criticalError
-            );
-            window.scriptLoadingStatus.performanceMonitor.takeMemorySnapshot(
-              "app_init_complete"
-            );
-          }
-
-          // 初期化完了フラグを設定
-          window.scriptLoadingStatus.initializationComplete = true;
-          window.scriptLoadingStatus.initializationTime =
-            Date.now() - initStartTime;
-
-          const initSummary = {
-            initializationTime: window.scriptLoadingStatus.initializationTime,
-            missingClasses: missingClasses,
-            missingData: missingData,
-            totalLoadTime: Date.now() - window.scriptLoadingStatus.startTime,
-            criticalError: window.scriptLoadingStatus.criticalError || null,
-          };
-
-          console.log(
-            "✅ [InitializeApp] アプリケーション初期化完了",
-            initSummary
-          );
-
-          // 統計情報の表示
-          displayInitializationStats(initSummary);
-
-          // パフォーマンス監視の最終レポート表示
-          if (window.scriptLoadingStatus.performanceMonitor) {
-            console.log(
-              "📊 [PerformanceMonitor] 最終パフォーマンスレポートを生成中..."
-            );
-            const finalReport =
-              window.scriptLoadingStatus.performanceMonitor.finalize();
-
-            // パフォーマンス統計をグローバルに保存（デバッグ用）
-            window.performanceReport = finalReport;
-
-            console.log(
-              "✅ [PerformanceMonitor] パフォーマンスレポートが完了しました"
-            );
-            console.log(
-              "💡 [PerformanceMonitor] 詳細レポートは window.performanceReport で確認できます"
-            );
-          }
-
-          // App.jsの初期化を呼び出す準備が整った
-          console.log("🔧 [InitializeApp] App.jsの初期化準備完了");
+          console.log("✅ [InitializeApp] 初期化完了");
         } catch (error) {
-          console.error("❌ [InitializeApp] 初期化中にエラーが発生:", error);
-          window.scriptLoadingStatus.initializationError = error.message;
-
-          // エラー時もパフォーマンス監視を終了
-          if (window.scriptLoadingStatus.performanceMonitor) {
-            window.scriptLoadingStatus.performanceMonitor.endInitializationPhase(
-              "application_initialization",
-              false
-            );
-            window.scriptLoadingStatus.performanceMonitor.takeMemorySnapshot(
-              "app_init_error"
-            );
-
-            // エラー時でも最終レポートを生成
-            const errorReport =
-              window.scriptLoadingStatus.performanceMonitor.finalize();
-            window.performanceReport = errorReport;
-          }
+          console.error("❌ [InitializeApp] 初期化エラー:", error);
         }
       }
     </script>
 
-    <!-- 🔧 レガシーデバッグ用スクリプト（後方互換性のため残存） -->
     <script>
       // 旧形式のデバッグ確認（後方互換性のため）
       document.addEventListener("DOMContentLoaded", function () {
@@ -935,5 +391,18 @@
         console.log("H64_8D_VECTORS:", typeof H64_8D_VECTORS);
       });
     </script>
+
+    <!-- 完全相性分析モーダル -->
+    <div id="compatibility-modal" class="modal-container" style="display:none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>🎯 完全相性分析</h2>
+                <button class="modal-close-button" aria-label="閉じる">&times;</button>
+            </header>
+            <div id="compatibility-modal-body" class="modal-body">
+            </div>
+        </div>
+    </div>
   </body>
 </html>
