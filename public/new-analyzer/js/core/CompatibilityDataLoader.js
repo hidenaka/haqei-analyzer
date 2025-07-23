@@ -1,637 +1,335 @@
-// CompatibilityDataLoader.js - 相性データ読み込み機能
-// HaQei Analyzer - Compatibility Data Loading System
-//
-// 依存関係:
-// - fetch API (ブラウザ標準)
-// - Promise API (ブラウザ標準)
-// - JSON API (ブラウザ標準)
-//
-// 使用方法:
-// const loader = new CompatibilityDataLoader(options);
-// グローバルスコープで定義されるため、window.CompatibilityDataLoader としてアクセス可能
-
+/**
+ * CompatibilityDataLoader - 互換性データの動的読み込みとマップ生成
+ * インターフェースOSとセーフモードOSの分析に必要なkeyword_mapとline_keyword_mapを生成
+ */
 class CompatibilityDataLoader {
-  constructor(options = {}) {
-    this.options = {
-      basePath: "../../js/data/compatibility/",
-      cacheEnabled: true,
-      cacheTTL: 30 * 60 * 1000, // 30分
-      retryAttempts: 3,
-      retryDelay: 1000,
-      enableCompression: false,
-      enableValidation: true,
-      ...options,
-    };
-
-    this.cache = new Map();
-    this.loadingPromises = new Map(); // 重複リクエスト防止
-    this.loadedFiles = new Set(); // 読み込み済みファイル追跡
-    this.validationCache = new Map();
-
-    console.log("✅ CompatibilityDataLoader initialized");
+  constructor() {
+    this.keywordMap = {};
+    this.lineKeywordMap = {};
+    this.isLoaded = false;
+    this.loadingPromise = null;
   }
 
   /**
-   * エンジンOS-インターフェースOS 相性データを取得
-   * @param {number} engineId - エンジンOSのID (1-64)
-   * @param {number} interfaceId - インターフェースOSのID (1-64)
-   * @returns {Promise<Object>} 相性データ
+   * 互換性データを読み込み、keyword_mapとline_keyword_mapを生成
    */
-  async getEngineInterfaceCompatibility(engineId, interfaceId) {
-    try {
-      const cacheKey = `engine-interface-${engineId}-${interfaceId}`;
-
-      // キャッシュチェック
-      if (this.options.cacheEnabled && this.cache.has(cacheKey)) {
-        const cached = this.cache.get(cacheKey);
-        if (Date.now() - cached.timestamp < this.options.cacheTTL) {
-          console.log(`📋 Cache hit: ${cacheKey}`);
-          return cached.data;
-        }
-      }
-
-      // データファイルを読み込み
-      const fileData = await this.loadEngineInterfaceFile(engineId);
-
-      // キャッシュに保存
-      if (this.options.cacheEnabled) {
-        this.cache.set(cacheKey, {
-          data: fileData,
-          timestamp: Date.now(),
-        });
-      }
-
-      return fileData;
-    } catch (error) {
-      console.error(
-        `❌ Engine-Interface compatibility loading error (${engineId}-${interfaceId}):`,
-        error
-      );
-      throw new Error(`相性データの読み込みに失敗しました: ${error.message}`);
-    }
-  }
-
-  /**
-   * エンジンOS-セーフモードOS 相性データを取得
-   * @param {number} engineId - エンジンOSのID (1-64)
-   * @param {number} safeModeId - セーフモードOSのID (1-64)
-   * @returns {Promise<Object>} 相性データ
-   */
-  async getEngineSafeModeCompatibility(engineId, safeModeId) {
-    try {
-      const cacheKey = `engine-safemode-${engineId}-${safeModeId}`;
-
-      // キャッシュチェック
-      if (this.options.cacheEnabled && this.cache.has(cacheKey)) {
-        const cached = this.cache.get(cacheKey);
-        if (Date.now() - cached.timestamp < this.options.cacheTTL) {
-          console.log(`📋 Cache hit: ${cacheKey}`);
-          return cached.data;
-        }
-      }
-
-      // データファイルを読み込み
-      const fileData = await this.loadEngineSafeModeFile(engineId);
-
-      // キャッシュに保存
-      if (this.options.cacheEnabled) {
-        this.cache.set(cacheKey, {
-          data: fileData,
-          timestamp: Date.now(),
-        });
-      }
-
-      return fileData;
-    } catch (error) {
-      console.error(
-        `❌ Engine-SafeMode compatibility loading error (${engineId}-${safeModeId}):`,
-        error
-      );
-      throw new Error(`相性データの読み込みに失敗しました: ${error.message}`);
-    }
-  }
-
-  /**
-   * インターフェース-セーフモード 相性データを取得（推定）
-   * @param {number} interfaceId - インターフェースOSのID (1-64)
-   * @param {number} safeModeId - セーフモードOSのID (1-64)
-   * @returns {Promise<Object>} 相性データ
-   */
-  async getInterfaceSafeModeCompatibility(interfaceId, safeModeId) {
-    try {
-      const cacheKey = `interface-safemode-${interfaceId}-${safeModeId}`;
-
-      // キャッシュチェック
-      if (this.options.cacheEnabled && this.cache.has(cacheKey)) {
-        const cached = this.cache.get(cacheKey);
-        if (Date.now() - cached.timestamp < this.options.cacheTTL) {
-          console.log(`📋 Cache hit: ${cacheKey}`);
-          return cached.data;
-        }
-      }
-
-      // インターフェース-セーフモード専用データが存在しない場合、
-      // 既存のエンジン-インターフェース/エンジン-セーフモードデータから推定
-      const estimation = await this.estimateInterfaceSafeModeCompatibility(
-        interfaceId,
-        safeModeId
-      );
-
-      // キャッシュに保存
-      if (this.options.cacheEnabled) {
-        this.cache.set(cacheKey, {
-          data: estimation,
-          timestamp: Date.now(),
-        });
-      }
-
-      console.log(
-        `✅ Estimated compatibility: Interface ${interfaceId} - SafeMode ${safeModeId}`
-      );
-      return estimation;
-    } catch (error) {
-      console.error(
-        `❌ Failed to get interface-safemode compatibility:`,
-        error
-      );
-
-      // フォールバック: 基本的な相性データを生成
-      return this.generateFallbackCompatibility(
-        "interface-safemode",
-        interfaceId,
-        safeModeId,
-        error
-      );
-    }
-  }
-
-  /**
-   * 三重OS全体の相性分析を取得
-   * @param {number} engineId - エンジンOSのID (1-64)
-   * @param {number} interfaceId - インターフェースOSのID (1-64)
-   * @param {number} safeModeId - セーフモードOSのID (1-64)
-   * @returns {Promise<Object>} 統合相性データ
-   */
-  async getTripleOSCompatibility(engineId, interfaceId, safeModeId) {
-    try {
-      const cacheKey = `triple-os-${engineId}-${interfaceId}-${safeModeId}`;
-
-      // キャッシュチェック
-      if (this.options.cacheEnabled && this.cache.has(cacheKey)) {
-        const cached = this.cache.get(cacheKey);
-        if (Date.now() - cached.timestamp < this.options.cacheTTL) {
-          console.log(`📋 Cache hit: ${cacheKey}`);
-          return cached.data;
-        }
-      }
-
-      // 並行して各相性データを取得
-      const [engineInterface, engineSafeMode, interfaceSafeMode] =
-        await Promise.all([
-          this.getEngineInterfaceCompatibility(engineId, interfaceId),
-          this.getEngineSafeModeCompatibility(engineId, safeModeId),
-          this.getInterfaceSafeModeCompatibility(interfaceId, safeModeId),
-        ]);
-
-      // 統合分析を実行
-      const integratedAnalysis = this.analyzeTripleOSIntegration(
-        engineInterface,
-        engineSafeMode,
-        interfaceSafeMode
-      );
-
-      const result = {
-        engineId,
-        interfaceId,
-        safeModeId,
-        engineInterface,
-        engineSafeMode,
-        interfaceSafeMode,
-        integration: integratedAnalysis,
-        metadata: {
-          dataSource: "triple-os-integration",
-          loadedAt: new Date().toISOString(),
-          componentsLoaded: 3,
-        },
+  async loadCompatibilityData() {
+    if (this.isLoaded) {
+      return {
+        keyword_map: this.keywordMap,
+        line_keyword_map: this.lineKeywordMap,
       };
+    }
 
-      // キャッシュに保存
-      if (this.options.cacheEnabled) {
-        this.cache.set(cacheKey, {
-          data: result,
-          timestamp: Date.now(),
-        });
-      }
+    if (this.loadingPromise) {
+      return this.loadingPromise;
+    }
 
+    this.loadingPromise = this._performLoad();
+    return this.loadingPromise;
+  }
+
+  async _performLoad() {
+    console.log("🔄 [CompatibilityDataLoader] 互換性データの読み込み開始");
+
+    try {
+      // 1. engine-interfaceデータの読み込み
+      await this._loadEngineInterfaceData();
+
+      // 2. engine-safemodeデータの読み込み
+      await this._loadEngineSafemodeData();
+
+      this.isLoaded = true;
+
+      console.log("✅ [CompatibilityDataLoader] 互換性データの読み込み完了");
+      console.log(`📊 keyword_map: ${Object.keys(this.keywordMap).length}件`);
       console.log(
-        `✅ Loaded triple OS compatibility: ${engineId}-${interfaceId}-${safeModeId}`
+        `📊 line_keyword_map: ${Object.keys(this.lineKeywordMap).length}件`
       );
-      return result;
+
+      return {
+        keyword_map: this.keywordMap,
+        line_keyword_map: this.lineKeywordMap,
+      };
     } catch (error) {
-      console.error(`❌ Failed to get triple OS compatibility:`, error);
+      console.error(
+        "❌ [CompatibilityDataLoader] データ読み込みエラー:",
+        error
+      );
       throw error;
     }
   }
 
   /**
-   * エンジン-インターフェース データファイルを読み込み
+   * engine-interfaceデータを読み込んでkeyword_mapを生成
    */
-  async loadEngineInterfaceFile(engineId) {
-    const fileName = `hexagram_${String(engineId).padStart(2, "0")}.json`;
-    const filePath = `${this.options.basePath}engine-interface/${fileName}`;
+  async _loadEngineInterfaceData() {
+    console.log(
+      "🔄 [CompatibilityDataLoader] engine-interfaceデータ読み込み中"
+    );
 
-    return await this.loadJSONFile(filePath, `engine-interface-${engineId}`);
-  }
-
-  /**
-   * エンジン-セーフモード データファイルを読み込み
-   */
-  async loadEngineSafeModeFile(engineId) {
-    const fileName = `hexagram_${String(engineId).padStart(2, "0")}.json`;
-    const filePath = `${this.options.basePath}engine-safemode/${fileName}`;
-
-    return await this.loadJSONFile(filePath, `engine-safemode-${engineId}`);
-  }
-
-  /**
-   * JSONファイルを読み込み（リトライ機能付き）
-   */
-  async loadJSONFile(filePath, cacheKey) {
-    // 既に読み込み中の場合は、そのPromiseを返す
-    if (this.loadingPromises.has(cacheKey)) {
-      return await this.loadingPromises.get(cacheKey);
-    }
-
-    const loadPromise = this.performJSONLoad(filePath, cacheKey);
-    this.loadingPromises.set(cacheKey, loadPromise);
-
-    try {
-      const result = await loadPromise;
-      this.loadedFiles.add(filePath);
-      return result;
-    } finally {
-      this.loadingPromises.delete(cacheKey);
-    }
-  }
-
-  /**
-   * 実際のJSON読み込み処理
-   */
-  async performJSONLoad(filePath, cacheKey) {
-    let lastError = null;
-
-    for (let attempt = 1; attempt <= this.options.retryAttempts; attempt++) {
+    for (let hexagramId = 1; hexagramId <= 64; hexagramId++) {
       try {
-        console.log(`📡 Loading JSON file: ${filePath} (attempt ${attempt})`);
-
-        const response = await fetch(filePath);
+        const response = await fetch(
+          `js/data/compatibility/engine-interface/hexagram_${hexagramId
+            .toString()
+            .padStart(2, "0")}.json`
+        );
 
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          console.warn(
+            `⚠️ [CompatibilityDataLoader] hexagram_${hexagramId} interface data not found`
+          );
+          continue;
         }
 
         const data = await response.json();
-
-        // データ検証
-        if (this.options.enableValidation) {
-          this.validateCompatibilityData(data, filePath);
-        }
-
-        console.log(`✅ Successfully loaded: ${filePath}`);
-        return data;
+        this._processInterfaceData(data, hexagramId);
       } catch (error) {
-        lastError = error;
         console.warn(
-          `⚠️ Failed to load ${filePath} (attempt ${attempt}):`,
-          error.message
+          `⚠️ [CompatibilityDataLoader] Error loading interface data for hexagram ${hexagramId}:`,
+          error
         );
-
-        // 最後の試行でなければ待機
-        if (attempt < this.options.retryAttempts) {
-          await this.delay(this.options.retryDelay * attempt);
-        }
       }
     }
-
-    throw new Error(
-      `Failed to load ${filePath} after ${this.options.retryAttempts} attempts: ${lastError.message}`
-    );
   }
 
   /**
-   * インターフェース-セーフモード相性を推定
+   * engine-safemodeデータを読み込んでline_keyword_mapを生成
    */
-  async estimateInterfaceSafeModeCompatibility(interfaceId, safeModeId) {
-    // 複数のエンジンOSでの相性データを収集して推定
-    const sampleEngineIds = [1, 2, 11, 49]; // 代表的なエンジンOSのサンプル
-    const estimations = [];
+  async _loadEngineSafemodeData() {
+    console.log("🔄 [CompatibilityDataLoader] engine-safemodeデータ読み込み中");
 
-    for (const engineId of sampleEngineIds) {
+    for (let hexagramId = 1; hexagramId <= 64; hexagramId++) {
       try {
-        const [engineInterface, engineSafeMode] = await Promise.all([
-          this.getEngineInterfaceCompatibility(engineId, interfaceId),
-          this.getEngineSafeModeCompatibility(engineId, safeModeId),
-        ]);
+        const response = await fetch(
+          `js/data/compatibility/engine-safemode/hexagram_${hexagramId
+            .toString()
+            .padStart(2, "0")}.json`
+        );
 
-        estimations.push({
-          engineId,
-          engineInterface,
-          engineSafeMode,
-        });
+        if (!response.ok) {
+          console.warn(
+            `⚠️ [CompatibilityDataLoader] hexagram_${hexagramId} safemode data not found`
+          );
+          continue;
+        }
+
+        const data = await response.json();
+        this._processSafemodeData(data, hexagramId);
       } catch (error) {
         console.warn(
-          `⚠️ Failed to get estimation data for engine ${engineId}:`,
-          error.message
+          `⚠️ [CompatibilityDataLoader] Error loading safemode data for hexagram ${hexagramId}:`,
+          error
         );
       }
     }
-
-    if (estimations.length === 0) {
-      throw new Error("No estimation data available");
-    }
-
-    // 推定アルゴリズム: 平均値ベース
-    const avgScore =
-      estimations.reduce((sum, est) => {
-        return (
-          sum +
-          (est.engineInterface.overallScore + est.engineSafeMode.overallScore) /
-            2
-        );
-      }, 0) / estimations.length;
-
-    // 推定タイプを決定
-    const estimatedType = this.determineCompatibilityType(avgScore);
-
-    return {
-      interfaceId: interfaceId,
-      safeModeId: safeModeId,
-      interfaceName: `インターフェースOS-${interfaceId}`,
-      safeModeName: `セーフモードOS-${safeModeId}`,
-      type: estimatedType,
-      overallScore: avgScore,
-      summary: `推定相性: ${estimatedType}タイプ (スコア: ${Math.round(
-        avgScore * 100
-      )}%)`,
-      evaluation: this.generateEstimatedEvaluation(avgScore),
-      advice: this.generateEstimatedAdvice(estimatedType, avgScore),
-      metadata: {
-        dataSource: "estimated",
-        estimationMethod: "multi-engine-average",
-        sampleSize: estimations.length,
-        loadedAt: new Date().toISOString(),
-      },
-    };
   }
 
   /**
-   * 三重OS統合分析
+   * インターフェースデータを処理してkeyword_mapに追加
    */
-  analyzeTripleOSIntegration(
-    engineInterface,
-    engineSafeMode,
-    interfaceSafeMode
-  ) {
-    const scores = [
-      engineInterface.overallScore,
-      engineSafeMode.overallScore,
-      interfaceSafeMode.overallScore,
-    ];
-
-    const avgScore =
-      scores.reduce((sum, score) => sum + score, 0) / scores.length;
-    const variance =
-      scores.reduce((sum, score) => sum + Math.pow(score - avgScore, 2), 0) /
-      scores.length;
-    const stability = 1 - Math.sqrt(variance);
-
-    return {
-      overallScore: avgScore,
-      stability: Math.max(0, stability),
-      balance: this.calculateBalance(scores),
-      dominantPattern: this.identifyDominantPattern([
-        engineInterface,
-        engineSafeMode,
-        interfaceSafeMode,
-      ]),
-      integrationAdvice: this.generateIntegrationAdvice(
-        engineInterface,
-        engineSafeMode,
-        interfaceSafeMode
-      ),
-      riskFactors: this.identifyRiskFactors([
-        engineInterface,
-        engineSafeMode,
-        interfaceSafeMode,
-      ]),
-      strengths: this.identifyStrengths([
-        engineInterface,
-        engineSafeMode,
-        interfaceSafeMode,
-      ]),
-    };
-  }
-
-  /**
-   * データ検証
-   */
-  validateCompatibilityData(data, filePath) {
-    const validationKey = filePath;
-
-    if (this.validationCache.has(validationKey)) {
-      return this.validationCache.get(validationKey);
+  _processInterfaceData(data, hexagramId) {
+    if (
+      !data.internal_team_analysis ||
+      !data.internal_team_analysis.interface_combinations
+    ) {
+      return;
     }
 
-    const errors = [];
-
-    // 基本構造チェック
-    if (!data.hexagram_id || !data.internal_team_analysis) {
-      errors.push("Missing required root properties");
-    }
-
-    // 相性データの構造チェック
-    const combinations =
-      data.internal_team_analysis.interface_combinations ||
-      data.internal_team_analysis.safemode_combinations;
-
-    if (!combinations || !Array.isArray(combinations)) {
-      errors.push("Missing or invalid combinations array");
-    } else {
-      combinations.forEach((combo, index) => {
-        if (!combo.overall_score || typeof combo.overall_score !== "number") {
-          errors.push(`Invalid overall_score at combination ${index}`);
+    // interface_combinationsから特徴的なキーワードを抽出
+    data.internal_team_analysis.interface_combinations.forEach(
+      (combination) => {
+        if (combination.advice && combination.advice.strengths) {
+          combination.advice.strengths.forEach((strength) => {
+            this._addToKeywordMap(strength, hexagramId);
+          });
         }
-        if (
-          !combo.type ||
-          !["SYNERGY", "HARMONY", "TENSION", "CONFLICT", "CHAOS"].includes(
-            combo.type
-          )
-        ) {
-          errors.push(`Invalid type at combination ${index}`);
+
+        if (combination.advice && combination.advice.challenges) {
+          combination.advice.challenges.forEach((challenge) => {
+            this._addToKeywordMap(challenge, hexagramId);
+          });
         }
-      });
-    }
 
-    if (errors.length > 0) {
-      console.warn(`⚠️ Data validation warnings for ${filePath}:`, errors);
-    }
-
-    const isValid = errors.length === 0;
-    this.validationCache.set(validationKey, isValid);
-
-    return isValid;
+        // 評価項目からもキーワードを抽出
+        if (combination.evaluation) {
+          Object.values(combination.evaluation).forEach((eval) => {
+            if (eval.description) {
+              // 重要なキーワードを抽出（簡易版）
+              const keywords = this._extractKeywords(eval.description);
+              keywords.forEach((keyword) => {
+                this._addToKeywordMap(keyword, hexagramId);
+              });
+            }
+          });
+        }
+      }
+    );
   }
 
   /**
-   * フォールバック相性データ生成
+   * セーフモードデータを処理してline_keyword_mapに追加
    */
-  generateFallbackCompatibility(type, id1, id2, error) {
-    console.warn(
-      `🔄 Generating fallback compatibility for ${type}: ${id1}-${id2}`
+  _processSafemodeData(data, hexagramId) {
+    if (!data.line_analysis || !Array.isArray(data.line_analysis)) {
+      return;
+    }
+
+    // line_analysisから爻別のキーワードを抽出
+    data.line_analysis.forEach((line, lineIndex) => {
+      if (line.keywords && Array.isArray(line.keywords)) {
+        line.keywords.forEach((keyword) => {
+          this._addToLineKeywordMap(keyword, hexagramId, lineIndex + 1);
+        });
+      }
+
+      if (line.description) {
+        const keywords = this._extractKeywords(line.description);
+        keywords.forEach((keyword) => {
+          this._addToLineKeywordMap(keyword, hexagramId, lineIndex + 1);
+        });
+      }
+    });
+  }
+
+  /**
+   * keyword_mapにキーワードを追加
+   */
+  _addToKeywordMap(keyword, hexagramId) {
+    if (!keyword || typeof keyword !== "string") return;
+
+    const cleanKeyword = keyword.trim();
+    if (cleanKeyword.length === 0) return;
+
+    if (!this.keywordMap[cleanKeyword]) {
+      this.keywordMap[cleanKeyword] = [];
+    }
+
+    if (!this.keywordMap[cleanKeyword].includes(hexagramId)) {
+      this.keywordMap[cleanKeyword].push(hexagramId);
+    }
+  }
+
+  /**
+   * line_keyword_mapにキーワードを追加
+   */
+  _addToLineKeywordMap(keyword, hexagramId, lineNumber) {
+    if (!keyword || typeof keyword !== "string") return;
+
+    const cleanKeyword = keyword.trim();
+    if (cleanKeyword.length === 0) return;
+
+    if (!this.lineKeywordMap[cleanKeyword]) {
+      this.lineKeywordMap[cleanKeyword] = [];
+    }
+
+    const lineInfo = {
+      hexagram_id: hexagramId,
+      line_number: lineNumber,
+    };
+
+    // 重複チェック
+    const exists = this.lineKeywordMap[cleanKeyword].some(
+      (item) =>
+        item.hexagram_id === hexagramId && item.line_number === lineNumber
     );
 
-    // 基本的な相性スコアを生成（IDベース）
-    const baseScore = ((id1 + id2) % 100) / 100;
-    const adjustedScore = Math.max(0.1, Math.min(0.9, baseScore));
-
-    return {
-      [`${type.split("-")[0]}Id`]: id1,
-      [`${type.split("-")[1]}Id`]: id2,
-      type: this.determineCompatibilityType(adjustedScore),
-      overallScore: adjustedScore,
-      summary: `基本相性分析 (フォールバック): スコア ${Math.round(
-        adjustedScore * 100
-      )}%`,
-      evaluation: this.generateEstimatedEvaluation(adjustedScore),
-      advice: this.generateEstimatedAdvice(
-        this.determineCompatibilityType(adjustedScore),
-        adjustedScore
-      ),
-      metadata: {
-        dataSource: "fallback",
-        reason: error.message,
-        generatedAt: new Date().toISOString(),
-      },
-    };
+    if (!exists) {
+      this.lineKeywordMap[cleanKeyword].push(lineInfo);
+    }
   }
 
   /**
-   * ヘルパーメソッド
+   * テキストから重要なキーワードを抽出（簡易版）
    */
+  _extractKeywords(text) {
+    if (!text || typeof text !== "string") return [];
 
-  determineCompatibilityType(score) {
-    if (score >= 0.9) return "SYNERGY";
-    if (score >= 0.7) return "HARMONY";
-    if (score >= 0.4) return "TENSION";
-    if (score >= 0.2) return "CONFLICT";
-    return "CHAOS";
-  }
+    // 日本語の重要なキーワードを抽出する簡易的な方法
+    const keywords = [];
 
-  generateEstimatedEvaluation(score) {
-    return {
-      functional_efficiency: { score: score * 0.9, description: "推定効率性" },
-      growth_potential: { score: score * 1.1, description: "推定成長可能性" },
-      stress_resilience: { score: score, description: "推定ストレス耐性" },
-      creativity: { score: score * 0.8, description: "推定創造性" },
-      integration_challenge: { score: score, description: "推定統合難易度" },
-    };
-  }
+    // 八卦関連のキーワード
+    const trigramKeywords = ["乾", "兌", "離", "震", "巽", "坎", "艮", "坤"];
+    trigramKeywords.forEach((trigram) => {
+      if (text.includes(trigram)) {
+        keywords.push(trigram);
+      }
+    });
 
-  generateEstimatedAdvice(type, score) {
-    const adviceMap = {
-      SYNERGY: {
-        strengths: ["高い協調性"],
-        challenges: ["過度の安定"],
-        recommendations: ["新しい挑戦を取り入れる"],
-      },
-      HARMONY: {
-        strengths: ["バランス"],
-        challenges: ["変化への対応"],
-        recommendations: ["柔軟性を保つ"],
-      },
-      TENSION: {
-        strengths: ["創造的緊張"],
-        challenges: ["葛藤管理"],
-        recommendations: ["対話を重視する"],
-      },
-      CONFLICT: {
-        strengths: ["多様性"],
-        challenges: ["対立解決"],
-        recommendations: ["共通目標を設定する"],
-      },
-      CHAOS: {
-        strengths: ["変革力"],
-        challenges: ["安定性"],
-        recommendations: ["構造化を図る"],
-      },
-    };
-
-    return adviceMap[type] || adviceMap["TENSION"];
-  }
-
-  calculateBalance(scores) {
-    const max = Math.max(...scores);
-    const min = Math.min(...scores);
-    return 1 - (max - min);
-  }
-
-  identifyDominantPattern(compatibilities) {
-    const types = compatibilities.map((c) => c.type);
-    const typeCounts = {};
-    types.forEach((type) => (typeCounts[type] = (typeCounts[type] || 0) + 1));
-
-    return Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0][0];
-  }
-
-  generateIntegrationAdvice(
-    engineInterface,
-    engineSafeMode,
-    interfaceSafeMode
-  ) {
-    return [
-      `エンジン-インターフェース: ${engineInterface.type}パターンを活用`,
-      `エンジン-セーフモード: ${engineSafeMode.type}パターンに注意`,
-      `インターフェース-セーフモード: ${interfaceSafeMode.type}バランスを保つ`,
+    // 8次元関連のキーワード
+    const dimensionKeywords = [
+      "創造性",
+      "調和性",
+      "表現性",
+      "行動性",
+      "適応性",
+      "探求性",
+      "安定性",
+      "受容性",
     ];
-  }
+    dimensionKeywords.forEach((dimension) => {
+      if (text.includes(dimension)) {
+        keywords.push(dimension);
+      }
+    });
 
-  identifyRiskFactors(compatibilities) {
-    return compatibilities
-      .filter((c) => c.overallScore < 0.4)
-      .map((c) => `${c.metadata.dataSource}: 低相性リスク`);
-  }
+    // 感情・行動関連のキーワード
+    const behaviorKeywords = [
+      "リーダーシップ",
+      "協調",
+      "創造",
+      "安定",
+      "変化",
+      "探求",
+      "表現",
+      "行動",
+      "受容",
+      "調和",
+      "適応",
+      "革新",
+    ];
+    behaviorKeywords.forEach((behavior) => {
+      if (text.includes(behavior)) {
+        keywords.push(behavior);
+      }
+    });
 
-  identifyStrengths(compatibilities) {
-    return compatibilities
-      .filter((c) => c.overallScore > 0.7)
-      .map((c) => `${c.metadata.dataSource}: 高相性ポテンシャル`);
-  }
-
-  delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return [...new Set(keywords)]; // 重複除去
   }
 
   /**
-   * キャッシュクリア
+   * 生成されたマップを取得
    */
-  clearCache() {
-    this.cache.clear();
-    this.validationCache.clear();
-    console.log("🗑️ Compatibility data cache cleared");
+  getKeywordMap() {
+    return this.keywordMap;
+  }
+
+  getLineKeywordMap() {
+    return this.lineKeywordMap;
   }
 
   /**
-   * 統計情報取得
+   * データが読み込み済みかチェック
+   */
+  isDataLoaded() {
+    return this.isLoaded;
+  }
+
+  /**
+   * 統計情報を取得
    */
   getStats() {
     return {
-      cacheSize: this.cache.size,
-      loadedFiles: this.loadedFiles.size,
-      validationCacheSize: this.validationCache.size,
-      loadingInProgress: this.loadingPromises.size,
+      keywordMapSize: Object.keys(this.keywordMap).length,
+      lineKeywordMapSize: Object.keys(this.lineKeywordMap).length,
+      isLoaded: this.isLoaded,
+      totalKeywords:
+        Object.keys(this.keywordMap).length +
+        Object.keys(this.lineKeywordMap).length,
     };
   }
 }
 
-// CompatibilityDataLoader クラスはグローバルスコープで利用可能
-// 使用例: const loader = new CompatibilityDataLoader();
+// グローバルに公開
+window.CompatibilityDataLoader = CompatibilityDataLoader;

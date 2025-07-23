@@ -14,7 +14,7 @@
  * @enum {string}
  * @readonly
  */
-export const CompatibilityType = {
+const CompatibilityType = {
     SYNERGY: 'SYNERGY',     // 非常に生産的な相乗効果
     HARMONY: 'HARMONY',     // 安定した調和
     TENSION: 'TENSION',     // 成長の可能性を秘めた緊張関係

@@ -893,31 +893,40 @@ class DataManager {
       }
 
       const hexagramsData = this.data.hexagrams || {};
-      
+
       // hexagramsデータが配列かオブジェクトかを判定し、常に配列を返す
       let result;
       if (Array.isArray(hexagramsData)) {
         result = hexagramsData;
-        console.log(`🔍 [DataManager] hexagramsデータは配列形式 - ${result.length}件`);
-      } else if (typeof hexagramsData === 'object' && hexagramsData !== null) {
+        console.log(
+          `🔍 [DataManager] hexagramsデータは配列形式 - ${result.length}件`
+        );
+      } else if (typeof hexagramsData === "object" && hexagramsData !== null) {
         // オブジェクトの場合は配列に変換
         result = Object.values(hexagramsData);
-        console.log(`🔍 [DataManager] hexagramsデータをオブジェクト形式から配列に変換 - ${result.length}件`);
+        console.log(
+          `🔍 [DataManager] hexagramsデータをオブジェクト形式から配列に変換 - ${result.length}件`
+        );
       } else {
-        console.warn(`⚠️ [DataManager] hexagramsデータが予期しない形式:`, typeof hexagramsData);
+        console.warn(
+          `⚠️ [DataManager] hexagramsデータが予期しない形式:`,
+          typeof hexagramsData
+        );
         result = [];
       }
-      
+
       // 結果の検証
       if (!Array.isArray(result)) {
         const errorMsg = "hexagramsデータを配列に変換できませんでした";
         console.error(`❌ [DataManager] ${errorMsg}`);
         throw new Error(errorMsg);
       }
-      
-      console.log(`✅ [DataManager] getAllHexagramData完了 - ${result.length}件の配列を返却`);
+
+      console.log(
+        `✅ [DataManager] getAllHexagramData完了 - ${result.length}件の配列を返却`
+      );
       console.log(`🔍 [DataManager] サンプルデータ:`, result[0]);
-      
+
       return result;
     } catch (error) {
       console.error(`❌ [DataManager] getAllHexagramDataエラー:`, error);
@@ -1047,6 +1056,44 @@ class DataManager {
     return this.data.line_keyword_map || {};
   }
 
+  /**
+   * 互換性データを動的に読み込み、keyword_mapとline_keyword_mapを更新
+   */
+  async loadCompatibilityData() {
+    try {
+      console.log("🔄 [DataManager] 互換性データの動的読み込み開始");
+
+      if (typeof CompatibilityDataLoader === "undefined") {
+        console.error(
+          "❌ [DataManager] CompatibilityDataLoader が利用できません"
+        );
+        return false;
+      }
+
+      const loader = new CompatibilityDataLoader();
+      const compatibilityData = await loader.loadCompatibilityData();
+
+      // データを更新
+      this.data.keyword_map = compatibilityData.keyword_map;
+      this.data.line_keyword_map = compatibilityData.line_keyword_map;
+
+      console.log("✅ [DataManager] 互換性データの動的読み込み完了");
+      console.log(
+        `📊 keyword_map: ${Object.keys(this.data.keyword_map).length}件`
+      );
+      console.log(
+        `📊 line_keyword_map: ${
+          Object.keys(this.data.line_keyword_map).length
+        }件`
+      );
+
+      return true;
+    } catch (error) {
+      console.error("❌ [DataManager] 互換性データ読み込みエラー:", error);
+      return false;
+    }
+  }
+
   // データ統計情報を取得するメソッド（不足していたメソッドを追加）
   getDataStats() {
     try {
@@ -1055,7 +1102,7 @@ class DataManager {
       if (!this.loaded) {
         const errorMsg = "DataManagerが初期化されていません";
         this.logMessage("error", "getDataStats", errorMsg);
-        
+
         // 未初期化でも基本的な統計情報を返す
         return {
           loaded: false,
@@ -1080,8 +1127,10 @@ class DataManager {
           },
           globalDataAvailability: {
             HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
-            WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined",
-            SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
+            WORLDVIEW_QUESTIONS:
+              typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+            SCENARIO_QUESTIONS:
+              typeof window.SCENARIO_QUESTIONS !== "undefined",
             H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
             BIBLE_DATA: typeof window.BIBLE_DATA !== "undefined",
           },
@@ -1092,7 +1141,7 @@ class DataManager {
       if (!this.data) {
         const errorMsg = "データオブジェクトが存在しません";
         this.logMessage("error", "getDataStats", errorMsg);
-        
+
         // データオブジェクトが存在しない場合でも基本的な統計情報を返す
         return {
           loaded: this.loaded,
@@ -1117,8 +1166,10 @@ class DataManager {
           },
           globalDataAvailability: {
             HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
-            WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined",
-            SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
+            WORLDVIEW_QUESTIONS:
+              typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+            SCENARIO_QUESTIONS:
+              typeof window.SCENARIO_QUESTIONS !== "undefined",
             H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
             BIBLE_DATA: typeof window.BIBLE_DATA !== "undefined",
           },
@@ -1232,8 +1283,8 @@ class DataManager {
         console.error("❌ [DataManager] 卦データが配列ではありません");
         return null;
       }
-      
-      const result = hexagrams.find(h => h && h.hexagram_id === hexagramId);
+
+      const result = hexagrams.find((h) => h && h.hexagram_id === hexagramId);
 
       console.log(
         `✅ [DataManager] findHexagramById完了 - ID: ${hexagramId}, found: ${!!result}`

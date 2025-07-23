@@ -1,4 +1,4 @@
-import { CompatibilityType } from './compatibility_definition.js';
+// CompatibilityTypeはcompatibility_definition.jsで定義される
 
 // 64x64の相性マトリックスを生成する
 function generateCompatibilityMatrix() {

@@ -102,6 +102,8 @@
 
     <!-- 4. コアクラス（基底クラス後に読み込み） -->
     <script src="js/core/PerformanceMonitor.js"></script>
+    <script src="js/core/MimeTypeErrorHandler.js"></script>
+    <script src="js/core/ServerConfigurationDetector.js"></script>
     <script src="js/core/ScriptPathValidator.js"></script>
     <script src="js/core/ErrorDetectionReporter.js"></script>
     <script src="js/core/DataManager.js"></script>
@@ -310,16 +312,26 @@
             );
           }
 
-          // ScriptPathValidator の初期化
+          // ScriptPathValidator の初期化 (拡張版)
           if (typeof ScriptPathValidator !== "undefined") {
+            // 開発モード判定
+            const isDevelopmentMode = location.hostname === 'localhost' || 
+                                    location.hostname === '127.0.0.1' ||
+                                    location.protocol === 'file:';
+            
             window.scriptLoadingStatus.pathValidator = new ScriptPathValidator({
               baseUrl:
                 location.origin + location.pathname.replace(/\/[^\/]*$/, ""),
               timeout: 5000,
               strictMode: false, // 開発環境では緩い設定
+              developmentMode: isDevelopmentMode,
+              enableGracefulDegradation: true,
+              enableErrorGrouping: true,
+              maxConcurrentValidations: 5
             });
             console.log(
-              "✅ [ErrorSystems] ScriptPathValidator を初期化しました"
+              "✅ [ErrorSystems] Enhanced ScriptPathValidator を初期化しました",
+              { developmentMode: isDevelopmentMode }
             );
           } else {
             console.warn(
