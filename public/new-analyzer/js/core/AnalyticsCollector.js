@@ -213,10 +213,16 @@ class AnalyticsCollector {
     trackError(error, context = {}) {
         if (!this.options.enableErrorTracking) return;
         
+        // errorがnullまたはundefinedの場合のガード節
+        if (!error) {
+            console.warn('AnalyticsCollector.trackError: error is null or undefined');
+            return;
+        }
+        
         this.trackEvent('error', {
-            message: error.message,
-            stack: error.stack,
-            name: error.name,
+            message: error.message || 'Unknown error',
+            stack: error.stack || 'No stack trace available',
+            name: error.name || 'UnknownError',
             url: window.location.href,
             lineNumber: context.lineNumber,
             columnNumber: context.columnNumber,
@@ -368,7 +374,9 @@ class AnalyticsCollector {
     setupErrorTracking() {
         // JavaScript エラー
         window.addEventListener('error', (event) => {
-            this.trackError(event.error, {
+            // event.errorがnullの場合、messageから疑似エラーオブジェクトを作成
+            const error = event.error || new Error(event.message || 'Unknown JavaScript error');
+            this.trackError(error, {
                 filename: event.filename,
                 lineNumber: event.lineno,
                 columnNumber: event.colno
@@ -377,7 +385,11 @@ class AnalyticsCollector {
         
         // Promise 拒否
         window.addEventListener('unhandledrejection', (event) => {
-            this.trackError(new Error(event.reason), {
+            // event.reasonがErrorオブジェクトでない場合、新しいErrorオブジェクトを作成
+            const error = event.reason instanceof Error ? 
+                event.reason : 
+                new Error(String(event.reason || 'Unknown promise rejection'));
+            this.trackError(error, {
                 type: 'unhandled_promise_rejection'
             });
         });

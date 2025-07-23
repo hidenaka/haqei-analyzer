@@ -673,6 +673,21 @@ class DataManager {
         `データ読み込み完了 - 総項目数: ${totalLoadedItems}`
       );
 
+      // 🔧 互換性データの読み込みを追加
+      try {
+        this.logMessage("info", "loadData", "互換性データの読み込み開始");
+        await this.loadCompatibilityData();
+        this.logMessage("info", "loadData", "互換性データの読み込み完了");
+      } catch (compatibilityError) {
+        this.logMessage(
+          "warn",
+          "loadData",
+          "互換性データの読み込みに失敗しましたが、処理を続行します",
+          compatibilityError
+        );
+        // 互換性データの読み込みに失敗してもメインの処理は続行
+      }
+
       // 警告レベルの確認
       const warnings = this.getLoadingLogs().warnings;
       if (warnings.length > 0) {
@@ -1550,6 +1565,82 @@ class DataManager {
   // Helper method to get specific data safely
   getGlobal(key) {
     return typeof window !== "undefined" && window[key] ? window[key] : null;
+  }
+
+  /**
+   * 指定されたhexagramIdの詳細情報を取得
+   * @param {number} hexagramId 
+   * @returns {Object|null} hexagram詳細データ
+   */
+  getHexagramDetails(hexagramId) {
+    try {
+      if (!this.loaded) {
+        console.warn('DataManagerが初期化されていません');
+        return null;
+      }
+
+      if (!hexagramId || hexagramId < 1 || hexagramId > 64) {
+        console.warn(`無効なhexagramId: ${hexagramId}`);
+        return null;
+      }
+
+      // まず、グローバル変数の存在を確認
+      let hexagramDetails = null;
+      
+      // 複数の方法でHEXAGRAM_DETAILSにアクセスを試行
+      if (typeof HEXAGRAM_DETAILS !== 'undefined') {
+        hexagramDetails = HEXAGRAM_DETAILS;
+      } else if (typeof window !== 'undefined' && window.HEXAGRAM_DETAILS) {
+        hexagramDetails = window.HEXAGRAM_DETAILS;
+      } else if (this.data && this.data.hexagram_details) {
+        hexagramDetails = this.data.hexagram_details;
+      }
+
+      if (!hexagramDetails) {
+        console.warn('HEXAGRAM_DETAILSが見つかりません');
+        // フォールバック: 基本的な情報のみ返す
+        return {
+          name_jp: `八卦 ${hexagramId}`,
+          catchphrase: '詳細情報を読み込み中...',
+          description: 'データが利用できません',
+          potential_strengths: ['創造性と行動力', 'リーダーシップ', '問題解決能力'],
+          potential_weaknesses: ['完璧主義', 'ストレス管理', '他者との協調']
+        };
+      }
+
+      if (hexagramDetails[hexagramId]) {
+        const details = hexagramDetails[hexagramId];
+        
+        // engineプロパティから強みと課題を取得
+        return {
+          name_jp: details.name_jp || `八卦 ${hexagramId}`,
+          catchphrase: details.catchphrase || '詳細情報を読み込み中...',
+          description: details.description || 'データが利用できません',
+          potential_strengths: details.engine?.potential_strengths || ['創造性と行動力', 'リーダーシップ', '問題解決能力'],
+          potential_weaknesses: details.engine?.potential_weaknesses || ['完璧主義', 'ストレス管理', '他者との協調']
+        };
+      }
+
+      console.warn(`hexagramId ${hexagramId} の詳細情報が見つかりません`);
+      // フォールバック情報を返す
+      return {
+        name_jp: `八卦 ${hexagramId}`,
+        catchphrase: '詳細情報を読み込み中...',
+        description: 'データが利用できません',
+        potential_strengths: ['創造性と行動力', 'リーダーシップ', '問題解決能力'],
+        potential_weaknesses: ['完璧主義', 'ストレス管理', '他者との協調']
+      };
+    } catch (error) {
+      console.error('getHexagramDetailsでエラー:', error);
+      // エラー時のフォールバック
+      return {
+        name_jp: `八卦 ${hexagramId}`,
+        catchphrase: 'エラーが発生しました',
+        description: 'データの取得に失敗しました',
+        potential_strengths: ['基本的な能力', '適応力', '学習能力'],
+        potential_weaknesses: ['データ不足', '情報不足', '詳細不明']
+      };
+    }
   }
 }
 

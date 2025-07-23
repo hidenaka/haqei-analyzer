@@ -152,22 +152,30 @@ class TripleOSEngine extends DiagnosisEngine {
       }
       // OS候補分析
       const vectorsData = this.dataManager.getVectors();
-      console.log("📊 vectorsData:", vectorsData ? Object.keys(vectorsData).length : 'null', "hexagrams");
-      
+      console.log(
+        "📊 vectorsData:",
+        vectorsData ? Object.keys(vectorsData).length : "null",
+        "hexagrams"
+      );
+
       if (!vectorsData || Object.keys(vectorsData).length === 0) {
         console.error("❌ vectorsData is empty!");
         throw new Error("Vector data not available");
       }
-      
+
       const candidates = this.calculator.analyzeOSCandidates(
         userVector,
         vectorsData
       );
-      console.log("📊 candidates:", candidates ? candidates.length : 'null', "found");
+      console.log(
+        "📊 candidates:",
+        candidates ? candidates.length : "null",
+        "found"
+      );
       if (candidates && candidates.length > 0) {
         console.log("📊 top candidate:", candidates[0]);
       }
-      
+
       if (!candidates || candidates.length === 0) {
         throw new Error("No OS candidates found");
       }
@@ -381,8 +389,8 @@ class TripleOSEngine extends DiagnosisEngine {
         lineKeywordMap ? Object.keys(lineKeywordMap).slice(0, 10) : []
       );
 
-      // キーワードマッチング（keyword_map使用）
-      const matchingResults = await this.performKeywordMatching(
+      // 爻キーワードマッチング（line_keyword_map使用）
+      const matchingResults = await this.performLineKeywordMatching(
         innerChoices,
         "safemode"
       );
@@ -731,8 +739,14 @@ class TripleOSEngine extends DiagnosisEngine {
     }
 
     console.log("🔍 DEBUG: LineKeywordMap available, checking tag matches...");
-    console.log("🔍 DEBUG: LineKeywordMap keys count:", Object.keys(lineKeywordMap).length);
-    console.log("🔍 DEBUG: LineKeywordMap keys sample:", Object.keys(lineKeywordMap).slice(0, 10));
+    console.log(
+      "🔍 DEBUG: LineKeywordMap keys count:",
+      Object.keys(lineKeywordMap).length
+    );
+    console.log(
+      "🔍 DEBUG: LineKeywordMap keys sample:",
+      Object.keys(lineKeywordMap).slice(0, 10)
+    );
 
     const scores = {};
     const matches = {};
@@ -761,8 +775,10 @@ class TripleOSEngine extends DiagnosisEngine {
             totalMatches++;
 
             lines.forEach((hexagramId) => {
-              console.log(`🔍 DEBUG: Direct hexagram_id for tag "${tag}": ${hexagramId}`);
-              
+              console.log(
+                `🔍 DEBUG: Direct hexagram_id for tag "${tag}": ${hexagramId}`
+              );
+
               if (!scores[hexagramId]) {
                 scores[hexagramId] = 0;
                 matches[hexagramId] = [];

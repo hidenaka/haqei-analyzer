@@ -11,6 +11,7 @@ class TripleOSResultsView extends BaseComponent {
     this.analysisResult = options.analysisResult;
     this.insights = options.insights;
     this.compatibilityLoader = options.compatibilityLoader;
+    this.dataManager = options.dataManager;
     this.compatibilityAnalysisData = null;
 
     if (this.compatibilityLoader) {
@@ -27,6 +28,7 @@ class TripleOSResultsView extends BaseComponent {
     this.imageExporter = null;
     this.historyManager = null;
     this.analyticsCollector = null;
+    this.radarChart = null; // Chart.jsインスタンスを保存
     
     // 初期化処理
     this.initializeShareManager();
@@ -78,202 +80,217 @@ class TripleOSResultsView extends BaseComponent {
       return;
     }
 
-    // ステップA: まず、分析結果のHTML全体を生成します。
-    // (この時点では、まだボタンへのイベント設定は行いません)
-    if (this.options.enhancedMode) {
-      this.renderEnhanced();
-    } else {
-      this.renderBasic();
-    }
+    const { engineOS, interfaceOS, safeModeOS } = this.analysisResult;
+    const archetypeTitle = engineOS && engineOS.hexagramInfo ? engineOS.hexagramInfo.catchphrase || "あなたの原型" : "あなたの原型";
+    const archetypeCatchphrase = "あなたの分析結果の要約がここに表示されます。"; // これは後でInsightsから取得
 
-    console.log("✅ [TripleOSResultsView] Main analysis HTML has been rendered to the DOM.");
+    const html = `
+    <div class="results-view-final">
 
-    // ステップB: HTMLが配置された後で、イベントを結びつける関数を呼び出します。
+        <section class="summary-hero">
+            <div class="hero-text">
+                <h1 class="archetype-title">${engineOS && engineOS.osName ? engineOS.osName : '不明'}の人</h1>
+                <p class="archetype-catchphrase">${archetypeTitle}</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="profile-radar-chart"></canvas>
+            </div>
+        </section>
+
+        <section class="os-cards-section">
+            <h2 class="section-title">あなたの3層人格OS</h2>
+            <div class="os-cards-container">
+                
+                <div class="os-card" data-os-type="engine">
+                    <div class="os-card-header">
+                        <div class="os-icon">🔧</div>
+                        <div class="os-label-group">
+                            <h3>エンジンOS</h3>
+                            <p>核となる価値観と動機</p>
+                        </div>
+                        <div class="os-score-group">
+                            <div class="os-name">${engineOS && engineOS.osName ? engineOS.osName : '不明'}</div>
+                            <div class="os-score">${engineOS && engineOS.strength ? Math.round(engineOS.strength * 100) : 0}%</div>
+                        </div>
+                    </div>
+                    <div class="os-card-body">
+                        ${this.generateOSCardBody(engineOS, 'engine')}
+                    </div>
+                </div>
+
+                <div class="os-card" data-os-type="interface">
+                    <div class="os-card-header">
+                        <div class="os-icon">🖥️</div>
+                        <div class="os-label-group">
+                            <h3>インターフェースOS</h3>
+                            <p>外面的な行動パターン</p>
+                        </div>
+                        <div class="os-score-group">
+                            <div class="os-name">${interfaceOS && interfaceOS.osName ? interfaceOS.osName : '不明'}</div>
+                            <div class="os-score">${interfaceOS && interfaceOS.matchScore ? interfaceOS.matchScore : 0}%</div>
+                        </div>
+                    </div>
+                    <div class="os-card-body">
+                        ${this.generateOSCardBody(interfaceOS, 'interface')}
+                    </div>
+                </div>
+
+                <div class="os-card" data-os-type="safemode">
+                    <div class="os-card-header">
+                        <div class="os-icon">🛡️</div>
+                        <div class="os-label-group">
+                            <h3>セーフモードOS</h3>
+                            <p>内面的な防御機制</p>
+                        </div>
+                        <div class="os-score-group">
+                            <div class="os-name">${safeModeOS && safeModeOS.osName ? safeModeOS.osName : '不明'}</div>
+                            <div class="os-score">${safeModeOS && safeModeOS.matchScore ? safeModeOS.matchScore : 0}%</div>
+                        </div>
+                    </div>
+                    <div class="os-card-body">
+                        ${this.generateOSCardBody(safeModeOS, 'safemode')}
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="dynamics-section">
+            <h2 class="section-title">内なる力学</h2>
+            <div class="dynamics-cards-container">
+                <div id="interface-dynamics-card-container"></div>
+                <div id="safemode-dynamics-card-container"></div>
+            </div>
+        </section>
+        
+    </div>
+    `;
+
+    this.container.innerHTML = html;
+    
+    // イベントリスナーをバインド
     this._bindEventListeners();
     
-    // 最後にアニメーションを開始
-    this.startAnimations();
+    // レーダーチャートを描画（少し遅延させる）
+    setTimeout(() => {
+      this.renderRadarChart();
+    }, 100);
+    
+    // 力学データを非同期で読み込み
+    setTimeout(() => {
+      this.loadDynamicsData();
+    }, 200); 
   }
 
-  // 既存の基本表示をレンダリング
+  /**
+   * OSカードのボディ部分のHTMLを生成
+   */
+  generateOSCardBody(osData, osType) {
+    if (!osData || !osData.hexagramId || !this.dataManager) {
+      return '<p>詳細情報を読み込めませんでした。</p>';
+    }
+
+    try {
+      const hexagramDetails = this.dataManager.getHexagramDetails(osData.hexagramId);
+      
+      // hexagramDetailsは常に何らかの値を返すように修正されているので、nullチェックは不要
+      const strengths = hexagramDetails.potential_strengths || [];
+      const weaknesses = hexagramDetails.potential_weaknesses || [];
+
+      const strengthsHtml = strengths.length > 0 ? 
+        strengths.map(s => `<li>${s}</li>`).join('') : 
+        '<li>分析データを準備中です...</li>';
+        
+      const weaknessesHtml = weaknesses.length > 0 ? 
+        weaknesses.map(w => `<li>${w}</li>`).join('') : 
+        '<li>分析データを準備中です...</li>';
+
+      // OSタイプごとに基本的な説明を追加
+      const osTypeDescription = this.getOSTypeDescription(osType);
+
+      return `
+        <div class="os-card-description">
+          <p>${osTypeDescription}</p>
+        </div>
+        <h4>潜在的な強み</h4>
+        <ul>${strengthsHtml}</ul>
+        <h4>成長の課題</h4>
+        <ul>${weaknessesHtml}</ul>
+      `;
+    } catch (error) {
+      console.error('OSカード詳細の生成でエラー:', error);
+      return '<p>詳細情報の生成でエラーが発生しました。</p>';
+    }
+  }
+
+  /**
+   * OSタイプごとの基本説明を取得
+   */
+  getOSTypeDescription(osType) {
+    const descriptions = {
+      engine: 'あなたの核となる価値観と内的動機を表します。これは最も深い層での意思決定の基準となり、人生の方向性を決める重要な要素です。',
+      interface: 'あなたが外の世界とどのように関わり、他者にどのような印象を与えるかを表します。コミュニケーションスタイルや行動パターンの基盤となります。',
+      safemode: 'ストレスや困難な状況で発動する防御機制を表します。危機的状況での反応パターンや、自己保護のメカニズムを理解するのに重要です。'
+    };
+    
+    return descriptions[osType] || 'このOSタイプの詳細な説明を準備中です。';
+  }
+
+  // 新しいストーリー型UI表示をレンダリング
   renderBasic() {
     const { engineOS, interfaceOS, safeModeOS, consistencyScore, integration } =
       this.analysisResult;
 
     this.container.innerHTML = `
       <div class="triple-os-results-container">
-        <div class="results-header">
-          <h1 class="results-title animate-fade-in">🎯 3層人格OS分析結果</h1>
-          <p class="results-subtitle animate-fade-in animate-delay-200">
-            あなたの人格を3つの層で分析しました
-          </p>
-        </div>
-
-        <div class="consistency-score-section animate-fade-in animate-delay-400">
-          <div class="consistency-card">
-            <h3 class="consistency-title">人格一貫性スコア</h3>
-            <div class="consistency-score">
-              <div class="score-circle">
-                <div class="score-value">${Math.round(
-                  consistencyScore.overall * 100
-                )}%</div>
-                <div class="score-label">総合一貫性</div>
-              </div>
-              <div class="score-breakdown">
-                <div class="score-item">
-                  <span class="score-name">エンジン ↔ インターフェース</span>
-                  <span class="score-bar">
-                    <span class="score-fill" style="width: ${
-                      consistencyScore.engineInterface * 100
-                    }%"></span>
-                  </span>
-                  <span class="score-percent">${Math.round(
-                    consistencyScore.engineInterface * 100
-                  )}%</span>
-                </div>
-                <div class="score-item">
-                  <span class="score-name">エンジン ↔ セーフモード</span>
-                  <span class="score-bar">
-                    <span class="score-fill" style="width: ${
-                      consistencyScore.engineSafeMode * 100
-                    }%"></span>
-                  </span>
-                  <span class="score-percent">${Math.round(
-                    consistencyScore.engineSafeMode * 100
-                  )}%</span>
-                </div>
-                <div class="score-item">
-                  <span class="score-name">インターフェース ↔ セーフモード</span>
-                  <span class="score-bar">
-                    <span class="score-fill" style="width: ${
-                      consistencyScore.interfaceSafeMode * 100
-                    }%"></span>
-                  </span>
-                  <span class="score-percent">${Math.round(
-                    consistencyScore.interfaceSafeMode * 100
-                  )}%</span>
-                </div>
-              </div>
-            </div>
+        <!-- フェーズ1: 人格の要約セクション -->
+        <section class="summary-hero">
+          <div class="archetype-title">${this.generateArchetypeTitle()}</div>
+          <div class="archetype-catchphrase">${this.generateArchetypeCatchphrase()}</div>
+          <div class="profile-chart-container">
+            <canvas id="profile-radar-chart" width="400" height="400"></canvas>
           </div>
-        </div>
+        </section>
 
-        <div class="os-cards-section animate-fade-in animate-delay-600">
+        <!-- フェーズ2: インタラクティブな3OSカードセクション -->
+        <section class="os-cards-section">
+          <h2>あなたの3層人格OS</h2>
           <div class="os-cards-grid">
-            ${this.renderOSCard(
-              engineOS,
-              "engine",
-              "🔧",
-              "エンジンOS",
-              "核となる価値観・動機"
-            )}
-            ${this.renderOSCard(
-              interfaceOS,
-              "interface",
-              "🖥️",
-              "インターフェースOS",
-              "外面的な行動パターン"
-            )}
-            ${this.renderOSCard(
-              safeModeOS,
-              "safemode",
-              "🛡️",
-              "セーフモードOS",
-              "内面的な防御機制"
-            )}
+            ${this.generateOSCard('engine', engineOS, '🔧', 'エンジンOS', '内なる核となる価値観と動機')}
+            ${this.generateOSCard('interface', interfaceOS, '🌐', 'インターフェースOS', '外の世界との関わり方')}
+            ${this.generateOSCard('safemode', safeModeOS, '🛡️', 'セーフモードOS', 'ストレス時の防御機制')}
           </div>
-        </div>
+        </section>
 
-        <div class="integration-insights-section animate-fade-in animate-delay-800">
-          <div class="integration-card">
-            <h3 class="integration-title">統合洞察</h3>
-            <div class="integration-content">
-              <div class="insight-summary">
-                <h4>全体的な分析</h4>
-                <p>${integration.summary}</p>
-              </div>
-              
-              <div class="insight-details">
-                <div class="insight-item">
-                  <strong>エンジンOS:</strong> ${integration.engineInsight}
-                </div>
-                <div class="insight-item">
-                  <strong>インターフェースOS:</strong> ${
-                    integration.interfaceInsight
-                  }
-                </div>
-                <div class="insight-item">
-                  <strong>セーフモードOS:</strong> ${
-                    integration.safeModeInsight
-                  }
-                </div>
-                <div class="insight-item">
-                  <strong>一貫性:</strong> ${integration.consistencyInsight}
-                </div>
-              </div>
+        <!-- フェーズ3: 内なる力学（相性分析）セクション -->
+        <section class="dynamics-section">
+          <h2>内なる力学</h2>
+          <div class="dynamics-cards">
+            <div id="interface-dynamics-card-container" class="dynamics-loading">データを読み込み中...</div>
+            <div id="safemode-dynamics-card-container" class="dynamics-loading">データを読み込み中...</div>
+          </div>
+        </section>
 
-              <div class="recommendations">
-                <h4>推奨事項</h4>
-                <ul>
-                  ${integration.recommendations
-                    .map((rec) => `<li>${rec}</li>`)
-                    .join("")}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="results-actions animate-fade-in animate-delay-1000">
-          <button id="explore-more-btn" class="btn btn-lg">
-            📊 詳細分析を見る
-          </button>
-          <button id="generate-report-btn" class="btn btn-secondary">
-            📄 レポート生成
-          </button>
-          <button id="export-pdf-btn" class="btn btn-secondary">
-            📄 PDF出力
-          </button>
-          <button id="export-image-btn" class="btn btn-secondary">
-            🖼️ 画像保存
-          </button>
-          <button id="share-results-btn" class="btn btn-secondary">
-            🔗 結果を共有
-          </button>
-          <button id="retake-test-btn" class="btn btn-secondary">
-            🔄 再診断
-          </button>
-          <button id="show-compatibility-btn" class="btn btn-secondary">
-            🎯 完全相性分析を見る
-          </button>
-        </div>
-        
-        <!-- 完全相性分析セクション -->
-        <div class="full-compatibility-analysis-section" style="margin-top: 2rem; display: none;" id="full-compatibility-analysis">
-          <h3>🎯 完全内的チーム相性分析</h3>
-          
-          <!-- 分析タブ -->
-          <div class="compatibility-tabs">
-            <button class="tab-btn active" data-tab="engine-interface">エンジン ↔ インターフェース</button>
-            <button class="tab-btn" data-tab="engine-safemode">エンジン ↔ セーフモード</button>
-            <button class="tab-btn" data-tab="overview">総合分析</button>
-          </div>
-          
-          <!-- タブコンテンツ -->
-          <div class="tab-content active" id="tab-engine-interface">
-            <div class="loading">エンジン-インターフェース相性を読み込み中...</div>
-          </div>
-          
-          <div class="tab-content" id="tab-engine-safemode">
-            <div class="loading">エンジン-セーフモード相性を読み込み中...</div>
-          </div>
-          
-          <div class="tab-content" id="tab-overview">
-            <div class="loading">総合分析を準備中...</div>
+        <!-- 従来の詳細分析ボタンは残す（要求があれば非表示も可能） -->
+        <div class="legacy-actions" style="display: none;">
+          <div class="compatibility-analysis-section animate-fade-in animate-delay-800">
+            <button class="compatibility-analysis-btn">
+              🎯 完全相性分析を表示
+            </button>
           </div>
         </div>
       </div>
     `;
+    
+    // レンダリング完了後、少し遅延してレーダーチャートを描画
+    setTimeout(() => {
+      this.renderRadarChart();
+    }, 100);
+    
+    // 相性分析データを非同期で読み込み
+    setTimeout(() => {
+      this.loadDynamicsData();
+    }, 200);
   }
 
   // 拡張された表示をレンダリング
@@ -3007,6 +3024,332 @@ ${integration.basicMindset}
   }
 
   /**
+   * フェーズ1: アーキタイプの称号を生成
+   */
+  generateArchetypeTitle() {
+    const { engineOS, interfaceOS, safeModeOS } = this.analysisResult;
+    
+    // 初期実装: engineOSの名前をベースに称号を生成
+    if (engineOS && engineOS.hexagramInfo && engineOS.hexagramInfo.name_jp) {
+      return `${engineOS.hexagramInfo.name_jp} の人`;
+    }
+    
+    return "静かなる革命家"; // フォールバック
+  }
+
+  /**
+   * フェーズ1: アーキタイプのキャッチフレーズを生成
+   */
+  generateArchetypeCatchphrase() {
+    const { engineOS } = this.analysisResult;
+    
+    // 初期実装: engineOSのキャッチフレーズを使用
+    if (engineOS && engineOS.catchphrase) {
+      return engineOS.catchphrase;
+    }
+    
+    return "内なる情熱と、冷静な分析力で世界を再構築する。"; // フォールバック
+  }
+
+  /**
+   * フェーズ1: レーダーチャートを描画
+   */
+  renderRadarChart() {
+    const canvas = document.getElementById('profile-radar-chart');
+    if (!canvas) {
+      console.warn('profile-radar-chart canvas not found');
+      return;
+    }
+
+    // 既存のChartインスタンスを破棄
+    if (this.radarChart) {
+      this.radarChart.destroy();
+      this.radarChart = null;
+    }
+
+    const ctx = canvas.getContext('2d');
+    const vector = this.analysisResult.engineOS.userVector;
+    
+    if (!vector) {
+      console.warn('userVector not found in engineOS');
+      return;
+    }
+
+    // 8次元の各特性に関する説明を定義
+    const dimensionDescriptions = {
+        '創造性(乾)': '新しいアイデアや概念を生み出す能力。',
+        '行動性(震)': '目標に向かって即座に実行に移す力。',
+        '探求性(坎)': '未知の物事や本質を深く掘り下げる力。',
+        '安定性(艮)': '物事を着実に維持し、継続させる能力。',
+        '受容性(坤)': '他者の意見や状況を受け入れ、育む力。',
+        '適応性(巽)': '変化する状況に柔軟に対応する能力。',
+        '表現性(離)': '自己の感情や思考を外部に伝える力。',
+        '調和性(兌)': '他者と協力し、円滑な関係を築く能力。'
+    };
+
+    const labels = Object.keys(dimensionDescriptions);
+    const data = [
+      vector['乾_創造性'] || 0,
+      vector['震_行動性'] || 0,
+      vector['坎_探求性'] || 0,
+      vector['艮_安定性'] || 0,
+      vector['坤_受容性'] || 0,
+      vector['巽_適応性'] || 0,
+      vector['離_表現性'] || 0,
+      vector['兌_調和性'] || 0
+    ];
+
+    this.radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'あなたの8次元プロファイル',
+                data: data,
+                backgroundColor: 'rgba(101, 99, 255, 0.2)',
+                borderColor: 'rgba(101, 99, 255, 1)',
+                pointBackgroundColor: 'rgba(101, 99, 255, 1)',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        // ツールチップの表示をカスタマイズ
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const description = dimensionDescriptions[label] || '';
+                            return `${label}: ${value.toFixed(1)} - ${description}`;
+                        }
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    pointLabels: { color: '#f0f0f0', font: { size: 12 } },
+                    ticks: {
+                        color: '#f0f0f0',
+                        backdropColor: 'rgba(0,0,0,0.5)'
+                    }
+                }
+            }
+        }
+    });
+  }
+
+  /**
+   * フェーズ2: OSカードのHTMLを生成
+   */
+  generateOSCard(osType, osData, icon, title, description) {
+    const osName = osData && osData.hexagramInfo ? osData.hexagramInfo.name_jp : '未設定';
+    const score = osType === 'engine' ? (osData.strength || 0) : 
+                  osType === 'interface' ? (osData.matchScore || 0) : 
+                  (osData.matchScore || 0);
+
+    return `
+      <div class="os-card" data-os-type="${osType}">
+        <div class="os-card-header">
+          <div class="os-icon">${icon}</div>
+          <h3>${title}</h3>
+          <div class="os-name">${osName}</div>
+          <div class="os-score">${Math.round(score)}%</div>
+        </div>
+        <div class="os-card-details">
+          <p class="os-description">${description}</p>
+          <div class="os-detailed-info">
+            ${this.generateOSCardDetails(osType, osData)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * フェーズ2: OSカードの詳細情報を生成
+   */
+  generateOSCardDetails(osType, osData) {
+    if (!osData || !osData.hexagramInfo) {
+      return '<p>詳細情報がありません。</p>';
+    }
+
+    return `
+      <div class="os-details">
+        <h4>${osData.hexagramInfo.name_jp}</h4>
+        <p class="os-catchphrase">${osData.catchphrase || '情報なし'}</p>
+        <div class="os-properties">
+          ${osType === 'engine' ? this.generateEngineDetails(osData) : 
+            osType === 'interface' ? this.generateInterfaceDetails(osData) :
+            this.generateSafeModeDetails(osData)}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * エンジンOSの詳細を生成
+   */
+  generateEngineDetails(engineOS) {
+    const trigrams = engineOS.dominantTrigrams || [];
+    return `
+      <div class="dominant-trigrams">
+        <h5>主要な価値観</h5>
+        <ul>
+          ${trigrams.map(t => `<li>${t.name}: ${Math.round(t.percentage)}%</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  /**
+   * インターフェースOSの詳細を生成
+   */
+  generateInterfaceDetails(interfaceOS) {
+    const matches = interfaceOS.keywordMatches || [];
+    return `
+      <div class="keyword-matches">
+        <h5>関連キーワード</h5>
+        <ul>
+          ${matches.map(match => `<li>${match}</li>`).join('') || '<li>キーワード情報なし</li>'}
+        </ul>
+      </div>
+    `;
+  }
+
+  /**
+   * セーフモードOSの詳細を生成
+   */
+  generateSafeModeDetails(safeModeOS) {
+    const matches = safeModeOS.lineMatches || [];
+    return `
+      <div class="line-matches">
+        <h5>関連パターン</h5>
+        <ul>
+          ${matches.map(match => `<li>${match}</li>`).join('') || '<li>パターン情報なし</li>'}
+        </ul>
+      </div>
+    `;
+  }
+
+  /**
+   * フェーズ3: 相性分析データを非同期で読み込み
+   */
+  async loadDynamicsData() {
+    try {
+      const { engineOS, interfaceOS, safeModeOS } = this.analysisResult;
+      
+      // インターフェース相性分析データ読み込み
+      if (this.compatibilityLoader && engineOS && interfaceOS) {
+        const interfaceData = await this.compatibilityLoader.loadInterfaceData(engineOS.hexagramId);
+        this.renderInterfaceDynamicsCard(interfaceData, interfaceOS);
+      }
+
+      // セーフモード相性分析データ読み込み
+      if (this.compatibilityLoader && engineOS && safeModeOS) {
+        const safemodeData = await this.compatibilityLoader.loadSafemodeData(engineOS.hexagramId);
+        this.renderSafemodeDynamicsCard(safemodeData, safeModeOS);
+      }
+    } catch (error) {
+      console.error('相性分析データの読み込みに失敗:', error);
+      this.renderDynamicsError();
+    }
+  }
+
+  /**
+   * インターフェース相性分析カードを描画
+   */
+  renderInterfaceDynamicsCard(data, interfaceOS) {
+    const container = document.getElementById('interface-dynamics-card-container');
+    if (!container || !data || !interfaceOS) return;
+
+    // 該当する組み合わせを検索
+    const combination = data.internal_team_analysis?.interface_combinations?.find(
+      c => c.interface_id === interfaceOS.hexagramId
+    );
+
+    if (!combination) {
+      container.innerHTML = '<div class="dynamics-error">相性データが見つかりませんでした</div>';
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="dynamics-card">
+        <div class="dynamics-header">
+          <h4>🤝 エンジンOS vs インターフェースOS</h4>
+          <span class="dynamics-type ${combination.type.toLowerCase()}">${combination.type}</span>
+        </div>
+        <div class="dynamics-score">
+          <span>総合スコア</span>
+          <div class="score-bar-container">
+            <div class="score-bar" style="width: ${Math.round(combination.overall_score * 100)}%;"></div>
+          </div>
+          <span>${Math.round(combination.overall_score * 100)}%</span>
+        </div>
+        <div class="dynamics-body">
+          <p class="summary">${combination.summary}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * セーフモード相性分析カードを描画
+   */
+  renderSafemodeDynamicsCard(data, safeModeOS) {
+    const container = document.getElementById('safemode-dynamics-card-container');
+    if (!container || !data || !safeModeOS) return;
+
+    // 該当する組み合わせを検索
+    const combination = data.internal_team_analysis?.safemode_combinations?.find(
+      c => c.safemode_id === safeModeOS.hexagramId
+    );
+
+    if (!combination) {
+      container.innerHTML = '<div class="dynamics-error">相性データが見つかりませんでした</div>';
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="dynamics-card">
+        <div class="dynamics-header">
+          <h4>🛡️ エンジンOS vs セーフモードOS</h4>
+          <span class="dynamics-type ${combination.type.toLowerCase()}">${combination.type}</span>
+        </div>
+        <div class="dynamics-score">
+          <span>総合スコア</span>
+          <div class="score-bar-container">
+            <div class="score-bar" style="width: ${Math.round(combination.overall_score * 100)}%;"></div>
+          </div>
+          <span>${Math.round(combination.overall_score * 100)}%</span>
+        </div>
+        <div class="dynamics-body">
+          <p class="summary">${combination.summary}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * 相性分析エラー表示
+   */
+  renderDynamicsError() {
+    const containers = ['interface-dynamics-card-container', 'safemode-dynamics-card-container'];
+    containers.forEach(containerId => {
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.innerHTML = '<div class="dynamics-error">相性分析データの読み込みに失敗しました</div>';
+      }
+    });
+  }
+
+  /**
    * モーダルイベントリスナーの設定
    */
   setupModalEventListeners() {
@@ -3101,25 +3444,39 @@ ${integration.basicMindset}
    */
   _renderInterfaceHtml(data, interfaceOsId) {
     if (!data || !data.internal_team_analysis || !data.internal_team_analysis.interface_combinations) {
-      return '<div class="analysis-card"><h4>🤝 チーム相性分析</h4><p>データが見つかりません</p></div>';
+      return '<div class="dynamics-card"><p>データが見つかりません</p></div>';
     }
 
     const combination = data.internal_team_analysis.interface_combinations.find(c => c.interface_id === interfaceOsId);
     if (!combination) {
-      return '<div class="analysis-card"><h4>🤝 チーム相性分析</h4><p>該当データなし</p></div>';
+      return '<div class="dynamics-card"><p>該当データなし</p></div>';
     }
 
+    // 5つの評価項目をHTMLに変換
+    const evaluationHtml = Object.entries(combination.evaluation || {}).map(([key, value]) => `
+        <div class="evaluation-item">
+            <div class="evaluation-label">${key.replace(/_/g, ' ')}</div>
+            <div class="evaluation-bar-container">
+                <div class="evaluation-bar" style="width: ${(value.score || 0) * 100}%;"></div>
+            </div>
+            <div class="evaluation-score">${Math.round((value.score || 0) * 100)}%</div>
+            <p class="evaluation-description">${value.description || '説明なし'}</p>
+        </div>
+    `).join('');
+
+    const dynamicsType = combination.type === 'harmony' ? 'harmony' : 'tension';
+
     return `
-      <div class="analysis-card">
-        <h4>🤝 チーム相性分析 (vs ${combination.interface_name})</h4>
-        <p><strong>タイプ: ${combination.type} / 総合スコア: ${Math.round(combination.overall_score * 100)}%</strong></p>
-        <p>${combination.summary}</p>
-        <h5>詳細評価:</h5>
-        <ul>
-          <li>機能効率: ${combination.evaluation?.functional_efficiency?.description || '情報なし'}</li>
-          <li>成長可能性: ${combination.evaluation?.growth_potential?.description || '情報なし'}</li>
-        </ul>
-      </div>
+        <div class="dynamics-card is-expandable">
+            <div class="dynamics-header">
+                <h4>エンジン ⟷ インターフェース</h4>
+                <span class="dynamics-type ${dynamicsType}">${combination.type || 'unknown'}</span>
+            </div>
+            <p class="dynamics-summary">${combination.summary || 'データがありません'}</p>
+            <div class="dynamics-details">
+                ${evaluationHtml}
+            </div>
+        </div>
     `;
   }
 
@@ -3128,27 +3485,43 @@ ${integration.basicMindset}
    */
   _renderSafemodeHtml(data, safemodeOsId) {
     if (!safemodeOsId) {
-      return '<div class="analysis-card"><h4>⚠️ ストレス時行動パターン</h4><p>セーフモードOSが分析不能のため、詳細データはありません</p></div>';
+      return '<div class="dynamics-card"><p>セーフモードOSが分析不能のため、詳細データはありません</p></div>';
     }
 
     if (!data || !data.internal_team_analysis || !data.internal_team_analysis.safemode_combinations) {
-      return '<div class="analysis-card"><h4>⚠️ ストレス時行動パターン</h4><p>データが見つかりません</p></div>';
+      return '<div class="dynamics-card"><p>データが見つかりません</p></div>';
     }
 
     const combination = data.internal_team_analysis.safemode_combinations.find(c => c.safemode_id === safemodeOsId);
     if (!combination) {
-      return '<div class="analysis-card"><h4>⚠️ ストレス時行動パターン</h4><p>該当データなし</p></div>';
+      return '<div class="dynamics-card"><p>該当データなし</p></div>';
     }
 
+    // 5つの評価項目をHTMLに変換
+    const evaluationHtml = Object.entries(combination.evaluation || {}).map(([key, value]) => `
+        <div class="evaluation-item">
+            <div class="evaluation-label">${key.replace(/_/g, ' ')}</div>
+            <div class="evaluation-bar-container">
+                <div class="evaluation-bar" style="width: ${(value.score || 0) * 100}%;"></div>
+            </div>
+            <div class="evaluation-score">${Math.round((value.score || 0) * 100)}%</div>
+            <p class="evaluation-description">${value.description || '説明なし'}</p>
+        </div>
+    `).join('');
+
+    const dynamicsType = combination.type === 'harmony' ? 'harmony' : 'tension';
+
     return `
-      <div class="analysis-card">
-        <h4>⚠️ ストレス時行動パターン (vs ${combination.safemode_name})</h4>
-        <p><strong>タイプ: ${combination.type} / 危険度: ${Math.round(combination.overall_score * 100)}%</strong></p>
-        <p><strong>概要:</strong> ${combination.summary}</p>
-        <h5>トリガーと症状:</h5>
-        <p><strong>警告:</strong> ${combination.advice?.trigger_warning || '情報なし'}</p>
-        <p><strong>兆候:</strong> ${combination.advice?.meltdown_symptoms || '情報なし'}</p>
-      </div>
+        <div class="dynamics-card is-expandable">
+            <div class="dynamics-header">
+                <h4>エンジン ⟷ セーフモード</h4>
+                <span class="dynamics-type ${dynamicsType}">${combination.type || 'unknown'}</span>
+            </div>
+            <p class="dynamics-summary">${combination.summary || 'データがありません'}</p>
+            <div class="dynamics-details">
+                ${evaluationHtml}
+            </div>
+        </div>
     `;
   }
 
@@ -3179,13 +3552,33 @@ ${integration.basicMindset}
 
   /**
    * イベントリスナーを設定する処理を、独立したメソッドに分離
-   * この関数は、renderによってHTMLが画面に配置された後に呼び出されるため、
-   * document.getElementByIdは100%成功します。
+   * 新しいUI用にOSカードのクリック展開機能を追加
    */
   _bindEventListeners() {
     console.log("✅ [TripleOSResultsView] Binding event listeners...");
 
     try {
+        // フェーズ2: OSカードのクリック展開機能
+        const osCards = document.querySelectorAll('.os-card');
+        osCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log("🖱️ OSカードがクリックされました:", card.dataset.osType);
+                this.toggleOSCard(card);
+            });
+        });
+
+        // フェーズ3: 力学カードのクリック展開機能
+        const dynamicsCards = document.querySelectorAll('.dynamics-card.is-expandable');
+        dynamicsCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log("🖱️ 力学カードがクリックされました");
+                this.toggleDynamicsCard(card);
+            });
+        });
+
+        // 従来のモーダル機能も保持（非表示にしているが）
         const showButton = document.getElementById('show-compatibility-btn');
         const modal = document.getElementById('compatibility-modal');
         
@@ -3193,33 +3586,66 @@ ${integration.basicMindset}
             const closeButton = modal.querySelector('.modal-close-button');
             const overlay = modal.querySelector('.modal-overlay');
 
-            // 「詳細分析を見る」ボタンのイベントリスナー
             showButton.addEventListener('click', () => {
                 console.log("🖱️ 詳細分析ボタンがクリックされました。");
                 this.showCompatibilityAnalysis();
             });
 
-            // 閉じるボタンのイベントリスナー
             if (closeButton) {
                 closeButton.addEventListener('click', () => {
                     modal.style.display = 'none';
                 });
             }
 
-            // 背景オーバーレイのイベントリスナー
             if (overlay) {
                 overlay.addEventListener('click', () => {
                     modal.style.display = 'none';
                 });
             }
-            
-            console.log("✅ [TripleOSResultsView] All event listeners have been bound successfully.");
-
-        } else {
-            console.error("❌ [TripleOSResultsView] Could not find essential elements (#show-compatibility-btn or #compatibility-modal) to bind events.");
         }
+            
+        console.log("✅ [TripleOSResultsView] All event listeners have been bound successfully.");
+
     } catch (error) {
         console.error("❌ [TripleOSResultsView] An error occurred while binding event listeners:", error);
     }
+  }
+
+  /**
+   * フェーズ2: OSカードの展開/折りたたみを切り替え
+   */
+  toggleOSCard(card) {
+    const isExpanded = card.classList.contains('is-expanded');
+    
+    // 他のカードを閉じる（アコーディオン式）
+    document.querySelectorAll('.os-card.is-expanded').forEach(otherCard => {
+        if (otherCard !== card) {
+            otherCard.classList.remove('is-expanded');
+        }
+    });
+    
+    // クリックされたカードを切り替え
+    card.classList.toggle('is-expanded');
+    
+    console.log(`OSカード ${card.dataset.osType} を${isExpanded ? '折りたたみ' : '展開'}しました`);
+  }
+
+  /**
+   * フェーズ3: 力学カードの展開/折りたたみを切り替え
+   */
+  toggleDynamicsCard(card) {
+    const isExpanded = card.classList.contains('is-expanded');
+    
+    // 他の力学カードを閉じる（アコーディオン式）
+    document.querySelectorAll('.dynamics-card.is-expanded').forEach(otherCard => {
+        if (otherCard !== card) {
+            otherCard.classList.remove('is-expanded');
+        }
+    });
+    
+    // クリックされたカードを切り替え
+    card.classList.toggle('is-expanded');
+    
+    console.log(`力学カードを${isExpanded ? '折りたたみ' : '展開'}しました`);
   }
 }

@@ -1652,6 +1652,276 @@
     padding: 1rem;
 }
 
+/* =================================== */
+/* 新しいストーリー型UI スタイル */
+/* =================================== */
+
+/* フェーズ1: 人格の要約セクション */
+.summary-hero {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, rgba(101, 99, 255, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    border-radius: 16px;
+    margin-bottom: 3rem;
+}
+
+.archetype-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-500);
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.archetype-catchphrase {
+    font-size: 1.25rem;
+    color: var(--primary-300);
+    margin-bottom: 2rem;
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.profile-chart-container {
+    width: 100%;
+    max-width: 400px;
+    height: 400px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* フェーズ2: OSカードセクション */
+.os-cards-section {
+    margin-bottom: 3rem;
+}
+
+.os-cards-section h2 {
+    text-align: center;
+    font-size: 2rem;
+    color: var(--primary-100);
+    margin-bottom: 2rem;
+}
+
+.os-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.os-card {
+    background: var(--primary-800);
+    border-radius: 12px;
+    border: 1px solid var(--primary-700);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.os-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-500);
+}
+
+.os-card-header {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 1rem;
+}
+
+.os-icon {
+    font-size: 2rem;
+}
+
+.os-card-header h3 {
+    font-size: 1rem;
+    color: var(--primary-300);
+    margin: 0;
+    font-weight: 500;
+}
+
+.os-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-100);
+}
+
+.os-score {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-400);
+}
+
+.os-card-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: var(--primary-900);
+}
+
+.os-card.is-expanded .os-card-details {
+    max-height: 500px;
+    padding: 1.5rem;
+    border-top: 1px solid var(--primary-700);
+}
+
+.os-description {
+    color: var(--primary-300);
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.os-detailed-info h4 {
+    color: var(--accent-400);
+    margin-bottom: 0.5rem;
+}
+
+.os-catchphrase {
+    color: var(--primary-300);
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+.os-properties h5 {
+    color: var(--primary-200);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.os-properties ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.os-properties li {
+    color: var(--primary-300);
+    padding: 0.25rem 0;
+    border-left: 2px solid var(--accent-500);
+    padding-left: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* フェーズ3: 内なる力学セクション */
+.dynamics-section {
+    margin-bottom: 3rem;
+}
+
+.dynamics-section h2 {
+    text-align: center;
+    font-size: 2rem;
+    color: var(--primary-100);
+    margin-bottom: 2rem;
+}
+
+.dynamics-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.dynamics-card {
+    background: var(--primary-800);
+    border-radius: 12px;
+    border: 1px solid var(--primary-700);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.dynamics-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.dynamics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.dynamics-header h4 {
+    color: var(--primary-100);
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.dynamics-type {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.dynamics-type.harmony {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.dynamics-type.conflict {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.dynamics-type.balance {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+}
+
+.dynamics-score {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    color: var(--primary-300);
+}
+
+.score-bar-container {
+    height: 8px;
+    background: var(--primary-700);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.score-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-500), var(--accent-400));
+    transition: width 0.3s ease;
+}
+
+.dynamics-body {
+    color: var(--primary-300);
+    line-height: 1.6;
+}
+
+.dynamics-loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--primary-400);
+    font-style: italic;
+}
+
+.dynamics-error {
+    text-align: center;
+    padding: 2rem;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.legacy-actions {
+    margin-top: 2rem;
+    text-align: center;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     .modal-content {
@@ -1666,5 +1936,60 @@
     
     .analysis-card {
         padding: 1rem;
+    }
+
+    /* 新しいUIのレスポンシブ */
+    .summary-hero {
+        padding: 2rem 1rem;
+    }
+
+    .archetype-title {
+        font-size: 2rem;
+    }
+
+    .archetype-catchphrase {
+        font-size: 1rem;
+    }
+
+    .profile-chart-container {
+        height: 300px;
+        max-width: 300px;
+    }
+
+    .os-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .os-card-header {
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto auto;
+        gap: 0.5rem;
+    }
+
+    .os-name {
+        grid-column: 1 / -1;
+        font-size: 1.1rem;
+    }
+
+    .os-score {
+        grid-column: 1 / -1;
+        text-align: left;
+        font-size: 1.25rem;
+    }
+
+    .dynamics-cards {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .dynamics-card {
+        padding: 1rem;
+    }
+
+    .dynamics-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
     }
 }

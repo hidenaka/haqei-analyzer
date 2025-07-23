@@ -496,7 +496,8 @@ function showResultsView(result, insights) {
     const optionsToPass = {
         analysisResult: result,
         insights: insights,
-        compatibilityLoader: compatibilityLoader 
+        compatibilityLoader: compatibilityLoader,
+        dataManager: app.dataManager
     };
 
     // ★★★ 観測所 ★★★
@@ -507,11 +508,9 @@ function showResultsView(result, insights) {
     app.resultsView = new TripleOSResultsView('results-container', optionsToPass);
     app.resultsView.render();
     
-    const container = document.getElementById('results-container');
-    if (container) {
-        container.style.display = 'block';
-        console.log("✅ [App] 結果ビューのコンテナ表示が完了しました。");
-    }
+    // BaseComponentのshow()メソッドを使用して正しく表示
+    app.resultsView.show();
+    console.log("✅ [App] 結果ビューのコンテナ表示が完了しました。");
 }
 
 // 洞察パネルを表示
