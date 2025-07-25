@@ -1,0 +1,1 @@
+/Users/nakanohideaki/Desktop/haqei-analyzer/docs/code-explanations/by-date/2025-07/20250725_chart-js-error-prevention-fix.md

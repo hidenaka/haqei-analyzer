@@ -38,8 +38,8 @@ body {
   font-family: var(--font-family);
   background: linear-gradient(
     135deg,
-    var(--primary-900) 0%,
-    var(--primary-800) 100%
+    var(--primary-800) 0%,
+    var(--primary-700) 100%
   );
   color: var(--primary-100);
   min-height: 100vh;
@@ -48,29 +48,67 @@ body {
 
 .app-container {
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+  /* flexboxレイアウトを除去して、絶対配置による重ね合わせ表示に変更 */
 }
 
-.screen-container {
+/* 各screen-containerは絶対配置で全画面を覆う */
+.app-container > .screen-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  box-sizing: border-box;
+}
+
+/* 表示状態のscreen-containerは確実に表示される */
+.app-container > .screen-container.visible {
+  display: flex !important;
+  z-index: 100;
+}
+
+/* 一般的なscreen-containerスタイル（app-container外で使用される場合） */
+.screen-container:not(.app-container > .screen-container) {
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
   padding: var(--space-6);
   text-align: center;
-
-  /* 初期状態は非表示 */
   display: none;
+  opacity: 0;
 }
 
 /* Welcome画面のみ初期表示 */
 #welcome-container {
-  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  text-align: center;
+}
+
+/* Results画面の表示確保 */
+#results-container {
+  /* 新しいレイアウトでは app-container > .screen-container ルールが適用される */
+  overflow-y: auto;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: var(--primary-800) !important; /* 背景色を確実に設定 */
+}
+
+/* Results画面の強制表示 - 緊急修正 */
+#results-container.visible {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 1000 !important;
+  background-color: var(--primary-800) !important;
+  color: var(--primary-100) !important;
+  min-height: 100vh !important;
 }
 
 .global-progress {
@@ -205,11 +243,10 @@ body {
   margin: 0 auto;
   padding: var(--space-6);
   min-height: 100vh;
-  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  
+
   /* 初期状態は非表示 */
   display: none;
   opacity: 0;
@@ -217,11 +254,7 @@ body {
   transition: all 0.5s ease;
 }
 
-.screen-container.active {
-  display: flex;
-  opacity: 1;
-  transform: translateY(0);
-}
+/* .active クラスは廃止 - .visible クラスで統一 */
 
 /* =================================== */
 /* ボタンスタイル強化 */
@@ -245,15 +278,16 @@ body {
 }
 
 .btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(255, 255, 255, 0.2), 
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
     transparent
   );
   transition: left 0.5s ease;
@@ -315,14 +349,15 @@ body {
 }
 
 .card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, 
-    rgba(99, 102, 241, 0.05) 0%, 
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.05) 0%,
     rgba(139, 92, 246, 0.05) 100%
   );
   opacity: 0;
@@ -379,45 +414,105 @@ body {
 /* ユーティリティクラス */
 /* =================================== */
 
-.mt-4 { margin-top: 1rem; }
-.mt-6 { margin-top: 1.5rem; }
-.mt-8 { margin-top: 2rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-.mb-8 { margin-bottom: 2rem; }
+.mt-4 {
+  margin-top: 1rem;
+}
+.mt-6 {
+  margin-top: 1.5rem;
+}
+.mt-8 {
+  margin-top: 2rem;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+.mb-8 {
+  margin-bottom: 2rem;
+}
 
-.p-4 { padding: 1rem; }
-.p-6 { padding: 1.5rem; }
-.p-8 { padding: 2rem; }
+.p-4 {
+  padding: 1rem;
+}
+.p-6 {
+  padding: 1.5rem;
+}
+.p-8 {
+  padding: 2rem;
+}
 
-.rounded { border-radius: 0.5rem; }
-.rounded-lg { border-radius: 0.75rem; }
-.rounded-xl { border-radius: 1rem; }
+.rounded {
+  border-radius: 0.5rem;
+}
+.rounded-lg {
+  border-radius: 0.75rem;
+}
+.rounded-xl {
+  border-radius: 1rem;
+}
 
-.shadow-sm { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
-.shadow-md { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-.shadow-lg { box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); }
+.shadow-sm {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.shadow-md {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.shadow-lg {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
 
-.opacity-50 { opacity: 0.5; }
-.opacity-75 { opacity: 0.75; }
+.opacity-50 {
+  opacity: 0.5;
+}
+.opacity-75 {
+  opacity: 0.75;
+}
 
-.cursor-pointer { cursor: pointer; }
-.cursor-not-allowed { cursor: not-allowed; }
+.cursor-pointer {
+  cursor: pointer;
+}
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
 
-.hidden { display: none; }
-.visible { display: block; }
+.hidden {
+  display: none;
+}
+.visible {
+  display: block;
+}
 
-.flex { display: flex; }
-.grid { display: grid; }
-.inline-block { display: inline-block; }
+.flex {
+  display: flex;
+}
+.grid {
+  display: grid;
+}
+.inline-block {
+  display: inline-block;
+}
 
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.justify-between { justify-content: space-between; }
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
 
-.gap-2 { gap: 0.5rem; }
-.gap-4 { gap: 1rem; }
-.gap-6 { gap: 1.5rem; }
+.gap-2 {
+  gap: 0.5rem;
+}
+.gap-4 {
+  gap: 1rem;
+}
+.gap-6 {
+  gap: 1.5rem;
+}
 
 /* =================================== */
 /* ダークモード最適化 */
@@ -439,25 +534,25 @@ body {
   .screen-container {
     padding: 1rem;
   }
-  
+
   .btn {
     padding: 0.875rem 1.5rem;
     font-size: 1rem;
   }
-  
+
   .btn-lg {
     padding: 1rem 2rem;
     font-size: 1.1rem;
   }
-  
+
   .card {
     padding: 1.5rem;
   }
-  
+
   .text-3xl {
     font-size: 1.5rem;
   }
-  
+
   .text-2xl {
     font-size: 1.25rem;
   }
@@ -467,16 +562,16 @@ body {
   .screen-container {
     padding: 0.5rem;
   }
-  
+
   .btn {
     padding: 0.75rem 1.25rem;
     font-size: 0.9rem;
   }
-  
+
   .card {
     padding: 1rem;
   }
-  
+
   .text-3xl {
     font-size: 1.25rem;
   }

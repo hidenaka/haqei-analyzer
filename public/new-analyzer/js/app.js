@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const dataManager = new DataManager();
 
     console.log("🔍 [App.js] DataManager.loadData()実行開始");
-    
+
     // データ読み込みにタイムアウトを設定（15秒）
     const dataLoadingPromise = dataManager.loadData();
     const timeoutPromise = new Promise((_, reject) => {
@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         reject(new Error("データ読み込みがタイムアウトしました（15秒）"));
       }, 15000);
     });
-    
+
     try {
       await Promise.race([dataLoadingPromise, timeoutPromise]);
       console.log("🔍 [App.js] DataManager.loadData()完了");
@@ -81,28 +81,48 @@ document.addEventListener("DOMContentLoaded", async function () {
     // データ統計表示
     const stats = dataManager.getDataStats();
     console.log("📊 [App.js] Data stats:", stats);
-    
+
     // 重要なデータ内容の検証
     console.log("🔍 [App.js] データ内容検証:");
-    console.log("  - HAQEI_DATA:", typeof window.HAQEI_DATA, window.HAQEI_DATA ? Object.keys(window.HAQEI_DATA).length : 0);
-    console.log("  - H64_8D_VECTORS:", typeof window.H64_8D_VECTORS, window.H64_8D_VECTORS ? Object.keys(window.H64_8D_VECTORS).length : 0);
-    console.log("  - WORLDVIEW_QUESTIONS:", typeof window.WORLDVIEW_QUESTIONS, window.WORLDVIEW_QUESTIONS ? window.WORLDVIEW_QUESTIONS.length : 0);
-    console.log("  - SCENARIO_QUESTIONS:", typeof window.SCENARIO_QUESTIONS, window.SCENARIO_QUESTIONS ? window.SCENARIO_QUESTIONS.length : 0);
-    
+    console.log(
+      "  - HAQEI_DATA:",
+      typeof window.HAQEI_DATA,
+      window.HAQEI_DATA ? Object.keys(window.HAQEI_DATA).length : 0
+    );
+    console.log(
+      "  - H64_8D_VECTORS:",
+      typeof window.H64_8D_VECTORS,
+      window.H64_8D_VECTORS ? Object.keys(window.H64_8D_VECTORS).length : 0
+    );
+    console.log(
+      "  - WORLDVIEW_QUESTIONS:",
+      typeof window.WORLDVIEW_QUESTIONS,
+      window.WORLDVIEW_QUESTIONS ? window.WORLDVIEW_QUESTIONS.length : 0
+    );
+    console.log(
+      "  - SCENARIO_QUESTIONS:",
+      typeof window.SCENARIO_QUESTIONS,
+      window.SCENARIO_QUESTIONS ? window.SCENARIO_QUESTIONS.length : 0
+    );
+
     // 詳細データ検証
     if (window.HAQEI_DATA) {
       console.log("🔍 [App.js] HAQEI_DATA詳細:", {
-        hexagrams_master: window.HAQEI_DATA.hexagrams_master ? window.HAQEI_DATA.hexagrams_master.length : 'missing',
-        os_manual: window.HAQEI_DATA.os_manual ? Object.keys(window.HAQEI_DATA.os_manual).length : 'missing'
+        hexagrams_master: window.HAQEI_DATA.hexagrams_master
+          ? window.HAQEI_DATA.hexagrams_master.length
+          : "missing",
+        os_manual: window.HAQEI_DATA.os_manual
+          ? Object.keys(window.HAQEI_DATA.os_manual).length
+          : "missing",
       });
     }
-    
+
     if (window.H64_8D_VECTORS) {
       const vectorKeys = Object.keys(window.H64_8D_VECTORS);
       console.log("🔍 [App.js] H64_8D_VECTORS詳細:", {
         totalHexagrams: vectorKeys.length,
         firstHexagram: vectorKeys[0],
-        sampleVector: window.H64_8D_VECTORS[vectorKeys[0]]
+        sampleVector: window.H64_8D_VECTORS[vectorKeys[0]],
       });
     }
 
@@ -139,8 +159,20 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // WelcomeScreenを表示
     console.log("🔍 [App.js] WelcomeScreen表示開始");
+
+    // まず初期化を実行
+    welcomeScreen.init();
+    console.log("🔍 [App.js] WelcomeScreen.init()完了");
+
     await welcomeScreen.show();
     console.log("✅ [App.js] WelcomeScreen表示完了");
+
+    // デバッグ: コンテナの内容を確認
+    const container = document.getElementById("welcome-container");
+    console.log(
+      "🔍 [App.js] WelcomeContainer内容:",
+      container.innerHTML.length > 0 ? "コンテンツあり" : "空"
+    );
 
     // アプリケーション情報をグローバルに保存
     app = {
@@ -292,17 +324,23 @@ function startRealDiagnosis() {
 
         // 回答データの形式を確認
         let answersToSave, answersToAnalyze;
-        
+
         if (answerData.originalAnswers && answerData.preparedAnswers) {
           // 新しい形式: オブジェクトに両方の回答データが含まれている
           answersToSave = answerData.originalAnswers;
           answersToAnalyze = answerData.preparedAnswers;
-          console.log("📊 Using prepared answers for analysis:", answersToAnalyze);
+          console.log(
+            "📊 Using prepared answers for analysis:",
+            answersToAnalyze
+          );
         } else {
           // 古い形式: 直接回答配列
           answersToSave = answerData;
           answersToAnalyze = answerData;
-          console.log("📊 Using original answers for analysis:", answersToAnalyze);
+          console.log(
+            "📊 Using original answers for analysis:",
+            answersToAnalyze
+          );
         }
 
         // 回答をストレージに保存
@@ -338,65 +376,43 @@ function startRealDiagnosis() {
 // 分析処理に進む
 async function proceedToAnalysis(answers) {
   try {
-    console.log("🔬 Proceeding to analysis with answers:", answers);
-
-    // セッションステージを更新
+    console.log("🔬 Analysis process starting...");
     app.storageManager.updateSession({ stage: "analysis" });
 
-    // 分析画面を表示
-    showAnalysisView();
-
-    // Questions画面を非表示
     if (app.questionFlow) {
       await app.questionFlow.hide();
     }
 
-    // 実際の分析を実行（TripleOS分析）
-    console.log("🔬 [App] 分析開始 - answers:", answers.length, "個");
-    
-    let result, insights;
-    try {
-      result = await app.engine.analyzeTripleOS(answers);
-      console.log("🔬 [App] 分析結果:", result);
-      
-      if (!result || !result.engineOS) {
-        console.error("❌ [App] 分析結果が不正:", result);
-        throw new Error("分析結果が生成されませんでした");
-      }
-      
-      insights = await app.engine.generateInsights(result);
-      console.log("🔬 [App] 洞察生成完了:", insights);
-      
-    } catch (analysisError) {
-      console.error("❌ [App] 分析処理エラー:", analysisError);
-      
-      // フォールバック結果を生成
-      result = {
-        engineOS: { hexagramId: 1, strength: 50, properties: {} },
-        interfaceOS: { hexagramId: 1, strength: 50, properties: {} },
-        safeModeOS: null,
-        consistencyScore: 0.5
-      };
-      insights = { summary: "分析処理中にエラーが発生しました。", details: [] };
-    }
+    // 1. 分析タスクを関数として定義
+    const analysisTask = async () => {
+      const result = await app.engine.analyzeTripleOS(answers);
+      const insights = await app.engine.generateInsights(result);
+      app.storageManager.saveAnalysisResult(result);
+      app.storageManager.saveInsights(insights);
+      app.storageManager.updateSession({ stage: "results" });
+      return { result, insights }; // 結果をオブジェクトで返す
+    };
 
-    console.log("🎯 Analysis completed:", result);
-    console.log("💡 Insights generated:", insights);
-
-    // 結果をストレージに保存
-    app.storageManager.saveAnalysisResult(result);
-    app.storageManager.saveInsights(insights);
-    app.storageManager.updateSession({ stage: "results" });
-
-    // 結果画面を表示
-    showResultsView(result, insights);
-  } catch (error) {
-    console.error("❌ Analysis failed:", error);
-    app.storageManager.updateSession({
-      stage: "error",
-      lastError: error.message,
+    // 2. AnalysisViewに「分析タスク」と「完了後の処理」を渡して生成
+    const analysisView = new AnalysisView("analysis-container", {
+      analysisTask: analysisTask,
+      onComplete: (data) => {
+        console.log(
+          "🎊 Animation and Analysis complete. Transitioning to results."
+        );
+        if (data.error) {
+          alert(data.error); // エラーがあれば表示
+        } else {
+          showResultsView(data.result, data.insights);
+        }
+      },
     });
-    alert("分析処理でエラーが発生しました: " + error.message);
+
+    // 3. AnalysisViewを表示し、プロセスを開始させる
+    showAnalysisView(analysisView);
+  } catch (error) {
+    console.error("❌ A critical error occurred in proceedToAnalysis:", error);
+    alert("分析プロセスを開始できませんでした: " + error.message);
   }
 }
 
@@ -472,45 +488,157 @@ function resumePreviousSession() {
 }
 
 // 分析画面を表示
-function showAnalysisView() {
+// AnalysisViewを表示するためのシンプルなヘルパー関数
+function showAnalysisView(viewInstance) {
   hideAllScreens();
-
-  const analysisView = new AnalysisView("analysis-container", {
-    onAnalysisComplete: function () {
-      console.log("🎊 Analysis view completed");
-    },
-  });
-
-  analysisView.show();
-  app.analysisView = analysisView;
+  app.analysisView = viewInstance;
+  app.analysisView.show(); // ここで非同期の分析とアニメーションが開始される
 }
 
 // 結果画面を表示
-function showResultsView(result, insights) {
-    console.log("✅ [App] 結果ビュー表示プロセスを開始します。");
-    hideAllScreens();
-    
-    const compatibilityLoader = new CompatibilityDataLoader();
+async function showResultsView(result, insights) {
+  console.log("✅ [App] 結果ビュー表示プロセスを開始します。");
+  
+  // 🔧 CRITICAL FIX: analysis-containerを確実に隠す
+  const analysisContainer = document.getElementById("analysis-container");
+  if (analysisContainer) {
+    analysisContainer.style.setProperty('display', 'none', 'important');
+    analysisContainer.classList.remove('visible');
+    analysisContainer.style.opacity = '0';
+    console.log("🔧 [CRITICAL FIX] analysis-container forcibly hidden");
+  }
+  
+  hideAllScreens();
 
-    // これから渡すオプションオブジェクトを定義
-    const optionsToPass = {
-        analysisResult: result,
-        insights: insights,
-        compatibilityLoader: compatibilityLoader,
-        dataManager: app.dataManager
-    };
+  const compatibilityLoader = new CompatibilityDataLoader();
+  const dataManager = app.dataManager;
 
-    // ★★★ 観測所 ★★★
-    console.log("🕵️‍♂️ [TRACE-CHECKPOINT 2] TripleOSResultsViewを生成する直前のオプション内容を検証します。", optionsToPass);
-    console.log(" -> compatibilityLoaderは有効なインスタンスか？:", optionsToPass.compatibilityLoader instanceof CompatibilityDataLoader);
+  const optionsToPass = {
+    analysisResult: result,
+    insights: insights,
+    compatibilityLoader: compatibilityLoader,
+    dataManager: dataManager,
+  };
+
+  console.log(
+    "🕵️‍♂️ [TRACE-CHECKPOINT 2] TripleOSResultsViewを生成します...",
+    optionsToPass
+  );
+
+  try {
+    // インスタンスを生成
+    app.resultsView = new TripleOSResultsView("results-container", optionsToPass);
+
+    // 初期化とレンダリングを実行（非同期処理の完了を待つ）
+    await app.resultsView.init();
     
-    // TripleOSResultsViewのインスタンスを生成
-    app.resultsView = new TripleOSResultsView('results-container', optionsToPass);
-    app.resultsView.render();
+    // コンポーネントを表示
+    await app.resultsView.show();
     
-    // BaseComponentのshow()メソッドを使用して正しく表示
-    app.resultsView.show();
-    console.log("✅ [App] 結果ビューのコンテナ表示が完了しました。");
+    // results-containerにvisibleクラスを確実に追加
+    const resultsContainer = document.getElementById("results-container");
+    if (resultsContainer) {
+      resultsContainer.classList.add("visible");
+      resultsContainer.scrollTop = 0; // スクロール位置をトップにリセット
+      console.log("📺 [App] results-containerにvisibleクラスを追加しました");
+    }
+    
+    console.log("✅ [App] 結果ビューの表示が完了しました。");
+    
+    // 🔧 環境診断システム: ブラウザ表示失敗の原因を特定
+    const container = document.getElementById("results-container");
+    console.log("🚨 [Environmental Diagnostic] Phase 1 - DOM State:", {
+      containerExists: !!container,
+      containerRect: container ? container.getBoundingClientRect() : null,
+      containerChildren: container ? container.children.length : 0,
+      containerHTML: container ? container.innerHTML.substring(0, 100) + '...' : null,
+      computedStyles: container ? {
+        display: window.getComputedStyle(container).display,
+        visibility: window.getComputedStyle(container).visibility,
+        opacity: window.getComputedStyle(container).opacity,
+        position: window.getComputedStyle(container).position,
+        zIndex: window.getComputedStyle(container).zIndex,
+        backgroundColor: window.getComputedStyle(container).backgroundColor,
+        color: window.getComputedStyle(container).color
+      } : null
+    });
+    
+    // 🔧 環境診断システム: Phase 2 - ブラウザ環境チェック
+    console.log("🚨 [Environmental Diagnostic] Phase 2 - Browser Environment:", {
+      windowSize: {width: window.innerWidth, height: window.innerHeight},
+      documentSize: {width: document.documentElement.clientWidth, height: document.documentElement.clientHeight},
+      viewportScale: window.devicePixelRatio || 1,
+      documentVisible: !document.hidden,
+      pageVisibility: document.visibilityState,
+      windowFocused: document.hasFocus ? document.hasFocus() : 'unknown',
+      userAgent: navigator.userAgent.substring(0, 100)
+    });
+    
+    // 🔧 環境診断システム: Phase 3 - 強制視覚確認テスト
+    if (container) {
+      // 原始的な視覚テストを実行
+      const emergencyTestDiv = document.createElement('div');
+      emergencyTestDiv.id = 'emergency-visual-test';
+      emergencyTestDiv.style.cssText = `
+        position: fixed !important;
+        top: 10px !important;
+        left: 10px !important;
+        width: 300px !important;
+        height: 100px !important;
+        background: red !important;
+        color: white !important;
+        font-size: 16px !important;
+        z-index: 99999 !important;
+        border: 3px solid yellow !important;
+        padding: 10px !important;
+        font-family: Arial !important;
+      `;
+      emergencyTestDiv.innerHTML = '🚨 EMERGENCY TEST - 見えていますか？<br>If visible, environmental issue confirmed';
+      document.body.appendChild(emergencyTestDiv);
+      
+      // 3秒後に削除
+      setTimeout(() => {
+        if (document.getElementById('emergency-visual-test')) {
+          document.body.removeChild(emergencyTestDiv);
+        }
+      }, 3000);
+      
+      console.log("🚨 [Environmental Diagnostic] Emergency visual test element created - check if visible on screen");
+      
+      // アラートテスト（ブラウザ応答確認）
+      setTimeout(() => {
+        try {
+          const alertResult = confirm('🚨 環境診断: この確認ダイアログが表示されていますか？\n\nOK: 表示されている\nCancel: 表示されていない');
+          console.log("🚨 [Environmental Diagnostic] Alert test result:", alertResult);
+          if (!alertResult) {
+            console.error("❌ [Environmental Diagnostic] User reports visual display failure - environmental issue confirmed");
+          }
+        } catch (e) {
+          console.error("❌ [Environmental Diagnostic] Alert system failure:", e);
+        }
+      }, 1000);
+    }
+    
+    // 全ての screen-container 要素をチェック
+    const allScreens = document.querySelectorAll('.screen-container');
+    console.log("🚨 [Environmental Diagnostic] Phase 4 - All Screen Containers:", Array.from(allScreens).map(el => ({
+      id: el.id,
+      display: window.getComputedStyle(el).display,
+      visibility: window.getComputedStyle(el).visibility,
+      opacity: window.getComputedStyle(el).opacity,
+      rect: el.getBoundingClientRect(),
+      hasContent: el.children.length > 0,
+      backgroundColor: window.getComputedStyle(el).backgroundColor
+    })));
+  } catch (error) {
+    console.error("❌ [App] 結果ビューの表示中にエラーが発生しました:", error);
+    // フォールバック表示
+    const container = document.getElementById("results-container");
+    if (container) {
+      container.style.display = "block";
+      container.innerHTML = '<div class="error-text">結果の表示中にエラーが発生しました。ページをリロードしてください。</div>';
+    }
+  }
 }
 
 // 洞察パネルを表示
@@ -535,7 +663,7 @@ function showInsightPanel(analysisResult, insights) {
 function hideAllScreens() {
   const screens = [
     "welcome-container",
-    "questions-container",
+    "questions-container", 
     "analysis-container",
     "results-container",
     "insights-container",
@@ -543,7 +671,11 @@ function hideAllScreens() {
   screens.forEach((screenId) => {
     const screen = document.getElementById(screenId);
     if (screen) {
-      screen.style.display = "none";
+      // 🔧 CRITICAL FIX: setProperty with important flagを使用
+      screen.style.setProperty('display', 'none', 'important');
+      screen.style.setProperty('opacity', '0', 'important');
+      screen.classList.remove("visible"); // !importantに対抗するためクラスも削除
+      console.log(`🔧 [hideAllScreens] ${screenId} forcibly hidden`);
     }
   });
 }
@@ -573,45 +705,3 @@ function generateReport(analysisResult, insights) {
 }
 
 // TripleOSレポート生成
-function generateTripleOSReport(analysisResult) {
-  const reportData = {
-    timestamp: new Date().toISOString(),
-    analysisType: "tripleOS",
-    engineOS: {
-      name: analysisResult.engineOS.hexagramInfo.name,
-      hexagramId: analysisResult.engineOS.hexagramId,
-      strength: analysisResult.engineOS.strength,
-      dominantTrigrams: analysisResult.engineOS.dominantTrigrams,
-      userVector: analysisResult.engineOS.userVector,
-    },
-    interfaceOS: {
-      name: analysisResult.interfaceOS.hexagramInfo.name,
-      hexagramId: analysisResult.interfaceOS.hexagramId,
-      matchScore: analysisResult.interfaceOS.matchScore,
-      keywordMatches: analysisResult.interfaceOS.keywordMatches,
-    },
-    safeModeOS: {
-      name: analysisResult.safeModeOS.hexagramInfo.name,
-      hexagramId: analysisResult.safeModeOS.hexagramId,
-      matchScore: analysisResult.safeModeOS.matchScore,
-      lineMatches: analysisResult.safeModeOS.lineMatches,
-    },
-    consistencyScore: analysisResult.consistencyScore,
-    integration: analysisResult.integration,
-    session: app.storageManager.getSession(),
-  };
-
-  const reportJson = JSON.stringify(reportData, null, 2);
-  const blob = new Blob([reportJson], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `haqei_triple_os_${new Date().toISOString().split("T")[0]}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
-  console.log("📊 TripleOS Report generated and downloaded");
-}

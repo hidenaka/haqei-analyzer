@@ -12,7 +12,7 @@ class BaseComponent {
       throw new Error(`Container with id "${containerId}" not found`);
     }
 
-    this.init();
+    // this.init(); // ★★★ 自動実行を削除 - 子クラスが明示的に呼び出すまで待機 ★★★
   }
 
   get defaultOptions() {
@@ -53,13 +53,21 @@ class BaseComponent {
       return;
     }
 
-    // まず表示状態にする
-    this.container.style.display = "flex";
-    this.container.style.opacity = "1";
-    this.container.style.transform = "translateY(0)";
+    // まず表示状態にする - CSSの詳細度を上回るため!importantを使用
+    if (this.container.classList.contains('screen-container')) {
+      this.container.style.setProperty('display', 'block', 'important');
+    } else {
+      this.container.style.setProperty('display', 'flex', 'important');
+    }
+    this.container.style.setProperty('opacity', '1', 'important');
+    this.container.style.setProperty('transform', 'translateY(0)', 'important');
+    this.container.style.setProperty('visibility', 'visible', 'important');
+    
+    // visibleクラスを追加してCSS側でも制御
+    this.container.classList.add('visible');
 
     this.isVisible = true;
-    console.log(`✅ Component shown: ${this.containerId}`);
+    console.log(`✅ Component shown: ${this.containerId} - forced with !important and .visible class`);
 
     this.onShow();
   }
@@ -73,9 +81,10 @@ class BaseComponent {
       return;
     }
 
-    // 非表示にする
-    this.container.style.display = "none";
-    this.container.style.opacity = "0";
+    // 非表示にする（!important フラグ付きで確実に）
+    this.container.style.setProperty('display', 'none', 'important');
+    this.container.style.setProperty('opacity', '0', 'important');
+    this.container.classList.remove('visible');
 
     this.isVisible = false;
     console.log(`✅ Component hidden: ${this.containerId}`);
