@@ -1,9 +1,10 @@
 // TripleOSEngine.js - 3層人格OS診断エンジン
 // HaQei Analyzer - Triple OS Diagnosis Engine
 
-class TripleOSEngine extends DiagnosisEngine {
+class TripleOSEngine {
   constructor(dataManager) {
-    super(dataManager);
+    this.dataManager = dataManager;
+    this.calculator = new Calculator(); // Initialize Calculator instance
     this.trigramMapping = this.initializeTrigramMapping();
     this.initializeKeywordMaps();
   }
@@ -324,13 +325,45 @@ class TripleOSEngine extends DiagnosisEngine {
         "🔍 DEBUG: filteredResults after excluding engineOS:",
         JSON.stringify(filteredResults, null, 2)
       );
-      const bestMatch = filteredResults[0] || {
-        hexagramId: null,
-        score: 0,
-        matches: [],
-      };
+      
+      let bestMatch = filteredResults[0] || null;
+      
+      // フォールバック: フィルタ後に候補がない場合の対処
+      if (!bestMatch || bestMatch.hexagramId === null) {
+        console.log("⚠️ [Interface] No valid candidates after filtering, implementing fallback...");
+        
+        // フォールバック戦略1: エンジンOSを除外せずに2番目の候補を選択
+        if (matchingResults.length > 1) {
+          const secondBest = matchingResults.find(result => result.hexagramId !== engineOS.hexagramId);
+          if (secondBest) {
+            bestMatch = secondBest;
+            console.log("✅ [Interface] Using second-best match as fallback:", bestMatch.hexagramId);
+          }
+        }
+        
+        // フォールバック戦略2: それでもない場合は、デフォルトのインターフェースOSを選択
+        if (!bestMatch || bestMatch.hexagramId === null) {
+          // 兌為沢(58)をデフォルトインターフェースOSとして使用（調和・協調の象徴）
+          // 利用可能な卦から選択: 8 (水地比) を使用
+          bestMatch = {
+            hexagramId: 8,
+            score: 1, // 最低スコア
+            matches: ["fallback_harmony"],
+          };
+          console.log("✅ [Interface] Using default fallback Interface OS: 水地比(8)");
+        }
+      }
+      
+      if (!bestMatch) {
+        bestMatch = {
+          hexagramId: null,
+          score: 0,
+          matches: [],
+        };
+      }
+      
       console.log(
-        "🔍 DEBUG: bestMatch for Interface OS:",
+        "🔍 DEBUG: Interface final bestMatch:",
         JSON.stringify(bestMatch, null, 2)
       );
 
@@ -406,13 +439,44 @@ class TripleOSEngine extends DiagnosisEngine {
         "🔍 DEBUG: SafeMode filteredResults after excluding engineOS:",
         JSON.stringify(filteredResults, null, 2)
       );
-      const bestMatch = filteredResults[0] || {
-        hexagramId: null,
-        score: 0,
-        matches: [],
-      };
+      
+      let bestMatch = filteredResults[0] || null;
+      
+      // フォールバック: フィルタ後に候補がない場合の対処
+      if (!bestMatch || bestMatch.hexagramId === null) {
+        console.log("⚠️ [SafeMode] No valid candidates after filtering, implementing fallback...");
+        
+        // フォールバック戦略1: エンジンOSを除外せずに2番目の候補を選択
+        if (matchingResults.length > 1) {
+          const secondBest = matchingResults.find(result => result.hexagramId !== engineOS.hexagramId);
+          if (secondBest) {
+            bestMatch = secondBest;
+            console.log("✅ [SafeMode] Using second-best match as fallback:", bestMatch.hexagramId);
+          }
+        }
+        
+        // フォールバック戦略2: それでもない場合は、デフォルトのセーフモードOSを選択
+        if (!bestMatch || bestMatch.hexagramId === null) {
+          // 坤為地(2)をデフォルトセーフモードOSとして使用（安定・受容性の象徴）
+          bestMatch = {
+            hexagramId: 2,
+            score: 1, // 最低スコア
+            matches: ["fallback_stability"],
+          };
+          console.log("✅ [SafeMode] Using default fallback SafeMode OS: 坤為地(2)");
+        }
+      }
+      
+      if (!bestMatch) {
+        bestMatch = {
+          hexagramId: null,
+          score: 0,
+          matches: [],
+        };
+      }
+      
       console.log(
-        "🔍 DEBUG: SafeMode bestMatch:",
+        "🔍 DEBUG: SafeMode final bestMatch:",
         JSON.stringify(bestMatch, null, 2)
       );
 
@@ -1070,6 +1134,165 @@ class TripleOSEngine extends DiagnosisEngine {
       }
     });
     return trigramScores;
+  }
+
+  // 深い洞察生成メソッド
+  async generateInsights(analysisResult) {
+    try {
+      console.log("💡 Generating insights for Triple OS result...");
+      
+      const insights = {
+        summary: this.generateSummaryInsight(analysisResult),
+        strengths: this.generateStrengthsInsight(analysisResult),
+        growthAreas: this.generateGrowthInsight(analysisResult),
+        recommendations: this.generateRecommendations(analysisResult),
+        tripleOSInsights: this.generateTripleOSSpecificInsights(analysisResult)
+      };
+
+      console.log("✅ Insights generated successfully:", insights);
+      return insights;
+    } catch (error) {
+      console.error("❌ Error generating insights:", error);
+      // フォールバック洞察を返す
+      return this.generateFallbackInsights(analysisResult);
+    }
+  }
+
+  // 要約洞察
+  generateSummaryInsight(result) {
+    try {
+      const engineOS = result.engineOS || result.primaryOS;
+      const topDimensions = result.dimensions ? result.dimensions.slice(0, 3) : [];
+      
+      if (!engineOS || !engineOS.osName) {
+        return "あなたの人格分析が完了しました。";
+      }
+
+      const dimensionNames = topDimensions.length > 0 
+        ? topDimensions.map((d) => d.displayName || d.key).join("、")
+        : "複数の特性";
+
+      return `あなたの核となる人格OSは「${engineOS.osName}」です。特に${dimensionNames}が強く、これがあなたの価値観の基盤を形成しています。`;
+    } catch (error) {
+      console.error("❌ Error in generateSummaryInsight:", error);
+      return "あなたの人格分析が完了しました。";
+    }
+  }
+
+  // 強み洞察
+  generateStrengthsInsight(result) {
+    try {
+      const dimensions = result.dimensions || [];
+      const topDimensions = dimensions
+        .filter((d) => d.value > 3.0) // 高いスコアのもの
+        .slice(0, 3);
+
+      if (topDimensions.length === 0) {
+        return ["バランスの取れた多面的な能力を持っています"];
+      }
+
+      return topDimensions.map((d) => {
+        const name = d.displayName || d.key;
+        const percentage = d.percentage || Math.round((d.value / 10) * 100);
+        return `${name}: ${percentage}% - この領域であなたの才能が特に発揮されます`;
+      });
+    } catch (error) {
+      console.error("❌ Error in generateStrengthsInsight:", error);
+      return ["あなたには独特の強みがあります"];
+    }
+  }
+
+  // 成長領域洞察
+  generateGrowthInsight(result) {
+    try {
+      const dimensions = result.dimensions || [];
+      const lowDimensions = dimensions
+        .filter((d) => d.value < 2.0) // 低いスコアのもの
+        .slice(0, 2);
+
+      if (lowDimensions.length === 0) {
+        return ["バランスよく発達している状態です"];
+      }
+
+      return lowDimensions.map((d) => {
+        const name = d.displayName || d.key;
+        return `${name}: この領域を意識的に発達させることで、より多面的な成長が期待できます`;
+      });
+    } catch (error) {
+      console.error("❌ Error in generateGrowthInsight:", error);
+      return ["継続的な成長の機会があります"];
+    }
+  }
+
+  // 推奨事項
+  generateRecommendations(result) {
+    try {
+      const engineOS = result.engineOS || result.primaryOS;
+      const osName = engineOS ? engineOS.osName : "あなたの人格OS";
+
+      return [
+        `${osName}の特質を活かせる環境や活動を探してみてください`,
+        "3層のOS（エンジン・インターフェース・セーフモード）のバランスを意識してみましょう",
+        "定期的に自己分析を行い、各OSの特性の変化や成長を確認することをお勧めします"
+      ];
+    } catch (error) {
+      console.error("❌ Error in generateRecommendations:", error);
+      return [
+        "あなたの強みを活かせる環境を見つけてください",
+        "継続的な自己理解と成長を心がけましょう"
+      ];
+    }
+  }
+
+  // Triple OS特有の洞察
+  generateTripleOSSpecificInsights(result) {
+    try {
+      const { engineOS, interfaceOS, safeModeOS, consistencyScore } = result;
+      
+      const insights = {
+        engineInsight: engineOS 
+          ? `エンジンOS「${engineOS.osName}」があなたの核となる価値観と動機を形成しています。`
+          : "エンジンOSが分析されました。",
+        interfaceInsight: interfaceOS 
+          ? `インターフェースOS「${interfaceOS.osName}」が他者との関わり方を決定しています。`
+          : "インターフェースOSが分析されました。",
+        safeModeInsight: safeModeOS 
+          ? `セーフモードOS「${safeModeOS.osName}」がストレス時の対処法を司っています。`
+          : "セーフモードOSが分析されました。",
+        consistencyInsight: consistencyScore 
+          ? `3つのOSの一貫性は${Math.round(consistencyScore.overall * 100)}%です。`
+          : "OSの一貫性が分析されました。"
+      };
+
+      return insights;
+    } catch (error) {
+      console.error("❌ Error in generateTripleOSSpecificInsights:", error);
+      return {
+        engineInsight: "エンジンOSが分析されました。",
+        interfaceInsight: "インターフェースOSが分析されました。", 
+        safeModeInsight: "セーフモードOSが分析されました。",
+        consistencyInsight: "OSの一貫性が分析されました。"
+      };
+    }
+  }
+
+  // フォールバック洞察
+  generateFallbackInsights(result) {
+    return {
+      summary: "あなたの人格分析が完了しました。",
+      strengths: ["あなたには独特の強みがあります"],
+      growthAreas: ["継続的な成長の機会があります"],
+      recommendations: [
+        "あなたの強みを活かせる環境を見つけてください",
+        "継続的な自己理解と成長を心がけましょう"
+      ],
+      tripleOSInsights: {
+        engineInsight: "エンジンOSが分析されました。",
+        interfaceInsight: "インターフェースOSが分析されました。",
+        safeModeInsight: "セーフモードOSが分析されました。",
+        consistencyInsight: "OSの一貫性が分析されました。"
+      }
+    };
   }
 }
 

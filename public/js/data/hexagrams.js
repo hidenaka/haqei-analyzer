@@ -764,8 +764,18 @@ if (typeof module !== "undefined" && module.exports) {
   };
 }
 
-console.log(
-  "✅ Hexagrams data loaded:",
-  Object.keys(hexagrams_master || {}).length,
-  "hexagrams"
-);
+// グローバル変数としてデータを登録
+if (typeof window !== "undefined") {
+  window.HEXAGRAMS_MASTER = hexagrams_master;
+  console.log(
+    "✅ Hexagrams data loaded and set to window:",
+    Object.keys(hexagrams_master || {}).length,
+    "hexagrams"
+  );
+} else {
+  console.log(
+    "✅ Hexagrams data loaded:",
+    Object.keys(hexagrams_master || {}).length,
+    "hexagrams"
+  );
+}

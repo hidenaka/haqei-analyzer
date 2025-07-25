@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Debug Test</title>
+</head>
+<body>
+    <h1>Calculator Debug Test</h1>
+    <div id="results"></div>
+
+    <!-- Load Calculator first -->
+    <script src="public/new-analyzer/js/core/Calculator.js"></script>
+    
+    <!-- Load TripleOSEngine second -->
+    <script src="public/new-analyzer/js/core/TripleOSEngine.js"></script>
+
+    <script>
+        function log(message, type = 'info') {
+            console.log(message);
+            const div = document.createElement('div');
+            div.style.margin = '5px 0';
+            div.style.padding = '5px';
+            div.style.border = '1px solid #ccc';
+            div.style.backgroundColor = type === 'error' ? '#ffebee' : '#e8f5e8';
+            div.textContent = message;
+            document.getElementById('results').appendChild(div);
+        }
+
+        // Test Calculator availability
+        log('Testing Calculator class availability...');
+        if (typeof Calculator !== 'undefined') {
+            log('✅ Calculator class is defined', 'success');
+            
+            try {
+                const calc = new Calculator();
+                log('✅ Calculator instance created successfully', 'success');
+                log(`Calculator instance type: ${typeof calc}`);
+                log(`Calculator.buildUserVector method: ${typeof calc.buildUserVector}`);
+            } catch (error) {
+                log(`❌ Error creating Calculator instance: ${error.message}`, 'error');
+            }
+        } else {
+            log('❌ Calculator class is not defined', 'error');
+        }
+
+        // Test TripleOSEngine availability
+        log('Testing TripleOSEngine class availability...');
+        if (typeof TripleOSEngine !== 'undefined') {
+            log('✅ TripleOSEngine class is defined', 'success');
+            
+            try {
+                // Create a minimal mock DataManager
+                const mockDataManager = {
+                    getVectors: () => ({}),
+                    getAllHexagramData: () => [],
+                    findHexagramById: () => null,
+                    getKeywordMap: () => ({}),
+                    getLineKeywordMap: () => ({})
+                };
+                
+                const engine = new TripleOSEngine(mockDataManager);
+                log('✅ TripleOSEngine instance created successfully', 'success');
+                log(`TripleOSEngine instance type: ${typeof engine}`);
+                log(`TripleOSEngine.calculator: ${typeof engine.calculator}`);
+                
+                if (engine.calculator) {
+                    log(`✅ TripleOSEngine.calculator is available: ${engine.calculator.constructor.name}`, 'success');
+                    log(`TripleOSEngine.calculator.buildUserVector: ${typeof engine.calculator.buildUserVector}`);
+                    
+                    // Test calling buildUserVector with empty array
+                    try {
+                        const result = engine.calculator.buildUserVector([]);
+                        log('✅ buildUserVector called successfully', 'success');
+                        log(`buildUserVector result: ${JSON.stringify(result)}`);
+                    } catch (error) {
+                        log(`❌ Error calling buildUserVector: ${error.message}`, 'error');
+                    }
+                } else {
+                    log('❌ TripleOSEngine.calculator is undefined', 'error');
+                }
+            } catch (error) {
+                log(`❌ Error creating TripleOSEngine instance: ${error.message}`, 'error');
+                log(`❌ Error stack: ${error.stack}`, 'error');
+            }
+        } else {
+            log('❌ TripleOSEngine class is not defined', 'error');
+        }
+
+        log('Test completed.');
+    </script>
+</body>
+</html>

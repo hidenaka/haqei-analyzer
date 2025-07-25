@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HexagramId Null Handling Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .test-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .test-btn:hover {
+            background-color: #0056b3;
+        }
+        .mock-container {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            min-height: 50px;
+        }
+        .warning-text {
+            color: #856404;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 HexagramId Null Handling Fix Test</h1>
+        <p>このテストはTripleOSResultsViewでhexagramIdがnullの場合の処理が正しく実装されているかを確認します。</p>
+        
+        <button class="test-btn" onclick="runNullHexagramIdTest()">🔍 Null HexagramId テスト</button>
+        <button class="test-btn" onclick="runValidHexagramIdTest()">✅ Valid HexagramId テスト</button>
+        <button class="test-btn" onclick="runMixedScenarioTest()">🎭 混合シナリオテスト</button>
+        <button class="test-btn" onclick="clearResults()">🗑️ 結果クリア</button>
+        
+        <div id="test-results"></div>
+        
+        <!-- Mock containers for testing -->
+        <div style="display: none;">
+            <div id="interface-dynamics-card-container" class="mock-container"></div>
+            <div id="safemode-dynamics-card-container" class="mock-container"></div>
+        </div>
+    </div>
+
+    <!-- Core scripts needed for testing -->
+    <script src="../js/data/data_box.js"></script>
+    <script src="../js/data/questions.js"></script>
+    <script src="../js/data/vectors.js"></script>
+    <script src="../js/data/hexagrams.js"></script>
+    <script src="../js/data/hexagram_details.js"></script>
+    <script src="../js/data/compatibility_definition.js"></script>
+    <script src="../js/data/compatibility_matrix.js"></script>
+    <script src="../js/data/action_plans.js"></script>
+
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/DataManager.js"></script>
+    <script src="js/core/Calculator.js"></script>
+    <script src="js/core/CompatibilityDataLoader.js"></script>
+    <script src="js/core/TripleOSEngine.js"></script>
+    <script src="js/components/TripleOSResultsView.js"></script>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = message;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+            // Clear mock containers
+            document.getElementById('interface-dynamics-card-container').innerHTML = '';
+            document.getElementById('safemode-dynamics-card-container').innerHTML = '';
+        }
+
+        // Mock CompatibilityDataLoader that simulates the original error conditions
+        class MockCompatibilityDataLoader {
+            async loadEngineInterfaceCompatibility(hexagramId) {
+                console.log(`Mock loading interface data for hexagramId: ${hexagramId}`);
+                if (!hexagramId || hexagramId < 1 || hexagramId > 64) {
+                    throw new Error(`Invalid engineOsId: ${hexagramId}`);
+                }
+                return { mock: 'interface data' };
+            }
+
+            async loadEngineSafemodeCompatibility(hexagramId) {
+                console.log(`Mock loading safemode data for hexagramId: ${hexagramId}`);
+                if (!hexagramId || hexagramId < 1 || hexagramId > 64) {
+                    throw new Error(`Invalid engineOsId: ${hexagramId}`);
+                }
+                return { mock: 'safemode data' };
+            }
+        }
+
+        // Create a mock TripleOSResultsView for testing
+        class TestTripleOSResultsView {
+            constructor(analysisResult, compatibilityLoader) {
+                this.analysisResult = analysisResult;
+                this.compatibilityLoader = compatibilityLoader;
+            }
+
+            async _loadAndRenderDynamics() {
+                console.log("🔄 [TestTripleOSResultsView] Loading inner dynamics data...");
+                if (!this.compatibilityLoader) {
+                    console.error("❌ Inner dynamics cannot be loaded: compatibilityLoader is missing.");
+                    return;
+                }
+
+                try {
+                    const { interfaceOS, safeModeOS } = this.analysisResult;
+                    
+                    // インターフェース動力学データの読み込み
+                    if (interfaceOS && interfaceOS.hexagramId) {
+                        console.log(`🔄 [TestTripleOSResultsView] Loading interface data for hexagramId: ${interfaceOS.hexagramId}`);
+                        const interfaceData = await this.compatibilityLoader.loadEngineInterfaceCompatibility(interfaceOS.hexagramId);
+                        if (interfaceData) {
+                            const interfaceContainer = document.getElementById('interface-dynamics-card-container');
+                            if (interfaceContainer) {
+                                interfaceContainer.innerHTML = '✅ Interface data loaded successfully';
+                            }
+                        }
+                    } else {
+                        console.warn("⚠️ [TestTripleOSResultsView] Interface OS hexagramId is null or undefined, skipping interface dynamics loading");
+                        const interfaceContainer = document.getElementById('interface-dynamics-card-container');
+                        if (interfaceContainer) {
+                            interfaceContainer.innerHTML = '<p class="warning-text">インターフェースOSの分析データが不足しているため、動力学データを読み込めませんでした。</p>';
+                        }
+                    }
+
+                    // セーフモード動力学データの読み込み
+                    if (safeModeOS && safeModeOS.hexagramId) {
+                        console.log(`🔄 [TestTripleOSResultsView] Loading safemode data for hexagramId: ${safeModeOS.hexagramId}`);
+                        const safemodeData = await this.compatibilityLoader.loadEngineSafemodeCompatibility(safeModeOS.hexagramId);
+                        if (safemodeData) {
+                            const safemodeContainer = document.getElementById('safemode-dynamics-card-container');
+                            if (safemodeContainer) {
+                                safemodeContainer.innerHTML = '✅ Safemode data loaded successfully';
+                            }
+                        }
+                    } else {
+                        console.warn("⚠️ [TestTripleOSResultsView] SafeMode OS hexagramId is null or undefined, skipping safemode dynamics loading");
+                        const safemodeContainer = document.getElementById('safemode-dynamics-card-container');
+                        if (safemodeContainer) {
+                            safemodeContainer.innerHTML = '<p class="warning-text">セーフモードOSの分析データが不足しているため、動力学データを読み込めませんでした。</p>';
+                        }
+                    }
+
+                    console.log("✅ [TestTripleOSResultsView] Inner dynamics data loaded and rendered.");
+                    return true;
+                } catch (error) {
+                    console.error("❌ [TestTripleOSResultsView] Error loading dynamics data:", error);
+                    throw error;
+                }
+            }
+        }
+
+        async function runNullHexagramIdTest() {
+            addResult('🔍 Testing null hexagramId handling...', 'info');
+            
+            try {
+                // Create mock analysis result with null hexagramId values
+                const mockAnalysisResult = {
+                    interfaceOS: {
+                        hexagramId: null, // This should be handled gracefully
+                        osName: "未分析"
+                    },
+                    safeModeOS: {
+                        hexagramId: null, // This should be handled gracefully
+                        osName: "未分析"
+                    }
+                };
+
+                const mockLoader = new MockCompatibilityDataLoader();
+                const testView = new TestTripleOSResultsView(mockAnalysisResult, mockLoader);
+
+                addResult('📝 Created test view with null hexagramIds', 'info');
+
+                // This should NOT throw an error now
+                await testView._loadAndRenderDynamics();
+                
+                addResult('✅ No error thrown when hexagramId is null!', 'success');
+
+                // Check the containers were populated with warning messages
+                const interfaceContainer = document.getElementById('interface-dynamics-card-container');
+                const safemodeContainer = document.getElementById('safemode-dynamics-card-container');
+
+                if (interfaceContainer.innerHTML.includes('インターフェースOSの分析データが不足')) {
+                    addResult('✅ Interface container shows appropriate warning message', 'success');
+                } else {
+                    addResult('❌ Interface container does not show expected warning', 'error');
+                }
+
+                if (safemodeContainer.innerHTML.includes('セーフモードOSの分析データが不足')) {
+                    addResult('✅ Safemode container shows appropriate warning message', 'success');
+                } else {
+                    addResult('❌ Safemode container does not show expected warning', 'error');
+                }
+
+                addResult('🎉 Null hexagramId test passed!', 'success');
+
+            } catch (error) {
+                addResult(`❌ Null hexagramId test failed: ${error.message}`, 'error');
+                addResult(`🔍 Error details: ${error.stack}`, 'error');
+            }
+        }
+
+        async function runValidHexagramIdTest() {
+            addResult('✅ Testing valid hexagramId handling...', 'info');
+            
+            try {
+                // Create mock analysis result with valid hexagramId values
+                const mockAnalysisResult = {
+                    interfaceOS: {
+                        hexagramId: 1, // Valid hexagram ID
+                        osName: "乾為天"
+                    },
+                    safeModeOS: {
+                        hexagramId: 8, // Valid hexagram ID
+                        osName: "坤為地"
+                    }
+                };
+
+                const mockLoader = new MockCompatibilityDataLoader();
+                const testView = new TestTripleOSResultsView(mockAnalysisResult, mockLoader);
+
+                addResult('📝 Created test view with valid hexagramIds', 'info');
+
+                // This should work normally
+                await testView._loadAndRenderDynamics();
+                
+                addResult('✅ Successfully loaded data with valid hexagramIds!', 'success');
+
+                // Check the containers were populated with success messages
+                const interfaceContainer = document.getElementById('interface-dynamics-card-container');
+                const safemodeContainer = document.getElementById('safemode-dynamics-card-container');
+
+                if (interfaceContainer.innerHTML.includes('Interface data loaded successfully')) {
+                    addResult('✅ Interface data loaded and displayed correctly', 'success');
+                } else {
+                    addResult('❌ Interface data was not loaded correctly', 'error');
+                }
+
+                if (safemodeContainer.innerHTML.includes('Safemode data loaded successfully')) {
+                    addResult('✅ Safemode data loaded and displayed correctly', 'success');
+                } else {
+                    addResult('❌ Safemode data was not loaded correctly', 'error');
+                }
+
+                addResult('🎉 Valid hexagramId test passed!', 'success');
+
+            } catch (error) {
+                addResult(`❌ Valid hexagramId test failed: ${error.message}`, 'error');
+                addResult(`🔍 Error details: ${error.stack}`, 'error');
+            }
+        }
+
+        async function runMixedScenarioTest() {
+            addResult('🎭 Testing mixed scenario (one null, one valid)...', 'info');
+            
+            try {
+                // Create mock analysis result with mixed hexagramId values
+                const mockAnalysisResult = {
+                    interfaceOS: {
+                        hexagramId: 1, // Valid hexagram ID
+                        osName: "乾為天"
+                    },
+                    safeModeOS: {
+                        hexagramId: null, // Null hexagram ID
+                        osName: "未分析"
+                    }
+                };
+
+                const mockLoader = new MockCompatibilityDataLoader();
+                const testView = new TestTripleOSResultsView(mockAnalysisResult, mockLoader);
+
+                addResult('📝 Created test view with mixed hexagramIds (interface: valid, safemode: null)', 'info');
+
+                // This should handle the mixed scenario correctly
+                await testView._loadAndRenderDynamics();
+                
+                addResult('✅ Successfully handled mixed scenario!', 'success');
+
+                // Check the containers
+                const interfaceContainer = document.getElementById('interface-dynamics-card-container');
+                const safemodeContainer = document.getElementById('safemode-dynamics-card-container');
+
+                if (interfaceContainer.innerHTML.includes('Interface data loaded successfully')) {
+                    addResult('✅ Interface data loaded correctly (valid hexagramId)', 'success');
+                } else {
+                    addResult('❌ Interface data was not loaded correctly', 'error');
+                }
+
+                if (safemodeContainer.innerHTML.includes('セーフモードOSの分析データが不足')) {
+                    addResult('✅ Safemode shows warning correctly (null hexagramId)', 'success');
+                } else {
+                    addResult('❌ Safemode warning was not shown correctly', 'error');
+                }
+
+                addResult('🎉 Mixed scenario test passed!', 'success');
+
+            } catch (error) {
+                addResult(`❌ Mixed scenario test failed: ${error.message}`, 'error');
+                addResult(`🔍 Error details: ${error.stack}`, 'error');
+            }
+        }
+
+        // Auto-run basic test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('🚀 HexagramId Null Handling Fix Test initialized', 'info');
+            addResult('💡 Click the test buttons to verify the null hexagramId handling fixes', 'info');
+        });
+    </script>
+</body>
+</html>

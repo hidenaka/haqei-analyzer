@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Diagnosis Flow Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .step {
+            background-color: #e2e3e5;
+            color: #495057;
+            border: 1px solid #ced4da;
+            font-weight: bold;
+        }
+        button {
+            padding: 12px 24px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .test-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .test-btn:hover {
+            background-color: #0056b3;
+        }
+        .results-preview {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        pre {
+            background-color: #f1f3f4;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            overflow-x: auto;
+            max-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Complete Diagnosis Flow Test</h1>
+        <p><strong>目的:</strong> 診断の全フローを網羅的にテストして、結果表示が正常に動作するかを確認</p>
+        
+        <button class="test-btn" onclick="runCompleteFlowTest()">🚀 完全フローテスト実行</button>
+        <button class="test-btn" onclick="runStepByStepTest()">📋 ステップ別テスト実行</button>
+        <button class="test-btn" onclick="clearResults()">🗑️ 結果クリア</button>
+        
+        <div id="test-results"></div>
+        
+        <!-- Results Preview Area -->
+        <div class="results-preview">
+            <h3>🎯 診断結果プレビュー:</h3>
+            <div id="diagnosis-results-preview" style="min-height: 100px; border: 1px dashed #ccc; padding: 10px;">
+                結果がここに表示されます
+            </div>
+        </div>
+    </div>
+
+    <!-- All necessary scripts -->
+    <script src="../js/data/data_box.js"></script>
+    <script src="../js/data/questions.js"></script>
+    <script src="../js/data/vectors.js"></script>
+    <script src="../js/data/hexagrams.js"></script>
+    <script src="../js/data/hexagram_details.js"></script>
+    <script src="../js/data/compatibility_definition.js"></script>
+    <script src="../js/data/compatibility_matrix.js"></script>
+    <script src="../js/data/action_plans.js"></script>
+
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/DataManager.js"></script>
+    <script src="js/core/Calculator.js"></script>
+    <script src="js/core/CompatibilityDataLoader.js"></script>
+    <script src="js/core/TripleOSEngine.js"></script>
+    <script src="js/components/TripleOSResultsView.js"></script>
+
+    <script>
+        let testResults = [];
+        
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+            resultsDiv.appendChild(resultDiv);
+            
+            testResults.push({ time: Date.now(), message, type });
+            
+            // Auto-scroll to bottom
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+            document.getElementById('diagnosis-results-preview').innerHTML = '結果がここに表示されます';
+            testResults = [];
+        }
+
+        function createTestAnswers() {
+            // 実際の診断で使用される形式の回答データを作成
+            return [
+                // 価値観質問 (q1-q24)
+                {
+                    questionId: "q1",
+                    selectedValue: "A",
+                    scoring_tags: [
+                        { key: "乾_創造性", value: 3.0 },
+                        { key: "離_表現性", value: 1.5 }
+                    ]
+                },
+                {
+                    questionId: "q2", 
+                    selectedValue: "B",
+                    scoring_tags: [
+                        { key: "坎_探求性", value: 2.5 },
+                        { key: "艮_安定性", value: 2.0 }
+                    ]
+                },
+                {
+                    questionId: "q3",
+                    selectedValue: "A",
+                    scoring_tags: [
+                        { key: "震_行動性", value: 2.8 },
+                        { key: "兌_調和性", value: 1.2 }
+                    ]
+                },
+                {
+                    questionId: "q4",
+                    selectedValue: "B",
+                    scoring_tags: [
+                        { key: "巽_適応性", value: 2.3 },
+                        { key: "坤_受容性", value: 1.8 }
+                    ]
+                },
+                {
+                    questionId: "q5",
+                    selectedValue: "A",
+                    scoring_tags: [
+                        { key: "乾_創造性", value: 2.5 },
+                        { key: "震_行動性", value: 2.0 }
+                    ]
+                },
+                // 更多的价值观问题...
+                ...Array.from({length: 19}, (_, i) => ({
+                    questionId: `q${i + 6}`,
+                    selectedValue: i % 2 === 0 ? "A" : "B",
+                    scoring_tags: [
+                        { key: ["乾_創造性", "坎_探求性", "離_表現性", "震_行動性"][i % 4], value: 2.0 + Math.random() * 1.5 },
+                        { key: ["兌_調和性", "艮_安定性", "巽_適応性", "坤_受容性"][i % 4], value: 1.0 + Math.random() * 1.5 }
+                    ]
+                })),
+                // シナリオ質問 (q25-q30)
+                {
+                    questionId: "q25",
+                    outerChoice: {
+                        value: "A",
+                        text: "積極的にリーダーシップを発揮する",
+                        scoring_tags: ["leadership", "confidence", "initiative"]
+                    },
+                    innerChoice: {
+                        value: "B", 
+                        text: "慎重に状況を分析する",
+                        scoring_tags: ["caution", "analysis", "reflection"]
+                    }
+                },
+                {
+                    questionId: "q26",
+                    outerChoice: {
+                        value: "B",
+                        text: "協調性を重視する",
+                        scoring_tags: ["cooperation", "harmony", "teamwork"]
+                    },
+                    innerChoice: {
+                        value: "A",
+                        text: "自分の信念を貫く", 
+                        scoring_tags: ["conviction", "independence", "determination"]
+                    }
+                },
+                {
+                    questionId: "q27",
+                    outerChoice: {
+                        value: "A",
+                        text: "新しいアイデアを提案する",
+                        scoring_tags: ["creativity", "innovation", "initiative"]
+                    },
+                    innerChoice: {
+                        value: "B",
+                        text: "安全な選択肢を選ぶ",
+                        scoring_tags: ["safety", "caution", "stability"]
+                    }
+                }
+            ];
+        }
+
+        async function runCompleteFlowTest() {
+            addResult('🚀 完全診断フローテスト開始', 'step');
+            
+            try {
+                // Step 1: データ初期化確認
+                addResult('📊 Step 1: データとクラスの初期化確認', 'step');
+                
+                if (typeof DataManager === 'undefined') {
+                    addResult('❌ DataManager class not found', 'error');
+                    return;
+                }
+                addResult('✅ DataManager class loaded', 'success');
+
+                if (typeof TripleOSEngine === 'undefined') {
+                    addResult('❌ TripleOSEngine class not found', 'error');
+                    return;
+                }
+                addResult('✅ TripleOSEngine class loaded', 'success');
+
+                if (typeof TripleOSResultsView === 'undefined') {
+                    addResult('❌ TripleOSResultsView class not found', 'error');
+                    return;
+                }
+                addResult('✅ TripleOSResultsView class loaded', 'success');
+
+                // Step 2: データマネージャー初期化
+                addResult('📁 Step 2: DataManager初期化とデータ読み込み', 'step');
+                const dataManager = new DataManager();
+                await dataManager.loadData();
+                
+                const stats = dataManager.getDataStats();
+                addResult(`📊 Data loaded: hexagrams=${stats.dataStructure.hexagrams}, questions=${stats.dataStructure.worldviewQuestions}`, 'info');
+                
+                if (!stats.loaded) {
+                    addResult(`❌ DataManager loading failed: ${stats.error}`, 'error');
+                    return;
+                }
+                addResult('✅ DataManager initialized successfully', 'success');
+
+                // Step 3: エンジン初期化
+                addResult('🔧 Step 3: TripleOSEngine初期化', 'step');
+                const engine = new TripleOSEngine(dataManager);
+                
+                if (!engine.calculator) {
+                    addResult('❌ Calculator not initialized in TripleOSEngine', 'error');
+                    return;
+                }
+                addResult('✅ TripleOSEngine initialized with Calculator', 'success');
+
+                // Step 4: テスト回答データ作成
+                addResult('📝 Step 4: テスト回答データ作成', 'step');
+                const testAnswers = createTestAnswers();
+                addResult(`📊 Created ${testAnswers.length} test answers`, 'info');
+                
+                // 回答データの詳細ログ
+                const worldviewCount = testAnswers.filter(a => a.questionId.match(/^q([1-9]|1[0-9]|2[0-4])$/)).length;
+                const scenarioCount = testAnswers.filter(a => a.questionId.match(/^q(25|26|27|28|29|30)$/)).length;
+                addResult(`📋 Worldview answers: ${worldviewCount}, Scenario answers: ${scenarioCount}`, 'info');
+
+                // Step 5: 分析実行
+                addResult('🔬 Step 5: Triple OS分析実行', 'step');
+                const analysisResult = await engine.analyzeTripleOS(testAnswers);
+                
+                if (!analysisResult) {
+                    addResult('❌ Analysis returned null/undefined', 'error');
+                    return;
+                }
+                addResult('✅ Analysis completed successfully', 'success');
+
+                // 分析結果の詳細確認
+                addResult('🔍 分析結果詳細確認:', 'step');
+                addResult(`Analysis type: ${analysisResult.analysisType}`, 'info');
+                
+                if (analysisResult.primaryOS) {
+                    addResult(`✅ Primary OS: ${analysisResult.primaryOS.osName} (ID: ${analysisResult.primaryOS.osId})`, 'success');
+                } else {
+                    addResult('❌ Primary OS missing', 'error');
+                }
+
+                if (analysisResult.engineOS) {
+                    addResult(`✅ Engine OS: ${analysisResult.engineOS.osName} (hexagramId: ${analysisResult.engineOS.hexagramId})`, 'success');
+                } else {
+                    addResult('❌ Engine OS missing', 'error');
+                }
+
+                if (analysisResult.interfaceOS) {
+                    addResult(`✅ Interface OS: ${analysisResult.interfaceOS.osName} (hexagramId: ${analysisResult.interfaceOS.hexagramId})`, 'success');
+                } else {
+                    addResult('❌ Interface OS missing', 'error');
+                }
+
+                if (analysisResult.safeModeOS) {
+                    addResult(`✅ SafeMode OS: ${analysisResult.safeModeOS.osName} (hexagramId: ${analysisResult.safeModeOS.hexagramId})`, 'success');
+                } else {
+                    addResult('❌ SafeMode OS missing', 'error');
+                }
+
+                if (analysisResult.dimensions) {
+                    addResult(`✅ Dimensions: ${analysisResult.dimensions.length} dimensions analyzed`, 'success');
+                } else {
+                    addResult('❌ Dimensions missing', 'error');
+                }
+
+                // Step 6: 洞察生成
+                addResult('💡 Step 6: 洞察生成', 'step');
+                const insights = await engine.generateInsights(analysisResult);
+                
+                if (!insights) {
+                    addResult('❌ Insights generation failed', 'error');
+                    return;
+                }
+                addResult('✅ Insights generated successfully', 'success');
+                addResult(`📝 Summary: ${insights.summary.substring(0, 100)}...`, 'info');
+
+                // Step 7: 結果ビュー作成
+                addResult('🎨 Step 7: TripleOSResultsView作成', 'step');
+                
+                // コンテナ作成
+                const previewContainer = document.getElementById('diagnosis-results-preview');
+                previewContainer.innerHTML = '<div id="test-results-container"></div>';
+                
+                const compatibilityLoader = new CompatibilityDataLoader();
+                const options = {
+                    analysisResult: analysisResult,
+                    insights: insights,
+                    compatibilityLoader: compatibilityLoader,
+                    dataManager: dataManager
+                };
+
+                const resultsView = new TripleOSResultsView('test-results-container', options);
+                addResult('✅ TripleOSResultsView created successfully', 'success');
+
+                // Step 8: 初期化とレンダリング
+                addResult('🖼️ Step 8: 初期化とレンダリング実行', 'step');
+                
+                try {
+                    resultsView.init();
+                    addResult('✅ TripleOSResultsView.init() completed', 'success');
+                } catch (initError) {
+                    addResult(`❌ Init failed: ${initError.message}`, 'error');
+                    throw initError;
+                }
+
+                // レンダリング結果確認
+                const container = document.getElementById('test-results-container');
+                if (container && container.innerHTML.length > 0) {
+                    addResult(`✅ HTML generated: ${container.innerHTML.length} characters`, 'success');
+                    addResult('✅ 診断結果が正常に表示されました！', 'success');
+                } else {
+                    addResult('❌ No HTML content generated', 'error');
+                }
+
+                // Step 9: 最終確認
+                addResult('🎯 Step 9: 最終結果確認', 'step');
+                
+                const hasTitle = container.innerHTML.includes('の人');
+                const hasOSCards = container.innerHTML.includes('エンジンOS');
+                const hasDimensions = container.innerHTML.includes('dimension');
+                
+                addResult(`Title display: ${hasTitle ? '✅' : '❌'}`, hasTitle ? 'success' : 'error');
+                addResult(`OS cards display: ${hasOSCards ? '✅' : '❌'}`, hasOSCards ? 'success' : 'error');
+                addResult(`Dimensions display: ${hasDimensions ? '✅' : '❌'}`, hasDimensions ? 'success' : 'error');
+
+                if (hasTitle && hasOSCards) {
+                    addResult('🎉 SUCCESS: 診断結果が完全に表示されました！', 'success');
+                } else {
+                    addResult('⚠️ WARNING: 一部の結果が表示されていない可能性があります', 'warning');
+                }
+
+            } catch (error) {
+                addResult(`❌ CRITICAL ERROR: ${error.message}`, 'error');
+                addResult(`🔍 Stack trace: ${error.stack}`, 'error');
+                
+                // エラー発生時の詳細情報
+                addResult('🔍 Error context:', 'info');
+                addResult(`- Error type: ${error.constructor.name}`, 'info');
+                addResult(`- Error location: ${error.fileName || 'unknown'}:${error.lineNumber || 'unknown'}`, 'info');
+            }
+        }
+
+        async function runStepByStepTest() {
+            addResult('📋 ステップ別テスト開始（デバッグモード）', 'step');
+            
+            // より詳細なログを有効にする
+            const originalConsole = window.console;
+            window.console = {
+                ...originalConsole,
+                log: (...args) => {
+                    originalConsole.log(...args);
+                    addResult(`🐛 ${args.join(' ')}`, 'info');
+                },
+                warn: (...args) => {
+                    originalConsole.warn(...args);
+                    addResult(`⚠️ ${args.join(' ')}`, 'warning');
+                },
+                error: (...args) => {
+                    originalConsole.error(...args);
+                    addResult(`❌ ${args.join(' ')}`, 'error');
+                }
+            };
+
+            await runCompleteFlowTest();
+            
+            // コンソールを戻す
+            window.console = originalConsole;
+        }
+
+        // Auto-run on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('🚀 Complete Diagnosis Flow Test initialized', 'info');
+            addResult('💡 Click buttons to test the complete diagnosis flow', 'info');
+        });
+    </script>
+</body>
+</html>

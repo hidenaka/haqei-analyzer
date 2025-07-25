@@ -722,6 +722,28 @@ class CompatibilityDataLoader {
         Object.keys(this.lineKeywordMap).length,
     };
   }
+
+  /**
+   * エンジン-インターフェース相性データを読み込む（エイリアス）
+   * TripleOSResultsViewとの互換性のため
+   * @param {number} engineOsId - エンジンOSの卦ID (1-64)
+   * @returns {Promise<Object>} インターフェース相性データ
+   */
+  async loadEngineInterfaceCompatibility(engineOsId) {
+    console.log(`🔄 [CompatibilityDataLoader] loadEngineInterfaceCompatibility called for engineOsId: ${engineOsId}`);
+    return await this.loadInterfaceData(engineOsId);
+  }
+
+  /**
+   * エンジン-セーフモード相性データを読み込む（エイリアス）
+   * TripleOSResultsViewとの互換性のため
+   * @param {number} engineOsId - エンジンOSの卦ID (1-64) 
+   * @returns {Promise<Object>} セーフモード相性データ
+   */
+  async loadEngineSafemodeCompatibility(engineOsId) {
+    console.log(`🔄 [CompatibilityDataLoader] loadEngineSafemodeCompatibility called for engineOsId: ${engineOsId}`);
+    return await this.loadSafemodeData(engineOsId);
+  }
 }
 
 // グローバルに公開

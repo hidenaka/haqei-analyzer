@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
   <head>
+    <script>
+      console.log("--- HTML PARSE STARTED ---");
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
@@ -23,6 +26,7 @@
     <link rel="stylesheet" href="css/animations.css" />
     <link rel="stylesheet" href="css/compatibility-details.css" />
     <link rel="stylesheet" href="css/polish.css" />
+    <link rel="stylesheet" href="css/personality-os-boot-sequence.css" />
 
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -77,40 +81,149 @@
       </section>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="../js/data/data_box.js"></script>
-    <script src="../js/data/questions.js"></script>
-    <script src="../js/data/vectors.js"></script>
-    <script src="../js/data/hexagrams.js"></script>
-    <script src="../js/data/hexagram_details.js"></script>
-    <script src="../js/data/compatibility_definition.js"></script>
-    <script src="../js/data/compatibility_matrix.js"></script>
-    <script src="../js/data/action_plans.js"></script>
+    <!-- データファイルを最初に読み込み -->
+    <script>
+      console.log("🔍 [Debug] データファイル読み込み開始");
+    </script>
 
-    <script src="js/utils/validators.js"></script>
-    <script src="js/utils/animations.js"></script>
-
-    <script src="js/core/BaseComponent.js"></script>
-
-    <script src="js/core/StorageManager.js"></script>
-    <script src="js/core/DataManager.js"></script>
-    <script src="js/core/Calculator.js"></script>
-    <script src="js/core/CompatibilityDataLoader.js"></script>
-    <script src="js/core/Engine.js"></script>
-    <script src="js/core/TripleOSEngine.js"></script>
-
-    <script src="js/components/WelcomeScreen.js"></script>
-    <script src="js/components/QuestionFlow.js"></script>
-    <script src="js/components/AnalysisView.js"></script>
-    <script src="js/components/ResultsView.js"></script>
-    <script src="js/components/TripleOSResultsView.js"></script>
-    <script src="js/components/InsightPanel.js"></script>
+    <script
+      src="../js/data/data_box.js"
+      onerror="console.error('❌ Failed to load data_box.js')"
+    ></script>
+    <script
+      src="../js/data/questions.js"
+      onerror="console.error('❌ Failed to load questions.js')"
+    ></script>
+    <script
+      src="../js/data/vectors.js"
+      onerror="console.error('❌ Failed to load vectors.js')"
+    ></script>
+    <script
+      src="../js/data/hexagrams.js"
+      onerror="console.error('❌ Failed to load hexagrams.js')"
+    ></script>
+    <script
+      src="../js/data/hexagram_details.js"
+      onerror="console.error('❌ Failed to load hexagram_details.js')"
+    ></script>
+    <script
+      src="../js/data/compatibility_definition.js"
+      onerror="console.error('❌ Failed to load compatibility_definition.js')"
+    ></script>
+    <script
+      src="../js/data/compatibility_matrix.js"
+      onerror="console.error('❌ Failed to load compatibility_matrix.js')"
+    ></script>
+    <script
+      src="../js/data/action_plans.js"
+      onerror="console.error('❌ Failed to load action_plans.js')"
+    ></script>
 
     <script>
-        console.log("🕵️‍♂️ [TRACE-CHECKPOINT 1] app.js実行直前のクラス定義を検証します。");
-        console.log(" -> TripleOSResultsViewは存在するか？:", typeof TripleOSResultsView);
-        console.log(" -> CompatibilityDataLoaderは存在するか？:", typeof CompatibilityDataLoader);
+      console.log("🔍 [Debug] データファイル読み込み完了チェック");
+      console.log("HAQEI_DATA:", typeof window.HAQEI_DATA);
+      console.log("WORLDVIEW_QUESTIONS:", typeof window.WORLDVIEW_QUESTIONS);
+      console.log("H64_8D_VECTORS:", typeof window.H64_8D_VECTORS);
     </script>
+
+    <!-- ユーティリティとベースクラス -->
+    <script
+      src="js/utils/validators.js"
+      onerror="console.error('❌ Failed to load validators.js')"
+    ></script>
+    <script
+      src="js/utils/animations.js"
+      onerror="console.error('❌ Failed to load animations.js')"
+    ></script>
+    <script
+      src="js/core/BaseComponent.js"
+      onerror="console.error('❌ Failed to load BaseComponent.js')"
+    ></script>
+
+    <script>
+      console.log("🔍 [Debug] BaseComponent:", typeof BaseComponent);
+    </script>
+
+    <!-- コアクラス -->
+    <script
+      src="js/core/StorageManager.js"
+      onerror="console.error('❌ Failed to load StorageManager.js')"
+    ></script>
+    <script
+      src="js/core/DataManager.js"
+      onerror="console.error('❌ Failed to load DataManager.js')"
+    ></script>
+    <script
+      src="js/core/Calculator.js"
+      onerror="console.error('❌ Failed to load Calculator.js')"
+    ></script>
+    <script
+      src="js/core/CompatibilityDataLoader.js"
+      onerror="console.error('❌ Failed to load CompatibilityDataLoader.js')"
+    ></script>
+    <script
+      src="js/core/Engine.js"
+      onerror="console.error('❌ Failed to load Engine.js')"
+    ></script>
+    <script
+      src="js/core/TripleOSEngine.js"
+      onerror="console.error('❌ Failed to load TripleOSEngine.js')"
+    ></script>
+
+    <script>
+      console.log("🔍 [Debug] コアクラス読み込み完了チェック");
+      console.log("DataManager:", typeof DataManager);
+      console.log("Calculator:", typeof Calculator);
+      console.log("TripleOSEngine:", typeof TripleOSEngine);
+    </script>
+
+    <!-- コンポーネント -->
+    <script
+      src="js/components/WelcomeScreen.js"
+      onerror="console.error('❌ Failed to load WelcomeScreen.js')"
+    ></script>
+    <script
+      src="js/components/QuestionFlow.js"
+      onerror="console.error('❌ Failed to load QuestionFlow.js')"
+    ></script>
+    <script
+      src="js/components/AnalysisView.js"
+      onerror="console.error('❌ Failed to load AnalysisView.js')"
+    ></script>
+    <script
+      src="js/components/ResultsView.js"
+      onerror="console.error('❌ Failed to load ResultsView.js')"
+    ></script>
+    <script
+      src="js/components/TripleOSResultsView.js"
+      onerror="console.error('❌ Failed to load TripleOSResultsView.js')"
+    ></script>
+    <script
+      src="js/components/InsightPanel.js"
+      onerror="console.error('❌ Failed to load InsightPanel.js')"
+    ></script>
+
+    <script>
+      console.log("🔍 [Debug] コンポーネント読み込み完了チェック");
+      console.log("WelcomeScreen:", typeof WelcomeScreen);
+      console.log("QuestionFlow:", typeof QuestionFlow);
+      console.log("TripleOSResultsView:", typeof TripleOSResultsView);
+    </script>
+
+    <script>
+      console.log(
+        "🕵️‍♂️ [TRACE-CHECKPOINT 1] app.js実行直前のクラス定義を検証します。"
+      );
+      console.log(
+        " -> TripleOSResultsViewは存在するか？:",
+        typeof TripleOSResultsView
+      );
+      console.log(
+        " -> CompatibilityDataLoaderは存在するか？:",
+        typeof CompatibilityDataLoader
+      );
+    </script>
+
     <script src="js/app.js"></script>
 
     <script>
@@ -295,14 +408,14 @@
             BaseComponent: typeof BaseComponent !== "undefined",
             DataManager: typeof DataManager !== "undefined",
             Calculator: typeof Calculator !== "undefined",
-            TripleOSEngine: typeof TripleOSEngine !== "undefined"
+            TripleOSEngine: typeof TripleOSEngine !== "undefined",
           });
         }
         if (!componentsLoaded) {
           console.warn("⚠️ 不足コンポーネント:", {
             WelcomeScreen: typeof WelcomeScreen !== "undefined",
             QuestionFlow: typeof QuestionFlow !== "undefined",
-            TripleOSResultsView: typeof TripleOSResultsView !== "undefined"
+            TripleOSResultsView: typeof TripleOSResultsView !== "undefined",
           });
         }
 
@@ -339,7 +452,6 @@
           initializeApplication();
         }, 2000);
       });
-
 
       // アプリケーション初期化関数
       function initializeApplication() {
@@ -394,16 +506,17 @@
     </script>
 
     <!-- 完全相性分析モーダル -->
-    <div id="compatibility-modal" class="modal-container" style="display:none;">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <header class="modal-header">
-                <h2>🎯 完全相性分析</h2>
-                <button class="modal-close-button" aria-label="閉じる">&times;</button>
-            </header>
-            <div id="compatibility-modal-body" class="modal-body">
-            </div>
-        </div>
+    <div id="compatibility-modal" class="modal-container" style="display: none">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <header class="modal-header">
+          <h2>🎯 完全相性分析</h2>
+          <button class="modal-close-button" aria-label="閉じる">
+            &times;
+          </button>
+        </header>
+        <div id="compatibility-modal-body" class="modal-body"></div>
+      </div>
     </div>
   </body>
 </html>

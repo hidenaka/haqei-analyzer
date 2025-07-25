@@ -642,8 +642,18 @@ var H64_8D_VECTORS = {
   },
 };
 
-console.log(
-  "✅ Vectors data loaded:",
-  Object.keys(H64_8D_VECTORS || {}).length,
-  "hexagrams"
-);
+// グローバル変数としてデータを登録
+if (typeof window !== "undefined") {
+  window.H64_8D_VECTORS = H64_8D_VECTORS;
+  console.log(
+    "✅ Vectors data loaded and set to window:",
+    Object.keys(H64_8D_VECTORS || {}).length,
+    "hexagrams"
+  );
+} else {
+  console.log(
+    "✅ Vectors data loaded:",
+    Object.keys(H64_8D_VECTORS || {}).length,
+    "hexagrams"
+  );
+}

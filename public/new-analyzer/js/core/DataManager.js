@@ -673,20 +673,7 @@ class DataManager {
         `データ読み込み完了 - 総項目数: ${totalLoadedItems}`
       );
 
-      // 🔧 互換性データの読み込みを追加
-      try {
-        this.logMessage("info", "loadData", "互換性データの読み込み開始");
-        await this.loadCompatibilityData();
-        this.logMessage("info", "loadData", "互換性データの読み込み完了");
-      } catch (compatibilityError) {
-        this.logMessage(
-          "warn",
-          "loadData",
-          "互換性データの読み込みに失敗しましたが、処理を続行します",
-          compatibilityError
-        );
-        // 互換性データの読み込みに失敗してもメインの処理は続行
-      }
+      // 互換性データの読み込みを削除（不要な起動時読み込みを除去）
 
       // 警告レベルの確認
       const warnings = this.getLoadingLogs().warnings;

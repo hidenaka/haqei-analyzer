@@ -3,237 +3,217 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HaQei Analyzer - 簡単読み込みテスト</title>
+    <title>Simple Loading Test</title>
     <style>
       body {
         font-family: Arial, sans-serif;
         margin: 20px;
-        background: #f0f2f5;
-      }
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
       }
       .status {
         padding: 10px;
-        margin: 10px 0;
+        margin: 5px 0;
         border-radius: 5px;
       }
       .success {
-        background: #d4edda;
+        background-color: #d4edda;
         color: #155724;
-        border: 1px solid #c3e6cb;
       }
       .error {
-        background: #f8d7da;
+        background-color: #f8d7da;
         color: #721c24;
-        border: 1px solid #f5c6cb;
       }
       .warning {
-        background: #fff3cd;
+        background-color: #fff3cd;
         color: #856404;
-        border: 1px solid #ffeaa7;
-      }
-      .info {
-        background: #d1ecf1;
-        color: #0c5460;
-        border: 1px solid #bee5eb;
-      }
-      .loading {
-        background: #e2e3e5;
-        color: #383d41;
-        border: 1px solid #d6d8db;
-      }
-      h1 {
-        color: #333;
-        text-align: center;
-      }
-      h2 {
-        color: #666;
-        border-bottom: 2px solid #007bff;
-        padding-bottom: 10px;
-      }
-      .summary {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 20px 0;
-      }
-      .counter {
-        font-size: 18px;
-        font-weight: bold;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>🧪 HaQei Analyzer - 簡単読み込みテスト</h1>
-
-      <div class="summary">
-        <div class="counter">
-          ✅ 成功: <span id="success-count">0</span> | ❌ 失敗:
-          <span id="error-count">0</span> | ⚠️ 警告:
-          <span id="warning-count">0</span>
-        </div>
-      </div>
-
-      <div id="test-results">
-        <div class="status loading">🔄 テスト開始中...</div>
-      </div>
-    </div>
-
-    <!-- analyzer.htmlと同じ順序でスクリプトを読み込み -->
-    <script src="js/utils/validators.js"></script>
-    <script src="js/utils/animations.js"></script>
-    <script src="../js/data/data_box.js"></script>
-    <script src="../js/data/questions.js"></script>
-    <script src="../js/data/vectors.js"></script>
-    <script src="../js/data/hexagrams.js"></script>
-    <script src="../js/data/hexagram_details.js"></script>
-    <script src="../js/data/compatibility_definition.js"></script>
-    <script src="../js/data/compatibility_matrix.js"></script>
-    <script src="../js/data/action_plans.js"></script>
-    <script src="js/core/BaseComponent.js"></script>
-    <script src="js/core/DataManager.js"></script>
-    <script src="js/core/Calculator.js"></script>
-    <script src="js/core/StorageManager.js"></script>
-    <script src="js/core/Engine.js"></script>
-    <script src="js/core/TripleOSEngine.js"></script>
-    <script src="js/core/EightDimensionAnalysisEngine.js"></script>
-    <script src="js/core/RelationshipVisualizationEngine.js"></script>
-    <script src="js/core/CompatibilityDataLoader.js"></script>
-    <script src="js/components/WelcomeScreen.js"></script>
-    <script src="js/components/QuestionFlow.js"></script>
-    <script src="js/components/AnalysisView.js"></script>
-    <script src="js/components/ResultsView.js"></script>
-    <script src="js/components/TripleOSResultsView.js"></script>
-    <script src="js/components/InsightPanel.js"></script>
+    <h1>HaQei Analyzer - Loading Test</h1>
+    <div id="status-container"></div>
 
     <script>
-      let successCount = 0;
-      let errorCount = 0;
-      let warningCount = 0;
-
-      function addResult(message, type) {
-        const resultsDiv = document.getElementById("test-results");
+      function addStatus(message, type = "info") {
+        const container = document.getElementById("status-container");
         const div = document.createElement("div");
         div.className = `status ${type}`;
-        div.innerHTML = message;
-        resultsDiv.appendChild(div);
-
-        // カウンター更新
-        if (type === "success") successCount++;
-        else if (type === "error") errorCount++;
-        else if (type === "warning") warningCount++;
-
-        document.getElementById("success-count").textContent = successCount;
-        document.getElementById("error-count").textContent = errorCount;
-        document.getElementById("warning-count").textContent = warningCount;
+        div.textContent = message;
+        container.appendChild(div);
+        console.log(`[${type.toUpperCase()}] ${message}`);
       }
 
-      function runSimpleTest() {
-        // 最初のローディングメッセージを削除
-        document.getElementById("test-results").innerHTML = "";
+      addStatus("テスト開始", "info");
+    </script>
 
-        addResult("<h2>📁 データファイル読み込み確認</h2>", "info");
+    <!-- データファイルのテスト -->
+    <script>
+      addStatus("データファイル読み込み開始...", "info");
+    </script>
 
-        // 重要なデータファイルをチェック
-        const criticalData = [
-          { name: "HAQEI_DATA", var: window.HAQEI_DATA },
-          { name: "WORLDVIEW_QUESTIONS", var: window.WORLDVIEW_QUESTIONS },
-          { name: "SCENARIO_QUESTIONS", var: window.SCENARIO_QUESTIONS },
-          { name: "H64_8D_VECTORS", var: window.H64_8D_VECTORS },
-        ];
+    <script
+      src="../js/data/data_box.js"
+      onload="addStatus('data_box.js 読み込み成功', 'success')"
+      onerror="addStatus('data_box.js 読み込み失敗', 'error')"
+    ></script>
 
-        criticalData.forEach((data) => {
-          if (typeof data.var !== "undefined") {
-            addResult(`✅ ${data.name} 正常に読み込まれました`, "success");
-          } else {
-            addResult(`❌ ${data.name} が読み込まれていません`, "error");
-          }
-        });
+    <script
+      src="../js/data/questions.js"
+      onload="addStatus('questions.js 読み込み成功', 'success')"
+      onerror="addStatus('questions.js 読み込み失敗', 'error')"
+    ></script>
 
-        addResult("<h2>🔧 クラス定義確認</h2>", "info");
+    <script
+      src="../js/data/vectors.js"
+      onload="addStatus('vectors.js 読み込み成功', 'success')"
+      onerror="addStatus('vectors.js 読み込み失敗', 'error')"
+    ></script>
 
-        // 重要なクラスをチェック
-        const criticalClasses = [
-          "BaseComponent",
-          "DataManager",
-          "Calculator",
-          "TripleOSEngine",
-          "WelcomeScreen",
-          "QuestionFlow",
-        ];
+    <script>
+      // データ確認
+      setTimeout(() => {
+        addStatus("データ確認中...", "info");
 
-        criticalClasses.forEach((className) => {
-          if (typeof window[className] !== "undefined") {
-            addResult(`✅ ${className} クラスが定義されています`, "success");
-          } else {
-            addResult(`❌ ${className} クラスが定義されていません`, "error");
-          }
-        });
+        if (typeof window.HAQEI_DATA !== "undefined") {
+          addStatus("HAQEI_DATA: 利用可能", "success");
+        } else {
+          addStatus("HAQEI_DATA: 未定義", "error");
+        }
 
-        // オプショナルなクラスもチェック
-        const optionalClasses = [
-          "Engine",
-          "StorageManager",
-          "CompatibilityDataLoader",
-        ];
-
-        optionalClasses.forEach((className) => {
-          if (typeof window[className] !== "undefined") {
-            addResult(
-              `✅ ${className} クラスが定義されています（オプショナル）`,
-              "success"
-            );
-          } else {
-            addResult(
-              `⚠️ ${className} クラスが定義されていません（オプショナル）`,
-              "warning"
-            );
-          }
-        });
-
-        // 最終結果
-        addResult("<h2>📊 テスト結果サマリー</h2>", "info");
-
-        const total = successCount + errorCount + warningCount;
-        const successRate =
-          total > 0 ? Math.round((successCount / total) * 100) : 0;
-
-        if (errorCount === 0) {
-          addResult(
-            `🎉 すべての重要なコンポーネントが正常に読み込まれました！ (成功率: ${successRate}%)`,
+        if (typeof window.WORLDVIEW_QUESTIONS !== "undefined") {
+          addStatus(
+            `WORLDVIEW_QUESTIONS: ${window.WORLDVIEW_QUESTIONS.length}問`,
             "success"
           );
-        } else if (errorCount <= 2) {
-          addResult(
-            `⚠️ 一部のコンポーネントに問題がありますが、基本機能は動作する可能性があります (成功率: ${successRate}%)`,
-            "warning"
+        } else {
+          addStatus("WORLDVIEW_QUESTIONS: 未定義", "error");
+        }
+
+        if (typeof window.H64_8D_VECTORS !== "undefined") {
+          addStatus(
+            `H64_8D_VECTORS: ${Object.keys(window.H64_8D_VECTORS).length}個`,
+            "success"
           );
         } else {
-          addResult(
-            `❌ 多くのコンポーネントに問題があります。設定を確認してください (成功率: ${successRate}%)`,
-            "error"
-          );
+          addStatus("H64_8D_VECTORS: 未定義", "error");
+        }
+      }, 100);
+    </script>
+
+    <!-- コアクラスのテスト -->
+    <script>
+      addStatus("コアクラス読み込み開始...", "info");
+    </script>
+
+    <script
+      src="js/core/BaseComponent.js"
+      onload="addStatus('BaseComponent.js 読み込み成功', 'success')"
+      onerror="addStatus('BaseComponent.js 読み込み失敗', 'error')"
+    ></script>
+
+    <script
+      src="js/core/DataManager.js"
+      onload="addStatus('DataManager.js 読み込み成功', 'success')"
+      onerror="addStatus('DataManager.js 読み込み失敗', 'error')"
+    ></script>
+
+    <script
+      src="js/core/TripleOSEngine.js"
+      onload="addStatus('TripleOSEngine.js 読み込み成功', 'success')"
+      onerror="addStatus('TripleOSEngine.js 読み込み失敗', 'error')"
+    ></script>
+
+    <script>
+      // クラス確認
+      setTimeout(() => {
+        addStatus("クラス確認中...", "info");
+
+        if (typeof BaseComponent !== "undefined") {
+          addStatus("BaseComponent: 利用可能", "success");
+        } else {
+          addStatus("BaseComponent: 未定義", "error");
         }
 
-        // パフォーマンス情報
-        if (performance.memory) {
-          const memoryMB = Math.round(
-            performance.memory.usedJSHeapSize / 1024 / 1024
-          );
-          addResult(`💾 メモリ使用量: ${memoryMB}MB`, "info");
+        if (typeof DataManager !== "undefined") {
+          addStatus("DataManager: 利用可能", "success");
+        } else {
+          addStatus("DataManager: 未定義", "error");
         }
-      }
 
-      // DOM読み込み完了後にテスト実行
-      document.addEventListener("DOMContentLoaded", function () {
-        setTimeout(runSimpleTest, 500); // 少し遅延させてスクリプト読み込みを待つ
-      });
+        if (typeof TripleOSEngine !== "undefined") {
+          addStatus("TripleOSEngine: 利用可能", "success");
+        } else {
+          addStatus("TripleOSEngine: 未定義", "error");
+        }
+      }, 200);
+    </script>
+
+    <!-- コンポーネントのテスト -->
+    <script>
+      addStatus("コンポーネント読み込み開始...", "info");
+    </script>
+
+    <script
+      src="js/components/WelcomeScreen.js"
+      onload="addStatus('WelcomeScreen.js 読み込み成功', 'success')"
+      onerror="addStatus('WelcomeScreen.js 読み込み失敗', 'error')"
+    ></script>
+
+    <script
+      src="js/components/QuestionFlow.js"
+      onload="addStatus('QuestionFlow.js 読み込み成功', 'success')"
+      onerror="addStatus('QuestionFlow.js 読み込み失敗', 'error')"
+    ></script>
+
+    <script>
+      // コンポーネント確認
+      setTimeout(() => {
+        addStatus("コンポーネント確認中...", "info");
+
+        if (typeof WelcomeScreen !== "undefined") {
+          addStatus("WelcomeScreen: 利用可能", "success");
+        } else {
+          addStatus("WelcomeScreen: 未定義", "error");
+        }
+
+        if (typeof QuestionFlow !== "undefined") {
+          addStatus("QuestionFlow: 利用可能", "success");
+        } else {
+          addStatus("QuestionFlow: 未定義", "error");
+        }
+
+        addStatus("テスト完了", "info");
+      }, 300);
+    </script>
+
+    <!-- 初期化テスト -->
+    <script>
+      setTimeout(() => {
+        addStatus("初期化テスト開始...", "info");
+
+        try {
+          if (typeof DataManager !== "undefined") {
+            const dataManager = new DataManager();
+            addStatus("DataManager インスタンス作成成功", "success");
+          } else {
+            addStatus("DataManager が利用できません", "error");
+          }
+        } catch (error) {
+          addStatus(`DataManager エラー: ${error.message}`, "error");
+        }
+
+        try {
+          if (typeof WelcomeScreen !== "undefined") {
+            const welcomeScreen = new WelcomeScreen(document.body);
+            addStatus("WelcomeScreen インスタンス作成成功", "success");
+          } else {
+            addStatus("WelcomeScreen が利用できません", "error");
+          }
+        } catch (error) {
+          addStatus(`WelcomeScreen エラー: ${error.message}`, "error");
+        }
+
+        addStatus("初期化テスト完了", "info");
+      }, 500);
     </script>
   </body>
 </html>

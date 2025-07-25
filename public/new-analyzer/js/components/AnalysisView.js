@@ -1,247 +1,76 @@
-// HaQei Analyzer - Analysis View Component
+// AnalysisView.js - 分析処理とアニメーションの同期管理システム
+
 class AnalysisView extends BaseComponent {
-  constructor(containerId, options = {}) {
-    // まずはsuper()を呼び出してからthisを使用
-    super(containerId, options);
-    
-    // super()後に分析ステップを初期化
-    this.analysisSteps = [
-      "価値観データを8次元で解析中...",
-      "64卦の特性マトリックスを計算中...",
-      "コサイン類似度を算出中...",
-      "最適な人格OSを特定中...",
-      "深い洞察を生成中...",
-    ];
-    
-    this.currentStep = 0;
-    this.analysisInterval = null;
-    
-    // 初期化の確認
-    if (!Array.isArray(this.analysisSteps)) {
-      console.error("AnalysisView: analysisSteps の初期化に失敗しました");
-      this.analysisSteps = ["分析を実行中..."];
+    constructor(containerId, options) {
+        super(containerId, options);
+        this.analysisTask = options.analysisTask;
+        this.onComplete = options.onComplete;
+        this.analysisSteps = [
+            '価値観データを8次元で解析中...',
+            '64卦の特性マトリックスを計算中...',
+            'コサイン類似度を算出中...',
+            '最適な人格OSを特定中...',
+            '深い洞察を生成中...'
+        ];
+        this.currentStep = 0;
+        this.intervalId = null;
+    }
+
+    async show() {
+        super.show();
+        this.render();
+        this._startAnimation(); // アニメーションを開始
+
+        if (this.analysisTask) {
+            try {
+                // 裏で非同期に分析処理を実行
+                const data = await this.analysisTask();
+                // 分析が終わったら、アニメーションを完了させる
+                this._completeAnimation(data);
+            } catch (error) {
+                console.error("❌ Analysis task failed inside AnalysisView:", error);
+                // エラーが発生した場合も、コールバックを呼んで処理を継続させる
+                this.onComplete({ error: "分析処理に失敗しました。" });
+            }
+        }
     }
     
-    console.log("AnalysisView initialized with", this.analysisSteps.length, "steps");
-    
-    // BaseComponentのinit()でrender()が呼ばれた後に再度render()して正しい内容を表示
-    this.render();
-  }
+    hide() {
+        clearInterval(this.intervalId);
+        return super.hide();
+    }
 
-  get defaultOptions() {
-    return {
-      animation: true,
-      animationDuration: 300,
-      onAnalysisComplete: null,
-      analysisDuration: 5000, // 5秒
-    };
-  }
-
-  render() {
-    console.log("AnalysisView render() called");
-    console.log("this.analysisSteps:", this.analysisSteps);
-    
-    // 安全性チェック（初期化が完了していない場合のフォールバック）
-    if (!Array.isArray(this.analysisSteps)) {
-      console.warn("AnalysisView render: analysisSteps is not yet initialized, using fallback");
-      console.warn("this.analysisSteps type:", typeof this.analysisSteps);
-      // フォールバック用のデフォルト値
-      const fallbackSteps = [
-        "価値観データを8次元で解析中...",
-        "64卦の特性マトリックスを計算中...",
-        "コサイン類似度を算出中...",
-        "最適な人格OSを特定中...",
-        "深い洞察を生成中...",
-      ];
-      
-      // ステップHTMLを直接生成
-      const stepsHTML = fallbackSteps.map((step, index) => {
-        return `
-          <div class="step-item" data-step="${index}">
-            <div class="step-icon">
-              <div class="step-number">${index + 1}</div>
-              <div class="step-check">✓</div>
+    render() {
+        this.container.innerHTML = `
+            <div class="analysis-view-content">
+                <div class="analysis-spinner"></div>
+                <h2 id="analysis-step-text">${this.analysisSteps[0]}</h2>
             </div>
-            <div class="step-text">${step}</div>
-          </div>
         `;
-      }).join("");
-      
-      this.container.innerHTML = `
-        <div class="analysis-container">
-          <div class="analysis-header">
-            <h2 class="analysis-title">🔬 深い洞察を生成中</h2>
-            <p class="analysis-subtitle">古代の叡智と現代の数学が融合する瞬間</p>
-          </div>
-          <div class="analysis-visual">
-            <div class="analysis-spinner">
-              <div class="spinner-ring"></div>
-              <div class="spinner-ring"></div>
-              <div class="spinner-ring"></div>
-            </div>
-            <div class="analysis-progress">
-              <div class="progress-circle">
-                <div class="progress-text">
-                  <span id="progress-percent">0</span>%
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="analysis-steps">
-            <div id="current-step" class="step-text">
-              分析を開始しています...
-            </div>
-            <div class="steps-list">
-              ${stepsHTML}
-            </div>
-          </div>
-          <div class="analysis-footer">
-            <p class="analysis-note">
-              💡 あなたの価値観は8次元ベクトルとして数値化され、<br>
-              64通りの人格OSパターンと照合されています
-            </p>
-          </div>
-        </div>
-      `;
-      
-      console.log("AnalysisView render() completed with fallback");
-      return;
-    }
-    
-    // ステップリストの生成
-    const stepsHTML = this.analysisSteps.map((step, index) => {
-      return `
-        <div class="step-item" data-step="${index}">
-          <div class="step-icon">
-            <div class="step-number">${index + 1}</div>
-            <div class="step-check">✓</div>
-          </div>
-          <div class="step-text">${step}</div>
-        </div>
-      `;
-    }).join("");
-    
-    this.container.innerHTML = `
-      <div class="analysis-container">
-        <div class="analysis-header">
-          <h2 class="analysis-title">🔬 深い洞察を生成中</h2>
-          <p class="analysis-subtitle">古代の叡智と現代の数学が融合する瞬間</p>
-        </div>
-
-        <div class="analysis-visual">
-          <div class="analysis-spinner">
-            <div class="spinner-ring"></div>
-            <div class="spinner-ring"></div>
-            <div class="spinner-ring"></div>
-          </div>
-          
-          <div class="analysis-progress">
-            <div class="progress-circle">
-              <div class="progress-text">
-                <span id="progress-percent">0</span>%
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="analysis-steps">
-          <div id="current-step" class="step-text">
-            分析を開始しています...
-          </div>
-          
-          <div class="steps-list">
-            ${stepsHTML}
-          </div>
-        </div>
-
-        <div class="analysis-footer">
-          <p class="analysis-note">
-            💡 あなたの価値観は8次元ベクトルとして数値化され、<br>
-            64通りの人格OSパターンと照合されています
-          </p>
-        </div>
-      </div>
-    `;
-    
-    console.log("AnalysisView render() completed successfully");
-    console.log("Final analysisSteps:", this.analysisSteps);
-    console.log("Container innerHTML length:", this.container.innerHTML.length);
-  }
-
-  async startAnalysis() {
-    console.log("🔬 Starting analysis animation...");
-
-    // プログレス更新
-    const progressPercent = this.container.querySelector("#progress-percent");
-    const currentStepEl = this.container.querySelector("#current-step");
-
-    let progress = 0;
-    const stepDuration =
-      this.options.analysisDuration / this.analysisSteps.length;
-
-    this.analysisInterval = setInterval(() => {
-      // プログレス更新
-      progress += 100 / this.analysisSteps.length;
-      if (progressPercent) {
-        progressPercent.textContent = Math.min(Math.round(progress), 100);
-      }
-
-      // 現在のステップを更新
-      if (currentStepEl && this.currentStep < this.analysisSteps.length) {
-        currentStepEl.textContent = this.analysisSteps[this.currentStep];
-      }
-
-      // ステップアイテムを完了状態に
-      const stepItem = this.container.querySelector(
-        `[data-step="${this.currentStep}"]`
-      );
-      if (stepItem) {
-        stepItem.classList.add("completed");
-      }
-
-      this.currentStep++;
-
-      // 分析完了
-      if (this.currentStep >= this.analysisSteps.length) {
-        this.completeAnalysis();
-      }
-    }, stepDuration);
-  }
-
-  completeAnalysis() {
-    clearInterval(this.analysisInterval);
-
-    const currentStepEl = this.container.querySelector("#current-step");
-    const progressPercent = this.container.querySelector("#progress-percent");
-
-    if (currentStepEl) {
-      currentStepEl.textContent = "✨ 分析完了！深い洞察が生成されました";
-      currentStepEl.style.color = "var(--accent-400)";
     }
 
-    if (progressPercent) {
-      progressPercent.textContent = "100";
+    _startAnimation() {
+        const stepTextElement = document.getElementById('analysis-step-text');
+        this.intervalId = setInterval(() => {
+            this.currentStep = (this.currentStep + 1) % this.analysisSteps.length;
+            if (stepTextElement) {
+                stepTextElement.textContent = this.analysisSteps[this.currentStep];
+            }
+        }, 1500); // 1.5秒ごとにテキストを切り替え
     }
 
-    // 完了アニメーション
-    setTimeout(() => {
-      if (this.options.onAnalysisComplete) {
-        this.options.onAnalysisComplete();
-      }
-    }, 1000);
-  }
+    _completeAnimation(data) {
+        clearInterval(this.intervalId); // テキスト切り替えを停止
+        const stepTextElement = document.getElementById('analysis-step-text');
+        if (stepTextElement) {
+            stepTextElement.textContent = "分析完了。結果を生成しています...";
+        }
 
-  onShow() {
-    // 表示時に分析開始
-    setTimeout(() => {
-      this.startAnalysis();
-    }, 500);
-  }
-
-  onHide() {
-    // 非表示時にインターバルクリア
-    if (this.analysisInterval) {
-      clearInterval(this.analysisInterval);
+        // 500ミリ秒待ってから、画面遷移のコールバックを呼ぶ
+        setTimeout(() => {
+            if (this.onComplete) {
+                this.onComplete(data);
+            }
+        }, 500);
     }
-  }
 }

@@ -1923,7 +1923,17 @@ var SCENARIO_QUESTIONS = [
   },
 ];
 
-console.log("✅ Questions data loaded:", {
-  WORLDVIEW_QUESTIONS: WORLDVIEW_QUESTIONS?.length || 0,
-  SCENARIO_QUESTIONS: SCENARIO_QUESTIONS?.length || 0,
-});
+// グローバル変数としてデータを登録
+if (typeof window !== "undefined") {
+  window.WORLDVIEW_QUESTIONS = WORLDVIEW_QUESTIONS;
+  window.SCENARIO_QUESTIONS = SCENARIO_QUESTIONS;
+  console.log("✅ Questions data loaded and set to window:", {
+    WORLDVIEW_QUESTIONS: WORLDVIEW_QUESTIONS?.length || 0,
+    SCENARIO_QUESTIONS: SCENARIO_QUESTIONS?.length || 0,
+  });
+} else {
+  console.log("✅ Questions data loaded:", {
+    WORLDVIEW_QUESTIONS: WORLDVIEW_QUESTIONS?.length || 0,
+    SCENARIO_QUESTIONS: SCENARIO_QUESTIONS?.length || 0,
+  });
+}

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenerateInsights Method Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .test-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .test-btn:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 GenerateInsights Method Fix Test</h1>
+        <p>このテストはTripleOSEngine.generateInsightsメソッドが正しく実装されているかを確認します。</p>
+        
+        <button class="test-btn" onclick="runMethodTest()">🔍 メソッド存在確認テスト</button>
+        <button class="test-btn" onclick="runInsightsGenerationTest()">💡 洞察生成テスト</button>
+        <button class="test-btn" onclick="runFullPipelineTest()">🚀 完全パイプラインテスト</button>
+        <button class="test-btn" onclick="clearResults()">🗑️ 結果クリア</button>
+        
+        <div id="test-results"></div>
+    </div>
+
+    <!-- Core scripts needed for testing -->
+    <script src="../js/data/data_box.js"></script>
+    <script src="../js/data/questions.js"></script>
+    <script src="../js/data/vectors.js"></script>
+    <script src="../js/data/hexagrams.js"></script>
+    <script src="../js/data/hexagram_details.js"></script>
+    <script src="../js/data/compatibility_definition.js"></script>
+    <script src="../js/data/compatibility_matrix.js"></script>
+    <script src="../js/data/action_plans.js"></script>
+
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/DataManager.js"></script>
+    <script src="js/core/Calculator.js"></script>
+    <script src="js/core/TripleOSEngine.js"></script>
+    <script src="js/core/CompatibilityDataLoader.js"></script>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = message;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+        }
+
+        function runMethodTest() {
+            addResult('🔍 Testing generateInsights method existence...', 'info');
+            
+            try {
+                // 1. Check if TripleOSEngine is defined
+                if (typeof TripleOSEngine === 'undefined') {
+                    addResult('❌ TripleOSEngine class is not defined', 'error');
+                    return;
+                }
+                addResult('✅ TripleOSEngine class is defined', 'success');
+
+                // 2. Create DataManager instance
+                const dataManager = new DataManager();
+                addResult('✅ DataManager instance created', 'success');
+
+                // 3. Create TripleOSEngine instance
+                const engine = new TripleOSEngine(dataManager);
+                addResult('✅ TripleOSEngine instance created', 'success');
+
+                // 4. Check if generateInsights method exists
+                if (typeof engine.generateInsights !== 'function') {
+                    addResult('❌ generateInsights method is not defined', 'error');
+                    return;
+                }
+                addResult('✅ generateInsights method exists', 'success');
+
+                // 5. Check helper methods
+                const helperMethods = [
+                    'generateSummaryInsight',
+                    'generateStrengthsInsight', 
+                    'generateGrowthInsight',
+                    'generateRecommendations',
+                    'generateTripleOSSpecificInsights',
+                    'generateFallbackInsights'
+                ];
+
+                helperMethods.forEach(methodName => {
+                    if (typeof engine[methodName] === 'function') {
+                        addResult(`✅ ${methodName} method exists`, 'success');
+                    } else {
+                        addResult(`❌ ${methodName} method is missing`, 'error');
+                    }
+                });
+
+                addResult('🎉 All method existence tests passed!', 'success');
+
+            } catch (error) {
+                addResult(`❌ Method test failed: ${error.message}`, 'error');
+                addResult(`🔍 Error stack: ${error.stack}`, 'error');
+            }
+        }
+
+        async function runInsightsGenerationTest() {
+            addResult('💡 Testing insights generation...', 'info');
+            
+            try {
+                // 1. Create components
+                const dataManager = new DataManager();
+                const engine = new TripleOSEngine(dataManager);
+
+                // 2. Create mock analysis result
+                const mockAnalysisResult = {
+                    analysisType: "tripleOS",
+                    primaryOS: {
+                        osId: 1,
+                        osName: "乾為天",
+                        hexagramInfo: { name: "乾為天", name_jp: "乾為天" }
+                    },
+                    engineOS: {
+                        osId: 1,
+                        osName: "乾為天",
+                        hexagramInfo: { name: "乾為天", name_jp: "乾為天" }
+                    },
+                    interfaceOS: {
+                        osId: 2,
+                        osName: "兌為沢",
+                        hexagramInfo: { name: "兌為沢", name_jp: "兌為沢" }
+                    },
+                    safeModeOS: {
+                        osId: 8,
+                        osName: "坤為地",
+                        hexagramInfo: { name: "坤為地", name_jp: "坤為地" }
+                    },
+                    consistencyScore: {
+                        overall: 0.85
+                    },
+                    dimensions: [
+                        { key: "乾_創造性", displayName: "創造性", value: 5.2, percentage: 30 },
+                        { key: "離_表現性", displayName: "表現性", value: 4.1, percentage: 25 },
+                        { key: "震_行動性", displayName: "行動性", value: 3.8, percentage: 20 }
+                    ]
+                };
+
+                addResult('📝 Mock analysis result created', 'info');
+
+                // 3. Test generateInsights method
+                const insights = await engine.generateInsights(mockAnalysisResult);
+                
+                if (!insights) {
+                    addResult('❌ generateInsights returned null/undefined', 'error');
+                    return;
+                }
+
+                addResult('✅ generateInsights executed successfully', 'success');
+
+                // 4. Validate insights structure
+                const expectedProperties = ['summary', 'strengths', 'growthAreas', 'recommendations', 'tripleOSInsights'];
+                expectedProperties.forEach(prop => {
+                    if (insights.hasOwnProperty(prop)) {
+                        addResult(`✅ Insights has ${prop} property`, 'success');
+                    } else {
+                        addResult(`❌ Insights missing ${prop} property`, 'error');
+                    }
+                });
+
+                // 5. Display generated insights
+                addResult('<h4>📊 Generated Insights:</h4>', 'info');
+                addResult(`<strong>Summary:</strong> ${insights.summary}`, 'info');
+                
+                if (insights.strengths && Array.isArray(insights.strengths)) {
+                    addResult(`<strong>Strengths:</strong> ${insights.strengths.join(', ')}`, 'info');
+                } else {
+                    addResult(`<strong>Strengths:</strong> ${insights.strengths}`, 'info');
+                }
+
+                if (insights.recommendations && Array.isArray(insights.recommendations)) {
+                    addResult(`<strong>Recommendations:</strong> ${insights.recommendations.join(', ')}`, 'info');
+                }
+
+                if (insights.tripleOSInsights) {
+                    addResult(`<strong>Engine Insight:</strong> ${insights.tripleOSInsights.engineInsight}`, 'info');
+                    addResult(`<strong>Consistency Insight:</strong> ${insights.tripleOSInsights.consistencyInsight}`, 'info');
+                }
+
+                addResult('🎉 Insights generation test passed!', 'success');
+
+            } catch (error) {
+                addResult(`❌ Insights generation test failed: ${error.message}`, 'error');
+                addResult(`🔍 Error details: ${error.stack}`, 'error');
+            }
+        }
+
+        async function runFullPipelineTest() {
+            addResult('🚀 Testing full analysis pipeline...', 'info');
+            
+            try {
+                // 1. Initialize components
+                const dataManager = new DataManager();
+                await dataManager.loadData();
+                
+                const engine = new TripleOSEngine(dataManager);
+                addResult('✅ Engine initialized with data', 'success');
+
+                // 2. Create test answers
+                const testAnswers = [
+                    // Worldview questions
+                    {
+                        questionId: "q1",
+                        selectedValue: "A",
+                        scoring_tags: [
+                            { key: "乾_創造性", value: 3.0 },
+                            { key: "離_表現性", value: 1.5 }
+                        ]
+                    },
+                    {
+                        questionId: "q2",
+                        selectedValue: "B",
+                        scoring_tags: [
+                            { key: "坎_探求性", value: 2.5 },
+                            { key: "艮_安定性", value: 2.0 }
+                        ]
+                    },
+                    {
+                        questionId: "q3",
+                        selectedValue: "A",
+                        scoring_tags: [
+                            { key: "震_行動性", value: 2.8 },
+                            { key: "兌_調和性", value: 1.2 }
+                        ]
+                    },
+                    // Scenario questions
+                    {
+                        questionId: "q25",
+                        outerChoice: {
+                            value: "A",
+                            text: "Outer choice A",
+                            scoring_tags: ["leadership", "confidence"]
+                        },
+                        innerChoice: {
+                            value: "B", 
+                            text: "Inner choice B",
+                            scoring_tags: ["caution", "reflection"]
+                        }
+                    }
+                ];
+
+                addResult('📝 Test answers prepared', 'info');
+
+                // 3. Run analysis
+                const analysisResult = await engine.analyzeTripleOS(testAnswers);
+                addResult('✅ Analysis completed', 'success');
+
+                // 4. Generate insights (this is the method we fixed)
+                const insights = await engine.generateInsights(analysisResult);
+                addResult('✅ Insights generated successfully!', 'success');
+
+                // 5. Validate complete pipeline
+                if (analysisResult && insights) {
+                    addResult('🎉 Full pipeline test passed! The generateInsights fix is working correctly.', 'success');
+                    addResult(`🎯 Analysis type: ${analysisResult.analysisType}`, 'info');
+                    addResult(`🔧 Primary OS: ${analysisResult.primaryOS?.osName || 'Unknown'}`, 'info');
+                    addResult(`💡 Summary insight: ${insights.summary}`, 'info');
+                } else {
+                    addResult('❌ Pipeline produced incomplete results', 'error');
+                }
+
+            } catch (error) {
+                addResult(`❌ Full pipeline test failed: ${error.message}`, 'error');
+                addResult(`🔍 Error details: ${error.stack}`, 'error');
+                
+                // Check if this is the original error we were fixing
+                if (error.message.includes('generateInsights is not a function')) {
+                    addResult('💡 This is the original generateInsights error that should now be fixed', 'error');
+                }
+            }
+        }
+
+        // Auto-run basic test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('🚀 GenerateInsights Fix Test initialized', 'info');
+            addResult('💡 Click the test buttons to verify the generateInsights fix', 'info');
+        });
+    </script>
+</body>
+</html>
