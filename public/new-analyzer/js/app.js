@@ -538,9 +538,58 @@ async function showResultsView(result, insights) {
     // results-containerにvisibleクラスを確実に追加
     const resultsContainer = document.getElementById("results-container");
     if (resultsContainer) {
+      // ウルトラシンク修正: 複数の方法で強制表示
       resultsContainer.classList.add("visible");
-      resultsContainer.scrollTop = 0; // スクロール位置をトップにリセット
-      console.log("📺 [App] results-containerにvisibleクラスを追加しました");
+      resultsContainer.scrollTop = 0;
+      
+      // 直接的なスタイル強制適用（ダークモード対応完全版）
+      resultsContainer.style.setProperty('display', 'flex', 'important');
+      resultsContainer.style.setProperty('position', 'fixed', 'important');
+      resultsContainer.style.setProperty('top', '0', 'important');
+      resultsContainer.style.setProperty('left', '0', 'important');
+      resultsContainer.style.setProperty('width', '100vw', 'important');
+      resultsContainer.style.setProperty('height', '100vh', 'important');
+      resultsContainer.style.setProperty('z-index', '30000', 'important');
+      
+      // ダークモード対応: 確実な色設定
+      const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const backgroundColor = isDarkMode ? '#1a1a1a' : '#1e293b';
+      const textColor = isDarkMode ? '#ffffff' : '#f1f5f9';
+      
+      resultsContainer.style.setProperty('background-color', backgroundColor, 'important');
+      resultsContainer.style.setProperty('color', textColor, 'important');
+      resultsContainer.style.setProperty('opacity', '1', 'important');
+      resultsContainer.style.setProperty('visibility', 'visible', 'important');
+      resultsContainer.style.setProperty('flex-direction', 'column', 'important');
+      resultsContainer.style.setProperty('justify-content', 'flex-start', 'important');
+      resultsContainer.style.setProperty('align-items', 'center', 'important');
+      resultsContainer.style.setProperty('overflow-y', 'auto', 'important');
+      resultsContainer.style.setProperty('padding', '20px', 'important');
+      resultsContainer.style.setProperty('box-sizing', 'border-box', 'important');
+      
+      console.log(`🎨 [App.js] ダークモード対応: ${isDarkMode ? 'ダーク' : 'ライト'}モード - 背景色: ${backgroundColor}, テキスト色: ${textColor}`);
+      
+      console.log("📺 [App] results-containerにvisibleクラスと直接スタイルを適用しました");
+      
+      // 🔬 緊急デバッグ: 実際のHTMLコンテンツを確認
+      setTimeout(() => {
+        console.log("🔬 [Debug] results-container実際の状態:", {
+          innerHTML: resultsContainer.innerHTML.substring(0, 500) + '...',
+          computedStyles: {
+            display: getComputedStyle(resultsContainer).display,
+            position: getComputedStyle(resultsContainer).position,
+            zIndex: getComputedStyle(resultsContainer).zIndex,
+            opacity: getComputedStyle(resultsContainer).opacity,
+            visibility: getComputedStyle(resultsContainer).visibility,
+            backgroundColor: getComputedStyle(resultsContainer).backgroundColor,
+            color: getComputedStyle(resultsContainer).color,
+            width: getComputedStyle(resultsContainer).width,
+            height: getComputedStyle(resultsContainer).height
+          },
+          boundingRect: resultsContainer.getBoundingClientRect(),
+          classList: Array.from(resultsContainer.classList)
+        });
+      }, 1000);
     }
     
     console.log("✅ [App] 結果ビューの表示が完了しました。");

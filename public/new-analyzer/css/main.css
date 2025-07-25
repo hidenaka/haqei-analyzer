@@ -100,15 +100,34 @@ body {
   background-color: var(--primary-800) !important; /* 背景色を確実に設定 */
 }
 
-/* Results画面の強制表示 - 緊急修正 */
+/* Results画面の究極強制表示 - ダークモード対応完全版 */
 #results-container.visible {
   display: flex !important;
   opacity: 1 !important;
   visibility: visible !important;
-  z-index: 1000 !important;
-  background-color: var(--primary-800) !important;
-  color: var(--primary-100) !important;
+  z-index: 10000 !important;
+  background-color: var(--primary-800, #1e293b) !important;
+  color: var(--primary-100, #f1f5f9) !important;
   min-height: 100vh !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  overflow-y: auto !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+}
+
+/* ダークモード強制対応 */
+@media (prefers-color-scheme: dark) {
+  #results-container.visible {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+  }
 }
 
 .global-progress {
@@ -523,6 +542,13 @@ body {
     --primary-900: #0a0a0a;
     --primary-800: #1a1a1a;
     --primary-700: #2a2a2a;
+    --primary-600: #3a3a3a;
+    --primary-500: #4a4a4a;
+    --primary-400: #6a6a6a;
+    --primary-300: #8a8a8a;
+    --primary-200: #aaaaaa;
+    --primary-100: #ffffff;  /* 修正: ダークモードでの白いテキスト */
+    --primary-50: #f8f8f8;
   }
 }
 

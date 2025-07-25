@@ -55,13 +55,39 @@ class BaseComponent {
 
     // まず表示状態にする - CSSの詳細度を上回るため!importantを使用
     if (this.container.classList.contains('screen-container')) {
-      this.container.style.setProperty('display', 'block', 'important');
+      this.container.style.setProperty('display', 'flex', 'important');
     } else {
       this.container.style.setProperty('display', 'flex', 'important');
     }
     this.container.style.setProperty('opacity', '1', 'important');
     this.container.style.setProperty('transform', 'translateY(0)', 'important');
     this.container.style.setProperty('visibility', 'visible', 'important');
+    
+    // results-containerの場合は特別な強制表示処理（ダークモード対応）
+    if (this.containerId === 'results-container') {
+      this.container.style.setProperty('position', 'fixed', 'important');
+      this.container.style.setProperty('top', '0', 'important');
+      this.container.style.setProperty('left', '0', 'important');
+      this.container.style.setProperty('width', '100vw', 'important');
+      this.container.style.setProperty('height', '100vh', 'important');
+      this.container.style.setProperty('z-index', '40000', 'important');
+      
+      // ダークモード対応: CSS変数が失敗した場合のフォールバック値
+      const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const backgroundColor = isDarkMode ? '#1a1a1a' : '#1e293b';
+      const textColor = isDarkMode ? '#ffffff' : '#f1f5f9';
+      
+      this.container.style.setProperty('background-color', backgroundColor, 'important');
+      this.container.style.setProperty('color', textColor, 'important');
+      this.container.style.setProperty('flex-direction', 'column', 'important');
+      this.container.style.setProperty('justify-content', 'flex-start', 'important');
+      this.container.style.setProperty('align-items', 'center', 'important');
+      this.container.style.setProperty('overflow-y', 'auto', 'important');
+      this.container.style.setProperty('padding', '20px', 'important');
+      this.container.style.setProperty('box-sizing', 'border-box', 'important');
+      
+      console.log(`🎨 [BaseComponent] ダークモード対応: ${isDarkMode ? 'ダーク' : 'ライト'}モード - 背景色: ${backgroundColor}, テキスト色: ${textColor}`);
+    }
     
     // visibleクラスを追加してCSS側でも制御
     this.container.classList.add('visible');
