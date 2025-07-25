@@ -16,8 +16,326 @@
 
 .screen-container.visible {
   opacity: 1 !important;
+  display: flex !important;
+  visibility: visible !important;
+}
+
+/* Results画面の特別処理 - ダークモード対応完全版 */
+#results-container.visible {
+  display: flex !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 20000 !important;
+  background-color: var(--primary-800, #1e293b) !important;
+  color: var(--primary-100, #f1f5f9) !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  overflow-y: auto !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+}
+
+/* ダークモード特別対応 */
+@media (prefers-color-scheme: dark) {
+  #results-container.visible {
+    background-color: #1a1a1a !important;
+    color: #ffffff !important;
+  }
+}
+
+/* Results View Content Visibility Fix */
+.results-view-final {
+  width: 100% !important;
+  max-width: 1200px !important;
+  color: var(--primary-100, #f1f5f9) !important;
+  background: transparent !important;
+  z-index: 1 !important;
+  position: relative !important;
   display: block !important;
   visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.results-view-final * {
+  color: inherit !important;
+  visibility: visible !important;
+}
+
+.summary-hero,
+.os-cards-section,
+.dynamics-section {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  margin-bottom: 2rem !important;
+}
+
+.archetype-title {
+  font-size: 2.5rem !important;
+  font-weight: bold !important;
+  color: var(--primary-100, #f1f5f9) !important;
+  margin-bottom: 1rem !important;
+}
+
+.archetype-catchphrase {
+  font-size: 1.2rem !important;
+  color: var(--primary-300, #cbd5e1) !important;
+  margin-bottom: 2rem !important;
+}
+
+.section-title {
+  font-size: 1.8rem !important;
+  font-weight: 600 !important;
+  color: var(--primary-100, #f1f5f9) !important;
+  margin-bottom: 1.5rem !important;
+  text-align: center !important;
+}
+
+.os-cards-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+  width: 100% !important;
+}
+
+.os-card {
+  background: var(--primary-700, #334155) !important;
+  border: 1px solid var(--primary-600, #475569) !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important;
+  color: var(--primary-100, #f1f5f9) !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.os-card-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.os-icon {
+  font-size: 2rem !important;
+}
+
+.os-label-group h3 {
+  font-size: 1.3rem !important;
+  font-weight: 600 !important;
+  color: var(--primary-100, #f1f5f9) !important;
+  margin: 0 !important;
+}
+
+.os-label-group p {
+  font-size: 0.9rem !important;
+  color: var(--primary-300, #cbd5e1) !important;
+  margin: 0 !important;
+}
+
+/* 8卦カラーカードスタイル */
+.bagua-cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 1rem !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+  padding: 1rem !important;
+}
+
+.bagua-card {
+  background: linear-gradient(135deg, 
+    rgba(var(--card-color-rgb, 255,107,107), 0.2), 
+    rgba(var(--card-color-rgb, 255,107,107), 0.1)) !important;
+  border: 2px solid var(--card-color) !important;
+  border-radius: 12px !important;
+  padding: 1rem !important;
+  text-align: center !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 120px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+}
+
+.bagua-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3) !important;
+}
+
+.bagua-icon {
+  font-size: 2rem !important;
+  color: var(--card-color) !important;
+  margin-bottom: 0.5rem !important;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)) !important;
+}
+
+.bagua-name {
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  color: var(--primary-100, #f1f5f9) !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.bagua-trigram {
+  font-size: 0.75rem !important;
+  color: var(--primary-300, #cbd5e1) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.bagua-score {
+  font-size: 1.2rem !important;
+  font-weight: bold !important;
+  color: var(--card-color) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.bagua-bar {
+  width: 100% !important;
+  height: 6px !important;
+  background: rgba(255,255,255,0.2) !important;
+  border-radius: 3px !important;
+  overflow: hidden !important;
+}
+
+.bagua-bar-fill {
+  height: 100% !important;
+  background: var(--card-color) !important;
+  border-radius: 3px !important;
+  transition: width 0.6s ease !important;
+  box-shadow: 0 0 8px rgba(var(--card-color-rgb, 255,107,107), 0.5) !important;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .bagua-cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+  
+  .bagua-card {
+    min-height: 100px !important;
+    padding: 0.75rem !important;
+  }
+  
+  .bagua-icon {
+    font-size: 1.5rem !important;
+  }
+  
+  .bagua-score {
+    font-size: 1rem !important;
+  }
+}
+
+/* 内なる力学セクション スタイル */
+.dynamics-section {
+  width: 100% !important;
+  margin-top: 2rem !important;
+  padding: 1rem !important;
+}
+
+.dynamics-cards-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem !important;
+  max-width: 1000px !important;
+  margin: 0 auto !important;
+}
+
+.dynamics-card {
+  background: var(--primary-700, #334155) !important;
+  border: 1px solid var(--primary-600, #475569) !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important;
+  color: var(--primary-100, #f1f5f9) !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dynamics-card h3 {
+  font-size: 1.4rem !important;
+  font-weight: 600 !important;
+  color: var(--primary-100, #f1f5f9) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.dynamics-card > p {
+  font-size: 0.9rem !important;
+  color: var(--primary-300, #cbd5e1) !important;
+  margin-bottom: 1rem !important;
+}
+
+.dynamics-content {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+}
+
+.interface-item,
+.safemode-item {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px !important;
+  padding: 1rem !important;
+  border-left: 3px solid var(--accent-500, #6366f1) !important;
+}
+
+.interface-item h4,
+.safemode-item h4 {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: var(--primary-100, #f1f5f9) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.interface-item p,
+.safemode-item p {
+  font-size: 0.9rem !important;
+  color: var(--primary-200, #e2e8f0) !important;
+  line-height: 1.5 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.score {
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  color: var(--accent-400, #8b5cf6) !important;
+  padding: 0.25rem 0.5rem !important;
+  background: rgba(139, 92, 246, 0.2) !important;
+  border-radius: 4px !important;
+  display: inline-block !important;
+}
+
+.warning-text,
+.error-text {
+  color: #fbbf24 !important;
+  font-style: italic !important;
+  text-align: center !important;
+  padding: 1rem !important;
+}
+
+.error-text {
+  color: #f87171 !important;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .dynamics-cards-container {
+    gap: 1rem !important;
+  }
+  
+  .dynamics-card {
+    padding: 1rem !important;
+  }
+  
+  .dynamics-card h3 {
+    font-size: 1.2rem !important;
+  }
 }
 
 .btn {

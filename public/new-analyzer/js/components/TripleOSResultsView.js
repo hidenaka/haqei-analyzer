@@ -68,7 +68,7 @@ class TripleOSResultsView extends BaseComponent {
                     <p class="archetype-catchphrase">${engineOS.hexagramInfo.catchphrase}</p>
                 </div>
                 <div class="chart-container">
-                    <canvas id="profile-radar-chart"></canvas>
+                    <div id="bagua-cards-container" class="bagua-cards-grid"></div>
                 </div>
             </section>
 
@@ -120,21 +120,204 @@ class TripleOSResultsView extends BaseComponent {
     }
 
     async _postRender() {
-        this._renderRadarChart();
+        this._renderBaguaCards();
         this._bindEventListeners();
         await this._loadAndRenderDynamics(); // 非同期処理の完了を待つ
         console.log("✅ [TripleOSResultsView] All post-render tasks completed.");
     }
 
+    _generateSVGRadarChart(data) {
+        const size = 280;
+        const center = size / 2;
+        const maxRadius = center - 40;
+        const numPoints = data.length;
+        
+        // ポイントの座標を計算
+        const getPoint = (index, value) => {
+            const angle = (Math.PI * 2 * index) / numPoints - Math.PI / 2;
+            const radius = (value / 100) * maxRadius;
+            return {
+                x: center + Math.cos(angle) * radius,
+                y: center + Math.sin(angle) * radius
+            };
+        };
+        
+        // グリッドライン用の座標
+        const getGridPoint = (index, level) => {
+            const angle = (Math.PI * 2 * index) / numPoints - Math.PI / 2;
+            const radius = (level / 100) * maxRadius;
+            return {
+                x: center + Math.cos(angle) * radius,
+                y: center + Math.sin(angle) * radius
+            };
+        };
+        
+        // ラベル用の座標
+        const getLabelPoint = (index) => {
+            const angle = (Math.PI * 2 * index) / numPoints - Math.PI / 2;
+            const radius = maxRadius + 25;
+            return {
+                x: center + Math.cos(angle) * radius,
+                y: center + Math.sin(angle) * radius
+            };
+        };
+        
+        // SVGパスを生成
+        const dataPoints = data.map((item, index) => getPoint(index, item.value));
+        const pathData = dataPoints.map((point, index) => 
+            (index === 0 ? 'M' : 'L') + point.x + ',' + point.y
+        ).join(' ') + ' Z';
+        
+        return `
+            <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="background: rgba(0,0,0,0.1); border-radius: 8px;">
+                <!-- グリッドライン -->
+                ${[20, 40, 60, 80, 100].map(level => {
+                    const gridPoints = Array.from({length: numPoints}, (_, i) => getGridPoint(i, level));
+                    const gridPath = gridPoints.map((point, index) => 
+                        (index === 0 ? 'M' : 'L') + point.x + ',' + point.y
+                    ).join(' ') + ' Z';
+                    return `<path d="${gridPath}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
+                }).join('')}
+                
+                <!-- 軸線 -->
+                ${Array.from({length: numPoints}, (_, i) => {
+                    const endPoint = getGridPoint(i, 100);
+                    return `<line x1="${center}" y1="${center}" x2="${endPoint.x}" y2="${endPoint.y}" 
+                                  stroke="rgba(255,255,255,0.2)" stroke-width="1"/>`;
+                }).join('')}
+                
+                <!-- データエリア -->
+                <path d="${pathData}" fill="rgba(99, 102, 241, 0.3)" stroke="rgba(99, 102, 241, 0.8)" stroke-width="2"/>
+                
+                <!-- データポイント -->
+                ${dataPoints.map(point => 
+                    `<circle cx="${point.x}" cy="${point.y}" r="4" fill="rgba(99, 102, 241, 1)"/>`
+                ).join('')}
+                
+                <!-- ラベル -->
+                ${data.map((item, index) => {
+                    const labelPoint = getLabelPoint(index);
+                    return `<text x="${labelPoint.x}" y="${labelPoint.y}" 
+                                  text-anchor="middle" dominant-baseline="middle" 
+                                  fill="rgba(255,255,255,0.9)" font-size="12" font-family="Inter, sans-serif">
+                                ${item.label}
+                            </text>`;
+                }).join('')}
+                
+                <!-- 中央のタイトル -->
+                <text x="${center}" y="${center - 10}" text-anchor="middle" fill="rgba(255,255,255,0.7)" 
+                      font-size="14" font-weight="bold" font-family="Inter, sans-serif">
+                    人格プロファイル
+                </text>
+                <text x="${center}" y="${center + 10}" text-anchor="middle" fill="rgba(255,255,255,0.5)" 
+                      font-size="12" font-family="Inter, sans-serif">
+                      
+                </text>
+            </svg>
+        `;
+    }
+
     _renderRadarChart() {
-        // レーダーチャートの描画処理（Chart.js読み込み確認付き）
+        // 🚨 EMERGENCY FIX: Chart.js完全無効化 - 表示問題調査のため
+        console.log("🚨 [TripleOSResultsView] Chart.js処理を緊急無効化しました");
+        
         const radarCanvas = document.getElementById('profile-radar-chart');
         if (!radarCanvas) {
             console.warn("⚠️ [TripleOSResultsView] Radar chart canvas not found");
             return;
         }
 
-        // Chart.js読み込み確認
+        // 常にプレースホルダーを表示（Chart.jsを使用せず）
+        radarCanvas.style.display = 'none';
+        const placeholder = document.createElement('div');
+        placeholder.style.cssText = `
+            width: 100%;
+            height: 300px;
+            background: var(--primary-700, #334155);
+            border: 2px solid var(--primary-600, #475569);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-200, #e2e8f0);
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        `;
+        // レーダーチャートのデータを取得
+        const { engineOS } = this.analysisResult;
+        if (engineOS && engineOS.vector) {
+            const data = [
+                { label: '創造性', value: (engineOS.vector['乾_創造性'] || 0) * 10 },
+                { label: '行動性', value: (engineOS.vector['震_行動性'] || 0) * 10 },
+                { label: '探求性', value: (engineOS.vector['坎_探求性'] || 0) * 10 },
+                { label: '安定性', value: (engineOS.vector['艮_安定性'] || 0) * 10 },
+                { label: '受容性', value: (engineOS.vector['坤_受容性'] || 0) * 10 },
+                { label: '適応性', value: (engineOS.vector['巽_適応性'] || 0) * 10 },
+                { label: '表現性', value: (engineOS.vector['離_表現性'] || 0) * 10 },
+                { label: '調和性', value: (engineOS.vector['兌_調和性'] || 0) * 10 }
+            ];
+            
+            placeholder.innerHTML = this._generateSVGRadarChart(data);
+        } else {
+            placeholder.innerHTML = '📊 レーダーチャート<br>（データ読み込み中...）';
+        }
+        
+        radarCanvas.parentNode.insertBefore(placeholder, radarCanvas);
+        console.log("✅ [TripleOSResultsView] SVGレーダーチャート表示完了");
+        return;
+    }
+
+    _renderBaguaCards() {
+        console.log("🎴 [TripleOSResultsView] 8卦カラーカード表示開始");
+        
+        const container = document.getElementById('bagua-cards-container');
+        if (!container) {
+            console.warn("⚠️ [TripleOSResultsView] Bagua cards container not found");
+            return;
+        }
+
+        const { engineOS } = this.analysisResult;
+        if (!engineOS || !engineOS.vector) {
+            console.warn("⚠️ [TripleOSResultsView] Engine OS vector data not found");
+            return;
+        }
+
+        // 8卦のデータ定義（色と名前）
+        const baguaData = [
+            { key: '乾_創造性', name: '創造性', color: '#ff6b6b', icon: '☰', trigram: '乾' },
+            { key: '震_行動性', name: '行動性', color: '#4ecdc4', icon: '☳', trigram: '震' },
+            { key: '坎_探求性', name: '探求性', color: '#45b7d1', icon: '☵', trigram: '坎' },
+            { key: '艮_安定性', name: '安定性', color: '#96ceb4', icon: '☶', trigram: '艮' },
+            { key: '坤_受容性', name: '受容性', color: '#ffeaa7', icon: '☷', trigram: '坤' },
+            { key: '巽_適応性', name: '適応性', color: '#fd79a8', icon: '☴', trigram: '巽' },
+            { key: '離_表現性', name: '表現性', color: '#fdcb6e', icon: '☲', trigram: '離' },
+            { key: '兌_調和性', name: '調和性', color: '#a29bfe', icon: '☱', trigram: '兌' }
+        ];
+
+        // カードのHTML生成
+        const cardsHTML = baguaData.map(bagua => {
+            const value = engineOS.vector[bagua.key] || 0;
+            const percentage = Math.round(Math.max(0, Math.min(100, value * 10)));
+            const intensity = percentage / 100;
+            
+            return `
+                <div class="bagua-card" style="--card-color: ${bagua.color}; --intensity: ${intensity}">
+                    <div class="bagua-icon">${bagua.icon}</div>
+                    <div class="bagua-name">${bagua.name}</div>
+                    <div class="bagua-trigram">${bagua.trigram}</div>
+                    <div class="bagua-score">${percentage}%</div>
+                    <div class="bagua-bar">
+                        <div class="bagua-bar-fill" style="width: ${percentage}%"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = cardsHTML;
+        console.log("✅ [TripleOSResultsView] 8卦カラーカード表示完了");
+
+        // Chart.js読み込み確認（無効化されたコード）
         if (typeof Chart === 'undefined') {
             console.error("❌ [TripleOSResultsView] Chart.js library not loaded - CDN may have failed");
             // Chart.js未読み込みの場合はプレースホルダー表示
