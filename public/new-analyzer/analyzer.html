@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="css/polish.css" />
     <link rel="stylesheet" href="css/personality-os-boot-sequence.css" />
     <link rel="stylesheet" href="css/interactive-ui.css" />
+    <link rel="stylesheet" href="css/strategic-dashboard.css" />
 
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -98,20 +99,96 @@
     <script src="js/core/BaseComponent.js"></script>
 
     <!-- コアクラス -->
-    <script src="js/core/StorageManager.js"></script>
-    <script src="js/core/DataManager.js"></script>
-    <script src="js/core/Calculator.js"></script>
-    <script src="js/core/CompatibilityDataLoader.js"></script>
-    <script src="js/core/Engine.js"></script>
-    <script src="js/core/TripleOSEngine.js"></script>
+    <script
+      src="js/core/StorageManager.js"
+      onerror="console.error('❌ Failed to load StorageManager.js')"
+    ></script>
+    <script
+      src="js/core/DataManager.js"
+      onerror="console.error('❌ Failed to load DataManager.js')"
+    ></script>
+    <script
+      src="js/core/Calculator.js"
+      onerror="console.error('❌ Failed to load Calculator.js')"
+    ></script>
+    <script
+      src="js/core/CompatibilityDataLoader.js"
+      onerror="console.error('❌ Failed to load CompatibilityDataLoader.js')"
+    ></script>
+    <script
+      src="js/core/Engine.js"
+      onerror="console.error('❌ Failed to load Engine.js')"
+    ></script>
+    <script
+      src="js/core/TripleOSEngine.js"
+      onerror="console.error('❌ Failed to load TripleOSEngine.js')"
+    ></script>
+    <script
+      src="js/core/PersonalStrategyAI.js"
+      onerror="console.error('❌ Failed to load PersonalStrategyAI.js')"
+    ></script>
+
+    <script>
+      console.log("🔍 [Debug] コアクラス読み込み完了チェック");
+      console.log("DataManager:", typeof DataManager);
+      console.log("Calculator:", typeof Calculator);
+      console.log("TripleOSEngine:", typeof TripleOSEngine);
+    </script>
 
     <!-- コンポーネント -->
-    <script src="js/components/WelcomeScreen.js"></script>
-    <script src="js/components/QuestionFlow.js"></script>
-    <script src="js/components/AnalysisView.js"></script>
-    <script src="js/components/ResultsView.js"></script>
-    <script src="js/components/TripleOSResultsView.js"></script>
-    <script src="js/components/InsightPanel.js"></script>
+    <script
+      src="js/components/WelcomeScreen.js"
+      onerror="console.error('❌ Failed to load WelcomeScreen.js')"
+    ></script>
+    <script
+      src="js/components/QuestionFlow.js"
+      onerror="console.error('❌ Failed to load QuestionFlow.js')"
+    ></script>
+    <script
+      src="js/components/AnalysisView.js"
+      onerror="console.error('❌ Failed to load AnalysisView.js')"
+    ></script>
+    <script
+      src="js/components/ResultsView.js"
+      onerror="console.error('❌ Failed to load ResultsView.js')"
+    ></script>
+    <script
+      src="js/components/TripleOSResultsView.js"
+      onerror="console.error('❌ Failed to load TripleOSResultsView.js')"
+    ></script>
+    <script
+      src="js/components/TripleOSStrategicView.js"
+      onerror="console.error('❌ Failed to load TripleOSStrategicView.js')"
+    ></script>
+    <script
+      src="js/components/InteractiveConnectionsVisualizer.js"
+      onerror="console.error('❌ Failed to load InteractiveConnectionsVisualizer.js')"
+    ></script>
+    <script
+      src="js/components/InsightPanel.js"
+      onerror="console.error('❌ Failed to load InsightPanel.js')"
+    ></script>
+
+    <script>
+      console.log("🔍 [Debug] コンポーネント読み込み完了チェック");
+      console.log("WelcomeScreen:", typeof WelcomeScreen);
+      console.log("QuestionFlow:", typeof QuestionFlow);
+      console.log("TripleOSResultsView:", typeof TripleOSResultsView);
+    </script>
+
+    <script>
+      console.log(
+        "🕵️‍♂️ [TRACE-CHECKPOINT 1] app.js実行直前のクラス定義を検証します。"
+      );
+      console.log(
+        " -> TripleOSResultsViewは存在するか？:",
+        typeof TripleOSResultsView
+      );
+      console.log(
+        " -> CompatibilityDataLoaderは存在するか？:",
+        typeof CompatibilityDataLoader
+      );
+    </script>
 
     <script src="js/app.js"></script>
 

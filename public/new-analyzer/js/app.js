@@ -544,9 +544,13 @@ async function showResultsViewFallback(result, insights) {
     dataManager: dataManager,
   };
 
+  console.log(
+    "🕵️‍♂️ [TRACE-CHECKPOINT 2] TripleOSStrategicViewを生成します...",
+    optionsToPass
+  );
   try {
-    // インスタンスを生成
-    app.resultsView = new TripleOSResultsView("results-container", optionsToPass);
+    // 戦略ダッシュボードインスタンスを生成
+    app.resultsView = new TripleOSStrategicView("results-container", optionsToPass);
 
     // 初期化とレンダリングを実行
     await app.resultsView.init();

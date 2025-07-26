@@ -1463,6 +1463,76 @@ class TripleOSResultsView extends BaseComponent {
     return typeDesc.low;
   }
 
+  // 8卦カラーカードの表示
+  _renderBaguaCards() {
+        console.log("🎴 [TripleOSResultsView] 8卦カラーカード表示開始");
+        
+        const container = document.getElementById('bagua-cards-container');
+        if (!container) {
+            console.error("❌ [TripleOSResultsView] Bagua cards container not found - DOM may not be ready");
+            // フレームの最後で再試行
+            setTimeout(() => this._renderBaguaCards(), 100);
+            return;
+        }
+
+        const { engineOS } = this.analysisResult;
+        if (!engineOS) {
+            console.error("❌ [TripleOSResultsView] Engine OS data not found:", this.analysisResult);
+            container.innerHTML = '<div style="color: red; text-align: center; padding: 2rem;">エンジンOSデータが見つかりません</div>';
+            return;
+        }
+        
+        if (!engineOS.vector) {
+            console.error("❌ [TripleOSResultsView] Engine OS vector data not found:", engineOS);
+            container.innerHTML = '<div style="color: red; text-align: center; padding: 2rem;">ベクトルデータが見つかりません</div>';
+            return;
+        }
+
+        console.log("🔍 [TripleOSResultsView] Engine OS vector data:", engineOS.vector);
+
+        // 8卦のデータ定義（色と名前）
+        const baguaData = [
+            { key: '乾_創造性', name: '創造性', color: '#ff6b6b', colorRgb: '255,107,107', icon: '☰', trigram: '乾' },
+            { key: '震_行動性', name: '行動性', color: '#4ecdc4', colorRgb: '78,205,196', icon: '☳', trigram: '震' },
+            { key: '坎_探求性', name: '探求性', color: '#45b7d1', colorRgb: '69,183,209', icon: '☵', trigram: '坎' },
+            { key: '艮_安定性', name: '安定性', color: '#96ceb4', colorRgb: '150,206,180', icon: '☶', trigram: '艮' },
+            { key: '坤_受容性', name: '受容性', color: '#ffeaa7', colorRgb: '255,234,167', icon: '☷', trigram: '坤' },
+            { key: '巽_適応性', name: '適応性', color: '#fd79a8', colorRgb: '253,121,168', icon: '☴', trigram: '巽' },
+            { key: '離_表現性', name: '表現性', color: '#fdcb6e', colorRgb: '253,203,110', icon: '☲', trigram: '離' },
+            { key: '兌_調和性', name: '調和性', color: '#a29bfe', colorRgb: '162,155,254', icon: '☱', trigram: '兌' }
+        ];
+
+        // カードのHTML生成
+        const cardsHTML = baguaData.map(bagua => {
+            const value = engineOS.vector[bagua.key] || 0;
+            const percentage = Math.round(Math.max(0, Math.min(100, value * 10)));
+            const intensity = percentage / 100;
+            
+            return `
+                <div class="bagua-card" style="--card-color: ${bagua.color}; --card-color-rgb: ${bagua.colorRgb}; --intensity: ${intensity}">
+                    <div class="bagua-icon">${bagua.icon}</div>
+                    <div class="bagua-name">${bagua.name}</div>
+                    <div class="bagua-trigram">${bagua.trigram}</div>
+                    <div class="bagua-score">${percentage}%</div>
+                    <div class="bagua-bar">
+                        <div class="bagua-bar-fill" style="width: ${percentage}%"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = cardsHTML;
+        console.log("✅ [TripleOSResultsView] 8卦カラーカード表示完了");
+        console.log("🔍 [TripleOSResultsView] Generated cards HTML length:", cardsHTML.length);
+        console.log("🔍 [TripleOSResultsView] Container now has children:", container.children.length);
+        
+        // 追加の表示確認
+        if (container.children.length === 0) {
+            console.error("❌ [TripleOSResultsView] Warning: No cards were rendered to the container!");
+            console.log("🔍 Container HTML after setting:", container.innerHTML);
+        }
+  }
+
   async loadDynamicsVisualization() {
     console.log("🔄 [TripleOSResultsView] 力学データ可視化開始");
 

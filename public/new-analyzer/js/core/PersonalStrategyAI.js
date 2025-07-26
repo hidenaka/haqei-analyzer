@@ -1,0 +1,439 @@
+// PersonalStrategyAI.js - パーソナル戦略生成AI
+// HaQei Analyzer - Personal Strategy AI Generation System
+
+class PersonalStrategyAI {
+    constructor(dataManager) {
+        this.dataManager = dataManager;
+        this.promptTemplates = this._initializePromptTemplates();
+        this.qualityConstraints = this._initializeQualityConstraints();
+        
+        console.log("🤖 [PersonalStrategyAI] AI戦略生成システム初期化完了");
+    }
+
+    // プロンプトテンプレートの初期化
+    _initializePromptTemplates() {
+        return {
+            ROOT_STRENGTH: `以下の人格分析データを基に、この人の根源的な強みを一人称で説明してください。
+
+### 分析データ:
+- エンジンOS: {engineOS.osName}
+- 核心的動機: {hexagramDetails.engine.core_drive}
+- 潜在的強み: {hexagramDetails.engine.potential_strengths}
+- 8次元特性: {vector8D}
+
+### 出力形式:
+私の根源的な強みは[具体的な強み]です。これは[理由・背景]から来ており、特に[具体的な状況・場面]で力を発揮します。この強みを活かすことで、[実現可能な成果・影響]を生み出すことができます。
+
+### 制約:
+- 一人称（私は...）で記述
+- 具体的で実感できる表現
+- 200-300文字
+- 励ましと理解を込めたトーン`,
+
+            OPTIMAL_ROLE: `以下の人格分析データを基に、この人が最も輝ける役回り・役割を一人称で提案してください。
+
+### 分析データ:
+- インターフェースOS: {interfaceOS.osName}
+- 外見的特徴: {hexagramDetails.interface.how_it_appears}
+- 行動パターン: {hexagramDetails.interface.behavioral_patterns}
+- 他者への印象: {hexagramDetails.interface.impression_on_others}
+
+### 出力形式:
+私が最も輝ける役回りは[具体的な役割・立場]です。なぜなら私は[その役割に適した特性]を持っており、[具体的な場面・状況]で自然にその力を発揮できるからです。逆に[苦手な環境・役割]は避け、[推奨される環境・条件]を選ぶことで、本来の力を存分に発揮できます。
+
+### 制約:
+- 具体的な職種・役割名を含む
+- 適している理由を明確に説明
+- 避けるべき環境も言及
+- 実行可能なアドバイス
+- 200-300文字`,
+
+            DEFENSIVE_PATTERN: `以下の人格分析データを基に、この人がなぜ時々「らしくない」振る舞いをしてしまうのかを一人称で優しく解説してください。
+
+### 分析データ:
+- セーフモードOS: {safeModeOS.osName}
+- 発動トリガー: {hexagramDetails.safe_mode.trigger_situations}
+- 防御行動: {hexagramDetails.safe_mode.defensive_patterns}
+- 内面状態: {hexagramDetails.safe_mode.internal_state}
+
+### 出力形式:
+私が時々らしくない振る舞いをしてしまうのは、[発動条件]が起きた時に[セーフモード名]が自動的に作動するからです。この時の私は[内面的な状態]になり、無意識に[具体的な行動パターン]を取ってしまいます。これは[その行動の目的・意図]であり、決して悪いことではありません。ただし、[望ましくない結果]を招くこともあるため、[対処法・予防策]を意識することが大切です。
+
+### 制約:
+- 批判的でない、理解ある語調
+- 防御の必要性を認める
+- 具体的なトリガーの説明
+- 自己受容を促す表現
+- 250-350文字`,
+
+            PRACTICAL_ADVICE: `以下の3OS統合分析データを基に、この人が日常生活で実践できる具体的なアドバイスを一人称で提供してください。
+
+### 分析データ:
+- エンジンOS: {engineOS.osName} (強み: {hexagramDetails.engine.potential_strengths})
+- インターフェースOS: {interfaceOS.osName} (適性: {hexagramDetails.interface.behavioral_patterns})
+- セーフモードOS: {safeModeOS.osName} (注意点: {hexagramDetails.safe_mode.trigger_situations})
+- ユーザーの悩み: {userConcern}
+
+### 出力形式:
+私の3つのOSを統合して考えると、日常では次のことを意識すると良いでしょう。
+
+**エネルギー管理**: [エンジンOSの活かし方]
+**環境選択**: [インターフェースOSに適した環境・役割]
+**ストレス対処**: [セーフモード発動を防ぐ/健全に対処する方法]
+
+特に[ユーザーの悩みに対する具体的アドバイス]することをお勧めします。これにより[期待される改善・成果]が見込めます。
+
+### 制約:
+- 明日から実行できる具体的な行動
+- 3OSの統合的な視点
+- ユーザーの悩みへの直接的な対処法
+- 希望的で実現可能な内容
+- 300-400文字`
+        };
+    }
+
+    // 品質制約の初期化
+    _initializeQualityConstraints() {
+        return {
+            persona: "賢明で、共感的な相談役",
+            tone: "一人称での語りかけ",
+            avoidPatterns: ["べきである", "すべき", "かもしれません"],
+            requirePatterns: ["私は", "私の", "私が"],
+            maxLength: 400,
+            minLength: 200
+        };
+    }
+
+    // メイン戦略生成メソッド
+    async generateStrategySummary(analysisData) {
+        console.log("🎯 [PersonalStrategyAI] 4つの核心質問への回答生成開始", analysisData);
+
+        try {
+            // 4つの核心質問への回答を並列生成
+            const [rootStrength, optimalRole, defensivePattern, practicalAdvice] = await Promise.all([
+                this._generateRootStrength(analysisData),
+                this._generateOptimalRole(analysisData),
+                this._generateDefensivePattern(analysisData),
+                this._generatePracticalAdvice(analysisData)
+            ]);
+
+            const strategySummary = {
+                rootStrength,
+                optimalRole,
+                defensivePattern,
+                practicalAdvice,
+                generatedAt: new Date().toISOString(),
+                version: "1.0"
+            };
+
+            console.log("✅ [PersonalStrategyAI] 戦略生成完了", strategySummary);
+            return strategySummary;
+
+        } catch (error) {
+            console.error("❌ [PersonalStrategyAI] 戦略生成エラー:", error);
+            return this._generateFallbackStrategy(analysisData);
+        }
+    }
+
+    // 1. 根源的な強み発見
+    async _generateRootStrength(analysisData) {
+        console.log("💎 [PersonalStrategyAI] 根源的強み生成中...");
+
+        const prompt = this._interpolateTemplate(
+            this.promptTemplates.ROOT_STRENGTH, 
+            analysisData
+        );
+
+        // AI生成のシミュレーション（実際のAI APIに置き換え可能）
+        const response = await this._simulateAIGeneration(prompt, {
+            focus: "strength",
+            tone: "empowering",
+            length: 250
+        });
+
+        return this._validateAndCleanResponse(response, "rootStrength");
+    }
+
+    // 2. 最適な役回り提案
+    async _generateOptimalRole(analysisData) {
+        console.log("🎯 [PersonalStrategyAI] 最適役回り生成中...");
+
+        const prompt = this._interpolateTemplate(
+            this.promptTemplates.OPTIMAL_ROLE, 
+            analysisData
+        );
+
+        const response = await this._simulateAIGeneration(prompt, {
+            focus: "role",
+            tone: "guiding",
+            length: 280
+        });
+
+        return this._validateAndCleanResponse(response, "optimalRole");
+    }
+
+    // 3. 防御パターン解説
+    async _generateDefensivePattern(analysisData) {
+        console.log("🔍 [PersonalStrategyAI] 防御パターン解説生成中...");
+
+        const prompt = this._interpolateTemplate(
+            this.promptTemplates.DEFENSIVE_PATTERN, 
+            analysisData
+        );
+
+        const response = await this._simulateAIGeneration(prompt, {
+            focus: "understanding",
+            tone: "compassionate",
+            length: 300
+        });
+
+        return this._validateAndCleanResponse(response, "defensivePattern");
+    }
+
+    // 4. 実践的アドバイス
+    async _generatePracticalAdvice(analysisData) {
+        console.log("⚡ [PersonalStrategyAI] 実践的アドバイス生成中...");
+
+        const prompt = this._interpolateTemplate(
+            this.promptTemplates.PRACTICAL_ADVICE, 
+            analysisData
+        );
+
+        const response = await this._simulateAIGeneration(prompt, {
+            focus: "actionable",
+            tone: "supportive",
+            length: 350
+        });
+
+        return this._validateAndCleanResponse(response, "practicalAdvice");
+    }
+
+    // プロンプトテンプレートの変数補間
+    _interpolateTemplate(template, analysisData) {
+        let interpolated = template;
+
+        // 基本的な置換パターン
+        const replacements = {
+            'engineOS.osName': analysisData.engineOS?.osName || '不明なエンジンOS',
+            'interfaceOS.osName': analysisData.interfaceOS?.osName || '不明なインターフェースOS',
+            'safeModeOS.osName': analysisData.safeModeOS?.osName || '不明なセーフモードOS',
+            'userConcern': analysisData.userConcern || '自己理解を深めたい'
+        };
+
+        // hexagramDetailsの動的補間
+        const engineDetails = this._getHexagramDetails(analysisData.engineOS?.hexagramId);
+        const interfaceDetails = this._getHexagramDetails(analysisData.interfaceOS?.hexagramId);
+        const safeModeDetails = this._getHexagramDetails(analysisData.safeModeOS?.hexagramId);
+
+        if (engineDetails) {
+            replacements['hexagramDetails.engine.core_drive'] = engineDetails.engine?.core_drive || '創造性を発揮すること';
+            replacements['hexagramDetails.engine.potential_strengths'] = this._formatArray(engineDetails.engine?.potential_strengths);
+        }
+
+        if (interfaceDetails) {
+            replacements['hexagramDetails.interface.how_it_appears'] = interfaceDetails.interface?.how_it_appears || '堂々とした振る舞い';
+            replacements['hexagramDetails.interface.behavioral_patterns'] = this._formatArray(interfaceDetails.interface?.behavioral_patterns);
+            replacements['hexagramDetails.interface.impression_on_others'] = interfaceDetails.interface?.impression_on_others || '信頼できる人';
+        }
+
+        if (safeModeDetails) {
+            replacements['hexagramDetails.safe_mode.trigger_situations'] = this._formatArray(safeModeDetails.safe_mode?.trigger_situations);
+            replacements['hexagramDetails.safe_mode.defensive_patterns'] = this._formatArray(safeModeDetails.safe_mode?.defensive_patterns);
+            replacements['hexagramDetails.safe_mode.internal_state'] = safeModeDetails.safe_mode?.internal_state || '自分を守ろうとする気持ち';
+        }
+
+        // 8次元ベクトルの補間
+        replacements['vector8D'] = this._formatVector8D(analysisData.engineOS?.vector);
+
+        // 実際の置換実行
+        Object.entries(replacements).forEach(([key, value]) => {
+            const regex = new RegExp(`\\{${key}\\}`, 'g');
+            interpolated = interpolated.replace(regex, value);
+        });
+
+        return interpolated;
+    }
+
+    // AI生成のシミュレーション（Phase 2では実AI APIに置換可能）
+    async _simulateAIGeneration(prompt, options = {}) {
+        // 実際の開発では、OpenAI API、Claude API、または独自LLMを使用
+        console.log("🤖 [PersonalStrategyAI] AI生成シミュレーション実行中...", options);
+
+        // 遅延でリアルなAI生成感を演出
+        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+
+        // サンプル応答の生成（実際のAI APIの代替）
+        return this._generateSampleResponse(options);
+    }
+
+    // サンプル応答生成（開発・テスト用）
+    _generateSampleResponse(options) {
+        const sampleResponses = {
+            strength: [
+                "私の根源的な強みは、どんな困難な状況でも新しい解決策を見つけ出す創造力です。これは生来の好奇心と諦めない精神から来ており、特にチームが行き詰まった時や前例のない課題に直面した時に力を発揮します。この強みを活かすことで、組織に革新的な変化をもたらし、周囲の人々に新たな可能性を示すことができます。",
+                "私の根源的な強みは、人の心に寄り添い、その人が本当に求めているものを理解する共感力です。これは幼い頃から人の感情に敏感だった経験から育まれており、特に対立や混乱の中にいる人たちの橋渡し役となる時に最も輝きます。この強みにより、職場や家庭で真の調和を生み出し、皆が安心できる環境を作ることができます。"
+            ],
+            role: [
+                "私が最も輝ける役回りは、プロジェクトリーダーや企画責任者です。なぜなら私は全体を俯瞰しながら細部にも気を使い、チームメンバーそれぞれの長所を引き出す能力を持っているからです。逆に単調な作業の繰り返しや他人の指示を待つだけの環境は避け、自主性と創造性が求められる職場を選ぶことで、本来の力を存分に発揮できます。",
+                "私が最も輝ける役回りは、カウンセラーやコーチ、メンター的な立場です。なぜなら私は人の話を深く聞き、その人の潜在能力を見抜いて適切な助言をする直感力を持っているからです。逆に競争が激しく結果だけを重視する環境は避け、人の成長を支援できる教育現場や福祉分野を選ぶことで、真の使命を果たすことができます。"
+            ],
+            understanding: [
+                "私が時々らしくない振る舞いをしてしまうのは、過度なプレッシャーや批判を受けた時に「完璧主義モード」が自動的に作動するからです。この時の私は「絶対に失敗してはいけない」という恐怖に支配され、無意識に他人を遠ざけ、一人で全てを抱え込もうとしてしまいます。これは自分を守るための大切な機能ですが、孤立や燃え尽きを招くこともあるため、完璧でなくても大丈夫だと自分に言い聞かせることが重要です。",
+                "私が時々らしくない振る舞いをしてしまうのは、対立や争いの場面に遭遇した時に「調和維持モード」が過剰に働くからです。この時の私は「みんなが仲良くしなければ」という強迫観念に囚われ、自分の意見を完全に封印して、ただひたすら場を取り繕おうとしてしまいます。これは平和を愛する美しい心の表れですが、自分らしさを失う原因にもなるため、時には健全な議論も必要だと受け入れることが大切です。"
+            ],
+            actionable: [
+                "私の3つのOSを統合して考えると、日常では次のことを意識すると良いでしょう。**エネルギー管理**: 朝の30分を創作活動に充て、新しいアイデアを形にする時間を作る。**環境選択**: 自分の提案が尊重され、責任を持って実行できる職場や活動を選ぶ。**ストレス対処**: 完璧を求めすぎた時は深呼吸をし、「今日できる範囲で十分」と自分を労う。特に新しい挑戦を恐れず、小さな一歩から始めることをお勧めします。これにより自信と実績の好循環が生まれます。",
+                "私の3つのOSを統合して考えると、日常では次のことを意識すると良いでしょう。**エネルギー管理**: 人との対話を通じて相手の本音を引き出し、共に成長を感じられる関係を築く。**環境選択**: 競争より協調が重視され、長期的な信頼関係を大切にする組織を選ぶ。**ストレス対処**: 対立を避けすぎた時は「私の意見も価値がある」と自分に言い聞かせ、少しずつ自己主張の練習をする。特に相手の立場を理解した上で、建設的な提案をすることをお勧めします。これにより真の調和と成長が実現できます。"
+            ]
+        };
+
+        const responseType = options.focus || 'strength';
+        const responses = sampleResponses[responseType] || sampleResponses.strength;
+        return responses[Math.floor(Math.random() * responses.length)];
+    }
+
+    // 応答の検証とクリーニング
+    _validateAndCleanResponse(response, type) {
+        if (!response) {
+            return this._getFallbackResponse(type);
+        }
+
+        // 一人称チェック
+        if (!response.includes('私は') && !response.includes('私の') && !response.includes('私が')) {
+            console.warn(`⚠️ [PersonalStrategyAI] ${type}応答に一人称が不足`);
+        }
+
+        // 文字数チェック
+        if (response.length < this.qualityConstraints.minLength) {
+            console.warn(`⚠️ [PersonalStrategyAI] ${type}応答が短すぎます`);
+        }
+
+        // 品質向上処理
+        let cleaned = response
+            .replace(/あなたは/g, '私は')
+            .replace(/あなたの/g, '私の')
+            .replace(/あなたが/g, '私が')
+            .trim();
+
+        return {
+            text: cleaned,
+            type: type,
+            wordCount: cleaned.length,
+            quality: this._assessQuality(cleaned),
+            generatedAt: new Date().toISOString()
+        };
+    }
+
+    // 品質評価
+    _assessQuality(text) {
+        let score = 100;
+
+        // 一人称チェック
+        if (!text.includes('私')) score -= 20;
+
+        // 具体性チェック
+        if (!text.match(/[具体的|特に|例えば]/)) score -= 10;
+
+        // 実行可能性チェック
+        if (!text.match(/[することで|により|ことができ]/)) score -= 10;
+
+        return Math.max(score, 0);
+    }
+
+    // フォールバック戦略生成
+    _generateFallbackStrategy(analysisData) {
+        console.warn("⚠️ [PersonalStrategyAI] フォールバック戦略を生成中...");
+
+        return {
+            rootStrength: {
+                text: "私の根源的な強みは、困難な状況でも前向きに取り組む粘り強さです。これにより、どんな課題も乗り越えることができます。",
+                type: "rootStrength",
+                quality: 70,
+                fallback: true
+            },
+            optimalRole: {
+                text: "私が最も輝ける役回りは、チームを支える信頼できるメンバーです。協調性を活かし、皆が安心して働ける環境づくりに貢献できます。",
+                type: "optimalRole",
+                quality: 70,
+                fallback: true
+            },
+            defensivePattern: {
+                text: "私が時々らしくない振る舞いをするのは、ストレスを感じた時に自分を守ろうとする自然な反応です。これは悪いことではなく、休息が必要というサインです。",
+                type: "defensivePattern",
+                quality: 70,
+                fallback: true
+            },
+            practicalAdvice: {
+                text: "日常では、自分のペースを大切にし、無理をせず着実に歩むことをお勧めします。小さな成功を積み重ねることで、大きな成果を得ることができます。",
+                type: "practicalAdvice",
+                quality: 70,
+                fallback: true
+            }
+        };
+    }
+
+    // ヘルパーメソッド群
+    _getHexagramDetails(hexagramId) {
+        if (!this.dataManager || !hexagramId) return null;
+        return this.dataManager.getHexagramDetails(hexagramId);
+    }
+
+    _formatArray(array) {
+        if (!Array.isArray(array)) return '情報なし';
+        return array.join('、');
+    }
+
+    _formatVector8D(vector) {
+        if (!vector) return '基本的な人格特性';
+        
+        const dimensions = Object.entries(vector)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 3)
+            .map(([key, value]) => {
+                const name = key.split('_')[1] || key;
+                return `${name}: ${Math.round(value * 10)}/10`;
+            });
+        
+        return dimensions.join(', ');
+    }
+
+    _getFallbackResponse(type) {
+        const fallbacks = {
+            rootStrength: "私には独特の視点と粘り強さがあります。",
+            optimalRole: "私は信頼できるチームメンバーとして力を発揮できます。",
+            defensivePattern: "私の防御反応は、自分を守るための自然な機能です。",
+            practicalAdvice: "自分のペースを大切にし、着実に歩むことが重要です。"
+        };
+
+        return {
+            text: fallbacks[type] || "私には独自の価値があります。",
+            type: type,
+            quality: 50,
+            fallback: true
+        };
+    }
+
+    // 公開メソッド: 戦略の再生成
+    async regenerateStrategy(analysisData, focusArea = null) {
+        if (focusArea) {
+            switch(focusArea) {
+                case 'rootStrength':
+                    return await this._generateRootStrength(analysisData);
+                case 'optimalRole':
+                    return await this._generateOptimalRole(analysisData);
+                case 'defensivePattern':
+                    return await this._generateDefensivePattern(analysisData);
+                case 'practicalAdvice':
+                    return await this._generatePracticalAdvice(analysisData);
+                default:
+                    return await this.generateStrategySummary(analysisData);
+            }
+        }
+        return await this.generateStrategySummary(analysisData);
+    }
+}
+
+// クラスをグローバルスコープに登録
+if (typeof window !== 'undefined') {
+    window.PersonalStrategyAI = PersonalStrategyAI;
+}
