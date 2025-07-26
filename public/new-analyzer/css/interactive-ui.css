@@ -2,6 +2,29 @@
 /* 作成日: 2025-07-26 */
 /* 要件書: 20250726_対話型UI再実装要件書.md */
 
+/* 八卦色彩システム */
+:root {
+    /* 八卦の基本色 */
+    --trigram-qian-color: #FFD700;     /* 乾(天) - 金色 */
+    --trigram-dui-color: #87CEEB;      /* 兌(沢) - 空色 */
+    --trigram-li-color: #FF4500;       /* 離(火) - 赤色 */
+    --trigram-zhen-color: #8A2BE2;     /* 震(雷) - 紫色 */
+    --trigram-xun-color: #32CD32;      /* 巽(風) - 緑色 */
+    --trigram-kan-color: #1E90FF;      /* 坎(水) - 青色 */
+    --trigram-gen-color: #708090;      /* 艮(山) - 灰色 */
+    --trigram-kun-color: #8B4513;      /* 坤(地) - 茶色 */
+    
+    /* 八卦グラデーション */
+    --trigram-qian-gradient: linear-gradient(135deg, #FFD700, #FFA500);
+    --trigram-dui-gradient: linear-gradient(135deg, #87CEEB, #4682B4);
+    --trigram-li-gradient: linear-gradient(135deg, #FF4500, #FF6347);
+    --trigram-zhen-gradient: linear-gradient(135deg, #8A2BE2, #9370DB);
+    --trigram-xun-gradient: linear-gradient(135deg, #32CD32, #228B22);
+    --trigram-kan-gradient: linear-gradient(135deg, #1E90FF, #0000CD);
+    --trigram-gen-gradient: linear-gradient(135deg, #708090, #2F4F4F);
+    --trigram-kun-gradient: linear-gradient(135deg, #8B4513, #A0522D);
+}
+
 /* ヘルプモーダル */
 .help-modal {
     position: fixed;
@@ -47,6 +70,490 @@
 
 .help-modal-close:hover {
     color: #f1f5f9;
+}
+
+/* 次元詳細モーダル */
+.dimension-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.dimension-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.dimension-modal-content {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    color: #e2e8f0;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.dimension-modal.show .dimension-modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.dimension-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 10;
+}
+
+.dimension-modal-close:hover {
+    color: #f1f5f9;
+}
+
+.dimension-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dimension-header h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #e2e8f0;
+}
+
+.dimension-score-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.score-circle {
+    width: 80px;
+    height: 80px;
+    border: 4px solid;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.score-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #e2e8f0;
+}
+
+.score-max {
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.score-level {
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.score-level.excellent { background: linear-gradient(135deg, #10b981, #34d399); }
+.score-level.high { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+.score-level.good { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+.score-level.medium { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.score-level.developing { background: linear-gradient(135deg, #ef4444, #f87171); }
+.score-level.low { background: linear-gradient(135deg, #6b7280, #9ca3af); }
+
+.dimension-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.iching-section,
+.practical-section,
+.recommendations-section {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.iching-section {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+}
+
+.practical-section {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.05));
+}
+
+.recommendations-section {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.05));
+}
+
+.dimension-content h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    color: #f1f5f9;
+}
+
+.dimension-content p {
+    line-height: 1.6;
+    color: #d1d5db;
+    margin: 0;
+}
+
+/* 詳細表示ボタン */
+.detailed-view-btn {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    transition: all 0.3s ease;
+    display: block;
+    width: 100%;
+}
+
+.detailed-view-btn:hover {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+/* 詳細コンテンツモーダル */
+.detailed-content-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1200;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.detailed-content-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.detailed-modal-content {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    color: #e2e8f0;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.detailed-content-modal.show .detailed-modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.detailed-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 10;
+}
+
+.detailed-modal-close:hover {
+    color: #f1f5f9;
+}
+
+.detailed-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detailed-header h2 {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    color: #e2e8f0;
+}
+
+.hexagram-name {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.detailed-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.detailed-section {
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.02));
+}
+
+.detailed-section h4 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detailed-section p {
+    line-height: 1.7;
+    color: #d1d5db;
+    margin: 0;
+}
+
+.role-examples, .quest-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.role-item, .quest-item {
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.quest-item {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.05));
+}
+
+.modal-footer {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.iching-note {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* OSカード内のスタイル強化 */
+.strength-item, .challenge-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.strength-item:last-child, .challenge-item:last-child {
+    border-bottom: none;
+}
+
+.strength-icon, .challenge-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.strength-text, .challenge-text {
+    flex: 1;
+    color: #d1d5db;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.core-drive-content .summary-text {
+    color: #e2e8f0;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* フォールバック表示用スタイル */
+.fallback-note {
+    margin-top: 0.75rem;
+    padding: 0.5rem;
+    background: rgba(245, 158, 11, 0.1);
+    border-radius: 0.375rem;
+    border-left: 3px solid #f59e0b;
+}
+
+.fallback-note small {
+    color: #fbbf24;
+    font-style: italic;
+}
+
+/* セーフモードアドバイス用スタイル */
+.advice-main {
+    margin-bottom: 1.5rem;
+}
+
+.iching-insight {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.05));
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    border-left: 3px solid #8b5cf6;
+}
+
+.iching-insight h6 {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: #a78bfa;
+}
+
+.iching-insight p {
+    color: #d1d5db;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.tips-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tip-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.tip-content {
+    flex: 1;
+}
+
+.tip-content strong {
+    display: block;
+    color: #f1f5f9;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.tip-content p {
+    color: #d1d5db;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* アニメーション効果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+    }
+}
+
+/* インタラクティブ要素のホバー効果 */
+.interactive-os-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(99, 102, 241, 0.15);
+}
+
+.detailed-view-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .dimension-modal-content,
+    .detailed-modal-content {
+        max-width: 95vw;
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .tips-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tip-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
 }
 
 .help-button {
@@ -134,6 +641,119 @@
     color: #ef4444;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
+}
+
+/* 易経リッチコンテンツスタイル */
+.iching-rich-content {
+    margin-top: 1rem;
+}
+
+.core-wisdom-section {
+    background: var(--trigram-qian-gradient);
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease-in-out infinite;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #1a1a1a;
+    box-shadow: 0 8px 32px rgba(255, 215, 0, 0.2);
+}
+
+.core-wisdom-section h4 {
+    color: #1a1a1a;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.wisdom-content {
+    display: grid;
+    gap: 1rem;
+}
+
+.hexagram-meaning,
+.modern-application,
+.trigram-analysis,
+.life-guidance,
+.stress-response,
+.defensive-wisdom,
+.recovery-guidance {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border-left: 4px solid var(--trigram-qian-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hexagram-meaning h5,
+.modern-application h5,
+.trigram-analysis h5,
+.life-guidance h5,
+.stress-response h5,
+.defensive-wisdom h5,
+.recovery-guidance h5 {
+    color: #1a1a1a;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hexagram-meaning p,
+.modern-application p,
+.trigram-analysis p,
+.life-guidance p,
+.stress-response p,
+.defensive-wisdom p,
+.recovery-guidance p {
+    color: #2a2a2a;
+    line-height: 1.6;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* 八卦カラーアクセント */
+.trigram-qian-accent {
+    border-left-color: var(--trigram-qian-color);
+}
+
+.trigram-dui-accent {
+    border-left-color: var(--trigram-dui-color);
+}
+
+.trigram-li-accent {
+    border-left-color: var(--trigram-li-color);
+}
+
+.trigram-zhen-accent {
+    border-left-color: var(--trigram-zhen-color);
+}
+
+.trigram-xun-accent {
+    border-left-color: var(--trigram-xun-color);
+}
+
+.trigram-kan-accent {
+    border-left-color: var(--trigram-kan-color);
+}
+
+.trigram-gen-accent {
+    border-left-color: var(--trigram-gen-color);
+}
+
+.trigram-kun-accent {
+    border-left-color: var(--trigram-kun-color);
+}
+
+@keyframes gradientShift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
 }
 
 .hexagram-wisdom {
