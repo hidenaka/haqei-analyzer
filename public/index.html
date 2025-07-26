@@ -3,233 +3,199 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="HaQei - あなたの物語を読み解く、次世代の自己分析ツール。人格OSの特定から未来シミュレーションまで。" />
     <title>HaQei - あなたの物語を読み解く、次世代の自己分析</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <style>
-      body {
-        font-family: "Inter", "Noto Sans JP", sans-serif;
-      }
-      .brand-text {
-        background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-      .hero-bg {
-        background-color: #111827;
-        background-image: radial-gradient(
-          circle at 1px 1px,
-          rgba(255, 255, 255, 0.1) 1px,
-          transparent 0
-        );
-        background-size: 40px 40px;
-      }
-      .card-hover {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
-      .card-hover:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-      }
-    </style>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/index.css" />
   </head>
-  <body class="bg-gray-900 text-gray-200">
-    <header class="bg-gray-800/80 backdrop-blur-sm sticky top-0 z-50">
-      <nav
-        class="container mx-auto px-6 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 sm:gap-0"
-      >
-        <div class="text-2xl font-bold brand-text tracking-wider">HaQei</div>
-        <div class="flex flex-col sm:flex-row items-center gap-2">
-          <a
-            href="#services"
-            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-            >サービス</a
-          >
-          <a
-            href="#about"
-            class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-            >HaQeiとは</a
-          >
-          <a
-            href="#contact"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition duration-300 mt-2 sm:mt-0"
-            >お問い合わせ</a
-          >
-        </div>
+  
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <nav class="nav container">
+        <div class="nav-brand brand-text">HaQei</div>
+        <ul class="nav-links">
+          <li><a href="#services" class="nav-link">サービス</a></li>
+          <li><a href="#contact" class="nav-link">お問い合わせ</a></li>
+        </ul>
       </nav>
     </header>
 
+    <!-- Main Content -->
     <main>
-      <section class="hero-bg py-20 sm:py-32">
-        <div class="container mx-auto px-6 text-center">
-          <h1
-            class="text-4xl sm:text-6xl font-extrabold text-white leading-tight"
-          >
-            あなたの<span class="brand-text">魂の設計図</span>と<br />
-            <span class="brand-text">人生の羅針盤</span>を、今、一つに。
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="container">
+          <h1 class="hero-title fade-in-up">
+            あなたの物語を読み解く<br />
+            次世代の自己分析
           </h1>
-          <p class="mt-6 max-w-2xl mx-auto text-lg sm:text-xl text-gray-300">
-            MBTIやエニアグラムだけでは、人生の「なぜ？」は解けない。HaQeiは、あなたの「人格OS」と「人生の現在地」を掛け合わせ、あなただけの最適な戦略を導き出す、実践的自己分析メソッドです。
+          <p class="hero-subtitle fade-in-up">
+            古代の易経の智慧と最新のテクノロジーが融合。あなただけの「人格OS」を特定し、
+            人生の戦略的な意思決定をサポートします。
           </p>
-          <div class="mt-10">
-            <a
-              href="os_analyzer.html"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-full text-lg transition duration-300 ease-in-out transform hover:scale-105"
-            >
-              自分だけの戦略を知る
-            </a>
-          </div>
+          <a href="quick_analyzer.html" class="hero-cta fade-in-up">
+            3分で診断を始める
+          </a>
         </div>
       </section>
 
-      <section id="services" class="py-20 bg-gray-900">
-        <div class="container mx-auto px-6">
-          <div class="text-center mb-12">
-            <h2 class="text-3xl sm:text-4xl font-bold text-white">
-              HaQeiが提供するサービス
-            </h2>
-            <p class="mt-4 text-gray-400">
-              あなたの現在地を知り、次の一歩を設計するためのツールがここにあります。
-            </p>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div
-              class="bg-gray-800 rounded-xl p-8 card-hover border-2 border-indigo-500 shadow-lg shadow-indigo-500/10 relative"
-            >
-              <span
-                class="absolute top-0 right-4 -mt-3 bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full"
-                >まずはここから</span
-              >
-              <h3 class="text-2xl font-bold text-indigo-300 mb-4">
-                人格OS分析
-              </h3>
-              <p class="text-gray-400 mb-6">
-                複数の性格分析からあなたの<strong class="text-white"
-                  >人格OS</strong
-                >を特定。強み・弱みからエネルギーの充電方法までを網羅した、<strong>OSの『取扱説明書』</strong>です。
+      <!-- Services Section -->
+      <section id="services" class="services">
+        <div class="container">
+          <h2 class="services-title">HaQeiが提供する価値</h2>
+          
+          <div class="services-grid">
+            <!-- Quick Analyzer -->
+            <div class="service-card featured">
+              <span class="service-badge">まずはここから</span>
+              <h3 class="service-title">クイック診断</h3>
+              <p class="service-description">
+                たった<strong>3分で</strong>あなたの八卦アバターを発見。
+                シンプルな質問で、あなたの<strong>基本的な人格傾向</strong>を素早く把握できます。
               </p>
-              <a
-                href="os_analyzer.html"
-                class="font-bold text-white hover:text-indigo-300 transition duration-300"
-                >無料でOSを特定する →</a
-              >
+              <a href="quick_analyzer.html" class="service-link">
+                クイック診断を試す →
+              </a>
             </div>
 
-            <div class="bg-gray-800 rounded-xl p-8 card-hover">
-              <h3 class="text-2xl font-bold text-indigo-300 mb-4">
-                未来分岐シミュレーター
-              </h3>
-              <p class="text-gray-400 mb-6">
-                あなたの課題と選択肢が、どのような<strong class="text-white"
-                  >展開シナリオ</strong
-                >を生むか。OSの力学に基づきシミュレーションし、あなたの<strong>戦略的な意思決定</strong>をサポートします。
+            <!-- Main Service -->
+            <div class="service-card">
+              <h3 class="service-title">人格OS分析</h3>
+              <p class="service-description">
+                複数の性格分析からあなたの<strong>人格OS</strong>を特定。
+                強み・弱みからエネルギーの充電方法までを網羅した、
+                <strong>OSの「取扱説明書」</strong>です。
               </p>
-              <a
-                href="future_simulator.html"
-                class="font-bold text-white hover:text-indigo-300 transition duration-300"
-                >ツールを試す →</a
-              >
+              <a href="os_analyzer.html" class="service-link">
+                詳細分析を受ける →
+              </a>
             </div>
 
-            <div class="bg-gray-800 rounded-xl p-8 card-hover">
-              <h3 class="text-2xl font-bold text-indigo-300 mb-4">
-                HaQei ライブラリ
-              </h3>
-              <p class="text-gray-400 mb-6">
-                HaQeiの智慧の源泉である、<strong class="text-white"
-                  >易経「十翼」</strong
-                >の解説を公開。64卦の奥深い世界を探求し、あなたの自己分析をさらに深めます。
+            <!-- Future Simulator -->
+            <div class="service-card">
+              <h3 class="service-title">未来分岐シミュレーター</h3>
+              <p class="service-description">
+                あなたの課題と選択肢が、どのような<strong>展開シナリオ</strong>を生むか。
+                OSの力学に基づきシミュレーションし、あなたの<strong>戦略的な意思決定</strong>をサポートします。
               </p>
-              <a
-                href="library.html"
-                class="font-bold text-white hover:text-indigo-300 transition duration-300"
-                >知識を探求する →</a
-              >
+              <a href="future_simulator.html" class="service-link">
+                ツールを試す →
+              </a>
             </div>
 
-            <div class="bg-gray-800 rounded-xl p-8 card-hover">
-              <h3 class="text-2xl font-bold text-indigo-300 mb-4">
-                個別コンサルティング
-              </h3>
-              <p class="text-gray-400 mb-6">
-                ツールだけでは解決できない悩みに専門家が寄り添い、人格と状況を深く解読。
-                <strong class="text-white"
-                  >明日から踏み出せる具体的な一歩</strong
-                >を、共に創り上げます。
+            <!-- Library -->
+            <div class="service-card">
+              <h3 class="service-title">HaQei ライブラリ</h3>
+              <p class="service-description">
+                HaQeiの智慧の源泉である、<strong>易経「十翼」</strong>の解説を公開。
+                64卦の奥深い世界を探求し、あなたの自己分析をさらに深めます。
               </p>
-              <a
-                href="#contact"
-                class="font-bold text-white hover:text-indigo-300 transition duration-300"
-                >詳細を見る →
+              <a href="library.html" class="service-link">
+                ライブラリを探索する →
+              </a>
+            </div>
+
+            <!-- Strategic Cockpit -->
+            <div class="service-card">
+              <h3 class="service-title">戦略コックピット</h3>
+              <p class="service-description">
+                分析結果を統合的に管理し、あなたの<strong>人生戦略</strong>を可視化。
+                継続的な成長と意思決定をサポートする統合ダッシュボードです。
+              </p>
+              <a href="cockpit.html" class="service-link">
+                コックピットを見る →
               </a>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="about" class="py-20">
-        <div
-          class="container mx-auto px-6 flex flex-col md:flex-row items-center gap-12"
-        >
-          <div class="md:w-1/2">
-            <h2 class="text-3xl sm:text-4xl font-bold text-white">
-              なぜ、HaQeiは生まれたのか？
-            </h2>
-            <p class="mt-6 text-gray-300 leading-relaxed">
-              憧れの人に、なれなかった。数々の自己分析を繰り返すほど、理想と現実のギャップに絶望する日々。その暗闇の先で見つけた光は、<strong
-                class="text-white"
-                >「自分だけの道」を歩む</strong
-              >というシンプルな真実でした。<br /><br />
-              HaQeiは、あなたが「他人を羨む人生」から脱却し、「自分らしく輝ける道」を見つけるために生まれました。あなたの<strong
-                class="text-indigo-300"
-                >過去を智慧に、未来を可能性に</strong
-              >変える。そのための羅針盤が、ここにあります。
-            </p>
-          </div>
-          <div class="md:w-1/2">
-            <img
-              src="https://placehold.co/600x400/1f2937/a5b4fc?text=HaQei"
-              alt="HaQeiのイメージ画像"
-              class="rounded-xl shadow-lg w-full"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section id="contact" class="bg-gray-900 py-20">
-        <div class="container mx-auto px-6 text-center">
-          <h2 class="text-3xl sm:text-4xl font-bold text-white">
-            物語の主人公は、あなたです
-          </h2>
-          <p class="mt-4 max-w-xl mx-auto text-gray-400">
-            他人や常識に振り回されるのは、もう終わりにしませんか。ご質問や個別コンサルティングのご相談など、まずはお気軽にお声がけください。
+      <!-- Contact Section -->
+      <section id="contact" class="contact">
+        <div class="container">
+          <h2 class="contact-title">物語の主人公は、あなたです</h2>
+          <p class="contact-description">
+            他人や常識に振り回されるのは、もう終わりにしませんか。
+            ご質問や個別コンサルティングのご相談など、まずはお気軽にお声がけください。
           </p>
-          <div class="mt-8">
-            <a
-              href="mailto:info@haqei.example.com"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-full text-lg transition duration-300 ease-in-out transform hover:scale-105"
-            >
-              お問い合わせはこちら
-            </a>
-          </div>
+          <a href="mailto:info@haqei.example.com" class="contact-btn">
+            お問い合わせはこちら
+          </a>
         </div>
       </section>
     </main>
 
-    <footer class="bg-gray-800">
-      <footer class="w-full max-w-4xl mx-auto text-center p-6 mt-8 border-t border-gray-700">
-    <div class="space-x-4 mb-4">
-        <a href="/terms.html" target="_blank" class="text-sm text-gray-400 hover:text-white">利用規約</a>
-        <a href="/privacy.html" target="_blank" class="text-sm text-gray-400 hover:text-white">プライバシーポリシー</a>
-    </div>
-      <div class="container mx-auto px-6 py-4 text-center text-gray-400">
-        <p>&copy; 2025 HaQei. All Rights Reserved.</p>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container footer-content">
+        <div class="footer-links">
+          <a href="terms.html" class="footer-link">利用規約</a>
+          <a href="privacy.html" class="footer-link">プライバシーポリシー</a>
+        </div>
+        <p class="footer-copyright">
+          &copy; 2025 HaQei. All Rights Reserved.
+        </p>
       </div>
     </footer>
+
+    <!-- JavaScript for enhanced interactions -->
+    <script>
+      // Smooth scrolling for navigation links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+
+      // Fade in animation on scroll
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('fade-in-up');
+          }
+        });
+      }, observerOptions);
+
+      // Observe service cards
+      document.querySelectorAll('.service-card').forEach(card => {
+        observer.observe(card);
+      });
+
+      // Add loading animation to CTA buttons
+      document.querySelectorAll('.hero-cta, .contact-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          this.style.opacity = '0.8';
+          this.style.transform = 'scale(0.98)';
+          setTimeout(() => {
+            this.style.opacity = '';
+            this.style.transform = '';
+          }, 150);
+        });
+      });
+    </script>
   </body>
 </html>

@@ -962,7 +962,7 @@
           const [apiData] = await Promise.all([
             fetch("/api/data").then(res => res.ok ? res.json() : Promise.reject(`APIエラー: ${res.status}`)),
             new Promise((resolve, reject) => {
-              kuromoji.builder({ dicPath: "./dict/" }).build((err, tokenizer) => {
+              kuromoji.builder({ dicPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/" }).build((err, tokenizer) => {
                 if (err) return reject(err);
                 kuromojiTokenizer = tokenizer;
                 resolve();
