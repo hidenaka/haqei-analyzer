@@ -1,0 +1,246 @@
+/* ==========================================================================
+   フォント & ルート変数
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --bg-color: #12151d;
+    --card-bg-color: rgba(30, 35, 48, 0.5);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-primary: #f0f0f0;
+    --text-secondary: #a0a0b0;
+    --accent-primary: #8a8aff;
+    --accent-secondary: #c5c5ff;
+    --harmony-color: #00ff87;
+    --tension-color: #ffa500;
+}
+
+/* ==========================================================================
+   全体レイアウト & タイポグラフィ
+   ========================================================================== */
+body {
+    background-color: var(--bg-color);
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+    background-size: 25px 25px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2.5rem;
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   第1部： サマリーセクション
+   ========================================================================== */
+.summary-hero {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4rem;
+    padding: 5rem 2rem;
+    min-height: 70vh;
+}
+
+.hero-text {
+    max-width: 500px;
+    text-align: left;
+}
+
+.archetype-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.archetype-catchphrase {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+}
+
+.chart-container {
+    width: 100%;
+    max-width: 400px;
+    filter: drop-shadow(0 0 25px rgba(138, 138, 255, 0.25));
+}
+
+/* ==========================================================================
+   第2部： 3OSカードセクション
+   ========================================================================== */
+.os-cards-section {
+    padding: 4rem 2rem;
+}
+
+.os-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.os-card {
+    background: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.os-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.os-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+}
+
+.os-icon {
+    font-size: 1.5rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.75rem;
+    border-radius: 50%;
+}
+
+.os-label-group {
+    flex-grow: 1;
+}
+.os-label-group h3 { margin: 0; font-size: 1.25rem; }
+.os-label-group p { margin: 0; color: var(--text-secondary); }
+
+.os-score-group { text-align: right; }
+.os-name { color: var(--text-secondary); }
+.os-score {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.os-card-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out, padding-top 0.5s ease-out, margin-top 0.5s ease-out;
+    padding-top: 0;
+    margin-top: 0;
+}
+.os-card.is-expanded .os-card-body {
+    max-height: 500px;
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* ==========================================================================
+   第3部： 内なる力学セクション
+   ========================================================================== */
+.dynamics-section {
+    padding: 4rem 2rem;
+}
+
+.dynamics-cards-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.dynamics-card {
+    background: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 2rem;
+}
+
+.dynamics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+.dynamics-header h4 { margin: 0; font-size: 1.25rem;}
+
+.dynamics-type {
+    padding: 0.25em 0.75em;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.dynamics-type.harmony { background-color: rgba(0, 255, 135, 0.1); color: var(--harmony-color); }
+.dynamics-type.tension { background-color: rgba(255, 165, 0, 0.1); color: var(--tension-color); }
+
+.dynamics-summary { color: var(--text-secondary); font-style: italic; }
+
+.dynamics-details {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 1rem;
+}
+.dynamics-details h5 {
+    margin: 0 0 0.5rem 0;
+    color: var(--accent-secondary);
+}
+.dynamics-details ul { margin: 0; padding-left: 1.2rem; }
+.dynamics-details li { color: var(--text-secondary); }
+
+/* ==========================================================================
+   評価項目の詳細表示スタイル
+   ========================================================================== */
+.dynamics-card.is-expandable .dynamics-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out, margin-top 0.5s ease-out;
+    margin-top: 0;
+}
+.dynamics-card.is-expanded .dynamics-details {
+    max-height: 1000px;
+    margin-top: 1.5rem;
+}
+
+.evaluation-item {
+    display: grid;
+    grid-template-columns: 120px 1fr 50px;
+    grid-template-areas:
+        "label bar score"
+        "desc desc desc";
+    gap: 0.5rem 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+.evaluation-label { grid-area: label; text-transform: capitalize; }
+.evaluation-bar-container { grid-area: bar; background: rgba(0,0,0,0.2); border-radius: 4px; height: 8px;}
+.evaluation-bar { background: var(--accent-primary); height: 100%; border-radius: 4px; }
+.evaluation-score { grid-area: score; text-align: right; font-weight: 600; }
+.evaluation-description { grid-area: desc; color: var(--text-secondary); font-size: 0.85rem; margin: 0; }
+
+/* ==========================================================================
+   レスポンシブ対応
+   ========================================================================== */
+@media (max-width: 900px) {
+    .summary-hero {
+        flex-direction: column;
+        text-align: center;
+    }
+    .hero-text { text-align: center; }
+    .dynamics-cards-container {
+        grid-template-columns: 1fr;
+    }
+}

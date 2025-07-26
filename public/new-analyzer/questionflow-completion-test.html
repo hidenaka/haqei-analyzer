@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuestionFlow回答完了テスト</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      .warning {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+      }
+      .info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .status {
+        font-weight: bold;
+        margin: 10px 0;
+      }
+      .answer-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+        margin: 10px 0;
+      }
+      .answer-item {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .answer-item.missing {
+        background-color: #f8d7da;
+      }
+      .answer-item.complete {
+        background-color: #d4edda;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>QuestionFlow回答完了テスト</h1>
+      <p>偶数番目の質問の回答が正しく保存されるかテストします。</p>
+
+      <div class="test-section info">
+        <h3>テスト状況</h3>
+        <div id="testStatus" class="status">テスト準備中...</div>
+        <button onclick="runAnswerTest()">回答テスト実行</button>
+        <button onclick="simulateUserAnswers()">
+          ユーザー回答シミュレート
+        </button>
+        <button onclick="checkAnswerIntegrity()">回答整合性チェック</button>
+        <button onclick="clearResults()">結果クリア</button>
+      </div>
+
+      <div class="test-section">
+        <h3>1. 質問データ読み込みテスト</h3>
+        <div id="questionLoadTest">未実行</div>
+      </div>
+
+      <div class="test-section">
+        <h3>2. 回答保存テスト</h3>
+        <div id="answerSaveTest">未実行</div>
+      </div>
+
+      <div class="test-section">
+        <h3>3. 偶数番目質問テスト</h3>
+        <div id="evenQuestionTest">未実行</div>
+      </div>
+
+      <div class="test-section">
+        <h3>4. 回答完了チェックテスト</h3>
+        <div id="completionTest">未実行</div>
+      </div>
+
+      <div class="test-section">
+        <h3>5. 回答状況一覧</h3>
+        <div id="answerStatus">未実行</div>
+      </div>
+
+      <div class="test-section">
+        <h3>テスト結果サマリー</h3>
+        <div id="testSummary">テスト未実行</div>
+      </div>
+    </div>
+
+    <!-- 必要なスクリプトを読み込み -->
+    <script src="js/data/questions.js"></script>
+    <script src="js/data/vectors.js"></script>
+    <script src="js/data/data_box.js"></script>
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/StorageManager.js"></script>
+    <script src="js/components/QuestionFlow.js"></script>
+
+    <script>
+      let testResults = [];
+      let questionFlow = null;
+      let mockStorageManager = null;
+
+      function logTest(testName, success, message, details = null) {
+        const result = {
+          test: testName,
+          success: success,
+          message: message,
+          details: details,
+          timestamp: new Date().toISOString(),
+        };
+        testResults.push(result);
+
+        const elementId =
+          testName.replace(/\s+/g, "").replace(/[()]/g, "") + "Test";
+        const element = document.getElementById(elementId);
+        if (element) {
+          const className = success ? "success" : "error";
+          element.innerHTML = `
+                    <div class="${className}">
+                        <strong>${
+                          success ? "✅" : "❌"
+                        } ${testName}</strong><br>
+                        ${message}
+                        ${
+                          details
+                            ? `<pre>${JSON.stringify(details, null, 2)}</pre>`
+                            : ""
+                        }
+                    </div>
+                `;
+        }
+      }
+
+      function updateStatus(message) {
+        document.getElementById("testStatus").textContent = message;
+      }
+
+      // モックStorageManagerを作成
+      function createMockStorageManager() {
+        return {
+          answers: [],
+          progress: null,
+
+          saveAnswers: function (answers) {
+            this.answers = [...answers];
+            console.log("💾 Mock storage: Saved answers", this.answers.length);
+          },
+
+          getAnswers: function () {
+            return this.answers;
+          },
+
+          saveProgress: function (progress) {
+            this.progress = progress;
+          },
+
+          getProgress: function () {
+            return this.progress;
+          },
+        };
+      }
+
+      async function runAnswerTest() {
+        testResults = [];
+        updateStatus("テスト実行中...");
+
+        // 1. 質問データ読み込みテスト
+        try {
+          if (
+            typeof WORLDVIEW_QUESTIONS === "undefined" ||
+            typeof SCENARIO_QUESTIONS === "undefined"
+          ) {
+            throw new Error("質問データが読み込まれていません");
+          }
+
+          const totalQuestions =
+            WORLDVIEW_QUESTIONS.length + SCENARIO_QUESTIONS.length;
+          logTest(
+            "質問データ読み込み",
+            true,
+            `質問データが正常に読み込まれました (${totalQuestions}問)`,
+            {
+              worldviewQuestions: WORLDVIEW_QUESTIONS.length,
+              scenarioQuestions: SCENARIO_QUESTIONS.length,
+            }
+          );
+        } catch (error) {
+          logTest(
+            "質問データ読み込み",
+            false,
+            `質問データ読み込みエラー: ${error.message}`,
+            error
+          );
+          updateStatus("テスト中断 - 質問データ読み込み失敗");
+          return;
+        }
+
+        // 2. QuestionFlowインスタンス化
+        try {
+          mockStorageManager = createMockStorageManager();
+
+          // テスト用のコンテナを作成
+          let testContainer = document.getElementById(
+            "questionFlowTestContainer"
+          );
+          if (!testContainer) {
+            testContainer = document.createElement("div");
+            testContainer.id = "questionFlowTestContainer";
+            testContainer.style.display = "none";
+            document.body.appendChild(testContainer);
+          }
+
+          questionFlow = new QuestionFlow("questionFlowTestContainer", {
+            storageManager: mockStorageManager,
+          });
+
+          questionFlow.init();
+
+          logTest("回答保存", true, "QuestionFlowが正常に初期化されました", {
+            questionsLoaded: questionFlow.questions.length,
+            currentIndex: questionFlow.currentQuestionIndex,
+          });
+        } catch (error) {
+          logTest(
+            "回答保存",
+            false,
+            `QuestionFlow初期化エラー: ${error.message}`,
+            error
+          );
+          updateStatus("テスト中断 - QuestionFlow初期化失敗");
+          return;
+        }
+
+        // 3. 偶数番目質問の回答テスト
+        try {
+          const evenQuestionResults = [];
+          const testQuestions = questionFlow.questions.slice(0, 10); // 最初の10問をテスト
+
+          for (let i = 0; i < testQuestions.length; i++) {
+            const question = testQuestions[i];
+            const isEven = (i + 1) % 2 === 0;
+
+            // 模擬回答を作成
+            const mockRadioElement = {
+              value: "test_value_" + (i + 1),
+              dataset: {
+                scoring: JSON.stringify(["test_tag"]),
+                choiceType: undefined,
+              },
+            };
+
+            // 現在の質問インデックスを設定
+            questionFlow.currentQuestionIndex = i;
+
+            // 回答を処理
+            questionFlow.handleAnswerChange(mockRadioElement);
+
+            // 回答が保存されたかチェック
+            const savedAnswer = questionFlow.findAnswerByQuestionId(
+              question.id
+            );
+            const isAnswerSaved =
+              savedAnswer &&
+              savedAnswer.selectedValue === mockRadioElement.value;
+
+            evenQuestionResults.push({
+              questionIndex: i + 1,
+              questionId: question.id,
+              isEven: isEven,
+              answerSaved: isAnswerSaved,
+              savedValue: savedAnswer ? savedAnswer.selectedValue : null,
+            });
+          }
+
+          const evenQuestions = evenQuestionResults.filter((r) => r.isEven);
+          const evenQuestionsAnswered = evenQuestions.filter(
+            (r) => r.answerSaved
+          );
+
+          const success = evenQuestionsAnswered.length === evenQuestions.length;
+          logTest(
+            "偶数番目質問",
+            success,
+            `偶数番目質問テスト: ${evenQuestionsAnswered.length}/${evenQuestions.length}問で回答保存成功`,
+            evenQuestionResults
+          );
+        } catch (error) {
+          logTest(
+            "偶数番目質問",
+            false,
+            `偶数番目質問テストエラー: ${error.message}`,
+            error
+          );
+        }
+
+        // 4. 回答完了チェックテスト
+        try {
+          const completionCheck = questionFlow.checkAllQuestionsAnswered();
+          logTest(
+            "回答完了チェック",
+            true,
+            "回答完了チェックが正常に動作しました",
+            {
+              isComplete: completionCheck.isComplete,
+              missingCount: completionCheck.missing.length,
+              totalAnswers: questionFlow.answers.length,
+            }
+          );
+        } catch (error) {
+          logTest(
+            "回答完了チェック",
+            false,
+            `回答完了チェックエラー: ${error.message}`,
+            error
+          );
+        }
+
+        // 回答状況の表示
+        displayAnswerStatus();
+
+        // テスト結果サマリー
+        const successCount = testResults.filter((r) => r.success).length;
+        const totalCount = testResults.length;
+        const summaryElement = document.getElementById("testSummary");
+
+        if (successCount === totalCount) {
+          summaryElement.innerHTML = `
+                    <div class="success">
+                        <strong>✅ 全テスト成功 (${successCount}/${totalCount})</strong><br>
+                        偶数番目の質問の回答保存が正常に動作しています。
+                    </div>
+                `;
+          updateStatus("全テスト完了 - 成功");
+        } else {
+          summaryElement.innerHTML = `
+                    <div class="warning">
+                        <strong>⚠️ 部分的成功 (${successCount}/${totalCount})</strong><br>
+                        一部のテストで問題が発生しました。詳細を確認してください。
+                    </div>
+                `;
+          updateStatus(`テスト完了 - ${successCount}/${totalCount}成功`);
+        }
+      }
+
+      function simulateUserAnswers() {
+        if (!questionFlow) {
+          alert("先に回答テストを実行してください");
+          return;
+        }
+
+        updateStatus("ユーザー回答シミュレート中...");
+
+        // 全質問に対して回答をシミュレート
+        for (let i = 0; i < Math.min(questionFlow.questions.length, 20); i++) {
+          const question = questionFlow.questions[i];
+          questionFlow.currentQuestionIndex = i;
+
+          const isScenario =
+            question.scenario && question.inner_q && question.outer_q;
+
+          if (isScenario) {
+            // シナリオ質問の場合
+            const innerMockElement = {
+              value: "inner_" + (i + 1),
+              dataset: {
+                scoring: JSON.stringify(["inner_tag"]),
+                choiceType: "inner",
+              },
+            };
+
+            const outerMockElement = {
+              value: "outer_" + (i + 1),
+              dataset: {
+                scoring: JSON.stringify(["outer_tag"]),
+                choiceType: "outer",
+              },
+            };
+
+            questionFlow.handleAnswerChange(innerMockElement);
+            questionFlow.handleAnswerChange(outerMockElement);
+          } else {
+            // 通常質問の場合
+            const mockElement = {
+              value: "answer_" + (i + 1),
+              dataset: {
+                scoring: JSON.stringify(["answer_tag"]),
+                choiceType: undefined,
+              },
+            };
+
+            questionFlow.handleAnswerChange(mockElement);
+          }
+        }
+
+        displayAnswerStatus();
+        updateStatus("ユーザー回答シミュレート完了");
+      }
+
+      function checkAnswerIntegrity() {
+        if (!questionFlow) {
+          alert("先に回答テストを実行してください");
+          return;
+        }
+
+        const integrityCheck = questionFlow.performDataIntegrityCheck();
+        const completionCheck = questionFlow.checkAllQuestionsAnswered();
+
+        const statusElement = document.getElementById("answerStatus");
+        statusElement.innerHTML = `
+                <div class="${
+                  integrityCheck.hasIssues ? "warning" : "success"
+                }">
+                    <h4>データ整合性チェック結果</h4>
+                    <p><strong>整合性問題:</strong> ${
+                      integrityCheck.hasIssues ? "あり" : "なし"
+                    }</p>
+                    <p><strong>回答完了:</strong> ${
+                      completionCheck.isComplete ? "完了" : "未完了"
+                    }</p>
+                    <p><strong>総回答数:</strong> ${
+                      questionFlow.answers.length
+                    }</p>
+                    <p><strong>未回答数:</strong> ${
+                      completionCheck.missing.length
+                    }</p>
+                    
+                    ${
+                      integrityCheck.issues.length > 0
+                        ? `
+                        <h5>整合性問題詳細:</h5>
+                        <ul>
+                            ${integrityCheck.issues
+                              .map((issue) => `<li>${issue}</li>`)
+                              .join("")}
+                        </ul>
+                    `
+                        : ""
+                    }
+                    
+                    ${
+                      completionCheck.missing.length > 0
+                        ? `
+                        <h5>未回答質問:</h5>
+                        <ul>
+                            ${completionCheck.missing
+                              .slice(0, 10)
+                              .map((missing) => `<li>${missing}</li>`)
+                              .join("")}
+                            ${
+                              completionCheck.missing.length > 10
+                                ? `<li>...他${
+                                    completionCheck.missing.length - 10
+                                  }件</li>`
+                                : ""
+                            }
+                        </ul>
+                    `
+                        : ""
+                    }
+                </div>
+            `;
+      }
+
+      function displayAnswerStatus() {
+        if (!questionFlow) return;
+
+        const statusElement = document.getElementById("answerStatus");
+        const answers = questionFlow.answers;
+        const questions = questionFlow.questions.slice(0, 20); // 最初の20問を表示
+
+        let html = '<div class="answer-grid">';
+
+        for (let i = 0; i < questions.length; i++) {
+          const question = questions[i];
+          const answer = questionFlow.findAnswerByQuestionId(question.id);
+          const isEven = (i + 1) % 2 === 0;
+          const hasAnswer =
+            answer &&
+            (answer.selectedValue ||
+              (answer.innerChoice && answer.outerChoice));
+
+          html += `
+                    <div class="answer-item ${
+                      hasAnswer ? "complete" : "missing"
+                    }">
+                        <strong>Q${i + 1} ${
+            isEven ? "(偶数)" : "(奇数)"
+          }</strong><br>
+                        ID: ${question.id}<br>
+                        回答: ${hasAnswer ? "✅" : "❌"}<br>
+                        ${
+                          answer
+                            ? `値: ${answer.selectedValue || "シナリオ"}`
+                            : "未回答"
+                        }
+                    </div>
+                `;
+        }
+
+        html += "</div>";
+        statusElement.innerHTML = html;
+      }
+
+      function clearResults() {
+        testResults = [];
+        questionFlow = null;
+        mockStorageManager = null;
+
+        const testElements = [
+          "questionLoadTest",
+          "answerSaveTest",
+          "evenQuestionTest",
+          "completionTest",
+          "answerStatus",
+          "testSummary",
+        ];
+        testElements.forEach((id) => {
+          const element = document.getElementById(id);
+          if (element) {
+            element.textContent = "未実行";
+          }
+        });
+        updateStatus("テスト準備中...");
+      }
+
+      // ページ読み込み完了後に初期状態を表示
+      window.addEventListener("load", () => {
+        updateStatus("テスト準備完了 - 実行ボタンをクリックしてください");
+      });
+    </script>
+  </body>
+</html>

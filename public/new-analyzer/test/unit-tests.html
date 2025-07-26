@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripleOS Results Enhancement - 単体テスト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-summary {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .test-details {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 TripleOS Results Enhancement - 単体テスト</h1>
+    
+    <div class="test-container">
+        <h2>📋 テスト実行コントロール</h2>
+        <button id="run-all-tests">すべてのテストを実行</button>
+        <button id="run-osdetail-tests">OSDetailEngine テスト</button>
+        <button id="run-integration-tests">統合アドバイスエンジン テスト</button>
+        <button id="run-error-tests">エラーハンドリング テスト</button>
+        <button id="run-compatibility-tests">多次元評価ロジック テスト</button>
+        <button id="run-advanced-compatibility-tests">完全相性分析システム テスト</button>
+    </div>
+
+    <div id="test-results"></div>
+    
+    <div id="test-summary" class="test-summary" style="display: none;">
+        <h3>📊 テスト結果サマリー</h3>
+        <div id="summary-content"></div>
+    </div>
+
+    <!-- 必要なスクリプトの読み込み -->
+    <script src="../js/core/BaseComponent.js"></script>
+    <script src="../js/core/DataManager.js"></script>
+    <script src="../js/core/Calculator.js"></script>
+    <script src="../js/core/Engine.js"></script>
+    <script src="../js/core/TripleOSEngine.js"></script>
+    <script src="../js/core/EightDimensionAnalysisEngine.js"></script>
+    <script src="../js/core/OSDetailEngine.js"></script>
+    <script src="../js/core/InternalCompatibilityEngine.js"></script>
+    <script src="../js/core/ErrorHandler.js"></script>
+    <script src="../js/core/IntegrationAdviceEngine.js"></script>
+    <script src="../js/core/StorageManager.js"></script>
+    <script src="../js/core/CompatibilityDataLoader.js"></script>
+
+    <!-- データファイル -->
+    <script src="../js/data/data_box.js"></script>
+    <script src="../js/data/questions.js"></script>
+    <script src="../js/data/vectors.js"></script>
+    <script src="../js/data/hexagrams.js"></script>
+    <script src="../js/data/hexagram_details.js"></script>
+    <script src="../js/data/compatibility_definition.js"></script>
+
+    <script>
+        class UnitTestRunner {
+            constructor() {
+                this.testResults = [];
+                this.setupTestEnvironment();
+                this.bindEvents();
+            }
+
+            setupTestEnvironment() {
+                console.log('🔧 単体テスト環境を初期化中...');
+                this.resultsContainer = document.getElementById('test-results');
+                this.summaryContainer = document.getElementById('test-summary');
+                this.summaryContent = document.getElementById('summary-content');
+            }
+
+            bindEvents() {
+                document.getElementById('run-all-tests').addEventListener('click', () => {
+                    this.runAllTests();
+                });
+                
+                document.getElementById('run-osdetail-tests').addEventListener('click', () => {
+                    this.runOSDetailEngineTests();
+                });
+                
+                document.getElementById('run-integration-tests').addEventListener('click', () => {
+                    this.runIntegrationAdviceTests();
+                });
+                
+                document.getElementById('run-error-tests').addEventListener('click', () => {
+                    this.runErrorHandlingTests();
+                });
+                
+                document.getElementById('run-compatibility-tests').addEventListener('click', () => {
+                    this.runCompatibilityTests();
+                });
+                
+                document.getElementById('run-advanced-compatibility-tests').addEventListener('click', () => {
+                    this.runAdvancedCompatibilityTests();
+                });
+            }
+
+            async runAllTests() {
+                this.clearResults();
+                this.addTestSection('🧪 全単体テスト実行開始');
+                
+                await this.runOSDetailEngineTests();
+                await this.runIntegrationAdviceTests();
+                await this.runErrorHandlingTests();
+                await this.runCompatibilityTests();
+                await this.runAdvancedCompatibilityTests();
+                
+                this.showSummary();
+            }
+
+            async runOSDetailEngineTests() {
+                this.addTestSection('🔧 OSDetailEngine テスト');
+                
+                // テスト1: OSDetailEngine初期化
+                this.runTest('OSDetailEngine初期化テスト', () => {
+                    if (typeof OSDetailEngine === 'undefined') {
+                        throw new Error('OSDetailEngine クラスが定義されていません');
+                    }
+                    
+                    const dataManager = new DataManager();
+                    const osDetailEngine = new OSDetailEngine(dataManager);
+                    
+                    if (!osDetailEngine) {
+                        throw new Error('OSDetailEngine の初期化に失敗しました');
+                    }
+                    
+                    return 'OSDetailEngine が正常に初期化されました';
+                });
+
+                // テスト2: 64卦詳細データ取得
+                this.runTest('64卦詳細データ取得テスト', () => {
+                    const dataManager = new DataManager();
+                    const osDetailEngine = new OSDetailEngine(dataManager);
+                    
+                    const hexagramId = 1; // 乾為天
+                    const details = osDetailEngine.getHexagramDetails(hexagramId);
+                    
+                    if (!details || !details.name) {
+                        throw new Error('64卦詳細データの取得に失敗しました');
+                    }
+                    
+                    if (!details.description || !details.keywords) {
+                        throw new Error('必須フィールドが不足しています');
+                    }
+                    
+                    return `64卦詳細データ取得成功: ${details.name}`;
+                });
+
+                // テスト3: フォーマット機能
+                this.runTest('表示フォーマット機能テスト', () => {
+                    const dataManager = new DataManager();
+                    const osDetailEngine = new OSDetailEngine(dataManager);
+                    
+                    const mockData = {
+                        name: '乾為天',
+                        description: 'テスト説明',
+                        keywords: ['創造', 'リーダーシップ']
+                    };
+                    
+                    const formatted = osDetailEngine.formatForDisplay(mockData);
+                    
+                    if (!formatted || typeof formatted !== 'object') {
+                        throw new Error('フォーマット機能が正常に動作していません');
+                    }
+                    
+                    return 'フォーマット機能が正常に動作しています';
+                });
+            }
+
+            async runIntegrationAdviceTests() {
+                this.addTestSection('🎯 統合アドバイスエンジン テスト');
+                
+                // テスト1: IntegrationAdviceEngine初期化
+                this.runTest('統合アドバイスエンジン初期化テスト', () => {
+                    if (typeof IntegrationAdviceEngine === 'undefined') {
+                        throw new Error('IntegrationAdviceEngine クラスが定義されていません');
+                    }
+                    
+                    const adviceEngine = new IntegrationAdviceEngine();
+                    
+                    if (!adviceEngine) {
+                        throw new Error('IntegrationAdviceEngine の初期化に失敗しました');
+                    }
+                    
+                    return 'IntegrationAdviceEngine が正常に初期化されました';
+                });
+
+                // テスト2: 統合手法生成
+                this.runTest('統合手法生成テスト', () => {
+                    const adviceEngine = new IntegrationAdviceEngine();
+                    
+                    const mockTripleOS = {
+                        engineOS: { hexagramId: 1, name: '乾為天' },
+                        interfaceOS: { hexagramId: 2, name: '坤為地' },
+                        safeModeOS: { hexagramId: 3, name: '水雷屯' }
+                    };
+                    
+                    const advice = adviceEngine.generateIntegrationAdvice(mockTripleOS);
+                    
+                    if (!advice || !advice.immediate || !advice.longTerm) {
+                        throw new Error('統合アドバイスの生成に失敗しました');
+                    }
+                    
+                    return `統合アドバイス生成成功: ${advice.immediate.length}件の即座アドバイス`;
+                });
+
+                // テスト3: 成長プラン生成
+                this.runTest('成長プラン生成テスト', () => {
+                    const adviceEngine = new IntegrationAdviceEngine();
+                    
+                    const mockCompatibility = {
+                        engineInterface: { synergy: 0.7, tension: 0.3 },
+                        engineSafeMode: { harmony: 0.6, conflict: 0.4 },
+                        interfaceSafeMode: { synergy: 0.8, chaos: 0.2 }
+                    };
+                    
+                    const growthPlan = adviceEngine.generateGrowthPlan(mockCompatibility);
+                    
+                    if (!growthPlan || !growthPlan.shortTerm || !growthPlan.longTerm) {
+                        throw new Error('成長プラン生成に失敗しました');
+                    }
+                    
+                    return `成長プラン生成成功: 短期${growthPlan.shortTerm.length}件、長期${growthPlan.longTerm.length}件`;
+                });
+            }
+
+            async runErrorHandlingTests() {
+                this.addTestSection('❌ エラーハンドリング テスト');
+                
+                // テスト1: ErrorHandler初期化
+                this.runTest('ErrorHandler初期化テスト', () => {
+                    if (typeof ErrorHandler === 'undefined') {
+                        throw new Error('ErrorHandler クラスが定義されていません');
+                    }
+                    
+                    const errorHandler = new ErrorHandler();
+                    
+                    if (!errorHandler) {
+                        throw new Error('ErrorHandler の初期化に失敗しました');
+                    }
+                    
+                    return 'ErrorHandler が正常に初期化されました';
+                });
+
+                // テスト2: エラー処理機能
+                this.runTest('エラー処理機能テスト', () => {
+                    const errorHandler = new ErrorHandler();
+                    
+                    const testError = new Error('テストエラー');
+                    const result = errorHandler.handleError(testError, 'test');
+                    
+                    if (!result || !result.userMessage) {
+                        throw new Error('エラー処理機能が正常に動作していません');
+                    }
+                    
+                    return `エラー処理成功: ${result.userMessage}`;
+                });
+
+                // テスト3: フォールバック機能
+                this.runTest('フォールバック機能テスト', () => {
+                    const errorHandler = new ErrorHandler();
+                    
+                    const fallback = errorHandler.getFallbackData('hexagram');
+                    
+                    if (!fallback || typeof fallback !== 'object') {
+                        throw new Error('フォールバック機能が正常に動作していません');
+                    }
+                    
+                    return 'フォールバック機能が正常に動作しています';
+                });
+            }
+
+            async runCompatibilityTests() {
+                this.addTestSection('🔄 多次元評価ロジック テスト');
+                
+                // テスト1: InternalCompatibilityEngine初期化
+                this.runTest('InternalCompatibilityEngine初期化テスト', () => {
+                    if (typeof InternalCompatibilityEngine === 'undefined') {
+                        throw new Error('InternalCompatibilityEngine クラスが定義されていません');
+                    }
+                    
+                    const dataManager = new DataManager();
+                    const compatibilityEngine = new InternalCompatibilityEngine(dataManager);
+                    
+                    if (!compatibilityEngine) {
+                        throw new Error('InternalCompatibilityEngine の初期化に失敗しました');
+                    }
+                    
+                    return 'InternalCompatibilityEngine が正常に初期化されました';
+                });
+
+                // テスト2: 相性分析機能
+                this.runTest('相性分析機能テスト', () => {
+                    const dataManager = new DataManager();
+                    const compatibilityEngine = new InternalCompatibilityEngine(dataManager);
+                    
+                    const compatibility = compatibilityEngine.analyzeCompatibility(1, 2);
+                    
+                    if (!compatibility || typeof compatibility.synergy !== 'number') {
+                        throw new Error('相性分析機能が正常に動作していません');
+                    }
+                    
+                    if (compatibility.synergy < 0 || compatibility.synergy > 1) {
+                        throw new Error('相性スコアが適切な範囲にありません');
+                    }
+                    
+                    return `相性分析成功: シナジー${Math.round(compatibility.synergy * 100)}%`;
+                });
+
+                // テスト3: トリプルOS相性分析
+                this.runTest('トリプルOS相性分析テスト', () => {
+                    const dataManager = new DataManager();
+                    const compatibilityEngine = new InternalCompatibilityEngine(dataManager);
+                    
+                    const tripleCompatibility = compatibilityEngine.analyzeTripleOSCompatibility(1, 2, 3);
+                    
+                    if (!tripleCompatibility || !tripleCompatibility.engineInterface) {
+                        throw new Error('トリプルOS相性分析に失敗しました');
+                    }
+                    
+                    const requiredKeys = ['engineInterface', 'engineSafeMode', 'interfaceSafeMode'];
+                    for (const key of requiredKeys) {
+                        if (!tripleCompatibility[key]) {
+                            throw new Error(`必須キー ${key} が不足しています`);
+                        }
+                    }
+                    
+                    return 'トリプルOS相性分析が正常に動作しています';
+                });
+
+                // テスト4: 相性タイプ分類テスト
+                this.runTest('相性タイプ分類テスト', () => {
+                    const dataManager = new DataManager();
+                    const compatibilityEngine = new InternalCompatibilityEngine(dataManager);
+                    
+                    // 複数のパターンをテスト
+                    const testCases = [
+                        { os1: 1, os2: 1, expectedType: 'chaos_or_conflict' },
+                        { os1: 1, os2: 2, expectedType: 'synergy_or_harmony' },
+                        { os1: 1, os2: 32, expectedType: 'varies' }
+                    ];
+                    
+                    let successCount = 0;
+                    for (const testCase of testCases) {
+                        const compatibility = compatibilityEngine.analyzeCompatibility(testCase.os1, testCase.os2);
+                        if (compatibility && compatibility.type) {
+                            successCount++;
+                        }
+                    }
+                    
+                    if (successCount < testCases.length) {
+                        throw new Error(`相性タイプ分類に失敗: ${successCount}/${testCases.length}`);
+                    }
+                    
+                    return `相性タイプ分類テスト成功: ${successCount}/${testCases.length}`;
+                });
+            }
+
+            async runAdvancedCompatibilityTests() {
+                this.addTestSection('🎯 完全相性分析システム テスト');
+                
+                // テスト1: CompatibilityDataLoader初期化
+                this.runTest('CompatibilityDataLoader初期化テスト', () => {
+                    if (typeof CompatibilityDataLoader === 'undefined') {
+                        throw new Error('CompatibilityDataLoader クラスが定義されていません');
+                    }
+                    
+                    const loader = new CompatibilityDataLoader();
+                    
+                    if (!loader) {
+                        throw new Error('CompatibilityDataLoader の初期化に失敗しました');
+                    }
+                    
+                    if (!loader.options || !loader.cache) {
+                        throw new Error('必要なプロパティが不足しています');
+                    }
+                    
+                    return 'CompatibilityDataLoader が正常に初期化されました';
+                });
+
+                // テスト2: データパス設定確認
+                this.runTest('データパス設定確認テスト', () => {
+                    const loader = new CompatibilityDataLoader();
+                    
+                    const expectedBasePath = '../../js/data/compatibility/';
+                    if (loader.options.basePath !== expectedBasePath) {
+                        throw new Error(`データパスが間違っています: ${loader.options.basePath}`);
+                    }
+                    
+                    return `データパス設定正常: ${loader.options.basePath}`;
+                });
+
+                // テスト3: Engine-Interface互換性データ構造テスト（モック）
+                this.runTest('Engine-Interface互換性データ構造テスト', () => {
+                    const loader = new CompatibilityDataLoader();
+                    
+                    // モックデータでテスト
+                    const mockData = {
+                        hexagram_id: 1,
+                        internal_team_analysis: {
+                            engine_os_name: "乾為天",
+                            interface_combinations: [{
+                                interface_id: 2,
+                                interface_name: "坤為地",
+                                type: "SYNERGY",
+                                overall_score: 0.85,
+                                summary: "テストサマリー",
+                                evaluation: {},
+                                advice: {}
+                            }]
+                        }
+                    };
+                    
+                    // データ検証
+                    const isValid = loader.validateCompatibilityData(mockData, 'test-file.json');
+                    
+                    if (!isValid) {
+                        throw new Error('モックデータの検証に失敗しました');
+                    }
+                    
+                    return 'Engine-Interface互換性データ構造が正しく検証されました';
+                });
+
+                // テスト4: 相性タイプ判定テスト
+                this.runTest('相性タイプ判定テスト', () => {
+                    const loader = new CompatibilityDataLoader();
+                    
+                    const testCases = [
+                        { score: 0.95, expectedType: 'SYNERGY' },
+                        { score: 0.75, expectedType: 'HARMONY' },
+                        { score: 0.5, expectedType: 'TENSION' },
+                        { score: 0.3, expectedType: 'CONFLICT' },
+                        { score: 0.1, expectedType: 'CHAOS' }
+                    ];
+                    
+                    let passedCases = 0;
+                    for (const testCase of testCases) {
+                        const type = loader.determineCompatibilityType(testCase.score);
+                        if (type === testCase.expectedType) {
+                            passedCases++;
+                        }
+                    }
+                    
+                    if (passedCases !== testCases.length) {
+                        throw new Error(`相性タイプ判定失敗: ${passedCases}/${testCases.length}`);
+                    }
+                    
+                    return `相性タイプ判定テスト成功: ${passedCases}/${testCases.length}`;
+                });
+
+                // テスト5: フォールバック機能テスト
+                this.runTest('フォールバック機能テスト', () => {
+                    const loader = new CompatibilityDataLoader();
+                    
+                    const testError = new Error('テストエラー');
+                    const fallbackData = loader.generateFallbackCompatibility('engine-interface', 1, 2, testError);
+                    
+                    if (!fallbackData || !fallbackData.type || !fallbackData.overallScore) {
+                        throw new Error('フォールバックデータが正しく生成されませんでした');
+                    }
+                    
+                    if (fallbackData.overallScore < 0 || fallbackData.overallScore > 1) {
+                        throw new Error('フォールバックスコアが適切な範囲にありません');
+                    }
+                    
+                    return `フォールバック機能正常: ${fallbackData.type} (${Math.round(fallbackData.overallScore * 100)}%)`;
+                });
+
+                // テスト6: キャッシュ機能テスト
+                this.runTest('キャッシュ機能テスト', () => {
+                    const loader = new CompatibilityDataLoader();
+                    
+                    const testKey = 'test-cache-key';
+                    const testData = { test: 'data', timestamp: Date.now() };
+                    
+                    // キャッシュに保存
+                    loader.cache.set(testKey, { data: testData, timestamp: Date.now() });
+                    
+                    // キャッシュから取得
+                    const cached = loader.cache.get(testKey);
+                    
+                    if (!cached || !cached.data || cached.data.test !== 'data') {
+                        throw new Error('キャッシュの保存・取得に失敗しました');
+                    }
+                    
+                    // キャッシュクリア
+                    loader.clearCache();
+                    
+                    if (loader.cache.size !== 0) {
+                        throw new Error('キャッシュクリアに失敗しました');
+                    }
+                    
+                    return 'キャッシュ機能が正常に動作しています';
+                });
+
+                // テスト7: 統計情報取得テスト
+                this.runTest('統計情報取得テスト', () => {
+                    const loader = new CompatibilityDataLoader();
+                    
+                    const stats = loader.getStats();
+                    
+                    if (!stats || typeof stats.cacheSize !== 'number') {
+                        throw new Error('統計情報の取得に失敗しました');
+                    }
+                    
+                    const requiredProps = ['cacheSize', 'loadedFiles', 'validationCacheSize', 'loadingInProgress'];
+                    for (const prop of requiredProps) {
+                        if (!(prop in stats)) {
+                            throw new Error(`統計情報に必須プロパティ ${prop} がありません`);
+                        }
+                    }
+                    
+                    return `統計情報取得成功: キャッシュ${stats.cacheSize}件、読み込み済み${stats.loadedFiles}件`;
+                });
+
+                // テスト8: Triple OS統合分析ロジックテスト
+                this.runTest('Triple OS統合分析ロジックテスト', () => {
+                    const loader = new CompatibilityDataLoader();
+                    
+                    const mockCompatibilities = [
+                        { type: 'SYNERGY', overallScore: 0.8, metadata: { dataSource: 'engine-interface' } },
+                        { type: 'HARMONY', overallScore: 0.7, metadata: { dataSource: 'engine-safemode' } },
+                        { type: 'TENSION', overallScore: 0.6, metadata: { dataSource: 'interface-safemode' } }
+                    ];
+                    
+                    const integration = loader.analyzeTripleOSIntegration(...mockCompatibilities);
+                    
+                    if (!integration || typeof integration.overallScore !== 'number') {
+                        throw new Error('統合分析結果が正しくありません');
+                    }
+                    
+                    const requiredProps = ['overallScore', 'stability', 'balance', 'dominantPattern'];
+                    for (const prop of requiredProps) {
+                        if (!(prop in integration)) {
+                            throw new Error(`統合分析に必須プロパティ ${prop} がありません`);
+                        }
+                    }
+                    
+                    return `Triple OS統合分析成功: 総合スコア${Math.round(integration.overallScore * 100)}%`;
+                });
+            }
+
+            runTest(testName, testFunction) {
+                try {
+                    const result = testFunction();
+                    this.addTestResult(testName, true, result);
+                    this.testResults.push({ name: testName, passed: true, message: result });
+                } catch (error) {
+                    this.addTestResult(testName, false, error.message);
+                    this.testResults.push({ name: testName, passed: false, message: error.message });
+                }
+            }
+
+            addTestSection(sectionName) {
+                const section = document.createElement('div');
+                section.className = 'test-container';
+                section.innerHTML = `<h3>${sectionName}</h3>`;
+                this.resultsContainer.appendChild(section);
+            }
+
+            addTestResult(testName, passed, message) {
+                const result = document.createElement('div');
+                result.className = `test-result ${passed ? 'test-pass' : 'test-fail'}`;
+                result.innerHTML = `
+                    <strong>${passed ? '✅' : '❌'} ${testName}</strong>
+                    <div class="test-details">${message}</div>
+                `;
+                this.resultsContainer.appendChild(result);
+            }
+
+            clearResults() {
+                this.resultsContainer.innerHTML = '';
+                this.testResults = [];
+                this.summaryContainer.style.display = 'none';
+            }
+
+            showSummary() {
+                const totalTests = this.testResults.length;
+                const passedTests = this.testResults.filter(test => test.passed).length;
+                const failedTests = totalTests - passedTests;
+                const successRate = Math.round((passedTests / totalTests) * 100);
+
+                this.summaryContent.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div><strong>総テスト数:</strong> ${totalTests}</div>
+                        <div style="color: #28a745;"><strong>成功:</strong> ${passedTests}</div>
+                        <div style="color: #dc3545;"><strong>失敗:</strong> ${failedTests}</div>
+                        <div><strong>成功率:</strong> ${successRate}%</div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>結果:</strong> 
+                        ${successRate >= 90 ? '🎉 優秀' : successRate >= 70 ? '✅ 良好' : '⚠️ 改善が必要'}
+                    </div>
+                `;
+                
+                this.summaryContainer.style.display = 'block';
+            }
+        }
+
+        // ページ読み込み完了後に初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            new UnitTestRunner();
+        });
+    </script>
+</body>
+</html>

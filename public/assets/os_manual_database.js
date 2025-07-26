@@ -1,3 +1,6 @@
+// OS Manual Database - HaQei Analyzer用
+// 64卦すべてのOSマニュアルデータ
+
 const OS_MANUAL_DATA = {
   "1": {
     name: "乾為天",
@@ -640,3 +643,11 @@ const OS_MANUAL_DATA = {
     ]
   }
 };
+
+// グローバル変数として登録
+if (typeof window !== "undefined") {
+  window.OS_MANUAL_DATA = OS_MANUAL_DATA;
+  console.log("✅ OS Manual Database loaded and registered to window:", Object.keys(OS_MANUAL_DATA).length, "hexagrams");
+} else {
+  console.log("✅ OS Manual Database loaded:", Object.keys(OS_MANUAL_DATA).length, "hexagrams");
+}

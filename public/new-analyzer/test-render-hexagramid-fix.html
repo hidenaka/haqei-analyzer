@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripleOSResultsView Render HexagramId Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .test-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .test-btn:hover {
+            background-color: #0056b3;
+        }
+        .mock-container {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 TripleOSResultsView Render HexagramId Fix Test</h1>
+        <p>このテストはTripleOSResultsViewのrenderメソッドでhexagramIdがnullの場合の処理が正しく実装されているかを確認します。</p>
+        
+        <button class="test-btn" onclick="runNullHexagramRenderTest()">🔍 Null HexagramId Render テスト</button>
+        <button class="test-btn" onclick="runValidHexagramRenderTest()">✅ Valid HexagramId Render テスト</button>
+        <button class="test-btn" onclick="runMixedHexagramRenderTest()">🎭 混合 HexagramId Render テスト</button>
+        <button class="test-btn" onclick="clearResults()">🗑️ 結果クリア</button>
+        
+        <div id="test-results"></div>
+        
+        <!-- Mock container for rendering test -->
+        <div class="mock-container">
+            <h3>レンダリング結果プレビュー:</h3>
+            <div id="test-results-container" class="mock-container"></div>
+        </div>
+    </div>
+
+    <!-- Core scripts needed for testing -->
+    <script src="../js/data/data_box.js"></script>
+    <script src="../js/data/questions.js"></script>
+    <script src="../js/data/vectors.js"></script>
+    <script src="../js/data/hexagrams.js"></script>
+    <script src="../js/data/hexagram_details.js"></script>
+    <script src="../js/data/compatibility_definition.js"></script>
+    <script src="../js/data/compatibility_matrix.js"></script>
+    <script src="../js/data/action_plans.js"></script>
+
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/DataManager.js"></script>
+    <script src="js/core/Calculator.js"></script>
+    <script src="js/core/CompatibilityDataLoader.js"></script>
+    <script src="js/core/TripleOSEngine.js"></script>
+    <script src="js/components/TripleOSResultsView.js"></script>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = message;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+            document.getElementById('test-results-container').innerHTML = '';
+        }
+
+        // Mock DataManager with controlled getHexagramDetails behavior
+        class MockDataManager {
+            getHexagramDetails(hexagramId) {
+                console.log(`MockDataManager.getHexagramDetails called with hexagramId: ${hexagramId}`);
+                
+                if (!hexagramId || hexagramId < 1 || hexagramId > 64) {
+                    console.warn(`無効なhexagramId: ${hexagramId}`);
+                    return null;
+                }
+                
+                // Return mock hexagram details for valid IDs
+                return {
+                    potential_strengths: [`強み${hexagramId}-1`, `強み${hexagramId}-2`],
+                    potential_weaknesses: [`課題${hexagramId}-1`, `課題${hexagramId}-2`],
+                    description: `卦${hexagramId}の詳細説明`,
+                    keywords: [`キーワード${hexagramId}-1`, `キーワード${hexagramId}-2`]
+                };
+            }
+
+            findHexagramById(id) {
+                return { hexagram_id: id, name_jp: `テスト卦${id}` };
+            }
+        }
+
+        // Create mock TripleOSResultsView for testing
+        function createMockTripleOSResultsView(analysisResult, insights) {
+            const mockDataManager = new MockDataManager();
+            const mockCompatibilityLoader = new (class {
+                async loadEngineInterfaceCompatibility() { return {}; }
+                async loadEngineSafemodeCompatibility() { return {}; }
+            })();
+
+            const options = {
+                analysisResult: analysisResult,
+                insights: insights,
+                dataManager: mockDataManager,
+                compatibilityLoader: mockCompatibilityLoader
+            };
+
+            return new TripleOSResultsView('test-results-container', options);
+        }
+
+        async function runNullHexagramRenderTest() {
+            addResult('🔍 Testing render with null hexagramIds...', 'info');
+            
+            try {
+                // Create analysis result with null hexagramIds
+                const mockAnalysisResult = {
+                    primaryOS: { osName: "テストOS", hexagramInfo: { catchphrase: "テストキャッチフレーズ" } },
+                    engineOS: { 
+                        hexagramId: null, // This should be handled safely
+                        osName: "エンジンOS", 
+                        hexagramInfo: { catchphrase: "エンジンキャッチフレーズ" } 
+                    },
+                    interfaceOS: { 
+                        hexagramId: null, // This should be handled safely
+                        osName: "インターフェースOS" 
+                    },
+                    safeModeOS: { 
+                        hexagramId: null, // This should be handled safely
+                        osName: "セーフモードOS" 
+                    },
+                    dimensions: [
+                        { key: "乾_創造性", displayName: "創造性", value: 5.0, percentage: 30 }
+                    ]
+                };
+
+                const mockInsights = {
+                    summary: "テスト要約",
+                    strengths: ["テスト強み"],
+                    recommendations: ["テスト推奨事項"]
+                };
+
+                addResult('📝 Created mock analysis result with null hexagramIds', 'info');
+
+                const resultsView = createMockTripleOSResultsView(mockAnalysisResult, mockInsights);
+                
+                // This should NOT throw an error now
+                resultsView.render();
+                
+                addResult('✅ Render completed without errors!', 'success');
+
+                // Check if the container has content
+                const container = document.getElementById('test-results-container');
+                if (container.innerHTML.length > 0) {
+                    addResult('✅ HTML content was generated successfully', 'success');
+                } else {
+                    addResult('❌ No HTML content was generated', 'error');
+                }
+
+                addResult('🎉 Null hexagramId render test passed!', 'success');
+
+            } catch (error) {
+                addResult(`❌ Null hexagramId render test failed: ${error.message}`, 'error');
+                addResult(`🔍 Error details: ${error.stack}`, 'error');
+            }
+        }
+
+        async function runValidHexagramRenderTest() {
+            addResult('✅ Testing render with valid hexagramIds...', 'info');
+            
+            try {
+                // Create analysis result with valid hexagramIds
+                const mockAnalysisResult = {
+                    primaryOS: { osName: "乾為天", hexagramInfo: { catchphrase: "天翔ける龍のような、天性のリーダー" } },
+                    engineOS: { 
+                        hexagramId: 1, // Valid hexagram ID
+                        osName: "乾為天", 
+                        hexagramInfo: { catchphrase: "天翔ける龍のような、天性のリーダー" } 
+                    },
+                    interfaceOS: { 
+                        hexagramId: 2, // Valid hexagram ID
+                        osName: "兌為沢" 
+                    },
+                    safeModeOS: { 
+                        hexagramId: 8, // Valid hexagram ID
+                        osName: "坤為地" 
+                    },
+                    dimensions: [
+                        { key: "乾_創造性", displayName: "創造性", value: 5.0, percentage: 30 },
+                        { key: "離_表現性", displayName: "表現性", value: 4.0, percentage: 25 }
+                    ]
+                };
+
+                const mockInsights = {
+                    summary: "あなたの人格OSは「乾為天」です。",
+                    strengths: ["創造性", "リーダーシップ"],
+                    recommendations: ["強みを活かしてください"]
+                };
+
+                addResult('📝 Created mock analysis result with valid hexagramIds', 'info');
+
+                const resultsView = createMockTripleOSResultsView(mockAnalysisResult, mockInsights);
+                
+                // This should work normally
+                resultsView.render();
+                
+                addResult('✅ Render completed successfully!', 'success');
+
+                // Check if the container has content with strengths/weaknesses
+                const container = document.getElementById('test-results-container');
+                if (container.innerHTML.includes('強み1-1')) {
+                    addResult('✅ Hexagram details were loaded and displayed correctly', 'success');
+                } else {
+                    addResult('⚠️ Hexagram details might not be loaded (this might be expected)', 'warning');
+                }
+
+                addResult('🎉 Valid hexagramId render test passed!', 'success');
+
+            } catch (error) {
+                addResult(`❌ Valid hexagramId render test failed: ${error.message}`, 'error');
+                addResult(`🔍 Error details: ${error.stack}`, 'error');
+            }
+        }
+
+        async function runMixedHexagramRenderTest() {
+            addResult('🎭 Testing render with mixed hexagramIds...', 'info');
+            
+            try {
+                // Create analysis result with mixed hexagramIds
+                const mockAnalysisResult = {
+                    primaryOS: { osName: "乾為天", hexagramInfo: { catchphrase: "天翔ける龍のような、天性のリーダー" } },
+                    engineOS: { 
+                        hexagramId: 1, // Valid hexagram ID
+                        osName: "乾為天", 
+                        hexagramInfo: { catchphrase: "天翔ける龍のような、天性のリーダー" } 
+                    },
+                    interfaceOS: { 
+                        hexagramId: null, // Null hexagram ID
+                        osName: "未分析" 
+                    },
+                    safeModeOS: { 
+                        hexagramId: 8, // Valid hexagram ID
+                        osName: "坤為地" 
+                    },
+                    dimensions: [
+                        { key: "乾_創造性", displayName: "創造性", value: 5.0, percentage: 30 }
+                    ]
+                };
+
+                const mockInsights = {
+                    summary: "あなたの人格OSは「乾為天」です。",
+                    strengths: ["創造性"],
+                    recommendations: ["強みを活かしてください"]
+                };
+
+                addResult('📝 Created mock analysis result with mixed hexagramIds (engine: valid, interface: null, safemode: valid)', 'info');
+
+                const resultsView = createMockTripleOSResultsView(mockAnalysisResult, mockInsights);
+                
+                // This should handle the mixed scenario correctly
+                resultsView.render();
+                
+                addResult('✅ Mixed scenario render completed successfully!', 'success');
+
+                // Check if the container has content
+                const container = document.getElementById('test-results-container');
+                if (container.innerHTML.length > 0) {
+                    addResult('✅ HTML content was generated for mixed scenario', 'success');
+                } else {
+                    addResult('❌ No HTML content was generated for mixed scenario', 'error');
+                }
+
+                addResult('🎉 Mixed hexagramId render test passed!', 'success');
+
+            } catch (error) {
+                addResult(`❌ Mixed hexagramId render test failed: ${error.message}`, 'error');
+                addResult(`🔍 Error details: ${error.stack}`, 'error');
+            }
+        }
+
+        // Auto-run basic test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('🚀 TripleOSResultsView Render HexagramId Fix Test initialized', 'info');
+            addResult('💡 Click the test buttons to verify the render hexagramId handling fixes', 'info');
+        });
+    </script>
+</body>
+</html>

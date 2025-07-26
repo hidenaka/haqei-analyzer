@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HaQei Analyzer Debug Test - 8次元ベクトル計算テスト</title>
+    <style>
+      body {
+        font-family: "Courier New", monospace;
+        background: #1a1a1a;
+        color: #00ff00;
+        margin: 0;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #0d1117;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+      }
+      h1,
+      h2 {
+        color: #58a6ff;
+        text-align: center;
+      }
+      .section {
+        margin: 20px 0;
+        padding: 15px;
+        background: #161b22;
+        border-radius: 8px;
+        border-left: 4px solid #58a6ff;
+      }
+      .test-button {
+        background: #238636;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+        font-size: 14px;
+      }
+      .test-button:hover {
+        background: #2ea043;
+      }
+      .error {
+        color: #ff6b6b;
+        background: #341a1a;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .success {
+        color: #51cf66;
+        background: #1a341a;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .info {
+        color: #74c0fc;
+        background: #1a1a34;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .vector-display {
+        font-family: monospace;
+        background: #0d1117;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        border: 1px solid #30363d;
+      }
+      .dimension-score {
+        display: inline-block;
+        width: 80px;
+        margin: 2px;
+        padding: 3px;
+        background: #21262d;
+        text-align: center;
+        border-radius: 3px;
+      }
+      .log-output {
+        background: #000;
+        color: #00ff00;
+        padding: 15px;
+        border-radius: 5px;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 12px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔬 HaQei Analyzer Debug Test</h1>
+      <p style="text-align: center; color: #8b949e">
+        8次元ベクトル計算ロジック デバッグテストページ
+      </p>
+
+      <div class="section">
+        <h2>🎯 基本機能テスト</h2>
+        <button class="test-button" onclick="testDataLoading()">
+          データロード テスト
+        </button>
+        <button class="test-button" onclick="testVectorCalculation()">
+          ベクトル計算 テスト
+        </button>
+        <button class="test-button" onclick="testHexagramMatching()">
+          64卦マッチング テスト
+        </button>
+        <button class="test-button" onclick="testFullAnalysis()">
+          フル分析 テスト
+        </button>
+        <button class="test-button" onclick="testTripleOSAnalysis()">
+          TripleOS分析 テスト
+        </button>
+        <button class="test-button" onclick="clearLog()">ログクリア</button>
+      </div>
+
+      <div class="section">
+        <h2>📊 テスト結果</h2>
+        <div id="test-results"></div>
+      </div>
+
+      <div class="section">
+        <h2>🖥️ デバッグログ</h2>
+        <div id="debug-log" class="log-output"></div>
+      </div>
+
+      <div class="section">
+        <h2>🔍 計算詳細</h2>
+        <div id="calculation-details"></div>
+      </div>
+    </div>
+
+    <!-- 依存関係のスクリプト -->
+    <script src="new-analyzer/js/data/questions.js"></script>
+    <script src="new-analyzer/js/data/vectors.js"></script>
+    <script src="new-analyzer/js/data/hexagrams.js"></script>
+    <script src="new-analyzer/js/core/BaseComponent.js"></script>
+    <script src="new-analyzer/js/core/StorageManager.js"></script>
+    <script src="new-analyzer/js/core/DataManager.js"></script>
+    <script src="new-analyzer/js/core/Calculator.js"></script>
+    <script src="new-analyzer/js/core/Engine.js"></script>
+    <script src="new-analyzer/js/core/TripleOSEngine.js"></script>
+
+    <script>
+      // デバッグ用のログ出力
+      function debugLog(message, type = "info") {
+        const logElement = document.getElementById("debug-log");
+        const timestamp = new Date().toLocaleTimeString();
+        const colorClass =
+          type === "error" ? "error" : type === "success" ? "success" : "info";
+
+        const logEntry = document.createElement("div");
+        logEntry.className = colorClass;
+        logEntry.innerHTML = `[${timestamp}] ${message}`;
+
+        logElement.appendChild(logEntry);
+        logElement.scrollTop = logElement.scrollHeight;
+
+        // コンソールにも出力
+        console.log(`[DEBUG] ${message}`);
+      }
+
+      function clearLog() {
+        document.getElementById("debug-log").innerHTML = "";
+        document.getElementById("test-results").innerHTML = "";
+        document.getElementById("calculation-details").innerHTML = "";
+      }
+
+      function showResult(title, content, type = "info") {
+        const resultsElement = document.getElementById("test-results");
+        const resultDiv = document.createElement("div");
+        resultDiv.className = type;
+        resultDiv.innerHTML = `<strong>${title}</strong><br>${content}`;
+        resultsElement.appendChild(resultDiv);
+      }
+
+      // テスト用のサンプル回答データ（価値観設問）
+      const sampleAnswers = [
+        {
+          questionId: "q1",
+          selectedValue: "A",
+          scoring_tags: [
+            { key: "乾_創造性", value: 3.0 },
+            { key: "離_表現性", value: 1.5 },
+            { key: "艮_安定性", value: -1.0 },
+          ],
+        },
+        {
+          questionId: "q2",
+          selectedValue: "B",
+          scoring_tags: [
+            { key: "坎_探求性", value: 2.5 },
+            { key: "艮_安定性", value: 2.0 },
+            { key: "震_行動性", value: -1.0 },
+          ],
+        },
+        {
+          questionId: "q3",
+          selectedValue: "A",
+          scoring_tags: [
+            { key: "乾_創造性", value: 3.0 },
+            { key: "離_表現性", value: 1.5 },
+            { key: "坤_受容性", value: -1.0 },
+          ],
+        },
+      ];
+
+      // TripleOSテスト用のサンプル回答データ（価値観+シナリオ設問）
+      const tripleOSSampleAnswers = [
+        // 価値観設問（Q1-Q3）
+        {
+          questionId: "q1",
+          selectedValue: "A",
+          scoring_tags: [
+            { key: "乾_創造性", value: 3.0 },
+            { key: "離_表現性", value: 1.5 },
+            { key: "艮_安定性", value: -1.0 },
+          ],
+        },
+        {
+          questionId: "q2",
+          selectedValue: "B",
+          scoring_tags: [
+            { key: "坎_探求性", value: 2.5 },
+            { key: "艮_安定性", value: 2.0 },
+            { key: "震_行動性", value: -1.0 },
+          ],
+        },
+        {
+          questionId: "q3",
+          selectedValue: "A",
+          scoring_tags: [
+            { key: "乾_創造性", value: 3.0 },
+            { key: "離_表現性", value: 1.5 },
+            { key: "坤_受容性", value: -1.0 },
+          ],
+        },
+        // シナリオ設問（Q25-Q26）
+        {
+          questionId: "q25",
+          innerChoice: {
+            value: "A",
+            scoring_tags: [
+              { key: "乾_創造性", value: 1.5 },
+              { key: "艮_安定性", value: 2.0 },
+              { key: "坎_探求性", value: -1.0 },
+            ],
+          },
+          outerChoice: {
+            value: "B",
+            scoring_tags: [
+              { key: "兌_調和性", value: 2.5 },
+              { key: "坤_受容性", value: 2.0 },
+              { key: "離_表現性", value: -0.5 },
+            ],
+          },
+        },
+        {
+          questionId: "q26",
+          innerChoice: {
+            value: "C",
+            scoring_tags: [
+              { key: "坎_探求性", value: 2.5 },
+              { key: "艮_安定性", value: 1.5 },
+              { key: "震_行動性", value: -1.0 },
+            ],
+          },
+          outerChoice: {
+            value: "D",
+            scoring_tags: [
+              { key: "離_表現性", value: 2.0 },
+              { key: "兌_調和性", value: 1.5 },
+              { key: "艮_安定性", value: -1.0 },
+            ],
+          },
+        },
+      ];
+
+      // データロードテスト
+      async function testDataLoading() {
+        debugLog("🔍 データロードテストを開始...", "info");
+
+        try {
+          // グローバル変数の確認
+          if (typeof WORLDVIEW_QUESTIONS === "undefined") {
+            throw new Error("WORLDVIEW_QUESTIONS が定義されていません");
+          }
+          if (typeof SCENARIO_QUESTIONS === "undefined") {
+            throw new Error("SCENARIO_QUESTIONS が定義されていません");
+          }
+
+          debugLog(
+            `✅ WORLDVIEW_QUESTIONS: ${WORLDVIEW_QUESTIONS.length}問`,
+            "success"
+          );
+          debugLog(
+            `✅ SCENARIO_QUESTIONS: ${SCENARIO_QUESTIONS.length}問`,
+            "success"
+          );
+
+          // DataManagerテスト
+          const dataManager = new DataManager();
+          await dataManager.loadData();
+
+          const stats = dataManager.getDataStats();
+          debugLog(`📊 データ統計: ${JSON.stringify(stats)}`, "info");
+
+          showResult(
+            "データロードテスト",
+            `
+                    価値観設問: ${WORLDVIEW_QUESTIONS.length}問<br>
+                    シナリオ設問: ${SCENARIO_QUESTIONS.length}問<br>
+                    データ統計: ${JSON.stringify(stats)}
+                `,
+            "success"
+          );
+        } catch (error) {
+          debugLog(`❌ データロードエラー: ${error.message}`, "error");
+          showResult("データロードテスト", `エラー: ${error.message}`, "error");
+        }
+      }
+
+      // ベクトル計算テスト
+      async function testVectorCalculation() {
+        debugLog("🧮 ベクトル計算テストを開始...", "info");
+
+        try {
+          const dataManager = new DataManager();
+          await dataManager.loadData();
+
+          const calculator = new Calculator(dataManager);
+          const vector = calculator.buildUserVector(sampleAnswers);
+
+          debugLog(`🎯 計算されたベクトル: ${JSON.stringify(vector)}`, "info");
+
+          // ベクトルの詳細表示
+          const dimensions = [
+            "乾_創造性",
+            "震_行動性",
+            "坎_探求性",
+            "艮_安定性",
+            "坤_受容性",
+            "巽_適応性",
+            "離_表現性",
+            "兌_調和性",
+          ];
+          let vectorDisplay = '<div class="vector-display">';
+          dimensions.forEach((dim) => {
+            const score = vector[dim] || 0;
+            vectorDisplay += `<div class="dimension-score">${dim}: ${score.toFixed(
+              2
+            )}</div>`;
+          });
+          vectorDisplay += "</div>";
+
+          showResult(
+            "ベクトル計算テスト",
+            `
+                    計算成功!<br>
+                    ${vectorDisplay}
+                `,
+            "success"
+          );
+
+          // 計算詳細を表示
+          const detailsElement = document.getElementById("calculation-details");
+          detailsElement.innerHTML = `
+                    <h3>計算プロセス詳細</h3>
+                    <pre>${JSON.stringify(vector, null, 2)}</pre>
+                    <h3>入力データ</h3>
+                    <pre>${JSON.stringify(sampleAnswers, null, 2)}</pre>
+                `;
+        } catch (error) {
+          debugLog(`❌ ベクトル計算エラー: ${error.message}`, "error");
+          showResult("ベクトル計算テスト", `エラー: ${error.message}`, "error");
+        }
+      }
+
+      // 64卦マッチングテスト
+      async function testHexagramMatching() {
+        debugLog("🔮 64卦マッチングテストを開始...", "info");
+
+        try {
+          const dataManager = new DataManager();
+          await dataManager.loadData();
+
+          const calculator = new Calculator(dataManager);
+          const userVector = calculator.buildUserVector(sampleAnswers);
+
+          const vectorsData = dataManager.getVectorsData();
+          const candidates = calculator.analyzeOSCandidates(
+            userVector,
+            vectorsData
+          );
+          const matches = candidates.slice(0, 5).map((candidate) => ({
+            ...candidate,
+            hexagramInfo: dataManager.getHexagramData(candidate.osId),
+            matchPercentage: Math.round(candidate.score * 100),
+            similarity: candidate.score,
+            hexagramId: candidate.osId,
+          }));
+
+          debugLog(`🎯 マッチング結果: ${matches.length}件`, "info");
+
+          let matchDisplay = '<div class="vector-display">';
+          matches.forEach((match, index) => {
+            matchDisplay += `<div style="margin: 10px 0; padding: 10px; background: #21262d; border-radius: 5px;">
+                        <strong>${index + 1}. ${
+              match.hexagramInfo.name
+            }</strong> (適合度: ${match.matchPercentage.toFixed(1)}%)<br>
+                        <small>類似度: ${match.similarity.toFixed(
+                          4
+                        )} | 64卦ID: ${match.hexagramId}</small>
+                    </div>`;
+          });
+          matchDisplay += "</div>";
+
+          showResult(
+            "64卦マッチングテスト",
+            `
+                    マッチング成功!<br>
+                    ${matchDisplay}
+                `,
+            "success"
+          );
+        } catch (error) {
+          debugLog(`❌ 64卦マッチングエラー: ${error.message}`, "error");
+          showResult(
+            "64卦マッチングテスト",
+            `エラー: ${error.message}`,
+            "error"
+          );
+        }
+      }
+
+      // フル分析テスト
+      async function testFullAnalysis() {
+        debugLog("🔬 フル分析テストを開始...", "info");
+
+        try {
+          const dataManager = new DataManager();
+          await dataManager.loadData();
+
+          const engine = new DiagnosisEngine(dataManager);
+          const result = await engine.analyze(sampleAnswers);
+
+          debugLog(`🎯 分析結果: ${JSON.stringify(result)}`, "info");
+
+          // 洞察生成テスト
+          const insights = await engine.generateInsights(result);
+
+          debugLog(`💡 洞察生成: ${JSON.stringify(insights)}`, "info");
+
+          // 8次元スコアを読みやすい形式で表示
+          const dimensions = [
+            "乾_創造性",
+            "震_行動性",
+            "坎_探求性",
+            "艮_安定性",
+            "坤_受容性",
+            "巽_適応性",
+            "離_表現性",
+            "兌_調和性",
+          ];
+
+          let dimensionDisplay = '<div class="vector-display">';
+          dimensions.forEach((dim) => {
+            const score = result.eightDimensionVector[dim] || 0;
+            const level =
+              score >= 20
+                ? "very-high"
+                : score >= 15
+                ? "high"
+                : score >= 10
+                ? "medium"
+                : score >= 5
+                ? "low"
+                : "very-low";
+            const color =
+              score >= 15
+                ? "#51cf66"
+                : score >= 10
+                ? "#74c0fc"
+                : score >= 5
+                ? "#ffd43b"
+                : "#ff6b6b";
+            dimensionDisplay += `<div class="dimension-score" style="color: ${color}">${dim}: ${score.toFixed(
+              1
+            )} (${level})</div>`;
+          });
+          dimensionDisplay += "</div>";
+
+          showResult(
+            "フル分析テスト",
+            `
+                    分析成功!<br>
+                    <strong>人格OS:</strong> ${
+                      result.primaryOS.hexagramInfo.name
+                    }<br>
+                    <strong>適合度:</strong> ${result.primaryOS.matchPercentage.toFixed(
+                      1
+                    )}%<br>
+                    <strong>洞察:</strong> ${insights.summary}<br>
+                    <strong>8次元スコア:</strong><br>
+                    ${dimensionDisplay}
+                `,
+            "success"
+          );
+        } catch (error) {
+          debugLog(`❌ フル分析エラー: ${error.message}`, "error");
+          showResult("フル分析テスト", `エラー: ${error.message}`, "error");
+        }
+      }
+
+      // TripleOS分析テスト
+      async function testTripleOSAnalysis() {
+        debugLog("🔬 TripleOS分析テストを開始...", "info");
+
+        try {
+          const dataManager = new DataManager();
+          await dataManager.loadData();
+
+          const tripleOSEngine = new TripleOSEngine(dataManager);
+          const result = await tripleOSEngine.analyzeTripleOS(
+            tripleOSSampleAnswers
+          );
+
+          debugLog(`🎯 TripleOS分析結果: ${JSON.stringify(result)}`, "info");
+
+          // 防御的コーディング: engineOS/engine, dominantTrigramsのundefined対策
+          const engineOS = result.engineOS || result.engine || {};
+          const safeDominantTrigrams = Array.isArray(engineOS.dominantTrigrams)
+            ? engineOS.dominantTrigrams
+            : [];
+          const topTrigrams = safeDominantTrigrams.slice(0, 2);
+
+          const resultDisplay = `
+            <div class="vector-display">
+              <h3>🔧 エンジンOS</h3>
+              <div><strong>64卦:</strong> ${
+                engineOS.hexagramInfo?.name || engineOS.osName || "不明"
+              }</div>
+              <div><strong>強度:</strong> ${Math.round(
+                (engineOS.strength || engineOS.confidence || 0) * 100
+              )}%</div>
+              <div><strong>主要八卦:</strong> ${
+                topTrigrams.length > 0
+                  ? topTrigrams.map((t) => `${t.name}(${t.value})`).join(", ")
+                  : "分析中..."
+              }</div>
+              <div><strong>構成八卦:</strong> ${
+                engineOS.trigramComposition
+                  ? engineOS.trigramComposition
+                  : '<span style="color:#ff6b6b">trigramComposition未生成エラー</span>'
+              }</div>
+              <div><strong>類似度:</strong> ${Math.round(
+                (engineOS.cosineSimilarity || 0) * 100
+              )}%</div>
+              
+              <h3>🖥️ インターフェースOS</h3>
+              <div><strong>64卦:</strong> ${
+                result.interfaceOS?.hexagramInfo?.name ||
+                result.interface?.hexagramInfo?.name ||
+                "不明"
+              }</div>
+              <div><strong>マッチスコア:</strong> ${Math.round(
+                result.interfaceOS?.matchScore ||
+                  result.interface?.matchScore ||
+                  0
+              )}%</div>
+              
+              <h3>🛡️ セーフモードOS</h3>
+              <div><strong>64卦:</strong> ${
+                result.safeModeOS?.hexagramInfo?.name ||
+                result.safeMode?.hexagramInfo?.name ||
+                "不明"
+              }</div>
+              <div><strong>マッチスコア:</strong> ${Math.round(
+                result.safeModeOS?.matchScore ||
+                  result.safeMode?.matchScore ||
+                  0
+              )}%</div>
+              
+              <h3>📊 一貫性スコア</h3>
+              <div><strong>総合:</strong> ${Math.round(
+                (result.consistencyScore?.overall || 0) * 100
+              )}%</div>
+              <div><strong>エンジン-インターフェース:</strong> ${Math.round(
+                (result.consistencyScore?.engineInterface || 0) * 100
+              )}%</div>
+              <div><strong>エンジン-セーフモード:</strong> ${Math.round(
+                (result.consistencyScore?.engineSafeMode || 0) * 100
+              )}%</div>
+              <div><strong>インターフェース-セーフモード:</strong> ${Math.round(
+                (result.consistencyScore?.interfaceSafeMode || 0) * 100
+              )}%</div>
+            </div>
+          `;
+
+          showResult(
+            "TripleOS分析テスト",
+            `
+              分析成功!<br>
+              ${resultDisplay}
+            `,
+            "success"
+          );
+
+          // 計算詳細を表示
+          const detailsElement = document.getElementById("calculation-details");
+          detailsElement.innerHTML = `
+            <h3>TripleOS分析結果詳細</h3>
+            <pre>${JSON.stringify(result, null, 2)}</pre>
+          `;
+        } catch (error) {
+          debugLog(`❌ TripleOS分析エラー: ${error.message}`, "error");
+          showResult("TripleOS分析テスト", `エラー: ${error.message}`, "error");
+        }
+      }
+
+      // ページロード時の初期設定
+      window.addEventListener("load", function () {
+        debugLog("🚀 Debug Test Page loaded", "info");
+        debugLog(
+          "📋 テストボタンをクリックして各機能をテストしてください",
+          "info"
+        );
+      });
+    </script>
+  </body>
+</html>

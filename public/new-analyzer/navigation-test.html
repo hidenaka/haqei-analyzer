@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ナビゲーションテスト</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <style>
+        .test-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 300px;
+            z-index: 9999;
+        }
+        .test-controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 9999;
+        }
+        .test-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <div id="testInfo">ナビゲーションテスト</div>
+    </div>
+
+    <div class="test-controls">
+        <div style="margin-bottom: 5px; font-weight: bold;">テスト</div>
+        <button class="test-btn" onclick="testNext()">次へテスト</button>
+        <button class="test-btn" onclick="testPrev()">前へテスト</button>
+        <button class="test-btn" onclick="logState()">状態確認</button>
+        <button class="test-btn" onclick="clearLog()">ログクリア</button>
+    </div>
+
+    <div id="app" class="app-container">
+        <section id="questions-container" class="screen-container" style="display: block">
+            <!-- QuestionFlow component will render here -->
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/StorageManager.js"></script>
+    <script src="js/data/questions.js"></script>
+    <script src="js/data/vectors.js"></script>
+    <script src="js/data/data_box.js"></script>
+    <script src="js/components/QuestionFlow.js"></script>
+
+    <script>
+        let questionFlow = null;
+        let logMessages = [];
+        
+        function updateInfo(message) {
+            document.getElementById('testInfo').innerHTML = message;
+        }
+
+        function addLog(message) {
+            const time = new Date().toLocaleTimeString();
+            logMessages.push(`[${time}] ${message}`);
+            console.log(message);
+            
+            // 最新の5つのログを表示
+            const recent = logMessages.slice(-5).join('<br>');
+            updateInfo(`最新のログ:<br>${recent}`);
+        }
+
+        function clearLog() {
+            logMessages = [];
+            updateInfo('ログクリア済み');
+        }
+
+        function logState() {
+            if (!questionFlow) {
+                addLog('QuestionFlow未初期化');
+                return;
+            }
+
+            const current = questionFlow.currentQuestionIndex;
+            const total = questionFlow.questions.length;
+            const questionNum = current + 1;
+            const isEven = questionNum % 2 === 0;
+
+            addLog(`Q${questionNum}/${total} ${isEven ? '(偶数)' : '(奇数)'}`);
+        }
+
+        function testNext() {
+            if (!questionFlow) {
+                addLog('QuestionFlow未初期化');
+                return;
+            }
+
+            const beforeIndex = questionFlow.currentQuestionIndex;
+            addLog(`次へボタンテスト: Q${beforeIndex + 1}から`);
+            
+            // 次へボタンを見つけてクリック
+            const nextBtn = document.querySelector('#next-btn');
+            if (nextBtn) {
+                addLog('次へボタンクリック実行');
+                nextBtn.click();
+                
+                setTimeout(() => {
+                    const afterIndex = questionFlow.currentQuestionIndex;
+                    addLog(`結果: Q${beforeIndex + 1} → Q${afterIndex + 1}`);
+                }, 100);
+            } else {
+                addLog('❌ 次へボタンが見つかりません');
+            }
+        }
+
+        function testPrev() {
+            if (!questionFlow) {
+                addLog('QuestionFlow未初期化');
+                return;
+            }
+
+            const beforeIndex = questionFlow.currentQuestionIndex;
+            addLog(`前へボタンテスト: Q${beforeIndex + 1}から`);
+            
+            // 前へボタンを見つけてクリック
+            const prevBtn = document.querySelector('#prev-btn');
+            if (prevBtn) {
+                addLog('前へボタンクリック実行');
+                prevBtn.click();
+                
+                setTimeout(() => {
+                    const afterIndex = questionFlow.currentQuestionIndex;
+                    addLog(`結果: Q${beforeIndex + 1} → Q${afterIndex + 1}`);
+                }, 100);
+            } else {
+                addLog('❌ 前へボタンが見つかりません');
+            }
+        }
+
+        // QuestionFlow初期化
+        async function initQuestionFlow() {
+            try {
+                addLog('QuestionFlow初期化開始');
+                
+                const mockStorage = {
+                    answers: [],
+                    progress: null,
+                    saveAnswers: function(answers) { this.answers = answers; },
+                    getAnswers: function() { return this.answers; },
+                    saveProgress: function(progress) { this.progress = progress; },
+                    getProgress: function() { return this.progress; }
+                };
+
+                questionFlow = new QuestionFlow("questions-container", {
+                    storageManager: mockStorage,
+                    onProgress: function (progress) {
+                        addLog(`進行状況: ${progress.toFixed(1)}%`);
+                    },
+                    onComplete: function (answers) {
+                        addLog(`全質問完了: ${answers.length}回答`);
+                    }
+                });
+
+                questionFlow.init();
+                questionFlow.show();
+
+                addLog('QuestionFlow初期化完了');
+                logState();
+
+            } catch (error) {
+                addLog(`初期化エラー: ${error.message}`);
+                console.error('Initialization error:', error);
+            }
+        }
+
+        // ページ読み込み後に初期化
+        document.addEventListener("DOMContentLoaded", function () {
+            addLog('ページ読み込み完了');
+            
+            setTimeout(() => {
+                initQuestionFlow();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

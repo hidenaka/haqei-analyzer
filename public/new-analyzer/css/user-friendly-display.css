@@ -1,0 +1,453 @@
+/* ユーザーフレンドリー表示の追加CSS */
+
+/* ヒーローセクション改善 */
+.archetype-type {
+    font-size: 1.2rem;
+    color: #10b981;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.archetype-title {
+    font-size: 2rem;
+    margin: 0.5rem 0;
+    text-align: center;
+}
+
+.archetype-catchphrase {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    font-style: italic;
+    text-align: center;
+    margin: 0.5rem 0;
+    line-height: 1.4;
+}
+
+.archetype-reading {
+    font-size: 0.9rem;
+    color: #64748b;
+    text-align: center;
+    margin-top: 0.25rem;
+}
+
+/* OSカード表示改善 */
+.os-info {
+    flex: 1;
+    padding-right: 1rem;
+    min-width: 0; /* flexアイテムの文字切れ防止 */
+}
+
+.os-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #e2e8f0;
+    word-wrap: break-word;
+}
+
+.os-catchphrase {
+    font-size: 0.9rem;
+    color: #10b981;
+    font-weight: 500;
+    margin: 0.25rem 0;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.os-description {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 0.25rem 0;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-height: none; /* 高さ制限を解除 */
+    white-space: normal; /* 正常な改行を許可 */
+}
+
+.os-name-group {
+    text-align: center;
+}
+
+.os-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 0.25rem;
+}
+
+.os-subtitle {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-style: italic;
+}
+
+.os-score-group {
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.os-score {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #10b981;
+    margin-bottom: 0.25rem;
+}
+
+.os-score-label {
+    font-size: 0.7rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.score-help {
+    font-size: 0.8rem;
+    color: #64748b;
+    cursor: help;
+    margin-top: 0.25rem;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.score-help:hover {
+    opacity: 1;
+    color: #94a3b8;
+}
+
+/* OSカードのクリック展開修正 */
+.os-card-header {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.os-card-header:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.os-stats {
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+
+.expand-indicator {
+    margin-left: 1rem;
+    font-size: 1.5rem;
+    color: #64748b;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.interactive-os-card.expanded .expand-indicator {
+    transform: rotate(45deg);
+}
+
+.os-card-details {
+    display: none;
+    padding: 0 1rem 1rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 0.5rem;
+}
+
+.interactive-os-card.expanded .os-card-details {
+    display: block !important;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+    }
+}
+
+/* Compatibility Analysis Styles */
+.compatibility-analysis {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    border-left: 3px solid #10b981;
+}
+
+.compatibility-summary h5 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: #10b981;
+    font-weight: 600;
+}
+
+.compatibility-description {
+    font-size: 0.9rem;
+    color: #e2e8f0;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.compatibility-score {
+    font-size: 0.8rem;
+    color: #fbbf24;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.strengths-challenges {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.combo-strengths, .combo-challenges {
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+}
+
+.combo-strengths {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.combo-challenges {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.combo-strengths h6, .combo-challenges h6, .recommendations h6 {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.combo-strengths h6 {
+    color: #10b981;
+}
+
+.combo-challenges h6 {
+    color: #ef4444;
+}
+
+.recommendations h6 {
+    color: #fbbf24;
+}
+
+.compatibility-details ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.compatibility-details li {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+    padding-left: 0.5rem;
+    position: relative;
+}
+
+.compatibility-details li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #64748b;
+}
+
+.recommendations {
+    padding: 0.75rem;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 0.25rem;
+}
+
+.compatibility-fallback {
+    text-align: center;
+    padding: 1rem;
+    color: #94a3b8;
+}
+
+.fallback-insights {
+    margin-top: 0.75rem;
+    text-align: left;
+}
+
+.fallback-insights ul {
+    list-style: none;
+    padding: 0;
+}
+
+.fallback-insights li {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.fallback-insights li::before {
+    content: "💡";
+    position: absolute;
+    left: 0;
+}
+
+/* エンジンOS詳細データの追加スタイル */
+.keywords {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #10b981;
+    font-weight: 500;
+}
+
+.micro-examples {
+    margin-top: 0.25rem;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.core-drive-item {
+    padding: 0.5rem;
+    background: rgba(16, 185, 129, 0.05);
+    border-radius: 0.25rem;
+    border-left: 3px solid #10b981;
+}
+
+.core-drive-text {
+    font-size: 0.9rem;
+    color: #e2e8f0;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.strength-item, .challenge-item {
+    padding: 0.25rem 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.strength-item {
+    color: #10b981;
+}
+
+.challenge-item {
+    color: #fbbf24;
+}
+
+/* セーフモードアドバイスセクション */
+.usage-advice {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(251, 191, 36, 0.1);
+    border-radius: 0.5rem;
+    border-left: 3px solid #fbbf24;
+}
+
+.advice-section {
+    margin-bottom: 1rem;
+}
+
+.advice-section h5 {
+    font-size: 0.9rem;
+    color: #fbbf24;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.advice-list, .warning-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.advice-list li {
+    font-size: 0.8rem;
+    color: #e2e8f0;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.advice-list li::before {
+    content: "✅";
+    position: absolute;
+    left: 0;
+}
+
+.warning-list li {
+    font-size: 0.8rem;
+    color: #fca5a5;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+    padding-left: 1rem;
+    position: relative;
+}
+
+.warning-list li::before {
+    content: "⚠️";
+    position: absolute;
+    left: 0;
+}
+
+.advice-section p {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 768px) {
+    .archetype-type {
+        font-size: 1rem;
+    }
+    
+    .archetype-title {
+        font-size: 1.5rem;
+    }
+    
+    .archetype-catchphrase {
+        font-size: 1rem;
+    }
+    
+    .os-info h3 {
+        font-size: 1rem;
+    }
+    
+    .os-catchphrase {
+        font-size: 0.8rem;
+    }
+    
+    .os-card-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .os-stats {
+        margin-left: 0;
+        margin-top: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .strengths-challenges {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .compatibility-analysis {
+        padding: 0.75rem;
+    }
+    
+    .compatibility-description {
+        font-size: 0.8rem;
+    }
+}

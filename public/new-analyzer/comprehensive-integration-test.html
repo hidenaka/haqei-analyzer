@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HaQei Analyzer - 包括的統合テスト</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+      }
+      .test-result {
+        margin: 8px 0;
+        padding: 12px;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+      }
+      .info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      .critical {
+        background-color: #f5c6cb;
+        color: #721c24;
+        border: 2px solid #dc3545;
+        font-weight: bold;
+      }
+
+      pre {
+        background-color: #f8f9fa;
+        padding: 12px;
+        border-radius: 4px;
+        overflow-x: auto;
+        font-size: 12px;
+        border: 1px solid #e9ecef;
+      }
+
+      button {
+        padding: 12px 24px;
+        margin: 8px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      .test-btn {
+        background-color: #007bff;
+        color: white;
+      }
+      .test-btn:hover {
+        background-color: #0056b3;
+      }
+      .reset-btn {
+        background-color: #6c757d;
+        color: white;
+      }
+      .reset-btn:hover {
+        background-color: #545b62;
+      }
+      .success-btn {
+        background-color: #28a745;
+        color: white;
+      }
+      .success-btn:hover {
+        background-color: #1e7e34;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+        background-color: #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 10px 0;
+      }
+      .progress-fill {
+        height: 100%;
+        background-color: #007bff;
+        transition: width 0.3s ease;
+        border-radius: 10px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 15px 0;
+      }
+      .stat-card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid #dee2e6;
+      }
+      .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007bff;
+      }
+      .stat-label {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 HaQei Analyzer - 包括的統合テスト</h1>
+
+      <div class="test-section">
+        <h2>テスト制御</h2>
+        <button class="test-btn" onclick="runFullIntegrationTest()">
+          🚀 完全統合テスト実行
+        </button>
+        <button class="test-btn" onclick="runLoadingTest()">
+          📁 読み込みテスト
+        </button>
+        <button class="test-btn" onclick="runFallbackTest()">
+          🛡️ フォールバックテスト
+        </button>
+        <button class="success-btn" onclick="runPerformanceTest()">
+          ⚡ パフォーマンステスト
+        </button>
+        <button class="reset-btn" onclick="resetAllTests()">🔄 リセット</button>
+      </div>
+
+      <div class="test-section">
+        <h2>テスト進捗</h2>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        <div id="progress-text">テスト待機中...</div>
+      </div>
+
+      <div class="test-section">
+        <h2>統計情報</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="total-tests">0</div>
+            <div class="stat-label">総テスト数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="passed-tests">0</div>
+            <div class="stat-label">成功</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="failed-tests">0</div>
+            <div class="stat-label">失敗</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="load-time">0ms</div>
+            <div class="stat-label">読み込み時間</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="test-results"></div>
+    </div>
+
+    <!-- 実際のanalyzer.htmlと同じスクリプト読み込み順序でテスト -->
+    <!-- 1. ユーティリティスクリプト -->
+    <script src="js/utils/validators.js"></script>
+    <script src="js/utils/animations.js"></script>
+
+    <!-- 2. データファイル -->
+    <script src="../js/data/data_box.js"></script>
+    <script src="../js/data/questions.js"></script>
+    <script src="../js/data/vectors.js"></script>
+    <script src="../js/data/hexagrams.js"></script>
+    <script src="../js/data/hexagram_details.js"></script>
+    <script src="../js/data/compatibility_definition.js"></script>
+    <script src="../js/data/compatibility_matrix.js"></script>
+    <script src="../js/data/action_plans.js"></script>
+
+    <!-- 3. 基底クラス -->
+    <script src="js/core/BaseComponent.js"></script>
+
+    <!-- 4. コアクラス -->
+    <script src="js/core/DataManager.js"></script>
+    <script src="js/core/Calculator.js"></script>
+    <script src="js/core/StorageManager.js"></script>
+
+    <!-- 5. エンジンクラス -->
+    <script src="js/core/Engine.js"></script>
+    <script src="js/core/TripleOSEngine.js"></script>
+    <script src="js/core/EightDimensionAnalysisEngine.js"></script>
+    <script src="js/core/RelationshipVisualizationEngine.js"></script>
+
+    <!-- 5.5. 特殊機能 -->
+    <script src="js/core/CompatibilityDataLoader.js"></script>
+
+    <!-- 6. UIコンポーネント -->
+    <script src="js/components/WelcomeScreen.js"></script>
+    <script src="js/components/QuestionFlow.js"></script>
+    <script src="js/components/AnalysisView.js"></script>
+    <script src="js/components/ResultsView.js"></script>
+    <script src="js/components/TripleOSResultsView.js"></script>
+    <script src="js/components/InsightPanel.js"></script>
+
+    <!-- テストスクリプト -->
+    <script>
+      // テスト統計
+      let testStats = {
+        total: 0,
+        passed: 0,
+        failed: 0,
+        startTime: 0,
+        endTime: 0,
+      };
+
+      // テスト結果表示
+      function addTestResult(message, type = "info", section = "general") {
+        const resultsDiv = document.getElementById("test-results");
+
+        // セクションが存在しない場合は作成
+        let sectionDiv = document.getElementById(`section-${section}`);
+        if (!sectionDiv) {
+          sectionDiv = document.createElement("div");
+          sectionDiv.id = `section-${section}`;
+          sectionDiv.className = "test-section";
+          sectionDiv.innerHTML = `<h3>📋 ${section.toUpperCase()} テスト結果</h3>`;
+          resultsDiv.appendChild(sectionDiv);
+        }
+
+        const resultDiv = document.createElement("div");
+        resultDiv.className = `test-result ${type}`;
+        resultDiv.innerHTML = message;
+        sectionDiv.appendChild(resultDiv);
+
+        // 統計更新
+        if (type === "success") testStats.passed++;
+        if (type === "error" || type === "critical") testStats.failed++;
+        testStats.total++;
+
+        updateStats();
+      }
+
+      // 統計情報更新
+      function updateStats() {
+        document.getElementById("total-tests").textContent = testStats.total;
+        document.getElementById("passed-tests").textContent = testStats.passed;
+        document.getElementById("failed-tests").textContent = testStats.failed;
+
+        if (testStats.endTime > testStats.startTime) {
+          document.getElementById("load-time").textContent = `${
+            testStats.endTime - testStats.startTime
+          }ms`;
+        }
+      }
+
+      // 進捗更新
+      function updateProgress(percentage, text) {
+        document.getElementById("progress-fill").style.width = `${percentage}%`;
+        document.getElementById("progress-text").textContent = text;
+      }
+
+      // テストリセット
+      function resetAllTests() {
+        document.getElementById("test-results").innerHTML = "";
+        testStats = {
+          total: 0,
+          passed: 0,
+          failed: 0,
+          startTime: 0,
+          endTime: 0,
+        };
+        updateStats();
+        updateProgress(0, "テスト待機中...");
+        addTestResult(
+          "🔄 すべてのテストがリセットされました",
+          "info",
+          "system"
+        );
+      }
+
+      // 1. 読み込みテスト
+      function runLoadingTest() {
+        addTestResult(
+          "<h4>📁 スクリプト・データ読み込みテスト開始</h4>",
+          "info",
+          "loading"
+        );
+        testStats.startTime = Date.now();
+        updateProgress(10, "読み込みテスト実行中...");
+
+        // ユーティリティスクリプトテスト
+        const utilityTests = [
+          {
+            name: "validators.js",
+            check: () =>
+              typeof window.validators !== "undefined" ||
+              typeof validateEmail !== "undefined",
+          },
+          {
+            name: "animations.js",
+            check: () =>
+              typeof window.animations !== "undefined" ||
+              typeof fadeIn !== "undefined",
+          },
+        ];
+
+        utilityTests.forEach((test) => {
+          try {
+            if (test.check()) {
+              addTestResult(
+                `✅ ${test.name} が正常に読み込まれました`,
+                "success",
+                "loading"
+              );
+            } else {
+              addTestResult(
+                `⚠️ ${test.name} の読み込み確認ができません（オプショナル）`,
+                "warning",
+                "loading"
+              );
+            }
+          } catch (error) {
+            addTestResult(
+              `❌ ${test.name} テスト中にエラー: ${error.message}`,
+              "error",
+              "loading"
+            );
+          }
+        });
+
+        updateProgress(30, "データファイル確認中...");
+
+        // データファイルテスト
+        const dataTests = [
+          { name: "HAQEI_DATA", var: window.HAQEI_DATA, critical: true },
+          {
+            name: "WORLDVIEW_QUESTIONS",
+            var: window.WORLDVIEW_QUESTIONS,
+            critical: true,
+          },
+          {
+            name: "SCENARIO_QUESTIONS",
+            var: window.SCENARIO_QUESTIONS,
+            critical: true,
+          },
+          {
+            name: "H64_8D_VECTORS",
+            var: window.H64_8D_VECTORS,
+            critical: true,
+          },
+          {
+            name: "HEXAGRAM_DETAILS",
+            var: window.HEXAGRAM_DETAILS,
+            critical: false,
+          },
+          {
+            name: "hexagrams_master",
+            var: window.hexagrams_master,
+            critical: false,
+          },
+        ];
+
+        dataTests.forEach((test) => {
+          if (typeof test.var !== "undefined") {
+            addTestResult(
+              `✅ ${test.name} が正常に定義されています`,
+              "success",
+              "loading"
+            );
+
+            // データ構造の詳細チェック
+            if (
+              test.name === "HAQEI_DATA" &&
+              test.var &&
+              typeof test.var === "object"
+            ) {
+              const keys = Object.keys(test.var);
+              addTestResult(
+                `📊 HAQEI_DATA 構造: ${keys.join(", ")}`,
+                "info",
+                "loading"
+              );
+            }
+            if (
+              test.name === "WORLDVIEW_QUESTIONS" &&
+              Array.isArray(test.var)
+            ) {
+              addTestResult(
+                `📊 価値観質問数: ${test.var.length}`,
+                "info",
+                "loading"
+              );
+            }
+            if (
+              test.name === "H64_8D_VECTORS" &&
+              test.var &&
+              typeof test.var === "object"
+            ) {
+              const vectorCount = Object.keys(test.var).length;
+              addTestResult(
+                `📊 ベクトルデータ数: ${vectorCount}`,
+                "info",
+                "loading"
+              );
+            }
+          } else {
+            const resultType = test.critical ? "critical" : "warning";
+            addTestResult(
+              `${test.critical ? "🚨" : "⚠️"} ${
+                test.name
+              } が定義されていません`,
+              resultType,
+              "loading"
+            );
+          }
+        });
+
+        updateProgress(60, "クラス定義確認中...");
+
+        // クラス定義テスト
+        const classTests = [
+          { name: "BaseComponent", critical: true },
+          { name: "DataManager", critical: true },
+          { name: "Calculator", critical: true },
+          { name: "TripleOSEngine", critical: true },
+          { name: "StorageManager", critical: true },
+          { name: "WelcomeScreen", critical: true },
+          { name: "QuestionFlow", critical: true },
+          { name: "Engine", critical: false },
+          { name: "CompatibilityDataLoader", critical: false },
+        ];
+
+        classTests.forEach((test) => {
+          if (typeof window[test.name] !== "undefined") {
+            addTestResult(
+              `✅ ${test.name} クラスが正常に定義されています`,
+              "success",
+              "loading"
+            );
+          } else {
+            const resultType = test.critical ? "critical" : "warning";
+            addTestResult(
+              `${test.critical ? "🚨" : "⚠️"} ${
+                test.name
+              } クラスが定義されていません`,
+              resultType,
+              "loading"
+            );
+          }
+        });
+
+        testStats.endTime = Date.now();
+        updateProgress(100, "読み込みテスト完了");
+        addTestResult(
+          `🎯 読み込みテスト完了 - 実行時間: ${
+            testStats.endTime - testStats.startTime
+          }ms`,
+          "success",
+          "loading"
+        );
+      }
+
+      // 2. フォールバックテスト
+      function runFallbackTest() {
+        addTestResult(
+          "<h4>🛡️ フォールバックシステムテスト開始</h4>",
+          "info",
+          "fallback"
+        );
+        updateProgress(10, "フォールバックテスト実行中...");
+
+        // フォールバック関数の存在確認
+        const fallbackFunctions = [
+          "createFallbackHaqeiData",
+          "createFallbackQuestions",
+          "createFallbackVectors",
+          "createFallbackHexagramDetails",
+        ];
+
+        fallbackFunctions.forEach((funcName) => {
+          if (typeof window[funcName] === "function") {
+            addTestResult(
+              `✅ ${funcName} 関数が定義されています`,
+              "success",
+              "fallback"
+            );
+
+            // 実際にフォールバックデータを生成してテスト
+            try {
+              const testData = window[funcName]();
+              if (testData && typeof testData === "object") {
+                addTestResult(
+                  `✅ ${funcName} が正常なデータを生成しました`,
+                  "success",
+                  "fallback"
+                );
+              } else {
+                addTestResult(
+                  `⚠️ ${funcName} が無効なデータを生成しました`,
+                  "warning",
+                  "fallback"
+                );
+              }
+            } catch (error) {
+              addTestResult(
+                `❌ ${funcName} 実行中にエラー: ${error.message}`,
+                "error",
+                "fallback"
+              );
+            }
+          } else {
+            addTestResult(
+              `❌ ${funcName} 関数が定義されていません`,
+              "error",
+              "fallback"
+            );
+          }
+        });
+
+        updateProgress(100, "フォールバックテスト完了");
+        addTestResult(
+          "🎯 フォールバックシステムテスト完了",
+          "success",
+          "fallback"
+        );
+      }
+
+      // 3. パフォーマンステスト
+      function runPerformanceTest() {
+        addTestResult(
+          "<h4>⚡ パフォーマンステスト開始</h4>",
+          "info",
+          "performance"
+        );
+        updateProgress(10, "パフォーマンステスト実行中...");
+
+        const startTime = performance.now();
+
+        // メモリ使用量チェック
+        if (performance.memory) {
+          const memory = performance.memory;
+          const usedMB = Math.round(memory.usedJSHeapSize / 1024 / 1024);
+          const totalMB = Math.round(memory.totalJSHeapSize / 1024 / 1024);
+          const limitMB = Math.round(memory.jsHeapSizeLimit / 1024 / 1024);
+
+          addTestResult(
+            `💾 メモリ使用量: ${usedMB}MB / ${totalMB}MB (制限: ${limitMB}MB)`,
+            "info",
+            "performance"
+          );
+
+          if (usedMB < 50) {
+            addTestResult(
+              "✅ メモリ使用量は良好です",
+              "success",
+              "performance"
+            );
+          } else if (usedMB < 100) {
+            addTestResult(
+              "⚠️ メモリ使用量は普通です",
+              "warning",
+              "performance"
+            );
+          } else {
+            addTestResult(
+              "❌ メモリ使用量が多すぎます",
+              "error",
+              "performance"
+            );
+          }
+        }
+
+        // DOM要素数チェック
+        const domElements = document.querySelectorAll("*").length;
+        addTestResult(`🏗️ DOM要素数: ${domElements}`, "info", "performance");
+
+        // スクリプトタグ数チェック
+        const scriptTags = document.querySelectorAll("script").length;
+        addTestResult(
+          `📜 スクリプトタグ数: ${scriptTags}`,
+          "info",
+          "performance"
+        );
+
+        const endTime = performance.now();
+        const testDuration = Math.round(endTime - startTime);
+
+        addTestResult(
+          `⏱️ パフォーマンステスト実行時間: ${testDuration}ms`,
+          "info",
+          "performance"
+        );
+
+        updateProgress(100, "パフォーマンステスト完了");
+        addTestResult("🎯 パフォーマンステスト完了", "success", "performance");
+      }
+
+      // 4. 完全統合テスト
+      function runFullIntegrationTest() {
+        resetAllTests();
+        addTestResult("<h2>🚀 完全統合テスト開始</h2>", "info", "integration");
+
+        testStats.startTime = Date.now();
+
+        // 順次テスト実行
+        setTimeout(() => {
+          runLoadingTest();
+          setTimeout(() => {
+            runFallbackTest();
+            setTimeout(() => {
+              runPerformanceTest();
+
+              // 最終結果
+              testStats.endTime = Date.now();
+              const totalTime = testStats.endTime - testStats.startTime;
+
+              addTestResult(
+                `<h3>🎉 完全統合テスト完了</h3>`,
+                "success",
+                "integration"
+              );
+              addTestResult(
+                `⏱️ 総実行時間: ${totalTime}ms`,
+                "info",
+                "integration"
+              );
+              addTestResult(
+                `📊 成功率: ${Math.round(
+                  (testStats.passed / testStats.total) * 100
+                )}%`,
+                "info",
+                "integration"
+              );
+
+              if (testStats.failed === 0) {
+                addTestResult(
+                  "🎉 すべてのテストが成功しました！",
+                  "success",
+                  "integration"
+                );
+              } else {
+                addTestResult(
+                  `⚠️ ${testStats.failed}個のテストが失敗しました`,
+                  "warning",
+                  "integration"
+                );
+              }
+
+              updateProgress(100, "完全統合テスト完了");
+            }, 500);
+          }, 500);
+        }, 100);
+      }
+
+      // 初期化
+      document.addEventListener("DOMContentLoaded", function () {
+        addTestResult("📋 包括的統合テストシステム準備完了", "info", "system");
+        addTestResult(
+          "💡 各テストボタンをクリックして、HaQei Analyzerの動作を確認できます",
+          "info",
+          "system"
+        );
+        updateProgress(0, "テスト待機中...");
+      });
+    </script>
+  </body>
+</html>

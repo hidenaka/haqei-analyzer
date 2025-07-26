@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataManager Unit Tests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .test-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .test-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-btn.primary { background: #007bff; color: white; }
+        .test-btn.success { background: #28a745; color: white; }
+        .test-btn.danger { background: #dc3545; color: white; }
+        .test-btn:hover { opacity: 0.8; transform: translateY(-1px); }
+        
+        .test-results {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        
+        .test-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 4px;
+        }
+        
+        .test-item.pass {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .test-item.fail {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .test-item.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 DataManager Unit Tests</h1>
+    
+    <!-- 全体サマリー -->
+    <div class="summary-stats">
+        <div class="stat-card">
+            <div class="stat-value" id="total-tests">0</div>
+            <div class="stat-label">Total Tests</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="passed-tests" style="color: #28a745;">0</div>
+            <div class="stat-label">Passed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="failed-tests" style="color: #dc3545;">0</div>
+            <div class="stat-label">Failed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="success-rate">0%</div>
+            <div class="stat-label">Success Rate</div>
+        </div>
+    </div>
+    
+    <!-- DataManager基本機能テスト -->
+    <div class="test-container">
+        <div class="test-header">
+            <h2>DataManager基本機能テスト</h2>
+            <div class="test-controls">
+                <button class="test-btn primary" onclick="runBasicTests()">基本テスト実行</button>
+                <button class="test-btn danger" onclick="clearResults('basic-results')">結果クリア</button>
+            </div>
+        </div>
+        <div class="test-results" id="basic-results"></div>
+    </div>
+    
+    <!-- データ読み込みテスト -->
+    <div class="test-container">
+        <div class="test-header">
+            <h2>データ読み込みテスト</h2>
+            <div class="test-controls">
+                <button class="test-btn primary" onclick="runLoadDataTests()">読み込みテスト実行</button>
+                <button class="test-btn danger" onclick="clearResults('load-results')">結果クリア</button>
+            </div>
+        </div>
+        <div class="test-results" id="load-results"></div>
+    </div>
+    
+    <!-- エラーハンドリングテスト -->
+    <div class="test-container">
+        <div class="test-header">
+            <h2>エラーハンドリングテスト</h2>
+            <div class="test-controls">
+                <button class="test-btn primary" onclick="runErrorHandlingTests()">エラーテスト実行</button>
+                <button class="test-btn danger" onclick="clearResults('error-results')">結果クリア</button>
+            </div>
+        </div>
+        <div class="test-results" id="error-results"></div>
+    </div>
+    
+    <!-- データ検証テスト -->
+    <div class="test-container">
+        <div class="test-header">
+            <h2>データ検証テスト</h2>
+            <div class="test-controls">
+                <button class="test-btn primary" onclick="runValidationTests()">検証テスト実行</button>
+                <button class="test-btn danger" onclick="clearResults('validation-results')">結果クリア</button>
+            </div>
+        </div>
+        <div class="test-results" id="validation-results"></div>
+    </div>
+    
+    <!-- 全テスト実行 -->
+    <div class="test-container">
+        <div class="test-header">
+            <h2>全テスト実行</h2>
+            <div class="test-controls">
+                <button class="test-btn success" onclick="runAllTests()">🚀 全テスト実行</button>
+                <button class="test-btn danger" onclick="clearAllResults()">🗑️ 全結果クリア</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 必要なスクリプト -->
+    <script type="module" src="js/data/data_box.js"></script>
+    <script src="js/data/questions.js"></script>
+    <script src="js/data/vectors.js"></script>
+    <script src="js/data/hexagrams.js"></script>
+    <script src="js/core/DataManager.js"></script>
+    
+    <script>
+        // テスト統計
+        let testStats = {
+            total: 0,
+            passed: 0,
+            failed: 0
+        };
+
+        // グローバルデータの一時保管場所
+        const originalGlobals = {};
+
+        // テストのセットアップ（グローバルデータをバックアップ）
+        function setupTests() {
+            originalGlobals.HAQEI_DATA = window.HAQEI_DATA;
+            originalGlobals.WORLDVIEW_QUESTIONS = window.WORLDVIEW_QUESTIONS;
+            originalGlobals.SCENARIO_QUESTIONS = window.SCENARIO_QUESTIONS;
+            originalGlobals.H64_8D_VECTORS = window.H64_8D_VECTORS;
+            originalGlobals.BIBLE_DATA = window.BIBLE_DATA;
+        }
+
+        // テストのクリーンアップ（グローバルデータを復元）
+        function cleanupTests() {
+            window.HAQEI_DATA = originalGlobals.HAQEI_DATA;
+            window.WORLDVIEW_QUESTIONS = originalGlobals.WORLDVIEW_QUESTIONS;
+            window.SCENARIO_QUESTIONS = originalGlobals.SCENARIO_QUESTIONS;
+            window.H64_8D_VECTORS = originalGlobals.H64_8D_VECTORS;
+            window.BIBLE_DATA = originalGlobals.BIBLE_DATA;
+        }
+        
+        // テスト結果記録
+        function logTestResult(containerId, testName, passed, message = '') {
+            const container = document.getElementById(containerId);
+            const className = passed ? 'pass' : 'fail';
+            const icon = passed ? '✅' : '❌';
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const testItem = document.createElement('div');
+            testItem.className = `test-item ${className}`;
+            testItem.innerHTML = `[${timestamp}] ${icon} <strong>${testName}</strong>${message ? `: ${message}` : ''}`;
+            
+            container.appendChild(testItem);
+            container.scrollTop = container.scrollHeight;
+            
+            // 統計更新
+            if (!container.hasAttribute('data-test-running')) {
+                 testStats.total++;
+                 if (passed) {
+                    testStats.passed++;
+                } else {
+                    testStats.failed++;
+                }
+                updateStats();
+            }
+        }
+        
+        // テスト情報記録
+        function logTestInfo(containerId, message) {
+            const container = document.getElementById(containerId);
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const testItem = document.createElement('div');
+            testItem.className = 'test-item info';
+            testItem.innerHTML = `[${timestamp}] 🔍 ${message}`;
+            
+            container.appendChild(testItem);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // 統計更新
+        function updateStats() {
+            document.getElementById('total-tests').textContent = testStats.total;
+            document.getElementById('passed-tests').textContent = testStats.passed;
+            document.getElementById('failed-tests').textContent = testStats.failed;
+            
+            const successRate = testStats.total > 0 ? Math.round((testStats.passed / testStats.total) * 100) : 0;
+            document.getElementById('success-rate').textContent = `${successRate}%`;
+        }
+        
+        // 結果クリア
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+        
+        // 全結果クリア
+        function clearAllResults() {
+            ['basic-results', 'load-results', 'error-results', 'validation-results'].forEach(clearResults);
+            testStats = { total: 0, passed: 0, failed: 0 };
+            updateStats();
+        }
+        
+        // 基本機能テスト
+        async function runBasicTests() {
+            const containerId = 'basic-results';
+            logTestInfo(containerId, 'DataManager基本機能テスト開始');
+            
+            try {
+                const dataManager = new DataManager();
+                logTestResult(containerId, 'DataManagerコンストラクタ', true);
+                logTestResult(containerId, 'loadedプロパティ初期値', !dataManager.loaded);
+                logTestResult(containerId, 'dataプロパティ初期値', typeof dataManager.data === 'object');
+                logTestResult(containerId, 'loadDataメソッド存在', typeof dataManager.loadData === 'function');
+                logTestResult(containerId, 'getDataStatsメソッド存在', typeof dataManager.getDataStats === 'function');
+                logTestResult(containerId, 'validateDataStructureメソッド存在', typeof dataManager.validateDataStructure === 'function');
+            } catch (error) {
+                logTestResult(containerId, 'DataManagerコンストラクタ', false, error.message);
+            }
+            
+            logTestInfo(containerId, 'DataManager基本機能テスト完了');
+        }
+        
+        // データ読み込みテスト
+        async function runLoadDataTests() {
+            const containerId = 'load-results';
+            logTestInfo(containerId, 'データ読み込みテスト開始');
+            
+            // --- 正常系テスト ---
+            logTestInfo(containerId, '正常なデータ読み込みテスト');
+            try {
+                cleanupTests(); // Ensure clean state
+                const dataManager = new DataManager();
+                await dataManager.loadData();
+                logTestResult(containerId, 'loadData実行（正常系）', true);
+                logTestResult(containerId, 'loaded状態（正常系）', dataManager.loaded);
+                logTestResult(containerId, 'questionsデータ存在（正常系）', !!dataManager.data.questions && dataManager.data.questions.worldview.length > 0);
+                logTestResult(containerId, 'hexagramsデータ存在（正常系）', !!dataManager.data.hexagrams && Object.keys(dataManager.data.hexagrams).length > 0);
+            } catch (error) {
+                logTestResult(containerId, 'データ読み込み（正常系）', false, error.message);
+            }
+
+            // --- フォールバックテスト（HAQEI_DATA欠損） ---
+            logTestInfo(containerId, 'フォールバックテスト（HAQEI_DATA欠損）');
+            try {
+                cleanupTests();
+                delete window.HAQEI_DATA;
+
+                const dmFallback = new DataManager();
+                await dmFallback.loadData();
+
+                logTestResult(containerId, 'HAQEI_DATA欠損でもloadData完了', dmFallback.loaded);
+                logTestResult(containerId, 'HAQEI_DATA欠損時の警告ログ', dmFallback.getLoadingLogs().warnings.some(w => w.message.includes('不足データ検出')));
+                logTestResult(containerId, 'HAQEI_DATAフォールバックデータ確認', typeof dmFallback.data.hexagrams === 'object' && Object.keys(dmFallback.data.hexagrams).length === 0);
+                logTestResult(containerId, 'HAQEI_DATAフォールバックでも他のデータは読み込み', dmFallback.data.questions.worldview.length > 0);
+
+            } catch (error) {
+                logTestResult(containerId, 'HAQEI_DATA欠損テスト', false, error.message);
+            } finally {
+                cleanupTests();
+            }
+            
+            logTestInfo(containerId, 'データ読み込みテスト完了');
+        }
+        
+        // エラーハンドリングテスト
+        async function runErrorHandlingTests() {
+            const containerId = 'error-results';
+            logTestInfo(containerId, 'エラーハンドリングテスト開始');
+
+            // --- 未初期化状態でのテスト ---
+            logTestInfo(containerId, '未初期化状態でのAPI呼び出しテスト');
+            try {
+                const dmUninitialized = new DataManager();
+                const stats = dmUninitialized.getDataStats();
+                logTestResult(containerId, '未初期化getDataStats', !stats.loaded && stats.error.includes('初期化されていません'));
+                try {
+                    dmUninitialized.getWorldviewQuestions();
+                } catch (e) {
+                    logTestResult(containerId, '未初期化getWorldviewQuestions', e.message.includes('初期化されていません'));
+                }
+            } catch (error) {
+                logTestResult(containerId, '未初期化テスト', false, error.message);
+            }
+
+            // --- データ取得エラーテスト ---
+            logTestInfo(containerId, 'データ取得エラーテスト（初期化後）');
+            try {
+                cleanupTests();
+                const dataManager = new DataManager();
+                await dataManager.loadData();
+                logTestResult(containerId, '存在しないhexagramId', dataManager.getUnifiedHexagramData(999) === null);
+                logTestResult(containerId, 'null ID処理', dataManager.getUnifiedHexagramData(null) === null);
+                logTestResult(containerId, '無効なID処理', dataManager.getUnifiedHexagramData('invalid-id') === null);
+            } catch (error) {
+                logTestResult(containerId, 'データ取得エラー', false, error.message);
+            }
+
+            // --- タイムアウトテスト（シミュレーション） ---
+            logTestInfo(containerId, 'タイムアウトテスト（シミュレーション）');
+            try {
+                cleanupTests();
+                delete window.HAQEI_DATA;
+                delete window.WORLDVIEW_QUESTIONS;
+                delete window.SCENARIO_QUESTIONS;
+                delete window.H64_8D_VECTORS;
+
+                const dmTimeout = new DataManager();
+                // DataManager内のwaitForGlobalDataを直接呼び出すことはできないので、loadDataでテスト
+                await dmTimeout.loadData();
+
+                logTestResult(containerId, 'タイムアウト後でもloadData完了', dmTimeout.loaded);
+                const logs = dmTimeout.getLoadingLogs();
+                logTestResult(containerId, 'タイムアウト警告ログ', logs.warnings.some(w => w.message.includes('データ読み込みタイムアウト') || w.message.includes('不足データ検出')));
+                logTestResult(containerId, 'タイムアウト後のフォールバック確認', Object.keys(dmTimeout.data.hexagrams).length === 0 && dmTimeout.data.questions.worldview.length === 0);
+
+            } catch (error) {
+                logTestResult(containerId, 'タイムアウトテスト', false, error.message);
+            } finally {
+                cleanupTests();
+            }
+            
+            logTestInfo(containerId, 'エラーハンドリングテスト完了');
+        }
+        
+        // データ検証テスト
+        async function runValidationTests() {
+            const containerId = 'validation-results';
+            logTestInfo(containerId, 'データ検証テスト開始');
+            
+            try {
+                const dataManager = new DataManager();
+
+                // --- 正常なデータ検証 ---
+                const validData = {
+                    questions: { worldview: [{ id: 1, text: 'test' }], scenarios: [{ id: 1, text: 'test' }] },
+                    vectors: { test: 'value' },
+                    hexagrams: { '1': { hexagram_id: 1, name: 'test' } },
+                    osManual: { '1': { id: 1, name: 'test' } }
+                };
+                const validResult = dataManager.validateDataStructure(validData);
+                logTestResult(containerId, '正常データ検証', validResult.isValid);
+                
+                // --- 不正なデータ検証 ---
+                const invalidData = {
+                    questions: 'invalid', 
+                    vectors: [],
+                    hexagrams: null,
+                    osManual: undefined
+                };
+                const invalidResult = dataManager.validateDataStructure(invalidData);
+                logTestResult(containerId, '不正データ検証', !invalidResult.isValid);
+                logTestResult(containerId, 'エラー検出数', invalidResult.errors.length >= 3, `Expected >=3, Got ${invalidResult.errors.length}`);
+                
+                // --- 後方互換性（データ変換）テスト ---
+                const legacyData = {
+                    hexagrams: [ { hexagram_id: 1, name_jp: '乾為天' }, { hexagram_id: 2, name_jp: '坤為地' } ],
+                    osManual: { '1': { title: 'OS1' } }
+                };
+                const transformedData = dataManager.transformDataForBackwardCompatibility(legacyData);
+                logTestResult(containerId, 'データ変換（hexagrams配列→オブジェクト）', typeof transformedData.hexagrams === 'object' && !Array.isArray(transformedData.hexagrams));
+                logTestResult(containerId, 'データ変換（hexagramsオブジェクトキー）', !!transformedData.hexagrams['1']);
+                logTestResult(containerId, 'データ変換（osManual name補完）', transformedData.osManual['1'].name === '1');
+                
+            } catch (error) {
+                logTestResult(containerId, 'データ検証テスト', false, error.message);
+            }
+            
+            logTestInfo(containerId, 'データ検証テスト完了');
+        }
+        
+        // 全テスト実行
+        async function runAllTests() {
+            clearAllResults();
+            document.querySelectorAll('.test-results').forEach(el => el.setAttribute('data-test-running', 'true'));
+            
+            await runBasicTests();
+            await runLoadDataTests();
+            await runErrorHandlingTests();
+            await runValidationTests();
+            
+            document.querySelectorAll('.test-results').forEach(el => el.removeAttribute('data-test-running'));
+            
+            // Final stats update
+            testStats.total = document.querySelectorAll('.test-item.pass, .test-item.fail').length;
+            testStats.passed = document.querySelectorAll('.test-item.pass').length;
+            testStats.failed = document.querySelectorAll('.test-item.fail').length;
+            updateStats();
+
+            const successRate = testStats.total > 0 ? Math.round((testStats.passed / testStats.total) * 100) : 0;
+            
+            if (successRate === 100) {
+                console.log('🎉 すべてのテストが成功しました！');
+            } else {
+                console.warn(`⚠️ ${testStats.failed}件のテストが失敗しました（成功率: ${successRate}%）`);
+            }
+        }
+        
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📊 DataManager Unit Tests initialized');
+            setupTests();
+            updateStats();
+        });
+    </script>
+</body>
+</html>

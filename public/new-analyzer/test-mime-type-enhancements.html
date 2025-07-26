@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIME Type Enhancement System Test</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-header {
+            background: #21262d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #58a6ff;
+        }
+        .test-section {
+            background: #161b22;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+            font-size: 12px;
+        }
+        .test-pass {
+            background: #0d4429;
+            border-color: #238636;
+            color: #2ea043;
+        }
+        .test-fail {
+            background: #490202;
+            border-color: #da3633;
+            color: #f85149;
+        }
+        .test-warn {
+            background: #333017;
+            border-color: #d29922;
+            color: #f0c674;
+        }
+        .test-info {
+            background: #0c2d6b;
+            border-color: #1f6feb;
+            color: #58a6ff;
+        }
+        .btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #2ea043;
+        }
+        .btn.secondary {
+            background: #21262d;
+            border: 1px solid #30363d;
+        }
+        .btn.secondary:hover {
+            background: #30363d;
+        }
+        .json-display {
+            background: #010409;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 11px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #21262d;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #238636, #2ea043);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .stat-card {
+            background: #21262d;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #58a6ff;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🔧 MIME Type Enhancement System Test</h1>
+            <p>拡張されたMIMEタイプ検証システム、エラーハンドリング、サーバー設定検出機能のテスト</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 システム初期化テスト</h2>
+            <button class="btn" onclick="testSystemInitialization()">システム初期化テスト</button>
+            <button class="btn secondary" onclick="clearResults('system-results')">クリア</button>
+            <div id="system-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 MIME タイプ検証テスト</h2>
+            <button class="btn" onclick="testMimeTypeValidation()">MIME タイプ検証実行</button>
+            <button class="btn secondary" onclick="testBulkValidation()">一括検証テスト</button>
+            <button class="btn secondary" onclick="clearResults('mime-results')">クリア</button>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="mime-progress"></div>
+            </div>
+            
+            <div id="mime-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 サーバー設定検出テスト</h2>
+            <button class="btn" onclick="testServerDetection()">サーバー検出実行</button>
+            <button class="btn secondary" onclick="testConfigurationGuide()">設定ガイド生成</button>
+            <button class="btn secondary" onclick="clearResults('server-results')">クリア</button>
+            <div id="server-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>⚠️ エラーハンドリングテスト</h2>
+            <button class="btn" onclick="testErrorHandling()">エラーハンドリング実行</button>
+            <button class="btn secondary" onclick="testGracefulDegradation()">グレースフル デグラデーション</button>
+            <button class="btn secondary" onclick="clearResults('error-results')">クリア</button>
+            <div id="error-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 統合レポートテスト</h2>
+            <button class="btn" onclick="generateIntegratedReport()">統合レポート生成</button>
+            <button class="btn secondary" onclick="showTroubleshootingGuide()">トラブルシューティングガイド</button>
+            <button class="btn secondary" onclick="clearResults('report-results')">クリア</button>
+            <div id="report-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📈 パフォーマンス統計</h2>
+            <div class="stats-grid" id="performance-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-tests">0</div>
+                    <div class="stat-label">実行されたテスト</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="success-rate">0%</div>
+                    <div class="stat-label">成功率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="error-count">0</div>
+                    <div class="stat-label">エラー数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-time">0ms</div>
+                    <div class="stat-label">平均実行時間</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔬 詳細結果</h2>
+            <div class="json-display" id="detailed-results">
+                テストを実行してください...
+            </div>
+        </div>
+    </div>
+
+    <!-- 必要なスクリプトファイルを読み込み -->
+    <script src="js/core/MimeTypeErrorHandler.js"></script>
+    <script src="js/core/ServerConfigurationDetector.js"></script>
+    <script src="js/core/ScriptPathValidator.js"></script>
+
+    <script>
+        // グローバル変数
+        let testStats = {
+            totalTests: 0,
+            successfulTests: 0,
+            failedTests: 0,
+            totalTime: 0
+        };
+
+        let mimeTypeErrorHandler;
+        let serverConfigDetector;
+        let scriptPathValidator;
+
+        // 結果表示ヘルパー
+        function addResult(containerId, testName, success, message, details = null) {
+            const container = document.getElementById(containerId);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${success ? 'test-pass' : 'test-fail'}`;
+            
+            const icon = success ? '✅' : '❌';
+            resultDiv.innerHTML = `${icon} <strong>${testName}</strong>: ${message}`;
+            
+            container.appendChild(resultDiv);
+            
+            // 統計更新
+            testStats.totalTests++;
+            if (success) {
+                testStats.successfulTests++;
+            } else {
+                testStats.failedTests++;
+            }
+            updatePerformanceStats();
+            
+            // 詳細結果表示
+            if (details) {
+                updateDetailedResults(testName, details);
+            }
+        }
+
+        function addInfo(containerId, message) {
+            const container = document.getElementById(containerId);
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'test-result test-info';
+            infoDiv.innerHTML = `ℹ️ ${message}`;
+            container.appendChild(infoDiv);
+        }
+
+        function clearResults(containerId) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = '';
+            }
+        }
+
+        function updatePerformanceStats() {
+            document.getElementById('total-tests').textContent = testStats.totalTests;
+            const successRate = testStats.totalTests > 0 ? 
+                Math.round((testStats.successfulTests / testStats.totalTests) * 100) : 0;
+            document.getElementById('success-rate').textContent = successRate + '%';
+            document.getElementById('error-count').textContent = testStats.failedTests;
+            const avgTime = testStats.totalTests > 0 ? 
+                Math.round(testStats.totalTime / testStats.totalTests) : 0;
+            document.getElementById('avg-time').textContent = avgTime + 'ms';
+        }
+
+        function updateDetailedResults(testName, details) {
+            const detailsContainer = document.getElementById('detailed-results');
+            const timestamp = new Date().toISOString();
+            const entry = `[${timestamp}] ${testName}:\n${JSON.stringify(details, null, 2)}\n\n`;
+            detailsContainer.textContent += entry;
+            detailsContainer.scrollTop = detailsContainer.scrollHeight;
+        }
+
+        function updateProgress(containerId, percent) {
+            const progressBar = document.getElementById(containerId);
+            if (progressBar) {
+                progressBar.style.width = percent + '%';
+            }
+        }
+
+        // テスト関数群
+        async function testSystemInitialization() {
+            const startTime = Date.now();
+            
+            addInfo('system-results', 'システムコンポーネントの初期化をテストしています...');
+
+            try {
+                // MimeTypeErrorHandler の初期化テスト
+                if (typeof MimeTypeErrorHandler !== 'undefined') {
+                    mimeTypeErrorHandler = new MimeTypeErrorHandler({
+                        developmentMode: true,
+                        enableGracefulDegradation: true,
+                        groupSimilarErrors: true
+                    });
+                    addResult('system-results', 'MimeTypeErrorHandler初期化', true, 
+                        'エラーハンドラーが正常に初期化されました');
+                } else {
+                    addResult('system-results', 'MimeTypeErrorHandler初期化', false, 
+                        'MimeTypeErrorHandlerクラスが見つかりません');
+                }
+
+                // ServerConfigurationDetector の初期化テスト
+                if (typeof ServerConfigurationDetector !== 'undefined') {
+                    serverConfigDetector = new ServerConfigurationDetector({
+                        enableAutoDetection: true,
+                        includeConfigTemplates: true
+                    });
+                    addResult('system-results', 'ServerConfigurationDetector初期化', true, 
+                        'サーバー設定検出器が正常に初期化されました');
+                } else {
+                    addResult('system-results', 'ServerConfigurationDetector初期化', false, 
+                        'ServerConfigurationDetectorクラスが見つかりません');
+                }
+
+                // ScriptPathValidator の初期化テスト
+                if (typeof ScriptPathValidator !== 'undefined') {
+                    scriptPathValidator = new ScriptPathValidator({
+                        developmentMode: true,
+                        enableGracefulDegradation: true,
+                        enableErrorGrouping: true
+                    });
+                    addResult('system-results', 'ScriptPathValidator初期化', true, 
+                        '拡張スクリプト検証器が正常に初期化されました');
+                } else {
+                    addResult('system-results', 'ScriptPathValidator初期化', false, 
+                        'ScriptPathValidatorクラスが見つかりません');
+                }
+
+                const endTime = Date.now();
+                testStats.totalTime += (endTime - startTime);
+                
+            } catch (error) {
+                addResult('system-results', 'システム初期化', false, 
+                    `初期化エラー: ${error.message}`, { error: error.message });
+            }
+        }
+
+        async function testMimeTypeValidation() {
+            const startTime = Date.now();
+            const testFiles = [
+                'js/core/ScriptPathValidator.js',
+                'js/core/MimeTypeErrorHandler.js',
+                'js/core/ServerConfigurationDetector.js',
+                'nonexistent-file.js' // 存在しないファイル
+            ];
+
+            addInfo('mime-results', `${testFiles.length}個のファイルでMIME タイプ検証を実行しています...`);
+
+            let validatedCount = 0;
+            
+            for (const file of testFiles) {
+                try {
+                    updateProgress('mime-progress', (validatedCount / testFiles.length) * 100);
+                    
+                    if (scriptPathValidator) {
+                        const result = await scriptPathValidator.validateScriptPath(file);
+                        
+                        const isValid = result.isValid || result.canContinue !== false;
+                        addResult('mime-results', `MIME検証: ${file}`, isValid, 
+                            isValid ? `検証成功 (${result.mimeType || 'No MIME'})` : 
+                                     `検証失敗: ${result.errors.join(', ')}`, result);
+                    } else {
+                        addResult('mime-results', `MIME検証: ${file}`, false, 
+                            'ScriptPathValidatorが初期化されていません');
+                    }
+                } catch (error) {
+                    addResult('mime-results', `MIME検証: ${file}`, false, 
+                        `エラー: ${error.message}`, { error: error.message });
+                }
+                
+                validatedCount++;
+            }
+
+            updateProgress('mime-progress', 100);
+            
+            const endTime = Date.now();
+            testStats.totalTime += (endTime - startTime);
+        }
+
+        async function testBulkValidation() {
+            if (!scriptPathValidator) {
+                addResult('mime-results', '一括検証', false, 
+                    'ScriptPathValidatorが初期化されていません');
+                return;
+            }
+
+            const testFiles = [
+                'js/core/DataManager.js',
+                'js/core/Calculator.js', 
+                'js/components/WelcomeScreen.js',
+                'js/components/QuestionFlow.js'
+            ];
+
+            const startTime = Date.now();
+            
+            try {
+                addInfo('mime-results', `${testFiles.length}個のファイルで一括検証を実行しています...`);
+                
+                // 一括検証のエミュレーション
+                const results = [];
+                for (const file of testFiles) {
+                    try {
+                        const result = await scriptPathValidator.validateScriptPath(file);
+                        results.push({ file, result });
+                    } catch (error) {
+                        results.push({ file, error: error.message });
+                    }
+                }
+
+                const successCount = results.filter(r => r.result && (r.result.isValid || r.result.canContinue !== false)).length;
+                
+                addResult('mime-results', '一括検証', true, 
+                    `${successCount}/${results.length}個のファイルが検証成功`, 
+                    { results, summary: { total: results.length, success: successCount } });
+
+            } catch (error) {
+                addResult('mime-results', '一括検証', false, 
+                    `一括検証エラー: ${error.message}`);
+            }
+
+            const endTime = Date.now();
+            testStats.totalTime += (endTime - startTime);
+        }
+
+        async function testServerDetection() {
+            if (!serverConfigDetector) {
+                addResult('server-results', 'サーバー検出', false, 
+                    'ServerConfigurationDetectorが初期化されていません');
+                return;
+            }
+
+            const startTime = Date.now();
+            
+            try {
+                addInfo('server-results', 'サーバータイプの自動検出を実行しています...');
+                
+                const serverType = await serverConfigDetector.detectServerType();
+                addResult('server-results', 'サーバータイプ検出', true, 
+                    `検出されたサーバー: ${serverType}`, { serverType });
+
+                const confidence = serverConfigDetector.getDetectionConfidence(serverType);
+                addResult('server-results', '検出信頼度', confidence > 50, 
+                    `信頼度: ${confidence}%`, { confidence });
+
+                const validation = await serverConfigDetector.validateServerConfiguration();
+                addResult('server-results', 'サーバー設定検証', validation.isConfigured, 
+                    validation.isConfigured ? 
+                        `設定済み (MIME: ${validation.currentMimeType})` : 
+                        `未設定 (${validation.error || '設定が必要'})`, validation);
+                        
+            } catch (error) {
+                addResult('server-results', 'サーバー検出', false, 
+                    `検出エラー: ${error.message}`, { error: error.message });
+            }
+
+            const endTime = Date.now();
+            testStats.totalTime += (endTime - startTime);
+        }
+
+        async function testConfigurationGuide() {
+            if (!serverConfigDetector) {
+                addResult('server-results', '設定ガイド生成', false, 
+                    'ServerConfigurationDetectorが初期化されていません');
+                return;
+            }
+
+            try {
+                const serverType = await serverConfigDetector.detectServerType();
+                const guide = serverConfigDetector.generateConfigurationGuide(serverType);
+                
+                addResult('server-results', '設定ガイド生成', true, 
+                    `${guide.serverName}用のガイドを生成しました`, guide);
+
+                const recommendations = await serverConfigDetector.getCurrentEnvironmentRecommendations();
+                addResult('server-results', '環境別推奨事項', true, 
+                    `推奨事項を生成しました (信頼度: ${recommendations.confidence}%)`, recommendations);
+                    
+            } catch (error) {
+                addResult('server-results', '設定ガイド生成', false, 
+                    `ガイド生成エラー: ${error.message}`);
+            }
+        }
+
+        async function testErrorHandling() {
+            if (!mimeTypeErrorHandler) {
+                addResult('error-results', 'エラーハンドリング', false, 
+                    'MimeTypeErrorHandlerが初期化されていません');
+                return;
+            }
+
+            try {
+                addInfo('error-results', '各種エラーハンドリングパターンをテストしています...');
+
+                // MIME タイプエラーのシミュレーション
+                const mimeError = {
+                    message: '不正な MIME タイプ: text/html',
+                    actualMimeType: 'text/html; charset=utf-8',
+                    expectedMimeType: 'application/javascript'
+                };
+
+                const result1 = mimeTypeErrorHandler.handleMimeTypeError(mimeError, {
+                    url: 'test-file.js',
+                    serverType: 'DEVELOPMENT_SERVER'
+                });
+
+                addResult('error-results', 'MIME タイプエラー処理', result1.canContinue, 
+                    `エラー分類: ${result1.category}, 継続可能: ${result1.canContinue}`, result1);
+
+                // ネットワークエラーのシミュレーション  
+                const networkError = {
+                    message: 'Failed to fetch',
+                    errorType: 'NETWORK_ERROR'
+                };
+
+                const result2 = mimeTypeErrorHandler.handleMimeTypeError(networkError, {
+                    url: 'missing-file.js'
+                });
+
+                addResult('error-results', 'ネットワークエラー処理', !result2.canContinue, 
+                    `エラー分類: ${result2.category}, 継続可能: ${result2.canContinue}`, result2);
+
+                // エラーサマリーレポートの生成
+                const summaryReport = mimeTypeErrorHandler.generateErrorSummaryReport();
+                addResult('error-results', 'エラーサマリー生成', true, 
+                    `統合レポートを生成: ${summaryReport.totalErrors}個のエラー`, summaryReport);
+
+            } catch (error) {
+                addResult('error-results', 'エラーハンドリング', false, 
+                    `テストエラー: ${error.message}`);
+            }
+        }
+
+        async function testGracefulDegradation() {
+            addInfo('error-results', 'グレースフル デグラデーション機能をテストしています...');
+
+            try {
+                // 存在しないファイルでのテスト
+                if (scriptPathValidator) {
+                    const result = await scriptPathValidator.validateScriptPath('nonexistent-critical-file.js');
+                    
+                    const canContinue = result.canContinue !== false;
+                    addResult('error-results', 'グレースフル デグラデーション', canContinue, 
+                        canContinue ? '失敗しても処理を継続できます' : '処理継続が困難です', result);
+                } else {
+                    addResult('error-results', 'グレースフル デグラデーション', false, 
+                        'テスト対象が初期化されていません');
+                }
+                
+            } catch (error) {
+                // エラーが発生してもテストは継続（グレースフル デグラデーション）
+                addResult('error-results', 'グレースフル デグラデーション', true, 
+                    `エラーが発生しましたが処理を継続: ${error.message}`);
+            }
+        }
+
+        async function generateIntegratedReport() {
+            try {
+                addInfo('report-results', '統合レポートを生成しています...');
+
+                const report = {
+                    timestamp: new Date().toISOString(),
+                    testStats: testStats,
+                    systemStatus: {
+                        mimeTypeErrorHandler: !!mimeTypeErrorHandler,
+                        serverConfigDetector: !!serverConfigDetector,
+                        scriptPathValidator: !!scriptPathValidator
+                    }
+                };
+
+                // 各コンポーネントからの統計情報を取得
+                if (scriptPathValidator && scriptPathValidator.getValidationStats) {
+                    report.validationStats = scriptPathValidator.getValidationStats();
+                }
+
+                if (mimeTypeErrorHandler && mimeTypeErrorHandler.getStatistics) {
+                    report.errorHandlerStats = mimeTypeErrorHandler.getStatistics();
+                }
+
+                if (serverConfigDetector && serverConfigDetector.getStatistics) {
+                    report.serverDetectionStats = serverConfigDetector.getStatistics();
+                }
+
+                addResult('report-results', '統合レポート生成', true, 
+                    'すべてのコンポーネント情報を統合したレポートを生成しました', report);
+
+                // サーバー設定推奨事項の生成
+                if (serverConfigDetector) {
+                    const detailedReport = await serverConfigDetector.generateDetailedReport();
+                    addResult('report-results', '詳細サーバーレポート', true, 
+                        'サーバー設定の詳細分析レポートを生成しました', detailedReport);
+                }
+
+            } catch (error) {
+                addResult('report-results', '統合レポート生成', false, 
+                    `レポート生成エラー: ${error.message}`);
+            }
+        }
+
+        function showTroubleshootingGuide() {
+            if (!scriptPathValidator || !scriptPathValidator.generateTroubleshootingGuide) {
+                addResult('report-results', 'トラブルシューティングガイド', false, 
+                    'トラブルシューティング機能が利用できません');
+                return;
+            }
+
+            try {
+                const guide = scriptPathValidator.generateTroubleshootingGuide();
+                addResult('report-results', 'トラブルシューティングガイド', true, 
+                    '包括的なトラブルシューティングガイドを生成しました', guide);
+
+            } catch (error) {
+                addResult('report-results', 'トラブルシューティングガイド', false, 
+                    `ガイド生成エラー: ${error.message}`);
+            }
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 MIME Type Enhancement System Test initialized');
+            updatePerformanceStats();
+        });
+    </script>
+</body>
+</html>

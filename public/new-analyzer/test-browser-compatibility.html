@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ブラウザ互換性テスト</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 20px;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-header {
+            background: #21262d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #a5a5ff;
+        }
+        .test-section {
+            background: #161b22;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+        }
+        .browser-card {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+        }
+        .browser-detected {
+            border-color: #2ea043;
+            background: #0d2818;
+        }
+        .browser-unsupported {
+            border-color: #f85149;
+            background: #2d1b1e;
+        }
+        .browser-partial {
+            border-color: #d29922;
+            background: #2d2613;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+            font-size: 12px;
+        }
+        .test-pass {
+            background: #0d4429;
+            border-color: #238636;
+            color: #2ea043;
+        }
+        .test-fail {
+            background: #490202;
+            border-color: #da3633;
+            color: #f85149;
+        }
+        .test-warn {
+            background: #333017;
+            border-color: #d29922;
+            color: #f0c674;
+        }
+        .test-info {
+            background: #0c2d6b;
+            border-color: #1f6feb;
+            color: #58a6ff;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .feature-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 12px;
+        }
+        .feature-supported {
+            border-color: #2ea043;
+            background: #0d2818;
+        }
+        .feature-unsupported {
+            border-color: #f85149;
+            background: #2d1b1e;
+        }
+        .feature-partial {
+            border-color: #d29922;
+            background: #2d2613;
+        }
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #21262d;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+            min-width: 200px;
+        }
+        .btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 12px;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #2ea043;
+        }
+        .btn-secondary {
+            background: #21262d;
+            border: 1px solid #30363d;
+        }
+        .btn-secondary:hover {
+            background: #30363d;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-pass { background-color: #2ea043; }
+        .status-fail { background-color: #f85149; }
+        .status-warn { background-color: #f0c674; }
+        .status-unknown { background-color: #6e7681; }
+        .log-section {
+            background: #010409;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 11px;
+        }
+        .browser-info {
+            font-size: 11px;
+            color: #8b949e;
+            margin-top: 8px;
+        }
+        .compatibility-score {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #30363d;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .score-high { background: #238636; }
+        .score-medium { background: #d29922; }
+        .score-low { background: #da3633; }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="control-panel">
+        <h3>互換性テスト制御</h3>
+        <button class="btn" onclick="startCompatibilityTest()">互換性テスト開始</button>
+        <button class="btn btn-secondary" onclick="testSpecificFeature()">個別機能テスト</button>
+        <button class="btn btn-secondary" onclick="generateReport()">レポート生成</button>
+        <button class="btn btn-secondary" onclick="clearLogs()">ログクリア</button>
+        <div style="margin-top: 15px;">
+            <div>現在のブラウザ: <span id="current-browser">検出中...</span></div>
+            <div>互換性スコア: <span id="compatibility-score">-</span></div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🌐 ブラウザ互換性テスト</h1>
+            <p>HaQei Analyzerの各種ブラウザでの動作確認と互換性検証を行います。</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 ブラウザ検出結果</h2>
+            <div id="browser-detection"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>⚙️ 機能互換性チェック</h2>
+            <div class="feature-grid" id="feature-compatibility"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 互換性テスト結果</h2>
+            <div id="compatibility-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🚨 既知の問題・制限事項</h2>
+            <div id="known-issues"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 テストログ</h2>
+            <div class="log-section" id="compatibility-log">
+                <pre>互換性テストを開始するには制御パネルのボタンをクリックしてください。</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let compatibilityState = {
+            isRunning: false,
+            browserInfo: {},
+            featureSupport: {},
+            testResults: [],
+            logs: [],
+            compatibilityScore: 0
+        };
+
+        const requiredFeatures = [
+            {
+                name: 'ES6 Classes',
+                test: () => {
+                    try {
+                        new Function('class Test {}; return Test;')();
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
+                },
+                fallback: 'ES5 prototype継承を使用',
+                critical: true
+            },
+            {
+                name: 'Arrow Functions',
+                test: () => {
+                    try {
+                        new Function('() => {}')();
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
+                },
+                fallback: 'function式を使用',
+                critical: false
+            },
+            {
+                name: 'Template Literals',
+                test: () => {
+                    try {
+                        new Function('`test`')();
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
+                },
+                fallback: '文字列連結を使用',
+                critical: false
+            },
+            {
+                name: 'Promise',
+                test: () => typeof Promise !== 'undefined',
+                fallback: 'コールバック関数を使用',
+                critical: true
+            },
+            {
+                name: 'async/await',
+                test: () => {
+                    try {
+                        new Function('async function test() { await Promise.resolve(); }')();
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
+                },
+                fallback: 'Promise.then()を使用',
+                critical: false
+            },
+            {
+                name: 'localStorage',
+                test: () => {
+                    try {
+                        const test = '__localStorage_test__';
+                        localStorage.setItem(test, test);
+                        localStorage.removeItem(test);
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
+                },
+                fallback: 'メモリストレージを使用',
+                critical: true
+            },
+            {
+                name: 'sessionStorage',
+                test: () => {
+                    try {
+                        const test = '__sessionStorage_test__';
+                        sessionStorage.setItem(test, test);
+                        sessionStorage.removeItem(test);
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
+                },
+                fallback: 'メモリストレージを使用',
+                critical: false
+            },
+            {
+                name: 'JSON',
+                test: () => typeof JSON !== 'undefined' && typeof JSON.parse === 'function' && typeof JSON.stringify === 'function',
+                fallback: 'JSONライブラリを外部読み込み',
+                critical: true
+            },
+            {
+                name: 'fetch API',
+                test: () => typeof fetch !== 'undefined',
+                fallback: 'XMLHttpRequestを使用',
+                critical: false
+            },
+            {
+                name: 'CSS Grid',
+                test: () => {
+                    const div = document.createElement('div');
+                    div.style.display = 'grid';
+                    return div.style.display === 'grid';
+                },
+                fallback: 'flexboxまたはfloatレイアウト',
+                critical: false
+            },
+            {
+                name: 'CSS Flexbox',
+                test: () => {
+                    const div = document.createElement('div');
+                    div.style.display = 'flex';
+                    return div.style.display === 'flex';
+                },
+                fallback: 'floatレイアウト',
+                critical: false
+            },
+            {
+                name: 'Canvas API',
+                test: () => {
+                    const canvas = document.createElement('canvas');
+                    return !!(canvas.getContext && canvas.getContext('2d'));
+                },
+                fallback: 'SVGまたは静的画像',
+                critical: false
+            },
+            {
+                name: 'Web Workers',
+                test: () => typeof Worker !== 'undefined',
+                fallback: 'メインスレッドで処理',
+                critical: false
+            },
+            {
+                name: 'File API',
+                test: () => typeof File !== 'undefined' && typeof FileReader !== 'undefined',
+                fallback: 'ファイル機能を無効化',
+                critical: false
+            },
+            {
+                name: 'Custom Elements',
+                test: () => typeof customElements !== 'undefined',
+                fallback: '標準のHTMLエレメント',
+                critical: false
+            }
+        ];
+
+        const knownBrowserIssues = {
+            'Internet Explorer': [
+                { issue: 'ES6サポートなし', severity: 'critical', workaround: 'Babelトランスパイラが必要' },
+                { issue: 'Promiseサポートなし', severity: 'critical', workaround: 'polyfillが必要' },
+                { issue: 'CSS Gridサポートなし', severity: 'medium', workaround: 'flexboxで代替' },
+                { issue: 'fetch APIサポートなし', severity: 'medium', workaround: 'XMLHttpRequestで代替' }
+            ],
+            'Edge Legacy': [
+                { issue: '一部ES6機能の制限', severity: 'medium', workaround: 'polyfillで対応' },
+                { issue: 'CSS Grid部分サポート', severity: 'low', workaround: 'プレフィックスが必要' }
+            ],
+            'Safari': [
+                { issue: 'Date処理の違い', severity: 'low', workaround: '日付フォーマットを統一' },
+                { issue: 'localStorageプライベートモード制限', severity: 'medium', workaround: 'try-catchで例外処理' }
+            ],
+            'Chrome': [
+                { issue: 'メモリ使用量が多い場合がある', severity: 'low', workaround: '定期的なガベージコレクション' }
+            ],
+            'Firefox': [
+                { issue: '一部CSSプロパティのベンダープレフィックス', severity: 'low', workaround: 'プレフィックス付きCSSを併記' }
+            ]
+        };
+
+        function logCompat(message, type = 'info') {
+            const timestamp = new Date().toISOString().substr(11, 8);
+            const logEntry = `[${timestamp}] ${message}`;
+            compatibilityState.logs.push({ timestamp, message, type });
+            
+            const logSection = document.getElementById('compatibility-log');
+            const logElement = document.createElement('div');
+            logElement.textContent = logEntry;
+            logElement.className = `log-${type}`;
+            logSection.appendChild(logElement);
+            logSection.scrollTop = logSection.scrollHeight;
+        }
+
+        function detectBrowser() {
+            const userAgent = navigator.userAgent;
+            const platform = navigator.platform;
+            
+            let browser = 'Unknown';
+            let version = 'Unknown';
+            let engine = 'Unknown';
+            
+            // Browser detection
+            if (userAgent.includes('Firefox')) {
+                browser = 'Firefox';
+                const match = userAgent.match(/Firefox\/(\d+\.\d+)/);
+                version = match ? match[1] : 'Unknown';
+                engine = 'Gecko';
+            } else if (userAgent.includes('Chrome') && !userAgent.includes('Chromium')) {
+                browser = 'Chrome';
+                const match = userAgent.match(/Chrome\/(\d+\.\d+)/);
+                version = match ? match[1] : 'Unknown';
+                engine = 'Blink';
+            } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+                browser = 'Safari';
+                const match = userAgent.match(/Version\/(\d+\.\d+)/);
+                version = match ? match[1] : 'Unknown';
+                engine = 'WebKit';
+            } else if (userAgent.includes('Edge')) {
+                browser = 'Edge';
+                const match = userAgent.match(/Edge\/(\d+\.\d+)/);
+                version = match ? match[1] : 'Unknown';
+                engine = 'EdgeHTML';
+            } else if (userAgent.includes('Edg')) {
+                browser = 'Edge Chromium';
+                const match = userAgent.match(/Edg\/(\d+\.\d+)/);
+                version = match ? match[1] : 'Unknown';
+                engine = 'Blink';
+            } else if (userAgent.includes('Trident') || userAgent.includes('MSIE')) {
+                browser = 'Internet Explorer';
+                const match = userAgent.match(/(?:MSIE |rv:)(\d+\.\d+)/);
+                version = match ? match[1] : 'Unknown';
+                engine = 'Trident';
+            }
+
+            return {
+                browser,
+                version,
+                engine,
+                platform,
+                userAgent,
+                isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent),
+                cookieEnabled: navigator.cookieEnabled,
+                javaEnabled: navigator.javaEnabled ? navigator.javaEnabled() : false,
+                onLine: navigator.onLine,
+                language: navigator.language,
+                languages: navigator.languages || [navigator.language]
+            };
+        }
+
+        function testFeatureCompatibility() {
+            const results = {};
+            let supportedCount = 0;
+            let criticalIssues = 0;
+
+            requiredFeatures.forEach(feature => {
+                try {
+                    const supported = feature.test();
+                    results[feature.name] = {
+                        supported,
+                        critical: feature.critical,
+                        fallback: feature.fallback
+                    };
+
+                    if (supported) {
+                        supportedCount++;
+                    } else if (feature.critical) {
+                        criticalIssues++;
+                    }
+                } catch (error) {
+                    results[feature.name] = {
+                        supported: false,
+                        critical: feature.critical,
+                        fallback: feature.fallback,
+                        error: error.message
+                    };
+
+                    if (feature.critical) {
+                        criticalIssues++;
+                    }
+                }
+            });
+
+            const compatibilityScore = Math.round((supportedCount / requiredFeatures.length) * 100);
+            
+            return {
+                results,
+                supportedCount,
+                totalFeatures: requiredFeatures.length,
+                criticalIssues,
+                compatibilityScore
+            };
+        }
+
+        function renderBrowserDetection() {
+            const browserInfo = detectBrowser();
+            compatibilityState.browserInfo = browserInfo;
+            
+            const detectionDiv = document.getElementById('browser-detection');
+            
+            const compatibility = getBrowserCompatibilityLevel(browserInfo.browser, browserInfo.version);
+            
+            detectionDiv.innerHTML = `
+                <div class="browser-card ${compatibility.class}">
+                    <div class="compatibility-score ${compatibility.scoreClass}">${compatibility.score}%</div>
+                    <h3>${browserInfo.browser} ${browserInfo.version}</h3>
+                    <div class="browser-info">
+                        <div><strong>エンジン:</strong> ${browserInfo.engine}</div>
+                        <div><strong>プラットフォーム:</strong> ${browserInfo.platform}</div>
+                        <div><strong>言語:</strong> ${browserInfo.language}</div>
+                        <div><strong>モバイル:</strong> ${browserInfo.isMobile ? 'はい' : 'いいえ'}</div>
+                        <div><strong>Cookie有効:</strong> ${browserInfo.cookieEnabled ? 'はい' : 'いいえ'}</div>
+                        <div><strong>オンライン:</strong> ${browserInfo.onLine ? 'はい' : 'いいえ'}</div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <strong>互換性レベル:</strong> ${compatibility.level}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('current-browser').textContent = `${browserInfo.browser} ${browserInfo.version}`;
+        }
+
+        function getCompatibilityScore(compatibility) {
+            if (compatibility >= 90) return { class: 'score-high', text: '高' };
+            if (compatibility >= 70) return { class: 'score-medium', text: '中' };
+            return { class: 'score-low', text: '低' };
+        }
+
+        function getCompatibilityClass(compatibility) {
+            if (compatibility >= 90) return 'browser-detected';
+            if (compatibility >= 70) return 'browser-partial';
+            return 'browser-unsupported';
+        }
+
+        function getCompatibilityLevel(compatibility) {
+            if (compatibility >= 90) return '完全対応';
+            if (compatibility >= 70) return '部分対応';
+            return '制限あり';
+        }
+
+        function getCompatibilityScoreClass(compatibility) {
+            if (compatibility >= 90) return 'score-high';
+            if (compatibility >= 70) return 'score-medium';
+            return 'score-low';
+        }
+
+        function getCompatibilityScoreText(compatibility) {
+            return `${compatibility}%`;
+        }
+
+        function getCompatibilityLevelText(compatibility) {
+            if (compatibility >= 90) return '完全対応';
+            if (compatibility >= 70) return '部分対応';
+            return '制限あり';
+        }
+
+        function getBrowserCompatibilityLevel(browser, version) {
+            // 簡単な互換性判定
+            const versionNum = parseFloat(version);
+            
+            let score = 100;
+            let level = '完全対応';
+            
+            switch (browser) {
+                case 'Internet Explorer':
+                    score = 30;
+                    level = '非対応（要polyfill）';
+                    break;
+                case 'Edge Legacy':
+                    score = 70;
+                    level = '部分対応';
+                    break;
+                case 'Edge Chromium':
+                    score = 95;
+                    level = '完全対応';
+                    break;
+                case 'Chrome':
+                    score = versionNum >= 60 ? 95 : 80;
+                    level = versionNum >= 60 ? '完全対応' : '部分対応';
+                    break;
+                case 'Firefox':
+                    score = versionNum >= 60 ? 90 : 75;
+                    level = versionNum >= 60 ? '完全対応' : '部分対応';
+                    break;
+                case 'Safari':
+                    score = versionNum >= 12 ? 85 : 70;
+                    level = versionNum >= 12 ? '完全対応' : '部分対応';
+                    break;
+                default:
+                    score = 60;
+                    level = '不明';
+            }
+
+            return {
+                score,
+                level,
+                class: getCompatibilityClass(score),
+                scoreClass: getCompatibilityScoreClass(score)
+            };
+        }
+
+        function renderFeatureCompatibility() {
+            const featureTest = testFeatureCompatibility();
+            compatibilityState.featureSupport = featureTest;
+            compatibilityState.compatibilityScore = featureTest.compatibilityScore;
+            
+            const featuresDiv = document.getElementById('feature-compatibility');
+            featuresDiv.innerHTML = '';
+
+            requiredFeatures.forEach(feature => {
+                const result = featureTest.results[feature.name];
+                const featureDiv = document.createElement('div');
+                
+                const statusClass = result.supported ? 'feature-supported' : 
+                                   (result.critical ? 'feature-unsupported' : 'feature-partial');
+                
+                featureDiv.className = `feature-card ${statusClass}`;
+                featureDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <span class="status-indicator ${result.supported ? 'status-pass' : 'status-fail'}"></span>
+                        <strong>${feature.name}</strong>
+                        ${feature.critical ? ' <span style="color: #f85149; font-size: 10px;">[必須]</span>' : ''}
+                    </div>
+                    <div style="font-size: 11px; color: #8b949e;">
+                        ステータス: ${result.supported ? '対応' : '非対応'}
+                        ${!result.supported ? `<br>代替手段: ${result.fallback}` : ''}
+                        ${result.error ? `<br>エラー: ${result.error}` : ''}
+                    </div>
+                `;
+
+                featuresDiv.appendChild(featureDiv);
+            });
+
+            const scoreInfo = getCompatibilityScore(featureTest.compatibilityScore);
+            document.getElementById('compatibility-score').textContent = 
+                `${featureTest.compatibilityScore}% (${scoreInfo.text})`;
+        }
+
+        function renderKnownIssues() {
+            const issuesDiv = document.getElementById('known-issues');
+            const browserName = compatibilityState.browserInfo.browser;
+            
+            const issues = knownBrowserIssues[browserName] || [];
+            
+            if (issues.length === 0) {
+                issuesDiv.innerHTML = `
+                    <div class="test-result test-pass">
+                        <span class="status-indicator status-pass"></span>
+                        ${browserName}に関する既知の問題は報告されていません。
+                    </div>
+                `;
+                return;
+            }
+
+            issuesDiv.innerHTML = issues.map(issue => {
+                const severityClass = {
+                    'critical': 'test-fail',
+                    'high': 'test-fail',
+                    'medium': 'test-warn',
+                    'low': 'test-info'
+                }[issue.severity];
+
+                const severityIcon = {
+                    'critical': 'status-fail',
+                    'high': 'status-fail',
+                    'medium': 'status-warn',
+                    'low': 'status-unknown'
+                }[issue.severity];
+
+                return `
+                    <div class="test-result ${severityClass}">
+                        <span class="status-indicator ${severityIcon}"></span>
+                        <strong>${issue.issue}</strong> [${issue.severity}]
+                        <br><small>対処法: ${issue.workaround}</small>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addCompatibilityResult(testName, passed, message, details = {}) {
+            compatibilityState.testResults.push({
+                name: testName,
+                passed,
+                message,
+                details,
+                timestamp: Date.now()
+            });
+
+            const resultsDiv = document.getElementById('compatibility-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${passed ? 'test-pass' : 'test-fail'}`;
+            
+            const statusIcon = passed ? '✅' : '❌';
+            resultDiv.innerHTML = `
+                <span class="status-indicator ${passed ? 'status-pass' : 'status-fail'}"></span>
+                ${statusIcon} <strong>${testName}</strong>: ${message}
+                ${Object.keys(details).length > 0 ? `<br><small><pre>${JSON.stringify(details, null, 2)}</pre></small>` : ''}
+            `;
+            
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        async function startCompatibilityTest() {
+            if (compatibilityState.isRunning) {
+                logCompat('互換性テストは既に実行中です', 'warn');
+                return;
+            }
+
+            compatibilityState.isRunning = true;
+            logCompat('ブラウザ互換性テスト開始', 'info');
+            
+            try {
+                // ブラウザ検出
+                logCompat('ブラウザ情報を検出中...', 'info');
+                renderBrowserDetection();
+                
+                // 機能互換性テスト
+                logCompat('機能互換性をテスト中...', 'info');
+                renderFeatureCompatibility();
+                
+                // 既知の問題表示
+                logCompat('既知の問題をチェック中...', 'info');
+                renderKnownIssues();
+                
+                // 個別テスト実行
+                await runSpecificCompatibilityTests();
+                
+                logCompat('ブラウザ互換性テスト完了', 'success');
+                
+            } catch (error) {
+                logCompat(`テスト実行中にエラーが発生: ${error.message}`, 'error');
+            } finally {
+                compatibilityState.isRunning = false;
+            }
+        }
+
+        async function runSpecificCompatibilityTests() {
+            // DOM操作テスト
+            try {
+                const testDiv = document.createElement('div');
+                testDiv.innerHTML = '<span>test</span>';
+                document.body.appendChild(testDiv);
+                document.body.removeChild(testDiv);
+                
+                addCompatibilityResult(
+                    'DOM操作',
+                    true,
+                    'DOM操作が正常に動作',
+                    {}
+                );
+            } catch (error) {
+                addCompatibilityResult(
+                    'DOM操作',
+                    false,
+                    `DOM操作エラー: ${error.message}`,
+                    { error: error.stack }
+                );
+            }
+
+            // イベント処理テスト
+            try {
+                const testElement = document.createElement('div');
+                let eventFired = false;
+                
+                testElement.addEventListener('click', () => {
+                    eventFired = true;
+                });
+                
+                testElement.click();
+                
+                addCompatibilityResult(
+                    'イベント処理',
+                    eventFired,
+                    eventFired ? 'イベント処理が正常に動作' : 'イベント処理に問題',
+                    { eventFired }
+                );
+            } catch (error) {
+                addCompatibilityResult(
+                    'イベント処理',
+                    false,
+                    `イベント処理エラー: ${error.message}`,
+                    { error: error.stack }
+                );
+            }
+
+            // CSS サポートテスト
+            try {
+                const testElement = document.createElement('div');
+                testElement.style.transform = 'translateX(10px)';
+                const supportsTransform = testElement.style.transform !== '';
+                
+                addCompatibilityResult(
+                    'CSS Transform',
+                    supportsTransform,
+                    supportsTransform ? 'CSS Transformがサポートされています' : 'CSS Transformがサポートされていません',
+                    { supportsTransform }
+                );
+            } catch (error) {
+                addCompatibilityResult(
+                    'CSS Transform',
+                    false,
+                    `CSS Transformテストエラー: ${error.message}`,
+                    { error: error.stack }
+                );
+            }
+
+            // アニメーションサポートテスト
+            try {
+                const supportsAnimation = 'animate' in document.createElement('div');
+                
+                addCompatibilityResult(
+                    'Web Animations API',
+                    supportsAnimation,
+                    supportsAnimation ? 'Web Animations APIがサポートされています' : 'Web Animations APIがサポートされていません',
+                    { supportsAnimation }
+                );
+            } catch (error) {
+                addCompatibilityResult(
+                    'Web Animations API',
+                    false,
+                    `Web Animations APIテストエラー: ${error.message}`,
+                    { error: error.stack }
+                );
+            }
+        }
+
+        function testSpecificFeature() {
+            const featureName = prompt('テストする機能名を入力してください（例: localStorage, Promise, etc.）:');
+            if (!featureName) return;
+
+            logCompat(`個別機能テスト開始: ${featureName}`, 'info');
+
+            const feature = requiredFeatures.find(f => f.name.toLowerCase().includes(featureName.toLowerCase()));
+            
+            if (feature) {
+                try {
+                    const result = feature.test();
+                    addCompatibilityResult(
+                        `個別テスト: ${feature.name}`,
+                        result,
+                        result ? '機能がサポートされています' : '機能がサポートされていません',
+                        { feature: feature.name, fallback: feature.fallback }
+                    );
+                    logCompat(`${feature.name}: ${result ? '対応' : '非対応'}`, result ? 'success' : 'warn');
+                } catch (error) {
+                    addCompatibilityResult(
+                        `個別テスト: ${feature.name}`,
+                        false,
+                        `テストエラー: ${error.message}`,
+                        { error: error.stack }
+                    );
+                    logCompat(`${feature.name}: テストエラー - ${error.message}`, 'error');
+                }
+            } else {
+                logCompat(`機能が見つかりません: ${featureName}`, 'warn');
+            }
+        }
+
+        function generateReport() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                browserInfo: compatibilityState.browserInfo,
+                featureSupport: compatibilityState.featureSupport,
+                testResults: compatibilityState.testResults,
+                compatibilityScore: compatibilityState.compatibilityScore,
+                knownIssues: knownBrowserIssues[compatibilityState.browserInfo.browser] || [],
+                recommendations: generateRecommendations()
+            };
+
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `browser-compatibility-report-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            logCompat('互換性レポートをダウンロードしました', 'success');
+        }
+
+        function generateRecommendations() {
+            const recommendations = [];
+            const browser = compatibilityState.browserInfo.browser;
+            const score = compatibilityState.compatibilityScore;
+
+            if (score < 70) {
+                recommendations.push('ブラウザを最新バージョンにアップデートすることを強く推奨します');
+            }
+
+            if (browser === 'Internet Explorer') {
+                recommendations.push('Internet Explorerは非推奨です。Chrome、Firefox、またはEdgeをご利用ください');
+                recommendations.push('polyfillライブラリの導入を検討してください');
+            }
+
+            if (!compatibilityState.featureSupport.results?.localStorage?.supported) {
+                recommendations.push('localStorageが利用できないため、データ永続化機能が制限されます');
+            }
+
+            if (!compatibilityState.featureSupport.results?.Promise?.supported) {
+                recommendations.push('Promise polyfillの導入が必要です');
+            }
+
+            return recommendations;
+        }
+
+        function clearLogs() {
+            document.getElementById('compatibility-log').innerHTML = '<pre>ログがクリアされました。</pre>';
+            compatibilityState.logs = [];
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            logCompat('ブラウザ互換性テストページが読み込まれました', 'info');
+            
+            // 初期ブラウザ検出
+            renderBrowserDetection();
+        });
+    </script>
+</body>
+</html>

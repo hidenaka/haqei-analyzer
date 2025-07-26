@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Even Question Test</title>
+</head>
+<body>
+    <h1>Simple Even Question Test</h1>
+    
+    <div>
+        <button onclick="runTest()">Run Test</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div id="results" style="font-family: monospace; white-space: pre-wrap; background: #f0f0f0; padding: 10px; margin: 10px 0;"></div>
+    
+    <div id="questionContainer" style="border: 1px solid #ccc; padding: 20px; margin: 10px 0; min-height: 200px;">
+        Question will appear here
+    </div>
+
+    <!-- Load scripts in correct order -->
+    <script src="js/data/questions.js"></script>
+    <script src="js/data/vectors.js"></script>
+    <script src="js/data/data_box.js"></script>
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/StorageManager.js"></script>
+    <script src="js/components/QuestionFlow.js"></script>
+
+    <script>
+        let log = '';
+        
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            log += `[${timestamp}] ${message}\n`;
+            document.getElementById('results').textContent = log;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            log = '';
+            document.getElementById('results').textContent = '';
+        }
+        
+        function runTest() {
+            clearLog();
+            addLog('Starting even question test...');
+            
+            try {
+                // Test 1: Check if questions are loaded
+                if (typeof WORLDVIEW_QUESTIONS === 'undefined') {
+                    addLog('❌ WORLDVIEW_QUESTIONS not loaded');
+                    return;
+                }
+                
+                if (typeof SCENARIO_QUESTIONS === 'undefined') {
+                    addLog('❌ SCENARIO_QUESTIONS not loaded');
+                    return;
+                }
+                
+                addLog(`✅ Questions loaded: ${WORLDVIEW_QUESTIONS.length} worldview + ${SCENARIO_QUESTIONS.length} scenario`);
+                
+                // Test 2: Initialize QuestionFlow
+                const mockStorage = {
+                    answers: [],
+                    progress: null,
+                    saveAnswers: function(answers) { this.answers = answers; },
+                    getAnswers: function() { return this.answers; },
+                    saveProgress: function(progress) { this.progress = progress; },
+                    getProgress: function() { return this.progress; }
+                };
+                
+                const questionFlow = new QuestionFlow('questionContainer', {
+                    storageManager: mockStorage
+                });
+                
+                questionFlow.init();
+                addLog(`✅ QuestionFlow initialized with ${questionFlow.questions.length} questions`);
+                
+                // Test 3: Check first 6 questions specifically
+                for (let i = 0; i < Math.min(6, questionFlow.questions.length); i++) {
+                    addLog(`\n--- Testing Question ${i + 1} (Index ${i}) ---`);
+                    
+                    const isEven = (i + 1) % 2 === 0;
+                    const question = questionFlow.questions[i];
+                    
+                    addLog(`Question ${i + 1} ${isEven ? '(EVEN)' : '(ODD)'}`);
+                    addLog(`  ID: ${question.id}`);
+                    addLog(`  Text: ${question.text || question.scenario || 'No text'}`);
+                    
+                    // Set the question index and render
+                    questionFlow.currentQuestionIndex = i;
+                    
+                    // Check if renderCurrentQuestion works
+                    try {
+                        questionFlow.renderCurrentQuestion();
+                        addLog(`  ✅ renderCurrentQuestion() executed without error`);
+                        
+                        // Check if content was actually rendered
+                        const container = document.getElementById('questionContainer');
+                        const questionDisplay = container.querySelector('#question-display');
+                        
+                        if (questionDisplay) {
+                            const hasContent = questionDisplay.innerHTML.trim().length > 0;
+                            addLog(`  Content rendered: ${hasContent ? 'YES' : 'NO'}`);
+                            
+                            if (hasContent) {
+                                addLog(`  Content length: ${questionDisplay.innerHTML.length} chars`);
+                            } else {
+                                addLog(`  ❌ No content in question-display div!`);
+                            }
+                        } else {
+                            addLog(`  ❌ No #question-display element found!`);
+                        }
+                        
+                    } catch (renderError) {
+                        addLog(`  ❌ renderCurrentQuestion() failed: ${renderError.message}`);
+                    }
+                    
+                    // Small delay between tests
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                addLog('\n=== Test Complete ===');
+                
+            } catch (error) {
+                addLog(`❌ Test failed: ${error.message}`);
+                addLog(`Stack: ${error.stack}`);
+            }
+        }
+        
+        // Make runTest async
+        window.runTest = async function() {
+            await runTest();
+        };
+        
+    </script>
+</body>
+</html>

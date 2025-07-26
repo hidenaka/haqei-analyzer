@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Even Question Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { 
+            border: 1px solid #ccc; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+        }
+        .error { background-color: #ffe6e6; }
+        .success { background-color: #e6ffe6; }
+        .warning { background-color: #fff3e0; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 3px; }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            margin: 5px; 
+            border-radius: 3px; 
+            cursor: pointer; 
+        }
+        .question-container { 
+            border: 2px solid #ddd; 
+            padding: 20px; 
+            margin: 10px 0; 
+            min-height: 200px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Even Question Display Debug</h1>
+    
+    <div class="debug-section">
+        <h3>Test Controls</h3>
+        <button onclick="initQuestionFlow()">Initialize QuestionFlow</button>
+        <button onclick="testNavigationSequence()">Test Navigation Sequence</button>
+        <button onclick="testEvenQuestionAccess()">Test Even Question Access</button>
+        <button onclick="clearDebug()">Clear Debug</button>
+    </div>
+
+    <div class="debug-section">
+        <h3>Navigation Test</h3>
+        <button onclick="goToQuestion(0)">Go to Q1 (Index 0)</button>
+        <button onclick="goToQuestion(1)">Go to Q2 (Index 1)</button>
+        <button onclick="goToQuestion(2)">Go to Q3 (Index 2)</button>
+        <button onclick="goToQuestion(3)">Go to Q4 (Index 3)</button>
+        <button onclick="useNextButton()">Use Next Button</button>
+        <button onclick="usePrevButton()">Use Prev Button</button>
+    </div>
+
+    <div class="debug-section">
+        <h3>Current Status</h3>
+        <div id="statusDisplay">Not initialized</div>
+    </div>
+
+    <div class="debug-section">
+        <h3>QuestionFlow Container</h3>
+        <div id="questionFlowContainer" class="question-container">
+            QuestionFlow will be rendered here
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <h3>Debug Log</h3>
+        <pre id="debugLog">Debug information will appear here...</pre>
+    </div>
+
+    <!-- Load required scripts -->
+    <script src="js/data/questions.js"></script>
+    <script src="js/data/vectors.js"></script>
+    <script src="js/data/data_box.js"></script>
+    <script src="js/core/BaseComponent.js"></script>
+    <script src="js/core/StorageManager.js"></script>
+    <script src="js/components/QuestionFlow.js"></script>
+
+    <script>
+        let questionFlow = null;
+        let mockStorage = null;
+        let debugLog = document.getElementById('debugLog');
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.textContent += `[${timestamp}] ${message}\n`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(message);
+        }
+
+        function clearDebug() {
+            debugLog.textContent = '';
+        }
+
+        function updateStatus() {
+            const status = document.getElementById('statusDisplay');
+            if (questionFlow) {
+                const currentIndex = questionFlow.currentQuestionIndex;
+                const currentQuestion = questionFlow.questions[currentIndex];
+                const total = questionFlow.questions.length;
+                
+                status.innerHTML = `
+                    <strong>Current Index:</strong> ${currentIndex}<br>
+                    <strong>Question Number:</strong> ${currentIndex + 1} of ${total}<br>
+                    <strong>Question ID:</strong> ${currentQuestion ? currentQuestion.id : 'N/A'}<br>
+                    <strong>Is Even Question:</strong> ${(currentIndex + 1) % 2 === 0 ? 'YES' : 'NO'}<br>
+                    <strong>Question Text:</strong> ${currentQuestion ? (currentQuestion.text || currentQuestion.scenario) : 'N/A'}
+                `;
+            } else {
+                status.textContent = 'QuestionFlow not initialized';
+            }
+        }
+
+        function initQuestionFlow() {
+            try {
+                log('Initializing QuestionFlow...');
+                
+                // Create mock storage
+                mockStorage = {
+                    answers: [],
+                    progress: null,
+                    saveAnswers: function(answers) { this.answers = answers; },
+                    getAnswers: function() { return this.answers; },
+                    saveProgress: function(progress) { this.progress = progress; },
+                    getProgress: function() { return this.progress; }
+                };
+
+                // Initialize QuestionFlow
+                questionFlow = new QuestionFlow('questionFlowContainer', {
+                    storageManager: mockStorage
+                });
+
+                questionFlow.init();
+                
+                log(`QuestionFlow initialized with ${questionFlow.questions.length} questions`);
+                log(`Starting at question index: ${questionFlow.currentQuestionIndex}`);
+                
+                updateStatus();
+                
+            } catch (error) {
+                log(`ERROR initializing QuestionFlow: ${error.message}`);
+            }
+        }
+
+        function goToQuestion(index) {
+            if (!questionFlow) {
+                log('ERROR: QuestionFlow not initialized');
+                return;
+            }
+            
+            const oldIndex = questionFlow.currentQuestionIndex;
+            questionFlow.currentQuestionIndex = index;
+            
+            log(`Moving from question ${oldIndex + 1} to question ${index + 1}`);
+            log(`New index: ${questionFlow.currentQuestionIndex}`);
+            
+            questionFlow.renderCurrentQuestion();
+            questionFlow.updateNavigationButtons();
+            questionFlow.updateProgress();
+            
+            updateStatus();
+        }
+
+        function useNextButton() {
+            if (!questionFlow) {
+                log('ERROR: QuestionFlow not initialized');
+                return;
+            }
+            
+            const oldIndex = questionFlow.currentQuestionIndex;
+            log(`Using Next button from question ${oldIndex + 1}`);
+            
+            questionFlow.goToNext();
+            
+            const newIndex = questionFlow.currentQuestionIndex;
+            log(`After Next: moved to question ${newIndex + 1} (index ${newIndex})`);
+            
+            updateStatus();
+        }
+
+        function usePrevButton() {
+            if (!questionFlow) {
+                log('ERROR: QuestionFlow not initialized');
+                return;
+            }
+            
+            const oldIndex = questionFlow.currentQuestionIndex;
+            log(`Using Previous button from question ${oldIndex + 1}`);
+            
+            questionFlow.goToPrevious();
+            
+            const newIndex = questionFlow.currentQuestionIndex;
+            log(`After Previous: moved to question ${newIndex + 1} (index ${newIndex})`);
+            
+            updateStatus();
+        }
+
+        function testNavigationSequence() {
+            if (!questionFlow) {
+                log('ERROR: QuestionFlow not initialized');
+                return;
+            }
+            
+            log('=== STARTING NAVIGATION SEQUENCE TEST ===');
+            
+            // Test first 6 questions
+            for (let i = 0; i < Math.min(6, questionFlow.questions.length); i++) {
+                log(`\n--- Testing Question ${i + 1} (Index ${i}) ---`);
+                goToQuestion(i);
+                
+                const isEven = (i + 1) % 2 === 0;
+                const question = questionFlow.questions[i];
+                const questionDisplay = document.querySelector('#question-display');
+                
+                if (questionDisplay && questionDisplay.innerHTML.trim()) {
+                    log(`✅ Question ${i + 1} ${isEven ? '(EVEN)' : '(ODD)'} displays correctly`);
+                    log(`   Content length: ${questionDisplay.innerHTML.length} characters`);
+                } else {
+                    log(`❌ Question ${i + 1} ${isEven ? '(EVEN)' : '(ODD)'} NOT DISPLAYING`);
+                    log(`   Question data: ${JSON.stringify(question, null, 2)}`);
+                }
+            }
+            
+            log('=== NAVIGATION SEQUENCE TEST COMPLETE ===');
+        }
+
+        function testEvenQuestionAccess() {
+            if (!questionFlow) {
+                log('ERROR: QuestionFlow not initialized');
+                return;
+            }
+            
+            log('=== TESTING EVEN QUESTION ACCESS ===');
+            
+            const evenQuestions = [];
+            for (let i = 0; i < questionFlow.questions.length; i++) {
+                if ((i + 1) % 2 === 0) {
+                    evenQuestions.push(i);
+                }
+            }
+            
+            log(`Found ${evenQuestions.length} even-numbered questions: ${evenQuestions.map(i => i + 1).join(', ')}`);
+            
+            evenQuestions.slice(0, 5).forEach(index => {
+                log(`\n--- Testing Even Question ${index + 1} ---`);
+                goToQuestion(index);
+                
+                const question = questionFlow.questions[index];
+                const container = document.querySelector('#question-display');
+                
+                if (container) {
+                    const hasContent = container.innerHTML.trim().length > 0;
+                    log(`Question ${index + 1}: ${hasContent ? 'HAS CONTENT' : 'NO CONTENT'}`);
+                    
+                    if (!hasContent) {
+                        log(`❌ PROBLEM: Even question ${index + 1} has no content!`);
+                        log(`   Question object: ${JSON.stringify(question, null, 2)}`);
+                    }
+                } else {
+                    log(`❌ PROBLEM: No question display container found!`);
+                }
+            });
+            
+            log('=== EVEN QUESTION ACCESS TEST COMPLETE ===');
+        }
+
+        // Auto-initialize on page load
+        window.addEventListener('load', () => {
+            log('Page loaded. Ready for testing.');
+            log('Click "Initialize QuestionFlow" to begin.');
+        });
+    </script>
+</body>
+</html>

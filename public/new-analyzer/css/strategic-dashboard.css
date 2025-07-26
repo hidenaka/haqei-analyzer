@@ -1,0 +1,1008 @@
+/* strategic-dashboard.css - 3OS統合戦略ダッシュボード専用スタイル */
+/* HaQei Analyzer - Strategic Dashboard Styles */
+
+/* =================================== */
+/* 戦略ダッシュボード基本レイアウト */
+/* =================================== */
+
+.strategic-dashboard {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--primary-100, #f1f5f9);
+  background: linear-gradient(135deg, 
+    var(--primary-900, #0f172a) 0%, 
+    var(--primary-800, #1e293b) 100%);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* 戦略サマリーセクション（上部横断） */
+.strategy-summary-section {
+  width: 100%;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.summary-header {
+  margin-bottom: 2rem;
+}
+
+.main-archetype-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--primary-50, #f8fafc);
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  font-family: 'Shippori Mincho', serif;
+}
+
+.archetype-subtitle {
+  font-size: 1.3rem;
+  color: var(--primary-300, #cbd5e1);
+  font-weight: 400;
+  margin-bottom: 2rem;
+}
+
+.ai-strategy-summary {
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.1) 0%, 
+    rgba(168, 85, 247, 0.1) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 0 auto;
+  max-width: 900px;
+  backdrop-filter: blur(10px);
+}
+
+.summary-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: var(--primary-300, #cbd5e1);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--primary-700, #334155);
+  border-top: 3px solid var(--accent-500, #6366f1);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.four-questions-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.question-preview {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border-left: 4px solid var(--accent-500, #6366f1);
+}
+
+.question-preview h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-100, #f1f5f9);
+  margin-bottom: 0.5rem;
+}
+
+.question-preview p {
+  font-size: 0.9rem;
+  color: var(--primary-400, #94a3b8);
+  line-height: 1.5;
+}
+
+/* AI戦略生成完了時のスタイル */
+.strategy-complete {
+  width: 100%;
+}
+
+.four-questions-complete {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.question-complete {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.08) 0%, 
+    rgba(255, 255, 255, 0.03) 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border-left: 4px solid var(--accent-500, #6366f1);
+  transition: all 0.3s ease;
+}
+
+.question-complete:hover {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.12) 0%, 
+    rgba(255, 255, 255, 0.06) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.question-complete h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-100, #f1f5f9);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.strategy-text {
+  font-size: 0.95rem;
+  color: var(--primary-200, #e2e8f0);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+}
+
+.generation-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quality-score {
+  font-size: 0.75rem;
+  color: var(--primary-400, #94a3b8);
+  background: rgba(34, 197, 94, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.fallback-indicator {
+  font-size: 0.75rem;
+  color: var(--orange-400, #fb923c);
+  background: rgba(251, 146, 60, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* 戦略アクションボタン */
+.strategy-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.action-button {
+  background: linear-gradient(135deg, 
+    var(--accent-600, #4f46e5) 0%, 
+    var(--accent-500, #6366f1) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.action-button:hover {
+  background: linear-gradient(135deg, 
+    var(--accent-700, #3730a3) 0%, 
+    var(--accent-600, #4f46e5) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.action-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.error-button {
+  background: linear-gradient(135deg, 
+    var(--red-600, #dc2626) 0%, 
+    var(--red-500, #ef4444) 100%);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.error-button:hover {
+  background: linear-gradient(135deg, 
+    var(--red-700, #b91c1c) 0%, 
+    var(--red-600, #dc2626) 100%);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* エラー表示 */
+.strategy-error {
+  text-align: center;
+  padding: 2rem;
+  color: var(--primary-300, #cbd5e1);
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.strategy-error h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--red-400, #f87171);
+  margin-bottom: 1rem;
+}
+
+.strategy-error p {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+/* =================================== */
+/* 3パネル Grid レイアウト */
+/* =================================== */
+
+.three-os-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  align-items: start;
+}
+
+/* OS パネル共通スタイル */
+.os-panel {
+  background: linear-gradient(135deg, 
+    var(--panel-bg-start, rgba(51, 65, 85, 0.8)) 0%, 
+    var(--panel-bg-end, rgba(30, 41, 59, 0.8)) 100%);
+  border: 1px solid var(--panel-border, rgba(71, 85, 105, 0.5));
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.os-panel:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  border-color: var(--panel-accent, rgba(99, 102, 241, 0.6));
+}
+
+.os-panel.collapsed .panel-body {
+  display: none;
+}
+
+/* パネルヘッダー */
+.panel-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg,
+    var(--panel-header-start, rgba(99, 102, 241, 0.1)) 0%,
+    var(--panel-header-end, rgba(168, 85, 247, 0.1)) 100%);
+  border-bottom: 1px solid var(--panel-border, rgba(71, 85, 105, 0.3));
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.panel-header:hover {
+  background: linear-gradient(135deg,
+    var(--panel-header-hover-start, rgba(99, 102, 241, 0.15)) 0%,
+    var(--panel-header-hover-end, rgba(168, 85, 247, 0.15)) 100%);
+}
+
+.panel-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.panel-title-group {
+  flex: 1;
+}
+
+.panel-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--primary-100, #f1f5f9);
+  margin: 0 0 0.25rem 0;
+}
+
+.panel-subtitle {
+  font-size: 0.9rem;
+  color: var(--primary-400, #94a3b8);
+  margin: 0;
+  font-weight: 400;
+}
+
+/* パネルボディ */
+.panel-body {
+  padding: 1.5rem;
+}
+
+/* OS アイデンティティセクション */
+.os-identity {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.os-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-50, #f8fafc);
+  margin-bottom: 0.5rem;
+  font-family: 'Shippori Mincho', serif;
+}
+
+.os-catchphrase {
+  font-size: 1rem;
+  color: var(--primary-300, #cbd5e1);
+  margin-bottom: 1rem;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* メーター・スコア表示 */
+.strength-meter, .match-score, .activation-level {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.meter-label, .score-label, .level-label {
+  font-size: 0.8rem;
+  color: var(--primary-400, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.meter-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, 
+    var(--meter-color-start, #ef4444) 0%, 
+    var(--meter-color-end, #f97316) 100%);
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+
+.meter-value, .score-value, .level-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-50, #f8fafc);
+  text-align: center;
+}
+
+/* =================================== */
+/* エンジンパネル専用スタイル */
+/* =================================== */
+
+.engine-panel {
+  --panel-bg-start: rgba(239, 68, 68, 0.1);
+  --panel-bg-end: rgba(220, 38, 38, 0.1);
+  --panel-border: rgba(239, 68, 68, 0.3);
+  --panel-accent: rgba(239, 68, 68, 0.6);
+  --panel-header-start: rgba(239, 68, 68, 0.1);
+  --panel-header-end: rgba(249, 115, 22, 0.1);
+  --panel-header-hover-start: rgba(239, 68, 68, 0.15);
+  --panel-header-hover-end: rgba(249, 115, 22, 0.15);
+  --meter-color-start: #ef4444;
+  --meter-color-end: #f97316;
+}
+
+.core-motivation {
+  margin-bottom: 1.5rem;
+}
+
+.core-motivation h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-200, #e2e8f0);
+  margin-bottom: 1rem;
+}
+
+.motivation-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.keyword-tag {
+  padding: 0.4rem 0.8rem;
+  background: linear-gradient(135deg, 
+    rgba(239, 68, 68, 0.2) 0%, 
+    rgba(249, 115, 22, 0.2) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary-100, #f1f5f9);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.keyword-tag:hover,
+.keyword-tag.hover {
+  background: linear-gradient(135deg, 
+    rgba(239, 68, 68, 0.3) 0%, 
+    rgba(249, 115, 22, 0.3) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.engine-keyword {
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.motivation-statement, .energy-management {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.strengths-weaknesses {
+  margin-top: 1.5rem;
+}
+
+.strengths-section h4,
+.energy-management h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-200, #e2e8f0);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.strength-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.strength-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  color: var(--primary-300, #cbd5e1);
+  line-height: 1.4;
+}
+
+.strength-list li:last-child {
+  border-bottom: none;
+}
+
+/* =================================== */
+/* インターフェースパネル専用スタイル */
+/* =================================== */
+
+.interface-panel {
+  --panel-bg-start: rgba(34, 197, 94, 0.1);
+  --panel-bg-end: rgba(59, 130, 246, 0.1);
+  --panel-border: rgba(34, 197, 94, 0.3);
+  --panel-accent: rgba(34, 197, 94, 0.6);
+  --panel-header-start: rgba(34, 197, 94, 0.1);
+  --panel-header-end: rgba(59, 130, 246, 0.1);
+  --panel-header-hover-start: rgba(34, 197, 94, 0.15);
+  --panel-header-hover-end: rgba(59, 130, 246, 0.15);
+  --meter-color-start: #22c55e;
+  --meter-color-end: #3b82f6;
+}
+
+.social-expression,
+.optimal-roles,
+.behavioral-patterns,
+.warning-zones {
+  margin-bottom: 1.5rem;
+}
+
+.social-expression h4,
+.optimal-roles h4,
+.behavioral-patterns h4,
+.warning-zones h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-200, #e2e8f0);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.appearance-description {
+  font-size: 0.9rem;
+  color: var(--primary-300, #cbd5e1);
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.pattern-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pattern-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  color: var(--primary-300, #cbd5e1);
+  line-height: 1.4;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.pattern-list li:before {
+  content: "▶";
+  position: absolute;
+  left: 0;
+  color: rgba(34, 197, 94, 0.7);
+  font-size: 0.8rem;
+}
+
+.pattern-list li:last-child {
+  border-bottom: none;
+}
+
+/* =================================== */
+/* セーフモードパネル専用スタイル */
+/* =================================== */
+
+.safemode-panel {
+  --panel-bg-start: rgba(168, 85, 247, 0.1);
+  --panel-bg-end: rgba(107, 114, 128, 0.1);
+  --panel-border: rgba(168, 85, 247, 0.3);
+  --panel-accent: rgba(168, 85, 247, 0.6);
+  --panel-header-start: rgba(168, 85, 247, 0.1);
+  --panel-header-end: rgba(107, 114, 128, 0.1);
+  --panel-header-hover-start: rgba(168, 85, 247, 0.15);
+  --panel-header-hover-end: rgba(107, 114, 128, 0.15);
+  --meter-color-start: #a855f7;
+  --meter-color-end: #6b7280;
+}
+
+.trigger-analysis,
+.defensive-behaviors,
+.internal-state,
+.recovery-procedures {
+  margin-bottom: 1.5rem;
+}
+
+.trigger-analysis h4,
+.defensive-behaviors h4,
+.internal-state h4,
+.recovery-procedures h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-200, #e2e8f0);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.trigger-list,
+.behavior-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.trigger-list li,
+.behavior-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  color: var(--primary-300, #cbd5e1);
+  line-height: 1.4;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.trigger-list li:before {
+  content: "⚠";
+  position: absolute;
+  left: 0;
+  color: rgba(168, 85, 247, 0.7);
+  font-size: 0.8rem;
+}
+
+.behavior-list li:before {
+  content: "⚡";
+  position: absolute;
+  left: 0;
+  color: rgba(168, 85, 247, 0.7);
+  font-size: 0.8rem;
+}
+
+.trigger-list li:last-child,
+.behavior-list li:last-child {
+  border-bottom: none;
+}
+
+.state-description {
+  font-size: 0.9rem;
+  color: var(--primary-300, #cbd5e1);
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 8px;
+  font-style: italic;
+}
+
+/* =================================== */
+/* AIプレースホルダー */
+/* =================================== */
+
+.ai-placeholder {
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.1) 0%, 
+    rgba(168, 85, 247, 0.1) 100%);
+  border: 1px dashed rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  color: var(--primary-400, #94a3b8);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* =================================== */
+/* 相互作用可視化エリア */
+/* =================================== */
+
+.connections-container {
+  margin-top: 3rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 16px;
+  padding: 2rem;
+  min-height: 450px;
+}
+
+.connections-visualization {
+  width: 100%;
+  position: relative;
+}
+
+.connections-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--primary-100, #f1f5f9);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* SVGスタイル */
+#os-connections-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* OSノードスタイル */
+.os-node {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.os-node:hover .node-bg {
+  fill-opacity: 0.3;
+  stroke-width: 3;
+}
+
+.os-node:hover .node-inner {
+  fill-opacity: 0.6;
+}
+
+.node-bg {
+  transition: all 0.3s ease;
+}
+
+.node-inner {
+  transition: all 0.3s ease;
+}
+
+.node-icon {
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.node-name {
+  font-weight: 600;
+  font-family: 'Shippori Mincho', serif;
+}
+
+/* 接続線スタイル */
+.connection-path {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.8;
+}
+
+.connection-path:hover {
+  opacity: 1;
+  stroke-width: 5 !important;
+}
+
+.connection-path.highlighted {
+  opacity: 1;
+  stroke-width: 6 !important;
+}
+
+.connection-path.node-highlighted {
+  opacity: 1;
+  stroke-width: 5 !important;
+}
+
+.connection-path.dimmed {
+  opacity: 0.3;
+}
+
+/* 調和パス */
+.harmony-path {
+  filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.4));
+}
+
+/* 葛藤パス */
+.conflict-path {
+  filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.4));
+}
+
+/* 緊張パス */
+.tension-path {
+  filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.4));
+}
+
+/* 凡例 */
+.connections-legend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-line {
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  position: relative;
+}
+
+.legend-item.harmony .legend-line {
+  background: linear-gradient(90deg, #22c55e 0%, #3b82f6 100%);
+  border-style: dashed;
+  border-width: 1px 0;
+  border-color: transparent;
+  background-clip: padding-box;
+}
+
+.legend-item.conflict .legend-line {
+  background: linear-gradient(90deg, #ef4444 0%, #f97316 100%);
+  position: relative;
+}
+
+.legend-item.conflict .legend-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 3px,
+    rgba(255,255,255,0.3) 3px,
+    rgba(255,255,255,0.3) 7px
+  );
+}
+
+.legend-item.tension .legend-line {
+  background: linear-gradient(90deg, #a855f7 0%, #6b7280 100%);
+  position: relative;
+}
+
+.legend-item.tension .legend-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 10px,
+    rgba(255,255,255,0.3) 10px,
+    rgba(255,255,255,0.3) 15px
+  );
+}
+
+.legend-label {
+  font-size: 0.9rem;
+  color: var(--primary-300, #cbd5e1);
+}
+
+/* ツールチップ */
+.connection-tooltip {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  background: linear-gradient(135deg, 
+    rgba(30, 41, 59, 0.98) 0%, 
+    rgba(15, 23, 42, 0.98) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  max-width: 300px;
+}
+
+.tooltip-content {
+  text-align: left;
+}
+
+.tooltip-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-100, #f1f5f9);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tooltip-description {
+  font-size: 0.9rem;
+  color: var(--primary-300, #cbd5e1);
+  line-height: 1.5;
+}
+
+/* =================================== */
+/* レスポンシブデザイン */
+/* =================================== */
+
+/* タブレット: 2+1段構成 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .three-os-panels {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 1.5rem;
+  }
+  
+  .safemode-panel {
+    grid-column: 1 / -1; /* 全幅 */
+  }
+  
+  .main-archetype-title {
+    font-size: 2.5rem;
+  }
+  
+  .four-questions-preview {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .strategic-dashboard {
+    padding: 1.5rem;
+  }
+}
+
+/* モバイル: 縦積み */
+@media (max-width: 767px) {
+  .three-os-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .main-archetype-title {
+    font-size: 2rem;
+  }
+  
+  .archetype-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .four-questions-preview {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .question-preview {
+    padding: 1rem;
+  }
+  
+  .panel-title {
+    font-size: 1.1rem;
+  }
+  
+  .panel-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .strategic-dashboard {
+    padding: 1rem;
+  }
+  
+  .ai-strategy-summary {
+    padding: 1.5rem;
+  }
+  
+  .motivation-keywords {
+    justify-content: center;
+  }
+  
+  .keyword-tag {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+/* 小型モバイル */
+@media (max-width: 480px) {
+  .strategic-dashboard {
+    padding: 0.5rem;
+  }
+  
+  .main-archetype-title {
+    font-size: 1.8rem;
+  }
+  
+  .panel-header {
+    padding: 1rem;
+  }
+  
+  .panel-body {
+    padding: 1rem;
+  }
+  
+  .panel-icon {
+    font-size: 1.5rem;
+  }
+}

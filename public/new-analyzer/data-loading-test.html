@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Data Loading Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .test-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 5px;
+        }
+        .test-btn.primary { background: #007bff; color: white; }
+        .test-btn.success { background: #28a745; color: white; }
+        .test-btn.danger { background: #dc3545; color: white; }
+        
+        .test-results {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .test-item {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 4px;
+        }
+        
+        .test-item.success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .test-item.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .test-item.warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .test-item.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .summary-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .summary-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 HAQEI Data Loading Test</h1>
+    
+    <!-- Test Results -->
+    <div class="test-container">
+        <div class="test-header">
+            <h2>データ読み込みテスト</h2>
+            <div>
+                <button class="test-btn primary" onclick="testBasicDataLoading()">基本データ読み込みテスト</button>
+                <button class="test-btn success" onclick="testDataManagerInit()">DataManager初期化テスト</button>
+                <button class="test-btn danger" onclick="clearResults()">結果クリア</button>
+            </div>
+        </div>
+        
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-value" id="total-tests">0</div>
+                <div class="summary-label">総テスト数</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value" id="passed-tests" style="color: #28a745">0</div>
+                <div class="summary-label">成功</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value" id="failed-tests" style="color: #dc3545">0</div>
+                <div class="summary-label">失敗</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value" id="success-rate">0%</div>
+                <div class="summary-label">成功率</div>
+            </div>
+        </div>
+        
+        <div class="test-results" id="test-results"></div>
+    </div>
+
+    <!-- 必要なスクリプトを読み込み -->
+    <script src="js/core/DataManager.js"></script>
+    <script src="js/data/data_box.js"></script>
+    <script src="js/data/questions.js"></script>
+    <script src="js/data/vectors.js"></script>
+    
+    <script>
+        let testResults = [];
+        let totalTests = 0;
+        let passedTests = 0;
+        let failedTests = 0;
+        
+        function logTest(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const testItem = {
+                timestamp,
+                message,
+                type
+            };
+            
+            testResults.push(testItem);
+            updateTestDisplay();
+            
+            if (type === 'success') {
+                passedTests++;
+                totalTests++;
+            } else if (type === 'error') {
+                failedTests++;
+                totalTests++;
+            }
+            
+            updateSummary();
+        }
+        
+        function updateTestDisplay() {
+            const container = document.getElementById('test-results');
+            const recentResults = testResults.slice(-20);
+            
+            container.innerHTML = recentResults.map(result => 
+                `<div class="test-item ${result.type}">
+                    [${result.timestamp}] ${result.message}
+                </div>`
+            ).join('');
+            
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function updateSummary() {
+            document.getElementById('total-tests').textContent = totalTests;
+            document.getElementById('passed-tests').textContent = passedTests;
+            document.getElementById('failed-tests').textContent = failedTests;
+            
+            const successRate = totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0;
+            document.getElementById('success-rate').textContent = `${successRate}%`;
+        }
+        
+        function clearResults() {
+            testResults = [];
+            totalTests = 0;
+            passedTests = 0;
+            failedTests = 0;
+            updateTestDisplay();
+            updateSummary();
+        }
+        
+        function testBasicDataLoading() {
+            logTest('🔍 基本データ読み込みテスト開始', 'info');
+            
+            // HAQEI_DATA の存在確認
+            if (typeof window.HAQEI_DATA !== 'undefined') {
+                logTest('✅ HAQEI_DATA が正常に読み込まれました', 'success');
+            } else {
+                logTest('❌ HAQEI_DATA が見つかりません', 'error');
+            }
+            
+            // hexagrams_master の存在確認
+            if (typeof window.hexagrams_master !== 'undefined' && Array.isArray(window.hexagrams_master)) {
+                logTest(`✅ hexagrams_master が正常に読み込まれました (${window.hexagrams_master.length}件)`, 'success');
+            } else {
+                logTest('❌ hexagrams_master が見つかりません', 'error');
+            }
+            
+            // WORLDVIEW_QUESTIONS の存在確認
+            if (typeof window.WORLDVIEW_QUESTIONS !== 'undefined' && Array.isArray(window.WORLDVIEW_QUESTIONS)) {
+                logTest(`✅ WORLDVIEW_QUESTIONS が正常に読み込まれました (${window.WORLDVIEW_QUESTIONS.length}件)`, 'success');
+            } else {
+                logTest('❌ WORLDVIEW_QUESTIONS が見つかりません', 'error');
+            }
+            
+            // H64_8D_VECTORS の存在確認
+            if (typeof window.H64_8D_VECTORS !== 'undefined' && typeof window.H64_8D_VECTORS === 'object') {
+                logTest(`✅ H64_8D_VECTORS が正常に読み込まれました (${Object.keys(window.H64_8D_VECTORS).length}件)`, 'success');
+            } else {
+                logTest('❌ H64_8D_VECTORS が見つかりません', 'error');
+            }
+            
+            logTest('🏁 基本データ読み込みテスト完了', 'info');
+        }
+        
+        async function testDataManagerInit() {
+            logTest('🔍 DataManager初期化テスト開始', 'info');
+            
+            try {
+                // DataManager クラスの存在確認
+                if (typeof DataManager === 'undefined') {
+                    logTest('❌ DataManager クラスが見つかりません', 'error');
+                    return;
+                }
+                logTest('✅ DataManager クラスが正常に読み込まれました', 'success');
+                
+                // DataManager インスタンスの作成
+                const dataManager = new DataManager();
+                logTest('✅ DataManager インスタンスが作成されました', 'success');
+                
+                // loadData メソッドの実行
+                await dataManager.loadData();
+                logTest('✅ DataManager.loadData() が正常に完了しました', 'success');
+                
+                // getDataStats メソッドのテスト
+                const stats = dataManager.getDataStats();
+                logTest(`✅ getDataStats() が正常に動作しました (loaded: ${stats.loaded})`, 'success');
+                
+                // データ構造の確認
+                if (stats.dataStructure) {
+                    logTest(`✅ データ構造が正常です - 卦データ: ${stats.dataStructure.hexagrams}件`, 'success');
+                    logTest(`✅ データ構造が正常です - 価値観質問: ${stats.dataStructure.worldviewQuestions}件`, 'success');
+                    logTest(`✅ データ構造が正常です - OSマニュアル: ${stats.dataStructure.osManual}件`, 'success');
+                } else {
+                    logTest('❌ データ構造の取得に失敗しました', 'error');
+                }
+                
+                // 統合データ取得テスト
+                const unifiedData = dataManager.getUnifiedHexagramData(1);
+                if (unifiedData && unifiedData.name) {
+                    logTest(`✅ 統合データ取得テスト成功: ${unifiedData.name}`, 'success');
+                } else {
+                    logTest('❌ 統合データ取得テストに失敗しました', 'error');
+                }
+                
+            } catch (error) {
+                logTest(`❌ DataManager初期化テストでエラーが発生: ${error.message}`, 'error');
+                console.error('DataManager初期化テストエラー:', error);
+            }
+            
+            logTest('🏁 DataManager初期化テスト完了', 'info');
+        }
+        
+        // ページ読み込み時の自動テスト
+        document.addEventListener('DOMContentLoaded', function() {
+            logTest('🚀 ページ読み込み完了、自動テストを開始します', 'info');
+            
+            // 少し待ってから自動テストを実行
+            setTimeout(() => {
+                testBasicDataLoading();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
