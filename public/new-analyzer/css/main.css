@@ -106,7 +106,7 @@ body {
   opacity: 1 !important;
   visibility: visible !important;
   z-index: 10000 !important;
-  background-color: var(--primary-800, #1e293b) !important;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
   color: var(--primary-100, #f1f5f9) !important;
   min-height: 100vh !important;
   width: 100vw !important;
@@ -116,16 +116,16 @@ body {
   left: 0 !important;
   flex-direction: column !important;
   justify-content: flex-start !important;
-  align-items: center !important;
+  align-items: stretch !important;
   overflow-y: auto !important;
-  padding: 20px !important;
+  padding: 2rem !important;
   box-sizing: border-box !important;
 }
 
 /* ダークモード強制対応 */
 @media (prefers-color-scheme: dark) {
   #results-container.visible {
-    background-color: #1a1a1a !important;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
     color: #ffffff !important;
   }
 }

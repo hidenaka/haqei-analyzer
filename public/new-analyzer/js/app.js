@@ -495,17 +495,41 @@ function showAnalysisView(viewInstance) {
   app.analysisView.show(); // ここで非同期の分析とアニメーションが開始される
 }
 
-// 結果画面を表示
+// 結果画面を表示（新設計：別ページにリダイレクト）
 async function showResultsView(result, insights) {
-  console.log("✅ [App] 結果ビュー表示プロセスを開始します。");
+  console.log("✅ [App] 結果表示：別ページへリダイレクト開始");
   
-  // 🔧 CRITICAL FIX: analysis-containerを確実に隠す
+  try {
+    // 分析結果とインサイトをストレージに保存（results.htmlで読み込み用）
+    app.storageManager.saveAnalysisResult(result);
+    app.storageManager.saveInsights(insights);
+    app.storageManager.updateSession({ stage: "results" });
+    
+    console.log("💾 [App] 分析結果をストレージに保存完了");
+    console.log("🔄 [App] results.htmlにリダイレクトします...");
+    
+    // 別ページ（results.html）にリダイレクト
+    window.location.href = 'results.html';
+    
+  } catch (error) {
+    console.error("❌ [App] 結果ページへのリダイレクトに失敗:", error);
+    
+    // フォールバック：従来の同一ページ内表示
+    console.log("🔄 [App] フォールバック：同一ページ内表示を実行");
+    await showResultsViewFallback(result, insights);
+  }
+}
+
+// フォールバック：従来の同一ページ内結果表示
+async function showResultsViewFallback(result, insights) {
+  console.log("🔄 [App] フォールバック：従来方式で結果表示");
+  
+  // analysis-containerを確実に隠す
   const analysisContainer = document.getElementById("analysis-container");
   if (analysisContainer) {
     analysisContainer.style.setProperty('display', 'none', 'important');
     analysisContainer.classList.remove('visible');
     analysisContainer.style.opacity = '0';
-    console.log("🔧 [CRITICAL FIX] analysis-container forcibly hidden");
   }
   
   hideAllScreens();
@@ -520,29 +544,18 @@ async function showResultsView(result, insights) {
     dataManager: dataManager,
   };
 
-  console.log(
-    "🕵️‍♂️ [TRACE-CHECKPOINT 2] TripleOSResultsViewを生成します...",
-    optionsToPass
-  );
-
   try {
     // インスタンスを生成
     app.resultsView = new TripleOSResultsView("results-container", optionsToPass);
 
-    // 初期化とレンダリングを実行（非同期処理の完了を待つ）
+    // 初期化とレンダリングを実行
     await app.resultsView.init();
-    
-    // コンポーネントを表示
     await app.resultsView.show();
     
     // results-containerにvisibleクラスを確実に追加
     const resultsContainer = document.getElementById("results-container");
     if (resultsContainer) {
-      // ウルトラシンク修正: 複数の方法で強制表示
       resultsContainer.classList.add("visible");
-      resultsContainer.scrollTop = 0;
-      
-      // 直接的なスタイル強制適用（ダークモード対応完全版）
       resultsContainer.style.setProperty('display', 'flex', 'important');
       resultsContainer.style.setProperty('position', 'fixed', 'important');
       resultsContainer.style.setProperty('top', '0', 'important');
@@ -551,137 +564,24 @@ async function showResultsView(result, insights) {
       resultsContainer.style.setProperty('height', '100vh', 'important');
       resultsContainer.style.setProperty('z-index', '30000', 'important');
       
-      // ダークモード対応: 確実な色設定
       const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const backgroundColor = isDarkMode ? '#1a1a1a' : '#1e293b';
+      const backgroundGradient = isDarkMode ? 
+        'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)' : 
+        'linear-gradient(135deg, #1e293b 0%, #334155 100%)';
       const textColor = isDarkMode ? '#ffffff' : '#f1f5f9';
       
-      resultsContainer.style.setProperty('background-color', backgroundColor, 'important');
+      resultsContainer.style.setProperty('background', backgroundGradient, 'important');
       resultsContainer.style.setProperty('color', textColor, 'important');
       resultsContainer.style.setProperty('opacity', '1', 'important');
       resultsContainer.style.setProperty('visibility', 'visible', 'important');
-      resultsContainer.style.setProperty('flex-direction', 'column', 'important');
-      resultsContainer.style.setProperty('justify-content', 'flex-start', 'important');
-      resultsContainer.style.setProperty('align-items', 'center', 'important');
       resultsContainer.style.setProperty('overflow-y', 'auto', 'important');
       resultsContainer.style.setProperty('padding', '20px', 'important');
-      resultsContainer.style.setProperty('box-sizing', 'border-box', 'important');
-      
-      console.log(`🎨 [App.js] ダークモード対応: ${isDarkMode ? 'ダーク' : 'ライト'}モード - 背景色: ${backgroundColor}, テキスト色: ${textColor}`);
-      
-      console.log("📺 [App] results-containerにvisibleクラスと直接スタイルを適用しました");
-      
-      // 🔬 緊急デバッグ: 実際のHTMLコンテンツを確認
-      setTimeout(() => {
-        console.log("🔬 [Debug] results-container実際の状態:", {
-          innerHTML: resultsContainer.innerHTML.substring(0, 500) + '...',
-          computedStyles: {
-            display: getComputedStyle(resultsContainer).display,
-            position: getComputedStyle(resultsContainer).position,
-            zIndex: getComputedStyle(resultsContainer).zIndex,
-            opacity: getComputedStyle(resultsContainer).opacity,
-            visibility: getComputedStyle(resultsContainer).visibility,
-            backgroundColor: getComputedStyle(resultsContainer).backgroundColor,
-            color: getComputedStyle(resultsContainer).color,
-            width: getComputedStyle(resultsContainer).width,
-            height: getComputedStyle(resultsContainer).height
-          },
-          boundingRect: resultsContainer.getBoundingClientRect(),
-          classList: Array.from(resultsContainer.classList)
-        });
-      }, 1000);
     }
     
-    console.log("✅ [App] 結果ビューの表示が完了しました。");
+    console.log("✅ [App] フォールバック結果表示完了");
     
-    // 🔧 環境診断システム: ブラウザ表示失敗の原因を特定
-    const container = document.getElementById("results-container");
-    console.log("🚨 [Environmental Diagnostic] Phase 1 - DOM State:", {
-      containerExists: !!container,
-      containerRect: container ? container.getBoundingClientRect() : null,
-      containerChildren: container ? container.children.length : 0,
-      containerHTML: container ? container.innerHTML.substring(0, 100) + '...' : null,
-      computedStyles: container ? {
-        display: window.getComputedStyle(container).display,
-        visibility: window.getComputedStyle(container).visibility,
-        opacity: window.getComputedStyle(container).opacity,
-        position: window.getComputedStyle(container).position,
-        zIndex: window.getComputedStyle(container).zIndex,
-        backgroundColor: window.getComputedStyle(container).backgroundColor,
-        color: window.getComputedStyle(container).color
-      } : null
-    });
-    
-    // 🔧 環境診断システム: Phase 2 - ブラウザ環境チェック
-    console.log("🚨 [Environmental Diagnostic] Phase 2 - Browser Environment:", {
-      windowSize: {width: window.innerWidth, height: window.innerHeight},
-      documentSize: {width: document.documentElement.clientWidth, height: document.documentElement.clientHeight},
-      viewportScale: window.devicePixelRatio || 1,
-      documentVisible: !document.hidden,
-      pageVisibility: document.visibilityState,
-      windowFocused: document.hasFocus ? document.hasFocus() : 'unknown',
-      userAgent: navigator.userAgent.substring(0, 100)
-    });
-    
-    // 🔧 環境診断システム: Phase 3 - 強制視覚確認テスト
-    if (container) {
-      // 原始的な視覚テストを実行
-      const emergencyTestDiv = document.createElement('div');
-      emergencyTestDiv.id = 'emergency-visual-test';
-      emergencyTestDiv.style.cssText = `
-        position: fixed !important;
-        top: 10px !important;
-        left: 10px !important;
-        width: 300px !important;
-        height: 100px !important;
-        background: red !important;
-        color: white !important;
-        font-size: 16px !important;
-        z-index: 99999 !important;
-        border: 3px solid yellow !important;
-        padding: 10px !important;
-        font-family: Arial !important;
-      `;
-      emergencyTestDiv.innerHTML = '🚨 EMERGENCY TEST - 見えていますか？<br>If visible, environmental issue confirmed';
-      document.body.appendChild(emergencyTestDiv);
-      
-      // 3秒後に削除
-      setTimeout(() => {
-        if (document.getElementById('emergency-visual-test')) {
-          document.body.removeChild(emergencyTestDiv);
-        }
-      }, 3000);
-      
-      console.log("🚨 [Environmental Diagnostic] Emergency visual test element created - check if visible on screen");
-      
-      // アラートテスト（ブラウザ応答確認）
-      setTimeout(() => {
-        try {
-          const alertResult = confirm('🚨 環境診断: この確認ダイアログが表示されていますか？\n\nOK: 表示されている\nCancel: 表示されていない');
-          console.log("🚨 [Environmental Diagnostic] Alert test result:", alertResult);
-          if (!alertResult) {
-            console.error("❌ [Environmental Diagnostic] User reports visual display failure - environmental issue confirmed");
-          }
-        } catch (e) {
-          console.error("❌ [Environmental Diagnostic] Alert system failure:", e);
-        }
-      }, 1000);
-    }
-    
-    // 全ての screen-container 要素をチェック
-    const allScreens = document.querySelectorAll('.screen-container');
-    console.log("🚨 [Environmental Diagnostic] Phase 4 - All Screen Containers:", Array.from(allScreens).map(el => ({
-      id: el.id,
-      display: window.getComputedStyle(el).display,
-      visibility: window.getComputedStyle(el).visibility,
-      opacity: window.getComputedStyle(el).opacity,
-      rect: el.getBoundingClientRect(),
-      hasContent: el.children.length > 0,
-      backgroundColor: window.getComputedStyle(el).backgroundColor
-    })));
   } catch (error) {
-    console.error("❌ [App] 結果ビューの表示中にエラーが発生しました:", error);
-    // フォールバック表示
+    console.error("❌ [App] フォールバック表示も失敗:", error);
     const container = document.getElementById("results-container");
     if (container) {
       container.style.display = "block";
