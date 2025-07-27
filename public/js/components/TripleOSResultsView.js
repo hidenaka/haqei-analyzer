@@ -18,6 +18,322 @@ class TripleOSResultsView extends BaseComponent {
     console.log("✅ [TripleOSResultsView] 対話型UI実装完了");
   }
 
+  // 🔧 Enhanced Triple OS data extraction with multiple fallback strategies
+  // Supports bunenjin philosophy by ensuring robust access to all three personality layers
+  extractTripleOSData(analysisResult) {
+    console.log('🔧 [TripleOSResultsView] 分人データ抽出開始 - 複数フォールバック対応');
+    
+    // 🚨 緊急デバッグ: 実際のデータ構造を詳細確認
+    console.log('🔍 [DEBUG] analysisResult type:', typeof analysisResult);
+    console.log('🔍 [DEBUG] analysisResult is null:', analysisResult === null);
+    console.log('🔍 [DEBUG] analysisResult is undefined:', analysisResult === undefined);
+    console.log('🔍 [DEBUG] analysisResult keys:', analysisResult ? Object.keys(analysisResult) : 'N/A');
+    console.log('🔍 [DEBUG] Full analysisResult:', analysisResult);
+    
+    if (!analysisResult || typeof analysisResult !== 'object') {
+      console.warn('⚠️ Invalid analysis result structure - analysisResult:', analysisResult);
+      return { engineOS: null, interfaceOS: null, safeModeOS: null };
+    }
+
+    // Strategy 1: Direct access (current expected structure)
+    let engineOS = analysisResult.engineOS;
+    let interfaceOS = analysisResult.interfaceOS;
+    let safeModeOS = analysisResult.safeModeOS;
+    console.log('🔍 [Strategy 1] Direct access:', { engineOS: !!engineOS, interfaceOS: !!interfaceOS, safeModeOS: !!safeModeOS });
+
+    // Strategy 2: Check for unified diagnosis data format
+    if (!engineOS && analysisResult.tripleOS) {
+      console.log('🔄 [Strategy 2] Using tripleOS nested structure');
+      engineOS = analysisResult.tripleOS.engineOS;
+      interfaceOS = analysisResult.tripleOS.interfaceOS;
+      safeModeOS = analysisResult.tripleOS.safeModeOS;
+      console.log('🔍 [Strategy 2] Results:', { engineOS: !!engineOS, interfaceOS: !!interfaceOS, safeModeOS: !!safeModeOS });
+    }
+
+    // Strategy 3: Check for legacy primary OS mapping
+    if (!engineOS && analysisResult.primaryOS) {
+      console.log('🔄 [Strategy 3] Using primaryOS as engineOS fallback');
+      engineOS = analysisResult.primaryOS;
+      console.log('🔍 [Strategy 3] engineOS found:', !!engineOS);
+    }
+
+    // Strategy 4: Check for alternative property names
+    if (!engineOS) {
+      engineOS = analysisResult.engine_os || analysisResult.engineOs || analysisResult['engine-os'];
+      console.log('🔍 [Strategy 4] Alternative engineOS:', !!engineOS);
+    }
+    if (!interfaceOS) {
+      interfaceOS = analysisResult.interface_os || analysisResult.interfaceOs || analysisResult['interface-os'];
+      console.log('🔍 [Strategy 4] Alternative interfaceOS:', !!interfaceOS);
+    }
+    if (!safeModeOS) {
+      safeModeOS = analysisResult.safe_mode_os || analysisResult.safeModeOs || analysisResult['safe-mode-os'];
+      console.log('🔍 [Strategy 4] Alternative safeModeOS:', !!safeModeOS);
+    }
+
+    // Strategy 5: Extract from array-based structures (if present)
+    if (!engineOS && analysisResult.operatingSystems && Array.isArray(analysisResult.operatingSystems)) {
+      console.log('🔄 [Strategy 5] Checking operatingSystems array:', analysisResult.operatingSystems.length);
+      const osArray = analysisResult.operatingSystems;
+      engineOS = osArray.find(os => os.type === 'engine' || os.osType === 'engine');
+      interfaceOS = osArray.find(os => os.type === 'interface' || os.osType === 'interface');
+      safeModeOS = osArray.find(os => os.type === 'safemode' || os.osType === 'safemode' || os.type === 'safe-mode');
+      console.log('🔍 [Strategy 5] Array results:', { engineOS: !!engineOS, interfaceOS: !!interfaceOS, safeModeOS: !!safeModeOS });
+    }
+
+    // Strategy 6: 分人思想専用 - hexagram-based structure search
+    if (!engineOS || !interfaceOS || !safeModeOS) {
+      console.log('🔄 [Strategy 6] 分人思想 hexagram structure search');
+      
+      // Look for hexagram data in various locations
+      const searchHexagramData = (data, osType) => {
+        if (!data) return null;
+        
+        // Check for hexagram properties
+        if (data.hexagramId || data.osId || data.hexagram || data.id) {
+          console.log(`🔍 [Strategy 6] Found ${osType} hexagram data:`, data);
+          return data;
+        }
+        
+        // Check nested objects
+        for (const key of Object.keys(data)) {
+          if (typeof data[key] === 'object' && data[key] !== null) {
+            const nested = searchHexagramData(data[key], osType);
+            if (nested) return nested;
+          }
+        }
+        return null;
+      };
+      
+      // Search all properties for hexagram data
+      if (!engineOS) {
+        engineOS = searchHexagramData(analysisResult.engineOS, 'engineOS') ||
+                  searchHexagramData(analysisResult.山雷頤, 'engineOS') ||
+                  searchHexagramData(analysisResult.engine, 'engineOS');
+      }
+      if (!interfaceOS) {
+        interfaceOS = searchHexagramData(analysisResult.interfaceOS, 'interfaceOS') ||
+                     searchHexagramData(analysisResult.天澤履, 'interfaceOS') ||
+                     searchHexagramData(analysisResult.interface, 'interfaceOS');
+      }
+      if (!safeModeOS) {
+        safeModeOS = searchHexagramData(analysisResult.safeModeOS, 'safeModeOS') ||
+                    searchHexagramData(analysisResult.坤為地, 'safeModeOS') ||
+                    searchHexagramData(analysisResult.safemode, 'safeModeOS');
+      }
+      
+      console.log('🔍 [Strategy 6] Hexagram search results:', { engineOS: !!engineOS, interfaceOS: !!interfaceOS, safeModeOS: !!safeModeOS });
+    }
+
+    // Data enrichment: Ensure consistent property names for bunenjin display
+    if (engineOS && !engineOS.osName && engineOS.name) {
+      engineOS.osName = engineOS.name;
+    }
+    if (interfaceOS && !interfaceOS.osName && interfaceOS.name) {
+      interfaceOS.osName = interfaceOS.name;
+    }
+    if (safeModeOS && !safeModeOS.osName && safeModeOS.name) {
+      safeModeOS.osName = safeModeOS.name;
+    }
+
+    // 🚨 最終検証: 分人思想データ抽出結果の詳細確認
+    console.log('🔍 [FINAL] 分人データ抽出最終結果:');
+    console.log('  - engineOS found:', !!engineOS);
+    if (engineOS) {
+      console.log('    engineOS.osName:', engineOS.osName);
+      console.log('    engineOS.name:', engineOS.name);
+      console.log('    engineOS.hexagramId:', engineOS.hexagramId);
+      console.log('    engineOS.osId:', engineOS.osId);
+      console.log('    engineOS keys:', Object.keys(engineOS));
+    }
+    console.log('  - interfaceOS found:', !!interfaceOS);
+    if (interfaceOS) {
+      console.log('    interfaceOS.osName:', interfaceOS.osName);
+      console.log('    interfaceOS.name:', interfaceOS.name);
+      console.log('    interfaceOS.hexagramId:', interfaceOS.hexagramId);
+      console.log('    interfaceOS.osId:', interfaceOS.osId);
+      console.log('    interfaceOS keys:', Object.keys(interfaceOS));
+    }
+    console.log('  - safeModeOS found:', !!safeModeOS);
+    if (safeModeOS) {
+      console.log('    safeModeOS.osName:', safeModeOS.osName);
+      console.log('    safeModeOS.name:', safeModeOS.name);
+      console.log('    safeModeOS.hexagramId:', safeModeOS.hexagramId);
+      console.log('    safeModeOS.osId:', safeModeOS.osId);
+      console.log('    safeModeOS keys:', Object.keys(safeModeOS));
+    }
+
+    // Validate extracted data quality
+    const extractionQuality = this.validateExtractedOSData({ engineOS, interfaceOS, safeModeOS });
+    
+    console.log('✅ [TripleOSResultsView] 分人データ抽出完了:', {
+      engineOS: !!engineOS,
+      interfaceOS: !!interfaceOS, 
+      safeModeOS: !!safeModeOS,
+      quality: extractionQuality,
+      SUCCESS: !!(engineOS && interfaceOS && safeModeOS)
+    });
+
+    // 🚨 エラー状態での緊急対策
+    if (!engineOS || !interfaceOS || !safeModeOS) {
+      console.error('❌ [CRITICAL] 分人データ抽出失敗 - 緊急対策実行');
+      console.error('Missing:', {
+        engineOS: !engineOS,
+        interfaceOS: !interfaceOS,
+        safeModeOS: !safeModeOS
+      });
+      
+      // Try one more fallback - search entire object for any hexagram-like data
+      console.log('🆘 [FALLBACK] 全体検索による緊急データ復旧試行');
+      const fallbackSearch = this.emergencyDataRecovery(analysisResult);
+      if (fallbackSearch.found) {
+        console.log('🎯 [RECOVERY] 緊急データ復旧成功!');
+        return fallbackSearch.data;
+      }
+    }
+
+    return { engineOS, interfaceOS, safeModeOS };
+  }
+
+  // 🆘 Emergency data recovery for bunenjin philosophy implementation
+  // Last resort method to find triple OS data when standard extraction fails
+  emergencyDataRecovery(analysisResult) {
+    console.log('🆘 [EMERGENCY] 緊急データ復旧開始 - 全体探索モード');
+    
+    const recoveredData = { engineOS: null, interfaceOS: null, safeModeOS: null };
+    let found = false;
+    
+    // Deep search function to find hexagram data anywhere in the object
+    const deepSearch = (obj, path = '') => {
+      if (!obj || typeof obj !== 'object') return;
+      
+      // Check if current object looks like OS data
+      const hasHexagramProperties = obj.hexagramId || obj.osId || obj.id || obj.hexagram;
+      const hasNameProperties = obj.osName || obj.name;
+      
+      if (hasHexagramProperties || hasNameProperties) {
+        console.log(`🔍 [EMERGENCY] 候補データ発見 at ${path}:`, obj);
+        
+        // Try to identify which OS this might be based on properties or known hexagram IDs
+        const identifyOSType = (data) => {
+          // Known hexagram mappings for bunenjin philosophy
+          const hexagramId = data.hexagramId || data.osId || data.id;
+          const name = data.osName || data.name || data.hexagram;
+          
+          // 山雷頤 (Engine OS) - ID 27
+          if (hexagramId === 27 || (name && name.includes('山雷頤'))) {
+            return 'engineOS';
+          }
+          // 天澤履 (Interface OS) - ID 10  
+          if (hexagramId === 10 || (name && name.includes('天澤履'))) {
+            return 'interfaceOS';
+          }
+          // 坤為地 (Safe Mode OS) - ID 2
+          if (hexagramId === 2 || (name && name.includes('坤為地'))) {
+            return 'safeModeOS';
+          }
+          
+          // Fallback: Try to identify by path or property names
+          const lowerPath = path.toLowerCase();
+          if (lowerPath.includes('engine') || lowerPath.includes('山雷頤')) {
+            return 'engineOS';
+          }
+          if (lowerPath.includes('interface') || lowerPath.includes('天澤履')) {
+            return 'interfaceOS';
+          }
+          if (lowerPath.includes('safe') || lowerPath.includes('坤為地')) {
+            return 'safeModeOS';
+          }
+          
+          return null;
+        };
+        
+        const osType = identifyOSType(obj);
+        if (osType && !recoveredData[osType]) {
+          console.log(`🎯 [EMERGENCY] ${osType} データ復旧成功:`, obj);
+          recoveredData[osType] = obj;
+          found = true;
+        }
+      }
+      
+      // Continue deep search
+      for (const [key, value] of Object.entries(obj)) {
+        if (typeof value === 'object' && value !== null) {
+          deepSearch(value, path ? `${path}.${key}` : key);
+        }
+      }
+    };
+    
+    // Start deep search
+    deepSearch(analysisResult);
+    
+    // Additional search strategies for common data structures
+    if (!found) {
+      console.log('🔍 [EMERGENCY] 追加検索戦略実行');
+      
+      // Strategy: Look for arrays that might contain OS data
+      const findInArrays = (obj) => {
+        for (const [key, value] of Object.entries(obj)) {
+          if (Array.isArray(value)) {
+            console.log(`🔍 [EMERGENCY] 配列検索: ${key}`, value);
+            value.forEach((item, index) => {
+              if (item && typeof item === 'object') {
+                deepSearch(item, `${key}[${index}]`);
+              }
+            });
+          } else if (typeof value === 'object' && value !== null) {
+            findInArrays(value);
+          }
+        }
+      };
+      
+      findInArrays(analysisResult);
+    }
+    
+    const recoveryResult = {
+      found: !!(recoveredData.engineOS || recoveredData.interfaceOS || recoveredData.safeModeOS),
+      data: recoveredData,
+      summary: {
+        engineOS: !!recoveredData.engineOS,
+        interfaceOS: !!recoveredData.interfaceOS,
+        safeModeOS: !!recoveredData.safeModeOS
+      }
+    };
+    
+    console.log('✅ [EMERGENCY] 緊急データ復旧完了:', recoveryResult);
+    return recoveryResult;
+  }
+
+  // Validate the quality of extracted OS data for bunenjin analysis
+  validateExtractedOSData(osData) {
+    const { engineOS, interfaceOS, safeModeOS } = osData;
+    let score = 0;
+    let maxScore = 9; // 3 OS types × 3 essential properties each
+
+    // Check Engine OS (本音の分人)
+    if (engineOS) {
+      if (engineOS.osName || engineOS.name) score++;
+      if (engineOS.hexagramId || engineOS.osId) score++;
+      if (engineOS.strength || engineOS.score || engineOS.confidence) score++;
+    }
+
+    // Check Interface OS (社会的分人)
+    if (interfaceOS) {
+      if (interfaceOS.osName || interfaceOS.name) score++;
+      if (interfaceOS.hexagramId || interfaceOS.osId) score++;
+      if (interfaceOS.matchScore || interfaceOS.score || interfaceOS.confidence) score++;
+    }
+
+    // Check SafeMode OS (防御的分人)
+    if (safeModeOS) {
+      if (safeModeOS.osName || safeModeOS.name) score++;
+      if (safeModeOS.hexagramId || safeModeOS.osId) score++;
+      if (safeModeOS.matchScore || safeModeOS.score || safeModeOS.confidence) score++;
+    }
+
+    return Math.round((score / maxScore) * 100);
+  }
+
   async render() {
     console.log("🎨 [TripleOSResultsView] 対話型UI描画開始");
 
@@ -28,23 +344,36 @@ class TripleOSResultsView extends BaseComponent {
       return;
     }
 
-    const { engineOS, interfaceOS, safeModeOS } = this.analysisResult;
+    // 🔧 Enhanced data extraction with multiple fallbacks for bunenjin architecture compatibility
+    console.log('🔍 [TripleOSResultsView] 分人思想システム対応データ検証開始');
+    console.log('📊 [DEBUG] Complete analysisResult structure:', this.analysisResult);
+    
+    // Extract Triple OS data with robust fallback mechanisms
+    const extractedData = this.extractTripleOSData(this.analysisResult);
+    const { engineOS, interfaceOS, safeModeOS } = extractedData;
 
-    // データ検証の詳細ログ
-    console.log('🔍 [TripleOSResultsView] データ検証開始');
-    console.log('  - engineOS:', !!engineOS, engineOS?.osName || 'undefined');
-    console.log('  - interfaceOS:', !!interfaceOS, interfaceOS?.osName || 'undefined');
-    console.log('  - safeModeOS:', !!safeModeOS, safeModeOS?.osName || 'undefined');
+    // Comprehensive data validation with detailed logging
+    console.log('🔍 [TripleOSResultsView] 分人データ抽出結果:');
+    console.log('  - engineOS:', !!engineOS, engineOS?.osName || engineOS?.name || 'undefined');
+    console.log('  - interfaceOS:', !!interfaceOS, interfaceOS?.osName || interfaceOS?.name || 'undefined');
+    console.log('  - safeModeOS:', !!safeModeOS, safeModeOS?.osName || safeModeOS?.name || 'undefined');
 
     if (!engineOS || !interfaceOS || !safeModeOS) {
-      console.error('❌ [TripleOSResultsView] データ検証失敗:', {
+      console.error('❌ [TripleOSResultsView] 分人データ検証失敗:', {
         hasEngineOS: !!engineOS,
         hasInterfaceOS: !!interfaceOS,
         hasSafeModeOS: !!safeModeOS,
-        analysisResult: this.analysisResult
+        extractedData: extractedData,
+        originalAnalysisResult: this.analysisResult
       });
-      this.container.innerHTML =
-        '<div class="error">分析結果データが不完全です。</div>';
+      
+      // Enhanced error message for bunenjin philosophy context
+      this.container.innerHTML = `
+        <div class="error" style="padding: 2rem; text-align: center; color: #ff6b6b; background: rgba(255,107,107,0.1); border-radius: 8px; margin: 1rem;">
+          <h3>分人思想分析データが不完全です</h3>
+          <p>エンジンOS、インターフェースOS、セーフモードOSの分人データを読み込めませんでした。</p>
+          <p><small>分析を再実行するか、データの整合性を確認してください。</small></p>
+        </div>`;
       return;
     }
 
@@ -587,7 +916,7 @@ class TripleOSResultsView extends BaseComponent {
     }
 
     const ctx = canvas.getContext("2d");
-    const { engineOS } = this.analysisResult;
+    const { engineOS } = this.extractTripleOSData(this.analysisResult);
 
     // エンジンOSの8次元データを取得
     const userVector = engineOS.userVector || {};
@@ -1201,7 +1530,7 @@ class TripleOSResultsView extends BaseComponent {
   async loadOSCardDetails() {
     console.log("📋 [TripleOSResultsView] OSカード詳細データ読み込み開始");
 
-    const { engineOS, interfaceOS, safeModeOS } = this.analysisResult;
+    const { engineOS, interfaceOS, safeModeOS } = this.extractTripleOSData(this.analysisResult);
 
     // エンジンOSの詳細データを読み込み
     await this.loadEngineOSDetails(engineOS);
@@ -1560,7 +1889,7 @@ class TripleOSResultsView extends BaseComponent {
             return;
         }
 
-        const { engineOS } = this.analysisResult;
+        const { engineOS } = this.extractTripleOSData(this.analysisResult);
         if (!engineOS) {
             console.error("❌ [TripleOSResultsView] Engine OS data not found:", this.analysisResult);
             container.innerHTML = '<div style="color: red; text-align: center; padding: 2rem;">エンジンOSデータが見つかりません</div>';
@@ -1621,7 +1950,7 @@ class TripleOSResultsView extends BaseComponent {
   async loadDynamicsVisualization() {
     console.log("🔄 [TripleOSResultsView] 力学データ可視化開始");
 
-    const { interfaceOS, safeModeOS } = this.analysisResult;
+    const { interfaceOS, safeModeOS } = this.extractTripleOSData(this.analysisResult);
 
     // インターフェースOS力学データを可視化
     await this.visualizeInterfaceDynamics(interfaceOS);
