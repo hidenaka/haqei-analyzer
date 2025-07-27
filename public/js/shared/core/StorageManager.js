@@ -59,42 +59,128 @@ class StorageManager {
     }, 600000); // 10分ごと
   }
 
-  // 古いデータのクリーンアップ
+  // 古いデータのクリーンアップ（強化版）
   cleanupOldData() {
     try {
       const keys = Object.keys(localStorage);
       const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+      let cleanedCount = 0;
+      let corruptedCount = 0;
       
       keys.forEach(key => {
         if (key.startsWith(this.storagePrefix)) {
           try {
             const item = localStorage.getItem(key);
             if (item) {
+              // Enhanced validation for corrupted data
+              if (this.isCorruptedData(item)) {
+                localStorage.removeItem(key);
+                this.cache.delete(key.replace(this.storagePrefix, ''));
+                corruptedCount++;
+                console.log(`🧹 Removed corrupted data: ${key}`);
+                return;
+              }
+              
               const data = JSON.parse(item);
               if (data.timestamp && data.timestamp < oneWeekAgo) {
                 localStorage.removeItem(key);
+                this.cache.delete(key.replace(this.storagePrefix, ''));
+                cleanedCount++;
                 console.log(`🧹 Cleaned up old data: ${key}`);
               }
             }
           } catch (error) {
             // 破損したデータを削除
             localStorage.removeItem(key);
+            this.cache.delete(key.replace(this.storagePrefix, ''));
+            corruptedCount++;
             console.log(`🧹 Removed corrupted data: ${key}`);
           }
         }
       });
+      
+      if (cleanedCount > 0 || corruptedCount > 0) {
+        console.log(`🧹 Cleanup complete: ${cleanedCount} old items, ${corruptedCount} corrupted items removed`);
+      }
     } catch (error) {
       console.warn('⚠️ Cleanup failed:', error);
+    }
+  }
+
+  // データ破損検証
+  isCorruptedData(item) {
+    try {
+      // Check for string-index corruption pattern
+      if (typeof item === 'object' && item !== null) {
+        const keys = Object.keys(item);
+        // If more than 50% of keys are numeric strings, likely corrupted
+        const numericKeys = keys.filter(key => /^\d+$/.test(key));
+        if (numericKeys.length > keys.length * 0.5 && keys.length > 10) {
+          return true;
+        }
+      }
+      
+      // Try to parse as JSON
+      const parsed = JSON.parse(item);
+      
+      // Check for expected structure
+      if (parsed && typeof parsed === 'object') {
+        // Valid HaQei data should have some expected properties
+        const hasValidStructure = parsed.hasOwnProperty('value') || 
+                                 parsed.hasOwnProperty('timestamp') ||
+                                 parsed.hasOwnProperty('version') ||
+                                 Array.isArray(parsed) ||
+                                 typeof parsed === 'string' ||
+                                 typeof parsed === 'number' ||
+                                 typeof parsed === 'boolean';
+        return !hasValidStructure;
+      }
+      
+      return false;
+    } catch (error) {
+      return true; // Cannot parse = corrupted
     }
   }
 
   // バージョン確認と必要に応じてデータクリア
   checkVersion() {
     const storedVersion = this.getItem('version');
-    if (storedVersion !== this.version) {
-      console.log(`📦 Version changed from ${storedVersion} to ${this.version}, clearing storage`);
+    
+    // バージョン比較の改善 - 文字列として正規化して比較
+    const normalizedStoredVersion = storedVersion ? String(storedVersion).trim() : null;
+    const normalizedCurrentVersion = String(this.version).trim();
+    
+    if (!normalizedStoredVersion) {
+      // バージョン情報がない場合は新規セットアップ
+      console.log(`📦 No version found, setting version to ${normalizedCurrentVersion}`);
+      this.setItem('version', this.version);
+      return;
+    }
+    
+    // メジャーバージョンのみチェック（マイナーバージョン変更では削除しない）
+    const storedMajor = this.extractMajorVersion(normalizedStoredVersion);
+    const currentMajor = this.extractMajorVersion(normalizedCurrentVersion);
+    
+    if (storedMajor !== currentMajor) {
+      console.log(`📦 Major version changed from ${normalizedStoredVersion} to ${normalizedCurrentVersion}, clearing storage`);
       this.clearAll();
       this.setItem('version', this.version);
+    } else if (normalizedStoredVersion !== normalizedCurrentVersion) {
+      // マイナーバージョン変更の場合は更新のみ
+      console.log(`📦 Minor version update from ${normalizedStoredVersion} to ${normalizedCurrentVersion}, updating version only`);
+      this.setItem('version', this.version);
+    }
+  }
+  
+  // メジャーバージョン番号を抽出
+  extractMajorVersion(version) {
+    try {
+      const versionStr = String(version);
+      const parts = versionStr.split('.');
+      return parts[0] || '1';
+    } catch (error) {
+      console.warn('⚠️ Version parsing failed:', error);
+      return '1';
     }
   }
 
@@ -353,7 +439,27 @@ class StorageManager {
         return null;
       }
 
-      const data = JSON.parse(item);
+      // 🔧 Enhanced JSON parsing with validation
+      let data;
+      try {
+        data = JSON.parse(item);
+        
+        // Validate data structure
+        if (!data || typeof data !== 'object') {
+          console.warn(`⚠️ Invalid data structure for key: ${key}`);
+          this.removeItem(key);
+          this.updatePerformanceMetrics(startTime);
+          return null;
+        }
+        
+      } catch (parseError) {
+        console.warn(`⚠️ JSON parse failed for key: ${key}`, parseError);
+        // Remove corrupted data immediately
+        localStorage.removeItem(this.getKey(key));
+        this.cache.delete(key);
+        this.updatePerformanceMetrics(startTime);
+        return null;
+      }
       
       // バージョン確認
       if (data.version !== this.version) {
@@ -363,13 +469,35 @@ class StorageManager {
         return null;
       }
 
-      // データの展開
+      // データの展開 with enhanced error handling
       let value;
-      if (data.compressed) {
-        const decompressed = this.decompressData({ compressed: true, data: data.value });
-        value = JSON.parse(decompressed);
-      } else {
-        value = data.value;
+      try {
+        if (data.compressed) {
+          const decompressed = this.decompressData({ compressed: true, data: data.value });
+          if (!decompressed || typeof decompressed !== 'string') {
+            console.warn(`⚠️ Decompression failed for key: ${key}`);
+            this.removeItem(key);
+            this.updatePerformanceMetrics(startTime);
+            return null;
+          }
+          value = JSON.parse(decompressed);
+        } else {
+          value = data.value;
+        }
+        
+        // Final validation of extracted value
+        if (value === undefined) {
+          console.warn(`⚠️ Extracted value is undefined for key: ${key}`);
+          this.removeItem(key);
+          this.updatePerformanceMetrics(startTime);
+          return null;
+        }
+        
+      } catch (decompressionError) {
+        console.warn(`⚠️ Data extraction failed for key: ${key}`, decompressionError);
+        this.removeItem(key);
+        this.updatePerformanceMetrics(startTime);
+        return null;
       }
       
       // キャッシュに保存
@@ -547,6 +675,39 @@ class StorageManager {
     }
   }
 
+  // 緊急クリーンアップ - 破損データのみ除去
+  emergencyCleanup() {
+    try {
+      const keys = Object.keys(localStorage);
+      let removedCount = 0;
+      
+      keys.forEach(key => {
+        if (key.startsWith(this.storagePrefix)) {
+          try {
+            const item = localStorage.getItem(key);
+            if (item && this.isCorruptedData(item)) {
+              localStorage.removeItem(key);
+              this.cache.delete(key.replace(this.storagePrefix, ''));
+              removedCount++;
+              console.log(`🚨 Emergency cleanup: removed ${key}`);
+            }
+          } catch (error) {
+            localStorage.removeItem(key);
+            this.cache.delete(key.replace(this.storagePrefix, ''));
+            removedCount++;
+            console.log(`🚨 Emergency cleanup: removed corrupted ${key}`);
+          }
+        }
+      });
+      
+      console.log(`🚨 Emergency cleanup complete: ${removedCount} corrupted items removed`);
+      return removedCount;
+    } catch (error) {
+      console.error('❌ Emergency cleanup failed:', error);
+      return 0;
+    }
+  }
+
   // 回答の保存
   saveAnswers(answers) {
     return this.setItem('answers', answers);
@@ -573,24 +734,146 @@ class StorageManager {
     return this.getItem('progress');
   }
 
-  // 分析結果の保存
+  // 分析結果の保存（セッション履歴付き）
   saveAnalysisResult(result) {
-    return this.setItem('analysis_result', result);
+    try {
+      // 通常の保存
+      const success = this.setItem('analysis_result', result);
+      
+      // セッション履歴にも保存（フォールバック用）
+      if (success && result) {
+        this.updateSession({ 
+          lastAnalysisResult: result,
+          lastAnalysisTime: Date.now()
+        });
+      }
+      
+      return success;
+    } catch (error) {
+      console.error('❌ Failed to save analysis result:', error);
+      return false;
+    }
   }
 
-  // 分析結果の取得
+  // 分析結果の取得（フォールバック機能付き）
   getAnalysisResult() {
-    return this.getItem('analysis_result');
+    try {
+      // 1. 通常の取得を試行
+      let result = this.getItem('analysis_result');
+      if (result) {
+        console.log('📊 Analysis result retrieved successfully');
+        return result;
+      }
+      
+      // 2. 統一診断データからの復旧を試行
+      console.log('🔄 Attempting to recover analysis result from unified diagnosis data...');
+      const unifiedData = this.getItem('unified_diagnosis_data');
+      if (unifiedData && unifiedData.tripleOS) {
+        console.log('✅ Analysis result recovered from unified data');
+        // 回復したデータを保存
+        this.setItem('analysis_result', unifiedData.tripleOS);
+        return unifiedData.tripleOS;
+      }
+      
+      // 3. セッション履歴からの復旧を試行
+      console.log('🔄 Attempting to recover from session history...');
+      const session = this.getSession();
+      if (session && session.lastAnalysisResult) {
+        console.log('✅ Analysis result recovered from session');
+        this.setItem('analysis_result', session.lastAnalysisResult);
+        return session.lastAnalysisResult;
+      }
+      
+      // 4. バックアップからの復旧を試行
+      const backupResult = this.attemptBackupRecovery('analysis_result');
+      if (backupResult) {
+        console.log('✅ Analysis result recovered from backup');
+        return backupResult;
+      }
+      
+      console.log('⚠️ No analysis result found after all recovery attempts');
+      return null;
+      
+    } catch (error) {
+      console.error('❌ Error retrieving analysis result:', error);
+      return null;
+    }
   }
 
-  // 洞察データの保存
+  // 洞察データの保存（セッション履歴付き）
   saveInsights(insights) {
-    return this.setItem('insights', insights);
+    try {
+      // 通常の保存
+      const success = this.setItem('insights', insights);
+      
+      // セッション履歴にも保存（フォールバック用）
+      if (success && insights) {
+        this.updateSession({ 
+          lastInsights: insights,
+          lastInsightsTime: Date.now()
+        });
+      }
+      
+      return success;
+    } catch (error) {
+      console.error('❌ Failed to save insights:', error);
+      return false;
+    }
   }
 
-  // 洞察データの取得
+  // 洞察データの取得（フォールバック機能付き）
   getInsights() {
-    return this.getItem('insights');
+    try {
+      // 1. 通常の取得を試行
+      let insights = this.getItem('insights');
+      if (insights) {
+        console.log('💡 Insights retrieved successfully');
+        return insights;
+      }
+      
+      // 2. 統一診断データからの復旧を試行
+      console.log('🔄 Attempting to recover insights from unified diagnosis data...');
+      const unifiedData = this.getItem('unified_diagnosis_data');
+      if (unifiedData && unifiedData.strategicInsights) {
+        console.log('✅ Insights recovered from unified data');
+        this.setItem('insights', unifiedData.strategicInsights);
+        return unifiedData.strategicInsights;
+      }
+      
+      // 3. セッション履歴からの復旧を試行
+      console.log('🔄 Attempting to recover insights from session history...');
+      const session = this.getSession();
+      if (session && session.lastInsights) {
+        console.log('✅ Insights recovered from session');
+        this.setItem('insights', session.lastInsights);
+        return session.lastInsights;
+      }
+      
+      // 4. バックアップからの復旧を試行
+      const backupInsights = this.attemptBackupRecovery('insights');
+      if (backupInsights) {
+        console.log('✅ Insights recovered from backup');
+        return backupInsights;
+      }
+      
+      // 5. 分析結果から基本的なインサイトを生成
+      const analysisResult = this.getAnalysisResult();
+      if (analysisResult) {
+        console.log('🔄 Generating basic insights from analysis result...');
+        const basicInsights = this.generateBasicInsights(analysisResult);
+        if (basicInsights) {
+          this.setItem('insights', basicInsights);
+          return basicInsights;
+        }
+      }
+      
+      console.log('⚠️ No insights found after all recovery attempts');
+      return null;
+      
+    } catch (error) {
+      console.error('❌ Error retrieving insights:', error);
+      return null;
+    }
   }
 
   // セッション情報の保存
@@ -607,7 +890,20 @@ class StorageManager {
 
   // セッション情報の取得
   getSession() {
-    return this.getItem('session');
+    try {
+      const sessionData = this.getItem('session');
+      // セッションデータが破損している場合の対処
+      if (sessionData && typeof sessionData === 'string') {
+        console.warn('🚨 Session data is corrupted (string format), clearing...');
+        this.removeItem('session');
+        return null;
+      }
+      return sessionData;
+    } catch (error) {
+      console.warn('🚨 Session retrieval error, clearing session:', error);
+      this.removeItem('session');
+      return null;
+    }
   }
 
   // 新しいセッションの開始
@@ -894,6 +1190,109 @@ class StorageManager {
     } catch (error) {
       console.warn('⚠️ Premium upgrade eligibility check failed:', error);
       return false;
+    }
+  }
+
+  // バックアップからのデータ復旧試行
+  attemptBackupRecovery(dataType) {
+    try {
+      console.log(`🔄 Attempting backup recovery for ${dataType}...`);
+      
+      // バックアップ履歴を確認
+      const backupHistory = this.getItem('backup_history') || [];
+      
+      // 最新のバックアップから復旧を試行
+      for (let i = backupHistory.length - 1; i >= 0; i--) {
+        const backupKey = backupHistory[i];
+        const backupData = this.getItem(backupKey);
+        
+        if (backupData && backupData.diagnosisData) {
+          // 統一フォーマットのバックアップから復旧
+          if (dataType === 'analysis_result' && backupData.diagnosisData.tripleOS) {
+            console.log(`✅ Found ${dataType} in backup: ${backupKey}`);
+            return backupData.diagnosisData.tripleOS;
+          }
+          
+          if (dataType === 'insights' && backupData.diagnosisData.strategicInsights) {
+            console.log(`✅ Found ${dataType} in backup: ${backupKey}`);
+            return backupData.diagnosisData.strategicInsights;
+          }
+        }
+      }
+      
+      console.log(`⚠️ No backup found for ${dataType}`);
+      return null;
+      
+    } catch (error) {
+      console.error(`❌ Backup recovery failed for ${dataType}:`, error);
+      return null;
+    }
+  }
+  
+  // 分析結果から基本的なインサイトを生成
+  generateBasicInsights(analysisResult) {
+    try {
+      console.log('🔄 Generating basic insights from analysis result...');
+      
+      if (!analysisResult || typeof analysisResult !== 'object') {
+        return null;
+      }
+      
+      // 基本的なインサイト構造を作成
+      const basicInsights = {
+        summary: '分析結果に基づく基本的な洞察',
+        generated: true,
+        timestamp: Date.now(),
+        insights: []
+      };
+      
+      // Engine OSの洞察
+      if (analysisResult.engineOS) {
+        basicInsights.insights.push({
+          type: 'engine',
+          title: 'あなたの内面的価値観',
+          content: `あなたの核となる価値観は「${analysisResult.engineOS.name || '未特定'}」として現れています。`,
+          hexagram: analysisResult.engineOS.hexagramId || 1
+        });
+      }
+      
+      // Interface OSの洞察
+      if (analysisResult.interfaceOS) {
+        basicInsights.insights.push({
+          type: 'interface',
+          title: 'あなたの社会的表現',
+          content: `他者との関わりでは「${analysisResult.interfaceOS.name || '未特定'}」の特性を示します。`,
+          hexagram: analysisResult.interfaceOS.hexagramId || 1
+        });
+      }
+      
+      // SafeMode OSの洞察
+      if (analysisResult.safeModeOS) {
+        basicInsights.insights.push({
+          type: 'safemode',
+          title: 'あなたの防御機制',
+          content: `ストレス時には「${analysisResult.safeModeOS.name || '未特定'}」モードで対応する傾向があります。`,
+          hexagram: analysisResult.safeModeOS.hexagramId || 1
+        });
+      }
+      
+      // 一貫性スコアの洞察
+      if (typeof analysisResult.consistencyScore === 'number') {
+        const score = Math.round(analysisResult.consistencyScore * 100);
+        basicInsights.insights.push({
+          type: 'consistency',
+          title: 'パーソナリティの一貫性',
+          content: `あなたの人格の一貫性スコアは${score}%です。`,
+          score: score
+        });
+      }
+      
+      console.log('✅ Basic insights generated successfully');
+      return basicInsights;
+      
+    } catch (error) {
+      console.error('❌ Failed to generate basic insights:', error);
+      return null;
     }
   }
 
