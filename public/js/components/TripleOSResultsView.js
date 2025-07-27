@@ -30,11 +30,25 @@ class TripleOSResultsView extends BaseComponent {
 
     const { engineOS, interfaceOS, safeModeOS } = this.analysisResult;
 
+    // データ検証の詳細ログ
+    console.log('🔍 [TripleOSResultsView] データ検証開始');
+    console.log('  - engineOS:', !!engineOS, engineOS?.osName || 'undefined');
+    console.log('  - interfaceOS:', !!interfaceOS, interfaceOS?.osName || 'undefined');
+    console.log('  - safeModeOS:', !!safeModeOS, safeModeOS?.osName || 'undefined');
+
     if (!engineOS || !interfaceOS || !safeModeOS) {
+      console.error('❌ [TripleOSResultsView] データ検証失敗:', {
+        hasEngineOS: !!engineOS,
+        hasInterfaceOS: !!interfaceOS,
+        hasSafeModeOS: !!safeModeOS,
+        analysisResult: this.analysisResult
+      });
       this.container.innerHTML =
         '<div class="error">分析結果データが不完全です。</div>';
       return;
     }
+
+    console.log('✅ [TripleOSResultsView] データ検証成功');
 
     // メイン画面のHTML構造（対話型UI仕様）
     const html = `
@@ -96,17 +110,23 @@ class TripleOSResultsView extends BaseComponent {
                   </div>
               </section>
   
-              <!-- 対話型OSカードセクション -->
-              <section class="interactive-os-section">
-                  <h2 class="section-title">あなたの3層人格OS</h2>
-                  <div class="interactive-os-cards">
+              <!-- 分人思想による3つの人格セクション -->
+              <section class="interactive-os-section bunenjin-section">
+                  <div class="bunenjin-concept-header">
+                      <h2 class="section-title">🎭 あなたの中に住む3人の『分人』</h2>
+                      <p class="bunenjin-philosophy">
+                          平野啓一郎の「分人思想」によると、私たちには状況に応じて現れる複数の人格があります。<br>
+                          「本当の自分探し」よりも、それぞれの分人を理解し、適切に使い分けることが豊かな人生への鍵です。
+                      </p>
+                  </div>
+                  <div class="interactive-os-cards bunenjin-cards">
                       <div class="interactive-os-card" data-os="engine" data-hexagram="${
                         engineOS.hexagramId
                       }">
                           <div class="os-card-header">
                               <div class="os-icon">🔧</div>
-                              <div class="os-info">
-                                  <h3>エンジンOS - あなたの核となる価値観</h3>
+                              <div class="os-info bunenjin-info">
+                                  <h3>🔥 本音の分人 - あなたの核となる価値観</h3>
                                   <p class="os-catchphrase">${
                                     engineOS.hexagramInfo?.catchphrase ||
                                     "深い洞察を持つ人"
@@ -114,6 +134,9 @@ class TripleOSResultsView extends BaseComponent {
                                   <p class="os-description">${
                                     engineOS.hexagramInfo?.description || ""
                                   }</p>
+                                  <div class="bunenjin-explanation">
+                                      <small>一人でいる時や信頼できる人と一緒にいる時に現れる、最も純粋なあなたです</small>
+                                  </div>
                               </div>
                               <div class="os-stats">
                                   <div class="os-name-group">
@@ -125,15 +148,18 @@ class TripleOSResultsView extends BaseComponent {
                                       )}）</div>
                                   </div>
                                   <div class="os-score-group">
-                                      <div class="score-container">
+                                      <div class="score-container bunenjin-score-container">
                                           <div class="score-header">
-                                              <span class="score-title">🎯 核となる価値観の強さ</span>
-                                              <div class="score-help-icon" title="診断で測定された、この価値観があなたの行動や判断にどれだけ強く影響しているかを示します。96%は「ほぼ確実にこの価値観で行動する」ことを意味します。">❓</div>
+                                              <span class="score-title">🔥 本音の分人の影響力</span>
+                                              <div class="score-help-icon" title="この分人（価値観）があなたの人生にどれだけ強く影響しているかを示します。高いほど、この価値観で判断・行動することが多いことを意味します。">❓</div>
                                           </div>
-                                          <div class="score-explanation">
-                                              <p>あなたが人生で重要な判断をする時、<strong>${Math.round(
+                                          <div class="score-explanation bunenjin-explanation">
+                                              <p>人生の重要な場面で、<strong>${Math.round(
                                                 engineOS.strength * 100
-                                              )}%の確率</strong>でこの価値観に基づいて行動します</p>
+                                              )}%の確率</strong>でこの本音の分人が判断を主導します</p>
+                                              <div class="bunenjin-insight">
+                                                  <small>💡 この分人が強いほど、あなたらしい選択ができる可能性が高まります</small>
+                                              </div>
                                           </div>
                                           <div class="score-display">
                                               <div class="os-score ${this.getScoreColorClass(
@@ -184,15 +210,18 @@ class TripleOSResultsView extends BaseComponent {
                       }">
                           <div class="os-card-header">
                               <div class="os-icon">🖥️</div>
-                              <div class="os-info">
-                                  <h3>インターフェースOS - 他者との関わり方</h3>
+                              <div class="os-info bunenjin-info">
+                                  <h3>🌐 社会的分人 - 他者との関わり方</h3>
                                   <p class="os-catchphrase">${
                                     interfaceOS.hexagramInfo?.catchphrase ||
-                                    "外面的な行動パターン"
+                                    "社会の中での魅力的な表現"
                                   }</p>
                                   <p class="os-description">${
                                     interfaceOS.hexagramInfo?.description || ""
                                   }</p>
+                                  <div class="bunenjin-explanation">
+                                      <small>職場や友人関係など、社会的な役割を果たす時に活躍する分人です</small>
+                                  </div>
                               </div>
                               <div class="os-stats">
                                   <div class="os-name-group">
@@ -202,15 +231,18 @@ class TripleOSResultsView extends BaseComponent {
                                       <div class="os-subtitle">(コミュニケーションスタイル)</div>
                                   </div>
                                   <div class="os-score-group">
-                                      <div class="score-container">
+                                      <div class="score-container bunenjin-score-container">
                                           <div class="score-header">
-                                              <span class="score-title">🤝 対人関係でのこのスタイルの表れやすさ</span>
-                                              <div class="score-help-icon" title="あなたのエンジンOS（核の価値観）が他者との関係でこのコミュニケーションスタイルとして現れる頻度を示します。7%は「時々このスタイルが出る」程度です。">❓</div>
+                                              <span class="score-title">🌐 社会的分人の表現頻度</span>
+                                              <div class="score-help-icon" title="本音の分人の価値観が、社会的な場面でこのスタイルとして表現される頻度を示します。本音と社会的な顔の一致度とも言えます。">❓</div>
                                           </div>
-                                          <div class="score-explanation">
+                                          <div class="score-explanation bunenjin-explanation">
                                               <p>他者と関わる場面で、<strong>10回中${Math.round(
                                                 interfaceOS.matchScore / 10
-                                              )}回程度</strong>このコミュニケーションスタイルが表れます</p>
+                                              )}回程度</strong>この社会的分人が現れます</p>
+                                              <div class="bunenjin-insight">
+                                                  <small>💡 ${interfaceOS.matchScore >= 70 ? '本音の分人と社会的分人がよく調和しています' : interfaceOS.matchScore >= 30 ? '状況に応じて使い分けができています' : '意識的に社会的分人を育てることで表現力が向上します'}</small>
+                                              </div>
                                           </div>
                                           <div class="score-display">
                                               <div class="os-score ${this.getScoreColorClass(
@@ -260,15 +292,18 @@ class TripleOSResultsView extends BaseComponent {
                       }">
                           <div class="os-card-header">
                               <div class="os-icon">🛡️</div>
-                              <div class="os-info">
-                                  <h3>セーフモードOS - ストレス時の対処法</h3>
+                              <div class="os-info bunenjin-info">
+                                  <h3>🛡️ 防御的分人 - ストレス時の対処法</h3>
                                   <p class="os-catchphrase">${
                                     safeModeOS.hexagramInfo?.catchphrase ||
-                                    "内面的な防御機制"
+                                    "自分を守る知恵を持つ人"
                                   }</p>
                                   <p class="os-description">${
                                     safeModeOS.hexagramInfo?.description || ""
                                   }</p>
+                                  <div class="bunenjin-explanation">
+                                      <small>困難な状況やストレスを感じた時に現れ、あなたを守ろうとする分人です</small>
+                                  </div>
                               </div>
                               <div class="os-stats">
                                   <div class="os-name-group">
@@ -278,15 +313,18 @@ class TripleOSResultsView extends BaseComponent {
                                       <div class="os-subtitle">(安全地帯)</div>
                                   </div>
                                   <div class="os-score-group">
-                                      <div class="score-container">
+                                      <div class="score-container bunenjin-score-container">
                                           <div class="score-header">
-                                              <span class="score-title">🛡️ ストレス時にこの対処法を使う頻度</span>
-                                              <div class="score-help-icon" title="あなたが困難やストレスに直面した時に、この防御的な対処パターンをどの程度使うかを示します。1%は「ほとんど使わない」ことを意味します。">❓</div>
+                                              <span class="score-title">🛡️ 防御的分人の発動頻度</span>
+                                              <div class="score-help-icon" title="困難やストレスに直面した時に、この防御的分人がどの程度現れるかを示します。この分人も大切な自分の一部です。">❓</div>
                                           </div>
-                                          <div class="score-explanation">
+                                          <div class="score-explanation bunenjin-explanation">
                                               <p>ストレスを感じた時、<strong>100回中${Math.round(
                                                 safeModeOS.matchScore
-                                              )}回程度</strong>この対処法を無意識に使います</p>
+                                              )}回程度</strong>この防御的分人が現れます</p>
+                                              <div class="bunenjin-insight">
+                                                  <small>💡 ${safeModeOS.matchScore >= 50 ? 'この分人をよく使います。適切にコントロールできれば強い味方になります' : safeModeOS.matchScore >= 10 ? 'バランス良く防御的分人を活用できています' : 'この分人はあまり使いませんが、必要な時の選択肢として覚えておきましょう'}</small>
+                                              </div>
                                           </div>
                                           <div class="score-display">
                                               <div class="os-score ${this.getScoreColorClass(
@@ -1280,54 +1318,63 @@ class TripleOSResultsView extends BaseComponent {
       );
       if (!compatibilityContent) return;
 
-      // エンジンOSとインターフェースOSの組み合わせ分析
-      const compatibility = this.calculateSimpleCompatibility(
+      // 本音の分人と社会的分人の相互作用分析
+      const compatibility = this.calculateBunenjinCompatibility(
         engineOS.hexagramId,
         interfaceOS.hexagramId,
-        "interface"
+        "social"
       );
 
       if (compatibility) {
-        const relationshipType = this.getRelationshipType(compatibility.score);
-        const relationshipColor = this.getRelationshipColor(
-          compatibility.score
-        );
+        const harmonyType = this.getBunenjinHarmonyType(compatibility.score);
+        const harmonyColor = this.getBunenjinHarmonyColor(compatibility.score);
+        const gapAnalysis = this.analyzeBunenjinGap(compatibility.score);
 
         compatibilityContent.innerHTML = `
-                      <div class="compatibility-result">
-                          <div class="compatibility-header">
-                              <span class="relationship-type ${relationshipColor}">${relationshipType}</span>
-                              <span class="compatibility-score">${Math.round(
+                      <div class="bunenjin-compatibility-result">
+                          <div class="bunenjin-harmony-header">
+                              <div class="harmony-type-badge ${harmonyColor}">
+                                  <span class="harmony-icon">${harmonyType.icon}</span>
+                                  <span class="harmony-label">${harmonyType.label}</span>
+                              </div>
+                              <div class="compatibility-score">${Math.round(
                                 compatibility.score
-                              )}%</span>
+                              )}%</div>
                           </div>
-                          <div class="compatibility-explanation">
-                              <p><strong>組み合わせの特徴:</strong></p>
-                              <p>エンジンOS「${
-                                engineOS.osName
-                              }」の核となる価値観が、インターフェースOS「${
-          interfaceOS.osName
-        }」のコミュニケーションスタイルとして${Math.round(
-          compatibility.score
-        )}%の確率で表れます。</p>
-                              <p><strong>相互作用:</strong> ${
-                                compatibility.description ||
-                                this.getCompatibilityScoreDescription(
-                                  compatibility.score
-                                )
-                              }</p>
+                          
+                          <div class="bunenjin-relationship-explanation">
+                              <h5>🤝 本音と社会的な顔の関係</h5>
+                              <p>あなたの本音の分人「${engineOS.osName}」と社会的分人「${interfaceOS.osName}」は<strong>${harmonyType.description}</strong>しています。</p>
+                              
+                              <div class="gap-insight">
+                                  <div class="insight-header">
+                                      <span class="insight-icon">🔍</span>
+                                      <span class="insight-title">分人ギャップ分析</span>
+                                  </div>
+                                  <p>${gapAnalysis.description}</p>
+                                  <div class="practical-advice">
+                                      <strong>💡 実践的アドバイス:</strong>
+                                      <p>${gapAnalysis.advice}</p>
+                                  </div>
+                              </div>
+                              
+                              <div class="bunenjin-synergy">
+                                  <h6>✨ この組み合わせの活用法</h6>
+                                  <p>${this.getBunenjinSynergyAdvice(compatibility.score, 'social')}</p>
+                              </div>
                           </div>
                       </div>
                   `;
       } else {
         compatibilityContent.innerHTML = `
-                      <div class="compatibility-loading">
-                          <p>エンジンOSとインターフェースOSの組み合わせ分析を読み込み中です...</p>
+                      <div class="bunenjin-loading">
+                          <div class="loading-icon">🤝</div>
+                          <p>本音と社会的分人の関係を分析中...</p>
                       </div>
                   `;
       }
     } catch (error) {
-      console.error("❌ インターフェース組み合わせ分析エラー:", error);
+      console.error("❌ 本音・社会的分人の相互作用分析エラー:", error);
     }
   }
 
@@ -1338,52 +1385,74 @@ class TripleOSResultsView extends BaseComponent {
       );
       if (!compatibilityContent) return;
 
-      // エンジンOSとセーフモードOSの組み合わせ分析
-      const compatibility = this.calculateSimpleCompatibility(
+      // 本音の分人と防御的分人の相互作用分析
+      const compatibility = this.calculateBunenjinCompatibility(
         engineOS.hexagramId,
         safeModeOS.hexagramId,
-        "safemode"
+        "defense"
       );
 
       if (compatibility) {
-        const relationshipType = this.getRelationshipType(compatibility.score);
-        const relationshipColor = this.getRelationshipColor(
-          compatibility.score
-        );
+        const protectionType = this.getBunenjinProtectionType(compatibility.score);
+        const protectionColor = this.getBunenjinProtectionColor(compatibility.score);
+        const defensePattern = this.analyzeDefensePattern(compatibility.score);
 
         compatibilityContent.innerHTML = `
-                      <div class="compatibility-result">
-                          <div class="compatibility-header">
-                              <span class="relationship-type ${relationshipColor}">${relationshipType}</span>
-                              <span class="compatibility-score">${Math.round(
+                      <div class="bunenjin-compatibility-result defense-analysis">
+                          <div class="bunenjin-protection-header">
+                              <div class="protection-type-badge ${protectionColor}">
+                                  <span class="protection-icon">${protectionType.icon}</span>
+                                  <span class="protection-label">${protectionType.label}</span>
+                              </div>
+                              <div class="compatibility-score">${Math.round(
                                 compatibility.score
-                              )}%</span>
+                              )}%</div>
                           </div>
-                          <div class="compatibility-explanation">
-                              <p><strong>組み合わせの特徴:</strong></p>
-                              <p>エンジンOS「${
-                                engineOS.osName
-                              }」の価値観と、セーフモードOS「${
-          safeModeOS.osName
-        }」の防御機制が${relationshipType.toLowerCase()}しています。</p>
-                              <p><strong>ストレス時の相互作用:</strong> ${
-                                compatibility.description ||
-                                this.getCompatibilityScoreDescription(
-                                  compatibility.score
-                                )
-                              }</p>
+                          
+                          <div class="bunenjin-defense-explanation">
+                              <h5>🛡️ 本音と防御的分人の関係</h5>
+                              <p>あなたの本音の分人「${engineOS.osName}」と防御的分人「${safeModeOS.osName}」は<strong>${protectionType.description}</strong>しています。</p>
+                              
+                              <div class="defense-pattern-insight">
+                                  <div class="insight-header">
+                                      <span class="insight-icon">🔍</span>
+                                      <span class="insight-title">防御パターン分析</span>
+                                  </div>
+                                  <p><strong>ストレス時の特徴:</strong> ${defensePattern.description}</p>
+                                  <div class="recovery-strategy">
+                                      <strong>🌱 復帰戦略:</strong>
+                                      <p>${defensePattern.recoveryAdvice}</p>
+                                  </div>
+                              </div>
+                              
+                              <div class="bunenjin-balance-strategy">
+                                  <h6>⚖️ 健全なバランスの取り方</h6>
+                                  <p>${this.getBunenjinDefenseAdvice(compatibility.score)}</p>
+                                  
+                                  <div class="integration-tips">
+                                      <div class="tip-item">
+                                          <span class="tip-icon">✨</span>
+                                          <span class="tip-text">防御的分人は、あなたの大切な一部です</span>
+                                      </div>
+                                      <div class="tip-item">
+                                          <span class="tip-icon">🏠</span>
+                                          <span class="tip-text">必要な時に使い、安全になったら本音に戻る</span>
+                                      </div>
+                                  </div>
+                              </div>
                           </div>
                       </div>
                   `;
       } else {
         compatibilityContent.innerHTML = `
-                      <div class="compatibility-loading">
-                          <p>エンジンOSとセーフモードOSの組み合わせ分析を読み込み中です...</p>
+                      <div class="bunenjin-loading">
+                          <div class="loading-icon">🛡️</div>
+                          <p>本音と防御的分人の関係を分析中...</p>
                       </div>
                   `;
       }
     } catch (error) {
-      console.error("❌ セーフモード組み合わせ分析エラー:", error);
+      console.error("❌ 本音・防御的分人の相互作用分析エラー:", error);
     }
   }
 
@@ -1403,64 +1472,80 @@ class TripleOSResultsView extends BaseComponent {
     return "conflict";
   }
 
-  // 簡単な互換性計算（五行相性を基にした仮実装）
-  calculateSimpleCompatibility(hexagramId1, hexagramId2, type) {
+  // 分人思想ベースの相互作用分析
+  calculateBunenjinCompatibility(hexagramId1, hexagramId2, bunenjinType) {
     // 卦IDを8つの基本卦グループに分類
     const getTrigramGroup = (id) => ((id - 1) % 8) + 1;
     const group1 = getTrigramGroup(hexagramId1);
     const group2 = getTrigramGroup(hexagramId2);
 
-    // 基本的な相性マトリックス（五行思想を簡素化）
-    const compatibilityMatrix = {
-      1: { 1: 75, 2: 60, 3: 85, 4: 70, 5: 55, 6: 40, 7: 65, 8: 50 }, // 乾
-      2: { 1: 60, 2: 80, 3: 45, 4: 75, 5: 70, 6: 85, 7: 55, 8: 90 }, // 兌
-      3: { 1: 85, 2: 45, 3: 75, 4: 60, 5: 80, 6: 35, 7: 50, 8: 65 }, // 離
-      4: { 1: 70, 2: 75, 3: 60, 4: 80, 5: 85, 6: 55, 7: 40, 8: 65 }, // 震
-      5: { 1: 55, 2: 70, 3: 80, 4: 85, 5: 75, 6: 60, 7: 45, 8: 70 }, // 巽
-      6: { 1: 40, 2: 85, 3: 35, 4: 55, 5: 60, 6: 75, 7: 80, 8: 95 }, // 坎
-      7: { 1: 65, 2: 55, 3: 50, 4: 40, 5: 45, 6: 80, 7: 85, 8: 70 }, // 艮
-      8: { 1: 50, 2: 90, 3: 65, 4: 65, 5: 70, 6: 95, 7: 70, 8: 80 }, // 坤
+    // 分人思想専用の相性マトリックス
+    const bunenjinMatrix = {
+      1: { 1: 85, 2: 65, 3: 90, 4: 75, 5: 60, 6: 45, 7: 70, 8: 55 }, // 乾 - 創造的リーダー
+      2: { 1: 65, 2: 88, 3: 50, 4: 80, 5: 75, 6: 90, 7: 60, 8: 95 }, // 兌 - 調和型コミュニケーター
+      3: { 1: 90, 2: 50, 3: 82, 4: 65, 5: 85, 6: 40, 7: 55, 8: 70 }, // 離 - 情熱的表現者
+      4: { 1: 75, 2: 80, 3: 65, 4: 87, 5: 90, 6: 60, 7: 45, 8: 70 }, // 震 - 行動力溢れる実行者
+      5: { 1: 60, 2: 75, 3: 85, 4: 90, 5: 84, 6: 65, 7: 50, 8: 75 }, // 巽 - 柔軟性を持つ適応者
+      6: { 1: 45, 2: 90, 3: 40, 4: 60, 5: 65, 6: 83, 7: 85, 8: 98 }, // 坎 - 深い知恵を持つ思考者
+      7: { 1: 70, 2: 60, 3: 55, 4: 45, 5: 50, 6: 85, 7: 92, 8: 75 }, // 艮 - 安定性を持つ守護者
+      8: { 1: 55, 2: 95, 3: 70, 4: 70, 5: 75, 6: 98, 7: 75, 8: 89 }, // 坤 - 包容力ある支援者
     };
 
-    const baseScore = compatibilityMatrix[group1]?.[group2] || 60;
+    const baseScore = bunenjinMatrix[group1]?.[group2] || 60;
 
-    // タイプ別の調整
+    // 分人タイプ別の調整
     let adjustedScore = baseScore;
-    if (type === "interface") {
-      // インターフェースは表面的な調和を重視
-      adjustedScore = Math.min(baseScore + 5, 95);
-    } else if (type === "safemode") {
-      // セーフモードは安定性を重視
-      adjustedScore = Math.max(baseScore - 10, 25);
+    if (bunenjinType === "social") {
+      // 社会的分人は表現の一致性を重視
+      adjustedScore = Math.min(baseScore + 8, 98);
+    } else if (bunenjinType === "defense") {
+      // 防御的分人は心理的安全性を重視
+      adjustedScore = Math.max(baseScore - 15, 20);
     }
 
     return {
       score: adjustedScore,
-      description: this.getCompatibilityDescription(adjustedScore, type),
+      description: this.getBunenjinCompatibilityDescription(adjustedScore, bunenjinType),
     };
   }
 
-  // 互換性説明を生成
-  getCompatibilityDescription(score, type) {
+  // 旧メソッドも保持（互換性のため）
+  calculateSimpleCompatibility(hexagramId1, hexagramId2, type) {
+    // 分人思想ベースにリダイレクト
+    const bunenjinType = type === "interface" ? "social" : type === "safemode" ? "defense" : "authentic";
+    return this.calculateBunenjinCompatibility(hexagramId1, hexagramId2, bunenjinType);
+  }
+
+  // 分人思想ベースの相互作用説明を生成
+  getBunenjinCompatibilityDescription(score, bunenjinType) {
     const descriptions = {
-      interface: {
-        high: "内なる価値観と外向きのコミュニケーションスタイルが非常に調和しており、自然体で魅力的な人間関係を築けます。",
-        medium:
-          "価値観とコミュニケーションスタイルがバランス良く機能しており、安定した対人関係を維持できます。",
-        low: "内面と外面にギャップがあり、時として表面的な関係に留まりがちです。意識的に内面を表現することが大切です。",
+      social: {
+        high: "本音の分人と社会的分人が非常によく調和しています。あなたらしさが自然に表現され、真の魅力で人を引きつけます。",
+        medium: "本音と社会的な面がバランス良く機能しています。状況に応じて上手く使い分けができています。",
+        low: "本音と社会的な面にギャップがあります。意識的に本音を表現する練習をすることで、より自然な関係を築けます。"
       },
-      safemode: {
-        high: "ストレス時でも核となる価値観との整合性が保たれ、建設的な対処ができます。",
-        medium:
-          "ストレス時に価値観と防御機制の間で適度なバランスが取れており、安定した対処が可能です。",
-        low: "ストレス時に価値観と矛盾する行動を取りがちです。長期的な視点での対処法を見つけることが重要です。",
+      defense: {
+        high: "本音の分人と防御的分人がよく連携しています。ストレス時でも価値観を大切にしながら自分を守ることができます。",
+        medium: "本音と防御的な面が適度にバランスを保っています。困難な状況でも最終的には本音に戻ることができます。",
+        low: "本音と防御的な面の間に緊張関係があります。ストレス時に本来の自分とは異なる行動を取りがちですが、これも必要な知恵です。"
       },
+      authentic: {
+        high: "本音の分人が非常に安定し、一貫した価値観で行動できています。",
+        medium: "本音の分人が適度に機能し、状況に応じて柔軟に対応できています。",
+        low: "本音の分人が不安定で、価値観の確立や自己理解の深化が必要です。"
+      }
     };
 
-    const typeDesc = descriptions[type] || descriptions.interface;
-    if (score >= 70) return typeDesc.high;
+    const typeDesc = descriptions[bunenjinType] || descriptions.authentic;
+    if (score >= 75) return typeDesc.high;
     if (score >= 50) return typeDesc.medium;
     return typeDesc.low;
+  }
+
+  // 互換性説明を生成（旧メソッド保持）
+  getCompatibilityDescription(score, type) {
+    const bunenjinType = type === "interface" ? "social" : type === "safemode" ? "defense" : "authentic";
+    return this.getBunenjinCompatibilityDescription(score, bunenjinType);
   }
 
   // 8卦カラーカードの表示
@@ -1848,6 +1933,110 @@ class TripleOSResultsView extends BaseComponent {
           helpModal.classList.remove("show");
         }
       });
+    }
+  }
+
+  // 分人思想専用のヘルパーメソッド群
+
+  // 社会的分人との調和タイプを取得
+  getBunenjinHarmonyType(score) {
+    if (score >= 80) return { icon: '🌟', label: '高い調和', description: '非常によく調和' };
+    if (score >= 65) return { icon: '✨', label: '良好な調和', description: 'よく調和' };
+    if (score >= 50) return { icon: '⚖️', label: 'バランス型', description: 'バランスが取れて' };
+    if (score >= 35) return { icon: '🔄', label: '補完関係', description: '補完し合って' };
+    return { icon: '🔍', label: '成長の余地', description: 'ギャップがあるが成長の余地が' };
+  }
+
+  // 調和度に応じた色クラスを取得
+  getBunenjinHarmonyColor(score) {
+    if (score >= 80) return 'harmony-excellent';
+    if (score >= 65) return 'harmony-good';
+    if (score >= 50) return 'harmony-balanced';
+    if (score >= 35) return 'harmony-complementary';
+    return 'harmony-growth';
+  }
+
+  // 分人ギャップ分析
+  analyzeBunenjinGap(score) {
+    if (score >= 75) {
+      return {
+        description: '本音の分人と社会的分人がよく一致しており、自然体で人と関わることができています。',
+        advice: 'この調和を活かして、リーダーシップやメンターの役割で力を発揮してみましょう。'
+      };
+    } else if (score >= 50) {
+      return {
+        description: '本音と社会的な顔の間に適度なバランスがあり、TPOに応じた使い分けができています。',
+        advice: '状況に応じてより意識的に使い分けることで、さらに効果的なコミュニケーションが可能になります。'
+      };
+    } else {
+      return {
+        description: '本音の分人と社会的分人の間にギャップがあります。これは決して悪いことではありません。',
+        advice: '小さな場面から本音を表現する練習をすることで、より自然で魅力的な人間関係を築けるでしょう。'
+      };
+    }
+  }
+
+  // 防御的分人の保護タイプを取得
+  getBunenjinProtectionType(score) {
+    if (score >= 75) return { icon: '🛡️', label: '強固な連携', description: '強固に連携' };
+    if (score >= 55) return { icon: '🤝', label: '協力関係', description: '協力し合って' };
+    if (score >= 40) return { icon: '⚖️', label: '独立関係', description: '独立して' };
+    if (score >= 25) return { icon: '🔄', label: '時々対立', description: '時々対立しながらも' };
+    return { icon: '⚡', label: '緊張関係', description: '緊張関係にありながらも' };
+  }
+
+  // 保護度に応じた色クラスを取得
+  getBunenjinProtectionColor(score) {
+    if (score >= 75) return 'protection-strong';
+    if (score >= 55) return 'protection-cooperative';
+    if (score >= 40) return 'protection-independent';
+    if (score >= 25) return 'protection-occasional';
+    return 'protection-tension';
+  }
+
+  // 防御パターン分析
+  analyzeDefensePattern(score) {
+    if (score >= 70) {
+      return {
+        description: 'ストレス時でも本音の価値観を保ちながら自分を守ろうとします。建設的な防御が得意です。',
+        recoveryAdvice: '本音の分人の強みを意識的に思い出すことで、より早く安心状態に戻ることができます。'
+      };
+    } else if (score >= 40) {
+      return {
+        description: 'ストレス時は本音と防御的な面が時々対立しますが、最終的にはバランスを取り戻します。',
+        recoveryAdvice: '防御的分人が働いている時は、まず安全を確保してから本音の分人に戻る順序を意識しましょう。'
+      };
+    } else {
+      return {
+        description: 'ストレス時は本音とは異なる行動を取りがちですが、これも自分を守るための大切な知恵です。',
+        recoveryAdvice: '防御的分人も大切な一部です。批判せずに受け入れ、安全になったら本音に戻ることを心がけましょう。'
+      };
+    }
+  }
+
+  // 分人シナジー活用アドバイス
+  getBunenjinSynergyAdvice(score, type) {
+    if (type === 'social') {
+      if (score >= 75) {
+        return '本音の分人と社会的分人がよく連携しているので、リーダーシップやメンター役で力を発揮できます。人の成長を支援する場面で特に輝けるでしょう。';
+      } else if (score >= 50) {
+        return '状況に応じて使い分けができているので、多様な人間関係で活躍できます。意識的に本音を少しずつ表現することで、さらに魅力的になれます。';
+      } else {
+        return '本音と社会的な面のギャップを活かして、幅広い人との関係を築けます。まずは信頼できる人から本音を表現する練習をしてみましょう。';
+      }
+    } else {
+      return '各分人の特性を理解し、適切に使い分けることで豊かな人生を送ることができます。';
+    }
+  }
+
+  // 防御的分人のバランスアドバイス
+  getBunenjinDefenseAdvice(score) {
+    if (score >= 70) {
+      return '本音の価値観と防御機制がよく調和しているので、ストレス時でも建設的な対処ができます。この強みを活かして、困難な状況でのリーダーシップを発揮することもできるでしょう。';
+    } else if (score >= 40) {
+      return '本音と防御的な面が適度にバランスを保っているので、状況に応じて柔軟に対応できます。ストレス時は一度立ち止まって、どの分人で対応するかを意識的に選択してみましょう。';
+    } else {
+      return '本音と防御的な面の間に緊張がありますが、これも多様性の表れです。防御的分人が働いている時は批判せず、まず安全を確保してから本音に戻ることを意識しましょう。';
     }
   }
 

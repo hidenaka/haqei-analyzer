@@ -928,7 +928,7 @@ class TripleOSEngine {
     return 0.8;
   }
 
-  // 統合洞察生成
+  // 統合洞察生成 - 分人思想に基づく実践的な洞察
   generateIntegrationInsights(
     engineOS,
     interfaceOS,
@@ -937,26 +937,73 @@ class TripleOSEngine {
     dimensions
   ) {
     const topDimensions = dimensions.slice(0, 3);
-
+    
+    // 分人思想の核心概念を含む説明
+    const bunenjinExplanation = this.generateBunenjinExplanation(engineOS, interfaceOS, safeModeOS);
+    
+    // OS間の相互作用分析
+    const osInteractionAnalysis = this.analyzeOSInteractions(engineOS, interfaceOS, safeModeOS, consistencyScore);
+    
+    // 実践的な生活戦略
+    const practicalStrategies = this.generatePracticalLifeStrategies(engineOS, interfaceOS, safeModeOS);
+    
     return {
-      summary: `あなたの人格OSは「${engineOS.osName}」です。特に${topDimensions
-        .map((d) => d.displayName)
-        .join("、")}が強く、これがあなたの核となる価値観を形成しています。`,
-      engineInsight: `エンジンOS「${engineOS.osName}」が核となる価値観を形成しています。`,
-      interfaceInsight: `インターフェースOS「${
-        interfaceOS.hexagramInfo?.name_jp || "未分析"
-      }」が外面的な行動パターンを決定しています。`,
-      safeModeInsight: `セーフモードOS「${
-        safeModeOS.hexagramInfo?.name_jp || "未分析"
-      }」が内面的な防御機制として働いています。`,
-      consistencyInsight: `全体的な一貫性は${Math.round(
-        consistencyScore.overall * 100
-      )}%です。`,
-      recommendations: [
-        "3つのOSの特徴を理解し、状況に応じて適切に使い分けましょう",
-        "一貫性を高めるために、内面と外面のバランスを意識してください",
-        "各OSの強みを活かせる環境を見つけることが重要です",
-      ],
+      // 分人思想の基本概念説明
+      bunenjinConcept: {
+        title: "あなたの中に住む3人の『分人』",
+        explanation: bunenjinExplanation.concept,
+        practicalMeaning: bunenjinExplanation.practicalMeaning
+      },
+      
+      // 各OSの役割明確化
+      osRoles: {
+        engine: {
+          title: "🔥 エンジンOS - あなたの『本音の分人』",
+          description: `「${engineOS.osName}」として、あなたの心の奥底で価値判断をする存在です。`,
+          practicalRole: this.getEngineOSPracticalRole(engineOS, topDimensions),
+          whenActive: "重要な決断をする時、一人の時間、価値観に関わる問題に直面した時"
+        },
+        interface: {
+          title: "🌐 インターフェースOS - あなたの『社会的分人』",
+          description: `「${interfaceOS.hexagramInfo?.name_jp || "未分析"}」として、他者と関わる時に表れる人格です。`,
+          practicalRole: this.getInterfaceOSPracticalRole(interfaceOS),
+          whenActive: "職場、友人関係、初対面の人との交流、チームワークが必要な場面"
+        },
+        safeMode: {
+          title: "🛡️ セーフモードOS - あなたの『防御的分人』",
+          description: `「${safeModeOS.hexagramInfo?.name_jp || "未分析"}」として、困難な状況で自分を守る人格です。`,
+          practicalRole: this.getSafeModeOSPracticalRole(safeModeOS),
+          whenActive: "ストレス状況、批判を受けた時、失敗や挫折を経験した時、不安を感じる場面"
+        }
+      },
+      
+      // OS間の相互作用分析
+      osInteractions: osInteractionAnalysis,
+      
+      // 統合的な人格理解
+      integratedPersonality: {
+        summary: `あなたの人格は「${engineOS.osName}」を核とした3つの分人で構成されています。${topDimensions
+          .map((d) => d.displayName)
+          .join("、")}が特に強く、これがあなたらしさの源泉です。`,
+        uniqueness: this.generateUniquenessInsight(engineOS, dimensions),
+        consistency: {
+          level: Math.round(consistencyScore.overall * 100),
+          interpretation: this.interpretConsistencyLevel(consistencyScore.overall),
+          advice: this.getConsistencyAdvice(consistencyScore.overall)
+        }
+      },
+      
+      // 実践的な生活戦略
+      practicalStrategies: practicalStrategies,
+      
+      // 分人思想に基づく推奨事項
+      bunenjinRecommendations: [
+        "🎭 3つの分人それぞれの特徴を理解し、場面に応じて意識的に使い分けましょう",
+        "💎 エンジンOSの価値観を大切にしながら、社会的場面ではインターフェースOSを活用しましょう",
+        "🛡️ セーフモードは緊急時の味方です。過度に頼らず、適切な時に活用しましょう",
+        "⚖️ 3つの分人のバランスが取れた時、あなたは最も自然で魅力的な存在になります",
+        "🌱 『真の自分探し』よりも『分人の育成』を意識して、多面的な成長を目指しましょう"
+      ]
     };
   }
 
@@ -1136,20 +1183,37 @@ class TripleOSEngine {
     return trigramScores;
   }
 
-  // 深い洞察生成メソッド
+  // 深い洞察生成メソッド - 分人思想に基づく実践的洞察
   async generateInsights(analysisResult) {
     try {
       console.log("💡 Generating insights for Triple OS result...");
       
       const insights = {
-        summary: this.generateSummaryInsight(analysisResult),
-        strengths: this.generateStrengthsInsight(analysisResult),
-        growthAreas: this.generateGrowthInsight(analysisResult),
-        recommendations: this.generateRecommendations(analysisResult),
-        tripleOSInsights: this.generateTripleOSSpecificInsights(analysisResult)
+        // 分人思想に基づく包括的理解
+        bunenjinSummary: this.generateBunenjinSummary(analysisResult),
+        
+        // 各分人の特徴と活用法
+        personalityProfiles: {
+          engine: this.generateEnginePersonalityProfile(analysisResult.engineOS, analysisResult.dimensions),
+          interface: this.generateInterfacePersonalityProfile(analysisResult.interfaceOS),
+          safeMode: this.generateSafeModePersonalityProfile(analysisResult.safeModeOS)
+        },
+        
+        // 統合的な強みと成長領域
+        strengths: this.generateBunenjinStrengths(analysisResult),
+        growthAreas: this.generateBunenjinGrowthAreas(analysisResult),
+        
+        // 実践的な生活戦略
+        lifeStrategies: this.generateLifeStrategies(analysisResult),
+        
+        // 3つの分人を活かす具体的推奨事項
+        actionableRecommendations: this.generateActionableRecommendations(analysisResult),
+        
+        // Triple OS特有の洞察（改善版）
+        tripleOSInsights: this.generateEnhancedTripleOSInsights(analysisResult)
       };
 
-      console.log("✅ Insights generated successfully:", insights);
+      console.log("✅ Enhanced insights generated successfully:", insights);
       return insights;
     } catch (error) {
       console.error("❌ Error generating insights:", error);
@@ -1292,6 +1356,406 @@ class TripleOSEngine {
         safeModeInsight: "セーフモードOSが分析されました。",
         consistencyInsight: "OSの一貫性が分析されました。"
       }
+    };
+  }
+
+  // === 新しい分人思想ベース洞察生成メソッド群 ===
+
+  // 分人思想の基本概念説明を生成
+  generateBunenjinExplanation(engineOS, interfaceOS, safeModeOS) {
+    return {
+      concept: `分人思想では、一人の人間の中には複数の「分人」が存在すると考えます。あなたの場合、「${engineOS.osName}」を核とする本音の分人、「${interfaceOS.hexagramInfo?.name_jp || "社会的"}」な対人関係の分人、「${safeModeOS.hexagramInfo?.name_jp || "防御的"}」なストレス対処の分人が共存しています。`,
+      practicalMeaning: "これは「本当の自分を探す」のではなく、「場面に応じて最適な分人を意識的に選択する」ことで、より豊かで自然な人生を送るという考え方です。"
+    };
+  }
+
+  // OS間の相互作用分析
+  analyzeOSInteractions(engineOS, interfaceOS, safeModeOS, consistencyScore) {
+    const engineInterfaceHarmony = this.calculateOSHarmony(engineOS, interfaceOS);
+    const engineSafeModeHarmony = this.calculateOSHarmony(engineOS, safeModeOS);
+    const interfaceSafeModeRelation = this.calculateOSHarmony(interfaceOS, safeModeOS);
+
+    return {
+      engineToInterface: {
+        harmony: engineInterfaceHarmony,
+        description: this.getOSInteractionDescription(engineOS, interfaceOS, engineInterfaceHarmony, "interface"),
+        practicalAdvice: this.getOSInteractionAdvice(engineOS, interfaceOS, engineInterfaceHarmony, "interface")
+      },
+      engineToSafeMode: {
+        harmony: engineSafeModeHarmony,
+        description: this.getOSInteractionDescription(engineOS, safeModeOS, engineSafeModeHarmony, "safemode"),
+        practicalAdvice: this.getOSInteractionAdvice(engineOS, safeModeOS, engineSafeModeHarmony, "safemode")
+      },
+      interfaceToSafeMode: {
+        harmony: interfaceSafeModeRelation,
+        description: this.getOSInteractionDescription(interfaceOS, safeModeOS, interfaceSafeModeRelation, "both"),
+        practicalAdvice: this.getOSInteractionAdvice(interfaceOS, safeModeOS, interfaceSafeModeRelation, "both")
+      },
+      overallDynamics: this.getOverallOSDynamics(engineInterfaceHarmony, engineSafeModeHarmony, interfaceSafeModeRelation)
+    };
+  }
+
+  // 実践的な生活戦略を生成
+  generatePracticalLifeStrategies(engineOS, interfaceOS, safeModeOS) {
+    return {
+      workStrategy: this.generateWorkStrategy(engineOS, interfaceOS),
+      relationshipStrategy: this.generateRelationshipStrategy(engineOS, interfaceOS),
+      stressManagementStrategy: this.generateStressManagementStrategy(engineOS, safeModeOS),
+      personalGrowthStrategy: this.generatePersonalGrowthStrategy(engineOS, interfaceOS, safeModeOS),
+      dailyLifeStrategy: this.generateDailyLifeStrategy(engineOS, interfaceOS, safeModeOS)
+    };
+  }
+
+  // エンジンOSの実践的役割を説明
+  getEngineOSPracticalRole(engineOS, topDimensions) {
+    const primaryDimension = topDimensions[0]?.displayName || "特有の価値観";
+    return `${primaryDimension}を重視し、重要な判断の基準となる分人です。人生の方向性を決める時、価値観に関わる選択をする時に最も活発になります。この分人の声に耳を傾けることで、あなたらしい人生を歩むことができます。`;
+  }
+
+  // インターフェースOSの実践的役割を説明
+  getInterfaceOSPracticalRole(interfaceOS) {
+    const matchScore = Math.round(interfaceOS.matchScore || 50);
+    let roleDescription = "";
+    
+    if (matchScore >= 70) {
+      roleDescription = "非常に活発な社会的分人で、人との関わりで自然に表れます。";
+    } else if (matchScore >= 30) {
+      roleDescription = "状況に応じて表れる社会的分人で、意識的に活用することで対人関係が向上します。";
+    } else {
+      roleDescription = "控えめな社会的分人ですが、適切な場面で活用することで新たな魅力を発見できます。";
+    }
+    
+    return `${roleDescription} この分人を理解し活用することで、より効果的なコミュニケーションが可能になります。`;
+  }
+
+  // セーフモードOSの実践的役割を説明
+  getSafeModeOSPracticalRole(safeModeOS) {
+    const matchScore = Math.round(safeModeOS.matchScore || 30);
+    let roleDescription = "";
+    
+    if (matchScore >= 50) {
+      roleDescription = "ストレス時によく働く防御的分人です。この分人の特徴を理解し、適切にコントロールすることが重要です。";
+    } else if (matchScore >= 10) {
+      roleDescription = "時々現れる防御的分人です。緊急時の対処法として活用しつつ、依存しすぎないよう注意しましょう。";
+    } else {
+      roleDescription = "あまり働かない防御的分人です。他の対処法も併せて身に着けることをお勧めします。";
+    }
+    
+    return roleDescription;
+  }
+
+  // 独自性の洞察を生成
+  generateUniquenessInsight(engineOS, dimensions) {
+    const topDimension = dimensions[0];
+    const secondDimension = dimensions[1];
+    
+    if (topDimension && secondDimension) {
+      return `あなたの独自性は「${topDimension.displayName}」と「${secondDimension.displayName}」の組み合わせにあります。この2つの特性が調和することで、他にはない魅力的な人格が形成されています。`;
+    } else {
+      return `「${engineOS.osName}」としてのあなたには、独特な魅力と価値観があります。`;
+    }
+  }
+
+  // 一貫性レベルの解釈
+  interpretConsistencyLevel(consistencyScore) {
+    const percentage = Math.round(consistencyScore * 100);
+    
+    if (percentage >= 80) {
+      return "非常に高い一貫性 - 3つの分人が調和的に機能しています";
+    } else if (percentage >= 70) {
+      return "高い一貫性 - 分人間のバランスが良好です";
+    } else if (percentage >= 60) {
+      return "中程度の一貫性 - 一部の分人間に調整の余地があります";
+    } else if (percentage >= 50) {
+      return "やや低い一貫性 - 分人間の対話を意識してみましょう";
+    } else {
+      return "低い一貫性 - 各分人の特徴を理解し、意識的な統合を目指しましょう";
+    }
+  }
+
+  // 一貫性向上のアドバイス
+  getConsistencyAdvice(consistencyScore) {
+    const percentage = Math.round(consistencyScore * 100);
+    
+    if (percentage >= 80) {
+      return "素晴らしいバランスです。この調和を維持しつつ、さらなる成長を目指しましょう。";
+    } else if (percentage >= 60) {
+      return "良いバランスです。時々各分人の状態を確認し、必要に応じて調整してみてください。";
+    } else {
+      return "分人間の対話を増やし、お互いの特徴を理解することで、より統合された自分になれます。";
+    }
+  }
+
+  // 分人思想に基づく包括的サマリー
+  generateBunenjinSummary(analysisResult) {
+    const { engineOS, interfaceOS, safeModeOS } = analysisResult;
+    const engineName = engineOS.osName;
+    const interfaceName = interfaceOS.hexagramInfo?.name_jp || "社会的コミュニケーター";
+    const safeModeName = safeModeOS.hexagramInfo?.name_jp || "自己防衛者";
+    
+    return {
+      headline: `あなたは「${engineName}」を核とする3つの分人で構成されています`,
+      overview: `本音では「${engineName}」として価値観を大切にし、社会では「${interfaceName}」として人と関わり、困難な時は「${safeModeName}」として自分を守ります。`,
+      lifePerspective: "この3つの分人を理解し、場面に応じて意識的に使い分けることで、より豊かで自然な人生を送ることができます。",
+      keyInsight: "重要なのは「本当の自分を探す」ことではなく、「それぞれの分人の特徴を理解し、適切に活用する」ことです。"
+    };
+  }
+
+  // エンジンOS人格プロファイル
+  generateEnginePersonalityProfile(engineOS, dimensions) {
+    const topThree = dimensions ? dimensions.slice(0, 3) : [];
+    
+    return {
+      coreDrive: engineOS.hexagramInfo?.description || "独自の価値観に基づく行動原理を持っています。",
+      strengthAreas: topThree.map(d => d.displayName || d.key),
+      optimalEnvironments: this.getOptimalEnvironments(engineOS, topThree),
+      potentialChallenges: this.getPotentialChallenges(engineOS),
+      activationTriggers: [
+        "価値観に関わる重要な決断",
+        "創造的な活動や表現",
+        "一人で深く考える時間",
+        "長期的な人生設計"
+      ]
+    };
+  }
+
+  // インターフェースOS人格プロファイル
+  generateInterfacePersonalityProfile(interfaceOS) {
+    return {
+      communicationStyle: this.getCommunicationStyle(interfaceOS),
+      socialRole: this.getSocialRole(interfaceOS),
+      interactionPattern: this.getInteractionPattern(interfaceOS),
+      optimalSocialSettings: this.getOptimalSocialSettings(interfaceOS),
+      activationTriggers: [
+        "チームワークが必要な場面",
+        "初対面の人との交流",
+        "プレゼンテーションや発表",
+        "協調性が求められる環境"
+      ]
+    };
+  }
+
+  // セーフモードOS人格プロファイル
+  generateSafeModePersonalityProfile(safeModeOS) {
+    return {
+      defensivePattern: this.getDefensivePattern(safeModeOS),
+      stressTriggers: this.getStressTriggers(safeModeOS),
+      copingStrategies: this.getCopingStrategies(safeModeOS),
+      recoveryMethods: this.getRecoveryMethods(safeModeOS),
+      activationTriggers: [
+        "批判や否定を受けた時",
+        "過度なプレッシャーを感じた時",
+        "失敗や挫折を経験した時",
+        "理解されない状況"
+      ]
+    };
+  }
+
+  // === ヘルパーメソッド群 ===
+
+  // OS間の調和度を計算
+  calculateOSHarmony(os1, os2) {
+    // 簡単な調和度計算（実際の実装では、より複雑な易経ベースの計算を行う）
+    const id1 = os1.hexagramId;
+    const id2 = os2.hexagramId;
+    
+    // 基本的な相性計算
+    const difference = Math.abs(id1 - id2);
+    let harmony = 80 - (difference * 2);
+    
+    // 同じ卦の場合は高い調和
+    if (id1 === id2) harmony = 95;
+    
+    // 補完的な関係の場合は調和が高い
+    if (this.isComplementaryPair(id1, id2)) harmony += 10;
+    
+    return Math.max(20, Math.min(95, harmony));
+  }
+
+  // 補完的なペアかどうかを判定
+  isComplementaryPair(id1, id2) {
+    const complementaryPairs = [
+      [1, 2], [3, 4], [5, 6], [7, 8], // 基本的な補完関係
+      [11, 12], [13, 14], [15, 16]   // その他の調和的関係
+    ];
+    
+    return complementaryPairs.some(pair => 
+      (pair[0] === id1 && pair[1] === id2) || 
+      (pair[0] === id2 && pair[1] === id1)
+    );
+  }
+
+  // OS相互作用の説明を生成
+  getOSInteractionDescription(os1, os2, harmony, type) {
+    const harmonyLevel = harmony >= 80 ? "高い" : harmony >= 60 ? "中程度の" : "注意が必要な";
+    
+    if (type === "interface") {
+      return `エンジンOSとインターフェースOSの間には${harmonyLevel}調和があります。内面の価値観と外面の表現が${harmony >= 60 ? "一致しており" : "やや食い違っており"}、${harmony >= 60 ? "自然な魅力" : "意識的な調整"}が${harmony >= 60 ? "表れます" : "必要です"}。`;
+    } else if (type === "safemode") {
+      return `エンジンOSとセーフモードOSの間には${harmonyLevel}関係があります。核となる価値観とストレス対処法が${harmony >= 60 ? "整合しており" : "矛盾することがあり"}、困難な状況でも${harmony >= 60 ? "一貫した対応" : "価値観との葛藤"}が${harmony >= 60 ? "可能です" : "生じる可能性があります"}。`;
+    } else {
+      return `これらの分人の間には${harmonyLevel}関係があります。`;
+    }
+  }
+
+  // OS相互作用のアドバイスを生成
+  getOSInteractionAdvice(os1, os2, harmony, type) {
+    if (harmony >= 80) {
+      return "非常に良いバランスです。このまま自然体で過ごしてください。";
+    } else if (harmony >= 60) {
+      return "良いバランスです。時々これらの分人の状態を確認してみてください。";
+    } else {
+      return "これらの分人の特徴をより深く理解し、意識的に調和を図ることで改善できます。";
+    }
+  }
+
+  // 全体的なOS動力学を分析
+  getOverallOSDynamics(engineInterface, engineSafeMode, interfaceSafeMode) {
+    const average = (engineInterface + engineSafeMode + interfaceSafeMode) / 3;
+    
+    if (average >= 80) {
+      return {
+        level: "非常に調和的",
+        description: "3つの分人が美しく調和しており、統合された人格として機能しています。",
+        advice: "この素晴らしいバランスを維持し、さらなる成長を目指しましょう。"
+      };
+    } else if (average >= 65) {
+      return {
+        level: "調和的",
+        description: "3つの分人が概ね調和しており、安定した人格バランスを保っています。",
+        advice: "現在の良いバランスを維持しつつ、時々各分人の状態を確認してみてください。"
+      };
+    } else if (average >= 50) {
+      return {
+        level: "バランス調整中",
+        description: "3つの分人の間に若干のテンションがありますが、これは成長の機会でもあります。",
+        advice: "各分人の特徴を理解し、意識的に調和を図ることで改善できます。"
+      };
+    } else {
+      return {
+        level: "要調整",
+        description: "3つの分人の間に大きなギャップがあり、統合への意識的な取り組みが必要です。",
+        advice: "まず各分人の役割を理解し、段階的に調和を図っていきましょう。"
+      };
+    }
+  }
+
+  // 他のヘルパーメソッドは既存のメソッドを活用または簡略化実装
+  generateWorkStrategy(engineOS, interfaceOS) {
+    return "エンジンOSの価値観を活かしつつ、インターフェースOSでチームに貢献する職場環境を選びましょう。";
+  }
+
+  generateRelationshipStrategy(engineOS, interfaceOS) {
+    return "本音の分人と社会的分人のバランスを取り、相手や状況に応じて適切に使い分けることで、より深い人間関係を築けます。";
+  }
+
+  generateStressManagementStrategy(engineOS, safeModeOS) {
+    return "セーフモードの特徴を理解し、緊急時の一時的対処として活用しつつ、エンジンOSの強みで根本的解決を目指しましょう。";
+  }
+
+  generatePersonalGrowthStrategy(engineOS, interfaceOS, safeModeOS) {
+    return "3つの分人をバランス良く育てることで、多面的で魅力的な人格に成長できます。";
+  }
+
+  generateDailyLifeStrategy(engineOS, interfaceOS, safeModeOS) {
+    return "日常生活では、場面に応じて最適な分人を意識的に選択し、それぞれの特徴を活かして生活しましょう。";
+  }
+
+  // 簡略化されたヘルパーメソッド群
+  getOptimalEnvironments(engineOS, dimensions) {
+    return ["価値観を重視する環境", "創造性を発揮できる場所", "深い思考が求められる分野"];
+  }
+
+  getPotentialChallenges(engineOS) {
+    return ["価値観の違いからくる対立", "理想と現実のギャップ", "他者との価値観の調整"];
+  }
+
+  getCommunicationStyle(interfaceOS) {
+    return `${interfaceOS.hexagramInfo?.name_jp || "独特"}なコミュニケーションスタイル`;
+  }
+
+  getSocialRole(interfaceOS) {
+    return "チームの中での調和的な役割";
+  }
+
+  getInteractionPattern(interfaceOS) {
+    return "状況に応じた適応的な対人パターン";
+  }
+
+  getOptimalSocialSettings(interfaceOS) {
+    return ["協調性が重視される環境", "多様性が尊重される場所", "コミュニケーションが活発な組織"];
+  }
+
+  getDefensivePattern(safeModeOS) {
+    return `${safeModeOS.hexagramInfo?.name_jp || "独特"}な防御的パターン`;
+  }
+
+  getStressTriggers(safeModeOS) {
+    return ["批判や否定", "過度なプレッシャー", "価値観の否定"];
+  }
+
+  getCopingStrategies(safeModeOS) {
+    return ["一時的な距離を取る", "信頼できる人に相談", "自分の価値観を再確認"];
+  }
+
+  getRecoveryMethods(safeModeOS) {
+    return ["エンジンOSの強みを思い出す", "支援的な環境に身を置く", "小さな成功体験を積む"];
+  }
+
+  // 残りの必要なメソッドも追加実装
+  generateBunenjinStrengths(analysisResult) {
+    return [
+      "複数の分人による多面的な対応力",
+      "状況に応じた適応的な行動選択",
+      "エンジンOSの価値観による一貫性"
+    ];
+  }
+
+  generateBunenjinGrowthAreas(analysisResult) {
+    return [
+      "分人間のより良いバランス調整",
+      "セーフモードへの過度な依存の見直し",
+      "各分人の特徴のさらなる理解"
+    ];
+  }
+
+  generateLifeStrategies(analysisResult) {
+    return {
+      personal: "エンジンOSの価値観を大切にしながら、状況に応じて他の分人も活用する",
+      professional: "インターフェースOSを活かして協調的に働き、エンジンOSで創造性を発揮する",
+      social: "相手や場面に応じて最適な分人を選択し、自然な人間関係を築く"
+    };
+  }
+
+  generateActionableRecommendations(analysisResult) {
+    return [
+      {
+        category: "日常実践",
+        action: "毎日寝る前に、今日はどの分人が活躍したかを振り返る習慣をつける",
+        benefit: "分人の特徴と活用パターンの理解が深まります"
+      },
+      {
+        category: "人間関係",
+        action: "相手との関係性に応じて、意識的に最適な分人を選択する",
+        benefit: "より自然で効果的なコミュニケーションが可能になります"
+      },
+      {
+        category: "ストレス管理",
+        action: "セーフモードが発動した時は、まず自分を受け入れてからエンジンOSの視点で対処法を考える",
+        benefit: "一時的な防御から建設的な解決へとスムーズに移行できます"
+      }
+    ];
+  }
+
+  generateEnhancedTripleOSInsights(analysisResult) {
+    const { engineOS, interfaceOS, safeModeOS, consistencyScore } = analysisResult;
+    
+    return {
+      engineInsight: `エンジンOS「${engineOS.osName}」は、あなたの価値観の核となる分人です。重要な決断時や一人の時間に最も活発になり、人生の方向性を決める重要な役割を担っています。`,
+      interfaceInsight: `インターフェースOS「${interfaceOS.hexagramInfo?.name_jp || "社会的分人"}」は、他者との関わりで表れる社会的な分人です。この分人を理解し活用することで、より効果的なコミュニケーションが可能になります。`,
+      safeModeInsight: `セーフモードOS「${safeModeOS.hexagramInfo?.name_jp || "防御的分人"}」は、困難な状況で自分を守る防御的な分人です。適切に活用することで、ストレスに対処しながら成長することができます。`,
+      consistencyInsight: `3つの分人の一貫性は${Math.round(consistencyScore?.overall * 100 || 70)}%です。${this.interpretConsistencyLevel(consistencyScore?.overall || 0.7)}`,
+      integrationAdvice: "分人思想の真髄は、「本当の自分探し」ではなく「場面に応じた最適な分人の選択」にあります。それぞれの分人の特徴を理解し、意識的に活用することで、より豊かで自然な人生を送ることができます。"
     };
   }
 }

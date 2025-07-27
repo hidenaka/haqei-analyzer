@@ -748,49 +748,42 @@ class DataManager {
     }
   }
 
-  // 既存のメソッドはそのまま維持
+  // 高効率メソッド群
   getWorldviewQuestions() {
+    const operationStart = performance.now();
+    this.performanceMetrics.operationCount++;
+    
     try {
+      const cacheKey = 'worldviewQuestions';
+      
+      // キャッシュから取得試行
+      const cached = this.getFromCache(cacheKey);
+      if (cached) {
+        this.performanceMetrics.cacheHits++;
+        this.updatePerformanceMetrics(operationStart, 'getWorldviewQuestions_cached');
+        return cached;
+      }
+      this.performanceMetrics.cacheMisses++;
+
       console.log(`🔍 [DataManager] getWorldviewQuestions開始`);
 
-      if (!this.loaded) {
-        const errorMsg =
-          "DataManagerが初期化されていません。システムの初期化をお待ちください。";
-        console.error(`❌ [DataManager] ${errorMsg}`);
-        throw new Error(errorMsg);
-      }
-
-      if (!this.data) {
-        const errorMsg =
-          "データオブジェクトが存在しません。ページを再読み込みしてください。";
-        console.error(`❌ [DataManager] ${errorMsg}`);
-        throw new Error(errorMsg);
-      }
+      this.validateState();
 
       const result = this.data.questions?.worldview || [];
 
       if (result.length === 0) {
-        console.warn(`⚠️ [DataManager] 価値観質問データが空です`);
+        this.handleWarning('価値観質問データが空です');
       }
 
-      console.log(
-        `✅ [DataManager] getWorldviewQuestions完了 - ${result.length}件`
-      );
+      // 結果をキャッシュに保存
+      this.setToCache(cacheKey, result);
+      
+      console.log(`✅ [DataManager] getWorldviewQuestions完了 - ${result.length}件`);
+      this.updatePerformanceMetrics(operationStart, 'getWorldviewQuestions');
       return result;
     } catch (error) {
-      console.error(`❌ [DataManager] getWorldviewQuestionsエラー:`, error);
-
-      // ユーザーフレンドリーなエラーメッセージを生成
-      let userMessage = "価値観質問データの取得に失敗しました。";
-      if (error.message.includes("初期化")) {
-        userMessage =
-          "システムの初期化が完了していません。しばらく待ってから再試行してください。";
-      } else if (error.message.includes("データオブジェクト")) {
-        userMessage =
-          "データファイルの読み込みに失敗しました。ページを再読み込みしてください。";
-      }
-
-      throw new Error(userMessage);
+      this.handleError('getWorldviewQuestions', error);
+      throw this.createUserFriendlyError(error, '価値観質問データの取得に失敗しました');
     }
   }
 
@@ -1628,6 +1621,165 @@ class DataManager {
         potential_weaknesses: ['データ不足', '情報不足', '詳細不明']
       };
     }
+  }
+
+  // メモリ使用量最適化
+  optimizeMemoryUsage() {
+    try {
+      // キャッシュサイズ管理
+      this.manageCacheSize();
+      
+      // ログの圧縮
+      this.compressLogs();
+      
+      console.log('👍 [DataManager] メモリ最適化完了');
+    } catch (error) {
+      this.logMessage('warn', 'optimizeMemoryUsage', 'メモリ最適化失敗', error);
+    }
+  }
+  
+  // ログの圧縮
+  compressLogs() {
+    const maxLogs = 50;
+    
+    if (this.loadingErrors.length > maxLogs) {
+      this.loadingErrors = this.loadingErrors.slice(-maxLogs);
+    }
+    if (this.loadingWarnings.length > maxLogs) {
+      this.loadingWarnings = this.loadingWarnings.slice(-maxLogs);
+    }
+    if (this.loadingInfo.length > maxLogs) {
+      this.loadingInfo = this.loadingInfo.slice(-maxLogs);
+    }
+  }
+  
+  // 高効率データ統計計算
+  calculateDataStatsOptimized() {
+    const stats = {
+      counts: {},
+      memory: {
+        estimated: 0,
+        optimized: true
+      },
+      performance: {
+        cacheHitRate: this.performanceMetrics.cacheHits / 
+          (this.performanceMetrics.cacheHits + this.performanceMetrics.cacheMisses) * 100,
+        avgOperationTime: this.performanceMetrics.totalOperationTime / 
+          this.performanceMetrics.operationCount
+      }
+    };
+    
+    // 効率的なサイズ計算
+    stats.counts = {
+      worldview: this.data.questions?.worldview?.length || 0,
+      scenarios: this.data.questions?.scenarios?.length || 0,
+      hexagrams: Array.isArray(this.data.hexagrams) ? 
+        this.data.hexagrams.length : Object.keys(this.data.hexagrams || {}).length,
+      bible: Object.keys(this.data.bible || {}).length,
+      osManual: Object.keys(this.data.osManual || {}).length,
+      vectors: Object.keys(this.data.vectors || {}).length
+    };
+    
+    return stats;
+  }
+  
+  // 状態検証
+  validateState() {
+    if (!this.loaded) {
+      throw new Error('DataManagerが初期化されていません。システムの初期化をお待ちください。');
+    }
+    if (!this.data) {
+      throw new Error('データオブジェクトが存在しません。ページを再読み込みしてください。');
+    }
+  }
+  
+  // キャッシュから取得
+  getFromCache(key) {
+    const cached = this.cache.get(key);
+    if (cached && (Date.now() - cached.timestamp) < this.cacheTimeout) {
+      cached.accessCount++;
+      return cached.data;
+    }
+    return null;
+  }
+  
+  // キャッシュに保存
+  setToCache(key, data) {
+    this.cache.set(key, {
+      data: data,
+      timestamp: Date.now(),
+      accessCount: 1
+    });
+    this.manageCacheSize();
+  }
+  
+  // エラーハンドラー初期化
+  initializeErrorHandler() {
+    if (typeof window !== 'undefined' && window.ErrorHandler) {
+      this.errorHandler = new window.ErrorHandler('data-manager-errors');
+    }
+  }
+  
+  // エラー処理
+  handleError(context, error) {
+    if (this.errorHandler) {
+      this.errorHandler.handleError(error, context, {
+        operationCount: this.performanceMetrics.operationCount,
+        cacheSize: this.cache.size
+      });
+    } else {
+      console.error(`❌ [DataManager:${context}]`, error);
+    }
+  }
+  
+  // 警告処理
+  handleWarning(message) {
+    if (this.errorHandler) {
+      this.errorHandler.showNotification(message, 'warning');
+    } else {
+      console.warn(`⚠️ [DataManager] ${message}`);
+    }
+  }
+  
+  // ユーザーフレンドリーエラー生成
+  createUserFriendlyError(error, defaultMessage) {
+    if (error.message.includes('初期化')) {
+      return new Error('システムの初期化が完了していません。しばらく待ってから再試行してください。');
+    } else if (error.message.includes('データオブジェクト')) {
+      return new Error('データファイルの読み込みに失敗しました。ページを再読み込みしてください。');
+    }
+    return new Error(defaultMessage);
+  }
+  
+  // 警告の効率的確認
+  checkWarningsOptimized() {
+    const warnings = this.getLoadingLogs().warnings;
+    if (warnings.length > 0) {
+      this.logMessage('warn', 'loadData', `読み込み警告あり: ${warnings.length}件`);
+      
+      // 特に重要な警告のみ表示
+      const criticalWarnings = warnings.filter(w => 
+        w.message.includes('critical') || 
+        w.message.includes('破損') ||
+        w.message.includes('失敗')
+      );
+      
+      if (criticalWarnings.length > 0) {
+        this.handleWarning(`重要な警告が${criticalWarnings.length}件あります`);
+      }
+    }
+  }
+  
+  // パフォーマンス統計取得
+  getPerformanceStats() {
+    const loadTime = this.performanceMetrics.loadEndTime - this.performanceMetrics.loadStartTime;
+    return {
+      loadTime: loadTime ? loadTime.toFixed(2) + 'ms' : 'N/A',
+      operationCount: this.performanceMetrics.operationCount,
+      avgOperationTime: (this.performanceMetrics.totalOperationTime / this.performanceMetrics.operationCount).toFixed(2) + 'ms',
+      cacheHitRate: ((this.performanceMetrics.cacheHits / (this.performanceMetrics.cacheHits + this.performanceMetrics.cacheMisses)) * 100).toFixed(1) + '%',
+      cacheSize: this.cache.size
+    };
   }
 }
 

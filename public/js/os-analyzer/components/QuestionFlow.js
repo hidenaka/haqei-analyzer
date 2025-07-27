@@ -89,6 +89,15 @@ class QuestionFlow extends BaseComponent {
     const currentQuestionNum = this.currentQuestionIndex + 1;
     const totalQuestions = this.questions.length;
     const progressPercentage = (currentQuestionNum / totalQuestions) * 100;
+    const completedQuestions = this.answers.filter(answer => {
+      if (!answer) return false;
+      return answer.selectedValue || (answer.innerChoice && answer.outerChoice);
+    }).length;
+    
+    // 質問タイプを判定（価値観 vs シナリオ）
+    const isValueQuestion = this.currentQuestionIndex < (typeof WORLDVIEW_QUESTIONS !== 'undefined' ? WORLDVIEW_QUESTIONS.length : 15);
+    const questionType = isValueQuestion ? '価値観質問' : 'シナリオ質問';
+    const questionIcon = isValueQuestion ? '💭' : '🎭';
 
     console.log(
       `📊 Rendering: Question ${currentQuestionNum} of ${totalQuestions}`
@@ -97,35 +106,64 @@ class QuestionFlow extends BaseComponent {
     this.container.innerHTML = `
       <div class="question-flow-container">
         <div class="question-header">
-          <div class="progress-info">
-            <span class="current-question">${currentQuestionNum}</span>
-            <span class="total-questions">/ ${totalQuestions}</span>
-          </div>
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: ${progressPercentage}%"></div>
+          <div class="progress-section">
+            <div class="progress-info">
+              <div class="question-counter">
+                <span class="current-question">${currentQuestionNum}</span>
+                <span class="total-questions">/ ${totalQuestions}</span>
+              </div>
+              <div class="question-type-indicator">
+                <span class="type-icon">${questionIcon}</span>
+                <span class="type-text">${questionType}</span>
+              </div>
+            </div>
+            <div class="progress-visual">
+              <div class="progress-bar-container">
+                <div class="progress-bar-track"></div>
+                <div class="progress-bar-fill" style="width: ${progressPercentage}%"></div>
+                <div class="progress-milestone" style="left: ${(15 / totalQuestions) * 100}%" title="価値観質問完了"></div>
+              </div>
+              <div class="completion-stats">
+                <span class="completed-count">${completedQuestions}</span>
+                <span class="completed-label">問完了</span>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="question-content">
-          <div id="question-display">
+          <div id="question-display" class="question-display-animated">
             <!-- 質問がここに表示される -->
           </div>
         </div>
 
         <div class="question-navigation">
-          <button id="prev-btn" class="btn btn-secondary" ${
+          <button id="prev-btn" class="btn btn-secondary btn-touch-friendly" ${
             this.currentQuestionIndex === 0 ? "disabled" : ""
           }>
-            前の質問
+            <span class="btn-icon">←</span>
+            <span class="btn-text">前の質問</span>
           </button>
-          <button id="next-btn" class="btn btn-primary" disabled>
-            次の質問
+          <div class="navigation-progress">
+            <div class="nav-dots">
+              ${Array.from({length: Math.min(totalQuestions, 10)}, (_, i) => {
+                const questionIndex = Math.floor((i / 9) * (totalQuestions - 1));
+                const isCompleted = this.answers.some(a => a && a.questionId === this.questions[questionIndex]?.id);
+                const isCurrent = questionIndex === this.currentQuestionIndex;
+                return `<div class="nav-dot ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}"></div>`;
+              }).join('')}
+            </div>
+          </div>
+          <button id="next-btn" class="btn btn-primary btn-touch-friendly" disabled>
+            <span class="btn-text">次の質問</span>
+            <span class="btn-icon">→</span>
           </button>
         </div>
       </div>
     `;
 
     this.renderCurrentQuestion();
+    this.addProgressAnimations();
   }
 
   renderCurrentQuestion() {
@@ -156,6 +194,16 @@ class QuestionFlow extends BaseComponent {
       question.text || question.scenario
     );
 
+    // フェードアウト -> レンダリング -> フェードイン
+    questionDisplay.style.opacity = '0';
+    
+    setTimeout(() => {
+      this.renderQuestionContent(question, questionDisplay);
+      questionDisplay.style.opacity = '1';
+    }, 150);
+  }
+
+  renderQuestionContent(question, questionDisplay) {
     // シナリオ設問かどうかを判定
     const isScenario =
       question.scenario && question.inner_q && question.outer_q;
@@ -163,26 +211,31 @@ class QuestionFlow extends BaseComponent {
     if (isScenario) {
       // シナリオ設問の場合：inner/outer選択肢を表示
       questionDisplay.innerHTML = `
-        <div class="question-item scenario-question">
+        <div class="question-item scenario-question slide-in">
           <div class="scenario-context">
+            <div class="scenario-icon">🎭</div>
             <h3 class="scenario-title">状況設定</h3>
             <p class="scenario-text">${question.scenario}</p>
           </div>
           
           <div class="scenario-choices">
             <div class="choice-section inner-choice">
-              <h4 class="choice-title">${question.inner_q}</h4>
+              <div class="choice-header">
+                <span class="choice-icon">💭</span>
+                <h4 class="choice-title">${question.inner_q}</h4>
+              </div>
               <div class="question-options">
                 ${question.options.inner
                   .map(
-                    (option) => `
-                  <label class="option-label">
+                    (option, index) => `
+                  <label class="option-label" style="animation-delay: ${index * 0.1}s">
                     <input type="radio" name="inner-${question.id}" value="${
                       option.value
                     }" 
                            data-scoring='${JSON.stringify(option.scoring_tags)}'
                            data-choice-type="inner">
                     <div class="option-content">
+                      <div class="option-indicator"></div>
                       <span class="option-text">${option.text}</span>
                     </div>
                   </label>
@@ -193,18 +246,22 @@ class QuestionFlow extends BaseComponent {
             </div>
             
             <div class="choice-section outer-choice">
-              <h4 class="choice-title">${question.outer_q}</h4>
+              <div class="choice-header">
+                <span class="choice-icon">👥</span>
+                <h4 class="choice-title">${question.outer_q}</h4>
+              </div>
               <div class="question-options">
                 ${question.options.outer
                   .map(
-                    (option) => `
-                  <label class="option-label">
+                    (option, index) => `
+                  <label class="option-label" style="animation-delay: ${(index + question.options.inner.length) * 0.1}s">
                     <input type="radio" name="outer-${question.id}" value="${
                       option.value
                     }" 
                            data-scoring='${JSON.stringify(option.scoring_tags)}'
                            data-choice-type="outer">
                     <div class="option-content">
+                      <div class="option-indicator"></div>
                       <span class="option-text">${option.text}</span>
                     </div>
                   </label>
@@ -219,19 +276,24 @@ class QuestionFlow extends BaseComponent {
     } else {
       // 通常の価値観設問の場合
       questionDisplay.innerHTML = `
-        <div class="question-item">
-          <h3 class="question-title">${question.text}</h3>
+        <div class="question-item value-question slide-in">
+          <div class="question-header">
+            <div class="question-icon">💭</div>
+            <h3 class="question-title">${question.text}</h3>
+          </div>
           <div class="question-options">
             ${question.options
               .map(
-                (option) => `
-              <label class="option-label">
+                (option, index) => `
+              <label class="option-label" style="animation-delay: ${index * 0.1}s">
                 <input type="radio" name="question-${question.id}" value="${
                   option.value
                 }" 
                        data-scoring='${JSON.stringify(option.scoring_tags)}'>
                 <div class="option-content">
+                  <div class="option-indicator"></div>
                   <span class="option-text">${option.text}</span>
+                  <div class="option-ripple"></div>
                 </div>
               </label>
             `
@@ -244,6 +306,26 @@ class QuestionFlow extends BaseComponent {
 
     // 既存の回答があれば選択状態を復元
     this.restoreExistingAnswers(question, isScenario);
+  }
+
+  addProgressAnimations() {
+    // プログレスバーのアニメーション
+    const progressFill = this.container.querySelector('.progress-bar-fill');
+    if (progressFill) {
+      progressFill.style.transition = 'width 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+    }
+
+    // 質問カードのエントランスアニメーション
+    const questionDisplay = this.container.querySelector('#question-display');
+    if (questionDisplay) {
+      questionDisplay.style.transition = 'opacity 0.3s ease-in-out';
+    }
+
+    // ナビゲーションドットのアニメーション
+    const navDots = this.container.querySelectorAll('.nav-dot');
+    navDots.forEach((dot, index) => {
+      dot.style.animationDelay = `${index * 0.05}s`;
+    });
   }
 
   // 既存回答の復元
@@ -444,7 +526,7 @@ class QuestionFlow extends BaseComponent {
       this.updateNavigationButtons();
       this.updateProgress();
 
-      // 選択肢にアクティブスタイルを追加
+      // 選択肢にアクティブスタイルを追加（アニメーション付き）
       const choiceSection = choiceType
         ? radioElement.closest(".choice-section")
         : radioElement.closest(".question-item");
@@ -453,7 +535,22 @@ class QuestionFlow extends BaseComponent {
         choiceSection.querySelectorAll(".option-label").forEach((label) => {
           label.classList.remove("selected");
         });
-        radioElement.closest(".option-label").classList.add("selected");
+        const selectedLabel = radioElement.closest(".option-label");
+        selectedLabel.classList.add("selected");
+        
+        // リップル効果
+        const ripple = selectedLabel.querySelector('.option-ripple');
+        if (ripple) {
+          ripple.style.animation = 'none';
+          setTimeout(() => {
+            ripple.style.animation = 'ripple 0.6s ease-out';
+          }, 10);
+        }
+        
+        // ハプティックフィードバック（対応デバイスのみ）
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
       }
     } catch (error) {
       console.error("❌ Critical error in handleAnswerChange:", error);
@@ -495,14 +592,135 @@ class QuestionFlow extends BaseComponent {
 
       nextBtn.disabled = !hasAnswer;
 
-      // 最後の質問の場合はボタンテキストを変更
+      // 進捗状況に応じたメッセージとアイコンの更新
+      const btnText = nextBtn.querySelector('.btn-text');
+      const btnIcon = nextBtn.querySelector('.btn-icon');
+      
       if (this.currentQuestionIndex === this.questions.length - 1) {
-        nextBtn.textContent = "分析開始";
+        if (btnText) btnText.textContent = "分析開始";
+        if (btnIcon) btnIcon.textContent = "🚀";
         nextBtn.classList.add("btn-success");
+        
+        // 完了時の達成感演出
+        if (hasAnswer) {
+          this.showCompletionCelebration();
+        }
       } else {
-        nextBtn.textContent = "次の質問";
+        if (btnText) btnText.textContent = "次の質問";
+        if (btnIcon) btnIcon.textContent = "→";
         nextBtn.classList.remove("btn-success");
       }
+      
+      // 回答済みボタンのフィードバック
+      if (hasAnswer && !nextBtn.classList.contains('answered')) {
+        nextBtn.classList.add('answered');
+        this.showAnswerFeedback();
+      }
+    }
+    
+    // プログレス更新時の達成感演出
+    this.updateProgressWithCelebration();
+  }
+
+  showCompletionCelebration() {
+    // 完了時の視覚的フィードバック
+    const questionHeader = this.container.querySelector('.question-header');
+    if (questionHeader && !questionHeader.classList.contains('celebration')) {
+      questionHeader.classList.add('celebration');
+      
+      // 3秒後にクラスを削除
+      setTimeout(() => {
+        questionHeader.classList.remove('celebration');
+      }, 3000);
+    }
+  }
+
+  showAnswerFeedback() {
+    // 回答時の即座なフィードバック
+    const completedCount = this.container.querySelector('.completed-count');
+    if (completedCount) {
+      const currentCount = parseInt(completedCount.textContent) || 0;
+      const newCount = this.answers.filter(answer => {
+        if (!answer) return false;
+        return answer.selectedValue || (answer.innerChoice && answer.outerChoice);
+      }).length;
+      
+      if (newCount > currentCount) {
+        completedCount.style.animation = 'none';
+        setTimeout(() => {
+          completedCount.textContent = newCount;
+          completedCount.style.animation = 'countUp 0.5s ease-out';
+        }, 10);
+      }
+    }
+  }
+
+  updateProgressWithCelebration() {
+    const answeredCount = this.answers.filter(answer => {
+      if (!answer) return false;
+      return answer.selectedValue || (answer.innerChoice && answer.outerChoice);
+    }).length;
+    const totalQuestions = this.questions.length;
+    
+    // マイルストーン到達の確認（25%, 50%, 75%, 100%）
+    const milestones = [
+      Math.floor(totalQuestions * 0.25),
+      Math.floor(totalQuestions * 0.5),
+      Math.floor(totalQuestions * 0.75),
+      totalQuestions
+    ];
+    
+    const reachedMilestone = milestones.find(milestone => 
+      answeredCount === milestone && 
+      !this.reachedMilestones?.includes(milestone)
+    );
+    
+    if (reachedMilestone) {
+      if (!this.reachedMilestones) this.reachedMilestones = [];
+      this.reachedMilestones.push(reachedMilestone);
+      this.showMilestoneReached(reachedMilestone, totalQuestions);
+    }
+  }
+
+  showMilestoneReached(milestone, total) {
+    const percentage = Math.round((milestone / total) * 100);
+    const messages = {
+      25: { text: "順調に進んでいます！", icon: "🌟" },
+      50: { text: "半分完了しました！", icon: "⭐" },
+      75: { text: "もう少しで完了です！", icon: "🚀" },
+      100: { text: "すべて完了しました！", icon: "🎉" }
+    };
+    
+    const message = messages[percentage] || { text: `${percentage}%完了！`, icon: "✨" };
+    
+    // トースト通知的な表示
+    this.showToastMessage(`${message.icon} ${message.text}`);
+  }
+
+  showToastMessage(text) {
+    // 既存のトーストがあれば削除
+    const existingToast = document.querySelector('.progress-toast');
+    if (existingToast) {
+      existingToast.remove();
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = 'progress-toast';
+    toast.textContent = text;
+    
+    // プログレス表示エリアに追加
+    const progressSection = this.container.querySelector('.progress-section');
+    if (progressSection) {
+      progressSection.appendChild(toast);
+      
+      // アニメーション付きで表示
+      setTimeout(() => toast.classList.add('show'), 10);
+      
+      // 3秒後に削除
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
     }
   }
 

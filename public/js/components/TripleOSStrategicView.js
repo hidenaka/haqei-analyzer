@@ -65,75 +65,120 @@ class TripleOSStrategicView extends BaseComponent {
         await this._postRender();
     }
 
-    // AIパーソナル戦略サマリーセクション（上部横断）
+    // 分人思想ベースの戦略サマリーセクション（上部横断）
     async _renderStrategySummarySection(engineOS, interfaceOS, safeModeOS) {
         return `
         <section class="strategy-summary-section">
-            <div class="summary-header">
-                <h1 class="main-archetype-title">${engineOS.osName}として生きるあなたへ</h1>
-                <p class="archetype-subtitle">${engineOS.hexagramInfo?.catchphrase || 'あなたの人生戦略を発見しましょう'}</p>
+            <!-- 分人思想概念説明 -->
+            <div class="bunenjin-concept-intro">
+                <h1 class="main-concept-title">🎭 あなたの中に住む3人の『分人』</h1>
+                <div class="concept-explanation">
+                    <p class="concept-lead">一人の人間の中には複数の「分人」が存在します。あなたの場合はこの3つの分人で構成されています：</p>
+                    <div class="bunenjin-preview">
+                        <div class="bunenjin-card engine-preview">
+                            <div class="bunenjin-icon">🔥</div>
+                            <div class="bunenjin-info">
+                                <h3>本音の分人</h3>
+                                <p>「${engineOS.osName}」として価値観を大切にする</p>
+                            </div>
+                        </div>
+                        <div class="bunenjin-card interface-preview">
+                            <div class="bunenjin-icon">🌐</div>
+                            <div class="bunenjin-info">
+                                <h3>社会的分人</h3>
+                                <p>「${interfaceOS.hexagramInfo?.name_jp || "対人関係"}」として人と関わる</p>
+                            </div>
+                        </div>
+                        <div class="bunenjin-card safemode-preview">
+                            <div class="bunenjin-icon">🛡️</div>
+                            <div class="bunenjin-info">
+                                <h3>防御的分人</h3>
+                                <p>「${safeModeOS.hexagramInfo?.name_jp || "自己防衛"}」として自分を守る</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="concept-key-insight">
+                        <p><strong>💡 重要な気づき：</strong> 「本当の自分探し」よりも「場面に応じた最適な分人の選択」が、より豊かで自然な人生を送る秘訣です。</p>
+                    </div>
+                </div>
             </div>
             
+            <!-- AI戦略サマリー -->
             <div class="ai-strategy-summary" id="ai-strategy-summary">
                 <div class="summary-loading">
                     <div class="loading-spinner"></div>
-                    <p>あなた専用の人生戦略を生成中...</p>
+                    <p>あなた専用の分人活用戦略を生成中...</p>
                 </div>
             </div>
         </section>
         `;
     }
 
-    // 左パネル: エンジンOS（魂の動機）
+    // 左パネル: 本音の分人（エンジンOS）
     _renderEnginePanel(engineOS, engineDetails) {
         const coreKeywords = this._extractCoreKeywords(engineDetails?.engine?.core_drive);
         const strengths = engineDetails?.engine?.potential_strengths || ['データを読み込み中...'];
         const weaknesses = engineDetails?.engine?.potential_weaknesses || ['データを読み込み中...'];
 
         return `
-        <div class="os-panel engine-panel" data-os-type="engine">
+        <div class="os-panel engine-panel bunenjin-panel" data-os-type="engine">
             <div class="panel-header">
                 <div class="panel-icon">🔥</div>
                 <div class="panel-title-group">
-                    <h2 class="panel-title">魂のエンジンOS</h2>
-                    <p class="panel-subtitle">あなたを突き動かす根源的な力</p>
+                    <h2 class="panel-title">本音の分人</h2>
+                    <p class="panel-subtitle">あなたの中で最も純粋で本質的な人格</p>
+                    <p class="bunenjin-explanation">一人でいる時や心を許せる相手といる時に現れる、ありのままの「あなた」です</p>
                 </div>
             </div>
             
             <div class="panel-body">
-                <div class="os-identity">
-                    <h3 class="os-name">${engineOS.osName}</h3>
-                    <p class="os-catchphrase">${engineDetails?.catchphrase || engineOS.hexagramInfo?.catchphrase || ''}</p>
-                    <div class="strength-meter">
-                        <div class="meter-label">エンジン出力</div>
+                <div class="bunenjin-identity">
+                    <div class="bunenjin-type">
+                        <span class="type-label">本音の分人タイプ</span>
+                        <h3 class="os-name">${engineOS.osName}の人</h3>
+                    </div>
+                    <p class="os-catchphrase">「${engineDetails?.catchphrase || engineOS.hexagramInfo?.catchphrase || '深い価値観を持つ人'}」</p>
+                    
+                    <div class="authenticity-meter">
+                        <div class="meter-label">この価値観での行動確率</div>
                         <div class="meter-bar">
                             <div class="meter-fill" style="width: ${Math.round(engineOS.strength * 100)}%"></div>
                         </div>
                         <div class="meter-value">${Math.round(engineOS.strength * 100)}%</div>
+                        <div class="meter-description">
+                            ${this._getEngineStrengthAdvice(Math.round(engineOS.strength * 100)).description}
+                        </div>
                     </div>
                 </div>
 
-                <div class="core-motivation">
-                    <h4>根源的動機</h4>
-                    <div class="motivation-keywords">
+                <div class="bunenjin-core-values">
+                    <h4>🎯 この分人が大切にしていること</h4>
+                    <div class="values-keywords">
                         ${coreKeywords.map(keyword => `<span class="keyword-tag engine-keyword">${keyword}</span>`).join('')}
                     </div>
-                    <div class="motivation-statement" id="engine-motivation-statement">
-                        <div class="ai-placeholder">AI生成: モチベーション・ステートメント</div>
+                    <div class="core-motivation-statement" id="engine-motivation-statement">
+                        <div class="ai-placeholder">AI生成: この分人の核心的な価値観</div>
                     </div>
                 </div>
 
-                <div class="strengths-weaknesses">
-                    <div class="strengths-section">
-                        <h4>💪 潜在的な強み</h4>
-                        <ul class="strength-list">
+                <div class="bunenjin-expressions">
+                    <div class="positive-expressions">
+                        <h4>✨ この分人の輝く瞬間</h4>
+                        <ul class="expression-list">
                             ${strengths.map(strength => `<li>${strength}</li>`).join('')}
                         </ul>
                     </div>
                     
-                    <div class="energy-management" id="engine-energy-management">
-                        <h4>⚡ エネルギー管理法</h4>
-                        <div class="ai-placeholder">AI生成: 具体的なエネルギー管理アドバイス</div>
+                    <div class="bunenjin-nurturing" id="engine-nurturing">
+                        <h4>🌱 この分人を育てる方法</h4>
+                        <div class="ai-placeholder">AI生成: 本音の分人を強化する具体的方法</div>
+                    </div>
+                    
+                    <div class="bunenjin-usage">
+                        <h4>🏠 この分人を活かせる場面</h4>
+                        <div class="usage-scenarios" id="engine-scenarios">
+                            <div class="ai-placeholder">AI生成: 本音の分人が活躍できる環境・関係</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -141,105 +186,160 @@ class TripleOSStrategicView extends BaseComponent {
         `;
     }
 
-    // 中央パネル: インターフェースOS（社会的役割）
+    // 中央パネル: 社会的分人（インターフェースOS）
     _renderInterfacePanel(interfaceOS, interfaceDetails) {
         const behavioralPatterns = interfaceDetails?.interface?.behavioral_patterns || ['データを読み込み中...'];
         const appearance = interfaceDetails?.interface?.how_it_appears || 'データを読み込み中...';
 
         return `
-        <div class="os-panel interface-panel" data-os-type="interface">
+        <div class="os-panel interface-panel bunenjin-panel" data-os-type="interface">
             <div class="panel-header">
                 <div class="panel-icon">🌐</div>
                 <div class="panel-title-group">
-                    <h2 class="panel-title">世界との接続インターフェースOS</h2>
-                    <p class="panel-subtitle">社会の中であなたが輝く役回り</p>
+                    <h2 class="panel-title">社会的分人</h2>
+                    <p class="panel-subtitle">他者と関わる時に現れる、あなたの社交的な顔</p>
+                    <p class="bunenjin-explanation">職場や友人関係など、社会の中で役割を果たす時に活躍する分人です</p>
                 </div>
             </div>
             
             <div class="panel-body">
-                <div class="os-identity">
-                    <h3 class="os-name">${interfaceOS.osName}</h3>
-                    <p class="os-catchphrase">${interfaceDetails?.catchphrase || interfaceOS.hexagramInfo?.catchphrase || ''}</p>
-                    <div class="match-score">
-                        <div class="score-label">適合度</div>
-                        <div class="score-value">${interfaceOS.matchScore || Math.round(interfaceOS.strength * 100)}%</div>
+                <div class="bunenjin-identity">
+                    <div class="bunenjin-type">
+                        <span class="type-label">社会的分人タイプ</span>
+                        <h3 class="os-name">${interfaceOS.osName}スタイル</h3>
+                    </div>
+                    <p class="os-catchphrase">「${interfaceDetails?.catchphrase || interfaceOS.hexagramInfo?.catchphrase || '独特な魅力を持つ人'}」</p>
+                    
+                    <div class="expression-frequency">
+                        <div class="frequency-label">他者との関わりでこのスタイルが現れる頻度</div>
+                        <div class="frequency-bar">
+                            <div class="frequency-fill" style="width: ${interfaceOS.matchScore || Math.round(interfaceOS.strength * 100)}%"></div>
+                        </div>
+                        <div class="frequency-value">${interfaceOS.matchScore || Math.round(interfaceOS.strength * 100)}%</div>
+                        <div class="frequency-description">
+                            ${this._getInterfaceMatchAdvice(interfaceOS.matchScore || Math.round(interfaceOS.strength * 100)).description}
+                        </div>
                     </div>
                 </div>
 
-                <div class="social-expression">
-                    <h4>外見的特徴</h4>
-                    <p class="appearance-description">${appearance}</p>
+                <div class="bunenjin-social-style">
+                    <h4>🎭 この分人の社会的な振る舞い</h4>
+                    <p class="social-description">${appearance}</p>
+                    
+                    <div class="behavioral-patterns">
+                        <h5>典型的な行動パターン</h5>
+                        <ul class="pattern-list">
+                            ${behavioralPatterns.map(pattern => `<li>${pattern}</li>`).join('')}
+                        </ul>
+                    </div>
                 </div>
 
-                <div class="optimal-roles" id="interface-optimal-roles">
-                    <h4>🎯 推奨される役回り・立場</h4>
-                    <div class="ai-placeholder">AI生成: 具体的な職種・役割・シチュエーション</div>
+                <div class="bunenjin-social-optimization">
+                    <div class="optimal-environments" id="interface-optimal-roles">
+                        <h4>🎯 この分人が輝く環境・役割</h4>
+                        <div class="ai-placeholder">AI生成: 社会的分人が力を発揮できる具体的な場面</div>
+                    </div>
+
+                    <div class="relationship-dynamics" id="interface-relationship-dynamics">
+                        <h4>🤝 人間関係での特徴</h4>
+                        <div class="ai-placeholder">AI生成: この分人が築く人間関係の特徴</div>
+                    </div>
+
+                    <div class="growth-areas" id="interface-growth-areas">
+                        <h4>📈 この分人の成長ポイント</h4>
+                        <div class="ai-placeholder">AI生成: 社会的分人をより効果的に活用する方法</div>
+                    </div>
                 </div>
 
-                <div class="behavioral-patterns">
-                    <h4>⚙️ 典型的な行動パターン</h4>
-                    <ul class="pattern-list">
-                        ${behavioralPatterns.map(pattern => `<li>${pattern}</li>`).join('')}
-                    </ul>
-                </div>
-
-                <div class="warning-zones" id="interface-warning-zones">
-                    <h4>⚠️ 警告ゾーン（苦手な環境）</h4>
-                    <div class="ai-placeholder">AI生成: 避けるべき環境・状況</div>
+                <div class="bunenjin-balance">
+                    <h4>⚖️ 本音の分人との関係</h4>
+                    <div class="balance-indicator" id="interface-balance-indicator">
+                        <div class="ai-placeholder">AI生成: 本音と社会的な顔のバランス分析</div>
+                    </div>
                 </div>
             </div>
         </div>
         `;
     }
 
-    // 右パネル: セーフモードOS（自己防衛機能）
+    // 右パネル: 防御的分人（セーフモードOS）
     _renderSafeModePanel(safeModeOS, safeModeDetails) {
         const triggerSituations = safeModeDetails?.safe_mode?.trigger_situations || ['データを読み込み中...'];
         const defensivePatterns = safeModeDetails?.safe_mode?.defensive_patterns || ['データを読み込み中...'];
         const internalState = safeModeDetails?.safe_mode?.internal_state || 'データを読み込み中...';
 
         return `
-        <div class="os-panel safemode-panel" data-os-type="safemode">
+        <div class="os-panel safemode-panel bunenjin-panel" data-os-type="safemode">
             <div class="panel-header">
                 <div class="panel-icon">🛡️</div>
                 <div class="panel-title-group">
-                    <h2 class="panel-title">心のセーフモードOS</h2>
-                    <p class="panel-subtitle">あなたを守る無意識の防御システム</p>
+                    <h2 class="panel-title">防御的分人</h2>
+                    <p class="panel-subtitle">困難な状況で自分を守ろうとする、慎重で用心深い人格</p>
+                    <p class="bunenjin-explanation">ストレスや脅威を感じた時に現れ、あなたを守ろうとする分人です</p>
                 </div>
             </div>
             
             <div class="panel-body">
-                <div class="os-identity">
-                    <h3 class="os-name">${safeModeOS.osName}</h3>
-                    <p class="os-catchphrase">${safeModeDetails?.catchphrase || safeModeOS.hexagramInfo?.catchphrase || ''}</p>
-                    <div class="activation-level">
-                        <div class="level-label">発動レベル</div>
-                        <div class="level-value">${safeModeOS.matchScore || Math.round(safeModeOS.strength * 100)}%</div>
+                <div class="bunenjin-identity">
+                    <div class="bunenjin-type">
+                        <span class="type-label">防御的分人タイプ</span>
+                        <h3 class="os-name">${safeModeOS.osName}モード</h3>
+                    </div>
+                    <p class="os-catchphrase">「${safeModeDetails?.catchphrase || safeModeOS.hexagramInfo?.catchphrase || '自分を守る知恵を持つ人'}」</p>
+                    
+                    <div class="defense-activation">
+                        <div class="activation-label">困難な状況でこの分人が現れる頻度</div>
+                        <div class="activation-bar">
+                            <div class="activation-fill" style="width: ${safeModeOS.matchScore || Math.round(safeModeOS.strength * 100)}%"></div>
+                        </div>
+                        <div class="activation-value">${safeModeOS.matchScore || Math.round(safeModeOS.strength * 100)}%</div>
+                        <div class="activation-description">
+                            ${this._getSafeModeActivationAdvice(safeModeOS.matchScore || Math.round(safeModeOS.strength * 100)).description}
+                        </div>
                     </div>
                 </div>
 
-                <div class="trigger-analysis">
-                    <h4>🚨 起動トリガー</h4>
+                <div class="bunenjin-defensive-wisdom">
+                    <h4>🚨 この分人が警戒する状況</h4>
                     <ul class="trigger-list">
-                        ${triggerSituations.map(trigger => `<li>${trigger}</li>`).join('')}
+                        ${triggerSituations.map(trigger => `<li><span class="trigger-icon">⚠️</span>${trigger}</li>`).join('')}
+                    </ul>
+                    
+                    <div class="inner-experience">
+                        <h5>💭 その時の内面体験</h5>
+                        <p class="state-description">${internalState}</p>
+                    </div>
+                </div>
+
+                <div class="bunenjin-defensive-actions">
+                    <h4>🛡️ この分人の保護行動</h4>
+                    <ul class="defense-behavior-list">
+                        ${defensivePatterns.map(pattern => `<li><span class="defense-icon">🔒</span>${pattern}</li>`).join('')}
                     </ul>
                 </div>
 
-                <div class="defensive-behaviors">
-                    <h4>🔒 典型的な言動パターン</h4>
-                    <ul class="behavior-list">
-                        ${defensivePatterns.map(pattern => `<li>${pattern}</li>`).join('')}
-                    </ul>
+                <div class="bunenjin-healthy-defense">
+                    <div class="healthy-usage" id="safemode-healthy-usage">
+                        <h4>✨ この分人の健全な活用法</h4>
+                        <div class="ai-placeholder">AI生成: 防御的分人を建設的に活用する方法</div>
+                    </div>
+
+                    <div class="recovery-guidance" id="safemode-recovery-guidance">
+                        <h4>🌱 他の分人への切り替え方法</h4>
+                        <div class="ai-placeholder">AI生成: 防御モードから本音・社会的分人への復帰方法</div>
+                    </div>
+
+                    <div class="bunenjin-integration" id="safemode-integration">
+                        <h4>🤝 3つの分人の調和</h4>
+                        <div class="ai-placeholder">AI生成: 防御的分人と他の分人のバランスの取り方</div>
+                    </div>
                 </div>
 
-                <div class="internal-state">
-                    <h4>💭 その時の内面状態</h4>
-                    <p class="state-description">${internalState}</p>
-                </div>
-
-                <div class="recovery-procedures" id="safemode-recovery-procedures">
-                    <h4>🔄 安全に再起動するための手順</h4>
-                    <div class="ai-placeholder">AI生成: 具体的な回復・対処アクション</div>
+                <div class="bunenjin-acceptance">
+                    <h4>💝 この分人への感謝</h4>
+                    <div class="acceptance-message">
+                        <p>この防御的分人は、あなたが困難な状況を乗り越えるために発達した大切な知恵です。責めるのではなく、その役割を理解し、適切に活用することが成長につながります。</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -521,6 +621,98 @@ class TripleOSStrategicView extends BaseComponent {
         const panel = this.container.querySelector(`[data-os-type="${panelType}"]`);
         if (panel) {
             panel.classList.toggle('collapsed');
+        }
+    }
+
+    // === 新しいヘルパーメソッド群（分人思想対応） ===
+
+    // エンジンOSの強度に基づくアドバイス
+    _getEngineStrengthAdvice(strengthPercentage) {
+        if (strengthPercentage >= 90) {
+            return {
+                level: "非常に強固な価値観",
+                description: "この価値観があなたの判断と行動の核となっています。ほぼ確実にこの価値観に基づいて人生の重要な決断をします。"
+            };
+        } else if (strengthPercentage >= 80) {
+            return {
+                level: "強固な価値観",
+                description: "この価値観があなたの行動指針として強く働いています。重要な場面で高い頻度でこの価値観が表れます。"
+            };
+        } else if (strengthPercentage >= 70) {
+            return {
+                level: "安定した価値観",
+                description: "この価値観があなたの行動パターンに一定の影響を与えています。多くの場面でこの価値観が反映されます。"
+            };
+        } else if (strengthPercentage >= 50) {
+            return {
+                level: "中程度の価値観",
+                description: "この価値観は時々あなたの判断に影響を与えます。状況によってこの価値観が表れたり表れなかったりします。"
+            };
+        } else {
+            return {
+                level: "潜在的な価値観",
+                description: "この価値観は現在それほど強くありませんが、適切に育てることで大きな力となる可能性があります。"
+            };
+        }
+    }
+
+    // インターフェースOSのマッチ度に基づくアドバイス
+    _getInterfaceMatchAdvice(matchScore) {
+        if (matchScore >= 70) {
+            return {
+                level: "高い表現力",
+                description: "あなたのエンジンOSの価値観が、この社会的スタイルとして自然に表れます。このコミュニケーションスタイルはあなたらしさの良い表現です。"
+            };
+        } else if (matchScore >= 50) {
+            return {
+                level: "中程度の表現力",
+                description: "このコミュニケーションスタイルは時々表れます。意識的に活用することで、対人関係でより効果的な表現ができます。"
+            };
+        } else if (matchScore >= 30) {
+            return {
+                level: "控えめな表現力",
+                description: "このスタイルはあまり自然には表れませんが、必要な場面で意識的に使うことで新たな魅力を発見できます。"
+            };
+        } else if (matchScore >= 10) {
+            return {
+                level: "潜在的な表現力",
+                description: "このスタイルはほとんど表れませんが、訓練や意識的な取り組みで開発できる可能性があります。"
+            };
+        } else {
+            return {
+                level: "未開発の表現力",
+                description: "現在このスタイルはあまり使われていませんが、他のコミュニケーション方法と組み合わせることで補完できます。"
+            };
+        }
+    }
+
+    // セーフモードOSの発動頻度に基づくアドバイス
+    _getSafeModeActivationAdvice(activationScore) {
+        if (activationScore >= 70) {
+            return {
+                level: "高頻度発動",
+                description: "ストレス時によくこの防御パターンを使います。この分人の特徴を理解し、適切にコントロールすることが重要です。"
+            };
+        } else if (activationScore >= 50) {
+            return {
+                level: "中頻度発動",
+                description: "困難な状況でしばしばこの防御パターンが現れます。緊急時の対処として活用しつつ、バランスを保ちましょう。"
+            };
+        } else if (activationScore >= 30) {
+            return {
+                level: "低頻度発動",
+                description: "この防御パターンは時々使われます。必要な時の選択肢として理解しておき、他の対処法も併せて活用しましょう。"
+            };
+        } else if (activationScore >= 10) {
+            return {
+                level: "稀に発動",
+                description: "この防御パターンはあまり使われません。極限状況での最後の手段として機能する可能性があります。"
+            };
+        } else {
+            return {
+                level: "ほとんど発動しない",
+                description: "この防御パターンはほとんど使われません。他の対処法を主に使用し、この方法は予備として理解しておきましょう。"
+            };
         }
     }
 }

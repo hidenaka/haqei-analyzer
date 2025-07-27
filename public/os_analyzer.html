@@ -17,16 +17,14 @@
       rel="stylesheet"
     />
 
-    <!-- Styles -->
+    <!-- 統合済みスタイルシート -->
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/components.css" />
     <link rel="stylesheet" href="css/animations.css" />
-    <link rel="stylesheet" href="css/compatibility-details.css" />
-    <link rel="stylesheet" href="css/polish.css" />
-    <link rel="stylesheet" href="css/personality-os-boot-sequence.css" />
     <link rel="stylesheet" href="css/interactive-ui.css" />
     <link rel="stylesheet" href="css/strategic-dashboard.css" />
-
+    <link rel="stylesheet" href="css/premium-integration.css" />
+    
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   </head>
@@ -80,125 +78,47 @@
       </section>
     </div>
 
-    <!-- 共通ライブラリ -->
+    <!-- 基盤ライブラリ -->
     <script src="./js/shared/core/BaseComponent.js"></script>
     <script src="./js/shared/core/StorageManager.js"></script>
     <script src="./js/shared/core/DataManager.js"></script>
     <script src="./js/shared/core/ErrorHandler.js"></script>
+    <script src="./js/shared/core/DiagnosisDataFormat.js"></script>
+    <script src="./js/shared/core/CrossPlatformBridge.js"></script>
     <script src="./js/shared/utils/validators.js"></script>
     <script src="./js/shared/utils/animations.js"></script>
+
+    <!-- データリソース -->
     <script src="./js/shared/data/questions.js"></script>
     <script src="./js/shared/data/vectors.js"></script>
-
-    <!-- 共通データファイル -->
     <script src="./js/data/data_box.js"></script>
     <script src="./js/data/compatibility_definition.js"></script>
     <script src="./assets/os_manual_database.js"></script>
-
-    <!-- OS Analyzer専用データ -->
     <script src="./js/os-analyzer/data/hexagrams.js"></script>
     <script src="./js/os-analyzer/data/hexagram_details.js"></script>
     <script src="./js/os-analyzer/data/compatibility_matrix.js"></script>
     <script src="./js/os-analyzer/data/action_plans.js"></script>
 
-    <!-- ユーティリティ -->
-    <script src="js/utils/hexagram-dynamics-calculator.js"></script>
-    <script src="js/utils/hexagram-details-fallback.js"></script>
+    <!-- コアエンジン（依存関係順） -->
+    <script src="js/os-analyzer/core/Calculator.js"></script>
+    <script src="js/os-analyzer/engines/CompatibilityDataLoader.js"></script>
+    <script src="js/os-analyzer/core/Engine.js"></script>
+    <script src="js/os-analyzer/core/TripleOSEngine.js"></script>
+    <script src="js/os-analyzer/core/PersonalStrategyAI.js"></script>
+    <script src="js/os-analyzer/engines/CompatibilityEngine.js"></script>
+    <script src="js/os-analyzer/engines/InsightEngine.js"></script>
 
-    <!-- OS Analyzerコアエンジン -->
-    <script
-      src="js/os-analyzer/core/Calculator.js"
-      onerror="console.error('❌ Failed to load Calculator.js')"
-    ></script>
-    <script
-      src="js/os-analyzer/engines/CompatibilityDataLoader.js"
-      onerror="console.error('❌ Failed to load CompatibilityDataLoader.js')"
-    ></script>
-    <script
-      src="js/os-analyzer/core/Engine.js"
-      onerror="console.error('❌ Failed to load Engine.js')"
-    ></script>
-    <script
-      src="js/os-analyzer/core/TripleOSEngine.js"
-      onerror="console.error('❌ Failed to load TripleOSEngine.js')"
-    ></script>
-    <script
-      src="js/os-analyzer/core/PersonalStrategyAI.js"
-      onerror="console.error('❌ Failed to load PersonalStrategyAI.js')"
-    ></script>
-    <script
-      src="js/os-analyzer/engines/CompatibilityEngine.js"
-      onerror="console.error('❌ Failed to load CompatibilityEngine.js')"
-    ></script>
-    <script
-      src="js/os-analyzer/engines/InsightEngine.js"
-      onerror="console.error('❌ Failed to load InsightEngine.js')"
-    ></script>
+    <!-- UIコンポーネント -->
+    <script src="js/os-analyzer/components/WelcomeScreen.js"></script>
+    <script src="js/os-analyzer/components/QuestionFlow.js"></script>
+    <script src="js/os-analyzer/components/AnalysisView.js"></script>
+    <script src="js/os-analyzer/components/ResultsView.js"></script>
+    <script src="js/components/TripleOSResultsView.js"></script>
+    <script src="js/components/TripleOSStrategicView.js"></script>
+    <script src="js/components/InsightPanel.js"></script>
 
-    <script>
-      console.log("🔍 [Debug] コアクラス読み込み完了チェック");
-      console.log("DataManager:", typeof DataManager);
-      console.log("Calculator:", typeof Calculator);
-      console.log("TripleOSEngine:", typeof TripleOSEngine);
-    </script>
-
-    <!-- OS Analyzerコンポーネント -->
-    <script
-      src="js/os-analyzer/components/WelcomeScreen.js"
-      onerror="console.error('❌ Failed to load WelcomeScreen.js')"
-    ></script>
-    <script
-      src="js/os-analyzer/components/QuestionFlow.js"
-      onerror="console.error('❌ Failed to load QuestionFlow.js')"
-    ></script>
-    <script
-      src="js/os-analyzer/components/AnalysisView.js"
-      onerror="console.error('❌ Failed to load AnalysisView.js')"
-    ></script>
-    <script
-      src="js/os-analyzer/components/ResultsView.js"
-      onerror="console.error('❌ Failed to load ResultsView.js')"
-    ></script>
-    <script
-      src="js/components/TripleOSResultsView.js"
-      onerror="console.error('❌ Failed to load TripleOSResultsView.js')"
-    ></script>
-    <script
-      src="js/components/TripleOSStrategicView.js"
-      onerror="console.error('❌ Failed to load TripleOSStrategicView.js')"
-    ></script>
-    <script
-      src="js/components/InteractiveConnectionsVisualizer.js"
-      onerror="console.error('❌ Failed to load InteractiveConnectionsVisualizer.js')"
-    ></script>
-    <script
-      src="js/components/InsightPanel.js"
-      onerror="console.error('❌ Failed to load InsightPanel.js')"
-    ></script>
-
-    <script>
-      console.log("🔍 [Debug] コンポーネント読み込み完了チェック");
-      console.log("WelcomeScreen:", typeof WelcomeScreen);
-      console.log("QuestionFlow:", typeof QuestionFlow);
-      console.log("TripleOSResultsView:", typeof TripleOSResultsView);
-    </script>
-
-    <script>
-      console.log(
-        "🕵️‍♂️ [TRACE-CHECKPOINT 1] app.js実行直前のクラス定義を検証します。"
-      );
-      console.log(
-        " -> TripleOSResultsViewは存在するか？:",
-        typeof TripleOSResultsView
-      );
-      console.log(
-        " -> CompatibilityDataLoaderは存在するか？:",
-        typeof CompatibilityDataLoader
-      );
-    </script>
-
+    <!-- アプリケーション初期化 -->
     <script src="js/app.js"></script>
 
-    <!-- メインアプリケーション -->
   </body>
 </html>

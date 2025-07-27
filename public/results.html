@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HaQei Analyzer - 分析結果</title>
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/interactive-ui.css">
     <link rel="stylesheet" href="css/user-friendly-display.css">
+    <link rel="stylesheet" href="css/strategic-dashboard.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
@@ -14,58 +19,77 @@
     </div>
 
     <!-- データファイル -->
-    <script src="./js/data/data_box.js"></script>
-    <script src="./js/data/questions.js"></script>
-    <script src="./js/data/vectors.js"></script>
-    <script src="./js/data/hexagrams.js"></script>
-    <script src="js/utils/validators.js"></script>
-    <script src="js/utils/animations.js"></script>
+    <script type="text/javascript" src="./js/data/data_box.js"></script>
+    <script type="text/javascript" src="./js/shared/data/questions.js"></script>
+    <script type="text/javascript" src="./js/shared/data/vectors.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/data/hexagrams.js"></script>
+    <script type="text/javascript" src="./js/shared/utils/validators.js"></script>
+    <script type="text/javascript" src="./js/shared/utils/animations.js"></script>
 
-    <!-- コンポーネント -->
-    <script src="js/core/StorageManager.js"></script>
-    <script src="js/core/DataManager.js"></script>
-    <script src="js/core/BaseComponent.js"></script>
-    <script src="js/core/CompatibilityDataLoader.js"></script>
-    <script src="js/components/TripleOSResultsView.js"></script>
+    <!-- 基盤ライブラリ（依存関係順） -->
+    <script type="text/javascript" src="./js/shared/core/BaseComponent.js"></script>
+    <script type="text/javascript" src="./js/shared/core/StorageManager.js"></script>
+    <script type="text/javascript" src="./js/shared/core/DataManager.js"></script>
+    <script type="text/javascript" src="./js/shared/core/ErrorHandler.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/engines/CompatibilityDataLoader.js"></script>
+    
+    <!-- UIコンポーネント -->
+    <script type="text/javascript" src="./js/components/TripleOSResultsView.js"></script>
 
     <script>
         // 結果表示専用シンプル初期化
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('🎯 HaQei Results Page Loading...');
             
-            // ストレージから分析結果を取得
-            const storageManager = new StorageManager();
-            const analysisResult = storageManager.getAnalysisResult();
-            const insights = storageManager.getInsights();
+            try {
+                // ストレージから分析結果を取得
+                const storageManager = new StorageManager();
+                const analysisResult = storageManager.getAnalysisResult();
+                const insights = storageManager.getInsights();
+                
+                console.log('📊 Analysis result:', analysisResult);
+                console.log('💡 Insights:', insights);
             
-            if (!analysisResult) {
+                if (!analysisResult) {
+                    document.getElementById('results-container').innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #f1f5f9; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <h2 style="margin-bottom: 1rem;">⚠️ 分析結果が見つかりません</h2>
+                            <p style="margin-bottom: 2rem;">まず診断を完了してください。</p>
+                            <a href="os_analyzer.html" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">診断ページに戻る</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // DataManager初期化
+                const dataManager = new DataManager();
+                await dataManager.loadData();
+
+                // CompatibilityDataLoader初期化
+                const compatibilityLoader = new CompatibilityDataLoader();
+
+                // 対話型UI表示
+                const resultsView = new TripleOSResultsView('results-container', {
+                    analysisResult: analysisResult,
+                    insights: insights,
+                    compatibilityLoader: compatibilityLoader,
+                    dataManager: dataManager
+                });
+
+                await resultsView.init();
+                console.log('✅ Results page initialized successfully');
+                
+            } catch (error) {
+                console.error('❌ Results page initialization failed:', error);
                 document.getElementById('results-container').innerHTML = `
                     <div style="text-align: center; padding: 2rem; color: #f1f5f9; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <h2 style="margin-bottom: 1rem;">⚠️ 分析結果が見つかりません</h2>
-                        <p style="margin-bottom: 2rem;">まず診断を完了してください。</p>
+                        <h2 style="margin-bottom: 1rem;">⚠️ エラーが発生しました</h2>
+                        <p style="margin-bottom: 2rem;">ページの読み込み中にエラーが発生しました。</p>
+                        <p style="margin-bottom: 2rem; font-family: monospace; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 0.5rem; max-width: 600px;">${error.message}</p>
                         <a href="os_analyzer.html" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">診断ページに戻る</a>
                     </div>
                 `;
-                return;
             }
-
-            // DataManager初期化
-            const dataManager = new DataManager();
-            await dataManager.loadData();
-
-            // CompatibilityDataLoader初期化
-            const compatibilityLoader = new CompatibilityDataLoader();
-
-            // 対話型UI表示
-            const resultsView = new TripleOSResultsView('results-container', {
-                analysisResult: analysisResult,
-                insights: insights,
-                compatibilityLoader: compatibilityLoader,
-                dataManager: dataManager
-            });
-
-            await resultsView.init();
-            console.log('✅ Results page initialized successfully');
         });
     </script>
 </body>
