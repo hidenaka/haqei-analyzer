@@ -1311,10 +1311,336 @@ class TripleOSResultsView extends BaseComponent {
     return finalValue;
   }
 
-  // エンジンOS詳細のフォールバック処理
+  // 共通エラーハンドリング: データ品質チェック
+  validateHexagramData(hexagramData, hexagramId) {
+    const validation = {
+      isValid: false,
+      hasBasicInfo: false,
+      hasScores: false,
+      hasKeywords: false,
+      fallbackLevel: 'full'
+    };
+
+    if (!hexagramData) {
+      console.warn(`⚠️ hexagramData for ID ${hexagramId} is null or undefined`);
+      validation.fallbackLevel = 'full';
+      return validation;
+    }
+
+    // 基本情報チェック
+    if (hexagramData.name_jp || hexagramData.description) {
+      validation.hasBasicInfo = true;
+    }
+
+    // スコアデータチェック
+    const scoreFields = ['innovation_score', 'resilience_score', 'cooperation_score', 'independence_score'];
+    if (scoreFields.some(field => typeof hexagramData[field] === 'number')) {
+      validation.hasScores = true;
+    }
+
+    // キーワードチェック
+    if (hexagramData.keywords && hexagramData.keywords.trim()) {
+      validation.hasKeywords = true;
+    }
+
+    // 総合判定
+    if (validation.hasBasicInfo && validation.hasScores && validation.hasKeywords) {
+      validation.isValid = true;
+      validation.fallbackLevel = 'minimal';
+    } else if (validation.hasBasicInfo || validation.hasKeywords) {
+      validation.isValid = true;
+      validation.fallbackLevel = 'partial';
+    } else {
+      validation.fallbackLevel = 'full';
+    }
+
+    console.log(`🔍 [データ品質チェック] hexagramId: ${hexagramId}`, validation);
+    return validation;
+  }
+
+  // 共通エラーハンドリング: 安全な文字列生成
+  safeStringGenerate(generator, fallback, context = '') {
+    try {
+      const result = generator();
+      if (Array.isArray(result) && result.length === 0) {
+        console.warn(`⚠️ Empty array generated for ${context}, using fallback`);
+        return fallback;
+      }
+      if (typeof result === 'string' && result.trim() === '') {
+        console.warn(`⚠️ Empty string generated for ${context}, using fallback`);
+        return fallback;
+      }
+      return result;
+    } catch (error) {
+      console.error(`❌ Error in ${context} generation:`, error);
+      return fallback;
+    }
+  }
+
+  // 共通エラーハンドリング: DOM要素の安全な更新
+  safeUpdateElement(elementId, htmlContent, fallbackMessage = '') {
+    try {
+      const element = document.getElementById(elementId);
+      if (!element) {
+        console.warn(`⚠️ Element with ID '${elementId}' not found`);
+        return false;
+      }
+      
+      if (!htmlContent || htmlContent.trim() === '') {
+        console.warn(`⚠️ Empty content for element '${elementId}', using fallback`);
+        element.innerHTML = fallbackMessage || `<div class="error-note"><small>❌ データの読み込みに失敗しました</small></div>`;
+        return false;
+      }
+
+      element.innerHTML = htmlContent;
+      return true;
+    } catch (error) {
+      console.error(`❌ Error updating element '${elementId}':`, error);
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.innerHTML = `<div class="error-note"><small>❌ 表示エラーが発生しました</small></div>`;
+      }
+      return false;
+    }
+  }
+
+  // ヘルパー: hexagramデータから動的な強みを生成
+  generateDynamicStrengths(hexagramData, hexagramId) {
+    if (!hexagramData) {
+      return [
+        "戦略的な思考力",
+        "独自の価値観による判断力",
+        "深い洞察力"
+      ];
+    }
+
+    const strengths = [];
+    const keywords = hexagramData.keywords ? hexagramData.keywords.split(',') : [];
+    
+    // キーワードから強みを生成
+    keywords.forEach(keyword => {
+      switch(keyword.trim()) {
+        case '創造':
+        case 'リーダーシップ':
+          strengths.push(`${hexagramData.name_jp}特有の創造的リーダーシップ`);
+          break;
+        case '受容':
+        case 'サポート':
+          strengths.push(`深い包容力と人を育てる才能`);
+          break;
+        case '力':
+          strengths.push(`困難を打破する強靭な精神力`);
+          break;
+        case '探求':
+        case '洞察':
+          strengths.push(`物事の本質を見抜く洞察力`);
+          break;
+        default:
+          strengths.push(`${keyword}を活かした独自の強み`);
+      }
+    });
+
+    // 各卦の特性スコアから強みを追加
+    if (hexagramData.innovation_score > 7) {
+      strengths.push("革新的なアイデアを生み出す力");
+    }
+    if (hexagramData.resilience_score > 7) {
+      strengths.push("逆境を乗り越える回復力");
+    }
+    if (hexagramData.independence_score > 7) {
+      strengths.push("自立した判断力と行動力");
+    }
+
+    return strengths.slice(0, 3); // 最大3つ
+  }
+
+  // ヘルパー: hexagramデータから動的な課題を生成
+  generateDynamicChallenges(hexagramData, hexagramId) {
+    if (!hexagramData) {
+      return [
+        "価値観の違いへの対処",
+        "理想と現実のバランス調整"
+      ];
+    }
+
+    const challenges = [];
+    
+    // 各卦の特性スコアから課題を推定
+    if (hexagramData.independence_score > 8) {
+      challenges.push("独立性が強すぎて孤立しやすい傾向");
+    }
+    if (hexagramData.innovation_score > 8) {
+      challenges.push("革新的すぎて周囲とのペースが合わないリスク");
+    }
+    if (hexagramData.support_seeking_score < 4) {
+      challenges.push("人に頼ることの難しさ");
+    }
+    if (hexagramData.adaptability_score < 6) {
+      challenges.push("変化への適応に時間がかかる傾向");
+    }
+
+    // 基本的な課題も追加
+    challenges.push("自分の強みを過信するリスク");
+
+    return challenges.slice(0, 2); // 最大2つ
+  }
+
+  // ヘルパー: hexagramデータから動的なコアドライブを生成
+  generateDynamicCoreDrive(hexagramData, hexagramId) {
+    if (!hexagramData) {
+      return `第${hexagramId}卦の深い智慧を持つあなたは、独自の価値観で世界を捉える特別な存在です。`;
+    }
+
+    // descriptionまたはcatchphraseを活用
+    let coreDrive = hexagramData.description || hexagramData.catchphrase || '';
+    
+    if (!coreDrive) {
+      const keywords = hexagramData.keywords ? hexagramData.keywords.split(',') : [];
+      if (keywords.length > 0) {
+        coreDrive = `${hexagramData.name_jp}として、${keywords.join('、')}を核とした独自の価値観で人生を切り開いていく存在です。`;
+      } else {
+        coreDrive = `${hexagramData.name_jp}の特性を持つあなたは、この卦が持つ深い智慧を現代に活かす貴重な存在です。`;
+      }
+    }
+
+    return coreDrive;
+  }
+
+  // エンジンOS詳細のフォールバック処理（動的コンテンツ生成版・エラーハンドリング強化）
   loadEngineOSDetailsWithFallback(hexagramId) {
     console.log(
-      `🔧 [フォールバック] hexagramId ${hexagramId} のフォールバックデータを生成中`
+      `🔧 [Engine OS フォールバック] hexagramId ${hexagramId} のフォールバックデータを動的生成中`
+    );
+
+    try {
+      // hexagrams_masterからデータを取得
+      const hexagramData =
+        window.hexagrams_master &&
+        window.hexagrams_master.find((h) => h.hexagram_id === hexagramId);
+
+      // データ品質チェック
+      const validation = this.validateHexagramData(hexagramData, hexagramId);
+
+      // 動的コンテンツを安全に生成
+      const dynamicStrengths = this.safeStringGenerate(
+        () => this.generateDynamicStrengths(hexagramData, hexagramId),
+        ["戦略的な思考力", "独自の価値観による判断力", "深い洞察力"],
+        'Engine OS Strengths'
+      );
+
+      const dynamicChallenges = this.safeStringGenerate(
+        () => this.generateDynamicChallenges(hexagramData, hexagramId),
+        ["価値観の違いへの対処", "理想と現実のバランス調整"],
+        'Engine OS Challenges'
+      );
+
+      const dynamicCoreDrive = this.safeStringGenerate(
+        () => this.generateDynamicCoreDrive(hexagramData, hexagramId),
+        `第${hexagramId}卦の深い智慧を持つあなたは、独自の価値観で世界を捉える特別な存在です。`,
+        'Engine OS Core Drive'
+      );
+
+      // 品質レベルに応じたメッセージ調整
+      const qualityMessage = this.getQualityMessage(validation, hexagramData, hexagramId);
+
+      // 安全にDOM要素を更新
+      const strengthsHTML = `
+        <div class="strengths-content">
+            ${dynamicStrengths.map(strength => `
+                <div class="strength-item">
+                    <span class="strength-icon">⭐</span>
+                    <span class="strength-text">${strength}</span>
+                </div>
+            `).join('')}
+            <div class="fallback-note">
+                <small>${qualityMessage.strengths}</small>
+            </div>
+        </div>
+      `;
+
+      const challengesHTML = `
+        <div class="challenges-content">
+            ${dynamicChallenges.map(challenge => `
+                <div class="challenge-item">
+                    <span class="challenge-icon">⚠️</span>
+                    <span class="challenge-text">${challenge}</span>
+                </div>
+            `).join('')}
+            <div class="fallback-note">
+                <small>${qualityMessage.challenges}</small>
+            </div>
+        </div>
+      `;
+
+      const coreDriveHTML = `
+        <div class="core-drive-content">
+            <p class="summary-text">${dynamicCoreDrive}</p>
+            <div class="fallback-note">
+                <small>${qualityMessage.coreDrive}</small>
+            </div>
+        </div>
+      `;
+
+      // DOM更新の実行
+      this.safeUpdateElement("engine-strengths-list", strengthsHTML);
+      this.safeUpdateElement("engine-challenges-list", challengesHTML);
+      this.safeUpdateElement("engine-core-drive", coreDriveHTML);
+
+      console.log(`✅ [Engine OS フォールバック完了] hexagramId: ${hexagramId}, Quality: ${validation.fallbackLevel}`);
+
+    } catch (error) {
+      console.error(`❌ [Engine OS フォールバック失敗] hexagramId: ${hexagramId}`, error);
+      
+      // 最終フォールバック（緊急時）
+      const emergencyHTML = `
+        <div class="error-content">
+            <div class="error-item">
+                <span class="error-icon">⚠️</span>
+                <span class="error-text">データの読み込みに失敗しました</span>
+            </div>
+            <div class="fallback-note">
+                <small>❌ 一時的な問題が発生しています。しばらく後にお試しください。</small>
+            </div>
+        </div>
+      `;
+      
+      this.safeUpdateElement("engine-strengths-list", emergencyHTML);
+      this.safeUpdateElement("engine-challenges-list", emergencyHTML);
+      this.safeUpdateElement("engine-core-drive", emergencyHTML);
+    }
+  }
+
+  // 品質レベルに応じたメッセージ生成
+  getQualityMessage(validation, hexagramData, hexagramId) {
+    const hexagramName = hexagramData?.name_jp || `第${hexagramId}卦`;
+    
+    switch(validation.fallbackLevel) {
+      case 'minimal':
+        return {
+          strengths: `💫 ${hexagramName}の詳細な特性分析に基づく結果です`,
+          challenges: `💫 ${hexagramName}の特性から推定された注意点です`,
+          coreDrive: `💫 ${hexagramName}の本質的特性を現代的に解釈した内容です`
+        };
+      case 'partial':
+        return {
+          strengths: `💫 ${hexagramName}の基本特性に基づく分析結果です`,
+          challenges: `💫 ${hexagramName}の一般的な傾向から推定した注意点です`,
+          coreDrive: `💫 ${hexagramName}の基本的な解釈を現代的に表現しました`
+        };
+      case 'full':
+      default:
+        return {
+          strengths: `💫 分人思想の一般的な特性を表示しています`,
+          challenges: `💫 一般的な人間の傾向を表示しています`,
+          coreDrive: `💫 分人思想の基本的な考え方を表示しています`
+        };
+    }
+  }
+
+  // Interface OS用の動的フォールバック処理
+  loadInterfaceOSDetailsWithFallback(hexagramId) {
+    console.log(
+      `🔧 [Interface OS フォールバック] hexagramId ${hexagramId} のフォールバックデータを動的生成中`
     );
 
     // hexagrams_masterからデータを取得
@@ -1322,64 +1648,310 @@ class TripleOSResultsView extends BaseComponent {
       window.hexagrams_master &&
       window.hexagrams_master.find((h) => h.hexagram_id === hexagramId);
 
-    const strengthsList = document.getElementById("engine-strengths-list");
+    // Interface OS特有の動的コンテンツを生成
+    const dynamicStrengths = this.generateInterfaceStrengths(hexagramData, hexagramId);
+    const dynamicChallenges = this.generateInterfaceChallenges(hexagramData, hexagramId);
+    const dynamicCoreDrive = this.generateInterfaceCoreDrive(hexagramData, hexagramId);
+
+    const strengthsList = document.getElementById("interface-strengths-list");
     if (strengthsList) {
       strengthsList.innerHTML = `
                   <div class="strengths-content">
-                      <div class="strength-item">
-                          <span class="strength-icon">⭐</span>
-                          <span class="strength-text">この卦の特性を活かした戦略的役割</span>
-                      </div>
-                      <div class="strength-item">
-                          <span class="strength-icon">⭐</span>
-                          <span class="strength-text">${
-                            hexagramData?.name_jp || `第${hexagramId}卦`
-                          }の深い洞察力</span>
-                      </div>
-                      <div class="strength-item">
-                          <span class="strength-icon">⭐</span>
-                          <span class="strength-text">独自の価値観に基づく判断力</span>
-                      </div>
+                      ${dynamicStrengths.map(strength => `
+                          <div class="strength-item">
+                              <span class="strength-icon">🤝</span>
+                              <span class="strength-text">${strength}</span>
+                          </div>
+                      `).join('')}
                       <div class="fallback-note">
-                          <small>💫 詳細データを準備中です。基本的な特性を表示しています。</small>
+                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の対人関係特性を分析した結果です</small>
                       </div>
                   </div>
               `;
     }
 
-    const challengesList = document.getElementById("engine-challenges-list");
+    const challengesList = document.getElementById("interface-challenges-list");
     if (challengesList) {
       challengesList.innerHTML = `
                   <div class="challenges-content">
-                      <div class="challenge-item">
-                          <span class="challenge-icon">⚠️</span>
-                          <span class="challenge-text">過度な理想主義による現実とのギャップ</span>
-                      </div>
-                      <div class="challenge-item">
-                          <span class="challenge-icon">⚠️</span>
-                          <span class="challenge-text">他者との価値観の違いへの対処</span>
-                      </div>
+                      ${dynamicChallenges.map(challenge => `
+                          <div class="challenge-item">
+                              <span class="challenge-icon">⚠️</span>
+                              <span class="challenge-text">${challenge}</span>
+                          </div>
+                      `).join('')}
                       <div class="fallback-note">
-                          <small>💫 詳細データを準備中です。一般的な傾向を表示しています。</small>
+                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の対人関係での注意点です</small>
                       </div>
                   </div>
               `;
     }
 
-    const coreDrive = document.getElementById("engine-core-drive");
+    const coreDrive = document.getElementById("interface-core-drive");
     if (coreDrive) {
       coreDrive.innerHTML = `
                   <div class="core-drive-content">
-                      <p class="summary-text">${
-                        hexagramData?.description ||
-                        `第${hexagramId}卦の深い智慧を持つあなたは、独自の価値観で世界を捉える特別な存在です。`
-                      }</p>
+                      <p class="summary-text">${dynamicCoreDrive}</p>
                       <div class="fallback-note">
-                          <small>💫 詳細データを準備中です。基本的な解釈を表示しています。</small>
+                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の対人関係パターンを現代的に解釈しました</small>
                       </div>
                   </div>
               `;
     }
+  }
+
+  // Interface OS用の強み生成
+  generateInterfaceStrengths(hexagramData, hexagramId) {
+    if (!hexagramData) {
+      return [
+        "他者との調和的な関係構築",
+        "状況に応じたコミュニケーション",
+        "協調性を活かしたチームワーク"
+      ];
+    }
+
+    const strengths = [];
+    const keywords = hexagramData.keywords ? hexagramData.keywords.split(',') : [];
+    
+    // キーワードから対人関係の強みを生成
+    keywords.forEach(keyword => {
+      switch(keyword.trim()) {
+        case 'リーダーシップ':
+          strengths.push("自然な指導力で人々を導く能力");
+          break;
+        case '受容':
+        case 'サポート':
+          strengths.push("相手を受け入れ支える包容力");
+          break;
+        case '調和':
+          strengths.push("場の雰囲気を和やかにする調整力");
+          break;
+        case '協力':
+          strengths.push("チームワークを重視した協働スタイル");
+          break;
+        default:
+          strengths.push(`${keyword}を活かした独自の対人スキル`);
+      }
+    });
+
+    // 各卦の特性スコアから対人強みを追加
+    if (hexagramData.cooperation_score > 7) {
+      strengths.push("高い協調性と柔軟なコミュニケーション");
+    }
+    if (hexagramData.protection_score > 7) {
+      strengths.push("他者を守る責任感の強さ");
+    }
+
+    return strengths.slice(0, 3);
+  }
+
+  // Interface OS用の課題生成
+  generateInterfaceChallenges(hexagramData, hexagramId) {
+    if (!hexagramData) {
+      return [
+        "自分の意見を表現することの難しさ",
+        "他者に合わせすぎる傾向"
+      ];
+    }
+
+    const challenges = [];
+    
+    if (hexagramData.cooperation_score > 8) {
+      challenges.push("協調性を重視しすぎて自分を抑え込むリスク");
+    }
+    if (hexagramData.independence_score < 5) {
+      challenges.push("他者への依存度が高くなる傾向");
+    }
+    if (hexagramData.support_seeking_score > 7) {
+      challenges.push("支援を求めすぎて負担に感じられるリスク");
+    }
+
+    // 基本的な対人課題も追加
+    challenges.push("相手に合わせすぎて本音を隠しがち");
+
+    return challenges.slice(0, 2);
+  }
+
+  // Interface OS用のコアドライブ生成
+  generateInterfaceCoreDrive(hexagramData, hexagramId) {
+    if (!hexagramData) {
+      return `第${hexagramId}卦の対人関係パターンを持つあなたは、他者との調和を重視した独特なコミュニケーションスタイルを築いています。`;
+    }
+
+    const cooperation = hexagramData.cooperation_score || 5;
+    const independence = hexagramData.independence_score || 5;
+    
+    let style = "";
+    if (cooperation > 7 && independence > 7) {
+      style = "自立性と協調性のバランスが取れた理想的な";
+    } else if (cooperation > 7) {
+      style = "他者との調和を最優先とする協調的な";
+    } else if (independence > 7) {
+      style = "自分らしさを大切にする独立的な";
+    } else {
+      style = "独自のペースを大切にする";
+    }
+
+    return `${hexagramData.name_jp}として、${style}コミュニケーションスタイルで人間関係を築いていきます。この特性は現代社会における貴重な資質です。`;
+  }
+
+  // Safe Mode OS用の動的フォールバック処理
+  loadSafeModeOSDetailsWithFallback(hexagramId) {
+    console.log(
+      `🔧 [Safe Mode OS フォールバック] hexagramId ${hexagramId} のフォールバックデータを動的生成中`
+    );
+
+    // hexagrams_masterからデータを取得
+    const hexagramData =
+      window.hexagrams_master &&
+      window.hexagrams_master.find((h) => h.hexagram_id === hexagramId);
+
+    // Safe Mode OS特有の動的コンテンツを生成
+    const dynamicStrengths = this.generateSafeModeStrengths(hexagramData, hexagramId);
+    const dynamicChallenges = this.generateSafeModeChallenges(hexagramData, hexagramId);
+    const dynamicCoreDrive = this.generateSafeModeCoreDrive(hexagramData, hexagramId);
+
+    const strengthsList = document.getElementById("safemode-strengths-list");
+    if (strengthsList) {
+      strengthsList.innerHTML = `
+                  <div class="strengths-content">
+                      ${dynamicStrengths.map(strength => `
+                          <div class="strength-item">
+                              <span class="strength-icon">🛡️</span>
+                              <span class="strength-text">${strength}</span>
+                          </div>
+                      `).join('')}
+                      <div class="fallback-note">
+                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の防御・適応特性の分析結果です</small>
+                      </div>
+                  </div>
+              `;
+    }
+
+    const challengesList = document.getElementById("safemode-challenges-list");
+    if (challengesList) {
+      challengesList.innerHTML = `
+                  <div class="challenges-content">
+                      ${dynamicChallenges.map(challenge => `
+                          <div class="challenge-item">
+                              <span class="challenge-icon">⚠️</span>
+                              <span class="challenge-text">${challenge}</span>
+                          </div>
+                      `).join('')}
+                      <div class="fallback-note">
+                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の防御パターンでの注意点です</small>
+                      </div>
+                  </div>
+              `;
+    }
+
+    const coreDrive = document.getElementById("safemode-core-drive");
+    if (coreDrive) {
+      coreDrive.innerHTML = `
+                  <div class="core-drive-content">
+                      <p class="summary-text">${dynamicCoreDrive}</p>
+                      <div class="fallback-note">
+                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の自己防衛パターンを現代的に解釈しました</small>
+                      </div>
+                  </div>
+              `;
+    }
+  }
+
+  // Safe Mode OS用の強み生成
+  generateSafeModeStrengths(hexagramData, hexagramId) {
+    if (!hexagramData) {
+      return [
+        "危険を察知する鋭い直感力",
+        "困難な状況での冷静な判断",
+        "自己防衛の知恵"
+      ];
+    }
+
+    const strengths = [];
+    const keywords = hexagramData.keywords ? hexagramData.keywords.split(',') : [];
+    
+    // キーワードから防御的強みを生成
+    keywords.forEach(keyword => {
+      switch(keyword.trim()) {
+        case '安定':
+        case '慎重':
+          strengths.push("慎重さによるリスク回避能力");
+          break;
+        case '探求':
+        case '洞察':
+          strengths.push("潜在的な問題を見抜く洞察力");
+          break;
+        case '受容':
+          strengths.push("困難を受け入れ乗り越える柔軟性");
+          break;
+        default:
+          strengths.push(`${keyword}を活かした自己保護能力`);
+      }
+    });
+
+    // 各卦の特性スコアから防御的強みを追加
+    if (hexagramData.resilience_score > 7) {
+      strengths.push("困難から立ち直る強い回復力");
+    }
+    if (hexagramData.protection_score > 7) {
+      strengths.push("自他を守る強い防御本能");
+    }
+    if (hexagramData.introspection_score > 6) {
+      strengths.push("内省による自己理解の深さ");
+    }
+
+    return strengths.slice(0, 3);
+  }
+
+  // Safe Mode OS用の課題生成
+  generateSafeModeChallenges(hexagramData, hexagramId) {
+    if (!hexagramData) {
+      return [
+        "過度な警戒心による機会損失",
+        "変化への抵抗が強すぎる傾向"
+      ];
+    }
+
+    const challenges = [];
+    
+    if (hexagramData.adaptability_score < 5) {
+      challenges.push("変化に対する過度な抵抗");
+    }
+    if (hexagramData.support_seeking_score < 3) {
+      challenges.push("助けを求めることへの強い抵抗");
+    }
+    if (hexagramData.introspection_score > 8) {
+      challenges.push("内向きになりすぎて孤立するリスク");
+    }
+
+    // 基本的な防御的課題も追加
+    challenges.push("警戒心が強すぎて新しいチャンスを逃しがち");
+
+    return challenges.slice(0, 2);
+  }
+
+  // Safe Mode OS用のコアドライブ生成
+  generateSafeModeCoreDrive(hexagramData, hexagramId) {
+    if (!hexagramData) {
+      return `第${hexagramId}卦の防御パターンを持つあなたは、慎重さと自己防衛の知恵で困難な状況を乗り越えていく力を持っています。`;
+    }
+
+    const resilience = hexagramData.resilience_score || 5;
+    const protection = hexagramData.protection_score || 5;
+    
+    let defensiveStyle = "";
+    if (resilience > 7 && protection > 7) {
+      defensiveStyle = "強い回復力と防御力を兼ね備えた";
+    } else if (resilience > 7) {
+      defensiveStyle = "困難から立ち直る力に長けた";
+    } else if (protection > 7) {
+      defensiveStyle = "自他を守る強い意志を持った";
+    } else {
+      defensiveStyle = "独自のペースで自分を守る";
+    }
+
+    return `${hexagramData.name_jp}として、${defensiveStyle}セーフモードで人生の困難に対処していきます。この防御的知恵は現代の不確実な世界を生きる上で非常に価値のある資質です。`;
   }
 
   // 詳細表示ボタンのイベントリスナーを設定
