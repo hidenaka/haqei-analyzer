@@ -699,7 +699,6 @@ class TripleOSResultsView extends BaseComponent {
                                       </div>
                                   </div>
                               </div>
-                              <div class="expand-indicator">+</div>
                           </div>
                           <div class="os-card-details">
                               <div class="strengths-section">
@@ -821,7 +820,6 @@ class TripleOSResultsView extends BaseComponent {
                                       </div>
                                   </div>
                               </div>
-                              <div class="expand-indicator">+</div>
                           </div>
                           <div class="os-card-details">
                               <div class="compatibility-analysis" id="interface-compatibility">
@@ -931,7 +929,6 @@ class TripleOSResultsView extends BaseComponent {
                                       </div>
                                   </div>
                               </div>
-                              <div class="expand-indicator">+</div>
                           </div>
                           <div class="os-card-details">
                               <div class="compatibility-analysis" id="safemode-compatibility">
