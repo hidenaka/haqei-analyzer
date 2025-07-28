@@ -40,13 +40,19 @@ class HexagramDynamicsCalculator {
     };
   }
 
-  // 六十四卦の力学スコアを計算
-  calculateHexagramDynamics(upperTrigramId, lowerTrigramId) {
+  // 六十四卦の力学スコアを計算 - Phase 3フォールバック統合版
+  calculateHexagramDynamics(upperTrigramId, lowerTrigramId, fallbackContext = null) {
     const upper = this.trigramProperties[upperTrigramId];
     const lower = this.trigramProperties[lowerTrigramId];
     
     if (!upper || !lower) {
       console.warn(`⚠️ Invalid trigram IDs: upper=${upperTrigramId}, lower=${lowerTrigramId}`);
+      
+      // Phase 3: Enhanced fallback with context integration
+      if (fallbackContext) {
+        return this.generateContextualFallback(upperTrigramId, lowerTrigramId, fallbackContext);
+      }
+      
       return this.getZeroScores();
     }
 
@@ -164,6 +170,112 @@ class HexagramDynamicsCalculator {
     });
     
     return dynamics;
+  }
+
+  // Phase 3: コンテキスト統合フォールバック生成
+  generateContextualFallback(upperTrigramId, lowerTrigramId, context) {
+    console.log(`🔧 [HexagramDynamics] コンテキスト統合フォールバック生成中 (${upperTrigramId}-${lowerTrigramId})`);
+    
+    // os_analyzer分析結果から推定
+    if (context.userVector) {
+      const fallbackScores = {};
+      const userVector = context.userVector;
+      
+      // ユーザーベクトルから各次元のスコアを推定
+      Object.keys(this.getZeroScores()).forEach(dimension => {
+        // ユーザーベクトルに対応する次元があれば使用
+        const userValue = userVector[dimension] || userVector[`dimension_${dimension}`];
+        if (userValue !== undefined) {
+          fallbackScores[dimension] = Math.round(userValue * 10);
+        } else {
+          // trigram IDから基本値を推定
+          fallbackScores[dimension] = this.estimateFromTrigramId(upperTrigramId, lowerTrigramId, dimension);
+        }
+      });
+      
+      console.log(`✅ [HexagramDynamics] ユーザーベクトル統合フォールバック完了`);
+      return fallbackScores;
+    }
+    
+    // bunenjin統合フォールバック
+    if (context.bunenjin_integrated) {
+      return this.generateBunenjinIntegratedFallback(upperTrigramId, lowerTrigramId);
+    }
+    
+    // 基本推定フォールバック
+    return this.generateEstimatedFallback(upperTrigramId, lowerTrigramId);
+  }
+
+  // trigram IDから次元値を推定
+  estimateFromTrigramId(upperTrigramId, lowerTrigramId, dimension) {
+    const baseEstimates = {
+      1: { innovation: 8, stability: 6, cooperation: 4, independence: 9, intuition: 6, resilience: 8, adaptability: 6, protection: 8, support_seeking: 3, introspection: 5 },
+      2: { innovation: 6, stability: 5, cooperation: 9, independence: 4, intuition: 8, resilience: 5, adaptability: 8, protection: 4, support_seeking: 8, introspection: 6 },
+      3: { innovation: 8, stability: 4, cooperation: 7, independence: 7, intuition: 9, resilience: 6, adaptability: 7, protection: 5, support_seeking: 6, introspection: 8 },
+      4: { innovation: 8, stability: 3, cooperation: 5, independence: 8, intuition: 7, resilience: 7, adaptability: 9, protection: 6, support_seeking: 4, introspection: 5 },
+      5: { innovation: 7, stability: 6, cooperation: 8, independence: 5, intuition: 8, resilience: 6, adaptability: 9, protection: 4, support_seeking: 7, introspection: 7 },
+      6: { innovation: 6, stability: 8, cooperation: 6, independence: 6, intuition: 10, resilience: 9, adaptability: 6, protection: 8, support_seeking: 5, introspection: 9 },
+      7: { innovation: 4, stability: 10, cooperation: 5, independence: 8, intuition: 6, resilience: 8, adaptability: 4, protection: 9, support_seeking: 3, introspection: 8 },
+      8: { innovation: 3, stability: 9, cooperation: 10, independence: 2, intuition: 5, resilience: 7, adaptability: 8, protection: 6, support_seeking: 9, introspection: 6 }
+    };
+    
+    const upperEst = baseEstimates[upperTrigramId] || {};
+    const lowerEst = baseEstimates[lowerTrigramId] || {};
+    
+    return Math.round((upperEst[dimension] || 5) * 0.7 + (lowerEst[dimension] || 5) * 0.3);
+  }
+
+  // bunenjin統合フォールバック
+  generateBunenjinIntegratedFallback(upperTrigramId, lowerTrigramId) {
+    console.log(`🔧 [HexagramDynamics] bunenjin統合フォールバック生成中`);
+    
+    // bunenjin哲学に基づく調整値
+    const bunenjinAdjustment = {
+      innovation: 0.2, // 分人思想は革新的
+      adaptability: 0.3, // 状況適応が核心
+      cooperation: 0.15, // 複数の自己との協調
+      introspection: 0.25 // 自己観察が重要
+    };
+    
+    const baseScores = this.generateEstimatedFallback(upperTrigramId, lowerTrigramId);
+    
+    // bunenjin調整を適用
+    Object.keys(bunenjinAdjustment).forEach(dimension => {
+      if (baseScores[dimension] !== undefined) {
+        const adjustment = bunenjinAdjustment[dimension];
+        baseScores[dimension] = Math.min(10, Math.round(baseScores[dimension] * (1 + adjustment)));
+      }
+    });
+    
+    return baseScores;
+  }
+
+  // 基本推定フォールバック
+  generateEstimatedFallback(upperTrigramId, lowerTrigramId) {
+    const fallbackScores = {};
+    const dimensions = Object.keys(this.getZeroScores());
+    
+    dimensions.forEach(dimension => {
+      fallbackScores[dimension] = this.estimateFromTrigramId(upperTrigramId, lowerTrigramId, dimension);
+    });
+    
+    return fallbackScores;
+  }
+
+  // ゼロスコアの取得（エラー時のフォールバック）
+  getZeroScores() {
+    return {
+      innovation: 0,
+      stability: 0,
+      cooperation: 0,
+      independence: 0,
+      intuition: 0,
+      resilience: 0,
+      adaptability: 0,
+      protection: 0,
+      support_seeking: 0,
+      introspection: 0
+    };
   }
 }
 

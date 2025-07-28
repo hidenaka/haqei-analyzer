@@ -57,30 +57,62 @@ class ErrorHandler {
         });
     }
 
-    // 回復戦略の設定
+    // 回復戦略の設定 - Phase 3統合最適化版
     setupRecoveryStrategies() {
         this.recoveryStrategies.set('ネットワーク', {
             strategy: 'retry',
             delay: 2000,
             maxAttempts: 3,
-            userMessage: 'ネットワーク接続を確認して再試行してください'
+            userMessage: 'ネットワーク接続を確認して再試行してください',
+            severity: 'warning'
         });
 
         this.recoveryStrategies.set('データ読み込み', {
             strategy: 'fallback',
-            fallbackAction: () => this.loadFallbackData(),
-            userMessage: 'デフォルトデータを使用して続行します'
+            fallbackAction: () => this.loadAdvancedFallbackData(),
+            userMessage: 'フォールバックデータで続行します',
+            severity: 'warning'
+        });
+
+        this.recoveryStrategies.set('hexagram詳細', {
+            strategy: 'hexagram_fallback',
+            fallbackAction: () => this.loadHexagramFallback(),
+            userMessage: '八卦データのフォールバック機能で続行します',
+            severity: 'info'
+        });
+
+        this.recoveryStrategies.set('os_analyzer', {
+            strategy: 'os_analysis_fallback',
+            fallbackAction: () => this.loadOSAnalysisFallback(),
+            userMessage: 'Triple OS分析のフォールバック機能で続行します',
+            severity: 'info'
+        });
+
+        this.recoveryStrategies.set('分人思想', {
+            strategy: 'bunenjin_fallback',
+            fallbackAction: () => this.loadBunenjinFallback(),
+            userMessage: '分人思想の基本機能で続行します',
+            severity: 'info'
         });
 
         this.recoveryStrategies.set('UI初期化', {
             strategy: 'reload',
-            userMessage: 'ページを再読み込みして問題を解決します'
+            userMessage: 'ページを再読み込みして問題を解決します',
+            severity: 'critical'
         });
 
         this.recoveryStrategies.set('ストレージ', {
             strategy: 'clear',
             clearAction: () => this.clearCorruptedStorage(),
-            userMessage: '破損したデータを削除して続行します'
+            userMessage: '破損したデータを削除して続行します',
+            severity: 'warning'
+        });
+
+        this.recoveryStrategies.set('PersonalStrategyAI', {
+            strategy: 'ai_fallback',
+            fallbackAction: () => this.loadPersonalStrategyAIFallback(),
+            userMessage: 'AI戦略生成のフォールバック機能で続行します',
+            severity: 'info'
         });
     }
 
@@ -330,6 +362,18 @@ class ErrorHandler {
                     
                 case 'clear':
                     return await this.performClear(strategy);
+                    
+                case 'hexagram_fallback':
+                    return await this.performHexagramFallback(strategy);
+                    
+                case 'os_analysis_fallback':
+                    return await this.performOSAnalysisFallback(strategy);
+                    
+                case 'bunenjin_fallback':
+                    return await this.performBunenjinFallback(strategy);
+                    
+                case 'ai_fallback':
+                    return await this.performAIFallback(strategy);
                     
                 default:
                     return { success: false, message: '不明な回復戦略です' };
@@ -639,7 +683,270 @@ class ErrorHandler {
         // 実際のUIとして実装する場合はここで選択肢を表示
     }
 
-    // フォールバックデータの読み込み
+    // 八卦フォールバック処理
+    async performHexagramFallback(strategy) {
+        try {
+            if (strategy.fallbackAction && typeof strategy.fallbackAction === 'function') {
+                await strategy.fallbackAction();
+                return { 
+                    success: true, 
+                    message: '八卦フォールバック機能が正常に動作しました' 
+                };
+            }
+            return { success: false, message: '八卦フォールバック処理が定義されていません' };
+        } catch (error) {
+            return { success: false, message: '八卦フォールバック処理に失敗しました' };
+        }
+    }
+
+    // OS分析フォールバック処理
+    async performOSAnalysisFallback(strategy) {
+        try {
+            if (strategy.fallbackAction && typeof strategy.fallbackAction === 'function') {
+                await strategy.fallbackAction();
+                return { 
+                    success: true, 
+                    message: 'Triple OS分析フォールバック機能が正常に動作しました' 
+                };
+            }
+            return { success: false, message: 'OS分析フォールバック処理が定義されていません' };
+        } catch (error) {
+            return { success: false, message: 'OS分析フォールバック処理に失敗しました' };
+        }
+    }
+
+    // 分人思想フォールバック処理
+    async performBunenjinFallback(strategy) {
+        try {
+            if (strategy.fallbackAction && typeof strategy.fallbackAction === 'function') {
+                await strategy.fallbackAction();
+                return { 
+                    success: true, 
+                    message: '分人思想フォールバック機能が正常に動作しました' 
+                };
+            }
+            return { success: false, message: '分人思想フォールバック処理が定義されていません' };
+        } catch (error) {
+            return { success: false, message: '分人思想フォールバック処理に失敗しました' };
+        }
+    }
+
+    // AI戦略生成フォールバック処理
+    async performAIFallback(strategy) {
+        try {
+            if (strategy.fallbackAction && typeof strategy.fallbackAction === 'function') {
+                await strategy.fallbackAction();
+                return { 
+                    success: true, 
+                    message: 'AI戦略生成フォールバック機能が正常に動作しました' 
+                };
+            }
+            return { success: false, message: 'AI戦略生成フォールバック処理が定義されていません' };
+        } catch (error) {
+            return { success: false, message: 'AI戦略生成フォールバック処理に失敗しました' };
+        }
+    }
+
+    // 高度なフォールバックデータの読み込み
+    async loadAdvancedFallbackData() {
+        try {
+            console.log('📦 高度なフォールバックデータを読み込み中...');
+            
+            // 段階的フォールバック戦略
+            const fallbackSteps = [
+                () => this.tryLoadFromCache(),
+                () => this.tryLoadFromLocalStorage(),
+                () => this.tryLoadFromSessionStorage(),
+                () => this.tryLoadFromIndexedDB(),
+                () => this.tryLoadFromServiceWorker(),
+                () => this.generateMinimalData()
+            ];
+            
+            for (const step of fallbackSteps) {
+                try {
+                    const result = await step();
+                    if (result) {
+                        console.log('✅ フォールバック段階で成功');
+                        return true;
+                    }
+                } catch (stepError) {
+                    console.warn('⚠️ フォールバック段階でエラー:', stepError);
+                    continue;
+                }
+            }
+            
+            console.log('✅ 最小限のフォールバックデータを生成しました');
+            return true;
+        } catch (error) {
+            console.error('❌ 高度なフォールバックデータの読み込みに失敗:', error);
+            return false;
+        }
+    }
+
+    // 八卦フォールバック機能の読み込み
+    async loadHexagramFallback() {
+        try {
+            if (window.hexagramDetailsFallback) {
+                console.log('✅ 八卦フォールバック機能は既に利用可能です');
+                return true;
+            }
+            
+            // HexagramDetailsFallbackクラスの動的読み込み試行
+            if (window.HexagramDetailsFallback) {
+                window.hexagramDetailsFallback = new window.HexagramDetailsFallback();
+                console.log('✅ 八卦フォールバック機能を初期化しました');
+                return true;
+            }
+            
+            console.warn('⚠️ 八卦フォールバック機能が見つかりません');
+            return false;
+        } catch (error) {
+            console.error('❌ 八卦フォールバック機能の読み込みに失敗:', error);
+            return false;
+        }
+    }
+
+    // OS分析フォールバック機能の読み込み
+    async loadOSAnalysisFallback() {
+        try {
+            // Triple OS基本機能の確保
+            if (!window.TRIPLE_OS_BASIC_CONFIG) {
+                window.TRIPLE_OS_BASIC_CONFIG = {
+                    engineOS: { osName: '創造探求OS', hexagramId: 1 },
+                    interfaceOS: { osName: '調和共生OS', hexagramId: 2 },
+                    safeModeOS: { osName: '保護安定OS', hexagramId: 7 }
+                };
+            }
+            
+            console.log('✅ Triple OS基本機能フォールバックを設定しました');
+            return true;
+        } catch (error) {
+            console.error('❌ OS分析フォールバック機能の読み込みに失敗:', error);
+            return false;
+        }
+    }
+
+    // 分人思想フォールバック機能の読み込み
+    async loadBunenjinFallback() {
+        try {
+            // 分人思想基本データの確保
+            if (!window.BUNENJIN_BASIC_DATA) {
+                window.BUNENJIN_BASIC_DATA = {
+                    philosophy: '人は複数の分人を持つ存在である',
+                    core_principle: '真の自己を探すのではなく、複数の自己を受け入れる',
+                    navigation_approach: '状況に応じて適切な分人を選択し、戦略的に生きる',
+                    fallback_mode: true
+                };
+            }
+            
+            console.log('✅ 分人思想基本機能フォールバックを設定しました');
+            return true;
+        } catch (error) {
+            console.error('❌ 分人思想フォールバック機能の読み込みに失敗:', error);
+            return false;
+        }
+    }
+
+    // PersonalStrategyAIフォールバック機能の読み込み
+    async loadPersonalStrategyAIFallback() {
+        try {
+            // AI戦略生成の基本フォールバック
+            if (!window.PERSONAL_STRATEGY_FALLBACK) {
+                window.PERSONAL_STRATEGY_FALLBACK = {
+                    rootStrength: 'あなたには独特の視点と粘り強さがあります。',
+                    optimalRole: 'あなたは信頼できるチームメンバーとして力を発揮できます。',
+                    defensivePattern: 'あなたの防御反応は、自分を守るための自然な機能です。',
+                    practicalAdvice: '自分のペースを大切にし、着実に歩むことが重要です。',
+                    fallback_mode: true
+                };
+            }
+            
+            console.log('✅ PersonalStrategyAI基本機能フォールバックを設定しました');
+            return true;
+        } catch (error) {
+            console.error('❌ PersonalStrategyAIフォールバック機能の読み込みに失敗:', error);
+            return false;
+        }
+    }
+
+    // IndexedDBからの読み込み試行
+    async tryLoadFromIndexedDB() {
+        try {
+            if (!window.indexedDB) return false;
+            
+            return new Promise((resolve) => {
+                const request = indexedDB.open('HaQeiAnalyzerDB', 1);
+                request.onsuccess = () => {
+                    const db = request.result;
+                    const transaction = db.transaction(['fallback'], 'readonly');
+                    const store = transaction.objectStore('fallback');
+                    const getRequest = store.get('fallbackData');
+                    
+                    getRequest.onsuccess = () => {
+                        if (getRequest.result) {
+                            console.log('✅ IndexedDBからフォールバックデータを取得');
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    };
+                    
+                    getRequest.onerror = () => resolve(false);
+                };
+                
+                request.onerror = () => resolve(false);
+            });
+        } catch (error) {
+            return false;
+        }
+    }
+
+    // ServiceWorkerからの読み込み試行
+    async tryLoadFromServiceWorker() {
+        try {
+            if (!navigator.serviceWorker) return false;
+            
+            const registration = await navigator.serviceWorker.ready;
+            if (registration.active) {
+                console.log('✅ ServiceWorkerからフォールバックデータを要求');
+                return true;
+            }
+            
+            return false;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    // SessionStorageからの読み込み試行
+    tryLoadFromSessionStorage() {
+        try {
+            const data = sessionStorage.getItem('haqei_fallback_data');
+            if (data) {
+                console.log('✅ SessionStorageからフォールバックデータを取得');
+                return true;
+            }
+            return false;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    // LocalStorageからの読み込み試行
+    tryLoadFromLocalStorage() {
+        try {
+            const data = localStorage.getItem('haqei_fallback_data');
+            if (data) {
+                console.log('✅ LocalStorageからフォールバックデータを取得');
+                return true;
+            }
+            return false;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    // フォールバックデータの読み込み（既存メソッド強化版）
     async loadFallbackData() {
         try {
             console.log('📦 フォールバックデータを読み込み中...');

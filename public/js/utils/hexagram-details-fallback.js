@@ -80,48 +80,110 @@ class HexagramDetailsFallback {
     };
   }
 
-  // メインのフォールバック機能
-  generateHexagramDetails(hexagramId, hexagramData) {
+  // メインのフォールバック機能 - os_analyzer分析結果統合対応
+  generateHexagramDetails(hexagramId, hexagramData, osAnalysisContext = null) {
     try {
       // 既存のHEXAGRAM_DETAILSを優先使用
       if (window.HEXAGRAM_DETAILS && window.HEXAGRAM_DETAILS[hexagramId]) {
         return window.HEXAGRAM_DETAILS[hexagramId];
       }
 
+      // os_analyzer分析結果との統合チェック
+      const enhancedContext = this.integrateOSAnalysisContext(osAnalysisContext, hexagramId);
+      
       // フォールバック生成
       const upperTrigramId = hexagramData.upper_trigram_id;
       const lowerTrigramId = hexagramData.lower_trigram_id;
       
-      return this.generateFallbackDetails(hexagramId, hexagramData, upperTrigramId, lowerTrigramId);
+      return this.generateFallbackDetails(hexagramId, hexagramData, upperTrigramId, lowerTrigramId, enhancedContext);
       
     } catch (error) {
       console.warn(`⚠️ フォールバック生成エラー (卦${hexagramId}):`, error);
-      return this.generateBasicFallback(hexagramId, hexagramData);
+      return this.generateBasicFallback(hexagramId, hexagramData, osAnalysisContext);
     }
   }
 
-  // 詳細なフォールバック生成
-  generateFallbackDetails(hexagramId, hexagramData, upperTrigramId, lowerTrigramId) {
+  // os_analyzer分析結果との統合処理
+  integrateOSAnalysisContext(osAnalysisContext, hexagramId) {
+    if (!osAnalysisContext) return null;
+    
+    try {
+      // StorageManagerからの分析結果取得を試行
+      let analysisResult = osAnalysisContext;
+      
+      // 文字列の場合は解析
+      if (typeof osAnalysisContext === 'string') {
+        analysisResult = JSON.parse(osAnalysisContext);
+      }
+      
+      // 分析結果の妥当性チェック
+      if (analysisResult && (analysisResult.engineOS || analysisResult.interfaceOS || analysisResult.safeModeOS)) {
+        console.log(`🔗 [HexagramDetailsFallback] OS分析結果を統合 (卦${hexagramId})`);
+        return {
+          engineOS: analysisResult.engineOS,
+          interfaceOS: analysisResult.interfaceOS,
+          safeModeOS: analysisResult.safeModeOS,
+          userVector: analysisResult.userVector,
+          integrated: true
+        };
+      }
+      
+      // StorageManagerから直接取得を試行
+      if (window.storageManager) {
+        const storedAnalysis = window.storageManager.getAnalysisResult();
+        if (storedAnalysis && storedAnalysis.engineOS) {
+          console.log(`🔄 [HexagramDetailsFallback] StorageManagerから分析結果を取得 (卦${hexagramId})`);
+          return {
+            engineOS: storedAnalysis.engineOS,
+            interfaceOS: storedAnalysis.interfaceOS,
+            safeModeOS: storedAnalysis.safeModeOS,
+            userVector: storedAnalysis.userVector,
+            integrated: true
+          };
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn(`⚠️ [HexagramDetailsFallback] OS分析結果統合エラー:`, error);
+      return null;
+    }
+  }
+
+  // 詳細なフォールバック生成 - 統合コンテキスト対応
+  generateFallbackDetails(hexagramId, hexagramData, upperTrigramId, lowerTrigramId, enhancedContext = null) {
     const upperChars = this.trigramCharacteristics[upperTrigramId];
     const lowerChars = this.trigramCharacteristics[lowerTrigramId];
     
-    // Engine OS詳細
-    const engine = {
+    // os_analyzer統合データがある場合の処理
+    let personalizedEngine = null;
+    let personalizedInterface = null;
+    let personalizedSafeMode = null;
+    
+    if (enhancedContext && enhancedContext.integrated) {
+      console.log(`🎯 [HexagramDetailsFallback] パーソナライズ生成開始 (卦${hexagramId})`);
+      personalizedEngine = this.generatePersonalizedEngine(enhancedContext, upperChars, lowerChars);
+      personalizedInterface = this.generatePersonalizedInterface(enhancedContext, upperChars, lowerChars);
+      personalizedSafeMode = this.generatePersonalizedSafeMode(enhancedContext, upperChars, lowerChars);
+    }
+    
+    // Engine OS詳細（パーソナライズ優先）
+    const engine = personalizedEngine || {
       strength_meter: this.calculateStrengthMeter(upperTrigramId, lowerTrigramId),
       core_drive: this.generateCoreDrive(upperTrigramId, lowerTrigramId),
       potential_strengths: this.combineStrengths(upperChars, lowerChars),
       potential_weaknesses: this.combineWeaknesses(upperChars, lowerChars)
     };
 
-    // Interface OS詳細
-    const interface = {
+    // Interface OS詳細（パーソナライズ優先）
+    const interface = personalizedInterface || {
       how_it_appears: this.generateAppearance(upperTrigramId, lowerTrigramId),
       behavioral_patterns: this.combineBehaviors(upperChars, lowerChars),
       impression_on_others: this.generateImpression(upperTrigramId, lowerTrigramId)
     };
 
-    // Safe Mode OS詳細
-    const safe_mode = {
+    // Safe Mode OS詳細（パーソナライズ優先）
+    const safe_mode = personalizedSafeMode || {
       trigger_situations: this.generateTriggers(upperTrigramId, lowerTrigramId),
       defensive_patterns: this.combineDefensivePatterns(upperChars, lowerChars),
       internal_state: this.generateInternalState(upperTrigramId, lowerTrigramId)
@@ -133,20 +195,207 @@ class HexagramDetailsFallback {
       lower: this.getTrigramInfo(lowerTrigramId)
     };
 
+    // bunenjin哲学に基づく統合されたキャッチフレーズ生成
+    const personalizedCatchphrase = enhancedContext ? 
+      this.generateBunenjinCatchphrase(enhancedContext, hexagramData, upperTrigramId, lowerTrigramId) :
+      hexagramData.catchphrase || '深い智慧を持つ人';
+
     return {
       name_jp: hexagramData.name_jp || `第${hexagramId}卦`,
-      catchphrase: hexagramData.catchphrase || '深い智慧を持つ人',
+      catchphrase: personalizedCatchphrase,
       description: hexagramData.description || `${hexagramData.name_jp}の卦は、独特な価値観と深い洞察力を持つ存在です。`,
       keywords: hexagramData.keywords ? hexagramData.keywords.split(',') : ['成長', '変化', '調和'],
       engine,
       interface,
       safe_mode,
-      trigrams
+      trigrams,
+      bunenjin_enhanced: enhancedContext ? true : false,
+      generation_quality: enhancedContext ? 0.9 : 0.7
     };
   }
 
-  // 基本的なフォールバック（最終手段）
-  generateBasicFallback(hexagramId, hexagramData) {
+  // パーソナライズされたEngine OS生成
+  generatePersonalizedEngine(context, upperChars, lowerChars) {
+    const userVector = context.userVector || {};
+    const engineOS = context.engineOS || {};
+    
+    // ユーザーの8次元ベクトルから強みを動的生成
+    const personalizedStrengths = this.extractPersonalizedStrengths(userVector, upperChars, lowerChars);
+    const adjustedStrengthMeter = Math.round((engineOS.compatibilityScore || 75) * 1.2);
+    
+    return {
+      strength_meter: Math.min(adjustedStrengthMeter, 100),
+      core_drive: this.generatePersonalizedCoreDrive(context),
+      potential_strengths: personalizedStrengths,
+      potential_weaknesses: this.generatePersonalizedWeaknesses(userVector, upperChars, lowerChars),
+      personalized: true
+    };
+  }
+
+  // パーソナライズされたInterface OS生成
+  generatePersonalizedInterface(context, upperChars, lowerChars) {
+    const interfaceOS = context.interfaceOS || {};
+    
+    return {
+      how_it_appears: this.generatePersonalizedAppearance(context),
+      behavioral_patterns: this.generatePersonalizedBehaviors(context, upperChars, lowerChars),
+      impression_on_others: this.generatePersonalizedImpression(context),
+      personalized: true
+    };
+  }
+
+  // パーソナライズされたSafe Mode OS生成
+  generatePersonalizedSafeMode(context, upperChars, lowerChars) {
+    const safeModeOS = context.safeModeOS || {};
+    
+    return {
+      trigger_situations: this.generatePersonalizedTriggers(context),
+      defensive_patterns: this.generatePersonalizedDefensivePatterns(context, upperChars, lowerChars),
+      internal_state: this.generatePersonalizedInternalState(context),
+      personalized: true
+    };
+  }
+
+  // パーソナライズされた強み抽出
+  extractPersonalizedStrengths(userVector, upperChars, lowerChars) {
+    const strengths = [];
+    
+    // 8次元ベクトルから上位3つの特性を取得
+    const sortedDimensions = Object.entries(userVector)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 3);
+    
+    sortedDimensions.forEach(([dimension, value]) => {
+      if (value > 0.6) {
+        const strengthMap = {
+          innovation: '革新的な発想力',
+          stability: '安定した継続力', 
+          cooperation: '優れた協調性',
+          independence: '自立した行動力',
+          intuition: '鋭い直感力',
+          resilience: '困難への耐久力',
+          adaptability: '柔軟な適応力',
+          protection: '他者を守る力'
+        };
+        
+        const strength = strengthMap[dimension.split('_')[1]] || strengthMap[dimension];
+        if (strength) strengths.push(strength);
+      }
+    });
+    
+    // 八卦特性との組み合わせ
+    if (upperChars && upperChars.engineStrengths) {
+      strengths.push(...upperChars.engineStrengths.slice(0, 1));
+    }
+    
+    return strengths.length > 0 ? strengths.slice(0, 3) : ['独特な視点', '深い思考力', '価値観への忠実さ'];
+  }
+
+  // bunenjin哲学に基づくキャッチフレーズ生成
+  generateBunenjinCatchphrase(context, hexagramData, upperTrigramId, lowerTrigramId) {
+    const engineOS = context.engineOS?.osName || '';
+    const interfaceOS = context.interfaceOS?.osName || '';
+    const safeModeOS = context.safeModeOS?.osName || '';
+    
+    // 各OSの特性を組み合わせたキャッチフレーズ
+    const bunenjinPhrases = {
+      // 創造系
+      '創造': '新しい可能性を切り拓く革新者',
+      '直感': '深い洞察で真理を見抜く賢者',
+      '行動': '迷いなく前進する実践者',
+      // 協調系
+      '調和': '人々を結ぶ架け橋となる存在',
+      '支援': '他者の成長を支える育成者',
+      '受容': '包容力で安心を与える癒し手',
+      // 安定系
+      '安定': '確固たる信念を持つ堅実者',
+      '継続': '地道な努力で価値を築く建設者',
+      '保護': '大切なものを守り抜く守護者'
+    };
+    
+    // OS名から特性キーワードを抽出
+    let catchphrase = hexagramData.catchphrase || '深い智慧を持つ人';
+    
+    for (const [key, phrase] of Object.entries(bunenjinPhrases)) {
+      if (engineOS.includes(key) || interfaceOS.includes(key)) {
+        catchphrase = phrase;
+        break;
+      }
+    }
+    
+    return catchphrase;
+  }
+
+  // パーソナライズヘルパーメソッド群
+  generatePersonalizedCoreDrive(context) {
+    const engineOS = context.engineOS?.osName || '';
+    return `${engineOS}を通じて自分らしい価値を世界に表現すること`;
+  }
+
+  generatePersonalizedWeaknesses(userVector, upperChars, lowerChars) {
+    // 低い次元から弱点を推測
+    const weakDimensions = Object.entries(userVector || {})
+      .filter(([,value]) => value < 0.4)
+      .slice(0, 2);
+    
+    const weaknessMap = {
+      innovation: '新しい変化への躊躇',
+      stability: '継続的な取り組みの困難',
+      cooperation: '他者との協働の難しさ',
+      independence: '自立した決断への不安'
+    };
+    
+    const weaknesses = weakDimensions.map(([dim]) => 
+      weaknessMap[dim.split('_')[1]] || weaknessMap[dim]
+    ).filter(Boolean);
+    
+    return weaknesses.length > 0 ? weaknesses : ['理想と現実のギャップ', '他者との価値観の違い'];
+  }
+
+  generatePersonalizedAppearance(context) {
+    const interfaceOS = context.interfaceOS?.osName || '';
+    return `${interfaceOS}の特性を活かした自然な存在感`;
+  }
+
+  generatePersonalizedBehaviors(context, upperChars, lowerChars) {
+    const interfaceOS = context.interfaceOS?.osName || '';
+    const behaviors = [`${interfaceOS}に基づく一貫した行動`];
+    
+    if (upperChars && upperChars.interfaceBehaviors) {
+      behaviors.push(...upperChars.interfaceBehaviors.slice(0, 2));
+    }
+    
+    return behaviors;
+  }
+
+  generatePersonalizedImpression(context) {
+    const interfaceOS = context.interfaceOS?.osName || '';
+    return `${interfaceOS}らしい印象を与える、信頼できる人物`;
+  }
+
+  generatePersonalizedTriggers(context) {
+    const safeModeOS = context.safeModeOS?.osName || '';
+    return [`${safeModeOS}の特性が脅かされる状況`, '価値観が理解されない時', '過度なプレッシャーを感じた時'];
+  }
+
+  generatePersonalizedDefensivePatterns(context, upperChars, lowerChars) {
+    const safeModeOS = context.safeModeOS?.osName || '';
+    const patterns = [`${safeModeOS}による自己防御行動`];
+    
+    if (upperChars && upperChars.safeModePatterns) {
+      patterns.push(...upperChars.safeModePatterns.slice(0, 2));
+    }
+    
+    return patterns;
+  }
+
+  generatePersonalizedInternalState(context) {
+    const safeModeOS = context.safeModeOS?.osName || '';
+    return `${safeModeOS}が働いている時の内なる葛藤と自己保護の願い`;
+  }
+
+  // 基本的なフォールバック（最終手段） - 統合コンテキスト対応
+  generateBasicFallback(hexagramId, hexagramData, osAnalysisContext = null) {
     return {
       name_jp: hexagramData?.name_jp || `第${hexagramId}卦`,
       catchphrase: hexagramData?.catchphrase || '深い智慧を持つ人',
@@ -267,16 +516,32 @@ class HexagramDetailsFallback {
     return trigramNames[trigramId] || { name: "不明", symbol: "☰", description: "基本的な特性" };
   }
 
-  // 公開メソッド：外部から使用
-  getHexagramDetails(hexagramId) {
+  // 公開メソッド：外部から使用（os_analyzer統合対応）
+  getHexagramDetails(hexagramId, osAnalysisContext = null) {
     // hexagrams_masterからデータ取得
     const hexagramData = window.hexagrams_master?.find(h => h.hexagram_id === hexagramId);
     if (!hexagramData) {
       console.warn(`⚠️ 卦${hexagramId}のデータが見つかりません`);
-      return this.generateBasicFallback(hexagramId, null);
+      return this.generateBasicFallback(hexagramId, null, osAnalysisContext);
     }
     
-    return this.generateHexagramDetails(hexagramId, hexagramData);
+    return this.generateHexagramDetails(hexagramId, hexagramData, osAnalysisContext);
+  }
+
+  // 品質評価メソッド
+  assessFallbackQuality(generatedDetails) {
+    let qualityScore = 0;
+    const maxScore = 100;
+    
+    // bunenjin統合チェック
+    if (generatedDetails.bunenjin_enhanced) qualityScore += 30;
+    
+    // パーソナライゼーションチェック  
+    if (generatedDetails.engine?.personalized) qualityScore += 25;
+    if (generatedDetails.interface?.personalized) qualityScore += 25;
+    if (generatedDetails.safe_mode?.personalized) qualityScore += 20;
+    
+    return Math.min(qualityScore, maxScore);
   }
 }
 

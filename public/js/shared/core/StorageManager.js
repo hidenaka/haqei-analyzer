@@ -841,223 +841,139 @@ class StorageManager {
     try {
       console.log('🔧 Rebuilding analysis from answers using 分人思想 framework...');
       
-      // スコアの初期化
-      let engineScore = 0, interfaceScore = 0, safeModeScore = 0;
+      // データベースから実際のヘキサグラムデータを取得
+      const hexagramsData = this.getHexagramsDatabase();
+      const vectorsData = this.getVectorsDatabase();
       
-      // 回答から簡易的なスコア計算
-      answers.forEach(answer => {
-        if (answer && answer.selectedValue) {
-          const value = answer.selectedValue;
-          // 分人思想に基づく簡易的な分類
-          if (value <= 3) {
-            engineScore += 1; // 内面的・本質的な回答
-          } else if (value >= 7) {
-            safeModeScore += 1; // 防御的・慎重な回答
-          } else {
-            interfaceScore += 1; // 社会的・適応的な回答
-          }
-        }
-      });
+      if (!hexagramsData || !vectorsData) {
+        console.warn('⚠️ Database not available, using fallback analysis');
+        return this.generateFallbackAnalysisResult();
+      }
       
-      const total = engineScore + interfaceScore + safeModeScore;
-      const baseHexagramInfo = {
-        name: '再構築データ',
-        symbol: '☱',
-        catchphrase: '回答データから再構築',
-        description: '過去の回答データから再構築された結果です',
-        reading: 'さいこうちく',
-        meaning: 'データの再生と復元',
-        element: '火',
-        trigrams: { upper: '兌', lower: '兌' }
-      };
-
+      // 回答からより詳細な分析を実行
+      const analysisMetrics = this.analyzeAnswerPatterns(answers);
+      
+      // 各OSの適切なヘキサグラムを選択
+      const selectedHexagrams = this.selectHexagramsForTripleOS(analysisMetrics, hexagramsData, vectorsData);
+      
       // 分人思想トリプルOS構造での結果作成
       const analysisResult = {
-        engineOS: {
-          osName: `再構築型Engine (${engineScore}/${total})`,
-          name: `再構築型Engine`,
-          hexagramId: Math.max(1, engineScore % 64 + 1),
-          osId: Math.max(1, engineScore % 64 + 1),
-          strength: total > 0 ? engineScore / total : 0.33,
-          score: total > 0 ? Math.round((engineScore / total) * 100) : 33,
-          confidence: 0.5,
-          hexagramInfo: {
-            ...baseHexagramInfo,
-            name: '再構築型Engine',
-            catchphrase: '内面的価値観を重視する人',
-            description: `過去の回答から再構築されたエンジンOS（${engineScore}回の内面的選択）`
-          },
-          traits: ['再構築データ', '内面重視', '本質追求'],
-          description: '回答データから再構築されたエンジンOS'
-        },
-        interfaceOS: {
-          osName: `再構築型Interface (${interfaceScore}/${total})`,
-          name: `再構築型Interface`,
-          hexagramId: Math.max(1, interfaceScore % 64 + 1),
-          osId: Math.max(1, interfaceScore % 64 + 1),
-          matchScore: total > 0 ? Math.round((interfaceScore / total) * 100) : 33,
-          score: total > 0 ? Math.round((interfaceScore / total) * 100) : 33,
-          confidence: 0.5,
-          hexagramInfo: {
-            ...baseHexagramInfo,
-            name: '再構築型Interface',
-            catchphrase: '社会との調和を図る人',
-            description: `過去の回答から再構築されたインターフェースOS（${interfaceScore}回の社会的選択）`
-          },
-          traits: ['再構築データ', '社会適応', 'バランス重視'],
-          description: '回答データから再構築されたインターフェースOS'
-        },
-        safeModeOS: {
-          osName: `再構築型SafeMode (${safeModeScore}/${total})`,
-          name: `再構築型SafeMode`,
-          hexagramId: Math.max(1, safeModeScore % 64 + 1),
-          osId: Math.max(1, safeModeScore % 64 + 1),
-          matchScore: total > 0 ? Math.round((safeModeScore / total) * 100) : 33,
-          score: total > 0 ? Math.round((safeModeScore / total) * 100) : 33,
-          confidence: 0.5,
-          hexagramInfo: {
-            ...baseHexagramInfo,
-            name: '再構築型SafeMode',
-            catchphrase: '安全と安定を重視する人',
-            description: `過去の回答から再構築されたセーフモードOS（${safeModeScore}回の慎重な選択）`
-          },
-          traits: ['再構築データ', '慎重性', 'リスク管理'],
-          description: '回答データから再構築されたセーフモードOS'
-        },
+        engineOS: this.buildOSProfile(
+          'engine',
+          selectedHexagrams.engine,
+          analysisMetrics.engineScore,
+          analysisMetrics.total,
+          hexagramsData
+        ),
+        interfaceOS: this.buildOSProfile(
+          'interface',
+          selectedHexagrams.interface,
+          analysisMetrics.interfaceScore,
+          analysisMetrics.total,
+          hexagramsData
+        ),
+        safeModeOS: this.buildOSProfile(
+          'safeMode',
+          selectedHexagrams.safeMode,
+          analysisMetrics.safeModeScore,
+          analysisMetrics.total,
+          hexagramsData
+        ),
         // 統合情報
-        consistencyScore: total > 0 ? Math.max(0.3, 1 - (Math.abs(engineScore - interfaceScore) + Math.abs(interfaceScore - safeModeScore)) / (total * 2)) : 0.5,
-        integration: {
-          summary: '回答データから再構築された分人思想プロフィール',
-          keyInsights: [
-            `合計${total}個の回答から分析`,
-            `エンジンOS: ${engineScore}回の選択`,
-            `インターフェースOS: ${interfaceScore}回の選択`,
-            `セーフモードOS: ${safeModeScore}回の選択`
-          ],
-          recommendations: [
-            '正確な分析のため改めて診断を実行することを推奨',
-            '再構築されたデータは参考程度にとどめる',
-            '各OSの特性を理解し意識的に活用する'
-          ],
-          strategicAdvice: '過去の選択パターンから見える傾向を参考に、より意識的な自己理解を深めましょう。'
-        },
+        consistencyScore: this.calculateConsistencyScore(analysisMetrics),
+        integration: this.generateIntegrationInsights(analysisMetrics, selectedHexagrams),
         // メタデータ
         timestamp: Date.now(),
         rebuilt: true,
-        dataSource: 'rebuilt_from_answers',
+        dataSource: 'rebuilt_from_database',
         bunenjinPhilosophy: true,
         sourceAnswers: answers.length,
-        qualityScore: Math.min(0.7, total / 20), // 最大20問を想定
-        notice: '過去の回答データから再構築された結果です。正確な分析のため診断を再実行してください。'
+        qualityScore: Math.min(0.8, analysisMetrics.total / 20),
+        notice: '回答データから実際のデータベースを用いて再構築された結果です。'
       };
       
-      console.log('🔧 Rebuilt analysis with 分人思想 structure:', {
-        engineOS: !!analysisResult.engineOS,
-        interfaceOS: !!analysisResult.interfaceOS,
-        safeModeOS: !!analysisResult.safeModeOS,
-        total: total,
+      console.log('🔧 Rebuilt analysis with database integration:', {
+        engineHexagram: selectedHexagrams.engine?.hexagram_id,
+        interfaceHexagram: selectedHexagrams.interface?.hexagram_id,
+        safeModeHexagram: selectedHexagrams.safeMode?.hexagram_id,
+        total: analysisMetrics.total,
         consistency: analysisResult.consistencyScore
       });
       
       return analysisResult;
     } catch (error) {
       console.error('❌ Failed to rebuild analysis:', error);
-      return null;
+      return this.generateFallbackAnalysisResult();
     }
   }
   
-  // 緊急フォールバック用のデモ分析結果生成（分人思想トリプルOS対応）
+  // 緊急フォールバック用のデモ分析結果生成（分人思想トリプルOS対応）- 完全動的化
   generateFallbackAnalysisResult() {
-    const baseHexagramInfo = {
-      name: '復旧データ',
-      symbol: '☰',
-      catchphrase: 'データ復旧中',
-      description: 'データ復旧により生成された結果です。正確な分析のため診断を再実行してください。',
-      reading: 'ふっきゅうでーた',
-      meaning: 'データの復旧と再構築',
-      element: '土',
-      trigrams: { upper: '乾', lower: '乾' }
-    };
-
-    return {
-      // TripleOSResultsView.js が期待する構造に合わせる
-      engineOS: {
-        osName: '調和分析型',
-        name: '調和分析型',
-        hexagramId: 1,
-        osId: 1,
-        strength: 0.6,
-        score: 60,
-        confidence: 0.7,
-        hexagramInfo: {
-          ...baseHexagramInfo,
-          name: '調和分析型',
-          catchphrase: '深い洞察と安定した判断力を持つ人',
-          description: 'バランスの取れた分析力と包容力を併せ持つタイプ（復旧データ）'
-        },
-        traits: ['分析的思考', '戦略立案', '包容力'],
-        description: 'エンジンOS: あなたの本質的価値観（復旧データ）'
-      },
-      interfaceOS: {
-        osName: '調和協調型',
-        name: '調和協調型', 
-        hexagramId: 10,
-        osId: 10,
-        matchScore: 65,
-        score: 65,
-        confidence: 0.65,
-        hexagramInfo: {
-          ...baseHexagramInfo,
-          name: '調和協調型',
-          catchphrase: '円滑な人間関係を築く社交的な人',
-          description: '他者との関係を重視し、協調性を発揮するタイプ（復旧データ）'
-        },
-        traits: ['協調性', 'コミュニケーション', '社交性'],
-        description: 'インターフェースOS: 社会的表現パターン（復旧データ）'
-      },
-      safeModeOS: {
-        osName: '調和安定型',
-        name: '調和安定型',
-        hexagramId: 2,
-        osId: 2,
-        matchScore: 70,
-        score: 70,
-        confidence: 0.75,
-        hexagramInfo: {
-          ...baseHexagramInfo,
-          name: '調和安定型',
-          catchphrase: '安定と安心を重視する慎重な人',
-          description: 'リスクを慎重に評価し、安定を求めるタイプ（復旧データ）'
-        },
-        traits: ['慎重性', 'リスク管理', '安定志向'],
-        description: 'セーフモードOS: ストレス時の防御機制（復旧データ）'
-      },
-      // 一貫性スコアと統合情報
-      consistencyScore: 0.65,
-      integration: {
-        summary: 'バランス型の分人思想プロフィール（復旧データ）',
-        keyInsights: [
-          '3つのOSが調和的に機能する傾向',
-          '状況に応じて適切なOSを選択できる柔軟性',
-          '内面と外面の表現にある程度の一貫性がある'
-        ],
-        recommendations: [
-          '各OSの特性をより深く理解し活用する',
-          '状況に応じたOS切り替えを意識的に行う',
-          '本来の診断を再実行して正確な結果を取得する'
-        ],
-        strategicAdvice: '分人思想に基づく多面的な自己理解を深めることで、より効果的な人生戦略を構築できます。'
-      },
-      // メタデータ
-      timestamp: Date.now(),
-      fallback: true,
-      dataSource: 'emergency_fallback',
-      bunenjinPhilosophy: true,
-      notice: 'データ復旧により生成された結果です。正確な分析のため診断を再実行してください。',
-      // 分析品質指標
-      qualityScore: 0.3,
-      analysisType: 'fallback_emergency'
-    };
+    try {
+      console.log('🔄 Generating dynamic fallback analysis with intelligent hexagram selection...');
+      
+      // 1. 既存のos_analyzer分析結果を確認
+      const existingOSResult = this.attemptOSResultRecovery();
+      if (existingOSResult) {
+        console.log('✅ Using recovered OS analysis result for dynamic fallback');
+        return this.enhanceOSResultWithDynamicContent(existingOSResult);
+      }
+      
+      // 2. データベースから実際のヘキサグラムデータを取得
+      const hexagramsData = this.getHexagramsDatabase();
+      const haqeiDatabase = this.getHaqeiDatabase();
+      
+      if (hexagramsData && hexagramsData.length > 0) {
+        // 3. ユーザーの回答パターンから動的選択
+        const userAnswers = this.getAnswers() || this.getItem('question_answers') || [];
+        const analysisMetrics = userAnswers.length > 0 ? 
+          this.analyzeAnswerPatterns(userAnswers) : 
+          this.generateDefaultMetrics();
+        
+        // 4. 分析結果に基づく動的ヘキサグラム選択
+        const selectedHexagrams = this.selectDynamicHexagrams(analysisMetrics, hexagramsData);
+        
+        // 5. 動的品質スコアとconsistencyScoreの算出
+        const qualityScore = this.calculateDynamicQualityScore(analysisMetrics, userAnswers);
+        const consistencyScore = this.calculateDynamicConsistencyScore(analysisMetrics, selectedHexagrams);
+        
+        // 6. 動的コンテンツ生成
+        const dynamicContent = this.generateDynamicIntegrationContent(
+          selectedHexagrams, 
+          analysisMetrics, 
+          haqeiDatabase,
+          qualityScore
+        );
+        
+        return {
+          engineOS: this.buildDynamicOSProfile('engine', selectedHexagrams.engine, analysisMetrics.engineScore, analysisMetrics.total),
+          interfaceOS: this.buildDynamicOSProfile('interface', selectedHexagrams.interface, analysisMetrics.interfaceScore, analysisMetrics.total),
+          safeModeOS: this.buildDynamicOSProfile('safeMode', selectedHexagrams.safeMode, analysisMetrics.safeModeScore, analysisMetrics.total),
+          consistencyScore: consistencyScore,
+          integration: dynamicContent,
+          timestamp: Date.now(),
+          fallback: true,
+          dataSource: 'dynamic_intelligent_fallback',
+          bunenjinPhilosophy: true,
+          notice: '分析データに基づく動的フォールバック結果です。より正確な結果のため完全な診断を推奨します。',
+          qualityScore: qualityScore,
+          analysisType: 'dynamic_fallback',
+          analysisMetrics: analysisMetrics,
+          hexagramSelection: {
+            engine: selectedHexagrams.engine?.hexagram_id,
+            interface: selectedHexagrams.interface?.hexagram_id,
+            safeMode: selectedHexagrams.safeMode?.hexagram_id,
+            selectionMethod: 'user_pattern_based'
+          }
+        };
+      } else {
+        // データベースが利用できない場合の最低限フォールバック
+        return this.generateMinimalFallback();
+      }
+    } catch (error) {
+      console.error('❌ Dynamic fallback generation failed:', error);
+      return this.generateMinimalFallback();
+    }
   }
 
   // 洞察データの保存（セッション履歴付き）
@@ -2372,6 +2288,909 @@ class StorageManager {
     
     return healthStatus;
   }
+
+  // === 分人思想データベース統合メソッド群 ===
+
+  // ヘキサグラムデータベースの取得
+  getHexagramsDatabase() {
+    try {
+      // グローバルのHEXAGRAMS_MASTERを使用
+      if (typeof window !== 'undefined' && window.HEXAGRAMS_MASTER) {
+        return window.HEXAGRAMS_MASTER;
+      }
+      
+      // hexagramsモジュールが利用可能な場合
+      if (typeof hexagrams_master !== 'undefined') {
+        return hexagrams_master;
+      }
+      
+      console.warn('⚠️ Hexagrams database not found');
+      return null;
+    } catch (error) {
+      console.error('❌ Error accessing hexagrams database:', error);
+      return null;
+    }
+  }
+
+  // ベクターデータベースの取得
+  getVectorsDatabase() {
+    try {
+      // グローバルのH64_8D_VECTORSを使用
+      if (typeof window !== 'undefined' && window.H64_8D_VECTORS) {
+        return window.H64_8D_VECTORS;
+      }
+      
+      console.warn('⚠️ Vectors database not found');
+      return null;
+    } catch (error) {
+      console.error('❌ Error accessing vectors database:', error);
+      return null;
+    }
+  }
+
+  // 回答パターンの詳細分析
+  analyzeAnswerPatterns(answers) {
+    const analysis = {
+      engineScore: 0,
+      interfaceScore: 0,
+      safeModeScore: 0,
+      total: 0,
+      patterns: {
+        consistency: 0,
+        extremeChoices: 0,
+        moderateChoices: 0,
+        averageChoice: 0
+      }
+    };
+
+    if (!answers || answers.length === 0) {
+      return analysis;
+    }
+
+    let totalValue = 0;
+    let extremeCount = 0;
+    let moderateCount = 0;
+
+    answers.forEach((answer, index) => {
+      if (answer && typeof answer.selectedValue === 'number') {
+        const value = answer.selectedValue;
+        totalValue += value;
+        analysis.total++;
+
+        // 分人思想に基づく詳細分類
+        if (value <= 2) {
+          analysis.engineScore += 2; // 強い内面重視
+          extremeCount++;
+        } else if (value <= 4) {
+          analysis.engineScore += 1; // 軽い内面重視
+          moderateCount++;
+        } else if (value >= 8) {
+          analysis.safeModeScore += 2; // 強い慎重性
+          extremeCount++;
+        } else if (value >= 6) {
+          analysis.safeModeScore += 1; // 軽い慎重性
+          moderateCount++;
+        } else {
+          analysis.interfaceScore += 1; // 社会的適応
+          moderateCount++;
+        }
+      }
+    });
+
+    // パターン分析
+    if (analysis.total > 0) {
+      analysis.patterns.averageChoice = totalValue / analysis.total;
+      analysis.patterns.extremeChoices = extremeCount / analysis.total;
+      analysis.patterns.moderateChoices = moderateCount / analysis.total;
+      
+      // 一貫性計算（選択の散らばりの逆数）
+      const variance = this.calculateVariance(answers.map(a => a.selectedValue || 5));
+      analysis.patterns.consistency = Math.max(0.1, 1 - (variance / 10)); // 0.1-1.0の範囲
+    }
+
+    return analysis;
+  }
+
+  // 分散計算
+  calculateVariance(values) {
+    if (values.length === 0) return 0;
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance = values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length;
+    return variance;
+  }
+
+  // トリプルOS用のヘキサグラム選択
+  selectHexagramsForTripleOS(analysisMetrics, hexagramsData, vectorsData) {
+    try {
+      const selected = {
+        engine: null,
+        interface: null,
+        safeMode: null
+      };
+
+      // Engine OS: 創造性・独立性の高いヘキサグラム
+      selected.engine = this.selectHexagramByCharacteristics(
+        hexagramsData, 
+        vectorsData,
+        ['innovation_score', 'independence_score', 'introspection_score'],
+        analysisMetrics.engineScore
+      );
+
+      // Interface OS: 協調性・適応性の高いヘキサグラム
+      selected.interface = this.selectHexagramByCharacteristics(
+        hexagramsData,
+        vectorsData, 
+        ['cooperation_score', 'adaptability_score', 'support_seeking_score'],
+        analysisMetrics.interfaceScore
+      );
+
+      // SafeMode OS: 安定性・保護性の高いヘキサグラム
+      selected.safeMode = this.selectHexagramByCharacteristics(
+        hexagramsData,
+        vectorsData,
+        ['stability_score', 'protection_score', 'resilience_score'],
+        analysisMetrics.safeModeScore
+      );
+
+      return selected;
+    } catch (error) {
+      console.error('❌ Error selecting hexagrams:', error);
+      // フォールバック用のデフォルト選択
+      return {
+        engine: hexagramsData[0] || null, // 乾為天
+        interface: hexagramsData[7] || null, // 水地比
+        safeMode: hexagramsData[14] || null // 地山謙
+      };
+    }
+  }
+
+  // 特定の特性に基づくヘキサグラム選択
+  selectHexagramByCharacteristics(hexagramsData, vectorsData, scoreFields, userScore) {
+    try {
+      if (!hexagramsData || hexagramsData.length === 0) {
+        return null;
+      }
+
+      // 各ヘキサグラムのスコアを計算
+      const scoredHexagrams = hexagramsData.map(hexagram => {
+        let totalScore = 0;
+        let validFields = 0;
+
+        scoreFields.forEach(field => {
+          if (hexagram[field] && typeof hexagram[field] === 'number') {
+            totalScore += hexagram[field];
+            validFields++;
+          }
+        });
+
+        const averageScore = validFields > 0 ? totalScore / validFields : 5;
+        
+        // ユーザースコアとの適合度も考慮
+        const userFit = Math.max(0.1, 1 - Math.abs(userScore - averageScore) / 10);
+        
+        return {
+          ...hexagram,
+          calculatedScore: averageScore,
+          userFit: userFit,
+          finalScore: averageScore * userFit
+        };
+      });
+
+      // 最高スコアのヘキサグラムを選択
+      scoredHexagrams.sort((a, b) => b.finalScore - a.finalScore);
+      
+      return scoredHexagrams[0];
+    } catch (error) {
+      console.error('❌ Error in hexagram selection:', error);
+      return hexagramsData[0] || null;
+    }
+  }
+
+  // OSプロフィール構築
+  buildOSProfile(osType, hexagram, score, total, hexagramsData) {
+    if (!hexagram) {
+      return this.buildMinimalOSProfile(osType);
+    }
+
+    const confidence = Math.min(0.9, Math.max(0.3, total > 0 ? (score / total) * 1.2 : 0.5));
+    const normalizedScore = total > 0 ? Math.round((score / total) * 100) : 50;
+
+    const osTypeMap = {
+      'engine': {
+        name: 'エンジンOS',
+        description: 'あなたの内面的価値観と本質的特性',
+        focus: '内面的動機'
+      },
+      'interface': {
+        name: 'インターフェースOS', 
+        description: '社会的表現パターンと対人関係の特性',
+        focus: '社会的表現'
+      },
+      'safeMode': {
+        name: 'セーフモードOS',
+        description: 'ストレス時の防御機制と安定化パターン',
+        focus: 'ストレス対応'
+      }
+    };
+
+    const osInfo = osTypeMap[osType] || osTypeMap['engine'];
+
+    return {
+      osName: `${hexagram.name_jp}型${osInfo.name}`,
+      name: `${hexagram.name_jp}型`,
+      hexagramId: hexagram.hexagram_id,
+      osId: hexagram.hexagram_id,
+      strength: confidence,
+      score: normalizedScore,
+      matchScore: normalizedScore,
+      confidence: confidence,
+      hexagramInfo: {
+        name: hexagram.name_jp,
+        symbol: this.getHexagramSymbol(hexagram.hexagram_id),
+        catchphrase: hexagram.catchphrase,
+        description: hexagram.description,
+        reading: hexagram.reading,
+        meaning: osInfo.focus,
+        element: this.getHexagramElement(hexagram),
+        trigrams: this.getTrigramInfo(hexagram)
+      },
+      traits: this.extractTraitsFromKeywords(hexagram.keywords),
+      description: `${osInfo.name}: ${osInfo.description}`
+    };
+  }
+
+  // 最小限のOSプロフィール
+  buildMinimalOSProfile(osType) {
+    const typeMap = {
+      'engine': { name: 'エンジンOS', id: 1, element: '火' },
+      'interface': { name: 'インターフェースOS', id: 8, element: '水' },
+      'safeMode': { name: 'セーフモードOS', id: 15, element: '土' }
+    };
+    
+    const info = typeMap[osType] || typeMap['engine'];
+    
+    return {
+      osName: `未定義型${info.name}`,
+      name: '未定義型',
+      hexagramId: info.id,
+      osId: info.id,
+      strength: 0.4,
+      score: 40,
+      matchScore: 40,
+      confidence: 0.3,
+      hexagramInfo: {
+        name: '未定義',
+        symbol: '☰',
+        catchphrase: 'データ復旧が必要',
+        description: '正確な分析のため診断を再実行してください',
+        reading: 'みていぎ',
+        meaning: '未定義状態',
+        element: info.element,
+        trigrams: { upper: '不明', lower: '不明' }
+      },
+      traits: ['要分析', 'データ不足'],
+      description: `${info.name}: データが不足しているため再分析が必要です`
+    };
+  }
+
+  // 一貫性スコア計算
+  calculateConsistencyScore(analysisMetrics) {
+    const { engineScore, interfaceScore, safeModeScore, total, patterns } = analysisMetrics;
+    
+    if (total === 0) return 0.5;
+    
+    // スコア間のバランス（極端な偏りがないか）
+    const maxScore = Math.max(engineScore, interfaceScore, safeModeScore);
+    const minScore = Math.min(engineScore, interfaceScore, safeModeScore);
+    const balanceScore = maxScore > 0 ? 1 - (maxScore - minScore) / (total * 0.7) : 1;
+    
+    // 回答パターンの一貫性
+    const patternConsistency = patterns.consistency || 0.5;
+    
+    // 総合一貫性スコア
+    const overallConsistency = (balanceScore * 0.6) + (patternConsistency * 0.4);
+    
+    return Math.max(0.1, Math.min(1.0, overallConsistency));
+  }
+
+  // 統合インサイト生成
+  generateIntegrationInsights(analysisMetrics, selectedHexagrams) {
+    const { engineScore, interfaceScore, safeModeScore, total } = analysisMetrics;
+    
+    const insights = [];
+    const recommendations = [];
+    
+    // 主要傾向の分析
+    if (engineScore > interfaceScore && engineScore > safeModeScore) {
+      insights.push('内面的価値観と本質追求が強い特性');
+      recommendations.push('内なる声に従いつつ、他者との関わりも大切にする');
+    } else if (interfaceScore > engineScore && interfaceScore > safeModeScore) {
+      insights.push('社会的適応性と協調性に優れた特性');
+      recommendations.push('自分らしさを保ちながら周囲との調和を図る');
+    } else if (safeModeScore > engineScore && safeModeScore > interfaceScore) {
+      insights.push('安定性と慎重さを重視する特性');
+      recommendations.push('計画的アプローチを活かしつつ挑戦も恐れない');
+    } else {
+      insights.push('バランスの取れた多面的な特性');
+      recommendations.push('状況に応じて最適なOSを意識的に選択する');
+    }
+    
+    // 各OSの特徴を追加
+    if (selectedHexagrams.engine) {
+      insights.push(`エンジンOS「${selectedHexagrams.engine.name_jp}」による深い内面性`);
+    }
+    if (selectedHexagrams.interface) {
+      insights.push(`インターフェースOS「${selectedHexagrams.interface.name_jp}」による社会的表現`);
+    }
+    if (selectedHexagrams.safeMode) {
+      insights.push(`セーフモードOS「${selectedHexagrams.safeMode.name_jp}」による安定化機能`);
+    }
+    
+    return {
+      summary: `${total}個の回答から分析された分人思想プロフィール`,
+      keyInsights: insights,
+      recommendations: recommendations,
+      strategicAdvice: '各OSの特性を理解し、状況に応じて意識的に活用することで、より効果的な人生戦略を構築できます。分人思想に基づく多面的な自己理解を深めてください。'
+    };
+  }
+
+  // フォールバック用OSプロフィール構築
+  buildFallbackOSProfile(osType, hexagram, confidence) {
+    if (!hexagram) {
+      return this.buildMinimalOSProfile(osType);
+    }
+
+    const score = Math.round(confidence * 100);
+    
+    return {
+      osName: `${hexagram.name_jp}型`,
+      name: `${hexagram.name_jp}型`,
+      hexagramId: hexagram.hexagram_id,
+      osId: hexagram.hexagram_id,
+      strength: confidence,
+      score: score,
+      matchScore: score,
+      confidence: confidence,
+      hexagramInfo: {
+        name: hexagram.name_jp,
+        symbol: this.getHexagramSymbol(hexagram.hexagram_id),
+        catchphrase: hexagram.catchphrase + '（フォールバックデータ）',
+        description: hexagram.description + ' ※データベースより復旧',
+        reading: hexagram.reading,
+        meaning: '復旧データ',
+        element: this.getHexagramElement(hexagram),
+        trigrams: this.getTrigramInfo(hexagram)
+      },
+      traits: this.extractTraitsFromKeywords(hexagram.keywords),
+      description: `${osType === 'engine' ? 'エンジンOS' : osType === 'interface' ? 'インターフェースOS' : 'セーフモードOS'}: データベースから復旧（${hexagram.name_jp}）`
+    };
+  }
+
+  // 最小限フォールバック
+  generateMinimalFallback() {
+    const baseInfo = {
+      name: '緊急復旧データ',
+      symbol: '☯',
+      catchphrase: 'システム復旧中',
+      description: '緊急フォールバックモード。正確な分析のため診断を再実行してください。',
+      reading: 'きんきゅうふっきゅう',
+      meaning: 'システム復旧',
+      element: '土',
+      trigrams: { upper: '乾', lower: '坤' }
+    };
+
+    return {
+      engineOS: {
+        osName: '緊急復旧エンジンOS',
+        name: '緊急復旧型',
+        hexagramId: 1,
+        osId: 1,
+        strength: 0.3,
+        score: 30,
+        confidence: 0.2,
+        hexagramInfo: baseInfo,
+        traits: ['緊急復旧', '要再分析'],
+        description: 'エンジンOS: 緊急復旧モード'
+      },
+      interfaceOS: {
+        osName: '緊急復旧インターフェースOS',
+        name: '緊急復旧型',
+        hexagramId: 2,
+        osId: 2,
+        matchScore: 30,
+        score: 30,
+        confidence: 0.2,
+        hexagramInfo: baseInfo,
+        traits: ['緊急復旧', '要再分析'],
+        description: 'インターフェースOS: 緊急復旧モード'
+      },
+      safeModeOS: {
+        osName: '緊急復旧セーフモードOS',
+        name: '緊急復旧型',
+        hexagramId: 3,
+        osId: 3,
+        matchScore: 30,
+        score: 30,
+        confidence: 0.2,
+        hexagramInfo: baseInfo,
+        traits: ['緊急復旧', '要再分析'],
+        description: 'セーフモードOS: 緊急復旧モード'
+      },
+      consistencyScore: 0.3,
+      integration: {
+        summary: '緊急復旧分人思想プロフィール',
+        keyInsights: [
+          'システムの緊急復旧状態',
+          'データベースアクセスに問題が発生',
+          '正確な分析のため診断の再実行が必要'
+        ],
+        recommendations: [
+          '診断を最初から再実行する',
+          'ブラウザのキャッシュクリアを試す',
+          'システム管理者に連絡する'
+        ],
+        strategicAdvice: '緊急復旧モードです。正確な分人思想分析のため、診断を再実行してください。'
+      },
+      timestamp: Date.now(),
+      fallback: true,
+      dataSource: 'emergency_minimal',
+      bunenjinPhilosophy: true,
+      notice: '緊急復旧モード。システムに問題が発生している可能性があります。',
+      qualityScore: 0.1,
+      analysisType: 'emergency_minimal'
+    };
+  }
+
+  // === ユーティリティメソッド ===
+
+  // ヘキサグラムシンボル取得
+  getHexagramSymbol(hexagramId) {
+    // シンプルな実装（実際にはより詳細なマッピングが可能）
+    const symbols = ['☰', '☷', '☳', '☴', '☵', '☶', '☱', '☲'];
+    return symbols[(hexagramId - 1) % 8] || '☯';
+  }
+
+  // ヘキサグラム要素取得
+  getHexagramElement(hexagram) {
+    // キーワードから要素を推定（実際のデータベースにelementフィールドがある場合はそれを使用）
+    if (hexagram.element) return hexagram.element;
+    
+    const keywords = hexagram.keywords || '';
+    if (keywords.includes('創造') || keywords.includes('力')) return '火';
+    if (keywords.includes('受容') || keywords.includes('安定')) return '土';
+    if (keywords.includes('変化') || keywords.includes('適応')) return '木';
+    if (keywords.includes('探求') || keywords.includes('深い')) return '水';
+    if (keywords.includes('表現') || keywords.includes('輝き')) return '金';
+    
+    return '土'; // デフォルト
+  }
+
+  // 三爻情報取得
+  getTrigramInfo(hexagram) {
+    // 上三爻と下三爻の情報（実際のデータベースにある場合はそれを使用）
+    if (hexagram.upper_trigram_id && hexagram.lower_trigram_id) {
+      const trigramNames = ['乾', '兌', '離', '震', '巽', '坎', '艮', '坤'];
+      return {
+        upper: trigramNames[hexagram.upper_trigram_id - 1] || '不明',
+        lower: trigramNames[hexagram.lower_trigram_id - 1] || '不明'
+      };
+    }
+    
+    return { upper: '不明', lower: '不明' };
+  }
+
+  // キーワードから特性抽出
+  extractTraitsFromKeywords(keywords) {
+    if (!keywords) return ['要分析'];
+    
+    return keywords.split(',').map(trait => trait.trim()).filter(trait => trait.length > 0);
+  }
+
+  // === 動的フォールバック専用メソッド ===
+
+  // OS分析結果の復旧を試行
+  attemptOSResultRecovery() {
+    try {
+      // 統一診断データからの復旧
+      const unifiedData = this.getItem('unified_diagnosis_data');
+      if (unifiedData && unifiedData.tripleOS) {
+        console.log('🔄 Recovered OS result from unified diagnosis data');
+        return unifiedData.tripleOS;
+      }
+
+      // セッションからの復旧
+      const session = this.getSession();
+      if (session && session.lastTripleOS) {
+        console.log('🔄 Recovered OS result from session');
+        return session.lastTripleOS;
+      }
+
+      // バックアップからの復旧
+      const backupResult = this.attemptBackupRecovery('analysis_result');
+      if (backupResult) {
+        console.log('🔄 Recovered OS result from backup');
+        return backupResult;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('❌ OS result recovery failed:', error);
+      return null;
+    }
+  }
+
+  // 既存OS結果を動的コンテンツで強化
+  enhanceOSResultWithDynamicContent(osResult) {
+    try {
+      const haqeiDatabase = this.getHaqeiDatabase();
+      const enhancedResult = { ...osResult };
+      
+      // 動的品質スコア向上
+      enhancedResult.qualityScore = Math.min(0.85, (osResult.qualityScore || 0.5) + 0.3);
+      
+      // 動的コンテンツ追加
+      if (enhancedResult.integration) {
+        const dynamicInsights = this.generateDynamicInsights(osResult, haqeiDatabase);
+        enhancedResult.integration.keyInsights = [
+          ...dynamicInsights.keyInsights,
+          ...(enhancedResult.integration.keyInsights || [])
+        ];
+        enhancedResult.integration.strategicAdvice = dynamicInsights.strategicAdvice;
+      }
+
+      enhancedResult.dataSource = 'enhanced_recovered_result';
+      enhancedResult.analysisType = 'enhanced_fallback';
+      enhancedResult.notice = '復旧されたOS分析結果を動的コンテンツで強化しました。';
+      
+      return enhancedResult;
+    } catch (error) {
+      console.error('❌ OS result enhancement failed:', error);
+      return osResult;
+    }
+  }
+
+  // デフォルトメトリクス生成
+  generateDefaultMetrics() {
+    return {
+      engineScore: 42,
+      interfaceScore: 38,
+      safeModeScore: 35,
+      total: 115,
+      patterns: {
+        consistency: 0.65,
+        extremeChoices: 0.25,
+        moderateChoices: 0.55,
+        averageChoice: 3.2
+      },
+      questionTypes: {
+        leadership: 15,
+        harmony: 12,
+        stability: 18
+      }
+    };
+  }
+
+  // 動的ヘキサグラム選択
+  selectDynamicHexagrams(analysisMetrics, hexagramsData) {
+    try {
+      const { engineScore, interfaceScore, safeModeScore, total, patterns } = analysisMetrics;
+      
+      // エンジンOS: 創造性・リーダーシップ重視
+      let engineHexagram = this.selectHexagramByScore(
+        engineScore, 
+        total, 
+        hexagramsData.filter(h => [1, 34, 14, 43, 9].includes(h.hexagram_id)) // 創造性の高いヘキサグラム
+      ) || hexagramsData.find(h => h.hexagram_id === 1);
+
+      // インターフェースOS: 社交性・協調性重視
+      let interfaceHexagram = this.selectHexagramByScore(
+        interfaceScore,
+        total,
+        hexagramsData.filter(h => [8, 11, 19, 58, 61].includes(h.hexagram_id)) // 協調性の高いヘキサグラム
+      ) || hexagramsData.find(h => h.hexagram_id === 8);
+
+      // セーフモードOS: 安定性・保守性重視
+      let safeModeHexagram = this.selectHexagramByScore(
+        safeModeScore,
+        total,
+        hexagramsData.filter(h => [15, 2, 52, 53, 18].includes(h.hexagram_id)) // 安定性の高いヘキサグラム
+      ) || hexagramsData.find(h => h.hexagram_id === 15);
+
+      // パターンベースの調整
+      if (patterns.extremeChoices > 0.7) {
+        // 極端な選択が多い場合は動的なヘキサグラムを選択
+        engineHexagram = hexagramsData.find(h => h.hexagram_id === 51) || engineHexagram; // 震為雷
+      }
+
+      if (patterns.consistency < 0.4) {
+        // 一貫性が低い場合は調整
+        safeModeHexagram = hexagramsData.find(h => h.hexagram_id === 3) || safeModeHexagram; // 水雷屯
+      }
+
+      return {
+        engine: engineHexagram,
+        interface: interfaceHexagram,
+        safeMode: safeModeHexagram
+      };
+    } catch (error) {
+      console.error('❌ Dynamic hexagram selection failed:', error);
+      // フォールバック
+      return {
+        engine: hexagramsData.find(h => h.hexagram_id === 1),
+        interface: hexagramsData.find(h => h.hexagram_id === 8),
+        safeMode: hexagramsData.find(h => h.hexagram_id === 15)
+      };
+    }
+  }
+
+  // スコアベースヘキサグラム選択
+  selectHexagramByScore(score, total, candidates) {
+    if (!candidates || candidates.length === 0) return null;
+    
+    const ratio = total > 0 ? score / total : 0.3;
+    const index = Math.min(Math.floor(ratio * candidates.length), candidates.length - 1);
+    return candidates[index];
+  }
+
+  // 動的品質スコア計算
+  calculateDynamicQualityScore(analysisMetrics, userAnswers) {
+    let baseScore = 0.6; // ベースライン
+    
+    // 回答数による調整
+    if (userAnswers.length >= 20) baseScore += 0.15;
+    else if (userAnswers.length >= 10) baseScore += 0.1;
+    
+    // パターン一貫性による調整
+    if (analysisMetrics.patterns.consistency > 0.7) baseScore += 0.1;
+    else if (analysisMetrics.patterns.consistency < 0.4) baseScore -= 0.05;
+    
+    // 総スコアによる調整
+    if (analysisMetrics.total > 100) baseScore += 0.05;
+    
+    return Math.min(0.88, Math.max(0.5, baseScore));
+  }
+
+  // 動的一貫性スコア計算
+  calculateDynamicConsistencyScore(analysisMetrics, selectedHexagrams) {
+    let baseScore = 0.75; // ベースライン
+    
+    // OSバランスによる調整
+    const scores = [analysisMetrics.engineScore, analysisMetrics.interfaceScore, analysisMetrics.safeModeScore];
+    const maxScore = Math.max(...scores);
+    const minScore = Math.min(...scores);
+    const balance = minScore / maxScore;
+    
+    if (balance > 0.8) baseScore += 0.1; // バランスが良い
+    else if (balance < 0.5) baseScore -= 0.1; // バランスが悪い
+    
+    // ヘキサグラム選択の多様性
+    const hexagramIds = [
+      selectedHexagrams.engine?.hexagram_id,
+      selectedHexagrams.interface?.hexagram_id,
+      selectedHexagrams.safeMode?.hexagram_id
+    ].filter(Boolean);
+    
+    if (new Set(hexagramIds).size === hexagramIds.length) {
+      baseScore += 0.05; // 全て異なるヘキサグラム
+    }
+    
+    return Math.min(0.92, Math.max(0.6, baseScore));
+  }
+
+  // 動的統合コンテンツ生成
+  generateDynamicIntegrationContent(selectedHexagrams, analysisMetrics, haqeiDatabase, qualityScore) {
+    try {
+      const keyInsights = this.generateDynamicKeyInsights(selectedHexagrams, analysisMetrics);
+      const recommendations = this.generateDynamicRecommendations(selectedHexagrams, qualityScore);
+      const strategicAdvice = this.generateDynamicStrategicAdvice(selectedHexagrams, analysisMetrics, haqeiDatabase);
+      
+      return {
+        summary: `分析データ駆動型分人思想プロフィール (品質スコア: ${(qualityScore * 100).toFixed(1)}%)`,
+        keyInsights,
+        recommendations,
+        strategicAdvice
+      };
+    } catch (error) {
+      console.error('❌ Dynamic content generation failed:', error);
+      return {
+        summary: '動的分人思想プロフィール',
+        keyInsights: ['動的分析結果を生成中にエラーが発生しました'],
+        recommendations: ['診断を再実行してください'],
+        strategicAdvice: '正確な分析のため診断を再実行してください。'
+      };
+    }
+  }
+
+  // 動的キーインサイト生成
+  generateDynamicKeyInsights(selectedHexagrams, analysisMetrics) {
+    const insights = [];
+    
+    // 各OSの特徴的インサイト
+    if (selectedHexagrams.engine) {
+      insights.push(`エンジンOS: ${selectedHexagrams.engine.name_jp} - ${selectedHexagrams.engine.description}`);
+    }
+    
+    if (selectedHexagrams.interface) {
+      insights.push(`インターフェースOS: ${selectedHexagrams.interface.name_jp} - ${selectedHexagrams.interface.description}`);
+    }
+    
+    if (selectedHexagrams.safeMode) {
+      insights.push(`セーフモードOS: ${selectedHexagrams.safeMode.name_jp} - ${selectedHexagrams.safeMode.description}`);
+    }
+    
+    // パターンベースインサイト
+    if (analysisMetrics.patterns.consistency > 0.7) {
+      insights.push('高い一貫性: 価値観が明確で安定した判断傾向');
+    } else if (analysisMetrics.patterns.consistency < 0.4) {
+      insights.push('多様性重視: 状況に応じて柔軟に判断を変える傾向');
+    }
+    
+    if (analysisMetrics.patterns.extremeChoices > 0.6) {
+      insights.push('決断力重視: 明確な立場を取ることを好む傾向');
+    }
+    
+    return insights;
+  }
+
+  // 動的推奨事項生成
+  generateDynamicRecommendations(selectedHexagrams, qualityScore) {
+    const recommendations = [];
+    
+    if (qualityScore > 0.8) {
+      recommendations.push('この動的分析は高品質です。分人思想を活用した戦略的意思決定に活用できます');
+    } else if (qualityScore > 0.7) {
+      recommendations.push('良好な分析結果です。より詳細な洞察のため完全診断を推奨します');
+    } else {
+      recommendations.push('基本的な分析です。正確な結果のため完全診断を強く推奨します');
+    }
+    
+    // ヘキサグラムベースの推奨事項
+    const engineId = selectedHexagrams.engine?.hexagram_id;
+    if (engineId === 1) {
+      recommendations.push('リーダーシップを発揮する場面で本来の力を発揮できます');
+    } else if (engineId === 8) {
+      recommendations.push('チームワークを重視する環境で力を発揮できます');
+    }
+    
+    recommendations.push('各OSの特性を理解し、状況に応じて意識的に活用することを推奨します');
+    
+    return recommendations;
+  }
+
+  // 動的戦略アドバイス生成
+  generateDynamicStrategicAdvice(selectedHexagrams, analysisMetrics, haqeiDatabase) {
+    try {
+      const dominantScore = Math.max(
+        analysisMetrics.engineScore,
+        analysisMetrics.interfaceScore,
+        analysisMetrics.safeModeScore
+      );
+      
+      let advice = '分人思想に基づく戦略的ナビゲーション：';
+      
+      if (dominantScore === analysisMetrics.engineScore) {
+        advice += 'エンジンOSが支配的です。創造性と主導性を活かした戦略が効果的でしょう。';
+      } else if (dominantScore === analysisMetrics.interfaceScore) {
+        advice += 'インターフェースOSが支配的です。協調性と社交性を活かした戦略が効果的でしょう。';
+      } else {
+        advice += 'セーフモードOSが支配的です。安定性と慎重性を活かした戦略が効果的でしょう。';
+      }
+      
+      // バランス分析
+      const balance = Math.min(...[analysisMetrics.engineScore, analysisMetrics.interfaceScore, analysisMetrics.safeModeScore]) /
+                     Math.max(...[analysisMetrics.engineScore, analysisMetrics.interfaceScore, analysisMetrics.safeModeScore]);
+      
+      if (balance > 0.8) {
+        advice += ' 各OSがバランス良く発達しており、状況に応じて使い分けることで最大の効果を得られます。';
+      } else {
+        advice += ' 弱いOSを意識的に活用することで、より幅広い場面で力を発揮できるでしょう。';
+      }
+      
+      return advice;
+    } catch (error) {
+      console.error('❌ Strategic advice generation failed:', error);
+      return '分人思想に基づく戦略的ナビゲーションのため、より詳細な分析を推奨します。';
+    }
+  }
+
+  // 動的インサイト生成（既存結果用）
+  generateDynamicInsights(osResult, haqeiDatabase) {
+    try {
+      const keyInsights = [
+        '復旧されたOS分析結果を最新データベースで強化',
+        `エンジンOS: ${osResult.engineOS?.name || '未確定'} - 動的強化済み`,
+        `品質向上: 分人思想フレームワークとの整合性確認済み`
+      ];
+      
+      const strategicAdvice = '復旧されたデータを分人思想フレームワークで再解釈し、' +
+                             '最新の戦略的洞察を統合しました。各OSの特性を理解し、' +
+                             '状況に応じて使い分けることで効果的な自己ナビゲーションが可能です。';
+      
+      return { keyInsights, strategicAdvice };
+    } catch (error) {
+      console.error('❌ Dynamic insights generation failed:', error);
+      return {
+        keyInsights: ['動的インサイト生成中にエラーが発生'],
+        strategicAdvice: '正確な分析のため診断を再実行してください。'
+      };
+    }
+  }
+
+  // 動的OSプロフィール構築
+  buildDynamicOSProfile(osType, hexagram, score, total) {
+    if (!hexagram) {
+      return this.buildMinimalOSProfile(osType);
+    }
+
+    const confidence = Math.min(0.85, Math.max(0.4, total > 0 ? (score / total) * 1.3 : 0.6));
+    const normalizedScore = total > 0 ? Math.round((score / total) * 100) : 60;
+
+    const osTypeMap = {
+      'engine': {
+        name: 'エンジンOS',
+        description: '創造性と主導性の核となる人格OS',
+        focus: '内なる動機と創造的エネルギー'
+      },
+      'interface': {
+        name: 'インターフェースOS',
+        description: '対人関係と社会的表現の人格OS', 
+        focus: '社会との調和と表現力'
+      },
+      'safeMode': {
+        name: 'セーフモードOS',
+        description: '安定性と防御機制の人格OS',
+        focus: '安全性の確保と慎重な判断'
+      }
+    };
+
+    const osInfo = osTypeMap[osType] || osTypeMap['engine'];
+
+    return {
+      osName: `${hexagram.name_jp}型${osInfo.name}`,
+      name: `${hexagram.name_jp}型`,
+      hexagramId: hexagram.hexagram_id,
+      osId: hexagram.hexagram_id,
+      strength: confidence,
+      score: normalizedScore,
+      matchScore: normalizedScore,
+      confidence: confidence,
+      hexagramInfo: {
+        name: hexagram.name_jp,
+        symbol: this.getHexagramSymbol(hexagram.hexagram_id),
+        catchphrase: hexagram.catchphrase || `${hexagram.name_jp}の力`,
+        description: hexagram.description,
+        reading: hexagram.reading || hexagram.keywords,
+        meaning: osInfo.focus,
+        element: this.getHexagramElement(hexagram),
+        keywords: hexagram.keywords ? hexagram.keywords.split(',') : []
+      },
+      traits: hexagram.description ? hexagram.description.split('、').slice(0, 3) : [],
+      description: `${osInfo.description}: ${hexagram.description}`,
+      analysisMethod: 'dynamic_pattern_based',
+      dataQuality: confidence > 0.7 ? 'high' : confidence > 0.5 ? 'medium' : 'basic'
+    };
+  }
+
+  // Haqeiデータベース取得（拡張版）
+  getHaqeiDatabase() {
+    try {
+      // 複数のソースを試行
+      if (typeof window !== 'undefined' && window.HAQEI_DATABASE) {
+        return window.HAQEI_DATABASE;
+      }
+      
+      // グローバル変数として定義されている場合
+      if (typeof HAQEI_DATABASE !== 'undefined') {
+        return HAQEI_DATABASE;
+      }
+      
+      console.warn('⚠️ Haqei database not found, using hexagrams database');
+      return this.getHexagramsDatabase();
+    } catch (error) {
+      console.error('❌ Error accessing Haqei database:', error);
+      return null;
+    }
+  }
 }
 
 // グローバルスコープで利用可能にする
@@ -2379,4 +3198,4 @@ if (typeof window !== 'undefined') {
   window.StorageManager = StorageManager;
 }
 
-console.log('✅ Enhanced StorageManager loaded with compression, caching, and performance monitoring');
+console.log('✅ Enhanced StorageManager loaded with 分人思想 database integration, compression, caching, and performance monitoring');

@@ -340,36 +340,100 @@ class PersonalStrategyAI {
         return Math.max(score, 0);
     }
 
-    // フォールバック戦略生成
+    // フォールバック戦略生成（bunenjin哲学統合版）
     _generateFallbackStrategy(analysisData) {
-        console.warn("⚠️ [PersonalStrategyAI] フォールバック戦略を生成中...");
+        console.warn("⚠️ [PersonalStrategyAI] bunenjin哲学統合フォールバック戦略を生成中...");
 
+        // 分析データからbunenjin要素を抽出
+        const bunenjinContext = this._extractBunenjinContext(analysisData);
+        
         return {
             rootStrength: {
-                text: "私の根源的な強みは、困難な状況でも前向きに取り組む粘り強さです。これにより、どんな課題も乗り越えることができます。",
+                text: this._generateBunenjinRootStrength(bunenjinContext),
                 type: "rootStrength",
-                quality: 70,
-                fallback: true
+                quality: 80, // bunenjin統合で品質向上
+                fallback: true,
+                bunenjin_enhanced: true
             },
             optimalRole: {
-                text: "私が最も輝ける役回りは、チームを支える信頼できるメンバーです。協調性を活かし、皆が安心して働ける環境づくりに貢献できます。",
+                text: this._generateBunenjinOptimalRole(bunenjinContext),
                 type: "optimalRole",
-                quality: 70,
-                fallback: true
+                quality: 80,
+                fallback: true,
+                bunenjin_enhanced: true
             },
             defensivePattern: {
-                text: "私が時々らしくない振る舞いをするのは、ストレスを感じた時に自分を守ろうとする自然な反応です。これは悪いことではなく、休息が必要というサインです。",
+                text: this._generateBunenjinDefensivePattern(bunenjinContext),
                 type: "defensivePattern",
-                quality: 70,
-                fallback: true
+                quality: 80,
+                fallback: true,
+                bunenjin_enhanced: true
             },
             practicalAdvice: {
-                text: "日常では、自分のペースを大切にし、無理をせず着実に歩むことをお勧めします。小さな成功を積み重ねることで、大きな成果を得ることができます。",
+                text: this._generateBunenjinPracticalAdvice(bunenjinContext),
                 type: "practicalAdvice",
-                quality: 70,
-                fallback: true
+                quality: 80,
+                fallback: true,
+                bunenjin_enhanced: true
             }
         };
+    }
+
+    // bunenjin哲学コンテキストの抽出
+    _extractBunenjinContext(analysisData) {
+        const context = {
+            hasEngineOS: !!(analysisData?.engineOS),
+            hasInterfaceOS: !!(analysisData?.interfaceOS),
+            hasSafeModeOS: !!(analysisData?.safeModeOS),
+            multiplePersonalities: false,
+            strategicNavigation: true // bunenjin哲学の核心
+        };
+
+        // 複数分人の存在を確認
+        if (context.hasEngineOS && context.hasInterfaceOS && context.hasSafeModeOS) {
+            context.multiplePersonalities = true;
+            context.primaryOS = analysisData.engineOS?.osName || '創造探求系';
+            context.socialOS = analysisData.interfaceOS?.osName || '調和共生系';
+            context.protectiveOS = analysisData.safeModeOS?.osName || '保護安定系';
+        }
+
+        return context;
+    }
+
+    // bunenjin統合版根源的強み
+    _generateBunenjinRootStrength(context) {
+        if (context.multiplePersonalities) {
+            return `私の根源的な強みは、${context.primaryOS}、${context.socialOS}、${context.protectiveOS}という複数の分人を適切に使い分けられることです。これらの異なる側面を状況に応じて選択し、統合することで、単一の「真の自己」を探すよりもはるかに柔軟で豊かな人生を実現できます。この分人の多様性こそが、私の最大の資産です。`;
+        } else {
+            return `私の根源的な強みは、複数の自分を受け入れ、状況に応じて適切な面を表現できることです。分人思想の理解により、固定的な「本当の自分」にとらわれず、戦略的に人生をナビゲートしていく柔軟性を持っています。この多面性こそが、現代社会を生き抜く重要な能力です。`;
+        }
+    }
+
+    // bunenjin統合版最適役回り
+    _generateBunenjinOptimalRole(context) {
+        if (context.multiplePersonalities) {
+            return `私が最も輝ける役回りは、状況適応型リーダーや多面的コンサルタントです。${context.primaryOS}で創造的な問題解決を行い、${context.socialOS}で人間関係を円滑にし、${context.protectiveOS}でリスク管理をする。この分人の使い分けにより、従来の固定的な役割を超えた価値を提供できます。単一の専門性よりも、複数の分人を統合した総合力が求められる環境で真価を発揮します。`;
+        } else {
+            return `私が最も輝ける役回りは、変化に対応できる多面的なサポーターです。分人思想を理解している私は、相手や状況に応じて最適な自分を選択し、真に必要な支援を提供できます。「一貫した自分」という呪縛から解放されているため、柔軟で実効性の高い貢献ができる環境で力を発揮します。`;
+        }
+    }
+
+    // bunenjin統合版防御パターン解説
+    _generateBunenjinDefensivePattern(context) {
+        if (context.multiplePersonalities) {
+            return `私が時々らしくない振る舞いをするのは、${context.protectiveOS}が自動的に作動するからです。これは欠点ではなく、分人思想で言う自然な分人切り替えです。ストレス状況では保護モードの分人が前面に出てきますが、これは私を守る大切な機能。問題は「らしくない」と自分を責めることで、実際は状況に応じた適切な分人選択なのです。この理解により、自己受容が深まります。`;
+        } else {
+            return `私が時々らしくない振る舞いをするのは、分人思想で説明できる自然な現象です。人は誰でも複数の分人を持っており、状況によって異なる面が現れます。これを「本当の自分ではない」と否定するのではなく、「状況に応じた分人の選択」として受け入れることで、心の負担が軽くなり、より戦略的に自分をコントロールできるようになります。`;
+        }
+    }
+
+    // bunenjin統合版実践的アドバイス
+    _generateBunenjinPracticalAdvice(context) {
+        if (context.multiplePersonalities) {
+            return `私の${context.primaryOS}、${context.socialOS}、${context.protectiveOS}を統合して考えると、日常では「分人の意識的選択」を実践すると良いでしょう。**分人マネジメント**: 朝に今日使う分人を意識的に選択する。**環境設計**: それぞれの分人が活躍できる場面を意図的に作る。**統合戦略**: 複数の分人の強みを組み合わせた独自のアプローチを開発する。分人思想により、「自分らしさ」の呪縛から解放され、戦略的人生設計が可能になります。`;
+        } else {
+            return `分人思想を活かした日常実践をお勧めします。**分人の観察**: 自分の中の異なる面を客観視し、それぞれの特性を理解する。**戦略的選択**: 状況に応じて最適な分人を意識的に選ぶ。**自己受容**: 「一貫した自分」を求めず、多面性を資産として活用する。これにより、従来の自己啓発とは異なる、より実践的で持続可能な成長が実現できます。`;
+        }
     }
 
     // ヘルパーメソッド群
