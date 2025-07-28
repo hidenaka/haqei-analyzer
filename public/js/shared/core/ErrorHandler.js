@@ -89,8 +89,8 @@ class ErrorHandler {
         });
 
         this.recoveryStrategies.set('分人思想', {
-            strategy: 'bunenjin_fallback',
-            fallbackAction: () => this.loadBunenjinFallback(),
+            strategy: 'triple_os_fallback',
+            fallbackAction: () => this.loadTripleOSFallback(),
             userMessage: '分人思想の基本機能で続行します',
             severity: 'info'
         });
@@ -369,8 +369,8 @@ class ErrorHandler {
                 case 'os_analysis_fallback':
                     return await this.performOSAnalysisFallback(strategy);
                     
-                case 'bunenjin_fallback':
-                    return await this.performBunenjinFallback(strategy);
+                case 'triple_os_fallback':
+                    return await this.performTripleOSFallback(strategy);
                     
                 case 'ai_fallback':
                     return await this.performAIFallback(strategy);

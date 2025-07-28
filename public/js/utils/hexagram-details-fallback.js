@@ -195,9 +195,9 @@ class HexagramDetailsFallback {
       lower: this.getTrigramInfo(lowerTrigramId)
     };
 
-    // bunenjin哲学に基づく統合されたキャッチフレーズ生成
+    // Triple OS哲学に基づく統合されたキャッチフレーズ生成
     const personalizedCatchphrase = enhancedContext ? 
-      this.generateBunenjinCatchphrase(enhancedContext, hexagramData, upperTrigramId, lowerTrigramId) :
+      this.generateTripleOSCatchphrase(enhancedContext, hexagramData, upperTrigramId, lowerTrigramId) :
       hexagramData.catchphrase || '深い智慧を持つ人';
 
     return {
@@ -209,7 +209,7 @@ class HexagramDetailsFallback {
       interface,
       safe_mode,
       trigrams,
-      bunenjin_enhanced: enhancedContext ? true : false,
+      triple_os_enhanced: enhancedContext ? true : false,
       generation_quality: enhancedContext ? 0.9 : 0.7
     };
   }
@@ -291,14 +291,14 @@ class HexagramDetailsFallback {
     return strengths.length > 0 ? strengths.slice(0, 3) : ['独特な視点', '深い思考力', '価値観への忠実さ'];
   }
 
-  // bunenjin哲学に基づくキャッチフレーズ生成
-  generateBunenjinCatchphrase(context, hexagramData, upperTrigramId, lowerTrigramId) {
+  // Triple OS哲学に基づくキャッチフレーズ生成
+  generateTripleOSCatchphrase(context, hexagramData, upperTrigramId, lowerTrigramId) {
     const engineOS = context.engineOS?.osName || '';
     const interfaceOS = context.interfaceOS?.osName || '';
     const safeModeOS = context.safeModeOS?.osName || '';
     
     // 各OSの特性を組み合わせたキャッチフレーズ
-    const bunenjinPhrases = {
+    const tripleOSPhrases = {
       // 創造系
       '創造': '新しい可能性を切り拓く革新者',
       '直感': '深い洞察で真理を見抜く賢者',
@@ -316,7 +316,7 @@ class HexagramDetailsFallback {
     // OS名から特性キーワードを抽出
     let catchphrase = hexagramData.catchphrase || '深い智慧を持つ人';
     
-    for (const [key, phrase] of Object.entries(bunenjinPhrases)) {
+    for (const [key, phrase] of Object.entries(tripleOSPhrases)) {
       if (engineOS.includes(key) || interfaceOS.includes(key)) {
         catchphrase = phrase;
         break;
@@ -533,8 +533,8 @@ class HexagramDetailsFallback {
     let qualityScore = 0;
     const maxScore = 100;
     
-    // bunenjin統合チェック
-    if (generatedDetails.bunenjin_enhanced) qualityScore += 30;
+    // Triple OS統合チェック
+    if (generatedDetails.triple_os_enhanced) qualityScore += 30;
     
     // パーソナライゼーションチェック  
     if (generatedDetails.engine?.personalized) qualityScore += 25;

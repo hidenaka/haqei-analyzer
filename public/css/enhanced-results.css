@@ -121,7 +121,7 @@
 /* 64卦シンボル表示 */
 .hexagram-symbol {
     font-family: 'Noto Sans Symbols', 'Segoe UI Symbol', 'MS Gothic', monospace;
-    font-size: 1.5em;
+    font-size: clamp(1.2em, 4vw, 1.5em);
     line-height: 1;
     display: inline-block;
     text-align: center;
@@ -129,12 +129,12 @@
 }
 
 .hexagram-symbol.large {
-    font-size: 3em;
-    margin: 10px 0;
+    font-size: clamp(2.5em, 8vw, 3em);
+    margin: var(--spacing-xs) 0;
 }
 
 .hexagram-symbol.small {
-    font-size: 1.2em;
+    font-size: clamp(1em, 3vw, 1.2em);
 }
 
 /* 統一されたビジュアル言語 */
@@ -243,46 +243,122 @@
 }
 
 /* ======================================
-   基本的なレスポンシブデザイン
+   堅牢なレスポンシブデザインシステム
    ====================================== */
-.triple-os-results-container {
-    padding: 15px;
-    max-width: 1200px;
-    margin: 0 auto;
+
+/* Fluid Typographyとスケーリング */
+:root {
+    /* ベースフォントサイズ - 画面サイズに応じて調整 */
+    --base-font-size: clamp(14px, 2.5vw, 16px);
+    --heading-font-size: clamp(1.2rem, 4vw, 1.8rem);
+    --small-font-size: clamp(12px, 2vw, 14px);
+    
+    /* レスポンシブスペーシング */
+    --spacing-xs: clamp(4px, 1vw, 8px);
+    --spacing-sm: clamp(8px, 2vw, 12px);
+    --spacing-md: clamp(12px, 3vw, 20px);
+    --spacing-lg: clamp(20px, 4vw, 32px);
+    --spacing-xl: clamp(24px, 5vw, 40px);
+    
+    /* レスポンシブボーダーラディウス */
+    --border-radius-sm: clamp(4px, 1vw, 8px);
+    --border-radius-md: clamp(8px, 2vw, 12px);
+    --border-radius-lg: clamp(12px, 3vw, 16px);
+    
+    /* コンテナ最大幅の段階的設定 */
+    --container-max-width: min(1200px, 95vw);
+    --card-min-width: min(280px, 90vw);
+    --card-max-width: min(400px, 100%);
 }
 
+/* 全体コンテナ */
+.triple-os-results-container {
+    padding: var(--spacing-md);
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+/* グリッドレイアウト - より柔軟な設定 */
 .os-detail-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(var(--card-min-width), 1fr));
+    gap: var(--spacing-md);
+    align-items: start;
+    justify-content: center;
 }
 
-/* タブレット向け */
-@media (min-width: 768px) {
+/* 段階的ブレークポイント設定 */
+/* 超小画面 (320px～480px) */
+@media (max-width: 480px) {
+    :root {
+        --card-min-width: 100%;
+        --spacing-md: 8px;
+        --spacing-lg: 16px;
+    }
+    
+    .triple-os-results-container {
+        padding: var(--spacing-sm);
+    }
+    
     .os-detail-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
     }
 }
 
-/* デスクトップ向け */
-@media (min-width: 1024px) {
+/* 小画面 (481px～768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    :root {
+        --card-min-width: min(300px, 100%);
+    }
+    
     .os-detail-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(var(--card-min-width), 1fr));
+        max-width: 600px;
+        margin: 0 auto;
     }
 }
 
-/* OS詳細カードの基本スタイル（更新版） */
+/* タブレット (769px～1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    :root {
+        --card-min-width: min(280px, 45%);
+    }
+    
+    .os-detail-grid {
+        grid-template-columns: repeat(auto-fit, minmax(var(--card-min-width), 1fr));
+        max-width: 900px;
+        margin: 0 auto;
+    }
+}
+
+/* デスクトップ (1025px以上) */
+@media (min-width: 1025px) {
+    .os-detail-grid {
+        grid-template-columns: repeat(3, minmax(300px, 1fr));
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+}
+
+/* OS詳細カードの基本スタイル（レスポンシブ強化版） */
 .os-detail-card {
     background-color: var(--background-primary);
-    border-radius: 16px;
+    border-radius: var(--border-radius-lg);
     box-shadow: 0 8px 24px var(--shadow-light);
-    padding: 30px;
+    padding: var(--spacing-lg);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     position: relative;
     overflow: hidden;
+    min-height: 0; /* フレックスアイテムの縮小を許可 */
+    word-break: break-word;
+    hyphens: auto;
+    box-sizing: border-box;
 }
 
 .os-detail-card::before {
@@ -317,12 +393,15 @@
 }
 
 .os-detail-card h4 {
-    font-size: 1.6em;
+    font-size: clamp(1.2rem, 4vw, 1.6rem);
     color: var(--text-primary);
-    margin-bottom: 12px;
-    padding-bottom: 10px;
+    margin-bottom: var(--spacing-sm);
+    padding-bottom: var(--spacing-xs);
     font-weight: 700;
     position: relative;
+    line-height: 1.3;
+    word-break: break-word;
+    hyphens: auto;
 }
 
 .os-detail-card-engine h4 {
@@ -343,12 +422,16 @@
 .os-detail-card .catchphrase {
     font-style: italic;
     color: var(--text-secondary);
-    margin-bottom: 20px;
-    font-size: 1.1em;
+    margin-bottom: var(--spacing-md);
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
     background: var(--background-secondary);
-    padding: 15px;
-    border-radius: 8px;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-sm);
     border-left: 4px solid;
+    line-height: 1.5;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 .os-detail-card-engine .catchphrase {
@@ -367,18 +450,21 @@
 }
 
 .os-detail-card .detail-section {
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-md);
 }
 
 .os-detail-card .detail-section h5 {
-    font-size: 1.2em;
-    margin-bottom: 8px;
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
+    margin-bottom: var(--spacing-xs);
     border-left: 4px solid;
-    padding-left: 12px;
+    padding-left: var(--spacing-sm);
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--spacing-xs);
+    line-height: 1.4;
+    word-break: break-word;
+    hyphens: auto;
 }
 
 .os-detail-card-engine .detail-section h5 {
@@ -400,13 +486,17 @@
     content: '▸';
     font-size: 0.8em;
     opacity: 0.7;
+    flex-shrink: 0;
 }
 
 .os-detail-card .detail-section p,
 .os-detail-card .detail-section ul {
-    font-size: 1em;
-    line-height: 1.7;
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    line-height: 1.6;
     color: var(--text-secondary);
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 .os-detail-card .detail-section ul {
@@ -416,18 +506,23 @@
 }
 
 .os-detail-card .detail-section li {
-    margin-bottom: 8px;
-    padding-left: 20px;
+    margin-bottom: var(--spacing-xs);
+    padding-left: var(--spacing-md);
     position: relative;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    line-height: 1.5;
 }
 
 .os-detail-card .detail-section li::before {
     content: '●';
     position: absolute;
     left: 0;
-    top: 0;
+    top: 0.2em;
     font-size: 0.8em;
     opacity: 0.6;
+    flex-shrink: 0;
 }
 
 .os-detail-card-engine .detail-section li::before {
@@ -445,20 +540,20 @@
 /* 八卦の視覚的表現（更新版） */
 .hexagram-visual-section {
     text-align: center;
-    margin-bottom: 25px;
-    padding: 20px;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
     background: linear-gradient(135deg, var(--background-secondary) 0%, rgba(255,255,255,0.9) 100%);
-    border-radius: 12px;
+    border-radius: var(--border-radius-md);
     border: 1px solid var(--border-light);
 }
 
 .hexagram-symbol-large {
     font-family: 'Noto Sans Symbols', 'Segoe UI Symbol', 'MS Gothic', monospace;
-    font-size: 5em;
+    font-size: clamp(3em, 12vw, 5em);
     line-height: 0.9;
     color: var(--text-primary);
     text-shadow: 0 2px 4px var(--shadow-light);
-    margin: 10px 0;
+    margin: var(--spacing-xs) 0;
     display: block;
     transition: all 0.3s ease;
 }
@@ -1800,6 +1895,128 @@
     padding-bottom: 10px;
 }
 
+/* os-aspect-preview カードのスタイル追加 */
+.os-aspect-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: clamp(1rem, 2vw, 1.5rem);
+    margin: clamp(1.5rem, 3vw, 2rem) 0;
+}
+
+.os-aspect-card {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 1.5vw, 1rem);
+    padding: clamp(1rem, 2vw, 1.5rem);
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    min-height: 80px;
+}
+
+.os-aspect-card:hover {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(99, 102, 241, 0.6);
+    transform: translateY(-2px);
+}
+
+.os-aspect-icon {
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    flex-shrink: 0;
+}
+
+.os-aspect-info {
+    flex: 1;
+    min-width: 0; /* flex子要素のテキスト折り返しを確保 */
+}
+
+.os-aspect-info h3 {
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    font-weight: 600;
+    color: #f1f5f9;
+    margin: 0 0 0.25rem 0;
+    line-height: 1.3;
+}
+
+.os-aspect-info p {
+    font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+    color: #cbd5e1;
+    margin: 0;
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+/* エンジンカード */
+.os-aspect-card.engine-preview {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+}
+
+.os-aspect-card.engine-preview:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1));
+}
+
+/* インターフェースカード */
+.os-aspect-card.interface-preview {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
+}
+
+.os-aspect-card.interface-preview:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.1));
+}
+
+/* セーフモードカード */
+.os-aspect-card.safemode-preview {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.05));
+}
+
+.os-aspect-card.safemode-preview:hover {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.1));
+}
+
+/* 大画面対応 */
+@media (min-width: 1200px) {
+    .os-aspect-preview {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 1000px;
+        margin: 2rem auto;
+    }
+    
+    .os-aspect-card {
+        min-height: 100px;
+    }
+}
+
+/* タブレット対応 */
+@media (max-width: 768px) {
+    .os-aspect-preview {
+        grid-template-columns: 1fr;
+    }
+    
+    .os-aspect-card {
+        gap: 1rem;
+    }
+}
+
+/* モバイル対応 */
+@media (max-width: 480px) {
+    .os-aspect-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1rem;
+    }
+    
+    .os-aspect-icon {
+        margin-bottom: 0.5rem;
+    }
+    
+    .os-aspect-info h3,
+    .os-aspect-info p {
+        text-align: center;
+    }
+}
+
 /* Chart.jsのコンテナ */
 .chart-container {
     position: relative;
@@ -2651,10 +2868,13 @@
 .wisdom-disclaimer {
     background: var(--disclaimer-bg);
     border: 2px solid var(--disclaimer-border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin: 1.5rem 0;
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 .disclaimer-content {
@@ -2676,10 +2896,13 @@
 
 .disclaimer-message p {
     color: var(--disclaimer-text);
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
     font-weight: 500;
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.6;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 /* ======================================
@@ -2688,11 +2911,14 @@
 
 .self-reflection-prompt {
     background: var(--reflection-bg);
-    border-radius: 16px;
-    padding: 2rem;
-    margin: 2rem 0;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    margin: var(--spacing-xl) 0;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     border-left: 4px solid var(--reflection-accent);
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 .reflection-content {
@@ -2701,20 +2927,27 @@
 
 .reflection-title {
     color: var(--reflection-accent);
-    font-size: 1.3rem;
+    font-size: clamp(1.1rem, 4vw, 1.3rem);
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-bottom: var(--spacing-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: var(--spacing-xs);
+    line-height: 1.3;
+    word-break: break-word;
+    hyphens: auto;
+    flex-wrap: wrap;
 }
 
 .reflection-message p {
     color: #495057;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
     line-height: 1.6;
-    margin-bottom: 0.8rem;
+    margin-bottom: var(--spacing-sm);
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 .reflection-insight {
@@ -2722,14 +2955,14 @@
     color: #343a40 !important;
 }
 
-.bunenjin-reminder {
+.os-aspect-reminder {
     background: rgba(108, 117, 125, 0.1);
     border-radius: 8px;
     padding: 1rem;
     margin-top: 1.2rem;
 }
 
-.bunenjin-reminder .philosophy-note {
+.os-aspect-reminder .philosophy-note {
     font-size: 0.9rem;
     color: var(--reflection-accent);
     font-style: italic;
@@ -2767,14 +3000,16 @@
 
 .ancient-wisdom-intro {
     background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-    border-radius: 16px;
-    padding: 2.5rem;
-    margin: 2rem 0;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    margin: var(--spacing-xl) 0;
     text-align: center;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
     overflow: hidden;
+    word-break: break-word;
+    hyphens: auto;
 }
 
 .ancient-wisdom-intro::before {
@@ -2795,44 +3030,57 @@
 
 .wisdom-title {
     color: #ffd700;
-    font-size: 1.8rem;
+    font-size: clamp(1.4rem, 5vw, 1.8rem);
     font-weight: 700;
-    margin-bottom: 1.2rem;
+    margin-bottom: var(--spacing-md);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: var(--spacing-xs);
+    line-height: 1.3;
+    word-break: break-word;
+    hyphens: auto;
+    flex-wrap: wrap;
 }
 
 .wisdom-message {
     color: #f7fafc;
-    font-size: 1.1rem;
+    font-size: clamp(0.95rem, 3vw, 1.1rem);
     line-height: 1.6;
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-lg);
     font-weight: 500;
-    max-width: 800px;
+    max-width: min(800px, 90%);
     margin-left: auto;
     margin-right: auto;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 .wisdom-note {
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 1.5rem;
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
     border: 1px solid rgba(255, 215, 0, 0.2);
     backdrop-filter: blur(10px);
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 .philosophy-note {
     color: #cbd5e0;
-    font-size: 0.95rem;
+    font-size: clamp(0.85rem, 2.5vw, 0.95rem);
     line-height: 1.7;
     margin: 0;
     font-style: italic;
-    max-width: 700px;
+    max-width: min(700px, 90%);
     margin-left: auto;
     margin-right: auto;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
 }
 
 /* レスポンシブ対応 */
@@ -2872,5 +3120,430 @@
     
     .explanation-section li {
         font-size: 0.8rem;
+    }
+}
+
+/* ======================================
+   新規追加：TripleOSResultsView.js専用レスポンシブスタイル
+   ====================================== */
+
+/* ヒーローセクション */
+.hero-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    background: linear-gradient(135deg, var(--background-secondary) 0%, rgba(255,255,255,0.9) 100%);
+    border-radius: var(--border-radius-lg);
+    text-align: center;
+}
+
+.hero-content {
+    flex: 1;
+}
+
+.archetype-title {
+    font-size: clamp(1.5rem, 6vw, 2.5rem);
+    line-height: 1.2;
+    margin: var(--spacing-sm) 0;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.archetype-catchphrase {
+    font-size: clamp(1rem, 3.5vw, 1.3rem);
+    font-style: italic;
+    color: var(--text-secondary);
+    margin: var(--spacing-md) 0;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.archetype-type, .archetype-reading {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* インタラクティブチャートコンテナ */
+.interactive-chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-md);
+}
+
+.interactive-chart-container canvas {
+    max-width: 100%;
+    height: auto !important;
+    width: auto !important;
+    max-height: clamp(300px, 50vw, 400px);
+}
+
+/* OSセクション */
+.triple-os-section {
+    margin: var(--spacing-xl) 0;
+}
+
+.triple-os-concept-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    padding: 0 var(--spacing-md);
+}
+
+.section-title {
+    font-size: clamp(1.3rem, 4.5vw, 2rem);
+    line-height: 1.3;
+    margin-bottom: var(--spacing-md);
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.section-subtitle {
+    font-size: clamp(0.9rem, 2.8vw, 1.1rem);
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.triple-os-philosophy {
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    line-height: 1.7;
+    color: var(--text-secondary);
+    font-style: italic;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+/* OSカードグリッド */
+.triple-os-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--card-min-width), 1fr));
+    gap: var(--spacing-md);
+    align-items: start;
+    justify-content: center;
+}
+
+/* 個別OSカード */
+.interactive-os-card {
+    background: var(--background-primary);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: 0 8px 24px var(--shadow-light);
+    transition: all 0.3s ease;
+    word-break: break-word;
+    hyphens: auto;
+    box-sizing: border-box;
+    min-height: 0;
+}
+
+.interactive-os-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px var(--shadow-medium);
+}
+
+.os-card-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.os-info h3 {
+    font-size: clamp(1rem, 3.5vw, 1.3rem);
+    line-height: 1.4;
+    margin-bottom: var(--spacing-sm);
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.os-name {
+    font-size: clamp(1.1rem, 4vw, 1.4rem);
+    font-weight: 700;
+    line-height: 1.3;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.os-subtitle, .os-catchphrase, .os-description {
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    line-height: 1.6;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.triple-os-explanation small {
+    font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+    line-height: 1.5;
+    display: block;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+/* スコア表示 */
+.score-container {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--background-secondary);
+    border-radius: var(--border-radius-sm);
+}
+
+.score-title {
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    font-weight: 600;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.score-explanation p {
+    font-size: clamp(0.85rem, 2.3vw, 0.95rem);
+    line-height: 1.6;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.explanation-section {
+    margin-bottom: var(--spacing-sm);
+}
+
+.explanation-section strong {
+    font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+    display: block;
+    margin-bottom: var(--spacing-xs);
+}
+
+.explanation-section ul {
+    margin: 0;
+    padding-left: var(--spacing-md);
+}
+
+.explanation-section li {
+    font-size: clamp(0.75rem, 2vw, 0.85rem);
+    line-height: 1.5;
+    margin-bottom: var(--spacing-xs);
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+/* 新規追加：ヘルプモーダルのレスポンシブ対応 */
+.help-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md);
+}
+
+.help-modal-content {
+    background: var(--background-primary);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    max-width: min(600px, 90vw);
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.help-modal h2 {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    margin-bottom: var(--spacing-md);
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.help-modal h3 {
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
+    margin: var(--spacing-md) 0 var(--spacing-xs) 0;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.help-modal p, .help-modal li {
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    line-height: 1.6;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+/* レスポンシブ対応の追加 */
+@media (max-width: 480px) {
+    .hero-section {
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+    }
+    
+    .triple-os-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .interactive-os-card {
+        padding: var(--spacing-md);
+    }
+    
+    .os-card-header {
+        gap: var(--spacing-xs);
+    }
+    
+    .help-modal-content {
+        padding: var(--spacing-md);
+        max-width: 95vw;
+    }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .hero-section {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+    }
+    
+    .hero-content {
+        flex: 1;
+    }
+    
+    .interactive-chart-container {
+        flex: 0 0 auto;
+        max-width: 350px;
+    }
+}
+
+@media (min-width: 769px) {
+    .hero-section {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+    }
+    
+    .hero-content {
+        flex: 1;
+        padding-right: var(--spacing-lg);
+    }
+    
+    .interactive-chart-container {
+        flex: 0 0 auto;
+        max-width: 400px;
+    }
+}
+
+/* 自己探求プロンプトセクションの追加対応 */
+.self-reflection-section {
+    margin: var(--spacing-xl) 0;
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--reflection-bg) 0%, rgba(255,255,255,0.9) 100%);
+    border-radius: var(--border-radius-lg);
+    border-left: 4px solid var(--reflection-accent);
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.reflection-section-title {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    color: var(--reflection-accent);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.reflection-questions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.reflection-question {
+    padding: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--border-radius-sm);
+    border-left: 3px solid var(--reflection-accent);
+}
+
+.reflection-question h4 {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-primary);
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.reflection-question p {
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin: 0;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+/* インタラクティブ要素の追加対応 */
+.interactive-element {
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+}
+
+.help-button {
+    position: fixed;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--interface-primary);
+    color: white;
+    border: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 12px var(--shadow-medium);
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.help-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px var(--shadow-heavy);
+}
+
+/* 追加のモバイル対応 */
+@media (max-width: 320px) {
+    :root {
+        --spacing-xs: 4px;
+        --spacing-sm: 6px;
+        --spacing-md: 8px;
+        --spacing-lg: 12px;
+        --spacing-xl: 16px;
+    }
+    
+    .hero-section, .triple-os-concept-header, .interactive-os-card {
+        padding: var(--spacing-sm);
+    }
+    
+    .help-button {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
     }
 }

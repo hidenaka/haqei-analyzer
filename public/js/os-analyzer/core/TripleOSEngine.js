@@ -927,6 +927,199 @@ class TripleOSEngine {
     return 0.8;
   }
 
+  // エンジンOSとインターフェースOSの不一致度を計算
+  calculateOSMisalignment(engineOS, interfaceOS, safeModeOS) {
+    const engineScore = engineOS.matchScore || 50;
+    const interfaceScore = interfaceOS.matchScore || 50;
+    const safeModeScore = safeModeOS.matchScore || 30;
+    
+    // エンジンとインターフェースの差異
+    const engineInterfaceDifference = Math.abs(engineScore - interfaceScore);
+    
+    // 不一致度（0-100）
+    const misalignmentScore = Math.min(engineInterfaceDifference, 100);
+    
+    // セーフモード発動リスク（不一致が大きいほど高い）
+    const safeModeActivationRisk = Math.min(misalignmentScore * 1.2, 100);
+    
+    // セーフモード長期化リスク（セーフモードスコアが高く、不一致も大きい場合）
+    const safeModeChronificationRisk = Math.min(
+      (safeModeScore * 0.7) + (misalignmentScore * 0.3), 
+      100
+    );
+    
+    return {
+      misalignmentScore,
+      safeModeActivationRisk,
+      safeModeChronificationRisk,
+      riskLevel: this.categorizeRisk(safeModeActivationRisk),
+      chronificationLevel: this.categorizeRisk(safeModeChronificationRisk)
+    };
+  }
+
+  // リスクレベルの分類
+  categorizeRisk(score) {
+    if (score >= 70) return 'high';
+    if (score >= 40) return 'medium';
+    return 'low';
+  }
+
+  // セーフモード発動トリガーの分析
+  analyzeSafeModeActivationTriggers(engineOS, interfaceOS, misalignmentData) {
+    const triggers = [];
+    
+    if (misalignmentData.misalignmentScore >= 30) {
+      triggers.push({
+        type: 'value_conflict',
+        description: '本来の価値観（エンジンOS）と社会的役割（インターフェースOS）の間に大きなギャップがある',
+        severity: misalignmentData.riskLevel,
+        advice: '価値観と社会的役割を少しずつすり合わせることで、内面の葛藤を和らげることができます'
+      });
+    }
+    
+    if (engineOS.matchScore >= 70 && interfaceOS.matchScore <= 40) {
+      triggers.push({
+        type: 'authenticity_suppression',
+        description: '強い個性や価値観を持ちながら、社会的場面でそれを表現しにくい状況',
+        severity: 'medium',
+        advice: '少しずつ本来の自分を表現できる環境や方法を見つけていくことが重要です'
+      });
+    }
+    
+    if (interfaceOS.matchScore >= 70 && engineOS.matchScore <= 40) {
+      triggers.push({
+        type: 'role_overload',
+        description: '社会的期待に応えようとするあまり、本来の自分を見失いがちな状況',
+        severity: 'medium',
+        advice: '時には社会的な期待よりも、自分の内面の声に耳を傾ける時間を作りましょう'
+      });
+    }
+    
+    return triggers;
+  }
+
+  // セーフモード長期化の影響分析
+  analyzeSafeModeChronificationEffects(safeModeOS, misalignmentData) {
+    const effects = [];
+    
+    if (misalignmentData.safeModeChronificationRisk >= 60) {
+      effects.push({
+        type: 'identity_confusion',
+        description: '本来の自分（エンジンOS）が分からなくなり、人生の方向性を見失う',
+        severity: 'high',
+        manifestation: '「自分が何をしたいのか分からない」「やりがいを感じられない」という状態'
+      });
+      
+      effects.push({
+        type: 'emotional_numbing',
+        description: '感情の麻痺や意欲の低下が起こりやすくなる',
+        severity: 'high', 
+        manifestation: '楽しいと感じることが減る、何事にも興味が湧かない状態'
+      });
+    }
+    
+    if (misalignmentData.safeModeChronificationRisk >= 40) {
+      effects.push({
+        type: 'relationship_difficulty',
+        description: '本音を隠し続けることで、深い人間関係を築きにくくなる',
+        severity: 'medium',
+        manifestation: '表面的な付き合いばかりで、本当に理解し合える関係が少ない'
+      });
+      
+      effects.push({
+        type: 'decision_paralysis',
+        description: '重要な決断を避けたり、先延ばしにしがちになる',
+        severity: 'medium',
+        manifestation: '転職、結婚、住居など人生の重要な選択を決められない'
+      });
+    }
+    
+    return effects;
+  }
+
+  // セーフモード暴走パターンの分析
+  analyzeSafeModeRunawayPatterns(safeModeOS, misalignmentData) {
+    const patterns = [];
+    
+    if (misalignmentData.safeModeChronificationRisk >= 70) {
+      patterns.push({
+        type: 'impulsive_escape',
+        description: '突然の環境リセット（転職、引っ越し、人間関係の断絶など）',
+        warning: '一時的には楽になるが、根本的な問題は解決されない',
+        prevention: '重要な決断をする前に、一度立ち止まって本当に望んでいることを考える時間を作る'
+      });
+      
+      patterns.push({
+        type: 'emotional_explosion',
+        description: '抑圧されていた感情が爆発的に表れる（怒り、悲しみ、絶望など）',
+        warning: '周囲との関係に大きな影響を与える可能性がある',
+        prevention: '定期的に自分の感情を確認し、小さなうちに表現する習慣をつける'
+      });
+      
+      patterns.push({
+        type: 'self_destructive_behavior',
+        description: '自分を傷つけるような行動パターン（過労、散財、依存行動など）',
+        warning: '身体的、精神的健康に深刻な影響を与える可能性',
+        prevention: 'ストレスのサインを早めにキャッチし、健康的な発散方法を見つける'
+      });
+    }
+    
+    return patterns;
+  }
+
+  // セーフモード全体評価の生成
+  generateSafeModeOverallAssessment(misalignmentData, triggers, effects) {
+    let assessment = {
+      level: 'healthy',
+      summary: '',
+      keyPoints: [],
+      recommendations: []
+    };
+
+    if (misalignmentData.safeModeChronificationRisk >= 70) {
+      assessment.level = 'high_risk';
+      assessment.summary = 'セーフモードOSが長期化し、暴走のリスクが高い状態です。早急な対処が必要です。';
+      assessment.keyPoints = [
+        'エンジンOSとインターフェースOSの大きな不一致',
+        '本来の自分を見失いがちな状況',
+        '感情の爆発や衝動的な行動のリスク'
+      ];
+      assessment.recommendations = [
+        '専門カウンセラーや信頼できる人への相談を検討',
+        '重要な決断は一時的に保留し、冷静になる時間を作る',
+        '日記やジャーナリングで自分の感情を客観視する習慣をつける'
+      ];
+    } else if (misalignmentData.safeModeChronificationRisk >= 40) {
+      assessment.level = 'moderate_risk';
+      assessment.summary = 'セーフモードOSが時々作動し、注意が必要な状態です。';
+      assessment.keyPoints = [
+        'ストレス時に防御的になりがち',
+        '本音と建前のギャップに疲れを感じる',
+        '人間関係で深いつながりを築きにくい'
+      ];
+      assessment.recommendations = [
+        '定期的にリラックスできる時間を確保する',
+        '信頼できる人には本音を話す機会を作る',
+        '価値観と行動の一致度を定期的に見直す'
+      ];
+    } else {
+      assessment.level = 'healthy';
+      assessment.summary = 'セーフモードOSが適切に機能し、バランスの取れた状態です。';
+      assessment.keyPoints = [
+        '3つのOS側面がバランス良く機能している',
+        'ストレス時も適切に対処できている',
+        '本来の自分らしさを保ちながら社会的役割も果たせている'
+      ];
+      assessment.recommendations = [
+        '現在の良いバランスを維持する',
+        '時々自分の状態をチェックし、変化に気づく',
+        '新しい挑戦や成長の機会を積極的に探す'
+      ];
+    }
+
+    return assessment;
+  }
+
   // 統合洞察生成 - 分人思想に基づく実践的な洞察
   generateIntegrationInsights(
     engineOS,
@@ -937,21 +1130,27 @@ class TripleOSEngine {
   ) {
     const topDimensions = dimensions.slice(0, 3);
     
-    // 分人思想の核心概念を含む説明
-    const bunenjinExplanation = this.generateBunenjinExplanation(engineOS, interfaceOS, safeModeOS);
+    // Triple OS概念の核心を含む説明
+    const tripleOSExplanation = this.generateTripleOSExplanation(engineOS, interfaceOS, safeModeOS);
     
     // OS間の相互作用分析
     const osInteractionAnalysis = this.analyzeOSInteractions(engineOS, interfaceOS, safeModeOS, consistencyScore);
+    
+    // セーフモード分析
+    const misalignmentData = this.calculateOSMisalignment(engineOS, interfaceOS, safeModeOS);
+    const safeModeActivationTriggers = this.analyzeSafeModeActivationTriggers(engineOS, interfaceOS, misalignmentData);
+    const safeModeEffects = this.analyzeSafeModeChronificationEffects(safeModeOS, misalignmentData);
+    const safeModeRunawayPatterns = this.analyzeSafeModeRunawayPatterns(safeModeOS, misalignmentData);
     
     // 実践的な生活戦略
     const practicalStrategies = this.generatePracticalLifeStrategies(engineOS, interfaceOS, safeModeOS);
     
     return {
-      // 分人思想の基本概念説明
-      bunenjinConcept: {
-        title: "あなたの中に住む3人の『分人』",
-        explanation: bunenjinExplanation.concept,
-        practicalMeaning: bunenjinExplanation.practicalMeaning
+      // Triple OSの基本概念説明
+      tripleOSConcept: {
+        title: "あなたの中に住む3つのOS側面",
+        explanation: tripleOSExplanation.concept,
+        practicalMeaning: tripleOSExplanation.practicalMeaning
       },
       
       // 各OSの役割明確化
@@ -995,13 +1194,26 @@ class TripleOSEngine {
       // 実践的な生活戦略
       practicalStrategies: practicalStrategies,
       
-      // 分人思想に基づく推奨事項
-      bunenjinRecommendations: [
-        "🎭 3つの分人それぞれの特徴を理解し、場面に応じて意識的に使い分けましょう",
+      // セーフモード詳細分析
+      safeModeAnalysis: {
+        misalignmentData: misalignmentData,
+        activationTriggers: safeModeActivationTriggers,
+        chronificationEffects: safeModeEffects,
+        runawayPatterns: safeModeRunawayPatterns,
+        riskAssessment: {
+          activationRisk: misalignmentData.riskLevel,
+          chronificationRisk: misalignmentData.chronificationLevel,
+          overallAssessment: this.generateSafeModeOverallAssessment(misalignmentData, safeModeActivationTriggers, safeModeEffects)
+        }
+      },
+      
+      // Triple OSに基づく推奨事項
+      tripleOSRecommendations: [
+        "🎭 3つのOS側面それぞれの特徴を理解し、場面に応じて意識的に使い分けましょう",
         "💎 エンジンOSの価値観を大切にしながら、社会的場面ではインターフェースOSを活用しましょう",
         "🛡️ セーフモードは緊急時の味方です。過度に頼らず、適切な時に活用しましょう",
-        "⚖️ 3つの分人のバランスが取れた時、あなたは最も自然で魅力的な存在になります",
-        "🌱 『真の自分探し』よりも『分人の育成』を意識して、多面的な成長を目指しましょう"
+        "⚖️ 3つのOS側面のバランスが取れた時、あなたは最も自然で魅力的な存在になります",
+        "🌱 『真の自分探し』よりも『Triple OSの育成』を意識して、多面的な成長を目指しましょう"
       ]
     };
   }
@@ -1188,8 +1400,8 @@ class TripleOSEngine {
       console.log("💡 Generating insights for Triple OS result...");
       
       const insights = {
-        // 分人思想に基づく包括的理解
-        bunenjinSummary: this.generateBunenjinSummary(analysisResult),
+        // Triple OS哲学に基づく包括的理解
+        tripleOSSummary: this.generateTripleOSSummary(analysisResult),
         
         // 各分人の特徴と活用法
         personalityProfiles: {
@@ -1906,6 +2118,36 @@ class TripleOSEngine {
     const result = safeModeMapping[engineHexagramId] || ((engineHexagramId % 32) + 32);
     console.log(`🔧 Dynamic SafeMode OS calculation: Engine ${engineHexagramId} → SafeMode ${result}`);
     return result;
+  }
+
+  // Triple OS説明生成メソッド
+  generateTripleOSExplanation(engineOS, interfaceOS, safeModeOS) {
+    const concept = `あなたの人格は単一ではなく、3つの異なる「オペレーティングシステム（OS）」によって構成されています。
+
+**🔥 エンジンOS「${engineOS.osName}」** - あなたの本質的な価値観と動機の源泉
+**🌐 インターフェースOS「${interfaceOS.hexagramInfo?.name_jp || "未分析"}」** - 社会と関わる時に現れる人格
+**🛡️ セーフモードOS「${safeModeOS.hexagramInfo?.name_jp || "未分析"}」** - 困難な状況で自分を守る防御システム
+
+これらは互いに補完し合いながら、状況に応じて切り替わることで、あなたの複雑で豊かな人間性を形成しています。`;
+
+    const practicalMeaning = `この3つのOSの理解により、以下のことが可能になります：
+
+**🎯 自己理解の深化** 
+なぜ場面によって自分が変わるのか、その仕組みが明確になります。
+
+**⚖️ 状況適応力の向上** 
+各OSの特性を活かして、場面に応じた最適な振る舞いを選択できます。
+
+**🛡️ ストレス軽減** 
+セーフモードOSの働きを理解することで、防御的な反応をコントロールしやすくなります。
+
+**🌱 統合的成長** 
+「真の自分探し」から「3つのOSの調和」へと視点を転換し、より建設的な自己成長が可能になります。`;
+
+    return {
+      concept,
+      practicalMeaning
+    };
   }
 }
 

@@ -1923,17 +1923,237 @@ var SCENARIO_QUESTIONS = [
   },
 ];
 
+// ===========================================
+// Phase 2: セーフモードOS詳細特定用追加質問
+// 防御システムの発動パターンと対処方法を詳細に把握
+// ===========================================
+
+var SAFEMODE_DETAILED_QUESTIONS = [
+  {
+    id: "sm1",
+    title: "防御システム発動シナリオ",
+    scenario:
+      "あなたは長期間にわたって、自分の価値観と周囲の期待が大きく食い違う環境で働いています。最近、ストレスが限界に近づいているのを感じています。",
+    inner_q: "この状況で最も強く感じることは？",
+    outer_q: "周囲に対してどのような行動を取りやすいですか？",
+    options: {
+      inner: [
+        {
+          value: "A",
+          text: "「もう限界だ、すべてを投げ出したい」という衝動",
+          scoring_tags: [
+            { key: "safemode_impulse", value: 3.0 },
+            { key: "震_行動性", value: 2.0 },
+            { key: "艮_安定性", value: -2.0 },
+          ],
+        },
+        {
+          value: "B",
+          text: "心身の不調（頭痛、不眠、食欲不振など）",
+          scoring_tags: [
+            { key: "safemode_physical", value: 3.0 },
+            { key: "坤_受容性", value: -1.5 },
+            { key: "艮_安定性", value: -1.5 },
+          ],
+        },
+        {
+          value: "C",
+          text: "「すべて周りが悪い」という怒りと不満",
+          scoring_tags: [
+            { key: "safemode_blame", value: 3.0 },
+            { key: "離_表現性", value: 2.0 },
+            { key: "兌_調和性", value: -2.0 },
+          ],
+        },
+        {
+          value: "D",
+          text: "無気力と虚無感、何も感じたくない",
+          scoring_tags: [
+            { key: "safemode_numbness", value: 3.0 },
+            { key: "坎_探求性", value: -2.0 },
+            { key: "乾_創造性", value: -2.0 },
+          ],
+        },
+        {
+          value: "E",
+          text: "「まだ大丈夫」と自分に言い聞かせる",
+          scoring_tags: [
+            { key: "safemode_denial", value: 2.5 },
+            { key: "艮_安定性", value: 1.0 },
+            { key: "巽_適応性", value: -1.0 },
+          ],
+        },
+      ],
+      outer: [
+        {
+          value: "A",
+          text: "突発的な辞職や関係の断絶など、極端な行動",
+          scoring_tags: [
+            { key: "safemode_impulse", value: 3.0 },
+            { key: "震_行動性", value: 3.0 },
+            { key: "兌_調和性", value: -3.0 },
+          ],
+        },
+        {
+          value: "B",
+          text: "過度な飲酒、衝動買い、ギャンブルなどの逃避行動",
+          scoring_tags: [
+            { key: "safemode_escape", value: 3.0 },
+            { key: "巽_適応性", value: -2.0 },
+            { key: "艮_安定性", value: -2.0 },
+          ],
+        },
+        {
+          value: "C",
+          text: "周囲への攻撃的な言動、過度な批判",
+          scoring_tags: [
+            { key: "safemode_blame", value: 3.0 },
+            { key: "離_表現性", value: 2.5 },
+            { key: "坤_受容性", value: -3.0 },
+          ],
+        },
+        {
+          value: "D",
+          text: "引きこもり、連絡を断つ、孤立する",
+          scoring_tags: [
+            { key: "safemode_withdrawal", value: 3.0 },
+            { key: "坎_探求性", value: -1.5 },
+            { key: "兌_調和性", value: -2.5 },
+          ],
+        },
+        {
+          value: "E",
+          text: "表面上は普通に振る舞うが、内面では限界",
+          scoring_tags: [
+            { key: "safemode_mask", value: 2.5 },
+            { key: "艮_安定性", value: 1.5 },
+            { key: "離_表現性", value: -1.5 },
+          ],
+        },
+      ],
+    },
+  },
+  
+  {
+    id: "sm2",
+    title: "防御システムからの回復",
+    scenario:
+      "過去に防御システムが強く発動した経験がある場合、そこから回復するために何が最も効果的でしたか？",
+    recovery_q: "あなたにとって最も効果的だった回復方法は？",
+    prevention_q: "今後、防御システムの暴走を防ぐために心がけていることは？",
+    options: {
+      recovery: [
+        {
+          value: "A",
+          text: "信頼できる人に本音を話し、サポートを受ける",
+          scoring_tags: [
+            { key: "recovery_support", value: 3.0 },
+            { key: "兌_調和性", value: 2.0 },
+            { key: "坤_受容性", value: 2.0 },
+          ],
+        },
+        {
+          value: "B",
+          text: "環境を変える（転職、引っ越し、人間関係の整理）",
+          scoring_tags: [
+            { key: "recovery_change", value: 3.0 },
+            { key: "震_行動性", value: 2.0 },
+            { key: "乾_創造性", value: 1.5 },
+          ],
+        },
+        {
+          value: "C",
+          text: "専門家（カウンセラー、医師）の助けを借りる",
+          scoring_tags: [
+            { key: "recovery_professional", value: 3.0 },
+            { key: "坎_探求性", value: 2.0 },
+            { key: "艮_安定性", value: 1.5 },
+          ],
+        },
+        {
+          value: "D",
+          text: "休養を取り、自分のペースで少しずつ回復",
+          scoring_tags: [
+            { key: "recovery_rest", value: 3.0 },
+            { key: "艮_安定性", value: 2.5 },
+            { key: "坤_受容性", value: 1.5 },
+          ],
+        },
+        {
+          value: "E",
+          text: "新しい価値観や生き方を模索する",
+          scoring_tags: [
+            { key: "recovery_transform", value: 3.0 },
+            { key: "乾_創造性", value: 2.5 },
+            { key: "巽_適応性", value: 2.0 },
+          ],
+        },
+      ],
+      prevention: [
+        {
+          value: "A",
+          text: "定期的に自分の状態をチェックし、早めに対処",
+          scoring_tags: [
+            { key: "prevention_awareness", value: 3.0 },
+            { key: "坎_探求性", value: 2.5 },
+            { key: "艮_安定性", value: 2.0 },
+          ],
+        },
+        {
+          value: "B",
+          text: "ストレス発散の方法を複数持つ",
+          scoring_tags: [
+            { key: "prevention_outlet", value: 3.0 },
+            { key: "巽_適応性", value: 2.5 },
+            { key: "震_行動性", value: 1.5 },
+          ],
+        },
+        {
+          value: "C",
+          text: "無理をしない、断る勇気を持つ",
+          scoring_tags: [
+            { key: "prevention_boundary", value: 3.0 },
+            { key: "離_表現性", value: 2.0 },
+            { key: "艮_安定性", value: 2.0 },
+          ],
+        },
+        {
+          value: "D",
+          text: "価値観の合う環境や人間関係を選ぶ",
+          scoring_tags: [
+            { key: "prevention_alignment", value: 3.0 },
+            { key: "兌_調和性", value: 2.5 },
+            { key: "乾_創造性", value: 1.5 },
+          ],
+        },
+        {
+          value: "E",
+          text: "柔軟性を持ち、完璧を求めすぎない",
+          scoring_tags: [
+            { key: "prevention_flexibility", value: 3.0 },
+            { key: "巽_適応性", value: 2.5 },
+            { key: "坤_受容性", value: 2.0 },
+          ],
+        },
+      ],
+    },
+  },
+];
+
 // グローバル変数としてデータを登録
 if (typeof window !== "undefined") {
   window.WORLDVIEW_QUESTIONS = WORLDVIEW_QUESTIONS;
   window.SCENARIO_QUESTIONS = SCENARIO_QUESTIONS;
+  window.SAFEMODE_DETAILED_QUESTIONS = SAFEMODE_DETAILED_QUESTIONS;
   console.log("✅ Questions data loaded and set to window:", {
     WORLDVIEW_QUESTIONS: WORLDVIEW_QUESTIONS?.length || 0,
     SCENARIO_QUESTIONS: SCENARIO_QUESTIONS?.length || 0,
+    SAFEMODE_DETAILED_QUESTIONS: SAFEMODE_DETAILED_QUESTIONS?.length || 0,
   });
 } else {
   console.log("✅ Questions data loaded:", {
     WORLDVIEW_QUESTIONS: WORLDVIEW_QUESTIONS?.length || 0,
     SCENARIO_QUESTIONS: SCENARIO_QUESTIONS?.length || 0,
+    SAFEMODE_DETAILED_QUESTIONS: SAFEMODE_DETAILED_QUESTIONS?.length || 0,
   });
 }

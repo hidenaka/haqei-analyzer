@@ -2,6 +2,191 @@
 /* HaQei Analyzer - Strategic Dashboard Styles */
 
 /* =================================== */
+/* セーフモードOS理論説明スタイル */
+/* =================================== */
+
+.safemode-theory-explanation {
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.1) 0%, 
+    rgba(147, 51, 234, 0.1) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.safemode-theory-explanation h4 {
+  color: #60a5fa;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.theory-content p {
+  color: #e2e8f0;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.theory-points {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.theory-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+  border-left: 3px solid #60a5fa;
+}
+
+.theory-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.point-content strong {
+  color: #f1f5f9;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.point-content p {
+  color: #cbd5e1;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* トリガー分析スタイル */
+.trigger-analysis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 8px;
+}
+
+.external-factors, .internal-factors {
+  padding: 0.75rem;
+  border-radius: 6px;
+}
+
+.external-factors {
+  background: rgba(34, 197, 94, 0.1);
+  border-left: 3px solid #22c55e;
+}
+
+.internal-factors {
+  background: rgba(168, 85, 247, 0.1);
+  border-left: 3px solid #a855f7;
+}
+
+.external-factors h5, .internal-factors h5 {
+  color: #f1f5f9;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.external-factors p, .internal-factors p {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* 暴走例スタイル */
+.runaway-warning {
+  background: linear-gradient(135deg, 
+    rgba(239, 68, 68, 0.1) 0%, 
+    rgba(249, 115, 22, 0.1) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.runaway-warning h5 {
+  color: #fbbf24;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.runaway-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.runaway-category {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 6px;
+}
+
+.runaway-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.runaway-category strong {
+  color: #f59e0b;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.runaway-category p {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .theory-points {
+    gap: 0.75rem;
+  }
+  
+  .theory-point {
+    flex-direction: column;
+    text-align: left;
+  }
+  
+  .trigger-analysis {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .runaway-category {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* =================================== */
 /* 戦略ダッシュボード基本レイアウト */
 /* =================================== */
 
@@ -337,29 +522,35 @@
 
 /* パネルボディ */
 .panel-body {
-  padding: 1.5rem;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* OS アイデンティティセクション */
 .os-identity {
-  margin-bottom: 2rem;
+  margin-bottom: clamp(1.5rem, 3vw, 2rem);
   text-align: center;
 }
 
 .os-name {
-  font-size: 1.4rem;
+  font-size: clamp(1.2rem, 2.5vw, 1.4rem);
   font-weight: 700;
   color: var(--primary-50, #f8fafc);
   margin-bottom: 0.5rem;
   font-family: 'Shippori Mincho', serif;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .os-catchphrase {
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 1.8vw, 1rem);
   color: var(--primary-300, #cbd5e1);
-  margin-bottom: 1rem;
+  margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
   font-style: italic;
   line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* メーター・スコア表示 */
@@ -440,17 +631,21 @@
 }
 
 .keyword-tag {
-  padding: 0.4rem 0.8rem;
+  padding: clamp(0.3rem, 0.6vw, 0.4rem) clamp(0.6rem, 1.2vw, 0.8rem);
   background: linear-gradient(135deg, 
     rgba(239, 68, 68, 0.2) 0%, 
     rgba(249, 115, 22, 0.2) 100%);
   border: 1px solid rgba(239, 68, 68, 0.4);
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: clamp(0.75rem, 1.4vw, 0.8rem);
   font-weight: 600;
   color: var(--primary-100, #f1f5f9);
   transition: all 0.3s ease;
   cursor: pointer;
+  display: inline-block;
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .keyword-tag:hover,
@@ -469,8 +664,10 @@
 .motivation-statement, .energy-management {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  padding: 1rem;
-  margin-top: 1rem;
+  padding: clamp(0.75rem, 1.5vw, 1rem);
+  margin-top: clamp(0.75rem, 1.5vw, 1rem);
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .strengths-weaknesses {
@@ -497,9 +694,11 @@
 .strength-list li {
   padding: 0.5rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.6vw, 0.9rem);
   color: var(--primary-300, #cbd5e1);
   line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .strength-list li:last-child {
@@ -544,12 +743,14 @@
 }
 
 .appearance-description {
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.6vw, 0.9rem);
   color: var(--primary-300, #cbd5e1);
   line-height: 1.5;
   background: rgba(255, 255, 255, 0.05);
-  padding: 1rem;
+  padding: clamp(0.75rem, 1.5vw, 1rem);
   border-radius: 8px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .pattern-list {
@@ -561,11 +762,13 @@
 .pattern-list li {
   padding: 0.5rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.6vw, 0.9rem);
   color: var(--primary-300, #cbd5e1);
   line-height: 1.4;
   position: relative;
   padding-left: 1.5rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .pattern-list li:before {
@@ -628,11 +831,13 @@
 .behavior-list li {
   padding: 0.5rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.6vw, 0.9rem);
   color: var(--primary-300, #cbd5e1);
   line-height: 1.4;
   position: relative;
   padding-left: 1.5rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .trigger-list li:before {
@@ -657,13 +862,15 @@
 }
 
 .state-description {
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 1.6vw, 0.9rem);
   color: var(--primary-300, #cbd5e1);
   line-height: 1.5;
   background: rgba(255, 255, 255, 0.05);
-  padding: 1rem;
+  padding: clamp(0.75rem, 1.5vw, 1rem);
   border-radius: 8px;
   font-style: italic;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* =================================== */
@@ -1102,5 +1309,156 @@
   
   .panel-icon {
     font-size: 1.5rem;
+  }
+}
+
+/* =================================== */
+/* 改善された数値表示スタイル */
+/* =================================== */
+
+.meter-value,
+.frequency-value,
+.activation-value {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.score-number {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-50, #f8fafc);
+}
+
+.score-context {
+  font-size: 0.75rem;
+  color: var(--primary-400, #94a3b8);
+  font-weight: 500;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.3;
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 心理的配慮に基づく詳細解釈スタイル */
+.psychological-interpretation {
+  margin-top: 1.5rem;
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.05) 0%, 
+    rgba(168, 85, 247, 0.05) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.interpretation-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.interpretation-icon {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.interpretation-level {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-100, #f1f5f9);
+  margin: 0;
+}
+
+.numeric-description {
+  font-size: 0.9rem;
+  color: var(--primary-300, #cbd5e1);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid rgba(99, 102, 241, 0.4);
+}
+
+.psychological-care {
+  display: grid;
+  gap: 1rem;
+}
+
+.care-section {
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid;
+}
+
+.care-section.primary {
+  border-left-color: rgba(34, 197, 94, 0.6);
+}
+
+.care-section.strength {
+  border-left-color: rgba(59, 130, 246, 0.6);
+}
+
+.care-section.opportunity {
+  border-left-color: rgba(168, 85, 247, 0.6);
+}
+
+.care-section.actionable {
+  border-left-color: rgba(249, 115, 22, 0.6);
+}
+
+.care-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary-200, #e2e8f0);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.care-content {
+  font-size: 0.9rem;
+  color: var(--primary-300, #cbd5e1);
+  line-height: 1.5;
+}
+
+/* モバイル対応 */
+@media (max-width: 767px) {
+  .score-context {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+  
+  .psychological-interpretation {
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .interpretation-level {
+    font-size: 1rem;
+  }
+  
+  .numeric-description {
+    font-size: 0.85rem;
+    padding: 0.6rem;
+  }
+  
+  .care-section {
+    padding: 0.6rem;
+  }
+  
+  .care-label {
+    font-size: 0.75rem;
+  }
+  
+  .care-content {
+    font-size: 0.85rem;
   }
 }

@@ -1,6 +1,7 @@
 /* HaQei Analyzer 対話型UI専用スタイル */
 /* 作成日: 2025-07-26 */
 /* 要件書: 20250726_対話型UI再実装要件書.md */
+/* Phase 2更新: 2025-07-28 - セーフモード概念説明追加 */
 
 /* 八卦色彩システム */
 :root {
@@ -1532,5 +1533,687 @@
     .interactive-os-card {
         background: rgba(255, 255, 255, 0.6);
         border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+}
+
+/* Phase 2: ウェルカム画面のセーフモード概念説明スタイル */
+.triple-os-intro {
+    margin: 2rem 0;
+    padding: 2rem;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 16px;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.triple-os-intro h3 {
+    color: #f1f5f9;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.triple-os-intro > p {
+    color: #cbd5e1;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.os-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.os-card {
+    background: rgba(30, 41, 59, 0.8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.os-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.os-card.engine-os {
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.os-card.engine-os:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.5);
+}
+
+.os-card.interface-os {
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.os-card.interface-os:hover {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: rgba(168, 85, 247, 0.5);
+}
+
+.os-card.safemode-os {
+    border-color: rgba(251, 146, 60, 0.3);
+}
+
+.os-card.safemode-os:hover {
+    background: rgba(251, 146, 60, 0.1);
+    border-color: rgba(251, 146, 60, 0.5);
+}
+
+.os-card .os-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.os-card h4 {
+    color: #f1f5f9;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.os-card p {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+}
+
+.os-card .os-detail {
+    color: #cbd5e1;
+    font-size: 0.813rem;
+    line-height: 1.5;
+    margin-top: 0.5rem;
+}
+
+.safemode-emphasis {
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.1), rgba(239, 68, 68, 0.1));
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(251, 146, 60, 0.3);
+}
+
+.emphasis-text {
+    color: #fde68a;
+    font-size: 0.938rem;
+    line-height: 1.6;
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.emphasis-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 900px) {
+    .os-cards {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .os-card {
+        padding: 1.25rem;
+    }
+    
+    .os-card .os-icon {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .triple-os-intro {
+        padding: 1.5rem;
+    }
+    
+    .triple-os-intro h3 {
+        font-size: 1.25rem;
+    }
+    
+    .os-card {
+        padding: 1rem;
+    }
+    
+    .emphasis-text {
+        font-size: 0.875rem;
+    }
+}
+
+/* Phase 4: シャドウ分析・批判的思考セクションスタイル */
+.critical-thinking-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(75, 85, 99, 0.2), rgba(55, 65, 81, 0.1));
+    border-radius: 16px;
+    border: 1px solid rgba(156, 163, 175, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.critical-thinking-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+.critical-thinking-header .section-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #9ca3af, #6b7280);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.critical-thinking-header .section-subtitle {
+    color: #9ca3af;
+    font-size: 1rem;
+    font-style: italic;
+    margin: 0;
+}
+
+/* 批判的思考タブナビゲーション */
+.critical-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 12px;
+    padding: 0.25rem;
+    gap: 0.25rem;
+}
+
+.critical-tab {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #9ca3af;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.critical-tab:hover {
+    background: rgba(156, 163, 175, 0.1);
+    color: #e5e7eb;
+}
+
+.critical-tab.active {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    color: #f9fafb;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
+}
+
+/* タブコンテンツ */
+.critical-tab-content {
+    display: none;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.critical-tab-content.active {
+    display: block;
+}
+
+/* シャドウ分析スタイル */
+.shadow-os-analysis {
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 12px;
+    border: 1px solid rgba(220, 38, 127, 0.3);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.shadow-os-analysis:hover {
+    border-color: rgba(220, 38, 127, 0.5);
+    box-shadow: 0 8px 24px rgba(220, 38, 127, 0.1);
+}
+
+.shadow-analysis-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(220, 38, 127, 0.2);
+}
+
+.shadow-os-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.shadow-intensity {
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.shadow-intensity.high {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.shadow-intensity.medium {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fcd34d;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.shadow-intensity.low {
+    background: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.shadow-aspects {
+    display: grid;
+    gap: 1rem;
+}
+
+.shadow-aspect {
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 8px;
+    padding: 1rem;
+    border-left: 4px solid #dc2626;
+}
+
+.shadow-aspect h5 {
+    color: #fca5a5;
+    font-size: 0.938rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.shadow-aspect p {
+    color: #d1d5db;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.shadow-questions {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.shadow-question {
+    background: rgba(45, 55, 72, 0.6);
+    border-radius: 8px;
+    padding: 0.75rem;
+    border-left: 3px solid #f59e0b;
+}
+
+.shadow-question-text {
+    color: #fbbf24;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.shadow-question-purpose {
+    color: #9ca3af;
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+/* 自己挑戦質問スタイル */
+.challenge-question {
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.challenge-question:hover {
+    border-color: rgba(239, 68, 68, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.1);
+}
+
+.challenge-question-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.challenge-icon {
+    font-size: 1.5rem;
+    color: #fca5a5;
+}
+
+.challenge-category {
+    font-size: 0.813rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.challenge-intensity {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.challenge-intensity.high {
+    background: rgba(220, 38, 127, 0.2);
+    color: #f9a8d4;
+}
+
+.challenge-intensity.medium {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fcd34d;
+}
+
+.challenge-question-text {
+    color: #f1f5f9;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+}
+
+.challenge-purpose {
+    color: #9ca3af;
+    font-size: 0.813rem;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.purpose-icon {
+    color: #6b7280;
+}
+
+/* ツール限界表示スタイル */
+.limitation-category {
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 12px;
+    border: 1px solid rgba(107, 114, 128, 0.3);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.limitation-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+.limitation-icon {
+    font-size: 1.25rem;
+    color: #f59e0b;
+}
+
+.limitation-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin: 0;
+}
+
+.limitation-points {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.limitation-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 8px;
+    border-left: 3px solid #6b7280;
+}
+
+.limitation-point-icon {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+}
+
+.limitation-point-text {
+    color: #d1d5db;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.limitation-recommendations {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid #10b981;
+}
+
+.limitation-recommendations h5 {
+    color: #6ee7b7;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.recommendation-list {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.recommendation-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: #a7f3d0;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.recommendation-bullet {
+    color: #10b981;
+    font-weight: bold;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+}
+
+/* バイアス分析スタイル */
+.bias-analysis {
+    display: grid;
+    gap: 1rem;
+}
+
+.bias-item {
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 8px;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.bias-item:hover {
+    border-color: rgba(139, 92, 246, 0.5);
+    transform: translateY(-1px);
+}
+
+.bias-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.bias-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #c4b5fd;
+}
+
+.bias-risk {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.bias-risk.high {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+}
+
+.bias-risk.medium {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fcd34d;
+}
+
+.bias-risk.low {
+    background: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+}
+
+.bias-description {
+    color: #d1d5db;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.bias-questions {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.bias-question {
+    background: rgba(30, 41, 59, 0.6);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    color: #a78bfa;
+    font-size: 0.813rem;
+    border-left: 3px solid #8b5cf6;
+}
+
+.bias-mitigation {
+    padding: 0.75rem;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 6px;
+    border-left: 3px solid #10b981;
+}
+
+.bias-mitigation strong {
+    color: #6ee7b7;
+    font-size: 0.813rem;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.bias-mitigation-text {
+    color: #a7f3d0;
+    font-size: 0.813rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 900px) {
+    .critical-thinking-section {
+        padding: 1.5rem;
+    }
+    
+    .critical-tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .critical-tab {
+        white-space: normal;
+        text-align: center;
+    }
+    
+    .shadow-analysis-header,
+    .challenge-question-header,
+    .limitation-header,
+    .bias-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .critical-thinking-section {
+        padding: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .critical-thinking-header .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .shadow-os-analysis,
+    .challenge-question,
+    .limitation-category,
+    .bias-item {
+        padding: 1rem;
+    }
+    
+    .shadow-aspects,
+    .limitation-points,
+    .bias-analysis {
+        gap: 0.75rem;
     }
 }

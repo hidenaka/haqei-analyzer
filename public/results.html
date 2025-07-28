@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HaQei Analyzer - 分析結果</title>
+    <title>HaQei - 易経から見たあなたの可能性</title>
     <!-- Styles -->
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/components.css">
@@ -33,13 +33,60 @@
     <script type="text/javascript" src="./js/shared/core/ErrorHandler.js"></script>
     <script type="text/javascript" src="./js/os-analyzer/engines/CompatibilityDataLoader.js"></script>
     
+    <!-- Phase 4: 批判的思考支援エンジン -->
+    <script type="text/javascript" src="./js/os-analyzer/core/ShadowAnalyzer.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/core/CriticalThinkingEngine.js"></script>
+    
     <!-- UIコンポーネント -->
     <script type="text/javascript" src="./js/components/TripleOSResultsView.js"></script>
 
     <script>
+        // クラスの読み込み状況をチェック
+        function checkClassDefinitions() {
+            const classChecks = {
+                'BaseComponent': typeof BaseComponent !== 'undefined',
+                'StorageManager': typeof StorageManager !== 'undefined',
+                'DataManager': typeof DataManager !== 'undefined',
+                'ErrorHandler': typeof ErrorHandler !== 'undefined',
+                'CompatibilityDataLoader': typeof CompatibilityDataLoader !== 'undefined',
+                'ShadowAnalyzer': typeof ShadowAnalyzer !== 'undefined',
+                'CriticalThinkingEngine': typeof CriticalThinkingEngine !== 'undefined',
+                'TripleOSResultsView': typeof TripleOSResultsView !== 'undefined'
+            };
+            
+            console.log('🔍 クラス定義チェック:', classChecks);
+            
+            // 未定義のクラスを特定
+            const undefinedClasses = Object.entries(classChecks)
+                .filter(([name, defined]) => !defined)
+                .map(([name]) => name);
+            
+            if (undefinedClasses.length > 0) {
+                console.error('❌ 未定義のクラス:', undefinedClasses);
+                return false;
+            }
+            
+            console.log('✅ すべてのクラスが正常に定義されています');
+            return true;
+        }
+
         // 結果表示専用シンプル初期化
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('🎯 HaQei Results Page Loading...');
+            
+            // クラス定義チェック
+            if (!checkClassDefinitions()) {
+                console.error('❌ 必要なクラスが定義されていません');
+                document.getElementById('results-container').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #f1f5f9; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <h2 style="margin-bottom: 1rem;">🔮 易経の智慧を紐解いています...</h2>
+                        <p style="margin-bottom: 1rem;">あなたの可能性を探るため、古代の智慧と向き合っています。</p>
+                        <p style="margin-bottom: 2rem; color: #94a3b8; font-size: 0.9rem;">この画面が続く場合は、下のボタンで更新してみてください。</p>
+                        <a href="javascript:location.reload()" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">ページを更新する</a>
+                    </div>
+                `;
+                return;
+            }
             
             try {
                 // ストレージから分析結果を取得
@@ -47,33 +94,59 @@
                 const analysisResult = storageManager.getAnalysisResult();
                 const insights = storageManager.getInsights();
                 
-                console.log('📊 Analysis result:', analysisResult);
-                console.log('💡 Insights:', insights);
+                console.log('📊 Analysis result retrieved successfully');
+                console.log('💡 Insights retrieved successfully');
             
                 if (!analysisResult) {
                     document.getElementById('results-container').innerHTML = `
                         <div style="text-align: center; padding: 2rem; color: #f1f5f9; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                            <h2 style="margin-bottom: 1rem;">⚠️ 分析結果が見つかりません</h2>
-                            <p style="margin-bottom: 2rem;">まず診断を完了してください。</p>
-                            <a href="os_analyzer.html" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">診断ページに戻る</a>
+                            <h2 style="margin-bottom: 1rem;">📋 診断結果が見つかりません</h2>
+                            <p style="margin-bottom: 1rem;">まだ診断が完了していないようです。</p>
+                            <p style="margin-bottom: 2rem; color: #94a3b8; font-size: 0.9rem;">あなたの3つの顔を発見するために、まず診断を受けてみましょう。</p>
+                            <a href="os_analyzer.html" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">診断を始める</a>
                         </div>
                     `;
                     return;
                 }
 
+                console.log('🔍 DataManager初期化開始...');
                 // DataManager初期化
                 const dataManager = new DataManager();
                 await dataManager.loadData();
+                console.log('✅ DataManager初期化完了');
 
+                console.log('🔍 CompatibilityDataLoader初期化開始...');
                 // CompatibilityDataLoader初期化
                 const compatibilityLoader = new CompatibilityDataLoader();
+                console.log('✅ CompatibilityDataLoader初期化完了');
 
+                console.log('🔍 TripleOSResultsView初期化開始...');
+                
+                // 易経の智慧前置きを追加
+                const wisdomPreface = document.createElement('div');
+                wisdomPreface.className = 'ancient-wisdom-intro';
+                wisdomPreface.innerHTML = `
+                    <h3>🌅 古代の智慧からの示唆</h3>
+                    <p>数千年の智慧である易経に照らし合わせると、あなたにはこのような傾向があるようです。これを人生の参考の一つとしてお役立てください。</p>
+                `;
+                document.getElementById('results-container').appendChild(wisdomPreface);
+                
+                // ユーザー主権のディスクレーマー
+                const wisdomDisclaimer = document.createElement('div');
+                wisdomDisclaimer.className = 'wisdom-disclaimer';
+                wisdomDisclaimer.innerHTML = `
+                    <p>💡 これは易経の智慧に基づく一つの見方です。最終的な解釈と活用方法は、あなた自身が決めてください。</p>
+                `;
+                document.getElementById('results-container').appendChild(wisdomDisclaimer);
+                
                 // 対話型UI表示
                 const resultsView = new TripleOSResultsView('results-container', {
                     analysisResult: analysisResult,
                     insights: insights,
                     compatibilityLoader: compatibilityLoader,
-                    dataManager: dataManager
+                    dataManager: dataManager,
+                    enableSelfReflection: true, // 自己探求プロンプトを有効化
+                    showWisdomPreface: true // 智慧の前置きを表示
                 });
 
                 await resultsView.init();
@@ -81,12 +154,16 @@
                 
             } catch (error) {
                 console.error('❌ Results page initialization failed:', error);
+                console.error('❌ Error stack:', error.stack);
                 document.getElementById('results-container').innerHTML = `
                     <div style="text-align: center; padding: 2rem; color: #f1f5f9; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <h2 style="margin-bottom: 1rem;">⚠️ エラーが発生しました</h2>
-                        <p style="margin-bottom: 2rem;">ページの読み込み中にエラーが発生しました。</p>
-                        <p style="margin-bottom: 2rem; font-family: monospace; background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 0.5rem; max-width: 600px;">${error.message}</p>
-                        <a href="os_analyzer.html" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">診断ページに戻る</a>
+                        <h2 style="margin-bottom: 1rem;">🌀 智慧の流れを整えています</h2>
+                        <p style="margin-bottom: 1rem;">易経からの示唆を受け取る準備で、少し問題が生じました。</p>
+                        <p style="margin-bottom: 2rem; color: #94a3b8; font-size: 0.9rem;">お手数ですが、ページを更新するか、再度診断を受けてみてください。</p>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+                            <a href="javascript:location.reload()" style="display: inline-block; padding: 1rem 1.5rem; background: linear-gradient(135deg, #10b981, #059669); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">ページを更新</a>
+                            <a href="os_analyzer.html" style="display: inline-block; padding: 1rem 1.5rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">診断をやり直す</a>
+                        </div>
                     </div>
                 `;
             }

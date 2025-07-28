@@ -40,7 +40,7 @@ class TripleOSResultsView extends BaseComponent {
   }
 
   // 🚀 高速化されたTriple OSデータ抽出（デバッグログ最小化）
-  // Supports bunenjin philosophy by ensuring robust access to all three personality layers
+  // Supports I Ching wisdom by ensuring robust access to all three personality layers
   async extractTripleOSData(analysisResult) {
     const debugMode = this.options?.debugMode || false;
     
@@ -156,7 +156,7 @@ class TripleOSResultsView extends BaseComponent {
       console.log('🔍 [Strategy 6] Hexagram search results:', { engineOS: !!engineOS, interfaceOS: !!interfaceOS, safeModeOS: !!safeModeOS });
     }
 
-    // Data enrichment: Ensure consistent property names for bunenjin display
+    // Data enrichment: Ensure consistent property names for Triple OS display
     if (engineOS && !engineOS.osName && engineOS.name) {
       engineOS.osName = engineOS.name;
     }
@@ -226,7 +226,7 @@ class TripleOSResultsView extends BaseComponent {
     return { engineOS, interfaceOS, safeModeOS };
   }
 
-  // 🆘 Emergency data recovery for bunenjin philosophy implementation - Phase 3強化版
+  // 🆘 Emergency data recovery for Triple OS philosophy implementation - Phase 3強化版
   // Last resort method to find triple OS data when standard extraction fails
   async emergencyDataRecovery(analysisResult) {
     console.log('🆘 [EMERGENCY] Phase 3緊急データ復旧開始 - 強化探索モード');
@@ -372,7 +372,7 @@ class TripleOSResultsView extends BaseComponent {
     return recoveryResult;
   }
 
-  // Validate the quality of extracted OS data for bunenjin analysis
+  // Validate the quality of extracted OS data for Triple OS analysis
   validateExtractedOSData(osData) {
     const { engineOS, interfaceOS, safeModeOS } = osData;
     let score = 0;
@@ -412,7 +412,7 @@ class TripleOSResultsView extends BaseComponent {
       return;
     }
 
-    // 🔧 Enhanced data extraction with multiple fallbacks for bunenjin architecture compatibility
+    // 🔧 Enhanced data extraction with multiple fallbacks for Triple OS architecture compatibility
     console.log('🔍 [TripleOSResultsView] トリプルOSシステム対応データ検証開始');
     console.log('📊 [DEBUG] Complete analysisResult structure:', this.analysisResult);
     
@@ -435,7 +435,7 @@ class TripleOSResultsView extends BaseComponent {
         originalAnalysisResult: this.analysisResult
       });
       
-      // Enhanced error message for bunenjin philosophy context
+      // Enhanced error message for Triple OS philosophy context
       this.container.innerHTML = `
         <div class="error" style="padding: 2rem; text-align: center; color: #ff6b6b; background: rgba(255,107,107,0.1); border-radius: 8px; margin: 1rem;">
           <h3>トリプルOS分析データが不完全です</h3>
@@ -465,9 +465,9 @@ class TripleOSResultsView extends BaseComponent {
                           <h3>🎯 OSカード</h3>
                           <p>3つのOSカードをクリックすると詳細情報が展開されます：</p>
                           <ul>
-                              <li><strong>価値観システム:</strong> あなたの核となる価値観と行動原理</li>
-                              <li><strong>社会的システム:</strong> 他者に向けて表現する自分のスタイル</li>
-                              <li><strong>防御システム:</strong> ストレス時や困難な状況での対処パターン</li>
+                              <li><strong>価値観システム:</strong> 価値判断時に表れやすい、あなたの一つの側面</li>
+                              <li><strong>社会的システム:</strong> 他者との関わりで使われる表現スタイルの一つ</li>
+                              <li><strong>防御システム:</strong> ストレス時に現れやすい対処パターンの一つ</li>
                           </ul>
                           
                           <h3>📈 スコアの見方</h3>
@@ -540,11 +540,72 @@ class TripleOSResultsView extends BaseComponent {
               <section class="interactive-os-section triple-os-section">
                   <div class="triple-os-concept-header">
                       <h2 class="section-title">🎭 あなたの中にある3つのシステム</h2>
-                      <p class="section-subtitle">易経の世界観をメタファーとして活用し、あなたの多面性を理解するためのフレームワークを提供します。価値観による判断・社会的な表現・防御的な対処、それぞれの特性を自己理解のきっかけとして活用できます。</p>
+                      <p class="section-subtitle">易経の世界観をメタファーとして活用し、あなたの豊かな多面性を理解するためのフレームワークを提供します。価値観による判断・社会的な表現・防御的な対処、それぞれの特性を自己理解のきっかけとして活用できます。</p>
+                      <div class="triple-os-philosophy-explanation">
+                          <div class="philosophy-header">
+                              <h4>🎭 Triple OS理論とは</h4>
+                          </div>
+                          <p class="philosophy-main">
+                              「本当の自分」という単一の人格を探すのではなく、相手や環境によって表れる
+                              <strong>複数の「あなた」</strong>が存在することを認める考え方です。
+                          </p>
+                          <div class="philosophy-examples">
+                              <div class="example-item">
+                                  <span class="example-icon">👔</span>
+                                  <span>職場でのあなた</span>
+                              </div>
+                              <div class="example-item">
+                                  <span class="example-icon">👨‍👩‍👧‍👦</span>
+                                  <span>家族といるあなた</span>
+                              </div>
+                              <div class="example-item">
+                                  <span class="example-icon">🎉</span>
+                                  <span>友人といるあなた</span>
+                              </div>
+                              <div class="example-item">
+                                  <span class="example-icon">😤</span>
+                                  <span>ストレス時のあなた</span>
+                              </div>
+                          </div>
+                          <p class="philosophy-value">
+                              これらは全て「偽物」ではなく、<strong>どれも本物のあなた</strong>です。
+                              その多様性こそが、あなたの豊かさと可能性を示しています。
+                          </p>
+                      </div>
                       <p class="triple-os-philosophy">
-                          これは性格を決めつける診断ではなく、易経の知恵を現代的なフレームワークとして活用した自己理解ツールです。価値観による判断、社会的な表現、防御的な対処という3つの側面を通じて、あなた自身をより深く理解するためのガイドです。<br>
+                          このツールは易経の知恵を現代的なフレームワークとして活用し、あなたの複数のOS側面を理解するためのガイドです。
                           「正解」を示すのではなく、自分らしい戦略的選択をするための思考の材料を提供します。
                       </p>
+                      <div class="complexity-value-explanation">
+                          <h3>🌟 一致度の低さが示す豊かな可能性</h3>
+                          <p class="complexity-insight">
+                              もし各システムの一致度が低く感じられても、それは「診断の精度が低い」のではありません。
+                              <strong>あなたの内面の豊かな複雑さ</strong>を示しています。
+                          </p>
+                          <div class="complexity-benefits">
+                              <div class="benefit-item">
+                                  <span class="benefit-icon">🎭</span>
+                                  <div class="benefit-content">
+                                      <h4>多面的な適応力</h4>
+                                      <p>状況に応じて異なるOS側面を使い分けられる柔軟性</p>
+                                  </div>
+                              </div>
+                              <div class="benefit-item">
+                                  <span class="benefit-icon">🌈</span>
+                                  <div class="benefit-content">
+                                      <h4>創造的な可能性</h4>
+                                      <p>既存の型にはまらない、独自の価値観や表現方法を持つ可能性</p>
+                                  </div>
+                              </div>
+                              <div class="benefit-item">
+                                  <span class="benefit-icon">🔀</span>
+                                  <div class="benefit-content">
+                                      <h4>戦略的な選択肢</h4>
+                                      <p>人生の様々な場面で、最適なOS側面を選んで活用できる自由度</p>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
                   </div>
                   <div class="interactive-os-cards triple-os-cards">
                       <div class="interactive-os-card" data-os="engine" data-hexagram="${
@@ -553,7 +614,7 @@ class TripleOSResultsView extends BaseComponent {
                           <div class="os-card-header">
                               <div class="os-icon">🔧</div>
                               <div class="os-info triple-os-info">
-                                  <h3>🔥 価値観システム - あなたの核となる判断基準</h3>
+                                  <h3>🔥 価値観システム - 価値判断時の一つの視点</h3>
                                   <div class="os-name-group">
                                       <div class="os-name">${
                                         engineOS.osName
@@ -570,7 +631,7 @@ class TripleOSResultsView extends BaseComponent {
                                     engineOS.hexagramInfo?.description || ""
                                   }</p>
                                   <div class="triple-os-explanation">
-                                      <small>🌟 あなたの「核となる価値観」を表すシステムです。重要な判断を迫られた時、誰も見ていない時、心から信頼できる人といる時に自然に現れる判断基準です。人生の戦略的選択を考える際の根幹となる材料です。</small>
+                                      <small>🌟 価値判断が必要な場面で表れやすい、あなたのOS側面の一つです。重要な決断を迫られた時に参考になる視点として、戦略的選択の材料の一つとして活用できます。</small>
                                   </div>
                               </div>
                               <div class="os-stats">
@@ -578,26 +639,35 @@ class TripleOSResultsView extends BaseComponent {
                                       <div class="score-container triple-os-score-container">
                                           <div class="score-header">
                                               <span class="score-title">🔥 価値観システムの一致度</span>
-                                              <div class="score-help-icon" title="あなたの価値観設問への回答パターンと64卦の価値観タイプとの一致度です。重要な判断を迫られた時の核となる基準を示しています。">❓</div>
+                                              <div class="score-help-icon" title="あなたの価値観設問への回答パターンと64卦の価値観タイプとの関連性です。価値判断時に参考になる視点の一つを示しています。">❓</div>
                                           </div>
                                           <div class="score-explanation triple-os-explanation">
-                                              <p>あなたの価値観パターンと「${engineOS.osName}」タイプとの<strong>一致度は${Math.round(
-                                                engineOS.strength * 100
-                                              )}%</strong>です</p>
+                                              ${(() => {
+                                                const score = Math.round(engineOS.strength * 100);
+                                                const complexityInsight = this.getComplexityInsight(score);
+                                                return `
+                                                  <p>あなたの価値観パターンは「${engineOS.osName}」タイプと<strong>${score}%の関連性</strong>を示しています</p>
+                                                  <div class="os-aspect-insight-box">
+                                                      <div class="insight-header">🌟 OS側面（Triple OS）としての解釈</div>
+                                                      <p><strong>${complexityInsight.level}:</strong> ${complexityInsight.tripleOSView}</p>
+                                                      <p class="insight-detail">${complexityInsight.insight}</p>
+                                                  </div>
+                                                `;
+                                              })()}
                                               <div class="triple-os-insight detailed-explanation">
                                                   <div class="explanation-section">
-                                                      <strong>📊 技術的な意味：</strong>
+                                                      <strong>📊 データの背景：</strong>
                                                       <ul>
-                                                          <li>あなたの価値観設問への回答パターンが、64卦中の「${engineOS.osName}」の価値観ベクトルと${Math.round(engineOS.strength * 100)}%一致</li>
-                                                          <li>${Math.round(engineOS.strength * 100)}%は${this.getAccuracyLevel(Math.round(engineOS.strength * 100))}の一致度</li>
+                                                          <li>あなたの価値観設問への回答パターンが、64卦中の「${engineOS.osName}」の価値観ベクトルと${Math.round(engineOS.strength * 100)}%の関連性を示す</li>
+                                                          <li>この数値は固定的な「あなたの正体」ではなく、<strong>現在の一面</strong>を表している</li>
                                                       </ul>
                                                   </div>
                                                   <div class="explanation-section">
-                                                      <strong>🎯 実用的な意味：</strong>
+                                                      <strong>🎯 戦略的活用のヒント：</strong>
                                                       <ul>
-                                                          <li>あなたの<strong>核となる判断基準</strong>が「${engineOS.osName}」の特性と非常に近い</li>
-                                                          <li>重要な決断を迫られた時、無意識にこの価値観パターンを重視する傾向</li>
-                                                          <li>ただし、これは「あなたの本質」を決めつけるものではなく、<strong>戦略的選択の材料</strong></li>
+                                                          <li>価値判断が必要な場面で、<strong>このOS側面</strong>から考えてみる</li>
+                                                          <li>「${engineOS.osName}」的な選択肢がしっくりくる場面や環境を意識する</li>
+                                                          <li>これは複数ある可能性の一つであり、<strong>自己理解の出発点</strong>として活用する</li>
                                                       </ul>
                                                   </div>
                                               </div>
@@ -651,7 +721,7 @@ class TripleOSResultsView extends BaseComponent {
                                   </div>
                               </div>
                               <div class="core-drive-section">
-                                  <h4>🔥 核となる動機</h4>
+                                  <h4>🔥 主要な動機パターン</h4>
                                   <div class="core-drive-content" id="engine-core-drive">
                                       <div class="tactical-content">
                                           <h6>🔥 戦略的価値観</h6>
@@ -694,23 +764,32 @@ class TripleOSResultsView extends BaseComponent {
                                               <div class="score-help-icon" title="あなたの社会的な行動パターンと64の対人関係タイプとの一致度です。他者に向けて「どのような自分」を表現するかの傾向を示します。">❓</div>
                                           </div>
                                           <div class="score-explanation triple-os-explanation">
-                                              <p>あなたの社会的行動パターンと「${interfaceOS.osName}」タイプとの<strong>一致度は${Math.round(
-                                                interfaceOS.matchScore
-                                              )}%</strong>です</p>
+                                              ${(() => {
+                                                const score = Math.round(interfaceOS.matchScore);
+                                                const complexityInsight = this.getComplexityInsight(score);
+                                                return `
+                                                  <p>あなたの社会的行動パターンは「${interfaceOS.osName}」タイプと<strong>${score}%の関連性</strong>を示しています</p>
+                                                  <div class="os-aspect-insight-box">
+                                                      <div class="insight-header">🌟 OS側面（Triple OS）としての解釈</div>
+                                                      <p><strong>${complexityInsight.level}:</strong> ${complexityInsight.tripleOSView}</p>
+                                                      <p class="insight-detail">${complexityInsight.insight}</p>
+                                                  </div>
+                                                `;
+                                              })()}
                                               <div class="triple-os-insight detailed-explanation">
                                                   <div class="explanation-section">
-                                                      <strong>📊 技術的な意味：</strong>
+                                                      <strong>📊 データの背景：</strong>
                                                       <ul>
-                                                          <li>あなたの社会的場面での行動選択パターンが、64卦中の「${interfaceOS.osName}」の対人関係ベクトルと${Math.round(interfaceOS.matchScore)}%一致</li>
-                                                          <li>${Math.round(interfaceOS.matchScore)}%は${this.getAccuracyLevel(Math.round(interfaceOS.matchScore))}の一致度</li>
+                                                          <li>あなたの社会的場面での行動選択パターンが、64卦中の「${interfaceOS.osName}」の対人関係ベクトルと${Math.round(interfaceOS.matchScore)}%の関連性を示す</li>
+                                                          <li>この数値は社会的表現の<strong>一つの側面</strong>を表しており、固定的なものではない</li>
                                                       </ul>
                                                   </div>
                                                   <div class="explanation-section">
-                                                      <strong>🎯 実用的な意味：</strong>
+                                                      <strong>🎯 戦略的活用のヒント：</strong>
                                                       <ul>
-                                                          <li>他者に向けて「どのような自分」を表現するかの<strong>代表的なパターン</strong>が「${interfaceOS.osName}」タイプと近い</li>
-                                                          <li>職場・友人関係・初対面などの社会的場面で、このスタイルを使う頻度が高い</li>
-                                                          <li>社会的な場面では複数の表現を使い分けるため、これは<strong>その中の一つの側面</strong>です</li>
+                                                          <li>社会的な場面で、<strong>このOS側面のスタイル</strong>を意識的に活用してみる</li>
+                                                          <li>「${interfaceOS.osName}」的なアプローチが効果的な場面や関係性を探る</li>
+                                                          <li>他にも多様な表現方法があることを前提に、<strong>選択肢の一つ</strong>として捉える</li>
                                                       </ul>
                                                   </div>
                                               </div>
@@ -791,23 +870,32 @@ class TripleOSResultsView extends BaseComponent {
                                               <div class="score-help-icon" title="あなたの防御システムと64の防御タイプとの一致度です。ストレス時にこのタイプの特性がどの程度表れるかを示します。高いほどこの防御機制が活性化しやすいことを意味します。">❓</div>
                                           </div>
                                           <div class="score-explanation triple-os-explanation">
-                                              <p>あなたの防御システムと「${safeModeOS.osName}」タイプとの<strong>一致度は${Math.round(
-                                                safeModeOS.matchScore
-                                              )}%</strong>です</p>
+                                              ${(() => {
+                                                const score = Math.round(safeModeOS.matchScore);
+                                                const complexityInsight = this.getComplexityInsight(score);
+                                                return `
+                                                  <p>あなたの防御システムは「${safeModeOS.osName}」タイプと<strong>${score}%の関連性</strong>を示しています</p>
+                                                  <div class="os-aspect-insight-box">
+                                                      <div class="insight-header">🌟 OS側面（Triple OS）としての解釈</div>
+                                                      <p><strong>${complexityInsight.level}:</strong> ${complexityInsight.tripleOSView}</p>
+                                                      <p class="insight-detail">${complexityInsight.insight}</p>
+                                                  </div>
+                                                `;
+                                              })()}
                                               <div class="triple-os-insight detailed-explanation">
                                                   <div class="explanation-section">
-                                                      <strong>📊 技術的な意味：</strong>
+                                                      <strong>📊 データの背景：</strong>
                                                       <ul>
-                                                          <li>あなたのストレス・困難時の内面選択パターンが、64卦中の「${safeModeOS.osName}」の防御機制ベクトルと${Math.round(safeModeOS.matchScore)}%一致</li>
-                                                          <li>${Math.round(safeModeOS.matchScore)}%は${this.getAccuracyLevel(Math.round(safeModeOS.matchScore))}の一致度</li>
+                                                          <li>あなたのストレス・困難時の内面選択パターンが、64卦中の「${safeModeOS.osName}」の防御機制ベクトルと${Math.round(safeModeOS.matchScore)}%の関連性を示す</li>
+                                                          <li>この数値は防御的対処の<strong>一つの可能性</strong>を表しており、変化し得るものです</li>
                                                       </ul>
                                                   </div>
                                                   <div class="explanation-section">
-                                                      <strong>🎯 実用的な意味：</strong>
+                                                      <strong>🎯 戦略的活用のヒント：</strong>
                                                       <ul>
-                                                          <li>困難・挫折・過度のストレスに直面した時の<strong>自動的な対処パターン</strong>が「${safeModeOS.osName}」タイプと近い</li>
-                                                          <li>この防御機制は無意識に働くため、自分でも気づかないうちに発動することがある</li>
-                                                          <li>価値観システムとの違いを理解することで、<strong>状況に応じた最適な自分を選択</strong>できます</li>
+                                                          <li>ストレス時に、<strong>このOS側面の対処スタイル</strong>が表れやすいことを意識する</li>
+                                                          <li>「${safeModeOS.osName}」的なアプローチが有効な場面と、別の対処が必要な場面を見極める</li>
+                                                          <li>複数の防御パターンを持つことが自然であり、<strong>状況に応じた選択肢</strong>として活用する</li>
                                                       </ul>
                                                   </div>
                                                   <div class="explanation-section">
@@ -861,6 +949,10 @@ class TripleOSResultsView extends BaseComponent {
                                   <h4>💡 セーフモードの活用アドバイス</h4>
                                   <div class="advice-content" id="safemode-advice-content">読み込み中...</div>
                               </div>
+                              <div class="safemode-advanced-analysis" id="safemode-advanced">
+                                  <h4>🔍 セーフモード発動メカニズム解析</h4>
+                                  <div class="advanced-analysis-content" id="safemode-advanced-content">読み込み中...</div>
+                              </div>
                           </div>
                       </div>
                   </div>
@@ -869,15 +961,99 @@ class TripleOSResultsView extends BaseComponent {
               <!-- 自己探求プロンプト -->
               <section class="self-reflection-prompt">
                   <div class="reflection-content centered-content">
-                      <h4 class="reflection-title">🤔 あなたはどう感じますか？</h4>
-                      <div class="reflection-message">
-                          <p>この結果を見て、どの部分が当てはまり、どの部分が違うと感じますか？</p>
-                          <p class="reflection-insight">その違和感こそが、あなた自身を理解する手がかりになります。</p>
-                          <div class="bunenjin-reminder">
-                              <p class="philosophy-note">
-                                  分人思想では、固定された「本当の自分」を探すのではなく、状況や関係性に応じて現れる
-                                  様々な「あなた」を理解し、戦略的に活用することを重視します。
-                              </p>
+                      <h4 class="reflection-title">🤔 自分自身との対話</h4>
+                      <div class="reflection-questions">
+                          <div class="question-group">
+                              <h5>📝 分析結果について</h5>
+                              <ul class="reflection-list">
+                                  <li>この結果のどの部分が「確かにそうだ」と感じましたか？</li>
+                                  <li>どの部分に「それは違う」という違和感を覚えましたか？</li>
+                                  <li>結果で示されていない、あなたの別の側面はありますか？</li>
+                              </ul>
+                          </div>
+                          <div class="question-group">
+                              <h5>🎭 多面的な自己の発見</h5>
+                              <ul class="reflection-list">
+                                  <li>どんな場面で、どんな「あなた」が表れるでしょうか？</li>
+                                  <li>仕事中の自分と、親しい友人といる時の自分は同じですか？</li>
+                                  <li>ストレス時の自分に、普段とは違う特徴がありますか？</li>
+                              </ul>
+                          </div>
+                          <div class="question-group">
+                              <h5>⭐ 戦略的活用の検討</h5>
+                              <ul class="reflection-list">
+                                  <li>これらの結果を、今後どのような場面で活用してみたいですか？</li>
+                                  <li>人間関係や仕事において、新たに意識してみたいことはありますか？</li>
+                                  <li>自分の複数の側面を理解することで、どんな可能性が見えてきますか？</li>
+                              </ul>
+                          </div>
+                      </div>
+                      <div class="reflection-insight-box">
+                          <p class="reflection-insight">🌟 これらの質問に「正解」はありません。</p>
+                          <p class="reflection-detail">あなた自身が感じたことが、最も価値ある洞察です。違和感や疑問こそが、より深い自己理解への入り口になります。</p>
+                      </div>
+                      <div class="os-aspect-reminder">
+                          <p class="philosophy-note">
+                              易経の智慧では、固定された単一の人格を探すのではなく、状況や関係性に応じて現れる
+                              様々な「OS側面」を理解し、戦略的に活用することを重視します。
+                          </p>
+                      </div>
+                  </div>
+              </section>
+
+              <!-- Phase 4: 批判的・生産的視点対応システム -->
+              <section class="critical-thinking-section" id="critical-thinking-section">
+                  <div class="critical-thinking-header">
+                      <h2 class="section-title">🧠 批判的・生産的視点</h2>
+                      <p class="section-subtitle">診断結果を「答え」ではなく「問い」として活用する</p>
+                  </div>
+                  
+                  <div class="critical-tabs">
+                      <button class="critical-tab active" data-tab="shadow">影の探求</button>
+                      <button class="critical-tab" data-tab="challenge">自己挑戦</button>
+                      <button class="critical-tab" data-tab="limitations">ツールの限界</button>
+                  </div>
+                  
+                  <div class="critical-content">
+                      <!-- 影の探求タブ -->
+                      <div class="critical-tab-content active" id="shadow-tab">
+                          <div class="shadow-analysis-container">
+                              <div class="shadow-intro">
+                                  <h3>🌑 「強み」の裏に隠れた影</h3>
+                                  <p>すべての特性には光と影があります。影を理解することで、より統合的な自己理解が可能になります。</p>
+                              </div>
+                              <div id="shadow-analysis-content">
+                                  <!-- シャドウ分析結果がここに動的に挿入される -->
+                                  <div class="loading-shadow">分析中...</div>
+                              </div>
+                          </div>
+                      </div>
+                      
+                      <!-- 自己挑戦タブ -->
+                      <div class="critical-tab-content" id="challenge-tab">
+                          <div class="self-challenge-container">
+                              <div class="challenge-intro">
+                                  <h3>🤔 診断結果への挑戦的質問</h3>
+                                  <p>以下の質問は、あなたが診断結果に対してより深く考えるためのものです。</p>
+                              </div>
+                              <div id="challenge-questions-content">
+                                  <!-- 挑戦的質問がここに動的に挿入される -->
+                                  <div class="loading-challenge">生成中...</div>
+                              </div>
+                          </div>
+                      </div>
+                      
+                      <!-- ツールの限界タブ -->
+                      <div class="critical-tab-content" id="limitations-tab">
+                          <div class="limitations-container">
+                              <div class="limitations-intro">
+                                  <h3>⚠️ この診断ツールの限界</h3>
+                                  <p>適切な活用のために、このツールの限界を理解しておきましょう。</p>
+                              </div>
+                              <div id="limitations-content">
+                                  <!-- ツール限界の説明がここに動的に挿入される -->
+                                  <div class="loading-limitations">準備中...</div>
+                              </div>
                           </div>
                       </div>
                   </div>
@@ -904,7 +1080,15 @@ class TripleOSResultsView extends BaseComponent {
     // 3. 力学データの可視化
     await this.loadDynamicsVisualization();
 
-    // 4. イベントリスナー設定
+    // 4. セーフモード発動メカニズム解析の表示
+    if (this.insights) {
+      await this.displaySafeModeAdvancedAnalysis(this.insights);
+    }
+
+    // 5. Phase 4: 批判的思考機能の初期化
+    await this.initializeCriticalThinkingFeatures();
+
+    // 6. イベントリスナー設定
     this.bindInteractiveEventListeners();
 
     console.log("✅ [TripleOSResultsView] すべての対話型機能が初期化完了");
@@ -2582,7 +2766,7 @@ class TripleOSResultsView extends BaseComponent {
       "19": [
         { situation: "エネルギーが続かない時", method: "持続可能なペースで進める" },
         { situation: "期待に応えすぎる時", method: "自分の限界を適切に設定する" },
-        { situation: "散漫になりがちな時", method: "核となる目標に集中力を向ける" }
+        { situation: "散漫になりがちな時", method: "重要な目標に集中力を向ける" }
       ]
     };
 
@@ -2593,11 +2777,41 @@ class TripleOSResultsView extends BaseComponent {
     return [
       { situation: "バランスを崩しがちな時", method: "自分の特性を客観視して調整する" },
       { situation: "ストレスを感じる時", method: "本来の強みに立ち戻って自信を回復する" },
-      { situation: "迷いが生じる時", method: "核となる価値観を思い出して方向性を確認する" }
+      { situation: "迷いが生じる時", method: "重要な価値観を思い出して方向性を確認する" }
     ];
   }
 
-  // 一致度レベルを取得する
+  // Triple OS哲学に基づく一致度解釈
+  getComplexityInsight(percentage) {
+    if (percentage >= 80) {
+      return {
+        level: "特定傾向が強い",
+        insight: "このパターンが比較的明確に表れています",
+        tripleOSView: "このOS側面が活性化しやすい状態です"
+      };
+    }
+    if (percentage >= 60) {
+      return {
+        level: "適度な傾向",
+        insight: "このパターンが部分的に表れています",
+        tripleOSView: "このOS側面が時々顔を出す状態です"
+      };
+    }
+    if (percentage >= 40) {
+      return {
+        level: "潜在的可能性",
+        insight: "このパターンが潜在的に存在しています",
+        tripleOSView: "このOS側面は環境次第で表出する可能性があります"
+      };
+    }
+    return {
+      level: "複雑な多面性",
+      insight: "あなたの豊かな複雑性を示しています",
+      tripleOSView: "多様なOS側面が混在する豊かな状態です"
+    };
+  }
+
+  // 従来の一致度レベル（下位互換のため保持）
   getAccuracyLevel(percentage) {
     if (percentage >= 90) return "極めて高い";
     if (percentage >= 80) return "高い";
@@ -2631,9 +2845,9 @@ class TripleOSResultsView extends BaseComponent {
         { principle: "直感の信頼", application: "理屈を超えた感覚を大切にする" }
       ],
       "29": [
-        { principle: "本質の追求", application: "表面的でなく根本的な解決を目指す" },
+        { principle: "根本的思考", application: "表面的でなく根本的な解決を目指す" },
         { principle: "継続的努力", application: "一時的な困難に屈せず長期的視点を保つ" },
-        { principle: "深い理解", application: "物事の本質を理解してから判断する" }
+        { principle: "深い理解", application: "物事の背景を理解してから判断する" }
       ],
       "60": [
         { principle: "秩序の活用", application: "ルールや制約を創造性の土台とする" },
@@ -2791,7 +3005,7 @@ class TripleOSResultsView extends BaseComponent {
                   `;
       }
 
-      // 核となる動機を更新
+      // 主要な動機パターンを更新
       const coreDrive = document.getElementById("engine-core-drive");
       if (coreDrive && osManualData.summary) {
         // 戦略的価値観を生成
@@ -2856,8 +3070,8 @@ class TripleOSResultsView extends BaseComponent {
           const typeIcon = this.getCombinationTypeIcon(combination.type);
 
           compatibilityContent.innerHTML = `
-                      <div class="bunenjin-compatibility-result">
-                          <div class="bunenjin-harmony-header">
+                      <div class="os-aspect-compatibility-result">
+                          <div class="os-aspect-harmony-header">
                               <div class="harmony-type-badge ${typeColor}">
                                   <span class="harmony-icon">${typeIcon}</span>
                                   <span class="harmony-label">${combination.type}</span>
@@ -2867,7 +3081,7 @@ class TripleOSResultsView extends BaseComponent {
                               )}%</div>
                           </div>
                           
-                          <div class="bunenjin-relationship-explanation">
+                          <div class="os-aspect-relationship-explanation">
                               <h5>🤝 ${engineOS.osName} × ${interfaceOS.osName}</h5>
                               <p class="combination-summary">${combination.summary}</p>
                               
@@ -2932,8 +3146,8 @@ class TripleOSResultsView extends BaseComponent {
         console.error(`❌ [インターフェース互換性] データ読み込み失敗: エンジンOS ${engineOS.hexagramId}, インターフェースOS ${interfaceOS.hexagramId}`);
         
         compatibilityContent.innerHTML = `
-                      <div class="bunenjin-compatibility-result">
-                          <div class="bunenjin-harmony-header">
+                      <div class="os-aspect-compatibility-result">
+                          <div class="os-aspect-harmony-header">
                               <div class="harmony-type-badge harmony-error">
                                   <span class="harmony-icon">❌</span>
                                   <span class="harmony-label">データ読み込み失敗</span>
@@ -2941,7 +3155,7 @@ class TripleOSResultsView extends BaseComponent {
                               <div class="compatibility-score">--</div>
                           </div>
                           
-                          <div class="bunenjin-relationship-explanation">
+                          <div class="os-aspect-relationship-explanation">
                               <h5>🤝 エンジンOSとインターフェースOSの関係</h5>
                               <p>データの読み込みに失敗しました。しばらく後にお試しください。</p>
                               
@@ -2994,8 +3208,8 @@ class TripleOSResultsView extends BaseComponent {
           const typeIcon = this.getCombinationTypeIcon(combination.type);
 
           compatibilityContent.innerHTML = `
-                      <div class="bunenjin-compatibility-result defense-analysis">
-                          <div class="bunenjin-protection-header">
+                      <div class="os-aspect-compatibility-result defense-analysis">
+                          <div class="os-aspect-protection-header">
                               <div class="protection-type-badge ${typeColor}">
                                   <span class="protection-icon">${typeIcon}</span>
                                   <span class="protection-label">${combination.type}</span>
@@ -3005,7 +3219,7 @@ class TripleOSResultsView extends BaseComponent {
                               )}%</div>
                           </div>
                           
-                          <div class="bunenjin-defense-explanation">
+                          <div class="os-aspect-defense-explanation">
                               <h5>🛡️ ${engineOS.osName} × ${safeModeOS.osName}</h5>
                               <p class="combination-summary">${combination.summary}</p>
                               
@@ -3064,8 +3278,8 @@ class TripleOSResultsView extends BaseComponent {
         console.error(`❌ [セーフモード互換性] データ読み込み失敗: エンジンOS ${engineOS.hexagramId}, セーフモードOS ${safeModeOS.hexagramId}`);
         
         compatibilityContent.innerHTML = `
-                      <div class="bunenjin-compatibility-result defense-analysis">
-                          <div class="bunenjin-protection-header">
+                      <div class="os-aspect-compatibility-result defense-analysis">
+                          <div class="os-aspect-protection-header">
                               <div class="protection-type-badge protection-error">
                                   <span class="protection-icon">❌</span>
                                   <span class="protection-label">データ読み込み失敗</span>
@@ -3073,7 +3287,7 @@ class TripleOSResultsView extends BaseComponent {
                               <div class="compatibility-score">--</div>
                           </div>
                           
-                          <div class="bunenjin-defense-explanation">
+                          <div class="os-aspect-defense-explanation">
                               <h5>🛡️ エンジンOSとセーフモードOSの関係</h5>
                               <p>データの読み込みに失敗しました。しばらく後にお試しください。</p>
                               
@@ -3111,14 +3325,14 @@ class TripleOSResultsView extends BaseComponent {
   }
 
   // トリプルOS理論ベースの相互作用分析
-  calculateBunenjinCompatibility(hexagramId1, hexagramId2, bunenjinType) {
+  calculateCompatibility(hexagramId1, hexagramId2, aspectType) {
     // 卦IDを8つの基本卦グループに分類
     const getTrigramGroup = (id) => ((id - 1) % 8) + 1;
     const group1 = getTrigramGroup(hexagramId1);
     const group2 = getTrigramGroup(hexagramId2);
 
     // トリプルOS理論専用の相性マトリックス
-    const bunenjinMatrix = {
+    const compatibilityMatrix = {
       1: { 1: 85, 2: 65, 3: 90, 4: 75, 5: 60, 6: 45, 7: 70, 8: 55 }, // 乾 - 創造的リーダー
       2: { 1: 65, 2: 88, 3: 50, 4: 80, 5: 75, 6: 90, 7: 60, 8: 95 }, // 兌 - 調和型コミュニケーター
       3: { 1: 90, 2: 50, 3: 82, 4: 65, 5: 85, 6: 40, 7: 55, 8: 70 }, // 離 - 情熱的表現者
@@ -3129,33 +3343,33 @@ class TripleOSResultsView extends BaseComponent {
       8: { 1: 55, 2: 95, 3: 70, 4: 70, 5: 75, 6: 98, 7: 75, 8: 89 }, // 坤 - 包容力ある支援者
     };
 
-    const baseScore = bunenjinMatrix[group1]?.[group2] || 60;
+    const baseScore = compatibilityMatrix[group1]?.[group2] || 60;
 
     // パーソナリティOSタイプ別の調整
     let adjustedScore = baseScore;
-    if (bunenjinType === "social") {
+    if (aspectType === "social") {
       // インターフェースOSは表現の一致性を重視
       adjustedScore = Math.min(baseScore + 8, 98);
-    } else if (bunenjinType === "defense") {
+    } else if (aspectType === "defense") {
       // セーフモードOSは心理的安全性を重視
       adjustedScore = Math.max(baseScore - 15, 20);
     }
 
     return {
       score: adjustedScore,
-      description: this.getBunenjinCompatibilityDescription(adjustedScore, bunenjinType),
+      description: this.getCompatibilityDescription(adjustedScore, aspectType),
     };
   }
 
   // 旧メソッドも保持（互換性のため）
   calculateSimpleCompatibility(hexagramId1, hexagramId2, type) {
     // トリプルOS理論ベースにリダイレクト
-    const bunenjinType = type === "interface" ? "social" : type === "safemode" ? "defense" : "authentic";
-    return this.calculateBunenjinCompatibility(hexagramId1, hexagramId2, bunenjinType);
+    const aspectType = type === "interface" ? "social" : type === "safemode" ? "defense" : "authentic";
+    return this.calculateCompatibility(hexagramId1, hexagramId2, aspectType);
   }
 
   // トリプルOS理論ベースの相互作用説明を生成
-  getBunenjinCompatibilityDescription(score, bunenjinType) {
+  getCompatibilityDescription(score, aspectType) {
     const descriptions = {
       social: {
         high: "エンジンOSとインターフェースOSが非常によく調和しています。あなたらしさが自然に表現され、真の魅力で人を引きつけます。",
@@ -3174,7 +3388,7 @@ class TripleOSResultsView extends BaseComponent {
       }
     };
 
-    const typeDesc = descriptions[bunenjinType] || descriptions.authentic;
+    const typeDesc = descriptions[aspectType] || descriptions.authentic;
     if (score >= 75) return typeDesc.high;
     if (score >= 50) return typeDesc.medium;
     return typeDesc.low;
@@ -3182,8 +3396,8 @@ class TripleOSResultsView extends BaseComponent {
 
   // 互換性説明を生成（旧メソッド保持）
   getCompatibilityDescription(score, type) {
-    const bunenjinType = type === "interface" ? "social" : type === "safemode" ? "defense" : "authentic";
-    return this.getBunenjinCompatibilityDescription(score, bunenjinType);
+    const aspectType = type === "interface" ? "social" : type === "safemode" ? "defense" : "authentic";
+    return this.getCompatibilityDescription(score, aspectType);
   }
 
   // 8卦カラーカードの表示
@@ -3522,6 +3736,201 @@ class TripleOSResultsView extends BaseComponent {
     } catch (error) {
       console.error("❌ セーフモード力学データ可視化エラー:", error);
     }
+  }
+
+  // セーフモード発動メカニズム解析の表示
+  async displaySafeModeAdvancedAnalysis(insights) {
+    try {
+      const advancedContainer = document.getElementById("safemode-advanced-content");
+      if (!advancedContainer || !insights.safeModeAnalysis) return;
+
+      const safeModeAnalysis = insights.safeModeAnalysis;
+      const { misalignmentData, activationTriggers, chronificationEffects, runawayPatterns, riskAssessment } = safeModeAnalysis;
+
+      const riskLevelColors = {
+        'low': 'green',
+        'medium': 'orange', 
+        'high': 'red'
+      };
+
+      advancedContainer.innerHTML = `
+        <div class="safemode-mechanism-analysis">
+          <div class="risk-overview">
+            <div class="risk-card">
+              <div class="risk-header">
+                <h5>🚨 セーフモード発動リスク</h5>
+                <div class="risk-level ${riskLevelColors[riskAssessment.activationRisk]}">${this.getRiskLevelText(riskAssessment.activationRisk)}</div>
+              </div>
+              <div class="risk-details">
+                <p>エンジンOSとインターフェースOSの不一致度: <strong>${Math.round(misalignmentData.misalignmentScore)}%</strong></p>
+                <p>セーフモード発動可能性: <strong>${Math.round(misalignmentData.safeModeActivationRisk)}%</strong></p>
+              </div>
+            </div>
+            
+            <div class="risk-card">
+              <div class="risk-header">
+                <h5>⚠️ 長期化・暴走リスク</h5>
+                <div class="risk-level ${riskLevelColors[riskAssessment.chronificationRisk]}">${this.getRiskLevelText(riskAssessment.chronificationRisk)}</div>
+              </div>
+              <div class="risk-details">
+                <p>セーフモード慢性化リスク: <strong>${Math.round(misalignmentData.safeModeChronificationRisk)}%</strong></p>
+              </div>
+            </div>
+          </div>
+
+          ${activationTriggers.length > 0 ? `
+          <div class="activation-triggers">
+            <h5>🔍 セーフモード発動トリガー</h5>
+            <div class="triggers-list">
+              ${activationTriggers.map(trigger => `
+                <div class="trigger-item severity-${trigger.severity}">
+                  <div class="trigger-header">
+                    <span class="trigger-icon">${this.getTriggerIcon(trigger.type)}</span>
+                    <span class="trigger-type">${this.getTriggerTypeName(trigger.type)}</span>
+                  </div>
+                  <p class="trigger-description">${trigger.description}</p>
+                  <div class="trigger-advice">
+                    <strong>対処法:</strong> ${trigger.advice}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>` : ''}
+
+          ${chronificationEffects.length > 0 ? `
+          <div class="chronification-effects">
+            <h5>⏱️ セーフモード長期化の影響</h5>
+            <div class="effects-list">
+              ${chronificationEffects.map(effect => `
+                <div class="effect-item severity-${effect.severity}">
+                  <div class="effect-header">
+                    <span class="effect-icon">${this.getEffectIcon(effect.type)}</span>
+                    <span class="effect-type">${this.getEffectTypeName(effect.type)}</span>
+                  </div>
+                  <p class="effect-description">${effect.description}</p>
+                  <div class="effect-manifestation">
+                    <strong>現れ方:</strong> ${effect.manifestation}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>` : ''}
+
+          ${runawayPatterns.length > 0 ? `
+          <div class="runaway-patterns">
+            <h5>💥 暴走パターンと予防策</h5>
+            <div class="patterns-list">
+              ${runawayPatterns.map(pattern => `
+                <div class="pattern-item">
+                  <div class="pattern-header">
+                    <span class="pattern-icon">${this.getPatternIcon(pattern.type)}</span>
+                    <span class="pattern-type">${this.getPatternTypeName(pattern.type)}</span>
+                  </div>
+                  <p class="pattern-description">${pattern.description}</p>
+                  <div class="pattern-warning">
+                    <strong>⚠️ 警告:</strong> ${pattern.warning}
+                  </div>
+                  <div class="pattern-prevention">
+                    <strong>💡 予防策:</strong> ${pattern.prevention}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>` : ''}
+
+          <div class="overall-assessment">
+            <h5>📊 総合評価</h5>
+            <div class="assessment-card level-${riskAssessment.overallAssessment.level}">
+              <div class="assessment-summary">
+                <p>${riskAssessment.overallAssessment.summary}</p>
+              </div>
+              
+              <div class="assessment-key-points">
+                <h6>重要なポイント:</h6>
+                <ul>
+                  ${riskAssessment.overallAssessment.keyPoints.map(point => `<li>${point}</li>`).join('')}
+                </ul>
+              </div>
+              
+              <div class="assessment-recommendations">
+                <h6>推奨アクション:</h6>
+                <ul>
+                  ${riskAssessment.overallAssessment.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    } catch (error) {
+      console.error("❌ セーフモード発動メカニズム解析表示エラー:", error);
+    }
+  }
+
+  // ヘルパーメソッド群
+  getRiskLevelText(level) {
+    const levelMap = {
+      'low': '低リスク',
+      'medium': '注意が必要',  
+      'high': '高リスク'
+    };
+    return levelMap[level] || '不明';
+  }
+
+  getTriggerIcon(type) {
+    const iconMap = {
+      'value_conflict': '⚔️',
+      'authenticity_suppression': '😶',
+      'role_overload': '🎭'
+    };
+    return iconMap[type] || '🔍';
+  }
+
+  getTriggerTypeName(type) {
+    const nameMap = {
+      'value_conflict': '価値観の対立',
+      'authenticity_suppression': '本来性の抑圧',
+      'role_overload': '役割過多'
+    };
+    return nameMap[type] || '不明なトリガー';
+  }
+
+  getEffectIcon(type) {
+    const iconMap = {
+      'identity_confusion': '🤔',
+      'emotional_numbing': '😶‍🌫️',
+      'relationship_difficulty': '💔',
+      'decision_paralysis': '🤷'
+    };
+    return iconMap[type] || '⚠️';
+  }
+
+  getEffectTypeName(type) {
+    const nameMap = {
+      'identity_confusion': 'アイデンティティの混乱',
+      'emotional_numbing': '感情の麻痺',
+      'relationship_difficulty': '人間関係の困難',
+      'decision_paralysis': '決断麻痺'
+    };
+    return nameMap[type] || '不明な影響';
+  }
+
+  getPatternIcon(type) {
+    const iconMap = {
+      'impulsive_escape': '🏃',
+      'emotional_explosion': '💥',
+      'self_destructive_behavior': '⚡'
+    };
+    return iconMap[type] || '💥';
+  }
+
+  getPatternTypeName(type) {
+    const nameMap = {
+      'impulsive_escape': '衝動的な逃避',
+      'emotional_explosion': '感情の爆発',
+      'self_destructive_behavior': '自己破壊的行動'
+    };
+    return nameMap[type] || '不明なパターン';
   }
 
   bindInteractiveEventListeners() {
@@ -3900,17 +4309,17 @@ class TripleOSResultsView extends BaseComponent {
         }
       }
       
-      // bunenjin戦略ナビゲーターからの復旧
-      if (window.bunenjinStrategyNavigator) {
-        const bunenjinData = window.bunenjinStrategyNavigator.getCurrentAnalysis?.();
-        if (bunenjinData && (bunenjinData.engineOS || bunenjinData.interfaceOS || bunenjinData.safeModeOS)) {
-          console.log('✅ [RECOVERY] bunenjin戦略ナビゲーターから復旧成功');
+      // 戦略ナビゲーターからの復旧
+      if (window.strategyNavigator) {
+        const analysisData = window.strategyNavigator.getCurrentAnalysis?.();
+        if (analysisData && (analysisData.engineOS || analysisData.interfaceOS || analysisData.safeModeOS)) {
+          console.log('✅ [RECOVERY] 戦略ナビゲーターから復旧成功');
           return {
             found: true,
             data: {
-              engineOS: bunenjinData.engineOS,
-              interfaceOS: bunenjinData.interfaceOS,
-              safeModeOS: bunenjinData.safeModeOS
+              engineOS: analysisData.engineOS,
+              interfaceOS: analysisData.interfaceOS,
+              safeModeOS: analysisData.safeModeOS
             }
           };
         }
@@ -3930,5 +4339,313 @@ class TripleOSResultsView extends BaseComponent {
       this.radarChart = null;
     }
     console.log("🧹 [TripleOSResultsView] リソースをクリーンアップしました");
+  }
+
+  // ========================================
+  // Phase 4: 批判的・生産的視点対応システム
+  // ========================================
+
+  /**
+   * 批判的思考機能の初期化
+   */
+  async initializeCriticalThinkingFeatures() {
+    console.log("🧠 [Phase4] 批判的思考機能を初期化中...");
+
+    try {
+      // Phase 4エンジンの初期化
+      this.shadowAnalyzer = new ShadowAnalyzer();
+      this.criticalThinkingEngine = new CriticalThinkingEngine();
+
+      // データの準備
+      const extractedData = await this.extractTripleOSData(this.analysisResult);
+      const { engineOS, interfaceOS, safeModeOS } = extractedData;
+
+      // 各タブのコンテンツを生成
+      await Promise.all([
+        this.initializeShadowAnalysis(engineOS, interfaceOS, safeModeOS),
+        this.initializeChallengeQuestions(this.analysisResult),
+        this.initializeToolLimitations()
+      ]);
+
+      // タブ切り替え機能を初期化
+      this.initializeCriticalTabs();
+
+      console.log("✅ [Phase4] 批判的思考機能の初期化完了");
+    } catch (error) {
+      console.error("❌ [Phase4] 批判的思考機能の初期化エラー:", error);
+      this.displayCriticalThinkingError();
+    }
+  }
+
+  /**
+   * シャドウ分析の初期化
+   */
+  async initializeShadowAnalysis(engineOS, interfaceOS, safeModeOS) {
+    console.log("🌑 [Phase4] シャドウ分析を初期化中...");
+
+    const shadowContent = document.getElementById('shadow-analysis-content');
+    if (!shadowContent) return;
+
+    try {
+      // 各OSのシャドウ分析を実行
+      const shadowAnalyses = [];
+
+      if (engineOS && engineOS.strength > 0.3) {
+        const engineShadow = this.shadowAnalyzer.analyzeShadow(engineOS, Math.round(engineOS.strength * 100));
+        shadowAnalyses.push({
+          type: 'engine',
+          title: '価値観システムの影',
+          analysis: engineShadow
+        });
+      }
+
+      if (interfaceOS && interfaceOS.strength > 0.3) {
+        const interfaceShadow = this.shadowAnalyzer.analyzeShadow(interfaceOS, Math.round(interfaceOS.strength * 100));
+        shadowAnalyses.push({
+          type: 'interface',
+          title: '社会的システムの影',
+          analysis: interfaceShadow
+        });
+      }
+
+      if (safeModeOS && safeModeOS.strength > 0.3) {
+        const safeModeShadow = this.shadowAnalyzer.analyzeShadow(safeModeOS, Math.round(safeModeOS.strength * 100));
+        shadowAnalyses.push({
+          type: 'safemode',
+          title: '防御システムの影',
+          analysis: safeModeShadow
+        });
+      }
+
+      // 統合シャドウ分析
+      const integratedShadow = this.shadowAnalyzer.analyzeIntegratedShadow(engineOS, interfaceOS, safeModeOS);
+
+      // HTMLの生成
+      const shadowHTML = this.generateShadowAnalysisHTML(shadowAnalyses, integratedShadow);
+      shadowContent.innerHTML = shadowHTML;
+
+    } catch (error) {
+      console.error("❌ [Phase4] シャドウ分析エラー:", error);
+      shadowContent.innerHTML = `<div class="error">シャドウ分析中にエラーが発生しました。</div>`;
+    }
+  }
+
+  /**
+   * 自己挑戦質問の初期化
+   */
+  async initializeChallengeQuestions(analysisResult) {
+    console.log("🤔 [Phase4] 挑戦的質問を初期化中...");
+
+    const challengeContent = document.getElementById('challenge-questions-content');
+    if (!challengeContent) return;
+
+    try {
+      // 批判的分析の実行
+      const criticalAnalysis = this.criticalThinkingEngine.generateCriticalAnalysis(analysisResult);
+
+      // HTMLの生成
+      const challengeHTML = this.generateChallengeQuestionsHTML(criticalAnalysis);
+      challengeContent.innerHTML = challengeHTML;
+
+    } catch (error) {
+      console.error("❌ [Phase4] 挑戦的質問エラー:", error);
+      challengeContent.innerHTML = `<div class="error">質問生成中にエラーが発生しました。</div>`;
+    }
+  }
+
+  /**
+   * ツールの限界説明の初期化
+   */
+  async initializeToolLimitations() {
+    console.log("⚠️ [Phase4] ツール限界説明を初期化中...");
+
+    const limitationsContent = document.getElementById('limitations-content');
+    if (!limitationsContent) return;
+
+    try {
+      const limitations = this.criticalThinkingEngine._highlightToolLimitations(this.analysisResult);
+      const limitationsHTML = this.generateToolLimitationsHTML(limitations);
+      limitationsContent.innerHTML = limitationsHTML;
+
+    } catch (error) {
+      console.error("❌ [Phase4] ツール限界説明エラー:", error);
+      limitationsContent.innerHTML = `<div class="error">限界説明の生成中にエラーが発生しました。</div>`;
+    }
+  }
+
+  /**
+   * シャドウ分析HTMLの生成
+   */
+  generateShadowAnalysisHTML(shadowAnalyses, integratedShadow) {
+    let html = '';
+
+    // 個別OSのシャドウ分析
+    shadowAnalyses.forEach(({ type, title, analysis }) => {
+      html += `
+        <div class="shadow-os-analysis">
+          <h4>${title}</h4>
+          <div class="shadow-aspects">
+            <div class="shadow-aspect">
+              <h5>🌑 影の側面</h5>
+              <p>${analysis.shadowAspects.primary_shadow}</p>
+              <p class="shadow-intensity">強度: ${analysis.shadowAspects.intensity_level}</p>
+            </div>
+            
+            <div class="shadow-questions">
+              <h5>🔍 自己探求質問</h5>
+              ${analysis.selfInquiryQuestions.map(q => `
+                <div class="inquiry-question">
+                  <p class="question-text">${q.question}</p>
+                  <p class="question-purpose">目的: ${q.purpose}</p>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class="integration-guidance">
+              <h5>🔗 統合のガイダンス</h5>
+              <p>${analysis.integrationGuidance.shadow_acceptance.message}</p>
+              <div class="practical-steps">
+                <h6>実践的ステップ：</h6>
+                <ol>
+                  ${analysis.integrationGuidance.practical_steps.map(step => 
+                    `<li><strong>${step.action}:</strong> ${step.description}</li>`
+                  ).join('')}
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    // 統合的メッセージ
+    if (integratedShadow) {
+      html += `
+        <div class="integrated-shadow-guidance">
+          <h4>🌈 統合的な視点</h4>
+          <p>${integratedShadow.holistic_guidance.core_message}</p>
+          <p class="integration-approach">${integratedShadow.holistic_guidance.integration_approach}</p>
+          <p class="practical-wisdom">${integratedShadow.holistic_guidance.practical_wisdom}</p>
+        </div>
+      `;
+    }
+
+    return html;
+  }
+
+  /**
+   * 挑戦的質問HTMLの生成
+   */
+  generateChallengeQuestionsHTML(criticalAnalysis) {
+    let html = '';
+
+    // 各OSに対する質問
+    Object.entries(criticalAnalysis.self_challenge_questions).forEach(([osType, questions]) => {
+      if (questions.length > 0) {
+        const osTitle = {
+          engine_os: '価値観システム',
+          interface_os: '社会的システム',
+          safemode_os: '防御システム',
+          integrated: '統合的視点'
+        }[osType] || osType;
+
+        html += `
+          <div class="challenge-os-section">
+            <h4>${osTitle}への挑戦的質問</h4>
+            ${questions.map(q => `
+              <div class="challenge-question">
+                <div class="question-header">
+                  <span class="intensity-badge intensity-${q.intensity}">${q.intensity}</span>
+                  <span class="question-purpose">${q.purpose}</span>
+                </div>
+                <p class="question-text">${q.question}</p>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    });
+
+    // バイアス認識
+    if (criticalAnalysis.bias_awareness) {
+      html += `
+        <div class="bias-awareness-section">
+          <h4>🧠 認知バイアスへの注意</h4>
+          ${Object.entries(criticalAnalysis.bias_awareness).map(([biasType, biasInfo]) => `
+            <div class="bias-item">
+              <h5>${biasInfo.name}</h5>
+              <p>${biasInfo.description}</p>
+              <div class="bias-questions">
+                ${biasInfo.detection_questions.map(q => 
+                  `<p class="bias-question">• ${q}</p>`
+                ).join('')}
+              </div>
+              <p class="mitigation-advice"><strong>対策:</strong> ${biasInfo.mitigation_advice}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    return html;
+  }
+
+  /**
+   * ツール限界HTMLの生成
+   */
+  generateToolLimitationsHTML(limitations) {
+    let html = '';
+
+    Object.entries(limitations).forEach(([category, categoryInfo]) => {
+      html += `
+        <div class="limitation-category">
+          <h4>${categoryInfo.title}</h4>
+          <ul>
+            ${categoryInfo.points.map(point => `<li>${point}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    });
+
+    return html;
+  }
+
+  /**
+   * 批判的思考タブの初期化
+   */
+  initializeCriticalTabs() {
+    const tabs = this.container.querySelectorAll('.critical-tab');
+    const contents = this.container.querySelectorAll('.critical-tab-content');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetTab = tab.dataset.tab;
+
+        // タブの切り替え
+        tabs.forEach(t => t.classList.remove('active'));
+        contents.forEach(c => c.classList.remove('active'));
+
+        tab.classList.add('active');
+        const targetContent = this.container.querySelector(`#${targetTab}-tab`);
+        if (targetContent) {
+          targetContent.classList.add('active');
+        }
+      });
+    });
+  }
+
+  /**
+   * 批判的思考機能のエラー表示
+   */
+  displayCriticalThinkingError() {
+    const section = this.container.querySelector('#critical-thinking-section');
+    if (section) {
+      section.innerHTML = `
+        <div class="critical-thinking-error">
+          <h3>⚠️ 批判的思考機能の読み込みエラー</h3>
+          <p>Phase 4機能の初期化中にエラーが発生しました。ページを再読み込みしてください。</p>
+        </div>
+      `;
+    }
   }
 }

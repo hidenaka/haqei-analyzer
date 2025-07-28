@@ -65,6 +65,34 @@ class PersonalStrategyAI {
 - 具体的なトリガーの説明
 - 自己受容を促す表現
 - 250-350文字`,
+            
+            SAFEMODE_INTEGRATION: `以下の分析データを基に、防御システムとの健全な付き合い方について一人称でアドバイスしてください。
+
+### 分析データ:
+- エンジンOS: {engineOS.osName}
+- インターフェースOS: {interfaceOS.osName}
+- セーフモードOS: {safeModeOS.osName}
+- 発動パターン: {safemodeTriggers}
+- 回復方法: {recoveryMethods}
+
+### 出力形式:
+私の防御システムは、実は私を守るための大切な機能です。
+
+**早期発見のサイン**: [具体的な前兆・症状]に気づいたら、それは防御システムが作動し始めているサインです。
+
+**健全な対処法**: 
+1. [即座にできる対処法]
+2. [中期的な改善策]
+3. [長期的な統合方法]
+
+**自己統合への道**: エンジンOSの[強み]とインターフェースOSの[特性]を活かしながら、セーフモードOSを[統合的な活用法]として捉えることで、より健全な自己表現が可能になります。
+
+### 制約:
+- 防御システムを「悪者」にしない
+- 具体的で実践可能な対処法
+- 3つのOSの統合的視点
+- 希望に満ちた表現
+- 300-400文字`,
 
             PRACTICAL_ADVICE: `以下の3OS統合分析データを基に、この人が日常生活で実践できる具体的なアドバイスを一人称で提供してください。
 
@@ -109,12 +137,13 @@ class PersonalStrategyAI {
         console.log("🎯 [PersonalStrategyAI] 4つの核心質問への回答生成開始", analysisData);
 
         try {
-            // 4つの核心質問への回答を並列生成
-            const [rootStrength, optimalRole, defensivePattern, practicalAdvice] = await Promise.all([
+            // Phase 2: 5つの核心質問への回答を並列生成（セーフモード統合追加）
+            const [rootStrength, optimalRole, defensivePattern, practicalAdvice, safemodeIntegration] = await Promise.all([
                 this._generateRootStrength(analysisData),
                 this._generateOptimalRole(analysisData),
                 this._generateDefensivePattern(analysisData),
-                this._generatePracticalAdvice(analysisData)
+                this._generatePracticalAdvice(analysisData),
+                this._generateSafemodeIntegration(analysisData) // Phase 2追加
             ]);
 
             const strategySummary = {
@@ -122,8 +151,9 @@ class PersonalStrategyAI {
                 optimalRole,
                 defensivePattern,
                 practicalAdvice,
+                safemodeIntegration, // Phase 2追加
                 generatedAt: new Date().toISOString(),
-                version: "1.0"
+                version: "1.1" // Phase 2でバージョンアップ
             };
 
             console.log("✅ [PersonalStrategyAI] 戦略生成完了", strategySummary);
@@ -208,6 +238,24 @@ class PersonalStrategyAI {
         return this._validateAndCleanResponse(response, "practicalAdvice");
     }
 
+    // 5. Phase 2: セーフモード統合アドバイス
+    async _generateSafemodeIntegration(analysisData) {
+        console.log("🛡️ [PersonalStrategyAI] セーフモード統合アドバイス生成中...");
+
+        const prompt = this._interpolateTemplate(
+            this.promptTemplates.SAFEMODE_INTEGRATION, 
+            analysisData
+        );
+
+        const response = await this._simulateAIGeneration(prompt, {
+            focus: "integration",
+            tone: "empowering",
+            length: 350
+        });
+
+        return this._validateAndCleanResponse(response, "safemodeIntegration");
+    }
+
     // プロンプトテンプレートの変数補間
     _interpolateTemplate(template, analysisData) {
         let interpolated = template;
@@ -244,6 +292,10 @@ class PersonalStrategyAI {
 
         // 8次元ベクトルの補間
         replacements['vector8D'] = this._formatVector8D(analysisData.engineOS?.vector);
+
+        // Phase 2: セーフモード統合用データの補間
+        replacements['safemodeTriggers'] = this._formatSafemodeTriggers(analysisData);
+        replacements['recoveryMethods'] = this._formatRecoveryMethods(analysisData);
 
         // 実際の置換実行
         Object.entries(replacements).forEach(([key, value]) => {
@@ -340,53 +392,60 @@ class PersonalStrategyAI {
         return Math.max(score, 0);
     }
 
-    // フォールバック戦略生成（bunenjin哲学統合版）
+    // フォールバック戦略生成（Triple OS哲学統合版）
     _generateFallbackStrategy(analysisData) {
-        console.warn("⚠️ [PersonalStrategyAI] bunenjin哲学統合フォールバック戦略を生成中...");
+        console.warn("⚠️ [PersonalStrategyAI] Triple OS哲学統合フォールバック戦略を生成中...");
 
-        // 分析データからbunenjin要素を抽出
-        const bunenjinContext = this._extractBunenjinContext(analysisData);
+        // 分析データからTriple OS要素を抽出
+        const tripleOSContext = this._extractTripleOSContext(analysisData);
         
         return {
             rootStrength: {
-                text: this._generateBunenjinRootStrength(bunenjinContext),
+                text: this._generateTripleOSRootStrength(tripleOSContext),
                 type: "rootStrength",
-                quality: 80, // bunenjin統合で品質向上
+                quality: 80, // Triple OS統合で品質向上
                 fallback: true,
-                bunenjin_enhanced: true
+                triple_os_enhanced: true
             },
             optimalRole: {
-                text: this._generateBunenjinOptimalRole(bunenjinContext),
+                text: this._generateTripleOSOptimalRole(tripleOSContext),
                 type: "optimalRole",
                 quality: 80,
                 fallback: true,
-                bunenjin_enhanced: true
+                triple_os_enhanced: true
             },
             defensivePattern: {
-                text: this._generateBunenjinDefensivePattern(bunenjinContext),
+                text: this._generateTripleOSDefensivePattern(tripleOSContext),
                 type: "defensivePattern",
                 quality: 80,
                 fallback: true,
-                bunenjin_enhanced: true
+                triple_os_enhanced: true
             },
             practicalAdvice: {
-                text: this._generateBunenjinPracticalAdvice(bunenjinContext),
+                text: this._generateTripleOSPracticalAdvice(tripleOSContext),
                 type: "practicalAdvice",
                 quality: 80,
                 fallback: true,
-                bunenjin_enhanced: true
+                triple_os_enhanced: true
+            },
+            safemodeIntegration: { // Phase 2追加
+                text: this._generateTripleOSSafemodeIntegration(tripleOSContext),
+                type: "safemodeIntegration",
+                quality: 80,
+                fallback: true,
+                triple_os_enhanced: true
             }
         };
     }
 
-    // bunenjin哲学コンテキストの抽出
-    _extractBunenjinContext(analysisData) {
+    // Triple OS哲学コンテキストの抽出
+    _extractTripleOSContext(analysisData) {
         const context = {
             hasEngineOS: !!(analysisData?.engineOS),
             hasInterfaceOS: !!(analysisData?.interfaceOS),
             hasSafeModeOS: !!(analysisData?.safeModeOS),
             multiplePersonalities: false,
-            strategicNavigation: true // bunenjin哲学の核心
+            strategicNavigation: true // Triple OS哲学の核心
         };
 
         // 複数分人の存在を確認
@@ -400,8 +459,8 @@ class PersonalStrategyAI {
         return context;
     }
 
-    // bunenjin統合版根源的強み
-    _generateBunenjinRootStrength(context) {
+    // Triple OS統合版根源的強み
+    _generateTripleOSRootStrength(context) {
         if (context.multiplePersonalities) {
             return `私の根源的な強みは、${context.primaryOS}、${context.socialOS}、${context.protectiveOS}という複数の分人を適切に使い分けられることです。これらの異なる側面を状況に応じて選択し、統合することで、単一の「真の自己」を探すよりもはるかに柔軟で豊かな人生を実現できます。この分人の多様性こそが、私の最大の資産です。`;
         } else {
@@ -409,8 +468,8 @@ class PersonalStrategyAI {
         }
     }
 
-    // bunenjin統合版最適役回り
-    _generateBunenjinOptimalRole(context) {
+    // Triple OS統合版最適役回り
+    _generateTripleOSOptimalRole(context) {
         if (context.multiplePersonalities) {
             return `私が最も輝ける役回りは、状況適応型リーダーや多面的コンサルタントです。${context.primaryOS}で創造的な問題解決を行い、${context.socialOS}で人間関係を円滑にし、${context.protectiveOS}でリスク管理をする。この分人の使い分けにより、従来の固定的な役割を超えた価値を提供できます。単一の専門性よりも、複数の分人を統合した総合力が求められる環境で真価を発揮します。`;
         } else {
@@ -418,8 +477,8 @@ class PersonalStrategyAI {
         }
     }
 
-    // bunenjin統合版防御パターン解説
-    _generateBunenjinDefensivePattern(context) {
+    // Triple OS統合版防御パターン解説
+    _generateTripleOSDefensivePattern(context) {
         if (context.multiplePersonalities) {
             return `私が時々らしくない振る舞いをするのは、${context.protectiveOS}が自動的に作動するからです。これは欠点ではなく、分人思想で言う自然な分人切り替えです。ストレス状況では保護モードの分人が前面に出てきますが、これは私を守る大切な機能。問題は「らしくない」と自分を責めることで、実際は状況に応じた適切な分人選択なのです。この理解により、自己受容が深まります。`;
         } else {
@@ -427,12 +486,21 @@ class PersonalStrategyAI {
         }
     }
 
-    // bunenjin統合版実践的アドバイス
-    _generateBunenjinPracticalAdvice(context) {
+    // Triple OS統合版実践的アドバイス
+    _generateTripleOSPracticalAdvice(context) {
         if (context.multiplePersonalities) {
             return `私の${context.primaryOS}、${context.socialOS}、${context.protectiveOS}を統合して考えると、日常では「分人の意識的選択」を実践すると良いでしょう。**分人マネジメント**: 朝に今日使う分人を意識的に選択する。**環境設計**: それぞれの分人が活躍できる場面を意図的に作る。**統合戦略**: 複数の分人の強みを組み合わせた独自のアプローチを開発する。分人思想により、「自分らしさ」の呪縛から解放され、戦略的人生設計が可能になります。`;
         } else {
             return `分人思想を活かした日常実践をお勧めします。**分人の観察**: 自分の中の異なる面を客観視し、それぞれの特性を理解する。**戦略的選択**: 状況に応じて最適な分人を意識的に選ぶ。**自己受容**: 「一貫した自分」を求めず、多面性を資産として活用する。これにより、従来の自己啓発とは異なる、より実践的で持続可能な成長が実現できます。`;
+        }
+    }
+
+    // Phase 2: Triple OS統合版セーフモード統合
+    _generateTripleOSSafemodeIntegration(context) {
+        if (context.multiplePersonalities) {
+            return `私の防御システムである${context.protectiveOS}は、実は私を守るための重要な分人です。**早期発見のサイン**: ${context.primaryOS}と${context.socialOS}の間に大きなズレを感じた時、それは防御システムが作動し始めているサインです。**健全な対処法**: 1. まず防御モードの分人を認識し、感謝する 2. なぜこの分人が出てきたのか、状況を客観視する 3. 必要に応じて環境を調整し、より適切な分人を選択する。**自己統合への道**: すべての分人を「私の一部」として受け入れることで、状況に応じた最適な自己表現が可能になります。`;
+        } else {
+            return `私の防御システムは、分人思想で理解すると「保護的な分人」の表れです。**早期発見のサイン**: いつもと違う行動パターンに気づいたら、それは別の分人が前面に出ているサインかもしれません。**健全な対処法**: 1. 今どの分人が活動しているかを観察する 2. その分人が何を守ろうとしているかを理解する 3. 状況に応じて、より建設的な分人を意識的に選択する。**統合への道**: すべての分人には存在理由があります。それを理解し、活用することで、より豊かな人生が実現できます。`;
         }
     }
 
@@ -461,12 +529,53 @@ class PersonalStrategyAI {
         return dimensions.join(', ');
     }
 
+    // Phase 2: セーフモードトリガーのフォーマット
+    _formatSafemodeTriggers(analysisData) {
+        const triggers = [];
+        
+        // 基本的なトリガー
+        if (analysisData.safeModeOS?.hexagramId) {
+            triggers.push('価値観と環境の不一致');
+            triggers.push('過度のストレスや圧力');
+            triggers.push('本音と建前の乖離');
+        }
+        
+        // セーフモード質問への回答から抽出
+        if (analysisData.safemodeResponses) {
+            if (analysisData.safemodeResponses.impulse > 2) triggers.push('衝動的な行動への欲求');
+            if (analysisData.safemodeResponses.physical > 2) triggers.push('心身の疲労');
+            if (analysisData.safemodeResponses.blame > 2) triggers.push('他責思考の増加');
+        }
+        
+        return triggers.length > 0 ? triggers.join('、') : '過度なストレス状況';
+    }
+
+    // Phase 2: 回復方法のフォーマット
+    _formatRecoveryMethods(analysisData) {
+        const methods = [];
+        
+        // 基本的な回復方法
+        methods.push('十分な休息とセルフケア');
+        methods.push('信頼できる人との対話');
+        
+        // 8次元ベクトルから回復方法を提案
+        if (analysisData.engineOS?.vector) {
+            const vector = analysisData.engineOS.vector;
+            if (vector['坎_探求性'] > 0.7) methods.push('内省と自己分析');
+            if (vector['兌_調和性'] > 0.7) methods.push('人とのつながりを深める');
+            if (vector['乾_創造性'] > 0.7) methods.push('新しい価値観の探求');
+        }
+        
+        return methods.length > 0 ? methods.join('、') : '休息と内省、そして段階的な回復';
+    }
+
     _getFallbackResponse(type) {
         const fallbacks = {
             rootStrength: "私には独特の視点と粘り強さがあります。",
             optimalRole: "私は信頼できるチームメンバーとして力を発揮できます。",
             defensivePattern: "私の防御反応は、自分を守るための自然な機能です。",
-            practicalAdvice: "自分のペースを大切にし、着実に歩むことが重要です。"
+            practicalAdvice: "自分のペースを大切にし、着実に歩むことが重要です。",
+            safemodeIntegration: "私の防御システムは、私を守るための大切な機能です。これを理解し、受け入れることで、より健全な自己表現が可能になります。" // Phase 2追加
         };
 
         return {
@@ -489,6 +598,8 @@ class PersonalStrategyAI {
                     return await this._generateDefensivePattern(analysisData);
                 case 'practicalAdvice':
                     return await this._generatePracticalAdvice(analysisData);
+                case 'safemodeIntegration': // Phase 2追加
+                    return await this._generateSafemodeIntegration(analysisData);
                 default:
                     return await this.generateStrategySummary(analysisData);
             }

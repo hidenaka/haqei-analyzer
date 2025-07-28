@@ -2208,6 +2208,142 @@
       }
 
       /**
+       * セマンティック関連度計算
+       * @param {string} inputText - ユーザー入力テキスト
+       * @param {Object} lineData - 爻データ
+       * @param {string} matchedKeyword - マッチしたキーワード
+       * @returns {Object} {multiplier: number, confidence: number}
+       */
+      function calculateSemanticRelevance(inputText, lineData, matchedKeyword) {
+        // TF-IDF風の単語重要度計算
+        const inputWords = extractWords(inputText);
+        const summaryWords = extractWords(lineData.現代解釈の要約 || '');
+        
+        // 共通語彙の計算
+        const commonWords = inputWords.filter(word => summaryWords.includes(word));
+        const commonWordRatio = commonWords.length / Math.max(inputWords.length, 1);
+        
+        // キーワードの重要度評価
+        const keywordImportance = evaluateKeywordImportance(matchedKeyword, inputText);
+        
+        // セマンティック類似度の計算
+        const semanticSimilarity = calculateJaccardSimilarity(inputWords, summaryWords);
+        
+        // 最終的な関連度乗数（0.5〜1.5の範囲）
+        const multiplier = Math.max(0.5, Math.min(1.5, 
+          0.7 + (commonWordRatio * 0.3) + (keywordImportance * 0.3) + (semanticSimilarity * 0.2)
+        ));
+        
+        // 信頼度スコア（0〜1）
+        const confidence = (commonWordRatio + keywordImportance + semanticSimilarity) / 3;
+        
+        return { multiplier, confidence };
+      }
+
+      /**
+       * キーワード重要度評価
+       * @param {string} keyword - 評価対象キーワード
+       * @param {string} text - 全体テキスト
+       * @returns {number} 0〜1の重要度スコア
+       */
+      function evaluateKeywordImportance(keyword, text) {
+        const textLength = text.length;
+        const keywordLength = keyword.length;
+        const occurrences = (text.match(new RegExp(keyword, 'g')) || []).length;
+        
+        // 相対的重要度（テキスト長との比率）
+        const relativeImportance = (keywordLength * occurrences) / textLength;
+        
+        // 出現頻度による重要度調整
+        const frequencyBonus = Math.min(0.3, occurrences * 0.1);
+        
+        return Math.min(1, relativeImportance * 10 + frequencyBonus);
+      }
+
+      /**
+       * Jaccard類似度計算
+       * @param {Array} set1 - 単語配列1
+       * @param {Array} set2 - 単語配列2
+       * @returns {number} 0〜1の類似度
+       */
+      function calculateJaccardSimilarity(set1, set2) {
+        const intersection = set1.filter(word => set2.includes(word));
+        const union = [...new Set([...set1, ...set2])];
+        
+        return union.length === 0 ? 0 : intersection.length / union.length;
+      }
+
+      /**
+       * コンテキスト適合度評価
+       * @param {string} emotionalContext - 感情コンテキスト
+       * @param {string} temporalContext - 時間コンテキスト
+       * @param {string} contextType - コンテキスト種別
+       * @param {Object} lineData - 爻データ
+       * @returns {number} -0.2〜0.2の適合度調整値
+       */
+      function evaluateContextFit(emotionalContext, temporalContext, contextType, lineData) {
+        let fitScore = 0;
+        const summary = lineData.現代解釈の要約 || '';
+        const hexagramName = lineData["親となる卦"] || '';
+        
+        // 感情コンテキストとの適合度（軽微な調整のみ）
+        if (emotionalContext === 'negative') {
+          if (summary.includes('解決') || summary.includes('改善') || summary.includes('希望')) {
+            fitScore += 0.1; // ポジティブな解決策を軽く優遇
+          }
+        } else if (emotionalContext === 'positive') {
+          if (summary.includes('発展') || summary.includes('成長') || summary.includes('前進')) {
+            fitScore += 0.05; // 発展系を軽く優遇
+          }
+        }
+        
+        // 時間コンテキストとの適合度
+        if (temporalContext === 'current_struggle') {
+          if (summary.includes('継続') || summary.includes('努力') || summary.includes('過程')) {
+            fitScore += 0.1; // プロセス重視の内容を軽く優遇
+          }
+        }
+        
+        // コンテキスト種別との適合度
+        if (contextType === 'personal' && summary.includes('自己')) {
+          fitScore += 0.05;
+        } else if (contextType === 'social' && (summary.includes('組織') || summary.includes('社会'))) {
+          fitScore += 0.05;
+        }
+        
+        // 適合度を-0.2〜0.2の範囲に制限
+        return Math.max(-0.2, Math.min(0.2, fitScore));
+      }
+
+      /**
+       * 適応的閾値計算
+       * @param {Array} scores - 全スコア配列
+       * @param {number} textLength - 入力テキスト長
+       * @returns {number} 動的計算された閾値
+       */
+      function calculateAdaptiveThreshold(scores, textLength) {
+        if (scores.length === 0) return 10; // デフォルト最小閾値
+        
+        // 統計的指標の計算
+        const sortedScores = scores.sort((a, b) => b - a);
+        const median = sortedScores[Math.floor(sortedScores.length / 2)];
+        const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+        
+        // テキスト長による基本閾値調整
+        const textLengthFactor = Math.min(1.5, Math.max(0.5, textLength / 100));
+        
+        // スコア分布による閾値調整
+        const scoreDistributionFactor = sortedScores.length > 10 ? 0.8 : 1.0;
+        
+        // 最終閾値計算（中央値と平均値の重み付き平均）
+        const baseThreshold = (median * 0.6) + (average * 0.4);
+        const adaptiveThreshold = Math.round(baseThreshold * textLengthFactor * scoreDistributionFactor);
+        
+        // 最小・最大閾値の制限
+        return Math.max(5, Math.min(50, adaptiveThreshold));
+      }
+
+      /**
        * コンテキスト自動識別エンジン
        * @param {string} text - 分析対象のテキスト
        * @returns {string} 'personal', 'social'
@@ -2299,6 +2435,7 @@
         
         let bestMatch = { score: -Infinity, line: null, matchedWords: [], reasonKeywords: [], };
         const worryWords = extractWords(worryText);
+        let allScores = [];
         
         // 感情極性と時制を分析
         const emotionalContext = analyzeEmotionalContext(worryText, worryWords);
@@ -2313,6 +2450,7 @@
           let currentScore = 0;
           let reasonKeywords = [];
           let currentMatchedWords = [];
+          let confidenceScores = [];
           
           // キーワードマッチング（改善されたロジック）
           if (themeData.positive_keywords && Array.isArray(themeData.positive_keywords)) {
@@ -2324,93 +2462,17 @@
               if (foundKw) {
                 let keywordScore = 30;
                 
-                // 文脈に基づく調整
-                if (emotionalContext === 'negative') {
-                  // 完成系の卦（既済、大成など）の場合、大幅減点
-                  if (lineData["親となる卦"].includes('既済') || 
-                      lineData.現代解釈の要約.includes('完成') ||
-                      lineData.現代解釈の要約.includes('達成') ||
-                      lineData.現代解釈の要約.includes('大成')) {
-                    keywordScore = -20; // ペナルティ
-                  }
-                  
-                  // 進行中・困難系の卦により高いスコア
-                  if (lineData["親となる卦"].includes('屯') ||
-                      lineData["親となる卦"].includes('蒙') ||
-                      lineData["親となる卦"].includes('需') ||
-                      lineData["親となる卦"].includes('訟') ||
-                      lineData.現代解釈の要約.includes('困難') ||
-                      lineData.現代解釈の要約.includes('努力') ||
-                      lineData.現代解釈の要約.includes('発展中') ||
-                      lineData.現代解釈の要約.includes('成長中')) {
-                    keywordScore += 25;
-                  }
-                }
+                // セマンティックマッチングによる動的スコア調整
+                const semanticRelevance = calculateSemanticRelevance(worryText, lineData, foundKw);
+                keywordScore = Math.round(keywordScore * semanticRelevance.multiplier);
                 
-                // 時制による調整
-                if (temporalContext === 'current_struggle') {
-                  // 進行中・困難系の卦により高いスコア
-                  if (lineData["親となる卦"].includes('屯') ||
-                      lineData["親となる卦"].includes('蒙') ||
-                      lineData["親となる卦"].includes('需') ||
-                      lineData.現代解釈の要約.includes('困難') ||
-                      lineData.現代解釈の要約.includes('努力') ||
-                      lineData.現代解釈の要約.includes('発展中') ||
-                      lineData.現代解釈の要約.includes('成長中')) {
-                    keywordScore += 20;
-                  }
-                  
-                  // 完成系の卦は減点
-                  if (lineData["親となる卦"].includes('既済') ||
-                      lineData.現代解釈の要約.includes('完成') ||
-                      lineData.現代解釈の要約.includes('達成')) {
-                    keywordScore -= 15;
-                  }
-                }
-
-                // コンテキストに基づくスコアリング調整
-                if (contextType === 'personal') {
-                  // 個人的課題の場合の調整ロジック
-                  if (lineData.現代解釈の要約.includes('自己') ||
-                      lineData.現代解釈の要約.includes('内面') ||
-                      lineData.現代解釈の要約.includes('成長') ||
-                      lineData.現代解釈の要約.includes('自信') ||
-                      lineData.現代解釈の要約.includes('心') ||
-                      lineData.現代解釈の要約.includes('感情')) {
-                    keywordScore += 15;
-                  }
-                  
-                  // 組織・社会的な内容の卦は減点
-                  if (lineData.現代解釈の要約.includes('組織') ||
-                      lineData.現代解釈の要約.includes('社会') ||
-                      lineData.現代解釈の要約.includes('政治') ||
-                      lineData.現代解釈の要約.includes('経済') ||
-                      lineData.現代解釈の要約.includes('市場')) {
-                    keywordScore -= 10;
-                  }
-                } else if (contextType === 'social') {
-                  // 組織・社会的課題の場合の調整ロジック
-                  if (lineData.現代解釈の要約.includes('組織') ||
-                      lineData.現代解釈の要約.includes('社会') ||
-                      lineData.現代解釈の要約.includes('政治') ||
-                      lineData.現代解釈の要約.includes('経済') ||
-                      lineData.現代解釈の要約.includes('市場') ||
-                      lineData.現代解釈の要約.includes('チーム') ||
-                      lineData.現代解釈の要約.includes('プロジェクト')) {
-                    keywordScore += 15;
-                  }
-                  
-                  // 個人的な内容の卦は減点
-                  if (lineData.現代解釈の要約.includes('自己') ||
-                      lineData.現代解釈の要約.includes('内面') ||
-                      lineData.現代解釈の要約.includes('心') ||
-                      lineData.現代解釈の要約.includes('感情')) {
-                    keywordScore -= 10;
-                  }
-                }
+                // コンテキスト適合度による軽微な調整（硬直的バイアス除去）
+                const contextFit = evaluateContextFit(emotionalContext, temporalContext, contextType, lineData);
+                keywordScore = Math.round(keywordScore * (1 + contextFit * 0.1));
                 
                 currentScore += keywordScore;
                 reasonKeywords.push(keywordGroup[0]);
+                confidenceScores.push(semanticRelevance.confidence);
                 if (worryText.includes(foundKw)) {
                   currentMatchedWords.push(foundKw);
                 }
@@ -2428,15 +2490,12 @@
             });
           }
           
-          // 現代解釈の要約との類似度
+          // 現代解釈の要約との重み付き類似度
           if (lineData.現代解釈の要約 && worryWords.length > 0) {
-            const summaryWords = extractWords(lineData.現代解釈の要約);
-            const commonWords = worryWords.filter((word) => summaryWords.includes(word));
-            if (commonWords.length > 0) {
-              const unionSize = new Set([...worryWords, ...summaryWords]).size;
-              const similarity = unionSize > 0 ? commonWords.length / unionSize : 0;
-              currentScore += similarity * 15;
-            }
+            const summarySemanticRelevance = calculateSemanticRelevance(worryText, lineData, "");
+            const weightedSimilarityScore = Math.round(15 * summarySemanticRelevance.multiplier);
+            currentScore += weightedSimilarityScore;
+            confidenceScores.push(summarySemanticRelevance.confidence);
           }
           
           // ネガティブキーワードのペナルティ
@@ -2448,20 +2507,39 @@
             });
           }
           
+          // 全スコアを記録（適応的閾値計算用）
+          if (currentScore > 0) {
+            allScores.push(currentScore);
+          }
+          
           if (currentScore > bestMatch.score) {
+            // 信頼度スコアの計算（平均値）
+            const averageConfidence = confidenceScores.length > 0 
+              ? confidenceScores.reduce((sum, score) => sum + score, 0) / confidenceScores.length 
+              : 0.5;
+            
             bestMatch = {
               score: currentScore,
               line: lineData,
               matchedWords: [...new Set(currentMatchedWords)],
               reasonKeywords: [...new Set(reasonKeywords)],
+              confidence: averageConfidence,
             };
           }
         });
         
-        if (bestMatch.line) {
-          const { line, matchedWords, reasonKeywords } = bestMatch;
+        // 適応的閾値による結果検証
+        const adaptiveThreshold = calculateAdaptiveThreshold(allScores, worryText.length);
+        
+        if (bestMatch.line && bestMatch.score >= adaptiveThreshold) {
+          const { line, matchedWords, reasonKeywords, confidence } = bestMatch;
           const lineNum = ["初", "二", "三", "四", "五", "上"].findIndex((l) => line.爻.includes(l)) + 1;
           let mainTheme = reasonKeywords.length > 0 ? reasonKeywords.join("、") : `${line["親となる卦"]} ${line.爻}の持つテーマ`;
+          
+          // 信頼度表示の準備
+          const confidencePercent = Math.round(confidence * 100);
+          const confidenceLevel = confidence >= 0.8 ? "高" : confidence >= 0.6 ? "中" : "低";
+          const confidenceColor = confidence >= 0.8 ? "text-green-400" : confidence >= 0.6 ? "text-yellow-400" : "text-orange-400";
           
           // 文脈分析結果を含めた根拠説明
           let contextInfo = "";
@@ -2476,12 +2554,13 @@
           const contextTypeText = contextType === 'personal' ? '個人の内面的な課題' : '組織や社会といった外部環境の課題';
           contextInfo += `また、これは<strong>${contextTypeText}</strong>として分析されました。`;
           
-          const reasoning = `AIの推測: ${contextInfo}ご相談の状況は、<strong>${line["親となる卦"]} ${line.爻}</strong>の持つ<strong>「${mainTheme}」</strong>というテーマと強く結びついていると判断しました。`;
+          const reasoning = `AIの推測: ${contextInfo}ご相談の状況は、<strong>${line["親となる卦"]} ${line.爻}</strong>の持つ<strong>「${mainTheme}」</strong>というテーマと強く結びついていると判断しました。<br><small class="${confidenceColor}">予測信頼度: ${confidenceLevel} (${confidencePercent}%)</small>`;
           
           return {
             卦番号: line.卦番号,
             爻番号: lineNum,
             根拠: reasoning,
+            信頼度: confidence,
           };
         }
         return null;

@@ -38,6 +38,42 @@ class WelcomeScreen extends BaseComponent {
             <p>30の質問を通じて、あなたの価値観を8次元で分析し、64通りの人格OSの中からあなたに最適なものを特定します。</p>
             <p>所要時間：約5-7分</p>
           </div>
+
+          <div class="triple-os-intro">
+            <h3>🔺 HaQei独自の「3つの人格システム」理論</h3>
+            <p>私たちは誰もが、状況に応じて使い分ける3つの人格システムを持っています：</p>
+            
+            <div class="os-cards">
+              <div class="os-card engine-os">
+                <div class="os-icon">⚙️</div>
+                <h4>価値観システム</h4>
+                <p>本質的な自分・核となる価値観</p>
+                <p class="os-detail">誰も見ていない時、心から信頼できる人といる時に現れる「本音の自分」</p>
+              </div>
+              
+              <div class="os-card interface-os">
+                <div class="os-icon">🎭</div>
+                <h4>社会的システム</h4>
+                <p>他者に見せる自分・社会的な表現</p>
+                <p class="os-detail">職場や友人関係、初対面の人との関わりで見せる「社会的な自分」</p>
+              </div>
+              
+              <div class="os-card safemode-os">
+                <div class="os-icon">🛡️</div>
+                <h4>防御システム</h4>
+                <p>内なる自分の防御機制</p>
+                <p class="os-detail">困難や脅威に直面した時、無意識に発動する「守る力を持つ智慧」</p>
+              </div>
+            </div>
+
+            <div class="safemode-emphasis">
+              <p class="emphasis-text">
+                <span class="emphasis-icon">💡</span>
+                特に「防御システム」は、あなたを守るために発動する大切な機能です。
+                これは悪いものではなく、適切に理解し活用することで、より健全な自己統合への道が開けます。
+              </p>
+            </div>
+          </div>
           
           <div class="welcome-actions">
             <button id="start-analysis-btn" class="btn btn-primary btn-lg">

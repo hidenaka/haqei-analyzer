@@ -886,7 +886,7 @@ class StorageManager {
         timestamp: Date.now(),
         rebuilt: true,
         dataSource: 'rebuilt_from_database',
-        bunenjinPhilosophy: true,
+        tripleOSPhilosophy: true,
         sourceAnswers: answers.length,
         qualityScore: Math.min(0.8, analysisMetrics.total / 20),
         notice: '回答データから実際のデータベースを用いて再構築された結果です。'
@@ -954,7 +954,7 @@ class StorageManager {
           timestamp: Date.now(),
           fallback: true,
           dataSource: 'dynamic_intelligent_fallback',
-          bunenjinPhilosophy: true,
+          tripleOSPhilosophy: true,
           notice: '分析データに基づく動的フォールバック結果です。より正確な結果のため完全な診断を推奨します。',
           qualityScore: qualityScore,
           analysisType: 'dynamic_fallback',
@@ -2734,7 +2734,7 @@ class StorageManager {
       timestamp: Date.now(),
       fallback: true,
       dataSource: 'emergency_minimal',
-      bunenjinPhilosophy: true,
+      tripleOSPhilosophy: true,
       notice: '緊急復旧モード。システムに問題が発生している可能性があります。',
       qualityScore: 0.1,
       analysisType: 'emergency_minimal'

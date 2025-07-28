@@ -197,9 +197,9 @@ class HexagramDynamicsCalculator {
       return fallbackScores;
     }
     
-    // bunenjin統合フォールバック
-    if (context.bunenjin_integrated) {
-      return this.generateBunenjinIntegratedFallback(upperTrigramId, lowerTrigramId);
+    // Triple OS統合フォールバック
+    if (context.triple_os_integrated) {
+      return this.generateTripleOSIntegratedFallback(upperTrigramId, lowerTrigramId);
     }
     
     // 基本推定フォールバック
@@ -225,24 +225,24 @@ class HexagramDynamicsCalculator {
     return Math.round((upperEst[dimension] || 5) * 0.7 + (lowerEst[dimension] || 5) * 0.3);
   }
 
-  // bunenjin統合フォールバック
-  generateBunenjinIntegratedFallback(upperTrigramId, lowerTrigramId) {
-    console.log(`🔧 [HexagramDynamics] bunenjin統合フォールバック生成中`);
+  // Triple OS統合フォールバック
+  generateTripleOSIntegratedFallback(upperTrigramId, lowerTrigramId) {
+    console.log(`🔧 [HexagramDynamics] Triple OS統合フォールバック生成中`);
     
-    // bunenjin哲学に基づく調整値
-    const bunenjinAdjustment = {
-      innovation: 0.2, // 分人思想は革新的
+    // Triple OS哲学に基づく調整値
+    const tripleOSAdjustment = {
+      innovation: 0.2, // Triple OSは革新的
       adaptability: 0.3, // 状況適応が核心
-      cooperation: 0.15, // 複数の自己との協調
+      cooperation: 0.15, // 複数のOSとの協調
       introspection: 0.25 // 自己観察が重要
     };
     
     const baseScores = this.generateEstimatedFallback(upperTrigramId, lowerTrigramId);
     
-    // bunenjin調整を適用
-    Object.keys(bunenjinAdjustment).forEach(dimension => {
+    // Triple OS調整を適用
+    Object.keys(tripleOSAdjustment).forEach(dimension => {
       if (baseScores[dimension] !== undefined) {
-        const adjustment = bunenjinAdjustment[dimension];
+        const adjustment = tripleOSAdjustment[dimension];
         baseScores[dimension] = Math.min(10, Math.round(baseScores[dimension] * (1 + adjustment)));
       }
     });
