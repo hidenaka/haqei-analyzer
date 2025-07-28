@@ -1,3 +1,24 @@
+/*
+ * TripleOSResultsView.js
+ * 
+ * トリプルOSシステム（エンジンOS、インターフェースOS、セーフモードOS）の
+ * 分析結果を表示するコンポーネント
+ * 
+ * 分人思想（bunenjin philosophy）に基づく次世代パーソナリティ分析システム
+ * 
+ * 【実装状況メモ - 2025/01/28】
+ * - エンジンOS詳細データ: os_manual未実装 → showNotImplementedMessage使用
+ * - インターフェースOS詳細データ: 未実装 → showNotImplementedMessage使用  
+ * - セーフモードOS詳細データ: 未実装 → showNotImplementedMessage使用
+ * - 互換性データ: engine-interface/engine-safemode JSONファイルからの読み込み実装済み
+ * - フォールバック処理: 誤解防止のため「まだ実装していません」と明示表示
+ * 
+ * 【今後の実装予定】
+ * - os_manualデータベースの実装（各卦の詳細データ）
+ * - インターフェースOS/セーフモードOS用詳細データの実装
+ * - エラーハンドリングの改善
+ */
+
 class TripleOSResultsView extends BaseComponent {
   constructor(containerId, options) {
     super(containerId, options);
@@ -20,7 +41,7 @@ class TripleOSResultsView extends BaseComponent {
 
   // 🚀 高速化されたTriple OSデータ抽出（デバッグログ最小化）
   // Supports bunenjin philosophy by ensuring robust access to all three personality layers
-  extractTripleOSData(analysisResult) {
+  async extractTripleOSData(analysisResult) {
     const debugMode = this.options?.debugMode || false;
     
     if (debugMode) {
@@ -195,7 +216,7 @@ class TripleOSResultsView extends BaseComponent {
       
       // Try one more fallback - search entire object for any hexagram-like data
       console.log('🆘 [FALLBACK] 全体検索による緊急データ復旧試行');
-      const fallbackSearch = this.emergencyDataRecovery(analysisResult);
+      const fallbackSearch = await this.emergencyDataRecovery(analysisResult);
       if (fallbackSearch.found) {
         console.log('🎯 [RECOVERY] 緊急データ復旧成功!');
         return fallbackSearch.data;
@@ -205,13 +226,57 @@ class TripleOSResultsView extends BaseComponent {
     return { engineOS, interfaceOS, safeModeOS };
   }
 
-  // 🆘 Emergency data recovery for bunenjin philosophy implementation
+  // 🆘 Emergency data recovery for bunenjin philosophy implementation - Phase 3強化版
   // Last resort method to find triple OS data when standard extraction fails
-  emergencyDataRecovery(analysisResult) {
-    console.log('🆘 [EMERGENCY] 緊急データ復旧開始 - 全体探索モード');
+  async emergencyDataRecovery(analysisResult) {
+    console.log('🆘 [EMERGENCY] Phase 3緊急データ復旧開始 - 強化探索モード');
     
     const recoveredData = { engineOS: null, interfaceOS: null, safeModeOS: null };
     let found = false;
+    
+    // 段階的復旧戦略を先に実行
+    const advancedRecoverySteps = [
+      () => this.tryStorageManagerRecovery(),
+      () => this.tryLocalStorageRecovery(), 
+      () => this.trySessionStorageRecovery(),
+      () => this.tryIndexedDBRecovery(),
+      () => this.tryOSAnalysisContextRecovery()
+    ];
+    
+    // 強化復旧戦略を順次実行
+    for (const [index, step] of advancedRecoverySteps.entries()) {
+      try {
+        console.log(`🔍 [RECOVERY Step ${index + 1}] 実行中...`);
+        const result = step();
+        
+        // Promise対応
+        const processResult = async (res) => {
+          const resolvedResult = await res;
+          if (resolvedResult && resolvedResult.found && resolvedResult.data) {
+            console.log(`🎯 [RECOVERY] 段階${index + 1}で成功!`, resolvedResult.data);
+            Object.assign(recoveredData, resolvedResult.data);
+            found = true;
+            return true;
+          }
+          return false;
+        };
+        
+        if (result && typeof result.then === 'function') {
+          // Async result
+          if (await processResult(result)) {
+            return { found: true, data: recoveredData };
+          }
+        } else {
+          // Sync result
+          if (await processResult(Promise.resolve(result))) {
+            return { found: true, data: recoveredData };
+          }
+        }
+      } catch (stepError) {
+        console.warn(`⚠️ [RECOVERY Step ${index + 1}] エラー:`, stepError);
+        continue;
+      }
+    }
     
     // Deep search function to find hexagram data anywhere in the object
     const deepSearch = (obj, path = '') => {
@@ -352,7 +417,7 @@ class TripleOSResultsView extends BaseComponent {
     console.log('📊 [DEBUG] Complete analysisResult structure:', this.analysisResult);
     
     // Extract Triple OS data with robust fallback mechanisms
-    const extractedData = this.extractTripleOSData(this.analysisResult);
+    const extractedData = await this.extractTripleOSData(this.analysisResult);
     const { engineOS, interfaceOS, safeModeOS } = extractedData;
 
     // Comprehensive data validation with detailed logging
@@ -445,7 +510,8 @@ class TripleOSResultsView extends BaseComponent {
               <!-- トリプルOS構成による3つのパーソナリティ・オペレーティングシステムセクション -->
               <section class="interactive-os-section triple-os-section">
                   <div class="triple-os-concept-header">
-                      <h2 class="section-title">🎭 あなたの中に稼働する3つの『パーソナリティOS』</h2>
+                      <h2 class="section-title">🎭 あなたの心に宿る3つの『パーソナリティOS』</h2>
+                      <p class="section-subtitle">古来から続く易経の知恵を現代に蘇らせ、あなたの多面性を科学的に解析。本音・社会的な顔・防御時の姿、それぞれがどのように調和し、あなたらしさを創り上げているかを明らかにします。</p>
                       <p class="triple-os-philosophy">
                           HaQei独自の「トリプルOS理論」によると、私たちには状況に応じて稼働する3つのパーソナリティ・オペレーティングシステムがあります。<br>
                           「真の自分探し」よりも、それぞれのパーソナリティOSを理解し、最適な選択をすることが戦略的人生ナビゲーションの鍵です。
@@ -459,18 +525,6 @@ class TripleOSResultsView extends BaseComponent {
                               <div class="os-icon">🔧</div>
                               <div class="os-info triple-os-info">
                                   <h3>🔥 エンジンOS - あなたの核となる本質的自己</h3>
-                                  <p class="os-catchphrase">${
-                                    engineOS.hexagramInfo?.catchphrase ||
-                                    "深い洞察を持つ人"
-                                  }</p>
-                                  <p class="os-description">${
-                                    engineOS.hexagramInfo?.description || ""
-                                  }</p>
-                                  <div class="triple-os-explanation">
-                                      <small>一人でいる時や信頼できる人と一緒にいる時に稼働する、最も本質的なパーソナリティOSです</small>
-                                  </div>
-                              </div>
-                              <div class="os-stats">
                                   <div class="os-name-group">
                                       <div class="os-name">${
                                         engineOS.osName
@@ -479,18 +533,30 @@ class TripleOSResultsView extends BaseComponent {
                                         engineOS.osName
                                       )}）</div>
                                   </div>
+                                  <p class="os-catchphrase">${
+                                    engineOS.hexagramInfo?.catchphrase ||
+                                    "深い洞察を持つ人"
+                                  }</p>
+                                  <p class="os-description">${
+                                    engineOS.hexagramInfo?.description || ""
+                                  }</p>
+                                  <div class="triple-os-explanation">
+                                      <small>🌟 あなたが最も自然体でいられる時に稼働する、人生の羅針盤となるパーソナリティOSです。一人でいる時や心から信頼できる人といる時に、この本質的な価値観が自然に現れます。人生の重要な決断の基準となり、あなたらしさの源泉です。</small>
+                                  </div>
+                              </div>
+                              <div class="os-stats">
                                   <div class="os-score-group">
                                       <div class="score-container triple-os-score-container">
                                           <div class="score-header">
-                                              <span class="score-title">🔥 エンジンOSの影響力</span>
-                                              <div class="score-help-icon" title="このエンジンOS（本質的価値観）があなたの人生にどれだけ強く影響しているかを示します。高いほど、この本質的価値観で判断・行動することが多いことを意味します。">❓</div>
+                                              <span class="score-title">🔥 エンジンOSの影響度</span>
+                                              <div class="score-help-icon" title="このエンジンOSの価値観が、あなたの人生全体にどの程度の影響を与えているかを示します。数値が高いほど価値観の軸がしっかりしています。">❓</div>
                                           </div>
                                           <div class="score-explanation triple-os-explanation">
-                                              <p>人生の重要な場面で、<strong>${Math.round(
+                                              <p>この価値観の<strong>明確度は${Math.round(
                                                 engineOS.strength * 100
-                                              )}%の確率</strong>でこのエンジンOSが判断を主導します</p>
+                                              )}%</strong>です。あなたの価値観の軸としての強さを表します</p>
                                               <div class="triple-os-insight">
-                                                  <small>💡 このエンジンOSが強いほど、あなたらしい選択ができる可能性が高まります</small>
+                                                  <small>💡 数値が高いほど自分軸がしっかりしており、迷いの少ない選択ができます</small>
                                               </div>
                                           </div>
                                           <div class="score-display">
@@ -544,6 +610,12 @@ class TripleOSResultsView extends BaseComponent {
                               <div class="os-icon">🖥️</div>
                               <div class="os-info triple-os-info">
                                   <h3>🌐 インターフェースOS - 他者との関わり方</h3>
+                                  <div class="os-name-group">
+                                      <div class="os-name">${
+                                        interfaceOS.osName
+                                      }</div>
+                                      <div class="os-subtitle">(コミュニケーションスタイル)</div>
+                                  </div>
                                   <p class="os-catchphrase">${
                                     interfaceOS.hexagramInfo?.catchphrase ||
                                     "社会の中での魅力的な表現"
@@ -552,16 +624,10 @@ class TripleOSResultsView extends BaseComponent {
                                     interfaceOS.hexagramInfo?.description || ""
                                   }</p>
                                   <div class="triple-os-explanation">
-                                      <small>職場や友人関係など、社会的な役割を果たす時に稼働するパーソナリティOSです</small>
+                                      <small>🎭 社会の舞台であなたの魅力を表現する、コミュニケーションの専門OSです。職場、友人関係、初対面の人との交流など、様々な社会的場面であなたの内なる価値観を適切に翻訳し、相手に伝える役割を担います。エンジンOSとの調和度が高いほど、自然で魅力的な人間関係を築けます。</small>
                                   </div>
                               </div>
                               <div class="os-stats">
-                                  <div class="os-name-group">
-                                      <div class="os-name">${
-                                        interfaceOS.osName
-                                      }</div>
-                                      <div class="os-subtitle">(コミュニケーションスタイル)</div>
-                                  </div>
                                   <div class="os-score-group">
                                       <div class="score-container triple-os-score-container">
                                           <div class="score-header">
@@ -569,11 +635,11 @@ class TripleOSResultsView extends BaseComponent {
                                               <div class="score-help-icon" title="エンジンOSの価値観が、社会的な場面でこのスタイルとして表現される頻度を示します。エンジンOSとインターフェースOSの一致度とも言えます。">❓</div>
                                           </div>
                                           <div class="score-explanation triple-os-explanation">
-                                              <p>他者と関わる場面で、<strong>10回中${Math.round(
-                                                interfaceOS.matchScore / 10
-                                              )}回程度</strong>このインターフェースOSが稼働します</p>
+                                              <p>社会的な場面では複数のインターフェースOSを使い分けており、この組み合わせは<strong>一例</strong>です（${Math.round(
+                                                interfaceOS.matchScore
+                                              )}%の稼働率）</p>
                                               <div class="triple-os-insight">
-                                                  <small>💡 ${interfaceOS.matchScore >= 70 ? 'エンジンOSとインターフェースOSがよく調和しています' : interfaceOS.matchScore >= 30 ? '状況に応じて使い分けができています' : '意識的にインターフェースOSを育てることで表現力が向上します'}</small>
+                                                  <small>💡 ${this.getInterfaceCombinationInsight(interfaceOS.matchScore)}</small>
                                               </div>
                                           </div>
                                           <div class="score-display">
@@ -626,6 +692,12 @@ class TripleOSResultsView extends BaseComponent {
                               <div class="os-icon">🛡️</div>
                               <div class="os-info triple-os-info">
                                   <h3>🛡️ セーフモードOS - ストレス時の対処法</h3>
+                                  <div class="os-name-group">
+                                      <div class="os-name">${
+                                        safeModeOS.osName
+                                      }</div>
+                                      <div class="os-subtitle">(安全地帯)</div>
+                                  </div>
                                   <p class="os-catchphrase">${
                                     safeModeOS.hexagramInfo?.catchphrase ||
                                     "自分を守る知恵を持つ人"
@@ -634,16 +706,10 @@ class TripleOSResultsView extends BaseComponent {
                                     safeModeOS.hexagramInfo?.description || ""
                                   }</p>
                                   <div class="triple-os-explanation">
-                                      <small>困難な状況やストレスを感じた時に稼働し、あなたを守ろうとするパーソナリティOSです</small>
+                                      <small>🛡️ あなたの心を守る賢い防衛システムです。困難、挫折、過度のストレスに直面した時に自動的に起動し、心の安全を確保します。このOSも大切なあなたの一部であり、適切にコントロールできれば強力な味方となります。エンジンOSとの差が大きいほど、周囲は「いつもと違う」と感じ、差が小さいほど「安定している」と評価されます。</small>
                                   </div>
                               </div>
                               <div class="os-stats">
-                                  <div class="os-name-group">
-                                      <div class="os-name">${
-                                        safeModeOS.osName
-                                      }</div>
-                                      <div class="os-subtitle">(安全地帯)</div>
-                                  </div>
                                   <div class="os-score-group">
                                       <div class="score-container triple-os-score-container">
                                           <div class="score-header">
@@ -651,11 +717,11 @@ class TripleOSResultsView extends BaseComponent {
                                               <div class="score-help-icon" title="困難やストレスに直面した時に、このセーフモードOSがどの程度稼働するかを示します。このパーソナリティOSも大切な自分の一部です。">❓</div>
                                           </div>
                                           <div class="score-explanation triple-os-explanation">
-                                              <p>ストレスを感じた時、<strong>100回中${Math.round(
+                                              <p>ストレスを感じた時、<strong>${Math.round(
                                                 safeModeOS.matchScore
-                                              )}回程度</strong>このセーフモードOSが稼働します</p>
+                                              )}%の確率</strong>でこのセーフモードOSが稼働します</p>
                                               <div class="triple-os-insight">
-                                                  <small>💡 ${safeModeOS.matchScore >= 50 ? 'このセーフモードOSをよく使います。適切にコントロールできれば強い味方になります' : safeModeOS.matchScore >= 10 ? 'バランス良くセーフモードOSを活用できています' : 'このセーフモードOSはあまり使いませんが、必要な時の選択肢として覚えておきましょう'}</small>
+                                                  <small>💡 ${this.getSafeModeGapInsight(engineOS.strength * 100, safeModeOS.matchScore)}</small>
                                               </div>
                                           </div>
                                           <div class="score-display">
@@ -908,6 +974,104 @@ class TripleOSResultsView extends BaseComponent {
     return "この対処法は使わない";
   }
 
+  getSafeModeGapInsight(engineScore, safeModeScore) {
+    const gap = Math.abs(engineScore - safeModeScore);
+    
+    if (gap >= 60) {
+      return 'エンジンOSとセーフモードOSの差が大きく、ストレス時は「いつもと違う人みたい」と言われることがあるかもしれません。この変化は自然な防御反応です';
+    } else if (gap >= 30) {
+      return 'エンジンOSとのバランスが取れており、ストレス時でも一定の一貫性を保てています。周囲からは安定感のある人と見られるでしょう';
+    } else {
+      return 'エンジンOSとセーフモードOSがよく調和しており、困難な状況でも「いつも落ち着いているね」と言われることが多いでしょう。内面の一貫性が高い状態です';
+    }
+  }
+
+  getInterfaceCombinationInsight(matchScore) {
+    if (matchScore >= 70) {
+      return 'この組み合わせでは本音と表現が調和し、自然な魅力で力を発揮できます。リーダーシップやチームワークで特に輝けるでしょう';
+    } else if (matchScore >= 40) {
+      return 'この組み合わせでは状況に応じた適応力を発揮できます。多様な人間関係において柔軟性を示せる反面、時には本音をもう少し表現すると更に力を発揮できます';
+    } else {
+      return 'この組み合わせでは力を発揮しにくい可能性があります。他のインターフェースOSを意識的に活用するか、段階的に本音を表現することで改善できるでしょう';
+    }
+  }
+
+  async loadEngineInterfaceCompatibilityData(engineId, interfaceId) {
+    try {
+      const fileName = `hexagram_${String(engineId).padStart(2, '0')}.json`;
+      const url = `/js/data/compatibility/engine-interface/${fileName}`;
+      console.log(`🔍 [データ読み込み] 試行中: ${url}`);
+      
+      const response = await fetch(url);
+      console.log(`📄 [レスポンス] ステータス: ${response.status}, OK: ${response.ok}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`✅ [データ取得成功] エンジンOS ${engineId}, データ件数: ${data?.interface_combinations?.length || 0}`);
+        return data;
+      } else {
+        console.error(`❌ [HTTPエラー] ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error("❌ [互換性データ読み込みエラー]:", error);
+      console.error("❌ [エラー詳細]:", {
+        engineId,
+        interfaceId,
+        expectedUrl: `/js/data/compatibility/engine-interface/hexagram_${String(engineId).padStart(2, '0')}.json`
+      });
+    }
+    return null;
+  }
+
+  getCombinationTypeColor(type) {
+    const typeColors = {
+      'SYNERGY': 'synergy-type',
+      'COMPLEMENTARY': 'complementary-type',
+      'TENSION': 'tension-type',
+      'CONFLICT': 'conflict-type',
+      'CHAOS': 'chaos-type'
+    };
+    return typeColors[type] || 'default-type';
+  }
+
+  getCombinationTypeIcon(type) {
+    const typeIcons = {
+      'SYNERGY': '✨',
+      'COMPLEMENTARY': '🤝',
+      'TENSION': '⚡',
+      'CONFLICT': '🔥',
+      'CHAOS': '🌪️'
+    };
+    return typeIcons[type] || '🔄';
+  }
+
+  async loadEngineSafeModeCompatibilityData(engineId, safemodeId) {
+    try {
+      const fileName = `hexagram_${String(engineId).padStart(2, '0')}.json`;
+      const url = `/js/data/compatibility/engine-safemode/${fileName}`;
+      console.log(`🔍 [セーフモードデータ読み込み] 試行中: ${url}`);
+      
+      const response = await fetch(url);
+      console.log(`📄 [セーフモードレスポンス] ステータス: ${response.status}, OK: ${response.ok}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`✅ [セーフモードデータ取得成功] エンジンOS ${engineId}, データ件数: ${data?.safemode_combinations?.length || 0}`);
+        return data;
+      } else {
+        console.error(`❌ [セーフモードHTTPエラー] ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error("❌ [セーフモード互換性データ読み込みエラー]:", error);
+      console.error("❌ [セーフモードエラー詳細]:", {
+        engineId,
+        safemodeId,
+        expectedUrl: `/js/data/compatibility/engine-safemode/hexagram_${String(engineId).padStart(2, '0')}.json`
+      });
+    }
+    return null;
+  }
+
   getCompatibilityScoreDescription(score) {
     if (score >= 80) return "お互いの強みが大きく発揮される";
     if (score >= 70) return "お互いの強みがよく発揮される";
@@ -928,7 +1092,7 @@ class TripleOSResultsView extends BaseComponent {
     }
 
     const ctx = canvas.getContext("2d");
-    const { engineOS } = this.extractTripleOSData(this.analysisResult);
+    const { engineOS } = await this.extractTripleOSData(this.analysisResult);
 
     // エンジンOSの8次元データを取得
     const userVector = engineOS.userVector || {};
@@ -940,6 +1104,7 @@ class TripleOSResultsView extends BaseComponent {
     // データマッピング（フォールバック付き）
     const data = dimensions.map((dim) => {
       let value = userVector[dim.key] || 0;
+      
       // データが0の場合、hexagramIdベースでダミーデータを生成
       if (value === 0 && engineOS.hexagramId) {
         value = this.generateFallbackDimensionValue(
@@ -947,12 +1112,27 @@ class TripleOSResultsView extends BaseComponent {
           dim.key
         );
       }
+      
+      return value;
+    });
+
+    // 全体的な正規化：最大値を10にスケール
+    const maxValue = Math.max(...data);
+    const normalizedData = data.map(value => {
+      if (maxValue > 10) {
+        return (value / maxValue) * 10;
+      }
       return value;
     });
     const labels = dimensions.map((dim) => dim.label);
 
-    console.log("🔍 [レーダーチャート] 最終データ:", data);
+    console.log("🔍 [レーダーチャート] 元データ:", data);
+    console.log("🔍 [レーダーチャート] 正規化データ:", normalizedData);
     console.log("🔍 [レーダーチャート] ラベル:", labels);
+    console.log("🔍 [レーダーチャート] データとラベルの対応:");
+    dimensions.forEach((dim, index) => {
+      console.log(`  ${index}: ${dim.label} = ${data[index]} → ${normalizedData[index]} (key: ${dim.key})`);
+    });
 
     // 既存のチャートがあれば破棄
     if (this.radarChart) {
@@ -966,7 +1146,7 @@ class TripleOSResultsView extends BaseComponent {
         datasets: [
           {
             label: "人格プロファイル",
-            data: data,
+            data: normalizedData,
             backgroundColor: "rgba(99, 102, 241, 0.2)",
             borderColor: "rgba(99, 102, 241, 0.8)",
             borderWidth: 2,
@@ -1000,9 +1180,9 @@ class TripleOSResultsView extends BaseComponent {
             callbacks: {
               title: function (context) {
                 const dimension = dimensions[context[0].dataIndex];
-                return `${dimension.label} (${context[0].parsed.r.toFixed(
-                  1
-                )}/10)`;
+                const originalValue = data[context[0].dataIndex];
+                const normalizedValue = normalizedData[context[0].dataIndex];
+                return `${dimension.label} (${normalizedValue.toFixed(1)}/10)`;
               },
               label: function (context) {
                 return "";
@@ -1064,8 +1244,9 @@ class TripleOSResultsView extends BaseComponent {
     console.log("✅ [TripleOSResultsView] レーダーチャート描画完了");
   }
 
-  // 8次元の詳細情報を取得 - 正しい8卦対応
+  // 8次元の詳細情報を取得 - レーダーチャートの視覚的位置に対応
   getEightDimensionsWithDetails() {
+    // レーダーチャートは12時位置から時計回りに描画されるため、それに合わせた順序
     return [
       {
         key: "乾_創造性",
@@ -1288,25 +1469,30 @@ class TripleOSResultsView extends BaseComponent {
 
   // フォールバック用の次元値を生成
   generateFallbackDimensionValue(hexagramId, dimensionKey) {
-    // 卦IDに基づいて特徴的な値を生成
-    const baseValue = 3 + (hexagramId % 5); // 3-7の範囲
-
-    const dimensionModifiers = {
-      creation_power: hexagramId === 1 ? 2 : hexagramId % 8 === 1 ? 1.5 : 0,
-      analytical_power: hexagramId === 6 ? 2 : hexagramId % 8 === 6 ? 1.5 : 0,
-      social_power: hexagramId === 8 ? 2 : hexagramId % 8 === 8 ? 1.5 : 0,
-      emotional_power: hexagramId === 3 ? 2 : hexagramId % 8 === 3 ? 1.5 : 0,
-      intuitive_power: hexagramId === 4 ? 2 : hexagramId % 8 === 4 ? 1.5 : 0,
-      logical_power: hexagramId === 7 ? 2 : hexagramId % 8 === 7 ? 1.5 : 0,
-      aesthetic_power: hexagramId === 2 ? 2 : hexagramId % 8 === 2 ? 1.5 : 0,
-      leadership_power: hexagramId === 5 ? 2 : hexagramId % 8 === 5 ? 1.5 : 0,
+    // 卦IDに基づいて特徴的な値を生成（全64卦対応）
+    const baseValue = 5 + (hexagramId % 6); // 5-10の範囲
+    
+    // 8つの次元に対するハッシュベースの値生成
+    const dimensionHash = {
+      "乾_創造性": 0,
+      "兌_調和性": 1, 
+      "離_表現性": 2,
+      "震_行動性": 3,
+      "巽_適応性": 4,
+      "坎_探求性": 5,
+      "艮_安定性": 6,
+      "坤_受容性": 7
     };
-
-    const modifier = dimensionModifiers[dimensionKey] || 0;
-    const finalValue = Math.min(baseValue + modifier, 10);
-
+    
+    const dimIndex = dimensionHash[dimensionKey] || 0;
+    
+    // 各卦と各次元の組み合わせで一意な値を生成
+    const seed = (hexagramId * 8 + dimIndex) % 64;
+    const variance = (seed % 10) - 5; // -5から+4の範囲
+    const finalValue = Math.max(1, Math.min(baseValue + variance, 25));
+    
     console.log(
-      `🔧 [フォールバック] ${dimensionKey}: ${finalValue} (hexagram: ${hexagramId})`
+      `🔧 [フォールバック] 卦${hexagramId} ${dimensionKey}: ${finalValue} (seed: ${seed})`
     );
     return finalValue;
   }
@@ -1506,7 +1692,39 @@ class TripleOSResultsView extends BaseComponent {
     return coreDrive;
   }
 
+  // 未実装データの明示的メッセージ表示
+  showNotImplementedMessage(osType, hexagramId) {
+    const osTypeName = {
+      'engine': 'エンジンOS',
+      'interface': 'インターフェースOS', 
+      'safemode': 'セーフモードOS'
+    }[osType] || osType;
+
+    const strengthsElementId = `${osType}-strengths-list`;
+    const challengesElementId = `${osType}-challenges-list`;
+    const coreDriveElementId = `${osType}-core-drive`;
+
+    const notImplementedHTML = `
+      <div class="not-implemented-content">
+          <div class="not-implemented-item">
+              <span class="not-implemented-icon">🚧</span>
+              <span class="not-implemented-text">まだ実装していません</span>
+          </div>
+          <div class="not-implemented-note">
+              <small>💻 ${osTypeName}（hexagram ${hexagramId}）の詳細データは今後実装予定です</small>
+          </div>
+      </div>
+    `;
+
+    this.safeUpdateElement(strengthsElementId, notImplementedHTML);
+    this.safeUpdateElement(challengesElementId, notImplementedHTML);
+    this.safeUpdateElement(coreDriveElementId, notImplementedHTML);
+
+    console.log(`📝 [未実装表示] ${osTypeName} hexagram ${hexagramId} - 今後実装予定`);
+  }
+
   // エンジンOS詳細のフォールバック処理（動的コンテンツ生成版・エラーハンドリング強化）
+  // 注意: このフォールバック処理は誤解を招くため使用停止 - showNotImplementedMessage を使用
   loadEngineOSDetailsWithFallback(hexagramId) {
     console.log(
       `🔧 [Engine OS フォールバック] hexagramId ${hexagramId} のフォールバックデータを動的生成中`
@@ -1552,8 +1770,8 @@ class TripleOSResultsView extends BaseComponent {
                     <span class="strength-text">${strength}</span>
                 </div>
             `).join('')}
-            <div class="fallback-note">
-                <small>${qualityMessage.strengths}</small>
+            <div class="not-implemented-note">
+                <small>🚧 まだ実装していません - 今後実装予定です</small>
             </div>
         </div>
       `;
@@ -1566,8 +1784,8 @@ class TripleOSResultsView extends BaseComponent {
                     <span class="challenge-text">${challenge}</span>
                 </div>
             `).join('')}
-            <div class="fallback-note">
-                <small>${qualityMessage.challenges}</small>
+            <div class="not-implemented-note">
+                <small>🚧 まだ実装していません - 今後実装予定です</small>
             </div>
         </div>
       `;
@@ -1575,8 +1793,8 @@ class TripleOSResultsView extends BaseComponent {
       const coreDriveHTML = `
         <div class="core-drive-content">
             <p class="summary-text">${dynamicCoreDrive}</p>
-            <div class="fallback-note">
-                <small>${qualityMessage.coreDrive}</small>
+            <div class="not-implemented-note">
+                <small>🚧 まだ実装していません - 今後実装予定です</small>
             </div>
         </div>
       `;
@@ -1598,8 +1816,8 @@ class TripleOSResultsView extends BaseComponent {
                 <span class="error-icon">⚠️</span>
                 <span class="error-text">データの読み込みに失敗しました</span>
             </div>
-            <div class="fallback-note">
-                <small>❌ 一時的な問題が発生しています。しばらく後にお試しください。</small>
+            <div class="not-implemented-note">
+                <small>🚧 まだ実装していません - 今後実装予定です</small>
             </div>
         </div>
       `;
@@ -1663,8 +1881,8 @@ class TripleOSResultsView extends BaseComponent {
                               <span class="strength-text">${strength}</span>
                           </div>
                       `).join('')}
-                      <div class="fallback-note">
-                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の対人関係特性を分析した結果です</small>
+                      <div class="not-implemented-note">
+                          <small>🚧 インターフェースOS詳細データは今後実装予定です</small>
                       </div>
                   </div>
               `;
@@ -1680,8 +1898,8 @@ class TripleOSResultsView extends BaseComponent {
                               <span class="challenge-text">${challenge}</span>
                           </div>
                       `).join('')}
-                      <div class="fallback-note">
-                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の対人関係での注意点です</small>
+                      <div class="not-implemented-note">
+                          <small>🚧 インターフェースOS詳細データは今後実装予定です</small>
                       </div>
                   </div>
               `;
@@ -1692,8 +1910,8 @@ class TripleOSResultsView extends BaseComponent {
       coreDrive.innerHTML = `
                   <div class="core-drive-content">
                       <p class="summary-text">${dynamicCoreDrive}</p>
-                      <div class="fallback-note">
-                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の対人関係パターンを現代的に解釈しました</small>
+                      <div class="not-implemented-note">
+                          <small>🚧 インターフェースOS詳細データは今後実装予定です</small>
                       </div>
                   </div>
               `;
@@ -1821,8 +2039,8 @@ class TripleOSResultsView extends BaseComponent {
                               <span class="strength-text">${strength}</span>
                           </div>
                       `).join('')}
-                      <div class="fallback-note">
-                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の防御・適応特性の分析結果です</small>
+                      <div class="not-implemented-note">
+                          <small>🚧 セーフモードOS詳細データは今後実装予定です</small>
                       </div>
                   </div>
               `;
@@ -1838,8 +2056,8 @@ class TripleOSResultsView extends BaseComponent {
                               <span class="challenge-text">${challenge}</span>
                           </div>
                       `).join('')}
-                      <div class="fallback-note">
-                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の防御パターンでの注意点です</small>
+                      <div class="not-implemented-note">
+                          <small>🚧 セーフモードOS詳細データは今後実装予定です</small>
                       </div>
                   </div>
               `;
@@ -1850,8 +2068,8 @@ class TripleOSResultsView extends BaseComponent {
       coreDrive.innerHTML = `
                   <div class="core-drive-content">
                       <p class="summary-text">${dynamicCoreDrive}</p>
-                      <div class="fallback-note">
-                          <small>💫 ${hexagramData?.name_jp || `第${hexagramId}卦`}の自己防衛パターンを現代的に解釈しました</small>
+                      <div class="not-implemented-note">
+                          <small>🚧 セーフモードOS詳細データは今後実装予定です</small>
                       </div>
                   </div>
               `;
@@ -2114,7 +2332,7 @@ class TripleOSResultsView extends BaseComponent {
   async loadOSCardDetails() {
     console.log("📋 [TripleOSResultsView] OSカード詳細データ読み込み開始");
 
-    const { engineOS, interfaceOS, safeModeOS } = this.extractTripleOSData(this.analysisResult);
+    const { engineOS, interfaceOS, safeModeOS } = await this.extractTripleOSData(this.analysisResult);
 
     // エンジンOSの詳細データを読み込み
     await this.loadEngineOSDetails(engineOS);
@@ -2141,9 +2359,9 @@ class TripleOSResultsView extends BaseComponent {
       const osManualData = window.os_manual && window.os_manual[hexagramId];
 
       if (!osManualData) {
-        console.warn(`⚠️ os_manual[${hexagramId}]のデータが見つかりません`);
-        // フォールバック処理を追加
-        this.loadEngineOSDetailsWithFallback(hexagramId);
+        console.warn(`⚠️ os_manual[${hexagramId}]のデータが見つかりません - データベース未実装`);
+        // エンジンOS詳細データの未実装を明示
+        this.showNotImplementedMessage("engine", hexagramId);
         return;
       }
 
@@ -2231,60 +2449,122 @@ class TripleOSResultsView extends BaseComponent {
       );
       if (!compatibilityContent) return;
 
-      // エンジンOSとインターフェースOSの相互作用分析
-      const compatibility = this.calculateBunenjinCompatibility(
+      // engine-interfaceディレクトリから詳細なデータを読み込む
+      const compatibilityData = await this.loadEngineInterfaceCompatibilityData(
         engineOS.hexagramId,
-        interfaceOS.hexagramId,
-        "social"
+        interfaceOS.hexagramId
       );
 
-      if (compatibility) {
-        const harmonyType = this.getBunenjinHarmonyType(compatibility.score);
-        const harmonyColor = this.getBunenjinHarmonyColor(compatibility.score);
-        const gapAnalysis = this.analyzeBunenjinGap(compatibility.score);
+      if (compatibilityData && compatibilityData.interface_combinations) {
+        const combination = compatibilityData.interface_combinations.find(
+          c => c.interface_id === interfaceOS.hexagramId
+        );
 
-        compatibilityContent.innerHTML = `
+        if (combination) {
+          const typeColor = this.getCombinationTypeColor(combination.type);
+          const typeIcon = this.getCombinationTypeIcon(combination.type);
+
+          compatibilityContent.innerHTML = `
                       <div class="bunenjin-compatibility-result">
                           <div class="bunenjin-harmony-header">
-                              <div class="harmony-type-badge ${harmonyColor}">
-                                  <span class="harmony-icon">${harmonyType.icon}</span>
-                                  <span class="harmony-label">${harmonyType.label}</span>
+                              <div class="harmony-type-badge ${typeColor}">
+                                  <span class="harmony-icon">${typeIcon}</span>
+                                  <span class="harmony-label">${combination.type}</span>
                               </div>
                               <div class="compatibility-score">${Math.round(
-                                compatibility.score
+                                combination.overall_score * 100
                               )}%</div>
                           </div>
                           
                           <div class="bunenjin-relationship-explanation">
-                              <h5>🤝 本音と社会的な顔の関係</h5>
-                              <p>あなたのエンジンOS「${engineOS.osName}」とインターフェースOS「${interfaceOS.osName}」は<strong>${harmonyType.description}</strong>しています。</p>
+                              <h5>🤝 ${engineOS.osName} × ${interfaceOS.osName}</h5>
+                              <p class="combination-summary">${combination.summary}</p>
                               
-                              <div class="gap-insight">
-                                  <div class="insight-header">
-                                      <span class="insight-icon">🔍</span>
-                                      <span class="insight-title">パーソナリティOSギャップ分析</span>
-                                  </div>
-                                  <p>${gapAnalysis.description}</p>
-                                  <div class="practical-advice">
-                                      <strong>💡 実践的アドバイス:</strong>
-                                      <p>${gapAnalysis.advice}</p>
+                              <div class="evaluation-details">
+                                  <h6>📊 詳細評価</h6>
+                                  <div class="evaluation-grid">
+                                      <div class="eval-item">
+                                          <span class="eval-label">機能効率性:</span>
+                                          <span class="eval-score">${Math.round(combination.evaluation.functional_efficiency.score * 100)}%</span>
+                                          <p class="eval-desc">${combination.evaluation.functional_efficiency.description}</p>
+                                      </div>
+                                      <div class="eval-item">
+                                          <span class="eval-label">成長可能性:</span>
+                                          <span class="eval-score">${Math.round(combination.evaluation.growth_potential.score * 100)}%</span>
+                                          <p class="eval-desc">${combination.evaluation.growth_potential.description}</p>
+                                      </div>
+                                      <div class="eval-item">
+                                          <span class="eval-label">ストレス耐性:</span>
+                                          <span class="eval-score">${Math.round(combination.evaluation.stress_resilience.score * 100)}%</span>
+                                          <p class="eval-desc">${combination.evaluation.stress_resilience.description}</p>
+                                      </div>
+                                      <div class="eval-item">
+                                          <span class="eval-label">創造性:</span>
+                                          <span class="eval-score">${Math.round(combination.evaluation.creativity.score * 100)}%</span>
+                                          <p class="eval-desc">${combination.evaluation.creativity.description}</p>
+                                      </div>
+                                      <div class="eval-item">
+                                          <span class="eval-label">統合の難易度:</span>
+                                          <span class="eval-score">${Math.round(combination.evaluation.integration_challenge.score * 100)}%</span>
+                                          <p class="eval-desc">${combination.evaluation.integration_challenge.description}</p>
+                                      </div>
                                   </div>
                               </div>
                               
-                              <div class="bunenjin-synergy">
-                                  <h6>✨ この組み合わせの活用法</h6>
-                                  <p>${this.getBunenjinSynergyAdvice(compatibility.score, 'social')}</p>
+                              <div class="combination-advice">
+                                  <h6>💡 活用のアドバイス</h6>
+                                  <div class="advice-section">
+                                      <strong>強み:</strong>
+                                      <ul>
+                                          ${combination.advice.strengths.map(s => `<li>${s}</li>`).join('')}
+                                      </ul>
+                                  </div>
+                                  <div class="advice-section">
+                                      <strong>課題:</strong>
+                                      <ul>
+                                          ${combination.advice.challenges.map(c => `<li>${c}</li>`).join('')}
+                                      </ul>
+                                  </div>
+                                  <div class="advice-section">
+                                      <strong>推奨アクション:</strong>
+                                      <ul>
+                                          ${combination.advice.recommendations.map(r => `<li>${r}</li>`).join('')}
+                                      </ul>
+                                  </div>
                               </div>
                           </div>
                       </div>
                   `;
+        }
       } else {
+        // フォールバック: データベース読み込み失敗時のエラー表示
+        console.error(`❌ [インターフェース互換性] データ読み込み失敗: エンジンOS ${engineOS.hexagramId}, インターフェースOS ${interfaceOS.hexagramId}`);
+        
         compatibilityContent.innerHTML = `
-                      <div class="bunenjin-loading">
-                          <div class="loading-icon">🤝</div>
-                          <p>エンジンOSとインターフェースOSの関係を分析中...</p>
+                      <div class="bunenjin-compatibility-result">
+                          <div class="bunenjin-harmony-header">
+                              <div class="harmony-type-badge harmony-error">
+                                  <span class="harmony-icon">❌</span>
+                                  <span class="harmony-label">データ読み込み失敗</span>
+                              </div>
+                              <div class="compatibility-score">--</div>
+                          </div>
+                          
+                          <div class="bunenjin-relationship-explanation">
+                              <h5>🤝 エンジンOSとインターフェースOSの関係</h5>
+                              <p>データの読み込みに失敗しました。しばらく後にお試しください。</p>
+                              
+                              <div class="gap-insight">
+                                  <div class="insight-header">
+                                      <span class="insight-icon">⚠️</span>
+                                      <span class="insight-title">エラー詳細</span>
+                                  </div>
+                                  <p>互換性データファイル（hexagram_${String(engineOS.hexagramId).padStart(2, '0')}.json）からのデータ取得に失敗しました。</p>
+                              </div>
+                          </div>
                       </div>
                   `;
+        }
       }
     } catch (error) {
       console.error("❌ エンジンOS・インターフェースOSの相互作用分析エラー:", error);
@@ -2298,71 +2578,116 @@ class TripleOSResultsView extends BaseComponent {
       );
       if (!compatibilityContent) return;
 
-      // エンジンOSとセーフモードOSの相互作用分析
-      const compatibility = this.calculateBunenjinCompatibility(
+      // engine-safemodeディレクトリから詳細なデータを読み込む
+      const compatibilityData = await this.loadEngineSafeModeCompatibilityData(
         engineOS.hexagramId,
-        safeModeOS.hexagramId,
-        "defense"
+        safeModeOS.hexagramId
       );
 
-      if (compatibility) {
-        const protectionType = this.getBunenjinProtectionType(compatibility.score);
-        const protectionColor = this.getBunenjinProtectionColor(compatibility.score);
-        const defensePattern = this.analyzeDefensePattern(compatibility.score);
+      if (compatibilityData && compatibilityData.safemode_combinations) {
+        const combination = compatibilityData.safemode_combinations.find(
+          c => c.safemode_id === safeModeOS.hexagramId
+        );
 
-        compatibilityContent.innerHTML = `
+        if (combination) {
+          const typeColor = this.getCombinationTypeColor(combination.type);
+          const typeIcon = this.getCombinationTypeIcon(combination.type);
+
+          compatibilityContent.innerHTML = `
                       <div class="bunenjin-compatibility-result defense-analysis">
                           <div class="bunenjin-protection-header">
-                              <div class="protection-type-badge ${protectionColor}">
-                                  <span class="protection-icon">${protectionType.icon}</span>
-                                  <span class="protection-label">${protectionType.label}</span>
+                              <div class="protection-type-badge ${typeColor}">
+                                  <span class="protection-icon">${typeIcon}</span>
+                                  <span class="protection-label">${combination.type}</span>
                               </div>
                               <div class="compatibility-score">${Math.round(
-                                compatibility.score
+                                combination.overall_score * 100
                               )}%</div>
                           </div>
                           
                           <div class="bunenjin-defense-explanation">
-                              <h5>🛡️ エンジンOSとセーフモードOSの関係</h5>
-                              <p>あなたのエンジンOS「${engineOS.osName}」とセーフモードOS「${safeModeOS.osName}」は<strong>${protectionType.description}</strong>しています。</p>
+                              <h5>🛡️ ${engineOS.osName} × ${safeModeOS.osName}</h5>
+                              <p class="combination-summary">${combination.summary}</p>
                               
-                              <div class="defense-pattern-insight">
-                                  <div class="insight-header">
-                                      <span class="insight-icon">🔍</span>
-                                      <span class="insight-title">防御パターン分析</span>
-                                  </div>
-                                  <p><strong>ストレス時の特徴:</strong> ${defensePattern.description}</p>
-                                  <div class="recovery-strategy">
-                                      <strong>🌱 復帰戦略:</strong>
-                                      <p>${defensePattern.recoveryAdvice}</p>
+                              <div class="evaluation-details">
+                                  <h6>📊 危機対応パターン分析</h6>
+                                  <div class="evaluation-grid">
+                                      <div class="eval-item">
+                                          <span class="eval-label">危機耐性:</span>
+                                          <span class="eval-score">${Math.round(combination.evaluation.crisis_resilience.score * 100)}%</span>
+                                          <p class="eval-desc">${combination.evaluation.crisis_resilience.description}</p>
+                                      </div>
+                                      <div class="eval-item">
+                                          <span class="eval-label">回復可能性:</span>
+                                          <span class="eval-score">${Math.round(combination.evaluation.recovery_potential.score * 100)}%</span>
+                                          <p class="eval-desc">${combination.evaluation.recovery_potential.description}</p>
+                                      </div>
+                                      <div class="eval-item">
+                                          <span class="eval-label">周囲への影響:</span>
+                                          <span class="eval-score">${Math.round(combination.evaluation.collateral_damage.score * 100)}%</span>
+                                          <p class="eval-desc">${combination.evaluation.collateral_damage.description}</p>
+                                      </div>
+                                      <div class="eval-item">
+                                          <span class="eval-label">学びの深さ:</span>
+                                          <span class="eval-score">${Math.round(combination.evaluation.lesson_learned.score * 100)}%</span>
+                                          <p class="eval-desc">${combination.evaluation.lesson_learned.description}</p>
+                                      </div>
+                                      <div class="eval-item">
+                                          <span class="eval-label">統合の難易度:</span>
+                                          <span class="eval-score">${Math.round(combination.evaluation.integration_difficulty.score * 100)}%</span>
+                                          <p class="eval-desc">${combination.evaluation.integration_difficulty.description}</p>
+                                      </div>
                                   </div>
                               </div>
                               
-                              <div class="bunenjin-balance-strategy">
-                                  <h6>⚖️ 健全なバランスの取り方</h6>
-                                  <p>${this.getBunenjinDefenseAdvice(compatibility.score)}</p>
-                                  
-                                  <div class="integration-tips">
-                                      <div class="tip-item">
-                                          <span class="tip-icon">✨</span>
-                                          <span class="tip-text">セーフモードOSは、あなたの大切な一部です</span>
-                                      </div>
-                                      <div class="tip-item">
-                                          <span class="tip-icon">🏠</span>
-                                          <span class="tip-text">必要な時に使い、安全になったら本音に戻る</span>
-                                      </div>
+                              <div class="safemode-advice">
+                                  <h6>⚠️ 危機管理アドバイス</h6>
+                                  <div class="advice-section">
+                                      <strong>トリガー警告:</strong>
+                                      <p>${combination.advice.trigger_warning}</p>
+                                  </div>
+                                  <div class="advice-section">
+                                      <strong>メルトダウン症状:</strong>
+                                      <p>${combination.advice.meltdown_symptoms}</p>
+                                  </div>
+                                  <div class="advice-section">
+                                      <strong>回復戦略:</strong>
+                                      <p>${combination.advice.recovery_strategies}</p>
                                   </div>
                               </div>
                           </div>
                       </div>
                   `;
+        }
       } else {
+        // フォールバック: データベース読み込み失敗時のエラー表示
+        console.error(`❌ [セーフモード互換性] データ読み込み失敗: エンジンOS ${engineOS.hexagramId}, セーフモードOS ${safeModeOS.hexagramId}`);
+        
         compatibilityContent.innerHTML = `
-                      <div class="bunenjin-loading">
-                          <div class="loading-icon">🛡️</div>
-                          <p>エンジンOSとセーフモードOSの関係を分析中...</p>
-                      </div>
-                  `;
+                      <div class="bunenjin-compatibility-result defense-analysis">
+                          <div class="bunenjin-protection-header">
+                              <div class="protection-type-badge protection-error">
+                                  <span class="protection-icon">❌</span>
+                                  <span class="protection-label">データ読み込み失敗</span>
+                              </div>
+                              <div class="compatibility-score">--</div>
+                          </div>
+                          
+                          <div class="bunenjin-defense-explanation">
+                              <h5>🛡️ エンジンOSとセーフモードOSの関係</h5>
+                              <p>データの読み込みに失敗しました。しばらく後にお試しください。</p>
+                              
+                              <div class="defense-pattern-insight">
+                                  <div class="insight-header">
+                                      <span class="insight-icon">⚠️</span>
+                                      <span class="insight-title">エラー詳細</span>
+                                  </div>
+                                  <p>互換性データファイル（hexagram_${String(engineOS.hexagramId).padStart(2, '0')}.json）からのデータ取得に失敗しました。</p>
+                              </div>
+                          </div>
+                        </div>
+                    `;
+        }
       }
     } catch (error) {
       console.error("❌ エンジンOS・セーフモードOSの相互作用分析エラー:", error);
@@ -2462,7 +2787,7 @@ class TripleOSResultsView extends BaseComponent {
   }
 
   // 8卦カラーカードの表示
-  _renderBaguaCards() {
+  async _renderBaguaCards() {
         console.log("🎴 [TripleOSResultsView] 8卦カラーカード表示開始");
         
         const container = document.getElementById('bagua-cards-container');
@@ -2473,7 +2798,7 @@ class TripleOSResultsView extends BaseComponent {
             return;
         }
 
-        const { engineOS } = this.extractTripleOSData(this.analysisResult);
+        const { engineOS } = await this.extractTripleOSData(this.analysisResult);
         if (!engineOS) {
             console.error("❌ [TripleOSResultsView] Engine OS data not found:", this.analysisResult);
             container.innerHTML = '<div style="color: red; text-align: center; padding: 2rem;">エンジンOSデータが見つかりません</div>';
@@ -2534,7 +2859,7 @@ class TripleOSResultsView extends BaseComponent {
   async loadDynamicsVisualization() {
     console.log("🔄 [TripleOSResultsView] 力学データ可視化開始");
 
-    const { interfaceOS, safeModeOS } = this.extractTripleOSData(this.analysisResult);
+    const { interfaceOS, safeModeOS } = await this.extractTripleOSData(this.analysisResult);
 
     // インターフェースOS力学データを可視化
     await this.visualizeInterfaceDynamics(interfaceOS);
@@ -3017,6 +3342,179 @@ class TripleOSResultsView extends BaseComponent {
         requestAnimationFrame(performScroll);
       }, 350); // CSS transition (通常300ms) + 50ms余裕
     });
+  }
+
+  // StorageManagerからの復旧 - Phase 3追加メソッド
+  tryStorageManagerRecovery() {
+    try {
+      if (window.storageManager) {
+        const analysisResult = window.storageManager.getAnalysisResult();
+        if (analysisResult && (analysisResult.engineOS || analysisResult.interfaceOS || analysisResult.safeModeOS)) {
+          console.log('✅ [RECOVERY] StorageManagerから復旧成功');
+          return {
+            found: true,
+            data: {
+              engineOS: analysisResult.engineOS,
+              interfaceOS: analysisResult.interfaceOS,
+              safeModeOS: analysisResult.safeModeOS
+            }
+          };
+        }
+      }
+      return { found: false };
+    } catch (error) {
+      console.warn('⚠️ [RECOVERY] StorageManager復旧失敗:', error);
+      return { found: false };
+    }
+  }
+
+  // LocalStorageからの復旧 - Phase 3追加メソッド
+  tryLocalStorageRecovery() {
+    try {
+      const keys = ['haqei_analysis_result', 'os_analyzer_result', 'triple_os_data'];
+      
+      for (const key of keys) {
+        const data = localStorage.getItem(key);
+        if (data) {
+          const parsed = JSON.parse(data);
+          if (parsed.engineOS || parsed.interfaceOS || parsed.safeModeOS) {
+            console.log(`✅ [RECOVERY] LocalStorage(${key})から復旧成功`);
+            return {
+              found: true,
+              data: {
+                engineOS: parsed.engineOS,
+                interfaceOS: parsed.interfaceOS,
+                safeModeOS: parsed.safeModeOS
+              }
+            };
+          }
+        }
+      }
+      return { found: false };
+    } catch (error) {
+      console.warn('⚠️ [RECOVERY] LocalStorage復旧失敗:', error);
+      return { found: false };
+    }
+  }
+
+  // SessionStorageからの復旧 - Phase 3追加メソッド
+  trySessionStorageRecovery() {
+    try {
+      const keys = ['haqei_session_analysis', 'current_os_analysis'];
+      
+      for (const key of keys) {
+        const data = sessionStorage.getItem(key);
+        if (data) {
+          const parsed = JSON.parse(data);
+          if (parsed.engineOS || parsed.interfaceOS || parsed.safeModeOS) {
+            console.log(`✅ [RECOVERY] SessionStorage(${key})から復旧成功`);
+            return {
+              found: true,
+              data: {
+                engineOS: parsed.engineOS,
+                interfaceOS: parsed.interfaceOS,
+                safeModeOS: parsed.safeModeOS
+              }
+            };
+          }
+        }
+      }
+      return { found: false };
+    } catch (error) {
+      console.warn('⚠️ [RECOVERY] SessionStorage復旧失敗:', error);
+      return { found: false };
+    }
+  }
+
+  // IndexedDBからの復旧 - Phase 3追加メソッド
+  async tryIndexedDBRecovery() {
+    try {
+      if (!window.indexedDB) return { found: false };
+      
+      return new Promise((resolve) => {
+        const request = indexedDB.open('HaQeiAnalyzerDB', 1);
+        
+        request.onsuccess = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains('analysis_results')) {
+            resolve({ found: false });
+            return;
+          }
+          
+          const transaction = db.transaction(['analysis_results'], 'readonly');
+          const store = transaction.objectStore('analysis_results');
+          const getRequest = store.get('current_analysis');
+          
+          getRequest.onsuccess = () => {
+            if (getRequest.result && getRequest.result.data) {
+              const data = getRequest.result.data;
+              if (data.engineOS || data.interfaceOS || data.safeModeOS) {
+                console.log('✅ [RECOVERY] IndexedDBから復旧成功');
+                resolve({
+                  found: true,
+                  data: {
+                    engineOS: data.engineOS,
+                    interfaceOS: data.interfaceOS,
+                    safeModeOS: data.safeModeOS
+                  }
+                });
+                return;
+              }
+            }
+            resolve({ found: false });
+          };
+          
+          getRequest.onerror = () => resolve({ found: false });
+        };
+        
+        request.onerror = () => resolve({ found: false });
+      });
+    } catch (error) {
+      console.warn('⚠️ [RECOVERY] IndexedDB復旧失敗:', error);
+      return { found: false };
+    }
+  }
+
+  // OS分析コンテキストからの復旧 - Phase 3追加メソッド  
+  tryOSAnalysisContextRecovery() {
+    try {
+      // グローバルな分析コンテキストを検索
+      if (window.TRIPLE_OS_ANALYSIS_CONTEXT) {
+        const context = window.TRIPLE_OS_ANALYSIS_CONTEXT;
+        if (context.engineOS || context.interfaceOS || context.safeModeOS) {
+          console.log('✅ [RECOVERY] OS分析コンテキストから復旧成功');
+          return {
+            found: true,
+            data: {
+              engineOS: context.engineOS,
+              interfaceOS: context.interfaceOS,
+              safeModeOS: context.safeModeOS
+            }
+          };
+        }
+      }
+      
+      // bunenjin戦略ナビゲーターからの復旧
+      if (window.bunenjinStrategyNavigator) {
+        const bunenjinData = window.bunenjinStrategyNavigator.getCurrentAnalysis?.();
+        if (bunenjinData && (bunenjinData.engineOS || bunenjinData.interfaceOS || bunenjinData.safeModeOS)) {
+          console.log('✅ [RECOVERY] bunenjin戦略ナビゲーターから復旧成功');
+          return {
+            found: true,
+            data: {
+              engineOS: bunenjinData.engineOS,
+              interfaceOS: bunenjinData.interfaceOS,
+              safeModeOS: bunenjinData.safeModeOS
+            }
+          };
+        }
+      }
+      
+      return { found: false };
+    } catch (error) {
+      console.warn('⚠️ [RECOVERY] OS分析コンテキスト復旧失敗:', error);
+      return { found: false };
+    }
   }
 
   // クリーンアップメソッド
