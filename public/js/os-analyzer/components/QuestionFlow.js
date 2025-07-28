@@ -645,11 +645,14 @@ class QuestionFlow extends BaseComponent {
         return answer.selectedValue || (answer.innerChoice && answer.outerChoice);
       }).length;
       
-      if (newCount > currentCount) {
+      console.log(`🔢 Answer feedback: currentCount=${currentCount}, newCount=${newCount}`);
+      
+      if (newCount !== currentCount) {
         completedCount.style.animation = 'none';
         setTimeout(() => {
           completedCount.textContent = newCount;
           completedCount.style.animation = 'countUp 0.5s ease-out';
+          console.log(`✅ Updated completed count to: ${newCount}`);
         }, 10);
       }
     }
@@ -728,36 +731,86 @@ class QuestionFlow extends BaseComponent {
     const progressFill = this.container.querySelector(".progress-bar-fill");
     const currentNum = this.container.querySelector(".current-question");
     const totalNum = this.container.querySelector(".total-questions");
+    const completedCount = this.container.querySelector('.completed-count');
 
     // 現在の質問番号を確実に計算
     const currentQuestionNum = this.currentQuestionIndex + 1;
     const totalQuestions = this.questions.length;
     const progressPercentage = (currentQuestionNum / totalQuestions) * 100;
+    
+    // 完了数を正確に計算
+    const actualCompletedCount = this.answers.filter(answer => {
+      if (!answer) return false;
+      return answer.selectedValue || (answer.innerChoice && answer.outerChoice);
+    }).length;
 
     console.log(
-      `📊 Progress update: ${currentQuestionNum}/${totalQuestions} (${progressPercentage.toFixed(
+      `📊 Progress update: currentQ=${currentQuestionNum}/${totalQuestions} (${progressPercentage.toFixed(
         1
-      )}%)`
+      )}%), completed=${actualCompletedCount}`
     );
+
+    // 現在の質問番号を更新
+    if (currentNum) {
+      currentNum.textContent = currentQuestionNum;
+    }
+    
+    // 総数を更新
+    if (totalNum) {
+      totalNum.textContent = `/ ${totalQuestions}`;
+    }
+    
+    // 完了数を更新（アニメーション付き）
+    if (completedCount) {
+      const currentDisplayed = parseInt(completedCount.textContent) || 0;
+      if (actualCompletedCount !== currentDisplayed) {
+        completedCount.style.animation = 'none';
+        setTimeout(() => {
+          completedCount.textContent = actualCompletedCount;
+          completedCount.style.animation = 'countUp 0.5s ease-out';
+        }, 10);
+      }
+    }
 
     if (progressFill) {
       progressFill.style.width = `${progressPercentage}%`;
     }
 
-    if (currentNum) {
-      currentNum.textContent = currentQuestionNum;
-    }
-
-    if (totalNum) {
-      totalNum.textContent = `/ ${totalQuestions}`;
-    }
-
+    // nav-dotの状態を更新
+    this.updateNavigationDots();
+    
     // プログレスコールバック
     if (this.options.onProgress) {
       const answeredCount = this.answers.length;
       const answeredProgress = (answeredCount / totalQuestions) * 100;
       this.options.onProgress(answeredProgress);
     }
+  }
+  
+  updateNavigationDots() {
+    const navDots = this.container.querySelectorAll('.nav-dot');
+    const totalDots = Math.min(this.questions.length, 10);
+    
+    console.log(`🔴 Updating nav dots: currentIndex=${this.currentQuestionIndex}, totalDots=${totalDots}`);
+    
+    navDots.forEach((dot, index) => {
+      // 対応する質問のインデックスを計算
+      const questionIndex = Math.floor((index / (totalDots - 1)) * (this.questions.length - 1));
+      
+      // 完了状態をチェック
+      const isCompleted = this.answers.some(a => 
+        a && a.questionId === this.questions[questionIndex]?.id && 
+        (a.selectedValue || (a.innerChoice && a.outerChoice))
+      );
+      
+      // 現在の質問かチェック
+      const isCurrent = questionIndex === this.currentQuestionIndex;
+      
+      // クラスを更新
+      dot.className = `nav-dot ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`;
+      
+      console.log(`🔴 Dot ${index}: questionIndex=${questionIndex}, completed=${isCompleted}, current=${isCurrent}`);
+    });
   }
 
   goToPrevious() {
@@ -770,10 +823,11 @@ class QuestionFlow extends BaseComponent {
 
       // 進行状況をストレージに保存
       if (this.storageManager) {
+        const completedCount = this.getCompletedQuestionsCount();
         this.storageManager.saveProgress({
           currentQuestionIndex: this.currentQuestionIndex,
           totalQuestions: this.questions.length,
-          completedQuestions: this.answers.length,
+          completedQuestions: completedCount,
         });
       }
     }
@@ -789,10 +843,11 @@ class QuestionFlow extends BaseComponent {
 
       // 進行状況をストレージに保存
       if (this.storageManager) {
+        const completedCount = this.getCompletedQuestionsCount();
         this.storageManager.saveProgress({
           currentQuestionIndex: this.currentQuestionIndex,
           totalQuestions: this.questions.length,
-          completedQuestions: this.answers.length,
+          completedQuestions: completedCount,
         });
       }
     } else {
@@ -1003,6 +1058,21 @@ class QuestionFlow extends BaseComponent {
     }
 
     console.groupEnd();
+  }
+
+  // 完了した質問数を正確にカウント
+  getCompletedQuestionsCount() {
+    return this.answers.filter(answer => {
+      if (!answer) return false;
+      
+      // 通常の質問の場合
+      if (answer.selectedValue) return true;
+      
+      // シナリオ質問の場合（内選択と外選択の両方が必要）
+      if (answer.innerChoice && answer.outerChoice) return true;
+      
+      return false;
+    }).length;
   }
 
   // デバッグ用に回答データをサニタイズ

@@ -749,4 +749,4 @@ class AdvancedCompatibilityEngine {
     }
 }
 
-export default AdvancedCompatibilityEngine;
+window.AdvancedCompatibilityEngine = AdvancedCompatibilityEngine;

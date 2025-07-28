@@ -18,20 +18,29 @@ class TripleOSResultsView extends BaseComponent {
     console.log("✅ [TripleOSResultsView] 対話型UI実装完了");
   }
 
-  // 🔧 Enhanced Triple OS data extraction with multiple fallback strategies
+  // 🚀 高速化されたTriple OSデータ抽出（デバッグログ最小化）
   // Supports bunenjin philosophy by ensuring robust access to all three personality layers
   extractTripleOSData(analysisResult) {
-    console.log('🔧 [TripleOSResultsView] 分人データ抽出開始 - 複数フォールバック対応');
+    const debugMode = this.options?.debugMode || false;
     
-    // 🚨 緊急デバッグ: 実際のデータ構造を詳細確認
-    console.log('🔍 [DEBUG] analysisResult type:', typeof analysisResult);
-    console.log('🔍 [DEBUG] analysisResult is null:', analysisResult === null);
-    console.log('🔍 [DEBUG] analysisResult is undefined:', analysisResult === undefined);
-    console.log('🔍 [DEBUG] analysisResult keys:', analysisResult ? Object.keys(analysisResult) : 'N/A');
-    console.log('🔍 [DEBUG] Full analysisResult:', analysisResult);
+    if (debugMode) {
+      console.log('🔧 [TripleOSResultsView] トリプルOSデータ抽出開始');
+      console.log('🔍 [DEBUG] analysisResult type:', typeof analysisResult, 'keys:', analysisResult ? Object.keys(analysisResult) : 'N/A');
+    }
+    
+    // JSON文字列の場合はパース
+    if (typeof analysisResult === 'string') {
+      try {
+        analysisResult = JSON.parse(analysisResult);
+        if (debugMode) console.log('✅ [TripleOSResultsView] JSON parsing successful');
+      } catch (error) {
+        console.error('❌ [TripleOSResultsView] JSON parsing failed:', error);
+        return { engineOS: null, interfaceOS: null, safeModeOS: null };
+      }
+    }
     
     if (!analysisResult || typeof analysisResult !== 'object') {
-      console.warn('⚠️ Invalid analysis result structure - analysisResult:', analysisResult);
+      console.warn('⚠️ Invalid analysis result structure');
       return { engineOS: null, interfaceOS: null, safeModeOS: null };
     }
 
@@ -39,22 +48,23 @@ class TripleOSResultsView extends BaseComponent {
     let engineOS = analysisResult.engineOS;
     let interfaceOS = analysisResult.interfaceOS;
     let safeModeOS = analysisResult.safeModeOS;
-    console.log('🔍 [Strategy 1] Direct access:', { engineOS: !!engineOS, interfaceOS: !!interfaceOS, safeModeOS: !!safeModeOS });
+    
+    if (debugMode) {
+      console.log('🔍 [Strategy 1] Direct access:', { engineOS: !!engineOS, interfaceOS: !!interfaceOS, safeModeOS: !!safeModeOS });
+    }
 
     // Strategy 2: Check for unified diagnosis data format
     if (!engineOS && analysisResult.tripleOS) {
-      console.log('🔄 [Strategy 2] Using tripleOS nested structure');
+      if (debugMode) console.log('🔄 [Strategy 2] Using tripleOS nested structure');
       engineOS = analysisResult.tripleOS.engineOS;
       interfaceOS = analysisResult.tripleOS.interfaceOS;
       safeModeOS = analysisResult.tripleOS.safeModeOS;
-      console.log('🔍 [Strategy 2] Results:', { engineOS: !!engineOS, interfaceOS: !!interfaceOS, safeModeOS: !!safeModeOS });
     }
 
     // Strategy 3: Check for legacy primary OS mapping
     if (!engineOS && analysisResult.primaryOS) {
-      console.log('🔄 [Strategy 3] Using primaryOS as engineOS fallback');
+      if (debugMode) console.log('🔄 [Strategy 3] Using primaryOS as engineOS fallback');
       engineOS = analysisResult.primaryOS;
-      console.log('🔍 [Strategy 3] engineOS found:', !!engineOS);
     }
 
     // Strategy 4: Check for alternative property names
@@ -81,9 +91,9 @@ class TripleOSResultsView extends BaseComponent {
       console.log('🔍 [Strategy 5] Array results:', { engineOS: !!engineOS, interfaceOS: !!interfaceOS, safeModeOS: !!safeModeOS });
     }
 
-    // Strategy 6: 分人思想専用 - hexagram-based structure search
+    // Strategy 6: トリプルOS理論専用 - hexagram-based structure search
     if (!engineOS || !interfaceOS || !safeModeOS) {
-      console.log('🔄 [Strategy 6] 分人思想 hexagram structure search');
+      console.log('🔄 [Strategy 6] トリプルOS理論 hexagram structure search');
       
       // Look for hexagram data in various locations
       const searchHexagramData = (data, osType) => {
@@ -136,8 +146,8 @@ class TripleOSResultsView extends BaseComponent {
       safeModeOS.osName = safeModeOS.name;
     }
 
-    // 🚨 最終検証: 分人思想データ抽出結果の詳細確認
-    console.log('🔍 [FINAL] 分人データ抽出最終結果:');
+    // 🚨 最終検証: トリプルOSデータ抽出結果の詳細確認
+    console.log('🔍 [FINAL] トリプルOSデータ抽出最終結果:');
     console.log('  - engineOS found:', !!engineOS);
     if (engineOS) {
       console.log('    engineOS.osName:', engineOS.osName);
@@ -166,7 +176,7 @@ class TripleOSResultsView extends BaseComponent {
     // Validate extracted data quality
     const extractionQuality = this.validateExtractedOSData({ engineOS, interfaceOS, safeModeOS });
     
-    console.log('✅ [TripleOSResultsView] 分人データ抽出完了:', {
+    console.log('✅ [TripleOSResultsView] トリプルOSデータ抽出完了:', {
       engineOS: !!engineOS,
       interfaceOS: !!interfaceOS, 
       safeModeOS: !!safeModeOS,
@@ -176,7 +186,7 @@ class TripleOSResultsView extends BaseComponent {
 
     // 🚨 エラー状態での緊急対策
     if (!engineOS || !interfaceOS || !safeModeOS) {
-      console.error('❌ [CRITICAL] 分人データ抽出失敗 - 緊急対策実行');
+      console.error('❌ [CRITICAL] トリプルOSデータ抽出失敗 - 緊急対策実行');
       console.error('Missing:', {
         engineOS: !engineOS,
         interfaceOS: !interfaceOS,
@@ -216,35 +226,28 @@ class TripleOSResultsView extends BaseComponent {
         
         // Try to identify which OS this might be based on properties or known hexagram IDs
         const identifyOSType = (data) => {
-          // Known hexagram mappings for bunenjin philosophy
+          // Dynamic OS type identification based on data properties
           const hexagramId = data.hexagramId || data.osId || data.id;
           const name = data.osName || data.name || data.hexagram;
           
-          // 山雷頤 (Engine OS) - ID 27
-          if (hexagramId === 27 || (name && name.includes('山雷頤'))) {
-            return 'engineOS';
-          }
-          // 天澤履 (Interface OS) - ID 10  
-          if (hexagramId === 10 || (name && name.includes('天澤履'))) {
-            return 'interfaceOS';
-          }
-          // 坤為地 (Safe Mode OS) - ID 2
-          if (hexagramId === 2 || (name && name.includes('坤為地'))) {
-            return 'safeModeOS';
+          // Check for explicit OS type markers in the data
+          if (data.osType) {
+            return data.osType;
           }
           
-          // Fallback: Try to identify by path or property names
+          // Identify by explicit property names or structure
           const lowerPath = path.toLowerCase();
-          if (lowerPath.includes('engine') || lowerPath.includes('山雷頤')) {
+          if (lowerPath.includes('engine') || data.type === 'engine') {
             return 'engineOS';
           }
-          if (lowerPath.includes('interface') || lowerPath.includes('天澤履')) {
+          if (lowerPath.includes('interface') || data.type === 'interface') {
             return 'interfaceOS';
           }
-          if (lowerPath.includes('safe') || lowerPath.includes('坤為地')) {
+          if (lowerPath.includes('safe') || lowerPath.includes('safemode') || data.type === 'safemode') {
             return 'safeModeOS';
           }
           
+          // If we can't identify the type, return null to let the normal flow handle it
           return null;
         };
         
@@ -310,21 +313,21 @@ class TripleOSResultsView extends BaseComponent {
     let score = 0;
     let maxScore = 9; // 3 OS types × 3 essential properties each
 
-    // Check Engine OS (本音の分人)
+    // Check Engine OS (エンジンOS：本質的自己)
     if (engineOS) {
       if (engineOS.osName || engineOS.name) score++;
       if (engineOS.hexagramId || engineOS.osId) score++;
       if (engineOS.strength || engineOS.score || engineOS.confidence) score++;
     }
 
-    // Check Interface OS (社会的分人)
+    // Check Interface OS (インターフェースOS：対人的自己)
     if (interfaceOS) {
       if (interfaceOS.osName || interfaceOS.name) score++;
       if (interfaceOS.hexagramId || interfaceOS.osId) score++;
       if (interfaceOS.matchScore || interfaceOS.score || interfaceOS.confidence) score++;
     }
 
-    // Check SafeMode OS (防御的分人)
+    // Check SafeMode OS (セーフモードOS：防護的自己)
     if (safeModeOS) {
       if (safeModeOS.osName || safeModeOS.name) score++;
       if (safeModeOS.hexagramId || safeModeOS.osId) score++;
@@ -345,7 +348,7 @@ class TripleOSResultsView extends BaseComponent {
     }
 
     // 🔧 Enhanced data extraction with multiple fallbacks for bunenjin architecture compatibility
-    console.log('🔍 [TripleOSResultsView] 分人思想システム対応データ検証開始');
+    console.log('🔍 [TripleOSResultsView] トリプルOSシステム対応データ検証開始');
     console.log('📊 [DEBUG] Complete analysisResult structure:', this.analysisResult);
     
     // Extract Triple OS data with robust fallback mechanisms
@@ -353,13 +356,13 @@ class TripleOSResultsView extends BaseComponent {
     const { engineOS, interfaceOS, safeModeOS } = extractedData;
 
     // Comprehensive data validation with detailed logging
-    console.log('🔍 [TripleOSResultsView] 分人データ抽出結果:');
+    console.log('🔍 [TripleOSResultsView] トリプルOSデータ抽出結果:');
     console.log('  - engineOS:', !!engineOS, engineOS?.osName || engineOS?.name || 'undefined');
     console.log('  - interfaceOS:', !!interfaceOS, interfaceOS?.osName || interfaceOS?.name || 'undefined');
     console.log('  - safeModeOS:', !!safeModeOS, safeModeOS?.osName || safeModeOS?.name || 'undefined');
 
     if (!engineOS || !interfaceOS || !safeModeOS) {
-      console.error('❌ [TripleOSResultsView] 分人データ検証失敗:', {
+      console.error('❌ [TripleOSResultsView] トリプルOSデータ検証失敗:', {
         hasEngineOS: !!engineOS,
         hasInterfaceOS: !!interfaceOS,
         hasSafeModeOS: !!safeModeOS,
@@ -370,8 +373,8 @@ class TripleOSResultsView extends BaseComponent {
       // Enhanced error message for bunenjin philosophy context
       this.container.innerHTML = `
         <div class="error" style="padding: 2rem; text-align: center; color: #ff6b6b; background: rgba(255,107,107,0.1); border-radius: 8px; margin: 1rem;">
-          <h3>分人思想分析データが不完全です</h3>
-          <p>エンジンOS、インターフェースOS、セーフモードOSの分人データを読み込めませんでした。</p>
+          <h3>トリプルOS分析データが不完全です</h3>
+          <p>エンジンOS、インターフェースOS、セーフモードOSのデータを読み込めませんでした。</p>
           <p><small>分析を再実行するか、データの整合性を確認してください。</small></p>
         </div>`;
       return;
@@ -435,27 +438,27 @@ class TripleOSResultsView extends BaseComponent {
                       )}</div>
                   </div>
                   <div class="interactive-chart-container">
-                      <canvas id="interactive-radar-chart" width="400" height="400"></canvas>
+                      <canvas id="interactive-radar-chart" style="max-width: 100%; max-height: 400px; width: 400px; height: 400px;"></canvas>
                   </div>
               </section>
   
-              <!-- 分人思想による3つの人格セクション -->
-              <section class="interactive-os-section bunenjin-section">
-                  <div class="bunenjin-concept-header">
-                      <h2 class="section-title">🎭 あなたの中に住む3人の『分人』</h2>
-                      <p class="bunenjin-philosophy">
-                          平野啓一郎の「分人思想」によると、私たちには状況に応じて現れる複数の人格があります。<br>
-                          「本当の自分探し」よりも、それぞれの分人を理解し、適切に使い分けることが豊かな人生への鍵です。
+              <!-- トリプルOS構成による3つのパーソナリティ・オペレーティングシステムセクション -->
+              <section class="interactive-os-section triple-os-section">
+                  <div class="triple-os-concept-header">
+                      <h2 class="section-title">🎭 あなたの中に稼働する3つの『パーソナリティOS』</h2>
+                      <p class="triple-os-philosophy">
+                          HaQei独自の「トリプルOS理論」によると、私たちには状況に応じて稼働する3つのパーソナリティ・オペレーティングシステムがあります。<br>
+                          「真の自分探し」よりも、それぞれのパーソナリティOSを理解し、最適な選択をすることが戦略的人生ナビゲーションの鍵です。
                       </p>
                   </div>
-                  <div class="interactive-os-cards bunenjin-cards">
+                  <div class="interactive-os-cards triple-os-cards">
                       <div class="interactive-os-card" data-os="engine" data-hexagram="${
                         engineOS.hexagramId
                       }">
                           <div class="os-card-header">
                               <div class="os-icon">🔧</div>
-                              <div class="os-info bunenjin-info">
-                                  <h3>🔥 本音の分人 - あなたの核となる価値観</h3>
+                              <div class="os-info triple-os-info">
+                                  <h3>🔥 エンジンOS - あなたの核となる本質的自己</h3>
                                   <p class="os-catchphrase">${
                                     engineOS.hexagramInfo?.catchphrase ||
                                     "深い洞察を持つ人"
@@ -463,8 +466,8 @@ class TripleOSResultsView extends BaseComponent {
                                   <p class="os-description">${
                                     engineOS.hexagramInfo?.description || ""
                                   }</p>
-                                  <div class="bunenjin-explanation">
-                                      <small>一人でいる時や信頼できる人と一緒にいる時に現れる、最も純粋なあなたです</small>
+                                  <div class="triple-os-explanation">
+                                      <small>一人でいる時や信頼できる人と一緒にいる時に稼働する、最も本質的なパーソナリティOSです</small>
                                   </div>
                               </div>
                               <div class="os-stats">
@@ -477,17 +480,17 @@ class TripleOSResultsView extends BaseComponent {
                                       )}）</div>
                                   </div>
                                   <div class="os-score-group">
-                                      <div class="score-container bunenjin-score-container">
+                                      <div class="score-container triple-os-score-container">
                                           <div class="score-header">
-                                              <span class="score-title">🔥 本音の分人の影響力</span>
-                                              <div class="score-help-icon" title="この分人（価値観）があなたの人生にどれだけ強く影響しているかを示します。高いほど、この価値観で判断・行動することが多いことを意味します。">❓</div>
+                                              <span class="score-title">🔥 エンジンOSの影響力</span>
+                                              <div class="score-help-icon" title="このエンジンOS（本質的価値観）があなたの人生にどれだけ強く影響しているかを示します。高いほど、この本質的価値観で判断・行動することが多いことを意味します。">❓</div>
                                           </div>
-                                          <div class="score-explanation bunenjin-explanation">
+                                          <div class="score-explanation triple-os-explanation">
                                               <p>人生の重要な場面で、<strong>${Math.round(
                                                 engineOS.strength * 100
-                                              )}%の確率</strong>でこの本音の分人が判断を主導します</p>
-                                              <div class="bunenjin-insight">
-                                                  <small>💡 この分人が強いほど、あなたらしい選択ができる可能性が高まります</small>
+                                              )}%の確率</strong>でこのエンジンOSが判断を主導します</p>
+                                              <div class="triple-os-insight">
+                                                  <small>💡 このエンジンOSが強いほど、あなたらしい選択ができる可能性が高まります</small>
                                               </div>
                                           </div>
                                           <div class="score-display">
@@ -539,8 +542,8 @@ class TripleOSResultsView extends BaseComponent {
                       }">
                           <div class="os-card-header">
                               <div class="os-icon">🖥️</div>
-                              <div class="os-info bunenjin-info">
-                                  <h3>🌐 社会的分人 - 他者との関わり方</h3>
+                              <div class="os-info triple-os-info">
+                                  <h3>🌐 インターフェースOS - 他者との関わり方</h3>
                                   <p class="os-catchphrase">${
                                     interfaceOS.hexagramInfo?.catchphrase ||
                                     "社会の中での魅力的な表現"
@@ -548,8 +551,8 @@ class TripleOSResultsView extends BaseComponent {
                                   <p class="os-description">${
                                     interfaceOS.hexagramInfo?.description || ""
                                   }</p>
-                                  <div class="bunenjin-explanation">
-                                      <small>職場や友人関係など、社会的な役割を果たす時に活躍する分人です</small>
+                                  <div class="triple-os-explanation">
+                                      <small>職場や友人関係など、社会的な役割を果たす時に稼働するパーソナリティOSです</small>
                                   </div>
                               </div>
                               <div class="os-stats">
@@ -560,17 +563,17 @@ class TripleOSResultsView extends BaseComponent {
                                       <div class="os-subtitle">(コミュニケーションスタイル)</div>
                                   </div>
                                   <div class="os-score-group">
-                                      <div class="score-container bunenjin-score-container">
+                                      <div class="score-container triple-os-score-container">
                                           <div class="score-header">
-                                              <span class="score-title">🌐 社会的分人の表現頻度</span>
-                                              <div class="score-help-icon" title="本音の分人の価値観が、社会的な場面でこのスタイルとして表現される頻度を示します。本音と社会的な顔の一致度とも言えます。">❓</div>
+                                              <span class="score-title">🌐 インターフェースOSの表現頻度</span>
+                                              <div class="score-help-icon" title="エンジンOSの価値観が、社会的な場面でこのスタイルとして表現される頻度を示します。エンジンOSとインターフェースOSの一致度とも言えます。">❓</div>
                                           </div>
-                                          <div class="score-explanation bunenjin-explanation">
+                                          <div class="score-explanation triple-os-explanation">
                                               <p>他者と関わる場面で、<strong>10回中${Math.round(
                                                 interfaceOS.matchScore / 10
-                                              )}回程度</strong>この社会的分人が現れます</p>
-                                              <div class="bunenjin-insight">
-                                                  <small>💡 ${interfaceOS.matchScore >= 70 ? '本音の分人と社会的分人がよく調和しています' : interfaceOS.matchScore >= 30 ? '状況に応じて使い分けができています' : '意識的に社会的分人を育てることで表現力が向上します'}</small>
+                                              )}回程度</strong>このインターフェースOSが稼働します</p>
+                                              <div class="triple-os-insight">
+                                                  <small>💡 ${interfaceOS.matchScore >= 70 ? 'エンジンOSとインターフェースOSがよく調和しています' : interfaceOS.matchScore >= 30 ? '状況に応じて使い分けができています' : '意識的にインターフェースOSを育てることで表現力が向上します'}</small>
                                               </div>
                                           </div>
                                           <div class="score-display">
@@ -621,8 +624,8 @@ class TripleOSResultsView extends BaseComponent {
                       }">
                           <div class="os-card-header">
                               <div class="os-icon">🛡️</div>
-                              <div class="os-info bunenjin-info">
-                                  <h3>🛡️ 防御的分人 - ストレス時の対処法</h3>
+                              <div class="os-info triple-os-info">
+                                  <h3>🛡️ セーフモードOS - ストレス時の対処法</h3>
                                   <p class="os-catchphrase">${
                                     safeModeOS.hexagramInfo?.catchphrase ||
                                     "自分を守る知恵を持つ人"
@@ -630,8 +633,8 @@ class TripleOSResultsView extends BaseComponent {
                                   <p class="os-description">${
                                     safeModeOS.hexagramInfo?.description || ""
                                   }</p>
-                                  <div class="bunenjin-explanation">
-                                      <small>困難な状況やストレスを感じた時に現れ、あなたを守ろうとする分人です</small>
+                                  <div class="triple-os-explanation">
+                                      <small>困難な状況やストレスを感じた時に稼働し、あなたを守ろうとするパーソナリティOSです</small>
                                   </div>
                               </div>
                               <div class="os-stats">
@@ -642,17 +645,17 @@ class TripleOSResultsView extends BaseComponent {
                                       <div class="os-subtitle">(安全地帯)</div>
                                   </div>
                                   <div class="os-score-group">
-                                      <div class="score-container bunenjin-score-container">
+                                      <div class="score-container triple-os-score-container">
                                           <div class="score-header">
-                                              <span class="score-title">🛡️ 防御的分人の発動頻度</span>
-                                              <div class="score-help-icon" title="困難やストレスに直面した時に、この防御的分人がどの程度現れるかを示します。この分人も大切な自分の一部です。">❓</div>
+                                              <span class="score-title">🛡️ セーフモードOSの発動頻度</span>
+                                              <div class="score-help-icon" title="困難やストレスに直面した時に、このセーフモードOSがどの程度稼働するかを示します。このパーソナリティOSも大切な自分の一部です。">❓</div>
                                           </div>
-                                          <div class="score-explanation bunenjin-explanation">
+                                          <div class="score-explanation triple-os-explanation">
                                               <p>ストレスを感じた時、<strong>100回中${Math.round(
                                                 safeModeOS.matchScore
-                                              )}回程度</strong>この防御的分人が現れます</p>
-                                              <div class="bunenjin-insight">
-                                                  <small>💡 ${safeModeOS.matchScore >= 50 ? 'この分人をよく使います。適切にコントロールできれば強い味方になります' : safeModeOS.matchScore >= 10 ? 'バランス良く防御的分人を活用できています' : 'この分人はあまり使いませんが、必要な時の選択肢として覚えておきましょう'}</small>
+                                              )}回程度</strong>このセーフモードOSが稼働します</p>
+                                              <div class="triple-os-insight">
+                                                  <small>💡 ${safeModeOS.matchScore >= 50 ? 'このセーフモードOSをよく使います。適切にコントロールできれば強い味方になります' : safeModeOS.matchScore >= 10 ? 'バランス良くセーフモードOSを活用できています' : 'このセーフモードOSはあまり使いませんが、必要な時の選択肢として覚えておきましょう'}</small>
                                               </div>
                                           </div>
                                           <div class="score-display">
@@ -833,32 +836,41 @@ class TripleOSResultsView extends BaseComponent {
 
   // ヘルパーメソッドの追加
   getPersonalityType(osName, catchphrase) {
-    const types = {
-      風山漸: "着実な実行者",
-      天澤履: "礼儀正しい実行者",
-      坤為地: "包容力のある支援者",
-      沢山咸: "共感型リーダー",
-      乾為天: "創造的リーダー",
-      震為雷: "エネルギッシュな行動者",
-    };
-    return types[osName] || "ユニークな個性";
+    // Use catchphrase or derive from OS name dynamically
+    if (catchphrase) {
+      return this.derivePersonalityTypeFromCatchphrase(catchphrase);
+    }
+    return "ユニークな個性";
+  }
+
+  derivePersonalityTypeFromCatchphrase(catchphrase) {
+    if (catchphrase.includes('リーダー') || catchphrase.includes('導')) return "創造的リーダー";
+    if (catchphrase.includes('支え') || catchphrase.includes('包容')) return "包容力のある支援者";
+    if (catchphrase.includes('実行') || catchphrase.includes('着実')) return "着実な実行者";
+    if (catchphrase.includes('礼儀') || catchphrase.includes('調和')) return "礼儀正しい実行者";
+    if (catchphrase.includes('共感') || catchphrase.includes('感情')) return "共感型リーダー";
+    if (catchphrase.includes('エネルギー') || catchphrase.includes('行動')) return "エネルギッシュな行動者";
+    return "ユニークな個性";
   }
 
   getReadingName(kanjiName) {
-    const readings = {
-      風山漸: "ふうざんぜん",
-      天澤履: "てんたくり",
-      坤為地: "こんいち",
-      沢山咸: "ざんざんかん",
+    // Get reading from hexagram data dynamically
+    const hexagramData = this.dataManager?.getAllHexagramData();
+    if (hexagramData) {
+      const hexagram = hexagramData.find(h => h.name_jp === kanjiName);
+      if (hexagram && hexagram.reading) {
+        return hexagram.reading;
+      }
+    }
+    
+    // Fallback: basic readings for common hexagrams
+    const basicReadings = {
       乾為天: "けんいてん",
-      震為雷: "しんいらい",
-      坎為水: "かんいすい",
-      艮為山: "ごんいざん",
-      巽為風: "そんいふう",
+      坤為地: "こんいち",
       離為火: "りいか",
       兌為沢: "だいたく",
     };
-    return readings[kanjiName] || "";
+    return basicReadings[kanjiName] || "";
   }
 
   getScoreColorClass(score) {
@@ -969,7 +981,7 @@ class TripleOSResultsView extends BaseComponent {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
         plugins: {
           legend: {
             display: false,
@@ -1052,72 +1064,72 @@ class TripleOSResultsView extends BaseComponent {
     console.log("✅ [TripleOSResultsView] レーダーチャート描画完了");
   }
 
-  // 8次元の詳細情報を取得
+  // 8次元の詳細情報を取得 - 正しい8卦対応
   getEightDimensionsWithDetails() {
     return [
       {
-        key: "creation_power",
-        label: "創造力",
+        key: "乾_創造性",
+        label: "創造性（天）",
         color: "#ff6b6b",
-        iching_meaning: "乾為天の創造エネルギー - 無から有を生み出す天の龍の力",
+        iching_meaning: "乾為天 - 天の力、リーダーシップ、創造的エネルギー",
         practical_application:
-          "新しいアイデアの創出、イノベーション、芸術的表現において発揮される",
+          "新しいアイデアの創出、イノベーション、指導力において発揮される",
       },
       {
-        key: "analytical_power",
-        label: "分析力",
-        color: "#4ecdc4",
-        iching_meaning: "沢風大過の洞察力 - 複雑な事象を分解し本質を見抜く力",
-        practical_application:
-          "データ分析、問題解決、戦略立案において論理的思考を展開する",
-      },
-      {
-        key: "social_power",
-        label: "社交力",
+        key: "兌_調和性",
+        label: "調和性（沢）",
         color: "#45b7d1",
-        iching_meaning: "沢山咸の感応力 - 人の心に響き、つながりを生む力",
+        iching_meaning: "兌為沢 - 喜び、コミュニケーション、人との調和",
         practical_application:
-          "チームワーク、ネットワーキング、リーダーシップにおいて人を動かす",
+          "チームワーク、対話、人間関係の構築において発揮される",
       },
       {
-        key: "emotional_power",
-        label: "感情力",
-        color: "#96ceb4",
-        iching_meaning: "水雷屯の情動エネルギー - 深い感情を理解し活用する力",
+        key: "離_表現性",
+        label: "表現性（火）",
+        color: "#ffa500",
+        iching_meaning: "離為火 - 明るさ、知性、表現力",
         practical_application:
-          "共感力、モチベーション管理、人間関係の深化において発揮される",
+          "プレゼンテーション、教育、芸術的表現において発揮される",
       },
       {
-        key: "intuitive_power",
-        label: "直感力",
-        color: "#ffeaa7",
-        iching_meaning: "山風蠱の霊感力 - 見えない流れを感じ取る第六感の力",
+        key: "震_行動性",
+        label: "行動性（雷）",
+        color: "#4ecdc4",
+        iching_meaning: "震為雷 - 雷の力、動き、積極的な行動",
         practical_application:
-          "予測、タイミング判断、クリエイティブな発想において閃きを得る",
+          "実行力、スピード、変化への対応において発揮される",
       },
       {
-        key: "logical_power",
-        label: "論理力",
-        color: "#dda0dd",
-        iching_meaning: "天水訟の弁論力 - 筋道立てて物事を組み立てる力",
-        practical_application:
-          "議論、説得、システム設計において論理的整合性を保つ",
-      },
-      {
-        key: "aesthetic_power",
-        label: "美的感覚",
+        key: "巽_適応性",
+        label: "適応性（風）",
         color: "#98d8c8",
-        iching_meaning: "風雷益の調和力 - 美しさと調和を感じ創造する力",
+        iching_meaning: "巽為風 - 風の力、柔軟性、適応力",
         practical_application:
-          "デザイン、美的判断、環境作りにおいて心を動かす美を創出する",
+          "状況対応、柔軟な思考、環境適応において発揮される",
       },
       {
-        key: "leadership_power",
-        label: "リーダーシップ",
-        color: "#f7dc6f",
-        iching_meaning: "地水師の統率力 - 多様な人々を一つの目標に導く力",
+        key: "坎_探求性",
+        label: "探求性（水）",
+        color: "#6c5ce7",
+        iching_meaning: "坎為水 - 水の力、深さ、探求心",
         practical_application:
-          "組織運営、方向性の提示、チームの統制において指導力を発揮する",
+          "研究、分析、本質を見抜く力において発揮される",
+      },
+      {
+        key: "艮_安定性",
+        label: "安定性（山）",
+        color: "#a29bfe",
+        iching_meaning: "艮為山 - 山の力、堅実性、安定感",
+        practical_application:
+          "忍耐力、集中力、長期的視点において発揮される",
+      },
+      {
+        key: "坤_受容性",
+        label: "受容性（地）",
+        color: "#dfe6e9",
+        iching_meaning: "坤為地 - 地の力、包容性、受け入れる力",
+        practical_application:
+          "サポート力、育成、多様性の受容において発揮される",
       },
     ];
   }
@@ -1647,7 +1659,7 @@ class TripleOSResultsView extends BaseComponent {
       );
       if (!compatibilityContent) return;
 
-      // 本音の分人と社会的分人の相互作用分析
+      // エンジンOSとインターフェースOSの相互作用分析
       const compatibility = this.calculateBunenjinCompatibility(
         engineOS.hexagramId,
         interfaceOS.hexagramId,
@@ -1673,12 +1685,12 @@ class TripleOSResultsView extends BaseComponent {
                           
                           <div class="bunenjin-relationship-explanation">
                               <h5>🤝 本音と社会的な顔の関係</h5>
-                              <p>あなたの本音の分人「${engineOS.osName}」と社会的分人「${interfaceOS.osName}」は<strong>${harmonyType.description}</strong>しています。</p>
+                              <p>あなたのエンジンOS「${engineOS.osName}」とインターフェースOS「${interfaceOS.osName}」は<strong>${harmonyType.description}</strong>しています。</p>
                               
                               <div class="gap-insight">
                                   <div class="insight-header">
                                       <span class="insight-icon">🔍</span>
-                                      <span class="insight-title">分人ギャップ分析</span>
+                                      <span class="insight-title">パーソナリティOSギャップ分析</span>
                                   </div>
                                   <p>${gapAnalysis.description}</p>
                                   <div class="practical-advice">
@@ -1698,12 +1710,12 @@ class TripleOSResultsView extends BaseComponent {
         compatibilityContent.innerHTML = `
                       <div class="bunenjin-loading">
                           <div class="loading-icon">🤝</div>
-                          <p>本音と社会的分人の関係を分析中...</p>
+                          <p>エンジンOSとインターフェースOSの関係を分析中...</p>
                       </div>
                   `;
       }
     } catch (error) {
-      console.error("❌ 本音・社会的分人の相互作用分析エラー:", error);
+      console.error("❌ エンジンOS・インターフェースOSの相互作用分析エラー:", error);
     }
   }
 
@@ -1714,7 +1726,7 @@ class TripleOSResultsView extends BaseComponent {
       );
       if (!compatibilityContent) return;
 
-      // 本音の分人と防御的分人の相互作用分析
+      // エンジンOSとセーフモードOSの相互作用分析
       const compatibility = this.calculateBunenjinCompatibility(
         engineOS.hexagramId,
         safeModeOS.hexagramId,
@@ -1739,8 +1751,8 @@ class TripleOSResultsView extends BaseComponent {
                           </div>
                           
                           <div class="bunenjin-defense-explanation">
-                              <h5>🛡️ 本音と防御的分人の関係</h5>
-                              <p>あなたの本音の分人「${engineOS.osName}」と防御的分人「${safeModeOS.osName}」は<strong>${protectionType.description}</strong>しています。</p>
+                              <h5>🛡️ エンジンOSとセーフモードOSの関係</h5>
+                              <p>あなたのエンジンOS「${engineOS.osName}」とセーフモードOS「${safeModeOS.osName}」は<strong>${protectionType.description}</strong>しています。</p>
                               
                               <div class="defense-pattern-insight">
                                   <div class="insight-header">
@@ -1761,7 +1773,7 @@ class TripleOSResultsView extends BaseComponent {
                                   <div class="integration-tips">
                                       <div class="tip-item">
                                           <span class="tip-icon">✨</span>
-                                          <span class="tip-text">防御的分人は、あなたの大切な一部です</span>
+                                          <span class="tip-text">セーフモードOSは、あなたの大切な一部です</span>
                                       </div>
                                       <div class="tip-item">
                                           <span class="tip-icon">🏠</span>
@@ -1776,12 +1788,12 @@ class TripleOSResultsView extends BaseComponent {
         compatibilityContent.innerHTML = `
                       <div class="bunenjin-loading">
                           <div class="loading-icon">🛡️</div>
-                          <p>本音と防御的分人の関係を分析中...</p>
+                          <p>エンジンOSとセーフモードOSの関係を分析中...</p>
                       </div>
                   `;
       }
     } catch (error) {
-      console.error("❌ 本音・防御的分人の相互作用分析エラー:", error);
+      console.error("❌ エンジンOS・セーフモードOSの相互作用分析エラー:", error);
     }
   }
 
@@ -1801,14 +1813,14 @@ class TripleOSResultsView extends BaseComponent {
     return "conflict";
   }
 
-  // 分人思想ベースの相互作用分析
+  // トリプルOS理論ベースの相互作用分析
   calculateBunenjinCompatibility(hexagramId1, hexagramId2, bunenjinType) {
     // 卦IDを8つの基本卦グループに分類
     const getTrigramGroup = (id) => ((id - 1) % 8) + 1;
     const group1 = getTrigramGroup(hexagramId1);
     const group2 = getTrigramGroup(hexagramId2);
 
-    // 分人思想専用の相性マトリックス
+    // トリプルOS理論専用の相性マトリックス
     const bunenjinMatrix = {
       1: { 1: 85, 2: 65, 3: 90, 4: 75, 5: 60, 6: 45, 7: 70, 8: 55 }, // 乾 - 創造的リーダー
       2: { 1: 65, 2: 88, 3: 50, 4: 80, 5: 75, 6: 90, 7: 60, 8: 95 }, // 兌 - 調和型コミュニケーター
@@ -1822,13 +1834,13 @@ class TripleOSResultsView extends BaseComponent {
 
     const baseScore = bunenjinMatrix[group1]?.[group2] || 60;
 
-    // 分人タイプ別の調整
+    // パーソナリティOSタイプ別の調整
     let adjustedScore = baseScore;
     if (bunenjinType === "social") {
-      // 社会的分人は表現の一致性を重視
+      // インターフェースOSは表現の一致性を重視
       adjustedScore = Math.min(baseScore + 8, 98);
     } else if (bunenjinType === "defense") {
-      // 防御的分人は心理的安全性を重視
+      // セーフモードOSは心理的安全性を重視
       adjustedScore = Math.max(baseScore - 15, 20);
     }
 
@@ -1840,28 +1852,28 @@ class TripleOSResultsView extends BaseComponent {
 
   // 旧メソッドも保持（互換性のため）
   calculateSimpleCompatibility(hexagramId1, hexagramId2, type) {
-    // 分人思想ベースにリダイレクト
+    // トリプルOS理論ベースにリダイレクト
     const bunenjinType = type === "interface" ? "social" : type === "safemode" ? "defense" : "authentic";
     return this.calculateBunenjinCompatibility(hexagramId1, hexagramId2, bunenjinType);
   }
 
-  // 分人思想ベースの相互作用説明を生成
+  // トリプルOS理論ベースの相互作用説明を生成
   getBunenjinCompatibilityDescription(score, bunenjinType) {
     const descriptions = {
       social: {
-        high: "本音の分人と社会的分人が非常によく調和しています。あなたらしさが自然に表現され、真の魅力で人を引きつけます。",
+        high: "エンジンOSとインターフェースOSが非常によく調和しています。あなたらしさが自然に表現され、真の魅力で人を引きつけます。",
         medium: "本音と社会的な面がバランス良く機能しています。状況に応じて上手く使い分けができています。",
         low: "本音と社会的な面にギャップがあります。意識的に本音を表現する練習をすることで、より自然な関係を築けます。"
       },
       defense: {
-        high: "本音の分人と防御的分人がよく連携しています。ストレス時でも価値観を大切にしながら自分を守ることができます。",
+        high: "エンジンOSとセーフモードOSがよく連携しています。ストレス時でも価値観を大切にしながら自分を守ることができます。",
         medium: "本音と防御的な面が適度にバランスを保っています。困難な状況でも最終的には本音に戻ることができます。",
         low: "本音と防御的な面の間に緊張関係があります。ストレス時に本来の自分とは異なる行動を取りがちですが、これも必要な知恵です。"
       },
       authentic: {
-        high: "本音の分人が非常に安定し、一貫した価値観で行動できています。",
-        medium: "本音の分人が適度に機能し、状況に応じて柔軟に対応できています。",
-        low: "本音の分人が不安定で、価値観の確立や自己理解の深化が必要です。"
+        high: "エンジンOSが非常に安定し、一貫した価値観で行動できています。",
+        medium: "エンジンOSが適度に機能し、状況に応じて柔軟に対応できています。",
+        low: "エンジンOSが不安定で、価値観の確立や自己理解の深化が必要です。"
       }
     };
 
@@ -1906,14 +1918,14 @@ class TripleOSResultsView extends BaseComponent {
 
         // 8卦のデータ定義（色と名前）
         const baguaData = [
-            { key: '乾_創造性', name: '創造性', color: '#ff6b6b', colorRgb: '255,107,107', icon: '☰', trigram: '乾' },
-            { key: '震_行動性', name: '行動性', color: '#4ecdc4', colorRgb: '78,205,196', icon: '☳', trigram: '震' },
-            { key: '坎_探求性', name: '探求性', color: '#45b7d1', colorRgb: '69,183,209', icon: '☵', trigram: '坎' },
-            { key: '艮_安定性', name: '安定性', color: '#96ceb4', colorRgb: '150,206,180', icon: '☶', trigram: '艮' },
-            { key: '坤_受容性', name: '受容性', color: '#ffeaa7', colorRgb: '255,234,167', icon: '☷', trigram: '坤' },
-            { key: '巽_適応性', name: '適応性', color: '#fd79a8', colorRgb: '253,121,168', icon: '☴', trigram: '巽' },
-            { key: '離_表現性', name: '表現性', color: '#fdcb6e', colorRgb: '253,203,110', icon: '☲', trigram: '離' },
-            { key: '兌_調和性', name: '調和性', color: '#a29bfe', colorRgb: '162,155,254', icon: '☱', trigram: '兌' }
+            { key: '乾_リーダーシップ', name: 'リーダーシップ', color: '#ff6b6b', colorRgb: '255,107,107', icon: '☰', trigram: '乾' },
+            { key: '震_動き', name: '動き', color: '#4ecdc4', colorRgb: '78,205,196', icon: '☳', trigram: '震' },
+            { key: '坎_深さ', name: '深さ', color: '#45b7d1', colorRgb: '69,183,209', icon: '☵', trigram: '坎' },
+            { key: '艮_堅実性', name: '堅実性', color: '#96ceb4', colorRgb: '150,206,180', icon: '☶', trigram: '艮' },
+            { key: '坤_包容性', name: '包容性', color: '#ffeaa7', colorRgb: '255,234,167', icon: '☷', trigram: '坤' },
+            { key: '巽_柔軟性', name: '柔軟性', color: '#fd79a8', colorRgb: '253,121,168', icon: '☴', trigram: '巽' },
+            { key: '離_明るさ', name: '明るさ', color: '#fdcb6e', colorRgb: '253,203,110', icon: '☲', trigram: '離' },
+            { key: '兌_コミュニケーション', name: 'コミュニケーション', color: '#a29bfe', colorRgb: '162,155,254', icon: '☱', trigram: '兌' }
         ];
 
         // カードのHTML生成
@@ -2212,26 +2224,14 @@ class TripleOSResultsView extends BaseComponent {
   bindInteractiveEventListeners() {
     console.log("🔗 [TripleOSResultsView] 対話型イベントリスナー設定");
 
-    // OSカードの展開機能
+    // OSカードの展開機能（リファクタリング済み）
     const cards = this.container.querySelectorAll(".interactive-os-card");
     cards.forEach((card) => {
       const header = card.querySelector(".os-card-header");
       const indicator = card.querySelector(".expand-indicator");
 
       header.addEventListener("click", () => {
-        const isExpanded = card.classList.contains("expanded");
-
-        // 他のカードを閉じる（アコーディオン効果）
-        cards.forEach((otherCard) => {
-          if (otherCard !== card) {
-            otherCard.classList.remove("expanded");
-            otherCard.querySelector(".expand-indicator").textContent = "+";
-          }
-        });
-
-        // 現在のカードをトグル
-        card.classList.toggle("expanded");
-        indicator.textContent = card.classList.contains("expanded") ? "-" : "+";
+        this.handleCardExpansion(card, cards, indicator);
       });
     });
 
@@ -2265,9 +2265,9 @@ class TripleOSResultsView extends BaseComponent {
     }
   }
 
-  // 分人思想専用のヘルパーメソッド群
+  // トリプルOS理論専用のヘルパーメソッド群
 
-  // 社会的分人との調和タイプを取得
+  // インターフェースOSとの調和タイプを取得
   getBunenjinHarmonyType(score) {
     if (score >= 80) return { icon: '🌟', label: '高い調和', description: '非常によく調和' };
     if (score >= 65) return { icon: '✨', label: '良好な調和', description: 'よく調和' };
@@ -2285,11 +2285,11 @@ class TripleOSResultsView extends BaseComponent {
     return 'harmony-growth';
   }
 
-  // 分人ギャップ分析
+  // パーソナリティOSギャップ分析
   analyzeBunenjinGap(score) {
     if (score >= 75) {
       return {
-        description: '本音の分人と社会的分人がよく一致しており、自然体で人と関わることができています。',
+        description: 'エンジンOSとインターフェースOSがよく一致しており、自然体で人と関わることができています。',
         advice: 'この調和を活かして、リーダーシップやメンターの役割で力を発揮してみましょう。'
       };
     } else if (score >= 50) {
@@ -2299,13 +2299,13 @@ class TripleOSResultsView extends BaseComponent {
       };
     } else {
       return {
-        description: '本音の分人と社会的分人の間にギャップがあります。これは決して悪いことではありません。',
+        description: 'エンジンOSとインターフェースOSの間にギャップがあります。これは決して悪いことではありません。',
         advice: '小さな場面から本音を表現する練習をすることで、より自然で魅力的な人間関係を築けるでしょう。'
       };
     }
   }
 
-  // 防御的分人の保護タイプを取得
+  // セーフモードOSの保護タイプを取得
   getBunenjinProtectionType(score) {
     if (score >= 75) return { icon: '🛡️', label: '強固な連携', description: '強固に連携' };
     if (score >= 55) return { icon: '🤝', label: '協力関係', description: '協力し合って' };
@@ -2328,45 +2328,123 @@ class TripleOSResultsView extends BaseComponent {
     if (score >= 70) {
       return {
         description: 'ストレス時でも本音の価値観を保ちながら自分を守ろうとします。建設的な防御が得意です。',
-        recoveryAdvice: '本音の分人の強みを意識的に思い出すことで、より早く安心状態に戻ることができます。'
+        recoveryAdvice: 'エンジンOSの強みを意識的に思い出すことで、より早く安心状態に戻ることができます。'
       };
     } else if (score >= 40) {
       return {
         description: 'ストレス時は本音と防御的な面が時々対立しますが、最終的にはバランスを取り戻します。',
-        recoveryAdvice: '防御的分人が働いている時は、まず安全を確保してから本音の分人に戻る順序を意識しましょう。'
+        recoveryAdvice: 'セーフモードOSが働いている時は、まず安全を確保してからエンジンOSに戻る順序を意識しましょう。'
       };
     } else {
       return {
         description: 'ストレス時は本音とは異なる行動を取りがちですが、これも自分を守るための大切な知恵です。',
-        recoveryAdvice: '防御的分人も大切な一部です。批判せずに受け入れ、安全になったら本音に戻ることを心がけましょう。'
+        recoveryAdvice: 'セーフモードOSも大切な一部です。批判せずに受け入れ、安全になったらエンジンOSに戻ることを心がけましょう。'
       };
     }
   }
 
-  // 分人シナジー活用アドバイス
+  // パーソナリティOSシナジー活用アドバイス
   getBunenjinSynergyAdvice(score, type) {
     if (type === 'social') {
       if (score >= 75) {
-        return '本音の分人と社会的分人がよく連携しているので、リーダーシップやメンター役で力を発揮できます。人の成長を支援する場面で特に輝けるでしょう。';
+        return 'エンジンOSとインターフェースOSがよく連携しているので、リーダーシップやメンター役で力を発揮できます。人の成長を支援する場面で特に輝けるでしょう。';
       } else if (score >= 50) {
         return '状況に応じて使い分けができているので、多様な人間関係で活躍できます。意識的に本音を少しずつ表現することで、さらに魅力的になれます。';
       } else {
         return '本音と社会的な面のギャップを活かして、幅広い人との関係を築けます。まずは信頼できる人から本音を表現する練習をしてみましょう。';
       }
     } else {
-      return '各分人の特性を理解し、適切に使い分けることで豊かな人生を送ることができます。';
+      return '各パーソナリティOSの特性を理解し、最適な選択をすることで戦略的な人生ナビゲーションが可能になります。';
     }
   }
 
-  // 防御的分人のバランスアドバイス
+  // セーフモードOSのバランスアドバイス
   getBunenjinDefenseAdvice(score) {
     if (score >= 70) {
       return '本音の価値観と防御機制がよく調和しているので、ストレス時でも建設的な対処ができます。この強みを活かして、困難な状況でのリーダーシップを発揮することもできるでしょう。';
     } else if (score >= 40) {
-      return '本音と防御的な面が適度にバランスを保っているので、状況に応じて柔軟に対応できます。ストレス時は一度立ち止まって、どの分人で対応するかを意識的に選択してみましょう。';
+      return 'エンジンOSとセーフモードOSが適度にバランスを保っているので、状況に応じて柔軟に対応できます。ストレス時は一度立ち止まって、どのパーソナリティOSで対応するかを意識的に選択してみましょう。';
     } else {
-      return '本音と防御的な面の間に緊張がありますが、これも多様性の表れです。防御的分人が働いている時は批判せず、まず安全を確保してから本音に戻ることを意識しましょう。';
+      return 'エンジンOSとセーフモードOSの間に緊張がありますが、これも多様性の表れです。セーフモードOSが働いている時は批判せず、まず安全を確保してからエンジンOSに戻ることを意識しましょう。';
     }
+  }
+
+  // 🧹 カード展開処理をリファクタリング（見切れ問題解決）
+  handleCardExpansion(targetCard, allCards, indicator) {
+    const wasExpanded = targetCard.classList.contains("expanded");
+    
+    // 🔄 すべてのカードを閉じる（アコーディオン効果）
+    allCards.forEach((card) => {
+      card.classList.remove("expanded");
+      const cardIndicator = card.querySelector(".expand-indicator");
+      if (cardIndicator) cardIndicator.textContent = "+";
+    });
+
+    // 🎯 クリックされたカードが閉じていた場合のみ展開
+    if (!wasExpanded) {
+      targetCard.classList.add("expanded");
+      indicator.textContent = "-";
+      
+      // ✨ 安全なスクロール処理
+      this.ensureCardVisibility(targetCard);
+    }
+  }
+
+  // 🎯 カードの完全表示を保証するスクロール処理（完全修正版）
+  ensureCardVisibility(card) {
+    // CSS transition完了後に安全にスクロール
+    const performScroll = () => {
+      try {
+        const cardRect = card.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportTop = window.pageYOffset;
+        const cardTop = cardRect.top + viewportTop;
+        const cardBottom = cardTop + cardRect.height;
+        
+        console.log(`🔍 Card visibility check:`, {
+          cardHeight: cardRect.height,
+          viewportHeight: viewportHeight,
+          cardTop: cardTop,
+          cardBottom: cardBottom,
+          currentScrollY: viewportTop
+        });
+        
+        // カードのサイズに応じた最適スクロール
+        if (cardRect.height > viewportHeight * 0.9) {
+          // 非常に大きなカード: カードの上部を画面上端に
+          window.scrollTo({
+            top: cardTop - 20,
+            behavior: 'smooth'
+          });
+          console.log(`📍 Large card scroll to top: ${cardTop - 20}`);
+        } else if (cardRect.height > viewportHeight * 0.6) {
+          // 大きなカード: カードの上部を画面の1/4位置に
+          window.scrollTo({
+            top: cardTop - (viewportHeight * 0.25),
+            behavior: 'smooth'
+          });
+          console.log(`📍 Medium card scroll: ${cardTop - (viewportHeight * 0.25)}`);
+        } else {
+          // 通常サイズ: カード全体が見えるよう中央寄りに
+          const optimalScrollTop = cardTop - (viewportHeight - cardRect.height) / 2;
+          window.scrollTo({
+            top: Math.max(0, optimalScrollTop),
+            behavior: 'smooth'
+          });
+          console.log(`📍 Normal card scroll to center: ${Math.max(0, optimalScrollTop)}`);
+        }
+      } catch (error) {
+        console.error('❌ Error in card visibility adjustment:', error);
+      }
+    };
+    
+    // DOM更新とCSS transition完了を確実に待つ
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        // さらに安全のため、もう一度確認
+        requestAnimationFrame(performScroll);
+      }, 350); // CSS transition (通常300ms) + 50ms余裕
+    });
   }
 
   // クリーンアップメソッド

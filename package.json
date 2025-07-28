@@ -1,6 +1,7 @@
 {
   "name": "haqei-analyzer-functions",
   "version": "1.0.0",
+  "type": "module",
   "description": "Serverless functions for HaQei Analyzer",
   "dependencies": {
     "@google/generative-ai": "^0.11.5"
@@ -14,5 +15,12 @@
     "eslint-plugin-jsonc": "^2.20.1",
     "eslint-plugin-markdown": "^5.1.0",
     "globals": "^16.3.0"
+  },
+  "scripts": {
+    "test": "node test_workflow.js",
+    "bunjin": "node bunenjin_cli.cjs"
+  },
+  "bin": {
+    "bunjin": "./bunenjin_cli.cjs"
   }
 }
