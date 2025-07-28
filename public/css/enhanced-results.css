@@ -48,6 +48,13 @@
     --chaos-light: #e8daef;
     --chaos-dark: #7d3c98;
     
+    /* ユーザー主権関連カラー */
+    --disclaimer-bg: #f8f9fa;
+    --disclaimer-border: #e9ecef;
+    --disclaimer-text: #495057;
+    --reflection-bg: #f1f3f4;
+    --reflection-accent: #6c757d;
+    
     /* 高度分析用のカラー */
     --analysis-bg: #f8f9fa;
     --analysis-border: #dee2e6;
@@ -2475,5 +2482,395 @@
     
     .recommendations-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ======================================
+   戦略的コンテンツスタイル（Phase 2.2）
+   ====================================== */
+
+.tactical-content {
+    margin-top: 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+}
+
+.tactical-content h6 {
+    margin: 0 0 12px 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tactical-scenarios,
+.improvement-tactics,
+.strategic-values {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.scenario-item,
+.tactic-item,
+.value-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid;
+    transition: all 0.2s ease;
+}
+
+.scenario-item {
+    border-left-color: #007bff;
+}
+
+.tactic-item {
+    border-left-color: #28a745;
+}
+
+.value-item {
+    border-left-color: #dc3545;
+}
+
+.scenario-item:hover,
+.tactic-item:hover,
+.value-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.scenario-context,
+.tactic-situation,
+.value-principle {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.scenario-action,
+.tactic-method,
+.value-application {
+    font-size: 0.8rem;
+    color: #6c757d;
+    padding-left: 12px;
+    position: relative;
+}
+
+.scenario-action::before,
+.tactic-method::before,
+.value-application::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 1px;
+    background: #adb5bd;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .tactical-content {
+        padding: 12px;
+        margin-top: 16px;
+    }
+    
+    .scenario-item,
+    .tactic-item,
+    .value-item {
+        padding: 10px;
+    }
+    
+    .scenario-context,
+    .tactic-situation,
+    .value-principle {
+        font-size: 0.8rem;
+    }
+    
+    .scenario-action,
+    .tactic-method,
+    .value-application {
+        font-size: 0.75rem;
+    }
+}
+
+/* ======================================
+   詳細説明スタイル
+   ====================================== */
+
+.detailed-explanation {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+    border-left: 4px solid #007bff;
+}
+
+.explanation-section {
+    margin-bottom: 16px;
+}
+
+.explanation-section:last-child {
+    margin-bottom: 0;
+}
+
+.explanation-section strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.explanation-section ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: disc;
+}
+
+.explanation-section li {
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #6c757d;
+}
+
+/* ======================================
+   ユーザー主権を尊重するディスクレーマー
+   ====================================== */
+
+.wisdom-disclaimer {
+    background: var(--disclaimer-bg);
+    border: 2px solid var(--disclaimer-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.disclaimer-content {
+    text-align: center;
+}
+
+.disclaimer-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.disclaimer-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.disclaimer-message p {
+    color: var(--disclaimer-text);
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ======================================
+   自己探求プロンプト
+   ====================================== */
+
+.self-reflection-prompt {
+    background: var(--reflection-bg);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid var(--reflection-accent);
+}
+
+.reflection-content {
+    text-align: center;
+}
+
+.reflection-title {
+    color: var(--reflection-accent);
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.reflection-message p {
+    color: #495057;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+}
+
+.reflection-insight {
+    font-weight: 500;
+    color: #343a40 !important;
+}
+
+.bunenjin-reminder {
+    background: rgba(108, 117, 125, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.2rem;
+}
+
+.bunenjin-reminder .philosophy-note {
+    font-size: 0.9rem;
+    color: var(--reflection-accent);
+    font-style: italic;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .wisdom-disclaimer {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .disclaimer-message {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .self-reflection-prompt {
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+    
+    .reflection-title {
+        font-size: 1.1rem;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+}
+
+/* ======================================
+   古代の智慧からの示唆セクション
+   ====================================== */
+
+.ancient-wisdom-intro {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin: 2rem 0;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.ancient-wisdom-intro::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.wisdom-content {
+    position: relative;
+    z-index: 1;
+}
+
+.wisdom-title {
+    color: #ffd700;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.wisdom-message {
+    color: #f7fafc;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.wisdom-note {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.philosophy-note {
+    color: #cbd5e0;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin: 0;
+    font-style: italic;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .ancient-wisdom-intro {
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .wisdom-title {
+        font-size: 1.4rem;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .wisdom-message {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .wisdom-note {
+        padding: 1rem;
+    }
+    
+    .philosophy-note {
+        font-size: 0.9rem;
+    }
+    
+    .detailed-explanation {
+        padding: 12px;
+        margin-top: 10px;
+    }
+    
+    .explanation-section strong {
+        font-size: 0.85rem;
+    }
+    
+    .explanation-section li {
+        font-size: 0.8rem;
     }
 }
