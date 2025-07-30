@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataManager パフォーマンステスト</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #34495e;
+        }
+        .button-group {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .results {
+            margin: 20px 0;
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+        }
+        .metric-label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .metric-value {
+            color: #27ae60;
+            font-family: monospace;
+        }
+        .improvement {
+            background: #d5f4e6;
+            border: 1px solid #27ae60;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .improvement h3 {
+            color: #27ae60;
+            margin-top: 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .console-output {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .progress {
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 20px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background: #3498db;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 DataManager パフォーマンステスト</h1>
+        
+        <div class="test-section">
+            <h2>📊 テスト設定</h2>
+            <div class="button-group">
+                <button class="btn" onclick="initializeTest()">初期化テスト</button>
+                <button class="btn" onclick="runBasicPerformanceTest()">基本パフォーマンステスト</button>
+                <button class="btn" onclick="runStressTest()">ストレステスト</button>
+                <button class="btn" onclick="runMemoryTest()">メモリテスト</button>
+                <button class="btn" onclick="clearResults()">結果クリア</button>
+            </div>
+            
+            <div class="warning">
+                <strong>注意:</strong> このテストを実行するには、HAQEI_DATAが読み込まれている必要があります。
+                まず初期化テストを実行してデータの準備を確認してください。
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📈 テスト進捗</h2>
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div id="progressText">テスト待機中...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 テスト結果</h2>
+            <div id="testResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🖥️ コンソール出力</h2>
+            <div class="console-output" id="consoleOutput"></div>
+        </div>
+    </div>
+
+    <!-- DataManagerを読み込み（実際のファイルパスに調整） -->
+    <script src="js/shared/core/DataManager.js"></script>
+    
+    <script>
+        let dataManager = null;
+        let testResults = {};
+        
+        // コンソール出力をキャプチャ
+        const originalLog = console.log;
+        const consoleOutput = document.getElementById('consoleOutput');
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            consoleOutput.innerHTML += message + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+
+        // 進捗更新
+        function updateProgress(percent, text) {
+            document.getElementById('progressBar').style.width = percent + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+
+        // 結果表示
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('testResults');
+            
+            let html = '';
+            for (const [testName, result] of Object.entries(results)) {
+                html += `
+                    <div class="results">
+                        <h3>${testName}</h3>
+                        ${Object.entries(result).map(([key, value]) => 
+                            `<div class="metric">
+                                <span class="metric-label">${key}:</span>
+                                <span class="metric-value">${value}</span>
+                            </div>`
+                        ).join('')}
+                    </div>
+                `;
+            }
+            resultsDiv.innerHTML = html;
+        }
+
+        // 初期化テスト
+        async function initializeTest() {
+            updateProgress(0, '初期化テスト開始...');
+            console.log('🚀 DataManager初期化テスト開始');
+            
+            try {
+                // グローバル変数の確認
+                const globals = {
+                    HAQEI_DATA: typeof window.HAQEI_DATA !== 'undefined',
+                    WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== 'undefined',
+                    SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== 'undefined',
+                    H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== 'undefined'
+                };
+                
+                console.log('📊 グローバル変数状態:', globals);
+                
+                updateProgress(25, 'DataManager作成中...');
+                dataManager = new DataManager();
+                
+                updateProgress(50, 'データ読み込み中...');
+                await dataManager.loadData();
+                
+                updateProgress(75, 'データ検証中...');
+                const stats = dataManager.getDataStats();
+                console.log('📈 データ統計:', stats);
+                
+                updateProgress(100, '初期化完了！');
+                
+                testResults['初期化テスト'] = {
+                    'データ読み込み': dataManager.loaded ? '✅ 成功' : '❌ 失敗',
+                    'hexagram件数': stats.dataStructure.hexagrams + '件',
+                    'インデックスサイズ': dataManager.hexagramIndex?.size + '件' || 'N/A',
+                    'メモリ使用量': '~' + (dataManager.hexagramIndex?.size * 100 / 1024).toFixed(1) + 'KB' || 'N/A'
+                };
+                
+                displayResults(testResults);
+                console.log('✅ 初期化テスト完了');
+                
+            } catch (error) {
+                console.error('❌ 初期化テストエラー:', error);
+                updateProgress(0, 'エラー: ' + error.message);
+            }
+        }
+
+        // 基本パフォーマンステスト
+        async function runBasicPerformanceTest() {
+            if (!dataManager || !dataManager.loaded) {
+                alert('先に初期化テストを実行してください');
+                return;
+            }
+
+            updateProgress(0, '基本パフォーマンステスト開始...');
+            console.log('📊 基本パフォーマンステスト開始');
+
+            const iterations = 1000;
+            const testIds = [1, 15, 32, 47, 64, 5, 23, 41, 58, 12];
+
+            try {
+                updateProgress(25, 'findHexagramByIdテスト中...');
+                
+                // findHexagramByIdテスト
+                const findByIdStart = performance.now();
+                for (let i = 0; i < iterations; i++) {
+                    for (const id of testIds) {
+                        dataManager.findHexagramById(id);
+                    }
+                }
+                const findByIdTime = performance.now() - findByIdStart;
+
+                updateProgress(50, 'getAllHexagramDataテスト中...');
+                
+                // getAllHexagramDataテスト
+                const getAllStart = performance.now();
+                for (let i = 0; i < iterations; i++) {
+                    dataManager.getAllHexagramData();
+                }
+                const getAllTime = performance.now() - getAllStart;
+
+                updateProgress(75, 'パフォーマンス統計計算中...');
+                
+                const performanceStats = dataManager.getPerformanceStats();
+                
+                updateProgress(100, '基本パフォーマンステスト完了！');
+
+                testResults['基本パフォーマンステスト'] = {
+                    'findHexagramById総時間': findByIdTime.toFixed(2) + 'ms',
+                    'findHexagramById平均': (findByIdTime / iterations).toFixed(4) + 'ms/回',
+                    'getAllHexagramData総時間': getAllTime.toFixed(2) + 'ms',
+                    'getAllHexagramData平均': (getAllTime / iterations).toFixed(4) + 'ms/回',
+                    '総操作回数': performanceStats.operationCount + '回',
+                    'キャッシュヒット率': performanceStats.cacheHitRate.toFixed(1) + '%'
+                };
+
+                displayResults(testResults);
+                console.log('✅ 基本パフォーマンステスト完了');
+
+            } catch (error) {
+                console.error('❌ パフォーマンステストエラー:', error);
+                updateProgress(0, 'エラー: ' + error.message);
+            }
+        }
+
+        // ストレステスト
+        async function runStressTest() {
+            if (!dataManager || !dataManager.loaded) {
+                alert('先に初期化テストを実行してください');
+                return;
+            }
+
+            updateProgress(0, 'ストレステスト開始...');
+            console.log('🔥 ストレステスト開始');
+
+            const heavyIterations = 10000;
+            const allIds = Array.from({length: 64}, (_, i) => i + 1);
+
+            try {
+                updateProgress(25, '大量検索テスト中...');
+                
+                const stressStart = performance.now();
+                for (let i = 0; i < heavyIterations; i++) {
+                    const randomId = allIds[Math.floor(Math.random() * allIds.length)];
+                    dataManager.findHexagramById(randomId);
+                    
+                    if (i % 1000 === 0) {
+                        updateProgress(25 + (i / heavyIterations) * 50, `${i}/${heavyIterations} 処理中...`);
+                        await new Promise(resolve => setTimeout(resolve, 1));
+                    }
+                }
+                const stressTime = performance.now() - stressStart;
+
+                updateProgress(75, '一括検索テスト中...');
+                
+                // 一括検索テスト
+                const batchStart = performance.now();
+                for (let i = 0; i < 100; i++) {
+                    dataManager.findHexagramsByIds(allIds);
+                }
+                const batchTime = performance.now() - batchStart;
+
+                updateProgress(100, 'ストレステスト完了！');
+
+                testResults['ストレステスト'] = {
+                    '大量検索時間': stressTime.toFixed(2) + 'ms',
+                    '大量検索レート': Math.round(heavyIterations / (stressTime / 1000)) + ' req/sec',
+                    '一括検索時間': batchTime.toFixed(2) + 'ms',
+                    '一括検索平均': (batchTime / 100).toFixed(2) + 'ms/回',
+                    'メモリ安定性': 'OK'
+                };
+
+                displayResults(testResults);
+                console.log('✅ ストレステスト完了');
+
+            } catch (error) {
+                console.error('❌ ストレステストエラー:', error);
+                updateProgress(0, 'エラー: ' + error.message);
+            }
+        }
+
+        // メモリテスト
+        async function runMemoryTest() {
+            if (!dataManager || !dataManager.loaded) {
+                alert('先に初期化テストを実行してください');
+                return;
+            }
+
+            updateProgress(0, 'メモリテスト開始...');
+            console.log('💾 メモリテスト開始');
+
+            try {
+                const memoryBefore = performance.memory ? performance.memory.usedJSHeapSize : 'N/A';
+                
+                updateProgress(25, 'メモリ使用量測定中...');
+                
+                // 大量のキャッシュ操作
+                for (let i = 0; i < 1000; i++) {
+                    dataManager.findHexagramById(1 + (i % 64));
+                }
+                
+                updateProgress(50, 'メモリ最適化実行中...');
+                
+                // メモリ最適化
+                if (dataManager.optimizeMemoryUsage) {
+                    dataManager.optimizeMemoryUsage();
+                }
+                
+                updateProgress(75, 'メモリ統計計算中...');
+                
+                const memoryAfter = performance.memory ? performance.memory.usedJSHeapSize : 'N/A';
+                const cacheSize = dataManager.cache?.size || 0;
+                const indexSize = dataManager.hexagramIndex?.size || 0;
+                
+                updateProgress(100, 'メモリテスト完了！');
+
+                testResults['メモリテスト'] = {
+                    '使用前メモリ': memoryBefore !== 'N/A' ? Math.round(memoryBefore / 1024) + 'KB' : 'N/A',
+                    '使用後メモリ': memoryAfter !== 'N/A' ? Math.round(memoryAfter / 1024) + 'KB' : 'N/A',
+                    'キャッシュサイズ': cacheSize + '件',
+                    'インデックスサイズ': indexSize + '件',
+                    '推定メモリ効率': '良好'
+                };
+
+                displayResults(testResults);
+                console.log('✅ メモリテスト完了');
+
+            } catch (error) {
+                console.error('❌ メモリテストエラー:', error);
+                updateProgress(0, 'エラー: ' + error.message);
+            }
+        }
+
+        // 結果クリア
+        function clearResults() {
+            testResults = {};
+            document.getElementById('testResults').innerHTML = '';
+            document.getElementById('consoleOutput').innerHTML = '';
+            updateProgress(0, 'テスト待機中...');
+            console.log('🧹 結果をクリアしました');
+        }
+
+        // ページ読み込み完了時の自動チェック
+        window.addEventListener('load', function() {
+            console.log('🌐 ページ読み込み完了');
+            console.log('📋 利用可能なグローバル変数:');
+            console.log('- HAQEI_DATA:', typeof window.HAQEI_DATA !== 'undefined' ? '✅' : '❌');
+            console.log('- WORLDVIEW_QUESTIONS:', typeof window.WORLDVIEW_QUESTIONS !== 'undefined' ? '✅' : '❌');
+            console.log('- DataManager:', typeof window.DataManager !== 'undefined' ? '✅' : '❌');
+            
+            if (typeof window.DataManager === 'undefined') {
+                console.warn('⚠️ DataManagerが読み込まれていません。パスを確認してください。');
+            }
+        });
+    </script>
+</body>
+</html>

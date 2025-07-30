@@ -24,11 +24,29 @@
     <link rel="stylesheet" href="css/interactive-ui.css" />
     <link rel="stylesheet" href="css/strategic-dashboard.css" />
     <link rel="stylesheet" href="css/premium-integration.css" />
+    <link rel="stylesheet" href="css/critical-productive-card.css" />
     
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   </head>
   <body>
+    <!-- 初期スクロール位置修正スクリプト -->
+    <script>
+      // ページ読み込み時に必ず上部にスクロールを設定
+      window.addEventListener('load', function() {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      });
+      
+      // DOM読み込み完了時にも実行
+      document.addEventListener('DOMContentLoaded', function() {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      });
+    </script>
+    
     <!-- Global Progress Indicator -->
     <div class="global-progress">
       <div class="progress-bar" style="width: var(--progress, 0%)"></div>
@@ -98,16 +116,23 @@
     <script src="./js/os-analyzer/data/hexagram_details.js"></script>
     <script src="./js/os-analyzer/data/compatibility_matrix.js"></script>
     <script src="./js/os-analyzer/data/action_plans.js"></script>
+    <script src="./js/os-analyzer/data/iching_relationships.js"></script>
 
     <!-- コアエンジン（依存関係順） -->
     <script src="js/os-analyzer/core/Calculator.js"></script>
     <script src="js/os-analyzer/engines/CompatibilityDataLoader.js"></script>
     <script src="js/os-analyzer/core/Engine.js"></script>
+    <!-- 🔯 易経ウルトラシンク・ロジック20 -->
+    <script src="js/os-analyzer/core/IChingUltraSyncLogic.js"></script>
     <script src="js/os-analyzer/core/TripleOSEngine.js"></script>
     
     <!-- Phase 4: 批判的思考支援エンジン -->
     <script src="js/os-analyzer/core/ShadowAnalyzer.js"></script>
     <script src="js/os-analyzer/core/CriticalThinkingEngine.js"></script>
+    <script src="js/os-analyzer/core/LowScoreAnalyzer.js"></script>
+    <script src="js/os-analyzer/core/TransparencyEngine.js"></script>
+    <script src="js/os-analyzer/core/DynamicAnalyzer.js"></script>
+    <script src="js/os-analyzer/core/AdaptiveLanguage.js"></script>
     
     <script src="js/os-analyzer/core/PersonalStrategyAI.js"></script>
     <script src="js/os-analyzer/engines/CompatibilityEngine.js"></script>
@@ -120,7 +145,9 @@
     <script src="js/os-analyzer/components/ResultsView.js"></script>
     <script src="js/components/TripleOSResultsView.js"></script>
     <script src="js/components/TripleOSStrategicView.js"></script>
+    <script src="js/components/InteractiveConnectionsVisualizer.js"></script>
     <script src="js/components/InsightPanel.js"></script>
+    <script src="js/components/CriticalProductiveCard.js"></script>
 
     <!-- アプリケーション初期化 -->
     <script src="js/app.js"></script>

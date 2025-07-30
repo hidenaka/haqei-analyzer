@@ -108,38 +108,230 @@ class StorageManager {
     }
   }
 
-  // データ破損検証
+  // セッションデータの有効性検証
+  isValidSessionData(sessionData) {
+    try {
+      // 基本的な構造チェック
+      if (!sessionData || typeof sessionData !== 'object') {
+        return false;
+      }
+      
+      // 必須フィールドの存在確認（柔軟な検証）
+      const hasValidStructure = (
+        sessionData.hasOwnProperty('sessionId') ||
+        sessionData.hasOwnProperty('startTime') ||
+        sessionData.hasOwnProperty('lastActivity') ||
+        Object.keys(sessionData).length > 0
+      );
+      
+      return hasValidStructure;
+    } catch (error) {
+      return false;
+    }
+  }
+  
+  // セッションデータ復旧処理
+  attemptSessionRecovery() {
+    try {
+      console.log('🔄 Attempting session data recovery...');
+      
+      // 1. バックアップからの復旧を試行
+      const backupSession = this.getBackupData('session');
+      if (backupSession && this.isValidSessionData(backupSession)) {
+        console.log('✅ Session recovered from backup');
+        this.setItem('session', backupSession);
+        return backupSession;
+      }
+      
+      // 2. 部分的データからセッションを再構成
+      const partialSession = this.reconstructSessionFromFragments();
+      if (partialSession) {
+        console.log('✅ Session reconstructed from fragments');
+        this.setItem('session', partialSession);
+        return partialSession;
+      }
+      
+      // 3. 最後の手段：破損したセッションをクリア
+      console.warn('⚠️ Unable to recover session, clearing corrupted data');
+      this.removeItem('session');
+      return null;
+      
+    } catch (error) {
+      console.error('❌ Session recovery failed:', error);
+      this.removeItem('session');
+      return null;
+    }
+  }
+  
+  // セッションフラグメントからの再構成
+  reconstructSessionFromFragments() {
+    try {
+      const fragments = {
+        lastAnalysisResult: this.getItem('analysis_result'),
+        lastInsights: this.getItem('insights'),
+        lastTripleOS: this.getItem('triple_os_result'),
+        userSettings: this.getItem('settings')
+      };
+      
+      // 有効なフラグメントが存在する場合、基本セッションを作成
+      const validFragments = Object.values(fragments).filter(f => f !== null);
+      if (validFragments.length > 0) {
+        return {
+          sessionId: this.generateSessionId(),
+          startTime: Date.now(),
+          lastActivity: Date.now(),
+          recovered: true,
+          recoveryTimestamp: Date.now(),
+          ...fragments
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('❌ Session reconstruction failed:', error);
+      return null;
+    }
+  }
+  
+  // データ破損検証（改良版）
   isCorruptedData(item) {
     try {
-      // Check for string-index corruption pattern
-      if (typeof item === 'object' && item !== null) {
-        const keys = Object.keys(item);
-        // If more than 50% of keys are numeric strings, likely corrupted
+      // 基本的な型チェック
+      if (typeof item !== 'string') {
+        return false;
+      }
+      
+      // 空文字や非常に短い文字列
+      if (!item || item.length < 2) {
+        return true;
+      }
+      
+      // JSON解析試行
+      let parsed;
+      try {
+        parsed = JSON.parse(item);
+      } catch (parseError) {
+        // JSON解析に失敗した場合、文字列データの可能性を考慮
+        return this.isStringDataCorrupted(item);
+      }
+      
+      // オブジェクトの破損パターンチェック
+      if (typeof parsed === 'object' && parsed !== null) {
+        const keys = Object.keys(parsed);
+        
+        // 数値インデックスの異常パターン検出
         const numericKeys = keys.filter(key => /^\d+$/.test(key));
-        if (numericKeys.length > keys.length * 0.5 && keys.length > 10) {
+        if (numericKeys.length > keys.length * 0.8 && keys.length > 20) {
+          return true;
+        }
+        
+        // 循環参照やネストが深すぎる構造
+        if (this.hasCircularReference(parsed) || this.getNestedDepth(parsed) > 10) {
           return true;
         }
       }
       
-      // Try to parse as JSON
-      const parsed = JSON.parse(item);
-      
-      // Check for expected structure
-      if (parsed && typeof parsed === 'object') {
-        // Valid HaQei data should have some expected properties
-        const hasValidStructure = parsed.hasOwnProperty('value') || 
-                                 parsed.hasOwnProperty('timestamp') ||
-                                 parsed.hasOwnProperty('version') ||
-                                 Array.isArray(parsed) ||
-                                 typeof parsed === 'string' ||
-                                 typeof parsed === 'number' ||
-                                 typeof parsed === 'boolean';
-        return !hasValidStructure;
-      }
-      
+      // 基本的な構造チェックは通過
       return false;
+      
     } catch (error) {
-      return true; // Cannot parse = corrupted
+      return true;
+    }
+  }
+  
+  // 文字列データの破損チェック
+  isStringDataCorrupted(item) {
+    // 制御文字や無効な文字の検出
+    const hasControlChars = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(item);
+    if (hasControlChars) {
+      return true;
+    }
+    
+    // 極端に長い行の検出
+    const lines = item.split('\n');
+    const hasExtremelyLongLine = lines.some(line => line.length > 10000);
+    if (hasExtremelyLongLine) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  // 循環参照の検出
+  hasCircularReference(obj, seen = new WeakSet()) {
+    if (obj && typeof obj === 'object') {
+      if (seen.has(obj)) {
+        return true;
+      }
+      seen.add(obj);
+      
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key) && this.hasCircularReference(obj[key], seen)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  // ネストの深さ計算
+  getNestedDepth(obj, depth = 0) {
+    if (depth > 10) return depth; // 早期終了
+    
+    if (obj && typeof obj === 'object') {
+      let maxDepth = depth;
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          const childDepth = this.getNestedDepth(obj[key], depth + 1);
+          maxDepth = Math.max(maxDepth, childDepth);
+        }
+      }
+      return maxDepth;
+    }
+    return depth;
+  }
+  
+  // バックアップデータの取得
+  getBackupData(key) {
+    try {
+      const backupKey = `${key}_backup_${Math.floor(Date.now() / (24 * 60 * 60 * 1000))}`;
+      return this.getItem(backupKey);
+    } catch (error) {
+      return null;
+    }
+  }
+  
+  // 重要なデータかどうかを判定
+  isCriticalData(key) {
+    const criticalKeys = [
+      'session',
+      'analysis_result',
+      'unified_diagnosis_data',
+      'answers',
+      'insights',
+      'triple_os_result',
+      'progress',
+      'settings'
+    ];
+    return criticalKeys.includes(key);
+  }
+  
+  // データバックアップの作成
+  createBackup(key, data) {
+    try {
+      const backupKey = `${key}_backup_${Math.floor(Date.now() / (24 * 60 * 60 * 1000))}`;
+      // 直接localStorage.setItemを使用してsetItemの無限ループを防ぐ
+      const jsonString = JSON.stringify({
+        value: data,
+        timestamp: Date.now(),
+        version: this.version,
+        originalKey: key,
+        backup: true
+      });
+      localStorage.setItem(this.getKey(backupKey), jsonString);
+      console.log(`💾 Backup created for ${key}`);
+    } catch (error) {
+      console.warn(`⚠️ Failed to create backup for ${key}:`, error);
     }
   }
 
@@ -342,11 +534,19 @@ class StorageManager {
     return content;
   }
 
-  // アイテムの保存（最適化版）
+  // アイテムの保存（最適化版・自動バックアップ対応）
   setItem(key, value) {
     const startTime = performance.now();
     
     try {
+      // 重要なデータの場合、既存データをバックアップ
+      if (this.isCriticalData(key)) {
+        const existingData = this.getItem(key);
+        if (existingData !== null) {
+          this.createBackup(key, existingData);
+        }
+      }
+      
       // 軽量化: 小さなデータは圧縮をスキップ
       const jsonString = JSON.stringify(value);
       const shouldCompress = jsonString.length > 5000; // 5KB以上のみ圧縮
@@ -1052,33 +1252,85 @@ class StorageManager {
     }
   }
 
-  // セッション情報の保存
+  // セッション情報の保存（改良版・自動バックアップ対応）
   saveSession(sessionData) {
-    const session = {
-      sessionId: sessionData.sessionId || this.generateSessionId(),
-      startTime: sessionData.startTime || Date.now(),
-      lastActivity: Date.now(),
-      stage: sessionData.stage || 'welcome', // welcome, questions, analysis, results, insights
-      ...sessionData
-    };
-    return this.setItem('session', session);
+    try {
+      // 既存セッションのバックアップを作成
+      const existingSession = this.getSession();
+      if (existingSession && this.isValidSessionData(existingSession)) {
+        this.createBackup('session', existingSession);
+      }
+      
+      // 新しいセッションデータの構築
+      const session = {
+        sessionId: sessionData.sessionId || this.generateSessionId(),
+        startTime: sessionData.startTime || Date.now(),
+        lastActivity: Date.now(),
+        stage: sessionData.stage || 'welcome', // welcome, questions, analysis, results, insights
+        ...sessionData
+      };
+      
+      // データの有効性を検証
+      if (!this.isValidSessionData(session)) {
+        console.warn('⚠️ Invalid session data structure, attempting to fix...');
+        session.sessionId = this.generateSessionId();
+        session.startTime = session.startTime || Date.now();
+        session.lastActivity = Date.now();
+      }
+      
+      const result = this.setItem('session', session);
+      if (result) {
+        console.log('💾 Session saved successfully with backup');
+      }
+      return result;
+      
+    } catch (error) {
+      console.error('❌ Session save failed:', error);
+      return false;
+    }
   }
 
-  // セッション情報の取得
+  // セッション情報の取得（改良版）
   getSession() {
     try {
       const sessionData = this.getItem('session');
-      // セッションデータが破損している場合の対処
-      if (sessionData && typeof sessionData === 'string') {
-        console.warn('🚨 Session data is corrupted (string format), clearing...');
-        this.removeItem('session');
-        return null;
+      
+      // セッションデータの型チェックと修復
+      if (sessionData) {
+        // 文字列形式の場合、JSONとして解析を試行
+        if (typeof sessionData === 'string') {
+          try {
+            const parsedSession = JSON.parse(sessionData);
+            // 有効なセッションオブジェクトかチェック
+            if (this.isValidSessionData(parsedSession)) {
+              console.log('🔧 Repaired session data from string format');
+              // 正常なオブジェクト形式で再保存
+              this.setItem('session', parsedSession);
+              return parsedSession;
+            }
+          } catch (parseError) {
+            console.warn('⚠️ Failed to parse session string, attempting recovery...', parseError);
+            return this.attemptSessionRecovery();
+          }
+        }
+        
+        // オブジェクト形式の場合、構造を検証
+        if (typeof sessionData === 'object') {
+          if (this.isValidSessionData(sessionData)) {
+            return sessionData;
+          } else {
+            console.warn('⚠️ Session data structure invalid, attempting recovery...');
+            return this.attemptSessionRecovery();
+          }
+        }
       }
-      return sessionData;
-    } catch (error) {
-      console.warn('🚨 Session retrieval error, clearing session:', error);
-      this.removeItem('session');
+      
+      // セッションデータが存在しない場合
       return null;
+      
+    } catch (error) {
+      console.warn('🚨 Session retrieval error, attempting recovery:', error);
+      return this.attemptSessionRecovery();
     }
   }
 

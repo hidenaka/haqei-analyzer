@@ -637,12 +637,21 @@ class TripleOSStrategicView extends BaseComponent {
             const container = document.getElementById('os-connections-container');
             if (!container) {
                 console.warn("⚠️ [TripleOSStrategicView] Connections container not found");
+                this._renderConnectionsFallback(null, "コンテナが見つかりません");
                 return;
             }
 
             // InteractiveConnectionsVisualizerが利用可能か確認
             if (typeof InteractiveConnectionsVisualizer === 'undefined') {
                 console.error("❌ [TripleOSStrategicView] InteractiveConnectionsVisualizer not loaded");
+                this._renderConnectionsFallback(container, "可視化コンポーネントが読み込まれていません");
+                return;
+            }
+
+            // 必須データの確認
+            if (!this.analysisResult || !this.analysisResult.engineOS || !this.analysisResult.interfaceOS || !this.analysisResult.safeModeOS) {
+                console.error("❌ [TripleOSStrategicView] Incomplete OS data for visualization");
+                this._renderConnectionsFallback(container, "分析データが不完全です");
                 return;
             }
 
@@ -661,16 +670,124 @@ class TripleOSStrategicView extends BaseComponent {
             
         } catch (error) {
             console.error("❌ [TripleOSStrategicView] Failed to load connections visualizer:", error);
-            // フォールバック表示
             const container = document.getElementById('os-connections-container');
-            if (container) {
+            this._renderConnectionsFallback(container, "可視化システムでエラーが発生しました");
+        }
+    }
+
+    // 接続可視化のフォールバック表示
+    _renderConnectionsFallback(container, errorMessage) {
+        if (!container) {
+            console.warn("⚠️ [TripleOSStrategicView] No container for fallback display");
+            return;
+        }
+
+        const { engineOS, interfaceOS, safeModeOS } = this.analysisResult || {};
+        
+        container.innerHTML = `
+            <div class="connections-fallback">
+                <div class="fallback-header">
+                    <h3 class="connections-title">🔗 3OS間の相互作用</h3>
+                    <p class="fallback-notice">簡易表示モード</p>
+                </div>
+                
+                ${engineOS && interfaceOS && safeModeOS ? `
+                <div class="simple-connections-grid">
+                    <div class="connection-summary">
+                        <div class="os-pair">
+                            <span class="os-icon">🔥</span>
+                            <span class="os-name">${engineOS.osName}</span>
+                            <span class="connection-arrow">↔</span>
+                            <span class="os-icon">🌐</span>
+                            <span class="os-name">${interfaceOS.osName}</span>
+                        </div>
+                        <p class="connection-description">
+                            本質的な価値観と社会的表現の相互作用
+                        </p>
+                    </div>
+                    
+                    <div class="connection-summary">
+                        <div class="os-pair">
+                            <span class="os-icon">🔥</span>
+                            <span class="os-name">${engineOS.osName}</span>
+                            <span class="connection-arrow">↔</span>
+                            <span class="os-icon">🛡️</span>
+                            <span class="os-name">${safeModeOS.osName}</span>
+                        </div>
+                        <p class="connection-description">
+                            価値観と防御システムのバランス
+                        </p>
+                    </div>
+                    
+                    <div class="connection-summary">
+                        <div class="os-pair">
+                            <span class="os-icon">🌐</span>
+                            <span class="os-name">${interfaceOS.osName}</span>
+                            <span class="connection-arrow">↔</span>
+                            <span class="os-icon">🛡️</span>
+                            <span class="os-name">${safeModeOS.osName}</span>
+                        </div>
+                        <p class="connection-description">
+                            社会的役割と自己防衛の関係性
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="fallback-actions">
+                    <button id="retry-connections" class="retry-button">
+                        🔄 可視化を再試行
+                    </button>
+                    <button id="refresh-page" class="refresh-button">
+                        ↻ ページを更新
+                    </button>
+                </div>
+                ` : `
+                <div class="error-state">
+                    <div class="error-icon">⚠️</div>
+                    <p class="error-message">${errorMessage}</p>
+                    <button id="refresh-page" class="refresh-button">
+                        ↻ ページを更新
+                    </button>
+                </div>
+                `}
+            </div>
+        `;
+
+        // フォールバック用のイベントリスナー設定
+        this._bindFallbackActions(container);
+    }
+
+    // フォールバック表示のアクション設定
+    _bindFallbackActions(container) {
+        const retryBtn = container.querySelector('#retry-connections');
+        const refreshBtn = container.querySelector('#refresh-page');
+
+        if (retryBtn) {
+            retryBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                console.log("🔄 [TripleOSStrategicView] Retrying connections visualizer");
+                
+                // ローディング表示
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: var(--primary-400);">
-                        <p>OS間の相互作用の可視化で問題が発生しました。</p>
-                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">ページを再読み込みしてください。</p>
+                    <div class="connections-loading">
+                        <div class="loading-spinner"></div>
+                        <p>可視化システムを再読み込み中...</p>
                     </div>
                 `;
-            }
+                
+                // 少し待ってから再試行
+                setTimeout(() => {
+                    this._loadConnectionsVisualizer();
+                }, 1000);
+            });
+        }
+
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log("↻ [TripleOSStrategicView] Page refresh requested");
+                window.location.reload();
+            });
         }
     }
 

@@ -61,7 +61,45 @@ CLAUDE.mdの「UI/UX担当役割定義」を参照し、プロジェクトの哲
 
 ---
 
-## 最終更新: 2025-07-28 (Phase1心理的ケア実装完了・数値表示改善統合)
+## 📝 ドキュメント作成指示（Agents向け）
+
+### **ドキュメント作成場所の統一**
+
+**すべてのドキュメント担当agents（bunenjin-strategy-navigator等）は、以下のディレクトリにドキュメントを作成してください：**
+
+```
+/Users/hideakimacbookair/Desktop/haqei-analyzer/docs/code-explanations/
+```
+
+#### **ドキュメント作成ルール**
+
+1. **場所**: 必ず`docs/code-explanations/`ディレクトリ内に作成
+2. **命名規則**: `YYYYMMDD_機能名_説明.md` 形式
+3. **内容**: 実装概要、技術詳細、使用方法を含む
+4. **言語**: 日本語で作成（技術用語は英語併記可）
+
+#### **例**
+```
+docs/code-explanations/20250730_易経ウルトラシンク・ロジック20_実装概要.md
+docs/code-explanations/20250730_TripleOSEngine_統合実装.md
+docs/code-explanations/20250730_診断システム_全体構成.md
+```
+
+#### **対象agents**
+- bunenjin-strategy-navigator
+- general-purpose（ドキュメント作成時）
+- その他すべてのドキュメント作成担当agents
+
+#### **禁止事項**
+- `docs/implementation/`や`docs/requirements/`等への勝手な作成は避ける
+- ファイル名に日付がない場合は追加する
+- 他のディレクトリに散らばって作成しない
+
+**この指示は永続的に適用されます。**
+
+---
+
+## 最終更新: 2025-07-30 (ドキュメント作成場所統一指示追加)
 
 ## 🔧 Phase1心理的ケア実装完了・数値表示改善統合 (2025-07-28 22:15)
 

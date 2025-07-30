@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InteractiveConnectionsVisualizer テスト</title>
+    <link rel="stylesheet" href="public/css/main.css">
+    <link rel="stylesheet" href="public/css/components.css">
+</head>
+<body style="background: #1e293b; color: #f1f5f9; padding: 2rem;">
+    <h1>InteractiveConnectionsVisualizer 読み込みテスト</h1>
+    
+    <div id="test-results" style="margin: 2rem 0;">
+        <h2>テスト結果:</h2>
+        <div id="load-status"></div>
+    </div>
+    
+    <div id="test-container" style="min-height: 400px; border: 1px solid #374151; border-radius: 8px; margin: 2rem 0;">
+        <!-- テスト用コンテナ -->
+    </div>
+
+    <!-- 必要なスクリプトを読み込み -->
+    <script src="public/js/shared/core/BaseComponent.js"></script>
+    <script src="public/js/shared/core/DataManager.js"></script>
+    <script src="public/js/components/InteractiveConnectionsVisualizer.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusDiv = document.getElementById('load-status');
+            
+            // InteractiveConnectionsVisualizerが読み込まれているかチェック
+            if (typeof InteractiveConnectionsVisualizer === 'undefined') {
+                statusDiv.innerHTML = `
+                    <div style="color: #ef4444; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                        ❌ InteractiveConnectionsVisualizer が読み込まれていません
+                    </div>
+                `;
+                return;
+            }
+            
+            statusDiv.innerHTML = `
+                <div style="color: #10b981; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                    ✅ InteractiveConnectionsVisualizer が正常に読み込まれました
+                </div>
+            `;
+            
+            // フォールバック表示のテスト
+            console.log('フォールバック表示のテストを開始...');
+            testFallback();
+        });
+        
+        function testFallback() {
+            const container = document.getElementById('test-container');
+            
+            // フォールバック表示のHTML（TripleOSStrategicView._renderConnectionsFallback の出力をシミュレート）
+            const mockAnalysisResult = {
+                engineOS: { osName: "創造力の探求者" },
+                interfaceOS: { osName: "協調性の調停者" },
+                safeModeOS: { osName: "慎重な守護者" }
+            };
+            
+            container.innerHTML = `
+                <div class="connections-fallback">
+                    <div class="fallback-header">
+                        <h3 class="connections-title">🔗 3OS間の相互作用</h3>
+                        <p class="fallback-notice">簡易表示モード</p>
+                    </div>
+                    
+                    <div class="simple-connections-grid">
+                        <div class="connection-summary">
+                            <div class="os-pair">
+                                <span class="os-icon">🔥</span>
+                                <span class="os-name">${mockAnalysisResult.engineOS.osName}</span>
+                                <span class="connection-arrow">↔</span>
+                                <span class="os-icon">🌐</span>
+                                <span class="os-name">${mockAnalysisResult.interfaceOS.osName}</span>
+                            </div>
+                            <p class="connection-description">
+                                本質的な価値観と社会的表現の相互作用
+                            </p>
+                        </div>
+                        
+                        <div class="connection-summary">
+                            <div class="os-pair">
+                                <span class="os-icon">🔥</span>
+                                <span class="os-name">${mockAnalysisResult.engineOS.osName}</span>
+                                <span class="connection-arrow">↔</span>
+                                <span class="os-icon">🛡️</span>
+                                <span class="os-name">${mockAnalysisResult.safeModeOS.osName}</span>
+                            </div>
+                            <p class="connection-description">
+                                価値観と防御システムのバランス
+                            </p>
+                        </div>
+                        
+                        <div class="connection-summary">
+                            <div class="os-pair">
+                                <span class="os-icon">🌐</span>
+                                <span class="os-name">${mockAnalysisResult.interfaceOS.osName}</span>
+                                <span class="connection-arrow">↔</span>
+                                <span class="os-icon">🛡️</span>
+                                <span class="os-name">${mockAnalysisResult.safeModeOS.osName}</span>
+                            </div>
+                            <p class="connection-description">
+                                社会的役割と自己防衛の関係性
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="fallback-actions">
+                        <button id="retry-connections" class="retry-button">
+                            🔄 可視化を再試行
+                        </button>
+                        <button id="refresh-page" class="refresh-button">
+                            ↻ ページを更新
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // フォールバック用のイベントリスナー設定
+            const retryBtn = container.querySelector('#retry-connections');
+            const refreshBtn = container.querySelector('#refresh-page');
+
+            if (retryBtn) {
+                retryBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('🔄 再試行ボタンがクリックされました');
+                    
+                    // ローディング表示
+                    container.innerHTML = `
+                        <div class="connections-loading">
+                            <div class="loading-spinner"></div>
+                            <p>可視化システムを再読み込み中...</p>
+                        </div>
+                    `;
+                    
+                    // 3秒後に元に戻す
+                    setTimeout(() => {
+                        testFallback();
+                    }, 3000);
+                });
+            }
+
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('↻ ページ更新ボタンがクリックされました');
+                    alert('実際のアプリケーションではページが更新されます');
+                });
+            }
+            
+            console.log('✅ フォールバック表示のテストが完了しました');
+        }
+    </script>
+</body>
+</html>

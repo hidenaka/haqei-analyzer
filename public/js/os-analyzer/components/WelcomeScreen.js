@@ -94,6 +94,30 @@ class WelcomeScreen extends BaseComponent {
       });
     }
   }
+
+  // 表示時の初期化処理を追加
+  show() {
+    // 上部にスクロールを確実に設定
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
+    // 基底クラスのshow処理を呼び出し
+    if (super.show) {
+      return super.show();
+    }
+    
+    // フォールバック表示処理
+    const containerElement = typeof this.container === 'string' 
+      ? document.getElementById(this.container) 
+      : this.container;
+    
+    if (containerElement) {
+      containerElement.style.display = 'flex';
+      containerElement.classList.add('visible');
+      containerElement.style.opacity = '1';
+    }
+  }
 }
 
 // グローバルスコープに明示的に登録

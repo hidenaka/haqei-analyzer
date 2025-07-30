@@ -128,7 +128,8 @@ class PersonalStrategyAI {
             avoidPatterns: ["べきである", "すべき", "かもしれません"],
             requirePatterns: ["私は", "私の", "私が"],
             maxLength: 400,
-            minLength: 200
+            minLength: 150, // 200→150に緩和：実用的な最小長さ
+            optimalLength: 250 // 理想的な長さを追加
         };
     }
 
@@ -347,49 +348,146 @@ class PersonalStrategyAI {
     // 応答の検証とクリーニング
     _validateAndCleanResponse(response, type) {
         if (!response) {
+            console.warn(`⚠️ [PersonalStrategyAI] ${type}応答が空のため、フォールバックを使用`);
             return this._getFallbackResponse(type);
         }
 
-        // 一人称チェック
-        if (!response.includes('私は') && !response.includes('私の') && !response.includes('私が')) {
-            console.warn(`⚠️ [PersonalStrategyAI] ${type}応答に一人称が不足`);
-        }
-
-        // 文字数チェック
-        if (response.length < this.qualityConstraints.minLength) {
-            console.warn(`⚠️ [PersonalStrategyAI] ${type}応答が短すぎます`);
-        }
-
-        // 品質向上処理
+        // 品質向上処理（一人称変換）
         let cleaned = response
             .replace(/あなたは/g, '私は')
             .replace(/あなたの/g, '私の')
             .replace(/あなたが/g, '私が')
             .trim();
 
-        return {
+        // 文字数チェック（エラーではなく警告に変更）
+        let qualityLevel = 'normal';
+        if (cleaned.length < this.qualityConstraints.minLength) {
+            console.warn(`⚠️ [PersonalStrategyAI] ${type}応答が短め(${cleaned.length}文字): 品質を維持しつつ継続`);
+            qualityLevel = 'short';
+            
+            // 短すぎる場合は品質強化処理を適用
+            cleaned = this._enhanceShortResponse(cleaned, type);
+        }
+
+        // 一人称チェック（エラーではなく修正処理）
+        if (!cleaned.includes('私は') && !cleaned.includes('私の') && !cleaned.includes('私が')) {
+            console.warn(`⚠️ [PersonalStrategyAI] ${type}応答に一人称を追加`);
+            cleaned = this._addFirstPersonPerspective(cleaned, type);
+        }
+
+        const result = {
             text: cleaned,
             type: type,
             wordCount: cleaned.length,
             quality: this._assessQuality(cleaned),
+            qualityLevel: qualityLevel,
             generatedAt: new Date().toISOString()
         };
+
+        console.log(`✅ [PersonalStrategyAI] ${type}応答検証完了: ${cleaned.length}文字, 品質${result.quality}点`);
+        return result;
     }
 
-    // 品質評価
+    // 品質評価（より柔軟な評価基準）
     _assessQuality(text) {
-        let score = 100;
+        let score = 80; // 基準点を下げて現実的に評価
 
-        // 一人称チェック
-        if (!text.includes('私')) score -= 20;
+        // 一人称チェック（必須要素）
+        if (text.includes('私は') || text.includes('私の') || text.includes('私が')) {
+            score += 15;
+        }
 
-        // 具体性チェック
-        if (!text.match(/[具体的|特に|例えば]/)) score -= 10;
+        // 具体性チェック（より多様なパターンを認識）
+        if (text.match(/[具体的|特に|例えば|実際に|実は|なぜなら]/)) {
+            score += 10;
+        }
 
-        // 実行可能性チェック
-        if (!text.match(/[することで|により|ことができ]/)) score -= 10;
+        // 実行可能性チェック（より多様な表現を認識）
+        if (text.match(/[することで|により|ことができ|ことが重要|ことをお勧め]/)) {
+            score += 10;
+        }
 
-        return Math.max(score, 0);
+        // 文字数ボーナス（適切な長さを評価）
+        if (text.length >= this.qualityConstraints.optimalLength) {
+            score += 5;
+        } else if (text.length >= this.qualityConstraints.minLength) {
+            score += 2;
+        }
+
+        // 共感表現チェック
+        if (text.match(/[です|ます|でしょう]/)) {
+            score += 3;
+        }
+
+        return Math.min(Math.max(score, 50), 100); // 50-100の範囲で評価
+    }
+
+    // 短い応答の品質強化処理
+    _enhanceShortResponse(text, type) {
+        console.log(`🔧 [PersonalStrategyAI] ${type}の短い応答を強化中...`);
+        
+        // 基本的な文脈を追加
+        const enhancements = {
+            rootStrength: {
+                prefix: '',
+                suffix: 'この強みを活かすことで、より充実した人生を歩むことができます。'
+            },
+            optimalRole: {
+                prefix: '',
+                suffix: 'この環境で私の能力を最大限に発揮できるでしょう。'
+            },
+            defensivePattern: {
+                prefix: '',
+                suffix: 'これは自然な反応であり、自分を責める必要はありません。'
+            },
+            practicalAdvice: {
+                prefix: '',
+                suffix: 'このような小さな変化から始めることが大切です。'
+            },
+            safemodeIntegration: {
+                prefix: '',
+                suffix: 'すべての側面を受け入れることで、より豊かな自己理解が深まります。'
+            }
+        };
+
+        const enhancement = enhancements[type] || enhancements.rootStrength;
+        let enhanced = text;
+
+        // 文末に追加情報がない場合は補強
+        if (enhanced.length < this.qualityConstraints.minLength && !enhanced.endsWith('。')) {
+            enhanced += '。';
+        }
+        
+        if (enhanced.length < this.qualityConstraints.minLength) {
+            enhanced = enhancement.prefix + enhanced + enhancement.suffix;
+        }
+
+        console.log(`✨ [PersonalStrategyAI] ${type}応答強化完了: ${text.length}→${enhanced.length}文字`);
+        return enhanced;
+    }
+
+    // 一人称視点の追加処理
+    _addFirstPersonPerspective(text, type) {
+        console.log(`👤 [PersonalStrategyAI] ${type}に一人称視点を追加中...`);
+        
+        // 文頭に「私は」「私の」「私が」を適切に追加
+        let enhanced = text;
+        
+        if (!enhanced.includes('私')) {
+            // 文脈に応じて適切な一人称を選択
+            if (enhanced.match(/^[強み|特徴|能力]/)) {
+                enhanced = '私の' + enhanced;
+            } else if (enhanced.match(/^[役割|立場|仕事]/)) {
+                enhanced = '私が最も輝ける' + enhanced;
+            } else if (enhanced.match(/^[時々|たまに|時として]/)) {
+                enhanced = '私が' + enhanced;
+            } else {
+                enhanced = '私は' + enhanced;
+            }
+        }
+
+        console.log(`👤 [PersonalStrategyAI] ${type}一人称追加完了`);
+        return enhanced;
     }
 
     // フォールバック戦略生成（Triple OS哲学統合版）

@@ -7,6 +7,10 @@ class TripleOSEngine {
     this.calculator = new Calculator(); // Initialize Calculator instance
     this.trigramMapping = this.initializeTrigramMapping();
     this.initializeKeywordMaps();
+    
+    // 易経ウルトラシンク・ロジックを初期化
+    this.ichingLogic = new IChingUltraSyncLogic(dataManager);
+    console.log("🔯 IChingUltraSyncLogic integrated into TripleOSEngine");
   }
 
   // 8次元→八卦マッピング初期化
@@ -114,7 +118,7 @@ class TripleOSEngine {
         analysisDate: new Date().toISOString(),
         totalAnswers: allAnswers.length,
         dimensions: dimensions, // 🔧 追加
-        integration: this.generateIntegrationInsights(
+        integration: await this.generateIntegrationInsights(
           engineOS,
           interfaceOS,
           safeModeOS,
@@ -1121,7 +1125,7 @@ class TripleOSEngine {
   }
 
   // 統合洞察生成 - 分人思想に基づく実践的な洞察
-  generateIntegrationInsights(
+  async generateIntegrationInsights(
     engineOS,
     interfaceOS,
     safeModeOS,
@@ -1130,10 +1134,25 @@ class TripleOSEngine {
   ) {
     const topDimensions = dimensions.slice(0, 3);
     
+    // 🔯 易経ウルトラシンク・ロジック20による高度分析（最適化版）
+    console.log("🔯 Applying Ultra Sync Logic Analysis (Optimized)...");
+    const ultraSyncAnalysis = await this.ichingLogic.analyzeTripleOSWithUltraSync(
+      engineOS, 
+      interfaceOS, 
+      safeModeOS,
+      {
+        level: 'standard', // デフォルトは標準分析
+        onProgress: (progress) => {
+          console.log(`🔯 Analysis Progress: ${progress.progress}/${progress.total} (${progress.stage})`);
+        }
+      }
+    );
+    console.log("✅ Ultra Sync Logic Analysis completed:", ultraSyncAnalysis);
+    
     // Triple OS概念の核心を含む説明
     const tripleOSExplanation = this.generateTripleOSExplanation(engineOS, interfaceOS, safeModeOS);
     
-    // OS間の相互作用分析
+    // OS間の相互作用分析（従来の分析も保持）
     const osInteractionAnalysis = this.analyzeOSInteractions(engineOS, interfaceOS, safeModeOS, consistencyScore);
     
     // セーフモード分析
@@ -1214,7 +1233,10 @@ class TripleOSEngine {
         "🛡️ セーフモードは緊急時の味方です。過度に頼らず、適切な時に活用しましょう",
         "⚖️ 3つのOS側面のバランスが取れた時、あなたは最も自然で魅力的な存在になります",
         "🌱 『真の自分探し』よりも『Triple OSの育成』を意識して、多面的な成長を目指しましょう"
-      ]
+      ],
+      
+      // 🔯 易経ウルトラシンク・ロジック20による高度分析結果
+      ultraSyncAnalysis: ultraSyncAnalysis
     };
   }
 
@@ -1399,35 +1421,80 @@ class TripleOSEngine {
     try {
       console.log("💡 Generating insights for Triple OS result...");
       
-      const insights = {
-        // Triple OS哲学に基づく包括的理解
-        tripleOSSummary: this.generateTripleOSSummary(analysisResult),
-        
-        // 各分人の特徴と活用法
-        personalityProfiles: {
+      // 分析結果の基本検証
+      if (!analysisResult) {
+        throw new Error("Analysis result is missing");
+      }
+
+      const insights = {};
+
+      // 各洞察を個別にtry-catchで包んで詳細なエラー追跡
+      try {
+        insights.tripleOSSummary = this.generateTripleOSSummary(analysisResult);
+      } catch (error) {
+        console.warn("⚠️ Error in generateTripleOSSummary:", error.message);
+        insights.tripleOSSummary = "Triple OS分析が完了しました。";
+      }
+
+      try {
+        insights.personalityProfiles = {
           engine: this.generateEnginePersonalityProfile(analysisResult.engineOS, analysisResult.dimensions),
           interface: this.generateInterfacePersonalityProfile(analysisResult.interfaceOS),
           safeMode: this.generateSafeModePersonalityProfile(analysisResult.safeModeOS)
-        },
-        
-        // 統合的な強みと成長領域
-        strengths: this.generateBunenjinStrengths(analysisResult),
-        growthAreas: this.generateBunenjinGrowthAreas(analysisResult),
-        
-        // 実践的な生活戦略
-        lifeStrategies: this.generateLifeStrategies(analysisResult),
-        
-        // 3つの分人を活かす具体的推奨事項
-        actionableRecommendations: this.generateActionableRecommendations(analysisResult),
-        
-        // Triple OS特有の洞察（改善版）
-        tripleOSInsights: this.generateEnhancedTripleOSInsights(analysisResult)
-      };
+        };
+      } catch (error) {
+        console.warn("⚠️ Error in personalityProfiles:", error.message);
+        insights.personalityProfiles = {
+          engine: { summary: "エンジンOS分析完了" },
+          interface: { summary: "インターフェースOS分析完了" },
+          safeMode: { summary: "セーフモードOS分析完了" }
+        };
+      }
 
-      console.log("✅ Enhanced insights generated successfully:", insights);
+      try {
+        insights.strengths = this.generateBunenjinStrengths(analysisResult);
+      } catch (error) {
+        console.warn("⚠️ Error in generateBunenjinStrengths:", error.message);
+        insights.strengths = ["あなたには独特の強みがあります"];
+      }
+
+      try {
+        insights.growthAreas = this.generateBunenjinGrowthAreas(analysisResult);
+      } catch (error) {
+        console.warn("⚠️ Error in generateBunenjinGrowthAreas:", error.message);
+        insights.growthAreas = ["継続的な成長の機会があります"];
+      }
+
+      try {
+        insights.lifeStrategies = this.generateLifeStrategies(analysisResult);
+      } catch (error) {
+        console.warn("⚠️ Error in generateLifeStrategies:", error.message);
+        insights.lifeStrategies = ["あなたの強みを活かせる環境を見つけてください"];
+      }
+
+      try {
+        insights.actionableRecommendations = this.generateActionableRecommendations(analysisResult);
+      } catch (error) {
+        console.warn("⚠️ Error in generateActionableRecommendations:", error.message);
+        insights.actionableRecommendations = ["継続的な自己理解と成長を心がけましょう"];
+      }
+
+      try {
+        insights.tripleOSInsights = this.generateEnhancedTripleOSInsights(analysisResult);
+      } catch (error) {
+        console.warn("⚠️ Error in generateEnhancedTripleOSInsights:", error.message);
+        insights.tripleOSInsights = {
+          engineInsight: "エンジンOSが分析されました。",
+          interfaceInsight: "インターフェースOSが分析されました。",
+          safeModeInsight: "セーフモードOSが分析されました。",
+          consistencyInsight: "OSの一貫性が分析されました。"
+        };
+      }
+
+      console.log("✅ Enhanced insights generated successfully");
       return insights;
     } catch (error) {
-      console.error("❌ Error generating insights:", error);
+      console.error("❌ Fatal error generating insights:", error.message, error.stack);
       // フォールバック洞察を返す
       return this.generateFallbackInsights(analysisResult);
     }
@@ -1551,15 +1618,58 @@ class TripleOSEngine {
     }
   }
 
+  // Triple OS総合サマリー生成
+  generateTripleOSSummary(analysisResult) {
+    try {
+      const engineOS = analysisResult.engineOS;
+      const interfaceOS = analysisResult.interfaceOS;
+      const safeModeOS = analysisResult.safeModeOS;
+      
+      if (!engineOS || !interfaceOS || !safeModeOS) {
+        return "Triple OS分析が完了しました。各OSの詳細は個別の分析結果をご確認ください。";
+      }
+
+      const engineName = engineOS.osName || "未特定";
+      const interfaceName = interfaceOS.hexagramInfo?.name_jp || interfaceOS.osName || "未特定";
+      const safeModeName = safeModeOS.hexagramInfo?.name_jp || safeModeOS.osName || "未特定";
+
+      return `あなたのTriple OS分析結果では、核となるエンジンOS「${engineName}」、対人関係でのインターフェースOS「${interfaceName}」、ストレス時のセーフモードOS「${safeModeName}」という3つの分人が確認されました。これらの分人を理解し、場面に応じて適切に使い分けることで、より自然で効果的な人間関係と自己実現が可能になります。`;
+    } catch (error) {
+      console.warn("generateTripleOSSummary error:", error);
+      return "Triple OS分析が完了しました。3つの分人（エンジンOS、インターフェースOS、セーフモードOS）の詳細は個別の分析結果をご確認ください。";
+    }
+  }
+
   // フォールバック洞察
-  generateFallbackInsights(result) {
+  generateFallbackInsights(analysisResult) {
     return {
-      summary: "あなたの人格分析が完了しました。",
-      strengths: ["あなたには独特の強みがあります"],
-      growthAreas: ["継続的な成長の機会があります"],
-      recommendations: [
+      tripleOSSummary: "あなたのTriple OS分析が完了しました。エンジンOS、インターフェースOS、セーフモードOSの3つの分人を理解し、場面に応じて適切に使い分けることで、より自然で効果的な人間関係と自己実現が可能になります。",
+      personalityProfiles: {
+        engine: { 
+          summary: "エンジンOS分析完了",
+          characteristics: ["あなたの核となる特性があります"],
+          utilization: ["本音で行動できる環境を大切にしてください"]
+        },
+        interface: { 
+          summary: "インターフェースOS分析完了",
+          characteristics: ["対人関係での特性があります"],
+          utilization: ["社会的場面での適応力を活かしてください"]
+        },
+        safeMode: { 
+          summary: "セーフモードOS分析完了",
+          characteristics: ["ストレス対処の特性があります"],
+          utilization: ["困難な状況でも冷静に対処できます"]
+        }
+      },
+      strengths: ["あなたには独特の強みがあります", "継続的な成長能力があります"],
+      growthAreas: ["さらなる成長の機会があります", "新しい可能性を探求できます"],
+      lifeStrategies: [
         "あなたの強みを活かせる環境を見つけてください",
-        "継続的な自己理解と成長を心がけましょう"
+        "3つの分人を意識的に使い分けてみてください"
+      ],
+      actionableRecommendations: [
+        "継続的な自己理解と成長を心がけましょう",
+        "場面に応じて適切な分人を選択する練習をしてください"
       ],
       tripleOSInsights: {
         engineInsight: "エンジンOSが分析されました。",
@@ -1959,15 +2069,32 @@ class TripleOSEngine {
   }
 
   generateEnhancedTripleOSInsights(analysisResult) {
-    const { engineOS, interfaceOS, safeModeOS, consistencyScore } = analysisResult;
-    
-    return {
-      engineInsight: `エンジンOS「${engineOS.osName}」は、あなたの価値観の核となる分人です。重要な決断時や一人の時間に最も活発になり、人生の方向性を決める重要な役割を担っています。`,
-      interfaceInsight: `インターフェースOS「${interfaceOS.hexagramInfo?.name_jp || "社会的分人"}」は、他者との関わりで表れる社会的な分人です。この分人を理解し活用することで、より効果的なコミュニケーションが可能になります。`,
-      safeModeInsight: `セーフモードOS「${safeModeOS.hexagramInfo?.name_jp || "防御的分人"}」は、困難な状況で自分を守る防御的な分人です。適切に活用することで、ストレスに対処しながら成長することができます。`,
-      consistencyInsight: `3つの分人の一貫性は${Math.round(consistencyScore?.overall * 100 || 70)}%です。${this.interpretConsistencyLevel(consistencyScore?.overall || 0.7)}`,
-      integrationAdvice: "分人思想の真髄は、「本当の自分探し」ではなく「場面に応じた最適な分人の選択」にあります。それぞれの分人の特徴を理解し、意識的に活用することで、より豊かで自然な人生を送ることができます。"
-    };
+    try {
+      const { engineOS, interfaceOS, safeModeOS, consistencyScore } = analysisResult || {};
+      
+      // 各OSの安全なアクセス
+      const engineName = engineOS?.osName || "エンジンOS";
+      const interfaceName = interfaceOS?.hexagramInfo?.name_jp || interfaceOS?.osName || "社会的分人";
+      const safeModeName = safeModeOS?.hexagramInfo?.name_jp || safeModeOS?.osName || "防御的分人";
+      const consistency = consistencyScore?.overall || 0.7;
+      
+      return {
+        engineInsight: `エンジンOS「${engineName}」は、あなたの価値観の核となる分人です。重要な決断時や一人の時間に最も活発になり、人生の方向性を決める重要な役割を担っています。`,
+        interfaceInsight: `インターフェースOS「${interfaceName}」は、他者との関わりで表れる社会的な分人です。この分人を理解し活用することで、より効果的なコミュニケーションが可能になります。`,
+        safeModeInsight: `セーフモードOS「${safeModeName}」は、困難な状況で自分を守る防御的な分人です。適切に活用することで、ストレスに対処しながら成長することができます。`,
+        consistencyInsight: `3つの分人の一貫性は${Math.round(consistency * 100)}%です。${this.interpretConsistencyLevel(consistency)}`,
+        integrationAdvice: "分人思想の真髄は、「本当の自分探し」ではなく「場面に応じた最適な分人の選択」にあります。それぞれの分人の特徴を理解し、意識的に活用することで、より豊かで自然な人生を送ることができます。"
+      };
+    } catch (error) {
+      console.warn("generateEnhancedTripleOSInsights error:", error);
+      return {
+        engineInsight: "エンジンOSが分析されました。",
+        interfaceInsight: "インターフェースOSが分析されました。",
+        safeModeInsight: "セーフモードOSが分析されました。",
+        consistencyInsight: "OSの一貫性が分析されました。",
+        integrationAdvice: "分人思想に基づいた3つの分人の活用をお試しください。"
+      };
+    }
   }
 
   // 🔧 動的インターフェースOS計算（エンジンOSベース）

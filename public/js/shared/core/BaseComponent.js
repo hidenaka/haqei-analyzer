@@ -53,6 +53,11 @@ class BaseComponent {
       return;
     }
 
+    // 画面上部にスクロールを設定（見切れ防止）
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
     // まず表示状態にする - CSSの詳細度を上回るため!importantを使用
     if (this.container.classList.contains('screen-container')) {
       this.container.style.setProperty('display', 'flex', 'important');

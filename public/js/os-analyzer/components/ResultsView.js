@@ -30,8 +30,9 @@ class ResultsView extends BaseComponent {
       return;
     }
 
-    const primaryOS = this.analysisResult.primaryOS;
-    const vector = this.analysisResult.eightDimensionVector;
+    // TripleOS結果の場合は適切にデータを取得
+    const primaryOS = this.analysisResult.primaryOS || this.analysisResult.engineOS;
+    const vector = this.analysisResult.eightDimensionVector || this.analysisResult.dimensions || primaryOS?.userVector;
 
     this.container.innerHTML = `
       <div class="results-container">
@@ -39,11 +40,11 @@ class ResultsView extends BaseComponent {
           <h2 class="results-title">🎯 あなたの人格OS</h2>
           <div class="primary-result">
             <div class="hexagram-display">
-              <div class="hexagram-name">${primaryOS.hexagramInfo.name}</div>
+              <div class="hexagram-name">${primaryOS?.hexagramInfo?.name || primaryOS?.osName || "分析結果"}</div>
               <div class="hexagram-reading">${
-                primaryOS.hexagramInfo.reading || ""
+                primaryOS?.hexagramInfo?.reading || primaryOS?.hexagramInfo?.name_jp || ""
               }</div>
-              <div class="match-percentage">${primaryOS.matchPercentage.toFixed(
+              <div class="match-percentage">${(primaryOS?.matchPercentage || primaryOS?.strength * 100 || 0).toFixed(
                 1
               )}%</div>
               <div class="trigram-composition">構成八卦: ${this.getTrigramComposition(
@@ -93,7 +94,7 @@ class ResultsView extends BaseComponent {
             </div>
             <div class="premium-content">
               <p class="premium-description">
-                あなたの<strong>${primaryOS.hexagramInfo.name}</strong>人格OSに特化した、
+                あなたの<strong>${primaryOS?.hexagramInfo?.name || primaryOS?.osName || "人格OS"}</strong>に特化した、
                 Gemini Pro AIによる高精度な実践戦略レポートを取得しませんか？
               </p>
               
@@ -186,6 +187,10 @@ class ResultsView extends BaseComponent {
   }
 
   renderDimensionScores(vector) {
+    if (!vector) {
+      return '<p>8次元データを読み込み中...</p>';
+    }
+
     const dimensions = [
       { key: "乾_創造性", name: "創造性", icon: "🌟" },
       { key: "震_行動性", name: "行動性", icon: "⚡" },
@@ -200,7 +205,8 @@ class ResultsView extends BaseComponent {
     return dimensions
       .map((dim) => {
         const score = vector[dim.key] || 0;
-        const percentage = Math.max(0, Math.min(100, (score + 5) * 10)); // -5〜+5を0〜100%に変換
+        // スコアが-5〜+5の範囲から0〜100%に変換
+        const percentage = Math.max(0, Math.min(100, (score + 5) * 10));
 
         return `
         <div class="dimension-item">
@@ -254,6 +260,42 @@ class ResultsView extends BaseComponent {
   }
 
   renderAlternativeMatches() {
+    // TripleOS結果の場合は他のOSを代替として表示
+    if (this.analysisResult.analysisType === "tripleOS") {
+      const alternatives = [];
+      
+      if (this.analysisResult.interfaceOS) {
+        alternatives.push({
+          name: `社会的な自分: ${this.analysisResult.interfaceOS.osName}`,
+          percentage: (this.analysisResult.interfaceOS.strength * 100 || 0).toFixed(1)
+        });
+      }
+      
+      if (this.analysisResult.safeModeOS) {
+        alternatives.push({
+          name: `守る力: ${this.analysisResult.safeModeOS.osName}`,
+          percentage: (this.analysisResult.safeModeOS.strength * 100 || 0).toFixed(1)
+        });
+      }
+      
+      if (alternatives.length === 0) {
+        return "<p>3つの人格OSが分析されました。</p>";
+      }
+      
+      return alternatives
+        .map((alt, index) => `
+        <div class="alternative-match">
+          <div class="match-rank">${index + 2}</div>
+          <div class="match-info">
+            <div class="match-name">${alt.name}</div>
+            <div class="match-percentage">${alt.percentage}%</div>
+          </div>
+        </div>
+      `)
+        .join("");
+    }
+
+    // 従来の単一OS結果の場合
     if (
       !this.analysisResult.alternativeMatches ||
       this.analysisResult.alternativeMatches.length === 0
@@ -267,8 +309,8 @@ class ResultsView extends BaseComponent {
       <div class="alternative-match">
         <div class="match-rank">${index + 2}</div>
         <div class="match-info">
-          <div class="match-name">${match.hexagramInfo.name}</div>
-          <div class="match-percentage">${match.matchPercentage.toFixed(
+          <div class="match-name">${match.hexagramInfo?.name || match.osName || "不明"}</div>
+          <div class="match-percentage">${(match.matchPercentage || match.strength * 100 || 0).toFixed(
             1
           )}%</div>
         </div>
@@ -477,19 +519,35 @@ class ResultsView extends BaseComponent {
 
   // 簡易サマリー生成
   generateSimpleSummary() {
-    const primaryOS = this.analysisResult.primaryOS;
-    const vector = this.analysisResult.eightDimensionVector;
+    const primaryOS = this.analysisResult.primaryOS || this.analysisResult.engineOS;
+    const vector = this.analysisResult.eightDimensionVector || this.analysisResult.dimensions || primaryOS?.userVector;
 
     let summary = '=== HaQei OS分析結果 ===\n';
     summary += `生成日時: ${new Date().toLocaleString('ja-JP')}\n\n`;
-    summary += `主要人格OS: ${primaryOS.hexagramInfo.name}\n`;
-    summary += `適合度: ${primaryOS.matchPercentage.toFixed(1)}%\n\n`;
+    summary += `主要人格OS: ${primaryOS?.hexagramInfo?.name || primaryOS?.osName || "不明"}\n`;
+    summary += `適合度: ${(primaryOS?.matchPercentage || primaryOS?.strength * 100 || 0).toFixed(1)}%\n\n`;
     
-    summary += '--- 8次元バランス ---\n';
-    Object.entries(vector).forEach(([key, value]) => {
-      const dimensionName = key.split('_')[1] || key;
-      summary += `${dimensionName}: ${(value * 100).toFixed(1)}%\n`;
-    });
+    if (vector) {
+      summary += '--- 8次元バランス ---\n';
+      Object.entries(vector).forEach(([key, value]) => {
+        const dimensionName = key.split('_')[1] || key;
+        summary += `${dimensionName}: ${(value * 100).toFixed(1)}%\n`;
+      });
+    }
+    
+    // TripleOS結果の場合は他のOSも追加
+    if (this.analysisResult.analysisType === "tripleOS") {
+      summary += '\n--- 3層人格OS ---\n';
+      if (this.analysisResult.engineOS) {
+        summary += `本質的な自分: ${this.analysisResult.engineOS.osName}\n`;
+      }
+      if (this.analysisResult.interfaceOS) {
+        summary += `社会的な自分: ${this.analysisResult.interfaceOS.osName}\n`;
+      }
+      if (this.analysisResult.safeModeOS) {
+        summary += `守る力: ${this.analysisResult.safeModeOS.osName}\n`;
+      }
+    }
     
     summary += '\n=== レポート終了 ===\n';
     summary += 'このデータは HaQei OS分析ツールで生成されました。\n';
@@ -532,40 +590,77 @@ class ResultsView extends BaseComponent {
 
   // 詳細洞察の生成
   generateDetailedInsights() {
-    const primaryOS = this.analysisResult.primaryOS;
-    const vector = this.analysisResult.eightDimensionVector;
+    const primaryOS = this.analysisResult.primaryOS || this.analysisResult.engineOS;
+    const vector = this.analysisResult.eightDimensionVector || this.analysisResult.dimensions || primaryOS?.userVector;
 
     let insights = '<div class="detailed-insights">';
     
     // 人格OS詳細
     insights += `
       <div class="insight-section">
-        <h4>🎯 主要人格OS：${primaryOS.hexagramInfo.name}</h4>
-        <p><strong>適合度：</strong>${primaryOS.matchPercentage.toFixed(1)}%</p>
-        <p><strong>特徴：</strong>${primaryOS.hexagramInfo.description || '詳細分析中...'}</p>
+        <h4>🎯 主要人格OS：${primaryOS?.hexagramInfo?.name || primaryOS?.osName || "不明"}</h4>
+        <p><strong>適合度：</strong>${(primaryOS?.matchPercentage || primaryOS?.strength * 100 || 0).toFixed(1)}%</p>
+        <p><strong>特徴：</strong>${primaryOS?.hexagramInfo?.description || primaryOS?.description || '詳細分析中...'}</p>
       </div>
     `;
 
     // 8次元分析
-    insights += `
-      <div class="insight-section">
-        <h4>📊 8次元バランス詳細</h4>
-        <div class="dimensions-detailed">
-    `;
-
-    Object.entries(vector).forEach(([key, value]) => {
-      const percentage = (value * 100).toFixed(1);
-      const dimensionName = key.split('_')[1] || key;
-      const strength = value > 0.7 ? '強い' : value > 0.4 ? '中程度' : '弱い';
-      
+    if (vector) {
       insights += `
-        <div class="dimension-detail">
-          <strong>${dimensionName}：</strong>${percentage}% （${strength}）
-        </div>
+        <div class="insight-section">
+          <h4>📊 8次元バランス詳細</h4>
+          <div class="dimensions-detailed">
       `;
-    });
 
-    insights += '</div></div>';
+      Object.entries(vector).forEach(([key, value]) => {
+        const percentage = (value * 100).toFixed(1);
+        const dimensionName = key.split('_')[1] || key;
+        const strength = value > 0.7 ? '強い' : value > 0.4 ? '中程度' : '弱い';
+        
+        insights += `
+          <div class="dimension-detail">
+            <strong>${dimensionName}：</strong>${percentage}% （${strength}）
+          </div>
+        `;
+      });
+
+      insights += '</div></div>';
+    }
+
+    // TripleOS結果の場合は3つのOSの詳細を追加
+    if (this.analysisResult.analysisType === "tripleOS") {
+      insights += `
+        <div class="insight-section">
+          <h4>🎭 3層人格OSの詳細</h4>
+          <div class="triple-os-details">
+      `;
+      
+      if (this.analysisResult.engineOS) {
+        insights += `
+          <div class="os-detail">
+            <strong>本質的な自分：</strong>${this.analysisResult.engineOS.osName} (${(this.analysisResult.engineOS.strength * 100).toFixed(1)}%)
+          </div>
+        `;
+      }
+      
+      if (this.analysisResult.interfaceOS) {
+        insights += `
+          <div class="os-detail">
+            <strong>社会的な自分：</strong>${this.analysisResult.interfaceOS.osName} (${(this.analysisResult.interfaceOS.strength * 100).toFixed(1)}%)
+          </div>
+        `;
+      }
+      
+      if (this.analysisResult.safeModeOS) {
+        insights += `
+          <div class="os-detail">
+            <strong>守る力：</strong>${this.analysisResult.safeModeOS.osName} (${(this.analysisResult.safeModeOS.strength * 100).toFixed(1)}%)
+          </div>
+        `;
+      }
+      
+      insights += '</div></div>';
+    }
 
     // 戦略的提案
     insights += `
@@ -573,7 +668,7 @@ class ResultsView extends BaseComponent {
         <h4>💡 戦略的提案</h4>
         <p>より具体的な戦略と行動計画については、プロフェッショナルレポートをご利用ください。</p>
         <ul>
-          <li>あなたの${primaryOS.hexagramInfo.name}特性を活かした具体的行動計画</li>
+          <li>あなたの${primaryOS?.hexagramInfo?.name || primaryOS?.osName || "人格OS"}特性を活かした具体的行動計画</li>
           <li>リスク管理と防御戦略</li>
           <li>3ヶ月実行ロードマップ</li>
         </ul>
@@ -635,10 +730,13 @@ class ResultsView extends BaseComponent {
 
   // 🔧 trigramComposition安全取得メソッド
   getTrigramComposition(osData) {
+    if (!osData) return "乾 + 乾";
+    
     // 既存のtrigramCompositionがあればそれを使用
     if (osData.trigramComposition) {
       return osData.trigramComposition;
     }
+    
     // hexagramInfoから生成
     if (osData.hexagramInfo) {
       const upperTrigram = this.getTrigramName(
@@ -649,6 +747,12 @@ class ResultsView extends BaseComponent {
       );
       return `${upperTrigram} + ${lowerTrigram}`;
     }
+    
+    // hexagramIdから推測を試行
+    if (osData.hexagramId) {
+      return `易経第${osData.hexagramId}卦`;
+    }
+    
     // フォールバック
     return "乾 + 乾";
   }

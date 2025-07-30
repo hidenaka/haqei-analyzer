@@ -1055,6 +1055,11 @@ class TripleOSResultsView extends BaseComponent {
                       </div>
                   </div>
               </section>
+
+              <!-- 批判的・生産的視点カード -->
+              <section class="critical-productive-section">
+                  <div id="critical-productive-card-container"></div>
+              </section>
           </div>
           `;
 
@@ -1085,7 +1090,10 @@ class TripleOSResultsView extends BaseComponent {
     // 5. Phase 4: 批判的思考機能の初期化
     await this.initializeCriticalThinkingFeatures();
 
-    // 6. イベントリスナー設定
+    // 6. 批判的・生産的視点カードの初期化
+    await this.initializeCriticalProductiveCard();
+
+    // 7. イベントリスナー設定
     this.bindInteractiveEventListeners();
 
     console.log("✅ [TripleOSResultsView] すべての対話型機能が初期化完了");
@@ -4371,6 +4379,146 @@ class TripleOSResultsView extends BaseComponent {
     } catch (error) {
       console.error("❌ [Phase4] 批判的思考機能の初期化エラー:", error);
       this.displayCriticalThinkingError();
+    }
+  }
+
+  /**
+   * 批判的・生産的視点カードの初期化
+   */
+  async initializeCriticalProductiveCard() {
+    console.log("🧠 [CriticalProductiveCard] 初期化開始");
+
+    try {
+      // コンテナの存在確認
+      const container = document.getElementById('critical-productive-card-container');
+      if (!container) {
+        console.warn("⚠️ [CriticalProductiveCard] コンテナが見つかりません");
+        return;
+      }
+
+      // データ抽出
+      const extractedData = await this.extractTripleOSData(this.analysisResult);
+      const { engineOS, interfaceOS, safeModeOS } = extractedData;
+
+      if (!engineOS) {
+        console.warn("⚠️ [CriticalProductiveCard] エンジンOSデータがありません");
+        return;
+      }
+
+      // 各OSの批判的・生産的視点カードを作成
+      const criticalCards = [];
+
+      // エンジンOS用カード
+      if (engineOS && engineOS.score !== undefined) {
+        await this._createCriticalProductiveCardForOS(container, engineOS, 'engine', '価値観システム');
+        criticalCards.push('engine');
+      }
+
+      // インターフェースOS用カード
+      if (interfaceOS && interfaceOS.score !== undefined) {
+        await this._createCriticalProductiveCardForOS(container, interfaceOS, 'interface', '社会的システム');
+        criticalCards.push('interface');
+      }
+
+      // セーフモードOS用カード
+      if (safeModeOS && safeModeOS.score !== undefined) {
+        await this._createCriticalProductiveCardForOS(container, safeModeOS, 'safemode', '防御システム');
+        criticalCards.push('safemode');
+      }
+
+      console.log(`✅ [CriticalProductiveCard] ${criticalCards.length}個のカード初期化完了:`, criticalCards);
+
+    } catch (error) {
+      console.error("❌ [CriticalProductiveCard] 初期化エラー:", error);
+      this._renderCriticalProductiveCardError(error.message);
+    }
+  }
+
+  /**
+   * 個別OSの批判的・生産的視点カードを作成
+   */
+  async _createCriticalProductiveCardForOS(parentContainer, osData, osType, osTypeName) {
+    try {
+      // カード用のコンテナを作成
+      const cardContainer = document.createElement('div');
+      cardContainer.id = `critical-productive-${osType}`;
+      cardContainer.className = `critical-productive-wrapper ${osType}-card`;
+      
+      // セクションタイトルを追加
+      const titleDiv = document.createElement('div');
+      titleDiv.className = 'critical-productive-title';
+      titleDiv.innerHTML = `<h3>🧠 ${osTypeName}への批判的・生産的視点</h3>`;
+      cardContainer.appendChild(titleDiv);
+
+      // カードコンテナを追加
+      const cardDiv = document.createElement('div');
+      cardDiv.id = `critical-productive-card-${osType}`;
+      cardContainer.appendChild(cardDiv);
+
+      parentContainer.appendChild(cardContainer);
+
+      // CriticalProductiveCardインスタンスを作成
+      const criticalProductiveCard = new CriticalProductiveCard(`critical-productive-card-${osType}`, {
+        shadowAnalyzer: this.shadowAnalyzer,
+        criticalThinkingEngine: this.criticalThinkingEngine,
+        analysisResult: this.analysisResult,
+        osData: osData,
+        score: this._calculateScore(osData),
+        hexagramDetails: this._getHexagramDetails(osData)
+      });
+
+      // カードを初期化
+      await criticalProductiveCard.init();
+
+      console.log(`✅ [CriticalProductiveCard] ${osType}カード作成完了`);
+
+    } catch (error) {
+      console.error(`❌ [CriticalProductiveCard] ${osType}カード作成エラー:`, error);
+    }
+  }
+
+  /**
+   * スコア計算（既存のメソッドを利用）
+   */
+  _calculateScore(osData) {
+    if (osData.score !== undefined) {
+      return osData.score;
+    }
+    
+    // フォールバック: 回答データから計算
+    if (osData.answers && Array.isArray(osData.answers)) {
+      const totalScore = osData.answers.reduce((sum, answer) => sum + (answer.value || 0), 0);
+      const maxScore = osData.answers.length * 5; // 仮定: 最大5点
+      return Math.round((totalScore / maxScore) * 100);
+    }
+    
+    return 50; // デフォルト値
+  }
+
+  /**
+   * 易経詳細データの取得
+   */
+  _getHexagramDetails(osData) {
+    const hexagramId = osData.hexagramId || osData.osId;
+    if (hexagramId && window.HEXAGRAM_DETAILS) {
+      return window.HEXAGRAM_DETAILS[hexagramId];
+    }
+    return null;
+  }
+
+  /**
+   * エラー表示
+   */
+  _renderCriticalProductiveCardError(message) {
+    const container = document.getElementById('critical-productive-card-container');
+    if (container) {
+      container.innerHTML = `
+        <div class="critical-productive-error">
+          <h3>🧠 批判的・生産的視点</h3>
+          <p>申し訳ございません。カードの読み込みに失敗しました。</p>
+          <p class="error-details">${message}</p>
+        </div>
+      `;
     }
   }
 

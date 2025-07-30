@@ -14,7 +14,7 @@ class Calculator {
     ];
   }
 
-  // ユーザー回答から8次元ベクトルを構築
+  // ユーザー回答から8次元ベクトルを構築（易経深化ロジック統合版）
   buildUserVector(answers) {
     const userVector = {};
     // 8次元を初期化
@@ -26,9 +26,11 @@ class Calculator {
       console.warn("⚠️ buildUserVector: answers is not an array");
       return userVector;
     }
-    // 回答からスコアを加算
+
+    // 回答からスコアを加算（易経深化ロジック適用）
     answers.forEach((answer) => {
       if (answer && answer.scoring_tags && Array.isArray(answer.scoring_tags)) {
+        // 基本スコアリング
         answer.scoring_tags.forEach((tag) => {
           if (
             tag &&
@@ -40,10 +42,142 @@ class Calculator {
             }
           }
         });
+
+        // 易経深化ロジック適用
+        this.applyIChingDeepLogic(answer, userVector);
       }
     });
-    console.log("📊 Built user vector:", userVector);
+
+    console.log("📊 Built user vector with I-Ching logic:", userVector);
     return userVector;
+  }
+
+  // 易経深化ロジック適用
+  applyIChingDeepLogic(answer, userVector) {
+    if (!answer.scoring_tags || !window.OPPOSING_RELATIONSHIPS) return;
+
+    answer.scoring_tags.forEach((tag) => {
+      if (!tag || !tag.key || typeof tag.value !== "number") return;
+
+      // 対立関係の処理
+      if (tag.type === "conflicting" && window.OPPOSING_RELATIONSHIPS[tag.key]) {
+        const opposingDimension = window.OPPOSING_RELATIONSHIPS[tag.key];
+        if (userVector.hasOwnProperty(opposingDimension)) {
+          const opposingEffect = window.calculateOpposingEffect ? 
+            window.calculateOpposingEffect(Math.abs(tag.value), opposingDimension) :
+            Math.abs(tag.value) * -0.3;
+          userVector[opposingDimension] += opposingEffect;
+          console.log(`🔯 Opposing effect: ${tag.key} affects ${opposingDimension} by ${opposingEffect}`);
+        }
+      }
+
+      // 補完関係の処理
+      if (tag.type === "complementary" && window.COMPLEMENTARY_RELATIONSHIPS) {
+        const harmony = window.COMPLEMENTARY_RELATIONSHIPS.yin_yang_harmony;
+        if (harmony && harmony[tag.key]) {
+          const complementaryDimension = harmony[tag.key];
+          if (userVector.hasOwnProperty(complementaryDimension)) {
+            const complementaryEffect = window.calculateComplementaryEffect ? 
+              window.calculateComplementaryEffect(Math.abs(tag.value), complementaryDimension) :
+              Math.abs(tag.value) * 0.2;
+            userVector[complementaryDimension] += complementaryEffect;
+            console.log(`🔯 Complementary effect: ${tag.key} enhances ${complementaryDimension} by ${complementaryEffect}`);
+          }
+        }
+      }
+
+      // 爻辞レベルによる修正
+      if (answer.koui_level && window.KOUI_LEVELS) {
+        const kouiInfo = window.KOUI_LEVELS[answer.koui_level];
+        if (kouiInfo) {
+          // 爻辞レベルに基づく係数調整
+          const kouiMultiplier = this.getKouiMultiplier(answer.koui_level);
+          if (userVector.hasOwnProperty(tag.key)) {
+            const originalValue = userVector[tag.key];
+            const adjustment = tag.value * (kouiMultiplier - 1.0);
+            userVector[tag.key] += adjustment;
+            console.log(`🔯 Koui level ${answer.koui_level} adjustment: ${tag.key} ${originalValue} → ${userVector[tag.key]}`);
+          }
+        }
+      }
+    });
+  }
+
+  // 爻辞レベルに基づく係数取得
+  getKouiMultiplier(kouiLevel) {
+    // 易経の爻の特性に基づく係数
+    const multipliers = {
+      1: 0.9,  // 初爻：慎重、控えめな効果
+      2: 1.1,  // 二爻：協力的、バランス良い効果  
+      3: 0.8,  // 三爻：危険段階、効果減少
+      4: 1.2,  // 四爻：責任段階、効果増大
+      5: 1.3,  // 五爻：統率段階、最大効果
+      6: 1.0   // 上爻：完成段階、標準効果
+    };
+    return multipliers[kouiLevel] || 1.0;
+  }
+
+  // シナリオ回答から8次元ベクトルを構築（状況卦修正適用）
+  buildScenarioVector(scenarioAnswers, vectorType = "interface") {
+    const scenarioVector = {};
+    // 8次元を初期化
+    this.dimensionKeys.forEach((key) => {
+      scenarioVector[key] = 0;
+    });
+
+    if (!Array.isArray(scenarioAnswers)) {
+      console.warn("⚠️ buildScenarioVector: scenarioAnswers is not an array");
+      return scenarioVector;
+    }
+
+    // シナリオ回答からスコアを加算
+    scenarioAnswers.forEach((answer) => {
+      if (!answer || !answer.questionId) return;
+
+      // 質問IDから状況卦を取得
+      const questionId = answer.questionId;
+      const situationHexagram = this.getSituationHexagramByQuestionId(questionId);
+
+      // 内面・外面選択肢を処理
+      const choices = vectorType === "interface" ? 
+        (answer.outerChoice ? [answer.outerChoice] : []) :
+        (answer.innerChoice ? [answer.innerChoice] : []);
+
+      choices.forEach((choice) => {
+        if (choice && choice.scoring_tags && Array.isArray(choice.scoring_tags)) {
+          choice.scoring_tags.forEach((tag) => {
+            if (tag && typeof tag.key === "string" && typeof tag.value === "number") {
+              if (Object.prototype.hasOwnProperty.call(scenarioVector, tag.key)) {
+                let adjustedValue = tag.value;
+
+                // 状況卦による修正適用
+                if (situationHexagram && window.getSituationalModifier) {
+                  const modifier = window.getSituationalModifier(situationHexagram, tag.key);
+                  adjustedValue = tag.value * modifier;
+                  console.log(`🔯 Situational modifier for ${questionId} (${situationHexagram}): ${tag.key} ${tag.value} → ${adjustedValue}`);
+                }
+
+                scenarioVector[tag.key] += adjustedValue;
+              }
+            }
+          });
+
+          // 易経深化ロジック適用
+          this.applyIChingDeepLogic(choice, scenarioVector);
+        }
+      });
+    });
+
+    console.log(`📊 Built ${vectorType} scenario vector:`, scenarioVector);
+    return scenarioVector;
+  }
+
+  // 質問IDから状況卦を取得
+  getSituationHexagramByQuestionId(questionId) {
+    if (!window.SITUATIONAL_HEXAGRAMS) return null;
+    
+    const hexagramData = window.SITUATIONAL_HEXAGRAMS[questionId];
+    return hexagramData ? hexagramData.name : null;
   }
 
   // 8次元ベクトル正規化

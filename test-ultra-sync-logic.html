@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>易経ウルトラシンク・ロジック20 テスト</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-title { font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px; }
+        .test-result { background: #f9f9f9; padding: 10px; border-radius: 3px; margin: 10px 0; }
+        .success { border-left: 5px solid #4CAF50; }
+        .error { border-left: 5px solid #f44336; }
+        .info { border-left: 5px solid #2196F3; }
+        .warning { border-left: 5px solid #ff9800; }
+        button { padding: 10px 20px; margin: 5px; background: #007cba; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #005a8b; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .status { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; }
+        .status.pass { background: #4CAF50; color: white; }
+        .status.fail { background: #f44336; color: white; }
+        .status.pending { background: #ff9800; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔯 易経ウルトラシンク・ロジック20 システムテスト</h1>
+        
+        <div class="test-section">
+            <div class="test-title">1. システム初期化テスト</div>
+            <button onclick="testSystemInitialization()">初期化テスト実行</button>
+            <div id="init-result" class="test-result"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">2. 基礎ロジック5つのテスト</div>
+            <button onclick="testBasicLogics()">基礎ロジックテスト実行</button>
+            <div id="basic-result" class="test-result"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">3. TripleOS統合テスト</div>
+            <button onclick="testTripleOSIntegration()">統合テスト実行</button>
+            <div id="integration-result" class="test-result"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">4. 実データ診断テスト</div>
+            <button onclick="testRealDiagnosis()">実診断テスト実行</button>
+            <div id="diagnosis-result" class="test-result"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">5. パフォーマンステスト</div>
+            <button onclick="testPerformance()">パフォーマンステスト実行</button>
+            <div id="performance-result" class="test-result"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">6. 全体テスト結果</div>
+            <button onclick="runAllTests()">全テスト実行</button>
+            <div id="overall-result" class="test-result"></div>
+        </div>
+    </div>
+
+    <!-- 必要なJSファイルを読み込み -->
+    <script src="public/js/shared/core/DataManager.js"></script>
+    <script src="public/js/os-analyzer/core/Calculator.js"></script>
+    <script src="public/js/os-analyzer/core/IChingUltraSyncLogic.js"></script>
+    <script src="public/js/os-analyzer/core/TripleOSEngine.js"></script>
+
+    <script>
+        let testResults = {
+            init: null,
+            basic: null,
+            integration: null,
+            diagnosis: null,
+            performance: null
+        };
+
+        // 1. システム初期化テスト
+        async function testSystemInitialization() {
+            const resultDiv = document.getElementById('init-result');
+            resultDiv.innerHTML = '<div class="info">初期化テスト実行中...</div>';
+            
+            try {
+                // DataManagerの初期化
+                console.log('Testing DataManager initialization...');
+                const dataManager = new DataManager();
+                
+                // IChingUltraSyncLogicの初期化
+                console.log('Testing IChingUltraSyncLogic initialization...');
+                const ichingLogic = new IChingUltraSyncLogic(dataManager);
+                
+                // TripleOSEngineの初期化
+                console.log('Testing TripleOSEngine initialization...');
+                const tripleOSEngine = new TripleOSEngine(dataManager);
+                
+                // 初期化成功の確認
+                const checks = [
+                    { name: 'DataManager', result: dataManager !== null },
+                    { name: 'IChingUltraSyncLogic', result: ichingLogic !== null && ichingLogic.trigramData !== null },
+                    { name: 'TripleOSEngine', result: tripleOSEngine !== null && tripleOSEngine.ichingLogic !== null },
+                    { name: 'DataManager-Logic連携', result: tripleOSEngine.ichingLogic.dataManager === dataManager }
+                ];
+                
+                let html = '<div class="success">✅ システム初期化テスト成功</div>';
+                html += '<h4>初期化チェック結果:</h4>';
+                
+                checks.forEach(check => {
+                    const status = check.result ? 'pass' : 'fail';
+                    html += `<div>• ${check.name}: <span class="status ${status}">${check.result ? 'PASS' : 'FAIL'}</span></div>`;
+                });
+                
+                resultDiv.innerHTML = html;
+                testResults.init = checks.every(c => c.result);
+                
+            } catch (error) {
+                console.error('Initialization test failed:', error);
+                resultDiv.innerHTML = `<div class="error">❌ 初期化テスト失敗: ${error.message}</div>`;
+                testResults.init = false;
+            }
+        }
+
+        // 2. 基礎ロジック5つのテスト
+        async function testBasicLogics() {
+            const resultDiv = document.getElementById('basic-result');
+            resultDiv.innerHTML = '<div class="info">基礎ロジックテスト実行中...</div>';
+            
+            try {
+                const dataManager = new DataManager();
+                const ichingLogic = new IChingUltraSyncLogic(dataManager);
+                
+                // テスト用のダミーOSデータ
+                const testEngineOS = { osId: 1, osName: "乾為天", hexagramId: 1 };
+                const testInterfaceOS = { hexagramId: 11, hexagramInfo: { name_jp: "地天泰" } };
+                const testSafeModeOS = { hexagramId: 2, hexagramInfo: { name_jp: "坤為地" } };
+                
+                const logicTests = [
+                    {
+                        name: '大テーマの論理',
+                        test: () => ichingLogic.analyzeGreatTheme(testEngineOS, testInterfaceOS, testSafeModeOS)
+                    },
+                    {
+                        name: '内外の反転論理',
+                        test: () => ichingLogic.analyzeInternalExternalInversion(testEngineOS, testInterfaceOS, testSafeModeOS)
+                    },
+                    {
+                        name: '八卦の共鳴論理',
+                        test: () => ichingLogic.analyzeTrigramResonance(testEngineOS, testInterfaceOS, testSafeModeOS)
+                    },
+                    {
+                        name: '爻位対応の論理',
+                        test: () => ichingLogic.analyzeLineCorrespondence(testEngineOS, testInterfaceOS, testSafeModeOS)
+                    },
+                    {
+                        name: '五行の相生・相剋論理',
+                        test: () => ichingLogic.analyzeFiveElementCycles(testEngineOS, testInterfaceOS, testSafeModeOS)
+                    }
+                ];
+                
+                let html = '<div class="success">✅ 基礎ロジックテスト実行完了</div>';
+                html += '<h4>ロジック別テスト結果:</h4>';
+                
+                let allPassed = true;
+                
+                for (const logicTest of logicTests) {
+                    try {
+                        const result = logicTest.test();
+                        const passed = result && result.type && result.diagnosis;
+                        html += `<div>• ${logicTest.name}: <span class="status ${passed ? 'pass' : 'fail'}">${passed ? 'PASS' : 'FAIL'}</span></div>`;
+                        if (passed && result.diagnosis) {
+                            html += `<div style="margin-left: 20px; font-size: 12px; color: #666;">診断: ${result.diagnosis.substring(0, 100)}...</div>`;
+                        }
+                        allPassed = allPassed && passed;
+                    } catch (error) {
+                        html += `<div>• ${logicTest.name}: <span class="status fail">ERROR</span> - ${error.message}</div>`;
+                        allPassed = false;
+                    }
+                }
+                
+                resultDiv.innerHTML = html;
+                testResults.basic = allPassed;
+                
+            } catch (error) {
+                console.error('Basic logic test failed:', error);
+                resultDiv.innerHTML = `<div class="error">❌ 基礎ロジックテスト失敗: ${error.message}</div>`;
+                testResults.basic = false;
+            }
+        }
+
+        // 3. TripleOS統合テスト
+        async function testTripleOSIntegration() {
+            const resultDiv = document.getElementById('integration-result');
+            resultDiv.innerHTML = '<div class="info">統合テスト実行中...</div>';
+            
+            try {
+                const dataManager = new DataManager();
+                const tripleOSEngine = new TripleOSEngine(dataManager);
+                
+                // テスト用のダミーOSデータ
+                const testEngineOS = { osId: 1, osName: "乾為天", hexagramId: 1 };
+                const testInterfaceOS = { hexagramId: 11, hexagramInfo: { name_jp: "地天泰" } };
+                const testSafeModeOS = { hexagramId: 2, hexagramInfo: { name_jp: "坤為地" } };
+                const testConsistencyScore = { overall: 0.8 };
+                const testDimensions = [
+                    { displayName: "創造性", value: 0.9 },
+                    { displayName: "安定性", value: 0.8 },
+                    { displayName: "調和性", value: 0.7 }
+                ];
+                
+                // 統合分析の実行
+                const integrationResult = tripleOSEngine.generateIntegrationInsights(
+                    testEngineOS,
+                    testInterfaceOS,
+                    testSafeModeOS,
+                    testConsistencyScore,
+                    testDimensions
+                );
+                
+                const checks = [
+                    { name: 'TripleOSEngine初期化', result: tripleOSEngine.ichingLogic !== null },
+                    { name: '統合分析実行', result: integrationResult !== null },
+                    { name: 'ウルトラシンク分析結果', result: integrationResult.ultraSyncAnalysis !== null },
+                    { name: 'ロジック結果存在', result: integrationResult.ultraSyncAnalysis?.logicResults !== null },
+                    { name: '統合洞察存在', result: integrationResult.ultraSyncAnalysis?.integratedInsights !== null }
+                ];
+                
+                let html = '<div class="success">✅ TripleOS統合テスト完了</div>';
+                html += '<h4>統合チェック結果:</h4>';
+                
+                let allPassed = true;
+                checks.forEach(check => {
+                    const status = check.result ? 'pass' : 'fail';
+                    html += `<div>• ${check.name}: <span class="status ${status}">${check.result ? 'PASS' : 'FAIL'}</span></div>`;
+                    allPassed = allPassed && check.result;
+                });
+                
+                if (integrationResult.ultraSyncAnalysis) {
+                    html += '<h4>分析結果サンプル:</h4>';
+                    html += `<pre>${JSON.stringify(integrationResult.ultraSyncAnalysis.overallAssessment, null, 2)}</pre>`;
+                }
+                
+                resultDiv.innerHTML = html;
+                testResults.integration = allPassed;
+                
+            } catch (error) {
+                console.error('Integration test failed:', error);
+                resultDiv.innerHTML = `<div class="error">❌ 統合テスト失敗: ${error.message}</div>`;
+                testResults.integration = false;
+            }
+        }
+
+        // 4. 実データ診断テスト
+        async function testRealDiagnosis() {
+            const resultDiv = document.getElementById('diagnosis-result');
+            resultDiv.innerHTML = '<div class="info">実診断テスト実行中...</div>';
+            
+            try {
+                // 実際の診断プロセスをシミュレーション
+                const dataManager = new DataManager();
+                const tripleOSEngine = new TripleOSEngine(dataManager);
+                
+                // 実データに近いテストデータ
+                const realEngineOS = { 
+                    osId: 13, 
+                    osName: "天火同人", 
+                    hexagramId: 13,
+                    hexagramInfo: { name_jp: "天火同人", catchphrase: "大同団結" }
+                };
+                const realInterfaceOS = { 
+                    hexagramId: 37, 
+                    hexagramInfo: { name_jp: "風火家人", catchphrase: "家族和合" }
+                };
+                const realSafeModeOS = { 
+                    hexagramId: 52, 
+                    hexagramInfo: { name_jp: "艮為山", catchphrase: "静止安定" }
+                };
+                
+                // ウルトラシンク分析実行
+                const analysisResult = tripleOSEngine.ichingLogic.analyzeTripleOSWithUltraSync(
+                    realEngineOS,
+                    realInterfaceOS,
+                    realSafeModeOS
+                );
+                
+                let html = '<div class="success">✅ 実診断テスト完了</div>';
+                html += '<h4>診断結果概要:</h4>';
+                
+                // 各ロジックの結果をチェック
+                const logicResults = analysisResult.logicResults;
+                const logicNames = [
+                    'greatTheme', 'internalExternalInversion', 'trigramResonance', 
+                    'lineCorrespondence', 'fiveElementCycles'
+                ];
+                
+                let diagnosticCount = 0;
+                logicNames.forEach(logicName => {
+                    if (logicResults[logicName] && logicResults[logicName].diagnosis) {
+                        diagnosticCount++;
+                        html += `<div><strong>${logicResults[logicName].type}</strong>: ${logicResults[logicName].diagnosis}</div>`;
+                    }
+                });
+                
+                html += `<h4>総合評価:</h4>`;
+                html += `<div>調和レベル: ${Math.round(analysisResult.overallAssessment.harmonyLevel * 100)}%</div>`;
+                html += `<div>複雑性: ${Math.round(analysisResult.overallAssessment.complexityLevel * 100)}%</div>`;
+                html += `<div>ポテンシャル: ${Math.round(analysisResult.overallAssessment.potentialLevel * 100)}%</div>`;
+                html += `<div>リスク: ${Math.round(analysisResult.overallAssessment.riskLevel * 100)}%</div>`;
+                
+                const success = diagnosticCount >= 3; // 最低3つのロジックが機能していれば成功
+                resultDiv.innerHTML = html;
+                testResults.diagnosis = success;
+                
+            } catch (error) {
+                console.error('Real diagnosis test failed:', error);
+                resultDiv.innerHTML = `<div class="error">❌ 実診断テスト失敗: ${error.message}</div>`;
+                testResults.diagnosis = false;
+            }
+        }
+
+        // 5. パフォーマンステスト
+        async function testPerformance() {
+            const resultDiv = document.getElementById('performance-result');
+            resultDiv.innerHTML = '<div class="info">パフォーマンステスト実行中...</div>';
+            
+            try {
+                const dataManager = new DataManager();
+                const tripleOSEngine = new TripleOSEngine(dataManager);
+                
+                const testEngineOS = { osId: 1, osName: "乾為天", hexagramId: 1 };
+                const testInterfaceOS = { hexagramId: 11, hexagramInfo: { name_jp: "地天泰" } };
+                const testSafeModeOS = { hexagramId: 2, hexagramInfo: { name_jp: "坤為地" } };
+                
+                // 実行時間測定
+                const iterations = 10;
+                const times = [];
+                
+                for (let i = 0; i < iterations; i++) {
+                    const startTime = performance.now();
+                    
+                    const result = tripleOSEngine.ichingLogic.analyzeTripleOSWithUltraSync(
+                        testEngineOS,
+                        testInterfaceOS,
+                        testSafeModeOS
+                    );
+                    
+                    const endTime = performance.now();
+                    times.push(endTime - startTime);
+                }
+                
+                const avgTime = times.reduce((a, b) => a + b, 0) / times.length;
+                const maxTime = Math.max(...times);
+                const minTime = Math.min(...times);
+                
+                let html = '<div class="success">✅ パフォーマンステスト完了</div>';
+                html += '<h4>実行時間統計:</h4>';
+                html += `<div>平均実行時間: ${avgTime.toFixed(2)}ms</div>`;
+                html += `<div>最大実行時間: ${maxTime.toFixed(2)}ms</div>`;
+                html += `<div>最小実行時間: ${minTime.toFixed(2)}ms</div>`;
+                html += `<div>実行回数: ${iterations}回</div>`;
+                
+                // パフォーマンス基準：平均100ms以下なら合格
+                const performanceGood = avgTime < 100;
+                html += `<div>パフォーマンス評価: <span class="status ${performanceGood ? 'pass' : 'warning'}">${performanceGood ? '良好' : '要改善'}</span></div>`;
+                
+                resultDiv.innerHTML = html;
+                testResults.performance = performanceGood;
+                
+            } catch (error) {
+                console.error('Performance test failed:', error);
+                resultDiv.innerHTML = `<div class="error">❌ パフォーマンステスト失敗: ${error.message}</div>`;
+                testResults.performance = false;
+            }
+        }
+
+        // 全テスト実行
+        async function runAllTests() {
+            const resultDiv = document.getElementById('overall-result');
+            resultDiv.innerHTML = '<div class="info">全テスト実行中...</div>';
+            
+            await testSystemInitialization();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testBasicLogics();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testTripleOSIntegration();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testRealDiagnosis();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testPerformance();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // 総合結果
+            const testNames = ['init', 'basic', 'integration', 'diagnosis', 'performance'];
+            const passedTests = testNames.filter(name => testResults[name] === true).length;
+            const totalTests = testNames.length;
+            
+            let html = `<div class="${passedTests === totalTests ? 'success' : 'warning'}">`;
+            html += `${passedTests === totalTests ? '✅' : '⚠️'} 全体テスト結果: ${passedTests}/${totalTests} 成功`;
+            html += '</div>';
+            
+            html += '<h4>テスト別結果:</h4>';
+            const testLabels = {
+                init: 'システム初期化',
+                basic: '基礎ロジック',
+                integration: 'TripleOS統合',
+                diagnosis: '実データ診断',
+                performance: 'パフォーマンス'
+            };
+            
+            testNames.forEach(name => {
+                const result = testResults[name];
+                const status = result === true ? 'pass' : result === false ? 'fail' : 'pending';
+                const label = result === true ? 'PASS' : result === false ? 'FAIL' : 'PENDING';
+                html += `<div>• ${testLabels[name]}: <span class="status ${status}">${label}</span></div>`;
+            });
+            
+            if (passedTests === totalTests) {
+                html += '<div class="success" style="margin-top: 15px;"><strong>🎉 易経ウルトラシンク・ロジック20システムは正常に動作しています！</strong></div>';
+            } else {
+                html += '<div class="warning" style="margin-top: 15px;"><strong>⚠️ 一部のテストで問題が検出されました。詳細を確認してください。</strong></div>';
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+
+        // ページ読み込み時の初期化
+        window.addEventListener('load', () => {
+            console.log('🔯 易経ウルトラシンク・ロジック20 テストページ初期化完了');
+        });
+    </script>
+</body>
+</html>

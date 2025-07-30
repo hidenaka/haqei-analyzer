@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StorageManager セッションデータ修復テスト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .info { color: #17a2b8; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #log {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #fff;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 StorageManager セッションデータ修復テスト</h1>
+    
+    <div class="test-container">
+        <h2>テスト制御</h2>
+        <button onclick="runAllTests()">🚀 全テスト実行</button>
+        <button onclick="testNormalSession()">📝 正常セッションテスト</button>
+        <button onclick="testCorruptedSession()">🔧 破損セッション修復テスト</button>
+        <button onclick="testBackupFeature()">💾 バックアップ機能テスト</button>
+        <button onclick="testRecovery()">🔄 復旧機能テスト</button>
+        <button onclick="clearStorage()">🧹 ストレージクリア</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>テスト結果</h2>
+        <div id="log"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>ストレージ状況</h2>
+        <div id="storage-status"></div>
+    </div>
+
+    <script src="public/js/shared/core/StorageManager.js"></script>
+    <script>
+        let storage;
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : 
+                           type === 'error' ? 'error' : 
+                           type === 'warning' ? 'warning' : 'info';
+            logDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function updateStorageStatus() {
+            const statusDiv = document.getElementById('storage-status');
+            const keys = Object.keys(localStorage).filter(key => key.startsWith('haqei_analyzer_'));
+            
+            statusDiv.innerHTML = `
+                <p><strong>ローカルストレージ項目:</strong> ${keys.length}個</p>
+                <ul>${keys.map(key => `<li>${key.replace('haqei_analyzer_', '')}</li>`).join('')}</ul>
+            `;
+        }
+        
+        function initStorage() {
+            if (!storage) {
+                storage = new StorageManager();
+                log('✅ StorageManager初期化完了', 'success');
+            }
+        }
+        
+        function testNormalSession() {
+            log('🧪 正常セッションデータテスト開始');
+            initStorage();
+            
+            try {
+                const normalSession = {
+                    sessionId: 'test_normal_' + Date.now(),
+                    startTime: Date.now(),
+                    lastActivity: Date.now(),
+                    stage: 'questions',
+                    userProgress: 75,
+                    testData: 'normal_session'
+                };
+                
+                const saveResult = storage.saveSession(normalSession);
+                log(`📝 セッション保存: ${saveResult ? '成功' : '失敗'}`, saveResult ? 'success' : 'error');
+                
+                const retrievedSession = storage.getSession();
+                if (retrievedSession && retrievedSession.sessionId === normalSession.sessionId) {
+                    log(`✅ セッション取得成功: ${retrievedSession.sessionId}`, 'success');
+                    log(`   - ステージ: ${retrievedSession.stage}`, 'info');
+                    log(`   - 進捗: ${retrievedSession.userProgress}%`, 'info');
+                } else {
+                    log('❌ セッション取得失敗', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ 正常セッションテスト失敗: ${error.message}`, 'error');
+            }
+            
+            updateStorageStatus();
+        }
+        
+        function testCorruptedSession() {
+            log('🔧 破損セッション修復テスト開始');
+            initStorage();
+            
+            try {
+                // 文字列形式の破損セッションをシミュレート
+                const corruptedString = JSON.stringify({
+                    sessionId: 'corrupted_test',
+                    startTime: Date.now() - 10000,
+                    stage: 'analysis',
+                    corruptedFlag: true
+                });
+                
+                // 直接localStorageに文字列として保存（破損状態をシミュレート）
+                localStorage.setItem('haqei_analyzer_session', JSON.stringify({
+                    value: corruptedString,
+                    timestamp: Date.now(),
+                    version: '1.0.0'
+                }));
+                
+                log('⚠️ 破損セッションデータをlocalStorageに設定', 'warning');
+                
+                // 修復を試行
+                const repairedSession = storage.getSession();
+                if (repairedSession) {
+                    log(`✅ 自動修復成功: ${repairedSession.sessionId}`, 'success');
+                    log(`   - ステージ: ${repairedSession.stage}`, 'info');
+                    log(`   - 破損フラグ: ${repairedSession.corruptedFlag}`, 'info');
+                } else {
+                    log('⚠️ 修復不可、nullを返却', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ 破損セッション修復テスト失敗: ${error.message}`, 'error');
+            }
+            
+            updateStorageStatus();
+        }
+        
+        function testBackupFeature() {
+            log('💾 バックアップ機能テスト開始');
+            initStorage();
+            
+            try {
+                // 初期セッションを作成
+                const initialSession = {
+                    sessionId: 'backup_test',
+                    startTime: Date.now(),
+                    testData: 'initial_data',
+                    version: 1
+                };
+                
+                storage.saveSession(initialSession);
+                log('📝 初期セッション保存完了', 'success');
+                
+                // セッションを更新（バックアップが作成されるはず）
+                const updatedSession = {
+                    sessionId: 'backup_test',
+                    startTime: Date.now(),
+                    testData: 'updated_data',
+                    version: 2,
+                    newFeature: 'added'
+                };
+                
+                storage.saveSession(updatedSession);
+                log('📝 セッション更新完了（バックアップ作成）', 'success');
+                
+                // バックアップの存在確認
+                const backupData = storage.getBackupData('session');
+                if (backupData) {
+                    log(`✅ バックアップ確認成功: ${backupData.testData}`, 'success');
+                    log(`   - バージョン: ${backupData.version}`, 'info');
+                } else {
+                    log('⚠️ バックアップが見つからない', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ バックアップ機能テスト失敗: ${error.message}`, 'error');
+            }
+            
+            updateStorageStatus();
+        }
+        
+        function testRecovery() {
+            log('🔄 復旧機能テスト開始');
+            initStorage();
+            
+            try {
+                // 完全に破損したセッションをシミュレート
+                localStorage.setItem('haqei_analyzer_session', 'invalid_json_data{corrupt}');
+                log('⚠️ 完全破損データを設定', 'warning');
+                
+                // フラグメントデータを準備
+                storage.setItem('analysis_result', { type: 'test_analysis' });
+                storage.setItem('insights', { type: 'test_insights' });
+                storage.setItem('settings', { theme: 'dark', language: 'ja' });
+                log('📋 復旧用フラグメント準備完了', 'info');
+                
+                // 復旧を試行
+                const recoveredSession = storage.getSession();
+                if (recoveredSession) {
+                    log(`✅ フラグメント復旧成功: ${recoveredSession.sessionId}`, 'success');
+                    log(`   - 復旧フラグ: ${recoveredSession.recovered}`, 'info');
+                    log(`   - 分析結果: ${!!recoveredSession.lastAnalysisResult}`, 'info');
+                    log(`   - インサイト: ${!!recoveredSession.lastInsights}`, 'info');
+                    log(`   - 設定: ${!!recoveredSession.userSettings}`, 'info');
+                } else {
+                    log('⚠️ 復旧不可、セッション削除', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ 復旧機能テスト失敗: ${error.message}`, 'error');
+            }
+            
+            updateStorageStatus();
+        }
+        
+        function clearStorage() {
+            const keys = Object.keys(localStorage).filter(key => key.startsWith('haqei_analyzer_'));
+            keys.forEach(key => localStorage.removeItem(key));
+            log(`🧹 ストレージクリア完了: ${keys.length}個の項目を削除`, 'success');
+            updateStorageStatus();
+        }
+        
+        function runAllTests() {
+            log('🚀 全テスト実行開始', 'info');
+            log('='.repeat(50), 'info');
+            
+            clearStorage();
+            
+            setTimeout(() => testNormalSession(), 500);
+            setTimeout(() => testCorruptedSession(), 1500);
+            setTimeout(() => testBackupFeature(), 2500);
+            setTimeout(() => testRecovery(), 3500);
+            setTimeout(() => {
+                log('='.repeat(50), 'info');
+                log('🎉 全テスト実行完了', 'success');
+            }, 4500);
+        }
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🔧 StorageManager セッションデータ修復テストページ読み込み完了', 'success');
+            updateStorageStatus();
+        });
+    </script>
+</body>
+</html>

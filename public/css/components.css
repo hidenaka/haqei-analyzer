@@ -8,6 +8,9 @@
 .screen-container {
   opacity: 0;
   transition: opacity 0.5s ease;
+  /* 上部の見切れを防ぐための追加設定 */
+  min-height: calc(100vh - 4px);
+  padding-top: 20px;
 }
 
 .screen-container.active {
@@ -3857,5 +3860,255 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 0.25rem;
+    }
+}
+
+/* =================================== */
+/* Connections Visualizer フォールバック表示 */
+/* =================================== */
+
+.connections-fallback {
+    padding: 2rem;
+    text-align: center;
+    background: var(--primary-800);
+    border-radius: 12px;
+    border: 1px solid var(--primary-600);
+    margin: 1rem 0;
+}
+
+.fallback-header {
+    margin-bottom: 2rem;
+}
+
+.connections-title {
+    font-size: 1.5rem;
+    color: var(--primary-100);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.fallback-notice {
+    color: var(--primary-400);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.simple-connections-grid {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto 2rem auto;
+}
+
+.connection-summary {
+    background: var(--primary-900);
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid var(--primary-600);
+    transition: all 0.3s ease;
+}
+
+.connection-summary:hover {
+    border-color: var(--accent-500);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.1);
+}
+
+.os-pair {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.os-icon {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    background: var(--primary-700);
+    border-radius: 50%;
+    min-width: 3rem;
+    text-align: center;
+}
+
+.os-name {
+    font-weight: 600;
+    color: var(--primary-100);
+    font-size: 1rem;
+    text-align: center;
+    min-width: 120px;
+}
+
+.connection-arrow {
+    font-size: 1.25rem;
+    color: var(--accent-400);
+    margin: 0 0.5rem;
+}
+
+.connection-description {
+    color: var(--primary-300);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+    text-align: center;
+}
+
+.fallback-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.retry-button,
+.refresh-button {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--accent-500), var(--accent-400));
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.retry-button:hover,
+.refresh-button:hover {
+    background: linear-gradient(135deg, var(--accent-600), var(--accent-500));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.refresh-button {
+    background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+}
+
+.refresh-button:hover {
+    background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
+    box-shadow: 0 4px 15px rgba(71, 85, 105, 0.3);
+}
+
+.error-state {
+    text-align: center;
+    padding: 2rem;
+}
+
+.error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    color: var(--primary-300);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.connections-loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--primary-400);
+}
+
+.connections-loading .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--primary-600);
+    border-top: 3px solid var(--accent-500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .connections-fallback {
+        padding: 1.5rem;
+    }
+    
+    .simple-connections-grid {
+        gap: 1rem;
+    }
+    
+    .connection-summary {
+        padding: 1rem;
+    }
+    
+    .os-pair {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .os-name {
+        min-width: auto;
+        font-size: 0.9rem;
+    }
+    
+    .connection-arrow {
+        transform: rotate(90deg);
+        margin: 0;
+    }
+    
+    .fallback-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .retry-button,
+    .refresh-button {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+    .connections-fallback {
+        background: #1a1a1a;
+        border-color: #374151;
+    }
+    
+    .connection-summary {
+        background: #111827;
+        border-color: #374151;
+    }
+    
+    .connection-summary:hover {
+        border-color: #6366f1;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
+    }
+    
+    .os-icon {
+        background: #374151;
+    }
+    
+    .connections-title {
+        color: #f9fafb;
+    }
+    
+    .fallback-notice {
+        color: #9ca3af;
+    }
+    
+    .os-name {
+        color: #f3f4f6;
+    }
+    
+    .connection-description {
+        color: #d1d5db;
+    }
+    
+    .error-message {
+        color: #d1d5db;
     }
 }

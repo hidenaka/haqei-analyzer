@@ -495,28 +495,129 @@ function showAnalysisView(viewInstance) {
   app.analysisView.show(); // ここで非同期の分析とアニメーションが開始される
 }
 
-// 結果画面を表示（新設計：別ページにリダイレクト）
+// 結果画面を表示（修正版：データ構造に基づく適切なView選択）
 async function showResultsView(result, insights) {
-  console.log("✅ [App] 結果表示：別ページへリダイレクト開始");
+  console.log("✅ [App] 結果表示開始");
   
   try {
-    // 分析結果とインサイトをストレージに保存（results.htmlで読み込み用）
+    // 分析結果とインサイトをストレージに保存
     app.storageManager.saveAnalysisResult(result);
     app.storageManager.saveInsights(insights);
     app.storageManager.updateSession({ stage: "results" });
     
     console.log("💾 [App] 分析結果をストレージに保存完了");
-    console.log("🔄 [App] results.htmlにリダイレクトします...");
     
-    // 別ページ（results.html）にリダイレクト
-    window.location.href = 'results.html';
+    // データ構造を確認
+    console.log("🔍 [App] データ構造確認:", {
+      result: result,
+      hasEngineOS: !!result?.engineOS,
+      hasInterfaceOS: !!result?.interfaceOS,
+      hasSafeModeOS: !!result?.safeModeOS,
+      hasPrimaryOS: !!result?.primaryOS,
+      analysisType: result?.analysisType
+    });
+
+    // 他の画面を非表示
+    hideAllScreens();
+
+    // データ構造に基づいて適切なViewを選択
+    if (result?.analysisType === "tripleOS" || (result?.engineOS && result?.interfaceOS && result?.safeModeOS)) {
+      console.log("🔍 [App] TripleOS結果を検出、TripleOSStrategicViewを使用");
+      await showTripleOSResultsView(result, insights);
+    } else {
+      console.log("🔍 [App] 単一OS結果を検出、ResultsViewを使用");
+      await showSingleOSResultsView(result, insights);
+    }
+    
+    console.log("✅ [App] 結果表示完了");
     
   } catch (error) {
-    console.error("❌ [App] 結果ページへのリダイレクトに失敗:", error);
+    console.error("❌ [App] 結果表示でエラー:", error);
+    console.error("❌ [App] エラースタック:", error.stack);
     
-    // フォールバック：従来の同一ページ内表示
-    console.log("🔄 [App] フォールバック：同一ページ内表示を実行");
+    // フォールバック処理
     await showResultsViewFallback(result, insights);
+  }
+}
+
+// TripleOS結果専用の表示関数
+async function showTripleOSResultsView(result, insights) {
+  try {
+    const compatibilityLoader = new CompatibilityDataLoader();
+    const dataManager = app.dataManager;
+
+    const optionsToPass = {
+      analysisResult: result,
+      insights: insights,
+      compatibilityLoader: compatibilityLoader,
+      dataManager: dataManager,
+    };
+
+    console.log("🕵️‍♂️ [App] TripleOSStrategicViewを生成します...", optionsToPass);
+    
+    // 戦略ダッシュボードインスタンスを生成
+    app.resultsView = new TripleOSStrategicView("results-container", optionsToPass);
+
+    // 初期化とレンダリングを実行
+    await app.resultsView.init();
+    await app.resultsView.show();
+    
+    // results-containerにvisibleクラスを確実に追加
+    const resultsContainer = document.getElementById("results-container");
+    if (resultsContainer) {
+      resultsContainer.classList.add("visible");
+      resultsContainer.style.setProperty('display', 'flex', 'important');
+      resultsContainer.style.setProperty('position', 'fixed', 'important');
+      resultsContainer.style.setProperty('top', '0', 'important');
+      resultsContainer.style.setProperty('left', '0', 'important');
+      resultsContainer.style.setProperty('width', '100vw', 'important');
+      resultsContainer.style.setProperty('height', '100vh', 'important');
+      resultsContainer.style.setProperty('z-index', '30000', 'important');
+      
+      const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const backgroundGradient = isDarkMode ? 
+        'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)' : 
+        'linear-gradient(135deg, #1e293b 0%, #334155 100%)';
+      const textColor = isDarkMode ? '#ffffff' : '#f1f5f9';
+      
+      resultsContainer.style.setProperty('background', backgroundGradient, 'important');
+      resultsContainer.style.setProperty('color', textColor, 'important');
+      resultsContainer.style.setProperty('opacity', '1', 'important');
+      resultsContainer.style.setProperty('visibility', 'visible', 'important');
+      resultsContainer.style.setProperty('overflow-y', 'auto', 'important');
+      resultsContainer.style.setProperty('padding', '20px', 'important');
+    }
+    
+    console.log("✅ [App] TripleOS結果表示完了");
+    
+  } catch (error) {
+    console.error("❌ [App] TripleOS結果表示でエラー:", error);
+    throw error; // 上位でフォールバック処理される
+  }
+}
+
+// 単一OS結果専用の表示関数
+async function showSingleOSResultsView(result, insights) {
+  try {
+    // ResultsViewを作成して表示
+    app.resultsView = new ResultsView("results-container", {
+      onExploreMore: function(analysisResult) {
+        showInsightPanel(analysisResult, insights);
+      },
+      onRetakeTest: function() {
+        window.location.reload();
+      }
+    });
+
+    // データを設定してレンダリング
+    app.resultsView.setData(result, insights);
+    await app.resultsView.show();
+    
+    console.log("✅ [App] 単一OS結果表示完了");
+    
+  } catch (error) {
+    console.error("❌ [App] 単一OS結果表示でエラー:", error);
+    throw error; // 上位でフォールバック処理される
   }
 }
 

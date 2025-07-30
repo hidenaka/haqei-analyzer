@@ -10,6 +10,10 @@ class ShadowAnalyzer {
     constructor() {
         this.shadowMappings = this._initializeShadowMappings();
         this.universalShadowPatterns = this._initializeUniversalPatterns();
+        this.hexagramDetailsFallback = null; // HexagramDetailsFallback instance
+        
+        // Initialize hexagram details fallback if available
+        this._initializeHexagramDetailsFallback();
         
         console.log("🌑 [ShadowAnalyzer] シャドウ分析エンジン初期化完了");
     }
@@ -122,6 +126,25 @@ class ShadowAnalyzer {
     }
 
     /**
+     * HexagramDetailsFallbackの初期化
+     */
+    _initializeHexagramDetailsFallback() {
+        try {
+            if (window.hexagramDetailsFallback) {
+                this.hexagramDetailsFallback = window.hexagramDetailsFallback;
+                console.log("✅ [ShadowAnalyzer] HexagramDetailsFallback連携初期化完了");
+            } else if (window.HexagramDetailsFallback) {
+                this.hexagramDetailsFallback = new window.HexagramDetailsFallback();
+                console.log("✅ [ShadowAnalyzer] HexagramDetailsFallback新規作成完了");
+            } else {
+                console.warn("⚠️ [ShadowAnalyzer] HexagramDetailsFallbackが利用できません - 動的シャドウ分析は制限されます");
+            }
+        } catch (error) {
+            console.error("❌ [ShadowAnalyzer] HexagramDetailsFallback初期化エラー:", error);
+        }
+    }
+
+    /**
      * 共通的なシャドウパターンを初期化
      */
     _initializeUniversalPatterns() {
@@ -141,17 +164,24 @@ class ShadowAnalyzer {
 
     /**
      * メイン分析メソッド: 指定されたOSのシャドウ分析を実行
+     * hexagram_details.jsのデータを動的に活用
      */
     analyzeShadow(osData, score) {
         console.log(`🌑 [ShadowAnalyzer] シャドウ分析開始: ${osData.osName} (${score}%)`);
 
+        // hexagram_detailsから詳細データを取得
+        const hexagramDetails = this._getHexagramDetails(osData);
+        
         const shadowProfile = {
             osName: osData.osName,
             score: score,
-            shadowAspects: this._getShadowAspects(osData.osName, score),
-            selfInquiryQuestions: this._generateSelfInquiryQuestions(osData.osName, score),
-            integrationGuidance: this._generateIntegrationGuidance(osData.osName, score),
-            growthChallenges: this._identifyGrowthChallenges(osData.osName, score)
+            hexagramId: osData.hexagramId || osData.osId,
+            shadowAspects: this._getShadowAspects(osData.osName, score, hexagramDetails),
+            selfInquiryQuestions: this._generateSelfInquiryQuestions(osData.osName, score, hexagramDetails),
+            integrationGuidance: this._generateIntegrationGuidance(osData.osName, score, hexagramDetails),
+            growthChallenges: this._identifyGrowthChallenges(osData.osName, score, hexagramDetails),
+            // hexagram_detailsから取得した詳細情報を追加
+            dynamicInsights: this._extractDynamicInsights(hexagramDetails)
         };
 
         console.log("✅ [ShadowAnalyzer] シャドウ分析完了", shadowProfile);
@@ -159,28 +189,138 @@ class ShadowAnalyzer {
     }
 
     /**
-     * シャドウ側面の抽出
+     * hexagram_detailsから詳細データを取得
      */
-    _getShadowAspects(osName, score) {
+    _getHexagramDetails(osData) {
+        if (!osData) return null;
+        
+        try {
+            const hexagramId = osData.hexagramId || osData.osId;
+            
+            // 1. HEXAGRAM_DETAILSから直接取得を試行
+            if (window.HEXAGRAM_DETAILS && hexagramId && window.HEXAGRAM_DETAILS[hexagramId]) {
+                console.log(`✅ [ShadowAnalyzer] HEXAGRAM_DETAILSから詳細データ取得: 卦${hexagramId}`);
+                return window.HEXAGRAM_DETAILS[hexagramId];
+            }
+            
+            // 2. HexagramDetailsFallbackを使用
+            if (this.hexagramDetailsFallback && hexagramId) {
+                console.log(`🔄 [ShadowAnalyzer] HexagramDetailsFallbackから生成: 卦${hexagramId}`);
+                return this.hexagramDetailsFallback.getHexagramDetails(hexagramId);
+            }
+            
+            console.warn(`⚠️ [ShadowAnalyzer] hexagram_details取得失敗: 卦${hexagramId}`);
+            return null;
+            
+        } catch (error) {
+            console.error("❌ [ShadowAnalyzer] hexagram_details取得エラー:", error);
+            return null;
+        }
+    }
+
+    /**
+     * hexagram_detailsから動的インサイトを抽出
+     */
+    _extractDynamicInsights(hexagramDetails) {
+        if (!hexagramDetails) return null;
+
+        try {
+            return {
+                // Engine OSからの洞察
+                engineInsights: {
+                    potentialStrengths: hexagramDetails.engine?.potential_strengths || [],
+                    potentialWeaknesses: hexagramDetails.engine?.potential_weaknesses || [],
+                    coreDrive: hexagramDetails.engine?.core_drive || null
+                },
+                // Interface OSからの洞察  
+                interfaceInsights: {
+                    behavioralPatterns: hexagramDetails.interface?.behavioral_patterns || [],
+                    impressionOnOthers: hexagramDetails.interface?.impression_on_others || null,
+                    howItAppears: hexagramDetails.interface?.how_it_appears || null
+                },
+                // Safe Mode OSからの洞察
+                safeModeInsights: {
+                    triggerSituations: hexagramDetails.safe_mode?.trigger_situations || [],
+                    defensivePatterns: hexagramDetails.safe_mode?.defensive_patterns || [],
+                    internalState: hexagramDetails.safe_mode?.internal_state || null
+                }
+            };
+        } catch (error) {
+            console.error("❌ [ShadowAnalyzer] 動的インサイト抽出エラー:", error);
+            return null;
+        }
+    }
+
+    /**
+     * シャドウ側面の抽出（hexagram_details対応）
+     */
+    _getShadowAspects(osName, score, hexagramDetails = null) {
+        const intensity = this._calculateShadowIntensity(score);
+        
+        // hexagram_detailsから動的にシャドウ情報を生成
+        if (hexagramDetails) {
+            return this._generateDynamicShadowAspects(osName, score, hexagramDetails, intensity);
+        }
+        
+        // フォールバック: 既存のマッピングを使用
         const shadowData = this.shadowMappings[osName];
         if (!shadowData) {
             return this._generateGenericShadowAspects(osName, score);
         }
 
-        const intensity = this._calculateShadowIntensity(score);
-        
         return {
             primary_shadow: shadowData.強みの影,
             behavioral_risks: shadowData.行動的影,
             intensity_level: intensity,
-            likelihood: this._calculateShadowLikelihood(score)
+            likelihood: this._calculateShadowLikelihood(score),
+            data_source: "fixed_mapping"
         };
+    }
+    
+    /**
+     * hexagram_detailsから動的にシャドウ側面を生成
+     */
+    _generateDynamicShadowAspects(osName, score, hexagramDetails, intensity) {
+        try {
+            // potential_weaknessesを「強みの影」として活用
+            const potentialWeaknesses = hexagramDetails.engine?.potential_weaknesses || [];
+            const potentialStrengths = hexagramDetails.engine?.potential_strengths || [];
+            
+            // trigger_situationsとdefensive_patternsを統合
+            const triggerSituations = hexagramDetails.safe_mode?.trigger_situations || [];
+            const defensivePatterns = hexagramDetails.safe_mode?.defensive_patterns || [];
+            
+            // 強みから影を推測
+            const strengthBasedShadows = potentialStrengths.map(strength => 
+                `${strength} → 過度な依存や極端な表現による弊害`
+            );
+            
+            return {
+                primary_shadow: potentialWeaknesses.length > 0 ? 
+                    potentialWeaknesses.join(', ') : 
+                    strengthBasedShadows.join(', '),
+                behavioral_risks: defensivePatterns.join(', ') || "過度な防御反応による関係性の問題",
+                trigger_analysis: triggerSituations.join(', ') || "価値観が脅かされた時の反応",
+                intensity_level: intensity,
+                likelihood: this._calculateShadowLikelihood(score),
+                data_source: "dynamic_hexagram_details",
+                // 詳細な分析情報
+                detailed_analysis: {
+                    strength_to_shadow_mapping: this._mapStrengthsToShadows(potentialStrengths),
+                    defensive_pattern_analysis: this._analyzeDefensivePatterns(defensivePatterns),
+                    trigger_situation_insights: this._analyzeTriggerSituations(triggerSituations)
+                }
+            };
+        } catch (error) {
+            console.error("❌ [ShadowAnalyzer] 動的シャドウ側面生成エラー:", error);
+            return this._generateGenericShadowAspects(osName, score);
+        }
     }
 
     /**
-     * 自己探求質問の生成
+     * 自己探求質問の生成（hexagram_details対応）
      */
-    _generateSelfInquiryQuestions(osName, score) {
+    _generateSelfInquiryQuestions(osName, score, hexagramDetails = null) {
         const shadowData = this.shadowMappings[osName];
         const questions = [];
 

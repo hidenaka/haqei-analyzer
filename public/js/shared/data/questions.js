@@ -22,46 +22,51 @@ var WORLDVIEW_QUESTIONS = [
       {
         value: "A",
         text: "誰もやったことのない革新的なアプローチを試す",
+        koui_level: 5, // 五爻：成熟・統率段階での創造的決断力
         scoring_tags: [
           { key: "乾_創造性", value: 3.0 },
           { key: "離_表現性", value: 1.5 },
-          { key: "艮_安定性", value: -1.0 },
+          { key: "艮_安定性", value: -1.0, type: "conflicting" }, // 乾と艮は動静対立
         ],
       },
       {
         value: "B",
         text: "既存の方法を改良してより良いものにする",
+        koui_level: 3, // 三爻：転換・危険段階での注意深い改良
         scoring_tags: [
           { key: "乾_創造性", value: 1.5 },
           { key: "坎_探求性", value: 1.5 },
-          { key: "巽_適応性", value: 1.0 },
+          { key: "巽_適応性", value: 1.0, type: "complementary" }, // 乾と巽は剛柔補完
         ],
       },
       {
         value: "C",
         text: "みんなで話し合って最適な方法を見つける",
+        koui_level: 2, // 二爻：発展・協力段階での他者との連携
         scoring_tags: [
           { key: "兌_調和性", value: 2.5 },
           { key: "坤_受容性", value: 1.5 },
-          { key: "乾_創造性", value: -0.5 },
+          { key: "乾_創造性", value: -0.5, type: "conflicting" }, // 坤と乾は陰陽対立
         ],
       },
       {
         value: "D",
         text: "過去の成功例を参考にして確実に進める",
+        koui_level: 1, // 初爻：始まり・基礎段階での慎重さと準備
         scoring_tags: [
           { key: "艮_安定性", value: 2.5 },
-          { key: "坎_探求性", value: 1.0 },
-          { key: "乾_創造性", value: -1.0 },
+          { key: "坎_探求性", value: 1.0, type: "complementary" }, // 坎と艮は探求から安定への相生
+          { key: "乾_創造性", value: -1.0, type: "conflicting" }, // 艮と乾は静動対立
         ],
       },
       {
         value: "E",
         text: "状況に応じて柔軟に方法を調整する",
+        koui_level: 4, // 四爻：進展・責任段階でのリーダーシップ的適応
         scoring_tags: [
           { key: "巽_適応性", value: 2.5 },
-          { key: "兌_調和性", value: 1.0 },
-          { key: "艮_安定性", value: -0.5 },
+          { key: "兌_調和性", value: 1.0, type: "conflicting" }, // 巽と兌は順従と悦楽の対立
+          { key: "艮_安定性", value: -0.5, type: "conflicting" }, // 巽の柔軟性と艮の固定性は対立
         ],
       },
     ],
@@ -1302,6 +1307,9 @@ var SCENARIO_QUESTIONS = [
     id: "q25",
     scenario:
       "あなたは重要な発表を控えています。準備時間は十分ではなく、多くの人があなたの成果を注目しています。",
+    situation_hexagram: "沢水困", // 困難・プレッシャー状況の象徴
+    hexagram_number: 47,
+    hexagram_meaning: "沢が水の下にあり、水が枯渇する困難な状況。プレッシャー下での対処を問う",
     inner_q: "その時のあなたの内面（心の中）の状態は？",
     outer_q: "その時のあなたの外面（他者への振る舞い）は？",
     options: {
@@ -1406,6 +1414,9 @@ var SCENARIO_QUESTIONS = [
     id: "q26",
     scenario:
       "信頼していた友人が、あなたの知らないところで批判的なことを言っていたことを知ってしまいました。",
+    situation_hexagram: "風天小畜", // 裏切り・信頼の亀裂状況の象徴
+    hexagram_number: 9,
+    hexagram_meaning: "風が天を制止する、小さな力で大きな流れを阻む。信頼関係の微細な亀裂を問う",
     inner_q: "その時のあなたの内面（心の中）の状態は？",
     outer_q: "その時のあなたの外面（その人への振る舞い）は？",
     options: {
@@ -1510,6 +1521,9 @@ var SCENARIO_QUESTIONS = [
     id: "q27",
     scenario:
       "あなたの重要な決断（進路、転職、結婚、住む場所など）について、家族や親しい人が強く反対しています。",
+    situation_hexagram: "火山旅", // 家族との対立・離散状況の象徴
+    hexagram_number: 56,
+    hexagram_meaning: "山の上の火、一時的で不安定な状況。家族関係の離散状態での行動指針を問う",
     inner_q: "その時のあなたの内面（心の中）の状態は？",
     outer_q: "その時のあなたの外面（家族への振る舞い）は？",
     options: {
@@ -1614,6 +1628,9 @@ var SCENARIO_QUESTIONS = [
     id: "q28",
     scenario:
       "突然の事故や災害、急病など、予想外の緊急事態が発生しました。迅速な判断と行動が求められています。",
+    situation_hexagram: "水雷屯", // 緊急事態・始動困難状況の象徴
+    hexagram_number: 3,
+    hexagram_meaning: "雷が水中にあり、動きが困難な状況。初動期の混乱への対処を問う",
     inner_q: "その時のあなたの内面（心の中）の状態は？",
     outer_q: "その時のあなたの外面（周囲への振る舞い）は？",
     options: {
@@ -1718,6 +1735,9 @@ var SCENARIO_QUESTIONS = [
     id: "q29",
     scenario:
       "あなたが参加している競技やコンテスト、選考などで、他の参加者と競争する状況になりました。結果によって今後が大きく左右されます。",
+    situation_hexagram: "地水師", // 競争・争い状況の象徴
+    hexagram_number: 7,
+    hexagram_meaning: "地の下に水あり、統率と戦略が必要。競争状況での戦略的思考を問う",
     inner_q: "その時のあなたの内面（心の中）の状態は？",
     outer_q: "その時のあなたの外面（他の参加者への振る舞い）は？",
     options: {
@@ -1822,6 +1842,9 @@ var SCENARIO_QUESTIONS = [
     id: "q30",
     scenario:
       "あなたは正しいと思うことと、周囲の期待や利益が相反する状況に置かれました。どちらを選んでも何かを犠牲にしなければなりません。",
+    situation_hexagram: "水風井", // 義理と人情・共同体恩恵状況の象徴
+    hexagram_number: 48,
+    hexagram_meaning: "風が水を汲み上げる、相互扶助の象徴。道徳的判断での共同体配慮を問う",
     inner_q: "その時のあなたの内面（心の中）の状態は？",
     outer_q: "その時のあなたの外面（周囲への振る舞い）は？",
     options: {
