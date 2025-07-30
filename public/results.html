@@ -14,6 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
+    <div id="data-manager-errors" style="display: none;"></div>
     <div id="results-container">
         <!-- TripleOSResultsViewがここに対話型UIを生成 -->
     </div>
@@ -23,6 +24,7 @@
     <script type="text/javascript" src="./js/shared/data/questions.js"></script>
     <script type="text/javascript" src="./js/shared/data/vectors.js"></script>
     <script type="text/javascript" src="./js/os-analyzer/data/hexagrams.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/data/hexagram_details.js"></script>
     <script type="text/javascript" src="./js/shared/utils/validators.js"></script>
     <script type="text/javascript" src="./js/shared/utils/animations.js"></script>
 
@@ -38,6 +40,7 @@
     <script type="text/javascript" src="./js/os-analyzer/core/CriticalThinkingEngine.js"></script>
     
     <!-- UIコンポーネント -->
+    <script type="text/javascript" src="./js/components/CriticalProductiveCard.js"></script>
     <script type="text/javascript" src="./js/components/TripleOSResultsView.js"></script>
 
     <script>
@@ -51,6 +54,7 @@
                 'CompatibilityDataLoader': typeof CompatibilityDataLoader !== 'undefined',
                 'ShadowAnalyzer': typeof ShadowAnalyzer !== 'undefined',
                 'CriticalThinkingEngine': typeof CriticalThinkingEngine !== 'undefined',
+                'CriticalProductiveCard': typeof CriticalProductiveCard !== 'undefined',
                 'TripleOSResultsView': typeof TripleOSResultsView !== 'undefined'
             };
             
