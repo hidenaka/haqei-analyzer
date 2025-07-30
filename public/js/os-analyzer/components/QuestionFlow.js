@@ -5,7 +5,7 @@ class QuestionFlow extends BaseComponent {
   constructor(containerId, options = {}) {
     super(containerId, options);
     this.currentQuestionIndex = 0;
-    this.answers = [];
+    this.answers = []; // 必ず配列として初期化
     this.questions = [];
     this.storageManager = options.storageManager || null;
     this.changeEventBound = false; // イベント重複防止フラグ
@@ -62,19 +62,30 @@ class QuestionFlow extends BaseComponent {
 
   // 以前の回答を読み込み
   loadPreviousAnswers() {
+    // answers配列の初期化を保証
+    if (!Array.isArray(this.answers)) {
+      this.answers = [];
+    }
+    
     if (this.storageManager) {
       const savedAnswers = this.storageManager.getAnswers();
       const savedProgress = this.storageManager.getProgress();
 
-      if (savedAnswers && savedAnswers.length > 0) {
+      if (savedAnswers && Array.isArray(savedAnswers) && savedAnswers.length > 0) {
         this.answers = savedAnswers;
         console.log("📋 Loaded previous answers:", this.answers.length);
+      } else {
+        this.answers = [];
+        console.log("📋 No previous answers found, initialized empty array");
       }
 
       if (savedProgress) {
         this.currentQuestionIndex = savedProgress.currentQuestionIndex || 0;
         console.log("🔄 Restored progress:", this.currentQuestionIndex);
       }
+    } else {
+      this.answers = [];
+      console.log("📋 No storageManager, initialized empty answers array");
     }
   }
 
@@ -156,7 +167,7 @@ class QuestionFlow extends BaseComponent {
             <div class="nav-dots">
               ${Array.from({length: Math.min(totalQuestions, 10)}, (_, i) => {
                 const questionIndex = Math.floor((i / 9) * (totalQuestions - 1));
-                const isCompleted = this.answers.some(a => a && a.questionId === this.questions[questionIndex]?.id);
+                const isCompleted = Array.isArray(this.answers) && this.answers.some(a => a && a.questionId === this.questions[questionIndex]?.id);
                 const isCurrent = questionIndex === this.currentQuestionIndex;
                 return `<div class="nav-dot ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}"></div>`;
               }).join('')}
