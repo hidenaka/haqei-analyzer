@@ -471,8 +471,8 @@ class QuestionFlow extends BaseComponent {
     // 即座にUIフィードバックを提供
     this.showImmediateUIFeedback();
     
-    // 26問目以降（シナリオ質問）は即座に実行してパフォーマンスを改善
-    const isScenarioPhase = this.currentQuestionIndex >= 15; // 価値観15問 + シナリオ開始
+    // シナリオ質問（Q25以降、インデックス24以降）は即座に実行してパフォーマンスを改善
+    const isScenarioPhase = this.currentQuestionIndex >= 24; // 価値観24問(0-23) + シナリオ開始(24-)
     const delay = isScenarioPhase ? 0 : 50;
     
     console.log(`🚀 debouncedUpdate: index=${this.currentQuestionIndex}, isScenario=${isScenarioPhase}, delay=${delay}ms`);

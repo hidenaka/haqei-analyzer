@@ -517,17 +517,16 @@ async function showResultsView(result, insights) {
       analysisType: result?.analysisType
     });
 
-    // 他の画面を非表示
-    hideAllScreens();
-
-    // データ構造に基づいて適切なViewを選択
-    if (result?.analysisType === "tripleOS" || (result?.engineOS && result?.interfaceOS && result?.safeModeOS)) {
-      console.log("🔍 [App] TripleOS結果を検出、TripleOSStrategicViewを使用");
-      await showTripleOSResultsView(result, insights);
-    } else {
-      console.log("🔍 [App] 単一OS結果を検出、ResultsViewを使用");
-      await showSingleOSResultsView(result, insights);
-    }
+    // 🚀 修正: results.htmlへの確実なページ遷移
+    console.log("🔄 [App] results.htmlへページ遷移中...");
+    
+    // UIフィードバックを表示
+    showTransitionFeedback();
+    
+    // 少し遅延を入れてからリダイレクト（ユーザーへのフィードバック時間確保）
+    setTimeout(() => {
+      window.location.href = 'results.html';
+    }, 800);
     
     console.log("✅ [App] 結果表示完了");
     
@@ -535,9 +534,50 @@ async function showResultsView(result, insights) {
     console.error("❌ [App] 結果表示でエラー:", error);
     console.error("❌ [App] エラースタック:", error.stack);
     
-    // フォールバック処理
-    await showResultsViewFallback(result, insights);
+    // エラー時もresults.htmlへ遷移（ストレージにデータがあるため）
+    alert("分析完了しました。結果ページに移動します。");
+    window.location.href = 'results.html';
   }
+}
+
+// 🚀 新規: ページ遷移時のUIフィードバック
+function showTransitionFeedback() {
+  // 全画面オーバーレイを作成
+  const overlay = document.createElement('div');
+  overlay.id = 'transition-overlay';
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: 'Inter', sans-serif;
+  `;
+  
+  overlay.innerHTML = `
+    <div style="text-align: center;">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+      <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">分析完了</h2>
+      <p style="font-size: 1rem; opacity: 0.9;">結果ページに移動しています...</p>
+      <div style="margin-top: 2rem;">
+        <div style="width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s linear infinite;"></div>
+      </div>
+    </div>
+    <style>
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  `;
+  
+  document.body.appendChild(overlay);
 }
 
 // TripleOS結果専用の表示関数
