@@ -1041,12 +1041,26 @@ class QuestionFlow extends BaseComponent {
     try {
       console.log("🔍 Starting optimized question completion check...");
 
-      // 🚀 最適化: 非同期処理で完了チェック
-      this.showLoadingState();
+      // 🚀 最適化: 安全なローディング状態表示
+      try {
+        this.showLoadingState();
+        console.log("🔍 Loading state shown successfully");
+      } catch (loadingError) {
+        console.error("❌ Error showing loading state:", loadingError);
+        // ローディング状態のエラーは無視して続行
+      }
       
       // 🚀 最適化: Web Workerまたは非同期チェックで処理
+      console.log("🔍 Setting timeout for async completion check...");
       setTimeout(() => {
-        this.performCompletionCheckAsync();
+        try {
+          console.log("🔍 Timeout callback executing - calling performCompletionCheckAsync...");
+          this.performCompletionCheckAsync();
+        } catch (asyncError) {
+          console.error("❌ Error in setTimeout callback:", asyncError);
+          this.hideLoadingState();
+          alert("完了チェック処理でエラーが発生しました。再度お試しください。");
+        }
       }, 100); // UI更新を先に行ってからチェック実行
 
     } catch (error) {
@@ -1103,76 +1117,63 @@ class QuestionFlow extends BaseComponent {
   // 🚀 新規: 非同期完了チェック
   async performCompletionCheckAsync() {
     try {
+      console.log("🔍 performCompletionCheckAsync started");
+      
       // 🚀 最適化: 軽量な完了チェック
+      console.log("🔍 Calling checkAllQuestionsAnsweredOptimized...");
       const completionResult = await this.checkAllQuestionsAnsweredOptimized();
+      console.log("🔍 Completion check result:", completionResult);
 
       if (completionResult.isComplete) {
         console.log("✅ All questions completed:", this.answers.length, "answers");
         
         // 🚀 最適化: 成功時の即座フィードバック
+        console.log("🔍 Showing success animation...");
         this.showSuccessAnimation();
         
         // 分析処理を非同期で開始
+        console.log("🔍 Proceeding to analysis...");
         await this.proceedToAnalysisAsync();
+        console.log("🔍 Analysis completed successfully");
         
       } else {
+        console.log("❌ Questions incomplete:", completionResult.missing);
         this.hideLoadingState();
         this.showIncompleteQuestionsError(completionResult.missing);
       }
     } catch (error) {
       console.error("❌ Error during async completion check:", error);
+      console.error("❌ Error stack:", error.stack);
       this.hideLoadingState();
       alert("完了チェックでエラーが発生しました。再度お試しください。");
     }
   }
 
-  // 🚀 新規: 最適化された完了チェック
+  // 🚀 新規: 最適化された完了チェック（修正版）
   async checkAllQuestionsAnsweredOptimized() {
     return new Promise((resolve) => {
-      // 🚀 最適化: requestIdleCallbackを使用して負荷を分散
-      const performCheck = () => {
-        const missing = [];
-        let checkedCount = 0;
+      console.log("🔍 checkAllQuestionsAnsweredOptimized: Starting with", this.questions.length, "questions");
+      
+      const missing = [];
+      
+      // シンプルな完了チェック（パフォーマンス最適化を一時的に削除）
+      for (let i = 0; i < this.questions.length; i++) {
+        const question = this.questions[i];
+        const answer = this.findAnswerByQuestionIdOptimized(question.id);
         
-        for (let i = 0; i < this.questions.length; i++) {
-          const question = this.questions[i];
-          const answer = this.findAnswerByQuestionIdOptimized(question.id);
-          
-          if (!this.validateQuestionCompletionOptimized(question, answer)) {
-            missing.push(`${question.id}: 未完了`);
-          }
-          
-          checkedCount++;
-          
-          // 🚀 最適化: バッチ処理で負荷分散
-          if (checkedCount % 5 === 0) {
-            // 5問ごとにイベントループに制御を戻す
-            setTimeout(() => {
-              if (checkedCount < this.questions.length) {
-                return; // 続行
-              }
-              resolve({
-                isComplete: missing.length === 0,
-                missing: missing,
-                totalChecked: checkedCount
-              });
-            }, 0);
-            return;
-          }
+        if (!this.validateQuestionCompletionOptimized(question, answer)) {
+          missing.push(`${question.id}: 未完了`);
         }
-        
-        resolve({
-          isComplete: missing.length === 0,
-          missing: missing,
-          totalChecked: checkedCount
-        });
-      };
-
-      if (window.requestIdleCallback) {
-        requestIdleCallback(performCheck, { timeout: 2000 });
-      } else {
-        setTimeout(performCheck, 0);
       }
+      
+      const result = {
+        isComplete: missing.length === 0,
+        missing: missing,
+        totalChecked: this.questions.length
+      };
+      
+      console.log("🔍 checkAllQuestionsAnsweredOptimized: Result", result);
+      resolve(result);
     });
   }
 
