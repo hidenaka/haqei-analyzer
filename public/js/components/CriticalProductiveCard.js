@@ -384,14 +384,15 @@ class CriticalProductiveCard {
     _renderIntegrationGuidance(guidance) {
         if (!guidance) return '';
         
+        const osName = this.cardData?.osName || this.osData?.osName || "未特定OS";
         return `
             <div class="integration-guidance">
                 <h5>統合ガイダンス</h5>
                 <div class="mindset-shift">
                     <div class="from-to-display">
-                        <div class="from">From: 「私は${this.cardData.osName}だ」（固定的思考）</div>
+                        <div class="from">From: 「私は${osName}だ」（固定的思考）</div>
                         <div class="arrow">→</div>
-                        <div class="to">To: 「私は${this.cardData.osName}の傾向があり、影も含めて成長できる」（成長的思考）</div>
+                        <div class="to">To: 「私は${osName}の傾向があり、影も含めて成長できる」（成長的思考）</div>
                     </div>
                 </div>
             </div>
@@ -459,7 +460,7 @@ class CriticalProductiveCard {
 
     _generateScoreBasedQuestions() {
         const range = this._getScoreRange(this.score);
-        const osName = this.cardData.osName;
+        const osName = this.cardData?.osName || this.osData?.osName || "未特定OS";
         const score = this.score;
         
         const templates = {
@@ -532,11 +533,12 @@ class CriticalProductiveCard {
     }
 
     _generateIntegrationGuidance() {
+        const osName = this.cardData?.osName || this.osData?.osName || "未特定OS";
         return {
             shadow_acceptance: "影の部分も「あなたの一部」として受け入れることから始まります",
             mindset_shift: {
-                from: `「私は${this.cardData.osName}だ」（固定的思考）`,
-                to: `「私は${this.cardData.osName}の傾向があり、影も含めて成長できる」（成長的思考）`
+                from: `「私は${osName}だ」（固定的思考）`,
+                to: `「私は${osName}の傾向があり、影も含めて成長できる」（成長的思考）`
             },
             integration_timeline: "すぐに変わる必要はありません。まずは「気づき」から始めてください"
         };
@@ -550,9 +552,10 @@ class CriticalProductiveCard {
      * フォールバックデータ生成
      */
     _getFallbackCriticalContent() {
+        const osName = this.cardData?.osName || this.osData?.osName || "未特定OS";
         return {
             shadowAspects: {
-                primary_shadow: `${this.cardData.osName}の特性の過度な表現や誤用`,
+                primary_shadow: `${osName}の特性の過度な表現や誤用`,
                 behavioral_risks: "バランスを欠いた行動パターン",
                 intensity_level: "中",
                 likelihood: "50%"

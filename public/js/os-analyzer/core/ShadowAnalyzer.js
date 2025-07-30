@@ -618,6 +618,84 @@ class ShadowAnalyzer {
             practical_wisdom: "一度に全てを変える必要はありません。小さな気づきから始めてください"
         };
     }
+
+    /**
+     * 強み→影のマッピング分析
+     */
+    _mapStrengthsToShadows(strengths) {
+        const mappings = {};
+        if (!Array.isArray(strengths)) return mappings;
+
+        strengths.forEach(strength => {
+            switch(strength) {
+                case '協力的':
+                    mappings[strength] = '過度な依存、自己主張の欠如';
+                    break;
+                case '調和的':
+                    mappings[strength] = '対立回避による問題先送り';
+                    break;
+                case '受容的':
+                    mappings[strength] = '境界線の欠如、搾取されやすさ';
+                    break;
+                case '安定的':
+                    mappings[strength] = '変化への過度な抵抗';
+                    break;
+                case '創造的':
+                    mappings[strength] = '現実逃避、実行力不足';
+                    break;
+                default:
+                    mappings[strength] = '過度な発揮による副作用';
+            }
+        });
+        return mappings;
+    }
+
+    /**
+     * 防御パターンの分析
+     */
+    _analyzeDefensivePatterns(patterns) {
+        if (!Array.isArray(patterns) || patterns.length === 0) {
+            return {
+                primary_pattern: "回避的行動",
+                trigger_context: "価値観が脅かされる状況",
+                impact_assessment: "中程度"
+            };
+        }
+
+        return {
+            primary_pattern: patterns[0] || "回避的行動",
+            secondary_patterns: patterns.slice(1),
+            trigger_context: "コンフリクトや批判的状況",
+            impact_assessment: patterns.length > 2 ? "高" : "中程度"
+        };
+    }
+
+    /**
+     * トリガー状況の洞察分析
+     */
+    _analyzeTriggerSituations(triggers) {
+        if (!Array.isArray(triggers) || triggers.length === 0) {
+            return {
+                high_risk_scenarios: ["価値観の否定", "急激な変化"],
+                coping_recommendations: ["事前準備", "サポート体制の構築"],
+                early_warning_signs: ["不安感の増大", "回避行動の強化"]
+            };
+        }
+
+        return {
+            high_risk_scenarios: triggers,
+            coping_recommendations: [
+                "状況認識の向上",
+                "代替的対応策の準備",
+                "感情調整技術の活用"
+            ],
+            early_warning_signs: [
+                "身体的緊張の増加",
+                "思考の硬直化",
+                "社会的引きこもり傾向"
+            ]
+        };
+    }
 }
 
 // グローバルスコープに登録
