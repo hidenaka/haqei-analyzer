@@ -1,0 +1,206 @@
+# HAQEI Analyzer + Serena MCP 統合設定
+# Cipher + Serena の併用による開発精度向上システム
+
+project:
+  name: "haqei-analyzer"
+  description: "HAQEI プロジェクト - bunenjin哲学に基づく戦略的自己理解システム"
+  
+  # プロジェクト固有設定
+  philosophy: "bunenjin"
+  architecture: "triple_os"
+  root_directory: "/Users/hideakimacbookair/Desktop/haqei-analyzer"
+  
+  # 主要技術スタック
+  languages:
+    primary: "javascript"
+    secondary: ["html", "css", "yaml", "markdown"]
+  
+  # 重要なディレクトリ
+  directories:
+    source: "public/js"
+    agents: "agents"
+    documentation: "docs"
+    data: "data"
+    tests: "test-*"
+
+# Serena MCP 設定
+serena:
+  context: "haqei-development"  # カスタムコンテキスト
+  modes: ["interactive", "editing", "planning"]
+  
+  # 言語サーバー設定
+  language_servers:
+    javascript:
+      enabled: true
+      server: "typescript-language-server"
+    
+    python:
+      enabled: true  # agentsディレクトリ用
+      server: "pyright"
+  
+  # ツール設定
+  tools:
+    enabled:
+      - "file_tools"
+      - "symbol_tools" 
+      - "memory_tools"
+      - "config_tools"
+      - "workflow_tools"
+    
+    # HAQEI特化設定
+    file_tools:
+      watch_patterns:
+        - "public/js/**/*.js"
+        - "agents/**/*.js"
+        - "docs/**/*.md"
+        - "*.html"
+      
+      ignore_patterns:
+        - "node_modules/**"
+        - ".git/**"
+        - "logs/**"
+        - "data/cipher-memory/**"
+    
+    symbol_tools:
+      # Triple OSアーキテクチャ重要シンボル
+      critical_symbols:
+        - "TripleOSEngine"
+        - "Calculator"
+        - "HAQEIFrontendDeveloper"
+        - "FeedbackAgentPersonas"
+        - "bunenjin*"
+        - "*Engine"
+        - "*OS*"
+    
+    memory_tools:
+      project_knowledge:
+        - "bunenjin哲学とTriple OS Architectureの理解"
+        - "易経64卦システムの実装パターン"
+        - "ユーザー主権とプライバシーファースト設計"
+        - "フリーミアム戦略の実装方針"
+
+# Cipher統合設定
+cipher_integration:
+  # Dual Memory Layer連携
+  memory_sharing:
+    enabled: true
+    cipher_endpoint: "http://localhost:3001"
+    
+    # 記憶共有パターン
+    shared_contexts:
+      - "bunenjin-philosophy"
+      - "iching-logic"
+      - "implementation-patterns"
+      - "project-history"
+  
+  # 記憶の同期方法
+  sync_strategy:
+    # Cipherから設計思想・哲学を取得
+    from_cipher:
+      - "プロジェクトの設計思想"
+      - "bunenjin哲学の適用方法"
+      - "過去の実装決定と根拠"
+    
+    # Serenaからコード構造・最適化提案を取得
+    from_serena:
+      - "現在のコード構造分析"
+      - "最適化機会の特定"
+      - "リファクタリング提案"
+    
+    # 統合結果をCipherに保存
+    to_cipher:
+      - "統合開発セッション記録"
+      - "実装品質改善記録"
+      - "新しい設計パターン"
+
+# 開発ワークフロー設定
+workflow:
+  # 新機能開発時
+  feature_development:
+    sequence:
+      1. "Cipher: 過去の設計思想・パターン取得"
+      2. "Serena: 現在のコードベース分析"
+      3. "統合: 哲学と技術の整合性確認"
+      4. "実装: Claude Codeによる実装"
+      5. "Cipher: 新しい知見の記録"
+  
+  # バグ修正時
+  bug_fixing:
+    sequence:
+      1. "Serena: バグ関連コードの詳細分析"
+      2. "Cipher: 過去の類似問題・解決策取得"
+      3. "統合: 根本原因の特定"
+      4. "修正: 哲学に沿った持続可能な解決"
+      5. "Cipher: 修正パターンの記録"
+  
+  # リファクタリング時  
+  refactoring:
+    sequence:
+      1. "Serena: コード品質・構造問題の特定"
+      2. "Cipher: リファクタリング方針・制約取得"
+      3. "統合: 最適なリファクタリング戦略策定"
+      4. "実行: 段階的・安全なリファクタリング"
+      5. "Cipher: 改善結果・学習の記録"
+
+# 品質保証設定
+quality_assurance:
+  # 自動チェック項目
+  automated_checks:
+    - "bunenjin哲学との整合性"
+    - "Triple OSアーキテクチャの維持"
+    - "ユーザープライバシーの保護"
+    - "コード品質基準の遵守"
+  
+  # レビュー基準
+  review_criteria:
+    philosophical:
+      - "Engine/Interface/SafeMode OSの明確な分離"
+      - "易経の智慧の適切な実装"
+      - "ユーザー主権の尊重"
+    
+    technical:
+      - "セマンティックなコード構造"
+      - "パフォーマンス最適化"
+      - "保守性・拡張性"
+      - "エラーハンドリング"
+
+# モニタリング設定
+monitoring:
+  # 開発効率メトリクス
+  efficiency_metrics:
+    - "コード理解時間の短縮"
+    - "実装品質の向上"
+    - "バグ発生率の低下"
+    - "リファクタリング成功率"
+  
+  # 統合効果測定
+  integration_benefits:
+    - "哲学と実装の整合性向上"
+    - "コード保守性の改善"
+    - "開発速度の向上"
+    - "知識継承の効率化"
+
+# セキュリティ設定
+security:
+  # データ保護
+  data_protection:
+    - "ローカル処理優先"
+    - "機密情報の外部送信禁止"
+    - "APIキーの適切な管理"
+  
+  # アクセス制御
+  access_control:
+    - "プロジェクトディレクトリ内のみアクセス"
+    - "重要ファイルの保護"
+    - "ログファイルの機密情報除去"
+
+---
+# このファイルは HAQEI Analyzer プロジェクトの
+# Cipher + Serena MCP統合による開発精度向上システムの
+# 中核設定ファイルです。
+#
+# 目的: bunenjin哲学の記憶(Cipher) + セマンティックコード分析(Serena)
+#       の相乗効果による最高品質の実装実現
+#
+# 作成日: 2025年7月30日
+# 管理者: HAQEI開発チーム

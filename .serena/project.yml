@@ -1,0 +1,233 @@
+# HAQEI Analyzer Serena Project Configuration
+# bunenjin哲学 + Triple OS Architecture 特化設定
+
+project:
+  name: "haqei-analyzer"
+  description: "易経×AI×分人思想による革新的自己理解支援ツール"
+  
+  # HAQEI固有の哲学的設定
+  philosophy:
+    core: "bunenjin"
+    architecture: "triple_os"
+    principles:
+      - "Engine OS: 価値観・本質重視"
+      - "Interface OS: 実用性・使いやすさ重視"
+      - "Safe Mode OS: 安全性・信頼性重視"
+      - "ユーザー主権・プライバシーファースト"
+      - "易経の智慧の現代的実装"
+
+# 言語サーバー設定
+language_servers:
+  javascript:
+    enabled: true
+    server_type: "typescript-language-server"
+    initialization_options:
+      preferences:
+        includePackageJsonAutoImports: "auto"
+        includeCompletionsForModuleExports: true
+        includeCompletionsWithInsertText: true
+    
+    # HAQEI特化設定
+    project_patterns:
+      - "public/js/**/*.js"
+      - "agents/**/*.js"
+      - "functions/**/*.js"
+    
+    # Triple OSアーキテクチャの重要ファイル
+    critical_files:
+      - "public/js/os-analyzer/core/TripleOSEngine.js"
+      - "public/js/os-analyzer/core/Calculator.js"
+      - "public/js/os-analyzer/core/Engine.js"
+      - "agents/haqei-frontend-developer.js"
+      - "agents/feedback-personas.js"
+      - "agents/cto-consolidation-agent.js"
+
+  python:
+    enabled: true
+    server_type: "pyright"
+    settings:
+      python:
+        analysis:
+          typeCheckingMode: "basic"
+          autoImportCompletions: true
+    
+    # エージェントシステム用
+    project_patterns:
+      - "agents/**/*.py"
+      - "scripts/**/*.py"
+
+# プロジェクト構造定義
+structure:
+  source_directories:
+    - "public/js"
+    - "agents"
+    - "functions"
+    - "scripts"
+  
+  documentation_directories:
+    - "docs"
+    - "README.md"
+    - "CLAUDE.md"
+  
+  data_directories:
+    - "data"
+    - "public/assets"
+  
+  configuration_files:
+    - "package.json"
+    - "cipher.config.yaml"
+    - "haqei-serena-integration.yaml"
+    - ".serena/project.yml"
+
+# 重要なシンボル・パターン定義
+symbols:
+  # Triple OSアーキテクチャ
+  triple_os_core:
+    - "TripleOSEngine"
+    - "Calculator"
+    - "PersonalStrategyAI"
+    - "ActionBridgeEngine"
+    - "CriticalThinkingEngine"
+  
+  # 易経システム
+  iching_system:
+    - "IChingUltraSyncLogic"
+    - "hexagram*"
+    - "bagua*"
+    - "compatibility*"
+  
+  # フィードバックシステム
+  feedback_agents:
+    - "FeedbackAgentPersonas"
+    - "HAQEIFeedbackCoordinator"
+    - "CTOConsolidationAgent"
+    - "HAQEIFrontendDeveloper"
+  
+  # 分析エンジン
+  analysis_engines:
+    - "*Analyzer"
+    - "*Engine"
+    - "StatisticalEngine"
+    - "TransparencyEngine"
+
+# ファイル監視・除外設定
+file_handling:
+  # 重要なファイルパターン
+  watch_patterns:
+    - "**/*.js"
+    - "**/*.html"
+    - "**/*.css"
+    - "**/*.md"
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.json"
+  
+  # 除外パターン
+  ignore_patterns:
+    - "node_modules/**"
+    - ".git/**"
+    - "logs/**"
+    - "data/cipher-memory/**"
+    - "*.log"
+    - ".venv/**"
+    - "__pycache__/**"
+    - "serena-mcp/**"
+
+# 開発コンテキスト設定
+contexts:
+  haqei_development:
+    description: "HAQEI専用開発コンテキスト - bunenjin哲学重視"
+    
+    # 有効なツール群
+    enabled_tools:
+      - "file_search"
+      - "symbol_search"
+      - "symbol_edit"
+      - "file_read"
+      - "file_write"
+      - "memory_store"
+      - "memory_retrieve"
+      - "project_index"
+    
+    # 開発指針
+    development_guidelines:
+      - "bunenjin哲学との整合性を最優先"
+      - "Triple OSアーキテクチャの維持"
+      - "ユーザープライバシーの徹底保護"
+      - "易経の智慧の正確な実装"
+      - "コードの可読性・保守性重視"
+
+# メモリ・知識管理
+memory:
+  # プロジェクト知識
+  project_knowledge:
+    - title: "bunenjin哲学の核心"
+      content: "Engine/Interface/Safe Mode OSによる3次元人格分析フレームワーク"
+      importance: "critical"
+    
+    - title: "易経64卦システム"
+      content: "古代の智慧を現代AIに統合した革新的アプローチ"
+      importance: "high"
+    
+    - title: "フリーミアム戦略"
+      content: "Stage 1-3無料、Stage 5有料(¥2,980)の段階的価値提供"
+      importance: "high"
+    
+    - title: "Triple OS技術実装"
+      content: "JavaScript + Gemini API + localStorage による完全ローカル処理"
+      importance: "high"
+  
+  # 設計パターン
+  design_patterns:
+    - pattern: "Component-Based Architecture"
+      description: "モジュラー設計による保守性向上"
+      examples: ["BaseComponent", "WelcomeScreen", "ResultsView"]
+    
+    - pattern: "Engine-Calculator Pattern"
+      description: "分析エンジンと計算ロジックの分離"
+      examples: ["TripleOSEngine + Calculator", "ActionBridgeEngine"]
+    
+    - pattern: "Dual Memory Layer"
+      description: "Cipher統合による記憶の永続化と継承"
+      examples: ["bunenjin哲学記憶", "実装パターン記憶"]
+
+# 品質基準
+quality_standards:
+  # コード品質
+  code_quality:
+    - "ES6+ Modern JavaScript"
+    - "セマンティックな関数・変数名"
+    - "適切なエラーハンドリング"
+    - "パフォーマンス最適化"
+  
+  # 哲学的整合性
+  philosophical_consistency:
+    - "Triple OS概念の正確な実装"
+    - "易経の思想的整合性維持"
+    - "ユーザー主権の尊重"
+    - "プライバシーファースト設計"
+
+# 統合設定
+integration:
+  cipher:
+    enabled: true
+    endpoint: "http://localhost:3001"
+    shared_contexts:
+      - "bunenjin-philosophy"
+      - "iching-logic"
+      - "implementation-patterns"
+      - "project-history"
+  
+  claude_code:
+    optimization: true
+    context_sharing: true
+    workflow_enhancement: true
+
+---
+# この設定ファイルにより、SerenaはHAQEIプロジェクトの
+# 哲学的背景と技術的要件を深く理解し、
+# Cipherとの統合により最高品質の開発支援を提供します。
+#
+# 作成日: 2025年7月30日
+# 最終更新: 2025年7月30日
+# 管理者: HAQEI開発チーム
