@@ -1204,7 +1204,12 @@ class QuestionFlow extends BaseComponent {
   // 🚀 新規: 非同期分析開始
   async proceedToAnalysisAsync() {
     try {
+      console.log("🚀 proceedToAnalysisAsync: Starting analysis transition");
+      console.log("🔍 Options.onComplete:", !!this.options.onComplete);
+      console.log("🔍 proceedToAnalysis function exists:", typeof proceedToAnalysis);
+      
       if (this.options.onComplete) {
+        console.log("📞 Calling options.onComplete with", this.answers.length, "answers");
         // 🚀 最適化: コールバックを非同期実行
         setTimeout(() => {
           this.options.onComplete(this.answers);
@@ -1212,8 +1217,15 @@ class QuestionFlow extends BaseComponent {
       } else {
         // デフォルトの処理: グローバル関数を非同期呼び出し
         if (typeof proceedToAnalysis === "function") {
+          console.log("📞 Calling global proceedToAnalysis with", this.answers.length, "answers");
           setTimeout(() => {
-            proceedToAnalysis(this.answers);
+            try {
+              proceedToAnalysis(this.answers);
+            } catch (analysisError) {
+              console.error("❌ Error in proceedToAnalysis:", analysisError);
+              this.hideLoadingState();
+              alert("分析処理でエラーが発生しました。ページを再読み込みしてください。");
+            }
           }, 500);
         } else {
           console.warn("⚠️ No completion handler found");
