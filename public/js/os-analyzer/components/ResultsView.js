@@ -1,4 +1,5 @@
 // HaQei Analyzer - Results View Component (パフォーマンス最適化版)
+// Phase 5.1: 統計システム根本改革対応版
 class ResultsView extends BaseComponent {
   constructor(containerId, options = {}) {
     super(containerId, options);
@@ -13,6 +14,12 @@ class ResultsView extends BaseComponent {
     // 🚀 最適化: データベース連携強化
     this.dataCache = new Map();
     this.insightCache = new Map();
+
+    // 🔬 Phase 5.1: 科学的フォーマッター初期化
+    this.formatter = window.ScientificFormatter ? new window.ScientificFormatter() : null;
+    this.statisticalEngine = window.StatisticalEngine ? new window.StatisticalEngine() : null;
+    
+    console.log("🔬 ResultsView initialized with scientific formatting:", !!this.formatter);
   }
 
   get defaultOptions() {
@@ -124,7 +131,7 @@ class ResultsView extends BaseComponent {
               <div class="hexagram-reading">${
                 primaryOS?.hexagramInfo?.reading || primaryOS?.hexagramInfo?.name_jp || primaryOS?.hexagramInfo?.description || ""
               }</div>
-              <div class="match-percentage">${(primaryOS?.matchPercentage || primaryOS?.strength * 100 || 0).toFixed(1)}%</div>
+              <div class="match-percentage">${this.formatScientificPercentage(primaryOS?.matchPercentage || primaryOS?.strength || 0)}</div>
               <div class="trigram-composition">構成八卦: ${this.getTrigramComposition(primaryOS)}</div>
             </div>
           `;
@@ -238,9 +245,7 @@ class ResultsView extends BaseComponent {
               <div class="hexagram-reading">${
                 primaryOS?.hexagramInfo?.reading || primaryOS?.hexagramInfo?.name_jp || ""
               }</div>
-              <div class="match-percentage">${(primaryOS?.matchPercentage || primaryOS?.strength * 100 || 0).toFixed(
-                1
-              )}%</div>
+              <div class="match-percentage">${this.formatScientificPercentage(primaryOS?.matchPercentage || primaryOS?.strength || 0)}</div>
               <div class="trigram-composition">構成八卦: ${this.getTrigramComposition(
                 primaryOS
               )}</div>
@@ -399,15 +404,16 @@ class ResultsView extends BaseComponent {
     return dimensions
       .map((dim) => {
         const score = vector[dim.key] || 0;
-        // スコアが-5〜+5の範囲から0〜100%に変換
-        const percentage = Math.max(0, Math.min(100, (score + 5) * 10));
+        // スコアが-5〜+5の範囲から0〜1に正規化後、科学的フォーマッター使用
+        const normalizedScore = Math.max(0, Math.min(1, (score + 5) / 10));
+        const percentage = this.formatScientificPercentage(normalizedScore).replace('%', '');
 
         return `
         <div class="dimension-item">
           <div class="dimension-header">
             <span class="dimension-icon">${dim.icon}</span>
             <span class="dimension-name">${dim.name}</span>
-            <span class="dimension-score">${score.toFixed(1)}</span>
+            <span class="dimension-score">${this.formatScientificScore(score)}</span>
           </div>
           <div class="dimension-bar">
             <div class="dimension-fill" style="width: ${percentage}%"></div>
@@ -486,7 +492,7 @@ class ResultsView extends BaseComponent {
     // フォールバック: 従来の動的生成
     const hexagramName = primaryOS.hexagramInfo?.name || primaryOS.osName || "未知の人格OS";
     const hexagramDescription = primaryOS.hexagramInfo?.description || primaryOS.hexagramInfo?.catchphrase || "";
-    const matchPercentage = primaryOS.matchPercentage || (primaryOS.strength * 100) || 0;
+    const matchPercentage = primaryOS.matchPercentage || primaryOS.strength || 0;
 
     // 八卦情報からより詳細な洞察を生成
     const trigramInsights = this.generateTrigramInsights(primaryOS);
@@ -496,7 +502,7 @@ class ResultsView extends BaseComponent {
     return `
       <div class="insight-summary">
         <h4>🎯 総合的な洞察</h4>
-        <p>あなたの人格OSは<strong>「${hexagramName}」</strong>（適合度: ${matchPercentage.toFixed(1)}%）です。${hexagramDescription}</p>
+        <p>あなたの人格OSは<strong>「${hexagramName}」</strong>（適合度: ${this.formatScientificPercentage(matchPercentage)}）です。${hexagramDescription}</p>
         <p>この人格OSは、${trigramInsights.primaryCharacteristic}が特に強く、あなたの行動パターンと思考の核となっています。</p>
       </div>
       
@@ -621,14 +627,14 @@ class ResultsView extends BaseComponent {
       if (this.analysisResult.interfaceOS) {
         alternatives.push({
           name: `社会的な自分: ${this.analysisResult.interfaceOS.osName}`,
-          percentage: (this.analysisResult.interfaceOS.strength * 100 || 0).toFixed(1)
+          percentage: this.formatScientificPercentage(this.analysisResult.interfaceOS.strength || 0).replace('%', '')
         });
       }
       
       if (this.analysisResult.safeModeOS) {
         alternatives.push({
           name: `守る力: ${this.analysisResult.safeModeOS.osName}`,
-          percentage: (this.analysisResult.safeModeOS.strength * 100 || 0).toFixed(1)
+          percentage: this.formatScientificPercentage(this.analysisResult.safeModeOS.strength || 0).replace('%', '')
         });
       }
       
@@ -664,9 +670,7 @@ class ResultsView extends BaseComponent {
         <div class="match-rank">${index + 2}</div>
         <div class="match-info">
           <div class="match-name">${match.hexagramInfo?.name || match.osName || "不明"}</div>
-          <div class="match-percentage">${(match.matchPercentage || match.strength * 100 || 0).toFixed(
-            1
-          )}%</div>
+          <div class="match-percentage">${this.formatScientificPercentage(match.matchPercentage || match.strength || 0)}</div>
         </div>
       </div>
     `
@@ -992,13 +996,13 @@ class ResultsView extends BaseComponent {
     let summary = '=== HaQei OS分析結果 ===\n';
     summary += `生成日時: ${new Date().toLocaleString('ja-JP')}\n\n`;
     summary += `主要人格OS: ${primaryOS?.hexagramInfo?.name || primaryOS?.osName || "不明"}\n`;
-    summary += `適合度: ${(primaryOS?.matchPercentage || primaryOS?.strength * 100 || 0).toFixed(1)}%\n\n`;
+    summary += `適合度: ${this.formatScientificPercentage(primaryOS?.matchPercentage || primaryOS?.strength || 0)}\n\n`;
     
     if (vector) {
       summary += '--- 8次元バランス ---\n';
       Object.entries(vector).forEach(([key, value]) => {
         const dimensionName = key.split('_')[1] || key;
-        summary += `${dimensionName}: ${(value * 100).toFixed(1)}%\n`;
+        summary += `${dimensionName}: ${this.formatScientificPercentage(value)}\n`;
       });
     }
     
@@ -1066,7 +1070,7 @@ class ResultsView extends BaseComponent {
     insights += `
       <div class="insight-section">
         <h4>🎯 主要人格OS：${primaryOS?.hexagramInfo?.name || primaryOS?.osName || "不明"}</h4>
-        <p><strong>適合度：</strong>${(primaryOS?.matchPercentage || primaryOS?.strength * 100 || 0).toFixed(1)}%</p>
+        <p><strong>適合度：</strong>${this.formatScientificPercentage(primaryOS?.matchPercentage || primaryOS?.strength || 0)}</p>
         <p><strong>特徴：</strong>${primaryOS?.hexagramInfo?.description || primaryOS?.description || '詳細分析中...'}</p>
       </div>
     `;
@@ -1080,13 +1084,13 @@ class ResultsView extends BaseComponent {
       `;
 
       Object.entries(vector).forEach(([key, value]) => {
-        const percentage = (value * 100).toFixed(1);
+        const percentage = this.formatScientificPercentage(value);
         const dimensionName = key.split('_')[1] || key;
         const strength = value > 0.7 ? '強い' : value > 0.4 ? '中程度' : '弱い';
         
         insights += `
           <div class="dimension-detail">
-            <strong>${dimensionName}：</strong>${percentage}% （${strength}）
+            <strong>${dimensionName}：</strong>${percentage} （${strength}）
           </div>
         `;
       });
@@ -1105,7 +1109,7 @@ class ResultsView extends BaseComponent {
       if (this.analysisResult.engineOS) {
         insights += `
           <div class="os-detail">
-            <strong>本質的な自分：</strong>${this.analysisResult.engineOS.osName} (${(this.analysisResult.engineOS.strength * 100).toFixed(1)}%)
+            <strong>本質的な自分：</strong>${this.analysisResult.engineOS.osName} (${this.formatScientificPercentage(this.analysisResult.engineOS.strength || 0)})
           </div>
         `;
       }
@@ -1113,7 +1117,7 @@ class ResultsView extends BaseComponent {
       if (this.analysisResult.interfaceOS) {
         insights += `
           <div class="os-detail">
-            <strong>社会的な自分：</strong>${this.analysisResult.interfaceOS.osName} (${(this.analysisResult.interfaceOS.strength * 100).toFixed(1)}%)
+            <strong>社会的な自分：</strong>${this.analysisResult.interfaceOS.osName} (${this.formatScientificPercentage(this.analysisResult.interfaceOS.strength || 0)})
           </div>
         `;
       }
@@ -1121,7 +1125,7 @@ class ResultsView extends BaseComponent {
       if (this.analysisResult.safeModeOS) {
         insights += `
           <div class="os-detail">
-            <strong>守る力：</strong>${this.analysisResult.safeModeOS.osName} (${(this.analysisResult.safeModeOS.strength * 100).toFixed(1)}%)
+            <strong>守る力：</strong>${this.analysisResult.safeModeOS.osName} (${this.formatScientificPercentage(this.analysisResult.safeModeOS.strength || 0)})
           </div>
         `;
       }
@@ -1210,21 +1214,21 @@ class ResultsView extends BaseComponent {
 
   // 🚀 新規: データベース洞察レンダリング
   renderDatabaseInsights(osManualData, primaryOS) {
-    const matchPercentage = primaryOS.matchPercentage || (primaryOS.strength * 100) || 0;
+    const matchPercentage = primaryOS.matchPercentage || primaryOS.strength || 0;
     
     return `
       <div class="insight-summary">
         <h4>🎯 ${osManualData.name} の特徴</h4>
         <p>${osManualData.summary}</p>
         <div class="match-info">
-          <strong>適合度:</strong> ${matchPercentage.toFixed(1)}%
+          <strong>適合度:</strong> ${this.formatScientificPercentage(matchPercentage)}
         </div>
       </div>
       
       <div class="insight-details">
         <h4>🔍 実践的な洞察</h4>
         <ul>
-          <li>マッチ度 ${matchPercentage.toFixed(1)}% で、この人格OSの特性が表れています。</li>
+          <li>マッチ度 ${this.formatScientificPercentage(matchPercentage)} で、この人格OSの特性が表れています。</li>
           ${primaryOS.trigramComposition ? `<li>八卦構成「${primaryOS.trigramComposition}」の特性を持ちます。</li>` : ''}
           <li>日常生活では、このOSの特徴を意識することで効果的な判断ができます。</li>
         </ul>
@@ -1291,5 +1295,232 @@ class ResultsView extends BaseComponent {
       8: "坤",
     };
     return trigramNames[trigramId] || "乾";
+  }
+
+  // 🔬 Phase 5.1: 科学的数値フォーマッターヘルパーメソッド
+
+  /**
+   * 科学的パーセンテージフォーマット
+   * @param {number} value - 0-1の値
+   * @param {Object} options - フォーマットオプション
+   * @returns {string} フォーマットされたパーセンテージ
+   */
+  formatScientificPercentage(value, options = {}) {
+    // 数値の妥当性チェック
+    if (isNaN(value) || value === null || value === undefined) {
+      return "0.0%";
+    }
+
+    // 統計的妥当性チェック
+    if (this.statisticalEngine) {
+      const validation = this.statisticalEngine.validateScore(value, 'general');
+      if (!validation.isValid) {
+        console.log(`🔬 Display value corrected: ${value} → ${validation.correctedScore}`);
+        value = validation.correctedScore;
+      }
+    }
+
+    // 科学的フォーマッター使用（優先）
+    if (this.formatter) {
+      return this.formatter.formatPercentage(value, options);
+    }
+
+    // フォールバック: 科学的精度での処理（小数点以下1桁に統一）
+    const clampedValue = Math.max(0, Math.min(1, value));
+    const percentage = (clampedValue * 100).toFixed(1);
+    return `${percentage}%`;
+  }
+
+  /**
+   * 科学的スコアフォーマット
+   * @param {number} score - 0-1のスコア
+   * @param {Object} options - フォーマットオプション
+   * @returns {string} フォーマットされたスコア
+   */
+  formatScientificScore(score, options = {}) {
+    // 数値の妥当性チェック
+    if (isNaN(score) || score === null || score === undefined) {
+      return "0.0";
+    }
+
+    // 統計的妥当性チェック
+    if (this.statisticalEngine) {
+      const validation = this.statisticalEngine.validateScore(score, 'general');
+      if (!validation.isValid) {
+        console.log(`🔬 Display score corrected: ${score} → ${validation.correctedScore}`);
+        score = validation.correctedScore;
+      }
+    }
+
+    // 科学的フォーマッター使用（優先）
+    if (this.formatter) {
+      return this.formatter.formatScore(score, options);
+    }
+
+    // フォールバック: 科学的精度での処理（小数点以下1桁に統一）
+    const clampedScore = Math.max(0, Math.min(1, score));
+    return clampedScore.toFixed(1);
+  }
+
+  /**
+   * 信頼区間付きフォーマット
+   * @param {number} value - 中央値
+   * @param {boolean} showConfidence - 信頼区間を表示するか
+   * @returns {string} 信頼区間付きの値
+   */
+  formatWithConfidence(value, showConfidence = false) {
+    if (!this.formatter || !showConfidence) {
+      return this.formatScientificPercentage(value);
+    }
+
+    return this.formatter.formatWithConfidenceInterval(value);
+  }
+
+  /**
+   * 統計品質インジケーターの生成
+   * @param {Object} analysisResult - 分析結果
+   * @returns {string} 品質インジケーターHTML
+   */
+  generateQualityIndicator(analysisResult) {
+    if (!this.formatter || !this.statisticalEngine || !analysisResult.quality) {
+      return '';
+    }
+
+    const quality = this.formatter.formatQualityGrade(
+      analysisResult.quality.grade, 
+      analysisResult.quality.ratio
+    );
+
+    return `
+      <div class="statistical-quality-indicator">
+        <div class="quality-badge" style="color: ${quality.color}">
+          ${quality.display}
+        </div>
+        <div class="quality-description">
+          ${analysisResult.quality.description}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * 透明性レポートの表示
+   * @param {Object} transparencyReport - 透明性レポート
+   * @returns {string} 透明性レポートHTML
+   */
+  generateTransparencyDisplay(transparencyReport) {
+    if (!transparencyReport || !transparencyReport.methodology) {
+      return '';
+    }
+
+    return `
+      <div class="transparency-report">
+        <h4>🔬 計算方法の透明性</h4>
+        <div class="methodology">
+          <p><strong>アルゴリズム:</strong> ${transparencyReport.methodology.algorithm}</p>
+          <p><strong>重み付け:</strong> ${transparencyReport.methodology.weighting}</p>
+          <p><strong>信頼度:</strong> ${transparencyReport.dataQuality.confidenceLevel}</p>
+          <p><strong>誤差範囲:</strong> ${transparencyReport.dataQuality.standardError}</p>
+        </div>
+        <div class="limitations">
+          <strong>分析の限界:</strong>
+          <ul>
+            ${transparencyReport.limitations.map(limit => `<li>${limit}</li>`).join('')}
+          </ul>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * 🔬 Phase 5.1 統合: 安全なスコア変換ヘルパー
+   * 任意の数値を0-1範囲の適切なスコアに変換
+   * @param {number} rawValue - 生の数値
+   * @param {string} sourceType - ソースの種類（percentage, score, ratio等）
+   * @returns {number} 0-1に正規化されたスコア
+   */
+  normalizeToUnitScore(rawValue, sourceType = 'unknown') {
+    try {
+      // 無効値チェック
+      if (isNaN(rawValue) || rawValue === null || rawValue === undefined) {
+        console.warn(`🔬 Invalid raw value detected (${sourceType}):`, rawValue);
+        return 0.5; // 中央値をデフォルトとする
+      }
+
+      // ソースタイプに応じた変換
+      switch (sourceType) {
+        case 'percentage':
+          // 100%表記 → 0-1変換
+          return Math.max(0, Math.min(1, rawValue / 100));
+          
+        case 'dimension_score':
+          // -5〜+5の次元スコア → 0-1変換
+          return Math.max(0, Math.min(1, (rawValue + 5) / 10));
+          
+        case 'strength':
+        case 'match':
+        case 'ratio':
+          // すでに0-1範囲の値
+          return Math.max(0, Math.min(1, rawValue));
+          
+        default:
+          // 自動判定
+          if (rawValue >= 0 && rawValue <= 1) {
+            return rawValue; // すでに0-1範囲
+          } else if (rawValue > 1 && rawValue <= 100) {
+            return rawValue / 100; // パーセンテージと推定
+          } else if (rawValue >= -5 && rawValue <= 5) {
+            return (rawValue + 5) / 10; // 次元スコアと推定
+          } else {
+            // 範囲外の場合は0.5（中央値）に正規化
+            console.warn(`🔬 Value outside expected range (${sourceType}):`, rawValue);
+            return 0.5;
+          }
+      }
+    } catch (error) {
+      console.error(`🔬 Error in normalizeToUnitScore (${sourceType}):`, error);
+      return 0.5;
+    }
+  }
+
+  /**
+   * 🔬 Phase 5.1 統合: 統計品質保証付きフォーマッター
+   * すべての数値表示で統一的な品質保証を提供
+   * @param {number} value - フォーマット対象値
+   * @param {string} format - フォーマット種類（percentage, score）
+   * @param {Object} options - 追加オプション
+   * @returns {string} 品質保証済みフォーマット結果
+   */
+  formatWithQualityAssurance(value, format = 'percentage', options = {}) {
+    try {
+      // Step 1: 値の正規化
+      const normalizedValue = this.normalizeToUnitScore(value, options.sourceType);
+      
+      // Step 2: 統計的妥当性検証
+      let validatedValue = normalizedValue;
+      if (this.statisticalEngine) {
+        const validation = this.statisticalEngine.validateScore(normalizedValue, options.systemType || 'general');
+        if (!validation.isValid) {
+          console.log(`🔬 Quality assurance correction: ${normalizedValue} → ${validation.correctedScore}`);
+          validatedValue = validation.correctedScore;
+        }
+      }
+
+      // Step 3: フォーマット適用
+      switch (format) {
+        case 'percentage':
+          return this.formatScientificPercentage(validatedValue, options);
+        case 'score':
+          return this.formatScientificScore(validatedValue, options);
+        case 'confidence':
+          return this.formatWithConfidence(validatedValue, options.showConfidence);
+        default:
+          return this.formatScientificPercentage(validatedValue, options);
+      }
+      
+    } catch (error) {
+      console.error('🔬 Error in formatWithQualityAssurance:', error);
+      return format === 'score' ? '0.0' : '0.0%';
+    }
   }
 }

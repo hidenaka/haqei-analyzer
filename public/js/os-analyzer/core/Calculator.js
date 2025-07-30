@@ -1,5 +1,6 @@
 // Calculator.js - 計算・分析ロジック用クラス（雛形）
 // HaQei Analyzer - 8D Calculation Engine
+// Phase 5.1: 統計システム根本改革対応版
 class Calculator {
   constructor() {
     this.dimensionKeys = [
@@ -12,6 +13,14 @@ class Calculator {
       "離_表現性",
       "兌_調和性",
     ];
+
+    // 統計エンジンの初期化
+    this.statisticalEngine = window.StatisticalEngine ? new window.StatisticalEngine() : null;
+    
+    // 計算透明性のための履歴
+    this.calculationHistory = [];
+    
+    console.log("📊 Calculator initialized with statistical validation:", !!this.statisticalEngine);
   }
 
   // ユーザー回答から8次元ベクトルを構築（易経深化ロジック統合版）
@@ -729,20 +738,71 @@ class Calculator {
     return Math.pow(magnitudeRatio, 0.5);
   }
 
-  // 最終スコア計算（70:30重み付け）
-  calculateFinalScore(userVector, osVector) {
-    const similarityScore = this.calculateCosineSimilarity(
-      userVector,
-      osVector
-    );
-    const activationScore = this.calculateActivationScore(userVector, osVector);
+  // 最終スコア計算（70:30重み付け + 統計的妥当性チェック）
+  calculateFinalScore(userVector, osVector, systemType = 'general') {
+    // 計算透明性のための記録
+    const calculationRecord = {
+      timestamp: new Date().toISOString(),
+      method: "Weighted Cosine Similarity + Activation Score",
+      weights: { similarity: 0.7, activation: 0.3 },
+      systemType: systemType
+    };
 
-    return similarityScore * 0.7 + activationScore * 0.3;
+    try {
+      const similarityScore = this.calculateCosineSimilarity(userVector, osVector);
+      const activationScore = this.calculateActivationScore(userVector, osVector);
+
+      // 基本計算
+      const rawScore = similarityScore * 0.7 + activationScore * 0.3;
+      
+      calculationRecord.rawComponents = {
+        similarity: similarityScore,
+        activation: activationScore,
+        rawFinalScore: rawScore
+      };
+
+      // 統計的妥当性チェック
+      let finalScore = rawScore;
+      if (this.statisticalEngine) {
+        const validation = this.statisticalEngine.validateScore(rawScore, systemType);
+        finalScore = validation.correctedScore;
+        
+        calculationRecord.validation = {
+          wasValid: validation.isValid,
+          originalScore: validation.originalScore,
+          correctedScore: validation.correctedScore,
+          warnings: validation.warnings,
+          boundaryType: validation.boundaryType,
+          confidence: validation.confidence
+        };
+
+        // 修正があった場合はログ出力
+        if (!validation.isValid) {
+          console.log(`📊 Score corrected: ${rawScore.toFixed(6)} → ${finalScore.toFixed(3)} (${validation.warnings.join(', ')})`);
+        }
+      }
+
+      calculationRecord.finalScore = finalScore;
+      this.calculationHistory.push(calculationRecord);
+
+      return finalScore;
+
+    } catch (error) {
+      console.error("❌ Error in calculateFinalScore:", error);
+      calculationRecord.error = error.message;
+      this.calculationHistory.push(calculationRecord);
+      
+      // フォールバック値（中央値）
+      return this.statisticalEngine ? 
+        this.statisticalEngine.validRanges[systemType]?.min + 
+        (this.statisticalEngine.validRanges[systemType]?.max - this.statisticalEngine.validRanges[systemType]?.min) * 0.5 :
+        0.5;
+    }
   }
 
-  // OS候補分析
-  analyzeOSCandidates(userVector, vectorsData) {
-    console.log("🔍 OS候補分析開始");
+  // OS候補分析（統計的妥当性チェック強化版）
+  analyzeOSCandidates(userVector, vectorsData, systemType = 'general') {
+    console.log("🔍 OS候補分析開始 (統計的妥当性チェック付き)");
     
     // 入力検証
     if (!userVector || typeof userVector !== 'object') {
@@ -765,25 +825,42 @@ class Calculator {
     console.log("📊 ユーザーベクター:", userVector);
 
     const candidates = [];
+    const statisticalSummary = {
+      totalProcessed: 0,
+      validCandidates: 0,
+      correctedScores: 0,
+      errors: []
+    };
 
     Object.keys(vectorsData).forEach((osId) => {
       const osVector = vectorsData[osId];
+      statisticalSummary.totalProcessed++;
       
       // 各ベクターの妥当性チェック
       if (!osVector || typeof osVector !== 'object') {
         console.warn(`⚠️ Invalid osVector for ID ${osId}:`, osVector);
+        statisticalSummary.errors.push(`Invalid vector for ID ${osId}`);
         return;
       }
       
       try {
-        const finalScore = this.calculateFinalScore(userVector, osVector);
+        const finalScore = this.calculateFinalScore(userVector, osVector, systemType);
         const similarity = this.calculateCosineSimilarity(userVector, osVector);
         const activation = this.calculateActivationScore(userVector, osVector);
         
         // スコアの妥当性チェック
         if (isNaN(finalScore) || isNaN(similarity) || isNaN(activation)) {
           console.warn(`⚠️ Invalid scores for ID ${osId}: final=${finalScore}, sim=${similarity}, act=${activation}`);
+          statisticalSummary.errors.push(`Invalid scores for ID ${osId}`);
           return;
+        }
+
+        // 最新の計算履歴から統計情報を取得
+        const lastCalculation = this.calculationHistory[this.calculationHistory.length - 1];
+        const wasCorrected = lastCalculation?.validation?.wasValid === false;
+        
+        if (wasCorrected) {
+          statisticalSummary.correctedScores++;
         }
         
         candidates.push({
@@ -791,10 +868,15 @@ class Calculator {
           score: finalScore,
           similarity: similarity,
           activation: activation,
+          corrected: wasCorrected,
+          confidence: lastCalculation?.validation?.confidence || 0.95
         });
+        
+        statisticalSummary.validCandidates++;
         
       } catch (scoreError) {
         console.error(`❌ Score calculation error for ID ${osId}:`, scoreError);
+        statisticalSummary.errors.push(`Calculation error for ID ${osId}: ${scoreError.message}`);
       }
     });
 
@@ -803,13 +885,77 @@ class Calculator {
       throw new Error("有効な候補が生成されませんでした");
     }
 
+    // スコア群の統計的検証
+    const allScores = candidates.map(c => c.score);
+    let statisticalValidation = null;
+    
+    if (this.statisticalEngine) {
+      const outlierAnalysis = this.statisticalEngine.detectOutliers(allScores);
+      statisticalValidation = {
+        outliers: outlierAnalysis.outliers,
+        cleanedScoreCount: outlierAnalysis.cleanedValues.length,
+        method: outlierAnalysis.method
+      };
+      
+      if (outlierAnalysis.outliers.length > 0) {
+        console.log(`📊 Detected ${outlierAnalysis.outliers.length} score outliers:`, outlierAnalysis.outliers);
+      }
+    }
+
     // スコア順でソート、上位4候補を返す
     const sortedCandidates = candidates.sort((a, b) => b.score - a.score).slice(0, 4);
     
+    // 統計的信頼性の評価
+    const qualityAssessment = this.statisticalEngine ? 
+      this.statisticalEngine.assessDataQuality({
+        validatedScores: candidates.reduce((acc, c) => {
+          acc[c.osId] = c.score;
+          return acc;
+        }, {}),
+        corrections: statisticalSummary.correctedScores
+      }) : null;
+
     console.log(`✅ OS候補分析完了: ${sortedCandidates.length}個の候補`);
-    console.log("📊 トップ候補:", sortedCandidates.map(c => `ID=${c.osId}, Score=${c.score.toFixed(3)}`));
+    console.log("📊 統計サマリー:", statisticalSummary);
+    if (qualityAssessment) {
+      console.log("📊 品質評価:", qualityAssessment);
+    }
+    console.log("📊 トップ候補:", sortedCandidates.map(c => 
+      `ID=${c.osId}, Score=${this.statisticalEngine ? 
+        this.statisticalEngine.formatPercentage(c.score) : 
+        (c.score * 100).toFixed(1) + '%'}`
+    ));
     
-    return sortedCandidates;
+    return {
+      candidates: sortedCandidates,
+      statistics: statisticalSummary,
+      validation: statisticalValidation,
+      quality: qualityAssessment,
+      transparencyReport: this.generateTransparencyReport()
+    };
+  }
+
+  // 透明性レポートの生成
+  generateTransparencyReport() {
+    if (!this.statisticalEngine) {
+      return {
+        message: "統計エンジンが利用できません",
+        calculationHistory: this.calculationHistory.slice(-5) // 直近5件
+      };
+    }
+
+    const recentCalculations = this.calculationHistory.slice(-10);
+    const correctionRate = recentCalculations.filter(c => c.validation?.wasValid === false).length / recentCalculations.length;
+    
+    return this.statisticalEngine.generateTransparencyReport({
+      sampleSize: recentCalculations.length,
+      correctionRate: correctionRate,
+      validation: {
+        totalCalculations: this.calculationHistory.length,
+        recentCorrections: correctionRate,
+        lastCalculation: recentCalculations[recentCalculations.length - 1]
+      }
+    });
   }
 }
 
