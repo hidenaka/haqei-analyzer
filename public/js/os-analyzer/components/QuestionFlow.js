@@ -9,6 +9,14 @@ class QuestionFlow extends BaseComponent {
     this.questions = [];
     this.storageManager = options.storageManager || null;
     this.changeEventBound = false; // イベント重複防止フラグ
+    
+    // パフォーマンス最適化のためのキャッシュ
+    this.cachedElements = new Map();
+    this.completedCountCache = 0;
+    this.lastUpdateTime = 0;
+    this.debounceTimer = null;
+    this.updateQueue = [];
+    
     console.log(
       "🔧 QuestionFlow constructor: currentQuestionIndex =",
       this.currentQuestionIndex
@@ -79,6 +87,9 @@ class QuestionFlow extends BaseComponent {
   }
 
   render() {
+    // 🚀 最適化: レンダリング時にキャッシュをクリア
+    this.clearElementCache();
+    
     if (this.questions.length === 0) {
       this.container.innerHTML =
         '<div class="error">設問データが読み込めませんでした。</div>';
@@ -89,10 +100,7 @@ class QuestionFlow extends BaseComponent {
     const currentQuestionNum = this.currentQuestionIndex + 1;
     const totalQuestions = this.questions.length;
     const progressPercentage = (currentQuestionNum / totalQuestions) * 100;
-    const completedQuestions = this.answers.filter(answer => {
-      if (!answer) return false;
-      return answer.selectedValue || (answer.innerChoice && answer.outerChoice);
-    }).length;
+    const completedQuestions = this.getCompletedCountOptimized();
     
     // 質問タイプを判定（価値観 vs シナリオ）
     const isValueQuestion = this.currentQuestionIndex < (typeof WORLDVIEW_QUESTIONS !== 'undefined' ? WORLDVIEW_QUESTIONS.length : 15);
@@ -387,20 +395,27 @@ class QuestionFlow extends BaseComponent {
     const nextBtn = this.container.querySelector("#next-btn");
 
     if (prevBtn) {
-      // 既存のイベントリスナーを削除してから新しいものを追加
-      const newPrevBtn = prevBtn.cloneNode(true);
-      prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
-      newPrevBtn.addEventListener("click", () => this.goToPrevious());
+      // 直接イベントリスナーを設定（クローン方式を廃止）
+      prevBtn.onclick = null; // 既存イベントをクリア
+      prevBtn.onclick = (e) => {
+        e.preventDefault();
+        this.goToPrevious();
+      };
+      console.log("🔧 Previous button event bound");
     }
 
     if (nextBtn) {
-      // 既存のイベントリスナーを削除してから新しいものを追加
-      const newNextBtn = nextBtn.cloneNode(true);
-      nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
-      newNextBtn.addEventListener("click", () => this.goToNext());
+      // 直接イベントリスナーを設定（クローン方式を廃止）
+      nextBtn.onclick = null; // 既存イベントをクリア
+      nextBtn.onclick = (e) => {
+        e.preventDefault();
+        this.goToNext();
+      };
+      console.log("🔧 Next button event bound");
     }
   }
 
+  // 🚀 パフォーマンス最適化版 handleAnswerChange
   handleAnswerChange(radioElement) {
     try {
       const question = this.questions[this.currentQuestionIndex];
@@ -423,135 +438,11 @@ class QuestionFlow extends BaseComponent {
         return;
       }
 
-      console.log(
-        `🔧 Processing answer for question ${question.id}, value: ${selectedValue}, choiceType: ${choiceType}`
-      );
-
-      // シナリオ設問かどうかを判定
-      const isScenario =
-        question.scenario && question.inner_q && question.outer_q;
-
-      // 🔧 修正: より堅牢な回答検索と作成ロジック
-      let answerIndex = this.answers.findIndex((a) => {
-        // 厳密な一致と型変換による一致の両方をチェック
-        return (
-          a.questionId === question.id ||
-          String(a.questionId) === String(question.id)
-        );
+      // 🚀 最適化: デバウンス処理でDOM更新を制御
+      this.debouncedUpdate(() => {
+        this.processAnswerUpdate(question, selectedValue, scoringTags, choiceType, radioElement);
       });
 
-      let answer;
-      if (answerIndex >= 0) {
-        // 既存の回答を取得
-        answer = this.answers[answerIndex];
-        console.log(
-          `🔧 Found existing answer at index ${answerIndex} for question ${question.id}`
-        );
-      } else {
-        // 新しい回答を作成
-        answer = {
-          questionId: question.id,
-          timestamp: new Date().toISOString(),
-        };
-
-        // 🔧 修正: 配列に追加する前にインデックスを確定
-        answerIndex = this.answers.length;
-        this.answers.push(answer);
-        console.log(
-          `🔧 Created new answer at index ${answerIndex} for question ${question.id}`
-        );
-      }
-
-      // 🔧 修正: 回答データの更新処理を改善
-      if (isScenario) {
-        // シナリオ設問の場合：inner/outerを個別に保存
-        if (choiceType === "inner") {
-          answer.innerChoice = {
-            value: selectedValue,
-            scoring_tags: scoringTags,
-          };
-          console.log(
-            `💭 Inner choice saved for ${question.id}:`,
-            answer.innerChoice
-          );
-        } else if (choiceType === "outer") {
-          answer.outerChoice = {
-            value: selectedValue,
-            scoring_tags: scoringTags,
-          };
-          console.log(
-            `👥 Outer choice saved for ${question.id}:`,
-            answer.outerChoice
-          );
-        } else {
-          console.error(
-            "❌ Invalid choice type for scenario question:",
-            choiceType
-          );
-          return;
-        }
-      } else {
-        // 通常の価値観設問の場合
-        answer.selectedValue = selectedValue;
-        answer.scoring_tags = scoringTags;
-        console.log(`📝 Answer saved for ${question.id}:`, answer);
-      }
-
-      // 🔧 修正: 回答配列の更新を確実に実行
-      this.answers[answerIndex] = answer;
-
-      // 🔧 デバッグ: 回答配列の状態を確認
-      console.log(`🔧 Answer array after update:`, {
-        totalAnswers: this.answers.length,
-        currentAnswerIndex: answerIndex,
-        questionId: question.id,
-        answerIds: this.answers.map((a) => a.questionId),
-      });
-
-      // ストレージに保存
-      if (this.storageManager) {
-        try {
-          this.storageManager.saveAnswers(this.answers);
-          console.log(
-            `💾 Answers saved to storage: ${this.answers.length} answers`
-          );
-        } catch (storageError) {
-          console.error("❌ Failed to save answers to storage:", storageError);
-          console.warn(
-            "⚠️ 回答の保存に失敗しました。ページを閉じる前に再度回答を確認してください。"
-          );
-        }
-      }
-
-      this.updateNavigationButtons();
-      this.updateProgress();
-
-      // 選択肢にアクティブスタイルを追加（アニメーション付き）
-      const choiceSection = choiceType
-        ? radioElement.closest(".choice-section")
-        : radioElement.closest(".question-item");
-
-      if (choiceSection) {
-        choiceSection.querySelectorAll(".option-label").forEach((label) => {
-          label.classList.remove("selected");
-        });
-        const selectedLabel = radioElement.closest(".option-label");
-        selectedLabel.classList.add("selected");
-        
-        // リップル効果
-        const ripple = selectedLabel.querySelector('.option-ripple');
-        if (ripple) {
-          ripple.style.animation = 'none';
-          setTimeout(() => {
-            ripple.style.animation = 'ripple 0.6s ease-out';
-          }, 10);
-        }
-        
-        // ハプティックフィードバック（対応デバイスのみ）
-        if (navigator.vibrate) {
-          navigator.vibrate(50);
-        }
-      }
     } catch (error) {
       console.error("❌ Critical error in handleAnswerChange:", error);
       alert(
@@ -560,9 +451,185 @@ class QuestionFlow extends BaseComponent {
     }
   }
 
-  updateNavigationButtons() {
-    const prevBtn = this.container.querySelector("#prev-btn");
-    const nextBtn = this.container.querySelector("#next-btn");
+  // 🚀 修正版: デバウンス処理付きの更新メソッド（26問目以降は即座実行）
+  debouncedUpdate(callback) {
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+    
+    // 即座にUIフィードバックを提供
+    this.showImmediateUIFeedback();
+    
+    // 26問目以降（シナリオ質問）は即座に実行してパフォーマンスを改善
+    const isScenarioPhase = this.currentQuestionIndex >= 15; // 価値観15問 + シナリオ開始
+    const delay = isScenarioPhase ? 0 : 50;
+    
+    console.log(`🚀 debouncedUpdate: index=${this.currentQuestionIndex}, isScenario=${isScenarioPhase}, delay=${delay}ms`);
+    
+    // 実際の処理を実行
+    this.debounceTimer = setTimeout(() => {
+      callback();
+      this.debounceTimer = null;
+    }, delay);
+  }
+
+  // 🚀 新規: 即座のUIフィードバック
+  showImmediateUIFeedback() {
+    // 視覚的フィードバックを即座に提供
+    const progressFill = this.getCachedElement('.progress-bar-fill');
+    if (progressFill) {
+      progressFill.style.transition = 'width 0.2s ease-out';
+    }
+  }
+
+  // 🚀 新規: 最適化された回答処理メソッド
+  processAnswerUpdate(question, selectedValue, scoringTags, choiceType, radioElement) {
+    console.log(
+      `🔧 Processing answer for question ${question.id}, value: ${selectedValue}, choiceType: ${choiceType}`
+    );
+
+    // シナリオ設問かどうかを判定
+    const isScenario = question.scenario && question.inner_q && question.outer_q;
+
+    // 🚀 最適化: 既存回答検索をキャッシュ活用
+    let answerIndex = this.findAnswerIndexOptimized(question.id);
+    let answer;
+
+    if (answerIndex >= 0) {
+      answer = this.answers[answerIndex];
+    } else {
+      answer = {
+        questionId: question.id,
+        timestamp: new Date().toISOString(),
+      };
+      answerIndex = this.answers.length;
+      this.answers.push(answer);
+    }
+
+    // 回答データの更新
+    if (isScenario) {
+      if (choiceType === "inner") {
+        answer.innerChoice = {
+          value: selectedValue,
+          scoring_tags: scoringTags,
+        };
+      } else if (choiceType === "outer") {
+        answer.outerChoice = {
+          value: selectedValue,
+          scoring_tags: scoringTags,
+        };
+      } else {
+        console.error("❌ Invalid choice type for scenario question:", choiceType);
+        return;
+      }
+    } else {
+      answer.selectedValue = selectedValue;
+      answer.scoring_tags = scoringTags;
+    }
+
+    this.answers[answerIndex] = answer;
+
+    // 🚀 最適化: ストレージ保存を非同期化
+    this.saveAnswersAsync();
+
+    // 🚀 最適化: バッチでUI更新
+    this.batchUIUpdate(radioElement, choiceType);
+  }
+
+  // 🚀 新規: 最適化された回答検索
+  findAnswerIndexOptimized(questionId) {
+    // 🚀 最適化: 逆順検索（最新の回答が後ろにあることが多いため）
+    for (let i = this.answers.length - 1; i >= 0; i--) {
+      const answer = this.answers[i];
+      if (answer.questionId === questionId || String(answer.questionId) === String(questionId)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  // 🚀 新規: 非同期ストレージ保存
+  saveAnswersAsync() {
+    if (this.storageManager) {
+      // requestIdleCallbackを使用して、ブラウザの空き時間に保存
+      const saveOperation = () => {
+        try {
+          this.storageManager.saveAnswers(this.answers);
+          console.log(`💾 Answers saved to storage: ${this.answers.length} answers`);
+        } catch (storageError) {
+          console.error("❌ Failed to save answers to storage:", storageError);
+        }
+      };
+
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(saveOperation, { timeout: 1000 });
+      } else {
+        setTimeout(saveOperation, 0);
+      }
+    }
+  }
+
+  // 🚀 新規: バッチUI更新
+  batchUIUpdate(radioElement, choiceType) {
+    // 🚀 最適化: requestAnimationFrameを使用してUI更新をバッチ化
+    if (!this.pendingUIUpdate) {
+      this.pendingUIUpdate = true;
+      requestAnimationFrame(() => {
+        this.updateNavigationButtonsOptimized();
+        this.updateProgressOptimized();
+        this.updateVisualFeedback(radioElement, choiceType);
+        this.pendingUIUpdate = false;
+      });
+    }
+  }
+
+  // 🚀 新規: キャッシュ活用のDOM要素取得
+  getCachedElement(selector) {
+    if (!this.cachedElements.has(selector)) {
+      const element = this.container.querySelector(selector);
+      this.cachedElements.set(selector, element);
+    }
+    return this.cachedElements.get(selector);
+  }
+
+  // 🚀 新規: キャッシュクリア
+  clearElementCache() {
+    this.cachedElements.clear();
+  }
+
+  // 🚀 新規: 視覚的フィードバック最適化
+  updateVisualFeedback(radioElement, choiceType) {
+    const choiceSection = choiceType
+      ? radioElement.closest(".choice-section")
+      : radioElement.closest(".question-item");
+
+    if (choiceSection) {
+      // 🚀 最適化: classList操作をバッチ化
+      const labels = choiceSection.querySelectorAll(".option-label");
+      labels.forEach(label => label.classList.remove("selected"));
+      
+      const selectedLabel = radioElement.closest(".option-label");
+      selectedLabel.classList.add("selected");
+      
+      // リップル効果（最適化版）
+      const ripple = selectedLabel.querySelector('.option-ripple');
+      if (ripple) {
+        ripple.style.animation = 'none';
+        ripple.offsetHeight; // 強制リフロー（最小限）
+        ripple.style.animation = 'ripple 0.6s ease-out';
+      }
+      
+      // ハプティックフィードバック
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }
+  }
+
+  // 🚀 最適化版: ナビゲーションボタン更新
+  updateNavigationButtonsOptimized() {
+    const prevBtn = this.getCachedElement("#prev-btn");
+    const nextBtn = this.getCachedElement("#next-btn");
 
     if (prevBtn) {
       prevBtn.disabled = this.currentQuestionIndex === 0;
@@ -570,99 +637,138 @@ class QuestionFlow extends BaseComponent {
 
     if (nextBtn) {
       const currentQuestion = this.questions[this.currentQuestionIndex];
-      const currentAnswer = this.findAnswerByQuestionId(currentQuestion.id);
-
-      // シナリオ設問かどうかを判定
-      const isScenario =
-        currentQuestion.scenario &&
-        currentQuestion.inner_q &&
-        currentQuestion.outer_q;
-
-      let hasAnswer = false;
-      if (isScenario) {
-        // シナリオ設問の場合：inner/outerの両方が選択されている必要がある
-        hasAnswer =
-          currentAnswer &&
-          currentAnswer.innerChoice &&
-          currentAnswer.outerChoice;
-      } else {
-        // 通常設問の場合：selectedValueが存在する必要がある
-        hasAnswer = currentAnswer && currentAnswer.selectedValue;
-      }
+      const hasAnswer = this.checkCurrentQuestionAnswered(currentQuestion);
 
       nextBtn.disabled = !hasAnswer;
 
-      // 進捗状況に応じたメッセージとアイコンの更新
-      const btnText = nextBtn.querySelector('.btn-text');
-      const btnIcon = nextBtn.querySelector('.btn-icon');
-      
-      if (this.currentQuestionIndex === this.questions.length - 1) {
-        if (btnText) btnText.textContent = "分析開始";
-        if (btnIcon) btnIcon.textContent = "🚀";
+      // 🚀 最適化: DOM更新を最小限に
+      this.updateButtonStateOptimized(nextBtn, hasAnswer);
+    }
+    
+    // プログレス更新時の達成感演出（最適化版）
+    this.updateProgressWithCelebrationOptimized();
+  }
+
+  // 🚀 新規: 現在の質問の回答状態を効率的にチェック
+  checkCurrentQuestionAnswered(currentQuestion) {
+    const currentAnswer = this.findAnswerByQuestionIdOptimized(currentQuestion.id);
+    
+    // シナリオ設問かどうかを判定
+    const isScenario = currentQuestion.scenario && currentQuestion.inner_q && currentQuestion.outer_q;
+
+    if (isScenario) {
+      return currentAnswer && currentAnswer.innerChoice && currentAnswer.outerChoice;
+    } else {
+      return currentAnswer && currentAnswer.selectedValue;
+    }
+  }
+
+  // 🚀 修正版: 最適化されたボタン状態更新
+  updateButtonStateOptimized(nextBtn, hasAnswer) {
+    const btnText = nextBtn.querySelector('.btn-text');
+    const btnIcon = nextBtn.querySelector('.btn-icon');
+    const isLastQuestion = this.currentQuestionIndex === this.questions.length - 1;
+    
+    console.log(`🔧 updateButtonStateOptimized: index=${this.currentQuestionIndex}, total=${this.questions.length}, isLast=${isLastQuestion}`);
+    
+    // 🚀 最適化: 変更が必要な場合のみDOM更新
+    if (isLastQuestion) {
+      console.log("🎯 最終質問です - 分析開始ボタンに変更");
+      if (btnText && btnText.textContent !== "分析開始") {
+        btnText.textContent = "分析開始";
+      }
+      if (btnIcon && btnIcon.textContent !== "🚀") {
+        btnIcon.textContent = "🚀";
+      }
+      if (!nextBtn.classList.contains("btn-success")) {
         nextBtn.classList.add("btn-success");
-        
-        // 完了時の達成感演出
-        if (hasAnswer) {
-          this.showCompletionCelebration();
-        }
-      } else {
-        if (btnText) btnText.textContent = "次の質問";
-        if (btnIcon) btnIcon.textContent = "→";
-        nextBtn.classList.remove("btn-success");
+        nextBtn.classList.remove("btn-primary");
       }
       
-      // 回答済みボタンのフィードバック
-      if (hasAnswer && !nextBtn.classList.contains('answered')) {
-        nextBtn.classList.add('answered');
-        this.showAnswerFeedback();
+      if (hasAnswer) {
+        this.showCompletionCelebrationOptimized();
+      }
+    } else {
+      console.log("📋 通常の質問です - 次の質問ボタンを維持");
+      if (btnText && btnText.textContent !== "次の質問") {
+        btnText.textContent = "次の質問";
+      }
+      if (btnIcon && btnIcon.textContent !== "→") {
+        btnIcon.textContent = "→";
+      }
+      if (nextBtn.classList.contains("btn-success")) {
+        nextBtn.classList.remove("btn-success");
+        nextBtn.classList.add("btn-primary");
       }
     }
     
-    // プログレス更新時の達成感演出
-    this.updateProgressWithCelebration();
+    // 回答済みボタンのフィードバック（最適化版）
+    if (hasAnswer && !nextBtn.classList.contains('answered')) {
+      nextBtn.classList.add('answered');
+      this.showAnswerFeedbackOptimized();
+    }
   }
 
-  showCompletionCelebration() {
-    // 完了時の視覚的フィードバック
-    const questionHeader = this.container.querySelector('.question-header');
+  // 🚀 新規: 最適化された完了チェック
+  findAnswerByQuestionIdOptimized(questionId) {
+    // キャッシュを活用した高速検索
+    const cacheKey = `answer_${questionId}`;
+    if (this.cachedElements.has(cacheKey)) {
+      return this.cachedElements.get(cacheKey);
+    }
+
+    const answer = this.findAnswerIndexOptimized(questionId);
+    if (answer >= 0) {
+      const result = this.answers[answer];
+      this.cachedElements.set(cacheKey, result);
+      return result;
+    }
+    return null;
+  }
+
+  // 🚀 最適化版: 従来メソッドの互換性維持
+  updateNavigationButtons() {
+    this.updateNavigationButtonsOptimized();
+  }
+
+  // 🚀 最適化版: 完了お祝い表示
+  showCompletionCelebrationOptimized() {
+    const questionHeader = this.getCachedElement('.question-header');
     if (questionHeader && !questionHeader.classList.contains('celebration')) {
       questionHeader.classList.add('celebration');
       
-      // 3秒後にクラスを削除
       setTimeout(() => {
         questionHeader.classList.remove('celebration');
       }, 3000);
     }
   }
 
-  showAnswerFeedback() {
-    // 回答時の即座なフィードバック
-    const completedCount = this.container.querySelector('.completed-count');
+  // 🚀 互換性維持
+  showCompletionCelebration() {
+    this.showCompletionCelebrationOptimized();
+  }
+
+  // 🚀 最適化版: 回答フィードバック
+  showAnswerFeedbackOptimized() {
+    const completedCount = this.getCachedElement('.completed-count');
     if (completedCount) {
       const currentCount = parseInt(completedCount.textContent) || 0;
-      const newCount = this.answers.filter(answer => {
-        if (!answer) return false;
-        return answer.selectedValue || (answer.innerChoice && answer.outerChoice);
-      }).length;
-      
-      console.log(`🔢 Answer feedback: currentCount=${currentCount}, newCount=${newCount}`);
+      const newCount = this.getCompletedCountOptimized();
       
       if (newCount !== currentCount) {
-        completedCount.style.animation = 'none';
-        setTimeout(() => {
-          completedCount.textContent = newCount;
-          completedCount.style.animation = 'countUp 0.5s ease-out';
-          console.log(`✅ Updated completed count to: ${newCount}`);
-        }, 10);
+        this.updateCompletedCountOptimized(completedCount, newCount);
       }
     }
   }
 
-  updateProgressWithCelebration() {
-    const answeredCount = this.answers.filter(answer => {
-      if (!answer) return false;
-      return answer.selectedValue || (answer.innerChoice && answer.outerChoice);
-    }).length;
+  // 🚀 互換性維持
+  showAnswerFeedback() {
+    this.showAnswerFeedbackOptimized();
+  }
+
+  // 🚀 最適化版: プログレス達成感演出
+  updateProgressWithCelebrationOptimized() {
+    const answeredCount = this.getCompletedCountOptimized();
     const totalQuestions = this.questions.length;
     
     // マイルストーン到達の確認（25%, 50%, 75%, 100%）
@@ -683,6 +789,11 @@ class QuestionFlow extends BaseComponent {
       this.reachedMilestones.push(reachedMilestone);
       this.showMilestoneReached(reachedMilestone, totalQuestions);
     }
+  }
+
+  // 🚀 互換性維持
+  updateProgressWithCelebration() {
+    this.updateProgressWithCelebrationOptimized();
   }
 
   showMilestoneReached(milestone, total) {
@@ -727,95 +838,139 @@ class QuestionFlow extends BaseComponent {
     }
   }
 
-  updateProgress() {
-    const progressFill = this.container.querySelector(".progress-bar-fill");
-    const currentNum = this.container.querySelector(".current-question");
-    const totalNum = this.container.querySelector(".total-questions");
-    const completedCount = this.container.querySelector('.completed-count');
+  // 🚀 最適化版: プログレス更新
+  updateProgressOptimized() {
+    const now = Date.now();
+    
+    // 🚀 最適化: 頻繁な更新を制限（60FPS以下）
+    if (now - this.lastUpdateTime < 16) {
+      return;
+    }
+    this.lastUpdateTime = now;
+
+    const progressFill = this.getCachedElement(".progress-bar-fill");
+    const currentNum = this.getCachedElement(".current-question");
+    const totalNum = this.getCachedElement(".total-questions");
+    const completedCount = this.getCachedElement('.completed-count');
 
     // 現在の質問番号を確実に計算
     const currentQuestionNum = this.currentQuestionIndex + 1;
     const totalQuestions = this.questions.length;
     const progressPercentage = (currentQuestionNum / totalQuestions) * 100;
     
-    // 完了数を正確に計算
-    const actualCompletedCount = this.answers.filter(answer => {
-      if (!answer) return false;
-      return answer.selectedValue || (answer.innerChoice && answer.outerChoice);
-    }).length;
+    // 🚀 最適化: 完了数をキャッシュ活用で計算
+    const actualCompletedCount = this.getCompletedCountOptimized();
 
-    console.log(
-      `📊 Progress update: currentQ=${currentQuestionNum}/${totalQuestions} (${progressPercentage.toFixed(
-        1
-      )}%), completed=${actualCompletedCount}`
-    );
-
-    // 現在の質問番号を更新
-    if (currentNum) {
+    // 🚀 最適化: 変更が必要な場合のみDOM更新
+    if (currentNum && currentNum.textContent !== currentQuestionNum.toString()) {
       currentNum.textContent = currentQuestionNum;
     }
     
-    // 総数を更新
-    if (totalNum) {
+    if (totalNum && totalNum.textContent !== `/ ${totalQuestions}`) {
       totalNum.textContent = `/ ${totalQuestions}`;
     }
     
-    // 完了数を更新（アニメーション付き）
+    // 完了数の更新（最適化版）
     if (completedCount) {
       const currentDisplayed = parseInt(completedCount.textContent) || 0;
       if (actualCompletedCount !== currentDisplayed) {
-        completedCount.style.animation = 'none';
-        setTimeout(() => {
-          completedCount.textContent = actualCompletedCount;
-          completedCount.style.animation = 'countUp 0.5s ease-out';
-        }, 10);
+        this.updateCompletedCountOptimized(completedCount, actualCompletedCount);
       }
     }
 
     if (progressFill) {
-      progressFill.style.width = `${progressPercentage}%`;
+      const currentWidth = progressFill.style.width;
+      const targetWidth = `${progressPercentage}%`;
+      if (currentWidth !== targetWidth) {
+        progressFill.style.width = targetWidth;
+      }
     }
 
-    // nav-dotの状態を更新
-    this.updateNavigationDots();
+    // nav-dotの状態を更新（最適化版）
+    this.updateNavigationDotsOptimized();
     
     // プログレスコールバック
     if (this.options.onProgress) {
-      const answeredCount = this.answers.length;
-      const answeredProgress = (answeredCount / totalQuestions) * 100;
+      const answeredProgress = (actualCompletedCount / totalQuestions) * 100;
       this.options.onProgress(answeredProgress);
     }
   }
+
+  // 🚀 新規: 最適化された完了数計算
+  getCompletedCountOptimized() {
+    // キャッシュが有効かチェック
+    const currentTime = Date.now();
+    if (this.completedCountCacheTime && (currentTime - this.completedCountCacheTime) < 100) {
+      return this.completedCountCache;
+    }
+
+    // 完了数を計算
+    let count = 0;
+    for (let i = 0; i < this.answers.length; i++) {
+      const answer = this.answers[i];
+      if (answer && (answer.selectedValue || (answer.innerChoice && answer.outerChoice))) {
+        count++;
+      }
+    }
+
+    // キャッシュを更新
+    this.completedCountCache = count;
+    this.completedCountCacheTime = currentTime;
+    
+    return count;
+  }
+
+  // 🚀 新規: 最適化された完了数表示更新
+  updateCompletedCountOptimized(element, newCount) {
+    // requestAnimationFrameを使用してスムーズなアニメーション
+    element.style.animation = 'none';
+    element.offsetHeight; // 強制リフロー
+    element.textContent = newCount;
+    element.style.animation = 'countUp 0.3s ease-out';
+  }
+
+  // 🚀 最適化版: 従来メソッドの互換性維持
+  updateProgress() {
+    this.updateProgressOptimized();
+  }
   
-  updateNavigationDots() {
+  // 🚀 最適化版: ナビゲーションドット更新
+  updateNavigationDotsOptimized() {
     const navDots = this.container.querySelectorAll('.nav-dot');
     const totalDots = Math.min(this.questions.length, 10);
     
-    console.log(`🔴 Updating nav dots: currentIndex=${this.currentQuestionIndex}, totalDots=${totalDots}`);
+    // 🚀 最適化: 完了状態をキャッシュから取得
+    const completedQuestions = this.getCompletedCountOptimized();
     
     navDots.forEach((dot, index) => {
-      // 対応する質問のインデックスを計算
       const questionIndex = Math.floor((index / (totalDots - 1)) * (this.questions.length - 1));
       
-      // 完了状態をチェック
-      const isCompleted = this.answers.some(a => 
-        a && a.questionId === this.questions[questionIndex]?.id && 
-        (a.selectedValue || (a.innerChoice && a.outerChoice))
-      );
-      
-      // 現在の質問かチェック
+      // 🚀 最適化: キャッシュ活用で完了状態チェック
+      const isCompleted = this.findAnswerByQuestionIdOptimized(this.questions[questionIndex]?.id) !== null;
       const isCurrent = questionIndex === this.currentQuestionIndex;
       
-      // クラスを更新
-      dot.className = `nav-dot ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`;
-      
-      console.log(`🔴 Dot ${index}: questionIndex=${questionIndex}, completed=${isCompleted}, current=${isCurrent}`);
+      // 🚀 最適化: 変更が必要な場合のみクラス更新
+      const expectedClass = `nav-dot ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`;
+      if (dot.className !== expectedClass) {
+        dot.className = expectedClass;
+      }
     });
   }
 
+  // 🚀 互換性維持
+  updateNavigationDots() {
+    this.updateNavigationDotsOptimized();
+  }
+
   goToPrevious() {
+    console.log(`🔙 goToPrevious: from ${this.currentQuestionIndex} to ${this.currentQuestionIndex - 1}`);
+    
     if (this.currentQuestionIndex > 0) {
       this.currentQuestionIndex--;
+      
+      // 🚀 最適化: キャッシュをクリアして再レンダリング
+      this.clearElementCache();
+      
       this.renderCurrentQuestion();
       this.bindNavigationEvents();
       this.updateNavigationButtons();
@@ -830,12 +985,23 @@ class QuestionFlow extends BaseComponent {
           completedQuestions: completedCount,
         });
       }
+      
+      console.log(`✅ goToPrevious completed: now at index ${this.currentQuestionIndex}`);
+    } else {
+      console.log("⚠️ goToPrevious: already at first question");
     }
   }
 
   goToNext() {
-    if (this.currentQuestionIndex < this.questions.length - 1) {
+    const isLastQuestion = this.currentQuestionIndex === this.questions.length - 1;
+    console.log(`🔜 goToNext: from ${this.currentQuestionIndex}, isLast=${isLastQuestion}`);
+    
+    if (!isLastQuestion) {
       this.currentQuestionIndex++;
+      
+      // 🚀 最適化: キャッシュをクリアして再レンダリング
+      this.clearElementCache();
+      
       this.renderCurrentQuestion();
       this.bindNavigationEvents();
       this.updateNavigationButtons();
@@ -850,69 +1016,224 @@ class QuestionFlow extends BaseComponent {
           completedQuestions: completedCount,
         });
       }
+      
+      console.log(`✅ goToNext completed: now at index ${this.currentQuestionIndex}`);
     } else {
       // 最後の質問 - 分析開始
+      console.log("🎯 最終質問です - 分析を開始します");
       this.completeQuestions();
     }
   }
 
+  // 🚀 最適化版: 質問完了処理
   completeQuestions() {
     try {
-      console.log("🔍 Starting question completion check...");
+      console.log("🔍 Starting optimized question completion check...");
 
-      // 全質問に対する回答完了チェック
-      const allQuestionsAnswered = this.checkAllQuestionsAnswered();
+      // 🚀 最適化: 非同期処理で完了チェック
+      this.showLoadingState();
+      
+      // 🚀 最適化: Web Workerまたは非同期チェックで処理
+      setTimeout(() => {
+        this.performCompletionCheckAsync();
+      }, 100); // UI更新を先に行ってからチェック実行
 
-      if (allQuestionsAnswered.isComplete) {
-        console.log("✅ All questions completed:", this.answers);
-        console.log("📊 Final completion stats:", {
-          totalQuestions: allQuestionsAnswered.debugInfo.totalQuestions,
-          totalAnswers: allQuestionsAnswered.debugInfo.totalAnswers,
-        });
-
-        if (this.options.onComplete) {
-          this.options.onComplete(this.answers);
-        } else {
-          // デフォルトの処理: グローバル関数を呼び出し
-          if (typeof proceedToAnalysis === "function") {
-            proceedToAnalysis(this.answers);
-          } else {
-            console.warn("⚠️ No completion handler found");
-            alert("完了処理が見つかりません。ページを再読み込みしてください。");
-          }
-        }
-      } else {
-        console.warn(
-          "⚠️ 未完了の質問があります:",
-          allQuestionsAnswered.missing
-        );
-
-        // より詳細なエラーメッセージを生成
-        const missingCount = allQuestionsAnswered.missing.length;
-        const scenarioMissing = allQuestionsAnswered.missing.filter(
-          (m) => m.includes("内面") || m.includes("外面")
-        ).length;
-        const regularMissing = missingCount - scenarioMissing;
-
-        let errorMessage = `すべての質問にお答えください。\n`;
-        if (regularMissing > 0) {
-          errorMessage += `未回答の質問: ${regularMissing}問\n`;
-        }
-        if (scenarioMissing > 0) {
-          errorMessage += `未完了のシナリオ質問: ${Math.ceil(
-            scenarioMissing / 2
-          )}問\n`;
-        }
-        errorMessage += `\n詳細は開発者コンソールをご確認ください。`;
-
-        alert(errorMessage);
-      }
     } catch (error) {
       console.error("❌ Error during question completion:", error);
+      this.hideLoadingState();
       alert(
         "質問完了チェック中にエラーが発生しました。ページを再読み込みして再度お試しください。"
       );
     }
+  }
+
+  // 🚀 新規: ローディング状態表示
+  showLoadingState() {
+    const nextBtn = this.getCachedElement("#next-btn");
+    if (nextBtn) {
+      const btnText = nextBtn.querySelector('.btn-text');
+      const btnIcon = nextBtn.querySelector('.btn-icon');
+      
+      if (btnText) {
+        btnText.dataset.originalText = btnText.textContent;
+        btnText.textContent = "分析中...";
+      }
+      if (btnIcon) {
+        btnIcon.dataset.originalIcon = btnIcon.textContent;
+        btnIcon.textContent = "⚡";
+      }
+      
+      nextBtn.disabled = true;
+      nextBtn.classList.add('loading');
+    }
+  }
+
+  // 🚀 新規: ローディング状態解除
+  hideLoadingState() {
+    const nextBtn = this.getCachedElement("#next-btn");
+    if (nextBtn) {
+      const btnText = nextBtn.querySelector('.btn-text');
+      const btnIcon = nextBtn.querySelector('.btn-icon');
+      
+      if (btnText && btnText.dataset.originalText) {
+        btnText.textContent = btnText.dataset.originalText;
+        delete btnText.dataset.originalText;
+      }
+      if (btnIcon && btnIcon.dataset.originalIcon) {
+        btnIcon.textContent = btnIcon.dataset.originalIcon;
+        delete btnIcon.dataset.originalIcon;
+      }
+      
+      nextBtn.disabled = false;
+      nextBtn.classList.remove('loading');
+    }
+  }
+
+  // 🚀 新規: 非同期完了チェック
+  async performCompletionCheckAsync() {
+    try {
+      // 🚀 最適化: 軽量な完了チェック
+      const completionResult = await this.checkAllQuestionsAnsweredOptimized();
+
+      if (completionResult.isComplete) {
+        console.log("✅ All questions completed:", this.answers.length, "answers");
+        
+        // 🚀 最適化: 成功時の即座フィードバック
+        this.showSuccessAnimation();
+        
+        // 分析処理を非同期で開始
+        await this.proceedToAnalysisAsync();
+        
+      } else {
+        this.hideLoadingState();
+        this.showIncompleteQuestionsError(completionResult.missing);
+      }
+    } catch (error) {
+      console.error("❌ Error during async completion check:", error);
+      this.hideLoadingState();
+      alert("完了チェックでエラーが発生しました。再度お試しください。");
+    }
+  }
+
+  // 🚀 新規: 最適化された完了チェック
+  async checkAllQuestionsAnsweredOptimized() {
+    return new Promise((resolve) => {
+      // 🚀 最適化: requestIdleCallbackを使用して負荷を分散
+      const performCheck = () => {
+        const missing = [];
+        let checkedCount = 0;
+        
+        for (let i = 0; i < this.questions.length; i++) {
+          const question = this.questions[i];
+          const answer = this.findAnswerByQuestionIdOptimized(question.id);
+          
+          if (!this.validateQuestionCompletionOptimized(question, answer)) {
+            missing.push(`${question.id}: 未完了`);
+          }
+          
+          checkedCount++;
+          
+          // 🚀 最適化: バッチ処理で負荷分散
+          if (checkedCount % 5 === 0) {
+            // 5問ごとにイベントループに制御を戻す
+            setTimeout(() => {
+              if (checkedCount < this.questions.length) {
+                return; // 続行
+              }
+              resolve({
+                isComplete: missing.length === 0,
+                missing: missing,
+                totalChecked: checkedCount
+              });
+            }, 0);
+            return;
+          }
+        }
+        
+        resolve({
+          isComplete: missing.length === 0,
+          missing: missing,
+          totalChecked: checkedCount
+        });
+      };
+
+      if (window.requestIdleCallback) {
+        requestIdleCallback(performCheck, { timeout: 2000 });
+      } else {
+        setTimeout(performCheck, 0);
+      }
+    });
+  }
+
+  // 🚀 新規: 最適化された質問完了検証
+  validateQuestionCompletionOptimized(question, answer) {
+    if (!answer) return false;
+
+    const isScenario = question.scenario && question.inner_q && question.outer_q;
+    
+    if (isScenario) {
+      return answer.innerChoice && answer.outerChoice && 
+             answer.innerChoice.value && answer.outerChoice.value;
+    } else {
+      return answer.selectedValue;
+    }
+  }
+
+  // 🚀 新規: 成功アニメーション
+  showSuccessAnimation() {
+    const questionHeader = this.getCachedElement('.question-header');
+    if (questionHeader) {
+      questionHeader.classList.add('completion-success');
+      setTimeout(() => {
+        questionHeader.classList.remove('completion-success');
+      }, 2000);
+    }
+  }
+
+  // 🚀 新規: 非同期分析開始
+  async proceedToAnalysisAsync() {
+    try {
+      if (this.options.onComplete) {
+        // 🚀 最適化: コールバックを非同期実行
+        setTimeout(() => {
+          this.options.onComplete(this.answers);
+        }, 500); // UIアニメーションの完了を待つ
+      } else {
+        // デフォルトの処理: グローバル関数を非同期呼び出し
+        if (typeof proceedToAnalysis === "function") {
+          setTimeout(() => {
+            proceedToAnalysis(this.answers);
+          }, 500);
+        } else {
+          console.warn("⚠️ No completion handler found");
+          this.hideLoadingState();
+          alert("完了処理が見つかりません。ページを再読み込みしてください。");
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error proceeding to analysis:", error);
+      this.hideLoadingState();
+      alert("分析開始でエラーが発生しました。再度お試しください。");
+    }
+  }
+
+  // 🚀 新規: 未完了質問エラー表示
+  showIncompleteQuestionsError(missing) {
+    const missingCount = missing.length;
+    const scenarioMissing = missing.filter(
+      (m) => m.includes("内面") || m.includes("外面")
+    ).length;
+    const regularMissing = missingCount - scenarioMissing;
+
+    let errorMessage = `すべての質問にお答えください。\n`;
+    if (regularMissing > 0) {
+      errorMessage += `未回答の質問: ${regularMissing}問\n`;
+    }
+    if (scenarioMissing > 0) {
+      errorMessage += `未完了のシナリオ質問: ${Math.ceil(scenarioMissing / 2)}問\n`;
+    }
+    
+    alert(errorMessage);
   }
 
   // 質問IDによる回答検索（堅牢な検索ロジック）
@@ -1060,19 +1381,9 @@ class QuestionFlow extends BaseComponent {
     console.groupEnd();
   }
 
-  // 完了した質問数を正確にカウント
+  // 🚀 最適化版: 完了した質問数を正確にカウント
   getCompletedQuestionsCount() {
-    return this.answers.filter(answer => {
-      if (!answer) return false;
-      
-      // 通常の質問の場合
-      if (answer.selectedValue) return true;
-      
-      // シナリオ質問の場合（内選択と外選択の両方が必要）
-      if (answer.innerChoice && answer.outerChoice) return true;
-      
-      return false;
-    }).length;
+    return this.getCompletedCountOptimized();
   }
 
   // デバッグ用に回答データをサニタイズ
