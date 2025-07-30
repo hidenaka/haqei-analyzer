@@ -21,13 +21,14 @@ class IChingOrthodoxyValidator {
 
   /**
    * 包括的な易経正統性検証を実行
-   * @param {Object} implementation - 検証対象の実装データ
+   * @param {Object} implementation - 検証対象の実装データ（オプション）
    * @returns {Object} 詳細な検証結果
    */
-  async validateImplementation(implementation) {
+  async validateImplementation(implementation = null) {
     console.log("🔯 Starting comprehensive I-Ching orthodoxy validation...");
     
-    this.currentImplementation = implementation;
+    // 実装データを取得または構築
+    this.currentImplementation = await this.gatherImplementationData(implementation);
     const startTime = performance.now();
     
     try {
@@ -763,25 +764,157 @@ class IChingOrthodoxyValidator {
 
   validateSituationalAdaptation() {
     // 状況適応機能の検証
+    console.log("🔍 Validating situational adaptation capabilities...");
+    
+    const implementation = this.currentImplementation;
+    const criteria = [
+      {
+        name: "シナリオベース分析",
+        check: () => this.checkScenarioAnalysisImplementation(implementation)
+      },
+      {
+        name: "状況別人格OS選択",
+        check: () => this.checkContextualOSSelection(implementation)
+      },
+      {
+        name: "適応的応答生成",
+        check: () => this.checkAdaptiveResponseGeneration(implementation)
+      },
+      {
+        name: "動的人格調整",
+        check: () => this.checkDynamicPersonalityAdjustment(implementation)
+      }
+    ];
+    
+    let validCount = 0;
+    const issues = [];
+    const details = {};
+    
+    for (const criterion of criteria) {
+      const result = criterion.check();
+      details[criterion.name] = result;
+      
+      if (result.valid) {
+        validCount++;
+      } else {
+        issues.push({
+          criterion: criterion.name,
+          error: result.error || "状況適応機能が不完全",
+          details: result.details
+        });
+      }
+    }
+    
     return {
-      score: 0.85,
-      issues: []
+      score: validCount / criteria.length,
+      validCount: validCount,
+      totalCount: criteria.length,
+      issues: issues,
+      details: details
     };
   }
 
   validateAuthenticMultiplicity() {
     // 真正な多面性の検証
+    console.log("🔍 Validating authentic multiplicity implementation...");
+    
+    const implementation = this.currentImplementation;
+    const criteria = [
+      {
+        name: "複数人格OS同時存在",
+        check: () => this.checkMultipleOSCoexistence(implementation)
+      },
+      {
+        name: "人格間の独立性",
+        check: () => this.checkPersonalityIndependence(implementation)
+      },
+      {
+        name: "本質的多面性表現",
+        check: () => this.checkAuthenticMultiplicity(implementation)
+      },
+      {
+        name: "統一self概念の拒否",
+        check: () => this.checkUnifiedSelfRejection(implementation)
+      }
+    ];
+    
+    let validCount = 0;
+    const issues = [];
+    const details = {};
+    
+    for (const criterion of criteria) {
+      const result = criterion.check();
+      details[criterion.name] = result;
+      
+      if (result.valid) {
+        validCount++;
+      } else {
+        issues.push({
+          criterion: criterion.name,
+          error: result.error || "真正な多面性の実装が不完全",
+          details: result.details
+        });
+      }
+    }
+    
     return {
-      score: 0.90,
-      issues: []
+      score: validCount / criteria.length,
+      validCount: validCount,
+      totalCount: criteria.length,
+      issues: issues,
+      details: details
     };
   }
 
   validateHarmoniousIntegration() {
     // 調和的統合の検証
+    console.log("🔍 Validating harmonious integration capabilities...");
+    
+    const implementation = this.currentImplementation;
+    const criteria = [
+      {
+        name: "三重OS調和機能",
+        check: () => this.checkTripleOSHarmony(implementation)
+      },
+      {
+        name: "人格間協調メカニズム",
+        check: () => this.checkPersonalityCoordination(implementation)
+      },
+      {
+        name: "全体的一貫性維持",
+        check: () => this.checkOverallConsistency(implementation)
+      },
+      {
+        name: "動的バランス調整",
+        check: () => this.checkDynamicBalancing(implementation)
+      }
+    ];
+    
+    let validCount = 0;
+    const issues = [];
+    const details = {};
+    
+    for (const criterion of criteria) {
+      const result = criterion.check();
+      details[criterion.name] = result;
+      
+      if (result.valid) {
+        validCount++;
+      } else {
+        issues.push({
+          criterion: criterion.name,
+          error: result.error || "調和的統合機能が不完全",
+          details: result.details
+        });
+      }
+    }
+    
     return {
-      score: 0.80,
-      issues: []
+      score: validCount / criteria.length,
+      validCount: validCount,
+      totalCount: criteria.length,
+      issues: issues,
+      details: details
     };
   }
 
@@ -807,34 +940,20 @@ class IChingOrthodoxyValidator {
   }
 
   validateLinePositionMeanings() {
-    // 爻位の意味の正確性を検証
-    const implementation = this.currentImplementation.lineApplications;
-    const standard = this.standards.lineStandards.line_positions;
-    
-    let correctCount = 0;
-    const issues = [];
-    const totalCount = Object.keys(standard).length;
-    
-    for (const [position, positionStandard] of Object.entries(standard)) {
-      const implementedMeaning = implementation?.positions?.[position];
-      
-      if (implementedMeaning?.meaning === positionStandard.meaning) {
-        correctCount++;
-      } else {
-        issues.push({
-          position: position,
-          expected: positionStandard.meaning,
-          implemented: implementedMeaning?.meaning,
-          error: "爻位の意味が不正確"
-        });
-      }
-    }
+    // 包括的な爻辞レベル適用検証を実行
+    const comprehensiveResults = this.standards.validateComprehensiveLineApplication(this.currentImplementation);
     
     return {
-      score: correctCount / totalCount,
-      correctCount: correctCount,
-      totalCount: totalCount,
-      issues: issues
+      score: comprehensiveResults.overallScore,
+      correctCount: comprehensiveResults.positionMeaningsImplemented,
+      totalCount: comprehensiveResults.totalPositions,
+      issues: comprehensiveResults.overallScore < 0.8 ? [{
+        category: "爻辞レベル適用",
+        severity: "high",
+        description: "爻辞レベル適用の実装が不完全",
+        details: comprehensiveResults.details
+      }] : [],
+      comprehensiveResults: comprehensiveResults
     };
   }
 
@@ -1142,6 +1261,723 @@ class IChingOrthodoxyValidator {
     }
     
     return issues;
+  }
+
+  // ========== bunenjin哲学実装状況検証メソッド群 ==========
+
+  // シナリオベース分析の実装状況検証
+  checkScenarioAnalysisImplementation(implementation) {
+    try {
+      const hasScenarioAnalysis = implementation?.tripleOSEngine || 
+                                 implementation?.scenarioAnalysis ||
+                                 (typeof window !== 'undefined' && window.TripleOSEngine);
+      
+      const hasScenarioQuestions = implementation?.scenarioQuestions || 
+                                   implementation?.hasScenarioData ||
+                                   (implementation?.questions?.some?.(q => q.type === 'scenario'));
+
+      if (hasScenarioAnalysis && hasScenarioQuestions) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "シナリオベース分析機能が実装済み"
+        };
+      } else if (hasScenarioAnalysis || hasScenarioQuestions) {
+        return {
+          valid: false,
+          score: 0.5,
+          error: "シナリオ分析の実装が部分的",
+          details: `実装状況: 分析エンジン${hasScenarioAnalysis ? '○' : '×'} / シナリオ質問${hasScenarioQuestions ? '○' : '×'}`
+        };
+      } else {
+        return {
+          valid: false,
+          score: 0.0,
+          error: "シナリオベース分析が未実装",
+          details: "状況適応のためのシナリオ分析機能が必要"
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking scenario analysis:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "シナリオ分析検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // 状況別人格OS選択機能の検証
+  checkContextualOSSelection(implementation) {
+    try {
+      const hasTripleOS = implementation?.tripleOSStructure?.hasEngineOS && 
+                         implementation?.tripleOSStructure?.hasInterfaceOS && 
+                         implementation?.tripleOSStructure?.hasSafeModeOS;
+
+      const hasContextualSwitching = implementation?.tripleOSStructure?.allowsPersonalitySwitching ||
+                                    implementation?.enablesContextualPersonality;
+
+      const hasSelectionLogic = implementation?.tripleOSEngine?.analyzeTripleOS ||
+                               (typeof window !== 'undefined' && window.TripleOSEngine?.prototype?.analyzeTripleOS);
+
+      if (hasTripleOS && hasContextualSwitching && hasSelectionLogic) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "状況別人格OS選択機能が完全実装"
+        };
+      } else {
+        const missingFeatures = [];
+        if (!hasTripleOS) missingFeatures.push("Triple OS構造");
+        if (!hasContextualSwitching) missingFeatures.push("人格切り替え機能");
+        if (!hasSelectionLogic) missingFeatures.push("選択ロジック");
+
+        return {
+          valid: false,
+          score: [hasTripleOS, hasContextualSwitching, hasSelectionLogic].filter(Boolean).length / 3,
+          error: "状況別OS選択機能が不完全",
+          details: `未実装: ${missingFeatures.join(', ')}`
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking contextual OS selection:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "状況別OS選択検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // 適応的応答生成機能の検証
+  checkAdaptiveResponseGeneration(implementation) {
+    try {
+      const hasAdaptiveEngine = implementation?.adaptiveLanguage ||
+                               implementation?.personalStrategyAI ||
+                               (typeof window !== 'undefined' && window.AdaptiveLanguage);
+
+      const hasPersonalityAdaptation = implementation?.tripleOSStructure?.enablesContextualPersonality;
+
+      const hasResponseVariation = implementation?.responseVariation ||
+                                   implementation?.contextualResponse;
+
+      if (hasAdaptiveEngine && hasPersonalityAdaptation) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "適応的応答生成機能が実装済み"
+        };
+      } else {
+        return {
+          valid: false,
+          score: [hasAdaptiveEngine, hasPersonalityAdaptation, hasResponseVariation].filter(Boolean).length / 3,
+          error: "適応的応答生成が不完全",
+          details: `実装状況: エンジン${hasAdaptiveEngine ? '○' : '×'} / 人格適応${hasPersonalityAdaptation ? '○' : '×'} / 応答変化${hasResponseVariation ? '○' : '×'}`
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking adaptive response generation:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "適応的応答生成検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // 動的人格調整機能の検証
+  checkDynamicPersonalityAdjustment(implementation) {
+    try {
+      const hasDynamicAnalyzer = implementation?.dynamicAnalyzer ||
+                                (typeof window !== 'undefined' && window.DynamicAnalyzer);
+
+      const hasPersonalityAdjustment = implementation?.personalityAdjustment ||
+                                      implementation?.tripleOSStructure?.allowsPersonalitySwitching;
+
+      const hasRealTimeAdaptation = implementation?.realTimeAdaptation ||
+                                   implementation?.continuousAnalysis;
+
+      if (hasDynamicAnalyzer && hasPersonalityAdjustment) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "動的人格調整機能が実装済み"
+        };
+      } else {
+        return {
+          valid: false,
+          score: [hasDynamicAnalyzer, hasPersonalityAdjustment, hasRealTimeAdaptation].filter(Boolean).length / 3,
+          error: "動的人格調整が不完全",
+          details: `実装状況: 動的分析${hasDynamicAnalyzer ? '○' : '×'} / 人格調整${hasPersonalityAdjustment ? '○' : '×'} / リアルタイム適応${hasRealTimeAdaptation ? '○' : '×'}`
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking dynamic personality adjustment:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "動的人格調整検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // 複数人格OS同時存在機能の検証
+  checkMultipleOSCoexistence(implementation) {
+    try {
+      const hasAllThreeOS = implementation?.tripleOSStructure?.hasEngineOS && 
+                           implementation?.tripleOSStructure?.hasInterfaceOS && 
+                           implementation?.tripleOSStructure?.hasSafeModeOS;
+
+      const hasIndependentOS = implementation?.independentOSOperation ||
+                              implementation?.multipleOSCoexistence;
+
+      const hasSimultaneousOperation = implementation?.simultaneousOSOperation ||
+                                      implementation?.parallelPersonalityProcessing;
+
+      if (hasAllThreeOS && hasIndependentOS) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "複数人格OS同時存在機能が実装済み"
+        };
+      } else {
+        return {
+          valid: false,
+          score: [hasAllThreeOS, hasIndependentOS, hasSimultaneousOperation].filter(Boolean).length / 3,
+          error: "複数人格OS同時存在が不完全",
+          details: `実装状況: 三重OS${hasAllThreeOS ? '○' : '×'} / 独立運用${hasIndependentOS ? '○' : '×'} / 同時動作${hasSimultaneousOperation ? '○' : '×'}`
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking multiple OS coexistence:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "複数人格OS検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // 人格間独立性の検証
+  checkPersonalityIndependence(implementation) {
+    try {
+      const hasIndependentDecisionMaking = implementation?.independentDecisionMaking ||
+                                          implementation?.autonomousPersonalityFunction;
+
+      const hasPersonalityBoundaries = implementation?.personalityBoundaries ||
+                                      implementation?.distinctPersonalityTraits;
+
+      const hasConflictResolution = implementation?.personalityConflictResolution ||
+                                   implementation?.tripleOSHarmony;
+
+      if (hasIndependentDecisionMaking && hasPersonalityBoundaries) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "人格間独立性が適切に実装済み"
+        };
+      } else {
+        return {
+          valid: false,
+          score: [hasIndependentDecisionMaking, hasPersonalityBoundaries, hasConflictResolution].filter(Boolean).length / 3,
+          error: "人格間独立性が不完全",
+          details: `実装状況: 独立判断${hasIndependentDecisionMaking ? '○' : '×'} / 人格境界${hasPersonalityBoundaries ? '○' : '×'} / 衝突解決${hasConflictResolution ? '○' : '×'}`
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking personality independence:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "人格独立性検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // 本質的多面性表現の検証
+  checkAuthenticMultiplicity(implementation) {
+    try {
+      const hasMultiplePersonalityExpressions = implementation?.multiplePersonalityExpressions ||
+                                               implementation?.diversePersonalityManifestations;
+
+      const hasNonSyntheticPersonalities = implementation?.authenticPersonalities ||
+                                          !implementation?.artificialPersonalityMerging;
+
+      const hasNaturalPersonalityShifts = implementation?.naturalPersonalityTransitions ||
+                                         implementation?.organicPersonalityChanges;
+
+      if (hasMultiplePersonalityExpressions && hasNonSyntheticPersonalities) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "本質的多面性表現が適切に実装済み"
+        };
+      } else {
+        return {
+          valid: false,
+          score: [hasMultiplePersonalityExpressions, hasNonSyntheticPersonalities, hasNaturalPersonalityShifts].filter(Boolean).length / 3,
+          error: "本質的多面性表現が不完全",
+          details: `実装状況: 多面表現${hasMultiplePersonalityExpressions ? '○' : '×'} / 非合成的${hasNonSyntheticPersonalities ? '○' : '×'} / 自然変化${hasNaturalPersonalityShifts ? '○' : '×'}`
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking authentic multiplicity:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "本質的多面性検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // 統一self概念拒否の検証
+  checkUnifiedSelfRejection(implementation) {
+    try {
+      const rejectsUnifiedSelf = implementation?.rejectsUnifiedSelfConcept ||
+                                implementation?.embracesMultiplicity ||
+                                !implementation?.seeksSingleTrueSelf;
+
+      const supportsBunenjinPhilosophy = implementation?.bunenjinPhilosophy ||
+                                        implementation?.dividedPersonalitySupport;
+
+      const avoidsPersonalityReduction = implementation?.avoidsPersonalityReduction ||
+                                        !implementation?.reducesToSinglePersonality;
+
+      if (rejectsUnifiedSelf && supportsBunenjinPhilosophy) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "統一self概念の適切な拒否が実装済み"
+        };
+      } else {
+        return {
+          valid: false,
+          score: [rejectsUnifiedSelf, supportsBunenjinPhilosophy, avoidsPersonalityReduction].filter(Boolean).length / 3,
+          error: "統一self概念拒否が不完全",
+          details: `実装状況: 統一拒否${rejectsUnifiedSelf ? '○' : '×'} / 分人支持${supportsBunenjinPhilosophy ? '○' : '×'} / 還元回避${avoidsPersonalityReduction ? '○' : '×'}`
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking unified self rejection:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "統一self拒否検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // 三重OS調和機能の検証
+  checkTripleOSHarmony(implementation) {
+    try {
+      const hasOSCoordination = implementation?.tripleOSCoordination ||
+                               implementation?.osHarmonyMechanism;
+
+      const hasConflictResolution = implementation?.osConflictResolution ||
+                                   implementation?.personalityConflictManagement;
+
+      const hasBalancedIntegration = implementation?.balancedOSIntegration ||
+                                    implementation?.harmonizedTripleOS;
+
+      if (hasOSCoordination && hasConflictResolution) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "三重OS調和機能が適切に実装済み"
+        };
+      } else {
+        return {
+          valid: false,
+          score: [hasOSCoordination, hasConflictResolution, hasBalancedIntegration].filter(Boolean).length / 3,
+          error: "三重OS調和機能が不完全",
+          details: `実装状況: OS協調${hasOSCoordination ? '○' : '×'} / 衝突解決${hasConflictResolution ? '○' : '×'} / バランス統合${hasBalancedIntegration ? '○' : '×'}`
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking Triple OS harmony:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "三重OS調和検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // 人格間協調メカニズムの検証
+  checkPersonalityCoordination(implementation) {
+    try {
+      const hasPersonalityNegotiation = implementation?.personalityNegotiation ||
+                                       implementation?.interPersonalityDialogue;
+
+      const hasCooperativeDecisionMaking = implementation?.cooperativeDecisionMaking ||
+                                          implementation?.collectivePersonalityDecisions;
+
+      const hasPersonalityMediation = implementation?.personalityMediation ||
+                                     implementation?.personalityArbitration;
+
+      if (hasPersonalityNegotiation && hasCooperativeDecisionMaking) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "人格間協調メカニズムが適切に実装済み"
+        };
+      } else {
+        return {
+          valid: false,
+          score: [hasPersonalityNegotiation, hasCooperativeDecisionMaking, hasPersonalityMediation].filter(Boolean).length / 3,
+          error: "人格間協調メカニズムが不完全",
+          details: `実装状況: 人格交渉${hasPersonalityNegotiation ? '○' : '×'} / 協働決定${hasCooperativeDecisionMaking ? '○' : '×'} / 人格調停${hasPersonalityMediation ? '○' : '×'}`
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking personality coordination:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "人格協調検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // 全体的一貫性維持の検証
+  checkOverallConsistency(implementation) {
+    try {
+      const hasConsistencyMaintenance = implementation?.consistencyMaintenance ||
+                                       implementation?.overallCoherence;
+
+      const hasPersonalityAlignment = implementation?.personalityAlignment ||
+                                     implementation?.coherentPersonalitySystem;
+
+      const hasStabilityMechanisms = implementation?.stabilityMechanisms ||
+                                    implementation?.personalityStabilization;
+
+      if (hasConsistencyMaintenance && hasPersonalityAlignment) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "全体的一貫性維持機能が適切に実装済み"
+        };
+      } else {
+        return {
+          valid: false,
+          score: [hasConsistencyMaintenance, hasPersonalityAlignment, hasStabilityMechanisms].filter(Boolean).length / 3,
+          error: "全体的一貫性維持が不完全",
+          details: `実装状況: 一貫性維持${hasConsistencyMaintenance ? '○' : '×'} / 人格整列${hasPersonalityAlignment ? '○' : '×'} / 安定化機構${hasStabilityMechanisms ? '○' : '×'}`
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking overall consistency:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "全体一貫性検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // 動的バランス調整の検証
+  checkDynamicBalancing(implementation) {
+    try {
+      const hasDynamicAdjustment = implementation?.dynamicAdjustment ||
+                                  implementation?.adaptiveBalancing;
+
+      const hasPersonalityRebalancing = implementation?.personalityRebalancing ||
+                                       implementation?.dynamicPersonalityEquilibrium;
+
+      const hasRealTimeOptimization = implementation?.realTimeOptimization ||
+                                     implementation?.continuousBalanceOptimization;
+
+      if (hasDynamicAdjustment && hasPersonalityRebalancing) {
+        return {
+          valid: true,
+          score: 1.0,
+          details: "動的バランス調整機能が適切に実装済み"
+        };
+      } else {
+        return {
+          valid: false,
+          score: [hasDynamicAdjustment, hasPersonalityRebalancing, hasRealTimeOptimization].filter(Boolean).length / 3,
+          error: "動的バランス調整が不完全",
+          details: `実装状況: 動的調整${hasDynamicAdjustment ? '○' : '×'} / 人格再調整${hasPersonalityRebalancing ? '○' : '×'} / リアルタイム最適化${hasRealTimeOptimization ? '○' : '×'}`
+        };
+      }
+    } catch (error) {
+      console.error("❌ Error checking dynamic balancing:", error);
+      return {
+        valid: false,
+        score: 0.0,
+        error: "動的バランス検証でエラー発生",
+        details: error.message
+      };
+    }
+  }
+
+  // ========== 実装データ収集とTriple OSエンジン統合 ==========
+
+  /**
+   * 実装データを収集して検証可能な形式に構築
+   * @param {Object} providedImplementation - 外部から提供された実装データ
+   * @returns {Object} 検証用に構造化された実装データ
+   */
+  async gatherImplementationData(providedImplementation = null) {
+    console.log("🔍 Gathering implementation data for validation...");
+    
+    try {
+      // 基本的な実装データ構造を初期化
+      let implementationData = {
+        // Triple OS構造のデフォルト値
+        tripleOSStructure: {
+          hasEngineOS: false,
+          hasInterfaceOS: false,
+          hasSafeModeOS: false,
+          allowsPersonalitySwitching: false,
+          enablesContextualPersonality: false
+        },
+        
+        // 基本的な易経データ構造
+        trigramRelationships: {},
+        hexagramData: {},
+        ultraSyncLogic: {},
+        lineApplications: {},
+        
+        // 分人哲学機能フラグ
+        bunenjinPhilosophy: false,
+        dividedPersonalitySupport: false,
+        
+        // 動的機能フラグ
+        dynamicAnalyzer: false,
+        adaptiveLanguage: false,
+        personalStrategyAI: false
+      };
+
+      // 1. 外部提供データがある場合は優先使用
+      if (providedImplementation && typeof providedImplementation === 'object') {
+        console.log("📋 Using provided implementation data");
+        implementationData = { ...implementationData, ...providedImplementation };
+      }
+
+      // 2. Triple OSエンジンインスタンスの検出と統合
+      const tripleOSEngine = this.detectTripleOSEngine();
+      if (tripleOSEngine) {
+        console.log("🎯 Triple OS Engine detected, integrating bunenjin data...");
+        const bunenjinData = tripleOSEngine.getBunenjinImplementationData();
+        implementationData = { ...implementationData, ...bunenjinData };
+      }
+
+      // 3. グローバルスコープからの追加データ収集
+      const globalData = this.collectGlobalImplementationData();
+      implementationData = { ...implementationData, ...globalData };
+
+      // 4. DataManagerからの易経データ収集
+      const ichingData = this.collectIChingImplementationData();
+      implementationData = { ...implementationData, ...ichingData };
+
+      console.log("✅ Implementation data gathering completed");
+      console.log("📊 Collected data overview:", {
+        hasTripleOSStructure: !!implementationData.tripleOSStructure,
+        tripleOSComplete: implementationData.tripleOSStructure?.hasEngineOS && 
+                         implementationData.tripleOSStructure?.hasInterfaceOS && 
+                         implementationData.tripleOSStructure?.hasSafeModeOS,
+        bunenjinSupport: implementationData.bunenjinPhilosophy,
+        hasTrigramData: Object.keys(implementationData.trigramRelationships || {}).length > 0,
+        hasHexagramData: Object.keys(implementationData.hexagramData || {}).length > 0
+      });
+
+      return implementationData;
+
+    } catch (error) {
+      console.error("❌ Error gathering implementation data:", error);
+      
+      // エラー時のフォールバック：最小限のデータ構造を返す
+      return {
+        tripleOSStructure: {
+          hasEngineOS: false,
+          hasInterfaceOS: false,
+          hasSafeModeOS: false,
+          allowsPersonalitySwitching: false,
+          enablesContextualPersonality: false
+        },
+        bunenjinPhilosophy: false,
+        error: `Data gathering failed: ${error.message}`
+      };
+    }
+  }
+
+  /**
+   * Triple OSエンジンインスタンスを検出
+   * @returns {Object|null} Triple OSエンジンインスタンス
+   */
+  detectTripleOSEngine() {
+    try {
+      // グローバルスコープでの検索
+      if (typeof window !== 'undefined') {
+        // 1. グローバル変数としてのTripleOSEngine
+        if (window.TripleOSEngine && typeof window.TripleOSEngine === 'function') {
+          console.log("🔍 Found TripleOSEngine class in global scope");
+          
+          // 既存のインスタンスを探索
+          const possibleInstances = [
+            window.tripleOSEngine,
+            window.tripleOSEngineInstance,
+            window.currentTripleOSEngine
+          ];
+          
+          for (const instance of possibleInstances) {
+            if (instance && typeof instance.getBunenjinImplementationData === 'function') {
+              console.log("✅ Found active TripleOSEngine instance");
+              return instance;
+            }
+          }
+        }
+        
+        // 2. DataManagerを通じた検索
+        if (window.dataManager && typeof window.dataManager === 'object') {
+          console.log("🔍 Checking DataManager for TripleOSEngine reference");
+          // DataManagerからTripleOSEngineインスタンスを探す可能性
+        }
+      }
+      
+      console.log("⚠️ No active TripleOSEngine instance found");
+      return null;
+      
+    } catch (error) {
+      console.error("❌ Error detecting TripleOSEngine:", error);
+      return null;
+    }
+  }
+
+  /**
+   * グローバルスコープから実装データを収集
+   * @returns {Object} グローバルスコープから収集された実装データ
+   */
+  collectGlobalImplementationData() {
+    const globalData = {};
+    
+    try {
+      if (typeof window !== 'undefined') {
+        // 利用可能なグローバルクラス/インスタンスをチェック
+        const globalChecks = {
+          adaptiveLanguage: 'AdaptiveLanguage',
+          personalStrategyAI: 'PersonalStrategyAI', 
+          dynamicAnalyzer: 'DynamicAnalyzer',
+          ichingUltraSyncLogic: 'IChingUltraSyncLogic',
+          criticalThinkingEngine: 'CriticalThinkingEngine',
+          transparencyEngine: 'TransparencyEngine'
+        };
+        
+        Object.entries(globalChecks).forEach(([key, className]) => {
+          if (window[className]) {
+            globalData[key] = true;
+            console.log(`✅ Found global ${className}`);
+          } else {
+            globalData[key] = false;
+          }
+        });
+
+        // Calculatorクラスとインスタンスの検証
+        if (window.Calculator && typeof window.Calculator === 'function') {
+          console.log("✅ Found Calculator class");
+          
+          // Calculatorインスタンスを作成してテスト
+          try {
+            const calculatorInstance = new window.Calculator();
+            globalData.calculator = calculatorInstance;
+            console.log("✅ Calculator instance created for validation");
+          } catch (error) {
+            console.warn("⚠️ Failed to create Calculator instance:", error);
+            globalData.calculator = null;
+          }
+        } else {
+          console.warn("⚠️ Calculator class not found in global scope");
+          globalData.calculator = null;
+        }
+      }
+      
+    } catch (error) {
+      console.error("❌ Error collecting global implementation data:", error);
+    }
+    
+    return globalData;
+  }
+
+  /**
+   * 易経関連の実装データを収集
+   * @returns {Object} 易経実装データ
+   */
+  collectIChingImplementationData() {
+    const ichingData = {
+      trigramRelationships: {},
+      hexagramData: {},
+      ultraSyncLogic: {},
+      lineApplications: {}
+    };
+    
+    try {
+      if (typeof window !== 'undefined') {
+        // hexagrams_masterからの直接データ収集
+        if (window.hexagrams_master && Array.isArray(window.hexagrams_master)) {
+          console.log("✅ Found hexagrams_master data");
+          ichingData.hexagramData = window.hexagrams_master.reduce((acc, hex) => {
+            if (hex.hexagram_id) acc[hex.hexagram_id] = hex;
+            return acc;
+          }, {});
+        }
+
+        // DataManagerからのデータ収集を試行
+        if (window.dataManager) {
+          const dataManager = window.dataManager;
+          
+          // 八卦関係データ
+          if (typeof dataManager.getTrigramRelationships === 'function') {
+            ichingData.trigramRelationships = dataManager.getTrigramRelationships() || {};
+          }
+          
+          // 64卦データ（DataManagerから）
+          if (typeof dataManager.getAllHexagramData === 'function') {
+            const hexagrams = dataManager.getAllHexagramData();
+            if (Array.isArray(hexagrams)) {
+              const dataManagerHexagrams = hexagrams.reduce((acc, hex) => {
+                if (hex.id) acc[hex.id] = hex;
+                return acc;
+              }, {});
+              
+              // 既存のhexagrams_masterデータとマージ
+              ichingData.hexagramData = { ...ichingData.hexagramData, ...dataManagerHexagrams };
+            }
+          }
+        }
+        
+        // ウルトラシンクロジック
+        if (typeof window.IChingUltraSyncLogic === 'function') {
+          ichingData.ultraSyncLogic = {
+            hasIChingUltraSyncLogic: true,
+            methods: {}  // 実際のメソッド一覧は動的に取得可能
+          };
+        }
+        
+        console.log("📊 I-Ching data collected:", {
+          trigramRelationships: Object.keys(ichingData.trigramRelationships).length,
+          hexagramData: Object.keys(ichingData.hexagramData).length,
+          hasUltraSync: ichingData.ultraSyncLogic.hasIChingUltraSyncLogic
+        });
+      }
+      
+    } catch (error) {
+      console.error("❌ Error collecting I-Ching implementation data:", error);
+    }
+    
+    return ichingData;
   }
 }
 

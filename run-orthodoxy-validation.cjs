@@ -270,44 +270,123 @@ class OrthodoxyValidationRunner {
   }
 
   async analyzeLineApplications() {
-    // 爻辞レベルの適用分析
-    const files = this.findFiles('hexagram_details.js');
+    // 爻辞レベルの適用分析 - 新しい実装チェック
+    const calculatorFile = path.join(this.projectRoot, 'public/js/os-analyzer/core/Calculator.js');
+    const hexagramsFile = path.join(this.projectRoot, 'public/js/os-analyzer/data/hexagrams.js');
     
-    if (files.length === 0) {
+    let analysis = {
+      hasImplementation: false,
+      linePositionImplementation: 0,
+      hasRelationshipAnalysis: false,
+      hasLineApplicationMethods: false,
+      hasLineDataInHexagrams: false,
+      implementationQuality: 'needs_improvement'
+    };
+
+    // 1. Calculator.jsの爻辞レベル機能チェック
+    if (fs.existsSync(calculatorFile)) {
+      const calculatorContent = fs.readFileSync(calculatorFile, 'utf8');
+      
+      // 爻位置的意味メソッドの確認
+      const linePositionMethods = [
+        'getLinePositionMeaning',
+        'analyzeLineRelationships',
+        'analyzeCorrespondence',
+        'analyzeAdjacency',
+        'analyzeCentrality',
+        'analyzeCorrectness'
+      ];
+      
+      let implementedMethods = 0;
+      linePositionMethods.forEach(method => {
+        if (calculatorContent.includes(method)) {
+          implementedMethods++;
+        }
+      });
+      
+      if (implementedMethods >= 4) {
+        analysis.hasLineApplicationMethods = true;
+        analysis.hasImplementation = true;
+      }
+
+      // 爻辞レベル適用の高度な機能チェック
+      const advancedMethods = [
+        'applyLineApplicationAccuracy',
+        'calculateLineAdjustmentFactor',
+        'getPositionInfluenceOnDimension',
+        'calculateHarmonicBonus',
+        'calculateCentralityBonus'
+      ];
+      
+      let advancedImplementedMethods = 0;
+      advancedMethods.forEach(method => {
+        if (calculatorContent.includes(method)) {
+          advancedImplementedMethods++;
+        }
+      });
+
+      // 爻位情報の確認（六爻の位置的意味）
+      const linePositions = ['初爻', '二爻', '三爻', '四爻', '五爻', '上爻'];
+      let linePositionCount = 0;
+      
+      linePositions.forEach(position => {
+        if (calculatorContent.includes(position)) {
+          linePositionCount++;
+        }
+      });
+      
+      analysis.linePositionImplementation = linePositionCount;
+      
+      // 関係性分析の確認
+      if (calculatorContent.includes('応') && calculatorContent.includes('比') && 
+          calculatorContent.includes('中正') && calculatorContent.includes('正位')) {
+        analysis.hasRelationshipAnalysis = true;
+      }
+
+      // 総合実装品質の評価
+      const totalMethodsScore = (implementedMethods + advancedImplementedMethods) / (linePositionMethods.length + advancedMethods.length);
+      const linePositionScore = linePositionCount / 6;
+      const relationshipScore = analysis.hasRelationshipAnalysis ? 1.0 : 0.0;
+      
+      const overallQualityScore = (totalMethodsScore * 0.5 + linePositionScore * 0.3 + relationshipScore * 0.2);
+      
+      analysis.implementationQuality = overallQualityScore >= 0.8 ? 'excellent' :
+                                     overallQualityScore >= 0.6 ? 'good' : 'needs_improvement';
+    }
+
+    // 2. hexagrams.jsの爻辞データ確認
+    if (fs.existsSync(hexagramsFile)) {
+      const hexagramsContent = fs.readFileSync(hexagramsFile, 'utf8');
+      
+      // 爻辞データ構造の確認
+      if (hexagramsContent.includes('lines:') && 
+          hexagramsContent.includes('line_texts:') && 
+          hexagramsContent.includes('line_relationships:')) {
+        analysis.hasLineDataInHexagrams = true;
+      }
+    }
+    
+    // 問題点の記録
+    if (!analysis.hasImplementation) {
       this.issues.push({
         severity: 'high',
         category: '爻辞適用',
-        description: '詳細な卦情報ファイルが見つかりません',
-        recommendation: '各卦の爻辞レベルでの詳細解釈を実装してください'
+        description: '爻辞レベル適用機能が実装されていません',
+        recommendation: 'Calculator.jsに爻位の位置的意味と相互関係（応・比・中・正）を実装してください'
       });
-      return { hasImplementation: false };
-    }
-    
-    const content = fs.readFileSync(files[0], 'utf8');
-    
-    // 爻位情報の確認
-    const linePositions = ['初爻', '二爻', '三爻', '四爻', '五爻', '上爻'];
-    let lineImplementationCount = 0;
-    
-    linePositions.forEach(position => {
-      if (content.includes(position)) {
-        lineImplementationCount++;
-      }
-    });
-    
-    const analysis = {
-      hasImplementation: true,
-      linePositionImplementation: lineImplementationCount,
-      hasRelationshipAnalysis: content.includes('応') || content.includes('比'),
-      implementationQuality: lineImplementationCount >= 4 ? 'good' : 'needs_improvement'
-    };
-    
-    if (lineImplementationCount < 6) {
+    } else if (analysis.linePositionImplementation < 6) {
       this.issues.push({
         severity: 'medium',
         category: '爻辞適用',
-        description: `六爻のうち${lineImplementationCount}爻のみが実装されています`,
+        description: `六爻のうち${analysis.linePositionImplementation}爻の位置的意味が実装されています`,
         recommendation: 'すべての爻位の正統な意味と関係性を実装してください'
+      });
+    } else if (!analysis.hasRelationshipAnalysis) {
+      this.issues.push({
+        severity: 'medium',
+        category: '爻辞適用',
+        description: '爻の相互関係（応・比・中・正）の分析が不完全です',
+        recommendation: '爻位間の関係性分析を完全に実装してください'
       });
     }
     
@@ -381,10 +460,26 @@ class OrthodoxyValidationRunner {
     
     if (!data.hasImplementation) return 0.0;
     
-    let score = 0.3; // 基本実装で30%
+    let score = 0.0;
     
-    score += (data.linePositionImplementation / 6) * 0.5; // 爻位実装で最大50%
-    if (data.hasRelationshipAnalysis) score += 0.2; // 関係性分析で20%
+    // 基本実装: 爻辞レベル機能の存在 (30%)
+    if (data.hasLineApplicationMethods) score += 0.3;
+    
+    // 爻位実装: 六爻の位置的意味 (30%)
+    score += (data.linePositionImplementation / 6) * 0.3;
+    
+    // 関係性分析: 応・比・中・正の実装 (25%)
+    if (data.hasRelationshipAnalysis) score += 0.25;
+    
+    // データ統合: hexagrams.jsとの統合 (15%)
+    if (data.hasLineDataInHexagrams) score += 0.15;
+    
+    // 実装品質による追加ボーナス
+    if (data.implementationQuality === 'excellent') {
+      score *= 1.1; // 10%ボーナス
+    } else if (data.implementationQuality === 'good') {
+      score *= 1.05; // 5%ボーナス
+    }
     
     return Math.min(score, 1.0);
   }

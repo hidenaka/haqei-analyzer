@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bunenjin哲学統合テスト</title>
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .score.high { color: #4CAF50; }
+        .score.medium { color: #FF9800; }
+        .score.low { color: #f44336; }
+        .details {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .log {
+            background: #e8e8e8;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        .progress {
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 bunenjin哲学統合テスト</h1>
+        <p>改善されたbunenjin哲学検証システムのテストを実行します。</p>
+
+        <div class="test-section">
+            <h2>1. システム初期化テスト</h2>
+            <button onclick="initializeTest()">システム初期化</button>
+            <div id="init-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. Triple OSエンジン検証</h2>
+            <button onclick="testTripleOSEngine()">Triple OSエンジンテスト</button>
+            <div id="triple-os-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. bunenjin哲学整合性検証</h2>
+            <button onclick="runBunenjinValidation()">bunenjin検証実行</button>
+            <div id="bunenjin-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. 統合易経正統性検証</h2>
+            <button onclick="runFullValidation()">完全検証実行</button>
+            <div id="full-validation-results"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 実行ログ</h2>
+            <button onclick="clearLog()">ログクリア</button>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <!-- 必要なスクリプトの読み込み -->
+    <script src="public/js/shared/data/DataManager.js"></script>
+    <script src="public/js/os-analyzer/core/Calculator.js"></script>
+    <script src="public/js/os-analyzer/core/IChingUltraSyncLogic.js"></script>
+    <script src="public/js/os-analyzer/core/TripleOSEngine.js"></script>
+    <script src="public/js/os-analyzer/validation/ClassicalIChingStandards.js"></script>
+    <script src="public/js/os-analyzer/validation/IChingOrthodoxyValidator.js"></script>
+
+    <script>
+        // グローバル変数
+        let dataManager = null;
+        let tripleOSEngine = null;
+        let validator = null;
+        let testResults = {};
+
+        // ログ機能
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('log');
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logEntry.style.color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'black';
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            // コンソールにも出力
+            console.log(`[bunenjin-test] ${message}`);
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // システム初期化テスト
+        async function initializeTest() {
+            const resultsDiv = document.getElementById('init-results');
+            resultsDiv.innerHTML = '<div class="progress">🔄 初期化中...</div>';
+
+            try {
+                log('システム初期化を開始...');
+
+                // DataManager初期化
+                if (typeof DataManager !== 'undefined') {
+                    dataManager = new DataManager();
+                    await dataManager.initialize();
+                    window.dataManager = dataManager;
+                    log('✅ DataManager初期化完了', 'success');
+                } else {
+                    throw new Error('DataManagerが利用できません');
+                }
+
+                // Triple OSEngine初期化
+                if (typeof TripleOSEngine !== 'undefined') {
+                    tripleOSEngine = new TripleOSEngine(dataManager);
+                    window.tripleOSEngine = tripleOSEngine;
+                    log('✅ TripleOSEngine初期化完了', 'success');
+                } else {
+                    throw new Error('TripleOSEngineが利用できません');
+                }
+
+                // Validator初期化
+                if (typeof IChingOrthodoxyValidator !== 'undefined') {
+                    validator = new IChingOrthodoxyValidator();
+                    window.validator = validator;
+                    log('✅ IChingOrthodoxyValidator初期化完了', 'success');
+                } else {
+                    throw new Error('IChingOrthodoxyValidatorが利用できません');
+                }
+
+                resultsDiv.innerHTML = `
+                    <div class="details">
+                        <div class="score high">✅ 初期化成功</div>
+                        <p>• DataManager: 初期化完了</p>
+                        <p>• TripleOSEngine: 初期化完了</p>
+                        <p>• IChingOrthodoxyValidator: 初期化完了</p>
+                    </div>
+                `;
+
+                testResults.initialization = true;
+                log('🎯 システム初期化テスト完了', 'success');
+
+            } catch (error) {
+                log(`❌ 初期化エラー: ${error.message}`, 'error');
+                resultsDiv.innerHTML = `
+                    <div class="details">
+                        <div class="score low">❌ 初期化失敗</div>
+                        <p>エラー: ${error.message}</p>
+                    </div>
+                `;
+                testResults.initialization = false;
+            }
+        }
+
+        // Triple OSエンジンテスト
+        async function testTripleOSEngine() {
+            const resultsDiv = document.getElementById('triple-os-results');
+            resultsDiv.innerHTML = '<div class="progress">🔄 Triple OSエンジンテスト中...</div>';
+
+            try {
+                if (!tripleOSEngine) {
+                    throw new Error('TripleOSEngineが初期化されていません');
+                }
+
+                log('Triple OSエンジン機能テストを開始...');
+
+                // bunenjin実装データ取得テスト
+                const bunenjinData = tripleOSEngine.getBunenjinImplementationData();
+                log(`bunenjin実装データ取得: ${Object.keys(bunenjinData).length}項目`);
+
+                // 実装完了度計算テスト
+                const completeness = tripleOSEngine.calculateBunenjinImplementationCompleteness();
+                log(`実装完了度: ${completeness.completenessPercentage}%`);
+
+                const tripleOSScore = completeness.overallScore;
+                const scoreClass = tripleOSScore >= 0.8 ? 'high' : tripleOSScore >= 0.6 ? 'medium' : 'low';
+
+                resultsDiv.innerHTML = `
+                    <div class="details">
+                        <div class="score ${scoreClass}">📊 Triple OS実装スコア: ${Math.round(tripleOSScore * 100)}%</div>
+                        <h4>カテゴリ別スコア:</h4>
+                        ${Object.entries(completeness.categoryScores).map(([category, score]) => 
+                            `<p>• ${category}: ${Math.round(score * 100)}%</p>`
+                        ).join('')}
+                        <h4>実装状況:</h4>
+                        <p>• 実装済み機能: ${completeness.implementedFeatures}/${completeness.totalFeatures}</p>
+                        <p>• Triple OS構造: ${bunenjinData.tripleOSStructure.hasEngineOS && bunenjinData.tripleOSStructure.hasInterfaceOS && bunenjinData.tripleOSStructure.hasSafeModeOS ? '✅' : '❌'}</p>
+                        <p>• bunenjin哲学サポート: ${bunenjinData.bunenjinPhilosophy ? '✅' : '❌'}</p>
+                        <p>• 人格切り替え機能: ${bunenjinData.tripleOSStructure.allowsPersonalitySwitching ? '✅' : '❌'}</p>
+                    </div>
+                `;
+
+                testResults.tripleOS = tripleOSScore;
+                log(`🎯 Triple OSエンジンテスト完了: ${Math.round(tripleOSScore * 100)}%`, 'success');
+
+            } catch (error) {
+                log(`❌ Triple OSエンジンテストエラー: ${error.message}`, 'error');
+                resultsDiv.innerHTML = `
+                    <div class="details">
+                        <div class="score low">❌ テスト失敗</div>
+                        <p>エラー: ${error.message}</p>
+                    </div>
+                `;
+                testResults.tripleOS = 0;
+            }
+        }
+
+        // bunenjin哲学整合性検証
+        async function runBunenjinValidation() {
+            const resultsDiv = document.getElementById('bunenjin-results');
+            resultsDiv.innerHTML = '<div class="progress">🔄 bunenjin哲学検証中...</div>';
+
+            try {
+                if (!validator) {
+                    throw new Error('IChingOrthodoxyValidatorが初期化されていません');
+                }
+
+                log('bunenjin哲学整合性検証を開始...');
+
+                // 実装データを収集
+                const implementationData = await validator.gatherImplementationData();
+                log(`実装データ収集完了: ${Object.keys(implementationData).length}項目`);
+
+                // bunenjin哲学検証のみ実行
+                const bunenjinValidation = await validator.validateBunenjinPhilosophyAlignment();
+                
+                const bunenjinScore = bunenjinValidation.overallScore;
+                const scoreClass = bunenjinScore >= 0.8 ? 'high' : bunenjinScore >= 0.6 ? 'medium' : 'low';
+
+                resultsDiv.innerHTML = `
+                    <div class="details">
+                        <div class="score ${scoreClass}">🎭 bunenjin哲学整合性: ${Math.round(bunenjinScore * 100)}%</div>
+                        <h4>検証詳細:</h4>
+                        <p>• 分人思想サポート: ${bunenjinValidation.dividedPerformanceSupport?.score ? Math.round(bunenjinValidation.dividedPerformanceSupport.score * 100) : 0}%</p>
+                        <p>• 状況適応機能: ${bunenjinValidation.situationalAdaptation?.score ? Math.round(bunenjinValidation.situationalAdaptation.score * 100) : 0}%</p>
+                        <p>• 真正な多面性: ${bunenjinValidation.authenticMultiplicity?.score ? Math.round(bunenjinValidation.authenticMultiplicity.score * 100) : 0}%</p>
+                        <p>• 調和的統合: ${bunenjinValidation.harmoniousIntegration?.score ? Math.round(bunenjinValidation.harmoniousIntegration.score * 100) : 0}%</p>
+                        
+                        ${bunenjinValidation.issues && bunenjinValidation.issues.length > 0 ? `
+                            <h4>発見された問題:</h4>
+                            ${bunenjinValidation.issues.map(issue => `<p>⚠️ ${issue.criterion}: ${issue.error}</p>`).join('')}
+                        ` : '<p>✅ 重要な問題は発見されませんでした</p>'}
+                    </div>
+                `;
+
+                testResults.bunenjinValidation = bunenjinScore;
+                log(`🎯 bunenjin哲学検証完了: ${Math.round(bunenjinScore * 100)}%`, 'success');
+
+            } catch (error) {
+                log(`❌ bunenjin哲学検証エラー: ${error.message}`, 'error');
+                resultsDiv.innerHTML = `
+                    <div class="details">
+                        <div class="score low">❌ 検証失敗</div>
+                        <p>エラー: ${error.message}</p>
+                    </div>
+                `;
+                testResults.bunenjinValidation = 0;
+            }
+        }
+
+        // 完全易経正統性検証
+        async function runFullValidation() {
+            const resultsDiv = document.getElementById('full-validation-results');
+            resultsDiv.innerHTML = '<div class="progress">🔄 完全検証実行中...</div>';
+
+            try {
+                if (!validator) {
+                    throw new Error('IChingOrthodoxyValidatorが初期化されていません');
+                }
+
+                log('完全易経正統性検証を開始...');
+
+                // 完全検証実行
+                const fullValidation = await validator.validateImplementation();
+                
+                const overallScore = fullValidation.overallAssessment?.overallScore || 0;
+                const bunenjinScore = fullValidation.bunenjinAlignment?.overallScore || 0;
+                
+                const scoreClass = overallScore >= 0.8 ? 'high' : overallScore >= 0.6 ? 'medium' : 'low';
+                const bunenjinClass = bunenjinScore >= 0.8 ? 'high' : bunenjinScore >= 0.6 ? 'medium' : 'low';
+
+                // スコア改善の計算
+                const previousBunenjinScore = 0.6; // 以前の60%
+                const improvement = Math.round((bunenjinScore - previousBunenjinScore) * 100);
+
+                resultsDiv.innerHTML = `
+                    <div class="details">
+                        <div class="score ${scoreClass}">🔯 総合易経正統性スコア: ${Math.round(overallScore * 100)}%</div>
+                        <div class="score ${bunenjinClass}">🎭 bunenjin哲学整合性: ${Math.round(bunenjinScore * 100)}%</div>
+                        
+                        ${improvement > 0 ? `<div style="color: green; font-weight: bold; margin: 10px 0;">
+                            📈 改善: +${improvement}ポイント向上！
+                        </div>` : ''}
+                        
+                        <h4>領域別スコア:</h4>
+                        <p>• 八卦相互関係性: ${fullValidation.trigramRelationships?.overallScore ? Math.round(fullValidation.trigramRelationships.overallScore * 100) : 0}%</p>
+                        <p>• 64卦陰陽バランス: ${fullValidation.hexagramBalance?.overallScore ? Math.round(fullValidation.hexagramBalance.overallScore * 100) : 0}%</p>
+                        <p>• ウルトラシンクロジック: ${fullValidation.ultraSyncLogic?.overallScore ? Math.round(fullValidation.ultraSyncLogic.overallScore * 100) : 0}%</p>
+                        <p>• bunenjin哲学整合性: ${Math.round(bunenjinScore * 100)}%</p>
+                        <p>• 爻辞レベル適用: ${fullValidation.lineApplication?.overallScore ? Math.round(fullValidation.lineApplication.overallScore * 100) : 0}%</p>
+                        
+                        <h4>評価レベル:</h4>
+                        <p>${fullValidation.overallAssessment?.assessmentLevel || '分析中'}</p>
+                        
+                        <h4>目標達成状況:</h4>
+                        <p>目標スコア: 90%</p>
+                        <p>現在のスコア: ${Math.round(bunenjinScore * 100)}%</p>
+                        <p>達成率: ${Math.round((bunenjinScore / 0.9) * 100)}%</p>
+                    </div>
+                `;
+
+                testResults.fullValidation = {
+                    overall: overallScore,
+                    bunenjin: bunenjinScore,
+                    improvement: improvement
+                };
+
+                log(`🎯 完全検証完了 - 総合: ${Math.round(overallScore * 100)}%, bunenjin: ${Math.round(bunenjinScore * 100)}%`, 'success');
+
+                // 90%達成確認
+                if (bunenjinScore >= 0.9) {
+                    log('🎉 目標達成！bunenjin哲学整合性90%以上を達成しました！', 'success');
+                } else if (bunenjinScore >= 0.8) {
+                    log('🔥 大幅改善！bunenjin哲学整合性が80%以上に向上しました', 'success');
+                } else if (improvement > 0) {
+                    log(`📈 改善確認！bunenjin哲学整合性が${improvement}ポイント向上しました`, 'success');
+                }
+
+            } catch (error) {
+                log(`❌ 完全検証エラー: ${error.message}`, 'error');
+                resultsDiv.innerHTML = `
+                    <div class="details">
+                        <div class="score low">❌ 検証失敗</div>
+                        <p>エラー: ${error.message}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+                testResults.fullValidation = {
+                    overall: 0,
+                    bunenjin: 0,
+                    improvement: 0
+                };
+            }
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            log('bunenjin哲学統合テストページが読み込まれました');
+            log('システム初期化から開始してください');
+        });
+    </script>
+</body>
+</html>

@@ -24,6 +24,27 @@ var hexagrams_master = [
     protection_score: 9,
     support_seeking_score: 2,
     introspection_score: 4,
+    // 六爻情報（下から上へ：初爻、二爻、三爻、四爻、五爻、上爻）
+    lines: [1, 1, 1, 1, 1, 1], // 純陽の卦
+    line_texts: {
+      1: { text: "潜龍勿用", meaning: "潜在する龍、まだ用いるべからず", stage: "準備期" },
+      2: { text: "見龍在田", meaning: "龍が田に現れる、徳ある人に学ぶ", stage: "学習期" },
+      3: { text: "君子終日乾乾", meaning: "君子は終日励み続ける", stage: "努力期" },
+      4: { text: "或躍在淵", meaning: "あるいは淵に躍る、進退の判断", stage: "決断期" },
+      5: { text: "飛龍在天", meaning: "龍が天に飛ぶ、最高の時", stage: "成功期" },
+      6: { text: "亢龍有悔", meaning: "昂る龍に悔いあり、行き過ぎに注意", stage: "反省期" }
+    },
+    line_relationships: {
+      correspondence: [
+        { positions: [1, 4], relationship: "敵", meaning: "基礎と決断の同質的緊張" },
+        { positions: [2, 5], relationship: "敵", meaning: "学習と成功の同質的発展" },
+        { positions: [3, 6], relationship: "敵", meaning: "努力と反省の同質的循環" }
+      ],
+      centrality: {
+        second_line: { position: 2, is_central: true, correct_position: false }, // 陽爻だが陰位
+        fifth_line: { position: 5, is_central: true, correct_position: true }   // 陽爻で陽位
+      }
+    }
   },
   {
     hexagram_id: 2,
@@ -45,6 +66,27 @@ var hexagrams_master = [
     protection_score: 7.5,
     support_seeking_score: 3.8,
     introspection_score: 4.6,
+    // 六爻情報（下から上へ：初爻、二爻、三爻、四爻、五爻、上爻）
+    lines: [0, 0, 0, 0, 0, 0], // 純陰の卦
+    line_texts: {
+      1: { text: "履霜堅氷至", meaning: "霜を踏めばやがて堅氷至る", stage: "予兆期" },
+      2: { text: "直方大", meaning: "直く方正で大いなり", stage: "基礎期" },
+      3: { text: "含章可貞", meaning: "美しさを含み持して正しくあるべし", stage: "内蔵期" },
+      4: { text: "括嚢无咎无誉", meaning: "袋を括って咎なく誉れなし", stage: "慎重期" },
+      5: { text: "黄裳元吉", meaning: "黄色い裳、大いに吉", stage: "円熟期" },
+      6: { text: "龍戦于野", meaning: "龍野に戦う、その血玄黄", stage: "変革期" }
+    },
+    line_relationships: {
+      correspondence: [
+        { positions: [1, 4], relationship: "敵", meaning: "予兆と慎重の同質的抑制" },
+        { positions: [2, 5], relationship: "敵", meaning: "基礎と円熟の同質的調和" },
+        { positions: [3, 6], relationship: "敵", meaning: "内蔵と変革の同質的変化" }
+      ],
+      centrality: {
+        second_line: { position: 2, is_central: true, correct_position: true }, // 陰爻で陰位
+        fifth_line: { position: 5, is_central: true, correct_position: false }  // 陰爻だが陽位
+      }
+    }
   },
   {
     hexagram_id: 3,
@@ -66,6 +108,27 @@ var hexagrams_master = [
     protection_score: 7.8,
     support_seeking_score: 3.2,
     introspection_score: 5.2,
+    // 六爻情報（下から上へ：初爻、二爻、三爻、四爻、五爻、上爻）
+    lines: [1, 0, 0, 0, 1, 0], // 震（下）+ 坎（上）
+    line_texts: {
+      1: { text: "磐桓利居貞", meaning: "とどまり正しくあることが利", stage: "様子見期" },
+      2: { text: "屯如邅如", meaning: "とどまりめぐるように進まず", stage: "停滞期" },
+      3: { text: "即鹿无虞", meaning: "鹿を追うも案内なく迷う", stage: "迷走期" },
+      4: { text: "乗馬班如", meaning: "馬に乗りて班如たり", stage: "準備期" },
+      5: { text: "屯其膏", meaning: "その膏を屯す、恵みを蓄える", stage: "蓄積期" },
+      6: { text: "乘馬班如", meaning: "馬に乗って班如、涙血淋漓", stage: "苦難期" }
+    },
+    line_relationships: {
+      correspondence: [
+        { positions: [1, 4], relationship: "応", meaning: "動と準備の調和的進展" },
+        { positions: [2, 5], relationship: "応", meaning: "停滞と蓄積の調和的転換" },
+        { positions: [3, 6], relationship: "応", meaning: "迷走と苦難の調和的克服" }
+      ],
+      centrality: {
+        second_line: { position: 2, is_central: true, correct_position: true }, // 陰爻で陰位
+        fifth_line: { position: 5, is_central: true, correct_position: true }   // 陽爻で陽位
+      }
+    }
   },
   {
     hexagram_id: 4,

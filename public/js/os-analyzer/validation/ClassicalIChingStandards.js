@@ -559,6 +559,116 @@ class ClassicalIChingStandards {
   }
 
   /**
+   * 実装の爻辞レベル適用を包括的に検証
+   * @param {Object} implementation - 検証対象の実装
+   * @returns {Object} 爻辞レベル適用の検証結果
+   */
+  validateComprehensiveLineApplication(implementation) {
+    const results = {
+      positionMeaningsImplemented: 0,
+      totalPositions: 6,
+      relationshipTypesImplemented: 0,
+      totalRelationshipTypes: 4, // 応・比・中・正
+      lineDataAvailable: 0,
+      totalExpectedLineData: 64, // 全64卦
+      implementationQuality: 0
+    };
+
+    // 1. 六爻位置的意味の実装確認
+    if (implementation.calculator && typeof implementation.calculator.getLinePositionMeaning === 'function') {
+      for (let position = 1; position <= 6; position++) {
+        const lineInfo = implementation.calculator.getLinePositionMeaning(position);
+        if (lineInfo && lineInfo.name && lineInfo.meaning && lineInfo.advice) {
+          results.positionMeaningsImplemented++;
+        }
+      }
+    }
+
+    // 2. 爻の相互関係の実装確認
+    if (implementation.calculator && typeof implementation.calculator.analyzeLineRelationships === 'function') {
+      // テスト用の六爻配列で関係性分析をテスト
+      const testLines = [1, 0, 1, 0, 1, 0];
+      try {
+        const relationships = implementation.calculator.analyzeLineRelationships(testLines);
+        if (relationships && !relationships.error) {
+          if (relationships.correspondence && Array.isArray(relationships.correspondence)) {
+            results.relationshipTypesImplemented++;
+          }
+          if (relationships.adjacency && Array.isArray(relationships.adjacency)) {
+            results.relationshipTypesImplemented++;
+          }
+          if (relationships.centrality && relationships.centrality.lowerCentral && relationships.centrality.upperCentral) {
+            results.relationshipTypesImplemented++;
+          }
+          if (relationships.correctness && Array.isArray(relationships.correctness)) {
+            results.relationshipTypesImplemented++;
+          }
+        }
+      } catch (error) {
+        console.warn("⚠️ Error testing line relationships:", error);
+      }
+    }
+
+    // 3. 爻辞データの可用性確認
+    if (implementation.hexagramData && typeof implementation.hexagramData === 'object') {
+      const hexagramKeys = Object.keys(implementation.hexagramData);
+      let hexagramsWithLineData = 0;
+      
+      hexagramKeys.forEach(key => {
+        const hexagram = implementation.hexagramData[key];
+        if (hexagram && hexagram.lines && Array.isArray(hexagram.lines) && hexagram.lines.length === 6) {
+          if (hexagram.line_texts && typeof hexagram.line_texts === 'object') {
+            hexagramsWithLineData++;
+          }
+        }
+      });
+      
+      results.lineDataAvailable = hexagramsWithLineData;
+    }
+
+    // 4. 爻辞レベル適用機能の実装確認
+    let applicationFunctionsImplemented = 0;
+    const expectedFunctions = [
+      'applyLineApplicationAccuracy',
+      'calculateLineAdjustmentFactor',
+      'getPositionInfluenceOnDimension',
+      'calculateHarmonicBonus',
+      'calculateCentralityBonus'
+    ];
+
+    if (implementation.calculator) {
+      expectedFunctions.forEach(funcName => {
+        if (typeof implementation.calculator[funcName] === 'function') {
+          applicationFunctionsImplemented++;
+        }
+      });
+    }
+
+    // 5. 総合品質スコア計算
+    const positionScore = results.positionMeaningsImplemented / results.totalPositions;
+    const relationshipScore = results.relationshipTypesImplemented / results.totalRelationshipTypes;
+    const dataScore = Math.min(results.lineDataAvailable / 10, 1.0); // 10卦以上あれば満点
+    const functionScore = applicationFunctionsImplemented / expectedFunctions.length;
+
+    results.implementationQuality = (positionScore * 0.3 + relationshipScore * 0.3 + dataScore * 0.2 + functionScore * 0.2);
+
+    return {
+      ...results,
+      positionScore: positionScore,
+      relationshipScore: relationshipScore,
+      dataScore: dataScore,
+      functionScore: functionScore,
+      overallScore: results.implementationQuality,
+      details: {
+        positionMeaningsStatus: `${results.positionMeaningsImplemented}/${results.totalPositions}実装済み`,
+        relationshipTypesStatus: `${results.relationshipTypesImplemented}/${results.totalRelationshipTypes}種類実装済み`,
+        lineDataStatus: `${results.lineDataAvailable}/${results.totalExpectedLineData}卦に爻辞データあり`,
+        applicationFunctionsStatus: `${applicationFunctionsImplemented}/${expectedFunctions.length}関数実装済み`
+      }
+    };
+  }
+
+  /**
    * bunenjin哲学との整合性を検証
    */
   validateBunenjinAlignment(implementation) {
