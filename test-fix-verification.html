@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヘキサグラム16偏り問題修正確認</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+        .test-section { background: white; margin: 10px 0; padding: 15px; border-radius: 5px; border-left: 4px solid #007acc; }
+        .pass { border-left-color: #28a745; background: #d4edda; }
+        .fail { border-left-color: #dc3545; background: #f8d7da; }
+        .warning { border-left-color: #ffc107; background: #fff3cd; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { background: #007acc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #005a9e; }
+        .results { margin-top: 20px; }
+        .simulation-result { margin: 5px 0; padding: 5px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>ヘキサグラム16偏り問題修正確認</h1>
+    
+    <div class="test-section">
+        <h2>🔧 修正内容</h2>
+        <ul>
+            <li>DataManager.jsにgetVectorsData()メソッドを追加</li>
+            <li>Engine.jsのエラーハンドリングを強化</li>
+            <li>Calculator.jsに詳細な検証ロジックを追加</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 修正効果テスト</h2>
+        <button onclick="testSingleDiagnosis()">単一診断テスト</button>
+        <button onclick="testMultipleDiagnoses()">多様性テスト (100回)</button>
+        <button onclick="testBiasAnalysis()">偏り分析 (1000回)</button>
+        <div id="test-results" class="results"></div>
+    </div>
+
+    <!-- データファイル読み込み -->
+    <script src="js/shared/data/vectors.js"></script>
+    <script src="js/shared/data/questions.js"></script>
+    <script src="js/shared/core/DataManager.js"></script>
+    <script src="js/os-analyzer/core/Calculator.js"></script>
+    <script src="js/os-analyzer/core/Engine.js"></script>
+
+    <script>
+        console.log('🔬 修正効果検証テスト開始');
+
+        let dataManager, calculator, engine;
+
+        async function initializeComponents() {
+            try {
+                dataManager = new DataManager();
+                await dataManager.loadData();
+                
+                calculator = new Calculator();
+                engine = new DiagnosisEngine(dataManager);
+                
+                console.log('✅ コンポーネント初期化完了');
+                return true;
+            } catch (error) {
+                console.error('❌ コンポーネント初期化エラー:', error);
+                displayResult('fail', `初期化エラー: ${error.message}`);
+                return false;
+            }
+        }
+
+        function createRandomAnswers() {
+            const dimensionKeys = [
+                "乾_創造性", "震_行動性", "坎_探求性", "艮_安定性",
+                "坤_受容性", "巽_適応性", "離_表現性", "兌_調和性"
+            ];
+            
+            const answers = [];
+            
+            // ランダムな回答パターンを生成
+            for (let i = 1; i <= 12; i++) {
+                const randomDimension = dimensionKeys[Math.floor(Math.random() * dimensionKeys.length)];
+                const randomValue = (Math.random() * 4) + 1; // 1-5の範囲
+                
+                answers.push({
+                    questionId: `q${i}`,
+                    selectedValue: String.fromCharCode(65 + Math.floor(Math.random() * 3)), // A, B, C
+                    scoring_tags: [
+                        { key: randomDimension, value: randomValue },
+                        { key: dimensionKeys[Math.floor(Math.random() * dimensionKeys.length)], value: Math.random() * 2 }
+                    ]
+                });
+            }
+            
+            return answers;
+        }
+
+        async function testSingleDiagnosis() {
+            displayResult('info', '単一診断テスト実行中...');
+            
+            if (!(await initializeComponents())) return;
+            
+            try {
+                const testAnswers = createRandomAnswers();
+                console.log('📝 テスト用回答:', testAnswers);
+                
+                const result = await engine.analyze(testAnswers);
+                
+                if (result && result.primaryOS) {
+                    displayResult('pass', `診断成功: ヘキサグラム${result.primaryOS.osId} (スコア: ${result.primaryOS.score?.toFixed(3)})`);
+                    
+                    if (result.topCandidates && result.topCandidates.length > 0) {
+                        const candidateIds = result.topCandidates.map(c => c.osId);
+                        const uniqueCount = new Set(candidateIds).size;
+                        displayResult(uniqueCount > 1 ? 'pass' : 'warning', 
+                            `候補多様性: ${uniqueCount}/4 ユニーク [${candidateIds.join(', ')}]`);
+                    }
+                } else {
+                    displayResult('fail', '診断結果が無効です');
+                }
+                
+            } catch (error) {
+                displayResult('fail', `診断エラー: ${error.message}`);
+            }
+        }
+
+        async function testMultipleDiagnoses() {
+            displayResult('info', '多様性テスト (100回) 実行中...');
+            
+            if (!(await initializeComponents())) return;
+            
+            const results = [];
+            const hexagramCounts = {};
+            
+            try {
+                for (let i = 0; i < 100; i++) {
+                    const testAnswers = createRandomAnswers();
+                    const result = await engine.analyze(testAnswers);
+                    
+                    if (result && result.primaryOS) {
+                        const hexagramId = result.primaryOS.osId;
+                        results.push(hexagramId);
+                        hexagramCounts[hexagramId] = (hexagramCounts[hexagramId] || 0) + 1;
+                    }
+                }
+                
+                const uniqueHexagrams = Object.keys(hexagramCounts).length;
+                const maxCount = Math.max(...Object.values(hexagramCounts));
+                const mostFrequent = Object.entries(hexagramCounts)
+                    .find(([id, count]) => count === maxCount)[0];
+                const hex16Count = hexagramCounts[16] || 0;
+                
+                displayResult(uniqueHexagrams > 10 ? 'pass' : 'warning', 
+                    `多様性結果: ${uniqueHexagrams}種類のヘキサグラム生成`);
+                displayResult(maxCount < 20 ? 'pass' : 'warning',
+                    `最頻出: ヘキサグラム${mostFrequent} (${maxCount}回)`);
+                displayResult(hex16Count < 20 ? 'pass' : 'warning',
+                    `ヘキサグラム16: ${hex16Count}回 (${(hex16Count/100*100).toFixed(1)}%)`);
+                
+                // 分布詳細
+                const distribution = Object.entries(hexagramCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 10)
+                    .map(([id, count]) => `${id}:${count}`)
+                    .join(', ');
+                displayResult('info', `上位10分布: ${distribution}`);
+                
+            } catch (error) {
+                displayResult('fail', `多様性テストエラー: ${error.message}`);
+            }
+        }
+
+        async function testBiasAnalysis() {
+            displayResult('info', '偏り分析 (1000回) 実行中...');
+            
+            if (!(await initializeComponents())) return;
+            
+            const hexagramCounts = {};
+            let successCount = 0;
+            let errorCount = 0;
+            
+            try {
+                for (let i = 0; i < 1000; i++) {
+                    try {
+                        const testAnswers = createRandomAnswers();
+                        const result = await engine.analyze(testAnswers);
+                        
+                        if (result && result.primaryOS) {
+                            const hexagramId = result.primaryOS.osId;
+                            hexagramCounts[hexagramId] = (hexagramCounts[hexagramId] || 0) + 1;
+                            successCount++;
+                        }
+                    } catch (error) {
+                        errorCount++;
+                        if (errorCount <= 5) {
+                            console.warn(`診断エラー ${i+1}:`, error.message);
+                        }
+                    }
+                }
+                
+                const uniqueHexagrams = Object.keys(hexagramCounts).length;
+                const totalResults = successCount;
+                const hex16Count = hexagramCounts[16] || 0;
+                const hex16Percentage = (hex16Count / totalResults * 100).toFixed(1);
+                
+                // 統計計算
+                const expectedFreq = totalResults / 64;
+                const variance = Object.values(hexagramCounts).reduce((sum, count) => {
+                    const diff = count - expectedFreq;
+                    return sum + diff * diff;
+                }, 0) / uniqueHexagrams;
+                const standardDeviation = Math.sqrt(variance);
+                
+                // 結果判定
+                displayResult(successCount > 950 ? 'pass' : 'warning',
+                    `成功率: ${successCount}/1000 (${(successCount/10).toFixed(1)}%), エラー: ${errorCount}`);
+                displayResult(uniqueHexagrams > 30 ? 'pass' : 'fail',
+                    `多様性: ${uniqueHexagrams}種類のヘキサグラム (期待値: 64)`);
+                displayResult(hex16Percentage < 5 ? 'pass' : 'fail',
+                    `ヘキサグラム16偏り: ${hex16Count}回 (${hex16Percentage}%, 期待値: 1.56%)`);
+                displayResult(standardDeviation < expectedFreq * 0.5 ? 'pass' : 'warning',
+                    `分布の標準偏差: ${standardDeviation.toFixed(2)} (期待値: ${expectedFreq.toFixed(2)})`);
+                
+                // 最も偏ったヘキサグラム
+                const maxCount = Math.max(...Object.values(hexagramCounts));
+                const mostBiased = Object.entries(hexagramCounts)
+                    .find(([id, count]) => count === maxCount);
+                displayResult(maxCount < totalResults * 0.05 ? 'pass' : 'warning',
+                    `最大偏り: ヘキサグラム${mostBiased[0]} ${maxCount}回 (${(maxCount/totalResults*100).toFixed(1)}%)`);
+                
+                // 上位偏りヘキサグラム
+                const topBiased = Object.entries(hexagramCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5)
+                    .map(([id, count]) => `${id}:${count}(${(count/totalResults*100).toFixed(1)}%)`)
+                    .join(', ');
+                displayResult('info', `上位5偏り: ${topBiased}`);
+                
+            } catch (error) {
+                displayResult('fail', `偏り分析エラー: ${error.message}`);
+            }
+        }
+
+        function displayResult(type, message) {
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `simulation-result ${type}`;
+            resultDiv.innerHTML = `<strong>${type.toUpperCase()}:</strong> ${message}`;
+            resultsDiv.appendChild(resultDiv);
+            
+            // 自動スクロール
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 初期化テスト
+        window.addEventListener('DOMContentLoaded', async () => {
+            displayResult('info', '修正効果検証ツール準備完了');
+            
+            // DataManagerのgetVectorsDataメソッド確認
+            try {
+                const testDataManager = new DataManager();
+                const hasMethod = typeof testDataManager.getVectorsData === 'function';
+                displayResult(hasMethod ? 'pass' : 'fail', 
+                    `getVectorsData()メソッド: ${hasMethod ? '存在確認' : '不存在'}`);
+            } catch (error) {
+                displayResult('warning', `初期確認エラー: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html>

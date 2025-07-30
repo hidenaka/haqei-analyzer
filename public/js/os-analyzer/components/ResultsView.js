@@ -1,9 +1,18 @@
-// HaQei Analyzer - Results View Component
+// HaQei Analyzer - Results View Component (パフォーマンス最適化版)
 class ResultsView extends BaseComponent {
   constructor(containerId, options = {}) {
     super(containerId, options);
     this.analysisResult = null;
     this.insights = null;
+    
+    // 🚀 パフォーマンス最適化: レンダリングキャッシュ
+    this.renderCache = new Map();
+    this.lastRenderTime = 0;
+    this.isRendering = false;
+    
+    // 🚀 最適化: データベース連携強化
+    this.dataCache = new Map();
+    this.insightCache = new Map();
   }
 
   get defaultOptions() {
@@ -14,10 +23,195 @@ class ResultsView extends BaseComponent {
     };
   }
 
+  // 🚀 最適化版: データ設定
   setData(analysisResult, insights) {
     this.analysisResult = analysisResult;
     this.insights = insights;
-    this.render();
+    
+    // 🚀 最適化: 非同期レンダリング
+    this.renderOptimized();
+  }
+
+  // 🚀 新規: 最適化されたレンダリング
+  async renderOptimized() {
+    if (this.isRendering) {
+      console.log("🚀 Rendering already in progress, skipping duplicate request");
+      return;
+    }
+
+    this.isRendering = true;
+    
+    try {
+      // 🚀 最適化: 即座に基本構造を表示
+      this.renderSkeletonStructure();
+      
+      // 🚀 最適化: 詳細情報を段階的に読み込み
+      await this.loadDataProgressively();
+      
+    } catch (error) {
+      console.error("❌ Error during optimized rendering:", error);
+      this.renderFallback();
+    } finally {
+      this.isRendering = false;
+    }
+  }
+
+  // 🚀 新規: スケルトン構造の表示
+  renderSkeletonStructure() {
+    if (!this.analysisResult) {
+      this.container.innerHTML = `
+        <div class="results-container">
+          <div class="error">分析結果が見つかりません。</div>
+        </div>
+      `;
+      return;
+    }
+
+    // 🚀 最適化: 基本構造を即座に表示
+    this.container.innerHTML = `
+      <div class="results-container loading">
+        <div class="results-header">
+          <h2 class="results-title">🎯 あなたの人格OS</h2>
+          <div class="primary-result skeleton">
+            <div class="loading-placeholder">分析結果を表示中...</div>
+          </div>
+        </div>
+        
+        <div class="results-content">
+          <div class="dimension-chart skeleton">
+            <h3>8次元バランス</h3>
+            <div class="loading-placeholder">データ読み込み中...</div>
+          </div>
+          
+          <div class="insights-section skeleton">
+            <h3>深い洞察</h3>
+            <div class="loading-placeholder">洞察を生成中...</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 🚀 新規: 段階的データ読み込み
+  async loadDataProgressively() {
+    // 🚀 最適化: 段階1 - 基本情報
+    await this.loadPrimaryResult();
+    
+    // 🚀 最適化: 段階2 - 次元データ
+    await this.loadDimensionData();
+    
+    // 🚀 最適化: 段階3 - 洞察データ
+    await this.loadInsightData();
+    
+    // 🚀 最適化: 段階4 - その他の詳細
+    await this.loadAdditionalData();
+    
+    // 🚀 最適化: 最終段階 - イベントバインド
+    this.bindEvents();
+  }
+
+  // 🚀 新規: 基本結果読み込み
+  async loadPrimaryResult() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const primaryOS = this.analysisResult.primaryOS || this.analysisResult.engineOS;
+        const primaryResultEl = this.container.querySelector('.primary-result');
+        
+        if (primaryResultEl && primaryOS) {
+          primaryResultEl.innerHTML = `
+            <div class="hexagram-display fade-in">
+              <div class="hexagram-name">${primaryOS?.hexagramInfo?.name || primaryOS?.osName || "分析結果"}</div>
+              <div class="hexagram-reading">${
+                primaryOS?.hexagramInfo?.reading || primaryOS?.hexagramInfo?.name_jp || primaryOS?.hexagramInfo?.description || ""
+              }</div>
+              <div class="match-percentage">${(primaryOS?.matchPercentage || primaryOS?.strength * 100 || 0).toFixed(1)}%</div>
+              <div class="trigram-composition">構成八卦: ${this.getTrigramComposition(primaryOS)}</div>
+            </div>
+          `;
+          primaryResultEl.classList.remove('skeleton');
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🚀 新規: 次元データ読み込み
+  async loadDimensionData() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const dimensionChart = this.container.querySelector('.dimension-chart');
+        const vector = this.analysisResult.eightDimensionVector || this.analysisResult.dimensions || this.analysisResult.primaryOS?.userVector;
+        
+        if (dimensionChart) {
+          dimensionChart.innerHTML = `
+            <h3>8次元バランス</h3>
+            <div class="dimensions-grid fade-in">
+              ${this.renderDimensionScores(vector)}
+            </div>
+          `;
+          dimensionChart.classList.remove('skeleton');
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🚀 新規: 洞察データ読み込み
+  async loadInsightData() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const insightsSection = this.container.querySelector('.insights-section');
+        
+        if (insightsSection) {
+          insightsSection.innerHTML = `
+            <h3>深い洞察</h3>
+            <div class="insights-content fade-in">
+              ${this.renderInsightsOptimized()}
+            </div>
+          `;
+          insightsSection.classList.remove('skeleton');
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🚀 新規: その他データ読み込み
+  async loadAdditionalData() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const resultsContent = this.container.querySelector('.results-content');
+        
+        // 代替マッチとアクションボタンを追加
+        const additionalHTML = `
+          <div class="alternative-matches fade-in">
+            <h3>その他の可能性</h3>
+            <div class="matches-list">
+              ${this.renderAlternativeMatches()}
+            </div>
+          </div>
+
+          <div class="results-actions fade-in">
+            <button id="explore-more-btn" class="btn btn-primary">
+              💡 さらに詳しく探る
+            </button>
+            <button id="retake-test-btn" class="btn btn-secondary">
+              🔄 もう一度診断する
+            </button>
+          </div>
+
+          ${this.renderPremiumSection()}
+          ${this.renderDataManagementSection()}
+        `;
+        
+        resultsContent.insertAdjacentHTML('beforeend', additionalHTML);
+        
+        // ローディング状態を解除
+        this.container.querySelector('.results-container').classList.remove('loading');
+        
+        resolve();
+      });
+    });
   }
 
   render() {
@@ -224,39 +418,199 @@ class ResultsView extends BaseComponent {
       .join("");
   }
 
-  renderInsights() {
+  // 🚀 最適化版: 洞察レンダリング
+  renderInsightsOptimized() {
+    const cacheKey = `insights_${this.analysisResult?.primaryOS?.hexagramInfo?.name || 'default'}`;
+    
+    if (this.insightCache.has(cacheKey)) {
+      return this.insightCache.get(cacheKey);
+    }
+
+    let insightsHTML;
+
     if (!this.insights) {
+      // 🚀 最適化: データベースから動的に洞察を生成
+      insightsHTML = this.generateDynamicInsights();
+    } else {
+      insightsHTML = `
+        <div class="insight-summary">
+          <h4>🎯 総合的な洞察</h4>
+          <p>${this.insights.summary}</p>
+        </div>
+        
+        <div class="insight-details">
+          <h4>🔍 詳細な特徴</h4>
+          <ul>
+            ${
+              this.insights.details
+                ?.map((detail) => `<li>${detail}</li>`)
+                .join("") || "<li>詳細な洞察を生成中...</li>"
+            }
+          </ul>
+        </div>
+        
+        <div class="insight-recommendations">
+          <h4>💡 おすすめのアクション</h4>
+          <ul>
+            ${
+              this.insights.recommendations
+                ?.map((rec) => `<li>${rec}</li>`)
+                .join("") || "<li>推奨事項を生成中...</li>"
+            }
+          </ul>
+        </div>
+      `;
+    }
+
+    this.insightCache.set(cacheKey, insightsHTML);
+    return insightsHTML;
+  }
+
+  // 🚀 新規: OS Manual Database活用の動的洞察生成
+  generateDynamicInsights() {
+    const primaryOS = this.analysisResult.primaryOS || this.analysisResult.engineOS;
+    const vector = this.analysisResult.eightDimensionVector || this.analysisResult.dimensions || primaryOS?.userVector;
+
+    if (!primaryOS || !primaryOS.osId) {
       return "<p>洞察を生成中...</p>";
     }
+
+    // OS Manual Databaseから詳細データを取得
+    const osManualData = this.getOSManualData(primaryOS.osId);
+    
+    if (osManualData) {
+      // データベースから実際のコンテンツを使用
+      return this.renderDatabaseInsights(osManualData, primaryOS);
+    }
+
+    // フォールバック: 従来の動的生成
+    const hexagramName = primaryOS.hexagramInfo?.name || primaryOS.osName || "未知の人格OS";
+    const hexagramDescription = primaryOS.hexagramInfo?.description || primaryOS.hexagramInfo?.catchphrase || "";
+    const matchPercentage = primaryOS.matchPercentage || (primaryOS.strength * 100) || 0;
+
+    // 八卦情報からより詳細な洞察を生成
+    const trigramInsights = this.generateTrigramInsights(primaryOS);
+    const dimensionInsights = this.generateDimensionInsights(vector);
+    const strategicInsights = this.generateStrategicInsights(primaryOS, vector);
 
     return `
       <div class="insight-summary">
         <h4>🎯 総合的な洞察</h4>
-        <p>${this.insights.summary}</p>
+        <p>あなたの人格OSは<strong>「${hexagramName}」</strong>（適合度: ${matchPercentage.toFixed(1)}%）です。${hexagramDescription}</p>
+        <p>この人格OSは、${trigramInsights.primaryCharacteristic}が特に強く、あなたの行動パターンと思考の核となっています。</p>
       </div>
       
       <div class="insight-details">
         <h4>🔍 詳細な特徴</h4>
         <ul>
-          ${
-            this.insights.details
-              ?.map((detail) => `<li>${detail}</li>`)
-              .join("") || "<li>詳細な洞察を生成中...</li>"
-          }
+          ${trigramInsights.details.map(detail => `<li>${detail}</li>`).join('')}
+          ${dimensionInsights.map(insight => `<li>${insight}</li>`).join('')}
         </ul>
       </div>
       
       <div class="insight-recommendations">
         <h4>💡 おすすめのアクション</h4>
         <ul>
-          ${
-            this.insights.recommendations
-              ?.map((rec) => `<li>${rec}</li>`)
-              .join("") || "<li>推奨事項を生成中...</li>"
-          }
+          ${strategicInsights.map(action => `<li>${action}</li>`).join('')}
         </ul>
       </div>
     `;
+  }
+
+  // 🚀 新規: 八卦に基づく洞察生成
+  generateTrigramInsights(primaryOS) {
+    const hexagramInfo = primaryOS.hexagramInfo;
+    const trigramMapping = {
+      1: { name: "乾", characteristic: "創造力と指導力", element: "天の力" },
+      2: { name: "兌", characteristic: "調和性と社交性", element: "沢の恵み" },
+      3: { name: "離", characteristic: "表現力と情熱", element: "火の輝き" },
+      4: { name: "震", characteristic: "行動力とエネルギー", element: "雷の力強さ" },
+      5: { name: "巽", characteristic: "適応性と柔軟性", element: "風の変化" },
+      6: { name: "坎", characteristic: "探求心と深い洞察", element: "水の流れ" },
+      7: { name: "艮", characteristic: "安定性と忍耐力", element: "山の堅実さ" },
+      8: { name: "坤", characteristic: "受容性と支援力", element: "地の包容力" }
+    };
+
+    const upperTrigram = trigramMapping[hexagramInfo?.upper_trigram_id] || trigramMapping[1];
+    const lowerTrigram = trigramMapping[hexagramInfo?.lower_trigram_id] || trigramMapping[1];
+
+    return {
+      primaryCharacteristic: upperTrigram.characteristic,
+      details: [
+        `上卦の${upperTrigram.name}（${upperTrigram.element}）により、${upperTrigram.characteristic}を発揮します`,
+        `下卦の${lowerTrigram.name}（${lowerTrigram.element}）により、${lowerTrigram.characteristic}で基盤を支えます`,
+        `この組み合わせにより、外的な環境と内的な性質が調和した独特の人格を形成しています`
+      ]
+    };
+  }
+
+  // 🚀 新規: 次元に基づく洞察生成
+  generateDimensionInsights(vector) {
+    if (!vector) return ["8次元データから詳細な分析を行っています"];
+
+    const insights = [];
+    const sortedDimensions = Object.entries(vector)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 3);
+
+    const dimensionDescriptions = {
+      '乾_創造性': '新しいアイデアを生み出し、革新的な解決策を見つける能力',
+      '震_行動性': '決断を下し、積極的に行動に移す実行力',
+      '坎_探求性': '物事の本質を深く理解しようとする探究心',
+      '艮_安定性': '継続的に取り組み、安定した結果を生み出す力',
+      '坤_受容性': '他者を理解し、協力的な関係を築く能力',
+      '巽_適応性': '状況の変化に柔軟に対応する調整力',
+      '離_表現性': '自分の考えを効果的に伝える表現力',
+      '兌_調和性': '人間関係において調和と喜びを生み出す力'
+    };
+
+    sortedDimensions.forEach(([key, value]) => {
+      const description = dimensionDescriptions[key] || '特別な能力';
+      const strength = value > 15 ? '非常に強い' : value > 10 ? '強い' : '適度な';
+      insights.push(`${key.split('_')[1]}の次元で${strength}特性を示し、${description}に長けています`);
+    });
+
+    return insights;
+  }
+
+  // 🚀 新規: 戦略的洞察生成
+  generateStrategicInsights(primaryOS, vector) {
+    const hexagramName = primaryOS.hexagramInfo?.name || primaryOS.osName;
+    const strategies = [];
+
+    // 易経の知恵に基づく戦略的アドバイス
+    const strategicAdvice = {
+      '乾為天': ['リーダーシップを発揮できる場面を積極的に見つけてください', '創造的なプロジェクトに挑戦することで成長が期待できます'],
+      '坤為地': ['チームワークを重視し、支援する立場で力を発揮してください', '継続的な努力により確実な成果を積み重ねていきましょう'],
+      '水雷屯': ['困難な状況でも粘り強く取り組むことで道が開けます', '基礎固めを重視し、長期的な視点で行動してください'],
+      '山水蒙': ['学習と成長の機会を積極的に求めてください', '経験豊富な指導者から学ぶことが重要です'],
+      '水天需': ['待つべき時を見極め、適切なタイミングで行動してください', '準備を怠らず、機会が来た時に備えましょう']
+    };
+
+    const specificAdvice = strategicAdvice[hexagramName] || [
+      'あなたの人格OSの特性を活かせる環境を見つけてください',
+      '強みを伸ばしつつ、バランスの取れた成長を目指しましょう'
+    ];
+
+    strategies.push(...specificAdvice);
+
+    // 次元データに基づく追加アドバイス
+    if (vector) {
+      const weakestDimension = Object.entries(vector)
+        .sort(([,a], [,b]) => a - b)[0];
+      
+      if (weakestDimension && weakestDimension[1] < 8) {
+        const dimensionName = weakestDimension[0].split('_')[1];
+        strategies.push(`${dimensionName}の分野を意識的に発達させることで、より多面的な能力を身につけられます`);
+      }
+    }
+
+    return strategies;
+  }
+
+  // 🚀 最適化版: 従来メソッドの互換性維持
+  renderInsights() {
+    return this.renderInsightsOptimized();
   }
 
   renderAlternativeMatches() {
@@ -320,59 +674,172 @@ class ResultsView extends BaseComponent {
       .join("");
   }
 
+  // 🚀 最適化版: イベントバインド
   bindEvents() {
-    const exploreMoreBtn = this.container.querySelector("#explore-more-btn");
-    const retakeTestBtn = this.container.querySelector("#retake-test-btn");
-    const upgradeToPremiumBtn = this.container.querySelector("#upgrade-to-premium-btn");
-    const exportJsonBtn = this.container.querySelector("#export-json-btn");
-    const exportSummaryBtn = this.container.querySelector("#export-summary-btn");
-    const viewInsightsBtn = this.container.querySelector("#view-insights-btn");
+    // 🚀 最適化: イベント委譲を使用してパフォーマンス向上
+    this.container.addEventListener('click', (e) => {
+      const target = e.target.closest('button');
+      if (!target) return;
 
-    if (exploreMoreBtn) {
-      exploreMoreBtn.addEventListener("click", () => {
-        if (this.options.onExploreMore) {
-          this.options.onExploreMore(this.analysisResult);
-        }
-      });
-    }
+      switch (target.id) {
+        case 'explore-more-btn':
+          if (this.options.onExploreMore) {
+            this.options.onExploreMore(this.analysisResult);
+          }
+          break;
+          
+        case 'retake-test-btn':
+          if (this.options.onRetakeTest) {
+            this.options.onRetakeTest();
+          } else {
+            window.location.reload();
+          }
+          break;
+          
+        case 'upgrade-to-premium-btn':
+          this.handlePremiumUpgrade();
+          break;
+          
+        case 'export-json-btn':
+          this.handleDataExport('json');
+          break;
+          
+        case 'export-summary-btn':
+          this.handleDataExport('summary');
+          break;
+          
+        case 'view-insights-btn':
+          this.showDetailedInsights();
+          break;
+      }
+    });
+  }
 
-    if (retakeTestBtn) {
-      retakeTestBtn.addEventListener("click", () => {
-        if (this.options.onRetakeTest) {
-          this.options.onRetakeTest();
-        } else {
-          // デフォルトの処理: ページリロード
-          window.location.reload();
-        }
-      });
-    }
+  // 🚀 新規: プレミアムセクションのレンダリング
+  renderPremiumSection() {
+    const primaryOS = this.analysisResult.primaryOS || this.analysisResult.engineOS;
+    
+    return `
+      <div class="premium-section">
+        <div class="premium-card">
+          <div class="premium-header">
+            <h3>🌟 プロフェッショナル戦略レポート</h3>
+            <div class="premium-price">¥2,980</div>
+          </div>
+          <div class="premium-content">
+            <p class="premium-description">
+              あなたの<strong>${primaryOS?.hexagramInfo?.name || primaryOS?.osName || "人格OS"}</strong>に特化した、
+              Gemini Pro AIによる高精度な実践戦略レポートを取得しませんか？
+            </p>
+            
+            <div class="premium-benefits">
+              <h4>無料版との違い</h4>
+              <div class="comparison-grid">
+                <div class="comparison-item">
+                  <div class="free-feature">無料版: 「分析」</div>
+                  <div class="premium-feature">有料版: 「実践戦略」</div>
+                </div>
+                <div class="comparison-item">
+                  <div class="free-feature">無料版: 「知る」</div>
+                  <div class="premium-feature">有料版: 「行動する」</div>
+                </div>
+                <div class="comparison-item">
+                  <div class="free-feature">無料版: 「理解」</div>
+                  <div class="premium-feature">有料版: 「変化」</div>
+                </div>
+              </div>
 
-    // プレミアム版アップグレード
-    if (upgradeToPremiumBtn) {
-      upgradeToPremiumBtn.addEventListener("click", () => {
-        this.handlePremiumUpgrade();
-      });
-    }
+              <div class="benefits-list">
+                <div class="benefit-item">
+                  <span class="benefit-icon">📋</span>
+                  <span class="benefit-text">具体的な行動計画（最初の三手）</span>
+                </div>
+                <div class="benefit-item">
+                  <span class="benefit-icon">🛡️</span>
+                  <span class="benefit-text">リスク管理戦略（守りの戦略）</span>
+                </div>
+                <div class="benefit-item">
+                  <span class="benefit-icon">📈</span>
+                  <span class="benefit-text">3ヶ月実行ロードマップ</span>
+                </div>
+                <div class="benefit-item">
+                  <span class="benefit-icon">🤝</span>
+                  <span class="benefit-text">6ヶ月継続サポートシステム</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="premium-actions">
+            <button id="upgrade-to-premium-btn" class="btn btn-premium">
+              🚀 プロフェッショナルレポートを取得する
+            </button>
+            <div class="premium-note">
+              診断結果は自動的に引き継がれます
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
-    // データエクスポート機能
-    if (exportJsonBtn) {
-      exportJsonBtn.addEventListener("click", () => {
-        this.handleDataExport('json');
-      });
-    }
+  // 🚀 新規: データ管理セクションのレンダリング
+  renderDataManagementSection() {
+    return `
+      <div class="data-management-section">
+        <div class="data-card">
+          <h3>📊 診断データの管理</h3>
+          <p>あなたの診断結果を保存・エクスポートして、他のツールでも活用できます。</p>
+          
+          <div class="data-actions">
+            <button id="export-json-btn" class="btn btn-outline">
+              📄 JSON形式でエクスポート
+            </button>
+            <button id="export-summary-btn" class="btn btn-outline">
+              📝 サマリーをエクスポート
+            </button>
+            <button id="view-insights-btn" class="btn btn-outline">
+              🔍 詳細洞察を表示
+            </button>
+          </div>
+          
+          <div class="cross-platform-info">
+            <h4>他のHaQeiツールとの連携</h4>
+            <div class="platform-links">
+              <a href="future_simulator.html" class="platform-link">
+                🔮 未来分岐シミュレーター
+              </a>
+              <a href="cockpit.html" class="platform-link">
+                🎛️ 戦略コックピット
+              </a>
+              <a href="library.html" class="platform-link">
+                📚 HaQeiライブラリ
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
-    if (exportSummaryBtn) {
-      exportSummaryBtn.addEventListener("click", () => {
-        this.handleDataExport('summary');
-      });
-    }
+  // 🚀 新規: フォールバックレンダリング
+  renderFallback() {
+    this.container.innerHTML = `
+      <div class="results-container error-state">
+        <div class="error-message">
+          <h3>⚠️ 表示エラー</h3>
+          <p>結果の表示中にエラーが発生しました。ページを再読み込みしてください。</p>
+          <button onclick="window.location.reload()" class="btn btn-primary">
+            🔄 再読み込み
+          </button>
+        </div>
+      </div>
+    `;
+  }
 
-    // 詳細洞察表示
-    if (viewInsightsBtn) {
-      viewInsightsBtn.addEventListener("click", () => {
-        this.showDetailedInsights();
-      });
-    }
+  // 🚀 最適化版: 従来メソッドの互換性維持
+  render() {
+    this.renderOptimized();
   }
 
   // プレミアム版アップグレードの処理
@@ -726,6 +1193,60 @@ class ResultsView extends BaseComponent {
     } catch (error) {
       console.error('❌ Failed to show notification:', error);
     }
+  }
+
+  // 🚀 新規: OS Manual Database取得
+  getOSManualData(osId) {
+    try {
+      if (typeof window !== 'undefined' && window.OS_MANUAL_DATA) {
+        return window.OS_MANUAL_DATA[osId.toString()];
+      }
+      return null;
+    } catch (error) {
+      console.error('❌ Failed to get OS Manual data:', error);
+      return null;
+    }
+  }
+
+  // 🚀 新規: データベース洞察レンダリング
+  renderDatabaseInsights(osManualData, primaryOS) {
+    const matchPercentage = primaryOS.matchPercentage || (primaryOS.strength * 100) || 0;
+    
+    return `
+      <div class="insight-summary">
+        <h4>🎯 ${osManualData.name} の特徴</h4>
+        <p>${osManualData.summary}</p>
+        <div class="match-info">
+          <strong>適合度:</strong> ${matchPercentage.toFixed(1)}%
+        </div>
+      </div>
+      
+      <div class="insight-details">
+        <h4>🔍 実践的な洞察</h4>
+        <ul>
+          <li>マッチ度 ${matchPercentage.toFixed(1)}% で、この人格OSの特性が表れています。</li>
+          ${primaryOS.trigramComposition ? `<li>八卦構成「${primaryOS.trigramComposition}」の特性を持ちます。</li>` : ''}
+          <li>日常生活では、このOSの特徴を意識することで効果的な判断ができます。</li>
+        </ul>
+      </div>
+      
+      <div class="insight-recommendations">
+        <h4>💡 今すぐできるアクション</h4>
+        <ul>
+          ${osManualData.quests ? osManualData.quests.map(quest => `<li>${quest}</li>`).join('') : '<li>この特性を活かす行動を考えてみてください。</li>'}
+        </ul>
+      </div>
+      
+      ${osManualData.debug_pattern ? `
+      <div class="debug-insights">
+        <h4>⚠️ 注意すべきパターン</h4>
+        <div class="debug-pattern">
+          <p><strong>デバッグパターン:</strong> ${osManualData.debug_pattern}</p>
+          <p><strong>対処法:</strong> ${osManualData.debug_method}</p>
+        </div>
+      </div>
+      ` : ''}
+    `;
   }
 
   // 🔧 trigramComposition安全取得メソッド

@@ -1,127 +1,272 @@
-// HaQei Analyzer - Diagnosis Engine (堅牢版)
+// HaQei Analyzer - Diagnosis Engine (パフォーマンス最適化版)
 class DiagnosisEngine {
   constructor(dataManager) {
     this.dataManager = dataManager;
     this.calculator = new Calculator();
+    
+    // 🚀 パフォーマンス最適化: キャッシュシステム
+    this.analysisCache = new Map();
+    this.vectorCache = new Map();
+    this.hexagramCache = new Map();
+    this.lastAnalysisTime = 0;
+    
+    // 🚀 最適化: Worker準備（利用可能な場合）
+    this.analysisWorker = null;
+    this.initializeWorkerIfAvailable();
   }
 
-  // 🔧 修正: メイン分析実行
+  // 🚀 新規: Worker初期化
+  initializeWorkerIfAvailable() {
+    try {
+      if (typeof Worker !== 'undefined') {
+        // Web Workerは複雑な実装のため、今回は非同期処理で代替
+        console.log("🔧 Analysis will use async processing for performance");
+      }
+    } catch (error) {
+      console.log("🔧 Worker not available, using main thread processing");
+    }
+  }
+
+  // 🚀 最適化版: メイン分析実行
   async analyze(allAnswers) {
     try {
-      console.log("🔬 Starting robust analysis...");
+      console.log("🔬 Starting optimized analysis...");
+
+      // 🚀 最適化: キャッシュチェック
+      const cacheKey = this.generateCacheKey(allAnswers);
+      const cachedResult = this.analysisCache.get(cacheKey);
+      
+      if (cachedResult && (Date.now() - this.lastAnalysisTime) < 300000) { // 5分間有効
+        console.log("🚀 Returning cached analysis result");
+        return cachedResult;
+      }
 
       // 入力検証
       if (!allAnswers || !Array.isArray(allAnswers)) {
         throw new Error("Invalid answers input");
       }
 
-      // 回答を価値観とシナリオに分離
-      const { worldviewAnswers, scenarioAnswers } =
-        this.separateAnswers(allAnswers);
+      // 🚀 最適化: 非同期処理でUI応答性を保つ
+      return await this.performAnalysisAsync(allAnswers, cacheKey);
 
-      console.log(
-        `📊 Separated answers: worldview(${worldviewAnswers.length}), scenario(${scenarioAnswers.length})`
-      );
-
-      // 8次元ユーザーベクトル構築
-      const userVector = this.calculator.buildUserVector(worldviewAnswers);
-
-      // ユーザーベクトルの検証
-      if (!userVector || typeof userVector !== "object") {
-        throw new Error("Failed to build user vector");
-      }
-
-      console.log("📊 User vector built:", userVector);
-
-      // OS候補分析
-      const vectorsData = this.dataManager.getVectorsData();
-      if (!vectorsData) {
-        throw new Error("Vectors data not available");
-      }
-
-      const candidates = this.calculator.analyzeOSCandidates(
-        userVector,
-        vectorsData
-      );
-
-      if (!candidates || candidates.length === 0) {
-        throw new Error("No OS candidates found");
-      }
-
-      // 候補に詳細情報を追加
-      const enrichedCandidates = candidates.map((candidate) => {
-        try {
-          const hexagramInfo = this.dataManager.getHexagramData(candidate.osId);
-          const dominantTrigrams = this.generateDominantTrigrams(
-            userVector,
-            hexagramInfo
-          );
-          // 構成八卦を生成
-          const trigramComposition =
-            this.generateTrigramComposition(hexagramInfo);
-          return {
-            ...candidate,
-            hexagramInfo: hexagramInfo,
-            matchPercentage: Math.round(candidate.score * 100),
-            dominantTrigrams: dominantTrigrams,
-            trigramComposition: trigramComposition, // ← 追加
-          };
-        } catch (candidateError) {
-          console.error(
-            `❌ Error enriching candidate ${candidate.osId}:`,
-            candidateError
-          );
-          // フォールバック候補データ
-          return {
-            ...candidate,
-            hexagramInfo: {
-              name: "分析エラー",
-              catchphrase: "データ取得に失敗",
-            },
-            matchPercentage: Math.round(candidate.score * 100),
-            dominantTrigrams: this.getFallbackTrigrams(),
-            trigramComposition: "乾 + 乾", // ← 追加
-          };
-        }
-      });
-
-      // 分析結果を構築
-      const analysisResult = {
-        userVector: userVector,
-        eightDimensionVector: userVector, // ← 追加
-        topCandidates: enrichedCandidates,
-        primaryOS: enrichedCandidates[0],
-        analysisDate: new Date().toISOString(),
-        totalAnswers: allAnswers.length,
-        dimensions: this.analyzeDimensions(userVector),
-      };
-
-      console.log("✅ Analysis completed successfully");
-      console.log("Primary OS:", analysisResult.primaryOS?.hexagramInfo?.name);
-
-      // 🔍 デバッグ用（一時的）
-      console.log(
-        "🔍 Primary OS trigramComposition:",
-        analysisResult.primaryOS.trigramComposition
-      );
-      console.log(
-        "🔍 Primary OS hexagramInfo:",
-        analysisResult.primaryOS.hexagramInfo
-      );
-      console.log(
-        "🔍 All candidates trigramComposition:",
-        analysisResult.topCandidates.map((c) => ({
-          name: c.hexagramInfo?.name,
-          trigramComposition: c.trigramComposition,
-        }))
-      );
-      return analysisResult;
     } catch (error) {
       console.error("❌ Analysis failed:", error);
-
-      // 完全フォールバック
       return this.createFallbackResult(allAnswers);
     }
+  }
+
+  // 🚀 新規: キャッシュキー生成
+  generateCacheKey(allAnswers) {
+    // 🚀 最適化: 軽量なハッシュ生成
+    const answerSignature = allAnswers
+      .map(a => `${a.questionId}:${a.selectedValue || `${a.innerChoice?.value}-${a.outerChoice?.value}`}`)
+      .join('|');
+    return btoa(answerSignature).slice(0, 16); // Base64エンコードの最初の16文字
+  }
+
+  // 🚀 新規: 非同期分析実行
+  async performAnalysisAsync(allAnswers, cacheKey) {
+    return new Promise((resolve, reject) => {
+      // 🚀 最適化: 処理を小さなチャンクに分割
+      const processChunk = async () => {
+        try {
+          // 回答を価値観とシナリオに分離
+          const { worldviewAnswers, scenarioAnswers } = this.separateAnswers(allAnswers);
+
+          console.log(
+            `📊 Separated answers: worldview(${worldviewAnswers.length}), scenario(${scenarioAnswers.length})`
+          );
+
+          // 🚀 最適化: ベクトル構築をキャッシュ活用
+          const userVector = await this.buildUserVectorOptimized(worldviewAnswers);
+
+          if (!userVector || typeof userVector !== "object") {
+            throw new Error("Failed to build user vector");
+          }
+
+          console.log("📊 User vector built:", userVector);
+
+          // 🚀 最適化: OS候補分析を非同期化
+          const analysisResult = await this.analyzeOSCandidatesAsync(userVector, allAnswers);
+
+          // 🚀 最適化: 結果をキャッシュに保存
+          this.analysisCache.set(cacheKey, analysisResult);
+          this.lastAnalysisTime = Date.now();
+
+          console.log("✅ Optimized analysis completed successfully");
+          resolve(analysisResult);
+
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      // 🚀 最適化: requestIdleCallbackで負荷分散
+      if (window.requestIdleCallback) {
+        requestIdleCallback(processChunk, { timeout: 5000 });
+      } else {
+        setTimeout(processChunk, 0);
+      }
+    });
+  }
+
+  // 🚀 新規: 最適化されたユーザーベクトル構築
+  async buildUserVectorOptimized(worldviewAnswers) {
+    const vectorKey = JSON.stringify(worldviewAnswers.map(a => ({ id: a.questionId, value: a.selectedValue })));
+    
+    if (this.vectorCache.has(vectorKey)) {
+      console.log("🚀 Using cached user vector");
+      return this.vectorCache.get(vectorKey);
+    }
+
+    const userVector = this.calculator.buildUserVector(worldviewAnswers);
+    this.vectorCache.set(vectorKey, userVector);
+    
+    return userVector;
+  }
+
+  // 🚀 新規: 非同期OS候補分析
+  async analyzeOSCandidatesAsync(userVector, allAnswers) {
+    return new Promise((resolve, reject) => {
+      try {
+        // 🚀 最適化: データ取得をキャッシュ活用
+        const vectorsData = this.getVectorsDataOptimized();
+        if (!vectorsData) {
+          throw new Error("Vectors data not available");
+        }
+
+        const candidates = this.calculator.analyzeOSCandidates(userVector, vectorsData);
+
+        if (!candidates || candidates.length === 0) {
+          throw new Error("No OS candidates found");
+        }
+
+        // 🚀 最適化: 候補の詳細情報を非同期で追加
+        this.enrichCandidatesAsync(candidates, userVector)
+          .then(enrichedCandidates => {
+            const analysisResult = {
+              userVector: userVector,
+              eightDimensionVector: userVector,
+              topCandidates: enrichedCandidates,
+              primaryOS: enrichedCandidates[0],
+              analysisDate: new Date().toISOString(),
+              totalAnswers: allAnswers.length,
+              dimensions: this.analyzeDimensions(userVector),
+              analysisType: "optimized", // 最適化版であることを示す
+            };
+
+            resolve(analysisResult);
+          })
+          .catch(reject);
+
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  // 🚀 新規: 最適化されたベクトルデータ取得
+  getVectorsDataOptimized() {
+    const cacheKey = 'vectors_data';
+    if (this.vectorCache.has(cacheKey)) {
+      console.log("🚀 Using cached vectors data");
+      return this.vectorCache.get(cacheKey);
+    }
+
+    try {
+      const vectorsData = this.dataManager.getVectorsData();
+      if (!vectorsData || typeof vectorsData !== 'object') {
+        console.error("❌ Invalid vectors data received:", vectorsData);
+        throw new Error("ベクターデータが正しく取得できませんでした");
+      }
+      
+      const vectorCount = Object.keys(vectorsData).length;
+      if (vectorCount === 0) {
+        console.error("❌ Empty vectors data received");
+        throw new Error("ベクターデータが空です");
+      }
+      
+      console.log(`✅ Vectors data loaded successfully: ${vectorCount} entries`);
+      this.vectorCache.set(cacheKey, vectorsData);
+      return vectorsData;
+      
+    } catch (error) {
+      console.error("❌ Error getting vectors data:", error);
+      
+      // フォールバック: グローバル変数から直接取得を試行
+      if (typeof window.H64_8D_VECTORS !== 'undefined') {
+        console.warn("⚠️ Falling back to global H64_8D_VECTORS");
+        const fallbackData = window.H64_8D_VECTORS;
+        this.vectorCache.set(cacheKey, fallbackData);
+        return fallbackData;
+      }
+      
+      throw new Error(`ベクターデータの取得に失敗しました: ${error.message}`);
+    }
+  }
+
+  // 🚀 新規: 非同期候補詳細情報追加
+  async enrichCandidatesAsync(candidates, userVector) {
+    return new Promise((resolve) => {
+      const enrichedCandidates = [];
+      let processedCount = 0;
+
+      const processBatch = (startIndex) => {
+        const batchSize = 3; // 3候補ずつ処理
+        const endIndex = Math.min(startIndex + batchSize, candidates.length);
+
+        for (let i = startIndex; i < endIndex; i++) {
+          const candidate = candidates[i];
+          try {
+            const hexagramInfo = this.getHexagramDataOptimized(candidate.osId);
+            const dominantTrigrams = this.generateDominantTrigrams(userVector, hexagramInfo);
+            const trigramComposition = this.generateTrigramComposition(hexagramInfo);
+            
+            enrichedCandidates[i] = {
+              ...candidate,
+              hexagramInfo: hexagramInfo,
+              matchPercentage: Math.round(candidate.score * 100),
+              dominantTrigrams: dominantTrigrams,
+              trigramComposition: trigramComposition,
+            };
+          } catch (candidateError) {
+            console.error(`❌ Error enriching candidate ${candidate.osId}:`, candidateError);
+            enrichedCandidates[i] = {
+              ...candidate,
+              hexagramInfo: { name: "分析エラー", catchphrase: "データ取得に失敗" },
+              matchPercentage: Math.round(candidate.score * 100),
+              dominantTrigrams: this.getFallbackTrigrams(),
+              trigramComposition: "乾 + 乾",
+            };
+          }
+        }
+
+        processedCount += (endIndex - startIndex);
+
+        if (processedCount < candidates.length) {
+          // 次のバッチを非同期で処理
+          setTimeout(() => processBatch(endIndex), 0);
+        } else {
+          resolve(enrichedCandidates);
+        }
+      };
+
+      processBatch(0);
+    });
+  }
+
+  // 🚀 新規: 最適化された易卦データ取得
+  getHexagramDataOptimized(osId) {
+    if (this.hexagramCache.has(osId)) {
+      return this.hexagramCache.get(osId);
+    }
+
+    const hexagramInfo = this.dataManager.getHexagramData(osId);
+    if (hexagramInfo) {
+      this.hexagramCache.set(osId, hexagramInfo);
+    }
+    
+    return hexagramInfo;
   }
 
   // 🔧 修正: dominantTrigrams生成メソッド（堅牢版）

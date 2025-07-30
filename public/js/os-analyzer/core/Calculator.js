@@ -291,22 +291,74 @@ class Calculator {
 
   // OS候補分析
   analyzeOSCandidates(userVector, vectorsData) {
+    console.log("🔍 OS候補分析開始");
+    
+    // 入力検証
+    if (!userVector || typeof userVector !== 'object') {
+      console.error("❌ Invalid userVector:", userVector);
+      throw new Error("ユーザーベクターが無効です");
+    }
+    
+    if (!vectorsData || typeof vectorsData !== 'object') {
+      console.error("❌ Invalid vectorsData:", vectorsData);
+      throw new Error("ベクターデータが無効です");
+    }
+    
+    const vectorKeys = Object.keys(vectorsData);
+    if (vectorKeys.length === 0) {
+      console.error("❌ Empty vectorsData");
+      throw new Error("ベクターデータが空です");
+    }
+    
+    console.log(`📊 分析対象: ${vectorKeys.length}個のヘキサグラム`);
+    console.log("📊 ユーザーベクター:", userVector);
+
     const candidates = [];
 
     Object.keys(vectorsData).forEach((osId) => {
       const osVector = vectorsData[osId];
-      const finalScore = this.calculateFinalScore(userVector, osVector);
-
-      candidates.push({
-        osId: parseInt(osId),
-        score: finalScore,
-        similarity: this.calculateCosineSimilarity(userVector, osVector),
-        activation: this.calculateActivationScore(userVector, osVector),
-      });
+      
+      // 各ベクターの妥当性チェック
+      if (!osVector || typeof osVector !== 'object') {
+        console.warn(`⚠️ Invalid osVector for ID ${osId}:`, osVector);
+        return;
+      }
+      
+      try {
+        const finalScore = this.calculateFinalScore(userVector, osVector);
+        const similarity = this.calculateCosineSimilarity(userVector, osVector);
+        const activation = this.calculateActivationScore(userVector, osVector);
+        
+        // スコアの妥当性チェック
+        if (isNaN(finalScore) || isNaN(similarity) || isNaN(activation)) {
+          console.warn(`⚠️ Invalid scores for ID ${osId}: final=${finalScore}, sim=${similarity}, act=${activation}`);
+          return;
+        }
+        
+        candidates.push({
+          osId: parseInt(osId),
+          score: finalScore,
+          similarity: similarity,
+          activation: activation,
+        });
+        
+      } catch (scoreError) {
+        console.error(`❌ Score calculation error for ID ${osId}:`, scoreError);
+      }
     });
 
+    if (candidates.length === 0) {
+      console.error("❌ No valid candidates generated");
+      throw new Error("有効な候補が生成されませんでした");
+    }
+
     // スコア順でソート、上位4候補を返す
-    return candidates.sort((a, b) => b.score - a.score).slice(0, 4);
+    const sortedCandidates = candidates.sort((a, b) => b.score - a.score).slice(0, 4);
+    
+    console.log(`✅ OS候補分析完了: ${sortedCandidates.length}個の候補`);
+    console.log("📊 トップ候補:", sortedCandidates.map(c => `ID=${c.osId}, Score=${c.score.toFixed(3)}`));
+    
+    return sortedCandidates;
   }
 }
 

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヘキサグラム16偏り問題デバッグ</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+        .debug-section { background: white; margin: 10px 0; padding: 15px; border-radius: 5px; border-left: 4px solid #007acc; }
+        .error { border-left-color: #dc3545; }
+        .warning { border-left-color: #ffc107; }
+        .success { border-left-color: #28a745; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .test-result { margin: 5px 0; padding: 8px; border-radius: 3px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>ヘキサグラム16偏り問題デバッグツール</h1>
+    
+    <div class="debug-section">
+        <h2>🔍 問題の診断</h2>
+        <div id="diagnosis-results"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>📊 データ整合性確認</h2>
+        <div id="data-integrity-results"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>🧪 計算ロジック検証</h2>
+        <div id="calculation-test-results"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>💡 推奨修正方法</h2>
+        <div id="fix-recommendations"></div>
+    </div>
+
+    <!-- データファイル読み込み -->
+    <script src="js/shared/data/vectors.js"></script>
+    <script src="js/shared/data/questions.js"></script>
+    <script src="js/shared/core/DataManager.js"></script>
+    <script src="js/os-analyzer/core/Calculator.js"></script>
+    <script src="js/os-analyzer/core/Engine.js"></script>
+
+    <script>
+        console.log('🔬 ヘキサグラム16偏り問題デバッグ開始');
+
+        class BiasDebugger {
+            constructor() {
+                this.results = {
+                    diagnosis: [],
+                    dataIntegrity: [],
+                    calculationTests: [],
+                    recommendations: []
+                };
+            }
+
+            async runDiagnosis() {
+                console.log('🔍 診断開始...');
+                
+                try {
+                    // 1. DataManagerの問題確認
+                    this.checkDataManagerIssues();
+                    
+                    // 2. データ整合性確認
+                    this.checkDataIntegrity();
+                    
+                    // 3. 計算ロジック検証
+                    this.testCalculationLogic();
+                    
+                    // 4. 修正方法の提案
+                    this.generateRecommendations();
+                    
+                    // 結果表示
+                    this.displayResults();
+                    
+                } catch (error) {
+                    console.error('❌ 診断中にエラーが発生:', error);
+                    this.results.diagnosis.push({
+                        type: 'error',
+                        message: `診断中にエラーが発生: ${error.message}`
+                    });
+                    this.displayResults();
+                }
+            }
+
+            checkDataManagerIssues() {
+                console.log('🔍 DataManager問題確認中...');
+                
+                try {
+                    const dataManager = new DataManager();
+                    
+                    // getVectorsDataメソッドの存在確認
+                    const hasGetVectorsData = typeof dataManager.getVectorsData === 'function';
+                    const hasGetVectors = typeof dataManager.getVectors === 'function';
+                    
+                    this.results.diagnosis.push({
+                        type: hasGetVectorsData ? 'pass' : 'fail',
+                        message: `getVectorsData()メソッド存在確認: ${hasGetVectorsData ? '存在' : '不存在'}`
+                    });
+                    
+                    this.results.diagnosis.push({
+                        type: hasGetVectors ? 'pass' : 'fail',
+                        message: `getVectors()メソッド存在確認: ${hasGetVectors ? '存在' : '不存在'}`
+                    });
+                    
+                    if (!hasGetVectorsData && hasGetVectors) {
+                        this.results.diagnosis.push({
+                            type: 'warning',
+                            message: '問題発見: getVectorsData()メソッドが存在しません。Engine.jsがgetVectorsData()を呼び出していますが、DataManagerにはgetVectors()しかありません。'
+                        });
+                    }
+                    
+                } catch (error) {
+                    this.results.diagnosis.push({
+                        type: 'error',
+                        message: `DataManager確認エラー: ${error.message}`
+                    });
+                }
+            }
+
+            checkDataIntegrity() {
+                console.log('📊 データ整合性確認中...');
+                
+                try {
+                    // H64_8D_VECTORSの確認
+                    if (typeof H64_8D_VECTORS !== 'undefined') {
+                        const vectorCount = Object.keys(H64_8D_VECTORS).length;
+                        this.results.dataIntegrity.push({
+                            type: vectorCount === 64 ? 'pass' : 'fail',
+                            message: `ベクターデータ数: ${vectorCount}/64`
+                        });
+                        
+                        // ヘキサグラム16の特別チェック
+                        const hex16 = H64_8D_VECTORS[16];
+                        if (hex16) {
+                            const hex16Values = Object.values(hex16);
+                            const isAllSame = hex16Values.every(v => v === hex16Values[0]);
+                            const vectorSum = hex16Values.reduce((sum, val) => sum + val, 0);
+                            
+                            this.results.dataIntegrity.push({
+                                type: isAllSame ? 'warning' : 'pass',
+                                message: `ヘキサグラム16ベクター: ${JSON.stringify(hex16)} (合計: ${vectorSum}, 全て同値: ${isAllSame ? 'はい' : 'いいえ'})`
+                            });
+                        } else {
+                            this.results.dataIntegrity.push({
+                                type: 'fail',
+                                message: 'ヘキサグラム16のベクターデータが存在しません'
+                            });
+                        }
+                        
+                        // 全ベクターの分散確認
+                        this.checkVectorDistribution();
+                        
+                    } else {
+                        this.results.dataIntegrity.push({
+                            type: 'fail',
+                            message: 'H64_8D_VECTORSが未定義です'
+                        });
+                    }
+                    
+                } catch (error) {
+                    this.results.dataIntegrity.push({
+                        type: 'error',
+                        message: `データ整合性確認エラー: ${error.message}`
+                    });
+                }
+            }
+
+            checkVectorDistribution() {
+                try {
+                    const allVectors = Object.values(H64_8D_VECTORS);
+                    const vectorMagnitudes = allVectors.map(vector => {
+                        const values = Object.values(vector);
+                        return Math.sqrt(values.reduce((sum, val) => sum + val * val, 0));
+                    });
+                    
+                    const uniqueMagnitudes = [...new Set(vectorMagnitudes.map(m => m.toFixed(2)))];
+                    const magnitudeDistribution = {};
+                    
+                    vectorMagnitudes.forEach((mag, index) => {
+                        const roundedMag = mag.toFixed(2);
+                        if (!magnitudeDistribution[roundedMag]) {
+                            magnitudeDistribution[roundedMag] = [];
+                        }
+                        magnitudeDistribution[roundedMag].push(index + 1);
+                    });
+                    
+                    this.results.dataIntegrity.push({
+                        type: 'info',
+                        message: `ベクター分布: ${uniqueMagnitudes.length}種の異なるマグニチュード`
+                    });
+                    
+                    // 異常に多く現れるマグニチュードを特定
+                    const frequentMagnitudes = Object.entries(magnitudeDistribution)
+                        .filter(([mag, hexagrams]) => hexagrams.length > 3)
+                        .sort((a, b) => b[1].length - a[1].length);
+                    
+                    if (frequentMagnitudes.length > 0) {
+                        this.results.dataIntegrity.push({
+                            type: 'warning',
+                            message: `頻出マグニチュード: ${frequentMagnitudes[0][0]} (${frequentMagnitudes[0][1].length}個のヘキサグラム: ${frequentMagnitudes[0][1].join(', ')})`
+                        });
+                    }
+                    
+                } catch (error) {
+                    this.results.dataIntegrity.push({
+                        type: 'error',
+                        message: `ベクター分布確認エラー: ${error.message}`
+                    });
+                }
+            }
+
+            testCalculationLogic() {
+                console.log('🧪 計算ロジック検証中...');
+                
+                try {
+                    const calculator = new Calculator();
+                    
+                    // テスト用のサンプル回答データ作成
+                    const testAnswers = this.createTestAnswers();
+                    
+                    // ユーザーベクター構築テスト
+                    const userVector = calculator.buildUserVector(testAnswers);
+                    
+                    this.results.calculationTests.push({
+                        type: userVector ? 'pass' : 'fail',
+                        message: `ユーザーベクター構築: ${userVector ? '成功' : '失敗'}`
+                    });
+                    
+                    if (userVector) {
+                        const vectorValues = Object.values(userVector);
+                        const isAllZero = vectorValues.every(v => v === 0);
+                        const hasNegative = vectorValues.some(v => v < 0);
+                        
+                        this.results.calculationTests.push({
+                            type: isAllZero ? 'warning' : 'pass',
+                            message: `ユーザーベクター値: 全て0=${isAllZero}, 負の値含む=${hasNegative}, 合計=${vectorValues.reduce((sum, val) => sum + val, 0)}`
+                        });
+                        
+                        // OS候補分析テスト
+                        if (typeof H64_8D_VECTORS !== 'undefined') {
+                            try {
+                                const candidates = calculator.analyzeOSCandidates(userVector, H64_8D_VECTORS);
+                                
+                                this.results.calculationTests.push({
+                                    type: candidates && candidates.length > 0 ? 'pass' : 'fail',
+                                    message: `OS候補分析: ${candidates ? candidates.length : 0}個の候補生成`
+                                });
+                                
+                                if (candidates && candidates.length > 0) {
+                                    const topCandidate = candidates[0];
+                                    const candidateIds = candidates.map(c => c.osId);
+                                    const has16 = candidateIds.includes(16);
+                                    const uniqueIds = [...new Set(candidateIds)];
+                                    
+                                    this.results.calculationTests.push({
+                                        type: uniqueIds.length > 1 ? 'pass' : 'fail',
+                                        message: `候補多様性: トップ候補=${topCandidate.osId}, 16含む=${has16}, ユニーク数=${uniqueIds.length}/4`
+                                    });
+                                    
+                                    this.results.calculationTests.push({
+                                        type: 'info',
+                                        message: `候補詳細: [${candidateIds.join(', ')}], スコア: [${candidates.map(c => c.score.toFixed(3)).join(', ')}]`
+                                    });
+                                }
+                                
+                            } catch (analysisError) {
+                                this.results.calculationTests.push({
+                                    type: 'error',
+                                    message: `OS候補分析エラー: ${analysisError.message}`
+                                });
+                            }
+                        }
+                    }
+                    
+                } catch (error) {
+                    this.results.calculationTests.push({
+                        type: 'error',
+                        message: `計算ロジック検証エラー: ${error.message}`
+                    });
+                }
+            }
+
+            createTestAnswers() {
+                // 多様な回答パターンを作成
+                return [
+                    {
+                        questionId: 'q1',
+                        selectedValue: 'A',
+                        scoring_tags: [
+                            { key: "乾_創造性", value: 3.0 },
+                            { key: "離_表現性", value: 1.5 }
+                        ]
+                    },
+                    {
+                        questionId: 'q2',
+                        selectedValue: 'B',
+                        scoring_tags: [
+                            { key: "震_行動性", value: 2.5 },
+                            { key: "坎_探求性", value: 1.0 }
+                        ]
+                    },
+                    {
+                        questionId: 'q3',
+                        selectedValue: 'C',
+                        scoring_tags: [
+                            { key: "坤_受容性", value: 2.0 },
+                            { key: "兌_調和性", value: 1.5 }
+                        ]
+                    }
+                ];
+            }
+
+            generateRecommendations() {
+                console.log('💡 修正方法生成中...');
+                
+                // DataManagerの問題が発見された場合
+                const hasDataManagerIssue = this.results.diagnosis.some(d => 
+                    d.message.includes('getVectorsData()メソッドが存在しません')
+                );
+                
+                if (hasDataManagerIssue) {
+                    this.results.recommendations.push({
+                        priority: 'critical',
+                        title: 'DataManagerにgetVectorsData()メソッドを追加',
+                        description: 'Engine.jsが呼び出すgetVectorsData()メソッドがDataManagerに存在しません。',
+                        solution: `DataManager.jsに以下のメソッドを追加：
+getVectorsData() {
+    return this.getVectors();
+}`
+                    });
+                }
+                
+                this.results.recommendations.push({
+                    priority: 'high',
+                    title: '診断ロジックのエラーハンドリング強化',
+                    description: 'undefinedデータによる予期しない動作を防ぐ',
+                    solution: 'Engine.jsのgetVectorsDataOptimized()でnullチェックを追加'
+                });
+                
+                this.results.recommendations.push({
+                    priority: 'medium', 
+                    title: 'デバッグログの追加',
+                    description: '診断プロセスの可視化により問題の早期発見',
+                    solution: 'Calculator.jsのanalyzeOSCandidatesメソッドに詳細ログを追加'
+                });
+            }
+
+            displayResults() {
+                document.getElementById('diagnosis-results').innerHTML = 
+                    this.formatResults(this.results.diagnosis);
+                document.getElementById('data-integrity-results').innerHTML = 
+                    this.formatResults(this.results.dataIntegrity);
+                document.getElementById('calculation-test-results').innerHTML = 
+                    this.formatResults(this.results.calculationTests);
+                document.getElementById('fix-recommendations').innerHTML = 
+                    this.formatRecommendations(this.results.recommendations);
+            }
+
+            formatResults(results) {
+                return results.map(result => 
+                    `<div class="test-result ${result.type}">${result.message}</div>`
+                ).join('');
+            }
+
+            formatRecommendations(recommendations) {
+                return recommendations.map(rec => 
+                    `<div class="debug-section">
+                        <h4>🔧 ${rec.title} (優先度: ${rec.priority})</h4>
+                        <p>${rec.description}</p>
+                        <pre>${rec.solution}</pre>
+                    </div>`
+                ).join('');
+            }
+        }
+
+        // デバッグ実行
+        window.addEventListener('DOMContentLoaded', async () => {
+            const debugger = new BiasDebugger();
+            await debugger.runDiagnosis();
+        });
+    </script>
+</body>
+</html>

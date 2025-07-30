@@ -1016,6 +1016,12 @@ class DataManager {
     }
   }
 
+  // Engine.jsとの互換性のためのエイリアスメソッド
+  getVectorsData() {
+    console.log(`🔍 [DataManager] getVectorsData (エイリアス) 開始`);
+    return this.getVectors();
+  }
+
   getAllHexagramData() {
     const operationStart = performance.now();
     this.performanceMetrics.operationCount++;

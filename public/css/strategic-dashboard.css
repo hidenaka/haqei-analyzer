@@ -1462,3 +1462,57 @@
     font-size: 0.85rem;
   }
 }
+
+/* 🚀 新規: デバッグインサイト用スタイル */
+.debug-insights {
+  background: linear-gradient(135deg, #fff4e6 0%, #ffe7cc 100%);
+  border-left: 4px solid #ff8c00;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  animation: slideInUp 0.5s ease-out forwards;
+}
+
+.debug-insights h4 {
+  color: #cc5500;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.debug-pattern {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.debug-pattern p {
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+.debug-pattern strong {
+  color: #cc5500;
+  font-weight: 600;
+}
+
+/* マッチ情報スタイル */
+.match-info {
+  background-color: rgba(102, 126, 234, 0.1);
+  border-radius: 6px;
+  padding: 10px 15px;
+  margin: 15px 0;
+  border-left: 3px solid #667eea;
+}
+
+.match-info strong {
+  color: #4c63d4;
+}
+
+/* 洞察セクションの間隔調整 */
+.insight-summary,
+.insight-details,
+.insight-recommendations,
+.debug-insights {
+  margin-bottom: 25px;
+}

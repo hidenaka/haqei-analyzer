@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Analyzer - 易経正統性検証テスト</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .header h2 {
+            color: #7f8c8d;
+            margin: 5px 0;
+            font-size: 1.2em;
+            font-weight: normal;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+        }
+        .test-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .score-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .score-excellent { background-color: #27ae60; }
+        .score-good { background-color: #3498db; }
+        .score-needs-improvement { background-color: #f39c12; }
+        .score-needs-fix { background-color: #e74c3c; }
+        .issue-item {
+            background: #fff;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .recommendation {
+            background: #e8f5e8;
+            border-left: 4px solid #27ae60;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .domain-score {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .domain-item {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .domain-item .label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        .domain-item .value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔯 易経正統性検証システム</h1>
+            <h2>HAQEI Analyzer - Classical I-Ching Orthodoxy Validation</h2>
+            <p>古典易経の正統性基準に基づく実装品質の厳密な検証</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 検証テスト実行</h3>
+            <p>以下のボタンをクリックして、各検証要素を個別にテストするか、包括的な検証を実行してください。</p>
+            
+            <button class="test-button" onclick="runTrigramValidation()">
+                🔸 八卦相互関係性検証
+            </button>
+            
+            <button class="test-button" onclick="runHexagramValidation()">
+                🔹 64卦陰陽バランス検証
+            </button>
+            
+            <button class="test-button" onclick="runUltraSyncValidation()">
+                ⚡ ウルトラシンクロジック20検証
+            </button>
+            
+            <button class="test-button" onclick="runBunenjinValidation()">
+                🌊 bunenjin哲学整合性検証
+            </button>
+            
+            <button class="test-button" onclick="runLineValidation()">
+                📏 爻辞レベル適用検証
+            </button>
+            
+            <br><br>
+            
+            <button class="test-button" onclick="runComprehensiveValidation()" style="background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%); font-size: 18px; padding: 20px 40px;">
+                🔯 包括的検証実行
+            </button>
+            
+            <button class="test-button" onclick="generateDetailedReport()">
+                📊 詳細レポート生成
+            </button>
+        </div>
+
+        <div id="results" class="results" style="display: none;">
+            <!-- 検証結果がここに表示されます -->
+        </div>
+    </div>
+
+    <!-- 必要なJSファイルを読み込み -->
+    <script src="./public/js/os-analyzer/validation/ClassicalIChingStandards.js"></script>
+    <script src="./public/js/os-analyzer/validation/IChingOrthodoxyValidator.js"></script>
+    <script src="./public/js/os-analyzer/validation/OrthodoxyReportGenerator.js"></script>
+    
+    <!-- メインのテストスクリプト -->
+    <script>
+        // グローバル変数
+        let validator = null;
+        let reportGenerator = null;
+        let currentValidationResults = null;
+
+        // 初期化
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeValidationSystem();
+        });
+
+        function initializeValidationSystem() {
+            try {
+                validator = new IChingOrthodoxyValidator();
+                reportGenerator = new OrthodoxyReportGenerator();
+                console.log("✅ 検証システムが正常に初期化されました");
+            } catch (error) {
+                console.error("❌ 検証システムの初期化に失敗:", error);
+                showError("検証システムの初期化に失敗しました。ページを再読み込みしてください。");
+            }
+        }
+
+        // ========== 個別検証関数 ==========
+
+        async function runTrigramValidation() {
+            showLoading("八卦相互関係性を検証中...");
+            
+            try {
+                // 現在の実装データを取得
+                const implementationData = await getCurrentImplementationData();
+                
+                // 八卦関係性のみを検証
+                const trigramResults = await validator.validateTrigramRelationships();
+                
+                showTrigramResults(trigramResults);
+                
+            } catch (error) {
+                console.error("八卦検証エラー:", error);
+                showError("八卦相互関係性の検証中にエラーが発生しました: " + error.message);
+            }
+        }
+
+        async function runHexagramValidation() {
+            showLoading("64卦陰陽バランスを検証中...");
+            
+            try {
+                const implementationData = await getCurrentImplementationData();
+                const hexagramResults = await validator.validateHexagramYinYangBalance();
+                
+                showHexagramResults(hexagramResults);
+                
+            } catch (error) {
+                console.error("64卦検証エラー:", error);
+                showError("64卦陰陽バランスの検証中にエラーが発生しました: " + error.message);
+            }
+        }
+
+        async function runUltraSyncValidation() {
+            showLoading("ウルトラシンクロジック20を検証中...");
+            
+            try {
+                const implementationData = await getCurrentImplementationData();
+                const ultraSyncResults = await validator.validateUltraSyncLogicOrthodoxyWith20();
+                
+                showUltraSyncResults(ultraSyncResults);
+                
+            } catch (error) {
+                console.error("ウルトラシンク検証エラー:", error);
+                showError("ウルトラシンクロジック20の検証中にエラーが発生しました: " + error.message);
+            }
+        }
+
+        async function runBunenjinValidation() {
+            showLoading("bunenjin哲学整合性を検証中...");
+            
+            try {
+                const implementationData = await getCurrentImplementationData();
+                const bunenjinResults = await validator.validateBunenjinPhilosophyAlignment();
+                
+                showBunenjinResults(bunenjinResults);
+                
+            } catch (error) {
+                console.error("bunenjin検証エラー:", error);
+                showError("bunenjin哲学整合性の検証中にエラーが発生しました: " + error.message);
+            }
+        }
+
+        async function runLineValidation() {
+            showLoading("爻辞レベル適用を検証中...");
+            
+            try {
+                const implementationData = await getCurrentImplementationData();
+                const lineResults = await validator.validateLineApplicationAccuracy();
+                
+                showLineResults(lineResults);
+                
+            } catch (error) {
+                console.error("爻辞検証エラー:", error);
+                showError("爻辞レベル適用の検証中にエラーが発生しました: " + error.message);
+            }
+        }
+
+        // ========== 包括的検証 ==========
+
+        async function runComprehensiveValidation() {
+            showLoading("包括的検証を実行中...", true);
+            
+            try {
+                // 現在の実装データを収集
+                const implementationData = await getCurrentImplementationData();
+                
+                // 進捗表示付きで包括的検証を実行
+                const validationResults = await validator.validateImplementation(implementationData);
+                
+                currentValidationResults = validationResults;
+                
+                showComprehensiveResults(validationResults);
+                
+            } catch (error) {
+                console.error("包括的検証エラー:", error);
+                showError("包括的検証中にエラーが発生しました: " + error.message);
+            }
+        }
+
+        // ========== 実装データ収集 ==========
+
+        async function getCurrentImplementationData() {
+            // 実際の実装からデータを収集
+            // このテスト版では模擬データを使用
+            
+            return {
+                trigramRelationships: await collectTrigramRelationshipData(),
+                hexagramData: await collectHexagramData(),
+                ultraSyncLogic: await collectUltraSyncLogicData(),
+                tripleOSStructure: await collectTripleOSStructureData(),
+                lineApplications: await collectLineApplicationData(),
+                seasonalData: await collectSeasonalData(),
+                fiveElementData: await collectFiveElementData(),
+                lineRelationships: await collectLineRelationshipData()
+            };
+        }
+
+        async function collectTrigramRelationshipData() {
+            // 実際のiching_relationships.jsからデータを取得
+            if (typeof window.OPPOSING_RELATIONSHIPS !== 'undefined') {
+                return {
+                    opposition: window.OPPOSING_RELATIONSHIPS,
+                    complement: window.COMPLEMENTARY_RELATIONSHIPS?.yin_yang_harmony || {}
+                };
+            }
+            
+            // フォールバック: 模擬データ
+            return {
+                opposition: {
+                    "乾": "坤", "坤": "乾",
+                    "震": "艮", "艮": "震",
+                    "坎": "離", "離": "坎",
+                    "巽": "兌", "兌": "巽"
+                },
+                complement: {
+                    "乾": "巽", "巽": "乾",
+                    "坤": "震", "震": "坤",
+                    "坎": "離", "離": "坎",
+                    "艮": "兌", "兌": "艮"
+                }
+            };
+        }
+
+        async function collectHexagramData() {
+            // 実際のhexagrams.jsからデータを取得
+            if (typeof window.HEXAGRAMS_MASTER !== 'undefined') {
+                const hexagramData = {};
+                window.HEXAGRAMS_MASTER.forEach(hex => {
+                    // 爻の配列を生成（実際の実装に応じて調整）
+                    hexagramData[hex.hexagram_id] = {
+                        name: hex.name_jp,
+                        lines: generateHexagramLines(hex.hexagram_id),
+                        upperTrigram: hex.upper_trigram_id,
+                        lowerTrigram: hex.lower_trigram_id
+                    };
+                });
+                return hexagramData;
+            }
+            
+            // フォールバック: 基本的な模擬データ
+            return {
+                1: { name: "乾為天", lines: [1,1,1,1,1,1] },
+                2: { name: "坤為地", lines: [0,0,0,0,0,0] },
+                // 簡略化
+            };
+        }
+
+        function generateHexagramLines(hexagramId) {
+            // 簡単な16進数→2進数変換（デモ用）
+            const binary = (hexagramId - 1).toString(2).padStart(6, '0');
+            return binary.split('').map(bit => parseInt(bit));
+        }
+
+        async function collectUltraSyncLogicData() {
+            // ウルトラシンクロジックの実装状況を確認
+            return {
+                methods: {
+                    greatTheme: { implemented: true, orthodox: true },
+                    trigramResonance: { implemented: true, orthodox: true },
+                    // 他のメソッドも同様に...
+                }
+            };
+        }
+
+        async function collectTripleOSStructureData() {
+            return {
+                hasEngineOS: true,
+                hasInterfaceOS: true,
+                hasSafeModeOS: true,
+                allowsPersonalitySwitching: true,
+                enablesContextualPersonality: true
+            };
+        }
+
+        async function collectLineApplicationData() {
+            return {
+                positions: {
+                    1: { meaning: "始まり・基礎" },
+                    2: { meaning: "発展・臣位" },
+                    3: { meaning: "転換・進退" },
+                    4: { meaning: "進展・近臣" },
+                    5: { meaning: "成熟・君位" },
+                    6: { meaning: "完成・退隠" }
+                }
+            };
+        }
+
+        async function collectSeasonalData() {
+            return {
+                hexagramSeasons: {
+                    "復": { season: "冬至" },
+                    "臨": { season: "小寒" },
+                    // 他の十二消息卦...
+                }
+            };
+        }
+
+        async function collectFiveElementData() {
+            return {
+                relationships: [
+                    { source: "木", target: "火", type: "相生" },
+                    { source: "火", target: "土", type: "相生" },
+                    { source: "土", target: "金", type: "相生" },
+                    { source: "金", target: "水", type: "相生" },
+                    { source: "水", target: "木", type: "相生" },
+                    // 相剋関係も同様に...
+                ]
+            };
+        }
+
+        async function collectLineRelationshipData() {
+            return {
+                correspondence: [
+                    { pos1: 1, pos2: 4 },
+                    { pos1: 2, pos2: 5 },
+                    { pos1: 3, pos2: 6 }
+                ],
+                adjacency: [
+                    { pos1: 1, pos2: 2 },
+                    { pos1: 2, pos2: 3 },
+                    { pos1: 3, pos2: 4 },
+                    { pos1: 4, pos2: 5 },
+                    { pos1: 5, pos2: 6 }
+                ]
+            };
+        }
+
+        // ========== 結果表示関数 ==========
+
+        function showLoading(message, showProgress = false) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>${message}</p>
+                    ${showProgress ? '<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>' : ''}
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <div class="issue-item">
+                    <strong>❌ エラー</strong><br>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function showTrigramResults(results) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3>🔸 八卦相互関係性検証結果</h3>
+                <div class="${getScoreClass(results.overallScore)}">
+                    総合スコア: ${Math.round(results.overallScore * 100)}%
+                </div>
+                
+                <div class="domain-score">
+                    <div class="domain-item">
+                        <div class="label">対立関係正確性</div>
+                        <div class="value">${Math.round(results.oppositionRelationships.score * 100)}%</div>
+                    </div>
+                    <div class="domain-item">
+                        <div class="label">補完関係正確性</div>
+                        <div class="value">${Math.round(results.complementaryRelationships.score * 100)}%</div>
+                    </div>
+                    <div class="domain-item">
+                        <div class="label">五行循環正確性</div>
+                        <div class="value">${Math.round(results.fiveElementCycles.score * 100)}%</div>
+                    </div>
+                    <div class="domain-item">
+                        <div class="label">家族的役割正確性</div>
+                        <div class="value">${Math.round(results.familyDynamics.score * 100)}%</div>
+                    </div>
+                </div>
+                
+                ${results.issues.length > 0 ? `
+                    <h4>発見された問題</h4>
+                    ${results.issues.map(issue => `
+                        <div class="issue-item">
+                            <strong>${issue.category}</strong>: ${issue.description}
+                        </div>
+                    `).join('')}
+                ` : '<div class="recommendation">✅ 八卦相互関係性に問題は見つかりませんでした</div>'}
+            `;
+        }
+
+        function showComprehensiveResults(results) {
+            const assessment = results.overallAssessment;
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3>🔯 包括的検証結果</h3>
+                
+                <div class="score-badge ${getScoreClass(assessment.overallScore)}">
+                    総合スコア: ${Math.round(assessment.overallScore * 100)}% (${assessment.assessmentLevel})
+                </div>
+                
+                <div class="domain-score">
+                    <div class="domain-item">
+                        <div class="label">八卦関係性</div>
+                        <div class="value">${Math.round(assessment.domainScores.trigramRelationships * 100)}%</div>
+                    </div>
+                    <div class="domain-item">
+                        <div class="label">64卦バランス</div>
+                        <div class="value">${Math.round(assessment.domainScores.hexagramBalance * 100)}%</div>
+                    </div>
+                    <div class="domain-item">
+                        <div class="label">ウルトラシンクロジック</div>
+                        <div class="value">${Math.round(assessment.domainScores.ultraSyncLogic * 100)}%</div>
+                    </div>
+                    <div class="domain-item">
+                        <div class="label">bunenjin整合性</div>
+                        <div class="value">${Math.round(assessment.domainScores.bunenjinAlignment * 100)}%</div>
+                    </div>
+                    <div class="domain-item">
+                        <div class="label">爻辞適用</div>
+                        <div class="value">${Math.round(assessment.domainScores.lineApplication * 100)}%</div>
+                    </div>
+                </div>
+                
+                <h4>強み</h4>
+                ${assessment.strengths.map(strength => `
+                    <div class="recommendation">✅ ${strength}</div>
+                `).join('')}
+                
+                <h4>弱み</h4>
+                ${assessment.weaknesses.map(weakness => `
+                    <div class="issue-item">⚠️ ${weakness}</div>
+                `).join('')}
+                
+                <h4>改善優先度</h4>
+                ${assessment.improvementPriorities.map((priority, index) => `
+                    <div class="domain-item">
+                        <div class="label">${index + 1}. ${priority.domain}</div>
+                        <div class="value">スコア: ${Math.round(priority.score * 100)}% (${priority.urgency})</div>
+                    </div>
+                `).join('')}
+                
+                <h4>最優先推奨事項</h4>
+                ${results.recommendations.filter(rec => rec.urgency === 'high').map(rec => `
+                    <div class="recommendation">
+                        <strong>${rec.category}</strong><br>
+                        ${rec.recommendation}<br>
+                        <small>工数: ${rec.estimatedEffort} | 影響: ${rec.expectedImpact}</small>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // 他の結果表示関数も同様に実装...
+
+        function getScoreClass(score) {
+            if (score >= 0.9) return 'score-badge score-excellent';
+            if (score >= 0.8) return 'score-badge score-good';
+            if (score >= 0.7) return 'score-badge score-needs-improvement';
+            return 'score-badge score-needs-fix';
+        }
+
+        // ========== レポート生成 ==========
+
+        async function generateDetailedReport() {
+            if (!currentValidationResults) {
+                showError("まず包括的検証を実行してからレポートを生成してください。");
+                return;
+            }
+            
+            showLoading("詳細レポートを生成中...");
+            
+            try {
+                const report = await reportGenerator.generateReport(currentValidationResults, {
+                    format: 'html',
+                    includeCharts: true,
+                    includeDetails: true
+                });
+                
+                // 新しいウィンドウでレポートを表示
+                const reportWindow = window.open('', '_blank');
+                reportWindow.document.write(report);
+                reportWindow.document.close();
+                
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = `
+                    <div class="recommendation">
+                        ✅ 詳細レポートが新しいウィンドウで生成されました。<br>
+                        レポートには包括的な分析結果、視覚的なチャート、具体的な改善提案が含まれています。
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error("レポート生成エラー:", error);
+                showError("詳細レポートの生成中にエラーが発生しました: " + error.message);
+            }
+        }
+
+        // デモ用の進捗更新
+        function updateProgress(percentage) {
+            const progressFill = document.getElementById('progressFill');
+            if (progressFill) {
+                progressFill.style.width = percentage + '%';
+            }
+        }
+    </script>
+</body>
+</html>
