@@ -1041,6 +1041,12 @@ class StorageManager {
     try {
       console.log('🔧 Rebuilding analysis from answers using 分人思想 framework...');
       
+      // 🚀 修正: 入力パラメータの型安全性チェック
+      if (!answers || !Array.isArray(answers)) {
+        console.warn('⚠️ rebuildAnalysisFromAnswers: Invalid answers parameter:', typeof answers, answers);
+        return this.generateFallbackAnalysisResult();
+      }
+      
       // データベースから実際のヘキサグラムデータを取得
       const hexagramsData = this.getHexagramsDatabase();
       const vectorsData = this.getVectorsDatabase();
@@ -1125,7 +1131,10 @@ class StorageManager {
       
       if (hexagramsData && hexagramsData.length > 0) {
         // 3. ユーザーの回答パターンから動的選択
-        const userAnswers = this.getAnswers() || this.getItem('question_answers') || [];
+        const rawAnswers = this.getAnswers() || this.getItem('question_answers') || [];
+        const userAnswers = Array.isArray(rawAnswers) ? rawAnswers : [];
+        console.log('🔍 generateFallbackAnalysisResult: userAnswers type:', typeof rawAnswers, 'isArray:', Array.isArray(rawAnswers), 'length:', userAnswers.length);
+        
         const analysisMetrics = userAnswers.length > 0 ? 
           this.analyzeAnswerPatterns(userAnswers) : 
           this.generateDefaultMetrics();
@@ -2595,7 +2604,9 @@ class StorageManager {
       }
     };
 
-    if (!answers || answers.length === 0) {
+    // 🚀 修正: 型安全性チェックを強化
+    if (!answers || !Array.isArray(answers) || answers.length === 0) {
+      console.warn('⚠️ analyzeAnswerPatterns: Invalid answers data:', typeof answers, answers);
       return analysis;
     }
 
@@ -3187,6 +3198,12 @@ class StorageManager {
   // 動的品質スコア計算
   calculateDynamicQualityScore(analysisMetrics, userAnswers) {
     let baseScore = 0.6; // ベースライン
+    
+    // 🚀 修正: 型安全性チェック
+    if (!Array.isArray(userAnswers)) {
+      console.warn('⚠️ calculateDynamicQualityScore: userAnswers is not an array:', typeof userAnswers);
+      return baseScore;
+    }
     
     // 回答数による調整
     if (userAnswers.length >= 20) baseScore += 0.15;
