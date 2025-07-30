@@ -1211,10 +1211,15 @@ class QuestionFlow extends BaseComponent {
       
       if (this.options.onComplete) {
         console.log("📞 Calling options.onComplete with", this.answers.length, "answers");
-        // 🚀 最適化: コールバックを非同期実行
-        setTimeout(() => {
+        // 🚀 修正: 同期実行に変更してページ遷移を確実に実行
+        try {
           this.options.onComplete(this.answers);
-        }, 500); // UIアニメーションの完了を待つ
+          console.log("✅ onComplete callback executed successfully");
+        } catch (callbackError) {
+          console.error("❌ Error in onComplete callback:", callbackError);
+          this.hideLoadingState();
+          alert("分析完了処理でエラーが発生しました。ページを再読み込みしてください。");
+        }
       } else {
         // デフォルトの処理: グローバル関数を非同期呼び出し
         if (typeof proceedToAnalysis === "function") {
