@@ -3444,6 +3444,322 @@
         }
       }
 
+      // ===== 統合判定エンジン (Integrated Analysis Engine) =====
+      
+      /**
+       * 全ての分析システムを統合する高精度判定エンジン
+       */
+      class IntegratedAnalysisEngine {
+        constructor(kuromojiTokenizer) {
+          this.tokenizer = kuromojiTokenizer;
+          this.keywordGenerator = new DynamicKeywordGenerator(kuromojiTokenizer);
+          this.irregularDetector = new IrregularPatternDetector();
+          
+          // 分析結果キャッシュ
+          this.analysisCache = new Map();
+          this.maxCacheSize = 500;
+        }
+
+        /**
+         * 統合分析の実行 - 全システムを統合した高精度分析
+         */
+        async performIntegratedAnalysis(inputText, h384Data, futureThemeMap, baseContextType = null) {
+          const cacheKey = `${inputText}_${baseContextType}`;
+          if (this.analysisCache.has(cacheKey)) {
+            return this.analysisCache.get(cacheKey);
+          }
+
+          console.log('🎯 統合分析エンジン開始:', { textLength: inputText.length, contextType: baseContextType });
+
+          // Phase 1: コンテキスト分析
+          const contextResult = baseContextType || analyzeContextType(inputText);
+          console.log('📊 コンテキスト分析結果:', contextResult);
+
+          // Phase 2: イレギュラー検出
+          const irregularFlags = this.irregularDetector.detect(inputText);
+          console.log('⚠️ イレギュラー検出結果:', irregularFlags);
+
+          // Phase 3: 動的キーワード生成
+          const contextConfig = ENHANCED_CONTEXT_TYPES[contextResult];
+          const baseKeywords = contextConfig ? 
+            Object.values(contextConfig.keywords).flat() : [];
+          const expandedKeywords = this.keywordGenerator.generateDynamicKeywords(inputText, baseKeywords);
+          console.log('🔤 動的キーワード生成:', { base: baseKeywords.length, expanded: expandedKeywords.length });
+
+          // Phase 4: 多層マッチング分析
+          const matchingResults = await this.performMultiLayerMatching(
+            inputText, h384Data, futureThemeMap, contextResult, expandedKeywords, irregularFlags
+          );
+
+          // Phase 5: 統合スコアリング
+          const finalResult = this.calculateIntegratedScore(
+            matchingResults, contextResult, irregularFlags, expandedKeywords
+          );
+
+          // Phase 6: 代替候補生成
+          finalResult.alternatives = this.generateAlternatives(matchingResults, finalResult);
+
+          // Phase 7: 根拠と改善提案生成
+          finalResult.reasoning = this.generateDetailedReasoning(finalResult, contextResult, irregularFlags);
+          finalResult.inputAdvice = this.irregularDetector.generateInputAdvice(irregularFlags);
+
+          // キャッシュ管理
+          if (this.analysisCache.size >= this.maxCacheSize) {
+            const firstKey = this.analysisCache.keys().next().value;
+            this.analysisCache.delete(firstKey);
+          }
+          this.analysisCache.set(cacheKey, finalResult);
+
+          console.log('✅ 統合分析完了:', { confidence: finalResult.confidence, method: finalResult.method });
+          return finalResult;
+        }
+
+        /**
+         * 多層マッチング分析
+         */
+        async performMultiLayerMatching(inputText, h384Data, futureThemeMap, contextType, expandedKeywords, irregularFlags) {
+          const results = [];
+          const worryWords = extractWords(inputText);
+          const emotionalContext = analyzeEmotionalContext(inputText, worryWords);
+          const temporalContext = analyzeTemporalContext(inputText);
+
+          h384Data.forEach((lineData) => {
+            const themeData = futureThemeMap[lineData.通し番号];
+            if (!themeData) return;
+
+            let score = 0;
+            let matchDetails = {
+              keywordMatches: [],
+              patternMatches: [],
+              semanticMatches: [],
+              contextMatches: [],
+              dynamicMatches: []
+            };
+
+            // Layer 1: 基本キーワードマッチング
+            if (themeData.positive_keywords && Array.isArray(themeData.positive_keywords)) {
+              themeData.positive_keywords.forEach((keywordGroup) => {
+                const foundKw = keywordGroup.find((kw) => 
+                  inputText.includes(kw) || worryWords.includes(kw)
+                );
+                
+                if (foundKw) {
+                  let keywordScore = 30;
+                  const semanticRelevance = calculateSemanticRelevance(inputText, lineData, foundKw);
+                  keywordScore = Math.round(keywordScore * semanticRelevance.multiplier);
+                  
+                  score += keywordScore;
+                  matchDetails.keywordMatches.push({
+                    keyword: foundKw,
+                    score: keywordScore,
+                    relevance: semanticRelevance
+                  });
+                }
+              });
+            }
+
+            // Layer 2: 動的キーワードマッチング
+            const summary = lineData.現代解釈の要約 || '';
+            expandedKeywords.forEach(keyword => {
+              if (summary.includes(keyword)) {
+                const dynamicScore = 15; // 動的キーワードは中程度のスコア
+                score += dynamicScore;
+                matchDetails.dynamicMatches.push({
+                  keyword: keyword,
+                  score: dynamicScore
+                });
+              }
+            });
+
+            // Layer 3: コンテキスト適合度
+            const contextConfig = ENHANCED_CONTEXT_TYPES[contextType];
+            if (contextConfig && contextConfig.patterns) {
+              contextConfig.patterns.forEach(pattern => {
+                if (pattern.test(inputText)) {
+                  const patternScore = 25;
+                  score += patternScore;
+                  matchDetails.patternMatches.push({
+                    pattern: pattern.source,
+                    score: patternScore
+                  });
+                }
+              });
+            }
+
+            // Layer 4: 感情・時間的コンテキスト適合度
+            const contextFit = evaluateContextFit(emotionalContext, temporalContext, contextType, lineData);
+            const contextScore = Math.round(contextFit * 20);
+            score += contextScore;
+            if (contextScore > 0) {
+              matchDetails.contextMatches.push({
+                type: 'emotional_temporal',
+                score: contextScore,
+                emotional: emotionalContext,
+                temporal: temporalContext
+              });
+            }
+
+            // Layer 5: イレギュラー調整
+            score += score * irregularFlags.total_weight_adjustment;
+
+            if (score > 0) {
+              results.push({
+                lineData: lineData,
+                score: score,
+                matchDetails: matchDetails,
+                confidence: Math.min(0.95, Math.max(0.3, score / 100))
+              });
+            }
+          });
+
+          // スコア順でソート
+          results.sort((a, b) => b.score - a.score);
+          return results.slice(0, 10); // 上位10候補を返す
+        }
+
+        /**
+         * 統合スコアリング
+         */
+        calculateIntegratedScore(matchingResults, contextType, irregularFlags, expandedKeywords) {
+          if (matchingResults.length === 0) {
+            return this.generateFallbackResult(contextType, irregularFlags);
+          }
+
+          const topResult = matchingResults[0];
+          const secondResult = matchingResults[1];
+
+          // 信頼度の調整
+          let confidence = topResult.confidence;
+          
+          // コンテキスト重み調整
+          const contextConfig = ENHANCED_CONTEXT_TYPES[contextType];
+          if (contextConfig) {
+            confidence *= contextConfig.weight;
+            confidence += contextConfig.confidence_boost;
+          }
+
+          // 僅差判定（代替候補が非常に近い場合）
+          if (secondResult && topResult.score - secondResult.score < 5) {
+            confidence *= 0.8; // 僅差の場合は信頼度を下げる
+          }
+
+          // イレギュラー調整による信頼度補正
+          if (irregularFlags.severity === 'high') {
+            confidence *= 0.7;
+          } else if (irregularFlags.severity === 'medium') {
+            confidence *= 0.85;
+          }
+
+          // 最終的な信頼度調整
+          confidence = Math.min(0.95, Math.max(0.3, confidence));
+
+          return {
+            hexagram: topResult.lineData?.卦番号,
+            line: topResult.lineData?.爻番号,
+            confidence: confidence,
+            score: topResult.score,
+            method: "integrated_analysis",
+            lineData: topResult.lineData,
+            contextType: contextType,
+            matchDetails: topResult.matchDetails,
+            expandedKeywords: expandedKeywords,
+            irregularFlags: irregularFlags
+          };
+        }
+
+        /**
+         * 代替候補生成
+         */
+        generateAlternatives(matchingResults, primaryResult) {
+          return matchingResults
+            .slice(1, 4) // 2-4位の候補
+            .filter(result => result.confidence > 0.4) // 一定以上の信頼度
+            .map(result => ({
+              hexagram: result.lineData?.卦番号,
+              line: result.lineData?.爻番号,
+              confidence: result.confidence,
+              score: result.score,
+              reason: this.generateAlternativeReason(result, primaryResult)
+            }));
+        }
+
+        generateAlternativeReason(alternative, primary) {
+          const scoreDiff = primary.score - alternative.score;
+          if (scoreDiff < 10) {
+            return '主要候補と僅差のため、併せて検討することをお勧めします';
+          } else if (alternative.matchDetails.dynamicMatches.length > 0) {
+            return '関連キーワードでの一致が見つかりました';
+          } else if (alternative.matchDetails.contextMatches.length > 0) {
+            return 'コンテキスト的な関連性があります';
+          }
+          return '参考候補として検討してください';
+        }
+
+        /**
+         * 詳細根拠生成
+         */
+        generateDetailedReasoning(result, contextType, irregularFlags) {
+          const reasons = [];
+          const contextName = ENHANCED_CONTEXT_TYPES[contextType]?.name || contextType;
+
+          reasons.push(`コンテキスト分析: 「${contextName}」として判定`);
+
+          if (result.matchDetails.keywordMatches.length > 0) {
+            const keywords = result.matchDetails.keywordMatches.map(m => m.keyword).join(', ');
+            reasons.push(`キーワード一致: ${keywords}`);
+          }
+
+          if (result.matchDetails.dynamicMatches.length > 0) {
+            reasons.push(`関連語展開: ${result.matchDetails.dynamicMatches.length}個の関連語で一致`);
+          }
+
+          if (result.matchDetails.patternMatches.length > 0) {
+            reasons.push(`パターン一致: ${result.matchDetails.patternMatches.length}個の表現パターンで一致`);
+          }
+
+          if (irregularFlags.severity !== 'low') {
+            reasons.push(`入力品質調整: ${irregularFlags.severity}レベルの調整を適用`);
+          }
+
+          reasons.push(`最終信頼度: ${Math.round(result.confidence * 100)}%`);
+
+          return reasons.join(' | ');
+        }
+
+        /**
+         * フォールバック結果生成
+         */
+        generateFallbackResult(contextType, irregularFlags) {
+          console.warn('統合分析でマッチなし、フォールバック結果を生成');
+          
+          // コンテキストに応じたデフォルト卦を選択
+          const defaultHexagrams = {
+            personal: { hexagram: 1, line: 1 }, // 乾為天 初九
+            social: { hexagram: 2, line: 1 },    // 坤為地 初六
+            relationship: { hexagram: 31, line: 1 }, // 沢山咸 初六
+            business: { hexagram: 14, line: 1 },     // 火天大有 初九
+            philosophical: { hexagram: 1, line: 1 }, // 乾為天 初九
+            technical: { hexagram: 32, line: 1 },    // 雷風恒 初六
+            temporal: { hexagram: 49, line: 1 },     // 沢火革 初九
+            hybrid: { hexagram: 64, line: 1 }        // 火水未済 初六
+          };
+
+          const fallback = defaultHexagrams[contextType] || defaultHexagrams.hybrid;
+
+          return {
+            hexagram: fallback.hexagram,
+            line: fallback.line,
+            confidence: 0.3,
+            score: 0,
+            method: "fallback_integrated",
+            contextType: contextType,
+            reasoning: `統合分析で明確なマッチが見つからなかったため、${ENHANCED_CONTEXT_TYPES[contextType]?.name || contextType}に適したデフォルト卦を選択`,
+            alternatives: [],
+            irregularFlags: irregularFlags
+          };
+        }
+      }
+
       // ===== 高度分析システム (Advanced Analysis System) =====
       
       /**
