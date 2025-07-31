@@ -3160,6 +3160,290 @@
         }
       }
 
+      // ===== イレギュラー検出システム (Irregular Pattern Detection System) =====
+      
+      /**
+       * 入力テキストの異常パターンを検出し、精度向上のためのアドバイスを提供
+       */
+      class IrregularPatternDetector {
+        constructor() {
+          this.patterns = this.initializePatterns();
+        }
+
+        initializePatterns() {
+          return {
+            emotional_extreme: {
+              too_emotional_positive: {
+                pattern: /[！]{2,}|[？]{2,}|[最超].{0,5}[高良好]/g,
+                weight: -0.1,
+                message: '感情表現が強すぎる可能性があります。より具体的な状況を追加すると精度が向上します。'
+              },
+              too_emotional_negative: {
+                pattern: /[死殺絶最].{0,5}[対悪険]|やばい.{0,5}[死終]|[終死].{0,5}わった/g,
+                weight: -0.15,
+                message: '極端な表現が含まれています。状況をより客観的に表現すると精度が向上します。'
+              },
+              too_cold: {
+                pattern: /^[。、\s]*[である|だ|です|ます|なる|いる|ある][。、\s]*$/,
+                weight: -0.05,
+                message: '感情的ニュアンスが少ない可能性があります。感じていることも追加してみてください。'
+              },
+              excessive_caps: {
+                pattern: /[A-Z]{4,}/g,
+                weight: -0.08,
+                message: '大文字が多用されています。通常の表記にすると分析しやすくなります。'
+              }
+            },
+
+            language_patterns: {
+              too_short: {
+                condition: (text) => text.length < 10,
+                weight: -0.2,
+                message: '入力が短すぎます。「なぜ」「どのような状況で」を追加すると精度が大幅に向上します。'
+              },
+              too_long: {
+                condition: (text) => text.length > 1000,
+                weight: -0.1,
+                message: '入力が長すぎます。最も重要な問題に絞ると精度が向上します。'
+              },
+              dialect_heavy: {
+                pattern: /[だっ][べぺ]|やん|やね|だに|じゃけん|だっちゃ|ずら|べさ/g,
+                weight: -0.05,
+                message: '方言が多く含まれています。標準語での表現も併記すると分析精度が向上します。'
+              },
+              slang_heavy: {
+                pattern: /やばい|まじ|うざい|きもい|むかつく|うぜー|だりー|めんどい/g,
+                weight: -0.05,
+                message: '俗語が多く含まれています。より具体的な表現にすると分析精度が向上します。'
+              },
+              repetitive_words: {
+                condition: (text) => {
+                  const words = text.split(/\s+/);
+                  const wordCount = {};
+                  words.forEach(word => wordCount[word] = (wordCount[word] || 0) + 1);
+                  return Object.values(wordCount).some(count => count > 3);
+                },
+                weight: -0.03,
+                message: '同じ単語の繰り返しが多くあります。多様な表現を使うと分析精度が向上します。'
+              }
+            },
+
+            content_patterns: {
+              too_abstract: {
+                condition: (text) => {
+                  const abstractWords = ['存在', '本質', '真理', '意味', '価値', '理念', '哲学', '思想', '精神', '魂'];
+                  const concreteWords = ['会社', '家', '人', '時間', 'お金', '仕事', '家族', '友人', '学校', '病院'];
+                  const abstractCount = abstractWords.filter(w => text.includes(w)).length;
+                  const concreteCount = concreteWords.filter(w => text.includes(w)).length;
+                  return abstractCount > 2 && concreteCount === 0;
+                },
+                weight: -0.1,
+                message: '抽象的すぎます。「いつ」「どこで」「誰と」などの具体例を追加すると精度が向上します。'
+              },
+              too_concrete: {
+                condition: (text) => {
+                  const properNouns = text.match(/[A-Z][a-z]+|[一-龯]{3,}[会社株式会社]/g) || [];
+                  return properNouns.length > text.length / 15;
+                },
+                weight: -0.08,
+                message: '固有名詞が多すぎます。一般的な表現で言い換えると分析精度が向上します。'
+              },
+              time_unclear: {
+                pattern: /いつも|よく|たまに|時々|.{0,5}[時期頃ころ]|前から|最近/g,
+                weight: -0.03,
+                message: '時間的な文脈が曖昧です。「3ヶ月前から」「毎日」など具体的にすると精度が向上します。'
+              },
+              no_emotion_context: {
+                condition: (text) => {
+                  const emotionWords = ['感じ', '思う', '気持ち', '気分', '心', '不安', '嬉しい', '悲しい', '怒り', '喜び'];
+                  return text.length > 50 && emotionWords.filter(w => text.includes(w)).length === 0;
+                },
+                weight: -0.05,
+                message: '感情表現が少ないです。「どう感じているか」を追加すると分析精度が向上します。'
+              },
+              question_heavy: {
+                pattern: /[？?]{1,}/g,
+                condition: (text) => {
+                  const questionMarks = (text.match(/[？?]/g) || []).length;
+                  return questionMarks > 3;
+                },
+                weight: -0.07,
+                message: '疑問が多すぎます。最も重要な問題を1つに絞ると分析精度が向上します。'
+              }
+            },
+
+            context_patterns: {
+              mixed_languages: {
+                pattern: /[a-zA-Z]{3,}.{0,5}[ひらがなカタカナ一-龯]/g,
+                weight: -0.03,
+                message: '言語が混在しています。日本語で統一すると分析精度が向上します。'
+              },
+              professional_jargon: {
+                pattern: /KPI|ROI|PDCA|OKR|SLA|API|UI|UX|MVP|POC/g,
+                weight: -0.02,
+                message: '専門用語が多く含まれています。一般的な表現での説明も追加すると精度が向上します。'
+              },
+              contradictions: {
+                condition: (text) => {
+                  const positive = ['良い', '嬉しい', '楽しい', '満足', '成功'];
+                  const negative = ['悪い', '悲しい', 'つらい', '不満', '失敗'];
+                  const hasPositive = positive.some(w => text.includes(w));
+                  const hasNegative = negative.some(w => text.includes(w));
+                  return hasPositive && hasNegative && text.length < 100;
+                },
+                weight: -0.05,
+                message: '相反する表現が含まれています。状況をより詳しく説明すると分析精度が向上します。'
+              }
+            }
+          };
+        }
+
+        detect(text) {
+          const flags = {
+            emotional: [],
+            language: [],
+            content: [],
+            context: [],
+            total_weight_adjustment: 0,
+            messages: [],
+            severity: 'low' // low, medium, high
+          };
+
+          let issueCount = 0;
+          let totalWeightPenalty = 0;
+
+          // 感情パターン検出
+          Object.entries(this.patterns.emotional_extreme).forEach(([key, pattern]) => {
+            let detected = false;
+            
+            if (pattern.pattern && pattern.pattern.test(text)) {
+              detected = true;
+            } else if (pattern.condition && pattern.condition(text)) {
+              detected = true;
+            }
+            
+            if (detected) {
+              flags.emotional.push(key);
+              flags.total_weight_adjustment += pattern.weight;
+              flags.messages.push(pattern.message);
+              totalWeightPenalty += Math.abs(pattern.weight);
+              issueCount++;
+            }
+          });
+
+          // 言語パターン検出
+          Object.entries(this.patterns.language_patterns).forEach(([key, pattern]) => {
+            let detected = false;
+            
+            if (pattern.condition && pattern.condition(text)) {
+              detected = true;
+            } else if (pattern.pattern && pattern.pattern.test(text)) {
+              detected = true;
+            }
+            
+            if (detected) {
+              flags.language.push(key);
+              flags.total_weight_adjustment += pattern.weight;
+              flags.messages.push(pattern.message);
+              totalWeightPenalty += Math.abs(pattern.weight);
+              issueCount++;
+            }
+          });
+
+          // 内容パターン検出
+          Object.entries(this.patterns.content_patterns).forEach(([key, pattern]) => {
+            let detected = false;
+            
+            if (pattern.condition && pattern.condition(text)) {
+              detected = true;
+            } else if (pattern.pattern && pattern.pattern.test(text)) {
+              detected = true;
+            }
+            
+            if (detected) {
+              flags.content.push(key);
+              flags.total_weight_adjustment += pattern.weight;
+              flags.messages.push(pattern.message);
+              totalWeightPenalty += Math.abs(pattern.weight);
+              issueCount++;
+            }
+          });
+
+          // コンテキストパターン検出
+          Object.entries(this.patterns.context_patterns).forEach(([key, pattern]) => {
+            let detected = false;
+            
+            if (pattern.condition && pattern.condition(text)) {
+              detected = true;
+            } else if (pattern.pattern && pattern.pattern.test(text)) {
+              detected = true;
+            }
+            
+            if (detected) {
+              flags.context.push(key);
+              flags.total_weight_adjustment += pattern.weight;
+              flags.messages.push(pattern.message);
+              totalWeightPenalty += Math.abs(pattern.weight);
+              issueCount++;
+            }
+          });
+
+          // 深刻度レベル判定
+          if (totalWeightPenalty > 0.3 || issueCount > 5) {
+            flags.severity = 'high';
+          } else if (totalWeightPenalty > 0.15 || issueCount > 2) {
+            flags.severity = 'medium';
+          }
+
+          // 重複メッセージ除去と優先度付け
+          flags.messages = [...new Set(flags.messages)].slice(0, 3); // 最大3つまで
+
+          return flags;
+        }
+
+        generateInputAdvice(flags) {
+          if (flags.messages.length === 0) {
+            return {
+              show: false,
+              title: '',
+              content: '',
+              priority: 'low'
+            };
+          }
+
+          const severityConfig = {
+            high: {
+              title: '⚠️ 分析精度向上のための重要な改善提案',
+              color: 'text-red-400',
+              bgColor: 'bg-red-900/20 border-red-600/30'
+            },
+            medium: {
+              title: '💡 分析精度向上のための改善提案',  
+              color: 'text-yellow-400',
+              bgColor: 'bg-yellow-900/20 border-yellow-600/30'
+            },
+            low: {
+              title: 'ℹ️ より良い分析のためのヒント',
+              color: 'text-blue-400', 
+              bgColor: 'bg-blue-900/20 border-blue-600/30'
+            }
+          };
+
+          const config = severityConfig[flags.severity];
+          const content = flags.messages.map(msg => `• ${msg}`).join('\n');
+
+          return {
+            show: true,
+            title: config.title,
+            content: content,
+            priority: flags.severity,
+            color: config.color,
+            bgColor: config.bgColor,
+            flags: flags
+          };
+        }
+      }
+
       // ===== 高度分析システム (Advanced Analysis System) =====
       
       /**
