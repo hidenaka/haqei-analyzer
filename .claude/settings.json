@@ -1,34 +1,15 @@
 {
   "hooks": {
-    "SubagentStop": [
+    "PostToolUse": [
       {
-        "name": "auto-documentation-on-implementation-complete",
-        "command": "/Users/hideakimacbookair/Desktop/haqei-analyzer/.claude/scripts/generate_implementation_docs.sh",
-        "timeout": 300000,
-        "tools": ["Task"],
-        "subagent_types": ["haqei-programmer"]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "name": "auto-requirements-on-implementation-start", 
-        "command": "/Users/hideakimacbookair/Desktop/haqei-analyzer/.claude/scripts/generate_requirements_docs.sh",
-        "timeout": 300000,
-        "tools": ["Task"],
-        "prompt_patterns": ["実装", "機能追加", "バグ修正", "プログラマー", "haqei-programmer"]
-      },
-      {
-        "name": "enforce-research-before-implementation",
-        "command": "/Users/hideakimacbookair/Desktop/haqei-analyzer/.claude/scripts/enforce_workflow.sh",
-        "timeout": 30000,
-        "prompt_patterns": ["実装", "作成", "修正", "追加", "変更"]
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo Done"
+          }
+        ]
       }
     ]
-  },
-  "workflow": {
-    "enforceResearch": true,
-    "requirePlanPresentation": true,
-    "testDrivenDevelopment": true,
-    "cleanCodeStandards": true
   }
 }
