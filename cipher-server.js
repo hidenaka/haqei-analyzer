@@ -5,7 +5,7 @@
  * Bunenjin Philosophy + Dual Memory Layer
  */
 
-import { Cipher } from '@byterover/cipher';
+import { MemAgent, createLogger } from '@byterover/cipher/core';
 import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -16,7 +16,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 class HAQEICipherServer {
   constructor() {
     this.config = this.loadConfig();
-    this.cipher = null;
+    this.memAgent = null;
+    this.logger = createLogger({ level: 'info' });
   }
 
   loadConfig() {
@@ -32,7 +33,10 @@ class HAQEICipherServer {
 
   getDefaultConfig() {
     return {
-      server: { port: 3001, host: 'localhost' },
+      server: { 
+        port: process.env.CIPHER_PORT || 3001, 
+        host: process.env.CIPHER_HOST || 'localhost' 
+      },
       memory: { enabled: true, provider: 'local', persistent: true },
       storage: { type: 'file', path: './data/cipher-memory' },
       logging: { level: 'info', file: './logs/cipher.log' }
@@ -41,9 +45,10 @@ class HAQEICipherServer {
 
   async initialize() {
     try {
-      // Initialize Cipher with HAQEI-specific context
-      this.cipher = new Cipher({
-        ...this.config,
+      // Initialize MemAgent with HAQEI-specific context
+      this.memAgent = new MemAgent({
+        name: 'HAQEI-Analyzer',
+        description: 'HAQEI bunenjin philosophy memory agent',
         context: {
           project: 'HAQEI Analyzer',
           philosophy: 'bunenjin',
@@ -55,28 +60,28 @@ class HAQEICipherServer {
             'Local Storage Complete',
             'Transparency Engine'
           ]
-        }
+        },
+        logger: this.logger
       });
 
-      await this.cipher.start();
-      
-      console.log(`🔮 HAQEI Cipher Server started on ${this.config.server.host}:${this.config.server.port}`);
-      console.log('📊 Dual Memory Layer: Programming Concepts + Reasoning Steps');
-      console.log('🎯 Bunenjin Philosophy Integration: Active');
-      console.log('🛡️  Privacy Level: Maximum (Local Storage Only)');
+      this.logger.info(`🔮 HAQEI Cipher Server started on ${this.config.server.host}:${this.config.server.port}`);
+      this.logger.info('📊 Dual Memory Layer: Programming Concepts + Reasoning Steps');
+      this.logger.info('🎯 Bunenjin Philosophy Integration: Active');
+      this.logger.info('🛡️  Privacy Level: Maximum (Local Storage Only)');
       
       return true;
     } catch (error) {
-      console.error('Failed to initialize Cipher server:', error);
+      this.logger.error('Failed to initialize Cipher server:', error);
       return false;
     }
   }
 
   async storeBunenjinContext(context) {
-    if (!this.cipher) return false;
+    if (!this.memAgent) return false;
     
     try {
-      await this.cipher.store({
+      // MemAgentを使用してコンテキストを保存
+      await this.memAgent.addMemory({
         type: 'bunenjin-philosophy',
         content: context,
         tags: ['philosophy', 'core-principles', 'triple-os'],
@@ -84,29 +89,27 @@ class HAQEICipherServer {
       });
       return true;
     } catch (error) {
-      console.error('Failed to store bunenjin context:', error);
+      this.logger.error('Failed to store bunenjin context:', error);
       return false;
     }
   }
 
   async retrieveContext(query) {
-    if (!this.cipher) return null;
+    if (!this.memAgent) return null;
     
     try {
-      return await this.cipher.retrieve({
-        query,
+      return await this.memAgent.queryMemory(query, {
         contexts: ['bunenjin-philosophy', 'iching-logic', 'implementation-patterns']
       });
     } catch (error) {
-      console.error('Failed to retrieve context:', error);
+      this.logger.error('Failed to retrieve context:', error);
       return null;
     }
   }
 
   async shutdown() {
-    if (this.cipher) {
-      await this.cipher.stop();
-      console.log('🔮 HAQEI Cipher Server stopped');
+    if (this.memAgent) {
+      this.logger.info('🔮 HAQEI Cipher Server stopped');
     }
   }
 }

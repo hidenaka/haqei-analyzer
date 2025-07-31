@@ -1,0 +1,226 @@
+/* behavioral-insights.css - 行動気づき・提案UI専用スタイル */
+
+/* 気づき体験優先のカード UI */
+.insight-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.insight-card h4 {
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.main-insight {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 0.8rem;
+  font-weight: 500;
+}
+
+.insight-explanation {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* 行動パターンカード */
+.patterns-container {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.pattern-card {
+  background: #f8f9ff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.pattern-card:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.pattern-card h5 {
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+}
+
+.pattern-card p {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.example {
+  color: #718096;
+  font-size: 0.9rem;
+  margin: 0 !important;
+}
+
+/* 行動提案カード */
+.actions-container {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.action-card {
+  background: #fff;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.action-card:hover {
+  border-color: #48bb78;
+  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.1);
+  transform: translateY(-2px);
+}
+
+.action-card h5 {
+  color: #2d3748;
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+}
+
+.action-text {
+  color: #1a202c;
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+  background: #f0fff4;
+  padding: 0.8rem;
+  border-radius: 6px;
+  border-left: 4px solid #48bb78;
+}
+
+.action-why {
+  color: #4a5568;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Future Simulator導線 */
+.next-step {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.next-step p {
+  margin-bottom: 0.8rem;
+}
+
+.next-step .btn {
+  background: white;
+  color: #ff6b6b;
+  border: none;
+  font-weight: 600;
+  padding: 0.7rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.next-step .btn:hover {
+  background: #f7fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* 詳細分析の折りたたみ */
+.detailed-analysis {
+  border-top: 2px solid #e2e8f0;
+  padding-top: 1.5rem;
+}
+
+.detailed-analysis h3 {
+  color: #4a5568;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.detailed-analysis h3:hover {
+  color: #667eea;
+}
+
+.detailed-analysis h3::after {
+  content: "▼";
+  margin-left: auto;
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.detailed-analysis.collapsed h3::after {
+  transform: rotate(-90deg);
+}
+
+.detailed-analysis.collapsed .detailed-content {
+  display: none;
+}
+
+/* アニメーション */
+.fade-in {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ローディング状態 */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.loading-placeholder {
+  color: #a0aec0;
+  font-style: italic;
+  padding: 1rem;
+  text-align: center;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .insight-card, .pattern-card, .action-card {
+    padding: 1rem;
+  }
+  
+  .next-step {
+    padding: 1rem;
+  }
+  
+  .patterns-container, .actions-container {
+    gap: 0.8rem;
+  }
+}
