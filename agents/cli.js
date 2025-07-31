@@ -11,6 +11,16 @@ const fs = require('fs').promises;
 const path = require('path');
 const readline = require('readline');
 
+// フロントエンドデベロッパーエージェント統合（ES Modules対応）
+let HAQEIFrontendDeveloper;
+async function loadFrontendDeveloper() {
+    if (!HAQEIFrontendDeveloper) {
+        const module = await import('./haqei-frontend-developer.js');
+        HAQEIFrontendDeveloper = module.default;
+    }
+    return HAQEIFrontendDeveloper;
+}
+
 // CLI設定
 program
     .name('haqei-feedback')
@@ -174,19 +184,140 @@ program
         }
     });
 
+// フロントエンドデザイン分析コマンド
+program
+    .command('frontend')
+    .alias('ui')
+    .description('フロントエンド・UI/UX分析を実行')
+    .option('-f, --feature <name>', '機能名', 'default-feature')
+    .option('-t, --type <type>', '分析タイプ (uiux|component|audit|performance)', 'uiux')
+    .option('--component <name>', 'コンポーネント名（component/audit用）')
+    .option('--device <device>', 'デバイスタイプ (mobile|tablet|desktop)', 'mobile')
+    .option('--save', 'レポートを保存', true)
+    .action(async (options) => {
+        try {
+            console.log(`🎨 HAQEIフロントエンド分析を開始します: ${options.type}\n`);
+            
+            const FrontendDeveloper = await loadFrontendDeveloper();
+            const frontendDev = new FrontendDeveloper();
+            
+            let result;
+            
+            switch (options.type) {
+                case 'uiux':
+                    result = frontendDev.analyzeUIUXRequirements(options.feature, {
+                        device: options.device,
+                        context: 'haqei-analysis'
+                    });
+                    console.log(`✅ UI/UX分析完了 - Primary OS: ${result.tripleOSMapping.primaryOS}`);
+                    break;
+                    
+                case 'component':
+                    const componentName = options.component || 'DefaultComponent';
+                    result = frontendDev.designComponent(componentName, {
+                        accessibility: 'high',
+                        responsive: true
+                    });
+                    console.log(`✅ コンポーネント設計完了: ${componentName}`);
+                    break;
+                    
+                case 'audit':
+                    const auditTarget = options.component || 'DefaultComponent';
+                    result = frontendDev.auditAccessibility(auditTarget);
+                    console.log(`✅ アクセシビリティ監査完了 - スコア: ${result.score}/100`);
+                    break;
+                    
+                case 'performance':
+                    result = frontendDev.optimizePerformance(options.feature);
+                    console.log(`✅ パフォーマンス最適化完了`);
+                    break;
+                    
+                default:
+                    console.log(`❌ 不明な分析タイプ: ${options.type}`);
+                    return;
+            }
+            
+            if (options.save) {
+                const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                const fileName = `${timestamp}_FRONTEND_${options.type}_${options.feature}_分析レポート.json`;
+                const filePath = `./docs/reports/${fileName}`;
+                
+                await fs.writeFile(filePath, JSON.stringify(result, null, 2), 'utf-8');
+                console.log(`📄 分析レポート保存: ${filePath}`);
+            }
+            
+        } catch (error) {
+            console.error(`❌ フロントエンド分析エラー: ${error.message}`);
+            process.exit(1);
+        }
+    });
+
+// デザインシステム生成コマンド  
+program
+    .command('designsystem')
+    .alias('ds')
+    .description('HAQEIデザインシステムを生成')
+    .option('--save', 'ドキュメントを保存', true)
+    .action(async (options) => {
+        try {
+            console.log('🎨 HAQEIデザインシステム生成を開始します...\n');
+            
+            const FrontendDeveloper = await loadFrontendDeveloper();
+            const frontendDev = new FrontendDeveloper();
+            
+            const designSystem = frontendDev.buildDesignSystem();
+            const recommendations = frontendDev.generateImplementationRecommendations({
+                feature: 'design-system',
+                context: 'full-system'
+            });
+            
+            console.log('✅ デザインシステム生成完了');
+            console.log(`   トークン: ${Object.keys(designSystem.tokens).join(', ')}`);
+            console.log(`   コンポーネント階層: ${Object.keys(designSystem.components).join(' → ')}`);
+            
+            if (options.save) {
+                const timestamp = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                
+                // デザインシステムドキュメント
+                const dsFileName = `${timestamp}_DESIGN_SYSTEM_HAQEIデザインシステム.json`;
+                const dsFilePath = `./docs/development/${dsFileName}`;
+                await fs.writeFile(dsFilePath, JSON.stringify(designSystem, null, 2), 'utf-8');
+                
+                // 実装推奨事項
+                const recFileName = `${timestamp}_FRONTEND_実装推奨事項.json`;
+                const recFilePath = `./docs/implementation/${recFileName}`;
+                await fs.writeFile(recFilePath, JSON.stringify(recommendations, null, 2), 'utf-8');
+                
+                console.log(`📄 デザインシステム保存: ${dsFilePath}`);
+                console.log(`📄 実装推奨事項保存: ${recFilePath}`);
+            }
+            
+        } catch (error) {
+            console.error(`❌ デザインシステム生成エラー: ${error.message}`);
+            process.exit(1);
+        }
+    });
+
 // テストコマンド
 program
     .command('test')
     .description('システムテストを実行')
     .option('--performance', 'パフォーマンステストも実行')
+    .option('--frontend', 'フロントエンドテストも実行')
     .action(async (options) => {
         try {
-            console.log('🧪 HAQEIフィードバックシステムテストを開始します...\n');
+            console.log('🧪 HAQEIシステムテストを開始します...\n');
             
+            // フィードバックシステムテスト
             const testModule = require('./test-feedback-workflow');
-            
-            // 基本テスト
             await testModule.runWorkflowTest();
+            
+            // フロントエンドテスト（オプション）
+            if (options.frontend) {
+                console.log('\n🎨 フロントエンドテストを実行中...');
+                const frontendTestModule = await import('./test-frontend-developer.js');
+                await frontendTestModule.testFrontendDeveloper();
+            }
             
             // パフォーマンステスト（オプション）
             if (options.performance) {
@@ -208,16 +339,26 @@ program.on('--help', () => {
     console.log('  $ haqei-feedback demo                    # デモ実行');
     console.log('  $ haqei-feedback interactive             # インタラクティブモード');
     console.log('  $ haqei-feedback evaluate -f "新機能"   # 機能評価');
+    console.log('  $ haqei-feedback frontend -f "分析画面" # UI/UX分析');
+    console.log('  $ haqei-feedback designsystem           # デザインシステム生成');
     console.log('  $ haqei-feedback status                  # システム状態');
-    console.log('  $ haqei-feedback test                    # システムテスト');
+    console.log('  $ haqei-feedback test --frontend        # 全システムテスト');
     console.log('');
-    console.log('HAQEIフィードバックシステムについて:');
+    console.log('HAQEIシステムについて:');
     console.log('  このシステムは、HAQEI独自の3つの人格システム理論に基づき、');
     console.log('  実装内容を多角的に評価し、具体的な改善提案を生成します。');
     console.log('');
     console.log('  🧠 Engine OS - 価値観・本質重視の評価');
     console.log('  🤝 Interface OS - 実用性・使いやすさ重視の評価');
     console.log('  🛡️ Safe Mode OS - 安全性・信頼性重視の評価');
+    console.log('');
+    console.log('フロントエンド機能:');
+    console.log('  🎨 UI/UX設計分析 - Triple OS哲学に基づく設計');
+    console.log('  🧩 コンポーネント設計 - アクセシビリティ重視');
+    console.log('  ♿ A11y監査 - WCAG AA準拠チェック');
+    console.log('  ⚡ パフォーマンス最適化 - Core Web Vitals対応');
+    console.log('  📱 レスポンシブ設計 - モバイルファースト');
+    console.log('  🎯 デザインシステム - 一貫性のある設計言語');
     console.log('');
 });
 

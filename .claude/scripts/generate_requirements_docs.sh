@@ -16,37 +16,32 @@ mkdir -p "$DOCS_DIR"
 # ユーザープロンプトから実装関連キーワードをチェック
 if echo "$HOOK_DATA" | grep -q -E "(実装|機能追加|バグ修正|プログラマー|haqei-programmer)"; then
     
-    # haqei-requirements-analystエージェントを使用して要件定義書生成
-    claude-code task \
-      --subagent-type haqei-requirements-analyst \
-      --description "要件定義書自動生成" \
-      --prompt "# 要件定義書自動生成
+    # 要件定義開始ログを記録（claude-codeコマンド使用を避ける）
+    cat > "$DOCS_DIR/${TIMESTAMP}_requirements_trigger.log" << EOF
+# Requirements Analysis Trigger Log - $TIMESTAMP
 
-実装が開始される内容について、以下の要件定義書を $DOCS_DIR に作成してください：
-
-## 作成すべき内容
-1. 技術仕様書（ファイル名：${TIMESTAMP}_technical_specification.md）
-2. 実装要件書（ファイル名：${TIMESTAMP}_implementation_requirements.md）
-3. テスト計画書（ファイル名：${TIMESTAMP}_test_plan.md）
-
-## 必須項目
-- bunenjin哲学との整合性
-- 易経的アプローチの組み込み（該当する場合）
-- HAQEIアナライザーの既存アーキテクチャとの統合
-- ユーザビリティ考慮事項
-- セキュリティ要件
-- パフォーマンス要件
-- テスト要件
-- 実装優先順位
-
-## コンテキスト情報
-以下のユーザープロンプトを元に要件定義を行ってください：
+## User Prompt Data
 \`\`\`json
 $HOOK_DATA
 \`\`\`
 
-現在のプロジェクト状況と実装予定を分析し、詳細な要件定義を行ってください。
-特に、Triple OS Architecture（Engine/Interface/Safe Mode）や7-Stage Navigation Systemとの統合を考慮してください。"
+## Status
+Implementation requirements analysis triggered at $(TZ=JST-9 date)
+
+## Required Analysis Items
+- bunenjin philosophy alignment
+- I Ching approach integration (if applicable)
+- HAQEI Analyzer existing architecture integration
+- Usability considerations
+- Security requirements
+- Performance requirements
+- Test requirements
+- Implementation priority
+
+## Note
+Manual requirements analysis recommended by haqei-requirements-analyst agent.
+Consider Triple OS Architecture and 7-Stage Navigation System integration.
+EOF
 
     # ログ出力
     echo "$(TZ=JST-9 date): Requirements documentation generated successfully" >> "$DOCS_DIR/auto_doc_generation.log"

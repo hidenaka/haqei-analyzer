@@ -229,15 +229,24 @@ class TripleOSEngine {
         throw new Error("Vector data not available");
       }
 
-      const candidates = this.calculator.analyzeOSCandidates(
+      const result = this.calculator.analyzeOSCandidates(
         userVector,
-        vectorsData
+        vectorsData,
+        'engine'
       );
+      
+      // 新旧両形式に対応（後方互換性を保持）
+      const candidates = result.candidates || result;
+      const statisticalInfo = result.statistics || null;
+      
       console.log(
         "📊 candidates:",
         candidates ? candidates.length : "null",
         "found"
       );
+      if (statisticalInfo) {
+        console.log("📊 統計情報:", statisticalInfo);
+      }
       if (candidates && candidates.length > 0) {
         console.log("📊 top candidate:", candidates[0]);
       }
