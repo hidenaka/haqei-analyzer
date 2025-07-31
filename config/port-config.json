@@ -1,0 +1,30 @@
+{
+  "applications": {
+    "os-analyzer": {
+      "defaultPort": 8001,
+      "fallbackPorts": [8002, 8003, 8004, 8005],
+      "description": "HAQEI OS Analyzer - Triple OS Architecture Analysis"
+    },
+    "future-simulator": {
+      "defaultPort": 8788,
+      "fallbackPorts": [8789, 8790, 8791, 8792],
+      "description": "HAQEI Future Simulator - Strategic Cockpit Interface"
+    },
+    "cipher-server": {
+      "defaultPort": 3001,
+      "fallbackPorts": [3002, 3003, 3004, 3005],
+      "description": "Cipher Memory Server - Dual Memory Layer"
+    }
+  },
+  "environment": {
+    "development": {
+      "autoPortDetection": true,
+      "portRange": [8000, 9000],
+      "reservedPorts": [8080, 8443]
+    },
+    "production": {
+      "autoPortDetection": false,
+      "enforceDefaultPorts": true
+    }
+  }
+}
