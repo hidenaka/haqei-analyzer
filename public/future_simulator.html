@@ -4256,35 +4256,40 @@
       // グローバル高度分析エンジンインスタンス
       let advancedEngine = null;
 
+      // グローバル統合分析エンジンインスタンス
+      let integratedEngine = null;
+
       async function callAIAssistant(worryText, h384Data, futureThemeMap, contextType = 'personal') {
         if (!kuromojiTokenizer) { 
-          showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">AI準備中</h2><p>AIの言語解析エンジンの準備がまだ完了していません。</p>`); 
+          showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">🔄 AI準備中</h2><p>AIの言語解析エンジンの準備がまだ完了していません。しばらくお待ちください。</p>`); 
           return null; 
         }
 
-        // 高度分析エンジンを初期化（初回のみ）
-        if (!advancedEngine) {
-          advancedEngine = new AdvancedAnalysisEngine();
+        // 統合分析エンジンを初期化（初回のみ）
+        if (!integratedEngine) {
+          console.log('🚀 統合分析エンジンを初期化中...');
+          integratedEngine = new IntegratedAnalysisEngine(kuromojiTokenizer);
         }
 
         try {
-          // 高度分析システムを使用
-          const analysisResults = await advancedEngine.performTieredAnalysis(
+          console.log('🎯 統合分析開始:', { textLength: worryText.length, contextType });
+
+          // 統合分析システムを使用
+          const analysisResult = await integratedEngine.performIntegratedAnalysis(
             worryText, h384Data, futureThemeMap, contextType
           );
 
-          if (!analysisResults.finalResult || !analysisResults.finalResult.lineData) {
+          if (!analysisResult || !analysisResult.lineData) {
+            console.warn('統合分析結果なし、フォールバック処理');
             return null;
           }
 
-          const result = analysisResults.finalResult;
-          const line = result.lineData;
-
-          // 既存のUIに合わせた結果フォーマット
-          const confidence = result.confidence;
+          const line = analysisResult.lineData;
+          const confidence = analysisResult.confidence;
           const confidencePercent = Math.round(confidence * 100);
-          let confidenceLevel, confidenceColor;
           
+          // 信頼度レベルとカラー判定
+          let confidenceLevel, confidenceColor;
           if (confidence >= 0.8) {
             confidenceLevel = "高";
             confidenceColor = "text-green-400";
@@ -4296,66 +4301,94 @@
             confidenceColor = "text-red-400";
           }
 
-          // エビデンスベースの詳細説明を構築
-          const evidence = analysisResults.evidenceData;
-          let contextInfo = "";
+          // UX改善: 詳細根拠情報の生成
+          let contextInfo = analysisResult.reasoning || "";
           
-          // 感情分析結果
-          if (evidence.sentiment_analysis.polarity !== 'neutral') {
-            const polarityText = evidence.sentiment_analysis.polarity === 'positive' ? 'ポジティブ' : 'ネガティブ';
-            const strengthText = evidence.sentiment_analysis.strength > 0.5 ? '強い' : '軽度の';
-            contextInfo += `感情分析: ${strengthText}${polarityText}傾向を検出。`;
+          // イレギュラー検出結果による改善提案
+          let improvementAdvice = "";
+          if (analysisResult.inputAdvice && analysisResult.inputAdvice.show) {
+            improvementAdvice = `
+              <div class="mt-4 p-3 ${analysisResult.inputAdvice.bgColor} border rounded-lg">
+                <h4 class="${analysisResult.inputAdvice.color} font-medium mb-2">${analysisResult.inputAdvice.title}</h4>
+                <div class="text-sm text-gray-300">
+                  ${analysisResult.inputAdvice.content.replace(/\n/g, '<br>')}
+                </div>
+              </div>
+            `;
           }
 
-          // 処理方法の説明
-          const methodText = evidence.processing_methods.join(' + ');
-          contextInfo += `分析手法: ${methodText}。`;
-
-          // API使用状況
-          if (result.method === 'api_enhanced') {
-            contextInfo += `セマンティック類似度: ${Math.round(result.semanticScore * 100)}%。`;
+          // 代替候補の表示
+          let alternativesInfo = "";
+          if (analysisResult.alternatives && analysisResult.alternatives.length > 0) {
+            const altList = analysisResult.alternatives.map(alt => 
+              `<li class="text-sm">🔮 ${alt.hexagram}卦${alt.line}爻 (信頼度: ${Math.round(alt.confidence * 100)}%) - ${alt.reason}</li>`
+            ).join('');
+            alternativesInfo = `
+              <div class="mt-4 p-3 bg-gray-800/50 border border-gray-600 rounded-lg">
+                <h4 class="text-blue-400 font-medium mb-2">💡 代替候補</h4>
+                <ul class="text-gray-300 space-y-1">${altList}</ul>
+              </div>
+            `;
           }
 
-          // 信頼度内訳
-          const breakdown = evidence.confidence_breakdown;
-          let breakdownText = "";
-          if (breakdown.semantic_analysis) {
-            breakdownText = `(ローカル分析: ${breakdown.local_analysis}%, セマンティック分析: ${breakdown.semantic_analysis}%)`;
-          } else {
-            breakdownText = `(ローカル分析: ${breakdown.local_analysis}%)`;
-          }
-
+          // 統合分析情報の生成
           const themeData = futureThemeMap[line.通し番号];
           const mainTheme = themeData?.main_theme || "状況の理解";
+          const contextName = ENHANCED_CONTEXT_TYPES[analysisResult.contextType]?.name || analysisResult.contextType;
 
-          const reasoning = `【状況理解支援結果】${contextInfo}<br>ご入力いただいた状況は、<strong>${line["親となる卦"]} ${line.爻}</strong>の「<strong>${mainTheme}</strong>」として分析されました。<br><small class="${confidenceColor}">分析信頼度: ${confidenceLevel} ${breakdownText} (総合: ${confidencePercent}%)</small><br><small class="text-gray-400">処理時間: ${analysisResults.processingTime}ms</small>`;
+          // 統合分析に基づく詳細根拠
+          const reasoning = `
+            【🎯 統合分析結果】${contextInfo}<br>
+            📊 コンテキスト: ${contextName}<br>
+            ご入力いただいた状況は、<strong>${line["親となる卦"]} ${line.爻}</strong>の「<strong>${mainTheme}</strong>」として分析されました。<br>
+            <small class="${confidenceColor}">🔍 分析信頼度: ${confidenceLevel} (${confidencePercent}%)</small><br>
+            <small class="text-gray-400">🚀 分析手法: ${analysisResult.method}</small>
+            ${improvementAdvice}
+            ${alternativesInfo}
+          `;
 
-          // デバッグ情報をコンソールに出力
-          console.log('高度分析結果:', {
+          // コンソールログ出力
+          console.log('✅ 統合分析完了:', {
             confidence: confidencePercent,
-            method: result.method,
-            processing_time: analysisResults.processingTime,
-            evidence: evidence
+            method: analysisResult.method,
+            contextType: analysisResult.contextType,
+            alternatives: analysisResult.alternatives?.length || 0,
+            irregularFlags: analysisResult.irregularFlags
           });
 
           return {
             卦番号: line.卦番号,
-            爻番号: result.line,
+            爻番号: analysisResult.line,
             根拠: reasoning,
             信頼度: confidence,
-            解説: `易経的状況理解: ${mainTheme}の局面にあることを示しています。`,
-            analysisEvidence: evidence // 追加のエビデンスデータ
+            解説: `🔮 統合分析による状況理解: ${mainTheme}の局面にあることを示しています。`,
+            analysisResult: analysisResult // 統合分析の完全結果
           };
 
         } catch (error) {
-          console.error('高度分析エラー:', error);
-          // エラー時は基本的なフォールバック処理
+          console.error('❌ 統合分析エラー:', error);
+          
+          // エラー時のフォールバック処理
+          const fallbackContext = contextType || 'personal';
+          const fallbackHexagram = {
+            personal: { hexagram: 1, line: 1, name: '乾為天' },
+            social: { hexagram: 2, line: 1, name: '坤為地' },
+            relationship: { hexagram: 31, line: 1, name: '沢山咸' },
+            business: { hexagram: 14, line: 1, name: '火天大有' },
+            philosophical: { hexagram: 1, line: 1, name: '乾為天' },
+            technical: { hexagram: 32, line: 1, name: '雷風恒' },
+            temporal: { hexagram: 49, line: 1, name: '沢火革' },
+            hybrid: { hexagram: 64, line: 1, name: '火水未済' }
+          };
+
+          const fallback = fallbackHexagram[fallbackContext] || fallbackHexagram.personal;
+
           return {
-            卦番号: 1, // 乾卦（天）をデフォルト
-            爻番号: 1,
-            根拠: `システムエラーが発生しました。基本的な分析を提供しています。エラー詳細: ${error.message}`,
+            卦番号: fallback.hexagram,
+            爻番号: fallback.line,
+            根拠: `⚠️ システムエラーが発生したため、${ENHANCED_CONTEXT_TYPES[fallbackContext]?.name || fallbackContext}に適した基本的な分析を提供しています。<br><small class="text-red-400">エラー詳細: ${error.message}</small>`,
             信頼度: 0.3,
-            解説: "技術的な問題により詳細分析ができませんでした。",
+            解説: `${fallback.name}による基本的な状況理解を提供しています。`
           };
         }
 
