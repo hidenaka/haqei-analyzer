@@ -1005,6 +1005,11 @@ class TripleOSResultsView extends BaseComponent {
                       <p class="section-subtitle">診断結果を「答え」ではなく「問い」として活用する</p>
                   </div>
                   
+                  <!-- Phase 5.3: 実践行動ブリッジセクション -->
+                  <section class="action-bridge-section" id="action-bridge-section">
+                      <!-- ActionBridgeViewがここに挿入される -->
+                  </section>
+                  
                   <div class="critical-tabs">
                       <button class="critical-tab active" data-tab="shadow">影の探求</button>
                       <button class="critical-tab" data-tab="challenge">自己挑戦</button>
@@ -1092,6 +1097,9 @@ class TripleOSResultsView extends BaseComponent {
 
     // 6. 批判的・生産的視点カードの初期化
     await this.initializeCriticalProductiveCard();
+
+    // 7. Phase 5.3: 実践行動ブリッジの初期化
+    await this.initializeActionBridge();
 
     // 7. イベントリスナー設定
     this.bindInteractiveEventListeners();
@@ -4789,6 +4797,106 @@ class TripleOSResultsView extends BaseComponent {
         <div class="critical-thinking-error">
           <h3>⚠️ 批判的思考機能の読み込みエラー</h3>
           <p>Phase 4機能の初期化中にエラーが発生しました。ページを再読み込みしてください。</p>
+        </div>
+      `;
+    }
+  }
+
+  /**
+   * Phase 5.3: 実践行動ブリッジの初期化
+   */
+  async initializeActionBridge() {
+    console.log("🌉 [ActionBridge] Phase 5.3 実践行動ブリッジ初期化開始");
+
+    try {
+      // ActionBridgeViewが利用可能かチェック
+      if (typeof ActionBridgeView === 'undefined') {
+        console.warn("⚠️ [ActionBridge] ActionBridgeView クラスが利用できません");
+        return;
+      }
+
+      // コンテナの存在確認
+      const container = document.getElementById('action-bridge-section');
+      if (!container) {
+        console.warn("⚠️ [ActionBridge] action-bridge-section コンテナが見つかりません");
+        return;
+      }
+
+      // ActionBridgeView専用のコンテナを作成
+      const actionBridgeContainer = document.createElement('div');
+      actionBridgeContainer.id = 'action-bridge-container';
+      actionBridgeContainer.className = 'action-bridge-main-container';
+      container.appendChild(actionBridgeContainer);
+
+      // OS分析データの準備
+      const osAnalysisData = await this.prepareOSAnalysisData();
+      if (!osAnalysisData) {
+        console.warn("⚠️ [ActionBridge] OS分析データが利用できません");
+        this.renderActionBridgeError("OS分析データが不足しています");
+        return;
+      }
+
+      // ActionBridgeViewインスタンスの作成と初期化
+      this.actionBridgeView = new ActionBridgeView('action-bridge-container');
+      await this.actionBridgeView.render(osAnalysisData);
+
+      console.log("✅ [ActionBridge] Phase 5.3 実践行動ブリッジ初期化完了");
+
+    } catch (error) {
+      console.error("❌ [ActionBridge] 初期化エラー:", error);
+      this.renderActionBridgeError("実践行動ブリッジの初期化に失敗しました");
+    }
+  }
+
+  /**
+   * OS分析データの準備（ActionBridge用）
+   */
+  async prepareOSAnalysisData() {
+    try {
+      const { engineOS, interfaceOS, safeModeOS } = await this.extractTripleOSData(this.analysisResult);
+
+      if (!engineOS && !interfaceOS && !safeModeOS) {
+        console.warn("⚠️ [ActionBridge] 有効なOS分析データがありません");
+        return null;
+      }
+
+      const osAnalysisData = {
+        engine_score: engineOS?.score || 0.5,
+        interface_score: interfaceOS?.score || 0.5,
+        safemode_score: safeModeOS?.score || 0.5,
+        engineOS,
+        interfaceOS,
+        safeModeOS,
+        timestamp: new Date().toISOString(),
+        source: 'TripleOSResultsView'
+      };
+
+      console.log("📊 [ActionBridge] OS分析データ準備完了:", {
+        engine: osAnalysisData.engine_score,
+        interface: osAnalysisData.interface_score,
+        safemode: osAnalysisData.safemode_score
+      });
+
+      return osAnalysisData;
+
+    } catch (error) {
+      console.error("❌ [ActionBridge] OS分析データ準備エラー:", error);
+      return null;
+    }
+  }
+
+  /**
+   * ActionBridgeエラー表示
+   */
+  renderActionBridgeError(message) {
+    const container = document.getElementById('action-bridge-section');
+    if (container) {
+      container.innerHTML = `
+        <div class="action-bridge-error">
+          <div class="error-icon">⚠️</div>
+          <h3>実践行動ブリッジ</h3>
+          <p class="error-message">${message}</p>
+          <p class="error-detail">このセクションは開発中です。基本的な分析結果は上記で確認できます。</p>
         </div>
       `;
     }

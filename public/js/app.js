@@ -4,40 +4,11 @@ console.log("🎯 HaQei Analyzer starting...");
 let app = null;
 let storageManager = null;
 
-// 拡張スクリプトローディングシステムの完了を待機する関数（無効化）
-// 注意: 現在はより高機能な読み込みチェック機構 (LoadingCheck) を使用しているため
-// この古い機能はコメントアウトしました
-// async function waitForScriptLoadingComplete() {
-//   return new Promise((resolve) => {
-//     const checkInterval = setInterval(() => {
-//       if (
-//         window.scriptLoadingStatus &&
-//         window.scriptLoadingStatus.initializationComplete
-//       ) {
-//         clearInterval(checkInterval);
-//         console.log("✅ [App.js] スクリプト読み込み完了確認");
-//         resolve();
-//       }
-//     }, 50);
-
-//     // 10秒後にタイムアウト
-//     setTimeout(() => {
-//       clearInterval(checkInterval);
-//       console.warn(
-//         "⚠️ [App.js] スクリプト読み込み完了待機がタイムアウトしました"
-//       );
-//       resolve(); // タイムアウトでも続行
-//     }, 10000);
-//   });
-// }
 
 // アプリケーション初期化
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("📱 DOM loaded, initializing components...");
 
-  // 注意: waitForScriptLoadingComplete の呼び出しをコメントアウト
-  // より高機能な読み込みチェック機構 (LoadingCheck) が自動で処理します
-  // await waitForScriptLoadingComplete();
 
   console.log("📱 Initializing components...");
 

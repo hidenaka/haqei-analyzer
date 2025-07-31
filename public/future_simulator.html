@@ -2917,6 +2917,249 @@
         return [...prioritized, ...remaining].slice(0, 6); // 最大6個表示
       }
 
+      // ===== 動的キーワード生成システム (Dynamic Keyword Generation System) =====
+      
+      /**
+       * kuromoji.jsを活用した動的キーワード生成エンジン
+       */
+      class DynamicKeywordGenerator {
+        constructor(kuromojiTokenizer) {
+          this.tokenizer = kuromojiTokenizer;
+          this.stemCache = new Map();
+          this.relationCache = new Map();
+          this.maxCacheSize = 1000;
+          
+          // 関連語マッピング辞書
+          this.semanticRelations = this.initializeSemanticRelations();
+          
+          // 感情強度マッピング
+          this.emotionalIntensity = this.initializeEmotionalIntensity();
+        }
+
+        initializeSemanticRelations() {
+          return {
+            // 社会問題関連語彙拡張
+            '経済': ['金銭', 'お金', '財政', '景気', '収入', '支出', '投資', '貯金', '債務', '税金'],
+            '政治': ['政策', '選挙', '政府', '国会', '法律', '制度', '改革', '民主主義', '権力'],
+            '環境': ['自然', '気候', '地球', '温暖化', '汚染', '資源', 'エネルギー', '持続可能'],
+            '社会': ['格差', '平等', '公正', '差別', 'ダイバーシティ', '少子高齢化', '教育', '医療'],
+            
+            // 感情・心理関連語彙拡張
+            '不安': ['心配', '恐れ', '危惧', '懸念', '焦り', 'ドキドキ', 'びくびく', '緊張'],
+            '悲しい': ['辛い', '苦しい', '落ち込む', '憂鬱', 'しんどい', '気分が沈む', 'ブルー'],
+            '怒り': ['イライラ', '腹立つ', 'ムカつく', '憤り', '激怒', '頭にくる', 'キレる'],
+            '喜び': ['嬉しい', '楽しい', '幸せ', '満足', '充実', 'ワクワク', 'ハッピー'],
+            
+            // ビジネス関連語彙拡張
+            '仕事': ['業務', '職務', '労働', 'タスク', '作業', 'ワーク', 'ジョブ', '職業'],
+            '会社': ['企業', '組織', '職場', 'オフィス', '法人', 'コーポレーション', '勤務先'],
+            'キャリア': ['経歴', '昇進', '昇格', '転職', '就職', '出世', 'スキルアップ'],
+            'チーム': ['グループ', '班', '部署', '部門', 'メンバー', '同僚', 'スタッフ'],
+            
+            // 人間関係関連語彙拡張
+            '家族': ['親', '子', '兄弟', '姉妹', '夫婦', '配偶者', '親族', '身内'],
+            '友人': ['友達', '仲間', '知人', 'マブダチ', '親友', 'ベストフレンド'],
+            '恋愛': ['恋人', '彼氏', '彼女', 'パートナー', '恋', '愛情', 'ロマンス'],
+            '関係': ['付き合い', '繋がり', '絆', '縁', 'コミュニケーション', '交流'],
+            
+            // 哲学・精神関連語彙拡張
+            '人生': ['生涯', '生活', '人間', '存在', '生きる', 'ライフ'],
+            '意味': ['価値', '目的', '意義', '理由', '根拠', '本質'],
+            '幸せ': ['幸福', '満足', '充実', '喜び', '楽しさ', 'ハピネス'],
+            '成功': ['達成', '成果', '勝利', '実現', '完成', 'サクセス'],
+            
+            // 技術関連語彙拡張
+            '技術': ['テクノロジー', 'スキル', '専門', '知識', 'ノウハウ', '技能'],
+            'システム': ['仕組み', '構造', 'アーキテクチャ', 'プラットフォーム', 'インフラ'],
+            '開発': ['制作', '構築', '設計', '実装', 'プログラミング', 'コーディング'],
+            '研究': ['調査', '分析', '実験', '検証', '解析', 'リサーチ']
+          };
+        }
+
+        initializeEmotionalIntensity() {
+          return {
+            // 強い感情表現
+            high: ['絶対', '必ず', '完全', '本当に', 'すごく', 'とても', '非常に', '極めて', '激しく'],
+            // 中程度の感情表現  
+            medium: ['かなり', 'だいぶ', 'けっこう', 'わりと', 'そこそこ', 'まあまあ'],
+            // 弱い感情表現
+            low: ['少し', 'ちょっと', 'やや', 'わずか', 'なんとなく', 'ほんの']
+          };
+        }
+
+        // メインの動的キーワード生成メソッド
+        generateDynamicKeywords(text, baseKeywords = []) {
+          if (!this.tokenizer) {
+            console.warn('kuromoji tokenizer not available, using basic keyword expansion');
+            return this.basicKeywordExpansion(text, baseKeywords);
+          }
+
+          const cacheKey = `${text}_${baseKeywords.join(',')}`;
+          if (this.relationCache.has(cacheKey)) {
+            return this.relationCache.get(cacheKey);
+          }
+
+          const expandedKeywords = new Set(baseKeywords);
+          
+          // 形態素解析によるキーワード抽出
+          const tokens = this.tokenizer.tokenize(text);
+          const extractedKeywords = this.extractKeywordsFromTokens(tokens);
+          
+          // 基本キーワードの関連語展開
+          baseKeywords.forEach(keyword => {
+            const related = this.getRelatedWords(keyword);
+            related.forEach(word => expandedKeywords.add(word));
+          });
+          
+          // 抽出されたキーワードの関連語展開
+          extractedKeywords.forEach(keyword => {
+            expandedKeywords.add(keyword);
+            const related = this.getRelatedWords(keyword);
+            related.forEach(word => expandedKeywords.add(word));
+          });
+          
+          // 感情強度分析による重み付き展開
+          const emotionalKeywords = this.generateEmotionalKeywords(text, tokens);
+          emotionalKeywords.forEach(keyword => expandedKeywords.add(keyword));
+          
+          const result = Array.from(expandedKeywords);
+          
+          // キャッシュ管理
+          if (this.relationCache.size >= this.maxCacheSize) {
+            const firstKey = this.relationCache.keys().next().value;
+            this.relationCache.delete(firstKey);
+          }
+          this.relationCache.set(cacheKey, result);
+          
+          return result;
+        }
+
+        extractKeywordsFromTokens(tokens) {
+          const keywords = [];
+          
+          tokens.forEach(token => {
+            // 重要な品詞のみ抽出
+            if (['名詞', '動詞', '形容詞', '副詞'].includes(token.pos)) {
+              // 単字は除外、基本形を使用
+              if (token.basic_form.length > 1) {
+                keywords.push(token.basic_form);
+              }
+            }
+            
+            // 複合名詞の検出
+            if (token.pos === '名詞' && token.pos_detail_1 === '一般') {
+              keywords.push(token.surface_form);
+            }
+          });
+          
+          return [...new Set(keywords)]; // 重複除去
+        }
+
+        getRelatedWords(keyword) {
+          const related = [];
+          
+          // 直接関連語マッピング
+          if (this.semanticRelations[keyword]) {
+            related.push(...this.semanticRelations[keyword]);
+          }
+          
+          // 部分一致による関連語検索
+          Object.entries(this.semanticRelations).forEach(([key, values]) => {
+            if (key.includes(keyword) || keyword.includes(key)) {
+              related.push(key, ...values);
+            }
+            
+            if (values.includes(keyword)) {
+              related.push(key, ...values);
+            }
+          });
+          
+          // 語幹による関連語生成
+          if (this.tokenizer) {
+            const stemRelated = this.generateStemRelated(keyword);
+            related.push(...stemRelated);
+          }
+          
+          return [...new Set(related)]; // 重複除去
+        }
+
+        generateStemRelated(keyword) {
+          const cacheKey = `stem_${keyword}`;
+          if (this.stemCache.has(cacheKey)) {
+            return this.stemCache.get(cacheKey);
+          }
+          
+          const tokens = this.tokenizer.tokenize(keyword);
+          const related = [];
+          
+          tokens.forEach(token => {
+            const stem = token.basic_form;
+            const pos = token.pos;
+            
+            // 品詞別の活用形生成
+            switch (pos) {
+              case '名詞':
+                related.push(stem + 'の', stem + 'に', stem + 'を', stem + 'が', stem + 'で');
+                break;
+              case '動詞':
+                related.push(stem + 'る', stem + 'た', stem + 'て', stem + 'ない', stem + 'ます');
+                break;
+              case '形容詞':
+                related.push(stem + 'い', stem + 'く', stem + 'な', stem + 'さ');
+                break;
+              case '副詞':
+                related.push(stem + 'に', stem + 'と', stem + 'も');
+                break;
+            }
+          });
+          
+          this.stemCache.set(cacheKey, related);
+          return related;
+        }
+
+        generateEmotionalKeywords(text, tokens) {
+          const emotionalKeywords = [];
+          
+          // 感情強度の検出
+          let intensityLevel = 'medium';
+          Object.entries(this.emotionalIntensity).forEach(([level, words]) => {
+            if (words.some(word => text.includes(word))) {
+              intensityLevel = level;
+            }
+          });
+          
+          // 感情表現の強度に応じたキーワード展開
+          tokens.forEach(token => {
+            if (token.pos === '感動詞' || token.pos_detail_1 === '感動詞的') {
+              emotionalKeywords.push(token.basic_form);
+              
+              // 強度に応じた関連語追加
+              if (intensityLevel === 'high') {
+                emotionalKeywords.push('強く', '激しく', '深く');
+              } else if (intensityLevel === 'low') {
+                emotionalKeywords.push('軽く', 'ちょっと', '少し');
+              }
+            }
+          });
+          
+          return emotionalKeywords;
+        }
+
+        // フォールバック用の基本キーワード展開
+        basicKeywordExpansion(text, baseKeywords) {
+          const expanded = new Set(baseKeywords);
+          
+          // 基本的な関連語マッピング
+          baseKeywords.forEach(keyword => {
+            if (this.semanticRelations[keyword]) {
+              this.semanticRelations[keyword].forEach(word => expanded.add(word));
+            }
+          });
+          
+          return Array.from(expanded);
+        }
+      }
+
       // ===== 高度分析システム (Advanced Analysis System) =====
       
       /**
