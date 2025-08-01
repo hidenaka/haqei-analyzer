@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Virtual Persona Results</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Debug - Virtual Persona Results</h1>
+    
+    <div class="debug-section">
+        <h2>1. 基本ライブラリ読み込み確認</h2>
+        <div id="debug-1"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>2. Chart.js確認</h2>
+        <div id="debug-2"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>3. BaseComponent確認</h2>
+        <div id="debug-3"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>4. VirtualPersonaResultsView確認</h2>
+        <div id="debug-4"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>5. 依存ファイル確認</h2>
+        <div id="debug-5"></div>
+    </div>
+    
+    <div id="test-container" style="height: 200px; background: #f0f0f0; margin-top: 20px;">
+        <p>Test Container</p>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- データファイル -->
+    <script type="text/javascript" src="./js/shared/data/questions.js"></script>
+    <script type="text/javascript" src="./js/shared/data/vectors.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/data/hexagrams.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/data/hexagram_details.js"></script>
+    
+    <!-- ユーティリティ -->
+    <script type="text/javascript" src="./js/shared/utils/validators.js"></script>
+    <script type="text/javascript" src="./js/shared/utils/animations.js"></script>
+    
+    <!-- 基盤ライブラリ -->
+    <script type="text/javascript" src="./js/shared/core/BaseComponent.js"></script>
+    <script type="text/javascript" src="./js/shared/core/StorageManager.js"></script>
+    <script type="text/javascript" src="./js/shared/core/DataManager.js"></script>
+    <script type="text/javascript" src="./js/shared/core/ErrorHandler.js"></script>
+    
+    <!-- 仮想人格関連エンジン -->
+    <script type="text/javascript" src="./js/os-analyzer/core/TripleOSEngine.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/core/PersonalityOS.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/core/VirtualPersonality.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/core/OSRelationshipEngine.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/core/IchingMetaphorEngine.js"></script>
+    
+    <!-- UI/UXコンポーネント -->
+    <script type="text/javascript" src="./js/os-analyzer/components/PersonalityConstructionView.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/components/DialoguePlayer.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/components/OSVoiceSwitcher.js"></script>
+    
+    <!-- 新規作成：仮想人格結果表示ビュー -->
+    <script type="text/javascript" src="./js/components/VirtualPersonaResultsView.js"></script>
+
+    <script>
+        console.log('🔍 Debug page started');
+        
+        // 1. 基本ライブラリ確認
+        const debug1 = document.getElementById('debug-1');
+        try {
+            if (typeof Chart !== 'undefined') {
+                debug1.innerHTML = '<span class="success">✅ Chart.js loaded successfully</span>';
+            } else {
+                debug1.innerHTML = '<span class="error">❌ Chart.js not loaded</span>';
+            }
+        } catch (e) {
+            debug1.innerHTML = `<span class="error">❌ Chart.js error: ${e.message}</span>`;
+        }
+        
+        // 2. Chart.js詳細確認
+        const debug2 = document.getElementById('debug-2');
+        try {
+            debug2.innerHTML = `<span class="success">✅ Chart.js version: ${Chart.version || 'Unknown'}</span>`;
+        } catch (e) {
+            debug2.innerHTML = `<span class="error">❌ Chart.js version check failed: ${e.message}</span>`;
+        }
+        
+        // 3. BaseComponent確認
+        const debug3 = document.getElementById('debug-3');
+        try {
+            if (typeof BaseComponent !== 'undefined') {
+                debug3.innerHTML = '<span class="success">✅ BaseComponent loaded successfully</span>';
+            } else {
+                debug3.innerHTML = '<span class="error">❌ BaseComponent not loaded</span>';
+            }
+        } catch (e) {
+            debug3.innerHTML = `<span class="error">❌ BaseComponent error: ${e.message}</span>`;
+        }
+        
+        // 4. VirtualPersonaResultsView確認
+        const debug4 = document.getElementById('debug-4');
+        try {
+            if (typeof VirtualPersonaResultsView !== 'undefined') {
+                debug4.innerHTML = '<span class="success">✅ VirtualPersonaResultsView loaded successfully</span>';
+            } else {
+                debug4.innerHTML = '<span class="error">❌ VirtualPersonaResultsView not loaded</span>';
+            }
+        } catch (e) {
+            debug4.innerHTML = `<span class="error">❌ VirtualPersonaResultsView error: ${e.message}</span>`;
+        }
+        
+        // 5. 依存ファイル確認
+        const debug5 = document.getElementById('debug-5');
+        let dependencyStatus = [];
+        
+        const dependencies = [
+            'StorageManager',
+            'DataManager',
+            'TripleOSEngine',
+            'PersonalityOS',
+            'VirtualPersonality',
+            'OSRelationshipEngine',
+            'IchingMetaphorEngine',
+            'PersonalityConstructionView',
+            'DialoguePlayer'
+        ];
+        
+        dependencies.forEach(dep => {
+            try {
+                if (typeof window[dep] !== 'undefined') {
+                    dependencyStatus.push(`<span class="success">✅ ${dep}</span>`);
+                } else {
+                    dependencyStatus.push(`<span class="error">❌ ${dep}</span>`);
+                }
+            } catch (e) {
+                dependencyStatus.push(`<span class="error">❌ ${dep} (${e.message})</span>`);
+            }
+        });
+        
+        debug5.innerHTML = dependencyStatus.join('<br>');
+        
+        // テスト用のダミーデータ作成
+        console.log('🧪 Creating test data...');
+        
+        // 6. 実際のインスタンス作成テスト
+        window.addEventListener('load', () => {
+            console.log('🚀 Testing VirtualPersonaResultsView instantiation...');
+            
+            try {
+                // ダミーデータ作成
+                const dummyAnalysisResult = {
+                    engineOS: {
+                        osName: "Test Engine OS",
+                        score: 0.75,
+                        hexagram: { number: 1, name: "乾" },
+                        characteristics: {
+                            primary_traits: ["創造性", "リーダーシップ", "革新性"]
+                        },
+                        activation: 0.8
+                    },
+                    interfaceOS: {
+                        osName: "Test Interface OS", 
+                        score: 0.65,
+                        hexagram: { number: 2, name: "坤" },
+                        characteristics: {
+                            primary_traits: ["協調性", "適応性", "社交性"]
+                        },
+                        activation: 0.7
+                    },
+                    safeModeOS: {
+                        osName: "Test SafeMode OS",
+                        score: 0.55,
+                        hexagram: { number: 3, name: "屯" },
+                        characteristics: {
+                            primary_traits: ["慎重性", "分析力", "安定性"]
+                        },
+                        activation: 0.6
+                    }
+                };
+                
+                const dummyInsights = {
+                    summary: "Test insights summary"
+                };
+                
+                const dummyDataManager = {
+                    loadData: async () => console.log('Dummy loadData called'),
+                    getData: () => ({ test: true })
+                };
+                
+                // VirtualPersonaResultsViewのインスタンス作成テスト
+                const testView = new VirtualPersonaResultsView('test-container', {
+                    analysisResult: dummyAnalysisResult,
+                    insights: dummyInsights,
+                    dataManager: dummyDataManager,
+                    enableAnimation: false,  // デバッグ用にアニメーション無効
+                    animationSpeed: 1.0
+                });
+                
+                console.log('✅ VirtualPersonaResultsView instance created successfully:', testView);
+                
+                // 初期化テスト
+                testView.init().then(() => {
+                    console.log('✅ VirtualPersonaResultsView initialization completed');
+                }).catch((error) => {
+                    console.error('❌ VirtualPersonaResultsView initialization failed:', error);
+                });
+                
+            } catch (error) {
+                console.error('❌ VirtualPersonaResultsView instantiation failed:', error);
+            }
+        });
+    </script>
+</body>
+</html>

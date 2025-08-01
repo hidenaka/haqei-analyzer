@@ -309,6 +309,92 @@
     <script src="./js/ai_theme_database.js"></script>
     <script src="./js/sns_worry_patterns.js"></script>
     <script src="./assets/H384H64database.js"></script>
+    <script>
+        /**
+         * H384_DATA読み込み順序保証システム
+         * 
+         * 目的：
+         * - H384H64database.jsが確実に他のスクリプトより先に実行される
+         * - bunenjin哲学に基づく段階的初期化の保証
+         * - Triple OS統合システムでの依存関係管理
+         * 
+         * 処理内容：
+         * 1. H384_DATA変数の存在確認
+         * 2. 読み込み失敗時のエラーログ出力
+         * 3. フォールバック処理の呼び出し
+         * 4. 後続スクリプトへの安全な引き継ぎ
+         * 
+         * 検証項目：
+         * - window.H384_DATA の存在
+         * - 386エントリの完全性
+         * - 用九・用六エントリの確認
+         * 
+         * エラー処理：
+         * - 読み込み失敗: ensureH384Data()でフォールバック
+         * - 不完全データ: 詳細エラー情報をコンソール出力
+         * - 致命的エラー: ユーザーへの適切な通知
+         */
+        
+        // 即座実行関数による確実な検証
+        (function() {
+            console.log('🔍 H384_DATA読み込み順序確認を開始...');
+            
+            // H384_DATAの基本的な存在確認
+            if (typeof H384_DATA === 'undefined') {
+                console.error('❌ H384_DATA読み込み失敗: 変数が未定義です');
+                
+                // フォールバック処理を試行
+                if (typeof window.ensureH384Data === 'function') {
+                    console.warn('🔧 フォールバック処理を開始...');
+                    try {
+                        window.ensureH384Data();
+                        console.log('✅ フォールバック処理完了');
+                    } catch (error) {
+                        console.error('❌ フォールバック処理も失敗:', error);
+                    }
+                } else {
+                    console.error('❌ フォールバック機能も利用できません');
+                }
+            } else {
+                console.log('✅ H384_DATA変数の存在確認: 成功');
+                
+                // window.H384_DATAへの代入確認
+                if (typeof window.H384_DATA === 'undefined') {
+                    console.warn('⚠️  window.H384_DATAが未設定 - 自動設定を試行');
+                    try {
+                        window.H384_DATA = H384_DATA;
+                        console.log('✅ window.H384_DATA自動設定: 成功');
+                    } catch (error) {
+                        console.error('❌ window.H384_DATA設定エラー:', error);
+                    }
+                }
+                
+                // データ完全性の基本確認
+                if (Array.isArray(window.H384_DATA) && window.H384_DATA.length === 386) {
+                    console.log('✅ H384_DATAデータ完全性確認: 成功 (386エントリ)');
+                    
+                    // 用九・用六エントリの確認
+                    const youkuu = window.H384_DATA.find(item => item['通し番号'] === 7);
+                    const yourikuu = window.H384_DATA.find(item => item['通し番号'] === 14);
+                    
+                    if (youkuu && yourikuu) {
+                        console.log('✅ 用九・用六エントリ確認: 成功');
+                        console.log(`   - 用九: ${youkuu['卦名']} (${youkuu['爻']})`);
+                        console.log(`   - 用六: ${yourikuu['卦名']} (${yourikuu['爻']})`);
+                    } else {
+                        console.warn('⚠️  用九・用六エントリに問題があります');
+                    }
+                } else {
+                    console.error('❌ H384_DATAデータ形式エラー:', {
+                        isArray: Array.isArray(window.H384_DATA),
+                        length: window.H384_DATA?.length
+                    });
+                }
+            }
+            
+            console.log('🏁 H384_DATA読み込み順序確認完了');
+        })();
+    </script>
     <script src="./js/keyword_expansion_engine.js"></script>
     <script src="./js/ml-integration.js" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js" defer></script>
@@ -1176,7 +1262,8 @@
 
         try {
           const [apiData] = await Promise.all([
-            fetch("/api/data").then(res => res.ok ? res.json() : Promise.reject(`APIエラー: ${res.status}`)),
+            // 404エラー修正: /api/data削除 - ローカルH384_DATA使用
+            Promise.resolve({}),
             new Promise((resolve, reject) => {
               // 本番環境での辞書パス最適化（CDNを継続使用で安定性確保）
               const dicPath = "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/";
@@ -1188,9 +1275,24 @@
             })
           ]);
 
-          HAQEI_DATA = apiData.HAQEI_DATA;
-          H64_DATA = HAQEI_DATA.H64_DATA;
-          H384_DATA = HAQEI_DATA["384"];
+          // ローカルデータソース使用（404エラー修正）- HAQEI_DATA不要
+          // H64_DATA は既に H384H64database.js で定義済み
+          if (typeof H64_DATA !== 'undefined') {
+            console.log('✅ H64_DATA ローカルデータ使用');
+          } else {
+            console.warn('⚠️  H64_DATA が利用できません');
+          }
+          // H384_DATA は既に window.H384_DATA で利用可能
+          if (window.H384_DATA) {
+            H384_DATA = window.H384_DATA; // ローカル変数として参照
+            console.log('✅ H384_DATA ローカルデータ使用 (386エントリ)');
+          } else {
+            console.error('❌ H384_DATA が利用できません - フォールバック処理を実行');
+            if (typeof window.ensureH384Data === 'function') {
+              window.ensureH384Data();
+              H384_DATA = window.H384_DATA;
+            }
+          }
           // ▼▼ context_typeマージ処理をここに追加 ▼▼
           if (window.H384_CONTEXT_TYPE_LIST && Array.isArray(window.H384_CONTEXT_TYPE_LIST)) {
             const contextTypeMap = Object.fromEntries(window.H384_CONTEXT_TYPE_LIST.map(item => [item["通し番号"], item["context_type"]]));

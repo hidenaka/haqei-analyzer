@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude統合精度向上システム - デモンストレーション</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
+    
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .demo-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-area {
+            margin-bottom: 20px;
+        }
+
+        .input-area label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .input-area textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-area textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .options-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .analyze-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .analyze-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .analyze-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-area {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .comparison-chart {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            grid-column: 1 / -1;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-success { background-color: #48bb78; }
+        .status-warning { background-color: #ed8936; }
+        .status-error { background-color: #f56565; }
+
+        .component-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .component-card {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .component-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .component-stats {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #2f855a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hexagram-result {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .hexagram-info {
+            flex: 1;
+        }
+
+        .hexagram-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .confidence-bar {
+            width: 100px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #667eea);
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .options-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Claude統合精度向上システム</h1>
+            <p>386爻マッピング精度を23% → 50-60%に向上させるゼロコストAIシステム</p>
+        </div>
+
+        <!-- システム統計 -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value" id="currentAccuracy">23.4%</div>
+                <div class="metric-label">現在の精度</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="targetAccuracy">55.0%</div>
+                <div class="metric-label">目標精度</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="totalAnalyses">0</div>
+                <div class="metric-label">総分析回数</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="averageTime">0ms</div>
+                <div class="metric-label">平均処理時間</div>
+            </div>
+        </div>
+
+        <div class="demo-grid">
+            <!-- 分析実行パネル -->
+            <div class="demo-section">
+                <h2 class="section-title">
+                    🔍 統合分析実行
+                </h2>
+                
+                <div class="input-area">
+                    <label for="userInput">ユーザー入力テキスト:</label>
+                    <textarea 
+                        id="userInput" 
+                        placeholder="例: 最近仕事で悩んでいます。上司との関係も良くないし、将来が不安です。"
+                    ></textarea>
+                </div>
+
+                <div class="options-panel">
+                    <div class="option-item">
+                        <input type="checkbox" id="useClaudeAnalysis" checked>
+                        <label for="useClaudeAnalysis">Claude高度分析</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="useContextualMapping" checked>
+                        <label for="useContextualMapping">文脈理解マッピング</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="optimizeTemplates" checked>
+                        <label for="optimizeTemplates">テンプレート最適化</label>
+                    </div>
+                    <div class="option-item">
+                        <input type="checkbox" id="enableAccuracyTesting" checked>
+                        <label for="enableAccuracyTesting">精度検証</label>
+                    </div>
+                </div>
+
+                <button class="analyze-button" id="analyzeButton" onclick="performAnalysis()">
+                    統合分析を実行
+                </button>
+
+                <div id="analysisResults" class="results-area" style="display: none;">
+                    <!-- 分析結果がここに表示される -->
+                </div>
+            </div>
+
+            <!-- システム状態監視 -->
+            <div class="demo-section">
+                <h2 class="section-title">
+                    📊 システム状態監視
+                </h2>
+                
+                <div id="systemStatus">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        システムを初期化中...
+                    </div>
+                </div>
+
+                <div class="component-status" id="componentStatus" style="display: none;">
+                    <!-- コンポーネント状態がここに表示される -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 精度比較チャート -->
+        <div class="comparison-chart">
+            <h2 class="section-title">
+                📈 精度改善効果比較
+            </h2>
+            <canvas id="accuracyChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- 必要なJavaScriptファイルの読み込み -->
+    <script src="./public/assets/H384H64database.js"></script>
+    <script src="./public/js/pages/future-simulator/HexagramPatternTemplates.js"></script>
+    <script src="./public/js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
+    <script src="./public/js/pages/future-simulator/IntegratedAnalysisEngine.js"></script>
+    <script src="./public/js/pages/future-simulator/ClaudeAnalysisEngine.js"></script>
+    <script src="./public/js/pages/future-simulator/SmartTemplateOptimizer.js"></script>
+    <script src="./public/js/pages/future-simulator/ContextualMappingSystem.js"></script>
+    <script src="./public/js/pages/future-simulator/ZeroCostAccuracyTester.js"></script>
+    <script src="./public/js/pages/future-simulator/ClaudeIntegrationManager.js"></script>
+
+    <script>
+        // グローバル変数
+        let integrationManager = null;
+        let accuracyChart = null;
+        let systemStats = {
+            totalAnalyses: 0,
+            successfulAnalyses: 0,
+            averageTime: 0,
+            currentAccuracy: 23.4
+        };
+
+        // デモ用テストケース
+        const demoTestCases = [
+            {
+                text: "最近仕事で悩んでいます。上司との関係も良くないし、将来が不安です。",
+                expected: "anxiety",
+                description: "不安・人間関係の悩み"
+            },
+            {
+                text: "新しいプロジェクトが始まって、とてもわくわくしています！チームメンバーとも意気投合して、きっと成功すると思います。",
+                expected: "hope",
+                description: "希望・積極的な気持ち"
+            },
+            {
+                text: "転職を考えているけど、なかなか決断できません。今の会社も悪くないし、でも成長できる気がしなくて...",
+                expected: "confusion",
+                description: "迷い・決断への悩み"
+            },
+            {
+                text: "昨日、長年の友人と大喧嘩してしまいました。言い過ぎたと後悔していますが、謝るタイミングが分からない。",
+                expected: "sadness",
+                description: "後悔・人間関係の問題"
+            }
+        ];
+
+        // システム初期化
+        async function initializeSystem() {
+            try {
+                console.log('🚀 デモシステム初期化開始...');
+                
+                // Claude統合マネージャー初期化
+                integrationManager = new ClaudeIntegrationManager();
+                const initResult = await integrationManager.initialize();
+                
+                if (initResult.success) {
+                    displaySystemStatus(initResult);
+                    updateComponentStatus();
+                    initializeAccuracyChart();
+                    
+                    // デモ用テストケースを入力欄に表示
+                    populateTestCases();
+                    
+                    console.log('✅ デモシステム初期化完了');
+                } else {
+                    displaySystemError(initResult);
+                }
+                
+            } catch (error) {
+                console.error('❌ システム初期化エラー:', error);
+                displaySystemError({ error: error.message });
+            }
+        }
+
+        // システム状態表示
+        function displaySystemStatus(status) {
+            const statusElement = document.getElementById('systemStatus');
+            
+            if (status.success) {
+                statusElement.innerHTML = `
+                    <div class="success-message">
+                        <span class="status-indicator status-success"></span>
+                        システム正常稼働中
+                        <div style="margin-top: 10px; font-size: 0.9rem;">
+                            初期化時間: ${Math.round(status.initializationTime)}ms<br>
+                            読み込み済みコンポーネント: ${status.componentsLoaded}/4
+                        </div>
+                    </div>
+                `;
+            } else {
+                statusElement.innerHTML = `
+                    <div class="error-message">
+                        <span class="status-indicator status-error"></span>
+                        システム初期化エラー
+                        <div style="margin-top: 10px; font-size: 0.9rem;">
+                            ${status.error || '不明なエラー'}
+                            ${status.fallbackMode ? '<br>フォールバックモードで動作中' : ''}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // システムエラー表示
+        function displaySystemError(error) {
+            const statusElement = document.getElementById('systemStatus');
+            statusElement.innerHTML = `
+                <div class="error-message">
+                    <span class="status-indicator status-error"></span>
+                    システムエラー: ${error.error || '不明なエラー'}
+                </div>
+            `;
+        }
+
+        // コンポーネント状態更新
+        function updateComponentStatus() {
+            if (!integrationManager) return;
+            
+            const stats = integrationManager.getSystemStatistics();
+            const statusElement = document.getElementById('componentStatus');
+            
+            const components = [
+                { name: 'ClaudeAnalysisEngine', label: 'Claude高度分析', stat: stats.componentStats.claudeAnalysis },
+                { name: 'ContextualMappingSystem', label: '文脈理解マッピング', stat: stats.componentStats.contextualMapping },
+                { name: 'SmartTemplateOptimizer', label: 'テンプレート最適化', stat: stats.componentStats.templateOptimizer },
+                { name: 'ZeroCostAccuracyTester', label: '精度検証', stat: stats.componentStats.accuracyTester }
+            ];
+
+            statusElement.innerHTML = components.map(comp => `
+                <div class="component-card">
+                    <div class="component-name">
+                        <span class="status-indicator ${comp.stat.success > comp.stat.used * 0.8 ? 'status-success' : 'status-warning'}"></span>
+                        ${comp.label}
+                    </div>
+                    <div class="component-stats">
+                        使用回数: ${comp.stat.used} | 成功: ${comp.stat.success} | 平均時間: ${Math.round(comp.stat.avgTime)}ms
+                    </div>
+                </div>
+            `).join('');
+            
+            statusElement.style.display = 'grid';
+            
+            // 統計数値更新
+            document.getElementById('totalAnalyses').textContent = stats.totalRequests;
+            document.getElementById('averageTime').textContent = Math.round(stats.averageProcessingTime) + 'ms';
+        }
+
+        // 精度比較チャート初期化
+        function initializeAccuracyChart() {
+            const ctx = document.getElementById('accuracyChart').getContext('2d');
+            
+            accuracyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['ベースライン', '現在', '目標'],
+                    datasets: [
+                        {
+                            label: '既存システム',
+                            data: [23.4, 23.4, 23.4],
+                            borderColor: '#f56565',
+                            backgroundColor: 'rgba(245, 101, 101, 0.1)',
+                            borderWidth: 2,
+                            fill: true
+                        },
+                        {
+                            label: 'Claude統合システム',
+                            data: [23.4, systemStats.currentAccuracy, 55.0],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '386爻マッピング精度の改善推移'
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // テストケース入力
+        function populateTestCases() {
+            const inputElement = document.getElementById('userInput');
+            const randomCase = demoTestCases[Math.floor(Math.random() * demoTestCases.length)];
+            inputElement.value = randomCase.text;
+            inputElement.placeholder = `例: ${randomCase.description}`;
+        }
+
+        // 分析実行
+        async function performAnalysis() {
+            const userInput = document.getElementById('userInput').value.trim();
+            if (!userInput) {
+                alert('分析するテキストを入力してください。');
+                return;
+            }
+
+            if (!integrationManager) {
+                alert('システムが初期化されていません。');
+                return;
+            }
+
+            const analyzeButton = document.getElementById('analyzeButton');
+            const resultsArea = document.getElementById('analysisResults');
+            
+            try {
+                // UI更新
+                analyzeButton.disabled = true;
+                analyzeButton.textContent = '分析中...';
+                
+                resultsArea.style.display = 'block';
+                resultsArea.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        統合分析を実行中...
+                    </div>
+                `;
+
+                // 分析オプション取得
+                const options = {
+                    useClaudeAnalysis: document.getElementById('useClaudeAnalysis').checked,
+                    useContextualMapping: document.getElementById('useContextualMapping').checked,
+                    optimizeTemplates: document.getElementById('optimizeTemplates').checked,
+                    enableAccuracyTesting: document.getElementById('enableAccuracyTesting').checked
+                };
+
+                // 統合分析実行
+                const startTime = performance.now();
+                const result = await integrationManager.performEnhancedAnalysis(userInput, options);
+                const endTime = performance.now();
+
+                // 結果表示
+                displayAnalysisResults(result, endTime - startTime);
+                
+                // 統計更新
+                updateSystemStatistics(result, endTime - startTime);
+                updateComponentStatus();
+                updateAccuracyChart(result);
+
+            } catch (error) {
+                console.error('分析エラー:', error);
+                resultsArea.innerHTML = `
+                    <div class="error-message">
+                        分析エラー: ${error.message}
+                    </div>
+                `;
+            } finally {
+                analyzeButton.disabled = false;
+                analyzeButton.textContent = '統合分析を実行';
+            }
+        }
+
+        // 分析結果表示
+        function displayAnalysisResults(result, processingTime) {
+            const resultsArea = document.getElementById('analysisResults');
+            
+            if (!result.success) {
+                resultsArea.innerHTML = `
+                    <div class="error-message">
+                        分析に失敗しました: ${result.error || '不明なエラー'}
+                    </div>
+                `;
+                return;
+            }
+
+            const topCandidates = result.results.topCandidates || [];
+            const metadata = result.metadata || {};
+            
+            const hexagramResults = topCandidates.slice(0, 5).map((candidate, index) => `
+                <div class="hexagram-result">
+                    <div class="hexagram-number">#${index + 1}</div>
+                    <div class="hexagram-info">
+                        <div><strong>${candidate.hexagram}卦 ${candidate.line ? candidate.line + '爻' : ''}</strong></div>
+                        <div style="font-size: 0.9rem; color: #718096;">
+                            信頼度: ${Math.round(candidate.totalConfidence * 100)}% | 
+                            情報源: ${candidate.sources?.join(', ') || '統合分析'}
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: ${candidate.totalConfidence * 100}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            resultsArea.innerHTML = `
+                <div class="success-message">
+                    <span class="status-indicator status-success"></span>
+                    統合分析完了 (${Math.round(processingTime)}ms)
+                    <div style="margin-top: 10px; font-size: 0.9rem;">
+                        使用コンポーネント: ${metadata.componentsUsed?.join(', ') || 'N/A'}<br>
+                        精度改善: +${metadata.accuracyImprovement || 0}%
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 15px; color: #4a5568;">上位候補（信頼度順）:</h4>
+                    ${hexagramResults || '<p>候補が見つかりませんでした。</p>'}
+                </div>
+                
+                ${result.results.analysisBreakdown ? `
+                    <div style="margin-top: 20px;">
+                        <h4 style="margin-bottom: 10px; color: #4a5568;">分析内訳:</h4>
+                        <div style="font-size: 0.9rem; color: #718096;">
+                            ${Object.entries(result.results.analysisBreakdown).map(([source, breakdown]) => 
+                                `<div>${source}: ${breakdown.success ? '✅' : '❌'} (${breakdown.candidateCount}候補)`
+                            ).join('<br>')}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        // システム統計更新
+        function updateSystemStatistics(result, processingTime) {
+            systemStats.totalAnalyses++;
+            if (result.success) {
+                systemStats.successfulAnalyses++;
+            }
+            
+            // 平均処理時間更新
+            systemStats.averageTime = (systemStats.averageTime * (systemStats.totalAnalyses - 1) + processingTime) / systemStats.totalAnalyses;
+            
+            // 精度更新（メタデータから）
+            if (result.metadata && result.metadata.accuracyImprovement) {
+                const improvement = result.metadata.accuracyImprovement;
+                systemStats.currentAccuracy = Math.min(23.4 + improvement, 60.0);
+            }
+            
+            // UI更新
+            document.getElementById('currentAccuracy').textContent = systemStats.currentAccuracy.toFixed(1) + '%';
+        }
+
+        // 精度チャート更新
+        function updateAccuracyChart(result) {
+            if (!accuracyChart) return;
+            
+            accuracyChart.data.datasets[1].data[1] = systemStats.currentAccuracy;
+            accuracyChart.update();
+        }
+
+        // ランダムテストケース選択
+        function selectRandomTestCase() {
+            populateTestCases();
+        }
+
+        // 一括テスト実行
+        async function runBatchTest() {
+            if (!integrationManager) {
+                alert('システムが初期化されていません。');
+                return;
+            }
+
+            console.log('🧪 一括テスト開始...');
+            
+            for (const testCase of demoTestCases) {
+                document.getElementById('userInput').value = testCase.text;
+                await performAnalysis();
+                await new Promise(resolve => setTimeout(resolve, 1000)); // 1秒間隔
+            }
+            
+            console.log('✅ 一括テスト完了');
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 ページ読み込み完了');
+            
+            // テストケース選択ボタン追加
+            const analyzeButton = document.getElementById('analyzeButton');
+            analyzeButton.insertAdjacentHTML('afterend', `
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button onclick="selectRandomTestCase()" style="flex: 1; padding: 8px; background: #e2e8f0; border: none; border-radius: 4px; cursor: pointer;">
+                        ランダム例文
+                    </button>
+                    <button onclick="runBatchTest()" style="flex: 1; padding: 8px; background: #e2e8f0; border: none; border-radius: 4px; cursor: pointer;">
+                        一括テスト
+                    </button>
+                </div>
+            `);
+            
+            // システム初期化実行
+            initializeSystem();
+        });
+
+        // システム最適化実行
+        async function optimizeSystem() {
+            if (!integrationManager) return;
+            
+            try {
+                await integrationManager.optimizeSystem();
+                updateComponentStatus();
+                console.log('✅ システム最適化完了');
+            } catch (error) {
+                console.error('❌ システム最適化エラー:', error);
+            }
+        }
+
+        // 診断レポート生成
+        function generateDiagnosticReport() {
+            if (!integrationManager) return;
+            
+            const report = integrationManager.generateDiagnosticReport();
+            console.log('📋 診断レポート:', report);
+            
+            // レポートをJSONファイルとしてダウンロード
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `claude-integration-diagnostic-${new Date().getTime()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 定期的なシステム監視
+        setInterval(() => {
+            if (integrationManager && integrationManager.initialized) {
+                updateComponentStatus();
+                
+                // 30分ごとにシステム最適化
+                const now = Date.now();
+                if (!window.lastOptimization || now - window.lastOptimization > 1800000) {
+                    optimizeSystem();
+                    window.lastOptimization = now;
+                }
+            }
+        }, 30000); // 30秒間隔
+    </script>
+</body>
+</html>
