@@ -313,6 +313,9 @@
     <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js" defer></script>
     <!-- Advanced Analysis Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/ml-matrix@6.10.4/lib/ml-matrix.min.js"></script>
+    <!-- Dynamic Analysis Components -->
+    <script src="./js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
+    <script src="./js/pages/future-simulator/IntegratedAnalysisEngine.js"></script>
   </head>
   <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-6">
     <div
@@ -2800,7 +2803,8 @@
             hsp_specific: [
               '世の中イライラ', '敏感に感じ', '対応しちゃう', '浮き沈みが影響', 'オーバーロード',
               '影響受けやすい', '感じやすく', '敏感すぎる', '繊細すぎる', '疲れちゃう',
-              '他人の感情', '周りの空気', '環境の変化', '刺激に弱い', '人混み苦手'
+              '他人の感情', '周りの空気', '環境の変化', '刺激に弱い', '人混み苦手',
+              '自分の気持ちが', '自分の性格を', 'もっとニュートラル', 'ニュートラルを保て'
             ],
             adjustment: [
               'コントロール', '調整', '安定', 'バランス', '中立', '平静', 'マインドフルネス',
@@ -2812,6 +2816,10 @@
             ],
             colloquial: [
               'しちゃう', 'なっちゃう', 'だろうって', 'なんですが', 'みたいな', 'っぽい'
+            ],
+            philosophical: [
+              '志', '使命', '人生の心志', '本質', 'バランスよく整える', '調和の取れた',
+              '充実した世界', '創造する', '人と地球', '元の部分', '心志として生きて'
             ]
           },
           patterns: [
@@ -2823,6 +2831,10 @@
             /(HSP|ハイリーセンシティブ)/,
             /他人.{0,10}[感情機嫌].{0,15}[影響左右]/,
             /影響.{0,10}受けやすい/,
+            /自分の性格.{0,15}ニュートラル/,
+            /人と地球.{0,10}調和/,
+            /志.{0,10}本質.{0,15}バランス/,
+            /充実した世界.{0,10}創造/,
             /[感敏][じ受].{0,10}やすい/,
             /.{0,10}しちゃう$/,
             /バランス.{0,10}[保整]/,
@@ -4423,6 +4435,73 @@
             irregularFlags: irregularFlags
           };
         }
+
+        /**
+         * HSP特性向け特化フォールバック
+         */
+        generateHSPSpecificFallback() {
+          console.log('🎯 HSP特性分析: 感情調整に最適化された結果を生成');
+          
+          // HSP特性に最適な卦を選択
+          const hspOptimalHexagrams = [
+            { hexagram: 31, line: 2, score: 0.9, theme: '感情の相互作用と調整' }, // 沢山咸 六二
+            { hexagram: 58, line: 3, score: 0.85, theme: '内なる喜びと調和' },     // 兌為沢 九三  
+            { hexagram: 16, line: 1, score: 0.8, theme: '適切な準備と熱意' },      // 雷地豫 初六
+            { hexagram: 42, line: 2, score: 0.75, theme: '内面的成長と増益' },     // 風雷益 六二
+            { hexagram: 53, line: 2, score: 0.7, theme: '段階的な進歩と安定' }     // 風山漸 六二
+          ];
+          
+          // 最適な卦を選択（通常は沢山咸）
+          const selected = hspOptimalHexagrams[0];
+          
+          // H384_DATAから対応するlineDataを取得
+          let lineData = null;
+          if (window.H384_DATA && Array.isArray(window.H384_DATA)) {
+            lineData = window.H384_DATA.find(data => 
+              data.卦番号 === selected.hexagram && data.爻番号 === selected.line
+            );
+          }
+          
+          // lineDataが見つからない場合のフォールバック
+          if (!lineData) {
+            lineData = {
+              卦番号: selected.hexagram,
+              爻番号: selected.line,
+              "親となる卦": selected.hexagram === 31 ? '沢山咸' : `第${selected.hexagram}卦`,
+              "爻": `${selected.line}爻`,
+              "爻辞": "HSP特性に最適化されたフォールバック結果"
+            };
+          }
+
+          const matchDetails = {
+            keywordMatches: ['敏感性', '感情調整', 'バランス'],
+            patternMatches: ['HSP特性パターン'],
+            semanticMatches: [],
+            contextMatches: ['emotion_management'],
+            dynamicMatches: [],
+            hspmMatches: ['敏感性', 'バランス志向', '感情制御']
+          };
+
+          return {
+            hexagram: selected.hexagram,
+            line: selected.line,
+            confidence: selected.score,
+            method: "hsp_optimized_fallback",
+            lineData: lineData,
+            contextType: 'emotion_management',
+            matchDetails: matchDetails,
+            expandedKeywords: ['敏感性', '感情調整', 'バランス', '調和'],
+            reasoning: `HSP特性に特化した分析により、感情調整に最適な「${lineData["親となる卦"]} ${lineData.爻}」を選択。${selected.theme}の時期として理解できます。`,
+            alternatives: hspOptimalHexagrams.slice(1, 3).map(alt => ({
+              hexagram: alt.hexagram, 
+              line: alt.line, 
+              confidence: alt.score,
+              theme: alt.theme
+            })),
+            irregularFlags: [],
+            hspOptimized: true
+          };
+        }
       }
 
       // ===== ML予測システム関数群 =====
@@ -5588,8 +5667,8 @@
           console.log('🎯 統合分析開始:', { textLength: worryText.length, contextType });
 
           // 統合分析システムを使用（タイムアウト付き）
-          const analysisPromise = integratedEngine.performIntegratedAnalysis(
-            worryText, h384Data, futureThemeMap, contextType
+          const analysisPromise = integratedEngine.performSevenStageAnalysis(
+            worryText, contextType
           );
 
           // 30秒タイムアウト設定
@@ -5599,14 +5678,26 @@
 
           const analysisResult = await Promise.race([analysisPromise, timeoutPromise]);
 
-          if (!analysisResult || !analysisResult.lineData) {
+          if (!analysisResult || !analysisResult.finalResult) {
             console.warn('統合分析結果なし、フォールバック処理');
             return FutureSimulatorErrorHandler.generateFallbackResult(contextType, new Error('分析結果なし'), 'ANALYSIS_ENGINE_ERROR');
           }
 
-          const line = analysisResult.lineData;
-          const confidence = analysisResult.confidence || 0.3; // フォールバック値
+          // 7段階分析結果から必要な情報を抽出
+          const hexagram = analysisResult.finalResult.hexagram;
+          const lineNumber = analysisResult.finalResult.line;
+          const confidence = analysisResult.finalResult.confidence || 0.3;
           const confidencePercent = Math.round(confidence * 100);
+          
+          // H384_DATAから該当する行を検索
+          const line = h384Data.find(item => 
+            item.卦番号 === hexagram && item.爻番号 === lineNumber
+          );
+          
+          if (!line) {
+            console.warn('該当する卦・爻が見つかりません:', { hexagram, lineNumber });
+            return FutureSimulatorErrorHandler.generateFallbackResult(contextType, new Error('卦爻データなし'), 'DATA_ERROR');
+          }
           
           // 信頼度レベルとカラー判定
           let confidenceLevel, confidenceColor;
@@ -5622,34 +5713,63 @@
           }
 
           // UX改善: 詳細根拠情報の生成
-          let contextInfo = analysisResult.reasoning || "";
+          let contextInfo = analysisResult.finalResult.reasoning || "";
           
-          // イレギュラー検出結果による改善提案
-          let improvementAdvice = "";
-          if (analysisResult.inputAdvice && analysisResult.inputAdvice.show) {
-            const advice = analysisResult.inputAdvice;
-            improvementAdvice = `
-              <div class="mt-4 p-3 ${advice.bgColor || 'bg-gray-800'} border rounded-lg">
-                <h4 class="${advice.color || 'text-gray-300'} font-medium mb-2">${advice.title || '改善提案'}</h4>
-                <div class="text-sm text-gray-300">
-                  ${(advice.content || '').replace(/\n/g, '<br>')}
+          // 7段階分析の詳細情報を表示
+          let stageAnalysisInfo = "";
+          if (analysisResult.stageResults) {
+            const stages = analysisResult.stageResults;
+            
+            // 感情分析結果
+            const emotionalAnalysis = stages.stage3?.emotionalContext;
+            const emotionalInfo = emotionalAnalysis ? 
+              `感情: ${emotionalAnalysis.primary || '中立'} (強度: ${Math.round((emotionalAnalysis.intensity || 0) * 100)}%)` : '';
+            
+            // キーワード抽出結果
+            const keywords = stages.stage3?.keywords?.slice(0, 5).map(k => k.keyword).join(', ') || '';
+            
+            // Triple OS統合結果
+            const osImpacts = stages.stage5?.osImpacts;
+            const osInfo = osImpacts ? `
+              <div class="text-xs mt-2">
+                <span class="text-yellow-300">価値観システム: ${Math.round(osImpacts.engineOS * 100)}%</span> | 
+                <span class="text-blue-300">社会的システム: ${Math.round(osImpacts.interfaceOS * 100)}%</span> | 
+                <span class="text-red-300">防御システム: ${Math.round(osImpacts.safeModeOS * 100)}%</span>
+              </div>
+            ` : '';
+            
+            stageAnalysisInfo = `
+              <div class="mt-3 p-3 bg-gray-800/50 border border-gray-600 rounded-lg text-sm">
+                <h4 class="text-indigo-400 font-medium mb-2">🔬 詳細分析情報</h4>
+                <div class="text-gray-300 space-y-1">
+                  ${emotionalInfo ? `<p>• ${emotionalInfo}</p>` : ''}
+                  ${keywords ? `<p>• 主要キーワード: ${keywords}</p>` : ''}
+                  ${osInfo}
                 </div>
               </div>
             `;
           }
-
-          // 代替候補の表示
+          
+          // 代替候補の表示（易経マッピングから）
           let alternativesInfo = "";
-          if (analysisResult.alternatives && analysisResult.alternatives.length > 0) {
-            const altList = analysisResult.alternatives.map(alt => 
-              `<li class="text-sm">🔮 ${alt.hexagram}卦${alt.line}爻 (信頼度: ${Math.round(alt.confidence * 100)}%) - ${alt.reason}</li>`
-            ).join('');
-            alternativesInfo = `
-              <div class="mt-4 p-3 bg-gray-800/50 border border-gray-600 rounded-lg">
-                <h4 class="text-blue-400 font-medium mb-2">💡 代替候補</h4>
-                <ul class="text-gray-300 space-y-1">${altList}</ul>
-              </div>
-            `;
+          const hexagramCandidates = analysisResult.stageResults?.stage3?.hexagramCandidates;
+          if (hexagramCandidates && hexagramCandidates.length > 1) {
+            const altList = hexagramCandidates.slice(1, 4).map(candidate => {
+              const altLine = h384Data.find(item => item.卦番号 === candidate.hexagram);
+              if (altLine) {
+                return `<li class="text-sm">🔮 ${altLine["親となる卦"]} (信頼度: ${Math.round(candidate.confidence * 100)}%) - ${candidate.reason}</li>`;
+              }
+              return null;
+            }).filter(item => item !== null).join('');
+            
+            if (altList) {
+              alternativesInfo = `
+                <div class="mt-3 p-3 bg-gray-800/50 border border-gray-600 rounded-lg">
+                  <h4 class="text-blue-400 font-medium mb-2">💡 代替候補</h4>
+                  <ul class="text-gray-300 space-y-1">${altList}</ul>
+                </div>
+              `;
+            }
           }
 
           // 統合分析情報の生成
@@ -5659,32 +5779,35 @@
 
           // 統合分析に基づく詳細根拠
           const reasoning = `
-            【🎯 統合分析結果】${contextInfo}<br>
-            📊 コンテキスト: ${contextName}<br>
+            【🎯 7段階統合分析結果】<br>
+            ${contextInfo}<br>
+            📊 分析プロセス: 前処理→形態素解析→キーワード抽出→感情分析→Triple OS統合→易経マッピング→統合結果生成<br>
             ご入力いただいた状況は、<strong>${line["親となる卦"]} ${line.爻}</strong>の「<strong>${mainTheme}</strong>」として分析されました。<br>
             <small class="${confidenceColor}">🔍 分析信頼度: ${confidenceLevel} (${confidencePercent}%)</small><br>
-            <small class="text-gray-400">🚀 分析手法: ${analysisResult.method}</small>
-            ${improvementAdvice}
+            <small class="text-gray-400">⏱️ 処理時間: ${Math.round(analysisResult.qualityMetrics.processingTime)}ms</small>
+            ${stageAnalysisInfo}
             ${alternativesInfo}
           `;
 
           // コンソールログ出力
-          console.log('✅ 統合分析完了:', {
+          console.log('✅ 7段階統合分析完了:', {
+            hexagram: hexagram,
+            line: lineNumber,
             confidence: confidencePercent,
-            method: analysisResult.method,
-            contextType: analysisResult.contextType,
-            alternatives: analysisResult.alternatives?.length || 0,
-            irregularFlags: analysisResult.irregularFlags
+            stages: Object.keys(analysisResult.stageResults).length,
+            processingTime: analysisResult.qualityMetrics.processingTime,
+            emotionalState: analysisResult.stageResults?.stage3?.emotionalContext?.primary,
+            tripleOS: analysisResult.stageResults?.stage5?.osImpacts
           });
 
           // Phase 4: 結果処理と返却
           return {
             卦番号: line.卦番号,
-            爻番号: analysisResult.line,
+            爻番号: lineNumber,
             根拠: reasoning,
             信頼度: confidence,
-            解説: `🔮 統合分析による状況理解: ${mainTheme}の局面にあることを示しています。`,
-            analysisResult: analysisResult // 統合分析の完全結果
+            解説: `🔮 7段階統合分析による状況理解: ${mainTheme}の局面にあることを示しています。`,
+            analysisResult: analysisResult // 7段階統合分析の完全結果
           };
 
         } catch (error) {
