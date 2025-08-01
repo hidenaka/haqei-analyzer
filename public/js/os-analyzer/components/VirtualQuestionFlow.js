@@ -4,7 +4,22 @@
  * 見える設問のみレンダリングして完璧なパフォーマンスを実現
  */
 
-class VirtualQuestionFlow extends BaseComponent {
+class VirtualQuestionFlow extends (typeof BaseComponent !== 'undefined' ? BaseComponent : class {
+  constructor(containerId, options = {}) {
+    this.containerId = containerId;
+    this.container = document.getElementById(containerId);
+    this.options = { ...this.defaultOptions, ...options };
+    this.state = {};
+    this.isVisible = false;
+    if (!this.container) {
+      throw new Error(`Container with id "${containerId}" not found`);
+    }
+  }
+  get defaultOptions() { return { animation: true, animationDuration: 300 }; }
+  init() { this.render(); this.bindEvents(); }
+  render() { throw new Error("render() must be implemented by subclass"); }
+  bindEvents() {}
+}) {
   constructor(containerId, options = {}) {
     super(containerId, options);
     
