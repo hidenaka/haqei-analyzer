@@ -4023,6 +4023,12 @@
             ? this.expandedThemeDatabase 
             : futureThemeMap;
           
+          console.log('🔍 多層マッチング開始:', { 
+            keywordCount: expandedKeywords.length, 
+            contextType: contextType,
+            themeCount: Object.keys(themeDatabase).length 
+          });
+          
           h384Data.forEach((lineData) => {
             const themeData = themeDatabase[lineData.通し番号];
             if (!themeData) return;
@@ -4033,10 +4039,42 @@
               patternMatches: [],
               semanticMatches: [],
               contextMatches: [],
-              dynamicMatches: []
+              dynamicMatches: [],
+              hspmMatches: [] // HSP関連マッチング
             };
 
-            // Layer 1: 基本キーワードマッチング
+            // Layer 1: 拡張キーワードマッチング（強化版）
+            if (expandedKeywords && expandedKeywords.length > 0) {
+              expandedKeywords.forEach(keyword => {
+                if (themeData.positive_keywords && Array.isArray(themeData.positive_keywords)) {
+                  themeData.positive_keywords.forEach((keywordGroup) => {
+                    const foundKw = keywordGroup.find((kw) => 
+                      kw === keyword || 
+                      kw.includes(keyword) || 
+                      keyword.includes(kw) ||
+                      this.semanticSimilarity(kw, keyword) > 0.7
+                    );
+                    if (foundKw) {
+                      score += 0.8;
+                      matchDetails.keywordMatches.push(`${foundKw} ↔ ${keyword}`);
+                    }
+                  });
+                }
+              });
+            }
+
+            // Layer 2: HSP特性マッチング（新規追加）
+            const hspPatterns = this.extractHSPPatterns(inputText);
+            if (hspPatterns.length > 0) {
+              const hspRelevantHexagrams = [31, 58, 16, 42, 53, 18]; // 感情・調和・喜び・増益・漸進・改革
+              if (hspRelevantHexagrams.includes(lineData.卦番号)) {
+                score += 1.5;
+                matchDetails.hspmMatches = hspPatterns;
+                console.log(`🎯 HSP特性マッチ: 卦${lineData.卦番号} ${lineData["親となる卦"]} - パターン: ${hspPatterns.join(', ')}`);
+              }
+            }
+
+            // Layer 3: 基本キーワードマッチング（従来版も保持）
             if (themeData.positive_keywords && Array.isArray(themeData.positive_keywords)) {
               themeData.positive_keywords.forEach((keywordGroup) => {
                 const foundKw = keywordGroup.find((kw) => 
@@ -4230,8 +4268,101 @@
         /**
          * フォールバック結果生成
          */
+        /**
+         * HSP特性パターン抽出
+         */
+        extractHSPPatterns(text) {
+          const hspPatterns = [
+            // 感受性・敏感性
+            { pattern: /敏感|感じやすい|察知|気づく|反応|影響受け/, type: '敏感性' },
+            { pattern: /共感|相手の気持ち|感情移入|寄り添う/, type: '共感性' },
+            { pattern: /疲れやすい|びっくり|音に敏感|光に敏感/, type: '刺激過敏' },
+            
+            // 感情調整
+            { pattern: /浮き沈み|気分の変化|感情の起伏|アップダウン/, type: '感情の波' },
+            { pattern: /バランス|ニュートラル|中庸|安定|調和/, type: 'バランス志向' },
+            { pattern: /コントロール|制御|調整|管理/, type: '感情制御' },
+            
+            // 人間関係・環境
+            { pattern: /人の影響|周りに左右|環境に影響|雰囲気に飲まれ/, type: '他者影響' },
+            { pattern: /適応|合わせる|空気を読む|配慮/, type: '社会適応' },
+            
+            // 哲学・価値観
+            { pattern: /人生観|価値観|信念|志|使命/, type: '人生哲学' },
+            { pattern: /調和|ハーモニー|共存|統合/, type: '調和思考' },
+            { pattern: /全体|統一|一体|ホリスティック/, type: '全体性' }
+          ];
+
+          const extractedPatterns = [];
+          hspPatterns.forEach(({ pattern, type }) => {
+            if (pattern.test(text)) {
+              extractedPatterns.push(type);
+            }
+          });
+
+          return [...new Set(extractedPatterns)]; // 重複除去
+        }
+
+        /**
+         * セマンティック類似度計算（簡易版）
+         */
+        semanticSimilarity(word1, word2) {
+          if (word1 === word2) return 1.0;
+          
+          // 部分一致による類似度
+          const longer = word1.length > word2.length ? word1 : word2;
+          const shorter = word1.length > word2.length ? word2 : word1;
+          
+          if (longer.includes(shorter)) {
+            return shorter.length / longer.length;
+          }
+          
+          // レーベンシュタイン距離による類似度（簡易版）
+          const maxLength = Math.max(word1.length, word2.length);
+          if (maxLength === 0) return 1.0;
+          
+          return (maxLength - this.levenshtein(word1, word2)) / maxLength;
+        }
+
+        /**
+         * レーベンシュタイン距離計算
+         */
+        levenshtein(str1, str2) {
+          const matrix = [];
+          
+          for (let i = 0; i <= str2.length; i++) {
+            matrix[i] = [i];
+          }
+          
+          for (let j = 0; j <= str1.length; j++) {
+            matrix[0][j] = j;
+          }
+          
+          for (let i = 1; i <= str2.length; i++) {
+            for (let j = 1; j <= str1.length; j++) {
+              if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+              } else {
+                matrix[i][j] = Math.min(
+                  matrix[i - 1][j - 1] + 1,
+                  matrix[i][j - 1] + 1,
+                  matrix[i - 1][j] + 1
+                );
+              }
+            }
+          }
+          
+          return matrix[str2.length][str1.length];
+        }
+
         generateFallbackResult(contextType, irregularFlags) {
           console.warn('統合分析でマッチなし、フォールバック結果を生成');
+          
+          // HSP特性に特化したフォールバック（新規追加）
+          if (contextType === 'emotion_management') {
+            console.log('🎯 HSP特性向けフォールバック: 沢山咸（感情調整）を選択');
+            return this.generateHSPSpecificFallback();
+          }
           
           // コンテキストに応じたデフォルト卦を選択
           const defaultHexagrams = {
@@ -5017,12 +5148,135 @@
         extractKeywords(text) {
           if (!kuromojiTokenizer) return [];
           
+          console.log('🔍 キーワード抽出開始:', text.substring(0, 50) + '...');
+          
+          // Phase 1: 形態素解析による基本キーワード
           const tokens = kuromojiTokenizer.tokenize(text);
-          return tokens
-            .filter(token => ['名詞', '動詞', '形容詞'].includes(token.pos))
+          const basicKeywords = tokens
+            .filter(token => ['名詞', '動詞', '形容詞', '副詞'].includes(token.pos))
             .filter(token => token.surface_form.length > 1)
-            .map(token => token.basic_form)
-            .slice(0, 10); // 上位10個
+            .map(token => token.basic_form);
+          
+          // Phase 2: セマンティックパターンマッチング
+          const semanticKeywords = this.extractSemanticKeywords(text);
+          
+          // Phase 3: HSP・感情特性キーワード
+          const emotionalKeywords = this.extractEmotionalKeywords(text);
+          
+          // Phase 4: 統合・重複除去
+          const allKeywords = [...new Set([
+            ...basicKeywords,
+            ...semanticKeywords,
+            ...emotionalKeywords
+          ])];
+          
+          console.log(`✅ キーワード抽出完了: ${allKeywords.length}個`);
+          console.log('抽出キーワード:', allKeywords.slice(0, 15));
+          
+          return allKeywords.slice(0, 20); // 上位20個に拡張
+        }
+
+        /**
+         * セマンティックキーワード抽出
+         * 概念的・抽象的な表現を特定のキーワードにマッピング
+         */
+        extractSemanticKeywords(text) {
+          const semanticPatterns = {
+            // HSP・感受性関連
+            '敏感性': ['敏感', '感じやすい', '察知', '気づく', '反応', '影響受け'],
+            '共感性': ['共感', '相手の気持ち', '感情移入', '寄り添う'],
+            '刺激過敏': ['疲れやすい', 'びっくり', '音に敏感', '光に敏感'],
+            
+            // 感情調整関連  
+            '感情の波': ['浮き沈み', '気分の変化', '感情の起伏', 'アップダウン'],
+            'バランス': ['バランス', 'ニュートラル', '中庸', '安定', '調和'],
+            '感情制御': ['コントロール', '制御', '調整', '管理'],
+            
+            // 人間関係・社会性
+            '他者影響': ['人の影響', '周りに左右', '環境に影響', '雰囲気に飲まれ'],
+            '社会適応': ['適応', '合わせる', '空気を読む', '配慮'],
+            
+            // 哲学・価値観
+            '人生哲学': ['人生観', '価値観', '信念', '志', '使命'],
+            '調和思考': ['調和', 'ハーモニー', '共存', '統合'],
+            '全体性': ['全体', '統一', '一体', 'ホリスティック'],
+            
+            // スピリチュアル・成長
+            '内面成長': ['成長', '発展', '進歩', '向上', '深化'],
+            '自己理解': ['自分を知る', '内省', '自己分析', '気づき'],
+            '意識変化': ['意識', '覚醒', '目覚め', '変容']
+          };
+          
+          const extractedKeywords = [];
+          
+          Object.entries(semanticPatterns).forEach(([concept, patterns]) => {
+            const matched = patterns.some(pattern => 
+              text.includes(pattern) || this.fuzzyMatch(text, pattern)
+            );
+            
+            if (matched) {
+              extractedKeywords.push(concept);
+              // マッチしたパターンも追加
+              patterns.forEach(pattern => {
+                if (text.includes(pattern)) {
+                  extractedKeywords.push(pattern);
+                }
+              });
+            }
+          });
+          
+          return extractedKeywords;
+        }
+
+        /**
+         * 感情・心理状態キーワード抽出
+         */
+        extractEmotionalKeywords(text) {
+          const emotionalPatterns = {
+            // ストレス・不安
+            'ストレス状態': ['イライラ', '不安', '心配', '焦り', 'プレッシャー'],
+            '疲労感': ['疲れ', '疲労', 'しんどい', 'きつい', 'だるい'],
+            
+            // ポジティブ感情
+            '充実感': ['充実', '満足', '達成感', 'やりがい', '喜び'],
+            '希望': ['希望', '期待', '楽しみ', 'ワクワク', '前向き'],
+            
+            // 複雑な感情
+            '葛藤': ['迷い', 'ジレンマ', '複雑', '矛盾', '悩み'],
+            '孤独感': ['孤独', '一人', '理解されない', '孤立', '寂しい']
+          };
+          
+          const extractedKeywords = [];
+          
+          Object.entries(emotionalPatterns).forEach(([emotion, patterns]) => {
+            const matched = patterns.some(pattern => text.includes(pattern));
+            if (matched) {
+              extractedKeywords.push(emotion);
+              patterns.forEach(pattern => {
+                if (text.includes(pattern)) {
+                  extractedKeywords.push(pattern);
+                }
+              });
+            }
+          });
+          
+          return extractedKeywords;
+        }
+
+        /**
+         * あいまいマッチング（部分一致・類似表現対応）
+         */
+        fuzzyMatch(text, pattern) {
+          // ひらがな・カタカナの揺れに対応
+          const normalizedText = text.replace(/[ァ-ヶ]/g, (match) => {
+            return String.fromCharCode(match.charCodeAt(0) - 0x60);
+          });
+          const normalizedPattern = pattern.replace(/[ァ-ヶ]/g, (match) => {
+            return String.fromCharCode(match.charCodeAt(0) - 0x60);
+          });
+          
+          return normalizedText.includes(normalizedPattern) || 
+                 normalizedPattern.includes(normalizedText);
         }
 
         getProcessingMethods(results) {
