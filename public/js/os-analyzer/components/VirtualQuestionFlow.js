@@ -245,10 +245,19 @@ class VirtualQuestionFlow extends BaseComponent {
         questionElement.dataset.questionId = question.id;
         questionElement.classList.add('virtual-question-item');
         
-        // 初期状態は非表示（!importantを使わない）
+        /**
+         * 初期状態設定
+         * 
+         * 修正内容（2025-08-01）:
+         * - 初期状態で!importantを使用しない
+         * - 後のCSS競合を防ぐため、基本スタイルのみ設定
+         */
         questionElement.style.display = 'none';
         questionElement.style.opacity = '0';
+        questionElement.style.visibility = 'hidden';
         questionElement.style.position = 'relative';
+        questionElement.style.width = '100%';
+        questionElement.style.height = 'auto';
         
         // 回答変更イベントのリスナー
         questionElement.addEventListener('answer-change', (event) => {
@@ -424,45 +433,66 @@ class VirtualQuestionFlow extends BaseComponent {
     
     console.log(`🎯 設問${questionNum}（${isEven ? '偶数' : '奇数'}）を表示開始: ${questionId}`);
     
-    // 【修正】現在の要素以外のみを非表示にする
+    /**
+     * スタイルリセットと確実な表示制御
+     * 
+     * 修正内容（2025-08-01）:
+     * - 偏数番設問表示失敗問題を解決
+     * - !importantを最小限に抑え、CSS競合を回避
+     * - removeAttributeでスタイルをリセットしてから再設定
+     */
+    
+    // 1. 全要素のスタイルをリセット
     for (const [index, element] of this.activeElements) {
+      // 既存のスタイルを完全にリセット
+      element.removeAttribute('style');
+      element.classList.remove('active-question');
+      
       if (index !== this.currentQuestionIndex) {
+        // 非アクティブ要素は非表示
         element.style.display = 'none';
         element.style.opacity = '0';
-        element.classList.remove('active-question');
+        element.style.visibility = 'hidden';
       }
     }
     
-    // 現在要素の強制表示（!importantで確実に）
-    currentElement.style.setProperty('display', 'block', 'important');
-    currentElement.style.setProperty('opacity', '1', 'important');
-    currentElement.style.setProperty('visibility', 'visible', 'important');
-    currentElement.style.setProperty('position', 'relative', 'important');
-    currentElement.style.setProperty('z-index', '10', 'important');
+    // 2. 現在要素の確実な表示（最小限の!important）
+    currentElement.style.display = 'block';
+    currentElement.style.opacity = '1';
+    currentElement.style.visibility = 'visible';
+    currentElement.style.position = 'relative';
+    currentElement.style.zIndex = '10';
+    currentElement.style.width = '100%';
+    currentElement.style.height = 'auto';
     currentElement.classList.add('active-question');
     
     // Shadow DOM確保
     this.ensureShadowDOMVisibility(currentElement);
     
-    // 即座に検証
+    // 3. 即座検証とフォールバック
     setTimeout(() => {
       const finalStyle = window.getComputedStyle(currentElement);
-      if (finalStyle.display === 'none' || currentElement.offsetHeight === 0) {
+      const rect = currentElement.getBoundingClientRect();
+      const isVisible = finalStyle.display !== 'none' && 
+                       finalStyle.visibility !== 'hidden' && 
+                       rect.height > 0 && rect.width > 0;
+      
+      if (!isVisible) {
         console.error(`❌ CRITICAL: ${questionId} still not visible after fix!`);
+        console.log(`診断情報: display=${finalStyle.display}, visibility=${finalStyle.visibility}, rect=${rect.width}x${rect.height}`);
         
-        // 最終手段: CSS規則の完全上書き
-        currentElement.style.cssText = `
-          display: block !important;
-          opacity: 1 !important;
-          visibility: visible !important;
-          position: relative !important;
-          z-index: 999 !important;
-          width: 100% !important;
-          height: auto !important;
-        `;
+        // 最終手段: 緊急オーバーライド（!important使用）
+        currentElement.style.setProperty('display', 'block', 'important');
+        currentElement.style.setProperty('opacity', '1', 'important');
+        currentElement.style.setProperty('visibility', 'visible', 'important');
+        currentElement.style.setProperty('position', 'relative', 'important');
+        currentElement.style.setProperty('z-index', '999', 'important');
+        currentElement.style.setProperty('width', '100%', 'important');
+        currentElement.style.setProperty('height', 'auto', 'important');
+        
         console.log(`🚨 Applied emergency CSS override for ${questionId}`);
       } else {
-        console.log(`✅ ${questionId} successfully displayed`);
+        console.log(`✅ ${questionId} successfully displayed (${rect.width}x${rect.height})`);
       }
     }, 1);
     
@@ -1091,10 +1121,19 @@ class VirtualQuestionFlow extends BaseComponent {
       }
     });
     
-    // 初期状態設定（!importantを使わない）
+    /**
+     * フォールバック要素の初期状態
+     * 
+     * 修正内容（2025-08-01）:
+     * - Web Component失敗時のフォールバック要素でも同様に設定
+     * - 表示制御の一貫性を確保
+     */
     element.style.display = 'none';
     element.style.opacity = '0';
+    element.style.visibility = 'hidden';
     element.style.position = 'relative';
+    element.style.width = '100%';
+    element.style.height = 'auto';
     
     console.log(`✅ Fallback element created for ${question.id}`);
     return element;

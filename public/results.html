@@ -80,6 +80,7 @@
     
     <!-- 仮想人格関連エンジン -->
     <script type="text/javascript" src="./js/os-analyzer/core/TripleOSEngine.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/core/PersonalityOS.js"></script>
     <script type="text/javascript" src="./js/os-analyzer/core/VirtualPersonality.js"></script>
     <script type="text/javascript" src="./js/os-analyzer/core/OSRelationshipEngine.js"></script>
     <script type="text/javascript" src="./js/os-analyzer/core/IchingMetaphorEngine.js"></script>
@@ -154,6 +155,10 @@
                 
                 // 初期化と表示
                 await virtualPersonaView.init();
+                
+                // グローバル参照の設定（アクションボタンから呼び出すため）
+                window.virtualPersonaView = virtualPersonaView;
+                
                 console.log('✅ 仮想人格対話型プラットフォーム初期化完了');
                 
                 // ローディング画面を非表示

@@ -295,6 +295,9 @@ class HaqeiQuestionElement extends HTMLElement {
           margin: 0 auto;
           padding: 20px;
           box-sizing: border-box;
+          /* 追加: 上部見切れ防止のための大幅なマージン拡大 */
+          margin-top: 60px;
+          padding-top: 40px;
         }
 
         .question-container.animated .slide-in {
