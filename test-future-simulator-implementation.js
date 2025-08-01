@@ -187,10 +187,10 @@ class FutureSimulatorValidator {
     const integrationChecks = [
       { name: 'integratedEngine初期化', pattern: /integratedEngine.*=.*new IntegratedAnalysisEngine/ },
       { name: 'performIntegratedAnalysis呼び出し', pattern: /performIntegratedAnalysis\s*\(/ },
-      { name: '統合分析結果処理', pattern: /analysisResult.*=.*await.*performIntegratedAnalysis/ },
+      { name: '統合分析結果処理', pattern: /analysisResult.*=.*await.*Promise\.race/ },
       { name: 'イレギュラー検出結果活用', pattern: /inputAdvice.*show/ },
       { name: '代替候補表示機能', pattern: /alternatives.*length.*>.*0/ },
-      { name: 'エラーハンドリング', pattern: /catch.*error.*統合分析エラー/ }
+      { name: 'エラーハンドリング', pattern: /FutureSimulatorErrorHandler/ }
     ];
     
     integrationChecks.forEach(check => {

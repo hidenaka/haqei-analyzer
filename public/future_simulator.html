@@ -4259,29 +4259,148 @@
       // グローバル統合分析エンジンインスタンス
       let integratedEngine = null;
 
+      // エラーハンドリング統合クラス
+      class FutureSimulatorErrorHandler {
+        static classifyError(error) {
+          if (!error) return 'UNKNOWN_ERROR';
+          
+          const message = error.message || error.toString();
+          
+          if (message.includes('kuromoji') || message.includes('tokenizer')) {
+            return 'TOKENIZER_ERROR';
+          } else if (message.includes('H384_DATA') || message.includes('futureThemeMap')) {
+            return 'DATA_ERROR';
+          } else if (message.includes('IntegratedAnalysisEngine') || message.includes('performIntegratedAnalysis')) {
+            return 'ANALYSIS_ENGINE_ERROR';
+          } else if (message.includes('network') || message.includes('fetch')) {
+            return 'NETWORK_ERROR';
+          } else if (message.includes('memory') || message.includes('allocation')) {
+            return 'MEMORY_ERROR';
+          } else {
+            return 'GENERAL_ERROR';
+          }
+        }
+
+        static generateFallbackResult(contextType, error, errorType) {
+          const fallbackHexagram = {
+            personal: { hexagram: 3, line: 1, name: '水雷屯', theme: '新しい始まりへの準備' },
+            social: { hexagram: 8, line: 1, name: '水地比', theme: '協調と連帯' },
+            relationship: { hexagram: 31, line: 1, name: '沢山咸', theme: '相互理解への道' },
+            business: { hexagram: 5, line: 1, name: '水天需', theme: '時を待つ知恵' },
+            philosophical: { hexagram: 4, line: 1, name: '山水蒙', theme: '学びの始まり' },
+            technical: { hexagram: 32, line: 1, name: '雷風恒', theme: '継続的改善' },
+            temporal: { hexagram: 49, line: 1, name: '沢火革', theme: '変化への適応' },
+            hybrid: { hexagram: 64, line: 1, name: '火水未済', theme: '未完成への希望' }
+          };
+
+          const errorMessages = {
+            TOKENIZER_ERROR: '言語解析システムに一時的な問題が発生しました',
+            DATA_ERROR: 'データベースの読み込みに問題が発生しました',
+            ANALYSIS_ENGINE_ERROR: '分析エンジンに一時的な問題が発生しました',
+            NETWORK_ERROR: 'ネットワーク接続に問題が発生しました',
+            MEMORY_ERROR: 'システムリソースに問題が発生しました',
+            GENERAL_ERROR: 'システムに一時的な問題が発生しました'
+          };
+
+          const fallback = fallbackHexagram[contextType] || fallbackHexagram.personal;
+          const contextName = ENHANCED_CONTEXT_TYPES[contextType]?.name || contextType;
+          const errorMessage = errorMessages[errorType] || errorMessages.GENERAL_ERROR;
+
+          return {
+            卦番号: fallback.hexagram,
+            爻番号: fallback.line,
+            根拠: `
+              <div class="bg-yellow-900/20 border border-yellow-600/30 p-3 rounded-lg mb-3">
+                <h4 class="text-yellow-400 font-medium mb-2">⚠️ システム通知</h4>
+                <p class="text-sm text-gray-300">${errorMessage}が、基本的な分析を提供いたします。</p>
+              </div>
+              📊 コンテキスト: ${contextName}<br>
+              現在の状況は「<strong>${fallback.theme}</strong>」の観点から理解できます。<br>
+              <small class="text-yellow-400">🔄 システム復旧後により詳細な分析が可能になります</small>
+            `,
+            信頼度: 0.4, // フォールバック時は低めの信頼度
+            解説: `${fallback.name}による基本的な状況理解: ${fallback.theme}の局面として捉えることができます。`,
+            analysisResult: {
+              method: 'fallback',
+              contextType: contextType,
+              error: errorType,
+              errorMessage: error.message
+            }
+          };
+        }
+
+        static logError(error, context) {
+          const errorType = this.classifyError(error);
+          console.error('🚨 Future Simulator エラー詳細:', {
+            errorType,
+            message: error.message,
+            stack: error.stack,
+            context,
+            timestamp: new Date().toISOString()
+          });
+        }
+      }
+
       async function callAIAssistant(worryText, h384Data, futureThemeMap, contextType = 'personal') {
-        if (!kuromojiTokenizer) { 
-          showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">🔄 AI準備中</h2><p>AIの言語解析エンジンの準備がまだ完了していません。しばらくお待ちください。</p>`); 
-          return null; 
+        // Phase 1: 基本的な前提条件チェック
+        try {
+          // kuromoji.jsトークナイザーの確認
+          if (!kuromojiTokenizer) { 
+            showModal(`<h2 class="text-2xl font-bold text-yellow-400 mb-4">🔄 AI準備中</h2><p>AIの言語解析エンジンの準備がまだ完了していません。しばらくお待ちください。</p>`); 
+            return FutureSimulatorErrorHandler.generateFallbackResult(contextType, new Error('kuromoji未初期化'), 'TOKENIZER_ERROR');
+          }
+
+          // データの整合性確認
+          if (!h384Data || !Array.isArray(h384Data) || h384Data.length === 0) {
+            console.warn('H384_DATAが無効または空です');
+            return FutureSimulatorErrorHandler.generateFallbackResult(contextType, new Error('H384_DATA無効'), 'DATA_ERROR');
+          }
+
+          if (!futureThemeMap || !(futureThemeMap instanceof Map)) {
+            console.warn('futureThemeMapが無効です');
+            return FutureSimulatorErrorHandler.generateFallbackResult(contextType, new Error('futureThemeMap無効'), 'DATA_ERROR');
+          }
+
+          // 入力テキストの妥当性確認
+          if (!worryText || typeof worryText !== 'string' || worryText.trim().length === 0) {
+            return FutureSimulatorErrorHandler.generateFallbackResult(contextType, new Error('入力テキストが無効'), 'GENERAL_ERROR');
+          }
+
+        } catch (error) {
+          FutureSimulatorErrorHandler.logError(error, 'pre-processing');
+          return FutureSimulatorErrorHandler.generateFallbackResult(contextType, error, 'GENERAL_ERROR');
         }
 
-        // 統合分析エンジンを初期化（初回のみ）
-        if (!integratedEngine) {
-          console.log('🚀 統合分析エンジンを初期化中...');
-          integratedEngine = new IntegratedAnalysisEngine(kuromojiTokenizer);
+        // Phase 2: 統合分析エンジン初期化
+        try {
+          if (!integratedEngine) {
+            console.log('🚀 統合分析エンジンを初期化中...');
+            integratedEngine = new IntegratedAnalysisEngine(kuromojiTokenizer);
+          }
+        } catch (error) {
+          FutureSimulatorErrorHandler.logError(error, 'engine-initialization');
+          return FutureSimulatorErrorHandler.generateFallbackResult(contextType, error, 'ANALYSIS_ENGINE_ERROR');
         }
 
+        // Phase 3: 統合分析実行
         try {
           console.log('🎯 統合分析開始:', { textLength: worryText.length, contextType });
 
-          // 統合分析システムを使用
-          const analysisResult = await integratedEngine.performIntegratedAnalysis(
+          // 統合分析システムを使用（タイムアウト付き）
+          const analysisPromise = integratedEngine.performIntegratedAnalysis(
             worryText, h384Data, futureThemeMap, contextType
           );
 
+          // 30秒タイムアウト設定
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('分析処理がタイムアウトしました')), 30000);
+          });
+
+          const analysisResult = await Promise.race([analysisPromise, timeoutPromise]);
+
           if (!analysisResult || !analysisResult.lineData) {
             console.warn('統合分析結果なし、フォールバック処理');
-            return null;
+            return FutureSimulatorErrorHandler.generateFallbackResult(contextType, new Error('分析結果なし'), 'ANALYSIS_ENGINE_ERROR');
           }
 
           const line = analysisResult.lineData;
@@ -4356,6 +4475,7 @@
             irregularFlags: analysisResult.irregularFlags
           });
 
+          // Phase 4: 結果処理と返却
           return {
             卦番号: line.卦番号,
             爻番号: analysisResult.line,
@@ -4366,31 +4486,12 @@
           };
 
         } catch (error) {
-          console.error('❌ 統合分析エラー:', error);
-          
-          // エラー時のフォールバック処理
-          const fallbackContext = contextType || 'personal';
-          const fallbackHexagram = {
-            personal: { hexagram: 1, line: 1, name: '乾為天' },
-            social: { hexagram: 2, line: 1, name: '坤為地' },
-            relationship: { hexagram: 31, line: 1, name: '沢山咸' },
-            business: { hexagram: 14, line: 1, name: '火天大有' },
-            philosophical: { hexagram: 1, line: 1, name: '乾為天' },
-            technical: { hexagram: 32, line: 1, name: '雷風恒' },
-            temporal: { hexagram: 49, line: 1, name: '沢火革' },
-            hybrid: { hexagram: 64, line: 1, name: '火水未済' }
-          };
-
-          const fallback = fallbackHexagram[fallbackContext] || fallbackHexagram.personal;
-
-          return {
-            卦番号: fallback.hexagram,
-            爻番号: fallback.line,
-            根拠: `⚠️ システムエラーが発生したため、${ENHANCED_CONTEXT_TYPES[fallbackContext]?.name || fallbackContext}に適した基本的な分析を提供しています。<br><small class="text-red-400">エラー詳細: ${error.message}</small>`,
-            信頼度: 0.3,
-            解説: `${fallback.name}による基本的な状況理解を提供しています。`
-          };
+          // 包括的エラーハンドリング
+          FutureSimulatorErrorHandler.logError(error, 'analysis-execution');
+          const errorType = FutureSimulatorErrorHandler.classifyError(error);
+          return FutureSimulatorErrorHandler.generateFallbackResult(contextType, error, errorType);
         }
+      }
 
         // エビデンス詳細表示の切り替え
         function toggleDetailedEvidence() {

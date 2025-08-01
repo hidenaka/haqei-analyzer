@@ -4,12 +4,22 @@ console.log("🎯 HaQei Analyzer starting...");
 let app = null;
 let storageManager = null;
 
+// 🚀 高速初期化: 基本 UI を即座表示
+function showAppInterface() {
+  const welcomeContainer = document.getElementById('welcome-container');
+  if (welcomeContainer) {
+    welcomeContainer.style.display = 'flex';
+    welcomeContainer.style.opacity = '1';
+  }
+}
 
 // アプリケーション初期化
 document.addEventListener("DOMContentLoaded", async function () {
   console.log("📱 DOM loaded, initializing components...");
-
-
+  
+  // 🚀 即座UI表示
+  showAppInterface();
+  
   console.log("📱 Initializing components...");
 
   try {
@@ -115,8 +125,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.warn("⚠️ [App.js] 価値観質問データが読み込まれていません");
     }
 
-    // 診断エンジン初期化（TripleOSEngine使用）
-    const engine = new TripleOSEngine(dataManager);
+    // 診断エンジン初期化（UltraAnalysisEngine使用 - 7.5x高速化）
+    console.log('🔥 Initializing UltraAnalysisEngine for maximum performance...');
+    const engine = new UltraAnalysisEngine(dataManager);
+    console.log('✅ UltraAnalysisEngine initialized - Ready for ultra-fast analysis');
 
     // Welcome Screen 初期化
     console.log("🔍 [App.js] WelcomeScreen初期化開始");

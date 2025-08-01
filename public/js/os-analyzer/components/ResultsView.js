@@ -253,7 +253,6 @@ class ResultsView extends BaseComponent {
       });
     }
   }
-  }
 
   // 📱 新規: モバイル用折りたたみ機能
   enableCollapsibleSections(enable) {

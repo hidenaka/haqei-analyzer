@@ -1,0 +1,708 @@
+/**
+ * personality-construction.css
+ * 
+ * PersonalityConstructionView専用スタイルシート
+ * Phase 3 UI/UX Enhancement - 仮想人格構築演出システム
+ * 
+ * 作成: 2025年7月31日
+ * 機能: 段階的演出、OS誕生アニメーション、関係性可視化
+ */
+
+/* ========================================
+   メインコンテナ - 仮想人格構築画面全体
+   ======================================== */
+
+.personality-construction-container {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #ffffff;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    
+    /* フェードイン初期状態 */
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease-out;
+}
+
+.personality-construction-container.initialized {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ========================================
+   ヘッダーセクション - タイトルと概要
+   ======================================== */
+
+.construction-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.construction-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    background: linear-gradient(135deg, #4fc3f7, #29b6f6, #03a9f4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.title-icon {
+    display: inline-block;
+    margin-right: 12px;
+    font-size: 2.8rem;
+    animation: titleIconPulse 3s ease-in-out infinite;
+}
+
+@keyframes titleIconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.construction-subtitle {
+    font-size: 1.1rem;
+    color: #b0bec5;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* ========================================
+   フェーズインジケーター - 進行状況表示
+   ======================================== */
+
+.phase-indicator {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+}
+
+.current-phase {
+    margin-bottom: 20px;
+}
+
+.phase-name {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #4fc3f7;
+    display: block;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.phase-description {
+    font-size: 1rem;
+    color: #90a4ae;
+    line-height: 1.5;
+}
+
+/* プログレスバーコンテナ */
+.progress-container {
+    position: relative;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4fc3f7, #29b6f6, #03a9f4);
+    border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 1px 3px rgba(79, 195, 247, 0.4);
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: progressShimmer 2s infinite;
+}
+
+@keyframes progressShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    position: absolute;
+    top: -28px;
+    right: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4fc3f7;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   構築ビジュアル - OS誕生・関係性・メタファー
+   ======================================== */
+
+.construction-visual {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(6px);
+}
+
+/* OS誕生ステージ */
+.os-birth-stage {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.os-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid transparent;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 140px;
+    position: relative;
+    overflow: hidden;
+}
+
+.os-node::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.os-node:hover::before {
+    opacity: 1;
+}
+
+/* OS種別ごとの色分け */
+.engine-node {
+    border-color: rgba(231, 76, 60, 0.3);
+}
+
+.engine-node.activating,
+.engine-node.active {
+    border-color: #e74c3c;
+    background: rgba(231, 76, 60, 0.1);
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+}
+
+.interface-node {
+    border-color: rgba(52, 152, 219, 0.3);
+}
+
+.interface-node.activating,
+.interface-node.active {
+    border-color: #3498db;
+    background: rgba(52, 152, 219, 0.1);
+    box-shadow: 0 0 20px rgba(52, 152, 219, 0.3);
+}
+
+.safemode-node {
+    border-color: rgba(243, 156, 18, 0.3);
+}
+
+.safemode-node.activating,
+.safemode-node.active {
+    border-color: #f39c12;
+    background: rgba(243, 156, 18, 0.1);
+    box-shadow: 0 0 20px rgba(243, 156, 18, 0.3);
+}
+
+/* OSアバター */
+.os-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.avatar-icon {
+    font-size: 1.8rem;
+    transition: all 0.3s ease;
+}
+
+.os-node.activating .os-avatar {
+    animation: avatarPulse 1s infinite;
+}
+
+.os-node.active .os-avatar {
+    animation: avatarGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes avatarPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes avatarGlow {
+    from { 
+        box-shadow: 0 0 5px rgba(79, 195, 247, 0.5);
+        transform: scale(1);
+    }
+    to { 
+        box-shadow: 0 0 20px rgba(79, 195, 247, 0.8);
+        transform: scale(1.05);
+    }
+}
+
+/* OSラベルとステータス */
+.os-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 6px;
+}
+
+.os-status {
+    font-size: 0.85rem;
+    color: #90a4ae;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.os-node.activating .os-status {
+    color: #4fc3f7;
+    background: rgba(79, 195, 247, 0.2);
+}
+
+.os-node.active .os-status {
+    color: #4caf50;
+    background: rgba(76, 175, 80, 0.2);
+}
+
+/* ========================================
+   関係性キャンバス - OS間の接続線
+   ======================================== */
+
+.relationship-canvas {
+    position: relative;
+    height: 200px;
+    margin: 30px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.connection-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.connection-line {
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 5,5;
+    animation: connectionFlow 3s linear infinite;
+}
+
+@keyframes connectionFlow {
+    0% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -20; }
+}
+
+/* ========================================
+   メタファープレビュー - 易経卦表示
+   ======================================== */
+
+.metaphor-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+.hexagram-display {
+    text-align: center;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    transition: all 0.4s ease;
+}
+
+.hexagram-display:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(79, 195, 247, 0.2);
+}
+
+.hexagram-symbol {
+    font-size: 3rem;
+    line-height: 1;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.hexagram-name {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #b0bec5;
+}
+
+/* ========================================
+   構築ログ - リアルタイム進行状況
+   ======================================== */
+
+.construction-log {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+}
+
+.log-header {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #4fc3f7;
+}
+
+.log-icon {
+    margin-right: 8px;
+    font-size: 1rem;
+}
+
+.log-content {
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 8px;
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.log-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.log-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.log-content::-webkit-scrollbar-thumb {
+    background: rgba(79, 195, 247, 0.6);
+    border-radius: 3px;
+}
+
+.log-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(79, 195, 247, 0.8);
+}
+
+.log-entry {
+    display: flex;
+    align-items: flex-start;
+    padding: 4px 12px;
+    border-left: 2px solid transparent;
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
+}
+
+.log-entry:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: #4fc3f7;
+}
+
+.log-time {
+    color: #607d8b;
+    margin-right: 12px;
+    min-width: 80px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.log-message {
+    color: #cfd8dc;
+    flex: 1;
+    word-break: break-word;
+}
+
+/* ログレベルの色分け */
+.log-entry.success .log-message {
+    color: #4caf50;
+}
+
+.log-entry.warning .log-message {
+    color: #ff9800;
+}
+
+.log-entry.error .log-message {
+    color: #f44336;
+}
+
+.log-entry.info .log-message {
+    color: #2196f3;
+}
+
+/* ========================================
+   完了状態 - 構築完了時の演出
+   ======================================== */
+
+.construction-complete {
+    animation: completionCelebration 3s ease-in-out;
+}
+
+@keyframes completionCelebration {
+    0%, 100% { 
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    25% { 
+        background: linear-gradient(135deg, #1a2e1a 0%, #1e3e16 50%, #0f6010 100%);
+    }
+    50% { 
+        background: linear-gradient(135deg, #2e1a2e 0%, #3e164e 50%, #600f60 100%);
+    }
+    75% { 
+        background: linear-gradient(135deg, #2e2e1a 0%, #4e3e16 50%, #60600f 100%);
+    }
+}
+
+/* ========================================
+   レスポンシブデザイン
+   ======================================== */
+
+/* タブレット */
+@media (max-width: 768px) {
+    .personality-construction-container {
+        padding: 15px;
+    }
+    
+    .construction-title {
+        font-size: 2rem;
+    }
+    
+    .os-birth-stage {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .os-node {
+        min-width: 120px;
+        padding: 15px;
+    }
+    
+    .os-avatar {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .avatar-icon {
+        font-size: 1.5rem;
+    }
+    
+    .relationship-canvas {
+        height: 150px;
+    }
+    
+    .log-content {
+        max-height: 200px;
+        font-size: 0.8rem;
+    }
+}
+
+/* モバイル */
+@media (max-width: 480px) {
+    .personality-construction-container {
+        padding: 10px;
+    }
+    
+    .construction-header {
+        padding: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .construction-title {
+        font-size: 1.7rem;
+    }
+    
+    .title-icon {
+        font-size: 2rem;
+        margin-right: 8px;
+    }
+    
+    .construction-subtitle {
+        font-size: 1rem;
+    }
+    
+    .phase-indicator {
+        padding: 16px;
+    }
+    
+    .phase-name {
+        font-size: 1.2rem;
+    }
+    
+    .construction-visual {
+        padding: 20px;
+    }
+    
+    .os-node {
+        min-width: 100px;
+        padding: 12px;
+    }
+    
+    .os-avatar {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .avatar-icon {
+        font-size: 1.3rem;
+    }
+    
+    .os-label {
+        font-size: 0.9rem;
+    }
+    
+    .os-status {
+        font-size: 0.8rem;
+    }
+    
+    .hexagram-symbol {
+        font-size: 2.5rem;
+    }
+    
+    .log-content {
+        max-height: 180px;
+        font-size: 0.75rem;
+    }
+    
+    .log-time {
+        min-width: 70px;
+        font-size: 0.75rem;
+    }
+}
+
+/* ========================================
+   アクセシビリティ対応
+   ======================================== */
+
+/* 動きを制限するユーザー向け */
+@media (prefers-reduced-motion: reduce) {
+    .personality-construction-container,
+    .os-node,
+    .os-avatar,
+    .hexagram-display,
+    .log-entry {
+        transition: none;
+    }
+    
+    .title-icon,
+    .os-node.activating .os-avatar,
+    .os-node.active .os-avatar,
+    .progress-fill::after,
+    .connection-line,
+    .construction-complete {
+        animation: none;
+    }
+}
+
+/* ハイコントラスト対応 */
+@media (prefers-contrast: high) {
+    .personality-construction-container {
+        background: #000000;
+        color: #ffffff;
+    }
+    
+    .construction-header,
+    .phase-indicator,
+    .construction-visual,
+    .construction-log {
+        background: #111111;
+        border-color: #ffffff;
+    }
+    
+    .os-node {
+        background: #222222;
+        border-color: #ffffff;
+    }
+    
+    .progress-bar {
+        background: #333333;
+    }
+    
+    .progress-fill {
+        background: #ffffff;
+    }
+}
+
+/* フォーカス管理 */
+.os-node:focus,
+.hexagram-display:focus {
+    outline: 2px solid #4fc3f7;
+    outline-offset: 2px;
+}
+
+/* ========================================
+   パフォーマンス最適化
+   ======================================== */
+
+/* GPU加速の促進 */
+.personality-construction-container,
+.os-node,
+.os-avatar,
+.progress-fill,
+.hexagram-display {
+    will-change: transform, opacity;
+}
+
+/* レイヤー最適化 */
+.construction-complete {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}

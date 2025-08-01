@@ -586,7 +586,546 @@ class OSRelationshipEngine {
       speakingOrder,
       previousPositions: this.extractPreviousPositions(previousRounds),
       emergingThemes: this.identifyEmergingThemes(previousRounds),
-      unresolved ISSues: this.identifyUnresolvedIssues(previousRounds)
+      unresolvedIssues: this.identifyUnresolvedIssues(previousRounds)
+    };
+  }
+
+  /**
+   * 前回のポジションから情報を抽出
+   */
+  extractPreviousPositions(previousRounds) {
+    const positions = {};
+    
+    previousRounds.forEach(round => {
+      round.exchanges.forEach(exchange => {
+        if (!positions[exchange.speaker]) {
+          positions[exchange.speaker] = [];
+        }
+        positions[exchange.speaker].push({
+          position: exchange.position,
+          tone: exchange.tone,
+          concerns: exchange.concerns
+        });
+      });
+    });
+    
+    return positions;
+  }
+
+  /**
+   * 新しいテーマの特定
+   */
+  identifyEmergingThemes(previousRounds) {
+    const themes = new Set();
+    
+    previousRounds.forEach(round => {
+      round.exchanges.forEach(exchange => {
+        if (exchange.concerns) {
+          exchange.concerns.forEach(concern => themes.add(concern));
+        }
+        if (exchange.proposals) {
+          exchange.proposals.forEach(proposal => themes.add(proposal));
+        }
+      });
+    });
+    
+    return Array.from(themes);
+  }
+
+  /**
+   * 未解決の問題を特定
+   */
+  identifyUnresolvedIssues(previousRounds) {
+    const issues = [];
+    
+    previousRounds.forEach(round => {
+      round.disagreements.forEach(disagreement => {
+        if (!this.isIssueResolved(disagreement, previousRounds)) {
+          issues.push(disagreement);
+        }
+      });
+    });
+    
+    return issues;
+  }
+
+  /**
+   * 問題が解決されているかチェック
+   */
+  isIssueResolved(issue, rounds) {
+    // 簡略化された解決判定
+    return rounds.some(round => 
+      round.agreements.some(agreement => 
+        agreement.includes(issue) || agreement.topic === issue
+      )
+    );
+  }
+
+  /**
+   * OS立場の生成
+   */
+  generateOSPosition(os, scenario, context) {
+    const positionTemplates = {
+      engine: [
+        `価値観として${scenario}については、理想的な解決を目指すべきです。`,
+        `本質的に考えると、${scenario}は私たちの核心的価値を反映すべき問題です。`,
+        `長期的視点で${scenario}を見ると、創造的なアプローチが必要です。`
+      ],
+      interface: [
+        `${scenario}について、周囲の人との関係を考慮する必要があります。`,
+        `社会的な観点から${scenario}を見ると、調和を保つことが重要です。`,
+        `皆が納得できる${scenario}の解決策を見つけたいと思います。`
+      ],
+      safemode: [
+        `${scenario}のリスクを慎重に分析する必要があります。`,
+        `安全性を第一に${scenario}を検討すべきです。`,
+        `${scenario}について、予期せぬ問題が起こらないよう準備が必要です。`
+      ]
+    };
+
+    const templates = positionTemplates[os.osType] || ['標準的な立場を取ります。'];
+    return templates[Math.floor(Math.random() * templates.length)];
+  }
+
+  /**
+   * OSトーンの決定
+   */
+  determineOSTone(os, context) {
+    const toneOptions = {
+      engine: ['情熱的', '理想主義的', '確信に満ちた', '創造的'],
+      interface: ['協調的', '配慮深い', '外交的', '温和'],
+      safemode: ['慎重', '分析的', '警戒的', '現実的']
+    };
+
+    const tones = toneOptions[os.osType] || ['中立的'];
+    return tones[Math.floor(Math.random() * tones.length)];
+  }
+
+  /**
+   * OS懸念事項の特定
+   */
+  identifyOSConcerns(os, scenario, context) {
+    const concernTemplates = {
+      engine: [
+        '価値観に妥協することになるのではないか',
+        '理想を諦めることになるのではないか',
+        '創造性が制限されるのではないか'
+      ],
+      interface: [
+        '人間関係にひびが入るのではないか',
+        '誰かを傷つけることになるのではないか',
+        '調和が崩れるのではないか'
+      ],
+      safemode: [
+        '予期せぬリスクがあるのではないか',
+        '失敗した時の対処法は準備できているか',
+        'より安全な選択肢はないのか'
+      ]
+    };
+
+    return concernTemplates[os.osType] || ['特に大きな懸念はありません'];
+  }
+
+  /**
+   * OS提案の生成
+   */
+  generateOSProposals(os, scenario, context) {
+    const proposalTemplates = {
+      engine: [
+        '理想的な解決策を一緒に探してみませんか',
+        '創造的なアプローチを試してみるのはどうでしょう',
+        'もっと本質的な解決方法があるのではないでしょうか'
+      ],
+      interface: [
+        '皆で話し合って決めるのはどうでしょう',
+        '関係者全員が納得できる方法を探しませんか',
+        'より協力的なアプローチを取ってみませんか'
+      ],
+      safemode: [
+        'まずリスクを詳しく分析してから決めませんか',
+        'より安全な方法から始めてみるのはどうでしょう',
+        '準備をもう少し充実させてから実行しませんか'
+      ]
+    };
+
+    return proposalTemplates[os.osType] || ['様子を見てみましょう'];
+  }
+
+  /**
+   * 他OSへの反応生成
+   */
+  generateResponsesToOthers(os, previousRounds) {
+    const responses = {};
+    
+    if (previousRounds.length === 0) return responses;
+    
+    const lastRound = previousRounds[previousRounds.length - 1];
+    
+    lastRound.exchanges.forEach(exchange => {
+      if (exchange.speaker !== os.osType) {
+        responses[exchange.speaker] = this.generateResponseToOS(os, exchange);
+      }
+    });
+    
+    return responses;
+  }
+
+  /**
+   * 特定OSへの反応生成
+   */
+  generateResponseToOS(respondingOS, targetExchange) {
+    const responsePatterns = {
+      engine: {
+        interface: '社会的配慮は大切ですが、理想も忘れずに',
+        safemode: '慎重さは理解できますが、チャレンジも必要では'
+      },
+      interface: {
+        engine: '理想は素晴らしいですが、現実的配慮も',
+        safemode: '安全性は大事ですが、関係性への影響も考慮を'
+      },
+      safemode: {
+        engine: '理想の追求も大切ですが、リスク管理を',
+        interface: '調和は重要ですが、安全性の確保も'
+      }
+    };
+
+    const patterns = responsePatterns[respondingOS.osType];
+    return patterns?.[targetExchange.speaker] || 'なるほど、それも一つの考え方ですね';
+  }
+
+  /**
+   * ラウンドダイナミクスの分析
+   */
+  analyzeRoundDynamics(round) {
+    // 合意点の特定
+    const commonThemes = this.findCommonThemes(round.exchanges);
+    round.agreements = commonThemes.agreements;
+    
+    // 不合意点の特定
+    const conflicts = this.findConflicts(round.exchanges);
+    round.disagreements = conflicts;
+    
+    // 新しい立場の記録
+    round.newPositions = this.identifyNewPositions(round.exchanges);
+    
+    // ラウンドの合意レベル計算
+    round.consensusLevel = this.calculateRoundConsensus(round);
+  }
+
+  /**
+   * 共通テーマの発見
+   */
+  findCommonThemes(exchanges) {
+    const themes = {};
+    const agreements = [];
+    
+    exchanges.forEach(exchange => {
+      if (exchange.proposals) {
+        exchange.proposals.forEach(proposal => {
+          if (!themes[proposal]) themes[proposal] = 0;
+          themes[proposal]++;
+        });
+      }
+    });
+    
+    // 複数のOSが同じ提案をした場合は合意とみなす
+    Object.entries(themes).forEach(([theme, count]) => {
+      if (count >= 2) {
+        agreements.push({
+          topic: theme,
+          supportingOSes: count,
+          strength: count / exchanges.length
+        });
+      }
+    });
+    
+    return { agreements };
+  }
+
+  /**
+   * 対立点の発見
+   */
+  findConflicts(exchanges) {
+    const conflicts = [];
+    
+    for (let i = 0; i < exchanges.length; i++) {
+      for (let j = i + 1; j < exchanges.length; j++) {
+        const conflict = this.detectConflictBetween(exchanges[i], exchanges[j]);
+        if (conflict) {
+          conflicts.push(conflict);
+        }
+      }
+    }
+    
+    return conflicts;
+  }
+
+  /**
+   * 2つの発言間の対立検出
+   */
+  detectConflictBetween(exchange1, exchange2) {
+    // 簡略化された対立検出
+    if (exchange1.tone === '強硬' && exchange2.tone === '妥協的') {
+      return {
+        participants: [exchange1.speaker, exchange2.speaker],
+        issue: 'アプローチの違い',
+        intensity: 0.6
+      };
+    }
+    
+    // 懸念事項の対立チェック
+    if (exchange1.concerns && exchange2.concerns) {
+      const conflictingConcerns = exchange1.concerns.filter(concern1 =>
+        exchange2.concerns.some(concern2 => this.areConcernsConflicting(concern1, concern2))
+      );
+      
+      if (conflictingConcerns.length > 0) {
+        return {
+          participants: [exchange1.speaker, exchange2.speaker],
+          issue: conflictingConcerns[0],
+          intensity: conflictingConcerns.length * 0.3
+        };
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * 懸念事項の対立判定
+   */
+  areConcernsConflicting(concern1, concern2) {
+    const conflictPairs = [
+      ['リスク回避', '積極的行動'],
+      ['個人の理想', '集団の調和'],
+      ['安全性重視', '創造性追求']
+    ];
+    
+    return conflictPairs.some(pair =>
+      (concern1.includes(pair[0]) && concern2.includes(pair[1])) ||
+      (concern1.includes(pair[1]) && concern2.includes(pair[0]))
+    );
+  }
+
+  /**
+   * 新しい立場の特定
+   */
+  identifyNewPositions(exchanges) {
+    const newPositions = {};
+    
+    exchanges.forEach(exchange => {
+      // 前回から変化した立場があるかチェック
+      if (this.isPositionNew(exchange)) {
+        newPositions[exchange.speaker] = {
+          position: exchange.position,
+          change: 'evolved',
+          significance: 'moderate'
+        };
+      }
+    });
+    
+    return newPositions;
+  }
+
+  /**
+   * 立場が新しいかチェック
+   */
+  isPositionNew(exchange) {
+    // 簡略化: ランダムに新しい立場があるとする
+    return Math.random() > 0.7;
+  }
+
+  /**
+   * ラウンド合意レベル計算
+   */
+  calculateRoundConsensus(round) {
+    const totalExchanges = round.exchanges.length;
+    const agreementCount = round.agreements.length;
+    const conflictCount = round.disagreements.length;
+    
+    if (totalExchanges === 0) return 0;
+    
+    const consensusScore = (agreementCount * 2 - conflictCount) / totalExchanges;
+    return Math.max(0, Math.min(1, consensusScore));
+  }
+
+  /**
+   * 最終合意の形成
+   */
+  formFinalConsensus(rounds) {
+    if (rounds.length === 0) return '対話なし';
+    
+    const lastRound = rounds[rounds.length - 1];
+    const allAgreements = rounds.flatMap(round => round.agreements);
+    
+    if (allAgreements.length === 0) {
+      return '各OSが異なる視点を維持しつつ、相互理解を深めることができました';
+    }
+    
+    const strongestAgreement = allAgreements.reduce((strongest, current) => 
+      (current.strength > strongest.strength) ? current : strongest
+    );
+    
+    return `${strongestAgreement.topic}について、${strongestAgreement.supportingOSes}つのOSが合意に達しました`;
+  }
+
+  /**
+   * 最終合意レベル計算
+   */
+  calculateFinalConsensusLevel(rounds) {
+    if (rounds.length === 0) return 0;
+    
+    const avgConsensus = rounds.reduce((sum, round) => sum + round.consensusLevel, 0) / rounds.length;
+    const progressionBonus = this.calculateConsensusProgression(rounds);
+    
+    return Math.min(1, avgConsensus + progressionBonus);
+  }
+
+  /**
+   * 合意進捗ボーナス計算
+   */
+  calculateConsensusProgression(rounds) {
+    if (rounds.length < 2) return 0;
+    
+    const firstHalf = rounds.slice(0, Math.floor(rounds.length / 2));
+    const secondHalf = rounds.slice(Math.floor(rounds.length / 2));
+    
+    const firstAvg = firstHalf.reduce((sum, round) => sum + round.consensusLevel, 0) / firstHalf.length;
+    const secondAvg = secondHalf.reduce((sum, round) => sum + round.consensusLevel, 0) / secondHalf.length;
+    
+    return Math.max(0, (secondAvg - firstAvg) * 0.3);
+  }
+
+  /**
+   * 主導的な声の特定
+   */
+  identifyDominantVoice(rounds) {
+    const voiceInfluence = { engine: 0, interface: 0, safemode: 0 };
+    
+    rounds.forEach(round => {
+      round.agreements.forEach(agreement => {
+        // 合意に貢献したOSの影響力を増加
+        round.exchanges.forEach(exchange => {
+          if (exchange.proposals && exchange.proposals.includes(agreement.topic)) {
+            voiceInfluence[exchange.speaker] += agreement.strength;
+          }
+        });
+      });
+    });
+    
+    return Object.entries(voiceInfluence).reduce((dominant, [os, influence]) => 
+      influence > dominant.influence ? { os, influence } : dominant
+    , { os: 'balanced', influence: 0 }).os;
+  }
+
+  /**
+   * 関係性への影響評価
+   */
+  evaluateRelationshipChanges(dialogue) {
+    const changes = {};
+    
+    // 対話による関係性の変化を評価
+    Object.keys(this.relationshipMatrix).forEach(relationshipKey => {
+      const relationship = this.relationshipMatrix[relationshipKey];
+      const [os1, os2] = relationshipKey.split('-');
+      
+      // 対話での協力・対立をもとに関係性を更新
+      const cooperationChange = this.calculateCooperationChange(dialogue, os1, os2);
+      const conflictChange = this.calculateConflictChange(dialogue, os1, os2);
+      
+      changes[relationshipKey] = {
+        cooperationDelta: cooperationChange,
+        conflictDelta: conflictChange,
+        overallImpact: cooperationChange - conflictChange
+      };
+      
+      // 実際の関係性値を更新
+      relationship.cooperation = Math.max(0, Math.min(1, relationship.cooperation + cooperationChange));
+      relationship.conflict = Math.max(0, Math.min(1, relationship.conflict + conflictChange));
+    });
+    
+    return changes;
+  }
+
+  /**
+   * 協力変化の計算
+   */
+  calculateCooperationChange(dialogue, os1, os2) {
+    let cooperationBonus = 0;
+    
+    dialogue.rounds.forEach(round => {
+      round.agreements.forEach(agreement => {
+        const os1Participated = round.exchanges.some(ex => ex.speaker === os1 && 
+          ex.proposals && ex.proposals.includes(agreement.topic));
+        const os2Participated = round.exchanges.some(ex => ex.speaker === os2 && 
+          ex.proposals && ex.proposals.includes(agreement.topic));
+        
+        if (os1Participated && os2Participated) {
+          cooperationBonus += 0.1 * agreement.strength;
+        }
+      });
+    });
+    
+    return cooperationBonus;
+  }
+
+  /**
+   * 対立変化の計算
+   */
+  calculateConflictChange(dialogue, os1, os2) {
+    let conflictIncrease = 0;
+    
+    dialogue.rounds.forEach(round => {
+      round.disagreements.forEach(disagreement => {
+        if (disagreement.participants.includes(os1) && disagreement.participants.includes(os2)) {
+          conflictIncrease += 0.05 * disagreement.intensity;
+        }
+      });
+    });
+    
+    return conflictIncrease;
+  }
+
+  /**
+   * フォールバック複雑対話の生成
+   */
+  generateFallbackComplexDialogue(scenario) {
+    return {
+      scenario,
+      timestamp: new Date(),
+      rounds: [{
+        roundNumber: 1,
+        exchanges: [
+          {
+            speaker: 'engine',
+            position: `価値観として${scenario}について理想的な解決を目指したいと思います`,
+            tone: '情熱的',
+            concerns: ['価値観の妥協'],
+            proposals: ['理想的解決策の追求']
+          },
+          {
+            speaker: 'interface',
+            position: `${scenario}について皆が納得できる方法を探しませんか`,
+            tone: '協調的',
+            concerns: ['人間関係への影響'],
+            proposals: ['協力的アプローチ']
+          },
+          {
+            speaker: 'safemode',
+            position: `${scenario}のリスクを慎重に分析する必要があります`,
+            tone: '慎重',
+            concerns: ['予期せぬリスク'],
+            proposals: ['リスク分析の実施']
+          }
+        ],
+        agreements: [],
+        disagreements: [],
+        consensusLevel: 0.3
+      }],
+      finalConsensus: '各OSが異なる視点を表明し、バランスの取れた検討が行われました',
+      consensusLevel: 0.3,
+      dominantVoice: 'balanced',
+      relationshipChanges: {}
     };
   }
 

@@ -1,0 +1,938 @@
+/**
+ * os-voice-switcher.css
+ * 
+ * OSVoiceSwitcher専用スタイルシート
+ * Phase 3 UI/UX Enhancement - OS切り替えシステム
+ * 
+ * 作成: 2025年7月31日
+ * 機能: OS視点切り替え、インタラクティブタブ、コンテンツ表示
+ */
+
+/* ========================================
+   メインコンテナ - OS声切り替えシステム
+   ======================================== */
+
+.os-voice-switcher {
+    background: linear-gradient(135deg, #1e1e2e 0%, #1a1a2e 100%);
+    border-radius: 16px;
+    padding: 24px;
+    color: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.os-voice-switcher::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 80%, rgba(79, 195, 247, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(156, 39, 176, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.os-voice-switcher > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ========================================
+   ヘッダーセクション - タイトルと説明
+   ======================================== */
+
+.switcher-header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.switcher-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    background: linear-gradient(135deg, #4fc3f7, #29b6f6, #03a9f4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.switcher-icon {
+    margin-right: 12px;
+    font-size: 2rem;
+    animation: switcherIconRotate 6s ease-in-out infinite;
+}
+
+@keyframes switcherIconRotate {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+}
+
+.switcher-subtitle {
+    font-size: 1rem;
+    color: #b0bec5;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ========================================
+   OSタブナビゲーション - メイン切り替えUI
+   ======================================== */
+
+.os-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.os-tab {
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 16px 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    color: #ffffff;
+    font-family: inherit;
+    min-height: 100px;
+}
+
+.os-tab::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.os-tab:hover::before {
+    opacity: 1;
+}
+
+.os-tab:hover {
+    transform: translateY(-2px);
+    border-color: rgba(79, 195, 247, 0.6);
+    box-shadow: 0 8px 25px rgba(79, 195, 247, 0.2);
+}
+
+.os-tab.active {
+    background: linear-gradient(135deg, rgba(79, 195, 247, 0.2), rgba(41, 182, 246, 0.2));
+    border-color: #4fc3f7;
+    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+    transform: translateY(-1px);
+}
+
+.os-tab.active::before {
+    opacity: 1;
+}
+
+/* タブアイコン */
+.tab-icon {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.os-tab:hover .tab-icon,
+.os-tab.active .tab-icon {
+    transform: scale(1.1);
+}
+
+/* タブコンテンツ */
+.tab-content {
+    flex: 1;
+}
+
+.tab-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #ffffff;
+}
+
+.tab-description {
+    font-size: 0.75rem;
+    color: #90a4ae;
+    line-height: 1.3;
+}
+
+.os-tab.active .tab-description {
+    color: #b0bec5;
+}
+
+/* 活性度レベル表示 */
+.activation-level {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+}
+
+.activation-level[data-level="high"] {
+    background: linear-gradient(135deg, #4caf50, #8bc34a);
+}
+
+.activation-level[data-level="medium"] {
+    background: linear-gradient(135deg, #ff9800, #ffc107);
+}
+
+.activation-level[data-level="low"] {
+    background: linear-gradient(135deg, #607d8b, #90a4ae);
+}
+
+/* ========================================
+   コンテンツ表示エリア
+   ======================================== */
+
+.content-display {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+/* コンテンツヘッダー */
+.content-header {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.current-os-indicator {
+    flex: 1;
+}
+
+.os-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #4fc3f7;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.os-status {
+    font-size: 0.85rem;
+    color: #90a4ae;
+}
+
+.transition-indicator {
+    width: 100px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.transition-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #4fc3f7, #29b6f6);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* コンテンツボディ */
+.content-body {
+    padding: 24px;
+    min-height: 300px;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.content-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #90a4ae;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top: 3px solid #4fc3f7;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 12px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 0.9rem;
+}
+
+/* ========================================
+   OSコンテンツ表示
+   ======================================== */
+
+.os-content {
+    animation: fadeInContent 0.5s ease-out;
+}
+
+@keyframes fadeInContent {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* コンテンツセクション */
+.os-content h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #4fc3f7;
+    margin: 0 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+}
+
+.os-content p {
+    color: #e0e0e0;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* 概要セクション */
+.content-summary {
+    margin-bottom: 24px;
+}
+
+/* OSプロファイル */
+.os-profile {
+    margin-bottom: 24px;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+}
+
+.profile-item {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 3px solid #4fc3f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profile-label {
+    font-size: 0.85rem;
+    color: #90a4ae;
+    font-weight: 500;
+}
+
+.profile-value {
+    font-size: 0.9rem;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: right;
+    max-width: 60%;
+}
+
+/* 統合分析 */
+.os-analysis {
+    margin-bottom: 24px;
+}
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.analysis-item {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 3px solid #29b6f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.analysis-label {
+    font-size: 0.85rem;
+    color: #90a4ae;
+    font-weight: 500;
+}
+
+.analysis-value {
+    font-size: 0.9rem;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* 洞察リスト */
+.key-insights {
+    margin-bottom: 24px;
+}
+
+.insight-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.insight-list li {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border-left: 3px solid #03a9f4;
+    color: #e0e0e0;
+    line-height: 1.5;
+    position: relative;
+}
+
+.insight-list li::before {
+    content: '💡';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(3, 169, 244, 0.2);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+/* 行動提案 */
+.action-recommendations {
+    margin-bottom: 24px;
+}
+
+.recommendation-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.recommendation-list li {
+    background: rgba(76, 175, 80, 0.1);
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border-left: 3px solid #4caf50;
+    color: #e0e0e0;
+    line-height: 1.5;
+    position: relative;
+}
+
+.recommendation-list li::before {
+    content: '🎯';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(76, 175, 80, 0.2);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+/* 状況別アドバイス */
+.situational-advice {
+    margin-bottom: 16px;
+}
+
+.advice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.advice-item {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.advice-situation {
+    background: rgba(156, 39, 176, 0.2);
+    color: #ffffff;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.advice-content {
+    padding: 12px;
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* ========================================
+   OS比較セクション
+   ======================================== */
+
+.os-comparison {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.comparison-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+}
+
+.comparison-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.comparison-icon {
+    font-size: 1.1rem;
+}
+
+/* ========================================
+   OS比較モーダル
+   ======================================== */
+
+.os-comparison-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1e1e2e 0%, #1a1a2e 100%);
+    border-radius: 16px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-header {
+    padding: 24px 24px 16px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    color: #4fc3f7;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #90a4ae;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.3s ease;
+}
+
+.modal-close:hover {
+    color: #ffffff;
+}
+
+.modal-body {
+    padding: 24px;
+    color: #ffffff;
+}
+
+/* 比較テーブル */
+.comparison-table {
+    overflow-x: auto;
+}
+
+.comparison-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.comparison-table th,
+.comparison-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.comparison-table th {
+    background: rgba(255, 255, 255, 0.1);
+    color: #4fc3f7;
+    font-weight: 600;
+}
+
+.comparison-table td {
+    color: #e0e0e0;
+    vertical-align: top;
+}
+
+.comparison-table tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ========================================
+   エラー表示
+   ======================================== */
+
+.error-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #f44336;
+}
+
+.error-icon {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+}
+
+.error-text {
+    font-size: 1rem;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.error-retry {
+    background: linear-gradient(135deg, #f44336, #e57373);
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+}
+
+.error-retry:hover {
+    transform: translateY(-1px);
+}
+
+/* ========================================
+   レスポンシブデザイン
+   ======================================== */
+
+/* タブレット */
+@media (max-width: 768px) {
+    .os-voice-switcher {
+        padding: 20px;
+    }
+    
+    .switcher-title {
+        font-size: 1.5rem;
+    }
+    
+    .os-tabs {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .os-tab {
+        min-height: 80px;
+        padding: 12px 8px;
+    }
+    
+    .tab-icon {
+        font-size: 1.5rem;
+        margin-bottom: 6px;
+    }
+    
+    .tab-name {
+        font-size: 0.8rem;
+    }
+    
+    .tab-description {
+        font-size: 0.7rem;
+    }
+    
+    .content-body {
+        padding: 20px;
+    }
+    
+    .profile-grid,
+    .analysis-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .advice-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* モバイル */
+@media (max-width: 480px) {
+    .os-voice-switcher {
+        padding: 16px;
+        margin: 10px;
+        border-radius: 12px;
+    }
+    
+    .switcher-header {
+        margin-bottom: 24px;
+    }
+    
+    .switcher-title {
+        font-size: 1.3rem;
+    }
+    
+    .switcher-icon {
+        font-size: 1.5rem;
+        margin-right: 8px;
+    }
+    
+    .switcher-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .os-tabs {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-bottom: 24px;
+    }
+    
+    .os-tab {
+        min-height: 70px;
+        padding: 10px;
+        flex-direction: row;
+        text-align: left;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .tab-icon {
+        font-size: 1.3rem;
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+    
+    .tab-content {
+        flex: 1;
+    }
+    
+    .tab-name {
+        font-size: 0.85rem;
+        margin-bottom: 2px;
+    }
+    
+    .tab-description {
+        font-size: 0.7rem;
+    }
+    
+    .activation-level {
+        position: static;
+        margin-left: auto;
+        font-size: 0.65rem;
+    }
+    
+    .content-header {
+        padding: 12px 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .content-body {
+        padding: 16px;
+    }
+    
+    .os-content h4 {
+        font-size: 1.1rem;
+    }
+    
+    .insight-list li,
+    .recommendation-list li {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .modal-content {
+        margin: 10px;
+        max-height: 85vh;
+    }
+    
+    .modal-header {
+        padding: 16px;
+    }
+    
+    .modal-body {
+        padding: 16px;
+    }
+    
+    .comparison-table {
+        font-size: 0.8rem;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+        padding: 8px 10px;
+    }
+}
+
+/* ========================================
+   アクセシビリティ対応
+   ======================================== */
+
+/* 動きを制限するユーザー向け */
+@media (prefers-reduced-motion: reduce) {
+    .os-voice-switcher,
+    .os-tab,
+    .tab-icon,
+    .os-content,
+    .modal-content,
+    .loading-spinner {
+        animation: none;
+        transition: none;
+    }
+    
+    .switcher-icon {
+        animation: none;
+    }
+}
+
+/* ハイコントラスト対応 */
+@media (prefers-contrast: high) {
+    .os-voice-switcher {
+        background: #000000;
+        border-color: #ffffff;
+    }
+    
+    .os-tab {
+        background: #111111;
+        border-color: #ffffff;
+    }
+    
+    .os-tab.active {
+        background: #222222;
+        border-color: #ffffff;
+    }
+    
+    .content-display {
+        background: #111111;
+        border-color: #ffffff;
+    }
+}
+
+/* フォーカス管理 */
+.os-tab:focus,
+.comparison-button:focus,
+.modal-close:focus,
+.error-retry:focus {
+    outline: 2px solid #4fc3f7;
+    outline-offset: 2px;
+}
+
+/* ========================================
+   パフォーマンス最適化
+   ======================================== */
+
+/* GPU加速の促進 */
+.os-tab,
+.tab-icon,
+.content-body,
+.modal-content,
+.transition-progress {
+    will-change: transform, opacity;
+}
+
+/* レイヤー最適化 */
+.os-voice-switcher::before,
+.os-tab::before {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}

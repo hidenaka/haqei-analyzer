@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UltraAnalysisEngine Integration Test</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .info { color: #60a5fa; }
+        button {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        #testResults {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔥 UltraAnalysisEngine Integration Test</h1>
+        <p class="info">Testing the integration of UltraAnalysisEngine with HAQEI system</p>
+
+        <div class="test-section">
+            <h3>📋 Integration Checklist</h3>
+            <div id="integrationStatus">Loading...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Engine Tests</h3>
+            <button onclick="testEngineInitialization()">Test Engine Initialization</button>
+            <button onclick="testAnalysisCompatibility()">Test Analysis Compatibility</button>
+            <button onclick="testPerformanceMetrics()">Test Performance Metrics</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Results</h3>
+            <div id="testResults"></div>
+        </div>
+    </div>
+
+    <!-- Essential Dependencies -->
+    <script src="./js/shared/core/BaseComponent.js"></script>
+    <script src="./js/shared/core/StorageManager.js"></script>
+    <script src="./js/shared/core/DataManager.js"></script>
+    <script src="./js/shared/data/questions.js"></script>
+    <script src="./js/shared/data/vectors.js"></script>
+    <script src="./js/data/data_box.js"></script>
+    <script src="./js/os-analyzer/core/Calculator.js"></script>
+    <script src="./js/os-analyzer/core/UltraAnalysisEngine.js"></script>
+
+    <script>
+        let testResults = '';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            testResults += `[${timestamp}] ${icon} ${message}\n`;
+            document.getElementById('testResults').textContent = testResults;
+        }
+
+        // Integration status check
+        window.addEventListener('DOMContentLoaded', function() {
+            checkIntegrationStatus();
+        });
+
+        function checkIntegrationStatus() {
+            const status = document.getElementById('integrationStatus');
+            let statusHTML = '';
+
+            // Check if classes are available
+            const checks = [
+                { name: 'UltraAnalysisEngine', available: typeof UltraAnalysisEngine !== 'undefined' },
+                { name: 'AnalysisQualityAssurance', available: typeof AnalysisQualityAssurance !== 'undefined' },
+                { name: 'Calculator', available: typeof Calculator !== 'undefined' },
+                { name: 'DataManager', available: typeof DataManager !== 'undefined' },
+                { name: 'StorageManager', available: typeof StorageManager !== 'undefined' }
+            ];
+
+            checks.forEach(check => {
+                const icon = check.available ? '✅' : '❌';
+                const className = check.available ? 'success' : 'error';
+                statusHTML += `<div class="${className}">${icon} ${check.name}</div>`;
+            });
+
+            status.innerHTML = statusHTML;
+            
+            const allAvailable = checks.every(check => check.available);
+            log(`Integration status: ${allAvailable ? 'ALL SYSTEMS GO' : 'SOME DEPENDENCIES MISSING'}`, 
+                allAvailable ? 'success' : 'error');
+        }
+
+        async function testEngineInitialization() {
+            log('🔥 Testing UltraAnalysisEngine initialization...');
+            
+            try {
+                // Initialize DataManager
+                const dataManager = new DataManager();
+                log('DataManager initialized successfully', 'success');
+
+                // Initialize UltraAnalysisEngine
+                const engine = new UltraAnalysisEngine(dataManager);
+                log('UltraAnalysisEngine initialized successfully', 'success');
+
+                // Check if essential methods exist
+                const methods = ['analyzeTripleOS', 'generateInsights', 'runCompleteAnalysis'];
+                methods.forEach(method => {
+                    if (typeof engine[method] === 'function') {
+                        log(`Method ${method} is available`, 'success');
+                    } else {
+                        log(`Method ${method} is missing`, 'error');
+                    }
+                });
+
+                log('Engine initialization test completed', 'success');
+                return engine;
+
+            } catch (error) {
+                log(`Engine initialization failed: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function testAnalysisCompatibility() {
+            log('🧪 Testing analysis compatibility...');
+            
+            try {
+                const engine = await testEngineInitialization();
+                if (!engine) {
+                    log('Cannot test compatibility - engine initialization failed', 'error');
+                    return;
+                }
+
+                // Test data structure
+                const testAnswers = [
+                    { questionId: 'q1', selectedValue: 'A', scoring_tags: [{ key: '乾_創造性', value: 3.0 }] },
+                    { questionId: 'q2', selectedValue: 'B', scoring_tags: [{ key: '兌_表現性', value: 2.5 }] },
+                    { questionId: 'q3', selectedValue: 'C', scoring_tags: [{ key: '離_知性', value: 2.0 }] }
+                ];
+
+                log('Test answers prepared', 'success');
+
+                // Test compatibility methods
+                if (typeof engine.analyzeTripleOS === 'function') {
+                    log('analyzeTripleOS method is compatible', 'success');
+                } else {
+                    log('analyzeTripleOS method not found', 'error');
+                }
+
+                if (typeof engine.generateInsights === 'function') {
+                    log('generateInsights method is compatible', 'success');
+                } else {
+                    log('generateInsights method not found', 'error');
+                }
+
+                log('Compatibility test completed', 'success');
+
+            } catch (error) {
+                log(`Compatibility test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPerformanceMetrics() {
+            log('📊 Testing performance metrics...');
+            
+            try {
+                const engine = await testEngineInitialization();
+                if (!engine) {
+                    log('Cannot test performance - engine initialization failed', 'error');
+                    return;
+                }
+
+                // Check performance metrics structure
+                if (engine.performanceMetrics) {
+                    log('Performance metrics object exists', 'success');
+                    log(`Initial metrics: ${JSON.stringify(engine.performanceMetrics)}`, 'info');
+                } else {
+                    log('Performance metrics object not found', 'error');
+                }
+
+                // Check quality assurance
+                if (engine.qualityAssurance) {
+                    log('Quality assurance system exists', 'success');
+                } else {
+                    log('Quality assurance system not found', 'error');
+                }
+
+                log('Performance metrics test completed', 'success');
+
+            } catch (error) {
+                log(`Performance test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Initial log
+        log('🔥 UltraAnalysisEngine Integration Test Started');
+        log('Testing integration with HAQEI analyzer system...');
+    </script>
+</body>
+</html>

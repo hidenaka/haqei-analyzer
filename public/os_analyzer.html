@@ -99,62 +99,65 @@
       </section>
     </div>
 
-    <!-- 基盤ライブラリ -->
+    <!-- 🚀 Critical Path - 診断開始に必要最小限 -->
     <script src="./js/shared/core/BaseComponent.js"></script>
     <script src="./js/shared/core/StorageManager.js"></script>
     <script src="./js/shared/core/DataManager.js"></script>
     <script src="./js/shared/core/ErrorHandler.js"></script>
-    <script src="./js/shared/core/DiagnosisDataFormat.js"></script>
-    <script src="./js/shared/core/CrossPlatformBridge.js"></script>
     <script src="./js/shared/utils/validators.js"></script>
-    <script src="./js/shared/utils/animations.js"></script>
-
-    <!-- データリソース -->
+    
+    <!-- Essential Data - 診断に必須 -->
     <script src="./js/shared/data/questions.js"></script>
     <script src="./js/shared/data/vectors.js"></script>
     <script src="./js/data/data_box.js"></script>
-    <script src="./js/data/compatibility_definition.js"></script>
-    <script src="./assets/os_manual_database.js"></script>
-    <script src="./js/os-analyzer/data/hexagrams.js"></script>
-    <script src="./js/os-analyzer/data/hexagram_details.js"></script>
-    <script src="./js/os-analyzer/data/compatibility_matrix.js"></script>
-    <script src="./js/os-analyzer/data/action_plans.js"></script>
-    <script src="./js/os-analyzer/data/iching_relationships.js"></script>
+    
+    <!-- ⏳ Non-Critical - 遅延読み込み -->
+    <script defer src="./js/shared/core/DiagnosisDataFormat.js"></script>
+    <script defer src="./js/shared/core/CrossPlatformBridge.js"></script>
+    <script defer src="./js/shared/utils/animations.js"></script>
+    <script defer src="./js/data/compatibility_definition.js"></script>
+    <script defer src="./assets/os_manual_database.js"></script>
+    <script defer src="./js/os-analyzer/data/hexagrams.js"></script>
+    <script defer src="./js/os-analyzer/data/hexagram_details.js"></script>
+    <script defer src="./js/os-analyzer/data/compatibility_matrix.js"></script>
+    <script defer src="./js/os-analyzer/data/action_plans.js"></script>
+    <script defer src="./js/os-analyzer/data/iching_relationships.js"></script>
 
-    <!-- コアエンジン（依存関係順） -->
-    <!-- Phase 5.1: 統計システム根本改革 -->
+    <!-- 🚀 Essential Engines - 診断処理に必要 -->
     <script src="js/os-analyzer/core/StatisticalEngine.js"></script>
-    <script src="js/os-analyzer/utils/ScientificFormatter.js"></script>
-    <script src="js/os-analyzer/utils/BehavioralInsightEngine.js"></script>
     <script src="js/os-analyzer/core/Calculator.js"></script>
     <script src="js/os-analyzer/engines/CompatibilityDataLoader.js"></script>
     <script src="js/os-analyzer/core/Engine.js"></script>
-    <!-- 🔯 易経ウルトラシンク・ロジック20 -->
     <script src="js/os-analyzer/core/IChingUltraSyncLogic.js"></script>
     <script src="js/os-analyzer/core/TripleOSEngine.js"></script>
+    <!-- 🔥 Ultra Analysis Engine - 統合高速分析システム -->
+    <script src="js/os-analyzer/core/UltraAnalysisEngine.js"></script>
     
-    <!-- Phase 4: 批判的思考支援エンジン -->
-    <script src="js/os-analyzer/core/ShadowAnalyzer.js"></script>
-    <script src="js/os-analyzer/core/CriticalThinkingEngine.js"></script>
-    <script src="js/os-analyzer/core/LowScoreAnalyzer.js"></script>
-    <script src="js/os-analyzer/core/TransparencyEngine.js"></script>
-    <script src="js/os-analyzer/core/DynamicAnalyzer.js"></script>
-    <script src="js/os-analyzer/core/AdaptiveLanguage.js"></script>
-    
-    <script src="js/os-analyzer/core/PersonalStrategyAI.js"></script>
-    <script src="js/os-analyzer/engines/CompatibilityEngine.js"></script>
-    <script src="js/os-analyzer/engines/InsightEngine.js"></script>
+    <!-- ⏳ Advanced Features - 結果表示時に読み込み -->
+    <script defer src="js/os-analyzer/utils/ScientificFormatter.js"></script>
+    <script defer src="js/os-analyzer/utils/BehavioralInsightEngine.js"></script>
+    <script defer src="js/os-analyzer/core/ShadowAnalyzer.js"></script>
+    <script defer src="js/os-analyzer/core/CriticalThinkingEngine.js"></script>
+    <script defer src="js/os-analyzer/core/LowScoreAnalyzer.js"></script>
+    <script defer src="js/os-analyzer/core/TransparencyEngine.js"></script>
+    <script defer src="js/os-analyzer/core/DynamicAnalyzer.js"></script>
+    <script defer src="js/os-analyzer/core/AdaptiveLanguage.js"></script>
+    <script defer src="js/os-analyzer/core/PersonalStrategyAI.js"></script>
+    <script defer src="js/os-analyzer/engines/CompatibilityEngine.js"></script>
+    <script defer src="js/os-analyzer/engines/InsightEngine.js"></script>
 
-    <!-- UIコンポーネント -->
+    <!-- 🚀 Core UI - 診断開始に必要 -->
     <script src="js/os-analyzer/components/WelcomeScreen.js"></script>
     <script src="js/os-analyzer/components/QuestionFlow.js"></script>
     <script src="js/os-analyzer/components/AnalysisView.js"></script>
-    <script src="js/os-analyzer/components/ResultsView.js"></script>
-    <script src="js/components/TripleOSResultsView.js"></script>
-    <script src="js/components/TripleOSStrategicView.js"></script>
-    <script src="js/components/InteractiveConnectionsVisualizer.js"></script>
-    <script src="js/components/InsightPanel.js"></script>
-    <script src="js/components/CriticalProductiveCard.js"></script>
+    
+    <!-- ⏳ Results UI - 結果表示時に読み込み -->
+    <script defer src="js/os-analyzer/components/ResultsView.js"></script>
+    <script defer src="js/components/TripleOSResultsView.js"></script>
+    <script defer src="js/components/TripleOSStrategicView.js"></script>
+    <script defer src="js/components/InteractiveConnectionsVisualizer.js"></script>
+    <script defer src="js/components/InsightPanel.js"></script>
+    <script defer src="js/components/CriticalProductiveCard.js"></script>
 
     <!-- アプリケーション初期化 -->
     <script src="js/app.js"></script>

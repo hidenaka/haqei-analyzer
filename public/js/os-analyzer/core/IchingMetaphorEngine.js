@@ -41,8 +41,11 @@ class IchingMetaphorEngine {
     
     console.log('🔮 IchingMetaphorEngine initialized');
     
-    // 初期メタファー生成
-    this.generateInitialMetaphors();
+    // 初期化フラグ
+    this.isInitialized = false;
+    
+    // 初期メタファー生成（非同期）
+    this.initializationPromise = this.generateInitialMetaphors();
   }
 
   /**
@@ -183,10 +186,12 @@ class IchingMetaphorEngine {
       this.generatedMetaphors.lifeGuidance = await this.generateLifeGuidanceMetaphor();
       
       console.log('✅ Initial metaphors generated successfully');
+      this.isInitialized = true;
       
     } catch (error) {
       console.error('❌ Error generating initial metaphors:', error);
       this.generateFallbackMetaphors();
+      this.isInitialized = true;
     }
   }
 
@@ -503,9 +508,20 @@ class IchingMetaphorEngine {
   }
 
   /**
+   * 初期化完了を待つ
+   */
+  async ensureInitialized() {
+    if (!this.isInitialized) {
+      await this.initializationPromise;
+    }
+    return this.isInitialized;
+  }
+
+  /**
    * 生成されたメタファーの統合取得
    */
-  getIntegratedMetaphors() {
+  async getIntegratedMetaphors() {
+    await this.ensureInitialized();
     return {
       timestamp: new Date().toISOString(),
       personalityOverview: this.generatedMetaphors.personalityOverview,
@@ -544,7 +560,384 @@ class IchingMetaphorEngine {
     };
   }
 
-  // 追加の詳細メソッドは必要に応じて実装...
+  /**
+   * OS関係性の易経的解説 (ドキュメント仕様実装)
+   */
+  explainOSRelationship(osTypeA, osTypeB) {
+    console.log(`🔮 Explaining relationship between ${osTypeA} and ${osTypeB}...`);
+    
+    const relationshipKey = `${osTypeA}-${osTypeB}`;
+    const relationshipMetaphor = this.generatedMetaphors.osRelationships[relationshipKey];
+    
+    if (!relationshipMetaphor) {
+      return this.generateFallbackRelationshipExplanation(osTypeA, osTypeB);
+    }
+    
+    const hexagram = this.hexagramDatabase[relationshipMetaphor.metaphor.hexagram];
+    
+    return {
+      relationshipType: relationshipMetaphor.metaphor.type,
+      hexagramReference: {
+        id: relationshipMetaphor.metaphor.hexagram,
+        name: hexagram?.name || '未知',
+        meaning: hexagram?.meaning || '関係性の探求'
+      },
+      explanation: this.generateDetailedRelationshipExplanation(osTypeA, osTypeB, relationshipMetaphor),
+      practicalGuidance: this.generateRelationshipGuidance(relationshipMetaphor.metaphor, relationshipMetaphor),
+      seasonalAnalogy: this.mapRelationshipToSeason(relationshipMetaphor.metaphor),
+      evolutionPath: this.suggestRelationshipEvolution(relationshipMetaphor)
+    };
+  }
+
+  /**
+   * 詳細な関係性解説の生成
+   */
+  generateDetailedRelationshipExplanation(osA, osB, relationshipMetaphor) {
+    const osNames = {
+      engine: '価値観システム',
+      interface: '社会的システム',
+      safemode: '防御システム'
+    };
+
+    const explanationTemplates = {
+      harmony: [
+        `あなたの${osNames[osA]}と${osNames[osB]}は、易経の智慧が示すように自然な調和を保っています。`,
+        `この2つのシステムは互いに補完し合い、バランスの取れた判断を可能にします。`,
+        `${relationshipMetaphor.metaphor.description}という関係性は、あなたの人格に安定感をもたらします。`
+      ],
+      tension: [
+        `あなたの${osNames[osA]}と${osNames[osB]}の間には建設的な緊張関係があります。`,
+        `この緊張は成長の源泉となり、より深い自己理解を促します。`,
+        `易経では、このような対立は新しい智慧を生み出す力と考えられています。`
+      ],
+      cooperation: [
+        `あなたの${osNames[osA]}と${osNames[osB]}は積極的に協力し合う関係にあります。`,
+        `この協力関係により、複雑な状況でも統合された判断が可能になります。`,
+        `2つのシステムが手を取り合うことで、より強い自己が現れます。`
+      ]
+    };
+
+    const templates = explanationTemplates[relationshipMetaphor.metaphor.type] || explanationTemplates.harmony;
+    return templates.join(' ');
+  }
+
+  /**
+   * 人格物語の構築 (ドキュメント仕様実装)
+   */
+  createPersonalityStory() {
+    console.log('📖 Creating personality story...');
+    
+    const personalityOverview = this.generatedMetaphors.personalityOverview;
+    if (!personalityOverview) {
+      return this.generateFallbackPersonalityStory();
+    }
+
+    const storyPattern = this.selectStoryPattern();
+    return this.constructStoryFromPattern(storyPattern, personalityOverview);
+  }
+
+  /**
+   * 物語パターンの選択
+   */
+  selectStoryPattern() {
+    const patterns = Object.keys(this.narrativePatterns);
+    const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
+    return { type: selectedPattern, template: this.narrativePatterns[selectedPattern] };
+  }
+
+  /**
+   * パターンから物語を構築
+   */
+  constructStoryFromPattern(storyPattern, personalityData) {
+    const hexagram = personalityData.primaryHexagram;
+    const osPersonalities = this.virtualPersonality.personalityState;
+
+    switch (storyPattern.type) {
+      case 'heroJourney':
+        return this.createHeroJourneyStory(storyPattern.template, hexagram, osPersonalities);
+      case 'cyclicPattern':
+        return this.createCyclicStory(storyPattern.template, hexagram, osPersonalities);
+      case 'harmonicPattern':
+        return this.createHarmonicStory(storyPattern.template, hexagram, osPersonalities);
+      default:
+        return this.createDefaultStory(hexagram);
+    }
+  }
+
+  /**
+   * ヒーローズジャーニー物語の作成
+   */
+  createHeroJourneyStory(template, hexagram, osPersonalities) {
+    const dominantOS = osPersonalities.currentDominantOS;
+    const harmony = osPersonalities.internalHarmony;
+
+    return {
+      title: `${hexagram.name}の旅路`,
+      narrative: {
+        beginning: template.beginning.replace('{hexagram}', `${hexagram.name}（${hexagram.meaning}）`),
+        middle: template.middle.replace('{challenges}', this.generateChallenges(dominantOS)),
+        climax: template.climax.replace('{transformation}', this.generateTransformation(hexagram, harmony)),
+        resolution: template.resolution.replace('{wisdom}', this.generateWisdom(hexagram))
+      },
+      personalReflection: this.generatePersonalReflection(hexagram, dominantOS),
+      actionInvitation: this.generateActionInvitation(hexagram)
+    };
+  }
+
+  /**
+   * 循環パターン物語の作成
+   */
+  createCyclicStory(template, hexagram, osPersonalities) {
+    return {
+      title: `${hexagram.name}の四季`,
+      narrative: {
+        spring: template.spring.replace('{hexagram}', hexagram.name),
+        summer: template.summer.replace('{development}', this.generateDevelopment(hexagram)),
+        autumn: template.autumn.replace('{achievements}', this.generateAchievements(hexagram)),
+        winter: template.winter.replace('{preparation}', this.generatePreparation(hexagram))
+      },
+      currentSeason: this.determinCurrentSeason(osPersonalities),
+      nextPhaseGuidance: this.generateNextPhaseGuidance(hexagram)
+    };
+  }
+
+  /**
+   * 調和パターン物語の作成
+   */
+  createHarmonicStory(template, hexagram, osPersonalities) {
+    const dominantOS = osPersonalities.currentDominantOS;
+    
+    return {
+      title: `${hexagram.name}の調和`,
+      narrative: {
+        thesis: template.thesis
+          .replace('{os1}', this.getOSDisplayName('engine'))
+          .replace('{position1}', this.getOSPosition('engine')),
+        antithesis: template.antithesis
+          .replace('{os2}', this.getOSDisplayName('safemode'))
+          .replace('{position2}', this.getOSPosition('safemode')),
+        synthesis: template.synthesis
+          .replace('{integration}', this.generateIntegration(hexagram))
+      },
+      harmonicLevel: osPersonalities.internalHarmony,
+      balanceRecommendation: this.generateBalanceRecommendation(osPersonalities)
+    };
+  }
+
+  /**
+   * 易経ベース行動指針 (ドキュメント仕様実装)
+   */
+  generateActionGuidance() {
+    console.log('🎯 Generating I Ching based action guidance...');
+    
+    const lifeGuidance = this.generatedMetaphors.lifeGuidance;
+    if (!lifeGuidance || !lifeGuidance.guidanceHexagram) {
+      return this.generateFallbackActionGuidance();
+    }
+
+    const hexagram = this.hexagramDatabase[lifeGuidance.guidanceHexagram.id];
+    const personalityState = this.virtualPersonality.personalityState;
+
+    return {
+      overallPhilosophy: this.generateOverallPhilosophy(hexagram),
+      immediateActions: this.generateImmediateActions(hexagram, personalityState),
+      shortTermStrategy: this.generateShortTermStrategy(hexagram, personalityState),
+      longTermVision: this.generateLongTermVision(hexagram, personalityState),
+      situationalGuidance: this.generateSituationalGuidance(hexagram),
+      warningsAndCautions: this.generateWarningsAndCautions(hexagram),
+      supportiveHexagrams: this.findSupportiveHexagrams(hexagram)
+    };
+  }
+
+  /**
+   * 全体哲学の生成
+   */
+  generateOverallPhilosophy(hexagram) {
+    const philosophyTemplates = {
+      1: '創造の力を信じ、リーダーシップを発揮する人生を歩みましょう',
+      2: '受容と支援の精神で、周囲との調和を大切にしましょう',
+      29: '困難な状況でも流動性を保ち、適応力を発揮しましょう',
+      64: '未完成を恐れず、常に成長し続ける姿勢を持ちましょう'
+    };
+
+    return philosophyTemplates[hexagram.id] || 
+           `${hexagram.name}の智慧に従い、${hexagram.attributes[0]}を大切にする人生を歩みましょう`;
+  }
+
+  /**
+   * 即座の行動指針
+   */
+  generateImmediateActions(hexagram, personalityState) {
+    const dominantOS = personalityState.currentDominantOS;
+    const actionPatterns = this.actionGuidancePatterns.immediate;
+    
+    const selectedPattern = actionPatterns[Math.floor(Math.random() * actionPatterns.length)];
+    const action = this.generateSpecificAction(hexagram, dominantOS);
+    
+    return {
+      primary: selectedPattern
+        .replace('{action}', action)
+        .replace('{hexagram}', `${hexagram.name}（${hexagram.meaning}）`),
+      supportingActions: this.generateSupportingActions(hexagram, dominantOS),
+      timeframe: '今日から3日以内',
+      expectedOutcome: this.generateExpectedOutcome(action, hexagram)
+    };
+  }
+
+  /**
+   * 特定行動の生成
+   */
+  generateSpecificAction(hexagram, dominantOS) {
+    const actionMap = {
+      engine: {
+        1: '価値観を明確にし、理想に向けた第一歩を踏み出す',
+        2: '他者の意見を受け入れながら、自分の信念を整理する',
+        29: '困難な状況でも、核となる価値観を見失わずに行動する'
+      },
+      interface: {
+        1: '周囲との関係性を見直し、建設的な対話を始める',
+        2: '協力的な姿勢で、チームや家族との絆を深める',
+        29: '変化する環境に適応しながら、人間関係を維持する'
+      },
+      safemode: {
+        1: 'リスクを適切に評価し、安全な環境で新しい挑戦を始める',
+        2: '安定した基盤を築きながら、着実に成長を図る',
+        29: '予期せぬ状況に備え、複数の選択肢を準備する'
+      }
+    };
+
+    return actionMap[dominantOS]?.[hexagram.id] || 
+           `${hexagram.attributes[0]}を意識した具体的な行動を取る`;
+  }
+
+  /**
+   * 関係性の季節的類推
+   */
+  mapRelationshipToSeason(metaphorData) {
+    const seasonMap = {
+      harmony: { season: '春', description: '新しい成長と調和の季節' },
+      tension: { season: '夏', description: '活発な変化と成長の季節' },
+      cooperation: { season: '秋', description: '収穫と成熟の季節' },
+      balance: { season: '冬', description: '内省と準備の季節' }
+    };
+
+    return seasonMap[metaphorData.type] || seasonMap.balance;
+  }
+
+  /**
+   * 関係性進化の提案
+   */
+  suggestRelationshipEvolution(relationshipMetaphor) {
+    const currentType = relationshipMetaphor.metaphor.type;
+    const evolutionPaths = {
+      tension: ['建設的な対話を通じて協力関係へ', '相互理解を深めて調和へ'],
+      cooperation: ['より深い信頼関係の構築', '統合された判断システムの形成'],
+      harmony: ['この調和を維持しつつ、新しい挑戦への準備', '安定した関係性を基盤とした成長'],
+      balance: ['バランスを保ちながら、より積極的な協力関係へ']
+    };
+
+    return evolutionPaths[currentType] || ['現在の関係性を維持しつつ、さらなる深化を目指す'];
+  }
+
+  /**
+   * フォールバック関係性解説
+   */
+  generateFallbackRelationshipExplanation(osA, osB) {
+    const osNames = {
+      engine: '価値観システム',
+      interface: '社会的システム', 
+      safemode: '防御システム'
+    };
+
+    return {
+      relationshipType: 'balance',
+      hexagramReference: { id: 64, name: '未済', meaning: '発展途上の関係' },
+      explanation: `あなたの${osNames[osA]}と${osNames[osB]}は、現在発展途上の関係にあります。易経の未済の卦が示すように、この関係性には大きな可能性が秘められています。`,
+      practicalGuidance: '両方のシステムの声に耳を傾け、対話を通じて理解を深めましょう',
+      seasonalAnalogy: { season: '春', description: '新しい関係性の芽吹きの季節' },
+      evolutionPath: ['相互理解を深める', 'バランスの取れた協力関係を築く']
+    };
+  }
+
+  /**
+   * フォールバック物語生成
+   */
+  generateFallbackPersonalityStory() {
+    return {
+      title: '未済の物語',
+      narrative: {
+        introduction: 'あなたの人格は易経の未済の卦のように、完成への道のりにあります',
+        development: '3つのシステムが異なる視点を持ちながらも、統合に向かって成長しています',
+        resolution: 'この多様性こそが、あなたの人格の豊かさと可能性を示しています'
+      },
+      theme: '成長と可能性',
+      message: '完成ではなく、継続的な成長を大切にしましょう'
+    };
+  }
+
+  /**
+   * フォールバック行動指針
+   */
+  generateFallbackActionGuidance() {
+    return {
+      overallPhilosophy: '易経の智慧を日常に活かし、バランスの取れた判断を心がける',
+      immediateActions: {
+        primary: '今日から、内なる3つの声に耳を傾ける時間を作りましょう',
+        supportingActions: ['自己対話の時間を設ける', '各システムの意見を記録する'],
+        timeframe: '今日から1週間',
+        expectedOutcome: '自己理解の深化'
+      },
+      shortTermStrategy: '1ヶ月をかけて、各システムの特徴と役割を理解する',
+      longTermVision: '統合された自己として、人生の各場面で適切な判断ができるようになる',
+      situationalGuidance: {
+        stress: '防御システムの声を聞きつつ、価値観システムの指針も確認する',
+        relationships: '社会的システムと価値観システムのバランスを取る',
+        decisions: '3つのシステム全ての視点を考慮してから決断する'
+      }
+    };
+  }
+
+  // 追加のヘルパーメソッド
+  generateChallenges(dominantOS) {
+    const challengeMap = {
+      engine: '理想と現実のギャップ',
+      interface: '個人の思いと周囲の期待の対立',
+      safemode: '安全性と成長の必要性の矛盾'
+    };
+    return challengeMap[dominantOS] || '人生の複雑な課題';
+  }
+
+  generateTransformation(hexagram, harmony) {
+    if (harmony > 0.7) {
+      return `${hexagram.name}の智慧による内的統合`;
+    } else if (harmony > 0.4) {
+      return `${hexagram.name}を通じた成長と変化`;
+    } else {
+      return `${hexagram.name}の教えによる新しい視点の獲得`;
+    }
+  }
+
+  generateWisdom(hexagram) {
+    return `${hexagram.name}が教える「${hexagram.attributes[0]}」の真の意味`;
+  }
+
+  getOSDisplayName(osType) {
+    const names = {
+      engine: '価値観システム',
+      interface: '社会的システム',
+      safemode: '防御システム'
+    };
+    return names[osType] || osType;
+  }
+
+  getOSPosition(osType) {
+    const positions = {
+      engine: '理想を追求し、本質的価値を重視する立場',
+      interface: '調和を保ち、関係性を大切にする立場',
+      safemode: '安全を確保し、リスクを管理する立場'
+    };
+    return positions[osType] || '中立的な立場';
+  }
 
   /**
    * 人生哲学の抽出

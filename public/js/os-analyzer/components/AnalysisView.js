@@ -6,11 +6,12 @@ class AnalysisView extends BaseComponent {
         this.analysisTask = options.analysisTask;
         this.onComplete = options.onComplete;
         this.analysisSteps = [
-            '価値観データを8次元で解析中...',
-            '64卦の特性マトリックスを計算中...',
-            'コサイン類似度を算出中...',
-            '最適な人格OSを特定中...',
-            '深い洞察を生成中...'
+            '🔥 UltraAnalysisEngine起動中...',
+            '📊 8次元データ強化処理中...',
+            '🎭 仮想人格マトリックス構築中...',
+            '🔯 易経64卦同期実行中...',
+            '🧠 統合AI洞察生成中...',
+            '💎 最高品質結果合成中...'
         ];
         this.currentStep = 0;
         this.intervalId = null;
@@ -63,7 +64,7 @@ class AnalysisView extends BaseComponent {
         clearInterval(this.intervalId); // テキスト切り替えを停止
         const stepTextElement = document.getElementById('analysis-step-text');
         if (stepTextElement) {
-            stepTextElement.textContent = "分析完了。結果を生成しています...";
+            stepTextElement.textContent = "🎯 UltraAnalysisEngine分析完了！最高品質の結果を準備中...";
         }
 
         // 500ミリ秒待ってから、画面遷移のコールバックを呼ぶ

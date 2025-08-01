@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Simulator 実動作検証</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .test-section {
+            background: #1e293b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        .test-case {
+            background: #334155;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+        .test-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 16px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 8px 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .test-button:hover {
+            background: #2563eb;
+        }
+        .test-button:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+        }
+        .result-display {
+            background: #0f172a;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        .success { color: #22c55e; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        .info { color: #3b82f6; }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-loading { background: #f59e0b; animation: pulse 1s infinite; }
+        .status-success { background: #22c55e; }
+        .status-error { background: #ef4444; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .log-display {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+        
+        .test-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 Future Simulator 実動作検証システム</h1>
+    <p>Future Simulatorの実際の動作を検証し、文章→状況卦特定の精度を測定します。</p>
+
+    <!-- 統計表示 -->
+    <div class="test-stats">
+        <div class="stat-card">
+            <div class="stat-value" id="tests-run">0</div>
+            <div class="stat-label">実行テスト</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="success-count">0</div>
+            <div class="stat-label">成功</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="error-count">0</div>
+            <div class="stat-label">エラー</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="avg-time">0ms</div>
+            <div class="stat-label">平均時間</div>
+        </div>
+    </div>
+
+    <!-- kuromoji.js初期化確認 -->
+    <div class="test-section">
+        <h2><span class="status-indicator" id="kuromoji-status"></span>kuromoji.js 初期化状況確認</h2>
+        <button class="test-button" onclick="checkKuromojiStatus()">初期化状況確認</button>
+        <div class="result-display" id="kuromoji-result">未実行</div>
+    </div>
+
+    <!-- 基本動作テスト -->
+    <div class="test-section">
+        <h2>📝 基本動作テスト</h2>
+        <p>実際のテキスト入力による動作確認</p>
+        
+        <div class="test-case">
+            <h3>テストケース1: 個人的悩み</h3>
+            <textarea class="test-input" id="personal-test">私は最近とても不安に感じています。将来のことを考えると夜も眠れず、自分に自信が持てません。</textarea>
+            <button class="test-button" onclick="runActualTest('personal-test', 'personal-result', 'personal')">実際の分析実行</button>
+            <div class="result-display" id="personal-result">未実行</div>
+        </div>
+
+        <div class="test-case">
+            <h3>テストケース2: 人間関係の悩み</h3>
+            <textarea class="test-input" id="relationship-test">職場の上司との関係に悩んでいます。コミュニケーションがうまくいかず、毎日がストレスです。</textarea>
+            <button class="test-button" onclick="runActualTest('relationship-test', 'relationship-result', 'relationship')">実際の分析実行</button>
+            <div class="result-display" id="relationship-result">未実行</div>
+        </div>
+
+        <div class="test-case">
+            <h3>テストケース3: 複合的な悩み</h3>
+            <textarea class="test-input" id="hybrid-test">転職を考えているが、家族のことも心配で決断できない。経済的な不安もあり、どうすればいいかわからない。</textarea>
+            <button class="test-button" onclick="runActualTest('hybrid-test', 'hybrid-result', 'hybrid')">実際の分析実行</button>
+            <div class="result-display" id="hybrid-result">未実行</div>
+        </div>
+    </div>
+
+    <!-- エッジケーステスト -->
+    <div class="test-section">
+        <h2>⚠️ エッジケーステスト</h2>
+        
+        <div class="test-case">
+            <h3>短文テスト</h3>
+            <textarea class="test-input" id="short-test">困った</textarea>
+            <button class="test-button" onclick="runActualTest('short-test', 'short-result', 'edge')">短文分析実行</button>
+            <div class="result-display" id="short-result">未実行</div>
+        </div>
+
+        <div class="test-case">
+            <h3>感情的表現テスト</h3>
+            <textarea class="test-input" id="emotional-test">もう本当に嫌だ！！！絶対に無理！！死にたい！！！</textarea>
+            <button class="test-button" onclick="runActualTest('emotional-test', 'emotional-result', 'edge')">感情的表現分析実行</button>
+            <div class="result-display" id="emotional-result">未実行</div>
+        </div>
+
+        <div class="test-case">
+            <h3>専門用語テスト</h3>
+            <textarea class="test-input" id="technical-test">APIの設計で悩んでいます。RESTとGraphQLどちらを選ぶべきか、アーキテクチャの決定に迷っています。</textarea>
+            <button class="test-button" onclick="runActualTest('technical-test', 'technical-result', 'technical')">専門用語分析実行</button>
+            <div class="result-display" id="technical-result">未実行</div>
+        </div>
+    </div>
+
+    <!-- 一括テスト -->
+    <div class="test-section">
+        <h2>🚀 一括実行</h2>
+        <button class="test-button" onclick="runAllTests()" id="run-all-btn">全テスト実行</button>
+        <button class="test-button" onclick="clearAllResults()">結果クリア</button>
+    </div>
+
+    <!-- ログ表示 -->
+    <div class="test-section">
+        <h2>📋 実行ログ</h2>
+        <div class="log-display" id="execution-log"></div>
+    </div>
+
+    <script>
+        // グローバル変数
+        let testStats = {
+            run: 0,
+            success: 0,
+            error: 0,
+            times: []
+        };
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('execution-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#3b82f6',
+                success: '#22c55e', 
+                error: '#ef4444',
+                warning: '#f59e0b'
+            };
+            
+            logDiv.innerHTML += `<div style="color: ${colors[type]}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('tests-run').textContent = testStats.run;
+            document.getElementById('success-count').textContent = testStats.success;
+            document.getElementById('error-count').textContent = testStats.error;
+            
+            if (testStats.times.length > 0) {
+                const avgTime = testStats.times.reduce((a, b) => a + b, 0) / testStats.times.length;
+                document.getElementById('avg-time').textContent = Math.round(avgTime) + 'ms';
+            }
+        }
+
+        // kuromoji.js初期化状況確認
+        async function checkKuromojiStatus() {
+            const statusIndicator = document.getElementById('kuromoji-status');
+            const resultDiv = document.getElementById('kuromoji-result');
+            
+            statusIndicator.className = 'status-indicator status-loading';
+            resultDiv.textContent = '確認中...';
+            log('kuromoji.js初期化状況確認開始');
+
+            try {
+                // iframe内でFuture Simulatorを読み込んで確認
+                const iframe = document.createElement('iframe');
+                iframe.src = '/future_simulator.html';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                await new Promise(resolve => {
+                    iframe.onload = () => {
+                        setTimeout(() => {
+                            try {
+                                const iframeWindow = iframe.contentWindow;
+                                const kuromojiStatus = iframeWindow.kuromojiTokenizer ? 'initialized' : 'not_initialized';
+                                const aiAssistantExists = typeof iframeWindow.callAIAssistant === 'function';
+                                const contextAnalyzeExists = typeof iframeWindow.analyzeContextType === 'function';
+                                
+                                let statusText = `kuromoji Tokenizer: ${kuromojiStatus}\n`;
+                                statusText += `callAIAssistant関数: ${aiAssistantExists ? '存在' : '未定義'}\n`;
+                                statusText += `analyzeContextType関数: ${contextAnalyzeExists ? '存在' : '未定義'}\n`;
+                                
+                                if (kuromojiStatus === 'initialized' && aiAssistantExists) {
+                                    statusIndicator.className = 'status-indicator status-success';
+                                    statusText += '\n✅ システム初期化完了';
+                                    log('kuromoji.js初期化成功', 'success');
+                                } else {
+                                    statusIndicator.className = 'status-indicator status-error';
+                                    statusText += '\n❌ 初期化に問題あり';
+                                    log('kuromoji.js初期化に問題', 'error');
+                                }
+                                
+                                resultDiv.textContent = statusText;
+                                document.body.removeChild(iframe);
+                                resolve();
+                                
+                            } catch (error) {
+                                statusIndicator.className = 'status-indicator status-error';
+                                resultDiv.textContent = `エラー: ${error.message}`;
+                                log(`初期化確認エラー: ${error.message}`, 'error');
+                                document.body.removeChild(iframe);
+                                resolve();
+                            }
+                        }, 3000); // 初期化を待つ
+                    };
+                });
+                
+            } catch (error) {
+                statusIndicator.className = 'status-indicator status-error';
+                resultDiv.textContent = `確認失敗: ${error.message}`;
+                log(`kuromoji確認失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 実際のテスト実行
+        async function runActualTest(inputId, resultId, expectedType) {
+            const startTime = performance.now();
+            const inputText = document.getElementById(inputId).value;
+            const resultDiv = document.getElementById(resultId);
+            const button = event.target;
+            
+            if (!inputText.trim()) {
+                resultDiv.textContent = 'エラー: 入力テキストが空です';
+                return;
+            }
+            
+            button.disabled = true;
+            button.textContent = '分析中...';
+            resultDiv.textContent = '実際の分析を実行中...';
+            
+            testStats.run++;
+            updateStats();
+            
+            log(`実動作テスト開始: "${inputText.substring(0, 30)}..." (期待: ${expectedType})`);
+            
+            try {
+                // 実際のFuture Simulatorの分析機能を呼び出し
+                const iframe = document.createElement('iframe');
+                iframe.src = '/future_simulator.html';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                const result = await new Promise((resolve, reject) => {
+                    iframe.onload = async () => {
+                        try {
+                            const iframeWindow = iframe.contentWindow;
+                            
+                            // 初期化を待つ
+                            let retries = 0;
+                            const maxRetries = 10;
+                            
+                            const waitForInit = () => {
+                                if (iframeWindow.kuromojiTokenizer && typeof iframeWindow.callAIAssistant === 'function') {
+                                    return true;
+                                }
+                                if (retries++ < maxRetries) {
+                                    setTimeout(waitForInit, 500);
+                                    return false;
+                                }
+                                throw new Error('初期化タイムアウト');
+                            };
+                            
+                            if (waitForInit()) {
+                                // 実際の分析実行
+                                const analysisResult = await iframeWindow.callAIAssistant(
+                                    inputText,
+                                    iframeWindow.H384_DATA || [],
+                                    iframeWindow.futureThemeMap || new Map(),
+                                    expectedType
+                                );
+                                
+                                resolve(analysisResult);
+                            }
+                            
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    
+                    iframe.onerror = () => reject(new Error('iframe読み込みエラー'));
+                });
+                
+                const endTime = performance.now();
+                const responseTime = endTime - startTime;
+                testStats.times.push(responseTime);
+                
+                document.body.removeChild(iframe);
+                
+                if (result) {
+                    testStats.success++;
+                    
+                    let resultText = `✅ 分析成功 (${Math.round(responseTime)}ms)\n\n`;
+                    resultText += `選出された卦: ${result.卦番号}卦 ${result.爻番号}爻\n`;
+                    resultText += `信頼度: ${Math.round(result.信頼度 * 100)}%\n`;
+                    resultText += `根拠: ${result.根拠}\n`;
+                    resultText += `解説: ${result.解説}\n`;
+                    
+                    if (result.analysisResult) {
+                        resultText += `\n--- 詳細分析結果 ---\n`;
+                        resultText += `コンテキスト: ${result.analysisResult.contextType || '不明'}\n`;
+                        resultText += `分析手法: ${result.analysisResult.method || '不明'}\n`;
+                        
+                        if (result.analysisResult.alternatives && result.analysisResult.alternatives.length > 0) {
+                            resultText += `代替候補: ${result.analysisResult.alternatives.length}件\n`;
+                        }
+                    }
+                    
+                    resultDiv.textContent = resultText;
+                    log(`分析成功: ${result.卦番号}卦${result.爻番号}爻 (${Math.round(responseTime)}ms)`, 'success');
+                    
+                } else {
+                    testStats.error++;
+                    resultDiv.textContent = `❌ 分析結果なし (${Math.round(responseTime)}ms)`;
+                    log(`分析結果なし (${Math.round(responseTime)}ms)`, 'error');
+                }
+                
+            } catch (error) {
+                testStats.error++;
+                const endTime = performance.now();
+                const responseTime = endTime - startTime;
+                
+                resultDiv.textContent = `❌ エラー: ${error.message} (${Math.round(responseTime)}ms)`;
+                log(`分析エラー: ${error.message}`, 'error');
+            }
+            
+            button.disabled = false;
+            button.textContent = '実際の分析実行';
+            updateStats();
+        }
+
+        // 全テスト実行
+        async function runAllTests() {
+            const button = document.getElementById('run-all-btn');
+            button.disabled = true;
+            button.textContent = '実行中...';
+            
+            log('=== 全実動作テスト開始 ===', 'info');
+            
+            // kuromoji初期化確認
+            await checkKuromojiStatus();
+            
+            // 各テストケースを順次実行
+            const testCases = [
+                { inputId: 'personal-test', resultId: 'personal-result', expected: 'personal' },
+                { inputId: 'relationship-test', resultId: 'relationship-result', expected: 'relationship' },
+                { inputId: 'hybrid-test', resultId: 'hybrid-result', expected: 'hybrid' },
+                { inputId: 'short-test', resultId: 'short-result', expected: 'edge' },
+                { inputId: 'emotional-test', resultId: 'emotional-result', expected: 'edge' },
+                { inputId: 'technical-test', resultId: 'technical-result', expected: 'technical' }
+            ];
+            
+            for (const testCase of testCases) {
+                await new Promise(resolve => {
+                    // 各テストケースのボタンをクリックしてテスト実行
+                    const inputElement = document.getElementById(testCase.inputId);
+                    if (inputElement) {
+                        runActualTest(testCase.inputId, testCase.resultId, testCase.expected);
+                        setTimeout(resolve, 2000); // 2秒間隔
+                    } else {
+                        resolve();
+                    }
+                });
+            }
+            
+            log('=== 全実動作テスト完了 ===', 'success');
+            
+            button.disabled = false;
+            button.textContent = '全テスト実行';
+        }
+
+        function clearAllResults() {
+            const resultDivs = document.querySelectorAll('.result-display');
+            resultDivs.forEach(div => {
+                if (div.id !== 'execution-log') {
+                    div.textContent = '未実行';
+                }
+            });
+            
+            testStats = { run: 0, success: 0, error: 0, times: [] };
+            updateStats();
+            
+            document.getElementById('execution-log').innerHTML = '';
+            document.getElementById('kuromoji-status').className = 'status-indicator';
+            
+            log('テスト結果をクリアしました', 'info');
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Future Simulator 実動作検証システム初期化完了', 'success');
+            updateStats();
+        });
+    </script>
+</body>
+</html>

@@ -24,8 +24,12 @@ class VirtualPersonality {
     this.interfaceOS = new PersonalityOS('interface', userAnswers, tripleOSEngine);
     this.safeModeOS = new PersonalityOS('safemode', userAnswers, tripleOSEngine);
     
-    // OS関係性エンジン（後でOSRelationshipEngineと統合）
-    this.relationshipEngine = null; // Phase 2で実装
+    // OS関係性エンジンの統合（循環参照回避）
+    this.relationshipEngine = null;
+    this.metaphorEngine = null;
+    
+    // 弱参照を使用してエンジンを初期化
+    this.initializeEngines();
     
     // 仮想人格の統合状態
     this.personalityState = {
@@ -72,6 +76,58 @@ class VirtualPersonality {
       safeModeOS: this.safeModeOS.osName,
       dominantOS: this.personalityState.currentDominantOS
     });
+  }
+
+  /**
+   * エンジンの初期化（循環参照回避）
+   */
+  initializeEngines() {
+    // WeakMapを使用して循環参照を回避
+    if (!VirtualPersonality.engineWeakMap) {
+      VirtualPersonality.engineWeakMap = new WeakMap();
+    }
+    
+    // 関係性エンジンを初期化
+    this.relationshipEngine = new OSRelationshipEngine(this);
+    
+    // メタファーエンジンを初期化  
+    this.metaphorEngine = new IchingMetaphorEngine(this);
+    
+    // WeakMapに登録
+    VirtualPersonality.engineWeakMap.set(this, {
+      relationshipEngine: this.relationshipEngine,
+      metaphorEngine: this.metaphorEngine
+    });
+
+    console.log('🔧 Engines initialized with memory leak prevention');
+  }
+
+  /**
+   * リソースのクリーンアップ
+   */
+  cleanup() {
+    console.log('🧹 Cleaning up VirtualPersonality resources...');
+    
+    // エンジンの参照をクリア
+    if (this.relationshipEngine) {
+      this.relationshipEngine = null;
+    }
+    
+    if (this.metaphorEngine) {
+      this.metaphorEngine = null;
+    }
+    
+    // WeakMapからも削除
+    if (VirtualPersonality.engineWeakMap) {
+      VirtualPersonality.engineWeakMap.delete(this);
+    }
+    
+    // OS参照もクリア
+    this.engineOS = null;
+    this.interfaceOS = null;
+    this.safeModeOS = null;
+    
+    console.log('✅ VirtualPersonality cleanup completed');
   }
   
   /**
