@@ -34,8 +34,12 @@
     "dev:integrated": "./start-integrated-development.sh",
     "os-analyzer": "./scripts/start-os-analyzer.sh",
     "os-analyzer:dev": "OS_ANALYZER_PORT=8001 ./scripts/start-os-analyzer.sh",
-    "future-simulator": "python3 -m http.server 8788 --directory public",
-    "dev:multi": "npm run os-analyzer & npm run future-simulator &"
+    "future-simulator": "node server-8788.js",
+    "future-simulator:python": "python3 -m http.server 8788 --directory public",
+    "dev:multi": "npm run os-analyzer & npm run future-simulator &",
+    "wrangler:dev": "wrangler pages dev public --port 8788",
+    "wrangler:start": "wrangler pages dev public --port 8788 &",
+    "wrangler:stop": "pkill -f 'wrangler pages dev'"
   },
   "bin": {
     "bunjin": "./bunenjin_cli.cjs"

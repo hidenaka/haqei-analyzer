@@ -364,6 +364,106 @@ class BridgeStorageManager {
   }
 
   /**
+   * 進行状況の取得
+   */
+  getProgress() {
+    try {
+      if (this.fullManager && typeof this.fullManager.getProgress === 'function') {
+        return this.fullManager.getProgress();
+      }
+      
+      if (this.microManager && typeof this.microManager.getProgress === 'function') {
+        return this.microManager.getProgress();
+      }
+      
+      // フォールバック：localStorageから直接取得
+      const stored = localStorage.getItem('haqei_progress');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn('⚠️ [BridgeStorageManager] getProgress error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * セッション情報の取得
+   */
+  getSession() {
+    try {
+      if (this.fullManager && typeof this.fullManager.getSession === 'function') {
+        return this.fullManager.getSession();
+      }
+      
+      if (this.microManager && typeof this.microManager.getSession === 'function') {
+        return this.microManager.getSession();
+      }
+      
+      // フォールバック：localStorageから直接取得
+      const stored = localStorage.getItem('haqei_session');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn('⚠️ [BridgeStorageManager] getSession error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 回答データの取得
+   */
+  getAnswers() {
+    try {
+      if (this.fullManager && typeof this.fullManager.getAnswers === 'function') {
+        return this.fullManager.getAnswers();
+      }
+      
+      if (this.microManager && typeof this.microManager.getAnswers === 'function') {
+        return this.microManager.getAnswers();
+      }
+      
+      // フォールバック：localStorageから直接取得
+      const stored = localStorage.getItem('haqei_answers');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      
+      return [];
+    } catch (error) {
+      console.warn('⚠️ [BridgeStorageManager] getAnswers error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * 進行状況の保存
+   */
+  saveProgress(progress) {
+    try {
+      if (this.fullManager && typeof this.fullManager.saveProgress === 'function') {
+        return this.fullManager.saveProgress(progress);
+      }
+      
+      if (this.microManager && typeof this.microManager.saveProgress === 'function') {
+        return this.microManager.saveProgress(progress);
+      }
+      
+      // フォールバック：localStorageに直接保存
+      localStorage.setItem('haqei_progress', JSON.stringify(progress));
+      return true;
+    } catch (error) {
+      console.warn('⚠️ [BridgeStorageManager] saveProgress error:', error);
+      return false;
+    }
+  }
+
+  /**
    * クリーンアップ
    */
   cleanup() {
