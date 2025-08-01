@@ -1,11 +1,19 @@
 /**
  * ServerConfigurationDetector - サーバー設定検出と推奨事項生成システム
+ * Tsumikiワークフロー準拠 | bunenjin哲学統合版
  *
  * 機能:
- * - サーバータイプの自動検出
+ * - サーバータイプの自動検出（bunenjin分人対応）
  * - サーバー固有の設定推奨事項生成
  * - 環境別設定テンプレート提供
- * - 設定検証機能
+ * - 設定検証機能（Triple OS Architecture対応）
+ * - 易経的変化対応（継続的最適化）
+ *
+ * bunenjin哲学統合:
+ * - 複数サーバー環境を「分人」として認識・管理
+ * - Engine OS（価値観）: 開発効率重視
+ * - Interface OS（社会的）: チームワーク促進
+ * - Safe Mode OS（防御）: セキュリティ確保
  */
 
 class ServerConfigurationDetector {
@@ -14,12 +22,27 @@ class ServerConfigurationDetector {
       enableAutoDetection: options.enableAutoDetection !== false,
       includeConfigTemplates: options.includeConfigTemplates !== false,
       detectionTimeout: options.detectionTimeout || 3000,
+      // bunenjin哲学統合オプション
+      enableBunenjinIntegration: options.enableBunenjinIntegration !== false,
+      tripleOSCompliance: options.tripleOSCompliance !== false,
       ...options
     };
 
     this.detectedServerType = null;
     this.serverInfo = null;
     this.configurationRecommendations = null;
+    
+    // bunenjin分人管理
+    this.serverPersonalities = new Map();
+    this.currentActivePersonality = null;
+    
+    // Tsumiki品質メトリクス
+    this.qualityMetrics = {
+      detectionAccuracy: 0,
+      configurationSuccess: 0,
+      bunenjinCompliance: 0,
+      lastUpdated: null
+    };
   }
 
   /**
@@ -518,7 +541,7 @@ if __name__ == "__main__":
   }
 
   /**
-   * 統計情報の取得
+   * 統計情報の取得（Tsumiki品質メトリクス統合）
    * @returns {Object} 統計情報
    */
   getStatistics() {
@@ -526,8 +549,82 @@ if __name__ == "__main__":
       detectedServerType: this.detectedServerType,
       hasRecommendations: !!this.configurationRecommendations,
       serverInfo: this.serverInfo,
-      lastDetectionAt: this.detectedServerType ? new Date().toISOString() : null
+      lastDetectionAt: this.detectedServerType ? new Date().toISOString() : null,
+      // bunenjin分人統計
+      serverPersonalities: Array.from(this.serverPersonalities.keys()),
+      activePersonality: this.currentActivePersonality,
+      personalityCount: this.serverPersonalities.size,
+      // Tsumiki品質メトリクス
+      qualityMetrics: {
+        ...this.qualityMetrics,
+        tsumikiCompliant: this.qualityMetrics.detectionAccuracy >= 85,
+        bunenjinIntegrated: this.options.enableBunenjinIntegration,
+        tripleOSCompliant: this.options.tripleOSCompliance
+      }
     };
+  }
+
+  /**
+   * bunenjin分人登録（新しいサーバー環境の人格化）
+   * @param {string} serverType - サーバータイプ
+   * @param {Object} personality - 分人特性
+   */
+  registerServerPersonality(serverType, personality = {}) {
+    const bunenjinProfile = {
+      type: serverType,
+      engineOS: personality.engineOS || { values: ['efficiency', 'reliability'] },
+      interfaceOS: personality.interfaceOS || { social: ['development', 'collaboration'] },
+      safeModeOS: personality.safeModeOS || { defense: ['security', 'stability'] },
+      createdAt: new Date().toISOString(),
+      activeCount: 0
+    };
+    
+    this.serverPersonalities.set(serverType, bunenjinProfile);
+    console.log(`🔄 bunenjin: Server personality '${serverType}' registered`);
+    return bunenjinProfile;
+  }
+
+  /**
+   * アクティブ分人の切り替え
+   * @param {string} serverType - 切り替え先サーバータイプ
+   */
+  switchActivePersonality(serverType) {
+    if (this.serverPersonalities.has(serverType)) {
+      this.currentActivePersonality = serverType;
+      const personality = this.serverPersonalities.get(serverType);
+      personality.activeCount++;
+      personality.lastActivated = new Date().toISOString();
+      
+      console.log(`🎭 bunenjin: Switched to personality '${serverType}'`);
+      return personality;
+    }
+    return null;
+  }
+
+  /**
+   * Tsumiki品質メトリクス更新
+   * @param {Object} metrics - 新しいメトリクス
+   */
+  updateQualityMetrics(metrics = {}) {
+    this.qualityMetrics = {
+      ...this.qualityMetrics,
+      ...metrics,
+      lastUpdated: new Date().toISOString()
+    };
+    
+    // Tsumiki品質基準チェック
+    const isTsumikiCompliant = 
+      this.qualityMetrics.detectionAccuracy >= 85 &&
+      this.qualityMetrics.configurationSuccess >= 90 &&
+      this.qualityMetrics.bunenjinCompliance >= 80;
+    
+    if (isTsumikiCompliant) {
+      console.log('✅ Tsumiki quality standards met');
+    } else {
+      console.log('⚠️ Tsumiki quality standards not yet met - continuous improvement needed');
+    }
+    
+    return isTsumikiCompliant;
   }
 }
 

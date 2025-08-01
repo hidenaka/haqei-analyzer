@@ -1,0 +1,244 @@
+<\!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .pass { background-color: #e8f5e8; border-color: #4CAF50; }
+        .fail { background-color: #ffe8e8; border-color: #f44336; }
+        .warn { background-color: #fff8e1; border-color: #ff9800; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .error-log { max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 HAQEI OS Analyzer Debug Test</h1>
+    
+    <div id="test-results"></div>
+    
+    <\!-- Core Scripts (Same order as os_analyzer.html) -->
+    <script src="./js/shared/core/BaseComponent.js"></script>
+    <script src="./js/shared/core/MicroStorageManager.js"></script>
+    <script src="./js/shared/core/BridgeStorageManager.js"></script>
+    <script src="./js/shared/core/MicroDataManager.js"></script>
+    <script src="./js/shared/data/questions.js"></script>
+    <script src="./js/os-analyzer/core/PrecompiledQuestions.js"></script>
+    <script src="js/os-analyzer/components/WelcomeScreen.js"></script>
+    <script src="js/os-analyzer/components/HaqeiQuestionElement.js"></script>
+    <script src="js/os-analyzer/components/VirtualQuestionFlow.js"></script>
+    
+    <script>
+        const testResults = [];
+        const errors = [];
+        
+        // グローバルエラーキャッチ
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            errors.push({
+                message: msg,
+                source: url,
+                line: lineNo,
+                column: columnNo,
+                error: error
+            });
+            return false;
+        };
+        
+        window.addEventListener('unhandledrejection', function (event) {
+            errors.push({
+                message: 'Unhandled Promise Rejection: ' + event.reason,
+                source: 'Promise',
+                error: event.reason
+            });
+        });
+        
+        function addTest(name, result, details = '') {
+            testResults.push({ name, result, details });
+        }
+        
+        function runTests() {
+            console.log('🚀 Starting HAQEI Debug Tests...');
+            
+            // Test 1: BaseComponent
+            try {
+                if (typeof BaseComponent \!== 'undefined') {
+                    const testComponent = new BaseComponent('test-div', {});
+                    addTest('BaseComponent', 'pass', 'Successfully instantiated');
+                } else {
+                    addTest('BaseComponent', 'fail', 'BaseComponent not defined');
+                }
+            } catch (e) {
+                addTest('BaseComponent', 'fail', 'Error: ' + e.message);
+            }
+            
+            // Test 2: MicroStorageManager
+            try {
+                if (typeof MicroStorageManager \!== 'undefined') {
+                    const storage = new MicroStorageManager();
+                    addTest('MicroStorageManager', 'pass', 'Successfully instantiated');
+                } else {
+                    addTest('MicroStorageManager', 'fail', 'MicroStorageManager not defined');
+                }
+            } catch (e) {
+                addTest('MicroStorageManager', 'fail', 'Error: ' + e.message);
+            }
+            
+            // Test 3: BridgeStorageManager
+            try {
+                if (typeof BridgeStorageManager \!== 'undefined') {
+                    const microManager = new MicroStorageManager();
+                    const bridge = new BridgeStorageManager(microManager);
+                    addTest('BridgeStorageManager', 'pass', 'Successfully instantiated');
+                } else {
+                    addTest('BridgeStorageManager', 'fail', 'BridgeStorageManager not defined');
+                }
+            } catch (e) {
+                addTest('BridgeStorageManager', 'fail', 'Error: ' + e.message);
+            }
+            
+            // Test 4: MicroDataManager
+            try {
+                if (typeof MicroDataManager \!== 'undefined') {
+                    const dataManager = new MicroDataManager();
+                    addTest('MicroDataManager', 'pass', 'Successfully instantiated');
+                } else {
+                    addTest('MicroDataManager', 'fail', 'MicroDataManager not defined');
+                }
+            } catch (e) {
+                addTest('MicroDataManager', 'fail', 'Error: ' + e.message);
+            }
+            
+            // Test 5: Question Data
+            try {
+                if (typeof WORLDVIEW_QUESTIONS \!== 'undefined' && typeof SCENARIO_QUESTIONS \!== 'undefined') {
+                    addTest('Question Data', 'pass', `Worldview: ${WORLDVIEW_QUESTIONS.length}, Scenario: ${SCENARIO_QUESTIONS.length}`);
+                } else {
+                    addTest('Question Data', 'fail', 'Question data not available');
+                }
+            } catch (e) {
+                addTest('Question Data', 'fail', 'Error: ' + e.message);
+            }
+            
+            // Test 6: Precompiled Templates
+            try {
+                if (typeof PRECOMPILED_QUESTION_TEMPLATES \!== 'undefined') {
+                    const templateCount = Object.keys(PRECOMPILED_QUESTION_TEMPLATES).length;
+                    addTest('Precompiled Templates', 'pass', `${templateCount} templates available`);
+                } else {
+                    addTest('Precompiled Templates', 'fail', 'Templates not available');
+                }
+            } catch (e) {
+                addTest('Precompiled Templates', 'fail', 'Error: ' + e.message);
+            }
+            
+            // Test 7: WelcomeScreen
+            try {
+                if (typeof WelcomeScreen \!== 'undefined') {
+                    // Create temporary container
+                    const tempDiv = document.createElement('div');
+                    tempDiv.id = 'temp-welcome';
+                    document.body.appendChild(tempDiv);
+                    
+                    const welcome = new WelcomeScreen('temp-welcome', {});
+                    addTest('WelcomeScreen', 'pass', 'Successfully instantiated');
+                    
+                    // Cleanup
+                    document.body.removeChild(tempDiv);
+                } else {
+                    addTest('WelcomeScreen', 'fail', 'WelcomeScreen not defined');
+                }
+            } catch (e) {
+                addTest('WelcomeScreen', 'fail', 'Error: ' + e.message);
+            }
+            
+            // Test 8: HaqeiQuestionElement
+            try {
+                if (typeof HaqeiQuestionElement \!== 'undefined') {
+                    const element = new HaqeiQuestionElement();
+                    addTest('HaqeiQuestionElement', 'pass', 'Successfully instantiated');
+                } else {
+                    addTest('HaqeiQuestionElement', 'fail', 'HaqeiQuestionElement not defined');
+                }
+            } catch (e) {
+                addTest('HaqeiQuestionElement', 'fail', 'Error: ' + e.message);
+            }
+            
+            // Test 9: VirtualQuestionFlow
+            try {
+                if (typeof VirtualQuestionFlow \!== 'undefined') {
+                    // Create temporary container
+                    const tempDiv = document.createElement('div');
+                    tempDiv.id = 'temp-questions';
+                    document.body.appendChild(tempDiv);
+                    
+                    const flow = new VirtualQuestionFlow('temp-questions', {});
+                    addTest('VirtualQuestionFlow', 'pass', 'Successfully instantiated');
+                    
+                    // Cleanup
+                    document.body.removeChild(tempDiv);
+                } else {
+                    addTest('VirtualQuestionFlow', 'fail', 'VirtualQuestionFlow not defined');
+                }
+            } catch (e) {
+                addTest('VirtualQuestionFlow', 'fail', 'Error: ' + e.message);
+            }
+            
+            renderResults();
+        }
+        
+        function renderResults() {
+            const container = document.getElementById('test-results');
+            
+            let html = '';
+            
+            // Test Results
+            html += '<h2>📊 Test Results</h2>';
+            testResults.forEach(test => {
+                const cssClass = test.result === 'pass' ? 'pass' : (test.result === 'fail' ? 'fail' : 'warn');
+                html += `
+                    <div class="test-section ${cssClass}">
+                        <h3>${test.result === 'pass' ? '✅' : '❌'} ${test.name}</h3>
+                        <p><strong>Result:</strong> ${test.result.toUpperCase()}</p>
+                        ${test.details ? `<p><strong>Details:</strong> ${test.details}</p>` : ''}
+                    </div>
+                `;
+            });
+            
+            // Error Log
+            if (errors.length > 0) {
+                html += '<h2>🚨 Error Log</h2>';
+                html += '<div class="test-section fail">';
+                html += '<div class="error-log">';
+                errors.forEach(error => {
+                    html += `<pre><strong>${error.message}</strong>\nSource: ${error.source}\n</pre>`;
+                });
+                html += '</div></div>';
+            }
+            
+            // Summary
+            const passed = testResults.filter(t => t.result === 'pass').length;
+            const total = testResults.length;
+            const summaryClass = passed === total ? 'pass' : 'warn';
+            
+            html = `
+                <div class="test-section ${summaryClass}">
+                    <h2>📈 Summary</h2>
+                    <p><strong>Tests Passed:</strong> ${passed}/${total}</p>
+                    <p><strong>Success Rate:</strong> ${((passed/total)*100).toFixed(1)}%</p>
+                    <p><strong>Errors:</strong> ${errors.length}</p>
+                </div>
+            ` + html;
+            
+            container.innerHTML = html;
+        }
+        
+        // Wait for all scripts to load
+        window.addEventListener('load', function() {
+            setTimeout(runTests, 500);
+        });
+    </script>
+</body>
+</html>
+EOF < /dev/null

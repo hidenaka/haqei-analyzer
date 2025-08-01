@@ -4,6 +4,67 @@ console.log("🎯 HaQei Analyzer starting...");
 let app = null;
 let storageManager = null;
 
+// デバウンス関数
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// 動的スクリプト読み込み関数
+async function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+/**
+ * 分析エンジンとコンポーネントの動的読み込み
+ * 
+ * 目的：
+ * - 分析に必要なすべてのエンジンとUIコンポーネントを読み込む
+ * - 依存関係の順序を保証
+ * 
+ * 処理内容：
+ * 1. 統計エンジン、計算機、互換性データローダーを読み込み
+ * 2. コアエンジン（Engine, IChingUltraSyncLogic, TripleOSEngine）を読み込み
+ * 3. 最終的な分析エンジン（UltraAnalysisEngine）を読み込み
+ * 4. UI コンポーネント（AnalysisView）を読み込み
+ * 
+ * 注意事項：
+ * - 読み込み順序は依存関係に基づいて設定されている
+ * - AnalysisViewは分析プロセスの表示に必須
+ */
+async function loadAnalysisEngines() {
+  const engines = [
+    'js/os-analyzer/core/StatisticalEngine.js',
+    'js/os-analyzer/core/Calculator.js', 
+    'js/os-analyzer/engines/CompatibilityDataLoader.js',
+    'js/os-analyzer/core/Engine.js',
+    'js/os-analyzer/core/IChingUltraSyncLogic.js',
+    'js/os-analyzer/core/TripleOSEngine.js',
+    'js/os-analyzer/core/UltraAnalysisEngine.js',
+    // AnalysisViewコンポーネントも読み込む
+    'js/os-analyzer/components/AnalysisView.js'
+  ];
+  
+  for (const engine of engines) {
+    await loadScript(engine);
+  }
+  
+  console.log("✅ All analysis engines and components loaded");
+}
+
 // 🚀 高速初期化: 基本 UI を即座表示
 function showAppInterface() {
   const welcomeContainer = document.getElementById('welcome-container');
@@ -23,9 +84,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log("📱 Initializing components...");
 
   try {
-    // ストレージマネージャー初期化
-    storageManager = new StorageManager();
-    storageManager.setupAutoSave();
+    // 🚀 超軽量マネージャー初期化
+    storageManager = new MicroStorageManager();
 
     // セッション情報の確認と初期化
     let session = storageManager.getSession();
@@ -37,98 +97,33 @@ document.addEventListener("DOMContentLoaded", async function () {
       storageManager.updateSession({ stage: "loading" });
     }
 
-    // データマネージャー初期化
-    console.log("🔍 [App.js] DataManager初期化開始");
-    const dataManager = new DataManager();
+    // 🚀 超軽量データマネージャー初期化
+    console.log("⚡ MicroDataManager初期化開始");
+    const dataManager = new MicroDataManager();
 
-    console.log("🔍 [App.js] DataManager.loadData()実行開始");
-
-    // データ読み込みにタイムアウトを設定（15秒）
-    const dataLoadingPromise = dataManager.loadData();
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => {
-        reject(new Error("データ読み込みがタイムアウトしました（15秒）"));
-      }, 15000);
-    });
-
-    try {
-      await Promise.race([dataLoadingPromise, timeoutPromise]);
-      console.log("🔍 [App.js] DataManager.loadData()完了");
-    } catch (error) {
-      console.warn("⚠️ [App.js] データ読み込み警告:", error.message);
-      console.log("🔍 [App.js] 利用可能なデータで続行します");
+    console.log("⚡ 設問データ読み込み開始");
+    
+    // 軽量データ読み込み（高速）
+    const loadSuccess = await dataManager.loadQuestions();
+    if (loadSuccess) {
+      console.log("⚡ 設問データ読み込み完了");
+    } else {
+      console.warn("⚠️ フォールバック設問を使用");
     }
 
-    // データ統計表示
-    const stats = dataManager.getDataStats();
-    console.log("📊 [App.js] Data stats:", stats);
+    // 基本統計表示
+    const stats = dataManager.getBasicStats();
+    console.log("📊 軽量データ統計:", stats);
 
-    // 重要なデータ内容の検証
-    console.log("🔍 [App.js] データ内容検証:");
-    console.log(
-      "  - HAQEI_DATA:",
-      typeof window.HAQEI_DATA,
-      window.HAQEI_DATA ? Object.keys(window.HAQEI_DATA).length : 0
-    );
-    console.log(
-      "  - H64_8D_VECTORS:",
-      typeof window.H64_8D_VECTORS,
-      window.H64_8D_VECTORS ? Object.keys(window.H64_8D_VECTORS).length : 0
-    );
-    console.log(
-      "  - WORLDVIEW_QUESTIONS:",
-      typeof window.WORLDVIEW_QUESTIONS,
-      window.WORLDVIEW_QUESTIONS ? window.WORLDVIEW_QUESTIONS.length : 0
-    );
-    console.log(
-      "  - SCENARIO_QUESTIONS:",
-      typeof window.SCENARIO_QUESTIONS,
-      window.SCENARIO_QUESTIONS ? window.SCENARIO_QUESTIONS.length : 0
-    );
-
-    // 詳細データ検証
-    if (window.HAQEI_DATA) {
-      console.log("🔍 [App.js] HAQEI_DATA詳細:", {
-        hexagrams_master: window.HAQEI_DATA.hexagrams_master
-          ? window.HAQEI_DATA.hexagrams_master.length
-          : "missing",
-        os_manual: window.HAQEI_DATA.os_manual
-          ? Object.keys(window.HAQEI_DATA.os_manual).length
-          : "missing",
-      });
+    // 設問データの基本検証
+    const validation = dataManager.validateData();
+    if (!validation.isValid) {
+      console.warn("⚠️ 設問データに問題:", validation.errors);
     }
 
-    if (window.H64_8D_VECTORS) {
-      const vectorKeys = Object.keys(window.H64_8D_VECTORS);
-      console.log("🔍 [App.js] H64_8D_VECTORS詳細:", {
-        totalHexagrams: vectorKeys.length,
-        firstHexagram: vectorKeys[0],
-        sampleVector: window.H64_8D_VECTORS[vectorKeys[0]],
-      });
-    }
-
-    // 重要なデータの存在確認
-    if (!stats.loaded) {
-      console.error(
-        "❌ [App.js] DataManagerの読み込みに失敗しました:",
-        stats.error
-      );
-      throw new Error(`DataManager読み込みエラー: ${stats.error}`);
-    }
-
-    // 基本的なデータ検証
-    if (stats.dataStructure.hexagrams === 0) {
-      console.warn("⚠️ [App.js] 卦データが読み込まれていません");
-    }
-
-    if (stats.dataStructure.worldviewQuestions === 0) {
-      console.warn("⚠️ [App.js] 価値観質問データが読み込まれていません");
-    }
-
-    // 診断エンジン初期化（UltraAnalysisEngine使用 - 7.5x高速化）
-    console.log('🔥 Initializing UltraAnalysisEngine for maximum performance...');
-    const engine = new UltraAnalysisEngine(dataManager);
-    console.log('✅ UltraAnalysisEngine initialized - Ready for ultra-fast analysis');
+    // 診断エンジンは設問完了後に動的読み込み
+    let engine = null;
+    console.log('⚡ UltraAnalysisEngine will be loaded dynamically after questions complete');
 
     // Welcome Screen 初期化
     console.log("🔍 [App.js] WelcomeScreen初期化開始");
@@ -157,13 +152,22 @@ document.addEventListener("DOMContentLoaded", async function () {
       container.innerHTML.length > 0 ? "コンテンツあり" : "空"
     );
 
+    // 🌉 BridgeStorageManagerを使用したbunenjin統合
+    console.log("🌉 Creating BridgeStorageManager with bunenjin philosophy...");
+    const bridgeStorageManager = new BridgeStorageManager(storageManager);
+    
     // アプリケーション情報をグローバルに保存
     app = {
-      storageManager,
+      storageManager: bridgeStorageManager,
       dataManager,
       engine,
       welcomeScreen,
     };
+
+    // グローバル関数を定義
+    window.app = app;
+    window.loadScript = loadScript;
+    window.loadAnalysisEngines = loadAnalysisEngines;
 
     // セッションステージを更新
     storageManager.updateSession({ stage: "welcome" });
@@ -283,25 +287,25 @@ function startRealDiagnosis() {
     console.log("👋 Hiding welcome screen...");
     app.welcomeScreen.hide();
 
-    // Question Flow を初期化
-    console.log("❓ Creating QuestionFlow...");
-    const questionFlow = new QuestionFlow("questions-container", {
+    // Virtual Question Flow を初期化（超高速版）
+    console.log("⚡ Creating VirtualQuestionFlow...");
+    const questionFlow = new VirtualQuestionFlow("questions-container", {
       storageManager: app.storageManager,
-      onProgress: function (progress) {
+      onProgress: debounce(function (progress) {
         console.log(`📊 Progress: ${progress.toFixed(1)}%`);
         document.documentElement.style.setProperty(
           "--progress",
           `${progress}%`
         );
 
-        // 進行状況をストレージに保存
+        // 進行状況をストレージに保存（既にStorageManagerでデバウンス済み）
         app.storageManager.saveProgress({
           currentQuestionIndex: questionFlow.currentQuestionIndex,
           totalQuestions: questionFlow.questions.length,
           completedQuestions: questionFlow.answers.length,
           progressPercentage: progress,
         });
-      },
+      }, 300),
       onComplete: function (answerData) {
         console.log("✅ All questions completed:", answerData);
 
@@ -364,6 +368,54 @@ async function proceedToAnalysis(answers) {
 
     if (app.questionFlow) {
       await app.questionFlow.hide();
+    }
+
+    // 🚀 Level 1 ロード: 完全なシステムを動的読み込み
+    if (!app.fullSystemLoaded) {
+      console.log("⚡ Loading full system for analysis...");
+      
+      // 完全なStorageManagerとDataManagerを読み込み
+      await loadScript('./js/shared/core/StorageManager.js');
+      await loadScript('./js/shared/core/DataManager.js');
+      await loadScript('./js/shared/core/ErrorHandler.js');
+      await loadScript('./js/shared/data/vectors.js');
+      await loadScript('./js/data/data_box.js');
+      
+      // 分析エンジン群を読み込み
+      await loadAnalysisEngines();
+      
+      // 完全なマネージャーで置き換え
+      const fullStorageManager = new StorageManager();
+      const fullDataManager = new DataManager();
+      
+      // 🌉 bunenjin BridgeStorageManager統合
+      console.log("🌉 Integrating full StorageManager with BridgeStorageManager...");
+      
+      // フルデータ読み込み
+      await fullDataManager.loadData();
+      
+      // BridgeStorageManagerにフルStorageManagerを統合
+      const integrationSuccess = await app.storageManager.integrateFullManager(StorageManager);
+      
+      if (integrationSuccess) {
+        console.log("✅ BridgeStorageManager successfully integrated with full system");
+      } else {
+        console.warn("⚠️ BridgeStorageManager integration failed, using fallback");
+        // フォールバック: データ移行
+        const microAnswers = app.storageManager.getAnswers();
+        const microSession = app.storageManager.getSession();
+        
+        fullStorageManager.saveAnswers(microAnswers);
+        fullStorageManager.saveSession(microSession);
+        
+        // 直接置換（従来方式）
+        app.storageManager = fullStorageManager;
+      }
+      app.dataManager = fullDataManager;
+      app.engine = new UltraAnalysisEngine(fullDataManager);
+      app.fullSystemLoaded = true;
+      
+      console.log("✅ Full system loaded and initialized");
     }
 
     // 1. 分析タスクを関数として定義
