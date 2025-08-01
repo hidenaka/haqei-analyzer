@@ -57,7 +57,10 @@ class DataManager {
         break;
       case "info":
         this.loadingInfo.push(logEntry);
-        console.log(`🔍 [DataManager:${section}] ${message}`, data || "");
+        // パフォーマンス最適化：重要なログのみ表示
+        if (this.debugMode || window.location.search.includes('verbose=true') || this.isImportantLog(section, message)) {
+          console.log(`🔍 [DataManager:${section}] ${message}`, data || "");
+        }
         break;
       case "debug":
         if (this.debugMode) {
@@ -65,8 +68,16 @@ class DataManager {
         }
         break;
       default:
-        console.log(`📝 [DataManager:${section}] ${message}`, data || "");
+        if (this.debugMode || window.location.search.includes('verbose=true')) {
+          console.log(`📝 [DataManager:${section}] ${message}`, data || "");
+        }
     }
+  }
+  
+  // 重要なログかどうかを判定（初期化時のパフォーマンス改善）
+  isImportantLog(section, message) {
+    const importantKeywords = ['エラー', '失敗', '完了', '初期化完了', 'Error', 'Failed', 'Completed', 'loaded'];
+    return importantKeywords.some(keyword => message.includes(keyword));
   }
 
   // ログ取得メソッド

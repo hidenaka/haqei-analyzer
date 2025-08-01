@@ -10,9 +10,13 @@ class QuestionFlow extends BaseComponent {
     this.storageManager = options.storageManager || null;
     this.changeEventBound = false; // イベント重複防止フラグ
     
-    // 軽量化されたキャッシュ
+    // パフォーマンス最適化のためのキャッシュと制御
     this.completedCountCache = 0;
     this.completedCountCacheTime = 0;
+    this.debounceTimer = null;
+    this.updateQueue = new Set();
+    this.saveTimer = null;
+    this.pendingAnswers = new Map();
     
     console.log(
       "🔧 QuestionFlow constructor: currentQuestionIndex =",
@@ -408,7 +412,7 @@ class QuestionFlow extends BaseComponent {
     }
   }
 
-  // 軽量化版 handleAnswerChange
+  // 最適化版 handleAnswerChange
   handleAnswerChange(radioElement) {
     try {
       const question = this.questions[this.currentQuestionIndex];
@@ -426,8 +430,8 @@ class QuestionFlow extends BaseComponent {
         return;
       }
 
-      // 直接処理（デバウンス削除）
-      this.processAnswerUpdate(question, selectedValue, scoringTags, choiceType, radioElement);
+      // デバウンス処理で最適化
+      this.debouncedProcessAnswer(question, selectedValue, scoringTags, choiceType, radioElement);
 
     } catch (error) {
       console.error("❌ Error in handleAnswerChange:", error);
@@ -436,8 +440,51 @@ class QuestionFlow extends BaseComponent {
   }
 
 
-  // 軽量化版 processAnswerUpdate
-  processAnswerUpdate(question, selectedValue, scoringTags, choiceType, radioElement) {
+  // デバウンス処理
+  debouncedProcessAnswer(question, selectedValue, scoringTags, choiceType, radioElement) {
+    // 即座にUIフィードバックを提供
+    this.updateVisualFeedback(radioElement, choiceType);
+    
+    // 回答データを一時保存
+    const answerData = { question, selectedValue, scoringTags, choiceType };
+    this.pendingAnswers.set(question.id, answerData);
+    
+    // デバウンスタイマーをクリアして再設定
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer);
+    }
+    
+    this.debounceTimer = setTimeout(() => {
+      this.processPendingAnswers();
+    }, 300); // 300ms のデバウンス
+  }
+
+  // バッチ処理で保留中の回答を処理
+  processPendingAnswers() {
+    if (this.pendingAnswers.size === 0) return;
+    
+    // 保留中の回答をすべて処理
+    for (const [questionId, answerData] of this.pendingAnswers) {
+      this.processAnswerUpdate(
+        answerData.question,
+        answerData.selectedValue,
+        answerData.scoringTags,
+        answerData.choiceType
+      );
+    }
+    
+    this.pendingAnswers.clear();
+    
+    // UI更新を一度だけ実行
+    this.updateNavigationButtons();
+    this.updateProgress();
+    
+    // 非同期でストレージに保存
+    this.debouncedSaveAnswers();
+  }
+
+  // 最適化版 processAnswerUpdate（UI更新なし）
+  processAnswerUpdate(question, selectedValue, scoringTags, choiceType) {
     const isScenario = question.scenario && question.inner_q && question.outer_q;
     let answerIndex = this.findAnswerIndex(question.id);
     let answer;
@@ -472,16 +519,6 @@ class QuestionFlow extends BaseComponent {
     }
 
     this.answers[answerIndex] = answer;
-
-    // 直接ストレージ保存
-    if (this.storageManager) {
-      this.storageManager.saveAnswers(this.answers);
-    }
-
-    // UI更新
-    this.updateNavigationButtons();
-    this.updateProgress();
-    this.updateVisualFeedback(radioElement, choiceType);
   }
 
   // シンプルな回答検索
@@ -494,7 +531,18 @@ class QuestionFlow extends BaseComponent {
     return -1;
   }
 
-  // 🚀 新規: 非同期ストレージ保存
+  // デバウンスされたストレージ保存
+  debouncedSaveAnswers() {
+    if (this.saveTimer) {
+      clearTimeout(this.saveTimer);
+    }
+    
+    this.saveTimer = setTimeout(() => {
+      this.saveAnswersAsync();
+    }, 500); // 500msのデバウンス
+  }
+
+  // 非同期ストレージ保存
   saveAnswersAsync() {
     if (this.storageManager) {
       // requestIdleCallbackを使用して、ブラウザの空き時間に保存
@@ -563,23 +611,31 @@ class QuestionFlow extends BaseComponent {
     }
   }
 
-  // 軽量化版 updateNavigationButtons
+  // 最適化版 updateNavigationButtons（RAF使用）
   updateNavigationButtons() {
-    const prevBtn = this.container.querySelector("#prev-btn");
-    const nextBtn = this.container.querySelector("#next-btn");
+    // requestAnimationFrameでUI更新を最適化
+    if (this.updateQueue.has('navigation')) return;
+    this.updateQueue.add('navigation');
+    
+    requestAnimationFrame(() => {
+      const prevBtn = this.container.querySelector("#prev-btn");
+      const nextBtn = this.container.querySelector("#next-btn");
 
-    if (prevBtn) {
-      prevBtn.disabled = this.currentQuestionIndex === 0;
-    }
+      if (prevBtn) {
+        prevBtn.disabled = this.currentQuestionIndex === 0;
+      }
 
-    if (nextBtn) {
-      const currentQuestion = this.questions[this.currentQuestionIndex];
-      const hasAnswer = this.checkCurrentQuestionAnswered(currentQuestion);
-      nextBtn.disabled = !hasAnswer;
+      if (nextBtn) {
+        const currentQuestion = this.questions[this.currentQuestionIndex];
+        const hasAnswer = this.checkCurrentQuestionAnswered(currentQuestion);
+        nextBtn.disabled = !hasAnswer;
 
-      // ボタン状態更新
-      this.updateButtonState(nextBtn, hasAnswer);
-    }
+        // ボタン状態更新
+        this.updateButtonState(nextBtn, hasAnswer);
+      }
+      
+      this.updateQueue.delete('navigation');
+    });
   }
 
   // 軽量化版 checkCurrentQuestionAnswered
@@ -617,32 +673,46 @@ class QuestionFlow extends BaseComponent {
 
 
   
-  // 軽量化版 updateProgress
+  // 最適化版 updateProgress（RAF使用）
   updateProgress() {
-    const progressFill = this.container.querySelector(".progress-bar-fill");
-    const currentNum = this.container.querySelector(".current-question");
-    const totalNum = this.container.querySelector(".total-questions");
-    const completedCount = this.container.querySelector('.completed-count');
+    // requestAnimationFrameでUIアップデートを最適化
+    if (this.updateQueue.has('progress')) return;
+    this.updateQueue.add('progress');
+    
+    requestAnimationFrame(() => {
+      const progressFill = this.container.querySelector(".progress-bar-fill");
+      const currentNum = this.container.querySelector(".current-question");
+      const totalNum = this.container.querySelector(".total-questions");
+      const completedCount = this.container.querySelector('.completed-count');
 
-    const currentQuestionNum = this.currentQuestionIndex + 1;
-    const totalQuestions = this.questions.length;
-    const progressPercentage = (currentQuestionNum / totalQuestions) * 100;
-    const actualCompletedCount = this.getCompletedCount();
+      const currentQuestionNum = this.currentQuestionIndex + 1;
+      const totalQuestions = this.questions.length;
+      const progressPercentage = (currentQuestionNum / totalQuestions) * 100;
+      const actualCompletedCount = this.getCompletedCount();
 
-    if (currentNum) currentNum.textContent = currentQuestionNum;
-    if (totalNum) totalNum.textContent = `/ ${totalQuestions}`;
-    if (completedCount) completedCount.textContent = actualCompletedCount;
-    if (progressFill) progressFill.style.width = `${progressPercentage}%`;
+      if (currentNum) currentNum.textContent = currentQuestionNum;
+      if (totalNum) totalNum.textContent = `/ ${totalQuestions}`;
+      if (completedCount) completedCount.textContent = actualCompletedCount;
+      if (progressFill) progressFill.style.width = `${progressPercentage}%`;
 
-    // プログレスコールバック
-    if (this.options.onProgress) {
-      const answeredProgress = (actualCompletedCount / totalQuestions) * 100;
-      this.options.onProgress(answeredProgress);
-    }
+      // プログレスコールバック
+      if (this.options.onProgress) {
+        const answeredProgress = (actualCompletedCount / totalQuestions) * 100;
+        this.options.onProgress(answeredProgress);
+      }
+      
+      this.updateQueue.delete('progress');
+    });
   }
 
-  // 軽量化版 getCompletedCount
+  // キャッシュ付き getCompletedCount
   getCompletedCount() {
+    const now = Date.now();
+    // キャッシュが有効な場合（100ms以内）
+    if (this.completedCountCacheTime && now - this.completedCountCacheTime < 100) {
+      return this.completedCountCache;
+    }
+    
     let count = 0;
     for (let i = 0; i < this.answers.length; i++) {
       const answer = this.answers[i];
@@ -650,6 +720,11 @@ class QuestionFlow extends BaseComponent {
         count++;
       }
     }
+    
+    // キャッシュを更新
+    this.completedCountCache = count;
+    this.completedCountCacheTime = now;
+    
     return count;
   }
 

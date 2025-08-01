@@ -31,7 +31,7 @@ class WelcomeScreen extends BaseComponent {
         <div class="welcome-content">
           <div class="welcome-header">
             <h1 class="welcome-title">🎯 HaQei Analyzer</h1>
-            <p class="welcome-subtitle">「あの時、私はなぜあんな行動をしたのか？」<br>その理由がスッキリ分かる無料診断</p>
+            <p class="welcome-subtitle">3つの人格を特定し、その人格OSが相互に作用している様を易経のメタファーを通じて、<br>フィードバックをして、仮想のあなたを客観的にみることができる</p>
           </div>
           
           <div class="welcome-description">
@@ -84,7 +84,7 @@ class WelcomeScreen extends BaseComponent {
           
           <div class="welcome-actions">
             <button id="start-analysis-btn" class="btn btn-primary btn-lg">
-              🚀 私の行動パターンを理解する
+              分析を開始する
             </button>
             <p class="start-note">※診断後、具体的な行動改善提案も受け取れます</p>
           </div>

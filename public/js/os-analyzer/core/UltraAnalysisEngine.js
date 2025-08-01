@@ -1480,21 +1480,39 @@ class UltraAnalysisEngine {
   // 継続的な実装...
   
   initializeHexagramSystem() {
-    // 64卦システム初期化
-    return {
-      hexagrams: this.dataManager?.getHexagramData() || [],
-      mappings: this.dataManager?.getHexagramMappings() || {},
-      relationships: this.dataManager?.getHexagramRelationships() || {}
-    };
+    // 64卦システム初期化 - グローバル変数から直接取得
+    try {
+      return {
+        hexagrams: (typeof HEXAGRAM_DETAILS !== 'undefined') ? HEXAGRAM_DETAILS : {},
+        mappings: (typeof H64_8D_VECTORS !== 'undefined') ? H64_8D_VECTORS : {},
+        relationships: (typeof ICHING_RELATIONSHIPS !== 'undefined') ? ICHING_RELATIONSHIPS : {}
+      };
+    } catch (error) {
+      console.warn('⚠️ Hexagram system initialization fallback:', error);
+      return {
+        hexagrams: {},
+        mappings: {},
+        relationships: {}
+      };
+    }
   }
   
   initialize8DimensionalAnalyzer() {
-    // 8次元分析システム初期化
-    return {
-      dimensions: ['乾', '兌', '離', '震', '巽', '坎', '艮', '坤'],
-      vectors: this.dataManager?.get8DVectors() || {},
-      correlations: this.dataManager?.getDimensionalCorrelations() || {}
-    };
+    // 8次元分析システム初期化 - グローバル変数から直接取得
+    try {
+      return {
+        dimensions: ['乾', '兌', '離', '震', '巽', '坎', '艮', '坤'],
+        vectors: (typeof window.H64_8D_VECTORS !== 'undefined') ? window.H64_8D_VECTORS : {},
+        correlations: (typeof window.ICHING_RELATIONSHIPS !== 'undefined') ? window.ICHING_RELATIONSHIPS : {}
+      };
+    } catch (error) {
+      console.warn('⚠️ 8D Dimensional analyzer initialization fallback:', error);
+      return {
+        dimensions: ['乾', '兌', '離', '震', '巽', '坎', '艮', '坤'],
+        vectors: {},
+        correlations: {}
+      };
+    }
   }
   
   generateFallbackAnalysis(userAnswers) {
@@ -1631,5 +1649,3 @@ if (typeof window !== 'undefined') {
   window.UltraAnalysisEngine = UltraAnalysisEngine;
   window.AnalysisQualityAssurance = AnalysisQualityAssurance;
 }
-
-export { UltraAnalysisEngine, AnalysisQualityAssurance };
