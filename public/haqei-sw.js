@@ -21,7 +21,7 @@
  * - HAQEIプロジェクト特化設計
  */
 
-const CACHE_NAME = 'haqei-bunenjin-v1.2.0';
+const CACHE_NAME = 'haqei-bunenjin-v1.2.3';
 const CACHE_TIMEOUT = 24 * 60 * 60 * 1000; // 24時間
 
 // Critical Path Resources（Triple OS Architecture対応）
@@ -29,12 +29,17 @@ const CRITICAL_RESOURCES = [
   '/',
   '/os_analyzer.html',
   '/results.html',
+  '/future_simulator.html',
+  '/cockpit.html',
+  '/library.html',
   '/js/shared/core/BaseComponent.js',
   '/js/shared/core/MicroStorageManager.js',
+  '/js/shared/core/BridgeStorageManager.js',
   '/js/shared/core/MicroDataManager.js',
   '/js/shared/data/questions.js',
   '/js/os-analyzer/components/WelcomeScreen.js',
   '/js/os-analyzer/components/HaqeiQuestionElement.js',
+  '/js/os-analyzer/components/VirtualQuestionFlow.js',
   '/js/os-analyzer/core/PrecompiledQuestions.js',
   '/js/app.js'
 ];
@@ -73,6 +78,8 @@ self.addEventListener('install', event => {
       })
       .catch(error => {
         console.error('❌ Failed to cache critical resources:', error);
+        // エラーが発生してもスキップを続行（回復力向上）
+        return self.skipWaiting();
       })
   );
 });
@@ -207,10 +214,11 @@ function normalizePathname(pathname) {
 }
 
 /**
- * ルーティング処理（SPA対応）
+ * ルーティング処理（SPA対応・強化版）
  * 
  * 目的:
  * - /results → /results.html のリダイレクト処理
+ * - /os_analyzer → /os_analyzer.html のリダイレクト処理
  * - bunenjin哲学に基づく柔軟なルート解決
  * - Triple OS Architecture対応のパス変換
  * 
@@ -218,16 +226,47 @@ function normalizePathname(pathname) {
  * 1. 特定パスのHTML拡張子補完
  * 2. ページ遷移時のリクエスト変換
  * 3. 統計的品質保証（100%ルート解決）
+ * 4. 404エラー防止のフォールバック強化
  */
 function handleRouting(request, pathname) {
   const url = new URL(request.url);
   
-  // /results → /results.html
-  if (pathname === '/results') {
+  // ルーティングマップ（拡張可能）
+  const routeMap = {
+    '/results': '/results.html',
+    '/os_analyzer': '/os_analyzer.html',
+    '/analyzer': '/os_analyzer.html',
+    '/future_simulator': '/future_simulator.html',
+    '/future-simulator': '/future_simulator.html',
+    '/simulator': '/future_simulator.html'
+  };
+  
+  // ルートマッピングによる変換
+  if (routeMap[pathname]) {
     const newUrl = new URL(url);
-    newUrl.pathname = '/results.html';
+    newUrl.pathname = routeMap[pathname];
     
     console.log('🔄 Route redirect:', pathname, '→', newUrl.pathname);
+    
+    return new Request(newUrl.toString(), {
+      method: request.method,
+      headers: request.headers,
+      body: request.body,
+      mode: request.mode,
+      credentials: request.credentials,
+      cache: request.cache,
+      redirect: request.redirect,
+      referrer: request.referrer
+    });
+  }
+  
+  // HTMLファイルへの直接アクセスで拡張子がない場合の補完
+  if (!pathname.includes('.') && pathname !== '/') {
+    const potentialHtmlPath = pathname + '.html';
+    const newUrl = new URL(url);
+    newUrl.pathname = potentialHtmlPath;
+    
+    console.log('🔄 HTML extension added:', pathname, '→', newUrl.pathname);
     
     return new Request(newUrl.toString(), {
       method: request.method,
@@ -365,42 +404,127 @@ async function cacheFirstWithNetworkFallback(request) {
 }
 
 /**
- * オフライン時のフォールバック
+ * オフライン時のフォールバック（404エラー対応強化版）
  */
 async function getOfflineFallback(request) {
   const url = new URL(request.url);
+  const pathname = url.pathname;
   
-  if (url.pathname.endsWith('.html') || url.pathname === '/') {
+  // 404エラー対応：存在しないHTMLページへのアクセス
+  if (pathname.endsWith('.html') || pathname === '/' || !pathname.includes('.')) {
+    // HAQEI固有のページルーティング
+    let redirectPath = '/os_analyzer.html';
+    let pageTitle = 'HAQEI Analyzer';
+    let pageMessage = 'ページを読み込んでいます...';
+    
+    if (pathname.includes('result') || pathname === '/results') {
+      redirectPath = '/results.html';
+      pageTitle = 'HAQEI - 分析結果';
+      pageMessage = 'あなたの分析結果を表示します';
+    } else if (pathname.includes('future') || pathname.includes('simulator') || pathname === '/future_simulator') {
+      redirectPath = '/future_simulator.html';
+      pageTitle = 'HAQEI - 未来分岐シミュレーター';
+      pageMessage = 'あなたの未来シミュレーションを開始します';
+    } else if (pathname.includes('cockpit')) {
+      redirectPath = '/cockpit.html';
+      pageTitle = 'HAQEI - 戦略コックピット';
+      pageMessage = '戦略コックピットを表示します';
+    } else if (pathname.includes('library')) {
+      redirectPath = '/library.html';
+      pageTitle = 'HAQEI - ライブラリ';
+      pageMessage = 'ライブラリを表示します';
+    }
+    
     return new Response(`
       <!DOCTYPE html>
-      <html>
+      <html lang="ja">
       <head>
-        <title>HAQEI Analyzer - オフライン</title>
+        <title>${pageTitle}</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
-          body { font-family: sans-serif; text-align: center; padding: 50px; }
-          .offline { color: #666; }
+          body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            text-align: center; 
+            padding: 50px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+          }
+          .container {
+            max-width: 500px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+          }
+          h1 { margin-bottom: 1rem; font-size: 2rem; }
+          .message { color: #e2e8f0; margin-bottom: 2rem; line-height: 1.6; }
           .retry { margin-top: 20px; }
-          button { padding: 10px 20px; font-size: 16px; }
+          button { 
+            padding: 12px 24px; 
+            font-size: 16px; 
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 300ms ease;
+          }
+          button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+          }
+          .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 1rem auto;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
         </style>
+        <script>
+          // 自動リダイレクト
+          setTimeout(() => {
+            window.location.href = '${redirectPath}';
+          }, 2000);
+        </script>
       </head>
       <body>
-        <h1>オフラインモード</h1>
-        <p class="offline">インターネット接続を確認してください</p>
-        <div class="retry">
-          <button onclick="location.reload()">再試行</button>
+        <div class="container">
+          <h1>🔮 ${pageTitle}</h1>
+          <div class="spinner"></div>
+          <p class="message">${pageMessage}</p>
+          <p style="font-size: 0.9rem; color: #cbd5e1;">2秒後に自動でページを移動します...</p>
+          <div class="retry">
+            <button onclick="window.location.href='${redirectPath}'">すぐに移動する</button>
+          </div>
         </div>
       </body>
       </html>
     `, {
-      headers: { 'Content-Type': 'text/html' }
+      headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      status: 200 // 404ではなく200で返す（ユーザビリティ向上）
     });
   }
   
-  return new Response('オフライン - リソースが利用できません', {
-    status: 503,
-    statusText: 'Service Unavailable'
+  return new Response('リソースが見つかりません', {
+    status: 404,
+    statusText: 'Not Found',
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' }
   });
 }
 
@@ -515,6 +639,25 @@ self.addEventListener('message', event => {
         })
         .catch(error => {
           console.error('❌ Cache clear failed:', error);
+          safePostMessage({ success: false, error: error.message });
+        });
+    } else if (data && data.type === 'FORCE_RELOAD') {
+      console.log('🔄 Force reload requested');
+      
+      // 全キャッシュを削除してページをリロード
+      caches.keys()
+        .then(cacheNames => Promise.all(cacheNames.map(name => caches.delete(name))))
+        .then(() => {
+          console.log('✅ All caches cleared for force reload');
+          safePostMessage({ success: true, action: 'reload' });
+          
+          // クライアントをリロード
+          self.clients.matchAll().then(clients => {
+            clients.forEach(client => client.navigate(client.url));
+          });
+        })
+        .catch(error => {
+          console.error('❌ Force reload failed:', error);
           safePostMessage({ success: false, error: error.message });
         });
     } else {
