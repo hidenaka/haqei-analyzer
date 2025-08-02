@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="css/constellation-view.css" />
     <link rel="stylesheet" href="css/behavioral-flow-timeline.css" />
     <link rel="stylesheet" href="css/unified-design.css" />
+    <link rel="stylesheet" href="css/responsive-os-analyzer.css" />
     
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -106,18 +107,19 @@
     </div>
 
     <!-- 🚀 Ultra Critical Path - 絶対必要最小限のみ (50KB以下目標) -->
-    <script src="./js/shared/core/BaseComponent.js"></script>
-    <script src="./js/shared/core/MicroStorageManager.js"></script>
-    <script src="./js/shared/core/BridgeStorageManager.js"></script>
-    <script src="./js/shared/core/SimpleStorageManager.js"></script>
-    <script src="./js/shared/core/MicroDataManager.js"></script>
-    <script src="./js/shared/data/questions.js"></script>
-    <script src="./js/os-analyzer/core/PrecompiledQuestions.js"></script>
+    <script src="/js/shared/core/BaseComponent.js"></script>
+    <script src="/js/shared/core/MicroStorageManager.js"></script>
+    <script src="/js/shared/core/BridgeStorageManager.js"></script>
+    <script src="/js/shared/core/SimpleStorageManager.js"></script>
+    <script src="/js/shared/core/MicroDataManager.js"></script>
+    <script src="/js/shared/data/questions.js"></script>
+    <script src="/js/os-analyzer/core/PrecompiledQuestions.js"></script>
     
     <!-- 🚀 Core UI - 超高速コンポーネント -->
-    <script src="js/os-analyzer/components/WelcomeScreen.js"></script>
-    <script src="js/os-analyzer/components/HaqeiQuestionElement.js"></script>
-    <script src="js/os-analyzer/components/VirtualQuestionFlow.js"></script>
+    <script src="/js/os-analyzer/components/WelcomeScreen.js"></script>
+    <script src="/js/os-analyzer/components/HaqeiQuestionElement.js"></script>
+    <script src="/js/os-analyzer/utils/TouchGestureHandler.js"></script>
+    <script src="/js/os-analyzer/components/VirtualQuestionFlow.js"></script>
     
     <!-- ⏳ ALL OTHER SCRIPTS - 設問完了後に動的読み込み -->
     <!-- 以下は全て設問完了後またはオンデマンドで読み込み -->
@@ -202,15 +204,18 @@
         }
       }
       
+      // Service Worker一時的に無効化（DataManager.js 404問題の調査のため）
+      /*
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/haqei-sw.js')
           .then(registration => console.log('✅ Service Worker registered'))
           .catch(error => console.log('❌ Service Worker registration failed:', error));
       }
+      */
     </script>
     
     <!-- アプリケーション初期化 -->
-    <script src="js/app.js"></script>
+    <script src="/js/app.js"></script>
 
   </body>
 </html>

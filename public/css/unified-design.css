@@ -72,6 +72,7 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
+  padding-top: 2rem; /* 上部の余白を確保してprogress-containerの見切れを防ぐ */
   background: transparent;
 }
 
@@ -81,31 +82,30 @@
   /* 設問の表示制御を改善 */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start; /* centerからflex-startに変更 */
+  justify-content: flex-start; /* centerからflex-startに変更 */
+  padding-top: 0; /* 上部のパディングを削除 */
 }
 
-/* 設問要素の基本スタイル */
+/* 設問要素の基本スタイル（簡潔化版） */
 .virtual-viewport haqei-question {
-  position: absolute;
   width: 100%;
   max-width: 800px;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease-in-out, visibility 0.3s;
+  /* 初期状態は表示。JSで制御するため */
 }
 
 /* アクティブな設問のスタイル */
 .virtual-viewport haqei-question.active-question {
-  opacity: 1;
-  visibility: visible;
+  /* JSで制御するため、CSSでは最小限に */
   position: relative;
 }
 
-/* 非表示の設問を確実に隠す */
-.virtual-viewport haqei-question:not(.active-question) {
-  display: none !important;
-}
+/* 
+ * 【重要】偶数番設問表示問題対策（2025-08-02）
+ * - display制御はJavaScriptで行う
+ * - CSSでの!importantは使用しない
+ * - 過度なCSS制御が原因で偶数番設問が表示されない問題を回避
+ */
 
 /* ========================================
    進捗表示の統合スタイル
@@ -118,7 +118,7 @@
   box-shadow: var(--shadow-default);
   padding: 1.5rem;
   border-radius: 16px;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem; /* 2remから1remに減らす */
   position: relative;
   z-index: 10;
 }

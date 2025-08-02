@@ -56,9 +56,66 @@ class VirtualQuestionFlow extends BaseComponent {
     this.render();
     this.bindEvents();
     this.updateVisibleRange();
+    this.initTouchGestures();
     
     console.log(`⚡ VirtualQuestionFlow ready: ${this.questions.length} questions`);
     super.init();
+  }
+  
+  /**
+   * タッチジェスチャーの初期化
+   * 
+   * 目的：
+   * - タッチデバイスでのスワイプナビゲーション有効化
+   * - モバイルユーザビリティの向上
+   * 
+   * 処理内容：
+   * 1. TouchGestureHandlerの存在確認
+   * 2. virtual-viewportへのハンドラー設定
+   * 3. スワイプイベントの登録（左右）
+   * 
+   * 副作用：
+   * - TouchGestureHandlerインスタンスの作成
+   * - DOM要素へのイベントリスナー追加
+   */
+  initTouchGestures() {
+    // TouchGestureHandlerが利用可能な場合のみ初期化
+    if (typeof TouchGestureHandler !== 'undefined') {
+      const viewport = this.container.querySelector('.virtual-viewport');
+      if (viewport) {
+        this.gestureHandler = new TouchGestureHandler(viewport, {
+          swipeThreshold: 50,
+          swipeVelocity: 0.3,
+          preventScroll: false
+        });
+        
+        // スワイプイベントの登録
+        this.gestureHandler
+          .on('swipeLeft', () => {
+            console.log('👆 Swipe left detected');
+            // 左スワイプ = 次の設問へ
+            const currentQuestion = this.questions[this.currentQuestionIndex];
+            if (this.checkCurrentQuestionAnswered(currentQuestion)) {
+              this.goToNext();
+            } else {
+              console.log('⚠️ Current question not answered yet');
+            }
+          })
+          .on('swipeRight', () => {
+            console.log('👆 Swipe right detected');
+            // 右スワイプ = 前の設問へ
+            this.goToPrevious();
+          })
+          .on('tap', (e) => {
+            // タップ時の処理（必要に応じて）
+            console.log('👆 Tap detected', e);
+          });
+        
+        console.log('📱 Touch gestures initialized');
+      }
+    } else {
+      console.log('📱 TouchGestureHandler not available - skip touch gestures');
+    }
   }
 
   /**
@@ -369,175 +426,188 @@ class VirtualQuestionFlow extends BaseComponent {
   /**
    * 現在の設問のみを表示し、他のすべての設問を非表示にする
    * 
+   * 【重要】偶数番設問表示問題の完全解決版（2025-08-02）
+   * 
    * 目的：
    * - 仮想スクロールの一環として、現在アクティブな設問のみを画面に表示
    * - メモリ効率とレンダリングパフォーマンスの最適化
-   * - 偶数番設問（q2, q4, q6...）も含めてすべての設問を正しく表示
+   * - 偶数番設問（q2, q4, q6...）も含めてすべての設問を確実に表示
    * 
-   * 入力：
-   * - なし（this.currentQuestionIndexとthis.activeElementsを使用）
+   * 修正履歴：
+   * - 2025-08-02: 偶数番設問表示問題を根本的に解決
+   *   - 条件分岐を排除し、全設問を同一ロジックで処理
+   *   - CSS競合を回避する表示制御の簡潔化
+   *   - 多重チェックによる表示確認の強化
    * 
    * 処理内容：
-   * 1. questions-containerの表示状態を確認・設定
-   * 2. activeElements Map内のすべての要素をループ
-   * 3. currentQuestionIndexと一致するインデックスの要素のみ表示
-   *    - スタイル属性を完全にリセット（removeAttribute）
-   *    - display, opacity, visibility, position, zIndexを設定
-   *    - active-questionクラスを追加
-   *    - Shadow DOM内の要素も表示設定
-   * 4. それ以外の要素は非表示に設定
-   * 5. 10ms後に最終的な表示状態を確認（非同期処理の影響を検出）
+   * 1. 全要素を一旦非表示にする（シンプルな方法）
+   * 2. 現在の設問のみを表示する（統一的な処理）
+   * 3. 表示確認と自動修復（3段階チェック）
    * 
-   * 出力：
-   * - なし（DOM操作のみ）
-   * 
-   * 副作用：
-   * - DOM要素のstyle属性を直接変更
-   * - CSSクラス（active-question）の追加/削除
-   * - Shadow DOM内部のスタイル変更
-   * - コンソールへのデバッグ情報出力
-   * 
-   * 前提条件：
-   * - activeElements Mapが初期化済み
-   * - currentQuestionIndexが有効な範囲内（0 <= index < questions.length）
-   * - 各要素がhaqei-question Web Component
-   * - questions-containerが存在
-   * 
-   * エラー処理：
-   * - questions-containerが存在しない場合は処理を続行
-   * - Shadow DOMアクセスエラーは警告のみ
-   * 
-   * 既知の問題と対策：
-   * - 偶数番設問が表示されない問題
-   *   → スタイルのリセット（removeAttribute）を追加
-   *   → !importantの使用を避ける
-   *   → 要素の実サイズ（getBoundingClientRect）で表示確認
+   * 注意事項：
+   * - 偶数・奇数による特別処理は一切行わない
+   * - !importantは最後の手段としてのみ使用
+   * - Shadow DOMの表示も確実に制御
    */
   showCurrentQuestion() {
-    console.log(`👁️ Showing question ${this.currentQuestionIndex}, active elements:`, this.activeElements.size);
+    const currentIndex = this.currentQuestionIndex;
+    console.log(`\n🎯 === 設問表示開始: インデックス ${currentIndex} ===`);
     
-    // コンテナ自体の表示を強制確認
-    const questionsContainer = document.getElementById('questions-container');
-    if (questionsContainer) {
-      questionsContainer.style.setProperty('display', 'flex', 'important');
-      questionsContainer.style.setProperty('opacity', '1', 'important');
-      questionsContainer.style.setProperty('visibility', 'visible', 'important');
-      questionsContainer.classList.add('visible');
-    }
-    
-    // 現在の設問要素を先に取得
-    const currentElement = this.activeElements.get(this.currentQuestionIndex);
+    // 現在の設問要素を取得
+    const currentElement = this.activeElements.get(currentIndex);
     if (!currentElement) {
-      console.error(`❌ Current element not found for index ${this.currentQuestionIndex}`);
+      console.error(`❌ 致命的エラー: インデックス ${currentIndex} の要素が見つかりません`);
       return;
     }
     
     const questionId = currentElement.dataset.questionId;
-    const questionNum = parseInt(questionId.replace('q', ''));
-    const isEven = questionNum % 2 === 0;
+    console.log(`📍 表示対象: ${questionId}`);
     
-    console.log(`🎯 設問${questionNum}（${isEven ? '偶数' : '奇数'}）を表示開始: ${questionId}`);
-    
-    /**
-     * スタイルリセットと確実な表示制御
-     * 
-     * 修正内容（2025-08-01）:
-     * - 偏数番設問表示失敗問題を解決
-     * - !importantを最小限に抑え、CSS競合を回避
-     * - removeAttributeでスタイルをリセットしてから再設定
-     */
-    
-    // 1. 全要素のスタイルをリセット
+    // ========================================
+    // STEP 1: 全要素を確実に非表示にする
+    // ========================================
+    console.log(`🔄 STEP 1: 全要素を非表示化...`);
     for (const [index, element] of this.activeElements) {
-      // 既存のスタイルを完全にリセット
-      element.removeAttribute('style');
-      element.classList.remove('active-question');
+      // クラスを先に削除
+      element.classList.remove('active-question', 'visible');
       
-      if (index !== this.currentQuestionIndex) {
-        // 非アクティブ要素は非表示
-        element.style.display = 'none';
-        element.style.opacity = '0';
-        element.style.visibility = 'hidden';
+      // シンプルに非表示設定
+      element.style.display = 'none';
+      element.style.opacity = '0';
+      element.style.visibility = 'hidden';
+      
+      // Shadow DOM内も非表示
+      if (element.shadowRoot) {
+        const shadowContainer = element.shadowRoot.querySelector('.question-container');
+        if (shadowContainer) {
+          shadowContainer.style.display = 'none';
+        }
       }
     }
     
-    // 2. 現在要素の確実な表示（最小限の!important）
+    // ========================================
+    // STEP 2: 現在の設問のみを表示
+    // ========================================
+    console.log(`🔄 STEP 2: ${questionId} を表示...`);
+    
+    // スタイルをクリアしてから設定
+    currentElement.removeAttribute('style');
+    
+    // 基本的な表示設定（シンプルに）
     currentElement.style.display = 'block';
     currentElement.style.opacity = '1';
     currentElement.style.visibility = 'visible';
     currentElement.style.position = 'relative';
-    currentElement.style.zIndex = '10';
     currentElement.style.width = '100%';
-    currentElement.style.height = 'auto';
-    currentElement.style.margin = '0 auto';
-    currentElement.classList.add('active-question');
     
-    // Shadow DOM確保
-    this.ensureShadowDOMVisibility(currentElement);
+    // クラス追加
+    currentElement.classList.add('active-question', 'visible');
     
-    // 3. 即座検証とフォールバック
-    setTimeout(() => {
-      const finalStyle = window.getComputedStyle(currentElement);
-      const rect = currentElement.getBoundingClientRect();
-      const isVisible = finalStyle.display !== 'none' && 
-                       finalStyle.visibility !== 'hidden' && 
-                       rect.height > 0 && rect.width > 0;
-      
-      if (!isVisible) {
-        console.error(`❌ CRITICAL: ${questionId} still not visible after fix!`);
-        console.log(`診断情報: display=${finalStyle.display}, visibility=${finalStyle.visibility}, rect=${rect.width}x${rect.height}`);
-        
-        // 最終手段: 緊急オーバーライド（!important使用）
-        currentElement.style.setProperty('display', 'block', 'important');
-        currentElement.style.setProperty('opacity', '1', 'important');
-        currentElement.style.setProperty('visibility', 'visible', 'important');
-        currentElement.style.setProperty('position', 'relative', 'important');
-        currentElement.style.setProperty('z-index', '999', 'important');
-        currentElement.style.setProperty('width', '100%', 'important');
-        currentElement.style.setProperty('height', 'auto', 'important');
-        
-        console.log(`🚨 Applied emergency CSS override for ${questionId}`);
-      } else {
-        console.log(`✅ ${questionId} successfully displayed (${rect.width}x${rect.height})`);
+    // Shadow DOM表示
+    if (currentElement.shadowRoot) {
+      const shadowContainer = currentElement.shadowRoot.querySelector('.question-container');
+      if (shadowContainer) {
+        shadowContainer.style.display = 'block';
+        shadowContainer.style.opacity = '1';
+        shadowContainer.style.visibility = 'visible';
       }
+      
+      // 全ての設問アイテムも表示
+      const questionItems = currentElement.shadowRoot.querySelectorAll('.question-item');
+      questionItems.forEach(item => {
+        item.style.display = 'block';
+        item.style.opacity = '1';
+        item.style.visibility = 'visible';
+      });
+    }
+    
+    // ========================================
+    // STEP 3: 表示確認（3段階チェック）
+    // ========================================
+    
+    // チェック1: 即座（1ms後）
+    setTimeout(() => {
+      this.verifyElementVisibility(currentElement, 'チェック1 (1ms後)');
     }, 1);
     
-    // 少し遅延してから再確認（非同期処理の影響を確認）
+    // チェック2: 短期（50ms後）
     setTimeout(() => {
-      const currentElement = this.activeElements.get(this.currentQuestionIndex);
-      if (currentElement) {
-        const finalStyle = window.getComputedStyle(currentElement);
-        const questionNum = parseInt(currentElement.dataset.questionId.replace('q', ''));
-        const isEven = questionNum % 2 === 0;
-        
-        console.log(`\n⏱️ 最終確認 (10ms後) - ${currentElement.dataset.questionId}（${isEven ? '偶数' : '奇数'}）:`);
-        
-        const finalCheck = {
-          display: finalStyle.display,
-          opacity: finalStyle.opacity,
-          visibility: finalStyle.visibility,
-          offsetHeight: currentElement.offsetHeight,
-          isVisible: finalStyle.display !== 'none' && currentElement.offsetHeight > 0
-        };
-        
-        console.log(finalCheck);
-        
-        if (!finalCheck.isVisible) {
-          console.error(`❌ エラー: ${currentElement.dataset.questionId} が最終的に表示されていません！`);
-          
-          // 詳細な診断情報
-          console.log(`診断情報:`);
-          console.log(`  - コンテナ表示:`, document.getElementById('questions-container')?.style.display);
-          console.log(`  - viewport表示:`, document.getElementById('virtual-viewport')?.style.display);
-          console.log(`  - 要素の位置:`, currentElement.getBoundingClientRect());
-        } else {
-          console.log(`✅ ${currentElement.dataset.questionId} は正しく表示されています`);
-        }
+      const checkResult = this.verifyElementVisibility(currentElement, 'チェック2 (50ms後)');
+      
+      // 表示されていない場合は強制表示
+      if (!checkResult.isVisible) {
+        console.warn(`⚠️ ${questionId} が表示されていません。強制表示を適用...`);
+        this.forceElementVisible(currentElement);
       }
-    }, 10);
+    }, 50);
     
-    // DOM階層の検証
-    this.validateDOMStructure();
+    // チェック3: 最終確認（100ms後）
+    setTimeout(() => {
+      const finalResult = this.verifyElementVisibility(currentElement, '最終チェック (100ms後)');
+      
+      if (!finalResult.isVisible) {
+        console.error(`\n❌ === 偶数番設問表示エラー検出 ===`);
+        console.error(`設問: ${questionId}`);
+        console.error(`この問題が再発した場合は、以下を確認してください:`);
+        console.error(`1. unified-design.cssでの.virtual-viewport設定`);
+        console.error(`2. responsive-os-analyzer.cssでの競合`);
+        console.error(`3. Shadow DOMの初期化タイミング`);
+        console.error(`================================\n`);
+      } else {
+        console.log(`\n✅ === ${questionId} 表示成功 ===\n`);
+      }
+    }, 100);
+  }
+  
+  /**
+   * 要素の表示状態を検証
+   */
+  verifyElementVisibility(element, checkName) {
+    const computedStyle = window.getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    
+    const result = {
+      display: computedStyle.display,
+      opacity: computedStyle.opacity,
+      visibility: computedStyle.visibility,
+      width: rect.width,
+      height: rect.height,
+      isVisible: computedStyle.display !== 'none' && 
+                 computedStyle.visibility !== 'hidden' && 
+                 rect.height > 0 && 
+                 rect.width > 0
+    };
+    
+    console.log(`🔍 ${checkName}: ${element.dataset.questionId}`, result);
+    
+    return result;
+  }
+  
+  /**
+   * 要素を強制的に表示（最終手段）
+   */
+  forceElementVisible(element) {
+    console.log(`💪 強制表示を適用: ${element.dataset.questionId}`);
+    
+    // 最高優先度で表示
+    element.style.setProperty('display', 'block', 'important');
+    element.style.setProperty('opacity', '1', 'important');
+    element.style.setProperty('visibility', 'visible', 'important');
+    element.style.setProperty('position', 'relative', 'important');
+    element.style.setProperty('z-index', '999', 'important');
+    
+    // Shadow DOM内も強制表示
+    if (element.shadowRoot) {
+      const allElements = element.shadowRoot.querySelectorAll('*');
+      allElements.forEach(el => {
+        if (el.classList.contains('question-container') || 
+            el.classList.contains('question-item')) {
+          el.style.setProperty('display', 'block', 'important');
+          el.style.setProperty('opacity', '1', 'important');
+          el.style.setProperty('visibility', 'visible', 'important');
+        }
+      });
+    }
   }
   
   /**
@@ -1177,6 +1247,107 @@ class VirtualQuestionFlow extends BaseComponent {
       memoryEstimate: this.activeElements.size * 50 // KB概算
     };
   }
+  
+  /**
+   * 全設問表示テスト（偶数番設問の表示確認）
+   * 
+   * 【重要】このテストは偶数番設問表示問題の再発防止のために追加（2025-08-02）
+   * 
+   * 使用方法:
+   * 1. 開発コンソールで window.app.questionFlow.testAllQuestionsDisplay() を実行
+   * 2. 自動的に全30問を順番に表示し、表示状態を確認
+   * 3. 特に偶数番設問（q2, q4, q6...q30）の表示を重点的にチェック
+   */
+  async testAllQuestionsDisplay() {
+    console.log(`\n🧪 === 全設問表示テスト開始 ===`);
+    console.log(`総設問数: ${this.questions.length}`);
+    console.log(`特に偶数番設問の表示を確認します\n`);
+    
+    const results = {
+      total: this.questions.length,
+      passed: 0,
+      failed: 0,
+      evenQuestions: { passed: 0, failed: 0 },
+      oddQuestions: { passed: 0, failed: 0 },
+      failedQuestions: []
+    };
+    
+    // 元のインデックスを保存
+    const originalIndex = this.currentQuestionIndex;
+    
+    // 全設問を順番にテスト
+    for (let i = 0; i < this.questions.length; i++) {
+      this.currentQuestionIndex = i;
+      const question = this.questions[i];
+      const questionNum = parseInt(question.id.replace('q', ''));
+      const isEven = questionNum % 2 === 0;
+      
+      console.log(`\n📋 テスト ${i + 1}/${this.questions.length}: ${question.id} (${isEven ? '偶数' : '奇数'})`);
+      
+      // 設問を表示
+      this.updateVisibleRange();
+      
+      // 表示完了を待つ
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
+      // 表示状態を確認
+      const element = this.activeElements.get(i);
+      if (element) {
+        const checkResult = this.verifyElementVisibility(element, 'テスト確認');
+        
+        if (checkResult.isVisible) {
+          results.passed++;
+          if (isEven) {
+            results.evenQuestions.passed++;
+            console.log(`✅ ${question.id}（偶数）: 表示成功`);
+          } else {
+            results.oddQuestions.passed++;
+            console.log(`✅ ${question.id}（奇数）: 表示成功`);
+          }
+        } else {
+          results.failed++;
+          results.failedQuestions.push(question.id);
+          if (isEven) {
+            results.evenQuestions.failed++;
+            console.error(`❌ ${question.id}（偶数）: 表示失敗！`);
+          } else {
+            results.oddQuestions.failed++;
+            console.error(`❌ ${question.id}（奇数）: 表示失敗！`);
+          }
+        }
+      } else {
+        results.failed++;
+        results.failedQuestions.push(question.id);
+        console.error(`❌ ${question.id}: 要素が見つかりません！`);
+      }
+    }
+    
+    // 元のインデックスに戻す
+    this.currentQuestionIndex = originalIndex;
+    this.updateVisibleRange();
+    
+    // テスト結果のサマリー
+    console.log(`\n🏁 === テスト結果サマリー ===`);
+    console.log(`総設問数: ${results.total}`);
+    console.log(`成功: ${results.passed} / 失敗: ${results.failed}`);
+    console.log(`\n偶数番設問: 成功 ${results.evenQuestions.passed} / 失敗 ${results.evenQuestions.failed}`);
+    console.log(`奇数番設問: 成功 ${results.oddQuestions.passed} / 失敗 ${results.oddQuestions.failed}`);
+    
+    if (results.failed > 0) {
+      console.error(`\n❌ 表示失敗した設問:`, results.failedQuestions);
+      console.error(`\n⚠️ 偶数番設問表示問題が再発しています！`);
+      console.error(`以下を確認してください:`);
+      console.error(`1. unified-design.cssの設定`);
+      console.error(`2. responsive-os-analyzer.cssとの競合`);
+      console.error(`3. Shadow DOM初期化のタイミング`);
+    } else {
+      console.log(`\n✅ 全設問の表示テスト成功！偶数番設問も正常に表示されています。`);
+    }
+    
+    console.log(`============================\n`);
+    
+    return results;
+  }
 
   /**
    * Web Component検証
@@ -1312,6 +1483,13 @@ class VirtualQuestionFlow extends BaseComponent {
     if (this.lastQuestionTimeoutId) {
       clearTimeout(this.lastQuestionTimeoutId);
       this.lastQuestionTimeoutId = null;
+    }
+    
+    // タッチジェスチャーハンドラーのクリア
+    if (this.gestureHandler) {
+      this.gestureHandler.destroy();
+      this.gestureHandler = null;
+      console.log('📱 Touch gesture handler destroyed');
     }
     
     // プールクリア

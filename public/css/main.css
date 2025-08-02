@@ -27,11 +27,11 @@
   /* Transitions */
   --transition-normal: 300ms ease;
   
-  /* Layout Constants - 見切れ防止用（編集版・十分なセーフエリア確保） */
-  --progress-bar-height: 4px;
-  --safe-top-desktop: 120px; /* デスクトップ用セーフエリア（48px→80px→120px） */
-  --safe-top-mobile: 160px;  /* モバイル用セーフエリア（80px→120px→160px） */
-  --safe-top-small: 180px;   /* 小画面用セーフエリア（100px→140px→180px） */
+  /* Layout Constants - 見切れ防止用（最終調整版） */
+  --progress-bar-height: 6px; /* プログレスバーを少し太くして見やすく */
+  --safe-top-desktop: 20px; /* デスクトップ用セーフエリア */
+  --safe-top-mobile: 30px;  /* モバイル用セーフエリア */
+  --safe-top-small: 40px;   /* 小画面用セーフエリア */
   --progress-total-height: calc(var(--progress-bar-height) + var(--safe-top-desktop));
 }
 
@@ -70,10 +70,10 @@ body {
 /**
  * 各screen-containerは絶対配置で全画面を覆う
  * 
- * 修正内容（2025-08-01）:
- * - 上部見切れ問題を解決するため、セーフエリアを確保
- * - デスクトップ: 48px、モバイル: 80px、小画面: 100pxのマージン
- * - レスポンシブ対応でデバイス別の適切なスペーシング
+ * 修正内容（2025-08-02）:
+ * - 設問にかぶる問題を解決
+ * - セーフエリアを最小限に調整
+ * - questions-containerは特別扱い
  */
 .app-container > .screen-container {
   position: absolute;
@@ -88,6 +88,16 @@ body {
   padding-top: var(--space-4); /* 追加のパディング */
   box-sizing: border-box;
   overflow-y: auto; /* スクロール可能にしつつ、上部の見切れを防ぐ */
+}
+
+/* questions-containerは設問表示のため特別扱い */
+.app-container > #questions-container.screen-container {
+  top: 0; /* 上端から開始（global-progressは非表示） */
+  height: 100vh; /* フルハイト */
+  padding: 0; /* パディングを完全に削除 */
+  padding-top: 20px; /* progress-containerの見切れ防止用の上部パディング */
+  overflow-y: auto; /* スクロール可能 */
+  box-sizing: border-box;
 }
 
 /* 表示状態のscreen-containerは確実に表示される */
@@ -174,6 +184,12 @@ body {
   background: var(--primary-800);
   z-index: 10000; /* より高いz-indexで最前面に配置 */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* プログレスバーの視認性向上 */
+  display: none; /* デフォルトで非表示 */
+}
+
+/* ウェルカム画面でのみ表示 */
+body.welcome-active .global-progress {
+  display: block;
 }
 
 .progress-bar {
@@ -649,6 +665,15 @@ body {
     padding-top: var(--space-4);
   }
   
+  /* questions-containerはモバイルでも特別扱い */
+  .app-container > #questions-container.screen-container {
+    top: 0; /* 上端から開始 */
+    height: 100vh;
+    padding: 0;
+    padding-top: 15px;
+    box-sizing: border-box;
+  }
+  
   #welcome-container {
     padding-top: calc(var(--space-4) + var(--safe-top-mobile));
     padding-bottom: 1rem;
@@ -699,6 +724,15 @@ body {
   .app-container > .screen-container {
     padding: 0.5rem;
     padding-top: var(--space-2);
+  }
+  
+  /* questions-containerは小画面でも特別扱い */
+  .app-container > #questions-container.screen-container {
+    top: 0; /* 上端から開始 */
+    height: 100vh;
+    padding: 0;
+    padding-top: 10px;
+    box-sizing: border-box;
   }
   
   #welcome-container {

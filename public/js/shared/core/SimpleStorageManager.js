@@ -592,6 +592,207 @@ class SimpleStorageManager {
     }
 
     /**
+     * 新しいセッションを開始
+     * 
+     * 目的：
+     * - 新規診断セッションの初期化
+     * - 既存データのクリア（必要に応じて）
+     * - セッションIDと開始時刻の記録
+     * 
+     * 処理内容：
+     * 1. 新しいセッションIDを生成
+     * 2. セッション情報を保存
+     * 3. 進行状況をリセット
+     * 
+     * 出力：
+     * - Object: 新しいセッション情報
+     * 
+     * 副作用：
+     * - localStorage内のセッション情報を更新
+     * - 必要に応じて古いデータをクリア
+     */
+    startNewSession() {
+        try {
+            this.log('Starting new session...', 'info');
+            
+            // セッションIDを生成
+            const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            
+            // セッション情報を作成
+            const session = {
+                id: sessionId,
+                startTime: Date.now(),
+                stage: 'welcome',
+                version: this.version,
+                source: 'SimpleStorageManager'
+            };
+            
+            // セッションを保存
+            localStorage.setItem(`${this.prefix}session`, JSON.stringify(session));
+            
+            // 進行状況をリセット
+            localStorage.removeItem(`${this.prefix}progress`);
+            localStorage.removeItem(`${this.prefix}answers`);
+            
+            this.log(`✅ New session started: ${sessionId}`, 'info');
+            
+            return session;
+        } catch (error) {
+            this.log(`Session start error: ${error.message}`, 'error');
+            // エラー時でも基本的なセッション情報を返す
+            return {
+                id: 'error_session_' + Date.now(),
+                startTime: Date.now(),
+                stage: 'welcome',
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * 現在のセッション情報を取得
+     * 
+     * 目的：
+     * - アクティブなセッションの情報取得
+     * - セッション継続性の確認
+     * 
+     * 出力：
+     * - Object|null: セッション情報
+     */
+    getSession() {
+        try {
+            const sessionData = localStorage.getItem(`${this.prefix}session`);
+            if (sessionData) {
+                return JSON.parse(sessionData);
+            }
+            return null;
+        } catch (error) {
+            this.log(`Get session error: ${error.message}`, 'warn');
+            return null;
+        }
+    }
+
+    /**
+     * セッション情報を更新
+     * 
+     * 目的：
+     * - セッションステージの更新
+     * - 追加情報の保存
+     * 
+     * 入力：
+     * - updates: Object - 更新する情報
+     */
+    updateSession(updates) {
+        try {
+            const currentSession = this.getSession();
+            if (currentSession) {
+                const updatedSession = {
+                    ...currentSession,
+                    ...updates,
+                    lastUpdated: Date.now()
+                };
+                localStorage.setItem(`${this.prefix}session`, JSON.stringify(updatedSession));
+                this.log('Session updated', 'info');
+                return true;
+            }
+            return false;
+        } catch (error) {
+            this.log(`Update session error: ${error.message}`, 'error');
+            return false;
+        }
+    }
+
+    /**
+     * 回答データを保存
+     * 
+     * 目的：
+     * - ユーザーの回答を永続化
+     * - 進行状況の保存
+     * 
+     * 入力：
+     * - answers: Array - 回答データの配列
+     */
+    saveAnswers(answers) {
+        try {
+            const saveData = {
+                answers: answers,
+                timestamp: Date.now(),
+                version: this.version,
+                count: answers.length
+            };
+            
+            localStorage.setItem(`${this.prefix}answers`, JSON.stringify(saveData));
+            this.log(`✅ ${answers.length} answers saved`, 'info');
+            return true;
+        } catch (error) {
+            this.log(`Save answers error: ${error.message}`, 'error');
+            return false;
+        }
+    }
+
+    /**
+     * 回答データを取得
+     * 
+     * 出力：
+     * - Array: 回答データの配列
+     */
+    getAnswers() {
+        try {
+            const data = localStorage.getItem(`${this.prefix}answers`);
+            if (data) {
+                const parsed = JSON.parse(data);
+                return parsed.answers || [];
+            }
+            return [];
+        } catch (error) {
+            this.log(`Get answers error: ${error.message}`, 'warn');
+            return [];
+        }
+    }
+
+    /**
+     * 進行状況を保存
+     * 
+     * 入力：
+     * - progress: Object - 進行状況データ
+     */
+    saveProgress(progress) {
+        try {
+            const saveData = {
+                progress: progress,
+                timestamp: Date.now(),
+                version: this.version
+            };
+            
+            localStorage.setItem(`${this.prefix}progress`, JSON.stringify(saveData));
+            return true;
+        } catch (error) {
+            this.log(`Save progress error: ${error.message}`, 'error');
+            return false;
+        }
+    }
+
+    /**
+     * 進行状況を取得
+     * 
+     * 出力：
+     * - Object|null: 進行状況データ
+     */
+    getProgress() {
+        try {
+            const data = localStorage.getItem(`${this.prefix}progress`);
+            if (data) {
+                const parsed = JSON.parse(data);
+                return parsed.progress || null;
+            }
+            return null;
+        } catch (error) {
+            this.log(`Get progress error: ${error.message}`, 'warn');
+            return null;
+        }
+    }
+
+    /**
      * 全ストレージのクリア（テスト・デバッグ用）
      */
     clearAll() {

@@ -23,7 +23,23 @@ async function loadScript(src) {
     const script = document.createElement('script');
     script.src = src;
     script.onload = resolve;
-    script.onerror = reject;
+    script.onerror = (error) => {
+      console.error(`❌ Failed to load script: ${src}`);
+      console.error('Error details:', error);
+      // DataManager.jsの場合は代替手段を試す
+      if (src.includes('DataManager.js')) {
+        console.log('⚠️ Trying fallback for DataManager.js...');
+        // Service Workerを回避するためにタイムスタンプを追加
+        const fallbackSrc = src + '?t=' + Date.now();
+        const fallbackScript = document.createElement('script');
+        fallbackScript.src = fallbackSrc;
+        fallbackScript.onload = resolve;
+        fallbackScript.onerror = reject;
+        document.head.appendChild(fallbackScript);
+      } else {
+        reject(error);
+      }
+    };
     document.head.appendChild(script);
   });
 }
@@ -47,15 +63,15 @@ async function loadScript(src) {
  */
 async function loadAnalysisEngines() {
   const engines = [
-    'js/os-analyzer/core/StatisticalEngine.js',
-    'js/os-analyzer/core/Calculator.js', 
-    'js/os-analyzer/engines/CompatibilityDataLoader.js',
-    'js/os-analyzer/core/Engine.js',
-    'js/os-analyzer/core/IChingUltraSyncLogic.js',
-    'js/os-analyzer/core/TripleOSEngine.js',
-    'js/os-analyzer/core/UltraAnalysisEngine.js',
+    '/js/os-analyzer/core/StatisticalEngine.js',
+    '/js/os-analyzer/core/Calculator.js', 
+    '/js/os-analyzer/engines/CompatibilityDataLoader.js',
+    '/js/os-analyzer/core/Engine.js',
+    '/js/os-analyzer/core/IChingUltraSyncLogic.js',
+    '/js/os-analyzer/core/TripleOSEngine.js',
+    '/js/os-analyzer/core/UltraAnalysisEngine.js',
     // AnalysisViewコンポーネントも読み込む
-    'js/os-analyzer/components/AnalysisView.js'
+    '/js/os-analyzer/components/AnalysisView.js'
   ];
   
   for (const engine of engines) {
@@ -375,11 +391,11 @@ async function proceedToAnalysis(answers) {
       console.log("⚡ Loading full system for analysis...");
       
       // 完全なStorageManagerとDataManagerを読み込み
-      await loadScript('./js/shared/core/StorageManager.js');
-      await loadScript('./js/shared/core/DataManager.js');
-      await loadScript('./js/shared/core/ErrorHandler.js');
-      await loadScript('./js/shared/data/vectors.js');
-      await loadScript('./js/data/data_box.js');
+      await loadScript('/js/shared/core/StorageManager.js');
+      await loadScript('/js/shared/core/DataManager.js');
+      await loadScript('/js/shared/core/ErrorHandler.js');
+      await loadScript('/js/shared/data/vectors.js');
+      await loadScript('/js/data/data_box.js');
       
       // 分析エンジン群を読み込み
       await loadAnalysisEngines();

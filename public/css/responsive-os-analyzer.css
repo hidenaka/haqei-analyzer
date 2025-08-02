@@ -1,0 +1,498 @@
+/**
+ * responsive-os-analyzer.css
+ * OS Analyzerの完全レスポンシブ対応スタイルシート
+ * モバイルファースト設計による全デバイス対応
+ */
+
+/* ========================================
+   レスポンシブCSS変数システム
+   ======================================== */
+
+:root {
+  /* 動的スペーシングシステム（clamp関数使用） */
+  --space-xs: clamp(0.5rem, 2vw, 0.75rem);
+  --space-sm: clamp(0.75rem, 3vw, 1rem);
+  --space-md: clamp(1rem, 4vw, 1.5rem);
+  --space-lg: clamp(1.5rem, 5vw, 2rem);
+  --space-xl: clamp(2rem, 6vw, 3rem);
+  --space-2xl: clamp(3rem, 8vw, 4rem);
+  
+  /* 動的フォントサイズシステム */
+  --font-xs: clamp(0.75rem, 2vw, 0.875rem);
+  --font-sm: clamp(0.875rem, 2.5vw, 1rem);
+  --font-base: clamp(1rem, 3vw, 1.125rem);
+  --font-lg: clamp(1.25rem, 4vw, 1.5rem);
+  --font-xl: clamp(1.5rem, 5vw, 2rem);
+  --font-2xl: clamp(2rem, 6vw, 3rem);
+  --font-3xl: clamp(2.5rem, 8vw, 4rem);
+  
+  /* タップターゲット最小サイズ */
+  --tap-size-min: 44px;
+  --tap-size: max(44px, 2.75rem);
+  --tap-spacing: max(8px, 0.5rem);
+  
+  /* コンテナ幅制限 */
+  --container-xs: 100%;
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-max: 1440px;
+  
+  /* ブレークポイント */
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1440px;
+  
+  /* レスポンシブボーダー半径 */
+  --radius-sm: clamp(0.25rem, 1vw, 0.5rem);
+  --radius-md: clamp(0.5rem, 2vw, 1rem);
+  --radius-lg: clamp(1rem, 3vw, 1.5rem);
+  --radius-xl: clamp(1.5rem, 4vw, 2rem);
+  
+  /* レスポンシブシャドウ */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.16);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* ========================================
+   ベースレイアウト（モバイルファースト）
+   ======================================== */
+
+/* メインコンテナ */
+#questions-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: var(--space-sm);
+  box-sizing: border-box;
+}
+
+/* 仮想設問フロー */
+.virtual-question-flow {
+  max-width: var(--container-md);
+  margin: 0 auto;
+  padding: var(--space-md);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 仮想ビューポート */
+.virtual-viewport {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm);
+}
+
+/* ========================================
+   進捗表示のレスポンシブ化
+   ======================================== */
+
+.progress-container {
+  padding: var(--space-md);
+  margin-bottom: var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.progress-info {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.progress-text {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-sm);
+  white-space: nowrap;
+}
+
+.current-question {
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  margin-right: var(--space-xs);
+}
+
+.total-questions {
+  font-size: var(--font-xl);
+  opacity: 0.8;
+}
+
+.completed-count {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-sm);
+  border-radius: var(--radius-xl);
+}
+
+/* プログレスバー */
+.progress-bar {
+  height: clamp(6px, 1vw, 10px);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-sm);
+}
+
+/* ========================================
+   設問カードのレスポンシブ化
+   ======================================== */
+
+haqei-question {
+  --question-padding: var(--space-lg);
+  --question-gap: var(--space-md);
+  --option-padding: var(--space-md);
+  --option-gap: var(--space-sm);
+}
+
+.question-item {
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-md);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.question-header {
+  padding: var(--space-md);
+  margin: calc(var(--space-lg) * -1);
+  margin-bottom: var(--space-lg);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.question-icon {
+  font-size: var(--font-xl);
+  flex-shrink: 0;
+}
+
+.question-title {
+  font-size: var(--font-lg);
+  line-height: 1.5;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ========================================
+   選択肢のタッチ最適化
+   ======================================== */
+
+.question-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tap-spacing);
+}
+
+.option-label {
+  min-height: var(--tap-size);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* タッチ時のフィードバック */
+.option-label:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+.option-indicator {
+  width: clamp(20px, 5vw, 24px);
+  height: clamp(20px, 5vw, 24px);
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  transition: all 0.2s ease;
+}
+
+.option-text {
+  font-size: var(--font-base);
+  line-height: 1.5;
+  flex: 1;
+  word-wrap: break-word;
+}
+
+/* 選択状態 */
+.option-label input[type="radio"]:checked + .option-content {
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-sm);
+}
+
+/* ========================================
+   シナリオ設問のレスポンシブ化
+   ======================================== */
+
+.scenario-context {
+  padding: var(--space-lg);
+  margin-bottom: var(--space-lg);
+  border-radius: var(--radius-md);
+  border-left-width: clamp(4px, 1vw, 6px);
+}
+
+.scenario-icon {
+  font-size: var(--font-xl);
+  margin-bottom: var(--space-sm);
+}
+
+.scenario-title {
+  font-size: var(--font-lg);
+  margin-bottom: var(--space-sm);
+}
+
+.scenario-text {
+  font-size: var(--font-base);
+  line-height: 1.6;
+}
+
+.scenario-choices {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: 1fr;
+}
+
+.choice-section {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+}
+
+.choice-header {
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.choice-icon {
+  font-size: var(--font-lg);
+}
+
+.choice-title {
+  font-size: var(--font-base);
+  font-weight: 600;
+}
+
+/* ========================================
+   ナビゲーションコントロール
+   ======================================== */
+
+.navigation-controls {
+  padding: var(--space-lg);
+  margin-top: var(--space-lg);
+  border-radius: var(--radius-lg);
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.nav-button {
+  min-height: var(--tap-size);
+  min-width: clamp(120px, 30vw, 160px);
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-base);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  flex: 1 1 auto;
+  max-width: 200px;
+}
+
+/* 分析ボタンの強調 */
+.nav-button.analyze-button {
+  min-width: clamp(160px, 40vw, 200px);
+  font-size: var(--font-lg);
+  padding: var(--space-md) var(--space-xl);
+}
+
+/* ========================================
+   タブレット対応（768px〜）
+   ======================================== */
+
+@media (min-width: 768px) {
+  /* コンテナ調整 */
+  #questions-container {
+    padding: var(--space-md);
+  }
+  
+  .virtual-question-flow {
+    padding: var(--space-lg);
+  }
+  
+  /* シナリオ設問を2カラムに */
+  .scenario-choices {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  /* ナビゲーションボタンの横並び */
+  .navigation-controls {
+    justify-content: space-between;
+  }
+  
+  .nav-button {
+    flex: 0 1 auto;
+  }
+}
+
+/* ========================================
+   デスクトップ対応（1024px〜）
+   ======================================== */
+
+@media (min-width: 1024px) {
+  /* より大きなパディング */
+  .question-item {
+    padding: var(--space-xl);
+  }
+  
+  /* 選択肢のホバー効果強化 */
+  .option-label:hover {
+    transform: translateX(4px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  /* プログレス情報の改善 */
+  .progress-info {
+    justify-content: flex-start;
+    gap: var(--space-lg);
+  }
+}
+
+/* ========================================
+   大画面対応（1440px〜）
+   ======================================== */
+
+@media (min-width: 1440px) {
+  /* 最大幅の制限 */
+  .virtual-question-flow {
+    max-width: var(--container-lg);
+  }
+  
+  /* より広いスペーシング */
+  :root {
+    --space-md: 2rem;
+    --space-lg: 2.5rem;
+    --space-xl: 3.5rem;
+  }
+}
+
+/* ========================================
+   アクセシビリティ強化
+   ======================================== */
+
+/* フォーカス表示 */
+.option-label:focus-within {
+  outline: 3px solid rgba(99, 102, 241, 0.5);
+  outline-offset: 2px;
+}
+
+.nav-button:focus {
+  outline: 3px solid rgba(99, 102, 241, 0.5);
+  outline-offset: 2px;
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  .option-label {
+    border: 2px solid;
+  }
+  
+  .nav-button {
+    border: 2px solid;
+  }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ========================================
+   アニメーション設定
+   ======================================== */
+
+/* スムーズなページ遷移 */
+.virtual-question-item {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* タッチフィードバック */
+.touch-active {
+  transition: transform 0.1s ease;
+}
+
+/* ボタンアニメーション */
+.nav-button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-button:active {
+  transform: scale(0.95);
+}
+
+/* プログレスバーアニメーション */
+.progress-bar-fill {
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* モーション設定を尊重 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .virtual-question-item {
+    animation: none;
+  }
+}
+
+/* ========================================
+   印刷対応
+   ======================================== */
+
+@media print {
+  .navigation-controls,
+  .progress-container {
+    display: none;
+  }
+  
+  .question-item {
+    page-break-inside: avoid;
+    border: 1px solid #000;
+    margin-bottom: 1rem;
+  }
+}

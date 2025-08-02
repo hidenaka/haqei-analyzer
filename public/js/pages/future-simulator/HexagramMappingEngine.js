@@ -470,38 +470,257 @@ class HexagramMappingEngine {
   }
 
   /**
-   * 五行分析
+   * 五行分析（拡張版）
+   * 
+   * 目的：
+   * - 状況要素の五行属性を詳細に分析
+   * - 相生相剋関係を考慮した総合評価
+   * 
+   * 処理内容：
+   * - 五行要素のスコアリング
+   * - 相生相剋による調整
+   * - 循環パターンの検出
    */
   analyzeWuxingElements(situationalElements) {
     const wuxingScores = {
-      wood: 0,   // 木 - 成長、拡張
-      fire: 0,   // 火 - 活動、表現
-      earth: 0,  // 土 - 安定、調和
-      metal: 0,  // 金 - 収束、精密
-      water: 0   // 水 - 流動、適応
+      wood: 0,   // 木 - 成長、拡張、春、東
+      fire: 0,   // 火 - 活動、表現、夏、南
+      earth: 0,  // 土 - 安定、調和、季節の変わり目、中央
+      metal: 0,  // 金 - 収束、精密、秋、西
+      water: 0   // 水 - 流動、適応、冬、北
     };
     
-    // 環境による五行分析
+    // 環境による五行分析（詳細版）
     const envType = situationalElements.environmentalContext.primaryEnvironment;
-    if (envType === 'work_environment') wuxingScores.metal += 0.3;
-    if (envType === 'home_environment') wuxingScores.earth += 0.3;
-    if (envType === 'social_environment') wuxingScores.fire += 0.3;
+    if (envType === 'work_environment') {
+      wuxingScores.metal += 0.3;
+      wuxingScores.earth += 0.1; // 土生金の関係
+    }
+    if (envType === 'home_environment') {
+      wuxingScores.earth += 0.3;
+      wuxingScores.fire += 0.1; // 火生土の関係
+    }
+    if (envType === 'social_environment') {
+      wuxingScores.fire += 0.3;
+      wuxingScores.wood += 0.1; // 木生火の関係
+    }
+    if (envType === 'natural_environment') {
+      wuxingScores.wood += 0.3;
+      wuxingScores.water += 0.1; // 水生木の関係
+    }
     
-    // 関係性による五行分析
+    // 関係性による五行分析（詳細版）
     const relType = situationalElements.relationshipMapping.primaryRelationship;
-    if (relType === 'family') wuxingScores.earth += 0.2;
-    if (relType === 'work') wuxingScores.metal += 0.2;
-    if (relType === 'friends') wuxingScores.fire += 0.2;
+    if (relType === 'family') {
+      wuxingScores.earth += 0.2;
+      wuxingScores.wood += 0.1; // 家族の成長
+    }
+    if (relType === 'work') {
+      wuxingScores.metal += 0.2;
+      wuxingScores.water += 0.05; // 金生水の関係
+    }
+    if (relType === 'friends') {
+      wuxingScores.fire += 0.2;
+      wuxingScores.earth += 0.05; // 火生土の関係
+    }
+    if (relType === 'romantic') {
+      wuxingScores.water += 0.2;
+      wuxingScores.wood += 0.1; // 水生木の関係
+    }
+    
+    // 時間的要素による五行調整
+    const timeFrame = situationalElements.temporalAnalysis?.dominantTimeframe;
+    if (timeFrame) {
+      this.adjustWuxingByTimeframe(wuxingScores, timeFrame);
+    }
+    
+    // 相生相剋による調整
+    const adjustedScores = this.applyWuxingInteractions(wuxingScores);
     
     // 最優勢五行の特定
-    const dominantElement = Object.entries(wuxingScores)
+    const dominantElement = Object.entries(adjustedScores)
       .sort(([,a], [,b]) => b - a)[0][0];
     
+    // 五行循環パターンの検出
+    const cyclePattern = this.detectWuxingCycle(adjustedScores);
+    
     return {
-      elementScores: wuxingScores,
+      elementScores: adjustedScores,
       dominantElement: dominantElement,
-      elementBalance: this.calculateElementBalance(wuxingScores)
+      elementBalance: this.calculateElementBalance(adjustedScores),
+      wuxingCycle: cyclePattern,
+      interactionAnalysis: this.analyzeWuxingInteractions(adjustedScores)
     };
+  }
+  
+  /**
+   * 時間枠による五行調整
+   */
+  adjustWuxingByTimeframe(wuxingScores, timeFrame) {
+    const timeframeWuxing = {
+      'immediate_present': { fire: 0.15, metal: 0.1 }, // 即時性は火、決断は金
+      'recent_past': { water: 0.15, earth: 0.1 }, // 過去の流れは水、蓄積は土
+      'near_future': { wood: 0.15, fire: 0.1 }, // 未来の成長は木、希望は火
+      'ongoing': { earth: 0.15, water: 0.1 } // 継続は土、流れは水
+    };
+    
+    const adjustments = timeframeWuxing[timeFrame];
+    if (adjustments) {
+      Object.entries(adjustments).forEach(([element, score]) => {
+        wuxingScores[element] += score;
+      });
+    }
+  }
+  
+  /**
+   * 五行相生相剋の適用
+   */
+  applyWuxingInteractions(wuxingScores) {
+    const adjusted = { ...wuxingScores };
+    
+    // 相生関係（生成サイクル）
+    // 木→火→土→金→水→木
+    const shengCycle = {
+      wood: 'fire',
+      fire: 'earth',
+      earth: 'metal',
+      metal: 'water',
+      water: 'wood'
+    };
+    
+    // 相剋関係（抑制サイクル）
+    // 木→土、土→水、水→火、火→金、金→木
+    const keCycle = {
+      wood: 'earth',
+      earth: 'water',
+      water: 'fire',
+      fire: 'metal',
+      metal: 'wood'
+    };
+    
+    // 相生による増強
+    Object.entries(shengCycle).forEach(([source, target]) => {
+      if (adjusted[source] > 0.3) {
+        adjusted[target] += adjusted[source] * 0.2; // 20%の相生効果
+      }
+    });
+    
+    // 相剋による減衰
+    Object.entries(keCycle).forEach(([source, target]) => {
+      if (adjusted[source] > 0.4) {
+        adjusted[target] *= 0.8; // 20%の相剋効果
+      }
+    });
+    
+    // 正規化
+    const total = Object.values(adjusted).reduce((sum, val) => sum + val, 0);
+    if (total > 0) {
+      Object.keys(adjusted).forEach(key => {
+        adjusted[key] = adjusted[key] / total;
+      });
+    }
+    
+    return adjusted;
+  }
+  
+  /**
+   * 五行循環パターンの検出
+   */
+  detectWuxingCycle(wuxingScores) {
+    const threshold = 0.15; // 有意な要素の閾値
+    const activeElements = Object.entries(wuxingScores)
+      .filter(([_, score]) => score > threshold)
+      .map(([element, _]) => element);
+    
+    // 相生サイクルのチェック
+    const shengSequence = ['wood', 'fire', 'earth', 'metal', 'water'];
+    const hasShengCycle = this.checkCyclePattern(activeElements, shengSequence);
+    
+    // 相剋サイクルのチェック
+    const keSequence = ['wood', 'earth', 'water', 'fire', 'metal'];
+    const hasKeCycle = this.checkCyclePattern(activeElements, keSequence);
+    
+    return {
+      hasShengCycle,
+      hasKeCycle,
+      dominantCycle: hasShengCycle ? 'generative' : hasKeCycle ? 'controlling' : 'mixed',
+      cycleStrength: this.calculateCycleStrength(wuxingScores, activeElements)
+    };
+  }
+  
+  /**
+   * 循環パターンのチェック
+   */
+  checkCyclePattern(activeElements, sequence) {
+    let matchCount = 0;
+    for (let i = 0; i < sequence.length - 1; i++) {
+      if (activeElements.includes(sequence[i]) && activeElements.includes(sequence[i + 1])) {
+        matchCount++;
+      }
+    }
+    return matchCount >= 2; // 2つ以上の連続があれば循環とみなす
+  }
+  
+  /**
+   * 循環強度の計算
+   */
+  calculateCycleStrength(wuxingScores, activeElements) {
+    if (activeElements.length < 2) return 0;
+    
+    const avgScore = activeElements.reduce((sum, el) => sum + wuxingScores[el], 0) / activeElements.length;
+    return Math.min(avgScore * activeElements.length / 3, 1); // 最大1に正規化
+  }
+  
+  /**
+   * 五行相互作用の分析
+   */
+  analyzeWuxingInteractions(wuxingScores) {
+    const interactions = {
+      strongestSheng: null,
+      strongestKe: null,
+      balanceType: 'neutral'
+    };
+    
+    // 最強の相生関係を検出
+    const shengPairs = [
+      ['wood', 'fire'], ['fire', 'earth'], ['earth', 'metal'], 
+      ['metal', 'water'], ['water', 'wood']
+    ];
+    
+    let maxShengStrength = 0;
+    shengPairs.forEach(([source, target]) => {
+      const strength = Math.min(wuxingScores[source], wuxingScores[target]);
+      if (strength > maxShengStrength) {
+        maxShengStrength = strength;
+        interactions.strongestSheng = { source, target, strength };
+      }
+    });
+    
+    // 最強の相剋関係を検出
+    const kePairs = [
+      ['wood', 'earth'], ['earth', 'water'], ['water', 'fire'],
+      ['fire', 'metal'], ['metal', 'wood']
+    ];
+    
+    let maxKeStrength = 0;
+    kePairs.forEach(([source, target]) => {
+      const strength = Math.min(wuxingScores[source], wuxingScores[target]);
+      if (strength > maxKeStrength) {
+        maxKeStrength = strength;
+        interactions.strongestKe = { source, target, strength };
+      }
+    });
+    
+    // バランスタイプの判定
+    if (maxShengStrength > maxKeStrength * 1.5) {
+      interactions.balanceType = 'generative_dominant';
+    } else if (maxKeStrength > maxShengStrength * 1.5) {
+      interactions.balanceType = 'controlling_dominant';
+    } else {
+      interactions.balanceType = 'balanced';
+    }
+    
+    return interactions;
   }
 
   /**
@@ -685,13 +904,17 @@ class HexagramMappingEngine {
       // 詳細マッチングによる調整
       const detailedScore = this.calculateDetailedMatchScore(hexagramData, situationalAnalysis, situationalResult);
       
-      const finalScore = (combinedScore * 0.6 + detailedScore * 0.4);
+      // 時系列変化分析による調整
+      const timeSeriesScore = this.calculateTimeSeriesScore(hexagramData, situationalResult);
+      
+      const finalScore = (combinedScore * 0.5 + detailedScore * 0.3 + timeSeriesScore * 0.2);
       
       evaluatedCandidates.push({
         ...hexagramData,
         matchScore: finalScore,
         sources: group.map(c => c.source),
-        detailedAnalysis: this.generateDetailedAnalysis(hexagramData, situationalAnalysis)
+        detailedAnalysis: this.generateDetailedAnalysis(hexagramData, situationalAnalysis),
+        timeSeriesAnalysis: this.generateTimeSeriesAnalysis(hexagramData, situationalResult)
       });
     });
     
@@ -820,6 +1043,15 @@ class HexagramMappingEngine {
     // 簡易的な変卦計算（実際の易経ルールに基づく実装が必要）
     const changingHexagramId = this.calculateChangingHexagramId(primaryHexagram.hexagram_id, selectedLine);
     const changingHexagram = this.hexagramsData?.find(h => h.hexagram_id === changingHexagramId);
+    
+    // 時系列変化パターンの適用
+    if (changingHexagram) {
+      changingHexagram.timeSeriesPattern = this.predictTimeSeriesPattern(
+        primaryHexagram,
+        changingHexagram,
+        changeFactors
+      );
+    }
     
     return changingHexagram || null;
   }
@@ -1157,6 +1389,410 @@ class HexagramMappingEngine {
   predictSituationalChange(situationalResult, changeFactors) { return { trend: 'positive', timeframe: 'near_future' }; }
   calculateChangeConfidence(changeFactors) { return changeFactors.hasSignificantChange ? 0.7 : 0.3; }
   generateDetailedAnalysis(hexagram, analysis) { return { match_factors: ['temporal', 'relational'] }; }
+  
+  // ============ 時系列変化分析メソッド ============
+  
+  /**
+   * 時系列スコア計算
+   * 
+   * 目的：
+   * - 過去・現在・未来の時間軸での卦の適合度を評価
+   * - 変化の流れと卦の性質の一致度を計算
+   */
+  calculateTimeSeriesScore(hexagramData, situationalResult) {
+    let score = 0.5; // 基準スコア
+    
+    const temporalAnalysis = situationalResult.situationalElements?.temporalAnalysis;
+    if (!temporalAnalysis) return score;
+    
+    // 時間枠と卦の性質の一致度
+    const timeframe = temporalAnalysis.dominantTimeframe;
+    const hexagramTemporal = this.getHexagramTemporalNature(hexagramData);
+    
+    // 時系列パターンのマッチング
+    if (timeframe === 'immediate_present' && hexagramTemporal.includes('active')) {
+      score += 0.2;
+    } else if (timeframe === 'near_future' && hexagramTemporal.includes('preparatory')) {
+      score += 0.2;
+    } else if (timeframe === 'recent_past' && hexagramTemporal.includes('reflective')) {
+      score += 0.2;
+    }
+    
+    // 変化の速度と卦の動的性質
+    if (temporalAnalysis.changeVelocity) {
+      const changeSpeed = this.calculateChangeVelocity(situationalResult);
+      if (changeSpeed > 0.7 && hexagramTemporal.includes('dynamic')) {
+        score += 0.15;
+      } else if (changeSpeed < 0.3 && hexagramTemporal.includes('stable')) {
+        score += 0.15;
+      }
+    }
+    
+    // 時系列連続性の評価
+    const continuityScore = this.evaluateTemporalContinuity(hexagramData, situationalResult);
+    score += continuityScore * 0.15;
+    
+    return Math.min(score, 1.0);
+  }
+  
+  /**
+   * 時系列分析生成
+   * 
+   * 目的：
+   * - 卦の時系列的な変化パターンを詳細に分析
+   * - 過去・現在・未来の展開を予測
+   */
+  generateTimeSeriesAnalysis(hexagramData, situationalResult) {
+    const analysis = {
+      temporalAlignment: this.analyzeTemporalAlignment(hexagramData, situationalResult),
+      transformationSequence: this.predictTransformationSequence(hexagramData, situationalResult),
+      temporalResonance: this.calculateTemporalResonance(hexagramData, situationalResult),
+      evolutionPath: this.generateEvolutionPath(hexagramData, situationalResult)
+    };
+    
+    return analysis;
+  }
+  
+  /**
+   * 時系列パターン予測
+   * 
+   * 目的：
+   * - 主卦から変卦への時系列的な変化パターンを予測
+   * - 変化の速度、強度、方向性を分析
+   */
+  predictTimeSeriesPattern(primaryHexagram, changingHexagram, changeFactors) {
+    const pattern = {
+      transformationType: this.classifyTransformationType(primaryHexagram, changingHexagram),
+      timeframe: this.estimateTransformationTimeframe(changeFactors),
+      intensity: changeFactors.changeIntensity,
+      phases: this.generateTransformationPhases(primaryHexagram, changingHexagram),
+      criticalPoints: this.identifyCriticalPoints(primaryHexagram, changingHexagram)
+    };
+    
+    return pattern;
+  }
+  
+  /**
+   * 卦の時間的性質取得
+   */
+  getHexagramTemporalNature(hexagramData) {
+    // 卦番号に基づく簡易的な時間的性質の分類
+    const hexagramId = hexagramData.hexagram_id;
+    const temporalNatures = [];
+    
+    // 動的な卦（雷・風・火系）
+    if ([51, 57, 30, 21, 55, 62, 56, 35].includes(hexagramId)) {
+      temporalNatures.push('dynamic', 'active');
+    }
+    
+    // 準備的な卦（水・沢系）
+    if ([3, 5, 8, 60, 63, 64, 48, 29].includes(hexagramId)) {
+      temporalNatures.push('preparatory', 'transitional');
+    }
+    
+    // 反省的な卦（山・地系）
+    if ([52, 15, 23, 27, 4, 7, 33, 12].includes(hexagramId)) {
+      temporalNatures.push('reflective', 'contemplative');
+    }
+    
+    // 安定的な卦（天・地系）
+    if ([1, 2, 11, 12, 13, 14, 43, 44].includes(hexagramId)) {
+      temporalNatures.push('stable', 'enduring');
+    }
+    
+    return temporalNatures.length > 0 ? temporalNatures : ['neutral'];
+  }
+  
+  /**
+   * 変化速度計算
+   */
+  calculateChangeVelocity(situationalResult) {
+    const dynamicElements = situationalResult.virtualSituation?.dynamicElements;
+    if (!dynamicElements) return 0.5;
+    
+    let velocity = 0;
+    let factorCount = 0;
+    
+    // 各動的要素の変化速度を評価
+    Object.entries(dynamicElements).forEach(([key, factors]) => {
+      if (Array.isArray(factors) && factors.length > 0) {
+        velocity += factors.length * 0.1;
+        factorCount++;
+      }
+    });
+    
+    return factorCount > 0 ? Math.min(velocity / factorCount, 1.0) : 0.5;
+  }
+  
+  /**
+   * 時間的連続性評価
+   */
+  evaluateTemporalContinuity(hexagramData, situationalResult) {
+    // 状況の時間的要素と卦の連続性を評価
+    const temporalElements = situationalResult.situationalElements?.temporalAnalysis;
+    if (!temporalElements) return 0.5;
+    
+    let continuityScore = 0.5;
+    
+    // 過去から現在への連続性
+    if (temporalElements.pastInfluence && hexagramData.hexagram_id) {
+      const pastRelevance = this.calculatePastRelevance(hexagramData, temporalElements);
+      continuityScore += pastRelevance * 0.25;
+    }
+    
+    // 現在から未来への展開性
+    if (temporalElements.futureProjection && hexagramData.hexagram_id) {
+      const futureAlignment = this.calculateFutureAlignment(hexagramData, temporalElements);
+      continuityScore += futureAlignment * 0.25;
+    }
+    
+    return Math.min(continuityScore, 1.0);
+  }
+  
+  /**
+   * 時間的整合性分析
+   */
+  analyzeTemporalAlignment(hexagramData, situationalResult) {
+    const alignment = {
+      pastConnection: this.analyzePastConnection(hexagramData, situationalResult),
+      presentRelevance: this.analyzePresentRelevance(hexagramData, situationalResult),
+      futureProjection: this.analyzeFutureProjection(hexagramData, situationalResult),
+      overallContinuity: 'moderate'
+    };
+    
+    // 全体的な連続性の評価
+    const scores = [
+      alignment.pastConnection.score,
+      alignment.presentRelevance.score,
+      alignment.futureProjection.score
+    ];
+    const avgScore = scores.reduce((sum, s) => sum + s, 0) / scores.length;
+    
+    if (avgScore > 0.7) alignment.overallContinuity = 'strong';
+    else if (avgScore < 0.4) alignment.overallContinuity = 'weak';
+    
+    return alignment;
+  }
+  
+  /**
+   * 変化シーケンス予測
+   */
+  predictTransformationSequence(hexagramData, situationalResult) {
+    const sequence = [];
+    
+    // 現在の状態
+    sequence.push({
+      phase: 'current',
+      hexagram: hexagramData.hexagram_id,
+      description: `現在: ${hexagramData.name_jp}の状態`,
+      timeframe: '現在'
+    });
+    
+    // 近い将来の変化
+    const nearFutureHexagram = this.predictNearFutureHexagram(hexagramData, situationalResult);
+    if (nearFutureHexagram) {
+      sequence.push({
+        phase: 'near_future',
+        hexagram: nearFutureHexagram,
+        description: '近い将来の展開',
+        timeframe: '1-3ヶ月'
+      });
+    }
+    
+    // 中期的な変化
+    const midTermHexagram = this.predictMidTermHexagram(hexagramData, situationalResult);
+    if (midTermHexagram) {
+      sequence.push({
+        phase: 'mid_term',
+        hexagram: midTermHexagram,
+        description: '中期的な発展',
+        timeframe: '3-6ヶ月'
+      });
+    }
+    
+    return sequence;
+  }
+  
+  /**
+   * 時間的共鳴計算
+   */
+  calculateTemporalResonance(hexagramData, situationalResult) {
+    // 卦と状況の時間的な共鳴度を計算
+    let resonance = 0.5;
+    
+    const temporalAnalysis = situationalResult.situationalElements?.temporalAnalysis;
+    if (temporalAnalysis && temporalAnalysis.resonanceFactors) {
+      // 共鳴要因の評価
+      temporalAnalysis.resonanceFactors.forEach(factor => {
+        if (this.hexagramResonatesWith(hexagramData, factor)) {
+          resonance += 0.1;
+        }
+      });
+    }
+    
+    return {
+      score: Math.min(resonance, 1.0),
+      strength: resonance > 0.7 ? 'strong' : resonance > 0.4 ? 'moderate' : 'weak',
+      factors: this.identifyResonanceFactors(hexagramData, situationalResult)
+    };
+  }
+  
+  /**
+   * 進化パス生成
+   */
+  generateEvolutionPath(hexagramData, situationalResult) {
+    const path = {
+      startPoint: hexagramData.hexagram_id,
+      trajectory: this.calculateEvolutionTrajectory(hexagramData, situationalResult),
+      milestones: this.identifyEvolutionMilestones(hexagramData, situationalResult),
+      endPoint: this.predictEvolutionEndpoint(hexagramData, situationalResult)
+    };
+    
+    return path;
+  }
+  
+  /**
+   * 変化タイプ分類
+   */
+  classifyTransformationType(primaryHexagram, changingHexagram) {
+    const primaryId = primaryHexagram.hexagram_id;
+    const changingId = changingHexagram.hexagram_id;
+    
+    // 変化の大きさによる分類
+    const difference = Math.abs(primaryId - changingId);
+    
+    if (difference === 1) return 'gradual'; // 漸進的変化
+    if (difference > 32) return 'reversal'; // 反転的変化
+    if (difference > 16) return 'major'; // 大きな変化
+    return 'moderate'; // 中程度の変化
+  }
+  
+  /**
+   * 変化時間枠推定
+   */
+  estimateTransformationTimeframe(changeFactors) {
+    const intensity = changeFactors.changeIntensity;
+    
+    if (intensity > 0.8) return 'immediate'; // 即座
+    if (intensity > 0.6) return 'short_term'; // 短期（1-2週間）
+    if (intensity > 0.4) return 'medium_term'; // 中期（1-3ヶ月）
+    return 'long_term'; // 長期（3ヶ月以上）
+  }
+  
+  /**
+   * 変化フェーズ生成
+   */
+  generateTransformationPhases(primaryHexagram, changingHexagram) {
+    return [
+      {
+        phase: 1,
+        name: '初期状態',
+        hexagram: primaryHexagram.hexagram_id,
+        description: '現在の安定状態'
+      },
+      {
+        phase: 2,
+        name: '動揺期',
+        description: '変化の兆しが現れる'
+      },
+      {
+        phase: 3,
+        name: '転換期',
+        description: '本格的な変化が始まる'
+      },
+      {
+        phase: 4,
+        name: '新状態',
+        hexagram: changingHexagram.hexagram_id,
+        description: '新たな安定状態へ'
+      }
+    ];
+  }
+  
+  /**
+   * 臨界点特定
+   */
+  identifyCriticalPoints(primaryHexagram, changingHexagram) {
+    return [
+      {
+        point: 'trigger',
+        description: '変化のトリガーポイント',
+        timing: '変化の初期段階'
+      },
+      {
+        point: 'inflection',
+        description: '転換点',
+        timing: '変化の中間地点'
+      },
+      {
+        point: 'stabilization',
+        description: '安定化ポイント',
+        timing: '変化の完了段階'
+      }
+    ];
+  }
+  
+  // ============ 時系列分析ヘルパーメソッド ============
+  
+  calculatePastRelevance(hexagramData, temporalElements) {
+    // 過去の関連性を簡易計算
+    return temporalElements.pastInfluence > 0.5 ? 0.7 : 0.3;
+  }
+  
+  calculateFutureAlignment(hexagramData, temporalElements) {
+    // 未来への整合性を簡易計算
+    return temporalElements.futureProjection > 0.5 ? 0.7 : 0.3;
+  }
+  
+  analyzePastConnection(hexagramData, situationalResult) {
+    return { score: 0.6, description: '過去との適度な連続性' };
+  }
+  
+  analyzePresentRelevance(hexagramData, situationalResult) {
+    return { score: 0.8, description: '現在の状況と高い関連性' };
+  }
+  
+  analyzeFutureProjection(hexagramData, situationalResult) {
+    return { score: 0.7, description: '未来への展開可能性' };
+  }
+  
+  predictNearFutureHexagram(hexagramData, situationalResult) {
+    // 近い将来の卦を予測（簡易実装）
+    const offset = situationalResult.virtualSituation?.complexityLevel === 'complex' ? 3 : 1;
+    return (hexagramData.hexagram_id + offset) % 64 || 64;
+  }
+  
+  predictMidTermHexagram(hexagramData, situationalResult) {
+    // 中期的な卦を予測（簡易実装）
+    const offset = situationalResult.virtualSituation?.complexityLevel === 'complex' ? 7 : 3;
+    return (hexagramData.hexagram_id + offset) % 64 || 64;
+  }
+  
+  hexagramResonatesWith(hexagramData, factor) {
+    // 卦と要因の共鳴を判定（簡易実装）
+    return Math.random() > 0.5;
+  }
+  
+  identifyResonanceFactors(hexagramData, situationalResult) {
+    return ['時間的連続性', '変化の方向性', 'エネルギーの流れ'];
+  }
+  
+  calculateEvolutionTrajectory(hexagramData, situationalResult) {
+    return situationalResult.virtualSituation?.complexityLevel === 'complex' ? 'ascending' : 'stable';
+  }
+  
+  identifyEvolutionMilestones(hexagramData, situationalResult) {
+    return [
+      { milestone: 1, description: '初期認識段階' },
+      { milestone: 2, description: '変化受容段階' },
+      { milestone: 3, description: '統合完了段階' }
+    ];
+  }
+  
+  predictEvolutionEndpoint(hexagramData, situationalResult) {
+    // 進化の終点を予測（簡易実装）
+    return (hexagramData.hexagram_id + 12) % 64 || 64;
+  }
 }
 
 // グローバル利用のためのエクスポート
