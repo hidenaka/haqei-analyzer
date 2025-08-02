@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Debug Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffe6e6; color: #cc0000; }
+        .success { background: #e6ffe6; color: #008800; }
+        .warning { background: #fff3cd; color: #856404; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Storage Manager Debug Test</h1>
+    
+    <div>
+        <button onclick="clearAllStorage()">Clear All Storage</button>
+        <button onclick="testBasicStorage()">Test Basic Storage</button>
+        <button onclick="testAnalysisStorage()">Test Analysis Storage</button>
+        <button onclick="checkCurrentStorage()">Check Current Storage</button>
+        <button onclick="simulateOSAnalyzerSave()">Simulate OS Analyzer Save</button>
+        <button onclick="simulateResultsLoad()">Simulate Results Load</button>
+        <br><br>
+        <button onclick="testSimpleStorage()">Test Simple Storage Manager</button>
+        <button onclick="compareStorageManagers()">Compare Storage Managers</button>
+    </div>
+
+    <div id="output"></div>
+
+    <!-- StorageManager読み込み -->
+    <script src="./js/shared/core/StorageManager.js"></script>
+    <script src="./js/shared/core/SimpleStorageManager.js"></script>
+    
+    <script>
+        let storageManager;
+        let simpleStorageManager;
+        
+        function log(message, type = 'log') {
+            const output = document.getElementById('output');
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+            console.log(message);
+        }
+
+        function clearAllStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            log('✅ All storage cleared', 'success');
+        }
+
+        function testBasicStorage() {
+            try {
+                storageManager = new StorageManager();
+                log('✅ StorageManager initialized successfully', 'success');
+                
+                // テストデータの保存・取得
+                const testData = { test: 'value', timestamp: Date.now() };
+                storageManager.setItem('test_key', testData);
+                const retrieved = storageManager.getItem('test_key');
+                
+                if (JSON.stringify(testData) === JSON.stringify(retrieved)) {
+                    log('✅ Basic storage operations working', 'success');
+                } else {
+                    log('❌ Basic storage operations failed', 'error');
+                }
+            } catch (error) {
+                log(`❌ StorageManager initialization failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testAnalysisStorage() {
+            if (!storageManager) {
+                log('❌ StorageManager not initialized', 'error');
+                return;
+            }
+
+            // 分析結果のモックデータ
+            const mockAnalysisResult = {
+                engineOS: {
+                    name: "Engine OS",
+                    hexagram: { id: 1, name: "乾", symbol: "☰", binary: "111111" },
+                    score: 85,
+                    confidence: 0.92,
+                    description: "価値観システム"
+                },
+                interfaceOS: {
+                    name: "Interface OS", 
+                    hexagram: { id: 2, name: "坤", symbol: "☷", binary: "000000" },
+                    score: 72,
+                    confidence: 0.88,
+                    description: "社会的システム"
+                },
+                safeModeOS: {
+                    name: "SafeMode OS",
+                    hexagram: { id: 3, name: "屯", symbol: "☵", binary: "010001" },
+                    score: 68,
+                    confidence: 0.85,
+                    description: "防御システム"
+                },
+                timestamp: Date.now(),
+                version: "1.0"
+            };
+
+            try {
+                // 分析結果の保存
+                storageManager.saveAnalysisResult(mockAnalysisResult);
+                log('✅ Analysis result saved', 'success');
+
+                // 分析結果の取得テスト
+                const retrieved = storageManager.getAnalysisResult();
+                
+                if (retrieved) {
+                    log('✅ Analysis result retrieved successfully', 'success');
+                    log(`📊 Retrieved data keys: ${Object.keys(retrieved).join(', ')}`, 'log');
+                    
+                    // Triple OS構造の確認
+                    if (retrieved.engineOS && retrieved.interfaceOS && retrieved.safeModeOS) {
+                        log('✅ Triple OS structure confirmed', 'success');
+                    } else {
+                        log('⚠️ Triple OS structure incomplete', 'warning');
+                        log(`Missing: ${['engineOS', 'interfaceOS', 'safeModeOS'].filter(key => !retrieved[key]).join(', ')}`, 'warning');
+                    }
+                } else {
+                    log('❌ Analysis result retrieval failed', 'error');
+                }
+            } catch (error) {
+                log(`❌ Analysis storage test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function checkCurrentStorage() {
+            log('=== Current Storage Status ===', 'log');
+            
+            // localStorage keys
+            const localKeys = Object.keys(localStorage).filter(key => key.includes('haqei'));
+            log(`🗂️ LocalStorage HAQEI keys (${localKeys.length}): ${localKeys.join(', ')}`, 'log');
+            
+            localKeys.forEach(key => {
+                try {
+                    const value = localStorage.getItem(key);
+                    const parsed = JSON.parse(value);
+                    log(`📋 ${key}: ${typeof parsed} (${JSON.stringify(parsed).length} chars)`, 'log');
+                } catch (e) {
+                    log(`📋 ${key}: ${value ? value.substring(0, 100) + '...' : 'null'}`, 'log');
+                }
+            });
+
+            // StorageManager getAnalysisResult test
+            if (storageManager) {
+                try {
+                    const result = storageManager.getAnalysisResult();
+                    if (result) {
+                        log('✅ getAnalysisResult() working', 'success');
+                        log(`📊 Result keys: ${Object.keys(result).join(', ')}`, 'log');
+                    } else {
+                        log('⚠️ getAnalysisResult() returned null', 'warning');
+                    }
+                } catch (error) {
+                    log(`❌ getAnalysisResult() error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        function simulateOSAnalyzerSave() {
+            // os_analyzer.htmlが実際に行う保存処理をシミュレート
+            const analysisData = {
+                engineOS: {
+                    name: "価値観システム",
+                    hexagram: { id: 1, name: "乾" },
+                    score: 78,
+                    matchScore: 0.89
+                },
+                interfaceOS: {
+                    name: "社会的システム", 
+                    hexagram: { id: 14, name: "大有" },
+                    score: 65,
+                    matchScore: 0.82
+                },
+                safeModeOS: {
+                    name: "防御システム",
+                    hexagram: { id: 23, name: "剥" },
+                    score: 71,
+                    matchScore: 0.85
+                },
+                metadata: {
+                    timestamp: Date.now(),
+                    version: "2.0",
+                    source: "os_analyzer"
+                }
+            };
+
+            // 複数の保存方法をテスト
+            try {
+                // 方法1: 直接localStorage
+                localStorage.setItem('haqei_analysis_result', JSON.stringify(analysisData));
+                log('✅ Direct localStorage save completed', 'success');
+
+                // 方法2: StorageManager経由
+                if (storageManager) {
+                    storageManager.saveAnalysisResult(analysisData);
+                    log('✅ StorageManager save completed', 'success');
+                }
+
+                // 方法3: 緊急バックアップ
+                localStorage.setItem('haqei_emergency_result', JSON.stringify({
+                    result: analysisData,
+                    timestamp: Date.now(),
+                    source: 'emergency_backup'
+                }));
+                log('✅ Emergency backup save completed', 'success');
+
+            } catch (error) {
+                log(`❌ OS Analyzer save simulation failed: ${error.message}`, 'error');
+            }
+        }
+
+        function simulateResultsLoad() {
+            // results.htmlが実際に行う読み込み処理をシミュレート
+            log('=== Simulating Results Page Load ===', 'log');
+
+            try {
+                // 方法1: StorageManager経由
+                if (storageManager) {
+                    const result1 = storageManager.getAnalysisResult();
+                    if (result1) {
+                        log('✅ StorageManager load: SUCCESS', 'success');
+                        log(`📊 Data structure: ${Object.keys(result1).join(', ')}`, 'log');
+                        
+                        // Triple OS validation
+                        const hasTripleOS = result1.engineOS && result1.interfaceOS && result1.safeModeOS;
+                        if (hasTripleOS) {
+                            log('✅ Triple OS structure validated', 'success');
+                        } else {
+                            log('❌ Triple OS structure incomplete', 'error');
+                        }
+                    } else {
+                        log('❌ StorageManager load: FAILED', 'error');
+                    }
+                }
+
+                // 方法2: 直接localStorage
+                const directResult = localStorage.getItem('haqei_analysis_result');
+                if (directResult) {
+                    try {
+                        const parsed = JSON.parse(directResult);
+                        log('✅ Direct localStorage load: SUCCESS', 'success');
+                    } catch (parseError) {
+                        log('❌ Direct localStorage parse error', 'error');
+                    }
+                } else {
+                    log('❌ Direct localStorage load: NO DATA', 'error');
+                }
+
+                // 方法3: 緊急データ確認
+                const emergencyResult = localStorage.getItem('haqei_emergency_result');
+                if (emergencyResult) {
+                    try {
+                        const parsed = JSON.parse(emergencyResult);
+                        log('✅ Emergency backup available', 'success');
+                    } catch (parseError) {
+                        log('❌ Emergency backup parse error', 'error');
+                    }
+                } else {
+                    log('⚠️ No emergency backup found', 'warning');
+                }
+
+            } catch (error) {
+                log(`❌ Results load simulation failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testSimpleStorage() {
+            log('=== Testing Simple Storage Manager ===', 'log');
+            
+            try {
+                simpleStorageManager = new SimpleStorageManager();
+                log('✅ SimpleStorageManager initialized', 'success');
+
+                // テストデータ作成
+                const testAnalysisResult = {
+                    engineOS: {
+                        name: "価値観システム",
+                        hexagram: { id: 1, name: "乾", symbol: "☰" },
+                        score: 85,
+                        confidence: 0.92,
+                        description: "核となる価値観・重要な判断基準"
+                    },
+                    interfaceOS: {
+                        name: "社会的システム", 
+                        hexagram: { id: 14, name: "大有", symbol: "☲" },
+                        score: 72,
+                        confidence: 0.88,
+                        description: "他者に見せる自分・社会的表現"
+                    },
+                    safeModeOS: {
+                        name: "防御システム",
+                        hexagram: { id: 23, name: "剥", symbol: "☶" },
+                        score: 68,
+                        confidence: 0.85,
+                        description: "内なる自分の防御機制・ストレス対処"
+                    },
+                    timestamp: Date.now(),
+                    version: "2.0"
+                };
+
+                // 保存テスト
+                const saveResult = simpleStorageManager.saveAnalysisResult(testAnalysisResult);
+                if (saveResult) {
+                    log('✅ Simple storage save: SUCCESS', 'success');
+                } else {
+                    log('❌ Simple storage save: FAILED', 'error');
+                    return;
+                }
+
+                // 取得テスト
+                const retrieved = simpleStorageManager.getAnalysisResult();
+                if (retrieved) {
+                    log('✅ Simple storage get: SUCCESS', 'success');
+                    log(`📊 Retrieved keys: ${Object.keys(retrieved).join(', ')}`, 'log');
+                    
+                    // Triple OS検証
+                    if (retrieved.engineOS && retrieved.interfaceOS && retrieved.safeModeOS) {
+                        log('✅ Triple OS structure validated', 'success');
+                    } else {
+                        log('❌ Triple OS structure incomplete', 'error');
+                    }
+                } else {
+                    log('❌ Simple storage get: FAILED', 'error');
+                }
+
+                // インサイトテスト
+                const testInsights = {
+                    keyInsights: ["テスト洞察1", "テスト洞察2"],
+                    recommendations: ["推奨アクション1", "推奨アクション2"],
+                    timestamp: Date.now()
+                };
+
+                simpleStorageManager.saveInsights(testInsights);
+                const retrievedInsights = simpleStorageManager.getInsights();
+                
+                if (retrievedInsights) {
+                    log('✅ Simple insights: SUCCESS', 'success');
+                } else {
+                    log('❌ Simple insights: FAILED', 'error');
+                }
+
+            } catch (error) {
+                log(`❌ Simple storage test error: ${error.message}`, 'error');
+            }
+        }
+
+        function compareStorageManagers() {
+            log('=== Comparing Storage Managers ===', 'log');
+            
+            if (!storageManager || !simpleStorageManager) {
+                log('❌ Both storage managers need to be initialized first', 'error');
+                return;
+            }
+
+            // 同じデータで両方をテスト
+            const testData = {
+                engineOS: {
+                    name: "比較テスト用",
+                    hexagram: { id: 42, name: "益" },
+                    score: 77
+                },
+                interfaceOS: {
+                    name: "比較テスト用",
+                    hexagram: { id: 43, name: "夬" },
+                    score: 83
+                },
+                safeModeOS: {
+                    name: "比較テスト用",
+                    hexagram: { id: 44, name: "姤" },
+                    score: 69
+                }
+            };
+
+            try {
+                // 旧StorageManager
+                log('Testing legacy StorageManager...', 'log');
+                storageManager.saveAnalysisResult(testData);
+                const legacyResult = storageManager.getAnalysisResult();
+                
+                if (legacyResult) {
+                    log('✅ Legacy manager: SUCCESS', 'success');
+                } else {
+                    log('❌ Legacy manager: FAILED', 'error');
+                }
+
+                // SimpleStorageManager
+                log('Testing SimpleStorageManager...', 'log');
+                const simpleResult = simpleStorageManager.saveAnalysisResult(testData);
+                const retrievedSimple = simpleStorageManager.getAnalysisResult();
+
+                if (simpleResult && retrievedSimple) {
+                    log('✅ Simple manager: SUCCESS', 'success');
+                } else {
+                    log('❌ Simple manager: FAILED', 'error');
+                }
+
+                // 相互運用性テスト
+                log('Testing cross-compatibility...', 'log');
+                
+                // SimpleStorageManagerで保存したデータを旧StorageManagerで読み取り
+                const crossTest = storageManager.getAnalysisResult();
+                if (crossTest) {
+                    log('✅ Cross-compatibility: Simple→Legacy SUCCESS', 'success');
+                } else {
+                    log('⚠️ Cross-compatibility: Simple→Legacy FAILED', 'warning');
+                }
+
+            } catch (error) {
+                log(`❌ Comparison test error: ${error.message}`, 'error');
+            }
+        }
+
+        // ページ読み込み時の初期化
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Storage Debug Test initialized', 'success');
+            testBasicStorage();
+        });
+    </script>
+</body>
+</html>

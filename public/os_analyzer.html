@@ -109,6 +109,7 @@
     <script src="./js/shared/core/BaseComponent.js"></script>
     <script src="./js/shared/core/MicroStorageManager.js"></script>
     <script src="./js/shared/core/BridgeStorageManager.js"></script>
+    <script src="./js/shared/core/SimpleStorageManager.js"></script>
     <script src="./js/shared/core/MicroDataManager.js"></script>
     <script src="./js/shared/data/questions.js"></script>
     <script src="./js/os-analyzer/core/PrecompiledQuestions.js"></script>
@@ -124,8 +125,83 @@
     <!-- 🚫 全ての非必須スクリプトをオンデマンドロードに変更 -->
     <!-- これらは全てapp.jsの動的ロードに移行 -->
 
+    <!-- デバッグ用ボタン -->
+    <div id="debug-panel" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; display: none;">
+      <button onclick="debugTripleOS()" style="background: #444; color: #fff; border: 1px solid #666; padding: 5px 10px; margin: 2px; cursor: pointer;">Triple OS デバッグ</button>
+      <button onclick="checkAnswerFormat()" style="background: #444; color: #fff; border: 1px solid #666; padding: 5px 10px; margin: 2px; cursor: pointer;">回答フォーマット確認</button>
+      <button onclick="toggleDebugPanel()" style="background: #600; color: #fff; border: 1px solid #800; padding: 5px 10px; margin: 2px; cursor: pointer;">閉じる</button>
+    </div>
+    
     <!-- Service Worker 登録 -->
     <script>
+      // デバッグパネル表示（Ctrl+Shift+D）
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+          document.getElementById('debug-panel').style.display = 'block';
+        }
+      });
+      
+      function toggleDebugPanel() {
+        document.getElementById('debug-panel').style.display = 'none';
+      }
+      
+      async function debugTripleOS() {
+        console.log('🔬 Triple OS デバッグ開始');
+        
+        try {
+          // 現在の回答を確認
+          const answers = JSON.parse(localStorage.getItem('haqei_answers') || '[]');
+          console.log('📝 現在の回答数:', answers.length);
+          
+          if (answers.length > 0) {
+            console.log('📄 回答フォーマット例:', answers[0]);
+            
+            // 回答フォーマットを修正
+            const fixedAnswers = answers.map(answer => {
+              if (!answer.selectedChoice && answer.selectedValue) {
+                return {
+                  ...answer,
+                  selectedChoice: `${answer.questionId}${answer.selectedValue.toLowerCase()}`,
+                  choiceText: answer.choiceText || `選択肢${answer.selectedValue}`
+                };
+              }
+              return answer;
+            });
+            
+            console.log('🔧 修正後フォーマット例:', fixedAnswers[0]);
+            localStorage.setItem('haqei_answers', JSON.stringify(fixedAnswers));
+            
+            // 直接分析を実行
+            if (window.proceedToAnalysis) {
+              console.log('🚀 分析を直接実行...');
+              window.proceedToAnalysis(fixedAnswers);
+            } else {
+              console.log('⚠️ proceedToAnalysis が見つかりません');
+            }
+          } else {
+            console.log('⚠️ 回答データがありません');
+          }
+        } catch (error) {
+          console.error('❌ デバッグエラー:', error);
+        }
+      }
+      
+      function checkAnswerFormat() {
+        const answers = JSON.parse(localStorage.getItem('haqei_answers') || '[]');
+        console.log('📊 回答フォーマット分析:');
+        console.log('総数:', answers.length);
+        
+        if (answers.length > 0) {
+          const sample = answers[0];
+          console.log('サンプル:', sample);
+          console.log('必要なフィールド:');
+          console.log('- questionId:', !!sample.questionId);
+          console.log('- selectedValue:', !!sample.selectedValue);
+          console.log('- selectedChoice:', !!sample.selectedChoice);
+          console.log('- choiceText:', !!sample.choiceText);
+        }
+      }
+      
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/haqei-sw.js')
           .then(registration => console.log('✅ Service Worker registered'))

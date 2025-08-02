@@ -530,17 +530,15 @@ function showAnalysisView(viewInstance) {
   app.analysisView.show(); // ここで非同期の分析とアニメーションが開始される
 }
 
-// 結果画面を表示（修正版：データ構造に基づく適切なView選択）
+// 結果画面を表示（修正版：データ永続化と検証を強化）
 async function showResultsView(result, insights) {
   console.log("✅ [App] 結果表示開始");
   
   try {
-    // 分析結果とインサイトをストレージに保存
-    app.storageManager.saveAnalysisResult(result);
-    app.storageManager.saveInsights(insights);
-    app.storageManager.updateSession({ stage: "results" });
-    
-    console.log("💾 [App] 分析結果をストレージに保存完了");
+    // データ存在確認
+    if (!result || !insights) {
+      throw new Error('分析結果またはインサイトが見つかりません');
+    }
     
     // データ構造を確認
     console.log("🔍 [App] データ構造確認:", {
@@ -552,68 +550,109 @@ async function showResultsView(result, insights) {
       analysisType: result?.analysisType
     });
 
-    // 🚀 修正: results.htmlへの確実なページ遷移
+    // 分析結果とインサイトをストレージに保存（重複保存で確実性向上）
+    const saveSuccess1 = app.storageManager.saveAnalysisResult(result);
+    const saveSuccess2 = app.storageManager.saveInsights(insights);
+    
+    console.log("💾 [App] 保存結果:", { 
+      analysisResult: saveSuccess1, 
+      insights: saveSuccess2 
+    });
+    
+    // セッション更新
+    app.storageManager.updateSession({ 
+      stage: "results",
+      timestamp: new Date().toISOString(),
+      dataSize: {
+        resultKeys: Object.keys(result).length,
+        insightKeys: Object.keys(insights).length
+      }
+    });
+    
+    // 保存確認（読み戻しテスト）
+    const verifyResult = app.storageManager.getAnalysisResult();
+    const verifyInsights = app.storageManager.getInsights();
+    
+    if (!verifyResult || !verifyInsights) {
+      console.warn("⚠️ [App] データ保存検証失敗 - SimpleStorageManagerで再保存試行");
+      
+      // SimpleStorageManagerで確実に保存
+      try {
+        const simpleStorage = new SimpleStorageManager();
+        
+        if (!verifyResult) {
+          const simpleResult = simpleStorage.saveAnalysisResult(result);
+          console.log(`📦 [App] SimpleStorageManager分析結果保存: ${simpleResult ? '成功' : '失敗'}`);
+        }
+        
+        if (!verifyInsights) {
+          const simpleInsights = simpleStorage.saveInsights(insights);
+          console.log(`📦 [App] SimpleStorageManagerインサイト保存: ${simpleInsights ? '成功' : '失敗'}`);
+        }
+      } catch (simpleError) {
+        console.error("❌ [App] SimpleStorageManager保存エラー:", simpleError);
+        
+        // 最終手段として直接localStorage保存
+        localStorage.setItem('haqei_analysis_result', JSON.stringify({
+          result: result,
+          timestamp: Date.now(),
+          version: '2025.08.01'
+        }));
+        
+        localStorage.setItem('haqei_insights', JSON.stringify({
+          insights: insights,
+          timestamp: Date.now(),
+          version: '2025.08.01'
+        }));
+      }
+    }
+    
+    console.log("💾 [App] 分析結果をストレージに保存完了");
+
+    // LocalStorage状態の最終確認
+    const storageCheck = {
+      hasAnalysisResult: !!localStorage.getItem('haqei_analysis_result'),
+      hasInsights: !!localStorage.getItem('haqei_insights'),
+      hasSession: !!localStorage.getItem('haqei_session'),
+      storageKeys: Object.keys(localStorage).filter(k => k.includes('haqei')).length
+    };
+    
+    console.log("🔍 [App] LocalStorage確認:", storageCheck);
+
+    // results.htmlへの遷移
     console.log("🔄 [App] results.htmlへページ遷移中...");
     
-    // UIフィードバックを表示
-    showTransitionFeedback();
-    
-    // 少し遅延を入れてからリダイレクト（ユーザーへのフィードバック時間確保）
+    // 小さな遅延を追加してlocalStorageの永続化を確実にする
     setTimeout(() => {
       window.location.href = 'results.html';
-    }, 800);
-    
-    console.log("✅ [App] 結果表示完了");
+    }, 100);
     
   } catch (error) {
     console.error("❌ [App] 結果表示でエラー:", error);
     console.error("❌ [App] エラースタック:", error.stack);
     
-    // エラー時もresults.htmlへ遷移（ストレージにデータがあるため）
-    alert("分析完了しました。結果ページに移動します。");
-    window.location.href = 'results.html';
+    // エラー時の緊急保存
+    try {
+      localStorage.setItem('haqei_emergency_result', JSON.stringify({
+        result: result,
+        insights: insights,
+        error: error.message,
+        timestamp: Date.now()
+      }));
+      console.log("🚨 [App] 緊急データ保存完了");
+    } catch (emergencyError) {
+      console.error("❌ [App] 緊急保存も失敗:", emergencyError);
+    }
+    
+    // エラー時もresults.htmlへ遷移
+    console.log("⚠️ エラーが発生しましたが、results.htmlに遷移します");
+    setTimeout(() => {
+      window.location.href = 'results.html';
+    }, 200);
   }
 }
 
-// 🚀 新規: ページ遷移時のUIフィードバック
-function showTransitionFeedback() {
-  // 全画面オーバーレイを作成
-  const overlay = document.createElement('div');
-  overlay.id = 'transition-overlay';
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-family: 'Inter', sans-serif;
-  `;
-  
-  overlay.innerHTML = `
-    <div style="text-align: center;">
-      <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
-      <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">分析完了</h2>
-      <p style="font-size: 1rem; opacity: 0.9;">結果ページに移動しています...</p>
-      <div style="margin-top: 2rem;">
-        <div style="width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s linear infinite;"></div>
-      </div>
-    </div>
-    <style>
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-    </style>
-  `;
-  
-  document.body.appendChild(overlay);
-}
+// ページ遷移処理完了
 
 // TripleOS結果専用の表示関数
 async function showTripleOSResultsView(result, insights) {

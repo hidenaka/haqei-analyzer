@@ -171,8 +171,13 @@ class VirtualQuestionFlow extends BaseComponent {
     
     console.log(`🔄 Rendering visible questions: ${this.visibleRange.start}-${this.visibleRange.end}`);
     
-    // 要素プールは一時的に使用停止（安定化のため）
-    // this.returnInactiveElementsToPool();
+    // まず全ての要素を非表示にする
+    for (const [index, element] of this.activeElements) {
+      element.style.display = 'none';
+      element.style.opacity = '0';
+      element.style.visibility = 'hidden';
+      element.classList.remove('active-question');
+    }
     
     // 可視範囲の設問をレンダリング
     for (let i = this.visibleRange.start; i <= this.visibleRange.end; i++) {
@@ -464,6 +469,7 @@ class VirtualQuestionFlow extends BaseComponent {
     currentElement.style.zIndex = '10';
     currentElement.style.width = '100%';
     currentElement.style.height = 'auto';
+    currentElement.style.margin = '0 auto';
     currentElement.classList.add('active-question');
     
     // Shadow DOM確保
@@ -602,13 +608,29 @@ class VirtualQuestionFlow extends BaseComponent {
       this.answers.push(answer);
     }
 
-    // 回答内容を設定
+    // 選択肢のテキストを取得
+    const questionIndex = parseInt(questionId.replace('q', '')) - 1;
+    const element = this.activeElements.get(questionIndex);
+    let choiceText = '';
+    if (element && element.shadowRoot) {
+      const selectedInput = element.shadowRoot.querySelector(`input[value="${value}"]:checked`);
+      if (selectedInput) {
+        const label = selectedInput.closest('.option-label');
+        if (label) {
+          choiceText = label.querySelector('.option-text')?.textContent?.trim() || '';
+        }
+      }
+    }
+
+    // 回答内容を設定（TripleOSEngine.jsが期待する形式）
     if (choiceType === 'inner') {
       answer.innerChoice = { value, scoring_tags: scoringTags };
     } else if (choiceType === 'outer') {
       answer.outerChoice = { value, scoring_tags: scoringTags };
     } else {
       answer.selectedValue = value;
+      answer.selectedChoice = `${questionId}${value.toLowerCase()}`; // q1a, q2b形式
+      answer.choiceText = choiceText;
       answer.scoring_tags = scoringTags;
     }
 
@@ -743,7 +765,23 @@ class VirtualQuestionFlow extends BaseComponent {
     if (nextBtn) {
       const currentQuestion = this.questions[this.currentQuestionIndex];
       const hasAnswer = this.checkCurrentQuestionAnswered(currentQuestion);
-      nextBtn.disabled = !hasAnswer;
+      
+      // 最後の設問かチェック
+      const isLastQuestion = this.currentQuestionIndex === this.questions.length - 1;
+      
+      if (isLastQuestion) {
+        // 最後の設問の場合、ボタンテキストを「分析開始」に変更
+        nextBtn.textContent = '分析開始 →';
+        nextBtn.classList.add('analyze-button'); // スタイリング用のクラス追加
+        nextBtn.disabled = !hasAnswer;
+        
+        console.log('🎯 Last question reached - showing "分析開始" button');
+      } else {
+        // それ以外は通常の「次の質問」
+        nextBtn.textContent = '次の質問 →';
+        nextBtn.classList.remove('analyze-button');
+        nextBtn.disabled = !hasAnswer;
+      }
     }
   }
 
@@ -751,13 +789,43 @@ class VirtualQuestionFlow extends BaseComponent {
    * 完了数を取得
    */
   getCompletedCount() {
-    let count = 0;
-    for (const answer of this.answers) {
-      if (answer && (answer.selectedValue || (answer.innerChoice && answer.outerChoice))) {
-        count++;
+    // LocalStorageから最新のデータを取得
+    const savedAnswers = localStorage.getItem('haqei_answers');
+    if (savedAnswers) {
+      try {
+        const parsedAnswers = JSON.parse(savedAnswers);
+        // parsedAnswersが配列であることを確認
+        if (Array.isArray(parsedAnswers)) {
+          // this.answersも更新
+          this.answers = parsedAnswers;
+          
+          let count = 0;
+          for (const answer of parsedAnswers) {
+            if (answer && (answer.selectedValue || (answer.innerChoice && answer.outerChoice))) {
+              count++;
+            }
+          }
+          return count;
+        }
+      } catch (e) {
+        console.error('Error parsing saved answers:', e);
       }
     }
-    return count;
+    
+    // フォールバック：元の実装（this.answersが存在し、配列であることを確認）
+    if (this.answers && Array.isArray(this.answers)) {
+      let count = 0;
+      for (const answer of this.answers) {
+        if (answer && (answer.selectedValue || (answer.innerChoice && answer.outerChoice))) {
+          count++;
+        }
+      }
+      return count;
+    }
+    
+    // this.answersが配列でない場合は0を返す
+    console.warn('this.answers is not an array, returning 0');
+    return 0;
   }
 
   /**
@@ -992,9 +1060,39 @@ class VirtualQuestionFlow extends BaseComponent {
    */
   checkCompletion() {
     const completedCount = this.getCompletedCount();
-    if (completedCount === this.questions.length && this.onComplete) {
-      console.log('🎉 All questions completed!');
-      this.onComplete(this.answers);
+    console.log(`🔍 Checking completion: ${completedCount}/${this.questions.length} questions completed`);
+    
+    if (completedCount === this.questions.length) {
+      console.log('✅ All questions answered - triggering completion');
+      
+      if (this.onComplete) {
+        console.log('🎉 Calling onComplete callback');
+        // LocalStorageから最新の回答を取得して渡す
+        const savedAnswers = localStorage.getItem('haqei_answers');
+        if (savedAnswers) {
+          try {
+            const answers = JSON.parse(savedAnswers);
+            this.onComplete(answers);
+          } catch (e) {
+            console.error('Error parsing answers for onComplete:', e);
+            this.onComplete(this.answers);
+          }
+        } else {
+          this.onComplete(this.answers);
+        }
+      } else {
+        console.error('❌ onComplete callback not defined');
+        // onCompleteが定義されていない場合、app.showAnalysisを直接呼ぶ
+        if (window.app && typeof window.app.showAnalysis === 'function') {
+          console.log('🎯 Calling app.showAnalysis directly');
+          window.app.showAnalysis();
+        } else if (window.App && typeof window.App.showAnalysis === 'function') {
+          console.log('🎯 Calling App.showAnalysis directly');
+          window.App.showAnalysis();
+        }
+      }
+    } else {
+      console.log(`⏳ Not yet complete: ${completedCount}/${this.questions.length}`);
     }
   }
 
@@ -1028,7 +1126,26 @@ class VirtualQuestionFlow extends BaseComponent {
     }
 
     if (nextBtn) {
-      nextBtn.addEventListener('click', () => this.goToNext());
+      nextBtn.addEventListener('click', () => {
+        const isLastQuestion = this.currentQuestionIndex === this.questions.length - 1;
+        
+        if (isLastQuestion) {
+          // 最後の設問の場合、すべての質問が回答されているか確認
+          const completedCount = this.getCompletedCount();
+          console.log(`🔍 Analyze button clicked. Completed: ${completedCount}/${this.questions.length}`);
+          
+          if (completedCount === this.questions.length) {
+            console.log('✅ All questions answered - starting analysis');
+            // 分析を開始
+            this.checkCompletion();
+          } else {
+            console.warn('⚠️ Not all questions answered yet');
+          }
+        } else {
+          // 通常の次へ処理
+          this.goToNext();
+        }
+      });
     }
 
     // キーボードナビゲーション
@@ -1093,6 +1210,20 @@ class VirtualQuestionFlow extends BaseComponent {
     const element = document.createElement('div');
     element.dataset.questionId = question.id;
     element.classList.add('virtual-question-item', 'fallback-question');
+    
+    /**
+     * フォールバック要素の初期状態
+     * 
+     * 修正内容（2025-08-01）:
+     * - Web Component失敗時のフォールバック要素でも同様に設定
+     * - 表示制御の一貫性を確保
+     */
+    element.style.display = 'none';
+    element.style.opacity = '0';
+    element.style.visibility = 'hidden';
+    element.style.position = 'relative';
+    element.style.width = '100%';
+    element.style.height = 'auto';
     
     // HaqeiQuestionElement のフォールバックテンプレートを使用
     const haqeiElement = new HaqeiQuestionElement();

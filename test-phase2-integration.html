@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 2 統合テスト - 状況卦精度向上システム</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-200 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8">🧪 Phase 2 統合テスト</h1>
+        
+        <div class="bg-gray-800 p-6 rounded-lg mb-6">
+            <h2 class="text-xl font-bold mb-4">テスト入力</h2>
+            <textarea id="testInput" class="w-full h-32 p-3 bg-gray-700 rounded text-white" 
+                placeholder="テスト用のテキストを入力してください（例：仕事でのストレス、人間関係の悩みなど）">最近仕事で新しいプロジェクトを任されたのですが、責任が重く感じて夜も眠れません。チームメンバーとの連携もうまくいかず、一人で抱え込んでしまっています。</textarea>
+            <button id="runTest" class="mt-4 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-bold">🚀 Phase 2 統合テスト実行</button>
+        </div>
+        
+        <div id="testResults" class="space-y-4"></div>
+    </div>
+
+    <!-- 必要な依存関係 -->
+    <script src="./assets/H384H64database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js"></script>
+    <script src="./js/pages/future-simulator/MultiDimensionalContextAnalyzer.js"></script>
+    <script src="./js/pages/future-simulator/SituationalContextEngine.js"></script>
+    <script src="./js/pages/future-simulator/HexagramMappingEngine.js"></script>
+    <script src="./js/pages/future-simulator/MetaphorGenerationEngine.js"></script>
+
+    <script>
+        // テスト実行
+        document.getElementById('runTest').addEventListener('click', async () => {
+            const inputText = document.getElementById('testInput').value;
+            const resultsDiv = document.getElementById('testResults');
+            
+            resultsDiv.innerHTML = '<div class="text-center text-yellow-300">🔄 テスト実行中...</div>';
+            
+            try {
+                console.log('🧪 Phase 2統合テスト開始');
+                
+                // Kuromoji tokenizer初期化
+                let kuromojiTokenizer = null;
+                if (window.kuromoji) {
+                    try {
+                        kuromojiTokenizer = await window.kuromoji.builder({ dicPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/dict/" }).build();
+                        console.log('✅ Kuromoji tokenizer初期化完了');
+                    } catch (tokenizerError) {
+                        console.warn('⚠️ Kuromoji tokenizer初期化失敗、モック使用:', tokenizerError);
+                        kuromojiTokenizer = {
+                            tokenize: (text) => text.split(/\s+/).map(word => ({ 
+                                surface_form: word, 
+                                basic_form: word,
+                                pos: '記号'
+                            }))
+                        };
+                    }
+                }
+                
+                // Phase 1: MultiDimensionalContextAnalyzer
+                console.log('📊 Phase 1: 多次元コンテキスト分析');
+                const contextAnalyzer = new window.MultiDimensionalContextAnalyzer(kuromojiTokenizer);
+                const phase1Result = await contextAnalyzer.analyzeMultiDimensionalContext(inputText);
+                
+                // Phase 2: SituationalContextEngine
+                console.log('🎯 Phase 2: 仮想状況推定分析');
+                const situationalAnalyzer = new window.SituationalContextEngine(kuromojiTokenizer);
+                const phase2Result = await situationalAnalyzer.analyzeSituationalContext(inputText, phase1Result);
+                
+                // Phase 2.5: HexagramMappingEngine (条件付き)
+                let phase25Result = null;
+                if (phase2Result.readyForHexagramMapping) {
+                    console.log('📿 Phase 2.5: 易経マッピング分析');
+                    const hexagramMapper = new window.HexagramMappingEngine();
+                    phase25Result = await hexagramMapper.mapSituationToHexagram(phase2Result);
+                }
+                
+                // Phase 2.9: MetaphorGenerationEngine (条件付き)
+                let phase29Result = null;
+                if (phase25Result) {
+                    console.log('🎭 Phase 2.9: 易経メタファー生成');
+                    const metaphorGenerator = new window.MetaphorGenerationEngine();
+                    phase29Result = await metaphorGenerator.generateMetaphoricalInterpretation(phase25Result, phase2Result);
+                }
+                
+                // 結果表示
+                displayTestResults({
+                    phase1: phase1Result,
+                    phase2: phase2Result,
+                    phase25: phase25Result,
+                    phase29: phase29Result
+                });
+                
+            } catch (error) {
+                console.error('❌ テストエラー:', error);
+                resultsDiv.innerHTML = `
+                    <div class="bg-red-900/30 p-4 rounded-lg border border-red-500/30">
+                        <h3 class="text-red-300 font-bold">❌ テスト失敗</h3>
+                        <p class="text-gray-300">${error.message}</p>
+                        <pre class="text-xs text-gray-400 mt-2">${error.stack}</pre>
+                    </div>
+                `;
+            }
+        });
+        
+        function displayTestResults(results) {
+            const resultsDiv = document.getElementById('testResults');
+            
+            resultsDiv.innerHTML = `
+                <div class="bg-green-900/30 p-4 rounded-lg border border-green-500/30">
+                    <h3 class="text-green-300 font-bold mb-2">✅ 統合テスト成功</h3>
+                    <p class="text-gray-300">すべてのPhase 2コンポーネントが正常に動作しました</p>
+                </div>
+                
+                <div class="bg-blue-900/30 p-4 rounded-lg border border-blue-500/30">
+                    <h3 class="text-blue-300 font-bold mb-2">📊 Phase 1: 多次元コンテキスト分析結果</h3>
+                    <div class="text-sm text-gray-300 space-y-1">
+                        <div>主要コンテキスト: <span class="text-yellow-300">${results.phase1?.primaryContext || 'N/A'}</span></div>
+                        <div>信頼度: <span class="text-green-300">${Math.round((results.phase1?.confidence || 0) * 100)}%</span></div>
+                        <div>HSP検出: <span class="text-cyan-300">${results.phase1?.isHSPCase ? 'はい' : 'いいえ'}</span></div>
+                    </div>
+                </div>
+                
+                <div class="bg-purple-900/30 p-4 rounded-lg border border-purple-500/30">
+                    <h3 class="text-purple-300 font-bold mb-2">🎯 Phase 2: 仮想状況推定結果</h3>
+                    <div class="text-sm text-gray-300 space-y-1">
+                        <div>状況タイプ: <span class="text-yellow-300">${results.phase2?.virtualSituation?.situationType || 'N/A'}</span></div>
+                        <div>信頼度: <span class="text-green-300">${Math.round((results.phase2?.confidence || 0) * 100)}%</span></div>
+                        <div>易経マッピング準備: <span class="text-cyan-300">${results.phase2?.readyForHexagramMapping ? '✅ 完了' : '❌ 未対応'}</span></div>
+                    </div>
+                </div>
+                
+                ${results.phase25 ? `
+                <div class="bg-amber-900/30 p-4 rounded-lg border border-amber-500/30">
+                    <h3 class="text-amber-300 font-bold mb-2">📿 Phase 2.5: 易経マッピング結果</h3>
+                    <div class="text-sm text-gray-300 space-y-1">
+                        <div>主卦: <span class="text-yellow-300">${results.phase25.primaryHexagram?.name_jp || 'N/A'}</span></div>
+                        <div>信頼度: <span class="text-green-300">${Math.round((results.phase25.mappingConfidence || 0) * 100)}%</span></div>
+                        <div>選択爻: <span class="text-cyan-300">${results.phase25.selectedLine?.爻 || 'N/A'}</span></div>
+                    </div>
+                </div>
+                ` : `
+                <div class="bg-gray-700/30 p-4 rounded-lg border border-gray-500/30">
+                    <h3 class="text-gray-400 font-bold mb-2">📿 Phase 2.5: 易経マッピング</h3>
+                    <div class="text-sm text-gray-400">実行されませんでした（Phase 2準備未完了）</div>
+                </div>
+                `}
+                
+                ${results.phase29 ? `
+                <div class="bg-pink-900/30 p-4 rounded-lg border border-pink-500/30">
+                    <h3 class="text-pink-300 font-bold mb-2">🎭 Phase 2.9: 易経メタファー生成結果</h3>
+                    <div class="text-sm text-gray-300 space-y-1">
+                        <div>主要メタファー: <span class="text-yellow-300">${results.phase29.primaryMetaphor?.essence || 'N/A'}</span></div>
+                        <div>信頼度: <span class="text-green-300">${Math.round((results.phase29.metaphorConfidence || 0) * 100)}%</span></div>
+                        <div>品質検証: <span class="text-cyan-300">${results.phase29.qualityAssurance?.verificationPassed ? '✅ 合格' : '❌ 要改善'}</span></div>
+                    </div>
+                </div>
+                ` : `
+                <div class="bg-gray-700/30 p-4 rounded-lg border border-gray-500/30">
+                    <h3 class="text-gray-400 font-bold mb-2">🎭 Phase 2.9: 易経メタファー生成</h3>
+                    <div class="text-sm text-gray-400">実行されませんでした（Phase 2.5準備未完了）</div>
+                </div>
+                `}
+                
+                <div class="bg-indigo-900/30 p-4 rounded-lg border border-indigo-500/30">
+                    <h3 class="text-indigo-300 font-bold mb-2">📈 統合パフォーマンス分析</h3>
+                    <div class="text-sm text-gray-300 space-y-1">
+                        <div>Phase 1実行: <span class="text-green-300">✅ 成功</span></div>
+                        <div>Phase 2実行: <span class="text-green-300">✅ 成功</span></div>
+                        <div>Phase 2.5実行: <span class="text-${results.phase25 ? 'green' : 'yellow'}-300">${results.phase25 ? '✅ 成功' : '⚠️ 条件不適合'}</span></div>
+                        <div>Phase 2.9実行: <span class="text-${results.phase29 ? 'green' : 'yellow'}-300">${results.phase29 ? '✅ 成功' : '⚠️ 条件不適合'}</span></div>
+                        <div>全体ステータス: <span class="text-green-300">✅ 統合成功</span></div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -296,8 +296,8 @@ class HaqeiQuestionElement extends HTMLElement {
           padding: 20px;
           box-sizing: border-box;
           /* 追加: 上部見切れ防止のための大幅なマージン拡大 */
-          margin-top: 60px;
-          padding-top: 40px;
+          margin-top: 120px;
+          padding-top: 60px;
         }
 
         .question-container.animated .slide-in {
@@ -341,26 +341,34 @@ class HaqeiQuestionElement extends HTMLElement {
         .option-label {
           display: flex;
           align-items: center;
-          padding: 16px;
+          padding: 16px 20px;
           border: 2px solid rgba(99, 102, 241, 0.2);
-          border-radius: 8px;
+          border-radius: 12px;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.3s ease;
           position: relative;
           overflow: hidden;
           background: rgba(51, 65, 85, 0.8);
           color: #e2e8f0;
+          margin-bottom: 12px;
+        }
+
+        .option-label:last-child {
+          margin-bottom: 0;
         }
 
         .option-label:hover {
           border-color: rgba(99, 102, 241, 0.5);
-          background-color: rgba(99, 102, 241, 0.2);
+          background-color: rgba(99, 102, 241, 0.15);
           transform: translateX(4px);
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
         }
 
         .option-label input[type="radio"] {
-          margin: 0;
-          margin-right: 12px;
+          position: absolute;
+          opacity: 0;
+          width: 0;
+          height: 0;
         }
 
         .option-content {
@@ -373,21 +381,42 @@ class HaqeiQuestionElement extends HTMLElement {
         .option-indicator {
           width: 20px;
           height: 20px;
-          border: 2px solid #d1d5db;
+          border: 2px solid rgba(203, 213, 225, 0.5);
           border-radius: 50%;
-          margin-right: 12px;
-          transition: all 0.2s ease;
+          margin-right: 16px;
+          transition: all 0.3s ease;
+          position: relative;
+          flex-shrink: 0;
+          background: transparent;
+        }
+
+        .option-indicator::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #3b82f6;
+          transform: translate(-50%, -50%) scale(0);
+          transition: transform 0.3s ease;
         }
 
         .option-label input[type="radio"]:checked + .option-content .option-indicator {
           border-color: #3b82f6;
-          background-color: #3b82f6;
+          background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        .option-label input[type="radio"]:checked + .option-content .option-indicator::after {
+          transform: translate(-50%, -50%) scale(1);
         }
 
         .option-text {
           font-size: 16px;
           color: #e2e8f0;
           line-height: 1.5;
+          flex: 1;
         }
 
         .option-ripple {
@@ -404,6 +433,15 @@ class HaqeiQuestionElement extends HTMLElement {
 
         .option-label:active .option-ripple {
           opacity: 1;
+        }
+
+        /* 選択済みスタイルの強化 */
+        .option-label input[type="radio"]:checked + .option-content {
+          font-weight: 500;
+        }
+
+        .option-label input[type="radio"]:checked ~ .option-ripple {
+          background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
         }
 
         /* シナリオ設問用スタイル */
@@ -490,6 +528,23 @@ class HaqeiQuestionElement extends HTMLElement {
           
           .question-container {
             padding: 16px;
+            margin-top: 80px;
+            padding-top: 40px;
+          }
+
+          .option-label {
+            padding: 14px 16px;
+          }
+
+          .option-indicator {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+          }
+
+          .option-indicator::after {
+            width: 8px;
+            height: 8px;
           }
         }
 

@@ -76,7 +76,35 @@
 }
 
 .virtual-viewport {
-  min-height: 400px;
+  min-height: 500px;
+  position: relative;
+  /* 設問の表示制御を改善 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 設問要素の基本スタイル */
+.virtual-viewport haqei-question {
+  position: absolute;
+  width: 100%;
+  max-width: 800px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s;
+}
+
+/* アクティブな設問のスタイル */
+.virtual-viewport haqei-question.active-question {
+  opacity: 1;
+  visibility: visible;
+  position: relative;
+}
+
+/* 非表示の設問を確実に隠す */
+.virtual-viewport haqei-question:not(.active-question) {
+  display: none !important;
 }
 
 /* ========================================
@@ -413,6 +441,39 @@
 
 .prev-button:not(:disabled):hover {
   background: linear-gradient(135deg, #475569, #334155);
+}
+
+/* 分析開始ボタンのスタイル */
+.nav-button.analyze-button {
+  background: var(--primary-gradient);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  transition: all 0.3s ease;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.nav-button.analyze-button:not(:disabled):hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%);
+  animation: none;
+}
+
+.nav-button.analyze-button:disabled {
+  background: rgba(99, 102, 241, 0.3);
+  cursor: not-allowed;
+  opacity: 0.7;
+  animation: none;
 }
 
 /* ========================================

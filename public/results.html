@@ -75,6 +75,7 @@
     <!-- 基盤ライブラリ -->
     <script type="text/javascript" src="./js/shared/core/BaseComponent.js"></script>
     <script type="text/javascript" src="./js/shared/core/StorageManager.js"></script>
+    <script type="text/javascript" src="./js/shared/core/SimpleStorageManager.js"></script>
     <script type="text/javascript" src="./js/shared/core/DataManager.js"></script>
     <script type="text/javascript" src="./js/shared/core/ErrorHandler.js"></script>
     
@@ -118,16 +119,89 @@
             try {
                 // StorageManagerから診断結果を取得
                 const storageManager = new StorageManager();
-                const analysisResult = storageManager.getAnalysisResult();
-                const insights = storageManager.getInsights();
+                let analysisResult = storageManager.getAnalysisResult();
+                let insights = storageManager.getInsights();
+                
+                // SimpleStorageManagerも初期化（フォールバック用）
+                const simpleStorageManager = new SimpleStorageManager();
                 
                 console.log('📊 診断結果の取得完了:', {
                     hasAnalysisResult: !!analysisResult,
                     hasInsights: !!insights
                 });
                 
+                // SimpleStorageManagerでの取得試行
+                if (!analysisResult) {
+                    console.log('🔄 StorageManagerで取得失敗 - SimpleStorageManagerで試行中...');
+                    
+                    analysisResult = simpleStorageManager.getAnalysisResult();
+                    if (analysisResult) {
+                        console.log('✅ SimpleStorageManagerで分析結果取得成功');
+                    }
+                }
+                
+                if (!insights) {
+                    console.log('🔄 インサイト不足 - SimpleStorageManagerで試行中...');
+                    
+                    insights = simpleStorageManager.getInsights();
+                    if (insights) {
+                        console.log('✅ SimpleStorageManagerでインサイト取得成功');
+                    }
+                }
+                
+                // 直接localStorageからのフォールバック取得
+                if (!analysisResult) {
+                    console.log('🔄 SimpleStorageManagerでも失敗 - 直接localStorage確認中...');
+                    
+                    // 直接localStorage確認
+                    const directResult = localStorage.getItem('haqei_analysis_result');
+                    const emergencyResult = localStorage.getItem('haqei_emergency_result');
+                    
+                    if (directResult) {
+                        try {
+                            const parsed = JSON.parse(directResult);
+                            analysisResult = parsed.result || parsed;
+                            console.log('✅ 直接localStorage取得成功');
+                        } catch (parseError) {
+                            console.warn('⚠️ 直接localStorage解析失敗:', parseError);
+                        }
+                    } else if (emergencyResult) {
+                        try {
+                            const emergency = JSON.parse(emergencyResult);
+                            analysisResult = emergency.result;
+                            insights = emergency.insights;
+                            console.log('🚨 緊急データからの復旧成功');
+                        } catch (parseError) {
+                            console.warn('⚠️ 緊急データ解析失敗:', parseError);
+                        }
+                    }
+                }
+                
+                // インサイトが不足している場合のフォールバック
+                if (!insights) {
+                    console.log('🔄 インサイト不足 - 直接localStorage確認中...');
+                    const directInsights = localStorage.getItem('haqei_insights');
+                    
+                    if (directInsights) {
+                        try {
+                            const parsed = JSON.parse(directInsights);
+                            insights = parsed.insights || parsed;
+                            console.log('✅ 直接localStorageインサイト取得成功');
+                        } catch (parseError) {
+                            console.warn('⚠️ インサイト解析失敗:', parseError);
+                        }
+                    }
+                }
+                
                 // 診断結果の検証
                 if (!analysisResult) {
+                    // LocalStorageの状態をデバッグ
+                    const storageKeys = Object.keys(localStorage).filter(k => k.includes('haqei'));
+                    console.log('🔍 LocalStorage HAQEIキー:', storageKeys);
+                    storageKeys.forEach(key => {
+                        console.log(`📋 ${key}:`, localStorage.getItem(key)?.substring(0, 100) + '...');
+                    });
+                    
                     throw new Error('診断結果が見つかりません。先に診断を完了してください。');
                 }
                 

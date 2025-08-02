@@ -16,9 +16,9 @@ class TripleOSEngine {
     this.bunenjinImplementationStatus = this.initializeBunenjinStatus();
     console.log("🎭 Bunenjin philosophy tracking initialized");
     
-    // 🎭 仮想人格システム統合 (HaQei革新的アプローチ)
+    // 🎭 仮想人格システム統合 (HaQei革新的アプローチ) - 一時的に無効化
     this.virtualPersonalitySystem = {
-      enabled: true,
+      enabled: false, // VirtualPersonalityクラスが存在しないため一時的に無効化
       currentPersonality: null,
       personalityHistory: [],
       metaphorEngine: null,

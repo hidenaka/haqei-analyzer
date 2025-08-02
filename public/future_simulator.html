@@ -403,6 +403,10 @@
     <!-- Dynamic Analysis Components -->
     <script src="./js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
     <script src="./js/pages/future-simulator/IntegratedAnalysisEngine.js"></script>
+    <script src="./js/pages/future-simulator/MultiDimensionalContextAnalyzer.js"></script>
+    <script src="./js/pages/future-simulator/SituationalContextEngine.js"></script>
+    <script src="./js/pages/future-simulator/HexagramMappingEngine.js"></script>
+    <script src="./js/pages/future-simulator/MetaphorGenerationEngine.js"></script>
   </head>
   <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-6">
     <div
@@ -1258,7 +1262,123 @@
           }
         };
 
-        showLoadingState("辞書データ読込中...", true);
+        /**
+         * initializeFutureSimulator - 段階的初期化プロセス実装
+         * 
+         * 目的：
+         * - データ読み込み→検証→システム初期化の順序保証
+         * - bunenjin哲学に基づく4段階初期化プロセス
+         * - Triple OS統合システムの安全な起動
+         * 
+         * 処理内容：
+         * Phase 1: データ読み込み確認（H384_DATA, H64_DATA）
+         * Phase 2: 386爻システム検証（完全性チェック）
+         * Phase 3: Future Simulator統合システム初期化
+         * Phase 4: UI有効化（ユーザーインターフェース開放）
+         * 
+         * 出力：
+         * - Promise<void>: 初期化完了時にresolve、失敗時にreject
+         * 
+         * 副作用：
+         * - window.H384_DATA, H64_DATAの確認・設定
+         * - setupDatalist()の実行
+         * - UI要素の有効化
+         * - 詳細ログの出力
+         * 
+         * 前提条件：
+         * - H384H64database.jsの読み込み完了
+         * - kuromoji辞書の初期化完了
+         * - DOM要素の準備完了
+         * 
+         * エラー処理：
+         * - Phase失敗時の詳細エラー情報出力
+         * - フォールバック処理の自動実行
+         * - ユーザーへの適切なエラー通知
+         */
+        async function initializeFutureSimulator() {
+          console.log('🚀 Future Simulator段階的初期化開始...');
+          
+          try {
+            // Phase 1: データ読み込み確認
+            console.log('📋 Phase 1: データ読み込み確認...');
+            if (!window.ensureH384Data || typeof window.ensureH384Data !== 'function') {
+              throw new Error('ensureH384Data関数が利用できません');
+            }
+            
+            const h384Data = window.ensureH384Data();
+            if (!h384Data || !Array.isArray(h384Data) || h384Data.length !== 386) {
+              throw new Error('H384_DATA初期化失敗: データが不完全です');
+            }
+            console.log('✅ Phase 1完了: H384_DATA確認済み (386エントリ)');
+            
+            // Phase 2: 386爻システム検証
+            console.log('🔍 Phase 2: 386爻システム検証...');
+            if (typeof validateH384DataIntegrity === 'function') {
+              const validation = validateH384DataIntegrity();
+              if (!validation.passed) {
+                console.warn('⚠️  Phase 2警告: データ検証で問題が検出されましたが、処理を続行します', validation.tests);
+              } else {
+                console.log('✅ Phase 2完了: データ完全性検証合格');
+              }
+            } else {
+              console.warn('⚠️  validateH384DataIntegrity関数が利用できません - 検証をスキップ');
+            }
+            
+            // Phase 3: Future Simulator統合システム初期化
+            console.log('⚙️  Phase 3: 統合システム初期化...');
+            
+            // H64_DATAの確認
+            if (typeof H64_DATA !== 'undefined' && Array.isArray(H64_DATA)) {
+              console.log('✅ H64_DATA確認済み');
+            } else {
+              console.warn('⚠️  H64_DATAが利用できません');
+            }
+            
+            // futureThemeMapの確認
+            if (window.futureThemeMap) {
+              console.log('✅ futureThemeMap確認済み');
+            } else {
+              console.warn('⚠️  futureThemeMapが利用できません');
+            }
+            
+            // setupDatalistの実行
+            if (typeof setupDatalist === 'function') {
+              setupDatalist();
+              console.log('✅ setupDatalist実行完了');
+            } else {
+              console.warn('⚠️  setupDatalist関数が利用できません');
+            }
+            
+            console.log('✅ Phase 3完了: 統合システム初期化完了');
+            
+            // Phase 4: UI有効化
+            console.log('🖥️  Phase 4: UI有効化...');
+            
+            // ボタンやUI要素の有効化（必要に応じて）
+            const manualAnalyzeBtn = document.getElementById('manualAnalyzeBtn');
+            if (manualAnalyzeBtn) {
+              manualAnalyzeBtn.disabled = false;
+              console.log('✅ 分析ボタン有効化');
+            }
+            
+            // その他のUI要素の有効化
+            const userTextInput = document.getElementById('userText');
+            if (userTextInput) {
+              userTextInput.disabled = false;
+              console.log('✅ ユーザー入力フィールド有効化');
+            }
+            
+            console.log('✅ Phase 4完了: UI有効化完了');
+            console.log('🎉 Future Simulator段階的初期化完全完了');
+            
+          } catch (error) {
+            console.error('❌ Future Simulator初期化失敗:', error);
+            console.error('詳細:', error.stack);
+            throw new Error(`段階的初期化プロセス失敗: ${error.message}`);
+          }
+        }
+
+        showLoadingState("辞書データ読込中...", true);
 
         try {
           const [apiData] = await Promise.all([
@@ -1304,8 +1424,9 @@
             window.futureThemeMap = new Map(Object.entries(window.futureThemeMap));
             console.log("futureThemeMapをMapオブジェクトに変換しました。");
           }
-          setupDatalist();
-          console.log("アプリケーションの初期化が完了しました。");
+          // 段階的初期化プロセスの実行
+          await initializeFutureSimulator();
+          console.log("✅ Future Simulator完全初期化完了");
         } catch (error) {
           console.error("データの初期化に失敗しました:", error);
           showModal(`<h2 class="text-2xl font-bold text-red-400 mb-4">初期化エラー</h2><p>必要なデータを読み込めませんでした。</p><p class="mt-2 text-sm text-gray-500">${error}</p>`);
@@ -1369,18 +1490,25 @@
                         return;
                     }
 
-                    // コンテキスト判定を実行
-                    const contextType = analyzeContextType(worryText);
-                    console.log('コンテキスト分析結果:', contextType);
+                    // 拡張コンテキスト判定を実行（状況卦精度向上システム）
+                    const contextResult = await analyzeContextTypeEnhanced(worryText, null, true);
+                    console.log('🌐 拡張コンテキスト分析結果:', contextResult);
                     
-                    // ML強化予測を試行
+                    // 従来互換性のためのcontextType
+                    const contextType = contextResult.primary;
+                    
+                    // ML強化予測を試行（拡張結果と統合）
                     let mlEnhancedResult = null;
                     try {
                         if (window.mlIntegration) {
                             const analysisInput = {
                                 inputText: worryText,
                                 contextType: contextType,
-                                worryLevel: estimateWorryLevel(worryText)
+                                worryLevel: estimateWorryLevel(worryText),
+                                // 拡張分析結果も含める
+                                enhancedContext: contextResult.analysis?.enhancedAnalysis || null,
+                                isHSPCase: contextResult.analysis?.enhancedAnalysis?.isHSPCase || false,
+                                isMultidimensional: contextResult.analysis?.enhancedAnalysis?.isMultidimensional || false
                             };
                             
                             mlEnhancedResult = await window.mlIntegration.enhanceFutureSimulation(analysisInput);
@@ -1390,8 +1518,8 @@
                         console.log('⚠️ ML予測をスキップ（従来方式で継続）:', error.message);
                     }
 
-                    // 確認モーダルを表示
-                    const confirmResult = await showContextConfirmModal(contextType);
+                    // 拡張対応確認モーダルを表示
+                    const confirmResult = await showContextConfirmModalEnhanced(contextResult);
 
                     // ユーザーの選択に応じて処理を分岐
                     let finalContextType = contextType;
@@ -3358,6 +3486,423 @@
             qualityLevel: topResult.confidence >= 0.8 ? 'A級' : topResult.confidence >= 0.6 ? 'B級' : 'C級'
           }
         };
+      }
+
+      /**
+       * 多次元コンテキスト分析（拡張版）- 状況卦精度向上システム
+       * 
+       * 目的：
+       * - analyzeContextType の精度向上版
+       * - 複数コンテキストの同時存在処理
+       * - HSP特化・感情調整特性の詳細分析
+       * - 意図理解による文脈的分析
+       * 
+       * 入力：
+       * - inputText: string - 分析対象テキスト
+       * - userPersona: object - ユーザー属性情報（オプション）
+       * - useEnhanced: boolean - 拡張分析使用フラグ
+       * 
+       * 出力：
+       * - 既存analyzeContextType互換 + 拡張情報
+       * - primary: 主要コンテキスト
+       * - confidence: 信頼度
+       * - secondary: 副次コンテキスト
+       * - analysis: 詳細分析結果
+       * - enhanced: 拡張分析結果（isMultidimensional, isHSP等）
+       */
+      async function analyzeContextTypeEnhanced(inputText, userPersona = null, useEnhanced = true) {
+        console.log('🌐 多次元コンテキスト分析開始 (enhanced)');
+        
+        // 基本分析（従来との互換性確保）
+        const basicResult = analyzeContextType(inputText);
+        
+        // 拡張分析が無効または利用できない場合は基本結果を返す
+        if (!useEnhanced || !window.MultiDimensionalContextAnalyzer) {
+          console.log('⚠️ 拡張分析無効 - 基本分析結果を返却');
+          return basicResult;
+        }
+        
+        try {
+          let enhancedAnalyzer = null;
+          
+          // kuromoji.js が利用可能な場合は高精度分析
+          if (window.kuromojiTokenizer) {
+            enhancedAnalyzer = new window.MultiDimensionalContextAnalyzer(window.kuromojiTokenizer);
+          } else {
+            // kuromoji.js 不使用の場合は基本拡張分析
+            enhancedAnalyzer = new window.MultiDimensionalContextAnalyzer(null);
+          }
+          
+          // Phase 1: 多次元分析実行
+          const enhancedResult = await enhancedAnalyzer.analyzeMultiDimensionalContext(
+            inputText, 
+            userPersona,
+            null // contextHistory - 将来対応
+          );
+          
+          // Phase 2: 仮想状況推定分析（オプション）
+          let situationalResult = null;
+          if (window.SituationalContextEngine) {
+            try {
+              console.log('🎯 Phase 2: 仮想状況推定分析開始');
+              const situationalAnalyzer = new window.SituationalContextEngine(window.kuromojiTokenizer || null);
+              situationalResult = await situationalAnalyzer.analyzeSituationalContext(
+                inputText,
+                enhancedResult, // Phase 1の結果を入力として使用
+                userPersona
+              );
+              console.log('✨ Phase 2: 仮想状況推定分析完了');
+            } catch (situationalError) {
+              console.warn('⚠️ Phase 2分析エラー（Phase 1結果のみ使用）:', situationalError);
+              situationalResult = null;
+            }
+          }
+          
+          // Phase 2.5: 易経マッピング分析（オプション）
+          let hexagramMappingResult = null;
+          if (window.HexagramMappingEngine && situationalResult && situationalResult.readyForHexagramMapping) {
+            try {
+              console.log('📿 Phase 2.5: 易経マッピング分析開始');
+              const hexagramMapper = new window.HexagramMappingEngine();
+              hexagramMappingResult = await hexagramMapper.mapSituationToHexagram(
+                situationalResult,
+                userPersona
+              );
+              console.log('✨ Phase 2.5: 易経マッピング分析完了');
+            } catch (hexagramError) {
+              console.warn('⚠️ Phase 2.5分析エラー（Phase 1-2結果のみ使用）:', hexagramError);
+              hexagramMappingResult = null;
+            }
+          }
+          
+          // Phase 2.9: 易経メタファー生成（オプション）
+          let metaphorGenerationResult = null;
+          if (window.MetaphorGenerationEngine && hexagramMappingResult) {
+            try {
+              console.log('🎭 Phase 2.9: 易経メタファー生成開始');
+              const metaphorGenerator = new window.MetaphorGenerationEngine();
+              metaphorGenerationResult = await metaphorGenerator.generateMetaphoricalInterpretation(
+                hexagramMappingResult,
+                situationalResult,
+                userPersona
+              );
+              console.log('✨ Phase 2.9: 易経メタファー生成完了');
+            } catch (metaphorError) {
+              console.warn('⚠️ Phase 2.9分析エラー（Phase 1-2.5結果のみ使用）:', metaphorError);
+              metaphorGenerationResult = null;
+            }
+          }
+          
+          // Phase 1・2・2.5・2.9結果の統合
+          const integratedResult = {
+            // 既存互換性（primary, confidence, secondary, analysis）
+            primary: enhancedResult.primaryContext,
+            confidence: Math.min(Math.max(enhancedResult.confidence, basicResult.confidence * 0.8), 0.95),
+            secondary: enhancedResult.secondaryContexts.length > 0 ? 
+                      enhancedResult.secondaryContexts[0].type : basicResult.secondary,
+                      
+            // 既存analysis拡張
+            analysis: {
+              ...basicResult.analysis,
+              
+              // Phase 1拡張情報
+              enhancedAnalysis: {
+                isMultidimensional: enhancedResult.isMultidimensional,
+                isHSPCase: enhancedResult.isHSPCase,
+                intentionClarity: enhancedResult.intentionAnalysis?.intentionClarity || 0.5,
+                emotionalComplexity: enhancedResult.emotionalProfile?.emotionalComplexity || 0,
+                contextWeights: enhancedResult.contextWeights,
+                secondaryContexts: enhancedResult.secondaryContexts,
+                qualityLevel: enhancedResult.confidence >= 0.8 ? 'A級拡張' : 
+                            enhancedResult.confidence >= 0.6 ? 'B級拡張' : 'C級拡張',
+                processingTime: enhancedResult.qualityMetrics?.processingTime || 0
+              },
+              
+              // Phase 2仮想状況推定結果
+              situationalAnalysis: situationalResult ? {
+                hasSituationalAnalysis: true,
+                virtualSituation: situationalResult.virtualSituation,
+                situationalElements: situationalResult.situationalElements,
+                contextualInference: situationalResult.contextualInference,
+                consistencyScore: situationalResult.consistencyScore,
+                situationalConfidence: situationalResult.confidence,
+                readyForHexagramMapping: situationalResult.readyForHexagramMapping,
+                situationalSummary: situationalResult.situationalSummary,
+                phase2QualityLevel: situationalResult.confidence >= 0.85 ? 'A級推定' : 
+                                  situationalResult.confidence >= 0.7 ? 'B級推定' : 'C級推定',
+                phase2ProcessingTime: situationalResult.qualityMetrics?.processingTime || 0
+              } : {
+                hasSituationalAnalysis: false,
+                note: 'Phase 2分析未実行またはエラー'
+              },
+              
+              // Phase 2.5: 易経マッピング結果
+              hexagramMapping: hexagramMappingResult ? {
+                hasHexagramMapping: true,
+                primaryHexagram: hexagramMappingResult.primaryHexagram,
+                selectedLine: hexagramMappingResult.selectedLine,
+                changingHexagram: hexagramMappingResult.changingHexagram,
+                mappingConfidence: hexagramMappingResult.mappingConfidence,
+                readyForMetaphorGeneration: hexagramMappingResult.readyForMetaphorGeneration,
+                phase25QualityLevel: hexagramMappingResult.mappingConfidence >= 0.85 ? 'A級マッピング' : 
+                                   hexagramMappingResult.mappingConfidence >= 0.7 ? 'B級マッピング' : 'C級マッピング',
+                phase25ProcessingTime: hexagramMappingResult.qualityMetrics?.processingTime || 0
+              } : {
+                hasHexagramMapping: false,
+                note: 'Phase 2.5分析未実行またはエラー'
+              },
+              
+              // Phase 2.9: 易経メタファー生成結果
+              metaphorGeneration: metaphorGenerationResult ? {
+                hasMetaphorGeneration: true,
+                primaryMetaphor: metaphorGenerationResult.primaryMetaphor,
+                practicalGuidance: metaphorGenerationResult.practicalGuidance,
+                adaptedMessage: metaphorGenerationResult.adaptedMessage,
+                metaphorConfidence: metaphorGenerationResult.metaphorConfidence,
+                actionableInsights: metaphorGenerationResult.actionableInsights,
+                philosophicalDepth: metaphorGenerationResult.philosophicalDepth,
+                phase29QualityLevel: metaphorGenerationResult.metaphorConfidence >= 0.85 ? 'A級表現' : 
+                                   metaphorGenerationResult.metaphorConfidence >= 0.7 ? 'B級表現' : 'C級表現',
+                phase29ProcessingTime: metaphorGenerationResult.qualityMetrics?.processingTime || 0,
+                qualityAssurance: metaphorGenerationResult.qualityAssurance
+              } : {
+                hasMetaphorGeneration: false,
+                note: 'Phase 2.9分析未実行またはエラー'
+              },
+              
+              // 詳細分析情報
+              detailedInsights: {
+                primaryIntention: enhancedResult.intentionAnalysis?.primaryIntention?.type || 'unknown',
+                dominantEmotion: enhancedResult.emotionalProfile?.emotionalProfile?.dominantEmotion || 'neutral',
+                hspLevel: enhancedResult.emotionalProfile?.emotionalProfile?.hspLevel || 0,
+                adjustmentNeed: enhancedResult.emotionalProfile?.emotionalProfile?.adjustmentNeed || 0,
+                recommendedApproach: enhancedResult.emotionalProfile?.recommendedApproach || 'standard'
+              }
+            }
+          };
+          
+          console.log('✨ Phase 1・2・2.5・2.9統合分析完了:', {
+            primary: integratedResult.primary,
+            confidence: integratedResult.confidence,
+            phase1: {
+              isMultidimensional: integratedResult.analysis.enhancedAnalysis.isMultidimensional,
+              isHSP: integratedResult.analysis.enhancedAnalysis.isHSPCase,
+              qualityLevel: integratedResult.analysis.enhancedAnalysis.qualityLevel
+            },
+            phase2: {
+              hasSituationalAnalysis: integratedResult.analysis.situationalAnalysis.hasSituationalAnalysis,
+              situationType: integratedResult.analysis.situationalAnalysis.virtualSituation?.situationType || 'N/A',
+              readyForMapping: integratedResult.analysis.situationalAnalysis.readyForHexagramMapping || false,
+              qualityLevel: integratedResult.analysis.situationalAnalysis.phase2QualityLevel || 'N/A'
+            },
+            phase25: {
+              hasHexagramMapping: integratedResult.analysis.hexagramMapping.hasHexagramMapping,
+              primaryHexagram: integratedResult.analysis.hexagramMapping.primaryHexagram?.name_jp || 'N/A',
+              qualityLevel: integratedResult.analysis.hexagramMapping.phase25QualityLevel || 'N/A'
+            },
+            phase29: {
+              hasMetaphorGeneration: integratedResult.analysis.metaphorGeneration.hasMetaphorGeneration,
+              primaryMetaphor: integratedResult.analysis.metaphorGeneration.primaryMetaphor?.essence || 'N/A',
+              qualityLevel: integratedResult.analysis.metaphorGeneration.phase29QualityLevel || 'N/A'
+            }
+          });
+          
+          return integratedResult;
+          
+        } catch (error) {
+          console.warn('🚨 拡張分析エラー - 基本分析にフォールバック:', error);
+          
+          // エラー時は基本結果にフォールバック情報を追加
+          return {
+            ...basicResult,
+            analysis: {
+              ...basicResult.analysis,
+              enhancedAnalysis: {
+                error: error.message,
+                fallbackUsed: true,
+                isMultidimensional: false,
+                isHSPCase: false,
+                qualityLevel: 'フォールバック'
+              }
+            }
+          };
+        }
+      }
+
+      /**
+       * コンテキスト確認モーダルの表示（拡張対応）
+       * 
+       * 目的：
+       * - 拡張分析結果に対応したモーダル表示
+       * - 多次元・HSP特化情報の提供
+       * 
+       * 処理内容：
+       * - 拡張分析結果がある場合は詳細情報表示
+       * - HSP特性が検出された場合は特別な配慮表示
+       * - 複数コンテキストの場合は選択肢提示
+       */
+      function showContextConfirmModalEnhanced(contextResult) {
+        return new Promise((resolve) => {
+          const contextType = contextResult.primary;
+          const contextName = ENHANCED_CONTEXT_TYPES[contextType]?.name || contextType;
+          const contextDescription = getContextDescription(contextType);
+          
+          // Phase 1・2分析情報の取得
+          const enhanced = contextResult.analysis?.enhancedAnalysis;
+          const situational = contextResult.analysis?.situationalAnalysis;
+          const detailed = contextResult.analysis?.detailedInsights;
+          
+          // Phase 1拡張情報セクションの構築
+          let enhancedInfoSection = '';
+          if (enhanced && !enhanced.error) {
+            enhancedInfoSection = `
+              <div class="mt-4 p-3 bg-indigo-900/30 rounded-lg border border-indigo-500/30">
+                <h4 class="text-sm font-bold text-indigo-300 mb-2">🌐 Phase 1: 多次元分析結果</h4>
+                <div class="text-xs text-gray-300 space-y-1">
+                  <div>品質レベル: <span class="text-yellow-300">${enhanced.qualityLevel}</span></div>
+                  <div>信頼度: <span class="text-green-300">${Math.round(contextResult.confidence * 100)}%</span></div>
+                  ${enhanced.isHSPCase ? 
+                    '<div class="text-pink-300">💖 HSP特性が検出されました - 感情調整に特化した分析を行います</div>' : ''}
+                  ${enhanced.isMultidimensional ? 
+                    '<div class="text-purple-300">🔄 複数領域にまたがる複合的な問題として認識</div>' : ''}
+                  ${enhanced.secondaryContexts && enhanced.secondaryContexts.length > 0 ? 
+                    `<div>副次コンテキスト: ${enhanced.secondaryContexts.map(ctx => ENHANCED_CONTEXT_TYPES[ctx.type]?.name || ctx.type).join(', ')}</div>` : ''}
+                </div>
+              </div>
+            `;
+          }
+          
+          // Phase 2仮想状況推定セクションの構築
+          let situationalInfoSection = '';
+          if (situational && situational.hasSituationalAnalysis) {
+            situationalInfoSection = `
+              <div class="mt-4 p-3 bg-purple-900/30 rounded-lg border border-purple-500/30">
+                <h4 class="text-sm font-bold text-purple-300 mb-2">🎯 Phase 2: 仮想状況推定結果</h4>
+                <div class="text-xs text-gray-300 space-y-1">
+                  <div>推定品質: <span class="text-yellow-300">${situational.phase2QualityLevel}</span></div>
+                  <div>状況信頼度: <span class="text-green-300">${Math.round(situational.situationalConfidence * 100)}%</span></div>
+                  <div>状況タイプ: <span class="text-cyan-300">${situational.virtualSituation?.situationType || '不明'}</span></div>
+                  <div>一貫性: <span class="text-blue-300">${Math.round(situational.consistencyScore * 100)}%</span></div>
+                  ${situational.readyForHexagramMapping ? 
+                    '<div class="text-emerald-300">✅ 易経マッピング準備完了</div>' : 
+                    '<div class="text-orange-300">⚠️ 易経マッピング要検討</div>'}
+                  ${situational.situationalSummary ? 
+                    `<div class="mt-2 text-gray-400">状況概要: ${situational.situationalSummary.coreNarrative || '分析中'}</div>` : ''}
+                </div>
+              </div>
+            `;
+          } else if (situational && !situational.hasSituationalAnalysis) {
+            situationalInfoSection = `
+              <div class="mt-4 p-3 bg-gray-700/30 rounded-lg border border-gray-500/30">
+                <h4 class="text-sm font-bold text-gray-400 mb-2">🎯 Phase 2: 仮想状況推定</h4>
+                <div class="text-xs text-gray-400">
+                  <div>Phase 2分析は実行されませんでした</div>
+                  <div class="text-gray-500">${situational.note || 'システムエラーまたは無効化'}</div>
+                </div>
+              </div>
+            `;
+          }
+          
+          // Phase 2.5易経マッピングセクションの構築
+          let hexagramMappingSection = '';
+          const hexagramMapping = contextResult.analysis?.hexagramMapping;
+          if (hexagramMapping && hexagramMapping.hasHexagramMapping) {
+            hexagramMappingSection = `
+              <div class="mt-4 p-3 bg-amber-900/30 rounded-lg border border-amber-500/30">
+                <h4 class="text-sm font-bold text-amber-300 mb-2">📿 Phase 2.5: 易経マッピング結果</h4>
+                <div class="text-xs text-gray-300 space-y-1">
+                  <div>マッピング品質: <span class="text-yellow-300">${hexagramMapping.phase25QualityLevel}</span></div>
+                  <div>マッピング信頼度: <span class="text-green-300">${Math.round(hexagramMapping.mappingConfidence * 100)}%</span></div>
+                  <div>主卦: <span class="text-cyan-300">${hexagramMapping.primaryHexagram?.name_jp || '不明'}</span></div>
+                  <div>選択爻: <span class="text-blue-300">${hexagramMapping.selectedLine?.爻 || '不明'}</span></div>
+                  ${hexagramMapping.readyForMetaphorGeneration ? 
+                    '<div class="text-emerald-300">✅ メタファー生成準備完了</div>' : 
+                    '<div class="text-orange-300">⚠️ メタファー生成要検討</div>'}
+                </div>
+              </div>
+            `;
+          } else if (hexagramMapping && !hexagramMapping.hasHexagramMapping) {
+            hexagramMappingSection = `
+              <div class="mt-4 p-3 bg-gray-700/30 rounded-lg border border-gray-500/30">
+                <h4 class="text-sm font-bold text-gray-400 mb-2">📿 Phase 2.5: 易経マッピング</h4>
+                <div class="text-xs text-gray-400">
+                  <div>Phase 2.5分析は実行されませんでした</div>
+                  <div class="text-gray-500">${hexagramMapping.note || 'システムエラーまたは無効化'}</div>
+                </div>
+              </div>
+            `;
+          }
+          
+          // Phase 2.9メタファー生成セクションの構築
+          let metaphorGenerationSection = '';
+          const metaphorGeneration = contextResult.analysis?.metaphorGeneration;
+          if (metaphorGeneration && metaphorGeneration.hasMetaphorGeneration) {
+            metaphorGenerationSection = `
+              <div class="mt-4 p-3 bg-pink-900/30 rounded-lg border border-pink-500/30">
+                <h4 class="text-sm font-bold text-pink-300 mb-2">🎭 Phase 2.9: 易経メタファー生成結果</h4>
+                <div class="text-xs text-gray-300 space-y-1">
+                  <div>表現品質: <span class="text-yellow-300">${metaphorGeneration.phase29QualityLevel}</span></div>
+                  <div>メタファー信頼度: <span class="text-green-300">${Math.round(metaphorGeneration.metaphorConfidence * 100)}%</span></div>
+                  <div>主要メタファー: <span class="text-cyan-300">${metaphorGeneration.primaryMetaphor?.essence || '生成中'}</span></div>
+                  ${metaphorGeneration.qualityAssurance?.verificationPassed ? 
+                    '<div class="text-emerald-300">✅ 品質検証合格</div>' : 
+                    '<div class="text-orange-300">⚠️ 品質要改善</div>'}
+                  ${metaphorGeneration.actionableInsights && metaphorGeneration.actionableInsights.length > 0 ? 
+                    `<div class="mt-2 text-gray-400">実用的洞察: ${metaphorGeneration.actionableInsights.slice(0,2).join(', ')}</div>` : ''}
+                </div>
+              </div>
+            `;
+          } else if (metaphorGeneration && !metaphorGeneration.hasMetaphorGeneration) {
+            metaphorGenerationSection = `
+              <div class="mt-4 p-3 bg-gray-700/30 rounded-lg border border-gray-500/30">
+                <h4 class="text-sm font-bold text-gray-400 mb-2">🎭 Phase 2.9: 易経メタファー生成</h4>
+                <div class="text-xs text-gray-400">
+                  <div>Phase 2.9分析は実行されませんでした</div>
+                  <div class="text-gray-500">${metaphorGeneration.note || 'システムエラーまたは無効化'}</div>
+                </div>
+              </div>
+            `;
+          }
+          
+          const modalContent = `
+            <h2 class="text-2xl font-bold text-indigo-300 mb-4">🎯 AIによるコンテキスト分析</h2>
+            <div class="mb-6 p-4 bg-gray-800 rounded-lg">
+              <p class="mb-3">
+                ご入力いただいた内容を分析した結果、これは主に<br>
+                <strong class="text-yellow-300 text-lg">「${contextName}」</strong>であると推測しました。
+              </p>
+              <p class="text-sm text-gray-300 mb-3">
+                ${contextDescription}
+              </p>
+              ${enhancedInfoSection}
+              ${situationalInfoSection}
+              ${hexagramMappingSection}
+              ${metaphorGenerationSection}
+              <p class="text-xs text-gray-400 mt-3">
+                ※ この分析により、最適な易経の卦と爻を選定します
+              </p>
+            </div>
+            <div class="flex justify-center space-x-4">
+              <button id="confirmYesBtn" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">✅ この解釈で進める</button>
+              <button id="confirmNoBtn" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium">🔄 解釈を切り替える</button>
+            </div>
+          `;
+          
+          showModal(modalContent);
+
+          const confirmYesBtn = document.getElementById('confirmYesBtn');
+          const confirmNoBtn = document.getElementById('confirmNoBtn');
+
+          confirmYesBtn.addEventListener('click', () => {
+            hideModal();
+            resolve(true);
+          });
+
+          confirmNoBtn.addEventListener('click', () => {
+            hideModal();
+            resolve(false);
+          });
+        });
       }
 
       /**
