@@ -3,174 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HaQei - 易経から見たあなたの可能性</title>
-    <!-- Styles -->
+    <title>HAQEI - 仮想人格対話型自己理解プラットフォーム</title>
+    <meta name="description" content="あなたの内なる3つのOS（価値観・社会的側面・防御的側面）との対話を通じて、深い自己理解を促進する革新的なプラットフォーム">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Existing Styles -->
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/interactive-ui.css">
-    <link rel="stylesheet" href="css/user-friendly-display.css">
-    <link rel="stylesheet" href="css/strategic-dashboard.css">
+    
+    <!-- New Style for Virtual Persona -->
+    <link rel="stylesheet" href="css/virtual-persona-results.css">
+    
+    <!-- Chart.js for visualizations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
-    <div id="data-manager-errors" style="display: none;"></div>
-    <div id="results-container">
-        <!-- TripleOSResultsViewがここに対話型UIを生成 -->
+    <!-- 
+    仮想人格対話型自己理解プラットフォーム
+    
+    概要：
+    このページは、ユーザーの診断結果から構築された仮想人格（3つのOS）との
+    対話を通じて、深い自己理解を促進するインタラクティブなプラットフォームです。
+    
+    主要機能：
+    1. 仮想人格の段階的構築演出
+    2. 3つのOS間の相互作用可視化
+    3. 内部対話の再生・シミュレーション
+    4. 易経メタファーによる深い洞察
+    5. 実践的な自己理解ガイダンス
+    -->
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay active">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h2 class="loading-title">あなたの仮想人格を構築中...</h2>
+            <p class="loading-description">診断結果から、あなたの内なる3つのOSを呼び起こしています</p>
+        </div>
     </div>
-
+    
+    <!-- Main Container -->
+    <div id="virtual-persona-container" class="virtual-persona-container">
+        <!-- VirtualPersonaResultsViewがここに動的にコンテンツを生成 -->
+    </div>
+    
+    <!-- Error Display -->
+    <div id="error-container" class="error-container" style="display: none;">
+        <div class="error-content">
+            <h2>エラーが発生しました</h2>
+            <p id="error-message"></p>
+            <button onclick="location.reload()" class="error-retry-button">再読み込み</button>
+        </div>
+    </div>
+    
     <!-- データファイル -->
-    <script type="text/javascript" src="./js/data/data_box.js"></script>
     <script type="text/javascript" src="./js/shared/data/questions.js"></script>
     <script type="text/javascript" src="./js/shared/data/vectors.js"></script>
     <script type="text/javascript" src="./js/os-analyzer/data/hexagrams.js"></script>
     <script type="text/javascript" src="./js/os-analyzer/data/hexagram_details.js"></script>
+    
+    <!-- ユーティリティ -->
     <script type="text/javascript" src="./js/shared/utils/validators.js"></script>
     <script type="text/javascript" src="./js/shared/utils/animations.js"></script>
-
-    <!-- 基盤ライブラリ（依存関係順） -->
+    
+    <!-- 基盤ライブラリ -->
     <script type="text/javascript" src="./js/shared/core/BaseComponent.js"></script>
     <script type="text/javascript" src="./js/shared/core/StorageManager.js"></script>
+    <script type="text/javascript" src="./js/shared/core/SimpleStorageManager.js"></script>
     <script type="text/javascript" src="./js/shared/core/DataManager.js"></script>
     <script type="text/javascript" src="./js/shared/core/ErrorHandler.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/engines/CompatibilityDataLoader.js"></script>
     
-    <!-- Phase 4: 批判的思考支援エンジン -->
-    <script type="text/javascript" src="./js/os-analyzer/core/ShadowAnalyzer.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/core/CriticalThinkingEngine.js"></script>
+    <!-- 仮想人格関連エンジン -->
+    <script type="text/javascript" src="./js/os-analyzer/core/TripleOSEngine.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/core/PersonalityOS.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/core/VirtualPersonality.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/core/OSRelationshipEngine.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/core/IchingMetaphorEngine.js"></script>
     
-    <!-- UIコンポーネント -->
-    <script type="text/javascript" src="./js/components/CriticalProductiveCard.js"></script>
-    <script type="text/javascript" src="./js/components/TripleOSResultsView.js"></script>
-
+    <!-- UI/UXコンポーネント -->
+    <script type="text/javascript" src="./js/os-analyzer/components/PersonalityConstructionView.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/components/DialoguePlayer.js"></script>
+    <script type="text/javascript" src="./js/os-analyzer/components/OSVoiceSwitcher.js"></script>
+    
+    <!-- 新規作成：仮想人格結果表示ビュー -->
+    <script type="text/javascript" src="./js/components/VirtualPersonaResultsView.js"></script>
+    
     <script>
-        // クラスの読み込み状況をチェック
-        function checkClassDefinitions() {
-            const classChecks = {
-                'BaseComponent': typeof BaseComponent !== 'undefined',
-                'StorageManager': typeof StorageManager !== 'undefined',
-                'DataManager': typeof DataManager !== 'undefined',
-                'ErrorHandler': typeof ErrorHandler !== 'undefined',
-                'CompatibilityDataLoader': typeof CompatibilityDataLoader !== 'undefined',
-                'ShadowAnalyzer': typeof ShadowAnalyzer !== 'undefined',
-                'CriticalThinkingEngine': typeof CriticalThinkingEngine !== 'undefined',
-                'CriticalProductiveCard': typeof CriticalProductiveCard !== 'undefined',
-                'TripleOSResultsView': typeof TripleOSResultsView !== 'undefined'
-            };
-            
-            console.log('🔍 クラス定義チェック:', classChecks);
-            
-            // 未定義のクラスを特定
-            const undefinedClasses = Object.entries(classChecks)
-                .filter(([name, defined]) => !defined)
-                .map(([name]) => name);
-            
-            if (undefinedClasses.length > 0) {
-                console.error('❌ 未定義のクラス:', undefinedClasses);
-                return false;
-            }
-            
-            console.log('✅ すべてのクラスが正常に定義されています');
-            return true;
-        }
-
-        // 結果表示専用シンプル初期化
+        /**
+         * 仮想人格対話型自己理解プラットフォーム - 初期化スクリプト
+         * 
+         * 目的：
+         * - 診断結果の読み込み
+         * - 仮想人格の構築
+         * - インタラクティブUIの初期化
+         * 
+         * 処理フロー：
+         * 1. localStorageから診断結果を取得
+         * 2. 必要なデータの検証
+         * 3. VirtualPersonaResultsViewの初期化
+         * 4. 仮想人格構築プロセスの開始
+         */
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('🎯 HaQei Results Page Loading...');
+            console.log('🚀 仮想人格対話型自己理解プラットフォーム - 初期化開始');
             
-            // クラス定義チェック
-            if (!checkClassDefinitions()) {
-                console.error('❌ 必要なクラスが定義されていません');
-                document.getElementById('results-container').innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: #f1f5f9; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <h2 style="margin-bottom: 1rem;">🔮 易経の智慧を紐解いています...</h2>
-                        <p style="margin-bottom: 1rem;">あなたの可能性を探るため、古代の智慧と向き合っています。</p>
-                        <p style="margin-bottom: 2rem; color: #94a3b8; font-size: 0.9rem;">この画面が続く場合は、下のボタンで更新してみてください。</p>
-                        <a href="javascript:location.reload()" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">ページを更新する</a>
-                    </div>
-                `;
-                return;
-            }
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const errorContainer = document.getElementById('error-container');
+            const errorMessage = document.getElementById('error-message');
             
             try {
-                // ストレージから分析結果を取得
+                // StorageManagerから診断結果を取得
                 const storageManager = new StorageManager();
-                const analysisResult = storageManager.getAnalysisResult();
-                const insights = storageManager.getInsights();
+                let analysisResult = storageManager.getAnalysisResult();
+                let insights = storageManager.getInsights();
                 
-                console.log('📊 Analysis result retrieved successfully');
-                console.log('💡 Insights retrieved successfully');
-            
+                // SimpleStorageManagerも初期化（フォールバック用）
+                const simpleStorageManager = new SimpleStorageManager();
+                
+                console.log('📊 診断結果の取得完了:', {
+                    hasAnalysisResult: !!analysisResult,
+                    hasInsights: !!insights
+                });
+                
+                // SimpleStorageManagerでの取得試行
                 if (!analysisResult) {
-                    document.getElementById('results-container').innerHTML = `
-                        <div style="text-align: center; padding: 2rem; color: #f1f5f9; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                            <h2 style="margin-bottom: 1rem;">📋 診断結果が見つかりません</h2>
-                            <p style="margin-bottom: 1rem;">まだ診断が完了していないようです。</p>
-                            <p style="margin-bottom: 2rem; color: #94a3b8; font-size: 0.9rem;">あなたの3つの顔を発見するために、まず診断を受けてみましょう。</p>
-                            <a href="os_analyzer.html" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">診断を始める</a>
-                        </div>
-                    `;
-                    return;
+                    console.log('🔄 StorageManagerで取得失敗 - SimpleStorageManagerで試行中...');
+                    
+                    analysisResult = simpleStorageManager.getAnalysisResult();
+                    if (analysisResult) {
+                        console.log('✅ SimpleStorageManagerで分析結果取得成功');
+                    }
                 }
-
-                console.log('🔍 DataManager初期化開始...');
-                // DataManager初期化
+                
+                if (!insights) {
+                    console.log('🔄 インサイト不足 - SimpleStorageManagerで試行中...');
+                    
+                    insights = simpleStorageManager.getInsights();
+                    if (insights) {
+                        console.log('✅ SimpleStorageManagerでインサイト取得成功');
+                    }
+                }
+                
+                // 直接localStorageからのフォールバック取得
+                if (!analysisResult) {
+                    console.log('🔄 SimpleStorageManagerでも失敗 - 直接localStorage確認中...');
+                    
+                    // 直接localStorage確認
+                    const directResult = localStorage.getItem('haqei_analysis_result');
+                    const emergencyResult = localStorage.getItem('haqei_emergency_result');
+                    
+                    if (directResult) {
+                        try {
+                            const parsed = JSON.parse(directResult);
+                            analysisResult = parsed.result || parsed;
+                            console.log('✅ 直接localStorage取得成功');
+                        } catch (parseError) {
+                            console.warn('⚠️ 直接localStorage解析失敗:', parseError);
+                        }
+                    } else if (emergencyResult) {
+                        try {
+                            const emergency = JSON.parse(emergencyResult);
+                            analysisResult = emergency.result;
+                            insights = emergency.insights;
+                            console.log('🚨 緊急データからの復旧成功');
+                        } catch (parseError) {
+                            console.warn('⚠️ 緊急データ解析失敗:', parseError);
+                        }
+                    }
+                }
+                
+                // インサイトが不足している場合のフォールバック
+                if (!insights) {
+                    console.log('🔄 インサイト不足 - 直接localStorage確認中...');
+                    const directInsights = localStorage.getItem('haqei_insights');
+                    
+                    if (directInsights) {
+                        try {
+                            const parsed = JSON.parse(directInsights);
+                            insights = parsed.insights || parsed;
+                            console.log('✅ 直接localStorageインサイト取得成功');
+                        } catch (parseError) {
+                            console.warn('⚠️ インサイト解析失敗:', parseError);
+                        }
+                    }
+                }
+                
+                // 診断結果の検証
+                if (!analysisResult) {
+                    // LocalStorageの状態をデバッグ
+                    const storageKeys = Object.keys(localStorage).filter(k => k.includes('haqei'));
+                    console.log('🔍 LocalStorage HAQEIキー:', storageKeys);
+                    storageKeys.forEach(key => {
+                        console.log(`📋 ${key}:`, localStorage.getItem(key)?.substring(0, 100) + '...');
+                    });
+                    
+                    throw new Error('診断結果が見つかりません。先に診断を完了してください。');
+                }
+                
+                // Triple OSデータの検証
+                if (!analysisResult.engineOS || !analysisResult.interfaceOS || !analysisResult.safeModeOS) {
+                    console.error('❌ Triple OSデータが不完全:', analysisResult);
+                    throw new Error('Triple OSデータが不完全です。診断をやり直してください。');
+                }
+                
+                // DataManagerの初期化
+                console.log('📚 DataManager初期化中...');
                 const dataManager = new DataManager();
                 await dataManager.loadData();
                 console.log('✅ DataManager初期化完了');
-
-                console.log('🔍 CompatibilityDataLoader初期化開始...');
-                // CompatibilityDataLoader初期化
-                const compatibilityLoader = new CompatibilityDataLoader();
-                console.log('✅ CompatibilityDataLoader初期化完了');
-
-                console.log('🔍 TripleOSResultsView初期化開始...');
                 
-                // 易経の智慧前置きを追加
-                const wisdomPreface = document.createElement('div');
-                wisdomPreface.className = 'ancient-wisdom-intro';
-                wisdomPreface.innerHTML = `
-                    <h3>🌅 古代の智慧からの示唆</h3>
-                    <p>数千年の智慧である易経に照らし合わせると、あなたにはこのような傾向があるようです。これを人生の参考の一つとしてお役立てください。</p>
-                `;
-                document.getElementById('results-container').appendChild(wisdomPreface);
-                
-                // ユーザー主権のディスクレーマー
-                const wisdomDisclaimer = document.createElement('div');
-                wisdomDisclaimer.className = 'wisdom-disclaimer';
-                wisdomDisclaimer.innerHTML = `
-                    <p>💡 これは易経の智慧に基づく一つの見方です。最終的な解釈と活用方法は、あなた自身が決めてください。</p>
-                `;
-                document.getElementById('results-container').appendChild(wisdomDisclaimer);
-                
-                // 対話型UI表示
-                const resultsView = new TripleOSResultsView('results-container', {
+                // VirtualPersonaResultsViewの初期化
+                console.log('🎭 VirtualPersonaResultsView初期化中...');
+                const virtualPersonaView = new VirtualPersonaResultsView('virtual-persona-container', {
                     analysisResult: analysisResult,
                     insights: insights,
-                    compatibilityLoader: compatibilityLoader,
                     dataManager: dataManager,
-                    enableSelfReflection: true, // 自己探求プロンプトを有効化
-                    showWisdomPreface: true // 智慧の前置きを表示
+                    enableAnimation: true,
+                    animationSpeed: 1.0
                 });
-
-                await resultsView.init();
-                console.log('✅ Results page initialized successfully');
+                
+                // 初期化と表示
+                await virtualPersonaView.init();
+                
+                // グローバル参照の設定（アクションボタンから呼び出すため）
+                window.virtualPersonaView = virtualPersonaView;
+                
+                console.log('✅ 仮想人格対話型プラットフォーム初期化完了');
+                
+                // ローディング画面を非表示
+                setTimeout(() => {
+                    loadingOverlay.classList.remove('active');
+                }, 500);
                 
             } catch (error) {
-                console.error('❌ Results page initialization failed:', error);
-                console.error('❌ Error stack:', error.stack);
-                document.getElementById('results-container').innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: #f1f5f9; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                        <h2 style="margin-bottom: 1rem;">🌀 智慧の流れを整えています</h2>
-                        <p style="margin-bottom: 1rem;">易経からの示唆を受け取る準備で、少し問題が生じました。</p>
-                        <p style="margin-bottom: 2rem; color: #94a3b8; font-size: 0.9rem;">お手数ですが、ページを更新するか、再度診断を受けてみてください。</p>
-                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
-                            <a href="javascript:location.reload()" style="display: inline-block; padding: 1rem 1.5rem; background: linear-gradient(135deg, #10b981, #059669); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">ページを更新</a>
-                            <a href="os_analyzer.html" style="display: inline-block; padding: 1rem 1.5rem; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; text-decoration: none; border-radius: 0.75rem; font-weight: 600; transition: all 300ms ease;">診断をやり直す</a>
-                        </div>
-                    </div>
-                `;
+                console.error('❌ 初期化エラー:', error);
+                
+                // エラー表示
+                loadingOverlay.classList.remove('active');
+                errorContainer.style.display = 'flex';
+                
+                if (error.message.includes('診断結果が見つかりません')) {
+                    errorMessage.innerHTML = `
+                        <p>${error.message}</p>
+                        <a href="os_analyzer.html" class="error-link">診断を開始する</a>
+                    `;
+                } else {
+                    errorMessage.textContent = error.message;
+                }
             }
+        });
+        
+        // グローバルエラーハンドリング
+        window.addEventListener('error', (event) => {
+            console.error('❌ グローバルエラー:', event.error);
+            // 必要に応じてエラー通知を表示
         });
     </script>
 </body>

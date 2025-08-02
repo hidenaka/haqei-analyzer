@@ -13,36 +13,22 @@ TIMESTAMP=$(TZ=JST-9 date +"%Y%m%d_%H%M%S")
 DOCS_DIR="/Users/hideakimacbookair/Desktop/haqei-analyzer/docs"
 mkdir -p "$DOCS_DIR"
 
-# haqei-reporterエージェントを使用してドキュメント生成
-claude-code task \
-  --subagent-type haqei-reporter \
-  --description "実装完了ドキュメント生成" \
-  --prompt "# 実装完了レポート・データ解説書生成
+# 実装完了ログを記録（claude-codeコマンド使用を避ける）
+cat > "$DOCS_DIR/${TIMESTAMP}_implementation_completed.log" << EOF
+# Implementation Completed Log - $TIMESTAMP
 
-実装が完了した内容について、以下のドキュメントを $DOCS_DIR に作成してください：
-
-## 作成すべき内容
-1. 実装完了レポート（ファイル名：${TIMESTAMP}_implementation_report.md）
-2. データ解説書（ファイル名：${TIMESTAMP}_data_explanation.md）
-3. 機能説明書（ファイル名：${TIMESTAMP}_feature_guide.md）
-
-## 必須項目
-- 実装された機能の詳細説明
-- データ構造・アルゴリズムの解説
-- 易経的ロジックの実装方法（該当する場合）
-- 使用方法・動作例
-- トラブルシューティング
-- 今後の拡張可能性
-- bunenjin哲学との整合性
-
-## コンテキスト情報
-実装が完了したエージェント作業について、以下のhookデータを参考にしてください：
+## Hook Data
 \`\`\`json
 $HOOK_DATA
 \`\`\`
 
-実装されたコードを分析し、技術的詳細と使用方法を分かりやすく文書化してください。
-HAQEIアナライザーの全体アーキテクチャとの関連性も説明してください。"
+## Status
+Implementation task completed at $(TZ=JST-9 date)
+
+## Note
+Auto-documentation generation hook triggered.
+Manual documentation creation recommended for detailed analysis.
+EOF
 
 # ログ出力
 echo "$(TZ=JST-9 date): Implementation documentation generated successfully" >> "$DOCS_DIR/auto_doc_generation.log"

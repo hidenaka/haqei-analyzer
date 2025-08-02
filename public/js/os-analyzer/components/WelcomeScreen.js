@@ -31,12 +31,19 @@ class WelcomeScreen extends BaseComponent {
         <div class="welcome-content">
           <div class="welcome-header">
             <h1 class="welcome-title">🎯 HaQei Analyzer</h1>
-            <p class="welcome-subtitle">古代の叡智と現代のテクノロジーが融合した、深い自己洞察体験</p>
+            <p class="welcome-subtitle">3つの人格を特定し、その人格OSが相互に作用している様を易経のメタファーを通じて、<br>フィードバックをして、仮想のあなたを客観的にみることができる</p>
           </div>
           
           <div class="welcome-description">
-            <p>30の質問を通じて、あなたの価値観を8次元で分析し、64通りの人格OSの中からあなたに最適なものを特定します。</p>
-            <p>所要時間：約5-7分</p>
+            <div class="insight-promise">
+              <p class="main-promise">✨ <strong>こんな気づきが得られます</strong></p>
+              <ul class="promise-list">
+                <li>「この場面では価値観重視の私だったから、あの判断をしたんだ」</li>
+                <li>「人前では社会的な私が出るから、いつもと違う行動になったんだ」</li>
+                <li>「あの時は防御モードだったから、つい避けてしまったんだ」</li>
+              </ul>
+            </div>
+            <p class="time-info">📱 約5分・30問・完全無料</p>
           </div>
 
           <div class="triple-os-intro">
@@ -77,8 +84,9 @@ class WelcomeScreen extends BaseComponent {
           
           <div class="welcome-actions">
             <button id="start-analysis-btn" class="btn btn-primary btn-lg">
-              深い洞察を始める
+              分析を開始する
             </button>
+            <p class="start-note">※診断後、具体的な行動改善提案も受け取れます</p>
           </div>
         </div>
       `;

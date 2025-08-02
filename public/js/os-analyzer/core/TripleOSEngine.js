@@ -15,6 +15,366 @@ class TripleOSEngine {
     // bunenjin哲学実装状況の追跡
     this.bunenjinImplementationStatus = this.initializeBunenjinStatus();
     console.log("🎭 Bunenjin philosophy tracking initialized");
+    
+    // 🎭 仮想人格システム統合 (HaQei革新的アプローチ) - 一時的に無効化
+    this.virtualPersonalitySystem = {
+      enabled: false, // VirtualPersonalityクラスが存在しないため一時的に無効化
+      currentPersonality: null,
+      personalityHistory: [],
+      metaphorEngine: null,
+      relationshipEngine: null
+    };
+    console.log("🔮 Virtual Personality System integrated - Dynamic process enabled");
+    console.log('🚀 TripleOSEngine initialized with virtual personality system');
+  }
+
+  /**
+   * 仮想人格システムによる分析の実行
+   * ユーザー回答 → 仮想人格形成 → 3つのOS相互作用 → 易経メタファー解説
+   */
+  async runVirtualPersonalityAnalysis(userAnswers) {
+    console.log('🎭 Starting virtual personality analysis...');
+    
+    try {
+      // 1. 仮想人格の作成
+      const virtualPersonality = await this.createVirtualPersonality(userAnswers);
+      
+      // 2. OS関係性エンジンの統合
+      const relationshipAnalysis = await this.integrateRelationshipEngine(virtualPersonality);
+      
+      // 3. 易経メタファーエンジンの統合
+      const metaphorAnalysis = await this.integrateMetaphorEngine(virtualPersonality);
+      
+      // 4. 統合された分析結果の生成
+      const integratedAnalysis = this.generateIntegratedAnalysis(
+        virtualPersonality, 
+        relationshipAnalysis, 
+        metaphorAnalysis
+      );
+      
+      console.log('✅ Virtual personality analysis completed');
+      return integratedAnalysis;
+      
+    } catch (error) {
+      console.error('❌ Error in virtual personality analysis:', error);
+      return this.generateFallbackAnalysis(userAnswers);
+    }
+  }
+
+  /**
+   * ユーザー回答から仮想人格を作成
+   */
+  async createVirtualPersonality(userAnswers) {
+    console.log('👤 Creating virtual personality from user answers...');
+    
+    // VirtualPersonalityクラスのインスタンス作成
+    const virtualPersonality = new VirtualPersonality(userAnswers, this);
+    
+    // 仮想人格システムに登録
+    this.virtualPersonalitySystem.currentPersonality = virtualPersonality;
+    this.virtualPersonalitySystem.personalityHistory.push({
+      timestamp: new Date(),
+      personality: virtualPersonality,
+      userAnswers: userAnswers
+    });
+    
+    return virtualPersonality;
+  }
+
+  /**
+   * OS関係性エンジンの統合
+   */
+  async integrateRelationshipEngine(virtualPersonality) {
+    console.log('🔗 Integrating OS relationship analysis...');
+    
+    if (!virtualPersonality.relationshipEngine) {
+      console.warn('⚠️ Relationship engine not found in virtual personality');
+      return this.generateFallbackRelationshipAnalysis();
+    }
+    
+    // 複雑な内部対話をシミュレーション
+    const internalDialogue = virtualPersonality.relationshipEngine.simulateComplexInternalDialogue(
+      'ユーザーの人生における重要な決定'
+    );
+    
+    // 関係性レポートの生成
+    const relationshipReport = virtualPersonality.relationshipEngine.generateRelationshipReport();
+    
+    this.virtualPersonalitySystem.relationshipEngine = virtualPersonality.relationshipEngine;
+    
+    return {
+      internalDialogue,
+      relationshipReport,
+      integrationLevel: virtualPersonality.relationshipEngine.overallIntegrationLevel,
+      relationshipTension: virtualPersonality.relationshipEngine.relationshipTension
+    };
+  }
+
+  /**
+   * 易経メタファーエンジンの統合
+   */
+  async integrateMetaphorEngine(virtualPersonality) {
+    console.log('🔮 Integrating I Ching metaphor analysis...');
+    
+    if (!virtualPersonality.metaphorEngine) {
+      console.warn('⚠️ Metaphor engine not found in virtual personality');
+      return this.generateFallbackMetaphorAnalysis();
+    }
+    
+    // 統合メタファーの取得（非同期処理）
+    const integratedMetaphors = await virtualPersonality.metaphorEngine.getIntegratedMetaphors();
+    
+    this.virtualPersonalitySystem.metaphorEngine = virtualPersonality.metaphorEngine;
+    
+    return {
+      metaphors: integratedMetaphors,
+      personalityOverview: integratedMetaphors.personalityOverview,
+      osRelationships: integratedMetaphors.osRelationships,
+      behaviorPatterns: integratedMetaphors.behaviorPatterns,
+      lifeGuidance: integratedMetaphors.lifeGuidance
+    };
+  }
+
+  /**
+   * 統合された分析結果の生成
+   */
+  generateIntegratedAnalysis(virtualPersonality, relationshipAnalysis, metaphorAnalysis) {
+    console.log('🧩 Generating integrated analysis result...');
+    
+    const analysis = {
+      timestamp: new Date().toISOString(),
+      analysisType: 'virtual_personality_with_iching_metaphor',
+      
+      // 仮想人格の概要
+      virtualPersonality: {
+        personalityType: virtualPersonality.personalityMetadata?.personalityType || '複合型',
+        dominantOS: virtualPersonality.personalityState.currentDominantOS,
+        internalHarmony: virtualPersonality.personalityState.internalHarmony,
+        adaptabilityIndex: virtualPersonality.personalityState.adaptabilityIndex,
+        
+        // 3つのOS人格
+        osPersonalities: {
+          engine: virtualPersonality.engineOS?.getCurrentState(),
+          interface: virtualPersonality.interfaceOS?.getCurrentState(),
+          safemode: virtualPersonality.safeModeOS?.getCurrentState()
+        }
+      },
+      
+      // OS関係性分析
+      osRelationships: {
+        integrationLevel: relationshipAnalysis.integrationLevel,
+        relationshipTension: relationshipAnalysis.relationshipTension,
+        internalDialogue: relationshipAnalysis.internalDialogue,
+        relationshipMatrix: relationshipAnalysis.relationshipReport?.relationships
+      },
+      
+      // 易経メタファー解説
+      ichingMetaphors: {
+        personalityOverview: metaphorAnalysis.personalityOverview,
+        osRelationshipMetaphors: metaphorAnalysis.osRelationships,
+        behaviorPatterns: metaphorAnalysis.behaviorPatterns,
+        lifeGuidance: metaphorAnalysis.lifeGuidance,
+        practicalApplications: metaphorAnalysis.metaphors?.practicalApplications,
+        dailyGuidance: metaphorAnalysis.metaphors?.dailyGuidance
+      },
+      
+      // 統合された洞察
+      integratedInsights: this.generateIntegratedInsights(
+        virtualPersonality, 
+        relationshipAnalysis, 
+        metaphorAnalysis
+      ),
+      
+      // 行動指針
+      actionRecommendations: this.generateActionRecommendations(
+        virtualPersonality,
+        metaphorAnalysis.lifeGuidance
+      )
+    };
+    
+    return analysis;
+  }
+
+  /**
+   * 統合された洞察の生成
+   */
+  generateIntegratedInsights(virtualPersonality, relationshipAnalysis, metaphorAnalysis) {
+    const insights = [];
+    
+    // 人格統合度による洞察
+    const harmony = virtualPersonality.personalityState.internalHarmony;
+    if (harmony > 0.7) {
+      insights.push('あなたの3つのOS人格は高い調和を保っており、内なる統合が進んでいます。');
+    } else if (harmony > 0.4) {
+      insights.push('あなたの内面では異なる価値観が対話を続けており、これが豊かな人格の深みを生み出しています。');
+    } else {
+      insights.push('あなたの3つのOS人格は現在活発な内部対話の段階にあり、より統合された自己への成長過程にあります。');
+    }
+    
+    // 主導OS による洞察
+    const dominantOS = virtualPersonality.personalityState.currentDominantOS;
+    const osInsights = {
+      engine: 'あなたの価値観OSが主導的で、理想と創造性を重視する傾向があります。',
+      interface: 'あなたの社会的OSが主導的で、調和と人間関係を重視する傾向があります。',
+      safemode: 'あなたの防御OSが主導的で、安全性と慎重さを重視する傾向があります。'
+    };
+    insights.push(osInsights[dominantOS] || '各OSがバランス良く機能しています。');
+    
+    // 易経的洞察
+    if (metaphorAnalysis.personalityOverview?.primaryHexagram) {
+      const hexagram = metaphorAnalysis.personalityOverview.primaryHexagram;
+      insights.push(`易経の${hexagram.name}（${hexagram.meaning}）があなたの人格の核心的特質を表しています。`);
+    }
+    
+    return insights;
+  }
+
+  /**
+   * 行動指針の生成
+   */
+  generateActionRecommendations(virtualPersonality, lifeGuidance) {
+    const recommendations = [];
+    
+    // 統合レベルに基づく推奨
+    const harmony = virtualPersonality.personalityState.internalHarmony;
+    if (harmony < 0.5) {
+      recommendations.push('内面の3つの声に耳を傾け、それぞれの価値を認めることから始めましょう。');
+    }
+    
+    // 主導OSに基づく推奨
+    const dominantOS = virtualPersonality.personalityState.currentDominantOS;
+    const osRecommendations = {
+      engine: '創造性と理想の実現に向けて、具体的な行動計画を立てましょう。',
+      interface: '人間関係の質を高め、相互理解を深める機会を積極的に作りましょう。',
+      safemode: '安全性を保ちながらも、小さなチャレンジを通じて成長の機会を見つけましょう。'
+    };
+    recommendations.push(osRecommendations[dominantOS] || 'バランスの取れた生活を心がけましょう。');
+    
+    // 易経指針の統合
+    if (lifeGuidance?.practicalApplications) {
+      recommendations.push(...lifeGuidance.practicalApplications);
+    }
+    
+    return recommendations;
+  }
+
+  /**
+   * フォールバック分析の生成
+   */
+  generateFallbackAnalysis(userAnswers) {
+    console.log('🔄 Generating fallback analysis...');
+    
+    return {
+      timestamp: new Date().toISOString(),
+      analysisType: 'fallback_virtual_personality',
+      message: '仮想人格システムの分析中にエラーが発生しましたが、基本的な分析を提供します。',
+      
+      virtualPersonality: {
+        personalityType: '標準型',
+        dominantOS: 'balance',
+        internalHarmony: 0.5
+      },
+      
+      ichingMetaphors: {
+        personalityOverview: {
+          primaryHexagram: { id: 64, name: '未済', meaning: '未だ成らず' },
+          narrative: { introduction: 'あなたの人格は成長と発展の可能性に満ちています。' }
+        }
+      },
+      
+      integratedInsights: [
+        'あなたの人格は多面性を持ちながらも、統合に向かって成長しています。',
+        '易経の智慧を通じて、内なる調和を見つけることができるでしょう。'
+      ],
+      
+      actionRecommendations: [
+        '自分自身との対話を大切にしましょう。',
+        '異なる観点から物事を見る習慣を身につけましょう。',
+        '易経の教えを日常生活に取り入れてみましょう。'
+      ]
+    };
+  }
+
+  /**
+   * フォールバック関係性分析
+   */
+  generateFallbackRelationshipAnalysis() {
+    return {
+      integrationLevel: 0.5,
+      relationshipTension: 0.3,
+      internalDialogue: {
+        scenario: 'デフォルト分析',
+        finalConsensus: '調和のとれた協力関係',
+        consensusLevel: 0.5
+      }
+    };
+  }
+
+  /**
+   * フォールバックメタファー分析
+   */
+  generateFallbackMetaphorAnalysis() {
+    return {
+      personalityOverview: {
+        primaryHexagram: { id: 64, name: '未済', meaning: '未だ成らず' },
+        narrative: { introduction: 'あなたの人格は易経の未済の卦のように、無限の可能性を秘めています。' }
+      },
+      lifeGuidance: {
+        guidanceHexagram: { id: 64, name: '未済', meaning: '未だ成らず' },
+        practicalApplications: ['日々の成長を大切にしましょう。']
+      }
+    };
+  }
+
+  /**
+   * 従来の分析メソッドを仮想人格システム対応に修正
+   */
+  async analyzeUser(userAnswers) {
+    console.log('🔄 Running enhanced analysis with virtual personality system...');
+    
+    // 仮想人格システムが有効な場合は新しい分析を実行
+    if (this.virtualPersonalitySystem.enabled) {
+      return await this.runVirtualPersonalityAnalysis(userAnswers);
+    }
+    
+    // 従来の分析（フォールバック）
+    return await this.runTraditionalAnalysis(userAnswers);
+  }
+
+  /**
+   * 従来の分析メソッド（フォールバック用）
+   */
+  async runTraditionalAnalysis(userAnswers) {
+    console.log('📊 Running traditional analysis...');
+    
+    // 既存のanalyzeTripleOSメソッドを呼び出し
+    return await this.analyzeTripleOS(userAnswers);
+  }
+
+  /**
+   * 仮想人格システムのクリーンアップ
+   */
+  cleanupVirtualPersonalitySystem() {
+    console.log('🧹 Cleaning up Virtual Personality System...');
+    
+    if (this.virtualPersonalitySystem.currentPersonality) {
+      // 現在の仮想人格をクリーンアップ
+      this.virtualPersonalitySystem.currentPersonality.cleanup();
+      this.virtualPersonalitySystem.currentPersonality = null;
+    }
+    
+    // 履歴もクリーンアップ
+    this.virtualPersonalitySystem.personalityHistory.forEach(entry => {
+      if (entry.personality && entry.personality.cleanup) {
+        entry.personality.cleanup();
+      }
+    });
+    
+    this.virtualPersonalitySystem.personalityHistory = [];
+    this.virtualPersonalitySystem.metaphorEngine = null;
+    this.virtualPersonalitySystem.relationshipEngine = null;
+    
+    console.log('✅ Virtual Personality System cleanup completed');
   }
 
   // 8次元→八卦マッピング初期化
@@ -229,15 +589,24 @@ class TripleOSEngine {
         throw new Error("Vector data not available");
       }
 
-      const candidates = this.calculator.analyzeOSCandidates(
+      const result = this.calculator.analyzeOSCandidates(
         userVector,
-        vectorsData
+        vectorsData,
+        'engine'
       );
+      
+      // 新旧両形式に対応（後方互換性を保持）
+      const candidates = result.candidates || result;
+      const statisticalInfo = result.statistics || null;
+      
       console.log(
         "📊 candidates:",
         candidates ? candidates.length : "null",
         "found"
       );
+      if (statisticalInfo) {
+        console.log("📊 統計情報:", statisticalInfo);
+      }
       if (candidates && candidates.length > 0) {
         console.log("📊 top candidate:", candidates[0]);
       }

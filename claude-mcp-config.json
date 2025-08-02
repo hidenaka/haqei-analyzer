@@ -1,0 +1,97 @@
+{
+  "mcpServers": {
+    "cipher": {
+      "command": "node",
+      "args": ["cipher-server.js"],
+      "cwd": "/Users/hideakimacbookair/Desktop/haqei-analyzer",
+      "env": {
+        "NODE_ENV": "development",
+        "CIPHER_PORT": "3001",
+        "CIPHER_PROJECT_PATH": "/Users/hideakimacbookair/Desktop/haqei-analyzer"
+      },
+      "timeout": 30000,
+      "description": "Cipher Dual Memory Layer - bunenjin哲学とプロジェクト記憶の継続管理"
+    },
+    "tsumiki": {
+      "command": "node",
+      "args": ["tsumiki-cli.js"],
+      "cwd": "/Users/hideakimacbookair/Desktop/haqei-analyzer",
+      "env": {
+        "NODE_ENV": "development",
+        "TSUMIKI_PROJECT_PATH": "/Users/hideakimacbookair/Desktop/haqei-analyzer"
+      },
+      "timeout": 60000,
+      "description": "Tsumiki AI駆動開発フレームワーク - 構造化品質管理システム"
+    },
+    "serena": {
+      "command": "python3",
+      "args": ["-m", "serena_mcp"],
+      "cwd": "/Users/hideakimacbookair/Desktop/haqei-analyzer",
+      "env": {
+        "PYTHONPATH": "/Users/hideakimacbookair/Desktop/haqei-analyzer",
+        "SERENA_PROJECT_CONFIG": "/Users/hideakimacbookair/Desktop/haqei-analyzer/.serena/project.yml"
+      },
+      "timeout": 45000,
+      "description": "Serena セマンティックコード分析とファイル監視システム"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp"],
+      "cwd": "/Users/hideakimacbookair/Desktop/haqei-analyzer",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "timeout": 30000,
+      "description": "Playwright MCP - ブラウザ自動化とE2Eテスト"
+    }
+  },
+  "globalShortcuts": {
+    "cipher": {
+      "startMemoryLayer": "cipher:start",
+      "stopMemoryLayer": "cipher:stop", 
+      "testConfiguration": "cipher:test"
+    },
+    "tsumiki": {
+      "requirements": "/kairo-requirements",
+      "design": "/kairo-design", 
+      "tasks": "/kairo-tasks",
+      "implement": "/kairo-implement",
+      "tddRequirements": "/tdd-requirements",
+      "tddTestcases": "/tdd-testcases",
+      "tddRed": "/tdd-red",
+      "tddGreen": "/tdd-green",
+      "tddRefactor": "/tdd-refactor",
+      "tddVerifyComplete": "/tdd-verify-complete"
+    },
+    "serena": {
+      "analyzeProject": "serena:analyze",
+      "optimizeCode": "serena:optimize",
+      "watchFiles": "serena:watch"
+    }
+  },
+  "integrationWorkflow": {
+    "tripleSystem": {
+      "description": "Cipher + Serena + Tsumiki 三位一体運用",
+      "workflow": [
+        "1. Cipher（記憶・哲学）: bunenjin哲学とプロジェクト記憶の継続",
+        "2. Serena（分析・最適化）: セマンティックコード分析とファイル監視", 
+        "3. Tsumiki（構造化・品質）: 標準化されたAI駆動開発プロセス"
+      ],
+      "feedbackLoop": "Cipher（記憶） → Tsumiki（構造化） → Serena（最適化） → 統合フィードバック → Cipher（学習蓄積）"
+    },
+    "developmentPhases": {
+      "planning": ["cipher:start", "/kairo-requirements", "/kairo-design"],
+      "implementation": ["/kairo-tasks", "/kairo-implement", "serena:analyze"],
+      "testing": ["/tdd-red", "/tdd-green", "/tdd-refactor"],
+      "validation": ["/tdd-verify-complete", "serena:optimize", "playwright:test"]
+    }
+  },
+  "projectSpecific": {
+    "haqeiAnalyzer": {
+      "bunenjinPhilosophy": true,
+      "tripleOSArchitecture": true,
+      "iChingIntegration": true,
+      "qualityStandard": "A級（Tsumiki標準）"
+    }
+  }
+}

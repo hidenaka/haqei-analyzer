@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H384_DATA テスト</title>
+</head>
+<body>
+    <h1>H384_DATA 読み込みテスト</h1>
+    <div id="result"></div>
+
+    <script src="./public/assets/H384H64database.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const resultDiv = document.getElementById('result');
+            
+            console.log('H384_DATA テスト開始');
+            console.log('typeof H384_DATA:', typeof H384_DATA);
+            console.log('H384_DATA defined:', typeof H384_DATA !== 'undefined');
+            
+            if (typeof H384_DATA !== 'undefined') {
+                console.log('H384_DATA.length:', H384_DATA.length);
+                console.log('Sample entry:', H384_DATA[0]);
+                
+                // 用九と用六を確認
+                const youkyu = H384_DATA.find(item => item['通し番号'] === 7);
+                const yourikyu = H384_DATA.find(item => item['通し番号'] === 14);
+                
+                resultDiv.innerHTML = `
+                    <h2>✅ H384_DATA 読み込み成功</h2>
+                    <p><strong>データ数:</strong> ${H384_DATA.length}</p>
+                    <p><strong>用九 (通し番号7):</strong> ${youkyu ? '✅ あり' : '❌ なし'}</p>
+                    <p><strong>用六 (通し番号14):</strong> ${yourikyu ? '✅ あり' : '❌ なし'}</p>
+                    <p><strong>サンプルエントリ:</strong></p>
+                    <pre>${JSON.stringify(H384_DATA[0], null, 2)}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <h2>❌ H384_DATA 読み込み失敗</h2>
+                    <p>H384_DATA が undefined です</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

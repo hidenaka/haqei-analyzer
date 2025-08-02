@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';">
+    <title>最適化版 状況分析システム - プログレッシブテスト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .control-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .mode-selector {
+            margin-bottom: 15px;
+        }
+        
+        .mode-selector label {
+            margin-right: 20px;
+            cursor: pointer;
+        }
+        
+        .mode-selector input[type="radio"] {
+            margin-right: 5px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            resize: vertical;
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        button.secondary {
+            background-color: #2196F3;
+        }
+        
+        button.secondary:hover {
+            background-color: #1976D2;
+        }
+        
+        .progress-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .phase-info {
+            text-align: center;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .results-container {
+            margin-top: 30px;
+        }
+        
+        .result-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .result-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .status-indicator.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .status-indicator.warning {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+        }
+        
+        .status-dot.error {
+            background-color: #f44336;
+        }
+        
+        .status-dot.warning {
+            background-color: #ff9800;
+        }
+        
+        .performance-stats {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        
+        .error-log {
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 最適化版 状況分析システム - プログレッシブテスト</h1>
+    
+    <div class="control-panel">
+        <div class="mode-selector">
+            <label>
+                <input type="radio" name="mode" value="optimized" checked>
+                最適化版（Web Worker使用）
+            </label>
+            <label>
+                <input type="radio" name="mode" value="standard">
+                標準版（比較用）
+            </label>
+        </div>
+        
+        <h2>テキスト入力</h2>
+        <textarea id="inputText" placeholder="あなたの状況や悩みを入力してください...">最近、長年勤めた会社でタクシードライバーとして働きながら、AI開発の勉強を始めました。将来への不安もありますが、新しい挑戦にワクワクしています。家族は心配していますが、自分の可能性を信じて進みたいと思っています。</textarea>
+        
+        <div class="button-container">
+            <button onclick="analyzeText()" id="analyzeButton">分析開始</button>
+            <button onclick="checkHealth()" class="secondary">ヘルスチェック</button>
+            <button onclick="showErrorLog()" class="secondary">エラーログ</button>
+        </div>
+    </div>
+    
+    <div class="status-indicator" id="statusIndicator">
+        <span class="status-dot"></span>
+        <span id="statusText">システム準備完了</span>
+    </div>
+    
+    <div class="progress-container" id="progressContainer">
+        <h3>分析進行状況</h3>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+        </div>
+        <div class="phase-info" id="phaseInfo">準備中...</div>
+    </div>
+    
+    <div class="results-container" id="results" style="display: none;">
+        <!-- 結果がここに表示されます -->
+    </div>
+    
+    <div class="performance-stats" id="performanceStats" style="display: none;">
+        <h3>パフォーマンス統計</h3>
+        <div id="statsContent"></div>
+    </div>
+    
+    <div class="error-log" id="errorLog" style="display: none;">
+        <h3>エラーログ</h3>
+        <pre id="errorLogContent"></pre>
+    </div>
+
+    <!-- スクリプトの読み込み -->
+    <script src="public/js/situation-analyzer/ErrorHandler.js"></script>
+    <script src="public/js/situation-analyzer/HexagramDatabase.js"></script>
+    <script src="public/js/situation-analyzer/TextVectorizer.js"></script>
+    <script src="public/js/situation-analyzer/SituationClassifier.js"></script>
+    <script src="public/js/situation-analyzer/DynamicIChingMapper.js"></script>
+    <script src="public/js/situation-analyzer/UltraSituationAnalyzer.js"></script>
+    <script src="public/js/situation-analyzer/OptimizedAnalyzer.js"></script>
+    
+    <script>
+        // グローバル変数
+        let optimizedAnalyzer = null;
+        let standardAnalyzer = null;
+        let startTime = null;
+        
+        /**
+         * 初期化
+         * 
+         * 目的：
+         * - 各アナライザーのインスタンス化
+         * - 初期状態の設定
+         */
+        function initialize() {
+            try {
+                // 最適化版アナライザー
+                optimizedAnalyzer = new OptimizedSituationAnalyzer();
+                
+                // 標準版アナライザー（比較用）
+                standardAnalyzer = new UltraSituationAnalyzer();
+                
+                updateStatus('ready', 'システム準備完了');
+                console.log('システム初期化完了');
+                
+            } catch (error) {
+                console.error('初期化エラー:', error);
+                updateStatus('error', '初期化に失敗しました');
+            }
+        }
+        
+        /**
+         * テキスト分析実行
+         */
+        async function analyzeText() {
+            const inputText = document.getElementById('inputText').value.trim();
+            
+            if (!inputText) {
+                alert('テキストを入力してください');
+                return;
+            }
+            
+            // 入力検証
+            if (!validateInput(inputText)) {
+                alert('入力に不正な文字が含まれています');
+                return;
+            }
+            
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            const button = document.getElementById('analyzeButton');
+            const progressContainer = document.getElementById('progressContainer');
+            const resultsContainer = document.getElementById('results');
+            
+            // UI初期化
+            button.disabled = true;
+            button.textContent = '分析中...';
+            progressContainer.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            clearResults();
+            
+            startTime = performance.now();
+            
+            try {
+                let result;
+                
+                if (mode === 'optimized') {
+                    // 最適化版（プログレッシブ）
+                    updateStatus('processing', 'Web Worker使用中');
+                    result = await optimizedAnalyzer.analyzeWithProgress(
+                        inputText,
+                        updateProgress,
+                        { includeVector: false }
+                    );
+                } else {
+                    // 標準版
+                    updateStatus('processing', '標準版で分析中');
+                    updateProgress(0, 'starting');
+                    result = await standardAnalyzer.analyze(inputText);
+                    updateProgress(100, 'complete');
+                }
+                
+                const endTime = performance.now();
+                const processingTime = endTime - startTime;
+                
+                // 結果表示
+                displayResults(result, processingTime);
+                updateStatus('ready', '分析完了');
+                
+            } catch (error) {
+                console.error('分析エラー:', error);
+                displayError(error);
+                updateStatus('error', 'エラーが発生しました');
+                
+            } finally {
+                button.disabled = false;
+                button.textContent = '分析開始';
+            }
+        }
+        
+        /**
+         * プログレス更新
+         */
+        function updateProgress(progress, phase) {
+            const progressFill = document.getElementById('progressFill');
+            const phaseInfo = document.getElementById('phaseInfo');
+            
+            progressFill.style.width = `${progress}%`;
+            progressFill.textContent = `${progress}%`;
+            
+            const phaseTexts = {
+                'starting': '分析を開始しています...',
+                'vectorization': 'テキストをベクトル化しています...',
+                'classification': '状況を分類しています...',
+                'mapping': '易経にマッピングしています...',
+                'integration': '結果を統合しています...',
+                'complete': '分析完了！'
+            };
+            
+            phaseInfo.textContent = phaseTexts[phase] || phase;
+        }
+        
+        /**
+         * ステータス更新
+         */
+        function updateStatus(status, text) {
+            const indicator = document.getElementById('statusIndicator');
+            const statusDot = indicator.querySelector('.status-dot');
+            const statusText = document.getElementById('statusText');
+            
+            // クラスリセット
+            indicator.className = 'status-indicator';
+            statusDot.className = 'status-dot';
+            
+            if (status === 'error') {
+                indicator.classList.add('error');
+                statusDot.classList.add('error');
+            } else if (status === 'warning') {
+                indicator.classList.add('warning');
+                statusDot.classList.add('warning');
+            }
+            
+            statusText.textContent = text;
+        }
+        
+        /**
+         * 結果表示
+         */
+        function displayResults(result, processingTime) {
+            const container = document.getElementById('results');
+            
+            // パフォーマンス情報
+            const performanceHtml = `
+                <div class="result-section fade-in">
+                    <h3>⚡ パフォーマンス</h3>
+                    <p><strong>処理時間:</strong> ${processingTime.toFixed(0)}ms</p>
+                    <p><strong>分析モード:</strong> ${document.querySelector('input[name="mode"]:checked').value === 'optimized' ? 'Web Worker最適化版' : '標準版'}</p>
+                </div>
+            `;
+            
+            // 既存の結果表示コンポーネントを使用
+            const sections = [
+                createSituationElement(result.situation),
+                createIChingElement(result.iching),
+                createInsightsElement(result.insights || []),
+                createRecommendationsElement(result.recommendations || [])
+            ];
+            
+            container.innerHTML = performanceHtml;
+            sections.forEach(section => {
+                if (section) {
+                    section.classList.add('fade-in');
+                    container.appendChild(section);
+                }
+            });
+            
+            container.style.display = 'block';
+            
+            // パフォーマンス統計更新
+            updatePerformanceStats(processingTime);
+        }
+        
+        /**
+         * パフォーマンス統計更新
+         */
+        function updatePerformanceStats(processingTime) {
+            const statsContainer = document.getElementById('performanceStats');
+            const statsContent = document.getElementById('statsContent');
+            
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            
+            statsContent.innerHTML = `
+                <p><strong>最新の処理時間:</strong> ${processingTime.toFixed(0)}ms</p>
+                <p><strong>使用モード:</strong> ${mode === 'optimized' ? 'Web Worker最適化版' : '標準版'}</p>
+                <p><strong>Worker状態:</strong> ${optimizedAnalyzer && optimizedAnalyzer.workerReady ? '正常' : '使用不可'}</p>
+            `;
+            
+            statsContainer.style.display = 'block';
+        }
+        
+        /**
+         * ヘルスチェック
+         */
+        async function checkHealth() {
+            updateStatus('processing', 'ヘルスチェック中...');
+            
+            try {
+                const isHealthy = await optimizedAnalyzer.checkHealth();
+                
+                if (isHealthy) {
+                    updateStatus('ready', 'Worker正常動作中');
+                    alert('Web Workerは正常に動作しています');
+                } else {
+                    updateStatus('warning', 'Workerが応答しません');
+                    alert('Web Workerが応答しません。フォールバックモードで動作します。');
+                }
+            } catch (error) {
+                updateStatus('error', 'ヘルスチェック失敗');
+                alert('ヘルスチェックに失敗しました');
+            }
+        }
+        
+        /**
+         * エラーログ表示
+         */
+        function showErrorLog() {
+            const errorLog = document.getElementById('errorLog');
+            const errorLogContent = document.getElementById('errorLogContent');
+            
+            const logs = window.situationAnalysisErrorHandler.getErrorLog();
+            
+            if (logs.length === 0) {
+                errorLogContent.textContent = 'エラーログはありません';
+            } else {
+                errorLogContent.textContent = JSON.stringify(logs, null, 2);
+            }
+            
+            errorLog.style.display = errorLog.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        /**
+         * 結果クリア
+         */
+        function clearResults() {
+            const container = document.getElementById('results');
+            container.innerHTML = '';
+            container.style.display = 'none';
+        }
+        
+        /**
+         * エラー表示
+         */
+        function displayError(error) {
+            const container = document.getElementById('results');
+            
+            const errorDiv = createElement('div', 'result-section error fade-in');
+            const errorTitle = createElement('h3', null, '❌ エラーが発生しました');
+            const errorMsg = createElement('p', null, error.message || 'Unknown error');
+            
+            errorDiv.appendChild(errorTitle);
+            errorDiv.appendChild(errorMsg);
+            
+            if (error.userMessage) {
+                const userMsg = createElement('p', null, error.userMessage);
+                errorDiv.appendChild(userMsg);
+            }
+            
+            container.innerHTML = '';
+            container.appendChild(errorDiv);
+            container.style.display = 'block';
+        }
+        
+        // ヘルパー関数（前のテストページから移植）
+        function validateInput(text) {
+            if (text.length > 5000) return false;
+            
+            const dangerousPatterns = [
+                /<script/i,
+                /<iframe/i,
+                /javascript:/i,
+                /on\w+\s*=/i,
+                /<img.*?onerror/i
+            ];
+            
+            for (const pattern of dangerousPatterns) {
+                if (pattern.test(text)) return false;
+            }
+            
+            return true;
+        }
+        
+        function createElement(tag, className, textContent) {
+            const element = document.createElement(tag);
+            if (className) element.className = className;
+            if (textContent) element.textContent = textContent;
+            return element;
+        }
+        
+        // 結果セクション作成関数（前のテストページから移植）
+        function createSituationElement(situation) {
+            const section = createElement('div', 'result-section');
+            const title = createElement('h3', null, '📊 状況分析');
+            section.appendChild(title);
+            
+            const details = [
+                `状況タイプ: ${situation.archetype.name}（スコア: ${situation.archetype.score.toFixed(1)}）`,
+                `時間的状態: 過去: ${situation.temporal.past}, 現在: ${situation.temporal.present}, 未来: ${situation.temporal.future}`,
+                `感情状態: ポジティブ: ${situation.emotions.positive}, ネガティブ: ${situation.emotions.negative}`,
+                `信頼度: ${(situation.confidence * 100).toFixed(0)}%`
+            ];
+            
+            details.forEach(detail => {
+                const p = createElement('p', null, detail);
+                section.appendChild(p);
+            });
+            
+            return section;
+        }
+        
+        function createIChingElement(iching) {
+            const section = createElement('div', 'result-section');
+            const title = createElement('h3', null, '☯️ 易経解釈');
+            section.appendChild(title);
+            
+            const hexInfo = createElement('div', 'hexagram-info');
+            const hexTitle = createElement('h4', null, `${iching.hexagram.number}. ${iching.hexagram.name}`);
+            const hexEssence = createElement('p', null, `本質: ${iching.hexagram.essence.essence}`);
+            const hexLine = createElement('p', null, `爻位置: ${iching.line.name} - ${iching.line.meaning}`);
+            
+            hexInfo.appendChild(hexTitle);
+            hexInfo.appendChild(hexEssence);
+            hexInfo.appendChild(hexLine);
+            section.appendChild(hexInfo);
+            
+            return section;
+        }
+        
+        function createInsightsElement(insights) {
+            if (!insights || insights.length === 0) return null;
+            
+            const section = createElement('div', 'result-section');
+            const title = createElement('h3', null, '💡 洞察');
+            section.appendChild(title);
+            
+            insights.forEach(insight => {
+                const p = createElement('p', null, insight.content || insight);
+                section.appendChild(p);
+            });
+            
+            return section;
+        }
+        
+        function createRecommendationsElement(recommendations) {
+            if (!recommendations || recommendations.length === 0) return null;
+            
+            const section = createElement('div', 'result-section');
+            const title = createElement('h3', null, '🎯 推奨事項');
+            section.appendChild(title);
+            
+            recommendations.forEach(rec => {
+                const p = createElement('p', null, rec.action || rec);
+                section.appendChild(p);
+            });
+            
+            return section;
+        }
+        
+        // ページ読み込み時に初期化
+        window.addEventListener('DOMContentLoaded', initialize);
+        
+        // ページ離脱時のクリーンアップ
+        window.addEventListener('beforeunload', () => {
+            if (optimizedAnalyzer) {
+                optimizedAnalyzer.destroy();
+            }
+        });
+    </script>
+</body>
+</html>

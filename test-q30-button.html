@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q30 分析開始ボタンテスト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .test-section {
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        button {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0.5rem;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        .status {
+            padding: 1rem;
+            margin: 1rem 0;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 8px;
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.875rem;
+        }
+        #console-output {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+        .log-entry {
+            margin: 0.25rem 0;
+            padding: 0.25rem;
+        }
+        .log-error { color: #ef4444; }
+        .log-warn { color: #f59e0b; }
+        .log-info { color: #3b82f6; }
+        .log-success { color: #10b981; }
+    </style>
+</head>
+<body>
+    <h1>Q30 分析開始ボタン動作確認</h1>
+    
+    <div class="test-section">
+        <h2>🎯 テスト内容</h2>
+        <p>最後の設問（q30）で「次の質問 →」が「分析開始 →」に変わることを確認します。</p>
+        
+        <button onclick="jumpToQ30()">Q30にジャンプ（テスト用）</button>
+        <button onclick="checkCurrentState()">現在の状態を確認</button>
+        <button onclick="clearAndRestart()">リセットして最初から</button>
+        
+        <div id="status-display" class="status" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 コンソール出力</h2>
+        <div id="console-output"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔍 実装確認チェックリスト</h2>
+        <ul>
+            <li id="check1">❓ VirtualQuestionFlow が読み込まれている</li>
+            <li id="check2">❓ updateNavigationButtons メソッドが修正されている</li>
+            <li id="check3">❓ 最後の設問でボタンテキストが変更される</li>
+            <li id="check4">❓ analyze-button クラスが追加される</li>
+            <li id="check5">❓ クリックで checkCompletion が呼ばれる</li>
+        </ul>
+    </div>
+
+    <script>
+        // コンソール出力をキャプチャ
+        const consoleOutput = document.getElementById('console-output');
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addLogEntry(message, type = 'log') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${type.toUpperCase()}] ${message}`;
+            consoleOutput.appendChild(entry);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLogEntry(args.join(' '), 'info');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLogEntry(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addLogEntry(args.join(' '), 'warn');
+        };
+        
+        // Q30にジャンプする関数
+        function jumpToQ30() {
+            const statusDiv = document.getElementById('status-display');
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<h3>Q30へのジャンプを試みています...</h3>';
+            
+            // 現在のセッションを確認
+            const session = localStorage.getItem('haqei_session');
+            const answers = localStorage.getItem('haqei_answers');
+            
+            if (!session || !answers) {
+                statusDiv.innerHTML += '<p class="error">セッションが見つかりません。先にOS Analyzerで診断を開始してください。</p>';
+                return;
+            }
+            
+            // 29個のダミー回答を作成
+            const dummyAnswers = [];
+            for (let i = 1; i <= 29; i++) {
+                dummyAnswers.push({
+                    questionId: `q${i}`,
+                    selectedValue: ['A', 'B', 'C', 'D'][Math.floor(Math.random() * 4)],
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            // LocalStorageに保存
+            localStorage.setItem('haqei_answers', JSON.stringify(dummyAnswers));
+            
+            // セッションを更新
+            const sessionData = JSON.parse(session);
+            sessionData.currentQuestionIndex = 29;
+            localStorage.setItem('haqei_session', JSON.stringify(sessionData));
+            
+            statusDiv.innerHTML += `
+                <p class="success">✅ 29個の回答を設定しました</p>
+                <p>OS Analyzerページをリロードすると、Q30から始まります。</p>
+                <button onclick="window.open('/os_analyzer.html', '_blank')">OS Analyzerを開く</button>
+            `;
+        }
+        
+        // 現在の状態を確認
+        function checkCurrentState() {
+            const statusDiv = document.getElementById('status-display');
+            statusDiv.style.display = 'block';
+            
+            const session = localStorage.getItem('haqei_session');
+            const answers = localStorage.getItem('haqei_answers');
+            
+            let html = '<h3>現在の状態</h3>';
+            
+            if (session) {
+                const sessionData = JSON.parse(session);
+                html += `<p><strong>セッション:</strong> ${sessionData.stage}</p>`;
+                html += `<p><strong>現在の設問:</strong> ${(sessionData.currentQuestionIndex || 0) + 1}/30</p>`;
+            } else {
+                html += '<p class="error">セッションが見つかりません</p>';
+            }
+            
+            if (answers) {
+                const answersData = JSON.parse(answers);
+                html += `<p><strong>回答済み:</strong> ${answersData.length}問</p>`;
+            } else {
+                html += '<p class="error">回答データが見つかりません</p>';
+            }
+            
+            statusDiv.innerHTML = html;
+            
+            // 実装チェック
+            checkImplementation();
+        }
+        
+        // 実装をチェック
+        function checkImplementation() {
+            // VirtualQuestionFlowの存在確認
+            if (typeof window.VirtualQuestionFlow !== 'undefined') {
+                document.getElementById('check1').innerHTML = '✅ VirtualQuestionFlow が読み込まれている';
+                
+                // メソッドの確認
+                const proto = window.VirtualQuestionFlow.prototype;
+                if (proto.updateNavigationButtons) {
+                    const methodString = proto.updateNavigationButtons.toString();
+                    if (methodString.includes('分析開始')) {
+                        document.getElementById('check2').innerHTML = '✅ updateNavigationButtons メソッドが修正されている';
+                        document.getElementById('check3').innerHTML = '✅ 最後の設問でボタンテキストが変更される';
+                    }
+                    if (methodString.includes('analyze-button')) {
+                        document.getElementById('check4').innerHTML = '✅ analyze-button クラスが追加される';
+                    }
+                }
+                
+                if (proto.bindEvents) {
+                    const bindString = proto.bindEvents.toString();
+                    if (bindString.includes('checkCompletion')) {
+                        document.getElementById('check5').innerHTML = '✅ クリックで checkCompletion が呼ばれる';
+                    }
+                }
+            }
+        }
+        
+        // リセット
+        function clearAndRestart() {
+            localStorage.removeItem('haqei_session');
+            localStorage.removeItem('haqei_answers');
+            localStorage.removeItem('haqei_progress');
+            
+            const statusDiv = document.getElementById('status-display');
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<p class="success">✅ データをクリアしました。OS Analyzerを開くと最初から始まります。</p>';
+        }
+        
+        // ページ読み込み時にチェック
+        window.addEventListener('load', () => {
+            checkCurrentState();
+        });
+    </script>
+</body>
+</html>

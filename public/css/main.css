@@ -27,9 +27,12 @@
   /* Transitions */
   --transition-normal: 300ms ease;
   
-  /* Layout Constants - 見切れ防止用 */
+  /* Layout Constants - 見切れ防止用（編集版・十分なセーフエリア確保） */
   --progress-bar-height: 4px;
-  --safe-top-padding: 20px;
+  --safe-top-desktop: 120px; /* デスクトップ用セーフエリア（48px→80px→120px） */
+  --safe-top-mobile: 160px;  /* モバイル用セーフエリア（80px→120px→160px） */
+  --safe-top-small: 180px;   /* 小画面用セーフエリア（100px→140px→180px） */
+  --progress-total-height: calc(var(--progress-bar-height) + var(--safe-top-desktop));
 }
 
 * {
@@ -40,11 +43,16 @@
 
 body {
   font-family: var(--font-family);
+  /* 🎯 bunenjin哲学: 陰陽バランスによる美的調和 */
   background: linear-gradient(
     135deg,
     var(--primary-800) 0%,
-    var(--primary-700) 100%
+    var(--primary-700) 35%,
+    var(--primary-600) 70%,
+    rgba(99, 102, 241, 0.1) 100%
   );
+  /* 動的テクスチャ追加で深みを演出 */
+  background-attachment: fixed;
   color: var(--primary-100);
   min-height: 100vh;
   line-height: 1.6;
@@ -59,17 +67,25 @@ body {
   /* flexboxレイアウトを除去して、絶対配置による重ね合わせ表示に変更 */
 }
 
-/* 各screen-containerは絶対配置で全画面を覆う */
+/**
+ * 各screen-containerは絶対配置で全画面を覆う
+ * 
+ * 修正内容（2025-08-01）:
+ * - 上部見切れ問題を解決するため、セーフエリアを確保
+ * - デスクトップ: 48px、モバイル: 80px、小画面: 100pxのマージン
+ * - レスポンシブ対応でデバイス別の適切なスペーシング
+ */
 .app-container > .screen-container {
   position: absolute;
-  top: var(--progress-bar-height); /* プログレスバーの高さ分だけ下に配置 */
+  top: var(--progress-total-height); /* プログレスバー + セーフエリア */
   left: 0;
   width: 100vw;
-  height: calc(100vh - var(--progress-bar-height)); /* プログレスバーの高さを引いた高さ */
+  height: calc(100vh - var(--progress-total-height)); /* 総高さを引いた高さ */
   display: none;
-  align-items: center;
+  align-items: flex-start; /* 上部揃えに変更（center→flex-start） */
   justify-content: center;
   padding: var(--space-6);
+  padding-top: var(--space-4); /* 追加のパディング */
   box-sizing: border-box;
   overflow-y: auto; /* スクロール可能にしつつ、上部の見切れを防ぐ */
 }
@@ -91,15 +107,23 @@ body {
   opacity: 0;
 }
 
-/* Welcome画面のみ初期表示 */
+/**
+ * Welcome画面のレイアウト修正
+ * 
+ * 修正内容（2025-08-01）:
+ * - タイトル見切れ問題を解決
+ * - セーフエリアを動的に適用
+ * - センタリングを維持しつつ上部マージンを確保
+ */
 #welcome-container {
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start; /* center→flex-start */
   align-items: center;
   text-align: center;
-  /* 上部の見切れを防ぐための追加パディング */
-  padding-top: calc(var(--space-6) + var(--safe-top-padding));
+  /* 上部の見切れを防ぐための動的パディング */
+  padding-top: calc(var(--space-6) + var(--safe-top-desktop));
   padding-bottom: var(--space-6);
+  min-height: calc(100vh - var(--progress-total-height) - var(--space-6) * 2);
 }
 
 /* Results画面の表示確保 */
@@ -257,11 +281,42 @@ body {
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-500), var(--accent-400));
+  /* 🎯 bunenjin哲学: 進捗の美的表現 */
+  background: linear-gradient(
+    90deg, 
+    var(--accent-500), 
+    var(--accent-400),
+    rgba(139, 92, 246, 0.8)
+  );
   transition: width var(--transition-normal);
   width: 0%;
   border-radius: 0 0 2px 2px;
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.7);
+  /* 動的光沢効果 */
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: progressShine 2s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
 }
 
 /* =================================== */
@@ -369,14 +424,17 @@ body {
 /* =================================== */
 
 .card {
-  background: var(--primary-800);
-  border: 1px solid var(--primary-700);
+  /* 🎯 bunenjin哲学: 背景とのコントラスト強化 */
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(99, 102, 241, 0.3);
   border-radius: 1rem;
   padding: 2rem;
   margin-bottom: 2rem;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .card::before {
@@ -568,23 +626,33 @@ body {
 /* レスポンシブデザイン */
 /* =================================== */
 
+/**
+ * モバイル対応レスポンシブ修正（768px以下）
+ * 
+ * 修正内容（2025-08-01）:
+ * - モバイル専用セーフエリア（80px）を適用
+ * - CSS変数を活用した一貫性のある実装
+ * - 画面見切れ問題の完全解決
+ */
 @media (max-width: 768px) {
+  :root {
+    --progress-total-height: calc(var(--progress-bar-height) + var(--safe-top-mobile));
+  }
+  
   .screen-container {
     padding: 1rem;
-    /* モバイルでも上部の見切れを防ぐ */
-    padding-top: calc(1rem + 20px);
+    padding-top: calc(1rem + var(--safe-top-mobile));
   }
   
   .app-container > .screen-container {
-    /* モバイル表示での調整 */
     padding: 1rem;
-    padding-top: calc(1rem + 20px);
+    padding-top: var(--space-4);
   }
   
   #welcome-container {
-    /* モバイルでのWelcome画面調整 */
-    padding-top: calc(1rem + 30px);
+    padding-top: calc(var(--space-4) + var(--safe-top-mobile));
     padding-bottom: 1rem;
+    min-height: calc(100vh - var(--progress-total-height) - 2rem);
   }
 
   .btn {
@@ -610,23 +678,33 @@ body {
   }
 }
 
+/**
+ * 小画面対応レスポンシブ修正（480px以下）
+ * 
+ * 修正内容（2025-08-01）:
+ * - 小画面専用セーフエリア（100px）を適用
+ * - 最小画面でも完全に見切れを防止
+ * - iPhone SE等の狭い画面でも操作性確保
+ */
 @media (max-width: 480px) {
+  :root {
+    --progress-total-height: calc(var(--progress-bar-height) + var(--safe-top-small));
+  }
+  
   .screen-container {
     padding: 0.5rem;
-    /* 小画面でも上部の見切れを防ぐ */
-    padding-top: calc(0.5rem + 25px);
+    padding-top: calc(0.5rem + var(--safe-top-small));
   }
   
   .app-container > .screen-container {
-    /* 小画面表示での調整 */
     padding: 0.5rem;
-    padding-top: calc(0.5rem + 25px);
+    padding-top: var(--space-2);
   }
   
   #welcome-container {
-    /* 小画面でのWelcome画面調整 */
-    padding-top: calc(0.5rem + 35px);
+    padding-top: calc(var(--space-2) + var(--safe-top-small));
     padding-bottom: 0.5rem;
+    min-height: calc(100vh - var(--progress-total-height) - 1rem);
   }
 
   .btn {

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Worker テスト - Tsumiki TDD品質保証</title>
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-container { 
+            border: 2px solid #e1e5e9; 
+            border-radius: 12px; 
+            padding: 24px; 
+            margin: 20px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        }
+        .success { border-color: #10b981; background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); }
+        .error { border-color: #ef4444; background: linear-gradient(135deg, #fef2f2 0%, #fefef2 100%); }
+        .test-log { 
+            background: #1e293b; 
+            color: #e2e8f0; 
+            padding: 16px; 
+            border-radius: 8px; 
+            font-family: 'Monaco', monospace; 
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background-color: #10b981; }
+        .status-error { background-color: #ef4444; }
+        .status-pending { background-color: #f59e0b; }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .metric-label {
+            font-size: 14px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 HAQEI Service Worker - Tsumiki品質保証テスト</h1>
+    
+    <div class="test-container">
+        <h2>📊 統計的品質メトリクス</h2>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value" id="coverage-rate">--%</div>
+                <div class="metric-label">要件網羅率</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="success-rate">--%</div>
+                <div class="metric-label">テスト成功率</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="error-rate">--%</div>
+                <div class="metric-label">エラー発生率</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="confidence-level">--</div>
+                <div class="metric-label">信頼区間下限</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container" id="sw-registration">
+        <h2>
+            <span class="status-indicator status-pending" id="sw-status"></span>
+            Service Worker 登録テスト
+        </h2>
+        <div id="sw-result">テスト実行中...</div>
+    </div>
+
+    <div class="test-container" id="resource-test">
+        <h2>
+            <span class="status-indicator status-pending" id="resource-status"></span>
+            Critical Resources アクセステスト
+        </h2>
+        <div id="resource-result">テスト実行中...</div>
+    </div>
+
+    <div class="test-container" id="cache-test">
+        <h2>
+            <span class="status-indicator status-pending" id="cache-status"></span>
+            Triple OS Cacheテスト
+        </h2>
+        <div id="cache-result">テスト実行中...</div>
+    </div>
+
+    <div class="test-container">
+        <h2>🔍 詳細ログ</h2>
+        <div class="test-log" id="test-log"></div>
+    </div>
+
+    <script>
+        // bunenjin哲学統合テストフレームワーク
+        class TsumikiServiceWorkerTester {
+            constructor() {
+                this.testResults = [];
+                this.totalTests = 0;
+                this.passedTests = 0;
+                this.log = document.getElementById('test-log');
+                this.startTime = Date.now();
+            }
+
+            logMessage(message, type = 'info') {
+                const timestamp = new Date().toISOString();
+                const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+                this.log.textContent += logEntry;
+                this.log.scrollTop = this.log.scrollHeight;
+                
+                console.log(`%c${logEntry}`, 
+                    type === 'error' ? 'color: #ef4444' :
+                    type === 'success' ? 'color: #10b981' :
+                    type === 'warning' ? 'color: #f59e0b' : 'color: #64748b'
+                );
+            }
+
+            updateStatus(elementId, success, message) {
+                const container = document.getElementById(elementId);
+                const statusIndicator = container.querySelector('.status-indicator');
+                const resultDiv = container.querySelector('div:last-child');
+                
+                if (success) {
+                    container.classList.add('success');
+                    statusIndicator.className = 'status-indicator status-success';
+                    this.passedTests++;
+                } else {
+                    container.classList.add('error');
+                    statusIndicator.className = 'status-indicator status-error';
+                }
+                
+                resultDiv.innerHTML = message;
+                this.totalTests++;
+                this.updateMetrics();
+            }
+
+            updateMetrics() {
+                const successRate = this.totalTests > 0 ? (this.passedTests / this.totalTests * 100) : 0;
+                const errorRate = 100 - successRate;
+                const coverageRate = Math.min(this.totalTests / 3 * 100, 100); // 3 = 必須テスト数
+                const confidenceLevel = successRate >= 95 ? (3.5 + (successRate - 95) * 0.1) : (successRate / 95 * 3.5);
+
+                document.getElementById('coverage-rate').textContent = `${coverageRate.toFixed(1)}%`;
+                document.getElementById('success-rate').textContent = `${successRate.toFixed(1)}%`;
+                document.getElementById('error-rate').textContent = `${errorRate.toFixed(1)}%`;
+                document.getElementById('confidence-level').textContent = confidenceLevel.toFixed(2);
+            }
+
+            async runAllTests() {
+                this.logMessage('🚀 Tsumiki Service Worker品質保証テスト開始', 'info');
+                this.logMessage('bunenjin哲学統合 - Triple OS Architecture対応', 'info');
+                
+                await this.testServiceWorkerRegistration();
+                await this.testCriticalResources();
+                await this.testTripleOSCache();
+                
+                this.logMessage(`✅ 全テスト完了 - 実行時間: ${Date.now() - this.startTime}ms`, 'success');
+                this.generateFinalReport();
+            }
+
+            async testServiceWorkerRegistration() {
+                this.logMessage('Phase 1: Service Worker登録テスト開始', 'info');
+                
+                try {
+                    if (!('serviceWorker' in navigator)) {
+                        throw new Error('Service Worker not supported');
+                    }
+
+                    const registration = await navigator.serviceWorker.register('/haqei-sw.js');
+                    this.logMessage(`Service Worker登録成功: ${registration.scope}`, 'success');
+                    
+                    // アクティベーション待機
+                    await new Promise((resolve) => {
+                        if (registration.active) {
+                            resolve();
+                        } else {
+                            registration.addEventListener('statechange', () => {
+                                if (registration.active) resolve();
+                            });
+                        }
+                    });
+
+                    this.updateStatus('sw-registration', true, 
+                        `✅ 登録成功<br>Scope: ${registration.scope}<br>State: ${registration.active?.state || 'activating'}`);
+                    
+                } catch (error) {
+                    this.logMessage(`Service Worker登録失敗: ${error.message}`, 'error');
+                    this.updateStatus('sw-registration', false, 
+                        `❌ 登録失敗<br>Error: ${error.message}`);
+                }
+            }
+
+            async testCriticalResources() {
+                this.logMessage('Phase 2: Critical Resources アクセステスト開始', 'info');
+                
+                const criticalResources = [
+                    '/js/shared/core/BaseComponent.js',
+                    '/js/shared/core/MicroStorageManager.js',
+                    '/js/shared/core/MicroDataManager.js',
+                    '/js/shared/data/questions.js'
+                ];
+
+                let successCount = 0;
+                const results = [];
+
+                for (const resource of criticalResources) {
+                    try {
+                        const response = await fetch(resource);
+                        if (response.ok) {
+                            successCount++;
+                            results.push(`✅ ${resource}`);
+                            this.logMessage(`Resource accessible: ${resource}`, 'success');
+                        } else {
+                            results.push(`❌ ${resource} (${response.status})`);
+                            this.logMessage(`Resource failed: ${resource} - ${response.status}`, 'error');
+                        }
+                    } catch (error) {
+                        results.push(`❌ ${resource} (${error.message})`);
+                        this.logMessage(`Resource error: ${resource} - ${error.message}`, 'error');
+                    }
+                }
+
+                const success = successCount === criticalResources.length;
+                this.updateStatus('resource-test', success,
+                    `${successCount}/${criticalResources.length} リソース成功<br><br>${results.join('<br>')}`);
+            }
+
+            async testTripleOSCache() {
+                this.logMessage('Phase 3: Triple OS Cache戦略テスト開始', 'info');
+                
+                try {
+                    // キャッシュストレージアクセステスト
+                    const cacheNames = await caches.keys();
+                    this.logMessage(`Cache storages found: ${cacheNames.length}`, 'info');
+                    
+                    let haqeiCache = null;
+                    for (const cacheName of cacheNames) {
+                        if (cacheName.includes('haqei')) {
+                            haqeiCache = await caches.open(cacheName);
+                            break;
+                        }
+                    }
+
+                    if (haqeiCache) {
+                        const cachedRequests = await haqeiCache.keys();
+                        this.logMessage(`Cached resources: ${cachedRequests.length}`, 'success');
+                        
+                        this.updateStatus('cache-test', true,
+                            `✅ Cache動作確認<br>Cache名: ${haqeiCache}<br>キャッシュリソース: ${cachedRequests.length}個`);
+                    } else {
+                        this.updateStatus('cache-test', false,
+                            '❌ HAQEIキャッシュが見つかりません');
+                    }
+                    
+                } catch (error) {
+                    this.logMessage(`Cache test failed: ${error.message}`, 'error');
+                    this.updateStatus('cache-test', false,
+                        `❌ キャッシュテスト失敗<br>Error: ${error.message}`);
+                }
+            }
+
+            generateFinalReport() {
+                const successRate = this.totalTests > 0 ? (this.passedTests / this.totalTests * 100) : 0;
+                const qualityGrade = successRate >= 95 ? 'A級（完全達成）' : 
+                                  successRate >= 80 ? 'B級（良好）' : 
+                                  successRate >= 60 ? 'C級（要改善）' : 'D級（要再実装）';
+
+                this.logMessage('📋 === Tsumiki品質保証レポート ===', 'info');
+                this.logMessage(`テスト成功率: ${successRate.toFixed(1)}%`, 'info');
+                this.logMessage(`品質グレード: ${qualityGrade}`, 'info');
+                this.logMessage(`bunenjin哲学適合性: ${successRate >= 90 ? '適合' : '要調整'}`, 'info');
+                this.logMessage(`Triple OS対応: ${this.passedTests >= 2 ? '対応済み' : '未対応'}`, 'info');
+                this.logMessage('=================================', 'info');
+            }
+        }
+
+        // テスト実行
+        document.addEventListener('DOMContentLoaded', () => {
+            const tester = new TsumikiServiceWorkerTester();
+            setTimeout(() => tester.runAllTests(), 1000);
+        });
+    </script>
+</body>
+</html>

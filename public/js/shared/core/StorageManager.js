@@ -21,6 +21,11 @@ class StorageManager {
       cacheHits: 0,
       cacheMisses: 0
     };
+    // デバウンス制御
+    this.debounceTimers = new Map();
+    this.lastBackupTime = new Map();
+    this.backupCooldown = 10000; // 10秒間隔でバックアップ制限（さらに制限強化）
+    this.consecutiveBackupCount = new Map(); // 連続バックアップ回数追跡
     this.init();
   }
 
@@ -316,20 +321,41 @@ class StorageManager {
     return criticalKeys.includes(key);
   }
   
-  // データバックアップの作成
+  // データバックアップの作成（強化スロットル付き）
   createBackup(key, data) {
     try {
-      const backupKey = `${key}_backup_${Math.floor(Date.now() / (24 * 60 * 60 * 1000))}`;
+      const now = Date.now();
+      const lastBackup = this.lastBackupTime.get(key) || 0;
+      const consecutiveCount = this.consecutiveBackupCount.get(key) || 0;
+      
+      // 強化スロットル制御：連続バックアップ回数に応じて制限を厳しくする
+      const dynamicCooldown = this.backupCooldown + (consecutiveCount * 2000); // 連続回数 × 2秒追加
+      
+      if (now - lastBackup < dynamicCooldown) {
+        // 連続バックアップ回数を増加
+        this.consecutiveBackupCount.set(key, consecutiveCount + 1);
+        return; // バックアップをスキップ
+      }
+      
+      // バックアップ実行時は連続回数をリセット
+      this.consecutiveBackupCount.set(key, 0);
+      
+      const backupKey = `${key}_backup_${Math.floor(now / (24 * 60 * 60 * 1000))}`;
       // 直接localStorage.setItemを使用してsetItemの無限ループを防ぐ
       const jsonString = JSON.stringify({
         value: data,
-        timestamp: Date.now(),
+        timestamp: now,
         version: this.version,
         originalKey: key,
         backup: true
       });
       localStorage.setItem(this.getKey(backupKey), jsonString);
-      console.log(`💾 Backup created for ${key}`);
+      this.lastBackupTime.set(key, now);
+      
+      // バックアップログも制限
+      if (this.debugMode || window.location.search.includes('verbose=true')) {
+        console.log(`💾 Backup created for ${key} (enhanced throttle)`);
+      }
     } catch (error) {
       console.warn(`⚠️ Failed to create backup for ${key}:`, error);
     }
@@ -933,15 +959,28 @@ class StorageManager {
     return this.getItem('answers') || [];
   }
 
-  // 進行状況の保存
+  // 進行状況の保存（デバウンス付き）
   saveProgress(progress) {
     const progressData = {
       currentQuestionIndex: progress.currentQuestionIndex || 0,
       totalQuestions: progress.totalQuestions || 0,
       completedQuestions: progress.completedQuestions || 0,
+      progressPercentage: progress.progressPercentage || 0,
       lastUpdated: Date.now()
     };
-    return this.setItem('progress', progressData);
+    
+    // デバウンス処理
+    const debounceKey = 'saveProgress';
+    if (this.debounceTimers.has(debounceKey)) {
+      clearTimeout(this.debounceTimers.get(debounceKey));
+    }
+    
+    const timer = setTimeout(() => {
+      this.setItem('progress', progressData);
+      this.debounceTimers.delete(debounceKey);
+    }, 1000); // 1秒のデバウンス
+    
+    this.debounceTimers.set(debounceKey, timer);
   }
 
   // 進行状況の取得

@@ -1026,6 +1026,13 @@
   display: flex;
   align-items: baseline;
   gap: 0.25rem;
+  /* 🎯 bunenjin哲学: 進捗の明確な視認性確保 */
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+  backdrop-filter: blur(8px);
 }
 
 .current-question {
@@ -1033,12 +1040,22 @@
   color: var(--accent-400);
   font-size: 2rem;
   line-height: 1;
+  /* 🎯 bunenjin哲学: 現在位置の強調表示 */
+  background: linear-gradient(135deg, var(--accent-500), var(--accent-400));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6));
+  text-shadow: none;
 }
 
 .total-questions {
   font-size: 1.1rem;
-  color: var(--primary-300);
+  color: var(--primary-200);
   font-weight: 500;
+  /* 🎯 bunenjin哲学: 全体数の明確化 */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  opacity: 0.9;
 }
 
 .question-type-indicator {
@@ -1120,7 +1137,14 @@
 .completed-count {
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--accent-400);
+  color: var(--accent-300);
+  /* 🎯 bunenjin哲学: 完了数の視認性向上 */
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
 }
 
 .completed-label {

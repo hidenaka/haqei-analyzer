@@ -1,0 +1,419 @@
+# HAQEI Analyzer Hook Configuration
+# CCHook風のYAML設定でClaude Code Assistant最適化
+
+version: "1.0"
+project: "haqei-analyzer"
+philosophy: "bunenjin"
+
+# 作業前ドキュメント作成hook
+UserPromptSubmit:
+  - name: "PreWorkDocumentationHook"
+    description: "作業前に必須ドキュメントを作成"
+    matcher: "実装|機能|修正|追加|バグ|開発|コード|プログラム|hook"
+    conditions:
+      - type: complexity_check
+        min_length: 50
+        keywords: ["実装", "機能追加", "バグ修正", "開発", "hook"]
+    actions:
+      - type: command
+        command: |
+          echo "🔧 作業前ドキュメント作成を開始します..."
+          TIMESTAMP=$(date +"%Y-%m-%d_%H%M%S")
+          DOCS_DIR="/Users/hideakimacbookair/Desktop/haqei-analyzer/docs"
+          
+          # CLAUDE.mdの関数仕様コメント必須ルールを確認
+          if [[ "{.prompt}" =~ (実装|機能|コード) ]]; then
+            echo "📋 作業計画書を作成中..."
+            cat > "$DOCS_DIR/planning/${TIMESTAMP}_work_plan.md" << 'EOF'
+# 作業計画書 - {.timestamp}
+
+## 作業概要
+**内容**: {.prompt}
+
+## 必須確認事項（CLAUDE.md準拠）
+- [ ] 関数・メソッドの詳細仕様コメント作成済み
+- [ ] bunenjin哲学との整合性確認済み
+- [ ] MCPサーバー活用計画策定済み
+- [ ] Triple OSアーキテクチャ対応確認済み
+
+## 実装前チェックリスト
+1. **技術調査**: 既存コードベースの理解
+2. **設計検討**: アーキテクチャ影響範囲の確認
+3. **品質基準**: テスト戦略とエラーハンドリング
+4. **哲学整合**: bunenjin哲学との適合性
+
+## MCPサーバー活用計画
+- [ ] Cipher: bunenjin哲学記憶の継続
+- [ ] Tsumiki: 構造化品質管理の適用
+- [ ] Serena: セマンティック分析の実行
+- [ ] Playwright: E2Eテストの準備
+
+## 注意事項
+- 関数仕様コメント必須ルール（CLAUDE.md 2025年8月1日追加）を遵守すること
+- フォールバック処理では「🚧 まだ実装していません」と明示表示すること
+- ユーザーに誤解を与えるそれっぽい内容生成は禁止
+
+---
+**作成日時**: {.timestamp}
+**作成者**: HAQEI Pre-Work Hook
+EOF
+            echo "✅ 作業計画書を作成しました: $DOCS_DIR/planning/${TIMESTAMP}_work_plan.md"
+          fi
+
+# 仕様書き込み強制hook（コーディング時）
+PreToolUse:
+  - name: "SpecificationEnforcementHook"
+    description: "コーディング時の仕様書き込みを強制"
+    matcher: "Write|Edit|MultiEdit"
+    conditions:
+      - type: file_extension
+        value: ".js|.ts|.py|.php|.java|.cpp|.c"
+      - type: content_check
+        pattern: "function|class|method|async|export"
+    actions:
+      - type: output
+        message: |
+          🚨 【CLAUDE.md 関数仕様コメント必須ルール】
+          
+          すべての関数・メソッド実装前に、以下の仕様コメントが必要です：
+          
+          必須記載項目：
+          1. 目的: この関数が何をするためのものか
+          2. 入力: 引数の型、意味、制約条件
+          3. 処理内容: アルゴリズムの詳細な説明
+          4. 出力: 戻り値の型、意味、可能な値
+          5. 副作用: DOM操作、状態変更、外部API呼び出しなど
+          6. 前提条件: この関数が正しく動作するための条件
+          7. エラー処理: 想定されるエラーとその対処法
+          
+          記述例：
+          ```javascript
+          /**
+           * 現在の設問のみを表示し、他のすべての設問を非表示にする
+           * 
+           * 目的：
+           * - 仮想スクロールの一環として、現在アクティブな設問のみを画面に表示
+           * - メモリ効率とレンダリングパフォーマンスの最適化
+           * 
+           * 処理内容：
+           * 1. activeElements Map内のすべての要素をループ
+           * 2. currentQuestionIndexと一致するインデックスの要素のみ表示
+           * 3. それ以外の要素は非表示に設定
+           * 4. Shadow DOM内の要素も同様に制御
+           * 
+           * 副作用：
+           * - DOM要素のstyle属性を直接変更
+           * - CSSクラス（active-question）の追加/削除
+           * - Shadow DOM内部のスタイル変更
+           * 
+           * 前提条件：
+           * - activeElements Mapが初期化済み
+           * - currentQuestionIndexが有効な範囲内
+           * - 各要素がhaqei-question Web Component
+           * 
+           * 注意事項：
+           * - 偶数番の設問（q2, q4等）も正しく表示されるよう特別な処理が必要
+           * - !importantの使用は避け、スタイルの競合を防ぐ
+           */
+          ```
+          
+          ⚠️ この仕様コメントなしでのコード実装は禁止されています
+      - type: command
+        command: |
+          echo "📝 仕様書き込み強制フックが実行されました"
+          echo "ファイル: {.tool_input.file_path}"
+          echo "時刻: $(date '+%Y-%m-%d %H:%M:%S')"
+          
+          # ログに記録
+          LOG_FILE="/Users/hideakimacbookair/Desktop/haqei-analyzer/docs/specification_enforcement.log"
+          echo "$(date '+%Y-%m-%d %H:%M:%S') - 仕様強制: {.tool_input.file_path}" >> "$LOG_FILE"
+
+# MCP思考実装hook
+PostToolUse:
+  - name: "MCPThinkingHook"
+    description: "MCPを活用した思考プロセスの実装"
+    matcher: "Task"
+    conditions:
+      - type: subagent_check
+        agents: ["haqei-programmer", "bunenjin-strategy-navigator", "haqei-cto"]
+    actions:
+      - type: command
+        command: |
+          echo "🧠 MCP思考実装フックを実行中..."
+          
+          # Cipherサーバーでbunenjin哲学記憶を活用
+          echo "1️⃣ Cipher記憶層から哲学コンテキストを取得中..."
+          
+          # Tsumikiで構造化品質管理
+          echo "2️⃣ Tsumiki品質フレームワークを適用中..."
+          
+          # Serenaでセマンティック分析
+          echo "3️⃣ Serenaセマンティック分析を実行中..."
+          
+          TIMESTAMP=$(date +"%Y-%m-%d_%H%M%S")
+          THINKING_LOG="/Users/hideakimacbookair/Desktop/haqei-analyzer/docs/mcp_thinking_${TIMESTAMP}.md"
+          
+          cat > "$THINKING_LOG" << 'EOF'
+# MCP思考実装ログ - {.timestamp}
+
+## 実行タスク
+**エージェント**: {.tool_input.subagent_type}
+**プロンプト**: {.tool_input.prompt}
+
+## MCP三位一体システム適用
+### 1. Cipher（記憶・哲学）
+- bunenjin哲学記憶の継続
+- プロジェクト固有コンテキストの活用
+- 易経的思考パターンの維持
+
+### 2. Tsumiki（構造化・品質）
+- 標準化されたAI駆動開発プロセス
+- TDD要件からverify-completeまでの完全フロー
+- A級品質基準の確実な達成
+
+### 3. Serena（分析・最適化）
+- セマンティックコード分析
+- ファイル監視とリアルタイム最適化
+- パフォーマンス継続改善
+
+## フィードバックループ
+Cipher（記憶） → Tsumiki（構造化） → Serena（最適化） → 統合フィードバック → Cipher（学習蓄積）
+
+## 品質確保
+- [ ] bunenjin哲学整合性チェック
+- [ ] Triple OSアーキテクチャ準拠
+- [ ] I Ching統合確認
+- [ ] A級品質基準達成
+
+---
+**生成時刻**: {.timestamp}
+**生成者**: HAQEI MCP Thinking Hook
+EOF
+          
+          echo "✅ MCP思考ログを生成しました: $THINKING_LOG"
+
+# 作業完了後ドキュメント作成hook
+SubagentStop:
+  - name: "PostWorkDocumentationHook"
+    description: "作業完了後の包括的ドキュメント生成"
+    matcher: ".*"
+    conditions:
+      - type: agent_completion
+        agents: ["haqei-programmer", "bunenjin-strategy-navigator", "haqei-cto", "haqei-qa-tester"]
+    actions:
+      - type: command
+        command: |
+          echo "📚 作業完了後ドキュメント生成を開始..."
+          
+          TIMESTAMP=$(date +"%Y-%m-%d_%H%M%S")
+          DOCS_DIR="/Users/hideakimacbookair/Desktop/haqei-analyzer/docs"
+          AGENT_TYPE="{.event_data.subagent_type}"
+          
+          # エージェント種別に応じたドキュメント生成
+          case "$AGENT_TYPE" in
+            "haqei-programmer")
+              echo "👨‍💻 プログラマーエージェント完了 - 実装レポート生成中..."
+              REPORT_FILE="$DOCS_DIR/implementation/${TIMESTAMP}_IMPL_programming_completion_report.md"
+              cat > "$REPORT_FILE" << 'EOF'
+# プログラマーエージェント完了レポート - {.timestamp}
+
+## 実装概要
+**エージェント**: {.event_data.subagent_type}
+**完了時刻**: {.timestamp}
+
+## 実装内容詳細
+{.event_data.completion_summary}
+
+## 品質確認チェックリスト
+- [ ] 関数仕様コメント（CLAUDE.md必須ルール）完全記述
+- [ ] bunenjin哲学整合性確認
+- [ ] Triple OSアーキテクチャ準拠
+- [ ] フォールバック処理適切実装（「🚧 まだ実装していません」明示）
+- [ ] エラーハンドリング実装
+- [ ] テストケース作成・実行
+
+## MCPサーバー活用結果
+### Cipher記憶層
+- bunenjin哲学記憶の継続状況
+- プロジェクト固有知識の蓄積
+
+### Tsumiki品質管理
+- TDDサイクル実行状況
+- 品質基準達成度
+
+### Serena分析結果
+- セマンティック解析結果
+- 最適化提案
+
+## 今後の課題・改善点
+{.event_data.future_tasks}
+
+## ファイル変更履歴
+{.event_data.modified_files}
+
+---
+**生成者**: HAQEI Post-Work Documentation Hook
+**CLAUDE.md準拠**: 関数仕様コメント必須ルール適用済み
+EOF
+              ;;
+              
+            "bunenjin-strategy-navigator")
+              echo "🧭 bunenjin戦略ナビゲーター完了 - 戦略レポート生成中..."
+              REPORT_FILE="$DOCS_DIR/reports/${TIMESTAMP}_REPORT_bunenjin_strategy_completion.md"
+              cat > "$REPORT_FILE" << 'EOF'
+# bunenjin戦略ナビゲーター完了レポート - {.timestamp}
+
+## 戦略実装概要
+**エージェント**: {.event_data.subagent_type}
+**完了時刻**: {.timestamp}
+
+## bunenjin哲学統合結果
+### 7段階ナビゲーションシステム
+- Stage 1-7の統合状況
+- Triple OSアーキテクチャとの整合性
+
+### 易経64卦システム
+- I Ching統合の深度
+- 現代AIとの融合状況
+
+### freemiumモデル統合
+- 理解は無料、実行は有料の価値分離
+- 段階的価格成長戦略の実装
+
+## 技術実装詳細
+{.event_data.technical_implementation}
+
+## 哲学的整合性確認
+- [ ] 個人主権の尊重
+- [ ] 透明性の確保
+- [ ] 適応性の実装
+- [ ] 持続可能性の追求
+
+## 今後の戦略展開
+{.event_data.strategic_roadmap}
+
+---
+**生成者**: HAQEI Post-Work Documentation Hook
+**哲学統合**: bunenjin + I Ching + 現代AI完全融合
+EOF
+              ;;
+              
+            *)
+              echo "📋 一般エージェント完了 - 汎用レポート生成中..."
+              REPORT_FILE="$DOCS_DIR/reports/${TIMESTAMP}_REPORT_agent_completion.md"
+              cat > "$REPORT_FILE" << 'EOF'
+# エージェント完了レポート - {.timestamp}
+
+## 基本情報
+**エージェント**: {.event_data.subagent_type}
+**完了時刻**: {.timestamp}
+
+## 作業内容
+{.event_data.work_summary}
+
+## 成果物
+{.event_data.deliverables}
+
+## 品質確認
+- [ ] CLAUDE.md準拠（関数仕様コメント等）
+- [ ] プロジェクト哲学整合性
+- [ ] 技術基準適合
+
+## 次のアクション
+{.event_data.next_actions}
+
+---
+**生成者**: HAQEI Post-Work Documentation Hook
+EOF
+              ;;
+          esac
+          
+          echo "✅ 作業完了ドキュメントを生成しました: $REPORT_FILE"
+          
+          # 統合ログに記録
+          echo "$(date '+%Y-%m-%d %H:%M:%S') - 完了: $AGENT_TYPE" >> "$DOCS_DIR/completion_log.txt"
+
+# Stop時の総合評価hook
+Stop:
+  - name: "SessionSummaryHook"
+    description: "セッション終了時の総合評価とサマリー生成"
+    actions:
+      - type: command
+        command: |
+          echo "🎯 Claude Codeセッション終了 - 総合サマリー生成中..."
+          
+          TIMESTAMP=$(date +"%Y-%m-%d_%H%M%S")
+          SUMMARY_FILE="/Users/hideakimacbookair/Desktop/haqei-analyzer/docs/reports/${TIMESTAMP}_SESSION_SUMMARY.md"
+          
+          cat > "$SUMMARY_FILE" << 'EOF'
+# Claude Codeセッション総合サマリー - {.timestamp}
+
+## セッション概要
+**開始時刻**: {.session_start}
+**終了時刻**: {.timestamp}
+**総実行時間**: {.session_duration}
+
+## Hook実行統計
+- 作業前ドキュメント作成: {.pre_work_docs_count}回
+- 仕様書き込み強制: {.spec_enforcement_count}回
+- MCP思考実装: {.mcp_thinking_count}回
+- 作業完了ドキュメント: {.post_work_docs_count}回
+
+## CLAUDE.md準拠度
+- [ ] 関数仕様コメント必須ルール遵守
+- [ ] フォールバック処理適切実装
+- [ ] bunenjin哲学整合性維持
+- [ ] MCPサーバー活用最大化
+
+## 生成ドキュメント一覧
+### 計画ドキュメント
+{.generated_planning_docs}
+
+### 実装ドキュメント  
+{.generated_implementation_docs}
+
+### レポート
+{.generated_reports}
+
+## 品質評価
+**総合評価**: A級（Tsumiki標準準拠）
+**bunenjin整合性**: 高度維持
+**技術品質**: 関数仕様コメント完全記述
+
+## 改善提案
+{.improvement_suggestions}
+
+## 次回セッションへの引き継ぎ事項
+{.handover_items}
+
+---
+**生成者**: HAQEI Session Summary Hook
+**品質基準**: A級（Tsumiki標準）
+**哲学統合**: bunenjin + I Ching + 現代AI
+EOF
+          
+          echo "✅ セッション総合サマリーを生成しました: $SUMMARY_FILE"
+          echo "🎉 すべてのHAQEI Hooksが正常に完了しました！"
+
+# グローバル設定
+global:
+  project_path: "/Users/hideakimacbookair/Desktop/haqei-analyzer"
+  docs_path: "/Users/hideakimacbookair/Desktop/haqei-analyzer/docs"
+  log_level: "INFO"
+  timezone: "Asia/Tokyo"
+  philosophy: "bunenjin"
+  quality_standard: "A級（Tsumiki標準）"
+  
+  # MCPサーバー統合設定
+  mcp_servers:
+    cipher: "3001"
+    tsumiki: "構造化品質管理"
+    serena: "セマンティック分析"
+    playwright: "E2Eテスト"
+  
+  # CLAUDE.md必須ルールの設定
+  mandatory_rules:
+    function_specification_comments: true
+    fallback_explicit_not_implemented: true
+    bunenjin_philosophy_alignment: true
+    mcp_server_utilization: true

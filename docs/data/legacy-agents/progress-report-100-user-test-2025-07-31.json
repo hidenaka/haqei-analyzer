@@ -1,0 +1,44 @@
+{
+  "projectId": "100-user-test-2025-07-31",
+  "reportGeneratedAt": "2025/8/1 4:35:22",
+  "projectDuration": "0時間0分",
+  "currentStatus": {
+    "phase": 4,
+    "step": "完了",
+    "completionRate": 62
+  },
+  "dataGeneration": {
+    "totalGenerated": 100,
+    "groupsCompleted": 4,
+    "nextGroup": 5,
+    "savedFiles": 4
+  },
+  "qualitySummary": {
+    "averageSatisfaction": 4,
+    "totalIssues": 0,
+    "groupsAnalyzed": 4
+  },
+  "issues": {
+    "errors": 0,
+    "warnings": 1,
+    "latestIssues": [
+      {
+        "message": "統合データファイル生成に失敗",
+        "context": null,
+        "timestamp": "2025/8/1 4:35:22"
+      }
+    ]
+  },
+  "continuity": {
+    "canContinue": false,
+    "issues": [
+      "Group 1 のデータファイルが見つかりません: test-users-group-1-2025-07-31.json",
+      "Group 2 のデータファイルが見つかりません: test-users-group-2-2025-07-31.json",
+      "Group 3 のデータファイルが見つかりません: test-users-group-3-2025-07-31.json",
+      "Group 4 のデータファイルが見つかりません: test-users-group-4-2025-07-31.json"
+    ],
+    "nextActions": [
+      "プロジェクト完了"
+    ]
+  }
+}

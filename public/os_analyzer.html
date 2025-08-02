@@ -25,6 +25,10 @@
     <link rel="stylesheet" href="css/strategic-dashboard.css" />
     <link rel="stylesheet" href="css/premium-integration.css" />
     <link rel="stylesheet" href="css/critical-productive-card.css" />
+    <link rel="stylesheet" href="css/behavioral-insights.css" />
+    <link rel="stylesheet" href="css/constellation-view.css" />
+    <link rel="stylesheet" href="css/behavioral-flow-timeline.css" />
+    <link rel="stylesheet" href="css/unified-design.css" />
     
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -96,62 +100,115 @@
       </section>
     </div>
 
-    <!-- 基盤ライブラリ -->
+    <!-- Error Display Container -->
+    <div id="data-manager-errors" class="error-container" style="display: none;">
+      <!-- ErrorHandler will render error messages here -->
+    </div>
+
+    <!-- 🚀 Ultra Critical Path - 絶対必要最小限のみ (50KB以下目標) -->
     <script src="./js/shared/core/BaseComponent.js"></script>
-    <script src="./js/shared/core/StorageManager.js"></script>
-    <script src="./js/shared/core/DataManager.js"></script>
-    <script src="./js/shared/core/ErrorHandler.js"></script>
-    <script src="./js/shared/core/DiagnosisDataFormat.js"></script>
-    <script src="./js/shared/core/CrossPlatformBridge.js"></script>
-    <script src="./js/shared/utils/validators.js"></script>
-    <script src="./js/shared/utils/animations.js"></script>
-
-    <!-- データリソース -->
+    <script src="./js/shared/core/MicroStorageManager.js"></script>
+    <script src="./js/shared/core/BridgeStorageManager.js"></script>
+    <script src="./js/shared/core/SimpleStorageManager.js"></script>
+    <script src="./js/shared/core/MicroDataManager.js"></script>
     <script src="./js/shared/data/questions.js"></script>
-    <script src="./js/shared/data/vectors.js"></script>
-    <script src="./js/data/data_box.js"></script>
-    <script src="./js/data/compatibility_definition.js"></script>
-    <script src="./assets/os_manual_database.js"></script>
-    <script src="./js/os-analyzer/data/hexagrams.js"></script>
-    <script src="./js/os-analyzer/data/hexagram_details.js"></script>
-    <script src="./js/os-analyzer/data/compatibility_matrix.js"></script>
-    <script src="./js/os-analyzer/data/action_plans.js"></script>
-    <script src="./js/os-analyzer/data/iching_relationships.js"></script>
-
-    <!-- コアエンジン（依存関係順） -->
-    <!-- Phase 5.1: 統計システム根本改革 -->
-    <script src="js/os-analyzer/core/StatisticalEngine.js"></script>
-    <script src="js/os-analyzer/utils/ScientificFormatter.js"></script>
-    <script src="js/os-analyzer/core/Calculator.js"></script>
-    <script src="js/os-analyzer/engines/CompatibilityDataLoader.js"></script>
-    <script src="js/os-analyzer/core/Engine.js"></script>
-    <!-- 🔯 易経ウルトラシンク・ロジック20 -->
-    <script src="js/os-analyzer/core/IChingUltraSyncLogic.js"></script>
-    <script src="js/os-analyzer/core/TripleOSEngine.js"></script>
+    <script src="./js/os-analyzer/core/PrecompiledQuestions.js"></script>
     
-    <!-- Phase 4: 批判的思考支援エンジン -->
-    <script src="js/os-analyzer/core/ShadowAnalyzer.js"></script>
-    <script src="js/os-analyzer/core/CriticalThinkingEngine.js"></script>
-    <script src="js/os-analyzer/core/LowScoreAnalyzer.js"></script>
-    <script src="js/os-analyzer/core/TransparencyEngine.js"></script>
-    <script src="js/os-analyzer/core/DynamicAnalyzer.js"></script>
-    <script src="js/os-analyzer/core/AdaptiveLanguage.js"></script>
-    
-    <script src="js/os-analyzer/core/PersonalStrategyAI.js"></script>
-    <script src="js/os-analyzer/engines/CompatibilityEngine.js"></script>
-    <script src="js/os-analyzer/engines/InsightEngine.js"></script>
-
-    <!-- UIコンポーネント -->
+    <!-- 🚀 Core UI - 超高速コンポーネント -->
     <script src="js/os-analyzer/components/WelcomeScreen.js"></script>
-    <script src="js/os-analyzer/components/QuestionFlow.js"></script>
-    <script src="js/os-analyzer/components/AnalysisView.js"></script>
-    <script src="js/os-analyzer/components/ResultsView.js"></script>
-    <script src="js/components/TripleOSResultsView.js"></script>
-    <script src="js/components/TripleOSStrategicView.js"></script>
-    <script src="js/components/InteractiveConnectionsVisualizer.js"></script>
-    <script src="js/components/InsightPanel.js"></script>
-    <script src="js/components/CriticalProductiveCard.js"></script>
+    <script src="js/os-analyzer/components/HaqeiQuestionElement.js"></script>
+    <script src="js/os-analyzer/components/VirtualQuestionFlow.js"></script>
+    
+    <!-- ⏳ ALL OTHER SCRIPTS - 設問完了後に動的読み込み -->
+    <!-- 以下は全て設問完了後またはオンデマンドで読み込み -->
+    
+    <!-- 🚫 全ての非必須スクリプトをオンデマンドロードに変更 -->
+    <!-- これらは全てapp.jsの動的ロードに移行 -->
 
+    <!-- デバッグ用ボタン -->
+    <div id="debug-panel" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; display: none;">
+      <button onclick="debugTripleOS()" style="background: #444; color: #fff; border: 1px solid #666; padding: 5px 10px; margin: 2px; cursor: pointer;">Triple OS デバッグ</button>
+      <button onclick="checkAnswerFormat()" style="background: #444; color: #fff; border: 1px solid #666; padding: 5px 10px; margin: 2px; cursor: pointer;">回答フォーマット確認</button>
+      <button onclick="toggleDebugPanel()" style="background: #600; color: #fff; border: 1px solid #800; padding: 5px 10px; margin: 2px; cursor: pointer;">閉じる</button>
+    </div>
+    
+    <!-- Service Worker 登録 -->
+    <script>
+      // デバッグパネル表示（Ctrl+Shift+D）
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+          document.getElementById('debug-panel').style.display = 'block';
+        }
+      });
+      
+      function toggleDebugPanel() {
+        document.getElementById('debug-panel').style.display = 'none';
+      }
+      
+      async function debugTripleOS() {
+        console.log('🔬 Triple OS デバッグ開始');
+        
+        try {
+          // 現在の回答を確認
+          const answers = JSON.parse(localStorage.getItem('haqei_answers') || '[]');
+          console.log('📝 現在の回答数:', answers.length);
+          
+          if (answers.length > 0) {
+            console.log('📄 回答フォーマット例:', answers[0]);
+            
+            // 回答フォーマットを修正
+            const fixedAnswers = answers.map(answer => {
+              if (!answer.selectedChoice && answer.selectedValue) {
+                return {
+                  ...answer,
+                  selectedChoice: `${answer.questionId}${answer.selectedValue.toLowerCase()}`,
+                  choiceText: answer.choiceText || `選択肢${answer.selectedValue}`
+                };
+              }
+              return answer;
+            });
+            
+            console.log('🔧 修正後フォーマット例:', fixedAnswers[0]);
+            localStorage.setItem('haqei_answers', JSON.stringify(fixedAnswers));
+            
+            // 直接分析を実行
+            if (window.proceedToAnalysis) {
+              console.log('🚀 分析を直接実行...');
+              window.proceedToAnalysis(fixedAnswers);
+            } else {
+              console.log('⚠️ proceedToAnalysis が見つかりません');
+            }
+          } else {
+            console.log('⚠️ 回答データがありません');
+          }
+        } catch (error) {
+          console.error('❌ デバッグエラー:', error);
+        }
+      }
+      
+      function checkAnswerFormat() {
+        const answers = JSON.parse(localStorage.getItem('haqei_answers') || '[]');
+        console.log('📊 回答フォーマット分析:');
+        console.log('総数:', answers.length);
+        
+        if (answers.length > 0) {
+          const sample = answers[0];
+          console.log('サンプル:', sample);
+          console.log('必要なフィールド:');
+          console.log('- questionId:', !!sample.questionId);
+          console.log('- selectedValue:', !!sample.selectedValue);
+          console.log('- selectedChoice:', !!sample.selectedChoice);
+          console.log('- choiceText:', !!sample.choiceText);
+        }
+      }
+      
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/haqei-sw.js')
+          .then(registration => console.log('✅ Service Worker registered'))
+          .catch(error => console.log('❌ Service Worker registration failed:', error));
+      }
+    </script>
+    
     <!-- アプリケーション初期化 -->
     <script src="js/app.js"></script>
 

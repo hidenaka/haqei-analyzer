@@ -18,8 +18,13 @@ class ResultsView extends BaseComponent {
     // 🔬 Phase 5.1: 科学的フォーマッター初期化
     this.formatter = window.ScientificFormatter ? new window.ScientificFormatter() : null;
     this.statisticalEngine = window.StatisticalEngine ? new window.StatisticalEngine() : null;
+    this.behavioralEngine = window.BehavioralInsightEngine ? new window.BehavioralInsightEngine() : null;
     
-    console.log("🔬 ResultsView initialized with scientific formatting:", !!this.formatter);
+    console.log("✨ ResultsView initialized with information hierarchy:", !!this.formatter);
+    
+    // 🎯 画面リサイズ対応
+    this.resizeHandler = this.handleResize.bind(this);
+    window.addEventListener('resize', this.resizeHandler);
   }
 
   get defaultOptions() {
@@ -74,25 +79,40 @@ class ResultsView extends BaseComponent {
       return;
     }
 
-    // 🚀 最適化: 基本構造を即座に表示
+    // ✨ 情報階層最適化: bunenjin哲学に基づく段階的表示構造
     this.container.innerHTML = `
-      <div class="results-container loading">
+      <div class="results-container loading information-hierarchy">
         <div class="results-header">
-          <h2 class="results-title">🎯 あなたの人格OS</h2>
-          <div class="primary-result skeleton">
-            <div class="loading-placeholder">分析結果を表示中...</div>
+          <h2 class="results-title priority-critical">✨ あなたの行動パターンが見えてきました</h2>
+          <div class="key-insight insight-container critical skeleton">
+            <div class="loading-skeleton loading-placeholder">あなたの行動の核心的理由を分析中...</div>
           </div>
         </div>
         
-        <div class="results-content">
-          <div class="dimension-chart skeleton">
-            <h3>8次元バランス</h3>
-            <div class="loading-placeholder">データ読み込み中...</div>
+        <div class="results-content information-grid">
+          <div class="behavioral-insights insight-container high skeleton">
+            <h3 class="priority-high">💡 「なぜあんな行動をしたのか？」の答え</h3>
+            <div class="loading-skeleton loading-placeholder">行動パターンを分析中...</div>
           </div>
           
-          <div class="insights-section skeleton">
-            <h3>深い洞察</h3>
-            <div class="loading-placeholder">洞察を生成中...</div>
+          <div class="constellation-section insight-container high skeleton">
+            <h3 class="priority-high">✨ あなたの3つの人格OS - 星座図</h3>
+            <div class="loading-skeleton loading-placeholder">星座表示を準備中...</div>
+          </div>
+          
+          <div class="behavioral-flow-section insight-container medium skeleton">
+            <h3 class="priority-medium">🎭 行動フローの分析 - あの時なぜその行動を？</h3>
+            <div class="loading-placeholder">行動の時系列フローを分析中...</div>
+          </div>
+          
+          <div class="action-suggestions insight-container low skeleton">
+            <h3 class="priority-low">🎯 今日から試せること</h3>
+            <div class="loading-skeleton loading-placeholder">具体的な改善提案を準備中...</div>
+          </div>
+          
+          <div class="detailed-analysis skeleton" style="margin-top: 2rem;">
+            <h3>📊 詳細分析（optional）</h3>
+            <div class="loading-placeholder">詳細データを読み込み中...</div>
           </div>
         </div>
       </div>
@@ -101,24 +121,685 @@ class ResultsView extends BaseComponent {
 
   // 🚀 新規: 段階的データ読み込み
   async loadDataProgressively() {
-    // 🚀 最適化: 段階1 - 基本情報
-    await this.loadPrimaryResult();
+    // 🧠 Sequential OS Introduction System - 認知負荷最小化
     
-    // 🚀 最適化: 段階2 - 次元データ
-    await this.loadDimensionData();
+    // Stage 1: Single Focus - Engine OS（本質的なあなた）のみ提示
+    await this.introduceEngineOS();
+    await this.waitForEngagement(3000);
     
-    // 🚀 最適化: 段階3 - 洞察データ
-    await this.loadInsightData();
+    // Stage 2: Contextual Comparison - Interface OS（でも社会では...）
+    await this.revealInterfaceContrast();
+    await this.measureAhaResponse();
     
-    // 🚀 最適化: 段階4 - その他の詳細
-    await this.loadAdditionalData();
+    // Stage 3: Complete Picture - Safe Mode OS（そして守るときは...）  
+    await this.integrateSafeModeOS();
     
-    // 🚀 最適化: 最終段階 - イベントバインド
+    // Stage 4: Synthesis - 統合された気づき（だから私は...）
+    await this.synthesizeTripleInsight();
+    
+    // Stage 5: Action Bridge - 行動変容への橋渡し
+    await this.bridgeToAction();
+    await this.loadDetailedAnalysis();
+    
+    // 🚀 最終段階 - イベントバインドとクリーンアップ
     this.bindEvents();
+    this.cleanupAnimations();
+    this.enableInteractivity();
   }
 
-  // 🚀 新規: 基本結果読み込み
-  async loadPrimaryResult() {
+  // ⏱️ 新規: タイミング制御用delay関数
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // 🧹 新規: アニメーション完了後のクリーンアップ
+  cleanupAnimations() {
+    // ローディング状態を解除
+    this.container.querySelector('.results-container')?.classList.remove('loading');
+    
+    // GPU加速を無効化してパフォーマンスを最適化
+    const animatedElements = this.container.querySelectorAll('.hierarchy-priority-1, .hierarchy-priority-2, .hierarchy-priority-3, .hierarchy-priority-4');
+    animatedElements.forEach(el => {
+      el.classList.add('hierarchy-revealed');
+    });
+    
+    console.log('✅ アニメーション最適化完了');
+  }
+
+  // 🎯 新規: インタラクティブ機能の有効化
+  enableInteractivity() {
+    // 情報密度の自動調整
+    this.adjustInformationDensity();
+    
+    // Progressive Disclosure機能の有効化
+    this.initializeProgressiveDisclosure();
+    
+    console.log('✅ インタラクティブ機能有効化完了');
+  }
+
+  // 📱 新規: 情報密度の自動調整
+  adjustInformationDensity() {
+    const container = this.container.querySelector('.results-container');
+    const screenWidth = window.innerWidth;
+    
+    // 画面サイズに応じた情報密度クラスの設定
+    container.classList.remove('information-density-high', 'information-density-medium', 'information-density-low');
+    
+    if (screenWidth < 768) {
+      container.classList.add('information-density-low');
+    } else if (screenWidth < 1200) {
+      container.classList.add('information-density-medium');
+    } else {
+      container.classList.add('information-density-high');
+    }
+    
+    console.log(`📱 Information density adjusted for screen width: ${screenWidth}px`);
+  }
+
+  // 🔄 新規: Progressive Disclosureの初期化
+  initializeProgressiveDisclosure() {
+    const triggers = this.container.querySelectorAll('.disclosure-trigger');
+    
+    triggers.forEach(trigger => {
+      // アクセシビリティ属性の設定
+      trigger.setAttribute('role', 'button');
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.setAttribute('tabindex', '0');
+      
+      // キーボード操作対応
+      trigger.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.toggleDisclosure(trigger);
+        }
+      });
+    });
+    
+    console.log('🔄 Progressive Disclosure initialized');
+  }
+
+  // 📱 新規: レスポンシブ対応の画面リサイズ処理
+  handleResize() {
+    // 情報密度の再調整
+    this.adjustInformationDensity();
+    
+    // Triple OS星座の位置調整（モバイル対応）
+    const constellation = this.container.querySelector('.triple-os-constellation');
+    if (constellation) {
+      this.adjustConstellationLayout();
+    }
+  }
+
+  // 🌟 星座レイアウト調整
+  adjustConstellationLayout() {
+    const screenWidth = window.innerWidth;
+    const osStars = this.container.querySelectorAll('.os-star');
+    
+    if (screenWidth < 768) {
+      // モバイル: 縦配置
+      osStars.forEach((star, index) => {
+        star.style.position = 'relative';
+        star.style.top = 'auto';
+        star.style.left = 'auto';
+        star.style.margin = '1rem auto';
+        star.style.display = 'block';
+      });
+    } else {
+      // デスクトップ: 星座配置
+      osStars.forEach(star => {
+        star.style.position = 'absolute';
+        star.style.margin = '';
+        star.style.display = 'flex';
+      });
+    }
+  }
+
+  // 📱 新規: モバイル用折りたたみ機能
+  enableCollapsibleSections(enable) {
+    const lowPriorityElements = this.container.querySelectorAll('.priority-low');
+    
+    lowPriorityElements.forEach(el => {
+      if (enable) {
+        // モバイルでは低優先度情報を折りたたみ可能に
+        if (!el.classList.contains('collapsible')) {
+          el.classList.add('collapsible');
+          el.addEventListener('click', this.handleCollapsibleClick.bind(this));
+        }
+      } else {
+        // デスクトップ・タブレットでは折りたたみ解除
+        el.classList.remove('collapsible', 'expanded');
+        el.removeEventListener('click', this.handleCollapsibleClick.bind(this));
+      }
+    });
+  }
+
+  // 📱 新規: 折りたたみクリックハンドラー
+  handleCollapsibleClick(event) {
+    const element = event.target.closest('.collapsible');
+    if (element) {
+      element.classList.toggle('expanded');
+    }
+  }
+
+  // ⚡ 新規: パフォーマンス最適化用debounce関数
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  // 🧠 Stage 1: Engine OS（本質的なあなた）単独紹介
+  async introduceEngineOS() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const keyInsightEl = this.container.querySelector('.key-insight');
+        const engineOS = this.analysisResult.engineOS || this.analysisResult.primaryOS;
+        
+        if (keyInsightEl && engineOS) {
+          keyInsightEl.innerHTML = `
+            <div class="engine-os-introduction fade-in">
+              <div class="stage-indicator">Step 1/5</div>
+              <h3>🔧 あなたの「本質的なOS」</h3>
+              <div class="os-card-large engine-focus">
+                <div class="os-name">${engineOS.osName || engineOS.hexagramInfo?.name || "分析中"}</div>
+                <div class="os-description">${engineOS.hexagramInfo?.description || "あなたの核となる価値観・本質"}</div>
+                <div class="os-match-rate">${this.formatScientificPercentage(engineOS.matchPercentage || engineOS.strength || 0)}</div>
+              </div>
+              <div class="single-focus-explanation">
+                <p><strong>これが「一人の時のあなた」「心の奥底のあなた」です。</strong></p>
+                <p>家族といる時、一人で考えている時、本当に大切な決断をする時に現れる姿です。</p>
+                <div class="engagement-prompt">
+                  <span>💭 この特徴、思い当たりますか？</span>
+                </div>
+              </div>
+            </div>
+          `;
+          keyInsightEl.classList.remove('skeleton');
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🧠 Stage 2: Interface OS（社会的な違い）の対比提示
+  async revealInterfaceContrast() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const behavioralInsightsEl = this.container.querySelector('.behavioral-insights');
+        const engineOS = this.analysisResult.engineOS || this.analysisResult.primaryOS;
+        const interfaceOS = this.analysisResult.interfaceOS;
+        
+        if (behavioralInsightsEl && engineOS && interfaceOS) {
+          behavioralInsightsEl.innerHTML = `
+            <div class="interface-contrast-reveal fade-in">
+              <div class="stage-indicator">Step 2/5</div>
+              <h3>🎭 でも、社会では別の姿に...</h3>
+              
+              <div class="contrast-cards">
+                <div class="contrast-card personal">
+                  <h4>👤 個人的なあなた</h4>
+                  <div class="os-mini-card">${engineOS.osName || "本質的OS"}</div>
+                  <p>家族や親しい人の前での姿</p>
+                </div>
+                
+                <div class="contrast-arrow">→</div>
+                
+                <div class="contrast-card social">
+                  <h4>🏢 社会的なあなた</h4>
+                  <div class="os-mini-card interface">${interfaceOS.osName || "社会的OS"}</div>
+                  <p>職場や初対面の人の前での姿</p>
+                </div>
+              </div>
+              
+              <div class="aha-moment-trigger">
+                <p><strong>「なるほど！だから職場と家では私が違うのか」</strong></p>
+                <p>この使い分けは自然で健全なことです。みんなが無意識にやっています。</p>
+              </div>
+              
+              <!-- Triple OS Constellation View -->
+              <div class="constellation-section">
+                <h4>🌟 あなたの3つのOSの関係</h4>
+                ${this.renderTripleOSConstellation()}
+                <p class="constellation-note">星をクリックすると詳細が表示されます</p>
+              </div>
+            </div>
+          `;
+          behavioralInsightsEl.classList.remove('skeleton');
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🧠 Stage 3: Safe Mode OS（防御システム）の統合
+  async integrateSafeModeOS() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const actionSuggestionsEl = this.container.querySelector('.action-suggestions');
+        const safeModeOS = this.analysisResult.safeModeOS;
+        
+        if (actionSuggestionsEl && safeModeOS) {
+          actionSuggestionsEl.innerHTML = `
+            <div class="safemode-integration fade-in">
+              <div class="stage-indicator">Step 3/5</div>
+              <h3>🛡️ そして、守る時のあなた</h3>
+              
+              <div class="protection-explanation">
+                <div class="safemode-card">
+                  <div class="os-name">${safeModeOS.osName || "防御OS"}</div>
+                  <div class="os-role">困難・ストレス・脅威から自分を守る時に発動</div>
+                </div>
+                
+                <div class="protection-examples">
+                  <h4>💡 こんな時に発動します</h4>
+                  <ul>
+                    <li>批判されそうな時</li>
+                    <li>失敗を恐れる時</li>
+                    <li>プレッシャーを感じる時</li>
+                    <li>不安や心配がある時</li>
+                  </ul>
+                </div>
+                
+                <div class="healthy-defense">
+                  <p><strong>🌟 これは「悪いもの」ではありません</strong></p>
+                  <p>あなたを守るための大切な防御機制です。適切に理解することで、より健全に活用できます。</p>
+                </div>
+              </div>
+            </div>
+          `;
+          actionSuggestionsEl.classList.remove('skeleton');
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🧠 Stage 4: 統合された気づき（だから私は...）
+  async synthesizeTripleInsight() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const detailedAnalysisEl = this.container.querySelector('.detailed-analysis');
+        
+        if (detailedAnalysisEl && this.behavioralEngine) {
+          const insights = this.behavioralEngine.generateBehavioralInsights(this.analysisResult);
+          
+          detailedAnalysisEl.innerHTML = `
+            <div class="triple-synthesis fade-in">
+              <div class="stage-indicator">Step 4/5</div>
+              <h3>✨ 「だから私はあの時...」の答え</h3>
+              
+              <div class="insight-revelation">
+                <div class="revelation-card">
+                  <h4>🎯 あなたの行動パターンの全体像</h4>
+                  <p class="main-insight">${insights.keyInsight.content}</p>
+                  
+                  <div class="behavioral-examples">
+                    <h5>具体例：こんな時のあなた</h5>
+                    ${insights.behavioralPatterns.map(pattern => `
+                      <div class="pattern-example">
+                        <strong>${pattern.situation}</strong>
+                        <p>${pattern.pattern}</p>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+              
+              <div class="understanding-check">
+                <p>💭 「そうそう、まさにそれ！」と思える部分はありましたか？</p>
+              </div>
+              
+              <!-- Behavioral Flow Timeline -->
+              ${this.generateBehavioralFlowVisualization()}
+            </div>
+          `;
+          detailedAnalysisEl.classList.remove('skeleton');
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🧠 Stage 5: 行動変容への橋渡し
+  async bridgeToAction() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        // 新しい要素を作成して追加
+        const actionBridgeEl = document.createElement('div');
+        actionBridgeEl.className = 'action-bridge-section';
+        actionBridgeEl.innerHTML = `
+          <div class="action-bridge fade-in">
+            <div class="stage-indicator">Step 5/5</div>
+            <h3>🚀 今日から変われること</h3>
+            
+            <div class="transformation-pathway">
+              <div class="pathway-step">
+                <h4>🎯 今日から意識すること</h4>
+                <p>「今、どのOSで行動しているかな？」と気づく練習をしてみてください。</p>
+              </div>
+              
+              <div class="pathway-step">
+                <h4>🌱 今週試せること</h4>
+                <p>意識的に本質的なあなた（Engine OS）で決断する場面を1つ作ってみてください。</p>
+              </div>
+              
+              <div class="pathway-step">
+                <h4>🔮 さらに深く知りたい方へ</h4>
+                <p>実際の悩みや状況を入力して、あなた専用の戦略的アドバイスを受けてみませんか？</p>
+                <button class="btn btn-primary" id="explore-future-simulator">
+                  Future Simulatorで具体的な戦略を立てる
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        this.container.appendChild(actionBridgeEl);
+        resolve();
+      });
+    });
+  }
+
+  // ユーティリティ：エンゲージメント待機
+  async waitForEngagement(duration) {
+    return new Promise(resolve => {
+      setTimeout(resolve, duration);
+    });
+  }
+
+  // ユーティリティ：Ahaモーメント測定（今後の拡張用）
+  async measureAhaResponse() {
+    // 今後、アイトラッキングやクリック測定を実装予定
+    return new Promise(resolve => {
+      setTimeout(resolve, 2000);
+    });
+  }
+
+  // 🌟 Triple OS Constellation View レンダリング
+  renderTripleOSConstellation() {
+    const engineOS = this.analysisResult.engineOS || this.analysisResult.primaryOS;
+    const interfaceOS = this.analysisResult.interfaceOS;
+    const safeModeOS = this.analysisResult.safeModeOS;
+
+    return `
+      <div class="constellation-container" id="triple-os-constellation">
+        <!-- Engine OS Star -->
+        <div class="os-star engine-os-star" data-os="engine" data-tooltip="本質的なあなた">
+          <div class="os-star-name">${this.truncateOSName(engineOS?.osName || "Engine OS")}</div>
+          <div class="os-star-type">本質</div>
+        </div>
+        
+        <!-- Interface OS Star -->
+        <div class="os-star interface-os-star" data-os="interface" data-tooltip="社会的なあなた">
+          <div class="os-star-name">${this.truncateOSName(interfaceOS?.osName || "Interface OS")}</div>
+          <div class="os-star-type">社会</div>
+        </div>
+        
+        <!-- Safe Mode OS Star -->
+        <div class="os-star safemode-os-star" data-os="safemode" data-tooltip="守る時のあなた">
+          <div class="os-star-name">${this.truncateOSName(safeModeOS?.osName || "Safe Mode OS")}</div>
+          <div class="os-star-type">防御</div>
+        </div>
+        
+        <!-- Connection Lines -->
+        <div class="constellation-line line-engine-interface"></div>
+        <div class="constellation-line line-engine-safemode"></div>
+        <div class="constellation-line line-interface-safemode"></div>
+        
+        <!-- Explanation Panel -->
+        <div class="constellation-explanation">
+          3つのOSが連携してあなたの行動を形成しています
+        </div>
+      </div>
+    `;
+  }
+
+  // ユーティリティ：OS名の短縮（星座表示用）
+  truncateOSName(osName) {
+    if (!osName) return "OS";
+    
+    // 長すぎる名前を短縮
+    if (osName.length > 8) {
+      return osName.substring(0, 6) + "...";
+    }
+    return osName;
+  }
+
+  // 🔄 Behavioral Flow Timeline 生成
+  generateBehavioralFlowVisualization() {
+    const engineOS = this.analysisResult.engineOS || this.analysisResult.primaryOS;
+    const interfaceOS = this.analysisResult.interfaceOS;
+    const safeModeOS = this.analysisResult.safeModeOS;
+
+    return `
+      <div class="behavioral-flow-container">
+        <h4>🔄 あなたの行動パターンの流れ</h4>
+        <div class="flow-timeline animated">
+          <div class="flow-step trigger">
+            <div class="step-icon">⚡</div>
+            <h5>きっかけ</h5>
+            <p>${this.getContextualTrigger()}</p>
+            <div class="flow-step-detail">
+              <strong>具体例：</strong><br>
+              ・会議での発言を求められる<br>
+              ・新しいプロジェクトの依頼<br>  
+              ・人間関係のトラブル
+            </div>
+          </div>
+          
+          <div class="flow-arrow">→</div>
+          
+          <div class="flow-step os-activation">
+            <div class="step-icon">🧠</div>
+            <h5>OS起動</h5>
+            <p>${this.getPrimaryOSActivation(engineOS, interfaceOS, safeModeOS)}</p>
+            <div class="flow-step-detail">
+              <strong>あなたの場合：</strong><br>
+              状況に応じて3つのOSが使い分けられます
+            </div>
+          </div>
+          
+          <div class="flow-arrow">→</div>
+          
+          <div class="flow-step action">
+            <div class="step-icon">🎯</div>
+            <h5>行動</h5>
+            <p>${this.getTypicalAction()}</p>
+            <div class="flow-step-detail">
+              <strong>行動の特徴：</strong><br>
+              OSの特性が行動に現れます
+            </div>
+          </div>
+          
+          <div class="flow-arrow">→</div>
+          
+          <div class="flow-step result">
+            <div class="step-icon">✨</div>
+            <h5>結果</h5>
+            <p>${this.getTypicalOutcome()}</p>
+            <div class="flow-step-detail">
+              <strong>結果の傾向：</strong><br>
+              OSの組み合わせが結果を決定します
+            </div>
+          </div>
+        </div>
+        
+        <div class="behavior-examples">
+          <h5>💡 実際のパターン例</h5>
+          ${this.generateScenarioExamples()}
+        </div>
+      </div>
+    `;
+  }
+
+  // きっかけパターンの取得
+  getContextualTrigger() {
+    return "重要な決断や対人関係の場面";
+  }
+
+  // OS起動パターンの取得
+  getPrimaryOSActivation(engineOS, interfaceOS, safeModeOS) {
+    const engineName = engineOS?.osName || "価値観重視";
+    const interfaceName = interfaceOS?.osName || "社会適応";
+    const safeModeName = safeModeOS?.osName || "防御";
+    
+    return `${engineName}・${interfaceName}・${safeModeName}のいずれかが起動`;
+  }
+
+  // 典型的行動の取得
+  getTypicalAction() {
+    return "OSの特性に基づいた判断・行動";
+  }
+
+  // 典型的結果の取得
+  getTypicalOutcome() {
+    return "OSに応じた結果・感情";
+  }
+
+  // シナリオ例の生成
+  generateScenarioExamples() {
+    const engineOS = this.analysisResult.engineOS || this.analysisResult.primaryOS;
+    const interfaceOS = this.analysisResult.interfaceOS;
+    const safeModeOS = this.analysisResult.safeModeOS;
+
+    return `
+      <div class="example-scenario">
+        <div class="scenario-title">📍 プライベートな決断</div>
+        <div class="scenario-flow">
+          <span class="scenario-step">個人的状況</span>
+          <span>→</span>
+          <span class="scenario-step">${engineOS?.osName || "Engine OS"}起動</span>
+          <span>→</span>
+          <span class="scenario-step">価値観重視の判断</span>
+          <span>→</span>
+          <span class="scenario-step">本質的な選択</span>
+        </div>
+      </div>
+      
+      <div class="example-scenario">
+        <div class="scenario-title">🏢 職場での対応</div>
+        <div class="scenario-flow">
+          <span class="scenario-step">社会的状況</span>
+          <span>→</span>
+          <span class="scenario-step">${interfaceOS?.osName || "Interface OS"}起動</span>
+          <span>→</span>
+          <span class="scenario-step">適応的な行動</span>
+          <span>→</span>
+          <span class="scenario-step">社会的成功</span>
+        </div>
+      </div>
+      
+      <div class="example-scenario">
+        <div class="scenario-title">⚠️ ストレス状況</div>
+        <div class="scenario-flow">
+          <span class="scenario-step">脅威・困難</span>
+          <span>→</span>
+          <span class="scenario-step">${safeModeOS?.osName || "Safe Mode OS"}起動</span>
+          <span>→</span>
+          <span class="scenario-step">防御的行動</span>
+          <span>→</span>
+          <span class="scenario-step">自己保護</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // 🚀 旧メソッドのリファクタリング: 核心的気づき読み込み
+  async loadKeyInsight() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const keyInsightEl = this.container.querySelector('.key-insight');
+        
+        if (keyInsightEl && this.behavioralEngine && this.analysisResult) {
+          const insights = this.behavioralEngine.generateBehavioralInsights(this.analysisResult);
+          
+          keyInsightEl.innerHTML = `
+            <div class="insight-card bunenjin-balance interactive-element priority-critical">
+              <h4 class="priority-critical">${insights.keyInsight.title}</h4>
+              <p class="main-insight priority-critical">${insights.keyInsight.content}</p>
+              <p class="insight-explanation priority-high">${insights.keyInsight.explanation}</p>
+            </div>
+          `;
+          keyInsightEl.classList.remove('skeleton');
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🚀 新規: 行動パターン説明読み込み
+  async loadBehavioralPatterns() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const behavioralInsightsEl = this.container.querySelector('.behavioral-insights');
+        
+        if (behavioralInsightsEl && this.behavioralEngine && this.analysisResult) {
+          const insights = this.behavioralEngine.generateBehavioralInsights(this.analysisResult);
+          
+          const patternsHtml = insights.behavioralPatterns.map(pattern => `
+            <div class="pattern-card interactive-element priority-high">
+              <h5 class="priority-high">📍 ${pattern.situation}</h5>
+              <p class="priority-high"><strong>${pattern.pattern}</strong></p>
+              <p class="example priority-medium"><em>例：${pattern.example}</em></p>
+            </div>
+          `).join('');
+          
+          behavioralInsightsEl.innerHTML = `
+            <div class="patterns-container bagua-connection">
+              ${patternsHtml}
+            </div>
+          `;
+          behavioralInsightsEl.classList.remove('skeleton');
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🚀 新規: 行動提案読み込み
+  async loadActionSuggestions() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const actionSuggestionsEl = this.container.querySelector('.action-suggestions');
+        
+        if (actionSuggestionsEl && this.behavioralEngine && this.analysisResult) {
+          const insights = this.behavioralEngine.generateBehavioralInsights(this.analysisResult);
+          
+          const actionsHtml = insights.actionSuggestions.map(action => `
+            <div class="action-card interactive-element priority-low">
+              <h5 class="priority-medium">${action.title}</h5>
+              <p class="action-text priority-low"><strong>${action.action}</strong></p>
+              <p class="action-why priority-low">${action.why}</p>
+            </div>
+          `).join('');
+          
+          actionSuggestionsEl.innerHTML = `
+            <div class="actions-container">
+              ${actionsHtml}
+              <div class="next-step insight-container low">
+                <p class="priority-low"><strong>🚀 さらに深く理解したい方へ</strong></p>
+                <p class="priority-low">実際の悩みや状況に基づいた戦略的アドバイスを受けることができます。</p>
+                <button class="btn btn-outline-primary interactive-element priority-low" id="explore-future-simulator">
+                  Future Simulatorで具体的な戦略を立てる
+                </button>
+              </div>
+            </div>
+          `;
+          actionSuggestionsEl.classList.remove('skeleton');
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🚀 新規: 詳細分析データ読み込み
+  async loadDetailedAnalysis() {
     return new Promise(resolve => {
       requestAnimationFrame(() => {
         const primaryOS = this.analysisResult.primaryOS || this.analysisResult.engineOS;
@@ -126,13 +807,13 @@ class ResultsView extends BaseComponent {
         
         if (primaryResultEl && primaryOS) {
           primaryResultEl.innerHTML = `
-            <div class="hexagram-display fade-in">
-              <div class="hexagram-name">${primaryOS?.hexagramInfo?.name || primaryOS?.osName || "分析結果"}</div>
-              <div class="hexagram-reading">${
+            <div class="hexagram-display insight-container low">
+              <div class="hexagram-name priority-medium">${primaryOS?.hexagramInfo?.name || primaryOS?.osName || "分析結果"}</div>
+              <div class="hexagram-reading priority-low">${
                 primaryOS?.hexagramInfo?.reading || primaryOS?.hexagramInfo?.name_jp || primaryOS?.hexagramInfo?.description || ""
               }</div>
-              <div class="match-percentage">${this.formatScientificPercentage(primaryOS?.matchPercentage || primaryOS?.strength || 0)}</div>
-              <div class="trigram-composition">構成八卦: ${this.getTrigramComposition(primaryOS)}</div>
+              <div class="match-percentage priority-low">${this.formatScientificPercentage(primaryOS?.matchPercentage || primaryOS?.strength || 0)}</div>
+              <div class="trigram-composition priority-low">構成八卦: ${this.getTrigramComposition(primaryOS)}</div>
             </div>
           `;
           primaryResultEl.classList.remove('skeleton');
@@ -680,6 +1361,16 @@ class ResultsView extends BaseComponent {
 
   // 🚀 最適化版: イベントバインド
   bindEvents() {
+    // 📱 情報階層最適化: レスポンシブ対応の初期化
+    this.adjustInformationDensity();
+    
+    // 📱 リサイズイベントでレスポンシブ調整
+    const resizeHandler = this.debounce(() => {
+      this.adjustInformationDensity();
+    }, 150);
+    
+    window.addEventListener('resize', resizeHandler);
+    
     // 🚀 最適化: イベント委譲を使用してパフォーマンス向上
     this.container.addEventListener('click', (e) => {
       const target = e.target.closest('button');
@@ -690,6 +1381,10 @@ class ResultsView extends BaseComponent {
           if (this.options.onExploreMore) {
             this.options.onExploreMore(this.analysisResult);
           }
+          break;
+          
+        case 'explore-future-simulator':
+          this.handleFutureSimulatorNavigation();
           break;
           
         case 'retake-test-btn':
@@ -1521,6 +2216,797 @@ class ResultsView extends BaseComponent {
     } catch (error) {
       console.error('🔬 Error in formatWithQualityAssurance:', error);
       return format === 'score' ? '0.0' : '0.0%';
+    }
+  }
+
+  // 🌟 新規: Triple OS Constellation View読み込み
+  async loadTripleOSVisualization() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const constellationSection = this.container.querySelector('.constellation-section');
+        
+        if (constellationSection && this.analysisResult) {
+          // Triple OS データの取得
+          const engineOS = this.analysisResult.engineOS || this.analysisResult.primaryOS;
+          const interfaceOS = this.analysisResult.interfaceOS;
+          const safeModeOS = this.analysisResult.safeModeOS;
+          
+          // 星座表示のHTML生成
+          const constellationHTML = this.generateConstellationView(engineOS, interfaceOS, safeModeOS);
+          
+          constellationSection.innerHTML = `
+            <div class="constellation-intro">
+              <h3 class="priority-high">✨ あなたの3つの人格OS - 星座図</h3>
+              <p class="priority-high">クリックして各OSの関係性を確認してください</p>
+            </div>
+            ${constellationHTML}
+            <div class="constellation-explanation">
+              <p class="priority-medium">この3つの組み合わせが、あなたの複雑で多面的な人格を形成しています。</p>
+            </div>
+          `;
+          
+          constellationSection.classList.remove('skeleton');
+          
+          // インタラクティブ機能のバインド
+          this.bindConstellationEvents();
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🌟 新機能: Behavioral Flow Timeline読み込み
+  async loadBehavioralFlowTimeline() {
+    return new Promise(resolve => {
+      requestAnimationFrame(() => {
+        const flowSection = this.container.querySelector('.behavioral-flow-section');
+        
+        if (flowSection && this.behavioralEngine && this.analysisResult) {
+          // Behavioral Flow Timelineデータの生成
+          const flowTimelines = this.behavioralEngine.generateBehavioralFlowTimeline(this.analysisResult);
+          
+          // 最初のシナリオ（代表的なもの）を表示
+          const primaryScenario = flowTimelines[0];
+          
+          if (primaryScenario) {
+            const flowHTML = this.renderFlowTimeline(primaryScenario);
+            
+            flowSection.innerHTML = `
+              <div class="flow-timeline-intro">
+                <h3 class="priority-medium">🎭 行動フローの分析 - あの時なぜその行動を？</h3>
+                <p class="priority-medium">状況に応じてどのOSが活性化し、どんな行動につながったかを可視化します</p>
+              </div>
+              ${flowHTML}
+              <div class="flow-scenarios-selector insight-container low">
+                <h4 class="priority-low">💭 他のシナリオも見てみる</h4>
+                <div class="scenario-buttons">
+                  ${flowTimelines.map((scenario, index) => `
+                    <button class="scenario-btn ${index === 0 ? 'active' : ''}" 
+                            data-scenario-id="${scenario.scenarioId}" 
+                            data-scenario-index="${index}">
+                      ${scenario.title}
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+            
+            flowSection.classList.remove('skeleton');
+            
+            // Behavioral Flow Timeline用のイベントバインド
+            this.bindFlowEvents(flowTimelines);
+          }
+        }
+        resolve();
+      });
+    });
+  }
+
+  // 🌟 新機能: フロータイムライン表示HTML生成
+  renderFlowTimeline(scenario) {
+    return `
+      <div class="behavioral-flow-container fade-in" data-scenario-id="${scenario.scenarioId}">
+        <div class="flow-timeline-header">
+          <div class="flow-timeline-title">${scenario.title}</div>
+          <div class="flow-timeline-subtitle">${scenario.description}</div>
+        </div>
+        
+        <div class="flow-timeline-viewport">
+          <div class="flow-connection-line"></div>
+          <div class="flow-step-container">
+            ${scenario.flowSteps.map((step, index) => `
+              <div class="flow-step" data-step-type="${step.type}" data-step-index="${index}">
+                <div class="flow-step-icon ${step.type}" title="${step.title}">
+                  ${step.icon}
+                </div>
+                <div class="flow-step-content" tabindex="0">
+                  <div class="flow-step-title">
+                    ${step.icon} ${step.title}
+                  </div>
+                  <div class="flow-step-description">
+                    ${this.generateStepDescription(step)}
+                  </div>
+                  <div class="flow-step-details">
+                    ${this.generateStepDetails(step)}
+                  </div>
+                  ${step.osActivationDisplay ? this.renderOSActivationDisplay(step.osActivationDisplay) : ''}
+                  ${step.insights ? `
+                    <div class="step-insights">
+                      ${step.insights.map(insight => `<div class="insight-item">💡 ${insight}</div>`).join('')}
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="flow-navigation">
+            <button class="flow-nav-button" id="prev-scenario" title="前のシナリオ">‹</button>
+            <button class="flow-nav-button" id="next-scenario" title="次のシナリオ">›</button>
+          </div>
+        </div>
+        
+        <div class="alternative-scenarios">
+          <div class="alternative-scenarios-title">
+            🔄 もしも別のOSで対応していたら...
+          </div>
+          <div class="scenarios-grid">
+            ${scenario.alternativeOutcomes.map(alt => `
+              <div class="scenario-option" data-os-type="${alt.osType}">
+                <div class="scenario-title">${alt.title}</div>
+                <div class="scenario-description">${alt.description}</div>
+                <div class="scenario-outcome">
+                  <strong>予想される結果:</strong> ${alt.outcome}
+                </div>
+                <div class="scenario-pros-cons">
+                  <div class="pros">
+                    <strong>メリット:</strong>
+                    <ul>${alt.pros.map(pro => `<li>${pro}</li>`).join('')}</ul>
+                  </div>
+                  <div class="cons">
+                    <strong>デメリット:</strong>
+                    <ul>${alt.cons.map(con => `<li>${con}</li>`).join('')}</ul>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div class="bunenjin-insight">
+          <h4>${scenario.bunenjinInsight.title}</h4>
+          <div class="main-insight">${scenario.bunenjinInsight.mainInsight}</div>
+          <div class="strategic-advice">
+            <strong>💡 戦略的アドバイス:</strong> ${scenario.bunenjinInsight.strategicAdvice}
+          </div>
+          <div class="next-time-strategy">
+            <strong>🎯 次回への活かし方:</strong> ${scenario.bunenjinInsight.nextTimeStrategy}
+          </div>
+          <div class="philosophical-note">
+            <em>${scenario.bunenjinInsight.philosophicalNote}</em>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 🌟 新機能: ステップ説明の生成
+  generateStepDescription(step) {
+    if (step.content && step.content.description) {
+      return step.content.description;
+    }
+    
+    // ステップタイプに応じたデフォルト説明
+    const defaultDescriptions = {
+      situation: '状況を認識し、環境を評価する段階',
+      emotion: '感情的な反応が生まれる瞬間',
+      os_selection: 'どのOSで対応するかを選択する段階',
+      behavior: '実際の行動として表現される段階',
+      outcome: '行動の結果を評価する段階',
+      reflection: '学習と次回への改善を考える段階'
+    };
+    
+    return defaultDescriptions[step.type] || '詳細な分析を表示中...';
+  }
+
+  // 🌟 新機能: ステップ詳細の生成
+  generateStepDetails(step) {
+    if (!step.content) return '';
+    
+    let details = '';
+    
+    // 各ステップタイプに応じた詳細表示
+    switch (step.type) {
+      case 'situation':
+        if (step.content.context) {
+          details += `<div class="detail-item"><strong>状況:</strong> ${step.content.context}</div>`;
+        }
+        if (step.content.pressure) {
+          details += `<div class="detail-item"><strong>プレッシャー:</strong> ${step.content.pressure}</div>`;
+        }
+        break;
+        
+      case 'emotion':
+        if (step.content.primaryEmotion) {
+          details += `<div class="detail-item"><strong>主要な感情:</strong> ${step.content.primaryEmotion}</div>`;
+        }
+        if (step.content.physicalReaction) {
+          details += `<div class="detail-item"><strong>身体反応:</strong> ${step.content.physicalReaction}</div>`;
+        }
+        break;
+        
+      case 'behavior':
+        if (step.content.actualBehavior) {
+          details += `<div class="detail-item"><strong>実際の行動:</strong> ${step.content.actualBehavior}</div>`;
+        }
+        if (step.content.internalExperience) {
+          details += `<div class="detail-item"><strong>内面体験:</strong> ${step.content.internalExperience}</div>`;
+        }
+        break;
+        
+      case 'outcome':
+        if (step.content.immediateResult) {
+          details += `<div class="detail-item"><strong>即座の結果:</strong> ${step.content.immediateResult}</div>`;
+        }
+        if (step.content.longTermImpact) {
+          details += `<div class="detail-item"><strong>長期的影響:</strong> ${step.content.longTermImpact}</div>`;
+        }
+        break;
+        
+      case 'reflection':
+        if (step.content.whatWorked && step.content.whatWorked.length > 0) {
+          details += `<div class="detail-item"><strong>うまくいったこと:</strong> ${step.content.whatWorked.join(', ')}</div>`;
+        }
+        if (step.content.futureStrategy) {
+          details += `<div class="detail-item"><strong>今後の戦略:</strong> ${step.content.futureStrategy}</div>`;
+        }
+        break;
+    }
+    
+    return details;
+  }
+
+  // 🌟 新機能: OSアクティベーション表示の生成
+  renderOSActivationDisplay(osActivation) {
+    return `
+      <div class="os-activation-display">
+        <div class="os-activation-badge os-badge-primary" title="${osActivation.primary.reason}">
+          ${osActivation.primary.name} (${(osActivation.primary.strength * 100).toFixed(0)}%)
+        </div>
+        <div class="os-activation-badge os-badge-secondary" title="${osActivation.secondary.reason}">
+          ${osActivation.secondary.name} (${(osActivation.secondary.strength * 100).toFixed(0)}%)
+        </div>
+        <div class="os-activation-badge os-badge-suppressed" title="${osActivation.suppressed.reason}">
+          ${osActivation.suppressed.name} (${(osActivation.suppressed.strength * 100).toFixed(0)}%)
+        </div>
+      </div>
+    `;
+  }
+
+  // 🌟 新機能: フローイベントのバインド
+  bindFlowEvents(flowTimelines) {
+    const container = this.container;
+    
+    // シナリオ切り替えボタンのイベント
+    const scenarioButtons = container.querySelectorAll('.scenario-btn');
+    scenarioButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const scenarioIndex = parseInt(e.target.dataset.scenarioIndex);
+        this.switchFlowScenario(flowTimelines, scenarioIndex);
+      });
+    });
+    
+    // ナビゲーションボタンのイベント
+    const prevBtn = container.querySelector('#prev-scenario');
+    const nextBtn = container.querySelector('#next-scenario');
+    
+    if (prevBtn && nextBtn) {
+      prevBtn.addEventListener('click', () => this.navigateScenario(flowTimelines, -1));
+      nextBtn.addEventListener('click', () => this.navigateScenario(flowTimelines, 1));
+    }
+    
+    // フローステップのクリックイベント
+    const flowSteps = container.querySelectorAll('.flow-step-content');
+    flowSteps.forEach(step => {
+      step.addEventListener('click', (e) => {
+        this.handleFlowStepClick(e.target.closest('.flow-step'), flowTimelines);
+      });
+    });
+    
+    // 代替シナリオのクリックイベント
+    const altScenarios = container.querySelectorAll('.scenario-option');
+    altScenarios.forEach(scenario => {
+      scenario.addEventListener('click', (e) => {
+        this.showAlternativeScenarioDetail(e.target.closest('.scenario-option'));
+      });
+    });
+    
+    // フロー表示のアニメーション開始
+    setTimeout(() => {
+      const steps = container.querySelectorAll('.flow-step');
+      steps.forEach(step => step.classList.add('visible'));
+    }, 100);
+  }
+
+  // 🌟 新機能: シナリオ切り替え
+  switchFlowScenario(flowTimelines, index) {
+    const scenario = flowTimelines[index];
+    if (!scenario) return;
+    
+    const flowContainer = this.container.querySelector('.behavioral-flow-container');
+    const newFlowHTML = this.renderFlowTimeline(scenario);
+    
+    // フェードアウト → 更新 → フェードイン
+    flowContainer.style.opacity = '0.5';
+    
+    setTimeout(() => {
+      flowContainer.outerHTML = newFlowHTML;
+      
+      // 新しいコンテナを取得してイベントを再バインド
+      const newContainer = this.container.querySelector('.behavioral-flow-container');
+      newContainer.style.opacity = '1';
+      
+      // シナリオボタンの状態更新
+      const buttons = this.container.querySelectorAll('.scenario-btn');
+      buttons.forEach((btn, i) => {
+        btn.classList.toggle('active', i === index);
+      });
+      
+      // イベントの再バインド
+      this.bindFlowEvents(flowTimelines);
+    }, 200);
+  }
+
+  // 🌟 新機能: ナビゲーション
+  navigateScenario(flowTimelines, direction) {
+    const currentActive = this.container.querySelector('.scenario-btn.active');
+    if (!currentActive) return;
+    
+    const currentIndex = parseInt(currentActive.dataset.scenarioIndex);
+    let newIndex = currentIndex + direction;
+    
+    // 範囲チェック
+    if (newIndex < 0) newIndex = flowTimelines.length - 1;
+    if (newIndex >= flowTimelines.length) newIndex = 0;
+    
+    this.switchFlowScenario(flowTimelines, newIndex);
+  }
+
+  // 🌟 新機能: フローステップクリック処理
+  handleFlowStepClick(stepElement, flowTimelines) {
+    // 詳細モーダルの表示
+    const stepType = stepElement.dataset.stepType;
+    const stepIndex = stepElement.dataset.stepIndex;
+    const currentScenario = this.getCurrentScenario(flowTimelines);
+    
+    if (currentScenario && currentScenario.flowSteps[stepIndex]) {
+      const step = currentScenario.flowSteps[stepIndex];
+      this.showFlowStepDetail(step, currentScenario);
+    }
+    
+    // ハイライト効果
+    stepElement.classList.add('insight-highlight');
+    setTimeout(() => {
+      stepElement.classList.remove('insight-highlight');
+    }, 2000);
+  }
+
+  // 🌟 新機能: 代替シナリオ詳細表示
+  showAlternativeScenarioDetail(scenarioElement) {
+    const osType = scenarioElement.dataset.osType;
+    const title = scenarioElement.querySelector('.scenario-title').textContent;
+    const description = scenarioElement.querySelector('.scenario-description').textContent;
+    
+    this.showFlowDetailModal({
+      title: title,
+      content: description,
+      type: 'alternative-scenario',
+      osType: osType
+    });
+  }
+
+  // 🌟 新機能: フローステップ詳細モーダル
+  showFlowStepDetail(step, scenario) {
+    this.showFlowDetailModal({
+      title: `${step.icon} ${step.title}`,
+      content: step,
+      type: 'flow-step',
+      scenario: scenario
+    });
+  }
+
+  // 🌟 新機能: フロー詳細モーダル表示
+  showFlowDetailModal(data) {
+    const modal = document.createElement('div');
+    modal.className = 'flow-detail-modal';
+    modal.innerHTML = `
+      <div class="modal-overlay" onclick="this.parentElement.remove()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <h3>${data.title}</h3>
+            <button class="modal-close" onclick="this.closest('.flow-detail-modal').remove()">×</button>
+          </div>
+          <div class="modal-body">
+            ${this.generateModalContent(data)}
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" onclick="this.closest('.flow-detail-modal').remove()">
+              理解しました
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+  }
+
+  // 🌟 新機能: モーダルコンテンツ生成
+  generateModalContent(data) {
+    if (data.type === 'flow-step') {
+      const step = data.content;
+      return `
+        <div class="step-detail-content">
+          <div class="step-description">
+            <p>${this.generateStepDescription(step)}</p>
+          </div>
+          <div class="step-details">
+            ${this.generateStepDetails(step)}
+          </div>
+          ${step.insights ? `
+            <div class="step-insights">
+              <h4>💡 このステップからの気づき</h4>
+              ${step.insights.map(insight => `<p>• ${insight}</p>`).join('')}
+            </div>
+          ` : ''}
+          <div class="bunenjin-insight">
+            <h4>🌸 bunenjin哲学の視点</h4>
+            <p>この行動は、あなたの${step.type}段階での戦略的選択です。「正しい」「間違い」ではなく、その時の状況に応じた最適解として理解しましょう。</p>
+          </div>
+        </div>
+      `;
+    } else if (data.type === 'alternative-scenario') {
+      return `
+        <div class="alternative-scenario-content">
+          <p>${data.content}</p>
+          <div class="bunenjin-insight">
+            <h4>🌸 bunenjin哲学による理解</h4>
+            <p>この代替シナリオは、あなたの「${data.osType} OS」による戦略的アプローチです。どのOSも正解であり、状況に応じて使い分けることが重要です。</p>
+          </div>
+        </div>
+      `;
+    }
+    return '<p>詳細情報を読み込み中...</p>';
+  }
+
+  // 🌟 新機能: 現在のシナリオ取得
+  getCurrentScenario(flowTimelines) {
+    const activeButton = this.container.querySelector('.scenario-btn.active');
+    if (!activeButton) return flowTimelines[0];
+    
+    const index = parseInt(activeButton.dataset.scenarioIndex);
+    return flowTimelines[index] || flowTimelines[0];
+  }
+
+  // 🌟 新規: 星座表示HTML生成
+  generateConstellationView(engineOS, interfaceOS, safeModeOS) {
+    return `
+      <div class="constellation-container fade-in">
+        <div class="constellation-background"></div>
+        <div class="constellation-stars">
+          <div class="constellation-star star-1"></div>
+          <div class="constellation-star star-2"></div>
+          <div class="constellation-star star-3"></div>
+          <div class="constellation-star star-4"></div>
+          <div class="constellation-star star-5"></div>
+          <div class="constellation-star star-6"></div>
+        </div>
+        
+        <div class="constellation-title">人格OS星座</div>
+        <div class="constellation-subtitle">bunenjin 分人思想</div>
+        
+        <div class="constellation-viewport">
+          <svg class="constellation-connections">
+            <line class="os-connection-line connection-strength-high" id="engine-interface-line" />
+            <line class="os-connection-line connection-strength-medium" id="interface-safe-line" />
+            <line class="os-connection-line connection-strength-medium" id="safe-engine-line" />
+          </svg>
+          
+          <div class="os-constellation-node os-node-engine" 
+               data-os-type="engine" 
+               data-os-name="${engineOS?.osName || '本質OS'}" 
+               data-strength="${this.formatScientificPercentage(engineOS?.strength || 0)}">
+            <div class="os-node-icon"></div>
+            <div class="os-node-label">Engine OS<br>${engineOS?.osName || '本質'}</div>
+          </div>
+          
+          <div class="os-constellation-node os-node-interface" 
+               data-os-type="interface" 
+               data-os-name="${interfaceOS?.osName || '社会OS'}" 
+               data-strength="${this.formatScientificPercentage(interfaceOS?.strength || 0)}">
+            <div class="os-node-icon"></div>
+            <div class="os-node-label">Interface OS<br>${interfaceOS?.osName || '社会'}</div>
+          </div>
+          
+          <div class="os-constellation-node os-node-safe" 
+               data-os-type="safe" 
+               data-os-name="${safeModeOS?.osName || '防御OS'}" 
+               data-strength="${this.formatScientificPercentage(safeModeOS?.strength || 0)}">
+            <div class="os-node-icon"></div>
+            <div class="os-node-label">Safe Mode OS<br>${safeModeOS?.osName || '防御'}</div>
+          </div>
+        </div>
+        
+        <div class="os-tooltip" id="os-tooltip">
+          <div class="os-tooltip-title"></div>
+          <div class="os-tooltip-description"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 🌟 新規: 接続線の生成と配置
+  generateConnectionLines() {
+    const engineNode = this.container.querySelector('.os-node-engine');
+    const interfaceNode = this.container.querySelector('.os-node-interface');
+    const safeNode = this.container.querySelector('.os-node-safe');
+    
+    if (!engineNode || !interfaceNode || !safeNode) return;
+    
+    const viewport = this.container.querySelector('.constellation-viewport');
+    const viewportRect = viewport.getBoundingClientRect();
+    
+    // 各ノードの中心座標を計算
+    const getNodeCenter = (node) => {
+      const rect = node.getBoundingClientRect();
+      const viewportOffset = viewport.getBoundingClientRect();
+      return {
+        x: rect.left - viewportOffset.left + rect.width / 2,
+        y: rect.top - viewportOffset.top + rect.height / 2
+      };
+    };
+    
+    const engineCenter = getNodeCenter(engineNode);
+    const interfaceCenter = getNodeCenter(interfaceNode);
+    const safeCenter = getNodeCenter(safeNode);
+    
+    // 接続線の設定
+    this.setConnectionLine('engine-interface-line', engineCenter, interfaceCenter);
+    this.setConnectionLine('interface-safe-line', interfaceCenter, safeCenter);
+    this.setConnectionLine('safe-engine-line', safeCenter, engineCenter);
+  }
+
+  // 🌟 新規: 接続線の座標設定
+  setConnectionLine(lineId, startPoint, endPoint) {
+    const line = this.container.querySelector(`#${lineId}`);
+    if (!line) return;
+    
+    const dx = endPoint.x - startPoint.x;
+    const dy = endPoint.y - startPoint.y;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    
+    line.style.left = `${startPoint.x}px`;
+    line.style.top = `${startPoint.y}px`;
+    line.style.width = `${length}px`;
+    line.style.transform = `rotate(${angle}deg)`;
+  }
+
+  // 🌟 新規: 星座イベントのバインド
+  bindConstellationEvents() {
+    const nodes = this.container.querySelectorAll('.os-constellation-node');
+    const tooltip = this.container.querySelector('#os-tooltip');
+    const container = this.container.querySelector('.constellation-container');
+    
+    nodes.forEach(node => {
+      // ホバーでツールチップ表示
+      node.addEventListener('mouseenter', (e) => {
+        this.showOSTooltip(e.target, tooltip);
+        this.highlightOSRelationships(e.target, true);
+      });
+      
+      node.addEventListener('mouseleave', () => {
+        this.hideOSTooltip(tooltip);
+        this.highlightOSRelationships(null, false);
+      });
+      
+      // クリックで詳細表示
+      node.addEventListener('click', (e) => {
+        this.handleOSNodeClick(e.target);
+      });
+    });
+    
+    // 接続線の生成（レイアウト完了後）
+    setTimeout(() => {
+      this.generateConnectionLines();
+      
+      // アニメーション開始
+      const lines = this.container.querySelectorAll('.os-connection-line');
+      lines.forEach(line => line.classList.add('pulse'));
+    }, 100);
+  }
+
+  // 🌟 新規: OSツールチップ表示
+  showOSTooltip(node, tooltip) {
+    const osType = node.dataset.osType;
+    const osName = node.dataset.osName;
+    const strength = node.dataset.strength;
+    
+    const descriptions = {
+      engine: '本質的な価値観と動機の核となるOS。あなたの真の願いと深層心理を表します。',
+      interface: '社会との接点で発揮される表現OS。他者との関係で見せる顔を表します。',
+      safe: '困難や脅威から身を守る防御OS。ストレス下での行動パターンを表します。'
+    };
+    
+    tooltip.querySelector('.os-tooltip-title').textContent = `${osName} (${strength})`;
+    tooltip.querySelector('.os-tooltip-description').textContent = descriptions[osType] || '';
+    
+    // ツールチップの位置調整
+    const nodeRect = node.getBoundingClientRect();
+    const containerRect = this.container.querySelector('.constellation-container').getBoundingClientRect();
+    
+    tooltip.style.left = `${nodeRect.left - containerRect.left + nodeRect.width / 2}px`;
+    tooltip.style.top = `${nodeRect.top - containerRect.top - 60}px`;
+    tooltip.style.transform = 'translateX(-50%)';
+    
+    tooltip.classList.add('show');
+  }
+
+  // 🌟 新規: OSツールチップ非表示
+  hideOSTooltip(tooltip) {
+    tooltip.classList.remove('show');
+  }
+
+  // 🌟 新規: OS関係性ハイライト
+  highlightOSRelationships(activeNode, highlight) {
+    const container = this.container.querySelector('.constellation-container');
+    const nodes = this.container.querySelectorAll('.os-constellation-node');
+    const lines = this.container.querySelectorAll('.os-connection-line');
+    
+    if (highlight && activeNode) {
+      container.classList.add('focused');
+      
+      nodes.forEach(node => {
+        if (node === activeNode) {
+          node.classList.add('active');
+        } else {
+          node.classList.remove('active');
+        }
+      });
+      
+      // 関連する接続線をハイライト
+      const osType = activeNode.dataset.osType;
+      lines.forEach(line => {
+        const shouldHighlight = line.id.includes(osType);
+        line.classList.toggle('highlighted', shouldHighlight);
+      });
+      
+    } else {
+      container.classList.remove('focused');
+      nodes.forEach(node => node.classList.remove('active'));
+      lines.forEach(line => line.classList.remove('highlighted'));
+    }
+  }
+
+  // 🌟 新規: OSノードクリック処理
+  handleOSNodeClick(node) {
+    const osType = node.dataset.osType;
+    const osName = node.dataset.osName;
+    
+    // bunenjin哲学に基づく詳細説明を表示
+    const insights = this.generateOSInsight(osType, osName);
+    
+    this.showOSDetailModal({
+      title: `${osName} の詳細`,
+      type: osType,
+      insights: insights
+    });
+  }
+
+  // 🌟 新規: OS固有の洞察生成
+  generateOSInsight(osType, osName) {
+    const baseInsights = {
+      engine: {
+        role: '本質的動機システム',
+        description: 'あなたの最も深い価値観と願いを司るOS。人生の方向性を決める羅針盤のような存在です。',
+        examples: [
+          '重要な決断を下す時に現れる',
+          '長期的な目標設定に影響する',
+          '価値観に関わる議論で強く反応する'
+        ]
+      },
+      interface: {
+        role: '社会適応システム',
+        description: '他者との関係で発揮される表現力と適応能力を司るOS。社会的な成功と調和を担います。',
+        examples: [
+          'プレゼンテーションや会議で活躍',
+          '人との関係構築で力を発揮',
+          'チームワークが求められる場面で現れる'
+        ]
+      },
+      safe: {
+        role: '防御・回復システム',
+        description: 'ストレスや困難から身を守り、安定を保つためのOS。危機管理と自己保護を担います。',
+        examples: [
+          'プレッシャーの強い状況で活性化',
+          '予期しない変化への対応で現れる',
+          '休息や回復が必要な時に優先される'
+        ]
+      }
+    };
+    
+    return baseInsights[osType] || baseInsights.engine;
+  }
+
+  // 🌟 新規: OS詳細モーダル表示
+  showOSDetailModal(data) {
+    const modal = document.createElement('div');
+    modal.className = 'os-detail-modal';
+    modal.innerHTML = `
+      <div class="modal-overlay" onclick="this.parentElement.remove()">
+        <div class="modal-content constellation-modal" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <h3>${data.title}</h3>
+            <div class="os-type-badge os-${data.type}">${data.insights.role}</div>
+            <button class="modal-close" onclick="this.closest('.os-detail-modal').remove()">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="os-description">
+              <p>${data.insights.description}</p>
+            </div>
+            <div class="os-examples">
+              <h4>💡 このOSが活躍する場面</h4>
+              <ul>
+                ${data.insights.examples.map(example => `<li>${example}</li>`).join('')}
+              </ul>
+            </div>
+            <div class="bunenjin-philosophy">
+              <h4>🌸 bunenjin哲学の視点</h4>
+              <p>このOSは「真の自分」ではなく、あなたの多面的な人格の一部です。状況に応じて適切なOSを選択できることが、戦略的な生き方につながります。</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" onclick="this.closest('.os-detail-modal').remove()">
+              理解しました
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+  }
+
+  // Future Simulatorへの導線処理
+  handleFutureSimulatorNavigation() {
+    // 分析結果をlocalStorageに保存
+    this.saveDiagnosisForFutureUse();
+    
+    // Future Simulatorへリダイレクト（今後実装予定のページ）
+    alert("🚀 Future Simulatorは間もなく公開予定です！\n\n現在の診断結果は保存されましたので、公開時にスムーズにご利用いただけます。\n\n保存された内容：\n・あなたの3つの人格OS\n・行動パターンの分析\n・具体的な改善提案");
+    
+    // 今後の実装: window.location.href = "/future_simulator.html";
+  }
+
+  // 診断結果をFuture Simulator用に保存
+  saveDiagnosisForFutureUse() {
+    const diagnosisData = {
+      timestamp: new Date().toISOString(),
+      analysisResult: this.analysisResult,
+      insights: this.insights,
+      behavioralInsights: this.behavioralEngine ? 
+        this.behavioralEngine.generateBehavioralInsights(this.analysisResult) : null,
+      version: "1.0",
+      userJourney: "os_analyzer_completed"
+    };
+    
+    try {
+      localStorage.setItem('haqei_diagnosis_for_future_simulator', JSON.stringify(diagnosisData));
+      console.log("✅ 診断結果をFuture Simulator用に保存しました");
+      return true;
+    } catch (error) {
+      console.error("❌ 診断結果の保存に失敗しました:", error);
+      return false;
     }
   }
 }

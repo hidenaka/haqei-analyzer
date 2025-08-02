@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>386爻SNS文章生成システム統合テスト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .status-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .status-box h3 {
+            margin-top: 0;
+            color: #495057;
+            font-size: 18px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 20px;
+        }
+        .test-section:last-child {
+            border-bottom: none;
+        }
+        .test-section h2 {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .test-result {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .test-result.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .test-result.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .test-result.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .button-group {
+            margin-bottom: 20px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        #log-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            white-space: pre-wrap;
+        }
+        .special-yao {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #0066cc;
+        }
+        .demo-section {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .demo-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 386爻SNS文章生成システム統合テスト</h1>
+        <p class="subtitle">64卦×6爻 + 乾為天の用九 + 坤為地の用六 = 386爻完全対応テスト</p>
+
+        <div class="status-box">
+            <h3>📊 システム状態</h3>
+            <div id="system-status">読み込み中...</div>
+        </div>
+
+        <div class="button-group">
+            <button onclick="runFullTest()">🚀 統合テスト実行</button>
+            <button onclick="runQuickTest()">⚡ クイックテスト</button>
+            <button onclick="clearLog()">🗑️ ログクリア</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 テスト結果サマリー</h2>
+            <div id="test-summary">
+                <p>テストを実行してください...</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 386爻特殊対応確認</h2>
+            <div class="special-yao">
+                <strong>用九（乾為天）</strong>: 全ての陽爻が統合される特別な状態<br>
+                <strong>用六（坤為地）</strong>: 全ての陰爻が統合される特別な状態
+            </div>
+            <div id="special-yao-status">確認待機中...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>📈 統計情報</h2>
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">-</div>
+                    <div class="stat-label">総爻数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">-</div>
+                    <div class="stat-label">カバレッジ率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">-</div>
+                    <div class="stat-label">生成時間</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">-</div>
+                    <div class="stat-label">品質スコア</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🎮 Future Simulator統合デモ</h2>
+            <p>ユーザー入力から386爻へのマッピングをテスト:</p>
+            <input type="text" class="demo-input" id="demo-input" 
+                   placeholder="例: 最近同じミスを繰り返してて、なんか成長できてない気がする😔" 
+                   value="最近同じミスを繰り返してて、なんか成長できてない気がする😔">
+            <button onclick="runDemoMapping()">マッピングテスト</button>
+            <div id="demo-result" style="margin-top: 15px;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 詳細ログ</h2>
+            <div id="log-container"></div>
+        </div>
+    </div>
+
+    <!-- 必要なスクリプトの読み込み -->
+    <script src="public/assets/H384H64database.js"></script>
+    <script src="public/js/pages/future-simulator/HexagramPatternTemplates.js"></script>
+    <script src="public/js/pages/future-simulator/LoadH384Data.js"></script>
+    <script src="public/js/pages/future-simulator/SNSTextGenerator.js"></script>
+    <script src="public/js/pages/future-simulator/TextVariationEngine.js"></script>
+    <script src="public/js/pages/future-simulator/QualityValidator.js"></script>
+    <script src="public/js/pages/future-simulator/IntegrationTest386.js"></script>
+
+    <script>
+        let testInstance = null;
+        const logContainer = document.getElementById('log-container');
+        
+        // コンソールログをキャプチャして画面に表示
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.style.color = type === 'error' ? '#dc3545' : 
+                               type === 'warn' ? '#ffc107' : '#495057';
+            entry.textContent = message;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLog(args.join(' '), 'info');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addLog(args.join(' '), 'warn');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLog(args.join(' '), 'error');
+        };
+        
+        // システム状態チェック
+        function checkSystemStatus() {
+            const status = document.getElementById('system-status');
+            const checks = [
+                { name: 'H384_DATA', available: typeof H384_DATA !== 'undefined' },
+                { name: 'HexagramPatternTemplates', available: typeof HexagramPatternTemplates !== 'undefined' },
+                { name: 'LoadH384Data', available: typeof LoadH384Data !== 'undefined' },
+                { name: 'SNSTextGenerator', available: typeof SNSTextGenerator !== 'undefined' },
+                { name: 'TextVariationEngine', available: typeof TextVariationEngine !== 'undefined' },
+                { name: 'QualityValidator', available: typeof QualityValidator !== 'undefined' },
+                { name: 'IntegrationTest386', available: typeof IntegrationTest386 !== 'undefined' }
+            ];
+            
+            const allAvailable = checks.every(c => c.available);
+            const statusHtml = checks.map(c => 
+                `<span style="color: ${c.available ? 'green' : 'red'}">
+                    ${c.available ? '✓' : '✗'} ${c.name}
+                </span>`
+            ).join(' | ');
+            
+            status.innerHTML = statusHtml;
+            
+            if (allAvailable) {
+                status.innerHTML += '<br><strong style="color: green">✅ すべてのコンポーネントが正常に読み込まれました</strong>';
+            } else {
+                status.innerHTML += '<br><strong style="color: red">❌ 一部のコンポーネントが読み込まれていません</strong>';
+            }
+            
+            return allAvailable;
+        }
+        
+        // 統合テスト実行
+        async function runFullTest() {
+            if (!checkSystemStatus()) {
+                alert('必要なコンポーネントが読み込まれていません');
+                return;
+            }
+            
+            clearLog();
+            document.getElementById('test-summary').innerHTML = '<p>テスト実行中...</p>';
+            
+            try {
+                testInstance = new IntegrationTest386();
+                const report = await testInstance.runAllTests();
+                
+                // サマリー表示
+                const summaryHtml = `
+                    <div class="test-result ${report.summary.status.includes('全テスト合格') ? 'success' : 
+                                             report.summary.status.includes('部分的成功') ? 'warning' : 'error'}">
+                        ${report.summary.status} - 成功: ${report.summary.passedTests}/${report.summary.totalTests}
+                    </div>
+                `;
+                document.getElementById('test-summary').innerHTML = summaryHtml;
+                
+                // 特殊爻状態
+                const specialStatus = report.details.componentStatus.H384_DATA;
+                if (specialStatus) {
+                    document.getElementById('special-yao-status').innerHTML = `
+                        <div class="test-result ${specialStatus.hasYongJiu && specialStatus.hasYongLiu ? 'success' : 'error'}">
+                            用九（乾為天）: ${specialStatus.hasYongJiu ? '✓ 確認' : '✗ 未確認'}<br>
+                            用六（坤為地）: ${specialStatus.hasYongLiu ? '✓ 確認' : '✗ 未確認'}
+                        </div>
+                    `;
+                }
+                
+                // 統計更新
+                updateStats(report);
+                
+            } catch (error) {
+                document.getElementById('test-summary').innerHTML = 
+                    `<div class="test-result error">エラー: ${error.message}</div>`;
+            }
+        }
+        
+        // クイックテスト
+        async function runQuickTest() {
+            if (!checkSystemStatus()) {
+                alert('必要なコンポーネントが読み込まれていません');
+                return;
+            }
+            
+            clearLog();
+            console.log('=== クイックテスト開始 ===');
+            
+            try {
+                // H384データ確認
+                console.log(`H384_DATA件数: ${H384_DATA.length}`);
+                const yongJiu = H384_DATA.find(d => d['爻'] === '用九');
+                const yongLiu = H384_DATA.find(d => d['爻'] === '用六');
+                console.log(`用九: ${yongJiu ? '確認' : '未確認'}`);
+                console.log(`用六: ${yongLiu ? '確認' : '未確認'}`);
+                
+                // テンプレート生成テスト
+                const templates = LoadH384Data.generateTemplatesFromH384();
+                console.log(`生成テンプレート数: ${Object.keys(templates).length}卦`);
+                
+                // 簡易生成テスト
+                const generator = new SNSTextGenerator();
+                const template = generator.patternTemplates.getLineTemplate(1, 1);
+                if (template) {
+                    const batch = await generator.generateBatch(template, 3);
+                    console.log('サンプル生成:');
+                    batch.forEach(b => console.log(`  - ${b.text}`));
+                }
+                
+                console.log('=== クイックテスト完了 ===');
+            } catch (error) {
+                console.error('クイックテストエラー:', error);
+            }
+        }
+        
+        // デモマッピング
+        async function runDemoMapping() {
+            if (!testInstance) {
+                testInstance = new IntegrationTest386();
+                await testInstance.initializeComponents();
+            }
+            
+            const input = document.getElementById('demo-input').value;
+            const resultDiv = document.getElementById('demo-result');
+            
+            try {
+                const result = await testInstance.demonstrateIntegration(input);
+                
+                if (result) {
+                    resultDiv.innerHTML = `
+                        <div class="test-result success">
+                            <strong>マッピング結果:</strong> ${result.mappedYao.hexagram}卦 ${result.mappedYao.line}爻<br>
+                            <strong>爻の本質:</strong> ${result.essence?.state || 'N/A'}<br>
+                            <strong>関連感情:</strong> ${result.emotions?.join(', ') || 'N/A'}<br>
+                            <strong>Triple OS:</strong><br>
+                            　Engine OS: ${(result.tripleOS?.engineOS * 100 || 0).toFixed(1)}%<br>
+                            　Interface OS: ${(result.tripleOS?.interfaceOS * 100 || 0).toFixed(1)}%<br>
+                            　SafeMode OS: ${(result.tripleOS?.safeModeOS * 100 || 0).toFixed(1)}%<br>
+                            <strong>信頼度:</strong> ${(result.confidence * 100).toFixed(0)}%
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<div class="test-result error">マッピング失敗</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="test-result error">エラー: ${error.message}</div>`;
+            }
+        }
+        
+        // 統計更新
+        function updateStats(report) {
+            const stats = [
+                { value: '386', label: '総爻数' },
+                { value: report.details.templateCoverage?.coverageRate || '-', label: 'カバレッジ率' },
+                { value: report.details.performanceMetrics?.avgTimePerItem || '-', label: '生成時間' },
+                { value: report.details.generationMetrics?.results?.[0]?.avgScore || '-', label: '品質スコア' }
+            ];
+            
+            const statsHtml = stats.map(stat => `
+                <div class="stat-card">
+                    <div class="stat-value">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('stats-grid').innerHTML = statsHtml;
+        }
+        
+        // ログクリア
+        function clearLog() {
+            logContainer.innerHTML = '';
+        }
+        
+        // 初期化
+        window.addEventListener('load', () => {
+            checkSystemStatus();
+        });
+    </script>
+</body>
+</html>

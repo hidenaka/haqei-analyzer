@@ -1,0 +1,87 @@
+<\!DOCTYPE html>
+<html>
+<head>
+    <title>HAQEI OS Analyzer Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-left: 4px solid #ccc; }
+        .pass { border-color: #4CAF50; background: #f1f8e9; }
+        .fail { border-color: #f44336; background: #ffebee; }
+        .warn { border-color: #ff9800; background: #fff3e0; }
+    </style>
+</head>
+<body>
+    <h1>🧪 HAQEI OS Analyzer テスト結果</h1>
+    <div id='test-results'></div>
+    
+    <script>
+        const results = [];
+        const log = (type, message, details = '') => {
+            results.push({type, message, details});
+            console.log(`[${type.toUpperCase()}] ${message}`, details);
+        };
+        
+        // テスト1: 基本のHTMLファイル存在確認
+        fetch('/os_analyzer.html')
+            .then(response => {
+                if (response.ok) {
+                    log('pass', 'os_analyzer.html が正常に読み込めます');
+                    return response.text();
+                } else {
+                    log('fail', 'os_analyzer.html の読み込みに失敗', `Status: ${response.status}`);
+                    throw new Error('HTML load failed');
+                }
+            })
+            .then(html => {
+                // テスト2: 必要なスクリプトタグの存在確認
+                const requiredScripts = [
+                    'BaseComponent.js',
+                    'MicroStorageManager.js', 
+                    'BridgeStorageManager.js',
+                    'WelcomeScreen.js',
+                    'app.js'
+                ];
+                
+                requiredScripts.forEach(script => {
+                    if (html.includes(script)) {
+                        log('pass', `必須スクリプト ${script} が含まれています`);
+                    } else {
+                        log('fail', `必須スクリプト ${script} が見つかりません`);
+                    }
+                });
+                
+                // テスト3: DOM要素の存在確認
+                const requiredElements = [
+                    'welcome-container',
+                    'questions-container', 
+                    'analysis-container',
+                    'results-container'
+                ];
+                
+                requiredElements.forEach(elementId => {
+                    if (html.includes(`id="${elementId}"`)) {
+                        log('pass', `DOM要素 ${elementId} が定義されています`);
+                    } else {
+                        log('fail', `DOM要素 ${elementId} が見つかりません`);
+                    }
+                });
+                
+                renderResults();
+            })
+            .catch(error => {
+                log('fail', 'テスト実行中にエラー', error.message);
+                renderResults();
+            });
+        
+        function renderResults() {
+            const container = document.getElementById('test-results');
+            container.innerHTML = results.map(result => 
+                `<div class="test-result ${result.type}">
+                    <strong>[${result.type.toUpperCase()}]</strong> ${result.message}
+                    ${result.details ? `<br><small>${result.details}</small>` : ''}
+                </div>`
+            ).join('');
+        }
+    </script>
+</body>
+</html>

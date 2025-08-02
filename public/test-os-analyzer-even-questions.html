@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS Analyzer 偶数番設問表示テスト</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-header {
+            background: #1e293b;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .test-results {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #10b981;
+            background: white;
+        }
+        .test-item.failed {
+            border-left-color: #ef4444;
+        }
+        .navigation-test {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .test-button {
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #2563eb;
+        }
+        .question-display-area {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            min-height: 400px;
+            margin: 20px 0;
+        }
+        #questions-container {
+            width: 100%;
+            height: 100%;
+        }
+        .log-area {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🧪 OS Analyzer 偶数番設問表示テスト</h1>
+            <p>VirtualQuestionFlowコンポーネントの偶数番設問表示機能を検証します</p>
+        </div>
+
+        <div class="test-results" id="test-summary">
+            <h2>📊 テスト結果サマリー</h2>
+            <div id="summary-content">テスト実行前...</div>
+        </div>
+
+        <div class="navigation-test">
+            <button class="test-button" onclick="runEvenQuestionTest()">🚀 偶数番設問テスト開始</button>
+            <button class="test-button" onclick="runAllQuestionsTest()">📋 全設問テスト実行</button>
+            <button class="test-button" onclick="resetTest()">🔄 テストリセット</button>
+        </div>
+
+        <div class="question-display-area">
+            <div id="questions-container"></div>
+        </div>
+
+        <div class="test-results">
+            <h3>🔍 詳細ログ</h3>
+            <div class="log-area" id="test-log"></div>
+        </div>
+
+        <div class="test-results" id="detailed-results">
+            <h3>📄 詳細テスト結果</h3>
+            <div id="results-content">まだテストが実行されていません</div>
+        </div>
+    </div>
+
+    <!-- 必要なスクリプトの読み込み -->
+    <script src="js/shared/core/BaseComponent.js"></script>
+    <script src="js/shared/core/StorageManager.js"></script>
+    <script src="js/shared/core/DataManager.js"></script>
+    <script src="js/shared/data/questions.js"></script>
+    <script src="js/os-analyzer/core/PrecompiledQuestions.js"></script>
+    <script src="js/os-analyzer/components/HaqeiQuestionElement.js"></script>
+    <script src="js/os-analyzer/components/VirtualQuestionFlow.js"></script>
+
+    <script>
+        // テストログ用
+        const testLog = document.getElementById('test-log');
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+
+        function logToPage(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            testLog.textContent += logEntry;
+            testLog.scrollTop = testLog.scrollHeight;
+            
+            // 元のconsoleメソッドも呼び出し
+            if (type === 'error') originalConsoleError(message);
+            else if (type === 'warn') originalConsoleWarn(message);
+            else originalConsoleLog(message);
+        }
+
+        // console.logを横取り
+        console.log = (...args) => logToPage(args.join(' '), 'log');
+        console.error = (...args) => logToPage(args.join(' '), 'error');
+        console.warn = (...args) => logToPage(args.join(' '), 'warn');
+
+        let virtualFlow = null;
+        let testResults = [];
+
+        function updateSummary(results) {
+            const summaryContent = document.getElementById('summary-content');
+            const total = results.length;
+            const passed = results.filter(r => r.passed).length;
+            const failed = total - passed;
+            
+            summaryContent.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
+                    <div>
+                        <h3>📊 総テスト数</h3>
+                        <div style="font-size: 24px; font-weight: bold;">${total}</div>
+                    </div>
+                    <div style="color: #10b981;">
+                        <h3>✅ 成功</h3>
+                        <div style="font-size: 24px; font-weight: bold;">${passed}</div>
+                    </div>
+                    <div style="color: #ef4444;">
+                        <h3>❌ 失敗</h3>
+                        <div style="font-size: 24px; font-weight: bold;">${failed}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateDetailedResults(results) {
+            const resultsContent = document.getElementById('results-content');
+            let html = '';
+            
+            results.forEach(result => {
+                const statusClass = result.passed ? '' : 'failed';
+                const statusIcon = result.passed ? '✅' : '❌';
+                
+                html += `
+                    <div class="test-item ${statusClass}">
+                        <h4>${statusIcon} ${result.questionId} (設問${result.questionNumber})</h4>
+                        <p><strong>表示状態:</strong> ${result.passed ? '正常表示' : '表示失敗'}</p>
+                        <p><strong>要素存在:</strong> ${result.elementExists ? 'あり' : 'なし'}</p>
+                        <p><strong>表示確認:</strong> ${result.isVisible ? 'はい' : 'いいえ'}</p>
+                        ${result.issues.length > 0 ? `<p><strong>問題:</strong> ${result.issues.join(', ')}</p>` : ''}
+                        <details>
+                            <summary>詳細情報</summary>
+                            <pre>${JSON.stringify(result, null, 2)}</pre>
+                        </details>
+                    </div>
+                `;
+            });
+            
+            resultsContent.innerHTML = html || 'テスト結果がありません';
+        }
+
+        async function initializeVirtualFlow() {
+            if (virtualFlow) {
+                console.log('VirtualFlow already initialized, cleaning up first...');
+                virtualFlow.cleanup();
+            }
+
+            console.log('🚀 VirtualQuestionFlow初期化開始...');
+            
+            const container = document.getElementById('questions-container');
+            container.innerHTML = ''; // コンテナをクリア
+            
+            virtualFlow = new VirtualQuestionFlow('questions-container', {
+                storageManager: new StorageManager(),
+                onProgress: (progress) => {
+                    console.log(`Progress: ${progress.toFixed(1)}%`);
+                },
+                onComplete: (answers) => {
+                    console.log(`Complete: ${answers.length} answers`);
+                }
+            });
+            
+            virtualFlow.init();
+            
+            console.log(`✅ VirtualFlow初期化完了: ${virtualFlow.questions.length}個の設問を読み込み`);
+            return virtualFlow;
+        }
+
+        async function testQuestionDisplay(questionId) {
+            if (!virtualFlow) {
+                throw new Error('VirtualFlow が初期化されていません');
+            }
+
+            const questionIndex = virtualFlow.questions.findIndex(q => q.id === questionId);
+            if (questionIndex < 0) {
+                throw new Error(`設問 ${questionId} が見つかりません`);
+            }
+
+            console.log(`🧪 ${questionId} のテスト開始...`);
+            
+            // 設問インデックスを設定
+            virtualFlow.currentQuestionIndex = questionIndex;
+            virtualFlow.updateVisibleRange();
+            
+            // レンダリング完了を待機
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            // DOM要素の確認
+            const viewport = document.querySelector('#virtual-viewport');
+            const questionElement = Array.from(viewport?.children || []).find(el => 
+                el.dataset && el.dataset.questionId === questionId
+            );
+
+            const questionNumber = parseInt(questionId.replace('q', ''));
+            const isEven = questionNumber % 2 === 0;
+
+            let result = {
+                questionId: questionId,
+                questionNumber: questionNumber,
+                isEven: isEven,
+                elementExists: !!questionElement,
+                isVisible: false,
+                styles: {},
+                shadowDOMPresent: false,
+                issues: [],
+                passed: false
+            };
+
+            if (questionElement) {
+                console.log(`✅ 要素発見: ${questionId}`);
+                
+                // スタイル確認
+                const computedStyle = window.getComputedStyle(questionElement);
+                result.styles = {
+                    display: computedStyle.display,
+                    opacity: computedStyle.opacity,
+                    visibility: computedStyle.visibility,
+                    offsetHeight: questionElement.offsetHeight,
+                    offsetWidth: questionElement.offsetWidth
+                };
+
+                // 可視性判定
+                result.isVisible = computedStyle.display !== 'none' && 
+                                  computedStyle.opacity !== '0' && 
+                                  computedStyle.visibility !== 'hidden' &&
+                                  questionElement.offsetHeight > 0;
+
+                // Shadow DOM 確認
+                result.shadowDOMPresent = !!questionElement.shadowRoot;
+                
+                console.log(`Display: ${result.styles.display}, Opacity: ${result.styles.opacity}, Height: ${result.styles.offsetHeight}`);
+                console.log(`Visible: ${result.isVisible ? '✅' : '❌'}`);
+
+                // 問題の特定
+                if (!result.isVisible) {
+                    if (result.styles.display === 'none') {
+                        result.issues.push('display: none が設定されている');
+                    }
+                    if (result.styles.opacity === '0') {
+                        result.issues.push('opacity: 0 が設定されている');
+                    }
+                    if (result.styles.visibility === 'hidden') {
+                        result.issues.push('visibility: hidden が設定されている');
+                    }
+                    if (result.styles.offsetHeight === 0) {
+                        result.issues.push('要素の高さが0px');
+                    }
+                }
+
+                result.passed = result.isVisible;
+            } else {
+                console.log(`❌ 要素が見つからない: ${questionId}`);
+                result.issues.push('DOM要素が作成されていない');
+            }
+
+            console.log(`${questionId} テスト結果: ${result.passed ? '✅ 成功' : '❌ 失敗'}`);
+            return result;
+        }
+
+        async function runEvenQuestionTest() {
+            console.log('\n🧪 偶数番設問表示テスト開始');
+            testResults = [];
+            
+            try {
+                await initializeVirtualFlow();
+                
+                if (virtualFlow.questions.length === 0) {
+                    throw new Error('設問データが読み込まれていません');
+                }
+                
+                // 偶数番設問を特定
+                const evenQuestions = virtualFlow.questions.filter(q => {
+                    const num = parseInt(q.id.replace('q', ''));
+                    return num % 2 === 0;
+                });
+                
+                console.log(`偶数番設問: ${evenQuestions.length}個 (${evenQuestions.map(q => q.id).join(', ')})`);
+                
+                // 各偶数番設問をテスト
+                for (const question of evenQuestions.slice(0, 10)) { // 最初の10個をテスト
+                    const result = await testQuestionDisplay(question.id);
+                    testResults.push(result);
+                    
+                    // UIを更新
+                    updateSummary(testResults);
+                    updateDetailedResults(testResults);
+                    
+                    // 少し待機
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                console.log('\n📊 偶数番設問テスト完了');
+                const passedCount = testResults.filter(r => r.passed).length;
+                console.log(`成功: ${passedCount}/${testResults.length}`);
+                
+            } catch (error) {
+                console.error('❌ テスト実行エラー:', error);
+            }
+        }
+
+        async function runAllQuestionsTest() {
+            console.log('\n🧪 全設問表示テスト開始');
+            testResults = [];
+            
+            try {
+                await initializeVirtualFlow();
+                
+                if (virtualFlow.questions.length === 0) {
+                    throw new Error('設問データが読み込まれていません');
+                }
+                
+                console.log(`全設問: ${virtualFlow.questions.length}個`);
+                
+                // 全設問をテスト
+                for (const question of virtualFlow.questions.slice(0, 15)) { // 最初の15個をテスト
+                    const result = await testQuestionDisplay(question.id);
+                    testResults.push(result);
+                    
+                    // UIを更新
+                    updateSummary(testResults);
+                    updateDetailedResults(testResults);
+                    
+                    // 少し待機
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+                
+                console.log('\n📊 全設問テスト完了');
+                const passedCount = testResults.filter(r => r.passed).length;
+                console.log(`成功: ${passedCount}/${testResults.length}`);
+                
+            } catch (error) {
+                console.error('❌ テスト実行エラー:', error);
+            }
+        }
+
+        function resetTest() {
+            console.log('🔄 テストリセット');
+            testResults = [];
+            
+            if (virtualFlow) {
+                virtualFlow.cleanup();
+                virtualFlow = null;
+            }
+            
+            document.getElementById('questions-container').innerHTML = '';
+            document.getElementById('summary-content').innerHTML = 'テスト実行前...';
+            document.getElementById('results-content').innerHTML = 'まだテストが実行されていません';
+            testLog.textContent = '';
+        }
+
+        // 初期化完了を待ってからテスト開始可能にする
+        window.addEventListener('load', () => {
+            console.log('🎉 テストページ読み込み完了');
+            console.log('利用可能なコンポーネント:');
+            console.log(`- BaseComponent: ${typeof BaseComponent !== 'undefined'}`);
+            console.log(`- StorageManager: ${typeof StorageManager !== 'undefined'}`);
+            console.log(`- VirtualQuestionFlow: ${typeof VirtualQuestionFlow !== 'undefined'}`);
+            console.log(`- WORLDVIEW_QUESTIONS: ${typeof WORLDVIEW_QUESTIONS !== 'undefined'} (${WORLDVIEW_QUESTIONS?.length || 0}個)`);
+            console.log(`- SCENARIO_QUESTIONS: ${typeof SCENARIO_QUESTIONS !== 'undefined'} (${SCENARIO_QUESTIONS?.length || 0}個)`);
+        });
+    </script>
+</body>
+</html>
