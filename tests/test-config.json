@@ -1,0 +1,189 @@
+{
+  "testEnvironments": {
+    "development": {
+      "baseUrl": "http://localhost:8001",
+      "timeout": 10000,
+      "retryCount": 3,
+      "concurrent": true,
+      "verbose": true
+    },
+    "staging": {
+      "baseUrl": "https://staging.haqei.com",
+      "timeout": 15000,
+      "retryCount": 5,
+      "concurrent": true,
+      "verbose": false
+    },
+    "production": {
+      "baseUrl": "https://haqei.com",
+      "timeout": 30000,
+      "retryCount": 3,
+      "concurrent": false,
+      "verbose": false
+    }
+  },
+  "testSuites": {
+    "smoke": {
+      "description": "基本的な動作確認テスト",
+      "tests": [
+        "environment",
+        "componentAvailability",
+        "basicFlow"
+      ],
+      "timeout": 5000
+    },
+    "regression": {
+      "description": "回帰テスト（既存機能の確認）",
+      "tests": [
+        "unitTests",
+        "integrationTests",
+        "dataConsistency"
+      ],
+      "timeout": 15000
+    },
+    "performance": {
+      "description": "パフォーマンステスト",
+      "tests": [
+        "responseTime",
+        "memoryUsage",
+        "concurrentUsers"
+      ],
+      "timeout": 30000
+    },
+    "full": {
+      "description": "全機能テスト",
+      "tests": [
+        "environment",
+        "unitTests",
+        "integrationTests",
+        "systemTests",
+        "performanceTests",
+        "usabilityTests"
+      ],
+      "timeout": 60000
+    }
+  },
+  "testData": {
+    "sampleTexts": {
+      "short": [
+        "仕事でストレスを感じています。",
+        "恋愛関係で悩んでいます。",
+        "将来が不安です。"
+      ],
+      "medium": [
+        "最近仕事でプレッシャーを感じています。上司との関係も難しく、どう対処すべきか悩んでいます。",
+        "恋愛関係で悩んでいます。相手の気持ちがよくわからず、このまま続けるべきか迷っています。",
+        "将来のキャリアについて不安があります。今の仕事を続けるか、転職するか決められません。"
+      ],
+      "long": [
+        "最近仕事でとても大きなプレッシャーを感じています。新しいプロジェクトのリーダーに任命されたのですが、チームメンバーとの関係がうまくいかず、上司からは結果を求められるばかりです。家族との時間も取れなくなり、どのように対処していけばよいのか分からず困っています。",
+        "長年付き合っている恋人との関係で深刻な悩みを抱えています。最初は互いを理解し合えていたのですが、最近は価値観の違いが目立つようになり、将来について話し合うたびに意見が合わなくなってしまいます。このまま関係を続けるべきか、それとも別れるべきか、毎日のように考えてしまいます。"
+      ]
+    },
+    "userProfiles": [
+      {
+        "age": 25,
+        "occupation": "エンジニア",
+        "location": "東京",
+        "generation": "gen_z"
+      },
+      {
+        "age": 35,
+        "occupation": "営業",
+        "location": "大阪", 
+        "generation": "millennial"
+      },
+      {
+        "age": 45,
+        "occupation": "医師",
+        "location": "京都",
+        "generation": "gen_x"
+      },
+      {
+        "age": 55,
+        "occupation": "教師",
+        "location": "地方",
+        "generation": "boomer"
+      }
+    ]
+  },
+  "expectedResults": {
+    "situationalAnalysis": {
+      "requiredFields": [
+        "virtualSituation",
+        "situationalElements",
+        "complexityLevel",
+        "confidence"
+      ],
+      "confidenceThreshold": 0.6
+    },
+    "hexagramMapping": {
+      "requiredFields": [
+        "primaryHexagram",
+        "selectedLine",
+        "mappingConfidence",
+        "situationalAlignment"
+      ],
+      "confidenceThreshold": 0.7
+    },
+    "culturalAdaptation": {
+      "requiredFields": [
+        "adaptedMetaphors",
+        "expressionStyle",
+        "confidence"
+      ],
+      "confidenceThreshold": 0.6,
+      "minMetaphors": 2
+    }
+  },
+  "performanceThresholds": {
+    "responseTime": {
+      "situationalAnalysis": 3000,
+      "hexagramMapping": 2000,
+      "culturalAdaptation": 1500,
+      "fullFlow": 5000
+    },
+    "memoryUsage": {
+      "maxHeapSize": 100,
+      "maxDomNodes": 5000
+    },
+    "concurrency": {
+      "maxConcurrentUsers": 10,
+      "avgResponseTime": 8000
+    }
+  },
+  "errorHandling": {
+    "expectedErrors": [
+      "InvalidInputError",
+      "DataNotFoundError",
+      "TimeoutError",
+      "NetworkError"
+    ],
+    "gracefulDegradation": true,
+    "fallbackMechanisms": [
+      "defaultHexagram",
+      "basicMetaphors",
+      "errorMessages"
+    ]
+  },
+  "accessibility": {
+    "wcagLevel": "AA",
+    "screenReaderSupport": true,
+    "keyboardNavigation": true,
+    "colorContrast": 4.5
+  },
+  "security": {
+    "dataValidation": true,
+    "xssProtection": true,
+    "csrfProtection": true,
+    "encryptionRequired": false
+  },
+  "ci": {
+    "testOnCommit": true,
+    "testOnPush": true,
+    "testOnPullRequest": true,
+    "failOnError": true,
+    "generateReports": true,
+    "notifyOnFailure": true
+  }
+}

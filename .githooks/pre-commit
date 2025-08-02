@@ -1,0 +1,119 @@
+#!/bin/bash
+
+# HAQEI Analyzer Pre-commit Hook
+# タスク完了チェックと進捗率自動更新
+
+set -e
+
+echo "🔍 HAQEI Analyzer pre-commit hook running..."
+
+# カラー定義
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# タスク管理表のパス
+TASK_TRACKER="docs/development/20250802_DEV_Migration_Task_Tracker_v1.md"
+
+# タスク管理表が存在するかチェック
+if [ ! -f "$TASK_TRACKER" ]; then
+    echo -e "${YELLOW}⚠️  タスク管理表が見つかりません。スキップします。${NC}"
+    exit 0
+fi
+
+# 変更されたファイルにタスク管理表が含まれているかチェック
+if ! git diff --cached --name-only | grep -q "$TASK_TRACKER"; then
+    echo "✅ タスク管理表に変更はありません。"
+    exit 0
+fi
+
+echo "📊 タスク進捗を計算中..."
+
+# 完了タスクと総タスク数をカウント
+TOTAL_TASKS=$(grep -c "^- \[ \] \*\*TASK-" "$TASK_TRACKER" || echo 0)
+COMPLETED_TASKS=$(grep -c "^- \[x\] \*\*TASK-" "$TASK_TRACKER" || echo 0)
+
+# Phase別のカウント
+PHASE1_TOTAL=$(sed -n '/## 📋 Phase 1:/,/## 📋 Phase 2:/p' "$TASK_TRACKER" | grep -c "^- \[\] \*\*TASK-\|^- \[x\] \*\*TASK-" || echo 0)
+PHASE1_COMPLETED=$(sed -n '/## 📋 Phase 1:/,/## 📋 Phase 2:/p' "$TASK_TRACKER" | grep -c "^- \[x\] \*\*TASK-" || echo 0)
+
+PHASE2_TOTAL=$(sed -n '/## 📋 Phase 2:/,$p' "$TASK_TRACKER" | grep -c "^- \[\] \*\*TASK-\|^- \[x\] \*\*TASK-" || echo 0)
+PHASE2_COMPLETED=$(sed -n '/## 📋 Phase 2:/,$p' "$TASK_TRACKER" | grep -c "^- \[x\] \*\*TASK-" || echo 0)
+
+# 合計を計算
+TOTAL_ALL=$((TOTAL_TASKS + COMPLETED_TASKS))
+
+# 進捗率を計算
+if [ $TOTAL_ALL -eq 0 ]; then
+    PROGRESS_RATE=0
+else
+    PROGRESS_RATE=$((COMPLETED_TASKS * 100 / TOTAL_ALL))
+fi
+
+if [ $PHASE1_TOTAL -eq 0 ]; then
+    PHASE1_RATE=0
+else
+    PHASE1_RATE=$((PHASE1_COMPLETED * 100 / PHASE1_TOTAL))
+fi
+
+if [ $PHASE2_TOTAL -eq 0 ]; then
+    PHASE2_RATE=0
+else
+    PHASE2_RATE=$((PHASE2_COMPLETED * 100 / PHASE2_TOTAL))
+fi
+
+echo -e "${GREEN}✅ 完了タスク: $COMPLETED_TASKS / $TOTAL_ALL ($PROGRESS_RATE%)${NC}"
+echo -e "   Phase 1: $PHASE1_COMPLETED / $PHASE1_TOTAL ($PHASE1_RATE%)"
+echo -e "   Phase 2: $PHASE2_COMPLETED / $PHASE2_TOTAL ($PHASE2_RATE%)"
+
+# 進捗サマリーを更新
+echo "📝 進捗サマリーを更新中..."
+
+# 一時ファイルを作成
+TEMP_FILE=$(mktemp)
+
+# sedコマンドで進捗情報を更新
+awk -v total="$TOTAL_ALL" -v completed="$COMPLETED_TASKS" -v rate="$PROGRESS_RATE" \
+    -v p1_total="$PHASE1_TOTAL" -v p1_completed="$PHASE1_COMPLETED" -v p1_rate="$PHASE1_RATE" \
+    -v p2_total="$PHASE2_TOTAL" -v p2_completed="$PHASE2_COMPLETED" -v p2_rate="$PHASE2_RATE" \
+    'BEGIN {in_summary=0}
+    /^## 📊 進捗サマリー/ {in_summary=1}
+    in_summary && /^##[^#]/ && $0 !~ /進捗サマリー/ {in_summary=0}
+    {
+        if (in_summary && /^\*\*総タスク数\*\*:/) {
+            print "**総タスク数**: " total "  "
+        } else if (in_summary && /^\*\*完了タスク数\*\*:/) {
+            print "**完了タスク数**: " completed "  "
+        } else if (in_summary && /^\*\*進捗率\*\*:/) {
+            print "**進捗率**: " rate "%"
+        } else if (in_summary && /^| Phase 1 \|/) {
+            printf "| Phase 1 | %d | %d | 0 | %d | %d%% |\n", p1_total, p1_completed, p1_total - p1_completed, p1_rate
+        } else if (in_summary && /^| Phase 2 \|/) {
+            printf "| Phase 2 | %d | %d | 0 | %d | %d%% |\n", p2_total, p2_completed, p2_total - p2_completed, p2_rate
+        } else if (in_summary && /^| \*\*合計\*\* \|/) {
+            printf "| **合計** | **%d** | **%d** | **0** | **%d** | **%d%%** |\n", total, completed, total - completed, rate
+        } else {
+            print $0
+        }
+    }' "$TASK_TRACKER" > "$TEMP_FILE"
+
+# ファイルを置き換え
+mv "$TEMP_FILE" "$TASK_TRACKER"
+
+# 更新されたファイルをステージングに追加
+git add "$TASK_TRACKER"
+
+echo -e "${GREEN}✅ タスク管理表の進捗率を自動更新しました！${NC}"
+
+# コミットメッセージの推奨フォーマットを表示
+echo ""
+echo "💡 推奨コミットメッセージ形式:"
+echo "   feat: [機能名] - [変更内容]"
+echo "   fix: [バグ修正内容]"
+echo "   docs: [ドキュメント更新内容]"
+echo "   chore: [その他の変更]"
+echo ""
+echo "   タスク完了の場合: feat: [TASK-XXX] 完了 - [タスク名]"
+
+exit 0

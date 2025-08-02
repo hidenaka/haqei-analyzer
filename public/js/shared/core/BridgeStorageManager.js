@@ -330,6 +330,13 @@ class BridgeStorageManager {
   }
 
   // その他のメソッド
+  startNewSession() {
+    if (this.isMigrated && this.fullManager?.startNewSession) {
+      return this.fullManager.startNewSession();
+    }
+    return this.microManager.startNewSession();
+  }
+
   updateSession(updates) {
     if (this.isMigrated && this.fullManager?.updateSession) {
       return this.fullManager.updateSession(updates);

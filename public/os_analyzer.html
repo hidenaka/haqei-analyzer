@@ -204,14 +204,21 @@
         }
       }
       
-      // Service Worker一時的に無効化（DataManager.js 404問題の調査のため）
-      /*
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/haqei-sw.js')
-          .then(registration => console.log('✅ Service Worker registered'))
-          .catch(error => console.log('❌ Service Worker registration failed:', error));
+      // Service Worker完全無効化（DataManager.js 404問題の解決まで）
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage('CLEAR_CACHE');
+        console.log('🧹 Service Worker cache cleared');
       }
-      */
+      
+      // 古いService Workerを削除
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+            console.log('🗑️ Unregistered Service Worker');
+          }
+        });
+      }
     </script>
     
     <!-- アプリケーション初期化 -->

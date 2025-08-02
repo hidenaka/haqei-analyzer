@@ -295,9 +295,10 @@ class HaqeiQuestionElement extends HTMLElement {
           margin: 0 auto;
           padding: 20px;
           box-sizing: border-box;
-          /* 修正: 見切れ問題解決のためマージンを削除 */
-          margin-top: 0;
-          padding-top: 0;
+          /* 完全見切れ防止: すべてのマージン・パディングを最適化 */
+          margin-top: 30px !important; /* 上部に確実な余白を設ける */
+          padding-top: 20px !important; /* 追加の上部パディング */
+          margin-bottom: 20px !important; /* 下部余白も確保 */
         }
 
         .question-container.animated .slide-in {

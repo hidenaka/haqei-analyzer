@@ -1,0 +1,185 @@
+{
+  "metadata": {
+    "generatedAt": "2025-08-02T21:13:52.405Z",
+    "environment": "development",
+    "testSuite": "full",
+    "nodeVersion": "v22.17.0",
+    "platform": "darwin"
+  },
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "passRate": 100
+  },
+  "results": {
+    "environment": "development",
+    "startTime": "2025-08-02T21:13:36.320Z",
+    "endTime": "2025-08-02T21:13:52.403Z",
+    "duration": 16083,
+    "testSuite": "full",
+    "summary": {
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "errors": 0,
+      "passRate": 100
+    },
+    "tests": [
+      {
+        "name": "Node.js Version Check",
+        "status": "PASS",
+        "details": {
+          "version": "v22.17.0"
+        },
+        "message": "Node.js v22.17.0 (✓ 要件満たす)",
+        "timestamp": "2025-08-02T21:13:36.323Z"
+      },
+      {
+        "name": "NPM Packages Check",
+        "status": "PASS",
+        "details": {
+          "installedPackages": 4
+        },
+        "message": "4個のパッケージが利用可能",
+        "timestamp": "2025-08-02T21:13:36.323Z"
+      },
+      {
+        "name": "File Structure Check",
+        "status": "PASS",
+        "details": {
+          "checkedFiles": 5
+        },
+        "message": "必要なファイルがすべて存在 (5個)",
+        "timestamp": "2025-08-02T21:13:36.324Z"
+      },
+      {
+        "name": "Server Connection Check",
+        "status": "PASS",
+        "details": {
+          "url": "http://localhost:8001"
+        },
+        "message": "サーバー接続確認（模擬）: http://localhost:8001",
+        "timestamp": "2025-08-02T21:13:36.425Z"
+      },
+      {
+        "name": "environment",
+        "status": "PASS",
+        "duration": 576,
+        "details": {
+          "executionTime": 576
+        },
+        "message": "environment テスト完了 (576ms)",
+        "timestamp": "2025-08-02T21:13:37.002Z"
+      },
+      {
+        "name": "unitTests",
+        "status": "PASS",
+        "duration": 1073,
+        "details": {
+          "executionTime": 1073
+        },
+        "message": "unitTests テスト完了 (1073ms)",
+        "timestamp": "2025-08-02T21:13:38.076Z"
+      },
+      {
+        "name": "integrationTests",
+        "status": "PASS",
+        "duration": 2831,
+        "details": {
+          "executionTime": 2831
+        },
+        "message": "integrationTests テスト完了 (2831ms)",
+        "timestamp": "2025-08-02T21:13:40.908Z"
+      },
+      {
+        "name": "systemTests",
+        "status": "PASS",
+        "duration": 3470,
+        "details": {
+          "executionTime": 3470
+        },
+        "message": "systemTests テスト完了 (3470ms)",
+        "timestamp": "2025-08-02T21:13:44.378Z"
+      },
+      {
+        "name": "performanceTests",
+        "status": "PASS",
+        "duration": 6220,
+        "details": {
+          "executionTime": 6220
+        },
+        "message": "performanceTests テスト完了 (6220ms)",
+        "timestamp": "2025-08-02T21:13:50.599Z"
+      },
+      {
+        "name": "usabilityTests",
+        "status": "PASS",
+        "duration": 1801,
+        "details": {
+          "executionTime": 1801
+        },
+        "message": "usabilityTests テスト完了 (1801ms)",
+        "timestamp": "2025-08-02T21:13:52.400Z"
+      }
+    ],
+    "errors": [],
+    "performance": {
+      "environment": {
+        "duration": 576,
+        "timestamp": "2025-08-02T21:13:37.002Z"
+      },
+      "unitTests": {
+        "duration": 1073,
+        "timestamp": "2025-08-02T21:13:38.075Z"
+      },
+      "integrationTests": {
+        "duration": 2831,
+        "timestamp": "2025-08-02T21:13:40.907Z"
+      },
+      "systemTests": {
+        "duration": 3470,
+        "timestamp": "2025-08-02T21:13:44.378Z"
+      },
+      "performanceTests": {
+        "duration": 6220,
+        "timestamp": "2025-08-02T21:13:50.599Z"
+      },
+      "usabilityTests": {
+        "duration": 1801,
+        "timestamp": "2025-08-02T21:13:52.400Z"
+      }
+    },
+    "coverage": null
+  },
+  "performance": {
+    "averageExecutionTime": 2662,
+    "slowestTest": {
+      "name": "performanceTests",
+      "status": "PASS",
+      "duration": 6220,
+      "details": {
+        "executionTime": 6220
+      },
+      "message": "performanceTests テスト完了 (6220ms)",
+      "timestamp": "2025-08-02T21:13:50.599Z"
+    },
+    "fastestTest": {
+      "name": "environment",
+      "status": "PASS",
+      "duration": 576,
+      "details": {
+        "executionTime": 576
+      },
+      "message": "environment テスト完了 (576ms)",
+      "timestamp": "2025-08-02T21:13:37.002Z"
+    },
+    "thresholdViolations": []
+  },
+  "recommendations": [
+    "✅ すべてのテストが正常に完了しました"
+  ]
+}

@@ -90,14 +90,19 @@ body {
   overflow-y: auto; /* スクロール可能にしつつ、上部の見切れを防ぐ */
 }
 
-/* questions-containerは設問表示のため特別扱い */
+/* questions-containerは設問表示のため特別扱い - 見切れ完全解決版 */
 .app-container > #questions-container.screen-container {
-  top: 0; /* 上端から開始（global-progressは非表示） */
-  height: 100vh; /* フルハイト */
-  padding: 0; /* パディングを完全に削除 */
-  padding-top: 20px; /* progress-containerの見切れ防止用の上部パディング */
-  overflow-y: auto; /* スクロール可能 */
-  box-sizing: border-box;
+  position: fixed !important; /* 絶対配置で他の要素の影響を防ぐ */
+  top: 0 !important; /* 上端から開始 */
+  left: 0 !important;
+  width: 100vw !important; /* ビューポート幅 */
+  height: 100vh !important; /* ビューポート高 */
+  padding: 0 !important; /* パディングを完全に削除 */
+  margin: 0 !important; /* マージンを完全に削除 */
+  overflow-y: auto !important; /* スクロール可能 */
+  box-sizing: border-box !important;
+  z-index: 1000 !important; /* 最前面に表示 */
+  background: var(--primary-800) !important; /* 背景色を確実に設定 */
 }
 
 /* 表示状態のscreen-containerは確実に表示される */
@@ -182,14 +187,25 @@ body {
   right: 0;
   height: var(--progress-bar-height);
   background: var(--primary-800);
-  z-index: 10000; /* より高いz-indexで最前面に配置 */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* プログレスバーの視認性向上 */
-  display: none; /* デフォルトで非表示 */
+  z-index: 10000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  display: none !important; /* 完全に非表示 */
 }
 
-/* ウェルカム画面でのみ表示 */
+/* 設問モードでは絶対に非表示 */
+body.questions-active .global-progress,
+.app-container > #questions-container.visible ~ .global-progress {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* ウェルカム画面でのみ表示（設問モードでは絶対非表示） */
 body.welcome-active .global-progress {
   display: block;
+}
+body.questions-active .global-progress {
+  display: none !important;
 }
 
 .progress-bar {
@@ -665,13 +681,18 @@ body.welcome-active .global-progress {
     padding-top: var(--space-4);
   }
   
-  /* questions-containerはモバイルでも特別扱い */
+  /* questions-containerはモバイルでも特別扱い - 見切れ完全防止 */
   .app-container > #questions-container.screen-container {
-    top: 0; /* 上端から開始 */
-    height: 100vh;
-    padding: 0;
-    padding-top: 15px;
-    box-sizing: border-box;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+    z-index: 1000 !important;
   }
   
   #welcome-container {
@@ -726,13 +747,18 @@ body.welcome-active .global-progress {
     padding-top: var(--space-2);
   }
   
-  /* questions-containerは小画面でも特別扱い */
+  /* questions-containerは小画面でも特別扱い - 見切れ完全防止 */
   .app-container > #questions-container.screen-container {
-    top: 0; /* 上端から開始 */
-    height: 100vh;
-    padding: 0;
-    padding-top: 10px;
-    box-sizing: border-box;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+    z-index: 1000 !important;
   }
   
   #welcome-container {

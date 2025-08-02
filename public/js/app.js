@@ -303,6 +303,18 @@ function startRealDiagnosis() {
     console.log("👋 Hiding welcome screen...");
     app.welcomeScreen.hide();
 
+    // 設問モード専用のスタイル適用（見切れ完全防止）
+    document.body.classList.remove('welcome-active');
+    document.body.classList.add('questions-active');
+    
+    // global-progressを強制的に非表示
+    const globalProgress = document.querySelector('.global-progress');
+    if (globalProgress) {
+      globalProgress.style.setProperty('display', 'none', 'important');
+      globalProgress.style.setProperty('visibility', 'hidden', 'important');
+      globalProgress.style.setProperty('opacity', '0', 'important');
+    }
+
     // Virtual Question Flow を初期化（超高速版）
     console.log("⚡ Creating VirtualQuestionFlow...");
     const questionFlow = new VirtualQuestionFlow("questions-container", {
