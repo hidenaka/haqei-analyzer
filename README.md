@@ -1,10 +1,15 @@
-# HaQei Analyzer
+# HAQEI Analyzer
 
-**古代の易経と現代のテクノロジーが融合した、革新的な自己洞察分析システム**
+**易経の知恵とAI技術を融合した、戦略的人生ナビゲーションシステム**
 
 ## 🌟 プロジェクト概要
 
-HaQei Analyzerは、易経の叡智とモダンなWeb技術を組み合わせた、深い自己洞察体験を提供するアプリケーションです。個人の性格特性を分析し、対話型UIによる豊富な分析結果を提供します。
+HAQEI Analyzerは、古代中国の易経の知恵と最新のAI技術を組み合わせた、革新的な自己理解ツールです。Triple OS（価値観・社会的・防御システム）分析により、あなたの本質を多角的に解明し、具体的な行動指針を提供します。
+
+### 🎯 現在のステータス
+- **開発フェーズ**: Vue 3 + TypeScript移行中
+- **進捗率**: Phase 1 - 11% (5/45タスク完了)
+- **次期リリース**: v2.0 (モダンアーキテクチャ版)
 
 ## 📁 プロジェクト構造
 
@@ -50,20 +55,21 @@ haqei-analyzer/
 
 ## 🛠️ 技術スタック
 
-### フロントエンド
-- **HTML5/CSS3**: モダンなWebスタンダード
-- **JavaScript (ES6+)**: モジュラー構造のクライアントサイド
+### 現在の構成（レガシー）
+- **HTML5/CSS3**: 静的ページ
+- **JavaScript (ES6+)**: モジュラー構造
 - **Chart.js 3.9.1**: データビジュアライゼーション
-- **カスタムCSS**: レスポンシブデザイン
 
-### バックエンド
-- **Node.js**: サーバーサイドランタイム
-- **Cloudflare Functions**: サーバーレス API
-- **SQLite**: 軽量データベース
-
-### データ管理
-- **CSV/JSON**: 設定・分析データ
-- **SQLite Database**: 構造化データストレージ
+### 移行先の構成（開発中）
+- **Frontend**: Vue 3 + TypeScript + Vite
+- **Styling**: Custom CSS with CSS Variables
+- **State Management**: Pinia
+- **Router**: Vue Router 4
+- **Testing**: Vitest + Playwright
+- **CI/CD**: GitHub Actions
+- **Backend**: Edge Functions (Cloudflare Workers)
+- **Database**: Supabase (PostgreSQL)
+- **Payment**: Stripe
 
 ## 🏃‍♂️ クイックスタート
 
@@ -80,8 +86,32 @@ cd haqei-analyzer
 # 依存関係インストール
 npm install
 
-# 開発サーバー起動
+# 開発サーバー起動（Vue 3版）
 npm run dev
+
+# レガシー版の起動
+npm run dev:legacy
+```
+
+### 開発コマンド
+```bash
+# コードの検証
+npm run lint
+npm run lint:fix
+
+# コードフォーマット
+npm run format
+npm run format:check
+
+# テストの実行
+npm run test          # Vitestのwatch mode
+npm run test:unit     # ユニットテスト
+npm run test:e2e      # E2Eテスト
+npm run test:coverage # カバレッジレポート
+
+# ビルド
+npm run build         # プロダクションビルド
+npm run preview       # ビルドのプレビュー
 ```
 
 ### 主要ページ
@@ -112,6 +142,30 @@ npm run dev
 
 プロジェクトに関する質問・提案は Issues よりお願いします。
 
+## 🔄 移行計画
+
+現在、レガシーシステムからモダンアーキテクチャへの段階的移行を実施中です。
+
+### Phase 1: MVP強化（3ヶ月）
+- [x] Vite + Vue 3環境構築
+- [x] TypeScript設定
+- [x] ESLint + Prettier設定
+- [x] Git Hooks設定
+- [x] Vitest + Playwright設定
+- [x] CI/CD基本設定
+- [ ] コンポーネント移植
+- [ ] データ層統合
+
+### Phase 2: 収益化実装（3ヶ月）
+- [ ] 認証システム
+- [ ] 決済システム（Stripe）
+- [ ] サブスクリプション管理
+- [ ] 本番環境準備
+
+詳細は[移行計画書](docs/development/20250802_DEV_HAQEI_Migration_Plan_v1.md)を参照してください。
+
 ---
 
-**HaQei Analyzer** - 古代の叡智と現代技術の融合による、新しい自己洞察体験
+**HAQEI Analyzer** - 易経×AI×戦略的思考による、新しい人生ナビゲーション体験
+
+© 2025 HAQEI Analyzer. All rights reserved.

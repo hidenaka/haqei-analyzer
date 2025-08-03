@@ -1,0 +1,314 @@
+/**
+ * アニメーション・トランジション定義
+ * 
+ * 質問遷移、選択肢表示、その他のアニメーション効果
+ */
+
+/* ===========================
+   Question Transitions
+   =========================== */
+
+/* Slide transitions */
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+.slide-right-enter-from {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+/* Fade transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Scale fade transitions */
+.scale-fade-enter-active,
+.scale-fade-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scale-fade-enter-from {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.scale-fade-leave-to {
+  opacity: 0;
+  transform: scale(1.05);
+}
+
+/* ===========================
+   Option Animations
+   =========================== */
+
+/* Stagger animation for options */
+.option-enter {
+  animation: optionSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes optionSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Option hover effects */
+.option-interactive {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.option-interactive:hover {
+  transform: translateX(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.option-interactive:active {
+  transform: translateX(4px);
+  transition: transform 0.1s ease;
+}
+
+/* Selected option animation */
+.option-selected {
+  animation: optionSelect 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes optionSelect {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Option ripple effect */
+.option-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.option-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.option-ripple:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* ===========================
+   Progress Animations
+   =========================== */
+
+/* Progress bar fill animation */
+.progress-fill-animated {
+  animation: progressFill 1s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes progressFill {
+  from {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  to {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+/* Milestone pulse */
+.milestone-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
+  }
+}
+
+/* ===========================
+   Loading Animations
+   =========================== */
+
+/* Skeleton loading */
+.skeleton-loading {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 25%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton 1.5s infinite;
+}
+
+@keyframes skeleton {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Spinner */
+.spinner-rotate {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===========================
+   Feedback Animations
+   =========================== */
+
+/* Success checkmark */
+.success-check {
+  animation: successCheck 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes successCheck {
+  0% {
+    transform: scale(0) rotate(45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(45deg);
+  }
+  100% {
+    transform: scale(1) rotate(45deg);
+    opacity: 1;
+  }
+}
+
+/* Error shake */
+.error-shake {
+  animation: shake 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+/* ===========================
+   Mobile Gesture Hints
+   =========================== */
+
+/* Swipe hint */
+.swipe-hint {
+  animation: swipeHint 2s ease-in-out infinite;
+}
+
+@keyframes swipeHint {
+  0%, 100% {
+    transform: translateX(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateX(-20px);
+    opacity: 1;
+  }
+}
+
+/* ===========================
+   Utility Classes
+   =========================== */
+
+/* Prevent animation on page load */
+.preload * {
+  animation-duration: 0s !important;
+  transition: none !important;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* CSS Variables for animations */
+:root {
+  --skeleton-base: #e5e7eb;
+  --skeleton-shine: #f3f4f6;
+  --primary-rgb: 79, 70, 229;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --skeleton-base: #374151;
+    --skeleton-shine: #4b5563;
+  }
+}

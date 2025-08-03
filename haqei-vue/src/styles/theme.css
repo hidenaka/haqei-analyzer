@@ -1,0 +1,217 @@
+/* HAQEI Theme Configuration */
+@import './variables.css';
+@import './base.css';
+
+/* Theme-specific customizations */
+
+/* Primary Theme Colors */
+.theme-haqei {
+  --primary-color: #4a90e2;
+  --primary-hover: #357abd;
+  --primary-active: #2968a3;
+  
+  /* I Ching inspired colors */
+  --yin-color: #1a237e;
+  --yang-color: #ff6f00;
+  --balance-color: #4a90e2;
+  
+  /* Triple OS Colors */
+  --engine-os-color: #e74c3c;
+  --interface-os-color: #3498db;
+  --safemode-os-color: #2ecc71;
+  
+  /* Hexagram Colors */
+  --hexagram-line: #333333;
+  --hexagram-broken: #cccccc;
+  --hexagram-bg: #f8f9fa;
+}
+
+/* Component Theme Extensions */
+
+/* Cards with Triple OS themes */
+.h-card--engine-os {
+  border-color: var(--engine-os-color);
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.05) 0%, rgba(231, 76, 60, 0.02) 100%);
+}
+
+.h-card--interface-os {
+  border-color: var(--interface-os-color);
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(52, 152, 219, 0.02) 100%);
+}
+
+.h-card--safemode-os {
+  border-color: var(--safemode-os-color);
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(46, 204, 113, 0.02) 100%);
+}
+
+/* Buttons with theme variants */
+.h-button--engine {
+  background-color: var(--engine-os-color);
+  color: white;
+}
+
+.h-button--engine:hover:not(.h-button--disabled):not(.h-button--loading) {
+  background-color: #c0392b;
+}
+
+.h-button--interface {
+  background-color: var(--interface-os-color);
+  color: white;
+}
+
+.h-button--interface:hover:not(.h-button--disabled):not(.h-button--loading) {
+  background-color: #2980b9;
+}
+
+.h-button--safemode {
+  background-color: var(--safemode-os-color);
+  color: white;
+}
+
+.h-button--safemode:hover:not(.h-button--disabled):not(.h-button--loading) {
+  background-color: #27ae60;
+}
+
+/* Hexagram Display Styles */
+.hexagram-container {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  background-color: var(--hexagram-bg);
+  border-radius: var(--radius-md);
+}
+
+.hexagram-line {
+  width: 60px;
+  height: 8px;
+  background-color: var(--hexagram-line);
+  border-radius: 2px;
+}
+
+.hexagram-line--broken {
+  display: flex;
+  gap: 8px;
+}
+
+.hexagram-line--broken::before,
+.hexagram-line--broken::after {
+  content: '';
+  flex: 1;
+  background-color: var(--hexagram-line);
+  border-radius: 2px;
+}
+
+/* Analysis Result Themes */
+.analysis-result {
+  --result-bg: var(--bg-secondary);
+  --result-border: var(--border-color);
+}
+
+.analysis-result--high {
+  --result-bg: rgba(40, 167, 69, 0.1);
+  --result-border: #28a745;
+}
+
+.analysis-result--medium {
+  --result-bg: rgba(255, 193, 7, 0.1);
+  --result-border: #ffc107;
+}
+
+.analysis-result--low {
+  --result-bg: rgba(220, 53, 69, 0.1);
+  --result-border: #dc3545;
+}
+
+/* Question Flow Themes */
+.question-progress {
+  background-color: var(--bg-tertiary);
+  height: 4px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.question-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  transition: width var(--transition-slow);
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Utility Classes */
+.text-engine { color: var(--engine-os-color); }
+.text-interface { color: var(--interface-os-color); }
+.text-safemode { color: var(--safemode-os-color); }
+
+.bg-engine { background-color: var(--engine-os-color); }
+.bg-interface { background-color: var(--interface-os-color); }
+.bg-safemode { background-color: var(--safemode-os-color); }
+
+.border-engine { border-color: var(--engine-os-color); }
+.border-interface { border-color: var(--interface-os-color); }
+.border-safemode { border-color: var(--safemode-os-color); }
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn var(--transition-slow) ease-out;
+}
+
+.slide-in-up {
+  animation: slideInUp var(--transition-slow) ease-out;
+}
+
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Loading States */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive Typography Scale */
+@media (max-width: 640px) {
+  :root {
+    --text-4xl: 2rem;
+    --text-3xl: 1.5rem;
+    --text-2xl: 1.25rem;
+  }
+}

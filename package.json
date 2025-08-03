@@ -42,17 +42,18 @@
     "preview": "vite preview",
     "dev:legacy": "./start-local-server.sh",
     "build:legacy": "echo 'No build step required for client-side application'",
-    "test": "node tests/automated-test-runner.js --suite=smoke",
-    "test:unit": "node tests/automated-test-runner.js --suite=regression",
-    "test:integration": "node tests/automated-test-runner.js --suite=regression --verbose",
-    "test:performance": "node tests/automated-test-runner.js --suite=performance",
-    "test:full": "node tests/automated-test-runner.js --suite=full --verbose",
-    "test:ci": "node tests/automated-test-runner.js --suite=full --env=staging --no-report",
-    "test:manual": "open tests/integrated-test-runner.html",
-    "test:legacy": "node test_workflow.js",
-    "test:playwright": "npx playwright test",
-    "lint": "echo 'ESLint configuration needed'",
-    "format": "echo 'Prettier configuration needed'",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:unit": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "npm run test:unit && npm run test:e2e",
+    "test:legacy": "node tests/automated-test-runner.js --suite=smoke",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx",
+    "lint:fix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,vue,css,scss,json}\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,vue,css,scss,json}\"",
     "validate": "npm run test && npm run lint",
     "validate:legacy": "node haqei-auto-validator.js",
     "validate:quick": "node haqei-auto-validator.js --quick",
@@ -64,6 +65,23 @@
     "cipher:test": "node -e \"console.log('Cipher configuration test: OK')\"",
     "serena:start": "echo 'Serena integration planned'",
     "tsumiki:start": "node tsumiki-cli.js",
+    "database:architect": "node haqei-database-architect.js",
+    "database:supabase": "node haqei-database-architect.js supabase-design",
+    "database:local": "node haqei-database-architect.js local-storage",
+    "database:migrate": "node haqei-database-architect.js migration-plan",
+    "database:triple-os": "node haqei-database-architect.js triple-os-model",
+    "database:privacy": "node haqei-database-architect.js privacy-design",
+    "database:test": "node haqei-database-architect.js integration-test",
+    "database:status": "node haqei-database-architect.js status",
+    "devops:engineer": "node haqei-devops-engineer.js",
+    "devops:auth": "node haqei-devops-engineer.js auth-system",
+    "devops:payment": "node haqei-devops-engineer.js payment-system",
+    "devops:cicd": "node haqei-devops-engineer.js cicd-pipeline",
+    "devops:perf": "node haqei-devops-engineer.js performance-optimization",
+    "devops:monitor": "node haqei-devops-engineer.js monitoring-ops",
+    "devops:prod": "node haqei-devops-engineer.js production-migration",
+    "devops:security": "node haqei-devops-engineer.js security-audit",
+    "devops:status": "node haqei-devops-engineer.js status",
     "setup:development": "npm install && npm run cipher:start",
     "setup:testing": "npm install && npm run test:full",
     "setup:production": "npm install --production",
@@ -88,6 +106,17 @@
     "security:fix": "npm audit fix"
   },
   "bin": {
-    "bunjin": "./bunenjin_cli.cjs"
+    "bunjin": "./bunenjin_cli.cjs",
+    "haqei-database-architect": "./haqei-database-architect.js",
+    "haqei-devops-engineer": "./haqei-devops-engineer.js"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,scss,json,md}": [
+      "prettier --write"
+    ]
   }
 }
