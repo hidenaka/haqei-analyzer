@@ -12,7 +12,11 @@
     "test:e2e": "echo 'E2E tests not configured yet'",
     "lint": "eslint . --ext .vue,.js,.ts,.tsx --fix",
     "format": "prettier --write src/",
-    "migrate:questions": "echo 'Run ts-node src/scripts/migrateQuestions.ts manually'"
+    "migrate:questions": "echo 'Run ts-node src/scripts/migrateQuestions.ts manually'",
+    "migrate:to-supabase": "tsx src/scripts/migrateToSupabase.ts",
+    "migrate:backup": "tsx src/scripts/migrateToSupabase.ts --backup-only",
+    "migrate:restore": "tsx src/scripts/migrateToSupabase.ts --restore",
+    "migrate:dry-run": "tsx src/scripts/migrateToSupabase.ts --dry-run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.53.0",
@@ -30,6 +34,11 @@
     "@testing-library/vue": "^8.1.0",
     "@types/chart.js": "^2.9.41",
     "@types/node": "^24.1.0",
+    "chalk": "^5.0.0",
+    "commander": "^12.0.0",
+    "inquirer": "^12.0.0",
+    "ora": "^8.0.0",
+    "tsx": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
     "@vitejs/plugin-vue": "^6.0.1",
