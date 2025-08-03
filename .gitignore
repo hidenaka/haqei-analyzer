@@ -36,3 +36,31 @@ phase5-*.json
 
 .DS_Store
 serena-mcp/
+
+# Database temporary files
+database/schema.sql.bak
+database/*.log
+
+# Test reports and logs
+*-validation-report-*.json
+*hook_test*.log
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
