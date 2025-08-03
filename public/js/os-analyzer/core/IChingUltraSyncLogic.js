@@ -22,15 +22,51 @@ class IChingUltraSyncLogic {
 
   async initialize() {
     try {
-      // 必要なデータを読み込み
-      this.hexagramData = this.dataManager.getAllHexagramData();
+      // DataManagerの存在確認とフォールバック処理
+      if (this.dataManager && typeof this.dataManager.getAllHexagramData === 'function') {
+        this.hexagramData = this.dataManager.getAllHexagramData();
+      } else {
+        console.warn("⚠️ DataManager not available, using fallback hexagram data");
+        this.hexagramData = this.getFallbackHexagramData();
+      }
+      
       this.trigramData = this.loadTrigramData();
       this.elementData = this.loadElementData();
       
       console.log("🔯 IChingUltraSyncLogic initialized successfully");
     } catch (error) {
       console.error("❌ Failed to initialize IChingUltraSyncLogic:", error);
+      // フォールバック初期化
+      this.initializeFallbackData();
     }
+  }
+
+  /**
+   * フォールバック用の基本64卦データ
+   */
+  getFallbackHexagramData() {
+    return {
+      1: { name: '乾', element: '天', meaning: '創造力', attributes: ['強健', '創造', '天'] },
+      2: { name: '坤', element: '地', meaning: '受容力', attributes: ['従順', '受容', '地'] },
+      3: { name: '屯', element: '水雷', meaning: '困難の始まり', attributes: ['困難', '始まり', '成長'] },
+      4: { name: '蒙', element: '山水', meaning: '啓蒙', attributes: ['学び', '無知', '啓発'] },
+      5: { name: '需', element: '水天', meaning: '待つ', attributes: ['忍耐', '時機', '待機'] },
+      6: { name: '訟', element: '天水', meaning: '争い', attributes: ['対立', '争い', '正義'] },
+      7: { name: '師', element: '地水', meaning: '軍隊', attributes: ['統率', '規律', '組織'] },
+      8: { name: '比', element: '水地', meaning: '親しみ', attributes: ['協調', '親近', '団結'] },
+      // 必要に応じて他の卦も追加
+      64: { name: '未済', element: '火水', meaning: '未完成', attributes: ['未完', '可能性', '継続'] }
+    };
+  }
+
+  /**
+   * フォールバック初期化
+   */
+  initializeFallbackData() {
+    this.hexagramData = this.getFallbackHexagramData();
+    this.trigramData = this.loadTrigramData();
+    this.elementData = this.loadElementData();
+    console.log("🔄 Fallback initialization completed");
   }
 
   // メイン分析メソッド - 最適化された並列実行

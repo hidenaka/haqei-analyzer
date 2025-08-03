@@ -123,6 +123,15 @@ body {
   margin: 0 auto 2rem;
 }
 
+.hero-actions {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
 .hero-cta {
   display: inline-block;
   background: var(--primary-color);
@@ -140,6 +149,25 @@ body {
   background: var(--primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+}
+
+.hero-cta-secondary {
+  display: inline-block;
+  background: transparent;
+  color: var(--text-primary);
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.125rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.hero-cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
 }
 
 /* Services Grid */
@@ -356,6 +384,7 @@ body {
 /* Focus states */
 .nav-link:focus,
 .hero-cta:focus,
+.hero-cta-secondary:focus,
 .service-link:focus,
 .contact-btn:focus,
 .footer-link:focus {

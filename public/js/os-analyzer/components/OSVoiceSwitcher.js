@@ -616,7 +616,7 @@ class OSVoiceSwitcher {
      */
     generateOSComparison() {
         const engines = this.virtualPersonality.engineOS;
-        const interface = this.virtualPersonality.interfaceOS;
+        const interfaceOS = this.virtualPersonality.interfaceOS;
         const safemode = this.virtualPersonality.safeModeOS;
         
         return {
@@ -635,25 +635,25 @@ class OSVoiceSwitcher {
                             <tr>
                                 <td>活性度</td>
                                 <td>${(engines.activation * 100).toFixed(1)}%</td>
-                                <td>${(interface.activation * 100).toFixed(1)}%</td>
+                                <td>${(interfaceOS.activation * 100).toFixed(1)}%</td>
                                 <td>${(safemode.activation * 100).toFixed(1)}%</td>
                             </tr>
                             <tr>
                                 <td>対応卦</td>
                                 <td>${engines.hexagramName}</td>
-                                <td>${interface.hexagramName}</td>
+                                <td>${interfaceOS.hexagramName}</td>
                                 <td>${safemode.hexagramName}</td>
                             </tr>
                             <tr>
                                 <td>主要特性</td>
                                 <td>${engines.characteristics.primary_traits.join('、')}</td>
-                                <td>${interface.characteristics.primary_traits.join('、')}</td>
+                                <td>${interfaceOS.characteristics.primary_traits.join('、')}</td>
                                 <td>${safemode.characteristics.primary_traits.join('、')}</td>
                             </tr>
                             <tr>
                                 <td>声の特徴</td>
                                 <td>${engines.personality.voice}</td>
-                                <td>${interface.personality.voice}</td>
+                                <td>${interfaceOS.personality.voice}</td>
                                 <td>${safemode.personality.voice}</td>
                             </tr>
                         </tbody>

@@ -69,9 +69,21 @@ else
     fi
 fi
 
-# 3. 設定確認
+# 3. Playwright MCP準備確認
 echo ""
-echo "3️⃣ 生成された設定確認..."
+echo "3️⃣ Playwright MCP準備確認..."
+if npx @playwright/mcp --version > /dev/null 2>&1; then
+    echo "   ✅ Playwright MCP利用可能 (バージョン: $(npx @playwright/mcp --version))"
+    echo "   💡 コンソールログ機能: playwright_console_logs ツール利用可能"
+else
+    echo "   ❌ Playwright MCP利用不可"
+    echo "   🔄 インストール中..."
+    npm install @playwright/mcp
+fi
+
+# 4. 設定確認
+echo ""
+echo "4️⃣ 生成された設定確認..."
 if [ -f "claude-mcp-config.json" ]; then
     echo "   ✅ claude-mcp-config.json 生成完了"
     echo "   📝 設定ファイルの場所: $PROJECT_DIR/claude-mcp-config.json"
@@ -99,7 +111,9 @@ echo "🔗 利用可能なサービス:"
 echo "  • Cipher (ポート3001) - bunenjin哲学とプロジェクト記憶"
 echo "  • Tsumiki - AI駆動開発フレームワーク"
 echo "  • Serena - セマンティックコード分析"
-echo "  • Playwright - ブラウザ自動化"
+echo "  • Playwright - ブラウザ自動化 & コンソールログ取得"
+echo "  • Claude Flow - AI協調オーケストレーション (87専門ツール)"
+echo "  • Ruv Swarm - 分散エージェント協調システム"
 echo ""
 echo "💡 ヒント:"
 echo "  • どちらのユーザー (hideakimacbookair/nakanohideaki) でも使用可能"

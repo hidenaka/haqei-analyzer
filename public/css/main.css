@@ -27,12 +27,13 @@
   /* Transitions */
   --transition-normal: 300ms ease;
   
-  /* Layout Constants - 見切れ防止用（最終調整版） */
-  --progress-bar-height: 6px; /* プログレスバーを少し太くして見やすく */
-  --safe-top-desktop: 20px; /* デスクトップ用セーフエリア */
-  --safe-top-mobile: 30px;  /* モバイル用セーフエリア */
-  --safe-top-small: 40px;   /* 小画面用セーフエリア */
-  --progress-total-height: calc(var(--progress-bar-height) + var(--safe-top-desktop));
+  /* Layout Constants - 見切れ防止用（完全修正版） */
+  --progress-bar-height: 6px;
+  --safe-area-top: max(env(safe-area-inset-top), 0px);
+  --safe-area-bottom: max(env(safe-area-inset-bottom), 0px);
+  --safe-area-left: max(env(safe-area-inset-left), 0px);
+  --safe-area-right: max(env(safe-area-inset-right), 0px);
+  --content-safe-top: calc(var(--progress-bar-height) + var(--safe-area-top) + 1rem);
 }
 
 * {

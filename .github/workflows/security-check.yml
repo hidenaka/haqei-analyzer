@@ -1,0 +1,364 @@
+name: Security Check and Audit
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  schedule:
+    # 毎日午前2時（UTC）に実行
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18.x'
+
+jobs:
+  dependency-security:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm ci
+        cd haqei-vue && npm ci
+    
+    - name: Run npm audit (Main Project)
+      run: |
+        echo "::group::Main Project npm audit"
+        npm audit --audit-level=moderate --production || true
+        echo "::endgroup::"
+    
+    - name: Run npm audit (Vue3 Project)
+      run: |
+        echo "::group::Vue3 Project npm audit"
+        cd haqei-vue && npm audit --audit-level=moderate --production || true
+        echo "::endgroup::"
+    
+    - name: Check for high/critical vulnerabilities
+      run: |
+        echo "Checking for critical vulnerabilities..."
+        MAIN_AUDIT=$(npm audit --audit-level=high --json --production 2>/dev/null || echo '{"vulnerabilities":{}}')
+        VUE_AUDIT=$(cd haqei-vue && npm audit --audit-level=high --json --production 2>/dev/null || echo '{"vulnerabilities":{}}')
+        
+        MAIN_VULNS=$(echo $MAIN_AUDIT | jq -r '.metadata.vulnerabilities.high // 0 + .metadata.vulnerabilities.critical // 0')
+        VUE_VULNS=$(echo $VUE_AUDIT | jq -r '.metadata.vulnerabilities.high // 0 + .metadata.vulnerabilities.critical // 0')
+        
+        echo "Main project high/critical vulnerabilities: $MAIN_VULNS"
+        echo "Vue3 project high/critical vulnerabilities: $VUE_VULNS"
+        
+        if [ "$MAIN_VULNS" -gt 0 ] || [ "$VUE_VULNS" -gt 0 ]; then
+          echo "::warning::High or critical vulnerabilities detected. Please update dependencies."
+        fi
+
+  code-security:
+    name: Code Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run custom security audit
+      run: |
+        echo "Running HaQei Security Audit Suite..."
+        node scripts/security-audit.js
+    
+    - name: Upload security report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-audit-report
+        path: security-reports/
+        retention-days: 30
+
+  secrets-scan:
+    name: Secrets and Credentials Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Run GitLeaks action
+      uses: gitleaks/gitleaks-action@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE}}
+    
+    - name: Check for hardcoded secrets
+      run: |
+        echo "Checking for potential hardcoded secrets..."
+        
+        # API キーパターンチェック
+        if grep -r -i "api[_-]key\s*[:=]\s*['\"][a-zA-Z0-9]{20,}['\"]" --include="*.js" --include="*.html" --include="*.json" . ; then
+          echo "::warning::Potential hardcoded API keys found"
+        fi
+        
+        # Gemini API キーチェック
+        if grep -r -i "gemini.*key" --include="*.js" --include="*.html" . ; then
+          echo "::warning::Potential Gemini API key references found"
+        fi
+        
+        # Supabase キーチェック
+        if grep -r -i "supabase.*key" --include="*.js" --include="*.html" . ; then
+          echo "::warning::Potential Supabase key references found"
+        fi
+        
+        # 一般的なシークレットパターン
+        SECRET_PATTERNS=(
+          "password\s*[:=]\s*['\"][^'\"]{8,}['\"]"
+          "secret\s*[:=]\s*['\"][^'\"]{20,}['\"]"
+          "token\s*[:=]\s*['\"][^'\"]{20,}['\"]"
+        )
+        
+        for pattern in "${SECRET_PATTERNS[@]}"; do
+          if grep -r -i -E "$pattern" --include="*.js" --include="*.html" . ; then
+            echo "::warning::Potential secret found matching pattern: $pattern"
+          fi
+        done
+        
+        echo "Secrets scan completed"
+
+  security-headers:
+    name: Security Headers Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Check security headers configuration
+      run: |
+        echo "Checking security headers configuration..."
+        
+        # staging.config.js の存在確認
+        if [ -f "staging.config.js" ]; then
+          echo "✅ staging.config.js found"
+          
+          # 必須セキュリティヘッダーチェック
+          REQUIRED_HEADERS=(
+            "Content-Security-Policy"
+            "X-Frame-Options"
+            "X-Content-Type-Options"
+            "Strict-Transport-Security"
+            "Referrer-Policy"
+            "Permissions-Policy"
+          )
+          
+          for header in "${REQUIRED_HEADERS[@]}"; do
+            if grep -q "$header" staging.config.js; then
+              echo "✅ $header configured"
+            else
+              echo "⚠️ $header not found in configuration"
+            fi
+          done
+          
+          # 危険な設定チェック
+          if grep -q "'unsafe-eval'" staging.config.js; then
+            echo "::warning::Dangerous CSP directive 'unsafe-eval' found"
+          fi
+          
+          if grep -q "'unsafe-inline'" staging.config.js; then
+            echo "::warning::CSP directive 'unsafe-inline' found - consider using nonce or hash"
+          fi
+          
+        else
+          echo "::warning::staging.config.js not found - security headers may not be configured"
+        fi
+
+  file-permissions:
+    name: File Permissions and Sensitive Files
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Check for sensitive files
+      run: |
+        echo "Checking for sensitive files..."
+        
+        # 機密ファイルパターン
+        SENSITIVE_PATTERNS=(
+          "*.env"
+          "*.key"
+          "*.pem"
+          "*.p12"
+          "*.backup"
+          "*.bak"
+          "*secret*"
+          "*private*"
+        )
+        
+        FOUND_FILES=()
+        
+        for pattern in "${SENSITIVE_PATTERNS[@]}"; do
+          while IFS= read -r -d '' file; do
+            FOUND_FILES+=("$file")
+          done < <(find . -name "$pattern" -not -path "./node_modules/*" -not -path "./.git/*" -print0)
+        done
+        
+        if [ ${#FOUND_FILES[@]} -gt 0 ]; then
+          echo "::warning::Potentially sensitive files found:"
+          printf '%s\n' "${FOUND_FILES[@]}"
+          echo "Please ensure these files are properly secured and not committed to version control"
+        else
+          echo "✅ No sensitive files found"
+        fi
+    
+    - name: Check .gitignore coverage
+      run: |
+        echo "Checking .gitignore coverage for sensitive patterns..."
+        
+        if [ -f ".gitignore" ]; then
+          IGNORE_PATTERNS=(
+            "*.env"
+            "*.key"
+            "*.pem"
+            ".env.local"
+            "config/secrets*"
+          )
+          
+          for pattern in "${IGNORE_PATTERNS[@]}"; do
+            if grep -q "$pattern" .gitignore; then
+              echo "✅ $pattern is ignored"
+            else
+              echo "⚠️ Consider adding $pattern to .gitignore"
+            fi
+          done
+        else
+          echo "::warning::.gitignore file not found"
+        fi
+
+  https-links:
+    name: HTTPS and Secure Links Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Check for insecure HTTP links
+      run: |
+        echo "Checking for insecure HTTP links..."
+        
+        # HTTP リンクチェック
+        HTTP_LINKS=$(grep -r -n "http://" --include="*.html" --include="*.js" --include="*.css" . | grep -v "localhost" || true)
+        
+        if [ -n "$HTTP_LINKS" ]; then
+          echo "::warning::Insecure HTTP links found:"
+          echo "$HTTP_LINKS"
+          echo "Consider upgrading to HTTPS where possible"
+        else
+          echo "✅ No insecure HTTP links found"
+        fi
+        
+        # mixed content チェック
+        MIXED_CONTENT=$(grep -r -n -i "src=[\"']http://" --include="*.html" . || true)
+        
+        if [ -n "$MIXED_CONTENT" ]; then
+          echo "::warning::Potential mixed content issues found:"
+          echo "$MIXED_CONTENT"
+        else
+          echo "✅ No mixed content issues found"
+        fi
+
+  security-summary:
+    name: Security Summary
+    needs: [dependency-security, code-security, secrets-scan, security-headers, file-permissions, https-links]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Download security report
+      uses: actions/download-artifact@v3
+      if: always()
+      with:
+        name: security-audit-report
+        path: security-reports/
+      continue-on-error: true
+    
+    - name: Security summary
+      run: |
+        echo "## 🔒 Security Check Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # ジョブ結果の確認
+        if [ "${{ needs.dependency-security.result }}" = "success" ]; then
+          echo "✅ Dependency Security: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Dependency Security: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.code-security.result }}" = "success" ]; then
+          echo "✅ Code Security: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Code Security: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.secrets-scan.result }}" = "success" ]; then
+          echo "✅ Secrets Scan: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Secrets Scan: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.security-headers.result }}" = "success" ]; then
+          echo "✅ Security Headers: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Security Headers: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.file-permissions.result }}" = "success" ]; then
+          echo "✅ File Security: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ File Security: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.https-links.result }}" = "success" ]; then
+          echo "✅ HTTPS Links: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ HTTPS Links: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Security Report" >> $GITHUB_STEP_SUMMARY
+        echo "Detailed security audit results are available in the artifacts." >> $GITHUB_STEP_SUMMARY
+    
+    - name: Notify on security issues
+      if: always() && (needs.code-security.result == 'failure' || needs.secrets-scan.result == 'failure')
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        text: |
+          🚨 Security issues detected in HaQei repository
+          
+          Branch: ${{ github.ref }}
+          Commit: ${{ github.sha }}
+          Author: ${{ github.actor }}
+          
+          Please review the security report and take immediate action for any critical issues.
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+      continue-on-error: true

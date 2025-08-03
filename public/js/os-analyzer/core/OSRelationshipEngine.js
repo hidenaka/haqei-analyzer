@@ -13,10 +13,35 @@
 
 class OSRelationshipEngine {
   constructor(virtualPersonality) {
+    if (!virtualPersonality) {
+      console.error('❌ OSRelationshipEngine: virtualPersonality is required');
+      throw new Error('VirtualPersonality instance is required');
+    }
+    
     this.virtualPersonality = virtualPersonality;
-    this.engineOS = virtualPersonality.engineOS;
-    this.interfaceOS = virtualPersonality.interfaceOS;
-    this.safeModeOS = virtualPersonality.safeModeOS;
+    
+    // OSデータを適切に取得（プロパティマッピング対応・エラーハンドリング付き）
+    console.log('🔄 Initializing OS data with property mapping...');
+    try {
+      // プロパティマッピングを使用してOSデータを取得
+      this.engineOS = this.getOSDataSafely('engine');
+      this.interfaceOS = this.getOSDataSafely('interface');
+      this.safeModeOS = this.getOSDataSafely('safemode');
+      
+      console.log('✅ OS data initialization completed:', {
+        engineOS: this.engineOS ? '✓' : '✗',
+        interfaceOS: this.interfaceOS ? '✓' : '✗', 
+        safeModeOS: this.safeModeOS ? '✓' : '✗'
+      });
+    } catch (error) {
+      console.error('❌ Error initializing OS data:', error);
+      // フォールバックでOS作成
+      console.log('🔄 Creating fallback OS data...');
+      this.engineOS = this.generateFallbackOSData('engine');
+      this.interfaceOS = this.generateFallbackOSData('interface');
+      this.safeModeOS = this.generateFallbackOSData('safemode');
+      console.log('✅ Fallback OS data created successfully');
+    }
     
     // 関係性マトリックス
     this.relationshipMatrix = this.initializeRelationshipMatrix();
@@ -115,41 +140,72 @@ class OSRelationshipEngine {
    */
   async analyzeOSPairRelationship(osType1, osType2) {
     const key = `${osType1}-${osType2}`;
-    const os1 = this.virtualPersonality[`${osType1}OS`];
-    const os2 = this.virtualPersonality[`${osType2}OS`];
     
-    if (!os1 || !os2) {
-      console.warn(`⚠️ OS not found: ${osType1} or ${osType2}`);
-      return;
-    }
+    try {
+      console.log(`🔍 Analyzing relationship: ${osType1} ↔ ${osType2}`);
+      
+      // プロパティマッピングを使用してOSデータを取得
+      const os1 = this.getOSData(osType1);
+      const os2 = this.getOSData(osType2);
+      
+      if (!os1 || !os2) {
+        console.warn(`⚠️ OS not found: ${osType1} or ${osType2}. Creating fallback relationship.`);
+        this.createFallbackRelationship(key, osType1, osType2);
+        return;
+      }
+      
+      console.log(`✅ OS data found for relationship analysis:`, {
+        [`${osType1}`]: os1?.osName || os1?.osType || typeof os1,
+        [`${osType2}`]: os2?.osName || os2?.osType || typeof os2
+      });
+      
+      // 関係性が既に存在しない場合は初期化
+      if (!this.relationshipMatrix[key]) {
+        this.relationshipMatrix[key] = this.initializeRelationshipMatrix()[key] || {
+          compatibility: 0.0,
+          trust: 0.5,
+          cooperation: 0.0,
+          conflict: 0.0,
+          influence: { [osType1]: 0.5, [osType2]: 0.5 },
+          commonGround: [],
+          tensionPoints: [],
+          communicationStyle: 'unknown'
+        };
+      }
 
-    const relationship = this.relationshipMatrix[key];
-    
-    // 互換性分析
-    relationship.compatibility = this.calculateCompatibility(os1, os2);
-    
-    // 信頼度評価
-    relationship.trust = this.evaluateTrust(os1, os2);
-    
-    // 協力度と対立度
-    relationship.cooperation = this.assessCooperation(os1, os2);
-    relationship.conflict = this.assessConflict(os1, os2);
-    
-    // 影響力バランス
-    relationship.influence = this.calculateInfluenceBalance(os1, os2);
-    
-    // 共通基盤と緊張点
-    relationship.commonGround = this.identifyCommonGround(os1, os2);
-    relationship.tensionPoints = this.identifyTensionPoints(os1, os2);
-    
-    // コミュニケーションスタイル
-    relationship.communicationStyle = this.determineCommunicationStyle(os1, os2);
-    
-    console.log(`📊 ${key} relationship analyzed:`, {
-      compatibility: relationship.compatibility.toFixed(3),
-      cooperation: relationship.cooperation.toFixed(3),
-      conflict: relationship.conflict.toFixed(3)
-    });
+      const relationship = this.relationshipMatrix[key];
+      
+      // 互換性分析
+      relationship.compatibility = this.calculateCompatibility(os1, os2);
+      
+      // 信頼度評価
+      relationship.trust = this.evaluateTrust(os1, os2);
+      
+      // 協力度と対立度
+      relationship.cooperation = this.assessCooperation(os1, os2);
+      relationship.conflict = this.assessConflict(os1, os2);
+      
+      // 影響力バランス
+      relationship.influence = this.calculateInfluenceBalance(os1, os2);
+      
+      // 共通基盤と緊張点
+      relationship.commonGround = this.identifyCommonGround(os1, os2);
+      relationship.tensionPoints = this.identifyTensionPoints(os1, os2);
+      
+      // コミュニケーションスタイル
+      relationship.communicationStyle = this.determineCommunicationStyle(os1, os2);
+      
+      console.log(`📊 ${key} relationship analyzed:`, {
+        compatibility: relationship.compatibility.toFixed(3),
+        cooperation: relationship.cooperation.toFixed(3),
+        conflict: relationship.conflict.toFixed(3)
+      });
+      
+    } catch (error) {
+      console.error(`❌ Error analyzing relationship ${key}:`, error);
+      // フォールバック関係性を作成
+      this.createFallbackRelationship(key, osType1, osType2);
+    }
   }
 
   /**
@@ -173,8 +229,9 @@ class OSRelationshipEngine {
    * 特性重複度の計算
    */
   calculateTraitOverlap(os1, os2) {
-    const traits1 = os1.characteristics.primary_traits || [];
-    const traits2 = os2.characteristics.primary_traits || [];
+    // 安全なアクセスパターンを実装
+    const traits1 = this.safeGetPrimaryTraits(os1);
+    const traits2 = this.safeGetPrimaryTraits(os2);
     
     if (traits1.length === 0 || traits2.length === 0) return 0.5;
     
@@ -182,6 +239,66 @@ class OSRelationshipEngine {
     const union = [...new Set([...traits1, ...traits2])];
     
     return union.length > 0 ? intersection.length / union.length : 0.5;
+  }
+
+  /**
+   * OSの主要特性を安全に取得
+   */
+  safeGetPrimaryTraits(os) {
+    if (!os) return this.getDefaultTraits('unknown');
+    
+    // 複数のアクセスパターンを試行
+    let traits = null;
+    
+    // パターン1: 直接アクセス
+    if (os.characteristics && os.characteristics.primary_traits) {
+      traits = os.characteristics.primary_traits;
+    }
+    // パターン2: PersonalityOS構造
+    else if (os.personalityOS && os.personalityOS.characteristics && os.personalityOS.characteristics.primary_traits) {
+      traits = os.personalityOS.characteristics.primary_traits;
+    }
+    // パターン3: osType別フォールバック
+    else if (os.osType) {
+      traits = this.getDefaultTraits(os.osType);
+    }
+    // パターン4: osName別フォールバック
+    else if (os.osName) {
+      traits = this.getDefaultTraits(os.osName.toLowerCase().includes('engine') ? 'engine' : 
+                                     os.osName.toLowerCase().includes('interface') ? 'interface' : 'safemode');
+    }
+    // パターン5: 完全フォールバック
+    else {
+      traits = this.getDefaultTraits('unknown');
+    }
+    
+    return Array.isArray(traits) ? traits : this.getDefaultTraits('unknown');
+  }
+
+  /**
+   * デフォルト特性の取得
+   * @param {string} osType - OS種別
+   * @returns {Array<string>} - デフォルト特性配列
+   */
+  getDefaultTraits(osType) {
+    const defaultTraits = {
+      'engine': ['創造性', '論理性', '価値判断', '目標設定', '実行力'],
+      'interface': ['協調性', '社交性', '適応性', 'コミュニケーション', '調整力'],
+      'safemode': ['保護性', '慎重性', '安定性', 'リスク回避', '責任感'],
+      'unknown': ['多様性', '柔軟性', '適応性', '成長性', '可能性']
+    };
+
+    // OSタイプの正規化
+    const normalizedType = osType.toLowerCase();
+    if (normalizedType.includes('engine')) {
+      return defaultTraits.engine;
+    } else if (normalizedType.includes('interface')) {
+      return defaultTraits.interface;
+    } else if (normalizedType.includes('safe')) {
+      return defaultTraits.safemode;
+    } else {
+      return defaultTraits.unknown;
+    }
   }
 
   /**
@@ -216,17 +333,50 @@ class OSRelationshipEngine {
    * 信頼度評価
    */
   evaluateTrust(os1, os2) {
-    // 過去の協力履歴があれば参照
-    const historyKey = os2.osType;
-    const history = os1.relationshipHistory[historyKey];
-    
-    if (history) {
-      const trustFromHistory = history.cooperation - (history.conflict * 0.5);
-      return Math.max(0, Math.min(1, 0.5 + trustFromHistory));
+    // 安全なアクセスパターンで信頼度を評価
+    try {
+      // 引数の検証
+      if (!os1 || !os2) {
+        console.warn('⚠️ evaluateTrust: Invalid OS parameters', { os1: typeof os1, os2: typeof os2 });
+        return 0.5; // デフォルト信頼度
+      }
+
+      // OSオブジェクトが文字列の場合の処理
+      if (typeof os1 === 'string') {
+        console.warn(`⚠️ evaluateTrust: os1 is string (${os1}), using default trust`);
+        return 0.5;
+      }
+      if (typeof os2 === 'string') {
+        console.warn(`⚠️ evaluateTrust: os2 is string (${os2}), using default trust`);
+        return 0.5;
+      }
+
+      // 過去の協力履歴があれば参照
+      const historyKey = os2.osType || os2.osName || 'unknown';
+      const relationshipHistory = os1.relationshipHistory || {};
+      const history = relationshipHistory[historyKey];
+      
+      if (history && typeof history === 'object') {
+        const cooperation = history.cooperation || 0;
+        const conflict = history.conflict || 0;
+        const trustFromHistory = cooperation - (conflict * 0.5);
+        const calculatedTrust = Math.max(0, Math.min(1, 0.5 + trustFromHistory));
+        console.log(`🤝 Trust calculated from history: ${calculatedTrust} (cooperation: ${cooperation}, conflict: ${conflict})`);
+        return calculatedTrust;
+      }
+
+      // 特性に基づく基本的な信頼度計算
+      const trust1 = os1.trustLevel || os1.cooperationTendency || 0.5;
+      const trust2 = os2.trustLevel || os2.cooperationTendency || 0.5;
+      const basicTrust = (trust1 + trust2) / 2;
+      
+      console.log(`🤝 Basic trust calculated: ${basicTrust} (os1: ${trust1}, os2: ${trust2})`);
+      return basicTrust;
+      
+    } catch (error) {
+      console.error('❌ Error in evaluateTrust:', error);
+      return 0.5; // エラー時のフォールバック
     }
-    
-    // デフォルトは中程度の信頼
-    return 0.5;
   }
 
   /**
@@ -299,21 +449,118 @@ class OSRelationshipEngine {
   }
 
   /**
-   * 優先順位衝突の計算
+   * 優先順位衝突の計算（安全なアクセスパターン）
    */
   calculatePriorityConflict(os1, os2) {
-    // OS固有の優先順位の違いを評価
-    const priorities1 = os1.personality.priorities || [];
-    const priorities2 = os2.personality.priorities || [];
+    try {
+      // 引数の妥当性チェック
+      if (!os1 || !os2) {
+        console.warn('⚠️ calculatePriorityConflict: Invalid OS parameters', { os1: typeof os1, os2: typeof os2 });
+        return 0.3; // デフォルト対立度
+      }
+
+      // OS固有の優先順位を安全に取得
+      const priorities1 = this.safeGetOSPriorities(os1);
+      const priorities2 = this.safeGetOSPriorities(os2);
+      
+      console.log(`🔍 Priority conflict analysis:`, {
+        os1Type: os1.osType || 'unknown',
+        os1Priorities: priorities1.length,
+        os2Type: os2.osType || 'unknown', 
+        os2Priorities: priorities2.length
+      });
+      
+      // 優先順位が取得できない場合のフォールバック
+      if (priorities1.length === 0 || priorities2.length === 0) {
+        console.log('📊 Using default priority conflict (0.3) due to missing priorities');
+        return 0.3;
+      }
+      
+      // 対立する優先順位を特定
+      const conflictingPriorities = priorities1.filter(p1 => 
+        priorities2.some(p2 => this.arePrioritiesConflicting(p1, p2))
+      );
+      
+      const conflictRatio = conflictingPriorities.length / Math.max(priorities1.length, priorities2.length);
+      
+      console.log(`📊 Priority conflict calculated: ${conflictRatio.toFixed(3)} (${conflictingPriorities.length} conflicts of ${Math.max(priorities1.length, priorities2.length)} total)`);
+      
+      return conflictRatio;
+      
+    } catch (error) {
+      console.error('❌ Error in calculatePriorityConflict:', error);
+      return 0.3; // エラー時のフォールバック
+    }
+  }
+
+  /**
+   * OSの優先順位を安全に取得
+   * @param {Object} os - OSオブジェクト
+   * @returns {Array<string>} - 優先順位配列
+   */
+  safeGetOSPriorities(os) {
+    if (!os) return this.getDefaultPriorities('unknown');
     
-    // 簡略化: 長さの違いから対立度を推定
-    if (priorities1.length === 0 || priorities2.length === 0) return 0.3;
+    let priorities = null;
     
-    const conflictingPriorities = priorities1.filter(p1 => 
-      priorities2.some(p2 => this.arePrioritiesConflicting(p1, p2))
-    );
+    // パターン1: personality.priorities
+    if (os.personality && Array.isArray(os.personality.priorities)) {
+      priorities = os.personality.priorities;
+    }
+    // パターン2: characteristics.priorities
+    else if (os.characteristics && Array.isArray(os.characteristics.priorities)) {
+      priorities = os.characteristics.priorities;
+    }  
+    // パターン3: 直接priorities プロパティ
+    else if (Array.isArray(os.priorities)) {
+      priorities = os.priorities;
+    }
+    // パターン4: personalityOS.personality.priorities
+    else if (os.personalityOS && os.personalityOS.personality && Array.isArray(os.personalityOS.personality.priorities)) {
+      priorities = os.personalityOS.personality.priorities;
+    }
+    // パターン5: OSタイプ別デフォルト優先順位
+    else if (os.osType) {
+      priorities = this.getDefaultPriorities(os.osType);
+    }
+    // パターン6: osName別フォールバック
+    else if (os.osName) {
+      const osType = os.osName.toLowerCase().includes('engine') ? 'engine' : 
+                     os.osName.toLowerCase().includes('interface') ? 'interface' : 'safemode';
+      priorities = this.getDefaultPriorities(osType);
+    }
+    // パターン7: 完全フォールバック
+    else {
+      priorities = this.getDefaultPriorities('unknown');
+    }
     
-    return conflictingPriorities.length / Math.max(priorities1.length, priorities2.length);
+    return Array.isArray(priorities) ? priorities : this.getDefaultPriorities('unknown');
+  }
+
+  /**
+   * OSタイプ別のデフォルト優先順位を取得
+   * @param {string} osType - OS種別
+   * @returns {Array<string>} - デフォルト優先順位配列
+   */
+  getDefaultPriorities(osType) {
+    const defaultPriorities = {
+      'engine': ['創造性', '理想実現', '価値観一致', '長期視点', '独創性'],
+      'interface': ['調和維持', '関係性', '相互理解', '協調性', '社会的受容'],
+      'safemode': ['安全性', 'リスク管理', '安定性', '慎重性', '予防措置'],
+      'unknown': ['バランス', '適応性', '柔軟性', '成長性', '多様性']
+    };
+
+    // OSタイプの正規化
+    const normalizedType = osType.toLowerCase();
+    if (normalizedType.includes('engine')) {
+      return defaultPriorities.engine;
+    } else if (normalizedType.includes('interface')) {
+      return defaultPriorities.interface;
+    } else if (normalizedType.includes('safe')) {
+      return defaultPriorities.safemode;
+    } else {
+      return defaultPriorities.unknown;
+    }
   }
 
   /**
@@ -527,9 +774,25 @@ class OSRelationshipEngine {
     const osOrder = this.determineDialogueOrder(roundNumber);
     
     osOrder.forEach((osType, index) => {
-      const os = this.virtualPersonality[`${osType}OS`];
-      const exchange = this.generateOSExchange(os, scenario, roundNumber, previousRounds, index);
-      round.exchanges.push(exchange);
+      // プロパティマッピングを使用してOSデータを取得
+      const os = this.getOSData(osType);
+      if (os) {
+        const exchange = this.generateOSExchange(os, scenario, roundNumber, previousRounds, index);
+        round.exchanges.push(exchange);
+      } else {
+        console.warn(`⚠️ OS not available for dialogue: ${osType}`);
+        // フォールバックでダミー発言を作成
+        round.exchanges.push({
+          speaker: osType,
+          speakingOrder: index,
+          position: `${osType}としての立場を表明します`,
+          tone: 'neutral',
+          concerns: ['データ不足'],
+          proposals: [`${osType}の提案`],
+          responses: {},
+          timestamp: new Date()
+        });
+      }
     });
     
     // ラウンド内での合意・不合意を分析
@@ -1190,6 +1453,446 @@ class OSRelationshipEngine {
     });
     
     return recommendations.length > 0 ? recommendations : ['現在の関係性バランスを維持しましょう'];
+  }
+
+  /**
+   * OSプロパティ名マッピング（エラー修正）
+   * 'engine' → 'engineOS', 'interface' → 'interfaceOS', 'safemode' → 'safeModeOS'
+   */
+  mapOSPropertyName(osType) {
+    const propertyMap = {
+      'engine': 'engineOS',
+      'interface': 'interfaceOS', 
+      'safemode': 'safeModeOS',
+      // 正規化されたケース
+      'engineos': 'engineOS',
+      'interfaceos': 'interfaceOS',
+      'safemodeos': 'safeModeOS',
+      // tripleOSEngine プロパティマッピング
+      'tripleos': 'tripleOSEngine',
+      'triple': 'tripleOSEngine'
+    };
+    
+    const normalizedType = osType.toLowerCase();
+    const mappedProperty = propertyMap[normalizedType];
+    
+    if (mappedProperty) {
+      console.log(`🔄 Mapped OS property: '${osType}' → '${mappedProperty}'`);
+      return mappedProperty;
+    }
+    
+    // デフォルトの変換: osType + 'OS'
+    return `${normalizedType}OS`;
+  }
+
+  /**
+   * OSデータ取得のヘルパーメソッド（プロパティマッピング対応）
+   */
+  getOSData(osType) {
+    // 複数の参照パターンを試行
+    let osData = null;
+    
+    try {
+      // virtualPersonalityの存在確認
+      if (!this.virtualPersonality) {
+        console.error('❌ VirtualPersonality is not available');
+        return this.generateFallbackOSData(osType);
+      }
+      
+      // プロパティ名のマッピング
+      const mappedPropertyName = this.mapOSPropertyName(osType);
+      const normalizedOSType = osType.toLowerCase();
+      
+      // 利用可能なプロパティをデバッグ出力
+      const availableProperties = Object.keys(this.virtualPersonality).filter(key => 
+        key.toLowerCase().includes('os') || key.toLowerCase().includes('engine')
+      );
+      console.log(`🔍 Searching for OS: ${osType} (mapped to: ${mappedPropertyName})`);
+      console.log(`📋 Available OS properties (${availableProperties.length}):`, availableProperties);
+      
+      // パターン1: マップされたプロパティ名で直接参照
+      if (this.virtualPersonality[mappedPropertyName] && typeof this.virtualPersonality[mappedPropertyName] === 'object') {
+        osData = this.virtualPersonality[mappedPropertyName];
+        console.log(`✅ Found OS data via mapped property: ${mappedPropertyName}`);
+        
+        // データ構造の検証と修正
+        if (!osData.characteristics) {
+          osData.characteristics = {};
+        }
+        if (!osData.characteristics.primary_traits) {
+          osData.characteristics.primary_traits = this.getDefaultTraits(osType);
+        }
+      }
+      // パターン2: 分析結果からの参照
+      else if (this.virtualPersonality.analysisResult && 
+               this.virtualPersonality.analysisResult[mappedPropertyName] && 
+               typeof this.virtualPersonality.analysisResult[mappedPropertyName] === 'object') {
+        osData = this.virtualPersonality.analysisResult[mappedPropertyName];
+        console.log(`✅ Found OS data via analysisResult: ${mappedPropertyName}`);
+      }
+      // パターン3: personalityStateからの参照
+      else if (this.virtualPersonality.personalityState && 
+               this.virtualPersonality.personalityState[mappedPropertyName] && 
+               typeof this.virtualPersonality.personalityState[mappedPropertyName] === 'object') {
+        osData = this.virtualPersonality.personalityState[mappedPropertyName];
+        console.log(`✅ Found OS data via personalityState: ${mappedPropertyName}`);
+      }
+      // パターン4: osInstancesからの参照
+      else if (this.virtualPersonality.osInstances && 
+               this.virtualPersonality.osInstances[normalizedOSType] && 
+               typeof this.virtualPersonality.osInstances[normalizedOSType] === 'object') {
+        osData = this.virtualPersonality.osInstances[normalizedOSType];
+        console.log(`✅ Found OS data via osInstances: ${normalizedOSType}`);
+      }
+      // パターン5: 直接的な旧プロパティ名での検索（後方互換性）
+      else {
+        // すべての利用可能なプロパティをチェック
+        for (const propName of availableProperties) {
+          if (this.virtualPersonality[propName] && 
+              typeof this.virtualPersonality[propName] === 'object' &&
+              (propName.toLowerCase().includes(normalizedOSType) || 
+               propName.toLowerCase() === mappedPropertyName.toLowerCase())) {
+            osData = this.virtualPersonality[propName];
+            console.log(`✅ Found OS data via property scan: ${propName}`);
+            break;
+          }
+        }
+      }
+      
+      // OSデータの妥当性確認
+      if (osData && this.validateOSData(osData, osType)) {
+        // OSタイプが正しく設定されているか確認
+        if (!osData.osType) {
+          osData.osType = normalizedOSType;
+        }
+        return osData;
+      }
+      
+    } catch (error) {
+      console.error(`❌ Error retrieving OS data for ${osType}:`, error);
+    }
+    
+    // OSデータが見つからなかった場合のみ警告とフォールバック実行
+    if (!osData) {
+      const availableProperties = this.virtualPersonality ? 
+        Object.keys(this.virtualPersonality).filter(key => key.toLowerCase().includes('os')) : [];
+        
+      console.warn(`⚠️ OS not found: ${osType}. Available properties (${availableProperties.length}):`, availableProperties);
+      
+      // フォールバック: 基本的なOSデータを生成
+      osData = this.generateFallbackOSData(osType);
+    }
+    
+    return osData;
+  }
+  
+  /**
+   * OSデータの妥当性を検証
+   */
+  validateOSData(osData, expectedType) {
+    if (!osData || typeof osData !== 'object') {
+      return false;
+    }
+    
+    // 基本的なプロパティの存在確認
+    const requiredProperties = ['osType'];
+    const hasRequiredProps = requiredProperties.some(prop => osData.hasOwnProperty(prop));
+    
+    // characteristics や personality などの推奨プロパティがあるかチェック
+    const recommendedProperties = ['characteristics', 'personality', 'activation', 'score'];
+    const hasRecommendedProps = recommendedProperties.some(prop => osData.hasOwnProperty(prop));
+    
+    return hasRequiredProps || hasRecommendedProps;
+  }
+  
+  /**
+   * 安全なOSデータ取得（コンストラクター用）
+   */
+  getOSDataSafely(osType) {
+    try {
+      const osData = this.getOSData(osType);
+      
+      // 文字列が返された場合はオブジェクト化
+      if (typeof osData === 'string') {
+        console.warn(`⚠️ getOSData returned string for ${osType}, creating object wrapper`);
+        return this.createOSDataObject(osType, osData);
+      }
+      
+      // 有効なオブジェクトが返された場合
+      if (osData && typeof osData === 'object') {
+        // オブジェクトに必要なプロパティが不足している場合は補完
+        return this.ensureOSDataStructure(osData, osType);
+      }
+      
+      // null や undefined の場合
+      if (!osData) {
+        throw new Error(`Could not retrieve OS data for ${osType}`);
+      }
+      
+      return osData;
+    } catch (error) {
+      console.warn(`⚠️ Falling back to generated OS data for ${osType}:`, error.message);
+      return this.generateFallbackOSData(osType);
+    }
+  }
+
+  /**
+   * OSデータオブジェクトの生成（文字列から）
+   */
+  createOSDataObject(osType, osData) {
+    const fallbackData = this.generateFallbackOSData(osType);
+    
+    // 基本構造を確保
+    const baseObject = {
+      osType: osType,
+      osName: fallbackData.osName || (osType.charAt(0).toUpperCase() + osType.slice(1) + ' OS'),
+      activation: 0.5,
+      characteristics: {
+        primary_traits: this.getDefaultTraits(osType)
+      },
+      relationshipHistory: {},
+      cooperationTendency: 0.5,
+      conflictAvoidance: 0.5,
+      trustLevel: 0.5,
+      ...fallbackData // フォールバックデータをマージ
+    };
+
+    console.log(`🔧 Created OS data object for ${osType}:`, baseObject);
+    return baseObject;
+  }
+
+  /**
+   * OSデータ構造の確保
+   */
+  ensureOSDataStructure(osData, osType) {
+    const requiredFields = {
+      osType: osType,
+      osName: osData.osName || (osType.charAt(0).toUpperCase() + osType.slice(1) + ' OS'),
+      activation: osData.activation || 0.5,
+      characteristics: osData.characteristics || { primary_traits: this.getDefaultTraits(osType) },
+      relationshipHistory: osData.relationshipHistory || {},
+      cooperationTendency: osData.cooperationTendency || 0.5,
+      conflictAvoidance: osData.conflictAvoidance || 0.5,
+      trustLevel: osData.trustLevel || 0.5
+    };
+
+    // characteristics.primary_traits の確保
+    if (!requiredFields.characteristics.primary_traits) {
+      requiredFields.characteristics.primary_traits = this.getDefaultTraits(osType);
+    }
+
+    return { ...osData, ...requiredFields };
+  }
+
+  /**
+   * フォールバック用の基本OSデータを生成
+   */
+  generateFallbackOSData(osType) {
+    console.log(`🔄 Generating fallback OS data for: ${osType}`);
+    
+    const normalizedOSType = osType.toLowerCase();
+    
+    // OSタイプ別の基本特性
+    const osDefaults = {
+      engine: {
+        osName: 'Engine OS (理想追求型)',
+        primary_traits: ['創造的', '理想主義', '情熱的', '長期志向'],
+        motivation_source: '価値観と理想の実現',
+        voice: '理想を追求する声',
+        strengths: ['創造力', '理想設定', '価値観の明確さ'],
+        weaknesses: ['現実との乖離', '完璧主義', '妥協困難'],
+        priorities: ['創造性', '理想実現', '価値観一致'],
+        hexagram: { number: 1, name: '乾（天）' }
+      },
+      interface: {
+        osName: 'Interface OS (社会調和型)',
+        primary_traits: ['協調的', '共感的', '適応的', '社交的'],
+        motivation_source: '人間関係と社会的調和',
+        voice: '皆を繋ぐ声',
+        strengths: ['コミュニケーション', '協調性', '適応力'],
+        weaknesses: ['他者依存', '自分軸の弱さ', '衝突回避'],
+        priorities: ['調和維持', '関係性', '相互理解'],
+        hexagram: { number: 2, name: '坤（地）' }
+      },
+      safemode: {
+        osName: 'SafeMode OS (安全確保型)',
+        primary_traits: ['慎重', '分析的', '現実的', '保守的'],
+        motivation_source: 'リスク回避と安全確保',
+        voice: '慎重に判断する声',
+        strengths: ['リスク分析', '慎重さ', '現実認識'],
+        weaknesses: ['過度の慎重', '変化への抵抗', '機会損失'],
+        priorities: ['安全性', 'リスク管理', '安定性'],
+        hexagram: { number: 3, name: '屯（初難）' }
+      }
+    };
+    
+    const defaults = osDefaults[normalizedOSType] || osDefaults.engine;
+    
+    const fallbackData = {
+      osType: normalizedOSType,
+      osName: defaults.osName,
+      score: 0.5,
+      activation: 0.5,
+      dominance: 0.33, // 3つのOSで均等分散
+      characteristics: {
+        primary_traits: defaults.primary_traits,
+        motivation_source: defaults.motivation_source,
+        behavior_patterns: [`${normalizedOSType}_pattern_1`, `${normalizedOSType}_pattern_2`],
+        decision_style: normalizedOSType === 'engine' ? 'intuitive' : 
+                       normalizedOSType === 'interface' ? 'collaborative' : 'analytical'
+      },
+      personality: {
+        voice: defaults.voice,
+        strengths: defaults.strengths,
+        weaknesses: defaults.weaknesses,
+        priorities: defaults.priorities,
+        communication_style: normalizedOSType === 'engine' ? 'direct' :
+                            normalizedOSType === 'interface' ? 'diplomatic' : 'cautious'
+      },
+      hexagram: defaults.hexagram,
+      hexagramId: defaults.hexagram.number,
+      hexagramName: defaults.hexagram.name,
+      relationshipHistory: {
+        engine: { cooperation: 0.5, conflict: 0.3, trust: 0.5 },
+        interface: { cooperation: 0.5, conflict: 0.3, trust: 0.5 },
+        safemode: { cooperation: 0.5, conflict: 0.3, trust: 0.5 }
+      },
+      behaviorPatterns: {
+        [`${normalizedOSType}_primary`]: 0.7,
+        [`${normalizedOSType}_secondary`]: 0.3
+      },
+      // OSオブジェクトに必要なメソッドを追加
+      getCurrentState: function() {
+        return {
+          osType: this.osType,
+          activation: this.activation,
+          dominance: this.dominance,
+          status: 'fallback_initialized'
+        };
+      },
+      reactToStimulus: function(stimulus) {
+        return `${this.osName} responding to: ${stimulus}`;
+      },
+      expressOpinion: function(topic) {
+        return `${this.osName} opinion on ${topic}: ${this.personality.voice}`;
+      },
+      makeDecision: function(situation) {
+        return {
+          decision: `${this.osType}_decision`,
+          confidence: this.score,
+          reasoning: `Based on ${this.osType} characteristics`
+        };
+      },
+      negotiateWith: function(otherOS) {
+        return {
+          dealBreakers: this.personality.priorities.slice(0, 2),
+          compromises: ['minor_adjustments'],
+          proposals: [`${this.osType}_proposal`]
+        };
+      }
+    };
+    
+    console.log(`✅ Generated fallback OS data for ${normalizedOSType}:`, {
+      osName: fallbackData.osName,
+      traits: fallbackData.characteristics.primary_traits.slice(0, 3),
+      activation: fallbackData.activation
+    });
+    
+    return fallbackData;  
+  }
+
+  /**
+   * フォールバック関係性を作成
+   */
+  createFallbackRelationship(key, osType1, osType2) {
+    console.log(`🔄 Creating fallback relationship: ${key}`);
+    
+    try {
+      if (!this.relationshipMatrix[key]) {
+        // OSタイプ別の関係性デフォルト値
+        const relationshipDefaults = {
+          'engine-interface': {
+            compatibility: 0.7,
+            cooperation: 0.6,
+            conflict: 0.3,
+            trust: 0.6,
+            influence: { engine: 0.6, interface: 0.4 },
+            commonGround: ['創造的表現', '自己実現'],
+            tensionPoints: ['理想と現実のギャップ'],
+            communicationStyle: 'diplomatic'
+          },
+          'engine-safemode': {
+            compatibility: 0.5,
+            cooperation: 0.4,
+            conflict: 0.5,
+            trust: 0.5,
+            influence: { engine: 0.5, safemode: 0.5 },
+            commonGround: ['長期視点', '価値観の保護'],
+            tensionPoints: ['創造性とリスク回避の矛盾'],
+            communicationStyle: 'cautious'
+          },
+          'interface-safemode': {
+            compatibility: 0.8,
+            cooperation: 0.7,
+            conflict: 0.2,
+            trust: 0.7,
+            influence: { interface: 0.5, safemode: 0.5 },
+            commonGround: ['関係性の安定', '調和の維持'],
+            tensionPoints: ['開放性と慎重性の対立'],
+            communicationStyle: 'collaborative'
+          }
+        };
+        
+        const reverseKey = `${osType2}-${osType1}`;
+        const defaults = relationshipDefaults[key] || relationshipDefaults[reverseKey] || {
+          compatibility: 0.5,
+          cooperation: 0.5,
+          conflict: 0.3,
+          trust: 0.5,
+          influence: { [osType1]: 0.5, [osType2]: 0.5 },
+          commonGround: ['基本的な理解'],
+          tensionPoints: ['認識の違い'],
+          communicationStyle: 'diplomatic'
+        };
+        
+        this.relationshipMatrix[key] = {
+          ...defaults,
+          communicationFrequency: 0.5,
+          communicationQuality: 0.5,
+          lastInteraction: new Date().toISOString(),
+          history: [],
+          createdAt: new Date().toISOString(),
+          source: 'fallback_generated'
+        };
+        
+        console.log(`✅ Created fallback relationship ${key}:`, {
+          compatibility: defaults.compatibility,
+          cooperation: defaults.cooperation,
+          conflict: defaults.conflict
+        });
+      }
+      
+      return this.relationshipMatrix[key];
+      
+    } catch (error) {
+      console.error(`❌ Error creating fallback relationship ${key}:`, error);
+      
+      // 最小限の関係性データを作成
+      this.relationshipMatrix[key] = {
+        compatibility: 0.5,
+        cooperation: 0.5,
+        conflict: 0.3,
+        trust: 0.5,
+        influence: { [osType1]: 0.5, [osType2]: 0.5 },
+        commonGround: [],
+        tensionPoints: [],
+        communicationStyle: 'neutral',
+        source: 'emergency_fallback',
+        createdAt: new Date().toISOString()
+      };
+      
+      return this.relationshipMatrix[key];
+    }
   }
 
   // 追加の複雑なメソッドは実装継続可能...

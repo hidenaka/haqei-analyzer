@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>効果測定システムテスト | HaQei</title>
+    
+    <!-- Styles -->
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .section h2 {
+            color: #4f46e5;
+            margin-bottom: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: #6b7280;
+        }
+
+        button.secondary:hover {
+            background: #4b5563;
+        }
+
+        button.danger {
+            background: #ef4444;
+        }
+
+        button.danger:hover {
+            background: #dc2626;
+        }
+
+        .metrics-display {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .event-log {
+            background: #1f2937;
+            color: #d1d5db;
+            padding: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.875rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .event-log-item {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .timestamp {
+            color: #9ca3af;
+            font-size: 0.75rem;
+        }
+
+        .success {
+            color: #10b981;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+
+        .info {
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 効果測定システムテスト</h1>
+
+        <!-- イベントトラッキングテスト -->
+        <div class="section">
+            <h2>イベントトラッキング</h2>
+            <div class="button-group">
+                <button onclick="testPageView()">ページビュー送信</button>
+                <button onclick="testDiagnosisStart()">診断開始</button>
+                <button onclick="testDiagnosisComplete()">診断完了</button>
+                <button onclick="testConversion()">コンバージョン</button>
+                <button onclick="testError()">エラー発生</button>
+                <button onclick="testCustomMetric()">カスタムメトリクス</button>
+            </div>
+        </div>
+
+        <!-- メトリクスサマリー -->
+        <div class="section">
+            <h2>メトリクスサマリー</h2>
+            <button onclick="showMetricsSummary()">サマリー表示</button>
+            <div id="metricsSummary" class="metrics-display" style="display: none;"></div>
+        </div>
+
+        <!-- データ管理 -->
+        <div class="section">
+            <h2>データ管理</h2>
+            <div class="button-group">
+                <button onclick="exportAnalyticsData()" class="secondary">データエクスポート</button>
+                <button onclick="clearAnalyticsData()" class="danger">データクリア</button>
+            </div>
+        </div>
+
+        <!-- イベントログ -->
+        <div class="section">
+            <h2>リアルタイムイベントログ</h2>
+            <div id="eventLog" class="event-log"></div>
+        </div>
+    </div>
+
+    <!-- 効果測定システム読み込み -->
+    <script src="js/analytics/EffectMeasurementSystem.js"></script>
+
+    <!-- テストスクリプト -->
+    <script>
+        // ログ表示関数
+        function logEvent(message, type = 'info') {
+            const logContainer = document.getElementById('eventLog');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const logItem = document.createElement('div');
+            logItem.className = 'event-log-item';
+            logItem.innerHTML = `
+                <span class="timestamp">[${timestamp}]</span>
+                <span class="${type}">${message}</span>
+            `;
+            
+            logContainer.insertBefore(logItem, logContainer.firstChild);
+            
+            // 最大20件まで表示
+            while (logContainer.children.length > 20) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+
+        // ページビューテスト
+        function testPageView() {
+            effectMeasurement.trackPageView('Analytics Test Page');
+            logEvent('ページビューを送信しました', 'success');
+        }
+
+        // 診断開始テスト
+        function testDiagnosisStart() {
+            effectMeasurement.trackDiagnosisStart('quick_analyzer');
+            logEvent('診断開始イベントを送信しました (quick_analyzer)', 'success');
+        }
+
+        // 診断完了テスト
+        function testDiagnosisComplete() {
+            const mockResult = {
+                primaryOS: 'Engine OS',
+                score: 85
+            };
+            effectMeasurement.trackDiagnosisComplete('quick_analyzer', mockResult);
+            logEvent('診断完了イベントを送信しました (Engine OS, 85%)', 'success');
+        }
+
+        // コンバージョンテスト
+        function testConversion() {
+            effectMeasurement.trackConversion('purchase', 2980);
+            logEvent('コンバージョンイベントを送信しました (購入: ¥2,980)', 'success');
+        }
+
+        // エラーテスト
+        function testError() {
+            effectMeasurement.trackError('test_error', 'This is a test error message');
+            logEvent('エラーイベントを送信しました', 'error');
+        }
+
+        // カスタムメトリクステスト
+        function testCustomMetric() {
+            const loadTime = Math.floor(Math.random() * 3000) + 500;
+            effectMeasurement.trackMetric('page_load_time', loadTime, 'ms');
+            logEvent(`カスタムメトリクスを送信しました (ページ読み込み時間: ${loadTime}ms)`, 'success');
+        }
+
+        // メトリクスサマリー表示
+        function showMetricsSummary() {
+            const summary = effectMeasurement.getMetricsSummary();
+            const summaryContainer = document.getElementById('metricsSummary');
+            
+            summaryContainer.innerHTML = `
+                <div class="metric-item">
+                    <span class="metric-label">総イベント数</span>
+                    <span class="metric-value">${summary.totalEvents}</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">総エラー数</span>
+                    <span class="metric-value">${summary.totalErrors}</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">ユニークセッション数</span>
+                    <span class="metric-value">${summary.sessionCount}</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Quick → OS分析転換率</span>
+                    <span class="metric-value">${summary.conversionRate.quickToOSAnalysis.toFixed(1)}%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">最終更新</span>
+                    <span class="metric-value">${new Date(summary.lastUpdate).toLocaleString()}</span>
+                </div>
+            `;
+            
+            summaryContainer.style.display = 'block';
+            logEvent('メトリクスサマリーを表示しました', 'info');
+        }
+
+        // データエクスポート
+        function exportAnalyticsData() {
+            const data = effectMeasurement.exportData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `haqei_analytics_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            logEvent('分析データをエクスポートしました', 'success');
+        }
+
+        // データクリア
+        function clearAnalyticsData() {
+            effectMeasurement.clearData();
+            logEvent('分析データをクリアしました', 'error');
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初期ページビュー送信
+            effectMeasurement.trackPageView();
+            logEvent('効果測定システムを初期化しました', 'info');
+            logEvent('テストページが読み込まれました', 'info');
+        });
+    </script>
+</body>
+</html>

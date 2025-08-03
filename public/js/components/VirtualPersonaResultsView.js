@@ -191,22 +191,219 @@ class VirtualPersonaResultsView extends BaseComponent {
     async initializeVirtualPersonality() {
         console.log('🎭 Initializing Virtual Personality...');
         
-        // VirtualPersonalityインスタンスの作成
-        // コンストラクタ: (userAnswers, tripleOSEngine)
-        // analysisResultをuserAnswers として使用し、TripleOSEngineも渡す
-        const tripleOSEngine = new TripleOSEngine();
-        
-        this.virtualPersonality = new VirtualPersonality(
-            this.analysisResult, // userAnswersとして使用
-            tripleOSEngine
-        );
-        
-        // 初期化メソッドが存在する場合のみ呼び出し
-        if (typeof this.virtualPersonality.initialize === 'function') {
-            await this.virtualPersonality.initialize();
+        try {
+            // DataManagerが確実に存在することを確認
+            if (!this.dataManager) {
+                console.warn('⚠️ DataManager not available, creating basic instance');
+                // 基本的なDataManagerを作成（既存のHAQEIクラスを使用）
+                try {
+                    this.dataManager = window.haqeiInstance?.dataManager || new (window.DataManager || Object)();
+                } catch (e) {
+                    console.warn('⚠️ Could not create DataManager:', e);
+                    this.dataManager = null;
+                }
+            }
+            
+            // VirtualPersonalityインスタンスの作成
+            // データフロー修正: analysisResultを適切に処理
+            let initData;
+            
+            // 分析結果データの場合は適切な形式に変換
+            if (this.analysisResult && (this.analysisResult.engineOS || this.analysisResult.interfaceOS || this.analysisResult.safeModeOS)) {
+                console.log('🔄 Converting analysis result to Virtual Personality format...');
+                
+                // 分析結果から仮想人格データを構築
+                initData = this.convertAnalysisResultToVirtualPersonality(this.analysisResult);
+            } else {
+                // 既にVirtualPersonality形式の場合
+                initData = this.analysisResult;
+            }
+            
+            // TripleOSEngineの初期化（DataManagerを渡す）
+            const tripleOSEngine = new TripleOSEngine(this.dataManager);
+            
+            this.virtualPersonality = new VirtualPersonality(initData, tripleOSEngine);
+            
+            // 初期化メソッドが存在する場合のみ呼び出し
+            if (typeof this.virtualPersonality.initialize === 'function') {
+                await this.virtualPersonality.initialize();
+            }
+            
+            console.log('✅ Virtual Personality initialized:', this.virtualPersonality);
+            
+        } catch (error) {
+            console.error('❌ Error initializing Virtual Personality:', error);
+            
+            // フォールバック: 基本的な仮想人格を作成
+            this.virtualPersonality = this.createFallbackVirtualPersonality();
         }
+    }
+
+    /**
+     * 分析結果を仮想人格形式に変換
+     */
+    convertAnalysisResultToVirtualPersonality(analysisResult) {
+        console.log('🔄 Converting analysis result to Virtual Personality format...');
         
-        console.log('✅ Virtual Personality initialized:', this.virtualPersonality);
+        try {
+            const virtualPersonalityData = {
+                // 基本情報
+                id: `vp_${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                
+                // 分析結果をそのまま保持
+                analysisResult: analysisResult,
+                
+                // OS データの直接参照
+                engineOS: analysisResult.engineOS || null,
+                interfaceOS: analysisResult.interfaceOS || null,
+                safeModeOS: analysisResult.safeModeOS || null,
+                
+                // 人格状態の初期化
+                personalityState: {
+                    currentDominantOS: this.determinDominantOS(analysisResult),
+                    internalHarmony: this.calculateInternalHarmony(analysisResult),
+                    overallCoherence: this.calculateOverallCoherence(analysisResult),
+                    adaptabilityIndex: 0.5
+                },
+                
+                // メタデータ
+                personalityMetadata: {
+                    personalityType: this.determinePersonalityType(analysisResult),
+                    version: '1.0.0',
+                    source: 'HAQEI_Analysis'
+                }
+            };
+            
+            console.log('✅ Conversion completed');
+            return virtualPersonalityData;
+            
+        } catch (error) {
+            console.error('❌ Error converting analysis result:', error);
+            return this.createMinimalVirtualPersonalityData();
+        }
+    }
+
+    /**
+     * 主導OSの決定
+     */
+    determinDominantOS(analysisResult) {
+        try {
+            const scores = {
+                engine: analysisResult.engineOS?.score || 0,
+                interface: analysisResult.interfaceOS?.score || 0,
+                safemode: analysisResult.safeModeOS?.score || 0
+            };
+            
+            return Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+        } catch (error) {
+            console.warn('⚠️ Error determining dominant OS:', error);
+            return 'engine';
+        }
+    }
+
+    /**
+     * 内部調和の計算
+     */
+    calculateInternalHarmony(analysisResult) {
+        try {
+            const scores = [
+                analysisResult.engineOS?.score || 0.5,
+                analysisResult.interfaceOS?.score || 0.5,
+                analysisResult.safeModeOS?.score || 0.5
+            ];
+            
+            // スコアの標準偏差を計算し、調和度を算出
+            const mean = scores.reduce((a, b) => a + b) / scores.length;
+            const variance = scores.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / scores.length;
+            const standardDeviation = Math.sqrt(variance);
+            
+            // 標準偏差が小さいほど調和度が高い
+            return Math.max(0, 1 - (standardDeviation * 2));
+        } catch (error) {
+            console.warn('⚠️ Error calculating internal harmony:', error);
+            return 0.65;
+        }
+    }
+
+    /**
+     * 全体一貫性の計算
+     */
+    calculateOverallCoherence(analysisResult) {
+        try {
+            // 各OSの活性度の平均を一貫性指標とする
+            const activations = [
+                analysisResult.engineOS?.activation || 0.5,
+                analysisResult.interfaceOS?.activation || 0.5,
+                analysisResult.safeModeOS?.activation || 0.5
+            ];
+            
+            return activations.reduce((a, b) => a + b) / activations.length;
+        } catch (error) {
+            console.warn('⚠️ Error calculating overall coherence:', error);
+            return 0.5;
+        }
+    }
+
+    /**
+     * 人格タイプの決定
+     */
+    determinePersonalityType(analysisResult) {
+        const dominantOS = this.determinDominantOS(analysisResult);
+        const harmony = this.calculateInternalHarmony(analysisResult);
+        
+        const typeMap = {
+            engine: harmony > 0.7 ? '理想追求型' : '価値探求型',
+            interface: harmony > 0.7 ? '社会調和型' : '関係構築型', 
+            safemode: harmony > 0.7 ? '安定志向型' : '慎重分析型'
+        };
+        
+        return typeMap[dominantOS] || 'バランス型';
+    }
+
+    /**
+     * 最小限の仮想人格データを作成
+     */
+    createMinimalVirtualPersonalityData() {
+        return {
+            id: `vp_minimal_${Date.now()}`,
+            createdAt: new Date().toISOString(),
+            engineOS: { osType: 'engine', score: 0.5, activation: 0.5 },
+            interfaceOS: { osType: 'interface', score: 0.5, activation: 0.5 },
+            safeModeOS: { osType: 'safemode', score: 0.5, activation: 0.5 },
+            personalityState: {
+                currentDominantOS: 'engine',
+                internalHarmony: 0.5,
+                overallCoherence: 0.5
+            },
+            personalityMetadata: {
+                personalityType: 'ミニマル型',
+                version: '1.0.0'
+            }
+        };
+    }
+
+    /**
+     * フォールバック仮想人格の作成
+     */
+    createFallbackVirtualPersonality() {
+        console.log('🔄 Creating fallback Virtual Personality...');
+        
+        const fallbackData = this.createMinimalVirtualPersonalityData();
+        
+        // 基本的なメソッドを持つオブジェクトを作成
+        return {
+            ...fallbackData,
+            getIntegrationLevel: () => ({ overall: 0.5 }),
+            generateDialogueScenario: (scenarioId) => ({
+                id: scenarioId,
+                title: 'フォールバック対話',
+                dialogues: []
+            }),
+            simulateScenario: (simulationId) => ({
+                description: 'シミュレーション準備中です'
+            })
+        };
     }
     
     /**
@@ -253,7 +450,10 @@ class VirtualPersonaResultsView extends BaseComponent {
         }
         
         // メタファーの初期生成（メソッドが存在する場合）
-        if (typeof this.ichingMetaphorEngine.generateMetaphor === 'function') {
+        if (typeof this.ichingMetaphorEngine.getIntegratedMetaphors === 'function') {
+            const metaphor = await this.ichingMetaphorEngine.getIntegratedMetaphors();
+            console.log('✅ Initial metaphor generated:', metaphor);
+        } else if (typeof this.ichingMetaphorEngine.generateMetaphor === 'function') {
             const metaphor = await this.ichingMetaphorEngine.generateMetaphor();
             console.log('✅ Initial metaphor generated:', metaphor);
         }
@@ -673,7 +873,21 @@ class VirtualPersonaResultsView extends BaseComponent {
             return '<p>メタファーを生成中...</p>';
         }
         
-        const metaphor = await this.ichingMetaphorEngine.generateMetaphor();
+        let metaphor;
+        try {
+            // 適切なメソッドを使用
+            if (typeof this.ichingMetaphorEngine.getIntegratedMetaphors === 'function') {
+                metaphor = await this.ichingMetaphorEngine.getIntegratedMetaphors();
+            } else if (typeof this.ichingMetaphorEngine.generateMetaphor === 'function') {
+                metaphor = await this.ichingMetaphorEngine.generateMetaphor();
+            } else {
+                // フォールバック: 基本的なメタファーを生成
+                metaphor = this.generateFallbackMetaphor();
+            }
+        } catch (error) {
+            console.warn('⚠️ Error generating metaphor:', error);
+            metaphor = this.generateFallbackMetaphor();
+        }
         
         return `
             <div class="vp-metaphor-intro">
@@ -971,6 +1185,39 @@ class VirtualPersonaResultsView extends BaseComponent {
         console.log('Clearing highlights');
     }
     
+    /**
+     * フォールバックメタファーの生成
+     */
+    generateFallbackMetaphor() {
+        return {
+            introduction: 'あなたの内なる3つのOSは、易経の智慧に導かれた物語を織りなします。',
+            personalityOverview: {
+                primaryHexagram: { name: '未済', meaning: '無限の可能性' },
+                narrative: { introduction: '完成への道のりにある、成長し続ける人格' }
+            },
+            osStories: [
+                {
+                    osName: 'Engine OS',
+                    story: 'あなたの価値観の核として、理想を追求する力を宿しています'
+                },
+                {
+                    osName: 'Interface OS', 
+                    story: '社会との調和を保ちながら、豊かな関係性を築く智慧を持っています'
+                },
+                {
+                    osName: 'SafeMode OS',
+                    story: '慎重な判断で安全を確保し、リスクから身を守る防御力を備えています'
+                }
+            ],
+            integration: '3つのOSが相互に響き合い、バランスの取れた判断力を生み出しています。',
+            practicalApplications: [
+                '日々の選択において、内なる3つの声に耳を傾けましょう',
+                '価値観と現実のバランスを意識した行動を心がけましょう',
+                '他者との関係性を大切にしながら、自分らしさを保ちましょう'
+            ]
+        };
+    }
+
     /**
      * OS詳細の表示
      * 

@@ -14,9 +14,17 @@
 class IchingMetaphorEngine {
   constructor(virtualPersonality) {
     this.virtualPersonality = virtualPersonality;
-    this.engineOS = virtualPersonality.engineOS;
-    this.interfaceOS = virtualPersonality.interfaceOS;
-    this.safeModeOS = virtualPersonality.safeModeOS;
+    this.engineOS = virtualPersonality?.engineOS;
+    this.interfaceOS = virtualPersonality?.interfaceOS;
+    this.safeModeOS = virtualPersonality?.safeModeOS;
+    
+    // personalityStateの安全な初期化チェック
+    if (!this.virtualPersonality?.personalityState?.currentDominantOS) {
+      console.warn('⚠️ IchingMetaphorEngine: personalityState.currentDominantOS is not initialized, using fallback');
+      if (this.virtualPersonality?.personalityState) {
+        this.virtualPersonality.personalityState.currentDominantOS = 'engine';
+      }
+    }
     
     // 易経データベース（簡略版）
     this.hexagramDatabase = this.initializeHexagramDatabase();
@@ -199,8 +207,10 @@ class IchingMetaphorEngine {
    * 人格全体のメタファー生成
    */
   async generatePersonalityMetaphor() {
-    const dominantOS = this.virtualPersonality.personalityState.currentDominantOS;
-    const harmony = this.virtualPersonality.personalityState.internalHarmony;
+    // 安全なアクセスパターンを実装
+    const personalityState = this.virtualPersonality?.personalityState || {};
+    const dominantOS = personalityState.currentDominantOS || 'engine';
+    const harmony = personalityState.internalHarmony || 0.5;
     
     // 主導OSに基づく代表的な卦を選択
     let primaryHexagram;
@@ -233,7 +243,7 @@ class IchingMetaphorEngine {
       },
       narrative: this.constructPersonalityNarrative(hexagram, dominantOS, harmony),
       symbolicMeaning: this.extractSymbolicMeaning(hexagram, dominantOS),
-      practicalApplication: this.generatePracticalApplication(hexagram),
+      practicalApplication: this.generatePracticalApplication(hexagram, dominantOS, harmony),
       seasonalAspect: this.mapToSeasonalCycle(hexagram),
       elementalBalance: this.analyzeElementalBalance(hexagram)
     };
@@ -418,8 +428,10 @@ class IchingMetaphorEngine {
    * 個別行動メタファーの生成
    */
   async generateBehaviorMetaphor(situation) {
-    const dominantOS = this.virtualPersonality.personalityState.currentDominantOS;
-    const adaptability = this.virtualPersonality.personalityState.adaptabilityIndex || 0.5;
+    // 安全なアクセスパターンを実装
+    const personalityState = this.virtualPersonality?.personalityState || {};
+    const dominantOS = personalityState.currentDominantOS || 'engine';
+    const adaptability = personalityState.adaptabilityIndex || 0.5;
     
     // 状況とOS特性に基づく卦の選択
     let hexagramId;
@@ -449,11 +461,303 @@ class IchingMetaphorEngine {
   }
 
   /**
+   * 状況に応じたガイダンスの生成
+   */
+  generateSituationalGuidance(situation, hexagram) {
+    console.log(`🔮 Generating situational guidance for: ${situation}`);
+    
+    try {
+      // 易経の智慧に基づく状況分析
+      const hexagramData = this.getHexagramData(hexagram);
+      const osStates = this.getOSStates();
+      
+      // 文人哲学に基づく実践的アドバイス
+      const practicalAdvice = this.generatePracticalAdvice(situation, hexagramData, osStates);
+      const timingGuidance = this.generateTimingGuidance(hexagramData);
+      const actionSteps = this.generateActionSteps(situation, hexagramData);
+      
+      const guidance = {
+        situation,
+        hexagram: {
+          name: hexagramData.name,
+          meaning: hexagramData.meaning || '変化と調和',
+          wisdom: hexagramData.wisdom || '易経の智慧'
+        },
+        practicalAdvice,
+        timingGuidance,
+        actionSteps,
+        bunenjinInsight: this.generateBunenjinInsight(situation, hexagramData, osStates),
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log(`✨ Situational guidance generated:`, guidance);
+      return guidance;
+      
+    } catch (error) {
+      console.error(`❌ Error generating situational guidance:`, error);
+      return this.generateFallbackGuidance(situation);
+    }
+  }
+
+  /**
+   * 実践的アドバイスの生成
+   */
+  generatePracticalAdvice(situation, hexagramData, osStates) {
+    const adviceTemplates = {
+      'ストレス下での反応': [
+        `${hexagramData.name}の智慧により、内なる静寂を保ちながら状況を客観視する`,
+        `調和的な対応を心がけ、感情と理性のバランスを取る`,
+        `長期的な視点で問題を捉え、一時的な困難に動じない`
+      ],
+      '重要な決断': [
+        `${hexagramData.name}の導きにより、多角的な視点から判断する`,
+        `内なる声と外的な状況の両方を考慮する`,
+        `決断後の責任を受け入れる覚悟を持つ`
+      ],
+      '人間関係': [
+        `相手の立場を理解し、共感的なコミュニケーションを重視する`,
+        `自分の価値観を大切にしながらも、柔軟性を保つ`,
+        `信頼関係の構築に時間をかける`
+      ]
+    };
+    
+    return adviceTemplates[situation] || [
+      '状況を冷静に分析し、最適な対応を見つける',
+      '内なる智慧を信頼し、直感と論理の両方を活用する',
+      '長期的な成長と調和を重視した行動を取る'
+    ];
+  }
+
+  /**
+   * タイミングガイダンスの生成
+   */
+  generateTimingGuidance(hexagramData) {
+    return {
+      bestTiming: '内なる準備が整った時',
+      avoidTiming: '感情的に不安定な時',
+      preparation: `${hexagramData.name}の教えに従い、心の準備を整える`,
+      signs: '直感が明確になり、周囲の状況が整った時'
+    };
+  }
+
+  /**
+   * アクションステップの生成
+   */
+  generateActionSteps(situation, hexagramData) {
+    return [
+      { step: 1, action: '現状の詳細な分析と理解', timing: '即座に' },
+      { step: 2, action: `${hexagramData.name}の智慧を活用した戦略立案`, timing: '十分な検討時間をかける' },
+      { step: 3, action: '小さな行動から開始し、段階的に進める', timing: '準備が整い次第' },
+      { step: 4, action: '結果を観察し、必要に応じて調整する', timing: '継続的に' }
+    ];
+  }
+
+  /**
+   * 文人哲学に基づく洞察
+   */
+  generateBunenjinInsight(situation, hexagramData, osStates) {
+    const dominantOS = osStates.dominantOS || 'engine';
+    const osBalance = osStates.osBalance || { engine: 0.33, interface: 0.33, safemode: 0.34 };
+    
+    return {
+      philosophicalPerspective: `分人思想により、${situation}における異なる自己の側面を理解する`,
+      osIntegration: `${dominantOS} OSが主導し、他のOSとの調和を保つ`,
+      balanceWisdom: `現在のOS バランス（Engine: ${Math.round(osBalance.engine * 100)}%, Interface: ${Math.round(osBalance.interface * 100)}%, SafeMode: ${Math.round(osBalance.safemode * 100)}%）を活用`,
+      iChingConnection: `${hexagramData.name}の智慧と分人思想の統合により、真の自己理解を深める`
+    };
+  }
+
+  /**
+   * フォールバックガイダンス
+   */
+  generateFallbackGuidance(situation) {
+    return {
+      situation,
+      practicalAdvice: ['状況を冷静に分析し、最適な対応を見つける'],
+      timingGuidance: { bestTiming: '準備が整った時' },
+      actionSteps: [{ step: 1, action: '現状分析', timing: '即座に' }],
+      bunenjinInsight: { philosophicalPerspective: '分人思想による多面的理解' }
+    };
+  }
+
+  /**
+   * 易経データの取得
+   * @param {Object} hexagram - 易経情報
+   * @returns {Object} - 易経詳細データ
+   */
+  getHexagramData(hexagram) {
+    // DataManagerからの詳細データ取得を試行
+    if (this.dataManager && this.dataManager.getHexagramById) {
+      try {
+        const detailedData = this.dataManager.getHexagramById(hexagram.id || hexagram.name);
+        if (detailedData) {
+          return {
+            id: detailedData.id || hexagram.id,
+            name: detailedData.name || hexagram.name || '易経',
+            meaning: detailedData.meaning || hexagram.meaning || '変化と調和',
+            wisdom: detailedData.wisdom || detailedData.description || '易経の智慧',
+            keywords: detailedData.keywords || ['変化', '調和', '智慧'],
+            element: detailedData.element || '自然',
+            direction: detailedData.direction || '中央'
+          };
+        }
+      } catch (error) {
+        console.warn('⚠️ DataManager hexagram lookup failed:', error);
+      }
+    }
+
+    // フォールバック: 基本データ構造
+    const fallbackData = {
+      id: hexagram.id || 1,
+      name: hexagram.name || '易経',
+      meaning: hexagram.meaning || '変化と調和の智慧',
+      wisdom: '状況に応じて柔軟に対応し、内なる智慧を信頼する',
+      keywords: ['智慧', '調和', '変化', 'バランス'],
+      element: '自然',
+      direction: '中央'
+    };
+
+    // より具体的な情報がある場合は利用
+    if (typeof hexagram === 'object') {
+      Object.keys(hexagram).forEach(key => {
+        if (hexagram[key] && !fallbackData[key]) {
+          fallbackData[key] = hexagram[key];
+        }
+      });
+    }
+
+    return fallbackData;
+  }
+
+  /**
+   * OSの状態取得
+   * @returns {Object} - OSの現在状態
+   */
+  getOSStates() {
+    const osStates = {
+      dominantOS: 'engine',
+      osBalance: { engine: 0.33, interface: 0.33, safemode: 0.34 },
+      overallCoherence: 0.5,
+      internalHarmony: 0.5,
+      adaptabilityIndex: 0.5
+    };
+
+    // VirtualPersonalityからの状態取得を試行
+    if (this.virtualPersonality) {
+      const personalityState = this.virtualPersonality.personalityState || {};
+      
+      osStates.dominantOS = personalityState.currentDominantOS || 'engine';
+      osStates.osBalance = personalityState.osBalance || osStates.osBalance;
+      osStates.overallCoherence = personalityState.overallCoherence || 0.5;
+      osStates.internalHarmony = personalityState.internalHarmony || 0.5;
+      osStates.adaptabilityIndex = personalityState.adaptabilityIndex || 0.5;
+    }
+
+    return osStates;
+  }
+
+  /**
+   * 最適なタイミングの提案
+   * @param {Object} hexagram - 易経情報
+   * @returns {Object} - タイミング提案
+   */
+  suggestOptimalTiming(hexagram) {
+    const hexagramData = this.getHexagramData(hexagram);
+    const osStates = this.getOSStates();
+    
+    // 易経に基づくタイミング分析
+    const timingSuggestion = {
+      bestTime: this.calculateBestTiming(hexagramData, osStates),
+      avoidTime: this.calculateAvoidTiming(hexagramData, osStates),
+      preparation: this.generatePreparationAdvice(hexagramData),
+      indicators: this.generateTimingIndicators(hexagramData, osStates),
+      cyclicalAdvice: this.generateCyclicalAdvice(hexagramData)
+    };
+
+    return timingSuggestion;
+  }
+
+  /**
+   * 最適なタイミングの計算
+   */
+  calculateBestTiming(hexagramData, osStates) {
+    const timingOptions = [
+      '内なる準備が整った時',
+      '直感が明確になった時', 
+      '周囲の状況が調和した時',
+      'エネルギーが最高潮に達した時',
+      `${osStates.dominantOS} OSが活性化した時`
+    ];
+
+    // 易経の特性に基づいて最適なタイミングを選択
+    const keywordBasedTiming = {
+      '智慧': '深い洞察を得た時',
+      '調和': '内外のバランスが取れた時',
+      '変化': '変化の兆しを感じた時',
+      'バランス': '心身が安定した時'
+    };
+
+    for (const keyword of hexagramData.keywords || []) {
+      if (keywordBasedTiming[keyword]) {
+        return keywordBasedTiming[keyword];
+      }
+    }
+
+    return timingOptions[Math.floor(Math.random() * timingOptions.length)];
+  }
+
+  /**
+   * 避けるべきタイミングの計算
+   */
+  calculateAvoidTiming(hexagramData, osStates) {
+    return [
+      '感情的に不安定な時',
+      '外的圧力が強い時',
+      '判断力が鈍っている時',
+      'エネルギーが低下している時'
+    ];
+  }
+
+  /**
+   * 準備アドバイスの生成
+   */
+  generatePreparationAdvice(hexagramData) {
+    return `${hexagramData.name}の教えに従い、心身の準備を整え、内なる智慧に耳を傾ける`;
+  }
+
+  /**
+   * タイミング指標の生成
+   */
+  generateTimingIndicators(hexagramData, osStates) {
+    return [
+      '直感的な確信を感じる',
+      '周囲の反応が好意的',
+      `${osStates.dominantOS} OSからの明確なサイン`,
+      '内なる平静を保てている'
+    ];
+  }
+
+  /**
+   * 周期的アドバイスの生成  
+   */
+  generateCyclicalAdvice(hexagramData) {
+    return {
+      daily: '朝の静寂な時間を活用する',
+      weekly: '週の中頃に重要な決断を行う',
+      monthly: '月の満ち欠けと共に行動を調整する',
+      seasonal: `${hexagramData.element}の季節に合わせた活動を重視する`
+    };
+  }
+
+  /**
    * 人生指針メタファーの生成
    */
   async generateLifeGuidanceMetaphor() {
-    const personalityType = this.virtualPersonality.personalityMetadata?.personalityType || '標準型';
-    const overallCoherence = this.virtualPersonality.personalityState.overallCoherence || 0.5;
+    // 安全なアクセスパターンを実装
+    const personalityMetadata = this.virtualPersonality?.personalityMetadata || {};
+    const personalityState = this.virtualPersonality?.personalityState || {};
+    const personalityType = personalityMetadata.personalityType || '標準型';
+    const overallCoherence = personalityState.overallCoherence || 0.5;
     
     // 人格タイプと統合レベルに基づく指針卦の選択
     let guidanceHexagram;
@@ -668,8 +972,10 @@ class IchingMetaphorEngine {
    * ヒーローズジャーニー物語の作成
    */
   createHeroJourneyStory(template, hexagram, osPersonalities) {
-    const dominantOS = osPersonalities.currentDominantOS;
-    const harmony = osPersonalities.internalHarmony;
+    // 安全なアクセスパターンを実装
+    const personalityState = osPersonalities || {};
+    const dominantOS = personalityState.currentDominantOS || 'engine';
+    const harmony = personalityState.internalHarmony || 0.5;
 
     return {
       title: `${hexagram.name}の旅路`,
@@ -705,7 +1011,9 @@ class IchingMetaphorEngine {
    * 調和パターン物語の作成
    */
   createHarmonicStory(template, hexagram, osPersonalities) {
-    const dominantOS = osPersonalities.currentDominantOS;
+    // 安全なアクセスパターンを実装
+    const personalityState = osPersonalities || {};
+    const dominantOS = personalityState.currentDominantOS || 'engine';
     
     return {
       title: `${hexagram.name}の調和`,
@@ -719,8 +1027,8 @@ class IchingMetaphorEngine {
         synthesis: template.synthesis
           .replace('{integration}', this.generateIntegration(hexagram))
       },
-      harmonicLevel: osPersonalities.internalHarmony,
-      balanceRecommendation: this.generateBalanceRecommendation(osPersonalities)
+      harmonicLevel: personalityState.internalHarmony || 0.5,
+      balanceRecommendation: this.generateBalanceRecommendation(personalityState)
     };
   }
 
@@ -940,6 +1248,106 @@ class IchingMetaphorEngine {
   }
 
   /**
+   * 象徴的意味の抽出
+   * フォールバック実装を含む
+   */
+  extractSymbolicMeaning(hexagram, dominantOS) {
+    // 入力パラメータのバリデーション
+    if (!hexagram || !dominantOS) {
+      console.warn('⚠️ extractSymbolicMeaning: Missing parameters, using fallback');
+      return {
+        primarySymbol: { id: 64, name: '未済', meaning: '無限の可能性' },
+        interpretation: 'あなたの人格には限りない可能性が秘められています',
+        elementalAspect: '調和的なエネルギー',
+        spiritualDimension: '継続的な成長を目指す道筋',
+        practicalManifestation: '柔軟性と適応力を人生に統合する'
+      };
+    }
+    
+    try {
+    const symbolicMeanings = {
+      engine: {
+        1: '天のような創造力を持つ価値観の源泉',
+        2: '大地のような包容力のある価値基盤',
+        29: '深淵な水のような価値の探求',
+        64: '未完成の価値観の可能性'
+      },
+      interface: {
+        1: '天空のような高い社会的理想',
+        2: '大地のような安定した社会性',
+        29: '流れる水のような柔軟な対人関係',
+        64: '発展途上の社会的スキル'
+      },
+      safemode: {
+        1: '天の守護のような強固な防御',
+        2: '大地の安定のような確実な保護',
+        29: '深い水のような慎重な警戒',
+        64: '未完成の防御システムの強化'
+      }
+    };
+
+      const osSymbols = symbolicMeanings[dominantOS] || symbolicMeanings.engine;
+      const meaning = osSymbols[hexagram.id] || `${hexagram.name}の象徴的意味を体現する${dominantOS}OS`;
+
+      return {
+        primarySymbol: hexagram,
+        interpretation: meaning,
+        elementalAspect: this.getElementalAspect(hexagram),
+        spiritualDimension: this.getSpiritualDimension(hexagram, dominantOS),
+        practicalManifestation: this.getPracticalManifestation(hexagram, dominantOS)
+      };
+      
+    } catch (error) {
+      console.error('❌ Error in extractSymbolicMeaning:', error);
+      return {
+        primarySymbol: { id: 64, name: '未済', meaning: '無限の可能性' },
+        interpretation: '易経の智恵があなたの人格に新しい洞察をもたらします',
+        elementalAspect: '調和的なエネルギー',
+        spiritualDimension: '内なる統合への道筋',
+        practicalManifestation: '日常における智恵の実践'
+      };
+    }
+  }
+
+  /**
+   * 元素的側面の取得
+   */
+  getElementalAspect(hexagram) {
+    const elementMap = {
+      '天': '創造性と指導力',
+      '地': '安定性と受容性',
+      '水': '流動性と適応性',
+      '火': '情熱と洞察力',
+      '雷': '行動力と突破力',
+      '風': '浸透力と影響力',
+      '山': '不動性と瞑想力',
+      '沢': '喜びと表現力'
+    };
+
+    return elementMap[hexagram.element] || '調和的なエネルギー';
+  }
+
+  /**
+   * 精神的次元の取得
+   */
+  getSpiritualDimension(hexagram, dominantOS) {
+    return `${hexagram.name}の精神性を通じて、${dominantOS}OSが内なる統合を目指す道筋`;
+  }
+
+  /**
+   * 実践的表現の取得
+   */
+  getPracticalManifestation(hexagram, dominantOS) {
+    const manifestations = {
+      engine: `価値観として${hexagram.meaning}を日常に表現する`,
+      interface: `社会的関係で${hexagram.meaning}を体現する`,
+      safemode: `防御的判断で${hexagram.meaning}を活用する`
+    };
+
+    return manifestations[dominantOS] || `${hexagram.meaning}を人生に統合する`;
+  }
+
+  /**
    * 人生哲学の抽出
    */
   extractLifePhilosophy(hexagram) {
@@ -969,6 +1377,890 @@ class IchingMetaphorEngine {
    */
   extractSpiritualAspect(hexagram) {
     return `${hexagram.name}の精神性を通じて、内なる統合を目指す`;
+  }
+
+  /**
+   * 実践的応用の生成 - 欠如していたメソッドの実装
+   * @param {Object} hexagram - 卦のデータ
+   * @param {string} dominantOS - 主導的OS
+   * @param {number} harmony - 調和度
+   * @returns {Object} 実践的応用の指針
+   */
+  generatePracticalApplication(hexagram, dominantOS = 'engine', harmony = 0.5) {
+    // 入力パラメータの検証
+    if (!hexagram) {
+      console.warn('⚠️ generatePracticalApplication: hexagram parameter missing, using fallback');
+      return {
+        dailyPractice: ['内なる声に耳を傾ける時間を作る'],
+        situationalApplication: {
+          work: '価値観に基づいた決断を心がける',
+          relationships: '相手の立場を理解しながら自分の考えを伝える',
+          challenges: '困難な状況でも核となる信念を見失わない'
+        },
+        integration: {
+          engineAlignment: '価値観システムとの整合性を確認する',
+          interfaceHarmony: '社会的システムとのバランスを保つ',
+          safemodeProtection: '防御システムの警告を適切に評価する'
+        },
+        progressIndicators: [
+          '内的な平和を感じられる',
+          '判断に迷いが少なくなる',
+          '人間関係が改善される'
+        ]
+      };
+    }
+
+    try {
+      // 卦の属性に基づく実践指針の生成
+      const attributes = hexagram.attributes || ['調和', '成長', '智慧'];
+      const hexagramName = hexagram.name || '未済';
+      const hexagramMeaning = hexagram.meaning || '成長への道';
+
+      // 主導OSに基づく特化指針
+      const osSpecificGuidance = this.generateOSSpecificGuidance(hexagram, dominantOS);
+      
+      // 調和度に基づく実践レベル
+      const practiceLevel = this.determinePracticeLevel(harmony);
+      
+      return {
+        dailyPractice: this.generateDailyPractices(hexagram, dominantOS, harmony),
+        situationalApplication: {
+          work: `仕事では${hexagramName}の智慧に従い、${attributes[0]}を重視した判断を行いましょう`,
+          relationships: `人間関係では${hexagramMeaning}の精神で、${attributes[1] || attributes[0]}を大切にしましょう`,
+          challenges: `困難な状況では${hexagramName}が教える${attributes[2] || attributes[0]}の姿勢で乗り越えましょう`
+        },
+        integration: {
+          engineAlignment: osSpecificGuidance.engine,
+          interfaceHarmony: osSpecificGuidance.interface,
+          safemodeProtection: osSpecificGuidance.safemode
+        },
+        practiceLevel: practiceLevel,
+        progressIndicators: this.generateProgressIndicators(hexagram, harmony),
+        timeframe: this.suggestPracticeTimeframe(harmony),
+        adaptationTips: this.generateAdaptationTips(hexagram, dominantOS)
+      };
+      
+    } catch (error) {
+      console.error('❌ Error in generatePracticalApplication:', error);
+      // フォールバック実装
+      return {
+        dailyPractice: ['易経の智慧を日常の選択に活かす'],
+        situationalApplication: {
+          work: '職場での判断において、内なる智慧を参考にする',
+          relationships: '人との関わりで、調和と理解を大切にする',
+          challenges: '困難な時こそ、長期的視点を保つ'
+        },
+        integration: {
+          engineAlignment: '価値観システムとの調和を図る',
+          interfaceHarmony: '社会的システムとのバランスを保つ',
+          safemodeProtection: '防御システムの智慧を活かす'
+        },
+        progressIndicators: ['内的平和の向上', '判断力の向上', '人間関係の改善']
+      };
+    }
+  }
+
+  /**
+   * OS特化指針の生成
+   */
+  generateOSSpecificGuidance(hexagram, dominantOS) {
+    const hexagramName = hexagram.name || '未済';
+    const attributes = hexagram.attributes || ['調和'];
+    
+    return {
+      engine: `価値観システムでは、${hexagramName}の${attributes[0]}を核とした信念体系を構築しましょう`,
+      interface: `社会的システムでは、${hexagramName}の智慧を他者との関係に活かしましょう`,
+      safemode: `防御システムでは、${hexagramName}の教えを安全な判断の基準としましょう`
+    };
+  }
+
+  /**
+   * 実践レベルの決定
+   */
+  determinePracticeLevel(harmony) {
+    if (harmony > 0.8) {
+      return {
+        level: 'advanced',
+        description: '高度な統合実践',
+        focus: '3つのOSの完全な調和を目指す'
+      };
+    } else if (harmony > 0.6) {
+      return {
+        level: 'intermediate',
+        description: '中級統合実践',
+        focus: 'OSの協力関係を強化する'
+      };
+    } else {
+      return {
+        level: 'beginner',
+        description: '基礎統合実践',
+        focus: '各OSの特性と役割を理解する'
+      };
+    }
+  }
+
+  /**
+   * 日常実践の生成
+   */
+  generateDailyPractices(hexagram, dominantOS, harmony) {
+    const hexagramName = hexagram.name || '未済';
+    const practices = [];
+    
+    // 朝の実践
+    practices.push(`朝の時間に${hexagramName}の智慧を心に留める瞑想を行う`);
+    
+    // OS特化実践
+    if (dominantOS === 'engine') {
+      practices.push('価値観に基づく今日の行動指針を設定する');
+    } else if (dominantOS === 'interface') {
+      practices.push('人間関係における調和的アプローチを意識する');
+    } else {
+      practices.push('一日の安全と安定を確保する行動計画を立てる');
+    }
+    
+    // 調和度に応じた実践
+    if (harmony > 0.7) {
+      practices.push('3つのOSの統合的判断を意識した選択を行う');
+    } else {
+      practices.push('各OSの声に耳を傾け、バランスの取れた判断を心がける');
+    }
+    
+    // 夜の振り返り
+    practices.push(`夜に${hexagramName}の教えと今日の行動を照らし合わせて振り返る`);
+    
+    return practices;
+  }
+
+  /**
+   * 進歩指標の生成
+   */
+  generateProgressIndicators(hexagram, harmony) {
+    const indicators = [
+      `${hexagram.name}の智慧が日常判断に自然に現れる`,
+      '内的な対話がより建設的になる',
+      '困難な状況での冷静さが向上する'
+    ];
+    
+    if (harmony > 0.6) {
+      indicators.push('3つのOSの協力がスムーズに感じられる');
+    } else {
+      indicators.push('各OSの特性をより明確に識別できる');
+    }
+    
+    return indicators;
+  }
+
+  /**
+   * 実践期間の提案
+   */
+  suggestPracticeTimeframe(harmony) {
+    if (harmony > 0.7) {
+      return {
+        daily: '毎日の継続実践',
+        review: '週次の振り返り',
+        adjustment: '月次の調整'
+      };
+    } else {
+      return {
+        daily: '基礎的な日常実践',
+        review: '3日ごとの小振り返り',
+        adjustment: '週次の大幅調整'
+      };
+    }
+  }
+
+  /**
+   * 適応のヒント生成
+   */
+  generateAdaptationTips(hexagram, dominantOS) {
+    const tips = [];
+    
+    tips.push(`${hexagram.name}の教えを無理に当てはめず、自分の状況に応じて柔軟に解釈する`);
+    
+    if (dominantOS === 'engine') {
+      tips.push('理想と現実のバランスを取りながら、価値観を実践に移す');
+    } else if (dominantOS === 'interface') {
+      tips.push('他者の反応を観察しながら、社会的な実践方法を調整する');
+    } else {
+      tips.push('安全性を確保しながら、段階的に新しい実践を取り入れる');
+    }
+    
+    tips.push('完璧を求めず、継続的な改善を重視する');
+    
+    return tips;
+  }
+
+  /**
+   * 季節的な側面のマッピング - 不足していたメソッドの実装
+   */
+  mapToSeasonalCycle(hexagram) {
+    const seasonalMappings = {
+      1: { season: '春', phase: '創造の始まり', energy: '上昇エネルギー' },
+      2: { season: '秋', phase: '収穫と受容', energy: '安定エネルギー' },
+      29: { season: '冬', phase: '深い内省', energy: '潜在エネルギー' },
+      64: { season: '春', phase: '新しい可能性', energy: '変化エネルギー' }
+    };
+
+    return seasonalMappings[hexagram.id] || {
+      season: '四季全体',
+      phase: '継続的な循環',
+      energy: '調和エネルギー'
+    };
+  }
+
+  /**
+   * 元素バランスの分析 - 不足していたメソッドの実装
+   */
+  analyzeElementalBalance(hexagram) {
+    const elementalAnalysis = {
+      primary: hexagram.element || '調和',
+      qualities: hexagram.attributes || ['バランス'],
+      interactions: this.calculateElementalInteractions(hexagram),
+      recommendations: this.generateElementalRecommendations(hexagram)
+    };
+
+    return elementalAnalysis;
+  }
+
+  /**
+   * 元素間相互作用の計算
+   */
+  calculateElementalInteractions(hexagram) {
+    const element = hexagram.element || '調和';
+    const interactionMap = {
+      '天': { strengthens: ['火', '金'], weakens: ['地'], neutral: ['水', '木'] },
+      '地': { strengthens: ['金', '水'], weakens: ['木'], neutral: ['火', '天'] },
+      '水': { strengthens: ['木', '金'], weakens: ['火'], neutral: ['地', '天'] },
+      '火': { strengthens: ['土', '木'], weakens: ['金'], neutral: ['水', '天'] },
+      '調和': { strengthens: ['すべて'], weakens: [], neutral: [] }
+    };
+
+    return interactionMap[element] || interactionMap['調和'];
+  }
+
+  /**
+   * 元素的推奨事項の生成
+   */
+  generateElementalRecommendations(hexagram) {
+    const element = hexagram.element || '調和';
+    const recommendationMap = {
+      '天': ['リーダーシップを発揮する', '創造的な活動に取り組む', '高い目標を設定する'],
+      '地': ['安定した基盤を築く', '他者をサポートする', '着実な成長を心がける'],
+      '水': ['柔軟性を保つ', '状況に適応する', '深い洞察を求める'],
+      '火': ['情熱的に取り組む', '明確なビジョンを持つ', '他者を照らす存在になる'],
+      '調和': ['バランスを保つ', '全体性を意識する', '多様性を受け入れる']
+    };
+
+    return recommendationMap[element] || recommendationMap['調和'];
+  }
+
+  /**
+   * バランス推奨事項の生成 - 不足していたメソッドの実装
+   */
+  generateBalanceRecommendation(personalityState) {
+    const harmony = personalityState?.internalHarmony || 0.5;
+    const dominantOS = personalityState?.currentDominantOS || 'engine';
+
+    if (harmony > 0.8) {
+      return '現在の優れたバランスを維持しながら、さらなる統合を目指しましょう';
+    } else if (harmony > 0.6) {
+      return '良好なバランスを基盤として、各OSの協力関係を深めましょう';
+    } else if (harmony > 0.4) {
+      return 'OS間の対話を促進し、相互理解を深めることでバランス改善を図りましょう';
+    } else {
+      return '各OSの特性を理解し、段階的な統合を通じてバランスを構築しましょう';
+    }
+  }
+
+  /**
+   * 関係性進化の評価 - 不足していたメソッドの実装
+   */
+  assessRelationshipEvolution(relationshipData) {
+    const compatibility = relationshipData?.compatibility || 0.5;
+    const conflict = relationshipData?.conflict || 0.3;
+    const cooperation = relationshipData?.cooperation || 0.5;
+
+    const evolutionScore = (compatibility + cooperation - conflict * 0.5) / 2;
+
+    let evolutionPotential;
+    if (evolutionScore > 0.7) {
+      evolutionPotential = {
+        level: 'high',
+        direction: '深い統合と相互成長',
+        timeframe: '短期間での進展',
+        focus: '高次の協力関係の構築'
+      };
+    } else if (evolutionScore > 0.5) {
+      evolutionPotential = {
+        level: 'moderate',
+        direction: '建設的な協力関係',
+        timeframe: '中期的な発展',
+        focus: '相互理解の深化'
+      };
+    } else {
+      evolutionPotential = {
+        level: 'developing',
+        direction: '基礎関係の構築',
+        timeframe: '長期的な育成',
+        focus: '対話と理解の促進'
+      };
+    }
+
+    return evolutionPotential;
+  }
+
+  /**
+   * 関係性指針の生成 - 安全なアクセスパターンで修正
+   */
+  generateRelationshipGuidance(metaphor, relationshipData) {
+    if (!metaphor || !relationshipData) {
+      return '各OSの声に耳を傾け、調和的な関係性を築きましょう';
+    }
+
+    const guidanceMap = {
+      harmony: '自然な調和を維持し、相互の成長を支援し合いましょう',
+      tension: '建設的な対話を通じて、相違を成長の機会に変えましょう',
+      cooperation: '協力関係を深め、共通の目標に向かって歩みましょう',
+      balance: 'バランスを保ちながら、段階的な関係改善を図りましょう'
+    };
+
+    return guidanceMap[metaphor.type] || guidanceMap.balance;
+  }
+
+  /**
+   * 現在の季節の決定 - 不足していたメソッドの実装
+   */
+  determinCurrentSeason(osPersonalities) {
+    const harmony = osPersonalities?.internalHarmony || 0.5;
+    const dominantOS = osPersonalities?.currentDominantOS || 'engine';
+
+    if (harmony > 0.8) {
+      return { season: '夏', description: '成熟と豊かさの季節' };
+    } else if (harmony > 0.6) {
+      return { season: '春', description: '成長と発展の季節' };
+    } else if (harmony > 0.4) {
+      return { season: '秋', description: '変化と準備の季節' };
+    } else {
+      return { season: '冬', description: '内省と基盤構築の季節' };
+    }
+  }
+
+  /**
+   * 次段階指針の生成 - 不足していたメソッドの実装
+   */
+  generateNextPhaseGuidance(hexagram) {
+    const hexagramName = hexagram?.name || '未済';
+    const attributes = hexagram?.attributes || ['成長'];
+
+    return {
+      immediate: `${hexagramName}の教えを日常的な選択に取り入れる`,
+      shortTerm: `${attributes[0]}を重視した生活パターンを確立する`,
+      longTerm: `${hexagramName}の智慧を人生の指針として統合する`,
+      keyActions: [
+        '毎日の振り返りを習慣化する',
+        '各OSの声を意識的に聞く',
+        'バランスの取れた判断を心がける'
+      ]
+    };
+  }
+
+  /**
+   * 行動予測の生成 - 不足していたメソッドの実装（bunenjin哲学基盤）
+   * @param {string} situation - 予測対象の状況
+   * @param {Object} hexagram - 対応する卦のデータ
+   * @returns {Object} bunenjin哲学に基づく行動予測
+   */
+  generateBehaviorPrediction(situation, hexagram) {
+    console.log(`🔮 Generating behavior prediction for situation: ${situation} with hexagram: ${hexagram?.name}`);
+    
+    // MCPフックでログ出力
+    if (typeof window !== 'undefined' && window.console) {
+      console.log(`🧠 [BUNENJIN] Behavior prediction initiated for ${situation}`);
+    }
+    
+    // 入力パラメータの検証
+    if (!situation || !hexagram) {
+      console.warn('⚠️ generateBehaviorPrediction: Missing parameters, using fallback prediction');
+      return this.generateFallbackBehaviorPrediction(situation);
+    }
+
+    try {
+      // 仮想人格の状態を安全に取得
+      const personalityState = this.virtualPersonality?.personalityState || {};
+      const dominantOS = personalityState.currentDominantOS || 'engine';
+      const harmony = personalityState.internalHarmony || 0.5;
+      const adaptability = personalityState.adaptabilityIndex || 0.5;
+
+      // bunenjin哲学に基づく行動パターン分析
+      const bunenjinAnalysis = this.analyzeBunenjinPattern(situation, hexagram, {
+        dominantOS,
+        harmony,
+        adaptability
+      });
+
+      // 3つのOSの行動傾向予測
+      const osReactions = this.predictOSReactions(situation, hexagram, personalityState);
+      
+      // 統合的行動予測の生成
+      const integratedPrediction = this.generateIntegratedPrediction(
+        bunenjinAnalysis,
+        osReactions,
+        hexagram
+      );
+
+      // 時系列行動パターンの予測
+      const timelinePrediction = this.predictTimelinePattern(situation, hexagram, personalityState);
+
+      // 確率的行動選択の計算
+      const probabilityMatrix = this.calculateBehaviorProbability(
+        integratedPrediction,
+        personalityState
+      );
+
+      // MCPフックでbunenjin分析結果をログ出力
+      console.log(`🎭 [BUNENJIN] Primary behavior pattern: ${integratedPrediction.primaryPattern}`);
+      
+      const prediction = {
+        situation: situation,
+        hexagramGuide: {
+          id: hexagram.id,
+          name: hexagram.name,
+          meaning: hexagram.meaning,
+          guidance: `${hexagram.name}の智慧に従い、${hexagram.attributes?.[0] || '調和'}を重視した行動`
+        },
+        bunenjinCore: bunenjinAnalysis,
+        osReactions: osReactions,
+        primaryBehavior: integratedPrediction.primaryPattern,
+        alternativeBehaviors: integratedPrediction.alternatives,
+        behaviorProbability: probabilityMatrix,
+        timelinePattern: timelinePrediction,
+        adaptationStrategy: this.generateAdaptationStrategy(bunenjinAnalysis, personalityState),
+        warningSignals: this.identifyWarningSignals(situation, personalityState),
+        growthOpportunities: this.identifyGrowthOpportunities(situation, hexagram, bunenjinAnalysis)
+      };
+
+      // MCPフックで最終予測をログ出力
+      console.log(`✨ [BUNENJIN] Behavior prediction completed: ${prediction.primaryBehavior}`);
+      
+      return prediction;
+
+    } catch (error) {
+      console.error('❌ Error in generateBehaviorPrediction:', error);
+      return this.generateFallbackBehaviorPrediction(situation);
+    }
+  }
+
+  /**
+   * bunenjin哲学パターン分析
+   * bunenjin: 物事の本質を捉え、調和と成長を重視する東洋的智慧
+   */
+  analyzeBunenjinPattern(situation, hexagram, personalityMetrics) {
+    const { dominantOS, harmony, adaptability } = personalityMetrics;
+    
+    // bunenjinの核心原理: 中庸・調和・成長・智慧
+    const bunenjinPrinciples = {
+      balance: this.assessBalanceNeed(situation, harmony),
+      growth: this.assessGrowthPotential(situation, adaptability),
+      wisdom: this.assessWisdomApplication(situation, hexagram),
+      harmony: this.assessHarmonyRequirement(situation, dominantOS)
+    };
+
+    // 状況に対するbunenjin的アプローチ
+    const bunenjinApproach = this.determineBunenjinApproach(bunenjinPrinciples, hexagram);
+    
+    return {
+      principles: bunenjinPrinciples,
+      approach: bunenjinApproach,
+      philosophicalGuidance: this.generatePhilosophicalGuidance(bunenjinPrinciples, hexagram),
+      practicalApplication: this.generateBunenjinPracticalSteps(bunenjinApproach, situation)
+    };
+  }
+
+  /**
+   * バランス必要性の評価
+   */
+  assessBalanceNeed(situation, harmony) {
+    if (situation.includes('ストレス') || situation.includes('対立')) {
+      return {
+        level: 'high',
+        focus: '内的平衡の回復',
+        approach: '調和的解決を優先'
+      };
+    } else if (situation.includes('選択') || situation.includes('決定')) {
+      return {
+        level: 'moderate',
+        focus: '多角的視点の統合',
+        approach: '中庸の道を探求'
+      };
+    } else {
+      return {
+        level: 'maintenance',
+        focus: '現状バランスの維持',
+        approach: '安定的調和の継続'
+      };
+    }
+  }
+
+  /**
+   * 成長可能性の評価
+   */
+  assessGrowthPotential(situation, adaptability) {
+    if (situation.includes('挑戦') || situation.includes('新しい')) {
+      return {
+        potential: 'high',
+        direction: '積極的成長',
+        strategy: adaptability > 0.6 ? '大胆な前進' : '段階的発展'
+      };
+    } else if (situation.includes('学習') || situation.includes('経験')) {
+      return {
+        potential: 'moderate',
+        direction: '継続的学習',
+        strategy: '経験からの智慧獲得'
+      };
+    } else {
+      return {
+        potential: 'latent',
+        direction: '潜在的発展',
+        strategy: '機会の準備と待機'
+      };
+    }
+  }
+
+  /**
+   * 智慧適用の評価
+   */
+  assessWisdomApplication(situation, hexagram) {
+    const hexagramWisdom = hexagram.attributes || ['調和'];
+    
+    return {
+      applicableWisdom: hexagramWisdom,
+      applicationMethod: `${hexagram.name}の教えを${situation}に適用`,
+      expectedInsight: `${hexagram.meaning}を通じた深い理解`,
+      practicalExpression: `日常行動での${hexagramWisdom[0]}の実践`
+    };
+  }
+
+  /**
+   * 調和要求の評価
+   */
+  assessHarmonyRequirement(situation, dominantOS) {
+    const harmonyStrategies = {
+      engine: '価値観との整合性を重視した行動',
+      interface: '社会的調和を考慮した対応',
+      safemode: '安全性と調和のバランス'
+    };
+
+    return {
+      strategy: harmonyStrategies[dominantOS],
+      priority: situation.includes('人間関係') ? 'high' : 'moderate',
+      approach: 'OS間の協調的判断'
+    };
+  }
+
+  /**
+   * bunenjinアプローチの決定
+   */
+  determineBunenjinApproach(principles, hexagram) {
+    // 複数の原理を統合したアプローチ
+    const primaryPrinciple = this.identifyPrimaryPrinciple(principles);
+    
+    return {
+      primary: primaryPrinciple,
+      methodology: this.selectBunenjinMethodology(primaryPrinciple, hexagram),
+      integration: this.planPrincipleIntegration(principles),
+      expectedOutcome: this.predictBunenjinOutcome(primaryPrinciple, hexagram)
+    };
+  }
+
+  /**
+   * 主要原理の特定
+   */
+  identifyPrimaryPrinciple(principles) {
+    // 各原理の重要度を評価
+    if (principles.balance.level === 'high') return 'balance';
+    if (principles.growth.potential === 'high') return 'growth';
+    if (principles.harmony.priority === 'high') return 'harmony';
+    return 'wisdom';
+  }
+
+  /**
+   * bunenjin方法論の選択
+   */
+  selectBunenjinMethodology(primaryPrinciple, hexagram) {
+    const methodologies = {
+      balance: `${hexagram.name}の調和的智慧による均衡回復`,
+      growth: `${hexagram.name}の成長促進エネルギーの活用`,
+      harmony: `${hexagram.name}の和合の力による関係性改善`,
+      wisdom: `${hexagram.name}の深い洞察による問題解決`
+    };
+
+    return methodologies[primaryPrinciple] || methodologies.wisdom;
+  }
+
+  /**
+   * 3つのOSの反応予測
+   */
+  predictOSReactions(situation, hexagram, personalityState) {
+    const dominantOS = personalityState?.currentDominantOS || 'engine';
+    const harmony = personalityState?.internalHarmony || 0.5;
+
+    return {
+      engineOS: this.predictEngineReaction(situation, hexagram, dominantOS === 'engine', harmony),
+      interfaceOS: this.predictInterfaceReaction(situation, hexagram, dominantOS === 'interface', harmony),
+      safemodeOS: this.predictSafemodeReaction(situation, hexagram, dominantOS === 'safemode', harmony)
+    };
+  }
+
+  /**
+   * Engine OS反応予測
+   */
+  predictEngineReaction(situation, hexagram, isDominant, harmony) {
+    const baseReaction = {
+      focus: '価値観と理想への整合性',
+      approach: `${hexagram.name}の智慧に基づく信念の実践`,
+      concern: '行動が価値観に忠実であるか',
+      contribution: '道徳的・倫理的判断の提供'
+    };
+
+    if (isDominant) {
+      baseReaction.influence = 'strong';
+      baseReaction.leadership = `${hexagram.name}の教えを主導的に実行`;
+    } else {
+      baseReaction.influence = harmony > 0.6 ? 'collaborative' : 'advisory';
+      baseReaction.support = `価値観的観点からの支援と助言`;
+    }
+
+    return baseReaction;
+  }
+
+  /**
+   * Interface OS反応予測
+   */
+  predictInterfaceReaction(situation, hexagram, isDominant, harmony) {
+    const baseReaction = {
+      focus: '社会的調和と関係性',
+      approach: `${hexagram.name}の智慧を人間関係に応用`,
+      concern: '他者との調和が保たれるか',
+      contribution: '社会的スキルと協力関係の構築'
+    };
+
+    if (situation.includes('対人関係') || situation.includes('チーム')) {
+      baseReaction.activation = 'high';
+      baseReaction.specialization = '関係性の調整と改善';
+    }
+
+    if (isDominant) {
+      baseReaction.influence = 'strong';
+      baseReaction.leadership = `${hexagram.name}を通じた社会的統合の推進`;
+    }
+
+    return baseReaction;
+  }
+
+  /**
+   * SafeMode OS反応予測
+   */
+  predictSafemodeReaction(situation, hexagram, isDominant, harmony) {
+    const baseReaction = {
+      focus: '安全性とリスク管理',
+      approach: `${hexagram.name}の慎重な智慧の適用`,
+      concern: '行動に伴うリスクの評価',
+      contribution: '安全で持続可能な選択肢の提示'
+    };
+
+    if (situation.includes('ストレス') || situation.includes('危険')) {
+      baseReaction.activation = 'high';
+      baseReaction.protection = '積極的なリスク回避策の提案';
+    }
+
+    if (isDominant) {
+      baseReaction.influence = 'strong';
+      baseReaction.caution = `${hexagram.name}の教えによる慎重な行動指針`;
+    }
+
+    return baseReaction;
+  }
+
+  /**
+   * 統合的行動予測の生成
+   */
+  generateIntegratedPrediction(bunenjinAnalysis, osReactions, hexagram) {
+    const primaryPattern = this.synthesizePrimaryPattern(bunenjinAnalysis, osReactions, hexagram);
+    const alternatives = this.generateAlternativePatterns(bunenjinAnalysis, osReactions, hexagram);
+
+    return {
+      primaryPattern,
+      alternatives,
+      confidence: this.calculatePredictionConfidence(bunenjinAnalysis, osReactions),
+      bunenjinAlignment: this.assessBunenjinAlignment(primaryPattern, bunenjinAnalysis)
+    };
+  }
+
+  /**
+   * 主要パターンの合成
+   */
+  synthesizePrimaryPattern(bunenjinAnalysis, osReactions, hexagram) {
+    const approach = bunenjinAnalysis.approach;
+    const dominantReaction = this.identifyDominantOSReaction(osReactions);
+    
+    return `${hexagram.name}の智慧に導かれ、${approach.methodology}を通じて、${dominantReaction.focus}を重視した${approach.primary}的な行動を取る`;
+  }
+
+  /**
+   * 時系列行動パターンの予測
+   */
+  predictTimelinePattern(situation, hexagram, personalityState) {
+    const adaptability = personalityState?.adaptabilityIndex || 0.5;
+    
+    return {
+      immediate: `${hexagram.name}の直感的智慧による初期反応`,
+      shortTerm: `${hexagram.attributes?.[0] || '調和'}を重視した継続的行動`,
+      mediumTerm: `${hexagram.meaning}の深い理解に基づく行動修正`,
+      longTerm: `${hexagram.name}の教えを人生に統合した成熟した対応`
+    };
+  }
+
+  /**
+   * 行動確率の計算
+   */
+  calculateBehaviorProbability(integratedPrediction, personalityState) {
+    const harmony = personalityState?.internalHarmony || 0.5;
+    const confidence = integratedPrediction.confidence || 0.7;
+    
+    return {
+      primaryBehavior: Math.min(0.95, confidence * (0.7 + harmony * 0.3)),
+      alternativeBehavior: Math.max(0.05, (1 - confidence) * 0.8),
+      unexpectedBehavior: Math.max(0.01, (1 - harmony) * 0.1),
+      adaptiveBehavior: personalityState?.adaptabilityIndex || 0.5
+    };
+  }
+
+  /**
+   * フォールバック行動予測
+   */
+  generateFallbackBehaviorPrediction(situation) {
+    return {
+      situation: situation || '一般的状況',
+      hexagramGuide: {
+        id: 64,
+        name: '未済',
+        meaning: '未だ成らず',
+        guidance: '継続的な成長と学習を重視した行動'
+      },
+      bunenjinCore: {
+        approach: {
+          primary: 'wisdom',
+          methodology: '未済の智慧による段階的成長'
+        }
+      },
+      primaryBehavior: '状況を慎重に観察し、3つのOSの声を聞きながら、調和的で成長志向の行動を選択する',
+      behaviorProbability: {
+        primaryBehavior: 0.7,
+        alternativeBehavior: 0.2,
+        unexpectedBehavior: 0.1
+      }
+    };
+  }
+
+  /**
+   * 適応戦略の生成
+   */
+  generateAdaptationStrategy(bunenjinAnalysis, personalityState) {
+    return {
+      flexibility: `${bunenjinAnalysis.approach.primary}の原理を保ちながら状況に応じた調整`,
+      resilience: '予期せぬ変化に対する内的安定性の維持',
+      learning: '経験から得られる智慧の統合と活用'
+    };
+  }
+
+  /**
+   * 警告信号の特定
+   */
+  identifyWarningSignals(situation, personalityState) {
+    const harmony = personalityState?.internalHarmony || 0.5;
+    
+    const warnings = [];
+    if (harmony < 0.4) {
+      warnings.push('OS間の対立が行動の一貫性を阻害する可能性');
+    }
+    if (situation.includes('ストレス') && harmony < 0.6) {
+      warnings.push('ストレス下での判断力低下のリスク');
+    }
+    
+    return warnings;
+  }
+
+  /**
+   * 成長機会の特定
+   */
+  identifyGrowthOpportunities(situation, hexagram, bunenjinAnalysis) {
+    return [
+      `${hexagram.name}の智慧を通じた自己理解の深化`,
+      `${bunenjinAnalysis.approach.primary}の原理の実践的習得`,
+      '3つのOSの協調関係の強化'
+    ];
+  }
+
+  // 追加のヘルパーメソッド
+  identifyDominantOSReaction(osReactions) {
+    // 最も影響力の強いOSの反応を特定
+    const reactions = [osReactions.engineOS, osReactions.interfaceOS, osReactions.safemodeOS];
+    return reactions.find(r => r.influence === 'strong') || osReactions.engineOS;
+  }
+
+  generateAlternativePatterns(bunenjinAnalysis, osReactions, hexagram) {
+    return [
+      `より慎重な${hexagram.name}の適用による段階的アプローチ`,
+      `より積極的な${hexagram.attributes?.[0] || '調和'}の実践`,
+      `複数のOSの視点を同時に考慮した統合的判断`
+    ];
+  }
+
+  calculatePredictionConfidence(bunenjinAnalysis, osReactions) {
+    // bunenjin分析の一貫性とOS反応の協調性に基づく信頼度
+    const analysisStrength = bunenjinAnalysis.approach.primary ? 0.8 : 0.6;
+    const osCoordination = this.assessOSCoordination(osReactions);
+    return (analysisStrength + osCoordination) / 2;
+  }
+
+  assessBunenjinAlignment(primaryPattern, bunenjinAnalysis) {
+    // 予測がbunenjin哲学と整合しているかの評価
+    return {
+      philosophical: 'high',
+      practical: 'moderate',
+      spiritual: 'high'
+    };
+  }
+
+  assessOSCoordination(osReactions) {
+    // OS間の協調性を評価
+    const collaborativeCount = [
+      osReactions.engineOS,
+      osReactions.interfaceOS,
+      osReactions.safemodeOS
+    ].filter(r => r.influence === 'collaborative').length;
+    
+    return collaborativeCount > 0 ? 0.8 : 0.6;
+  }
+
+  generatePhilosophicalGuidance(principles, hexagram) {
+    return `${hexagram.name}の智慧に基づき、${Object.keys(principles).join('と')}を統合した東洋的智慧による人生指導`;
+  }
+
+  generateBunenjinPracticalSteps(approach, situation) {
+    return [
+      `${approach.primary}の原理に従った第一歩の実行`,
+      `状況の全体的把握と調和的解決策の模索`,
+      `継続的な学習と自己改善の実践`
+    ];
+  }
+
+  planPrincipleIntegration(principles) {
+    return '複数の原理を状況に応じて適切に組み合わせる統合的アプローチ';
+  }
+
+  predictBunenjinOutcome(primaryPrinciple, hexagram) {
+    return `${hexagram.name}の${primaryPrinciple}を通じた内的成長と外的調和の達成`;
   }
 }
 

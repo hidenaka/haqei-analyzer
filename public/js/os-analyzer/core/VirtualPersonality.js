@@ -15,25 +15,42 @@ class VirtualPersonality {
     
     // 関連システム
     this.tripleOSEngine = tripleOSEngine;
-    this.userAnswers = userAnswers || [];
     
-    // 3つの独立したOS人格を構築
-    console.log('🎭 Creating Virtual Personality with 3 OS personalities...');
+    // 入力データの形式を判定
+    if (userAnswers && typeof userAnswers === 'object') {
+      // 分析結果データの場合とユーザー回答データの場合を判定
+      if (userAnswers.engineOS || userAnswers.interfaceOS || userAnswers.safeModeOS) {
+        // 分析結果データの場合
+        console.log('🔄 Processing analysis result data...');
+        this.analysisResult = userAnswers;
+        this.userAnswers = userAnswers.userAnswers || [];
+        
+        // 既存のOSデータを利用
+        this.engineOS = userAnswers.engineOS;
+        this.interfaceOS = userAnswers.interfaceOS;
+        this.safeModeOS = userAnswers.safeModeOS;
+      } else {
+        // ユーザー回答データの場合
+        console.log('🎭 Creating Virtual Personality with 3 OS personalities...');
+        this.userAnswers = userAnswers || [];
+        
+        // 3つの独立したOS人格を構築
+        this.engineOS = new PersonalityOS('engine', userAnswers, tripleOSEngine);
+        this.interfaceOS = new PersonalityOS('interface', userAnswers, tripleOSEngine);
+        this.safeModeOS = new PersonalityOS('safemode', userAnswers, tripleOSEngine);
+      }
+    } else {
+      // フォールバック: 基本データで初期化
+      console.log('⚠️ Initializing with fallback data...');
+      this.userAnswers = [];
+      this.engineOS = this.createFallbackOS('engine');
+      this.interfaceOS = this.createFallbackOS('interface');
+      this.safeModeOS = this.createFallbackOS('safemode');
+    }
     
-    this.engineOS = new PersonalityOS('engine', userAnswers, tripleOSEngine);
-    this.interfaceOS = new PersonalityOS('interface', userAnswers, tripleOSEngine);
-    this.safeModeOS = new PersonalityOS('safemode', userAnswers, tripleOSEngine);
-    
-    // OS関係性エンジンの統合（循環参照回避）
-    this.relationshipEngine = null;
-    this.metaphorEngine = null;
-    
-    // 弱参照を使用してエンジンを初期化
-    this.initializeEngines();
-    
-    // 仮想人格の統合状態
+    // 仮想人格の統合状態（エンジン初期化前に設定）
     this.personalityState = {
-      currentDominantOS: null, // 現在主導的なOS
+      currentDominantOS: 'engine', // 現在主導的なOS（デフォルト値設定）
       osBalance: { // OS間のバランス
         engine: 0.33,
         interface: 0.33,
@@ -43,6 +60,13 @@ class VirtualPersonality {
       internalHarmony: 0.0, // 内的調和度 (0.0-1.0)
       adaptabilityIndex: 0.0 // 適応性指数 (0.0-1.0)
     };
+    
+    // OS関係性エンジンの統合（循環参照回避）
+    this.relationshipEngine = null;
+    this.metaphorEngine = null;
+    
+    // personalityState初期化後にエンジンを初期化
+    this.initializeEngines();
     
     // OS活性履歴
     this.osActivationHistory = [];
@@ -71,11 +95,39 @@ class VirtualPersonality {
     
     console.log(`✅ Virtual Personality created:`, {
       id: this.id,
-      engineOS: this.engineOS.osName,
-      interfaceOS: this.interfaceOS.osName,
-      safeModeOS: this.safeModeOS.osName,
+      engineOS: this.engineOS?.osName || 'Unknown',
+      interfaceOS: this.interfaceOS?.osName || 'Unknown',
+      safeModeOS: this.safeModeOS?.osName || 'Unknown',
       dominantOS: this.personalityState.currentDominantOS
     });
+  }
+  
+  /**
+   * フォールバック用のOSデータ作成
+   */
+  createFallbackOS(osType) {
+    return {
+      osType: osType,
+      osName: `${osType.charAt(0).toUpperCase() + osType.slice(1)} OS`,
+      activation: 0.5,
+      score: 0.5,
+      characteristics: {
+        primary_traits: ['バランス型'],
+        motivation_source: '適応的動機'
+      },
+      personality: {
+        voice: '中立的な声',
+        strengths: ['安定性'],
+        weaknesses: ['不明確性']
+      },
+      hexagramId: 64,
+      hexagramName: '未済',
+      getCurrentState: () => ({ osType, status: 'initialized' }),
+      reactToStimulus: (stimulus) => `${osType} OS responding to: ${stimulus}`,
+      expressOpinion: (topic) => `${osType} OS opinion on: ${topic}`,
+      makeDecision: (situation) => ({ decision: 'neutral', confidence: 0.5 }),
+      negotiateWith: (others) => ({ dealBreakers: [] })
+    };
   }
 
   /**
@@ -166,72 +218,98 @@ class VirtualPersonality {
   initializeWithDefaults() {
     console.log('🔄 Initializing with default values...');
     
-    this.personalityState.currentDominantOS = 'engine';
+    // currentDominantOSがnullの場合のみ設定
+    if (!this.personalityState.currentDominantOS) {
+      this.personalityState.currentDominantOS = 'engine';
+    }
+    
     this.personalityState.overallCoherence = 0.5;
     this.personalityState.internalHarmony = 0.5;
     this.personalityState.adaptabilityIndex = 0.5;
+    
+    console.log('✅ Default initialization completed with currentDominantOS:', this.personalityState.currentDominantOS);
   }
   
   /**
    * OS間のバランスを計算
    */
   calculateOSBalance() {
-    const engineActivation = this.engineOS.activation || 0.33;
-    const interfaceActivation = this.interfaceOS.activation || 0.33;
-    const safeModeActivation = this.safeModeOS.activation || 0.33;
-    
-    const total = engineActivation + interfaceActivation + safeModeActivation;
-    
-    if (total > 0) {
+    try {
+      const engineActivation = this.engineOS?.activation || 0.33;
+      const interfaceActivation = this.interfaceOS?.activation || 0.33;
+      const safeModeActivation = this.safeModeOS?.activation || 0.33;
+      
+      const total = engineActivation + interfaceActivation + safeModeActivation;
+      
+      if (total > 0) {
+        this.personalityState.osBalance = {
+          engine: engineActivation / total,
+          interface: interfaceActivation / total,
+          safemode: safeModeActivation / total
+        };
+      }
+      
+      console.log('📊 OS Balance calculated:', this.personalityState.osBalance);
+    } catch (error) {
+      console.warn('⚠️ Error calculating OS balance:', error);
       this.personalityState.osBalance = {
-        engine: engineActivation / total,
-        interface: interfaceActivation / total,
-        safemode: safeModeActivation / total
+        engine: 0.33,
+        interface: 0.33,
+        safemode: 0.34
       };
     }
-    
-    console.log('📊 OS Balance calculated:', this.personalityState.osBalance);
   }
   
   /**
    * 現在の主導OSを決定
    */
   determineDominantOS() {
-    const balance = this.personalityState.osBalance;
-    
-    let dominantOS = 'engine';
-    let maxBalance = balance.engine;
-    
-    if (balance.interface > maxBalance) {
-      dominantOS = 'interface';
-      maxBalance = balance.interface;
+    try {
+      const balance = this.personalityState.osBalance;
+      
+      let dominantOS = 'engine';
+      let maxBalance = balance.engine || 0.33;
+      
+      if ((balance.interface || 0.33) > maxBalance) {
+        dominantOS = 'interface';
+        maxBalance = balance.interface;
+      }
+      
+      if ((balance.safemode || 0.34) > maxBalance) {
+        dominantOS = 'safemode';
+      }
+      
+      this.personalityState.currentDominantOS = dominantOS;
+      
+      console.log(`👑 Dominant OS determined: ${dominantOS} (balance: ${JSON.stringify(balance)})`);
+      
+    } catch (error) {
+      console.warn('⚠️ Error determining dominant OS, using fallback:', error);
+      this.personalityState.currentDominantOS = 'engine';
     }
-    
-    if (balance.safemode > maxBalance) {
-      dominantOS = 'safemode';
-    }
-    
-    this.personalityState.currentDominantOS = dominantOS;
-    
-    console.log(`👑 Dominant OS determined: ${dominantOS}`);
   }
   
   /**
    * 全体的な一貫性を評価
    */
   evaluateOverallCoherence() {
-    // OS間の特性の一貫性を評価
-    const engineTraits = this.engineOS.characteristics.primary_traits || [];
-    const interfaceTraits = this.interfaceOS.characteristics.primary_traits || [];
-    const safeModeTraits = this.safeModeOS.characteristics.primary_traits || [];
-    
-    // 簡略化された一貫性計算
-    const traitOverlap = this.calculateTraitOverlap(engineTraits, interfaceTraits, safeModeTraits);
-    const balanceStability = this.calculateBalanceStability();
-    
-    this.personalityState.overallCoherence = (traitOverlap + balanceStability) / 2;
-    
-    console.log(`🧩 Overall coherence: ${this.personalityState.overallCoherence.toFixed(3)}`);
+    try {
+      // OS間の特性の一貫性を評価
+      const engineTraits = this.engineOS?.characteristics?.primary_traits || [];
+      const interfaceTraits = this.interfaceOS?.characteristics?.primary_traits || [];
+      const safeModeTraits = this.safeModeOS?.characteristics?.primary_traits || [];
+      
+      // 簡略化された一貫性計算
+      const traitOverlap = this.calculateTraitOverlap(engineTraits, interfaceTraits, safeModeTraits);
+      const balanceStability = this.calculateBalanceStability();
+      
+      this.personalityState.overallCoherence = (traitOverlap + balanceStability) / 2;
+      
+      console.log(`🧩 Overall coherence: ${this.personalityState.overallCoherence.toFixed(3)}`);
+    } catch (error) {
+      console.warn('⚠️ Error evaluating coherence:', error);
+      this.personalityState.overallCoherence = 0.5;
+    }
   }
   
   /**
@@ -967,6 +1045,89 @@ class VirtualPersonality {
     }
     
     return suggestions.length > 0 ? suggestions : ['現在のバランスを維持し、さらなる成長を目指しましょう'];
+  }
+  
+  /**
+   * 統合レベルの取得
+   */
+  getIntegrationLevel() {
+    try {
+      return {
+        overall: this.personalityState?.internalHarmony || 0.5,
+        harmony: this.personalityState?.internalHarmony || 0.5,
+        coherence: this.personalityState?.overallCoherence || 0.5,
+        adaptability: this.personalityState?.adaptabilityIndex || 0.5,
+        balance: {
+          engine: this.personalityState?.osBalance?.engine || 0.33,
+          interface: this.personalityState?.osBalance?.interface || 0.33,
+          safemode: this.personalityState?.osBalance?.safemode || 0.34
+        }
+      };
+    } catch (error) {
+      console.warn('⚠️ Error getting integration level:', error);
+      return {
+        overall: 0.5,
+        harmony: 0.5,
+        coherence: 0.5,
+        adaptability: 0.5,
+        balance: { engine: 0.33, interface: 0.33, safemode: 0.34 }
+      };
+    }
+  }
+  
+  /**
+   * 対話シナリオの生成
+   */
+  generateDialogueScenario(scenarioId) {
+    try {
+      return {
+        id: scenarioId,
+        title: '内部対話',
+        dialogues: [
+          {
+            speaker: 'Engine OS',
+            message: 'この状況について、私たちの価値観から考えてみましょう。'
+          },
+          {
+            speaker: 'Interface OS',
+            message: '周囲への影響も考慮したいですね。'
+          },
+          {
+            speaker: 'SafeMode OS',
+            message: 'リスクを慎重に評価しましょう。'
+          }
+        ]
+      };
+    } catch (error) {
+      console.warn('⚠️ Error generating dialogue scenario:', error);
+      return {
+        id: scenarioId,
+        title: '基本対話',
+        dialogues: [{ speaker: 'システム', message: '対話を准備中です。' }]
+      };
+    }
+  }
+  
+  /**
+   * シナリオシミュレーション
+   */
+  simulateScenario(simulationId) {
+    try {
+      const scenarios = [
+        '価値観を優先した判断が良い結果をもたらします。',
+        '周囲との調和を重視し、安定した関係性を築けます。',
+        '慎重な検討により、リスクを回避できます。',
+        '総合的な判断により、最適な選択ができます。'
+      ];
+      return {
+        description: scenarios[simulationId] || scenarios[3]
+      };
+    } catch (error) {
+      console.warn('⚠️ Error simulating scenario:', error);
+      return {
+        description: 'シミュレーションを准備中です。'
+      };
+    }
   }
   
   /**

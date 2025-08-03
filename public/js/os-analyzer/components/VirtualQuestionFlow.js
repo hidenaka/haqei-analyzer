@@ -554,7 +554,7 @@ class VirtualQuestionFlow extends BaseComponent {
     element.removeAttribute('style');
     element.classList.remove('hide', 'hidden');
     
-    // 強制表示CSS（CSS競合対策）
+    // 強制表示CSS（CSS競合対策 + height問題修正）
     element.style.cssText = `
       display: block !important;
       opacity: 1 !important;
@@ -564,9 +564,12 @@ class VirtualQuestionFlow extends BaseComponent {
       top: auto !important;
       width: 100% !important;
       z-index: 1 !important;
+      min-height: 200px !important;
+      height: auto !important;
       transform: none !important;
       max-height: none !important;
       overflow: visible !important;
+      box-sizing: border-box !important;
     `;
     
     // アクティブクラス追加
@@ -584,6 +587,10 @@ class VirtualQuestionFlow extends BaseComponent {
           display: block !important;
           opacity: 1 !important;
           visibility: visible !important;
+          min-height: 180px !important;
+          height: auto !important;
+          overflow: visible !important;
+          box-sizing: border-box !important;
         `;
       }
       
@@ -594,6 +601,10 @@ class VirtualQuestionFlow extends BaseComponent {
           display: block !important;
           opacity: 1 !important;
           visibility: visible !important;
+          min-height: 50px !important;
+          height: auto !important;
+          overflow: visible !important;
+          box-sizing: border-box !important;
         `;
       });
       
@@ -779,12 +790,18 @@ class VirtualQuestionFlow extends BaseComponent {
   forceElementVisible(element) {
     console.log(`💪 強制表示を適用: ${element.dataset.questionId}`);
     
-    // 最高優先度で表示
+    // 最高優先度で表示 + height問題の解決
     element.style.setProperty('display', 'block', 'important');
     element.style.setProperty('opacity', '1', 'important');
     element.style.setProperty('visibility', 'visible', 'important');
     element.style.setProperty('position', 'relative', 'important');
     element.style.setProperty('z-index', '999', 'important');
+    
+    // height: 0 問題の根本修正
+    element.style.setProperty('min-height', '200px', 'important');
+    element.style.setProperty('height', 'auto', 'important');
+    element.style.setProperty('overflow', 'visible', 'important');
+    element.style.setProperty('box-sizing', 'border-box', 'important');
     
     // Shadow DOM内も強制表示
     if (element.shadowRoot) {

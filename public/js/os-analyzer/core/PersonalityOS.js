@@ -113,9 +113,34 @@ class PersonalityOS {
   /**
    * OSタイプに関連する回答を抽出
    */
-  extractRelevantAnswers(userAnswers) {
+  extractRelevantAnswers(data) {
+    // データ形式の判定と適切な処理
+    let userAnswers = [];
+    
+    if (Array.isArray(data)) {
+      // 既に配列形式の回答データ
+      userAnswers = data;
+    } else if (data && typeof data === 'object') {
+      // 分析結果データまたはオブジェクト形式の場合
+      if (data.answers && Array.isArray(data.answers)) {
+        userAnswers = data.answers;
+      } else if (data.engineOS || data.interfaceOS || data.safeModeOS) {
+        // 分析結果から回答データを復元（フォールバック）
+        console.log(`🔄 Extracting answers from analysis result for ${this.osType} OS`);
+        userAnswers = this.generateAnswersFromAnalysisResult(data);
+      } else {
+        // その他のオブジェクト形式を配列に変換を試行
+        userAnswers = Object.values(data).filter(item => 
+          item && typeof item === 'object' && item.questionId
+        );
+      }
+    } else {
+      console.error('Invalid data format for extractRelevantAnswers:', data);
+      return [];
+    }
+    
     if (!Array.isArray(userAnswers)) {
-      console.error('Invalid userAnswers format:', userAnswers);
+      console.error('Failed to extract valid answers array:', data);
       return [];
     }
     
@@ -844,6 +869,76 @@ class PersonalityOS {
       relationshipHistory: this.relationshipHistory,
       timestamp: new Date().toISOString()
     };
+  }
+
+  /**
+   * 分析結果から回答データを生成（フォールバック用）
+   */
+  generateAnswersFromAnalysisResult(analysisResult) {
+    console.log(`🔄 Generating fallback answers for ${this.osType} OS from analysis result`);
+    
+    try {
+      const osData = analysisResult[`${this.osType}OS`];
+      if (!osData) {
+        console.warn(`⚠️ No data found for ${this.osType}OS in analysis result`);
+        return this.generateDefaultAnswers();
+      }
+
+      const fallbackAnswers = [];
+      
+      // 基本的な回答データを生成
+      if (osData.characteristics && osData.characteristics.primary_traits) {
+        osData.characteristics.primary_traits.forEach((trait, index) => {
+          fallbackAnswers.push({
+            questionId: `fallback_${this.osType}_${index}`,
+            answer: trait,
+            value: osData.score || 0.5,
+            relevantToOS: [this.osType]
+          });
+        });
+      }
+
+      // スコアベースの回答も追加
+      if (osData.score !== undefined) {
+        fallbackAnswers.push({
+          questionId: `fallback_${this.osType}_score`,
+          answer: `score_${Math.round(osData.score * 10)}`,
+          value: osData.score,
+          relevantToOS: [this.osType]
+        });
+      }
+
+      console.log(`✅ Generated ${fallbackAnswers.length} fallback answers for ${this.osType} OS`);
+      return fallbackAnswers;
+      
+    } catch (error) {
+      console.error(`❌ Error generating answers from analysis result for ${this.osType} OS:`, error);
+      return this.generateDefaultAnswers();
+    }
+  }
+
+  /**
+   * デフォルト回答データを生成
+   */
+  generateDefaultAnswers() {
+    console.log(`🔄 Generating default answers for ${this.osType} OS`);
+    
+    const defaultAnswers = [
+      {
+        questionId: `default_${this.osType}_1`,
+        answer: 'neutral',
+        value: 0.5,
+        relevantToOS: [this.osType]
+      },
+      {
+        questionId: `default_${this.osType}_2`, 
+        answer: 'balanced',
+        value: 0.5,
+        relevantToOS: [this.osType]
+      }
+    ];
+
+    return defaultAnswers;
   }
 }
 

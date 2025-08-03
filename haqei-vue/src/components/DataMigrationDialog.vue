@@ -150,7 +150,7 @@
               </button>
               <button 
                 class="primary-button" 
-                @click="uiState.currentPhase = 'configuring'"
+                @click="Object.assign(uiState, { currentPhase: 'configuring' })"
                 :disabled="!canStartMigration"
               >
                 設定へ進む
@@ -291,7 +291,7 @@
             </div>
 
             <div class="action-buttons">
-              <button class="secondary-button" @click="uiState.currentPhase = 'preview'">
+              <button class="secondary-button" @click="Object.assign(uiState, { currentPhase: 'preview' })"
                 戻る
               </button>
               <button 

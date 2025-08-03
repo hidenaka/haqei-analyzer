@@ -89,3 +89,22 @@ claude-flow
 claude-flow.bat
 claude-flow.ps1
 hive-mind-prompt-*.txt
+
+# セキュリティ: 機密ファイル
+*.env
+*.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.backup
+*.bak
+*secret*
+*private*
+config/secrets*
+.env.local
+.env.production
+
+# セキュリティ: レポートと一時ファイル
+security-reports/
+performance-reports/

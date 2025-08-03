@@ -13,6 +13,7 @@
     "test:watch": "vitest --watch",
     "test:coverage": "vitest run --coverage",
     "test:crud": "vitest run --reporter=verbose src/tests/useCRUDOperations.test.ts",
+    "test:performance": "tsx src/tests/performance-quick-test.ts",
     "demo:crud": "tsx src/tests/crud-operations-demo.ts",
     "test:e2e": "echo 'E2E tests not configured yet'",
     "lint": "eslint . --ext .vue,.js,.ts,.tsx --fix",
@@ -34,6 +35,7 @@
     "jspdf": "^3.0.1",
     "pinia": "^3.0.3",
     "vue": "^3.5.18",
+    "vue-i18n": "^11.1.11",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {

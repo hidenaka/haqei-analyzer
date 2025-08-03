@@ -163,7 +163,79 @@ npx claude-flow sparc run integration "integrate authentication with user manage
 - Claude Code slash commands provide quick access to batchtools-optimized SPARC modes
 - Monitor system resources during parallel operations for optimal performance
 
-## Available Agents (54 Total)
+## 🎯 CRITICAL: AGENT SELECTION STRATEGY
+
+### 🚨 MANDATORY RULE: Choose the RIGHT Tool for the Task
+
+**ABSOLUTE DECISION FRAMEWORK:**
+
+### 🧠 USE HAQEI DOMAIN AGENTS FOR:
+- **bunenjin philosophy** implementation and validation
+- **I Ching (易経)** hexagram interpretation and logic
+- **Triple OS Architecture** (Engine/Interface/Safe Mode)
+- **7-Stage Navigation System** design and flow
+- **Freemium strategy** with philosophical alignment
+- **序卦伝** logic and metaphor validation
+- **爻辞** usage and interpretation
+- **Strategic insights** with I Ching wisdom
+- **Domain-specific requirements** analysis
+- **Philosophy-code integration** validation
+
+**HAQEI Domain Agents:**
+- `haqei-cto` - High-level HAQEI project decisions
+- `haqei-programmer` - bunenjin-compliant coding
+- `haqei-requirements-analyst` - I Ching-aware specifications
+- `haqei-qa-tester` - Philosophy-aligned testing
+- `haqei-reporter` - HAQEI progress communication
+- `haqei-iching-expert` - 易経 validation and interpretation
+- `bunenjin-strategy-navigator` - Philosophy framework implementation
+
+### ⚡ USE MCP SWARM FOR:
+- **General coding** (REST APIs, databases, UI components)
+- **System architecture** without philosophical constraints
+- **Performance optimization** and benchmarking
+- **CI/CD pipelines** and DevOps automation
+- **Standard testing** and quality assurance
+- **Multi-file refactoring** and code analysis
+- **GitHub workflows** and repository management
+- **Parallel processing** of independent tasks
+- **Technical implementations** without domain knowledge
+
+### 🔄 DECISION FLOWCHART:
+
+```
+TASK ANALYSIS:
+├── Does it involve bunenjin philosophy? → HAQEI Agents
+├── Does it need I Ching knowledge? → HAQEI Agents  
+├── Does it involve Triple OS concepts? → HAQEI Agents
+├── Is it general programming? → MCP Swarm
+├── Is it system performance? → MCP Swarm
+├── Is it multi-component work? → MCP Swarm
+└── Is it standard DevOps? → MCP Swarm
+```
+
+### ✅ CORRECT USAGE EXAMPLES:
+
+**HAQEI Agent Usage:**
+```javascript
+// Philosophy-heavy task
+Task("Implement 7-stage navigation with bunenjin philosophy", "...", "bunenjin-strategy-navigator")
+Task("Validate hexagram interpretation logic", "...", "haqei-iching-expert")
+Task("Review philosophy-code alignment", "...", "haqei-qa-tester")
+```
+
+**MCP Swarm Usage:**
+```javascript
+// General development task
+[Single Message]:
+  mcp__claude-flow__swarm_init { topology: "mesh", maxAgents: 6 }
+  mcp__claude-flow__agent_spawn { type: "system-architect" }
+  mcp__claude-flow__agent_spawn { type: "coder" }
+  mcp__claude-flow__agent_spawn { type: "performance-benchmarker" }
+  mcp__claude-flow__task_orchestrate { task: "Build REST API with auth" }
+```
+
+## Available Agents (61 Total)
 
 ### 🚀 Concurrent Agent Usage
 
