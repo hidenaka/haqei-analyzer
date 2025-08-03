@@ -137,7 +137,7 @@ export function validateAnswerSet(answers: any): ValidationResult {
   
   // 重複する質問IDがないかチェック
   const questionIds = answers.map((answer: QuestionAnswer) => answer.questionId)
-  const uniqueIds = [...new Set(questionIds)]
+  const uniqueIds = Array.from(new Set(questionIds))
   
   if (questionIds.length !== uniqueIds.length) {
     return {
@@ -469,7 +469,7 @@ export function validateDate(date: any): ValidationResult {
 /**
  * 配列のバリデーション
  */
-export function validateArray<T>(
+export function validateArray<_T>(
   array: any,
   options?: {
     minLength?: number

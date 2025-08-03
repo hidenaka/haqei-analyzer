@@ -10,7 +10,7 @@
  * - 3つのOSの相互作用と整合性評価
  */
 
-import type { Answer, UserVector, OSVector } from './calculator'
+import type { Answer, UserVector } from './calculator'
 import { calculator } from './calculator'
 import type { DataManager } from './dataManager'
 

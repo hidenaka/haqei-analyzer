@@ -65,7 +65,7 @@
         v-if="!connectionState.isSupabaseConnected"
         @click="testConnection"
         :loading="testingConnection"
-        variant="outline"
+        variant="secondary"
         class="test-connection-btn"
       >
         接続をテスト
@@ -142,7 +142,7 @@
         </div>
         
         <div class="scan-actions">
-          <HButton @click="scanLocalData" :loading="scanning" variant="outline" size="sm">
+          <HButton @click="scanLocalData" :loading="scanning" variant="secondary" size="small">
             再スキャン
           </HButton>
         </div>
@@ -203,7 +203,7 @@
             @click="restoreFromBackup"
             :loading="restoring"
             :disabled="!selectedBackup"
-            variant="warning"
+            variant="danger"
           >
             復元実行
           </HButton>
@@ -292,7 +292,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { useSupabaseMigration, type LocalDataScan, type MigrationResult } from '@/services/supabaseMigration'
+import { useSupabaseMigration } from '@/services/supabaseMigration'
 import { getConnectionState, testSupabaseConnection } from '@/services/supabase'
 import HCard from '@/components/common/HCard.vue'
 import HButton from '@/components/common/HButton.vue'
@@ -315,8 +315,8 @@ const localDataScan = computed(() => migration.localDataScan.value)
 const migrationStatus = computed(() => migration.migrationStatus)
 const migrationHistory = computed(() => migration.migrationHistory.value)
 const canMigrate = computed(() => migration.canMigrate.value)
-const isOnline = computed(() => migration.isOnline.value)
-const migrationProgress = computed(() => migration.migrationProgress.value)
+// const isOnline = computed(() => migration.isOnline.value)
+// const migrationProgress = computed(() => migration.migrationProgress.value)
 
 // バックアップ選択肢
 const backupOptions = computed(() => {

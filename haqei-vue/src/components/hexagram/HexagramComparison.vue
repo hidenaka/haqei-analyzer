@@ -89,7 +89,7 @@
 <script setup lang="ts">
 import { computed, type PropType } from 'vue'
 import HexagramVisualization from './HexagramVisualization.vue'
-import { getHexagramById, getHexagramLines, type Hexagram } from '@/data/hexagrams'
+import { getHexagramById, getHexagramLines } from '@/data/hexagrams'
 
 /**
  * 2つの卦を比較表示するコンポーネント

@@ -157,7 +157,7 @@ function getSupabaseConfig(): HAQEISupabaseConfig {
     // RLS設定
     rlsCheckMode: import.meta.env.VITE_RLS_CHECK_MODE as any || 'strict',
     enableAuditLog: import.meta.env.VITE_ENABLE_AUDIT_LOG !== 'false',
-    dataRetentionDays: Number(import.meta.env.VITE_DATA_RETENTION_DAYS) || 2555
+    dataRetentionDays: Number(import.meta.env.VITE_DATA_RETENTION_DAYS) || 2555,
     
     // セッション管理
     sessionTimeoutMinutes: Number(import.meta.env.VITE_SESSION_TIMEOUT_MINUTES) || 30,

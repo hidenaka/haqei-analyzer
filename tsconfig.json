@@ -33,6 +33,12 @@
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "allowImportingTsExtensions": false
+    }
+  },
   "exclude": ["node_modules", "dist", "public"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

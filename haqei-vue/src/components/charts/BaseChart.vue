@@ -198,9 +198,9 @@ const mergedOptions = computed(() => {
     ...animationOptions,
     ...props.options,
     plugins: {
-      ...defaultOptions.value.plugins,
-      ...animationOptions.plugins,
-      ...props.options.plugins
+      ...(defaultOptions.value as any).plugins,
+      ...(animationOptions as any).plugins,
+      ...(props.options as any)?.plugins
     }
   }
 
@@ -229,7 +229,7 @@ function createChart() {
   chartInstance = new Chart(ctx, {
     type: props.type,
     data: props.data,
-    options: mergedOptions.value,
+    options: mergedOptions.value as any,
     plugins: props.plugins
   })
 }
@@ -246,7 +246,7 @@ function updateChart() {
   } else {
     // Standard update
     chartInstance.data = props.data
-    chartInstance.options = mergedOptions.value
+    chartInstance.options = mergedOptions.value as any
     chartInstance.update('active')
   }
 }

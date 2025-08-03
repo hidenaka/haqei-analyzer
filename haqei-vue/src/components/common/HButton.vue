@@ -93,7 +93,7 @@ const buttonClasses = computed((): (string | Record<string, boolean>)[] => {
       'h-button--disabled': props.disabled,
       'h-button--loading': props.loading,
       'h-button--full-width': props.fullWidth,
-      'h-button--icon-only': props.icon && !slots.default
+      'h-button--icon-only': Boolean(props.icon) && !slots.default
     }
   ]
 })

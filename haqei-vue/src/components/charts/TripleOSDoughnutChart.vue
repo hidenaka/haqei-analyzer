@@ -17,7 +17,7 @@
     </div>
     <div class="os-details">
       <div 
-        v-for="(os, index) in osData" 
+        v-for="os in osData" 
         :key="os.name"
         class="os-item"
         @click="handleOSClick(os)"
@@ -85,7 +85,7 @@ const emit = defineEmits(['os-click'])
 const osData = computed(() => {
   // Simple equal distribution for visualization
   // In real implementation, this could be based on actual usage or influence
-  const total = 100
+  // const total = 100
   const engineWeight = 40
   const interfaceWeight = 35
   const safeModeWeight = 25
@@ -162,7 +162,7 @@ const chartOptions = computed((): ChartOptions<'doughnut'> => {
 // Center text plugin
 const centerTextPlugin: Plugin<'doughnut'> = {
   id: 'centerText',
-  beforeDraw: (chart) => {
+  beforeDraw: (_chart) => {
     // Center text is handled by CSS overlay
   }
 }

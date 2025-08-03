@@ -323,7 +323,7 @@ export const interactiveLegend = {
       family: 'var(--font-family-base)'
     }
   },
-  onClick: (e: any, legendItem: any, legend: any) => {
+  onClick: (_e: any, legendItem: any, legend: any) => {
     const index = legendItem.index
     const chart = legend.chart
     const meta = chart.getDatasetMeta(0)
@@ -334,7 +334,7 @@ export const interactiveLegend = {
     // アニメーション付きで更新
     chart.update('active')
   },
-  onHover: (e: any, legendItem: any, legend: any) => {
+  onHover: (_e: any, legendItem: any, legend: any) => {
     const chart = legend.chart
     chart.canvas.style.cursor = 'pointer'
     
@@ -346,7 +346,7 @@ export const interactiveLegend = {
     chart.setActiveElements(activeElements)
     chart.update('none')
   },
-  onLeave: (e: any, legendItem: any, legend: any) => {
+  onLeave: (_e: any, _legendItem: any, legend: any) => {
     const chart = legend.chart
     chart.canvas.style.cursor = 'default'
     

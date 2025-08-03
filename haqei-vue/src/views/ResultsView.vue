@@ -34,10 +34,10 @@
           <h2 class="section-title">Triple OS 分析結果</h2>
           <TripleOSOverview
             v-if="tripleOSResult"
-            :engine-os="tripleOSResult.engineOS"
-            :interface-os="tripleOSResult.interfaceOS"
-            :safe-mode-os="tripleOSResult.safeModeOS"
-            :consistency-score="tripleOSResult.consistencyScore"
+            :engineOS="tripleOSResult.engineOS"
+            :interfaceOS="tripleOSResult.interfaceOS"
+            :safeModeOS="tripleOSResult.safeModeOS"
+            :consistencyScore="tripleOSResult.consistencyScore"
           />
         </section>
 
@@ -80,10 +80,10 @@
           <h2 class="section-title">Triple OS 構成比</h2>
           <TripleOSDoughnutChart
             v-if="tripleOSResult"
-            :engine-os="tripleOSResult.engineOS"
-            :interface-os="tripleOSResult.interfaceOS"
-            :safe-mode-os="tripleOSResult.safeModeOS"
-            :consistency-score="tripleOSResult.consistencyScore"
+            :engineOS="tripleOSResult.engineOS"
+            :interfaceOS="tripleOSResult.interfaceOS"
+            :safeModeOS="tripleOSResult.safeModeOS"
+            :consistencyScore="tripleOSResult.consistencyScore"
             title="OS間のバランス"
             @os-click="handleOSClick"
           />
@@ -102,7 +102,7 @@
         <section class="comparison-section">
           <TripleOSComparison
             v-if="tripleOSResult"
-            :triple-os-result="tripleOSResult"
+            :tripleOSResult="tripleOSResult"
           />
         </section>
 
@@ -117,7 +117,7 @@
         <!-- Triple OS Insights -->
         <section v-if="tripleOSResult" class="insights-section">
           <TripleOSInsights
-            :triple-os-result="tripleOSResult"
+            :tripleOSResult="tripleOSResult"
           />
         </section>
 
@@ -126,8 +126,8 @@
           <h2 class="section-title">次のステップ</h2>
           <ActionPlans
             v-if="tripleOSResult"
-            :engine-os="tripleOSResult.engineOS"
-            :consistency-score="tripleOSResult.consistencyScore"
+            :engineOS="tripleOSResult.engineOS"
+            :consistencyScore="tripleOSResult.consistencyScore"
           />
         </section>
       </main>
@@ -160,10 +160,8 @@ import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAnalysisStore } from '@/stores/analysis'
 import HButton from '@/components/common/HButton.vue'
-import HCard from '@/components/common/HCard.vue'
 import TripleOSOverview from '@/components/results/TripleOSOverview.vue'
 import HexagramDetail from '@/components/results/HexagramDetail.vue'
-import RadarChart from '@/components/results/RadarChart.vue'
 import DimensionRadarChart from '@/components/charts/DimensionRadarChart.vue'
 import DimensionBarChart from '@/components/charts/DimensionBarChart.vue'
 import TripleOSDoughnutChart from '@/components/charts/TripleOSDoughnutChart.vue'
@@ -185,13 +183,6 @@ const formattedTimestamp = computed(() => {
   return format(new Date(analysisResult.value.timestamp), 'yyyy年MM月dd日 HH:mm', { locale: ja })
 })
 
-const dimensionScoresArray = computed(() => {
-  if (!analysisResult.value) return []
-  return Array.from(analysisResult.value.dimensionScores.entries()).map(([key, value]) => ({
-    dimension: key,
-    score: value
-  }))
-})
 
 // Check if results exist
 onMounted(() => {

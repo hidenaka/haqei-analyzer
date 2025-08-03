@@ -176,7 +176,7 @@ const chartOptions = computed((): ChartOptions<'radar'> => {
         pointLabels: {
           font: {
             size: 13,
-            weight: '500'
+            weight: 500
           },
           callback: (label) => {
             // ラベルを短縮表示
@@ -188,8 +188,8 @@ const chartOptions = computed((): ChartOptions<'radar'> => {
     animation: {
       duration: 1200,
       easing: 'easeOutQuart',
-      animateRotate: false,
-      animateScale: true
+      // animateRotate: false, // removed in Chart.js v3
+      // animateScale: true // removed in Chart.js v3
     },
     elements: {
       line: {

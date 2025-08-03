@@ -6,8 +6,7 @@
       <div class="h-loading-content">
         <HSpinner 
           :size="spinnerSize" 
-          :color="spinnerColor"
-          :thickness="spinnerThickness"
+          :variant="spinnerVariant"
         />
         
         <div v-if="text || progress !== undefined" class="h-loading-info">
@@ -66,24 +65,18 @@ const loadingClasses = computed(() => ({
 
 const spinnerSize = computed(() => {
   const sizeMap = {
-    sm: 'sm' as const,
-    md: 'md' as const,
-    lg: 'lg' as const,
+    sm: 'small' as const,
+    md: 'medium' as const,
+    lg: 'large' as const,
   }
   return sizeMap[props.size]
 })
 
-const spinnerColor = computed(() => {
-  return props.overlay ? 'white' : props.color
-})
-
-const spinnerThickness = computed(() => {
-  const thicknessMap = {
-    sm: 'thin' as const,
-    md: 'normal' as const,
-    lg: 'normal' as const,
-  }
-  return thicknessMap[props.size]
+const spinnerVariant = computed(() => {
+  if (props.overlay) return 'white' as const
+  if (props.color === 'primary') return 'primary' as const
+  if (props.color === 'secondary') return 'secondary' as const
+  return 'primary' as const
 })
 
 const handleBackdropClick = () => {

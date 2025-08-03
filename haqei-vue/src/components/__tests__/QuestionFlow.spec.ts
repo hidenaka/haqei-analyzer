@@ -175,7 +175,7 @@ describe('QuestionFlow', () => {
       await radioInput.setValue(true)
       
       expect(saveProgressSpy).toHaveBeenCalled()
-      const savedProgress = saveProgressSpy.mock.calls[0][0]
+      const savedProgress = saveProgressSpy.mock.calls[0][0] as any
       expect(savedProgress.answers).toHaveLength(1)
       expect(savedProgress.answers[0].questionId).toBe('q1')
       expect(savedProgress.answers[0].selectedValue).toBe('a')

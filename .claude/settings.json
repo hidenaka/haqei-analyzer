@@ -1,87 +1,114 @@
 {
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "name": "PreWorkDocumentationHook",
-        "description": "作業前に必須ドキュメントを作成",
-        "matcher": "実装|機能|修正|追加|バグ|開発|コード|プログラム|hook",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash -c 'echo \"🔧 作業前ドキュメント作成を開始します...\"; TIMESTAMP=$(date +\"%Y-%m-%d_%H%M%S\"); DOCS_DIR=\"/Users/hideakimacbookair/Desktop/haqei-analyzer/docs\"; mkdir -p \"$DOCS_DIR/planning\"; if [[ \"{.prompt}\" =~ (実装|機能|コード) ]]; then echo \"📋 作業計画書を作成中...\"; cat > \"$DOCS_DIR/planning/${TIMESTAMP}_work_plan.md\" << \"EOF\"\n# 作業計画書 - $(date +\"%Y-%m-%d %H:%M:%S\")\n\n## 作業概要\n**内容**: {.prompt}\n\n## 必須確認事項（CLAUDE.md準拠）\n- [ ] 関数・メソッドの詳細仕様コメント作成済み\n- [ ] bunenjin哲学との整合性確認済み\n- [ ] MCPサーバー活用計画策定済み\n- [ ] Triple OSアーキテクチャ対応確認済み\n\n## 実装前チェックリスト\n1. **技術調査**: 既存コードベースの理解\n2. **設計検討**: アーキテクチャ影響範囲の確認\n3. **品質基準**: テスト戦略とエラーハンドリング\n4. **哲学整合**: bunenjin哲学との適合性\n\n## MCPサーバー活用計画\n- [ ] Cipher: bunenjin哲学記憶の継続\n- [ ] Tsumiki: 構造化品質管理の適用\n- [ ] Serena: セマンティック分析の実行\n- [ ] Playwright: E2Eテストの準備\n\n## 注意事項\n- 関数仕様コメント必須ルール（CLAUDE.md 2025年8月1日追加）を遵守すること\n- フォールバック処理では「🚧 まだ実装していません」と明示表示すること\n- ユーザーに誤解を与えるそれっぽい内容生成は禁止\n\n---\n**作成日時**: $(date +\"%Y-%m-%d %H:%M:%S\")\n**作成者**: HAQEI Pre-Work Hook\nEOF\necho \"✅ 作業計画書を作成しました: $DOCS_DIR/planning/${TIMESTAMP}_work_plan.md\"; fi'"
-          }
-        ]
-      }
+  "env": {
+    "CLAUDE_FLOW_AUTO_COMMIT": "false",
+    "CLAUDE_FLOW_AUTO_PUSH": "false",
+    "CLAUDE_FLOW_HOOKS_ENABLED": "true",
+    "CLAUDE_FLOW_TELEMETRY_ENABLED": "true",
+    "CLAUDE_FLOW_REMOTE_EXECUTION": "true",
+    "CLAUDE_FLOW_CHECKPOINTS_ENABLED": "true"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npx claude-flow *)",
+      "Bash(npm run lint)",
+      "Bash(npm run test:*)",
+      "Bash(npm test *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push)",
+      "Bash(git config *)",
+      "Bash(git tag *)",
+      "Bash(git branch *)",
+      "Bash(git checkout *)",
+      "Bash(git stash *)",
+      "Bash(jq *)",
+      "Bash(node *)",
+      "Bash(which *)",
+      "Bash(pwd)",
+      "Bash(ls *)"
     ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(curl * | bash)",
+      "Bash(wget * | sh)",
+      "Bash(eval *)"
+    ]
+  },
+  "hooks": {
     "PreToolUse": [
       {
-        "name": "SpecificationEnforcementHook",
-        "description": "コーディング時の仕様書き込みを強制",
-        "matcher": "Write|Edit|MultiEdit",
-        "conditions": [
-          {
-            "type": "file_extension",
-            "pattern": "\\.(js|ts|py|php|java|cpp|c)$"
-          }
-        ],
+        "matcher": "Bash",
         "hooks": [
           {
-            "type": "output",
-            "message": "🚨 【CLAUDE.md 関数仕様コメント必須ルール】\n\nすべての関数・メソッド実装前に、以下の仕様コメントが必要です：\n\n必須記載項目：\n1. 目的: この関数が何をするためのものか\n2. 入力: 引数の型、意味、制約条件\n3. 処理内容: アルゴリズムの詳細な説明\n4. 出力: 戻り値の型、意味、可能な値\n5. 副作用: DOM操作、状態変更、外部API呼び出しなど\n6. 前提条件: この関数が正しく動作するための条件\n7. エラー処理: 想定されるエラーとその対処法\n\n⚠️ この仕様コメントなしでのコード実装は禁止されています"
-          },
+            "type": "command",
+            "command": "cat | jq -r '.tool_input.command // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks pre-command --command '{}' --validate-safety true --prepare-resources true"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'echo \"📝 仕様書き込み強制フックが実行されました\"; echo \"ファイル: {.tool_input.file_path}\"; echo \"時刻: $(date +\"%Y-%m-%d %H:%M:%S\")\"; LOG_FILE=\"/Users/hideakimacbookair/Desktop/haqei-analyzer/docs/specification_enforcement.log\"; mkdir -p \"$(dirname \"$LOG_FILE\")\"; echo \"$(date +\"%Y-%m-%d %H:%M:%S\") - 仕様強制: {.tool_input.file_path}\" >> \"$LOG_FILE\"'"
+            "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks pre-edit --file '{}' --auto-assign-agents true --load-context true"
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "name": "MCPThinkingHook",
-        "description": "MCPを活用した思考プロセスの実装",
-        "matcher": "Task",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'echo \"🧠 MCP思考実装フックを実行中...\"; echo \"1️⃣ Cipher記憶層から哲学コンテキストを取得中...\"; echo \"2️⃣ Tsumiki品質フレームワークを適用中...\"; echo \"3️⃣ Serenaセマンティック分析を実行中...\"; TIMESTAMP=$(date +\"%Y-%m-%d_%H%M%S\"); THINKING_LOG=\"/Users/hideakimacbookair/Desktop/haqei-analyzer/docs/mcp_thinking_${TIMESTAMP}.md\"; mkdir -p \"$(dirname \"$THINKING_LOG\")\"; cat > \"$THINKING_LOG\" << \"EOF\"\n# MCP思考実装ログ - $(date +\"%Y-%m-%d %H:%M:%S\")\n\n## 実行タスク\n**エージェント**: {.tool_input.subagent_type}\n**プロンプト**: {.tool_input.prompt}\n\n## MCP三位一体システム適用\n### 1. Cipher（記憶・哲学）\n- bunenjin哲学記憶の継続\n- プロジェクト固有コンテキストの活用\n- 易経的思考パターンの維持\n\n### 2. Tsumiki（構造化・品質）\n- 標準化されたAI駆動開発プロセス\n- TDD要件からverify-completeまでの完全フロー\n- A級品質基準の確実な達成\n\n### 3. Serena（分析・最適化）\n- セマンティックコード分析\n- ファイル監視とリアルタイム最適化\n- パフォーマンス継続改善\n\n## フィードバックループ\nCipher（記憶） → Tsumiki（構造化） → Serena（最適化） → 統合フィードバック → Cipher（学習蓄積）\n\n## 品質確保\n- [ ] bunenjin哲学整合性チェック\n- [ ] Triple OSアーキテクチャ準拠\n- [ ] I Ching統合確認\n- [ ] A級品質基準達成\n\n---\n**生成時刻**: $(date +\"%Y-%m-%d %H:%M:%S\")\n**生成者**: HAQEI MCP Thinking Hook\nEOF\necho \"✅ MCP思考ログを生成しました: $THINKING_LOG\"'"
+            "command": "cat | jq -r '.tool_input.command // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks post-command --command '{}' --track-metrics true --store-results true"
           }
         ]
       },
       {
-        "matcher": "Task",
+        "matcher": "Write|Edit|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "echo Done"
+            "command": "cat | jq -r '.tool_input.file_path // .tool_input.path // empty' | tr '\\n' '\\0' | xargs -0 -I {} npx claude-flow@alpha hooks post-edit --file '{}' --format true --update-memory true"
           }
         ]
       }
     ],
-    "SubagentStop": [
+    "PreCompact": [
       {
-        "name": "PostWorkDocumentationHook",
-        "description": "作業完了後の包括的ドキュメント生成",
-        "matcher": ".*",
+        "matcher": "manual",
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'echo \"📚 作業完了後ドキュメント生成を開始...\"; TIMESTAMP=$(date +\"%Y-%m-%d_%H%M%S\"); DOCS_DIR=\"/Users/hideakimacbookair/Desktop/haqei-analyzer/docs\"; AGENT_TYPE=\"{.event_data.subagent_type}\"; mkdir -p \"$DOCS_DIR/implementation\" \"$DOCS_DIR/reports\"; case \"$AGENT_TYPE\" in \"haqei-programmer\") echo \"👨‍💻 プログラマーエージェント完了 - 実装レポート生成中...\"; REPORT_FILE=\"$DOCS_DIR/implementation/${TIMESTAMP}_IMPL_programming_completion_report.md\"; cat > \"$REPORT_FILE\" << \"EOF\"\n# プログラマーエージェント完了レポート - $(date +\"%Y-%m-%d %H:%M:%S\")\n\n## 実装概要\n**エージェント**: {.event_data.subagent_type}\n**完了時刻**: $(date +\"%Y-%m-%d %H:%M:%S\")\n\n## 実装内容詳細\n{.event_data.completion_summary}\n\n## 品質確認チェックリスト\n- [ ] 関数仕様コメント（CLAUDE.md必須ルール）完全記述\n- [ ] bunenjin哲学整合性確認\n- [ ] Triple OSアーキテクチャ準拠\n- [ ] フォールバック処理適切実装（「🚧 まだ実装していません」明示）\n- [ ] エラーハンドリング実装\n- [ ] テストケース作成・実行\n\n## MCPサーバー活用結果\n### Cipher記憶層\n- bunenjin哲学記憶の継続状況\n- プロジェクト固有知識の蓄積\n\n### Tsumiki品質管理\n- TDDサイクル実行状況\n- 品質基準達成度\n\n### Serena分析結果\n- セマンティック解析結果\n- 最適化提案\n\n## 今後の課題・改善点\n{.event_data.future_tasks}\n\n## ファイル変更履歴\n{.event_data.modified_files}\n\n---\n**生成者**: HAQEI Post-Work Documentation Hook\n**CLAUDE.md準拠**: 関数仕様コメント必須ルール適用済み\nEOF\n;; \"bunenjin-strategy-navigator\") echo \"🧭 bunenjin戦略ナビゲーター完了 - 戦略レポート生成中...\"; REPORT_FILE=\"$DOCS_DIR/reports/${TIMESTAMP}_REPORT_bunenjin_strategy_completion.md\"; cat > \"$REPORT_FILE\" << \"EOF\"\n# bunenjin戦略ナビゲーター完了レポート - $(date +\"%Y-%m-%d %H:%M:%S\")\n\n## 戦略実装概要\n**エージェント**: {.event_data.subagent_type}\n**完了時刻**: $(date +\"%Y-%m-%d %H:%M:%S\")\n\n## bunenjin哲学統合結果\n### 7段階ナビゲーションシステム\n- Stage 1-7の統合状況\n- Triple OSアーキテクチャとの整合性\n\n### 易経64卦システム\n- I Ching統合の深度\n- 現代AIとの融合状況\n\n### freemiumモデル統合\n- 理解は無料、実行は有料の価値分離\n- 段階的価格成長戦略の実装\n\n## 技術実装詳細\n{.event_data.technical_implementation}\n\n## 哲学的整合性確認\n- [ ] 個人主権の尊重\n- [ ] 透明性の確保\n- [ ] 適応性の実装\n- [ ] 持続可能性の追求\n\n## 今後の戦略展開\n{.event_data.strategic_roadmap}\n\n---\n**生成者**: HAQEI Post-Work Documentation Hook\n**哲学統合**: bunenjin + I Ching + 現代AI完全融合\nEOF\n;; *) echo \"📋 一般エージェント完了 - 汎用レポート生成中...\"; REPORT_FILE=\"$DOCS_DIR/reports/${TIMESTAMP}_REPORT_agent_completion.md\"; cat > \"$REPORT_FILE\" << \"EOF\"\n# エージェント完了レポート - $(date +\"%Y-%m-%d %H:%M:%S\")\n\n## 基本情報\n**エージェント**: {.event_data.subagent_type}\n**完了時刻**: $(date +\"%Y-%m-%d %H:%M:%S\")\n\n## 作業内容\n{.event_data.work_summary}\n\n## 成果物\n{.event_data.deliverables}\n\n## 品質確認\n- [ ] CLAUDE.md準拠（関数仕様コメント等）\n- [ ] プロジェクト哲学整合性\n- [ ] 技術基準適合\n\n## 次のアクション\n{.event_data.next_actions}\n\n---\n**生成者**: HAQEI Post-Work Documentation Hook\nEOF\n;; esac; echo \"✅ 作業完了ドキュメントを生成しました: $REPORT_FILE\"; echo \"$(date +\"%Y-%m-%d %H:%M:%S\") - 完了: $AGENT_TYPE\" >> \"$DOCS_DIR/completion_log.txt\"'"
+            "command": "/bin/bash -c 'INPUT=$(cat); CUSTOM=$(echo \"$INPUT\" | jq -r \".custom_instructions // \\\"\\\"\"); echo \"🔄 PreCompact Guidance:\"; echo \"📋 IMPORTANT: Review CLAUDE.md in project root for:\"; echo \"   • 54 available agents and concurrent usage patterns\"; echo \"   • Swarm coordination strategies (hierarchical, mesh, adaptive)\"; echo \"   • SPARC methodology workflows with batchtools optimization\"; echo \"   • Critical concurrent execution rules (GOLDEN RULE: 1 MESSAGE = ALL OPERATIONS)\"; if [ -n \"$CUSTOM\" ]; then echo \"🎯 Custom compact instructions: $CUSTOM\"; fi; echo \"✅ Ready for compact operation\"'"
+          }
+        ]
+      },
+      {
+        "matcher": "auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/bash -c 'echo \"🔄 Auto-Compact Guidance (Context Window Full):\"; echo \"📋 CRITICAL: Before compacting, ensure you understand:\"; echo \"   • All 54 agents available in .claude/agents/ directory\"; echo \"   • Concurrent execution patterns from CLAUDE.md\"; echo \"   • Batchtools optimization for 300% performance gains\"; echo \"   • Swarm coordination strategies for complex tasks\"; echo \"⚡ Apply GOLDEN RULE: Always batch operations in single messages\"; echo \"✅ Auto-compact proceeding with full agent context\"'"
           }
         ]
       }
     ],
     "Stop": [
       {
-        "name": "SessionSummaryHook",
-        "description": "セッション終了時の総合評価とサマリー生成",
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'echo \"🎯 Claude Codeセッション終了 - 総合サマリー生成中...\"; TIMESTAMP=$(date +\"%Y-%m-%d_%H%M%S\"); SUMMARY_FILE=\"/Users/hideakimacbookair/Desktop/haqei-analyzer/docs/reports/${TIMESTAMP}_SESSION_SUMMARY.md\"; mkdir -p \"$(dirname \"$SUMMARY_FILE\")\"; cat > \"$SUMMARY_FILE\" << \"EOF\"\n# Claude Codeセッション総合サマリー - $(date +\"%Y-%m-%d %H:%M:%S\")\n\n## セッション概要\n**開始時刻**: {.session_start}\n**終了時刻**: $(date +\"%Y-%m-%d %H:%M:%S\")\n**総実行時間**: {.session_duration}\n\n## Hook実行統計\n- 作業前ドキュメント作成: {.pre_work_docs_count}回\n- 仕様書き込み強制: {.spec_enforcement_count}回\n- MCP思考実装: {.mcp_thinking_count}回\n- 作業完了ドキュメント: {.post_work_docs_count}回\n\n## CLAUDE.md準拠度\n- [ ] 関数仕様コメント必須ルール遵守\n- [ ] フォールバック処理適切実装\n- [ ] bunenjin哲学整合性維持\n- [ ] MCPサーバー活用最大化\n\n## 生成ドキュメント一覧\n### 計画ドキュメント\n{.generated_planning_docs}\n\n### 実装ドキュメント\n{.generated_implementation_docs}\n\n### レポート\n{.generated_reports}\n\n## 品質評価\n**総合評価**: A級（Tsumiki標準準拠）\n**bunenjin整合性**: 高度維持\n**技術品質**: 関数仕様コメント完全記述\n\n## 改善提案\n{.improvement_suggestions}\n\n## 次回セッションへの引き継ぎ事項\n{.handover_items}\n\n---\n**生成者**: HAQEI Session Summary Hook\n**品質基準**: A級（Tsumiki標準）\n**哲学統合**: bunenjin + I Ching + 現代AI\nEOF\necho \"✅ セッション総合サマリーを生成しました: $SUMMARY_FILE\"; echo \"🎉 すべてのHAQEI Hooksが正常に完了しました！\"'"
+            "command": "npx claude-flow@alpha hooks session-end --generate-summary true --persist-state true --export-metrics true"
           }
         ]
       }
     ]
-  }
+  },
+  "includeCoAuthoredBy": true,
+  "enabledMcpjsonServers": ["claude-flow", "ruv-swarm"]
 }

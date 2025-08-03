@@ -239,7 +239,7 @@ function toggleDataset(index: number) {
   })
 }
 
-function handleChartClick(event: any) {
+function handleChartClick(_event: any) {
   if (event.elements.length > 0) {
     const element = event.elements[0]
     const datasetIndex = element.datasetIndex

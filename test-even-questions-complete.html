@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>偶数番設問表示問題 完全解決テスト</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #4c1d95 50%, #5b21b6 75%, #6d28d9 100%);
+            color: #f1f5f9;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #6366f1;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 10px rgba(99, 102, 241, 0.5);
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 16px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: #10b981;
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+        }
+        .warning {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            color: #f59e0b;
+        }
+        .info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            color: #3b82f6;
+        }
+        button {
+            margin: 10px 5px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
+        }
+        button:disabled {
+            background: rgba(100, 116, 139, 0.5);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .test-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            padding: 20px;
+            background: rgba(51, 65, 85, 0.6);
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #6366f1;
+            border-radius: 12px;
+            background: white;
+        }
+        #log {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .question-indicator {
+            padding: 10px;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .question-indicator.odd {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.5);
+            color: #a78bfa;
+        }
+        .question-indicator.even {
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.5);
+            color: #6366f1;
+        }
+        .question-indicator.tested {
+            background: rgba(16, 185, 129, 0.3);
+            border-color: #10b981;
+            color: #10b981;
+        }
+        .question-indicator.failed {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎯 偶数番設問表示問題 完全解決テスト</h1>
+        
+        <div class="test-section">
+            <h3>🚨 問題概要</h3>
+            <div class="info test-result">
+                <strong>症状:</strong> q2, q4, q6, q8...q30などの偶数番設問が表示されない<br>
+                <strong>修正済み:</strong> 2025-08-02 VirtualQuestionFlow.js showCurrentQuestion()メソッド完全改修<br>
+                <strong>テスト目的:</strong> 修正が完全に機能し、偶数番設問が確実に表示されることを確認
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 テスト統計</h3>
+            <div class="test-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-questions">30</div>
+                    <div class="stat-label">総設問数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="even-questions">15</div>
+                    <div class="stat-label">偶数番設問</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="tested-count">0</div>
+                    <div class="stat-label">テスト済み</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="success-rate">0%</div>
+                    <div class="stat-label">成功率</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🎮 テスト実行</h3>
+            <button onclick="runCompleteTest()" id="run-test-btn">🚀 完全テスト実行</button>
+            <button onclick="testSpecificQuestions()" id="test-even-btn">🎯 偶数番設問のみテスト</button>
+            <button onclick="testProblemQuestions()" id="test-problem-btn">⚠️ 問題発生傾向設問テスト</button>
+            <button onclick="clearResults()">🧹 結果クリア</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 設問表示状況</h3>
+            <div class="test-grid" id="question-grid">
+                <!-- 動的に生成 -->
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🏃‍♂️ OS Analyzer実行環境</h3>
+            <iframe src="os_analyzer.html" id="analyzer-frame"></iframe>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 テスト結果</h3>
+            <div id="results-container"></div>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+        let frameApp = null;
+        let totalQuestions = 30;
+        let testedCount = 0;
+
+        // ログ出力
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEl = document.getElementById('log');
+            const resultEl = document.createElement('div');
+            resultEl.className = `test-result ${type}`;
+            resultEl.textContent = `[${timestamp}] ${message}`;
+            
+            const resultsContainer = document.getElementById('results-container');
+            resultsContainer.appendChild(resultEl);
+            
+            logEl.innerHTML += `[${timestamp}] ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+            
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // 統計更新
+        function updateStats() {
+            const successCount = testResults.filter(r => r.success).length;
+            const successRate = testedCount > 0 ? Math.round((successCount / testedCount) * 100) : 0;
+            
+            document.getElementById('tested-count').textContent = testedCount;
+            document.getElementById('success-rate').textContent = `${successRate}%`;
+            document.getElementById('progress-fill').style.width = `${(testedCount / totalQuestions) * 100}%`;
+        }
+
+        // 設問グリッド初期化
+        function initializeQuestionGrid() {
+            const grid = document.getElementById('question-grid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 30; i++) {
+                const indicator = document.createElement('div');
+                indicator.className = `question-indicator ${i % 2 === 0 ? 'even' : 'odd'}`;
+                indicator.textContent = `Q${i}`;
+                indicator.id = `q${i}-indicator`;
+                indicator.title = `設問${i} (${i % 2 === 0 ? '偶数' : '奇数'}番)`;
+                grid.appendChild(indicator);
+            }
+        }
+
+        // 設問表示状態をチェック
+        async function checkQuestionDisplay(questionIndex) {
+            if (!frameApp || !frameApp.questionFlow) {
+                throw new Error('OS Analyzer not initialized');
+            }
+
+            const originalIndex = frameApp.questionFlow.currentQuestionIndex;
+            const questionNum = questionIndex + 1;
+            const isEven = questionNum % 2 === 0;
+            
+            log(`🔍 設問${questionNum}(${isEven ? '偶数' : '奇数'}番)の表示テスト開始`, 'info');
+            
+            try {
+                // 設問に移動
+                frameApp.questionFlow.currentQuestionIndex = questionIndex;
+                frameApp.questionFlow.updateVisibleRange();
+                
+                // 表示完了を待つ
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+                // 表示状態を確認
+                const element = frameApp.questionFlow.activeElements.get(questionIndex);
+                if (!element) {
+                    throw new Error(`設問要素が見つかりません (index: ${questionIndex})`);
+                }
+
+                const computedStyle = window.getComputedStyle(element);
+                const rect = element.getBoundingClientRect();
+                
+                const isVisible = computedStyle.display !== 'none' && 
+                                 computedStyle.visibility !== 'hidden' && 
+                                 rect.height > 0 && 
+                                 rect.width > 0;
+
+                const result = {
+                    questionId: `q${questionNum}`,
+                    questionIndex: questionIndex,
+                    isEven: isEven,
+                    success: isVisible,
+                    displayStyle: computedStyle.display,
+                    visibility: computedStyle.visibility,
+                    opacity: computedStyle.opacity,
+                    width: rect.width,
+                    height: rect.height,
+                    timestamp: new Date().toISOString()
+                };
+
+                testResults.push(result);
+                testedCount++;
+
+                // UI更新
+                const indicator = document.getElementById(`q${questionNum}-indicator`);
+                if (indicator) {
+                    indicator.className = `question-indicator ${isEven ? 'even' : 'odd'} ${isVisible ? 'tested' : 'failed'}`;
+                    indicator.textContent = `Q${questionNum}${isVisible ? '✓' : '✗'}`;
+                }
+
+                if (isVisible) {
+                    log(`✅ Q${questionNum} 表示成功 - ${isEven ? '偶数番設問' : '奇数番設問'}`, 'success');
+                } else {
+                    log(`❌ Q${questionNum} 表示失敗 - ${isEven ? '偶数番設問' : '奇数番設問'} (display: ${computedStyle.display}, height: ${rect.height})`, 'error');
+                }
+
+                updateStats();
+                return result;
+
+            } catch (error) {
+                const result = {
+                    questionId: `q${questionNum}`,
+                    questionIndex: questionIndex,
+                    isEven: isEven,
+                    success: false,
+                    error: error.message,
+                    timestamp: new Date().toISOString()
+                };
+
+                testResults.push(result);
+                testedCount++;
+
+                const indicator = document.getElementById(`q${questionNum}-indicator`);
+                if (indicator) {
+                    indicator.className = `question-indicator ${isEven ? 'even' : 'odd'} failed`;
+                    indicator.textContent = `Q${questionNum}✗`;
+                }
+
+                log(`❌ Q${questionNum} テストエラー: ${error.message}`, 'error');
+                updateStats();
+                return result;
+
+            } finally {
+                // 元のインデックスに戻す
+                frameApp.questionFlow.currentQuestionIndex = originalIndex;
+                frameApp.questionFlow.updateVisibleRange();
+            }
+        }
+
+        // 完全テスト実行
+        async function runCompleteTest() {
+            if (!frameApp) {
+                log('❌ OS Analyzerが初期化されていません', 'error');
+                return;
+            }
+
+            log('🚀 全設問表示テスト開始', 'info');
+            const startTime = performance.now();
+            
+            // ボタン無効化
+            document.getElementById('run-test-btn').disabled = true;
+            
+            try {
+                for (let i = 0; i < totalQuestions; i++) {
+                    await checkQuestionDisplay(i);
+                    
+                    // 進行状況表示
+                    if ((i + 1) % 5 === 0 || i === totalQuestions - 1) {
+                        log(`📊 進行状況: ${i + 1}/${totalQuestions} 完了`, 'info');
+                    }
+                }
+
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+                
+                // 結果サマリー
+                const evenResults = testResults.filter(r => r.isEven);
+                const oddResults = testResults.filter(r => !r.isEven);
+                const evenSuccess = evenResults.filter(r => r.success).length;
+                const oddSuccess = oddResults.filter(r => r.success).length;
+                const failedQuestions = testResults.filter(r => !r.success);
+
+                log(`\n🏁 === テスト完了 (${duration}ms) ===`, 'info');
+                log(`総設問数: ${totalQuestions}`, 'info');
+                log(`偶数番設問: ${evenSuccess}/${evenResults.length} 成功`, evenSuccess === evenResults.length ? 'success' : 'error');
+                log(`奇数番設問: ${oddSuccess}/${oddResults.length} 成功`, oddSuccess === oddResults.length ? 'success' : 'error');
+                
+                if (failedQuestions.length > 0) {
+                    log(`❌ 失敗した設問: ${failedQuestions.map(r => r.questionId).join(', ')}`, 'error');
+                    log(`⚠️ 偶数番設問表示問題が再発している可能性があります`, 'warning');
+                } else {
+                    log(`✅ 全設問の表示テスト成功！偶数番設問も正常に表示されています`, 'success');
+                }
+
+            } catch (error) {
+                log(`❌ テスト実行エラー: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('run-test-btn').disabled = false;
+            }
+        }
+
+        // 偶数番設問のみテスト
+        async function testSpecificQuestions() {
+            if (!frameApp) {
+                log('❌ OS Analyzerが初期化されていません', 'error');
+                return;
+            }
+
+            log('🎯 偶数番設問のみテスト開始', 'info');
+            document.getElementById('test-even-btn').disabled = true;
+
+            try {
+                const evenQuestions = [];
+                for (let i = 1; i < totalQuestions; i += 2) { // 1, 3, 5... => 2, 4, 6...
+                    evenQuestions.push(i);
+                }
+
+                for (const index of evenQuestions) {
+                    await checkQuestionDisplay(index);
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                const evenResults = testResults.filter(r => r.isEven);
+                const successCount = evenResults.filter(r => r.success).length;
+                
+                log(`🎯 偶数番設問テスト完了: ${successCount}/${evenResults.length} 成功`, 
+                    successCount === evenResults.length ? 'success' : 'error');
+
+            } catch (error) {
+                log(`❌ 偶数番設問テストエラー: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('test-even-btn').disabled = false;
+            }
+        }
+
+        // 問題発生傾向設問テスト（q2, q4, q6, q30など）
+        async function testProblemQuestions() {
+            if (!frameApp) {
+                log('❌ OS Analyzerが初期化されていません', 'error');
+                return;
+            }
+
+            log('⚠️ 問題発生傾向設問テスト開始', 'warning');
+            document.getElementById('test-problem-btn').disabled = true;
+
+            try {
+                // 過去に問題が報告された設問
+                const problemQuestions = [1, 3, 5, 9, 11, 13, 19, 21, 23, 29]; // q2, q4, q6, q10, q12, q14, q20, q22, q24, q30
+                
+                for (const index of problemQuestions) {
+                    await checkQuestionDisplay(index);
+                    await new Promise(resolve => setTimeout(resolve, 150));
+                }
+
+                const problemResults = testResults.filter(r => problemQuestions.includes(r.questionIndex));
+                const successCount = problemResults.filter(r => r.success).length;
+                
+                log(`⚠️ 問題発生傾向設問テスト完了: ${successCount}/${problemResults.length} 成功`, 
+                    successCount === problemResults.length ? 'success' : 'warning');
+
+            } catch (error) {
+                log(`❌ 問題発生傾向設問テストエラー: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('test-problem-btn').disabled = false;
+            }
+        }
+
+        // 結果クリア
+        function clearResults() {
+            testResults = [];
+            testedCount = 0;
+            document.getElementById('results-container').innerHTML = '';
+            document.getElementById('log').innerHTML = '';
+            initializeQuestionGrid();
+            updateStats();
+            log('🧹 テスト結果をクリアしました', 'info');
+        }
+
+        // フレーム初期化
+        function initializeFrame() {
+            const frame = document.getElementById('analyzer-frame');
+            
+            frame.onload = () => {
+                setTimeout(() => {
+                    try {
+                        const frameWindow = frame.contentWindow;
+                        
+                        if (frameWindow.app && frameWindow.app.questionFlow) {
+                            frameApp = frameWindow.app;
+                            totalQuestions = frameApp.questionFlow.questions.length;
+                            
+                            document.getElementById('total-questions').textContent = totalQuestions;
+                            document.getElementById('even-questions').textContent = Math.floor(totalQuestions / 2);
+                            
+                            log(`✅ OS Analyzer初期化完了 (${totalQuestions}問)`, 'success');
+                            log('🎮 テストを実行してください', 'info');
+                            
+                            // ボタン有効化
+                            document.getElementById('run-test-btn').disabled = false;
+                            document.getElementById('test-even-btn').disabled = false;
+                            document.getElementById('test-problem-btn').disabled = false;
+
+                        } else {
+                            log('❌ OS Analyzerアプリケーションが見つかりません', 'error');
+                        }
+                    } catch (error) {
+                        log(`❌ フレーム初期化エラー: ${error.message}`, 'error');
+                    }
+                }, 3000);
+            };
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeQuestionGrid();
+            updateStats();
+            
+            // 初期状態でボタン無効化
+            document.getElementById('run-test-btn').disabled = true;
+            document.getElementById('test-even-btn').disabled = true;
+            document.getElementById('test-problem-btn').disabled = true;
+            
+            log('🎯 偶数番設問表示問題 完全解決テスト準備完了', 'info');
+            log('📱 OS Analyzer読み込み中...', 'info');
+            
+            initializeFrame();
+        });
+    </script>
+</body>
+</html>

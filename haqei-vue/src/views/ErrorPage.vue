@@ -35,7 +35,7 @@
         <HButton variant="primary" @click="goHome">
           ホームへ戻る
         </HButton>
-        <HButton variant="outline" @click="goBack">
+        <HButton variant="secondary" @click="goBack">
           前のページへ戻る
         </HButton>
         <HButton variant="ghost" @click="reload">
@@ -69,7 +69,17 @@ const router = useRouter()
 // エラータイプに基づいて情報を決定
 const errorType = computed(() => route.params.type as string || '404')
 
-const errorConfigs = {
+// Define error config type
+interface ErrorConfig {
+  code: string
+  title: string
+  description: string
+}
+
+// Define error types with proper typing
+type ErrorType = '404' | '403' | '500' | 'network' | 'unknown'
+
+const errorConfigs: Record<ErrorType, ErrorConfig> = {
   '404': {
     code: '404',
     title: 'ページが見つかりません',
@@ -98,7 +108,8 @@ const errorConfigs = {
 }
 
 const currentError = computed(() => {
-  return errorConfigs[errorType.value] || errorConfigs.unknown
+  const type = errorType.value as ErrorType
+  return errorConfigs[type] || errorConfigs.unknown
 })
 
 const errorCode = computed(() => currentError.value.code)
@@ -116,7 +127,7 @@ const timestamp = computed(() => {
 })
 
 const currentUrl = computed(() => window.location.href)
-const showTechnicalDetails = computed(() => import.meta.env.DEV)
+const showTechnicalDetails = computed(() => process.env.NODE_ENV === 'development')
 
 // アクション
 const goHome = () => {
