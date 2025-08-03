@@ -131,7 +131,10 @@
     "usep:analyze": "npx ts-node src/usep/cli/usep-cli.ts analyze",
     "usep:run": "npx ts-node src/usep/cli/usep-cli.ts run",
     "usep:haqei": "npx ts-node src/usep/cli/usep-cli.ts run -s haqei -c 100",
-    "usep:quick": "npx ts-node src/usep/cli/usep-cli.ts run -s haqei -c 10"
+    "usep:quick": "npx ts-node src/usep/cli/usep-cli.ts run -s haqei -c 10",
+    "usep:browser": "npx ts-node src/usep/cli/browser-usep-cli.ts -s os-analyzer -u 50",
+    "usep:browser:full": "npx ts-node src/usep/cli/browser-usep-cli.ts -s os-analyzer -u 100 --performance --a11y --screenshots",
+    "usep:browser:quick": "npx ts-node src/usep/cli/browser-usep-cli.ts -s os-analyzer -u 10"
   },
   "bin": {
     "bunjin": "./bunenjin_cli.cjs",

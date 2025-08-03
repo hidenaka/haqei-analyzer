@@ -34,9 +34,11 @@
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "ts-node": {
+    "esm": true,
     "compilerOptions": {
-      "module": "commonjs",
-      "allowImportingTsExtensions": false
+      "module": "ESNext",
+      "allowImportingTsExtensions": true,
+      "moduleResolution": "bundler"
     }
   },
   "exclude": ["node_modules", "dist", "public"],

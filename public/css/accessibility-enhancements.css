@@ -1,0 +1,439 @@
+/**
+ * Accessibility Enhancements for os_analyzer
+ * アクセシビリティ向上のための包括的スタイル
+ */
+
+/* ========================================
+   フォーカス管理とキーボードナビゲーション
+   ======================================== */
+
+/* 全てのフォーカス可能要素の基本設定 */
+button, input, select, textarea, a, [tabindex], [role="button"], [role="tab"], [role="menuitem"] {
+  /* フォーカス時の明確な視覚指示 */
+  transition: outline 0.2s ease, box-shadow 0.2s ease;
+}
+
+*:focus {
+  outline: 3px solid #007bff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(0, 123, 255, 0.25);
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+  *:focus {
+    outline: 4px solid #0000ff;
+    outline-offset: 3px;
+  }
+}
+
+/* フォーカスのスキップリンク */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: #000;
+  color: #fff;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 0 0 8px 0;
+  z-index: 10000;
+  transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid #fff;
+}
+
+/* ========================================
+   スクリーンリーダー対応
+   ======================================== */
+
+/* スクリーンリーダー専用テキスト */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.sr-only-focusable:active,
+.sr-only-focusable:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: inherit !important;
+  margin: inherit !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+}
+
+/* 進捗状況の音声読み上げ対応 */
+.progress-announcer {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ========================================
+   質問フォームのアクセシビリティ
+   ======================================== */
+
+/* 質問コンテナの構造化 */
+.question-container {
+  /* ランドマーク領域として識別 */
+  role: main;
+}
+
+.question-title {
+  /* 見出しレベルの適切な設定 */
+  margin-bottom: var(--space-md);
+  line-height: 1.4;
+  
+  /* スクリーンリーダー向けコンテキスト */
+  position: relative;
+}
+
+.question-title::before {
+  content: "質問 " attr(data-question-number) " / " attr(data-total-questions) ": ";
+  /* スクリーンリーダーでのみ読み上げ */
+  position: absolute;
+  left: -10000px;
+}
+
+/* 選択肢のアクセシビリティ */
+.question-options-container {
+  role: radiogroup;
+  aria-labelledby: "current-question-title";
+}
+
+.question-option {
+  role: radio;
+  cursor: pointer;
+  
+  /* 選択状態のARIA属性 */
+  transition: all 0.2s ease;
+}
+
+.question-option[aria-checked="true"] {
+  /* 選択状態の明確な視覚表現 */
+  border-color: #007bff;
+  background-color: #e3f2fd;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.3);
+}
+
+.question-option[aria-checked="true"]::before {
+  content: "✓ ";
+  font-weight: bold;
+  color: #007bff;
+  margin-right: 8px;
+}
+
+/* ========================================
+   カラーアクセシビリティ
+   ======================================== */
+
+/* 高コントラスト比の確保 */
+:root {
+  --text-contrast-high: #000000;
+  --text-contrast-medium: #333333;
+  --bg-contrast-high: #ffffff;
+  --bg-contrast-medium: #f8f9fa;
+  --border-contrast: #6c757d;
+  --focus-color: #007bff;
+  --error-color: #dc3545;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+}
+
+/* 色覚障害対応 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-contrast-high: #ffffff;
+    --text-contrast-medium: #e9ecef;
+    --bg-contrast-high: #212529;
+    --bg-contrast-medium: #343a40;
+    --border-contrast: #6c757d;
+  }
+  
+  .question-option {
+    background-color: var(--bg-contrast-medium);
+    color: var(--text-contrast-high);
+    border-color: var(--border-contrast);
+  }
+  
+  .question-option[aria-checked="true"] {
+    background-color: #1e3a5f;
+    border-color: #66b3ff;
+  }
+}
+
+/* 強制カラーモード（Windowsハイコントラスト）対応 */
+@media (forced-colors: active) {
+  .question-option {
+    border: 2px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+  
+  .question-option[aria-checked="true"] {
+    background: Highlight;
+    color: HighlightText;
+    border-color: HighlightText;
+  }
+  
+  .question-option:focus {
+    outline: 3px solid Highlight;
+  }
+}
+
+/* ========================================
+   動きの制御
+   ======================================== */
+
+/* 動きの縮小設定を尊重 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* 重要な状態変化は維持 */
+  .question-option[aria-checked="true"] {
+    transition: background-color 0.1s ease, border-color 0.1s ease;
+  }
+}
+
+/* ========================================
+   テキストの読みやすさ
+   ======================================== */
+
+/* フォントサイズとライン高さの最適化 */
+.question-text,
+.question-option,
+.instruction-text {
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  word-spacing: 0.1em;
+}
+
+/* 文字間隔の調整 */
+@media (max-width: 768px) {
+  .question-text,
+  .question-option {
+    line-height: 1.7;
+    font-size: calc(var(--font-base) * 1.1);
+  }
+}
+
+/* ========================================
+   エラーメッセージのアクセシビリティ
+   ======================================== */
+
+.error-message {
+  color: var(--error-color);
+  background-color: #f8d7da;
+  border: 2px solid #f5c6cb;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  
+  /* ARIA Live Region */
+  role: alert;
+  aria-live: polite;
+  
+  /* アイコンと組み合わせ */
+  position: relative;
+  padding-left: 40px;
+}
+
+.error-message::before {
+  content: "⚠️";
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  font-size: 18px;
+}
+
+.success-message {
+  color: var(--success-color);
+  background-color: #d4edda;
+  border: 2px solid #c3e6cb;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  
+  role: status;
+  aria-live: polite;
+  
+  position: relative;
+  padding-left: 40px;
+}
+
+.success-message::before {
+  content: "✅";
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  font-size: 18px;
+}
+
+/* ========================================
+   ナビゲーションのアクセシビリティ
+   ======================================== */
+
+.navigation-buttons {
+  role: navigation;
+  aria-label: "質問ナビゲーション";
+}
+
+.btn-primary,
+.btn-secondary {
+  /* ボタンの状態を明確に */
+  position: relative;
+  
+  /* 無効状態の明確な表現 */
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  
+  /* 無効状態の明確な視覚表現 */
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
+}
+
+.btn:disabled::after,
+.btn[aria-disabled="true"]::after {
+  content: " (無効)";
+  /* スクリーンリーダー向け */
+  position: absolute;
+  left: -10000px;
+}
+
+/* ========================================
+   進捗表示のアクセシビリティ
+   ======================================== */
+
+.progress-bar {
+  role: progressbar;
+  aria-valuemin: 0;
+  aria-valuemax: 100;
+  
+  /* 進捗の視覚的表現を強化 */
+  background: linear-gradient(90deg, 
+    var(--success-color) 0%, 
+    var(--success-color) var(--progress, 0%), 
+    #e9ecef var(--progress, 0%), 
+    #e9ecef 100%);
+  
+  height: 8px;
+  border-radius: 4px;
+  
+  /* プログレスバーのラベル */
+  position: relative;
+}
+
+.progress-bar::after {
+  content: attr(aria-valuenow) "% 完了";
+  position: absolute;
+  left: -10000px; /* スクリーンリーダー向け */
+}
+
+/* ========================================
+   モーダルダイアログのアクセシビリティ
+   ======================================== */
+
+.modal-dialog,
+.error-dialog {
+  role: dialog;
+  aria-modal: true;
+  
+  /* フォーカストラップ */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
+  /* 背景のクリックでの閉じる動作を無効化 */
+  pointer-events: auto;
+}
+
+.modal-dialog::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+
+/* ========================================
+   レスポンシブアクセシビリティ
+   ======================================== */
+
+/* タッチデバイスでのアクセシビリティ向上 */
+@media (pointer: coarse) {
+  .question-option,
+  .btn,
+  button {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  /* タッチターゲット間のスペースを確保 */
+  .question-option + .question-option {
+    margin-top: 16px;
+  }
+}
+
+/* 小さな画面での読みやすさ向上 */
+@media (max-width: 480px) {
+  .question-title {
+    font-size: var(--font-xl);
+    margin-bottom: var(--space-lg);
+  }
+  
+  .question-option {
+    padding: 18px 20px;
+    font-size: var(--font-lg);
+  }
+}
+
+/* ========================================
+   デバッグ・開発者向け
+   ======================================== */
+
+/* アクセシビリティ問題のデバッグ（開発時のみ） */
+.debug-a11y {
+  /* ARIA属性が不足している要素 */
+  button:not([aria-label]):not([aria-labelledby]):not([title]) {
+    outline: 3px dashed red !important;
+  }
+  
+  /* alt属性が不足している画像 */
+  img:not([alt]) {
+    outline: 3px dashed orange !important;
+  }
+  
+  /* 見出しの順序が正しくない */
+  h1 + h3, h2 + h4, h3 + h5, h4 + h6 {
+    outline: 3px dashed yellow !important;
+  }
+}

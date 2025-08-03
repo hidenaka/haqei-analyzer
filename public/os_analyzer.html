@@ -30,11 +30,21 @@
     <link rel="stylesheet" href="css/behavioral-flow-timeline.css" />
     <link rel="stylesheet" href="css/unified-design.css" />
     <link rel="stylesheet" href="css/responsive-os-analyzer.css" />
+    <link rel="stylesheet" href="css/mobile-touch-optimization.css" />
+    <link rel="stylesheet" href="css/accessibility-enhancements.css" />
     
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- Performance Optimization -->
+    <script src="/js/performance-optimizer.js"></script>
+    
+    <!-- Enhanced Error Handler -->
+    <script src="/js/enhanced-error-handler.js"></script>
   </head>
   <body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
     <!-- 初期スクロール位置修正スクリプト -->
     <script>
       // ページ読み込み時に必ず上部にスクロールを設定
@@ -59,8 +69,10 @@
 
     <!-- Main Application Container -->
     <div id="app" class="app-container">
+      <!-- Live Region for Screen Reader Announcements -->
+      <div id="announcements" class="sr-only" aria-live="polite" role="status"></div>
       <!-- Welcome Screen -->
-      <section id="welcome-container" class="screen-container">
+      <section id="welcome-container" class="screen-container" role="main" aria-labelledby="welcome-title">
         <!-- WelcomeScreen component will render here -->
       </section>
 
@@ -107,6 +119,11 @@
     </div>
 
     <!-- 🚀 Ultra Critical Path - 絶対必要最小限のみ (50KB以下目標) -->
+    <!-- Preload critical resources for better performance -->
+    <link rel="preload" href="/js/shared/core/BaseComponent.js" as="script">
+    <link rel="preload" href="/js/shared/data/questions.js" as="script">
+    <link rel="preload" href="/js/os-analyzer/core/PrecompiledQuestions.js" as="script">
+    
     <script src="/js/shared/core/BaseComponent.js"></script>
     <script src="/js/shared/core/MicroStorageManager.js"></script>
     <script src="/js/shared/core/BridgeStorageManager.js"></script>
