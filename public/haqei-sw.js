@@ -21,7 +21,7 @@
  * - HAQEIプロジェクト特化設計
  */
 
-const CACHE_NAME = 'haqei-bunenjin-v1.2.3';
+const CACHE_NAME = 'haqei-bunenjin-v1.3.0'; // Dictionary support added
 const CACHE_TIMEOUT = 24 * 60 * 60 * 1000; // 24時間
 
 // Critical Path Resources（Triple OS Architecture対応）
@@ -41,7 +41,24 @@ const CRITICAL_RESOURCES = [
   '/js/os-analyzer/components/HaqeiQuestionElement.js',
   '/js/os-analyzer/components/VirtualQuestionFlow.js',
   '/js/os-analyzer/core/PrecompiledQuestions.js',
+  '/js/core/DictionaryManager.js',
   '/js/app.js'
+];
+
+// Dictionary Resources（オフライン対応）
+const DICTIONARY_RESOURCES = [
+  '/dict/base.dat.gz',
+  '/dict/cc.dat.gz',
+  '/dict/check.dat.gz',
+  '/dict/tid.dat.gz',
+  '/dict/tid_map.dat.gz',
+  '/dict/tid_pos.dat.gz',
+  '/dict/unk.dat.gz',
+  '/dict/unk_char.dat.gz',
+  '/dict/unk_compat.dat.gz',
+  '/dict/unk_invoke.dat.gz',
+  '/dict/unk_map.dat.gz',
+  '/dict/unk_pos.dat.gz'
 ];
 
 // 動的キャッシュするリソース
@@ -52,6 +69,19 @@ const DYNAMIC_RESOURCES = [
   '/js/shared/data/vectors.js',
   '/js/data/data_box.js'
 ];
+
+// Kuromoji Library Resources（CDN対応）
+const KUROMOJI_RESOURCES = [
+  'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js'
+];
+
+// Import dictionary cache strategy
+try {
+  importScripts('./js/core/DictionaryCacheStrategy.js');
+  console.log('📚 Dictionary cache strategy loaded');
+} catch (error) {
+  console.warn('⚠️ Dictionary cache strategy not available:', error.message);
+}
 
 // ネットワーク優先リソース
 const NETWORK_FIRST_RESOURCES = [
@@ -67,20 +97,43 @@ self.addEventListener('install', event => {
   console.log('🔧 Service Worker installing...');
   
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('📦 Caching critical resources...');
-        return cache.addAll(CRITICAL_RESOURCES);
-      })
-      .then(() => {
-        console.log('✅ Critical resources cached successfully');
-        return self.skipWaiting();
-      })
-      .catch(error => {
-        console.error('❌ Failed to cache critical resources:', error);
-        // エラーが発生してもスキップを続行（回復力向上）
-        return self.skipWaiting();
-      })
+    Promise.all([
+      // Critical resources
+      caches.open(CACHE_NAME)
+        .then(cache => {
+          console.log('📦 Caching critical resources...');
+          return cache.addAll(CRITICAL_RESOURCES);
+        })
+        .then(() => console.log('✅ Critical resources cached')),
+      
+      // Dictionary resources（重要度高）
+      caches.open(CACHE_NAME)
+        .then(cache => {
+          console.log('📚 Caching dictionary resources...');
+          return cache.addAll(DICTIONARY_RESOURCES);
+        })
+        .then(() => console.log('✅ Dictionary resources cached')),
+      
+      // Kuromoji library（オプション）
+      caches.open(CACHE_NAME)
+        .then(cache => {
+          console.log('🔤 Caching kuromoji library...');
+          return cache.addAll(KUROMOJI_RESOURCES).catch(error => {
+            console.warn('⚠️ Kuromoji library cache failed (continuing):', error.message);
+            return Promise.resolve(); // 失敗しても続行
+          });
+        })
+        .then(() => console.log('✅ Kuromoji library cached'))
+    ])
+    .then(() => {
+      console.log('✅ All resources cached successfully');
+      return self.skipWaiting();
+    })
+    .catch(error => {
+      console.error('❌ Critical resource caching failed:', error);
+      // エラーが発生してもスキップを続行（回復力向上）
+      return self.skipWaiting();
+    })
   );
 });
 
@@ -171,6 +224,8 @@ async function handleFetch(request) {
     switch (resourceType) {
       case 'critical':
         return await cacheFirst(routedRequest);
+      case 'dictionary':
+        return await dictionaryCacheFirst(routedRequest);
       case 'dynamic':
         return await staleWhileRevalidate(routedRequest);
       case 'network':
@@ -289,6 +344,7 @@ function handleRouting(request, pathname) {
  */
 function classifyResource(pathname) {
   if (isCriticalResource(pathname)) return 'critical';
+  if (isDictionaryResource(pathname)) return 'dictionary';
   if (isDynamicResource(pathname)) return 'dynamic';
   if (isNetworkFirstResource(pathname)) return 'network';
   return 'default';
@@ -549,6 +605,28 @@ function isCriticalResource(pathname) {
   });
 }
 
+/**
+ * 辞書リソース判定（オフライン優先）
+ */
+function isDictionaryResource(pathname) {
+  // 辞書ファイルの直接チェック
+  if (pathname.startsWith('/dict/') && pathname.endsWith('.dat.gz')) {
+    return true;
+  }
+  
+  // DictionaryManager.js
+  if (pathname.includes('DictionaryManager.js')) {
+    return true;
+  }
+  
+  // Kuromoji library
+  if (pathname.includes('kuromoji') && pathname.endsWith('.js')) {
+    return true;
+  }
+  
+  return false;
+}
+
 function isDynamicResource(pathname) {
   // Engine OS: データ管理系リソース
   if (pathname.includes('/shared/core/') && 
@@ -696,4 +774,27 @@ async function syncAnswers() {
   }
 }
 
-console.log('🛠️ HAQEI Service Worker loaded successfully');
+// Dictionary cache management endpoints
+self.addEventListener('message', (event) => {
+  const data = event.data;
+  
+  if (data && data.type === 'GET_DICTIONARY_STATS') {
+    if (typeof getDictionaryCacheStats === 'function') {
+      getDictionaryCacheStats().then(stats => {
+        event.ports[0]?.postMessage({ type: 'DICTIONARY_STATS', data: stats });
+      }).catch(error => {
+        event.ports[0]?.postMessage({ type: 'DICTIONARY_STATS_ERROR', error: error.message });
+      });
+    }
+  } else if (data && data.type === 'UPDATE_DICTIONARY_CACHE') {
+    if (typeof updateDictionaryCache === 'function') {
+      updateDictionaryCache().then(result => {
+        event.ports[0]?.postMessage({ type: 'DICTIONARY_UPDATE_RESULT', data: result });
+      }).catch(error => {
+        event.ports[0]?.postMessage({ type: 'DICTIONARY_UPDATE_ERROR', error: error.message });
+      });
+    }
+  }
+});
+
+console.log('🛠️ HAQEI Service Worker with Dictionary Support loaded successfully');

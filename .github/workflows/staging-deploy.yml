@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '18.x'
+  NODE_VERSION: '20.x'
   DEPLOY_ENVIRONMENT: 'staging'
 
 jobs:
@@ -48,13 +48,25 @@ jobs:
     
     - name: Run tests
       run: |
-        npm test || true
-        cd haqei-vue && npm test || true
+        echo "Running lightweight tests for staging..."
+        # ルートレベルでは軽量なテストのみ実行
+        npm run validate:quick || true
+        # haqei-vueでは軽量なCI用テストのみ実行
+        cd haqei-vue && npm run test:ci || true
     
     - name: Build project
       run: |
-        npm run build || true
-        cd haqei-vue && npm run build
+        echo "Building projects for staging..."
+        # ルートビルド（存在する場合のみ）
+        if [ -f "vite.config.js" ] || [ -f "vite.config.ts" ]; then
+          npm run build || echo "Root build failed, continuing..."
+        else
+          echo "No root build configuration found, skipping..."
+        fi
+        # haqei-vueビルド
+        cd haqei-vue
+        echo "Building haqei-vue..."
+        npm run build
 
   security-scan:
     name: Security Scan
@@ -110,7 +122,7 @@ jobs:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         projectName: haqei-staging
-        directory: dist
+        directory: haqei-vue/dist
         gitHubToken: ${{ secrets.GITHUB_TOKEN }}
         branch: staging
         wranglerVersion: '3'

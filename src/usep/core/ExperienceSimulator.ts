@@ -2,7 +2,7 @@
  * ExperienceSimulator.ts - 簡略化版（独立動作用）
  */
 
-import { VirtualUser, ServiceConfig } from './VirtualUserGenerator.ts';
+import type { VirtualUserSimple as VirtualUser, ServiceConfig } from '../types/index.js';
 
 export interface ExperienceReport {
   userId: string;

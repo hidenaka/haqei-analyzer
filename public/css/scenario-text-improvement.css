@@ -1,0 +1,199 @@
+/**
+ * Scenario Text Improvement - シナリオ設問のテキスト表示改善
+ * 4文字改行の問題を修正し、読みやすいテキスト表示を実現
+ */
+
+/* ========================================
+   シナリオテキストの改善
+   ======================================== */
+
+/* シナリオテキスト全般の改善 */
+.scenario-text,
+.scenario-context .scenario-text,
+p.scenario-text {
+    /* テキスト改行の制御 */
+    word-break: normal !important;
+    word-wrap: break-word !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    
+    /* テキストスタイル */
+    font-size: 16px !important;
+    line-height: 1.8 !important;
+    color: #cbd5e1 !important;
+    
+    /* レイアウト */
+    margin: 12px 0 !important;
+    padding: 0 !important;
+    
+    /* 日本語テキストの最適化 */
+    text-align: left !important;
+    word-spacing: normal !important;
+    letter-spacing: 0.02em !important;
+    
+    /* 幅の制御 */
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    
+    /* フォント設定 */
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif !important;
+    font-weight: 400 !important;
+}
+
+/* シナリオコンテキスト全体の改善 */
+.scenario-context {
+    /* レイアウト */
+    background: rgba(30, 41, 59, 0.9) !important;
+    border-radius: 8px !important;
+    padding: 24px !important;
+    margin-bottom: 24px !important;
+    border-left: 4px solid #6366f1 !important;
+    
+    /* テキストコンテナとしての設定 */
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+}
+
+/* シナリオタイトルの改善 */
+.scenario-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #f1f5f9 !important;
+    margin: 0 0 16px 0 !important;
+    line-height: 1.4 !important;
+    
+    /* テキスト改行制御 */
+    word-break: normal !important;
+    white-space: normal !important;
+}
+
+/* 選択肢テキストの改善 */
+.option-text,
+.choice-options .option-text {
+    /* テキスト改行の制御 */
+    word-break: normal !important;
+    word-wrap: break-word !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    
+    /* スタイル */
+    font-size: 15px !important;
+    color: #e2e8f0 !important;
+    line-height: 1.6 !important;
+    
+    /* レイアウト */
+    flex: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    
+    /* 日本語最適化 */
+    letter-spacing: 0.01em !important;
+    word-spacing: normal !important;
+}
+
+/* Shadow DOM内のテキスト要素も対象に */
+haqei-question .scenario-text,
+haqei-question .option-text {
+    word-break: normal !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+}
+
+/* ========================================
+   選択肢セクションの改善
+   ======================================== */
+
+/* 選択肢セクション全体 */
+.choice-section {
+    background: rgba(51, 65, 85, 0.6) !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+    border: 1px solid rgba(99, 102, 241, 0.2) !important;
+    
+    /* テキスト設定 */
+    word-break: normal !important;
+    white-space: normal !important;
+}
+
+/* 選択肢タイトル */
+.choice-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #e2e8f0 !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+    
+    /* テキスト改行制御 */
+    word-break: normal !important;
+    white-space: normal !important;
+}
+
+/* ========================================
+   レスポンシブ対応
+   ======================================== */
+
+@media (max-width: 768px) {
+    .scenario-text {
+        font-size: 15px !important;
+        line-height: 1.7 !important;
+    }
+    
+    .scenario-context {
+        padding: 16px !important;
+        margin-bottom: 16px !important;
+    }
+    
+    .scenario-title {
+        font-size: 16px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .option-text {
+        font-size: 14px !important;
+        line-height: 1.5 !important;
+    }
+}
+
+/* ========================================
+   デバッグ用（一時的）
+   ======================================== */
+
+/* テキストが適切に表示されているかの確認用 */
+.scenario-text::before {
+    content: "";
+    /* デバッグ用背景色（必要に応じてコメントアウト） */
+    /* background: rgba(255, 0, 0, 0.1); */
+}
+
+/* ========================================
+   強制的な修正（重要度最高）
+   ======================================== */
+
+/* すべてのシナリオ関連テキストに適用 */
+*[class*="scenario"] *,
+*[class*="option"] * {
+    word-break: normal !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+}
+
+/* CSS Grid の影響を受ける要素の修正 */
+.scenario-choices {
+    display: grid !important;
+    gap: 20px !important;
+    grid-template-columns: 1fr 1fr !important;
+    
+    /* テキスト改行に影響しないよう調整 */
+    word-break: normal !important;
+    white-space: normal !important;
+}
+
+/* モバイルでの単列表示 */
+@media (max-width: 768px) {
+    .scenario-choices {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+}

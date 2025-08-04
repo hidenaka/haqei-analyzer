@@ -2,20 +2,9 @@
  * AutoImprovementEngine.ts - 簡略化版（独立動作用）
  */
 
-import { ExperienceReport } from './ExperienceSimulator.ts';
-import { VirtualUser, ServiceConfig } from './VirtualUserGenerator.ts';
+import type { ExperienceReport, ServiceConfig, ImprovementAnalysis } from '../types/index.js';
 
-export interface ImprovementSuggestion {
-  id: string;
-  title: string;
-  description: string;
-  priority: 'critical' | 'high' | 'medium' | 'low';
-  estimatedImpact: {
-    conversionImprovement: number;
-    satisfactionImprovement: number;
-  };
-  implementationComplexity: 'low' | 'medium' | 'high';
-}
+// Types imported from unified types
 
 export interface AnalysisResult {
   summary: {
@@ -42,7 +31,7 @@ export class AutoImprovementEngine {
     console.log('🧠 AutoImprovementEngine initialized - Simplified Version');
   }
 
-  async analyzeAndSuggest(reports: ExperienceReport[], config: ServiceConfig): Promise<AnalysisResult> {
+  async analyzeAndSuggest(reports: ExperienceReport[], config: ServiceConfig): Promise<ImprovementAnalysis> {
     console.log(`🧠 Analyzing ${reports.length} experience reports...`);
     
     const totalUsers = reports.length;

@@ -71,14 +71,17 @@ async function loadAnalysisEngines() {
     '/js/os-analyzer/core/TripleOSEngine.js',
     '/js/os-analyzer/core/UltraAnalysisEngine.js',
     // AnalysisViewコンポーネントも読み込む
-    '/js/os-analyzer/components/AnalysisView.js'
+    '/js/os-analyzer/components/AnalysisView.js',
+    // 🎭 Virtual Persona関連コンポーネント
+    '/js/visualization/PersonaVisualizationEngine.js',
+    '/js/components/VirtualPersonaResultsView.js'
   ];
   
   for (const engine of engines) {
     await loadScript(engine);
   }
   
-  console.log("✅ All analysis engines and components loaded");
+  console.log("✅ All analysis engines and components loaded (including Virtual Persona system)");
 }
 
 // 🚀 高速初期化: 基本 UI を即座表示
@@ -578,6 +581,18 @@ async function showResultsView(result, insights) {
       analysisType: result?.analysisType
     });
 
+    // 🎭 Virtual Persona Results View を優先的に使用
+    if (result.engineOS && result.interfaceOS && result.safeModeOS) {
+      console.log("🎭 [App] Using VirtualPersonaResultsView for Triple OS results");
+      return await showVirtualPersonaResultsView(result, insights);
+    }
+
+    // データ転送修正スクリプトを使用して確実に保存
+    if (window.saveAnalysisResultForResults) {
+      console.log("🔧 Using fix-data-transfer.js for reliable data saving");
+      window.saveAnalysisResultForResults(result, insights);
+    }
+    
     // 分析結果とインサイトをストレージに保存（重複保存で確実性向上）
     const saveSuccess1 = app.storageManager.saveAnalysisResult(result);
     const saveSuccess2 = app.storageManager.saveInsights(insights);
@@ -874,6 +889,46 @@ function hideAllScreens() {
       console.log(`🔧 [hideAllScreens] ${screenId} forcibly hidden`);
     }
   });
+}
+
+// 🎭 Virtual Persona Results View を表示
+async function showVirtualPersonaResultsView(result, insights) {
+  try {
+    console.log("🎭 [App] Virtual Persona Results View 表示開始");
+    
+    // 既存のコンテナを非表示
+    hideAllScreens();
+    
+    // results-container を確保
+    let resultsContainer = document.getElementById("results-container");
+    if (!resultsContainer) {
+      resultsContainer = document.createElement("div");
+      resultsContainer.id = "results-container";
+      resultsContainer.className = "screen-container";
+      document.body.appendChild(resultsContainer);
+    }
+    
+    // VirtualPersonaResultsView を初期化
+    const virtualPersonaView = new VirtualPersonaResultsView("results-container", {
+      analysisResult: result,
+      insights: insights
+    });
+    
+    // 初期化と表示
+    const initSuccess = await virtualPersonaView.init();
+    if (initSuccess) {
+      await virtualPersonaView.show();
+      app.virtualPersonaView = virtualPersonaView;
+      console.log("✅ [App] VirtualPersonaResultsView表示完了");
+    } else {
+      throw new Error("VirtualPersonaResultsView初期化失敗");
+    }
+    
+  } catch (error) {
+    console.error("❌ [App] VirtualPersonaResultsView表示失敗:", error);
+    // フォールバック処理
+    return await showResultsViewFallback(result, insights);
+  }
 }
 
 // レポート生成

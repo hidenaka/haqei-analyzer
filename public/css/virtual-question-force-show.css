@@ -1,0 +1,304 @@
+/**
+ * Virtual Question Force Show - 質問を強制的に表示
+ * 最高優先度で質問要素を確実に表示する
+ */
+
+/* ========================================
+   最重要：全体の表示確保
+   ======================================== */
+
+/* bodyとhtmlの基本設定 */
+html, body {
+  background: #1a1a1a !important;
+  color: #ffffff !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* メインコンテナの強制表示 */
+#questions-container {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 1000 !important;
+  background: transparent !important;
+  min-height: 100vh !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Virtual Question Flow 全体 */
+.virtual-question-flow {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 1001 !important;
+  background: transparent !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+}
+
+/* Virtual Viewport - 質問表示領域 */
+#virtual-viewport,
+.virtual-viewport {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 1002 !important;
+  background: transparent !important;
+  min-height: 600px !important;
+  width: 100% !important;
+  padding: 20px 0 !important;
+  overflow: visible !important;
+  transform: none !important;
+}
+
+/* ========================================
+   質問要素の強制表示
+   ======================================== */
+
+/* 質問アイテムコンテナ */
+.question-item {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 1003 !important;
+  background: #2a2a2a !important;
+  border: 2px solid #444 !important;
+  border-radius: 12px !important;
+  padding: 24px !important;
+  margin: 20px auto !important;
+  max-width: 800px !important;
+  width: calc(100% - 40px) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* アクティブな質問を強調 */
+.question-item[data-question-id] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* 質問番号 */
+.question-number {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #6366f1 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  margin-bottom: 12px !important;
+}
+
+/* 質問テキスト */
+.question-text {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #ffffff !important;
+  font-size: 18px !important;
+  line-height: 1.8 !important;
+  margin-bottom: 24px !important;
+  font-weight: 500 !important;
+}
+
+/* オプションコンテナ */
+.options-container {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+/* オプションラベル */
+.option-label {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  align-items: center !important;
+  background: #3a3a3a !important;
+  border: 2px solid #555 !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  position: relative !important;
+  min-height: 50px !important;
+}
+
+.option-label:hover {
+  background: #4a4a4a !important;
+  border-color: #6366f1 !important;
+  transform: translateX(4px) !important;
+}
+
+/* 選択された状態 */
+.option-label.selected,
+input[type="radio"]:checked + .option-label {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  border-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+/* ========================================
+   Shadow DOM 対応
+   ======================================== */
+
+haqei-question {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100% !important;
+  min-height: 200px !important;
+  position: relative !important;
+  z-index: 1004 !important;
+}
+
+/* ========================================
+   プログレスバーの表示
+   ======================================== */
+
+.progress-container {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1005 !important;
+  background: rgba(26, 26, 26, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  padding: 20px !important;
+  margin-bottom: 20px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+.progress-bar {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: #3a3a3a !important;
+  height: 8px !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+  margin-bottom: 12px !important;
+}
+
+.progress-bar-fill {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6) !important;
+  height: 100% !important;
+  transition: width 0.3s ease !important;
+}
+
+.progress-text {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+/* ========================================
+   ナビゲーションの確実な表示
+   ======================================== */
+
+.navigation-controls {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 99999 !important;
+  background: rgba(17, 24, 39, 0.98) !important;
+  backdrop-filter: blur(12px) !important;
+  padding: 16px !important;
+  justify-content: center !important;
+  gap: 16px !important;
+  border-top: 2px solid rgba(99, 102, 241, 0.3) !important;
+}
+
+/* ========================================
+   隠れている要素の強制表示
+   ======================================== */
+
+.screen-container.hidden {
+  display: none !important;
+}
+
+#questions-container.visible {
+  display: block !important;
+}
+
+/* ========================================
+   デバッグ用表示（本番では削除）
+   ======================================== */
+
+.debug-visible {
+  border: 3px solid #ff0000 !important;
+  background: rgba(255, 0, 0, 0.1) !important;
+}
+
+/* ========================================
+   モバイル対応
+   ======================================== */
+
+@media (max-width: 768px) {
+  .virtual-question-flow {
+    padding: 10px !important;
+  }
+  
+  .question-item {
+    width: calc(100% - 20px) !important;
+    margin: 15px auto !important;
+    padding: 16px !important;
+  }
+  
+  .question-text {
+    font-size: 16px !important;
+  }
+  
+  .option-label {
+    padding: 12px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* ========================================
+   アニメーション無効化（表示優先）
+   ======================================== */
+
+* {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* トランジションを戻す（ホバー効果用） */
+.option-label {
+  transition: all 0.2s ease !important;
+}
+
+.progress-bar-fill {
+  transition: width 0.3s ease !important;
+}

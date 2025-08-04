@@ -1,0 +1,59 @@
+{
+  "instanceId": "main-test",
+  "timestamp": "2025-08-04T10:05:02.354Z",
+  "overallScore": 33,
+  "summary": {
+    "totalTests": 3,
+    "passedTests": 1,
+    "failedTests": 2
+  },
+  "testResults": {
+    "welcomeScreen": {
+      "passed": false,
+      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:9000/os_analyzer.html\nCall log:\n\u001b[2m  - navigating to \"http://localhost:9000/os_analyzer.html\", waiting until \"networkidle\"\u001b[22m\n"
+    },
+    "questionTransition": {
+      "passed": false,
+      "details": {
+        "questionsVisible": false,
+        "hasQuestionText": false,
+        "questionText": "",
+        "startButtonSelector": "button:visible",
+        "questionSelector": ""
+      }
+    },
+    "errorDialogs": {
+      "passed": true,
+      "details": {
+        "totalErrorDialogs": 0,
+        "errorDialogDetails": []
+      }
+    }
+  },
+  "screenshots": [
+    {
+      "name": "welcome-screen-error",
+      "description": "ウェルカム画面テストエラー",
+      "filename": "main-test-welcome-screen-error-1754301904039.png",
+      "timestamp": "2025-08-04T10:05:04.094Z"
+    },
+    {
+      "name": "before-start-click",
+      "description": "開始ボタンクリック前",
+      "filename": "main-test-before-start-click-1754301904108.png",
+      "timestamp": "2025-08-04T10:05:04.150Z"
+    },
+    {
+      "name": "questions-screen",
+      "description": "設問画面の表示状態",
+      "filename": "main-test-questions-screen-1754301908568.png",
+      "timestamp": "2025-08-04T10:05:08.614Z"
+    },
+    {
+      "name": "error-dialogs-check",
+      "description": "エラーダイアログの確認",
+      "filename": "main-test-error-dialogs-check-1754301908618.png",
+      "timestamp": "2025-08-04T10:05:08.660Z"
+    }
+  ]
+}

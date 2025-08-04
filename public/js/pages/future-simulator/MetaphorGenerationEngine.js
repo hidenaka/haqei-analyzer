@@ -157,6 +157,38 @@ class MetaphorGenerationEngine {
   }
 
   /**
+   * 初期化処理
+   */
+  async initialize() {
+    try {
+      console.log('🎭 MetaphorGenerationEngine 初期化開始');
+      
+      // 易経データの存在確認
+      if (typeof window.H64_DATA !== 'undefined' && Array.isArray(window.H64_DATA)) {
+        this.hexagramsData = window.H64_DATA;
+        console.log('✅ H64_DATA 読み込み完了:', this.hexagramsData.length, '卦');
+      } else {
+        console.warn('⚠️ H64_DATA が利用できません - フォールバックモードで動作');
+      }
+      
+      // 386爻データの存在確認
+      if (typeof window.H384_DATA !== 'undefined' && Array.isArray(window.H384_DATA)) {
+        this.h384Data = window.H384_DATA;
+        console.log('✅ H384_DATA 読み込み完了:', this.h384Data.length, '爻');
+      } else {
+        console.warn('⚠️ H384_DATA が利用できません - フォールバックモードで動作');
+      }
+      
+      console.log('✅ MetaphorGenerationEngine 初期化完了');
+      return true;
+      
+    } catch (error) {
+      console.error('❌ MetaphorGenerationEngine 初期化エラー:', error);
+      return false;
+    }
+  }
+
+  /**
    * メタファー生成分析実行
    * 
    * 目的：
@@ -618,6 +650,110 @@ class MetaphorGenerationEngine {
   }
 
   /**
+   * 表現トーン調整
+   */
+  adjustExpressionTone(hspAdaptation, userCharacteristics) {
+    // ユーザー特性に基づくトーン決定
+    let targetTone = 'supportive'; // デフォルト
+    
+    if (userCharacteristics.isHSP) {
+      targetTone = 'gentle';
+    } else if (userCharacteristics.emotionalIntensity > 0.7) {
+      targetTone = 'calming';
+    } else if (userCharacteristics.confidenceLevel > 0.8) {
+      targetTone = 'empowering';
+    }
+    
+    // トーン別の表現調整
+    const toneAdjustments = {
+      gentle: {
+        prefix: 'ゆっくりと、',
+        intensityReduction: 0.3,
+        empathyBoost: 0.5,
+        reassuranceLevel: 'high'
+      },
+      calming: {
+        prefix: '落ち着いて、',
+        intensityReduction: 0.4,
+        empathyBoost: 0.3,
+        reassuranceLevel: 'medium'
+      },
+      empowering: {
+        prefix: '自信を持って、',
+        intensityReduction: 0,
+        empathyBoost: 0.2,
+        reassuranceLevel: 'low'
+      },
+      supportive: {
+        prefix: '',
+        intensityReduction: 0.2,
+        empathyBoost: 0.4,
+        reassuranceLevel: 'medium'
+      }
+    };
+    
+    const adjustment = toneAdjustments[targetTone];
+    
+    return {
+      ...hspAdaptation,
+      tone: targetTone,
+      toneAdjustment: adjustment,
+      adjustedMessage: {
+        ...hspAdaptation,
+        prefix: adjustment.prefix,
+        emotionalIntensity: Math.max(0.1, (hspAdaptation.emotionalIntensity || 0.5) - adjustment.intensityReduction),
+        empathyLevel: Math.min(1.0, (hspAdaptation.empathyLevel || 0.5) + adjustment.empathyBoost),
+        reassurance: adjustment.reassuranceLevel
+      }
+    };
+  }
+
+  /**
+   * 個人化メッセージ構築
+   */
+  buildPersonalizedMessage(toneAdjustment, userCharacteristics, situationalContext) {
+    const baseMessage = toneAdjustment.adjustedMessage || toneAdjustment;
+    const tone = toneAdjustment.tone || 'supportive';
+    const prefix = toneAdjustment.toneAdjustment?.prefix || '';
+    
+    // HSP特性を考慮したメッセージ構築
+    let personalizedContent = '';
+    
+    if (userCharacteristics.isHSP) {
+      personalizedContent = this.buildHSPOptimizedMessage(baseMessage, situationalContext);
+    } else {
+      personalizedContent = this.buildStandardMessage(baseMessage, situationalContext);
+    }
+    
+    return {
+      message: prefix + personalizedContent,
+      tone: tone,
+      isPersonalized: true,
+      userProfile: {
+        isHSP: userCharacteristics.isHSP,
+        emotionalIntensity: userCharacteristics.emotionalIntensity,
+        preferredStyle: tone
+      },
+      adaptationLevel: userCharacteristics.isHSP ? 'high' : 'standard',
+      supportLevel: toneAdjustment.toneAdjustment?.reassuranceLevel || 'medium'
+    };
+  }
+
+  /**
+   * HSP最適化メッセージ構築
+   */
+  buildHSPOptimizedMessage(baseMessage, situationalContext) {
+    return `あなたの高い感受性は、周りの人の感情を敏感に察知する貴重な能力です。今感じている周囲からの影響は、あなたの心が繊細に反応している証拠です。<br><br>この状況では、まず自分の心の境界線を意識することが大切です。他人の感情と自分の感情を区別し、どこまでが自分のものかを見極めてください。<br><br>ニュートラルな状態を保つためには：<br>• 深呼吸をして、自分の中心に戻る時間を作る<br>• 他人の感情を受け取りすぎたら、一度距離を置く<br>• 自分の感情日記をつけて、パターンを把握する<br><br>あなたの感受性は弱さではありません。適切に管理すれば、人を深く理解し、助ける力になります。`;
+  }
+
+  /**
+   * 標準メッセージ構築
+   */
+  buildStandardMessage(baseMessage, situationalContext) {
+    return `現在の状況において、感情の安定を保つことは重要な課題です。<br><br>周囲の人の感情に影響されやすいということは、共感力が高いことの表れでもあります。しかし、それが自分の心の平安を乱すようであれば、適切な境界線を設ける必要があります。<br><br>バランスを保つためのアプローチ：<br>• 客観的な視点を持つ練習をする<br>• 自分の感情と他人の感情を分けて考える<br>• 定期的に心の整理をする時間を作る<br><br>感情の波に流されず、自分らしい安定した状態を維持していきましょう。`;
+  }
+
+  /**
    * 実践的行動生成
    */
   generatePracticalActions(personalizedMessage, selectedLine, situationalContext) {
@@ -630,6 +766,295 @@ class MetaphorGenerationEngine {
       longTermGuidance: this.generateLongTermGuidance(template, situationalContext),
       adaptationPoints: this.generateAdaptationPoints(selectedLine, situationalContext)
     };
+  }
+
+  /**
+   * 注意点・リスク管理ガイダンス生成
+   */
+  generateCautionaryGuidance(selectedLine, situationalContext) {
+    const situation = situationalContext?.situation || 'general_unknown';
+    const riskLevel = this.assessRiskLevel(selectedLine);
+    const stance = selectedLine?.S5_主体性推奨スタンス || '中立';
+    
+    // 基本的な注意点
+    const baseGuidance = {
+      riskLevel: riskLevel,
+      cautionAreas: [],
+      preventiveMeasures: [],
+      warningSignals: [],
+      emergencyActions: []
+    };
+    
+    // スタンス別の注意点
+    const stanceGuidance = {
+      '能動': {
+        cautionAreas: ['過度な積極性', '他者への配慮不足', '計画性の欠如'],
+        preventiveMeasures: ['段階的なアプローチ', '関係者との事前相談', 'リスク評価の実施'],
+        warningSignals: ['周囲の反応が冷淡', '予想以上の抵抗', '計画の遅れ'],
+        emergencyActions: ['一時停止して状況確認', '関係者との対話', '計画の見直し']
+      },
+      '受動': {
+        cautionAreas: ['機会の見逃し', '意思決定の遅れ', '受け身すぎる姿勢'],
+        preventiveMeasures: ['定期的な状況確認', '小さな行動の実践', '信頼できる人への相談'],
+        warningSignals: ['状況の悪化', '他者からの催促', '時間的制約の逼迫'],
+        emergencyActions: ['最小限の行動を開始', '優先順位の明確化', '支援者への連絡']
+      },
+      '中立': {
+        cautionAreas: ['判断の先延ばし', '中途半端な対応', '明確な方針の欠如'],
+        preventiveMeasures: ['情報収集の継続', '複数の選択肢の準備', '専門家の意見聴取'],
+        warningSignals: ['情報不足による混乱', '関係者の不満', '決断の圧力'],
+        emergencyActions: ['現状の最善策を選択', '暫定的な方針決定', 'フィードバックの収集']
+      }
+    };
+    
+    const guidance = stanceGuidance[stance] || stanceGuidance['中立'];
+    
+    // 状況別の特別な注意点を追加
+    const situationalCautions = this.addSituationalCautions(situation, riskLevel);
+    
+    // HSP特性を考慮した注意点
+    const hspCautions = this.addHSPCautions(situationalContext);
+    
+    return {
+      ...baseGuidance,
+      ...guidance,
+      situationalCautions: situationalCautions,
+      hspConsiderations: hspCautions,
+      overallRiskAssessment: this.calculateOverallRisk(riskLevel, situation, stance),
+      recommendedMonitoring: this.generateMonitoringPoints(guidance, situation),
+      adaptiveStrategies: this.generateAdaptiveStrategies(guidance, situationalContext)
+    };
+  }
+
+  /**
+   * 状況別注意点の追加
+   */
+  addSituationalCautions(situation, riskLevel) {
+    const cautionMap = {
+      'personal': {
+        focus: '自己理解と内面的成長',
+        risks: ['自己批判の過度', '完璧主義的傾向', '他者比較'],
+        mitigations: ['自己受容の練習', '小さな成功の積み重ね', '個人的な価値観の確立']
+      },
+      'relationship': {
+        focus: '人間関係とコミュニケーション',
+        risks: ['感情的な反応', '期待値の不一致', '境界線の曖昧さ'],
+        mitigations: ['冷静な対話', '期待の明確化', '適切な距離感の維持']
+      },
+      'philosophical': {
+        focus: '思考と価値観の探求',
+        risks: ['過度な抽象化', '実践への適用困難', '孤立的思考'],
+        mitigations: ['具体的な実践', '他者との対話', '段階的な理解']
+      },
+      'entrepreneur': {
+        focus: 'ビジネスと創造的活動',
+        risks: ['市場の誤読', '資源の過大投資', '競合他社の対応'],
+        mitigations: ['市場調査の継続', '段階的投資', '競合分析の定期実施']
+      }
+    };
+    
+    const caution = cautionMap[situation] || cautionMap['personal'];
+    
+    // リスクレベルに応じた調整
+    if (riskLevel > 0.7) {
+      caution.urgency = 'high';
+      caution.additionalPrecautions = ['慎重な検討', '専門家相談', '段階的実施'];
+    } else if (riskLevel > 0.4) {
+      caution.urgency = 'medium';
+      caution.additionalPrecautions = ['定期的確認', '柔軟な調整'];
+    } else {
+      caution.urgency = 'low';
+      caution.additionalPrecautions = ['基本的な注意'];
+    }
+    
+    return caution;
+  }
+
+  /**
+   * HSP特性考慮の注意点
+   */
+  addHSPCautions(situationalContext) {
+    const isHSP = situationalContext?.analysis?.enhancedAnalysis?.isHSPCase || false;
+    
+    if (!isHSP) {
+      return { applicable: false };
+    }
+    
+    return {
+      applicable: true,
+      sensitivityConsiderations: [
+        '刺激の多い環境では休息を取る時間を確保',
+        '他者の感情に過度に巻き込まれないよう境界線を意識',
+        '自分のペースを尊重し、外部の圧力に屈しない'
+      ],
+      emotionalProtection: [
+        '感情的に激しい状況では一時的に距離を置く',
+        '安心できる環境や人との接触を維持',
+        'セルフケアの時間を定期的に確保'
+      ],
+      energyManagement: [
+        '一日の中でエネルギーの高い時間を有効活用',
+        '疲労の蓄積を避けるため適度な休息',
+        '刺激の少ない環境での回復時間の確保'
+      ],
+      decisionMaking: [
+        '重要な決断は十分な検討時間を取る',
+        '直感を大切にしつつ客観的な判断も併用',
+        '信頼できる人との相談を活用'
+      ]
+    };
+  }
+
+  /**
+   * 全体的リスク評価計算
+   */
+  calculateOverallRisk(baseRiskLevel, situation, stance) {
+    let adjustedRisk = baseRiskLevel;
+    
+    // 状況による調整
+    if (situation === 'entrepreneur') adjustedRisk += 0.1;
+    if (situation === 'relationship') adjustedRisk += 0.05;
+    
+    // スタンスによる調整
+    if (stance === '能動') adjustedRisk += 0.1;
+    if (stance === '受動') adjustedRisk -= 0.05;
+    
+    // 0-1の範囲に制限
+    adjustedRisk = Math.max(0, Math.min(1, adjustedRisk));
+    
+    let riskCategory = 'low';
+    if (adjustedRisk > 0.7) riskCategory = 'high';
+    else if (adjustedRisk > 0.4) riskCategory = 'medium';
+    
+    return {
+      numericLevel: adjustedRisk,
+      category: riskCategory,
+      description: this.getRiskDescription(riskCategory)
+    };
+  }
+
+  /**
+   * リスク説明の取得
+   */
+  getRiskDescription(category) {
+    const descriptions = {
+      'low': '基本的な注意を払いながら進めることができます',
+      'medium': '適度な注意と準備が必要な状況です',
+      'high': '慎重な検討と段階的なアプローチが重要です'
+    };
+    return descriptions[category];
+  }
+
+  /**
+   * モニタリングポイント生成
+   */
+  generateMonitoringPoints(guidance, situation) {
+    return [
+      '進捗状況の定期的な確認',
+      '関係者からのフィードバック収集',
+      '予期しない変化への早期察知',
+      '目標達成度の客観的な評価'
+    ];
+  }
+
+  /**
+   * 適応戦略生成
+   */
+  generateAdaptiveStrategies(guidance, situationalContext) {
+    return [
+      {
+        condition: '計画通りに進まない場合',
+        strategy: '柔軟な調整と代替案の検討'
+      },
+      {
+        condition: '予想以上の困難に直面した場合',
+        strategy: '一時的な撤退と再検討'
+      },
+      {
+        condition: '機会が拡大した場合',
+        strategy: '慎重な拡張と資源配分の最適化'
+      }
+    ];
+  }
+
+  /**
+   * 戦略的フレームワーク作成
+   */
+  createStrategicFramework(practicalActions, situationalContext) {
+    const situation = situationalContext?.situation || 'general_unknown';
+    
+    // 状況別の戦略的アプローチ
+    const strategicApproaches = {
+      'personal': {
+        approach: 'self_development',
+        focus: '自己理解と成長',
+        timeline: '継続的な取り組み',
+        keyPrinciples: ['自分のペースを保つ', '小さな変化を積み重ねる', '自己受容を大切にする']
+      },
+      'relationship': {
+        approach: 'interpersonal_harmony',
+        focus: '関係性の改善',
+        timeline: '段階的な関係構築',
+        keyPrinciples: ['相互理解を深める', '境界線を適切に設定する', '感謝を表現する']
+      },
+      'philosophical': {
+        approach: 'wisdom_integration',
+        focus: '智慧の実践的活用',
+        timeline: '長期的な視点での学び',
+        keyPrinciples: ['深く考える時間を確保', '多角的な視点を持つ', '学びを日常に活かす']
+      },
+      'entrepreneur': {
+        approach: 'strategic_growth',
+        focus: '持続可能な成長',
+        timeline: '段階的なスケールアップ',
+        keyPrinciples: ['リスクを適切に管理', 'ネットワークを活用', '継続的な改善']
+      }
+    };
+    
+    const baseFramework = strategicApproaches[situation] || strategicApproaches['personal'];
+    
+    return {
+      overallApproach: baseFramework.approach,
+      strategicFocus: baseFramework.focus,
+      implementationTimeline: baseFramework.timeline,
+      coreGuidingPrinciples: baseFramework.keyPrinciples,
+      actionIntegration: {
+        immediate: practicalActions.immediateActions || [],
+        shortTerm: practicalActions.shortTermStrategy || {},
+        longTerm: practicalActions.longTermGuidance || {}
+      },
+      adaptabilityFactors: practicalActions.adaptationPoints || [],
+      successMetrics: this.defineSuccessMetrics(situation, practicalActions),
+      reviewCycle: this.determineReviewCycle(situation)
+    };
+  }
+
+  /**
+   * 成功指標の定義
+   */
+  defineSuccessMetrics(situation, practicalActions) {
+    const metricsMap = {
+      'personal': ['内面的な充実感', '日常生活の質的向上', '自己受容度の向上'],
+      'relationship': ['コミュニケーションの質', '相互信頼の深化', '関係満足度'],
+      'philosophical': ['思考の深さと広がり', '価値観の明確化', '人生満足度'],
+      'entrepreneur': ['事業成長率', '市場での認知度', '持続可能性指標']
+    };
+    
+    return metricsMap[situation] || metricsMap['personal'];
+  }
+
+  /**
+   * レビューサイクルの決定
+   */
+  determineReviewCycle(situation) {
+    const cycleMap = {
+      'personal': '週次の振り返りと月次の見直し',
+      'relationship': '日々の気づきと週次の対話',
+      'philosophical': '日次の内省と月次の統合',
+      'entrepreneur': '週次のKPI確認と月次の戦略見直し'
+    };
+    
+    return cycleMap[situation] || cycleMap['personal'];
   }
 
   // ============ 表現最適化メソッド群 ============
@@ -835,6 +1260,131 @@ class MetaphorGenerationEngine {
       error: error.message,
       qualityAssurance: { overallQuality: 0.6, qualityLevel: 'acceptable', verificationPassed: true }
     };
+  }
+
+  /**
+   * フォールバックメタファー生成
+   * Phase 2.5が失敗した場合でも、Phase 2の情報からメタファーを生成
+   */
+  async generateFallbackMetaphor(situationalResult, userPersona) {
+    try {
+      console.log('🔄 フォールバックメタファー生成開始');
+      
+      // situationalResultから基本情報を抽出
+      const situation = situationalResult?.situation || 'general_unknown';
+      const confidence = situationalResult?.confidence || 0.5;
+      
+      // 状況に応じた基本的なメタファーを生成
+      const contextualMetaphor = this.generateBasicMetaphor(situation, confidence);
+      const practicalGuidance = this.generateBasicGuidance(situation);
+      
+      const fallbackResult = {
+        primaryMetaphor: {
+          title: contextualMetaphor.title,
+          essence: contextualMetaphor.essence,
+          fullMessage: {
+            coreMessage: contextualMetaphor.message
+          },
+          metaphorType: 'situational_wisdom',
+          tone: 'supportive'
+        },
+        practicalGuidance: {
+          immediateActions: practicalGuidance.immediate,
+          strategicFramework: {
+            approach: practicalGuidance.approach
+          },
+          successMetrics: {
+            indicators: practicalGuidance.indicators
+          }
+        },
+        adaptedMessage: {
+          personalized: {
+            message: contextualMetaphor.personalMessage
+          },
+          hspOptimized: userPersona?.hspLevel > 0.7,
+          userResonance: confidence
+        },
+        metaphorConfidence: Math.max(0.6, confidence),
+        fallback: true,
+        source: 'Phase2_direct',
+        qualityAssurance: {
+          overallQuality: 0.7,
+          qualityLevel: 'good',
+          verificationPassed: true
+        }
+      };
+      
+      console.log('✅ フォールバックメタファー生成完了');
+      return fallbackResult;
+      
+    } catch (error) {
+      console.error('❌ フォールバックメタファー生成エラー:', error);
+      return this.generateErrorResult('フォールバックメタファー生成失敗');
+    }
+  }
+
+  /**
+   * 基本的なメタファー生成（状況ベース）
+   */
+  generateBasicMetaphor(situation, confidence) {
+    const metaphorMap = {
+      'philosophical': {
+        title: '探求の旅路',
+        essence: '深い思索の中に答えは宿る',
+        message: '現在のあなたは人生の深い意味を探求する旅人のようです。答えを急がず、問いかけそのものを大切にしてください。',
+        personalMessage: '内なる声に耳を傾け、自分自身との対話を深めてください。'
+      },
+      'personal': {
+        title: '内なる成長',
+        essence: '変化は内側から始まる',
+        message: '今は自分自身と向き合う大切な時期です。小さな変化が大きな成長につながります。',
+        personalMessage: '自分のペースを大切にし、無理をせず着実に前進してください。'
+      },
+      'relationship': {
+        title: '絆の架け橋',
+        essence: '理解は相互の歩み寄りから生まれる',
+        message: '人との関係において、お互いを理解し合う努力が実を結ぶ時です。',
+        personalMessage: '相手の立場に立って考え、寛容な心で接してください。'
+      },
+      'entrepreneur': {
+        title: '創造の種まき',
+        essence: '新しい価値は挑戦から生まれる',
+        message: '今まいている種は、やがて豊かな実を結びます。継続と忍耐が鍵となります。',
+        personalMessage: 'リスクを恐れず、しかし慎重に計画を立てて行動してください。'
+      }
+    };
+    
+    return metaphorMap[situation] || metaphorMap['personal'];
+  }
+
+  /**
+   * 基本的なガイダンス生成
+   */
+  generateBasicGuidance(situation) {
+    const guidanceMap = {
+      'philosophical': {
+        immediate: ['深く考える時間を確保する', '読書や学習を通じて視野を広げる'],
+        approach: 'contemplative_wisdom',
+        indicators: ['内的平安の向上', '価値観の明確化']
+      },
+      'personal': {
+        immediate: ['現状を客観視する', '小さな目標を設定する'],
+        approach: 'gradual_improvement',
+        indicators: ['日々の充実感', '自己受容の向上']
+      },
+      'relationship': {
+        immediate: ['相手との対話時間を増やす', '感謝の気持ちを表現する'],
+        approach: 'mutual_understanding',
+        indicators: ['信頼関係の深化', '相互理解の向上']
+      },
+      'entrepreneur': {
+        immediate: ['事業計画を見直す', 'ネットワークを拡充する'],
+        approach: 'strategic_growth',
+        indicators: ['収益性の改善', '市場での認知度向上']
+      }
+    };
+    
+    return guidanceMap[situation] || guidanceMap['personal'];
   }
 
   // 簡易実装メソッド群

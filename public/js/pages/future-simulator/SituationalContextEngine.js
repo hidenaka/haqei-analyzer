@@ -57,7 +57,7 @@ class SituationalContextEngine {
     };
     this.situationHistory = [];
     this.inferencePatterns = new Map();
-    this.consistencyThreshold = 0.7;
+    this.consistencyThreshold = 0.4; // 40%に調整して、Phase 2.5/2.9を実行可能にする
     
     // 状況分析パラメータ
     this.temporalWeight = 1.2;

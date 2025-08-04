@@ -715,6 +715,12 @@ function ensureH384Data() {
 // グローバルスコープでの関数公開
 if (typeof window !== 'undefined') {
     window.ensureH384Data = ensureH384Data;
+    
+    // H64_DATAもグローバルスコープに設定
+    if (typeof H64_DATA !== 'undefined' && Array.isArray(H64_DATA)) {
+        window.H64_DATA = H64_DATA;
+        console.log('✅ H64_DATA: 64卦データがグローバルスコープに正常設定されました');
+    }
 }
 
      

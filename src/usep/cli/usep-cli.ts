@@ -10,9 +10,10 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
-import { VirtualUserGenerator, ServiceConfig } from '../core/VirtualUserGenerator.ts';
-import { ExperienceSimulator, SimulationConfig } from '../core/ExperienceSimulator.ts';
-import { AutoImprovementEngine } from '../core/AutoImprovementEngine.ts';
+import { VirtualUserGenerator } from '../core/VirtualUserGenerator.js';
+import { ExperienceSimulator } from '../core/ExperienceSimulator.js';
+import { AutoImprovementEngine } from '../core/AutoImprovementEngine.js';
+import type { ServiceConfig, SimulationConfig } from '../types/index.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 

@@ -8,21 +8,11 @@
 // import { VirtualPersonaEngine } from '../../public/js/os-analyzer/core/VirtualPersonaEngine.js';
 // import { StatisticalEngine } from '../../public/js/os-analyzer/core/StatisticalEngine.js';
 
-// USEP型定義（簡略化版 - 独立動作用）
-export interface ServiceConfig {
-  type: string;
-  name: string;
-  features: string[];
-}
+// Import unified types
+import type { ServiceConfig, VirtualUserSimple as VirtualUser } from '../types/index.js';
 
-// 簡略化された型定義（独立動作用）
-export interface VirtualUser {
-  id: string;
-  name: string;
-  age: number;
-  interests: string[];
-  behavior: string;
-}
+// Export for compatibility
+export type { ServiceConfig, VirtualUser };
 
 export class VirtualUserGenerator {
   // private tripleOSEngine: TripleOSEngine;
@@ -64,5 +54,12 @@ export class VirtualUserGenerator {
     this.generatedUsers = users;
     console.log(`✅ Generated ${users.length} virtual users`);
     return users;
+  }
+
+  /**
+   * Legacy compatibility method
+   */
+  async generateUsers(count: number, config: ServiceConfig): Promise<VirtualUser[]> {
+    return this.generateUserCohort(count, config);
   }
 }

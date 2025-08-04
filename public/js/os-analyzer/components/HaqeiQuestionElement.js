@@ -340,7 +340,10 @@ class HaqeiQuestionElement extends HTMLElement {
         }
 
         .option-label {
-          display: flex;
+          display: flex !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          pointer-events: auto !important;
           align-items: center;
           padding: 16px 20px;
           border: 2px solid rgba(99, 102, 241, 0.2);
@@ -352,6 +355,7 @@ class HaqeiQuestionElement extends HTMLElement {
           background: rgba(51, 65, 85, 0.8);
           color: #e2e8f0;
           margin-bottom: 12px;
+          z-index: 10;
         }
 
         .option-label:last-child {
@@ -414,10 +418,15 @@ class HaqeiQuestionElement extends HTMLElement {
         }
 
         .option-text {
-          font-size: 16px;
+          font-size: 15px;
           color: #e2e8f0;
-          line-height: 1.5;
+          line-height: 1.6;
           flex: 1;
+          word-break: normal;
+          word-wrap: break-word;
+          white-space: normal;
+          overflow-wrap: break-word;
+          letter-spacing: 0.01em;
         }
 
         .option-ripple {
@@ -465,17 +474,27 @@ class HaqeiQuestionElement extends HTMLElement {
         }
 
         .scenario-title {
-          font-size: 16px;
+          font-size: 18px;
           font-weight: 600;
           color: #f1f5f9;
-          margin: 0 0 12px 0;
+          margin: 0 0 16px 0;
+          line-height: 1.4;
+          word-break: normal;
+          white-space: normal;
+          overflow-wrap: break-word;
         }
 
         .scenario-text {
-          font-size: 14px;
+          font-size: 16px;
           color: #cbd5e1;
-          line-height: 1.6;
-          margin: 0;
+          line-height: 1.8;
+          margin: 12px 0;
+          word-break: normal;
+          word-wrap: break-word;
+          white-space: normal;
+          overflow-wrap: break-word;
+          letter-spacing: 0.02em;
+          font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
         }
 
         .scenario-choices {
@@ -505,10 +524,14 @@ class HaqeiQuestionElement extends HTMLElement {
         }
 
         .choice-title {
-          font-size: 14px;
+          font-size: 16px;
           font-weight: 600;
           color: #e2e8f0;
           margin: 0;
+          line-height: 1.4;
+          word-break: normal;
+          white-space: normal;
+          overflow-wrap: break-word;
         }
 
         @keyframes slideInFromRight {
@@ -577,7 +600,9 @@ class HaqeiQuestionElement extends HTMLElement {
    */
   setupEventListeners() {
     const inputs = this.cachedElements.get('inputs') || this.shadowRoot.querySelectorAll('input[type="radio"]');
+    const labels = this.cachedElements.get('labels') || this.shadowRoot.querySelectorAll('.option-label');
     
+    // 🔧 修正: radio inputとlabelの両方にイベントリスナーを設定
     inputs.forEach(input => {
       const changeHandler = (event) => {
         this.handleAnswerChange(event);
@@ -585,6 +610,29 @@ class HaqeiQuestionElement extends HTMLElement {
       
       input.addEventListener('change', changeHandler);
       this.boundEventListeners.set(input, changeHandler);
+    });
+    
+    // 🔧 追加: labelに直接クリックイベントを追加（visibility問題の回避）
+    labels.forEach(label => {
+      const clickHandler = (event) => {
+        // labelがクリックされた時、関連するradio inputを探してチェック
+        const input = label.querySelector('input[type="radio"]');
+        if (input && !input.checked) {
+          input.checked = true;
+          // 手動でchangeイベントを発火
+          const changeEvent = new Event('change', { bubbles: true });
+          input.dispatchEvent(changeEvent);
+        }
+      };
+      
+      label.addEventListener('click', clickHandler);
+      this.boundEventListeners.set(label, clickHandler);
+      
+      // 🔧 強制的に表示状態を確保
+      label.style.display = 'flex';
+      label.style.visibility = 'visible';
+      label.style.opacity = '1';
+      label.style.pointerEvents = 'auto';
     });
   }
 
@@ -652,7 +700,12 @@ class HaqeiQuestionElement extends HTMLElement {
   cleanup() {
     // イベントリスナーの削除
     for (const [element, handler] of this.boundEventListeners) {
-      element.removeEventListener('change', handler);
+      // inputとlabelで異なるイベントタイプを削除
+      if (element.tagName === 'INPUT') {
+        element.removeEventListener('change', handler);
+      } else if (element.classList.contains('option-label')) {
+        element.removeEventListener('click', handler);
+      }
     }
     this.boundEventListeners.clear();
     

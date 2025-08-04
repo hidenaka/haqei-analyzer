@@ -1895,6 +1895,144 @@ class OSRelationshipEngine {
     }
   }
 
+  /**
+   * 関係性分析メソッド - VirtualPersonaResultsView用
+   * 
+   * 目的：
+   * - 現在の関係性マトリックスから可視化用データを抽出
+   * - VirtualPersonaResultsViewが期待する形式で関係性データを返す
+   * 
+   * @returns {Object} 関係性データオブジェクト
+   */
+  analyzeRelationships() {
+    console.log('🔍 Analyzing current OS relationships for visualization...');
+    
+    try {
+      // 関係性マトリックスから現在の状態を取得
+      const engineInterface = this.relationshipMatrix['engine-interface'] || {};
+      const engineSafemode = this.relationshipMatrix['engine-safemode'] || {};
+      const interfaceSafemode = this.relationshipMatrix['interface-safemode'] || {};
+      
+      // VirtualPersonaResultsViewが期待する形式に変換
+      const relationships = {
+        engineInterface: {
+          compatibility: engineInterface.compatibility || 0.5,
+          cooperation: engineInterface.cooperation || 0.5,
+          conflict: engineInterface.conflict || 0.3,
+          trust: engineInterface.trust || 0.5,
+          strength: this.calculateRelationshipStrength(engineInterface),
+          color: this.getRelationshipColor(engineInterface),
+          style: this.getRelationshipStyle(engineInterface)
+        },
+        interfaceSafeMode: {
+          compatibility: interfaceSafemode.compatibility || 0.5,
+          cooperation: interfaceSafemode.cooperation || 0.5,
+          conflict: interfaceSafemode.conflict || 0.3,
+          trust: interfaceSafemode.trust || 0.5,
+          strength: this.calculateRelationshipStrength(interfaceSafemode),
+          color: this.getRelationshipColor(interfaceSafemode),
+          style: this.getRelationshipStyle(interfaceSafemode)
+        },
+        safeModeEngine: {
+          compatibility: engineSafemode.compatibility || 0.5,
+          cooperation: engineSafemode.cooperation || 0.5,
+          conflict: engineSafemode.conflict || 0.3,
+          trust: engineSafemode.trust || 0.5,
+          strength: this.calculateRelationshipStrength(engineSafemode),
+          color: this.getRelationshipColor(engineSafemode),
+          style: this.getRelationshipStyle(engineSafemode)
+        },
+        
+        // 全体的な統計
+        overallIntegration: this.overallIntegrationLevel,
+        relationshipTension: this.relationshipTension,
+        averageCompatibility: (
+          (engineInterface.compatibility || 0.5) +
+          (engineSafemode.compatibility || 0.5) +
+          (interfaceSafemode.compatibility || 0.5)
+        ) / 3,
+        
+        // メタデータ
+        analysisTimestamp: new Date().toISOString(),
+        relationshipCount: 3
+      };
+      
+      console.log('✅ Relationship analysis completed:', {
+        engineInterface: relationships.engineInterface.strength,
+        interfaceSafeMode: relationships.interfaceSafeMode.strength,
+        safeModeEngine: relationships.safeModeEngine.strength,
+        overallIntegration: relationships.overallIntegration
+      });
+      
+      return relationships;
+      
+    } catch (error) {
+      console.error('❌ Error in analyzeRelationships:', error);
+      
+      // エラー時のフォールバック
+      return {
+        engineInterface: { compatibility: 0.5, cooperation: 0.5, conflict: 0.3, trust: 0.5, strength: 0.5, color: '#888888', style: 'solid' },
+        interfaceSafeMode: { compatibility: 0.5, cooperation: 0.5, conflict: 0.3, trust: 0.5, strength: 0.5, color: '#888888', style: 'solid' },
+        safeModeEngine: { compatibility: 0.5, cooperation: 0.5, conflict: 0.3, trust: 0.5, strength: 0.5, color: '#888888', style: 'solid' },
+        overallIntegration: 0.5,
+        relationshipTension: 0.3,
+        averageCompatibility: 0.5,
+        analysisTimestamp: new Date().toISOString(),
+        relationshipCount: 3,
+        error: true
+      };
+    }
+  }
+
+  /**
+   * 関係性の強度を計算
+   */
+  calculateRelationshipStrength(relationship) {
+    if (!relationship) return 0.5;
+    
+    const compatibility = relationship.compatibility || 0.5;
+    const cooperation = relationship.cooperation || 0.5;
+    const trust = relationship.trust || 0.5;
+    const conflict = relationship.conflict || 0.3;
+    
+    // 強度 = (協調性 + 信頼 + 互換性) / 3 - 衝突/2
+    return Math.max(0, Math.min(1, (cooperation + trust + compatibility) / 3 - conflict / 2));
+  }
+
+  /**
+   * 関係性の表示色を決定
+   */
+  getRelationshipColor(relationship) {
+    const strength = this.calculateRelationshipStrength(relationship);
+    const conflict = relationship?.conflict || 0.3;
+    
+    if (strength > 0.7) {
+      return '#10B981'; // 緑 - 良好
+    } else if (strength > 0.4) {
+      return '#F59E0B'; // 黄 - 普通
+    } else if (conflict > 0.6) {
+      return '#EF4444'; // 赤 - 衝突
+    } else {
+      return '#6B7280'; // グレー - 中性
+    }
+  }
+
+  /**
+   * 関係性の表示スタイルを決定
+   */
+  getRelationshipStyle(relationship) {
+    const cooperation = relationship?.cooperation || 0.5;
+    const conflict = relationship?.conflict || 0.3;
+    
+    if (cooperation > 0.7) {
+      return 'solid'; // 実線 - 協調的
+    } else if (conflict > 0.6) {
+      return 'dashed'; // 点線 - 衝突
+    } else {
+      return 'dotted'; // 点線 - 不確定
+    }
+  }
+
   // 追加の複雑なメソッドは実装継続可能...
 }
 

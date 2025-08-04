@@ -1,26 +1,36 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
     "skipLibCheck": true,
 
-    /* Bundler mode */
+    /* ESModule Optimization */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
 
-    /* Linting */
+    /* Performance Optimization */
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
+
+    /* Type Checking */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": false,
 
-    /* Path mapping */
+    /* Module Resolution */
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
@@ -29,18 +39,33 @@
       "@utils/*": ["./src/utils/*"],
       "@stores/*": ["./src/stores/*"],
       "@types/*": ["./src/types/*"],
-      "@assets/*": ["./src/assets/*"]
+      "@assets/*": ["./src/assets/*"],
+      "@usep/*": ["./src/usep/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "include": [
+    "src/**/*.ts", 
+    "src/**/*.d.ts", 
+    "src/**/*.tsx", 
+    "src/**/*.vue",
+    "vite.config.ts"
+  ],
   "ts-node": {
     "esm": true,
     "compilerOptions": {
       "module": "ESNext",
+      "target": "ES2022",
       "allowImportingTsExtensions": true,
-      "moduleResolution": "bundler"
+      "moduleResolution": "bundler",
+      "esModuleInterop": true
     }
   },
-  "exclude": ["node_modules", "dist", "public"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "exclude": [
+    "node_modules", 
+    "dist", 
+    "public/**/*.js",
+    "public/**/*.html",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
 }

@@ -4,7 +4,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { join, extname } from 'path'
+import { join } from 'path'
 import { glob } from 'glob'
 
 // 危険なパターンの定義

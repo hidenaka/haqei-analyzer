@@ -12,6 +12,7 @@
     "test:unit": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run --bail=3 --reporter=basic src/utils/__tests__/calculator.spec.ts src/stores/__tests__/analysis.spec.ts",
     "test:crud": "vitest run --reporter=verbose src/tests/useCRUDOperations.test.ts",
     "test:performance": "tsx src/tests/performance-quick-test.ts",
     "demo:crud": "tsx src/tests/crud-operations-demo.ts",

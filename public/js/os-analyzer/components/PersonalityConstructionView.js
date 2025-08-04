@@ -992,6 +992,72 @@ class PersonalityConstructionView extends BaseComponent {
             virtualPersonality: this.virtualPersonality,
             duration: Date.now() - this.constructionStartTime
         });
+        
+        // メインビューへの切り替えを試行（即座に実行 + バックアップタイマー）
+        const switchToMainView = async () => {
+            console.log('🔄 PersonalityConstructionView完了 - メインビューに切り替え中...');
+            
+            if (window.virtualPersonaView && typeof window.virtualPersonaView.switchToMainView === 'function') {
+                try {
+                    await window.virtualPersonaView.switchToMainView();
+                    console.log('✅ メインビューへの切り替え完了 (PersonalityConstructionView)');
+                    
+                    // 追加確認: メインビューが実際に表示されているかチェック
+                    const mainView = document.querySelector('#main-view');
+                    if (mainView && mainView.classList.contains('active')) {
+                        console.log('✅ メインビューの表示確認済み');
+                    } else {
+                        console.log('⚠️ メインビューが非アクティブ - 強制アクティブ化');
+                        if (mainView) {
+                            document.querySelectorAll('.vp-view').forEach(v => v.classList.remove('active'));
+                            mainView.classList.add('active');
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ メインビューへの切り替えエラー:', error);
+                    
+                    // エラー時の緊急対応: 直接DOM操作でメインビューを表示
+                    const mainView = document.querySelector('#main-view');
+                    if (mainView) {
+                        console.log('🔧 緊急対応: 直接メインビューを表示中...');
+                        document.querySelectorAll('.vp-view').forEach(v => v.classList.remove('active'));
+                        mainView.classList.add('active');
+                        
+                        // 基本的なコンテンツを挿入
+                        if (!mainView.innerHTML.trim()) {
+                            mainView.innerHTML = `
+                                <div class="vp-main-container" style="padding: 2rem; text-align: center;">
+                                    <h2 style="color: #F1F5F9; margin-bottom: 1rem;">🎭 あなたの仮想人格</h2>
+                                    <p style="color: #CBD5E1; margin-bottom: 2rem;">PersonalityConstructionView処理完了 - メインビューを表示中</p>
+                                    <div style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 12px;">
+                                        <p style="color: #94A3B8;">仮想人格の構築が完了しています。</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        console.log('✅ 緊急対応によるメインビュー表示完了');
+                    }
+                }
+            } else {
+                console.warn('⚠️ window.virtualPersonaView が無効');
+                
+                // virtualPersonaView が存在しない場合の処理
+                const mainView = document.querySelector('#main-view');
+                if (mainView) {
+                    console.log('🔧 Fallback: 直接メインビューを表示');
+                    document.querySelectorAll('.vp-view').forEach(v => v.classList.remove('active'));
+                    mainView.classList.add('active');
+                }
+            }
+        };
+        
+        // 即座に実行
+        switchToMainView();
+        
+        // バックアップタイマー (2秒後にもう一度試行)
+        setTimeout(switchToMainView, 2000);
     }
     
     /**

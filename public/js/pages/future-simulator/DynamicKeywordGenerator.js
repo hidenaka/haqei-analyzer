@@ -779,6 +779,48 @@ class DynamicKeywordGenerator {
       fallbackMode: true
     };
   }
+
+  /**
+   * 初期化メソッド - IntegratedAnalysisEngineとの互換性のため
+   */
+  async initialize() {
+    try {
+      console.log('🔄 DynamicKeywordGenerator初期化開始');
+      
+      // KeywordExpansionEngineの初期化確認
+      if (typeof KeywordExpansionEngine !== 'undefined' && !this.keywordExpansion) {
+        this.keywordExpansion = new KeywordExpansionEngine();
+        console.log('✅ KeywordExpansionEngine初期化完了');
+      }
+      
+      // SNS_WORRY_PATTERNSの確認
+      if (typeof SNS_WORRY_PATTERNS !== 'undefined') {
+        console.log('✅ SNS_WORRY_PATTERNS利用可能');
+      } else {
+        console.warn('⚠️ SNS_WORRY_PATTERNS未定義 - 基本パターンを使用');
+      }
+      
+      console.log('✅ DynamicKeywordGenerator初期化完了');
+      return true;
+      
+    } catch (error) {
+      console.error('❌ DynamicKeywordGenerator初期化エラー:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 初期化状態の確認
+   */
+  isInitialized() {
+    return {
+      tokenizer: !!this.tokenizer,
+      keywordExpansion: !!this.keywordExpansion,
+      emotionPatterns: !!this.emotionPatterns,
+      contextPatterns: !!this.contextPatterns,
+      overall: !!this.tokenizer && !!this.emotionPatterns
+    };
+  }
 }
 
 // グローバルスコープにエクスポート

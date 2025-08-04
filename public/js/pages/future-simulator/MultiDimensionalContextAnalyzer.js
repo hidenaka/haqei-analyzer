@@ -162,7 +162,7 @@ class MultiDimensionalContextAnalyzer {
       console.log('✨ 多次元コンテキスト分析完了:', {
         primary: finalResult.primaryContext,
         confidence: finalResult.confidence,
-        dimensions: finalResult.secondaryContexts.length + 1
+        dimensions: (finalResult.secondaryContexts ? finalResult.secondaryContexts.length : 0) + 1
       });
       
       return finalResult;
@@ -397,7 +397,7 @@ class MultiDimensionalContextAnalyzer {
       emotionalProfile: emotionalProfile,
       isHSP: isHSP,
       needsEmotionalSupport: emotionalProfile.adjustmentNeed > 0.5,
-      emotionalComplexity: emotionalProfile.detectedPatterns.length,
+      emotionalComplexity: emotionalProfile.detectedPatterns ? emotionalProfile.detectedPatterns.length : 0,
       recommendedApproach: this.getRecommendedApproach(emotionalProfile, isHSP)
     };
   }
@@ -526,6 +526,19 @@ class MultiDimensionalContextAnalyzer {
    * - 統合分析結果オブジェクト
    */
   async layer6_generateIntegratedResult(analysisLayers, inputText, userPersona) {
+    // 安全チェック
+    if (!analysisLayers || !analysisLayers.basicContext || !analysisLayers.basicContext.topContext) {
+      return {
+        primary: 'unknown',
+        confidence: 0.5,
+        secondary: null,
+        analysis: {
+          method: 'fallback',
+          reason: 'Missing analysis data'
+        }
+      };
+    }
+    
     const basicContext = analysisLayers.basicContext.topContext;
     const multidimensional = analysisLayers.multidimensionalScore;
     const consistency = analysisLayers.contextualConsistency;
@@ -547,15 +560,17 @@ class MultiDimensionalContextAnalyzer {
     confidence += consistency.finalConfidenceAdjustment;
     confidence = Math.max(0.3, Math.min(0.95, confidence));
     
-    // 副次コンテキストの選定
-    const secondaryContexts = multidimensional.recommendedContexts
-      .filter(ctx => ctx.type !== primaryContext)
-      .slice(0, 2)
-      .map(ctx => ({
-        type: ctx.type,
-        weight: ctx.weight,
-        relevance: ctx.adjustedScore / basicContext.score
-      }));
+    // 副次コンテキストの選定（安全性を確保）
+    const recommendedContexts = multidimensional.recommendedContexts || [];
+    const secondaryContexts = Array.isArray(recommendedContexts) ? 
+      recommendedContexts
+        .filter(ctx => ctx && ctx.type !== primaryContext)
+        .slice(0, 2)
+        .map(ctx => ({
+          type: ctx.type,
+          weight: ctx.weight || 0.5,
+          relevance: (ctx.adjustedScore || 0) / (basicContext.score || 1)
+        })) : [];
     
     // HSP特化処理
     const isHSPCase = analysisLayers.emotionalProfile.isHSP;
@@ -1001,6 +1016,15 @@ class MultiDimensionalContextAnalyzer {
    * 最適なコンテキスト組み合わせ検索
    */
   findOptimalContextCombination(adjustedContexts, interactions) {
+    // 配列が空の場合のデフォルト値を返す
+    if (!adjustedContexts || adjustedContexts.length === 0) {
+      return {
+        contexts: [],
+        weights: {},
+        score: 0
+      };
+    }
+    
     // 最上位のコンテキストを選択
     const sortedContexts = adjustedContexts
       .sort((a, b) => b.adjustedScore - a.adjustedScore);

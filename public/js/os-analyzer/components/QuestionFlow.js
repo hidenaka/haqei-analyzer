@@ -687,13 +687,21 @@ class QuestionFlow extends BaseComponent {
 
       const currentQuestionNum = this.currentQuestionIndex + 1;
       const totalQuestions = this.questions.length;
-      const progressPercentage = (currentQuestionNum / totalQuestions) * 100;
       const actualCompletedCount = this.getCompletedCount();
+      
+      // 🔧 修正: 完了率ベースの進捗計算に変更
+      // 完了した質問数に基づく進捗率を使用（より直感的）
+      const completionPercentage = (actualCompletedCount / totalQuestions) * 100;
+      
+      // ログで進捗状況を確認
+      console.log(`📊 Progress update: Q${currentQuestionNum}/${totalQuestions}, Completed: ${actualCompletedCount}, Rate: ${completionPercentage.toFixed(1)}%`);
 
       if (currentNum) currentNum.textContent = currentQuestionNum;
       if (totalNum) totalNum.textContent = `/ ${totalQuestions}`;
       if (completedCount) completedCount.textContent = actualCompletedCount;
-      if (progressFill) progressFill.style.width = `${progressPercentage}%`;
+      
+      // 🔧 修正: 完了率ベースの進捗バーに変更
+      if (progressFill) progressFill.style.width = `${completionPercentage}%`;
 
       // プログレスコールバック
       if (this.options.onProgress) {

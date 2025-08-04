@@ -186,11 +186,46 @@
 
       async function main() {
         try {
-          const response = await fetch("/api/data");
-          if (!response.ok)
-            throw new Error("データベースの読み込みに失敗しました。");
-          const apiData = await response.json();
-          HAQEI_DATA = apiData.HAQEI_DATA;
+          // ローカル開発環境での検出
+          const isLocalDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          
+          if (isLocalDevelopment) {
+            console.log("ローカル開発環境を検出 - データベースの代替読み込みを実行");
+            // ローカル環境用のミニマムデータセット
+            HAQEI_DATA = {
+              hexagrams_master: [
+                {hexagram_id: 1, name_jp: "乾為天", reading: "けんいてん", keywords: "創造・リーダーシップ"},
+                {hexagram_id: 2, name_jp: "坤為地", reading: "こんいち", keywords: "受容・サポート"},
+                {hexagram_id: 3, name_jp: "水雷屯", reading: "すいらいちゅん", keywords: "困難・挑戦"},
+                {hexagram_id: 31, name_jp: "沢山咸", reading: "たくざんかん", keywords: "感応・共感"}
+              ],
+              H64_DATA: [
+                {卦番号: 1, saku_id: 2, sou_id: 2, go_id: 1},
+                {卦番号: 2, saku_id: 1, sou_id: 1, go_id: 2},
+                {卦番号: 3, saku_id: 50, sou_id: 50, go_id: 23}
+              ],
+              os_manual: {
+                1: {summary: "創造的なリーダーシップを発揮する"},
+                2: {summary: "周囲をサポートし協調する"},
+                3: {summary: "困難に立ち向かう勇気を持つ"}
+              },
+              bible: {
+                jo_ka_den: {
+                  1: {from_prev: null, to_next: {next_id: 2, explanation: "創造から受容へ"}},
+                  2: {from_prev: {prev_id: 1, explanation: "創造から受容へ"}, to_next: {next_id: 3, explanation: "準備から実行へ"}},
+                  3: {from_prev: {prev_id: 2, explanation: "準備から実行へ"}, to_next: null}
+                }
+              }
+            };
+          } else {
+            // 本番環境での通常のAPI呼び出し
+            const response = await fetch("/api/data");
+            if (!response.ok)
+              throw new Error("データベースの読み込みに失敗しました。");
+            const apiData = await response.json();
+            HAQEI_DATA = apiData.HAQEI_DATA;
+          }
+          
           setupDatalist();
 
           // ローカルストレージからデータを読み込む
@@ -469,6 +504,26 @@
               "OS全体の連携と今後のポテンシャルについて",
           };
 
+          // ローカル開発環境での検出
+          const isLocalDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          
+          if (isLocalDevelopment) {
+            // ローカル開発環境用のフォールバック処理
+            console.log("ローカル開発環境を検出 - フォールバック分析を実行");
+            const fallbackAnalysis = generateLocalFallbackAnalysis(payload);
+            
+            contentArea.innerHTML = `
+              <h2 class="ai-title">${fallbackAnalysis.nickname}</h2>
+              <div class="ai-text">${fallbackAnalysis.explanation}</div>
+              <div class="mt-4 p-3 bg-yellow-900/30 border border-yellow-600/30 rounded-lg text-sm">
+                <p class="text-yellow-300">📝 ローカル開発環境</p>
+                <p class="text-gray-400 mt-1">本番環境では最新のAI分析が表示されます</p>
+              </div>
+            `;
+            return;
+          }
+
+          // 本番環境でのAPI呼び出し
           const response = await fetch("/api/cockpit-ai", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -494,8 +549,49 @@
       `;
         } catch (error) {
           console.error("Cockpit AI Error:", error);
-          contentArea.innerHTML = `<div class="text-center text-red-400"><h2 class="ai-title">分析エラー</h2><p>${error.message}</p></div>`;
+          // エラー時もフォールバック分析を表示
+          const fallbackAnalysis = generateLocalFallbackAnalysis({
+            os1: osAnalysisData.analysisResult.hexagram_candidates[0],
+            os2: osAnalysisData.analysisResult.hexagram_candidates[1],
+            os3: osAnalysisData.analysisResult.hexagram_candidates[2],
+            worry: "システム分析"
+          });
+          
+          contentArea.innerHTML = `
+            <h2 class="ai-title">${fallbackAnalysis.nickname}</h2>
+            <div class="ai-text">${fallbackAnalysis.explanation}</div>
+            <div class="mt-4 p-3 bg-red-900/30 border border-red-600/30 rounded-lg text-sm">
+              <p class="text-red-300">⚠️ 接続エラー</p>
+              <p class="text-gray-400 mt-1">基本分析を表示しています: ${error.message}</p>
+            </div>
+          `;
         }
+      }
+      
+      // ローカル開発環境用のフォールバック分析生成
+      function generateLocalFallbackAnalysis(payload) {
+        const { os1, os2, os3, worry } = payload;
+        
+        return {
+          nickname: `${os1.name_jp}を核とした統合OS`,
+          explanation: `
+            <p><strong>あなたのOS構成について：</strong></p>
+            <br>
+            <p>🔥 <strong>エンジンOS「${os1.name_jp}」</strong><br>
+            あなたの根源的なエネルギーの源です。${os1.keywords}という特性を持ち、内発的な動機を生み出します。</p>
+            <br>
+            <p>🎭 <strong>インターフェースOS「${os2.name_jp}」</strong><br>
+            社会との接点で活用する実行ツールです。${os2.keywords}という能力を通じて、あなたの内なるエネルギーを外に表現します。</p>
+            <br>
+            <p>🛡️ <strong>セーフモードOS「${os3.name_jp}」</strong><br>
+            心の安全基地として機能します。${os3.keywords}という特性で、困難な時期に回復力を提供します。</p>
+            <br>
+            <p><strong>統合的な視点：</strong><br>
+            これら3つのOSは、あなたという存在の異なる側面を表しています。エンジンOSが生み出すエネルギーを、インターフェースOSが社会で活用し、セーフモードOSが持続可能性を保証する──この連携があなたの独自性を形作っています。</p>
+            <br>
+            <p>「${worry}」という課題に対しても、この3つのOSの特性を活かした多角的なアプローチが有効でしょう。</p>
+          `
+        };
       }
 
       // --- グラフ描画関数 ---

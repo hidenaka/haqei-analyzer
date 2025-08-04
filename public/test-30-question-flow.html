@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>30問目分析開始ボタンテスト</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: white; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #333; border-radius: 8px; }
+        .success { background-color: rgba(34, 197, 94, 0.2); border-color: #22c55e; }
+        .error { background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; }
+        .info { background-color: rgba(59, 130, 246, 0.2); border-color: #3b82f6; }
+        .warning { background-color: rgba(245, 158, 11, 0.2); border-color: #f59e0b; }
+        button { padding: 10px 20px; margin: 5px; background: #6366f1; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #4f46e5; }
+        #test-results { max-height: 400px; overflow-y: auto; background: #000; padding: 10px; border-radius: 5px; font-family: monospace; }
+        .log-entry { margin: 2px 0; }
+        .log-success { color: #22c55e; }
+        .log-error { color: #ef4444; }
+        .log-info { color: #3b82f6; }
+        .log-warning { color: #f59e0b; }
+        iframe { width: 100%; height: 600px; border: 1px solid #333; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 30問目分析開始ボタン修正テスト</h1>
+    <p>修正内容が正しく動作するかテストします</p>
+    
+    <div class="test-section info">
+        <h2>🎯 テスト対象</h2>
+        <ul>
+            <li>30問目で「次の質問」→「分析開始」ボタン変更</li>
+            <li>複数の分析開始ボタンが表示されない</li>
+            <li>分析開始ボタンクリックで正常に分析開始</li>
+            <li>VirtualQuestionFlow.jsの修正適用確認</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 修正確認ツール</h2>
+        <button onclick="checkModifications()">修正内容確認</button>
+        <button onclick="checkScriptLoading()">スクリプト読み込み確認</button>
+        <button onclick="simulateFullFlow()">30問完全フロー確認</button>
+        <button onclick="clearResults()">結果クリア</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 テスト結果</h2>
+        <div id="test-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🖼️ 実際の画面テスト</h2>
+        <p>下のフレームで実際に30問答えてテストしてください：</p>
+        <iframe src="http://localhost:8788/os_analyzer.html" id="test-frame"></iframe>
+    </div>
+    
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('test-results');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${time}] ${message}`;
+            results.appendChild(entry);
+            results.scrollTop = results.scrollHeight;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+        
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+        }
+        
+        async function checkModifications() {
+            log('🔍 修正内容の確認を開始...', 'info');
+            
+            try {
+                // 1. VirtualQuestionFlow.jsの修正確認
+                const response = await fetch('http://localhost:8788/js/os-analyzer/components/VirtualQuestionFlow.js');
+                const content = await response.text();
+                
+                // showAnalysisButton無効化確認
+                if (content.includes('showAnalysisButton disabled') || content.includes('return;')) {
+                    log('✅ VirtualQuestionFlow.js - showAnalysisButton無効化確認', 'success');
+                } else {
+                    log('❌ VirtualQuestionFlow.js - showAnalysisButton無効化未確認', 'error');
+                }
+                
+                // onComplete処理確認
+                if (content.includes('this.onComplete(this.answers)')) {
+                    log('✅ VirtualQuestionFlow.js - onComplete処理確認', 'success');
+                } else {
+                    log('❌ VirtualQuestionFlow.js - onComplete処理未確認', 'error');
+                }
+                
+                // 2. 30-question-fix.jsの存在確認
+                const fixResponse = await fetch('http://localhost:8788/js/30-question-fix.js');
+                if (fixResponse.ok) {
+                    log('✅ 30-question-fix.js - ファイル存在確認', 'success');
+                    const fixContent = await fixResponse.text();
+                    if (fixContent.includes('showAnalysisButton disabled')) {
+                        log('✅ 30-question-fix.js - 修正ロジック確認', 'success');
+                    }
+                } else {
+                    log('❌ 30-question-fix.js - ファイル未確認', 'error');
+                }
+                
+                // 3. HTML読み込み確認
+                const htmlResponse = await fetch('http://localhost:8788/os_analyzer.html');
+                const htmlContent = await htmlResponse.text();
+                if (htmlContent.includes('30-question-fix.js')) {
+                    log('✅ os_analyzer.html - 30-question-fix.js読み込み確認', 'success');
+                } else {
+                    log('❌ os_analyzer.html - 30-question-fix.js読み込み未確認', 'error');
+                }
+                
+                log('🏁 修正内容確認完了', 'info');
+                
+            } catch (error) {
+                log(`❌ 修正確認エラー: ${error.message}`, 'error');
+            }
+        }
+        
+        async function checkScriptLoading() {
+            log('📋 スクリプト読み込み状況確認...', 'info');
+            
+            const frame = document.getElementById('test-frame');
+            try {
+                const frameWindow = frame.contentWindow;
+                const frameDoc = frame.contentDocument;
+                
+                if (!frameDoc) {
+                    log('⚠️ フレームアクセス制限のため直接確認不可', 'warning');
+                    return;
+                }
+                
+                // VirtualQuestionFlow確認
+                if (frameWindow.VirtualQuestionFlow) {
+                    log('✅ VirtualQuestionFlow クラス読み込み確認', 'success');
+                } else {
+                    log('❌ VirtualQuestionFlow クラス未読み込み', 'error');
+                }
+                
+            } catch (error) {
+                log(`⚠️ フレーム内容確認制限: ${error.message}`, 'warning');
+                log('💡 手動でブラウザの開発者ツールでコンソールを確認してください', 'info');
+            }
+        }
+        
+        function simulateFullFlow() {
+            log('🎮 30問完全フローシミュレーション開始', 'info');
+            log('📝 手動テスト手順:', 'info');
+            log('1. 下のフレームで「分析を開始する」をクリック', 'info');
+            log('2. 30問すべてに回答（適当に選択でOK）', 'info');
+            log('3. 30問目で「次の質問 →」が「分析開始 →」に変わることを確認', 'info');
+            log('4. 複数の分析開始ボタンが表示されないことを確認', 'info');
+            log('5. 「分析開始 →」ボタンをクリックして分析が開始されることを確認', 'info');
+            log('⚡ ブラウザの開発者ツール（F12）でコンソールログも確認してください', 'warning');
+        }
+        
+        // 自動実行
+        window.addEventListener('load', () => {
+            log('🚀 30問目分析開始ボタンテスト開始', 'info');
+            setTimeout(checkModifications, 1000);
+        });
+        
+        // フレーム読み込み完了時
+        document.getElementById('test-frame').addEventListener('load', () => {
+            log('🖼️ テストフレーム読み込み完了', 'info');
+            log('💡 フレーム内で実際にテストを開始してください', 'info');
+        });
+    </script>
+</body>
+</html>

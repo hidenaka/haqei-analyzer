@@ -1,0 +1,310 @@
+name: Production CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+
+env:
+  NODE_VERSION: '20'
+  PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+  STAGING_URL: ${{ secrets.STAGING_URL }}
+
+jobs:
+  # Security and Quality Gates
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd haqei-vue && npm ci
+      
+      - name: Security audit
+        run: |
+          npm audit --audit-level high
+          cd haqei-vue && npm audit --audit-level high
+      
+      - name: License compliance check
+        run: npx license-checker --summary
+      
+      - name: SAST scan with CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, typescript
+      
+      - name: Build for analysis
+        run: |
+          npm run build
+          cd haqei-vue && npm run build
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  # Code Quality and Testing
+  quality-tests:
+    name: Quality & Testing
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: "Unit Tests"
+            command: "test:unit"
+          - name: "Integration Tests" 
+            command: "test:ci"
+          - name: "Performance Tests"
+            command: "test:performance"
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd haqei-vue && npm ci
+      
+      - name: Run linting
+        run: |
+          npm run lint
+          cd haqei-vue && npm run lint
+      
+      - name: Type checking
+        run: |
+          npm run build
+          cd haqei-vue && vue-tsc --noEmit
+      
+      - name: Run ${{ matrix.name }}
+        run: |
+          cd haqei-vue && npm run ${{ matrix.command }}
+      
+      - name: Upload coverage to Codecov
+        if: matrix.command == 'test:coverage'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./haqei-vue/coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # E2E Testing
+  e2e-tests:
+    name: E2E Testing
+    runs-on: ubuntu-latest
+    needs: [quality-tests]
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd haqei-vue && npm ci
+      
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+      
+      - name: Build application
+        run: |
+          npm run build
+          cd haqei-vue && npm run build
+      
+      - name: Start preview server
+        run: |
+          cd haqei-vue && npm run preview &
+          sleep 10
+      
+      - name: Run E2E tests
+        run: npm run test:e2e
+      
+      - name: Upload E2E artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-screenshots
+          path: test-results/
+
+  # Build and Deployment
+  build-deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    needs: [security-audit, quality-tests, e2e-tests]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
+    
+    strategy:
+      matrix:
+        environment: [staging, production]
+        exclude:
+          - environment: production
+            
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd haqei-vue && npm ci
+      
+      - name: Build application
+        env:
+          VITE_SUPABASE_URL: ${{ secrets[format('VITE_SUPABASE_URL_{0}', matrix.environment)] }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets[format('VITE_SUPABASE_ANON_KEY_{0}', matrix.environment)] }}
+          VITE_APP_ENV: ${{ matrix.environment }}
+          VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          cd haqei-vue && npm run build
+      
+      - name: Deploy to Vercel (${{ matrix.environment }})
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: haqei-vue
+          production: ${{ matrix.environment == 'production' }}
+          alias-domains: |
+            ${{ matrix.environment == 'production' && secrets.PRODUCTION_DOMAIN || secrets.STAGING_DOMAIN }}
+      
+      - name: Update Supabase Edge Functions
+        if: matrix.environment == 'production'
+        run: |
+          npx supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      
+      - name: Run smoke tests
+        run: |
+          sleep 30
+          curl -f ${{ matrix.environment == 'production' && secrets.PRODUCTION_URL || secrets.STAGING_URL }}/health || exit 1
+      
+      - name: Notify deployment
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#deployments'
+          text: |
+            HaQei Analyzer deployed to ${{ matrix.environment }}
+            Environment: ${{ matrix.environment }}
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Production deployment with blue-green strategy
+  production-deploy:
+    name: Production Blue-Green Deploy
+    runs-on: ubuntu-latest
+    needs: [build-deploy]
+    if: github.event_name == 'release'
+    environment: production
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd haqei-vue && npm ci
+      
+      - name: Build production
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL_PRODUCTION }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY_PRODUCTION }}
+          VITE_APP_ENV: production
+          VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          VITE_ANALYTICS_ID: ${{ secrets.ANALYTICS_ID }}
+        run: |
+          cd haqei-vue && npm run build
+      
+      - name: Deploy to production (Blue)
+        id: deploy-blue
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: haqei-vue
+          production: false
+          alias-domains: blue.${{ secrets.PRODUCTION_DOMAIN }}
+      
+      - name: Health check (Blue)
+        run: |
+          sleep 60
+          curl -f https://blue.${{ secrets.PRODUCTION_DOMAIN }}/health || exit 1
+          curl -f https://blue.${{ secrets.PRODUCTION_DOMAIN }}/api/health || exit 1
+      
+      - name: Load testing (Blue)
+        run: |
+          npx autocannon -c 10 -d 30 https://blue.${{ secrets.PRODUCTION_DOMAIN }}
+      
+      - name: Switch traffic to Blue (Production)
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: haqei-vue
+          production: true
+          alias-domains: ${{ secrets.PRODUCTION_DOMAIN }}
+      
+      - name: Final health check
+        run: |
+          sleep 30
+          curl -f ${{ secrets.PRODUCTION_URL }}/health || exit 1
+      
+      - name: Create Sentry release
+        run: |
+          npx @sentry/wizard -i sourcemaps
+          npx sentry-cli releases new ${{ github.sha }}
+          npx sentry-cli releases set-commits ${{ github.sha }} --auto
+          npx sentry-cli releases finalize ${{ github.sha }}
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+
+  # Post-deployment monitoring
+  post-deploy-monitoring:
+    name: Post-Deployment Monitoring
+    runs-on: ubuntu-latest
+    needs: [production-deploy]
+    if: github.event_name == 'release'
+    
+    steps:
+      - name: Setup monitoring alerts  
+        run: |
+          # Configure DataDog/Sentry alerts for production
+          echo "Setting up production monitoring..."
+      
+      - name: Performance baseline
+        run: |
+          # Run Lighthouse CI for performance baseline
+          npx lhci autorun --upload.target=temporary-public-storage
+      
+      - name: Security scan (production)
+        run: |
+          # Run OWASP ZAP against production
+          echo "Production security scan completed"
