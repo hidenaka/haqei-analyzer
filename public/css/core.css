@@ -1,0 +1,391 @@
+/* core.css - HAQEIアナライザー基盤システム */
+/* bunenjin哲学: 陰陽調和による基盤設計 */
+
+/* =================================== */
+/* 1. CSS変数システム - 統一された基盤 */
+/* =================================== */
+
+:root {
+  /* カラーシステム - bunenjin哲学：陰陽バランス */
+  --primary-900: #0f172a;
+  --primary-800: #1e293b;
+  --primary-700: #334155;
+  --primary-600: #475569;
+  --primary-500: #64748b;
+  --primary-400: #94a3b8;
+  --primary-300: #cbd5e1;
+  --primary-200: #e2e8f0;
+  --primary-100: #f1f5f9;
+  --primary-50: #f8fafc;
+
+  --accent-500: #6366f1;
+  --accent-400: #8b5cf6;
+
+  /* フォントシステム */
+  --font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-jp: "Shippori Mincho", serif;
+
+  /* スペーシングシステム - clamp使用による動的調整 */
+  --space-xs: clamp(0.5rem, 2vw, 0.75rem);
+  --space-sm: clamp(0.75rem, 3vw, 1rem);
+  --space-md: clamp(1rem, 4vw, 1.5rem);
+  --space-lg: clamp(1.5rem, 5vw, 2rem);
+  --space-xl: clamp(2rem, 6vw, 3rem);
+  --space-2xl: clamp(3rem, 8vw, 4rem);
+
+  /* フォントサイズシステム */
+  --font-xs: clamp(0.75rem, 2vw, 0.875rem);
+  --font-sm: clamp(0.875rem, 2.5vw, 1rem);
+  --font-base: clamp(1rem, 3vw, 1.125rem);
+  --font-lg: clamp(1.25rem, 4vw, 1.5rem);
+  --font-xl: clamp(1.5rem, 5vw, 2rem);
+  --font-2xl: clamp(2rem, 6vw, 3rem);
+  --font-3xl: clamp(2.5rem, 8vw, 4rem);
+
+  /* トランジションシステム */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+
+  /* セーフエリア対応 */
+  --safe-area-top: max(env(safe-area-inset-top), 0px);
+  --safe-area-bottom: max(env(safe-area-inset-bottom), 0px);
+  --safe-area-left: max(env(safe-area-inset-left), 0px);
+  --safe-area-right: max(env(safe-area-inset-right), 0px);
+
+  /* レスポンシブ境界 */
+  --radius-sm: clamp(0.25rem, 1vw, 0.5rem);
+  --radius-md: clamp(0.5rem, 2vw, 1rem);
+  --radius-lg: clamp(1rem, 3vw, 1.5rem);
+  --radius-xl: clamp(1.5rem, 4vw, 2rem);
+
+  /* シャドウシステム */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.16);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.25);
+
+  /* タッチ対応 */
+  --tap-size: max(44px, 2.75rem);
+  --tap-spacing: max(8px, 0.5rem);
+
+  /* 八卦色彩システム */
+  --trigram-qian-color: #FFD700;     /* 乾(天) - 金色 */
+  --trigram-dui-color: #87CEEB;      /* 兌(沢) - 空色 */
+  --trigram-li-color: #FF4500;       /* 離(火) - 赤色 */
+  --trigram-zhen-color: #8A2BE2;     /* 震(雷) - 紫色 */
+  --trigram-xun-color: #32CD32;      /* 巽(風) - 緑色 */
+  --trigram-kan-color: #1E90FF;      /* 坎(水) - 青色 */
+  --trigram-gen-color: #708090;      /* 艮(山) - 灰色 */
+  --trigram-kun-color: #8B4513;      /* 坤(地) - 茶色 */
+}
+
+/* =================================== */
+/* 2. リセット・正規化 */
+/* =================================== */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  background: linear-gradient(
+    135deg,
+    var(--primary-800) 0%,
+    var(--primary-700) 35%,
+    var(--primary-600) 70%,
+    rgba(99, 102, 241, 0.1) 100%
+  );
+  background-attachment: fixed;
+  color: var(--primary-100);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =================================== */
+/* 3. メインアプリケーションコンテナ */
+/* =================================== */
+
+.app-container {
+  min-height: 100vh;
+  position: relative;
+}
+
+/* screen-containerの基本設定 */
+.app-container > .screen-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-md);
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.app-container > .screen-container.visible {
+  display: flex !important;
+  z-index: 100;
+}
+
+/* questions-containerの特別処理 */
+.app-container > #questions-container.screen-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  z-index: 1000 !important;
+  background: var(--primary-800) !important;
+}
+
+/* results-containerの強制表示 */
+#results-container.visible {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 10000 !important;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  color: var(--primary-100) !important;
+  min-height: 100vh !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+  overflow-y: auto !important;
+  padding: var(--space-lg) !important;
+  box-sizing: border-box !important;
+}
+
+/* =================================== */
+/* 4. プログレスバーシステム */
+/* =================================== */
+
+.global-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--primary-800);
+  z-index: 1000;
+  border-radius: 0 0 2px 2px;
+  display: none;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(
+    90deg, 
+    var(--accent-500), 
+    var(--accent-400),
+    rgba(139, 92, 246, 0.8)
+  );
+  transition: width var(--transition-normal);
+  width: 0%;
+  border-radius: 0 0 2px 2px;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.7);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: progressShine 2s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+/* 設問モードでは非表示 */
+body.questions-active .global-progress,
+.app-container > #questions-container.visible ~ .global-progress {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* =================================== */
+/* 5. ユーティリティクラス */
+/* =================================== */
+
+.hidden { display: none; }
+.visible { display: block; }
+.flex { display: flex; }
+.grid { display: grid; }
+.inline-block { display: inline-block; }
+
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-start { justify-content: flex-start; }
+.justify-end { justify-content: flex-end; }
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.cursor-pointer { cursor: pointer; }
+.cursor-not-allowed { cursor: not-allowed; }
+
+.opacity-0 { opacity: 0; }
+.opacity-50 { opacity: 0.5; }
+.opacity-75 { opacity: 0.75; }
+.opacity-100 { opacity: 1; }
+
+/* スペーシングユーティリティ */
+.m-0 { margin: 0; }
+.mt-auto { margin-top: auto; }
+.mb-auto { margin-bottom: auto; }
+.ml-auto { margin-left: auto; }
+.mr-auto { margin-right: auto; }
+
+.p-0 { padding: 0; }
+.px-0 { padding-left: 0; padding-right: 0; }
+.py-0 { padding-top: 0; padding-bottom: 0; }
+
+/* =================================== */
+/* 6. ダークモード対応 */
+/* =================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-900: #0a0a0a;
+    --primary-800: #1a1a1a;
+    --primary-700: #2a2a2a;
+    --primary-600: #3a3a3a;
+    --primary-500: #4a4a4a;
+    --primary-400: #6a6a6a;
+    --primary-300: #8a8a8a;
+    --primary-200: #aaaaaa;
+    --primary-100: #ffffff;
+    --primary-50: #f8f8f8;
+    
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  #results-container.visible {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+    color: #ffffff !important;
+  }
+}
+
+/* =================================== */
+/* 7. レスポンシブブレークポイント */
+/* =================================== */
+
+@media (max-width: 768px) {
+  .app-container > .screen-container {
+    padding: var(--space-sm);
+  }
+  
+  .app-container > #questions-container.screen-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+    z-index: 1000 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container > .screen-container {
+    padding: var(--space-xs);
+  }
+  
+  .app-container > #questions-container.screen-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+    z-index: 1000 !important;
+  }
+}
+
+/* =================================== */
+/* 8. アクセシビリティ */
+/* =================================== */
+
+/* prefers-reduced-motion対応 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  :root {
+    --primary-100: #ffffff;
+    --primary-900: #000000;
+  }
+}
+
+/* 印刷対応 */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .app-container > .screen-container {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+  }
+}

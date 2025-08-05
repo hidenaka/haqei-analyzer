@@ -28,14 +28,19 @@
       "description": "Tsumiki AI駆動開発フレームワーク - 構造化品質管理システム"
     },
     "serena": {
-      "command": "python3",
+      "command": "uvx",
       "args": [
-        "-m",
-        "serena_mcp"
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide-assistant",
+        "--project",
+        "/Users/nakanohideaki/Desktop/haqei-analyzer"
       ],
       "cwd": "/Users/nakanohideaki/Desktop/haqei-analyzer",
       "env": {
-        "PYTHONPATH": "/Users/nakanohideaki/Desktop/haqei-analyzer",
         "SERENA_PROJECT_CONFIG": "/Users/nakanohideaki/Desktop/haqei-analyzer/.serena/project.yml"
       },
       "timeout": 45000,
@@ -171,7 +176,7 @@
   },
   "metadata": {
     "generatedBy": "generate-mcp-config.js",
-    "generatedAt": "2025-08-04T23:07:04.317Z",
+    "generatedAt": "2025-08-05T06:44:02.621Z",
     "currentUser": "nakanohideaki",
     "projectPath": "/Users/nakanohideaki/Desktop/haqei-analyzer"
   }

@@ -52,11 +52,19 @@ const mcpConfig = {
       "description": "Tsumiki AI駆動開発フレームワーク - 構造化品質管理システム"
     },
     "serena": {
-      "command": "python3",
-      "args": ["-m", "serena_mcp"],
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide-assistant",
+        "--project",
+        currentProjectPath
+      ],
       "cwd": currentProjectPath,
       "env": {
-        "PYTHONPATH": currentProjectPath,
         "SERENA_PROJECT_CONFIG": path.join(currentProjectPath, ".serena", "project.yml")
       },
       "timeout": 45000,
