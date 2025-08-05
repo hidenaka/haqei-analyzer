@@ -164,16 +164,16 @@ jobs:
         run: |
           npm run build
       
-      - name: Deploy to Vercel (${{ matrix.environment }})
-        uses: amondnet/vercel-action@v25
+      - name: Deploy to Cloudflare Pages (${{ matrix.environment }})
+        uses: cloudflare/pages-action@v1
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./
-          production: ${{ matrix.environment == 'production' }}
-          alias-domains: |
-            ${{ matrix.environment == 'production' && secrets.PRODUCTION_DOMAIN || secrets.STAGING_DOMAIN }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ matrix.environment == 'production' && 'haqei-analyzer-production' || 'haqei-analyzer-staging' }}
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ matrix.environment == 'production' && 'main' || 'staging' }}
+          wranglerVersion: '3'
       
       - name: Update Supabase Edge Functions
         if: matrix.environment == 'production'
@@ -185,7 +185,7 @@ jobs:
       - name: Run smoke tests
         run: |
           sleep 30
-          curl -f ${{ matrix.environment == 'production' && secrets.PRODUCTION_URL || secrets.STAGING_URL }}/health || exit 1
+          curl -f ${{ matrix.environment == 'production' && 'https://haqei.com' || 'https://staging.haqei.com' }}/health || exit 1
       
       - name: Notify deployment
         uses: 8398a7/action-slack@v3
@@ -231,39 +231,41 @@ jobs:
       
       - name: Deploy to production (Blue)
         id: deploy-blue
-        uses: amondnet/vercel-action@v25
+        uses: cloudflare/pages-action@v1
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./
-          production: false
-          alias-domains: blue.${{ secrets.PRODUCTION_DOMAIN }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: haqei-analyzer-blue
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: blue-green
+          wranglerVersion: '3'
       
       - name: Health check (Blue)
         run: |
           sleep 60
-          curl -f https://blue.${{ secrets.PRODUCTION_DOMAIN }}/health || exit 1
-          curl -f https://blue.${{ secrets.PRODUCTION_DOMAIN }}/api/health || exit 1
+          curl -f https://blue.haqei.com/health || exit 1
+          curl -f https://blue.haqei.com/api/health || exit 1
       
       - name: Load testing (Blue)
         run: |
-          npx autocannon -c 10 -d 30 https://blue.${{ secrets.PRODUCTION_DOMAIN }}
+          npx autocannon -c 10 -d 30 https://blue.haqei.com
       
-      - name: Switch traffic to Blue (Production)
-        uses: amondnet/vercel-action@v25
+      - name: Switch traffic to Production
+        uses: cloudflare/pages-action@v1
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./
-          production: true
-          alias-domains: ${{ secrets.PRODUCTION_DOMAIN }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: haqei-analyzer-production
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+          wranglerVersion: '3'
       
       - name: Final health check
         run: |
           sleep 30
-          curl -f ${{ secrets.PRODUCTION_URL }}/health || exit 1
+          curl -f https://haqei.com/health || exit 1
       
       - name: Create Sentry release
         run: |

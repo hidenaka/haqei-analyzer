@@ -37,7 +37,25 @@ class AuthenticIChingEngine {
    */
   initializeH384Database() {
     try {
-      if (typeof window !== 'undefined' && window.H384_DATA && Array.isArray(window.H384_DATA)) {
+      // H384_DATABASEクラスを使用
+      if (typeof window !== 'undefined' && window.H384_DATABASE) {
+        this.h384Database = new window.H384_DATABASE();
+        this.h384Database.initialize();
+        console.log("✅ H384_DATABASE初期化完了 - 完全な爻辞データベース");
+        
+        // 既存のH384_DATAもフォールバックとして保持
+        if (window.H384_DATA && Array.isArray(window.H384_DATA)) {
+          this.h384Data = window.H384_DATA;
+          console.log(`✅ H384_DATA読み込み完了: ${this.h384Data.length}爻のデータ`);
+        }
+        
+        // データ整合性チェック
+        this.validateH384Data();
+        
+        // 検索インデックスの作成
+        this.createSearchIndex();
+        
+      } else if (typeof window !== 'undefined' && window.H384_DATA && Array.isArray(window.H384_DATA)) {
         this.h384Data = window.H384_DATA;
         console.log(`✅ H384_DATA読み込み完了: ${this.h384Data.length}爻のデータ`);
         

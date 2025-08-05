@@ -1,0 +1,987 @@
+/**
+ * HAQEI統一エラーハンドリング CSS v2.0.0
+ * bunenjin哲学・易経・Triple OS Architecture対応
+ * 
+ * 機能:
+ * - 哲学的デザインテーマ
+ * - 易経シンボル統合
+ * - アニメーション効果
+ * - レスポンシブデザイン
+ * - ダークモード対応
+ * - 分人思想表現
+ * 
+ * @version 2.0.0
+ * @author HAQEI Development Team
+ * @philosophy bunenjin Triple OS
+ */
+
+/* ============ Root Variables ============ */
+:root {
+  /* HAQEI Color Palette */
+  --haqei-primary: #4a90e2;
+  --haqei-primary-dark: #357abd;
+  --haqei-primary-light: #6ba3e8;
+  
+  --haqei-secondary: #ffd700;
+  --haqei-secondary-dark: #e6c200;
+  --haqei-secondary-light: #fff033;
+  
+  --haqei-success: #28a745;
+  --haqei-warning: #ffc107;
+  --haqei-danger: #dc3545;
+  --haqei-info: #17a2b8;
+  
+  /* Background Colors */
+  --haqei-bg-primary: #1a1a2e;
+  --haqei-bg-secondary: #16213e;
+  --haqei-bg-tertiary: #0f3460;
+  
+  --haqei-bg-light: #f8f9fa;
+  --haqei-bg-light-secondary: #e9ecef;
+  --haqei-bg-light-tertiary: #dee2e6;
+  
+  /* Text Colors */
+  --haqei-text-primary: #ffffff;
+  --haqei-text-secondary: #e0e0e0;
+  --haqei-text-tertiary: #aaaaaa;
+  --haqei-text-muted: #999999;
+  
+  --haqei-text-light-primary: #333333;
+  --haqei-text-light-secondary: #555555;
+  --haqei-text-light-tertiary: #777777;
+  --haqei-text-light-muted: #999999;
+  
+  /* Border Colors */
+  --haqei-border-primary: rgba(74, 144, 226, 0.3);
+  --haqei-border-secondary: rgba(255, 255, 255, 0.1);
+  --haqei-border-tertiary: rgba(255, 255, 255, 0.05);
+  
+  /* Shadow */
+  --haqei-shadow-small: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --haqei-shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --haqei-shadow-large: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --haqei-shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.3);
+  
+  /* Animations */
+  --haqei-transition-fast: 0.15s ease;
+  --haqei-transition-normal: 0.3s ease;
+  --haqei-transition-slow: 0.5s ease;
+  
+  /* Spacing */
+  --haqei-space-xs: 4px;
+  --haqei-space-sm: 8px;
+  --haqei-space-md: 16px;
+  --haqei-space-lg: 24px;
+  --haqei-space-xl: 32px;
+  --haqei-space-xxl: 48px;
+  
+  /* Typography */
+  --haqei-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --haqei-font-family-mono: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  
+  --haqei-font-size-xs: 12px;
+  --haqei-font-size-sm: 14px;
+  --haqei-font-size-md: 16px;
+  --haqei-font-size-lg: 18px;
+  --haqei-font-size-xl: 24px;
+  --haqei-font-size-xxl: 32px;
+  
+  /* Breakpoints */
+  --haqei-breakpoint-sm: 576px;
+  --haqei-breakpoint-md: 768px;
+  --haqei-breakpoint-lg: 992px;
+  --haqei-breakpoint-xl: 1200px;
+}
+
+/* ============ Base Styles ============ */
+.haqei-error-system {
+  font-family: var(--haqei-font-family);
+  line-height: 1.6;
+  color: var(--haqei-text-primary);
+  box-sizing: border-box;
+}
+
+.haqei-error-system *,
+.haqei-error-system *::before,
+.haqei-error-system *::after {
+  box-sizing: inherit;
+}
+
+/* ============ Container Styles ============ */
+.haqei-unified-error-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999999;
+  pointer-events: none;
+  font-family: var(--haqei-font-family);
+}
+
+/* ============ Modal Styles ============ */
+.haqei-error-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity var(--haqei-transition-normal);
+  z-index: 1000000;
+}
+
+.haqei-error-modal.visible {
+  opacity: 1;
+}
+
+.haqei-error-modal.entering {
+  animation: haqeiModalEnter var(--haqei-transition-normal) ease;
+}
+
+.haqei-error-modal.leaving {
+  animation: haqeiModalLeave var(--haqei-transition-normal) ease;
+}
+
+/* ============ Error Card ============ */
+.haqei-error-card {
+  background: linear-gradient(135deg, var(--haqei-bg-primary) 0%, var(--haqei-bg-secondary) 50%, var(--haqei-bg-tertiary) 100%);
+  border: 2px solid var(--haqei-primary);
+  border-radius: 16px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--haqei-shadow-xl);
+  color: var(--haqei-text-primary);
+  transform: scale(0.8);
+  transition: transform var(--haqei-transition-normal);
+  position: relative;
+}
+
+.haqei-error-modal.visible .haqei-error-card {
+  transform: scale(1);
+}
+
+/* Glow effect for critical errors */
+.haqei-error-card.critical {
+  border-color: var(--haqei-danger);
+  box-shadow: var(--haqei-shadow-xl), 0 0 20px rgba(220, 53, 69, 0.3);
+  animation: haqeiCriticalPulse 2s infinite ease-in-out;
+}
+
+/* I Ching decoration */
+.haqei-error-card::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: linear-gradient(45deg, var(--haqei-primary), var(--haqei-secondary), var(--haqei-primary));
+  border-radius: 16px;
+  z-index: -1;
+  opacity: 0.1;
+  animation: haqeiIChingFlow 10s linear infinite;
+}
+
+/* ============ Header Styles ============ */
+.haqei-error-header {
+  padding: var(--haqei-space-lg) var(--haqei-space-lg) var(--haqei-space-md);
+  border-bottom: 1px solid var(--haqei-border-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(74, 144, 226, 0.05);
+  border-radius: 16px 16px 0 0;
+}
+
+.haqei-error-title {
+  display: flex;
+  align-items: center;
+  gap: var(--haqei-space-md);
+  margin: 0;
+  font-size: var(--haqei-font-size-xl);
+  font-weight: 600;
+  color: var(--haqei-primary);
+}
+
+.haqei-error-hexagram {
+  font-size: var(--haqei-font-size-xxl);
+  filter: drop-shadow(0 0 8px rgba(74, 144, 226, 0.5));
+  animation: haqeiHexagramGlow 3s ease-in-out infinite alternate;
+}
+
+.haqei-error-close {
+  background: none;
+  border: none;
+  color: var(--haqei-text-muted);
+  font-size: 28px;
+  cursor: pointer;
+  transition: all var(--haqei-transition-fast);
+  padding: var(--haqei-space-xs);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.haqei-error-close:hover {
+  color: var(--haqei-text-primary);
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+.haqei-error-close:active {
+  transform: scale(0.9);
+}
+
+/* ============ Content Styles ============ */
+.haqei-error-content {
+  padding: var(--haqei-space-lg);
+}
+
+.haqei-error-message {
+  font-size: var(--haqei-font-size-md);
+  line-height: 1.6;
+  margin-bottom: var(--haqei-space-lg);
+  padding: var(--haqei-space-md);
+  background: rgba(74, 144, 226, 0.1);
+  border-left: 4px solid var(--haqei-primary);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.haqei-error-message::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--haqei-primary), transparent);
+  animation: haqeiMessageFlow 3s ease-in-out infinite;
+}
+
+/* ============ Philosophical Guidance ============ */
+.haqei-philosophical-guidance {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  padding: var(--haqei-space-md);
+  margin-bottom: var(--haqei-space-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.haqei-philosophical-guidance::before {
+  content: '☯';
+  position: absolute;
+  top: var(--haqei-space-sm);
+  right: var(--haqei-space-sm);
+  font-size: var(--haqei-font-size-lg);
+  opacity: 0.3;
+  animation: haqeiYinYangSpin 8s linear infinite;
+}
+
+.haqei-philosophical-guidance h4 {
+  margin: 0 0 var(--haqei-space-md) 0;
+  color: var(--haqei-secondary);
+  font-size: var(--haqei-font-size-md);
+  display: flex;
+  align-items: center;
+  gap: var(--haqei-space-sm);
+  font-weight: 600;
+}
+
+.haqei-philosophical-guidance p {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--haqei-text-secondary);
+}
+
+/* ============ bunenjin Personas ============ */
+.haqei-bunenjin-personas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--haqei-space-md);
+  margin-bottom: var(--haqei-space-lg);
+}
+
+.haqei-persona-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--haqei-border-secondary);
+  border-radius: 8px;
+  padding: var(--haqei-space-md);
+  text-align: center;
+  transition: all var(--haqei-transition-normal);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.haqei-persona-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left var(--haqei-transition-slow);
+}
+
+.haqei-persona-card:hover::before {
+  left: 100%;
+}
+
+.haqei-persona-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--haqei-shadow-medium);
+}
+
+.haqei-persona-card.active {
+  border-color: var(--haqei-primary);
+  background: rgba(74, 144, 226, 0.1);
+  box-shadow: 0 0 12px rgba(74, 144, 226, 0.3);
+}
+
+.haqei-persona-icon {
+  font-size: var(--haqei-font-size-xl);
+  margin-bottom: var(--haqei-space-sm);
+  display: block;
+  animation: haqeiPersonaFloat 3s ease-in-out infinite;
+}
+
+.haqei-persona-card:nth-child(2) .haqei-persona-icon {
+  animation-delay: -1s;
+}
+
+.haqei-persona-card:nth-child(3) .haqei-persona-icon {
+  animation-delay: -2s;
+}
+
+.haqei-persona-name {
+  font-weight: 600;
+  font-size: var(--haqei-font-size-sm);
+  margin-bottom: var(--haqei-space-xs);
+  color: var(--haqei-text-primary);
+}
+
+.haqei-persona-approach {
+  font-size: var(--haqei-font-size-xs);
+  color: var(--haqei-text-tertiary);
+}
+
+/* ============ Action Buttons ============ */
+.haqei-error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--haqei-space-md);
+  margin-bottom: var(--haqei-space-lg);
+}
+
+.haqei-action-button {
+  background: linear-gradient(135deg, var(--haqei-primary), var(--haqei-primary-dark));
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: var(--haqei-space-md) var(--haqei-space-lg);
+  font-size: var(--haqei-font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--haqei-transition-normal);
+  display: flex;
+  align-items: center;
+  gap: var(--haqei-space-sm);
+  position: relative;
+  overflow: hidden;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.haqei-action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left var(--haqei-transition-normal);
+}
+
+.haqei-action-button:hover::before {
+  left: 100%;
+}
+
+.haqei-action-button:hover {
+  background: linear-gradient(135deg, var(--haqei-primary-dark), #2968a3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.haqei-action-button:active {
+  transform: translateY(0);
+}
+
+.haqei-action-button.secondary {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+}
+
+.haqei-action-button.secondary:hover {
+  background: linear-gradient(135deg, #5a6268, #495057);
+}
+
+.haqei-action-button.danger {
+  background: linear-gradient(135deg, var(--haqei-danger), #c82333);
+}
+
+.haqei-action-button.danger:hover {
+  background: linear-gradient(135deg, #c82333, #bd2130);
+}
+
+.haqei-action-button.success {
+  background: linear-gradient(135deg, var(--haqei-success), #218838);
+}
+
+.haqei-action-button.success:hover {
+  background: linear-gradient(135deg, #218838, #1e7e34);
+}
+
+.haqei-action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.haqei-action-button:disabled::before {
+  display: none;
+}
+
+/* ============ Details Section ============ */
+.haqei-error-details {
+  margin-top: var(--haqei-space-lg);
+  border-top: 1px solid var(--haqei-border-secondary);
+  padding-top: var(--haqei-space-md);
+}
+
+.haqei-error-details summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--haqei-primary);
+  margin-bottom: var(--haqei-space-md);
+  outline: none;
+  padding: var(--haqei-space-sm);
+  border-radius: 4px;
+  transition: all var(--haqei-transition-fast);
+}
+
+.haqei-error-details summary:hover {
+  color: var(--haqei-primary-light);
+  background: rgba(74, 144, 226, 0.1);
+}
+
+.haqei-error-details[open] summary {
+  margin-bottom: var(--haqei-space-md);
+}
+
+.haqei-error-details pre {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--haqei-border-secondary);
+  border-radius: 4px;
+  padding: var(--haqei-space-md);
+  font-size: var(--haqei-font-size-xs);
+  font-family: var(--haqei-font-family-mono);
+  line-height: 1.4;
+  overflow-x: auto;
+  color: var(--haqei-text-secondary);
+  white-space: pre-wrap;
+}
+
+/* ============ Notification Styles ============ */
+.haqei-error-notification {
+  position: fixed;
+  top: var(--haqei-space-lg);
+  right: var(--haqei-space-lg);
+  max-width: 400px;
+  background: linear-gradient(135deg, var(--haqei-bg-primary), var(--haqei-bg-secondary));
+  border: 1px solid var(--haqei-primary);
+  border-radius: 8px;
+  color: white;
+  padding: var(--haqei-space-md);
+  pointer-events: auto;
+  box-shadow: var(--haqei-shadow-large);
+  transform: translateX(100%);
+  transition: transform var(--haqei-transition-normal);
+  z-index: 1000001;
+  backdrop-filter: blur(8px);
+}
+
+.haqei-error-notification.visible {
+  transform: translateX(0);
+}
+
+.haqei-error-notification.success {
+  border-color: var(--haqei-success);
+  background: linear-gradient(135deg, #1a2e1a, #162116);
+}
+
+.haqei-error-notification.warning {
+  border-color: var(--haqei-warning);
+  background: linear-gradient(135deg, #2e2a1a, #212116);
+}
+
+.haqei-error-notification.info {
+  border-color: var(--haqei-info);
+  background: linear-gradient(135deg, #1a2a2e, #162121);
+}
+
+.haqei-error-notification.error {
+  border-color: var(--haqei-danger);
+  background: linear-gradient(135deg, #2e1a1a, #211616);
+}
+
+.haqei-notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--haqei-space-sm);
+}
+
+.haqei-notification-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--haqei-space-sm);
+  color: var(--haqei-text-primary);
+}
+
+.haqei-notification-close {
+  background: none;
+  border: none;
+  color: var(--haqei-text-muted);
+  cursor: pointer;
+  font-size: var(--haqei-font-size-lg);
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all var(--haqei-transition-fast);
+}
+
+.haqei-notification-close:hover {
+  color: var(--haqei-text-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.haqei-notification-message {
+  font-size: var(--haqei-font-size-sm);
+  line-height: 1.4;
+  margin-bottom: var(--haqei-space-sm);
+  color: var(--haqei-text-secondary);
+}
+
+.haqei-notification-guidance {
+  font-size: var(--haqei-font-size-xs);
+  color: var(--haqei-text-tertiary);
+  font-style: italic;
+  border-top: 1px solid var(--haqei-border-tertiary);
+  padding-top: var(--haqei-space-sm);
+}
+
+/* ============ Animations ============ */
+@keyframes haqeiModalEnter {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+@keyframes haqeiModalLeave {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+}
+
+@keyframes haqeiCriticalPulse {
+  0%, 100% { 
+    box-shadow: var(--haqei-shadow-xl), 0 0 20px rgba(220, 53, 69, 0.3);
+  }
+  50% { 
+    box-shadow: var(--haqei-shadow-xl), 0 0 30px rgba(220, 53, 69, 0.6);
+  }
+}
+
+@keyframes haqeiHexagramGlow {
+  0% { 
+    filter: drop-shadow(0 0 8px rgba(74, 144, 226, 0.5));
+    transform: scale(1);
+  }
+  100% { 
+    filter: drop-shadow(0 0 12px rgba(74, 144, 226, 0.8));
+    transform: scale(1.05);
+  }
+}
+
+@keyframes haqeiIChingFlow {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+@keyframes haqeiYinYangSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes haqeiMessageFlow {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+
+@keyframes haqeiPersonaFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes haqeiSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes haqeiSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes haqeiPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes haqeiShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+/* Utility animation classes */
+.haqei-pulse {
+  animation: haqeiPulse 2s infinite;
+}
+
+.haqei-shake {
+  animation: haqeiShake 0.5s ease-in-out;
+}
+
+.haqei-slide-in {
+  animation: haqeiSlideIn 0.3s ease;
+}
+
+.haqei-slide-out {
+  animation: haqeiSlideOut 0.3s ease;
+}
+
+/* ============ Light Theme ============ */
+.haqei-error-system.theme-light {
+  color: var(--haqei-text-light-primary);
+}
+
+.haqei-error-system.theme-light .haqei-error-card {
+  background: linear-gradient(135deg, var(--haqei-bg-light), var(--haqei-bg-light-secondary));
+  color: var(--haqei-text-light-primary);
+  border-color: var(--haqei-primary);
+}
+
+.haqei-error-system.theme-light .haqei-error-message {
+  background: rgba(74, 144, 226, 0.1);
+  color: var(--haqei-text-light-primary);
+}
+
+.haqei-error-system.theme-light .haqei-philosophical-guidance {
+  background: rgba(255, 215, 0, 0.1);
+  color: var(--haqei-text-light-secondary);
+}
+
+.haqei-error-system.theme-light .haqei-persona-card {
+  background: rgba(74, 144, 226, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--haqei-text-light-primary);
+}
+
+.haqei-error-system.theme-light .haqei-error-notification {
+  background: linear-gradient(135deg, var(--haqei-bg-light), var(--haqei-bg-light-secondary));
+  color: var(--haqei-text-light-primary);
+}
+
+/* ============ Responsive Design ============ */
+@media (max-width: 768px) {
+  .haqei-error-card {
+    width: 95%;
+    margin: 10px;
+    max-height: 90vh;
+    border-radius: 12px;
+  }
+  
+  .haqei-error-header,
+  .haqei-error-content {
+    padding: var(--haqei-space-md);
+  }
+  
+  .haqei-error-title {
+    font-size: var(--haqei-font-size-lg);
+  }
+  
+  .haqei-error-hexagram {
+    font-size: var(--haqei-font-size-xl);
+  }
+  
+  .haqei-bunenjin-personas {
+    grid-template-columns: 1fr;
+    gap: var(--haqei-space-sm);
+  }
+  
+  .haqei-error-actions {
+    flex-direction: column;
+    gap: var(--haqei-space-sm);
+  }
+  
+  .haqei-action-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .haqei-error-notification {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+    top: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .haqei-error-card {
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+  }
+  
+  .haqei-error-modal {
+    align-items: stretch;
+  }
+  
+  .haqei-error-header,
+  .haqei-error-content {
+    padding: var(--haqei-space-sm);
+  }
+  
+  .haqei-error-title {
+    font-size: var(--haqei-font-size-md);
+    gap: var(--haqei-space-sm);
+  }
+  
+  .haqei-error-hexagram {
+    font-size: var(--haqei-font-size-lg);
+  }
+}
+
+/* ============ Accessibility ============ */
+@media (prefers-reduced-motion: reduce) {
+  .haqei-error-system * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .haqei-error-card {
+    border-width: 3px;
+  }
+  
+  .haqei-action-button {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+.haqei-error-system button:focus,
+.haqei-error-system summary:focus,
+.haqei-error-system .haqei-persona-card:focus {
+  outline: 2px solid var(--haqei-primary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .haqei-error-card,
+  .haqei-error-notification {
+    border-width: 2px;
+  }
+  
+  .haqei-action-button {
+    border: 1px solid currentColor;
+  }
+}
+
+/* ============ Print Styles ============ */
+@media print {
+  .haqei-error-modal,
+  .haqei-error-notification {
+    display: none !important;
+  }
+}
+
+/* ============ Custom Scrollbar ============ */
+.haqei-error-card::-webkit-scrollbar {
+  width: 8px;
+}
+
+.haqei-error-card::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.haqei-error-card::-webkit-scrollbar-thumb {
+  background: rgba(74, 144, 226, 0.5);
+  border-radius: 4px;
+}
+
+.haqei-error-card::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 144, 226, 0.7);
+}
+
+/* ============ Loading States ============ */
+.haqei-action-button.loading {
+  position: relative;
+  color: transparent;
+}
+
+.haqei-action-button.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: haqeiButtonSpin 0.8s linear infinite;
+}
+
+@keyframes haqeiButtonSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============ Status Indicators ============ */
+.haqei-status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: var(--haqei-space-sm);
+}
+
+.haqei-status-indicator.success {
+  background: var(--haqei-success);
+  box-shadow: 0 0 4px rgba(40, 167, 69, 0.5);
+}
+
+.haqei-status-indicator.warning {
+  background: var(--haqei-warning);
+  box-shadow: 0 0 4px rgba(255, 193, 7, 0.5);
+}
+
+.haqei-status-indicator.error {
+  background: var(--haqei-danger);
+  box-shadow: 0 0 4px rgba(220, 53, 69, 0.5);
+}
+
+.haqei-status-indicator.info {
+  background: var(--haqei-info);
+  box-shadow: 0 0 4px rgba(23, 162, 184, 0.5);
+}
+
+/* ============ Performance Optimizations ============ */
+.haqei-error-system {
+  contain: layout style paint;
+  will-change: transform;
+}
+
+.haqei-error-card {
+  contain: layout style paint;
+}
+
+.haqei-error-notification {
+  contain: layout style paint;
+  will-change: transform;
+}
+
+/* ============ Browser-specific Fixes ============ */
+/* Firefox */
+@-moz-document url-prefix() {
+  .haqei-error-card {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(74, 144, 226, 0.5) rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Safari */
+@supports (-webkit-appearance: none) {
+  .haqei-error-modal {
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
+
+/* ============ Dark Mode System Preference ============ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --haqei-system-bg: var(--haqei-bg-primary);
+    --haqei-system-text: var(--haqei-text-primary);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --haqei-system-bg: var(--haqei-bg-light);
+    --haqei-system-text: var(--haqei-text-light-primary);
+  }
+}

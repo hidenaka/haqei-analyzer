@@ -40,7 +40,8 @@
     "sass": "^1.83.1",
     "typescript": "^5.7.3",
     "vite": "^6.0.6",
-    "vue-tsc": "^2.2.0"
+    "vue-tsc": "^2.2.0",
+    "wrangler": "^3.80.0"
   },
   "scripts": {
     "start": "node local-dev-server.js",
@@ -66,8 +67,9 @@
     "validate": "npm run test && npm run lint",
     "validate:legacy": "node haqei-auto-validator.js",
     "validate:quick": "node haqei-auto-validator.js --quick",
-    "deploy:staging": "echo 'Staging deployment configuration needed'",
-    "deploy:production": "echo 'Production deployment configuration needed'",
+    "deploy:staging": "wrangler pages deploy dist --project-name haqei-analyzer-staging --env staging",
+    "deploy:production": "wrangler pages deploy dist --project-name haqei-analyzer-production --env production",
+    "validate:cloudflare": "node validate-cloudflare-migration.js",
     "bunjin": "node bunenjin_cli.cjs",
     "cipher:start": "node cipher-server.js",
     "cipher:stop": "pkill -f cipher-server.js",
