@@ -28,12 +28,10 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          cd haqei-vue && npm ci
       
       - name: Security audit
         run: |
           npm audit --audit-level high
-          cd haqei-vue && npm audit --audit-level high
       
       - name: License compliance check
         run: npx license-checker --summary
@@ -46,7 +44,6 @@ jobs:
       - name: Build for analysis
         run: |
           npm run build
-          cd haqei-vue && npm run build
       
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
@@ -75,27 +72,24 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          cd haqei-vue && npm ci
       
       - name: Run linting
         run: |
           npm run lint
-          cd haqei-vue && npm run lint
       
       - name: Type checking
         run: |
           npm run build
-          cd haqei-vue && vue-tsc --noEmit
       
       - name: Run ${{ matrix.name }}
         run: |
-          cd haqei-vue && npm run ${{ matrix.command }}
+          npm run ${{ matrix.command }}
       
       - name: Upload coverage to Codecov
         if: matrix.command == 'test:coverage'
         uses: codecov/codecov-action@v4
         with:
-          file: ./haqei-vue/coverage/lcov.info
+          file: ./coverage/lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
 
   # E2E Testing
@@ -114,7 +108,6 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          cd haqei-vue && npm ci
       
       - name: Install Playwright
         run: npx playwright install --with-deps
@@ -122,11 +115,10 @@ jobs:
       - name: Build application
         run: |
           npm run build
-          cd haqei-vue && npm run build
       
       - name: Start preview server
         run: |
-          cd haqei-vue && npm run preview &
+          npm run preview &
           sleep 10
       
       - name: Run E2E tests
@@ -162,7 +154,6 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          cd haqei-vue && npm ci
       
       - name: Build application
         env:
@@ -171,7 +162,7 @@ jobs:
           VITE_APP_ENV: ${{ matrix.environment }}
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
-          cd haqei-vue && npm run build
+          npm run build
       
       - name: Deploy to Vercel (${{ matrix.environment }})
         uses: amondnet/vercel-action@v25
@@ -179,7 +170,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: haqei-vue
+          working-directory: ./
           production: ${{ matrix.environment == 'production' }}
           alias-domains: |
             ${{ matrix.environment == 'production' && secrets.PRODUCTION_DOMAIN || secrets.STAGING_DOMAIN }}
@@ -227,7 +218,6 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          cd haqei-vue && npm ci
       
       - name: Build production
         env:
@@ -237,7 +227,7 @@ jobs:
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           VITE_ANALYTICS_ID: ${{ secrets.ANALYTICS_ID }}
         run: |
-          cd haqei-vue && npm run build
+          npm run build
       
       - name: Deploy to production (Blue)
         id: deploy-blue
@@ -246,7 +236,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: haqei-vue
+          working-directory: ./
           production: false
           alias-domains: blue.${{ secrets.PRODUCTION_DOMAIN }}
       
@@ -266,7 +256,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: haqei-vue
+          working-directory: ./
           production: true
           alias-domains: ${{ secrets.PRODUCTION_DOMAIN }}
       

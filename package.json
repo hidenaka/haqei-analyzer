@@ -56,6 +56,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:all": "npm run test:unit && npm run test:e2e",
+    "test:ci": "npm run test:unit",
+    "test:performance": "npm run test:legacy",
     "test:legacy": "node tests/automated-test-runner.js --suite=smoke",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx",
     "lint:fix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx --fix",

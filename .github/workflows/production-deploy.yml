@@ -29,22 +29,18 @@ jobs:
       - name: 📦 Install Dependencies
         run: |
           npm ci
-          cd haqei-vue && npm ci
           
       - name: 🧪 Run Tests
         run: |
           npm test
-          cd haqei-vue && npm test
           
       - name: 🔨 Build Check
         run: |
           npm run build
-          cd haqei-vue && npm run build
           
       - name: 🛡️ Security Audit
         run: |
           npm audit --audit-level=critical
-          cd haqei-vue && npm audit --audit-level=critical
           
       - name: ✅ Quality Assessment
         id: quality-check
@@ -71,11 +67,10 @@ jobs:
       - name: 📦 Install Dependencies
         run: |
           npm ci
-          cd haqei-vue && npm ci
           
       - name: 🏗️ Build Application
         run: |
-          cd haqei-vue && npm run build
+          npm run build
           
       - name: ⚡ Performance Test
         run: |
@@ -85,7 +80,6 @@ jobs:
           
       - name: 📊 Bundle Analysis
         run: |
-          cd haqei-vue
           npm run build -- --report
           echo "📦 Bundle size analysis completed"
 
@@ -108,7 +102,6 @@ jobs:
       - name: 🔍 Dependency Security Check
         run: |
           npm audit --audit-level=high
-          cd haqei-vue && npm audit --audit-level=high
 
   deploy-production:
     name: 🚀 Deploy to Production
@@ -130,11 +123,9 @@ jobs:
       - name: 📦 Install Dependencies
         run: |
           npm ci
-          cd haqei-vue && npm ci
           
       - name: 🏗️ Production Build
         run: |
-          cd haqei-vue
           npm run build
         env:
           NODE_ENV: production
@@ -147,7 +138,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./haqei-vue/dist
+          working-directory: ./dist
           vercel-args: '--prod'
           
       - name: 🔄 Deploy Supabase Functions

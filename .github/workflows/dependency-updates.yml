@@ -25,16 +25,10 @@ jobs:
           npm update
           npm audit fix --force
       
-      - name: Update Vue app dependencies
-        run: |
-          cd haqei-vue
-          npm update
-          npm audit fix --force
-      
       - name: Run tests after updates
         run: |
           npm test
-          cd haqei-vue && npm run test:ci
+          npm run test:ci
       
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
@@ -45,8 +39,7 @@ jobs:
           body: |
             Automated dependency updates and security fixes.
             
-            - Updated root package dependencies
-            - Updated Vue application dependencies
+            - Updated package dependencies
             - Applied security fixes
             - All tests passing
           branch: chore/dependency-updates
