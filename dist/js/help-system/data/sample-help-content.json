@@ -1,0 +1,110 @@
+{
+  "concepts": {
+    "bunenjin": {
+      "title": "分人哲学（bunenjin）",
+      "type": "concept",
+      "overview": "分人哲学は、個人を複数の側面や文脈に応じて理解する新しい人間観です。",
+      "details": "従来の「個人」という単一の枠組みではなく、状況や関係性に応じて現れる多様な「分人」として人間を捉えます。HAQEIシステムでは、この哲学を基盤として複層的な性格分析を行います。",
+      "examples": [
+        {
+          "title": "職場での分人",
+          "description": "仕事場では責任感の強いリーダータイプ"
+        },
+        {
+          "title": "家庭での分人", 
+          "description": "家では優しく支える役割を担う"
+        }
+      ],
+      "related": [
+        { "term": "Triple OS", "type": "concept" },
+        { "term": "易経", "type": "concept" }
+      ]
+    },
+    "triple-os": {
+      "title": "Triple OS Architecture",
+      "type": "concept",
+      "overview": "HAQEIシステムの三層構造アーキテクチャです。",
+      "details": "Engine（エンジン）、Interface（インターフェース）、Safe Mode（セーフモード）の3つの層で構成され、安全で効率的な性格分析を実現します。",
+      "examples": [
+        {
+          "title": "Engine Layer",
+          "description": "核となる分析エンジン"
+        },
+        {
+          "title": "Interface Layer",
+          "description": "ユーザーとの対話部分"
+        },
+        {
+          "title": "Safe Mode",
+          "description": "安全性確保機能"
+        }
+      ],
+      "related": [
+        { "term": "bunenjin", "type": "concept" },
+        { "term": "質問フロー", "type": "feature" }
+      ]
+    },
+    "易経": {
+      "title": "易経（I Ching）",
+      "type": "concept", 
+      "overview": "古代中国の占術・哲学書で、HAQEIシステムの理論的基盤の一つです。",
+      "details": "64の卦（hexagram）と爻辞によって構成され、人間の状況や性格を深く理解するための叡智を提供します。HAQEIでは序卦伝の論理を活用しています。",
+      "examples": [
+        {
+          "title": "64卦システム",
+          "description": "64通りの状況パターン"
+        },
+        {
+          "title": "序卦伝",
+          "description": "卦の順序と論理"
+        }
+      ],
+      "related": [
+        { "term": "hexagram", "type": "concept" },
+        { "term": "爻辞", "type": "concept" }
+      ]
+    }
+  },
+  "features": {
+    "質問フロー": {
+      "title": "30問質問フロー",
+      "type": "feature",
+      "overview": "HAQEIシステムの核となる30問の質問による性格分析です。",
+      "details": "各質問は慎重に設計され、bunenjin哲学と易経の叡智に基づいて、あなたの多面的な性格を分析します。",
+      "examples": [
+        {
+          "title": "段階的質問",
+          "description": "7段階に分けられた質問構成"
+        },
+        {
+          "title": "適応的フロー",
+          "description": "回答に応じて質問が調整される"
+        }
+      ],
+      "related": [
+        { "term": "bunenjin", "type": "concept" },
+        { "term": "結果分析", "type": "feature" }
+      ]
+    },
+    "結果分析": {
+      "title": "結果分析システム",
+      "type": "feature",
+      "overview": "質問への回答から詳細な性格分析結果を生成します。",
+      "details": "パーソナリティチャート、詳細分析、改善提案など、多角的な視点からあなたの性格を分析し、実用的な洞察を提供します。",
+      "examples": [
+        {
+          "title": "パーソナリティチャート",
+          "description": "視覚的な性格マップ"
+        },
+        {
+          "title": "改善提案",
+          "description": "具体的な成長アドバイス"
+        }
+      ],
+      "related": [
+        { "term": "質問フロー", "type": "feature" },
+        { "term": "bunenjin", "type": "concept" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,67 @@
+/**
+ * VP Main Container Fix
+ * 根本的な opacity: 0 問題の解決
+ */
+
+/* メインビューがアクティブな時は必ず表示 */
+#main-view.active .vp-main-container {
+    display: grid !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    min-height: 600px !important;
+    animation: none !important;
+    transition: none !important;
+}
+
+/* すべての子要素も確実に表示 */
+#main-view.active .vp-main-container * {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* アニメーション中でも表示を維持 */
+.vp-view.active {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* construction-viewから切り替わる時の問題を防ぐ */
+#construction-view {
+    z-index: 1;
+}
+
+#main-view {
+    z-index: 2;
+}
+
+#main-view.active {
+    z-index: 10;
+}
+
+/* アニメーションの無効化（opacity: 0 を設定するアニメーションを防ぐ） */
+.vp-main-container,
+.vp-main-container * {
+    animation-fill-mode: none !important;
+}
+
+/* フェードアニメーションのリセット */
+@keyframes fadeIn {
+    from {
+        opacity: 1 !important;
+    }
+    to {
+        opacity: 1 !important;
+    }
+}
+
+/* エラー時のフォールバック */
+.vp-main-content:has(#main-view.active) {
+    background: transparent !important;
+}
+
+/* デバッグ用（本番環境では削除） */
+.debug-visibility #main-view.active .vp-main-container {
+    border: 3px solid #00ff00 !important;
+    background: rgba(0, 255, 0, 0.05) !important;
+}

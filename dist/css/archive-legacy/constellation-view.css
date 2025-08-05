@@ -1,0 +1,180 @@
+/* constellation-view.css - Triple OS 星座ビュー */
+
+/* メインコンテナ */
+.constellation-container {
+  position: relative;
+  height: 400px;
+  background: radial-gradient(circle at 50% 50%, #0a0a23 0%, #000011 70%, #000000 100%);
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 2rem 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* 3つのOS星 */
+.os-star {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.os-star:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+.os-star-name {
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
+  opacity: 0.9;
+}
+
+.os-star-type {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+/* Engine OS: 中央上部（核心・指導性） */
+.engine-os-star {
+  background: radial-gradient(circle, #6366F1, #4F46E5, #312E81);
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: enginePulse 3s ease-in-out infinite;
+}
+
+/* Interface OS: 左下（社会性・適応性） */
+.interface-os-star {
+  background: radial-gradient(circle, #10B981, #059669, #047857);
+  bottom: 60px;
+  left: 25%;
+  animation: interfacePulse 3.5s ease-in-out infinite;
+}
+
+/* Safe Mode OS: 右下（防御性・保護） */
+.safemode-os-star {
+  background: radial-gradient(circle, #F59E0B, #D97706, #B45309);
+  bottom: 60px;
+  right: 25%;
+  animation: safemodePulse 4s ease-in-out infinite;
+}
+
+/* 星座のつながり線 */
+.constellation-line {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform-origin: left center;
+  animation: energyFlow 4s linear infinite;
+}
+
+.line-engine-interface {
+  bottom: 140px;
+  left: calc(50% - 50px);
+  width: 200px;
+  transform: rotate(-35deg);
+}
+
+.line-engine-safemode {
+  bottom: 140px;
+  left: calc(50% + 50px);
+  width: 200px;
+  transform: rotate(35deg);
+}
+
+.line-interface-safemode {
+  bottom: 110px;
+  left: calc(25% + 50px);
+  width: 280px;
+  transform: rotate(0deg);
+}
+
+/* アニメーション */
+@keyframes enginePulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.8); }
+}
+
+@keyframes interfacePulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.8); }
+}
+
+@keyframes safemodePulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.8); }
+}
+
+@keyframes energyFlow {
+  0% { background-position: -100% 0; }
+  100% { background-position: 100% 0; }
+}
+
+/* インタラクション状態 */
+.os-star.active {
+  transform: scale(1.15);
+  z-index: 10;
+}
+
+.constellation-line.active {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+  animation-duration: 1s;
+}
+
+/* 説明パネル */
+.constellation-explanation {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.constellation-container:hover .constellation-explanation {
+  opacity: 1;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .constellation-container {
+    height: 300px;
+  }
+  
+  .os-star {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .engine-os-star {
+    top: 40px;
+  }
+  
+  .interface-os-star, .safemode-os-star {
+    bottom: 40px;
+  }
+  
+  .interface-os-star {
+    left: 15%;
+  }
+  
+  .safemode-os-star {
+    right: 15%;
+  }
+}

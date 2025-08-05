@@ -1,0 +1,49 @@
+<\!DOCTYPE html>
+<html>
+<head>
+    <title>Module Test</title>
+</head>
+<body>
+    <h1>JavaScript Module Test</h1>
+    <div id="results"></div>
+    
+    <\!-- Test the corrected modules -->
+    <script src="js/os-analyzer/core/IChingUltraSyncLogic.js"></script>
+    <script src="js/os-analyzer/core/DynamicAnalyzer.js"></script>
+    
+    <script>
+        const results = document.getElementById('results');
+        const log = (message, isError = false) => {
+            const div = document.createElement('div');
+            div.style.color = isError ? 'red' : 'green';
+            div.style.margin = '5px 0';
+            div.textContent = message;
+            results.appendChild(div);
+            console.log(message);
+        };
+        
+        try {
+            // Test IChingUltraSyncLogic
+            if (typeof window.IChingUltraSyncLogic === 'function') {
+                log('✅ IChingUltraSyncLogic は正常に読み込まれました');
+            } else {
+                log('❌ IChingUltraSyncLogic の読み込みに失敗しました', true);
+            }
+            
+            // Test DynamicAnalyzer  
+            if (typeof window.DynamicAnalyzer === 'function') {
+                log('✅ DynamicAnalyzer は正常に読み込まれました');
+            } else {
+                log('❌ DynamicAnalyzer の読み込みに失敗しました', true);
+            }
+            
+            log('🔍 両モジュールのグローバル登録テスト完了');
+            
+        } catch (error) {
+            log('❌ テスト実行中にエラーが発生: ' + error.message, true);
+            console.error('Error:', error);
+        }
+    </script>
+</body>
+</html>
+EOF < /dev/null

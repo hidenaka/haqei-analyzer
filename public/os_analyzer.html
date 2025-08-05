@@ -39,8 +39,11 @@
     <!-- 7. テーマシステム：カラー・八卦・季節テーマ -->
     <link rel="stylesheet" href="/css/themes.css" />
     
+    <!-- 8. アクセシビリティ：WCAG 2.1 AA準拠 -->
+    <link rel="stylesheet" href="/css/accessibility-wcag.css" />
+    
     <!-- Chart.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     
     <!-- Performance optimization integrated into VirtualQuestionFlow v2.0 -->
     
@@ -98,8 +101,7 @@
         });
     </script>
     
-    <!-- エラーハンドリング用CSS -->
-    <link rel="stylesheet" href="/css/error-handling.css">
+    <!-- エラーハンドリング用CSS統合済み（core.cssに含む） -->
     
     <!-- Stage 4: OSAnalyzer統合パッチ適用 -->
     <script src="/js/core/OSAnalyzerIntegrationPatch.js"></script>
@@ -116,8 +118,7 @@
     
     <!-- Question fixes integrated into VirtualQuestionFlow v2.0 -->
     
-    <!-- Welcome Screen Fix -->
-    <link rel="stylesheet" href="/css/welcome-screen-fix.css">
+    <!-- Welcome Screen Fix統合済み（layouts.cssに含む） -->
     
     <!-- All fixes integrated into VirtualQuestionFlow v2.0 -->
   </head>
@@ -359,6 +360,9 @@
     
     <!-- Security Utilities -->
     <script src="/js/shared/utils/SecurityValidator.js"></script>
+    
+    <!-- WCAG 2.1 AA準拠アクセシビリティマネージャー -->
+    <script src="/js/shared/utils/AccessibilityManager.js"></script>
     <script src="/js/shared/utils/SecureDOM.js"></script>
     <script src="/js/shared/utils/CSRFProtection.js"></script>
     <script src="/js/shared/utils/SecureAPI.js"></script>

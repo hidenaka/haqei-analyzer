@@ -1,0 +1,128 @@
+{
+  "timestamp": "2025-08-05T10:24:45.672Z",
+  "summary": {
+    "total": 22,
+    "passed": 20,
+    "failed": 2,
+    "successRate": "90.9"
+  },
+  "criteria": {
+    "全テスト正常動作": false,
+    "エラー率0%": false,
+    "成功率80%以上": true,
+    "重要ファイル存在": true
+  },
+  "finalJudgment": "NEEDS_IMPROVEMENT",
+  "tests": [
+    {
+      "name": "ファイル存在: public/os_analyzer.html",
+      "status": "PASS",
+      "details": "19.5KB"
+    },
+    {
+      "name": "ファイル存在: public/js/app.js",
+      "status": "PASS",
+      "details": "33.9KB"
+    },
+    {
+      "name": "ファイル存在: public/js/core/UnifiedErrorHandler.js",
+      "status": "PASS",
+      "details": "42.4KB"
+    },
+    {
+      "name": "ファイル存在: public/js/core/H384_DATABASE.js",
+      "status": "PASS",
+      "details": "288.0KB"
+    },
+    {
+      "name": "HTML読み込み",
+      "status": "PASS",
+      "details": "17.6KB"
+    },
+    {
+      "name": "HTML要素: welcome-container",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "HTML要素: questions-container",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "HTML要素: analysis-container",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "HTML要素: results-container",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "CSSファイル読み込み",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "JSファイル読み込み",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "文字エンコーディング",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "ビューポート設定",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "app.js読み込み",
+      "status": "PASS",
+      "details": "29.6KB"
+    },
+    {
+      "name": "class定義",
+      "status": "FAIL",
+      "details": ""
+    },
+    {
+      "name": "async/await使用",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "エラーハンドリング",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "UnifiedErrorHandler読み込み",
+      "status": "PASS",
+      "details": "38.5KB"
+    },
+    {
+      "name": "エラーハンドラクラス",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "DOMPurify使用",
+      "status": "PASS",
+      "details": ""
+    },
+    {
+      "name": "外部スクリプトセキュリティ",
+      "status": "FAIL",
+      "details": "0/2個が安全"
+    },
+    {
+      "name": "総ファイルサイズ",
+      "status": "PASS",
+      "details": "383.8KB"
+    }
+  ]
+}

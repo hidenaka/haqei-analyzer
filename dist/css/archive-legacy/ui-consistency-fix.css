@@ -1,0 +1,164 @@
+/**
+ * UI Consistency Fix
+ * ユーザビリティ問題の修正とUI一貫性の確保
+ */
+
+/* 進捗バーの文字化け防止と安定化 */
+.global-progress {
+  position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  margin: 10px 20px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  height: 40px;
+  min-height: 40px;
+}
+
+.global-progress .progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+  border-radius: 8px;
+  transition: width 0.3s ease;
+}
+
+/* ウェルカム画面での不要な要素を隠す */
+#welcome-container:not([style*="display: none"]) ~ * .progress-guidance,
+#welcome-container:not([style*="display: none"]) ~ * .progress-guidance-fixed {
+  display: none !important;
+}
+
+/* 設問画面でのみガイダンスを表示 */
+#questions-container:not([style*="display: none"]) .progress-guidance,
+#questions-container:not([style*="display: none"]) .progress-guidance-fixed {
+  display: block !important;
+}
+
+/* エラーダイアログの重複防止 */
+.user-friendly-error-modal,
+.user-friendly-error-modal-fixed {
+  backdrop-filter: blur(4px);
+}
+
+.user-friendly-error-modal + .user-friendly-error-modal,
+.user-friendly-error-modal-fixed + .user-friendly-error-modal-fixed {
+  display: none !important;
+}
+
+/* 文字化け防止のためのフォント指定 */
+.progress-info-container,
+.progress-info-container-fixed,
+.welcome-progress-info {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* プログレスバー内のテキストの安定化 */
+.progress-current,
+.progress-current-fixed,
+.welcome-status {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.025em;
+}
+
+/* 視覚的ノイズの削減 */
+.screen-container {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.screen-container[style*="display: none"] {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+/* ウェルカム画面の清潔感向上 */
+#welcome-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* モバイル対応の改善 */
+@media (max-width: 768px) {
+  .global-progress {
+    margin: 10px 10px;
+  }
+  
+  .progress-info-container,
+  .progress-info-container-fixed,
+  .welcome-progress-info {
+    padding: 6px 12px;
+  }
+  
+  .progress-current,
+  .progress-current-fixed {
+    font-size: 13px;
+  }
+  
+  .progress-percentage,
+  .progress-percentage-fixed {
+    font-size: 14px;
+  }
+}
+
+/* アクセシビリティの向上 */
+.progress-info-container,
+.progress-info-container-fixed,
+.welcome-progress-info {
+  color: #1f2937;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+  .progress-info-container,
+  .progress-info-container-fixed,
+  .welcome-progress-info {
+    color: #000000;
+    text-shadow: none;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    padding: 4px 8px;
+  }
+}
+
+/* アニメーション設定の最適化 */
+@media (prefers-reduced-motion: reduce) {
+  .global-progress .progress-bar,
+  .screen-container,
+  .step-fixed,
+  .progress-info-container,
+  .progress-info-container-fixed {
+    transition: none;
+  }
+}
+
+/* フォーカス管理の改善 */
+.error-close,
+.error-close-fixed {
+  outline: none;
+}
+
+.error-close:focus,
+.error-close-fixed:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* 重複する古いスタイルの無効化 */
+.progress-guidance:not(.progress-guidance-fixed) {
+  display: none !important;
+}
+
+.progress-info-container:not(.progress-info-container-fixed) {
+  display: none !important;
+}
+
+.user-friendly-error-modal:not(.user-friendly-error-modal-fixed) {
+  display: none !important;
+}

@@ -1,0 +1,217 @@
+/**
+ * question-display-fix.css
+ * 質問表示の問題を修正する追加スタイルシート
+ * 特にQ3での表示切れ問題対応
+ */
+
+/* ========================================
+   進捗バーの固定配置修正
+   ======================================== */
+
+.progress-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  background: var(--primary-800, #1e293b) !important;
+  padding: 10px 20px !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ========================================
+   仮想ビューポートの配置修正
+   ======================================== */
+
+.virtual-question-flow {
+  width: 100% !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+  padding: 80px 20px 120px 20px !important; /* 上下に十分な余白 */
+  box-sizing: border-box !important;
+}
+
+.virtual-viewport {
+  min-height: calc(100vh - 200px) !important;
+  display: flex !important;
+  align-items: flex-start !important; /* 上部寄せ */
+  justify-content: center !important;
+  padding: 20px !important;
+  overflow-y: auto !important;
+}
+
+/* ========================================
+   質問要素の表示修正
+   ======================================== */
+
+.virtual-question-item {
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 0 auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+.virtual-question-item.active-question {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* ========================================
+   haqei-question要素の修正
+   ======================================== */
+
+haqei-question {
+  display: block !important;
+  width: 100% !important;
+  min-height: auto !important;
+  height: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  margin-bottom: 20px !important;
+}
+
+haqei-question.active-question {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   ナビゲーションボタンの配置修正
+   ======================================== */
+
+.navigation-controls {
+  position: fixed !important;
+  bottom: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 100 !important;
+  display: flex !important;
+  gap: 20px !important;
+  background: rgba(30, 41, 59, 0.95) !important;
+  padding: 15px 30px !important;
+  border-radius: 50px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.nav-button {
+  min-width: 120px !important;
+  padding: 12px 24px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-radius: 25px !important;
+  transition: all 0.3s ease !important;
+}
+
+/* ========================================
+   Shadow DOM内部の質問コンテナ修正
+   ======================================== */
+
+:host {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.question-container {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+  background: rgba(30, 41, 59, 0.95) !important;
+  border-radius: 16px !important;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+/* ========================================
+   レスポンシブ対応
+   ======================================== */
+
+@media (max-width: 768px) {
+  .virtual-question-flow {
+    padding: 70px 15px 100px 15px !important;
+  }
+  
+  .progress-container {
+    padding: 8px 15px !important;
+  }
+  
+  .navigation-controls {
+    bottom: 10px !important;
+    padding: 10px 20px !important;
+    gap: 10px !important;
+  }
+  
+  .nav-button {
+    min-width: 100px !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .virtual-question-flow {
+    padding: 60px 10px 90px 10px !important;
+  }
+  
+  .navigation-controls {
+    flex-direction: column !important;
+    width: calc(100% - 20px) !important;
+    left: 10px !important;
+    right: 10px !important;
+    transform: none !important;
+  }
+  
+  .nav-button {
+    width: 100% !important;
+  }
+}
+
+/* ========================================
+   スクロール最適化
+   ======================================== */
+
+body {
+  overflow-x: hidden !important;
+  scroll-behavior: smooth;
+}
+
+#questions-container {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* スクロールバーのスタイリング */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.7);
+}

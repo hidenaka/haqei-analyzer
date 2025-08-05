@@ -1,919 +1,161 @@
 {
-  "timestamp": "2025-08-01T01:09:07.036Z",
-  "performance": {
-    "loadTime": 936,
-    "jsResourcesLoaded": 178,
-    "domElementsCount": 84,
-    "hasMainComponents": true,
-    "hasErrors": false
+  "timestamp": "2025-08-05T09:42:13.590Z",
+  "options": {
+    "scenario": "light",
+    "iterations": 2,
+    "outputPath": "performance-report.json",
+    "verbose": true
   },
-  "domCheck": {
-    "hasWelcomeContainer": true,
-    "hasQuestionsContainer": true,
-    "hasApp": true,
-    "scriptCount": 52,
-    "totalElements": 84
-  },
-  "jsStatus": {
-    "hasBaseComponent": true,
-    "hasStorageManager": true,
-    "hasDataManager": true,
-    "hasVirtualQuestionFlow": true,
-    "hasApp": true,
-    "windowVars": 3
-  },
-  "resources": [
-    {
-      "url": "BaseComponent.js",
-      "size": "6023",
-      "status": 200
-    },
-    {
-      "url": "validators.js",
-      "size": "8395",
-      "status": 200
-    },
-    {
-      "url": "DataManager.js",
-      "size": "75560",
-      "status": 200
-    },
-    {
-      "url": "ErrorHandler.js",
-      "size": "46974",
-      "status": 200
-    },
-    {
-      "url": "StorageManager.js",
-      "size": "121639",
-      "status": 200
-    },
-    {
-      "url": "questions.js",
-      "size": "70716",
-      "status": 200
-    },
-    {
-      "url": "PrecompiledQuestions.js",
-      "size": "54923",
-      "status": 200
-    },
-    {
-      "url": "HaqeiQuestionElement.js",
-      "size": "11781",
-      "status": 200
-    },
-    {
-      "url": "VirtualQuestionFlow.js",
-      "size": "15367",
-      "status": 200
-    },
-    {
-      "url": "WelcomeScreen.js",
-      "size": "5282",
-      "status": 200
-    },
-    {
-      "url": "app.js",
-      "size": "29202",
-      "status": 200
-    },
-    {
-      "url": "chart.min.js",
-      "size": "58671",
-      "status": 200
-    },
-    {
-      "url": "vectors.js",
-      "size": "12588",
-      "status": 200
-    },
-    {
-      "url": "data_box.js",
-      "size": "388394",
-      "status": 200
-    },
-    {
-      "url": "DiagnosisDataFormat.js",
-      "size": "18738",
-      "status": 200
-    },
-    {
-      "url": "CrossPlatformBridge.js",
-      "size": "18730",
-      "status": 200
-    },
-    {
-      "url": "animations.js",
-      "size": "3645",
-      "status": 200
-    },
-    {
-      "url": "compatibility_definition.js",
-      "size": "1147",
-      "status": 200
-    },
-    {
-      "url": "os_manual_database.js",
-      "size": "66018",
-      "status": 200
-    },
-    {
-      "url": "hexagrams.js",
-      "size": "68608",
-      "status": 200
-    },
-    {
-      "url": "hexagram_details.js",
-      "size": "208308",
-      "status": 200
-    },
-    {
-      "url": "compatibility_matrix.js",
-      "size": "3978",
-      "status": 200
-    },
-    {
-      "url": "action_plans.js",
-      "size": "1407",
-      "status": 200
-    },
-    {
-      "url": "iching_relationships.js",
-      "size": "7320",
-      "status": 200
-    },
-    {
-      "url": "StatisticalEngine.js",
-      "size": "11223",
-      "status": 200
-    },
-    {
-      "url": "Calculator.js",
-      "size": "33195",
-      "status": 200
-    },
-    {
-      "url": "CompatibilityDataLoader.js",
-      "size": "21801",
-      "status": 200
-    },
-    {
-      "url": "Engine.js",
-      "size": "24389",
-      "status": 200
-    },
-    {
-      "url": "IChingUltraSyncLogic.js",
-      "size": "106179",
-      "status": 200
-    },
-    {
-      "url": "TripleOSEngine.js",
-      "size": "117890",
-      "status": 200
-    },
-    {
-      "url": "UltraAnalysisEngine.js",
-      "size": "53944",
-      "status": 200
-    },
-    {
-      "url": "ScientificFormatter.js",
-      "size": "8169",
-      "status": 200
-    },
-    {
-      "url": "BehavioralInsightEngine.js",
-      "size": "28055",
-      "status": 200
-    },
-    {
-      "url": "ShadowAnalyzer.js",
-      "size": "30314",
-      "status": 200
-    },
-    {
-      "url": "CriticalThinkingEngine.js",
-      "size": "21546",
-      "status": 200
-    },
-    {
-      "url": "LowScoreAnalyzer.js",
-      "size": "26415",
-      "status": 200
-    },
-    {
-      "url": "TransparencyEngine.js",
-      "size": "23802",
-      "status": 200
-    },
-    {
-      "url": "DynamicAnalyzer.js",
-      "size": "24486",
-      "status": 200
-    },
-    {
-      "url": "AdaptiveLanguage.js",
-      "size": "23263",
-      "status": 200
-    },
-    {
-      "url": "PersonalStrategyAI.js",
-      "size": "38598",
-      "status": 200
-    },
-    {
-      "url": "CompatibilityEngine.js",
-      "size": "29764",
-      "status": 200
-    },
-    {
-      "url": "InsightEngine.js",
-      "size": "11471",
-      "status": 200
-    },
-    {
-      "url": "AnalysisView.js",
-      "size": "2868",
-      "status": 200
-    },
-    {
-      "url": "QuestionFlow.js",
-      "size": "34788",
-      "status": 200
-    },
-    {
-      "url": "ResultsView.js",
-      "size": "116812",
-      "status": 200
-    },
-    {
-      "url": "TripleOSResultsView.js",
-      "size": "233489",
-      "status": 200
-    },
-    {
-      "url": "TripleOSStrategicView.js",
-      "size": "69166",
-      "status": 200
-    },
-    {
-      "url": "InteractiveConnectionsVisualizer.js",
-      "size": "22816",
-      "status": 200
-    },
-    {
-      "url": "InsightPanel.js",
-      "size": "12964",
-      "status": 200
-    },
-    {
-      "url": "CriticalProductiveCard.js",
-      "size": "22955",
-      "status": 200
-    },
-    {
-      "url": "hexagram_01.json",
-      "size": "133365",
-      "status": 200
-    },
-    {
-      "url": "hexagram_02.json",
-      "size": "133621",
-      "status": 200
-    },
-    {
-      "url": "hexagram_03.json",
-      "size": "134398",
-      "status": 200
-    },
-    {
-      "url": "hexagram_04.json",
-      "size": "133085",
-      "status": 200
-    },
-    {
-      "url": "hexagram_05.json",
-      "size": "134214",
-      "status": 200
-    },
-    {
-      "url": "hexagram_06.json",
-      "size": "133444",
-      "status": 200
-    },
-    {
-      "url": "hexagram_07.json",
-      "size": "136362",
-      "status": 200
-    },
-    {
-      "url": "hexagram_08.json",
-      "size": "135742",
-      "status": 200
-    },
-    {
-      "url": "hexagram_09.json",
-      "size": "100048",
-      "status": 200
-    },
-    {
-      "url": "hexagram_10.json",
-      "size": "33669",
-      "status": 200
-    },
-    {
-      "url": "hexagram_11.json",
-      "size": "132968",
-      "status": 200
-    },
-    {
-      "url": "hexagram_12.json",
-      "size": "129419",
-      "status": 200
-    },
-    {
-      "url": "hexagram_13.json",
-      "size": "134801",
-      "status": 200
-    },
-    {
-      "url": "hexagram_14.json",
-      "size": "132455",
-      "status": 200
-    },
-    {
-      "url": "hexagram_15.json",
-      "size": "33439",
-      "status": 200
-    },
-    {
-      "url": "hexagram_16.json",
-      "size": "131798",
-      "status": 200
-    },
-    {
-      "url": "hexagram_17.json",
-      "size": "132337",
-      "status": 200
-    },
-    {
-      "url": "hexagram_18.json",
-      "size": "131887",
-      "status": 200
-    },
-    {
-      "url": "hexagram_19.json",
-      "size": "134875",
-      "status": 200
-    },
-    {
-      "url": "hexagram_20.json",
-      "size": "138409",
-      "status": 200
-    },
-    {
-      "url": "hexagram_21.json",
-      "size": "136626",
-      "status": 200
-    },
-    {
-      "url": "hexagram_22.json",
-      "size": "137617",
-      "status": 200
-    },
-    {
-      "url": "hexagram_23.json",
-      "size": "32757",
-      "status": 200
-    },
-    {
-      "url": "hexagram_24.json",
-      "size": "135222",
-      "status": 200
-    },
-    {
-      "url": "hexagram_25.json",
-      "size": "134613",
-      "status": 200
-    },
-    {
-      "url": "hexagram_26.json",
-      "size": "134918",
-      "status": 200
-    },
-    {
-      "url": "hexagram_27.json",
-      "size": "133025",
-      "status": 200
-    },
-    {
-      "url": "hexagram_28.json",
-      "size": "125012",
-      "status": 200
-    },
-    {
-      "url": "hexagram_29.json",
-      "size": "129481",
-      "status": 200
-    },
-    {
-      "url": "hexagram_30.json",
-      "size": "138907",
-      "status": 200
-    },
-    {
-      "url": "hexagram_31.json",
-      "size": "140822",
-      "status": 200
-    },
-    {
-      "url": "hexagram_32.json",
-      "size": "139594",
-      "status": 200
-    },
-    {
-      "url": "hexagram_33.json",
-      "size": "137780",
-      "status": 200
-    },
-    {
-      "url": "hexagram_34.json",
-      "size": "140370",
-      "status": 200
-    },
-    {
-      "url": "hexagram_35.json",
-      "size": "138326",
-      "status": 200
-    },
-    {
-      "url": "hexagram_36.json",
-      "size": "136356",
-      "status": 200
-    },
-    {
-      "url": "hexagram_37.json",
-      "size": "139280",
-      "status": 200
-    },
-    {
-      "url": "hexagram_38.json",
-      "size": "133340",
-      "status": 200
-    },
-    {
-      "url": "hexagram_39.json",
-      "size": "128773",
-      "status": 200
-    },
-    {
-      "url": "hexagram_40.json",
-      "size": "138649",
-      "status": 200
-    },
-    {
-      "url": "hexagram_41.json",
-      "size": "126257",
-      "status": 200
-    },
-    {
-      "url": "hexagram_42.json",
-      "size": "139364",
-      "status": 200
-    },
-    {
-      "url": "hexagram_43.json",
-      "size": "127583",
-      "status": 200
-    },
-    {
-      "url": "hexagram_44.json",
-      "size": "134213",
-      "status": 200
-    },
-    {
-      "url": "hexagram_45.json",
-      "size": "127027",
-      "status": 200
-    },
-    {
-      "url": "hexagram_46.json",
-      "size": "136915",
-      "status": 200
-    },
-    {
-      "url": "hexagram_47.json",
-      "size": "123975",
-      "status": 200
-    },
-    {
-      "url": "hexagram_48.json",
-      "size": "135703",
-      "status": 200
-    },
-    {
-      "url": "hexagram_49.json",
-      "size": "127563",
-      "status": 200
-    },
-    {
-      "url": "hexagram_50.json",
-      "size": "125703",
-      "status": 200
-    },
-    {
-      "url": "hexagram_51.json",
-      "size": "127853",
-      "status": 200
-    },
-    {
-      "url": "hexagram_52.json",
-      "size": "122724",
-      "status": 200
-    },
-    {
-      "url": "hexagram_53.json",
-      "size": "126266",
-      "status": 200
-    },
-    {
-      "url": "hexagram_54.json",
-      "size": "120716",
-      "status": 200
-    },
-    {
-      "url": "hexagram_55.json",
-      "size": "123701",
-      "status": 200
-    },
-    {
-      "url": "hexagram_56.json",
-      "size": "122756",
-      "status": 200
-    },
-    {
-      "url": "hexagram_57.json",
-      "size": "122144",
-      "status": 200
-    },
-    {
-      "url": "hexagram_58.json",
-      "size": "121973",
-      "status": 200
-    },
-    {
-      "url": "hexagram_59.json",
-      "size": "121796",
-      "status": 200
-    },
-    {
-      "url": "hexagram_60.json",
-      "size": "124266",
-      "status": 200
-    },
-    {
-      "url": "hexagram_61.json",
-      "size": "122386",
-      "status": 200
-    },
-    {
-      "url": "hexagram_62.json",
-      "size": "120630",
-      "status": 200
-    },
-    {
-      "url": "hexagram_63.json",
-      "size": "121816",
-      "status": 200
-    },
-    {
-      "url": "hexagram_64.json",
-      "size": "120560",
-      "status": 200
-    },
-    {
-      "url": "hexagram_01.json",
-      "size": "129431",
-      "status": 200
-    },
-    {
-      "url": "hexagram_02.json",
-      "size": "135797",
-      "status": 200
-    },
-    {
-      "url": "hexagram_03.json",
-      "size": "132510",
-      "status": 200
-    },
-    {
-      "url": "hexagram_04.json",
-      "size": "137709",
-      "status": 200
-    },
-    {
-      "url": "hexagram_05.json",
-      "size": "132597",
-      "status": 200
-    },
-    {
-      "url": "hexagram_06.json",
-      "size": "138203",
-      "status": 200
-    },
-    {
-      "url": "hexagram_07.json",
-      "size": "134827",
-      "status": 200
-    },
-    {
-      "url": "hexagram_08.json",
-      "size": "140156",
-      "status": 200
-    },
-    {
-      "url": "hexagram_09.json",
-      "size": "139165",
-      "status": 200
-    },
-    {
-      "url": "hexagram_10.json",
-      "size": "132903",
-      "status": 200
-    },
-    {
-      "url": "hexagram_11.json",
-      "size": "138769",
-      "status": 200
-    },
-    {
-      "url": "hexagram_12.json",
-      "size": "132752",
-      "status": 200
-    },
-    {
-      "url": "hexagram_13.json",
-      "size": "140701",
-      "status": 200
-    },
-    {
-      "url": "hexagram_14.json",
-      "size": "131510",
-      "status": 200
-    },
-    {
-      "url": "hexagram_15.json",
-      "size": "137920",
-      "status": 200
-    },
-    {
-      "url": "hexagram_16.json",
-      "size": "131086",
-      "status": 200
-    },
-    {
-      "url": "hexagram_17.json",
-      "size": "137520",
-      "status": 200
-    },
-    {
-      "url": "hexagram_18.json",
-      "size": "137997",
-      "status": 200
-    },
-    {
-      "url": "hexagram_19.json",
-      "size": "132923",
-      "status": 200
-    },
-    {
-      "url": "hexagram_20.json",
-      "size": "135942",
-      "status": 200
-    },
-    {
-      "url": "hexagram_21.json",
-      "size": "131780",
-      "status": 200
-    },
-    {
-      "url": "hexagram_22.json",
-      "size": "136706",
-      "status": 200
-    },
-    {
-      "url": "hexagram_23.json",
-      "size": "130747",
-      "status": 200
-    },
-    {
-      "url": "hexagram_24.json",
-      "size": "77249",
-      "status": 200
-    },
-    {
-      "url": "hexagram_25.json",
-      "size": "130654",
-      "status": 200
-    },
-    {
-      "url": "hexagram_26.json",
-      "size": "136455",
-      "status": 200
-    },
-    {
-      "url": "hexagram_27.json",
-      "size": "64658",
-      "status": 200
-    },
-    {
-      "url": "hexagram_28.json",
-      "size": "136676",
-      "status": 200
-    },
-    {
-      "url": "hexagram_29.json",
-      "size": "131114",
-      "status": 200
-    },
-    {
-      "url": "hexagram_30.json",
-      "size": "137440",
-      "status": 200
-    },
-    {
-      "url": "hexagram_31.json",
-      "size": "129299",
-      "status": 200
-    },
-    {
-      "url": "hexagram_32.json",
-      "size": "144593",
-      "status": 200
-    },
-    {
-      "url": "hexagram_33.json",
-      "size": "140139",
-      "status": 200
-    },
-    {
-      "url": "hexagram_34.json",
-      "size": "150292",
-      "status": 200
-    },
-    {
-      "url": "hexagram_35.json",
-      "size": "137044",
-      "status": 200
-    },
-    {
-      "url": "hexagram_36.json",
-      "size": "148646",
-      "status": 200
-    },
-    {
-      "url": "hexagram_37.json",
-      "size": "140978",
-      "status": 200
-    },
-    {
-      "url": "hexagram_38.json",
-      "size": "144848",
-      "status": 200
-    },
-    {
-      "url": "hexagram_39.json",
-      "size": "140787",
-      "status": 200
-    },
-    {
-      "url": "hexagram_40.json",
-      "size": "140259",
-      "status": 200
-    },
-    {
-      "url": "hexagram_41.json",
-      "size": "145099",
-      "status": 200
-    },
-    {
-      "url": "hexagram_42.json",
-      "size": "141471",
-      "status": 200
-    },
-    {
-      "url": "hexagram_43.json",
-      "size": "146081",
-      "status": 200
-    },
-    {
-      "url": "hexagram_44.json",
-      "size": "140386",
-      "status": 200
-    },
-    {
-      "url": "hexagram_45.json",
-      "size": "144470",
-      "status": 200
-    },
-    {
-      "url": "hexagram_46.json",
-      "size": "140520",
-      "status": 200
-    },
-    {
-      "url": "hexagram_47.json",
-      "size": "146010",
-      "status": 200
-    },
-    {
-      "url": "hexagram_48.json",
-      "size": "138956",
-      "status": 200
-    },
-    {
-      "url": "hexagram_49.json",
-      "size": "144957",
-      "status": 200
-    },
-    {
-      "url": "hexagram_50.json",
-      "size": "138003",
-      "status": 200
-    },
-    {
-      "url": "hexagram_51.json",
-      "size": "142456",
-      "status": 200
-    },
-    {
-      "url": "hexagram_52.json",
-      "size": "135184",
-      "status": 200
-    },
-    {
-      "url": "hexagram_53.json",
-      "size": "142501",
-      "status": 200
-    },
-    {
-      "url": "hexagram_54.json",
-      "size": "136943",
-      "status": 200
-    },
-    {
-      "url": "hexagram_55.json",
-      "size": "135939",
-      "status": 200
-    },
-    {
-      "url": "hexagram_56.json",
-      "size": "137654",
-      "status": 200
-    },
-    {
-      "url": "hexagram_57.json",
-      "size": "134492",
-      "status": 200
-    },
-    {
-      "url": "hexagram_58.json",
-      "size": "139935",
-      "status": 200
-    },
-    {
-      "url": "hexagram_59.json",
-      "size": "134549",
-      "status": 200
-    },
-    {
-      "url": "hexagram_60.json",
-      "size": "141427",
-      "status": 200
-    },
-    {
-      "url": "hexagram_61.json",
-      "size": "135544",
-      "status": 200
-    },
-    {
-      "url": "hexagram_62.json",
-      "size": "139932",
-      "status": 200
-    },
-    {
-      "url": "hexagram_63.json",
-      "size": "134972",
-      "status": 200
-    },
-    {
-      "url": "hexagram_64.json",
-      "size": "141134",
-      "status": 200
-    }
-  ],
-  "errors": [],
-  "grade": "A級 (優秀)"
+  "analysis": {
+    "summary": {
+      "totalTests": 2,
+      "successfulTests": 2,
+      "failedTests": 0,
+      "scenario": "light"
+    },
+    "performance": {
+      "total": {
+        "min": 945.41175,
+        "max": 1478.676084,
+        "avg": 1212.043917,
+        "median": 1212.043917,
+        "stddev": 266.632167
+      },
+      "init": {
+        "min": 325.057042,
+        "max": 626.922583,
+        "avg": 475.9898125,
+        "median": 475.9898125,
+        "stddev": 150.9327705
+      },
+      "analysis": {
+        "min": 17.430041999999958,
+        "max": 17.633291000000042,
+        "avg": 17.5316665,
+        "median": 17.5316665,
+        "stddev": 0.10162450000004242
+      },
+      "mapping": {
+        "min": 534.545541,
+        "max": 722.8347499999998,
+        "avg": 628.6901454999999,
+        "median": 628.6901454999999,
+        "stddev": 94.1446044999999
+      },
+      "uiUpdate": {
+        "min": 67.95462499999996,
+        "max": 111.37874999999985,
+        "avg": 89.66668749999991,
+        "median": 89.66668749999991,
+        "stddev": 21.712062499999945
+      }
+    },
+    "memory": {
+      "rss": {
+        "min": 753664,
+        "max": 2670592,
+        "avg": 1712128
+      },
+      "heapUsed": {
+        "min": 375992,
+        "max": 458520,
+        "avg": 417256
+      },
+      "heapTotal": {
+        "min": 262144,
+        "max": 3407872,
+        "avg": 1835008
+      }
+    },
+    "cpu": {
+      "user": {
+        "min": 3.579,
+        "max": 5.491,
+        "avg": 4.535
+      },
+      "system": {
+        "min": 0.432,
+        "max": 1.151,
+        "avg": 0.7915
+      }
+    },
+    "bottlenecks": [],
+    "recommendations": [],
+    "rawData": [
+      {
+        "iteration": 1,
+        "inputText": "仕事の悩みがある...",
+        "timestamp": "2025-08-05T09:42:10.962Z",
+        "metrics": {
+          "initialMemory": {
+            "rss": 45809664,
+            "heapTotal": 6127616,
+            "heapUsed": 4698584,
+            "external": 1852340,
+            "arrayBuffers": 32933
+          },
+          "initTime": 325.057042,
+          "analysisTime": 17.633291000000042,
+          "mappingTime": 534.545541,
+          "uiUpdateTime": 67.95462499999996,
+          "cpuUsage": {
+            "user": 5.491,
+            "system": 1.151
+          },
+          "finalMemory": {
+            "rss": 48480256,
+            "heapTotal": 9535488,
+            "heapUsed": 5074576,
+            "external": 1829978,
+            "arrayBuffers": 10531
+          },
+          "memoryDelta": {
+            "rss": 2670592,
+            "heapUsed": 375992,
+            "heapTotal": 3407872
+          },
+          "totalTime": 945.41175
+        },
+        "errors": [],
+        "success": true
+      },
+      {
+        "iteration": 2,
+        "inputText": "仕事の悩みがある...",
+        "timestamp": "2025-08-05T09:42:12.008Z",
+        "metrics": {
+          "initialMemory": {
+            "rss": 48513024,
+            "heapTotal": 9535488,
+            "heapUsed": 5723856,
+            "external": 1829978,
+            "arrayBuffers": 10531
+          },
+          "initTime": 626.922583,
+          "analysisTime": 17.430041999999958,
+          "mappingTime": 722.8347499999998,
+          "uiUpdateTime": 111.37874999999985,
+          "cpuUsage": {
+            "user": 3.579,
+            "system": 0.432
+          },
+          "finalMemory": {
+            "rss": 49266688,
+            "heapTotal": 9797632,
+            "heapUsed": 6182376,
+            "external": 1829978,
+            "arrayBuffers": 10531
+          },
+          "memoryDelta": {
+            "rss": 753664,
+            "heapUsed": 458520,
+            "heapTotal": 262144
+          },
+          "totalTime": 1478.676084
+        },
+        "errors": [],
+        "success": true
+      }
+    ]
+  }
 }

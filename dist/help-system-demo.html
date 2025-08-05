@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Help System - Interactive Tutorial Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Hiragino Kaku Gothic ProN', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .demo-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .demo-card h3 {
+            color: #4f46e5;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .demo-card p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .demo-button.secondary {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+        }
+
+        .tutorial-preview {
+            background: #f8fafc;
+            border: 2px dashed #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .status-ready {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-demo {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .integration-code {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            margin: 15px 0;
+        }
+
+        .help-button-demo {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(245, 158, 11, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .help-button-demo:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.6);
+        }
+
+        .demo-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-left: 4px solid #10b981;
+            display: none;
+            z-index: 1001;
+        }
+
+        .contextual-help-demo {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .tooltip-demo {
+            background: #1f2937;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .tooltip-demo:after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #1f2937;
+        }
+
+        .contextual-help-demo:hover .tooltip-demo {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 HAQEI Interactive Tutorial System</h1>
+            <p>包括的なヘルプとチュートリアル機能のデモンストレーション</p>
+        </div>
+
+        <div class="demo-grid">
+            <!-- Welcome Tutorial Card -->
+            <div class="demo-card">
+                <h3>📚 ウェルカムチュートリアル <span class="status-indicator status-ready">実装完了</span></h3>
+                <p>初回ユーザー向けの優しい導入チュートリアル。HAQEIの基本概念と使い方を段階的に説明します。</p>
+                
+                <ul class="feature-list">
+                    <li>7ステップの包括的な導入</li>
+                    <li>インタラクティブな質疑応答</li>
+                    <li>文化的背景の敬意ある説明</li>
+                    <li>プライバシー保護の説明</li>
+                </ul>
+
+                <button class="demo-button" onclick="startWelcomeTutorial()">
+                    ウェルカムチュートリアル開始
+                </button>
+                
+                <div class="tutorial-preview">
+                    <strong>プレビュー:</strong> "HAQEIへようこそ！古代の知恵と現代の理解を組み合わせて..."
+                </div>
+            </div>
+
+            <!-- Concepts Tutorial Card -->
+            <div class="demo-card">
+                <h3>🏛️ 哲学的概念ガイド <span class="status-indicator status-ready">実装完了</span></h3>
+                <p>Triple OS、bunenjin哲学、64卦システムの深い理解のための専門的チュートリアル。</p>
+                
+                <ul class="feature-list">
+                    <li>トリプルOSアーキテクチャの詳細</li>
+                    <li>分人哲学の現代的応用</li>
+                    <li>64卦システムの文化的意義</li>
+                    <li>統合的理解の促進</li>
+                </ul>
+
+                <button class="demo-button" onclick="startConceptsTutorial()">
+                    概念チュートリアル開始
+                </button>
+                
+                <div class="tutorial-preview">
+                    <strong>内容例:</strong> "分人哲学では、人は状況によって異なる複数の自分を持ち..."
+                </div>
+            </div>
+
+            <!-- Results Tutorial Card -->
+            <div class="demo-card">
+                <h3>📊 結果解釈ガイド <span class="status-indicator status-ready">実装完了</span></h3>
+                <p>分析結果の読み方と実生活への活用方法を詳しく説明するチュートリアル。</p>
+                
+                <ul class="feature-list">
+                    <li>卦の意味の詳細解説</li>
+                    <li>6つの特性領域の理解</li>
+                    <li>実践的な活用方法</li>
+                    <li>継続的な自己理解支援</li>
+                </ul>
+
+                <button class="demo-button" onclick="startResultsTutorial()">
+                    結果ガイド開始
+                </button>
+                
+                <div class="tutorial-preview">
+                    <strong>特徴:</strong> 個人の卦に基づいたパーソナライズされた解釈
+                </div>
+            </div>
+
+            <!-- Interactive Features Card -->
+            <div class="demo-card">
+                <h3>⚡ インタラクティブ機能 <span class="status-indicator status-demo">デモ版</span></h3>
+                <p>ユーザーの学習を支援する各種インタラクティブ機能のデモンストレーション。</p>
+                
+                <div class="contextual-help-demo">
+                    <button class="demo-button secondary" onmouseover="showTooltip(this)">
+                        コンテキストヘルプ
+                    </button>
+                    <div class="tooltip-demo">この機能の詳細説明がここに表示されます</div>
+                </div>
+
+                <button class="demo-button" onclick="showProgressTracking()">
+                    進捗追跡デモ
+                </button>
+                <button class="demo-button secondary" onclick="showAdaptiveHelp()">
+                    適応的ヘルプ
+                </button>
+            </div>
+
+            <!-- Mobile Optimization Card -->
+            <div class="demo-card">
+                <h3>📱 モバイル最適化 <span class="status-indicator status-ready">対応済み</span></h3>
+                <p>スマートフォンでの快適な学習体験を提供する最適化機能。</p>
+                
+                <ul class="feature-list">
+                    <li>レスポンシブデザイン</li>
+                    <li>タッチ操作対応</li>
+                    <li>縦向き表示最適化</li>
+                    <li>軽量で高速な動作</li>
+                </ul>
+
+                <button class="demo-button" onclick="testMobileFeatures()">
+                    モバイル機能テスト
+                </button>
+            </div>
+
+            <!-- Integration Examples Card -->
+            <div class="demo-card">
+                <h3>🔗 統合サンプル <span class="status-indicator status-ready">実装例</span></h3>
+                <p>HAQEIシステムにヘルプ機能を統合する具体的なコード例とベストプラクティス。</p>
+                
+                <div class="integration-code">
+// 基本的な統合例
+const helpSystem = new HelpSystemCore();
+const tutorialOverlay = new TutorialOverlay();
+
+// ウェルカムチュートリアルの開始
+helpSystem.startTutorial('welcome-comprehensive');
+
+// コンテキストヘルプの表示
+helpSystem.showContextualHelp(element, 'hexagram-explanation');
+                </div>
+
+                <button class="demo-button" onclick="showIntegrationGuide()">
+                    統合ガイド表示
+                </button>
+            </div>
+        </div>
+
+        <!-- Demo Features Section -->
+        <div class="demo-card" style="margin-bottom: 30px;">
+            <h3>🎮 ライブデモ機能</h3>
+            <p>実際のチュートリアル機能を体験してください。各機能は実装済みのデータ構造に基づいています。</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                <button class="demo-button" onclick="simulateFirstVisit()">初回訪問シミュレート</button>
+                <button class="demo-button secondary" onclick="showHelpMenu()">ヘルプメニュー表示</button>
+                <button class="demo-button" onclick="simulateResultsPage()">結果ページ体験</button>
+                <button class="demo-button secondary" onclick="showTutorialProgress()">進捗表示テスト</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Help Button -->
+    <button class="help-button-demo" onclick="toggleHelpMenu()" title="ヘルプを表示">
+        ❓
+    </button>
+
+    <!-- Demo Notification -->
+    <div class="demo-notification" id="demoNotification">
+        <strong>チュートリアル完了！</strong><br>
+        新しい機能が利用可能になりました。
+    </div>
+
+    <script>
+        // Demo Functions
+        function startWelcomeTutorial() {
+            showNotification('ウェルカムチュートリアルを開始します...');
+            console.log('Starting welcome tutorial with data from welcome-tutorial.json');
+            
+            // シミュレートされたチュートリアル開始
+            setTimeout(() => {
+                alert('実際のシステムでは、7ステップのインタラクティブなウェルカムチュートリアルが開始されます。\n\n含まれる内容:\n• HAQEIシステムの紹介\n• 分人哲学の基礎\n• 64卦システムの概要\n• プライバシー保護の説明\n• 実際の使用方法');
+            }, 500);
+        }
+
+        function startConceptsTutorial() {
+            showNotification('概念チュートリアルを開始します...');
+            console.log('Starting concepts tutorial with data from concepts-tutorial.json');
+            
+            setTimeout(() => {
+                alert('Triple OS、bunenjin哲学、64卦システムの深い理解のためのチュートリアルが開始されます。\n\n内容:\n• トリプルOSアーキテクチャの詳細\n• 分人哲学の現代的応用\n• 64卦システムの文化的背景\n• 統合的理解の促進');
+            }, 500);
+        }
+
+        function startResultsTutorial() {
+            showNotification('結果ガイドを開始します...');
+            console.log('Starting results tutorial with data from results-tutorial.json');
+            
+            setTimeout(() => {
+                alert('分析結果の詳細な解釈ガイドが開始されます。\n\n内容:\n• 個人の卦の詳細解説\n• 6つの特性領域の理解\n• 実生活への応用方法\n• 継続的な成長支援');
+            }, 500);
+        }
+
+        function simulateFirstVisit() {
+            showNotification('初回訪問者向けの体験を開始します...');
+            
+            setTimeout(() => {
+                const features = [
+                    '✓ 自動的なウェルカムチュートリアル表示',
+                    '✓ システム概要の段階的説明',
+                    '✓ 文化的背景の敬意ある紹介',
+                    '✓ プライバシー保護の詳細説明',
+                    '✓ 質問システムの使い方ガイド',
+                    '✓ 結果画面の事前説明'
+                ];
+                
+                alert('初回訪問者には以下の体験が提供されます:\n\n' + features.join('\n'));
+            }, 500);
+        }
+
+        function showHelpMenu() {
+            showNotification('統合ヘルプメニューを表示します...');
+            
+            const helpOptions = [
+                '📚 チュートリアル再実行',
+                '📖 用語解説',
+                '🏛️ 文化的背景',
+                '❓ よくある質問',
+                '🔧 システム設定',
+                '📞 サポート連絡'
+            ];
+            
+            setTimeout(() => {
+                alert('統合ヘルプメニュー:\n\n' + helpOptions.join('\n') + '\n\n各項目から詳細な説明とガイダンスにアクセスできます。');
+            }, 500);
+        }
+
+        function simulateResultsPage() {
+            showNotification('結果ページの体験を開始します...');
+            
+            setTimeout(() => {
+                alert('結果ページでは以下の支援が提供されます:\n\n• 結果の読み方ガイド\n• 各セクションの詳細説明\n• 実践的な活用方法\n• 継続的な学習支援\n• パーソナライズされた解釈\n• 成長計画の提案');
+            }, 500);
+        }
+
+        function showTutorialProgress() {
+            showNotification('チュートリアル進捗を表示します...');
+            
+            const progress = {
+                'welcome-comprehensive': '完了 ✅',
+                'philosophy-basics': '進行中 🔄 (3/5)',
+                'system-navigation': '未開始 ⭕',
+                'results-interpretation': '未開始 ⭕'
+            };
+            
+            let progressText = '📊 チュートリアル進捗状況:\n\n';
+            for (const [tutorial, status] of Object.entries(progress)) {
+                progressText += `• ${tutorial}: ${status}\n`;
+            }
+            
+            setTimeout(() => {
+                alert(progressText + '\n\n進捗は自動保存され、いつでも中断・再開が可能です。');
+            }, 500);
+        }
+
+        function showProgressTracking() {
+            showNotification('進捗追跡機能をデモします...');
+            
+            // プログレスバーのシミュレーション
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                console.log(`Tutorial progress: ${progress}%`);
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    alert('進捗追跡デモ完了！\n\n実際のシステムでは:\n• リアルタイム進捗表示\n• 中断・再開機能\n• 個別ステップの完了追跡\n• 全体的な学習進度管理');
+                }
+            }, 200);
+        }
+
+        function showAdaptiveHelp() {
+            showNotification('適応的ヘルプ機能をデモします...');
+            
+            setTimeout(() => {
+                alert('適応的ヘルプの特徴:\n\n✓ ユーザーの理解レベルに応じた説明調整\n✓ 文化的背景に配慮したコンテンツ\n✓ 学習スタイル（視覚・聴覚・体験）への対応\n✓ 利用可能時間に応じた内容分割\n✓ 過去の学習履歴を考慮した推奨');
+            }, 500);
+        }
+
+        function testMobileFeatures() {
+            showNotification('モバイル機能をテストします...');
+            
+            setTimeout(() => {
+                const mobileFeatures = [
+                    '📱 レスポンシブ・レイアウト',
+                    '👆 タッチ操作対応',
+                    '🔄 縦横回転対応',
+                    '⚡ 軽量・高速動作',
+                    '💾 オフライン対応',
+                    '🔊 音声ガイド対応',
+                    '👁️ 大文字表示オプション'
+                ];
+                
+                alert('モバイル最適化機能:\n\n' + mobileFeatures.join('\n') + '\n\nスマートフォンでも快適な学習体験を提供します。');
+            }, 500);
+        }
+
+        function showIntegrationGuide() {
+            showNotification('統合ガイドを表示します...');
+            
+            const integrationSteps = [
+                '1. help-system ディレクトリをプロジェクトに配置',
+                '2. HelpSystemCore.js を初期化',
+                '3. TutorialOverlay.js を設定',
+                '4. 各データファイル（JSON）を配置',
+                '5. CSS スタイルを適用',
+                '6. イベントリスナーを設定',
+                '7. カスタマイズとテスト'
+            ];
+            
+            setTimeout(() => {
+                alert('統合手順:\n\n' + integrationSteps.join('\n') + '\n\n詳細なドキュメントとサンプルコードが利用可能です。');
+            }, 500);
+        }
+
+        function toggleHelpMenu() {
+            showNotification('ヘルプメニューを切り替えます...');
+            
+            // 実際のシステムではヘルプメニューが表示される
+            console.log('Toggle help menu - integrated with help system');
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('demoNotification');
+            notification.querySelector('strong').nextSibling.textContent = ' ' + message;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        function showTooltip(element) {
+            console.log('Contextual help tooltip displayed');
+        }
+
+        // 自動デモ機能
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🌟 HAQEI Help System Demo Loaded');
+            console.log('📚 Tutorial data files ready:');
+            console.log('  • tutorials.json - Main tutorial definitions');
+            console.log('  • welcome-tutorial.json - First-time user guide');
+            console.log('  • concepts-tutorial.json - Philosophical concepts');
+            console.log('  • results-tutorial.json - Results interpretation');
+            
+            // 初回訪問のシミュレーション
+            setTimeout(() => {
+                showNotification('デモページが読み込まれました。各機能をお試しください！');
+            }, 1000);
+        });
+
+        // キーボードショートカット
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F1') {
+                e.preventDefault();
+                toggleHelpMenu();
+            }
+            if (e.ctrlKey && e.key === 'h') {
+                e.preventDefault();
+                showHelpMenu();
+            }
+        });
+    </script>
+</body>
+</html>

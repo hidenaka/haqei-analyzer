@@ -1,0 +1,244 @@
+/**
+ * design-fix.css
+ * デザイン修正専用スタイルシート
+ * 白背景問題と次へボタンの視認性を改善
+ */
+
+/* ========================================
+   設問カードのダークテーマ復元
+   ======================================== */
+
+/* Web Componentのシャドウルート内スタイル強制 */
+haqei-question {
+  --question-bg: rgba(30, 41, 59, 0.95);
+  --question-border: rgba(99, 102, 241, 0.3);
+  --option-bg: rgba(51, 65, 85, 0.8);
+  --option-border: rgba(99, 102, 241, 0.2);
+  --option-hover-bg: rgba(99, 102, 241, 0.15);
+  --text-primary: #f1f5f9;
+  --text-secondary: #e2e8f0;
+}
+
+/* 設問アイテムの背景を強制的にダークに */
+.question-item {
+  background: rgba(30, 41, 59, 0.95) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 設問ヘッダー */
+.question-header {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)) !important;
+  color: #f1f5f9 !important;
+}
+
+.question-title {
+  color: #f1f5f9 !important;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.question-icon {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* ========================================
+   選択肢のダークテーマ
+   ======================================== */
+
+.option-label {
+  background: rgba(51, 65, 85, 0.8) !important;
+  border: 2px solid rgba(99, 102, 241, 0.2) !important;
+  color: #e2e8f0 !important;
+  transition: all 0.3s ease;
+}
+
+.option-label:hover {
+  background: rgba(99, 102, 241, 0.2) !important;
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  transform: translateX(4px);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+}
+
+.option-label input[type="radio"]:checked + .option-content {
+  background: rgba(99, 102, 241, 0.25) !important;
+  border-radius: 12px;
+  padding: 0 0.5rem;
+}
+
+.option-text {
+  color: #e2e8f0 !important;
+  font-weight: 500;
+}
+
+.option-indicator {
+  border-color: #64748b !important;
+  background: transparent !important;
+}
+
+.option-label input[type="radio"]:checked + .option-content .option-indicator {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+}
+
+/* ========================================
+   シナリオ設問のダークテーマ
+   ======================================== */
+
+.scenario-context {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-left: 4px solid #6366f1 !important;
+  color: #f1f5f9 !important;
+}
+
+.scenario-title {
+  color: #f1f5f9 !important;
+}
+
+.scenario-text {
+  color: #cbd5e1 !important;
+}
+
+.choice-section {
+  background: rgba(51, 65, 85, 0.6) !important;
+  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+}
+
+.choice-header {
+  border-bottom: 1px solid rgba(99, 102, 241, 0.2) !important;
+}
+
+.choice-title {
+  color: #e2e8f0 !important;
+}
+
+/* ========================================
+   ナビゲーションボタンの改善
+   ======================================== */
+
+.nav-button {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  padding: 0.875rem 2rem !important;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  text-transform: none;
+  font-size: 1rem;
+}
+
+.nav-button:not(:disabled):hover {
+  background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
+}
+
+.nav-button:disabled {
+  background: rgba(100, 116, 139, 0.5) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* 前へボタンのスタイル調整 */
+.prev-button {
+  background: linear-gradient(135deg, #64748b, #475569) !important;
+}
+
+.prev-button:not(:disabled):hover {
+  background: linear-gradient(135deg, #475569, #334155) !important;
+}
+
+/* ========================================
+   進捗表示の追加改善
+   ======================================== */
+
+.progress-container {
+  background: rgba(15, 23, 42, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(99, 102, 241, 0.2) !important;
+  padding: 1.5rem !important;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+}
+
+.progress-text {
+  background: transparent !important;
+  color: #f1f5f9 !important;
+}
+
+.current-question {
+  font-size: 2.5rem !important;
+  font-weight: 700;
+  background: linear-gradient(135deg, #6366f1, #a855f7) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.total-questions {
+  color: #94a3b8 !important;
+  font-size: 1.5rem !important;
+}
+
+.completed-count {
+  background: rgba(16, 185, 129, 0.2) !important;
+  border: 1px solid rgba(16, 185, 129, 0.5) !important;
+  color: #10b981 !important;
+  font-weight: 600;
+  padding: 0.375rem 1rem !important;
+  font-size: 0.875rem;
+}
+
+/* ========================================
+   全体的な見た目の調整
+   ======================================== */
+
+.virtual-question-flow {
+  background: transparent;
+}
+
+.virtual-viewport {
+  min-height: 400px;
+}
+
+/* アニメーションの追加 */
+.slide-in {
+  animation: slideInFromRight 0.5s ease-out;
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Shadow DOM内のスタイルを強制的に上書き */
+haqei-question::part(question-container) {
+  background: rgba(30, 41, 59, 0.95) !important;
+  color: #f1f5f9 !important;
+}
+
+/* フォールバック要素のスタイリング */
+.fallback-question {
+  background: rgba(30, 41, 59, 0.95) !important;
+  color: #f1f5f9 !important;
+  padding: 1.5rem !important;
+  border-radius: 16px !important;
+}
+
+.fallback-content .question-item {
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+}

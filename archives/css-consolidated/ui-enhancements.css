@@ -1,0 +1,526 @@
+/**
+ * UI Enhancements CSS - future_simulator.html統合システム用
+ * bunenjin哲学: 美しさと機能性の調和
+ */
+
+/* =================================== */
+/* 1. エラー通知システム */
+/* =================================== */
+
+.error-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  max-width: 400px;
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  z-index: 9999;
+  animation: slideInRight 0.3s ease-out;
+  border-left: 4px solid;
+  transition: all 0.3s ease;
+}
+
+.error-notification.severity-error {
+  border-left-color: #ef4444;
+}
+
+.error-notification.severity-warning {
+  border-left-color: #f59e0b;
+}
+
+.error-notification.severity-info {
+  border-left-color: #3b82f6;
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 16px 8px 16px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.error-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.error-content {
+  padding: 0 16px 16px 16px;
+}
+
+.error-message {
+  color: #cbd5e1;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.error-suggestion {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.error-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.error-action-btn {
+  padding: 6px 12px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.error-action-btn:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.5);
+  transform: translateY(-1px);
+}
+
+.error-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 1.125rem;
+  transition: color 0.2s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-close:hover {
+  color: #f1f5f9;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* =================================== */
+/* 2. インタラクション強化 */
+/* =================================== */
+
+.interactive {
+  position: relative;
+  overflow: hidden;
+}
+
+.interactive:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+.interactive::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+  pointer-events: none;
+}
+
+.interactive:active::after {
+  width: 200px;
+  height: 200px;
+}
+
+/* =================================== */
+/* 3. フォーカス表示強化 */
+/* =================================== */
+
+.focus-visible {
+  outline: 3px solid rgba(99, 102, 241, 0.5) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3) !important;
+}
+
+/* キーボードナビゲーション時のみフォーカス表示 */
+.keyboard-navigation .focus-visible {
+  outline: 3px solid #6366f1 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 1px #6366f1, 0 0 0 4px rgba(99, 102, 241, 0.2) !important;
+}
+
+/* =================================== */
+/* 4. ローディング状態強化 */
+/* =================================== */
+
+.loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.loading .loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-left: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* =================================== */
+/* 5. 文字数カウンター */
+/* =================================== */
+
+.character-counter {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  pointer-events: none;
+  background: rgba(17, 24, 39, 0.8);
+  padding: 2px 6px;
+  border-radius: 4px;
+  backdrop-filter: blur(5px);
+  transition: color 0.2s ease;
+}
+
+.character-counter.warning {
+  color: #f59e0b;
+}
+
+.character-counter.error {
+  color: #ef4444;
+}
+
+/* =================================== */
+/* 6. サポートモーダル */
+/* =================================== */
+
+.support-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+.support-modal-content {
+  background: linear-gradient(135deg, #1e293b, #334155);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  color: #f1f5f9;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* =================================== */
+/* 7. モバイル最適化 */
+/* =================================== */
+
+@media (max-width: 768px) {
+  .error-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+  
+  .support-modal-content {
+    margin: 10px;
+    padding: 20px;
+  }
+  
+  .character-counter {
+    position: static;
+    display: block;
+    text-align: right;
+    margin-top: 4px;
+    background: none;
+    padding: 0;
+  }
+  
+  /* タッチ対応の改善 */
+  .touch-optimized .interactive {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px;
+  }
+  
+  .touch-optimized .error-action-btn {
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 0.875rem;
+  }
+}
+
+/* =================================== */
+/* 8. タブレット対応 */
+/* =================================== */
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .error-notification {
+    max-width: 450px;
+  }
+  
+  .support-modal-content {
+    max-width: 600px;
+  }
+}
+
+/* =================================== */
+/* 9. デスクトップ強化 */
+/* =================================== */
+
+@media (min-width: 1024px) {
+  .error-notification:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+  }
+  
+  .interactive:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+  }
+  
+  .interactive:hover::after {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* =================================== */
+/* 10. アクセシビリティ強化 */
+/* =================================== */
+
+/* ハイコントラストモード */
+@media (prefers-contrast: high) {
+  .error-notification {
+    border: 2px solid;
+    background: rgba(0, 0, 0, 0.95);
+  }
+  
+  .error-action-btn {
+    border: 2px solid;
+    background: transparent;
+  }
+  
+  .character-counter {
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid currentColor;
+  }
+}
+
+/* モーション設定を尊重 */
+@media (prefers-reduced-motion: reduce) {
+  .error-notification,
+  .support-modal,
+  .support-modal-content,
+  .interactive,
+  .loading-spinner {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .interactive:active,
+  .interactive:hover {
+    transform: none !important;
+  }
+  
+  .interactive::after {
+    display: none;
+  }
+}
+
+/* 大きなテキスト設定対応 */
+@media (prefers-reduced-data: reduce) {
+  .error-notification,
+  .support-modal {
+    backdrop-filter: none;
+  }
+  
+  .loading-spinner {
+    animation: none;
+    border-left-color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+/* =================================== */
+/* 11. 印刷対応 */
+/* =================================== */
+
+@media print {
+  .error-notification,
+  .support-modal,
+  .loading-spinner,
+  .character-counter {
+    display: none !important;
+  }
+  
+  .interactive::after {
+    display: none;
+  }
+}
+
+/* =================================== */
+/* 12. ダークモード最適化 */
+/* =================================== */
+
+@media (prefers-color-scheme: light) {
+  .error-notification {
+    background: rgba(255, 255, 255, 0.95);
+    color: #1f2937;
+    border-left-color: #374151;
+  }
+  
+  .error-header {
+    color: #1f2937;
+  }
+  
+  .error-message {
+    color: #374151;
+  }
+  
+  .error-suggestion {
+    color: #6b7280;
+  }
+  
+  .error-action-btn {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.3);
+    color: #6366f1;
+  }
+  
+  .support-modal-content {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    color: #1f2937;
+  }
+  
+  .character-counter {
+    background: rgba(255, 255, 255, 0.8);
+    color: #6b7280;
+  }
+}
+
+/* =================================== */
+/* 13. レイアウト安定性 */
+/* =================================== */
+
+.layout-stable {
+  contain: layout style paint;
+}
+
+/* レイアウトシフト防止 */
+.aspect-ratio-16-9 {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-ratio-1-1 {
+  aspect-ratio: 1 / 1;
+}
+
+/* フォント読み込み中のフォールバック */
+.font-loading {
+  font-display: swap;
+}
+
+/* =================================== */
+/* 14. パフォーマンス最適化 */
+/* =================================== */
+
+/* GPU加速の最適化 */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+/* アニメーション最適化 */
+@keyframes optimizedSlideIn {
+  from {
+    transform: translate3d(100%, 0, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+.optimized-slide-in {
+  animation: optimizedSlideIn 0.3s ease-out;
+  animation-fill-mode: both;
+}
+
+/* =================================== */
+/* 15. カスタムプロパティ */
+/* =================================== */
+
+:root {
+  --error-notification-z: 9999;
+  --support-modal-z: 10000;
+  --loading-overlay-z: 9998;
+  
+  --tap-target-size: 44px;
+  --touch-spacing: 8px;
+  
+  --animation-duration-fast: 0.15s;
+  --animation-duration-normal: 0.3s;
+  --animation-duration-slow: 0.5s;
+  
+  --error-color: #ef4444;
+  --warning-color: #f59e0b;
+  --info-color: #3b82f6;
+  --success-color: #10b981;
+}

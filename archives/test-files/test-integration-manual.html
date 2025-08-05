@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>統合テスト - 手動確認用</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #444;
+      border-radius: 8px;
+      background: #2a2a2a;
+    }
+    .test-input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 4px;
+    }
+    .test-button {
+      padding: 10px 20px;
+      background: #4a9eff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .test-button:hover {
+      background: #357abd;
+    }
+    .result-area {
+      margin-top: 20px;
+      padding: 15px;
+      background: #333;
+      border-radius: 4px;
+      min-height: 100px;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+    .log-entry {
+      margin: 5px 0;
+      padding: 5px;
+      border-left: 3px solid #4a9eff;
+      padding-left: 10px;
+    }
+    .error {
+      color: #ff6b6b;
+      border-left-color: #ff6b6b;
+    }
+    .success {
+      color: #51cf66;
+      border-left-color: #51cf66;
+    }
+    .warning {
+      color: #ffd43b;
+      border-left-color: #ffd43b;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 既存コンポーネント統合テスト</h1>
+  
+  <div class="test-section">
+    <h2>1. エンジン初期化テスト</h2>
+    <button class="test-button" onclick="testEngineInit()">エンジン初期化</button>
+    <div id="engine-result" class="result-area">結果がここに表示されます...</div>
+  </div>
+  
+  <div class="test-section">
+    <h2>2. データフローテスト</h2>
+    <textarea id="test-input" class="test-input" rows="3" placeholder="テスト用のテキストを入力...">新しいプロジェクトを始めたいが、今の仕事も大切。どうすればいいか悩んでいる。</textarea>
+    <button class="test-button" onclick="testDataFlow()">データフロー確認</button>
+    <div id="flow-result" class="result-area">結果がここに表示されます...</div>
+  </div>
+  
+  <div class="test-section">
+    <h2>3. 統合分析テスト</h2>
+    <button class="test-button" onclick="testIntegratedAnalysis()">統合分析実行</button>
+    <div id="analysis-result" class="result-area">結果がここに表示されます...</div>
+  </div>
+  
+  <div class="test-section">
+    <h2>4. コンポーネント状態</h2>
+    <button class="test-button" onclick="checkComponentStatus()">状態確認</button>
+    <div id="status-result" class="result-area">結果がここに表示されます...</div>
+  </div>
+
+  <!-- 必要なスクリプトを読み込み -->
+  <script src="js/core/H384_DATABASE.js"></script>
+  <script src="js/core/SituationalContextEngine.js"></script>
+  <script src="js/engines/HexagramMappingEngine.js"></script>
+  <script src="js/core/AuthenticIChingEngine.js"></script>
+  <script src="js/components/Authentic8ScenariosSystem.js"></script>
+  
+  <script>
+    // ログ記録用
+    const testLog = [];
+    
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = `[${timestamp}] ${message}`;
+      testLog.push({ message: logEntry, type });
+      console.log(logEntry);
+    }
+    
+    function displayResults(elementId, logs) {
+      const resultDiv = document.getElementById(elementId);
+      resultDiv.innerHTML = logs.map(log => 
+        `<div class="log-entry ${log.type}">${log.message}</div>`
+      ).join('');
+    }
+    
+    // 1. エンジン初期化テスト
+    async function testEngineInit() {
+      const logs = [];
+      
+      try {
+        logs.push({ message: '🚀 AuthenticIChingEngine初期化開始', type: 'info' });
+        const engine = new AuthenticIChingEngine();
+        
+        logs.push({ message: '✅ AuthenticIChingEngine初期化成功', type: 'success' });
+        
+        // 統合エンジンの確認
+        if (engine.situationalEngine) {
+          logs.push({ message: '✅ SituationalContextEngine: 初期化済み', type: 'success' });
+        } else {
+          logs.push({ message: '⚠️ SituationalContextEngine: 未初期化（遅延初期化）', type: 'warning' });
+        }
+        
+        if (engine.hexagramEngine) {
+          logs.push({ message: '✅ HexagramMappingEngine: 初期化済み', type: 'success' });
+        } else {
+          logs.push({ message: '⚠️ HexagramMappingEngine: 未初期化（遅延初期化）', type: 'warning' });
+        }
+        
+        // H384データの確認
+        if (engine.h384Data || engine.h384Database) {
+          logs.push({ message: '✅ H384データベース: 利用可能', type: 'success' });
+        } else {
+          logs.push({ message: '❌ H384データベース: 利用不可', type: 'error' });
+        }
+        
+        window.testEngine = engine;
+        
+      } catch (error) {
+        logs.push({ message: `❌ エラー: ${error.message}`, type: 'error' });
+      }
+      
+      displayResults('engine-result', logs);
+    }
+    
+    // 2. データフローテスト
+    async function testDataFlow() {
+      const logs = [];
+      const inputText = document.getElementById('test-input').value;
+      
+      try {
+        if (!window.testEngine) {
+          logs.push({ message: '⚠️ エンジン未初期化。先に初期化を実行してください。', type: 'warning' });
+          displayResults('flow-result', logs);
+          return;
+        }
+        
+        logs.push({ message: '🔄 データフロー開始', type: 'info' });
+        logs.push({ message: `📝 入力: "${inputText}"`, type: 'info' });
+        
+        // identifyCurrentSituationを実行
+        const result = await window.testEngine.identifyCurrentSituation(inputText);
+        
+        logs.push({ message: '✅ identifyCurrentSituation完了', type: 'success' });
+        
+        // 結果の検証
+        if (result.卦番号) {
+          logs.push({ message: `✅ 卦番号: ${result.卦番号}`, type: 'success' });
+        }
+        if (result.卦名) {
+          logs.push({ message: `✅ 卦名: ${result.卦名}`, type: 'success' });
+        }
+        if (result.爻) {
+          logs.push({ message: `✅ 爻: ${result.爻}`, type: 'success' });
+        }
+        if (result.状況分析) {
+          logs.push({ message: '✅ 状況分析データ: 含まれている', type: 'success' });
+        }
+        if (result.易経解釈) {
+          logs.push({ message: '✅ 易経解釈: 含まれている', type: 'success' });
+        }
+        if (result.bunenjin視点) {
+          logs.push({ message: '✅ bunenjin視点: 含まれている', type: 'success' });
+        }
+        
+        // 詳細結果表示
+        logs.push({ message: '\n📊 詳細結果:', type: 'info' });
+        logs.push({ message: JSON.stringify(result, null, 2), type: 'info' });
+        
+        window.testResult = result;
+        
+      } catch (error) {
+        logs.push({ message: `❌ エラー: ${error.message}`, type: 'error' });
+        console.error(error);
+      }
+      
+      displayResults('flow-result', logs);
+    }
+    
+    // 3. 統合分析テスト
+    async function testIntegratedAnalysis() {
+      const logs = [];
+      
+      try {
+        if (!window.testResult) {
+          logs.push({ message: '⚠️ データフローテストを先に実行してください。', type: 'warning' });
+          displayResults('analysis-result', logs);
+          return;
+        }
+        
+        logs.push({ message: '🔍 統合分析テスト開始', type: 'info' });
+        
+        // Authentic8ScenariosSystemのテスト
+        logs.push({ message: '🌊 8シナリオ生成テスト', type: 'info' });
+        
+        // ダミーコンテナ作成
+        const container = document.createElement('div');
+        const scenariosSystem = new Authentic8ScenariosSystem(container, window.testEngine);
+        
+        const scenarios = scenariosSystem.generate8TransformationPatterns(
+          window.testResult.卦番号,
+          window.testResult.爻位置,
+          window.testResult
+        );
+        
+        if (scenarios && scenarios.length === 8) {
+          logs.push({ message: '✅ 8シナリオ生成成功', type: 'success' });
+          
+          scenarios.forEach((scenario, index) => {
+            logs.push({ 
+              message: `  ${index + 1}. ${scenario.pattern}: ${scenario.hexagram}`, 
+              type: 'info' 
+            });
+          });
+        } else {
+          logs.push({ message: `❌ シナリオ生成失敗（${scenarios?.length || 0}個）`, type: 'error' });
+        }
+        
+      } catch (error) {
+        logs.push({ message: `❌ エラー: ${error.message}`, type: 'error' });
+      }
+      
+      displayResults('analysis-result', logs);
+    }
+    
+    // 4. コンポーネント状態確認
+    function checkComponentStatus() {
+      const logs = [];
+      
+      logs.push({ message: '🔍 コンポーネント状態確認', type: 'info' });
+      
+      // グローバルオブジェクトの確認
+      const components = [
+        { name: 'H384_DATA', exists: typeof H384_DATA !== 'undefined' },
+        { name: 'H384_DATABASE', exists: typeof H384_DATABASE !== 'undefined' },
+        { name: 'SituationalContextEngine', exists: typeof SituationalContextEngine !== 'undefined' },
+        { name: 'HexagramMappingEngine', exists: typeof HexagramMappingEngine !== 'undefined' },
+        { name: 'AuthenticIChingEngine', exists: typeof AuthenticIChingEngine !== 'undefined' },
+        { name: 'Authentic8ScenariosSystem', exists: typeof Authentic8ScenariosSystem !== 'undefined' }
+      ];
+      
+      components.forEach(comp => {
+        if (comp.exists) {
+          logs.push({ message: `✅ ${comp.name}: 利用可能`, type: 'success' });
+        } else {
+          logs.push({ message: `❌ ${comp.name}: 利用不可`, type: 'error' });
+        }
+      });
+      
+      // エンジンの統合状態
+      if (window.testEngine) {
+        logs.push({ message: '\n🔧 エンジン統合状態:', type: 'info' });
+        logs.push({ 
+          message: `  situationalEngine: ${window.testEngine.situationalEngine ? '✅' : '❌'}`, 
+          type: window.testEngine.situationalEngine ? 'success' : 'error' 
+        });
+        logs.push({ 
+          message: `  hexagramEngine: ${window.testEngine.hexagramEngine ? '✅' : '❌'}`, 
+          type: window.testEngine.hexagramEngine ? 'success' : 'error' 
+        });
+      }
+      
+      displayResults('status-result', logs);
+    }
+    
+    // ページ読み込み時に自動で状態確認
+    window.addEventListener('load', () => {
+      setTimeout(checkComponentStatus, 1000);
+    });
+  </script>
+</body>
+</html>

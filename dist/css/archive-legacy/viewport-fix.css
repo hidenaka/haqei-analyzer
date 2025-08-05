@@ -1,0 +1,546 @@
+/**
+ * Viewport Fix CSS - CSS見切れ問題の根本的解決
+ * os_analyzer専用のビューポート・レイアウト修正スタイル
+ */
+
+/* ========================================
+   ビューポート基本設定の強化
+   ======================================== */
+
+/* iOS Safari のビューポート問題対応 */
+html {
+  /* ビューポートの確実な設定 */
+  height: 100%;
+  /* iOS Safari の bouncing 防止 */
+  overflow-x: hidden;
+  /* スムーズスクロール */
+  scroll-behavior: smooth;
+}
+
+body {
+  /* 基本レイアウトの確実な設定 */
+  height: 100%;
+  min-height: 100vh;
+  /* Safari の 100vh 問題対応 */
+  min-height: -webkit-fill-available;
+  
+  /* 見切れ防止の基本設定 */
+  width: 100vw;
+  max-width: 100%;
+  
+  /* 水平スクロール完全排除 */
+  overflow-x: hidden;
+  
+  /* レイアウトシフト防止 */
+  position: relative;
+  
+  /* フォントレンダリング最適化 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  
+  /* iOS Safari zoom 防止 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+/* ========================================
+   メインコンテナの見切れ防止
+   ======================================== */
+
+.app-container {
+  /* 確実な全画面表示 */
+  width: 100vw;
+  max-width: 100%;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  
+  /* 見切れ防止の配置 */
+  position: relative;
+  margin: 0;
+  padding: 0;
+  
+  /* 子要素の溢れ制御 */
+  overflow-x: hidden;
+  overflow-y: auto;
+  
+  /* iOS Safari の safe area 対応 */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ========================================
+   画面コンテナの統一設定
+   ======================================== */
+
+.screen-container {
+  /* 基本レイアウト */
+  width: 100%;
+  max-width: 100vw;
+  min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  
+  /* 中央配置 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  /* 内側マージン */
+  padding: clamp(1rem, 4vw, 2rem);
+  margin: 0;
+  
+  /* 見切れ防止 */
+  box-sizing: border-box;
+  overflow-x: hidden;
+  
+  /* レスポンシブ調整 */
+  position: relative;
+}
+
+/* ========================================
+   進捗バーの見切れ修正
+   ======================================== */
+
+.global-progress {
+  /* 確実な上部固定 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  
+  /* iOS の safe area 考慮 */
+  top: env(safe-area-inset-top);
+  
+  /* 見切れ防止の幅設定 */
+  width: 100%;
+  max-width: 100vw;
+  
+  /* 高さと背景 */
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  
+  /* 最前面表示 */
+  z-index: 1000;
+  
+  /* ボックスモデル */
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.progress-bar {
+  /* プログレスバー本体 */
+  height: 100%;
+  background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+  
+  /* アニメーション */
+  transition: width 0.3s ease;
+  
+  /* 見切れ防止 */
+  max-width: 100%;
+  
+  /* 角丸 */
+  border-radius: 0 4px 4px 0;
+}
+
+/* ========================================
+   質問コンテナの見切れ修正
+   ======================================== */
+
+#questions-container {
+  /* 進捗バーの分だけ上部マージン */
+  margin-top: calc(8px + env(safe-area-inset-top) + 1rem);
+  
+  /* 基本レイアウト */
+  width: 100%;
+  max-width: 100vw;
+  min-height: calc(100vh - 8px - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 1rem);
+  
+  /* 内側スペース */
+  padding: clamp(1rem, 4vw, 2rem);
+  
+  /* 見切れ防止 */
+  box-sizing: border-box;
+  overflow-x: hidden;
+  
+  /* 中央配置 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* ========================================
+   質問要素の見切れ修正
+   ======================================== */
+
+.question-container {
+  /* 基本サイズ */
+  width: 100%;
+  max-width: min(800px, calc(100vw - 2rem));
+  
+  /* 見切れ防止 */
+  box-sizing: border-box;
+  overflow: visible;
+  
+  /* 内側スペース */
+  padding: clamp(1rem, 3vw, 2rem);
+  margin: 0 auto;
+  
+  /* 背景と装飾 */
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: clamp(0.5rem, 2vw, 1rem);
+  backdrop-filter: blur(10px);
+  
+  /* シャドウ */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.question-title {
+  /* 見出しのレイアウト */
+  width: 100%;
+  max-width: 100%;
+  
+  /* テキスト設定 */
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  line-height: 1.4;
+  text-align: center;
+  
+  /* スペース */
+  margin: 0 0 clamp(1rem, 4vw, 2rem) 0;
+  padding: 0;
+  
+  /* 見切れ防止 */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* ========================================
+   選択肢の見切れ修正
+   ======================================== */
+
+.question-options-container {
+  /* 基本レイアウト */
+  width: 100%;
+  max-width: 100%;
+  
+  /* フレックス設定 */
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.75rem, 2vw, 1rem);
+  
+  /* スペース */
+  margin: clamp(1rem, 3vw, 1.5rem) 0;
+  padding: 0;
+  
+  /* 見切れ防止 */
+  box-sizing: border-box;
+}
+
+.question-option {
+  /* 基本サイズ */
+  width: 100%;
+  max-width: 100%;
+  
+  /* 内側スペース */
+  padding: clamp(0.75rem, 3vw, 1.25rem) clamp(1rem, 4vw, 1.5rem);
+  
+  /* 見切れ防止 */
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  
+  /* 背景と装飾 */
+  background: #ffffff;
+  border: 2px solid #e9ecef;
+  border-radius: clamp(0.5rem, 2vw, 0.75rem);
+  
+  /* タッチ対応 */
+  min-height: 44px;
+  
+  /* テキスト */
+  font-size: clamp(0.875rem, 3vw, 1.125rem);
+  line-height: 1.5;
+  text-align: left;
+  
+  /* インタラクション */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.question-option:hover,
+.question-option:focus {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.question-option.selected {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border-color: #0056b3;
+  box-shadow: 0 4px 16px rgba(0, 123, 255, 0.3);
+}
+
+/* ========================================
+   ナビゲーションボタンの見切れ修正
+   ======================================== */
+
+.navigation-buttons-old {
+  /* 基本レイアウト */
+  width: 100%;
+  max-width: min(600px, calc(100vw - 2rem));
+  
+  /* フレックス設定 */
+  display: flex;
+  gap: clamp(0.75rem, 3vw, 1rem);
+  
+  /* スペース */
+  margin: clamp(1.5rem, 4vw, 2rem) auto 0;
+  padding: 0 0 env(safe-area-inset-bottom) 0;
+  
+  /* 見切れ防止 */
+  box-sizing: border-box;
+}
+
+.navigation-buttons .btn {
+  /* ボタンサイズ */
+  flex: 1;
+  min-height: 48px;
+  max-height: 56px;
+  
+  /* 内側スペース */
+  padding: clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 1.5rem);
+  
+  /* 見切れ防止 */
+  box-sizing: border-box;
+  
+  /* テキスト */
+  font-size: clamp(0.875rem, 3vw, 1rem);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  /* 装飾 */
+  border: none;
+  border-radius: clamp(0.5rem, 2vw, 1.5rem);
+  
+  /* インタラクション */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ========================================
+   レスポンシブ調整（デバイス別）
+   ======================================== */
+
+/* 超小型デバイス (iPhone SE等) */
+@media (max-width: 375px) {
+  .screen-container {
+    padding: 0.75rem;
+  }
+  
+  .question-container {
+    padding: 1rem;
+    margin: 0.5rem;
+    max-width: calc(100vw - 1rem);
+  }
+  
+  .question-title {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+  
+  .question-option {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .navigation-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+}
+
+/* 小型デバイス */
+@media (min-width: 376px) and (max-width: 640px) {
+  .question-container {
+    max-width: calc(100vw - 2rem);
+    padding: 1.25rem;
+  }
+  
+  .question-title {
+    font-size: 1.375rem;
+  }
+  
+  .question-option {
+    padding: 1rem 1.25rem;
+  }
+}
+
+/* タブレット */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .question-container {
+    max-width: 700px;
+    padding: 2rem;
+  }
+  
+  .navigation-buttons {
+    max-width: 500px;
+  }
+}
+
+/* デスクトップ */
+@media (min-width: 1025px) {
+  .question-container {
+    max-width: 800px;
+    padding: 2.5rem;
+  }
+  
+  .navigation-buttons {
+    max-width: 600px;
+  }
+}
+
+/* ========================================
+   ランドスケープモード対応
+   ======================================== */
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .screen-container {
+    min-height: 100vh;
+    justify-content: flex-start;
+    padding-top: 1rem;
+  }
+  
+  .question-container {
+    margin: 0.5rem auto;
+  }
+  
+  .question-title {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+  
+  .navigation-buttons {
+    margin-top: 1rem;
+  }
+}
+
+/* ========================================
+   印刷対応
+   ======================================== */
+
+@media print {
+  .global-progress,
+  .navigation-buttons {
+    display: none;
+  }
+  
+  .screen-container {
+    min-height: auto;
+    page-break-inside: avoid;
+  }
+  
+  .question-container {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
+
+/* ========================================
+   ダークモード対応
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+  .question-container {
+    background: rgba(33, 37, 41, 0.95);
+    color: #f8f9fa;
+  }
+  
+  .question-option {
+    background: #495057;
+    color: #f8f9fa;
+    border-color: #6c757d;
+  }
+  
+  .question-option:hover {
+    background: #5a6268;
+  }
+  
+  .question-option.selected {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  }
+}
+
+/* ========================================
+   高コントラストモード
+   ======================================== */
+
+@media (prefers-contrast: high) {
+  .question-option {
+    border-width: 3px;
+  }
+  
+  .question-option.selected {
+    border-width: 4px;
+    border-color: #ffffff;
+  }
+}
+
+/* ========================================
+   動きの縮小設定
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ========================================
+   デバッグ用（開発時のみ）
+   ======================================== */
+
+.debug-viewport {
+  /* ビューポート境界の可視化 */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px solid red;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  
+  /* 要素の境界表示 */
+  .screen-container {
+    outline: 2px dashed blue;
+  }
+  
+  .question-container {
+    outline: 2px dashed green;
+  }
+  
+  .question-option {
+    outline: 1px dotted orange;
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "scenarios": [
+    {
+      "name": "light_load",
+      "description": "軽量テスト - 短いテキスト処理",
+      "text": "仕事の悩みがある",
+      "targetTime": 1500,
+      "iterations": 3,
+      "priority": "high"
+    },
+    {
+      "name": "medium_load",
+      "description": "中量テスト - 標準的なテキスト処理",
+      "text": "新しいプロジェクトが始まったが、チームメンバーとのコミュニケーションがうまくいかない。技術的な課題も多く、スケジュールも厳しい。どのように進めるべきか悩んでいる。",
+      "targetTime": 3000,
+      "iterations": 5,
+      "priority": "high"
+    },
+    {
+      "name": "heavy_load",
+      "description": "重量テスト - 長文複雑なテキスト処理",
+      "text": "人生の転機に立っている。現在の職場では10年働いているが、最近やりがいを感じなくなってきた。家族を養う責任もあり、転職には大きなリスクが伴う。しかし、このままでは自分の成長が止まってしまう気がする。新しい分野に挑戦したい気持ちと、安定を求める気持ちで葛藤している。年齢的にも最後のチャンスかもしれない。どのような選択をすべきか、深く悩んでいる。",
+      "targetTime": 5000,
+      "iterations": 3,
+      "priority": "medium"
+    },
+    {
+      "name": "stress_test",
+      "description": "ストレステスト - 極端に長い文章での負荷テスト",
+      "text": "人生の転機に立っている。現在の職場では10年働いているが、最近やりがいを感じなくなってきた。家族を養う責任もあり、転職には大きなリスクが伴う。しかし、このままでは自分の成長が止まってしまう気がする。新しい分野に挑戦したい気持ちと、安定を求める気持ちで葛藤している。年齢的にも最後のチャンスかもしれない。どのような選択をすべきか、深く悩んでいる。同時に、現在の業界での経験や知識が他の分野でどれだけ活用できるかも不安である。新しい技術を学ぶ時間や体力があるかも心配だ。また、家族への影響も考慮しなければならない。子供たちの教育費や住宅ローンなどの固定費もある。一方で、このまま現状維持を続けていても、将来的により困難な状況に陥る可能性もある。市場の変化や技術の進歩により、現在のスキルが陳腐化するリスクもある。",
+      "targetTime": 8000,
+      "iterations": 2,
+      "priority": "low"
+    }
+  ],
+  "thresholds": {
+    "processingTime": 3000,
+    "initializationTime": 1000,
+    "analysisTime": 2000,
+    "mappingTime": 1000,
+    "memoryUsage": 52428800,
+    "cpuUsage": 80,
+    "errorRate": 0.05
+  },
+  "performance_targets": {
+    "excellent": {
+      "processingTime": 1500,
+      "memoryUsage": 20971520,
+      "cpuUsage": 40
+    },
+    "good": {
+      "processingTime": 2500,
+      "memoryUsage": 41943040,
+      "cpuUsage": 60
+    },
+    "acceptable": {
+      "processingTime": 3000,
+      "memoryUsage": 52428800,
+      "cpuUsage": 80
+    }
+  },
+  "alerts": {
+    "enabled": true,
+    "regressionThreshold": 1.3,
+    "criticalThreshold": 2.0,
+    "webhookUrl": null,
+    "emailConfig": {
+      "enabled": false,
+      "smtp": {
+        "host": "smtp.example.com",
+        "port": 587,
+        "secure": false,
+        "auth": {
+          "user": "alerts@example.com",
+          "pass": "password"
+        }
+      },
+      "recipients": ["admin@example.com"]
+    },
+    "slackConfig": {
+      "enabled": false,
+      "webhookUrl": null,
+      "channel": "#performance-alerts"
+    }
+  },
+  "monitoring": {
+    "enabled": true,
+    "intervalMinutes": 60,
+    "retentionDays": 30,
+    "reportSchedule": {
+      "daily": true,
+      "weekly": true,
+      "monthly": true
+    }
+  },
+  "optimization": {
+    "autoOptimization": false,
+    "optimizationRules": [
+      {
+        "name": "memory_cleanup",
+        "trigger": "memoryUsage > 80MB",
+        "action": "force_gc"
+      },
+      {
+        "name": "cache_warm_up",
+        "trigger": "startup",
+        "action": "preload_common_patterns"
+      }
+    ]
+  },
+  "reporting": {
+    "outputFormats": ["json", "html", "csv"],
+    "includeRawData": true,
+    "includeCharts": true,
+    "customMetrics": [
+      {
+        "name": "user_satisfaction_score",
+        "calculation": "confidence * processing_speed_factor",
+        "threshold": 0.8
+      }
+    ]
+  }
+}

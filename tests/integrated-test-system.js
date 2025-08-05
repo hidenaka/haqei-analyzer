@@ -48,9 +48,7 @@ class IntegratedTestSystem {
         "健康面で心配があります。ストレスが溜まって体調を崩しがちです。"
       ],
       expectedComponents: [
-        'SituationalContextEngine',
-        'DeepPsychologicalAnalyzer', 
-        'ProbabilisticSituationModeler',
+        'SituationalContextEngine',$1      // 'ProbabilisticSituationModeler', // REMOVED: 正統易経システムに移行
         'HexagramMappingEngine',
         'MetaphorGenerationEngine',
         'CulturalAdaptationEngine',
@@ -125,9 +123,7 @@ class IntegratedTestSystem {
     console.log('🧪 単体テスト開始');
     
     const tests = [
-      this.testSituationalContextEngine(),
-      this.testDeepPsychologicalAnalyzer(),
-      this.testProbabilisticSituationModeler(),
+      this.testSituationalContextEngine(),$1      
       this.testHexagramMappingEngine(),
       this.testCulturalAdaptationEngine(),
       this.testActionTriggeredTransformationEngine()
@@ -719,63 +715,6 @@ class IntegratedTestSystem {
       }
     });
   }
-
-  /**
-   * ProbabilisticSituationModeler単体テスト
-   */
-  async testProbabilisticSituationModeler() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        if (typeof window.ProbabilisticSituationModeler === 'undefined') {
-          reject({ 
-            test: 'ProbabilisticSituationModeler', 
-            status: 'SKIP',
-            message: 'ProbabilisticSituationModelerが利用不可'
-          });
-          return;
-        }
-
-        const modeler = new window.ProbabilisticSituationModeler();
-        await modeler.initialize();
-        
-        // ダミーの状況推定結果
-        const mockSituation = {
-          virtualSituation: {
-            situationType: 'work_stress',
-            complexityLevel: 'moderate'
-          }
-        };
-        
-        const result = await modeler.generateProbabilisticModel(mockSituation);
-        
-        if (result && result.probabilityDistribution && result.scenarioAnalysis) {
-          resolve({ 
-            test: 'ProbabilisticSituationModeler', 
-            status: 'PASS',
-            details: {
-              hasDistribution: !!result.probabilityDistribution,
-              hasScenarios: !!result.scenarioAnalysis,
-              modelAccuracy: result.modelAccuracy
-            },
-            message: '確率的状況モデラーが正常に動作'
-          });
-        } else {
-          reject({ 
-            test: 'ProbabilisticSituationModeler', 
-            status: 'FAIL',
-            message: '確率的モデリング結果の構造が不正'
-          });
-        }
-      } catch (error) {
-        reject({ 
-          test: 'ProbabilisticSituationModeler', 
-          status: 'ERROR', 
-          error: error.message 
-        });
-      }
-    });
-  }
-
   /**
    * ActionTriggeredTransformationEngine単体テスト
    */

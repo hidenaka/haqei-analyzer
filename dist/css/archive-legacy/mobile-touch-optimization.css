@@ -1,0 +1,260 @@
+/**
+ * Mobile Touch Optimization CSS
+ * os_analyzer専用モバイルタッチ操作最適化スタイル
+ */
+
+/* ========================================
+   タッチ操作基本最適化
+   ======================================== */
+
+/* 全てのインタラクティブ要素のタッチ最適化 */
+.question-option,
+.btn,
+.button,
+.tap-target,
+[role="button"],
+input[type="button"],
+input[type="submit"] {
+  min-height: var(--tap-size-min, 44px);
+  min-width: var(--tap-size-min, 44px);
+  padding: var(--space-sm) var(--space-md);
+  margin: var(--tap-spacing, 8px) 0;
+  
+  /* タッチフィードバック */
+  transition: all var(--touch-feedback-duration, 0.15s) ease-out;
+  -webkit-tap-highlight-color: rgba(0, 123, 255, 0.2);
+  
+  /* iOS Safari のズーム防止 */
+  touch-action: manipulation;
+  
+  /* Android のタッチ遅延除去 */
+  cursor: pointer;
+}
+
+/* タッチ時の視覚フィードバック */
+.question-option:active,
+.btn:active,
+.button:active,
+.tap-target:active {
+  transform: scale(var(--touch-feedback-scale, 0.95));
+  opacity: 0.8;
+}
+
+/* ========================================
+   質問選択肢の最適化
+   ======================================== */
+
+.question-options-container {
+  /* タッチスクロール最適化 */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+.question-option {
+  /* より大きなタップエリア */
+  padding: 16px 20px;
+  margin: 12px 0;
+  border-radius: 12px;
+  
+  /* タッチフィードバックの改善 */
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  
+  /* テキストの読みやすさ向上 */
+  font-size: var(--font-base);
+  line-height: 1.5;
+  text-align: left;
+  
+  /* ホバー・アクティブ状態 */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.question-option:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.question-option:active {
+  transform: scale(0.98) translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.2);
+}
+
+.question-option.selected {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border-color: #0056b3;
+  box-shadow: 0 4px 16px rgba(0, 123, 255, 0.3);
+}
+
+/* ========================================
+   ナビゲーションボタンの最適化
+   ======================================== */
+
+.navigation-buttons {
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-md);
+  
+  /* 安全エリア対応 */
+  padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom));
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  min-height: 52px;
+  font-size: var(--font-lg);
+  font-weight: 600;
+  border-radius: 26px;
+  
+  /* より明確な視覚的階層 */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  
+  /* アニメーション最適化 */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  border: none;
+}
+
+.btn-primary:active {
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  transform: scale(0.96);
+}
+
+.btn-secondary {
+  background: white;
+  border: 2px solid #6c757d;
+  color: #6c757d;
+}
+
+.btn-secondary:active {
+  background: #f8f9fa;
+  transform: scale(0.96);
+}
+
+/* ========================================
+   スワイプジェスチャー対応
+   ======================================== */
+
+.question-container {
+  /* 水平スワイプのみ許可 */
+  touch-action: pan-x;
+  overflow-x: hidden;
+  
+  /* スワイプアニメーション */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.question-container.swiping {
+  transition: none;
+}
+
+.question-container.swipe-left {
+  transform: translateX(-100vw);
+}
+
+.question-container.swipe-right {
+  transform: translateX(100vw);
+}
+
+/* ========================================
+   フォーカス・アクセシビリティ
+   ======================================== */
+
+/* キーボードフォーカス */
+.question-option:focus,
+.btn:focus,
+.button:focus {
+  outline: 3px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  .question-option {
+    border-width: 3px;
+  }
+  
+  .question-option.selected {
+    border-width: 4px;
+  }
+}
+
+/* 動画縮小モード対応 */
+@media (prefers-reduced-motion: reduce) {
+  .question-option,
+  .btn,
+  .button {
+    transition: none;
+  }
+  
+  .question-option:active,
+  .btn:active,
+  .button:active {
+    transform: none;
+  }
+}
+
+/* ========================================
+   レスポンシブ調整
+   ======================================== */
+
+/* 小さなモバイル画面 */
+@media (max-width: 375px) {
+  .question-option {
+    padding: 14px 16px;
+    margin: 10px 0;
+    font-size: var(--font-sm);
+  }
+  
+  .navigation-buttons {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    min-height: 48px;
+  }
+}
+
+/* 大きなモバイル画面・タブレット */
+@media (min-width: 768px) {
+  .question-option {
+    padding: 18px 24px;
+    margin: 16px 0;
+    font-size: var(--font-lg);
+  }
+  
+  .navigation-buttons {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+/* ========================================
+   パフォーマンス最適化
+   ======================================== */
+
+/* ハードウェアアクセラレーション */
+.question-option,
+.btn,
+.button {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* バッテリー節約モード */
+@media (prefers-reduced-motion: reduce) {
+  .question-option,
+  .btn,
+  .button {
+    will-change: auto;
+    transform: none;
+  }
+}

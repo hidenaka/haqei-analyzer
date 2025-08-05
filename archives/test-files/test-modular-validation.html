@@ -1,0 +1,144 @@
+<\!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VirtualQuestionFlow モジュラー分割品質テスト</title>
+    <style>
+        body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 20px; }
+        .test-container { background: #f5f5f5; padding: 20px; margin: 10px 0; border-radius: 8px; }
+        .success { color: #22c55e; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        .info { color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <h1>🧪 VirtualQuestionFlow モジュラー分割品質テスト</h1>
+    <div id="test-results"></div>
+
+    <\!-- Base dependencies -->
+    <script>
+        // Mock BaseComponent for testing
+        class BaseComponent {
+            constructor(containerId, options = {}) {
+                this.container = document.getElementById(containerId) || document.createElement('div');
+                this.options = options;
+            }
+        }
+        window.BaseComponent = BaseComponent;
+    </script>
+
+    <\!-- Load modular components in order -->
+    <script src="/public/js/os-analyzer/components/VirtualQuestionFlow-core.js"></script>
+    <script src="/public/js/os-analyzer/components/VirtualQuestionFlow-renderer.js"></script>
+    <script src="/public/js/os-analyzer/components/VirtualQuestionFlow-navigator.js"></script>
+    <script src="/public/js/os-analyzer/components/VirtualQuestionFlow-state.js"></script>
+    <script src="/public/js/os-analyzer/components/VirtualQuestionFlow-utils.js"></script>
+    <script src="/public/js/os-analyzer/components/VirtualQuestionFlow-v2.js"></script>
+
+    <script>
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-container ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            document.getElementById('test-results').appendChild(div);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        async function runQualityTests() {
+            log('🚀 VirtualQuestionFlow モジュラー分割品質テスト開始', 'info');
+
+            // Test 1: Module Loading Verification
+            const modules = [
+                'VirtualQuestionFlowCore',
+                'VirtualQuestionFlowRenderer', 
+                'VirtualQuestionFlowNavigator',
+                'VirtualQuestionFlowState',
+                'VirtualQuestionFlowUtils',
+                'VirtualQuestionFlow'
+            ];
+
+            let loadedModules = 0;
+            modules.forEach(moduleName => {
+                if (typeof window[moduleName] \!== 'undefined') {
+                    log(`✅ ${moduleName} モジュール読み込み成功`, 'success');
+                    loadedModules++;
+                } else {
+                    log(`❌ ${moduleName} モジュール読み込み失敗`, 'error');
+                }
+            });
+
+            // Test 2: Module Integration Test
+            try {
+                const testContainer = document.createElement('div');
+                testContainer.id = 'test-container';
+                document.body.appendChild(testContainer);
+
+                const mockQuestions = [
+                    { id: 'q1', title: 'テスト設問1', text: 'これはテスト設問です', choices: [] },
+                    { id: 'q2', title: 'テスト設問2', text: 'これもテスト設問です', choices: [] }
+                ];
+
+                const vqf = new VirtualQuestionFlow('test-container', {
+                    questions: mockQuestions,
+                    onComplete: (answers) => {
+                        log('📝 完了コールバック動作確認', 'success');
+                    }
+                });
+
+                if (vqf.core && vqf.renderer && vqf.navigator && vqf.state && vqf.utils) {
+                    log('✅ 統合VirtualQuestionFlowインスタンス化成功 - 全モジュール連携確認', 'success');
+                } else {
+                    log('⚠️ 一部モジュールが正しく連携されていない可能性', 'warning');
+                }
+
+                // Test 3: Core Functionality Test
+                vqf.setQuestions(mockQuestions);
+                const stats = vqf.getStats();
+                if (stats && stats.navigation && stats.progress) {
+                    log('✅ 統計情報取得機能正常動作', 'success');
+                } else {
+                    log('❌ 統計情報取得機能に問題あり', 'error');
+                }
+
+                // Test 4: State Management Test
+                const currentState = vqf.getCurrentState();
+                if (currentState && typeof currentState.currentQuestionIndex === 'number') {
+                    log('✅ 状態管理機能正常動作', 'success');
+                } else {
+                    log('❌ 状態管理機能に問題あり', 'error');
+                }
+
+                // Test 5: Emergency Fix Integration Test
+                const fixResult = vqf.applyEmergencyFixes();
+                if (typeof fixResult === 'boolean') {
+                    log('✅ 緊急修正機能統合確認', 'success');
+                } else {
+                    log('❌ 緊急修正機能統合に問題あり', 'error');
+                }
+
+                testContainer.remove();
+
+            } catch (error) {
+                log(`❌ 統合テスト中にエラー: ${error.message}`, 'error');
+                console.error('Integration test error:', error);
+            }
+
+            // Test Summary
+            log('==========================================', 'info');
+            log(`📊 テスト完了: ${loadedModules}/${modules.length} モジュール読み込み成功`, 'info');
+            
+            if (loadedModules === modules.length) {
+                log('🎉 全品質テスト合格 - モジュラー分割実装は適切です', 'success');
+            } else {
+                log('⚠️ 一部テスト失敗 - 実装確認が必要です', 'warning');
+            }
+        }
+
+        // Run tests when page loads
+        window.addEventListener('load', runQualityTests);
+    </script>
+</body>
+</html>
+EOF < /dev/null

@@ -1,0 +1,521 @@
+/* organizational-workflow.css - 組織的ワークフローシステム専用スタイル */
+/* HaQei Analyzer - Bunenjin Strategy Navigator UI Styles */
+
+.workflow-controller {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: #f1f5f9;
+    min-height: 100vh;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* === ワークフローヘッダー === */
+.workflow-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid #475569;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+}
+
+.phase-indicator {
+    flex: 1;
+}
+
+.phase-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #38bdf8;
+    margin-bottom: 10px;
+}
+
+.phase-progress {
+    width: 100%;
+    height: 8px;
+    background: #475569;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #06b6d4 0%, #38bdf8 50%, #0ea5e9 100%);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    width: 0%;
+}
+
+.workflow-controls {
+    display: flex;
+    gap: 12px;
+}
+
+/* === ボタンスタイル === */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0891b2 0%, #0284c7 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #475569 0%, #334155 100%);
+    transform: translateY(-2px);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* === エージェントパネル === */
+.agents-panel {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #475569;
+}
+
+.agents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.agent-card {
+    background: rgba(30, 41, 59, 0.6);
+    border: 2px solid #475569;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+}
+
+.agent-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    border-color: #64748b;
+}
+
+.agent-card.idle {
+    border-color: #475569;
+    background: rgba(30, 41, 59, 0.6);
+}
+
+.agent-card.active {
+    border-color: #06b6d4;
+    background: rgba(6, 182, 212, 0.1);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+}
+
+.agent-card.completed {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.agent-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.agent-icon {
+    font-size: 2rem;
+    margin-right: 12px;
+}
+
+.agent-info {
+    flex: 1;
+}
+
+.agent-role {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.agent-os {
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.agent-responsibility {
+    color: #cbd5e1;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+}
+
+.agent-status {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.agent-card.idle .status-indicator {
+    background: #64748b;
+}
+
+.agent-card.active .status-indicator {
+    background: #06b6d4;
+    animation: pulse-blue 2s infinite;
+}
+
+.agent-card.completed .status-indicator {
+    background: #10b981;
+}
+
+@keyframes pulse-blue {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.2);
+    }
+}
+
+/* === プロジェクトパネル === */
+.project-panel {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid #475569;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 30px;
+}
+
+.project-form {
+    display: grid;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 8px;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid #475569;
+    border-radius: 6px;
+    padding: 12px;
+    color: #f1f5f9;
+    transition: border-color 0.3s ease;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #06b6d4;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* === コミュニケーションパネル === */
+.communication-panel,
+.decision-panel,
+.history-panel {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid #475569;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 30px;
+}
+
+.communication-log,
+.decision-log,
+.workflow-timeline {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.5);
+}
+
+.log-empty,
+.timeline-empty {
+    text-align: center;
+    color: #94a3b8;
+    font-style: italic;
+    padding: 40px 20px;
+}
+
+/* === コミュニケーションアイテム === */
+.communication-item {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.communication-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.from-agent,
+.to-agent {
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.from-agent {
+    background: rgba(6, 182, 212, 0.2);
+    color: #67e8f9;
+}
+
+.to-agent {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+}
+
+.communication-arrow {
+    margin: 0 8px;
+    color: #94a3b8;
+}
+
+.communication-time {
+    margin-left: auto;
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.communication-message {
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    color: #e2e8f0;
+}
+
+.communication-response {
+    background: rgba(59, 130, 246, 0.1);
+    border-left: 3px solid #3b82f6;
+    padding: 8px 12px;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+}
+
+/* === 意思決定アイテム === */
+.decision-item {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.decision-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.decision-title {
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.consensus-level {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.decision-details {
+    padding-top: 12px;
+    border-top: 1px solid #475569;
+}
+
+.decision-recommendation {
+    background: rgba(59, 130, 246, 0.1);
+    border-left: 3px solid #3b82f6;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    color: #cbd5e1;
+}
+
+.triple-os-analysis {
+    display: grid;
+    gap: 8px;
+}
+
+.os-perspective {
+    background: rgba(15, 23, 42, 0.6);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #cbd5e1;
+}
+
+/* === レスポンシブデザイン === */
+@media (max-width: 768px) {
+    .workflow-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .workflow-controls {
+        justify-content: center;
+    }
+
+    .agents-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .communication-header {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .decision-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+
+/* === カスタムスクロールバー === */
+.communication-log::-webkit-scrollbar,
+.decision-log::-webkit-scrollbar,
+.workflow-timeline::-webkit-scrollbar {
+    width: 8px;
+}
+
+.communication-log::-webkit-scrollbar-track,
+.decision-log::-webkit-scrollbar-track,
+.workflow-timeline::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+.communication-log::-webkit-scrollbar-thumb,
+.decision-log::-webkit-scrollbar-thumb,
+.workflow-timeline::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
+
+.communication-log::-webkit-scrollbar-thumb:hover,
+.decision-log::-webkit-scrollbar-thumb:hover,
+.workflow-timeline::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* === アニメーション === */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.communication-item,
+.decision-item {
+    animation: fadeInUp 0.3s ease;
+}
+
+/* === 状態表示の改善 === */
+.agent-actions {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #475569;
+    min-height: 24px;
+}
+
+.action-button {
+    background: rgba(6, 182, 212, 0.2);
+    border: 1px solid #06b6d4;
+    color: #67e8f9;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.action-button:hover {
+    background: rgba(6, 182, 212, 0.3);
+    transform: translateY(-1px);
+}
+
+/* === 完了状態のハイライト === */
+.workflow-controller.completed {
+    border: 2px solid #10b981;
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+}
+
+.completion-banner {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    text-align: center;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    animation: fadeInUp 0.5s ease;
+}

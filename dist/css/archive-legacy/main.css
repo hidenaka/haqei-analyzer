@@ -1,0 +1,783 @@
+/* main.css - New HaQei Analyzer メインスタイル */
+/* HaQei Analyzer - Main CSS */
+:root {
+  /* Colors */
+  --primary-900: #0f172a;
+  --primary-800: #1e293b;
+  --primary-700: #334155;
+  --primary-600: #475569;
+  --primary-500: #64748b;
+  --primary-400: #94a3b8;
+  --primary-300: #cbd5e1;
+  --primary-200: #e2e8f0;
+  --primary-100: #f1f5f9;
+  --primary-50: #f8fafc;
+
+  --accent-500: #6366f1;
+  --accent-400: #8b5cf6;
+
+  /* Fonts */
+  --font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Spacing */
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  /* Transitions */
+  --transition-normal: 300ms ease;
+  
+  /* Layout Constants - 見切れ防止用（完全修正版） */
+  --progress-bar-height: 6px;
+  --safe-area-top: max(env(safe-area-inset-top), 0px);
+  --safe-area-bottom: max(env(safe-area-inset-bottom), 0px);
+  --safe-area-left: max(env(safe-area-inset-left), 0px);
+  --safe-area-right: max(env(safe-area-inset-right), 0px);
+  --content-safe-top: calc(var(--progress-bar-height) + var(--safe-area-top) + 1rem);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  /* 🎯 bunenjin哲学: 陰陽バランスによる美的調和 */
+  background: linear-gradient(
+    135deg,
+    var(--primary-800) 0%,
+    var(--primary-700) 35%,
+    var(--primary-600) 70%,
+    rgba(99, 102, 241, 0.1) 100%
+  );
+  /* 動的テクスチャ追加で深みを演出 */
+  background-attachment: fixed;
+  color: var(--primary-100);
+  min-height: 100vh;
+  line-height: 1.6;
+  /* 初期スクロール位置を確実に上部に設定 */
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+.app-container {
+  min-height: 100vh;
+  position: relative;
+  /* flexboxレイアウトを除去して、絶対配置による重ね合わせ表示に変更 */
+}
+
+/**
+ * 各screen-containerは絶対配置で全画面を覆う
+ * 
+ * 修正内容（2025-08-02）:
+ * - 設問にかぶる問題を解決
+ * - セーフエリアを最小限に調整
+ * - questions-containerは特別扱い
+ */
+.app-container > .screen-container {
+  position: absolute;
+  top: var(--progress-total-height); /* プログレスバー + セーフエリア */
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - var(--progress-total-height)); /* 総高さを引いた高さ */
+  display: none;
+  align-items: flex-start; /* 上部揃えに変更（center→flex-start） */
+  justify-content: center;
+  padding: var(--space-6);
+  padding-top: var(--space-4); /* 追加のパディング */
+  box-sizing: border-box;
+  overflow-y: auto; /* スクロール可能にしつつ、上部の見切れを防ぐ */
+}
+
+/* questions-containerは設問表示のため特別扱い - 見切れ完全解決版 */
+.app-container > #questions-container.screen-container {
+  position: fixed !important; /* 絶対配置で他の要素の影響を防ぐ */
+  top: 0 !important; /* 上端から開始 */
+  left: 0 !important;
+  width: 100vw !important; /* ビューポート幅 */
+  height: 100vh !important; /* ビューポート高 */
+  padding: 0 !important; /* パディングを完全に削除 */
+  margin: 0 !important; /* マージンを完全に削除 */
+  overflow-y: auto !important; /* スクロール可能 */
+  box-sizing: border-box !important;
+  z-index: 1000 !important; /* 最前面に表示 */
+  background: var(--primary-800) !important; /* 背景色を確実に設定 */
+}
+
+/* 表示状態のscreen-containerは確実に表示される */
+.app-container > .screen-container.visible {
+  display: flex !important;
+  z-index: 100;
+}
+
+/* 一般的なscreen-containerスタイル（app-container外で使用される場合） */
+.screen-container:not(.app-container > .screen-container) {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-6);
+  text-align: center;
+  display: none;
+  opacity: 0;
+}
+
+/**
+ * Welcome画面のレイアウト修正
+ * 
+ * 修正内容（2025-08-01）:
+ * - タイトル見切れ問題を解決
+ * - セーフエリアを動的に適用
+ * - センタリングを維持しつつ上部マージンを確保
+ */
+#welcome-container {
+  flex-direction: column;
+  justify-content: flex-start; /* center→flex-start */
+  align-items: center;
+  text-align: center;
+  /* 上部の見切れを防ぐための動的パディング */
+  padding-top: calc(var(--space-6) + var(--safe-top-desktop));
+  padding-bottom: var(--space-6);
+  min-height: calc(100vh - var(--progress-total-height) - var(--space-6) * 2);
+}
+
+/* Results画面の表示確保 */
+#results-container {
+  /* 新しいレイアウトでは app-container > .screen-container ルールが適用される */
+  overflow-y: auto;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: var(--primary-800) !important; /* 背景色を確実に設定 */
+}
+
+/* Results画面の究極強制表示 - ダークモード対応完全版 */
+#results-container.visible {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 10000 !important;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%) !important;
+  color: var(--primary-100, #f1f5f9) !important;
+  min-height: 100vh !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: stretch !important;
+  overflow-y: auto !important;
+  padding: 2rem !important;
+  box-sizing: border-box !important;
+}
+
+/* ダークモード強制対応 */
+@media (prefers-color-scheme: dark) {
+  #results-container.visible {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+    color: #ffffff !important;
+  }
+}
+
+.global-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--progress-bar-height);
+  background: var(--primary-800);
+  z-index: 10000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  display: none !important; /* 完全に非表示 */
+}
+
+/* 設問モードでは絶対に非表示 */
+body.questions-active .global-progress,
+.app-container > #questions-container.visible ~ .global-progress {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* ウェルカム画面でのみ表示（設問モードでは絶対非表示） */
+body.welcome-active .global-progress {
+  display: block;
+}
+body.questions-active .global-progress {
+  display: none !important;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-500), var(--accent-400));
+  transition: width var(--transition-normal);
+  width: 0%;
+}
+
+/* テスト用スタイル */
+#welcome-container::before {
+  content: "🎯 HaQei Analyzer";
+  display: block;
+  font-size: 3rem;
+  margin-bottom: var(--space-4);
+  color: var(--accent-400);
+}
+
+#welcome-container::after {
+  content: "深い自己洞察への入り口 - システム準備中...";
+  display: block;
+  font-size: 1.2rem;
+  color: var(--primary-300);
+  margin-top: var(--space-4);
+}
+/* Welcome Screen Styles */
+.welcome-content {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.welcome-header {
+  margin-bottom: 2rem;
+}
+
+.welcome-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--accent-400);
+  margin-bottom: 1rem;
+}
+
+.welcome-subtitle {
+  font-size: 1.2rem;
+  color: var(--primary-200);
+  margin-bottom: 0;
+}
+
+.welcome-description {
+  margin: 2rem 0;
+  color: var(--primary-300);
+  line-height: 1.8;
+}
+
+.welcome-actions {
+  margin-top: 3rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--accent-500), var(--accent-400));
+  color: white;
+  text-decoration: none;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 300ms ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+.btn-lg {
+  padding: 1.25rem 2.5rem;
+  font-size: 1.2rem;
+}
+
+/* 古いテスト用CSS削除 */
+#welcome-container::before,
+#welcome-container::after {
+  display: none;
+}
+
+/* =================================== */
+/* グローバルプログレスバー */
+/* =================================== */
+
+.global-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--primary-800);
+  z-index: 1000;
+  border-radius: 0 0 2px 2px;
+}
+
+.progress-bar {
+  height: 100%;
+  /* 🎯 bunenjin哲学: 進捗の美的表現 */
+  background: linear-gradient(
+    90deg, 
+    var(--accent-500), 
+    var(--accent-400),
+    rgba(139, 92, 246, 0.8)
+  );
+  transition: width var(--transition-normal);
+  width: 0%;
+  border-radius: 0 0 2px 2px;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.7);
+  /* 動的光沢効果 */
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: progressShine 2s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+/* =================================== */
+/* スクリーンコンテナー */
+/* =================================== */
+
+.screen-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6);
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  /* 初期状態は非表示 */
+  display: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s ease;
+}
+
+/* .active クラスは廃止 - .visible クラスで統一 */
+
+/* =================================== */
+/* ボタンスタイル強化 */
+/* =================================== */
+
+.btn {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--accent-500), var(--accent-400));
+  color: white;
+  text-decoration: none;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 300ms ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-lg {
+  padding: 1.25rem 2.5rem;
+  font-size: 1.2rem;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
+  box-shadow: 0 4px 15px rgba(71, 85, 105, 0.3);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  box-shadow: 0 8px 25px rgba(71, 85, 105, 0.4);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* =================================== */
+/* カードスタイル */
+/* =================================== */
+
+.card {
+  /* 🎯 bunenjin哲学: 背景とのコントラスト強化 */
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.05) 0%,
+    rgba(139, 92, 246, 0.05) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border-color: var(--primary-600);
+}
+
+/* =================================== */
+/* テキストスタイル */
+/* =================================== */
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--accent-500), var(--accent-400));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-glow {
+  text-shadow: 0 0 10px var(--accent-500);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.text-3xl {
+  font-size: 1.875rem;
+}
+
+/* =================================== */
+/* ユーティリティクラス */
+/* =================================== */
+
+.mt-4 {
+  margin-top: 1rem;
+}
+.mt-6 {
+  margin-top: 1.5rem;
+}
+.mt-8 {
+  margin-top: 2rem;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+.mb-8 {
+  margin-bottom: 2rem;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+.p-6 {
+  padding: 1.5rem;
+}
+.p-8 {
+  padding: 2rem;
+}
+
+.rounded {
+  border-radius: 0.5rem;
+}
+.rounded-lg {
+  border-radius: 0.75rem;
+}
+.rounded-xl {
+  border-radius: 1rem;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.shadow-md {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.shadow-lg {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+.opacity-75 {
+  opacity: 0.75;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
+.hidden {
+  display: none;
+}
+.visible {
+  display: block;
+}
+
+.flex {
+  display: flex;
+}
+.grid {
+  display: grid;
+}
+.inline-block {
+  display: inline-block;
+}
+
+.items-center {
+  align-items: center;
+}
+.justify-center {
+  justify-content: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+.gap-4 {
+  gap: 1rem;
+}
+.gap-6 {
+  gap: 1.5rem;
+}
+
+/* =================================== */
+/* ダークモード最適化 */
+/* =================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary-900: #0a0a0a;
+    --primary-800: #1a1a1a;
+    --primary-700: #2a2a2a;
+    --primary-600: #3a3a3a;
+    --primary-500: #4a4a4a;
+    --primary-400: #6a6a6a;
+    --primary-300: #8a8a8a;
+    --primary-200: #aaaaaa;
+    --primary-100: #ffffff;  /* 修正: ダークモードでの白いテキスト */
+    --primary-50: #f8f8f8;
+  }
+}
+
+/* =================================== */
+/* レスポンシブデザイン */
+/* =================================== */
+
+/**
+ * モバイル対応レスポンシブ修正（768px以下）
+ * 
+ * 修正内容（2025-08-01）:
+ * - モバイル専用セーフエリア（80px）を適用
+ * - CSS変数を活用した一貫性のある実装
+ * - 画面見切れ問題の完全解決
+ */
+@media (max-width: 768px) {
+  :root {
+    --progress-total-height: calc(var(--progress-bar-height) + var(--safe-top-mobile));
+  }
+  
+  .screen-container {
+    padding: 1rem;
+    padding-top: calc(1rem + var(--safe-top-mobile));
+  }
+  
+  .app-container > .screen-container {
+    padding: 1rem;
+    padding-top: var(--space-4);
+  }
+  
+  /* questions-containerはモバイルでも特別扱い - 見切れ完全防止 */
+  .app-container > #questions-container.screen-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+    z-index: 1000 !important;
+  }
+  
+  #welcome-container {
+    padding-top: calc(var(--space-4) + var(--safe-top-mobile));
+    padding-bottom: 1rem;
+    min-height: calc(100vh - var(--progress-total-height) - 2rem);
+  }
+
+  .btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+
+  .card {
+    padding: 1.5rem;
+  }
+
+  .text-3xl {
+    font-size: 1.5rem;
+  }
+
+  .text-2xl {
+    font-size: 1.25rem;
+  }
+}
+
+/**
+ * 小画面対応レスポンシブ修正（480px以下）
+ * 
+ * 修正内容（2025-08-01）:
+ * - 小画面専用セーフエリア（100px）を適用
+ * - 最小画面でも完全に見切れを防止
+ * - iPhone SE等の狭い画面でも操作性確保
+ */
+@media (max-width: 480px) {
+  :root {
+    --progress-total-height: calc(var(--progress-bar-height) + var(--safe-top-small));
+  }
+  
+  .screen-container {
+    padding: 0.5rem;
+    padding-top: calc(0.5rem + var(--safe-top-small));
+  }
+  
+  .app-container > .screen-container {
+    padding: 0.5rem;
+    padding-top: var(--space-2);
+  }
+  
+  /* questions-containerは小画面でも特別扱い - 見切れ完全防止 */
+  .app-container > #questions-container.screen-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+    z-index: 1000 !important;
+  }
+  
+  #welcome-container {
+    padding-top: calc(var(--space-2) + var(--safe-top-small));
+    padding-bottom: 0.5rem;
+    min-height: calc(100vh - var(--progress-total-height) - 1rem);
+  }
+
+  .btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .text-3xl {
+    font-size: 1.25rem;
+  }
+}

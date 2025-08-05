@@ -1,0 +1,302 @@
+<\!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI 30問完了フロー検証</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 12px;
+            border: 2px solid #6366f1;
+        }
+        .test-button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .test-button:hover { background: #5855d6; }
+        .status {
+            background: #3a3a3a;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #6366f1;
+        }
+        .success { border-left-color: #10b981; }
+        .warning { border-left-color: #f59e0b; }
+        .error { border-left-color: #ef4444; }
+        .log {
+            background: #1f1f1f;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .progress {
+            background: #3a3a3a;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .progress-bar {
+            background: #6366f1;
+            height: 20px;
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 HAQEI 30問完了フロー検証</h1>
+        
+        <div class="status">
+            <h3>📋 テスト項目</h3>
+            <ul>
+                <li>1. 初期ページ読み込み</li>
+                <li>2. 設問フロー開始</li>
+                <li>3. 30問自動回答</li>
+                <li>4. 完了後遷移確認</li>
+                <li>5. 結果ページ表示</li>
+                <li>6. データ整合性</li>
+                <li>7. エラーハンドリング</li>
+            </ul>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progress-bar">0%</div>
+        </div>
+
+        <div>
+            <button class="test-button" onclick="openHAQEI()">HAQEI アナライザーを開く</button>
+            <button class="test-button" onclick="checkCurrentStatus()">現在状況確認</button>
+            <button class="test-button" onclick="clearStorage()">ストレージクリア</button>
+            <button class="test-button" onclick="startAutoTest()">自動テスト開始</button>
+        </div>
+
+        <div id="status-display" class="status">
+            <h4>📊 現在の状況</h4>
+            <div id="status-content">初期状態</div>
+        </div>
+
+        <div class="log" id="log-container">
+            <div>🔍 ログ表示エリア</div>
+        </div>
+
+        <div class="status">
+            <h4>📝 手動テスト手順</h4>
+            <ol>
+                <li>「HAQEI アナライザーを開く」ボタンをクリック</li>
+                <li>新しいタブで診断を開始</li>
+                <li>30問に順次回答</li>
+                <li>完了後の遷移を観察</li>
+                <li>「現在状況確認」で結果を確認</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let testWindow = null;
+        let currentTest = 0;
+        let totalTests = 7;
+
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorMap = {
+                'info': '#6366f1',
+                'success': '#10b981',
+                'warning': '#f59e0b',
+                'error': '#ef4444'
+            };
+            
+            logContainer.innerHTML += `
+                <div style="color: ${colorMap[type] || '#fff'}">
+                    [${timestamp}] ${message}
+                </div>
+            `;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateProgress(current, total) {
+            const percentage = Math.round((current / total) * 100);
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = `${current}/${total} (${percentage}%)`;
+        }
+
+        function openHAQEI() {
+            log('HAQEI アナライザーを開いています...', 'info');
+            testWindow = window.open(
+                'http://localhost:8788/public/os_analyzer.html',
+                'haqei-test',
+                'width=1200,height=800,scrollbars=yes,resizable=yes'
+            );
+            
+            if (testWindow) {
+                log('✅ HAQEI アナライザーが新しいタブで開きました', 'success');
+                
+                // 5秒後に状況を確認
+                setTimeout(() => {
+                    checkCurrentStatus();
+                }, 5000);
+            } else {
+                log('❌ ポップアップがブロックされました。手動で開いてください', 'error');
+            }
+        }
+
+        function checkCurrentStatus() {
+            try {
+                log('📊 現在の状況を確認中...', 'info');
+                
+                // LocalStorageから現在の状況を取得
+                const answers = JSON.parse(localStorage.getItem('haqei_answers') || '[]');
+                const session = JSON.parse(localStorage.getItem('haqei_session') || '{}');
+                const analysisResult = JSON.parse(localStorage.getItem('haqei_analysis_result') || 'null');
+                
+                const status = {
+                    answers: answers.length,
+                    sessionActive: \!\!session.id,
+                    analysisComplete: \!\!analysisResult,
+                    currentStage: session.stage || 'unknown'
+                };
+                
+                const statusContent = document.getElementById('status-content');
+                statusContent.innerHTML = `
+                    <div><strong>回答数:</strong> ${status.answers}/30</div>
+                    <div><strong>セッション:</strong> ${status.sessionActive ? '有効' : '無効'}</div>
+                    <div><strong>分析結果:</strong> ${status.analysisComplete ? '完了' : '未完了'}</div>
+                    <div><strong>現在ステージ:</strong> ${status.currentStage}</div>
+                `;
+                
+                // プログレス更新
+                const progress = Math.max(
+                    status.answers / 30 * 0.5,  // 回答進捗（50%まで）
+                    status.analysisComplete ? 1.0 : 0.5  // 分析完了（100%）
+                );
+                updateProgress(Math.round(progress * totalTests), totalTests);
+                
+                log(`📊 現在の状況: ${status.answers}/30問回答, ステージ: ${status.currentStage}`, 'info');
+                
+                // 完了チェック
+                if (status.answers === 30 && status.analysisComplete) {
+                    log('🎉 30問完了と分析が完了しています！', 'success');
+                    validateCompletionFlow(status);
+                } else if (status.answers === 30) {
+                    log('⚠️ 30問は完了していますが、分析が未完了です', 'warning');
+                } else if (status.answers > 0) {
+                    log(`📝 ${status.answers}問回答済み、継続中...`, 'info');
+                }
+                
+            } catch (error) {
+                log(`❌ 状況確認エラー: ${error.message}`, 'error');
+            }
+        }
+
+        function validateCompletionFlow(status) {
+            log('🔍 完了フローの詳細検証を開始...', 'info');
+            
+            try {
+                const answers = JSON.parse(localStorage.getItem('haqei_answers') || '[]');
+                const analysisResult = JSON.parse(localStorage.getItem('haqei_analysis_result') || 'null');
+                
+                // データ整合性チェック
+                const dataIntegrity = {
+                    answersCount: answers.length === 30,
+                    analysisStructure: analysisResult && 
+                                     analysisResult.engineOS && 
+                                     analysisResult.interfaceOS && 
+                                     analysisResult.safeModeOS,
+                    answerFormat: answers.every(answer => 
+                        answer.questionId && 
+                        answer.selectedValue && 
+                        answer.selectedChoice
+                    )
+                };
+                
+                log('🔍 データ整合性検証:', 'info');
+                log(`  - 回答数: ${dataIntegrity.answersCount ? '✅' : '❌'} (${answers.length}/30)`, 
+                    dataIntegrity.answersCount ? 'success' : 'error');
+                log(`  - 分析構造: ${dataIntegrity.analysisStructure ? '✅' : '❌'}`, 
+                    dataIntegrity.analysisStructure ? 'success' : 'error');
+                log(`  - 回答フォーマット: ${dataIntegrity.answerFormat ? '✅' : '❌'}`, 
+                    dataIntegrity.answerFormat ? 'success' : 'error');
+                
+                if (Object.values(dataIntegrity).every(v => v)) {
+                    log('🎯 30問完了フロー検証: 完全成功！', 'success');
+                    updateProgress(totalTests, totalTests);
+                } else {
+                    log('⚠️ 30問完了フローで問題が発見されました', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ 完了フロー検証エラー: ${error.message}`, 'error');
+            }
+        }
+
+        function clearStorage() {
+            try {
+                localStorage.removeItem('haqei_answers');
+                localStorage.removeItem('haqei_session');
+                localStorage.removeItem('haqei_analysis_result');
+                
+                log('🗑️ ストレージをクリアしました', 'success');
+                
+                // ステータスリセット
+                document.getElementById('status-content').innerHTML = '初期状態（ストレージクリア済み）';
+                updateProgress(0, totalTests);
+                
+            } catch (error) {
+                log(`❌ ストレージクリアエラー: ${error.message}`, 'error');
+            }
+        }
+
+        function startAutoTest() {
+            // 自動テスト機能（今後実装予定）
+            log('🤖 自動テスト機能は開発中です', 'warning');
+            log('現在は手動テストをご利用ください', 'info');
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 HAQEI 30問完了フロー検証ツール開始', 'success');
+            log('手動テストを開始してください', 'info');
+            
+            // 定期的な状況チェック
+            setInterval(checkCurrentStatus, 10000); // 10秒ごと
+        });
+
+        // ページを閉じる前の警告
+        window.addEventListener('beforeunload', function(e) {
+            if (testWindow && \!testWindow.closed) {
+                testWindow.close();
+            }
+        });
+    </script>
+</body>
+</html>
+EOF < /dev/null

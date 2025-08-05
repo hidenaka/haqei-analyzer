@@ -1,0 +1,538 @@
+/**
+ * critical-productive-card.css
+ * 批判的・生産的視点カードのスタイリング
+ */
+
+.critical-productive-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 16px 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+    border-left: 4px solid var(--primary-color, #3498db);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.critical-productive-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.critical-productive-card.error {
+    border-left-color: #e74c3c;
+    background: linear-gradient(135deg, #fdf2f2 0%, #fbeaea 100%);
+}
+
+/* ヘッダー部 */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid rgba(0,0,0,0.1);
+}
+
+.card-title {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.4em;
+    font-weight: 600;
+}
+
+.score-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.8);
+    padding: 8px 16px;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.score-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.score-label {
+    font-size: 0.9em;
+    color: #7f8c8d;
+}
+
+/* セクション共通スタイル */
+.collapsible {
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.section-header {
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-header:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.section-header h4 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.expand-indicator {
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+}
+
+.section-content {
+    padding: 0 20px 20px;
+    transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+    overflow: hidden;
+}
+
+.collapsible[data-expanded="false"] .section-content {
+    max-height: 0;
+    opacity: 0;
+    padding: 0 20px;
+}
+
+.collapsible[data-expanded="true"] .section-content {
+    max-height: 1000px;
+    opacity: 1;
+}
+
+.collapsible[data-expanded="true"] .expand-indicator {
+    transform: rotate(180deg);
+}
+
+/* 批判的視点セクション */
+.critical-section {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+}
+
+.critical-section .section-content h5 {
+    color: #ecf0f1;
+    margin: 0 0 12px 0;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+/* 生産的視点セクション */
+.productive-section {
+    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+    color: white;
+}
+
+.productive-section .section-content h5 {
+    color: #ecf0f1;
+    margin: 0 0 12px 0;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+/* 動的インサイトセクション */
+.dynamic-insights-section {
+    background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+    color: white;
+}
+
+.dynamic-insights-section .section-content h5 {
+    color: #ecf0f1;
+    margin: 0 0 12px 0;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+/* シャドウ分析 */
+.shadow-analysis {
+    margin-bottom: 20px;
+}
+
+.shadow-item {
+    background: rgba(255,255,255,0.1);
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 3px solid rgba(255,255,255,0.3);
+}
+
+.primary-shadow {
+    font-size: 1.05em;
+    line-height: 1.6;
+    margin: 0 0 12px 0;
+}
+
+.behavioral-risks {
+    font-size: 0.95em;
+    opacity: 0.9;
+    margin-bottom: 16px;
+    font-style: italic;
+}
+
+.likelihood-meter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.likelihood-label {
+    font-size: 0.9em;
+    min-width: 80px;
+}
+
+.likelihood-bar-container {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.likelihood-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #e74c3c 0%, #f39c12 50%, #27ae60 100%);
+    border-radius: 4px;
+    transition: width 0.8s ease;
+    min-width: 2px;
+}
+
+.likelihood-value {
+    font-weight: bold;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* 質問系コンポーネント */
+.question-list,
+.question-cards {
+    display: grid;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.question-card {
+    background: rgba(255,255,255,0.1);
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 3px solid rgba(255,255,255,0.3);
+    transition: background-color 0.2s ease;
+}
+
+.question-card:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.question-text {
+    font-size: 1.05em;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+.question-purpose,
+.question-category {
+    font-size: 0.85em;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.question-category {
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: rgba(255,255,255,0.7);
+}
+
+/* 実践ステップ */
+.steps-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.step-item:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.step-number {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+    font-size: 1.1em;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-action {
+    font-weight: 600;
+    font-size: 1.05em;
+    margin-bottom: 4px;
+}
+
+.step-description {
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+/* 成長課題 */
+.growth-challenges {
+    margin-bottom: 20px;
+}
+
+.primary-challenge {
+    font-size: 1.05em;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+}
+
+.development-areas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.area-tag {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.9em;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+/* 統合ガイダンス */
+.from-to-display {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    margin: 12px 0;
+}
+
+.from,
+.to {
+    flex: 1;
+    padding: 12px;
+    border-radius: 6px;
+    line-height: 1.4;
+}
+
+.from {
+    background: rgba(231,76,60,0.3);
+    border: 1px solid rgba(231,76,60,0.5);
+}
+
+.to {
+    background: rgba(39,174,96,0.3);
+    border: 1px solid rgba(39,174,96,0.5);
+}
+
+.arrow {
+    font-size: 20px;
+    font-weight: bold;
+    color: rgba(255,255,255,0.8);
+}
+
+/* 易経インサイト */
+.insights-grid {
+    display: grid;
+    gap: 16px;
+    margin: 16px 0;
+}
+
+.insight-item {
+    background: rgba(255,255,255,0.1);
+    padding: 16px;
+    border-radius: 8px;
+    border-left: 3px solid rgba(255,255,255,0.3);
+}
+
+.insight-item h6 {
+    margin: 0 0 12px 0;
+    font-size: 1em;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+}
+
+.insight-item ul {
+    margin: 0;
+    padding-left: 16px;
+    line-height: 1.5;
+}
+
+.insight-item li {
+    margin-bottom: 6px;
+    opacity: 0.9;
+}
+
+/* エラー表示 */
+.error-message {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.error-message h3 {
+    color: #e74c3c;
+    margin-bottom: 16px;
+}
+
+.error-details {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    margin-top: 12px;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .critical-productive-card {
+        padding: 16px;
+        margin: 12px 0;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+    
+    .score-indicator {
+        align-self: stretch;
+        justify-content: center;
+    }
+    
+    .section-header {
+        padding: 12px 16px;
+    }
+    
+    .section-content {
+        padding: 0 16px 16px;
+    }
+    
+    .collapsible[data-expanded="false"] .section-content {
+        padding: 0 16px;
+    }
+    
+    .from-to-display {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .arrow {
+        transform: rotate(90deg);
+        align-self: center;
+    }
+    
+    .step-item {
+        padding: 12px;
+    }
+    
+    .step-number {
+        width: 32px;
+        height: 32px;
+        font-size: 1em;
+    }
+    
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 769px) {
+    .insights-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+/* スコア帯別の視覚的調整 */
+.critical-productive-card[data-score-range="high"] {
+    border-left-color: #e74c3c;
+}
+
+.critical-productive-card[data-score-range="high"] .score-indicator {
+    background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+}
+
+.critical-productive-card[data-score-range="medium"] {
+    border-left-color: #f39c12;
+}
+
+.critical-productive-card[data-score-range="medium"] .score-indicator {
+    background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+}
+
+.critical-productive-card[data-score-range="low"] {
+    border-left-color: #27ae60;
+}
+
+.critical-productive-card[data-score-range="low"] .score-indicator {
+    background: linear-gradient(135deg, #f0fff4 0%, #e8f5e8 100%);
+}
+
+/* アニメーション */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.critical-productive-card {
+    animation: fadeIn 0.5s ease;
+}
+
+.question-card,
+.step-item,
+.insight-item {
+    animation: fadeIn 0.3s ease;
+}
+
+/* アクセシビリティ */
+.section-header:focus {
+    outline: 2px solid rgba(255,255,255,0.5);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .critical-productive-card,
+    .section-content,
+    .likelihood-bar,
+    .expand-indicator {
+        transition: none;
+        animation: none;
+    }
+}

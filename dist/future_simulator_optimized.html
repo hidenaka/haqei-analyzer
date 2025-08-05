@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HaQei マルチバース・アナライザー（最適化版）</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
+    />
+    
+    <!-- Load critical path scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Core modules -->
+    <script type="module" src="./js/future-simulator-core.js"></script>
+    <script type="module" src="./js/error-handler.js"></script>
+    
+    <!-- Quality Enhancement System -->
+    <link rel="stylesheet" href="./css/quality-grade-enhancement.css">
+    
+    <!-- 🔯 易経変化法則統合システム -->
+    <script src="./js/core/IChingTransformationEngine.js"></script>
+    <script src="./js/core/FutureBranchingSystem.js"></script>
+    
+    <!-- Data Systems -->
+    <script src="./js/core/DataPersistenceManager.js"></script>
+    <script src="./js/core/DataExportAPI.js"></script>
+    
+    <!-- Database scripts -->
+    <script src="./js/koudo_shishin_database.js"></script>
+    <script src="./js/ai_theme_database.js"></script>
+    <script src="./js/sns_worry_patterns.js"></script>
+    <script src="./assets/H384H64database.js"></script>
+    
+    <style>
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(59, 130, 246, 0.3);
+        border-top: 4px solid rgba(59, 130, 246, 1);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-6">
+    <!-- Initial Loading Screen -->
+    <div id="initial-loading" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-50">
+      <div class="text-center">
+        <div class="loading-spinner mx-auto mb-4"></div>
+        <h1 class="text-2xl font-bold brand-text mb-2">HaQei マルチバース・アナライザー</h1>
+        <p class="text-gray-400">システムを最適化して初期化中...</p>
+        <div class="mt-4 w-64 bg-gray-700 rounded-full h-2">
+          <div id="loading-progress" class="bg-indigo-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div id="loading-status" class="mt-2 text-sm text-gray-500">コアモジュール読み込み中...</div>
+      </div>
+    </div>
+    
+    <div
+      class="w-full max-w-7xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-8 opacity-0"
+      id="main-container"
+    >
+      <header class="text-center mb-8 relative">
+        <a href="./" class="inline-block">
+          <h1 class="text-4xl sm:text-5xl font-bold brand-text mb-2">
+            HaQei
+          </h1>
+          <p class="text-lg text-gray-400">マルチバース・アナライザー</p>
+        </a>
+      </header>
+
+      <!-- Status indicator -->
+      <div id="system-status" class="mb-4 p-3 bg-gray-700 rounded-lg text-center">
+        <span class="text-yellow-400">⏳ システム初期化中...</span>
+      </div>
+
+      <!-- Main input area -->
+      <div class="mb-8">
+        <textarea
+          id="worryInput"
+          placeholder="あなたの「ありのままの言葉」をここに入力してください..."
+          class="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:border-indigo-500"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <!-- Agreement checkbox -->
+      <div class="mb-6 flex items-center">
+        <input type="checkbox" id="agreementCheckbox" class="mr-2">
+        <label for="agreementCheckbox" class="text-sm">
+          <a href="/terms.html" target="_blank" class="text-indigo-400 hover:underline">利用規約</a>
+          および
+          <a href="/privacy.html" target="_blank" class="text-indigo-400 hover:underline">プライバシーポリシー</a>
+          に同意します
+        </label>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 mb-8">
+        <button
+          id="aiGuessBtn"
+          disabled
+          class="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+        >
+          <div id="loadingSpinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+          <span id="originalIcon" class="mr-2">🤖</span>
+          <span id="buttonText">AIに状況を推測させる</span>
+        </button>
+        
+        <button
+          id="manualAnalyzeBtn"
+          disabled
+          class="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+        >
+          📊 手動で卦と爻を指定
+        </button>
+      </div>
+
+      <!-- Results area (initially hidden) -->
+      <div id="results-area" style="display: none;">
+        <h2 class="text-2xl font-bold mb-4">分析結果</h2>
+        <div id="results-content"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 mt-8">
+      <div class="w-full max-w-4xl mx-auto text-center p-6 border-t border-gray-700">
+        <div class="space-x-4 mb-4">
+          <a href="/terms.html" target="_blank" class="text-sm text-gray-400 hover:text-white">利用規約</a>
+          <a href="/privacy.html" target="_blank" class="text-sm text-gray-400 hover:text-white">プライバシーポリシー</a>
+        </div>
+        <div class="container mx-auto px-6 py-4 text-center text-gray-400">
+          <p>&copy; 2025 HaQei. All Rights Reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Optimized Main Script -->
+    <script type="module">
+      console.log('🚀 Main application script starting...');
+      
+      // Progressive loading manager
+      class OptimizedLoader {
+        constructor() {
+          this.loadingSteps = [
+            { name: 'コアモジュール', progress: 10 },
+            { name: 'エラーハンドリング', progress: 20 },
+            { name: 'データベース', progress: 40 },
+            { name: 'AI分析システム', progress: 60 },
+            { name: 'UI初期化', progress: 80 },
+            { name: '完了', progress: 100 }
+          ];
+          this.currentStep = 0;
+        }
+
+        updateProgress(stepName) {
+          const step = this.loadingSteps[this.currentStep];
+          if (step) {
+            const progressBar = document.getElementById('loading-progress');
+            const statusText = document.getElementById('loading-status');
+            
+            if (progressBar) {
+              progressBar.style.width = `${step.progress}%`;
+            }
+            if (statusText) {
+              statusText.textContent = `${stepName || step.name}...`;
+            }
+            
+            this.currentStep++;
+            
+            if (this.currentStep >= this.loadingSteps.length) {
+              this.hideLoadingScreen();
+            }
+          }
+        }
+
+        hideLoadingScreen() {
+          setTimeout(() => {
+            const loadingScreen = document.getElementById('initial-loading');
+            const mainContainer = document.getElementById('main-container');
+            const systemStatus = document.getElementById('system-status');
+            
+            if (loadingScreen) {
+              loadingScreen.style.opacity = '0';
+              setTimeout(() => loadingScreen.style.display = 'none', 300);
+            }
+            
+            if (mainContainer) {
+              mainContainer.style.opacity = '1';
+            }
+            
+            if (systemStatus) {
+              systemStatus.innerHTML = '<span class="text-green-400">✅ システム準備完了</span>';
+            }
+            
+            console.log('✅ Application initialization completed');
+          }, 500);
+        }
+      }
+
+      const loader = new OptimizedLoader();
+
+      // Initialize application
+      document.addEventListener('DOMContentLoaded', async function() {
+        console.log('DOM Content Loaded - Starting initialization...');
+        
+        loader.updateProgress('DOM読み込み完了');
+        
+        // Wait for core modules
+        await new Promise(resolve => setTimeout(resolve, 200));
+        loader.updateProgress('エラーハンドリング初期化');
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+        loader.updateProgress('データベース確認中');
+        
+        // Check if required data is loaded
+        let retries = 0;
+        const maxRetries = 10;
+        
+        while (retries < maxRetries) {
+          if (window.H384_DATA && window.H64_DATA) {
+            console.log('✅ Required data loaded');
+            break;
+          }
+          await new Promise(resolve => setTimeout(resolve, 100));
+          retries++;
+        }
+        
+        loader.updateProgress('UI要素初期化');
+        
+        // Initialize UI elements
+        const agreementCheckbox = document.getElementById('agreementCheckbox');
+        const aiGuessBtn = document.getElementById('aiGuessBtn');
+        const manualAnalyzeBtn = document.getElementById('manualAnalyzeBtn');
+        const worryInput = document.getElementById('worryInput');
+
+        // Button state management
+        const updateButtonState = () => {
+          const isChecked = agreementCheckbox?.checked || false;
+          const hasInput = worryInput?.value.trim().length > 0;
+          
+          if (aiGuessBtn) {
+            aiGuessBtn.disabled = !isChecked || !hasInput;
+          }
+          if (manualAnalyzeBtn) {
+            manualAnalyzeBtn.disabled = !isChecked || !hasInput;
+          }
+        };
+
+        // Event listeners
+        if (agreementCheckbox) {
+          agreementCheckbox.addEventListener('change', updateButtonState);
+        }
+        
+        if (worryInput) {
+          worryInput.addEventListener('input', updateButtonState);
+        }
+
+        if (aiGuessBtn) {
+          aiGuessBtn.addEventListener('click', () => {
+            if (!agreementCheckbox?.checked) {
+              alert('利用規約とプライバシーポリシーに同意してください。');
+              return;
+            }
+            handleAnalysis(false);
+          });
+        }
+
+        if (manualAnalyzeBtn) {
+          manualAnalyzeBtn.addEventListener('click', () => {
+            if (!agreementCheckbox?.checked) {
+              alert('利用規約とプライバシーポリシーに同意してください。');
+              return;
+            }
+            alert('手動分析機能は準備中です。');
+          });
+        }
+
+        // Simple analysis handler for demonstration
+        window.handleAnalysis = function(isManual) {
+          console.log('🎯 Analysis started:', isManual ? 'Manual' : 'AI');
+          
+          const spinner = document.getElementById('loadingSpinner');
+          const originalIcon = document.getElementById('originalIcon');
+          const buttonText = document.getElementById('buttonText');
+          const resultsArea = document.getElementById('results-area');
+          const resultsContent = document.getElementById('results-content');
+          
+          // Show loading state
+          if (spinner) spinner.classList.remove('hidden');
+          if (originalIcon) originalIcon.classList.add('hidden');
+          if (buttonText) buttonText.textContent = 'AIが解析中...';
+          if (aiGuessBtn) aiGuessBtn.disabled = true;
+          
+          // Simulate analysis process
+          setTimeout(() => {
+            if (spinner) spinner.classList.add('hidden');
+            if (originalIcon) originalIcon.classList.remove('hidden');
+            if (buttonText) buttonText.textContent = 'AIに状況を推測させる';
+            if (aiGuessBtn) aiGuessBtn.disabled = false;
+            
+            // Show results
+            if (resultsArea) {
+              resultsArea.style.display = 'block';
+              resultsArea.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            if (resultsContent) {
+              resultsContent.innerHTML = `
+                <div class="bg-gray-700 p-6 rounded-lg">
+                  <h3 class="text-xl font-bold text-green-400 mb-4">🎯 分析完了</h3>
+                  <p class="text-gray-300">
+                    最適化されたシステムによる分析が完了しました。<br>
+                    入力内容: "${worryInput?.value || '未入力'}"<br>
+                    <span class="text-sm text-gray-400 mt-2 block">
+                      ※ これは最適化版のデモンストレーションです。
+                    </span>
+                  </p>
+                </div>
+              `;
+            }
+            
+            updateButtonState();
+            console.log('✅ Analysis completed');
+          }, 2000);
+        };
+
+        loader.updateProgress('初期化完了');
+        
+        console.log('🎉 Optimized Future Simulator ready!');
+      });
+
+      console.log('✅ Main application script loaded');
+    </script>
+
+    <!-- Load additional modules asynchronously -->
+    <script>
+      // Load non-critical scripts after main initialization
+      const loadAdditionalModules = async () => {
+        const modules = [
+          './js/keyword_expansion_engine.js',
+          './js/ml-integration.js'
+        ];
+        
+        for (const module of modules) {
+          try {
+            const script = document.createElement('script');
+            script.src = module;
+            script.async = true;
+            document.head.appendChild(script);
+            await new Promise(resolve => {
+              script.onload = resolve;
+              script.onerror = resolve; // Continue even if module fails
+            });
+          } catch (error) {
+            console.warn(`Failed to load ${module}:`, error);
+          }
+        }
+        
+        console.log('📦 Additional modules loaded');
+      };
+      
+      // Start loading additional modules after a delay
+      setTimeout(loadAdditionalModules, 1000);
+    </script>
+  </body>
+</html>
