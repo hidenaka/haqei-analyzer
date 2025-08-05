@@ -376,6 +376,51 @@
     <!-- アプリケーション初期化 -->
     <script src="/js/app.js"></script>
     
+    <!-- WCAG 2.1 AA準拠アクセシビリティマネージャー初期化 -->
+    <script>
+      // アクセシビリティマネージャーの初期化（最優先）
+      let accessibilityManager = null;
+      
+      document.addEventListener('DOMContentLoaded', async function() {
+        try {
+          if (window.AccessibilityManager) {
+            accessibilityManager = new AccessibilityManager({
+              enableKeyboardNavigation: true,
+              enableAriaManagement: true,
+              enableFocusManagement: true,
+              enableContrastChecking: true,
+              enableScreenReaderOptimization: true,
+              debugMode: false
+            });
+            
+            const a11yInitialized = await accessibilityManager.initialize();
+            if (a11yInitialized) {
+              console.log('✅ WCAG 2.1 AA Accessibility Manager initialized');
+              
+              // アクセシビリティ統計を表示
+              const stats = accessibilityManager.getAccessibilityStats();
+              console.log('🎯 Accessibility Stats:', stats);
+              
+              // グローバル関数として公開
+              window.accessibilityManager = accessibilityManager;
+              window.getA11yReport = function() {
+                return accessibilityManager.generateAccessibilityReport();
+              };
+              window.toggleA11yDebug = function() {
+                accessibilityManager.toggleDebugMode();
+              };
+            } else {
+              console.error('❌ Accessibility Manager initialization failed');
+            }
+          } else {
+            console.error('❌ AccessibilityManager not available');
+          }
+        } catch (error) {
+          console.error('❌ Accessibility initialization error:', error);
+        }
+      });
+    </script>
+    
     <!-- Help System 初期化スクリプト -->
     <script>
       // HAQEI Help System 初期化

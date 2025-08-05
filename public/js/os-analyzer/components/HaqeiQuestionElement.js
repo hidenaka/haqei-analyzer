@@ -676,6 +676,9 @@ class HaqeiQuestionElement extends HTMLElement {
     const inputs = this.cachedElements.get('inputs') || this.shadowRoot.querySelectorAll('input[type="radio"]');
     const labels = this.cachedElements.get('labels') || this.shadowRoot.querySelectorAll('.option-label');
     
+    // WCAG 2.1 AA準拠 - ARIA属性とアクセシビリティの設定
+    this.setupAccessibility();
+    
     // 🔧 修正: radio inputとlabelの両方にイベントリスナーを設定
     inputs.forEach(input => {
       const changeHandler = (event) => {
@@ -687,7 +690,7 @@ class HaqeiQuestionElement extends HTMLElement {
     });
     
     // 🔧 追加: labelに直接クリックイベントを追加（visibility問題の回避）
-    labels.forEach(label => {
+    labels.forEach((label, index) => {
       const clickHandler = (event) => {
         // labelがクリックされた時、関連するradio inputを探してチェック
         const input = label.querySelector('input[type="radio"]');
@@ -699,7 +702,13 @@ class HaqeiQuestionElement extends HTMLElement {
         }
       };
       
+      // キーボードナビゲーション対応
+      const keydownHandler = (event) => {
+        this.handleKeyboardNavigation(event, index);
+      };
+      
       label.addEventListener('click', clickHandler);
+      label.addEventListener('keydown', keydownHandler);
       this.boundEventListeners.set(label, clickHandler);
       
       // 🔧 強制的に表示状態を確保
