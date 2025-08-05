@@ -219,6 +219,9 @@
     <script src="/js/shared/data/questions.js"></script>
     <script src="/js/os-analyzer/core/PrecompiledQuestions.js"></script>
     
+    <!-- Progressive Data Manager -->
+    <script src="/js/shared/core/ProgressiveDataManager.js"></script>
+    
     <!-- 🎯 質問表示システム v2.0 統合（依存関係順）-->
     <script src="/js/ui/DisplayController.js"></script>
     <script src="/js/ui/QuestionManager.js"></script>
@@ -230,6 +233,12 @@
     
     <!-- Core Web Vitals Optimization System -->
     <script src="/js/performance/CoreWebVitalsOptimizer.js"></script>
+    
+    <!-- Memory Optimization Manager -->
+    <script src="/js/memory/MemoryOptimizationManager.js"></script>
+    
+    <!-- Performance Monitoring Dashboard -->
+    <script src="/js/monitoring/PerformanceMonitoringDashboard.js"></script>
     
     <!-- Performance Enhancement Dependencies - VirtualQuestionFlow.js needs these -->
     <script src="/js/core/CacheManager.js"></script>
@@ -245,8 +254,37 @@
     
     <!-- HAQEI Help System (removed - loaded in app init section to prevent duplicates) -->
     
-    <!-- ⏳ ALL OTHER SCRIPTS - 設問完了後に動的読み込み -->
-    <!-- 以下は全て設問完了後またはオンデマンドで読み込み -->
+    <!-- ⏳ Progressive Loading System -->
+    <script>
+      // Progressive Data Loading Initialization
+      document.addEventListener('DOMContentLoaded', async () => {
+        // プログレッシブデータマネージャーの初期化
+        if (window.ProgressiveDataManager && !window.progressiveDataManager) {
+          window.progressiveDataManager = new ProgressiveDataManager();
+          console.log('✅ Progressive Data Manager initialized');
+          
+          // クリティカルデータの先読み
+          window.progressiveDataManager.loadRequiredData({
+            hexagrams: true
+          }).then(() => {
+            console.log('✅ Initial hexagram data loaded');
+          }).catch(error => {
+            console.error('❌ Failed to load initial data:', error);
+          });
+        }
+        
+        // レガシー互換性のためのグローバル変数設定
+        window.hexagrams_master = window.progressiveDataManager?.hexagramsData || [];
+        window.H384_DATABASE = window.H384_DATABASE || {
+          yao_texts: {},
+          hexagram_structure: {},
+          initialize: function() { 
+            console.log('📊 H384_DATABASE stub initialized');
+            return Promise.resolve(); 
+          }
+        };
+      });
+    </script>
     
     <!-- 🚫 全ての非必須スクリプトをオンデマンドロードに変更 -->
     <!-- これらは全てapp.jsの動的ロードに移行 -->
@@ -328,49 +366,101 @@
         }
       }
       
-      // Core Web Vitals Optimizer初期化
-      if (window.CoreWebVitalsOptimizer) {
-        const optimizer = new window.CoreWebVitalsOptimizer({
-          enableProgressiveLoading: true,
-          enableBundleOptimization: true,
-          enableMemoryMonitoring: true,
-          enableWebVitalsTracking: true,
-          enableServiceWorker: true,
-          developmentMode: false
-        });
+      // 統合パフォーマンス最適化システム初期化
+      async function initializePerformanceOptimization() {
+        console.log('🚀 Initializing integrated performance optimization...');
         
-        optimizer.initialize().then(success => {
-          if (success) {
+        // 1. Core Web Vitals Optimizer
+        if (window.CoreWebVitalsOptimizer) {
+          const optimizer = new window.CoreWebVitalsOptimizer({
+            enableProgressiveLoading: true,
+            enableBundleOptimization: true,
+            enableMemoryMonitoring: true,
+            enableWebVitalsTracking: true,
+            enableServiceWorker: true,
+            developmentMode: false
+          });
+          
+          const vitalsSuccess = await optimizer.initialize();
+          if (vitalsSuccess) {
             window.coreWebVitalsOptimizer = optimizer;
             console.log('✅ Core Web Vitals optimization initialized');
-            
-            // Service Worker登録（パフォーマンス最適化用）
-            if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.register('/sw-performance.js')
-                .then(registration => {
-                  console.log('✅ Performance Service Worker registered');
-                })
-                .catch(error => {
-                  console.warn('⚠️ Service Worker registration failed:', error);
-                });
-            }
-            
-            // パフォーマンスレポート生成
-            setInterval(() => {
-              const report = optimizer.generatePerformanceReport();
-              if (report.webVitals.FCP || report.webVitals.LCP) {
-                console.log('📊 Performance:', {
-                  FCP: report.webVitals.FCP ? `${report.webVitals.FCP.toFixed(0)}ms` : 'N/A',
-                  LCP: report.webVitals.LCP ? `${report.webVitals.LCP.toFixed(0)}ms` : 'N/A',
-                  Memory: report.memoryUsage?.current?.percentage ? `${report.memoryUsage.current.percentage}%` : 'N/A'
-                });
-              }
-            }, 30000);
-          } else {
-            console.error('❌ Core Web Vitals optimization failed');
           }
-        });
+        }
+        
+        // 2. Memory Optimization Manager
+        if (window.MemoryOptimizationManager) {
+          const memoryManager = new window.MemoryOptimizationManager({
+            monitoringInterval: 5000,
+            warningThreshold: 50 * 1024 * 1024,  // 50MB
+            criticalThreshold: 100 * 1024 * 1024, // 100MB
+            enableAutoCleanup: true,
+            enableLeakDetection: true
+          });
+          
+          memoryManager.start();
+          window.memoryOptimizationManager = memoryManager;
+          console.log('✅ Memory optimization manager started');
+          
+          // クリーンアップタスク登録
+          memoryManager.registerCleanupTask('progressive-data', () => {
+            if (window.progressiveDataManager) {
+              window.progressiveDataManager.cleanup();
+            }
+          });
+        }
+        
+        // 3. Performance Monitoring Dashboard (開発時のみ表示)
+        if (window.PerformanceMonitoringDashboard) {
+          const dashboard = new window.PerformanceMonitoringDashboard({
+            containerId: 'performance-dashboard',
+            updateInterval: 1000,
+            position: 'bottom-right',
+            enableAutoHide: true
+          });
+          
+          await dashboard.initialize();
+          window.performanceMonitoringDashboard = dashboard;
+          
+          // Ctrl+Shift+Pで表示切替
+          console.log('✅ Performance dashboard ready (Press Ctrl+Shift+P to toggle)');
+          
+          // 開発環境では自動表示
+          if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            setTimeout(() => dashboard.show(), 2000);
+          }
+        }
+        
+        // 4. Service Worker登録
+        if ('serviceWorker' in navigator) {
+          try {
+            const registration = await navigator.serviceWorker.register('/sw-performance.js');
+            console.log('✅ Performance Service Worker registered');
+          } catch (error) {
+            console.warn('⚠️ Service Worker registration failed:', error);
+          }
+        }
+        
+        // 5. 統合パフォーマンスレポート
+        setInterval(() => {
+          if (window.coreWebVitalsOptimizer && window.memoryOptimizationManager) {
+            const vitalsReport = window.coreWebVitalsOptimizer.generatePerformanceReport();
+            const memoryStatus = window.memoryOptimizationManager.getMemoryStatus();
+            
+            console.log('📊 System Performance:', {
+              FCP: vitalsReport.webVitals.FCP ? `${vitalsReport.webVitals.FCP.toFixed(0)}ms` : 'N/A',
+              LCP: vitalsReport.webVitals.LCP ? `${vitalsReport.webVitals.LCP.toFixed(0)}ms` : 'N/A',
+              Memory: memoryStatus.current.percentage ? `${memoryStatus.current.percentage.toFixed(1)}%` : 'N/A',
+              Growth: memoryStatus.growthRate?.percentage ? `${memoryStatus.growthRate.percentage.toFixed(1)}%` : 'N/A'
+            });
+          }
+        }, 30000);
       }
+      
+      // パフォーマンス最適化を非同期で開始
+      initializePerformanceOptimization().catch(error => {
+        console.error('❌ Performance optimization initialization failed:', error);
+      });
     </script>
     
     <!-- データ転送修正スクリプト -->

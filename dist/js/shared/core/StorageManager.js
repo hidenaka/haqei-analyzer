@@ -1,31 +1,63 @@
 // HaQei Analyzer - Enhanced Storage Manager
 // 高性能なローカルストレージを管理するクラス
 class StorageManager {
-  constructor() {
-    this.storagePrefix = 'haqei_analyzer_';
-    this.version = '1.0.0';
-    this.compressionEnabled = true;
-    this.cache = new Map();
-    this.cacheMaxSize = 100; // メモリキャッシュを倍増
-    this.compressionThreshold = 2048; // 圧縮閾値を2KBに上げる
-    this.debugMode = false; // デバッグモードをデフォルトで無効化
-    this.memoryManager = {
-      trackingEnabled: true,
-      allocatedMemory: 0,
-      maxMemoryLimit: 10 * 1024 * 1024, // 10MB制限
-      cleanupInterval: null
+  constructor(options = {}) {
+    // 設定オプション
+    this.config = {
+      storagePrefix: options.storagePrefix || 'haqei_analyzer_',
+      version: options.version || '2.0.0',
+      compressionEnabled: options.compressionEnabled !== false,
+      cacheMaxSize: options.cacheMaxSize || 200,
+      compressionThreshold: options.compressionThreshold || 1024,
+      debugMode: options.debugMode || false,
+      encryptionEnabled: options.encryptionEnabled || false,
+      performanceOptimized: options.performanceOptimized !== false
     };
+    
+    // レガシー互換性のため
+    this.storagePrefix = this.config.storagePrefix;
+    this.version = this.config.version;
+    this.compressionEnabled = this.config.compressionEnabled;
+    this.debugMode = this.config.debugMode;
+    // メモリ管理システム
+    this.memoryManager = {
+      trackingEnabled: this.config.performanceOptimized,
+      allocatedMemory: 0,
+      maxMemoryLimit: 20 * 1024 * 1024, // 20MB制限に拡張
+      cleanupInterval: null,
+      lastCleanup: Date.now(),
+      cleanupThreshold: 0.8 // 80%でクリーンアップ開始
+    };
+    
+    // パフォーマンスメトリクス
     this.performanceMetrics = {
       operations: 0,
       totalTime: 0,
       cacheHits: 0,
-      cacheMisses: 0
+      cacheMisses: 0,
+      compressionRatio: 0,
+      averageOperationTime: 0,
+      errorCount: 0
     };
-    // デバウンス制御
+    // キャッシュシステム
+    this.cache = new Map();
+    this.cacheMaxSize = this.config.cacheMaxSize;
+    
+    // デバウンス制御 - 改善版
     this.debounceTimers = new Map();
     this.lastBackupTime = new Map();
-    this.backupCooldown = 10000; // 10秒間隔でバックアップ制限（さらに制限強化）
-    this.consecutiveBackupCount = new Map(); // 連続バックアップ回数追跡
+    this.backupCooldown = 5000; // 5秒間隔に短縮（パフォーマンス向上）
+    this.consecutiveBackupCount = new Map();
+    
+    // セキュリティ機能
+    this.securityManager = {
+      enabled: this.config.encryptionEnabled,
+      keyRotationInterval: 24 * 60 * 60 * 1000, // 24時間
+      lastKeyRotation: Date.now(),
+      accessAttempts: new Map()
+    };
+    
+    // 初期化実行
     this.init();
   }
 

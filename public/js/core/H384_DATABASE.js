@@ -247,41 +247,8 @@ class H384_DATABASE {
     
     return map;
   }
-    
-    const startTime = performance.now();
-    
-    try {
-      // 64卦の基本データ読み込み
-      await this.loadHexagramBase();
-      
-      // 384爻辞の完全実装
-      await this.loadCompleteLineTexts();
-      
-      // 象辞・彖辞の実装
-      await this.loadSymbolJudgmentTexts();
-      
-      // 用九・用六特殊ケース
-      await this.loadSpecialCases();
-      
-      // 検索インデックス構築
-      await this.buildSearchIndices();
-      
-      // データ整合性検証
-      this.validateDataIntegrity();
-      
-      this.stats.loadTime = performance.now() - startTime;
-      this.stats.totalLines = this.lineTexts.size;
-      this.initialized = true;
-      
-      console.log(`✅ H384_DATABASE initialized: ${this.stats.totalLines} lines in ${this.stats.loadTime.toFixed(2)}ms`);
-      
-    } catch (error) {
-      console.error("❌ H384_DATABASE initialization failed:", error);
-      // フォールバック: 基本データのみで動作
-      await this.loadFallbackData();
-      this.initialized = true;
-    }
-  }
+
+  // 初期化は各コンポーネントで必要時に実行
   
   /**
    * 64卦基本データの読み込み
@@ -6044,9 +6011,16 @@ class H384_DATABASE {
   }
 }
 
+// インスタンス作成
+const H384_DATABASE = new H384Database();
+
+// H384_DATAとしても公開（既存コードとの互換性のため）
+const H384_DATA = [];
+
 // グローバル変数として公開
 if (typeof window !== 'undefined') {
   window.H384_DATABASE = H384_DATABASE;
+  window.H384_DATA = H384_DATA;
 }
 
 // Node.js環境でのエクスポート

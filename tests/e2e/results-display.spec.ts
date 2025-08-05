@@ -1,7 +1,7 @@
 // E2E test for Results Display functionality
 // This test should be run with Playwright separately from unit tests
 
-const { test, expect } = require('@playwright/test')
+import { test, expect } from '@playwright/test'
 
 /**
  * Results Display E2E Tests

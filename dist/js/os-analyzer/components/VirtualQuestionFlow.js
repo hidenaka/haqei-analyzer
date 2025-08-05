@@ -19,35 +19,12 @@ class VirtualQuestionFlow extends BaseComponent {
       this.displayController = null;
     }
     
-    // QuestionManager v2.0統合（新機能）
-    if (typeof QuestionManager !== 'undefined') {
-      this.questionManager = new QuestionManager({
-        container: this.container,
-        displayController: this.displayController,
-        storageManager: options.storageManager,
-        onProgress: options.onProgress,
-        onComplete: options.onComplete,
-        onError: (error) => {
-          console.error('❌ QuestionManager error:', error);
-          // フォールバック処理
-          this.useBuiltInQuestionFlow();
-        }
-      });
-      this.useQuestionManager = true;
-      console.log('📋 QuestionManager v2.0 integrated with VirtualQuestionFlow');
-    } else {
-      console.warn('QuestionManager not available, using built-in question flow');
-      this.questionManager = null;
-      this.useQuestionManager = false;
-    }
+    // QuestionManager v2.0統合（新機能） - エラーハンドリング強化
+    this.initializeQuestionManager(options);
     
     // 🚀 Ultra-Performance Enhancement - 2025-08-04
     // CacheManager初期化（エラーハンドリング付き）
-    if (typeof CacheManager !== 'undefined') {
-      this.cacheManager = new CacheManager({
-        maxSize: 2000,
-        defaultTTL: 900000, // 15 minutes for question data
-        enablePrefetch: true,
+    this.initializeCacheManager();
         enableCompression: false, // Disable for UI elements
         enableAnalytics: true
       });

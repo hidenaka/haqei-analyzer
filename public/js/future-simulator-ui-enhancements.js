@@ -380,6 +380,68 @@ class FutureSimulatorUIEnhancements {
     // ランドマークの設定
     this.setupLandmarks();
   }
+  
+  /**
+   * ARIA属性の自動設定
+   */
+  setupAutoARIA() {
+    // ボタンにARIA属性を設定
+    const buttons = document.querySelectorAll('button:not([aria-label])');
+    buttons.forEach(button => {
+      if (button.textContent.trim()) {
+        button.setAttribute('aria-label', button.textContent.trim());
+      }
+    });
+    
+    // 画像にalt属性が無い場合の処理
+    const images = document.querySelectorAll('img:not([alt])');
+    images.forEach(img => {
+      img.setAttribute('alt', '');
+      img.setAttribute('role', 'presentation');
+    });
+    
+    // インタラクティブ要素にrole属性を設定
+    const interactiveElements = document.querySelectorAll('[data-interactive]:not([role])');
+    interactiveElements.forEach(element => {
+      element.setAttribute('role', 'button');
+      element.setAttribute('tabindex', '0');
+    });
+  }
+  
+  /**
+   * スキップリンクの追加
+   */
+  addSkipLinks() {
+    if (document.querySelector('.skip-links')) return;
+    
+    const skipLinks = document.createElement('div');
+    skipLinks.className = 'skip-links';
+    skipLinks.innerHTML = `
+      <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
+      <a href="#navigation" class="skip-link">ナビゲーションへスキップ</a>
+    `;
+    
+    document.body.insertBefore(skipLinks, document.body.firstChild);
+  }
+  
+  /**
+   * ランドマークの設定
+   */
+  setupLandmarks() {
+    // main要素の設定
+    const mainContent = document.querySelector('.container');
+    if (mainContent && !mainContent.hasAttribute('role')) {
+      mainContent.setAttribute('role', 'main');
+      mainContent.id = 'main-content';
+    }
+    
+    // navigation要素の設定
+    const nav = document.querySelector('nav, .navigation');
+    if (nav && !nav.hasAttribute('role')) {
+      nav.setAttribute('role', 'navigation');
+      nav.id = 'navigation';
+    }
+  }
 
   /**
    * レスポンシブエンハンスメントの設定

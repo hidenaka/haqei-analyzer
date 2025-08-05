@@ -4,44 +4,102 @@ console.log("🎯 HaQei Analyzer starting...");
 let app = null;
 let storageManager = null;
 
-// デバウンス関数
-function debounce(func, wait) {
+/**
+ * デバウンス関数 - パフォーマンス最適化版
+ * @param {Function} func - 実行する関数
+ * @param {number} wait - 待機時間（ミリ秒）
+ * @param {boolean} immediate - 即座実行フラグ
+ * @returns {Function} デバウンスされた関数
+ */
+function debounce(func, wait, immediate = false) {
   let timeout;
+  let callCount = 0;
+  
   return function executedFunction(...args) {
     const later = () => {
-      clearTimeout(timeout);
-      func(...args);
+      timeout = null;
+      if (!immediate) {
+        callCount++;
+        func.apply(this, args);
+      }
     };
+    
+    const callNow = immediate && !timeout;
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
+    
+    if (callNow) {
+      callCount++;
+      func.apply(this, args);
+    }
   };
 }
 
-// 動的スクリプト読み込み関数
-async function loadScript(src) {
-  return new Promise((resolve, reject) => {
+/**
+ * 動的スクリプト読み込み関数 - エラーハンドリング強化版
+ * @param {string} src - スクリプトのURL
+ * @param {Object} options - オプション設定
+ * @returns {Promise<Event>} 読み込み完了Promise
+ */
+async function loadScript(src, options = {}) {
+  const { 
+    retryCount = 3, 
+    timeout = 10000,
+    integrity = null,
+    crossOrigin = null 
+  } = options;
+  
+  let attempt = 0;
+  
+  const tryLoad = () => new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = src;
-    script.onload = resolve;
-    script.onerror = (error) => {
-      console.error(`❌ Failed to load script: ${src}`);
-      console.error('Error details:', error);
-      // DataManager.jsの場合は代替手段を試す
-      if (src.includes('DataManager.js')) {
-        console.log('⚠️ Trying fallback for DataManager.js...');
-        // Service Workerを回避するためにタイムスタンプを追加
-        const fallbackSrc = src + '?t=' + Date.now();
-        const fallbackScript = document.createElement('script');
-        fallbackScript.src = fallbackSrc;
-        fallbackScript.onload = resolve;
-        fallbackScript.onerror = reject;
-        document.head.appendChild(fallbackScript);
-      } else {
-        reject(error);
-      }
+    script.async = true;
+    
+    if (integrity) script.integrity = integrity;
+    if (crossOrigin) script.crossOrigin = crossOrigin;
+    
+    // タイムアウト設定
+    const timeoutId = setTimeout(() => {
+      script.remove();
+      reject(new Error(`Script load timeout: ${src}`));
+    }, timeout);
+    
+    script.onload = (event) => {
+      clearTimeout(timeoutId);
+      resolve(event);
     };
+    
+    script.onerror = (error) => {
+      clearTimeout(timeoutId);
+      script.remove();
+      reject(new Error(`Script load failed: ${src} - ${error.message || 'Unknown error'}`));
+    };
+    
     document.head.appendChild(script);
   });
+  
+  while (attempt < retryCount) {
+    try {
+      attempt++;
+      const cacheBustedSrc = attempt > 1 ? `${src}?t=${Date.now()}&retry=${attempt}` : src;
+      const result = await tryLoad();
+      
+      if (attempt > 1) {
+        console.log(`✅ Script loaded after ${attempt} attempts: ${src}`);
+      }
+      return result;
+      
+    } catch (error) {
+      if (attempt >= retryCount) {
+        console.error(`❌ Script load failed after ${retryCount} attempts: ${src}`, error);
+        throw error;
+      }
+      
+      console.warn(`⚠️ Script load attempt ${attempt} failed, retrying: ${src}`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+    }
+  }
 }
 
 /**
@@ -62,26 +120,46 @@ async function loadScript(src) {
  * - AnalysisViewは分析プロセスの表示に必須
  */
 async function loadAnalysisEngines() {
-  const engines = [
+  console.log("⚡ Starting progressive engine loading...");
+  
+  // Stage 1: クリティカルエンジンのみ（最小限必要なもの）
+  const criticalEngines = [
     '/public/js/os-analyzer/core/StatisticalEngine.js',
-    '/public/js/os-analyzer/core/Calculator.js', 
-    '/public/js/os-analyzer/engines/CompatibilityDataLoader.js',
-    '/public/js/os-analyzer/core/Engine.js',
-    '/public/js/os-analyzer/core/IChingUltraSyncLogic.js',
-    '/public/js/os-analyzer/core/TripleOSEngine.js',
-    '/public/js/os-analyzer/core/UltraAnalysisEngine.js',
-    // AnalysisViewコンポーネントも読み込む
-    '/public/js/os-analyzer/components/AnalysisView.js',
-    // 🎭 Virtual Persona関連コンポーネント
-    '/public/js/visualization/PersonaVisualizationEngine.js',
-    '/public/js/components/VirtualPersonaResultsView.js'
+    '/public/js/os-analyzer/core/Calculator.js',
+    '/public/js/os-analyzer/components/AnalysisView.js'
   ];
   
-  for (const engine of engines) {
-    await loadScript(engine);
-  }
+  // クリティカルエンジンを並列読み込み
+  await Promise.all(criticalEngines.map(engine => loadScript(engine)));
+  console.log("✅ Critical engines loaded");
   
-  console.log("✅ All analysis engines and components loaded (including Virtual Persona system)");
+  // Stage 2: セカンダリエンジン（分析開始時に必要）
+  window.loadSecondaryEngines = async function() {
+    const secondaryEngines = [
+      '/public/js/os-analyzer/engines/CompatibilityDataLoader.js',
+      '/public/js/os-analyzer/core/Engine.js',
+      '/public/js/os-analyzer/core/IChingUltraSyncLogic.js'
+    ];
+    
+    await Promise.all(secondaryEngines.map(engine => loadScript(engine)));
+    console.log("✅ Secondary engines loaded");
+  };
+  
+  // Stage 3: 重いエンジン（実際の分析時にオンデマンド読み込み）
+  window.loadHeavyEngines = async function() {
+    const heavyEngines = [
+      '/public/js/os-analyzer/core/TripleOSEngine.js',
+      '/public/js/os-analyzer/core/UltraAnalysisEngine.js',
+      '/public/js/visualization/PersonaVisualizationEngine.js',
+      '/public/js/components/VirtualPersonaResultsView.js'
+    ];
+    
+    await Promise.all(heavyEngines.map(engine => loadScript(engine)));
+    console.log("✅ Heavy engines loaded (including Virtual Persona system)");
+    window.heavyEnginesLoaded = true;
+  };
+  
+  console.log("✅ Progressive engine loading system ready");
 }
 
 // 🚀 高速初期化: 基本 UI を即座表示
@@ -197,8 +275,17 @@ document.addEventListener("DOMContentLoaded", async function () {
     // 以前の進行状況をチェック
     checkPreviousProgress();
   } catch (error) {
-    console.error("❌ [App.js] Initialization failed:", error);
-    console.error("❌ [App.js] Error stack:", error.stack);
+    // 統一エラーハンドラーを使用
+    if (window.UnifiedErrorHandler) {
+      window.UnifiedErrorHandler.handleError(error, {
+        source: 'app-initialization',
+        component: 'main-app',
+        critical: true
+      });
+    } else {
+      console.error("❌ [App.js] Initialization failed:", error);
+      console.error("❌ [App.js] Error stack:", error.stack);
+    }
 
     // エラーの詳細情報を収集
     const errorInfo = {
@@ -400,6 +487,12 @@ async function proceedToAnalysis(answers) {
     if (app.questionFlow) {
       await app.questionFlow.hide();
     }
+    
+    // 重いエンジンをオンデマンド読み込み
+    if (!window.heavyEnginesLoaded && window.loadHeavyEngines) {
+      console.log("⚡ Loading heavy analysis engines on demand...");
+      await window.loadHeavyEngines();
+    }
 
     // 🚀 Level 1 ロード: 完全なシステムを動的読み込み
     if (!app.fullSystemLoaded) {
@@ -410,10 +503,33 @@ async function proceedToAnalysis(answers) {
       await loadScript('/public/js/shared/core/DataManager.js');
       await loadScript('/public/js/shared/core/ErrorHandler.js');
       await loadScript('/public/js/shared/data/vectors.js');
-      await loadScript('/public/js/data/data_box.js');
       
-      // 分析エンジン群を読み込み
+      // プログレッシブデータローディング
+      if (!window.progressiveDataManager) {
+        await loadScript('/public/js/shared/core/ProgressiveDataManager.js');
+        window.progressiveDataManager = new ProgressiveDataManager();
+        
+        // 必要なデータのみ読み込み
+        await window.progressiveDataManager.loadRequiredData({
+          hexagrams: true,
+          hexagramId: answers[0]?.hexagramId || 1
+        });
+        
+        // 残りはバックグラウンドで
+        window.progressiveDataManager.loadAllDataProgressively();
+      }
+      
+      // 分析エンジン群を読み込み（クリティカルのみ）
       await loadAnalysisEngines();
+      
+      // セカンダリエンジンを非同期で読み込み開始
+      if (window.loadSecondaryEngines) {
+        setTimeout(() => {
+          window.loadSecondaryEngines().catch(error => {
+            console.error("❌ Secondary engines loading failed:", error);
+          });
+        }, 1000);
+      }
       
       // 完全なマネージャーで置き換え
       const fullStorageManager = new StorageManager();
@@ -674,17 +790,44 @@ async function showResultsView(result, insights) {
     console.error("❌ [App] 結果表示でエラー:", error);
     console.error("❌ [App] エラースタック:", error.stack);
     
-    // エラー時の緊急保存
+    // エラー時の緊急保存 - セキュア版
     try {
-      localStorage.setItem('haqei_emergency_result', JSON.stringify({
-        result: result,
-        insights: insights,
-        error: error.message,
-        timestamp: Date.now()
-      }));
-      console.log("🚨 [App] 緊急データ保存完了");
+      const emergencyData = {
+        result: result ? {
+          analysisType: result.analysisType,
+          timestamp: result.timestamp,
+          primaryOS: result.primaryOS?.name || 'unknown'
+        } : null,
+        insights: insights ? {
+          summary: insights.summary || 'N/A',
+          timestamp: insights.timestamp
+        } : null,
+        error: {
+          message: error.message,
+          type: error.name,
+          timestamp: Date.now(),
+          userAgent: navigator.userAgent.slice(0, 100)
+        }
+      };
+      
+      localStorage.setItem('haqei_emergency_result', JSON.stringify(emergencyData));
+      console.log("🚨 [App] 緊急データ保存完了 (セキュア版)");
     } catch (emergencyError) {
       console.error("❌ [App] 緊急保存も失敗:", emergencyError);
+      // 最終手段: IndexedDBに保存
+      if ('indexedDB' in window) {
+        try {
+          const request = indexedDB.open('haqei_emergency', 1);
+          request.onsuccess = () => {
+            const db = request.result;
+            const transaction = db.transaction(['emergency'], 'readwrite');
+            const store = transaction.objectStore('emergency');
+            store.put({ id: Date.now(), data: emergencyData });
+          };
+        } catch (idbError) {
+          console.error("❌ [App] IndexedDB緊急保存も失敗:", idbError);
+        }
+      }
     }
     
     // エラー時もresults.htmlへ遷移

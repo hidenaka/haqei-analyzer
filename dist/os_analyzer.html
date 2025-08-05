@@ -39,6 +39,9 @@
     <!-- 7. テーマシステム：カラー・八卦・季節テーマ -->
     <link rel="stylesheet" href="/css/themes.css" />
     
+    <!-- 8. アクセシビリティ：WCAG 2.1 AA準拠 -->
+    <link rel="stylesheet" href="/css/accessibility-wcag.css" />
+    
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js" integrity="sha512-ElRFoEQdI5Ht6kZvyzXhYG9NqjtkmlkfYk0wr6wHxU9JEHakS7UJZNeml5ALk+8IKlU6jDgMabC3vkumRokgJA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     
@@ -216,6 +219,9 @@
     <script src="/js/shared/data/questions.js"></script>
     <script src="/js/os-analyzer/core/PrecompiledQuestions.js"></script>
     
+    <!-- Progressive Data Manager -->
+    <script src="/js/shared/core/ProgressiveDataManager.js"></script>
+    
     <!-- 🎯 質問表示システム v2.0 統合（依存関係順）-->
     <script src="/js/ui/DisplayController.js"></script>
     <script src="/js/ui/QuestionManager.js"></script>
@@ -224,6 +230,15 @@
     <script src="/js/os-analyzer/components/WelcomeScreen.js"></script>
     <script src="/js/os-analyzer/components/HaqeiQuestionElement.js"></script>
     <script src="/js/os-analyzer/utils/TouchGestureHandler.js"></script>
+    
+    <!-- Core Web Vitals Optimization System -->
+    <script src="/js/performance/CoreWebVitalsOptimizer.js"></script>
+    
+    <!-- Memory Optimization Manager -->
+    <script src="/js/memory/MemoryOptimizationManager.js"></script>
+    
+    <!-- Performance Monitoring Dashboard -->
+    <script src="/js/monitoring/PerformanceMonitoringDashboard.js"></script>
     
     <!-- Performance Enhancement Dependencies - VirtualQuestionFlow.js needs these -->
     <script src="/js/core/CacheManager.js"></script>
@@ -239,8 +254,37 @@
     
     <!-- HAQEI Help System (removed - loaded in app init section to prevent duplicates) -->
     
-    <!-- ⏳ ALL OTHER SCRIPTS - 設問完了後に動的読み込み -->
-    <!-- 以下は全て設問完了後またはオンデマンドで読み込み -->
+    <!-- ⏳ Progressive Loading System -->
+    <script>
+      // Progressive Data Loading Initialization
+      document.addEventListener('DOMContentLoaded', async () => {
+        // プログレッシブデータマネージャーの初期化
+        if (window.ProgressiveDataManager && !window.progressiveDataManager) {
+          window.progressiveDataManager = new ProgressiveDataManager();
+          console.log('✅ Progressive Data Manager initialized');
+          
+          // クリティカルデータの先読み
+          window.progressiveDataManager.loadRequiredData({
+            hexagrams: true
+          }).then(() => {
+            console.log('✅ Initial hexagram data loaded');
+          }).catch(error => {
+            console.error('❌ Failed to load initial data:', error);
+          });
+        }
+        
+        // レガシー互換性のためのグローバル変数設定
+        window.hexagrams_master = window.progressiveDataManager?.hexagramsData || [];
+        window.H384_DATABASE = window.H384_DATABASE || {
+          yao_texts: {},
+          hexagram_structure: {},
+          initialize: function() { 
+            console.log('📊 H384_DATABASE stub initialized');
+            return Promise.resolve(); 
+          }
+        };
+      });
+    </script>
     
     <!-- 🚫 全ての非必須スクリプトをオンデマンドロードに変更 -->
     <!-- これらは全てapp.jsの動的ロードに移行 -->
@@ -322,21 +366,101 @@
         }
       }
       
-      // Service Worker完全無効化（DataManager.js 404問題の解決まで）
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage('CLEAR_CACHE');
-        console.log('🧹 Service Worker cache cleared');
+      // 統合パフォーマンス最適化システム初期化
+      async function initializePerformanceOptimization() {
+        console.log('🚀 Initializing integrated performance optimization...');
+        
+        // 1. Core Web Vitals Optimizer
+        if (window.CoreWebVitalsOptimizer) {
+          const optimizer = new window.CoreWebVitalsOptimizer({
+            enableProgressiveLoading: true,
+            enableBundleOptimization: true,
+            enableMemoryMonitoring: true,
+            enableWebVitalsTracking: true,
+            enableServiceWorker: true,
+            developmentMode: false
+          });
+          
+          const vitalsSuccess = await optimizer.initialize();
+          if (vitalsSuccess) {
+            window.coreWebVitalsOptimizer = optimizer;
+            console.log('✅ Core Web Vitals optimization initialized');
+          }
+        }
+        
+        // 2. Memory Optimization Manager
+        if (window.MemoryOptimizationManager) {
+          const memoryManager = new window.MemoryOptimizationManager({
+            monitoringInterval: 5000,
+            warningThreshold: 50 * 1024 * 1024,  // 50MB
+            criticalThreshold: 100 * 1024 * 1024, // 100MB
+            enableAutoCleanup: true,
+            enableLeakDetection: true
+          });
+          
+          memoryManager.start();
+          window.memoryOptimizationManager = memoryManager;
+          console.log('✅ Memory optimization manager started');
+          
+          // クリーンアップタスク登録
+          memoryManager.registerCleanupTask('progressive-data', () => {
+            if (window.progressiveDataManager) {
+              window.progressiveDataManager.cleanup();
+            }
+          });
+        }
+        
+        // 3. Performance Monitoring Dashboard (開発時のみ表示)
+        if (window.PerformanceMonitoringDashboard) {
+          const dashboard = new window.PerformanceMonitoringDashboard({
+            containerId: 'performance-dashboard',
+            updateInterval: 1000,
+            position: 'bottom-right',
+            enableAutoHide: true
+          });
+          
+          await dashboard.initialize();
+          window.performanceMonitoringDashboard = dashboard;
+          
+          // Ctrl+Shift+Pで表示切替
+          console.log('✅ Performance dashboard ready (Press Ctrl+Shift+P to toggle)');
+          
+          // 開発環境では自動表示
+          if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            setTimeout(() => dashboard.show(), 2000);
+          }
+        }
+        
+        // 4. Service Worker登録
+        if ('serviceWorker' in navigator) {
+          try {
+            const registration = await navigator.serviceWorker.register('/sw-performance.js');
+            console.log('✅ Performance Service Worker registered');
+          } catch (error) {
+            console.warn('⚠️ Service Worker registration failed:', error);
+          }
+        }
+        
+        // 5. 統合パフォーマンスレポート
+        setInterval(() => {
+          if (window.coreWebVitalsOptimizer && window.memoryOptimizationManager) {
+            const vitalsReport = window.coreWebVitalsOptimizer.generatePerformanceReport();
+            const memoryStatus = window.memoryOptimizationManager.getMemoryStatus();
+            
+            console.log('📊 System Performance:', {
+              FCP: vitalsReport.webVitals.FCP ? `${vitalsReport.webVitals.FCP.toFixed(0)}ms` : 'N/A',
+              LCP: vitalsReport.webVitals.LCP ? `${vitalsReport.webVitals.LCP.toFixed(0)}ms` : 'N/A',
+              Memory: memoryStatus.current.percentage ? `${memoryStatus.current.percentage.toFixed(1)}%` : 'N/A',
+              Growth: memoryStatus.growthRate?.percentage ? `${memoryStatus.growthRate.percentage.toFixed(1)}%` : 'N/A'
+            });
+          }
+        }, 30000);
       }
       
-      // 古いService Workerを削除
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister();
-            console.log('🗑️ Unregistered Service Worker');
-          }
-        });
-      }
+      // パフォーマンス最適化を非同期で開始
+      initializePerformanceOptimization().catch(error => {
+        console.error('❌ Performance optimization initialization failed:', error);
+      });
     </script>
     
     <!-- データ転送修正スクリプト -->
@@ -357,6 +481,9 @@
     
     <!-- Security Utilities -->
     <script src="/js/shared/utils/SecurityValidator.js"></script>
+    
+    <!-- WCAG 2.1 AA準拠アクセシビリティマネージャー -->
+    <script src="/js/shared/utils/AccessibilityManager.js"></script>
     <script src="/js/shared/utils/SecureDOM.js"></script>
     <script src="/js/shared/utils/CSRFProtection.js"></script>
     <script src="/js/shared/utils/SecureAPI.js"></script>
@@ -369,6 +496,51 @@
     
     <!-- アプリケーション初期化 -->
     <script src="/js/app.js"></script>
+    
+    <!-- WCAG 2.1 AA準拠アクセシビリティマネージャー初期化 -->
+    <script>
+      // アクセシビリティマネージャーの初期化（最優先）
+      let accessibilityManager = null;
+      
+      document.addEventListener('DOMContentLoaded', async function() {
+        try {
+          if (window.AccessibilityManager) {
+            accessibilityManager = new AccessibilityManager({
+              enableKeyboardNavigation: true,
+              enableAriaManagement: true,
+              enableFocusManagement: true,
+              enableContrastChecking: true,
+              enableScreenReaderOptimization: true,
+              debugMode: false
+            });
+            
+            const a11yInitialized = await accessibilityManager.initialize();
+            if (a11yInitialized) {
+              console.log('✅ WCAG 2.1 AA Accessibility Manager initialized');
+              
+              // アクセシビリティ統計を表示
+              const stats = accessibilityManager.getAccessibilityStats();
+              console.log('🎯 Accessibility Stats:', stats);
+              
+              // グローバル関数として公開
+              window.accessibilityManager = accessibilityManager;
+              window.getA11yReport = function() {
+                return accessibilityManager.generateAccessibilityReport();
+              };
+              window.toggleA11yDebug = function() {
+                accessibilityManager.toggleDebugMode();
+              };
+            } else {
+              console.error('❌ Accessibility Manager initialization failed');
+            }
+          } else {
+            console.error('❌ AccessibilityManager not available');
+          }
+        } catch (error) {
+          console.error('❌ Accessibility initialization error:', error);
+        }
+      });
+    </script>
     
     <!-- Help System 初期化スクリプト -->
     <script>

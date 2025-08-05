@@ -83,6 +83,12 @@ class CSRFProtectionSystem {
    * フォーム保護の設定
    */
   setupFormProtection() {
+    // 開発環境チェック
+    if (window.DEV_MODE || (window.HAQEI_CONFIG && window.HAQEI_CONFIG.environment === 'development')) {
+      console.log('🔧 開発環境: CSRF保護をスキップ');
+      return;
+    }
+    
     // 既存のフォームに隠しフィールドを追加
     const forms = document.querySelectorAll('form');
     forms.forEach(form => this.protectForm(form));
@@ -90,14 +96,19 @@ class CSRFProtectionSystem {
     // 新しく追加されるフォームの監視
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            const forms = node.tagName === 'FORM' 
-              ? [node] 
-              : node.querySelectorAll('form');
-            forms.forEach(form => this.protectForm(form));
-          }
-        });
+        if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+          mutation.addedNodes.forEach((node) => {
+            if (node && node.nodeType === Node.ELEMENT_NODE) {
+              // nodeがElementであることを確認
+              if (node.tagName === 'FORM') {
+                this.protectForm(node);
+              } else if (node.querySelectorAll) {
+                const forms = node.querySelectorAll('form');
+                forms.forEach(form => this.protectForm(form));
+              }
+            }
+          });
+        }
       });
     });
 

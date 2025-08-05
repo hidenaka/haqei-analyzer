@@ -162,24 +162,55 @@ class UnifiedErrorHandler {
    * @param {PromiseRejectionEvent} event - Promise rejection イベント
    */
   handleUnhandledRejection(event) {
-    console.warn('⚠️ Unhandled Promise Rejection:', event.reason);
+    if (this.config.debugMode) {
+      console.warn('⚠️ Unhandled Promise Rejection:', event.reason);
+    }
     
-    // Promise rejectionをエラーとして処理
-    const error = new Error(event.reason?.message || event.reason || 'Promise rejection');
-    error.name = 'UnhandledPromiseRejection';
-    error.promise = event.promise;
-    error.reason = event.reason;
+    // 安全なエラーオブジェクト作成
+    let errorMessage = 'Promise rejection';
+    let errorType = 'UnhandledPromiseRejection';
+    
+    if (event.reason instanceof Error) {
+      errorMessage = event.reason.message;
+      errorType = event.reason.name || errorType;
+    } else if (typeof event.reason === 'string') {
+      errorMessage = event.reason;
+    } else if (event.reason && typeof event.reason === 'object') {
+      errorMessage = event.reason.message || JSON.stringify(event.reason).slice(0, 200);
+    }
+    
+    const error = new Error(errorMessage);
+    error.name = errorType;
+    error.originalReason = event.reason;
     
     // メインエラーハンドラーに転送
     this.handleError(error, {
       source: 'promise-rejection',
       type: 'unhandled-rejection',
-      promise: event.promise,
-      originalReason: event.reason
+      severity: this.classifyRejectionSeverity(event.reason),
+      timestamp: Date.now()
     });
     
     // デフォルトの動作を防ぐ（コンソールエラーの抑制）
     event.preventDefault();
+  }
+  
+  /**
+   * Promise rejection の重要度分類
+   * @param {any} reason - rejection の理由
+   * @returns {string} 重要度
+   */
+  classifyRejectionSeverity(reason) {
+    if (reason instanceof TypeError || reason instanceof ReferenceError) {
+      return 'HIGH';
+    }
+    if (reason && reason.message && reason.message.includes('network')) {
+      return 'MEDIUM';
+    }
+    if (reason && reason.message && reason.message.includes('timeout')) {
+      return 'LOW';
+    }
+    return 'MEDIUM';
   }
   
   /**
@@ -465,9 +496,12 @@ class UnifiedErrorHandler {
   }
   
   /**
-   * エラー分類システム
+   * エラー分類システム - 強化版
+   * @param {Error|any} error - 分類対象のエラー
+   * @param {Object} context - エラーのコンテキスト
+   * @returns {Object} 分類された エラー情報
    */
-  classifyError(error, context) {
+  classifyError(error, context = {}) {
     const classification = {
       id: this.generateErrorId(),
       originalError: error,
@@ -479,7 +513,11 @@ class UnifiedErrorHandler {
       isRecoverable: true,
       requiresUserAction: false,
       affectedSystems: [],
-      metadata: {}
+      metadata: {
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent.slice(0, 100) : 'N/A',
+        url: typeof window !== 'undefined' ? window.location.href : 'N/A',
+        timestamp: new Date().toISOString()
+      }
     };
     
     // エラータイプの判定
@@ -1031,9 +1069,44 @@ class UnifiedErrorHandler {
     return `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
   
-  // bunenjin関連メソッド（簡略化）
+  // bunenjin関連メソッド（完全実装）
   evaluateBunenjinPersonas() {
-    // 分人の状態評価ロジック
+    try {
+      // 現在のエラー状況を分析
+      const errorContext = this.analyzeCurrentErrorContext();
+      
+      // 各分人の適合度を計算
+      this.bunenjinPersonas.analyticalSelf.weight = this.calculateAnalyticalWeight(errorContext);
+      this.bunenjinPersonas.emotionalSelf.weight = this.calculateEmotionalWeight(errorContext);
+      this.bunenjinPersonas.pragmaticSelf.weight = this.calculatePragmaticWeight(errorContext);
+      
+      console.log('🎭 bunenjin persona evaluation completed');
+    } catch (error) {
+      console.warn('⚠️ bunenjin persona evaluation failed:', error);
+      // デフォルト重み設定
+      this.bunenjinPersonas.pragmaticSelf.weight = 1.0;
+    }
+  }
+  
+  analyzeCurrentErrorContext() {
+    const recentErrors = this.errorHistory.slice(-5);
+    return {
+      technicalErrorCount: recentErrors.filter(e => e.category === 'JAVASCRIPT' || e.category === 'NETWORK').length,
+      userImpactErrorCount: recentErrors.filter(e => e.severity === 'CRITICAL').length,
+      generalErrorCount: recentErrors.length
+    };
+  }
+  
+  calculateAnalyticalWeight(context) {
+    return Math.min(1.0, context.technicalErrorCount * 0.3 + 0.2);
+  }
+  
+  calculateEmotionalWeight(context) {
+    return Math.min(1.0, context.userImpactErrorCount * 0.4 + 0.1);
+  }
+  
+  calculatePragmaticWeight(context) {
+    return Math.min(1.0, context.generalErrorCount * 0.2 + 0.4);
   }
   
   activateBunenjinPersona(persona) {
@@ -1041,13 +1114,17 @@ class UnifiedErrorHandler {
       Object.keys(this.bunenjinPersonas).forEach(key => {
         this.bunenjinPersonas[key].active = (key === persona);
       });
+      console.log(`🎭 Activated bunenjin persona: ${persona}`);
+    } else {
+      console.warn(`⚠️ Unknown bunenjin persona: ${persona}`);
     }
   }
   
   getActiveBunenjinPersona() {
-    return Object.keys(this.bunenjinPersonas).find(key => 
+    const active = Object.keys(this.bunenjinPersonas).find(key => 
       this.bunenjinPersonas[key].active
-    ) || 'pragmaticSelf';
+    );
+    return active || 'pragmaticSelf';
   }
   
   // 追加メソッド実装 - 重大問題修正用

@@ -120,26 +120,46 @@ async function loadScript(src, options = {}) {
  * - AnalysisViewは分析プロセスの表示に必須
  */
 async function loadAnalysisEngines() {
-  const engines = [
+  console.log("⚡ Starting progressive engine loading...");
+  
+  // Stage 1: クリティカルエンジンのみ（最小限必要なもの）
+  const criticalEngines = [
     '/public/js/os-analyzer/core/StatisticalEngine.js',
-    '/public/js/os-analyzer/core/Calculator.js', 
-    '/public/js/os-analyzer/engines/CompatibilityDataLoader.js',
-    '/public/js/os-analyzer/core/Engine.js',
-    '/public/js/os-analyzer/core/IChingUltraSyncLogic.js',
-    '/public/js/os-analyzer/core/TripleOSEngine.js',
-    '/public/js/os-analyzer/core/UltraAnalysisEngine.js',
-    // AnalysisViewコンポーネントも読み込む
-    '/public/js/os-analyzer/components/AnalysisView.js',
-    // 🎭 Virtual Persona関連コンポーネント
-    '/public/js/visualization/PersonaVisualizationEngine.js',
-    '/public/js/components/VirtualPersonaResultsView.js'
+    '/public/js/os-analyzer/core/Calculator.js',
+    '/public/js/os-analyzer/components/AnalysisView.js'
   ];
   
-  for (const engine of engines) {
-    await loadScript(engine);
-  }
+  // クリティカルエンジンを並列読み込み
+  await Promise.all(criticalEngines.map(engine => loadScript(engine)));
+  console.log("✅ Critical engines loaded");
   
-  console.log("✅ All analysis engines and components loaded (including Virtual Persona system)");
+  // Stage 2: セカンダリエンジン（分析開始時に必要）
+  window.loadSecondaryEngines = async function() {
+    const secondaryEngines = [
+      '/public/js/os-analyzer/engines/CompatibilityDataLoader.js',
+      '/public/js/os-analyzer/core/Engine.js',
+      '/public/js/os-analyzer/core/IChingUltraSyncLogic.js'
+    ];
+    
+    await Promise.all(secondaryEngines.map(engine => loadScript(engine)));
+    console.log("✅ Secondary engines loaded");
+  };
+  
+  // Stage 3: 重いエンジン（実際の分析時にオンデマンド読み込み）
+  window.loadHeavyEngines = async function() {
+    const heavyEngines = [
+      '/public/js/os-analyzer/core/TripleOSEngine.js',
+      '/public/js/os-analyzer/core/UltraAnalysisEngine.js',
+      '/public/js/visualization/PersonaVisualizationEngine.js',
+      '/public/js/components/VirtualPersonaResultsView.js'
+    ];
+    
+    await Promise.all(heavyEngines.map(engine => loadScript(engine)));
+    console.log("✅ Heavy engines loaded (including Virtual Persona system)");
+    window.heavyEnginesLoaded = true;
+  };
+  
+  console.log("✅ Progressive engine loading system ready");
 }
 
 // 🚀 高速初期化: 基本 UI を即座表示
@@ -467,6 +487,12 @@ async function proceedToAnalysis(answers) {
     if (app.questionFlow) {
       await app.questionFlow.hide();
     }
+    
+    // 重いエンジンをオンデマンド読み込み
+    if (!window.heavyEnginesLoaded && window.loadHeavyEngines) {
+      console.log("⚡ Loading heavy analysis engines on demand...");
+      await window.loadHeavyEngines();
+    }
 
     // 🚀 Level 1 ロード: 完全なシステムを動的読み込み
     if (!app.fullSystemLoaded) {
@@ -477,10 +503,33 @@ async function proceedToAnalysis(answers) {
       await loadScript('/public/js/shared/core/DataManager.js');
       await loadScript('/public/js/shared/core/ErrorHandler.js');
       await loadScript('/public/js/shared/data/vectors.js');
-      await loadScript('/public/js/data/data_box.js');
       
-      // 分析エンジン群を読み込み
+      // プログレッシブデータローディング
+      if (!window.progressiveDataManager) {
+        await loadScript('/public/js/shared/core/ProgressiveDataManager.js');
+        window.progressiveDataManager = new ProgressiveDataManager();
+        
+        // 必要なデータのみ読み込み
+        await window.progressiveDataManager.loadRequiredData({
+          hexagrams: true,
+          hexagramId: answers[0]?.hexagramId || 1
+        });
+        
+        // 残りはバックグラウンドで
+        window.progressiveDataManager.loadAllDataProgressively();
+      }
+      
+      // 分析エンジン群を読み込み（クリティカルのみ）
       await loadAnalysisEngines();
+      
+      // セカンダリエンジンを非同期で読み込み開始
+      if (window.loadSecondaryEngines) {
+        setTimeout(() => {
+          window.loadSecondaryEngines().catch(error => {
+            console.error("❌ Secondary engines loading failed:", error);
+          });
+        }, 1000);
+      }
       
       // 完全なマネージャーで置き換え
       const fullStorageManager = new StorageManager();

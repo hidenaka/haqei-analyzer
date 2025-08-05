@@ -17,23 +17,20 @@
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
     />
     
+    <!-- ローカル開発環境用設定（最優先） -->
+    <script src="./js/future_simulator_local_dev_config.js"></script>
+    
     <!-- セキュリティライブラリ（最優先読み込み） -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js" 
-            integrity="sha384-69eb1h/3FLKz1j3ChgOC6gH3+k0KvBfH7NrR+mOlKCl5vPnWRnNjB/LwEXxfKz0y" 
             crossorigin="anonymous"></script>
+            <!-- integrity="sha384-vdScihEZCfbPnBQf+lc7LgXUdJVYyhC3yWHUW5C5P5GpHRqVnaM6HJELJxT6IqwM" -->
     
     <!-- Load critical path scripts -->
-    <script src="https://cdn.tailwindcss.com" 
-            integrity="sha384-lqHjpkYlpNpnvGFg3OI+kGqe5tnFf4NB1q9YhvK1YrNdOxjlLRGw3xTFQJKzVn7d"
-            crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Defer non-critical scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" 
-            integrity="sha384-8V0RBF3B0sD6Xd6Zz7qMVvD9K+8Y3H2F7W0oOk8JzFh8b+B6k8mR0mZx5V7R+8r"
-            crossorigin="anonymous" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/1.4.0/chartjs-plugin-annotation.min.js" 
-            integrity="sha384-7V5c5w6d1Zz8w5YmF3k7z9J0n8W6fHqMrOaVx2Z+3Y8A8e9L0aK1mS6w8bZ6rK4"
-            crossorigin="anonymous" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/1.4.0/chartjs-plugin-annotation.min.js" defer></script>
     
     <!-- セキュリティシステム（最優先読み込み） -->
     <script src="./js/security/SecurityHeaderManager.js"></script>
@@ -43,10 +40,11 @@
     
     <!-- Quality Enhancement System -->
     <link rel="stylesheet" href="./css/quality-grade-enhancement.css">
-    <script src="./js/quality-enhancement-ui.js" defer></script>
-    <script src="./js/dynamic-quality-optimizer.js" defer></script>
-    <script src="./js/quality-integration-manager.js" defer></script>
-    <script src="./js/quality-system-validator.js" defer></script>
+    <!-- 以下のファイルは現在開発中のため一時的にコメントアウト -->
+    <!-- <script src="./js/quality-enhancement-ui.js" defer></script> -->
+    <!-- <script src="./js/dynamic-quality-optimizer.js" defer></script> -->
+    <!-- <script src="./js/quality-integration-manager.js" defer></script> -->
+    <!-- <script src="./js/quality-system-validator.js" defer></script> -->
     
     <!-- UI/UX Enhancement System -->
     <link rel="stylesheet" href="./css/ui-enhancements.css">
@@ -392,10 +390,10 @@
     </style>
     
     <!-- Core System Assets - 最適化読み込み順序 -->
-    <script src="./assets/H384H64data.js"></script>
+    <script src="./js/core/H384_DATABASE.js"></script>
     <script src="./js/core/PerformanceOptimizer.js"></script>
     <script src="./js/core/IChingTransformationEngine.js"></script>
-    <script src="./js/pages/future-simulator/FutureBranchingSystem.js"></script>
+    <script src="./js/core/FutureBranchingSystem.js"></script>
     <script src="./js/core/DataPersistenceManager.js"></script>
     <script src="./js/core/DataExportAPI.js"></script>
     
@@ -464,7 +462,7 @@
     <script src="./js/core/offline-kuromoji-integration.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js" defer></script>
     <!-- Advanced Analysis Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/ml-matrix@6.10.4/lib/ml-matrix.min.js"></script>
+    <script src="./js/lib/ml-matrix.min.js"></script>
     <!-- Dynamic Analysis Components -->
     <script src="./js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
     <script src="./js/pages/future-simulator/IntegratedAnalysisEngine.js"></script>
