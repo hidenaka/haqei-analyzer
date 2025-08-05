@@ -1,33 +1,55 @@
 // DataManager.js - BIBLE_DATA対応修正版
 
 class DataManager {
-  constructor() {
+  constructor(options = {}) {
+    // 設定オプション
+    this.config = {
+      debugMode: options.debugMode || this.detectDebugMode(),
+      cacheEnabled: options.cacheEnabled !== false,
+      performanceOptimized: options.performanceOptimized !== false,
+      securityEnabled: options.securityEnabled !== false,
+      maxRetries: options.maxRetries || 3,
+      retryDelay: options.retryDelay || 1000
+    };
+    
+    // データ格納
     this.data = {};
     this.loaded = false;
+    this.loading = false;
+    
+    // ログ管理
     this.loadingErrors = [];
     this.loadingWarnings = [];
     this.loadingInfo = [];
-    this.debugMode =
-      typeof window !== "undefined" &&
-      window.location &&
-      window.location.search &&
-      window.location.search.includes("debug=true");
     
-    // 高効率検索用キャッシュとインデックス
+    // レガシー互換性
+    this.debugMode = this.config.debugMode;
+    
+    // 高効率検索用キャッシュとインデックス - 改善版
     this.cache = new Map();
-    this.hexagramIndex = new Map(); // ID → hexagramデータ
-    this.hexagramNameIndex = new Map(); // 名前 → hexagramデータ  
-    this.hexagramArray = null; // 配列形式キャッシュ
-    this.cacheTimeout = 300000; // 5分間のキャッシュ
+    this.hexagramIndex = new Map();
+    this.hexagramNameIndex = new Map();
+    this.hexagramArray = null;
+    this.cacheTimeout = this.config.performanceOptimized ? 600000 : 300000; // 10分または5分
+    this.cacheMetrics = {
+      hits: 0,
+      misses: 0,
+      evictions: 0,
+      totalRequests: 0
+    };
     
-    // パフォーマンス計測
+    // パフォーマンス計測 - 拡張版
     this.performanceMetrics = {
       loadStartTime: 0,
       loadEndTime: 0,
       operationCount: 0,
       cacheHits: 0,
       cacheMisses: 0,
-      totalOperationTime: 0
+      totalOperationTime: 0,
+      averageOperationTime: 0,
+      memoryUsage: 0,
+      dataLoadRetries: 0,
+      lastSuccessfulLoad: null
     };
     
     // エラーハンドラーの初期化

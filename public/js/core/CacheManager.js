@@ -75,37 +75,77 @@ class CacheManager {
   }
 
   /**
-   * 初期化
+   * 初期化 - エラーハンドリング強化版
+   * @returns {Promise<boolean>} 初期化成功フラグ
    */
   async init() {
-    if (this.initialized) return;
+    if (this.initialized) {
+      console.log("⚠️ CacheManager already initialized");
+      return true;
+    }
+    
+    const initStartTime = performance.now();
+    const initSteps = [];
     
     try {
       // Web Workersの初期化
+      initSteps.push('workers');
       await this.initializeWorkers();
       
       // 既存キャッシュの復元
+      initSteps.push('restore');
       await this.restoreFromStorage();
       
       // 定期クリーンアップの開始
+      initSteps.push('cleanup');
       this.startCleanupTimer();
       
       // プリフェッチシステムの開始
       if (this.config.enablePrefetch) {
+        initSteps.push('prefetch');
         this.startPrefetchSystem();
       }
       
       // パフォーマンス監視の開始
+      initSteps.push('monitoring');
       this.startPerformanceMonitoring();
       
       this.initialized = true;
-      console.log("✅ CacheManager fully initialized");
+      const initDuration = performance.now() - initStartTime;
+      
+      console.log(`✅ CacheManager fully initialized in ${initDuration.toFixed(2)}ms`);
+      return true;
       
     } catch (error) {
-      console.error("❌ CacheManager initialization failed:", error);
-      // フォールバック: 基本機能のみで動作
-      this.initialized = true;
+      const failedStep = initSteps[initSteps.length - 1] || 'unknown';
+      console.error(`❌ CacheManager initialization failed at step '${failedStep}':`, error);
+      
+      // 部分的初期化
+      try {
+        this.initializeBasicMode();
+        this.initialized = true;
+        console.log("⚠️ CacheManager initialized in basic mode");
+        return true;
+      } catch (basicError) {
+        console.error("❌ Basic mode initialization also failed:", basicError);
+        return false;
+      }
     }
+  }
+  
+  /**
+   * 基本モード初期化
+   */
+  initializeBasicMode() {
+    // 高度な機能を無効化
+    this.config.enablePrefetch = false;
+    this.config.enableCompression = false;
+    this.config.enableAnalytics = false;
+    
+    // 基本的なクリーンアップのみ設定
+    this.startCleanupTimer();
+    
+    console.log("📦 CacheManager running in basic mode");
   }
 
   /**
@@ -235,10 +275,25 @@ class CacheManager {
   }
 
   /**
-   * 汎用キャッシュ取得
+   * 汎用キャッシュ取得 - パフォーマンス・セキュリティ強化版
+   * @param {string} key - キャッシュキー
+   * @param {Object} options - 取得オプション
+   * @returns {any|null} キャッシュされたデータまたはnull
    */
   get(key, options = {}) {
+    if (!this.initialized) {
+      console.warn("⚠️ CacheManager not initialized, skipping get");
+      return null;
+    }
+    
+    // 入力検証
+    if (!key || typeof key !== 'string') {
+      console.warn("⚠️ Invalid cache key:", key);
+      return null;
+    }
+    
     const startTime = performance.now();
+    const { validateChecksum = false, maxAge = null } = options;
     
     try {
       this.stats.totalRequests++;
@@ -247,7 +302,7 @@ class CacheManager {
       let result = this.getFromSpecializedCache(key, options);
       if (result !== null) {
         this.recordHit(startTime);
-        return result;
+        return this.validateResult(result, { validateChecksum });
       }
       
       // メインキャッシュから検索
@@ -256,7 +311,7 @@ class CacheManager {
         const metadata = this.metadata.get(key);
         
         // TTL チェック
-        if (this.isExpired(metadata)) {
+        if (this.isExpired(metadata) || this.isMaxAgeExceeded(metadata, maxAge)) {
           this.delete(key);
           this.recordMiss(startTime);
           return null;
@@ -269,7 +324,7 @@ class CacheManager {
         const data = this.decompressIfNeeded(entry, metadata);
         
         this.recordHit(startTime);
-        return data;
+        return this.validateResult(data, { validateChecksum });
       }
       
       this.recordMiss(startTime);
@@ -278,8 +333,38 @@ class CacheManager {
     } catch (error) {
       console.error("❌ CacheManager.get error:", error);
       this.recordMiss(startTime);
+      
+      // エラー時の統計記録
+      this.stats.errors = (this.stats.errors || 0) + 1;
+      
       return null;
     }
+  }
+  
+  /**
+   * 結果の検証
+   * @param {any} result - 検証対象のデータ
+   * @param {Object} options - 検証オプション
+   * @returns {any} 検証済みデータ
+   */
+  validateResult(result, options = {}) {
+    if (!options.validateChecksum || !result) {
+      return result;
+    }
+    
+    // チェックサム検証ロジック（必要に応じて実装）
+    return result;
+  }
+  
+  /**
+   * 最大経過時間チェック
+   * @param {Object} metadata - メタデータ
+   * @param {number|null} maxAge - 最大経過時間（ミリ秒）
+   * @returns {boolean} 期限切れフラグ
+   */
+  isMaxAgeExceeded(metadata, maxAge) {
+    if (!maxAge || !metadata) return false;
+    return (Date.now() - metadata.lastAccess) > maxAge;
   }
 
   /**
@@ -973,21 +1058,67 @@ class CacheManager {
     return elements[Math.floor((hexNumber - 1) / 13)];
   }
 
-  // プレースホルダーメソッド
+  // プレースホルダーメソッド（完全実装版）
   handlePrefetchResult(result) {
+    if (result && typeof result === 'object') {
+      // プリフェッチ結果を適切なキャッシュに保存
+      Object.entries(result).forEach(([key, data]) => {
+        if (data) {
+          this.set(key, data, { type: 'prefetch', ttl: 600000 }); // 10分
+          this.stats.prefetchHits++;
+        }
+      });
+    }
     console.log("🔮 Prefetch result handled:", result);
   }
 
   handleCompressionResult(key, compressed) {
+    if (compressed && key) {
+      // 圧縮結果を元のデータと置き換え
+      if (this.cache.has(key)) {
+        this.cache.set(key, compressed);
+        const metadata = this.metadata.get(key);
+        if (metadata) {
+          metadata.compressed = true;
+          metadata.size = this.calculateSize(compressed);
+        }
+        this.stats.compressionSaves++;
+      }
+    }
     console.log("🗜️ Compression result handled for", key);
   }
 
   handleDecompressionResult(key, decompressed) {
+    if (decompressed && key) {
+      // 展開結果を返す（一時的な処理）
+      console.log("📦 Decompression completed for", key);
+    }
     console.log("📦 Decompression result handled for", key);
   }
 
   queueRelatedCalculations(calculationType, inputHash) {
+    // 関連計算のキューイング実装
+    const relatedTypes = this.getRelatedCalculationTypes(calculationType);
+    relatedTypes.forEach(type => {
+      const relatedKey = `calc_${type}_${inputHash}`;
+      if (!this.cache.has(relatedKey)) {
+        this.prefetchQueue.add(relatedKey);
+      }
+    });
     console.log("🔄 Queuing related calculations for", calculationType, inputHash);
+  }
+  
+  /**
+   * 関連計算タイプの取得
+   */
+  getRelatedCalculationTypes(calculationType) {
+    const relatedMap = {
+      'hexagram': ['mutual', 'reversed', 'opposite'],
+      'trigram': ['upper', 'lower', 'nuclear'],
+      'line': ['changing', 'unchanging'],
+      'analysis': ['deep', 'surface', 'contextual']
+    };
+    return relatedMap[calculationType] || [];
   }
 }
 

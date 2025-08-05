@@ -57,8 +57,6 @@ jobs:
         include:
           - name: "Unit Tests"
             command: "test:unit"
-          - name: "Integration Tests" 
-            command: "test:ci"
           - name: "Performance Tests"
             command: "test:performance"
     

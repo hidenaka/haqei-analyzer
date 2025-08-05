@@ -1,5 +1,6 @@
 import { config } from '@vue/test-utils'
 import { vi } from 'vitest'
+import '@testing-library/jest-dom'
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -19,6 +20,22 @@ Object.defineProperty(window, 'matchMedia', {
 // Configure Vue Test Utils
 config.global.mocks = {
   $t: (key: string) => key,
+  $router: {
+    push: vi.fn(),
+    replace: vi.fn(),
+    go: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+  },
+  $route: {
+    path: '/',
+    params: {},
+    query: {},
+    hash: '',
+    fullPath: '/',
+    matched: [],
+    name: null,
+  },
 }
 
 // Mock IntersectionObserver
@@ -31,3 +48,22 @@ global.IntersectionObserver = class IntersectionObserver {
     return []
   }
 }
+
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+}
+
+// Mock localStorage
+Object.defineProperty(window, 'localStorage', {
+  value: {
+    getItem: vi.fn(() => null),
+    setItem: vi.fn(() => null),
+    removeItem: vi.fn(() => null),
+    clear: vi.fn(() => null),
+  },
+  writable: true,
+})

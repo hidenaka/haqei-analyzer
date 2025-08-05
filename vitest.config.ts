@@ -6,30 +6,67 @@ export default defineConfig({
   plugins: [vue()],
   test: {
     globals: true,
-    environment: 'jsdom',
+    environment: 'happy-dom',
+    setupFiles: ['./tests/setup.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      thresholds: {
+        global: {
+          branches: 85,
+          functions: 85,
+          lines: 85,
+          statements: 85
+        }
+      },
       exclude: [
         'node_modules/',
-        'src/main.ts',
+        'tests/',
         '**/*.d.ts',
         '**/*.config.*',
         '**/mockData/**',
-        'tests/**'
+        'public/js/legacy/**',
+        'public/assets/**',
+        'archives/**',
+        'haqei-vue/**'
       ]
     },
-    setupFiles: ['./tests/setup.ts']
+    include: [
+      'tests/unit/**/*.{test,spec}.{js,ts}',
+      'tests/integration/**/*.{test,spec}.{js,ts}',
+      'public/js/**/*.{test,spec}.{js,ts}'
+    ],
+    exclude: [
+      'node_modules/',
+      'dist/',
+      'public/assets/',
+      'public/dict/',
+      'archives/**',
+      'haqei-vue/**',
+      '**/*.legacy.*'
+    ],
+    testTimeout: 10000,
+    hookTimeout: 10000,
+    teardownTimeout: 10000,
+    isolate: true,
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        singleThread: false,
+        minThreads: 1,
+        maxThreads: 4
+      }
+    }
   },
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
-      '@components': resolve(__dirname, './src/components'),
-      '@views': resolve(__dirname, './src/views'),
-      '@utils': resolve(__dirname, './src/utils'),
-      '@stores': resolve(__dirname, './src/stores'),
-      '@types': resolve(__dirname, './src/types'),
-      '@assets': resolve(__dirname, './src/assets')
+      '@public': resolve(__dirname, './public'),
+      '@tests': resolve(__dirname, './tests'),
+      '@core': resolve(__dirname, './public/js/core'),
+      '@components': resolve(__dirname, './public/js/components'),
+      '@utils': resolve(__dirname, './public/js/utils')
     }
   }
 })

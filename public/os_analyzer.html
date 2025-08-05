@@ -228,6 +228,9 @@
     <script src="/js/os-analyzer/components/HaqeiQuestionElement.js"></script>
     <script src="/js/os-analyzer/utils/TouchGestureHandler.js"></script>
     
+    <!-- Core Web Vitals Optimization System -->
+    <script src="/js/performance/CoreWebVitalsOptimizer.js"></script>
+    
     <!-- Performance Enhancement Dependencies - VirtualQuestionFlow.js needs these -->
     <script src="/js/core/CacheManager.js"></script>
     <script src="/js/core/PerformanceOptimizer.js"></script>
@@ -325,18 +328,46 @@
         }
       }
       
-      // Service Worker完全無効化（DataManager.js 404問題の解決まで）
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage('CLEAR_CACHE');
-        console.log('🧹 Service Worker cache cleared');
-      }
-      
-      // 古いService Workerを削除
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister();
-            console.log('🗑️ Unregistered Service Worker');
+      // Core Web Vitals Optimizer初期化
+      if (window.CoreWebVitalsOptimizer) {
+        const optimizer = new window.CoreWebVitalsOptimizer({
+          enableProgressiveLoading: true,
+          enableBundleOptimization: true,
+          enableMemoryMonitoring: true,
+          enableWebVitalsTracking: true,
+          enableServiceWorker: true,
+          developmentMode: false
+        });
+        
+        optimizer.initialize().then(success => {
+          if (success) {
+            window.coreWebVitalsOptimizer = optimizer;
+            console.log('✅ Core Web Vitals optimization initialized');
+            
+            // Service Worker登録（パフォーマンス最適化用）
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.register('/sw-performance.js')
+                .then(registration => {
+                  console.log('✅ Performance Service Worker registered');
+                })
+                .catch(error => {
+                  console.warn('⚠️ Service Worker registration failed:', error);
+                });
+            }
+            
+            // パフォーマンスレポート生成
+            setInterval(() => {
+              const report = optimizer.generatePerformanceReport();
+              if (report.webVitals.FCP || report.webVitals.LCP) {
+                console.log('📊 Performance:', {
+                  FCP: report.webVitals.FCP ? `${report.webVitals.FCP.toFixed(0)}ms` : 'N/A',
+                  LCP: report.webVitals.LCP ? `${report.webVitals.LCP.toFixed(0)}ms` : 'N/A',
+                  Memory: report.memoryUsage?.current?.percentage ? `${report.memoryUsage.current.percentage}%` : 'N/A'
+                });
+              }
+            }, 30000);
+          } else {
+            console.error('❌ Core Web Vitals optimization failed');
           }
         });
       }

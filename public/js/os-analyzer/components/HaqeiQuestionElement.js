@@ -720,6 +720,132 @@ class HaqeiQuestionElement extends HTMLElement {
   }
 
   /**
+   * WCAG 2.1 AA準拠アクセシビリティ設定
+   */
+  setupAccessibility() {
+    const questionId = this.dataset.questionId;
+    if (!questionId) return;
+    
+    // このコンポーネント全体をradiogroup として設定
+    this.setAttribute('role', 'radiogroup');
+    this.setAttribute('aria-labelledby', `question-title-${questionId}`);
+    this.setAttribute('tabindex', '0');
+    
+    // 質問タイトルのARIA設定
+    const titleElement = this.shadowRoot.querySelector('.question-title');
+    if (titleElement) {
+      titleElement.id = `question-title-${questionId}`;
+      titleElement.setAttribute('role', 'heading');
+      titleElement.setAttribute('aria-level', '2');
+    }
+    
+    // 各選択肢のARIA設定
+    const labels = this.shadowRoot.querySelectorAll('.option-label');
+    const inputs = this.shadowRoot.querySelectorAll('input[type="radio"]');
+    
+    labels.forEach((label, index) => {
+      // フォーカス可能に設定
+      label.setAttribute('tabindex', '0');
+      label.setAttribute('role', 'radio');
+      
+      const input = inputs[index];
+      if (input) {
+        // radio inputの状態をlabelに反映
+        label.setAttribute('aria-checked', input.checked ? 'true' : 'false');
+        
+        // ラベルテキストの設定
+        const choiceText = label.querySelector('.choice-title')?.textContent;
+        if (choiceText) {
+          label.setAttribute('aria-label', choiceText);
+        }
+        
+        // input変更時にaria-checkedを更新
+        input.addEventListener('change', () => {
+          labels.forEach((l, i) => {
+            l.setAttribute('aria-checked', inputs[i].checked ? 'true' : 'false');
+          });
+        });
+      }
+    });
+    
+    // 必須フィールドの表示
+    this.setAttribute('aria-required', 'true');
+  }
+  
+  /**
+   * キーボードナビゲーション処理
+   */
+  handleKeyboardNavigation(event, currentIndex) {
+    const labels = this.shadowRoot.querySelectorAll('.option-label');
+    const inputs = this.shadowRoot.querySelectorAll('input[type="radio"]');
+    
+    switch (event.key) {
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        event.preventDefault();
+        const prevIndex = currentIndex === 0 ? labels.length - 1 : currentIndex - 1;
+        this.selectOption(prevIndex);
+        labels[prevIndex].focus();
+        break;
+        
+      case 'ArrowDown':
+      case 'ArrowRight':
+        event.preventDefault();
+        const nextIndex = (currentIndex + 1) % labels.length;
+        this.selectOption(nextIndex);
+        labels[nextIndex].focus();
+        break;
+        
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        this.selectOption(currentIndex);
+        break;
+        
+      case 'Home':
+        event.preventDefault();
+        this.selectOption(0);
+        labels[0].focus();
+        break;
+        
+      case 'End':
+        event.preventDefault();
+        this.selectOption(labels.length - 1);
+        labels[labels.length - 1].focus();
+        break;
+    }
+  }
+  
+  /**
+   * 選択肢の選択
+   */
+  selectOption(index) {
+    const inputs = this.shadowRoot.querySelectorAll('input[type="radio"]');
+    const labels = this.shadowRoot.querySelectorAll('.option-label');
+    
+    if (inputs[index]) {
+      inputs[index].checked = true;
+      
+      // aria-checked属性の更新
+      labels.forEach((label, i) => {
+        label.setAttribute('aria-checked', i === index ? 'true' : 'false');
+      });
+      
+      // changeイベントの発火
+      const changeEvent = new Event('change', { bubbles: true });
+      inputs[index].dispatchEvent(changeEvent);
+      
+      // スクリーンリーダー通知
+      if (window.accessibilityManager) {
+        const choiceText = labels[index].querySelector('.choice-title')?.textContent;
+        if (choiceText) {
+          window.accessibilityManager.announce(`${choiceText}を選択しました`, 'polite');
+        }
+      }
+    }
+  }
+
+  /**
    * 回答変更ハンドリング
    */
   handleAnswerChange(event) {
