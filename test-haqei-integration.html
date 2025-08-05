@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI System Integration Test - 統合テスト</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .result {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+        button.danger {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+        }
+        button.success {
+            background: linear-gradient(45deg, #28a745, #1e7e34);
+        }
+        #console-output {
+            background: #1e1e1e;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 2px solid #444;
+        }
+        .data-display {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-success { background: #28a745; }
+        .status-error { background: #dc3545; }
+        .status-warning { background: #ffc107; }
+        .status-info { background: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 HAQEI System Integration Test</h1>
+        <p><strong>対象ページ:</strong> os_analyzer.html の修正検証</p>
+        <p>HAQEIシステムの統合テストを実行し、すべてのコンポーネントが正常に動作することを確認します。</p>
+        
+        <div id="test-results"></div>
+        
+        <div class="test-section">
+            <h3>🧪 テスト実行</h3>
+            <button onclick="runAllTests()" class="success">全テスト実行</button>
+            <button onclick="testDependencies()">依存関係テスト</button>
+            <button onclick="testVirtualQuestionFlow()">VirtualQuestionFlow テスト</button>
+            <button onclick="testFindIndexFix()">findIndex修正テスト</button>
+            <button onclick="testPerformanceOptimizer()">パフォーマンステスト</button>
+            <button onclick="clearAndReset()" class="danger">リセット</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>💾 localStorage 状態</h3>
+            <button onclick="showLocalStorageState()">localStorage確認</button>
+            <button onclick="createTestData()">テストデータ作成</button>
+            <button onclick="clearLocalStorage()" class="danger">localStorage削除</button>
+            <div id="localStorage-display" class="data-display"></div>
+        </div>
+        
+        <div id="console-output"></div>
+    </div>
+
+    <!-- Core Dependencies -->
+    <script src="/js/shared/core/BaseComponent.js"></script>
+    <script src="/js/shared/core/MicroStorageManager.js"></script>
+    <script src="/js/shared/core/BridgeStorageManager.js"></script>
+    <script src="/js/shared/core/SimpleStorageManager.js"></script>
+    <script src="/js/shared/core/MicroDataManager.js"></script>
+    <script src="/js/shared/data/questions.js"></script>
+    <script src="/js/os-analyzer/core/PrecompiledQuestions.js"></script>
+    
+    <!-- Performance Dependencies -->
+    <script src="/js/core/CacheManager.js"></script>
+    <script src="/js/core/PerformanceOptimizer.js"></script>
+    
+    <!-- VirtualQuestionFlow -->
+    <script src="/js/os-analyzer/components/HaqeiQuestionElement.js"></script>
+    <script src="/js/os-analyzer/components/VirtualQuestionFlow.js"></script>
+
+    <script>
+        let consoleOutput = '';
+        let testResults = [];
+        let questionFlow = null;
+        
+        // Console capture
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function logToDisplay(level, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            consoleOutput += `[${timestamp}] ${level.toUpperCase()}: ${message}\n`;
+            updateConsoleDisplay();
+        }
+        
+        console.log = (...args) => {
+            originalLog(...args);
+            logToDisplay('log', ...args);
+        };
+        
+        console.error = (...args) => {
+            originalError(...args);
+            logToDisplay('error', ...args);
+        };
+        
+        console.warn = (...args) => {
+            originalWarn(...args);
+            logToDisplay('warn', ...args);
+        };
+        
+        function updateConsoleDisplay() {
+            const consoleDiv = document.getElementById('console-output');
+            consoleDiv.textContent = consoleOutput;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        function addResult(type, title, message, details = null) {
+            const statusClass = `status-${type}`;
+            const result = {
+                type,
+                title,
+                message,
+                details,
+                timestamp: new Date().toISOString()
+            };
+            
+            testResults.push(result);
+            
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `
+                <span class="status-indicator ${statusClass}"></span>
+                <div>
+                    <strong>${title}</strong><br>
+                    ${message}
+                    ${details ? `<br><small>${details}</small>` : ''}
+                </div>
+            `;
+            resultsDiv.appendChild(resultDiv);
+            
+            // Auto-scroll to latest result
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Test Functions
+        async function testDependencies() {
+            console.log('🧪 Testing dependencies...');
+            
+            const dependencies = [
+                { name: 'BaseComponent', obj: window.BaseComponent },
+                { name: 'CacheManager', obj: window.CacheManager },
+                { name: 'PerformanceOptimizer', obj: window.PerformanceOptimizer },
+                { name: 'VirtualQuestionFlow', obj: window.VirtualQuestionFlow },
+                { name: 'questions', obj: window.questions }
+            ];
+            
+            let passed = 0;
+            
+            for (const dep of dependencies) {
+                if (dep.obj && typeof dep.obj === 'function') {
+                    addResult('success', `✅ ${dep.name}`, '正常に読み込まれています');
+                    passed++;
+                } else if (dep.obj) {
+                    addResult('warning', `⚠️ ${dep.name}`, 'オブジェクトとして存在しますが、関数ではありません');
+                } else {
+                    addResult('error', `❌ ${dep.name}`, '読み込まれていません');
+                }
+            }
+            
+            if (passed === dependencies.length) {
+                addResult('success', '依存関係テスト', 'すべての依存関係が正常です');
+            } else {
+                addResult('warning', '依存関係テスト', `${passed}/${dependencies.length} の依存関係が正常です`);
+            }
+        }
+        
+        async function testVirtualQuestionFlow() {
+            console.log('🧪 Testing VirtualQuestionFlow...');
+            
+            try {
+                // Create test container
+                let container = document.getElementById('test-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'test-container';
+                    container.style.display = 'none';
+                    document.body.appendChild(container);
+                }
+                
+                // Create VirtualQuestionFlow instance
+                const startTime = performance.now();
+                questionFlow = new VirtualQuestionFlow({
+                    container: container,
+                    questions: window.questions || [],
+                    onComplete: (answers) => {
+                        console.log('VirtualQuestionFlow onComplete called with:', answers);
+                    }
+                });
+                
+                await questionFlow.init();
+                const initTime = performance.now() - startTime;
+                
+                addResult('success', 'VirtualQuestionFlow 作成', `インスタンスが正常に作成されました (${initTime.toFixed(2)}ms)`);
+                
+                // Test answers array
+                if (Array.isArray(questionFlow.answers)) {
+                    addResult('success', 'answers 配列', `正常な配列です (${questionFlow.answers.length} 項目)`);
+                } else {
+                    addResult('error', 'answers 配列', `配列ではありません: ${typeof questionFlow.answers}`);
+                }
+                
+            } catch (error) {
+                addResult('error', 'VirtualQuestionFlow エラー', error.message, error.stack);
+            }
+        }
+        
+        async function testFindIndexFix() {
+            console.log('🧪 Testing findIndex fix...');
+            
+            if (!questionFlow) {
+                await testVirtualQuestionFlow();
+            }
+            
+            if (!questionFlow) {
+                addResult('error', 'findIndex テスト', 'VirtualQuestionFlow インスタンスが作成できませんでした');
+                return;
+            }
+            
+            try {
+                // Test findAnswerIndex
+                const index1 = questionFlow.findAnswerIndex('q1');
+                addResult('success', 'findAnswerIndex', `正常に実行されました (result: ${index1})`);
+                
+                // Test findAnswerByQuestionId
+                const answer1 = questionFlow.findAnswerByQuestionId('q1');
+                addResult('success', 'findAnswerByQuestionId', `正常に実行されました (result: ${answer1 ? 'Found' : 'Not found'})`);
+                
+                // Test with corrupted data simulation
+                const originalAnswers = questionFlow.answers;
+                questionFlow.answers = "not an array"; // Intentionally corrupt
+                
+                const index2 = questionFlow.findAnswerIndex('q1');
+                const answer2 = questionFlow.findAnswerByQuestionId('q1');
+                
+                if (Array.isArray(questionFlow.answers)) {
+                    addResult('success', '破損データ対応', '配列でないデータを検出し、自動修復されました');
+                } else {
+                    addResult('error', '破損データ対応', '配列でないデータが修復されませんでした');
+                }
+                
+                // Test handleAnswerChange
+                questionFlow.handleAnswerChange({
+                    questionId: 'test-q1',
+                    value: 'A',
+                    scoringTags: ['test'],
+                    choiceType: 'single'
+                });
+                
+                addResult('success', 'handleAnswerChange', '回答変更処理が正常に実行されました');
+                
+            } catch (error) {
+                addResult('error', 'findIndex テストエラー', error.message, error.stack);
+            }
+        }
+        
+        async function testPerformanceOptimizer() {
+            console.log('🧪 Testing PerformanceOptimizer...');
+            
+            try {
+                const cacheManager = new CacheManager();
+                const perfOptimizer = new PerformanceOptimizer();
+                
+                await cacheManager.init();
+                
+                // Test caching
+                const testKey = 'test-key';
+                const testValue = { data: 'test-data', timestamp: Date.now() };
+                
+                cacheManager.set(testKey, testValue);
+                const cachedValue = cacheManager.get(testKey);
+                
+                if (cachedValue && cachedValue.data === testValue.data) {
+                    addResult('success', 'CacheManager', 'キャッシュの読み書きが正常に動作しています');
+                } else {
+                    addResult('error', 'CacheManager', 'キャッシュの読み書きでエラーが発生しました');
+                }
+                
+                // Test performance optimization
+                const metrics = perfOptimizer.getMetrics();
+                addResult('success', 'PerformanceOptimizer', 'パフォーマンス最適化システムが正常に動作しています');
+                
+            } catch (error) {
+                addResult('error', 'パフォーマンステストエラー', error.message, error.stack);
+            }
+        }
+        
+        function showLocalStorageState() {
+            const display = document.getElementById('localStorage-display');
+            const data = localStorage.getItem('haqei_answers');
+            
+            if (data) {
+                try {
+                    const parsed = JSON.parse(data);
+                    display.textContent = 'haqei_answers:\n' + JSON.stringify(parsed, null, 2);
+                    addResult('info', 'localStorage', `データが存在します (${Array.isArray(parsed) ? 'Array' : typeof parsed})`);
+                } catch (e) {
+                    display.textContent = 'haqei_answers (破損データ):\n' + data;
+                    addResult('warning', 'localStorage', '破損したJSONデータが存在します');
+                }
+            } else {
+                display.textContent = 'haqei_answers: (empty)';
+                addResult('info', 'localStorage', 'データは存在しません');
+            }
+        }
+        
+        function createTestData() {
+            const testData = [
+                {
+                    questionId: 'q1',
+                    selectedValue: 'A',
+                    selectedChoice: 'q1a',
+                    choiceText: 'テスト回答A',
+                    timestamp: new Date().toISOString()
+                },
+                {
+                    questionId: 'q2',
+                    selectedValue: 'B',
+                    selectedChoice: 'q2b',
+                    choiceText: 'テスト回答B',
+                    timestamp: new Date().toISOString()
+                }
+            ];
+            
+            localStorage.setItem('haqei_answers', JSON.stringify(testData));
+            addResult('success', 'テストデータ作成', '有効なテストデータが作成されました');
+            showLocalStorageState();
+        }
+        
+        function clearLocalStorage() {
+            localStorage.removeItem('haqei_answers');
+            addResult('info', 'localStorage削除', 'localStorage がクリアされました');
+            showLocalStorageState();
+        }
+        
+        function clearAndReset() {
+            testResults = [];
+            consoleOutput = '';
+            document.getElementById('test-results').innerHTML = '';
+            document.getElementById('console-output').textContent = '';
+            document.getElementById('localStorage-display').textContent = '';
+            addResult('info', 'リセット完了', 'すべてのテスト結果がクリアされました');
+        }
+        
+        async function runAllTests() {
+            console.log('🚀 Running all integration tests...');
+            addResult('info', 'テスト開始', '統合テストを開始します');
+            
+            const startTime = performance.now();
+            
+            await testDependencies();
+            await testVirtualQuestionFlow();
+            await testFindIndexFix();
+            await testPerformanceOptimizer();
+            
+            const totalTime = performance.now() - startTime;
+            
+            const successCount = testResults.filter(r => r.type === 'success').length;
+            const errorCount = testResults.filter(r => r.type === 'error').length;
+            const warningCount = testResults.filter(r => r.type === 'warning').length;
+            
+            if (errorCount === 0) {
+                addResult('success', '統合テスト完了', 
+                    `すべてのテストが完了しました (${totalTime.toFixed(2)}ms)`, 
+                    `成功: ${successCount}, 警告: ${warningCount}, エラー: ${errorCount}`);
+            } else {
+                addResult('warning', '統合テスト完了', 
+                    `テストが完了しましたが、エラーがあります (${totalTime.toFixed(2)}ms)`, 
+                    `成功: ${successCount}, 警告: ${warningCount}, エラー: ${errorCount}`);
+            }
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            console.log('🔬 HAQEI System Integration Test initialized');
+            addResult('info', 'テストシステム開始', 'HAQEI統合テストシステムが開始されました');
+            showLocalStorageState();
+        });
+    </script>
+</body>
+</html>

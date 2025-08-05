@@ -1,0 +1,327 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "tutorialType": "welcome",
+    "target": "first-time-users",
+    "description": "初回ユーザー向けのウェルカムチュートリアル - HAQEIへの優しい導入",
+    "philosophy": "安心感を与えながら、システムの価値を理解してもらう",
+    "author": "Frontend Developer Agent",
+    "estimatedDuration": "5-8分",
+    "mobileOptimized": true
+  },
+  
+  "welcomeFlow": {
+    "id": "welcome-introduction",
+    "title": "HAQEIへようこそ",
+    "subtitle": "あなたの内なる知恵を発見する旅が始まります",
+    "greeting": {
+      "message": "こんにちは！HAQEIをご利用いただき、ありがとうございます。",
+      "subMessage": "このシステムは、古代の知恵と現代の理解を組み合わせて、あなた自身の深い理解を支援します。",
+      "tone": "warm_welcoming"
+    },
+    
+    "introductionSteps": [
+      {
+        "step": 1,
+        "id": "what-is-haqei",
+        "title": "HAQEIとは何ですか？",
+        "content": "HAQEI（ハケイ）は、中国古典の「易経（64卦）」と日本の「分人哲学」を融合した、現代的な人格分析システムです。",
+        "visualElement": {
+          "type": "animated-icon",
+          "src": "/images/help/haqei-concept-animation.gif",
+          "alt": "HAQEIコンセプトアニメーション"
+        },
+        "keyPoints": [
+          "3000年の歴史を持つ易経の知恵を活用",
+          "現代心理学との融合アプローチ", 
+          "あなただけの人格特性を発見"
+        ],
+        "duration": 15000,
+        "voiceOver": "HAQEIは古代の知恵を現代に活かす、新しい自己理解のツールです。"
+      },
+      
+      {
+        "step": 2,
+        "id": "why-special",
+        "title": "HAQEIの特別な点",
+        "content": "従来の人格テストとは異なり、HAQEIは「固定された性格」ではなく「状況に応じて変化する複数の自分」を理解します。",
+        "visualElement": {
+          "type": "comparison-chart",
+          "data": {
+            "traditional": ["固定的", "単一の結果", "表面的"],
+            "haqei": ["適応的", "複数の側面", "深層的"]
+          }
+        },
+        "philosophicalNote": "人は一つの型に収まらない、豊かで複雑な存在です。HAQEIはその豊かさを尊重します。",
+        "duration": 18000,
+        "interactive": {
+          "type": "concept-exploration",
+          "question": "あなたは職場と家庭で同じ人格ですか？",
+          "options": [
+            "はい、常に同じです",
+            "いいえ、状況によって違います",
+            "分からない"
+          ],
+          "feedback": {
+            "option1": "それも一つの素晴らしい在り方です。HAQEIはあなたの一貫性を理解します。",
+            "option2": "まさにその通り！HAQEIは状況による変化を自然なものとして捉えます。",
+            "option3": "大丈夫です。HAQEIがあなた自身の理解を深める手助けをします。"
+          }
+        }
+      },
+      
+      {
+        "step": 3,
+        "id": "how-it-works",
+        "title": "どのように動作するのか",
+        "content": "30の質問に答えることで、易経の64卦システムがあなたの人格パターンを分析します。所要時間は約10-15分です。",
+        "visualElement": {
+          "type": "process-flow",
+          "steps": [
+            "30の質問",
+            "直感的な回答",
+            "64卦分析",
+            "個人的洞察"
+          ]
+        },
+        "reassurance": "正解・不正解はありません。あなたの自然な反応が最も価値ある情報です。",
+        "duration": 20000,
+        "tips": [
+          "リラックスして答えてください",
+          "最初に感じたことを大切に",
+          "深く考えすぎる必要はありません"
+        ]
+      },
+      
+      {
+        "step": 4,
+        "id": "cultural-respect",
+        "title": "文化的背景への敬意",
+        "content": "HAQEIは易経という貴重な文化遺産を使用しています。私たちはその起源と価値を深く理解し、適切な敬意を払っています。",
+        "culturalContext": {
+          "origin": "古代中国（約3000年前）",
+          "significance": "東アジア文化圏の重要な知的遺産",
+          "modernValue": "現代の自己理解と意思決定に活用"
+        },
+        "respectMessage": "異なる文化の知恵を学ぶことで、より豊かな人間理解が可能になります。",
+        "duration": 22000,
+        "visualElement": {
+          "type": "cultural-timeline",
+          "src": "/images/help/iching-cultural-history.png",
+          "alt": "易経の文化的歴史"
+        }
+      },
+      
+      {
+        "step": 5,
+        "id": "privacy-safety",
+        "title": "プライバシーと安全性",
+        "content": "HAQEIは「SafeMode OS」により、あなたのプライバシーと心理的安全性を最優先に保護します。",
+        "safetyFeatures": [
+          "データの暗号化保護",
+          "第三者との情報共有なし",
+          "いつでもデータ削除可能",
+          "心理的配慮のある結果表示"
+        ],
+        "trustMessage": "安心してご自身を探求してください。私たちがしっかりと保護します。",
+        "duration": 16000,
+        "visualElement": {
+          "type": "security-shield",
+          "animation": "protection-layers",
+          "alt": "多層セキュリティ保護"
+        }
+      },
+      
+      {
+        "step": 6,
+        "id": "what-to-expect",
+        "title": "何が得られるか",
+        "content": "分析完了後、あなたは自分自身についての新しい洞察、現代生活での活用法、そして自然な成長の方向性を得ることができます。",
+        "expectedOutcomes": [
+          "深い自己理解",
+          "人間関係の改善ヒント",
+          "キャリア選択の指針",
+          "意思決定のサポート",
+          "ストレス管理のアドバイス",
+          "成長の方向性"
+        ],
+        "inspiringMessage": "HAQEIは答えを与えるのではなく、あなた自身の内なる知恵を引き出します。",
+        "duration": 18000,
+        "visualElement": {
+          "type": "benefit-web",
+          "src": "/images/help/haqei-benefits-diagram.png",
+          "alt": "HAQEIのメリット図"
+        }
+      },
+      
+      {
+        "step": 7,
+        "id": "ready-to-begin",
+        "title": "始める準備はできましたか？",
+        "content": "これでHAQEIについての基本的な理解が完了しました。あなたのペースで、リラックスして分析を始めてください。",
+        "finalEncouragement": "あなたは既に完全な存在です。HAQEIはただ、その素晴らしさを再発見する手助けをするだけです。",
+        "readinessCheck": {
+          "question": "分析を始める準備はできていますか？",
+          "options": [
+            "はい、始めましょう！",
+            "もう少し情報が欲しい",
+            "後で戻ってきます"
+          ],
+          "responses": {
+            "option1": "素晴らしい！あなたの旅が始まります。",
+            "option2": "もちろんです。ヘルプメニューでさらに詳しく学べます。",
+            "option3": "いつでもお待ちしています。準備ができたら戻ってきてください。"
+          }
+        },
+        "duration": 14000,
+        "ctaButton": {
+          "text": "分析を開始する",
+          "style": "primary-gradient",
+          "animation": "gentle-pulse"
+        }
+      }
+    ]
+  },
+  
+  "quickStartGuide": {
+    "id": "quick-start-essentials",
+    "title": "クイックスタートガイド",
+    "subtitle": "すぐに始めたい方向け（2分版）",
+    "steps": [
+      {
+        "title": "HAQEIは人格分析システム",
+        "content": "30の質問で、易経の知恵に基づいて分析します。",
+        "duration": 5000
+      },
+      {
+        "title": "直感的に答えてください",
+        "content": "正解はありません。最初に感じたことを選んでください。",
+        "duration": 5000
+      },
+      {
+        "title": "プライバシーは完全保護",
+        "content": "データは暗号化され、安全に管理されます。",
+        "duration": 5000
+      },
+      {
+        "title": "準備完了！",
+        "content": "リラックスして分析を始めましょう。",
+        "duration": 5000
+      }
+    ],
+    "totalDuration": "20秒",
+    "forUsers": "経験者・時短希望者"
+  },
+  
+  "helpIntegration": {
+    "contextualHelp": [
+      {
+        "trigger": "question-confusion",
+        "message": "質問の意味が分からない場合は、ヘルプボタンで詳細説明を見られます。",
+        "showAt": "question-pages"
+      },
+      {
+        "trigger": "cultural-terms",
+        "message": "文化的な用語については、用語解説で詳しく説明しています。",
+        "showAt": "results-page"
+      },
+      {
+        "trigger": "technical-issues",
+        "message": "画面が正常に表示されない場合は、ブラウザを再読み込みしてください。",
+        "showAt": "any-page"
+      }
+    ],
+    
+    "progressSaving": {
+      "enabled": true,
+      "savePoints": ["after-step-3", "after-step-5", "completion"],
+      "resumeMessage": "前回の続きから始めることができます。"
+    }
+  },
+  
+  "accessibility": {
+    "screenReaderSupport": {
+      "altTexts": "comprehensive",
+      "ariaLabels": "detailed",
+      "structuredContent": true
+    },
+    "keyboardNavigation": {
+      "enabled": true,
+      "shortcuts": {
+        "next": "Space/Enter",
+        "previous": "Backspace", 
+        "skip": "Escape",
+        "help": "F1"
+      }
+    },
+    "visualAdjustments": {
+      "highContrast": true,
+      "largeText": true,
+      "reducedAnimation": true
+    }
+  },
+  
+  "personalization": {
+    "learningStyle": {
+      "visual": "図表とアニメーションを多用",
+      "auditory": "音声ガイドとナレーション",
+      "kinesthetic": "インタラクティブ要素を重視"
+    },
+    "culturalBackground": {
+      "japanese": "日本の文化的文脈を強調",
+      "international": "普遍的な説明に重点",
+      "scholarly": "学術的・歴史的背景を詳述"
+    },
+    "experienceLevel": {
+      "complete-beginner": "基本概念から丁寧に説明",
+      "some-knowledge": "要点を効率的に説明",
+      "experienced": "高度な概念と実践応用に重点"
+    }
+  },
+  
+  "analytics": {
+    "completionTracking": {
+      "stepCompletionRates": true,
+      "dropOffPoints": true,
+      "interactionSuccess": true
+    },
+    "engagementMetrics": {
+      "timeSpentPerStep": true,
+      "helpUsageFrequency": true,
+      "skipRates": true
+    },
+    "userFeedback": {
+      "satisfactionRating": true,
+      "clarityRating": true,
+      "usefulness": true,
+      "suggestions": true
+    }
+  },
+  
+  "followUpActions": {
+    "afterCompletion": [
+      {
+        "action": "showProgressBadge",
+        "message": "ウェルカムチュートリアル完了！"
+      },
+      {
+        "action": "recommendNextTutorial",
+        "suggestion": "システム操作ガイド"
+      },
+      {
+        "action": "savePreferences",
+        "data": "completedWelcome"
+      }
+    ],
+    "onSkip": [
+      {
+        "action": "offerQuickStart",
+        "message": "2分のクイックガイドはいかがですか？"
+      },
+      {
+        "action": "saveSkipReason",
+        "analytics": true
+      }
+    ]
+  }
+}

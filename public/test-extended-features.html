@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Extended Features Demo</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            color: #F1F5F9;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #6366F1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #CBD5E1;
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .demo-section h2 {
+            color: #F1F5F9;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .demo-section p {
+            color: #CBD5E1;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .demo-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .demo-button:active {
+            transform: translateY(0);
+        }
+        
+        .demo-button.secondary {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        .demo-button.accent {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        
+        .status-section {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .status-section h3 {
+            color: #10B981;
+            margin-bottom: 1rem;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .status-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .status-item h4 {
+            color: #F1F5F9;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-item p {
+            color: #CBD5E1;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        
+        .mock-analysis {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .mock-analysis h3 {
+            color: #6366F1;
+            margin-bottom: 1rem;
+        }
+        
+        .mock-os-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .mock-os-card {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .mock-os-card h4 {
+            margin-bottom: 0.5rem;
+            color: #F1F5F9;
+        }
+        
+        .mock-os-card p {
+            font-size: 0.9rem;
+            color: #CBD5E1;
+            margin: 0;
+        }
+        
+        .log-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .log-section h3 {
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 1rem;
+            color: #F1F5F9;
+        }
+        
+        .log-item {
+            margin-bottom: 0.5rem;
+            color: #94A3B8;
+        }
+        
+        .log-item.success {
+            color: #10B981;
+        }
+        
+        .log-item.error {
+            color: #EF4444;
+        }
+        
+        .log-item.info {
+            color: #3B82F6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 HAQEI Extended Features Demo</h1>
+            <p>PDF出力、SNS共有、結果履歴機能のテストページ</p>
+        </div>
+        
+        <!-- Mock Analysis Result -->
+        <div class="mock-analysis">
+            <h3>📊 デモ用分析結果</h3>
+            <div class="mock-os-grid">
+                <div class="mock-os-card">
+                    <h4>🔥 Engine OS</h4>
+                    <p>第1卦 乾 (創造)<br>マッチ度: 85%</p>
+                </div>
+                <div class="mock-os-card">
+                    <h4>🌟 Interface OS</h4>
+                    <p>第2卦 坤 (受容)<br>マッチ度: 78%</p>
+                </div>
+                <div class="mock-os-card">
+                    <h4>🛡️ Safe Mode OS</h4>
+                    <p>第52卦 艮 (静止)<br>マッチ度: 72%</p>
+                </div>
+            </div>
+            <p>統合レベル: 78% (良好)</p>
+        </div>
+        
+        <!-- PDF Export Demo -->
+        <div class="demo-section">
+            <h2>📄 PDF Export Demo</h2>
+            <p>HAQEI分析結果を美しいPDFレポートとして出力します。易経の視覚化とbunenjin哲学の解説を含む包括的なレポートを生成します。</p>
+            <div class="demo-buttons">
+                <button class="demo-button" onclick="testPDFExport()">
+                    <span>📄</span>
+                    PDF レポート生成
+                </button>
+                <button class="demo-button secondary" onclick="testPDFExportCustom()">
+                    <span>⚙️</span>
+                    カスタム設定でPDF生成
+                </button>
+            </div>
+        </div>
+        
+        <!-- SNS Sharing Demo -->
+        <div class="demo-section">
+            <h2>📱 SNS Sharing Demo</h2>
+            <p>分析結果をソーシャルメディアで共有します。プライバシー保護機能付きで、プラットフォーム別に最適化されたコンテンツを生成します。</p>
+            <div class="demo-buttons">
+                <button class="demo-button" onclick="testTwitterShare()">
+                    <span>🐦</span>
+                    Twitter共有
+                </button>
+                <button class="demo-button" onclick="testFacebookShare()">
+                    <span>📘</span>
+                    Facebook共有
+                </button>
+                <button class="demo-button" onclick="testLinkedInShare()">
+                    <span>💼</span>
+                    LinkedIn共有
+                </button>
+                <button class="demo-button accent" onclick="testInstagramShare()">
+                    <span>📷</span>
+                    Instagram用画像生成
+                </button>
+                <button class="demo-button secondary" onclick="testGenericShare()">
+                    <span>🔗</span>
+                    汎用シェア
+                </button>
+            </div>
+        </div>
+        
+        <!-- Results History Demo -->
+        <div class="demo-section">
+            <h2>📚 Results History Demo</h2>
+            <p>分析結果の履歴管理、ブックマーク機能、お気に入り機能、結果比較機能をテストします。</p>
+            <div class="demo-buttons">
+                <button class="demo-button" onclick="testSaveResult()">
+                    <span>💾</span>
+                    結果を保存
+                </button>
+                <button class="demo-button" onclick="testViewHistory()">
+                    <span>📋</span>
+                    履歴を表示
+                </button>
+                <button class="demo-button" onclick="testBookmarkToggle()">
+                    <span>📌</span>
+                    ブックマーク切替
+                </button>
+                <button class="demo-button" onclick="testFavoriteToggle()">
+                    <span>⭐</span>
+                    お気に入り切替
+                </button>
+                <button class="demo-button secondary" onclick="testExportJSON()">
+                    <span>📁</span>
+                    JSON出力
+                </button>
+                <button class="demo-button secondary" onclick="testExportCSV()">
+                    <span>📊</span>
+                    CSV出力
+                </button>
+            </div>
+        </div>
+        
+        <!-- Status Section -->
+        <div class="status-section">
+            <h3>🔍 システム状態</h3>
+            <div class="status-grid">
+                <div class="status-item">
+                    <h4>Extended Features Manager</h4>
+                    <p id="status-manager">未初期化</p>
+                </div>
+                <div class="status-item">
+                    <h4>PDF Export Manager</h4>
+                    <p id="status-pdf">未初期化</p>
+                </div>
+                <div class="status-item">
+                    <h4>SNS Sharing Manager</h4>
+                    <p id="status-sns">未初期化</p>
+                </div>
+                <div class="status-item">
+                    <h4>Results History Manager</h4>
+                    <p id="status-history">未初期化</p>
+                </div>
+                <div class="status-item">
+                    <h4>jsPDF Library</h4>
+                    <p id="status-jspdf">確認中...</p>
+                </div>
+                <div class="status-item">
+                    <h4>Web Share API</h4>
+                    <p id="status-webshare">確認中...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log Section -->
+        <div class="log-section">
+            <h3>📝 実行ログ</h3>
+            <div id="log-container">
+                <div class="log-item info">システム初期化中...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load Extended Features -->
+    <script src="js/features/PDFExportManager.js"></script>
+    <script src="js/features/SNSSharingManager.js"></script>
+    <script src="js/features/ResultsHistoryManager.js"></script>
+    <script src="js/features/ExtendedFeaturesManager.js"></script>
+    
+    <script>
+        // Demo functions and initialization
+        let extendedFeatures = null;
+        let mockAnalysisResult = null;
+        
+        // Mock analysis result for testing
+        function generateMockAnalysisResult() {
+            return {
+                engineOS: {
+                    hexagramId: 1,
+                    hexagramInfo: {
+                        name: '乾',
+                        number: 1,
+                        description: '創造の力'
+                    },
+                    matchPercentage: 85,
+                    traits: ['創造性', '積極性', '指導力']
+                },
+                interfaceOS: {
+                    hexagramId: 2,
+                    hexagramInfo: {
+                        name: '坤',
+                        number: 2,
+                        description: '受容の力'
+                    },
+                    matchPercentage: 78,
+                    traits: ['協調性', '包容力', '安定性']
+                },
+                safeModeOS: {
+                    hexagramId: 52,
+                    hexagramInfo: {
+                        name: '艮',
+                        number: 52,
+                        description: '静止の力'
+                    },
+                    matchPercentage: 72,
+                    traits: ['慎重さ', '集中力', '内省']
+                },
+                consistencyScore: 78
+            };
+        }
+        
+        // Logging function
+        function addLog(message, type = 'info') {
+            const container = document.getElementById('log-container');
+            const logItem = document.createElement('div');
+            logItem.className = `log-item ${type}`;
+            logItem.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            container.appendChild(logItem);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Update status
+        function updateStatus(element, text, success = true) {
+            const statusElement = document.getElementById(element);
+            statusElement.textContent = text;
+            statusElement.style.color = success ? '#10B981' : '#EF4444';
+        }
+        
+        // Initialize system
+        async function initializeSystem() {
+            try {
+                addLog('システム初期化開始...', 'info');
+                
+                // Check jsPDF
+                if (typeof window.jsPDF !== 'undefined') {
+                    updateStatus('status-jspdf', '利用可能', true);
+                    addLog('jsPDF library loaded successfully', 'success');
+                } else {
+                    updateStatus('status-jspdf', '未利用', false);
+                    addLog('jsPDF library not available', 'error');
+                }
+                
+                // Check Web Share API
+                if (navigator.share) {
+                    updateStatus('status-webshare', '利用可能', true);
+                    addLog('Web Share API available', 'success');
+                } else {
+                    updateStatus('status-webshare', '未利用 (フォールバック使用)', true);
+                    addLog('Web Share API not available, using fallback', 'info');
+                }
+                
+                // Generate mock data
+                mockAnalysisResult = generateMockAnalysisResult();
+                addLog('Mock analysis result generated', 'success');
+                
+                // Initialize Extended Features Manager
+                extendedFeatures = new ExtendedFeaturesManager({
+                    privacyMode: false, // For demo purposes
+                    enableAdvancedAnalytics: true
+                });
+                
+                await extendedFeatures.init(mockAnalysisResult);
+                
+                updateStatus('status-manager', '初期化完了', true);
+                updateStatus('status-pdf', extendedFeatures.pdfExporter ? '初期化完了' : '未利用', !!extendedFeatures.pdfExporter);
+                updateStatus('status-sns', extendedFeatures.snsSharer ? '初期化完了' : '未利用', !!extendedFeatures.snsSharer);
+                updateStatus('status-history', extendedFeatures.historyManager ? '初期化完了' : '未利用', !!extendedFeatures.historyManager);
+                
+                addLog('Extended Features Manager initialized successfully', 'success');
+                
+            } catch (error) {
+                addLog(`Initialization failed: ${error.message}`, 'error');
+                console.error('Demo initialization failed:', error);
+            }
+        }
+        
+        // PDF Export Tests
+        async function testPDFExport() {
+            try {
+                addLog('PDF export test started...', 'info');
+                await extendedFeatures.exportToPDF();
+                addLog('PDF export completed successfully', 'success');
+            } catch (error) {
+                addLog(`PDF export failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testPDFExportCustom() {
+            try {
+                addLog('Custom PDF export test started...', 'info');
+                await extendedFeatures.exportToPDF({
+                    includeMetadata: true,
+                    includeCharts: true,
+                    includeComparison: false
+                });
+                addLog('Custom PDF export completed successfully', 'success');
+            } catch (error) {
+                addLog(`Custom PDF export failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // SNS Sharing Tests
+        async function testTwitterShare() {
+            try {
+                addLog('Twitter sharing test started...', 'info');
+                await extendedFeatures.shareToTwitter();
+                addLog('Twitter sharing completed successfully', 'success');
+            } catch (error) {
+                addLog(`Twitter sharing failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testFacebookShare() {
+            try {
+                addLog('Facebook sharing test started...', 'info');
+                await extendedFeatures.shareToFacebook();
+                addLog('Facebook sharing completed successfully', 'success');
+            } catch (error) {
+                addLog(`Facebook sharing failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testLinkedInShare() {
+            try {
+                addLog('LinkedIn sharing test started...', 'info');
+                await extendedFeatures.shareToLinkedIn();
+                addLog('LinkedIn sharing completed successfully', 'success');
+            } catch (error) {
+                addLog(`LinkedIn sharing failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testInstagramShare() {
+            try {
+                addLog('Instagram content generation test started...', 'info');
+                await extendedFeatures.shareToInstagram();
+                addLog('Instagram content generated successfully', 'success');
+            } catch (error) {
+                addLog(`Instagram content generation failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testGenericShare() {
+            try {
+                addLog('Generic sharing test started...', 'info');
+                await extendedFeatures.copyShareLink();
+                addLog('Generic sharing completed successfully', 'success');
+            } catch (error) {
+                addLog(`Generic sharing failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // History Management Tests
+        async function testSaveResult() {
+            try {
+                addLog('Save result test started...', 'info');
+                const newResult = generateMockAnalysisResult();
+                // Slightly modify for variety
+                newResult.engineOS.matchPercentage = Math.floor(Math.random() * 100);
+                newResult.interfaceOS.matchPercentage = Math.floor(Math.random() * 100);
+                newResult.safeModeOS.matchPercentage = Math.floor(Math.random() * 100);
+                
+                await extendedFeatures.saveCurrentResult(newResult, {
+                    note: 'Demo test result',
+                    tags: ['demo', 'test']
+                });
+                addLog('Result saved successfully', 'success');
+            } catch (error) {
+                addLog(`Save result failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function testViewHistory() {
+            try {
+                addLog('View history test started...', 'info');
+                extendedFeatures.showHistory();
+                addLog('History displayed successfully', 'success');
+            } catch (error) {
+                addLog(`View history failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testBookmarkToggle() {
+            try {
+                addLog('Bookmark toggle test started...', 'info');
+                await extendedFeatures.toggleBookmark();
+                addLog('Bookmark toggled successfully', 'success');
+            } catch (error) {
+                addLog(`Bookmark toggle failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testFavoriteToggle() {
+            try {
+                addLog('Favorite toggle test started...', 'info');
+                await extendedFeatures.toggleFavorite();
+                addLog('Favorite toggled successfully', 'success');
+            } catch (error) {
+                addLog(`Favorite toggle failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testExportJSON() {
+            try {
+                addLog('JSON export test started...', 'info');
+                await extendedFeatures.exportHistoryToJSON();
+                addLog('JSON export completed successfully', 'success');
+            } catch (error) {
+                addLog(`JSON export failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testExportCSV() {
+            try {
+                addLog('CSV export test started...', 'info');
+                await extendedFeatures.exportHistoryToCSV();
+                addLog('CSV export completed successfully', 'success');
+            } catch (error) {
+                addLog(`CSV export failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initializeSystem, 500);
+        });
+        
+        // Global error handler
+        window.addEventListener('error', (event) => {
+            addLog(`Global error: ${event.error.message}`, 'error');
+        });
+    </script>
+</body>
+</html>

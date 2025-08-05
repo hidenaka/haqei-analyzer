@@ -1,0 +1,77 @@
+{
+  "timestamp": "2025-08-04T23:57:05.047Z",
+  "tests": [
+    {
+      "name": "CLASS_INITIALIZATION",
+      "success": true,
+      "details": "EnhancedVirtualUserGenerator正常に初期化",
+      "timestamp": "2025-08-04T23:57:05.050Z"
+    },
+    {
+      "name": "BASIC_USER_GENERATION",
+      "success": true,
+      "details": "5人のユーザー正常生成",
+      "timestamp": "2025-08-04T23:57:05.051Z"
+    },
+    {
+      "name": "PERSONALITY_DIVERSITY",
+      "success": true,
+      "details": "5種類の人格タイプ生成: practical, empathetic, philosophical, creative, technical",
+      "timestamp": "2025-08-04T23:57:05.051Z"
+    },
+    {
+      "name": "NAME_DIVERSITY",
+      "success": true,
+      "details": "名前多様性スコア: 100.0% (重複: 0/10)",
+      "timestamp": "2025-08-04T23:57:05.052Z"
+    },
+    {
+      "name": "PERSONALITY_VARIATION",
+      "success": true,
+      "details": "哲学的興味の標準偏差: 0.225 (変動十分: true)",
+      "timestamp": "2025-08-04T23:57:05.052Z"
+    },
+    {
+      "name": "GENERATION_SPEED",
+      "success": true,
+      "details": "30人生成時間: 1ms (目標: <1000ms)",
+      "timestamp": "2025-08-04T23:57:05.053Z"
+    },
+    {
+      "name": "MEMORY_USAGE",
+      "success": true,
+      "details": "100人生成メモリ使用量: -0.34MB (目標: <10MB)",
+      "timestamp": "2025-08-04T23:57:05.054Z"
+    },
+    {
+      "name": "INVALID_COUNT_HANDLING",
+      "success": true,
+      "details": "不正カウント処理: 0人→0人, -5人→0人",
+      "timestamp": "2025-08-04T23:57:05.054Z"
+    },
+    {
+      "name": "LARGE_SCALE_GENERATION",
+      "success": true,
+      "details": "大量生成テスト: 1000/1000人",
+      "timestamp": "2025-08-04T23:57:05.058Z"
+    },
+    {
+      "name": "PDCA_INTEGRATION",
+      "success": true,
+      "details": "PDCA システム正常にインポート",
+      "timestamp": "2025-08-04T23:57:05.274Z"
+    },
+    {
+      "name": "NPM_COMMANDS",
+      "success": true,
+      "details": "PDCA コマンド数: 7 (pdca:evaluate, pdca:evaluate:15, pdca:evaluate:20, pdca:evaluate:30, pdca:discuss, pdca:implement, pdca:verify)",
+      "timestamp": "2025-08-04T23:57:05.274Z"
+    }
+  ],
+  "summary": {
+    "totalTests": 11,
+    "passedTests": 11,
+    "failedTests": 0,
+    "successRate": 100
+  }
+}

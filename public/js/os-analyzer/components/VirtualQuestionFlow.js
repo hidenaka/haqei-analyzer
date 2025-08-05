@@ -8,31 +8,74 @@ class VirtualQuestionFlow extends BaseComponent {
   constructor(containerId, options = {}) {
     super(containerId, options);
     
+    // 🚀 Ultra-Performance Enhancement - 2025-08-04
+    // CacheManager初期化（エラーハンドリング付き）
+    if (typeof CacheManager !== 'undefined') {
+      this.cacheManager = new CacheManager({
+        maxSize: 2000,
+        defaultTTL: 900000, // 15 minutes for question data
+        enablePrefetch: true,
+        enableCompression: false, // Disable for UI elements
+        enableAnalytics: true
+      });
+    } else {
+      console.warn('CacheManager not available, using fallback');
+      this.cacheManager = {
+        get: () => null,
+        set: () => {},
+        has: () => false,
+        clear: () => {},
+        init: () => {}
+      };
+    }
+    
+    // PerformanceOptimizer初期化（エラーハンドリング付き）
+    if (typeof PerformanceOptimizer !== 'undefined') {
+      this.performanceOptimizer = new PerformanceOptimizer({
+        enableAutoTuning: true,
+        enableResourceMonitoring: true,
+        targetFPS: 60,
+        optimizationThreshold: 16.67 // 60fps threshold
+      });
+    } else {
+      console.warn('PerformanceOptimizer not available, using fallback');
+      this.performanceOptimizer = {
+        optimize: () => {},
+        monitor: () => {},
+        getMetrics: () => ({})
+      };
+    }
+    
     // 仮想スクロール設定
     this.visibleRange = { start: 0, end: 2 }; // 現在+前後1問
     this.bufferSize = 1; // バッファサイズ
     this.currentQuestionIndex = 0;
     
-    // 設問データ
+    // 設問データ（安全な初期化）
     this.questions = [];
-    this.answers = [];
+    this.answers = []; // 確実に配列として初期化
     
     // DOM要素プール（一時的に無効化）
     this.elementPool = new Map();
     this.activeElements = new Map();
     
-    // レンダリング状態管理
+    // 🔧 Enhanced rendering state management
     this.isRendering = false;
     this.hasRendered = false;
     this.renderCount = 0;
+    this.renderQueue = [];
+    this.isOptimizing = false;
     
-    // パフォーマンス追跡
+    // 🚀 Enhanced performance tracking
     this.performanceMetrics = {
       renderTime: 0,
       memoryUsage: 0,
       domElementCount: 0,
       poolHits: 0,
-      poolMisses: 0
+      poolMisses: 0,
+      cacheHitRate: 0,
+      optimizationCount: 0,
+      averageFPS: 0
     };
     
     // イベント管理
@@ -44,7 +87,12 @@ class VirtualQuestionFlow extends BaseComponent {
     this.navigationDebounce = null;
     this.saveDebounce = null;
     
-    console.log('🎬 VirtualQuestionFlow initialized with virtual scrolling');
+    // Initialize performance systems (メソッドが存在する場合のみ)
+    if (typeof this.initializePerformanceSystems === 'function') {
+      this.initializePerformanceSystems();
+    }
+    
+    console.log('🎬 VirtualQuestionFlow initialized with ultra-performance virtual scrolling');
   }
 
   /**
@@ -132,12 +180,40 @@ class VirtualQuestionFlow extends BaseComponent {
   }
 
   /**
-   * 以前の回答を読み込み
+   * 以前の回答を読み込み（安全版）
+   * 
+   * 【重要】this.answersの安全な初期化保証
+   * 
+   * 目的：
+   * - storageManagerから取得したデータが配列であることを保証
+   * - null/undefinedの場合でも安全に空配列で初期化
+   * 
+   * 修正内容（2025-08-04）：
+   * - 取得データの配列チェック追加
+   * - 安全なフォールバック処理
    */
   loadPreviousAnswers() {
+    // デフォルトで空配列を設定
+    this.answers = [];
+    
     if (this.storageManager) {
-      this.answers = this.storageManager.getAnswers() || [];
-      console.log(`💾 Loaded ${this.answers.length} previous answers`);
+      try {
+        const loadedAnswers = this.storageManager.getAnswers();
+        
+        // 配列であることを確認してから設定
+        if (Array.isArray(loadedAnswers)) {
+          this.answers = loadedAnswers;
+          console.log(`💾 Loaded ${this.answers.length} previous answers`);
+        } else {
+          console.warn('⚠️ Loaded answers is not an array, using empty array');
+          this.answers = [];
+        }
+      } catch (error) {
+        console.error('❌ Error loading previous answers:', error);
+        this.answers = [];
+      }
+    } else {
+      console.log('💾 No storage manager available, using empty answers array');
     }
   }
 
@@ -1063,9 +1139,27 @@ class VirtualQuestionFlow extends BaseComponent {
   }
 
   /**
-   * 完了数を取得
+   * 完了数を取得（安全版）
+   * 
+   * 【重要】this.answers.findIndexエラーの根本修正
+   * 
+   * 目的：
+   * - this.answersが確実に配列として初期化される保証
+   * - findIndexメソッドが使用される前の安全性確保
+   * - LocalStorageとの同期問題を解決
+   * 
+   * 修正内容（2025-08-04）：
+   * - this.answersの初期化タイミング修正
+   * - 配列でない場合の空配列初期化を追加
+   * - エラーハンドリングの強化
    */
   getCompletedCount() {
+    // this.answersが配列でない場合は空配列で初期化
+    if (!Array.isArray(this.answers)) {
+      console.warn('⚠️ this.answers is not an array, initializing as empty array');
+      this.answers = [];
+    }
+    
     // LocalStorageから最新のデータを取得
     const savedAnswers = localStorage.getItem('haqei_answers');
     if (savedAnswers) {
@@ -1073,7 +1167,7 @@ class VirtualQuestionFlow extends BaseComponent {
         const parsedAnswers = JSON.parse(savedAnswers);
         // parsedAnswersが配列であることを確認
         if (Array.isArray(parsedAnswers)) {
-          // this.answersも更新
+          // this.answersも更新（安全な配列であることを保証）
           this.answers = parsedAnswers;
           
           let count = 0;
@@ -1082,27 +1176,26 @@ class VirtualQuestionFlow extends BaseComponent {
               count++;
             }
           }
+          console.log(`📊 LocalStorage answers count: ${count}/${parsedAnswers.length}`);
           return count;
+        } else {
+          console.warn('⚠️ Parsed answers is not an array, using fallback');
         }
       } catch (e) {
-        console.error('Error parsing saved answers:', e);
+        console.error('❌ Error parsing saved answers:', e);
       }
     }
     
-    // フォールバック：元の実装（this.answersが存在し、配列であることを確認）
-    if (this.answers && Array.isArray(this.answers)) {
-      let count = 0;
-      for (const answer of this.answers) {
-        if (answer && (answer.selectedValue || (answer.innerChoice && answer.outerChoice))) {
-          count++;
-        }
+    // フォールバック：this.answersを使用（必ず配列であることを保証済み）
+    let count = 0;
+    for (const answer of this.answers) {
+      if (answer && (answer.selectedValue || (answer.innerChoice && answer.outerChoice))) {
+        count++;
       }
-      return count;
     }
     
-    // this.answersが配列でない場合は0を返す
-    console.warn('this.answers is not an array, returning 0');
-    return 0;
+    console.log(`📊 Instance answers count: ${count}/${this.answers.length}`);
+    return count;
   }
 
   /**
@@ -1125,14 +1218,61 @@ class VirtualQuestionFlow extends BaseComponent {
   }
 
   /**
-   * 回答検索
+   * 回答検索（安全版）
+   * 
+   * 【重要】this.answers.findエラーの根本修正
+   * 
+   * 目的：
+   * - findメソッド実行前にthis.answersが配列であることを保証
+   * - 未初期化状態でのメソッド呼び出しエラーを防止
+   * 
+   * 修正内容（2025-08-04）：
+   * - 配列チェックの追加
+   * - エラー時の安全な戻り値（null）
    */
   findAnswerByQuestionId(questionId) {
-    return this.answers.find(answer => answer.questionId === questionId);
+    // this.answersが配列でない場合は空配列で初期化
+    if (!Array.isArray(this.answers)) {
+      console.warn('⚠️ this.answers is not an array in findAnswerByQuestionId, initializing as empty array');
+      this.answers = [];
+      return null; // 見つからない場合の戻り値
+    }
+    
+    try {
+      return this.answers.find(answer => answer && answer.questionId === questionId) || null;
+    } catch (error) {
+      console.error('❌ Error in findAnswerByQuestionId:', error);
+      return null;
+    }
   }
 
+  /**
+   * 回答インデックス検索（安全版）
+   * 
+   * 【重要】this.answers.findIndexエラーの根本修正
+   * 
+   * 目的：
+   * - findIndexメソッド実行前にthis.answersが配列であることを保証
+   * - 未初期化状態でのメソッド呼び出しエラーを防止
+   * 
+   * 修正内容（2025-08-04）：
+   * - 配列チェックの追加
+   * - エラー時の安全な戻り値（-1）
+   */
   findAnswerIndex(questionId) {
-    return this.answers.findIndex(answer => answer.questionId === questionId);
+    // this.answersが配列でない場合は空配列で初期化
+    if (!Array.isArray(this.answers)) {
+      console.warn('⚠️ this.answers is not an array in findAnswerIndex, initializing as empty array');
+      this.answers = [];
+      return -1; // 見つからない場合の標準戻り値
+    }
+    
+    try {
+      return this.answers.findIndex(answer => answer && answer.questionId === questionId);
+    } catch (error) {
+      console.error('❌ Error in findAnswerIndex:', error);
+      return -1;
+    }
   }
 
   /**

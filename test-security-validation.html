@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Security Validation Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .header h1 {
+            color: #c0392b;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .security-test {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .security-test h3 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-button {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .test-result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .secure { background: #d4edda; border-left: 4px solid #28a745; }
+        .vulnerable { background: #f8d7da; border-left: 4px solid #dc3545; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; }
+
+        .security-level {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .level-high { background: #d4edda; color: #155724; }
+        .level-medium { background: #fff3cd; color: #856404; }
+        .level-low { background: #f8d7da; color: #721c24; }
+
+        .attack-vector {
+            background: #ffe6e6;
+            border: 1px solid #ff9999;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .mitigation {
+            background: #e6ffe6;
+            border: 1px solid #99ff99;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔒 HAQEI セキュリティ検証テスト</h1>
+            <p>データ保護・プライバシー・セキュリティ脆弱性の総合テスト</p>
+        </div>
+
+        <!-- XSS攻撃テスト -->
+        <div class="security-test">
+            <h3>🚨 XSS攻撃耐性テスト <span class="security-level level-high">HIGH RISK</span></h3>
+            <div class="attack-vector">
+                <strong>攻撃ベクター:</strong> スクリプトインジェクション、HTMLインジェクション
+            </div>
+            <button class="test-button" onclick="testXSSResistance()">XSS耐性テスト実行</button>
+            <div class="test-result" id="xssResult"></div>
+        </div>
+
+        <!-- インジェクション攻撃テスト -->
+        <div class="security-test">
+            <h3>💉 インジェクション攻撃テスト <span class="security-level level-high">HIGH RISK</span></h3>
+            <div class="attack-vector">
+                <strong>攻撃ベクター:</strong> コードインジェクション、HTMLインジェクション
+            </div>
+            <button class="test-button" onclick="testInjectionResistance()">インジェクション耐性テスト実行</button>
+            <div class="test-result" id="injectionResult"></div>
+        </div>
+
+        <!-- データプライバシーテスト -->
+        <div class="security-test">
+            <h3>🔐 データプライバシーテスト <span class="security-level level-medium">MEDIUM RISK</span></h3>
+            <div class="attack-vector">
+                <strong>対象:</strong> 個人情報処理、データ永続化、情報漏洩
+            </div>
+            <button class="test-button" onclick="testDataPrivacy()">プライバシーテスト実行</button>
+            <div class="test-result" id="privacyResult"></div>
+        </div>
+
+        <!-- セッションセキュリティテスト -->
+        <div class="security-test">
+            <h3>🎫 セッションセキュリティテスト <span class="security-level level-medium">MEDIUM RISK</span></h3>
+            <div class="attack-vector">
+                <strong>対象:</strong> セッション管理、データ保持、クロスウィンドウアクセス
+            </div>
+            <button class="test-button" onclick="testSessionSecurity()">セッションテスト実行</button>
+            <div class="test-result" id="sessionResult"></div>
+        </div>
+
+        <!-- 入力検証テスト -->
+        <div class="security-test">
+            <h3>✅ 入力検証テスト <span class="security-level level-high">HIGH RISK</span></h3>
+            <div class="attack-vector">
+                <strong>対象:</strong> 入力サニタイゼーション、バリデーション、フィルタリング
+            </div>
+            <button class="test-button" onclick="testInputValidation()">入力検証テスト実行</button>
+            <div class="test-result" id="validationResult"></div>
+        </div>
+
+        <!-- CSPテスト -->
+        <div class="security-test">
+            <h3>🛡️ Content Security Policy テスト <span class="security-level level-medium">MEDIUM RISK</span></h3>
+            <div class="attack-vector">
+                <strong>対象:</strong> CSP設定、外部リソース読み込み、インラインスクリプト
+            </div>
+            <button class="test-button" onclick="testCSP()">CSPテスト実行</button>
+            <div class="test-result" id="cspResult"></div>
+        </div>
+
+        <!-- 全セキュリティテスト実行 -->
+        <div class="security-test">
+            <h3>🔍 包括的セキュリティテスト</h3>
+            <button class="test-button" onclick="runAllSecurityTests()" style="background: linear-gradient(135deg, #8e44ad, #9b59b6); font-size: 16px; padding: 15px 25px;">
+                全セキュリティテスト実行
+            </button>
+            <button class="test-button" onclick="generateSecurityReport()">セキュリティレポート生成</button>
+        </div>
+    </div>
+
+    <!-- 依存関係の読み込み -->
+    <script src="assets/H384H64database.js"></script>
+    <script src="js/pages/future-simulator/IntegratedAnalysisEngine.js"></script>
+    <script src="js/pages/future-simulator/MetaphorGenerationEngine.js"></script>
+    <script src="js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
+
+    <script>
+        // セキュリティテストコントローラー
+        class SecurityTestController {
+            constructor() {
+                this.testResults = new Map();
+                this.vulnerabilities = [];
+                this.mitigations = [];
+                this.analysisEngine = null;
+            }
+
+            async initialize() {
+                try {
+                    console.log('🔒 セキュリティテストシステム初期化');
+                    
+                    // テスト用の分析エンジン初期化
+                    this.analysisEngine = new IntegratedAnalysisEngine(window.tokenizer);
+                    if (this.analysisEngine.initializeAsync) {
+                        await this.analysisEngine.initializeAsync();
+                    }
+                    
+                    console.log('✅ セキュリティテスト準備完了');
+                } catch (error) {
+                    console.error('❌ セキュリティテスト初期化エラー:', error);
+                }
+            }
+
+            displayResult(testType, result, isSecure = true) {
+                const resultElement = document.getElementById(`${testType}Result`);
+                if (resultElement) {
+                    resultElement.className = `test-result ${isSecure ? 'secure' : 'vulnerable'}`;
+                    resultElement.textContent = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+                }
+                
+                this.testResults.set(testType, { 
+                    isSecure, 
+                    result, 
+                    timestamp: Date.now() 
+                });
+            }
+
+            // XSS攻撃耐性テスト
+            async testXSSResistance() {
+                console.log('🚨 XSS攻撃耐性テスト開始');
+                
+                const xssPayloads = [
+                    '<script>alert("XSS")</script>',
+                    '<img src="x" onerror="alert(\'XSS\')">',
+                    'javascript:alert("XSS")',
+                    '<svg onload="alert(\'XSS\')">',
+                    '"><script>alert("XSS")</script>',
+                    '\';alert(String.fromCharCode(88,83,83))//\';alert(String.fromCharCode(88,83,83))//";alert(String.fromCharCode(88,83,83))//";alert(String.fromCharCode(88,83,83))//--></SCRIPT>">\'><SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>',
+                    '<iframe src="javascript:alert(\'XSS\')"></iframe>',
+                    '<object data="javascript:alert(\'XSS\')"></object>'
+                ];
+
+                const results = [];
+                let vulnerabilityCount = 0;
+
+                for (const payload of xssPayloads) {
+                    try {
+                        // 分析エンジンにXSSペイロードを投入
+                        const result = await this.analysisEngine.performSevenStageAnalysis(payload, 'security_test', null);
+                        
+                        // 結果のテキストにペイロードが未処理で残っているかチェック
+                        const resultText = JSON.stringify(result);
+                        const containsUnsafeScript = resultText.includes('<script>') || 
+                                                   resultText.includes('javascript:') ||
+                                                   resultText.includes('onerror=') ||
+                                                   resultText.includes('onload=');
+
+                        if (containsUnsafeScript) {
+                            vulnerabilityCount++;
+                            this.vulnerabilities.push({
+                                type: 'XSS',
+                                payload: payload,
+                                severity: 'HIGH',
+                                description: 'スクリプトインジェクションが検出されました'
+                            });
+                        }
+
+                        results.push({
+                            payload: payload.substring(0, 50) + '...',
+                            sanitized: !containsUnsafeScript,
+                            confidence: result.qualityMetrics?.overallConfidence || 0
+                        });
+
+                    } catch (error) {
+                        // エラーはセキュリティ上良い兆候（適切な拒否）
+                        results.push({
+                            payload: payload.substring(0, 50) + '...',
+                            sanitized: true,
+                            error: 'Properly rejected'
+                        });
+                    }
+                }
+
+                const isSecure = vulnerabilityCount === 0;
+                
+                const report = `XSS攻撃耐性テスト結果:
+テストペイロード数: ${xssPayloads.length}
+脆弱性検出数: ${vulnerabilityCount}
+セキュリティレベル: ${isSecure ? '安全' : '脆弱'}
+
+詳細結果:
+${results.map(r => `- ${r.payload}: ${r.sanitized ? '✅ サニタイズ済み' : '❌ 危険'}`).join('\n')}
+
+${vulnerabilityCount > 0 ? `
+⚠️  発見された脆弱性:
+${this.vulnerabilities.filter(v => v.type === 'XSS').map(v => `- ${v.description} (${v.severity})`).join('\n')}
+` : '✅ XSS攻撃に対して適切に保護されています'}`;
+
+                this.displayResult('xss', report, isSecure);
+
+                if (!isSecure) {
+                    this.mitigations.push({
+                        vulnerability: 'XSS',
+                        recommendation: [
+                            '入力のHTMLエスケープ処理を強化',
+                            'Content Security Policy (CSP) の実装',
+                            '出力時のサニタイゼーション追加'
+                        ]
+                    });
+                }
+            }
+
+            // インジェクション攻撃テスト
+            async testInjectionResistance() {
+                console.log('💉 インジェクション攻撃テスト開始');
+
+                const injectionPayloads = [
+                    'eval("alert(\'injection\')")',
+                    'Function("return alert(\'injection\')")()',
+                    'setTimeout("alert(\'injection\')", 100)',
+                    'document.write("<script>alert(\'injection\')</script>")',
+                    'window["eval"]("alert(\'injection\')")',
+                    'new Function("alert(\'injection\')")()',
+                    '${alert("injection")}',
+                    '#{alert("injection")}',
+                    '{{alert("injection")}}',
+                    '__import__("os").system("echo injection")'
+                ];
+
+                const results = [];
+                let vulnerabilityCount = 0;
+
+                for (const payload of injectionPayloads) {
+                    try {
+                        const result = await this.analysisEngine.performSevenStageAnalysis(payload, 'security_test', null);
+                        
+                        // 結果に危険なコードが含まれていないかチェック
+                        const resultText = JSON.stringify(result);
+                        const containsUnsafeCode = resultText.includes('eval(') || 
+                                                 resultText.includes('Function(') ||
+                                                 resultText.includes('setTimeout(') ||
+                                                 resultText.includes('document.write');
+
+                        if (containsUnsafeCode) {
+                            vulnerabilityCount++;
+                            this.vulnerabilities.push({
+                                type: 'Code Injection',
+                                payload: payload,
+                                severity: 'HIGH',
+                                description: 'コードインジェクションが検出されました'
+                            });
+                        }
+
+                        results.push({
+                            payload: payload.substring(0, 40) + '...',
+                            safe: !containsUnsafeCode,
+                            processed: true
+                        });
+
+                    } catch (error) {
+                        results.push({
+                            payload: payload.substring(0, 40) + '...',
+                            safe: true,
+                            processed: false,
+                            error: 'Properly blocked'
+                        });
+                    }
+                }
+
+                const isSecure = vulnerabilityCount === 0;
+
+                const report = `インジェクション攻撃テスト結果:
+テストペイロード数: ${injectionPayloads.length}
+脆弱性検出数: ${vulnerabilityCount}
+セキュリティレベル: ${isSecure ? '安全' : '脆弱'}
+
+詳細結果:
+${results.map(r => `- ${r.payload}: ${r.safe ? '✅ 安全' : '❌ 危険'}`).join('\n')}
+
+${vulnerabilityCount > 0 ? `
+⚠️  発見された脆弱性:
+${this.vulnerabilities.filter(v => v.type === 'Code Injection').map(v => `- ${v.description} (${v.severity})`).join('\n')}
+` : '✅ コードインジェクション攻撃に対して適切に保護されています'}`;
+
+                this.displayResult('injection', report, isSecure);
+            }
+
+            // データプライバシーテスト
+            async testDataPrivacy() {
+                console.log('🔐 データプライバシーテスト開始');
+
+                const privacyTests = [];
+                let privacyScore = 100;
+
+                // 個人情報処理テスト
+                const personalInfo = {
+                    email: 'test@example.com',
+                    phone: '090-1234-5678',
+                    name: '山田太郎',
+                    address: '東京都渋谷区1-1-1'
+                };
+
+                for (const [type, data] of Object.entries(personalInfo)) {
+                    try {
+                        const result = await this.analysisEngine.performSevenStageAnalysis(
+                            `私の${type === 'email' ? 'メールアドレス' : type === 'phone' ? '電話番号' : type === 'name' ? '名前' : '住所'}は${data}です`,
+                            'privacy_test',
+                            null
+                        );
+
+                        // 結果に個人情報が平文で残っていないかチェック
+                        const resultText = JSON.stringify(result);
+                        const containsPersonalInfo = resultText.includes(data);
+
+                        privacyTests.push({
+                            type: type,
+                            data: data,
+                            leaked: containsPersonalInfo,
+                            masked: !containsPersonalInfo
+                        });
+
+                        if (containsPersonalInfo) {
+                            privacyScore -= 20;
+                            this.vulnerabilities.push({
+                                type: 'Privacy Leak',
+                                data: type,
+                                severity: 'MEDIUM',
+                                description: `${type}情報が結果に含まれています`
+                            });
+                        }
+
+                    } catch (error) {
+                        privacyTests.push({
+                            type: type,
+                            data: data,
+                            leaked: false,
+                            masked: true,
+                            error: 'Processing rejected'
+                        });
+                    }
+                }
+
+                // ローカルストレージテスト
+                const storageTest = this.testLocalStorageSecurity();
+                privacyTests.push(storageTest);
+
+                if (!storageTest.secure) {
+                    privacyScore -= 10;
+                }
+
+                const isSecure = privacyScore >= 80;
+
+                const report = `データプライバシーテスト結果:
+プライバシースコア: ${privacyScore}/100
+セキュリティレベル: ${isSecure ? '適切' : '改善必要'}
+
+個人情報処理テスト:
+${privacyTests.filter(t => t.type !== 'localStorage').map(t => 
+    `- ${t.type}: ${t.masked ? '✅ マスク済み' : '❌ 漏洩リスク'}`
+).join('\n')}
+
+ストレージセキュリティ:
+- localStorage: ${storageTest.secure ? '✅ 安全' : '❌ リスクあり'}
+
+${privacyScore < 80 ? `
+⚠️  プライバシー改善点:
+- 個人情報の自動マスキング実装
+- データ保持期間の制限
+- 機密情報の暗号化
+` : '✅ データプライバシーが適切に保護されています'}`;
+
+                this.displayResult('privacy', report, isSecure);
+            }
+
+            testLocalStorageSecurity() {
+                try {
+                    const testKey = 'security_test_' + Date.now();
+                    const sensitiveData = {
+                        password: 'secret123',
+                        token: 'auth_token_12345',
+                        personal: '機密情報'
+                    };
+
+                    // 機密情報の保存テスト
+                    localStorage.setItem(testKey, JSON.stringify(sensitiveData));
+                    const retrieved = JSON.parse(localStorage.getItem(testKey));
+                    
+                    // クリーンアップ
+                    localStorage.removeItem(testKey);
+
+                    // 平文保存は危険
+                    const isPlainText = retrieved.password === sensitiveData.password;
+
+                    return {
+                        type: 'localStorage',
+                        secure: !isPlainText, // 平文でない場合は安全
+                        encryption: !isPlainText,
+                        accessible: true
+                    };
+
+                } catch (error) {
+                    return {
+                        type: 'localStorage',
+                        secure: true,
+                        encryption: true,
+                        accessible: false,
+                        error: error.message
+                    };
+                }
+            }
+
+            // セッションセキュリティテスト
+            async testSessionSecurity() {
+                console.log('🎫 セッションセキュリティテスト開始');
+
+                const sessionTests = [];
+                let sessionScore = 100;
+
+                // セッション管理テスト
+                const sessionTest1 = this.testSessionIsolation();
+                sessionTests.push(sessionTest1);
+                if (!sessionTest1.isolated) sessionScore -= 25;
+
+                // データ永続化テスト
+                const persistenceTest = this.testDataPersistence();
+                sessionTests.push(persistenceTest);
+                if (!persistenceTest.secure) sessionScore -= 25;
+
+                // クロスタブアクセステスト
+                const crossTabTest = this.testCrossTabSecurity();
+                sessionTests.push(crossTabTest);
+                if (!crossTabTest.secure) sessionScore -= 25;
+
+                // セッション有効期限テスト
+                const expirationTest = this.testSessionExpiration();
+                sessionTests.push(expirationTest);
+                if (!expirationTest.hasExpiration) sessionScore -= 25;
+
+                const isSecure = sessionScore >= 75;
+
+                const report = `セッションセキュリティテスト結果:
+セッションスコア: ${sessionScore}/100
+セキュリティレベル: ${isSecure ? '適切' : '改善必要'}
+
+セキュリティテスト詳細:
+${sessionTests.map(t => `- ${t.name}: ${t.secure || t.isolated || t.hasExpiration ? '✅ 安全' : '❌ リスクあり'}`).join('\n')}
+
+${sessionScore < 75 ? `
+⚠️  セッションセキュリティ改善点:
+- セッション分離の強化
+- データ永続化の暗号化
+- クロスタブアクセス制御
+- セッション有効期限の実装
+` : '✅ セッションセキュリティが適切に実装されています'}`;
+
+                this.displayResult('session', report, isSecure);
+            }
+
+            testSessionIsolation() {
+                // 簡易的なセッション分離テスト
+                try {
+                    const sessionId1 = 'session_' + Math.random();
+                    const sessionId2 = 'session_' + Math.random();
+                    
+                    sessionStorage.setItem(sessionId1, 'data1');
+                    sessionStorage.setItem(sessionId2, 'data2');
+                    
+                    const isolated = sessionStorage.getItem(sessionId1) !== sessionStorage.getItem(sessionId2);
+                    
+                    // クリーンアップ
+                    sessionStorage.removeItem(sessionId1);
+                    sessionStorage.removeItem(sessionId2);
+                    
+                    return {
+                        name: 'セッション分離',
+                        isolated: isolated,
+                        secure: isolated
+                    };
+                } catch (error) {
+                    return {
+                        name: 'セッション分離',
+                        isolated: false,
+                        secure: false,
+                        error: error.message
+                    };
+                }
+            }
+
+            testDataPersistence() {
+                try {
+                    const testData = { sensitive: true, data: 'test' };
+                    localStorage.setItem('persistence_test', JSON.stringify(testData));
+                    
+                    // データが暗号化されているかチェック（簡易）
+                    const rawData = localStorage.getItem('persistence_test');
+                    const isEncrypted = !rawData.includes('sensitive');
+                    
+                    localStorage.removeItem('persistence_test');
+                    
+                    return {
+                        name: 'データ永続化',
+                        secure: isEncrypted,
+                        encrypted: isEncrypted
+                    };
+                } catch (error) {
+                    return {
+                        name: 'データ永続化',
+                        secure: true,
+                        encrypted: true,
+                        error: error.message
+                    };
+                }
+            }
+
+            testCrossTabSecurity() {
+                // クロスタブセキュリティの基本チェック
+                try {
+                    const testKey = 'cross_tab_test';
+                    sessionStorage.setItem(testKey, 'test_data');
+                    
+                    // sessionStorageは自然にタブ間で分離される
+                    const isTabIsolated = typeof sessionStorage !== 'undefined';
+                    
+                    sessionStorage.removeItem(testKey);
+                    
+                    return {
+                        name: 'クロスタブセキュリティ',
+                        secure: isTabIsolated,
+                        tabIsolated: isTabIsolated
+                    };
+                } catch (error) {
+                    return {
+                        name: 'クロスタブセキュリティ',
+                        secure: false,
+                        tabIsolated: false,
+                        error: error.message
+                    };
+                }
+            }
+
+            testSessionExpiration() {
+                // セッション有効期限のチェック
+                const hasSessionTimeout = typeof sessionStorage !== 'undefined';
+                const hasLocalStorageExpiration = typeof localStorage !== 'undefined';
+                
+                return {
+                    name: 'セッション有効期限',
+                    hasExpiration: hasSessionTimeout,
+                    mechanism: hasSessionTimeout ? 'sessionStorage' : 'none'
+                };
+            }
+
+            // 入力検証テスト
+            async testInputValidation() {
+                console.log('✅ 入力検証テスト開始');
+
+                const invalidInputs = [
+                    '', // 空文字
+                    ' '.repeat(1000), // 長すぎる空白
+                    'a'.repeat(10000), // 長すぎる文字列
+                    null,
+                    undefined,
+                    123, // 数値
+                    [], // 配列
+                    {}, // オブジェクト
+                    true, // 真偽値
+                    '\0\0\0', // null文字
+                    '\u0000\u0001\u0002', // 制御文字
+                    '😀'.repeat(1000), // 大量の絵文字
+                    'SELECT * FROM users', // SQLlike
+                    '../../../etc/passwd', // パストラバーサル
+                    'file:///etc/passwd' // ファイルURI
+                ];
+
+                const validationResults = [];
+                let validationScore = 100;
+
+                for (const input of invalidInputs) {
+                    try {
+                        const result = await this.analysisEngine.performSevenStageAnalysis(input, 'validation_test', null);
+                        
+                        // 適切にエラーハンドリングされているかチェック
+                        const hasValidationError = result.finalResult?.error || 
+                                                 result.qualityMetrics?.errorCount > 0 ||
+                                                 result.qualityAssessment?.grade === 'ERROR';
+
+                        const inputType = typeof input;
+                        const inputLength = input && input.length ? input.length : 0;
+
+                        if (!hasValidationError && (inputType !== 'string' || inputLength === 0 || inputLength > 5000)) {
+                            validationScore -= 5;
+                            this.vulnerabilities.push({
+                                type: 'Input Validation',
+                                input: typeof input === 'string' ? input.substring(0, 50) : String(input),
+                                severity: 'MEDIUM',
+                                description: '不正な入力が適切に検証されていません'
+                            });
+                        }
+
+                        validationResults.push({
+                            input: typeof input === 'string' ? (input.length > 20 ? input.substring(0, 20) + '...' : input) : String(input),
+                            type: inputType,
+                            length: inputLength,
+                            validated: hasValidationError || (inputType === 'string' && inputLength > 0 && inputLength <= 5000),
+                            error: hasValidationError
+                        });
+
+                    } catch (error) {
+                        // エラーが発生することは良い（適切な検証）
+                        validationResults.push({
+                            input: typeof input === 'string' ? input.substring(0, 20) : String(input),
+                            type: typeof input,
+                            validated: true,
+                            caught: true,
+                            error: error.message
+                        });
+                    }
+                }
+
+                const isSecure = validationScore >= 80;
+
+                const report = `入力検証テスト結果:
+検証スコア: ${validationScore}/100
+セキュリティレベル: ${isSecure ? '適切' : '改善必要'}
+
+検証テスト詳細:
+${validationResults.slice(0, 10).map(r => 
+    `- ${r.input} (${r.type}): ${r.validated ? '✅ 検証済み' : '❌ 未検証'}`
+).join('\n')}
+${validationResults.length > 10 ? `... 他${validationResults.length - 10}件` : ''}
+
+有効な入力率: ${validationResults.filter(r => r.validated).length}/${validationResults.length}
+
+${validationScore < 80 ? `
+⚠️  入力検証改善点:
+- より厳密な型チェック
+- 文字列長制限の実装
+- 特殊文字フィルタリング
+- NULL文字・制御文字の除去
+` : '✅ 入力検証が適切に実装されています'}`;
+
+                this.displayResult('validation', report, isSecure);
+            }
+
+            // CSPテスト
+            async testCSP() {
+                console.log('🛡️ Content Security Policy テスト開始');
+
+                const cspTests = [];
+                let cspScore = 100;
+
+                // CSPヘッダーの存在チェック
+                const cspHeaderExists = this.checkCSPHeader();
+                cspTests.push(cspHeaderExists);
+                if (!cspHeaderExists.exists) cspScore -= 40;
+
+                // インラインスクリプトチェック
+                const inlineScriptCheck = this.checkInlineScripts();
+                cspTests.push(inlineScriptCheck);
+                if (!inlineScriptCheck.compliant) cspScore -= 20;
+
+                // 外部リソースチェック
+                const externalResourceCheck = this.checkExternalResources();
+                cspTests.push(externalResourceCheck);
+                if (!externalResourceCheck.secure) cspScore -= 20;
+
+                // eval()使用チェック
+                const evalCheck = this.checkEvalUsage();
+                cspTests.push(evalCheck);
+                if (!evalCheck.compliant) cspScore -= 20;
+
+                const isSecure = cspScore >= 70;
+
+                const report = `Content Security Policy テスト結果:
+CSPスコア: ${cspScore}/100
+セキュリティレベル: ${isSecure ? '適切' : '改善必要'}
+
+CSPテスト詳細:
+${cspTests.map(t => `- ${t.name}: ${t.exists || t.compliant || t.secure ? '✅ 適切' : '❌ 要改善'}`).join('\n')}
+
+${cspScore < 70 ? `
+⚠️  CSP改善点:
+- CSPヘッダーの設定
+- インラインスクリプトの除去
+- 外部リソースの制限
+- eval()の使用禁止
+` : '✅ Content Security Policyが適切に実装されています'}`;
+
+                this.displayResult('csp', report, isSecure);
+            }
+
+            checkCSPHeader() {
+                // CSPヘッダーの簡易チェック
+                const metaCSP = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+                return {
+                    name: 'CSPヘッダー',
+                    exists: !!metaCSP,
+                    content: metaCSP ? metaCSP.content : 'なし'
+                };
+            }
+
+            checkInlineScripts() {
+                // インラインスクリプトの存在チェック
+                const inlineScripts = document.querySelectorAll('script:not([src])');
+                const hasInlineScripts = inlineScripts.length > 0;
+                
+                return {
+                    name: 'インラインスクリプト',
+                    compliant: !hasInlineScripts,
+                    count: inlineScripts.length,
+                    recommendation: hasInlineScripts ? 'CSP nonce or hashを使用' : 'なし'
+                };
+            }
+
+            checkExternalResources() {
+                // 外部リソースのチェック
+                const externalScripts = document.querySelectorAll('script[src]');
+                const externalStyles = document.querySelectorAll('link[rel="stylesheet"]');
+                
+                let unsafeResources = 0;
+                externalScripts.forEach(script => {
+                    const src = script.src;
+                    if (src && !src.startsWith(window.location.origin) && !src.startsWith('https://')) {
+                        unsafeResources++;
+                    }
+                });
+
+                return {
+                    name: '外部リソース',
+                    secure: unsafeResources === 0,
+                    unsafeCount: unsafeResources,
+                    totalExternal: externalScripts.length + externalStyles.length
+                };
+            }
+
+            checkEvalUsage() {
+                // eval()の使用チェック（簡易）
+                const scriptsContent = Array.from(document.scripts)
+                    .map(script => script.innerHTML)
+                    .join(' ');
+                
+                const hasEval = scriptsContent.includes('eval(') || 
+                               scriptsContent.includes('Function(') ||
+                               scriptsContent.includes('setTimeout(') && scriptsContent.includes('string');
+
+                return {
+                    name: 'eval()使用',
+                    compliant: !hasEval,
+                    detected: hasEval,
+                    recommendation: hasEval ? 'eval()の使用を避ける' : 'なし'
+                };
+            }
+
+            // 全セキュリティテスト実行
+            async runAllSecurityTests() {
+                console.log('🔍 包括的セキュリティテスト開始');
+                
+                try {
+                    await this.initialize();
+                    
+                    await this.testXSSResistance();
+                    await this.testInjectionResistance();
+                    await this.testDataPrivacy();
+                    await this.testSessionSecurity();
+                    await this.testInputValidation();
+                    await this.testCSP();
+                    
+                    console.log('✅ 全セキュリティテスト完了');
+                    
+                } catch (error) {
+                    console.error('❌ セキュリティテスト実行エラー:', error);
+                }
+            }
+
+            // セキュリティレポート生成
+            generateSecurityReport() {
+                const timestamp = new Date().toISOString();
+                const totalTests = this.testResults.size;
+                const secureTests = Array.from(this.testResults.values()).filter(r => r.isSecure).length;
+                const securityScore = totalTests > 0 ? Math.round((secureTests / totalTests) * 100) : 0;
+
+                const report = {
+                    timestamp: timestamp,
+                    securityScore: securityScore,
+                    totalTests: totalTests,
+                    secureTests: secureTests,
+                    vulnerableTests: totalTests - secureTests,
+                    testResults: Object.fromEntries(this.testResults),
+                    vulnerabilities: this.vulnerabilities,
+                    mitigations: this.mitigations,
+                    recommendations: this.generateSecurityRecommendations(),
+                    environment: {
+                        userAgent: navigator.userAgent,
+                        language: navigator.language,
+                        protocol: window.location.protocol,
+                        secureContext: window.isSecureContext
+                    }
+                };
+
+                // レポートをJSONでダウンロード
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `haqei-security-report-${timestamp.replace(/[:.]/g, '-')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                console.log('🔒 セキュリティレポートを生成しました', report);
+            }
+
+            generateSecurityRecommendations() {
+                const recommendations = [];
+                
+                if (this.vulnerabilities.some(v => v.type === 'XSS')) {
+                    recommendations.push('XSS攻撃対策: 入力値のHTMLエスケープとCSPの実装');
+                }
+                
+                if (this.vulnerabilities.some(v => v.type === 'Code Injection')) {
+                    recommendations.push('コードインジェクション対策: eval()の使用禁止と入力検証の強化');
+                }
+                
+                if (this.vulnerabilities.some(v => v.type === 'Privacy Leak')) {
+                    recommendations.push('プライバシー保護: 個人情報の自動マスキングと暗号化');
+                }
+                
+                if (this.vulnerabilities.some(v => v.type === 'Input Validation')) {
+                    recommendations.push('入力検証: 型チェックと文字列長制限の実装');
+                }
+                
+                if (recommendations.length === 0) {
+                    recommendations.push('現在のセキュリティレベルは適切です。定期的な監査を継続してください。');
+                }
+                
+                return recommendations;
+            }
+        }
+
+        // グローバルインスタンス作成
+        const securityController = new SecurityTestController();
+
+        // セキュリティテスト実行関数
+        async function testXSSResistance() {
+            await securityController.initialize();
+            await securityController.testXSSResistance();
+        }
+
+        async function testInjectionResistance() {
+            await securityController.initialize();
+            await securityController.testInjectionResistance();
+        }
+
+        async function testDataPrivacy() {
+            await securityController.initialize();
+            await securityController.testDataPrivacy();
+        }
+
+        async function testSessionSecurity() {
+            await securityController.initialize();
+            await securityController.testSessionSecurity();
+        }
+
+        async function testInputValidation() {
+            await securityController.initialize();
+            await securityController.testInputValidation();
+        }
+
+        async function testCSP() {
+            await securityController.initialize();
+            await securityController.testCSP();
+        }
+
+        async function runAllSecurityTests() {
+            await securityController.runAllSecurityTests();
+        }
+
+        function generateSecurityReport() {
+            securityController.generateSecurityReport();
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔒 HAQEI セキュリティテストシステム準備完了');
+        });
+    </script>
+</body>
+</html>

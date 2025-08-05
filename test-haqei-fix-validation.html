@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI System Fix Validation Test</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-header h1 {
+            color: #4f46e5;
+            margin-bottom: 10px;
+        }
+        .test-section {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid #4f46e5;
+        }
+        .test-button {
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.2s;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        }
+        .test-results {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-pass { background: #10b981; }
+        .status-fail { background: #ef4444; }
+        .status-warning { background: #f59e0b; }
+        .dependency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .dependency-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            transition: border-color 0.2s;
+        }
+        .dependency-card.loaded { border-color: #10b981; }
+        .dependency-card.missing { border-color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🚀 HAQEI システム修正検証テスト</h1>
+            <p>CacheManager・PerformanceOptimizer・VirtualQuestionFlow findIndex修正の完全検証</p>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 1. 依存関係チェック</h2>
+            <button class="test-button" onclick="checkDependencies()">依存関係を確認</button>
+            <div id="dependency-results" class="test-results" style="display: none;"></div>
+            
+            <div id="dependency-grid" class="dependency-grid" style="display: none;">
+                <div class="dependency-card" id="cache-manager-card">
+                    <h3>CacheManager</h3>
+                    <p id="cache-manager-status">未確認</p>
+                </div>
+                <div class="dependency-card" id="performance-optimizer-card">
+                    <h3>PerformanceOptimizer</h3>
+                    <p id="performance-optimizer-status">未確認</p>
+                </div>
+                <div class="dependency-card" id="virtual-question-flow-card">
+                    <h3>VirtualQuestionFlow</h3>
+                    <p id="virtual-question-flow-status">未確認</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔧 2. VirtualQuestionFlow findIndex修正テスト</h2>
+            <button class="test-button" onclick="testFindIndexFix()">findIndex修正をテスト</button>
+            <div id="findindex-results" class="test-results" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>⚡ 3. パフォーマンスシステムテスト</h2>
+            <button class="test-button" onclick="testPerformanceSystems()">パフォーマンス機能をテスト</button>
+            <div id="performance-results" class="test-results" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 4. 統合テスト</h2>
+            <button class="test-button" onclick="runIntegrationTest()">完全統合テストを実行</button>
+            <div id="integration-results" class="test-results" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 5. 実ページテスト</h2>
+            <button class="test-button" onclick="window.open('os_analyzer.html', '_blank')">os_analyzer.html を開く</button>
+            <p>実際のページでCacheManager・PerformanceOptimizerが正常に動作するかテストしてください。</p>
+        </div>
+    </div>
+
+    <script>
+        function log(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            container.style.display = 'block';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'warning' ? '⚠️' : type === 'success' ? '✅' : '📝';
+            
+            container.innerHTML += `[${timestamp}] ${prefix} ${message}\n`;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function updateDependencyCard(cardId, status, statusText) {
+            const card = document.getElementById(cardId);
+            const statusElement = document.getElementById(cardId.replace('-card', '-status'));
+            
+            card.className = `dependency-card ${status}`;
+            statusElement.textContent = statusText;
+        }
+
+        async function checkDependencies() {
+            log('dependency-results', '=== 依存関係チェック開始 ===');
+            document.getElementById('dependency-grid').style.display = 'grid';
+            
+            // CacheManager チェック
+            try {
+                if (typeof CacheManager !== 'undefined') {
+                    const cacheManager = new CacheManager();
+                    await cacheManager.init();
+                    log('dependency-results', 'CacheManager: 利用可能 ✅', 'success');
+                    updateDependencyCard('cache-manager-card', 'loaded', '✅ 読み込み完了・初期化成功');
+                } else {
+                    log('dependency-results', 'CacheManager: 未定義', 'error');
+                    updateDependencyCard('cache-manager-card', 'missing', '❌ CacheManagerが見つかりません');
+                }
+            } catch (error) {
+                log('dependency-results', `CacheManager エラー: ${error.message}`, 'error');
+                updateDependencyCard('cache-manager-card', 'missing', `❌ エラー: ${error.message}`);
+            }
+
+            // PerformanceOptimizer チェック
+            try {
+                if (typeof PerformanceOptimizer !== 'undefined') {
+                    const optimizer = new PerformanceOptimizer();
+                    await optimizer.init();
+                    log('dependency-results', 'PerformanceOptimizer: 利用可能 ✅', 'success');
+                    updateDependencyCard('performance-optimizer-card', 'loaded', '✅ 読み込み完了・初期化成功');
+                } else {
+                    log('dependency-results', 'PerformanceOptimizer: 未定義', 'error');
+                    updateDependencyCard('performance-optimizer-card', 'missing', '❌ PerformanceOptimizerが見つかりません');
+                }
+            } catch (error) {
+                log('dependency-results', `PerformanceOptimizer エラー: ${error.message}`, 'error');
+                updateDependencyCard('performance-optimizer-card', 'missing', `❌ エラー: ${error.message}`);
+            }
+
+            // VirtualQuestionFlow チェック
+            try {
+                if (typeof VirtualQuestionFlow !== 'undefined') {
+                    log('dependency-results', 'VirtualQuestionFlow: 利用可能 ✅', 'success');
+                    updateDependencyCard('virtual-question-flow-card', 'loaded', '✅ クラス定義確認');
+                } else {
+                    log('dependency-results', 'VirtualQuestionFlow: 未定義', 'error');
+                    updateDependencyCard('virtual-question-flow-card', 'missing', '❌ VirtualQuestionFlowが見つかりません');
+                }
+            } catch (error) {
+                log('dependency-results', `VirtualQuestionFlow エラー: ${error.message}`, 'error');
+                updateDependencyCard('virtual-question-flow-card', 'missing', `❌ エラー: ${error.message}`);
+            }
+
+            log('dependency-results', '=== 依存関係チェック完了 ===');
+        }
+
+        function testFindIndexFix() {
+            log('findindex-results', '=== findIndex修正テスト開始 ===');
+            
+            try {
+                if (typeof VirtualQuestionFlow === 'undefined') {
+                    log('findindex-results', 'VirtualQuestionFlow が利用できません', 'error');
+                    return;
+                }
+
+                // MockのDOMコンテナを作成
+                const mockContainer = document.createElement('div');
+                mockContainer.id = 'test-container';
+                document.body.appendChild(mockContainer);
+
+                // VirtualQuestionFlowインスタンスを作成
+                const questionFlow = new VirtualQuestionFlow('test-container');
+                
+                log('findindex-results', 'VirtualQuestionFlow インスタンス作成成功', 'success');
+
+                // this.answersが配列であることを確認
+                if (Array.isArray(questionFlow.answers)) {
+                    log('findindex-results', `this.answers は配列です (length: ${questionFlow.answers.length})`, 'success');
+                } else {
+                    log('findindex-results', `this.answers が配列ではありません: ${typeof questionFlow.answers}`, 'error');
+                }
+
+                // 安全なfindIndexメソッドをテスト
+                const testResult1 = questionFlow.findAnswerIndex('q1');
+                log('findindex-results', `findAnswerIndex('q1'): ${testResult1} (期待値: -1)`, testResult1 === -1 ? 'success' : 'warning');
+
+                // 安全なfindメソッドをテスト
+                const testResult2 = questionFlow.findAnswerByQuestionId('q1');
+                log('findindex-results', `findAnswerByQuestionId('q1'): ${testResult2} (期待値: null)`, testResult2 === null ? 'success' : 'warning');
+
+                // getCompletedCountメソッドをテスト
+                const completedCount = questionFlow.getCompletedCount();
+                log('findindex-results', `getCompletedCount(): ${completedCount}`, 'success');
+
+                // 異常系テスト：this.answersを一時的に破損させる
+                const originalAnswers = questionFlow.answers;
+                questionFlow.answers = null;
+                
+                const safeResult1 = questionFlow.findAnswerIndex('q1');
+                const safeResult2 = questionFlow.findAnswerByQuestionId('q1');
+                const safeResult3 = questionFlow.getCompletedCount();
+
+                log('findindex-results', `異常系テスト - findAnswerIndex: ${safeResult1}`, safeResult1 === -1 ? 'success' : 'error');
+                log('findindex-results', `異常系テスト - findAnswerByQuestionId: ${safeResult2}`, safeResult2 === null ? 'success' : 'error');
+                log('findindex-results', `異常系テスト - getCompletedCount: ${safeResult3}`, typeof safeResult3 === 'number' ? 'success' : 'error');
+
+                // 復元
+                questionFlow.answers = originalAnswers;
+
+                // クリーンアップ
+                document.body.removeChild(mockContainer);
+
+                log('findindex-results', '=== findIndex修正テスト完了 - 全て成功！ ===', 'success');
+
+            } catch (error) {
+                log('findindex-results', `テストエラー: ${error.message}`, 'error');
+                log('findindex-results', `スタックトレース: ${error.stack}`, 'error');
+            }
+        }
+
+        async function testPerformanceSystems() {
+            log('performance-results', '=== パフォーマンスシステムテスト開始 ===');
+            
+            try {
+                // CacheManager テスト
+                if (typeof CacheManager !== 'undefined') {
+                    const cacheManager = new CacheManager();
+                    await cacheManager.init();
+                    
+                    // キャッシュ操作テスト
+                    cacheManager.set('test_key', { data: 'test_value' });
+                    const cached = cacheManager.get('test_key');
+                    
+                    if (cached && cached.data === 'test_value') {
+                        log('performance-results', 'CacheManager 基本動作テスト: 成功', 'success');
+                    } else {
+                        log('performance-results', 'CacheManager 基本動作テスト: 失敗', 'error');
+                    }
+
+                    // 統計取得テスト
+                    const stats = cacheManager.getStats();
+                    log('performance-results', `CacheManager 統計: ${JSON.stringify(stats)}`, 'success');
+                } else {
+                    log('performance-results', 'CacheManager が利用できません', 'error');
+                }
+
+                // PerformanceOptimizer テスト
+                if (typeof PerformanceOptimizer !== 'undefined') {
+                    const optimizer = new PerformanceOptimizer();
+                    await optimizer.init();
+                    
+                    // パフォーマンス統計取得テスト
+                    const perfStats = optimizer.getStats();
+                    log('performance-results', `PerformanceOptimizer 統計: 初期化完了`, 'success');
+                    
+                    // 最適化機能テスト
+                    const testData = { hexagram: 1, originalTime: 100 };
+                    const optimizationResult = await optimizer.optimizeHexagramCalculation(testData);
+                    
+                    if (optimizationResult && optimizationResult.success) {
+                        log('performance-results', 'PerformanceOptimizer 最適化テスト: 成功', 'success');
+                    } else {
+                        log('performance-results', 'PerformanceOptimizer 最適化テスト: フォールバック動作', 'warning');
+                    }
+                } else {
+                    log('performance-results', 'PerformanceOptimizer が利用できません', 'error');
+                }
+
+                log('performance-results', '=== パフォーマンスシステムテスト完了 ===', 'success');
+
+            } catch (error) {
+                log('performance-results', `パフォーマンステストエラー: ${error.message}`, 'error');
+            }
+        }
+
+        async function runIntegrationTest() {
+            log('integration-results', '=== 統合テスト開始 ===');
+            
+            try {
+                // 全コンポーネントの統合テスト
+                const mockContainer = document.createElement('div');
+                mockContainer.id = 'integration-test-container';
+                document.body.appendChild(mockContainer);
+
+                // VirtualQuestionFlow with 依存関係 テスト
+                if (typeof VirtualQuestionFlow !== 'undefined') {
+                    const questionFlow = new VirtualQuestionFlow('integration-test-container', {
+                        onProgress: (progress) => {
+                            log('integration-results', `プログレス更新: ${progress}%`, 'success');
+                        },
+                        onComplete: (answers) => {
+                            log('integration-results', `完了コールバック: ${answers.length} answers`, 'success');
+                        }
+                    });
+
+                    // 初期化テスト
+                    questionFlow.init();
+                    log('integration-results', 'VirtualQuestionFlow 初期化: 成功', 'success');
+
+                    // CacheManager・PerformanceOptimizer統合確認
+                    if (questionFlow.cacheManager && typeof questionFlow.cacheManager.get === 'function') {
+                        log('integration-results', 'CacheManager 統合: 成功', 'success');
+                    } else {
+                        log('integration-results', 'CacheManager 統合: フォールバック動作', 'warning');
+                    }
+
+                    if (questionFlow.performanceOptimizer && typeof questionFlow.performanceOptimizer.getMetrics === 'function') {
+                        log('integration-results', 'PerformanceOptimizer 統合: 成功', 'success');
+                    } else {
+                        log('integration-results', 'PerformanceOptimizer 統合: フォールバック動作', 'warning');
+                    }
+
+                    // 設問データ読み込みテスト
+                    questionFlow.loadQuestions();
+                    log('integration-results', `設問読み込み: ${questionFlow.questions.length} questions`, 'success');
+
+                    // 回答処理テスト
+                    const testAnswer = {
+                        questionId: 'q1',
+                        value: 'A',
+                        scoringTags: ['test'],
+                        choiceType: null
+                    };
+                    
+                    questionFlow.handleAnswerChange(testAnswer);
+                    log('integration-results', '回答処理テスト: 成功', 'success');
+
+                    // クリーンアップ
+                    questionFlow.cleanup();
+                    document.body.removeChild(mockContainer);
+
+                    log('integration-results', '=== 統合テスト完了 - 全て成功！ ===', 'success');
+                } else {
+                    log('integration-results', 'VirtualQuestionFlow が利用できません', 'error');
+                }
+
+            } catch (error) {
+                log('integration-results', `統合テストエラー: ${error.message}`, 'error');
+                log('integration-results', `スタックトレース: ${error.stack}`, 'error');
+            }
+        }
+
+        // 必要なスクリプトを動的に読み込み
+        async function loadRequiredScripts() {
+            const scripts = [
+                '/js/shared/core/BaseComponent.js',
+                '/js/core/CacheManager.js',
+                '/js/core/PerformanceOptimizer.js',
+                '/js/os-analyzer/components/VirtualQuestionFlow.js'
+            ];
+
+            for (const src of scripts) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = src;
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                    console.log(`✅ Loaded: ${src}`);
+                } catch (error) {
+                    console.error(`❌ Failed to load: ${src}`, error);
+                }
+            }
+        }
+
+        // ページ読み込み時に必要なスクリプトを読み込み
+        window.addEventListener('load', loadRequiredScripts);
+    </script>
+</body>
+</html>

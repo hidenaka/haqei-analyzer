@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正統易経システム統合テスト</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+        }
+        .test-section {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        .info { color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <h1>🌟 正統易経システム統合テスト</h1>
+    
+    <div class="test-section">
+        <h2>📋 テスト結果</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 現在地表示テスト</h2>
+        <div id="current-position-test"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>⚡ 選択システムテスト</h2>
+        <div id="choice-system-test"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🌊 8変化パターンテスト</h2>
+        <div id="scenarios-test"></div>
+    </div>
+
+    <!-- Load all required scripts in correct order -->
+    <script src="./assets/H384H64data.js"></script>
+    <script src="./js/core/AuthenticIChingEngine.js"></script>
+    <script src="./js/components/CurrentPositionDisplay.js"></script>
+    <script src="./js/components/AuthenticChoiceSystem.js"></script>
+    <script src="./js/components/Authentic8ScenariosSystem.js"></script>
+
+    <script>
+        console.log('🌟 正統易経システム統合テスト開始');
+        
+        const testResults = document.getElementById('test-results');
+        const tests = [];
+        
+        function addTest(name, result, message) {
+            tests.push({ name, result, message });
+            const div = document.createElement('div');
+            div.className = result ? 'success' : 'error';
+            div.innerHTML = `${result ? '✅' : '❌'} ${name}: ${message}`;
+            testResults.appendChild(div);
+        }
+
+        // Test 1: H384_DATA Loading
+        try {
+            if (typeof window.H384_DATA !== 'undefined' && Array.isArray(window.H384_DATA)) {
+                addTest('H384_DATA読み込み', true, `${window.H384_DATA.length}エントリのデータが正常に読み込まれました`);
+            } else {
+                addTest('H384_DATA読み込み', false, 'H384_DATAが見つからないか、配列ではありません');
+            }
+        } catch (error) {
+            addTest('H384_DATA読み込み', false, `エラー: ${error.message}`);
+        }
+
+        // Test 2: AuthenticIChingEngine Initialization
+        try {
+            const engine = new AuthenticIChingEngine();
+            const engineInfo = engine.getEngineInfo();
+            addTest('正統易経エンジン初期化', true, `エンジンバージョン: ${engineInfo.version}`);
+        } catch (error) {
+            addTest('正統易経エンジン初期化', false, `エラー: ${error.message}`);
+        }
+
+        // Test 3: Current Position Display Component
+        try {
+            const container1 = document.getElementById('current-position-test');
+            const positionDisplay = new CurrentPositionDisplay(container1, new AuthenticIChingEngine());
+            addTest('現在地表示コンポーネント', true, '正常に初期化されました');
+        } catch (error) {
+            addTest('現在地表示コンポーネント', false, `エラー: ${error.message}`);
+        }
+
+        // Test 4: Authentic Choice System Component
+        try {
+            const container2 = document.getElementById('choice-system-test');
+            const choiceSystem = new AuthenticChoiceSystem(container2, new AuthenticIChingEngine());
+            addTest('正統選択システムコンポーネント', true, '正常に初期化されました');
+        } catch (error) {
+            addTest('正統選択システムコンポーネント', false, `エラー: ${error.message}`);
+        }
+
+        // Test 5: Authentic 8 Scenarios System Component
+        try {
+            const container3 = document.getElementById('scenarios-test');
+            const scenariosSystem = new Authentic8ScenariosSystem(container3, new AuthenticIChingEngine());
+            addTest('8変化パターンシステムコンポーネント', true, '正常に初期化されました');
+        } catch (error) {
+            addTest('8変化パターンシステムコンポーネント', false, `エラー: ${error.message}`);
+        }
+
+        // Test 6: Integration Test - Text Analysis
+        try {
+            const engine = new AuthenticIChingEngine();
+            const testText = "最近、仕事でうまくいかないことが多く、チームメンバーとのコミュニケーションに悩んでいます。責任者として結果を出す必要があるのに、思うように進まない状況です。どう改善していけばよいでしょうか？";
+            const result = engine.identifyCurrentSituation(testText);
+            
+            if (result && result.卦番号 && result.卦名) {
+                addTest('テキスト分析統合テスト', true, `卦: 第${result.卦番号}卦 ${result.卦名}`);
+            } else {
+                addTest('テキスト分析統合テスト', false, '分析結果の形式が不正です');
+            }
+        } catch (error) {
+            addTest('テキスト分析統合テスト', false, `エラー: ${error.message}`);
+        }
+
+        // Summary
+        setTimeout(() => {
+            const successCount = tests.filter(t => t.result).length;
+            const totalCount = tests.length;
+            
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = successCount === totalCount ? 'success' : 'warning';
+            summaryDiv.innerHTML = `<h3>📊 テスト結果サマリー: ${successCount}/${totalCount} テスト通過</h3>`;
+            testResults.appendChild(summaryDiv);
+            
+            if (successCount === totalCount) {
+                console.log('🎉 すべてのテストが正常に完了しました！');
+            } else {
+                console.log(`⚠️ ${totalCount - successCount}個のテストが失敗しました`);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

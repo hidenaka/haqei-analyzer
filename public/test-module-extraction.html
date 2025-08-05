@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Module Script Test</title>
+</head>
+<body>
+    <div id="status">Testing module script...</div>
+    <pre id="error-details"></pre>
+    
+    <script>
+        const statusEl = document.getElementById('status');
+        const errorEl = document.getElementById('error-details');
+        
+        // Capture syntax errors
+        window.addEventListener('error', (e) => {
+            console.error('Window error:', e);
+            errorEl.textContent += `\nWindow Error: ${e.message} at ${e.filename}:${e.lineno}:${e.colno}`;
+        });
+        
+        // Test by dynamically loading the module
+        fetch('future_simulator.html')
+            .then(response => response.text())
+            .then(html => {
+                // Extract module script content
+                const moduleMatch = html.match(/<script type="module">([\s\S]*?)<\/script>/);
+                if (!moduleMatch) {
+                    statusEl.textContent = '❌ No module script found';
+                    return;
+                }
+                
+                const moduleContent = moduleMatch[1];
+                statusEl.textContent = `Found module script: ${moduleContent.length} characters`;
+                
+                // Try to create and append the module
+                const script = document.createElement('script');
+                script.type = 'module';
+                script.textContent = moduleContent;
+                
+                script.onerror = (e) => {
+                    statusEl.textContent = '❌ Module load error';
+                    errorEl.textContent = 'Module error: ' + e;
+                };
+                
+                document.body.appendChild(script);
+                
+                // If we get here without error, it's valid
+                setTimeout(() => {
+                    if (!errorEl.textContent) {
+                        statusEl.textContent = '✅ Module script is syntactically valid!';
+                    }
+                }, 1000);
+            })
+            .catch(err => {
+                statusEl.textContent = '❌ Failed to fetch file';
+                errorEl.textContent = err.toString();
+            });
+    </script>
+</body>
+</html>

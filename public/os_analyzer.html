@@ -47,6 +47,12 @@
     <!-- Scenario Text Improvement - シナリオテキストの表示改善 -->
     <link rel="stylesheet" href="css/scenario-text-improvement.css" />
     
+    <!-- Enhanced Question Flow UX - 30問設問フローの総合的UX改善 -->
+    <link rel="stylesheet" href="css/enhanced-question-flow-ux.css" />
+    
+    <!-- Help System Styles -->
+    <link rel="stylesheet" href="css/help-system.css" />
+    <link rel="stylesheet" href="css/help-animations.css" />
     
     <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -158,6 +164,11 @@
       <!-- ErrorHandler will render error messages here -->
     </div>
 
+    <!-- HAQEI Help System Container -->
+    <div id="haqei-help-container">
+      <!-- Help system components will be inserted here -->
+    </div>
+
     <!-- 🚀 Ultra Critical Path - 絶対必要最小限のみ (50KB以下目標) -->
     <!-- Preload critical resources for better performance -->
     <link rel="preload" href="/js/shared/core/BaseComponent.js" as="script">
@@ -176,7 +187,20 @@
     <script src="/js/os-analyzer/components/WelcomeScreen.js"></script>
     <script src="/js/os-analyzer/components/HaqeiQuestionElement.js"></script>
     <script src="/js/os-analyzer/utils/TouchGestureHandler.js"></script>
+    
+    <!-- Performance Enhancement Dependencies - VirtualQuestionFlow.js needs these -->
+    <script src="/js/core/CacheManager.js"></script>
+    <script src="/js/core/PerformanceOptimizer.js"></script>
+    
     <script src="/js/os-analyzer/components/VirtualQuestionFlow.js"></script>
+    
+    <!-- HAQEI Help System -->
+    <script src="/js/help-system/core/HelpSystemCore.js"></script>
+    <script src="/js/help-system/ui/HelpSystemUI.js"></script>
+    <script src="/js/help-system/ui/HelpButton.js"></script>
+    <script src="/js/help-system/ui/HelpModal.js"></script>
+    <script src="/js/help-system/ui/TooltipManager.js"></script>
+    <script src="/js/help-system/integration/haqei-element-enhancer.js"></script>
     
     <!-- ⏳ ALL OTHER SCRIPTS - 設問完了後に動的読み込み -->
     <!-- 以下は全て設問完了後またはオンデマンドで読み込み -->
@@ -281,8 +305,115 @@
     <!-- データ転送修正スクリプト -->
     <script src="/fix-data-transfer.js"></script>
     
+    <!-- Enhanced Question Flow UX - インタラクティブUX改善 -->
+    <script src="/js/enhanced-question-flow-ux.js"></script>
+    
+    <!-- Help System Core Components -->
+    <script src="/js/help-system/core/HelpSystemCore.js"></script>
+    <script src="/js/help-system/ui/HelpButton.js"></script>
+    <script src="/js/help-system/ui/HelpModal.js"></script>
+    <script src="/js/help-system/ui/TooltipManager.js"></script>
+    <script src="/js/help-system/ui/HelpSystemUI.js"></script>
+    
+    <!-- Help System Integration -->
+    <script src="/js/help-system/integration/haqei-element-enhancer.js"></script>
+    
     <!-- アプリケーション初期化 -->
     <script src="/js/app.js"></script>
+    
+    <!-- Help System 初期化スクリプト -->
+    <script>
+      // HAQEI Help System 初期化
+      document.addEventListener('DOMContentLoaded', function() {
+        try {
+          // ヘルプシステムの初期化を遅延実行
+          setTimeout(function() {
+            if (typeof HelpSystemUI !== 'undefined') {
+              window.haqeiHelpSystem = new HelpSystemUI({
+                theme: 'adaptive',
+                helpButtonPosition: 'bottom-right',
+                animations: true,
+                accessibility: true,
+                components: {
+                  tooltips: true,
+                  modal: true,
+                  tutorial: false, // TutorialOverlayが未実装のため無効化
+                  helpButton: true
+                }
+              });
+              
+              console.log('✅ HAQEI Help System initialized successfully');
+              
+              // 初期化完了イベントリスナー
+              document.addEventListener('haqei:helpSystemReady', function(event) {
+                console.log('🎯 Help System Ready:', event.detail);
+                
+                // 既存要素の自動強化
+                if (window.haqeiHelpSystem && window.haqeiHelpSystem.enhanceExistingElements) {
+                  window.haqeiHelpSystem.enhanceExistingElements();
+                }
+                
+                // Element Enhancerによる自動要素強化
+                if (window.haqeiElementEnhancer) {
+                  window.haqeiElementEnhancer.enhanceAllElements();
+                  console.log('🎯 HAQEI elements enhanced:', window.haqeiElementEnhancer.getStats());
+                }
+              });
+              
+            } else {
+              console.warn('⚠️ HelpSystemUI not available');
+            }
+          }, 1000); // 1秒後に初期化（既存システムの初期化完了を待つ）
+          
+        } catch (error) {
+          console.error('❌ Failed to initialize HAQEI Help System:', error);
+        }
+      });
+      
+      // グローバルヘルプ関数
+      window.showHaqeiHelp = function(term, type = 'concept', options = {}) {
+        if (window.haqeiHelpSystem) {
+          return window.haqeiHelpSystem.showHelp(term, type, options);
+        } else {
+          console.warn('Help system not initialized yet');
+        }
+      };
+      
+      // グローバルツールチップ登録関数
+      window.addHaqeiTooltip = function(element, data) {
+        if (window.haqeiHelpSystem && window.haqeiHelpSystem.showTooltip) {
+          window.haqeiHelpSystem.showTooltip(element, data);
+        } else {
+          console.warn('Help system not initialized yet');
+        }
+      };
+      
+      // デバッグ・テスト用関数
+      window.testHelpSystem = function() {
+        console.log('🧪 Testing HAQEI Help System...');
+        
+        if (window.haqeiHelpSystem) {
+          console.log('📊 Help System Stats:', window.haqeiHelpSystem.getStats());
+          
+          // ヘルプモーダルのテスト
+          window.showHaqeiHelp('bunenjin', 'concept');
+          
+          return true;
+        } else {
+          console.warn('⚠️ Help system not available for testing');
+          return false;
+        }
+      };
+      
+      window.showHelpSystemStats = function() {
+        if (window.haqeiHelpSystem) {
+          console.log('📊 Help System Stats:', window.haqeiHelpSystem.getStats());
+        }
+        if (window.haqeiElementEnhancer) {
+          console.log('🎯 Element Enhancer Stats:', window.haqeiElementEnhancer.getStats());
+        }
+      };
+    </script>
 
   </body>
 </html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Simulator Error Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <h1 class="text-2xl mb-4">Future Simulator Syntax Test</h1>
+    <div id="test-status" class="mb-4 p-4 bg-gray-800 rounded">
+        <div class="font-bold mb-2">Test Status:</div>
+        <div id="status-message">Testing...</div>
+    </div>
+    
+    <div id="error-log" class="p-4 bg-red-900 rounded hidden">
+        <div class="font-bold mb-2">Errors:</div>
+        <pre id="error-details" class="text-sm"></pre>
+    </div>
+    
+    <div id="success-log" class="p-4 bg-green-900 rounded hidden">
+        <div class="font-bold mb-2">Success!</div>
+        <div>The future_simulator.html file loads without syntax errors.</div>
+    </div>
+    
+    <script>
+        const statusEl = document.getElementById('status-message');
+        const errorLogEl = document.getElementById('error-log');
+        const errorDetailsEl = document.getElementById('error-details');
+        const successLogEl = document.getElementById('success-log');
+        
+        // Test by creating an iframe
+        statusEl.textContent = 'Creating test iframe...';
+        
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = 'future_simulator.html';
+        
+        let errorDetected = false;
+        
+        // Listen for errors from the iframe
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'error') {
+                errorDetected = true;
+                errorLogEl.classList.remove('hidden');
+                errorDetailsEl.textContent += event.data.message + '\n';
+                statusEl.textContent = 'Syntax error detected!';
+            }
+        });
+        
+        iframe.onload = () => {
+            statusEl.textContent = 'Iframe loaded, checking for errors...';
+            
+            // Try to access the iframe's window
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // Check if the page loaded correctly
+                setTimeout(() => {
+                    if (!errorDetected) {
+                        const hasContent = iframeDoc.body && iframeDoc.body.innerHTML.length > 100;
+                        if (hasContent) {
+                            successLogEl.classList.remove('hidden');
+                            statusEl.textContent = 'Page loaded successfully!';
+                        } else {
+                            statusEl.textContent = 'Page loaded but appears empty';
+                        }
+                    }
+                }, 2000);
+            } catch (e) {
+                errorDetected = true;
+                errorLogEl.classList.remove('hidden');
+                errorDetailsEl.textContent = 'Failed to access iframe: ' + e.message;
+                statusEl.textContent = 'Access error!';
+            }
+        };
+        
+        iframe.onerror = (e) => {
+            errorDetected = true;
+            errorLogEl.classList.remove('hidden');
+            errorDetailsEl.textContent = 'Iframe load error: ' + e;
+            statusEl.textContent = 'Load error!';
+        };
+        
+        document.body.appendChild(iframe);
+        
+        // Also listen for console errors
+        const originalError = console.error;
+        console.error = function(...args) {
+            if (args[0] && args[0].toString().includes('Unexpected')) {
+                errorDetected = true;
+                errorLogEl.classList.remove('hidden');
+                errorDetailsEl.textContent += 'Console error: ' + args.join(' ') + '\n';
+            }
+            originalError.apply(console, args);
+        };
+    </script>
+</body>
+</html>

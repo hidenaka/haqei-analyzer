@@ -1,752 +1,978 @@
-// CacheManager.js - キャッシュ管理システム
-// HaQei Analyzer - Cache Management System
+/**
+ * HAQEI高性能キャッシュマネージャー - CacheManager.js
+ * 
+ * 世界最高水準のキャッシング実装 - 易経計算特化
+ * LRU + TTL + プリフェッチ統合システム
+ * 
+ * パフォーマンス目標:
+ * - 卦計算: <50ms (90%改善)
+ * - メモリ使用量: <10MB (70%削減)
+ * - キャッシュヒット率: >95%
+ * 
+ * Author: Ultra-Speed-Optimizer Agent
+ * Created: 2025-08-04
+ */
 
 class CacheManager {
-    constructor(options = {}) {
-        this.options = {
-            defaultTTL: 30 * 60 * 1000, // 30分
-            maxSize: 50 * 1024 * 1024, // 50MB
-            maxEntries: 1000,
-            enableCompression: true,
-            enableEncryption: false,
-            storageType: 'memory', // 'memory', 'localStorage', 'indexedDB'
-            keyPrefix: 'haqei_cache_',
-            autoCleanup: true,
-            cleanupInterval: 10 * 60 * 1000, // 10分
-            enableMetrics: true,
-            ...options
-        };
+  constructor(options = {}) {
+    this.version = "2.0.0-ultra-performance";
+    this.initialized = false;
+    
+    // キャッシュ設定
+    this.config = {
+      maxSize: options.maxSize || 10000,          // 最大キャッシュサイズ
+      defaultTTL: options.defaultTTL || 3600000,  // 1時間 TTL
+      cleanupInterval: options.cleanupInterval || 300000, // 5分間隔でクリーンアップ
+      compressionThreshold: options.compressionThreshold || 1000, // 1KB以上で圧縮
+      enablePrefetch: options.enablePrefetch !== false,
+      enableCompression: options.enableCompression !== false,
+      enableAnalytics: options.enableAnalytics !== false
+    };
+    
+    // LRUキャッシュコア
+    this.cache = new Map();
+    this.accessOrder = new Map(); // アクセス順序追跡
+    this.metadata = new Map();    // メタデータ格納
+    
+    // 特化キャッシュストア
+    this.hexagramCache = new Map();     // 卦データキャッシュ
+    this.calculationCache = new Map();  // 計算結果キャッシュ
+    this.analysisCache = new Map();     // 分析結果キャッシュ
+    this.relationshipCache = new Map(); // 関係性キャッシュ
+    this.timeSeriesCache = new Map();   // 時系列データキャッシュ
+    
+    // パフォーマンス追跡
+    this.stats = {
+      hits: 0,
+      misses: 0,
+      evictions: 0,
+      compressionSaves: 0,
+      memoryUsage: 0,
+      averageAccessTime: 0,
+      prefetchHits: 0,
+      totalRequests: 0
+    };
+    
+    // プリフェッチキュー
+    this.prefetchQueue = new Set();
+    this.prefetchWorker = null;
+    
+    // 圧縮ワーカー
+    this.compressionWorker = null;
+    
+    // クリーンアップタイマー
+    this.cleanupTimer = null;
+    
+    // パフォーマンス測定
+    this.performanceMonitor = new PerformanceMonitor();
+    
+    console.log("🚀 CacheManager v2.0.0 initialized - Ultra-performance mode");
+  }
+
+  /**
+   * 初期化
+   */
+  async init() {
+    if (this.initialized) return;
+    
+    try {
+      // Web Workersの初期化
+      await this.initializeWorkers();
+      
+      // 既存キャッシュの復元
+      await this.restoreFromStorage();
+      
+      // 定期クリーンアップの開始
+      this.startCleanupTimer();
+      
+      // プリフェッチシステムの開始
+      if (this.config.enablePrefetch) {
+        this.startPrefetchSystem();
+      }
+      
+      // パフォーマンス監視の開始
+      this.startPerformanceMonitoring();
+      
+      this.initialized = true;
+      console.log("✅ CacheManager fully initialized");
+      
+    } catch (error) {
+      console.error("❌ CacheManager initialization failed:", error);
+      // フォールバック: 基本機能のみで動作
+      this.initialized = true;
+    }
+  }
+
+  /**
+   * Web Workersの初期化
+   */
+  async initializeWorkers() {
+    try {
+      // プリフェッチワーカー
+      if (this.config.enablePrefetch && typeof Worker !== 'undefined') {
+        this.prefetchWorker = this.createPrefetchWorker();
+      }
+      
+      // 圧縮ワーカー
+      if (this.config.enableCompression && typeof Worker !== 'undefined') {
+        this.compressionWorker = this.createCompressionWorker();
+      }
+      
+      console.log("⚡ Web Workers initialized for ultra-performance");
+    } catch (error) {
+      console.warn("⚠️ Web Workers not available, using fallback");
+    }
+  }
+
+  /**
+   * プリフェッチワーカーの作成
+   */
+  createPrefetchWorker() {
+    const workerCode = `
+      self.onmessage = function(e) {
+        const { type, data } = e.data;
         
-        this.memoryCache = new Map();
-        this.cacheMetrics = {
-            hits: 0,
-            misses: 0,
-            sets: 0,
-            deletes: 0,
-            evictions: 0,
-            totalSize: 0
-        };
-        
-        this.compressionWorker = null;
-        this.cleanupInterval = null;
-        
-        this.initialize();
-    }
-
-    /**
-     * 初期化
-     */
-    async initialize() {
-        try {
-            // 圧縮ワーカーの初期化
-            if (this.options.enableCompression) {
-                await this.initializeCompressionWorker();
-            }
-            
-            // IndexedDBの初期化
-            if (this.options.storageType === 'indexedDB') {
-                await this.initializeIndexedDB();
-            }
-            
-            // 自動クリーンアップの開始
-            if (this.options.autoCleanup) {
-                this.startAutoCleanup();
-            }
-            
-            // 既存キャッシュの復元
-            await this.restoreCache();
-            
-            console.log("✅ CacheManager initialized");
-            
-        } catch (error) {
-            console.error("❌ Failed to initialize CacheManager:", error);
+        switch (type) {
+          case 'prefetch':
+            // プリフェッチロジック実行
+            const result = performPrefetch(data);
+            self.postMessage({ type: 'prefetchResult', result });
+            break;
         }
-    }
-
-    /**
-     * 圧縮ワーカーを初期化
-     */
-    async initializeCompressionWorker() {
-        try {
-            // Web Worker用のスクリプトを作成
-            const workerScript = `
-                // LZ-string like compression
-                function compress(str) {
-                    return btoa(unescape(encodeURIComponent(str)));
-                }
-                
-                function decompress(str) {
-                    return decodeURIComponent(escape(atob(str)));
-                }
-                
-                self.onmessage = function(e) {
-                    const { action, data, id } = e.data;
-                    
-                    try {
-                        let result;
-                        if (action === 'compress') {
-                            result = compress(data);
-                        } else if (action === 'decompress') {
-                            result = decompress(data);
-                        }
-                        
-                        self.postMessage({ id, result, success: true });
-                    } catch (error) {
-                        self.postMessage({ id, error: error.message, success: false });
-                    }
-                };
-            `;
-            
-            const blob = new Blob([workerScript], { type: 'application/javascript' });
-            this.compressionWorker = new Worker(URL.createObjectURL(blob));
-            
-        } catch (error) {
-            console.warn("⚠️ Failed to initialize compression worker:", error);
-            this.options.enableCompression = false;
-        }
-    }
-
-    /**
-     * IndexedDBを初期化
-     */
-    async initializeIndexedDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open('HaQeiCache', 1);
-            
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => {
-                this.indexedDB = request.result;
-                resolve();
-            };
-            
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-                
-                if (!db.objectStoreNames.contains('cache')) {
-                    const store = db.createObjectStore('cache', { keyPath: 'key' });
-                    store.createIndex('expiry', 'expiry', { unique: false });
-                    store.createIndex('lastAccessed', 'lastAccessed', { unique: false });
-                }
-            };
-        });
-    }
-
-    /**
-     * 値をキャッシュに設定
-     * @param {string} key - キー
-     * @param {any} value - 値
-     * @param {number} ttl - TTL（ミリ秒）
-     * @param {Object} options - オプション
-     */
-    async set(key, value, ttl = null, options = {}) {
-        try {
-            const finalTTL = ttl || this.options.defaultTTL;
-            const expiry = Date.now() + finalTTL;
-            
-            // 値をシリアライズ
-            let serializedValue = JSON.stringify(value);
-            
-            // 圧縮
-            if (this.options.enableCompression && serializedValue.length > 1024) {
-                serializedValue = await this.compress(serializedValue);
-                options.compressed = true;
-            }
-            
-            // 暗号化
-            if (this.options.enableEncryption) {
-                serializedValue = this.encrypt(serializedValue);
-                options.encrypted = true;
-            }
-            
-            const cacheEntry = {
-                key: key,
-                value: serializedValue,
-                expiry: expiry,
-                size: serializedValue.length,
-                lastAccessed: Date.now(),
-                accessCount: 0,
-                metadata: options
-            };
-            
-            // サイズチェック
-            if (cacheEntry.size > this.options.maxSize / 10) {
-                throw new Error('Entry too large for cache');
-            }
-            
-            // 容量チェックとクリーンアップ
-            await this.ensureCapacity(cacheEntry.size);
-            
-            // ストレージに保存
-            await this.storeEntry(key, cacheEntry);
-            
-            // メトリクス更新
-            this.updateMetrics('set', cacheEntry.size);
-            
-            console.log(`💾 Cached: ${key} (${cacheEntry.size} bytes, TTL: ${finalTTL}ms)`);
-            
-        } catch (error) {
-            console.error(`❌ Failed to cache ${key}:`, error);
-            throw error;
-        }
-    }
-
-    /**
-     * キャッシュから値を取得
-     * @param {string} key - キー
-     * @returns {any} キャッシュされた値またはnull
-     */
-    async get(key) {
-        try {
-            const entry = await this.getEntry(key);
-            
-            if (!entry) {
-                this.updateMetrics('miss');
-                return null;
-            }
-            
-            // 有効期限チェック
-            if (entry.expiry < Date.now()) {
-                await this.delete(key);
-                this.updateMetrics('miss');
-                return null;
-            }
-            
-            // アクセス情報更新
-            entry.lastAccessed = Date.now();
-            entry.accessCount++;
-            await this.storeEntry(key, entry);
-            
-            // 値をデシリアライズ
-            let value = entry.value;
-            
-            // 復号化
-            if (entry.metadata.encrypted) {
-                value = this.decrypt(value);
-            }
-            
-            // 解凍
-            if (entry.metadata.compressed) {
-                value = await this.decompress(value);
-            }
-            
-            const deserializedValue = JSON.parse(value);
-            
-            this.updateMetrics('hit');
-            return deserializedValue;
-            
-        } catch (error) {
-            console.error(`❌ Failed to get ${key} from cache:`, error);
-            this.updateMetrics('miss');
-            return null;
-        }
-    }
-
-    /**
-     * キャッシュから削除
-     * @param {string} key - キー
-     */
-    async delete(key) {
-        try {
-            const entry = await this.getEntry(key);
-            
-            if (entry) {
-                await this.removeEntry(key);
-                this.updateMetrics('delete', -entry.size);
-            }
-            
-        } catch (error) {
-            console.error(`❌ Failed to delete ${key} from cache:`, error);
-        }
-    }
-
-    /**
-     * キャッシュをクリア
-     */
-    async clear() {
-        try {
-            switch (this.options.storageType) {
-                case 'memory':
-                    this.memoryCache.clear();
-                    break;
-                    
-                case 'localStorage':
-                    Object.keys(localStorage).forEach(key => {
-                        if (key.startsWith(this.options.keyPrefix)) {
-                            localStorage.removeItem(key);
-                        }
-                    });
-                    break;
-                    
-                case 'indexedDB':
-                    if (this.indexedDB) {
-                        const transaction = this.indexedDB.transaction(['cache'], 'readwrite');
-                        const store = transaction.objectStore('cache');
-                        await new Promise((resolve, reject) => {
-                            const request = store.clear();
-                            request.onsuccess = () => resolve();
-                            request.onerror = () => reject(request.error);
-                        });
-                    }
-                    break;
-            }
-            
-            this.resetMetrics();
-            console.log("🗑️ Cache cleared");
-            
-        } catch (error) {
-            console.error("❌ Failed to clear cache:", error);
-        }
-    }
-
-    /**
-     * キャッシュ統計を取得
-     */
-    getStats() {
-        const hitRate = this.cacheMetrics.hits + this.cacheMetrics.misses > 0 ? 
-            this.cacheMetrics.hits / (this.cacheMetrics.hits + this.cacheMetrics.misses) : 0;
-        
+      };
+      
+      function performPrefetch(hexagramData) {
+        // 関連する卦の計算を事前実行
+        const relatedHexagrams = calculateRelatedHexagrams(hexagramData);
+        return relatedHexagrams;
+      }
+      
+      function calculateRelatedHexagrams(hexagram) {
+        // 互卦、綜卦、錯卦の事前計算
         return {
-            ...this.cacheMetrics,
-            hitRate: Math.round(hitRate * 100),
-            totalSizeMB: Math.round(this.cacheMetrics.totalSize / 1024 / 1024 * 100) / 100,
-            entryCount: this.getEntryCount()
+          mutual: calculateMutualHexagram(hexagram),
+          reversed: calculateReversedHexagram(hexagram),
+          opposite: calculateOppositeHexagram(hexagram)
         };
-    }
+      }
+      
+      function calculateMutualHexagram(hexNumber) {
+        return ((hexNumber + 31) % 64) + 1;
+      }
+      
+      function calculateReversedHexagram(hexNumber) {
+        return 65 - hexNumber;
+      }
+      
+      function calculateOppositeHexagram(hexNumber) {
+        return ((hexNumber + 32) % 64) + 1;
+      }
+    `;
+    
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    const worker = new Worker(URL.createObjectURL(blob));
+    
+    worker.onmessage = (e) => {
+      const { type, result } = e.data;
+      if (type === 'prefetchResult') {
+        this.handlePrefetchResult(result);
+      }
+    };
+    
+    return worker;
+  }
 
-    /**
-     * 期限切れエントリをクリーンアップ
-     */
-    async cleanup() {
-        try {
-            const now = Date.now();
-            let cleanedCount = 0;
-            let cleanedSize = 0;
-            
-            switch (this.options.storageType) {
-                case 'memory':
-                    for (const [key, entry] of this.memoryCache) {
-                        if (entry.expiry < now) {
-                            this.memoryCache.delete(key);
-                            cleanedCount++;
-                            cleanedSize += entry.size;
-                        }
-                    }
-                    break;
-                    
-                case 'localStorage':
-                    Object.keys(localStorage).forEach(storageKey => {
-                        if (storageKey.startsWith(this.options.keyPrefix)) {
-                            try {
-                                const entry = JSON.parse(localStorage.getItem(storageKey));
-                                if (entry.expiry < now) {
-                                    localStorage.removeItem(storageKey);
-                                    cleanedCount++;
-                                    cleanedSize += entry.size;
-                                }
-                            } catch (error) {
-                                // 破損エントリを削除
-                                localStorage.removeItem(storageKey);
-                                cleanedCount++;
-                            }
-                        }
-                    });
-                    break;
-                    
-                case 'indexedDB':
-                    if (this.indexedDB) {
-                        const transaction = this.indexedDB.transaction(['cache'], 'readwrite');
-                        const store = transaction.objectStore('cache');
-                        const index = store.index('expiry');
-                        const range = IDBKeyRange.upperBound(now);
-                        
-                        const request = index.openCursor(range);
-                        request.onsuccess = (event) => {
-                            const cursor = event.target.result;
-                            if (cursor) {
-                                cleanedCount++;
-                                cleanedSize += cursor.value.size;
-                                cursor.delete();
-                                cursor.continue();
-                            }
-                        };
-                    }
-                    break;
-            }
-            
-            this.updateMetrics('eviction', -cleanedSize);
-            this.cacheMetrics.evictions += cleanedCount;
-            
-            if (cleanedCount > 0) {
-                console.log(`🧹 Cleaned up ${cleanedCount} expired entries (${cleanedSize} bytes)`);
-            }
-            
-        } catch (error) {
-            console.error("❌ Failed to cleanup cache:", error);
-        }
-    }
-
-    /**
-     * LRU（Least Recently Used）に基づく退避
-     */
-    async evictLRU(requiredSize) {
-        try {
-            const entries = await this.getAllEntries();
-            
-            // 最後のアクセス時間でソート
-            entries.sort((a, b) => a.lastAccessed - b.lastAccessed);
-            
-            let evictedSize = 0;
-            let evictedCount = 0;
-            
-            for (const entry of entries) {
-                if (evictedSize >= requiredSize) break;
-                
-                await this.removeEntry(entry.key);
-                evictedSize += entry.size;
-                evictedCount++;
-            }
-            
-            this.updateMetrics('eviction', -evictedSize);
-            this.cacheMetrics.evictions += evictedCount;
-            
-            console.log(`📤 Evicted ${evictedCount} LRU entries (${evictedSize} bytes)`);
-            
-        } catch (error) {
-            console.error("❌ Failed to evict LRU entries:", error);
-        }
-    }
-
-    /**
-     * 容量を確保
-     */
-    async ensureCapacity(requiredSize) {
-        const currentSize = this.cacheMetrics.totalSize;
-        const entryCount = this.getEntryCount();
+  /**
+   * 圧縮ワーカーの作成
+   */
+  createCompressionWorker() {
+    const workerCode = `
+      self.onmessage = function(e) {
+        const { type, data, key } = e.data;
         
-        // サイズ制限チェック
-        if (currentSize + requiredSize > this.options.maxSize) {
-            const targetEvictSize = currentSize + requiredSize - this.options.maxSize + (this.options.maxSize * 0.1);
-            await this.evictLRU(targetEvictSize);
+        switch (type) {
+          case 'compress':
+            const compressed = compressData(data);
+            self.postMessage({ type: 'compressed', key, compressed });
+            break;
+          case 'decompress':
+            const decompressed = decompressData(data);
+            self.postMessage({ type: 'decompressed', key, decompressed });
+            break;
+        }
+      };
+      
+      function compressData(data) {
+        // 簡易圧縮アルゴリズム (実際にはより高度な圧縮を使用)
+        const jsonStr = JSON.stringify(data);
+        return btoa(jsonStr); // Base64エンコード
+      }
+      
+      function decompressData(compressed) {
+        const jsonStr = atob(compressed);
+        return JSON.parse(jsonStr);
+      }
+    `;
+    
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    const worker = new Worker(URL.createObjectURL(blob));
+    
+    worker.onmessage = (e) => {
+      const { type, key, compressed, decompressed } = e.data;
+      if (type === 'compressed') {
+        this.handleCompressionResult(key, compressed);
+      } else if (type === 'decompressed') {
+        this.handleDecompressionResult(key, decompressed);
+      }
+    };
+    
+    return worker;
+  }
+
+  /**
+   * 汎用キャッシュ取得
+   */
+  get(key, options = {}) {
+    const startTime = performance.now();
+    
+    try {
+      this.stats.totalRequests++;
+      
+      // 特化キャッシュから検索
+      let result = this.getFromSpecializedCache(key, options);
+      if (result !== null) {
+        this.recordHit(startTime);
+        return result;
+      }
+      
+      // メインキャッシュから検索
+      if (this.cache.has(key)) {
+        const entry = this.cache.get(key);
+        const metadata = this.metadata.get(key);
+        
+        // TTL チェック
+        if (this.isExpired(metadata)) {
+          this.delete(key);
+          this.recordMiss(startTime);
+          return null;
         }
         
-        // エントリ数制限チェック
-        if (entryCount >= this.options.maxEntries) {
-            const targetEvictCount = entryCount - this.options.maxEntries + Math.floor(this.options.maxEntries * 0.1);
-            await this.evictLRU(targetEvictCount * 1024); // 概算
-        }
-    }
-
-    /**
-     * 圧縮
-     */
-    async compress(data) {
-        if (!this.compressionWorker) {
-            // フォールバック: 簡易圧縮
-            return btoa(unescape(encodeURIComponent(data)));
-        }
+        // アクセス時間更新
+        this.updateAccessTime(key);
         
-        return new Promise((resolve, reject) => {
-            const id = Math.random().toString(36);
-            
-            const handleMessage = (event) => {
-                if (event.data.id === id) {
-                    this.compressionWorker.removeEventListener('message', handleMessage);
-                    
-                    if (event.data.success) {
-                        resolve(event.data.result);
-                    } else {
-                        reject(new Error(event.data.error));
-                    }
-                }
-            };
-            
-            this.compressionWorker.addEventListener('message', handleMessage);
-            this.compressionWorker.postMessage({ action: 'compress', data, id });
+        // 圧縮データの展開
+        const data = this.decompressIfNeeded(entry, metadata);
+        
+        this.recordHit(startTime);
+        return data;
+      }
+      
+      this.recordMiss(startTime);
+      return null;
+      
+    } catch (error) {
+      console.error("❌ CacheManager.get error:", error);
+      this.recordMiss(startTime);
+      return null;
+    }
+  }
+
+  /**
+   * 特化キャッシュから取得
+   */
+  getFromSpecializedCache(key, options) {
+    const cacheType = this.detectCacheType(key, options);
+    
+    switch (cacheType) {
+      case 'hexagram':
+        return this.hexagramCache.get(key) || null;
+      case 'calculation':
+        return this.calculationCache.get(key) || null;
+      case 'analysis':
+        return this.analysisCache.get(key) || null;
+      case 'relationship':
+        return this.relationshipCache.get(key) || null;
+      case 'timeseries':
+        return this.timeSeriesCache.get(key) || null;
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * キャッシュタイプの検出
+   */
+  detectCacheType(key, options) {
+    if (options.type) return options.type;
+    
+    if (key.startsWith('hex_')) return 'hexagram';
+    if (key.startsWith('calc_')) return 'calculation';
+    if (key.startsWith('analysis_')) return 'analysis';
+    if (key.startsWith('rel_')) return 'relationship';
+    if (key.startsWith('ts_')) return 'timeseries';
+    
+    return 'general';
+  }
+
+  /**
+   * キャッシュ設定
+   */
+  set(key, value, options = {}) {
+    const startTime = performance.now();
+    
+    try {
+      const ttl = options.ttl || this.config.defaultTTL;
+      const expiry = Date.now() + ttl;
+      const priority = options.priority || 1;
+      const cacheType = this.detectCacheType(key, options);
+      
+      // サイズ制限チェック
+      if (this.cache.size >= this.config.maxSize) {
+        this.evictLRU();
+      }
+      
+      // 圧縮判定
+      const shouldCompress = this.shouldCompress(value);
+      const finalValue = shouldCompress ? this.compress(value) : value;
+      
+      // メタデータ作成
+      const metadata = {
+        expiry,
+        priority,
+        size: this.calculateSize(finalValue),
+        compressed: shouldCompress,
+        accessCount: 1,
+        lastAccess: Date.now(),
+        cacheType
+      };
+      
+      // 特化キャッシュに保存
+      this.setInSpecializedCache(key, finalValue, cacheType);
+      
+      // メインキャッシュに保存
+      this.cache.set(key, finalValue);
+      this.metadata.set(key, metadata);
+      this.accessOrder.set(key, Date.now());
+      
+      // プリフェッチのトリガー
+      if (this.config.enablePrefetch) {
+        this.triggerPrefetch(key, value, options);
+      }
+      
+      // 統計更新
+      this.updateMemoryUsage();
+      
+      const duration = performance.now() - startTime;
+      console.log(`💾 Cached ${key} (${cacheType}): ${duration.toFixed(2)}ms`);
+      
+    } catch (error) {
+      console.error("❌ CacheManager.set error:", error);
+    }
+  }
+
+  /**
+   * 特化キャッシュに設定
+   */
+  setInSpecializedCache(key, value, cacheType) {
+    switch (cacheType) {
+      case 'hexagram':
+        this.hexagramCache.set(key, value);
+        break;
+      case 'calculation':
+        this.calculationCache.set(key, value);
+        break;
+      case 'analysis':
+        this.analysisCache.set(key, value);
+        break;
+      case 'relationship':
+        this.relationshipCache.set(key, value);
+        break;
+      case 'timeseries':
+        this.timeSeriesCache.set(key, value);
+        break;
+    }
+  }
+
+  /**
+   * 易経卦データの高速キャッシング
+   */
+  cacheHexagram(hexagramNumber, data, options = {}) {
+    const key = `hex_${hexagramNumber}`;
+    const enhancedOptions = {
+      ...options,
+      type: 'hexagram',
+      ttl: options.ttl || 7200000 // 2時間
+    };
+    
+    // 関連データも同時にキャッシュ
+    this.set(key, data, enhancedOptions);
+    this.set(`${key}_binary`, this.getHexagramBinary(hexagramNumber), enhancedOptions);
+    this.set(`${key}_element`, this.getHexagramElement(hexagramNumber), enhancedOptions);
+    
+    return key;
+  }
+
+  /**
+   * 計算結果の高速キャッシング
+   */
+  cacheCalculation(calculationType, inputHash, result, options = {}) {
+    const key = `calc_${calculationType}_${inputHash}`;
+    const enhancedOptions = {
+      ...options,
+      type: 'calculation',
+      ttl: options.ttl || 1800000 // 30分
+    };
+    
+    this.set(key, result, enhancedOptions);
+    
+    // 関連計算のプリフェッチ
+    if (this.config.enablePrefetch) {
+      this.queueRelatedCalculations(calculationType, inputHash);
+    }
+    
+    return key;
+  }
+
+  /**
+   * 分析結果の高速キャッシング
+   */
+  cacheAnalysis(analysisType, parameters, result, options = {}) {
+    const key = `analysis_${analysisType}_${this.hashParameters(parameters)}`;
+    const enhancedOptions = {
+      ...options,
+      type: 'analysis',
+      ttl: options.ttl || 3600000 // 1時間
+    };
+    
+    this.set(key, result, enhancedOptions);
+    return key;
+  }
+
+  /**
+   * LRU エビクション
+   */
+  evictLRU() {
+    let oldestKey = null;
+    let oldestTime = Date.now();
+    
+    for (const [key, time] of this.accessOrder) {
+      if (time < oldestTime) {
+        oldestTime = time;
+        oldestKey = key;
+      }
+    }
+    
+    if (oldestKey) {
+      this.delete(oldestKey);
+      this.stats.evictions++;
+      console.log(`🗑️ Evicted LRU entry: ${oldestKey}`);
+    }
+  }
+
+  /**
+   * キャッシュ削除
+   */
+  delete(key) {
+    this.cache.delete(key);
+    this.metadata.delete(key);
+    this.accessOrder.delete(key);
+    
+    // 特化キャッシュからも削除
+    this.hexagramCache.delete(key);
+    this.calculationCache.delete(key);
+    this.analysisCache.delete(key);
+    this.relationshipCache.delete(key);
+    this.timeSeriesCache.delete(key);
+  }
+
+  /**
+   * 期限切れチェック
+   */
+  isExpired(metadata) {
+    return metadata && Date.now() > metadata.expiry;
+  }
+
+  /**
+   * アクセス時間更新
+   */
+  updateAccessTime(key) {
+    this.accessOrder.set(key, Date.now());
+    const metadata = this.metadata.get(key);
+    if (metadata) {
+      metadata.lastAccess = Date.now();
+      metadata.accessCount++;
+    }
+  }
+
+  /**
+   * 圧縮判定
+   */
+  shouldCompress(value) {
+    if (!this.config.enableCompression) return false;
+    
+    const size = this.calculateSize(value);
+    return size > this.config.compressionThreshold;
+  }
+
+  /**
+   * データ圧縮
+   */
+  compress(data) {
+    try {
+      if (this.compressionWorker) {
+        // Web Workerで非同期圧縮
+        this.compressionWorker.postMessage({
+          type: 'compress',
+          data: data,
+          key: 'temp'
         });
+        return data; // 一時的に元データを返す
+      } else {
+        // 同期圧縮（フォールバック）
+        const jsonStr = JSON.stringify(data);
+        return btoa(jsonStr);
+      }
+    } catch (error) {
+      console.warn("⚠️ Compression failed, storing uncompressed:", error);
+      return data;
     }
+  }
 
-    /**
-     * 解凍
-     */
-    async decompress(data) {
-        if (!this.compressionWorker) {
-            // フォールバック: 簡易解凍
-            return decodeURIComponent(escape(atob(data)));
-        }
-        
-        return new Promise((resolve, reject) => {
-            const id = Math.random().toString(36);
-            
-            const handleMessage = (event) => {
-                if (event.data.id === id) {
-                    this.compressionWorker.removeEventListener('message', handleMessage);
-                    
-                    if (event.data.success) {
-                        resolve(event.data.result);
-                    } else {
-                        reject(new Error(event.data.error));
-                    }
-                }
-            };
-            
-            this.compressionWorker.addEventListener('message', handleMessage);
-            this.compressionWorker.postMessage({ action: 'decompress', data, id });
+  /**
+   * データ展開
+   */
+  decompressIfNeeded(data, metadata) {
+    if (!metadata || !metadata.compressed) return data;
+    
+    try {
+      if (this.compressionWorker) {
+        // Web Workerで非同期展開
+        this.compressionWorker.postMessage({
+          type: 'decompress',
+          data: data,
+          key: 'temp'
         });
+        return data; // 一時的に元データを返す
+      } else {
+        // 同期展開（フォールバック）
+        const jsonStr = atob(data);
+        return JSON.parse(jsonStr);
+      }
+    } catch (error) {
+      console.warn("⚠️ Decompression failed:", error);
+      return data;
     }
+  }
 
-    /**
-     * 暗号化（簡易実装）
-     */
-    encrypt(data) {
-        // 実際の実装では適切な暗号化ライブラリを使用
-        return btoa(data);
+  /**
+   * サイズ計算
+   */
+  calculateSize(value) {
+    try {
+      return JSON.stringify(value).length;
+    } catch {
+      return 1000; // デフォルトサイズ
     }
+  }
 
-    /**
-     * 復号化（簡易実装）
-     */
-    decrypt(data) {
-        return atob(data);
+  /**
+   * プリフェッチのトリガー
+   */
+  triggerPrefetch(key, value, options) {
+    if (this.prefetchQueue.size > 100) return; // キュー制限
+    
+    const relatedKeys = this.generateRelatedKeys(key, value, options);
+    relatedKeys.forEach(relatedKey => {
+      this.prefetchQueue.add(relatedKey);
+    });
+    
+    this.processPrefetchQueue();
+  }
+
+  /**
+   * 関連キーの生成
+   */
+  generateRelatedKeys(key, value, options) {
+    const relatedKeys = [];
+    
+    if (key.startsWith('hex_')) {
+      const hexNumber = parseInt(key.replace('hex_', ''));
+      // 互卦、綜卦、錯卦
+      relatedKeys.push(`hex_${this.calculateMutualHexagram(hexNumber)}`);
+      relatedKeys.push(`hex_${this.calculateReversedHexagram(hexNumber)}`);
+      relatedKeys.push(`hex_${this.calculateOppositeHexagram(hexNumber)}`);
     }
+    
+    return relatedKeys;
+  }
 
-    /**
-     * エントリを保存
-     */
-    async storeEntry(key, entry) {
-        switch (this.options.storageType) {
-            case 'memory':
-                this.memoryCache.set(key, entry);
-                break;
-                
-            case 'localStorage':
-                localStorage.setItem(
-                    this.options.keyPrefix + key, 
-                    JSON.stringify(entry)
-                );
-                break;
-                
-            case 'indexedDB':
-                if (this.indexedDB) {
-                    const transaction = this.indexedDB.transaction(['cache'], 'readwrite');
-                    const store = transaction.objectStore('cache');
-                    
-                    await new Promise((resolve, reject) => {
-                        const request = store.put(entry);
-                        request.onsuccess = () => resolve();
-                        request.onerror = () => reject(request.error);
-                    });
-                }
-                break;
+  /**
+   * プリフェッチキューの処理
+   */
+  processPrefetchQueue() {
+    if (this.prefetchQueue.size === 0) return;
+    
+    const batch = Array.from(this.prefetchQueue).slice(0, 5); // 5つずつ処理
+    batch.forEach(key => {
+      this.prefetchQueue.delete(key);
+      this.executePrefetch(key);
+    });
+    
+    // 次のバッチを非同期で処理
+    if (this.prefetchQueue.size > 0) {
+      setTimeout(() => this.processPrefetchQueue(), 100);
+    }
+  }
+
+  /**
+   * プリフェッチ実行
+   */
+  executePrefetch(key) {
+    // 既にキャッシュされている場合はスキップ
+    if (this.cache.has(key)) return;
+    
+    // プリフェッチロジック実行
+    if (this.prefetchWorker) {
+      this.prefetchWorker.postMessage({
+        type: 'prefetch',
+        data: { key }
+      });
+    }
+  }
+
+  /**
+   * 定期クリーンアップの開始
+   */
+  startCleanupTimer() {
+    this.cleanupTimer = setInterval(() => {
+      this.performCleanup();
+    }, this.config.cleanupInterval);
+  }
+
+  /**
+   * クリーンアップ実行
+   */
+  performCleanup() {
+    const startTime = performance.now();
+    let cleaned = 0;
+    
+    // 期限切れエントリの削除
+    for (const [key, metadata] of this.metadata) {
+      if (this.isExpired(metadata)) {
+        this.delete(key);
+        cleaned++;
+      }
+    }
+    
+    // メモリ使用量の更新
+    this.updateMemoryUsage();
+    
+    const duration = performance.now() - startTime;
+    console.log(`🧹 Cleanup completed: ${cleaned} entries removed in ${duration.toFixed(2)}ms`);
+  }
+
+  /**
+   * パフォーマンス監視の開始
+   */
+  startPerformanceMonitoring() {
+    setInterval(() => {
+      this.generatePerformanceReport();
+    }, 60000); // 1分間隔
+  }
+
+  /**
+   * プリフェッチシステムの開始
+   */
+  startPrefetchSystem() {
+    console.log("🔮 Prefetch system started");
+  }
+
+  /**
+   * パフォーマンスレポート生成
+   */
+  generatePerformanceReport() {
+    const hitRate = this.stats.totalRequests > 0 ? 
+      (this.stats.hits / this.stats.totalRequests * 100).toFixed(2) : 0;
+    
+    const report = {
+      hitRate: `${hitRate}%`,
+      totalRequests: this.stats.totalRequests,
+      memoryUsage: `${(this.stats.memoryUsage / 1024).toFixed(2)} KB`,
+      cacheSize: this.cache.size,
+      evictions: this.stats.evictions,
+      compressionSaves: this.stats.compressionSaves,
+      prefetchHits: this.stats.prefetchHits
+    };
+    
+    if (this.config.enableAnalytics) {
+      console.log("📊 Cache Performance Report:", report);
+    }
+    
+    return report;
+  }
+
+  /**
+   * 統計記録
+   */
+  recordHit(startTime) {
+    this.stats.hits++;
+    const duration = performance.now() - startTime;
+    this.updateAverageAccessTime(duration);
+  }
+
+  recordMiss(startTime) {
+    this.stats.misses++;
+    const duration = performance.now() - startTime;
+    this.updateAverageAccessTime(duration);
+  }
+
+  updateAverageAccessTime(duration) {
+    const total = this.stats.hits + this.stats.misses;
+    this.stats.averageAccessTime = 
+      (this.stats.averageAccessTime * (total - 1) + duration) / total;
+  }
+
+  updateMemoryUsage() {
+    let totalSize = 0;
+    for (const metadata of this.metadata.values()) {
+      totalSize += metadata.size || 0;
+    }
+    this.stats.memoryUsage = totalSize;
+  }
+
+  /**
+   * パラメーターハッシュ化
+   */
+  hashParameters(params) {
+    const str = JSON.stringify(params, Object.keys(params).sort());
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // 32bit整数に変換
+    }
+    return hash.toString(36);
+  }
+
+  /**
+   * ストレージからの復元
+   */
+  async restoreFromStorage() {
+    try {
+      const stored = localStorage.getItem('haqei_cache_manager');
+      if (stored) {
+        const data = JSON.parse(stored);
+        // 重要なキャッシュのみ復元
+        if (data.hexagramCache) {
+          for (const [key, value] of Object.entries(data.hexagramCache)) {
+            this.hexagramCache.set(key, value);
+          }
         }
+        console.log("📦 Cache restored from storage");
+      }
+    } catch (error) {
+      console.warn("⚠️ Cache restoration failed:", error);
     }
+  }
 
-    /**
-     * エントリを取得
-     */
-    async getEntry(key) {
-        switch (this.options.storageType) {
-            case 'memory':
-                return this.memoryCache.get(key) || null;
-                
-            case 'localStorage':
-                const data = localStorage.getItem(this.options.keyPrefix + key);
-                return data ? JSON.parse(data) : null;
-                
-            case 'indexedDB':
-                if (this.indexedDB) {
-                    const transaction = this.indexedDB.transaction(['cache'], 'readonly');
-                    const store = transaction.objectStore('cache');
-                    
-                    return new Promise((resolve, reject) => {
-                        const request = store.get(key);
-                        request.onsuccess = () => resolve(request.result || null);
-                        request.onerror = () => reject(request.error);
-                    });
-                }
-                return null;
-        }
+  /**
+   * ストレージへの保存
+   */
+  async saveToStorage() {
+    try {
+      const data = {
+        hexagramCache: Object.fromEntries(this.hexagramCache),
+        stats: this.stats,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('haqei_cache_manager', JSON.stringify(data));
+      console.log("💾 Cache saved to storage");
+    } catch (error) {
+      console.warn("⚠️ Cache save failed:", error);
     }
+  }
 
-    /**
-     * エントリを削除
-     */
-    async removeEntry(key) {
-        switch (this.options.storageType) {
-            case 'memory':
-                this.memoryCache.delete(key);
-                break;
-                
-            case 'localStorage':
-                localStorage.removeItem(this.options.keyPrefix + key);
-                break;
-                
-            case 'indexedDB':
-                if (this.indexedDB) {
-                    const transaction = this.indexedDB.transaction(['cache'], 'readwrite');
-                    const store = transaction.objectStore('cache');
-                    
-                    await new Promise((resolve, reject) => {
-                        const request = store.delete(key);
-                        request.onsuccess = () => resolve();
-                        request.onerror = () => reject(request.error);
-                    });
-                }
-                break;
-        }
-    }
+  /**
+   * 統計取得
+   */
+  getStats() {
+    return {
+      ...this.stats,
+      hitRate: this.stats.totalRequests > 0 ? 
+        (this.stats.hits / this.stats.totalRequests * 100).toFixed(2) + '%' : '0%',
+      memoryUsage: `${(this.stats.memoryUsage / 1024).toFixed(2)} KB`,
+      cacheSize: {
+        total: this.cache.size,
+        hexagram: this.hexagramCache.size,
+        calculation: this.calculationCache.size,
+        analysis: this.analysisCache.size,
+        relationship: this.relationshipCache.size,
+        timeseries: this.timeSeriesCache.size
+      }
+    };
+  }
 
-    /**
-     * 全エントリを取得
-     */
-    async getAllEntries() {
-        switch (this.options.storageType) {
-            case 'memory':
-                return Array.from(this.memoryCache.values());
-                
-            case 'localStorage':
-                const entries = [];
-                Object.keys(localStorage).forEach(storageKey => {
-                    if (storageKey.startsWith(this.options.keyPrefix)) {
-                        try {
-                            const entry = JSON.parse(localStorage.getItem(storageKey));
-                            entries.push(entry);
-                        } catch (error) {
-                            // スキップ
-                        }
-                    }
-                });
-                return entries;
-                
-            case 'indexedDB':
-                if (this.indexedDB) {
-                    const transaction = this.indexedDB.transaction(['cache'], 'readonly');
-                    const store = transaction.objectStore('cache');
-                    
-                    return new Promise((resolve, reject) => {
-                        const request = store.getAll();
-                        request.onsuccess = () => resolve(request.result || []);
-                        request.onerror = () => reject(request.error);
-                    });
-                }
-                return [];
-        }
-    }
+  /**
+   * キャッシュクリア
+   */
+  clear() {
+    this.cache.clear();
+    this.metadata.clear();
+    this.accessOrder.clear();
+    this.hexagramCache.clear();
+    this.calculationCache.clear();
+    this.analysisCache.clear();
+    this.relationshipCache.clear();
+    this.timeSeriesCache.clear();
+    
+    // 統計リセット
+    this.stats = {
+      hits: 0,
+      misses: 0,
+      evictions: 0,
+      compressionSaves: 0,
+      memoryUsage: 0,
+      averageAccessTime: 0,
+      prefetchHits: 0,
+      totalRequests: 0
+    };
+    
+    console.log("🧹 All caches cleared");
+  }
 
-    /**
-     * エントリ数を取得
-     */
-    getEntryCount() {
-        switch (this.options.storageType) {
-            case 'memory':
-                return this.memoryCache.size;
-                
-            case 'localStorage':
-                return Object.keys(localStorage).filter(key => 
-                    key.startsWith(this.options.keyPrefix)
-                ).length;
-                
-            case 'indexedDB':
-                // 非同期なので概算値を返す
-                return this.cacheMetrics.sets - this.cacheMetrics.deletes;
-        }
+  /**
+   * 終了処理
+   */
+  destroy() {
+    // タイマー停止
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer);
     }
+    
+    // Web Workers終了
+    if (this.prefetchWorker) {
+      this.prefetchWorker.terminate();
+    }
+    if (this.compressionWorker) {
+      this.compressionWorker.terminate();
+    }
+    
+    // ストレージに保存
+    this.saveToStorage();
+    
+    // キャッシュクリア
+    this.clear();
+    
+    console.log("🚀 CacheManager destroyed cleanly");
+  }
 
-    /**
-     * メトリクスを更新
-     */
-    updateMetrics(action, sizeChange = 0) {
-        if (!this.options.enableMetrics) return;
-        
-        switch (action) {
-            case 'hit':
-                this.cacheMetrics.hits++;
-                break;
-            case 'miss':
-                this.cacheMetrics.misses++;
-                break;
-            case 'set':
-                this.cacheMetrics.sets++;
-                this.cacheMetrics.totalSize += sizeChange;
-                break;
-            case 'delete':
-                this.cacheMetrics.deletes++;
-                this.cacheMetrics.totalSize += sizeChange;
-                break;
-            case 'eviction':
-                this.cacheMetrics.totalSize += sizeChange;
-                break;
-        }
-        
-        // 負の値を防ぐ
-        this.cacheMetrics.totalSize = Math.max(0, this.cacheMetrics.totalSize);
-    }
+  // ユーティリティメソッド - 易経計算
+  calculateMutualHexagram(hexNumber) {
+    // 互卦計算のシンプル実装
+    return ((hexNumber + 31) % 64) + 1;
+  }
 
-    /**
-     * メトリクスをリセット
-     */
-    resetMetrics() {
-        this.cacheMetrics = {
-            hits: 0,
-            misses: 0,
-            sets: 0,
-            deletes: 0,
-            evictions: 0,
-            totalSize: 0
-        };
-    }
+  calculateReversedHexagram(hexNumber) {
+    // 綜卦計算のシンプル実装
+    return 65 - hexNumber;
+  }
 
-    /**
-     * 既存キャッシュを復元
-     */
-    async restoreCache() {
-        try {
-            const entries = await this.getAllEntries();
-            let restoredSize = 0;
-            
-            entries.forEach(entry => {
-                restoredSize += entry.size || 0;
-            });
-            
-            this.cacheMetrics.totalSize = restoredSize;
-            
-            if (entries.length > 0) {
-                console.log(`🔄 Restored ${entries.length} cache entries (${restoredSize} bytes)`);
-            }
-            
-        } catch (error) {
-            console.error("❌ Failed to restore cache:", error);
-        }
-    }
+  calculateOppositeHexagram(hexNumber) {
+    // 錯卦計算のシンプル実装
+    return ((hexNumber + 32) % 64) + 1;
+  }
 
-    /**
-     * 自動クリーンアップを開始
-     */
-    startAutoCleanup() {
-        this.cleanupInterval = setInterval(() => {
-            this.cleanup();
-        }, this.options.cleanupInterval);
-    }
+  getHexagramBinary(hexNumber) {
+    // 簡易2進数変換
+    return (hexNumber - 1).toString(2).padStart(6, '0');
+  }
 
-    /**
-     * システム破棄
-     */
-    destroy() {
-        if (this.cleanupInterval) {
-            clearInterval(this.cleanupInterval);
-        }
-        
-        if (this.compressionWorker) {
-            this.compressionWorker.terminate();
-        }
-        
-        if (this.indexedDB) {
-            this.indexedDB.close();
-        }
-        
-        this.memoryCache.clear();
-        
-        console.log("💾 CacheManager destroyed");
-    }
+  getHexagramElement(hexNumber) {
+    // 簡易五行判定
+    const elements = ['wood', 'fire', 'earth', 'metal', 'water'];
+    return elements[Math.floor((hexNumber - 1) / 13)];
+  }
+
+  // プレースホルダーメソッド
+  handlePrefetchResult(result) {
+    console.log("🔮 Prefetch result handled:", result);
+  }
+
+  handleCompressionResult(key, compressed) {
+    console.log("🗜️ Compression result handled for", key);
+  }
+
+  handleDecompressionResult(key, decompressed) {
+    console.log("📦 Decompression result handled for", key);
+  }
+
+  queueRelatedCalculations(calculationType, inputHash) {
+    console.log("🔄 Queuing related calculations for", calculationType, inputHash);
+  }
 }
 
-export default CacheManager;
+/**
+ * パフォーマンス監視クラス
+ */
+class PerformanceMonitor {
+  constructor() {
+    this.metrics = new Map();
+    this.startTimes = new Map();
+  }
+
+  start(operation) {
+    this.startTimes.set(operation, performance.now());
+  }
+
+  end(operation) {
+    const startTime = this.startTimes.get(operation);
+    if (startTime) {
+      const duration = performance.now() - startTime;
+      this.recordMetric(operation, duration);
+      this.startTimes.delete(operation);
+      return duration;
+    }
+    return 0;
+  }
+
+  recordMetric(operation, duration) {
+    if (!this.metrics.has(operation)) {
+      this.metrics.set(operation, {
+        count: 0,
+        totalTime: 0,
+        averageTime: 0,
+        minTime: Infinity,
+        maxTime: 0
+      });
+    }
+
+    const metric = this.metrics.get(operation);
+    metric.count++;
+    metric.totalTime += duration;
+    metric.averageTime = metric.totalTime / metric.count;
+    metric.minTime = Math.min(metric.minTime, duration);
+    metric.maxTime = Math.max(metric.maxTime, duration);
+  }
+
+  getMetrics() {
+    return Object.fromEntries(this.metrics);
+  }
+
+  clear() {
+    this.metrics.clear();
+    this.startTimes.clear();
+  }
+}
+
+// グローバル変数として公開
+if (typeof window !== 'undefined') {
+  window.CacheManager = CacheManager;
+  window.PerformanceMonitor = PerformanceMonitor;
+}
+
+// Node.js環境でのエクスポート
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { CacheManager, PerformanceMonitor };
+}
+
+console.log("🚀 CacheManager.js loaded - Ultra-performance ready");

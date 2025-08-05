@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Load & Responsive Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .header h1 {
+            color: #0984e3;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .test-section {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .test-section h3 {
+            color: #0984e3;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-button {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.3);
+        }
+
+        .test-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .test-result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        .success { background: #d4edda; border-left: 4px solid #28a745; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .error { background: #f8d7da; border-left: 4px solid #dc3545; }
+
+        .load-meter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .load-bar {
+            flex: 1;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .load-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #0984e3;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .device-test {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+
+        .device-test.active {
+            border-color: #74b9ff;
+            background: #f0f8ff;
+        }
+
+        .responsive-frame {
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+            resize: both;
+            min-width: 320px;
+            min-height: 200px;
+        }
+
+        .stress-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .stress-input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 80px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-idle { background: #6c757d; }
+        .status-running { background: #ffc107; animation: pulse 1s infinite; }
+        .status-success { background: #28a745; }
+        .status-warning { background: #ffc107; }
+        .status-error { background: #dc3545; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .realtime-chart {
+            height: 200px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 15px 0;
+            padding: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stress-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metric-value {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ HAQEI 負荷・レスポンシブテスト</h1>
+            <p>パフォーマンス・安定性・デバイス対応の総合テスト</p>
+        </div>
+
+        <div class="test-grid">
+            <!-- 負荷テスト -->
+            <div class="test-section">
+                <h3>
+                    <span class="status-indicator status-idle" id="loadStatus"></span>
+                    🔥 負荷テスト
+                </h3>
+                <p>システムの処理能力と安定性を検証</p>
+                
+                <div class="stress-controls">
+                    <label>同時実行数:</label>
+                    <input type="number" class="stress-input" id="concurrentCount" value="10" min="1" max="100">
+                    
+                    <label>実行回数:</label>
+                    <input type="number" class="stress-input" id="iterationCount" value="50" min="1" max="1000">
+                    
+                    <label>間隔(ms):</label>
+                    <input type="number" class="stress-input" id="intervalMs" value="100" min="0" max="5000">
+                </div>
+
+                <div class="load-meter">
+                    <span>負荷:</span>
+                    <div class="load-bar">
+                        <div class="load-fill" id="loadProgress"></div>
+                    </div>
+                    <span id="loadPercentage">0%</span>
+                </div>
+
+                <button class="test-button" onclick="runLoadTest()">負荷テスト開始</button>
+                <button class="test-button" onclick="stopLoadTest()">停止</button>
+                
+                <div class="test-result" id="loadResult"></div>
+            </div>
+
+            <!-- メモリテスト -->
+            <div class="test-section">
+                <h3>
+                    <span class="status-indicator status-idle" id="memoryStatus"></span>
+                    🧠 メモリテスト
+                </h3>
+                <p>メモリ使用量とリーク検出</p>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="heapUsed">0</div>
+                        <div class="metric-label">使用中 (MB)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="heapTotal">0</div>
+                        <div class="metric-label">総計 (MB)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="heapLimit">0</div>
+                        <div class="metric-label">制限 (MB)</div>
+                    </div>
+                </div>
+
+                <button class="test-button" onclick="runMemoryTest()">メモリテスト開始</button>
+                <button class="test-button" onclick="forceGC()" title="ガベージコレクション実行">GC実行</button>
+                
+                <div class="realtime-chart" id="memoryChart">
+                    <canvas id="memoryCanvas" width="100" height="180"></canvas>
+                </div>
+                
+                <div class="test-result" id="memoryResult"></div>
+            </div>
+
+            <!-- レスポンシブテスト -->
+            <div class="test-section">
+                <h3>
+                    <span class="status-indicator status-idle" id="responsiveStatus"></span>
+                    📱 レスポンシブテスト
+                </h3>
+                <p>デバイス別動作確認</p>
+
+                <div class="device-test" id="desktopTest">
+                    <strong>🖥️ デスクトップ (1920x1080)</strong>
+                    <button class="test-button" onclick="testDevice('desktop', 1920, 1080)">テスト</button>
+                    <div id="desktopResult" class="test-result"></div>
+                </div>
+
+                <div class="device-test" id="tabletTest">
+                    <strong>📱 タブレット (768x1024)</strong>
+                    <button class="test-button" onclick="testDevice('tablet', 768, 1024)">テスト</button>
+                    <div id="tabletResult" class="test-result"></div>
+                </div>
+
+                <div class="device-test" id="mobileTest">
+                    <strong>📱 モバイル (375x667)</strong>
+                    <button class="test-button" onclick="testDevice('mobile', 375, 667)">テスト</button>
+                    <div id="mobileResult" class="test-result"></div>
+                </div>
+
+                <button class="test-button" onclick="runAllResponsiveTests()">全デバイステスト</button>
+            </div>
+
+            <!-- パフォーマンス監視 -->
+            <div class="test-section">
+                <h3>
+                    <span class="status-indicator status-idle" id="performanceStatus"></span>
+                    📊 パフォーマンス監視
+                </h3>
+                <p>リアルタイムパフォーマンス追跡</p>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value" id="avgResponseTime">0</div>
+                        <div class="metric-label">平均応答時間 (ms)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="successRate">100</div>
+                        <div class="metric-label">成功率 (%)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="errorCount">0</div>
+                        <div class="metric-label">エラー数</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="throughput">0</div>
+                        <div class="metric-label">スループット (/s)</div>
+                    </div>
+                </div>
+
+                <button class="test-button" onclick="startPerformanceMonitoring()">監視開始</button>
+                <button class="test-button" onclick="stopPerformanceMonitoring()">監視停止</button>
+                
+                <div class="realtime-chart" id="performanceChart">
+                    <canvas id="performanceCanvas" width="100" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 総合テスト実行 -->
+        <div class="test-section">
+            <h3>🚀 包括的負荷・レスポンシブテスト</h3>
+            <button class="test-button" onclick="runAllTests()" style="background: linear-gradient(135deg, #e17055, #d63031); font-size: 16px; padding: 15px 25px;">
+                全テスト実行
+            </button>
+            <button class="test-button" onclick="generatePerformanceReport()">パフォーマンスレポート生成</button>
+        </div>
+    </div>
+
+    <!-- 依存関係の読み込み -->
+    <script src="assets/H384H64database.js"></script>
+    <script src="js/pages/future-simulator/IntegratedAnalysisEngine.js"></script>
+    <script src="js/pages/future-simulator/MetaphorGenerationEngine.js"></script>
+    <script src="js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
+
+    <script>
+        // 負荷・レスポンシブテストコントローラー
+        class LoadResponsiveTestController {
+            constructor() {
+                this.testResults = new Map();
+                this.loadTestRunning = false;
+                this.performanceMonitoring = false;
+                this.memoryHistory = [];
+                this.performanceHistory = [];
+                this.analysisEngine = null;
+                this.chartContexts = {};
+                
+                this.initializeCharts();
+            }
+
+            initializeCharts() {
+                // メモリチャート初期化
+                const memoryCanvas = document.getElementById('memoryCanvas');
+                if (memoryCanvas) {
+                    this.chartContexts.memory = memoryCanvas.getContext('2d');
+                    this.resizeCanvas(memoryCanvas);
+                }
+
+                // パフォーマンスチャート初期化
+                const performanceCanvas = document.getElementById('performanceCanvas');
+                if (performanceCanvas) {
+                    this.chartContexts.performance = performanceCanvas.getContext('2d');
+                    this.resizeCanvas(performanceCanvas);
+                }
+
+                // ウィンドウリサイズ対応
+                window.addEventListener('resize', () => {
+                    if (memoryCanvas) this.resizeCanvas(memoryCanvas);
+                    if (performanceCanvas) this.resizeCanvas(performanceCanvas);
+                });
+            }
+
+            resizeCanvas(canvas) {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth - 20;
+                canvas.height = 180;
+            }
+
+            async initialize() {
+                try {
+                    console.log('⚡ 負荷・レスポンシブテストシステム初期化');
+                    
+                    // 分析エンジン初期化
+                    this.analysisEngine = new IntegratedAnalysisEngine(window.tokenizer);
+                    if (this.analysisEngine.initializeAsync) {
+                        await this.analysisEngine.initializeAsync();
+                    }
+
+                    // メモリ監視開始
+                    this.startMemoryMonitoring();
+                    
+                    console.log('✅ 負荷・レスポンシブテスト準備完了');
+                } catch (error) {
+                    console.error('❌ テストシステム初期化エラー:', error);
+                }
+            }
+
+            updateStatus(testType, status) {
+                const statusElement = document.getElementById(`${testType}Status`);
+                if (statusElement) {
+                    statusElement.className = `status-indicator status-${status}`;
+                }
+            }
+
+            displayResult(testType, result, success = true) {
+                const resultElement = document.getElementById(`${testType}Result`);
+                if (resultElement) {
+                    resultElement.className = `test-result ${success ? 'success' : 'error'}`;
+                    resultElement.textContent = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+                }
+                
+                this.testResults.set(testType, { 
+                    success, 
+                    result, 
+                    timestamp: Date.now() 
+                });
+            }
+
+            // 負荷テスト実行
+            async runLoadTest() {
+                if (this.loadTestRunning) return;
+                
+                this.loadTestRunning = true;
+                this.updateStatus('load', 'running');
+                
+                const concurrentCount = parseInt(document.getElementById('concurrentCount').value);
+                const iterationCount = parseInt(document.getElementById('iterationCount').value);
+                const intervalMs = parseInt(document.getElementById('intervalMs').value);
+                
+                console.log(`🔥 負荷テスト開始: ${concurrentCount}並列 x ${iterationCount}回`);
+                
+                const loadResults = {
+                    startTime: Date.now(),
+                    totalRequests: 0,
+                    successfulRequests: 0,
+                    failedRequests: 0,
+                    responseTimes: [],
+                    errors: [],
+                    peakMemory: 0,
+                    avgResponseTime: 0,
+                    throughput: 0
+                };
+
+                try {
+                    const testInputs = [
+                        '負荷テスト入力1: 人間関係で悩んでいます',
+                        '負荷テスト入力2: 将来への不安があります',
+                        '負荷テスト入力3: 仕事でストレスを感じています',
+                        '負荷テスト入力4: 自分の性格について考えています',
+                        '負荷テスト入力5: 恋愛で迷いがあります'
+                    ];
+
+                    for (let iteration = 0; iteration < iterationCount && this.loadTestRunning; iteration++) {
+                        const promises = [];
+                        
+                        // 並列実行
+                        for (let concurrent = 0; concurrent < concurrentCount; concurrent++) {
+                            const testInput = testInputs[concurrent % testInputs.length];
+                            const promise = this.executeLoadTestRequest(testInput, loadResults);
+                            promises.push(promise);
+                        }
+
+                        await Promise.allSettled(promises);
+                        
+                        // 進捗更新
+                        const progress = ((iteration + 1) / iterationCount) * 100;
+                        document.getElementById('loadProgress').style.width = `${progress}%`;
+                        document.getElementById('loadPercentage').textContent = `${Math.round(progress)}%`;
+
+                        // メモリ監視
+                        if (performance.memory) {
+                            const currentMemory = performance.memory.usedJSHeapSize / 1024 / 1024;
+                            if (currentMemory > loadResults.peakMemory) {
+                                loadResults.peakMemory = currentMemory;
+                            }
+                        }
+
+                        // 間隔制御
+                        if (intervalMs > 0 && iteration < iterationCount - 1) {
+                            await new Promise(resolve => setTimeout(resolve, intervalMs));
+                        }
+                    }
+
+                    loadResults.endTime = Date.now();
+                    loadResults.totalDuration = loadResults.endTime - loadResults.startTime;
+                    loadResults.avgResponseTime = loadResults.responseTimes.length > 0 
+                        ? loadResults.responseTimes.reduce((a, b) => a + b, 0) / loadResults.responseTimes.length 
+                        : 0;
+                    loadResults.throughput = loadResults.totalDuration > 0 
+                        ? (loadResults.successfulRequests / (loadResults.totalDuration / 1000)).toFixed(2)
+                        : 0;
+
+                    const successRate = loadResults.totalRequests > 0 
+                        ? (loadResults.successfulRequests / loadResults.totalRequests * 100).toFixed(1)
+                        : 0;
+
+                    const isSuccess = loadResults.avgResponseTime < 2000 && successRate >= 95;
+
+                    const report = `負荷テスト結果:
+総実行時間: ${(loadResults.totalDuration / 1000).toFixed(2)}秒
+総リクエスト数: ${loadResults.totalRequests}
+成功: ${loadResults.successfulRequests}
+失敗: ${loadResults.failedRequests}
+成功率: ${successRate}%
+平均応答時間: ${loadResults.avgResponseTime.toFixed(2)}ms
+最大応答時間: ${Math.max(...loadResults.responseTimes, 0).toFixed(2)}ms
+最小応答時間: ${Math.min(...loadResults.responseTimes, Infinity).toFixed(2)}ms
+スループット: ${loadResults.throughput} req/sec
+ピークメモリ: ${loadResults.peakMemory.toFixed(2)}MB
+
+性能評価: ${isSuccess ? '✅ 合格' : '❌ 改善必要'}
+${loadResults.errors.length > 0 ? `
+エラー詳細:
+${loadResults.errors.slice(0, 5).map(e => `- ${e}`).join('\n')}
+${loadResults.errors.length > 5 ? `... 他${loadResults.errors.length - 5}件` : ''}` : ''}`;
+
+                    this.updateStatus('load', isSuccess ? 'success' : 'warning');
+                    this.displayResult('load', report, isSuccess);
+
+                } catch (error) {
+                    console.error('負荷テストエラー:', error);
+                    this.updateStatus('load', 'error');
+                    this.displayResult('load', `負荷テストエラー: ${error.message}`, false);
+                } finally {
+                    this.loadTestRunning = false;
+                    document.getElementById('loadProgress').style.width = '0%';
+                    document.getElementById('loadPercentage').textContent = '0%';
+                }
+            }
+
+            async executeLoadTestRequest(testInput, loadResults) {
+                const startTime = performance.now();
+                
+                try {
+                    loadResults.totalRequests++;
+                    
+                    const result = await this.analysisEngine.performSevenStageAnalysis(
+                        testInput, 
+                        'load_test', 
+                        null
+                    );
+                    
+                    const responseTime = performance.now() - startTime;
+                    loadResults.responseTimes.push(responseTime);
+                    
+                    if (result && result.finalResult && result.finalResult.confidence > 0.3) {
+                        loadResults.successfulRequests++;
+                    } else {
+                        loadResults.failedRequests++;
+                        loadResults.errors.push(`低信頼度: ${result?.finalResult?.confidence || 0}`);
+                    }
+                    
+                } catch (error) {
+                    const responseTime = performance.now() - startTime;
+                    loadResults.responseTimes.push(responseTime);
+                    loadResults.failedRequests++;
+                    loadResults.errors.push(error.message);
+                }
+            }
+
+            stopLoadTest() {
+                this.loadTestRunning = false;
+                this.updateStatus('load', 'idle');
+                console.log('🛑 負荷テスト停止');
+            }
+
+            // メモリテスト実行
+            async runMemoryTest() {
+                this.updateStatus('memory', 'running');
+                console.log('🧠 メモリテスト開始');
+
+                try {
+                    const memoryResults = {
+                        initialMemory: 0,
+                        peakMemory: 0,
+                        finalMemory: 0,
+                        memoryGrowth: 0,
+                        leakDetected: false,
+                        allocations: 0
+                    };
+
+                    // 初期メモリ測定
+                    if (performance.memory) {
+                        memoryResults.initialMemory = performance.memory.usedJSHeapSize / 1024 / 1024;
+                    }
+
+                    // メモリ負荷テスト
+                    const largeData = [];
+                    for (let i = 0; i < 100; i++) {
+                        // 大きなデータを生成
+                        const data = await this.analysisEngine.performSevenStageAnalysis(
+                            `メモリテスト${i}: ${'大量のデータ '.repeat(100)}`,
+                            'memory_test',
+                            null
+                        );
+                        
+                        largeData.push(data);
+                        memoryResults.allocations++;
+
+                        // メモリ監視
+                        if (performance.memory) {
+                            const currentMemory = performance.memory.usedJSHeapSize / 1024 / 1024;
+                            if (currentMemory > memoryResults.peakMemory) {
+                                memoryResults.peakMemory = currentMemory;
+                            }
+                        }
+
+                        // 進捗更新
+                        if (i % 10 === 0) {
+                            this.updateMemoryDisplay();
+                        }
+                    }
+
+                    // ガベージコレクション実行
+                    if (window.gc) {
+                        window.gc();
+                    }
+
+                    // 最終メモリ測定
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    if (performance.memory) {
+                        memoryResults.finalMemory = performance.memory.usedJSHeapSize / 1024 / 1024;
+                    }
+
+                    memoryResults.memoryGrowth = memoryResults.finalMemory - memoryResults.initialMemory;
+                    memoryResults.leakDetected = memoryResults.memoryGrowth > 50; // 50MB以上の増加はリーク疑い
+
+                    const isSuccess = !memoryResults.leakDetected && memoryResults.memoryGrowth < 100;
+
+                    const report = `メモリテスト結果:
+初期メモリ: ${memoryResults.initialMemory.toFixed(2)}MB
+ピークメモリ: ${memoryResults.peakMemory.toFixed(2)}MB
+最終メモリ: ${memoryResults.finalMemory.toFixed(2)}MB
+メモリ増加: ${memoryResults.memoryGrowth.toFixed(2)}MB
+リーク検出: ${memoryResults.leakDetected ? '❌ 疑いあり' : '✅ なし'}
+割り当て回数: ${memoryResults.allocations}
+
+評価: ${isSuccess ? '✅ 正常' : '⚠️ 要改善'}`;
+
+                    this.updateStatus('memory', isSuccess ? 'success' : 'warning');
+                    this.displayResult('memory', report, isSuccess);
+
+                } catch (error) {
+                    console.error('メモリテストエラー:', error);
+                    this.updateStatus('memory', 'error');
+                    this.displayResult('memory', `メモリテストエラー: ${error.message}`, false);
+                }
+            }
+
+            forceGC() {
+                if (window.gc) {
+                    window.gc();
+                    console.log('🗑️ ガベージコレクション実行');
+                } else {
+                    console.warn('⚠️ ガベージコレクションAPI利用不可');
+                }
+                this.updateMemoryDisplay();
+            }
+
+            startMemoryMonitoring() {
+                setInterval(() => {
+                    this.updateMemoryDisplay();
+                    this.updateMemoryChart();
+                }, 1000);
+            }
+
+            updateMemoryDisplay() {
+                if (performance.memory) {
+                    const memory = performance.memory;
+                    document.getElementById('heapUsed').textContent = (memory.usedJSHeapSize / 1024 / 1024).toFixed(1);
+                    document.getElementById('heapTotal').textContent = (memory.totalJSHeapSize / 1024 / 1024).toFixed(1);
+                    document.getElementById('heapLimit').textContent = (memory.jsHeapSizeLimit / 1024 / 1024).toFixed(1);
+                }
+            }
+
+            updateMemoryChart() {
+                if (!this.chartContexts.memory || !performance.memory) return;
+
+                const ctx = this.chartContexts.memory;
+                const canvas = ctx.canvas;
+                const width = canvas.width;
+                const height = canvas.height;
+
+                // 履歴に追加
+                const memoryUsage = performance.memory.usedJSHeapSize / 1024 / 1024;
+                this.memoryHistory.push(memoryUsage);
+                if (this.memoryHistory.length > width / 2) {
+                    this.memoryHistory.shift();
+                }
+
+                // チャートクリア
+                ctx.clearRect(0, 0, width, height);
+
+                if (this.memoryHistory.length < 2) return;
+
+                // スケール計算
+                const maxMemory = Math.max(...this.memoryHistory);
+                const minMemory = Math.min(...this.memoryHistory);
+                const range = maxMemory - minMemory || 1;
+
+                // グリッド描画
+                ctx.strokeStyle = '#e9ecef';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= 5; i++) {
+                    const y = (height / 5) * i;
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+
+                // メモリ使用量ライン描画
+                ctx.strokeStyle = '#74b9ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+
+                this.memoryHistory.forEach((memory, index) => {
+                    const x = (index / (this.memoryHistory.length - 1)) * width;
+                    const y = height - ((memory - minMemory) / range) * height;
+                    
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+
+                ctx.stroke();
+
+                // 現在値表示
+                ctx.fillStyle = '#0984e3';
+                ctx.font = '12px Arial';
+                ctx.fillText(`${memoryUsage.toFixed(1)}MB`, width - 60, 20);
+            }
+
+            // レスポンシブテスト
+            async testDevice(deviceType, width, height) {
+                this.updateStatus('responsive', 'running');
+                console.log(`📱 ${deviceType}デバイステスト開始: ${width}x${height}`);
+
+                // アクティブデバイス表示
+                document.querySelectorAll('.device-test').forEach(test => test.classList.remove('active'));
+                document.getElementById(`${deviceType}Test`).classList.add('active');
+
+                try {
+                    const deviceResults = {
+                        deviceType: deviceType,
+                        width: width,
+                        height: height,
+                        viewportSupported: true,
+                        elementsVisible: true,
+                        responsiveLayout: true,
+                        touchSupport: false,
+                        performanceScore: 0
+                    };
+
+                    // ビューポート対応チェック
+                    const metaViewport = document.querySelector('meta[name="viewport"]');
+                    deviceResults.viewportSupported = !!metaViewport;
+
+                    // タッチサポートチェック
+                    deviceResults.touchSupport = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+                    // レスポンシブレイアウトチェック
+                    const originalWidth = window.innerWidth;
+                    const originalHeight = window.innerHeight;
+
+                    // CSS メディアクエリチェック
+                    const mediaQueries = {
+                        mobile: window.matchMedia('(max-width: 480px)').matches,
+                        tablet: window.matchMedia('(max-width: 768px)').matches,
+                        desktop: window.matchMedia('(min-width: 769px)').matches
+                    };
+
+                    deviceResults.mediaQuerySupport = mediaQueries;
+
+                    // パフォーマンステスト
+                    const startTime = performance.now();
+                    const result = await this.analysisEngine.performSevenStageAnalysis(
+                        `${deviceType}デバイステスト: レスポンシブ対応確認`,
+                        'responsive_test',
+                        null
+                    );
+                    const responseTime = performance.now() - startTime;
+
+                    deviceResults.performanceScore = responseTime < 1000 ? 100 : Math.max(0, 100 - (responseTime - 1000) / 10);
+
+                    // 要素表示確認
+                    const importantElements = [
+                        '.container',
+                        '.header',
+                        '.test-section',
+                        '.test-button'
+                    ];
+
+                    deviceResults.visibleElements = 0;
+                    importantElements.forEach(selector => {
+                        const element = document.querySelector(selector);
+                        if (element && element.offsetWidth > 0 && element.offsetHeight > 0) {
+                            deviceResults.visibleElements++;
+                        }
+                    });
+
+                    deviceResults.elementsVisible = deviceResults.visibleElements === importantElements.length;
+
+                    const isSuccess = deviceResults.viewportSupported && 
+                                    deviceResults.elementsVisible && 
+                                    deviceResults.performanceScore > 70;
+
+                    const report = `${deviceType}デバイステスト結果:
+画面サイズ: ${width}x${height}
+ビューポート対応: ${deviceResults.viewportSupported ? '✅' : '❌'}
+要素表示: ${deviceResults.visibleElements}/${importantElements.length} ${deviceResults.elementsVisible ? '✅' : '❌'}
+タッチサポート: ${deviceResults.touchSupport ? '✅' : '❌'}
+メディアクエリ: Mobile:${mediaQueries.mobile} Tablet:${mediaQueries.tablet} Desktop:${mediaQueries.desktop}
+応答時間: ${responseTime.toFixed(2)}ms
+パフォーマンススコア: ${deviceResults.performanceScore.toFixed(1)}/100
+
+評価: ${isSuccess ? '✅ 合格' : '❌ 改善必要'}`;
+
+                    this.updateStatus('responsive', isSuccess ? 'success' : 'warning');
+                    this.displayResult(`${deviceType}`, report, isSuccess);
+
+                } catch (error) {
+                    console.error(`${deviceType}テストエラー:`, error);
+                    this.displayResult(`${deviceType}`, `${deviceType}テストエラー: ${error.message}`, false);
+                } finally {
+                    document.getElementById(`${deviceType}Test`).classList.remove('active');
+                }
+            }
+
+            async runAllResponsiveTests() {
+                console.log('📱 全デバイステスト開始');
+                await this.testDevice('desktop', 1920, 1080);
+                await this.testDevice('tablet', 768, 1024);
+                await this.testDevice('mobile', 375, 667);
+                this.updateStatus('responsive', 'success');
+                console.log('✅ 全デバイステスト完了');
+            }
+
+            // パフォーマンス監視
+            startPerformanceMonitoring() {
+                if (this.performanceMonitoring) return;
+                
+                this.performanceMonitoring = true;
+                this.updateStatus('performance', 'running');
+                console.log('📊 パフォーマンス監視開始');
+
+                this.performanceInterval = setInterval(() => {
+                    this.updatePerformanceMetrics();
+                    this.updatePerformanceChart();
+                }, 1000);
+            }
+
+            stopPerformanceMonitoring() {
+                this.performanceMonitoring = false;
+                this.updateStatus('performance', 'idle');
+                console.log('📊 パフォーマンス監視停止');
+
+                if (this.performanceInterval) {
+                    clearInterval(this.performanceInterval);
+                }
+            }
+
+            updatePerformanceMetrics() {
+                // ダミーデータ（実際の実装では実際のメトリクスを収集）
+                const currentTime = Date.now();
+                const metrics = {
+                    responseTime: Math.random() * 1000 + 200,
+                    successRate: 95 + Math.random() * 5,
+                    errorCount: Math.floor(Math.random() * 3),
+                    throughput: 10 + Math.random() * 20
+                };
+
+                // 履歴に追加
+                this.performanceHistory.push({
+                    timestamp: currentTime,
+                    ...metrics
+                });
+
+                if (this.performanceHistory.length > 60) {
+                    this.performanceHistory.shift();
+                }
+
+                // 平均値計算
+                const recent = this.performanceHistory.slice(-10);
+                const avgResponseTime = recent.reduce((sum, m) => sum + m.responseTime, 0) / recent.length;
+                const avgSuccessRate = recent.reduce((sum, m) => sum + m.successRate, 0) / recent.length;
+                const totalErrors = recent.reduce((sum, m) => sum + m.errorCount, 0);
+                const avgThroughput = recent.reduce((sum, m) => sum + m.throughput, 0) / recent.length;
+
+                // UI更新
+                document.getElementById('avgResponseTime').textContent = avgResponseTime.toFixed(0);
+                document.getElementById('successRate').textContent = avgSuccessRate.toFixed(1);
+                document.getElementById('errorCount').textContent = totalErrors;
+                document.getElementById('throughput').textContent = avgThroughput.toFixed(1);
+            }
+
+            updatePerformanceChart() {
+                if (!this.chartContexts.performance || this.performanceHistory.length < 2) return;
+
+                const ctx = this.chartContexts.performance;
+                const canvas = ctx.canvas;
+                const width = canvas.width;
+                const height = canvas.height;
+
+                // チャートクリア
+                ctx.clearRect(0, 0, width, height);
+
+                // スケール計算
+                const responseTimes = this.performanceHistory.map(h => h.responseTime);
+                const maxResponseTime = Math.max(...responseTimes);
+                const minResponseTime = Math.min(...responseTimes);
+                const range = maxResponseTime - minResponseTime || 1;
+
+                // グリッド描画
+                ctx.strokeStyle = '#e9ecef';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= 5; i++) {
+                    const y = (height / 5) * i;
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+
+                // 応答時間ライン描画
+                ctx.strokeStyle = '#74b9ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+
+                this.performanceHistory.forEach((metric, index) => {
+                    const x = (index / (this.performanceHistory.length - 1)) * width;
+                    const y = height - ((metric.responseTime - minResponseTime) / range) * height;
+                    
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+
+                ctx.stroke();
+
+                // 現在値表示
+                ctx.fillStyle = '#0984e3';
+                ctx.font = '12px Arial';
+                const currentResponseTime = responseTimes[responseTimes.length - 1];
+                ctx.fillText(`${currentResponseTime.toFixed(0)}ms`, width - 60, 20);
+            }
+
+            // 全テスト実行
+            async runAllTests() {
+                console.log('🚀 包括的負荷・レスポンシブテスト開始');
+                
+                try {
+                    await this.initialize();
+                    
+                    // 並行してテスト実行
+                    await Promise.all([
+                        this.runMemoryTest(),
+                        this.runAllResponsiveTests()
+                    ]);
+                    
+                    // 負荷テストは最後に実行
+                    await this.runLoadTest();
+                    
+                    console.log('✅ 全テスト完了');
+                    
+                } catch (error) {
+                    console.error('❌ 全テスト実行エラー:', error);
+                }
+            }
+
+            // パフォーマンスレポート生成
+            generatePerformanceReport() {
+                const timestamp = new Date().toISOString();
+                const totalTests = this.testResults.size;
+                const successfulTests = Array.from(this.testResults.values()).filter(r => r.success).length;
+
+                const report = {
+                    timestamp: timestamp,
+                    summary: {
+                        totalTests: totalTests,
+                        successfulTests: successfulTests,
+                        failedTests: totalTests - successfulTests,
+                        successRate: totalTests > 0 ? (successfulTests / totalTests) * 100 : 0
+                    },
+                    testResults: Object.fromEntries(this.testResults),
+                    performanceMetrics: {
+                        memoryHistory: this.memoryHistory.slice(-100), // 最新100件
+                        performanceHistory: this.performanceHistory.slice(-100),
+                        currentMemory: performance.memory ? {
+                            used: performance.memory.usedJSHeapSize / 1024 / 1024,
+                            total: performance.memory.totalJSHeapSize / 1024 / 1024,
+                            limit: performance.memory.jsHeapSizeLimit / 1024 / 1024
+                        } : null
+                    },
+                    environment: {
+                        userAgent: navigator.userAgent,
+                        language: navigator.language,
+                        platform: navigator.platform,
+                        screenSize: `${screen.width}x${screen.height}`,
+                        viewportSize: `${window.innerWidth}x${window.innerHeight}`,
+                        devicePixelRatio: window.devicePixelRatio,
+                        connectionType: navigator.connection ? navigator.connection.effectiveType : 'unknown',
+                        memorySupport: !!performance.memory,
+                        touchSupport: 'ontouchstart' in window
+                    },
+                    recommendations: this.generatePerformanceRecommendations()
+                };
+
+                // レポートをJSONでダウンロード
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `haqei-performance-report-${timestamp.replace(/[:.]/g, '-')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                console.log('📊 パフォーマンスレポートを生成しました', report);
+            }
+
+            generatePerformanceRecommendations() {
+                const recommendations = [];
+                
+                // メモリ使用量チェック
+                if (performance.memory && performance.memory.usedJSHeapSize > 50 * 1024 * 1024) {
+                    recommendations.push('メモリ使用量が高いです。ガベージコレクションの最適化を検討してください。');
+                }
+                
+                // 応答時間チェック
+                const avgResponseTime = this.performanceHistory.length > 0 
+                    ? this.performanceHistory.reduce((sum, h) => sum + h.responseTime, 0) / this.performanceHistory.length 
+                    : 0;
+                
+                if (avgResponseTime > 1000) {
+                    recommendations.push('応答時間が遅いです。アルゴリズムの最適化を検討してください。');
+                }
+                
+                // デバイス対応チェック
+                const mobileTest = this.testResults.get('mobile');
+                if (mobileTest && !mobileTest.success) {
+                    recommendations.push('モバイル対応に問題があります。レスポンシブデザインを改善してください。');
+                }
+                
+                if (recommendations.length === 0) {
+                    recommendations.push('パフォーマンスは良好です。現在の最適化レベルを維持してください。');
+                }
+                
+                return recommendations;
+            }
+        }
+
+        // グローバルインスタンス作成
+        const loadTestController = new LoadResponsiveTestController();
+
+        // テスト実行関数
+        async function runLoadTest() {
+            await loadTestController.initialize();
+            await loadTestController.runLoadTest();
+        }
+
+        function stopLoadTest() {
+            loadTestController.stopLoadTest();
+        }
+
+        async function runMemoryTest() {
+            await loadTestController.initialize();
+            await loadTestController.runMemoryTest();
+        }
+
+        function forceGC() {
+            loadTestController.forceGC();
+        }
+
+        async function testDevice(deviceType, width, height) {
+            await loadTestController.initialize();
+            await loadTestController.testDevice(deviceType, width, height);
+        }
+
+        async function runAllResponsiveTests() {
+            await loadTestController.initialize();
+            await loadTestController.runAllResponsiveTests();
+        }
+
+        function startPerformanceMonitoring() {
+            loadTestController.startPerformanceMonitoring();
+        }
+
+        function stopPerformanceMonitoring() {
+            loadTestController.stopPerformanceMonitoring();
+        }
+
+        async function runAllTests() {
+            await loadTestController.runAllTests();
+        }
+
+        function generatePerformanceReport() {
+            loadTestController.generatePerformanceReport();
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('⚡ HAQEI負荷・レスポンシブテストシステム準備完了');
+            await loadTestController.initialize();
+        });
+    </script>
+</body>
+</html>

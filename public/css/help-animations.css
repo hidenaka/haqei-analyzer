@@ -1,0 +1,1084 @@
+/**
+ * HAQEI Help System - Animation Styles
+ * 
+ * Smooth, performant animations for help system components
+ * - GPU-accelerated transitions
+ * - Accessibility-aware animations
+ * - Reduced motion support
+ * - Micro-interactions and feedback
+ */
+
+/* ============================
+   ANIMATION KEYFRAMES
+   ============================ */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes wiggle {
+  0%, 7% {
+    transform: rotateZ(0);
+  }
+  15% {
+    transform: rotateZ(-5deg);
+  }
+  20% {
+    transform: rotateZ(5deg);
+  }
+  25% {
+    transform: rotateZ(-5deg);
+  }
+  30% {
+    transform: rotateZ(5deg);
+  }
+  35% {
+    transform: rotateZ(-2deg);
+  }
+  40%, 100% {
+    transform: rotateZ(0);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.8), 0 0 30px rgba(37, 99, 235, 0.6);
+  }
+}
+
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+/* ============================
+   TOOLTIP ANIMATIONS
+   ============================ */
+
+.haqei-tooltip {
+  animation-fill-mode: both;
+}
+
+.haqei-tooltip.tooltip-visible {
+  animation-name: slideIn;
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.haqei-tooltip.tooltip-hiding {
+  animation-name: slideOut;
+  animation-duration: 0.2s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tooltip-content {
+  animation: fadeIn 0.4s ease 0.1s both;
+}
+
+.tooltip-arrow {
+  animation: scaleIn 0.2s ease 0.2s both;
+}
+
+/* Tooltip entrance variants */
+.haqei-tooltip.from-top {
+  animation-name: slideInFromTop;
+}
+
+.haqei-tooltip.from-bottom {
+  animation-name: slideInFromBottom;
+}
+
+.haqei-tooltip.from-left {
+  animation-name: slideInFromLeft;
+}
+
+.haqei-tooltip.from-right {
+  animation-name: slideInFromRight;
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================
+   MODAL ANIMATIONS
+   ============================ */
+
+.haqei-modal-overlay {
+  animation-fill-mode: both;
+}
+
+.haqei-modal-overlay.modal-visible {
+  animation: fadeIn 0.3s ease;
+}
+
+.haqei-modal-overlay.modal-hiding {
+  animation: fadeOut 0.3s ease;
+}
+
+.haqei-help-modal {
+  animation-fill-mode: both;
+}
+
+.haqei-help-modal.modal-enter {
+  animation: modalEnter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.haqei-help-modal.modal-exit {
+  animation: modalExit 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modalExit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+}
+
+/* Modal content animations */
+.modal-content {
+  animation: slideInFromLeft 0.5s ease 0.2s both;
+}
+
+.modal-sidebar {
+  animation: slideInFromRight 0.5s ease 0.3s both;
+}
+
+.modal-header {
+  animation: slideIn 0.4s ease 0.1s both;
+}
+
+.modal-footer {
+  animation: slideIn 0.4s ease 0.4s both;
+}
+
+/* Minimized modal animation */
+.haqei-help-modal.modal-minimized {
+  animation: minimizeModal 0.3s ease both;
+}
+
+@keyframes minimizeModal {
+  to {
+    transform: scale(0.8) translateY(20px);
+    opacity: 0.8;
+  }
+}
+
+/* ============================
+   TUTORIAL OVERLAY ANIMATIONS
+   ============================ */
+
+.haqei-tutorial-overlay {
+  animation-fill-mode: both;
+}
+
+.haqei-tutorial-overlay.overlay-visible {
+  animation: fadeIn 0.4s ease;
+}
+
+.haqei-tutorial-overlay.overlay-hiding {
+  animation: fadeOut 0.4s ease;
+}
+
+.tutorial-backdrop {
+  animation: fadeIn 0.3s ease;
+}
+
+.tutorial-spotlight {
+  animation: spotlightEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes spotlightEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.tutorial-card {
+  animation-fill-mode: both;
+}
+
+.overlay-visible .tutorial-card {
+  animation: tutorialCardEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+@keyframes tutorialCardEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Tutorial step transitions */
+.tutorial-card.step-changing {
+  animation: stepTransition 0.4s ease;
+}
+
+@keyframes stepTransition {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    transform: scale(0.98) translateY(-5px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Progress bar animation */
+.progress-fill {
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-bar {
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: progressShimmer 2s infinite;
+  transform: translateX(-100%);
+}
+
+@keyframes progressShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+/* Tutorial completion animation */
+.completion-message {
+  animation: completionEnter 0.6s ease both;
+}
+
+@keyframes completionEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.completion-icon {
+  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s both;
+}
+
+@keyframes bounceIn {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Tutorial hint animations */
+.tutorial-hint {
+  animation: hintEnter 0.3s ease both;
+}
+
+@keyframes hintEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+
+/* ============================
+   HELP BUTTON ANIMATIONS
+   ============================ */
+
+.haqei-help-button {
+  animation-fill-mode: both;
+}
+
+.haqei-help-button.button-visible {
+  animation: buttonEnter 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.haqei-help-button.button-hiding {
+  animation: buttonExit 0.3s ease;
+}
+
+@keyframes buttonEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes buttonExit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+}
+
+/* Help button hover animations */
+.haqei-help-button:hover {
+  animation: buttonHover 0.3s ease;
+}
+
+@keyframes buttonHover {
+  from {
+    transform: scale(1) translateY(0);
+  }
+  to {
+    transform: scale(1.05) translateY(-2px);
+  }
+}
+
+/* Help icon animations */
+.help-icon {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.haqei-help-button:hover .help-icon {
+  animation: iconBounce 0.6s ease;
+}
+
+@keyframes iconBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
+/* Pulse animation for help button */
+.help-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Notification badge animation */
+.help-notification-badge {
+  animation: badgeEnter 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes badgeEnter {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.badge-count {
+  animation: countPulse 1s ease-in-out infinite;
+}
+
+@keyframes countPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Help menu animations */
+.help-button-menu {
+  animation-fill-mode: both;
+}
+
+.help-button-menu.menu-visible {
+  animation: menuEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.help-button-menu.menu-hiding {
+  animation: menuExit 0.2s ease;
+}
+
+@keyframes menuEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes menuExit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+}
+
+/* Menu item animations */
+.help-action {
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.help-action::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(37, 99, 235, 0.1),
+    transparent
+  );
+  transition: left 0.3s ease;
+}
+
+.help-action:hover::before {
+  left: 100%;
+}
+
+.help-action:hover {
+  transform: translateX(4px);
+}
+
+/* Contextual help suggestions animation */
+.help-suggestions {
+  animation: suggestionsEnter 0.4s ease 0.1s both;
+}
+
+@keyframes suggestionsEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.suggestion-item {
+  transition: all 0.2s ease;
+  transform: translateX(0);
+}
+
+.suggestion-item:hover {
+  transform: translateX(4px);
+  animation: suggestionHighlight 0.3s ease;
+}
+
+@keyframes suggestionHighlight {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(37, 99, 235, 0.05);
+  }
+}
+
+/* ============================
+   INTERACTIVE ELEMENT ANIMATIONS
+   ============================ */
+
+/* Form animations */
+.tutorial-form {
+  animation: formEnter 0.4s ease both;
+}
+
+@keyframes formEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-field {
+  animation: fieldEnter 0.3s ease both;
+}
+
+.form-field:nth-child(1) { animation-delay: 0.1s; }
+.form-field:nth-child(2) { animation-delay: 0.2s; }
+.form-field:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes fieldEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.form-field input:focus {
+  animation: inputFocus 0.3s ease;
+}
+
+@keyframes inputFocus {
+  from {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.1);
+  }
+  to {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+}
+
+/* Quiz animations */
+.tutorial-quiz {
+  animation: quizEnter 0.4s ease both;
+}
+
+@keyframes quizEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.quiz-option {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.quiz-option:hover {
+  transform: translateX(4px);
+  animation: optionHighlight 0.3s ease;
+}
+
+@keyframes optionHighlight {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(37, 99, 235, 0.05);
+  }
+}
+
+.quiz-option input[type="radio"]:checked + span {
+  animation: optionSelect 0.3s ease;
+}
+
+@keyframes optionSelect {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Demo area animations */
+.tutorial-demo {
+  animation: demoEnter 0.5s ease both;
+}
+
+@keyframes demoEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.demo-area {
+  animation: demoAreaEnter 0.4s ease 0.2s both;
+}
+
+@keyframes demoAreaEnter {
+  from {
+    opacity: 0;
+    transform: rotateX(15deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateX(0);
+  }
+}
+
+/* ============================
+   LOADING AND TRANSITION STATES
+   ============================ */
+
+/* Loading spinner animation */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Content loading animation */
+.content-loading {
+  animation: loadingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Error state animation */
+.content-error {
+  animation: errorEnter 0.4s ease both;
+}
+
+@keyframes errorEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.content-error h3 {
+  animation: shake 0.5s ease 0.2s;
+}
+
+/* Success state animation */
+.help-notification {
+  animation: notificationEnter 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+}
+
+@keyframes notificationEnter {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* ============================
+   MICRO-INTERACTIONS
+   ============================ */
+
+/* Button micro-interactions */
+.btn-primary:active,
+.btn-secondary:active,
+.btn-success:active {
+  animation: buttonPress 0.1s ease;
+}
+
+@keyframes buttonPress {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0.98);
+  }
+}
+
+/* Link hover effect */
+.related-topics a {
+  position: relative;
+  overflow: hidden;
+}
+
+.related-topics a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition: width 0.3s ease;
+}
+
+.related-topics a:hover::after {
+  width: 100%;
+}
+
+/* Checkbox animation */
+.checkbox-label input[type="checkbox"] {
+  transition: all 0.2s ease;
+}
+
+.checkbox-label input[type="checkbox"]:checked {
+  animation: checkboxCheck 0.3s ease;
+}
+
+@keyframes checkboxCheck {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Settings toggle animation */
+.settings-item {
+  transition: all 0.2s ease;
+}
+
+.settings-item:hover {
+  transform: translateX(2px);
+}
+
+/* ============================
+   PERFORMANCE OPTIMIZATIONS
+   ============================ */
+
+/* Hardware acceleration */
+.haqei-tooltip,
+.haqei-help-modal,
+.tutorial-card,
+.haqei-help-button,
+.help-button-menu {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Smooth animations */
+.tutorial-spotlight,
+.progress-fill,
+.help-pulse {
+  will-change: transform, opacity;
+}
+
+/* ============================
+   ACCESSIBILITY FEATURES
+   ============================ */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .help-pulse,
+  .loading-spinner,
+  .progress-bar::after {
+    animation: none !important;
+  }
+  
+  .haqei-help-button:hover {
+    transform: none !important;
+  }
+}
+
+/* Focus animations */
+.haqei-help-button:focus,
+.help-action:focus,
+.suggestion-item:focus {
+  animation: focusGlow 0.3s ease;
+}
+
+@keyframes focusGlow {
+  from {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+  }
+  to {
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.4);
+  }
+}
+
+/* ============================
+   CUSTOM ANIMATION UTILITIES
+   ============================ */
+
+.animate-bounce-in {
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) both;
+}
+
+.animate-slide-up {
+  animation: slideIn 0.4s ease both;
+}
+
+.animate-slide-down {
+  animation: slideOut 0.4s ease both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease both;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.3s ease both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animate-scale-out {
+  animation: scaleOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animate-wiggle {
+  animation: wiggle 1s ease both;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}

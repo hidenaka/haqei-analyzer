@@ -8,6 +8,27 @@ class TripleOSEngine {
     this.trigramMapping = this.initializeTrigramMapping();
     this.initializeKeywordMaps();
     
+    // 🚀 Ultra-Performance Cache Manager Integration - 2025-08-04
+    this.cacheManager = new CacheManager({
+      maxSize: 5000,
+      defaultTTL: 1800000, // 30 minutes for OS calculations
+      enablePrefetch: true,
+      enableCompression: true,
+      enableAnalytics: true
+    });
+    
+    // 🔧 Performance Optimizer Integration
+    this.performanceOptimizer = new PerformanceOptimizer({
+      enableAutoTuning: true,
+      enablePredictiveOptimization: true,
+      enableResourceMonitoring: true,
+      enableWebWorkers: true,
+      optimizationThreshold: 500 // 500ms threshold for OS calculations
+    });
+    
+    // Initialize cache and optimizer
+    this.initializeCacheAndOptimizer();
+    
     // 易経ウルトラシンク・ロジックを初期化
     this.ichingLogic = new IChingUltraSyncLogic(dataManager);
     console.log("🔯 IChingUltraSyncLogic integrated into TripleOSEngine");

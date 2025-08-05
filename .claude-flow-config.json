@@ -1,0 +1,98 @@
+{
+  "haqei": {
+    "development": {
+      "templates": {
+        "requirements": "docs/development-system/01_要件壁打ちテンプレート.md",
+        "orchestration": "docs/development-system/02_エージェントオーケストレーション運用ガイド.md",
+        "testing": "docs/development-system/03_即時テスト実行フロー.md",
+        "parallel": "docs/development-system/04_並列開発タスク管理システム.md",
+        "documentation": "docs/development-system/05_日本語ドキュメントテンプレート.md",
+        "checklist": "docs/development-system/06_タスク完了チェックリスト自動化設計.md",
+        "report": "docs/development-system/07_最終報告書テンプレート.md"
+      },
+      "swarmPresets": {
+        "requirements": {
+          "description": "要件定義・仕様策定用",
+          "agents": ["haqei-requirements-analyst", "haqei-cto", "researcher", "bunenjin-strategy-navigator"],
+          "topology": "hierarchical",
+          "maxAgents": 4,
+          "hooks": {
+            "pre": "npx claude-flow@alpha memory retrieve --key 'haqei/template/requirements'",
+            "post": "npx claude-flow@alpha memory store --key 'haqei/requirements/latest'"
+          }
+        },
+        "development": {
+          "description": "並列開発実装用",
+          "agents": ["system-architect", "coder", "coder", "backend-dev", "mobile-dev", "tester", "task-orchestrator", "performance-benchmarker"],
+          "topology": "mesh",
+          "maxAgents": 8,
+          "hooks": {
+            "pre": "npx claude-flow@alpha memory retrieve --key 'haqei/template/orchestration'",
+            "post": "npx claude-flow@alpha memory store --key 'haqei/development/progress'"
+          }
+        },
+        "testing": {
+          "description": "テスト・品質保証用",
+          "agents": ["tester", "haqei-qa-tester", "performance-benchmarker", "code-analyzer", "production-validator"],
+          "topology": "hierarchical",
+          "maxAgents": 5,
+          "playwrightRequired": true,
+          "hooks": {
+            "pre": "npx claude-flow@alpha memory retrieve --key 'haqei/template/testing'",
+            "post": "npx claude-flow@alpha hooks post-test --playwright-only"
+          }
+        },
+        "quality": {
+          "description": "品質チェック・レビュー用",
+          "agents": ["reviewer", "code-analyzer", "security-manager", "documenter", "haqei-reporter"],
+          "topology": "star",
+          "maxAgents": 5,
+          "hooks": {
+            "pre": "npx claude-flow@alpha memory retrieve --key 'haqei/template/checklist'",
+            "post": "npx claude-flow@alpha hooks quality-report --format markdown"
+          }
+        },
+        "bunenjin": {
+          "description": "bunenjin哲学準拠開発用",
+          "agents": ["bunenjin-strategy-navigator", "haqei-iching-expert", "haqei-programmer", "haqei-requirements-analyst"],
+          "topology": "hierarchical",
+          "maxAgents": 4,
+          "hooks": {
+            "pre": "npx claude-flow@alpha memory retrieve --key 'haqei/philosophy/bunenjin'",
+            "post": "npx claude-flow@alpha memory store --key 'haqei/bunenjin/implementation'"
+          }
+        },
+        "fullstack": {
+          "description": "フルスタック統合開発用",
+          "agents": ["system-architect", "backend-dev", "mobile-dev", "coder", "coder", "api-docs", "cicd-engineer", "tester", "task-orchestrator"],
+          "topology": "hierarchical",
+          "maxAgents": 10,
+          "hooks": {
+            "pre": "npx claude-flow@alpha memory retrieve --key 'haqei/template/parallel'",
+            "post": "npx claude-flow@alpha memory store --key 'haqei/fullstack/status'"
+          }
+        }
+      },
+      "rules": {
+        "dateFormat": "YYYYMMDD",
+        "documentPath": "docs/development-system/",
+        "testingTool": "playwright",
+        "localhostForbidden": true,
+        "parallelExecution": true,
+        "maxParallelAgents": 10,
+        "todoMinimum": 5,
+        "languagePreference": "ja"
+      },
+      "automation": {
+        "checklistValidation": true,
+        "autoGenerateReport": true,
+        "qualityGates": {
+          "codeReview": true,
+          "testCoverage": 80,
+          "playwrightTest": true,
+          "documentation": true
+        }
+      }
+    }
+  }
+}

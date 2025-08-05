@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Future Simulator - Error Fix Validation Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .test-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .test-result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 4px solid #4CAF50;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border-left: 4px solid #f44336;
+        }
+        .warning {
+            background: rgba(255, 193, 7, 0.2);
+            border-left: 4px solid #FFC107;
+        }
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .scenario-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .scenario-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #FFD700;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- データベースファイルを読み込み -->
+    <script src="assets/H384H64database.js"></script>
+    
+    <div class="test-container">
+        <h1>🔧 HAQEI Future Simulator - Error Fix Validation Test</h1>
+        <p>シナリオ5,7,8の"undefined"表示エラー修正の検証テストを実行します。</p>
+        
+        <div class="test-section">
+            <h2>📊 進捗状況</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressText">準備中...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎯 個別テスト</h2>
+            <button class="test-button" onclick="testFallbackFunctions()">フォールバック機能テスト</button>
+            <button class="test-button" onclick="testScenarios578()">シナリオ5,7,8テスト</button>
+            <button class="test-button" onclick="testAllScenarios()">全8シナリオテスト</button>
+            <button class="test-button" onclick="testDataIntegrity()">データ整合性テスト</button>
+            <div id="testResults" class="test-result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎭 シナリオ別結果</h2>
+            <div class="scenario-grid" id="scenarioGrid">
+                <!-- シナリオカードが動的に生成される -->
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔍 詳細ログ</h2>
+            <div id="detailLog" class="test-result" style="max-height: 400px; overflow-y: auto; background: rgba(0, 0, 0, 0.3);"></div>
+        </div>
+    </div>
+
+    <script>
+        // テスト用の必要な関数をコピー（future_simulator.htmlから）
+        
+        // 重要！修正された関数群を含める
+        const findLineDataByNum = (hexNum, lineNum) => {
+            if (!window.H384_DATA || !Array.isArray(window.H384_DATA)) {
+                console.error('❌ H384_DATAが利用できません');
+                return null;
+            }
+            
+            const result = window.H384_DATA.find(
+                (line) => line.卦番号 === hexNum && line.爻数値 === lineNum
+            );
+            
+            if (!result) {
+                console.warn(`⚠️ 卦${hexNum}爻${lineNum}のデータが見つかりません`);
+                return createFallbackLineData(hexNum, lineNum, 0, "test");
+            }
+            
+            return result;
+        };
+        
+        // フォールバック機能付きの卦データ検索関数
+        const findHexDataWithFallback = (hexNum) => {
+            const hexData = window.H64_DATA || H64_DATA;
+            
+            if (!hexData) {
+                console.error('❌ H64_DATAが存在しません - フォールバック処理を実行');
+                return createFallbackHexData(hexNum);
+            }
+            
+            const result = hexData.find((hex) => hex.卦番号 === hexNum);
+            
+            if (result) {
+                return result;
+            } else {
+                console.warn(`⚠️ 卦${hexNum}のデータが見つかりません - フォールバック処理を実行`);
+                return createFallbackHexData(hexNum);
+            }
+        };
+        
+        // フォールバック用卦データ作成関数
+        const createFallbackHexData = (hexNum) => {
+            const hexNames = {
+                1: '乾為天', 2: '坤為地', 3: '水雷屯', 4: '山水蒙', 5: '水天需', 6: '天水訟', 7: '地水師', 8: '水地比',
+                9: '風天小畜', 10: '天澤履', 11: '地天泰', 12: '天地否', 13: '天火同人', 14: '火天大有', 15: '地山謙', 16: '雷地豫',
+                17: '澤雷隨', 18: '山風蠱', 19: '地澤臨', 20: '風地観', 21: '火雷噬嗑', 22: '山火賁', 23: '山地剥', 24: '地雷復',
+                25: '天雷无妄', 26: '山天大畜', 27: '山雷頤', 28: '澤風大過', 29: '坎為水', 30: '離為火', 31: '澤山咸', 32: '雷風恒',
+                33: '天山遯', 34: '雷天大壮', 35: '火地晋', 36: '地火明夷', 37: '風火家人', 38: '火澤睽', 39: '水山蹇', 40: '雷水解',
+                41: '山澤損', 42: '風雷益', 43: '澤天夬', 44: '天風姤', 45: '澤地萃', 46: '地風升', 47: '澤水困', 48: '水風井',
+                49: '澤火革', 50: '火風鼎', 51: '震為雷', 52: '艮為山', 53: '風山漸', 54: '雷澤帰妹', 55: '雷火豐', 56: '火山旅',
+                57: '巽為風', 58: '兌為澤', 59: '風水渙', 60: '水澤節', 61: '風澤中孚', 62: '雷山小過', 63: '水火既済', 64: '火水未済'
+            };
+
+            const hexName = hexNames[hexNum] || `卦${hexNum}`;
+            const lineChanges = calculateLineChangeManually(hexNum);
+            
+            return {
+                卦番号: hexNum,
+                名前: hexName,
+                初爻変: lineChanges.初爻変,
+                二爻変: lineChanges.二爻変,
+                三爻変: lineChanges.三爻変,
+                四爻変: lineChanges.四爻変,
+                五爻変: lineChanges.五爻変,
+                上爻変: lineChanges.上爻変,
+                __fallback: true
+            };
+        };
+        
+        // 爻変の手動計算関数
+        const calculateLineChangeManually = (hexNum) => {
+            const hexToBinary = {
+                1: '111111', 2: '000000', 3: '010001', 4: '100010', 5: '010111', 6: '111010', 7: '000010', 8: '010000',
+                9: '110111', 10: '111011', 11: '000111', 12: '111000', 13: '111101', 14: '101111', 15: '000100', 16: '001000',
+                17: '011001', 18: '100110', 19: '000011', 20: '110000', 21: '101001', 22: '100101', 23: '100000', 24: '000001',
+                25: '111001', 26: '100111', 27: '100001', 28: '011110', 29: '010010', 30: '101101', 31: '011100', 32: '001110',
+                33: '111100', 34: '001111', 35: '101000', 36: '000101', 37: '110101', 38: '101011', 39: '010100', 40: '001010',
+                41: '100011', 42: '110001', 43: '011111', 44: '111110', 45: '011000', 46: '000110', 47: '011010', 48: '010110',
+                49: '011101', 50: '101110', 51: '001001', 52: '100100', 53: '110100', 54: '001011', 55: '001101', 56: '101100',
+                57: '110110', 58: '011011', 59: '110010', 60: '010011', 61: '110011', 62: '001100', 63: '010101', 64: '101010'
+            };
+
+            const binaryToHex = {};
+            Object.keys(hexToBinary).forEach(key => {
+                binaryToHex[hexToBinary[key]] = parseInt(key);
+            });
+
+            const currentBinary = hexToBinary[hexNum];
+            if (!currentBinary) {
+                return { 初爻変: hexNum, 二爻変: hexNum, 三爻変: hexNum, 四爻変: hexNum, 五爻変: hexNum, 上爻変: hexNum };
+            }
+
+            const calculateChange = (binary, position) => {
+                const binaryArray = binary.split('');
+                binaryArray[position] = binaryArray[position] === '1' ? '0' : '1';
+                const newBinary = binaryArray.join('');
+                return binaryToHex[newBinary] || hexNum;
+            };
+
+            return {
+                初爻変: calculateChange(currentBinary, 0),
+                二爻変: calculateChange(currentBinary, 1),
+                三爻変: calculateChange(currentBinary, 2),
+                四爻変: calculateChange(currentBinary, 3),
+                五爻変: calculateChange(currentBinary, 4),
+                上爻変: calculateChange(currentBinary, 5)
+            };
+        };
+        
+        // フォールバック用爻データ作成関数
+        const createFallbackLineData = (hexNum, lineNum, step, choice) => {
+            const hexNames = {
+                1: '乾為天', 2: '坤為地', 3: '水雷屯', 4: '山水蒙', 5: '水天需', 6: '天水訟', 7: '地水師', 8: '水地比',
+                9: '風天小畜', 10: '天澤履', 11: '地天泰', 12: '天地否', 13: '天火同人', 14: '火天大有', 15: '地山謙', 16: '雷地豫',
+                17: '澤雷隨', 18: '山風蠱', 19: '地澤臨', 20: '風地観', 21: '火雷噬嗑', 22: '山火賁', 23: '山地剥', 24: '地雷復',
+                25: '天雷无妄', 26: '山天大畜', 27: '山雷頤', 28: '澤風大過', 29: '坎為水', 30: '離為火', 31: '澤山咸', 32: '雷風恒',
+                33: '天山遯', 34: '雷天大壮', 35: '火地晋', 36: '地火明夷', 37: '風火家人', 38: '火澤睽', 39: '水山蹇', 40: '雷水解',
+                41: '山澤損', 42: '風雷益', 43: '澤天夬', 44: '天風姤', 45: '澤地萃', 46: '地風升', 47: '澤水困', 48: '水風井',
+                49: '澤火革', 50: '火風鼎', 51: '震為雷', 52: '艮為山', 53: '風山漸', 54: '雷澤帰妹', 55: '雷火豐', 56: '火山旅',
+                57: '巽為風', 58: '兌為澤', 59: '風水渙', 60: '水澤節', 61: '風澤中孚', 62: '雷山小過', 63: '水火既済', 64: '火水未済'
+            };
+
+            const hexName = hexNames[hexNum] || `ERROR_卦${hexNum}`;
+            const lineNames = ["初", "二", "三", "四", "五", "上"];
+            const lineName = lineNames[lineNum - 1] || `ERROR_爻${lineNum}`;
+            
+            const baseScore = Math.max(25, Math.min(75, 50 + ((hexNum + lineNum) % 25)));
+            const riskScore = Math.max(-75, Math.min(-25, -50 + ((hexNum + lineNum) % 25)));
+            
+            return {
+                卦番号: hexNum,
+                卦名: hexName,
+                爻: lineName,  
+                爻数値: lineNum,
+                step: step,
+                choice: choice,
+                現代解釈の要約: `${hexName}の${lineName}爻の状況。フォールバックデータのため詳細情報は限定的ですが、基本的な指針を提供します。`,
+                S1_基本スコア: baseScore,
+                S2_ポテンシャル: baseScore + 5,
+                S3_安定性スコア: baseScore - 5,
+                S4_リスク: riskScore,
+                S5_主体性推奨スタンス: (hexNum + lineNum) % 2 === 0 ? '受動' : '能動',
+                S6_変動性スコア: 40 + ((hexNum + lineNum) % 20),
+                S7_総合評価スコア: Math.round((baseScore + (baseScore + 5) + (baseScore - 5)) / 3),
+                __fallback: true
+            };
+        };
+        
+        // テスト用の簡易パス生成関数
+        function generateTestPaths(startHex, startLine) {
+            const paths = [];
+            const startData = findLineDataByNum(startHex, startLine);
+            
+            // 8つのシナリオパスを生成
+            for (let i = 0; i < 8; i++) {
+                const path = [];
+                const isChangePath = i >= 4;
+                
+                // ステップ0: 現在地
+                path.push({
+                    ...startData,
+                    choice: isChangePath ? "change" : "stagnate"
+                });
+                
+                // ステップ1-3: 簡易生成
+                for (let step = 1; step <= 3; step++) {
+                    const nextLine = ((startLine + step - 1) % 6) + 1;
+                    const stepData = findLineDataByNum(startHex, nextLine);
+                    
+                    if (stepData) {
+                        path.push({
+                            ...stepData,
+                            step: step,
+                            choice: isChangePath ? "change" : "stagnate",
+                            爻数値: nextLine
+                        });
+                    } else {
+                        path.push(createFallbackLineData(startHex, nextLine, step, isChangePath ? "change" : "stagnate"));
+                    }
+                }
+                
+                paths.push(path);
+            }
+            
+            return paths;
+        }
+        
+        // テスト結果の表示
+        function displayTestResult(message, type = 'success') {
+            const resultDiv = document.getElementById('testResults');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            
+            resultDiv.textContent += logEntry;
+            resultDiv.className = `test-result ${type}`;
+            
+            // 詳細ログにも追加
+            const detailLog = document.getElementById('detailLog');
+            detailLog.textContent += logEntry;
+            detailLog.scrollTop = detailLog.scrollHeight;
+        }
+        
+        // 進捗更新
+        function updateProgress(percentage, text) {
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+        
+        // シナリオカード更新
+        function updateScenarioCard(scenarioId, status, result) {
+            let card = document.getElementById(`scenario-${scenarioId}`);
+            if (!card) {
+                const grid = document.getElementById('scenarioGrid');
+                card = document.createElement('div');
+                card.id = `scenario-${scenarioId}`;
+                card.className = 'scenario-card';
+                card.innerHTML = `
+                    <div class="scenario-title">シナリオ ${scenarioId}</div>
+                    <div id="scenario-${scenarioId}-status">準備中...</div>
+                    <div id="scenario-${scenarioId}-result"></div>
+                `;
+                grid.appendChild(card);
+            }
+            
+            document.getElementById(`scenario-${scenarioId}-status`).textContent = status;
+            document.getElementById(`scenario-${scenarioId}-result`).textContent = result;
+            
+            // 状況に応じてカードの色を変更
+            if (status.includes('✅')) {
+                card.style.borderColor = '#4CAF50';
+                card.style.background = 'rgba(76, 175, 80, 0.1)';
+            } else if (status.includes('❌')) {
+                card.style.borderColor = '#f44336';
+                card.style.background = 'rgba(244, 67, 54, 0.1)';
+            } else if (status.includes('⚠️')) {
+                card.style.borderColor = '#FFC107';
+                card.style.background = 'rgba(255, 193, 7, 0.1)';
+            }
+        }
+        
+        // フォールバック機能テスト
+        async function testFallbackFunctions() {
+            displayTestResult('🔄 フォールバック機能テストを開始...');
+            updateProgress(0, 'フォールバック機能テスト実行中...');
+            
+            let passCount = 0;
+            let totalTests = 4;
+            
+            try {
+                // テスト1: createFallbackHexData
+                const hexData = createFallbackHexData(99); // 存在しない卦番号
+                if (hexData && hexData.卦番号 === 99 && hexData.__fallback) {
+                    displayTestResult('✅ createFallbackHexData: 成功');
+                    passCount++;
+                } else {
+                    displayTestResult('❌ createFallbackHexData: 失敗', 'error');
+                }
+                
+                // テスト2: createFallbackLineData
+                const lineData = createFallbackLineData(1, 1, 0, 'test');
+                if (lineData && lineData.卦番号 === 1 && lineData.爻数値 === 1 && lineData.__fallback) {
+                    displayTestResult('✅ createFallbackLineData: 成功');
+                    passCount++;
+                } else {
+                    displayTestResult('❌ createFallbackLineData: 失敗', 'error');
+                }
+                
+                // テスト3: calculateLineChangeManually
+                const changes = calculateLineChangeManually(1);
+                if (changes && changes.初爻変 && changes.上爻変) {
+                    displayTestResult('✅ calculateLineChangeManually: 成功');
+                    passCount++;
+                } else {
+                    displayTestResult('❌ calculateLineChangeManually: 失敗', 'error');
+                }
+                
+                // テスト4: findHexDataWithFallback
+                const hexDataFallback = findHexDataWithFallback(999); // 存在しない卦番号
+                if (hexDataFallback && hexDataFallback.__fallback) {
+                    displayTestResult('✅ findHexDataWithFallback: 成功');
+                    passCount++;
+                } else {
+                    displayTestResult('❌ findHexDataWithFallback: 失敗', 'error');
+                }
+                
+                const successRate = (passCount / totalTests) * 100;
+                updateProgress(25, `フォールバック機能テスト完了 (${successRate}%)`);
+                displayTestResult(`🎯 フォールバック機能テスト完了: ${passCount}/${totalTests} 成功 (${successRate}%)`);
+                
+            } catch (error) {
+                displayTestResult(`❌ フォールバック機能テストでエラー: ${error.message}`, 'error');
+                updateProgress(25, 'フォールバック機能テストでエラー発生');
+            }
+        }
+        
+        // シナリオ5,7,8の個別テスト
+        async function testScenarios578() {
+            displayTestResult('🎯 シナリオ5,7,8の個別テストを開始...');
+            updateProgress(25, 'シナリオ5,7,8テスト実行中...');
+            
+            const problemScenarios = [5, 7, 8];
+            let passCount = 0;
+            
+            for (const scenarioId of problemScenarios) {
+                try {
+                    updateScenarioCard(scenarioId, '🔄 テスト中...', '');
+                    
+                    // テスト用パラメータ（シナリオに応じて調整）
+                    const testHex = scenarioId * 8; // テスト用卦番号
+                    const testLine = scenarioId % 6 + 1; // テスト用爻番号
+                    
+                    const paths = generateTestPaths(testHex, testLine);
+                    
+                    let hasUndefined = false;
+                    let undefinedCount = 0;
+                    
+                    // 各パスのundefinedチェック
+                    paths.forEach((path, pathIndex) => {
+                        path.forEach((step, stepIndex) => {
+                            Object.keys(step).forEach(key => {
+                                if (step[key] === undefined) {
+                                    hasUndefined = true;
+                                    undefinedCount++;
+                                    displayTestResult(`⚠️ シナリオ${scenarioId} パス${pathIndex} ステップ${stepIndex} ${key}: undefined`, 'warning');
+                                }
+                            });
+                        });
+                    });
+                    
+                    if (!hasUndefined) {
+                        updateScenarioCard(scenarioId, '✅ 成功', 'undefinedなし');
+                        displayTestResult(`✅ シナリオ${scenarioId}: undefined問題解決済み`);
+                        passCount++;
+                    } else {
+                        updateScenarioCard(scenarioId, '❌ 失敗', `undefined: ${undefinedCount}個`);
+                        displayTestResult(`❌ シナリオ${scenarioId}: まだundefinedが${undefinedCount}個存在`, 'error');
+                    }
+                    
+                } catch (error) {
+                    updateScenarioCard(scenarioId, '❌ エラー', error.message);
+                    displayTestResult(`❌ シナリオ${scenarioId}テストでエラー: ${error.message}`, 'error');
+                }
+            }
+            
+            const successRate = (passCount / problemScenarios.length) * 100;
+            updateProgress(50, `シナリオ5,7,8テスト完了 (${successRate}%)`);
+            displayTestResult(`🎯 シナリオ5,7,8テスト完了: ${passCount}/${problemScenarios.length} 成功 (${successRate}%)`);
+        }
+        
+        // 全8シナリオテスト
+        async function testAllScenarios() {
+            displayTestResult('🎭 全8シナリオテストを開始...');
+            updateProgress(50, '全8シナリオテスト実行中...');
+            
+            let passCount = 0;
+            const totalScenarios = 8;
+            
+            for (let scenarioId = 1; scenarioId <= totalScenarios; scenarioId++) {
+                try {
+                    updateScenarioCard(scenarioId, '🔄 テスト中...', '');
+                    
+                    const testHex = scenarioId * 6; // テスト用卦番号
+                    const testLine = scenarioId % 6 + 1; // テスト用爻番号
+                    
+                    const paths = generateTestPaths(testHex, testLine);
+                    
+                    let hasUndefined = false;
+                    let undefinedCount = 0;
+                    let hasValidMetaphor = false;
+                    
+                    // 各パスの詳細チェック
+                    paths.forEach((path, pathIndex) => {
+                        path.forEach((step, stepIndex) => {
+                            Object.keys(step).forEach(key => {
+                                if (step[key] === undefined) {
+                                    hasUndefined = true;
+                                    undefinedCount++;
+                                }
+                            });
+                            
+                            // メタファー（現代解釈の要約）の存在チェック
+                            if (step.現代解釈の要約 && step.現代解釈の要約 !== 'undefined') {
+                                hasValidMetaphor = true;
+                            }
+                        });
+                    });
+                    
+                    if (!hasUndefined && hasValidMetaphor) {
+                        updateScenarioCard(scenarioId, '✅ 成功', 'メタファー表示正常');
+                        passCount++;
+                    } else if (hasUndefined) {
+                        updateScenarioCard(scenarioId, '❌ 失敗', `undefined: ${undefinedCount}個`);
+                    } else if (!hasValidMetaphor) {
+                        updateScenarioCard(scenarioId, '⚠️ 警告', 'メタファー不完全');
+                    }
+                    
+                } catch (error) {
+                    updateScenarioCard(scenarioId, '❌ エラー', error.message);
+                    displayTestResult(`❌ シナリオ${scenarioId}テストでエラー: ${error.message}`, 'error');
+                }
+            }
+            
+            const successRate = (passCount / totalScenarios) * 100;
+            updateProgress(75, `全8シナリオテスト完了 (${successRate}%)`);
+            displayTestResult(`🎭 全8シナリオテスト完了: ${passCount}/${totalScenarios} 成功 (${successRate}%)`);
+        }
+        
+        // データ整合性テスト
+        async function testDataIntegrity() {
+            displayTestResult('🔍 データ整合性テストを開始...');
+            updateProgress(75, 'データ整合性テスト実行中...');
+            
+            let passCount = 0;
+            let totalTests = 3;
+            
+            try {
+                // テスト1: H384_DATAの存在確認
+                if (window.H384_DATA && Array.isArray(window.H384_DATA) && window.H384_DATA.length > 0) {
+                    displayTestResult(`✅ H384_DATA確認: ${window.H384_DATA.length}件のデータ`);
+                    passCount++;
+                } else {
+                    displayTestResult('❌ H384_DATAが正常に読み込まれていません', 'error');
+                }
+                
+                // テスト2: H64_DATAの存在確認
+                if ((window.H64_DATA && Array.isArray(window.H64_DATA)) || (typeof H64_DATA !== 'undefined' && Array.isArray(H64_DATA))) {
+                    const dataSource = window.H64_DATA || H64_DATA;
+                    displayTestResult(`✅ H64_DATA確認: ${dataSource.length}件のデータ`);
+                    passCount++;
+                } else {
+                    displayTestResult('❌ H64_DATAが正常に読み込まれていません', 'error');
+                }
+                
+                // テスト3: 基本的なデータ構造の確認
+                const sampleData = findLineDataByNum(1, 1);
+                if (sampleData && sampleData.卦名 && sampleData.現代解釈の要約) {
+                    displayTestResult('✅ データ構造確認: 基本フィールドが存在');
+                    passCount++;
+                } else {
+                    displayTestResult('⚠️ データ構造に問題がある可能性があります', 'warning');
+                }
+                
+                const successRate = (passCount / totalTests) * 100;
+                updateProgress(100, `データ整合性テスト完了 (${successRate}%)`);
+                displayTestResult(`🔍 データ整合性テスト完了: ${passCount}/${totalTests} 成功 (${successRate}%)`);
+                
+            } catch (error) {
+                displayTestResult(`❌ データ整合性テストでエラー: ${error.message}`, 'error');
+                updateProgress(100, 'データ整合性テストでエラー発生');
+            }
+        }
+        
+        // 初期化
+        window.addEventListener('load', () => {
+            displayTestResult('🚀 Error Fix Validation Test システム初期化完了');
+            updateProgress(0, '準備完了 - テストを実行してください');
+            
+            // データベースの基本確認
+            if (window.H384_DATA) {
+                displayTestResult(`📊 H384_DATA読み込み確認: ${window.H384_DATA.length}件`);
+            }
+            if (window.H64_DATA || (typeof H64_DATA !== 'undefined')) {
+                const dataSource = window.H64_DATA || H64_DATA;
+                displayTestResult(`📊 H64_DATA読み込み確認: ${dataSource.length}件`);
+            }
+        });
+    </script>
+</body>
+</html>

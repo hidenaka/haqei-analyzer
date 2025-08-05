@@ -855,11 +855,22 @@ class VirtualPersonaResultsView {
     }
     
     /**
-     * レポートを生成
+     * レポートを生成 (Extended Features統合版)
      */
     generateReport() {
         console.log('📊 Generating virtual persona report');
         
+        // Extended Features Managerが利用可能な場合はPDF出力を使用
+        if (window.extendedFeatures && window.extendedFeatures.isInitialized) {
+            try {
+                window.extendedFeatures.exportToPDF();
+                return;
+            } catch (error) {
+                console.warn('Extended PDF export failed, falling back to JSON:', error);
+            }
+        }
+        
+        // フォールバック: JSON形式でのレポート生成
         const reportData = {
             timestamp: new Date().toISOString(),
             personaName: this.generatePersonaName(),
@@ -881,7 +892,42 @@ class VirtualPersonaResultsView {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        alert('レポートをダウンロードしました！');
+        this.showNotification('📄 JSONレポートをダウンロードしました！');
+    }
+    
+    /**
+     * 通知表示
+     */
+    showNotification(message, type = 'success', duration = 5000) {
+        const notification = document.createElement('div');
+        notification.className = 'vp-notification';
+        notification.textContent = message;
+        
+        // スタイリング
+        Object.assign(notification.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            backgroundColor: type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : '#3B82F6',
+            color: 'white',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            zIndex: '10000',
+            fontSize: '14px',
+            fontFamily: 'Arial, sans-serif',
+            maxWidth: '300px',
+            wordWrap: 'break-word'
+        });
+        
+        document.body.appendChild(notification);
+        
+        // 自動削除
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, duration);
     }
     
     /**
@@ -936,6 +982,47 @@ class VirtualPersonaResultsView {
                     </div>
                 </div>
             `;
+        }
+    }
+    
+    /**
+     * Extended Features Managerの初期化
+     */
+    async initializeExtendedFeatures() {
+        try {
+            // Extended Features Managerが利用可能かチェック
+            if (typeof ExtendedFeaturesManager !== 'undefined' && this.analysisResult) {
+                console.log('🚀 Initializing Extended Features Manager...');
+                
+                // 少し遅延させて他の初期化を待つ
+                setTimeout(async () => {
+                    try {
+                        if (!window.extendedFeatures) {
+                            window.extendedFeatures = new ExtendedFeaturesManager({
+                                privacyMode: true,
+                                enableAdvancedAnalytics: true,
+                                autoSaveResults: true
+                            });
+                            
+                            await window.extendedFeatures.init(this.analysisResult);
+                            console.log('✅ Extended Features Manager initialized successfully');
+                            
+                            // 自動保存結果
+                            if (window.extendedFeatures.historyManager) {
+                                await window.extendedFeatures.saveCurrentResult(this.analysisResult, {
+                                    sessionType: 'virtual_persona_results',
+                                    userAgent: navigator.userAgent,
+                                    timestamp: new Date().toISOString()
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.warn('⚠️ Extended Features Manager initialization failed:', error);
+                    }
+                }, 1000);
+            }
+        } catch (error) {
+            console.warn('⚠️ Extended Features not available:', error);
         }
     }
     

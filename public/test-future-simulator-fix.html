@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Simulator Fix Test</title>
+</head>
+<body>
+    <h1>Future Simulator 修正確認テスト</h1>
+    
+    <h2>修正内容：</h2>
+    <ul>
+        <li>985行目の余分な &gt;&lt;/div&gt; タグを削除</li>
+        <li>986行目の余分な &lt;/div&gt; タグを削除</li>
+    </ul>
+    
+    <h2>テスト手順：</h2>
+    <ol>
+        <li>ブラウザでfuture_simulator.htmlを開く</li>
+        <li>「システムを初期化中...」の画面が表示される</li>
+        <li>初期化が完了し、メイン画面が表示される</li>
+        <li>AI解析ボタンをクリックできる</li>
+    </ol>
+    
+    <iframe src="future_simulator.html" width="100%" height="600" style="border: 1px solid #ccc;"></iframe>
+    
+    <script>
+        // iframeの読み込み状態を監視
+        const iframe = document.querySelector('iframe');
+        iframe.onload = function() {
+            console.log('Future Simulator loaded successfully');
+            
+            // エラーを監視
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                console.log('Page title:', iframeDoc.title);
+                
+                // 初期化の完了を確認
+                setTimeout(() => {
+                    const loadingScreen = iframeDoc.getElementById('loading-screen');
+                    if (loadingScreen && loadingScreen.style.display === 'none') {
+                        console.log('✅ 初期化が正常に完了しました');
+                    } else {
+                        console.log('⚠️ まだ初期化中です');
+                    }
+                }, 3000);
+            } catch (e) {
+                console.error('iframe access error:', e);
+            }
+        };
+    </script>
+</body>
+</html>

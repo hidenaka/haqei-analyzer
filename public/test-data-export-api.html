@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataExportAPI テスト</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./js/core/DataPersistenceManager.js"></script>
+    <script src="./js/core/DataExportAPI.js"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">DataExportAPI テスト</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 初期化テスト -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">1. システム初期化テスト</h2>
+                <button id="testInitBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded mb-2">
+                    初期化テスト実行
+                </button>
+                <div id="initResult" class="text-sm bg-gray-700 p-3 rounded min-h-16"></div>
+            </div>
+            
+            <!-- テストデータ作成 -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">2. テストデータ作成</h2>
+                <button id="createTestDataBtn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded mb-2">
+                    テストデータ作成
+                </button>
+                <div id="testDataResult" class="text-sm bg-gray-700 p-3 rounded min-h-16"></div>
+            </div>
+            
+            <!-- JSONエクスポートテスト -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">3. JSONエクスポートテスト</h2>
+                <button id="testJSONExportBtn" class="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded mb-2">
+                    JSON形式エクスポート
+                </button>
+                <div id="jsonExportResult" class="text-sm bg-gray-700 p-3 rounded min-h-16"></div>
+            </div>
+            
+            <!-- CSVエクスポートテスト -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">4. CSVエクスポートテスト</h2>
+                <button id="testCSVExportBtn" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded mb-2">
+                    CSV形式エクスポート
+                </button>
+                <div id="csvExportResult" class="text-sm bg-gray-700 p-3 rounded min-h-16"></div>
+            </div>
+            
+            <!-- PDF準備データテスト -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">5. PDF準備データテスト</h2>
+                <button id="testPDFExportBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded mb-2">
+                    PDF準備データ生成
+                </button>
+                <div id="pdfExportResult" class="text-sm bg-gray-700 p-3 rounded min-h-16"></div>
+            </div>
+            
+            <!-- パフォーマンステスト -->
+            <div class="bg-gray-800 p-6 rounded-lg">
+                <h2 class="text-xl font-semibold mb-4">6. パフォーマンステスト</h2>
+                <button id="testPerformanceBtn" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded mb-2">
+                    パフォーマンス測定
+                </button>
+                <div id="performanceResult" class="text-sm bg-gray-700 p-3 rounded min-h-16"></div>
+            </div>
+        </div>
+        
+        <!-- 統計情報 -->
+        <div class="bg-gray-800 p-6 rounded-lg mt-6">
+            <h2 class="text-xl font-semibold mb-4">システム統計</h2>
+            <button id="showStatsBtn" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded mb-2">
+                統計情報表示
+            </button>
+            <div id="statsResult" class="text-sm bg-gray-700 p-3 rounded min-h-16"></div>
+        </div>
+    </div>
+
+    <script>
+        let dataExportAPI = null;
+        let dataPersistence = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            // テストボタンのイベントリスナー設定
+            document.getElementById('testInitBtn').addEventListener('click', testInitialization);
+            document.getElementById('createTestDataBtn').addEventListener('click', createTestData);
+            document.getElementById('testJSONExportBtn').addEventListener('click', testJSONExport);
+            document.getElementById('testCSVExportBtn').addEventListener('click', testCSVExport);
+            document.getElementById('testPDFExportBtn').addEventListener('click', testPDFExport);
+            document.getElementById('testPerformanceBtn').addEventListener('click', testPerformance);
+            document.getElementById('showStatsBtn').addEventListener('click', showStatistics);
+        });
+        
+        // 1. 初期化テスト
+        async function testInitialization() {
+            const resultDiv = document.getElementById('initResult');
+            resultDiv.innerHTML = '初期化中...';
+            
+            try {
+                console.log('🧪 DataExportAPI初期化テスト開始');
+                
+                // DataPersistenceManager初期化
+                if (window.DataPersistenceManager) {
+                    dataPersistence = new window.DataPersistenceManager();
+                    const persistenceResult = await dataPersistence.initialize();
+                    console.log('DataPersistenceManager初期化結果:', persistenceResult);
+                }
+                
+                // DataExportAPI初期化
+                if (window.DataExportAPI) {
+                    dataExportAPI = new window.DataExportAPI();
+                    const exportResult = await dataExportAPI.initialize();
+                    
+                    if (exportResult.success) {
+                        resultDiv.innerHTML = `
+                            ✅ 初期化成功<br>
+                            - 初期化時間: ${exportResult.initializationTime.toFixed(2)}ms<br>
+                            - DataPersistence: ${exportResult.features.dataPersistence ? '✅' : '❌'}<br>
+                            - WebWorker: ${exportResult.features.webWorker ? '✅' : '❌'}<br>
+                            - 暗号化: ${exportResult.features.encryption ? '✅' : '❌'}
+                        `;
+                    } else {
+                        throw new Error(exportResult.message);
+                    }
+                } else {
+                    throw new Error('DataExportAPIクラスが見つかりません');
+                }
+                
+            } catch (error) {
+                console.error('❌ 初期化テストエラー:', error);
+                resultDiv.innerHTML = `❌ エラー: ${error.message}`;
+            }
+        }
+        
+        // 2. テストデータ作成
+        async function createTestData() {
+            const resultDiv = document.getElementById('testDataResult');
+            resultDiv.innerHTML = 'テストデータ作成中...';
+            
+            try {
+                if (!dataPersistence) {
+                    throw new Error('DataPersistenceManagerが初期化されていません');
+                }
+                
+                console.log('🧪 テストデータ作成開始');
+                
+                // テスト用分析データ生成
+                const testAnalyses = [];
+                for (let i = 0; i < 10; i++) {
+                    const analysisData = {
+                        inputAnalysis: {
+                            originalText: `テスト分析 ${i + 1}`,
+                            textLength: 50 + i * 10,
+                            complexity: i % 3 === 0 ? 'high' : i % 3 === 1 ? 'medium' : 'low'
+                        },
+                        finalResult: {
+                            hexagram: (i % 64) + 1,
+                            line: (i % 6) + 1,
+                            confidence: 0.7 + (i * 0.03),
+                            reasoning: `テスト推論 ${i + 1}`,
+                            tripleOSIntegration: {
+                                engine: 'test-engine',
+                                interface: 'test-interface',
+                                safeMode: i % 2 === 0
+                            }
+                        },
+                        stageResults: {
+                            stage1: { result: `stage1_result_${i}` },
+                            stage2: { result: `stage2_result_${i}` },
+                            stage3: { result: `stage3_result_${i}` }
+                        },
+                        qualityMetrics: {
+                            overallScore: 0.8 + (i * 0.02),
+                            accuracy: 0.75 + (i * 0.025)
+                        },
+                        systemInfo: {
+                            version: '1.0.0-test',
+                            timestamp: Date.now() - (i * 60000)
+                        }
+                    };
+                    
+                    // パターンデータ
+                    const patterns = [
+                        {
+                            type: `pattern_type_${i}`,
+                            patternData: { 
+                                content: `Pattern content ${i}`,
+                                confidence: 0.8 + (i * 0.01)
+                            }
+                        }
+                    ];
+                    
+                    // ユーザープロファイル（テスト用）
+                    const userProfile = {
+                        testUser: true,
+                        userId: `test_user_${i}`,
+                        preferences: {
+                            language: 'ja',
+                            complexity: analysisData.inputAnalysis.complexity
+                        }
+                    };
+                    
+                    // データ保存
+                    const saveResult = await dataPersistence.saveAnalysisResult(
+                        analysisData, 
+                        patterns, 
+                        userProfile
+                    );
+                    
+                    if (saveResult.success) {
+                        testAnalyses.push({
+                            analysisId: saveResult.analysisId,
+                            ...analysisData
+                        });
+                    }
+                }
+                
+                resultDiv.innerHTML = `
+                    ✅ テストデータ作成完了<br>
+                    - 作成件数: ${testAnalyses.length}件<br>
+                    - 保存成功: ${testAnalyses.length}件<br>
+                    - 易経分布: 1-${Math.max(...testAnalyses.map(a => a.finalResult.hexagram))}番<br>
+                    - 信頼度範囲: ${Math.min(...testAnalyses.map(a => a.finalResult.confidence)).toFixed(2)}-${Math.max(...testAnalyses.map(a => a.finalResult.confidence)).toFixed(2)}
+                `;
+                
+            } catch (error) {
+                console.error('❌ テストデータ作成エラー:', error);
+                resultDiv.innerHTML = `❌ エラー: ${error.message}`;
+            }
+        }
+        
+        // 3. JSONエクスポートテスト
+        async function testJSONExport() {
+            const resultDiv = document.getElementById('jsonExportResult');
+            resultDiv.innerHTML = 'JSONエクスポート中...';
+            
+            try {
+                if (!dataExportAPI) {
+                    throw new Error('DataExportAPIが初期化されていません');
+                }
+                
+                console.log('🧪 JSONエクスポートテスト開始');
+                
+                const startTime = performance.now();
+                const result = await dataExportAPI.exportCompleteData({
+                    format: 'json',
+                    includePatterns: true,
+                    anonymize: true,
+                    compress: false
+                });
+                const exportTime = performance.now() - startTime;
+                
+                if (result.success) {
+                    const dataSize = JSON.stringify(result.data).length;
+                    
+                    resultDiv.innerHTML = `
+                        ✅ JSONエクスポート成功<br>
+                        - レコード数: ${result.metadata.recordsCount}件<br>
+                        - エクスポート時間: ${exportTime.toFixed(2)}ms<br>
+                        - データサイズ: ${formatFileSize(dataSize)}<br>
+                        - Gemini API準備: ${result.metadata.geminiApiReady ? '✅' : '❌'}<br>
+                        - バージョン: ${result.metadata.version}
+                    `;
+                    
+                    // サンプルデータ表示
+                    console.log('JSONエクスポート結果サンプル:', result.data);
+                } else {
+                    throw new Error(result.error);
+                }
+                
+            } catch (error) {
+                console.error('❌ JSONエクスポートエラー:', error);
+                resultDiv.innerHTML = `❌ エラー: ${error.message}`;
+            }
+        }
+        
+        // 4. CSVエクスポートテスト
+        async function testCSVExport() {
+            const resultDiv = document.getElementById('csvExportResult');
+            resultDiv.innerHTML = 'CSVエクスポート中...';
+            
+            try {
+                if (!dataExportAPI) {
+                    throw new Error('DataExportAPIが初期化されていません');
+                }
+                
+                console.log('🧪 CSVエクスポートテスト開始');
+                
+                const startTime = performance.now();
+                const result = await dataExportAPI.exportToCSV({
+                    includeHeaders: true,
+                    anonymize: true,
+                    delimiter: ','
+                });
+                const exportTime = performance.now() - startTime;
+                
+                if (result.success) {
+                    const lines = result.data.split('\n');
+                    
+                    resultDiv.innerHTML = `
+                        ✅ CSVエクスポート成功<br>
+                        - レコード数: ${result.metadata.recordsCount}件<br>
+                        - エクスポート時間: ${exportTime.toFixed(2)}ms<br>
+                        - データサイズ: ${formatFileSize(result.metadata.dataSize)}<br>
+                        - 行数: ${lines.length}行<br>
+                        - エンコーディング: ${result.metadata.encoding}
+                    `;
+                    
+                    // CSVサンプル表示
+                    console.log('CSVエクスポート結果サンプル:', lines.slice(0, 5).join('\n'));
+                } else {
+                    throw new Error(result.error);
+                }
+                
+            } catch (error) {
+                console.error('❌ CSVエクスポートエラー:', error);
+                resultDiv.innerHTML = `❌ エラー: ${error.message}`;
+            }
+        }
+        
+        // 5. PDF準備データテスト
+        async function testPDFExport() {
+            const resultDiv = document.getElementById('pdfExportResult');
+            resultDiv.innerHTML = 'PDF準備データ生成中...';
+            
+            try {
+                if (!dataExportAPI) {
+                    throw new Error('DataExportAPIが初期化されていません');
+                }
+                
+                console.log('🧪 PDF準備データテスト開始');
+                
+                const startTime = performance.now();
+                const result = await dataExportAPI.preparePDFReportData({
+                    includeCharts: true,
+                    includeStatistics: true,
+                    anonymize: true,
+                    language: 'ja'
+                });
+                const exportTime = performance.now() - startTime;
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        ✅ PDF準備データ生成成功<br>
+                        - レコード数: ${result.metadata.recordsCount}件<br>
+                        - 生成時間: ${exportTime.toFixed(2)}ms<br>
+                        - 言語: ${result.metadata.language}<br>
+                        - チャート含有: ${result.metadata.chartsIncluded ? '✅' : '❌'}<br>
+                        - レポートセクション: ${Object.keys(result.data).length}個
+                    `;
+                    
+                    // PDF準備データサンプル表示
+                    console.log('PDF準備データ結果サンプル:', result.data);
+                } else {
+                    throw new Error(result.error);
+                }
+                
+            } catch (error) {
+                console.error('❌ PDF準備データエラー:', error);
+                resultDiv.innerHTML = `❌ エラー: ${error.message}`;
+            }
+        }
+        
+        // 6. パフォーマンステスト
+        async function testPerformance() {
+            const resultDiv = document.getElementById('performanceResult');
+            resultDiv.innerHTML = 'パフォーマンステスト実行中...';
+            
+            try {
+                if (!dataExportAPI) {
+                    throw new Error('DataExportAPIが初期化されていません');
+                }
+                
+                console.log('🧪 パフォーマンステスト開始');
+                
+                // 複数回のエクスポートでパフォーマンス測定
+                const results = [];
+                const iterations = 3;
+                
+                for (let i = 0; i < iterations; i++) {
+                    const startTime = performance.now();
+                    const result = await dataExportAPI.exportCompleteData({
+                        format: 'json',
+                        anonymize: true,
+                        compress: true
+                    });
+                    const endTime = performance.now();
+                    
+                    if (result.success) {
+                        results.push({
+                            iteration: i + 1,
+                            time: endTime - startTime,
+                            recordsCount: result.metadata.recordsCount,
+                            dataSize: JSON.stringify(result.data).length
+                        });
+                    }
+                }
+                
+                // 統計計算
+                const avgTime = results.reduce((sum, r) => sum + r.time, 0) / results.length;
+                const maxTime = Math.max(...results.map(r => r.time));
+                const minTime = Math.min(...results.map(r => r.time));
+                const totalRecords = results[0]?.recordsCount || 0;
+                const recordsPerSecond = totalRecords / (avgTime / 1000);
+                
+                resultDiv.innerHTML = `
+                    ✅ パフォーマンステスト完了<br>
+                    - テスト回数: ${iterations}回<br>
+                    - 平均時間: ${avgTime.toFixed(2)}ms<br>
+                    - 最短時間: ${minTime.toFixed(2)}ms<br>
+                    - 最長時間: ${maxTime.toFixed(2)}ms<br>
+                    - 処理速度: ${recordsPerSecond.toFixed(2)}件/秒<br>
+                    - 性能目標: ${avgTime < 5000 ? '✅ 達成' : '❌ 未達成'} (5秒以内)
+                `;
+                
+            } catch (error) {
+                console.error('❌ パフォーマンステストエラー:', error);
+                resultDiv.innerHTML = `❌ エラー: ${error.message}`;
+            }
+        }
+        
+        // 統計情報表示
+        async function showStatistics() {
+            const resultDiv = document.getElementById('statsResult');
+            resultDiv.innerHTML = '統計情報取得中...';
+            
+            try {
+                if (!dataExportAPI) {
+                    throw new Error('DataExportAPIが初期化されていません');
+                }
+                
+                const stats = dataExportAPI.getPerformanceStatistics();
+                
+                resultDiv.innerHTML = `
+                    📊 システム統計情報<br>
+                    <strong>エクスポート統計:</strong><br>
+                    - 総エクスポート回数: ${stats.exports.total}回<br>
+                    - 成功率: ${stats.exports.successRate.toFixed(1)}%<br>
+                    - 平均エクスポート時間: ${stats.performance.averageExportTime.toFixed(2)}ms<br>
+                    - 総エクスポートサイズ: ${formatFileSize(stats.performance.totalBytesExported)}<br>
+                    <strong>システム機能:</strong><br>
+                    - WebWorker: ${stats.system.webWorkerEnabled ? '✅' : '❌'}<br>
+                    - 圧縮: ${stats.system.compressionEnabled ? '✅' : '❌'}<br>
+                    - 暗号化: ${stats.system.encryptionEnabled ? '✅' : '❌'}
+                `;
+                
+            } catch (error) {
+                console.error('❌ 統計情報取得エラー:', error);
+                resultDiv.innerHTML = `❌ エラー: ${error.message}`;
+            }
+        }
+        
+        // ファイルサイズフォーマット
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

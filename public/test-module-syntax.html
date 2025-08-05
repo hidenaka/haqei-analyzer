@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Syntax Test</title>
+</head>
+<body>
+    <h1>Module Script Syntax Test</h1>
+    <div id="status">Testing...</div>
+    
+    <!-- Test the exact module script pattern from future_simulator.html -->
+    <script type="module">
+        console.log('Module script started');
+        
+        // Test the production environment check
+        const isProductionEnvironment = () => {
+            return location.hostname !== 'localhost' && 
+                   location.hostname !== '127.0.0.1' && 
+                   !location.hostname.includes('dev') &&
+                   location.protocol === 'https:';
+        };
+        
+        console.log('isProductionEnvironment defined');
+        
+        // Test the SENTRY configuration
+        if (isProductionEnvironment()) {
+            console.log('Production environment detected');
+        } else {
+            console.log('Development environment detected');
+        }
+        
+        // Test DOMContentLoaded handler
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded fired in module');
+            document.getElementById('status').textContent = 'Module script executed successfully!';
+        });
+        
+        console.log('Module script completed');
+    </script>
+</body>
+</html>

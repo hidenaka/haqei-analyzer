@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Syntax Test - Fixed</title>
+</head>
+<body>
+    <div id="test-status">Loading...</div>
+    <div id="error-log"></div>
+    
+    <script>
+        const testStatus = document.getElementById('test-status');
+        const errorLog = document.getElementById('error-log');
+        
+        // Test loading the fixed future_simulator.html
+        fetch('future_simulator.html')
+            .then(response => response.text())
+            .then(html => {
+                // Extract and test the module script
+                const moduleScriptMatch = html.match(/<script type="module">([\s\S]*?)<\/script>/);
+                if (moduleScriptMatch) {
+                    try {
+                        // Create a test function to check syntax
+                        const testFunc = new Function(moduleScriptMatch[1]);
+                        testStatus.textContent = '✅ Syntax is valid! No errors found.';
+                        testStatus.style.color = 'green';
+                    } catch (error) {
+                        testStatus.textContent = '❌ Syntax error still exists';
+                        testStatus.style.color = 'red';
+                        errorLog.textContent = 'Error: ' + error.message;
+                    }
+                } else {
+                    testStatus.textContent = '⚠️ Could not find module script';
+                    testStatus.style.color = 'orange';
+                }
+            })
+            .catch(error => {
+                testStatus.textContent = '❌ Failed to load file';
+                errorLog.textContent = 'Error: ' + error.message;
+            });
+    </script>
+</body>
+</html>

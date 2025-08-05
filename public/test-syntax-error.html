@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Syntax Error Test</title>
+</head>
+<body>
+    <h1>Testing Syntax Error</h1>
+    
+    <script>
+        console.log('Before error');
+        // This should cause "Unexpected end of input"
+        try {
+            eval('function test() {');
+        } catch (e) {
+            console.error('Caught error:', e.message);
+        }
+        console.log('After error');
+    </script>
+</body>
+</html>

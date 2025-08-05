@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Tutorial Integration Examples</title>
+    <style>
+        body { 
+            font-family: 'Hiragino Kaku Gothic ProN', sans-serif; 
+            line-height: 1.6; 
+            margin: 20px;
+            background: #f8fafc;
+        }
+        .example-section { 
+            background: white; 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .code-block { 
+            background: #1f2937; 
+            color: #f9fafb; 
+            padding: 15px; 
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Monaco', monospace;
+            margin: 10px 0;
+        }
+        .demo-element {
+            border: 2px dashed #e2e8f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            position: relative;
+        }
+        .help-trigger {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .cultural-term {
+            color: #4f46e5;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .contextual-help-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #f59e0b;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 HAQEI Tutorial System - HTML Integration Examples</h1>
+    <p>実際のHTMLページにチュートリアル機能を統合する具体的なサンプル集</p>
+
+    <!-- =====================================
+         1. BASIC PAGE SETUP
+         ===================================== -->
+    <div class="example-section">
+        <h2>📄 1. 基本的なページ設定</h2>
+        <p>任意のHAQEIページにチュートリアル機能を追加する基本構成</p>
+        
+        <h3>HTML Head Section:</h3>
+        <div class="code-block">
+&lt;!-- ヘルプシステムのCSS --&gt;
+&lt;link rel="stylesheet" href="/js/help-system/ui/help-system.css"&gt;
+&lt;link rel="stylesheet" href="/js/help-system/ui/tutorial-overlay.css"&gt;
+
+&lt;!-- ヘルプシステムのJavaScript --&gt;
+&lt;script src="/js/help-system/core/HelpSystemCore.js"&gt;&lt;/script&gt;
+&lt;script src="/js/help-system/ui/TutorialOverlay.js"&gt;&lt;/script&gt;
+&lt;script src="/js/help-system/examples/integration-samples.js"&gt;&lt;/script&gt;
+        </div>
+
+        <h3>Body 終了前の初期化:</h3>
+        <div class="code-block">
+&lt;script&gt;
+document.addEventListener('DOMContentLoaded', function() {
+    // 自動初期化 - ページタイプを自動検出して適切な統合クラスを使用
+    console.log('🚀 HAQEI Tutorial System initializing...');
+});
+&lt;/script&gt;
+        </div>
+    </div>
+
+    <!-- =====================================
+         2. QUESTION FLOW INTEGRATION
+         ===================================== -->
+    <div class="example-section">
+        <h2>❓ 2. 質問フロー統合例</h2>
+        <p>質問画面でのチュートリアル機能統合例</p>
+
+        <h3>質問要素の例:</h3>
+        <div class="demo-element">
+            <div class="haqei-question-element" data-question-id="1">
+                <h3>質問1: 新しい環境に入った時、あなたは？</h3>
+                <p>この質問は<span class="cultural-term" data-term="易経">易経</span>の<span class="cultural-term" data-term="64卦">64卦</span>分析の基礎となります。</p>
+                
+                <div class="question-options">
+                    <button class="option-btn">A: 積極的に関わる</button>
+                    <button class="option-btn">B: まず様子を見る</button>
+                </div>
+                
+                <button class="contextual-help-btn" title="この質問のヘルプ">❓</button>
+            </div>
+        </div>
+
+        <div class="code-block">
+&lt;div class="haqei-question-element" data-question-id="1"&gt;
+    &lt;h3&gt;質問1: 新しい環境に入った時、あなたは？&lt;/h3&gt;
+    &lt;p&gt;この質問は&lt;span class="cultural-term" data-term="易経"&gt;易経&lt;/span&gt;の
+       &lt;span class="cultural-term" data-term="64卦"&gt;64卦&lt;/span&gt;分析の基礎となります。&lt;/p&gt;
+    
+    &lt;div class="question-options"&gt;
+        &lt;button class="option-btn"&gt;A: 積極的に関わる&lt;/button&gt;
+        &lt;button class="option-btn"&gt;B: まず様子を見る&lt;/button&gt;
+    &lt;/div&gt;
+    
+    &lt;!-- 自動的にヘルプボタンが追加されます --&gt;
+&lt;/div&gt;
+        </div>
+    </div>
+
+    <!-- =====================================
+         3. RESULTS PAGE INTEGRATION
+         ===================================== -->
+    <div class="example-section">
+        <h2>📊 3. 結果ページ統合例</h2>
+        <p>分析結果画面でのチュートリアル機能統合例</p>
+
+        <h3>卦表示エリア:</h3>
+        <div class="demo-element">
+            <div class="hexagram-display" data-hexagram="01">
+                <h3 class="hexagram-name">乾為天（けんいてん）</h3>
+                <div class="hexagram-visual">☰</div>
+                <p class="hexagram-description">創造的リーダーシップと継続的な自己改善の特性</p>
+                <!-- 詳細説明ボタンが自動追加されます -->
+            </div>
+        </div>
+
+        <h3>特性分析エリア:</h3>
+        <div class="demo-element">
+            <div class="trait-breakdown">
+                <div class="trait-item" data-trait="leadership">
+                    <h4>リーダーシップスタイル</h4>
+                    <div class="trait-score">85%</div>
+                    <p>主導型：積極的に方向性を示し、人を引っ張るタイプ</p>
+                </div>
+                
+                <div class="trait-item" data-trait="communication">
+                    <h4>コミュニケーション</h4>
+                    <div class="trait-score">72%</div>
+                    <p>直接型：要点を明確に、簡潔に伝えることを好む</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="code-block">
+&lt;div class="hexagram-display" data-hexagram="01"&gt;
+    &lt;h3 class="hexagram-name"&gt;乾為天（けんいてん）&lt;/h3&gt;
+    &lt;div class="hexagram-visual"&gt;☰&lt;/div&gt;
+    &lt;p class="hexagram-description"&gt;創造的リーダーシップと継続的な自己改善の特性&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class="trait-breakdown"&gt;
+    &lt;div class="trait-item" data-trait="leadership"&gt;
+        &lt;h4&gt;リーダーシップスタイル&lt;/h4&gt;
+        &lt;div class="trait-score"&gt;85%&lt;/div&gt;
+        &lt;p&gt;主導型：積極的に方向性を示し、人を引っ張るタイプ&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+        </div>
+    </div>
+
+    <!-- =====================================
+         4. CONTEXTUAL HELP TRIGGERS  
+         ===================================== -->
+    <div class="example-section">
+        <h2>🎯 4. コンテキストヘルプ・トリガー</h2>
+        <p>特定の要素や状況でのヘルプ表示例</p>
+
+        <h3>手動ヘルプトリガー:</h3>
+        <div class="demo-element">
+            <button class="help-trigger" onclick="showWelcomeTutorial()">
+                ウェルカムチュートリアル
+            </button>
+            <button class="help-trigger" onclick="showConceptsGuide()">
+                哲学的概念ガイド
+            </button>
+            <button class="help-trigger" onclick="showResultsHelp()">
+                結果の読み方
+            </button>
+            <button class="help-trigger" onclick="showTermGlossary()">
+                用語解説
+            </button>
+        </div>
+
+        <div class="code-block">
+&lt;!-- カスタムヘルプトリガー --&gt;
+&lt;button onclick="tutorialSystem.startTutorial('welcome-comprehensive')"&gt;
+    ウェルカムチュートリアル
+&lt;/button&gt;
+
+&lt;button onclick="helpSystem.showGlossary()"&gt;
+    用語解説
+&lt;/button&gt;
+
+&lt;button onclick="tutorialSystem.startTutorial('results-interpretation')"&gt;
+    結果の読み方
+&lt;/button&gt;
+        </div>
+
+        <h3>自動ヘルプトリガー（data属性による）:</h3>
+        <div class="code-block">
+&lt;!-- 初回訪問時に自動でチュートリアル開始 --&gt;
+&lt;div data-auto-tutorial="welcome-comprehensive" data-trigger="first-visit"&gt;
+    メインコンテンツ
+&lt;/div&gt;
+
+&lt;!-- 特定ページで自動でヘルプ表示 --&gt;
+&lt;div data-auto-tutorial="results-interpretation" data-trigger="results-loaded"&gt;
+    結果表示エリア
+&lt;/div&gt;
+
+&lt;!-- 長時間滞在時にヘルプを提案 --&gt;
+&lt;div data-smart-help="true" data-help-delay="5000"&gt;
+    複雑な概念の説明エリア
+&lt;/div&gt;
+        </div>
+    </div>
+
+    <!-- =====================================
+         5. PROGRESS TRACKING
+         ===================================== -->
+    <div class="example-section">
+        <h2>📈 5. 進捗追跡機能</h2>
+        <p>ユーザーの学習進捗を表示・管理する機能</p>
+
+        <h3>進捗表示エリア:</h3>
+        <div class="demo-element">
+            <div class="tutorial-progress" id="tutorialProgress">
+                <h4>📚 チュートリアル進捗</h4>
+                <div class="progress-item">
+                    <span>ウェルカムガイド</span>
+                    <span class="status completed">✅ 完了</span>
+                </div>
+                <div class="progress-item">
+                    <span>哲学的基礎</span>
+                    <span class="status in-progress">🔄 進行中 (3/5)</span>
+                </div>
+                <div class="progress-item">
+                    <span>結果の解釈</span>
+                    <span class="status pending">⭕ 未開始</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="code-block">
+&lt;div class="tutorial-progress" id="tutorialProgress"&gt;
+    &lt;h4&gt;📚 チュートリアル進捗&lt;/h4&gt;
+    &lt;!-- 進捗は JavaScript で動的に更新 --&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+// 進捗の動的更新
+function updateTutorialProgress() {
+    const progress = JSON.parse(localStorage.getItem('haqei-tutorial-progress') || '{}');
+    const progressContainer = document.getElementById('tutorialProgress');
+    
+    // 進捗表示の更新ロジック
+    displayProgressItems(progress, progressContainer);
+}
+&lt;/script&gt;
+        </div>
+    </div>
+
+    <!-- =====================================
+         6. MOBILE RESPONSIVE FEATURES
+         ===================================== -->
+    <div class="example-section">
+        <h2>📱 6. モバイル対応機能</h2>
+        <p>スマートフォンでの最適な体験のための実装例</p>
+
+        <div class="code-block">
+&lt;!-- モバイル専用のチュートリアル設定 --&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+
+&lt;style&gt;
+/* モバイル最適化のCSS */
+@media (max-width: 768px) {
+    .tutorial-card {
+        width: 95vw;
+        max-height: 80vh;
+        font-size: 16px; /* タップしやすいサイズ */
+    }
+    
+    .help-button {
+        width: 50px;
+        height: 50px;
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .tutorial-overlay {
+        padding: 10px;
+    }
+}
+&lt;/style&gt;
+
+&lt;script&gt;
+// モバイル検出とカスタマイズ
+if (/Mobi|Android/i.test(navigator.userAgent)) {
+    // モバイル専用の設定
+    tutorialSystem.setMobileMode(true);
+    tutorialSystem.setTouchOptimized(true);
+}
+&lt;/script&gt;
+        </div>
+    </div>
+
+    <!-- =====================================
+         7. ACCESSIBILITY FEATURES
+         ===================================== -->
+    <div class="example-section">
+        <h2>♿ 7. アクセシビリティ対応</h2>
+        <p>すべてのユーザーが利用できるようにするための実装例</p>
+
+        <div class="code-block">
+&lt;!-- スクリーンリーダー対応 --&gt;
+&lt;div class="tutorial-overlay" 
+     role="dialog" 
+     aria-labelledby="tutorial-title" 
+     aria-describedby="tutorial-content"
+     aria-hidden="true"&gt;
+    
+    &lt;div class="tutorial-card"&gt;
+        &lt;h3 id="tutorial-title"&gt;チュートリアルタイトル&lt;/h3&gt;
+        &lt;div id="tutorial-content"&gt;
+            チュートリアル内容
+        &lt;/div&gt;
+        
+        &lt;!-- キーボードナビゲーション対応 --&gt;
+        &lt;div class="tutorial-navigation" role="navigation"&gt;
+            &lt;button aria-label="前のステップ" tabindex="0"&gt;前へ&lt;/button&gt;
+            &lt;button aria-label="次のステップ" tabindex="0"&gt;次へ&lt;/button&gt;
+            &lt;button aria-label="チュートリアルをスキップ" tabindex="0"&gt;スキップ&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 高コントラスト・大文字対応 --&gt;
+&lt;style&gt;
+@media (prefers-contrast: high) {
+    .tutorial-card {
+        border: 3px solid #000;
+        background: #fff;
+        color: #000;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tutorial-overlay {
+        animation: none;
+        transition: none;
+    }
+}
+&lt;/style&gt;
+        </div>
+    </div>
+
+    <!-- =====================================
+         8. CUSTOM EVENT INTEGRATION
+         ===================================== -->
+    <div class="example-section">
+        <h2>⚡ 8. カスタムイベント統合</h2>
+        <p>HAQEIの特定のイベントに連動したチュートリアル表示</p>
+
+        <div class="code-block">
+&lt;script&gt;
+// HAQEIの分析完了イベントに連動
+document.addEventListener('haqei:analysisComplete', function(event) {
+    const { hexagram, traits } = event.detail;
+    
+    // 結果ページのチュートリアルを自動開始
+    if (!tutorialSystem.isCompleted('results-interpretation')) {
+        setTimeout(() => {
+            tutorialSystem.startTutorial('results-interpretation');
+        }, 2000);
+    }
+});
+
+// 質問の回答イベントに連動
+document.addEventListener('haqei:questionAnswered', function(event) {
+    const { questionIndex, totalQuestions } = event.detail;
+    
+    // 中間地点でのヘルプ提供
+    if (questionIndex === Math.floor(totalQuestions / 2)) {
+        tutorialSystem.showHint('質問の半分が完了しました。順調に進んでいます！');
+    }
+});
+
+// エラー発生時のヘルプ
+document.addEventListener('haqei:error', function(event) {
+    const { errorType, errorMessage } = event.detail;
+    
+    // エラーに応じたヘルプを表示
+    helpSystem.showErrorHelp(errorType, errorMessage);
+});
+
+// カスタムイベントの発火例
+function triggerTutorialEvent(eventName, data) {
+    const event = new CustomEvent(`haqei:${eventName}`, { detail: data });
+    document.dispatchEvent(event);
+}
+&lt;/script&gt;
+        </div>
+    </div>
+
+    <!-- =====================================
+         9. LOCALIZATION SUPPORT
+         ===================================== -->
+    <div class="example-section">
+        <h2>🌍 9. 多言語対応</h2>
+        <p>日本語以外の言語でのチュートリアル提供準備</p>
+
+        <div class="code-block">
+&lt;!-- 言語設定 --&gt;
+&lt;html lang="ja"&gt;
+&lt;script&gt;
+// 言語検出と設定
+const userLang = navigator.language || navigator.userLanguage;
+const supportedLangs = ['ja', 'en', 'zh', 'ko'];
+const currentLang = supportedLangs.includes(userLang.substr(0,2)) 
+    ? userLang.substr(0,2) : 'ja';
+
+// 言語別チュートリアルデータの読み込み
+tutorialSystem.setLanguage(currentLang);
+tutorialSystem.loadTutorialData(`/js/help-system/data/tutorials-${currentLang}.json`);
+
+// 言語切り替え関数
+function switchLanguage(lang) {
+    tutorialSystem.setLanguage(lang);
+    localStorage.setItem('haqei-language', lang);
+    location.reload();
+}
+&lt;/script&gt;
+
+&lt;!-- 言語切り替えUI --&gt;
+&lt;div class="language-selector"&gt;
+    &lt;button onclick="switchLanguage('ja')" class="lang-btn active"&gt;日本語&lt;/button&gt;
+    &lt;button onclick="switchLanguage('en')" class="lang-btn"&gt;English&lt;/button&gt;
+    &lt;button onclick="switchLanguage('zh')" class="lang-btn"&gt;中文&lt;/button&gt;
+    &lt;button onclick="switchLanguage('ko')" class="lang-btn"&gt;한국어&lt;/button&gt;
+&lt;/div&gt;
+        </div>
+    </div>
+
+    <!-- Demo JavaScript -->
+    <script>
+        // Demo functions for button clicks
+        function showWelcomeTutorial() {
+            alert('ウェルカムチュートリアルが開始されます。\n\n実際のシステムでは、7ステップの包括的なガイドが表示されます。');
+        }
+        
+        function showConceptsGuide() {
+            alert('哲学的概念ガイドが開始されます。\n\nTriple OS、bunenjin哲学、64卦システムについて詳しく学べます。');
+        }
+        
+        function showResultsHelp() {
+            alert('結果の読み方ガイドが開始されます。\n\n分析結果を実生活に活かす方法を詳しく説明します。');
+        }
+        
+        function showTermGlossary() {
+            alert('用語解説が表示されます。\n\n易経、64卦、分人など、重要な概念の詳細説明が利用できます。');
+        }
+
+        // Page load notification
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📚 HAQEI Tutorial Integration Examples loaded');
+            console.log('🎯 All HTML integration patterns are ready to use');
+        });
+    </script>
+</body>
+</html>
