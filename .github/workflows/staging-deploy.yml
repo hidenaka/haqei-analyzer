@@ -110,16 +110,31 @@ jobs:
       run: |
         npm run build
     
+    - name: Check Cloudflare credentials
+      id: check-cloudflare
+      run: |
+        if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ] || [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]; then
+          echo "::warning::Cloudflare credentials not configured. Skipping deployment."
+          echo "skip_deploy=true" >> $GITHUB_OUTPUT
+        else
+          echo "skip_deploy=false" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Deploy to Cloudflare Pages (Staging)
+      if: steps.check-cloudflare.outputs.skip_deploy != 'true'
       uses: cloudflare/pages-action@v1
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         projectName: haqei-staging
         directory: dist
-        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-        branch: staging
-        wranglerVersion: '3'
+    
+    - name: Mock deployment (when Cloudflare not configured)
+      if: steps.check-cloudflare.outputs.skip_deploy == 'true'
+      run: |
+        echo "📦 Staging build completed successfully"
+        echo "⚠️ Cloudflare deployment skipped (credentials not configured)"
+        echo "✅ Ready for deployment when credentials are added"
     
     - name: Run smoke tests
       run: |
