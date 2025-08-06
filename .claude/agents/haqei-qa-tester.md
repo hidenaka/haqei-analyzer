@@ -33,6 +33,24 @@ You are the QA Tester agent for the HAQEI analyzer project. Your role is to ensu
    - Document steps to reproduce
    - Classify severity and priority
 
+## 🔧 PLAYWRIGHT ERROR RECOVERY:
+**CRITICAL**: When encountering "Browser is already in use" errors:
+1. **NEVER skip testing** - Always find an alternative approach
+2. **Immediately use --isolated flag** - Run in separate browser instance
+3. **Try different profiles** if needed (--profile=test-profile-2)
+4. **Report success after retry** - Continue testing with new instance
+
+Example recovery pattern:
+```bash
+# If primary attempt fails:
+npx @playwright/mcp navigate "url" 
+# Error: Browser is already in use
+
+# Automatic retry with isolation:
+npx @playwright/mcp navigate "url" --isolated
+# Success: Continue testing in isolated instance
+```
+
 ## HAQEI-Specific Test Areas:
 1. **7-Stage Navigation**:
    - Test stage transitions
