@@ -271,11 +271,60 @@ npx @playwright/mcp navigate "http://localhost:8788" --isolated
 npx @playwright/mcp navigate "http://localhost:8788" --profile=test-profile-2
 ```
 
+### 📝 AUTOMATIC PROGRESS RECORDING PROTOCOL
+
+**MANDATORY**: Save progress to memory BEFORE reporting to user
+
+#### 🔄 CONTINUOUS MEMORY UPDATES:
+1. **Start of task**: Record task initiation in .serena/memories
+2. **During implementation**: Update progress at key milestones
+3. **Before user report**: Save complete progress summary
+4. **After completion**: Archive final implementation details
+
+#### 📊 REQUIRED MEMORY ENTRIES:
+```markdown
+# .serena/memories/[TASK_NAME]_progress_[YYYYMMDD].md
+## Task: [Brief Description]
+Date: [YYYYMMDD]
+Status: [In Progress/Completed]
+
+### Progress Summary:
+- [What was accomplished]
+- [Current implementation state]
+- [Next steps planned]
+
+### Technical Details:
+- Files modified: [list]
+- Key functions implemented: [list]
+- Test results: [summary]
+
+### Context for Future:
+- [Important decisions made]
+- [Architecture changes]
+- [Known issues/limitations]
+```
+
+#### ⏰ MEMORY SAVE TIMING:
+- **Every major milestone** (25%, 50%, 75% completion)
+- **Before asking user questions**
+- **Before reporting completion**
+- **When encountering significant issues**
+
+#### 🎯 CIPHER-MEMORY COMPRESSION:
+For completed tasks, save compressed summary:
+```markdown
+# cipher-memory/[TASK]_[YYYYMMDD].md
+Task: [Name] | Status: Complete | Duration: [X hours]
+Key Achievement: [1-2 sentences]
+Files: [critical files only] | Tests: [pass rate]
+Context: [essential context for future reference]
+```
+
 ### ⚠️ AGENT COMPLETION RULES:
-- **haqei-programmer**: MUST run MCP validation before reporting completion
-- **haqei-qa-tester**: MUST provide MCP test results with screenshots
-- **haqei-reporter**: MUST include MCP validation proof in reports
-- **ALL agents**: NO completion reports without MCP verification evidence
+- **haqei-programmer**: MUST save progress to memory before reporting
+- **haqei-qa-tester**: MUST record test results in memory first
+- **haqei-reporter**: MUST update memory with final status
+- **ALL agents**: NO user reports without memory documentation
 
 ## Important Notes
 - Always run tests before committing: `npm run test`

@@ -51,6 +51,45 @@ You are the QA Tester agent for the HAQEI analyzer project. Your role is to ensu
 3. **Try different profiles** if needed (--profile=test-profile-2)
 4. **Report success after retry** - Continue testing with new instance
 
+## 📝 TESTING MEMORY DOCUMENTATION:
+
+**REQUIRED**: Save test results to memory before user reporting
+
+### 🔄 Test Documentation Protocol:
+1. **Test Planning**: Document test strategy in `.serena/memories/`
+2. **Test Execution**: Record results with screenshots
+3. **Issue Discovery**: Document bugs with reproduction steps
+4. **Before User Report**: Save comprehensive test summary
+
+### 📊 Test Memory Format:
+```markdown
+# .serena/memories/qa_testing_progress_20250806.md
+## Test Session: [Feature/Component]
+Date: 20250806
+Status: [In Progress/Completed]
+
+### Test Coverage:
+- Functional tests: [X/Y passed]
+- UI/UX validation: [results]
+- Browser compatibility: [tested browsers]
+- Performance metrics: [load times]
+
+### Issues Found:
+- Critical: [count] - [brief description]
+- Major: [count] - [brief description]
+- Minor: [count] - [brief description]
+
+### Test Evidence:
+- Screenshots: [saved to paths]
+- Video recordings: [if applicable]
+- Performance data: [metrics]
+
+### Next Steps:
+- [Required fixes]
+- [Additional testing needed]
+- [Regression test recommendations]
+```
+
 Example recovery pattern:
 ```bash
 # If primary attempt fails:
