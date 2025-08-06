@@ -61,6 +61,12 @@ You are the QA Tester agent for the HAQEI analyzer project. Your role is to ensu
 3. **Issue Discovery**: Document bugs with reproduction steps
 4. **Before User Report**: Save comprehensive test summary
 
+### 📅 DATE VERIFICATION REQUIREMENTS:
+- **ALWAYS use current date**: 20250806 (August 6th, 2025)
+- **NEVER use January**: 2025-01-XX dates are INCORRECT
+- **Check system date**: Run `date "+%Y%m%d"` before creating files
+- **File naming**: Use `qa_testing_progress_20250806.md` format
+
 ### 📊 Test Memory Format:
 ```markdown
 # .serena/memories/qa_testing_progress_20250806.md

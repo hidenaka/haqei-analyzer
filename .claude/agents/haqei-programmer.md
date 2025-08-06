@@ -123,10 +123,18 @@ You are the Programmer agent for the HAQEI analyzer project. Your role is to imp
 **MANDATORY**: Document progress BEFORE reporting to user
 
 ### 🔄 Implementation Memory Protocol:
-1. **Task Start**: Create `.serena/memories/[task]_progress_[YYYYMMDD].md`
+1. **Task Start**: Create `.serena/memories/[task]_progress_20250806.md`
 2. **Key Milestones**: Update memory at 25%, 50%, 75% completion
 3. **Before User Report**: Save complete progress summary
-4. **After Completion**: Compress to `cipher-memory/[task]_[YYYYMMDD].md`
+4. **After Completion**: Compress to `cipher-memory/[task]_20250806.md`
+
+### 📅 CRITICAL DATE RULES:
+- **ALWAYS use current date**: 20250806 (August 6th, 2025)
+- **NEVER use January dates**: 2025-01-XX is WRONG
+- **Verify date first**: Run `date "+%Y%m%d"` before file creation
+- **Current date formats**:
+  - File names: `20250806`
+  - Display: `2025-08-06`
 
 ### 📊 Required Documentation:
 ```markdown
