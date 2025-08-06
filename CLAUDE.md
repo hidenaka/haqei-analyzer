@@ -135,11 +135,36 @@ npm run pdca:verify --session=<session-id>
 
 ## 🧠 MEMORY PERSISTENCE SYSTEM
 
-### 📚 CRITICAL MEMORY LOCATIONS
+### 🚨 MANDATORY MEMORY CHECK PROTOCOL
+
+**ABSOLUTE RULE**: NEVER start implementation without memory consultation
+
+#### 🔍 PRE-IMPLEMENTATION CHECKLIST:
+1. **READ .serena/memories first** - MANDATORY before any code changes
+2. **CHECK cipher-memory** - Contains compressed project knowledge
+3. **UNDERSTAND current implementation** - What already exists?
+4. **IDENTIFY root causes** - Why did the problem occur?
+5. **PLAN based on context** - Avoid breaking existing functionality
+
+#### 📚 CRITICAL MEMORY LOCATIONS
 **ALWAYS READ THESE FILES FIRST** to maintain context:
 1. **`.serena/memories/HAQEI_Project_Master_Plan_Overview.md`** - Complete project status
 2. **`cipher-memory/HAQEI_PROJECT_MEMORY_20250805.md`** - 3-day completion record
-3. **`.serena/memories/HAQEI_Phase3_Issues_and_Visual_Development_Rules.md`** - Latest implementation
+3. **`.serena/memories/HAQEI_Critical_Production_Errors_Analysis.md`** - Known error patterns
+4. **`.serena/memories/HAQEI_Phase3_Issues_and_Visual_Development_Rules.md`** - Latest implementation
+
+#### 🛠️ ERROR TROUBLESHOOTING WORKFLOW:
+```
+❌ FORBIDDEN: Immediate code changes
+"I see an error, let me fix it right away..."
+
+✅ REQUIRED: Memory-first investigation
+1. "Let me check .serena/memories for similar issues..."
+2. "Reading cipher-memory for implementation context..."
+3. "Understanding why this error occurred..."
+4. "Planning fix based on existing architecture..."
+5. "Implementing with full context awareness..."
+```
 
 ### 🔐 MEMORY PRESERVATION RULES
 1. **NEVER ignore existing .serena memories** - These contain critical project context
