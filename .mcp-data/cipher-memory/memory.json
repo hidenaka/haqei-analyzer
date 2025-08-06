@@ -1,0 +1,81 @@
+{
+  "haqei-context": {
+    "project": "HAQEI Analyzer",
+    "philosophy": "bunenjin",
+    "architecture": "Triple OS (Engine/Interface/Safe Mode)",
+    "principles": [
+      "User Sovereignty & Privacy First",
+      "I Ching 易経 Wisdom Integration",
+      "Dual Memory Layer (Programming + Reasoning)",
+      "Local Storage Complete",
+      "Transparency Engine"
+    ],
+    "timestamp": "2025-08-06T04:15:00.000Z"
+  },
+  "critical-optimization-2025-08-06": {
+    "type": "implementation-patterns",
+    "project": "HAQEI Analyzer Critical Optimization",
+    "status": "Phase 1 Starting",
+    "current_issues": {
+      "bundle_size": {
+        "current": "26MB",
+        "target": "5MB",
+        "largest_files": [
+          "data_box.js (388KB)",
+          "H384_DATABASE.js (299KB)",
+          "koudo_shishin_database.js (298KB)",
+          "ai_theme_database.js (265KB)",
+          "bible.js (245KB)"
+        ]
+      },
+      "security": {
+        "current_score": "40/100",
+        "target_score": "90/100",
+        "missing": [
+          "CSP headers",
+          "X-Frame-Options",
+          "X-Content-Type-Options",
+          "HSTS headers",
+          "Complete CSRF implementation",
+          "SRI for 48/50 scripts"
+        ]
+      },
+      "performance": {
+        "FCP": "8-12s (target: <1.8s)",
+        "LCP": "12-18s (target: <2.5s)",
+        "CLS": "0.3-0.5 (target: <0.1)",
+        "status": "All Core Web Vitals FAIL"
+      }
+    },
+    "solution_approach": {
+      "phase1": {
+        "duration": "1-2 days",
+        "tasks": [
+          "TASK-001: Security headers via meta tags",
+          "TASK-002: Critical CSS extraction (<14KB)",
+          "TASK-003: Large data file separation",
+          "TASK-004: CSRF protection completion",
+          "TASK-005: SRI implementation for all scripts"
+        ]
+      },
+      "phase2": {
+        "duration": "3-4 days",
+        "focus": "API implementation with Cloudflare Workers"
+      },
+      "phase3": {
+        "duration": "3-4 days",
+        "focus": "Code splitting and dynamic imports"
+      },
+      "phase4": {
+        "duration": "2-3 days",
+        "focus": "Final optimization and testing"
+      }
+    },
+    "documents_created": [
+      "CRITICAL_OPTIMIZATION_REQUIREMENTS.md",
+      "CRITICAL_OPTIMIZATION_DESIGN.md",
+      "CRITICAL_OPTIMIZATION_TASKS.md"
+    ],
+    "timestamp": "2025-08-06T04:15:00.000Z"
+  }
+}

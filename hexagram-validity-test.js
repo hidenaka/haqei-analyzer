@@ -28,7 +28,7 @@ const HEXAGRAM_CONTEXTS = {
   25: { name: '天雷無妄', themes: ['無心', '自然', '純粋', '災害'], situations: ['予期しない出来事', '自然な流れ'] },
   
   // 個人的成長・哲学的な卦
-  1: { name: '乾為天', themes: ['創造', '積極', '天', '父'], situations: ['新しい始まり', 'リーダーシップ', '積極的行動'] },
+  // 1: { name: '乾為天', themes: ['創造', '積極', '天', '父'], situations: ['新しい始まり', 'リーダーシップ', '積極的行動'] }, // 重複削除
   22: { name: '山火贲', themes: ['美', '装飾', '外見', '文化'], situations: ['美的感覚', '文化活動', '外見重視'] },
   27: { name: '山雷頤', themes: ['養う', '栄養', 'ケア', '育成'], situations: ['健康管理', '人を育てる', 'セルフケア'] },
   
@@ -306,7 +306,7 @@ class HexagramValidityTester {
     // 平均妥当性スコア計算
     if (results.detailedEvaluations.length > 0) {
       results.averageValidityScore = results.detailedEvaluations
-        .reduce((sum, eval) => sum + eval.validityScore, 0) / results.detailedEvaluations.length;
+        .reduce((sum, evaluation) => sum + evaluation.validityScore, 0) / results.detailedEvaluations.length;
     }
 
     // 総合評価
@@ -339,19 +339,19 @@ class HexagramValidityTester {
     report += `総合評価: ${validityResults.overallAssessment}\n\n`;
 
     report += `📝 詳細評価:\n`;
-    validityResults.detailedEvaluations.forEach((eval, index) => {
-      report += `\n--- テスト ${index + 1}: ${eval.testId} ---\n`;
-      report += `入力: "${eval.inputText.substring(0, 50)}..."\n`;
-      report += `選出卦: ${eval.selectedHexagram}卦 ${eval.selectedHexagramName} ${eval.selectedLine}爻\n`;
-      report += `コンテキスト: ${eval.detectedContext} (期待: ${eval.expectedContext})\n`;
-      report += `妥当性スコア: ${eval.validityScore}%\n`;
-      report += `評価: ${eval.reasoning}\n`;
+    validityResults.detailedEvaluations.forEach((evaluation, index) => {
+      report += `\n--- テスト ${index + 1}: ${evaluation.testId} ---\n`;
+      report += `入力: "${evaluation.inputText.substring(0, 50)}..."\n`;
+      report += `選出卦: ${evaluation.selectedHexagram}卦 ${evaluation.selectedHexagramName} ${evaluation.selectedLine}爻\n`;
+      report += `コンテキスト: ${evaluation.detectedContext} (期待: ${evaluation.expectedContext})\n`;
+      report += `妥当性スコア: ${evaluation.validityScore}%\n`;
+      report += `評価: ${evaluation.reasoning}\n`;
       
-      if (eval.issues.length > 0) {
-        report += `問題点: ${eval.issues.join(', ')}\n`;
+      if (evaluation.issues.length > 0) {
+        report += `問題点: ${evaluation.issues.join(', ')}\n`;
       }
       
-      report += `感情分析: ${eval.textAnalysis.emotionalTone} (緊急度: ${eval.textAnalysis.urgencyLevel})\n`;
+      report += `感情分析: ${evaluation.textAnalysis.emotionalTone} (緊急度: ${evaluation.textAnalysis.urgencyLevel})\n`;
     });
 
     return report;

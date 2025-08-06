@@ -101,7 +101,7 @@ const child = spawn('node', ['/tmp/test-os-analyzer.js'], {
 });
 
 child.on('close', (code) => {
-  console.log(\`\nテスト終了 (exit code: \${code})\`);
+  console.log(`\nテスト終了 (exit code: ${code})`);
   // 一時ファイルを削除
   fs.unlinkSync('/tmp/test-os-analyzer.js');
 });

@@ -22,7 +22,7 @@ class StatisticalValidator {
     
     results.forEach(result => {
       const archetype = result.actualArchetype || result.situation?.archetype?.primary || result.archetype;
-      if (distribution.hasOwnProperty(archetype)) {
+      if (Object.prototype.hasOwnProperty.call(distribution, archetype)) {
         distribution[archetype]++;
       }
     });

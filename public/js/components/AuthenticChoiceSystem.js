@@ -1,8 +1,8 @@
 /**
  * 正統易経選択システム - AuthenticChoiceSystem.js
  * 
- * 爻辞に基づく正確な選択システム
- * - 爻辞に従う道 vs 逆らう道
+ * 今の状況のテーマに基づく正確な選択システム
+ * - 今の状況のテーマで進む vs 違うテーマを選択する
  * - 本卦→之卦の変化予測
  * - bunenjin分人間対応選択
  * - リスク・ポテンシャル分析
@@ -44,11 +44,11 @@ class AuthenticChoiceSystem {
             易経の分岐点
           </h2>
           <div class="choice-subtitle">
-            爻辞の教えに、あなたはどう応えますか？
+            今の状況のテーマに、あなたはどう応えますか？
           </div>
         </div>
 
-        <!-- 現在の爻辞表示 -->
+        <!-- 現在の状況テーマ表示 -->
         <div class="current-line-display" id="currentLineDisplay">
           <!-- 動的に生成 -->
         </div>
@@ -103,7 +103,7 @@ class AuthenticChoiceSystem {
   }
 
   /**
-   * 現在の爻辞表示
+   * 現在の状況テーマ表示
    */
   displayCurrentLine(situation) {
     const currentLineElement = document.getElementById('currentLineDisplay');
@@ -121,7 +121,7 @@ class AuthenticChoiceSystem {
         
         <div class="situation-content">
           <div class="line-meaning">
-            <h4>爻辞の教え</h4>
+            <h4>今の状況のテーマ</h4>
             <div class="meaning-text">
               ${situation.meaning}
             </div>
@@ -138,7 +138,7 @@ class AuthenticChoiceSystem {
         </div>
         
         <div class="choice-question">
-          <h3>🤔 この教えに、あなたはどう応えますか？</h3>
+          <h3>🤔 このテーマに、あなたはどう応えますか？</h3>
         </div>
       </div>
     `;
@@ -152,11 +152,11 @@ class AuthenticChoiceSystem {
     
     optionsElement.innerHTML = `
       <div class="choice-cards">
-        <!-- 選択A: 爻辞に従う道 -->
+        <!-- 選択A: 今の状況のテーマで進む道 -->
         <div class="choice-card path-a" data-path="pathA">
           <div class="card-header">
             <h3>🛤️ ${choices.pathA.title}</h3>
-            <div class="path-type">正統の道</div>
+            <div class="path-type">今の状況のテーマで進む</div>
           </div>
           
           <div class="card-content">
@@ -197,11 +197,11 @@ class AuthenticChoiceSystem {
           </div>
         </div>
 
-        <!-- 選択B: 爻辞に逆らう道 -->
+        <!-- 選択B: 別の角度から考える道 -->
         <div class="choice-card path-b" data-path="pathB">
           <div class="card-header">
             <h3>⚡ ${choices.pathB.title}</h3>
-            <div class="path-type">逆行の道</div>
+            <div class="path-type">違うテーマを選択する</div>
           </div>
           
           <div class="card-content">

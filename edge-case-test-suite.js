@@ -111,7 +111,7 @@ class EdgeCaseTestSuite {
         this.recordTest(`エラーテスト: ${errorTest.name}`, true, { 
           duration, 
           error: error.message,
-          hasErrorHandler: \!\!hasErrorHandler 
+          hasErrorHandler: !!hasErrorHandler 
         });
         console.log(`✅ ${errorTest.name}: エラー正常捕捉 (${duration}ms)`);
       }
@@ -177,4 +177,3 @@ window.runEdgeCaseTests = async function() {
 };
 
 console.log('✅ Edge Case Test Suite loaded. Run with: runEdgeCaseTests()');
-EOF < /dev/null

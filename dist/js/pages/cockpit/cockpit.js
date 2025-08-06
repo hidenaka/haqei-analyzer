@@ -1,1 +1,0 @@
-// Cockpit-specific JavaScript functions

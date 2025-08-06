@@ -6,12 +6,14 @@
     
     <!-- セキュリティヘッダー（企業レベル） -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
+    <!-- X-Frame-Options removed - can only be set via HTTP header -->
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta name="csrf-token" content="">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; media-src 'self'; frame-src 'none';">
     
     <title>HaQei マルチバース・アナライザー</title>
+    <meta name="description" content="未来シミュレーター - I Ching（易経）と人格OSを使った分析ツール。bunenjin哲学に基づいた意思決定支援システム。">
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
@@ -20,17 +22,33 @@
     <!-- ローカル開発環境用設定（最優先） -->
     <script src="./js/future_simulator_local_dev_config.js"></script>
     
+    <!-- Future Simulator Core - 動作確実版 -->
+    <script src="./js/future-simulator-core.js"></script>
+    
+    <!-- Phase 2: Text-to-I Ching Integration -->
+    <script src="./js/pages/future-simulator/TextToIChingEngine.js"></script>
+    <script src="./js/pages/future-simulator/IChingResultsDisplay.js"></script>
+    
+    <!-- Phase 3: 8 Scenarios Display System -->
+    <script src="./js/pages/future-simulator/EightScenariosGenerator.js"></script>
+    <script src="./js/pages/future-simulator/ScenariosDisplayUI.js"></script>
+    <script src="./js/pages/future-simulator/scenario-animations.js"></script>
+    <script src="./js/pages/future-simulator/Phase3IntegrationController.js"></script>
+    
     <!-- セキュリティライブラリ（最優先読み込み） -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js" 
-            integrity="sha384-vdScihEZCfbPnBQf+lc7LgXUdJVYyhC3yWHUW5C5P5GpHRqVnaM6HJELJxT6IqwM" 
-            crossorigin="anonymous"></script>
+            crossorigin="anonymous"
+            integrity="sha384-vdScihEZCfbPnBQf+lc7LgXUdJVYyhC3yWHUW5C5P5GpHRqVnaM6HJELJxT6IqwM"></script>
     
     <!-- Load critical path scripts -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="./css/tailwind.css" rel="stylesheet">
+    
+    <!-- Quick fix styles for working version -->
+    <link href="./css/future-simulator-quick-fix.css" rel="stylesheet">
     
     <!-- Defer non-critical scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/1.4.0/chartjs-plugin-annotation.min.js" defer></script>
+    <script src="./js/lib/chart.min.js" defer></script>
+    <script src="./js/lib/chartjs-plugin-annotation.min.js" defer></script>
     
     <!-- セキュリティシステム（最優先読み込み） -->
     <script src="./js/security/SecurityHeaderManager.js"></script>
@@ -40,16 +58,29 @@
     
     <!-- Quality Enhancement System -->
     <link rel="stylesheet" href="./css/quality-grade-enhancement.css">
-    <script src="./js/quality-enhancement-ui.js" defer></script>
-    <script src="./js/dynamic-quality-optimizer.js" defer></script>
-    <script src="./js/quality-integration-manager.js" defer></script>
-    <script src="./js/quality-system-validator.js" defer></script>
+    <!-- 以下のファイルは現在開発中のため一時的にコメントアウト -->
+    <!-- <script src="./js/quality-enhancement-ui.js" defer></script> -->
+    <!-- <script src="./js/dynamic-quality-optimizer.js" defer></script> -->
+    <!-- <script src="./js/quality-integration-manager.js" defer></script> -->
+    <!-- <script src="./js/quality-system-validator.js" defer></script> -->
+    
+    <!-- Future Simulator v2.0 CSS -->
+    <link rel="stylesheet" href="./css/future-simulator-v2.css.min.css">
+    
+    <!-- Phase 3: 8 Scenarios Display Styles -->
+    <link rel="stylesheet" href="./css/phase3-scenarios-styles.css">
     
     <!-- UI/UX Enhancement System -->
     <link rel="stylesheet" href="./css/ui-enhancements.css">
     <script src="./js/core/ProgressiveLoadingManager.js" defer></script>
     <script src="./js/core/UserErrorManager.js" defer></script>
     <script src="./js/core/ResponsiveEnhancementManager.js" defer></script>
+    
+    <!-- bunenjin Philosophy Systems (Core Implementation) -->
+    <script src="./js/bunenjin/ContradictionAcceptanceSystem.js"></script>
+    <script src="./js/bunenjin/DynamicBunenjinSystem.js"></script>
+    <script src="./js/bunenjin/IntegratedGuidanceSystem.js"></script>
+    <script src="./js/bunenjin/BunenjinValidationSystem.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -386,10 +417,97 @@
           transform: translateY(0);
         }
       }
+      
+      /* Phase 6-10 Enhancement Styles */
+      .choice-selected {
+        border-color: #10b981 !important;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3)) !important;
+        transform: scale(1.02) !important;
+      }
+      
+      .animate-fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      
+      .animate-slide-up {
+        animation: slideUp 0.3s ease-out;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      
+      @keyframes slideUp {
+        from { 
+          opacity: 0; 
+          transform: translate(-50%, 20px); 
+        }
+        to { 
+          opacity: 1; 
+          transform: translate(-50%, 0); 
+        }
+      }
+      
+      #char-counter {
+        transition: color 0.3s ease;
+      }
+      
+      .export-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+      }
+      
+      .export-button:active {
+        transform: translateY(0);
+      }
+      
+      /* Input validation styles */
+      .input-valid {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+      }
+      
+      .input-invalid {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+      }
+      
+      /* Loading state improvements */
+      .loading button {
+        pointer-events: none;
+        opacity: 0.7;
+      }
+      
+      /* Scenario generation animations */
+      .scenario-card {
+        transition: all 0.3s ease;
+      }
+      
+      .scenario-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+      }
+      
+      /* Progress indicators */
+      .progress-indicator {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4);
+        border-radius: 2px;
+        transition: width 0.3s ease;
+      }
     </style>
     
     <!-- Core System Assets - 最適化読み込み順序 -->
-    <script src="./js/core/H384_DATABASE.js"></script>
+    <script src="./assets/H384H64database.js"></script>
     <script src="./js/core/PerformanceOptimizer.js"></script>
     <script src="./js/core/IChingTransformationEngine.js"></script>
     <script src="./js/core/FutureBranchingSystem.js"></script>
@@ -461,7 +579,7 @@
     <script src="./js/core/offline-kuromoji-integration.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js" defer></script>
     <!-- Advanced Analysis Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/ml-matrix@6.10.4/lib/ml-matrix.min.js"></script>
+    <script src="./js/lib/ml-matrix.min.js"></script>
     <!-- Dynamic Analysis Components -->
     <script src="./js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
     <script src="./js/pages/future-simulator/IntegratedAnalysisEngine.js"></script>
@@ -478,6 +596,11 @@
     
     <!-- Future Simulator UI Enhancement System -->
     <script src="./js/future-simulator-ui-enhancements.js" defer></script>
+    
+    <!-- Phase 2: Complete Text-to-I Ching System -->
+    <link rel="stylesheet" href="./css/phase2-iching-styles.css">
+    <script src="./js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
+    <script src="./js/pages/future-simulator/IntegratedAnalysisEngine.js"></script>
   </head>
   <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-6" data-progressive-load>
     <!-- Initial Loading Screen -->
@@ -605,12 +728,64 @@
           </p>
         </div>
         
-        <textarea
-          id="worryInput"
-          class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 mb-4"
-          rows="4"
-          placeholder="ここにあなたの「生の言葉」を入力してください..."
-        ></textarea>
+        <!-- 入力例とガイダンス強化 -->
+        <div class="mb-4">
+          <div class="mb-3">
+            <label for="worryInput" class="block text-sm font-medium text-indigo-300 mb-2">
+              💭 あなたの現状や悩みを自由に書いてください
+            </label>
+            <div class="text-xs text-gray-400 mb-2">
+              <span class="inline-flex items-center gap-1">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                入力例：「仕事がうまくいかない」「人間関係で悩んでいる」「将来が不安」など
+              </span>
+            </div>
+          </div>
+          
+          <textarea
+            id="worryInput"
+            class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-4 mb-4 transition-all duration-200 resize-none"
+            rows="5"
+            placeholder="例：最近転職を考えているんだけど、今の会社を辞めるタイミングがわからない。年齢的にも不安だし、家族のことも考えると...でも今のままじゃダメな気がして。どうしたらいいんだろう。"
+            maxlength="1000"
+          ></textarea>
+          
+          <!-- 文字カウンターと入力ヒント -->
+          <div class="flex justify-between items-center text-xs text-gray-400 mb-2">
+            <div class="flex items-center gap-4">
+              <span id="charCount" class="text-gray-500">0/1000文字</span>
+              <span class="text-green-400">✓ 感情や具体的な状況を含めると精度が上がります</span>
+            </div>
+            <button type="button" id="clearInput" class="text-red-400 hover:text-red-300 underline hidden">クリア</button>
+          </div>
+          
+          <!-- プリセット例文ボタン -->
+          <div class="mb-4">
+            <p class="text-xs font-medium text-gray-400 mb-2">💡 書くのが難しい場合は、例文を選んでカスタマイズしてください：</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              <button type="button" class="preset-example text-xs bg-gray-600/50 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded border border-gray-500/50 hover:border-gray-400 transition-colors text-left" data-example="仕事でのプレッシャーがきつくて、毎日残業続き。上司との関係もうまくいかないし、このままでいいのか不安になってる。">
+                🏢 仕事・キャリア
+              </button>
+              <button type="button" class="preset-example text-xs bg-gray-600/50 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded border border-gray-500/50 hover:border-gray-400 transition-colors text-left" data-example="恋人との関係がうまくいかない。最近喧嘩が多くて、気持ちがすれ違ってる感じがする。このまま続けていいのかわからない。">
+                💕 恋愛・人間関係
+              </button>
+              <button type="button" class="preset-example text-xs bg-gray-600/50 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded border border-gray-500/50 hover:border-gray-400 transition-colors text-left" data-example="将来のことを考えると不安で仕方ない。お金のこと、健康のこと、家族のこと...何から手をつけていいかわからない。">
+                🔮 将来・人生設計
+              </button>
+              <button type="button" class="preset-example text-xs bg-gray-600/50 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded border border-gray-500/50 hover:border-gray-400 transition-colors text-left" data-example="家族との関係で悩んでいる。価値観の違いで衝突することが多くて、どう接していいかわからない。">
+                👨‍👩‍👧‍👦 家族関係
+              </button>
+              <button type="button" class="preset-example text-xs bg-gray-600/50 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded border border-gray-500/50 hover:border-gray-400 transition-colors text-left" data-example="新しいことを始めたいけど、失敗するのが怖い。年齢的にもこれが最後のチャンスかもしれないし、でも踏み出せない。">
+                🌟 新しい挑戦
+              </button>
+              <button type="button" class="preset-example text-xs bg-gray-600/50 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded border border-gray-500/50 hover:border-gray-400 transition-colors text-left" data-example="健康面で気になることがあって、病院に行くべきか迷ってる。でも忙しくて時間が取れないし、もし大変な病気だったらと思うと不安。">
+                🏥 健康・生活
+              </button>
+            </div>
+          </div>
+        </div>
         <button
             id="aiGuessBtn"
             class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 flex items-center justify-center gap-2"
@@ -667,8 +842,31 @@
         </div>
       </div>
 
-      <!-- Results Section -->
-      <div id="resultArea" class="hidden relative">
+      <!-- Results Section - 段階的情報開示 -->
+      <div id="resultArea" class="hidden relative">        
+        <!-- 結果表示コントロール -->
+        <div id="resultControls" class="mb-6 bg-gray-800/30 rounded-lg p-4 border border-gray-600/50">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-bold text-indigo-300 mb-1">📊 分析結果の表示レベル</h3>
+              <p class="text-sm text-gray-400">お好みの詳しさで結果を確認できます</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button id="showSummary" class="result-level-btn bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                <span class="w-2 h-2 bg-emerald-300 rounded-full"></span>
+                サマリー
+              </button>
+              <button id="showDetailed" class="result-level-btn bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                <span class="w-2 h-2 bg-gray-300 rounded-full"></span>
+                詳細分析
+              </button>
+              <button id="showComplete" class="result-level-btn bg-gray-600 hover:bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                <span class="w-2 h-2 bg-gray-300 rounded-full"></span>
+                完全版
+              </button>
+            </div>
+          </div>
+        </div>
         <!-- Loading Overlay for Results -->
         <div id="results-loading" class="loading-overlay" style="display: none;">
           <div class="text-center">
@@ -677,12 +875,13 @@
           </div>
         </div>
         
-        <!-- Analysis Summary -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-12">
-          <div class="lg:col-span-1">
-            <h2 class="text-2xl font-bold mb-4 text-center text-indigo-300">
-              分析サマリー
-            </h2>
+        <!-- サマリーレベル：基本情報 -->
+        <div class="result-section summary-level visible">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-12">
+            <div class="lg:col-span-1">
+              <h2 class="text-2xl font-bold mb-4 text-center text-indigo-300">
+                📊 分析サマリー
+              </h2>
             <div class="space-y-4">
               <!-- Summary Card -->
               <div
@@ -710,11 +909,11 @@
             </div>
           </div>
           
-          <!-- Choice Cards -->
-          <div class="lg:col-span-2">
-            <h2 class="text-xl font-bold mb-4 text-center text-indigo-300">
-              最初の選択：あなたはどちらの道を選ぶか？
-            </h2>
+            <!-- Choice Cards -->
+            <div class="lg:col-span-2">
+              <h2 class="text-xl font-bold mb-4 text-center text-indigo-300">
+                🛡️ 最初の選択：あなたはどちらの道を選ぶか？
+              </h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               <div id="choice1" class="card bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-500/30 p-4 rounded-lg hover:border-blue-400">
                 <h3 class="text-lg font-bold text-blue-300 mb-2">現状維持の道</h3>
@@ -728,18 +927,58 @@
               </div>
             </div>
             
-            <!-- 8 Scenarios -->
-            <h2 class="text-xl font-bold mb-4 text-center text-indigo-300">
-              8つの未来シナリオ
-            </h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="scenarioGrid">
-              <!-- Scenarios will be dynamically generated -->
+              <!-- 8 Scenarios -->
+              <h2 class="text-xl font-bold mb-4 text-center text-indigo-300">
+                🔮 8つの未来シナリオ
+              </h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="scenarioGrid">
+                <!-- Scenarios will be dynamically generated -->
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 詳細レベル：易経分析詳細 -->
+        <div class="result-section detailed-level">
+          <div class="mb-8 bg-gray-800/30 rounded-lg p-6 border border-gray-600/50">
+            <div class="flex items-center mb-4">
+              <span class="text-3xl mr-3">🎯</span>
+              <h3 class="text-xl font-bold text-amber-300">現在地：易経による正確な位置特定</h3>
+            </div>
+            <div id="positionAnalysis" class="space-y-4">
+              <!-- 詳細な易経分析がここに表示される -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- 完全版：品質分析 -->
+        <div class="result-section complete-level">
+          <div class="mb-8 bg-gray-800/30 rounded-lg p-6 border border-gray-600/50">
+            <div class="flex items-center mb-4">
+              <span class="text-2xl mr-3">🔮</span>
+              <h3 class="text-xl font-bold text-purple-300">易経変換品質分析</h3>
+            </div>
+            <div id="qualityAnalysis" class="space-y-4">
+              <!-- 品質分析がここに表示される -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- 完全版：チャート分析 -->
+        <div class="result-section complete-level">
+          <div class="mb-8">
+            <div id="chartAnalysis">
+              <!-- チャートがここに表示される -->
             </div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Enhanced Scripts for v2 -->
+    <script src="./js/performance-optimizer.js"></script>
+    <script src="./js/input-enhancements.js"></script>
+    
     <!-- Module Script -->
     <script type="module">
       // 🚀 最適化4: キャッシュ機能付きプログレッシブローダー
@@ -931,10 +1170,111 @@
             setTimeout(() => {
               loadingScreen.style.display = 'none';
               mainContainer.style.opacity = '1';
+              
+              // Phase 6: Show input form immediately after loading
+              this.showInputForm();
+              
               console.log('✅ Application initialization completed');
               this.startProgressiveContentLoad();
             }, 300);
           }, 500);
+        }
+        
+        // Phase 6: Text Input Form Display Fix
+        showInputForm() {
+          const inputContent = document.getElementById('input-content');
+          const worryInput = document.getElementById('worryInput');
+          
+          if (inputContent) {
+            inputContent.style.display = 'block';
+            inputContent.style.opacity = '0';
+            
+            // Animate in
+            setTimeout(() => {
+              inputContent.style.transition = 'opacity 0.5s ease-in-out';
+              inputContent.style.opacity = '1';
+            }, 100);
+            
+            // Auto-focus on input field
+            if (worryInput) {
+              setTimeout(() => {
+                worryInput.focus();
+                this.optimizeInputHandling();
+              }, 600);
+            }
+          }
+          
+          console.log('✅ Input form displayed and ready');
+        }
+        
+        optimizeInputHandling() {
+          const worryInput = document.getElementById('worryInput');
+          const aiGuessBtn = document.getElementById('aiGuessBtn');
+          
+          if (!worryInput || !aiGuessBtn) return;
+          
+          // Real-time input validation
+          let inputTimeout;
+          worryInput.addEventListener('input', (e) => {
+            clearTimeout(inputTimeout);
+            inputTimeout = setTimeout(() => {
+              this.validateInput(e.target.value);
+            }, 300);
+          });
+          
+          // Enter key support
+          worryInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              if (this.isValidInput(worryInput.value.trim())) {
+                aiGuessBtn.click();
+              }
+            }
+          });
+          
+          // Character counter
+          this.addCharacterCounter();
+        }
+        
+        validateInput(text) {
+          const aiGuessBtn = document.getElementById('aiGuessBtn');
+          const isValid = this.isValidInput(text);
+          
+          if (aiGuessBtn) {
+            aiGuessBtn.disabled = !isValid;
+            aiGuessBtn.classList.toggle('opacity-50', !isValid);
+            
+            if (isValid) {
+              aiGuessBtn.textContent = '未来を分析';
+            } else {
+              aiGuessBtn.textContent = '5文字以上入力してください';
+            }
+          }
+        }
+        
+        isValidInput(text) {
+          return text && text.length >= 5 && text.length <= 500;
+        }
+        
+        addCharacterCounter() {
+          const worryInput = document.getElementById('worryInput');
+          if (!worryInput || document.getElementById('char-counter')) return;
+          
+          const counter = document.createElement('div');
+          counter.id = 'char-counter';
+          counter.className = 'text-xs text-gray-400 mt-1 text-right';
+          counter.textContent = '0 / 500';
+          
+          worryInput.parentNode.appendChild(counter);
+          
+          worryInput.addEventListener('input', () => {
+            const length = worryInput.value.length;
+            counter.textContent = `${length} / 500`;
+            counter.className = `text-xs mt-1 text-right ${
+              length > 500 ? 'text-red-400' : 
+              length < 5 ? 'text-gray-400' : 'text-green-400'
+            }`;
+          });
         }
         
         async animateProgress(target) {
@@ -989,14 +1329,27 @@
           if (aiGuessBtn && worryInput) {
             aiGuessBtn.addEventListener('click', () => {
               const inputText = worryInput.value.trim();
-              if (inputText) {
+              if (this.isValidInput(inputText)) {
                 console.log('Starting analysis...');
                 this.performAnalysis(inputText);
               } else {
-                alert('入力テキストを入力してください。');
+                this.showInputError();
               }
             });
           }
+        }
+        
+        showInputError() {
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+          errorDiv.textContent = '5文字以上500文字以内で入力してください';
+          
+          document.body.appendChild(errorDiv);
+          
+          setTimeout(() => {
+            errorDiv.style.opacity = '0';
+            setTimeout(() => errorDiv.remove(), 300);
+          }, 3000);
           
           // Export buttons
           this.initializeExportButtons();
@@ -1007,22 +1360,249 @@
           console.log('✅ Event listeners initialized');
         }
         
+        // Phase 7: AI Analysis Processing Implementation
         performAnalysis(inputText) {
           const resultArea = document.getElementById('resultArea');
           const resultsLoading = document.getElementById('results-loading');
+          const aiGuessBtn = document.getElementById('aiGuessBtn');
           
-          // Show loading
-          if (resultArea && resultsLoading) {
-            resultArea.classList.remove('hidden');
-            resultsLoading.style.display = 'flex';
-            
-            // Simulate analysis
-            setTimeout(() => {
-              resultsLoading.style.display = 'none';
-              this.displayResults(inputText);
-              console.log('✅ Analysis completed');
-            }, 2000);
+          // Set loading state
+          if (aiGuessBtn) {
+            aiGuessBtn.disabled = true;
+            aiGuessBtn.innerHTML = `
+              <svg class="animate-spin h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              分析中...
+            `;
           }
+          
+          if (resultArea) resultArea.classList.remove('hidden');
+          if (resultsLoading) {
+            resultsLoading.style.display = 'flex';
+            this.startResultsLoading();
+          }
+          
+          // Enhanced analysis with emotion detection
+          this.performEnhancedAnalysis(inputText)
+            .then(result => {
+              console.log('✅ Analysis completed successfully');
+              if (resultsLoading) resultsLoading.style.display = 'none';
+              
+              // Reset button state
+              if (aiGuessBtn) {
+                aiGuessBtn.disabled = false;
+                aiGuessBtn.innerHTML = '再分析';
+              }
+              
+              this.displayResults(result);
+            })
+            .catch(error => {
+              console.error('❌ Analysis failed:', error);
+              if (resultsLoading) resultsLoading.style.display = 'none';
+              
+              // Reset button state
+              if (aiGuessBtn) {
+                aiGuessBtn.disabled = false;
+                aiGuessBtn.innerHTML = '未来を分析';
+              }
+              
+              this.showErrorMessage(error.message);
+            });
+        }
+        
+        async performEnhancedAnalysis(inputText) {
+          const analysisStartTime = performance.now();
+          
+          // Phase 7: Emotion Analysis and I Ching Selection Logic
+          const emotionAnalysis = this.analyzeEmotion(inputText);
+          const ichingSelection = this.selectIChingHexagram(inputText, emotionAnalysis);
+          const currentSituation = this.generateCurrentSituation(inputText, emotionAnalysis, ichingSelection);
+          
+          // Store analysis data globally
+          currentAnalysisData = {
+            inputText,
+            emotionAnalysis,
+            currentSituation,
+            analysisTime: Date.now()
+          };
+          
+          try {
+            // Initialize systems concurrently
+            await this.measureAndExecute('engineInit', () => this.initializeEngines());
+            
+            // Parallel analysis execution - fallback to simple version if complex analysis fails
+            let analysisResult;
+            try {
+              analysisResult = await this.measureAndExecute('analysis', 
+                () => this.performIntegratedAnalysis(inputText));
+            } catch (error) {
+              console.warn('Integrated analysis failed, using simple version:', error);
+              analysisResult = await this.performSimpleAnalysis(inputText, currentSituation);
+            }
+            
+            const analysisTime = performance.now() - analysisStartTime;
+            console.log(`🎯 Enhanced analysis completed: ${Math.round(analysisTime)}ms`);
+            
+            return analysisResult;
+            
+          } catch (error) {
+            console.error('Enhanced analysis failed:', error);
+            return this.getFallbackAnalysis(inputText);
+          }
+        }
+        
+        async performSimpleAnalysis(inputText, currentSituation) {
+          // Simple fallback analysis
+          const scenarios = await this.generateSimpleScenarios(currentSituation);
+          const choices = this.generateAuthenticChoices(currentSituation);
+          
+          return {
+            currentSituation,
+            scenarios,
+            choices,
+            metadata: {
+              analysisTime: Date.now(),
+              method: 'simple'
+            }
+          };
+        }
+        
+        async generateSimpleScenarios(currentSituation) {
+          // Generate 8 simple scenarios based on I Ching
+          return Array.from({length: 8}, (_, i) => ({
+            id: i + 1,
+            title: `変化パターン ${i + 1}`,
+            description: `第${currentSituation.卦番号}卦からの変化 - パターン${i + 1}の展開`,
+            probability: 0.7 + (Math.random() * 0.3),
+            line: (i % 6) + 1,
+            lineText: `第${(i % 6) + 1}爻の示唆による展開`,
+            advice: '現状を受け入れつつ、新しい可能性を探求してください',
+            interpretation: currentSituation.卦名 + 'の変化パターン'
+          }));
+        }
+        
+        analyzeEmotion(inputText) {
+          // Simple emotion detection based on keywords and patterns
+          const emotions = {
+            anxiety: 0,
+            hope: 0,
+            confusion: 0,
+            determination: 0,
+            sadness: 0,
+            anger: 0
+          };
+          
+          const text = inputText.toLowerCase();
+          
+          // Anxiety indicators
+          if (text.match(/不安|心配|悩|困|怖|迷|わからない/)) emotions.anxiety += 0.3;
+          if (text.match(/どうしよう|大丈夫|やばい/)) emotions.anxiety += 0.2;
+          
+          // Hope indicators
+          if (text.match(/希望|頑張|やる気|前向|ポジティブ|良く|うまく/)) emotions.hope += 0.3;
+          if (text.match(/できる|成功|幸せ|嬉しい/)) emotions.hope += 0.2;
+          
+          // Confusion indicators
+          if (text.match(/わからない|迷|混乱|どちら|選択|決められない/)) emotions.confusion += 0.3;
+          
+          // Determination indicators
+          if (text.match(/決意|やる|実行|行動|挑戦|頑張る/)) emotions.determination += 0.3;
+          
+          // Sadness indicators
+          if (text.match(/悲しい|つらい|苦しい|落ち込|憂鬱|孤独/)) emotions.sadness += 0.3;
+          
+          // Anger indicators
+          if (text.match(/怒|腹立|イライラ|ムカつく|許せない/)) emotions.anger += 0.3;
+          
+          // Normalize emotions
+          const maxEmotion = Math.max(...Object.values(emotions));
+          if (maxEmotion > 0) {
+            Object.keys(emotions).forEach(key => {
+              emotions[key] = emotions[key] / maxEmotion;
+            });
+          }
+          
+          return emotions;
+        }
+        
+        selectIChingHexagram(inputText, emotions) {
+          // I Ching hexagram selection based on emotion analysis and text content
+          const textHash = this.fastHash(inputText);
+          const emotionFactor = emotions.anxiety * 0.4 + emotions.confusion * 0.3 + emotions.sadness * 0.3;
+          
+          let hexagramNumber;
+          
+          if (emotionFactor > 0.6) {
+            // High negative emotions - suggest transformative hexagrams
+            const negativeHexagrams = [12, 18, 47, 29, 4]; // 否, 蛊, 困, 坎, 蒙
+            hexagramNumber = negativeHexagrams[textHash % negativeHexagrams.length];
+          } else if (emotions.hope > 0.5 || emotions.determination > 0.5) {
+            // Positive emotions - suggest progressive hexagrams
+            const positiveHexagrams = [1, 11, 14, 25, 42]; // 乾, 泰, 大有, 无妄, 益
+            hexagramNumber = positiveHexagrams[textHash % positiveHexagrams.length];
+          } else {
+            // Neutral or mixed emotions - use balanced selection
+            const balancedHexagrams = [2, 8, 15, 16, 20, 31, 32, 61, 62]; // 坤, 比, 謙, 豫, 觀, 咸, 恒, 中孚, 小過
+            hexagramNumber = balancedHexagrams[textHash % balancedHexagrams.length];
+          }
+          
+          return {
+            number: hexagramNumber,
+            line: (textHash % 6) + 1,
+            confidence: 0.75 + (emotions.determination * 0.2) - (emotions.confusion * 0.15)
+          };
+        }
+        
+        generateCurrentSituation(inputText, emotions, iching) {
+          const hexagramNames = {
+            1: '乾為天', 2: '坤為地', 4: '山水蒙', 8: '水地比', 11: '地天泰', 12: '天地否',
+            14: '火天大有', 15: '地山謙', 16: '雷地豫', 18: '山風蛊', 20: '風地觀',
+            25: '天雷无妄', 29: '坎為水', 31: '沢山咸', 32: '雷風恒', 42: '風雷益',
+            47: '沢水困', 61: '風沢中孚', 62: '雷山小過'
+          };
+          
+          const lineNames = ['初爻', '二爻', '三爻', '四爻', '五爻', '上爻'];
+          
+          return {
+            卦番号: iching.number,
+            卦名: hexagramNames[iching.number] || '天地否',
+            爻: lineNames[iching.line - 1] || '三爻',
+            爻位置: iching.line,
+            信頼度: Math.min(iching.confidence, 0.95),
+            主要感情: this.getDominantEmotion(emotions),
+            分析深度: this.calculateAnalysisDepth(inputText, emotions)
+          };
+        }
+        
+        getDominantEmotion(emotions) {
+          const emotionNames = {
+            anxiety: '不安',
+            hope: '希望',
+            confusion: '混乱',
+            determination: '決意',
+            sadness: '悲しみ',
+            anger: '怒り'
+          };
+          
+          let maxEmotion = 'hope';
+          let maxValue = 0;
+          
+          Object.keys(emotions).forEach(key => {
+            if (emotions[key] > maxValue) {
+              maxValue = emotions[key];
+              maxEmotion = key;
+            }
+          });
+          
+          return emotionNames[maxEmotion] || '平静';
+        }
+        
+        calculateAnalysisDepth(inputText, emotions) {
+          const textComplexity = Math.min(inputText.length / 100, 1);
+          const emotionalComplexity = Object.values(emotions).reduce((sum, val) => sum + val, 0) / 6;
+          return Math.min(textComplexity + emotionalComplexity, 1);
         }
         
         // 🚀 メイン最適化統合: 全体処理時間1,000ms以下を目指す
@@ -1117,7 +1697,10 @@
           
           return report;
         }
-
+      } // FutureSimulator class end
+      
+      // サンプルパスデータ生成関数
+      function getSamplePaths() {
           const samplePaths = [
             [
               { S7_総合評価スコア: 63 }, // 現在地
@@ -1167,7 +1750,11 @@
               { S7_総合評価スコア: 53 },
               { S7_総合評価スコア: 47 }
             ]
-          ];$1// Define sample current state for chart rendering
+          ];
+          return samplePaths;
+        }
+        
+        // Define sample current state for chart rendering
           const sampleCurrentState = {
             卦番号: 12,
             卦名: '否',
@@ -1212,7 +1799,7 @@
                   }
                   
                   if (summaryChartCanvas) {
-                    renderSummaryChart(samplePaths);
+                    renderSummaryChart(getSamplePaths());
                     console.log('✅ Summary chart rendered');
                   } else {
                     console.warn('⚠️ Summary chart container not found after ensure');
@@ -1603,11 +2190,11 @@
           return {
             pathA: {
               title: `${currentSituation.爻}に従う道`,
-              description: `爻辞の教えに従い、慎重に行動する道`
+              description: `今の状況のテーマに従い、慎重に行動する道`
             },
             pathB: {
-              title: `${currentSituation.爻}に逆らう道`,
-              description: `爻辞の警告を無視し、大胆に行動する道`
+              title: `別の角度から考える：${currentSituation.爻}の別解釈`,
+              description: `状況の多面的解釈を探求し、創造的な対応を見つける道`
             }
           };
         }
@@ -1867,7 +2454,7 @@
                     <div class="text-sm text-gray-400 mt-1">第${position.line}爻（陽爻/陰爻：${position.lineType}）</div>
                   </div>
                   <div>
-                    <div class="text-sm font-medium text-gray-400 mb-1">爻辞</div>
+                    <div class="text-sm font-medium text-gray-400 mb-1">今の状況のテーマ</div>
                     <div class="text-sm text-gray-300 font-mono bg-gray-900/50 p-3 rounded">${position.fullLineText}</div>
                   </div>
                   <div>
@@ -1907,7 +2494,7 @@
         generateAuthenticChoices(position) {
           const choices = {
             pathA: {
-              title: `爻辞に従う道：「${position.lineText}」を受け入れる`,
+              title: `今の状況のテーマで進む：「${position.lineText}」を受け入れる`,
               description: `${position.fullLineText}の教えに従い、現状を素直に受け入れて適切な時期を待つ選択。`,
               keyword: position.lineText,
               approach: 'authentic',
@@ -1915,12 +2502,12 @@
               outcome: '段階的な改善と安定した成長'
             },
             pathB: {
-              title: `爻辞に逆らう道：困難に正面から挑戦する`,
-              description: `現在の停滞状況に積極的に抵抗し、強引にでも状況を変えようとする選択。`,
-              keyword: '積極的抵抗',
-              approach: 'resistance',
+              title: `別の角度から考える：違う視点での解釈`,
+              description: `状況の深層的意味を探求し、別の視点から状況を理解する選択。`,
+              keyword: '別の角度',
+              approach: 'alternative_wisdom',
               probability: 0.45,
-              outcome: '短期的な混乱の後に大きな変化の可能性'
+              outcome: '多角的理解による調和的な変化の可能性'
             }
           };
           
@@ -1992,9 +2579,9 @@
               <p class="text-xs text-gray-300 mb-2">${scenario.interpretation}</p>
             </div>
             
-            <!-- 爻辞 -->
+            <!-- 今の状況のテーマ -->
             <div class="mb-3">
-              <div class="text-xs text-orange-400 font-medium mb-1">📜 爻辞 (第${scenario.line}爻)</div>
+              <div class="text-xs text-orange-400 font-medium mb-1">📜 今の状況のテーマ (第${scenario.line}爻)</div>
               <p class="text-xs text-gray-300 mb-2 font-mono bg-gray-900/50 p-2 rounded">${scenario.lineText}</p>
             </div>
             
@@ -2111,6 +2698,7 @@
           resultsContainer.insertBefore(qualitySection, resultsContainer.firstChild);
         }
         
+        // Phase 10: Data Export Implementation
         initializeExportButtons() {
           const exportJson = document.getElementById('exportJson');
           const exportCsv = document.getElementById('exportCsv');
@@ -2119,45 +2707,407 @@
           if (exportJson) {
             exportJson.addEventListener('click', () => {
               console.log('JSON export requested');
-              // Implement JSON export
+              this.exportDataAsJson();
             });
           }
           
           if (exportCsv) {
             exportCsv.addEventListener('click', () => {
               console.log('CSV export requested');
-              // Implement CSV export
+              this.exportDataAsCsv();
             });
           }
           
           if (exportPdf) {
             exportPdf.addEventListener('click', () => {
               console.log('PDF export requested');
-              // Implement PDF export
+              this.exportDataAsPdf();
             });
           }
         }
         
+        exportDataAsJson() {
+          try {
+            const exportData = this.prepareExportData();
+            const jsonData = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `haqei-analysis-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            this.showExportSuccess('JSON');
+          } catch (error) {
+            console.error('JSON export failed:', error);
+            this.showExportError('JSON');
+          }
+        }
+        
+        exportDataAsCsv() {
+          try {
+            const exportData = this.prepareExportData();
+            const csvData = this.convertToCSV(exportData);
+            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `haqei-analysis-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            this.showExportSuccess('CSV');
+          } catch (error) {
+            console.error('CSV export failed:', error);
+            this.showExportError('CSV');
+          }
+        }
+        
+        exportDataAsPdf() {
+          try {
+            const exportData = this.prepareExportData();
+            const pdfContent = this.generatePDFContent(exportData);
+            
+            // Create a temporary div for PDF generation
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = pdfContent;
+            tempDiv.style.cssText = 'position: absolute; left: -9999px; top: -9999px; width: 210mm; padding: 20mm; font-family: serif; line-height: 1.6; color: black; background: white;';
+            document.body.appendChild(tempDiv);
+            
+            // Use browser's print functionality
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <title>HAQEI分析レポート</title>
+                  <style>
+                    body { font-family: serif; line-height: 1.6; color: black; background: white; margin: 20mm; }
+                    .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+                    .section { margin-bottom: 20px; page-break-inside: avoid; }
+                    .scenario { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+                    table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    @media print { body { margin: 0; } }
+                  </style>
+                </head>
+                <body role="application" aria-label="HaQei Future Simulator">${pdfContent}</body>
+              </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            
+            setTimeout(() => {
+              printWindow.print();
+              document.body.removeChild(tempDiv);
+            }, 500);
+            
+            this.showExportSuccess('PDF');
+          } catch (error) {
+            console.error('PDF export failed:', error);
+            this.showExportError('PDF');
+          }
+        }
+        
+        prepareExportData() {
+          const worryInput = document.getElementById('worryInput');
+          const inputText = worryInput ? worryInput.value.trim() : '';
+          
+          return {
+            metadata: {
+              exportDate: new Date().toISOString(),
+              version: '1.0.0',
+              system: 'HAQEI Multiverse Analyzer'
+            },
+            input: {
+              originalText: inputText,
+              analysisDate: new Date().toISOString()
+            },
+            analysis: currentAnalysisData || {},
+            scenarios: this.getGeneratedScenarios(),
+            choices: this.getSelectedChoices(),
+            iching: {
+              hexagram: currentAnalysisData?.currentSituation?.卦番号 || 12,
+              hexagramName: currentAnalysisData?.currentSituation?.卦名 || '天地否',
+              line: currentAnalysisData?.currentSituation?.爻 || '九三',
+              confidence: currentAnalysisData?.currentSituation?.信頼度 || 0.85
+            }
+          };
+        }
+        
+        convertToCSV(data) {
+          const csv = [];
+          
+          // Header
+          csv.push('項目,値');
+          csv.push(`エクスポート日時,${data.metadata.exportDate}`);
+          csv.push(`入力テキスト,"${data.input.originalText.replace(/"/g, '""')}"`);
+          csv.push(`分析日時,${data.input.analysisDate}`);
+          csv.push(`卦番号,${data.iching.hexagram}`);
+          csv.push(`卦名,${data.iching.hexagramName}`);
+          csv.push(`爻,${data.iching.line}`);
+          csv.push(`信頼度,${data.iching.confidence}`);
+          
+          // Scenarios
+          if (data.scenarios && data.scenarios.length > 0) {
+            csv.push('');
+            csv.push('シナリオ番号,タイトル,説明');
+            data.scenarios.forEach((scenario, index) => {
+              csv.push(`${index + 1},"${scenario.title || ''}","${scenario.description || ''}"`);
+            });
+          }
+          
+          return csv.join('\n');
+        }
+        
+        generatePDFContent(data) {
+          return `
+            <div class="header">
+              <h1>HAQEI マルチバース分析レポート</h1>
+              <p>生成日時: ${new Date(data.metadata.exportDate).toLocaleString('ja-JP')}</p>
+            </div>
+            
+            <div class="section">
+              <h2>入力情報</h2>
+              <p><strong>分析対象:</strong></p>
+              <div style="border: 1px solid #ddd; padding: 10px; background: #f9f9f9; margin: 10px 0;">
+                ${data.input.originalText}
+              </div>
+              <p><strong>分析日時:</strong> ${new Date(data.input.analysisDate).toLocaleString('ja-JP')}</p>
+            </div>
+            
+            <div class="section">
+              <h2>易経分析結果</h2>
+              <table>
+                <tr><th>項目</th><th>値</th></tr>
+                <tr><td>卦番号</td><td>第${data.iching.hexagram}卦</td></tr>
+                <tr><td>卦名</td><td>${data.iching.hexagramName}</td></tr>
+                <tr><td>爻</td><td>${data.iching.line}</td></tr>
+                <tr><td>分析信頼度</td><td>${(data.iching.confidence * 100).toFixed(1)}%</td></tr>
+              </table>
+            </div>
+            
+            <div class="section">
+              <h2>未来シナリオ</h2>
+              ${data.scenarios.map((scenario, index) => `
+                <div class="scenario">
+                  <h3>シナリオ ${index + 1}: ${scenario.title || 'タイトルなし'}</h3>
+                  <p>${scenario.description || '説明なし'}</p>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class="section">
+              <h2>選択された道筋</h2>
+              <p>${this.getSelectedChoiceDescription()}</p>
+            </div>
+          `;
+        }
+        
+        getGeneratedScenarios() {
+          const scenarioCards = document.querySelectorAll('.scenario-card');
+          return Array.from(scenarioCards).map((card, index) => {
+            const title = card.querySelector('h4')?.textContent || `シナリオ ${index + 1}`;
+            const description = card.querySelector('p')?.textContent || '説明なし';
+            return { title, description };
+          });
+        }
+        
+        getSelectedChoices() {
+          const choice1 = document.getElementById('choice1');
+          const choice2 = document.getElementById('choice2');
+          
+          return {
+            choice1: {
+              selected: choice1?.classList.contains('highlighted') || false,
+              title: choice1?.querySelector('h3')?.textContent || '選択肢1',
+              description: choice1?.querySelector('p')?.textContent || ''
+            },
+            choice2: {
+              selected: choice2?.classList.contains('highlighted') || false,
+              title: choice2?.querySelector('h3')?.textContent || '選択肢2',
+              description: choice2?.querySelector('p')?.textContent || ''
+            }
+          };
+        }
+        
+        getSelectedChoiceDescription() {
+          const choices = this.getSelectedChoices();
+          if (choices.choice1.selected) {
+            return `選択された道: ${choices.choice1.title} - ${choices.choice1.description}`;
+          } else if (choices.choice2.selected) {
+            return `選択された道: ${choices.choice2.title} - ${choices.choice2.description}`;
+          }
+          return 'まだ選択されていません';
+        }
+        
+        showExportSuccess(format) {
+          const message = document.createElement('div');
+          message.className = 'fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 animate-fade-in';
+          message.innerHTML = `
+            <div class="flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span>${format}形式でエクスポート完了</span>
+            </div>
+          `;
+          document.body.appendChild(message);
+          
+          setTimeout(() => {
+            message.remove();
+          }, 3000);
+        }
+        
+        showExportError(format) {
+          const message = document.createElement('div');
+          message.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50 animate-fade-in';
+          message.innerHTML = `
+            <div class="flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+              </svg>
+              <span>${format}エクスポートに失敗しました</span>
+            </div>
+          `;
+          document.body.appendChild(message);
+          
+          setTimeout(() => {
+            message.remove();
+          }, 5000);
+        }
+        
+        // Phase 9: Choice Card Click Processing
         initializeChoiceCards() {
           const choice1 = document.getElementById('choice1');
           const choice2 = document.getElementById('choice2');
           
           if (choice1) {
             choice1.addEventListener('click', () => {
-              choice1.classList.add('highlighted');
-              if (choice2) {
-                choice2.classList.remove('highlighted');
-              }
+              this.selectChoice(choice1, choice2, 'pathA');
             });
           }
           
           if (choice2) {
             choice2.addEventListener('click', () => {
-              choice2.classList.add('highlighted');
-              if (choice1) {
-                choice1.classList.remove('highlighted');
-              }
+              this.selectChoice(choice2, choice1, 'pathB');
             });
+          }
+        }
+        
+        selectChoice(selectedCard, otherCard, pathType) {
+          // Visual feedback
+          selectedCard.classList.add('highlighted', 'choice-selected');
+          if (otherCard) {
+            otherCard.classList.remove('highlighted', 'choice-selected');
+          }
+          
+          // Store selection
+          this.selectedChoice = {
+            path: pathType,
+            timestamp: new Date().toISOString(),
+            title: selectedCard.querySelector('h3')?.textContent || '',
+            description: selectedCard.querySelector('p')?.textContent || ''
+          };
+          
+          // Trigger selection animation
+          this.animateChoiceSelection(selectedCard);
+          
+          // Show selection confirmation
+          this.showChoiceConfirmation(this.selectedChoice);
+          
+          // Auto-scroll to results if needed
+          this.scrollToResults();
+          
+          // Save selection to localStorage
+          this.saveChoiceSelection(this.selectedChoice);
+          
+          console.log('Choice selected:', this.selectedChoice);
+        }
+        
+        animateChoiceSelection(card) {
+          // Add selection animation
+          card.style.transform = 'scale(1.05)';
+          card.style.boxShadow = '0 12px 40px rgba(99, 102, 241, 0.4)';
+          
+          // Create selection indicator
+          const indicator = document.createElement('div');
+          indicator.className = 'absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full';
+          indicator.innerHTML = '✓ 選択済';
+          
+          if (!card.querySelector('.absolute')) {
+            card.style.position = 'relative';
+            card.appendChild(indicator);
+          }
+          
+          setTimeout(() => {
+            card.style.transform = 'scale(1.02)';
+          }, 200);
+        }
+        
+        showChoiceConfirmation(choice) {
+          // Remove existing confirmation
+          const existingConfirmation = document.querySelector('.choice-confirmation');
+          if (existingConfirmation) {
+            existingConfirmation.remove();
+          }
+          
+          // Create confirmation message
+          const confirmation = document.createElement('div');
+          confirmation.className = 'choice-confirmation fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-up';
+          confirmation.innerHTML = `
+            <div class="flex items-center space-x-3">
+              <svg class="w-5 h-5 text-green-300" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <div>
+                <div class="font-medium">${choice.title}</div>
+                <div class="text-sm opacity-90">あなたの選択が記録されました</div>
+              </div>
+            </div>
+          `;
+          
+          document.body.appendChild(confirmation);
+          
+          // Auto-hide after 3 seconds
+          setTimeout(() => {
+            confirmation.style.opacity = '0';
+            confirmation.style.transform = 'translate(-50%, 20px)';
+            setTimeout(() => confirmation.remove(), 300);
+          }, 3000);
+        }
+        
+        scrollToResults() {
+          const exportSection = document.getElementById('data-export');
+          if (exportSection) {
+            exportSection.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+          }
+        }
+        
+        saveChoiceSelection(choice) {
+          try {
+            const selections = JSON.parse(localStorage.getItem('haqei_selections') || '[]');
+            selections.push(choice);
+            
+            // Keep only last 10 selections
+            if (selections.length > 10) {
+              selections.splice(0, selections.length - 10);
+            }
+            
+            localStorage.setItem('haqei_selections', JSON.stringify(selections));
+          } catch (error) {
+            console.error('Failed to save choice selection:', error);
           }
         }
       }
@@ -2448,8 +3398,135 @@
         ensureChartContainers();
         
         new ProgressiveLoader();
+        
+        // 🎭 Phase 3 Integration System Initialization
+        initializePhase3Integration();
+        
         console.log('✅ Future Simulator ready!');
       });
+
+      // 🎯 Phase 3 Integration Initialization
+      function initializePhase3Integration() {
+        console.log('🚀 Initializing Phase 3 Integration System...');
+        
+        // Check if Phase 3 components are available
+        const phase3Components = {
+          EightScenariosGenerator: window.EightScenariosGenerator,
+          ScenariosDisplayUI: window.ScenariosDisplayUI,
+          Phase3IntegrationController: window.Phase3IntegrationController,
+          ScenarioAnimationsEngine: window.ScenarioAnimationsEngine
+        };
+        
+        let phase3Available = true;
+        Object.entries(phase3Components).forEach(([name, component]) => {
+          if (component) {
+            console.log(`✅ ${name} loaded successfully`);
+          } else {
+            console.warn(`⚠️ ${name} not available`);
+            phase3Available = false;
+          }
+        });
+        
+        if (phase3Available) {
+          // Initialize Phase 3 Integration Controller
+          window.haqeiPhase3Controller = new window.Phase3IntegrationController();
+          console.log('🎭 Phase 3 Integration Controller initialized');
+          
+          // Add Phase 3 integration to existing analysis flow
+          enhanceAnalysisWithPhase3();
+          console.log('✅ Phase 3 Integration System ready!');
+        } else {
+          console.log('⚠️ Phase 3 system not fully available - using fallback mode');
+        }
+      }
+      
+      // 🔄 Enhance existing analysis flow with Phase 3 integration
+      function enhanceAnalysisWithPhase3() {
+        // Find the existing analysis button/trigger and enhance it
+        const analysisButton = document.getElementById('analyzeButton') || 
+                              document.querySelector('[onclick*="analyze"]') ||
+                              document.querySelector('button[type="submit"]');
+        
+        if (analysisButton) {
+          // Store original click handler
+          const originalHandler = analysisButton.onclick;
+          
+          // Enhance with Phase 3 integration
+          analysisButton.onclick = async function(e) {
+            e.preventDefault();
+            
+            try {
+              // Get input text
+              const inputElement = document.getElementById('userInput') || 
+                                  document.querySelector('textarea') ||
+                                  document.querySelector('input[type="text"]');
+              
+              const inputText = inputElement ? inputElement.value.trim() : '';
+              
+              if (!inputText) {
+                alert('分析するテキストを入力してください');
+                return;
+              }
+              
+              // Execute original analysis (Phase 2)
+              if (originalHandler) {
+                originalHandler.call(this, e);
+              }
+              
+              // Add Phase 3 integration with delay to allow Phase 2 to complete
+              setTimeout(async () => {
+                if (window.haqeiPhase3Controller) {
+                  console.log('🎯 Starting Phase 3 integration...');
+                  
+                  const phase3Options = {
+                    userLevel: 'intermediate',
+                    language: 'japanese',
+                    displayFormat: 'comprehensive',
+                    scenarioCount: 8,
+                    contradictionMode: 'full_acceptance',
+                    bunenjinMode: 'active',
+                    diversityLevel: 'high',
+                    animationEnabled: true,
+                    contradictionVisualization: true,
+                    parentElement: document.getElementById('resultArea') || document.body
+                  };
+                  
+                  try {
+                    const phase3Results = await window.haqeiPhase3Controller.executeFullIntegration(
+                      inputText, 
+                      phase3Options
+                    );
+                    
+                    if (phase3Results.success) {
+                      console.log('✅ Phase 3 integration completed successfully');
+                      
+                      // Dispatch custom event for other components
+                      const event = new CustomEvent('haqei:phase3:complete', {
+                        detail: phase3Results
+                      });
+                      document.dispatchEvent(event);
+                    }
+                  } catch (error) {
+                    console.error('❌ Phase 3 integration failed:', error);
+                  }
+                }
+              }, 2000); // 2 second delay to allow Phase 2 to complete
+              
+            } catch (error) {
+              console.error('❌ Analysis with Phase 3 integration failed:', error);
+              
+              // Fallback to original handler
+              if (originalHandler) {
+                originalHandler.call(this, e);
+              }
+            }
+          };
+          
+          console.log('🔄 Analysis flow enhanced with Phase 3 integration');
+        } else {
+          console.warn('⚠️ Could not find analysis button for Phase 3 enhancement');
+        }
+      }
     </script>
   </body>
 </html>

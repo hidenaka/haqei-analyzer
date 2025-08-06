@@ -105,7 +105,7 @@ function analyzeResultsHTMLStructure(htmlPath) {
         }
         
         // CSSリンク確認
-        const cssMatches = htmlContent.match(/<link[^>]*rel=[\"']stylesheet[\"'][^>]*>/g) || [];
+        const cssMatches = htmlContent.match(/<link[^>]*rel=["']stylesheet["'][^>]*>/g) || [];
         results.cssLinksCount = cssMatches.length;
         results.details.push(`🎨 CSSリンク数: ${results.cssLinksCount}`);
         

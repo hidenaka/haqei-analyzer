@@ -1357,7 +1357,7 @@ if (require.main === module) {
   const implementation = new PDCAImplementationSystem();
 
   switch (command) {
-    case 'start':
+    case 'start': {
       const sessionId = process.env.npm_config_session || args[1];
       const priority = process.env.npm_config_priority || args[2] || 'high';
       
@@ -1378,6 +1378,7 @@ if (require.main === module) {
           process.exit(1);
         });
       break;
+    }
       
     default:  
       console.log('🔨 PDCA実装システム');

@@ -47,13 +47,19 @@ class HAQEICipherServer {
         host: process.env.CIPHER_HOST || 'localhost' 
       },
       memory: { enabled: true, provider: 'local', persistent: true },
-      storage: { type: 'file', path: './data/cipher-memory' },
-      logging: { level: 'info', file: './logs/cipher.log' }
+      storage: { type: 'file', path: './.mcp-data/cipher-memory' },
+      logging: { level: 'info', file: './.mcp-data/logs/cipher.log' }
     };
   }
 
   async initialize() {
     try {
+      // Ensure storage directories exist
+      this.ensureStorageDirectories();
+      
+      // Load persistent memory if exists
+      this.loadPersistentMemory();
+      
       // Initialize simplified memory system with HAQEI-specific context
       this.initializeMemoryContext();
       
@@ -79,6 +85,49 @@ class HAQEICipherServer {
     }
   }
 
+  ensureStorageDirectories() {
+    const storagePath = this.config.storage.path;
+    const logPath = dirname(this.config.logging.file);
+    
+    if (!existsSync(storagePath)) {
+      mkdirSync(storagePath, { recursive: true });
+      this.logger.info(`Created storage directory: ${storagePath}`);
+    }
+    
+    if (!existsSync(logPath)) {
+      mkdirSync(logPath, { recursive: true });
+    }
+  }
+  
+  loadPersistentMemory() {
+    try {
+      const memoryFile = join(this.config.storage.path, 'memory.json');
+      if (existsSync(memoryFile)) {
+        const data = JSON.parse(readFileSync(memoryFile, 'utf8'));
+        Object.entries(data).forEach(([key, value]) => {
+          this.memory.set(key, value);
+        });
+        this.logger.info(`Loaded ${Object.keys(data).length} memory entries from persistent storage`);
+      }
+    } catch (error) {
+      this.logger.warn(`Failed to load persistent memory: ${error.message}`);
+    }
+  }
+  
+  savePersistentMemory() {
+    try {
+      const memoryFile = join(this.config.storage.path, 'memory.json');
+      const data = {};
+      this.memory.forEach((value, key) => {
+        data[key] = value;
+      });
+      writeFileSync(memoryFile, JSON.stringify(data, null, 2));
+      this.logger.info(`Saved ${Object.keys(data).length} memory entries to persistent storage`);
+    } catch (error) {
+      this.logger.error(`Failed to save persistent memory: ${error.message}`);
+    }
+  }
+  
   initializeMemoryContext() {
     const context = {
       project: 'HAQEI Analyzer',
@@ -95,6 +144,7 @@ class HAQEICipherServer {
     };
     
     this.memory.set('haqei-context', context);
+    this.savePersistentMemory(); // Save immediately after context initialization
     this.logger.info('HAQEI context initialized in memory');
   }
 
@@ -138,6 +188,7 @@ class HAQEICipherServer {
       };
       
       this.memory.set(key, memoryEntry);
+      this.savePersistentMemory(); // Save after storing new context
       this.logger.info(`Stored bunenjin context with key: ${key}`);
       return true;
     } catch (error) {
@@ -164,6 +215,7 @@ class HAQEICipherServer {
 
   async shutdown() {
     if (this.server) {
+      this.savePersistentMemory(); // Save before shutdown
       this.server.close(() => {
         this.logger.info('🔮 HAQEI Cipher Server stopped');
       });

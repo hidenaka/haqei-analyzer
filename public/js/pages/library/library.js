@@ -1,1 +1,0 @@
-// Library-specific JavaScript functions

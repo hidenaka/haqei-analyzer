@@ -138,30 +138,35 @@ if (require.main === module) {
     case 'start':
       logger.startDevelopment();
       break;
-    case 'component':
+    case 'component': {
       const componentName = process.argv[3];
       const details = JSON.parse(process.argv[4] || '{}');
       logger.componentCreated(componentName, details);
       break;
-    case 'validate':
+    }
+    case 'validate': {
       const validateComponent = process.argv[3];
       const validationResult = JSON.parse(process.argv[4] || '{}');
       logger.易経検証(validateComponent, validationResult);
       break;
-    case 'test':
+    }
+    case 'test': {
       const testName = process.argv[3];
       const testResult = JSON.parse(process.argv[4] || '{}');
       logger.integrationTest(testName, testResult);
       break;
-    case 'phase':
+    }
+    case 'phase': {
       const phaseName = process.argv[3];
       const phaseSummary = JSON.parse(process.argv[4] || '{}');
       logger.phaseCompleted(phaseName, phaseSummary);
       break;
-    case 'end':
+    }
+    case 'end': {
       const endSummary = JSON.parse(process.argv[3] || '{}');
       logger.developmentEnd(endSummary);
       break;
+    }
     default:
       console.log('Usage: node action-transformation-dev-logger.js [start|component|validate|test|phase|end] [args...]');
   }

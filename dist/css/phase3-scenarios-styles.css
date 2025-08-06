@@ -1,0 +1,1138 @@
+/**
+ * HAQEI Phase 3 Scenarios Display Styles
+ * 8シナリオ表示専用スタイル - bunenjin哲学準拠
+ * 
+ * 実装日: 2025年8月6日
+ * 担当: HAQEI Programming Agent  
+ * 目的: Phase 3の8シナリオシステムに特化した美しいスタイリング
+ */
+
+/* ========================================
+   Phase 3 Core Variables & Base Styles
+   ======================================== */
+
+:root {
+  /* Phase 3 Color Palette - bunenjin Philosophy */
+  --p3-primary-color: #6366f1;
+  --p3-primary-hover: #5b5aec;
+  --p3-secondary-color: #8b5cf6;
+  --p3-accent-color: #06b6d4;
+  --p3-success-color: #10b981;
+  --p3-warning-color: #f59e0b;
+  --p3-danger-color: #ef4444;
+  
+  /* bunenjin Philosophy Colors */
+  --bunenjin-harmony: #10b981;
+  --bunenjin-contradiction: #f59e0b;
+  --bunenjin-integration: #8b5cf6;
+  --bunenjin-multiplicity: #06b6d4;
+  
+  /* Background & Surface */
+  --p3-bg-primary: #0f172a;
+  --p3-bg-secondary: #1e293b;
+  --p3-surface: rgba(30, 41, 59, 0.8);
+  --p3-surface-hover: rgba(30, 41, 59, 0.9);
+  --p3-glass: rgba(15, 23, 42, 0.85);
+  
+  /* Text Colors */
+  --p3-text-primary: #e2e8f0;
+  --p3-text-secondary: #cbd5e1;
+  --p3-text-muted: #94a3b8;
+  
+  /* Shadows & Effects */
+  --p3-shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --p3-shadow-medium: 0 8px 25px rgba(99, 102, 241, 0.1);
+  --p3-shadow-heavy: 0 20px 40px rgba(99, 102, 241, 0.15);
+  --p3-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+  
+  /* Animation Timings */
+  --p3-transition-fast: 0.2s ease-out;
+  --p3-transition-normal: 0.3s ease-out;
+  --p3-transition-slow: 0.5s ease-out;
+  --p3-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ========================================
+   Main Container & Layout
+   ======================================== */
+
+.scenarios-display-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: 'Inter', 'Noto Sans JP', sans-serif;
+  color: var(--p3-text-primary);
+  background: transparent;
+}
+
+.scenarios-display-container.phase3-scenarios {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.95) 0%,
+    rgba(30, 41, 59, 0.95) 100%
+  );
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  box-shadow: var(--p3-shadow-heavy);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.scenarios-display-container.phase3-scenarios::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at 20% 20%,
+    rgba(99, 102, 241, 0.05) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+/* ========================================
+   bunenjin Philosophy Header
+   ======================================== */
+
+.bunenjin-philosophy-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: var(--p3-glass);
+  border-radius: 20px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.philosophy-introduction {
+  margin-bottom: 2rem;
+}
+
+.header-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.philosophy-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--p3-primary-color), var(--p3-secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.philosophy-subtitle {
+  font-size: 1.25rem;
+  color: var(--p3-text-secondary);
+  font-weight: 400;
+}
+
+.philosophy-explanation {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.explanation-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 16px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.card-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.card-content h4 {
+  margin-bottom: 0.5rem;
+  color: var(--bunenjin-integration);
+  font-weight: 600;
+}
+
+.card-content p {
+  color: var(--p3-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.contradiction-embrace {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.1),
+    rgba(139, 92, 246, 0.1)
+  );
+  border-radius: 16px;
+  border: 1px solid var(--bunenjin-contradiction);
+}
+
+.embrace-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.embrace-text {
+  color: var(--p3-text-secondary);
+  line-height: 1.6;
+}
+
+.meta-guidance-preview {
+  padding: 1.5rem;
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.1),
+    rgba(6, 182, 212, 0.1)
+  );
+  border-radius: 16px;
+  border: 1px solid var(--bunenjin-harmony);
+}
+
+.guidance-highlight {
+  font-size: 1.125rem;
+  font-style: italic;
+  color: var(--bunenjin-harmony);
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ========================================
+   8 Scenarios Grid Layout
+   ======================================== */
+
+.scenarios-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.eight-scenarios-grid {
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+.grid-title {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.grid-title h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--p3-text-primary);
+}
+
+.grid-title p {
+  color: var(--p3-text-muted);
+  font-size: 1rem;
+}
+
+/* ========================================
+   Scenario Cards
+   ======================================== */
+
+.scenario-card {
+  background: var(--p3-surface);
+  border-radius: 20px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all var(--p3-transition-normal);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.scenario-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--p3-primary-color),
+    var(--p3-secondary-color)
+  );
+  transform: scaleX(0);
+  transition: transform var(--p3-transition-normal);
+  transform-origin: left;
+}
+
+.scenario-card:hover::before,
+.scenario-card.selected::before {
+  transform: scaleX(1);
+}
+
+.scenario-card:hover,
+.scenario-card.card-hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--p3-shadow-heavy);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.scenario-card.selected {
+  border-color: var(--p3-primary-color);
+  box-shadow: var(--p3-glow);
+  background: rgba(30, 41, 59, 0.95);
+}
+
+.scenario-card.animate-card-entrance {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.6s var(--p3-bounce);
+}
+
+/* Card Header */
+.card-header {
+  padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  position: relative;
+}
+
+.scenario-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--p3-primary-color), var(--p3-secondary-color));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.scenario-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.scenario-title {
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--p3-text-primary);
+  line-height: 1.3;
+}
+
+.scenario-subtitle {
+  color: var(--p3-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.contradiction-indicator {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  opacity: 0.7;
+  animation: pulse 2s infinite;
+}
+
+.contradiction-indicator.pulse-animation {
+  animation: contradiction-pulse 3s infinite;
+}
+
+/* Probability Classes */
+.card-header.high-probability {
+  border-left: 4px solid var(--p3-success-color);
+}
+
+.card-header.medium-probability {
+  border-left: 4px solid var(--p3-warning-color);
+}
+
+.card-header.low-probability {
+  border-left: 4px solid var(--p3-danger-color);
+}
+
+/* Card Body */
+.card-body {
+  padding: 0 1.5rem 1.5rem;
+}
+
+.core-approach {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.approach-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.approach-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--p3-text-muted);
+  font-weight: 600;
+}
+
+.approach-text {
+  color: var(--p3-text-primary);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* Scenario Metrics */
+.scenario-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(30, 41, 59, 0.4);
+  border-radius: 10px;
+  border: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.metric-icon {
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.metric-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  color: var(--p3-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.metric-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--p3-text-primary);
+}
+
+/* Contradiction Display */
+.contradiction-display {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.05),
+    rgba(139, 92, 246, 0.05)
+  );
+  border-radius: 12px;
+  border: 1px solid var(--bunenjin-contradiction);
+}
+
+.contradiction-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.contradiction-icon {
+  font-size: 1rem;
+}
+
+.contradiction-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--bunenjin-contradiction);
+}
+
+.contradiction-content {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.contradiction-element {
+  color: var(--p3-text-primary);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.contradiction-insight {
+  color: var(--p3-text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.contradiction-resolution {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.resolution-label {
+  font-size: 0.75rem;
+  color: var(--bunenjin-integration);
+  font-weight: 600;
+}
+
+.resolution-text {
+  color: var(--p3-text-secondary);
+}
+
+/* Actions Preview */
+.actions-preview {
+  margin-bottom: 1rem;
+}
+
+.preview-label {
+  font-size: 0.875rem;
+  color: var(--p3-text-muted);
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.actions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.action-item {
+  padding: 0.5rem 0;
+  color: var(--p3-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.action-item::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--p3-primary-color);
+  font-weight: bold;
+}
+
+.more-actions {
+  font-size: 0.75rem;
+  color: var(--p3-text-muted);
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Card Footer */
+.card-footer {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.expand-button {
+  background: linear-gradient(135deg, var(--p3-primary-color), var(--p3-primary-hover));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--p3-transition-normal);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.expand-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+.expand-icon {
+  transition: transform var(--p3-transition-normal);
+}
+
+.expand-button:hover .expand-icon {
+  transform: translateX(4px);
+}
+
+.bunenjin-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: var(--bunenjin-integration);
+}
+
+.badge-icon {
+  font-size: 1rem;
+}
+
+/* ========================================
+   Holistic Guidance Section
+   ======================================== */
+
+.holistic-guidance-container {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: var(--p3-glass);
+  border-radius: 20px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.guidance-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.guidance-header .header-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.guidance-header h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--bunenjin-harmony);
+}
+
+.guidance-header p {
+  color: var(--p3-text-secondary);
+  font-size: 1rem;
+}
+
+.meta-guidance {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.primary-message,
+.bunenjin-principle,
+.contradiction-embrace {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.message-icon,
+.principle-icon,
+.embrace-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.message-content h4,
+.principle-content h4,
+.embrace-content h4 {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--p3-text-primary);
+}
+
+.message-content p,
+.principle-content p,
+.embrace-content p {
+  color: var(--p3-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.practical-integration {
+  margin-bottom: 2rem;
+}
+
+.practical-integration h4 {
+  margin-bottom: 1rem;
+  color: var(--bunenjin-integration);
+  font-weight: 600;
+}
+
+.integration-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.integration-item {
+  padding: 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  color: var(--p3-text-secondary);
+  line-height: 1.5;
+}
+
+.scenario-navigation {
+  margin-bottom: 2rem;
+}
+
+.scenario-navigation h4 {
+  margin-bottom: 1rem;
+  color: var(--bunenjin-multiplicity);
+  font-weight: 600;
+}
+
+.navigation-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.nav-item {
+  padding: 1rem;
+  background: rgba(6, 182, 212, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-item strong {
+  color: var(--bunenjin-multiplicity);
+  font-size: 0.875rem;
+}
+
+.nav-item span {
+  color: var(--p3-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.philosophical-insight {
+  padding: 1.5rem;
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.05),
+    rgba(6, 182, 212, 0.05)
+  );
+  border-radius: 16px;
+  border: 1px solid var(--bunenjin-harmony);
+}
+
+.insight-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.insight-icon {
+  font-size: 1.5rem;
+}
+
+.insight-header h4 {
+  color: var(--bunenjin-harmony);
+  font-weight: 600;
+  margin: 0;
+}
+
+.insight-content p {
+  color: var(--p3-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.insight-content p:last-child {
+  margin-bottom: 0;
+}
+
+.insight-content strong {
+  color: var(--p3-text-primary);
+}
+
+/* ========================================
+   Loading States
+   ======================================== */
+
+.scenarios-loading {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(99, 102, 241, 0.2);
+  border-left: 4px solid var(--p3-primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1.5rem;
+}
+
+.loading-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--p3-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.loading-subtitle {
+  color: var(--p3-text-secondary);
+  font-size: 1rem;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+@keyframes contradiction-pulse {
+  0%, 100% { 
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  25% { 
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  75% { 
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.fade-in-container {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+/* Tablet Layout */
+@media (max-width: 1024px) {
+  .eight-scenarios-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+  
+  .scenarios-display-container.phase3-scenarios {
+    padding: 1.5rem;
+  }
+  
+  .philosophy-title {
+    font-size: 2rem;
+  }
+  
+  .navigation-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile Layout */
+@media (max-width: 768px) {
+  .scenarios-display-container {
+    margin: 1rem auto;
+    padding: 0 0.5rem;
+  }
+  
+  .scenarios-display-container.phase3-scenarios {
+    border-radius: 16px;
+    padding: 1rem;
+  }
+  
+  .bunenjin-philosophy-header {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .philosophy-title {
+    font-size: 1.75rem;
+  }
+  
+  .philosophy-subtitle {
+    font-size: 1rem;
+  }
+  
+  .eight-scenarios-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .scenario-card {
+    border-radius: 16px;
+  }
+  
+  .scenario-card:hover {
+    transform: none;
+  }
+  
+  .card-header {
+    padding: 1rem;
+  }
+  
+  .scenario-title {
+    font-size: 1.25rem;
+  }
+  
+  .card-body {
+    padding: 0 1rem 1rem;
+  }
+  
+  .card-footer {
+    padding: 0 1rem 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .expand-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .scenario-metrics {
+    grid-template-columns: 1fr;
+  }
+  
+  .holistic-guidance-container {
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+  
+  .meta-guidance {
+    gap: 1rem;
+  }
+  
+  .primary-message,
+  .bunenjin-principle,
+  .contradiction-embrace {
+    padding: 1rem;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .explanation-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  .contradiction-embrace {
+    flex-direction: row;
+    text-align: left;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .scenarios-display-container.phase3-scenarios {
+    padding: 0.75rem;
+  }
+  
+  .philosophy-title {
+    font-size: 1.5rem;
+  }
+  
+  .header-icon {
+    font-size: 2rem;
+  }
+  
+  .scenario-number {
+    width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
+  }
+  
+  .scenario-title {
+    font-size: 1.125rem;
+  }
+  
+  .card-header {
+    padding: 0.75rem;
+  }
+  
+  .card-body {
+    padding: 0 0.75rem 0.75rem;
+  }
+  
+  .card-footer {
+    padding: 0 0.75rem 0.75rem;
+  }
+}
+
+/* ========================================
+   Accessibility & High Contrast
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .scenario-card,
+  .expand-button,
+  .loading-spinner,
+  .header-icon {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .scenario-card:hover {
+    transform: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .scenario-card {
+    border-width: 2px;
+  }
+  
+  .bunenjin-philosophy-header {
+    border-width: 2px;
+  }
+  
+  .holistic-guidance-container {
+    border-width: 2px;
+  }
+  
+  .expand-button {
+    border: 2px solid var(--p3-primary-color);
+  }
+}
+
+/* Focus States for Accessibility */
+.scenario-card:focus,
+.expand-button:focus {
+  outline: 2px solid var(--p3-primary-color);
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .scenarios-display-container.phase3-scenarios {
+    background: white;
+    color: black;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  .scenario-card {
+    break-inside: avoid;
+    background: white;
+    border: 1px solid #ccc;
+  }
+  
+  .expand-button {
+    display: none;
+  }
+}
+
+/* ========================================
+   Fallback Styles
+   ======================================== */
+
+.fallback-scenarios {
+  padding: 2rem;
+  text-align: center;
+}
+
+.fallback-scenarios h3 {
+  color: var(--p3-text-primary);
+  margin-bottom: 1rem;
+}
+
+.fallback-scenarios p {
+  color: var(--p3-text-secondary);
+  margin-bottom: 2rem;
+}
+
+.basic-scenarios-list {
+  display: grid;
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.basic-scenario-item {
+  padding: 1rem;
+  background: var(--p3-surface);
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  text-align: left;
+}
+
+.basic-scenario-item h4 {
+  color: var(--p3-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.basic-scenario-item p {
+  color: var(--p3-text-secondary);
+  margin: 0;
+}

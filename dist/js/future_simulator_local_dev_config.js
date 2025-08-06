@@ -1,107 +1,107 @@
 /**
- * Future Simulator ローカル開発環境用設定
- * セキュリティポリシーを開発環境用に緩和
- * 最優先で読み込まれ、環境を自動判定
+ * HAQEI Future Simulator Local Development Configuration - Complete Version
+ * ローカル開発環境用設定 - Phase 1 Implementation
+ * 
+ * 実装日: 2025年8月6日
+ * 担当: HAQEI Programming Agent  
+ * 目的: 開発環境での最適化とデバッグ支援
  */
 
-(function() {
-    'use strict';
+// 開発環境フラグの設定
+window.HAQEI_DEV_MODE = true;
+window.HAQEI_LOCAL_DEV = true;
+
+// 開発環境用設定オブジェクト
+window.HAQEI_CONFIG = {
+    // ==================================
+    // 開発モード設定
+    // ==================================
+    skipComplexInit: true,              // 複雑な初期化をスキップ
+    useSimpleAnalysis: true,            // 簡易分析モードを使用
+    enableDebugMode: true,              // デバッグモードを有効化
+    skipKuromojiInit: false,            // kuromoji.js初期化をスキップしない
+    maxInitTimeout: 5000,               // 初期化タイムアウト (ms)
+    fallbackMode: true,                 // フォールバック機能を有効化
     
-    // 環境検出
-    const ENV = {
-        isDevelopment: ['localhost', '127.0.0.1'].includes(window.location.hostname),
-        isStaging: window.location.hostname.includes('staging'),
-        isProduction: !(['localhost', '127.0.0.1'].includes(window.location.hostname)) && 
-                      !window.location.hostname.includes('staging')
-    };
+    // ==================================
+    // パフォーマンス最適化
+    // ==================================
+    performance: {
+        enableCache: true,              // キャッシュを有効化
+        cacheTimeout: 300000,           // キャッシュタイムアウト (5分)
+        enableLazyLoading: true,        // 遅延読み込みを有効化
+        enableCompression: false,       // 開発時は圧縮無効
+        enableMinification: false,      // 開発時は最小化無効
+        maxConcurrentRequests: 3        // 同時リクエスト数制限
+    },
     
-    // グローバル設定オブジェクト
-    window.HAQEI_CONFIG = {
-        environment: ENV.isDevelopment ? 'development' : 
-                    ENV.isStaging ? 'staging' : 'production',
-        security: {
-            enableCSP: !ENV.isDevelopment,
-            enableSRI: !ENV.isDevelopment,
-            allowInlineScripts: ENV.isDevelopment,
-            allowInlineStyles: ENV.isDevelopment,
-            allowExternalScripts: true,
-            CSPNonce: ENV.isDevelopment ? 'dev-nonce' : null
-        },
-        debug: ENV.isDevelopment,
-        errorHandling: {
-            showDetails: ENV.isDevelopment,
-            logToConsole: true,
-            logToServer: ENV.isProduction,
-            suppressCSPWarnings: ENV.isDevelopment
-        },
-        performance: {
-            enableOptimizations: !ENV.isDevelopment,
-            lazyLoadThreshold: ENV.isDevelopment ? 0 : 200
-        }
-    };
+    // ==================================
+    // デバッグ設定
+    // ==================================
+    debug: {
+        enableConsoleLogging: true,     // コンソールログを有効化
+        logLevel: 'debug',              // ログレベル (debug|info|warn|error)
+        enablePerformanceLogging: true, // パフォーマンスログを有効化
+        enableErrorTracking: true,      // エラートラッキングを有効化
+        showDebugUI: true,             // デバッグUIを表示
+        enableNetworkLogging: false     // ネットワークログ (本番では無効)
+    },
     
-    // 開発環境の場合、追加の緩和設定
-    if (ENV.isDevelopment) {
-        console.log('🔧 HAQEI開発環境モード有効化');
-        console.log('📋 環境設定:', window.HAQEI_CONFIG);
-        
-        // SecurityHeaderManagerの事前設定
-        window.SECURITY_OVERRIDE = true;
-        window.DEV_MODE = true;
-        window.DISABLE_CSP = true;
-        
-        // DOMPurifyのintegrityチェックをスキップ
-        window.SKIP_INTEGRITY_CHECK = true;
-        
-        // インラインスクリプト・スタイルを許可
-        window.ALLOW_INLINE_SCRIPTS = true;
-        window.ALLOW_INLINE_STYLES = true;
-    
-    // セキュリティマネージャーの初期化を遅延
-    if (typeof window.SecurityHeaderManager !== 'undefined') {
-        const originalInit = window.SecurityHeaderManager.prototype.init;
-        window.SecurityHeaderManager.prototype.init = function() {
-            console.log('🛡️ セキュリティマネージャー: 開発モードで初期化');
-            // CSPを無効化
-            this.environment = 'development';
-            this.config.enableCSP = false;
-            // オリジナルのinitを呼び出し
-            return originalInit.call(this);
-        };
+    // ==================================
+    // 分析エンジン設定
+    // ==================================
+    analysis: {
+        enableDynamicKeywords: true,    // 動的キーワード生成有効
+        enableIntegratedAnalysis: true, // 統合分析有効
+        enableIChingIntegration: true,  // I Ching統合有効
+        enableBunenjinPhilosophy: true, // bunenjin哲学有効
+        maxKeywords: 20,                // 最大キーワード数
+        analysisTimeout: 15000,         // 分析タイムアウト (15秒)
+        enableCache: true,              // 分析結果キャッシュ
+        cacheExpiry: 1800000,           // キャッシュ有効期限 (30分)
+        minConfidenceThreshold: 0.3     // 最低信頼度閾値
     }
-    
-    // エラーログの詳細表示
-    window.addEventListener('error', (e) => {
-        console.error('🚨 グローバルエラー:', {
-            message: e.message,
-            filename: e.filename,
-            lineno: e.lineno,
-            colno: e.colno,
-            error: e.error
-        });
-    });
-    
-    // リソース読み込みエラーの詳細表示
-    window.addEventListener('error', (e) => {
-        if (e.target && e.target !== window) {
-            console.error('🚨 リソース読み込みエラー:', {
-                type: e.target.tagName,
-                src: e.target.src || e.target.href,
-                message: 'Failed to load resource'
-            });
-        }
-    }, true);
-        
-        // CSP違反を抑制
-        const originalViolationHandler = window.addEventListener;
-        window.addEventListener = function(type, handler, options) {
-            if (type === 'securitypolicyviolation' && ENV.isDevelopment) {
-                console.log('🔇 CSP違反イベントを抑制');
-                return;
+};
+
+// ==================================
+// 開発者用ユーティリティ関数
+// ==================================
+
+// デバッグログ関数
+window.HAQEI_DEBUG = {
+    log: function(message, data = null) {
+        if (window.HAQEI_CONFIG.debug.enableConsoleLogging) {
+            const timestamp = new Date().toISOString();
+            if (data) {
+                console.log(`[HAQEI-DEBUG ${timestamp}]`, message, data);
+            } else {
+                console.log(`[HAQEI-DEBUG ${timestamp}]`, message);
             }
-            return originalViolationHandler.call(window, type, handler, options);
-        };
-    }
+        }
+    },
     
-    console.log('✅ HAQEI環境設定完了:', window.HAQEI_CONFIG.environment);
-})();
+    warn: function(message, data = null) {
+        const timestamp = new Date().toISOString();
+        if (data) {
+            console.warn(`[HAQEI-WARN ${timestamp}]`, message, data);
+        } else {
+            console.warn(`[HAQEI-WARN ${timestamp}]`, message);
+        }
+    },
+    
+    error: function(message, error = null) {
+        const timestamp = new Date().toISOString();
+        if (error) {
+            console.error(`[HAQEI-ERROR ${timestamp}]`, message, error);
+        } else {
+            console.error(`[HAQEI-ERROR ${timestamp}]`, message);
+        }
+    }
+};
+
+// ==================================
+// 初期化完了通知
+// ==================================
+console.log('✅ HAQEI Future Simulator Local Development Config loaded successfully');
+console.log('🔧 Development mode enabled:', window.HAQEI_DEV_MODE);
+console.log('📊 Debug mode enabled:', window.HAQEI_CONFIG.debug.enableConsoleLogging);

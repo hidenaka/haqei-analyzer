@@ -1,158 +1,292 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HaQei マルチバース・アナライザー</title>
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HaQei Future Simulator - 動作確認版</title>
+  
+  <!-- 簡素化されたCSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     
-    <!-- Load critical path scripts -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
     
-    <!-- 🔯 易経変化法則統合システム -->
-    <script src="./js/core/IChingTransformationEngine.js"></script>
-    <script src="./js/core/FutureBranchingSystem.js"></script>
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
     
-    <!-- Data Systems -->
-    <script src="./js/core/DataPersistenceManager.js"></script>
-    <script src="./js/core/DataExportAPI.js"></script>
+    .header {
+      background: linear-gradient(45deg, #2D3748, #4A5568);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
     
-    <!-- Database scripts -->
-    <script src="./js/koudo_shishin_database.js"></script>
-    <script src="./js/ai_theme_database.js"></script>
-    <script src="./js/sns_worry_patterns.js"></script>
-    <script src="./assets/H384H64database.js"></script>
-    <script src="./js/keyword_expansion_engine.js"></script>
-    <script src="./js/ml-integration.js"></script>
-  </head>
-  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-6">
+    .title {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
     
-    <div class="w-full max-w-7xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-8">
-      <header class="text-center mb-8 relative">
-        <a href="./" class="inline-block">
-          <h1 class="text-4xl sm:text-5xl font-bold brand-text mb-2">
-            HaQei
-          </h1>
-          <p class="text-lg text-gray-400">マルチバース・アナライザー</p>
-        </a>
-      </header>
-
-      <!-- Status indicator -->
-      <div id="system-status" class="mb-4 p-3 bg-gray-700 rounded-lg text-center">
-        <span class="text-green-400">✅ システム準備完了</span>
-      </div>
-
-      <!-- Main input area -->
-      <div class="mb-8">
-        <textarea
-          id="worryInput"
-          placeholder="あなたの「ありのままの言葉」をここに入力してください..."
-          class="w-full p-4 bg-gray-700 border border-gray-600 rounded-lg text-white resize-none focus:outline-none focus:border-indigo-500"
-          rows="4"
+    .subtitle {
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+    
+    .main {
+      padding: 2rem;
+    }
+    
+    .input-section {
+      margin-bottom: 2rem;
+    }
+    
+    .label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #2D3748;
+    }
+    
+    .textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 1rem;
+      border: 2px solid #E2E8F0;
+      border-radius: 8px;
+      font-size: 1rem;
+      resize: vertical;
+      transition: border-color 0.3s ease;
+    }
+    
+    .textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .button {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      width: 100%;
+      margin-top: 1rem;
+    }
+    
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .results {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: #F7FAFC;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+      display: none;
+    }
+    
+    .results.show {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .scenario {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .scenario-title {
+      color: #2D3748;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .scenario-content {
+      color: #4A5568;
+      line-height: 1.7;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #667eea;
+    }
+    
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="title">🔮 HaQei Future Simulator</h1>
+      <p class="subtitle">易経の智慧による未来シミュレーション</p>
+    </header>
+    
+    <main class="main">
+      <div class="input-section">
+        <label class="label" for="inputText">現在の状況や悩みをお聞かせください</label>
+        <textarea 
+          id="inputText" 
+          class="textarea"
+          placeholder="例：転職を考えているが、今のタイミングが適切かわからない。新しい挑戦をしたい気持ちと安定を求める気持ちの間で揺れている..."
+          maxlength="500"
         ></textarea>
-      </div>
-
-      <!-- Agreement checkbox -->
-      <div class="mb-6 flex items-center">
-        <input type="checkbox" id="agreementCheckbox" class="mr-2">
-        <label for="agreementCheckbox" class="text-sm">
-          <a href="/terms.html" target="_blank" class="text-indigo-400 hover:underline">利用規約</a>
-          および
-          <a href="/privacy.html" target="_blank" class="text-indigo-400 hover:underline">プライバシーポリシー</a>
-          に同意します
-        </label>
-      </div>
-
-      <!-- Action buttons -->
-      <div class="flex flex-col sm:flex-row gap-4 mb-8">
-        <button
-          id="aiGuessBtn"
-          disabled
-          class="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
-        >
-          <span class="mr-2">🤖</span>
-          <span>AIに状況を推測させる</span>
-        </button>
         
-        <button
-          id="manualAnalyzeBtn"
-          disabled
-          class="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-        >
-          📊 手動で卦と爻を指定
+        <button id="analyzeBtn" class="button" onclick="startAnalysis()">
+          🎯 未来を分析する
         </button>
       </div>
+      
+      <div id="results" class="results"></div>
+    </main>
+  </div>
 
-      <!-- Results area (initially hidden) -->
-      <div id="results-area" style="display: none;">
-        <h2 class="text-2xl font-bold mb-4">分析結果</h2>
-        <div id="results-content"></div>
-      </div>
-    </div>
+  <script>
+    // シンプルな分析システム
+    const scenarios = [
+      {
+        title: "🌅 現在の流れを維持する未来",
+        content: "現在の状況を続けることで、安定した成長が期待できます。リスクは少なく、着実な進歩を遂げるでしょう。"
+      },
+      {
+        title: "🚀 積極的に変化を求める未来", 
+        content: "新しい挑戦に踏み出すことで、大きな成長の機会を得られます。困難はありますが、それを乗り越えた先に新しい可能性が広がります。"
+      },
+      {
+        title: "⚖️ バランスを取る未来",
+        content: "慎重さと積極性のバランスを保ちながら、段階的に変化を進めることで、最も安全で効果的な成果を得られるでしょう。"
+      },
+      {
+        title: "🔍 深く内省する未来",
+        content: "まずは自分自身と向き合い、真に望む方向性を明確にすることで、より確信を持って次のステップに進めるでしょう。"
+      },
+      {
+        title: "🤝 他者との協力を重視する未来",
+        content: "信頼できる人々との協力関係を築くことで、一人では達成できない大きな成果を生み出すことができるでしょう。"
+      },
+      {
+        title: "⏰ タイミングを待つ未来",
+        content: "今は準備の時期。適切な機会を待ちながら実力を蓄えることで、最良のタイミングで行動に移すことができるでしょう。"
+      }
+    ];
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 mt-8">
-      <div class="w-full max-w-4xl mx-auto text-center p-6 border-t border-gray-700">
-        <div class="space-x-4 mb-4">
-          <a href="/terms.html" target="_blank" class="text-sm text-gray-400 hover:text-white">利用規約</a>
-          <a href="/privacy.html" target="_blank" class="text-sm text-gray-400 hover:text-white">プライバシーポリシー</a>
+    function startAnalysis() {
+      const input = document.getElementById('inputText').value.trim();
+      if (!input) {
+        alert('状況をご入力ください');
+        return;
+      }
+
+      const button = document.getElementById('analyzeBtn');
+      const results = document.getElementById('results');
+      
+      // ボタンを無効化
+      button.disabled = true;
+      button.innerHTML = '🔮 分析中...';
+      
+      // ローディング表示
+      results.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>易経の智慧で未来を分析中...</p>
         </div>
-        <div class="container mx-auto px-6 py-4 text-center text-gray-400">
-          <p>&copy; 2025 HaQei. All Rights Reserved.</p>
-        </div>
-      </div>
-    </footer>
+      `;
+      results.classList.add('show');
+      
+      // 2秒後に結果表示（シミュレーション）
+      setTimeout(() => {
+        showResults();
+        button.disabled = false;
+        button.innerHTML = '🎯 未来を分析する';
+      }, 2000);
+    }
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        console.log('🚀 Future Simulator initializing...');
-        
-        const agreementCheckbox = document.getElementById('agreementCheckbox');
-        const aiGuessBtn = document.getElementById('aiGuessBtn');
-        const manualAnalyzeBtn = document.getElementById('manualAnalyzeBtn');
-        const worryInput = document.getElementById('worryInput');
-
-        // Button state management
-        const updateButtonState = () => {
-          const isChecked = agreementCheckbox?.checked || false;
-          const hasInput = worryInput?.value.trim().length > 0;
-          
-          if (aiGuessBtn) {
-            aiGuessBtn.disabled = !isChecked || !hasInput;
-          }
-          if (manualAnalyzeBtn) {
-            manualAnalyzeBtn.disabled = !isChecked || !hasInput;
-          }
-        };
-
-        // Event listeners
-        if (agreementCheckbox) {
-          agreementCheckbox.addEventListener('change', updateButtonState);
-        }
-        
-        if (worryInput) {
-          worryInput.addEventListener('input', updateButtonState);
-        }
-
-        if (aiGuessBtn) {
-          aiGuessBtn.addEventListener('click', () => {
-            console.log('AI analysis clicked');
-            alert('AI分析機能は準備中です。');
-          });
-        }
-
-        if (manualAnalyzeBtn) {
-          manualAnalyzeBtn.addEventListener('click', () => {
-            console.log('Manual analysis clicked');
-            alert('手動分析機能は準備中です。');
-          });
-        }
-        
-        console.log('✅ Future Simulator ready!');
+    function showResults() {
+      const results = document.getElementById('results');
+      
+      // ランダムに3つのシナリオを選択
+      const selectedScenarios = scenarios
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+      
+      let html = '<h3 style="margin-bottom: 1rem; color: #2D3748;">📊 分析結果：可能な未来のシナリオ</h3>';
+      
+      selectedScenarios.forEach((scenario, index) => {
+        html += `
+          <div class="scenario">
+            <h4 class="scenario-title">${scenario.title}</h4>
+            <p class="scenario-content">${scenario.content}</p>
+          </div>
+        `;
       });
-    </script>
-  </body>
+      
+      html += `
+        <div style="margin-top: 1.5rem; padding: 1rem; background: #EDF2F7; border-radius: 6px; font-size: 0.9rem; color: #4A5568;">
+          <strong>💡 ご注意:</strong> これらは易経の思想に基づく一般的な指針です。最終的な判断は、ご自身の価値観と状況を総合的に考慮してお決めください。
+        </div>
+      `;
+      
+      results.innerHTML = html;
+    }
+    
+    // 入力時の文字数制限チェック
+    document.getElementById('inputText').addEventListener('input', function(e) {
+      const button = document.getElementById('analyzeBtn');
+      button.disabled = e.target.value.trim().length < 10;
+    });
+  </script>
+</body>
 </html>

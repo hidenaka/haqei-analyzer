@@ -371,7 +371,7 @@ if (require.main === module) {
       consultation.listConsultationTypes();
       break;
       
-    case 'start':
+    case 'start': {
       const sessionId = process.env.npm_config_session || args[1];
       const consultationType = process.env.npm_config_type || args[2] || 'improvement_planning';
       
@@ -393,6 +393,7 @@ if (require.main === module) {
           process.exit(1);
         });
       break;
+    }
       
     default:
       console.log('🤖 Claude相談システム');

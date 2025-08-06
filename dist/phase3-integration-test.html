@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 3 Integration Test - HAQEI Analyzer</title>
+    
+    <!-- Phase 3 Styles -->
+    <link rel="stylesheet" href="./css/phase3-scenarios-styles.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 16px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .test-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .test-input {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            background: rgba(15, 23, 42, 0.8);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, #6366f1, #5b5aec);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .test-results {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+        
+        .status-log {
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #06b6d4; }
+        .warning { color: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🧪 Phase 3 Integration Test</h1>
+            <p>HAQEI Future Simulator - 8シナリオシステムのテスト</p>
+        </div>
+        
+        <div class="test-input-section">
+            <label for="testInput">テスト用入力テキスト:</label>
+            <textarea id="testInput" class="test-input" rows="4" placeholder="将来への不安と希望について考えている。どの道を選ぶべきか迷っている。"></textarea>
+            <button id="runTest" class="test-button">Phase 3 統合テスト実行</button>
+        </div>
+        
+        <div class="test-results">
+            <h3>テスト結果:</h3>
+            <div id="statusLog" class="status-log"></div>
+        </div>
+        
+        <div id="phase3Results"></div>
+    </div>
+
+    <!-- Phase 2 Dependencies (existing) -->
+    <script src="./js/pages/future-simulator/TextToIChingEngine.js"></script>
+    <script src="./js/pages/future-simulator/IntegratedAnalysisEngine.js"></script>
+    <script src="./js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
+    
+    <!-- Phase 3 Core Components -->
+    <script src="./js/pages/future-simulator/EightScenariosGenerator.js"></script>
+    <script src="./js/pages/future-simulator/ScenariosDisplayUI.js"></script>
+    <script src="./js/pages/future-simulator/scenario-animations.js"></script>
+    <script src="./js/pages/future-simulator/Phase3IntegrationController.js"></script>
+    
+    <!-- bunenjin Philosophy Systems -->
+    <script src="./js/bunenjin/ContradictionAcceptanceSystem.js"></script>
+    <script src="./js/bunenjin/DynamicBunenjinSystem.js"></script>
+    <script src="./js/bunenjin/IntegratedGuidanceSystem.js"></script>
+    <script src="./js/bunenjin/BunenjinValidationSystem.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 Phase 3 Integration Test initialized');
+            
+            const testInput = document.getElementById('testInput');
+            const runTestButton = document.getElementById('runTest');
+            const statusLog = document.getElementById('statusLog');
+            const phase3Results = document.getElementById('phase3Results');
+            
+            let testController = null;
+            
+            // ステータスログ機能
+            function logStatus(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const className = type;
+                const icon = {
+                    'success': '✅',
+                    'error': '❌',
+                    'warning': '⚠️',
+                    'info': '📝'
+                }[type] || '📝';
+                
+                statusLog.innerHTML += `<div class="${className}">[${timestamp}] ${icon} ${message}</div>`;
+                statusLog.scrollTop = statusLog.scrollHeight;
+            }
+            
+            // システム初期化チェック
+            function checkSystemComponents() {
+                logStatus('System components check started...', 'info');
+                
+                const components = {
+                    'TextToIChingEngine': window.TextToIChingEngine,
+                    'IntegratedAnalysisEngine': window.IntegratedAnalysisEngine, 
+                    'DynamicKeywordGenerator': window.DynamicKeywordGenerator,
+                    'EightScenariosGenerator': window.EightScenariosGenerator,
+                    'ScenariosDisplayUI': window.ScenariosDisplayUI,
+                    'ScenarioAnimationsEngine': window.ScenarioAnimationsEngine,
+                    'Phase3IntegrationController': window.Phase3IntegrationController
+                };
+                
+                let allComponentsLoaded = true;
+                
+                Object.entries(components).forEach(([name, component]) => {
+                    if (component) {
+                        logStatus(`${name}: loaded successfully`, 'success');
+                    } else {
+                        logStatus(`${name}: NOT FOUND`, 'error');
+                        allComponentsLoaded = false;
+                    }
+                });
+                
+                // bunenjin Philosophy Components Check
+                const bunenjinComponents = {
+                    'ContradictionAcceptanceSystem': window.ContradictionAcceptanceSystem,
+                    'DynamicBunenjinSystem': window.DynamicBunenjinSystem,
+                    'IntegratedGuidanceSystem': window.IntegratedGuidanceSystem,
+                    'BunenjinValidationSystem': window.BunenjinValidationSystem
+                };
+                
+                Object.entries(bunenjinComponents).forEach(([name, component]) => {
+                    if (component) {
+                        logStatus(`bunenjin ${name}: loaded successfully`, 'success');
+                    } else {
+                        logStatus(`bunenjin ${name}: NOT FOUND (optional)`, 'warning');
+                    }
+                });
+                
+                return allComponentsLoaded;
+            }
+            
+            // Phase 3統合テスト実行
+            async function runPhase3IntegrationTest() {
+                try {
+                    logStatus('Starting Phase 3 Integration Test...', 'info');
+                    
+                    // コンポーネントチェック
+                    if (!checkSystemComponents()) {
+                        logStatus('Some core components are missing. Test may fail.', 'warning');
+                    }
+                    
+                    // Phase 3コントローラー初期化
+                    if (window.Phase3IntegrationController) {
+                        testController = new window.Phase3IntegrationController();
+                        logStatus('Phase3IntegrationController initialized', 'success');
+                    } else {
+                        throw new Error('Phase3IntegrationController not available');
+                    }
+                    
+                    // テスト入力データの取得
+                    const inputText = testInput.value.trim();
+                    if (!inputText) {
+                        throw new Error('Test input text is required');
+                    }
+                    
+                    logStatus(`Input text: "${inputText}"`, 'info');
+                    
+                    // Phase 3統合実行
+                    logStatus('Executing full Phase 2→Phase 3 integration...', 'info');
+                    
+                    const integrationOptions = {
+                        userLevel: 'intermediate',
+                        language: 'japanese',
+                        displayFormat: 'comprehensive',
+                        scenarioCount: 8,
+                        contradictionMode: 'full_acceptance',
+                        bunenjinMode: 'active',
+                        diversityLevel: 'high',
+                        animationEnabled: true,
+                        contradictionVisualization: true,
+                        parentElement: phase3Results
+                    };
+                    
+                    const startTime = performance.now();
+                    const results = await testController.executeFullIntegration(inputText, integrationOptions);
+                    const endTime = performance.now();
+                    
+                    logStatus(`Integration completed in ${Math.round(endTime - startTime)}ms`, 'success');
+                    
+                    // 結果検証
+                    if (results.success) {
+                        logStatus('✨ Phase 3 Integration Test PASSED!', 'success');
+                        logStatus(`Scenarios generated: ${results.phase3Results?.scenarios?.length || 0}`, 'info');
+                        logStatus(`bunenjin compliance: ${results.bunenjinCompliance?.overall_compliance || 'N/A'}`, 'info');
+                        logStatus(`Performance grade: ${results.technicalDetails?.performance_grade || 'N/A'}`, 'info');
+                    } else {
+                        logStatus('❌ Phase 3 Integration Test FAILED', 'error');
+                        if (results.errorMessage) {
+                            logStatus(`Error: ${results.errorMessage}`, 'error');
+                        }
+                    }
+                    
+                } catch (error) {
+                    logStatus(`Test execution failed: ${error.message}`, 'error');
+                    console.error('Phase 3 Integration Test Error:', error);
+                }
+            }
+            
+            // テストボタンイベント
+            runTestButton.addEventListener('click', runPhase3IntegrationTest);
+            
+            // 初期チェック実行
+            logStatus('Phase 3 Integration Test ready', 'success');
+            checkSystemComponents();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Critical CSS Test - Welcome Screen</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Critical CSS for Welcome Screen - First Paint Optimization -->
+    <style>
+      /* Critical CSS for Welcome Screen - bunenjin philosophy first view */
+      
+      /* CSS Variables - Essential only */
+      :root {
+        --primary-900: #0f172a;
+        --primary-800: #1e293b;
+        --primary-700: #334155;
+        --primary-600: #475569;
+        --primary-500: #64748b;
+        --primary-400: #94a3b8;
+        --primary-300: #cbd5e1;
+        --primary-200: #e2e8f0;
+        --primary-100: #f1f5f9;
+        --primary-50: #f8fafc;
+        --accent-500: #6366f1;
+        --accent-400: #8b5cf6;
+        --font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-jp: "Shippori Mincho", serif;
+        --space-xs: clamp(0.5rem, 2vw, 0.75rem);
+        --space-sm: clamp(0.75rem, 3vw, 1rem);
+        --space-md: clamp(1rem, 4vw, 1.5rem);
+        --space-lg: clamp(1.5rem, 5vw, 2rem);
+        --space-xl: clamp(2rem, 6vw, 3rem);
+        --space-2xl: clamp(3rem, 8vw, 4rem);
+        --font-sm: clamp(0.875rem, 2.5vw, 1rem);
+        --font-base: clamp(1rem, 3vw, 1.125rem);
+        --font-lg: clamp(1.25rem, 4vw, 1.5rem);
+        --font-xl: clamp(1.5rem, 5vw, 2rem);
+        --font-2xl: clamp(2rem, 6vw, 3rem);
+        --font-3xl: clamp(2.5rem, 8vw, 4rem);
+        --radius-md: clamp(0.5rem, 2vw, 1rem);
+        --radius-lg: clamp(1rem, 3vw, 1.5rem);
+        --radius-xl: clamp(1.5rem, 4vw, 2rem);
+        --transition-normal: 300ms ease;
+        --tap-size: max(44px, 2.75rem);
+        --safe-area-top: max(env(safe-area-inset-top), 0px);
+      }
+      
+      /* Reset - Essential only */
+      *, *::before, *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      html {
+        line-height: 1.15;
+        -webkit-text-size-adjust: 100%;
+        scroll-behavior: smooth;
+      }
+      
+      body {
+        font-family: var(--font-family);
+        background: linear-gradient(135deg, var(--primary-800) 0%, var(--primary-700) 35%, var(--primary-600) 70%, rgba(99, 102, 241, 0.1) 100%);
+        background-attachment: fixed;
+        color: var(--primary-100);
+        min-height: 100vh;
+        line-height: 1.6;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      /* App Container */
+      .app-container {
+        min-height: 100vh;
+        position: relative;
+      }
+      
+      .screen-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: none;
+        align-items: flex-start;
+        justify-content: center;
+        padding: var(--space-md);
+        box-sizing: border-box;
+        overflow-y: auto;
+      }
+      
+      .screen-container.visible {
+        display: flex !important;
+        z-index: 100;
+      }
+      
+      /* Welcome Screen Layout */
+      #welcome-container {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        text-align: center;
+        padding-top: calc(var(--space-md) + var(--safe-area-top));
+        padding-bottom: var(--space-md);
+        min-height: calc(100vh - var(--space-md) * 2);
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      
+      .welcome-content {
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: var(--space-lg);
+      }
+      
+      .welcome-header {
+        margin-bottom: var(--space-xl);
+      }
+      
+      .welcome-title {
+        font-size: var(--font-3xl);
+        font-weight: 700;
+        color: var(--accent-400);
+        margin-bottom: var(--space-md);
+        background: linear-gradient(135deg, var(--accent-500), var(--accent-400));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .welcome-subtitle {
+        font-size: var(--font-lg);
+        color: var(--primary-200);
+        margin-bottom: 0;
+        font-family: var(--font-jp);
+      }
+      
+      .welcome-description {
+        margin: var(--space-xl) 0;
+        color: var(--primary-300);
+        line-height: 1.8;
+        font-size: var(--font-base);
+      }
+      
+      .welcome-actions {
+        margin-top: var(--space-2xl);
+      }
+      
+      /* Button Component - Critical */
+      .btn {
+        display: inline-block;
+        padding: var(--space-sm) var(--space-lg);
+        background: linear-gradient(135deg, var(--accent-500), var(--accent-400));
+        color: white;
+        text-decoration: none;
+        border: none;
+        border-radius: var(--radius-md);
+        font-size: var(--font-base);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition-normal);
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        position: relative;
+        overflow: hidden;
+        min-height: var(--tap-size);
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      .btn-lg {
+        padding: var(--space-md) var(--space-xl);
+        font-size: var(--font-lg);
+        min-height: calc(var(--tap-size) + 8px);
+      }
+      
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+      }
+      
+      .btn:active {
+        transform: translateY(0) scale(0.98);
+      }
+      
+      /* Triple OS Cards - Critical */
+      .triple-os-intro {
+        margin: var(--space-xl) 0;
+        padding: var(--space-xl);
+        background: rgba(15, 23, 42, 0.8);
+        border-radius: var(--radius-xl);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        backdrop-filter: blur(10px);
+      }
+      
+      .triple-os-intro h3 {
+        color: var(--primary-100);
+        font-size: var(--font-xl);
+        font-weight: 600;
+        margin-bottom: var(--space-md);
+        text-align: center;
+      }
+      
+      .triple-os-intro > p {
+        color: var(--primary-300);
+        text-align: center;
+        margin-bottom: var(--space-xl);
+        font-size: var(--font-base);
+        line-height: 1.6;
+      }
+      
+      .os-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--space-lg);
+        margin-bottom: var(--space-xl);
+      }
+      
+      .os-card {
+        background: rgba(30, 41, 59, 0.8);
+        border-radius: var(--radius-lg);
+        padding: var(--space-lg);
+        text-align: center;
+        transition: all var(--transition-normal);
+        border: 1px solid transparent;
+      }
+      
+      .os-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      }
+      
+      .os-card.engine-os {
+        border-color: rgba(99, 102, 241, 0.3);
+      }
+      
+      .os-card.engine-os:hover {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: rgba(99, 102, 241, 0.5);
+      }
+      
+      .os-card.interface-os {
+        border-color: rgba(168, 85, 247, 0.3);
+      }
+      
+      .os-card.interface-os:hover {
+        background: rgba(168, 85, 247, 0.1);
+        border-color: rgba(168, 85, 247, 0.5);
+      }
+      
+      .os-card.safemode-os {
+        border-color: rgba(251, 146, 60, 0.3);
+      }
+      
+      .os-card.safemode-os:hover {
+        background: rgba(251, 146, 60, 0.1);
+        border-color: rgba(251, 146, 60, 0.5);
+      }
+      
+      .os-card .os-icon {
+        font-size: 2.5rem;
+        margin-bottom: var(--space-md);
+        display: block;
+      }
+      
+      .os-card h4 {
+        color: var(--primary-100);
+        font-size: var(--font-lg);
+        font-weight: 600;
+        margin-bottom: var(--space-sm);
+      }
+      
+      .os-card p {
+        color: var(--primary-400);
+        font-size: var(--font-sm);
+        line-height: 1.4;
+        margin-bottom: var(--space-sm);
+      }
+      
+      .os-card .os-detail {
+        color: var(--primary-300);
+        font-size: 0.75rem;
+        line-height: 1.5;
+        margin-top: var(--space-sm);
+      }
+      
+      /* Insight Promise */
+      .insight-promise .main-promise {
+        font-size: var(--font-lg);
+        color: var(--accent-400);
+        margin-bottom: var(--space-md);
+      }
+      
+      .promise-list {
+        text-align: left;
+        max-width: 500px;
+        margin: 0 auto;
+        padding-left: var(--space-lg);
+      }
+      
+      .promise-list li {
+        margin-bottom: var(--space-sm);
+        color: var(--primary-200);
+      }
+      
+      .time-info {
+        text-align: center;
+        font-size: var(--font-base);
+        color: var(--accent-400);
+        margin-top: var(--space-lg);
+      }
+      
+      .start-note {
+        margin-top: var(--space-md);
+        font-size: var(--font-sm);
+        color: var(--primary-400);
+      }
+      
+      /* SafeMode Emphasis */
+      .safemode-emphasis {
+        background: linear-gradient(135deg, rgba(251, 146, 60, 0.1), rgba(239, 68, 68, 0.1));
+        border-radius: var(--radius-lg);
+        padding: var(--space-lg);
+        border: 1px solid rgba(251, 146, 60, 0.3);
+      }
+      
+      .emphasis-text {
+        color: #fde68a;
+        font-size: var(--font-sm);
+        line-height: 1.6;
+        margin: 0;
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-md);
+      }
+      
+      .emphasis-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+      }
+      
+      /* Basic Responsive */
+      @media (max-width: 768px) {
+        .screen-container {
+          padding: var(--space-sm);
+        }
+        
+        .os-cards {
+          grid-template-columns: 1fr;
+          gap: var(--space-md);
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .screen-container {
+          padding: var(--space-xs);
+        }
+        
+        .triple-os-intro {
+          padding: var(--space-lg);
+        }
+        
+        .os-card {
+          padding: var(--space-md);
+        }
+      }
+      
+      /* Reduced Motion */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <section id="welcome-container" class="screen-container visible">
+            <div class="welcome-content">
+                <div class="welcome-header">
+                    <h1 class="welcome-title">🎯 HaQei Analyzer</h1>
+                    <p class="welcome-subtitle">3つの人格を特定し、その人格OSが相互に作用している様を易経のメタファーを通じて、<br>フィードバックをして、仮想のあなたを客観的にみることができる</p>
+                </div>
+                
+                <div class="welcome-description">
+                    <div class="insight-promise">
+                        <p class="main-promise">✨ <strong>こんな気づきが得られます</strong></p>
+                        <ul class="promise-list">
+                            <li>「この場面では価値観重視の私だったから、あの判断をしたんだ」</li>
+                            <li>「人前では社会的な私が出るから、いつもと違う行動になったんだ」</li>
+                            <li>「あの時は防御モードだったから、つい避けてしまったんだ」</li>
+                        </ul>
+                    </div>
+                    <p class="time-info">📱 約5分・30問・完全無料</p>
+                </div>
+
+                <div class="triple-os-intro">
+                    <h3>🔺 HaQei独自の「3つの人格システム」理論</h3>
+                    <p>私たちは誰もが、状況に応じて使い分ける3つの人格システムを持っています：</p>
+                    
+                    <div class="os-cards">
+                        <div class="os-card engine-os">
+                            <div class="os-icon">⚙️</div>
+                            <h4>価値観システム</h4>
+                            <p>本質的な自分・核となる価値観</p>
+                            <p class="os-detail">誰も見ていない時、心から信頼できる人といる時に現れる「本音の自分」</p>
+                        </div>
+                        
+                        <div class="os-card interface-os">
+                            <div class="os-icon">🎭</div>
+                            <h4>社会的システム</h4>
+                            <p>他者に見せる自分・社会的な表現</p>
+                            <p class="os-detail">職場や友人関係、初対面の人との関わりで見せる「社会的な自分」</p>
+                        </div>
+                        
+                        <div class="os-card safemode-os">
+                            <div class="os-icon">🛡️</div>
+                            <h4>防御システム</h4>
+                            <p>内なる自分の防御機制</p>
+                            <p class="os-detail">困難や脅威に直面した時、無意識に発動する「守る力を持つ智慧」</p>
+                        </div>
+                    </div>
+
+                    <div class="safemode-emphasis">
+                        <p class="emphasis-text">
+                            <span class="emphasis-icon">💡</span>
+                            特に「防御システム」は、あなたを守るために発動する大切な機能です。
+                            これは悪いものではなく、適切に理解し活用することで、より健全な自己統合への道が開けます。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="welcome-actions">
+                    <button id="start-analysis-btn" class="btn btn-lg">
+                        分析を開始する
+                    </button>
+                    <p class="start-note">※診断後、具体的な行動改善提案も受け取れます</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

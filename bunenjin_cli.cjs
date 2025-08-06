@@ -374,12 +374,18 @@ class BunenjinCLI {
         console.log('分人思想に基づくCTO・プログラマー・QAエージェントシステムです。');
         console.log();
         
-        while (true) {
+        let running = true;
+        while (running) {
             this.showCurrentStatus();
             await this.showMenu();
             
-            console.log('\n' + colors.yellow + 'Enterキーで続行...' + colors.reset);
-            await this.question('');
+            console.log('\n' + colors.yellow + 'Enterキーで続行、"exit"で終了...' + colors.reset);
+            const input = await this.question('');
+            if (input.toLowerCase() === 'exit') {
+                running = false;
+                console.log(colors.green + '👋 Bunenjin Strategy Navigator CLI を終了します。' + colors.reset);
+                break;
+            }
             this.showHeader();
         }
     }

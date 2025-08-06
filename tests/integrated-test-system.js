@@ -48,7 +48,7 @@ class IntegratedTestSystem {
         "健康面で心配があります。ストレスが溜まって体調を崩しがちです。"
       ],
       expectedComponents: [
-        'SituationalContextEngine',$1      // 'ProbabilisticSituationModeler', // REMOVED: 正統易経システムに移行
+        'SituationalContextEngine',      // 'ProbabilisticSituationModeler', // REMOVED: 正統易経システムに移行
         'HexagramMappingEngine',
         'MetaphorGenerationEngine',
         'CulturalAdaptationEngine',

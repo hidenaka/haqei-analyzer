@@ -110,7 +110,7 @@ function testH384DatabaseIntegrity() {
     results.totalTests++;
     const requiredFields = ['通し番号', '卦番号', '卦名', '爻'];
     const invalidEntries = H384_DATA.filter(entry => 
-        !requiredFields.every(field => entry.hasOwnProperty(field))
+        !requiredFields.every(field => Object.prototype.hasOwnProperty.call(entry, field))
     );
     
     if (invalidEntries.length === 0) {

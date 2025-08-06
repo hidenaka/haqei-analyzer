@@ -254,7 +254,7 @@ class TransformerIChingModel {
         self_attention: {
           type: 'multi_head_attention',
           num_heads: this.modelConfig.num_attention_heads,
-          key_dim: this.modelConfig.embedding_dim // 64,
+          key_dim: this.modelConfig.embedding_dim, // 64
           dropout_rate: this.modelConfig.dropout_rate
         },
         cross_attention: {

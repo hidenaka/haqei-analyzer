@@ -73,14 +73,14 @@ const { chromium } = require('playwright');
             return { error: `No shadow root for Q${qNum}` };
           }
           
-          const radioInputs = shadowRoot.querySelectorAll('input[type=\"radio\"]');
+          const radioInputs = shadowRoot.querySelectorAll('input[type="radio"]');
           if (radioInputs.length === 0) {
             return { error: `No radio inputs found for Q${qNum}` };
           }
           
           // Check if this is a scenario question (has both inner and outer choices)
-          const innerRadios = shadowRoot.querySelectorAll('input[data-choice-type=\"inner\"]');
-          const outerRadios = shadowRoot.querySelectorAll('input[data-choice-type=\"outer\"]');
+          const innerRadios = shadowRoot.querySelectorAll('input[data-choice-type="inner"]');
+          const outerRadios = shadowRoot.querySelectorAll('input[data-choice-type="outer"]');
           const isScenarioQuestion = innerRadios.length > 0 && outerRadios.length > 0;
           
           console.log(`📊 Q${qNum} analysis: Total radios: ${radioInputs.length}, Inner: ${innerRadios.length}, Outer: ${outerRadios.length}, IsScenario: ${isScenarioQuestion}`);

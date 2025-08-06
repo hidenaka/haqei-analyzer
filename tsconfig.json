@@ -21,15 +21,22 @@
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
 
-    /* Type Checking */
-    "strict": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": false,
-    "noImplicitReturns": false,
-    "noImplicitOverride": false,
+    /* Type Checking - STRICT MODE ENABLED */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": false,
-    "noImplicitAny": false,
+    "noImplicitOverride": true,
 
     /* Module Resolution */
     "baseUrl": ".",
@@ -45,6 +52,10 @@
     }
   },
   "include": [
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.tsx", 
+    "src/**/*.vue",
     "vite.config.ts"
   ],
   "ts-node": {
@@ -54,7 +65,8 @@
       "target": "ES2022",
       "allowImportingTsExtensions": true,
       "moduleResolution": "bundler",
-      "esModuleInterop": true
+      "esModuleInterop": true,
+      "strict": true
     }
   },
   "exclude": [
@@ -63,6 +75,7 @@
     "public/**/*.js",
     "public/**/*.html",
     "**/*.test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "**/*.d.ts"
   ]
 }

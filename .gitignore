@@ -30,6 +30,12 @@ data/cipher-memory/
 logs/
 *.log
 
+# MCP Data (Git同期用に.mcp-dataは追跡)
+# .mcp-data/cipher-memory/
+# .mcp-data/serena-memory/
+# ログファイルは除外
+.mcp-data/logs/*.log
+
 # Auto-generated validation reports
 *-validation-report-*.json
 phase5-*.json

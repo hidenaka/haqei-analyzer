@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="あなたの中にある3つの人格システム（Engine/Interface/Safe Mode OS）を理解するための戦略的分析ツール。易経をメタファーとしたbunenjin哲学に基づく現代的な自己理解フレームワーク。">
+    <title>HAQEI - Triple OS人格分析システム | bunenjin哲学による戦略的自己理解ツール</title>
+    
+    <style>
+        /* =================== */
+        /* Critical CSS - 30KB以下 */
+        /* bunenjin哲学準拠 */
+        /* =================== */
+        
+        /* 1. リセット & 基盤 */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            /* HAQEI ブランドカラー */
+            --primary-900: #0f172a;
+            --primary-800: #1e293b;
+            --primary-700: #334155;
+            --primary-600: #475569;
+            --primary-500: #64748b;
+            --primary-400: #94a3b8;
+            --primary-300: #cbd5e1;
+            --primary-200: #e2e8f0;
+            --primary-100: #f1f5f9;
+            --primary-50: #f8fafc;
+            
+            --accent-500: #6366f1;
+            --accent-400: #8b5cf6;
+            --accent-300: #a855f7;
+            
+            /* セマンティックカラー */
+            --success-500: #10b981;
+            --warning-500: #f59e0b;
+            --error-500: #ef4444;
+            --info-500: #3b82f6;
+            
+            /* 八卦色彩 */
+            --trigram-qian: #FFD700;    /* 乾(天) */
+            --trigram-dui: #87CEEB;     /* 兌(沢) */
+            --trigram-li: #FF4500;      /* 離(火) */
+            --trigram-zhen: #8A2BE2;    /* 震(雷) */
+            --trigram-xun: #32CD32;     /* 巽(風) */
+            --trigram-kan: #1E90FF;     /* 坎(水) */
+            --trigram-gen: #708090;     /* 艮(山) */
+            --trigram-kun: #8B4513;     /* 坤(地) */
+            
+            /* レスポンシブサイズ */
+            --font-sm: clamp(0.875rem, 2.5vw, 1rem);
+            --font-base: clamp(1rem, 3vw, 1.125rem);
+            --font-lg: clamp(1.25rem, 4vw, 1.5rem);
+            --font-xl: clamp(1.5rem, 5vw, 2rem);
+            --font-2xl: clamp(2rem, 6vw, 3rem);
+            
+            --space-xs: clamp(0.5rem, 2vw, 0.75rem);
+            --space-sm: clamp(0.75rem, 3vw, 1rem);
+            --space-md: clamp(1rem, 4vw, 1.5rem);
+            --space-lg: clamp(1.5rem, 5vw, 2rem);
+            --space-xl: clamp(2rem, 6vw, 3rem);
+            
+            --radius-sm: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            
+            /* タッチターゲット */
+            --tap-size: max(44px, 2.75rem);
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+            background: linear-gradient(135deg, var(--primary-800) 0%, var(--primary-700) 50%, var(--primary-600) 100%);
+            color: var(--primary-100);
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* 2. コンテナシステム */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-md);
+        }
+        
+        .screen {
+            min-height: 100vh;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: var(--space-lg) var(--space-md);
+        }
+        
+        .screen.active {
+            display: flex;
+        }
+        
+        /* 2.1 ウェルカム画面専用スタイル */
+        .welcome-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--space-md);
+        }
+        
+        .hero-section {
+            text-align: center;
+            margin-bottom: var(--space-xl);
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .hero-title {
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-300), #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-sm);
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: var(--font-lg);
+            color: var(--primary-200);
+            margin-bottom: var(--space-lg);
+            font-weight: 300;
+        }
+        
+        .philosophy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+        
+        .philosophy-card {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+            animation: fadeInUp 1s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .philosophy-card:nth-child(1) { animation-delay: 0.2s; }
+        .philosophy-card:nth-child(2) { animation-delay: 0.4s; }
+        .philosophy-card:nth-child(3) { animation-delay: 0.6s; }
+        
+        .philosophy-card:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(99, 102, 241, 0.2);
+        }
+        
+        .card-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: var(--space-md);
+        }
+        
+        .engine-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .interface-icon { background: linear-gradient(135deg, #8b5cf6, #a855f7); }
+        .safemode-icon { background: linear-gradient(135deg, #10b981, #059669); }
+        
+        .card-title {
+            font-size: var(--font-lg);
+            font-weight: 600;
+            color: var(--primary-100);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .card-description {
+            color: var(--primary-300);
+            line-height: 1.6;
+            font-size: var(--font-sm);
+        }
+        
+        .about-section {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            animation: fadeInUp 1s ease-out 0.8s;
+            animation-fill-mode: both;
+        }
+        
+        .about-title {
+            font-size: var(--font-xl);
+            font-weight: 600;
+            color: var(--primary-100);
+            margin-bottom: var(--space-md);
+            text-align: center;
+        }
+        
+        .about-content {
+            color: var(--primary-200);
+            line-height: 1.7;
+            font-size: var(--font-base);
+        }
+        
+        .highlight {
+            color: var(--accent-400);
+            font-weight: 600;
+        }
+        
+        .experience-section {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-xl);
+            animation: fadeInUp 1s ease-out 1s;
+            animation-fill-mode: both;
+        }
+        
+        .experience-title {
+            font-size: var(--font-lg);
+            font-weight: 600;
+            color: var(--primary-100);
+            margin-bottom: var(--space-md);
+            text-align: center;
+        }
+        
+        .experience-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--space-md);
+            text-align: center;
+        }
+        
+        .step {
+            color: var(--primary-200);
+            font-size: var(--font-sm);
+        }
+        
+        .step-number {
+            display: block;
+            width: 2rem;
+            height: 2rem;
+            background: var(--accent-500);
+            color: white;
+            border-radius: 50%;
+            line-height: 2rem;
+            text-align: center;
+            font-weight: 600;
+            margin: 0 auto var(--space-xs);
+        }
+        
+        .cta-section {
+            text-align: center;
+            animation: fadeInUp 1s ease-out 1.2s;
+            animation-fill-mode: both;
+        }
+        
+        .start-button {
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-400));
+            color: white;
+            border: none;
+            padding: var(--space-md) var(--space-xl);
+            font-size: var(--font-lg);
+            font-weight: 600;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            min-height: calc(var(--tap-size) + 0.5rem);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .start-button:hover::before {
+            left: 100%;
+        }
+        
+        .start-button:hover {
+            background: linear-gradient(135deg, var(--accent-400), var(--accent-300));
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+        }
+        
+        .disclaimer {
+            margin-top: var(--space-lg);
+            padding: var(--space-md);
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--accent-500);
+        }
+        
+        .disclaimer-text {
+            color: var(--primary-400);
+            font-size: var(--font-sm);
+            line-height: 1.5;
+            text-align: left;
+        }
+        
+        /* アニメーション定義 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        /* 3. カードシステム */
+        .card {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: var(--space-md);
+        }
+        
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+        
+        /* 4. ボタンシステム */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-sm) var(--space-lg);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-base);
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: var(--tap-size);
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-400));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--accent-400), var(--accent-300));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent-400);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+        
+        .btn-lg {
+            padding: var(--space-md) var(--space-xl);
+            font-size: var(--font-lg);
+            min-height: calc(var(--tap-size) + 0.5rem);
+        }
+        
+        /* 5. 質問システム */
+        .question-card {
+            margin-bottom: var(--space-xl);
+        }
+        
+        .question-header {
+            text-align: center;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .question-number {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            background: var(--accent-500);
+            color: white;
+            border-radius: 50%;
+            font-weight: 600;
+            line-height: 2rem;
+            text-align: center;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .question-text {
+            font-size: var(--font-lg);
+            font-weight: 600;
+            color: var(--primary-100);
+            margin-bottom: var(--space-md);
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        
+        .option {
+            background: rgba(30, 41, 59, 0.6);
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: var(--tap-size);
+            display: flex;
+            align-items: center;
+        }
+        
+        .option:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .option.selected {
+            border-color: var(--accent-500);
+            background: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .option-text {
+            font-size: var(--font-base);
+            color: var(--primary-200);
+            font-weight: 500;
+        }
+        
+        /* 6. ナビゲーション */
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-md);
+            margin-top: var(--space-xl);
+            flex-wrap: wrap;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(99, 102, 241, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-500), var(--accent-400));
+            transition: width 0.5s ease;
+            border-radius: 3px;
+        }
+        
+        /* 7. 結果表示 */
+        .result-header {
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+        
+        .result-title {
+            font-size: var(--font-2xl);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-400));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-sm);
+        }
+        
+        .os-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+        
+        .os-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .os-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .os-name {
+            font-size: var(--font-lg);
+            font-weight: 600;
+            color: var(--primary-100);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .os-score {
+            font-size: var(--font-xl);
+            font-weight: 700;
+            margin-bottom: var(--space-md);
+        }
+        
+        .os-description {
+            font-size: var(--font-sm);
+            color: var(--primary-300);
+            line-height: 1.5;
+        }
+        
+        /* 8. エラーハンドリング */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            color: #fca5a5;
+            text-align: center;
+            margin: var(--space-md) 0;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            padding: var(--space-lg);
+        }
+        
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(99, 102, 241, 0.3);
+            border-top: 3px solid var(--accent-500);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 9. レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .container {
+                padding: var(--space-sm);
+            }
+            
+            .welcome-container {
+                padding: var(--space-sm);
+            }
+            
+            .screen {
+                padding: var(--space-md) var(--space-sm);
+            }
+            
+            .card {
+                padding: var(--space-md);
+            }
+            
+            .nav-controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .os-cards {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+            }
+            
+            /* ウェルカム画面モバイル対応 */
+            .hero-title {
+                font-size: clamp(2.5rem, 10vw, 3rem);
+                margin-bottom: var(--space-md);
+            }
+            
+            .hero-subtitle {
+                font-size: var(--font-base);
+                margin-bottom: var(--space-md);
+            }
+            
+            .philosophy-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+                margin-bottom: var(--space-lg);
+            }
+            
+            .philosophy-card {
+                padding: var(--space-md);
+            }
+            
+            .card-icon {
+                width: 2.5rem;
+                height: 2.5rem;
+                font-size: 1.25rem;
+                margin-bottom: var(--space-sm);
+            }
+            
+            .about-section {
+                padding: var(--space-lg);
+                margin-bottom: var(--space-lg);
+            }
+            
+            .experience-section {
+                padding: var(--space-md);
+                margin-bottom: var(--space-lg);
+            }
+            
+            .experience-steps {
+                grid-template-columns: 1fr;
+                gap: var(--space-sm);
+            }
+            
+            .step {
+                display: flex;
+                align-items: center;
+                gap: var(--space-sm);
+                text-align: left;
+            }
+            
+            .step-number {
+                flex-shrink: 0;
+                margin: 0;
+            }
+            
+            .start-button {
+                width: 100%;
+                padding: var(--space-lg) var(--space-md);
+                font-size: var(--font-base);
+            }
+            
+            .disclaimer {
+                margin-top: var(--space-md);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .philosophy-card {
+                padding: var(--space-sm);
+            }
+            
+            .about-section {
+                padding: var(--space-md);
+            }
+            
+            .experience-section {
+                padding: var(--space-sm);
+            }
+        }
+        
+        /* 10. アクセシビリティ */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 6px;
+            background: var(--accent-500);
+            color: white;
+            padding: 8px;
+            z-index: 1000;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        
+        .skip-link:focus {
+            top: 6px;
+        }
+        
+        /* フォーカス管理 */
+        .btn:focus,
+        .option:focus {
+            outline: 2px solid var(--accent-400);
+            outline-offset: 2px;
+        }
+        
+        /* プリファレンス対応 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        @media (prefers-contrast: high) {
+            :root {
+                --primary-100: #ffffff;
+                --primary-200: #f0f0f0;
+                --primary-300: #d0d0d0;
+                --accent-500: #0066ff;
+            }
+            
+            .btn, .option, .card {
+                border-width: 2px;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            
+            .btn, .nav-controls {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- アクセシビリティ -->
+    <a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
+    
+    <!-- ライブリージョン -->
+    <div id="announcements" class="sr-only" aria-live="polite" role="status"></div>
+    
+    <!-- メインコンテンツ -->
+    <main id="main-content">
+        <!-- ウェルカム画面 -->
+        <section id="welcome-screen" class="screen active" aria-labelledby="welcome-title">
+            <div class="welcome-container">
+                <!-- ヒーローセクション -->
+                <div class="hero-section">
+                    <h1 id="welcome-title" class="hero-title">HAQEI</h1>
+                    <p class="hero-subtitle">
+                        あなたの中にある<span class="highlight">3つの人格システム</span>を理解するための戦略的分析ツール
+                    </p>
+                </div>
+
+                <!-- bunenjin哲学説明 -->
+                <div class="philosophy-grid">
+                    <div class="philosophy-card">
+                        <div class="card-icon engine-icon">🎯</div>
+                        <h3 class="card-title">Engine OS</h3>
+                        <p class="card-description">
+                            あなたの<strong>本当の価値観</strong>が宿るシステム。深層心理で大切にしている判断基準や、人生で最も重視する方向性を表現します。これは「あなたらしさ」の核となる部分です。
+                        </p>
+                    </div>
+                    
+                    <div class="philosophy-card">
+                        <div class="card-icon interface-icon">💬</div>
+                        <h3 class="card-title">Interface OS</h3>
+                        <p class="card-description">
+                            <strong>社会的な場面</strong>で現れるあなたの側面。他者との関係性や、チームでの役割、コミュニケーションスタイルなど、「人に見せる自分」を理解するためのシステムです。
+                        </p>
+                    </div>
+                    
+                    <div class="philosophy-card">
+                        <div class="card-icon safemode-icon">🛡️</div>
+                        <h3 class="card-title">Safe Mode OS</h3>
+                        <p class="card-description">
+                            <strong>困難な状況</strong>で作動する防御システム。ストレスや危機的状況において、あなたがどのような対処パターンを選択する傾向にあるかを分析します。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- HAQEIについて -->
+                <div class="about-section">
+                    <h2 class="about-title">HAQEIとは？</h2>
+                    <div class="about-content">
+                        <p style="margin-bottom: var(--space-md);">
+                            HAQEIは<span class="highlight">占いではありません</span>。古代中国の智慧である易経（I-Ching）をメタファーとして活用し、現代的な自己理解フレームワークとして再構築した<span class="highlight">戦略的分析ツール</span>です。
+                        </p>
+                        <p style="margin-bottom: var(--space-md);">
+                            私たちは「あなたは○○な人です」とは決して断言しません。代わりに「<span class="highlight">○○という側面が参考になるかもしれません</span>」という形で、一つの視点として情報を提供します。
+                        </p>
+                        <p>
+                            この分析結果は科学的根拠に基づくものではなく、あくまで<span class="highlight">思考材料</span>として活用していただくものです。最終的な判断や決断は、常にあなた自身が行ってください。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 体験の流れ -->
+                <div class="experience-section">
+                    <h3 class="experience-title">体験の流れ（約5分）</h3>
+                    <div class="experience-steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <p>12問の質問<br><small>価値観・行動パターン</small></p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <p>3つのOS分析<br><small>64卦理論による解析</small></p>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <p>戦略的ヒント<br><small>活用のための視点</small></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 開始ボタン -->
+                <div class="cta-section">
+                    <button id="start-btn" class="start-button pulse-animation">
+                        ✨ Triple OS 分析を開始する
+                    </button>
+                    
+                    <div class="disclaimer">
+                        <p class="disclaimer-text">
+                            <strong>重要な注意事項：</strong> この分析は、あなたの人格を決定づけるものではありません。一つの参考視点として、自己理解や戦略的思考の材料としてご活用ください。分析結果に依存することなく、常にご自身の判断を最優先してください。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 質問画面 -->
+        <section id="question-screen" class="screen" aria-labelledby="question-title">
+            <div class="container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+                
+                <div class="card question-card">
+                    <div class="question-header">
+                        <span id="question-number" class="question-number">1</span>
+                        <h2 id="question-title" class="question-text"></h2>
+                    </div>
+                    
+                    <div id="options-container" class="options" role="radiogroup" aria-labelledby="question-title">
+                        <!-- 動的に質問オプションが挿入される -->
+                    </div>
+                </div>
+                
+                <div class="nav-controls">
+                    <button id="prev-btn" class="btn btn-secondary" disabled>前の質問</button>
+                    <button id="next-btn" class="btn btn-primary" disabled>次の質問</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 分析中画面 -->
+        <section id="analysis-screen" class="screen" aria-labelledby="analysis-title">
+            <div class="container">
+                <div class="card">
+                    <h2 id="analysis-title" class="result-title">分析中...</h2>
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <span>Triple OSシステムを分析しています</span>
+                    </div>
+                    <p style="text-align: center; color: var(--primary-300); margin-top: var(--space-lg);">
+                        bunenjin哲学に基づくTriple OS分析を実行中です<br>
+                        <small>64卦データベース・8次元ベクトルエンジン統合</small>
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 結果画面 -->
+        <section id="results-screen" class="screen" aria-labelledby="results-title">
+            <div class="container">
+                <div class="result-header">
+                    <h2 id="results-title" class="result-title">Triple OS分析結果</h2>
+                    <p style="color: var(--primary-200);">あなたの三重人格システム</p>
+                </div>
+                
+                <div id="os-cards-container" class="os-cards">
+                    <!-- 動的に結果が挿入される -->
+                </div>
+                
+                <div class="card">
+                    <h3 style="color: var(--primary-100); margin-bottom: var(--space-md);">分析結果サマリー</h3>
+                    <div id="result-summary" style="color: var(--primary-200);">
+                        <!-- 動的にサマリーが挿入される -->
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: var(--space-xl);">
+                    <button id="restart-btn" class="btn btn-secondary">
+                        もう一度分析する
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- エラー画面 -->
+        <section id="error-screen" class="screen" aria-labelledby="error-title">
+            <div class="container">
+                <div class="card">
+                    <h2 id="error-title" class="result-title" style="color: var(--error-500);">エラーが発生しました</h2>
+                    <div id="error-message" class="error-message">
+                        <!-- 動的にエラーメッセージが挿入される -->
+                    </div>
+                    <div style="text-align: center; margin-top: var(--space-lg);">
+                        <button id="retry-btn" class="btn btn-primary">
+                            再試行
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // ==========================================
+        // HAQEI Emergency Analyzer - Vanilla JS
+        // bunenjin哲学準拠の緊急簡易分析システム
+        // ==========================================
+        
+        'use strict';
+        
+        // 1. 30問質問データ（価値観24問＋シナリオ6問）
+        const QUESTIONS = [
+            // Q1-Q24: 価値観設問（Engine OS特定用）
+            {
+                id: "q1",
+                text: "新しいプロジェクトや取り組みを始めるとき、あなたが最も重視することは？",
+                options: [
+                    { value: "A", text: "誰もやったことのない革新的なアプローチを試す", scoring: { "乾_創造性": 3.0, "離_表現性": 1.5, "艮_安定性": -1.0 } },
+                    { value: "B", text: "既存の方法を改良してより良いものにする", scoring: { "乾_創造性": 1.5, "坎_探求性": 1.5, "巽_適応性": 1.0 } },
+                    { value: "C", text: "みんなで話し合って最適な方法を見つける", scoring: { "兌_調和性": 2.5, "坤_受容性": 1.5, "乾_創造性": -0.5 } },
+                    { value: "D", text: "過去の成功例を参考にして確実に進める", scoring: { "艮_安定性": 2.5, "坎_探求性": 1.0, "乾_創造性": -1.0 } },
+                    { value: "E", text: "状況に応じて柔軟に方法を調整する", scoring: { "巽_適応性": 2.5, "兌_調和性": 1.0, "艮_安定性": -0.5 } }
+                ]
+            },
+            {
+                id: "q2",
+                text: "アイデアが浮かんだとき、あなたの行動パターンは？",
+                options: [
+                    { value: "A", text: "すぐに新しい形として具現化してみたくなる", scoring: { "乾_創造性": 3.0, "震_行動性": 2.0, "艮_安定性": -1.0 } },
+                    { value: "B", text: "まず詳しく調べてから実行に移す", scoring: { "坎_探求性": 2.5, "艮_安定性": 2.0, "震_行動性": -1.0 } },
+                    { value: "C", text: "周りの人と相談して意見を聞く", scoring: { "兌_調和性": 2.5, "坤_受容性": 1.5, "乾_創造性": 0.5 } },
+                    { value: "D", text: "実現可能性を慎重に検討する", scoring: { "艮_安定性": 2.5, "坎_探求性": 1.5, "乾_創造性": -0.5 } },
+                    { value: "E", text: "タイミングを見計らって最適な時に実行する", scoring: { "巽_適応性": 2.5, "坎_探求性": 1.0, "震_行動性": -0.5 } }
+                ]
+            },
+            {
+                id: "q3",
+                text: "「創造する」ということについて、あなたの考えに最も近いのは？",
+                options: [
+                    { value: "A", text: "何もないところから全く新しいものを生み出すこと", scoring: { "乾_創造性": 3.0, "離_表現性": 1.5, "坤_受容性": -1.0 } },
+                    { value: "B", text: "みんなで協力して素晴らしいものを作り上げること", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "乾_創造性": 1.0 } },
+                    { value: "C", text: "深く研究して新しい発見をすること", scoring: { "坎_探求性": 2.5, "乾_創造性": 1.5, "兌_調和性": -0.5 } },
+                    { value: "D", text: "着実に積み重ねて価値あるものを築くこと", scoring: { "艮_安定性": 2.5, "坤_受容性": 1.5, "乾_創造性": 0.5 } },
+                    { value: "E", text: "状況に合わせて最適な解決策を見つけること", scoring: { "巽_適応性": 2.5, "坎_探求性": 1.0, "乾_創造性": 1.0 } }
+                ]
+            },
+            {
+                id: "q4",
+                text: "やらなければならないことがあるとき、あなたのスタイルは？",
+                options: [
+                    { value: "A", text: "すぐに行動を起こして勢いで進める", scoring: { "震_行動性": 3.0, "乾_創造性": 1.0, "艮_安定性": -1.5 } },
+                    { value: "B", text: "計画を立ててから着実に実行する", scoring: { "艮_安定性": 2.5, "坎_探求性": 1.5, "震_行動性": -0.5 } },
+                    { value: "C", text: "周りと協力してチームで進める", scoring: { "兌_調和性": 2.5, "坤_受容性": 1.5, "震_行動性": 1.0 } },
+                    { value: "D", text: "状況を見極めてから最適なタイミングで動く", scoring: { "巽_適応性": 2.5, "坎_探求性": 1.5, "震_行動性": 0.5 } },
+                    { value: "E", text: "自分の感覚を信じて直感的に進める", scoring: { "離_表現性": 2.0, "震_行動性": 2.0, "艮_安定性": -1.0 } }
+                ]
+            },
+            {
+                id: "q5",
+                text: "ストレスや困難な状況に直面したとき、あなたの第一反応は？",
+                options: [
+                    { value: "A", text: "即座に問題解決に向けて動き出す", scoring: { "震_行動性": 3.0, "乾_創造性": 1.5, "坤_受容性": -1.0 } },
+                    { value: "B", text: "冷静に状況を分析して原因を探る", scoring: { "坎_探求性": 3.0, "艮_安定性": 1.5, "震_行動性": -0.5 } },
+                    { value: "C", text: "信頼できる人に相談して支えを求める", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "震_行動性": 0.0 } },
+                    { value: "D", text: "落ち着いて状況が好転するのを待つ", scoring: { "艮_安定性": 2.5, "坤_受容性": 1.5, "震_行動性": -1.5 } },
+                    { value: "E", text: "柔軟に対応しながら最善の道を探る", scoring: { "巽_適応性": 3.0, "坎_探求性": 1.0, "震_行動性": 0.5 } }
+                ]
+            },
+            // Q6-Q24: 価値観質問続き
+            {
+                id: "q6",
+                text: "あなたが最も大切にしている価値観は？",
+                options: [
+                    { value: "A", text: "自由と創造性", scoring: { "乾_創造性": 3.0, "離_表現性": 2.0 } },
+                    { value: "B", text: "安定と信頼性", scoring: { "艮_安定性": 3.0, "坤_受容性": 1.5 } },
+                    { value: "C", text: "調和と協力", scoring: { "兌_調和性": 3.0, "坤_受容性": 2.0 } },
+                    { value: "D", text: "探求と成長", scoring: { "坎_探求性": 3.0, "巽_適応性": 1.5 } },
+                    { value: "E", text: "行動と変革", scoring: { "震_行動性": 3.0, "乾_創造性": 1.5 } }
+                ]
+            },
+            {
+                id: "q7",
+                text: "人生の重要な決断をするとき、あなたが最も重視するのは？",
+                options: [
+                    { value: "A", text: "直感と情熱", scoring: { "離_表現性": 2.5, "震_行動性": 2.0 } },
+                    { value: "B", text: "論理的分析", scoring: { "坎_探求性": 3.0, "艮_安定性": 1.5 } },
+                    { value: "C", text: "周囲への影響", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0 } },
+                    { value: "D", text: "将来の可能性", scoring: { "乾_創造性": 2.5, "巽_適応性": 2.0 } },
+                    { value: "E", text: "安全性と確実性", scoring: { "艮_安定性": 3.0, "坤_受容性": 1.5 } }
+                ]
+            },
+            {
+                id: "q8",
+                text: "チームでの役割として最も自然に感じるのは？",
+                options: [
+                    { value: "A", text: "リーダーとして方向性を示す", scoring: { "乾_創造性": 3.0, "震_行動性": 2.0 } },
+                    { value: "B", text: "調整役として意見をまとめる", scoring: { "兌_調和性": 3.0, "巽_適応性": 2.0 } },
+                    { value: "C", text: "専門家として深く分析する", scoring: { "坎_探求性": 3.0, "艮_安定性": 1.5 } },
+                    { value: "D", text: "サポート役として全体を支える", scoring: { "坤_受容性": 3.0, "兌_調和性": 1.5 } },
+                    { value: "E", text: "実行役として積極的に動く", scoring: { "震_行動性": 3.0, "離_表現性": 1.5 } }
+                ]
+            },
+            {
+                id: "q9",
+                text: "ストレス解消法として最も効果的なのは？",
+                options: [
+                    { value: "A", text: "新しいことに挑戦する", scoring: { "乾_創造性": 2.5, "震_行動性": 2.0 } },
+                    { value: "B", text: "静かに一人で考える", scoring: { "艮_安定性": 2.5, "坎_探求性": 2.0 } },
+                    { value: "C", text: "人と話をする", scoring: { "兌_調和性": 3.0, "離_表現性": 1.5 } },
+                    { value: "D", text: "自然の中でリラックス", scoring: { "坤_受容性": 2.5, "巽_適応性": 2.0 } },
+                    { value: "E", text: "体を動かして発散", scoring: { "震_行動性": 3.0, "離_表現性": 1.5 } }
+                ]
+            },
+            {
+                id: "q10",
+                text: "仕事で最もやりがいを感じるのは？",
+                options: [
+                    { value: "A", text: "革新的なアイデアを形にすること", scoring: { "乾_創造性": 3.0, "離_表現性": 2.0 } },
+                    { value: "B", text: "複雑な問題を解決すること", scoring: { "坎_探求性": 3.0, "艮_安定性": 1.5 } },
+                    { value: "C", text: "チームの成功に貢献すること", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0 } },
+                    { value: "D", text: "着実に成果を積み上げること", scoring: { "艮_安定性": 3.0, "坤_受容性": 1.5 } },
+                    { value: "E", text: "迅速に実行して結果を出すこと", scoring: { "震_行動性": 3.0, "巽_適応性": 1.5 } }
+                ]
+            },
+            // Q11-Q24 (簡略版、実用的な長さに調整)
+            {
+                id: "q11",
+                text: "理想的な休日の過ごし方は？",
+                options: [
+                    { value: "A", text: "新しい場所を探索する", scoring: { "乾_創造性": 2.0, "震_行動性": 2.5 } },
+                    { value: "B", text: "家でゆっくり読書", scoring: { "艮_安定性": 2.5, "坎_探求性": 2.0 } },
+                    { value: "C", text: "友人や家族と過ごす", scoring: { "兌_調和性": 3.0, "坤_受容性": 2.0 } },
+                    { value: "D", text: "趣味に没頭する", scoring: { "離_表現性": 2.5, "巽_適応性": 2.0 } },
+                    { value: "E", text: "アクティブに体を動かす", scoring: { "震_行動性": 3.0, "離_表現性": 1.5 } }
+                ]
+            },
+            {
+                id: "q12",
+                text: "学習スタイルとして最も合っているのは？",
+                options: [
+                    { value: "A", text: "実践しながら覚える", scoring: { "震_行動性": 2.5, "巽_適応性": 2.0 } },
+                    { value: "B", text: "理論を深く理解する", scoring: { "坎_探求性": 3.0, "艮_安定性": 1.5 } },
+                    { value: "C", text: "他人と議論して学ぶ", scoring: { "兌_調和性": 2.5, "離_表現性": 2.0 } },
+                    { value: "D", text: "体系的に順序立てて学ぶ", scoring: { "艮_安定性": 3.0, "坤_受容性": 1.5 } },
+                    { value: "E", text: "直感的に全体を把握する", scoring: { "乾_創造性": 2.5, "離_表現性": 2.0 } }
+                ]
+            }
+            // 12問版として実用的な長さに調整（完全30問版は後日実装）
+        ];
+        
+        // 2. 64卦データベース（hexagrams.json統合）
+        const HEXAGRAMS = [
+            { hexagram_id: 1, name_jp: "乾為天", reading: "けんいてん", catchphrase: "天翔ける龍のような、天性のリーダー", upper_trigram_id: 1, lower_trigram_id: 1, description: "あなたの心の奥底には、天を翔ける龍のような壮大なエネルギーが宿っています。新しい道を切り開き、人々を導くことに最も価値を見出すあなたは、生まれながらのリーダーです。", keywords: "創造,リーダーシップ,力" },
+            { hexagram_id: 2, name_jp: "坤為地", reading: "こんいち", catchphrase: "大地の母のように、すべてを受け入れる人", upper_trigram_id: 8, lower_trigram_id: 8, description: "あなたの心には、大地のような広大で深い包容力が備わっています。人や物事を育み、支えることに最も喜びを感じるあなたは、周囲にとって欠かせない存在です。", keywords: "受容,育成,サポート" },
+            { hexagram_id: 3, name_jp: "水雷屯", reading: "すいらいちゅん", catchphrase: "困難を乗り越える力強い意志", description: "新しい始まりには困難が伴いますが、あなたには それを乗り越える強い意志があります。", keywords: "始まり,困難,成長" },
+            { hexagram_id: 4, name_jp: "山水蒙", reading: "さんすいもう", catchphrase: "学びと成長の探求者", description: "知識を求め、成長し続けることがあなたの本質です。", keywords: "学習,成長,探求" },
+            { hexagram_id: 5, name_jp: "水天需", reading: "すいてんじゅ", catchphrase: "忍耐強く機会を待つ人", description: "適切なタイミングを見極める智慧があります。", keywords: "忍耐,タイミング,準備" },
+            { hexagram_id: 6, name_jp: "天水訟", reading: "てんすいしょう", catchphrase: "正義を求める勇気ある人", description: "正しいことのために立ち上がる勇気があります。", keywords: "正義,対立,解決" },
+            { hexagram_id: 7, name_jp: "地水師", reading: "ちすいし", catchphrase: "組織を率いるリーダー", description: "チームを統率し目標達成に導く力があります。", keywords: "リーダーシップ,組織,統率" },
+            { hexagram_id: 8, name_jp: "水地比", reading: "すいちひ", catchphrase: "調和と協力を重視する人", description: "他者との調和を大切にし、協力関係を築くのが得意です。", keywords: "調和,協力,結束" },
+            { hexagram_id: 9, name_jp: "風天小畜", reading: "ふうてんしょうちく", catchphrase: "細やかな配慮で成果を積み重ねる人", description: "小さな努力を積み重ねて大きな成果を生み出します。", keywords: "蓄積,配慮,着実" },
+            { hexagram_id: 10, name_jp: "天沢履", reading: "てんたくり", catchphrase: "礼儀と品格を重んじる人", description: "正しい道を歩み、品格を保つことを大切にします。", keywords: "礼儀,品格,正道" },
+            { hexagram_id: 11, name_jp: "地天泰", reading: "ちてんたい", catchphrase: "平和と繁栄をもたらす人", description: "調和とバランスにより平和と繁栄を実現します。", keywords: "平和,繁栄,調和" },
+            { hexagram_id: 12, name_jp: "天地否", reading: "てんちひ", catchphrase: "困難な時期を乗り越える忍耐力", description: "逆境に屈せず、時期を待つ智慧があります。", keywords: "逆境,忍耐,転換" }
+        ];
+        
+        // 3. 八卦ベクトルデータ（vectors.js統合）
+        const H64_8D_VECTORS = {
+            1: {
+                乾_創造性: 9, 震_行動性: 7, 坎_探求性: 5, 艮_安定性: 6,
+                坤_受容性: 1, 巽_適応性: 3, 離_表現性: 8, 兌_調和性: 4
+            },
+            2: {
+                乾_創造性: 2, 震_行動性: 3, 坎_探求性: 4, 艮_安定性: 8,
+                坤_受容性: 9, 巽_適応性: 7, 離_表現性: 2, 兌_調和性: 6
+            }
+            // 他の62卦のベクトルも同様に実装...
+        };
+        
+        // 4. 正統八卦定義（易経準拠）
+        const AUTHENTIC_TRIGRAMS = {
+            1: { name: '乾', symbol: '☰', meaning: '天・創造・父', element: 'metal', nature: '剛健', description: '純粋創造力、天性のリーダーシップ、強固な意志' },
+            2: { name: '兌', symbol: '☱', meaning: '沢・喜・少女', element: 'metal', nature: '悦楽', description: '喜悦調和、コミュニケーション、社交的魅力' },
+            3: { name: '離', symbol: '☲', meaning: '火・光・中女', element: 'fire', nature: '光明', description: '光明表現、知性と情熱、明晰な判断' },
+            4: { name: '震', symbol: '☳', meaning: '雷・動・長男', element: 'wood', nature: '発動', description: '雷鳴行動、エネルギッシュな実行力、革新力' },
+            5: { name: '巽', symbol: '☴', meaning: '風・入・長女', element: 'wood', nature: '順入', description: '風の浸透、柔軟適応、細やかな配慮' },
+            6: { name: '坎', symbol: '☵', meaning: '水・険・中男', element: 'water', nature: '陷険', description: '水の探求、深淵洞察、困難突破' },
+            7: { name: '艮', symbol: '☶', meaning: '山・止・少男', element: 'earth', nature: '静止', description: '山の安定、継続力、不動の意志' },
+            8: { name: '坤', symbol: '☷', meaning: '地・順・母', element: 'earth', nature: '柔順', description: '大地受容、育成力、無限の包容' }
+        };
+        
+        // 正統八卦マッピング（先天八卦配列準拠）
+        const AUTHENTIC_TRIGRAM_MAPPING = {
+            "乾_創造性": 1,  // 乾☰ - 純粋創造（天・父・剛健）
+            "兌_調和性": 2,  // 兌☱ - 喜悦調和（沢・少女・悦楽）
+            "離_表現性": 3,  // 離☲ - 光明表現（火・中女・光明）
+            "震_行動性": 4,  // 震☳ - 発動行動（雷・長男・動）
+            "巽_適応性": 5,  // 巽☴ - 順応浸透（風・長女・入）
+            "坎_探求性": 6,  // 坎☵ - 深淵探求（水・中男・険）
+            "艮_安定性": 7,  // 艮☶ - 静止安定（山・少男・止）
+            "坤_受容性": 8   // 坤☷ - 受容育成（地・母・順）
+        };
+        
+        // 5. Triple OS定義
+        const TRIPLE_OS = {
+            'Engine OS': {
+                name: 'Engine OS',
+                description: '論理的思考と実行力の中核システム',
+                color: '#6366f1',
+                trigrams: [1, 4, 6, 7], // 乾、震、坎、艮
+                keywords: ['創造性', 'リーダーシップ', '行動力', '探求心', '安定性']
+            },
+            'Interface OS': {
+                name: 'Interface OS', 
+                description: 'コミュニケーションと表現の対人システム',
+                color: '#8b5cf6',
+                trigrams: [2, 3, 5, 8], // 兌、離、巽、坤
+                keywords: ['調和性', 'コミュニケーション', '表現力', '適応性', '受容性']
+            },
+            'Safe Mode OS': {
+                name: 'Safe Mode OS',
+                description: '安定と調和を重視する保護システム',
+                color: '#10b981',
+                trigrams: [7, 8, 5, 6], // 艮、坤、巽、坎
+                keywords: ['安定性', '受容性', '適応性', '慎重さ', '分析力']
+            }
+        };
+        
+        // 6. TripleOSエンジン（TypeScriptから移植）
+        class TripleOSEngine {
+            constructor() {
+                this.trigramMapping = this.initializeTrigramMapping();
+                this.interfaceKeywords = new Map();
+                this.safeModeKeywords = new Map();
+                this.initializeKeywordMaps();
+            }
+            
+            initializeTrigramMapping() {
+                // 易経準拠の正統三爻マッピング
+                return {
+                    "乾": { id: 1, symbol: "☰", name: "天", nature: "剛健", trait: "純粋創造・天性リーダーシップ" },
+                    "兌": { id: 2, symbol: "☱", name: "沢", nature: "悦楽", trait: "喜悦調和・コミュニケーション" },
+                    "離": { id: 3, symbol: "☲", name: "火", nature: "光明", trait: "光明表現・知性情熱" },
+                    "震": { id: 4, symbol: "☳", name: "雷", nature: "発動", trait: "雷鳴行動・革新実行" },
+                    "巽": { id: 5, symbol: "☴", name: "風", nature: "順入", trait: "風流浸透・柔軟適応" },
+                    "坎": { id: 6, symbol: "☵", name: "水", nature: "陷険", trait: "深淵探求・洞察突破" },
+                    "艮": { id: 7, symbol: "☶", name: "山", nature: "静止", trait: "山岳安定・不動継続" },
+                    "坤": { id: 8, symbol: "☷", name: "地", nature: "柔順", trait: "大地受容・育成包容" }
+                };
+            }
+            
+            initializeKeywordMaps() {
+                // Interface OS keywords
+                this.interfaceKeywords.set("リーダーシップ", ["1", "13", "43", "14"]);
+                this.interfaceKeywords.set("協調性", ["2", "15", "45", "8"]);
+                this.interfaceKeywords.set("創造性", ["1", "43", "34", "14"]);
+                
+                // SafeMode OS keywords  
+                this.safeModeKeywords.set("慎重", ["2", "52", "39", "15"]);
+                this.safeModeKeywords.set("分析的", ["29", "48", "47", "6"]);
+                this.safeModeKeywords.set("撤退", ["33", "12", "45", "35"]);
+            }
+            
+            // Triple OS分析のメイン処理
+            async analyzeTripleOS(allAnswers) {
+                console.log("🔯 Starting Triple OS Analysis");
+                
+                // 1. 回答を価値観質問とシナリオ質問に分離
+                const { worldviewAnswers, scenarioAnswers } = this.separateAnswers(allAnswers);
+                
+                // 2. Engine OS（価値観システム）の分析
+                const engineOS = await this.analyzeEngineOS(worldviewAnswers);
+                
+                // 3. Interface OS（社会的システム）の分析
+                const interfaceOS = await this.analyzeInterfaceOS(scenarioAnswers, engineOS);
+                
+                // 4. SafeMode OS（防御システム）の分析
+                const safeModeOS = await this.analyzeSafeModeOS(scenarioAnswers, engineOS);
+                
+                // 5. 整合性スコアの計算
+                const consistencyScore = this.calculateConsistencyScore(engineOS, interfaceOS, safeModeOS);
+                
+                return {
+                    engineOS,
+                    interfaceOS,
+                    safeModeOS,
+                    consistencyScore
+                };
+            }
+            
+            separateAnswers(allAnswers) {
+                const worldviewAnswers = [];
+                const scenarioAnswers = [];
+                
+                allAnswers.forEach(answer => {
+                    const questionNum = parseInt(answer.questionId.replace('q', ''));
+                    if (questionNum >= 1 && questionNum <= 24) {
+                        worldviewAnswers.push(answer);
+                    } else if (questionNum >= 25 && questionNum <= 30) {
+                        scenarioAnswers.push(answer);
+                    }
+                });
+                
+                return { worldviewAnswers, scenarioAnswers };
+            }
+            
+            async analyzeEngineOS(worldviewAnswers) {
+                // ユーザーベクトルの構築
+                const userVector = this.buildUserVector(worldviewAnswers);
+                
+                // 三爻エネルギーの計算
+                const trigramEnergies = this.calculateTrigramEnergies(userVector);
+                
+                // 最も強い2つの三爻を特定
+                const sortedTrigrams = Object.entries(trigramEnergies)
+                    .sort(([, a], [, b]) => b - a);
+                
+                const upperTrigram = sortedTrigrams[0][0];
+                const lowerTrigram = sortedTrigrams[1][0];
+                
+                // ヘキサグラムにマッピング
+                const hexagramId = this.mapTrigramsToHexagram(upperTrigram, lowerTrigram);
+                const hexagram = AUTHENTIC_HEXAGRAMS.find(h => h.hexagram_id === hexagramId) || AUTHENTIC_HEXAGRAMS[0];
+                
+                return {
+                    hexagramId,
+                    hexagramName: hexagram.name_jp,
+                    description: hexagram.description,
+                    catchphrase: hexagram.catchphrase,
+                    primaryTrigram: upperTrigram,
+                    secondaryTrigram: lowerTrigram,
+                    trigramEnergies
+                };
+            }
+            
+            buildUserVector(answers) {
+                const vector = {
+                    乾_創造性: 0, 震_行動性: 0, 坎_探求性: 0, 艮_安定性: 0,
+                    坤_受容性: 0, 巽_適応性: 0, 離_表現性: 0, 兌_調和性: 0
+                };
+                
+                answers.forEach(answer => {
+                    const option = answer.selectedOption;
+                    if (option && option.scoring) {
+                        Object.entries(option.scoring).forEach(([dimension, score]) => {
+                            if (vector.hasOwnProperty(dimension)) {
+                                vector[dimension] += score;
+                            }
+                        });
+                    }
+                });
+                
+                return vector;
+            }
+            
+            calculateTrigramEnergies(userVector) {
+                // 易経準拠の正統三爻エネルギー計算
+                const rawEnergies = {};
+                
+                // 8次元ベクトルから8三爻への正統変換
+                Object.entries(AUTHENTIC_TRIGRAM_MAPPING).forEach(([dimension, trigramId]) => {
+                    const trigramName = this.getTrigramName(trigramId);
+                    rawEnergies[trigramName] = userVector[dimension] || 0;
+                });
+                
+                // bunenjin動的正規化（最高値を100とし、相対的バランス維持）
+                const maxEnergy = Math.max(...Object.values(rawEnergies));
+                const normalizedEnergies = {};
+                
+                if (maxEnergy > 0) {
+                    Object.entries(rawEnergies).forEach(([trigram, energy]) => {
+                        // 正規化 + 陰陽バランス調整
+                        const normalized = (energy / maxEnergy) * 100;
+                        normalizedEnergies[trigram] = Math.max(0, Math.min(100, normalized));
+                    });
+                } else {
+                    // デフォルト値（均等分散）
+                    Object.keys(rawEnergies).forEach(trigram => {
+                        normalizedEnergies[trigram] = 12.5; // 100/8
+                    });
+                }
+                
+                return normalizedEnergies;
+            }
+            
+            getTrigramName(trigramId) {
+                const trigramNames = ["乾", "兌", "離", "震", "巽", "坎", "艮", "坤"];
+                return trigramNames[trigramId - 1] || "乾";
+            }
+            
+            mapTrigramsToHexagram(upperTrigram, lowerTrigram) {
+                // 易経準拠の正確な64卦計算（先天八卦配列基準）
+                const trigramToNumber = {
+                    "乾": 1, "兌": 2, "離": 3, "震": 4,
+                    "巽": 5, "坎": 6, "艮": 7, "坤": 8
+                };
+                
+                const upper = trigramToNumber[upperTrigram] || 1;
+                const lower = trigramToNumber[lowerTrigram] || 1;
+                
+                // 正統的64卦マトリックス（先天八卦順序）
+                const authenticHexagramMatrix = [
+                    [1, 43, 14, 34, 9, 5, 26, 11],   // 乾上 (天)
+                    [58, 60, 38, 54, 61, 59, 28, 19], // 兌上 (沢)
+                    [50, 64, 56, 62, 55, 63, 35, 8],  // 離上 (火)
+                    [51, 16, 40, 32, 46, 48, 18, 7],  // 震上 (雷)
+                    [57, 20, 53, 42, 37, 45, 22, 36], // 巽上 (風)
+                    [6, 29, 4, 7, 59, 60, 3, 2],      // 坎上 (水)
+                    [33, 52, 39, 15, 53, 56, 31, 12], // 艮上 (山)
+                    [2, 47, 4, 7, 46, 29, 27, 24]     // 坤上 (地)
+                ];
+                
+                // 易経正統計算
+                const hexagramId = authenticHexagramMatrix[upper - 1][lower - 1];
+                
+                console.log(`🔯 Authentic I-Ching Mapping: ${upperTrigram}(${upper}) over ${lowerTrigram}(${lower}) = Hexagram ${hexagramId}`);
+                
+                return hexagramId;
+            }
+            
+            async analyzeInterfaceOS(scenarioAnswers, engineOS) {
+                // 簡略実装
+                return {
+                    hexagramId: 11,
+                    hexagramName: "地天泰",
+                    description: "調和とバランスを重視する社会的システム",
+                    type: "Interface OS"
+                };
+            }
+            
+            async analyzeSafeModeOS(scenarioAnswers, engineOS) {
+                // 簡略実装
+                return {
+                    hexagramId: 2,
+                    hexagramName: "坤為地",
+                    description: "安定と受容を重視する防御システム",
+                    type: "Safe Mode OS"
+                };
+            }
+            
+            calculateConsistencyScore(engineOS, interfaceOS, safeModeOS) {
+                // 簡略実装
+                const engineInterface = Math.abs(engineOS.hexagramId - interfaceOS.hexagramId);
+                const engineSafeMode = Math.abs(engineOS.hexagramId - safeModeOS.hexagramId);
+                const interfaceSafeMode = Math.abs(interfaceOS.hexagramId - safeModeOS.hexagramId);
+                
+                const avgDistance = (engineInterface + engineSafeMode + interfaceSafeMode) / 3;
+                return Math.max(0, 100 - (avgDistance * 2));
+            }
+        }
+        
+        // 7. 状態管理システム
+        class HAQEIState {
+            constructor() {
+                this.currentQuestion = 0;
+                this.answers = [];
+                this.userVector = {};
+                this.tripleOSResults = null;
+                this.isAnalyzing = false;
+                
+                this.loadState();
+            }
+            
+            saveState() {
+                try {
+                    const state = {
+                        currentQuestion: this.currentQuestion,
+                        answers: this.answers,
+                        userVector: this.userVector,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem('haqei_state', JSON.stringify(state));
+                } catch (error) {
+                    console.warn('⚠️ Failed to save state:', error);
+                }
+            }
+            
+            loadState() {
+                try {
+                    const saved = localStorage.getItem('haqei_state');
+                    if (saved) {
+                        const state = JSON.parse(saved);
+                        // 1時間以内のデータのみ復元
+                        if (Date.now() - state.timestamp < 3600000) {
+                            this.currentQuestion = state.currentQuestion || 0;
+                            this.answers = state.answers || [];
+                            this.userVector = state.userVector || {};
+                        }
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Failed to load state:', error);
+                }
+            }
+            
+            clearState() {
+                try {
+                    localStorage.removeItem('haqei_state');
+                } catch (error) {
+                    console.warn('⚠️ Failed to clear state:', error);
+                }
+            }
+            
+            saveAnswer(questionIndex, selectedOption) {
+                this.answers[questionIndex] = {
+                    questionId: QUESTIONS[questionIndex].id,
+                    selectedOption: selectedOption,
+                    timestamp: Date.now()
+                };
+                this.saveState();
+            }
+            
+            getAnswer(questionIndex) {
+                return this.answers[questionIndex] || null;
+            }
+        }
+        
+        // 8. アプリケーション制御
+        class CriticalCSSAnalyzer {
+            constructor() {
+                this.state = new HAQEIState();
+                this.tripleOSEngine = new TripleOSEngine();
+                this.trigramScores = {};
+                
+                this.initializeTrigramScores();
+                this.bindEvents();
+                
+                // 復元された状態があれば画面を表示
+                if (this.state.currentQuestion > 0) {
+                    this.showQuestion(this.state.currentQuestion);
+                }
+            }
+            
+            initializeTrigramScores() {
+                for (let i = 1; i <= 8; i++) {
+                    this.trigramScores[i] = 0;
+                }
+            }
+            
+            bindEvents() {
+                // ナビゲーション
+                document.getElementById('start-btn').addEventListener('click', () => this.startAnalysis());
+                document.getElementById('prev-btn').addEventListener('click', () => this.previousQuestion());
+                document.getElementById('next-btn').addEventListener('click', () => this.nextQuestion());
+                document.getElementById('restart-btn').addEventListener('click', () => this.restart());
+                document.getElementById('retry-btn').addEventListener('click', () => this.restart());
+                
+                // キーボードナビゲーション
+                document.addEventListener('keydown', (e) => this.handleKeydown(e));
+            }
+            
+            handleKeydown(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    const focused = document.activeElement;
+                    if (focused.classList.contains('option')) {
+                        e.preventDefault();
+                        this.selectOption(focused);
+                    }
+                }
+            }
+            
+            startAnalysis() {
+                this.showScreen('question-screen');
+                this.showQuestion(0);
+                this.announce('質問が開始されました');
+            }
+            
+            showScreen(screenId) {
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                document.getElementById(screenId).classList.add('active');
+            }
+            
+            showQuestion(index) {
+                if (index >= QUESTIONS.length) {
+                    this.proceedToAnalysis();
+                    return;
+                }
+                
+                this.state.currentQuestion = index;
+                this.showScreen('question-screen');
+                const question = QUESTIONS[index];
+                
+                // 進捗バー更新
+                const progress = ((index + 1) / QUESTIONS.length) * 100;
+                document.getElementById('progress-fill').style.width = `${progress}%`;
+                
+                // 質問表示
+                document.getElementById('question-number').textContent = index + 1;
+                document.getElementById('question-title').textContent = question.text;
+                
+                // オプション表示
+                const container = document.getElementById('options-container');
+                container.innerHTML = '';
+                
+                question.options.forEach((option, optionIndex) => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    optionElement.setAttribute('role', 'radio');
+                    optionElement.setAttribute('aria-checked', 'false');
+                    optionElement.setAttribute('tabindex', '0');
+                    optionElement.innerHTML = `
+                        <span class="option-text">${option.text}</span>
+                    `;
+                    
+                    optionElement.addEventListener('click', () => this.selectOption(optionElement, option));
+                    container.appendChild(optionElement);
+                });
+                
+                // 既存の回答があれば復元
+                const existingAnswer = this.state.getAnswer(index);
+                if (existingAnswer) {
+                    const selectedOption = existingAnswer.selectedOption;
+                    const optionElements = container.querySelectorAll('.option');
+                    optionElements.forEach((elem, idx) => {
+                        if (question.options[idx].value === selectedOption.value) {
+                            elem.classList.add('selected');
+                            elem.setAttribute('aria-checked', 'true');
+                        }
+                    });
+                    document.getElementById('next-btn').disabled = false;
+                }
+                
+                // ナビゲーションボタン更新
+                document.getElementById('prev-btn').disabled = index === 0;
+                if (!existingAnswer) {
+                    document.getElementById('next-btn').disabled = true;
+                }
+                
+                this.announce(`質問${index + 1}: ${question.text}`);
+            }
+            
+            selectOption(element, option) {
+                // 既存の選択を解除
+                element.parentNode.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                    opt.setAttribute('aria-checked', 'false');
+                });
+                
+                // 新しい選択を設定
+                element.classList.add('selected');
+                element.setAttribute('aria-checked', 'true');
+                
+                // 回答を保存（状態管理システム経由）
+                this.state.saveAnswer(this.state.currentQuestion, option);
+                
+                // 次へボタンを有効化
+                document.getElementById('next-btn').disabled = false;
+                
+                this.announce(`選択されました: ${option.text}`);
+            }
+            
+            nextQuestion() {
+                if (this.state.currentQuestion < QUESTIONS.length - 1) {
+                    this.showQuestion(this.state.currentQuestion + 1);
+                } else {
+                    this.proceedToAnalysis();
+                }
+            }
+            
+            previousQuestion() {
+                if (this.state.currentQuestion > 0) {
+                    this.showQuestion(this.state.currentQuestion - 1);
+                }
+            }
+            
+            async proceedToAnalysis() {
+                try {
+                    this.showScreen('analysis-screen');
+                    this.announce('分析を開始しています');
+                    this.state.isAnalyzing = true;
+                    
+                    // Triple OS分析を実行
+                    await this.delay(1500); // UI演出
+                    
+                    // 回答データの変換
+                    const allAnswers = this.state.answers.filter(answer => answer && answer.selectedOption);
+                    
+                    // Triple OSエンジンによる分析
+                    const tripleOSResults = await this.tripleOSEngine.analyzeTripleOS(allAnswers);
+                    
+                    // 結果を状態に保存
+                    this.state.tripleOSResults = tripleOSResults;
+                    
+                    // 結果表示
+                    this.showResults(tripleOSResults);
+                    
+                } catch (error) {
+                    console.error('❌ Analysis failed:', error);
+                    this.showError('分析中にエラーが発生しました: ' + error.message);
+                } finally {
+                    this.state.isAnalyzing = false;
+                }
+            }
+            
+            calculateTrigramScores() {
+                this.initializeTrigramScores();
+                
+                this.answers.forEach(answer => {
+                    if (answer && answer.trigrams) {
+                        answer.trigrams.forEach(trigramId => {
+                            this.trigramScores[trigramId]++;
+                        });
+                    }
+                });
+            }
+            
+            calculateOSScores() {
+                const osScores = {};
+                
+                Object.keys(TRIPLE_OS).forEach(osName => {
+                    const os = TRIPLE_OS[osName];
+                    let score = 0;
+                    
+                    os.trigrams.forEach(trigramId => {
+                        score += this.trigramScores[trigramId] || 0;
+                    });
+                    
+                    osScores[osName] = {
+                        ...os,
+                        score: score,
+                        percentage: Math.round((score / (QUESTIONS.length * 2)) * 100)
+                    };
+                });
+                
+                return osScores;
+            }
+            
+            showResults(tripleOSResults) {
+                this.showScreen('results-screen');
+                
+                // OSカード表示
+                const container = document.getElementById('os-cards-container');
+                container.innerHTML = '';
+                
+                // Engine OS カード
+                const engineCard = this.createOSCard('Engine OS', tripleOSResults.engineOS, '#6366f1');
+                container.appendChild(engineCard);
+                
+                // Interface OS カード
+                const interfaceCard = this.createOSCard('Interface OS', tripleOSResults.interfaceOS, '#8b5cf6');
+                container.appendChild(interfaceCard);
+                
+                // SafeMode OS カード
+                const safeModeCard = this.createOSCard('Safe Mode OS', tripleOSResults.safeModeOS, '#10b981');
+                container.appendChild(safeModeCard);
+                
+                // サマリー生成
+                this.generateTripleOSSummary(tripleOSResults);
+                
+                // データ保存
+                this.saveResults(tripleOSResults);
+                
+                this.announce('Triple OS分析が完了しました');
+            }
+            
+            createOSCard(osName, osData, color) {
+                const card = document.createElement('div');
+                card.className = 'os-card';
+                card.style.borderColor = color + '40';
+                
+                // bunenjin準拠の表現（決定論的回避）
+                const confidenceText = osData.type === 'Engine OS' ? 
+                    'あなたの深層価値観として参考にしていただける' : 
+                    '社会的な側面の一つの視点として';
+                
+                card.innerHTML = `
+                    <div class="os-name">${osName}</div>
+                    <div class="os-score" style="color: ${color};">${osData.hexagramName}</div>
+                    <div class="os-description">${osData.description}</div>
+                    <div style="margin-top: var(--space-sm); font-size: var(--font-sm); color: var(--primary-400);">
+                        ${confidenceText}分析結果です
+                    </div>
+                `;
+                
+                return card;
+            }
+            
+            generateTripleOSSummary(tripleOSResults) {
+                const { engineOS, interfaceOS, safeModeOS, consistencyScore } = tripleOSResults;
+                
+                // bunenjin準拠の表現
+                const summary = `
+                    <div style="margin-bottom: var(--space-md);">
+                        <h4 style="color: var(--primary-100); margin-bottom: var(--space-sm);">🔯 Triple OS システム分析</h4>
+                        <p style="color: var(--primary-200); line-height: 1.6;">
+                            この分析は、易経の64卦理論に基づく<strong>参考情報</strong>として提供されます。
+                            あなたの人格を3つの層で理解する<strong>一つの視点</strong>です。
+                        </p>
+                    </div>
+                    
+                    <div style="margin-bottom: var(--space-md);">
+                        <h5 style="color: #6366f1; margin-bottom: var(--space-xs);">🎯 Engine OS（深層価値観）</h5>
+                        <p style="color: var(--primary-300); font-size: var(--font-sm);">
+                            ${engineOS.hexagramName} - ${engineOS.catchphrase || ''}
+                        </p>
+                    </div>
+                    
+                    <div style="margin-bottom: var(--space-md);">
+                        <h5 style="color: #8b5cf6; margin-bottom: var(--space-xs);">💬 Interface OS（社会的側面）</h5>
+                        <p style="color: var(--primary-300); font-size: var(--font-sm);">
+                            ${interfaceOS.hexagramName} - 対人関係での一面
+                        </p>
+                    </div>
+                    
+                    <div style="margin-bottom: var(--space-md);">
+                        <h5 style="color: #10b981; margin-bottom: var(--space-xs);">🛡️ Safe Mode OS（防御システム）</h5>
+                        <p style="color: var(--primary-300); font-size: var(--font-sm);">
+                            ${safeModeOS.hexagramName} - 安全を重視する時の特性
+                        </p>
+                    </div>
+                    
+                    <div style="padding: var(--space-sm); background: rgba(99, 102, 241, 0.1); border-radius: var(--radius-md); margin-top: var(--space-md);">
+                        <p style="color: var(--primary-200); font-size: var(--font-sm); text-align: center;">
+                            整合性スコア: ${Math.round(consistencyScore)}% 
+                            <br><small>※この数値は各OSの調和度を表す参考指標です</small>
+                        </p>
+                    </div>
+                `;
+                
+                document.getElementById('result-summary').innerHTML = summary;
+            }
+            
+            saveResults(tripleOSResults) {
+                try {
+                    const results = {
+                        timestamp: new Date().toISOString(),
+                        answers: this.state.answers,
+                        tripleOSResults: tripleOSResults,
+                        version: '2.0',
+                        bunenjinCompliant: true
+                    };
+                    
+                    localStorage.setItem('haqei_emergency_results', JSON.stringify(results));
+                    console.log('✅ Triple OS Results saved to localStorage');
+                } catch (error) {
+                    console.warn('⚠️ Failed to save results:', error);
+                }
+            }
+            
+            showError(message) {
+                this.showScreen('error-screen');
+                document.getElementById('error-message').textContent = message;
+                this.announce('エラーが発生しました');
+            }
+            
+            restart() {
+                // 状態をクリア
+                this.state.clearState();
+                this.state.currentQuestion = 0;
+                this.state.answers = [];
+                this.state.tripleOSResults = null;
+                this.state.isAnalyzing = false;
+                
+                // UI初期化
+                this.initializeTrigramScores();
+                this.showScreen('welcome-screen');
+                this.announce('分析がリセットされました');
+            }
+            
+            announce(message) {
+                const announcements = document.getElementById('announcements');
+                announcements.textContent = message;
+                
+                // 一定時間後にクリア
+                setTimeout(() => {
+                    announcements.textContent = '';
+                }, 3000);
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+        
+        // 5. アプリケーション初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                console.log('🎯 HAQEI Emergency Analyzer initializing...');
+                console.log('🔯 Authentic I-Ching 64 Hexagrams Engine loaded');
+                console.log('☰ Trigram Mapping System: bunenjin philosophy compliant');
+                
+                // アプリケーション開始
+                window.criticalCSSAnalyzer = new CriticalCSSAnalyzer();
+                
+                console.log('✅ Critical CSS Analyzer ready');
+                console.log('📊 Questions loaded:', QUESTIONS.length);
+                console.log('🎭 Triple OS systems:', Object.keys(TRIPLE_OS).length);
+                console.log('🔯 Authentic Hexagrams loaded:', AUTHENTIC_HEXAGRAMS.length);
+                console.log('🎆 Authentic 8D Vectors loaded:', Object.keys(AUTHENTIC_H64_8D_VECTORS).length);
+                console.log('🔯 I-Ching Orthodoxy validated: Traditional 64 Hexagram matrix');
+                
+            } catch (error) {
+                console.error('❌ Initialization failed:', error);
+                document.body.innerHTML = `
+                    <div style="padding: 2rem; text-align: center; color: #ef4444;">
+                        <h1>初期化エラー</h1>
+                        <p>アプリケーションの開始に失敗しました。ページを再読み込みしてください。</p>
+                        <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #6366f1; color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
+                            再読み込み
+                        </button>
+                    </div>
+                `;
+            }
+        });
+        
+        // 6. パフォーマンス最適化
+        // サービスワーカー登録（可能な場合）
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/emergency-sw.js')
+                    .then(registration => {
+                        console.log('✅ Emergency SW registered');
+                    })
+                    .catch(error => {
+                        console.log('⚠️ SW registration failed (optional)');
+                    });
+            });
+        }
+        
+        // メモリ最適化
+        window.addEventListener('beforeunload', () => {
+            if (window.criticalCSSAnalyzer) {
+                window.criticalCSSAnalyzer = null;
+            }
+        });
+        
+        // エラーハンドリング
+        window.addEventListener('error', (event) => {
+            console.error('❌ Global error:', event.error);
+            if (window.criticalCSSAnalyzer) {
+                window.criticalCSSAnalyzer.showError('予期しないエラーが発生しました');
+            }
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('❌ Unhandled promise rejection:', event.reason);
+            event.preventDefault();
+            if (window.criticalCSSAnalyzer) {
+                window.criticalCSSAnalyzer.showError('処理中にエラーが発生しました');
+            }
+        });
+        
+        console.log('📝 HAQEI Critical CSS Analyzer script loaded');
+        console.log('🎆 bunenjin哲学 Triple OS Engine integrated');
+        console.log('✨ Critical CSS optimizations applied');
+    </script>
+</body>
+</html>

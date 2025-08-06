@@ -24,21 +24,21 @@
     <div class="container">
         <div class="header">
             <h1>🔍 仮想ユーザー生成システム検証レポート</h1>
-            <p>検証実行日時: 2025/8/5 8:57:05</p>
+            <p>検証実行日時: 2025/8/6 9:24:01</p>
         </div>
         
         <div class="summary">
             <div class="metric success">
                 <h3>成功率</h3>
-                <div style="font-size: 2em; font-weight: bold;">100%</div>
+                <div style="font-size: 2em; font-weight: bold;">90.9%</div>
             </div>
             <div class="metric success">
                 <h3>成功テスト</h3>
-                <div style="font-size: 2em; font-weight: bold;">11</div>
+                <div style="font-size: 2em; font-weight: bold;">10</div>
             </div>
-            <div class="metric success">
+            <div class="metric danger">
                 <h3>失敗テスト</h3>
-                <div style="font-size: 2em; font-weight: bold;">0</div>
+                <div style="font-size: 2em; font-weight: bold;">1</div>
             </div>
             <div class="metric success">
                 <h3>総テスト数</h3>
@@ -60,7 +60,7 @@
         
             <div class="test-item pass">
                 <div class="test-name">✅ PERSONALITY_DIVERSITY</div>
-                <div class="test-details">5種類の人格タイプ生成: practical, empathetic, philosophical, creative, technical</div>
+                <div class="test-details">5種類の人格タイプ生成: technical, practical, empathetic, creative, philosophical</div>
             </div>
         
             <div class="test-item pass">
@@ -70,17 +70,17 @@
         
             <div class="test-item pass">
                 <div class="test-name">✅ PERSONALITY_VARIATION</div>
-                <div class="test-details">哲学的興味の標準偏差: 0.225 (変動十分: true)</div>
+                <div class="test-details">哲学的興味の標準偏差: 0.230 (変動十分: true)</div>
             </div>
         
             <div class="test-item pass">
                 <div class="test-name">✅ GENERATION_SPEED</div>
-                <div class="test-details">30人生成時間: 1ms (目標: <1000ms)</div>
+                <div class="test-details">30人生成時間: 0ms (目標: <1000ms)</div>
             </div>
         
             <div class="test-item pass">
                 <div class="test-name">✅ MEMORY_USAGE</div>
-                <div class="test-details">100人生成メモリ使用量: -0.34MB (目標: <10MB)</div>
+                <div class="test-details">100人生成メモリ使用量: -0.35MB (目標: <10MB)</div>
             </div>
         
             <div class="test-item pass">
@@ -93,14 +93,17 @@
                 <div class="test-details">大量生成テスト: 1000/1000人</div>
             </div>
         
-            <div class="test-item pass">
-                <div class="test-name">✅ PDCA_INTEGRATION</div>
-                <div class="test-details">PDCA システム正常にインポート</div>
+            <div class="test-item fail">
+                <div class="test-name">❌ PDCA_INTEGRATION</div>
+                <div class="test-details">Cannot find module 'playwright'
+Require stack:
+- /Users/nakanohideaki/Desktop/haqei-analyzer/scripts/haqei-pdca-system.cjs
+- /Users/nakanohideaki/Desktop/haqei-analyzer/test-virtual-user-validation.cjs</div>
             </div>
         
             <div class="test-item pass">
                 <div class="test-name">✅ NPM_COMMANDS</div>
-                <div class="test-details">PDCA コマンド数: 7 (pdca:evaluate, pdca:evaluate:15, pdca:evaluate:20, pdca:evaluate:30, pdca:discuss, pdca:implement, pdca:verify)</div>
+                <div class="test-details">PDCA コマンド数: 4 (pdca:evaluate, pdca:evaluate:15, pdca:evaluate:20, pdca:evaluate:30)</div>
             </div>
         
         

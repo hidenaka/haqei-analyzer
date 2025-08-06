@@ -358,7 +358,7 @@ class TestDataLogger {
     
     // 必須フィールドのチェック
     for (const field of schema.required) {
-      if (!data.hasOwnProperty(field)) {
+      if (!Object.prototype.hasOwnProperty.call(data, field)) {
         console.error(`Missing required field: ${field}`);
         return false;
       }
@@ -613,11 +613,12 @@ async function main() {
       await handleSearchCommand(logger, args.slice(1));
       break;
       
-    case 'archive':
+    case 'archive': {
       // 古いデータのアーカイブ
       const days = parseInt(args[1]) || 30;
       await logger.archiveOldData(days);
       break;
+    }
       
     case 'stats':
       // 統計情報の表示

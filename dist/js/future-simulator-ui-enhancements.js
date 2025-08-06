@@ -1,650 +1,1027 @@
 /**
- * Future Simulator UI Enhancements
- * bunenjin哲学: 最高のユーザー体験を実現するUI/UX統合システム
+ * Future Simulator UI Enhancement System
+ * 
+ * 統合されたUI強化システム - Future Simulatorの使いやすさと視覚的魅力を向上
+ * 
+ * 機能:
+ * - レスポンシブデザイン強化
+ * - アニメーション効果システム
+ * - ユーザビリティ改善
+ * - アクセシビリティ対応
+ * 
+ * Author: HAQEI Programmer Agent
+ * Created: 2025-08-06
+ * Version: 1.0.0-stable
  */
 
 class FutureSimulatorUIEnhancements {
   constructor() {
-    this.loadingManager = null;
-    this.errorManager = null;
-    this.responsiveManager = null;
+    this.version = "1.0.0-stable";
     this.initialized = false;
+    this.animationDuration = 300;
+    this.observers = new Map();
     
-    this.initializationSteps = [
-      { id: 'managers', label: '管理システム初期化中...', weight: 20 },
-      { id: 'ui', label: 'UI要素読み込み中...', weight: 30 },
-      { id: 'data', label: 'データ準備中...', weight: 25 },
-      { id: 'finalize', label: '最終調整中...', weight: 25 }
-    ];
-    
-    this.initializeEnhancements();
+    console.log('🎨 Future Simulator UI Enhancement System initializing...');
   }
 
   /**
-   * UI強化システムの初期化
+   * システム初期化
    */
-  async initializeEnhancements() {
+  async initialize() {
+    if (this.initialized) {
+      console.log('✅ UI Enhancement System already initialized');
+      return;
+    }
+
     try {
-      await this.waitForDOMReady();
-      await this.initializeManagers();
-      await this.setupProgressiveLoading();
-      await this.enhanceExistingElements();
-      await this.setupResponsiveEnhancements();
-      await this.finalizeInitialization();
+      // 基本UIエンハンスメント
+      await this.initializeBasicEnhancements();
+      
+      // アニメーションシステム
+      this.initializeAnimationSystem();
+      
+      // レスポンシブ強化
+      this.initializeResponsiveEnhancements();
+      
+      // アクセシビリティ強化
+      this.initializeAccessibilityEnhancements();
+      
+      // ユーザビリティ改善
+      this.initializeUsabilityImprovements();
       
       this.initialized = true;
-      console.log('✅ Future Simulator UI Enhancement System - 初期化完了');
+      console.log('✅ Future Simulator UI Enhancement System ready');
+      
     } catch (error) {
-      console.error('❌ UI Enhancement System 初期化エラー:', error);
-      this.handleInitializationError(error);
+      console.error('❌ UI Enhancement System initialization failed:', error);
+      throw error;
     }
   }
 
   /**
-   * DOM準備完了待機
+   * 基本UIエンハンスメント
    */
-  waitForDOMReady() {
-    return new Promise((resolve) => {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', resolve);
-      } else {
-        resolve();
-      }
-    });
+  async initializeBasicEnhancements() {
+    // カードホバー効果の強化
+    this.enhanceCardInteractions();
+    
+    // ボタンアニメーション改善
+    this.enhanceButtonAnimations();
+    
+    // フォーム要素の改善
+    this.enhanceFormElements();
+    
+    console.log('✅ Basic UI enhancements applied');
   }
 
   /**
-   * 管理システムの初期化
+   * カードインタラクション強化
    */
-  async initializeManagers() {
-    this.updateInitialLoadingProgress('managers', 0);
+  enhanceCardInteractions() {
+    const cards = document.querySelectorAll('.card, .scenario-card, .choice-card');
     
-    // Progressive Loading Manager
-    if (typeof ProgressiveLoadingManager !== 'undefined') {
-      this.loadingManager = new ProgressiveLoadingManager();
-      this.updateInitialLoadingProgress('managers', 30);
-    }
-    
-    // User Error Manager
-    if (typeof UserErrorManager !== 'undefined') {
-      this.errorManager = new UserErrorManager();
-      this.updateInitialLoadingProgress('managers', 60);
-    }
-    
-    // Responsive Enhancement Manager
-    if (typeof ResponsiveEnhancementManager !== 'undefined') {
-      this.responsiveManager = new ResponsiveEnhancementManager();
-      this.updateInitialLoadingProgress('managers', 100);
-    }
-    
-    // グローバルエラーハンドラーの設定
-    this.setupGlobalErrorHandling();
-  }
-
-  /**
-   * プログレッシブローディングの設定
-   */
-  async setupProgressiveLoading() {
-    this.updateInitialLoadingProgress('ui', 0);
-    
-    if (!this.loadingManager) return;
-    
-    // スケルトンローダーの準備
-    const skeletonElements = document.querySelectorAll('.skeleton-container');
-    skeletonElements.forEach(skeleton => {
-      skeleton.setAttribute('aria-label', '読み込み中');
-      skeleton.setAttribute('role', 'status');
-    });
-    
-    this.updateInitialLoadingProgress('ui', 50);
-    
-    // プログレッシブレンダリング対象要素の準備
-    const progressiveElements = document.querySelectorAll('[data-progressive-load]');
-    progressiveElements.forEach((element, index) => {
-      element.classList.add('fade-in-progressive');
-      element.classList.add(`progressive-delay-${Math.min(index + 1, 4)}`);
-    });
-    
-    this.updateInitialLoadingProgress('ui', 100);
-  }
-
-  /**
-   * 既存要素の強化
-   */
-  async enhanceExistingElements() {
-    this.updateInitialLoadingProgress('data', 0);
-    
-    // フォーム要素の強化
-    await this.enhanceFormElements();
-    this.updateInitialLoadingProgress('data', 25);
-    
-    // ボタン要素の強化
-    await this.enhanceButtonElements();
-    this.updateInitialLoadingProgress('data', 50);
-    
-    // モーダルの強化
-    await this.enhanceModalElements();
-    this.updateInitialLoadingProgress('data', 75);
-    
-    // アクセシビリティの強化
-    await this.enhanceAccessibility();
-    this.updateInitialLoadingProgress('data', 100);
-  }
-
-  /**
-   * フォーム要素の強化
-   */
-  async enhanceFormElements() {
-    const textareas = document.querySelectorAll('textarea');
-    textareas.forEach(textarea => {
-      // 自動リサイズ機能
-      this.addAutoResize(textarea);
-      
-      // リアルタイム文字数カウント
-      this.addCharacterCounter(textarea);
-      
-      // 入力支援メッセージ
-      this.addInputGuidance(textarea);
-    });
-    
-    const inputs = document.querySelectorAll('input[type="text"], input[type="email"]');
-    inputs.forEach(input => {
-      // バリデーション強化
-      this.addInputValidation(input);
-    });
-  }
-
-  /**
-   * テキストエリアの自動リサイズ
-   */
-  addAutoResize(textarea) {
-    const resize = () => {
-      textarea.style.height = 'auto';
-      textarea.style.height = Math.max(textarea.scrollHeight, 120) + 'px';
-    };
-    
-    textarea.addEventListener('input', resize);
-    textarea.addEventListener('paste', () => setTimeout(resize, 0));
-    
-    // 初期サイズ調整
-    setTimeout(resize, 0);
-  }
-
-  /**
-   * 文字数カウンターの追加
-   */
-  addCharacterCounter(textarea) {
-    const counter = document.createElement('div');
-    counter.className = 'character-counter';
-    counter.style.cssText = `
-      position: absolute;
-      bottom: 8px;
-      right: 12px;
-      font-size: 0.75rem;
-      color: #9ca3af;
-      pointer-events: none;
-      background: rgba(17, 24, 39, 0.8);
-      padding: 2px 6px;
-      border-radius: 4px;
-    `;
-    
-    const updateCounter = () => {
-      const length = textarea.value.length;
-      counter.textContent = `${length} 文字`;
-      
-      if (length > 2000) {
-        counter.style.color = '#ef4444';
-      } else if (length > 1500) {
-        counter.style.color = '#f59e0b';
-      } else {
-        counter.style.color = '#9ca3af';
-      }
-    };
-    
-    textarea.addEventListener('input', updateCounter);
-    textarea.parentNode.style.position = 'relative';
-    textarea.parentNode.appendChild(counter);
-    
-    updateCounter();
-  }
-
-  /**
-   * 入力支援メッセージの追加
-   */
-  addInputGuidance(textarea) {
-    let guidanceTimeout;
-    
-    const showGuidance = (message) => {
-      if (this.responsiveManager) {
-        this.responsiveManager.announceToScreenReader(message);
-      }
-    };
-    
-    textarea.addEventListener('focus', () => {
-      if (textarea.value.length === 0) {
-        guidanceTimeout = setTimeout(() => {
-          showGuidance('自然な言葉で入力してください。正式な文章である必要はありません。');
-        }, 3000);
-      }
-    });
-    
-    textarea.addEventListener('blur', () => {
-      clearTimeout(guidanceTimeout);
-    });
-    
-    textarea.addEventListener('input', () => {
-      clearTimeout(guidanceTimeout);
-    });
-  }
-
-  /**
-   * ボタン要素の強化
-   */
-  async enhanceButtonElements() {
-    const buttons = document.querySelectorAll('button, .btn');
-    buttons.forEach(button => {
-      // タッチフィードバックの追加
-      this.addTouchFeedback(button);
-      
-      // キーボードアクセシビリティの強化
-      this.enhanceKeyboardAccess(button);
-      
-      // ローディング状態の管理
-      this.addLoadingState(button);
-    });
-  }
-
-  /**
-   * タッチフィードバックの追加
-   */
-  addTouchFeedback(element) {
-    let isPressed = false;
-    
-    const addClass = () => {
-      if (!isPressed) {
-        element.classList.add('interactive');
-        isPressed = true;
-      }
-    };
-    
-    const removeClass = () => {
-      if (isPressed) {
-        element.classList.remove('interactive');
-        isPressed = false;
-      }
-    };
-    
-    element.addEventListener('touchstart', addClass, { passive: true });
-    element.addEventListener('touchend', removeClass, { passive: true });
-    element.addEventListener('touchcancel', removeClass, { passive: true });
-    element.addEventListener('mousedown', addClass);
-    element.addEventListener('mouseup', removeClass);
-    element.addEventListener('mouseleave', removeClass);
-  }
-
-  /**
-   * キーボードアクセシビリティの強化
-   */
-  enhanceKeyboardAccess(element) {
-    // フォーカス表示の強化
-    element.addEventListener('focus', () => {
-      element.classList.add('focus-visible');
-    });
-    
-    element.addEventListener('blur', () => {
-      element.classList.remove('focus-visible');
-    });
-    
-    // Enterキーでの実行
-    element.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && element.getAttribute('role') === 'button') {
-        e.preventDefault();
-        element.click();
-      }
-    });
-  }
-
-  /**
-   * ボタンのローディング状態管理
-   */
-  addLoadingState(button) {
-    const originalText = button.textContent;
-    
-    button.setLoading = (loading = true) => {
-      if (loading) {
-        button.disabled = true;
-        button.classList.add('loading');
-        button.innerHTML = `
-          <span class="loading-spinner" style="
-            width: 16px; 
-            height: 16px; 
-            border: 2px solid rgba(255,255,255,0.3); 
-            border-left: 2px solid white; 
-            border-radius: 50%; 
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 8px;
-          "></span>
-          処理中...
-        `;
-      } else {
-        button.disabled = false;
-        button.classList.remove('loading');
-        button.textContent = originalText;
-      }
-    };
-  }
-
-  /**
-   * モーダル要素の強化
-   */
-  async enhanceModalElements() {
-    const modals = document.querySelectorAll('.modal, [role="dialog"]');
-    modals.forEach(modal => {
-      this.enhanceModal(modal);
-    });
-  }
-
-  /**
-   * 個別モーダルの強化
-   */
-  enhanceModal(modal) {
-    // フォーカストラップの設定
-    this.setupFocusTrap(modal);
-    
-    // Escapeキーでの閉じる機能
-    this.setupEscapeClose(modal);
-    
-    // オーバーレイクリックでの閉じる機能
-    this.setupOverlayClose(modal);
-    
-    // アクセシビリティ属性の設定
-    if (!modal.hasAttribute('role')) {
-      modal.setAttribute('role', 'dialog');
-    }
-    if (!modal.hasAttribute('aria-modal')) {
-      modal.setAttribute('aria-modal', 'true');
-    }
-  }
-
-  /**
-   * アクセシビリティの強化
-   */
-  async enhanceAccessibility() {
-    // ARIA属性の自動設定
-    this.setupAutoARIA();
-    
-    // スキップリンクの追加
-    this.addSkipLinks();
-    
-    // ランドマークの設定
-    this.setupLandmarks();
-  }
-
-  /**
-   * レスポンシブエンハンスメントの設定
-   */
-  async setupResponsiveEnhancements() {
-    if (!this.responsiveManager) return;
-    
-    // ブレークポイント変更の監視
-    this.responsiveManager.onBreakpointChange((newBreakpoint, oldBreakpoint) => {
-      this.handleBreakpointChange(newBreakpoint, oldBreakpoint);
-    });
-    
-    // 画面回転の監視
-    this.responsiveManager.onOrientationChange((isLandscape, angle) => {
-      this.handleOrientationChange(isLandscape, angle);
-    });
-  }
-
-  /**
-   * ブレークポイント変更の処理
-   */
-  handleBreakpointChange(newBreakpoint, oldBreakpoint) {
-    console.log(`ブレークポイント変更: ${oldBreakpoint} -> ${newBreakpoint}`);
-    
-    // レイアウト調整
-    this.adjustLayoutForBreakpoint(newBreakpoint);
-    
-    // インタラクション調整
-    this.adjustInteractionForBreakpoint(newBreakpoint);
-  }
-
-  /**
-   * ブレークポイント別レイアウト調整
-   */
-  adjustLayoutForBreakpoint(breakpoint) {
-    const container = document.getElementById('main-container');
-    if (!container) return;
-    
-    // モバイル用の調整
-    if (['xs', 'sm'].includes(breakpoint)) {
-      container.classList.add('mobile-layout');
-      this.optimizeForMobile();
-    } else {
-      container.classList.remove('mobile-layout');
-      this.optimizeForDesktop();
-    }
-  }
-
-  /**
-   * モバイル最適化
-   */
-  optimizeForMobile() {
-    // タッチ対応の強化
-    document.body.classList.add('touch-optimized');
-    
-    // スクロール最適化
-    document.documentElement.style.webkitOverflowScrolling = 'touch';
-  }
-
-  /**
-   * デスクトップ最適化
-   */
-  optimizeForDesktop() {
-    document.body.classList.remove('touch-optimized');
-  }
-
-  /**
-   * グローバルエラーハンドリングの設定
-   */
-  setupGlobalErrorHandling() {
-    if (!this.errorManager) return;
-    
-    // 未処理の例外をキャッチ
-    window.addEventListener('error', (event) => {
-      this.errorManager.displayError(event.error || new Error(event.message), {
-        context: 'global',
-        retryCallback: () => window.location.reload()
+    cards.forEach(card => {
+      // ホバー効果の改善
+      card.addEventListener('mouseenter', (e) => {
+        this.animateCardHover(e.target, true);
       });
-    });
-    
-    // Promise の拒否をキャッチ
-    window.addEventListener('unhandledrejection', (event) => {
-      this.errorManager.displayError(new Error(`Promise拒否: ${event.reason}`), {
-        context: 'promise',
-        retryCallback: () => window.location.reload()
+      
+      card.addEventListener('mouseleave', (e) => {
+        this.animateCardHover(e.target, false);
+      });
+      
+      // クリック効果
+      card.addEventListener('click', (e) => {
+        this.animateCardClick(e.target);
       });
     });
   }
 
   /**
-   * 初期化進捗の更新
+   * カードホバーアニメーション
    */
-  updateInitialLoadingProgress(stepId, percentage) {
-    const step = this.initializationSteps.find(s => s.id === stepId);
-    if (!step) return;
+  animateCardHover(card, isHover) {
+    const transform = isHover ? 'scale(1.02) translateY(-2px)' : 'scale(1) translateY(0)';
+    const boxShadow = isHover 
+      ? '0 8px 32px rgba(99, 102, 241, 0.3)' 
+      : '0 4px 16px rgba(0, 0, 0, 0.1)';
     
-    const currentStepIndex = this.initializationSteps.indexOf(step);
-    const previousStepsWeight = this.initializationSteps
-      .slice(0, currentStepIndex)
-      .reduce((sum, s) => sum + s.weight, 0);
-    
-    const totalProgress = previousStepsWeight + (step.weight * percentage / 100);
-    
-    const progressBar = document.getElementById('initial-loading-progress');
-    const progressText = document.getElementById('initial-loading-percentage');
-    const loadingText = document.getElementById('initial-loading-text');
-    
-    if (progressBar) {
-      progressBar.style.width = `${totalProgress}%`;
-      progressBar.setAttribute('aria-valuenow', totalProgress);
-    }
-    
-    if (progressText) {
-      progressText.textContent = `${Math.round(totalProgress)}%`;
-    }
-    
-    if (loadingText && percentage === 0) {
-      loadingText.textContent = step.label;
-    }
+    card.style.transition = `transform ${this.animationDuration}ms ease, box-shadow ${this.animationDuration}ms ease`;
+    card.style.transform = transform;
+    card.style.boxShadow = boxShadow;
   }
 
   /**
-   * 初期化完了処理
+   * カードクリックアニメーション
    */
-  async finalizeInitialization() {
-    this.updateInitialLoadingProgress('finalize', 0);
+  animateCardClick(card) {
+    // 短いスケールダウン効果
+    card.style.transform = 'scale(0.98)';
     
-    // スケルトンの非表示とコンテンツの表示
     setTimeout(() => {
-      this.showMainContent();
-      this.updateInitialLoadingProgress('finalize', 50);
-    }, 500);
-    
-    // 初期ローディング画面の非表示
-    setTimeout(() => {
-      this.hideInitialLoading();
-      this.updateInitialLoadingProgress('finalize', 100);
-    }, 1000);
-  }
-
-  /**
-   * メインコンテンツの表示
-   */
-  showMainContent() {
-    const mainContainer = document.getElementById('main-container');
-    const skeletons = document.querySelectorAll('.skeleton-container');
-    const contents = document.querySelectorAll('.input-content, .fade-in-progressive');
-    
-    // スケルトンを非表示
-    skeletons.forEach(skeleton => {
-      skeleton.style.opacity = '0';
-      setTimeout(() => {
-        skeleton.style.display = 'none';
-      }, 300);
-    });
-    
-    // コンテンツを表示
-    contents.forEach((content, index) => {
-      setTimeout(() => {
-        content.style.display = 'block';
-        content.classList.add('loaded');
-      }, 100 * (index + 1));
-    });
-    
-    // メインコンテナのフェードイン
-    if (mainContainer) {
-      mainContainer.style.transition = 'opacity 0.5s ease';
-      mainContainer.style.opacity = '1';
-    }
-  }
-
-  /**
-   * 初期ローディング画面の非表示
-   */
-  hideInitialLoading() {
-    const initialLoading = document.getElementById('initial-loading');
-    if (initialLoading) {
-      initialLoading.style.opacity = '0';
-      setTimeout(() => {
-        initialLoading.style.display = 'none';
-      }, 300);
-    }
-  }
-
-  /**
-   * 初期化エラーの処理
-   */
-  handleInitializationError(error) {
-    console.error('UI Enhancement System 初期化エラー:', error);
-    
-    // エラー表示
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'initialization-error';
-    errorDiv.innerHTML = `
-      <div style="
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(220, 38, 38, 0.9);
-        color: white;
-        padding: 20px;
-        border-radius: 8px;
-        text-align: center;
-        z-index: 10000;
-      ">
-        <h3>システム初期化エラー</h3>
-        <p>UI拡張機能の読み込みに失敗しました</p>
-        <button onclick="location.reload()" style="
-          margin-top: 10px;
-          padding: 8px 16px;
-          background: white;
-          color: #dc2626;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        ">
-          ページを再読み込み
-        </button>
-      </div>
-    `;
-    
-    document.body.appendChild(errorDiv);
-    
-    // 基本機能での動作を継続
-    setTimeout(() => {
-      this.showMainContent();
-      this.hideInitialLoading();
-    }, 2000);
-  }
-
-  /**
-   * 画面回転の処理
-   */
-  handleOrientationChange(isLandscape, angle) {
-    // 画面回転時の処理
-    console.log(`画面回転: ${isLandscape ? 'landscape' : 'portrait'} (${angle}度)`);
-    
-    // レイアウトの再調整
-    setTimeout(() => {
-      this.adjustLayoutForOrientation(isLandscape);
+      card.style.transform = 'scale(1.02) translateY(-2px)';
     }, 100);
   }
 
   /**
-   * 向き別レイアウト調整
+   * ボタンアニメーション強化
    */
-  adjustLayoutForOrientation(isLandscape) {
-    const body = document.body;
+  enhanceButtonAnimations() {
+    const buttons = document.querySelectorAll('button, .export-button');
     
-    if (isLandscape) {
-      body.classList.add('landscape-mode');
-    } else {
-      body.classList.remove('landscape-mode');
+    buttons.forEach(button => {
+      // リップル効果の追加
+      button.addEventListener('click', (e) => {
+        this.createRippleEffect(e);
+      });
+      
+      // ホバー効果の改善
+      button.addEventListener('mouseenter', (e) => {
+        this.animateButtonHover(e.target, true);
+      });
+      
+      button.addEventListener('mouseleave', (e) => {
+        this.animateButtonHover(e.target, false);
+      });
+    });
+  }
+
+  /**
+   * リップル効果の作成
+   */
+  createRippleEffect(event) {
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = event.clientX - rect.left - size / 2;
+    const y = event.clientY - rect.top - size / 2;
+    
+    const ripple = document.createElement('span');
+    ripple.style.position = 'absolute';
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+    ripple.style.borderRadius = '50%';
+    ripple.style.transform = 'scale(0)';
+    ripple.style.animation = 'ripple 600ms linear';
+    ripple.style.pointerEvents = 'none';
+    
+    // アニメーションキーフレームを動的追加
+    this.addRippleKeyframes();
+    
+    // ボタンの相対位置設定
+    if (getComputedStyle(button).position === 'static') {
+      button.style.position = 'relative';
+    }
+    button.style.overflow = 'hidden';
+    
+    button.appendChild(ripple);
+    
+    // アニメーション終了後に削除
+    setTimeout(() => {
+      if (ripple.parentNode) {
+        ripple.parentNode.removeChild(ripple);
+      }
+    }, 600);
+  }
+
+  /**
+   * リップルアニメーションキーフレーム追加
+   */
+  addRippleKeyframes() {
+    if (document.getElementById('ripple-keyframes')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'ripple-keyframes';
+    style.textContent = `
+      @keyframes ripple {
+        to {
+          transform: scale(4);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  /**
+   * ボタンホバーアニメーション
+   */
+  animateButtonHover(button, isHover) {
+    const transform = isHover ? 'translateY(-1px)' : 'translateY(0)';
+    const boxShadow = isHover 
+      ? '0 6px 20px rgba(99, 102, 241, 0.4)' 
+      : '0 2px 8px rgba(0, 0, 0, 0.1)';
+    
+    button.style.transition = `transform ${this.animationDuration}ms ease, box-shadow ${this.animationDuration}ms ease`;
+    button.style.transform = transform;
+    button.style.boxShadow = boxShadow;
+  }
+
+  /**
+   * フォーム要素の改善
+   */
+  enhanceFormElements() {
+    const inputs = document.querySelectorAll('input, textarea, select');
+    
+    inputs.forEach(input => {
+      // フォーカス効果の改善
+      input.addEventListener('focus', (e) => {
+        this.animateInputFocus(e.target, true);
+      });
+      
+      input.addEventListener('blur', (e) => {
+        this.animateInputFocus(e.target, false);
+      });
+    });
+  }
+
+  /**
+   * 入力フィールドフォーカスアニメーション
+   */
+  animateInputFocus(input, isFocus) {
+    const borderColor = isFocus ? '#6366f1' : '#374151';
+    const boxShadow = isFocus 
+      ? '0 0 0 3px rgba(99, 102, 241, 0.1)' 
+      : 'none';
+    
+    input.style.transition = `border-color ${this.animationDuration}ms ease, box-shadow ${this.animationDuration}ms ease`;
+    input.style.borderColor = borderColor;
+    input.style.boxShadow = boxShadow;
+  }
+
+  /**
+   * アニメーションシステム初期化
+   */
+  initializeAnimationSystem() {
+    // Intersection Observer for scroll animations
+    this.setupScrollAnimations();
+    
+    // Staggered animations for lists
+    this.setupStaggeredAnimations();
+    
+    console.log('✅ Animation system initialized');
+  }
+
+  /**
+   * スクロールアニメーション設定
+   */
+  setupScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-fade-in-up');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    // アニメーション対象要素を監視
+    const animateElements = document.querySelectorAll('.progressive-load, .card, .scenario-card');
+    animateElements.forEach(el => {
+      observer.observe(el);
+    });
+
+    this.observers.set('scroll', observer);
+  }
+
+  /**
+   * 段階的アニメーション設定
+   */
+  setupStaggeredAnimations() {
+    const lists = document.querySelectorAll('.grid, .scenario-grid');
+    
+    lists.forEach(list => {
+      const items = list.children;
+      Array.from(items).forEach((item, index) => {
+        item.style.animationDelay = `${index * 100}ms`;
+        item.classList.add('stagger-animation');
+      });
+    });
+  }
+
+  /**
+   * レスポンシブ強化初期化
+   */
+  initializeResponsiveEnhancements() {
+    // ビューポート変更の監視
+    this.setupViewportHandling();
+    
+    // タッチデバイスの最適化
+    this.setupTouchOptimizations();
+    
+    console.log('✅ Responsive enhancements initialized');
+  }
+
+  /**
+   * ビューポート処理設定
+   */
+  setupViewportHandling() {
+    let resizeTimeout;
+    
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        this.handleViewportChange();
+      }, 150);
+    });
+    
+    // 初期設定
+    this.handleViewportChange();
+  }
+
+  /**
+   * ビューポート変更処理
+   */
+  handleViewportChange() {
+    const width = window.innerWidth;
+    const isMobile = width < 768;
+    const isTablet = width >= 768 && width < 1024;
+    
+    document.body.classList.toggle('mobile-layout', isMobile);
+    document.body.classList.toggle('tablet-layout', isTablet);
+    
+    // モバイルレイアウトの調整
+    if (isMobile) {
+      this.applyMobileOptimizations();
     }
   }
 
-  // その他のヘルパーメソッド（setupFocusTrap, setupEscapeClose, etc.）は
-  // ResponsiveEnhancementManagerから継承または参照
+  /**
+   * モバイル最適化適用
+   */
+  applyMobileOptimizations() {
+    // カードのマージン調整
+    const cards = document.querySelectorAll('.card, .scenario-card, .choice-card');
+    cards.forEach(card => {
+      card.style.margin = '0.5rem 0';
+    });
+    
+    // ボタンサイズの調整
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      button.style.minHeight = '44px'; // タッチに適したサイズ
+    });
+  }
+
+  /**
+   * タッチ最適化設定
+   */
+  setupTouchOptimizations() {
+    if ('ontouchstart' in window) {
+      document.body.classList.add('touch-device');
+      
+      // タッチ開始・終了イベントの処理
+      document.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+      document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
+    }
+  }
+
+  /**
+   * タッチ開始処理
+   */
+  handleTouchStart(event) {
+    const target = event.target.closest('.card, button');
+    if (target) {
+      target.classList.add('touch-active');
+    }
+  }
+
+  /**
+   * タッチ終了処理
+   */
+  handleTouchEnd(event) {
+    setTimeout(() => {
+      const activeElements = document.querySelectorAll('.touch-active');
+      activeElements.forEach(el => {
+        el.classList.remove('touch-active');
+      });
+    }, 150);
+  }
+
+  /**
+   * アクセシビリティ強化初期化
+   */
+  initializeAccessibilityEnhancements() {
+    // フォーカス管理
+    this.setupFocusManagement();
+    
+    // ARIA属性の動的更新
+    this.setupARIAEnhancements();
+    
+    // キーボードナビゲーション
+    this.setupKeyboardNavigation();
+    
+    console.log('✅ Accessibility enhancements initialized');
+  }
+
+  /**
+   * フォーカス管理設定
+   */
+  setupFocusManagement() {
+    // フォーカス可能要素のスタイル改善
+    const focusableElements = document.querySelectorAll('button, input, textarea, select, a[href], [tabindex]:not([tabindex="-1"])');
+    
+    focusableElements.forEach(element => {
+      element.addEventListener('focus', (e) => {
+        e.target.classList.add('focus-visible');
+      });
+      
+      element.addEventListener('blur', (e) => {
+        e.target.classList.remove('focus-visible');
+      });
+    });
+  }
+
+  /**
+   * ARIA属性強化設定
+   */
+  setupARIAEnhancements() {
+    // 動的コンテンツのaria-live設定
+    const resultArea = document.getElementById('resultArea');
+    if (resultArea) {
+      resultArea.setAttribute('aria-live', 'polite');
+      resultArea.setAttribute('aria-relevant', 'additions text');
+    }
+    
+    // カードの役割設定
+    const cards = document.querySelectorAll('.card, .scenario-card, .choice-card');
+    cards.forEach((card, index) => {
+      if (!card.getAttribute('role')) {
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-describedby', `card-description-${index}`);
+      }
+    });
+  }
+
+  /**
+   * キーボードナビゲーション設定
+   */
+  setupKeyboardNavigation() {
+    document.addEventListener('keydown', (event) => {
+      // Escキーでモーダルを閉じる
+      if (event.key === 'Escape') {
+        this.closeModals();
+      }
+      
+      // Enterキーでカードを選択
+      if (event.key === 'Enter' && event.target.classList.contains('card')) {
+        event.target.click();
+      }
+    });
+  }
+
+  /**
+   * モーダル閉じる処理
+   */
+  closeModals() {
+    const modals = document.querySelectorAll('.modal, .overlay');
+    modals.forEach(modal => {
+      if (modal.style.display !== 'none') {
+        modal.style.display = 'none';
+      }
+    });
+  }
+
+  /**
+   * ユーザビリティ改善初期化
+   */
+  initializeUsabilityImprovements() {
+    // ローディング状態の改善
+    this.setupLoadingStateImprovements();
+    
+    // エラー状態の改善
+    this.setupErrorStateImprovements();
+    
+    // プログレス表示の改善
+    this.setupProgressIndicators();
+    
+    console.log('✅ Usability improvements initialized');
+  }
+
+  /**
+   * ローディング状態改善設定
+   */
+  setupLoadingStateImprovements() {
+    // 分析ボタンのローディング状態
+    const analyzeButton = document.getElementById('aiGuessBtn');
+    if (analyzeButton) {
+      const originalClick = analyzeButton.onclick;
+      analyzeButton.onclick = (event) => {
+        this.setButtonLoadingState(analyzeButton, true);
+        
+        if (originalClick) {
+          originalClick.call(analyzeButton, event);
+        }
+        
+        // 3秒後にローディング状態を解除（フォールバック）
+        setTimeout(() => {
+          this.setButtonLoadingState(analyzeButton, false);
+        }, 3000);
+      };
+    }
+  }
+
+  /**
+   * ボタンローディング状態設定
+   */
+  setButtonLoadingState(button, isLoading) {
+    if (isLoading) {
+      button.disabled = true;
+      button.classList.add('loading');
+      const originalText = button.textContent;
+      button.dataset.originalText = originalText;
+      button.innerHTML = `
+        <span class="loading-spinner"></span>
+        分析中...
+      `;
+    } else {
+      button.disabled = false;
+      button.classList.remove('loading');
+      button.textContent = button.dataset.originalText || '未来を分析';
+    }
+  }
+
+  /**
+   * エラー状態改善設定
+   */
+  setupErrorStateImprovements() {
+    // グローバルエラーハンドラーの改善
+    window.addEventListener('error', (event) => {
+      this.showUserFriendlyError(event.error);
+    });
+    
+    window.addEventListener('unhandledrejection', (event) => {
+      this.showUserFriendlyError(event.reason);
+    });
+  }
+
+  /**
+   * ユーザーフレンドリーなエラー表示
+   */
+  showUserFriendlyError(error) {
+    console.error('UI Enhancement System caught error:', error);
+    
+    // 既存のエラー表示を確認
+    let errorContainer = document.getElementById('ui-error-container');
+    if (!errorContainer) {
+      errorContainer = document.createElement('div');
+      errorContainer.id = 'ui-error-container';
+      errorContainer.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm';
+      errorContainer.style.display = 'none';
+      document.body.appendChild(errorContainer);
+    }
+    
+    errorContainer.innerHTML = `
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-300" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium">エラーが発生しました</p>
+          <p class="text-sm opacity-90">しばらく経ってから再試行してください</p>
+        </div>
+        <button class="ml-auto flex-shrink-0 rounded-md p-1.5 hover:bg-red-600 focus:outline-none" onclick="this.parentElement.parentElement.style.display='none'">
+          <span class="sr-only">閉じる</span>
+          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </div>
+    `;
+    
+    errorContainer.style.display = 'block';
+    
+    // 5秒後に自動的に閉じる
+    setTimeout(() => {
+      errorContainer.style.display = 'none';
+    }, 5000);
+  }
+
+  /**
+   * プログレス表示改善設定
+   */
+  setupProgressIndicators() {
+    // 既存のプログレスバーを強化
+    const progressBars = document.querySelectorAll('.progress-bar, .progress-fill');
+    progressBars.forEach(bar => {
+      bar.style.transition = 'width 0.3s ease-in-out';
+    });
+  }
+
+  /**
+   * クリーンアップ
+   */
+  cleanup() {
+    // Observerの削除
+    this.observers.forEach(observer => {
+      observer.disconnect();
+    });
+    this.observers.clear();
+    
+    console.log('✅ UI Enhancement System cleanup completed');
+  }
+}
+
+// CSS拡張スタイルの追加（v2互換）
+const uiEnhancementStyles = `
+  /* UI Enhancement System Styles - v2 Compatible */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+  
+  .stagger-animation {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+  
+  .focus-visible {
+    outline: 2px solid var(--primary-color, #6366f1) !important;
+    outline-offset: 2px;
+  }
+  
+  .loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+  }
+  
+  .touch-active {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+  
+  .mobile-layout .card,
+  .mobile-layout .scenario-card,
+  .mobile-layout .choice-card {
+    margin: 0.5rem 0 !important;
+  }
+  
+  .tablet-layout {
+    font-size: 16px;
+  }
+  
+  /* v2 CSS Variables Support */
+  :root {
+    --primary-color: #6366f1;
+    --primary-hover: #5b5aec;
+    --transition-normal: 0.3s ease-out;
+  }
+  
+  /* Basic result styles for fallback */
+  .basic-result {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+  
+  .basic-scenarios {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .basic-scenario-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
+  }
+  
+  .basic-scenario-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .basic-scenario-card h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color, #6366f1);
+  }
+  
+  .basic-scenario-card p {
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  
+  .probability {
+    font-weight: 600;
+    color: #10b981;
+    font-size: 0.875rem;
+  }
+  
+  /* Accessibility improvements */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up,
+    .stagger-animation,
+    .loading-spinner,
+    .basic-scenario-card {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .card,
+    .scenario-card,
+    .choice-card,
+    .basic-scenario-card {
+      border-width: 2px !important;
+    }
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .basic-scenarios {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .basic-scenario-card {
+      padding: 1rem;
+    }
+  }
+`;
+
+// スタイルをDOMに追加
+function addUIEnhancementStyles() {
+  if (document.getElementById('ui-enhancement-styles')) return;
+  
+  const style = document.createElement('style');
+  style.id = 'ui-enhancement-styles';
+  style.textContent = uiEnhancementStyles;
+  document.head.appendChild(style);
+}
+
+// ユーザーガイダンス強化システム
+class UserGuidanceEnhancer {
+  constructor() {
+    this.initialized = false;
+  }
+
+  initialize() {
+    if (this.initialized) return;
+    
+    this.setupInputEnhancements();
+    this.setupPresetExamples();
+    this.setupCharacterCounter();
+    this.setupResultLevelControls();
+    this.setupProgressiveDisclosure();
+    
+    this.initialized = true;
+    console.log('✅ User Guidance Enhancement System ready');
+  }
+
+  setupInputEnhancements() {
+    const worryInput = document.getElementById('worryInput');
+    const clearBtn = document.getElementById('clearInput');
+    
+    if (worryInput) {
+      // 入力時のフィードバック
+      worryInput.addEventListener('input', (e) => {
+        this.updateCharacterCount(e.target.value.length);
+        this.toggleClearButton(e.target.value.length > 0);
+      });
+      
+      // フォーカス時のガイダンス表示
+      worryInput.addEventListener('focus', () => {
+        this.showInputGuidance();
+      });
+    }
+    
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        worryInput.value = '';
+        this.updateCharacterCount(0);
+        this.toggleClearButton(false);
+        worryInput.focus();
+      });
+    }
+  }
+
+  setupPresetExamples() {
+    const presetButtons = document.querySelectorAll('.preset-example');
+    const worryInput = document.getElementById('worryInput');
+    
+    presetButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const example = button.dataset.example;
+        if (example && worryInput) {
+          worryInput.value = example;
+          this.updateCharacterCount(example.length);
+          this.toggleClearButton(true);
+          
+          // スムーズスクロールで入力フィールドにフォーカス
+          worryInput.focus();
+          worryInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // ボタンのフィードバック
+          button.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+            button.style.transform = 'scale(1)';
+          }, 150);
+        }
+      });
+    });
+  }
+
+  updateCharacterCount(count) {
+    const charCount = document.getElementById('charCount');
+    if (charCount) {
+      charCount.textContent = `${count}/1000文字`;
+      
+      // 色の変更
+      charCount.classList.remove('warning', 'danger');
+      if (count > 800) {
+        charCount.classList.add('warning');
+      }
+      if (count > 950) {
+        charCount.classList.add('danger');
+      }
+    }
+  }
+
+  toggleClearButton(show) {
+    const clearBtn = document.getElementById('clearInput');
+    if (clearBtn) {
+      clearBtn.classList.toggle('hidden', !show);
+    }
+  }
+
+  showInputGuidance() {
+    // 入力時のヒント表示（必要に応じて実装）
+    console.log('💡 Input guidance shown');
+  }
+
+  setupResultLevelControls() {
+    const summaryBtn = document.getElementById('showSummary');
+    const detailedBtn = document.getElementById('showDetailed');
+    const completeBtn = document.getElementById('showComplete');
+    const resultArea = document.getElementById('resultArea');
+    
+    if (summaryBtn && detailedBtn && completeBtn && resultArea) {
+      const buttons = [summaryBtn, detailedBtn, completeBtn];
+      const levels = ['summary', 'detailed', 'complete'];
+      
+      buttons.forEach((button, index) => {
+        button.addEventListener('click', () => {
+          // ボタンの状態更新
+          buttons.forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+          
+          // 表示レベルの更新
+          resultArea.className = resultArea.className.replace(/show-(summary|detailed|complete)/g, '');
+          resultArea.classList.add(`show-${levels[index]}`);
+          
+          // アニメーション
+          this.animateResultSections(levels[index]);
+        });
+      });
+    }
+  }
+
+  animateResultSections(level) {
+    const sections = document.querySelectorAll('.result-section');
+    sections.forEach((section, index) => {
+      section.classList.remove('visible');
+      
+      setTimeout(() => {
+        const shouldShow = this.shouldShowSection(section, level);
+        if (shouldShow) {
+          section.classList.add('visible');
+        }
+      }, index * 100);
+    });
+  }
+
+  shouldShowSection(section, level) {
+    if (level === 'summary') {
+      return section.classList.contains('summary-level');
+    } else if (level === 'detailed') {
+      return section.classList.contains('summary-level') || section.classList.contains('detailed-level');
+    } else {
+      return true; // complete shows all
+    }
+  }
+
+  setupProgressiveDisclosure() {
+    // 段階的な情報開示の設定
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -20px 0px'
+    });
+
+    const sections = document.querySelectorAll('.result-section');
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+  }
+}
+
+// Critical CSS抽出とインライン化
+function extractAndInlineCriticalCSS() {
+  const criticalStyles = `
+    body{background:linear-gradient(135deg,#1e293b 0%,#334155 100%);font-family:'Noto Sans JP',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#e2e8f0;line-height:1.6}
+    .container{max-width:1200px;margin:0 auto;padding:1rem}
+    .card{background:rgba(15,23,42,0.8);border:1px solid rgba(99,102,241,0.2);border-radius:12px;padding:1.5rem;backdrop-filter:blur(10px);transition:all 0.3s ease}
+    .card:hover{border-color:rgba(99,102,241,0.4);box-shadow:0 8px 25px rgba(99,102,241,0.1)}
+    .btn{background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;border-radius:8px;padding:0.75rem 1.5rem;font-weight:600;cursor:pointer;transition:all 0.3s ease}
+    .btn:hover{background:linear-gradient(135deg,#5b5aec,#4338ca);transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,0.3)}
+    #worryInput{transition:border-color 0.3s ease,box-shadow 0.3s ease,background-color 0.3s ease;line-height:1.6}
+    #worryInput:focus{background-color:rgba(55,65,81,0.8);border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.1),0 4px 12px rgba(0,0,0,0.1);outline:none}
+  `;
+  
+  // インラインスタイルとして追加
+  const style = document.createElement('style');
+  style.textContent = criticalStyles;
+  document.head.insertBefore(style, document.head.firstChild);
+}
+
+// 非Critical CSSの遅延読み込み
+function loadNonCriticalCSS() {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = './css/interactive.css';
+  link.media = 'print';
+  link.onload = function() {
+    this.media = 'all';
+  };
+  document.head.appendChild(link);
+}
+
+// JavaScriptの遅延読み込み
+function loadNonCriticalJS() {
+  const scripts = [
+    './js/app.js',
+    // その他の非Critical JS
+  ];
+  
+  scripts.forEach((src, index) => {
+    setTimeout(() => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      document.body.appendChild(script);
+    }, index * 100);
+  });
 }
 
 // 自動初期化
-document.addEventListener('DOMContentLoaded', () => {
-  window.futureSimulatorUI = new FutureSimulatorUIEnhancements();
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    // Critical CSS をインライン化
+    extractAndInlineCriticalCSS();
+    
+    // ユーザーガイダンス強化
+    const guidanceEnhancer = new UserGuidanceEnhancer();
+    guidanceEnhancer.initialize();
+    
+    addUIEnhancementStyles();
+    
+    const uiEnhancements = new FutureSimulatorUIEnhancements();
+    await uiEnhancements.initialize();
+    
+    // グローバルに公開
+    window.FutureSimulatorUIEnhancements = uiEnhancements;
+    window.UserGuidanceEnhancer = guidanceEnhancer;
+    
+    // 非Critical リソースの遅延読み込み
+    setTimeout(() => {
+      loadNonCriticalCSS();
+      loadNonCriticalJS();
+    }, 500);
+    
+  } catch (error) {
+    console.error('❌ Failed to initialize UI Enhancement System:', error);
+  }
 });
 
-// グローバル利用のためのエクスポート
-window.FutureSimulatorUIEnhancements = FutureSimulatorUIEnhancements;
+// Node.js環境での対応
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = FutureSimulatorUIEnhancements;
+}

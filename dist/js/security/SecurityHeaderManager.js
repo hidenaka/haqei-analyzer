@@ -104,6 +104,21 @@ class SecurityHeaderManager {
   init() {
     try {
       this.detectEnvironment();
+      
+      // 開発環境設定の確認
+      if (window.HAQEI_CONFIG && window.HAQEI_CONFIG.security) {
+        if (!window.HAQEI_CONFIG.security.enableCSP) {
+          console.log('🔧 CSPは設定により無効化されています');
+          return;
+        }
+      }
+      
+      // 開発環境ではセキュリティヘッダーを適用しない
+      if (this.environment === 'development' && (window.DEV_MODE || window.DISABLE_CSP)) {
+        console.log('🔧 開発環境: セキュリティヘッダーを無効化');
+        return;
+      }
+      
       this.applyClientSideHeaders();
       this.setupCSPViolationReporting();
       this.validateExistingHeaders();
@@ -151,6 +166,12 @@ class SecurityHeaderManager {
    * CSPメタタグの設定
    */
   setCSPMetaTag() {
+    // 開発環境ではCSPメタタグを設定しない
+    if (this.environment === 'development' && (window.DEV_MODE || window.DISABLE_CSP)) {
+      console.log('🔧 開発環境: CSPメタタグをスキップ');
+      return;
+    }
+    
     const existingCSP = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
     
     if (!existingCSP) {

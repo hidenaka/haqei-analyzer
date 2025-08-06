@@ -1,4 +1,4 @@
-#\!/usr/bin/env node
+#!/usr/bin/env node
 
 /**
  * HAQEI Analyzer Comprehensive Security Audit Script
@@ -143,9 +143,9 @@ class HAQEISecurityAudit {
             const inlineHTMLMatches = html.match(/innerHTML\s*=\s*[^;]+;/g) || [];
             if (inlineHTMLMatches.length > 0) {
                 const unsafeUsage = inlineHTMLMatches.some(match => 
-                    \!match.includes('DOMPurify') && 
-                    \!match.includes('sanitize') &&
-                    \!match.includes('escapeHtml')
+                    !match.includes('DOMPurify') && 
+                    !match.includes('sanitize') &&
+                    !match.includes('escapeHtml')
                 );
                 
                 if (unsafeUsage) {
@@ -235,4 +235,3 @@ if (require.main === module) {
 }
 
 module.exports = HAQEISecurityAudit;
-EOF < /dev/null

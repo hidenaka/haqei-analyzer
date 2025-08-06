@@ -187,7 +187,7 @@ class ResponsiveDesignTester {
                 const styles = window.getComputedStyle(el);
                 
                 // 画面外要素
-                if (rect.right > window.innerWidth && styles.overflow \!== 'hidden') {
+                if (rect.right > window.innerWidth && styles.overflow !== 'hidden') {
                     metrics.overflowElements.push({
                         tagName: el.tagName,
                         className: el.className,

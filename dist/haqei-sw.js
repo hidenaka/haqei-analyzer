@@ -45,21 +45,50 @@ const CRITICAL_RESOURCES = [
   '/js/app.js'
 ];
 
-// Dictionary Resources（オフライン対応）
+// Essential Dictionary Resources only (large dictionaries loaded on-demand)
 const DICTIONARY_RESOURCES = [
-  '/dict/base.dat.gz',
-  '/dict/cc.dat.gz',
-  '/dict/check.dat.gz',
-  '/dict/tid.dat.gz',
-  '/dict/tid_map.dat.gz',
-  '/dict/tid_pos.dat.gz',
-  '/dict/unk.dat.gz',
-  '/dict/unk_char.dat.gz',
-  '/dict/unk_compat.dat.gz',
-  '/dict/unk_invoke.dat.gz',
-  '/dict/unk_map.dat.gz',
-  '/dict/unk_pos.dat.gz'
+  '/dict/unk.dat.gz',           // Essential - 12KB
+  '/dict/unk_char.dat.gz',      // Essential - 8KB
+  '/dict/unk_compat.dat.gz',    // Essential - 5KB
+  '/dict/unk_invoke.dat.gz',    // Essential - 3KB
+  '/dict/unk_map.dat.gz',       // Essential - 2KB
+  '/dict/unk_pos.dat.gz'        // Essential - 4KB
+  '/dict/unk_char.dat.gz',      // Essential - 306B
+  '/dict/unk_compat.dat.gz',    // Essential - 338B
+  '/dict/unk_invoke.dat.gz',    // Essential - 1.1KB
+  '/dict/unk_map.dat.gz',       // Essential - 1.2KB
+  '/dict/unk_pos.dat.gz'        // Essential - 10KB
 ];
+
+// Large dictionaries moved to on-demand loading (DictionaryLazyLoader)
+const LARGE_DICTIONARY_RESOURCES = [
+  '/dict/base.dat.gz',          // 3.8MB - Load on advanced features
+  '/dict/cc.dat.gz',            // 1.6MB - Load on advanced features
+  '/dict/check.dat.gz',         // 3.0MB - Load on advanced features
+  '/dict/tid.dat.gz',           // 1.5MB - Load on advanced features
+  '/dict/tid_map.dat.gz',       // 1.4MB - Load on advanced features
+  '/dict/tid_pos.dat.gz'        // 5.6MB - Load on advanced features
+];
+
+// Dynamic dictionary cache strategy
+function isDictionaryRequest(url) {
+  return LARGE_DICTIONARY_RESOURCES.some(dict => url.includes(dict.replace('/dict/', '')));
+}
+
+function handleDictionaryRequest(event) {
+  const url = event.request.url;
+  
+  // Skip large dictionaries from service worker cache - let DictionaryLazyLoader handle them
+  if (isDictionaryRequest(url)) {
+    return fetch(event.request, {
+      headers: {
+        'Cache-Control': 'public, max-age=86400' // 24 hours
+      }
+    });
+  }
+  
+  return null;
+}
 
 // 動的キャッシュするリソース
 const DYNAMIC_RESOURCES = [
@@ -67,7 +96,11 @@ const DYNAMIC_RESOURCES = [
   '/js/shared/core/DataManager.js',
   '/js/os-analyzer/core/UltraAnalysisEngine.js',
   '/js/shared/data/vectors.js',
-  '/js/data/data_box.js'
+  '/js/data/data_box.js',
+  '/js/dictionary-lazy-loader.js',     // Dictionary lazy loading system
+  '/js/dynamic-loader.js',              // Dynamic component loader
+  '/js/tree-shaking-optimizer.js',      // Tree-shaking optimization
+  '/js/core/MorphologyFallback.js'     // Lightweight Japanese analysis fallback
 ];
 
 // Kuromoji Library Resources（CDN対応）

@@ -45,20 +45,24 @@ const CRITICAL_RESOURCES = [
   '/js/app.js'
 ];
 
-// Dictionary Resources（オフライン対応）
+// Essential Dictionary Resources only (large dictionaries loaded on-demand)
 const DICTIONARY_RESOURCES = [
-  '/dict/base.dat.gz',
-  '/dict/cc.dat.gz',
-  '/dict/check.dat.gz',
-  '/dict/tid.dat.gz',
-  '/dict/tid_map.dat.gz',
-  '/dict/tid_pos.dat.gz',
-  '/dict/unk.dat.gz',
-  '/dict/unk_char.dat.gz',
-  '/dict/unk_compat.dat.gz',
-  '/dict/unk_invoke.dat.gz',
-  '/dict/unk_map.dat.gz',
-  '/dict/unk_pos.dat.gz'
+  '/dict/unk.dat.gz',           // Essential - 12KB
+  '/dict/unk_char.dat.gz',      // Essential - 306B
+  '/dict/unk_compat.dat.gz',    // Essential - 338B
+  '/dict/unk_invoke.dat.gz',    // Essential - 1.1KB
+  '/dict/unk_map.dat.gz',       // Essential - 1.2KB
+  '/dict/unk_pos.dat.gz'        // Essential - 10KB
+];
+
+// Large dictionaries moved to on-demand loading
+const LARGE_DICTIONARY_RESOURCES = [
+  '/dict/base.dat.gz',          // 3.8MB - Load on advanced features
+  '/dict/cc.dat.gz',            // 1.6MB - Load on advanced features
+  '/dict/check.dat.gz',         // 3.0MB - Load on advanced features
+  '/dict/tid.dat.gz',           // 1.5MB - Load on advanced features
+  '/dict/tid_map.dat.gz',       // 1.4MB - Load on advanced features
+  '/dict/tid_pos.dat.gz'        // 5.6MB - Load on advanced features
 ];
 
 // 動的キャッシュするリソース
@@ -67,7 +71,9 @@ const DYNAMIC_RESOURCES = [
   '/js/shared/core/DataManager.js',
   '/js/os-analyzer/core/UltraAnalysisEngine.js',
   '/js/shared/data/vectors.js',
-  '/js/data/data_box.js'
+  '/js/data/data_box.js',
+  '/js/core/DictionaryLazyLoader.js',   // Dictionary lazy loading system
+  '/js/core/MorphologyFallback.js'     // Lightweight Japanese analysis fallback
 ];
 
 // Kuromoji Library Resources（CDN対応）

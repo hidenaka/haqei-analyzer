@@ -35,10 +35,12 @@ const mcpConfig = {
       "env": {
         "NODE_ENV": "development",
         "CIPHER_PORT": "3001",
-        "CIPHER_PROJECT_PATH": currentProjectPath
+        "CIPHER_PROJECT_PATH": currentProjectPath,
+        "CIPHER_STORAGE_PATH": path.join(currentProjectPath, ".mcp-data", "cipher-memory"),
+        "CIPHER_LOG_PATH": path.join(currentProjectPath, ".mcp-data", "logs")
       },
       "timeout": 30000,
-      "description": "Cipher Dual Memory Layer - bunenjin哲学とプロジェクト記憶の継続管理"
+      "description": "Cipher Dual Memory Layer - bunenjin哲学とプロジェクト記憶の継続管理（Git同期対応）"
     },
     "tsumiki": {
       "command": "node",

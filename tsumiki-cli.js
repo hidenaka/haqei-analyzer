@@ -300,7 +300,7 @@ program
             const mode = await promptWithRL(rl, 'モードを選択してください:\\n1) 新機能開発\\n2) 品質検証\\n3) 統計分析\\n4) リバースエンジニアリング\\n選択 (1-4): ');
             
             switch(mode) {
-                case '1':
+                case '1': {
                     console.log('\\n🎯 新機能開発モード');
                     const feature = await promptWithRL(rl, '機能名: ');
                     const description = await promptWithRL(rl, '説明: ');
@@ -309,6 +309,7 @@ program
                     // /kairo-requirements → /kairo-design → /kairo-tasks → /kairo-implement
                     console.log('✅ 新機能開発完了（Tsumikiフル活用）');
                     break;
+                }
                     
                 case '2':
                     console.log('\\n🔍 品質検証モード');

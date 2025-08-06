@@ -16,7 +16,7 @@ function testQuestionFlow() {
 
   try {
     // 1. 初期読み込み確認
-    if (typeof window \!== 'undefined' && document.querySelector('#welcome-container')) {
+    if (typeof window !== 'undefined' && document.querySelector('#welcome-container')) {
       results.initialLoad = true;
       console.log('✅ 初期ページ読み込み確認');
     }

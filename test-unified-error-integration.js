@@ -42,8 +42,10 @@ const __dirname = dirname(__filename);
       console.error(`[Page Error] ${error.message}`);
     });
     
-    // テスト実行関数
-    async function runTest(buttonText, resultId) {
+  }
+  
+  // テスト実行関数
+  async function runTest(buttonText, resultId) {
       console.log(`\n🔧 テスト実行: ${buttonText}`);
       
       // ボタンをクリック

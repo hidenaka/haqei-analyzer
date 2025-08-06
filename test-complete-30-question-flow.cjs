@@ -73,7 +73,7 @@ const { chromium } = require('playwright');
             return { error: `No shadow root for Q${qNum}` };
           }
           
-          const radioInputs = shadowRoot.querySelectorAll('input[type=\"radio\"]');
+          const radioInputs = shadowRoot.querySelectorAll('input[type="radio"]');
           if (radioInputs.length === 0) {
             return { error: `No radio inputs found for Q${qNum}` };
           }

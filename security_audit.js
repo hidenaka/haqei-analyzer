@@ -69,7 +69,7 @@ if (htmlContent.includes('dompurify') || htmlContent.includes('DOMPurify')) {
 
 // Test 2: Dangerous innerHTML usage
 const inlineHTMLMatches = htmlContent.match(/innerHTML\s*[=+]/g) || [];
-const unsafeInnerHTML = htmlContent.match(/innerHTML\s*=\s*[^"']*[\$\{]/g) || [];
+const unsafeInnerHTML = htmlContent.match(/innerHTML\s*=\s*[^"']*[${}]/g) || [];
 
 if (unsafeInnerHTML.length > 0) {
     logResult('XSS', 'Unsafe-innerHTML', 'FAIL', 
@@ -81,7 +81,7 @@ if (unsafeInnerHTML.length > 0) {
     logResult('XSS', 'innerHTML-Safe', 'PASS', 'No unsafe innerHTML usage detected');
 }
 
-// Test 3: eval() usage
+// Test 3: eval() usage detection (string search only)
 if (htmlContent.includes('eval(')) {
     logResult('XSS', 'Eval-Usage', 'FAIL', 'eval() function usage detected', 'critical');
 } else {
@@ -296,4 +296,3 @@ if (!results.vulnerabilities.length) {
 console.log('\n' + '='.repeat(60));
 console.log(`Audit completed: ${new Date().toISOString()}`);
 console.log('='.repeat(60));
-EOF < /dev/null

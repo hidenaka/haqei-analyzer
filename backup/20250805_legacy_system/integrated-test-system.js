@@ -283,39 +283,32 @@ class IntegratedTestSystem {
    * データファイルテスト
    */
   async testDataFiles() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const dataChecks = {
-          H384_DATA: typeof H384_DATA !== 'undefined',
-          hexagrams_master: typeof hexagrams_master !== 'undefined',
-          action_plans: typeof action_plans !== 'undefined'
-        };
+    try {
+      const dataChecks = {
+        H384_DATA: typeof H384_DATA !== 'undefined',
+        hexagrams_master: typeof hexagrams_master !== 'undefined',
+        action_plans: typeof action_plans !== 'undefined'
+      };
         
         const availableData = Object.values(dataChecks).filter(Boolean).length;
         
         if (availableData >= 2) {
-          resolve({ 
+          return { 
             test: 'Data Files', 
             status: 'PASS',
             details: dataChecks,
             message: `${availableData}/3 データファイルが利用可能`
-          });
+          };
         } else {
-          reject({ 
-            test: 'Data Files', 
-            status: 'FAIL',
-            details: dataChecks,
-            message: '必要なデータファイルが不足'
-          });
+          throw new Error('必要なデータファイルが不足');
         }
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'Data Files', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   /**
@@ -362,9 +355,8 @@ class IntegratedTestSystem {
    * SituationalContextEngine単体テスト
    */
   async testSituationalContextEngine() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        if (typeof window.SituationalContextEngine === 'undefined') {
+    try {
+      if (typeof window.SituationalContextEngine === 'undefined') {
           reject({ 
             test: 'SituationalContextEngine', 
             status: 'SKIP',
@@ -380,7 +372,7 @@ class IntegratedTestSystem {
         const result = await engine.analyzeSituationalContext(sampleText);
         
         if (result && result.virtualSituation && result.situationalElements) {
-          resolve({ 
+          return { 
             test: 'SituationalContextEngine', 
             status: 'PASS',
             details: {
@@ -389,31 +381,25 @@ class IntegratedTestSystem {
               complexity: result.virtualSituation.complexityLevel
             },
             message: '状況分析エンジンが正常に動作'
-          });
+          };
         } else {
-          reject({ 
-            test: 'SituationalContextEngine', 
-            status: 'FAIL',
-            message: '分析結果の構造が不正'
-          });
+          throw new Error('分析結果の構造が不正');
         }
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'SituationalContextEngine', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   /**
    * HexagramMappingEngine単体テスト
    */
   async testHexagramMappingEngine() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        if (typeof window.HexagramMappingEngine === 'undefined') {
+    try {
+      if (typeof window.HexagramMappingEngine === 'undefined') {
           reject({ 
             test: 'HexagramMappingEngine', 
             status: 'SKIP',
@@ -447,7 +433,7 @@ class IntegratedTestSystem {
         const result = await engine.mapSituationToHexagram(mockSituationalResult);
         
         if (result && result.primaryHexagram && result.mappingConfidence) {
-          resolve({ 
+          return { 
             test: 'HexagramMappingEngine', 
             status: 'PASS',
             details: {
@@ -456,29 +442,24 @@ class IntegratedTestSystem {
               hasTimeSeriesAnalysis: !!result.primaryHexagram.timeSeriesAnalysis
             },
             message: '卦マッピングエンジンが正常に動作'
-          });
+          };
         } else {
-          reject({ 
-            test: 'HexagramMappingEngine', 
-            status: 'FAIL',
-            message: 'マッピング結果の構造が不正'
-          });
+          throw new Error('マッピング結果の構造が不正');
         }
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'HexagramMappingEngine', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   /**
    * CulturalAdaptationEngine単体テスト
    */
   async testCulturalAdaptationEngine() {
-    return new Promise(async (resolve, reject) => {
+    try {
       try {
         if (typeof window.CulturalAdaptationEngine === 'undefined') {
           reject({ 
@@ -513,7 +494,7 @@ class IntegratedTestSystem {
         );
         
         if (result && result.adaptedMetaphors && result.confidence) {
-          resolve({ 
+          return { 
             test: 'CulturalAdaptationEngine', 
             status: 'PASS',
             details: {
@@ -523,29 +504,24 @@ class IntegratedTestSystem {
               profession: result.metadata?.profession
             },
             message: '文化適応エンジンが正常に動作'
-          });
+          };
         } else {
-          reject({ 
-            test: 'CulturalAdaptationEngine', 
-            status: 'FAIL',
-            message: '文化適応結果の構造が不正'
-          });
+          throw new Error('文化適応結果の構造が不正');
         }
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'CulturalAdaptationEngine', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   /**
    * エンドツーエンドフローテスト
    */
   async testEndToEndFlow() {
-    return new Promise(async (resolve, reject) => {
+    try {
       try {
         const startTime = performance.now();
         
@@ -577,7 +553,7 @@ class IntegratedTestSystem {
               
               const endTime = performance.now();
               
-              resolve({ 
+              return { 
                 test: 'End-to-End Flow', 
                 status: 'PASS',
                 details: {
@@ -587,32 +563,27 @@ class IntegratedTestSystem {
                   confidence: adaptedResult.confidence
                 },
                 message: 'エンドツーエンドフローが正常に完了'
-              });
+              };
             }
           }
         }
         
-        reject({ 
-          test: 'End-to-End Flow', 
-          status: 'SKIP',
-          message: '必要なコンポーネントが利用不可'
-        });
+        throw new Error('必要なコンポーネントが利用不可');
         
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'End-to-End Flow', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   /**
    * レスポンス時間テスト
    */
   async testResponseTime() {
-    return new Promise(async (resolve, reject) => {
+    try {
       try {
         const times = [];
         const targetTime = 5000; // 5秒以内
@@ -640,7 +611,7 @@ class IntegratedTestSystem {
         const averageTime = times.reduce((sum, time) => sum + time, 0) / times.length;
         
         if (averageTime <= targetTime) {
-          resolve({ 
+          return { 
             test: 'Response Time', 
             status: 'PASS',
             details: {
@@ -650,23 +621,17 @@ class IntegratedTestSystem {
               target: targetTime
             },
             message: `平均応答時間: ${Math.round(averageTime)}ms`
-          });
+          };
         } else {
-          reject({ 
-            test: 'Response Time', 
-            status: 'FAIL',
-            details: { averageTime, target: targetTime },
-            message: `応答時間が目標を超過: ${Math.round(averageTime)}ms > ${targetTime}ms`
-          });
+          throw new Error(`応答時間が目標を超過: ${Math.round(averageTime)}ms > ${targetTime}ms`);
         }
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'Response Time', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   // ============ 詳細実装テストメソッド ============
@@ -675,7 +640,7 @@ class IntegratedTestSystem {
    * DeepPsychologicalAnalyzer単体テスト
    */
   async testDeepPsychologicalAnalyzer() {
-    return new Promise(async (resolve, reject) => {
+    try {
       try {
         if (typeof window.DeepPsychologicalAnalyzer === 'undefined') {
           reject({ 
@@ -693,7 +658,7 @@ class IntegratedTestSystem {
         const result = await analyzer.analyzeDeepPsychology(sampleText);
         
         if (result && result.unconsciousPatterns && result.defenseMechanisms) {
-          resolve({ 
+          return { 
             test: 'DeepPsychologicalAnalyzer', 
             status: 'PASS',
             details: {
@@ -702,29 +667,24 @@ class IntegratedTestSystem {
               confidence: result.confidence
             },
             message: '深層心理分析エンジンが正常に動作'
-          });
+          };
         } else {
-          reject({ 
-            test: 'DeepPsychologicalAnalyzer', 
-            status: 'FAIL',
-            message: '深層心理分析結果の構造が不正'
-          });
+          throw new Error('深層心理分析結果の構造が不正');
         }
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'DeepPsychologicalAnalyzer', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   /**
    * ProbabilisticSituationModeler単体テスト
    */
   async testProbabilisticSituationModeler() {
-    return new Promise(async (resolve, reject) => {
+    try {
       try {
         if (typeof window.ProbabilisticSituationModeler === 'undefined') {
           reject({ 
@@ -749,7 +709,7 @@ class IntegratedTestSystem {
         const result = await modeler.generateProbabilisticModel(mockSituation);
         
         if (result && result.probabilityDistribution && result.scenarioAnalysis) {
-          resolve({ 
+          return { 
             test: 'ProbabilisticSituationModeler', 
             status: 'PASS',
             details: {
@@ -758,29 +718,24 @@ class IntegratedTestSystem {
               modelAccuracy: result.modelAccuracy
             },
             message: '確率的状況モデラーが正常に動作'
-          });
+          };
         } else {
-          reject({ 
-            test: 'ProbabilisticSituationModeler', 
-            status: 'FAIL',
-            message: '確率的モデリング結果の構造が不正'
-          });
+          throw new Error('確率的モデリング結果の構造が不正');
         }
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'ProbabilisticSituationModeler', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   /**
    * ActionTriggeredTransformationEngine単体テスト
    */
   async testActionTriggeredTransformationEngine() {
-    return new Promise(async (resolve, reject) => {
+    try {
       try {
         if (typeof window.ActionTriggeredTransformationEngine === 'undefined') {
           reject({ 
@@ -804,7 +759,7 @@ class IntegratedTestSystem {
         const result = await engine.evaluateActionTriggers(mockAction);
         
         if (result && result.triggeredTransformations && result.chainReactions) {
-          resolve({ 
+          return { 
             test: 'ActionTriggeredTransformationEngine', 
             status: 'PASS',
             details: {
@@ -813,29 +768,24 @@ class IntegratedTestSystem {
               triggerCount: result.triggeredTransformations.length
             },
             message: '行動主導型変化エンジンが正常に動作'
-          });
+          };
         } else {
-          reject({ 
-            test: 'ActionTriggeredTransformationEngine', 
-            status: 'FAIL',
-            message: '行動変化結果の構造が不正'
-          });
+          throw new Error('行動変化結果の構造が不正');
         }
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'ActionTriggeredTransformationEngine', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   /**
    * 状況推定→卦マッピング統合フローテスト
    */
   async testSituationToHexagramFlow() {
-    return new Promise(async (resolve, reject) => {
+    try {
       try {
         const startTime = performance.now();
         
@@ -865,7 +815,7 @@ class IntegratedTestSystem {
           
           const endTime = performance.now();
           
-          resolve({ 
+          return { 
             test: 'Situation to Hexagram Flow', 
             status: 'PASS',
             details: {
@@ -875,29 +825,24 @@ class IntegratedTestSystem {
               confidence: hexagramResult.mappingConfidence
             },
             message: '状況推定→卦マッピングフローが正常に完了'
-          });
+          };
         } else {
-          reject({ 
-            test: 'Situation to Hexagram Flow', 
-            status: 'SKIP',
-            message: 'HexagramMappingEngineが利用不可'
-          });
+          throw new Error('HexagramMappingEngineが利用不可');
         }
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'Situation to Hexagram Flow', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   /**
    * 卦マッピング→メタファー生成統合フローテスト
    */
   async testHexagramToMetaphorFlow() {
-    return new Promise(async (resolve, reject) => {
+    try {
       try {
         const startTime = performance.now();
         
@@ -931,7 +876,7 @@ class IntegratedTestSystem {
             
             const endTime = performance.now();
             
-            resolve({ 
+            return { 
               test: 'Hexagram to Metaphor Flow', 
               status: 'PASS',
               details: {
@@ -941,36 +886,27 @@ class IntegratedTestSystem {
                 confidence: adaptedResult.confidence
               },
               message: '卦マッピング→メタファー生成フローが正常に完了'
-            });
+            };
           } else {
-            reject({ 
-              test: 'Hexagram to Metaphor Flow', 
-              status: 'SKIP',
-              message: 'CulturalAdaptationEngineが利用不可'
-            });
+            throw new Error('CulturalAdaptationEngineが利用不可');
           }
         } else {
-          reject({ 
-            test: 'Hexagram to Metaphor Flow', 
-            status: 'SKIP',
-            message: 'MetaphorGenerationEngineが利用不可'
-          });
+          throw new Error('MetaphorGenerationEngineが利用不可');
         }
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'Hexagram to Metaphor Flow', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   /**
    * 行動→変化統合フローテスト
    */
   async testActionToTransformationFlow() {
-    return new Promise(async (resolve, reject) => {
+    try {
       try {
         const startTime = performance.now();
         
@@ -997,7 +933,7 @@ class IntegratedTestSystem {
             
             const endTime = performance.now();
             
-            resolve({ 
+            return { 
               test: 'Action to Transformation Flow', 
               status: 'PASS',
               details: {
@@ -1007,36 +943,27 @@ class IntegratedTestSystem {
                 hasChainReactions: !!actionResult.chainReactions
               },
               message: '行動→変化統合フローが正常に完了'
-            });
+            };
           } else {
-            reject({ 
-              test: 'Action to Transformation Flow', 
-              status: 'SKIP',
-              message: 'UnifiedTransformationEngineが利用不可'
-            });
+            throw new Error('UnifiedTransformationEngineが利用不可');
           }
         } else {
-          reject({ 
-            test: 'Action to Transformation Flow', 
-            status: 'SKIP',
-            message: 'ActionTriggeredTransformationEngineが利用不可'
-          });
+          throw new Error('ActionTriggeredTransformationEngineが利用不可');
         }
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'Action to Transformation Flow', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   /**
    * 完全分析フローテスト
    */
   async testFullAnalysisFlow() {
-    return new Promise(async (resolve, reject) => {
+    try {
       try {
         const startTime = performance.now();
         
@@ -1052,12 +979,7 @@ class IntegratedTestSystem {
         );
         
         if (missingComponents.length > 0) {
-          reject({ 
-            test: 'Full Analysis Flow', 
-            status: 'SKIP',
-            message: `必要なコンポーネントが利用不可: ${missingComponents.join(', ')}`
-          });
-          return;
+          throw new Error(`必要なコンポーネントが利用不可: ${missingComponents.join(', ')}`);
         }
         
         // フル分析フロー実行
@@ -1083,7 +1005,7 @@ class IntegratedTestSystem {
         
         const endTime = performance.now();
         
-        resolve({ 
+        return { 
           test: 'Full Analysis Flow', 
           status: 'PASS',
           details: {
@@ -1097,15 +1019,14 @@ class IntegratedTestSystem {
             )
           },
           message: '完全分析フローが正常に完了'
-        });
+        };
       } catch (error) {
-        reject({ 
+        throw { 
           test: 'Full Analysis Flow', 
           status: 'ERROR', 
           error: error.message 
-        });
+        };
       }
-    });
   }
 
   async testErrorHandling() {

@@ -124,8 +124,44 @@ class ComprehensiveErrorHandler {
   }
 
   // エラータイプ別のハンドラーメソッド
-  handleKuromojiError(error) {
+  async handleKuromojiError(error) {
     console.warn('🔤 Kuromoji error handled gracefully:', error.message);
+    
+    // Try to load essential dictionaries as fallback
+    try {
+      if (window.dictionaryLoader) {
+        console.log('📚 Attempting to load essential dictionaries as fallback...');
+        const success = await window.dictionaryLoader.loadEssentialDictionaries();
+        
+        if (success) {
+          console.log('✅ Essential dictionaries loaded - basic functionality restored');
+          return; // Error resolved
+        }
+      }
+    } catch (fallbackError) {
+      console.warn('⚠️ Dictionary fallback failed:', fallbackError);
+    }
+    
+    // Show user-friendly fallback notice
+    const errorContainer = document.getElementById('error-container');
+    if (errorContainer) {
+      const morphologyFallback = `
+        <div class="fallback-notice bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+          <h4 class="text-yellow-800 font-semibold mb-2">日本語解析機能の制限</h4>
+          <p class="text-yellow-700 text-sm">
+            高度な日本語解析機能が利用できませんが、HAQEI分析の核心機能は正常に動作します。
+            より詳細な解析をご希望の場合は、下のボタンで追加機能を読み込めます。
+          </p>
+          <button onclick="window.dictionaryLoader?.loadAdvancedDictionaries().then(() => location.reload())" 
+                  class="mt-2 px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors">
+            高度機能を読み込む
+          </button>
+        </div>
+      `;
+      
+      errorContainer.innerHTML = morphologyFallback;
+      setTimeout(() => errorContainer.innerHTML = '', 15000);
+    }
   }
 
   handleNetworkError(error) {

@@ -1,0 +1,915 @@
+/**
+ * HAQEI Future Simulator - Animation Design Tokens
+ * bunenjin哲学による自然で美しいアニメーション設計
+ * 
+ * Animation Philosophy:
+ * - 自然な動きの模倣
+ * - 八卦エネルギーの表現
+ * - 心理的な快適さの追求
+ * - パフォーマンスとアクセシビリティの両立
+ */
+
+:root {
+  /* ===== イージング関数 ===== */
+  /* bunenjin調和イージング */
+  --ease-bunenjin: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-bunenjin-in: cubic-bezier(0.25, 0.46, 0.45, 0.8);
+  --ease-bunenjin-out: cubic-bezier(0.25, 0.8, 0.45, 0.94);
+
+  /* 自然的イージング */
+  --ease-natural: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-gentle: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.6, 1);
+
+  /* エネルギー系イージング */
+  --ease-energetic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-bounce: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+  --ease-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* 標準イージング */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-sine: cubic-bezier(0.12, 0, 0.39, 0);
+  --ease-out-sine: cubic-bezier(0.61, 1, 0.88, 1);
+  --ease-in-out-sine: cubic-bezier(0.37, 0, 0.63, 1);
+  --ease-in-quad: cubic-bezier(0.11, 0, 0.5, 0);
+  --ease-out-quad: cubic-bezier(0.5, 1, 0.89, 1);
+  --ease-in-out-quad: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-in-cubic: cubic-bezier(0.32, 0, 0.67, 0);
+  --ease-out-cubic: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-in-out-cubic: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ===== アニメーション期間 ===== */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+  --duration-slower: 700ms;
+  --duration-gentle: 1000ms;
+  --duration-extra-slow: 1500ms;
+
+  /* 特定用途の期間 */
+  --duration-hover: 200ms;
+  --duration-focus: 150ms;
+  --duration-click: 100ms;
+  --duration-page-transition: 400ms;
+  --duration-modal: 300ms;
+  --duration-tooltip: 200ms;
+  --duration-loading: 1000ms;
+
+  /* ===== 八卦アニメーション期間 ===== */
+  --duration-qian: 3000ms;     /* 乾（天）- 荘厳でゆっくり */
+  --duration-dui: 800ms;       /* 兌（沢）- 軽快で楽しく */
+  --duration-li: 500ms;        /* 離（火）- 素早く情熱的 */
+  --duration-zhen: 400ms;      /* 震（雷）- 瞬間的で力強く */
+  --duration-xun: 2000ms;      /* 巽（風）- そよ風のように */
+  --duration-kan: 1500ms;      /* 坎（水）- 流れるように */
+  --duration-gen: 1200ms;      /* 艮（山）- 安定して重厚 */
+  --duration-kun: 1000ms;      /* 坤（地）- 包容力のある */
+
+  /* ===== 遅延タイミング ===== */
+  --delay-none: 0ms;
+  --delay-fast: 50ms;
+  --delay-normal: 100ms;
+  --delay-slow: 150ms;
+  --delay-slower: 200ms;
+  --delay-gentle: 300ms;
+
+  /* ステガードアニメーション遅延 */
+  --delay-stagger-1: 50ms;
+  --delay-stagger-2: 100ms;
+  --delay-stagger-3: 150ms;
+  --delay-stagger-4: 200ms;
+  --delay-stagger-5: 250ms;
+  --delay-stagger-6: 300ms;
+  --delay-stagger-7: 350ms;
+  --delay-stagger-8: 400ms;
+
+  /* ===== トランジション定義 ===== */
+  --transition-none: none;
+  --transition-all: all var(--duration-normal) var(--ease-natural);
+  --transition-colors: color, background-color, border-color, text-decoration-color, fill, stroke var(--duration-normal) var(--ease-natural);
+  --transition-opacity: opacity var(--duration-normal) var(--ease-natural);
+  --transition-shadow: box-shadow var(--duration-normal) var(--ease-natural);
+  --transition-transform: transform var(--duration-normal) var(--ease-natural);
+  --transition-filter: filter var(--duration-normal) var(--ease-natural);
+  --transition-backdrop: backdrop-filter var(--duration-normal) var(--ease-natural);
+
+  /* 特定要素のトランジション */
+  --transition-button: all var(--duration-hover) var(--ease-bunenjin);
+  --transition-input: border-color, box-shadow var(--duration-focus) var(--ease-natural);
+  --transition-card: transform, box-shadow var(--duration-normal) var(--ease-gentle);
+  --transition-modal: opacity, transform var(--duration-modal) var(--ease-bunenjin);
+  --transition-drawer: transform var(--duration-slow) var(--ease-bunenjin-out);
+
+  /* ===== アニメーション反復 ===== */
+  --iteration-once: 1;
+  --iteration-twice: 2;
+  --iteration-infinite: infinite;
+
+  /* ===== アニメーション方向 ===== */
+  --direction-normal: normal;
+  --direction-reverse: reverse;
+  --direction-alternate: alternate;
+  --direction-alternate-reverse: alternate-reverse;
+
+  /* ===== アニメーション充填モード ===== */
+  --fill-none: none;
+  --fill-forwards: forwards;
+  --fill-backwards: backwards;
+  --fill-both: both;
+}
+
+/* ===== 基本アニメーション定義 ===== */
+
+/* ===== フェードアニメーション ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ===== スライドアニメーション ===== */
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutUp {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes slideOutDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* ===== スケールアニメーション ===== */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes scaleInCenter {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.1);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.1);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+/* ===== 回転アニメーション ===== */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotateIn {
+  from {
+    opacity: 0;
+    transform: rotate(-360deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== 振動・シェイクアニメーション ===== */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-0.5rem);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(0.5rem);
+  }
+}
+
+@keyframes wobble {
+  0%, 100% {
+    transform: translateX(0%);
+  }
+  15% {
+    transform: translateX(-25%) rotate(-5deg);
+  }
+  30% {
+    transform: translateX(20%) rotate(3deg);
+  }
+  45% {
+    transform: translateX(-15%) rotate(-3deg);
+  }
+  60% {
+    transform: translateX(10%) rotate(2deg);
+  }
+  75% {
+    transform: translateX(-5%) rotate(-1deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1rem);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ===== 八卦エネルギーアニメーション ===== */
+
+/* 乾（天）- 回転する金の輝き */
+@keyframes qianEnergy {
+  0% {
+    transform: rotate(0deg) scale(1);
+    filter: brightness(1) hue-rotate(0deg);
+  }
+  25% {
+    transform: rotate(90deg) scale(1.02);
+    filter: brightness(1.1) hue-rotate(10deg);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.05);
+    filter: brightness(1.2) hue-rotate(20deg);
+  }
+  75% {
+    transform: rotate(270deg) scale(1.02);
+    filter: brightness(1.1) hue-rotate(10deg);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    filter: brightness(1) hue-rotate(0deg);
+  }
+}
+
+/* 兌（沢）- 波紋のような拡散 */
+@keyframes duiEnergy {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* 離（火）- 炎のような揺らぎ */
+@keyframes liEnergy {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+  25% {
+    transform: scale(1.05) rotate(1deg);
+    filter: brightness(1.2);
+  }
+  50% {
+    transform: scale(1.1) rotate(0deg);
+    filter: brightness(1.4);
+  }
+  75% {
+    transform: scale(1.05) rotate(-1deg);
+    filter: brightness(1.2);
+  }
+}
+
+/* 震（雷）- 電撃のような振動 */
+@keyframes zhenEnergy {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10% {
+    transform: translateX(-3px);
+  }
+  20% {
+    transform: translateX(3px);
+  }
+  30% {
+    transform: translateX(-2px);
+  }
+  40% {
+    transform: translateX(2px);
+  }
+  50% {
+    transform: translateX(-1px);
+  }
+  60% {
+    transform: translateX(1px);
+  }
+  70% {
+    transform: translateX(0);
+  }
+}
+
+/* 巽（風）- そよ風のような揺らぎ */
+@keyframes xunEnergy {
+  0%, 100% {
+    transform: rotate(0deg) skew(0deg);
+  }
+  25% {
+    transform: rotate(0.5deg) skew(0.5deg);
+  }
+  50% {
+    transform: rotate(-0.5deg) skew(-0.5deg);
+  }
+  75% {
+    transform: rotate(0.25deg) skew(0.25deg);
+  }
+}
+
+/* 坎（水）- 波のような流れ */
+@keyframes kanEnergy {
+  0%, 100% {
+    transform: scaleY(1);
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    transform: scaleY(1.05);
+    filter: hue-rotate(5deg);
+  }
+  50% {
+    transform: scaleY(0.95);
+    filter: hue-rotate(-5deg);
+  }
+  75% {
+    transform: scaleY(1.02);
+    filter: hue-rotate(2deg);
+  }
+}
+
+/* 艮（山）- 重厚な上下動 */
+@keyframes genEnergy {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* 坤（地）- 大地の鼓動 */
+@keyframes kunEnergy {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.01);
+  }
+}
+
+/* ===== ローディングアニメーション ===== */
+
+/* 陰陽ローダー */
+@keyframes yinYangSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 点滅ローダー */
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* パルスローダー */
+@keyframes pulseLoader {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* 波ローダー */
+@keyframes wave {
+  0%, 60%, 100% {
+    transform: initial;
+  }
+  30% {
+    transform: translateY(-15px);
+  }
+}
+
+/* リップルエフェクト */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ===== アニメーションクラス ===== */
+
+/* ===== フェードアニメーション ===== */
+.animate-fade-in {
+  animation: fadeIn var(--duration-normal) var(--ease-natural) var(--fill-both);
+}
+
+.animate-fade-out {
+  animation: fadeOut var(--duration-normal) var(--ease-natural) var(--fill-both);
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+}
+
+.animate-fade-in-left {
+  animation: fadeInLeft var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+}
+
+.animate-fade-in-right {
+  animation: fadeInRight var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+}
+
+/* ===== スライドアニメーション ===== */
+.animate-slide-in-up {
+  animation: slideInUp var(--duration-slow) var(--ease-bunenjin-out) var(--fill-both);
+}
+
+.animate-slide-in-down {
+  animation: slideInDown var(--duration-slow) var(--ease-bunenjin-out) var(--fill-both);
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft var(--duration-slow) var(--ease-bunenjin-out) var(--fill-both);
+}
+
+.animate-slide-in-right {
+  animation: slideInRight var(--duration-slow) var(--ease-bunenjin-out) var(--fill-both);
+}
+
+.animate-slide-out-up {
+  animation: slideOutUp var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+}
+
+.animate-slide-out-down {
+  animation: slideOutDown var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+}
+
+/* ===== スケールアニメーション ===== */
+.animate-scale-in {
+  animation: scaleIn var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+}
+
+.animate-scale-out {
+  animation: scaleOut var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+}
+
+.animate-scale-in-center {
+  animation: scaleInCenter var(--duration-normal) var(--ease-bounce) var(--fill-both);
+}
+
+.animate-pulse {
+  animation: pulse var(--duration-gentle) var(--ease-in-out) var(--iteration-infinite);
+}
+
+.animate-heartbeat {
+  animation: heartbeat var(--duration-gentle) var(--ease-in-out) var(--iteration-infinite);
+}
+
+/* ===== 回転アニメーション ===== */
+.animate-rotate {
+  animation: rotate var(--duration-loading) var(--ease-linear) var(--iteration-infinite);
+}
+
+.animate-rotate-in {
+  animation: rotateIn var(--duration-slow) var(--ease-bunenjin) var(--fill-both);
+}
+
+.animate-spin {
+  animation: spin var(--duration-loading) var(--ease-linear) var(--iteration-infinite);
+}
+
+/* ===== 振動・シェイクアニメーション ===== */
+.animate-shake {
+  animation: shake var(--duration-normal) var(--ease-in-out);
+}
+
+.animate-wobble {
+  animation: wobble var(--duration-loading) var(--ease-in-out);
+}
+
+.animate-bounce {
+  animation: bounce var(--duration-gentle) var(--ease-in-out) var(--iteration-infinite);
+}
+
+.animate-bounce-in {
+  animation: bounceIn var(--duration-slow) var(--ease-bunenjin) var(--fill-both);
+}
+
+/* ===== 八卦エネルギーアニメーション ===== */
+.animate-qian {
+  animation: qianEnergy var(--duration-qian) var(--ease-linear) var(--iteration-infinite);
+}
+
+.animate-dui {
+  animation: duiEnergy var(--duration-dui) var(--ease-in-out) var(--iteration-infinite);
+}
+
+.animate-li {
+  animation: liEnergy var(--duration-li) var(--ease-in-out) var(--iteration-infinite);
+}
+
+.animate-zhen {
+  animation: zhenEnergy var(--duration-zhen) var(--ease-in-out);
+}
+
+.animate-xun {
+  animation: xunEnergy var(--duration-xun) var(--ease-in-out) var(--iteration-infinite);
+}
+
+.animate-kan {
+  animation: kanEnergy var(--duration-kan) var(--ease-in-out) var(--iteration-infinite);
+}
+
+.animate-gen {
+  animation: genEnergy var(--duration-gen) var(--ease-in-out) var(--iteration-infinite);
+}
+
+.animate-kun {
+  animation: kunEnergy var(--duration-kun) var(--ease-in-out) var(--iteration-infinite);
+}
+
+/* ===== ローディングアニメーション ===== */
+.animate-yin-yang {
+  animation: yinYangSpin var(--duration-loading) var(--ease-linear) var(--iteration-infinite);
+}
+
+.animate-blink {
+  animation: blink var(--duration-gentle) var(--ease-in-out) var(--iteration-infinite);
+}
+
+.animate-pulse-loader {
+  animation: pulseLoader var(--duration-loading) var(--ease-out) var(--iteration-infinite);
+}
+
+.animate-wave {
+  animation: wave var(--duration-loading) var(--ease-in-out) var(--iteration-infinite);
+}
+
+.animate-ripple {
+  animation: ripple 0.6s var(--ease-out);
+}
+
+/* ===== ステガードアニメーション ===== */
+.staggered-animation {
+  opacity: 0;
+  transform: translateY(1rem);
+  animation: fadeInUp var(--duration-normal) var(--ease-bunenjin) var(--fill-forwards);
+}
+
+.staggered-animation:nth-child(1) { animation-delay: var(--delay-stagger-1); }
+.staggered-animation:nth-child(2) { animation-delay: var(--delay-stagger-2); }
+.staggered-animation:nth-child(3) { animation-delay: var(--delay-stagger-3); }
+.staggered-animation:nth-child(4) { animation-delay: var(--delay-stagger-4); }
+.staggered-animation:nth-child(5) { animation-delay: var(--delay-stagger-5); }
+.staggered-animation:nth-child(6) { animation-delay: var(--delay-stagger-6); }
+.staggered-animation:nth-child(7) { animation-delay: var(--delay-stagger-7); }
+.staggered-animation:nth-child(8) { animation-delay: var(--delay-stagger-8); }
+
+/* ===== ホバー・インタラクションアニメーション ===== */
+.hover-lift {
+  transition: var(--transition-card);
+}
+
+.hover-lift:hover {
+  transform: translateY(-0.25rem);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.hover-scale {
+  transition: var(--transition-transform);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-glow {
+  transition: var(--transition-all);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+}
+
+.press-effect {
+  transition: var(--transition-transform);
+}
+
+.press-effect:active {
+  transform: scale(0.98);
+}
+
+/* ===== リップルエフェクトボタン ===== */
+.ripple-button {
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-button);
+}
+
+.ripple-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple-button:active::before {
+  width: 300px;
+  height: 300px;
+  animation: ripple 0.6s var(--ease-out);
+}
+
+/* ===== アクセシビリティ対応 ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* 重要なフォーカス表示は維持 */
+  .focus-visible {
+    transition: outline 0.15s ease !important;
+  }
+
+  /* ステガードアニメーションも無効化 */
+  .staggered-animation {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* ローディング表示は最小限維持 */
+  .animate-spin,
+  .animate-pulse-loader,
+  .animate-yin-yang {
+    animation-duration: 0.5s !important;
+  }
+}
+
+/* ===== パフォーマンス最適化 ===== */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-auto {
+  will-change: auto;
+}
+
+/* アニメーション完了後のクリーンアップ */
+.animation-fill-forwards {
+  animation-fill-mode: forwards;
+}
+
+.animation-fill-backwards {
+  animation-fill-mode: backwards;
+}
+
+.animation-fill-both {
+  animation-fill-mode: both;
+}
+
+/* ===== ユーティリティクラス ===== */
+.transition-none { transition: none; }
+.transition-all { transition: var(--transition-all); }
+.transition-colors { transition: var(--transition-colors); }
+.transition-opacity { transition: var(--transition-opacity); }
+.transition-shadow { transition: var(--transition-shadow); }
+.transition-transform { transition: var(--transition-transform); }
+
+.duration-fast { transition-duration: var(--duration-fast); }
+.duration-normal { transition-duration: var(--duration-normal); }
+.duration-slow { transition-duration: var(--duration-slow); }
+.duration-slower { transition-duration: var(--duration-slower); }
+
+.ease-linear { transition-timing-function: var(--ease-linear); }
+.ease-in { transition-timing-function: var(--ease-in); }
+.ease-out { transition-timing-function: var(--ease-out); }
+.ease-in-out { transition-timing-function: var(--ease-in-out); }
+.ease-bunenjin { transition-timing-function: var(--ease-bunenjin); }
+
+.delay-none { transition-delay: var(--delay-none); }
+.delay-fast { transition-delay: var(--delay-fast); }
+.delay-normal { transition-delay: var(--delay-normal); }
+.delay-slow { transition-delay: var(--delay-slow); }
+
+.animate-none { animation: none; }
+.animate-spin { animation: spin var(--duration-loading) linear infinite; }
+.animate-ping { animation: ping var(--duration-loading) cubic-bezier(0, 0, 0.2, 1) infinite; }
+.animate-pulse { animation: pulse var(--duration-gentle) cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.animate-bounce { animation: bounce var(--duration-loading) infinite; }

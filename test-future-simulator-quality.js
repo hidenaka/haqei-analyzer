@@ -99,7 +99,7 @@ class FutureSimulatorQualityTester {
       const funcContent = functionMatch[0];
       
       // スコア計算ロジックの検証
-      const hasScoreCalc = /score\s*[\+\-\*\/]=/.test(funcContent);
+      const hasScoreCalc = /score\s*[+\-*/]=/.test(funcContent);
       this.addResult('スコア計算ロジック', hasScoreCalc, hasScoreCalc ? '実装確認' : '実装不完全');
       
       // パターンマッチング機能の検証

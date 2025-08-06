@@ -62,8 +62,8 @@ class IChingChoiceSystem {
         potential: lineText.S2_ポテンシャル
       },
       pathB: {
-        title: "爻辞に逆らう道", 
-        description: "爻辞の警告を無視した場合の展開",
+        title: "代替智慧の道", 
+        description: "爻辞の深層的意味を探求し、創造的解釈による展開",
         action: "現状の姿勢を維持・強化する",
         consequences: this.calculateConsequences(lineText)
       }
@@ -187,8 +187,8 @@ class TimeConceptIntegrator {
     </div>
     
     <div class="choice-card path-b">
-      <h3>爻辞に逆らう道</h3>
-      <div class="action">現状の困難に抵抗し、強引に推進</div>
+      <h3>代替智慧の道</h3>
+      <div class="action">爻辞の多面的解釈を通じて創造的対応を模索</div>
       <div class="outcome">
         <span class="risk-level high">リスク: 高</span>
         <span class="potential low">可能性: 低</span>
