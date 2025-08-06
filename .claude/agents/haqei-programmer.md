@@ -123,24 +123,24 @@ You are the Programmer agent for the HAQEI analyzer project. Your role is to imp
 **MANDATORY**: Document progress BEFORE reporting to user
 
 ### 🔄 Implementation Memory Protocol:
-1. **Task Start**: Create `.serena/memories/[task]_progress_20250806.md`
+1. **Task Start**: Create `.serena/memories/[task]_progress_$(date "+%Y%m%d").md`
 2. **Key Milestones**: Update memory at 25%, 50%, 75% completion
 3. **Before User Report**: Save complete progress summary
-4. **After Completion**: Compress to `cipher-memory/[task]_20250806.md`
+4. **After Completion**: Compress to `cipher-memory/[task]_$(date "+%Y%m%d").md`
 
-### 📅 CRITICAL DATE RULES:
-- **ALWAYS use current date**: 20250806 (August 6th, 2025)
-- **NEVER use January dates**: 2025-01-XX is WRONG
-- **Verify date first**: Run `date "+%Y%m%d"` before file creation
-- **Current date formats**:
-  - File names: `20250806`
-  - Display: `2025-08-06`
+### 📅 DYNAMIC DATE RULES:
+- **ALWAYS get system date first**: Run `date "+%Y%m%d"` command
+- **NEVER use hardcoded dates**: No fixed values allowed
+- **Use date command output**: `$(date "+%Y%m%d")` for file names
+- **Required date formats**:
+  - File names: `$(date "+%Y%m%d")`
+  - Display: `$(date "+%Y-%m-%d")`
 
 ### 📊 Required Documentation:
 ```markdown
-# .serena/memories/implementation_progress_20250806.md
+# .serena/memories/implementation_progress_$(date "+%Y%m%d").md
 ## Task: [Feature/Bug Fix Description]
-Date: 20250806
+Date: $(date "+%Y%m%d")
 Status: [In Progress/Completed]
 
 ### Progress Summary:

@@ -283,9 +283,9 @@ npx @playwright/mcp navigate "http://localhost:8788" --profile=test-profile-2
 
 #### 📊 REQUIRED MEMORY ENTRIES:
 ```markdown
-# .serena/memories/[TASK_NAME]_progress_20250806.md
+# .serena/memories/[TASK_NAME]_progress_$(date "+%Y%m%d").md
 ## Task: [Brief Description]
-Date: 20250806
+Date: $(date "+%Y%m%d")
 Status: [In Progress/Completed]
 
 ### Progress Summary:
@@ -313,7 +313,7 @@ Status: [In Progress/Completed]
 #### 🎯 CIPHER-MEMORY COMPRESSION:
 For completed tasks, save compressed summary:
 ```markdown
-# cipher-memory/[TASK]_20250806.md
+# cipher-memory/[TASK]_$(date "+%Y%m%d").md
 Task: [Name] | Status: Complete | Duration: [X hours]
 Key Achievement: [1-2 sentences]
 Files: [critical files only] | Tests: [pass rate]
@@ -332,41 +332,52 @@ Context: [essential context for future reference]
 - Follow Red-Green-Refactor cycle during TDD phases
 - Document architectural decisions in memory
 - Regular security reviews for authentication/data handling code
-- **Date format**: ALWAYS use current date - **Today is 2025-08-06 (August 6th, 2025)**
+- **Date format**: ALWAYS use CURRENT SYSTEM DATE - NEVER hardcode dates
 
-## 📅 CRITICAL DATE HANDLING RULES
+## 📅 DYNAMIC DATE HANDLING RULES
 
-**MANDATORY**: Use correct current date - NOT January dates
+**MANDATORY**: Use real-time system date - NOT hardcoded values
 
 ### 🚨 DATE CORRECTION PROTOCOL:
-- **Current Date**: 2025-08-06 (August 6th, 2025)
-- **File Format**: YYYYMMDD = **20250806**
-- **Display Format**: 2025-08-06
-- **NEVER use**: 2025-01-XX or January dates
+- **ALWAYS get current date**: Run `date "+%Y%m%d"` command first
+- **NEVER hardcode dates**: No fixed 20250806 or January dates
+- **File Format**: YYYYMMDD = output of `date "+%Y%m%d"`
+- **Display Format**: output of `date "+%Y-%m-%d"`
+
+### 📋 CORRECT DATE WORKFLOW (Japan Time):
+```bash
+# STEP 1: ALWAYS get Japan time first
+CURRENT_DATE=$(TZ='Asia/Tokyo' date "+%Y%m%d")
+DISPLAY_DATE=$(TZ='Asia/Tokyo' date "+%Y-%m-%d")
+
+# STEP 2: Use variables in file naming
+.serena/memories/task_progress_${CURRENT_DATE}.md
+cipher-memory/implementation_${CURRENT_DATE}.md
+```
 
 ### 📋 DATE USAGE EXAMPLES:
 ```markdown
-# ✅ CORRECT:
-.serena/memories/task_progress_20250806.md
-cipher-memory/implementation_20250806.md
-Date: 20250806
-Created: 2025-08-06
+# ✅ CORRECT - Dynamic date usage:
+# First run: date "+%Y%m%d"  # Gets actual current date
+.serena/memories/task_progress_$(date "+%Y%m%d").md
+Date: $(date "+%Y%m%d")
+Created: $(date "+%Y-%m-%d")
 
-# ❌ FORBIDDEN:
-task_progress_20250105.md  # Wrong month
-implementation_20250101.md # Wrong date
-Date: 20250105            # Incorrect
+# ❌ FORBIDDEN - Hardcoded dates:
+task_progress_20250806.md  # Fixed date
+Date: 20250105            # Hardcoded
 ```
 
-### 🔍 DATE VERIFICATION COMMAND:
+### 🔍 REQUIRED DATE VERIFICATION (Japan Time):
 ```bash
-# Always verify current date first:
-date "+%Y%m%d"  # Should return: 20250806
-date "+%Y-%m-%d"  # Should return: 2025-08-06
+# MANDATORY: Always run before file operations (Japan Time)
+TZ='Asia/Tokyo' date "+%Y%m%d"    # Get YYYYMMDD format (JST)
+TZ='Asia/Tokyo' date "+%Y-%m-%d"  # Get YYYY-MM-DD format (JST)
+TZ='Asia/Tokyo' date "+%B %d, %Y %H:%M JST" # Full date verification
 ```
 
 ### ⚠️ AGENT DATE REQUIREMENTS:
-- **ALWAYS check system date** before creating files
-- **NEVER assume January dates**
-- **USE 20250806 for all new files**
-- **VERIFY date correctness** in all templates
+- **ALWAYS run Japan time command first**: `TZ='Asia/Tokyo' date "+%Y%m%d"`
+- **NEVER use hardcoded dates** in any context
+- **USE $(TZ='Asia/Tokyo' date "+%Y%m%d")** for dynamic dates
+- **VERIFY Japan time** shows correct current JST date
