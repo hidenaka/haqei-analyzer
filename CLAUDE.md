@@ -8,21 +8,213 @@
 4. NEVER create duplicate CSS classes
 5. NEVER use absolute positioning without reason
 
-## 🚨 CRITICAL: CLAUDE ABSOLUTE REQUIREMENTS
+## 🚨 CRITICAL: LARGE-SCALE PROJECT REQUIREMENTS
 
-**絶対要件 (ABSOLUTE REQUIREMENTS)**:
-1. **要件が不明な場合は必ず確認する**: If any requirement is unclear or ambiguous, ALWAYS ask for clarification before proceeding
-2. **確認なしに推測で実装しない**: NEVER implement based on assumptions - always confirm understanding first
-3. **複数の解釈が可能な場合は選択肢を提示**: When multiple interpretations are possible, present options to the user
+### 🔴 ABSOLUTE REQUIREMENTS FOR 500K+ LINE CODEBASE
 
-### 🔍 CLARIFICATION PROTOCOL:
+#### 1. **MODULAR VERIFICATION PROTOCOL**
+```
+BEFORE ANY CHANGE:
+1. VERIFY: Check existing implementation first
+2. ISOLATE: Identify exact scope of change
+3. VALIDATE: Run MCP test on specific module
+4. DOCUMENT: Record change in .serena/memories
+```
+
+#### 2. **DEPENDENCY MANAGEMENT RULES**
+- **NEVER modify core modules without full dependency check**
+- **ALWAYS use grep/find to locate all references before changes**
+- **MUST maintain backward compatibility**
+- **NO global scope pollution**
+
+#### 3. **ERROR PREVENTION CHECKLIST**
+```javascript
+// BEFORE EVERY IMPLEMENTATION:
+const preflightCheck = {
+  syntaxCheck: "Has this identifier been declared elsewhere?",
+  fileExists: "Do all imported files exist?",
+  functionDefined: "Are all called functions defined?",
+  scopeCheck: "Is this in the correct scope?"
+};
+```
+
+#### 4. **QUALITY GATES (MANDATORY)**
+- **Gate 1**: Syntax validation (no duplicate declarations)
+- **Gate 2**: File existence check (no 404s)
+- **Gate 3**: Function availability (all methods exist)
+- **Gate 4**: MCP behavior test (user flow works)
+
+## 🚨 CONFIRMATION PROTOCOL - MANDATORY
+
+### 🔴 ABSOLUTE RULE: NO ASSUMPTIONS ALLOWED
+
+**CRITICAL**: When requirements are unclear, ALWAYS ASK FOR CONFIRMATION
+
+#### ⛔ FORBIDDEN BEHAVIORS:
+- ❌ "I'll proceed with what seems reasonable..."
+- ❌ "Based on my understanding, I'll implement..."
+- ❌ "I assume this means..."
+- ❌ Making any decision without explicit confirmation
+
+#### ✅ REQUIRED BEHAVIORS:
+- ✅ "この要件について確認させてください..."
+- ✅ "実装方法として以下の選択肢があります: A) ... B) ... どちらが適切でしょうか？"
+- ✅ "実装前に以下の前提を確認させてください..."
+- ✅ "この理解で正しいか確認をお願いします..."
+
+### 📋 WHEN TO CONFIRM (MANDATORY):
+1. **Ambiguous Requirements**: Multiple interpretations possible
+2. **Missing Information**: Key details not specified
+3. **Architectural Decisions**: Could impact system design
+4. **Breaking Changes**: Might affect existing functionality
+5. **Performance Trade-offs**: Different approaches available
+6. **User Experience Changes**: Multiple UI/UX options
+7. **Data Structure Changes**: Could affect data persistence
+
+### 🎯 CONFIRMATION TEMPLATE:
+```markdown
+## 確認事項
+
+### 要件の理解:
+現在の理解: [your interpretation]
+
+### 不明な点:
+1. [specific unclear point]
+2. [another unclear point]
+
+### 選択肢:
+A) [option A with pros/cons]
+B) [option B with pros/cons]
+
+### 推奨:
+私のおすすめは[X]ですが、確認をお願いします。
+
+どのように進めればよいでしょうか？
+```
+
+### 🔍 CLARIFICATION EXAMPLES:
 - **不明な仕様**: "この要件について確認させてください..."
 - **選択肢の提示**: "実装方法として以下の選択肢があります: A) ... B) ..."
 - **前提条件の確認**: "実装前に以下の前提を確認させてください..."
+- **影響範囲の確認**: "この変更は[X]に影響しますが、問題ないでしょうか？"
 
-## 🚨 CRITICAL: CONCURRENT EXECUTION
+## 🏗️ WATERFALL-AGILE HYBRID FOR LARGE PROJECTS
 
-**ABSOLUTE RULE**: ALL operations MUST be concurrent/parallel in a single message:
+### 📋 **PHASE MANAGEMENT (MANDATORY)**
+
+## 🚨 MANDATORY DOCUMENTATION PROTOCOL
+
+### 🔴 WORK SCALE CLASSIFICATION & DOCUMENT REQUIREMENTS
+
+#### **🟡 SMALL SCALE (単純修正)**
+**範囲**: バグ修正、CSS調整、単一機能修正
+```markdown
+✅ 軽量ドキュメント必須:
+.serena/memories/fix_[issue]_20250807.md:
+- 問題の説明 (1-2行)
+- 修正方法 (1-2行)
+- 影響範囲 (1-2行)
+```
+
+#### **🟠 MEDIUM SCALE (機能追加)**
+**範囲**: 新機能、UI改善、パフォーマンス最適化
+```markdown
+✅ 中程度ドキュメント必須:
+.serena/memories/feature_[name]_20250807.md:
+- 要件サマリー (5-10行)
+- 実装アプローチ (5-10行)
+- テスト計画 (3-5行)
+- TodoWriteでタスク分解
+```
+
+#### **🔴 LARGE SCALE (大規模変更)**
+**範囲**: アーキテクチャ変更、新システム、複数モジュール変更
+```markdown
+✅ フルドキュメント必須:
+docs/requirements/REQ_[project]_20250807.md
+docs/design/DESIGN_[project]_20250807.md
+docs/tasks/TASKS_[project]_20250807.md
++ .serena/memories/での詳細記録
+```
+
+### 🚨 PRE-WORK DOCUMENTATION CHECK PROTOCOL
+
+**ABSOLUTE RULE**: 作業開始前に必ずスケール判定とドキュメント作成
+
+#### 🔍 作業開始チェックリスト:
+```bash
+# STEP 1: スケール判定
+echo "この作業は SMALL/MEDIUM/LARGE のどれか？"
+
+# STEP 2: 対応するドキュメント作成
+case $SCALE in
+  SMALL)  create .serena/memories/fix_*_$(date "+%Y%m%d").md ;;
+  MEDIUM) create .serena/memories/feature_*_$(date "+%Y%m%d").md + TodoWrite ;;
+  LARGE)  create docs/{requirements,design,tasks}/ + .serena/memories/ ;;
+esac
+
+# STEP 3: ドキュメント存在確認
+ls .serena/memories/*$(date "+%Y%m%d")* || echo "⚠️ ドキュメント未作成"
+
+# STEP 4: 実装開始
+echo "ドキュメント確認完了 - 実装開始可能"
+```
+
+#### 📋 自動ドキュメント生成パターン:
+```javascript
+// TodoWrite実行時に自動生成
+async function autoDocGeneration(taskType, taskName) {
+  const date = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  
+  if (taskType === 'SMALL') {
+    await createFile(`.serena/memories/fix_${taskName}_${date}.md`, 
+      generateLightweightDoc(taskName));
+  } else if (taskType === 'MEDIUM') {
+    await createFile(`.serena/memories/feature_${taskName}_${date}.md`, 
+      generateMediumDoc(taskName));
+    await TodoWrite(generateTaskBreakdown(taskName));
+  } else if (taskType === 'LARGE') {
+    await createFullDocSet(taskName, date);
+  }
+}
+```
+
+#### **Phase 1: REQUIREMENTS [100% FIXED]**
+```markdown
+✅ MUST COMPLETE BEFORE CODING:
+- Feature list (frozen)
+- Input/Output specs (frozen)
+- Constraints (frozen)
+→ Output: requirements.md
+```
+
+#### **Phase 2: DESIGN [80% FIXED]**
+```markdown
+✅ ARCHITECTURE DECISIONS:
+- Module boundaries
+- Interface contracts
+- Data flow
+→ Output: architecture.md
+```
+
+#### **Phase 3: IMPLEMENTATION [AGILE SPRINTS]**
+```markdown
+⚡ ITERATIVE DEVELOPMENT:
+Sprint = {
+  1. Implement (2 hours)
+  2. Test (30 min)
+  3. Fix (30 min)
+  → Always maintain working state
+}
+```
+
+#### **Phase 4: INTEGRATION [WATERFALL]**
+```markdown
+✅ PLANNED INTEGRATION:
+- Predefined order
+- No backward changes
+- Staged combination
+```
 
 ### 🔴 MANDATORY CONCURRENT PATTERNS:
 1. **TodoWrite**: ALWAYS batch ALL todos in ONE call (5-10+ todos minimum)
@@ -33,9 +225,42 @@
 
 ### ⚡ GOLDEN RULE: "1 MESSAGE = ALL RELATED OPERATIONS"
 
-## 🚨 CRITICAL: TASK COMPLETION VERIFICATION
+## 🎯 MODULAR DEVELOPMENT STRATEGY
 
-**MANDATORY RULE**: NEVER report task completion without MCP verification
+### **MODULE ISOLATION RULES**
+```javascript
+// Each module MUST be self-contained
+const ModuleTemplate = {
+  // NO external dependencies in core logic
+  init(config) { 
+    this.validateConfig(config);
+  },
+  // Clear public API
+  publicAPI: {
+    methodA() {},
+    methodB() {}
+  },
+  // Event-based communication only
+  communicate(event, data) {
+    EventBus.emit(event, data);
+  }
+};
+```
+
+### **INTERFACE-FIRST DEVELOPMENT**
+1. **Define contract BEFORE implementation**
+2. **Lock interface, flexible internals**
+3. **Version interfaces explicitly**
+```javascript
+// interfaces/auth.v1.json
+{
+  "version": "1.0.0",
+  "methods": [
+    {"name": "login", "params": ["username", "password"], "returns": "token"},
+    {"name": "logout", "params": ["token"], "returns": "boolean"}
+  ]
+}
+```
 
 ### 🔴 COMPLETION VERIFICATION REQUIREMENTS:
 1. **Implement First**: Complete all code/file changes

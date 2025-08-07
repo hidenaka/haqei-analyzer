@@ -1,0 +1,42 @@
+{
+  "startTime": 1754042412991,
+  "tests": [
+    {
+      "timestamp": "2025-08-01T10:00:12.991Z",
+      "level": "info",
+      "message": "🚀 E2Eデータフローテスト開始"
+    },
+    {
+      "timestamp": "2025-08-01T10:00:18.269Z",
+      "level": "info",
+      "message": "🔍 ストレージデバッグページテスト開始"
+    },
+    {
+      "timestamp": "2025-08-01T10:00:18.855Z",
+      "level": "error",
+      "message": "ストレージデバッグページテストエラー: page.goto: net::ERR_FILE_NOT_FOUND at file:///Users/hideakimacbookair/Desktop/haqei-analyzer/public/test-storage-debug.html\nCall log:\n\u001b[2m  - navigating to \"file:///Users/hideakimacbookair/Desktop/haqei-analyzer/public/test-storage-debug.html\", waiting until \"load\"\u001b[22m\n"
+    },
+    {
+      "timestamp": "2025-08-01T10:00:18.855Z",
+      "level": "error",
+      "message": "❌ E2Eテストエラー: page.goto: net::ERR_FILE_NOT_FOUND at file:///Users/hideakimacbookair/Desktop/haqei-analyzer/public/test-storage-debug.html\nCall log:\n\u001b[2m  - navigating to \"file:///Users/hideakimacbookair/Desktop/haqei-analyzer/public/test-storage-debug.html\", waiting until \"load\"\u001b[22m\n"
+    },
+    {
+      "timestamp": "2025-08-01T10:00:19.520Z",
+      "level": "info",
+      "message": "スクリーンショット保存: /Users/hideakimacbookair/Desktop/haqei-analyzer/error-screenshot-1754042418855.png"
+    }
+  ],
+  "errors": [
+    {
+      "type": "test_error",
+      "message": "page.goto: net::ERR_FILE_NOT_FOUND at file:///Users/hideakimacbookair/Desktop/haqei-analyzer/public/test-storage-debug.html\nCall log:\n\u001b[2m  - navigating to \"file:///Users/hideakimacbookair/Desktop/haqei-analyzer/public/test-storage-debug.html\", waiting until \"load\"\u001b[22m\n",
+      "stack": "page.goto: net::ERR_FILE_NOT_FOUND at file:///Users/hideakimacbookair/Desktop/haqei-analyzer/public/test-storage-debug.html\nCall log:\n\u001b[2m  - navigating to \"file:///Users/hideakimacbookair/Desktop/haqei-analyzer/public/test-storage-debug.html\", waiting until \"load\"\u001b[22m\n\n    at E2EFlowTester.testStorageDebugPage (/Users/hideakimacbookair/Desktop/haqei-analyzer/test-e2e-flow.js:145:24)\n    at async E2EFlowTester.runFullTest (/Users/hideakimacbookair/Desktop/haqei-analyzer/test-e2e-flow.js:107:13)"
+    }
+  ],
+  "screenshots": [
+    "/Users/hideakimacbookair/Desktop/haqei-analyzer/error-screenshot-1754042418855.png"
+  ],
+  "endTime": 1754042420018,
+  "duration": 7027
+}
