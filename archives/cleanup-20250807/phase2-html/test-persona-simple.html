@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persona Enhancement Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #f1f5f9;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 1rem 0;
+        }
+        .virtual-persona-card {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .virtual-persona-card:hover {
+            border-color: rgba(99, 102, 241, 0.6);
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+        .persona-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        .persona-symbol {
+            font-size: 2.5rem;
+        }
+        .persona-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #a855f7;
+            margin: 0;
+        }
+        .persona-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .persona-metaphor {
+            font-style: italic;
+            color: #cbd5e1;
+            font-size: 1.1rem;
+        }
+        .persona-catchphrase {
+            font-weight: 500;
+            color: #6366f1;
+            font-size: 1.1rem;
+        }
+        .persona-traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+        .trait-tag {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            color: #a855f7;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        .persona-description {
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+        }
+        .log {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            margin: 1rem 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 Persona Enhancement Test</h1>
+        
+        <div class="test-section">
+            <h2>VirtualPersonaEnhancer Status</h2>
+            <div id="status-log" class="log">Loading...</div>
+            <button class="test-button" onclick="testPersonaEnhancer()">Test Persona Enhancer</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>Generated Persona Cards</h2>
+            <div id="persona-cards"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Results</h2>
+            <div id="test-results" class="log">Ready to test...</div>
+        </div>
+    </div>
+    
+    <script>
+        // VirtualPersonaEnhancer クラス定義（簡略版）
+        class VirtualPersonaEnhancer {
+            constructor() {
+                this.name = 'VirtualPersonaEnhancer';
+                this.version = '1.0.0';
+                this.philosophy = 'haqei-persona-enhancement';
+                
+                this.personas = {
+                    engine: {
+                        name: "創造の探検家",
+                        symbol: "🚀",
+                        traits: ["好奇心旺盛", "革新的", "チャレンジ精神"],
+                        catchphrase: "新しい可能性を切り開く",
+                        metaphor: "未踏の地を探求する冒険者のように",
+                        hexagramStyle: "乾為天（創造力の象徴）"
+                    },
+                    interface: {
+                        name: "調和の橋渡し",
+                        symbol: "🤝",
+                        traits: ["共感力", "協調性", "コミュニケーション"],
+                        catchphrase: "人との繋がりを大切にする",
+                        metaphor: "異なる世界を繋ぐ橋のように",
+                        hexagramStyle: "地天泰（調和の象徴）"
+                    },
+                    safemode: {
+                        name: "慎重な守護者",
+                        symbol: "🛡️",
+                        traits: ["分析力", "慎重性", "安全志向"],
+                        catchphrase: "リスクを見極め、安全を確保する",
+                        metaphor: "嵐の中でも灯台のように",
+                        hexagramStyle: "山雷頤（慎重さの象徴）"
+                    }
+                };
+                
+                this.isInitialized = true;
+                console.log('🎭 VirtualPersonaEnhancer initialized');
+            }
+            
+            enhanceOSResult(osResult, osType) {
+                const persona = this.personas[osType];
+                if (!persona) return osResult;
+                
+                return {
+                    ...osResult,
+                    persona: {
+                        name: persona.name,
+                        symbol: persona.symbol,
+                        traits: persona.traits,
+                        catchphrase: persona.catchphrase,
+                        metaphor: persona.metaphor,
+                        hexagramStyle: persona.hexagramStyle,
+                        description: `あなたの${persona.name}は、${persona.metaphor}、${persona.catchphrase}特徴を持っています。`
+                    }
+                };
+            }
+            
+            generatePersonaCard(osResult, osType) {
+                const enhancedResult = this.enhanceOSResult(osResult, osType);
+                const persona = enhancedResult.persona;
+                
+                return `
+                    <div class="virtual-persona-card">
+                        <div class="persona-header">
+                            <span class="persona-symbol">${persona.symbol}</span>
+                            <h3 class="persona-name">${persona.name}</h3>
+                        </div>
+                        <div class="persona-content">
+                            <p class="persona-metaphor">${persona.metaphor}</p>
+                            <p class="persona-catchphrase">"${persona.catchphrase}"</p>
+                            <div class="persona-traits">
+                                ${persona.traits.map(trait => `<span class="trait-tag">${trait}</span>`).join('')}
+                            </div>
+                            <p class="persona-description">${persona.description}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // グローバル初期化
+        let virtualPersonaEnhancer = null;
+        
+        function logMessage(message, type = 'info') {
+            const log = document.getElementById('status-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            log.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function testPersonaEnhancer() {
+            try {
+                logMessage('🔧 Testing VirtualPersonaEnhancer...', 'info');
+                
+                // インスタンス作成
+                virtualPersonaEnhancer = new VirtualPersonaEnhancer();
+                logMessage('✅ VirtualPersonaEnhancer created successfully', 'success');
+                
+                // テストデータ
+                const testData = {
+                    hexagramName: '乾為天',
+                    description: 'テスト用のOS分析結果',
+                    trigramEnergies: { '乾': 85, '兌': 70, '離': 60 }
+                };
+                
+                // 各OSタイプのペルソナカード生成
+                const osTypes = ['engine', 'interface', 'safemode'];
+                const personaCardsContainer = document.getElementById('persona-cards');
+                personaCardsContainer.innerHTML = '';
+                
+                osTypes.forEach(osType => {
+                    try {
+                        const personaCard = virtualPersonaEnhancer.generatePersonaCard(testData, osType);
+                        personaCardsContainer.innerHTML += `
+                            <div>
+                                <h3>${osType.toUpperCase()} OS</h3>
+                                ${personaCard}
+                            </div>
+                        `;
+                        logMessage(`✅ ${osType} persona card generated`, 'success');
+                    } catch (error) {
+                        logMessage(`❌ Failed to generate ${osType} persona: ${error.message}`, 'error');
+                    }
+                });
+                
+                // 結果レポート
+                const testResults = document.getElementById('test-results');
+                testResults.innerHTML = `Test Completed at ${new Date().toLocaleTimeString()}\n`;
+                testResults.innerHTML += `✅ VirtualPersonaEnhancer: Working\n`;
+                testResults.innerHTML += `✅ Persona Cards Generated: ${osTypes.length}\n`;
+                testResults.innerHTML += `✅ Traits Display: Working\n`;
+                testResults.innerHTML += `✅ Metaphors & Catchphrases: Working\n`;
+                testResults.innerHTML += `🎯 Overall Status: SUCCESS\n`;
+                
+                logMessage('🎯 All tests completed successfully!', 'success');
+                
+            } catch (error) {
+                logMessage(`❌ Test failed: ${error.message}`, 'error');
+                
+                const testResults = document.getElementById('test-results');
+                testResults.innerHTML = `Test Failed at ${new Date().toLocaleTimeString()}\n`;
+                testResults.innerHTML += `❌ Error: ${error.message}\n`;
+                testResults.innerHTML += `🚨 Overall Status: FAILED\n`;
+            }
+        }
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            logMessage('🚀 Persona Enhancement Test initialized', 'info');
+            logMessage('📋 Click "Test Persona Enhancer" to run tests', 'info');
+        });
+    </script>
+</body>
+</html>

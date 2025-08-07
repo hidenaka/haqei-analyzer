@@ -52,6 +52,9 @@ class FutureBranchingSystem {
       water: { season: "winter", direction: "north", generates: "wood", destroys: "fire" }
     };
     
+    // 初期化状態管理
+    this.isInitialized = false;
+    
     // 序卦伝論理システム
     this.sequenceLogic = new Map([
       [1, { next: 2, necessity: "創造の後に受容", theme: "天地開闢" }],
@@ -61,6 +64,39 @@ class FutureBranchingSystem {
       [5, { next: 6, necessity: "待機の後に争い", theme: "需要発生" }]
       // ... 完全な64卦論理チェーン実装
     ]);
+  }
+  
+  /**
+   * システム初期化
+   * @param {Object} config - 設定オプション
+   * @returns {Promise<boolean>} 初期化成功可否
+   */
+  async init(config = {}) {
+    try {
+      console.log('🔄 Initializing Future Branching System...');
+      
+      // 基本設定の初期化
+      this.config = {
+        enableAdvancedPrediction: true,
+        maxBranchingDepth: 8,
+        hexagramValidation: true,
+        ...config
+      };
+      
+      // データ依存性の確認
+      if (typeof window !== 'undefined' && window.H384_DATA) {
+        this.h384Data = window.H384_DATA;
+        console.log('✅ H384 data loaded for Future Branching System');
+      }
+      
+      this.isInitialized = true;
+      console.log('✅ Future Branching System initialized successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to initialize Future Branching System:', error);
+      this.isInitialized = false;
+      return false;
+    }
     
     // 未来分岐パラメーター
     this.branchingParameters = {
@@ -268,25 +304,25 @@ class FutureBranchingSystem {
       console.log("🔮 未来分岐計算開始");
       
       // 1. 現在状態の易経分析
-      const currentAnalysis = await this.analyzeCurrentState(currentState);
+      const currentAnalysis = this.analyzeCurrentState(currentState);
       
       // 2. HaQei分人別未来計算
-      const personaFutures = await this.calculatePersonaFutures(currentAnalysis, personaContext, timeHorizon);
+      const personaFutures = this.calculatePersonaFutures(currentAnalysis, personaContext, timeHorizon);
       
       // 3. Triple OS統合未来計算
-      const tripleOSFutures = await this.calculateTripleOSFutures(personaFutures, targetOS);
+      const tripleOSFutures = this.calculateTripleOSFutures(personaFutures, targetOS);
       
       // 4. 易経変化パターン適用
-      const iChingTransformations = await this.applyIChingTransformations(tripleOSFutures, complexityLevel);
+      const iChingTransformations = this.applyIChingTransformations(tripleOSFutures, complexityLevel);
       
       // 5. 五行循環による調和分析
-      const harmonizedFutures = await this.applyFiveElementsHarmony(iChingTransformations);
+      const harmonizedFutures = this.applyFiveElementsHarmony(iChingTransformations);
       
       // 6. 序卦伝論理による必然性計算
-      const logicalFutures = await this.applySequenceLogic(harmonizedFutures);
+      const logicalFutures = this.applySequenceLogic(harmonizedFutures);
       
       // 7. 最終統合と最適化
-      const finalBranching = await this.synthesizeFinalBranching(logicalFutures, complexityLevel);
+      const finalBranching = this.synthesizeFinalBranching(logicalFutures, complexityLevel);
       
       console.log("✅ 未来分岐計算完了");
       
@@ -301,7 +337,7 @@ class FutureBranchingSystem {
   /**
    * 現在状態の易経分析
    */
-  async analyzeCurrentState(currentState) {
+  analyzeCurrentState(currentState) {
     const {
       engineOS = 1,
       interfaceOS = 2, 
@@ -327,7 +363,7 @@ class FutureBranchingSystem {
   /**
    * 分人別未来計算
    */
-  async calculatePersonaFutures(currentAnalysis, personaContext, timeHorizon) {
+  calculatePersonaFutures(currentAnalysis, personaContext, timeHorizon) {
     const personaTypes = ['analyticSelf', 'intuitiveSelf', 'socialSelf'];
     const personaFutures = new Map();
     
@@ -335,7 +371,7 @@ class FutureBranchingSystem {
       const personaWeight = personaContext[personaType]?.weight || 0.33;
       
       // 分人固有の未来シナリオ計算
-      const scenarios = await this.generatePersonaScenarios(
+      const scenarios = this.generatePersonaScenarios(
         currentAnalysis,
         personaType,
         timeHorizon,

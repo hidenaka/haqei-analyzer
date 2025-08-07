@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSRF Protection Implementation Test</title>
+    
+    <!-- CSRF Protection Meta Tag -->
+    <meta name="csrf-token" content="" id="csrf-meta-token">
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .test-section h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 10px 5px 0;
+        }
+        
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        
+        form {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        
+        input[type="text"], input[type="hidden"] {
+            margin: 5px 0;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .token-display {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+        
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        .stats-table th, .stats-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .stats-table th {
+            background: #f8f9fa;
+        }
+        
+        .log-area {
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔒 CSRF Protection Implementation Test Suite</h1>
+    
+    <div class="test-section">
+        <h2>📊 System Status</h2>
+        <div id="system-status"></div>
+        <button onclick="checkSystemStatus()">Check System Status</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔑 Token Management</h2>
+        <div id="token-info"></div>
+        <button onclick="getCurrentToken()">Get Current Token</button>
+        <button onclick="forceTokenRotation()">Force Token Rotation</button>
+        <button onclick="showTokenStats()">Show Token Statistics</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📝 Form Protection Test</h2>
+        <div id="form-protection-status"></div>
+        
+        <!-- Test Form 1: POST Method -->
+        <h3>Test Form 1: POST Method (Should be protected)</h3>
+        <form method="POST" action="/test-endpoint" id="test-form-1">
+            <label>Name: <input type="text" name="name" placeholder="Enter name"></label><br>
+            <label>Email: <input type="text" name="email" placeholder="Enter email"></label><br>
+            <button type="submit">Submit POST Form</button>
+        </form>
+        
+        <!-- Test Form 2: GET Method -->
+        <h3>Test Form 2: GET Method (Should NOT be protected)</h3>
+        <form method="GET" action="/search" id="test-form-2">
+            <label>Search: <input type="text" name="q" placeholder="Search query"></label><br>
+            <button type="submit">Submit GET Form</button>
+        </form>
+        
+        <!-- Test Form 3: Dynamic Form -->
+        <h3>Test Form 3: Dynamic Form Creation</h3>
+        <button onclick="createDynamicForm()">Create Dynamic POST Form</button>
+        <div id="dynamic-form-container"></div>
+        
+        <button onclick="analyzeFormProtection()">Analyze Form Protection</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>🌐 Fetch API Integration Test</h2>
+        <div id="fetch-test-status"></div>
+        <button onclick="testGETRequest()">Test GET Request</button>
+        <button onclick="testPOSTRequest()">Test POST Request</button>
+        <button onclick="testCSRFError()">Test CSRF Error Handling</button>
+        <button onclick="testDoubleSubmit()">Test Double-Submit Cookie</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔄 Token Rotation Test</h2>
+        <div id="rotation-test-status"></div>
+        <button onclick="testAutomaticRotation()">Test Automatic Rotation</button>
+        <button onclick="testServerRotation()">Test Server-Initiated Rotation</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📈 Statistics & Monitoring</h2>
+        <div id="stats-display"></div>
+        <button onclick="showDetailedStats()">Show Detailed Statistics</button>
+        <button onclick="showAPIStats()">Show API Statistics</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 Test Log</h2>
+        <div id="test-log" class="log-area"></div>
+    </div>
+
+    <!-- Load CSRF Protection Scripts -->
+    <script src="/js/shared/utils/CSRFProtection.js"></script>
+    <script src="/js/shared/utils/CSRFIntegration.js"></script>
+    <script src="/js/shared/utils/SecureAPI.js"></script>
+
+    <script>
+        // Test utilities
+        const log = (message, type = 'info') => {
+            const timestamp = new Date().toISOString();
+            const logElement = document.getElementById('test-log');
+            const colorMap = {
+                info: '#0ff',
+                success: '#0f0',
+                error: '#f00',
+                warning: '#ff0'
+            };
+            
+            const color = colorMap[type] || '#0ff';
+            logElement.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(`[CSRF Test] ${message}`);
+        };
+
+        const updateStatus = (elementId, content, type = 'info') => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<div class="status ${type}">${content}</div>`;
+            }
+        };
+
+        const clearLogs = () => {
+            document.getElementById('test-log').innerHTML = '';
+        };
+
+        // System Status Check
+        const checkSystemStatus = () => {
+            log('Checking system status...', 'info');
+            
+            const status = {
+                csrfProtection: !!window.csrfProtection,
+                csrfIntegration: !!window.csrfIntegration,
+                secureAPI: !!window.secureAPI,
+                metaTag: !!document.querySelector('meta[name="csrf-token"]'),
+                fetchOverridden: window.fetch.toString().includes('CSRF') || window.csrfProtection?._fetchIntegrationInitialized
+            };
+
+            let statusHTML = '<table class="stats-table">';
+            Object.entries(status).forEach(([key, value]) => {
+                const statusText = value ? '✅ Available' : '❌ Not Available';
+                const rowClass = value ? 'success' : 'error';
+                statusHTML += `<tr class="${rowClass}"><td>${key}</td><td>${statusText}</td></tr>`;
+            });
+            statusHTML += '</table>';
+
+            updateStatus('system-status', statusHTML);
+            log(`System status checked. CSRF Protection: ${status.csrfProtection ? 'OK' : 'FAILED'}`, 
+                status.csrfProtection ? 'success' : 'error');
+        };
+
+        // Token Management
+        const getCurrentToken = () => {
+            if (!window.csrfProtection) {
+                log('CSRF Protection not available', 'error');
+                return;
+            }
+
+            const token = window.csrfProtection.getCurrentToken();
+            const metaToken = document.querySelector('meta[name="csrf-token"]')?.content;
+            
+            const tokenInfo = `
+                <div class="token-display">
+                    <strong>Current Token:</strong> ${token || 'None'}<br>
+                    <strong>Meta Tag Token:</strong> ${metaToken || 'None'}<br>
+                    <strong>Tokens Match:</strong> ${token === metaToken ? '✅ Yes' : '❌ No'}
+                </div>
+            `;
+            
+            updateStatus('token-info', tokenInfo);
+            log(`Token retrieved: ${token ? token.substring(0, 8) + '...' : 'None'}`, 'info');
+        };
+
+        const forceTokenRotation = () => {
+            if (!window.csrfProtection) {
+                log('CSRF Protection not available', 'error');
+                return;
+            }
+
+            const oldToken = window.csrfProtection.getCurrentToken();
+            const newToken = window.csrfProtection.getCurrentToken(true);
+            
+            log(`Token rotated: ${oldToken.substring(0, 8)}... → ${newToken.substring(0, 8)}...`, 'success');
+            getCurrentToken(); // Refresh display
+        };
+
+        const showTokenStats = () => {
+            if (!window.csrfProtection || typeof window.csrfProtection.getStats !== 'function') {
+                log('Token statistics not available', 'error');
+                return;
+            }
+
+            const stats = window.csrfProtection.getStats();
+            let statsHTML = '<table class="stats-table">';
+            Object.entries(stats).forEach(([key, value]) => {
+                statsHTML += `<tr><td>${key}</td><td>${value}</td></tr>`;
+            });
+            statsHTML += '</table>';
+
+            updateStatus('token-info', statsHTML);
+            log('Token statistics displayed', 'info');
+        };
+
+        // Form Protection Analysis
+        const analyzeFormProtection = () => {
+            const forms = document.querySelectorAll('form');
+            let analysisHTML = '<table class="stats-table"><tr><th>Form</th><th>Method</th><th>CSRF Protected</th><th>Status</th></tr>';
+            
+            forms.forEach((form, index) => {
+                const method = form.method.toUpperCase();
+                const hasToken = form.querySelector('input[name="_csrf_token"]');
+                const shouldBeProtected = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+                const isCorrectlyProtected = shouldBeProtected ? hasToken : true;
+                
+                const status = isCorrectlyProtected ? '✅ Correct' : '❌ Incorrect';
+                const rowClass = isCorrectlyProtected ? 'success' : 'error';
+                
+                analysisHTML += `
+                    <tr class="${rowClass}">
+                        <td>Form ${index + 1} (${form.id || 'no-id'})</td>
+                        <td>${method}</td>
+                        <td>${hasToken ? 'Yes' : 'No'}</td>
+                        <td>${status}</td>
+                    </tr>
+                `;
+            });
+            
+            analysisHTML += '</table>';
+            updateStatus('form-protection-status', analysisHTML);
+            log(`Analyzed ${forms.length} forms`, 'info');
+        };
+
+        const createDynamicForm = () => {
+            const container = document.getElementById('dynamic-form-container');
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/dynamic-test';
+            form.innerHTML = `
+                <label>Dynamic Input: <input type="text" name="dynamic" placeholder="Dynamic form input"></label><br>
+                <button type="submit">Submit Dynamic Form</button>
+            `;
+            
+            container.innerHTML = '';
+            container.appendChild(form);
+            
+            log('Dynamic form created', 'info');
+            
+            // Check if it gets protected automatically
+            setTimeout(() => {
+                const hasToken = form.querySelector('input[name="_csrf_token"]');
+                log(`Dynamic form CSRF protection: ${hasToken ? 'ADDED' : 'NOT ADDED'}`, 
+                    hasToken ? 'success' : 'error');
+            }, 100);
+        };
+
+        // Fetch API Tests
+        const testGETRequest = async () => {
+            log('Testing GET request...', 'info');
+            try {
+                // This should NOT include CSRF token
+                const response = await fetch('/api/test-get', {
+                    method: 'GET'
+                });
+                log('GET request completed (should not have CSRF token)', 'success');
+            } catch (error) {
+                log(`GET request failed: ${error.message}`, 'error');
+            }
+        };
+
+        const testPOSTRequest = async () => {
+            log('Testing POST request...', 'info');
+            try {
+                // This SHOULD include CSRF token automatically
+                const response = await fetch('/api/test-post', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ test: 'data' })
+                });
+                log('POST request completed (should have CSRF token)', 'success');
+            } catch (error) {
+                log(`POST request failed: ${error.message}`, 'warning');
+            }
+        };
+
+        const testCSRFError = async () => {
+            log('Testing CSRF error handling...', 'info');
+            try {
+                // Simulate CSRF error by using invalid token
+                const response = await fetch('/api/test-csrf-error', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': 'invalid-token'
+                    },
+                    body: JSON.stringify({ test: 'data' })
+                });
+                log('CSRF error test completed', 'info');
+            } catch (error) {
+                log(`CSRF error test: ${error.message}`, 'warning');
+            }
+        };
+
+        const testDoubleSubmit = () => {
+            if (!window.csrfProtection || !window.csrfProtection.enableDoubleSubmitCookie) {
+                log('Double-submit cookie not enabled', 'warning');
+                return;
+            }
+
+            const token = window.csrfProtection.getCurrentToken();
+            const cookieValue = document.cookie.split(';')
+                .find(c => c.trim().startsWith('XSRF-TOKEN='))
+                ?.split('=')[1];
+
+            const match = token && cookieValue && decodeURIComponent(cookieValue) === token;
+            log(`Double-submit test: Token=${token?.substring(0, 8)}..., Cookie=${cookieValue?.substring(0, 8)}..., Match=${match}`, 
+                match ? 'success' : 'error');
+        };
+
+        // Rotation Tests
+        const testAutomaticRotation = () => {
+            if (!window.csrfProtection) {
+                log('CSRF Protection not available', 'error');
+                return;
+            }
+
+            const initialToken = window.csrfProtection.getCurrentToken();
+            log(`Starting automatic rotation test with token: ${initialToken.substring(0, 8)}...`, 'info');
+
+            // Force rotation by simulating time passage
+            setTimeout(() => {
+                const newToken = window.csrfProtection.getCurrentToken(true);
+                const rotated = newToken !== initialToken;
+                log(`Automatic rotation test: ${rotated ? 'SUCCESS' : 'FAILED'}`, 
+                    rotated ? 'success' : 'error');
+            }, 100);
+        };
+
+        const testServerRotation = () => {
+            log('Testing server-initiated rotation (simulated)...', 'info');
+            
+            if (!window.csrfProtection) {
+                log('CSRF Protection not available', 'error');
+                return;
+            }
+
+            // Simulate server response with new token
+            const mockResponse = {
+                headers: {
+                    get: (name) => name === 'X-New-CSRF-Token' ? 'new-server-token-123' : null
+                }
+            };
+
+            if (typeof window.csrfProtection.handleResponseTokenRotation === 'function') {
+                window.csrfProtection.handleResponseTokenRotation(mockResponse);
+                log('Server rotation simulation completed', 'success');
+            } else {
+                log('Server rotation method not available', 'warning');
+            }
+        };
+
+        // Statistics
+        const showDetailedStats = () => {
+            const stats = {
+                csrfProtection: window.csrfProtection ? window.csrfProtection.getStats() : null,
+                csrfIntegration: window.csrfIntegration ? window.csrfIntegration.getStats() : null,
+                secureAPI: window.secureAPI ? window.secureAPI.getStats() : null
+            };
+
+            let statsHTML = '<h3>Detailed System Statistics</h3>';
+            Object.entries(stats).forEach(([system, data]) => {
+                if (data) {
+                    statsHTML += `<h4>${system}</h4><table class="stats-table">`;
+                    Object.entries(data).forEach(([key, value]) => {
+                        statsHTML += `<tr><td>${key}</td><td>${JSON.stringify(value)}</td></tr>`;
+                    });
+                    statsHTML += '</table>';
+                } else {
+                    statsHTML += `<p>${system}: Not available</p>`;
+                }
+            });
+
+            updateStatus('stats-display', statsHTML);
+            log('Detailed statistics displayed', 'info');
+        };
+
+        const showAPIStats = () => {
+            if (!window.secureAPI) {
+                log('SecureAPI not available', 'error');
+                return;
+            }
+
+            const stats = window.secureAPI.getStats();
+            let statsHTML = '<h3>SecureAPI Statistics</h3><table class="stats-table">';
+            Object.entries(stats).forEach(([key, value]) => {
+                statsHTML += `<tr><td>${key}</td><td>${JSON.stringify(value)}</td></tr>`;
+            });
+            statsHTML += '</table>';
+
+            updateStatus('stats-display', statsHTML);
+            log('API statistics displayed', 'info');
+        };
+
+        // Event Listeners
+        document.addEventListener('csrf:tokenGenerated', (event) => {
+            log('Event: CSRF token generated', 'success');
+        });
+
+        document.addEventListener('csrf:tokenRotated', (event) => {
+            log(`Event: CSRF token rotated (${event.detail.source})`, 'success');
+        });
+
+        document.addEventListener('csrf:integrationReady', (event) => {
+            log('Event: CSRF integration ready', 'success');
+        });
+
+        document.addEventListener('csrf:integrationError', (event) => {
+            log(`Event: CSRF integration error - ${event.detail.error.message}`, 'error');
+        });
+
+        // Initialize tests when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            log('CSRF Protection Test Suite Initialized', 'success');
+            
+            setTimeout(() => {
+                checkSystemStatus();
+                getCurrentToken();
+                analyzeFormProtection();
+            }, 1000);
+        });
+
+        // Form submission handlers for testing
+        document.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent actual submission
+            const form = event.target;
+            const method = form.method.toUpperCase();
+            const hasToken = form.querySelector('input[name="_csrf_token"]');
+            
+            log(`Form submission intercepted: ${method} ${form.action} (CSRF Token: ${hasToken ? 'Present' : 'Missing'})`, 'info');
+        });
+    </script>
+</body>
+</html>

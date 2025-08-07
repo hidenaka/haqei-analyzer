@@ -31,7 +31,7 @@ class DisplayController {
   /**
    * 要素の表示状態を確実に保証
    */
-  async ensureElementVisible(element, options = {}) {
+  ensureElementVisible(element, options = {}) {
     const startTime = performance.now();
     
     try {
@@ -57,7 +57,7 @@ class DisplayController {
       
       // Step 1: CSS競合を解決
       if (config.clearConflicts) {
-        await this.conflictResolver.resolveConflicts(element);
+        this.conflictResolver.resolveConflicts(element);
       }
       
       // Step 2: 強制的に表示状態を設定

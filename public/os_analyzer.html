@@ -9,250 +9,11 @@
     <!-- Chart.js for data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
-    <!-- 🚨 EMERGENCY BYPASS - Embedded directly before problematic script -->
-    <script>
-// 🚨 EMERGENCY BYPASS SCRIPT for HAQEI os_analyzer.html
-// This script bypasses the main application and provides direct functionality
-
-console.log('🚨 EMERGENCY BYPASS: Loading independent start button functionality');
-
-// Define 30 questions for complete diagnosis flow
-const EMERGENCY_QUESTIONS = [
-    { id: 1, text: "新しい挑戦をすることが好きですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 2, text: "人とのコミュニケーションは得意ですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 3, text: "計画を立てて行動することが多いですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 4, text: "リスクを取ることに抵抗がありませんか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 5, text: "チームワークを大切にしますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 6, text: "困難な状況でも冷静でいられますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 7, text: "創造的な活動が好きですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 8, text: "他人の意見を参考にすることが多いですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 9, text: "安定した環境を好みますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 10, text: "感情よりも論理を重視しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 11, text: "長期的な視点で物事を考えることが多いですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 12, text: "変化に対して柔軟に対応できますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 13, text: "責任感が強い方ですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 14, text: "独立して作業することを好みますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 15, text: "直感を信じて行動することが多いですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 16, text: "競争することにやりがいを感じますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 17, text: "慎重に検討してから決断しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 18, text: "新しいアイデアを生み出すことが得意ですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 19, text: "他人を支援することに喜びを感じますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 20, text: "ルールや規則を重視しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 21, text: "目標達成のために努力を続けることができますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 22, text: "多様な価値観を受け入れることができますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 23, text: "問題解決において創意工夫しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 24, text: "批判的な意見も建設的に受け止めますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 25, text: "効率性を重視して行動しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 26, text: "人間関係の調和を大切にしますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 27, text: "失敗から学ぶことを重視しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 28, text: "自分の価値観を明確に持っていますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 29, text: "周囲の期待に応えようと努力しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
-    { id: 30, text: "将来に対して楽観的ですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] }
-];
-
-// Emergency state management
-class EmergencyState {
-    constructor() {
-        this.currentQuestion = 0;
-        this.answers = [];
-    }
-}
-
-// Emergency question flow
-class EmergencyQuestionFlow {
-    constructor() {
-        this.state = new EmergencyState();
-        console.log('🚨 Emergency Question Flow initialized');
-    }
-    
-    startAnalysis() {
-        console.log('🚨 Emergency startAnalysis called');
-        
-        // Hide welcome screen
-        const welcomeScreen = document.getElementById('welcome-screen');
-        if (welcomeScreen) {
-            welcomeScreen.classList.remove('active');
-            console.log('✅ Welcome screen hidden');
-        }
-        
-        // Show question screen  
-        const questionScreen = document.getElementById('question-screen');
-        if (questionScreen) {
-            questionScreen.classList.add('active');
-            console.log('✅ Question screen activated');
-            
-            // Show first question
-            this.showQuestion(0);
-        } else {
-            console.error('❌ Question screen not found');
-        }
-    }
-    
-    showQuestion(index) {
-        if (index >= EMERGENCY_QUESTIONS.length) {
-            console.log('🎉 Emergency analysis complete - showing results');
-            this.showResults();
-            return;
-        }
-        
-        const question = EMERGENCY_QUESTIONS[index];
-        console.log(`📝 Showing question ${index + 1}: ${question.text}`);
-        
-        // Update question display
-        const questionTitle = document.getElementById('question-title');
-        const questionNumber = document.getElementById('question-number');
-        const optionsContainer = document.getElementById('options-container');
-        
-        if (questionTitle) questionTitle.textContent = question.text;
-        if (questionNumber) questionNumber.textContent = index + 1;
-        
-        if (optionsContainer) {
-            optionsContainer.innerHTML = '';
-            
-            question.options.forEach((option, optionIndex) => {
-                const optionElement = document.createElement('div');
-                optionElement.className = 'option';
-                optionElement.innerHTML = `<span class="option-text">${option.text}</span>`;
-                
-                optionElement.addEventListener('click', () => {
-                    console.log(`✅ Option selected: ${option.text}`);
-                    // Mark as selected
-                    optionsContainer.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
-                    optionElement.classList.add('selected');
-                    
-                    // Store answer
-                    this.state.answers[index] = option;
-                    
-                    // Auto-advance after selection
-                    setTimeout(() => {
-                        this.showQuestion(index + 1);
-                    }, 1000);
-                });
-                
-                optionsContainer.appendChild(optionElement);
-            });
-            
-            console.log(`✅ Rendered ${question.options.length} options`);
-        }
-    }
-    
-    showResults() {
-        console.log('📊 Displaying results screen');
-        
-        // Hide question screen
-        const questionScreen = document.getElementById('question-screen');
-        if (questionScreen) {
-            questionScreen.classList.remove('active');
-        }
-        
-        // Calculate basic analysis
-        const totalScore = this.state.answers.reduce((sum, answer) => sum + (answer ? answer.value : 0), 0);
-        const averageScore = (totalScore / 30).toFixed(1);
-        
-        // Create results display
-        const main = document.querySelector('main');
-        if (main) {
-            main.innerHTML = `
-                <div class="results-container" style="padding: 2rem; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh;">
-                    <h1 style="font-size: 2.5rem; margin-bottom: 2rem;">🎉 Triple OS 分析結果</h1>
-                    
-                    <div class="os-results" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
-                        <div class="os-card" style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; backdrop-filter: blur(10px);">
-                            <h2 style="color: #ffd700; margin-bottom: 1rem;">🎯 Engine OS</h2>
-                            <div class="score" style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">${Math.floor(averageScore * 0.8 + Math.random() * 40)}</div>
-                            <p style="line-height: 1.6;">あなたの創造的な価値観とイノベーション指向性を表します。新しい挑戦への意欲と独立性があなたの特徴です。</p>
-                        </div>
-                        
-                        <div class="os-card" style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; backdrop-filter: blur(10px);">
-                            <h2 style="color: #00ff88; margin-bottom: 1rem;">💬 Interface OS</h2>
-                            <div class="score" style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">${Math.floor(averageScore * 0.9 + Math.random() * 35)}</div>
-                            <p style="line-height: 1.6;">社会的な調和とコミュニケーション能力を示します。チームワークと他者との協力を重視する傾向があります。</p>
-                        </div>
-                        
-                        <div class="os-card" style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; backdrop-filter: blur(10px);">
-                            <h2 style="color: #ff6b6b; margin-bottom: 1rem;">🛡️ Safe Mode OS</h2>
-                            <div class="score" style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">${Math.floor(averageScore * 1.1 + Math.random() * 30)}</div>
-                            <p style="line-height: 1.6;">困難な状況での慎重さと安全性を重視する特性です。リスク管理と長期的視点を持った判断をする傾向があります。</p>
-                        </div>
-                    </div>
-                    
-                    <div class="analysis-summary" style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; backdrop-filter: blur(10px); margin-bottom: 2rem;">
-                        <h2 style="margin-bottom: 1rem;">📈 総合分析</h2>
-                        <p style="font-size: 1.2rem; line-height: 1.6;">
-                            あなたの回答から、バランスの取れた人格特性が見えます。
-                            平均スコア: ${averageScore}/5.0<br>
-                            総回答数: ${this.state.answers.length}/30問
-                        </p>
-                    </div>
-                    
-                    <div class="action-buttons" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                        <button onclick="location.reload()" style="padding: 1rem 2rem; background: #4CAF50; color: white; border: none; border-radius: 25px; font-size: 1.1rem; cursor: pointer; transition: all 0.3s;">
-                            🔄 もう一度診断する
-                        </button>
-                        <button onclick="window.print()" style="padding: 1rem 2rem; background: #2196F3; color: white; border: none; border-radius: 25px; font-size: 1.1rem; cursor: pointer; transition: all 0.3s;">
-                            📄 結果を保存
-                        </button>
-                    </div>
-                    
-                    <div class="disclaimer" style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">
-                        ※ この分析結果は参考情報です。最終的な判断は常にご自身で行ってください。
-                    </div>
-                </div>
-            `;
-            
-            console.log('✅ Results screen displayed successfully');
-        }
-    }
-}
-
-// Initialize emergency system
-function initializeEmergencySystem() {
-    console.log('🚨 Initializing emergency system...');
-    
-    // Create emergency flow
-    window.emergencyFlow = new EmergencyQuestionFlow();
-    
-    // Bind to start button
-    const startBtn = document.getElementById('start-btn');
-    if (startBtn) {
-        console.log('🚨 Binding emergency handler to start button');
-        
-        // Remove existing handlers
-        const newBtn = startBtn.cloneNode(true);
-        startBtn.parentNode.replaceChild(newBtn, startBtn);
-        
-        // Add emergency handler
-        newBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('🚨 EMERGENCY START BUTTON CLICKED!');
-            window.emergencyFlow.startAnalysis();
-        });
-        
-        // Visual indicator
-        newBtn.style.border = '3px solid #ff4444';
-        newBtn.title = '🚨 Emergency Mode Active';
-        
-        console.log('✅ Emergency handler bound successfully');
-    } else {
-        console.error('❌ Start button not found');
-    }
-}
-
-// Auto-initialize when this script loads
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeEmergencySystem);
-} else {
-    initializeEmergencySystem();
-}
-
-console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
-    </script>
-    
     <!-- CRITICAL: H384H64 Database - 必須読み込み -->
-    <script src="/assets/H384H64database.js"></script>
+    <script src="assets/H384H64database.js"></script>
     
     <!-- 🌟 AUTHENTIC I-CHING ENERGY BALANCE ENGINE - 全体エネルギーバランス改善 -->
-    <script src="/js/core/AuthenticEnergyBalanceEngine.js"></script>
+    <script src="js/core/AuthenticEnergyBalanceEngine.js"></script>
     
     <style>
         /* =================== */
@@ -307,7 +68,6 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
             --trigram-kun: #8B4513;     /* 坤(地) */
             
             /* レスポンシブサイズ */
-        }
             --font-base: clamp(1rem, 3vw, 1.125rem);
             --font-lg: clamp(1.25rem, 4vw, 1.5rem);
             --font-xl: clamp(1.5rem, 5vw, 2rem);
@@ -2399,9 +2159,11 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
             1: {
                 乾_創造性: 9, 震_行動性: 7, 坎_探求性: 5, 艮_安定性: 6,
                 坤_受容性: 1, 巽_適応性: 3, 離_表現性: 8, 兌_調和性: 4
+            },
             2: {
                 乾_創造性: 2, 震_行動性: 3, 坎_探求性: 4, 艮_安定性: 8,
                 坤_受容性: 9, 巽_適応性: 7, 離_表現性: 2, 兌_調和性: 6
+            },
             // 他の62卦のベクトルも同様に実装...
         };
         
@@ -2437,18 +2199,21 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 color: '#6366f1',
                 trigrams: [1, 4, 6, 7], // 乾、震、坎、艮
                 keywords: ['創造性', 'リーダーシップ', '行動力', '探求心', '安定性']
+            },
             'Interface OS': {
                 name: 'Interface OS', 
                 description: 'コミュニケーションと表現の対人システム',
                 color: '#8b5cf6',
                 trigrams: [2, 3, 5, 8], // 兌、離、巽、坤
                 keywords: ['調和性', 'コミュニケーション', '表現力', '適応性', '受容性']
+            },
             'Safe Mode OS': {
                 name: 'Safe Mode OS',
                 description: '安定と調和を重視する保護システム',
                 color: '#10b981',
                 trigrams: [7, 8, 5, 6], // 艮、坤、巽、坎
                 keywords: ['安定性', '受容性', '適応性', '慎重さ', '分析力']
+            }
         };
         
         // 6. VirtualPersonaEnhancer: 仮想人格生成強化システム（64卦データベース連携版）
@@ -2466,6 +2231,7 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                     7: "☶", // 艮（山）
                     8: "☷"  // 坤（地）
                 };
+            }
             
             // 卦IDから適切なシンボルを生成
             getSymbolForHexagram(hexagramId) {
@@ -2475,11 +2241,13 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 
                 // 上卦のシンボルを返す（簡略化）
                 return this.trigramSymbols[hexagram.upper_trigram_id] || "☯";
+            }
             
             // キーワードから特性を抽出
             extractTraitsFromKeywords(keywords) {
                 if (!keywords) return [];
                 return keywords.split(',').map(k => k.trim());
+            }
             
             enhanceOSResult(osResult, osType) {
                 // osResultにhexagramIdが含まれているはず
@@ -2510,6 +2278,7 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 
                 if (!persona) {
                     return '<div class="virtual-persona-card">ペルソナデータが見つかりません</div>';
+                }
                 
                 // OSタイプに応じた色分け
                 const osColors = {
@@ -2536,6 +2305,8 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                         </div>
                     </div>
                 `;
+            }
+        }
         
         // 7. TripleOSエンジン（TypeScriptから移植）
         class TripleOSEngine {
@@ -2544,6 +2315,7 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 this.interfaceKeywords = new Map();
                 this.safeModeKeywords = new Map();
                 this.initializeKeywordMaps();
+            }
             
             initializeTrigramMapping() {
                 // 易経準拠の正統三爻マッピング
@@ -2557,6 +2329,7 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                     "艮": { id: 7, symbol: "☶", name: "山", nature: "静止", trait: "山岳安定・不動継続" },
                     "坤": { id: 8, symbol: "☷", name: "地", nature: "柔順", trait: "大地受容・育成包容" }
                 };
+            }
             
             initializeKeywordMaps() {
                 // Interface OS keywords
@@ -2568,6 +2341,7 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 this.safeModeKeywords.set("慎重", ["2", "52", "39", "15"]);
                 this.safeModeKeywords.set("分析的", ["29", "48", "47", "6"]);
                 this.safeModeKeywords.set("撤退", ["33", "12", "45", "35"]);
+            }
             
             // Triple OS分析のメイン処理
             async analyzeTripleOS(allAnswers) {
@@ -4871,6 +4645,7 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 this.isAnalyzing = false;
                 
                 this.loadState();
+            }
             
             saveState() {
                 try {
@@ -4883,10 +4658,8 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                     localStorage.setItem('haqei_state', JSON.stringify(state));
                 } catch (error) {
                     console.warn('⚠️ Failed to save state:', error);
-                } catch (error) {
-                    console.error(`❌ Error: ${error.message}`);
-                    return null;
-                
+                }
+            }
             
             loadState() {
                 try {
@@ -4925,6 +4698,8 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
             
             getAnswer(questionIndex) {
                 return this.answers[questionIndex] || null;
+            }
+        }
         
         // 8. アプリケーション制御
         class CriticalCSSAnalyzer {
@@ -4939,12 +4714,14 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 // 復元された状態があれば画面を表示
                 if (this.state.currentQuestion > 0) {
                     this.showQuestion(this.state.currentQuestion);
-            
+                }
+            }
             
             initializeTrigramScores() {
                 for (let i = 1; i <= 8; i++) {
                     this.trigramScores[i] = 0;
                 }
+            }
             
             bindEvents() {
                 console.log('🔧 Binding events...');
@@ -5214,6 +4991,12 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 // データ保存
                 this.saveResults(tripleOSResults);
                 
+                // 🚨 絶対要件: 簡易アドバイス機能追加
+                this.displayQuickAdvice(tripleOSResults);
+                
+                // 🚨 絶対要件: 理論的特性分析表示
+                this.showTheoreticalCharacteristics(tripleOSResults);
+                
                 // アナウンス
                 this.announce('革新的Triple OS分析が完了しました - 4層の複雑性をお楽しみください');
                 
@@ -5362,15 +5145,19 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                                     font: { size: 14 }
                                 }
                             }
+                        },
                         scales: {
                             r: {
                                 angleLines: {
                                     color: 'rgba(99, 102, 241, 0.3)'
+                                },
                                 grid: {
                                     color: 'rgba(99, 102, 241, 0.2)'
+                                },
                                 pointLabels: {
                                     color: '#cbd5e1',
                                     font: { size: 12 }
+                                },
                                 ticks: {
                                     color: '#94a3b8',
                                     backdropColor: 'transparent'
@@ -5766,11 +5553,14 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                                 max: 100,
                                 angleLines: {
                                     color: 'rgba(139, 92, 246, 0.3)'
+                                },
                                 grid: {
                                     color: 'rgba(139, 92, 246, 0.2)'
+                                },
                                 pointLabels: {
                                     color: '#cbd5e1',
                                     font: { size: 11 }
+                                },
                                 ticks: {
                                     color: '#94a3b8',
                                     backdropColor: 'transparent',
@@ -5855,12 +5645,13 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 // 既存のチャートを破棄
                 if (this.personaChart) {
                     this.personaChart.destroy();
+                }
                 
                 const totalEnergy = (
                     this.calculateOSEnergy(tripleOSResults.engineOS) +
                     this.calculateOSEnergy(tripleOSResults.interfaceOS) +
                     this.calculateOSEnergy(tripleOSResults.safeModeOS)
-                
+                );
                 const enginePercent = ((this.calculateOSEnergy(tripleOSResults.engineOS) / totalEnergy) * 100).toFixed(1);
                 const interfacePercent = ((this.calculateOSEnergy(tripleOSResults.interfaceOS) / totalEnergy) * 100).toFixed(1);
                 const safeModePercent = ((this.calculateOSEnergy(tripleOSResults.safeModeOS) / totalEnergy) * 100).toFixed(1);
@@ -5892,6 +5683,7 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                                     font: { size: 12 },
                                     padding: 20
                                 }
+                            },
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
@@ -5936,6 +5728,7 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 else if (energyValue > 25) intensity = '中程度の';
                 
                 return `${intensity}${wisdoms[trigramIndex] || 'バランス調和力'}`;
+            }
             
             extractTrigramVector(trigramEnergies) {
                 const orderedTrigrams = ['乾', '震', '坎', '艮', '坤', '巽', '離', '兌'];
@@ -5944,7 +5737,7 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                     return orderedTrigrams.map(() => 0);
                 }
                 return orderedTrigrams.map(trigram => trigramEnergies[trigram] || 0);
-            
+            }
             // 🔥 三爻エネルギーバランス分析
             renderTrigramEnergyAnalysis(tripleOSResults) {
                 const container = document.getElementById('trigram-balance-analysis');
@@ -6672,15 +6465,13 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 } catch (error) {
                     console.warn('⚠️ Failed to save results:', error);
                 }
-                } catch (error) {
-                    console.error(`❌ Error: ${error.message}`);
-                    return null;
-                
+            }
             
             showError(message) {
                 this.showScreen('error-screen');
                 document.getElementById('error-message').textContent = message;
                 this.announce('エラーが発生しました');
+            }
             
             restart() {
                 // 状態をクリア
@@ -6694,6 +6485,7 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 this.initializeTrigramScores();
                 this.showScreen('welcome-screen');
                 this.announce('分析がリセットされました');
+            }
             
             announce(message) {
                 const announcements = document.getElementById('announcements');
@@ -6703,18 +6495,14 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                 setTimeout(() => {
                     announcements.textContent = '';
                 }, 3000);
+            }
             
             delay(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
+        } // End CriticalCSSAnalyzer class
         
         // 5. アプリケーション初期化
-        } // End CriticalCSSAnalyzer class
-        } // End of CriticalCSSAnalyzer class - FIXED
-
-        } // End CriticalCSSAnalyzer class
-
-    } // End CriticalCSSAnalyzer class
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 console.log('🎯 HAQEI Emergency Analyzer initializing...');
@@ -6743,10 +6531,8 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
                         </button>
                     </div>
                 `;
-            } catch (error) {
-                console.error(`❌ Error: ${error.message}`);
-                return null;
-        
+            }
+        });
         // 6. パフォーマンス最適化
         // サービスワーカー登録（可能な場合）
         if ('serviceWorker' in navigator) {
@@ -6786,6 +6572,143 @@ console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
         console.log('📝 HAQEI Critical CSS Analyzer script loaded');
         console.log('🎆 HaQei哲学 Triple OS Engine integrated');
         console.log('✨ Critical CSS optimizations applied');
+        
+        // 🚨 絶対要件: 簡易アドバイス機能実装
+        displayQuickAdvice(tripleOSResults) {
+            if (!tripleOSResults) return;
+            
+            console.log('💡 Displaying quick advice');
+            
+            // 簡易アドバイスコンテナを作成
+            let quickAdviceContainer = document.getElementById('quick-advice-container');
+            if (!quickAdviceContainer) {
+                quickAdviceContainer = document.createElement('div');
+                quickAdviceContainer.id = 'quick-advice-container';
+                quickAdviceContainer.className = 'quick-advice-section';
+                
+                // 結果画面の最後に追加
+                const resultsScreen = document.getElementById('results-screen');
+                if (resultsScreen) {
+                    resultsScreen.appendChild(quickAdviceContainer);
+                }
+            }
+            
+            const engineOS = tripleOSResults.engineOS?.primary || '乾';
+            const interfaceOS = tripleOSResults.interfaceOS?.primary || '坤';
+            const safeModeOS = tripleOSResults.safeModeOS?.primary || '艮';
+            
+            const quickAdviceMessages = {
+                engine: {
+                    '乾': '創造力を活かして新しいプロジェクトに挑戦することで、あなたの可能性が開花します',
+                    '震': '行動力があなたの強み。迷ったら、まず一歩を踏み出してみましょう',
+                    '坎': '深く考え抜く力があなたの武器。情報収集と分析を大切にしてください',
+                    '艮': '安定した基盤を築くことで、長期的な成功を手にできます',
+                    '坤': '協調性を活かして、人との関係を大切にすることが成功の鍵です',
+                    '巽': '柔軟性があなたの特徴。変化に対応しながら成長していきましょう',
+                    '離': '表現力を磨くことで、あなたの魅力がより輝きます',
+                    '兌': 'コミュニケーション能力を活かして、人との繋がりを深めていきましょう'
+                }
+            };
+            
+            const advice = quickAdviceMessages.engine[engineOS] || '自分らしさを大切に、一歩一歩前進していきましょう';
+            
+            quickAdviceContainer.innerHTML = `
+                <div class="advice-section">
+                    <h3>💡 あなたへの簡易アドバイス</h3>
+                    <div class="advice-content">
+                        <p class="main-advice">${advice}</p>
+                        <div class="os-summary">
+                            <span class="os-tag engine">Engine OS: ${engineOS}</span>
+                            <span class="os-tag interface">Interface OS: ${interfaceOS}</span>
+                            <span class="os-tag safe">Safe Mode: ${safeModeOS}</span>
+                        </div>
+                    </div>
+                    <div class="premium-banner">
+                        <p>🌟 <strong>Strategic Cockpit</strong>で詳細戦略を入手</p>
+                        <button class="premium-button">¥2,980/月で戦略的活用法を学ぶ →</button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 🚨 絶対要件: 理論的特性分析実装
+        showTheoreticalCharacteristics(tripleOSResults) {
+            if (!tripleOSResults) return;
+            
+            console.log('📊 Displaying theoretical characteristics');
+            
+            // 理論的特性コンテナを作成
+            let characteristicsContainer = document.getElementById('theoretical-characteristics-container');
+            if (!characteristicsContainer) {
+                characteristicsContainer = document.createElement('div');
+                characteristicsContainer.id = 'theoretical-characteristics-container';
+                characteristicsContainer.className = 'theoretical-characteristics-section';
+                
+                // 結果画面の最後に追加
+                const resultsScreen = document.getElementById('results-screen');
+                if (resultsScreen) {
+                    resultsScreen.appendChild(characteristicsContainer);
+                }
+            }
+            
+            const engineOS = tripleOSResults.engineOS?.primary || '乾';
+            const interfaceOS = tripleOSResults.interfaceOS?.primary || '坤';
+            const safeModeOS = tripleOSResults.safeModeOS?.primary || '艮';
+            
+            const theoreticalData = {
+                '乾': { type: '創造型', tendency: '革新志向', approach: '先駆的アプローチ' },
+                '震': { type: '行動型', tendency: '実践志向', approach: '積極的アプローチ' },
+                '坎': { type: '探究型', tendency: '分析志向', approach: '慎重アプローチ' },
+                '艮': { type: '安定型', tendency: '継続志向', approach: '堅実アプローチ' },
+                '坤': { type: '協調型', tendency: '協働志向', approach: '協力アプローチ' },
+                '巽': { type: '適応型', tendency: '柔軟志向', approach: '調整アプローチ' },
+                '離': { type: '表現型', tendency: '発信志向', approach: '創造アプローチ' },
+                '兌': { type: '調和型', tendency: 'バランス志向', approach: 'コミュニケーションアプローチ' }
+            };
+            
+            const engineData = theoreticalData[engineOS] || theoreticalData['乾'];
+            const interfaceData = theoreticalData[interfaceOS] || theoreticalData['坤'];
+            const safeData = theoreticalData[safeModeOS] || theoreticalData['艮'];
+            
+            characteristicsContainer.innerHTML = `
+                <div class="characteristics-section">
+                    <h3>📊 理論的特性分析</h3>
+                    <div class="characteristics-grid">
+                        <div class="characteristic-card engine">
+                            <h4>🎯 Engine OS特性</h4>
+                            <div class="characteristic-details">
+                                <p><strong>タイプ:</strong> ${engineData.type}</p>
+                                <p><strong>傾向:</strong> ${engineData.tendency}</p>
+                                <p><strong>アプローチ:</strong> ${engineData.approach}</p>
+                            </div>
+                        </div>
+                        <div class="characteristic-card interface">
+                            <h4>💬 Interface OS特性</h4>
+                            <div class="characteristic-details">
+                                <p><strong>タイプ:</strong> ${interfaceData.type}</p>
+                                <p><strong>傾向:</strong> ${interfaceData.tendency}</p>
+                                <p><strong>アプローチ:</strong> ${interfaceData.approach}</p>
+                            </div>
+                        </div>
+                        <div class="characteristic-card safe">
+                            <h4>🛡️ Safe Mode特性</h4>
+                            <div class="characteristic-details">
+                                <p><strong>タイプ:</strong> ${safeData.type}</p>
+                                <p><strong>傾向:</strong> ${safeData.tendency}</p>
+                                <p><strong>アプローチ:</strong> ${safeData.approach}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="theoretical-note">
+                        <p><small>※これらの特性分析は易経理論に基づく理論的分析です。統計データではありません。</small></p>
+                    </div>
+                    <div class="premium-banner">
+                        <p>🌟 <strong>Strategic Cockpit</strong>で詳細な理論的背景を学習</p>
+                        <button class="premium-button">¥2,980/月で深層分析にアクセス →</button>
+                    </div>
+                </div>
+            `;
+        }
         
 
     

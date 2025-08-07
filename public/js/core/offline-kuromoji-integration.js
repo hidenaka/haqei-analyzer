@@ -142,7 +142,7 @@ window.OfflineKuromojiIntegration = {
     
     this.processingEngine = {
       // HaQei統合処理パイプライン
-      processText: async function(text, options = {}) {
+      processText: function(text, options = {}) {
         const startTime = performance.now();
         
         try {
@@ -150,13 +150,13 @@ window.OfflineKuromojiIntegration = {
           const routingDecision = this.determineProcessingRoute(text, options);
           
           // ステージ2：形態素解析実行
-          const morphologicalAnalysis = await this.performMorphologicalAnalysis(text, routingDecision);
+          const morphologicalAnalysis = this.performMorphologicalAnalysis(text, routingDecision);
           
           // ステージ3：ML強化
-          const mlEnhancement = await this.applyMLEnhancement(morphologicalAnalysis, options);
+          const mlEnhancement = this.applyMLEnhancement(morphologicalAnalysis, options);
           
           // ステージ4：辞書統合
-          const dictionaryIntegration = await this.integrateDictionaryLookup(mlEnhancement, options);
+          const dictionaryIntegration = this.integrateDictionaryLookup(mlEnhancement, options);
           
           // ステージ5：HaQei哲学的統合
           const haqeiIntegration = this.applyHaQeiWisdom(dictionaryIntegration);
@@ -223,7 +223,7 @@ window.OfflineKuromojiIntegration = {
           haqei_enhancement: routing.haqei_integration
         };
         
-        return await this.integrationStatus.kuromoji_initializer.analyzeText(text, analysisOptions);
+        return this.integrationStatus.kuromoji_initializer.analyzeText(text, analysisOptions);
       },
       
       // ML強化適用

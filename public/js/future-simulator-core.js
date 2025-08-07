@@ -21,11 +21,11 @@ FutureSimulator.Core = {
     
     try {
       // Initialize components in proper order with error handling
-      await this.initKuromoji();
-      await this.init386System();
-      await this.initializeEngines();
-      await this.initUI();
-      await this.setupEventListeners();
+      this.initKuromoji();
+      this.init386System();
+      this.initializeEngines();
+      this.initUI();
+      this.setupEventListeners();
       
       this.initialized = true;
       console.log('✅ Future Simulator initialized successfully');
@@ -72,7 +72,7 @@ FutureSimulator.Core = {
     try {
       if (typeof window.Authentic386Integration !== 'undefined') {
         this.authentic386Integration = new window.Authentic386Integration();
-        await this.authentic386Integration.initialize();
+        this.authentic386Integration.initialize();
         console.log('✅ Authentic 386 System integrated successfully');
         this.useAuthentic386 = true;
       } else {
@@ -239,7 +239,7 @@ FutureSimulator.Core = {
       // 🎋 正統386爻システム優先分析
       if (this.useAuthentic386 && this.authentic386Integration) {
         console.log('🎋 Using Authentic 386-Line Analysis System');
-        analysisResult = await this.authentic386Integration.analyzeWithAuthentic386(situation, {
+        analysisResult = this.authentic386Integration.analyzeWithAuthentic386(situation, {
           branchCount: 8,
           enableSpecialLines: true,
           integrationMode: 'enhanced'
@@ -250,7 +250,7 @@ FutureSimulator.Core = {
         
       } else if (window.Extended512HexagramEngine && window.Extended512HexagramEngine.initialized) {
         console.log('🌟 Using Extended 512-Pattern Analysis System');
-        analysisResult = await window.Extended512HexagramEngine.analyze512Pattern(situation, {
+        analysisResult = window.Extended512HexagramEngine.analyze512Pattern(situation, {
           detailed: true,
           include_yong_yao: true,
           branch_count: 8
@@ -267,7 +267,7 @@ FutureSimulator.Core = {
         const context = { inputText: situation };
         
         const binaryTreeEngine = new window.BinaryTreeFutureEngine();
-        const binaryResult = await binaryTreeEngine.generateBinaryTreeFutures(currentLine, context);
+        const binaryResult = binaryTreeEngine.generateBinaryTreeFutures(currentLine, context);
         
         // Display binary tree results
         this.displayBinaryTreeResults(binaryResult);
@@ -275,7 +275,7 @@ FutureSimulator.Core = {
       } else {
         console.log('⚡ Using Standard Analysis System');
         // Fallback to standard system
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // await new Promise(resolve => setTimeout(resolve, 2000));
         const scenarios = this.generateScenarios(situation);
         this.displayResults(scenarios);
       }

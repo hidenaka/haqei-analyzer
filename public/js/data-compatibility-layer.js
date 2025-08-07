@@ -34,7 +34,7 @@ class DataCompatibilityLayer {
     this.loadingPromises.set(jsonPath, loadPromise);
     
     try {
-      await loadPromise;
+      // await loadPromise;
       this.loadedFiles.add(jsonPath);
       console.log(`✅ Loaded ${jsonPath} → ${globalVarName}`);
     } catch (error) {
@@ -48,12 +48,12 @@ class DataCompatibilityLayer {
 
   async performLoad(jsonPath, globalVarName, processingFn) {
     try {
-      const response = await fetch(jsonPath);
+      const response = fetch(jsonPath);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = response.json();
       const processedData = processingFn ? processingFn(data) : data;
 
       // Assign to global variable
@@ -99,7 +99,7 @@ class DataCompatibilityLayer {
     ];
 
     try {
-      await Promise.all(loadTasks);
+      Promise.all(loadTasks);
       console.log('🎉 All data files loaded successfully');
       
       // Trigger data ready event

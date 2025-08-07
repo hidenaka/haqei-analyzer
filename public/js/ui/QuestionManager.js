@@ -45,7 +45,7 @@ class QuestionManager {
       console.log('📋 QuestionManager initializing...');
       
       // 質問データを読み込み
-      await this.loadQuestions();
+      this.loadQuestions();
       
       // DisplayController を初期化
       if (!this.displayController && typeof DisplayController !== 'undefined') {
@@ -139,7 +139,7 @@ class QuestionManager {
       this.clearContainer();
       
       // HaqeiQuestionElement を作成
-      const questionElement = await this.createQuestionElement(question);
+      const questionElement = this.createQuestionElement(question);
       
       // コンテナに追加
       if (this.container) {
@@ -148,7 +148,7 @@ class QuestionManager {
       
       // 表示状態を確保
       if (this.displayController) {
-        const success = await this.displayController.ensureElementVisible(questionElement, {
+        const success = this.displayController.ensureElementVisible(questionElement, {
           forceDisplay: true,
           useImportant: true,
           clearConflicts: true,
@@ -296,7 +296,7 @@ class QuestionManager {
   async nextQuestion() {
     if (this.currentIndex < this.questions.length - 1) {
       this.currentIndex++;
-      await this.showCurrentQuestion();
+      this.showCurrentQuestion();
     } else {
       this.completeQuestionnaire();
     }
@@ -308,7 +308,7 @@ class QuestionManager {
   async previousQuestion() {
     if (this.currentIndex > 0) {
       this.currentIndex--;
-      await this.showCurrentQuestion();
+      this.showCurrentQuestion();
     }
   }
 
@@ -318,7 +318,7 @@ class QuestionManager {
   async jumpToQuestion(index) {
     if (index >= 0 && index < this.questions.length) {
       this.currentIndex = index;
-      await this.showCurrentQuestion();
+      this.showCurrentQuestion();
     }
   }
 

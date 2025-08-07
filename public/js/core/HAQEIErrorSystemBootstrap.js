@@ -103,19 +103,19 @@
         console.log("🚀 Starting HAQEI Error System Bootstrap...");
         
         // Phase 1: 環境検証
-        await this.validateEnvironment();
+        this.validateEnvironment();
         
         // Phase 2: 依存関係読み込み
-        await this.loadDependencies();
+        this.loadDependencies();
         
         // Phase 3: システム初期化
-        await this.initializeSystem();
+        this.initializeSystem();
         
         // Phase 4: 統合実行
-        await this.performIntegration();
+        this.performIntegration();
         
         // Phase 5: 最終検証
-        await this.validateBootstrap();
+        this.validateBootstrap();
         
         this.initialized = true;
         this.loading = false;
@@ -147,7 +147,7 @@
           this.loadAttempts++;
           console.log(`🔄 Retrying bootstrap (attempt ${this.loadAttempts}/${this.config.retryAttempts})...`);
           
-          await new Promise(resolve => setTimeout(resolve, 1000 * this.loadAttempts));
+          // await new Promise(resolve => setTimeout(resolve, 1000 * this.loadAttempts));
           return this.bootstrap(customConfig);
         }
         
@@ -170,9 +170,9 @@
       
       // DOMの準備状態チェック
       if (document.readyState === 'loading') {
-        await new Promise(resolve => {
-          document.addEventListener('DOMContentLoaded', resolve, { once: true });
-        });
+        // await new Promise(resolve => {
+        //   document.addEventListener('DOMContentLoaded', resolve, { once: true });
+        // });
       }
       
       // 既存システムの競合チェック

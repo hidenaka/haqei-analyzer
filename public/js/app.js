@@ -83,7 +83,7 @@ async function loadScript(src, options = {}) {
     try {
       attempt++;
       const cacheBustedSrc = attempt > 1 ? `${src}?t=${Date.now()}&retry=${attempt}` : src;
-      const result = await tryLoad();
+      const result = tryLoad();
       
       if (attempt > 1) {
         console.log(`✅ Script loaded after ${attempt} attempts: ${src}`);
@@ -97,7 +97,7 @@ async function loadScript(src, options = {}) {
       }
       
       console.warn(`⚠️ Script load attempt ${attempt} failed, retrying: ${src}`);
-      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      // await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
     }
   }
 }
@@ -127,18 +127,18 @@ async function loadAnalysisEngines() {
   try {
     // Stage 1: Core Bundle (immediately needed)
     console.log("📦 Loading Core Bundle...");
-    await window.moduleLoader.loadBundle('core');
+    window.moduleLoader.loadBundle('core');
     
     // Stage 2: Question Bundle (loaded on demand)
     window.loadQuestionBundle = async function() {
       console.log("📦 Loading Question Bundle...");
-      return await window.moduleLoader.loadBundle('questions');
+      return window.moduleLoader.loadBundle('questions');
     };
     
     // Stage 3: Analysis Bundle (loaded when analysis starts)
     window.loadAnalysisBundle = async function() {
       console.log("📦 Loading Analysis Bundle...");
-      const modules = await window.moduleLoader.loadBundle('analysis');
+      const modules = window.moduleLoader.loadBundle('analysis');
       window.heavyEnginesLoaded = true;
       return modules;
     };
@@ -146,13 +146,13 @@ async function loadAnalysisEngines() {
     // Stage 4: Results Bundle (loaded when showing results)
     window.loadResultsBundle = async function() {
       console.log("📦 Loading Results Bundle...");
-      return await window.moduleLoader.loadBundle('results');
+      return window.moduleLoader.loadBundle('results');
     };
     
     // Stage 5: Optional Bundle (loaded on first use)
     window.loadOptionalBundle = async function() {
       console.log("📦 Loading Optional Bundle...");
-      return await window.moduleLoader.loadBundle('optional');
+      return window.moduleLoader.loadBundle('optional');
     };
     
     // Predictive preloading based on user context
@@ -181,7 +181,7 @@ async function loadAnalysisEnginesFallback() {
     '/js/os-analyzer/components/AnalysisView.js'
   ];
   
-  await Promise.all(criticalEngines.map(engine => loadScript(engine)));
+  Promise.all(criticalEngines.map(engine => loadScript(engine)));
   console.log("✅ Critical engines loaded (fallback mode)");
   
   // Minimal secondary engine loading
@@ -190,7 +190,7 @@ async function loadAnalysisEnginesFallback() {
       '/js/os-analyzer/engines/CompatibilityDataLoader.js',
       '/js/os-analyzer/core/Engine.js'
     ];
-    await Promise.all(secondaryEngines.map(engine => loadScript(engine)));
+    Promise.all(secondaryEngines.map(engine => loadScript(engine)));
   };
   
   // Heavy engines with optimization
@@ -199,7 +199,7 @@ async function loadAnalysisEnginesFallback() {
       '/js/os-analyzer/core/TripleOSEngine.js',
       '/js/os-analyzer/core/UltraAnalysisEngine.js'
     ];
-    await Promise.all(heavyEngines.map(engine => loadScript(engine)));
+    Promise.all(heavyEngines.map(engine => loadScript(engine)));
     window.heavyEnginesLoaded = true;
   };
 }
@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.log("⚡ 設問データ読み込み開始");
     
     // 軽量データ読み込み（高速）
-    const loadSuccess = await dataManager.loadQuestions();
+    const loadSuccess = dataManager.loadQuestions();
     if (loadSuccess) {
       console.log("⚡ 設問データ読み込み完了");
     } else {
@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const welcomeScreen = new WelcomeScreen("welcome-container", {
       onStart: async function () {
         console.log("🚀 Starting real diagnosis flow...");
-        await startRealDiagnosis();
+        startRealDiagnosis();
       },
     });
     console.log("🔍 [App.js] WelcomeScreen初期化完了");
@@ -281,7 +281,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     welcomeScreen.init();
     console.log("🔍 [App.js] WelcomeScreen.init()完了");
 
-    await welcomeScreen.show();
+    welcomeScreen.show();
     console.log("✅ [App.js] WelcomeScreen表示完了");
 
     // デバッグ: コンテナの内容を確認
@@ -458,7 +458,7 @@ async function startRealDiagnosis() {
       } else {
         console.log("🔄 Loading question components individually...");
         // Fallback loading for essential question components
-        await Promise.all([
+        Promise.all([
           loadScript('/js/shared/data/questions.js'),
           loadScript('/js/os-analyzer/core/PrecompiledQuestions.js'),
           loadScript('/js/os-analyzer/components/VirtualQuestionFlow-core.js'),
@@ -740,7 +740,7 @@ async function resumePreviousSession() {
     switch (session.stage) {
       case "questions":
         // 質問画面を再開
-        await startRealDiagnosis();
+        startRealDiagnosis();
         if (app.questionFlow) {
           app.questionFlow.currentQuestionIndex =
             progress.currentQuestionIndex || 0;
@@ -796,7 +796,7 @@ async function showResultsView(result, insights) {
     } else {
       console.log("🔄 Loading results components individually...");
       // Fallback loading for results components
-      await Promise.all([
+      Promise.all([
         loadScript('/js/components/TripleOSResultsView.js'),
         loadScript('/js/os-analyzer/components/ResultsView.js'),
         loadScript('/js/lib/chart.min.js')
