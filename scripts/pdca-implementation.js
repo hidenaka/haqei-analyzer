@@ -375,7 +375,7 @@ class TerminologyHelper {
         definition: '防御システム',
         detail: '内なる自分の防御機制やストレス対処を表す'
       },
-      'bunenjin': {
+      'HaQei': {
         definition: '分人思想ベースの哲学',
         detail: 'HAQEIが採用する複数人格の客観的観察アプローチ'
       }

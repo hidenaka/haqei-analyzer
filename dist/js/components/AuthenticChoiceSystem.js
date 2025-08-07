@@ -4,7 +4,7 @@
  * 今の状況のテーマに基づく正確な選択システム
  * - 今の状況のテーマで進む vs 違うテーマを選択する
  * - 本卦→之卦の変化予測
- * - bunenjin分人間対応選択
+ * - HaQei分人間対応選択
  * - リスク・ポテンシャル分析
  * 
  * Author: HAQEI I Ching Expert Agent
@@ -63,8 +63,8 @@ class AuthenticChoiceSystem {
           <!-- 動的に生成 -->
         </div>
 
-        <!-- bunenjin分人間分析 -->
-        <div class="bunenjin-choice-analysis" id="bunenjinChoiceAnalysis" style="display: none;">
+        <!-- HaQei分人間分析 -->
+        <div class="HaQei-choice-analysis" id="HaQeiChoiceAnalysis" style="display: none;">
           <!-- 動的に生成 -->
         </div>
 
@@ -260,8 +260,8 @@ class AuthenticChoiceSystem {
     // 変化予測の表示
     this.displayTransformationPreview(selectedChoice);
     
-    // bunenjin分析の表示
-    this.displayBunenjinChoiceAnalysis(selectedChoice);
+    // HaQei分析の表示
+    this.displayHaQeiChoiceAnalysis(selectedChoice);
     
     // 確認ボタンの表示
     this.showConfirmationButton();
@@ -363,13 +363,13 @@ class AuthenticChoiceSystem {
   }
 
   /**
-   * bunenjin選択分析の表示（哲学的矛盾受容版）
+   * HaQei選択分析の表示（哲学的矛盾受容版）
    */
-  displayBunenjinChoiceAnalysis(selectedChoice) {
-    const analysisElement = document.getElementById('bunenjinChoiceAnalysis');
-    const bunenjinGuidance = selectedChoice.bunenjinGuidance;
+  displayHaQeiChoiceAnalysis(selectedChoice) {
+    const analysisElement = document.getElementById('HaQeiChoiceAnalysis');
+    const HaQeiGuidance = selectedChoice.HaQeiGuidance;
     
-    if (!bunenjinGuidance) {
+    if (!HaQeiGuidance) {
       analysisElement.style.display = 'none';
       return;
     }
@@ -380,19 +380,19 @@ class AuthenticChoiceSystem {
     }
 
     // 分人間の矛盾を豊かさとして変換
-    const personaContradictions = this.identifyPersonaContradictions(bunenjinGuidance);
+    const personaContradictions = this.identifyPersonaContradictions(HaQeiGuidance);
     const richnessTransformation = personaContradictions.length > 0 ? 
       this.contradictionSystem.transformContradictionToRichness(personaContradictions) : null;
     
     analysisElement.innerHTML = `
-      <div class="bunenjin-choice-content">
-        <h3>🌸 bunenjin分人の豊かな多面性分析</h3>
-        <div class="bunenjin-subtitle">
+      <div class="HaQei-choice-content">
+        <h3>🌸 HaQei分人の豊かな多面性分析</h3>
+        <div class="HaQei-subtitle">
           この選択における、あなたの各分人の知恵と貢献
         </div>
         
         <div class="persona-choice-reactions">
-          ${Object.entries(bunenjinGuidance).filter(([key]) => key !== 'integration').map(([personaKey, guidance]) => `
+          ${Object.entries(HaQeiGuidance).filter(([key]) => key !== 'integration').map(([personaKey, guidance]) => `
             <div class="persona-reaction">
               <div class="persona-header">
                 <h4>${this.getPersonaTitle(personaKey)}</h4>
@@ -421,12 +421,12 @@ class AuthenticChoiceSystem {
         <div class="integration-guidance">
           <h4>💫 分人統合の豊かさ</h4>
           <div class="integration-content">
-            <p>${bunenjinGuidance.integration?.guidance || 'あなたの多様な分人が協力し合うことで生まれる豊かな可能性を分析中...'}</p>
+            <p>${HaQeiGuidance.integration?.guidance || 'あなたの多様な分人が協力し合うことで生まれる豊かな可能性を分析中...'}</p>
           </div>
         </div>
         
         <div class="philosophical-insight">
-          <h4>🧘 bunenjin哲学の洞察</h4>
+          <h4>🧘 HaQei哲学の洞察</h4>
           <div class="insight-content">
             <p>異なる視点を持つ分人たちの共存は、人生の複雑さに対応するための内的リソースです。矛盾ではなく、豊かな多面性として受け入れましょう。</p>
           </div>
@@ -555,17 +555,17 @@ class AuthenticChoiceSystem {
   /**
    * 分人間矛盾の識別（哲学的受容版）
    */
-  identifyPersonaContradictions(bunenjinGuidance) {
+  identifyPersonaContradictions(HaQeiGuidance) {
     const contradictions = [];
-    const personas = Object.keys(bunenjinGuidance).filter(key => key !== 'integration');
+    const personas = Object.keys(HaQeiGuidance).filter(key => key !== 'integration');
     
     // 異なる分人間の視点の違いを「豊かさ」として識別
     for (let i = 0; i < personas.length; i++) {
       for (let j = i + 1; j < personas.length; j++) {
         const persona1 = personas[i];
         const persona2 = personas[j];
-        const guidance1 = bunenjinGuidance[persona1];
-        const guidance2 = bunenjinGuidance[persona2];
+        const guidance1 = HaQeiGuidance[persona1];
+        const guidance2 = HaQeiGuidance[persona2];
         
         if (this.detectRichnessInDifference(guidance1, guidance2)) {
           contradictions.push({

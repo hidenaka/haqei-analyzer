@@ -217,7 +217,7 @@ function validateH384DataIntegrity() {
 
 ### 必須保持事項
 - [ ] 既存の386爻データ構造維持
-- [ ] bunenjin哲学との整合性
+- [ ] HaQei哲学との整合性
 - [ ] Triple OSアーキテクチャとの互換性
 - [ ] Claude統合コンポーネントとの整合性
 

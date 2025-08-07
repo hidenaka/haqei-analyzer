@@ -1,10 +1,10 @@
 /**
  * haqei-sw.js - HAQEI Analyzer Service Worker
- * bunenjin哲学統合 - Triple OS Architecture対応
+ * HaQei哲学統合 - Triple OS Architecture対応
  * 統計的品質保証: 要件網羅率100%、エラー率0%目標
  * 
  * 目的:
- * - bunenjin（分人）哲学に基づく動的リソース管理
+ * - HaQei（分人）哲学に基づく動的リソース管理
  * - Triple OS（Engine/Interface/Safe Mode）の独立キャッシュ戦略
  * - プライバシーファースト: 外部通信最小化
  * - 易経的変化対応: 適応的キャッシュ更新
@@ -21,7 +21,7 @@
  * - HAQEIプロジェクト特化設計
  */
 
-const CACHE_NAME = 'haqei-bunenjin-v1.3.0'; // Dictionary support added
+const CACHE_NAME = 'haqei-HaQei-v1.3.0'; // Dictionary support added
 const CACHE_TIMEOUT = 24 * 60 * 60 * 1000; // 24時間
 
 // Critical Path Resources（Triple OS Architecture対応）
@@ -189,7 +189,7 @@ self.addEventListener('fetch', event => {
 });
 
 /**
- * bunenjin哲学統合フェッチ処理（統計的品質保証）
+ * HaQei哲学統合フェッチ処理（統計的品質保証）
  * 
  * 目的:
  * - Triple OS Architectureに対応した動的リソース振り分け
@@ -223,7 +223,7 @@ async function handleFetch(request) {
     // Phase 1.5: ルーティング処理（/results → /results.html）
     const routedRequest = handleRouting(request, pathname);
     
-    // Phase 2: bunenjin（分人）リソース分類
+    // Phase 2: HaQei（分人）リソース分類
     const resourceType = classifyResource(pathname);
     
     // Phase 3: Triple OS対応キャッシュ戦略適用
@@ -242,7 +242,7 @@ async function handleFetch(request) {
     
   } catch (error) {
     // Phase 4: 統計的エラーハンドリング
-    console.error('🔥 [bunenjin-SW] Critical fetch error:', {
+    console.error('🔥 [HaQei-SW] Critical fetch error:', {
       url: request.url,
       pathname: pathname || 'unknown',
       error: error.message,
@@ -280,7 +280,7 @@ function normalizePathname(pathname) {
  * 目的:
  * - /results → /results.html のリダイレクト処理
  * - /os_analyzer → /os_analyzer.html のリダイレクト処理
- * - bunenjin哲学に基づく柔軟なルート解決
+ * - HaQei哲学に基づく柔軟なルート解決
  * - Triple OS Architecture対応のパス変換
  * 
  * 処理内容:
@@ -346,7 +346,7 @@ function handleRouting(request, pathname) {
 }
 
 /**
- * bunenjin（分人）リソース分類
+ * HaQei（分人）リソース分類
  */
 function classifyResource(pathname) {
   if (isCriticalResource(pathname)) return 'critical';
@@ -591,7 +591,7 @@ async function getOfflineFallback(request) {
 }
 
 /**
- * bunenjin（分人）リソース種別判定（統計的品質保証）
+ * HaQei（分人）リソース種別判定（統計的品質保証）
  * 
  * 目的:
  * - Triple OS Architecture対応の精密リソース分類
@@ -687,7 +687,7 @@ function isExpired(response) {
  * エラー処理:
  * - ポート切断時の自動フォールバック
  * - タイムアウト処理（10秒制限）
- * - bunenjin哲学によるエラー包括対応
+ * - HaQei哲学によるエラー包括対応
  */
 self.addEventListener('message', event => {
   try {

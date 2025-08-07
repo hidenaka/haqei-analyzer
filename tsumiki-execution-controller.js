@@ -85,7 +85,7 @@ class TsumikiExecutionController {
             targetUsers: 100,
             qualityStandards: 'A級判定（満足度4.0以上、信頼区間下限3.5以上）',
             architecture: 'Triple OS + 易経64卦システム',
-            philosophy: 'bunenjin哲学統合'
+            philosophy: 'HaQei哲学統合'
         });
 
         this.tsumikiProgress.requirements = {
@@ -151,7 +151,7 @@ class TsumikiExecutionController {
         const tasksOutput = await this.simulateTsumikiCommand('kairo-tasks', {
             design: this.tsumikiProgress.design.output,
             methodology: 'TDD（テスト駆動開発）',
-            priority: 'bunenjin哲学整合性最優先',
+            priority: 'HaQei哲学整合性最優先',
             timeline: '段階的実装',
             testStrategy: '包括的品質保証'
         });
@@ -190,7 +190,7 @@ class TsumikiExecutionController {
             integrationPoints: [
                 'Triple OSエンジン統合',
                 '易経64卦システム連携',
-                'bunenjin哲学バリデーション'
+                'HaQei哲学バリデーション'
             ]
         });
 
@@ -227,7 +227,7 @@ class TsumikiExecutionController {
                 requirementsCoverage: '100%必達',
                 testSuccessRate: '100%必達',
                 statisticalValidation: 'A級判定基準',
-                philosophicalAlignment: 'bunenjin哲学整合性'
+                philosophicalAlignment: 'HaQei哲学整合性'
             },
             validationScope: [
                 'データ完全性検証',
@@ -315,7 +315,7 @@ class TsumikiExecutionController {
                 requirementsCoverage: '100%達成',
                 testSuccessRate: '100%達成',
                 statisticalValidation: 'A級判定基準クリア',
-                philosophicalAlignment: 'bunenjin哲学完全整合',
+                philosophicalAlignment: 'HaQei哲学完全整合',
                 
                 // 従来システム比較
                 comparisonWithOldSystem: {
@@ -330,7 +330,7 @@ class TsumikiExecutionController {
             haqeiIntegration: {
                 tripleOSArchitecture: '設計段階から整合性確保',
                 iChingSystem: '易経64卦システム完全統合',
-                bunenjinPhilosophy: '哲学的一貫性をTsumikiフローで実現',
+                HaQeiPhilosophy: '哲学的一貫性をTsumikiフローで実現',
                 statisticalQuality: 'A級判定基準を設計レベルで保証'
             },
 

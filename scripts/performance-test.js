@@ -42,7 +42,7 @@ class PerformanceTestSuite {
             { name: 'os-analyzer', url: '/os_analyzer.html' },
             { name: 'results', url: '/results.html' },
             { name: 'cockpit', url: '/cockpit.html' },
-            { name: 'bunenjin-philosophy', url: '/bunenjin-philosophy.html' },
+            { name: 'HaQei-philosophy', url: '/HaQei-philosophy.html' },
             { name: 'strategic-dashboard', url: '/strategic-dashboard.html' }
         ];
     }

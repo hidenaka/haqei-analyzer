@@ -10,10 +10,10 @@
 ## 📋 1. エグゼクティブサマリー
 
 ### 1.1 システム概要
-HAQEIアナライザーのos_analyzer機能は、bunenjin（分人）哲学と正統易経を統合した世界最高水準の人格分析システムです。205ファイル、54個のos_analyzer専用モジュールからなる大規模システムとして、Triple OS Architecture（Engine/Interface/Safe Mode）による革新的な人格分析を実現しています。
+HAQEIアナライザーのos_analyzer機能は、HaQei（分人）哲学と正統易経を統合した世界最高水準の人格分析システムです。205ファイル、54個のos_analyzer専用モジュールからなる大規模システムとして、Triple OS Architecture（Engine/Interface/Safe Mode）による革新的な人格分析を実現しています。
 
 ### 1.2 主要特徴
-- **bunenjin哲学統合**: 単一自己探求を否定し、複数の分人による戦略的人生ナビゲーション
+- **HaQei哲学統合**: 単一自己探求を否定し、複数の分人による戦略的人生ナビゲーション
 - **7-Stage Navigation System**: Stage 1-3（無料）からStage 5（¥2,980プロフェッショナル分析）まで
 - **I Ching 正統易経システム**: 64卦×6爻=384爻辞完全実装、H384データベース
 - **Netflix品質UX**: 仮想スクロール、超高速キャッシング、ミリ秒単位の応答性能
@@ -55,7 +55,7 @@ HAQEIアナライザー（205ファイル）
 │   └── PerformanceOptimizer.js   # パフォーマンス最適化
 ├── shared/                  # 17個の共通ライブラリ
 │   ├── core/
-│   │   ├── BridgeStorageManager.js # bunenjin哲学統合ストレージ
+│   │   ├── BridgeStorageManager.js # HaQei哲学統合ストレージ
 │   │   ├── MicroStorageManager.js  # 軽量ストレージ
 │   │   └── DataManager.js          # データ管理統合
 │   └── data/
@@ -92,7 +92,7 @@ graph TB
     A1 --> D[統合人格分析]
     B1 --> D
     C1 --> D
-    D --> E[bunenjin戦略ナビゲーション]
+    D --> E[HaQei戦略ナビゲーション]
 ```
 
 ### 2.3 7-Stage Navigation System（段階的開示設計）
@@ -109,7 +109,7 @@ graph TB
 
 ---
 
-## 🧠 3. bunenjin哲学統合設計
+## 🧠 3. HaQei哲学統合設計
 
 ### 3.1 分人思想の技術実装
 
@@ -123,7 +123,7 @@ graph TB
 
 ```javascript
 class BridgeStorageManager {
-  // bunenjin分人間協調によるデータ管理
+  // HaQei分人間協調によるデータ管理
   async integrateFullManager(StorageManagerClass) {
     // Phase 1: 分人間データ移行
     // Phase 2: 動的分人選択実装
@@ -404,7 +404,7 @@ help-system/
 #### 6.2.2 コンテキスト感応ヘルプ
 ```javascript
 window.showHaqeiHelp = function(term, type = 'concept', options = {}) {
-  // bunenjin、Triple OS、易経概念の文脈的説明
+  // HaQei、Triple OS、易経概念の文脈的説明
   // - 用語別詳細解説
   // - インタラクティブガイド
   // - 学習進度追跡
@@ -457,7 +457,7 @@ await bridgeManager.integrateFullManager(StorageManager);
 // リアルタイム同期（10秒間隔）
 startRealtimeSync() {
   this.syncInterval = setInterval(() => {
-    this.syncStorageManagers(); // bunenjin分人間協調
+    this.syncStorageManagers(); // HaQei分人間協調
   }, 10000);
 }
 
@@ -700,7 +700,7 @@ class StructuredLogger {
       sessionId,
       event: 'analysis_completed',
       metrics: { analysisType, duration, quality },
-      bunenjin: { philosophy: 'integrated' }
+      HaQei: { philosophy: 'integrated' }
     };
     
     console.log(JSON.stringify(logEntry));
@@ -782,7 +782,7 @@ const securityHeaders = {
 - **コミュニティ機能**: ユーザー間交流プラットフォーム
 - **専門家ネットワーク**: 心理学者・カウンセラー連携
 - **企業向けサービス**: 組織分析・チーム診断
-- **教育プログラム**: bunenjin哲学学習コース
+- **教育プログラム**: HaQei哲学学習コース
 
 #### 12.3.2 研究開発
 - **学術連携**: 大学・研究機関との共同研究
@@ -796,7 +796,7 @@ const securityHeaders = {
 
 ### 13.1 技術的達成
 
-HAQEIアナライザーのos_analyzer機能は、205ファイル・54個の専用モジュールからなる世界最高水準の人格分析システムとして完成しました。bunenjin哲学と正統易経の統合により、従来の心理テストを超越した戦略的人生ナビゲーションツールを実現しています。
+HAQEIアナライザーのos_analyzer機能は、205ファイル・54個の専用モジュールからなる世界最高水準の人格分析システムとして完成しました。HaQei哲学と正統易経の統合により、従来の心理テストを超越した戦略的人生ナビゲーションツールを実現しています。
 
 #### 主要技術成果
 - **分析精度90%以上**: 100人規模検証で実証
@@ -806,9 +806,9 @@ HAQEIアナライザーのos_analyzer機能は、205ファイル・54個の専�
 
 ### 13.2 哲学的価値
 
-bunenjin（分人）思想の技術実装により、「真の自己探求」という従来パラダイムを打破し、複数の分人による適応戦略を提供しています。これは心理学・自己啓発分野に革新的価値をもたらします。
+HaQei（分人）思想の技術実装により、「真の自己探求」という従来パラダイムを打破し、複数の分人による適応戦略を提供しています。これは心理学・自己啓発分野に革新的価値をもたらします。
 
-#### bunenjin統合価値
+#### HaQei統合価値
 - **動的アイデンティティ**: 状況適応型自己理解
 - **戦略的人生設計**: 固定概念からの解放
 - **持続可能成長**: 段階的改善システム
@@ -823,11 +823,11 @@ bunenjin（分人）思想の技術実装により、「真の自己探求」と
 ---
 
 **作成者**: Claude Code + HAQEI Development Team  
-**承認者**: bunenjin Strategy Navigator + I Ching Expert Agent  
+**承認者**: HaQei Strategy Navigator + I Ching Expert Agent  
 **文書管理**: version 1.0.0-complete, 20250805
 
 ---
 
 *「真の自己など存在しない。存在するのは状況に応じて選択される複数の分人だけである。HAQEIアナライザーは、その分人たちの調和的活用による戦略的人生ナビゲーションを支援する。」*
 
-**— bunenjin哲学 設計思想 —**
+**— HaQei哲学 設計思想 —**

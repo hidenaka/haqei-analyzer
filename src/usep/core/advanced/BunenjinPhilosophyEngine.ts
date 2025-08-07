@@ -1,8 +1,8 @@
 /**
- * BunenjinPhilosophyEngine - bunenjin哲学統合エンジン
+ * BunenjinPhilosophyEngine - HaQei哲学統合エンジン
  * 
  * 目的：
- * - bunenjin（分人）哲学の自動適応システム
+ * - HaQei（分人）哲学の自動適応システム
  * - 多面性受容・調和追求・変化適応の自動最適化
  * - 個人の複雑性に応じた動的哲学調整
  * - 文脈に応じた哲学的深度の自動調整
@@ -12,7 +12,7 @@ import { VirtualUser } from '../VirtualUser';
 import { ExperienceReport } from '../ExperienceSimulator';
 
 /**
- * bunenjin哲学設定
+ * HaQei哲学設定
  */
 export interface BunenjinConfig {
   complexity: {
@@ -38,7 +38,7 @@ export interface BunenjinConfig {
 }
 
 /**
- * bunenjin適応結果
+ * HaQei適応結果
  */
 export interface BunenjinAdaptationResult {
   originalProfile: BunenjinProfile;
@@ -65,7 +65,7 @@ export interface BunenjinAdaptationResult {
 }
 
 /**
- * bunenjinプロファイル
+ * HaQeiプロファイル
  */
 export interface BunenjinProfile {
   multiPersonaAcceptance: number; // 多面性受容度
@@ -99,7 +99,7 @@ export class BunenjinPhilosophyEngine {
   }
 
   /**
-   * ユーザー固有のbunenjin哲学適応
+   * ユーザー固有のHaQei哲学適応
    * 
    * @param user - 仮想ユーザー
    * @param experience - 体験レポート
@@ -111,9 +111,9 @@ export class BunenjinPhilosophyEngine {
     experience: ExperienceReport,
     config: BunenjinConfig
   ): Promise<BunenjinAdaptationResult> {
-    console.log(`🎭 ユーザー${user.id}のbunenjin哲学適応開始`);
+    console.log(`🎭 ユーザー${user.id}のHaQei哲学適応開始`);
     
-    // 1. 現在のbunenjinプロファイル分析
+    // 1. 現在のHaQeiプロファイル分析
     const originalProfile = this.analyzeBunenjinProfile(user);
     
     // 2. 適応目標の決定
@@ -187,7 +187,7 @@ export class BunenjinPhilosophyEngine {
     // 12. 適応履歴への記録
     this.adaptationHistory.push(result);
     
-    console.log(`✅ bunenjin哲学適応完了 - 適応スコア: ${result.adaptationScore.toFixed(3)}`);
+    console.log(`✅ HaQei哲学適応完了 - 適応スコア: ${result.adaptationScore.toFixed(3)}`);
     
     return result;
   }
@@ -234,13 +234,13 @@ export class BunenjinPhilosophyEngine {
   }
 
   /**
-   * bunenjinプロファイルの分析
+   * HaQeiプロファイルの分析
    */
   private analyzeBunenjinProfile(user: VirtualUser): BunenjinProfile {
     const haqeiProfile = user.getHaqeiProfile?.();
     
-    if (haqeiProfile?.bunenjinAlignment) {
-      return this.convertFromHaqeiAlignment(haqeiProfile.bunenjinAlignment);
+    if (haqeiProfile?.HaQeiAlignment) {
+      return this.convertFromHaqeiAlignment(haqeiProfile.HaQeiAlignment);
     }
     
     // デフォルトプロファイルの生成
@@ -250,21 +250,21 @@ export class BunenjinPhilosophyEngine {
   /**
    * HaQei整合性からの変換
    */
-  private convertFromHaqeiAlignment(bunenjinAlignment: any): BunenjinProfile {
+  private convertFromHaqeiAlignment(HaQeiAlignment: any): BunenjinProfile {
     return {
-      multiPersonaAcceptance: bunenjinAlignment.complexityAcceptance,
-      paradoxTolerance: bunenjinAlignment.paradoxTolerance,
-      harmonyPursuit: (bunenjinAlignment.complexityAcceptance + bunenjinAlignment.paradoxTolerance) / 2,
-      changeAdaptability: bunenjinAlignment.strategicThinking,
-      selfIntegration: bunenjinAlignment.selfAwarenessDepth,
-      philosophicalMaturity: bunenjinAlignment.selfAwarenessDepth * 0.8,
-      contextualWisdom: (bunenjinAlignment.strategicThinking + bunenjinAlignment.selfAwarenessDepth) / 2,
-      practicalApplication: bunenjinAlignment.strategicThinking * 0.9
+      multiPersonaAcceptance: HaQeiAlignment.complexityAcceptance,
+      paradoxTolerance: HaQeiAlignment.paradoxTolerance,
+      harmonyPursuit: (HaQeiAlignment.complexityAcceptance + HaQeiAlignment.paradoxTolerance) / 2,
+      changeAdaptability: HaQeiAlignment.strategicThinking,
+      selfIntegration: HaQeiAlignment.selfAwarenessDepth,
+      philosophicalMaturity: HaQeiAlignment.selfAwarenessDepth * 0.8,
+      contextualWisdom: (HaQeiAlignment.strategicThinking + HaQeiAlignment.selfAwarenessDepth) / 2,
+      practicalApplication: HaQeiAlignment.strategicThinking * 0.9
     };
   }
 
   /**
-   * デフォルトbunenjinプロファイルの生成
+   * デフォルトHaQeiプロファイルの生成
    */
   private generateDefaultBunenjinProfile(user: VirtualUser): BunenjinProfile {
     const personality = user.psychographics?.personality || {};
@@ -479,7 +479,7 @@ export class BunenjinPhilosophyEngine {
    * 多面性受容強化の必要性判定
    */
   private shouldEnhanceMultiPersona(user: VirtualUser, experience: ExperienceReport, config: BunenjinConfig): boolean {
-    const currentAcceptance = user.getHaqeiProfile?.()?.bunenjinAlignment?.complexityAcceptance || 0.5;
+    const currentAcceptance = user.getHaqeiProfile?.()?.HaQeiAlignment?.complexityAcceptance || 0.5;
     return currentAcceptance < config.complexity.acceptanceThreshold || experience.satisfaction < 0.7;
   }
 
@@ -850,7 +850,7 @@ export class BunenjinPhilosophyEngine {
    * メタファー的説明の生成
    */
   private generateMetaphoricalExplanations(user: VirtualUser): string[] {
-    const metaphors = this.metaphorLibrary.get('bunenjin') || [];
+    const metaphors = this.metaphorLibrary.get('HaQei') || [];
     const selectedMetaphors: string[] = [];
     
     // ユーザーの文化的背景に応じたメタファー選択
@@ -871,7 +871,7 @@ export class BunenjinPhilosophyEngine {
     const explanations: string[] = [];
     
     if (user.behavioral?.decisionMaking === 'logical') {
-      explanations.push('bunenjin理論は、人間の複雑性を論理的に整理し、各側面を統合的に理解するフレームワークです。');
+      explanations.push('HaQei理論は、人間の複雑性を論理的に整理し、各側面を統合的に理解するフレームワークです。');
     }
     
     return explanations;
@@ -930,7 +930,7 @@ export class BunenjinPhilosophyEngine {
     }
     
     if (profile.philosophicalMaturity > 0.8) {
-      reflections.push('bunenjinの概念は、自己を多層的に理解し、より深い自己受容への道を開きます。');
+      reflections.push('HaQeiの概念は、自己を多層的に理解し、より深い自己受容への道を開きます。');
     }
     
     return reflections;
@@ -1170,7 +1170,7 @@ export class BunenjinPhilosophyEngine {
   private initializeMetaphorLibrary(): Map<string, string[]> {
     const metaphors = new Map<string, string[]>();
     
-    metaphors.set('bunenjin', [
+    metaphors.set('HaQei', [
       '人は水のように、器に応じて形を変える',
       'ダイヤモンドの各面が異なる光を放つように',
       '季節の移ろいのように、変化の中に美がある'

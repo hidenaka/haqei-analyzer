@@ -2,7 +2,7 @@
  * HAQEI リアルタイムプログレス表示システム - 動的可視化
  * 
  * 目的：
- * - bunenjin哲学の進行をリアルタイムで可視化
+ * - HaQei哲学の進行をリアルタイムで可視化
  * - Triple OS分析の動的表示
  * - 協調診断での集合進捗管理
  * - 易経64卦の変化過程可視化
@@ -13,7 +13,7 @@
  * 2. Triple OS発見・統合プロセス
  * 3. 易経卦の変化・共鳴状態
  * 4. 協調診断参加者の同期状況
- * 5. bunenjin分人の動的変化
+ * 5. HaQei分人の動的変化
  * 
  * アニメーション・UX設計：
  * - 易経的な自然な流れ（陰陽の調和）
@@ -301,7 +301,7 @@ interface AnimationState {
 /**
  * リアルタイムプログレス表示システム
  * 
- * bunenjin哲学の動的可視化と美しいUX実現
+ * HaQei哲学の動的可視化と美しいUX実現
  */
 export function useRealtimeProgress(
   userId: string,
@@ -413,7 +413,7 @@ export function useRealtimeProgress(
       {
         id: 'initial',
         name: '導入',
-        description: 'HAQEIシステムとbunenjin哲学の理解',
+        description: 'HAQEIシステムとHaQei哲学の理解',
         status: 'active',
         progress: 0,
         insights: [],

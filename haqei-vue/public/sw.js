@@ -2,7 +2,7 @@
  * Service Worker for HAQEI Vue3 Application
  * Performance Optimization & Caching Strategy
  * 
- * bunenjin Philosophy: Fast, Reliable, Privacy-First
+ * HaQei Philosophy: Fast, Reliable, Privacy-First
  */
 
 const CACHE_NAME = 'haqei-vue3-v1.0.0'

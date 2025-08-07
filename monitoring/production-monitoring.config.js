@@ -1,6 +1,6 @@
 /**
  * HAQEIアナライザー本番環境監視設定
- * bunenjin哲学に基づく企業レベルモニタリングシステム
+ * HaQei哲学に基づく企業レベルモニタリングシステム
  */
 
 export const monitoringConfig = {
@@ -9,7 +9,7 @@ export const monitoringConfig = {
  environment: 'production',
  serviceName: 'haqei-analyzer',
  version: '1.0.0',
- philosophy: 'bunenjin'
+ philosophy: 'HaQei'
  },
 
  // パフォーマンス監視
@@ -254,7 +254,7 @@ export const monitoringConfig = {
  enabled: true,
  fields: ['active_sessions', 'new_registrations', 'concurrent_users']
  },
- bunenjin: {
+ HaQei: {
  enabled: true,
  fields: ['philosophy_compliance_score', 'user_sovereignty_index', 'transparency_level']
  }
@@ -345,7 +345,7 @@ export const monitoringConfig = {
  'error-tracking',
  'security-monitoring',
  'business-metrics',
- 'bunenjin-compliance'
+ 'HaQei-compliance'
  ]
  },
 
@@ -406,8 +406,8 @@ export const monitoringConfig = {
  }
  },
 
- // bunenjin哲学特化監視
- bunenjinMonitoring: {
+ // HaQei哲学特化監視
+ HaQeiMonitoring: {
  // ユーザー主権監視
  userSovereignty: {
  enabled: true,

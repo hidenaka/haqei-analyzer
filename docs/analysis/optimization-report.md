@@ -82,7 +82,7 @@ const ultraSyncAnalysis = await this.ichingLogic.analyzeTripleOSWithUltraSync(
 - **標準用途**: `standard`（推奨、バランス型）
 - **詳細分析**: `comprehensive`（最高精度）
 
-### bunenjin哲学との整合性
+### HaQei哲学との整合性
 - 必須分析（Essential）でも易経の核心的智慧は保持
 - Standard分析で実用的なバランスを実現
 - Comprehensive分析で従来の20種類解析をフルサポート
@@ -114,7 +114,7 @@ const ultraSyncAnalysis = await this.ichingLogic.analyzeTripleOSWithUltraSync(
 ### システム信頼性
 - 強固なエラーハンドリング
 - グレースフルデグラデーション
-- bunenjin哲学の品質維持
+- HaQei哲学の品質維持
 
 ## 今後の拡張可能性
 
@@ -132,6 +132,6 @@ const ultraSyncAnalysis = await this.ichingLogic.analyzeTripleOSWithUltraSync(
 
 ## 結論
 
-IChingUltraSyncLogicの最適化により、**処理時間を50%以上短縮**し、**キャッシュによる劇的な高速化**を実現しました。bunenjin哲学の深度を維持しながら、ユーザーのニーズに応じた柔軟な分析レベル選択が可能になり、システム全体のレスポンス性能が大幅に向上しました。
+IChingUltraSyncLogicの最適化により、**処理時間を50%以上短縮**し、**キャッシュによる劇的な高速化**を実現しました。HaQei哲学の深度を維持しながら、ユーザーのニーズに応じた柔軟な分析レベル選択が可能になり、システム全体のレスポンス性能が大幅に向上しました。
 
 この最適化により、HaQei Analyzerは真のリアルタイム分析システムとして、ユーザーに快適で深い洞察を提供できるようになりました。

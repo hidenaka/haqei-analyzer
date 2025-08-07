@@ -6,7 +6,7 @@
  * - リアクティブなデータ管理
  * - 包括的エラーハンドリングとローディング状態
  * - TypeScript型安全性の確保
- * - bunenjin哲学準拠のデータ管理
+ * - HaQei哲学準拠のデータ管理
  * 
  * 機能：
  * - Create, Read, Update, Delete操作の統一インターフェース
@@ -857,7 +857,7 @@ export function useCRUDOperations<T extends Record<string, any>>(
    * 
    * 目的：
    * - 作成・更新前のデータ検証
-   * - bunenjin哲学準拠の品質管理
+   * - HaQei哲学準拠の品質管理
    * - 型安全性の実行時保証
    */
   function validateData(data: Partial<T>, operation: 'create' | 'update'): {

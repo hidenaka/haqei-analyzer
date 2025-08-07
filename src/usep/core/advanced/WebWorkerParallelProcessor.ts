@@ -346,7 +346,7 @@ export class WebWorkerParallelProcessor {
             return analyzeImprovements(data);
           case 'triple-os-optimization':
             return optimizeTripleOS(data);
-          case 'bunenjin-adaptation':
+          case 'HaQei-adaptation':
             return adaptBunenjinPhilosophy(data);
           case 'performance-calculation':
             return calculatePerformance(data);
@@ -467,7 +467,7 @@ export class WebWorkerParallelProcessor {
       function adaptBunenjinPhilosophy(data) {
         const { user, currentProfile, config } = data;
         
-        // bunenjin哲学適応ロジック（簡略版）
+        // HaQei哲学適応ロジック（簡略版）
         const adaptedProfile = {
           multiPersonaAcceptance: Math.min(1, currentProfile.multiPersonaAcceptance + 0.1),
           paradoxTolerance: Math.min(1, currentProfile.paradoxTolerance + 0.15),

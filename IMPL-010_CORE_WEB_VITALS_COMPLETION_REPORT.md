@@ -66,7 +66,7 @@ Cache Strategy Distribution:
 ### 3. Integration into os_analyzer.html
 
 **Seamless Integration Points**:
-- CoreWebVitalsOptimizer initialization with bunenjin philosophy alignment
+- CoreWebVitalsOptimizer initialization with HaQei philosophy alignment
 - Service Worker registration for performance optimization
 - Real-time monitoring activation
 - Memory management system integration
@@ -135,7 +135,7 @@ Integration Points:
 
 ### Code Quality Metrics
 - **Lines of Code**: 1,376 lines of high-performance optimization code
-- **Architecture**: Modular, extensible design with bunenjin philosophy alignment
+- **Architecture**: Modular, extensible design with HaQei philosophy alignment
 - **Error Handling**: Comprehensive error handling with graceful degradation
 - **Memory Management**: Advanced memory monitoring and cleanup systems
 - **Documentation**: Extensive Japanese and English documentation
@@ -198,8 +198,8 @@ Integration Points:
 
 ## Technical Implementation Notes
 
-### bunenjin Philosophy Integration
-The Core Web Vitals optimization system aligns with bunenjin philosophy through:
+### HaQei Philosophy Integration
+The Core Web Vitals optimization system aligns with HaQei philosophy through:
 - **段階的最適化**: Progressive optimization in harmony with natural flow
 - **調和的パフォーマンス**: Balanced performance that doesn't sacrifice user experience
 - **持続可能な改善**: Sustainable performance improvements that maintain system stability

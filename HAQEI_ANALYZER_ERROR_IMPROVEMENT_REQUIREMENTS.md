@@ -9,7 +9,7 @@
 
 ### 1.1 プロジェクト背景
 
-HAQEI Analyzerは、bunenjin philosophy（無念人哲学）とI Ching（易経）統合によるTriple OS Architecture（Engine/Interface/Safe Mode）を実装した、プライバシー最優先の自己理解支援システムです。現在、複数のエラーと技術的課題が発生しており、システム全体の安定性と品質向上を目的とした改善が必要です。
+HAQEI Analyzerは、HaQei philosophy（無念人哲学）とI Ching（易経）統合によるTriple OS Architecture（Engine/Interface/Safe Mode）を実装した、プライバシー最優先の自己理解支援システムです。現在、複数のエラーと技術的課題が発生しており、システム全体の安定性と品質向上を目的とした改善が必要です。
 
 ### 1.2 現状の問題点
 
@@ -17,14 +17,14 @@ HAQEI Analyzerは、bunenjin philosophy（無念人哲学）とI Ching（易経�
 - **MLTrainingDataGenerator未定義エラー**: 機械学習モジュールの依存関係問題
 - **Promise executor非同期エラー**: ESLintによる13件のno-async-promise-executor警告
 - **Unicode文字エンコーディングエラー**: セキュリティ監査ファイルでの文字解析問題
-- **定数条件エラー**: bunenjin_cli.cjsでのno-constant-condition警告
+- **定数条件エラー**: HaQei_cli.cjsでのno-constant-condition警告
 
 #### 1.2.2 アーキテクチャ整合性
-- **Triple OS Architectureの不完全実装**: bunenjin philosophyとの整合性確保必要
+- **Triple OS Architectureの不完全実装**: HaQei philosophyとの整合性確保必要
 - **7-Stage Navigation System**: ステージ間データフロー最適化が必要
 - **モジュール依存関係**: 循環依存とインポート/エクスポートの問題
 
-#### 1.2.3 bunenjin Philosophy準拠性
+#### 1.2.3 HaQei Philosophy準拠性
 - **アイデンティティ固定化言語**: 「本当の自分」等の表現が残存
 - **複数分人サポート**: 不完全な実装状況
 - **プライバシー・ファースト設計**: 部分的実装の改善必要
@@ -32,7 +32,7 @@ HAQEI Analyzerは、bunenjin philosophy（無念人哲学）とI Ching（易経�
 ### 1.3 改善目標
 
 1. **エラーゼロ達成**: 全JavaScript/TypeScriptエラーの解決
-2. **bunenjin Philosophy完全準拠**: 哲学的整合性の確保
+2. **HaQei Philosophy完全準拠**: 哲学的整合性の確保
 3. **I Ching統合の品質向上**: 易経解釈の正確性維持
 4. **Triple OS Architecture完成**: Engine/Interface/Safe Mode統合
 5. **パフォーマンス最適化**: レスポンス時間とメモリ使用量改善
@@ -48,7 +48,7 @@ interface ErrorManagementSystem {
   // 包括的エラーカテゴリ管理
   categorizeError(error: Error): ErrorCategory;
   
-  // bunenjin philosophy準拠エラー対応
+  // HaQei philosophy準拠エラー対応
   handleApplicationError(error: Error): BunenjinResponse;
   
   // I Ching統合エラー処理
@@ -98,7 +98,7 @@ async function processAsync(): Promise<Result> {
 #### 2.3.1 型安全性向上
 **要件ID**: REQ-TS-001
 ```typescript
-// bunenjin Philosophy型定義
+// HaQei Philosophy型定義
 interface BunenjinPersona {
   id: PersonaID;
   contextualExpression: ContextualBehavior;
@@ -115,11 +115,11 @@ interface IChingHexagram {
   trigrams: [Trigram, Trigram];
   changingLines: number[];
   interpretation: IChingInterpretation;
-  bunenjinMapping: BunenjinOSMapping;
+  HaQeiMapping: BunenjinOSMapping;
 }
 ```
 
-### 2.4 bunenjin Philosophy準拠の確認
+### 2.4 HaQei Philosophy準拠の確認
 
 #### 2.4.1 言語・表現の完全修正
 **要件ID**: REQ-PHIL-001
@@ -129,7 +129,7 @@ interface IChingHexagram {
 "本当の自分を見つける"
 "真の性格は〜"
 
-// ✅ bunenjin準拠表現
+// ✅ HaQei準拠表現
 "あなたの創造的な分人が、この状況で表現される可能性があります"
 "複数の分人から適切な表現を選択する"
 "状況に応じた分人の特性は〜"
@@ -183,7 +183,7 @@ interface MultiPersonaSupport {
 
 ### 3.3 セキュリティ要件
 
-#### 3.3.1 bunenjin Privacy Protection
+#### 3.3.1 HaQei Privacy Protection
 **要件ID**: REQ-SEC-001
 ```typescript
 interface PrivacyProtection {
@@ -215,7 +215,7 @@ interface PrivacyProtection {
 #### 3.4.2 ドキュメント要件
 **要件ID**: REQ-MAIN-002
 - **API仕様書**: 全公開インターフェースの文書化
-- **bunenjin Philosophy実装ガイド**: 開発者向けガイドライン
+- **HaQei Philosophy実装ガイド**: 開発者向けガイドライン
 - **I Ching統合仕様**: 易経解釈ロジックの詳細文書
 
 ## 4. 制約事項
@@ -234,7 +234,7 @@ interface PrivacyProtection {
 // 段階的機能移行の実装例
 const migrationStrategy = {
   phase1: "エラー修正・安定性向上",
-  phase2: "bunenjin Philosophy完全準拠",
+  phase2: "HaQei Philosophy完全準拠",
   phase3: "パフォーマンス最適化"
 };
 ```
@@ -257,8 +257,8 @@ interface IChingAccuracy {
   // 現代的適用性
   modernRelevance: number;    // 90%以上
   
-  // bunenjin統合適合性
-  bunenjinIntegration: number; // 98%以上
+  // HaQei統合適合性
+  HaQeiIntegration: number; // 98%以上
 }
 ```
 
@@ -303,7 +303,7 @@ const requiredTests = {
   unitTests: "全ユニットテスト合格",
   integrationTests: "統合テスト合格", 
   e2eTests: "エンドツーエンドテスト合格",
-  bunenjinTests: "bunenjin Philosophy準拠テスト合格",
+  HaQeiTests: "HaQei Philosophy準拠テスト合格",
   ichingTests: "I Ching統合テスト合格"
 };
 ```
@@ -374,7 +374,7 @@ const migrationPlan = {
 
 ### 6.2 スケジュールリスク
 
-#### 6.2.1 bunenjin Philosophy統合の複雑性
+#### 6.2.1 HaQei Philosophy統合の複雑性
 **リスクID**: RISK-SCHED-001
 - **リスク内容**: 哲学的整合性確保に予想以上の時間要求
 - **影響度**: 中
@@ -424,7 +424,7 @@ interface CulturalRespectProtocol {
 
 #### 6.3.2 プライバシー保護の完全性
 **リスクID**: RISK-QUAL-002  
-- **リスク内容**: bunenjin Privacy標準からの逸脱
+- **リスク内容**: HaQei Privacy標準からの逸脱
 - **影響度**: 高
 - **発生確率**: 低
 
@@ -449,7 +449,7 @@ interface CulturalRespectProtocol {
 - [ ] TypeScript型定義の修正
 - [ ] テストスイートの更新と実行
 
-### 7.2 Phase 2: bunenjin Philosophy Compliance (優先度: 高)
+### 7.2 Phase 2: HaQei Philosophy Compliance (優先度: 高)
 **期間**: 3週間
 
 #### Week 3-4: Language & Expression Alignment
@@ -458,7 +458,7 @@ interface CulturalRespectProtocol {
 - [ ] 戦略的ナビゲーション言語の統一
 
 #### Week 5: Philosophy Integration Testing
-- [ ] bunenjin Philosophy準拠テスト実装
+- [ ] HaQei Philosophy準拠テスト実装
 - [ ] 文化的適切性の検証
 - [ ] 専門家レビューの実施
 
@@ -483,7 +483,7 @@ interface SuccessMetrics {
   errorCount: 0;                    // 現在: 17件のESLint警告
   testPassRate: 100;               // 現在: 基本テスト合格
   performanceScore: 95;            // 目標: 95点以上
-  bunenjinCompliance: 98;          // 目標: 98%以上
+  HaQeiCompliance: 98;          // 目標: 98%以上
   ichingAccuracy: 96;              // 目標: 96%以上
 }
 ```
@@ -492,21 +492,21 @@ interface SuccessMetrics {
 - **開発者体験**: エラーフリーな開発環境
 - **ユーザー体験**: スムーズで直感的な操作感
 - **文化的敬意**: I Ching文化への適切な配慮
-- **哲学的整合性**: bunenjin philosophyとの完全な一貫性
+- **哲学的整合性**: HaQei philosophyとの完全な一貫性
 - **プライバシー保護**: ユーザーデータの完全な保護
 
 ## 9. 結論
 
-この要件定義書は、HAQEI Analyzerの現在のエラー状況を包括的に分析し、bunenjin philosophyとI Ching統合の品質を維持しながら、技術的な課題を解決するための明確な道筋を提供します。
+この要件定義書は、HAQEI Analyzerの現在のエラー状況を包括的に分析し、HaQei philosophyとI Ching統合の品質を維持しながら、技術的な課題を解決するための明確な道筋を提供します。
 
 特に重要な点は：
 
 1. **技術的課題の段階的解決**: まず基本的なエラーを修正し、その後哲学的整合性を確保
-2. **bunenjin Philosophy準拠**: アイデンティティ固定化を避け、複数分人サポートを重視
+2. **HaQei Philosophy準拠**: アイデンティティ固定化を避け、複数分人サポートを重視
 3. **I Ching文化への敬意**: 伝統的な易経解釈の正確性を保持
 4. **プライバシー・ファースト設計**: ユーザーデータの完全な保護とコントロール
 
-この計画に従って実装を進めることで、エラーゼロかつbunenjin philosophy完全準拠のHAQEI Analyzerを実現できます。
+この計画に従って実装を進めることで、エラーゼロかつHaQei philosophy完全準拠のHAQEI Analyzerを実現できます。
 
 ---
 

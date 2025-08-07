@@ -9,7 +9,7 @@
  * - フリーミアムUX最適化・転換率向上
  * - ユーザーリサーチ・行動分析・ジャーニーマッピング
  * - 収益最適化・価格感度分析・LTV最大化
- * - bunenjin哲学UX統合・易経メタファー表現
+ * - HaQei哲学UX統合・易経メタファー表現
  * - A/Bテスト設計・ユーザビリティテスト・離脱改善
  * 
  * 対象タスク: TASK-086～125（UX研究・収益最適化・フリーミアム戦略）
@@ -31,11 +31,11 @@ const AGENT_INFO = {
         'TASK-096', 'TASK-097', 'TASK-098', 'TASK-099', 'TASK-100', // A/Bテスト・ユーザビリティ
         'TASK-101', 'TASK-102', 'TASK-103', 'TASK-104', 'TASK-105', // 収益最適化・価格戦略
         'TASK-106', 'TASK-107', 'TASK-108', 'TASK-109', 'TASK-110', // 行動分析・離脱改善
-        'TASK-111', 'TASK-112', 'TASK-113', 'TASK-114', 'TASK-115', // bunenjin哲学UX統合
+        'TASK-111', 'TASK-112', 'TASK-113', 'TASK-114', 'TASK-115', // HaQei哲学UX統合
         'TASK-116', 'TASK-117', 'TASK-118', 'TASK-119', 'TASK-120', // Triple OS可視化
         'TASK-121', 'TASK-122', 'TASK-123', 'TASK-124', 'TASK-125'  // 易経メタファーUI
     ],
-    philosophy: 'bunenjin哲学統合UX（易経的直感性・Triple OS理解促進）',
+    philosophy: 'HaQei哲学統合UX（易経的直感性・Triple OS理解促進）',
     tsumikiIntegrated: true,
     businessMetrics: {
         freeToTrialConversion: '60%以上',
@@ -100,7 +100,7 @@ program
                 haqeiSpecific: [
                     'Triple OS理解の段階的深化',
                     '易経メタファーによる価値理解',
-                    'bunenjin哲学に基づく信頼構築'
+                    'HaQei哲学に基づく信頼構築'
                 ]
             });
 
@@ -248,7 +248,7 @@ program
                 haqeiSpecific: [
                     'Triple OS理解プロセス',
                     '易経メタファー受容度',
-                    'bunenjin哲学共感度',
+                    'HaQei哲学共感度',
                     '自己理解ツールとしての価値認知'
                 ]
             });
@@ -563,7 +563,7 @@ program
                 haqeiSpecific: [
                     'Triple OS価値の金銭化',
                     '易経的洞察のプレミアム価値',
-                    'bunenjin哲学による信頼構築',
+                    'HaQei哲学による信頼構築',
                     '継続的自己理解ツールとしての価値'
                 ]
             });
@@ -670,11 +670,11 @@ program
         }
     });
 
-// bunenjin哲学UX統合コマンド
+// HaQei哲学UX統合コマンド
 program
-    .command('bunenjin-ux')
-    .alias('bunenjin')
-    .description('bunenjin哲学UX統合・易経メタファー表現')
+    .command('HaQei-ux')
+    .alias('HaQei')
+    .description('HaQei哲学UX統合・易経メタファー表現')
     .option('--philosophy-integration', '哲学統合UX', true)
     .option('--iching-metaphor', '易経メタファー表現', true)
     .option('--triple-os-visualization', 'Triple OS可視化', true)
@@ -682,12 +682,12 @@ program
     .option('--intuitive-design', '直感的デザイン', true)
     .action(async (options) => {
         try {
-            console.log('🔮 bunenjin哲学UX統合・易経メタファー表現開始...\n');
+            console.log('🔮 HaQei哲学UX統合・易経メタファー表現開始...\n');
 
             // Phase 1: 哲学統合要件定義
-            console.log('📋 Phase 1: bunenjin哲学統合要件定義 (/kairo-requirements)');
-            const bunenjinRequirements = await executeTsumikiCommand('kairo-requirements', {
-                domain: 'Bunenjin Philosophy UX Integration',
+            console.log('📋 Phase 1: HaQei哲学統合要件定義 (/kairo-requirements)');
+            const HaQeiRequirements = await executeTsumikiCommand('kairo-requirements', {
+                domain: 'HaQei Philosophy UX Integration',
                 philosophicalFoundations: [
                     '調和的バランス（陰陽調和）',
                     '自然な変化（易の思想）',
@@ -725,9 +725,9 @@ program
             });
 
             // Phase 2: 哲学的UX設計
-            console.log('\n🏗️ Phase 2: bunenjin哲学UX設計 (/kairo-design)');
-            const bunenjinDesign = await executeTsumikiCommand('kairo-design', {
-                requirements: bunenjinRequirements,
+            console.log('\n🏗️ Phase 2: HaQei哲学UX設計 (/kairo-design)');
+            const HaQeiDesign = await executeTsumikiCommand('kairo-design', {
+                requirements: HaQeiRequirements,
                 designPhilosophy: 'Harmonious Digital Metaphysics',
                 visualLanguage: {
                     colors: {
@@ -768,11 +768,11 @@ program
 
             // Phase 3: 実装計画
             console.log('\n📋 Phase 3: 実装計画 (/kairo-tasks)');
-            const bunenjinTasks = await executeTsumikiCommand('kairo-tasks', {
-                design: bunenjinDesign,
+            const HaQeiTasks = await executeTsumikiCommand('kairo-tasks', {
+                design: HaQeiDesign,
                 methodology: 'Philosophy-Driven Design',
                 deliverables: [
-                    'bunenjin視覚言語システム',
+                    'HaQei視覚言語システム',
                     '易経メタファーコンポーネント',
                     'Triple OS可視化システム',
                     '文化的適応UIパターン',
@@ -798,24 +798,24 @@ program
                 ]
             });
 
-            console.log('\n📊 bunenjin哲学UX設計結果:');
+            console.log('\n📊 HaQei哲学UX設計結果:');
             console.log(`🔮 哲学統合: ${options.philosophyIntegration ? '✅ 設計' : '❌ 無効'}`);
             console.log(`☯️ 易経メタファー: ${options.ichingMetaphor ? '✅ 設計' : '❌ 無効'}`);
             console.log(`🎯 Triple OS可視化: ${options.tripleOsVisualization ? '✅ 設計' : '❌ 無効'}`);
             console.log(`🌍 文化的適応: ${options.culturalAdaptation ? '✅ 設計' : '❌ 無効'}`);
             console.log(`💡 直感的デザイン: ${options.intuitiveDesign ? '✅ 設計' : '❌ 無効'}`);
 
-            await saveUXDocument('bunenjin-philosophy-ux.md', {
-                requirements: bunenjinRequirements,
-                design: bunenjinDesign,
-                tasks: bunenjinTasks
+            await saveUXDocument('HaQei-philosophy-ux.md', {
+                requirements: HaQeiRequirements,
+                design: HaQeiDesign,
+                tasks: HaQeiTasks
             });
 
-            console.log('\n✅ bunenjin哲学UX統合完了！');
-            console.log('📄 設計書: ./docs/implementation/bunenjin-philosophy-ux.md');
+            console.log('\n✅ HaQei哲学UX統合完了！');
+            console.log('📄 設計書: ./docs/implementation/HaQei-philosophy-ux.md');
 
         } catch (error) {
-            console.error(`❌ bunenjin哲学UX統合エラー: ${error.message}`);
+            console.error(`❌ HaQei哲学UX統合エラー: ${error.message}`);
             process.exit(1);
         }
     });
@@ -996,7 +996,7 @@ program
                     'ユーザージャーニー最適化成果',
                     'A/Bテスト・ユーザビリティ結果',
                     '収益最適化インパクト',
-                    'bunenjin哲学UX統合効果',
+                    'HaQei哲学UX統合効果',
                     '行動分析・離脱改善成果'
                 ],
                 stakeholders: [
@@ -1151,11 +1151,11 @@ program
             console.log(`   🔄 チャーン削減: ${status.revenue.churnReduction ? '✅ 実施済み' : '❌ 未実施'}`);
             console.log(`   ⬆️ アップセル: ${status.revenue.upsellStrategy ? '✅ 実装済み' : '❌ 未実装'}`);
 
-            console.log('\n🔮 bunenjin哲学統合状況:');
-            console.log(`   🔮 哲学統合UX: ${status.bunenjin.philosophyIntegration ? '✅ 統合済み' : '❌ 未統合'}`);
-            console.log(`   ☯️ 易経メタファー: ${status.bunenjin.ichingMetaphor ? '✅ 実装済み' : '❌ 未実装'}`);
-            console.log(`   🎯 Triple OS可視化: ${status.bunenjin.tripleOsVisualization ? '✅ 完了' : '❌ 未完了'}`);
-            console.log(`   🌍 文化的適応: ${status.bunenjin.culturalAdaptation ? '✅ 適応済み' : '❌ 未適応'}`);
+            console.log('\n🔮 HaQei哲学統合状況:');
+            console.log(`   🔮 哲学統合UX: ${status.HaQei.philosophyIntegration ? '✅ 統合済み' : '❌ 未統合'}`);
+            console.log(`   ☯️ 易経メタファー: ${status.HaQei.ichingMetaphor ? '✅ 実装済み' : '❌ 未実装'}`);
+            console.log(`   🎯 Triple OS可視化: ${status.HaQei.tripleOsVisualization ? '✅ 完了' : '❌ 未完了'}`);
+            console.log(`   🌍 文化的適応: ${status.HaQei.culturalAdaptation ? '✅ 適応済み' : '❌ 未適応'}`);
 
             console.log('\n📊 ビジネスメトリクス現況:');
             console.log(`   📈 無料体験完走率: ${status.metrics.freeTrialCompletion || 'データ収集中'}%`);
@@ -1204,7 +1204,7 @@ program.on('--help', () => {
     console.log('  🗺️ ユーザーリサーチ - ジャーニーマッピング、行動分析、ペインポイント改善');
     console.log('  🧪 A/Bテスト - ユーザビリティテスト、転換最適化、統計分析');
     console.log('  💵 収益最適化 - 価格戦略、LTV最大化、チャーン削減');
-    console.log('  🔮 bunenjin哲学 - 易経メタファー、Triple OS可視化、文化的適応');
+    console.log('  🔮 HaQei哲学 - 易経メタファー、Triple OS可視化、文化的適応');
     console.log('  📊 行動分析 - 離脱改善、エンゲージメント、予測分析');
     console.log('');
     console.log('ビジネス目標:');
@@ -1224,7 +1224,7 @@ program.on('--help', () => {
     console.log('  $ haqei-ux-researcher user-journey --emotion-mapping --pain-point-analysis');
     console.log('  $ haqei-ux-researcher ab-usability-test --conversion-testing --statistical-analysis');
     console.log('  $ haqei-ux-researcher revenue-optimization --ltv-analysis --price-sensitivity');
-    console.log('  $ haqei-ux-researcher bunenjin-ux --iching-metaphor --triple-os-visualization');
+    console.log('  $ haqei-ux-researcher HaQei-ux --iching-metaphor --triple-os-visualization');
     console.log('  $ haqei-ux-researcher behavior-analysis --dropout-analysis --predictive-analytics');
     console.log('  $ haqei-ux-researcher comprehensive-report --revenue-impact --recommendations');
     console.log('  $ haqei-ux-researcher status');
@@ -1253,7 +1253,7 @@ async function executeTsumikiCommand(command, parameters) {
         aiOptimized: true,
         uxSpecialized: true,
         freemiumOptimized: true,
-        bunenjinPhilosophyIntegrated: true
+        HaQeiPhilosophyIntegrated: true
     };
     
     console.log(`   ✅ /${command} 完了 (UX特化設計)`);
@@ -1343,7 +1343,7 @@ async function checkUXResearchStatus() {
             upsellStrategy: false,
             priceSensitivity: false
         },
-        bunenjin: {
+        HaQei: {
             philosophyIntegration: false,
             ichingMetaphor: false,
             tripleOsVisualization: false,
@@ -1364,7 +1364,7 @@ async function checkUXResearchStatus() {
             monthlyRevenue: null
         },
         tsumikiIntegrated: true,
-        bunenjinCompliant: true
+        HaQeiCompliant: true
     };
 }
 

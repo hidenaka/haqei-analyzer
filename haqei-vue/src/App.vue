@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import BunenjinPhilosophyUI from './components/bunenjin/BunenjinPhilosophyUI.vue'
-import EasternTripleOSVisualization from './components/bunenjin/EasternTripleOSVisualization.vue'
-import IChing64HexagramNavigation from './components/bunenjin/IChing64HexagramNavigation.vue'
-import CulturalAdaptiveInterface from './components/bunenjin/CulturalAdaptiveInterface.vue'
+import HaQeiPhilosophyUI from './components/HaQei/HaQeiPhilosophyUI.vue'
+import EasternTripleOSVisualization from './components/HaQei/EasternTripleOSVisualization.vue'
+import IChing64HexagramNavigation from './components/HaQei/IChing64HexagramNavigation.vue'
+import CulturalAdaptiveInterface from './components/HaQei/CulturalAdaptiveInterface.vue'
 
 /**
  * App.vue - HAQEIアプリケーションのメインコンポーネント
  * 
- * bunenjin哲学と東洋的美意識を完全統合した
+ * HaQei哲学と東洋的美意識を完全統合した
  * 世界最高レベルのUI/UX体験を提供
  */
 
@@ -49,7 +49,7 @@ const switchMode = (mode: typeof appMode.value) => {
             @click="switchMode('philosophy')"
           >
             <span class="tab-icon">🎭</span>
-            <span class="tab-label">bunenjin哲学</span>
+            <span class="tab-label">HaQei哲学</span>
           </button>
           
           <button 
@@ -84,7 +84,7 @@ const switchMode = (mode: typeof appMode.value) => {
       <!-- 動的コンテンツエリア -->
       <main class="app-content" role="main">
         <Transition name="zen-fade" mode="out-in">
-          <BunenjinPhilosophyUI v-if="appMode === 'philosophy'" key="philosophy" />
+          <HaQeiPhilosophyUI v-if="appMode === 'philosophy'" key="philosophy" />
           <EasternTripleOSVisualization v-else-if="appMode === 'triple-os'" key="triple-os" />
           <IChing64HexagramNavigation v-else-if="appMode === 'iching'" key="iching" />
           <CulturalAdaptiveInterface v-else-if="appMode === 'cultural'" key="cultural" />

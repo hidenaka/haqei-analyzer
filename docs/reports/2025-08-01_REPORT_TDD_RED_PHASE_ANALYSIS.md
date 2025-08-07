@@ -195,7 +195,7 @@ const greenPhaseProjection = {
 };
 ```
 
-### bunenjin哲学統合度向上
+### HaQei哲学統合度向上
 ```javascript
 const philosophyIntegration = {
   current: '基本統合（Triple OS概念のみ）',
@@ -259,7 +259,7 @@ class DynamicKeywordGenerator {
 - ✅ 130テストケース設計完了
 - ✅ 品質向上ポイント35件特定
 - ✅ 実装優先順位明確化
-- ✅ bunenjin哲学統合深化の方向性確立
+- ✅ HaQei哲学統合深化の方向性確立
 
 ### 特定された課題
 - ❌ コンテキスト判定精度向上必要
@@ -275,4 +275,4 @@ class DynamicKeywordGenerator {
 
 ---
 
-**REDフェーズにより、Future Simulatorの品質向上に必要な具体的改善点が明確化されました。次のGREENフェーズで系統的な実装により、A級品質判定達成とbunenjin哲学の深化統合を実現します。**
+**REDフェーズにより、Future Simulatorの品質向上に必要な具体的改善点が明確化されました。次のGREENフェーズで系統的な実装により、A級品質判定達成とHaQei哲学の深化統合を実現します。**

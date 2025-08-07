@@ -24,7 +24,7 @@ WHERE schemaname = 'public' AND rowsecurity = false;
 - [ ] バックアップデータ暗号化確認
 - [ ] API通信SSL証明書有効期限確認（90日以上残存）
 
-#### bunenjin哲学準拠確認
+#### HaQei哲学準拠確認
 - [ ] プライバシー設定デフォルト値「最高レベル」設定
 - [ ] オフライン・ファースト機能動作確認
 - [ ] データエクスポート機能テスト完了
@@ -100,7 +100,7 @@ npm run test:e2e
 - [ ] OWASP Top 10脆弱性検査合格
 - [ ] RLS Penetration Test合格
 - [ ] GDPR準拠監査合格
-- [ ] bunenjin哲学準拠監査合格
+- [ ] HaQei哲学準拠監査合格
 
 ### 🔄 CI/CD パイプライン確認
 
@@ -144,7 +144,7 @@ VITE_PRIVACY_LEVEL=maximum
 
 # 監視・ログ設定
 VITE_SENTRY_DSN=your_sentry_dsn
-VITE_ANALYTICS_DISABLED=true  # bunenjin準拠
+VITE_ANALYTICS_DISABLED=true  # HaQei準拠
 ```
 
 ### DNS・SSL設定
@@ -180,7 +180,7 @@ curl -f https://haqei.com/health-check
 - [ ] 個人情報ログ除外設定
 - [ ] ログ保持期間設定（6ヶ月）
 
-## bunenjin哲学準拠確認
+## HaQei哲学準拠確認
 
 ### プライバシー設定確認
 - [ ] デフォルトプライバシーレベル「最高」設定
@@ -197,7 +197,7 @@ curl -f https://haqei.com/health-check
 ### 透明性確保
 - [ ] プライバシーポリシー最新版公開
 - [ ] データ処理フロー説明完備
-- [ ] 利用規約bunenjin哲学反映
+- [ ] 利用規約HaQei哲学反映
 - [ ] ユーザー権利説明明確化
 
 ## パフォーマンス基準

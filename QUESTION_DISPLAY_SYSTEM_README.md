@@ -222,9 +222,9 @@ const displayController = new DisplayController({
 });
 ```
 
-## 🌟 bunenjin哲学の統合
+## 🌟 HaQei哲学の統合
 
-質問表示システムにbunenjin哲学を統合：
+質問表示システムにHaQei哲学を統合：
 
 ### デザイン原則
 1. **自然な流れ**: 直感的な操作体験
@@ -293,4 +293,4 @@ new DisplayController().getMetrics();
 
 ---
 
-**質問表示システム v2.0** により、「element is not visible」問題は完全に解決され、美しく機能的な質問表示が実現されます。bunenjin哲学に基づく自然で直感的なUI体験をお楽しみください。
+**質問表示システム v2.0** により、「element is not visible」問題は完全に解決され、美しく機能的な質問表示が実現されます。HaQei哲学に基づく自然で直感的なUI体験をお楽しみください。

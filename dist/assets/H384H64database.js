@@ -394,7 +394,7 @@
  * 目的：
  * - window.H384_DATAへの明示的代入
  * - Future Simulator全体でのアクセス保証
- * - bunenjin哲学に基づく386爻データ共有
+ * - HaQei哲学に基づく386爻データ共有
  * 
  * 処理内容：
  * 1. H384_DATA変数の存在確認
@@ -443,7 +443,7 @@ if (typeof window !== 'undefined' && typeof H384_DATA !== 'undefined') {
  * 
  * 目的：
  * - 386爻データの完全性を自動検証
- * - bunenjin哲学に基づくデータ品質保証
+ * - HaQei哲学に基づくデータ品質保証
  * 
  * 出力：
  * - 検証結果オブジェクト（tests, passed）
@@ -554,7 +554,7 @@ if (typeof window !== 'undefined') {
  * 
  * 目的：
  * - 外部からのH384_DATAの安全な設定・更新
- * - bunenjin哲学に基づくデータ品質保証
+ * - HaQei哲学に基づくデータ品質保証
  * - Triple OS統合システムでの整合性維持
  * 
  * 入力：
@@ -650,7 +650,7 @@ window.setH384Data = function(data) {
  * 目的：
  * - H384_DATA読み込み失敗時の代替動作実装
  * - システム全体の安定性確保
- * - bunenjin哲学に基づく段階的復旧処理
+ * - HaQei哲学に基づく段階的復旧処理
  * 
  * 処理内容：
  * 1. window.H384_DATAの存在・形式確認

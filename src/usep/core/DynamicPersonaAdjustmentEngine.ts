@@ -5,7 +5,7 @@
  * - リアルタイムペルソナ次元調整とML最適化
  * - ユーザー行動・フィードバック基づく適応学習
  * - 統計分布の動的リバランシング
- * - Triple OS・bunenjin哲学統合調整
+ * - Triple OS・HaQei哲学統合調整
  * - 100万ユーザー対応スケーラブル調整
  * - 品質保証付き適応進化システム
  */
@@ -42,7 +42,7 @@ export enum AdjustmentTrigger {
   PERFORMANCE_METRICS = 'performance_metrics',
   SCENARIO_MISMATCH = 'scenario_mismatch',
   TRIPLE_OS_IMBALANCE = 'triple_os_imbalance',
-  BUNENJIN_MISALIGNMENT = 'bunenjin_misalignment',
+  BUNENJIN_MISALIGNMENT = 'HaQei_misalignment',
   STATISTICAL_ANOMALY = 'statistical_anomaly',
   SYSTEM_OPTIMIZATION = 'system_optimization',
   SEASONAL_ADJUSTMENT = 'seasonal_adjustment',
@@ -59,7 +59,7 @@ export enum AdjustmentType {
   THRESHOLD_ADJUSTMENT = 'threshold_adjustment',
   NEW_VALUE_ADDITION = 'new_value_addition',
   DIMENSION_WEIGHT_CHANGE = 'dimension_weight_change',
-  BUNENJIN_ALIGNMENT = 'bunenjin_alignment',
+  BUNENJIN_ALIGNMENT = 'HaQei_alignment',
   TRIPLE_OS_HARMONY = 'triple_os_harmony'
 }
 
@@ -76,7 +76,7 @@ export interface AdjustmentProposal {
   confidence: number; // 信頼度 (0-1)
   expectedImpact: ExpectedImpact;
   riskAssessment: RiskAssessment;
-  bunenjinAlignment: number;
+  HaQeiAlignment: number;
   tripleOSHarmonyImpact: number;
   validationResults: ValidationResult[];
   createdAt: Date;
@@ -194,7 +194,7 @@ export interface SystemMetricsSnapshot {
   throughput: number;
   errorRate: number;
   tripleOSHarmony: number;
-  bunenjinAlignment: number;
+  HaQeiAlignment: number;
 }
 
 /**
@@ -220,7 +220,7 @@ export interface LearningDataPoint {
   userBehavior: UserBehaviorSnapshot;
   scenarioPerformance: ScenarioPerformanceSnapshot;
   tripleOSState: TripleOSProfile;
-  bunenjinAlignment: BunenjinAlignment;
+  HaQeiAlignment: BunenjinAlignment;
   outcomes: OutcomeMetrics;
 }
 
@@ -278,7 +278,7 @@ export class DynamicPersonaAdjustmentEngine {
   private validationEngine: AdjustmentValidationEngine;
   private riskAnalyzer: RiskAnalyzer;
   private impactPredictor: ImpactPredictor;
-  private bunenjinGuide: BunenjinGuidanceSystem;
+  private HaQeiGuide: BunenjinGuidanceSystem;
   
   private lastAdjustmentTime: Map<string, Date> = new Map();
   private adjustmentMetrics: AdjustmentMetrics;
@@ -291,7 +291,7 @@ export class DynamicPersonaAdjustmentEngine {
       harmonyThreshold: 0.7,
       adaptationSensitivity: config.adjustmentSensitivity,
       realtimeMonitoring: config.enableRealtimeAdjustment,
-      bunenjinIntegrationLevel: config.enableBunenjinGuidance ? 0.8 : 0.3,
+      HaQeiIntegrationLevel: config.enableBunenjinGuidance ? 0.8 : 0.3,
       autoOptimization: true,
       stressDetectionEnabled: true,
       emergencyInterventionEnabled: true,
@@ -302,7 +302,7 @@ export class DynamicPersonaAdjustmentEngine {
     this.validationEngine = new AdjustmentValidationEngine(config);
     this.riskAnalyzer = new RiskAnalyzer(config);
     this.impactPredictor = new ImpactPredictor(config);
-    this.bunenjinGuide = new BunenjinGuidanceSystem(config);
+    this.HaQeiGuide = new BunenjinGuidanceSystem(config);
     this.adjustmentMetrics = new AdjustmentMetrics();
     
     this.initializeMLModels();
@@ -374,7 +374,7 @@ export class DynamicPersonaAdjustmentEngine {
           userBehavior: await this.captureBehaviorSnapshot(user),
           scenarioPerformance: await this.captureScenarioPerformance(user),
           tripleOSState: user.tripleOS!,
-          bunenjinAlignment: user.bunenjinAlignment!,
+          HaQeiAlignment: user.HaQeiAlignment!,
           outcomes: await this.calculateOutcomes(user)
         };
         
@@ -423,10 +423,10 @@ export class DynamicPersonaAdjustmentEngine {
       proposals.push(...tripleOSProposals);
     }
     
-    // 4. bunenjin哲学ガイド提案
+    // 4. HaQei哲学ガイド提案
     if (this.config.enableBunenjinGuidance) {
-      const bunenjinProposals = await this.generateBunenjinProposals(learningData, trigger);
-      proposals.push(...bunenjinProposals);
+      const HaQeiProposals = await this.generateBunenjinProposals(learningData, trigger);
+      proposals.push(...HaQeiProposals);
     }
     
     // 5. コンテキスト特化提案
@@ -463,7 +463,7 @@ export class DynamicPersonaAdjustmentEngine {
           confidence: analysis.confidence,
           expectedImpact: await this.predictImpact(analysis),
           riskAssessment: await this.assessRisk(analysis),
-          bunenjinAlignment: this.calculateBunenjinAlignment(analysis),
+          HaQeiAlignment: this.calculateBunenjinAlignment(analysis),
           tripleOSHarmonyImpact: this.calculateTripleOSImpact(analysis),
           validationResults: [],
           createdAt: new Date()
@@ -501,7 +501,7 @@ export class DynamicPersonaAdjustmentEngine {
             confidence: optimizationResult.confidenceScore,
             expectedImpact: await this.convertMLResultToImpact(optimizationResult),
             riskAssessment: await this.assessMLRisk(optimizationResult),
-            bunenjinAlignment: 0.7, // ML特化のためmid-level
+            HaQeiAlignment: 0.7, // ML特化のためmid-level
             tripleOSHarmonyImpact: optimizationResult.harmonyImpact || 0,
             validationResults: [],
             createdAt: new Date()
@@ -542,7 +542,7 @@ export class DynamicPersonaAdjustmentEngine {
           confidence: analysis.confidence,
           expectedImpact: await this.predictTripleOSImpact(analysis),
           riskAssessment: await this.assessTripleOSRisk(analysis),
-          bunenjinAlignment: analysis.bunenjinCompatibility,
+          HaQeiAlignment: analysis.HaQeiCompatibility,
           tripleOSHarmonyImpact: analysis.expectedHarmonyImprovement,
           validationResults: [],
           createdAt: new Date()
@@ -556,7 +556,7 @@ export class DynamicPersonaAdjustmentEngine {
   }
 
   /**
-   * bunenjin哲学ガイド提案生成
+   * HaQei哲学ガイド提案生成
    */
   private async generateBunenjinProposals(
     learningData: LearningDataPoint[],
@@ -564,12 +564,12 @@ export class DynamicPersonaAdjustmentEngine {
   ): Promise<AdjustmentProposal[]> {
     const proposals: AdjustmentProposal[] = [];
     
-    // bunenjin哲学に基づく改善機会を特定
-    const bunenjinAnalysis = await this.bunenjinGuide.analyzePersonaAlignment(learningData);
+    // HaQei哲学に基づく改善機会を特定
+    const HaQeiAnalysis = await this.HaQeiGuide.analyzePersonaAlignment(learningData);
     
-    for (const insight of bunenjinAnalysis.improvementInsights) {
+    for (const insight of HaQeiAnalysis.improvementInsights) {
       const proposal: AdjustmentProposal = {
-        id: `bunenjin_${Date.now()}_${Math.random().toString(36)}`,
+        id: `HaQei_${Date.now()}_${Math.random().toString(36)}`,
         trigger,
         type: AdjustmentType.BUNENJIN_ALIGNMENT,
         dimensionPath: insight.dimensionPath,
@@ -578,7 +578,7 @@ export class DynamicPersonaAdjustmentEngine {
         confidence: insight.confidence,
         expectedImpact: await this.predictBunenjinImpact(insight),
         riskAssessment: await this.assessBunenjinRisk(insight),
-        bunenjinAlignment: insight.alignmentImprovement,
+        HaQeiAlignment: insight.alignmentImprovement,
         tripleOSHarmonyImpact: insight.tripleOSImpact,
         validationResults: [],
         createdAt: new Date()
@@ -814,7 +814,7 @@ export class DynamicPersonaAdjustmentEngine {
     this.mlModels.set('satisfaction_predictor', new SatisfactionPredictorModel());
     this.mlModels.set('engagement_optimizer', new EngagementOptimizerModel());
     this.mlModels.set('harmony_balancer', new HarmonyBalancerModel());
-    this.mlModels.set('bunenjin_aligner', new BunenjinAlignerModel());
+    this.mlModels.set('HaQei_aligner', new BunenjinAlignerModel());
   }
 
   private extractDimensionValues(user: EnhancedVirtualUser): Map<string, any> {
@@ -930,7 +930,7 @@ export class DynamicPersonaAdjustmentEngine {
       throughput: Math.random() * 1000,
       errorRate: Math.random() * 0.1,
       tripleOSHarmony: Math.random(),
-      bunenjinAlignment: Math.random()
+      HaQeiAlignment: Math.random()
     };
   }
 
@@ -1033,7 +1033,7 @@ interface TripleOSHarmonyAnalysis {
   currentConfiguration: any;
   harmonizedConfiguration: any;
   confidence: number;
-  bunenjinCompatibility: number;
+  HaQeiCompatibility: number;
   expectedHarmonyImprovement: number;
 }
 

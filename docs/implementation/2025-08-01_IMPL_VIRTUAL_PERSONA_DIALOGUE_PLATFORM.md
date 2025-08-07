@@ -4,7 +4,7 @@
 **バージョン**: 1.0.0  
 **対象システム**: HAQEI Analyzer Results Page  
 **実装者**: HAQEI Development Team  
-**プロジェクト哲学**: bunenjin × 易経 × AI技術の融合
+**プロジェクト哲学**: HaQei × 易経 × AI技術の融合
 
 ---
 
@@ -225,7 +225,7 @@ await virtualPersonaView.init();
 
 ## 🎯 プロジェクト哲学の体現
 
-### bunenjin哲学の実装
+### HaQei哲学の実装
 - **分けて分けない**: 3つのOSの独立性と統合性の両立
 - **動的プロセス**: 静的診断から動的自己理解への転換
 - **ユーザー主権**: 解釈の主導権をユーザーに委ねる設計
@@ -261,6 +261,6 @@ await virtualPersonaView.init();
 
 **実装責任者**: HAQEI Development Team  
 **品質保証**: CLAUDE.md準拠 + Tsumiki TDD品質基準達成  
-**哲学監修**: bunenjin × 易経思想完全統合  
+**哲学監修**: HaQei × 易経思想完全統合  
 
 *This implementation represents a milestone in the fusion of ancient wisdom with modern AI technology, creating an unprecedented system for human self-understanding and growth.*

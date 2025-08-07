@@ -4,7 +4,7 @@
  * 目的：
  * - Vue 3コンポーネントでの移行機能統合
  * - リアクティブな移行進捗管理
- * - bunenjin哲学準拠のプライバシー制御
+ * - HaQei哲学準拠のプライバシー制御
  * - Triple OS Architecture完全対応
  * 
  * 機能：
@@ -74,7 +74,7 @@ export function useMigration() {
     timeoutMs: 30000,
     dryRun: false,
     
-    // プライバシー設定（bunenjin哲学準拠）
+    // プライバシー設定（HaQei哲学準拠）
     privacyLevel: 'maximum',
     anonymizeData: false,
     excludeSensitiveData: false,

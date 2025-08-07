@@ -35,7 +35,7 @@
    - 易経64卦関連データ構造
 
 5. **プライバシー設計**
-   - bunenjin哲学に基づくデータ保護
+   - HaQei哲学に基づくデータ保護
    - ゼロトラスト原則実装
    - GDPR準拠・エンドツーエンド暗号化
 
@@ -53,7 +53,7 @@ Requirements定義 → Design設計 → Tasks分解 → TDD実装 → Complete�
 - データベース要件の包括的定義
 - Triple OSアーキテクチャ要件
 - プライバシー・セキュリティ要件
-- bunenjin哲学統合要件
+- HaQei哲学統合要件
 
 #### Phase 2: /kairo-design  
 - PostgreSQL + IndexedDB ハイブリッド設計
@@ -108,7 +108,7 @@ Requirements定義 → Design設計 → Tasks分解 → TDD実装 → Complete�
 ./haqei-database-architect.js privacy-design
 # オプション: --local-first, --zero-trust, --encryption, --anonymization
 ```
-**機能**: bunenjin哲学に基づくプライバシー保護設計
+**機能**: HaQei哲学に基づくプライバシー保護設計
 
 ### 6. 統合テスト
 ```bash
@@ -123,7 +123,7 @@ Requirements定義 → Design設計 → Tasks分解 → TDD実装 → Complete�
 ```
 **機能**: データベースアーキテクチャの現状確認と推奨アクション
 
-## 🏗️ bunenjin哲学統合
+## 🏗️ HaQei哲学統合
 
 ### データプライバシー哲学
 - **ユーザー主権**: データの完全なコントロール権
@@ -146,7 +146,7 @@ Requirements定義 → Design設計 → Tasks分解 → TDD実装 → Complete�
 - **スケーラビリティ**: クラウド・ローカル両対応
 
 ### ビジネス効果
-- **ユーザー信頼**: bunenjin哲学による高いプライバシー保護
+- **ユーザー信頼**: HaQei哲学による高いプライバシー保護
 - **開発効率**: Tsumiki標準化による迅速な実装
 - **保守性**: AI最適化された設計による長期保守性
 - **コンプライアンス**: GDPR等国際基準への完全準拠
@@ -161,7 +161,7 @@ Requirements定義 → Design設計 → Tasks分解 → TDD実装 → Complete�
 
 ### Cipher統合
 - **記憶層**: データベース設計パターンの蓄積
-- **哲学統合**: bunenjin思想のデータ実装記録
+- **哲学統合**: HaQei思想のデータ実装記録
 - **継続学習**: 設計改善の継続的記憶
 
 ### Serena統合
@@ -234,12 +234,12 @@ haqei-database-architect.js
 
 ## 📋 結論
 
-**haqei-database-architect**エージェントは、HAQEIプロジェクトのデータ層統合（TASK-033～045）に特化した専門エージェントとして、Tsumikiフレームワークの力を最大限活用し、bunenjin哲学に基づく高品質なデータベースアーキテクチャ設計を提供します。
+**haqei-database-architect**エージェントは、HAQEIプロジェクトのデータ層統合（TASK-033～045）に特化した専門エージェントとして、Tsumikiフレームワークの力を最大限活用し、HaQei哲学に基づく高品質なデータベースアーキテクチャ設計を提供します。
 
 ### 主要成果
 ✅ **Tsumiki完全統合**: AI駆動標準フローによる効率的設計  
 ✅ **Triple OS特化**: HAQEIアーキテクチャへの完全対応  
-✅ **bunenjin哲学**: プライバシーファーストデータ設計  
+✅ **HaQei哲学**: プライバシーファーストデータ設計  
 ✅ **包括的機能**: 設計からテストまでの完全カバー  
 ✅ **品質保証**: A級判定基準での厳格な品質管理
 

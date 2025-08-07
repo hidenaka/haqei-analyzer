@@ -5,7 +5,7 @@
  * - 卦の視覚的表現
  * - 爻辞の詳細表示
  * - 現在の状況解釈
- * - bunenjin分人間分析
+ * - HaQei分人間分析
  * 
  * Author: HAQEI I Ching Expert Agent
  * Created: 2025-08-04
@@ -60,9 +60,9 @@ class CurrentPositionDisplay {
           <!-- 詳細内容は動的に生成 -->
         </div>
 
-        <!-- bunenjin分人間分析 -->
-        <div class="bunenjin-analysis" id="bunenjinAnalysis" style="display: none;">
-          <!-- bunenjin分析は動的に生成 -->
+        <!-- HaQei分人間分析 -->
+        <div class="HaQei-analysis" id="HaQeiAnalysis" style="display: none;">
+          <!-- HaQei分析は動的に生成 -->
         </div>
       </div>
     `;
@@ -82,8 +82,8 @@ class CurrentPositionDisplay {
     // 詳細情報の更新
     this.updateDetailsDisplay(analysisResult);
     
-    // bunenjin分析の更新
-    this.updateBunenjinDisplay(analysisResult);
+    // HaQei分析の更新
+    this.updateHaQeiDisplay(analysisResult);
     
     // アニメーション効果
     this.animateUpdate();
@@ -267,19 +267,19 @@ class CurrentPositionDisplay {
   }
 
   /**
-   * bunenjin分析の表示更新
+   * HaQei分析の表示更新
    */
-  updateBunenjinDisplay(result) {
-    const bunenjinElement = document.getElementById('bunenjinAnalysis');
+  updateHaQeiDisplay(result) {
+    const HaQeiElement = document.getElementById('HaQeiAnalysis');
     const hexagramData = this.engine.findLineData(result.卦番号, this.parseLinePosition(result.爻));
     
-    // bunenjin分人間分析の生成
+    // HaQei分人間分析の生成
     const personaAnalyses = this.generatePersonaAnalyses(result, hexagramData);
     
-    bunenjinElement.innerHTML = `
-      <div class="bunenjin-content">
-        <h3>bunenjin分人間分析</h3>
-        <div class="bunenjin-subtitle">
+    HaQeiElement.innerHTML = `
+      <div class="HaQei-content">
+        <h3>HaQei分人間分析</h3>
+        <div class="HaQei-subtitle">
           あなたの中の異なる分人から見た、この状況の意味
         </div>
         
@@ -314,7 +314,7 @@ class CurrentPositionDisplay {
       </div>
     `;
     
-    bunenjinElement.style.display = 'block';
+    HaQeiElement.style.display = 'block';
   }
 
   /**

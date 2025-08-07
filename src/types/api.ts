@@ -39,7 +39,7 @@ export interface APIError {
   category: 'CLIENT_ERROR' | 'SERVER_ERROR' | 'VALIDATION_ERROR' | 'AUTH_ERROR' | 'RATE_LIMIT'
   timestamp: string
   requestId?: string
-  bunenjinGuidance?: string
+  HaQeiGuidance?: string
   ichingHexagram?: number
 }
 
@@ -80,7 +80,7 @@ export interface LoginRequest {
   email: string
   password: string
   rememberMe?: boolean
-  bunenjinLevel?: 'basic' | 'advanced' | 'expert'
+  HaQeiLevel?: 'basic' | 'advanced' | 'expert'
 }
 
 /** ログインレスポンス */
@@ -89,14 +89,14 @@ export interface LoginResponse {
   refreshToken: string
   user: UserProfile
   expiresAt: string
-  bunenjinCapabilities: BunenjinCapabilities
+  HaQeiCapabilities: BunenjinCapabilities
 }
 
 /** ユーザープロフィール */
 export interface UserProfile extends TimestampedEntity {
   email: string
   name: string
-  bunenjinLevel: 'public' | 'basic' | 'advanced' | 'expert'
+  HaQeiLevel: 'public' | 'basic' | 'advanced' | 'expert'
   ichingKnowledge: 'none' | 'beginner' | 'intermediate' | 'advanced'
   preferences: UserPreferences
   subscriptionStatus: 'free' | 'premium' | 'expert'
@@ -119,7 +119,7 @@ export interface UserPreferences {
   }
 }
 
-/** bunenjin能力 */
+/** HaQei能力 */
 export interface BunenjinCapabilities {
   multipleDividualsAccess: boolean
   advancedAnalysis: boolean
@@ -136,7 +136,7 @@ export interface BunenjinCapabilities {
 export interface StartDiagnosisRequest {
   type: 'quick' | 'full' | 'expert'
   language?: 'ja' | 'en'
-  bunenjinMode?: boolean
+  HaQeiMode?: boolean
   ichingMode?: boolean
   customQuestions?: string[]
 }
@@ -146,7 +146,7 @@ export interface StartDiagnosisResponse {
   sessionId: string
   questions: Question[]
   estimatedDuration: number
-  bunenjinContext: string
+  HaQeiContext: string
   ichingGuidance?: string
 }
 
@@ -183,7 +183,7 @@ export interface CompleteDiagnosisRequest {
 /** 診断結果取得レスポンス */
 export interface DiagnosisResultResponse {
   result: TripleOSResult
-  bunenjinAlignment: BunenjinAlignment
+  HaQeiAlignment: BunenjinAlignment
   recommendations: string[]
   actionPlan: ActionPlan
   shareUrl?: string
@@ -210,7 +210,7 @@ export interface HexagramResponse {
     aspects: string[]
     guidance: string
   }
-  bunenjinInterpretation?: string
+  HaQeiInterpretation?: string
   modernApplications: string[]
 }
 
@@ -250,7 +250,7 @@ export interface FutureSimulationRequest {
     constraints?: string[]
   }
   ichingBasis?: number[]
-  bunenjinStrategy?: string
+  HaQeiStrategy?: string
 }
 
 /** 未来シミュレーションレスポンス */
@@ -263,7 +263,7 @@ export interface FutureSimulationResponse {
   }
   riskFactors: string[]
   opportunities: string[]
-  bunenjinGuidance: string
+  HaQeiGuidance: string
   ichingWisdom: string
 }
 
@@ -301,7 +301,7 @@ export interface SystemStats {
   activeUsers: number
   totalSessions: number
   completedAnalyses: number
-  bunenjinLevelDistribution: Record<string, number>
+  HaQeiLevelDistribution: Record<string, number>
   ichingUsageStats: Record<number, number>
   performanceMetrics: {
     averageResponseTime: number
@@ -326,7 +326,7 @@ export interface UserManagementRequest {
 export type WebSocketMessageType = 
   | 'analysis_progress'
   | 'real_time_insights'
-  | 'bunenjin_update'
+  | 'HaQei_update'
   | 'iching_guidance'
   | 'system_notification'
   | 'error'
@@ -345,7 +345,7 @@ export interface AnalysisProgress {
   step: string
   progress: number
   currentInsight?: string
-  bunenjinNote?: string
+  HaQeiNote?: string
   estimatedTimeRemaining: number
 }
 
@@ -419,7 +419,7 @@ export type APIEndpoint<TRequest = unknown, TResponse = unknown> = {
   requestType?: TRequest
   responseType?: TResponse
   requiresAuth?: boolean
-  bunenjinLevel?: 'public' | 'basic' | 'advanced' | 'expert'
+  HaQeiLevel?: 'public' | 'basic' | 'advanced' | 'expert'
 }
 
 /** API操作結果 */

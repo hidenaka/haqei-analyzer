@@ -72,7 +72,7 @@ export interface VirtualUser {
 - **保守性**: シンプルな構造でバグ修正が容易
 - **拡張性**: 独立システムで他プロジェクトでも利用可能
 
-### ✅ 3. bunenjin哲学の実践的適用
+### ✅ 3. HaQei哲学の実践的適用
 **哲学的洞察**:
 - **「文人的調和」**: 技術的複雑さと実用性のバランス
 - **「易経的変化」**: 複雑なシステムから単純なシステムへの自然な進化
@@ -180,7 +180,7 @@ async generateUserCohort(count: number, config: ServiceConfig): Promise<VirtualU
 - **理解性**: 新しい開発者でも容易に理解可能
 - **再利用性**: 独立システムで他プロジェクトでも活用可能
 
-### bunenjin哲学的価値の実現
+### HaQei哲学的価値の実現
 - **調和**: 技術的完璧さと実用性の調和達成
 - **変化**: 複雑なシステムから適切な簡素化への進化
 - **実践**: 机上の理論より、実際に使える品質重視
@@ -221,11 +221,11 @@ async generateUserCohort(count: number, config: ServiceConfig): Promise<VirtualU
 
 1. **根本的問題の発見**: 過度な複雑性の問題発見
 2. **実用的解決策の実装**: 82%のコード削減と独立化
-3. **bunenjin哲学の実践**: 技術と実用性の調和実現
+3. **HaQei哲学の実践**: 技術と実用性の調和実現
 4. **プロジェクト品質向上**: 保守性・理解性・拡張性の大幅改善
 
-### bunenjin的価値の実現
-**文人（bunenjin）的アプローチ**により、単なる技術的修正を超えて：
+### HaQei的価値の実現
+**文人（HaQei）的アプローチ**により、単なる技術的修正を超えて：
 - **調和**: 複雑さと単純さのバランス発見
 - **実用**: 机上の理論より実際に使える価値創造
 - **進化**: 自然な変化による品質向上達成
@@ -235,7 +235,7 @@ async generateUserCohort(count: number, config: ServiceConfig): Promise<VirtualU
 - **開発効率向上**
 - **コード品質改善**
 - **保守性確保**
-- **bunenjin哲学の実践的適用**
+- **HaQei哲学の実践的適用**
 
 が実現され、**持続可能な高品質開発体制**の基盤が確立されました。
 
@@ -250,4 +250,4 @@ async generateUserCohort(count: number, config: ServiceConfig): Promise<VirtualU
 
 ---
 
-*"真の改善は、複雑なシステムをより単純で美しいものに変化させることである"* - bunenjin philosophy
+*"真の改善は、複雑なシステムをより単純で美しいものに変化させることである"* - HaQei philosophy

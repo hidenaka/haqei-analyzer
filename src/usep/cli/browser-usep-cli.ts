@@ -108,7 +108,7 @@ class USEPBrowserCLI {
       'os-analyzer': {
         type: 'personality-analysis',
         name: 'Triple OS Analyzer',
-        features: ['64hexagram', 'triple-os', 'bunenjin-philosophy', 'strategic-insights']
+        features: ['64hexagram', 'triple-os', 'HaQei-philosophy', 'strategic-insights']
       },
       'future-simulator': {
         type: 'scenario-simulation',

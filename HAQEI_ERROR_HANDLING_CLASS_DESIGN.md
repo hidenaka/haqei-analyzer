@@ -32,7 +32,7 @@ classDiagram
 
     class PhilosophyValidator {
         -ichingValidator: IChingValidator
-        -bunenjinValidator: BunenjinValidator
+        -HaQeiValidator: BunenjinValidator
         -tripleOSValidator: TripleOSValidator
         +validate(error: CapturedError): Promise~PhilosophyCheck~
         +validateIChingIntegrity(error: CapturedError): Promise~IChingIntegrityCheck~
@@ -402,21 +402,21 @@ export class ErrorClassifier {
     error: CapturedError, 
     philosophyCheck: PhilosophyCheck
   ): Promise<PhilosophyClassification> {
-    const [ichingImpact, bunenjinImpact, tripleOSImpact] = await Promise.all([
+    const [ichingImpact, HaQeiImpact, tripleOSImpact] = await Promise.all([
       this.assessIChingImpact(error, philosophyCheck.ichingIntegrity),
-      this.assessBunenjinImpact(error, philosophyCheck.bunenjinConsistency),
+      this.assessBunenjinImpact(error, philosophyCheck.HaQeiConsistency),
       this.assessTripleOSImpact(error, philosophyCheck.tripleOSArchitecture)
     ]);
 
     return {
       ichingImpact,
-      bunenjinImpact,
+      HaQeiImpact,
       tripleOSImpact,
       overallPhilosophyImpact: this.calculateOverallPhilosophyImpact(
-        ichingImpact, bunenjinImpact, tripleOSImpact
+        ichingImpact, HaQeiImpact, tripleOSImpact
       ),
       requiresPhilosophyGuidance: this.requiresPhilosophyGuidance(
-        ichingImpact, bunenjinImpact, tripleOSImpact
+        ichingImpact, HaQeiImpact, tripleOSImpact
       )
     };
   }
@@ -511,7 +511,7 @@ export class ErrorClassifier {
     const haqeiErrorPatterns = [
       /hexagram/i,
       /iching/i,
-      /bunenjin/i,
+      /HaQei/i,
       /triple.*os/i,
       /persona/i,
       /philosophy/i
@@ -532,17 +532,17 @@ export class ErrorClassifier {
 ```typescript
 /**
  * 哲学的整合性検証エンジン
- * HAQEI三大哲学（易経・bunenjin・Triple OS）との整合性を検証
+ * HAQEI三大哲学（易経・HaQei・Triple OS）との整合性を検証
  */
 export class PhilosophyValidator {
   private ichingValidator: IChingValidator;
-  private bunenjinValidator: BunenjinValidator;
+  private HaQeiValidator: BunenjinValidator;
   private tripleOSValidator: TripleOSValidator;
   private philosophyCache: Map<string, PhilosophyCheck>;
 
   constructor() {
     this.ichingValidator = new IChingValidator();
-    this.bunenjinValidator = new BunenjinValidator();
+    this.HaQeiValidator = new BunenjinValidator();
     this.tripleOSValidator = new TripleOSValidator();
     this.philosophyCache = new Map();
   }
@@ -559,22 +559,22 @@ export class PhilosophyValidator {
       return this.philosophyCache.get(cacheKey)!;
     }
 
-    const [ichingCheck, bunenjinCheck, tripleOSCheck] = await Promise.all([
+    const [ichingCheck, HaQeiCheck, tripleOSCheck] = await Promise.all([
       this.ichingValidator.validateIntegrity(error),
-      this.bunenjinValidator.validateConsistency(error),
+      this.HaQeiValidator.validateConsistency(error),
       this.tripleOSValidator.validateArchitecture(error)
     ]);
 
     const overallAlignment = this.calculateOverallAlignment(
-      ichingCheck, bunenjinCheck, tripleOSCheck
+      ichingCheck, HaQeiCheck, tripleOSCheck
     );
 
     const philosophyCheck: PhilosophyCheck = {
       ichingIntegrity: ichingCheck,
-      bunenjinConsistency: bunenjinCheck,
+      HaQeiConsistency: HaQeiCheck,
       tripleOSArchitecture: tripleOSCheck,
       overallAlignment,
-      violatedPrinciples: this.identifyViolatedPrinciples(ichingCheck, bunenjinCheck, tripleOSCheck),
+      violatedPrinciples: this.identifyViolatedPrinciples(ichingCheck, HaQeiCheck, tripleOSCheck),
       guidanceRequired: overallAlignment < 0.8,
       validationTime: Date.now()
     };
@@ -591,10 +591,10 @@ export class PhilosophyValidator {
   }
 
   /**
-   * bunenjin整合性の個別検証
+   * HaQei整合性の個別検証
    */
   public async validateBunenjinConsistency(error: CapturedError): Promise<BunenjinConsistencyCheck> {
-    return await this.bunenjinValidator.validateConsistency(error);
+    return await this.HaQeiValidator.validateConsistency(error);
   }
 
   /**
@@ -610,13 +610,13 @@ export class PhilosophyValidator {
   public async generatePhilosophyGuidance(philosophyCheck: PhilosophyCheck): Promise<PhilosophyGuidance> {
     const guidanceComponents = await Promise.all([
       this.ichingValidator.generateGuidance(philosophyCheck.ichingIntegrity),
-      this.bunenjinValidator.generateGuidance(philosophyCheck.bunenjinConsistency),
+      this.HaQeiValidator.generateGuidance(philosophyCheck.HaQeiConsistency),
       this.tripleOSValidator.generateGuidance(philosophyCheck.tripleOSArchitecture)
     ]);
 
     return {
       ichingGuidance: guidanceComponents[0],
-      bunenjinGuidance: guidanceComponents[1],
+      HaQeiGuidance: guidanceComponents[1],
       tripleOSGuidance: guidanceComponents[2],
       integratedGuidance: this.integrateGuidance(guidanceComponents),
       actionableSteps: this.generateActionableSteps(philosophyCheck),
@@ -626,21 +626,21 @@ export class PhilosophyValidator {
 
   private calculateOverallAlignment(
     ichingCheck: IChingIntegrityCheck,
-    bunenjinCheck: BunenjinConsistencyCheck,
+    HaQeiCheck: BunenjinConsistencyCheck,
     tripleOSCheck: TripleOSArchitectureCheck
   ): number {
-    const weights = { iching: 0.4, bunenjin: 0.3, tripleOS: 0.3 };
+    const weights = { iching: 0.4, HaQei: 0.3, tripleOS: 0.3 };
     
     return (
       ichingCheck.overallIntegrity * weights.iching +
-      bunenjinCheck.overallConsistency * weights.bunenjin +
+      HaQeiCheck.overallConsistency * weights.HaQei +
       tripleOSCheck.overallArchitectureHealth * weights.tripleOS
     );
   }
 
   private identifyViolatedPrinciples(
     ichingCheck: IChingIntegrityCheck,
-    bunenjinCheck: BunenjinConsistencyCheck,
+    HaQeiCheck: BunenjinConsistencyCheck,
     tripleOSCheck: TripleOSArchitectureCheck
   ): string[] {
     const violations: string[] = [];
@@ -649,8 +649,8 @@ export class PhilosophyValidator {
       violations.push(...ichingCheck.violatedPrinciples);
     }
 
-    if (bunenjinCheck.violatedPrinciples.length > 0) {
-      violations.push(...bunenjinCheck.violatedPrinciples);
+    if (HaQeiCheck.violatedPrinciples.length > 0) {
+      violations.push(...HaQeiCheck.violatedPrinciples);
     }
 
     if (tripleOSCheck.violatedPrinciples.length > 0) {
@@ -782,7 +782,7 @@ export class RecoveryStrategyManager {
   private initializeDefaultStrategies(): void {
     // HAQEI 固有戦略
     this.strategies.set('iching-fallback', new IChingFallbackStrategy());
-    this.strategies.set('bunenjin-guidance', new BunenjinGuidanceStrategy());
+    this.strategies.set('HaQei-guidance', new BunenjinGuidanceStrategy());
     this.strategies.set('triple-os-reset', new TripleOSResetStrategy());
     
     // 汎用戦略
@@ -804,7 +804,7 @@ export class RecoveryStrategyManager {
       case 'haqei-specific':
         candidates.push(
           this.strategies.get('iching-fallback')!,
-          this.strategies.get('bunenjin-guidance')!,
+          this.strategies.get('HaQei-guidance')!,
           this.strategies.get('triple-os-reset')!
         );
         break;
@@ -839,7 +839,7 @@ export class RecoveryStrategyManager {
     if (classifiedError.philosophyClassification.requiresPhilosophyGuidance) {
       candidates.push(
         this.strategies.get('iching-fallback')!,
-        this.strategies.get('bunenjin-guidance')!
+        this.strategies.get('HaQei-guidance')!
       );
     }
 
@@ -1167,7 +1167,7 @@ export class IChingFallbackStrategy extends RecoveryStrategy {
   protected getPhilosophyAlignment(): PhilosophyAlignment {
     return {
       iching: 1.0,        // 易経に完全準拠
-      bunenjin: 0.7,      // bunenjin哲学に部分的準拠
+      HaQei: 0.7,      // HaQei哲学に部分的準拠
       tripleOS: 0.8       // Triple OSアーキテクチャに準拠
     };
   }
@@ -1305,7 +1305,7 @@ export interface ClassifiedError {
 
 export interface PhilosophyCheck {
   ichingIntegrity: IChingIntegrityCheck;
-  bunenjinConsistency: BunenjinConsistencyCheck;
+  HaQeiConsistency: BunenjinConsistencyCheck;
   tripleOSArchitecture: TripleOSArchitectureCheck;
   overallAlignment: number;
   violatedPrinciples: string[];
@@ -1391,7 +1391,7 @@ export interface StrategyMetadata {
 
 export interface PhilosophyAlignment {
   iching: number;
-  bunenjin: number;
+  HaQei: number;
   tripleOS: number;
 }
 
@@ -1405,7 +1405,7 @@ export interface BaseClassification {
 
 export interface PhilosophyClassification {
   ichingImpact: IChingImpact;
-  bunenjinImpact: BunenjinImpact;
+  HaQeiImpact: BunenjinImpact;
   tripleOSImpact: TripleOSImpact;
   overallPhilosophyImpact: number;
   requiresPhilosophyGuidance: boolean;
@@ -1446,4 +1446,4 @@ export interface ErrorTrends {
 
 ---
 
-このクラス設計仕様書により、HAQEIアナライザーの統一エラーハンドリングシステムの実装に必要な全てのクラス構造、インターフェース、および関係性が明確に定義されました。各クラスは単一責任原則に従い、HAQEI哲学（易経・bunenjin・Triple OS）との整合性を保ちながら、拡張性と保守性を確保した設計となっています。
+このクラス設計仕様書により、HAQEIアナライザーの統一エラーハンドリングシステムの実装に必要な全てのクラス構造、インターフェース、および関係性が明確に定義されました。各クラスは単一責任原則に従い、HAQEI哲学（易経・HaQei・Triple OS）との整合性を保ちながら、拡張性と保守性を確保した設計となっています。

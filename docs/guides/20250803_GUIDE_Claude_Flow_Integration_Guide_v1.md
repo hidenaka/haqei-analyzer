@@ -93,7 +93,7 @@ mcp__claude-flow__task_orchestrate({
 
 ### 特化型エージェント
 
-1. **bunenjin-coordinator**: 易経哲学とTriple OS統合
+1. **HaQei-coordinator**: 易経哲学とTriple OS統合
 2. **triple-os-architect**: Engine/Interface/Safe Mode設計
 3. **iching-analyst**: 64卦システムと爻辞分析
 4. **ui-specialist**: 仮想スクロールとリアクティブUI
@@ -101,7 +101,7 @@ mcp__claude-flow__task_orchestrate({
 
 ### メモリ名前空間
 
-- `haqei/bunenjin`: 易経的思考とAI統合の記憶
+- `haqei/HaQei`: 易経的思考とAI統合の記憶
 - `haqei/tripleOS`: 3つのOSアーキテクチャ仕様
 - `haqei/userJourney`: 7段階ナビゲーションフロー
 - `haqei/quality`: 総合満足度4.0以上必達基準
@@ -149,7 +149,7 @@ mcp__claude-flow__memory_usage({
   value: {
     timestamp: Date.now(),
     decision: "3OS独立性維持",
-    rationale: "bunenjin哲学準拠"
+    rationale: "HaQei哲学準拠"
   }
 })
 ```

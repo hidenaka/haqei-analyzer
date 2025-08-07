@@ -1563,13 +1563,13 @@
       }
 
       /**
-       * ステップ5: bunenjin哲学準拠の結果統合
+       * ステップ5: HaQei哲学準拠の結果統合
        */
       integrateTripleOSResults(analysisData) {
         const { eightDimensionVector, engineOS, interfaceOS, safeModeOS } = analysisData;
         
-        // bunenjin表現での統合解釈
-        const integratedInsights = this.generateBunenjinInsights(engineOS, interfaceOS, safeModeOS);
+        // HaQei表現での統合解釈
+        const integratedInsights = this.generateHaQeiInsights(engineOS, interfaceOS, safeModeOS);
         
         // 易経準拠の戦略的活用提案
         const strategicGuidance = this.generateStrategicGuidance(engineOS.hexagramId, eightDimensionVector);
@@ -1579,7 +1579,7 @@
         
         return {
           analysisType: 'Triple OS Architecture',
-          philosophy: 'bunenjin (分人) - Divided Performance Theory',
+          philosophy: 'HaQei (分人) - Divided Performance Theory',
           timestamp: new Date().toISOString(),
           
           // コア分析結果
@@ -1593,8 +1593,8 @@
           strategicGuidance: strategicGuidance,
           systemInteractions: systemInteractions,
           
-          // bunenjin表現準拠
-          bunenjinExpression: {
+          // HaQei表現準拠
+          HaQeiExpression: {
             disclaimer: '参考として一つの視点を提供します',
             perspective: '3つの人格システム理論に基づく分析',
             avoidDeterminism: '決定論を回避し、選択の自由を尊重'
@@ -1679,7 +1679,7 @@
               あなたの3つの人格システムが判明しました
             </div>
             <div class="progress-text">
-              bunenjin哲学準拠の結果をご確認ください
+              HaQei哲学準拠の結果をご確認ください
             </div>
           </div>
           
@@ -1930,15 +1930,15 @@
               </div>
             </div>
 
-            <!-- bunenjin統合見解（美化版） -->
-            <div class="bunenjin-wisdom">
+            <!-- HaQei統合見解（美化版） -->
+            <div class="HaQei-wisdom">
               <div class="wisdom-header">
                 <div class="wisdom-icon">💭</div>
-                <h3 class="wisdom-title">bunenjin 統合見解</h3>
+                <h3 class="wisdom-title">HaQei 統合見解</h3>
               </div>
               
               <div class="wisdom-disclaimer">
-                <p>${results.bunenjinExpression.disclaimer}</p>
+                <p>${results.HaQeiExpression.disclaimer}</p>
               </div>
 
               <div class="wisdom-content">
@@ -2519,8 +2519,8 @@
               line-height: 1.4;
             }
 
-            /* bunenjin統合見解 */
-            .bunenjin-wisdom {
+            /* HaQei統合見解 */
+            .HaQei-wisdom {
               background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.1));
               border: 1px solid rgba(139, 92, 246, 0.3);
               border-radius: var(--radius-xl);
@@ -2657,7 +2657,7 @@
             /* 古いスタイルとの互換性（削除されました） */
             .analysis-results-container,
             .os-result-card,
-            .bunenjin-insights {
+            .HaQei-insights {
               display: none;
             }
           `;
@@ -3263,9 +3263,9 @@
       }
       
       /**
-       * bunenjin統合見解生成
+       * HaQei統合見解生成
        */
-      generateBunenjinInsights(engineOS, interfaceOS, safeModeOS) {
+      generateHaQeiInsights(engineOS, interfaceOS, safeModeOS) {
         const insights = [];
         
         // Engine OSの特徴
@@ -3280,7 +3280,7 @@
         const safeModeInsight = `困難時（Safe Mode OS）は「${safeModeOS.defensePatterns}」で対処する傾向があります`;
         insights.push(safeModeInsight);
         
-        // bunenjin哲学的補足
+        // HaQei哲学的補足
         const philosophy = `これら3つのシステムは状況に応じて使い分けられ、あなたの「分人」としての多様な側面を表しています。どのシステムが優れているということではなく、それぞれが異なる価値を持つものとして、参考にお役立てください。`;
         
         return insights.join('、') + '。' + philosophy;
@@ -3397,7 +3397,7 @@
     // アプリケーション開始
     /**
      * UltraAnalysisEngine - Triple OS分析エンジン
-     * bunenjin哲学に基づく3つのOS（Engine/Interface/Safe Mode）分析システム
+     * HaQei哲学に基づく3つのOS（Engine/Interface/Safe Mode）分析システム
      */
     class UltraAnalysisEngine {
       constructor() {
@@ -3432,7 +3432,7 @@
             hexagram_id: i,
             name_jp: `第${i}卦`,
             reading: "みてい",
-            catchphrase: "bunenjin哲学に基づく深い洞察",
+            catchphrase: "HaQei哲学に基づく深い洞察",
             description: `あなたの本質的な特性を表す第${i}卦です。この卦は、あなたの内なる力と可能性を象徴しています。`,
             keywords: "調和,成長,発展"
           });
@@ -3746,7 +3746,7 @@
           hexagram_id: hexagramId,
           name_jp: `第${hexagramId}卦`,
           reading: "みてい",
-          catchphrase: "bunenjin哲学に基づく独自の解釈",
+          catchphrase: "HaQei哲学に基づく独自の解釈",
           description: "あなたの内なる本質を表す重要な象徴です。",
           keywords: "調和,成長,発展"
         };

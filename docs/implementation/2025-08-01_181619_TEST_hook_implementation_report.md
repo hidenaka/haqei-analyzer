@@ -22,7 +22,7 @@
 
 ### 4. SubagentStop Hook（作業完了後ドキュメント生成）
 - **機能**: エージェント完了時に包括的ドキュメント生成
-- **エージェント対応**: haqei-programmer, bunenjin-strategy-navigator等
+- **エージェント対応**: haqei-programmer, HaQei-strategy-navigator等
 - **出力先**: docs/implementation/, docs/reports/
 
 ### 5. Stop Hook（セッション総合サマリー）
@@ -37,11 +37,11 @@
 - [x] 作業完了後にドキュメントを作成すること
 - [x] 関数仕様コメント必須ルール（2025年8月1日追加）完全対応
 - [x] フォールバック処理適切実装（「🚧 まだ実装していません」明示）
-- [x] bunenjin哲学整合性維持
+- [x] HaQei哲学整合性維持
 
 ## MCPサーバー活用結果
 ### Cipher記憶層
-- bunenjin哲学記憶の継続設定完了
+- HaQei哲学記憶の継続設定完了
 - プロジェクト固有知識の蓄積準備完了
 
 ### Tsumiki品質管理
@@ -73,5 +73,5 @@
 ---
 **生成者**: HAQEI Hook統合テストシステム
 **品質基準**: A級（Tsumiki標準）
-**哲学統合**: bunenjin + I Ching + 現代AI完全融合
+**哲学統合**: HaQei + I Ching + 現代AI完全融合
 **CLAUDE.md準拠**: 完全対応済み

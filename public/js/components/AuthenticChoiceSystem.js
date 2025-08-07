@@ -4,7 +4,7 @@
  * 今の状況のテーマに基づく正確な選択システム
  * - 今の状況のテーマで進む vs 違うテーマを選択する
  * - 本卦→之卦の変化予測
- * - bunenjin分人間対応選択
+ * - HaQei分人間対応選択
  * - リスク・ポテンシャル分析
  * 
  * Author: HAQEI I Ching Expert Agent
@@ -63,8 +63,8 @@ class AuthenticChoiceSystem {
           <!-- 動的に生成 -->
         </div>
 
-        <!-- bunenjin分人間分析 -->
-        <div class="bunenjin-choice-analysis" id="bunenjinChoiceAnalysis" style="display: none;">
+        <!-- HaQei分人間分析 -->
+        <div class="HaQei-choice-analysis" id="HaQeiChoiceAnalysis" style="display: none;">
           <!-- 動的に生成 -->
         </div>
 
@@ -260,8 +260,8 @@ class AuthenticChoiceSystem {
     // 変化予測の表示
     this.displayTransformationPreview(selectedChoice);
     
-    // bunenjin分析の表示
-    this.displayBunenjinChoiceAnalysis(selectedChoice);
+    // HaQei分析の表示
+    this.displayHaQeiChoiceAnalysis(selectedChoice);
     
     // 確認ボタンの表示
     this.showConfirmationButton();
@@ -363,26 +363,26 @@ class AuthenticChoiceSystem {
   }
 
   /**
-   * bunenjin選択分析の表示
+   * HaQei選択分析の表示
    */
-  displayBunenjinChoiceAnalysis(selectedChoice) {
-    const analysisElement = document.getElementById('bunenjinChoiceAnalysis');
-    const bunenjinGuidance = selectedChoice.bunenjinGuidance;
+  displayHaQeiChoiceAnalysis(selectedChoice) {
+    const analysisElement = document.getElementById('HaQeiChoiceAnalysis');
+    const HaQeiGuidance = selectedChoice.HaQeiGuidance;
     
-    if (!bunenjinGuidance) {
+    if (!HaQeiGuidance) {
       analysisElement.style.display = 'none';
       return;
     }
     
     analysisElement.innerHTML = `
-      <div class="bunenjin-choice-content">
-        <h3>👥 bunenjin分人間選択分析</h3>
-        <div class="bunenjin-subtitle">
+      <div class="HaQei-choice-content">
+        <h3>👥 HaQei分人間選択分析</h3>
+        <div class="HaQei-subtitle">
           この選択に対する、あなたの各分人の反応
         </div>
         
         <div class="persona-choice-reactions">
-          ${Object.entries(bunenjinGuidance).filter(([key]) => key !== 'integration').map(([personaKey, guidance]) => `
+          ${Object.entries(HaQeiGuidance).filter(([key]) => key !== 'integration').map(([personaKey, guidance]) => `
             <div class="persona-reaction">
               <div class="persona-header">
                 <h4>${this.getPersonaTitle(personaKey)}</h4>
@@ -409,7 +409,7 @@ class AuthenticChoiceSystem {
         <div class="integration-guidance">
           <h4>🌟 分人間統合ガイダンス</h4>
           <div class="integration-content">
-            <p>${bunenjinGuidance.integration?.guidance || 'この選択において、あなたの異なる分人がどのように協力し合うかを分析中...'}</p>
+            <p>${HaQeiGuidance.integration?.guidance || 'この選択において、あなたの異なる分人がどのように協力し合うかを分析中...'}</p>
           </div>
         </div>
       </div>

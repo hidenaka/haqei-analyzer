@@ -396,21 +396,21 @@
         function runPhilosophyTests() {
             log('🌟 Running HAQEI philosophy integration tests...', 'info');
             
-            // Test 1: Bunenjin Philosophy Alignment
+            // Test 1: HaQei Philosophy Alignment
             try {
-                // Check for bunenjin-related error handling
-                const hasBunenjinSupport = document.querySelector('script[src*="bunenjin"]') \!== null ||
-                                         window.bunenjinSupport \!== undefined;
+                // Check for HaQei-related error handling
+                const hasHaQeiSupport = document.querySelector('script[src*="HaQei"]') \!== null ||
+                                         window.HaQeiSupport \!== undefined;
                 
-                if (hasBunenjinSupport) {
-                    addTestResult('philosophyTestResults', 'Bunenjin Philosophy Alignment', 'pass', 
-                        'Bunenjin philosophy integration detected');
+                if (hasHaQeiSupport) {
+                    addTestResult('philosophyTestResults', 'HaQei Philosophy Alignment', 'pass', 
+                        'HaQei philosophy integration detected');
                 } else {
-                    addTestResult('philosophyTestResults', 'Bunenjin Philosophy Alignment', 'warning', 
-                        'Bunenjin philosophy integration not explicitly detected');
+                    addTestResult('philosophyTestResults', 'HaQei Philosophy Alignment', 'warning', 
+                        'HaQei philosophy integration not explicitly detected');
                 }
             } catch (e) {
-                addTestResult('philosophyTestResults', 'Bunenjin Philosophy Alignment', 'fail', e.message);
+                addTestResult('philosophyTestResults', 'HaQei Philosophy Alignment', 'fail', e.message);
             }
 
             // Test 2: Triple OS Architecture Integration

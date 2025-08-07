@@ -13,7 +13,7 @@ config.global.stubs = {
   // Custom components that might not be available
   'HaqeiComponent': true,
   'IChingHexagram': true,
-  'BunenjinPhilosophyIndicator': true
+  'HaQeiPhilosophyIndicator': true
 }
 
 // Configure global mocks
@@ -49,11 +49,11 @@ config.global.mocks = {
 }
 
 // Mock HAQEI-specific composables
-vi.mock('@/composables/useBunenjinPhilosophy', () => ({
+vi.mock('@/composables/useHaQeiPhilosophy', () => ({
   default: () => ({
     philosophyState: vi.fn(() => ({ isActive: true, principle: 'test' })),
     validatePhilosophy: vi.fn(() => true),
-    applyBunenjinLogic: vi.fn(() => ({ valid: true, message: 'test' }))
+    applyHaQeiLogic: vi.fn(() => ({ valid: true, message: 'test' }))
   })
 }))
 

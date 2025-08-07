@@ -27,7 +27,7 @@
 - フォーカス管理・復元システム
 - スクリーンリーダー最適化
 - リアルタイムコントラスト検証
-- bunenjin哲学要素の特別対応
+- HaQei哲学要素の特別対応
 
 **技術仕様**:
 ```javascript
@@ -103,7 +103,7 @@ setupAccessibility() {
 - ARIA属性動的設定
 - ライブリージョン管理
 
-### 5. **bunenjin哲学アクセシビリティ統合 (A11Y-005)**
+### 5. **HaQei哲学アクセシビリティ統合 (A11Y-005)**
 
 **特別対応要素**:
 - **調和度インジケーター**: `role="progressbar"` + 動的値通知
@@ -113,9 +113,9 @@ setupAccessibility() {
 
 **実装例**:
 ```javascript
-// bunenjin調和度の音声説明
+// HaQei調和度の音声説明
 element.setAttribute('role', 'progressbar');
-element.setAttribute('aria-label', 'bunenjin分人調和度インジケーター');
+element.setAttribute('aria-label', 'HaQei分人調和度インジケーター');
 element.setAttribute('aria-valuenow', harmonyValue);
 element.setAttribute('aria-valuetext', `調和度${harmonyValue}%`);
 ```
@@ -200,7 +200,7 @@ element.setAttribute('aria-valuetext', `調和度${harmonyValue}%`);
 - ✅ **キーボード専用**: 100%の機能にアクセス可能
 - ✅ **音声認識**: Dragon、Windows音声認識
 
-## 🎨 bunenjin哲学統合の独自性
+## 🎨 HaQei哲学統合の独自性
 
 ### **分人理論アクセシビリティ**
 HAQEIアナライザーは世界初の「分人理論」に基づくアクセシビリティを実装:
@@ -346,7 +346,7 @@ if (window.accessibilityManager) {
 - **包括的キーボードサポート**: 全機能にキーボードでアクセス可能
 - **スクリーンリーダー最適化**: 主要スクリーンリーダーで完全動作
 - **レスポンシブアクセシビリティ**: 全デバイスサイズで最適化
-- **bunenjin哲学統合**: 世界初の分人理論アクセシビリティ
+- **HaQei哲学統合**: 世界初の分人理論アクセシビリティ
 
 ### 🚀 **技術的成果**
 - **2,300+行** のアクセシビリティ特化コード

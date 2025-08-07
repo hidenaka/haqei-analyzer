@@ -5,7 +5,7 @@
 ### 前提条件チェックリスト
 - [ ] TypeScript 5.0+ インストール済み
 - [ ] 既存HAQEIアナライザーコードベース理解
-- [ ] 易経・bunenjin・Triple OS 哲学基礎知識
+- [ ] 易経・HaQei・Triple OS 哲学基礎知識
 - [ ] 現在のエラーハンドリング実装の把握完了
 
 ### 開発環境セットアップ
@@ -118,7 +118,7 @@ export class ErrorClassifier {
   private async classifyPhilosophyImpact(error: CapturedError, philosophyCheck: PhilosophyCheck): Promise<PhilosophyClassification> {
     return {
       ichingImpact: await this.assessIChingImpact(error, philosophyCheck),
-      bunenjinImpact: await this.assessBunenjinImpact(error, philosophyCheck),
+      HaQeiImpact: await this.assessBunenjinImpact(error, philosophyCheck),
       tripleOSImpact: await this.assessTripleOSImpact(error, philosophyCheck)
     };
   }
@@ -130,28 +130,28 @@ export class ErrorClassifier {
 // src/core/error-handling/PhilosophyValidator.ts
 export class PhilosophyValidator {
   private ichingValidator: IChingValidator;
-  private bunenjinValidator: BunenjinValidator;
+  private HaQeiValidator: BunenjinValidator;
   private tripleOSValidator: TripleOSValidator;
 
   constructor() {
     this.ichingValidator = new IChingValidator();
-    this.bunenjinValidator = new BunenjinValidator();
+    this.HaQeiValidator = new BunenjinValidator();
     this.tripleOSValidator = new TripleOSValidator();
   }
 
   // 実装優先度: 🟡 中優先
   async validate(error: CapturedError): Promise<PhilosophyCheck> {
-    const [ichingCheck, bunenjinCheck, tripleOSCheck] = await Promise.all([
+    const [ichingCheck, HaQeiCheck, tripleOSCheck] = await Promise.all([
       this.ichingValidator.validateIntegrity(error),
-      this.bunenjinValidator.validateConsistency(error),
+      this.HaQeiValidator.validateConsistency(error),
       this.tripleOSValidator.validateArchitecture(error)
     ]);
 
     return {
       ichingIntegrity: ichingCheck,
-      bunenjinConsistency: bunenjinCheck,
+      HaQeiConsistency: HaQeiCheck,
       tripleOSArchitecture: tripleOSCheck,
-      overallAlignment: this.calculateOverallAlignment(ichingCheck, bunenjinCheck, tripleOSCheck)
+      overallAlignment: this.calculateOverallAlignment(ichingCheck, HaQeiCheck, tripleOSCheck)
     };
   }
 }
@@ -235,7 +235,7 @@ export class RecoveryStrategyManager {
 
   private initializeStrategies(): void {
     this.strategies.set('iching-fallback', new IChingFallbackStrategy());
-    this.strategies.set('bunenjin-guidance', new BunenjinGuidanceStrategy());
+    this.strategies.set('HaQei-guidance', new BunenjinGuidanceStrategy());
     this.strategies.set('triple-os-reset', new TripleOSResetStrategy());
     this.strategies.set('cache-recovery', new CacheRecoveryStrategy());
     this.strategies.set('offline-mode', new OfflineModeStrategy());
@@ -382,7 +382,7 @@ export class IChingValidator {
 }
 ```
 
-#### **Day 24-26: bunenjin ナビゲーション統合**
+#### **Day 24-26: HaQei ナビゲーション統合**
 ```typescript
 // src/core/error-handling/philosophy/BunenjinValidator.ts
 export class BunenjinValidator {
@@ -679,13 +679,13 @@ export class ErrorAnalytics {
 
   private async analyzePhilosophyAlignment(data: ErrorData[]): Promise<PhilosophyAlignmentAnalysis> {
     const ichingAlignmentRate = this.calculateIChingAlignmentRate(data);
-    const bunenjinConsistencyRate = this.calculateBunenjinConsistencyRate(data);
+    const HaQeiConsistencyRate = this.calculateBunenjinConsistencyRate(data);
     const tripleOSStabilityRate = this.calculateTripleOSStabilityRate(data);
 
     return {
-      overall: (ichingAlignmentRate + bunenjinConsistencyRate + tripleOSStabilityRate) / 3,
+      overall: (ichingAlignmentRate + HaQeiConsistencyRate + tripleOSStabilityRate) / 3,
       iching: { rate: ichingAlignmentRate, details: await this.getIChingDetails(data) },
-      bunenjin: { rate: bunenjinConsistencyRate, details: await this.getBunenjinDetails(data) },
+      HaQei: { rate: HaQeiConsistencyRate, details: await this.getBunenjinDetails(data) },
       tripleOS: { rate: tripleOSStabilityRate, details: await this.getTripleOSDetails(data) }
     };
   }
@@ -760,7 +760,7 @@ describe('Critical Error Handling Paths', () => {
 ```typescript
 // Philosophy integration testing
 describe('Philosophy Integration Tests', () => {
-  test('Should provide appropriate bunenjin guidance for navigation errors', async () => {
+  test('Should provide appropriate HaQei guidance for navigation errors', async () => {
     const navigationError = new Error('Persona transition conflict');
     const result = await errorHandler.handleError(navigationError, {
       operation: 'persona-navigation',
@@ -768,7 +768,7 @@ describe('Philosophy Integration Tests', () => {
       toPersona: 'creative'
     });
 
-    expect(result.bunenjinGuidance).toContain('分人');
+    expect(result.HaQeiGuidance).toContain('分人');
     expect(result.recoveryStrategy.name).toBe('BunenjinGuidanceStrategy');
   });
 });
@@ -810,7 +810,7 @@ describe('Edge Cases and Performance', () => {
 
 ### Week 5-6 Milestone Checklist
 - [ ] 易経整合性チェック完全実装
-- [ ] bunenjin ナビゲーション統合完了
+- [ ] HaQei ナビゲーション統合完了
 - [ ] Triple OS アーキテクチャ統合完了
 - [ ] Philosophy-specific APIs 完全実装
 - [ ] 哲学的ガイダンス生成システム完了

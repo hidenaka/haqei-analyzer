@@ -1,12 +1,12 @@
 /* core.css - HAQEIアナライザー基盤システム */
-/* bunenjin哲学: 陰陽調和による基盤設計 */
+/* HaQei哲学: 陰陽調和による基盤設計 */
 
 /* =================================== */
 /* 1. CSS変数システム - 統一された基盤 */
 /* =================================== */
 
 :root {
-  /* カラーシステム - bunenjin哲学：陰陽バランス */
+  /* カラーシステム - HaQei哲学：陰陽バランス */
   --primary-900: #0f172a;
   --primary-800: #1e293b;
   --primary-700: #334155;
@@ -78,6 +78,14 @@
   --trigram-kan-color: #1E90FF;      /* 坎(水) - 青色 */
   --trigram-gen-color: #708090;      /* 艮(山) - 灰色 */
   --trigram-kun-color: #8B4513;      /* 坤(地) - 茶色 */
+
+  /* Chart.js可視化システム */
+  --chart-background-card: rgba(255, 255, 255, 0.95);
+  --chart-background-translucent: rgba(255, 255, 255, 0.1);
+  --chart-text-primary: var(--primary-900);
+  --chart-text-secondary: var(--primary-700);
+  --chart-border-radius: var(--radius-lg);
+  --chart-shadow: var(--shadow-lg);
 }
 
 /* =================================== */

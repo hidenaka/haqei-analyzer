@@ -16,7 +16,7 @@
 
 ### 核心コンポーネント
 
-1. **UnifiedErrorHandler.js** - bunenjin哲学統合のメインハンドラー
+1. **UnifiedErrorHandler.js** - HaQei哲学統合のメインハンドラー
 2. **GlobalErrorSystemInitializer.js** - システム全体の初期化マネージャー
 3. **HAQEIErrorSystemBootstrap.js** - 自動ブートストラップローダー
 4. **HAQEIConfigurationManager.js** - 動的設定管理システム

@@ -184,7 +184,7 @@ import { computed, type PropType } from 'vue'
  * - 3つのOSの基本情報を統合的に表示
  * - 整合性スコアの視覚的表現
  * - 各OSの特性と相互関係の理解促進
- * - bunenjin哲学に基づく洞察の提供
+ * - HaQei哲学に基づく洞察の提供
  */
 
 interface OSInfo {

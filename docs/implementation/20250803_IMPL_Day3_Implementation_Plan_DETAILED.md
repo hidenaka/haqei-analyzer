@@ -14,7 +14,7 @@
 - ✅ **TASK-036**: Basic CRUD operations (1,139 lines, 97/97 tests passed)
 - ✅ **Type Safety**: 1,650+ lines of TypeScript definitions
 - ✅ **Vue 3 Integration**: Composition API optimized
-- ✅ **bunenjin Philosophy**: Privacy-first implementation
+- ✅ **HaQei Philosophy**: Privacy-first implementation
 - ✅ **Triple OS Architecture**: Engine/Interface/SafeMode support
 
 #### 2. **Future Simulator - 90% SUCCESS ACHIEVED**
@@ -50,7 +50,7 @@ CREATE POLICY "session_isolation" ON question_responses
 
 **Implementation Steps:**
 1. Create RLS policies for all main tables
-2. Configure bunenjin philosophy privacy levels
+2. Configure HaQei philosophy privacy levels
 3. Test access control with different user contexts
 4. Implement audit logging for security compliance
 5. Validate data isolation between users
@@ -157,7 +157,7 @@ interface PerformanceMonitor {
 
 #### **Privacy-First RLS Policies**
 ```sql
--- bunenjin philosophy: maximum privacy by default
+-- HaQei philosophy: maximum privacy by default
 CREATE POLICY "maximum_privacy_default" ON users
   FOR ALL USING (id = auth.uid() AND privacy_level = 'maximum');
 

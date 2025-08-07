@@ -3,7 +3,7 @@
  * 
  * 目的:
  * - Future Simulator精度の継続的向上
- * - bunenjin哲学に基づく多面性アルゴリズム最適化
+ * - HaQei哲学に基づく多面性アルゴリズム最適化
  * - Triple OS統合による予測精度向上
  * - 学習データ最適化とバイアス除去
  */
@@ -22,7 +22,7 @@ interface OptimizationResult {
 }
 
 interface OptimizedParameters {
-  bunenjinWeights: BunenjinWeights
+  HaQeiWeights: BunenjinWeights
   tripleOSWeights: TripleOSWeights
   learningFactors: LearningFactors
 }
@@ -98,7 +98,7 @@ export class PrecisionOptimizer {
    */
   private initializeDefaultParameters(): OptimizedParameters {
     return {
-      bunenjinWeights: {
+      HaQeiWeights: {
         multiplicityAcceptance: 0.85, // 高い多面性受容
         harmonyPursuit: 0.75,
         contradictionTolerance: 0.60,
@@ -120,13 +120,13 @@ export class PrecisionOptimizer {
   }
 
   /**
-   * bunenjin哲学アルゴリズムの最適化
+   * HaQei哲学アルゴリズムの最適化
    */
   async optimizeBunenjinAlgorithm(trainingCases: Array<{
     answers: Answer[]
     expectedAccuracy: number
   }>): Promise<OptimizationResult> {
-    console.log('🔯 bunenjin哲学アルゴリズム最適化開始')
+    console.log('🔯 HaQei哲学アルゴリズム最適化開始')
     
     const beforeAccuracy = await this.evaluateCurrentAccuracy(trainingCases)
     
@@ -137,8 +137,8 @@ export class PrecisionOptimizer {
     const harmonyOptimization = await this.optimizeHarmonyPursuit(trainingCases)
     
     // パラメータ更新
-    this.currentParameters.bunenjinWeights = {
-      ...this.currentParameters.bunenjinWeights,
+    this.currentParameters.HaQeiWeights = {
+      ...this.currentParameters.HaQeiWeights,
       ...optimizedWeights,
       ...harmonyOptimization
     }
@@ -146,7 +146,7 @@ export class PrecisionOptimizer {
     const afterAccuracy = await this.evaluateCurrentAccuracy(trainingCases)
     const improvement = afterAccuracy - beforeAccuracy
     
-    console.log(`✅ bunenjin最適化完了: ${(improvement * 100).toFixed(2)}%向上`)
+    console.log(`✅ HaQei最適化完了: ${(improvement * 100).toFixed(2)}%向上`)
     
     return {
       beforeAccuracy,
@@ -163,7 +163,7 @@ export class PrecisionOptimizer {
   private async optimizeMultiplicityAcceptance(trainingCases: any[]): Promise<Partial<BunenjinWeights>> {
     console.log('🔯 多面性受容アルゴリズム最適化中...')
     
-    const weights = this.currentParameters.bunenjinWeights
+    const weights = this.currentParameters.HaQeiWeights
     const testWeights = []
     
     // グリッドサーチで最適な重みを探索
@@ -211,7 +211,7 @@ export class PrecisionOptimizer {
     for (const harmony of harmonyCandidates) {
       for (const flexibility of flexibilityCandidates) {
         const accuracy = await this.testWeightConfiguration({
-          ...this.currentParameters.bunenjinWeights,
+          ...this.currentParameters.HaQeiWeights,
           harmonyPursuit: harmony,
           contextualFlexibility: flexibility
         }, trainingCases.slice(0, 8))
@@ -563,12 +563,12 @@ export class PrecisionOptimizer {
   private async evaluateCurrentAccuracy(trainingCases: any[]): Promise<number> {
     // シミュレート: 現在のパラメータでの精度評価
     const baseAccuracy = 0.88
-    const bunenjinBonus = this.currentParameters.bunenjinWeights.multiplicityAcceptance * 0.05
+    const HaQeiBonus = this.currentParameters.HaQeiWeights.multiplicityAcceptance * 0.05
     const tripleOSBonus = (this.currentParameters.tripleOSWeights.engineOSInfluence + 
                           this.currentParameters.tripleOSWeights.interfaceOSInfluence + 
                           this.currentParameters.tripleOSWeights.safeModeOSInfluence) * 0.03
     
-    return Math.min(0.98, baseAccuracy + bunenjinBonus + tripleOSBonus + (Math.random() - 0.5) * 0.02)
+    return Math.min(0.98, baseAccuracy + HaQeiBonus + tripleOSBonus + (Math.random() - 0.5) * 0.02)
   }
 
   private async testWeightConfiguration(weights: BunenjinWeights, testCases: any[]): Promise<number> {
@@ -667,7 +667,7 @@ export class PrecisionOptimizer {
     const nextSteps = []
     
     // パラメータ分析に基づく推奨事項
-    if (this.currentParameters.bunenjinWeights.multiplicityAcceptance < 0.8) {
+    if (this.currentParameters.HaQeiWeights.multiplicityAcceptance < 0.8) {
       recommendations.push('多面性受容度を向上させることで、より柔軟な予測が可能になります')
       nextSteps.push('multiplicityAcceptance パラメータを 0.85 以上に調整')
     }

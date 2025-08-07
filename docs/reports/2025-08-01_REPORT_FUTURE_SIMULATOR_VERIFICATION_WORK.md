@@ -29,7 +29,7 @@ Future SimulatorがMCP環境で正しく挙動を示しているかをPlaywright
 **現在のMCP構成**:
 ```json
 {
-  "cipher": "bunenjin哲学とプロジェクト記憶 (ポート3001)",
+  "cipher": "HaQei哲学とプロジェクト記憶 (ポート3001)",
   "tsumiki": "AI駆動開発フレームワーク",
   "serena": "セマンティックコード分析",
   "playwright": "ブラウザ自動化テスト"

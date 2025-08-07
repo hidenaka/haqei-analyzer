@@ -2,13 +2,13 @@
 
 ## 概要
 
-本仕様書は、bunenjin（分人）哲学の「シンプルで美しい」設計理念に基づいたFuture Simulatorの包括的なUI/UXデザイン仕様を定義します。易経（I-Ching）の智慧と現代的なユーザビリティ原則を融合し、直感的で美的に優れたユーザーエクスペリエンスを実現します。
+本仕様書は、HaQei（分人）哲学の「シンプルで美しい」設計理念に基づいたFuture Simulatorの包括的なUI/UXデザイン仕様を定義します。易経（I-Ching）の智慧と現代的なユーザビリティ原則を融合し、直感的で美的に優れたユーザーエクスペリエンスを実現します。
 
 ---
 
 ## 1. デザイン原則とコンセプト
 
-### 1.1 bunenjin哲学の具現化
+### 1.1 HaQei哲学の具現化
 
 #### 核心原則
 - **一（Ichi）**: 本質的な美しさへの還元
@@ -852,8 +852,8 @@ select:focus-visible {
 #### イージング関数
 ```css
 :root {
-  /* カスタムイージング（bunenjin flow） */
-  --ease-bunenjin: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* カスタムイージング（HaQei flow） */
+  --ease-HaQei: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-natural: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-gentle: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-energetic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -898,7 +898,7 @@ select:focus-visible {
 }
 
 .slide-in-up {
-  animation: slideInUp var(--duration-slow) var(--ease-bunenjin);
+  animation: slideInUp var(--duration-slow) var(--ease-HaQei);
 }
 
 /* ステガード（段階的）アニメーション */
@@ -1499,7 +1499,7 @@ select:focus-visible {
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-bunenjin: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-HaQei: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 ```
 
@@ -1737,7 +1737,7 @@ class BunenjinThemeSystem {
   }
   
   savePreferences() {
-    localStorage.setItem('bunenjin-theme', JSON.stringify({
+    localStorage.setItem('HaQei-theme', JSON.stringify({
       theme: this.currentTheme,
       trigram: this.currentTrigram
     }));
@@ -1745,7 +1745,7 @@ class BunenjinThemeSystem {
   
   loadSavedPreferences() {
     try {
-      const saved = JSON.parse(localStorage.getItem('bunenjin-theme'));
+      const saved = JSON.parse(localStorage.getItem('HaQei-theme'));
       if (saved) {
         this.currentTheme = saved.theme || 'auto';
         this.currentTrigram = saved.trigram || 'auto';
@@ -1909,7 +1909,7 @@ const themeSystem = new BunenjinThemeSystem();
 
 この包括的なUI/UXデザイン仕様書により、Future Simulatorは以下を実現します：
 
-1. **bunenjin哲学の体現**: シンプルさと美しさの完璧な調和
+1. **HaQei哲学の体現**: シンプルさと美しさの完璧な調和
 2. **易経智慧の統合**: 八卦エネルギーによる直感的な色彩体験
 3. **ユニバーサルアクセシビリティ**: すべてのユーザーに配慮した設計
 4. **レスポンシブ対応**: あらゆるデバイスでの最適な体験
@@ -1920,7 +1920,7 @@ const themeSystem = new BunenjinThemeSystem();
 
 ---
 
-*Designed with bunenjin philosophy - Simple, Beautiful, Harmonious*
+*Designed with HaQei philosophy - Simple, Beautiful, Harmonious*
 
 **Document Version**: 2.0  
 **Last Updated**: 2025-08-06  

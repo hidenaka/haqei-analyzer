@@ -1,6 +1,6 @@
 /**
  * HAQEI Analyzer - Main Application Entry Point
- * TypeScript Strict Mode & bunenjin Philosophy Implementation
+ * TypeScript Strict Mode & HaQei Philosophy Implementation
  */
 
 import { createApp } from 'vue'
@@ -39,7 +39,7 @@ app.config.errorHandler = (error: unknown, instance, info: string): void => {
       errorInfo: info,
       stack: error instanceof Error ? error.stack : undefined
     },
-    bunenjinGuidance: 'Multiple Dividualsの概念では、エラーも学習の機会です。システムと調和を保ちながら解決策を見つけましょう。',
+    HaQeiGuidance: 'Multiple Dividualsの概念では、エラーも学習の機会です。システムと調和を保ちながら解決策を見つけましょう。',
     ichingHexagram: 63, // 既済卦 - 完成の後の注意
     timestamp: new Date()
   }
@@ -59,7 +59,7 @@ app.config.performance = import.meta.env.DEV
 app.config.globalProperties.$haqei = {
   version: '2.0.0',
   buildTime: import.meta.env.VITE_BUILD_TIME || new Date().toISOString(),
-  bunenjinMode: true,
+  HaQeiMode: true,
   ichingEnabled: true
 }
 
@@ -70,7 +70,7 @@ if (import.meta.env.DEV) {
   
   // 開発用デバッグ情報
   console.log('%c🏵️ HAQEI Analyzer', 'color: #667eea; font-size: 24px; font-weight: bold;')
-  console.log('%cbunenjin Philosophy Implementation', 'color: #764ba2; font-size: 16px;')
+  console.log('%cHaQei Philosophy Implementation', 'color: #764ba2; font-size: 16px;')
   console.log('%cTypeScript Strict Mode: Enabled', 'color: #10b981; font-weight: bold;')
   console.log('Build Info:', {
     mode: import.meta.env.MODE,
@@ -93,7 +93,7 @@ try {
     app.mount(appElement)
     
     console.log('✅ HAQEI Analyzer successfully initialized')
-    console.log('🔮 bunenjin philosophy: Multiple Dividuals ready')
+    console.log('🔮 HaQei philosophy: Multiple Dividuals ready')
     console.log('📚 I Ching system: 64 hexagrams loaded')
   }
   
@@ -126,7 +126,7 @@ try {
         <h1 style="font-size: 2rem; margin-bottom: 1rem;">HAQEI Analyzer</h1>
         <p style="font-size: 1.2rem; margin-bottom: 2rem;">アプリケーションの初期化に失敗しました</p>
         <p style="opacity: 0.8; max-width: 600px; line-height: 1.6;">
-          bunenjin哲学では、一時的な困難も成長の機会と捉えます。
+          HaQei哲学では、一時的な困難も成長の機会と捉えます。
           ページを再読み込みするか、しばらく時間をおいてから再度お試しください。
         </p>
         <button 
@@ -158,7 +158,7 @@ declare module '@vue/runtime-core' {
     $haqei: {
       version: string;
       buildTime: string;
-      bunenjinMode: boolean;
+      HaQeiMode: boolean;
       ichingEnabled: boolean;
     };
   }

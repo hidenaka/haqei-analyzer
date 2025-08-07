@@ -1,1 +1,44 @@
-{}
+{
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/.claude-flow/**": true,
+    "**/coverage/**": true,
+    "**/.next/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true,
+    "**/.claude-flow": true,
+    "**/coverage": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "files.maxMemoryForLargeFilesMB": 4096,
+  "extensions.autoUpdate": false,
+  "extensions.autoCheckUpdates": false,
+  "telemetry.telemetryLevel": "off",
+  "workbench.enableExperiments": false,
+  "editor.largeFileOptimizations": true,
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/.git": false,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/Thumbs.db": true
+  },
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "npm.autoDetect": "on",
+  "task.autoDetect": "off",
+  "git.autorefresh": true,
+  "git.autofetch": "all",
+  "search.followSymlinks": false,
+  "files.participants.timeout": 5000
+}

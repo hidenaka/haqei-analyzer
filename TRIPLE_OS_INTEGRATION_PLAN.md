@@ -1,5 +1,5 @@
 # Triple OS統合実装計画 - IMPL-008
-## bunenjin哲学に基づくTriple OS Architecture完全統合
+## HaQei哲学に基づくTriple OS Architecture完全統合
 
 ### 🏗️ システム概要
 
@@ -21,7 +21,7 @@
 30問設問回答 → TripleOSEngine.js → 
 各OS特性分析 → I Ching統合 → 
 序卦伝関係性分析 → 結果可視化 → 
-bunenjin調和表現
+HaQei調和表現
 ```
 
 ### 🔄 統合フローチャート
@@ -38,7 +38,7 @@ bunenjin調和表現
 
 #### Phase 3: 結果表示・可視化
 1. **Chart.js**による3軸レーダーチャート
-2. **bunenjin表現**による調和的UI設計
+2. **HaQei表現**による調和的UI設計
 3. **レスポンシブ対応**による全デバイス最適化
 
 ### 💻 実装詳細設計
@@ -108,7 +108,7 @@ createTripleOSVisualization(data) {
 
 ### 🎨 UI/UXデザイン設計
 
-#### bunenjin哲学によるデザイン原則
+#### HaQei哲学によるデザイン原則
 1. **自然な調和**: 3つのOSの自然な共存表現
 2. **直感的理解**: 複雑さを隠した直感的インターフェース
 3. **適応的表示**: ユーザーの状況に応じた表示調整
@@ -187,9 +187,9 @@ createTripleOSVisualization(data) {
 
 ### 📝 まとめ
 
-この統合実装により、HAQEIアナライザーは世界最高水準のTriple OS分析システムを実現します。bunenjin哲学と易経の叡智を技術的に統合し、ユーザーの複数人格を調和的に表現する革新的なシステムとなります。
+この統合実装により、HAQEIアナライザーは世界最高水準のTriple OS分析システムを実現します。HaQei哲学と易経の叡智を技術的に統合し、ユーザーの複数人格を調和的に表現する革新的なシステムとなります。
 
 ---
 作成日: 2025-08-05
 バージョン: v1.0.0-complete-integration
-作成者: Claude Code + bunenjin Strategy Navigator
+作成者: Claude Code + HaQei Strategy Navigator

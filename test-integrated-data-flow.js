@@ -55,7 +55,7 @@ async function testIntegratedDataFlow() {
       {
         name: '感情的な内容',
         input: 'もう疲れた...何もかもうまくいかない。でも諦めたくない！',
-        expectedFlow: ['感情分析', '状況評価', 'bunenjin視点']
+        expectedFlow: ['感情分析', '状況評価', 'HaQei視点']
       }
     ];
     

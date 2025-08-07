@@ -2,7 +2,7 @@
 
 ## プロジェクト概要
 - **名前**: HAQEI Triple OS分析エンジン易経準拠化プロジェクト
-- **目的**: bunenjin哲学に基づくTriple OS（Engine/Interface/SafeMode）の完全実装
+- **目的**: HaQei哲学に基づくTriple OS（Engine/Interface/SafeMode）の完全実装
 - **重要度**: ★★★ 最高（システムの根幹ロジック）
 
 ## 現状分析
@@ -35,7 +35,7 @@
 1. 易経専門家による妥当性確認
 2. 全3つのOSが64卦から適切な結果出力
 3. 三爻と64卦の本来意味に基づく実装
-4. bunenjin哲学との整合性
+4. HaQei哲学との整合性
 
 ## 重要ファイルパス
 - **メインファイル**: /Users/nakanohideaki/Desktop/haqei-analyzer/emergency_haqei.html
@@ -47,7 +47,7 @@
 2. **高優先**: Interface OS の社会的パターン分析実装
 3. **高優先**: SafeMode OS の防御パターン分析実装
 
-## bunenjin哲学との整合性
+## HaQei哲学との整合性
 - 三爻システムによる内面・関係・行動の統合分析
 - 64卦による包括的人格・状況理解
 - Triple OS による多層的意思決定支援

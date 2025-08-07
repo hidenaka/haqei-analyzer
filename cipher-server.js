@@ -2,7 +2,7 @@
 
 /**
  * HAQEI Analyzer Cipher Integration Server (Simplified)
- * Bunenjin Philosophy + Dual Memory Layer
+ * HaQei Philosophy + Dual Memory Layer
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
@@ -74,7 +74,7 @@ class HAQEICipherServer {
       this.server.listen(port, host, () => {
         this.logger.info(`🔮 HAQEI Cipher Server started on ${host}:${port}`);
         this.logger.info('📊 Dual Memory Layer: Programming Concepts + Reasoning Steps');
-        this.logger.info('🎯 Bunenjin Philosophy Integration: Active');
+        this.logger.info('🎯 HaQei Philosophy Integration: Active');
         this.logger.info('🛡️  Privacy Level: Maximum (Local Storage Only)');
       });
       
@@ -131,7 +131,7 @@ class HAQEICipherServer {
   initializeMemoryContext() {
     const context = {
       project: 'HAQEI Analyzer',
-      philosophy: 'bunenjin',
+      philosophy: 'HaQei',
       architecture: 'Triple OS (Engine/Interface/Safe Mode)',
       principles: [
         'User Sovereignty & Privacy First',
@@ -177,11 +177,11 @@ class HAQEICipherServer {
     res.end(JSON.stringify({ error: 'Not found' }));
   }
 
-  async storeBunenjinContext(context) {
+  async storeHaQeiContext(context) {
     try {
-      const key = `bunenjin-${Date.now()}`;
+      const key = `HaQei-${Date.now()}`;
       const memoryEntry = {
-        type: 'bunenjin-philosophy',
+        type: 'HaQei-philosophy',
         content: context,
         tags: ['philosophy', 'core-principles', 'triple-os'],
         timestamp: new Date().toISOString()
@@ -189,10 +189,10 @@ class HAQEICipherServer {
       
       this.memory.set(key, memoryEntry);
       this.savePersistentMemory(); // Save after storing new context
-      this.logger.info(`Stored bunenjin context with key: ${key}`);
+      this.logger.info(`Stored HaQei context with key: ${key}`);
       return true;
     } catch (error) {
-      this.logger.error('Failed to store bunenjin context:', error);
+      this.logger.error('Failed to store HaQei context:', error);
       return false;
     }
   }
@@ -201,7 +201,7 @@ class HAQEICipherServer {
     try {
       const results = [];
       for (const [key, value] of this.memory.entries()) {
-        if (value.type && ['bunenjin-philosophy', 'iching-logic', 'implementation-patterns'].includes(value.type)) {
+        if (value.type && ['HaQei-philosophy', 'iching-logic', 'implementation-patterns'].includes(value.type)) {
           results.push({ key, ...value });
         }
       }

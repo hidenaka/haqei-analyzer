@@ -79,9 +79,9 @@
             return results;
         }
         
-        // T404: bunenjin Philosophy Validation
-        async function testBunenjinPhilosophy() {
-            const results = { name: "T404: bunenjin Philosophy (98%+)", status: "PASS", validation: {} };
+        // T404: HaQei Philosophy Validation
+        async function testHaQeiPhilosophy() {
+            const results = { name: "T404: HaQei Philosophy (98%+)", status: "PASS", validation: {} };
             
             // Check for identity-fixing language removal
             const identityTerms = ['あなたは', 'あなたの性格は', '~な人', '決めつけ'];
@@ -138,7 +138,7 @@
             testResults.push(await testUnitCoverage());
             testResults.push(await testIntegration());
             testResults.push(await testPerformance());
-            testResults.push(await testBunenjinPhilosophy());
+            testResults.push(await testHaQeiPhilosophy());
             testResults.push(await testIChingValidation());
             testResults.push(await testSecurityAudit());
             

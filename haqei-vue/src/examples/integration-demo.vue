@@ -3,7 +3,7 @@
   
   目的：
   - RLS + データ移行 + IndexedDB の実際の連携動作を実演
-  - bunenjin哲学準拠のプライバシー保護デモ
+  - HaQei哲学準拠のプライバシー保護デモ
   - Vue3 Composition API での統合利用例
   - エンタープライズ級品質の統合システムの紹介
   
@@ -28,7 +28,7 @@
         RLS・データ移行・IndexedDB の完全統合システム
       </p>
       <div class="demo-badges">
-        <span class="badge bunenjin">🔒 bunenjin哲学準拠</span> 
+        <span class="badge HaQei">🔒 HaQei哲学準拠</span> 
         <span class="badge triple-os">🎯 Triple OS統合</span>
         <span class="badge enterprise">🏢 エンタープライズ級</span>
       </div>
@@ -447,7 +447,7 @@
     <footer class="demo-footer">
       <div class="footer-content">
         <p>🚀 HAQEI 3大基盤技術統合システム</p>
-        <p>🔒 bunenjin哲学準拠 | 🎯 Triple OS Architecture | 🏢 エンタープライズ級品質</p>
+        <p>🔒 HaQei哲学準拠 | 🎯 Triple OS Architecture | 🏢 エンタープライズ級品質</p>
         <div class="footer-actions">
           <button @click="showDebugPanel = !showDebugPanel" class="btn small">
             {{ showDebugPanel ? '🔼 デバッグパネル非表示' : '🔽 デバッグパネル表示' }}
@@ -1052,7 +1052,7 @@ watch([migrateEngineOS, migrateInterfaceOS, migrateSafeModeOS], ([engine, interf
   font-weight: bold;
 }
 
-.badge.bunenjin {
+.badge.HaQei {
   background: linear-gradient(45deg, #4CAF50, #45a049);
 }
 

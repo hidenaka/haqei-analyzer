@@ -179,7 +179,7 @@ document.documentElement.style.cssText = `
 - ✅ 継続監視による安定性確保
 - ✅ ユーザー体験の大幅改善
 
-**HAQEI Analyzerは現在、完全に動作可能な状態であり、ユーザーは分析を開始して、bunenjin哲学と易経の智慧を体験できます。**
+**HAQEI Analyzerは現在、完全に動作可能な状態であり、ユーザーは分析を開始して、HaQei哲学と易経の智慧を体験できます。**
 
 ---
 

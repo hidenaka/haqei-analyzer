@@ -176,7 +176,7 @@ class HexagramDetailsFallback {
     };
 
     // Interface OS詳細（パーソナライズ優先）
-    const interface = personalizedInterface || {
+    const userInterface = personalizedInterface || {
       how_it_appears: this.generateAppearance(upperTrigramId, lowerTrigramId),
       behavioral_patterns: this.combineBehaviors(upperChars, lowerChars),
       impression_on_others: this.generateImpression(upperTrigramId, lowerTrigramId)
@@ -206,7 +206,7 @@ class HexagramDetailsFallback {
       description: hexagramData.description || `${hexagramData.name_jp}の卦は、独特な価値観と深い洞察力を持つ存在です。`,
       keywords: hexagramData.keywords ? hexagramData.keywords.split(',') : ['成長', '変化', '調和'],
       engine,
-      interface,
+      interface: userInterface,
       safe_mode,
       trigrams,
       triple_os_enhanced: enhancedContext ? true : false,

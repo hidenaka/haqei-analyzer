@@ -10,7 +10,7 @@
  * - 決済システム (Stripe/Webhook/サブスクリプション)
  * - インフラ・本番運用 (CI/CD/CDN/モニタリング)
  * - セキュリティ・パフォーマンス最適化
- * - bunenjin哲学に基づくプライバシーファースト運用
+ * - HaQei哲学に基づくプライバシーファースト運用
  * 
  * 対象タスク: TASK-046～085（認証・決済・本番移行）
  */
@@ -35,7 +35,7 @@ const AGENT_INFO = {
         'TASK-076', 'TASK-077', 'TASK-078', 'TASK-079', 'TASK-080', // セキュリティ
         'TASK-081', 'TASK-082', 'TASK-083', 'TASK-084', 'TASK-085'  // 本番移行
     ],
-    philosophy: 'bunenjin哲学統合DevOps（プライバシーファースト・ユーザー主権）',
+    philosophy: 'HaQei哲学統合DevOps（プライバシーファースト・ユーザー主権）',
     tsumikiIntegrated: true,
     securityFirst: true
 };
@@ -81,7 +81,7 @@ program
                     'Rate Limiting',
                     'IPフィルタリング'
                 ],
-                bunenjinPrivacy: [
+                HaQeiPrivacy: [
                     'ユーザー主権認証',
                     '最小権限原則',
                     'プライバシーファースト設計',
@@ -112,7 +112,7 @@ program
                 haqeiIntegration: {
                     tripleOS: 'Engine/Interface/SafeMode権限分離',
                     dataAccess: 'Triple OSベースアクセス制御',
-                    privacy: 'bunenjin哲学統合認証フロー'
+                    privacy: 'HaQei哲学統合認証フロー'
                 }
             });
 
@@ -201,7 +201,7 @@ program
                     '売上レポート・分析'
                 ].filter(Boolean),
                 compliance: ['PCI DSS', '割賦販売法', '特定商取引法'],
-                bunenjinPrinciples: [
+                HaQeiPrinciples: [
                     '透明な価格設定',
                     'ユーザーの支払い主権',
                     'データ最小化',
@@ -357,7 +357,7 @@ program
                 ],
                 haqeiOptimizations: [
                     'Triple OS Build Optimization',
-                    'bunenjin Philosophy Compliance Check',
+                    'HaQei Philosophy Compliance Check',
                     'Privacy-First Deployment Strategy'
                 ]
             });
@@ -834,7 +834,7 @@ program
                 haqeiSpecific: [
                     'Triple OS Security Isolation',
                     '易経データ Protection',
-                    'bunenjin Privacy Compliance'
+                    'HaQei Privacy Compliance'
                 ]
             });
 
@@ -1033,7 +1033,7 @@ async function executeTsumikiCommand(command, parameters) {
         aiOptimized: true,
         devopsSpecialized: true,
         securityFirst: true,
-        bunenjinPhilosophyIntegrated: true
+        HaQeiPhilosophyIntegrated: true
     };
     
     console.log(`   ✅ /${command} 完了 (DevOps特化設計)`);
@@ -1132,7 +1132,7 @@ async function checkDevOpsStatus() {
             backup: false
         },
         tsumikiIntegrated: true,
-        bunenjinCompliant: true
+        HaQeiCompliant: true
     };
 }
 

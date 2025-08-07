@@ -104,7 +104,7 @@ export class TripleOSEngine {
   private calculator: typeof calculator
   private dataManager: DataManager | null
   private trigramMapping: TrigramMapping
-  private bunenjinImplementationStatus: BunenjinStatus
+  private HaQeiImplementationStatus: BunenjinStatus
   
   // Keyword maps for Interface/SafeMode OS matching
   private interfaceKeywords: Map<string, string[]> = new Map()
@@ -115,7 +115,7 @@ export class TripleOSEngine {
     this.dataManager = dataManager || null
     this.trigramMapping = this.initializeTrigramMapping()
     this.initializeKeywordMaps()
-    this.bunenjinImplementationStatus = this.initializeBunenjinStatus()
+    this.HaQeiImplementationStatus = this.initializeBunenjinStatus()
     
     console.log('🚀 TripleOSEngine initialized (TypeScript version)')
   }
@@ -709,13 +709,13 @@ export class TripleOSEngine {
   private enrichAnalysisWithBunenjinData(analysisResult: TripleOSAnalysisResult): TripleOSAnalysisResult {
     return {
       ...analysisResult,
-      bunenjinImplementation: {
-        status: this.bunenjinImplementationStatus,
+      HaQeiImplementation: {
+        status: this.HaQeiImplementationStatus,
         philosophicalAlignment: {
-          supportsDividedPersonality: this.bunenjinImplementationStatus.dividedPersonalitySupport,
-          rejectsUnifiedSelf: this.bunenjinImplementationStatus.rejectsUnifiedSelfConcept,
-          embracesMultiplicity: this.bunenjinImplementationStatus.embracesMultiplicity,
-          enablesContextualAdaptation: this.bunenjinImplementationStatus.tripleOSStructure.enablesContextualPersonality
+          supportsDividedPersonality: this.HaQeiImplementationStatus.dividedPersonalitySupport,
+          rejectsUnifiedSelf: this.HaQeiImplementationStatus.rejectsUnifiedSelfConcept,
+          embracesMultiplicity: this.HaQeiImplementationStatus.embracesMultiplicity,
+          enablesContextualAdaptation: this.HaQeiImplementationStatus.tripleOSStructure.enablesContextualPersonality
         }
       }
     }

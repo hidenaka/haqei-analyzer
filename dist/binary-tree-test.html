@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Binary Tree Future System Test</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .results-section {
+            display: none;
+            margin-top: 30px;
+        }
+        .tree-visualization {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .branch-level {
+            margin-left: 30px;
+            margin-top: 10px;
+            padding: 10px;
+            border-left: 3px solid #4CAF50;
+        }
+        .branch-option {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .branch-title {
+            font-weight: bold;
+            color: #333;
+        }
+        .branch-description {
+            color: #666;
+            margin-top: 5px;
+        }
+        .probability {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .final-paths {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .path-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        .path-card:hover {
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .path-index {
+            background: #4CAF50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌳 HAQEI 二分木型未来分岐システム テスト</h1>
+        
+        <div class="input-section">
+            <h2>テキスト入力</h2>
+            <textarea id="text-input" placeholder="現在の状況や質問を入力してください...">新しいプロジェクトを始めるべきか迷っています</textarea>
+            <br>
+            <button id="analyze-btn">🔮 未来分岐を分析</button>
+            <button id="test-btn">🧪 テストデータで実行</button>
+        </div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            分析中... 🔄
+        </div>
+        
+        <div id="results-section" class="results-section">
+            <h2>分析結果</h2>
+            
+            <div class="tree-visualization" id="tree-visualization">
+                <h3>🌳 二分木分岐構造</h3>
+                <div id="tree-content"></div>
+            </div>
+            
+            <div class="tree-visualization">
+                <h3>🎯 最終8つの道筋</h3>
+                <div id="final-paths" class="final-paths"></div>
+            </div>
+            
+            <div class="tree-visualization">
+                <h3>📊 詳細データ</h3>
+                <pre id="raw-data" style="overflow-x: auto; font-size: 12px;"></pre>
+            </div>
+        </div>
+        
+        <div id="error" class="error" style="display: none;"></div>
+    </div>
+
+    <!-- Load H384 Database -->
+    <script src="./assets/H384H64database.js"></script>
+    
+    <!-- Load Binary Tree Future Engine -->
+    <script src="./js/core/BinaryTreeFutureEngine.js"></script>
+    
+    <script>
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🌳 Binary Tree Test Page Ready');
+            
+            // Check if engine is loaded
+            if (typeof BinaryTreeFutureEngine === 'undefined') {
+                showError('BinaryTreeFutureEngine not loaded');
+                return;
+            }
+            
+            // Initialize engine
+            const engine = new BinaryTreeFutureEngine();
+            console.log('✅ BinaryTreeFutureEngine initialized');
+            
+            // Analyze button handler
+            document.getElementById('analyze-btn').addEventListener('click', async () => {
+                const text = document.getElementById('text-input').value;
+                if (!text.trim()) {
+                    showError('テキストを入力してください');
+                    return;
+                }
+                await analyzeText(text);
+            });
+            
+            // Test button handler
+            document.getElementById('test-btn').addEventListener('click', async () => {
+                const testText = '新しいビジネスチャンスが訪れましたが、リスクも大きいです。どう判断すべきでしょうか。';
+                document.getElementById('text-input').value = testText;
+                await analyzeText(testText);
+            });
+            
+            async function analyzeText(text) {
+                showLoading(true);
+                hideError();
+                
+                try {
+                    // Generate random line number for testing (1-384)
+                    const lineNumber = Math.floor(Math.random() * 384) + 1;
+                    console.log(`🎲 Testing with line number: ${lineNumber}`);
+                    
+                    // Generate binary tree futures
+                    const result = await engine.generateBinaryTreeFutures(lineNumber, {
+                        inputText: text,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    console.log('🌳 Binary tree result:', result);
+                    
+                    // Display results
+                    displayResults(result);
+                    
+                } catch (error) {
+                    console.error('❌ Analysis error:', error);
+                    showError(`エラー: ${error.message}`);
+                } finally {
+                    showLoading(false);
+                }
+            }
+            
+            function displayResults(result) {
+                // Show results section
+                document.getElementById('results-section').style.display = 'block';
+                
+                // Display tree structure
+                displayTreeStructure(result.binaryTree);
+                
+                // Display final 8 paths
+                displayFinalPaths(result.finalEightPaths);
+                
+                // Display raw data
+                document.getElementById('raw-data').textContent = JSON.stringify(result, null, 2);
+            }
+            
+            function displayTreeStructure(tree) {
+                let html = '';
+                
+                // Level 1
+                html += '<div class="branch-level">';
+                html += '<h4>第1分岐（基本方針）</h4>';
+                for (const [key, branch] of Object.entries(tree.level1)) {
+                    html += `
+                        <div class="branch-option">
+                            <div class="branch-title">${branch.title}</div>
+                            <div class="branch-description">${branch.description}</div>
+                            <div class="probability">確率: ${(branch.probability * 100).toFixed(1)}%</div>
+                        </div>
+                    `;
+                }
+                html += '</div>';
+                
+                // Level 2
+                html += '<div class="branch-level">';
+                html += '<h4>第2分岐（具体的方法）</h4>';
+                for (const [parentKey, branches] of Object.entries(tree.level2)) {
+                    for (const [key, branch] of Object.entries(branches)) {
+                        html += `
+                            <div class="branch-option">
+                                <div class="branch-title">${branch.title}</div>
+                                <div class="branch-description">${branch.description}</div>
+                                <div class="probability">累積確率: ${(branch.cumulative_probability * 100).toFixed(1)}%</div>
+                            </div>
+                        `;
+                    }
+                }
+                html += '</div>';
+                
+                document.getElementById('tree-content').innerHTML = html;
+            }
+            
+            function displayFinalPaths(paths) {
+                let html = '';
+                
+                if (paths && paths.length > 0) {
+                    paths.forEach(path => {
+                        html += `
+                            <div class="path-card">
+                                <div class="path-index">第${path.pathIndex}の道</div>
+                                <div class="branch-title">${path.title}</div>
+                                <div class="branch-description">${path.fullDescription}</div>
+                                <div class="probability">確率: ${(path.probability * 100).toFixed(1)}%</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html = '<p>最終パスが生成されませんでした</p>';
+                }
+                
+                document.getElementById('final-paths').innerHTML = html;
+            }
+            
+            function showLoading(show) {
+                document.getElementById('loading').style.display = show ? 'block' : 'none';
+            }
+            
+            function showError(message) {
+                const errorEl = document.getElementById('error');
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+            }
+            
+            function hideError() {
+                document.getElementById('error').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

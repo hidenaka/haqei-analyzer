@@ -6,7 +6,7 @@ HAQEI (Harmony Analysis through Quantum Eastern Intelligence) は、古典的易
 
 ### 世界初の特徴
 
-- **bunenjin哲学統合**: プライバシー最優先の東洋的設計思想
+- **HaQei哲学統合**: プライバシー最優先の東洋的設計思想
 - **Triple OS分析**: Engine（価値観）・Interface（社会性）・SafeMode（防御機能）の統合診断
 - **64卦システム**: 易経理論の現代的デジタル実装
 - **文化適応型UI**: 東洋的美意識に基づくインターフェース
@@ -26,7 +26,7 @@ HAQEI (Harmony Analysis through Quantum Eastern Intelligence) は、古典的易
 - **Migration System** - データ完全性保証
 
 ### セキュリティ・プライバシー
-- **bunenjin準拠設計** - ユーザー完全制御
+- **HaQei準拠設計** - ユーザー完全制御
 - **オフライン優先** - インターネット非依存動作
 - **データ主権** - 個人データ完全管理
 - **透明性保証** - 全処理工程明確化
@@ -106,7 +106,7 @@ HAQEI (Harmony Analysis through Quantum Eastern Intelligence) は、古典的易
 4. **教育・研修分野** - 人材開発市場
 
 ### 競合優位性
-- **唯一無二の哲学統合** - bunenjin + 易経
+- **唯一無二の哲学統合** - HaQei + 易経
 - **完全プライバシー保護** - データ主権実現
 - **90%以上診断精度** - 検証済み高精度
 - **文化的適応性** - 東洋・西洋両対応

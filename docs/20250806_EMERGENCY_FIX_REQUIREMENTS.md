@@ -23,7 +23,7 @@
 
 ### 2.1 必須機能
 - ウェルカム画面の表示
-- bunenjin philosophy簡易説明
+- HaQei philosophy簡易説明
 - 30問質問フロー
 - Triple OS結果表示
 - エラーハンドリング

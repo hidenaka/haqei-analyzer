@@ -1,7 +1,7 @@
 /**
  * app.js - Future Simulator v2.0 Main Application
  * 
- * bunenjin哲学による統合アプリケーション
+ * HaQei哲学による統合アプリケーション
  * ES6モジュールシステムとイベント駆動アーキテクチャ
  * 
  * Author: HAQEI Programmer Agent

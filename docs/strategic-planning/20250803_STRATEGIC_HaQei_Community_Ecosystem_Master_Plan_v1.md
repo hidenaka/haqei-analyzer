@@ -9,9 +9,9 @@
 
 ## 🎯 エグゼクティブサマリー
 
-### **ビジョン**: bunenjin哲学に基づく世界最大の自己成長コミュニティ創造
+### **ビジョン**: HaQei哲学に基づく世界最大の自己成長コミュニティ創造
 
-HaQeiを中心とした革新的コミュニティエコシステムを構築し、25-45歳の知識労働者・クリエイティブ職が自然に集まり、Triple OS理論とbunenjin哲学を通じて相互成長する自己組織化プラットフォームを実現します。
+HaQeiを中心とした革新的コミュニティエコシステムを構築し、25-45歳の知識労働者・クリエイティブ職が自然に集まり、Triple OS理論とHaQei哲学を通じて相互成長する自己組織化プラットフォームを実現します。
 
 ### **核心戦略**
 1. **段階的コミュニティ構築**: Beta → Growth → Scale の3段階展開
@@ -358,7 +358,7 @@ class TripleOSCompatibilityEngine {
 }
 ```
 
-### **2. bunenjin哲学に基づく成長フレームワーク**
+### **2. HaQei哲学に基づく成長フレームワーク**
 
 #### **段階的成長支援システム**
 ```typescript
@@ -443,7 +443,7 @@ interface ReferralSystem {
 #### **コンテンツマーケティング戦略**
 
 **1. SEO・オーガニック流入強化**
-- **ロングテールキーワード**: "Triple OS 診断"、"東洋哲学 自己分析"、"bunenjin 成長"
+- **ロングテールキーワード**: "Triple OS 診断"、"東洋哲学 自己分析"、"HaQei 成長"
 - **専門記事**: 月間20-30記事の質の高い専門コンテンツ
 - **ユーザー生成コンテンツ**: コミュニティの洞察・体験談をSEO記事化
 
@@ -579,7 +579,7 @@ interface CommunityGovernance {
   };
   
   communityRules: {
-    coreValues: CommunityValues; // bunenjin哲学ベース
+    coreValues: CommunityValues; // HaQei哲学ベース
     behaviorGuidelines: ConductGuidelines;
     contentStandards: QualityStandards;
     conflictResolution: DisputeResolution;
@@ -1045,7 +1045,7 @@ interface BusinessRiskManagement {
 
 #### **ユーザーにとっての価値**
 1. **個人の深い自己理解**: Triple OS分析による科学的自己認識
-2. **継続的な成長支援**: bunenjin哲学に基づく段階的成長システム
+2. **継続的な成長支援**: HaQei哲学に基づく段階的成長システム
 3. **質の高い人的ネットワーク**: 相性の良いメンター・仲間との出会い
 4. **実践的な智慧の獲得**: コミュニティ知識の活用・貢献
 5. **人生の方向性明確化**: Future Simulatorによる戦略的人生設計

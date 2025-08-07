@@ -457,5 +457,5 @@ class CriticalProductiveCard {
 
 **更新履歴:**
 - 2025-07-28: 初版作成
-- 作成者: bunenjin-strategy-navigator
+- 作成者: HaQei-strategy-navigator
 - レビュー: pending

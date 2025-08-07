@@ -7,18 +7,18 @@
  * - 直感的なエラー表示
  * - 復旧アクション提案
  * - 易経に基づく哲学的ガイダンス
- * - bunenjin分人対応メッセージ
+ * - HaQei分人対応メッセージ
  * - アニメーション付きUI
  * 
  * @version 2.0.0
  * @author HAQEI Development Team
- * @philosophy bunenjin Triple OS
+ * @philosophy HaQei Triple OS
  */
 
 class ErrorDisplayUI {
     constructor(config = {}) {
         this.version = "2.0.0";
-        this.philosophy = "bunenjin-iching-guidance";
+        this.philosophy = "HaQei-iching-guidance";
         
         this.config = {
             containerId: config.containerId || 'error-display-container',
@@ -45,8 +45,8 @@ class ErrorDisplayUI {
         // Hexagram guidance database
         this.hexagramGuidance = this.initializeHexagramGuidance();
         
-        // bunenjin persona messages
-        this.bunenjinMessages = this.initializeBunenjinMessages();
+        // HaQei persona messages
+        this.HaQeiMessages = this.initializeHaQeiMessages();
 
         this.initialize();
     }
@@ -222,7 +222,7 @@ class ErrorDisplayUI {
                 color: #e0e0e0;
             }
 
-            .haqei-bunenjin-personas {
+            .haqei-HaQei-personas {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
                 gap: 12px;
@@ -459,7 +459,7 @@ class ErrorDisplayUI {
                     padding: 16px;
                 }
                 
-                .haqei-bunenjin-personas {
+                .haqei-HaQei-personas {
                     grid-template-columns: 1fr;
                 }
                 
@@ -582,9 +582,9 @@ class ErrorDisplayUI {
     }
 
     /**
-     * bunenjin分人メッセージ初期化
+     * HaQei分人メッセージ初期化
      */
-    initializeBunenjinMessages() {
+    initializeHaQeiMessages() {
         return {
             analyticalSelf: {
                 name: "分析的分人",
@@ -736,7 +736,7 @@ class ErrorDisplayUI {
                 <div class="haqei-error-content">
                     <div class="haqei-error-message"></div>
                     <div class="haqei-philosophical-guidance"></div>
-                    <div class="haqei-bunenjin-personas"></div>
+                    <div class="haqei-HaQei-personas"></div>
                     <div class="haqei-error-actions"></div>
                     <details class="haqei-error-details">
                         <summary>詳細情報（開発者向け）</summary>
@@ -767,7 +767,7 @@ class ErrorDisplayUI {
         notification.className = `haqei-error-notification ${this.getSeverityClass(errorData.classification?.severity)}`;
         
         const guidance = this.getHexagramGuidance(errorData.classification?.hexagram);
-        const persona = this.getActivePersona(errorData.classification?.bunenjinPersona);
+        const persona = this.getActivePersona(errorData.classification?.HaQeiPersona);
         
         notification.innerHTML = `
             <div class="haqei-notification-header">
@@ -800,7 +800,7 @@ class ErrorDisplayUI {
         
         const hexagram = errorData.classification?.hexagram || 1;
         const guidance = this.getHexagramGuidance(hexagram);
-        const personas = this.getBunenjinPersonas(errorData);
+        const personas = this.getHaQeiPersonas(errorData);
         
         // Update hexagram and title
         const hexagramEl = this.modal.querySelector('.haqei-error-hexagram');
@@ -819,8 +819,8 @@ class ErrorDisplayUI {
             <p>${guidance.guidance}</p>
         `;
         
-        // Update bunenjin personas
-        const personasEl = this.modal.querySelector('.haqei-bunenjin-personas');
+        // Update HaQei personas
+        const personasEl = this.modal.querySelector('.haqei-HaQei-personas');
         personasEl.innerHTML = personas.map(persona => `
             <div class="haqei-persona-card ${persona.active ? 'active' : ''}">
                 <span class="haqei-persona-icon">${persona.icon}</span>
@@ -975,13 +975,13 @@ class ErrorDisplayUI {
 
     getActivePersona(personaType) {
         const type = personaType || 'analyticalSelf';
-        return this.bunenjinMessages[type] || this.bunenjinMessages.analyticalSelf;
+        return this.HaQeiMessages[type] || this.HaQeiMessages.analyticalSelf;
     }
 
-    getBunenjinPersonas(errorData) {
-        const activePersona = errorData.classification?.bunenjinPersona || 'analyticalSelf';
+    getHaQeiPersonas(errorData) {
+        const activePersona = errorData.classification?.HaQeiPersona || 'analyticalSelf';
         
-        return Object.entries(this.bunenjinMessages).map(([key, persona]) => ({
+        return Object.entries(this.HaQeiMessages).map(([key, persona]) => ({
             ...persona,
             active: key === activePersona
         }));
@@ -1123,4 +1123,4 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = ErrorDisplayUI;
 }
 
-console.log("✅ Error Display UI v2.0.0 loaded - bunenjin philosophy & I Ching guidance ready");
+console.log("✅ Error Display UI v2.0.0 loaded - HaQei philosophy & I Ching guidance ready");

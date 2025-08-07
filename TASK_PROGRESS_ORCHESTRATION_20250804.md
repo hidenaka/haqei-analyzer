@@ -23,7 +23,7 @@
 - **完了条件**: 全9テスト項目の実行・結果確認
 - **詳細結果**:
   - 📊 **総合成功率**: 91.7% (33/36 tests passed)
-  - ✅ **Philosophy Category**: 100% (4/4) - bunenjin core, I Ching integration validated
+  - ✅ **Philosophy Category**: 100% (4/4) - HaQei core, I Ching integration validated
   - ✅ **Performance Category**: 100% (4/4) - Load time, memory, API response all passed
   - ✅ **Accuracy Category**: 100% (4/4) - Hexagram logic, Triple OS mapping verified
   - ✅ **Integration Category**: 100% (4/4) - All main pages accessible
@@ -53,7 +53,7 @@
 - **実行項目**:
   - 全64卦への正確マッピング確認 ✅
   - 組み合わせ計算ロジック検証 ✅
-  - bunenjin哲学との整合性確認 ✅
+  - HaQei哲学との整合性確認 ✅
 - **完了条件**: 64³=262,144通り全組み合わせ生成確認 ✅
 - **状況**: [ ] 未実行 → [ ] 実行中 → [✅] 完了
 
@@ -101,7 +101,7 @@
   - ✅ **VirtualPersonaResultsView統合**: メイン画面への機能追加
   - ✅ **テストページ**: 包括的デモ・テストシステム
 - **技術仕様**:
-  - 📄 **PDF機能**: A4レポート、ブランディング、hexagram視覚化、bunenjin哲学
+  - 📄 **PDF機能**: A4レポート、ブランディング、hexagram視覚化、HaQei哲学
   - 📱 **SNS機能**: プライバシー保護、画像生成、プラットフォーム最適化
   - 📚 **履歴機能**: データ圧縮、比較機能、JSON/CSV出力
   - ⚙️ **統合機能**: 統一API、キーボードショートカット、通知システム

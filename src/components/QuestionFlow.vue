@@ -18,18 +18,18 @@
       </div>
     </div>
 
-    <!-- bunenjin哲学コンテキスト -->
-    <div v-if="bunenjinContext" class="bunenjin-context">
+    <!-- HaQei哲学コンテキスト -->
+    <div v-if="HaQeiContext" class="HaQei-context">
       <div class="context-icon">🏵️</div>
-      <p>{{ bunenjinContext }}</p>
+      <p>{{ HaQeiContext }}</p>
     </div>
 
     <!-- 質問表示 -->
     <div v-if="currentQuestion" class="question-container">
       <div class="question-header">
         <h2 class="question-title">{{ currentQuestion.text }}</h2>
-        <div v-if="currentQuestion.bunenjinContext" class="question-context">
-          <small>{{ currentQuestion.bunenjinContext }}</small>
+        <div v-if="currentQuestion.HaQeiContext" class="question-context">
+          <small>{{ currentQuestion.HaQeiContext }}</small>
         </div>
       </div>
 
@@ -183,8 +183,8 @@
     <div v-if="error" class="error-container">
       <div class="error-icon">⚠️</div>
       <div class="error-message">{{ error.message }}</div>
-      <div v-if="error.bunenjinGuidance" class="error-guidance">
-        {{ error.bunenjinGuidance }}
+      <div v-if="error.HaQeiGuidance" class="error-guidance">
+        {{ error.HaQeiGuidance }}
       </div>
     </div>
 
@@ -214,7 +214,7 @@ interface Props {
   questions: Question[]
   initialStep?: number
   showConfidenceSlider?: boolean
-  bunenjinMode?: boolean
+  HaQeiMode?: boolean
   ichingMode?: boolean
   fullscreen?: boolean
 }
@@ -230,7 +230,7 @@ interface Emits {
 const props = withDefaults(defineProps<Props>(), {
   initialStep: 0,
   showConfidenceSlider: true,
-  bunenjinMode: true,
+  HaQeiMode: true,
   ichingMode: true,
   fullscreen: false
 })
@@ -297,8 +297,8 @@ const canProceed = computed((): boolean => {
   }
 })
 
-const bunenjinContext = computed((): string => {
-  if (!props.bunenjinMode) return ''
+const HaQeiContext = computed((): string => {
+  if (!props.HaQeiMode) return ''
   
   const contexts = [
     'Multiple Dividualsの視点から、この質問に答えることで新たな「個」を発見できます。',
@@ -368,7 +368,7 @@ const createAnswer = (): Answer => {
     createdAt: new Date(),
     updatedAt: new Date(),
     metadata: {
-      bunenjinMode: props.bunenjinMode,
+      HaQeiMode: props.HaQeiMode,
       ichingMode: props.ichingMode,
       questionIndex: currentStep.value
     }
@@ -412,7 +412,7 @@ const proceed = async (): Promise<void> => {
         step: currentStep.value,
         questionType: currentQuestion.value?.type
       },
-      bunenjinGuidance: 'エラーも学びの機会です。落ち着いて再度お試しください。',
+      HaQeiGuidance: 'エラーも学びの機会です。落ち着いて再度お試しください。',
       timestamp: new Date()
     }
     
@@ -476,7 +476,7 @@ const completeAnalysis = async (): Promise<void> => {
         hexagramName: '乾',
         matchPercentage: 85,
         characteristics: [],
-        bunenjinAlignment: {
+        HaQeiAlignment: {
           score: 80,
           strengths: ['戦略的思考', '柔軟性'],
           improvementAreas: ['感情表現'],
@@ -495,7 +495,7 @@ const completeAnalysis = async (): Promise<void> => {
         hexagramName: '坤',
         matchPercentage: 78,
         characteristics: [],
-        bunenjinAlignment: {
+        HaQeiAlignment: {
           score: 75,
           strengths: ['共感力', '協調性'],
           improvementAreas: ['自己主張'],
@@ -514,7 +514,7 @@ const completeAnalysis = async (): Promise<void> => {
         hexagramName: '中孚',
         matchPercentage: 82,
         characteristics: [],
-        bunenjinAlignment: {
+        HaQeiAlignment: {
           score: 85,
           strengths: ['誠実性', '安定性'],
           improvementAreas: ['冒険心'],
@@ -553,7 +553,7 @@ const completeAnalysis = async (): Promise<void> => {
       category: 'TECHNICAL',
       severity: 'HIGH',
       context: { totalAnswers: answers.value.length },
-      bunenjinGuidance: '一時的な困難です。時間をおいて再度お試しください。',
+      HaQeiGuidance: '一時的な困難です。時間をおいて再度お試しください。',
       timestamp: new Date()
     }
     
@@ -668,7 +668,7 @@ watch(
   font-weight: 500;
 }
 
-.bunenjin-context {
+.HaQei-context {
   background: #f0f9ff;
   border: 2px solid #0ea5e9;
   border-radius: 12px;

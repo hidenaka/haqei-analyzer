@@ -53,7 +53,7 @@ npm run usep:browser:full
    - カラーコントラスト比
    - ARIA属性適切性
 
-### 📊 P2: bunenjin哲学に基づく品質基準設定
+### 📊 P2: HaQei哲学に基づく品質基準設定
 
 **哲学的品質指標:**
 - **調和性**: UI/UXと古典哲学の自然な融合
@@ -158,7 +158,7 @@ npx webpack-bundle-analyzer public/js --report
 - **慎重ユーザー**: 段階的確認、時間をかけた理解
 - **せっかちユーザー**: 高速操作、早期離脱リスク
 
-**bunenjin哲学適合度評価:**
+**HaQei哲学適合度評価:**
 - **概念伝達度**: Triple OS理念の理解促進効果
 - **文化的深度**: 易経要素の適切な表現
 - **実用価値**: 日常への活用可能性
@@ -258,7 +258,7 @@ npm run performance:check && npm run alert:on-regression
 
 **品質基準書作成:**
 - HaQei UI/UXガイドライン
-- bunenjin哲学適用チェックリスト
+- HaQei哲学適用チェックリスト
 - アクセシビリティ対応基準
 - パフォーマンス要件定義
 
@@ -291,7 +291,7 @@ npm run performance:check && npm run alert:on-regression
 - **読み込み速度**: 4.2s → **2.0s** (目標達成: -52%)
 - **モバイル対応**: 60% → **95%** (目標達成: +35%)
 
-### bunenjin哲学指標
+### HaQei哲学指標
 - **概念理解度**: Triple OS理念の正確な伝達
 - **文化的深度**: 易経要素の適切な表現
 - **実用価値**: 日常活用可能性の向上
@@ -299,7 +299,7 @@ npm run performance:check && npm run alert:on-regression
 
 ## 💡 特記事項
 
-### bunenjin哲学との整合性
+### HaQei哲学との整合性
 この改善計画は「文人的調和」の理念に基づき：
 - **段階的発展**: 完璧を追求せず、実用的改善を重視
 - **ユーザー主権**: 技術的優秀さより、ユーザーの理解・満足を最優先
@@ -323,4 +323,4 @@ npm run performance:check && npm run alert:on-regression
 
 ---
 
-*「真の改善は、データに基づく冷静な分析と、ユーザーへの温かい思いやりから生まれる」* - bunenjin development philosophy
+*「真の改善は、データに基づく冷静な分析と、ユーザーへの温かい思いやりから生まれる」* - HaQei development philosophy

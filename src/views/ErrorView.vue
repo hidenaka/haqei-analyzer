@@ -36,9 +36,9 @@
       <h1 class="error-title">{{ errorTitle }}</h1>
       <p class="error-message">{{ errorMessage }}</p>
       
-      <div v-if="bunenjinGuidance" class="bunenjin-guidance">
-        <h3>bunenjin哲学からの導き</h3>
-        <p>{{ bunenjinGuidance }}</p>
+      <div v-if="HaQeiGuidance" class="HaQei-guidance">
+        <h3>HaQei哲学からの導き</h3>
+        <p>{{ HaQeiGuidance }}</p>
       </div>
       
       <div v-if="ichingGuidance" class="iching-guidance">
@@ -116,15 +116,15 @@ const errorInfo = computed(() => {
       return {
         title: '認証が必要です',
         message: 'このページにアクセスするには認証が必要です。',
-        bunenjinGuidance: 'Multiple Dividualsの概念では、異なる状況に応じて適切な「個」を選択することが重要です。認証は信頼関係構築の第一歩です。',
+        HaQeiGuidance: 'Multiple Dividualsの概念では、異なる状況に応じて適切な「個」を選択することが重要です。認証は信頼関係構築の第一歩です。',
         ichingGuidance: '需卦（5番）: 待つことの智慧。適切な時期を待ち、準備を整えることで道は開かれます。'
       }
       
-    case 'insufficient_bunenjin_level':
+    case 'insufficient_HaQei_level':
       return {
-        title: 'bunenjinレベルが不足しています',
-        message: `このページにアクセスするには${requiredLevel.value}レベルのbunenjin理解が必要です。`,
-        bunenjinGuidance: '哲学的理解は段階的に深まるものです。基礎から学び、実践を通じて理解を深めていきましょう。',
+        title: 'HaQeiレベルが不足しています',
+        message: `このページにアクセスするには${requiredLevel.value}レベルのHaQei理解が必要です。`,
+        HaQeiGuidance: '哲学的理解は段階的に深まるものです。基礎から学び、実践を通じて理解を深めていきましょう。',
         ichingGuidance: '蒙卦（4番）: 学びの智慧。無知を恥じることなく、謙虚に学び続ける姿勢が成長をもたらします。'
       }
       
@@ -132,7 +132,7 @@ const errorInfo = computed(() => {
       return {
         title: '易経の知識が必要です',
         message: 'このページにアクセスするには易経の基礎知識が必要です。',
-        bunenjinGuidance: '古典的な智慧は現代の複雑性を理解する鍵となります。時間をかけて学ぶ価値があります。',
+        HaQeiGuidance: '古典的な智慧は現代の複雑性を理解する鍵となります。時間をかけて学ぶ価値があります。',
         ichingGuidance: '山水蒙（4番）: 啓蒙の時。師を求め、基礎を固めることで真の理解に至ります。'
       }
       
@@ -140,7 +140,7 @@ const errorInfo = computed(() => {
       return {
         title: 'ネットワークエラー',
         message: 'ネットワーク接続に問題があります。しばらく時間をおいて再試行してください。',
-        bunenjinGuidance: '接続の問題は一時的なものです。Multiple Dividualsの柔軟性を活かし、状況に適応しましょう。',
+        HaQeiGuidance: '接続の問題は一時的なものです。Multiple Dividualsの柔軟性を活かし、状況に適応しましょう。',
         ichingGuidance: '屯卦（3番）: 困難な始まり。忍耐と継続的な努力により突破口が見えてきます。'
       }
       
@@ -148,7 +148,7 @@ const errorInfo = computed(() => {
       return {
         title: 'セッションが期限切れです',
         message: 'セッションの有効期限が切れました。もう一度ログインしてください。',
-        bunenjinGuidance: '時間の流れとともに状況は変化します。新たな「個」として再スタートしましょう。',
+        HaQeiGuidance: '時間の流れとともに状況は変化します。新たな「個」として再スタートしましょう。',
         ichingGuidance: '革卦（49番）: 変革の時。古いものを手放し、新しい段階へ進むことが必要です。'
       }
       
@@ -156,7 +156,7 @@ const errorInfo = computed(() => {
       return {
         title: '予期しないエラーが発生しました',
         message: 'システムでエラーが発生しました。しばらく時間をおいて再試行してください。',
-        bunenjinGuidance: '予期しない出来事も成長の機会です。柔軟性を持って対応しましょう。',
+        HaQeiGuidance: '予期しない出来事も成長の機会です。柔軟性を持って対応しましょう。',
         ichingGuidance: '既済卦（63番）: 完成の後の注意。慢心せず、常に改善の姿勢を保つことが大切です。'
       }
   }
@@ -164,7 +164,7 @@ const errorInfo = computed(() => {
 
 const errorTitle = computed(() => errorInfo.value.title)
 const errorMessage = computed(() => errorInfo.value.message)
-const bunenjinGuidance = computed(() => errorInfo.value.bunenjinGuidance)
+const HaQeiGuidance = computed(() => errorInfo.value.HaQeiGuidance)
 const ichingGuidance = computed(() => errorInfo.value.ichingGuidance)
 
 // デバッグ情報
@@ -273,7 +273,7 @@ onMounted(() => {
   line-height: 1.6;
 }
 
-.bunenjin-guidance,
+.HaQei-guidance,
 .iching-guidance {
   background: #f8fafc;
   border-left: 4px solid #3b82f6;
@@ -283,7 +283,7 @@ onMounted(() => {
   border-radius: 0 8px 8px 0;
 }
 
-.bunenjin-guidance h3,
+.HaQei-guidance h3,
 .iching-guidance h3 {
   font-size: 1.125rem;
   font-weight: 600;
@@ -291,7 +291,7 @@ onMounted(() => {
   margin-bottom: 0.5rem;
 }
 
-.bunenjin-guidance p,
+.HaQei-guidance p,
 .iching-guidance p {
   color: #4b5563;
   line-height: 1.6;

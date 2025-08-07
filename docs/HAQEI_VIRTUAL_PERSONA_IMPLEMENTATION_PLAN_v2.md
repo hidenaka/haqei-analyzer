@@ -139,7 +139,7 @@ safeModeOS = calculate64Gua(safeModeTrigramScore);
 - [ ] 客観視を促すデザイン
 - [ ] 詳細情報の段階的開示
 
-### Phase 5: bunenjin哲学統合 (中優先)
+### Phase 5: HaQei哲学統合 (中優先)
 
 #### Task 5.1: 7段階ナビゲーション実装
 - [ ] OS分析を中心とした流れ
@@ -176,7 +176,7 @@ safeModeOS = calculate64Gua(safeModeTrigramScore);
 - 負荷テスト
 
 ### Week 6: 統合とテスト
-- bunenjin哲学統合
+- HaQei哲学統合
 - 総合テスト
 - ドキュメント整備
 

@@ -67,9 +67,9 @@ describe('TripleOSEngine', () => {
       expect(result.consistencyScore).toBeLessThanOrEqual(100)
 
       // Bunenjin implementation data
-      expect(result.bunenjinImplementation).toBeDefined()
-      expect(result.bunenjinImplementation?.philosophicalAlignment).toHaveProperty('supportsDividedPersonality')
-      expect(result.bunenjinImplementation?.philosophicalAlignment.supportsDividedPersonality).toBe(true)
+      expect(result.HaQeiImplementation).toBeDefined()
+      expect(result.HaQeiImplementation?.philosophicalAlignment).toHaveProperty('supportsDividedPersonality')
+      expect(result.HaQeiImplementation?.philosophicalAlignment.supportsDividedPersonality).toBe(true)
     })
 
     it('should handle empty answers gracefully', async () => {

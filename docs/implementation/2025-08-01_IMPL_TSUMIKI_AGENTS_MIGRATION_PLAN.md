@@ -104,7 +104,7 @@ class TsumikiExecutionController {
 
 ### HAQEIプロジェクト特化
 - **Triple OSアーキテクチャ**: 設計段階での整合性確保
-- **bunenjin哲学**: 易経的思考の実装一貫性
+- **HaQei哲学**: 易経的思考の実装一貫性
 - **統計的品質**: A級判定基準の設計レベル組み込み
 
 ## ⚠️ リスク管理

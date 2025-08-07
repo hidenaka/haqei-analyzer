@@ -15,12 +15,12 @@ MCP評価で明らかになった改善点を技術的に解決し、HAQEIアナ
 ### 1.2 技術スコープ
 - **フロントエンド**: Vanilla JavaScript ES2022+による高性能実装
 - **データ**: H384_DATA完全活用による384爻システム
-- **アーキテクチャ**: bunenjin哲学完全統合型設計
+- **アーキテクチャ**: HaQei哲学完全統合型設計
 - **性能**: sub-50ms応答時間、99.5%可用性達成
 
 ### 1.3 設計原則
 - **易経正統性**: 古典理論との100%整合性
-- **bunenjin統合**: 分人間調和理論の完全実装
+- **HaQei統合**: 分人間調和理論の完全実装
 - **パフォーマンス**: 高速レスポンス・低リソース使用
 - **拡張性**: 将来的機能追加への対応
 
@@ -38,7 +38,7 @@ MCP評価で明らかになった改善点を技術的に解決し、HAQEIアナ
 │ │   OS        │ │    OS       │ │         OS              │ │
 │ └─────────────┘ └─────────────┘ └─────────────────────────┘ │
 ├─────────────────────────────────────────────────────────────┤
-│                  bunenjin Philosophy Layer                 │
+│                  HaQei Philosophy Layer                 │
 │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────────────┐  │
 │  │Analytics│ │Emotional│ │ Social  │ │   Spiritual     │  │
 │  │   分人   │ │   分人   │ │   分人   │ │      分人       │  │
@@ -157,7 +157,7 @@ interface H384LineData {
     traditional: string;         // 伝統的解釈
     psychological: string;       // 心理学的解釈
     practical: string;           // 実用的指導
-    bunenjin: BunenjinAnalysis; // 分人間分析
+    HaQei: BunenjinAnalysis; // 分人間分析
   };
   
   // 関係性データ
@@ -446,7 +446,7 @@ class ProgressiveLoader {
     progressCallback(80, '変化パターンを生成中...');
     const enhancedAnalysis = await this.loadEnhancedAnalysis(coreAnalysis);
     
-    // Stage 4: Complete (bunenjin統合・最適化)
+    // Stage 4: Complete (HaQei統合・最適化)
     progressCallback(100, '分析完了');
     return await this.loadCompleteAnalysis(enhancedAnalysis);
   }
@@ -663,7 +663,7 @@ Response:
       "pathB": { ... }
     },
     "eightPatterns": [ ... ],
-    "bunenjinAnalysis": { ... },
+    "HaQeiAnalysis": { ... },
     "sequentialPrediction": { ... }
   },
   "performance": {
@@ -784,7 +784,7 @@ export interface TransformationPattern {
   description: string;
   guidance: PatternGuidance;
   outcome: PatternOutcome;
-  bunenjinAlignment: BunenjinAlignment;
+  HaQeiAlignment: BunenjinAlignment;
   iChingWisdom: string;
 }
 
@@ -811,7 +811,7 @@ export interface AnalysisResponse {
     currentPosition: HexagramPosition;
     choices: AuthenticChoices;
     eightPatterns: TransformationPattern[];
-    bunenjinAnalysis: BunenjinAnalysis;
+    HaQeiAnalysis: BunenjinAnalysis;
     sequentialPrediction: SequentialPrediction;
   };
   error?: {
@@ -1062,10 +1062,10 @@ describe('Authentic I-Ching System Integration', () => {
     expect(result.choices).toHaveProperty('pathA');
     expect(result.choices).toHaveProperty('pathB');
     expect(result.eightPatterns).toHaveLength(8);
-    expect(result.bunenjinAnalysis).toHaveProperty('analytical');
-    expect(result.bunenjinAnalysis).toHaveProperty('emotional');
-    expect(result.bunenjinAnalysis).toHaveProperty('social');
-    expect(result.bunenjinAnalysis).toHaveProperty('spiritual');
+    expect(result.HaQeiAnalysis).toHaveProperty('analytical');
+    expect(result.HaQeiAnalysis).toHaveProperty('emotional');
+    expect(result.HaQeiAnalysis).toHaveProperty('social');
+    expect(result.HaQeiAnalysis).toHaveProperty('spiritual');
 
     // 性能検証
     expect(result.performance.analysisTime).toBeLessThan(2000);
@@ -1277,7 +1277,7 @@ class ProductionMonitor {
       const qualityMetrics = {
         hexagramAccuracy: this.measureHexagramAccuracy(),
         transformationCorrectness: this.measureTransformationCorrectness(),
-        bunenjinIntegration: this.measureBunenjinIntegration(),
+        HaQeiIntegration: this.measureBunenjinIntegration(),
         userSatisfaction: this.measureUserSatisfaction()
       };
 
@@ -1314,7 +1314,7 @@ class ProductionMonitor {
 - **384爻完全実装**: 全爻辞の正確な表示と解釈
 - **関係卦精度**: 互卦・綜卦・錯卦の100%正確な計算
 - **序卦伝論理**: 自然な変化の流れの完全実装
-- **bunenjin統合**: 世界初の分人間調和理論実装
+- **HaQei統合**: 世界初の分人間調和理論実装
 
 #### ユーザー体験の向上
 - **段階的表示**: 理解レベルに応じた情報提供
@@ -1338,7 +1338,7 @@ class ProductionMonitor {
 
 ### Phase 2: 核心機能（Week 3-4）
 - **Week 3**: パフォーマンス最適化・キャッシュ実装
-- **Week 4**: bunenjin統合強化・API実装
+- **Week 4**: HaQei統合強化・API実装
 
 ### Phase 3: 品質向上（Week 5-6）
 - **Week 5**: セキュリティ・テスト・監視実装

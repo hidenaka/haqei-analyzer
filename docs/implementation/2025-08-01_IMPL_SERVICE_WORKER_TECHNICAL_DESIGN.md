@@ -1,8 +1,8 @@
-# Service Worker 技術設計書 - HAQEI bunenjin統合
+# Service Worker 技術設計書 - HAQEI HaQei統合
 
 **作成日**: 2025年8月1日  
 **フェーズ**: Tsumiki `/kairo-design`  
-**プロジェクト**: HAQEI Analyzer（bunenjin哲学統合）  
+**プロジェクト**: HAQEI Analyzer（HaQei哲学統合）  
 **アーキテクチャ**: Triple OS Architecture + 易経64卦システム  
 **品質基準**: Tsumiki統計的品質保証（404エラー率0%必達）  
 
@@ -20,7 +20,7 @@ graph TB
     
     subgraph "Service Worker Core"
         B --> C[URL Normalizer]
-        C --> D[bunenjin Router]
+        C --> D[HaQei Router]
         D --> E[Triple OS Resource Classifier]
         E -.-> E1[Engine OS: Data Cache]
         E -.-> E2[Interface OS: UI Cache]
@@ -46,7 +46,7 @@ graph TB
     
     subgraph "Fallback System"
         M -->|Success| N[Response Delivery]
-        M -->|Failure| O[bunenjin Offline Fallback]
+        M -->|Failure| O[HaQei Offline Fallback]
         O --> P[易経的Wisdom Display]
     end
     
@@ -54,12 +54,12 @@ graph TB
     P --> Q
 ```
 
-### 1.2 bunenjin哲学統合設計
+### 1.2 HaQei哲学統合設計
 
-#### 1.2.1 分人（bunenjin）概念の技術実装
+#### 1.2.1 分人（HaQei）概念の技術実装
 ```javascript
 /**
- * bunenjin Resource Classification System
+ * HaQei Resource Classification System
  * 
  * 目的: ユーザーの多面性を技術レベルで支援する分類システム
  * - 各リソースが持つ「人格面」に応じた最適キャッシュ戦略
@@ -305,13 +305,13 @@ async function safeModeOSFallbackChain(request, originalError) {
     console.warn('🛡️ [Safe Mode OS] Level 3失敗:', error);
   }
   
-  // Level 4: bunenjin哲学的フォールバック（最終手段）
+  // Level 4: HaQei哲学的フォールバック（最終手段）
   console.log('🛡️ [Safe Mode OS] Level 4復旧: 易経的智慧表示');
   return await createBunenjinWisdomFallback(request, originalError);
 }
 
 /**
- * bunenjin哲学的フォールバック画面
+ * HaQei哲学的フォールバック画面
  */
 async function createBunenjinWisdomFallback(request, error) {
   const url = new URL(request.url);
@@ -354,7 +354,7 @@ async function createBunenjinWisdomFallback(request, error) {
           <h1>変化の時</h1>
           <div class="wisdom-text">
             技術的な障害も、人生の変化の一部です。<br>
-            あなたの内なる多面性（bunenjin）は、<br>
+            あなたの内なる多面性（HaQei）は、<br>
             この一時的な困難によって失われることはありません。
           </div>
           <div class="wisdom-text">
@@ -382,7 +382,7 @@ async function createBunenjinWisdomFallback(request, error) {
   return new Response(`
     易経の智慧: 「柔よく剛を制す」
     
-    一時的な困難ですが、あなたの分人（bunenjin）は健在です。
+    一時的な困難ですが、あなたの分人（HaQei）は健在です。
     しばらく時間をおいて、再度お試しください。
     
     エラー詳細: ${error.message}
@@ -601,7 +601,7 @@ class IntelligentCacheManager {
     this.maxCacheSize = 5 * 1024 * 1024; // 5MB
     this.currentSize = 0;
     this.accessLog = new Map(); // LRU tracking
-    this.bunenjinPriority = {
+    this.HaQeiPriority = {
       // 価値観系（Engine OS）: 最高優先度
       engine: 1.0,
       // 社会表現系（Interface OS）: 中優先度  
@@ -617,7 +617,7 @@ class IntelligentCacheManager {
   async intelligentCacheAdd(request, response) {
     const resourceSize = this.estimateResponseSize(response);
     const resourceType = this.classifyResourceForPriority(request.url);
-    const priority = this.bunenjinPriority[resourceType] || 0.5;
+    const priority = this.HaQeiPriority[resourceType] || 0.5;
     
     // キャッシュサイズ確認
     if (this.currentSize + resourceSize > this.maxCacheSize) {
@@ -801,8 +801,8 @@ class QualityMonitoringSystem {
         'cache-first-fallback': 0
       },
       
-      // bunenjin分類統計
-      bunenjinResourceAccess: {
+      // HaQei分類統計
+      HaQeiResourceAccess: {
         engine: 0,
         interface: 0,
         safeMode: 0
@@ -819,7 +819,7 @@ class QualityMonitoringSystem {
   /**
    * リクエスト統計記録
    */
-  recordRequest(request, response, strategy, bunenjinType, responseTime) {
+  recordRequest(request, response, strategy, HaQeiType, responseTime) {
     this.metrics.totalRequests++;
     
     if (response && response.ok) {
@@ -845,9 +845,9 @@ class QualityMonitoringSystem {
       this.metrics.cacheStrategyUsage[strategy]++;
     }
     
-    // bunenjin分類統計
-    if (bunenjinType && this.metrics.bunenjinResourceAccess[bunenjinType] !== undefined) {
-      this.metrics.bunenjinResourceAccess[bunenjinType]++;
+    // HaQei分類統計
+    if (HaQeiType && this.metrics.HaQeiResourceAccess[HaQeiType] !== undefined) {
+      this.metrics.HaQeiResourceAccess[HaQeiType]++;
     }
     
     // 応答時間履歴（最新100件）
@@ -895,8 +895,8 @@ class QualityMonitoringSystem {
         ? `${(this.metrics.notFoundErrors / this.metrics.totalRequests * 100).toFixed(3)}%`
         : '0.000%',
       
-      // 🏮 bunenjin統計
-      bunenjinAccess: this.metrics.bunenjinResourceAccess,
+      // 🏮 HaQei統計
+      HaQeiAccess: this.metrics.HaQeiResourceAccess,
       
       // 📈 戦略別使用状況
       strategyUsage: this.metrics.cacheStrategyUsage
@@ -916,7 +916,7 @@ class QualityMonitoringSystem {
       });
     }
     
-    console.log('🏮 bunenjin統計:', report.bunenjinAccess);
+    console.log('🏮 HaQei統計:', report.HaQeiAccess);
     console.groupEnd();
     
     // LocalStorageに保存（デバッグ用）
@@ -1016,7 +1016,7 @@ function handleRouting(request, pathname) {
     const newUrl = new URL(url);
     newUrl.pathname = targetPath;
     
-    console.log(`🔄 [bunenjin Router] ${pathname} → ${targetPath}`);
+    console.log(`🔄 [HaQei Router] ${pathname} → ${targetPath}`);
     
     return new Request(newUrl.toString(), {
       method: request.method,
@@ -1048,14 +1048,14 @@ async function handleFetch(request) {
     // Phase 1: URL正規化（統計的品質保証）
     const routedRequest = handleRouting(request, pathname);
     
-    // Phase 2: bunenjin分類
-    const bunenjinType = classifyBunenjinResource(pathname);
+    // Phase 2: HaQei分類
+    const HaQeiType = classifyBunenjinResource(pathname);
     
     // Phase 3: Triple OS対応戦略選択
     let response;
     let strategy;
     
-    switch (bunenjinType) {
+    switch (HaQeiType) {
       case 'engine':
         response = await engineOSCacheStrategy(routedRequest);
         strategy = 'cache-first';
@@ -1075,13 +1075,13 @@ async function handleFetch(request) {
     
     // Phase 4: 統計記録
     const responseTime = Date.now() - startTime;
-    qualityMonitor.recordRequest(request, response, strategy, bunenjinType, responseTime);
+    qualityMonitor.recordRequest(request, response, strategy, HaQeiType, responseTime);
     
     return response;
     
   } catch (error) {
     // 統計的エラーハンドリング
-    console.error('🔥 [bunenjin-SW] Statistical Error:', {
+    console.error('🔥 [HaQei-SW] Statistical Error:', {
       url: request.url,
       pathname,
       error: error.message,
@@ -1145,7 +1145,7 @@ const SERVICE_WORKER_TEST_CASES = [
   },
   
   {
-    name: 'bunenjin分類正確性テスト',
+    name: 'HaQei分類正確性テスト',
     test: async () => {
       expect(classifyBunenjinResource('/js/shared/core/DataManager.js')).toBe('engine');
       expect(classifyBunenjinResource('/results.html')).toBe('interface');
@@ -1686,7 +1686,7 @@ class UserExperienceMetrics {
 
 この技術設計書では、Service Worker（haqei-sw.js）を以下の観点で包括的に設計しました：
 
-#### 10.1.1 bunenjin哲学統合
+#### 10.1.1 HaQei哲学統合
 - **分人概念の技術実装**: リソースを価値観・社会的・防御の3つのOS別に分類
 - **易経的変化対応**: 8つのキャッシュ戦略（八卦対応）で動的適応
 - **プライバシーファースト**: ローカル完結型の設計思想
@@ -1747,14 +1747,14 @@ class UserExperienceMetrics {
 - **キャッシュヒット率**: 95%以上
 
 #### 定性的成功指標
-- **bunenjin哲学実現**: 分析結果の確実な可視化
+- **HaQei哲学実現**: 分析結果の確実な可視化
 - **Triple OS調和**: 3つのOSの最適な相互作用
 - **易経的智慧**: 変化に対応する柔軟なシステム
 - **ユーザー主権**: プライバシーファーストの実現
 
 ---
 
-**この技術設計書は、HAQEIプロジェクトのService Worker最適化における包括的な設計指針を提供します。bunenjin哲学と易経の智慧を現代のWeb技術に統合し、ユーザーが自身の多面性を発見する旅路を技術的に支援する、世界でも類を見ない革新的なシステム設計となっています。**
+**この技術設計書は、HAQEIプロジェクトのService Worker最適化における包括的な設計指針を提供します。HaQei哲学と易経の智慧を現代のWeb技術に統合し、ユーザーが自身の多面性を発見する旅路を技術的に支援する、世界でも類を見ない革新的なシステム設計となっています。**
 
 ---
 

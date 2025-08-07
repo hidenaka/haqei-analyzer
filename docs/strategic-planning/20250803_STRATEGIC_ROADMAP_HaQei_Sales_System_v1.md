@@ -216,7 +216,7 @@ Global Localization:
     - 地域別パーソナリティモデル
   
   自動翻訳最適化:
-    - bunenjin概念の多言語化
+    - HaQei概念の多言語化
     - Triple OS理論の文化別解釈
     - 易経メタファーの現地化
 ```

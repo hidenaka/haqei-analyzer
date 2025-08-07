@@ -1,7 +1,7 @@
 /**
  * QuestionManager使用例とテストコード
  * 
- * bunenjin哲学に基づくHAQEI質問データ管理システムの使用方法
+ * HaQei哲学に基づくHAQEI質問データ管理システムの使用方法
  * I Ching 8次元統合・Triple OS Architecture対応の実用例
  * 
  * Author: HAQEI Programmer Agent
@@ -18,7 +18,7 @@ async function basicUsageExample() {
   // 1. QuestionManagerの初期化
   const questionManager = new QuestionManager({
     enableCaching: true,
-    enableBunenjinMode: true,
+    enableHaQeiMode: true,
     enableIChing8Dimensions: true,
     enableTripleOSMode: true,
     enableErrorRecovery: true,
@@ -46,13 +46,13 @@ async function basicUsageExample() {
 }
 
 /**
- * bunenjin分人機能の使用例
+ * HaQei分人機能の使用例
  */
-async function bunenjinUsageExample() {
-  console.log('\n🎭 === bunenjin分人機能使用例 ===');
+async function HaQeiUsageExample() {
+  console.log('\n🎭 === HaQei分人機能使用例 ===');
   
   const questionManager = new QuestionManager({
-    enableBunenjinMode: true,
+    enableHaQeiMode: true,
     enableIChing8Dimensions: true
   });
   
@@ -62,19 +62,19 @@ async function bunenjinUsageExample() {
   const personas = ['analyticalSelf', 'emotionalSelf', 'pragmaticSelf', 'creativeSelf'];
   
   personas.forEach(persona => {
-    const questions = questionManager.getQuestionsByBunenjinPersona(persona);
+    const questions = questionManager.getQuestionsByHaQeiPersona(persona);
     console.log(`🎭 ${persona}: ${questions.length}問`);
     
     if (questions.length > 0) {
       console.log(`   例: ${questions[0].text.substring(0, 50)}...`);
-      console.log(`   bunenjin重要度: ${questions[0].bunenjinWeight.toFixed(2)}`);
+      console.log(`   HaQei重要度: ${questions[0].HaQeiWeight.toFixed(2)}`);
     }
   });
   
-  // 2. bunenjin分析レポート
-  const bunenjinReport = questionManager.getBunenjinAnalysisReport();
-  console.log('\n📋 bunenjin分析レポート:');
-  Object.entries(bunenjinReport.personas).forEach(([persona, data]) => {
+  // 2. HaQei分析レポート
+  const HaQeiReport = questionManager.getHaQeiAnalysisReport();
+  console.log('\n📋 HaQei分析レポート:');
+  Object.entries(HaQeiReport.personas).forEach(([persona, data]) => {
     console.log(`  ${persona}: ${data.questionCount}問 (${data.percentage.toFixed(1)}%)`);
     console.log(`    アプローチ: ${data.approach}`);
     console.log(`    易経対応: [${data.ichingAlignment.join(', ')}]`);
@@ -94,7 +94,7 @@ async function iching8DimensionUsageExample() {
   
   const questionManager = new QuestionManager({
     enableIChing8Dimensions: true,
-    enableBunenjinMode: true
+    enableHaQeiMode: true
   });
   
   await questionManager.initialize();
@@ -136,7 +136,7 @@ async function tripleOSUsageExample() {
   
   const questionManager = new QuestionManager({
     enableTripleOSMode: true,
-    enableBunenjinMode: true
+    enableHaQeiMode: true
   });
   
   await questionManager.initialize();
@@ -173,7 +173,7 @@ async function advancedSearchExample() {
   console.log('\n🔍 === 高度な検索機能使用例 ===');
   
   const questionManager = new QuestionManager({
-    enableBunenjinMode: true,
+    enableHaQeiMode: true,
     enableIChing8Dimensions: true,
     enableTripleOSMode: true
   });
@@ -182,11 +182,11 @@ async function advancedSearchExample() {
   
   // 1. 複合条件検索
   const searchCriteria = {
-    bunenjinPersona: 'analyticalSelf',
+    HaQeiPersona: 'analyticalSelf',
     ichingDimension: '乾_創造性',
     minDifficulty: 0.3,
     maxDifficulty: 0.8,
-    sortBy: 'bunenjinWeight',
+    sortBy: 'HaQeiWeight',
     sortOrder: 'desc',
     limit: 5
   };
@@ -194,7 +194,7 @@ async function advancedSearchExample() {
   const searchResults = questionManager.searchQuestions(searchCriteria);
   console.log(`🔍 複合検索結果: ${searchResults.length}問`);
   searchResults.forEach(question => {
-    console.log(`   ${question.id}: 難易度=${question.difficulty.toFixed(2)}, bunenjin重要度=${question.bunenjinWeight.toFixed(2)}`);
+    console.log(`   ${question.id}: 難易度=${question.difficulty.toFixed(2)}, HaQei重要度=${question.HaQeiWeight.toFixed(2)}`);
     console.log(`      ${question.text.substring(0, 60)}...`);
   });
   
@@ -269,7 +269,7 @@ async function performanceTestExample() {
   
   const questionManager = new QuestionManager({
     enableCaching: true,
-    enableBunenjinMode: true,
+    enableHaQeiMode: true,
     enableIChing8Dimensions: true,
     enableTripleOSMode: true,
     enablePerformanceOptimization: true
@@ -286,7 +286,7 @@ async function performanceTestExample() {
   const operations = [
     { name: '全質問取得', fn: () => questionManager.getAllQuestions() },
     { name: 'ID指定取得', fn: () => questionManager.getQuestionById('q1') },
-    { name: 'bunenjin検索', fn: () => questionManager.getQuestionsByBunenjinPersona('analyticalSelf') },
+    { name: 'HaQei検索', fn: () => questionManager.getQuestionsByHaQeiPersona('analyticalSelf') },
     { name: 'I Ching検索', fn: () => questionManager.getQuestionsByIChing8Dimension('乾_創造性') },
     { name: '複合検索', fn: () => questionManager.searchQuestions({ minDifficulty: 0.5, limit: 10 }) },
     { name: '関連質問取得', fn: () => questionManager.getRelatedQuestionsByIChing8('q1') }
@@ -317,7 +317,7 @@ async function virtualQuestionFlowIntegrationExample() {
   console.log('\n🎬 === VirtualQuestionFlow統合例 ===');
   
   const questionManager = new QuestionManager({
-    enableBunenjinMode: true,
+    enableHaQeiMode: true,
     enableIChing8Dimensions: true
   });
   
@@ -331,11 +331,11 @@ async function virtualQuestionFlowIntegrationExample() {
   const virtualQuestionFlowConfig = {
     questions: questionsArray,
     
-    // bunenjin分人を考慮したカスタム質問順序
-    customOrder: questionManager.getQuestionsByBunenjinPersona('analyticalSelf')
-      .concat(questionManager.getQuestionsByBunenjinPersona('pragmaticSelf'))
-      .concat(questionManager.getQuestionsByBunenjinPersona('emotionalSelf'))
-      .concat(questionManager.getQuestionsByBunenjinPersona('creativeSelf'))
+    // HaQei分人を考慮したカスタム質問順序
+    customOrder: questionManager.getQuestionsByHaQeiPersona('analyticalSelf')
+      .concat(questionManager.getQuestionsByHaQeiPersona('pragmaticSelf'))
+      .concat(questionManager.getQuestionsByHaQeiPersona('emotionalSelf'))
+      .concat(questionManager.getQuestionsByHaQeiPersona('creativeSelf'))
       .map(q => q.index),
     
     // I Ching 8次元を考慮した関連質問推奨システム
@@ -343,12 +343,12 @@ async function virtualQuestionFlowIntegrationExample() {
       return questionManager.getRelatedQuestionsByIChing8(currentQuestionId);
     },
     
-    // bunenjin分人別の質問表示スタイル
+    // HaQei分人別の質問表示スタイル
     getQuestionStyle: (questionId) => {
       const question = questionManager.getQuestionById(questionId);
       if (!question) return 'default';
       
-      const persona = question.bunenjinPersona;
+      const persona = question.HaQeiPersona;
       const styles = {
         analyticalSelf: 'analytical-theme',
         emotionalSelf: 'emotional-theme', 
@@ -372,7 +372,7 @@ async function runAllExamples() {
   
   try {
     await basicUsageExample();
-    await bunenjinUsageExample();
+    await HaQeiUsageExample();
     await iching8DimensionUsageExample();
     await tripleOSUsageExample();
     await advancedSearchExample();
@@ -392,7 +392,7 @@ if (typeof window !== 'undefined') {
   window.QuestionManagerExamples = {
     runAllExamples,
     basicUsageExample,
-    bunenjinUsageExample,
+    HaQeiUsageExample,
     iching8DimensionUsageExample,
     tripleOSUsageExample,
     advancedSearchExample,
@@ -412,7 +412,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     runAllExamples,
     basicUsageExample,
-    bunenjinUsageExample,
+    HaQeiUsageExample,
     iching8DimensionUsageExample,
     tripleOSUsageExample,
     advancedSearchExample,

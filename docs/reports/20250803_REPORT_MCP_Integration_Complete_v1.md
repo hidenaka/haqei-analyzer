@@ -47,7 +47,7 @@ HAQEI AnalyzerプロジェクトにおけるMCP (Model Context Protocol) 統合�
 - 回帰テストの効率化
 - ユーザー体験品質の向上
 
-### 3. Cipher MCP - bunenjin哲学記憶システム
+### 3. Cipher MCP - HaQei哲学記憶システム
 
 **機能概要**:
 - Dual Memory Layerによる継続的記憶
@@ -62,7 +62,7 @@ HAQEI AnalyzerプロジェクトにおけるMCP (Model Context Protocol) 統合�
 
 **効果**:
 - プロジェクト記憶の継続性保証
-- bunenjin哲学の一貫した適用
+- HaQei哲学の一貫した適用
 - 開発決定の根拠継承
 
 ## 技術スタック統合状況
@@ -111,7 +111,7 @@ haqei-vue/src/components/
 
 ## 三位一体システム稼働状況
 
-### Cipher: bunenjin哲学記憶システム
+### Cipher: HaQei哲学記憶システム
 
 **稼働状況**: 完全稼働
 - ポート3001でサーバー稼働
@@ -269,7 +269,7 @@ haqei-vue/src/components/
 - データ暗号化対応
 - アクセス制御実装
 
-### bunenjin哲学遵守
+### HaQei哲学遵守
 
 - ユーザー主権の尊重
 - プライバシーファースト
@@ -284,7 +284,7 @@ MCP統合開発環境の構築により、HAQEI Analyzerプロジェクトは以
 1. **世界最高水準の開発環境**: 三位一体システム稼働
 2. **技術基盤の近代化**: Vue 3 + TypeScript + 自動化
 3. **品質保証の標準化**: テスト・CI/CD・品質管理
-4. **哲学的一貫性**: bunenjin思想の技術実装
+4. **哲学的一貫性**: HaQei思想の技術実装
 
 ### 次のマイルストーン
 - HAQEIアナライザー完全版リリース

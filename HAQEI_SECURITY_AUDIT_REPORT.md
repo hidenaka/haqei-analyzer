@@ -133,7 +133,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 - UnifiedErrorHandler.js provides comprehensive error management
 - Structured error logging with privacy protection
 - Graceful error degradation
-- bunenjin philosophy integration for error handling
+- HaQei philosophy integration for error handling
 
 #### ✅ **ERROR HANDLING FEATURES:**
 - Global error catching with window.addEventListener('error')

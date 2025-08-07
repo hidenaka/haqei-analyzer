@@ -2,7 +2,7 @@
 
 ## 概要
 
-HAQEI Analyzerプロジェクトの開発効率と品質向上を目的とした自動化hooksシステムの設計・実装詳細書です。このシステムは、開発ワークフローの各段階で自動的にドキュメント生成・品質チェック・タスク管理を行い、bunenjin哲学に基づく高品質な開発プロセスを実現します。
+HAQEI Analyzerプロジェクトの開発効率と品質向上を目的とした自動化hooksシステムの設計・実装詳細書です。このシステムは、開発ワークフローの各段階で自動的にドキュメント生成・品質チェック・タスク管理を行い、HaQei哲学に基づく高品質な開発プロセスを実現します。
 
 ## システムアーキテクチャ
 
@@ -115,7 +115,7 @@ class DocumentationGenerator {
             await this.generateImplementationReport(completedTasks, changedFiles);
         } else if (agentType === 'haqei-qa-tester') {
             await this.generateTestReport(completedTasks);
-        } else if (agentType === 'bunenjin-strategy-navigator') {
+        } else if (agentType === 'HaQei-strategy-navigator') {
             await this.generateStrategyReport(completedTasks);
         }
         
@@ -131,7 +131,7 @@ class DocumentationGenerator {
             tasks: tasks,
             files: files,
             analysis: analysisData,
-            bunenjinAlignment: await this.checkBunenjinAlignment(analysisData),
+            HaQeiAlignment: await this.checkBunenjinAlignment(analysisData),
             qualityMetrics: await this.calculateQualityMetrics(files),
             nextSteps: await this.generateNextSteps(tasks, analysisData)
         };
@@ -152,7 +152,7 @@ class DocumentationGenerator {
             complexity: await this.calculateComplexity(files),
             dependencies: await this.analyzeDependencies(files),
             testCoverage: await this.calculateTestCoverage(files),
-            bunenjinCompliance: await this.checkBunenjinCompliance(files)
+            HaQeiCompliance: await this.checkBunenjinCompliance(files)
         };
         
         return analysis;
@@ -198,7 +198,7 @@ class QualityChecker {
         this.thresholds = {
             codeComplexity: 10,
             testCoverage: 80,
-            bunenjinAlignment: 90,
+            HaQeiAlignment: 90,
             documentationCompleteness: 95
         };
         this.loadQualityRules();
@@ -215,8 +215,8 @@ class QualityChecker {
         // コード品質チェック
         results.details.codeQuality = await this.checkCodeQuality(files);
         
-        // bunenjin哲学整合性チェック
-        results.details.bunenjinAlignment = await this.checkBunenjinAlignment(files, tasks);
+        // HaQei哲学整合性チェック
+        results.details.HaQeiAlignment = await this.checkBunenjinAlignment(files, tasks);
         
         // テストカバレッジチェック
         results.details.testCoverage = await this.checkTestCoverage(files);
@@ -300,7 +300,7 @@ class PreImplementationChecker {
             'requirements-analysis',
             'technical-research',
             'implementation-plan',
-            'bunenjin-alignment-check'
+            'HaQei-alignment-check'
         ];
     }
     
@@ -348,8 +348,8 @@ class PreImplementationChecker {
             await this.generateImplementationPlan(prompt, readinessCheck);
         }
         
-        // bunenjin整合性事前チェック
-        if (readinessCheck.missingSteps.includes('bunenjin-alignment-check')) {
+        // HaQei整合性事前チェック
+        if (readinessCheck.missingSteps.includes('HaQei-alignment-check')) {
             await this.performBunenjinAlignmentCheck(prompt);
         }
     }
@@ -451,7 +451,7 @@ class WorkflowManager {
                     "priority": 90,
                     "config": {
                         "complexityThreshold": 5,
-                        "bunenjinCheck": true
+                        "HaQeiCheck": true
                     }
                 }
             ]
@@ -475,7 +475,7 @@ class WorkflowManager {
                         "thresholds": {
                             "codeQuality": 80,
                             "testCoverage": 70,
-                            "bunenjinAlignment": 85
+                            "HaQeiAlignment": 85
                         }
                     }
                 }
@@ -525,17 +525,17 @@ class WorkflowManager {
 - **総合品質スコア**: {{qualityMetrics.overall}}/100
 - **コード品質**: {{qualityMetrics.codeQuality}}/100
 - **テストカバレッジ**: {{qualityMetrics.testCoverage}}%
-- **bunenjin整合性**: {{qualityMetrics.bunenjinAlignment}}/100
+- **HaQei整合性**: {{qualityMetrics.HaQeiAlignment}}/100
 
-## bunenjin哲学整合性
-{{#if bunenjinAlignment.violations}}
+## HaQei哲学整合性
+{{#if HaQeiAlignment.violations}}
 ### 注意が必要な項目
-{{#each bunenjinAlignment.violations}}
+{{#each HaQeiAlignment.violations}}
 - ⚠️ {{description}}
   - 改善提案: {{recommendation}}
 {{/each}}
 {{else}}
-✅ bunenjin哲学との整合性に問題は検出されませんでした。
+✅ HaQei哲学との整合性に問題は検出されませんでした。
 {{/if}}
 
 ## 次のステップ
@@ -556,7 +556,7 @@ class WorkflowManager {
 ```javascript
 // .claude/config/quality-rules.js
 export const qualityRules = {
-    bunenjinAlignment: {
+    HaQeiAlignment: {
         individualSovereignty: {
             weight: 0.3,
             patterns: [
@@ -739,14 +739,14 @@ const qualityGates = {
             'implementation-plan.md'
         ],
         minimumResearchTime: 30, // 分
-        bunenjinAlignmentCheck: true
+        HaQeiAlignmentCheck: true
     },
     
     postImplementation: {
         minimumQualityScore: 80,
         requiredTestCoverage: 70,
         documentationGenerated: true,
-        bunenjinComplianceCheck: true
+        HaQeiComplianceCheck: true
     },
     
     preDeployment: {
@@ -811,7 +811,7 @@ class MonitoringDashboard {
 - 成功率: ${this.getSuccessRate()}%
 - エラー率: ${this.getErrorRate()}%
 
-### bunenjin哲学整合性
+### HaQei哲学整合性
 - 平均整合性スコア: ${this.getAverageBunenjinScore()}/100
 - 整合性トレンド: ${this.getBunenjinTrend()}
         `;
@@ -830,7 +830,7 @@ class AnalyticsEngine {
         return {
             productivity: this.calculateProductivityMetrics(weeklyData),
             quality: this.calculateQualityTrends(weeklyData),
-            bunenjinCompliance: this.analyzeBunenjinCompliance(weeklyData),
+            HaQeiCompliance: this.analyzeBunenjinCompliance(weeklyData),
             recommendations: this.generateImprovementRecommendations(weeklyData)
         };
     }
@@ -845,7 +845,7 @@ class AnalyticsEngine {
     }
     
     analyzeBunenjinCompliance(data) {
-        const complianceData = data.bunenjinChecks;
+        const complianceData = data.HaQeiChecks;
         
         return {
             overallScore: complianceData.averageScore,
@@ -940,19 +940,19 @@ HAQEI Analyzerのhooksシステムは、開発プロセスの自動化と品質�
 
 ### 技術的成果
 1. **完全自動化**: ドキュメント生成・品質チェック・ワークフロー管理の自動化
-2. **品質保証**: bunenjin哲学整合性の自動検証とレポート生成
+2. **品質保証**: HaQei哲学整合性の自動検証とレポート生成
 3. **効率向上**: 開発者の手作業削減と一貫性のある成果物生成
 4. **拡張性**: プラグイン方式によるカスタマイズ可能なアーキテクチャ
 
-### bunenjin哲学との整合性
+### HaQei哲学との整合性
 - **透明性**: 全プロセスの可視化と説明可能性
 - **個人主権**: 開発者の自由度を損なわない自動化
 - **適応性**: プロジェクトの特性に応じたカスタマイズ
 - **持続可能性**: 長期的な保守性と拡張性の確保
 
-このhooksシステムにより、HAQEI Analyzerプロジェクトは世界レベルの開発品質と効率性を実現し、bunenjin哲学に基づく理想的な開発環境を構築することができました。
+このhooksシステムにより、HAQEI Analyzerプロジェクトは世界レベルの開発品質と効率性を実現し、HaQei哲学に基づく理想的な開発環境を構築することができました。
 
 ---
 **作成日時**: 2025年7月30日 (JST)  
 **作成者**: HAQEI Reporter Agent  
-**システム設計**: HAQEI CTO & bunenjin Strategy Navigator
+**システム設計**: HAQEI CTO & HaQei Strategy Navigator

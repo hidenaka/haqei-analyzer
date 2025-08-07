@@ -13,7 +13,7 @@ HAQEI (Harmony Analysis through Quantum Eastern Intelligence) は、易経の64�
 - **Supabaseデータベース**: 安全でスケーラブルなクラウドデータベース
 - **データマイグレーション**: ローカルストレージからSupabaseへの完全移行
 - **リアルタイム更新**: PostgreSQL NOTIFY/LISTENによるリアルタイム同期
-- **bunenjin哲学**: プライバシー最優先の設計思想
+- **HaQei哲学**: プライバシー最優先の設計思想
 
 ## 🛠️ 技術スタック
 
@@ -169,7 +169,7 @@ src/
 
 ## 🔐 セキュリティ・プライバシー
 
-### bunenjin哲学準拠
+### HaQei哲学準拠
 
 - **プライバシー最優先**: 個人データの完全な制御
 - **オフライン対応**: インターネット接続なしでの動作保証
@@ -234,7 +234,7 @@ npm run preview
 
 - [Triple OS Architecture](../docs/implementation/)
 - [易経64卦システム](../docs/guides/)
-- [bunenjin哲学](../docs/requirements/)
+- [HaQei哲学](../docs/requirements/)
 
 ## 🤝 コントリビューション
 

@@ -74,7 +74,7 @@ async function demonstrateOfflineFeatures() {
         'Balanced emotional intelligence',
         'High potential for strategic thinking'
       ],
-      bunenjin_score: 0.85
+      HaQei_score: 0.85
     }
 
     const tripleOSData = {
@@ -169,7 +169,7 @@ async function demonstrateOfflineFeatures() {
     console.log('   - Analysis results: ✅ Cached locally')
     console.log('   - Data integrity: ✅ Validated')
     console.log('   - Sync capability: ✅ Ready for online')
-    console.log('\n🔒 bunenjin Philosophy:')
+    console.log('\n🔒 HaQei Philosophy:')
     console.log('   - Complete offline functionality')
     console.log('   - Maximum privacy protection')
     console.log('   - User-controlled data')

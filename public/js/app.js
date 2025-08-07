@@ -267,9 +267,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Welcome Screen 初期化
     console.log("🔍 [App.js] WelcomeScreen初期化開始");
     const welcomeScreen = new WelcomeScreen("welcome-container", {
-      onStart: function () {
+      onStart: async function () {
         console.log("🚀 Starting real diagnosis flow...");
-        startRealDiagnosis();
+        await startRealDiagnosis();
       },
     });
     console.log("🔍 [App.js] WelcomeScreen初期化完了");
@@ -291,8 +291,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       container.innerHTML.length > 0 ? "コンテンツあり" : "空"
     );
 
-    // 🌉 BridgeStorageManagerを使用したbunenjin統合
-    console.log("🌉 Creating BridgeStorageManager with bunenjin philosophy...");
+    // 🌉 BridgeStorageManagerを使用したHaQei統合
+    console.log("🌉 Creating BridgeStorageManager with HaQei philosophy...");
     const bridgeStorageManager = new BridgeStorageManager(storageManager);
     
     // アプリケーション情報をグローバルに保存
@@ -422,7 +422,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 // }
 
 // 実際の診断フロー開始
-function startRealDiagnosis() {
+async function startRealDiagnosis() {
   try {
     console.log("🚀 Starting diagnosis with Phase 2 optimization...");
     console.log("🔍 App object:", app);
@@ -704,7 +704,7 @@ async function proceedToAnalysis(answers) {
 }
 
 // 以前の進行状況をチェック
-function checkPreviousProgress() {
+async function checkPreviousProgress() {
   const session = app.storageManager.getSession();
   const progress = app.storageManager.getProgress();
   const answers = app.storageManager.getAnswers();
@@ -719,7 +719,7 @@ function checkPreviousProgress() {
     );
 
     if (shouldResume) {
-      resumePreviousSession();
+      await resumePreviousSession();
     } else {
       app.storageManager.startNewSession();
     }
@@ -727,7 +727,7 @@ function checkPreviousProgress() {
 }
 
 // 前回のセッションを再開
-function resumePreviousSession() {
+async function resumePreviousSession() {
   try {
     const session = app.storageManager.getSession();
     const progress = app.storageManager.getProgress();
@@ -740,7 +740,7 @@ function resumePreviousSession() {
     switch (session.stage) {
       case "questions":
         // 質問画面を再開
-        startRealDiagnosis();
+        await startRealDiagnosis();
         if (app.questionFlow) {
           app.questionFlow.currentQuestionIndex =
             progress.currentQuestionIndex || 0;

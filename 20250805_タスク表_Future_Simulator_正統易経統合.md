@@ -87,7 +87,7 @@
 
 - **2.1.2** Authentic8ScenariosSystem完全実装
   - WBS ID: P2.1.2
-  - 担当: `haqei-programmer`, `bunenjin-strategy-navigator`
+  - 担当: `haqei-programmer`, `HaQei-strategy-navigator`
   - 工数: 7日
   - 成果物: Authentic8ScenariosSystem.js
   - 依存関係: P2.1.1
@@ -149,24 +149,24 @@
   - 成果物: SequentialTransformation.js
   - 依存関係: P2.2.1
 
-#### 2.3 bunenjin哲学統合
+#### 2.3 HaQei哲学統合
 - **2.3.1** Triple OS Architecture統合
   - WBS ID: P2.3.1
-  - 担当: `bunenjin-strategy-navigator`, `haqei-programmer`
+  - 担当: `HaQei-strategy-navigator`, `haqei-programmer`
   - 工数: 4日
   - 成果物: TripleOSIntegration.js
   - 依存関係: P2.1.2
 
 - **2.3.2** 複数人格認識システム実装
   - WBS ID: P2.3.2
-  - 担当: `bunenjin-strategy-navigator`, `haqei-programmer`
+  - 担当: `HaQei-strategy-navigator`, `haqei-programmer`
   - 工数: 3日
   - 成果物: MultiPersonalitySystem.js
   - 依存関係: P2.3.1
 
 - **2.3.3** 戦略ナビゲーション機能実装
   - WBS ID: P2.3.3
-  - 担当: `bunenjin-strategy-navigator`, `haqei-programmer`
+  - 担当: `HaQei-strategy-navigator`, `haqei-programmer`
   - 工数: 3日
   - 成果物: StrategyNavigator.js
   - 依存関係: P2.3.2
@@ -201,9 +201,9 @@
   - 成果物: 単体テストスイート
   - 依存関係: P2.2.8
 
-- **2.5.2** bunenjin統合テスト
+- **2.5.2** HaQei統合テスト
   - WBS ID: P2.5.2
-  - 担当: `haqei-qa-tester`, `bunenjin-strategy-navigator`
+  - 担当: `haqei-qa-tester`, `HaQei-strategy-navigator`
   - 工数: 2日
   - 成果物: 統合テストレポート
   - 依存関係: P2.3.3
@@ -433,7 +433,7 @@ P1.1.1 → P1.1.2 → P1.2.1 → P2.1.1 → P2.1.2 → P2.2.* → P2.5.1 → P3.
 
 ### 並列実行可能タスクグループ
 - **Group A**: P2.2.1 ～ P2.2.8（8変化パターン実装）- 部分的並列化可能
-- **Group B**: P2.3.1 ～ P2.3.3（bunenjin統合）- P2.1.2完了後並列実行可能
+- **Group B**: P2.3.1 ～ P2.3.3（HaQei統合）- P2.1.2完了後並列実行可能
 - **Group C**: P2.4.1 ～ P2.4.3（UI実装）- P2.1.2完了後並列実行可能
 - **Group D**: P4.2.1 ～ P4.3.3（最終テスト群）- 部分的並列化可能
 
@@ -444,10 +444,10 @@ P1.1.1 → P1.1.2 → P1.2.1 → P2.1.1 → P2.1.2 → P2.2.* → P2.5.1 → P3.
 ### HAQEI Domain Specialists
 - **haqei-cto**: プロジェクト承認、戦略決定、最終承認
 - **haqei-iching-expert**: 正統易経理論監修、8変化パターン設計・検証
-- **haqei-programmer**: bunenjin哲学準拠コーディング、核心機能実装
+- **haqei-programmer**: HaQei哲学準拠コーディング、核心機能実装
 - **haqei-requirements-analyst**: I Ching対応仕様書作成
 - **haqei-qa-tester**: 哲学的整合性テスト、品質保証
-- **bunenjin-strategy-navigator**: Triple OS統合、戦略ナビゲーション設計
+- **HaQei-strategy-navigator**: Triple OS統合、戦略ナビゲーション設計
 
 ### Technical Implementation Team
 - **system-architect**: システム設計、アーキテクチャ決定
@@ -510,7 +510,7 @@ P1.1.1 → P1.1.2 → P1.2.1 → P2.1.1 → P2.1.2 → P2.2.* → P2.5.1 → P3.
 - **Week 6** (並列実行):
   - Team A: 綜卦変化・急速変化実装 (P2.2.5, P2.2.6)
   - Team B: 漸進変化・循環変化実装 (P2.2.7, P2.2.8)
-  - Team C: bunenjin統合開始 (P2.3.1)
+  - Team C: HaQei統合開始 (P2.3.1)
 
 **成果物**:
 - 8変化パターン完全実装
@@ -519,7 +519,7 @@ P1.1.1 → P1.1.2 → P1.2.1 → P2.1.1 → P2.1.2 → P2.2.* → P2.5.1 → P3.
 ### Week 7-8: Phase 2-C (UI統合・基本テスト)
 **Milestone 4**: システム統合完成
 - **Week 7** (並列実行):
-  - Team A: bunenjin統合完了 (P2.3.2, P2.3.3)
+  - Team A: HaQei統合完了 (P2.3.2, P2.3.3)
   - Team B: UI実装 (P2.4.1, P2.4.2, P2.4.3)
 - **Week 8**:
   - 基本機能テスト実施 (P2.5.1, P2.5.2, P2.5.3)
@@ -642,10 +642,10 @@ P1.1.1 → P1.1.2 → P1.2.1 → P2.1.1 → P2.1.2 → P2.2.* → P2.5.1 → P3.
   - フレームワーク: Jest
   - 成果物: 単体テストスイート
 
-- **UT.2** bunenjin統合ロジックテスト
-  - 担当: `test-automation-engineer`, `bunenjin-strategy-navigator`
+- **UT.2** HaQei統合ロジックテスト
+  - 担当: `test-automation-engineer`, `HaQei-strategy-navigator`
   - 焦点: Triple OS連携、複数人格認識
-  - 成果物: bunenjin機能テストスイート
+  - 成果物: HaQei機能テストスイート
 
 ### Integration Testing Tasks
 - **IT.1** システム間連携テスト
@@ -726,15 +726,15 @@ P1.1.1 → P1.1.2 → P1.2.1 → P2.1.1 → P2.1.2 → P2.2.* → P2.5.1 → P3.
   - 精度: 100%正確性
   - 成果物: 卦象正確性確認書
 
-### bunenjin Philosophy QA Tasks
+### HaQei Philosophy QA Tasks
 - **BQ.1** 哲学的整合性監査
-  - 担当: `bunenjin-strategy-navigator`
+  - 担当: `HaQei-strategy-navigator`
   - 焦点: Triple OS Architecture統合
-  - 基準: bunenjin理論完全準拠
+  - 基準: HaQei理論完全準拠
   - 成果物: 哲学統合適合書
 
 - **BQ.2** 戦略ナビゲーション品質検証
-  - 担当: `bunenjin-strategy-navigator`, `haqei-qa-tester`
+  - 担当: `HaQei-strategy-navigator`, `haqei-qa-tester`
   - 評価項目: 複数選択肢提示、ユーザー主体性尊重
   - 成果物: ナビゲーション品質証明書
 
@@ -789,15 +789,15 @@ P1.1.1 → P1.1.2 → P1.2.1 → P2.1.1 → P2.1.2 → P2.2.* → P2.5.1 → P3.
   - 内容: 検証プロセス、判定基準
   - 成果物: 検証手順書
 
-### bunenjin Philosophy Documentation
-- **BD.1** bunenjin統合設計書
-  - 担当: `bunenjin-strategy-navigator`, `technical-writer`
+### HaQei Philosophy Documentation
+- **BD.1** HaQei統合設計書
+  - 担当: `HaQei-strategy-navigator`, `technical-writer`
   - 内容: Triple OS統合方法、戦略ナビゲーション実装
   - 成果物: 哲学統合設計書
 
 - **BD.2** 使用者向け哲学ガイド
-  - 担当: `bunenjin-strategy-navigator`, `ux-researcher`
-  - 内容: bunenjin概念理解支援
+  - 担当: `HaQei-strategy-navigator`, `ux-researcher`
+  - 内容: HaQei概念理解支援
   - 成果物: 哲学理解ガイド
 
 ---
@@ -861,8 +861,8 @@ P1.1.1 → P1.1.2 → P1.2.1 → P2.1.1 → P2.1.2 → P2.2.* → P2.5.1 → P3.
   - 検証方法: 自動化テストスイート
   - 測定: 全パターンの正常動作確認
 
-- **FS.3** bunenjin哲学統合: 完全適合
-  - 検証方法: `bunenjin-strategy-navigator`による哲学監査
+- **FS.3** HaQei哲学統合: 完全適合
+  - 検証方法: `HaQei-strategy-navigator`による哲学監査
   - 測定: Triple OS Architecture統合完成度
 
 ### 性能的成功基準
@@ -949,7 +949,7 @@ P1.1.1 → P1.1.2 → P1.2.1 → P2.1.1 → P2.1.2 → P2.2.* → P2.5.1 → P3.
 4. **進捗監視開始**: 毎日スタンドアップ、週次レビュー
 
 ### 成功要因
-- **哲学的一貫性**: bunenjin哲学とI Ching正統性の完全維持
+- **哲学的一貫性**: HaQei哲学とI Ching正統性の完全維持
 - **技術的卓越性**: 世界水準の実装品質追求
 - **ユーザー中心設計**: 直感的で理解しやすいUX実現
 - **段階的実装**: リスク最小化の慎重なアプローチ

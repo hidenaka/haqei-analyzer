@@ -5,8 +5,8 @@ const ja = {
   app: {
     title: 'HaQei Analyzer'
   },
-  bunenjin: {
-    title: 'bunenjin哲学',
+  HaQei: {
+    title: 'HaQei哲学',
     facets: {
       primary: '主要側面',
       primaryDesc: 'あなたの中核的な人格の側面',
@@ -96,7 +96,7 @@ const ja = {
   sections: {
     easternWisdom: '東洋の智慧',
     westernTheory: '西洋の理論',
-    bunenjinCore: 'bunenjin核心',
+    HaQeiCore: 'HaQei核心',
     culturalExploration: '文化的探索'
   },
   wisdom: {
@@ -189,7 +189,7 @@ const en = {
   app: {
     title: 'HaQei Analyzer'
   },
-  bunenjin: {
+  HaQei: {
     title: 'Bunenjin Philosophy',
     facets: {
       primary: 'Primary Facet',
@@ -280,7 +280,7 @@ const en = {
   sections: {
     easternWisdom: 'Eastern Wisdom',
     westernTheory: 'Western Theory',
-    bunenjinCore: 'Bunenjin Core',
+    HaQeiCore: 'Bunenjin Core',
     culturalExploration: 'Cultural Exploration'
   },
   wisdom: {

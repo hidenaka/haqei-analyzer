@@ -3,7 +3,7 @@
   
   目的:
   - localStorageからSupabaseへのデータ移行UI
-  - bunenjin哲学準拠のプライバシー制御UI
+  - HaQei哲学準拠のプライバシー制御UI
   - Triple OS Architecture移行設定
   - リアクティブな進捗表示とエラーハンドリング
   
@@ -166,7 +166,7 @@
 
             <!-- プライバシー設定 -->
             <div class="config-section">
-              <h4><i class="fas fa-user-shield"></i> プライバシー設定（bunenjin哲学準拠）</h4>
+              <h4><i class="fas fa-user-shield"></i> プライバシー設定（HaQei哲学準拠）</h4>
               <div class="privacy-options">
                 <label class="radio-option">
                   <input 

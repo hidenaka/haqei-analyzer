@@ -1,6 +1,6 @@
 /**
  * JSDoc Configuration for HAQEI Project
- * Comprehensive documentation following bunenjin philosophy
+ * Comprehensive documentation following HaQei philosophy
  */
 
 module.exports = {
@@ -39,16 +39,16 @@ module.exports = {
     monospaceLinks: false
   },
   
-  // Bunenjin philosophy: Multi-perspective documentation
+  // HaQei philosophy: Multi-perspective documentation
   metadata: {
     title: 'HAQEI Future Simulator - I Ching Integration API',
-    description: 'Complete API documentation following bunenjin philosophy with authentic I Ching integration',
+    description: 'Complete API documentation following HaQei philosophy with authentic I Ching integration',
     version: '1.0.0',
     author: 'HAQEI Development Team',
-    philosophy: 'bunenjin - Multi-persona approach avoiding single-identity assumptions'
+    philosophy: 'HaQei - Multi-persona approach avoiding single-identity assumptions'
   },
   
-  // Custom tags for I Ching and bunenjin concepts
+  // Custom tags for I Ching and HaQei concepts
   tags: {
     allowUnknownTags: true,
     dictionaries: ['jsdoc', 'closure']

@@ -386,7 +386,7 @@ class AdaptiveScoringEngine {
 }
 ```
 
-## bunenjin哲学との整合性
+## HaQei哲学との整合性
 
 ### 1. 個人主権の技術的実装
 
@@ -508,11 +508,11 @@ analyzer.addPlugin(new CustomAnalysisPlugin());
 
 ## 結論
 
-本実装により、3000年の易経叡智を現代的戦略分析システムとして活用する世界初の技術基盤が確立されました。bunenjin哲学に基づく個人主権の尊重と、易経的弁証法による深い洞察の提供を両立させた、革新的な意思決定支援システムとなっています。
+本実装により、3000年の易経叡智を現代的戦略分析システムとして活用する世界初の技術基盤が確立されました。HaQei哲学に基づく個人主権の尊重と、易経的弁証法による深い洞察の提供を両立させた、革新的な意思決定支援システムとなっています。
 
 この技術基盤は、今後の機能拡張や新しい分析手法の追加に対して十分な拡張性を持ち、HAQEI Analyzerを世界標準の戦略分析プラットフォームへと発展させる土台となるものです。
 
 ---
 **作成日時**: 2025年7月30日 (JST)  
 **作成者**: HAQEI Reporter Agent  
-**技術監修**: HAQEI I Ching Expert & bunenjin Strategy Navigator
+**技術監修**: HAQEI I Ching Expert & HaQei Strategy Navigator

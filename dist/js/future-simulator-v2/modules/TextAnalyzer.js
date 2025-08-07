@@ -1,7 +1,7 @@
 /**
  * TextAnalyzer.js - Advanced Text Analysis Module
  * 
- * bunenjin哲学による効率的なテキスト分析システム
+ * HaQei哲学による効率的なテキスト分析システム
  * kuromoji.js統合と高度な言語解析機能
  * 
  * Author: HAQEI Programmer Agent

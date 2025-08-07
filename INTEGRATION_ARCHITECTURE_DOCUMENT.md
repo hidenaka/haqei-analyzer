@@ -3,7 +3,7 @@
 **作成日**: 2025-08-04  
 **バージョン**: 1.0.0  
 **作成者**: System Architecture Team  
-**哲学**: bunenjin分人間調和理論に基づく統合システム設計
+**哲学**: HaQei分人間調和理論に基づく統合システム設計
 
 ---
 
@@ -16,7 +16,7 @@
 5. [パフォーマンス最適化](#パフォーマンス最適化)
 6. [エラー処理・フォールバック](#エラー処理フォールバック)
 7. [テスト戦略](#テスト戦略)
-8. [bunenjin哲学統合](#bunenjin哲学統合)
+8. [HaQei哲学統合](#HaQei哲学統合)
 9. [運用・保守](#運用保守)
 10. [今後の拡張計画](#今後の拡張計画)
 
@@ -26,7 +26,7 @@
 
 ### 目的
 
-HAQEI Future Simulatorの統合システムは、既存の5つの独立したコンポーネントを統合し、bunenjin哲学に基づく包括的な易経分析システムを提供します。
+HAQEI Future Simulatorの統合システムは、既存の5つの独立したコンポーネントを統合し、HaQei哲学に基づく包括的な易経分析システムを提供します。
 
 ### 主要目標
 
@@ -34,7 +34,7 @@ HAQEI Future Simulatorの統合システムは、既存の5つの独立したコ
 - **パフォーマンス**: 1秒以内の応答時間達成
 - **信頼性**: 99%以上の稼働率確保
 - **拡張性**: 新機能追加に柔軟対応
-- **品質**: bunenjin哲学の完全実装
+- **品質**: HaQei哲学の完全実装
 
 ### システム特徴
 
@@ -42,7 +42,7 @@ HAQEI Future Simulatorの統合システムは、既存の5つの独立したコ
 2. **キャッシュシステム**: IndexedDBによる永続化キャッシュ
 3. **エラー処理**: 包括的フォールバック機能
 4. **品質保証**: 包括的テストスイート
-5. **哲学統合**: bunenjin分人思想の完全実装
+5. **哲学統合**: HaQei分人思想の完全実装
 
 ---
 
@@ -70,7 +70,7 @@ HAQEI Future Simulatorの統合システムは、既存の5つの独立したコ
 ├─────────────────────────────────────────────────────────────┤
 │                   統合レイヤー                              │
 │  • キャッシュシステム • エラー処理 • パフォーマンス監視      │
-│  • bunenjin哲学統合 • 品質保証                             │
+│  • HaQei哲学統合 • 品質保証                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -86,7 +86,7 @@ HAQEI Future Simulatorの統合システムは、既存の5つの独立したコ
    ├─ AdaptiveIChingEngine → 適応的易経分析
    └─ EnhancedMetaphorEngine → 高品質メタファー生成
     ↓
-3. 結果統合・bunenjin哲学適用
+3. 結果統合・HaQei哲学適用
     ↓
 4. AdaptiveDisplayManager → 適応的表示生成
     ↓
@@ -160,7 +160,7 @@ async initializeComponents()
 - ユーザー特性適応
 - パターン最適選択
 - 統合分析実行
-- bunenjin哲学統合
+- HaQei哲学統合
 
 **適応要素**:
 - 経験レベル（初心者・中級者・上級者）
@@ -189,7 +189,7 @@ async initializeComponents()
 **主要機能**:
 - ユーザープロファイル分析
 - 表示設定決定
-- bunenjin哲学実装
+- HaQei哲学実装
 - 複数視点統合
 
 ---
@@ -228,7 +228,7 @@ async initializeComponents()
   integratedContent: {           // 統合コンテンツ
     primaryInsight: "object",    // 主要洞察
     patternSummary: "object",    // パターン要約
-    bunenjinWisdom: "object",    // bunenjin智慧
+    HaQeiWisdom: "object",    // HaQei智慧
     actionPlan: "array"          // 行動計画
   },
   qualityMetrics: {              // 品質メトリクス
@@ -241,7 +241,7 @@ async initializeComponents()
     version: "string",           // バージョン
     processingTime: "number",    // 処理時間
     systemHealth: "object",      // システム健全性
-    bunenjinIntegration: "boolean" // bunenjin統合
+    HaQeiIntegration: "boolean" // HaQei統合
   }
 }
 ```
@@ -250,7 +250,7 @@ async initializeComponents()
 
 1. **正規化段階**: 入力データの標準化・検証
 2. **分析段階**: 各コンポーネントでの並列分析
-3. **統合段階**: 結果統合・bunenjin哲学適用
+3. **統合段階**: 結果統合・HaQei哲学適用
 4. **表示段階**: ユーザー適応型表示生成
 
 ---
@@ -410,11 +410,11 @@ const recommendations = generateRecommendations(results);
 
 ---
 
-## 🧘 bunenjin哲学統合
+## 🧘 HaQei哲学統合
 
 ### 哲学的背景
 
-**bunenjin（分人）理論**: 人間は単一の人格ではなく、文脈や関係性によって異なる「分人」を持つという哲学。
+**HaQei（分人）理論**: 人間は単一の人格ではなく、文脈や関係性によって異なる「分人」を持つという哲学。
 
 ### 実装要素
 
@@ -559,7 +559,7 @@ tripleOSIntegration: {
 
 ## 📝 結論
 
-HAQEI Future Simulatorの統合システムは、bunenjin哲学に基づく革新的な易経分析プラットフォームとして設計・実装されました。
+HAQEI Future Simulatorの統合システムは、HaQei哲学に基づく革新的な易経分析プラットフォームとして設計・実装されました。
 
 ### 達成した目標
 
@@ -567,11 +567,11 @@ HAQEI Future Simulatorの統合システムは、bunenjin哲学に基づく革�
 2. ✅ **パフォーマンス**: 1秒以内応答時間達成
 3. ✅ **信頼性**: 包括的エラー処理・フォールバック
 4. ✅ **品質保証**: 95%以上のテストカバレッジ
-5. ✅ **哲学統合**: bunenjin思想の完全実装
+5. ✅ **哲学統合**: HaQei思想の完全実装
 
 ### システムの特徴
 
-- **革新性**: 世界初のbunenjin哲学統合易経システム
+- **革新性**: 世界初のHaQei哲学統合易経システム
 - **実用性**: 1秒以内の高速応答と高精度分析
 - **堅牢性**: 99%以上の稼働率とフォールバック機能
 - **拡張性**: 将来機能追加に対応する柔軟なアーキテクチャ

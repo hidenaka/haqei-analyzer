@@ -19,10 +19,10 @@ const routes: TypedRouteRecord[] = [
     component: () => import('@/views/HomeView.vue'),
     meta: {
       requiresAuth: false,
-      bunenjinLevel: 'public',
-      title: 'HAQEI Analyzer - bunenjin哲学による個性分析',
-      description: '易経とbunenjin哲学に基づく革新的な個性分析システム',
-      keywords: ['個性分析', 'bunenjin', '易経', 'I Ching', 'Triple OS']
+      HaQeiLevel: 'public',
+      title: 'HAQEI Analyzer - HaQei哲学による個性分析',
+      description: '易経とHaQei哲学に基づく革新的な個性分析システム',
+      keywords: ['個性分析', 'HaQei', '易経', 'I Ching', 'Triple OS']
     }
   },
   {
@@ -31,7 +31,7 @@ const routes: TypedRouteRecord[] = [
     component: () => import('@/views/QuickAnalyzerView.vue'),
     meta: {
       requiresAuth: false,
-      bunenjinLevel: 'basic',
+      HaQeiLevel: 'basic',
       title: 'クイック分析 - HAQEI',
       description: '短時間で基本的な個性分析を実行',
       keywords: ['クイック分析', '簡易診断']
@@ -43,7 +43,7 @@ const routes: TypedRouteRecord[] = [
     component: () => import('@/views/OSAnalyzerView.vue'),
     meta: {
       requiresAuth: false,
-      bunenjinLevel: 'advanced',
+      HaQeiLevel: 'advanced',
       ichingRequired: true,
       title: 'OS Analyzer - Triple OS分析',
       description: 'Engine/Interface/SafeMode の3層OS分析システム',
@@ -60,9 +60,9 @@ const routes: TypedRouteRecord[] = [
     }),
     meta: {
       requiresAuth: false,
-      bunenjinLevel: 'basic',
+      HaQeiLevel: 'basic',
       title: '分析結果 - HAQEI',
-      description: '個性分析の詳細結果とbunenjin哲学に基づく洞察'
+      description: '個性分析の詳細結果とHaQei哲学に基づく洞察'
     }
   },
   {
@@ -71,7 +71,7 @@ const routes: TypedRouteRecord[] = [
     component: () => import('@/views/FutureSimulatorView.vue'),
     meta: {
       requiresAuth: false,
-      bunenjinLevel: 'expert',
+      HaQeiLevel: 'expert',
       ichingRequired: true,
       title: 'Future Simulator - 未来シミュレーション',
       description: '易経の変化パターンに基づく未来予測システム',
@@ -84,7 +84,7 @@ const routes: TypedRouteRecord[] = [
     component: () => import('@/views/CockpitView.vue'),
     meta: { 
       requiresAuth: true,
-      bunenjinLevel: 'expert',
+      HaQeiLevel: 'expert',
       title: 'Management Cockpit - HAQEI',
       description: 'システム管理とパフォーマンス監視'
     }
@@ -95,7 +95,7 @@ const routes: TypedRouteRecord[] = [
     component: () => import('@/views/ProfessionalReportView.vue'),
     meta: { 
       requiresAuth: true,
-      bunenjinLevel: 'expert',
+      HaQeiLevel: 'expert',
       title: 'Professional Report - HAQEI',
       description: 'プロフェッショナル向け詳細分析レポート'
     }
@@ -107,7 +107,7 @@ const routes: TypedRouteRecord[] = [
     props: true,
     meta: {
       requiresAuth: false,
-      bunenjinLevel: 'public',
+      HaQeiLevel: 'public',
       title: 'エラー - HAQEI'
     }
   },
@@ -117,7 +117,7 @@ const routes: TypedRouteRecord[] = [
     component: () => import('@/views/NotFoundView.vue'),
     meta: {
       requiresAuth: false,
-      bunenjinLevel: 'public',
+      HaQeiLevel: 'public',
       title: 'ページが見つかりません - HAQEI'
     }
   }
@@ -152,13 +152,13 @@ function checkAuthentication(): boolean {
   }
 }
 
-// bunenjinレベルチェック関数
-function checkBunenjinLevel(requiredLevel: RouteMeta['bunenjinLevel']): boolean {
+// HaQeiレベルチェック関数
+function checkBunenjinLevel(requiredLevel: RouteMeta['HaQeiLevel']): boolean {
   if (!requiredLevel || requiredLevel === 'public') {
     return true
   }
   
-  // TODO: ユーザーのbunenjinレベルチェックを実装
+  // TODO: ユーザーのHaQeiレベルチェックを実装
   // 現在は基本レベル以下は許可
   const userLevel = 'basic' // TODO: 実際のユーザーレベルを取得
   
@@ -219,13 +219,13 @@ router.beforeEach((
     }
   }
   
-  // bunenjinレベルチェック
-  if (meta?.bunenjinLevel && !checkBunenjinLevel(meta.bunenjinLevel)) {
+  // HaQeiレベルチェック
+  if (meta?.HaQeiLevel && !checkBunenjinLevel(meta.HaQeiLevel)) {
     next({
       name: 'Error',
-      params: { code: 'insufficient_bunenjin_level' },
+      params: { code: 'insufficient_HaQei_level' },
       query: { 
-        required: meta.bunenjinLevel,
+        required: meta.HaQeiLevel,
         redirect: to.fullPath
       }
     })

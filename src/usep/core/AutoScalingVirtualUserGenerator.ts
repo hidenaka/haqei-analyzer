@@ -5,7 +5,7 @@
  * - 100万→1000万ユーザースケール対応
  * - 自動負荷分散とメモリ最適化
  * - Triple OS Architecture統合
- * - bunenjin哲学とPersonaDimensions統合
+ * - HaQei哲学とPersonaDimensions統合
  * - Web Workers並列処理
  * - リアルタイム性能監視
  */
@@ -33,8 +33,8 @@ export interface EnhancedVirtualUser extends BaseVirtualUser {
   // Triple OS統合
   tripleOS?: TripleOSProfile;
   
-  // bunenjin哲学統合
-  bunenjinAlignment?: BunenjinAlignment;
+  // HaQei哲学統合
+  HaQeiAlignment?: BunenjinAlignment;
   
   // スケーリング関連メタデータ
   generationBatch: string;
@@ -49,7 +49,7 @@ export interface EnhancedVirtualUser extends BaseVirtualUser {
  */
 export interface HaqeiPersonaProfile {
   tripleOS: TripleOSProfile;
-  bunenjinAlignment: BunenjinAlignment;
+  HaQeiAlignment: BunenjinAlignment;
   ichingAffinity: {
     primaryHexagram: number;
     resonanceLevel: number;
@@ -80,7 +80,7 @@ export interface TripleOSProfile {
 }
 
 /**
- * bunenjin整合性
+ * HaQei整合性
  */
 export interface BunenjinAlignment {
   complexityAcceptance: number;
@@ -324,8 +324,8 @@ export class AutoScalingVirtualUserGenerator {
     // Triple OS生成
     const tripleOS = this.generateTripleOSProfile(psychographics, behavioral);
     
-    // bunenjin整合性計算
-    const bunenjinAlignment = this.calculateBunenjinAlignment(
+    // HaQei整合性計算
+    const HaQeiAlignment = this.calculateBunenjinAlignment(
       psychographics, experiential, cultural
     );
     
@@ -351,7 +351,7 @@ export class AutoScalingVirtualUserGenerator {
       
       // HaQei統合プロファイル
       tripleOS,
-      bunenjinAlignment,
+      HaQeiAlignment,
       
       // メタデータ
       generationBatch: batchId,
@@ -542,7 +542,7 @@ export class AutoScalingVirtualUserGenerator {
   }
 
   /**
-   * bunenjin整合性計算
+   * HaQei整合性計算
    */
   private calculateBunenjinAlignment(
     psychographics: any, 
@@ -660,9 +660,9 @@ export class AutoScalingVirtualUserGenerator {
     }
     checks++;
     
-    // bunenjin整合性チェック
-    if (user.bunenjinAlignment) {
-      const avgAlignment = Object.values(user.bunenjinAlignment).reduce((a, b) => a + b, 0) / 4;
+    // HaQei整合性チェック
+    if (user.HaQeiAlignment) {
+      const avgAlignment = Object.values(user.HaQeiAlignment).reduce((a, b) => a + b, 0) / 4;
       qualityScore += avgAlignment * 0.3;
     }
     checks++;
@@ -765,9 +765,9 @@ export class AutoScalingVirtualUserGenerator {
       }
       checks++;
       
-      // bunenjin整合性
-      if (user.bunenjinAlignment) {
-        const avgAlignment = Object.values(user.bunenjinAlignment).reduce((a, b) => a + b, 0) / 4;
+      // HaQei整合性
+      if (user.HaQeiAlignment) {
+        const avgAlignment = Object.values(user.HaQeiAlignment).reduce((a, b) => a + b, 0) / 4;
         userScore += avgAlignment * 0.3;
       }
       checks++;

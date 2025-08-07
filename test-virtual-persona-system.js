@@ -5,7 +5,7 @@
  * - VirtualPersonaEngineの動作確認
  * - Triple OSアーキテクチャの整合性検証
  * - H384データベース（386爻）の統合テスト
- * - bunenjin哲学との整合性確認
+ * - HaQei哲学との整合性確認
  * 
  * 処理内容：
  * 1. H384データベースの完全性確認
@@ -24,7 +24,7 @@
  * 前提条件：
  * - H384データベースが正しく読み込まれている
  * - 仮想人格関連JSファイルが利用可能
- * - bunenjin哲学システムが初期化済み
+ * - HaQei哲学システムが初期化済み
  */
 
 console.log("🎭 仮想人格システム包括テスト開始...");
@@ -142,7 +142,7 @@ function testH384DatabaseIntegrity() {
  * 
  * 目的：
  * - Engine/Interface/Safe Mode OSの独立性確認
- * - bunenjin哲学との整合性検証
+ * - HaQei哲学との整合性検証
  * - OS間相互作用の正常性確認
  * 
  * 入力：
@@ -151,7 +151,7 @@ function testH384DatabaseIntegrity() {
  * 処理内容：
  * 1. 各OSスコアの妥当性確認
  * 2. OS間バランスの分析
- * 3. bunenjin哲学原則との整合性チェック
+ * 3. HaQei哲学原則との整合性チェック
  * 4. 相互作用パターンの確認
  * 
  * 出力：
@@ -235,7 +235,7 @@ function testTripleOSArchitecture(analysisResult) {
     
     if (variance < 30) {
         results.integration.status = 'balanced';
-        results.integration.philosophy = 'bunenjin-aligned';
+        results.integration.philosophy = 'HaQei-aligned';
     } else if (variance < 60) {
         results.integration.status = 'moderate';
         results.integration.philosophy = 'acceptable';
@@ -323,7 +323,7 @@ function simulateVirtualPersonaGeneration(analysisResult, rawAnswers) {
                 outcome: "バランスの取れた判断"
             }
         ],
-        bunenjinAlignment: true,
+        HaQeiAlignment: true,
         generationStatus: "success"
     };
     
@@ -352,14 +352,14 @@ async function runComprehensiveTest() {
         console.log(`   Interface OS: ${tripleOSResults.interfaceOS.status} (${tripleOSResults.interfaceOS.score})`);
         console.log(`   Safe Mode OS: ${tripleOSResults.safeModeOS.status} (${tripleOSResults.safeModeOS.score})`);
         console.log(`   統合性: ${tripleOSResults.integration.status}`);
-        console.log(`   bunenjin哲学: ${tripleOSResults.integration.philosophy}`);
+        console.log(`   HaQei哲学: ${tripleOSResults.integration.philosophy}`);
         console.log(`   総合評価: ${tripleOSResults.overall}`);
         
         // Phase 3: 仮想人格生成シミュレーション
         const virtualPersona = simulateVirtualPersonaGeneration(mockAnalysisResult, mockRawAnswers);
         console.log("\n🎭 仮想人格生成シミュレーション結果:");
         console.log(`   生成状況: ${virtualPersona.generationStatus}`);
-        console.log(`   bunenjin整合性: ${virtualPersona.bunenjinAlignment}`);
+        console.log(`   HaQei整合性: ${virtualPersona.HaQeiAlignment}`);
         console.log(`   ペルソナ数: ${Object.keys(virtualPersona.personas).length}`);
         console.log("   生成されたペルソナ:");
         Object.entries(virtualPersona.personas).forEach(([key, persona]) => {
@@ -376,7 +376,7 @@ async function runComprehensiveTest() {
         
         console.log(`   システム統合度: ${overallScore.toFixed(1)}%`);
         console.log(`   品質レベル: ${overallScore >= 90 ? 'A級' : overallScore >= 75 ? 'B級' : overallScore >= 60 ? 'C級' : '要改善'}`);
-        console.log(`   bunenjin哲学適合: ${virtualPersona.bunenjinAlignment ? '完全適合' : '要調整'}`);
+        console.log(`   HaQei哲学適合: ${virtualPersona.HaQeiAlignment ? '完全適合' : '要調整'}`);
         
     } catch (error) {
         console.error("❌ テスト実行中にエラーが発生しました:", error);

@@ -4,7 +4,7 @@
  * 目的：
  * - ユーザーの悩みに応じた最適な易経変化パターンの選択
  * - 64卦システムと序卦伝論理の完全実装
- * - bunenjin哲学に基づく多視点解釈の提供
+ * - HaQei哲学に基づく多視点解釈の提供
  * 
  * 機能：
  * - 悩みの自動分類と適応的パターン選択
@@ -485,14 +485,14 @@ class AdaptiveIChingEngine {
       cautions: integratedGuidance.cautions,
       opportunities: integratedGuidance.opportunities,
       overallConfidence: this.calculateOverallConfidence(patternAnalyses, weights),
-      bunenjinIntegration: this.integrateBunenjinPhilosophy(integratedGuidance)
+      HaQeiIntegration: this.integrateHaQeiPhilosophy(integratedGuidance)
     };
   }
   
   /**
-   * bunenjin哲学の統合
+   * HaQei哲学の統合
    */
-  integrateBunenjinPhilosophy(guidance) {
+  integrateHaQeiPhilosophy(guidance) {
     return {
       multipleViews: {
         description: "複数の視点を同時に保持することで、より豊かな理解を得られます",

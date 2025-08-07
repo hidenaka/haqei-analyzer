@@ -123,7 +123,7 @@ async function simulateUserExperience(user) {
   try {
     // 1. os_analyzer.htmlにアクセス
     console.log('📱 システムにアクセス中...');
-    await page.goto('http://localhost:9999/os_analyzer.html', {
+    await page.goto('http://localhost:8090/os_analyzer.html', {
       waitUntil: 'networkidle'
     });
     
@@ -134,7 +134,7 @@ async function simulateUserExperience(user) {
     await page.waitForLoadState('networkidle');
     
     // ウェルカム画面の要素を探す
-    const welcomeContainer = await page.$('#welcome-container');
+    const welcomeContainer = await page.$('.welcome-container');
     if (!welcomeContainer) {
       console.log('⚠️ ウェルカムコンテナが見つかりません。ページ構造を確認中...');
       const html = await page.content();
@@ -142,13 +142,13 @@ async function simulateUserExperience(user) {
     }
     
     // より柔軟な待機条件
-    await page.waitForSelector('#welcome-container', { 
+    await page.waitForSelector('.welcome-container', { 
       timeout: 30000,
       state: 'attached' // 'visible'ではなく'attached'に変更
     });
     experience.timestamps.welcomeScreen = Date.now();
     
-    const welcomeText = await page.textContent('#welcome-container');
+    const welcomeText = await page.textContent('.welcome-container');
     experience.observations.push({
       screen: 'welcome',
       observation: evaluateWelcomeScreen(welcomeText, user)
@@ -221,30 +221,46 @@ async function simulateUserExperience(user) {
       // オプションの取得
       let options = [];
       try {
-        options = await page.$$eval('.option-label', els => els.map(el => el.textContent));
+        options = await page.$$eval('.option', els => els.map(el => el.textContent.trim()));
+        console.log(`  ✅ 選択肢数: ${options.length}個`);
       } catch (e) {
         // 別のセレクターを試す
         try {
           options = await page.$$eval('label', els => els.map(el => el.textContent));
         } catch (e2) {
           options = ['選択肢A', '選択肢B', '選択肢C']; // デフォルト
+          console.log('  ⚠️ デフォルト選択肢を使用');
         }
       }
       
       // ユーザーの性格に基づいた選択
       const selectedOption = selectAnswer(user, questionText, options, i);
       
-      // オプションをクリック
+      // オプションをクリック（正しいセレクタ使用）
       try {
-        await page.click(`.option-label:has-text("${selectedOption}")`);
-      } catch (e) {
-        // 別の方法でクリック
-        const labels = await page.$$('label');
-        if (labels.length > 0) {
-          const randomIndex = Math.floor(Math.random() * labels.length);
-          await labels[randomIndex].click();
-          console.log(`⚠️ ランダム選択: ${randomIndex + 1}番目のオプション`);
+        const optionElements = await page.$$('.option');
+        if (optionElements.length > 0) {
+          // ユーザーの性格に基づいた選択
+          let selectedIndex = 0;
+          switch (user.answering_pattern) {
+            case 'thoughtful':
+              selectedIndex = Math.floor(optionElements.length / 2);
+              break;
+            case 'quick':
+              selectedIndex = Math.floor(Math.random() * optionElements.length);
+              break;
+            default:
+              selectedIndex = Math.floor(Math.random() * optionElements.length);
+          }
+          
+          await optionElements[selectedIndex].click();
+          console.log(`  ✅ 選択肢 ${selectedIndex + 1}/${optionElements.length} をクリック`);
+        } else {
+          throw new Error('選択肢が見つかりません');
         }
+      } catch (e) {
+        console.log(`  ❌ 選択肢クリックエラー: ${e.message}`);
+        break;
       }
       
       experience.interactions.push({
@@ -309,7 +325,7 @@ function evaluateWelcomeScreen(text, user) {
   if (user.personality.techSavvy < 0.3) {
     return "最初の画面が難しそうに見える。もっとシンプルな説明が欲しい。";
   } else if (user.personality.philosophicalInterest > 0.7) {
-    return "bunenjin哲学の説明に興味を持った。東洋思想とAIの融合は面白い。";
+    return "HaQei哲学の説明に興味を持った。東洋思想とAIの融合は面白い。";
   } else {
     return "普通の第一印象。特に問題なく進めそう。";
   }

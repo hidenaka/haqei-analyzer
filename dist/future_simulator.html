@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" role="document">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,7 +13,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; media-src 'self'; frame-src 'none';">
     
     <title>HaQei マルチバース・アナライザー</title>
-    <meta name="description" content="未来シミュレーター - I Ching（易経）と人格OSを使った分析ツール。bunenjin哲学に基づいた意思決定支援システム。">
+    <meta name="description" content="未来シミュレーター - I Ching（易経）と人格OSを使った分析ツール。HaQei哲学に基づいた意思決定支援システム。">
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
@@ -29,7 +29,9 @@
     <script src="./js/pages/future-simulator/TextToIChingEngine.js"></script>
     <script src="./js/pages/future-simulator/IChingResultsDisplay.js"></script>
     
-    <!-- Phase 3: 8 Scenarios Display System -->
+    <!-- Phase 3: Binary Tree Scenarios System -->
+    <script src="./js/core/BinaryTreeFutureEngine.js"></script>
+    <script src="./validate-binary-tree.js"></script>
     <script src="./js/pages/future-simulator/EightScenariosGenerator.js"></script>
     <script src="./js/pages/future-simulator/ScenariosDisplayUI.js"></script>
     <script src="./js/pages/future-simulator/scenario-animations.js"></script>
@@ -76,11 +78,11 @@
     <script src="./js/core/UserErrorManager.js" defer></script>
     <script src="./js/core/ResponsiveEnhancementManager.js" defer></script>
     
-    <!-- bunenjin Philosophy Systems (Core Implementation) -->
-    <script src="./js/bunenjin/ContradictionAcceptanceSystem.js"></script>
-    <script src="./js/bunenjin/DynamicBunenjinSystem.js"></script>
-    <script src="./js/bunenjin/IntegratedGuidanceSystem.js"></script>
-    <script src="./js/bunenjin/BunenjinValidationSystem.js"></script>
+    <!-- HaQei Philosophy Systems (Core Implementation) -->
+    <script src="./js/HaQei/ContradictionAcceptanceSystem.js"></script>
+    <script src="./js/HaQei/DynamicHaQeiSystem.js"></script>
+    <script src="./js/HaQei/IntegratedGuidanceSystem.js"></script>
+    <script src="./js/HaQei/HaQeiValidationSystem.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -391,7 +393,7 @@
         margin: 0 1rem;
       }
 
-      .bunenjin-analysis .persona-analysis {
+      .HaQei-analysis .persona-analysis {
         background: rgba(31, 41, 55, 0.5);
         border-radius: 8px;
         padding: 1rem;
@@ -508,6 +510,10 @@
     
     <!-- Core System Assets - 最適化読み込み順序 -->
     <script src="./assets/H384H64database.js"></script>
+    
+    <!-- 正統386爻システム -->
+    <script src="./js/core/AuthenticIChingEngine386.js"></script>
+    <script src="./js/pages/future-simulator/Authentic386Integration.js"></script>
     <script src="./js/core/PerformanceOptimizer.js"></script>
     <script src="./js/core/IChingTransformationEngine.js"></script>
     <script src="./js/core/FutureBranchingSystem.js"></script>
@@ -590,6 +596,7 @@
     
     <!-- 🌟 Authentic I Ching System Components -->
     <script src="./js/core/AuthenticIChingEngine.js"></script>
+    <script src="./js/core/Extended512HexagramEngine.js"></script>
     <script src="./js/components/CurrentPositionDisplay.js"></script>
     <script src="./js/components/AuthenticChoiceSystem.js"></script>
     <script src="./js/components/Authentic8ScenariosSystem.js"></script>
@@ -3484,7 +3491,7 @@
                     displayFormat: 'comprehensive',
                     scenarioCount: 8,
                     contradictionMode: 'full_acceptance',
-                    bunenjinMode: 'active',
+                    HaQeiMode: 'active',
                     diversityLevel: 'high',
                     animationEnabled: true,
                     contradictionVisualization: true,

@@ -1,0 +1,44 @@
+{
+  "timestamp": "2025-08-06T21:35:38.695Z",
+  "testPhase": "Comprehensive Analysis Flow Test",
+  "summary": {
+    "totalErrors": 2,
+    "criticalJSErrors": 2,
+    "warnings": 0,
+    "elementsFound": {
+      "textInput": false,
+      "analyzeButton": false
+    }
+  },
+  "errors": {
+    "all": [
+      {
+        "type": "error",
+        "message": "Failed to load resource: the server responded with a status of 404 (File not found)",
+        "timestamp": "2025-08-06T21:35:32.330Z",
+        "url": "http://localhost:8080/favicon.ico?t=1754516132166"
+      },
+      {
+        "type": "error",
+        "message": "Failed to load resource: the server responded with a status of 404 (File not found)",
+        "timestamp": "2025-08-06T21:35:32.348Z",
+        "url": "http://localhost:8080/favicon.ico"
+      }
+    ],
+    "jsOnly": [
+      {
+        "type": "error",
+        "message": "Failed to load resource: the server responded with a status of 404 (File not found)",
+        "timestamp": "2025-08-06T21:35:32.330Z",
+        "url": "http://localhost:8080/favicon.ico?t=1754516132166"
+      },
+      {
+        "type": "error",
+        "message": "Failed to load resource: the server responded with a status of 404 (File not found)",
+        "timestamp": "2025-08-06T21:35:32.348Z",
+        "url": "http://localhost:8080/favicon.ico"
+      }
+    ],
+    "warnings": []
+  }
+}

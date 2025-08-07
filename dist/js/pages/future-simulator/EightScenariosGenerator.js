@@ -1,31 +1,41 @@
 /**
  * HAQEI Eight Scenarios Generator - Phase 3 Implementation
- * 8シナリオ生成エンジン - bunenjin哲学準拠
+ * 8シナリオ生成エンジン - HaQei哲学準拠
  * 
  * 実装日: 2025年8月6日
  * 担当: HAQEI Programming Agent  
- * 目的: Phase 2の易経卦から8つの更新シナリオを生成し、bunenjin哲学の矛盾受容を実現
+ * 目的: Phase 2の易経卦から8つの更新シナリオを生成し、HaQei哲学の矛盾受容を実現
  */
 
 class EightScenariosGenerator {
     constructor() {
         this.initialized = false;
         this.scenarioCache = new Map();
-        this.bunenjinMatrix = this.initializeBunenjinMatrix();
+        this.HaQeiMatrix = this.initializeHaQeiMatrix();
         this.scenarioPatterns = this.initializeScenarioPatterns();
         this.contradictionFramework = this.initializeContradictionFramework();
         this.iChingScenarioMapping = this.initializeIChingScenarioMapping();
         
-        console.log('🎭 EightScenariosGenerator Phase 3 initialized - bunenjin philosophy');
+        // Memory Management (メモリリーク修正)
+        this.memoryManager = {
+            cacheLimit: 50,
+            cleanupInterval: null,
+            lastCleanup: Date.now()
+        };
+        
+        // Start automatic cleanup
+        this.startMemoryCleanup();
+        
+        console.log('🎭 EightScenariosGenerator Phase 3 initialized - HaQei philosophy');
     }
 
     /**
-     * メイン8シナリオ生成メソッド - Phase 3 Core Implementation
-     * P3-001: Phase 2の結果から8シナリオを生成
+     * メイン二分木型分岐生成メソッド - Phase 3 Core Implementation
+     * P3-001: Phase 2の結果から二分木型3段階分岐を生成
      */
     async generateEightScenarios(phase2Results, options = {}) {
         try {
-            console.log('🎯 Generating 8 scenarios from Phase 2 results...');
+            console.log('🌳 Generating binary tree futures from Phase 2 results...');
             
             if (!phase2Results || !phase2Results.selectedHexagram) {
                 throw new Error('Phase 2の結果が必要です');
@@ -33,57 +43,45 @@ class EightScenariosGenerator {
 
             const startTime = performance.now();
 
-            // Step 1: bunenjin分人視点の特定
-            const bunenjinPerspectives = this.identifyBunenjinPerspectives(
-                phase2Results.bunenjinInterpretation,
+            // Step 1: 386爻システムから現在位置特定
+            const currentLineNumber = this.determineCurrentLine386(phase2Results.selectedHexagram, phase2Results.inputText);
+
+            // Step 2: 二分木型分岐エンジン初期化
+            if (!window.BinaryTreeFutureEngine) {
+                throw new Error('BinaryTreeFutureEngine not loaded');
+            }
+            const binaryTreeEngine = new window.BinaryTreeFutureEngine();
+
+            // Step 3: 二分木型分岐生成
+            const binaryTreeResult = await binaryTreeEngine.generateBinaryTreeFutures(currentLineNumber, {
+                phase2Results: phase2Results,
+                options: options
+            });
+
+            // Step 4: HaQei分人視点の特定
+            const HaQeiPerspectives = this.identifyHaQeiPerspectives(
+                phase2Results.HaQeiInterpretation,
                 phase2Results.inputText
             );
 
-            // Step 2: 8つの基本軸の設定
-            const scenarioAxes = this.defineScenarioAxes(phase2Results.selectedHexagram);
-
-            // Step 3: 矛盾受容パターンの適用
-            const contradictionPatterns = this.generateContradictionPatterns(
-                bunenjinPerspectives,
-                scenarioAxes
+            // Step 5: 二分木結果をシナリオ形式に変換
+            const eightScenarios = this.convertBinaryTreeToScenarios(
+                binaryTreeResult.finalEightPaths,
+                HaQeiPerspectives,
+                phase2Results
             );
 
-            // Step 4: 8シナリオの並列生成
-            const [
-                conservativeScenario,
-                progressiveScenario,
-                individualScenario,
-                collectiveScenario,
-                immediateScenario,
-                longTermScenario,
-                rationalScenario,
-                intuitiveScenario
-            ] = await Promise.all([
-                this.generateConservativeScenario(phase2Results, bunenjinPerspectives),
-                this.generateProgressiveScenario(phase2Results, bunenjinPerspectives),
-                this.generateIndividualScenario(phase2Results, bunenjinPerspectives),
-                this.generateCollectiveScenario(phase2Results, bunenjinPerspectives),
-                this.generateImmediateScenario(phase2Results, bunenjinPerspectives),
-                this.generateLongTermScenario(phase2Results, bunenjinPerspectives),
-                this.generateRationalScenario(phase2Results, bunenjinPerspectives),
-                this.generateIntuitiveScenario(phase2Results, bunenjinPerspectives)
-            ]);
+            // Step 6: 矛盾統合と調和（二分木対応）
+            const integratedScenarios = this.integrateBinaryTreeScenarios(
+                eightScenarios,
+                binaryTreeResult.HaQeiIntegration,
+                HaQeiPerspectives
+            );
 
-            // Step 5: 矛盾統合と調和
-            const integratedScenarios = this.integrateContradictoryScenarios([
-                conservativeScenario,
-                progressiveScenario,
-                individualScenario,
-                collectiveScenario,
-                immediateScenario,
-                longTermScenario,
-                rationalScenario,
-                intuitiveScenario
-            ], contradictionPatterns);
-
-            // Step 6: 統合的指導の生成
-            const holisticGuidance = this.generateHolisticGuidance(
+            // Step 7: 統合的指導の生成（二分木統合）
+            const holisticGuidance = this.generateBinaryTreeHolisticGuidance(
                 integratedScenarios,
+                binaryTreeResult,
                 phase2Results
             );
 
@@ -92,39 +90,48 @@ class EightScenariosGenerator {
             const finalResult = {
                 inputText: phase2Results.inputText,
                 sourceHexagram: phase2Results.selectedHexagram,
-                bunenjinPerspectives,
+                currentLine386: currentLineNumber,
+                HaQeiPerspectives,
                 timestamp: new Date().toISOString(),
                 processingTime: Math.round(processingTime),
 
-                // Core 8 Scenarios
+                // Binary Tree Structure
+                binaryTreeStructure: binaryTreeResult.binaryTree,
+                pathVisualization: binaryTreeResult.pathVisualization,
+                
+                // Core 8 Scenarios (from binary tree paths)
                 scenarios: integratedScenarios,
-                contradictionPatterns,
+                binaryTreePaths: binaryTreeResult.finalEightPaths,
                 holisticGuidance,
 
-                // bunenjin Philosophy Implementation
+                // HaQei Philosophy Implementation (Binary Tree Enhanced)
                 multiplicity_celebration: true,
-                contradiction_acceptance: this.calculateContradictionAcceptance(integratedScenarios),
-                dynamic_persona_switching: this.generateDynamicPersonaSwitching(bunenjinPerspectives),
-                unified_integration: this.generateUnifiedIntegration(integratedScenarios),
+                binary_tree_philosophy: '段階的分岐による複数真理の共存',
+                contradiction_acceptance: binaryTreeResult.HaQeiIntegration.contradiction_acceptance,
+                dynamic_persona_switching: binaryTreeResult.HaQeiIntegration.persona_switching,
+                unified_integration: binaryTreeResult.HaQeiIntegration.unified_wisdom,
 
                 // Quality Metrics
                 scenario_diversity: this.calculateScenarioDiversity(integratedScenarios),
-                philosophical_depth: this.calculatePhilosophicalDepth(integratedScenarios),
+                philosophical_depth: binaryTreeResult.HaQeiIntegration.philosophical_depth || 0.85,
                 practical_applicability: this.calculatePracticalApplicability(integratedScenarios),
+                binary_tree_accuracy: binaryTreeResult.qualityMetrics.binaryTreeAccuracy,
 
                 // Metadata
-                phase: 'Phase 3 - Eight Scenarios',
-                engineVersion: '3.0.0',
-                bunenjinCompliance: true,
-                contradictionFramework: 'integrated_harmony'
+                phase: 'Phase 3 - Binary Tree Scenarios',
+                engineVersion: '3.0.0-binary-tree',
+                HaQeiCompliance: true,
+                contradictionFramework: 'binary_tree_harmony',
+                binaryTreeEngine: binaryTreeResult.version
             };
 
             // キャッシュに保存
             this.cacheScenarios(phase2Results.inputText, finalResult);
 
-            console.log('✅ Eight scenarios generated successfully:', {
+            console.log('✅ Binary tree scenarios generated successfully:', {
                 scenarios: integratedScenarios.length,
-                contradictions: contradictionPatterns.length,
+                binaryTreePaths: binaryTreeResult.finalEightPaths.length,
+                currentLine386: currentLineNumber,
                 diversity: finalResult.scenario_diversity,
                 time: processingTime + 'ms'
             });
@@ -136,11 +143,168 @@ class EightScenariosGenerator {
             return this.generateFallbackScenarios(phase2Results);
         }
     }
+    
+    /**
+     * P3-NEW: 386爻システムから現在位置を特定
+     */
+    determineCurrentLine386(selectedHexagram, inputText) {
+        try {
+            // 卦番号から基本範囲を計算
+            const hexagramNumber = selectedHexagram.number || 1;
+            const baseLineStart = (hexagramNumber - 1) * 6 + 1;
+            const baseLineEnd = hexagramNumber * 6;
+            
+            // テキスト分析による爻位置推定
+            const textAnalysis = this.analyzeTextForLinePosition(inputText);
+            const estimatedPosition = Math.floor(textAnalysis * 6) + 1; // 1-6の範囲
+            
+            const finalLineNumber = baseLineStart + estimatedPosition - 1;
+            
+            console.log(`🎯 Determined 386 line: ${finalLineNumber} (hexagram: ${hexagramNumber}, position: ${estimatedPosition})`);
+            return Math.min(Math.max(finalLineNumber, 1), 384);
+            
+        } catch (error) {
+            console.error('❌ Error determining current line 386:', error);
+            return 1; // フォールバック
+        }
+    }
+    
+    /**
+     * P3-NEW: 二分木結果をシナリオ形式に変換
+     */
+    convertBinaryTreeToScenarios(binaryTreePaths, HaQeiPerspectives, phase2Results) {
+        try {
+            return binaryTreePaths.map((path, index) => {
+                return {
+                    id: `binary_tree_path_${index + 1}`,
+                    index: index + 1,
+                    title: path.title,
+                    subtitle: path.fullDescription,
+                    route: path.route,
+                    
+                    core_approach: {
+                        primary: path.practical_guidance?.[0] || '段階的アプローチ',
+                        secondary: path.practical_guidance?.[1] || '状況対応',
+                        tertiary: path.practical_guidance?.[2] || '柔軟な調整'
+                    },
+                    
+                    scenario_narrative: path.iching_interpretation?.explanation || path.fullDescription,
+                    
+                    specific_actions: path.practical_guidance || [
+                        '現状分析を行う',
+                        '段階的に進める',
+                        '定期的に見直す'
+                    ],
+                    
+                    HaQei_contradictions: [{
+                        element: `${path.route[0]} vs ${path.route[1]}`,
+                        insight: 'binary tree選択による分人の動的切り替え',
+                        resolution: '段階的な状況判断による適応'
+                    }],
+                    
+                    timeline: path.timeline,
+                    success_probability: path.probability,
+                    iching_resonance: 0.9,
+                    binary_tree_path: path.route,
+                    success_factors: path.success_factors,
+                    potential_challenges: path.potential_challenges
+                };
+            });
+            
+        } catch (error) {
+            console.error('❌ Error converting binary tree to scenarios:', error);
+            return this.generateBasicScenarios();
+        }
+    }
+    
+    /**
+     * P3-NEW: 二分木シナリオの統合
+     */
+    integrateBinaryTreeScenarios(scenarios, HaQeiIntegration, perspectives) {
+        return scenarios.map((scenario, index) => {
+            return {
+                ...scenario,
+                contradiction_integration: {
+                    acknowledged_contradictions: HaQeiIntegration.contradiction_acceptance,
+                    harmony_approach: 'binary_tree_stage_selection',
+                    HaQei_wisdom: HaQeiIntegration.unified_wisdom.meta_guidance
+                },
+                persona_switching: HaQeiIntegration.persona_switching,
+                integration_potential: 0.85 + (index * 0.02) // 微調整
+            };
+        });
+    }
+    
+    /**
+     * P3-NEW: 二分木統合的指導の生成
+     */
+    generateBinaryTreeHolisticGuidance(scenarios, binaryTreeResult, phase2Results) {
+        return {
+            meta_guidance: {
+                primary_message: '8つの道筋は段階的な選択の結果として存在します',
+                binary_tree_principle: '各段階での選択が次の可能性を決定していきます',
+                HaQei_integration: '分人の状態に応じて適切な分岐を選択することが可能です'
+            },
+            
+            scenario_navigation: {
+                how_to_choose: '第1段階で大方針を決定し、第2・第3段階で詳細を調整',
+                stage_approach: '各段階で立ち止まって状況を再評価することが重要',
+                dynamic_switching: '初期選択に固執せず、状況変化に応じて軌道修正'
+            },
+            
+            practical_integration: [
+                '第1段階: 順行か転換かの基本方針決定',
+                '第2段階: 具体的なアプローチ方法の選択',
+                '第3段階: 実行時の強度や穏健度の調整',
+                '全段階: 分人の声に耳を傾けながら柔軟に対応'
+            ],
+            
+            philosophical_insight: {
+                binary_tree_wisdom: '段階的選択こそが易経の変化の本質',
+                iching_correspondence: phase2Results.selectedHexagram.modern_interpretation,
+                integration_path: '対立する選択肢の存在を受け入れることで真の理解に到達'
+            },
+            
+            visualization_guidance: {
+                tree_reading: 'ルートから最終選択まで全体の流れを把握',
+                probability_understanding: '各経路の確率は参考値として活用',
+                adaptive_planning: '状況変化に応じて異なる経路への切り替えも検討'
+            }
+        };
+    }
+    
+    /**
+     * P3-NEW: テキスト分析による爻位置推定
+     */
+    analyzeTextForLinePosition(inputText) {
+        if (!inputText || inputText.length === 0) return 0.5;
+        
+        // 文字数による基本推定
+        const lengthFactor = Math.min(inputText.length / 200, 1.0);
+        
+        // キーワード分析
+        const beginningWords = ['始まり', '最初', '初めて', 'スタート'];
+        const middleWords = ['進行', '展開', '発展', '途中'];
+        const endWords = ['完了', '終了', '最後', '仕上げ'];
+        
+        let positionScore = 0.5; // デフォルト中間
+        
+        if (beginningWords.some(word => inputText.includes(word))) {
+            positionScore = 0.2;
+        } else if (endWords.some(word => inputText.includes(word))) {
+            positionScore = 0.8;
+        } else if (middleWords.some(word => inputText.includes(word))) {
+            positionScore = 0.5;
+        }
+        
+        // 長さ要因との統合
+        return (positionScore * 0.7) + (lengthFactor * 0.3);
+    }
 
     /**
-     * P3-002: bunenjin分人視点の特定
+     * P3-002: HaQei分人視点の特定
      */
-    identifyBunenjinPerspectives(bunenjinInterpretation, originalText) {
+    identifyHaQeiPerspectives(HaQeiInterpretation, originalText) {
         try {
             const perspectives = [];
             
@@ -159,7 +323,7 @@ class EightScenariosGenerator {
             basePerspectives.forEach(perspectiveType => {
                 const strength = this.calculatePerspectiveStrength(
                     perspectiveType, 
-                    bunenjinInterpretation, 
+                    HaQeiInterpretation, 
                     originalText
                 );
 
@@ -167,9 +331,9 @@ class EightScenariosGenerator {
                     perspectives.push({
                         type: perspectiveType,
                         strength,
-                        characteristics: this.bunenjinMatrix[perspectiveType].characteristics,
-                        focus_areas: this.bunenjinMatrix[perspectiveType].focus_areas,
-                        natural_contradictions: this.bunenjinMatrix[perspectiveType].natural_contradictions
+                        characteristics: this.HaQeiMatrix[perspectiveType].characteristics,
+                        focus_areas: this.HaQeiMatrix[perspectiveType].focus_areas,
+                        natural_contradictions: this.HaQeiMatrix[perspectiveType].natural_contradictions
                     });
                 }
             });
@@ -181,7 +345,7 @@ class EightScenariosGenerator {
             return perspectives.sort((a, b) => b.strength - a.strength).slice(0, 5);
 
         } catch (error) {
-            console.error('❌ Error in identifyBunenjinPerspectives:', error);
+            console.error('❌ Error in identifyHaQeiPerspectives:', error);
             return this.getBasicPerspectives();
         }
     }
@@ -194,42 +358,42 @@ class EightScenariosGenerator {
             change_stability: {
                 label: '変化 vs 安定',
                 hexagram_influence: this.calculateHexagramAxisInfluence(hexagram, 'change'),
-                bunenjin_weight: 0.8
+                HaQei_weight: 0.8
             },
             individual_collective: {
                 label: '個人 vs 集団',
                 hexagram_influence: this.calculateHexagramAxisInfluence(hexagram, 'collective'),
-                bunenjin_weight: 0.9
+                HaQei_weight: 0.9
             },
             immediate_longterm: {
                 label: '短期 vs 長期',
                 hexagram_influence: this.calculateHexagramAxisInfluence(hexagram, 'timing'),
-                bunenjin_weight: 0.7
+                HaQei_weight: 0.7
             },
             rational_intuitive: {
                 label: '論理 vs 直感',
                 hexagram_influence: this.calculateHexagramAxisInfluence(hexagram, 'cognition'),
-                bunenjin_weight: 0.8
+                HaQei_weight: 0.8
             },
             action_reflection: {
                 label: '行動 vs 熟考',
                 hexagram_influence: this.calculateHexagramAxisInfluence(hexagram, 'action'),
-                bunenjin_weight: 0.75
+                HaQei_weight: 0.75
             },
             openness_caution: {
                 label: '開放 vs 慎重',
                 hexagram_influence: this.calculateHexagramAxisInfluence(hexagram, 'openness'),
-                bunenjin_weight: 0.85
+                HaQei_weight: 0.85
             },
             harmony_assertion: {
                 label: '調和 vs 主張',
                 hexagram_influence: this.calculateHexagramAxisInfluence(hexagram, 'assertion'),
-                bunenjin_weight: 0.8
+                HaQei_weight: 0.8
             },
             acceptance_transformation: {
                 label: '受容 vs 変革',
                 hexagram_influence: this.calculateHexagramAxisInfluence(hexagram, 'transformation'),
-                bunenjin_weight: 0.9
+                HaQei_weight: 0.9
             }
         };
 
@@ -259,7 +423,7 @@ class EightScenariosGenerator {
                         perspectives: [perspectives[i].type, perspectives[j].type],
                         contradiction,
                         resolution_approach: this.generateContradictionResolution(contradiction),
-                        bunenjin_insight: this.generateBunenjinInsight(contradiction)
+                        HaQei_insight: this.generateHaQeiInsight(contradiction)
                     });
                 }
             }
@@ -273,7 +437,7 @@ class EightScenariosGenerator {
                 axis: axisName,
                 polarities,
                 reconciliation: this.generateAxisReconciliation(polarities),
-                bunenjin_harmony: this.generateBunenjinHarmony(axisName, polarities)
+                HaQei_harmony: this.generateHaQeiHarmony(axisName, polarities)
             });
         });
 
@@ -310,7 +474,7 @@ class EightScenariosGenerator {
                 'リスク要因を事前に回避'
             ],
 
-            bunenjin_contradictions: [
+            HaQei_contradictions: [
                 {
                     element: '保守性 vs 成長欲求',
                     insight: '安定を求める分人と変化を望む分人の共存',
@@ -352,7 +516,7 @@ class EightScenariosGenerator {
                 'リスクを取って大きな変化を実現'
             ],
 
-            bunenjin_contradictions: [
+            HaQei_contradictions: [
                 {
                     element: '革新性 vs 安全欲求',
                     insight: '変化を求める分人と安全を望む分人の葛藤',
@@ -409,7 +573,7 @@ class EightScenariosGenerator {
                 contradiction_integration: {
                     acknowledged_contradictions: relevantContradictions,
                     harmony_approach: this.generateHarmonyApproach(scenario, relevantContradictions),
-                    bunenjin_wisdom: this.generateBunenjinWisdom(scenario, relevantContradictions)
+                    HaQei_wisdom: this.generateHaQeiWisdom(scenario, relevantContradictions)
                 },
                 complementary_scenarios: this.identifyComplementaryScenarios(scenario, scenarios),
                 integration_potential: this.calculateIntegrationPotential(scenario, scenarios)
@@ -424,7 +588,7 @@ class EightScenariosGenerator {
         return {
             meta_guidance: {
                 primary_message: 'すべてのシナリオが真実の一側面を表現しています',
-                bunenjin_principle: '複数の分人が共存することで、豊かな解決策が生まれます',
+                HaQei_principle: '複数の分人が共存することで、豊かな解決策が生まれます',
                 contradiction_embrace: '矛盾する選択肢の存在こそが、人間の複雑性の現れです'
             },
 
@@ -442,7 +606,7 @@ class EightScenariosGenerator {
             ],
 
             philosophical_insight: {
-                bunenjin_truth: '一つの正解を求めるのではなく、多様性の中に真理がある',
+                HaQei_truth: '一つの正解を求めるのではなく、多様性の中に真理がある',
                 iching_wisdom: phase2Results.selectedHexagram.modern_interpretation,
                 integration_path: '矛盾を統合することで、より深い理解に到達する'
             }
@@ -453,7 +617,7 @@ class EightScenariosGenerator {
     // 初期化メソッド群
     // ========================================
 
-    initializeBunenjinMatrix() {
+    initializeHaQeiMatrix() {
         return {
             personal_self: {
                 characteristics: ['内省', '自己理解', '個人的価値観'],
@@ -573,7 +737,7 @@ class EightScenariosGenerator {
             },
             scenario_narrative: `${type}の視点からの解決アプローチ`,
             specific_actions: this.generateGenericActions(pattern),
-            bunenjin_contradictions: this.generateGenericContradictions(type),
+            HaQei_contradictions: this.generateGenericContradictions(type),
             timeline: this.determineTimeline(pattern.change_pace),
             success_probability: 0.7,
             iching_resonance: 0.8
@@ -614,18 +778,29 @@ class EightScenariosGenerator {
             inputText: phase2Results?.inputText || '',
             sourceHexagram: phase2Results?.selectedHexagram || { name: '基本卦' },
             scenarios: this.generateBasicScenarios(),
-            bunenjinCompliance: true,
+            HaQeiCompliance: true,
             phase: 'Phase 3 - Fallback',
             scenario_diversity: 0.6
         };
     }
 
     generateBasicScenarios() {
-        return [
-            { id: 'basic1', title: '慎重アプローチ', subtitle: '安全第一の選択' },
-            { id: 'basic2', title: '積極アプローチ', subtitle: '前向きな行動' },
-            { id: 'basic3', title: 'バランスアプローチ', subtitle: '中庸の道' }
-        ];
+        return Array.from({ length: 8 }, (_, i) => ({
+            id: `basic_binary_${i + 1}`,
+            index: i + 1,
+            title: `基本的道筋 ${i + 1}`,
+            subtitle: '二分木フォールバック',
+            route: ['basic', 'path', 'option'],
+            core_approach: {
+                primary: '基本的アプローチ',
+                secondary: '状況対応',
+                tertiary: '柔軟調整'
+            },
+            scenario_narrative: `基本的な${i + 1}番目の選択肢`,
+            specific_actions: ['現状確認', '段階実行', '結果評価'],
+            success_probability: 0.125,
+            timeline: '3-6ヶ月'
+        }));
     }
 
     // 簡略化された支援メソッド
@@ -640,10 +815,10 @@ class EightScenariosGenerator {
         return { intensity: Math.random() * 0.8 + 0.2 }; 
     }
     generateContradictionResolution() { return '創造的統合'; }
-    generateBunenjinInsight() { return 'bunenjin的洞察'; }
+    generateHaQeiInsight() { return 'HaQei的洞察'; }
     generateAxisPolarities() { return { positive: '積極', negative: '慎重' }; }
     generateAxisReconciliation() { return '動的バランス'; }
-    generateBunenjinHarmony() { return '分人間の調和'; }
+    generateHaQeiHarmony() { return '分人間の調和'; }
     identifyMetaContradictions() { return []; }
     selectRelevantPerspectives(perspectives, type) { 
         return perspectives.slice(0, 2); 
@@ -656,7 +831,7 @@ class EightScenariosGenerator {
     enrichScenarioWithDetails(scenario) { return scenario; }
     findRelevantContradictions() { return []; }
     generateHarmonyApproach() { return 'harmonious_coexistence'; }
-    generateBunenjinWisdom() { return '複数視点の受容'; }
+    generateHaQeiWisdom() { return '複数視点の受容'; }
     identifyComplementaryScenarios() { return []; }
     calculateIntegrationPotential() { return 0.8; }
     calculateContradictionAcceptance() { return 0.9; }
@@ -673,6 +848,71 @@ class EightScenariosGenerator {
             consensus_based: '6-12ヶ月'
         };
         return timeframes[pace] || '3ヶ月';
+    }
+    
+    /**
+     * Memory Management Methods (メモリリーク修正)
+     */
+    startMemoryCleanup() {
+        this.memoryManager.cleanupInterval = setInterval(() => {
+            this.performCacheCleanup();
+        }, 300000); // 5分毎にクリーンアップ
+    }
+    
+    performCacheCleanup() {
+        const now = Date.now();
+        const maxAge = 1800000; // 30分
+        
+        // 古いキャッシュエントリを削除
+        for (const [key, value] of this.scenarioCache) {
+            if (now - value.cached_at > maxAge) {
+                this.scenarioCache.delete(key);
+            }
+        }
+        
+        // キャッシュサイズ制限
+        if (this.scenarioCache.size > this.memoryManager.cacheLimit) {
+            const entries = Array.from(this.scenarioCache.entries());
+            entries.sort((a, b) => a[1].cached_at - b[1].cached_at);
+            
+            const deleteCount = this.scenarioCache.size - this.memoryManager.cacheLimit;
+            for (let i = 0; i < deleteCount; i++) {
+                this.scenarioCache.delete(entries[i][0]);
+            }
+        }
+        
+        this.memoryManager.lastCleanup = now;
+        console.log('🧹 Scenario cache cleanup completed:', this.scenarioCache.size, 'entries');
+    }
+    
+    /**
+     * インスタンス破棄時のクリーンアップ
+     */
+    cleanup() {
+        if (this.memoryManager.cleanupInterval) {
+            clearInterval(this.memoryManager.cleanupInterval);
+            this.memoryManager.cleanupInterval = null;
+        }
+        
+        this.scenarioCache.clear();
+        this.HaQeiMatrix = null;
+        this.scenarioPatterns = null;
+        this.contradictionFramework = null;
+        this.iChingScenarioMapping = null;
+        this.memoryManager = null;
+        
+        console.log('🗑️ EightScenariosGenerator cleanup completed');
+    }
+    
+    /**
+     * メモリ使用量の監視
+     */
+    getMemoryUsage() {
+        return {
+            cacheSize: this.scenarioCache.size,
+            cacheLimit: this.memoryManager.cacheLimit,
+            lastCleanup: this.memoryManager.lastCleanup
+        };
     }
 }
 

@@ -2,8 +2,8 @@
 
 ## 🎯 コミュニティビジョン
 
-### Mission: 世界的bunenjin哲学実践者コミュニティの創造
-**Vision**: 多様な文化的背景を持つ人々が、bunenjin思想を通じて相互理解・成長・価値創造を行うグローバルエコシステム
+### Mission: 世界的HaQei哲学実践者コミュニティの創造
+**Vision**: 多様な文化的背景を持つ人々が、HaQei思想を通じて相互理解・成長・価値創造を行うグローバルエコシステム
 **Values**: 多様性尊重・相互学習・実践重視・文化架橋・集合知創造
 
 ## 🏗️ エコシステムアーキテクチャ
@@ -12,13 +12,13 @@
 ```
 🌐 HAQEI Global Ecosystem
 ├── 🎯 Philosophy Practitioners (哲学実践者)
-│   ├── Beginners: bunenjin概念学習者
+│   ├── Beginners: HaQei概念学習者
 │   ├── Practitioners: 実生活応用者
 │   ├── Masters: 深層理解・指導者
 │   └── Philosophers: 概念発展貢献者
 │
 ├── 🔬 Academic Community (学術コミュニティ)
-│   ├── Researchers: bunenjin研究者
+│   ├── Researchers: HaQei研究者
 │   ├── Educators: 教育機関指導者  
 │   ├── Students: 大学院生・学部生
 │   └── Institutions: 大学・研究機関
@@ -48,7 +48,7 @@
 ```
 🎓 Learning Community Features:
 ├── Interactive Philosophy Tutorials
-├── bunenjin Concept Masterclasses  
+├── HaQei Concept Masterclasses  
 ├── I Ching Wisdom Integration Workshops
 ├── Cultural Context Education Programs
 ├── Personal Practice Guidance Systems
@@ -64,7 +64,7 @@
 **Layer 2: Practice & Application (実践・応用)**
 ```
 💡 Practice Community Features:
-├── Daily bunenjin Practice Challenges
+├── Daily HaQei Practice Challenges
 ├── Real-life Application Case Studies
 ├── Peer Consultation & Support Groups
 ├── Practice Progress Tracking Tools
@@ -207,7 +207,7 @@
 **Phase 2: Learning & Practice (学習・実践)**
 ```
 📚 Learning Path:
-├── bunenjin Philosophy Foundations
+├── HaQei Philosophy Foundations
 ├── I Ching Integration Understanding
 ├── Triple OS Architecture Mastery
 ├── Cultural Context Appreciation  
@@ -394,7 +394,7 @@ Year 10: 5,000万人文明的影響
 └── Civilizational Contribution: 人類文明進歩寄与
 
 🎯 Ultimate Success:
-10年後: bunenjin思想が世界共通認識となり、人類の意識進化・戦略的人生ナビゲーション能力向上に決定的貢献を果たす
+10年後: HaQei思想が世界共通認識となり、人類の意識進化・戦略的人生ナビゲーション能力向上に決定的貢献を果たす
 ```
 
 ---

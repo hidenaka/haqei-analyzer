@@ -186,7 +186,7 @@ await loadResultsBundle();
 
 ## Bunenjin Philosophy Alignment
 
-This optimization maintains the bunenjin philosophy principles:
+This optimization maintains the HaQei philosophy principles:
 - **Simplicity**: Clean, maintainable code structure
 - **Efficiency**: Optimal resource utilization
 - **User-centricity**: Improved user experience

@@ -4,7 +4,7 @@
 ## 1. 概要
 
 ### 1.1 プロジェクト背景
-HAQEI analyzerはbunenjin philosophyと易経（I Ching）統合に基づく革新的な人格分析システムです。本システムは、東洋哲学の深い知恵と最新のWeb技術を融合し、ユーザーの戦略的意思決定を支援します。
+HAQEI analyzerはHaQei philosophyと易経（I Ching）統合に基づく革新的な人格分析システムです。本システムは、東洋哲学の深い知恵と最新のWeb技術を融合し、ユーザーの戦略的意思決定を支援します。
 
 ### 1.2 現状の問題点
 - **技術的エラー**: 31件のテスト失敗、25件のESLintエラー
@@ -15,7 +15,7 @@ HAQEI analyzerはbunenjin philosophyと易経（I Ching）統合に基づく革�
 ### 1.3 改善目標
 - エラーゼロの安定した開発環境構築
 - 高速で応答性の高いユーザー体験の実現
-- bunenjin philosophy完全準拠のシステム
+- HaQei philosophy完全準拠のシステム
 - 易経の正統性を保持した現代的実装
 
 ## 2. 機能要件
@@ -53,8 +53,8 @@ HAQEI analyzerはbunenjin philosophyと易経（I Ching）統合に基づく革�
   - TypeScriptパス解決の最適化
 
 ### 2.3 TypeScript型定義修正
-- **bunenjin Philosophy型安全性**
-  - 分人（bunenjin）モデルの型定義
+- **HaQei Philosophy型安全性**
+  - 分人（HaQei）モデルの型定義
   - 戦略ナビゲーション型の実装
   - アイデンティティ流動性の型表現
 
@@ -68,7 +68,7 @@ HAQEI analyzerはbunenjin philosophyと易経（I Ching）統合に基づく革�
   - リアクティビティシステムの型定義
   - コンポーネントプロップスの厳密化
 
-### 2.4 bunenjin Philosophy準拠確認
+### 2.4 HaQei Philosophy準拠確認
 - **アイデンティティ固定化言語の完全除去**
   - 「本当の自分」等の表現削除
   - 複数分人の同等性表現
@@ -163,7 +163,7 @@ HAQEI analyzerはbunenjin philosophyと易経（I Ching）統合に基づく革�
 - ユニットテスト: 100%合格
 - 統合テスト: 100%合格
 - E2Eテスト: 100%合格
-- bunenjin philosophy準拠テスト: 100%合格
+- HaQei philosophy準拠テスト: 100%合格
 - I Ching正確性テスト: 100%合格
 
 ### 5.3 パフォーマンス基準達成
@@ -182,7 +182,7 @@ HAQEI analyzerはbunenjin philosophyと易経（I Ching）統合に基づく革�
 - **対策**: 厳密なTypeScript設定、型テストの実装
 
 ### 6.2 スケジュールリスク
-- **リスク**: bunenjin Philosophy統合の遅延
+- **リスク**: HaQei Philosophy統合の遅延
 - **対策**: 専門エージェント活用、並列作業の最大化
 
 - **リスク**: I Ching品質確保の時間超過
@@ -202,7 +202,7 @@ HAQEI analyzerはbunenjin philosophyと易経（I Ching）統合に基づく革�
 - テスト合格率: 100%（現在0%）
 - バンドルサイズ: 3MB以下（現在4.76MB）
 - 初期ローディング: 3秒以内
-- bunenjin準拠度: 98%以上
+- HaQei準拠度: 98%以上
 - I Ching正確性: 96%以上
 
 ### 7.2 定性的指標

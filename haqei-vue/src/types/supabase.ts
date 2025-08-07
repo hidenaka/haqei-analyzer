@@ -5,7 +5,7 @@
  * - HAQEIデータベーススキーマとの完全型同期
  * - Triple OS Architecture型安全性確保
  * - 易経64卦システム統合
- * - bunenjin哲学準拠のプライバシー制御
+ * - HaQei哲学準拠のプライバシー制御
  * 
  * 更新: 2025-08-03 - Vue 3統合最適化 (Migration 002対応)
  */

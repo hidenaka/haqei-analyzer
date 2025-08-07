@@ -61,7 +61,7 @@ claude --mcp-config claude-mcp-config.json
 haqei-analyzer/
 ├── .mcp-data/                  # MCPデータ（Git同期）
 │   ├── cipher-memory/          # Cipherの永続メモリ
-│   │   └── memory.json         # プロジェクト記憶・bunenjin哲学
+│   │   └── memory.json         # プロジェクト記憶・HaQei哲学
 │   ├── serena-memory/          # Serenaのデータ（将来対応）
 │   └── logs/                   # ログファイル（.gitignoreで除外）
 │       └── *.log

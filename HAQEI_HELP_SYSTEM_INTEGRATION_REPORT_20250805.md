@@ -5,7 +5,7 @@
 
 ## 📋 統合作業概要
 
-HAQEIアナライザーシステムに包括的なヘルプシステム（31ファイル）を完全統合しました。bunenjin哲学に基づいた設計を維持しつつ、ユーザビリティを大幅に向上させる統合型ヘルプ機能を実装しました。
+HAQEIアナライザーシステムに包括的なヘルプシステム（31ファイル）を完全統合しました。HaQei哲学に基づいた設計を維持しつつ、ユーザビリティを大幅に向上させる統合型ヘルプ機能を実装しました。
 
 ## 🎯 統合完了項目
 
@@ -29,7 +29,7 @@ HAQEIアナライザーシステムに包括的なヘルプシステム（31フ�
 
 ### 4. ヘルプコンテンツデータベース
 - ✅ **sample-help-content.json** - 構造化ヘルプデータ
-- ✅ 分人哲学（bunenjin）概念説明
+- ✅ 分人哲学（HaQei）概念説明
 - ✅ Triple OS Architecture解説
 - ✅ 易経（I Ching）統合説明
 
@@ -80,7 +80,7 @@ os_analyzer.html
 
 ## 🎨 HAQEI固有の統合特徴
 
-### 1. 分人哲学（bunenjin）対応
+### 1. 分人哲学（HaQei）対応
 - 概念説明の詳細ヘルプ
 - 複数ペルソナ分析の理解支援
 - 哲学的背景の教育的コンテンツ
@@ -169,7 +169,7 @@ window.haqeiElementEnhancer
 ### 2. プログラマティック使用
 ```javascript
 // ヘルプモーダル表示
-showHaqeiHelp('bunenjin', 'concept');
+showHaqeiHelp('HaQei', 'concept');
 
 // 要素にツールチップ追加
 addHaqeiTooltip(element, {
@@ -207,7 +207,7 @@ console.log(window.haqeiElementEnhancer.getStats());
 
 ## ✨ まとめ
 
-HAQEIアナライザーへのヘルプシステム統合が完了しました。既存のbunenjin哲学とI Ching知恵を活かしつつ、現代的で使いやすいヘルプ機能を提供します。
+HAQEIアナライザーへのヘルプシステム統合が完了しました。既存のHaQei哲学とI Ching知恵を活かしつつ、現代的で使いやすいヘルプ機能を提供します。
 
 ### 主要成果
 1. **31ファイルの完全統合** - 包括的ヘルプエコシステム

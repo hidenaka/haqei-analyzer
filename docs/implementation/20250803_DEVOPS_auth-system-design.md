@@ -45,7 +45,7 @@
       "TASK-084",
       "TASK-085"
     ],
-    "philosophy": "bunenjin哲学統合DevOps（プライバシーファースト・ユーザー主権）",
+    "philosophy": "HaQei哲学統合DevOps（プライバシーファースト・ユーザー主権）",
     "tsumikiIntegrated": true,
     "securityFirst": true
   },
@@ -73,7 +73,7 @@
           "Rate Limiting",
           "IPフィルタリング"
         ],
-        "bunenjinPrivacy": [
+        "HaQeiPrivacy": [
           "ユーザー主権認証",
           "最小権限原則",
           "プライバシーファースト設計",
@@ -90,7 +90,7 @@
       "aiOptimized": true,
       "devopsSpecialized": true,
       "securityFirst": true,
-      "bunenjinPhilosophyIntegrated": true
+      "HaQeiPhilosophyIntegrated": true
     },
     "design": {
       "command": "kairo-design",
@@ -117,7 +117,7 @@
               "Rate Limiting",
               "IPフィルタリング"
             ],
-            "bunenjinPrivacy": [
+            "HaQeiPrivacy": [
               "ユーザー主権認証",
               "最小権限原則",
               "プライバシーファースト設計",
@@ -134,7 +134,7 @@
           "aiOptimized": true,
           "devopsSpecialized": true,
           "securityFirst": true,
-          "bunenjinPhilosophyIntegrated": true
+          "HaQeiPhilosophyIntegrated": true
         },
         "architecture": "Supabase Auth + OAuth 統合",
         "components": [
@@ -154,7 +154,7 @@
         "haqeiIntegration": {
           "tripleOS": "Engine/Interface/SafeMode権限分離",
           "dataAccess": "Triple OSベースアクセス制御",
-          "privacy": "bunenjin哲学統合認証フロー"
+          "privacy": "HaQei哲学統合認証フロー"
         }
       },
       "timestamp": "2025-08-03T06:38:52.364Z",
@@ -162,7 +162,7 @@
       "aiOptimized": true,
       "devopsSpecialized": true,
       "securityFirst": true,
-      "bunenjinPhilosophyIntegrated": true
+      "HaQeiPhilosophyIntegrated": true
     },
     "tasks": {
       "command": "kairo-tasks",
@@ -192,7 +192,7 @@
                   "Rate Limiting",
                   "IPフィルタリング"
                 ],
-                "bunenjinPrivacy": [
+                "HaQeiPrivacy": [
                   "ユーザー主権認証",
                   "最小権限原則",
                   "プライバシーファースト設計",
@@ -209,7 +209,7 @@
               "aiOptimized": true,
               "devopsSpecialized": true,
               "securityFirst": true,
-              "bunenjinPhilosophyIntegrated": true
+              "HaQeiPhilosophyIntegrated": true
             },
             "architecture": "Supabase Auth + OAuth 統合",
             "components": [
@@ -229,7 +229,7 @@
             "haqeiIntegration": {
               "tripleOS": "Engine/Interface/SafeMode権限分離",
               "dataAccess": "Triple OSベースアクセス制御",
-              "privacy": "bunenjin哲学統合認証フロー"
+              "privacy": "HaQei哲学統合認証フロー"
             }
           },
           "timestamp": "2025-08-03T06:38:52.364Z",
@@ -237,7 +237,7 @@
           "aiOptimized": true,
           "devopsSpecialized": true,
           "securityFirst": true,
-          "bunenjinPhilosophyIntegrated": true
+          "HaQeiPhilosophyIntegrated": true
         },
         "methodology": "TDD + セキュリティテスト",
         "deliverables": [
@@ -260,7 +260,7 @@
       "aiOptimized": true,
       "devopsSpecialized": true,
       "securityFirst": true,
-      "bunenjinPhilosophyIntegrated": true
+      "HaQeiPhilosophyIntegrated": true
     }
   }
 }

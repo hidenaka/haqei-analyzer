@@ -298,8 +298,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       container.innerHTML.length > 0 ? "コンテンツあり" : "空"
     );
 
-    // 🌉 BridgeStorageManagerを使用したbunenjin統合
-    console.log("🌉 Creating BridgeStorageManager with bunenjin philosophy...");
+    // 🌉 BridgeStorageManagerを使用したHaQei統合
+    console.log("🌉 Creating BridgeStorageManager with HaQei philosophy...");
     const bridgeStorageManager = new BridgeStorageManager(storageManager);
     
     // アプリケーション情報をグローバルに保存

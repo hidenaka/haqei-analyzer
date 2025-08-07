@@ -25,7 +25,7 @@ HAQEI（Harmony Analysis through Quantum Eastern Intelligence）は、あなた�
 
 ### 2. プライバシー設定
 
-HAQEIは**bunenjin哲学**に基づき、あなたのプライバシーを最優先に保護します。
+HAQEIは**HaQei哲学**に基づき、あなたのプライバシーを最優先に保護します。
 
 **プライバシー設定画面で以下を確認：**
 - ✅ データ完全制御権: あなたのデータはあなたが管理

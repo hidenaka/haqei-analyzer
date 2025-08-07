@@ -30,7 +30,7 @@ src/components/
 ├── features/        # 機能特化コンポーネント
 │   ├── MigrationDashboard.vue
 │   └── ...
-├── bunenjin/        # bunenjin哲学統合UI
+├── HaQei/        # HaQei哲学統合UI
 │   ├── BunenjinPhilosophyUI.vue
 │   ├── CulturalAdaptiveInterface.vue
 │   ├── EasternTripleOSVisualization.vue
@@ -159,7 +159,7 @@ class MigrationService {
 
 ## セキュリティ・プライバシー アーキテクチャ
 
-### bunenjin哲学実装
+### HaQei哲学実装
 
 ```typescript
 // プライバシー最優先設計
@@ -266,7 +266,7 @@ Domain Layer (ビジネスロジック)
 ├── Triple OS Analysis Engine
 ├── I Ching 64 Hexagram System  
 ├── Future Simulation Engine
-└── bunenjin Philosophy Core
+└── HaQei Philosophy Core
 
 Application Layer (アプリケーション層)
 ├── Analysis Orchestration

@@ -5,7 +5,7 @@
  * - DisplayController integration for reliable visibility
  * - Comprehensive error handling with graceful degradation
  * - Performance optimization with virtual scrolling
- * - bunenjin philosophy integration for personalized UX
+ * - HaQei philosophy integration for personalized UX
  * - Triple OS Architecture compatibility
  * 
  * Author: HAQEI Programmer Agent
@@ -48,7 +48,7 @@ class QuestionManager {
       this.errorHandler = new UnifiedErrorHandler({
         maxErrorHistory: 50,
         gracefulDegradationEnabled: true,
-        bunenjinModeEnabled: true
+        HaQeiModeEnabled: true
       });
     }
     

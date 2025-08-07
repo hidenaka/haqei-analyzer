@@ -11,7 +11,7 @@
 
 ### **Phase 1: 国内学術基盤構築（2025年 1-6月）**
 
-#### 論文1: 『bunenjin哲学の現代心理学的意義』
+#### 論文1: 『HaQei哲学の現代心理学的意義』
 ```
 📄 論文詳細
 ├── ターゲット誌: 心理学研究（日本心理学会）
@@ -23,7 +23,7 @@
 📖 論文構成
 1. 序論：分人思想の心理学的位置づけ
 2. 文献レビュー：既存人格理論との比較分析
-3. 理論的枠組み：bunenjin哲学の操作的定義
+3. 理論的枠組み：HaQei哲学の操作的定義
 4. 実証研究：3つの人格システムの心理測定学的検証
 5. 考察：臨床・応用心理学への示唆
 6. 結論：新しい人格理解パラダイムの提案
@@ -98,12 +98,12 @@
 └── 期待引用数: 3年間で200回以上
 
 📖 Abstract Preview
-"This paper introduces bunenjin philosophy, a novel theoretical framework originating from Japanese intellectual tradition that reconceptualizes human personality as a dynamic system of multiple selves. Unlike Western individualistic approaches, bunenjin theory proposes that individuals naturally embody multiple 'sub-persons' (bunenjin) that manifest contextually. We present empirical evidence from large-scale studies (N=50,000) using AI-driven virtual user testing, demonstrating the theory's predictive validity across cultural contexts. The Triple OS Architecture (Engine OS, Interface OS, SafeMode OS) provides a practical framework for understanding and optimizing human psychological functioning."
+"This paper introduces HaQei philosophy, a novel theoretical framework originating from Japanese intellectual tradition that reconceptualizes human personality as a dynamic system of multiple selves. Unlike Western individualistic approaches, HaQei theory proposes that individuals naturally embody multiple 'sub-persons' (HaQei) that manifest contextually. We present empirical evidence from large-scale studies (N=50,000) using AI-driven virtual user testing, demonstrating the theory's predictive validity across cultural contexts. The Triple OS Architecture (Engine OS, Interface OS, SafeMode OS) provides a practical framework for understanding and optimizing human psychological functioning."
 
 🌍 国際研究協力
 ├── 共同研究者: Stanford University（心理学部）
 ├── データ収集: 日米欧亜5カ国同時調査
-├── 文化比較: 東西文化における bunenjin 概念の普遍性検証
+├── 文化比較: 東西文化における HaQei 概念の普遍性検証
 ├── 技術検証: USEP技術の国際標準化可能性
 └── 政策提言: WHO心理的健康ガイドライン提案
 ```
@@ -155,7 +155,7 @@
 
 ### **Year 1: 国内基盤構築三部作（2025年）**
 
-#### 書籍1: 『bunenjin哲学入門 - 複数の自分を生きる智慧』
+#### 書籍1: 『HaQei哲学入門 - 複数の自分を生きる智慧』
 ```
 📚 出版詳細
 ├── 出版社: 講談社現代新書
@@ -168,21 +168,21 @@
 
 📖 目次構成
 第1章: なぜ「一つの自分」にこだわるのか？
-第2章: bunenjin哲学の源流 - 分人思想と現代社会
+第2章: HaQei哲学の源流 - 分人思想と現代社会
 第3章: 日常に息づく複数の自分たち
 第4章: Triple OS - 自分を理解する新しい枠組み
 第5章: Engine OS：あなたの核心的価値観
 第6章: Interface OS：社会と調和する自分
 第7章: SafeMode OS：心を守る防御システム
-第8章: 三つのOSの調和 - bunenjin実践法
-第9章: AI時代に生きる bunenjin の智慧
+第8章: 三つのOSの調和 - HaQei実践法
+第9章: AI時代に生きる HaQei の智慧
 終章: 複数の自分を受け入れる社会へ
 
 🎯 マーケティング戦略
 ├── 発売前: YouTube予告動画・Podcast特集
 ├── 発売時: 書店フェア・新聞書評依頼
 ├── 発売後: 講演会・読者イベント・オンライン書評
-├── SNS活用: #bunenjin哲学 ハッシュタグキャンペーン
+├── SNS活用: #HaQei哲学 ハッシュタグキャンペーン
 └── メディア露出: NHK出版・朝日新聞書評・週刊文春対談
 ```
 
@@ -200,7 +200,7 @@
 📖 目次構成
 第I部: 理論的基盤
 ├── 第1章: 現代人格理論の限界と新たな視点
-├── 第2章: bunenjin思想から人格システム理論へ
+├── 第2章: HaQei思想から人格システム理論へ
 └── 第3章: Triple OS Architecture の理論的構築
 
 第II部: 実証的検証
@@ -288,11 +288,11 @@ Part IV: Future Directions
 #### 実践・教育書シリーズ
 ```
 📚 Practical Application Series
-├── 『bunenjin カウンセリング技法』（誠信書房）
+├── 『HaQei カウンセリング技法』（誠信書房）
 ├── 『学校教育における人格システム理論』（明治図書）
 ├── 『組織マネジメントのTriple OS活用法』（ダイヤモンド社）
 ├── 『AI時代の自己理解ワークブック』（日本実業出版社）
-└── 『bunenjin子育て論 - 複数の自分を育てる』（岩波書店）
+└── 『HaQei子育て論 - 複数の自分を育てる』（岩波書店）
 ```
 
 ---
@@ -305,7 +305,7 @@ Part IV: Future Directions
 ```
 📺 コンテンツ戦略
 ├── 理論解説シリーズ（週1回・20分）
-│   ├── 「bunenjin哲学とは何か？」（再生目標：10万回）
+│   ├── 「HaQei哲学とは何か？」（再生目標：10万回）
 │   ├── 「Engine OSを理解する」（再生目標：8万回）
 │   ├── 「Interface OSの働き」（再生目標：8万回）
 │   ├── 「SafeMode OSの重要性」（再生目標：6万回）
@@ -313,7 +313,7 @@ Part IV: Future Directions
 │
 ├── 実践・ワークショップ（週1回・15分）
 │   ├── 「自分のTriple OSを診断してみよう」
-│   ├── 「日常でのbunenjin実践法」
+│   ├── 「日常でのHaQei実践法」
 │   ├── 「人間関係のOS調和術」
 │   ├── 「ストレス時のSafeModeOS活用」
 │   └── 「意思決定のEngine OS活用」
@@ -327,7 +327,7 @@ Part IV: Future Directions
 │
 └── Q&A・視聴者参加型（月1回・25分）
     ├── 視聴者質問への回答
-    ├── bunenjin診断結果解説
+    ├── HaQei診断結果解説
     ├── 実践報告のシェア
     └── コミュニティ活動紹介
 
@@ -356,13 +356,13 @@ Part IV: Future Directions
 └── メンバーシップ: 5000人の有料会員
 ```
 
-### **Podcast「bunenjin哲学ラジオ」戦略**
+### **Podcast「HaQei哲学ラジオ」戦略**
 
 #### コンテンツ戦略
 ```
 🎙️ 番組構成
 ├── レギュラー番組（月4回・30分）
-│   ├── 「bunenjin思想の深掘り」
+│   ├── 「HaQei思想の深掘り」
 │   ├── 「リスナーの人生相談」
 │   ├── 「最新研究・論文紹介」
 │   └── 「文化・哲学クロストーク」
@@ -397,14 +397,14 @@ Part IV: Future Directions
 ```
 🏫 Research Collaboration Network
 ├── 東京大学大学院人文社会系研究科
-│   ├── 哲学専攻: bunenjin思想の哲学的基盤研究
+│   ├── 哲学専攻: HaQei思想の哲学的基盤研究
 │   ├── 心理学専攻: Triple OS理論の実証研究
 │   └── 文化人類学: 日本文化における分人概念調査
 │
 ├── 京都大学大学院教育学研究科
 │   ├── 教育心理学: 学校教育での人格システム応用
 │   ├── 臨床心理学: カウンセリング技法開発
-│   └── 教育方法学: bunenjin教育法の開発
+│   └── 教育方法学: HaQei教育法の開発
 │
 ├── 早稲田大学人間科学学術院
 │   ├── 認知心理学: Engine OSの認知メカニズム解明
@@ -412,9 +412,9 @@ Part IV: Future Directions
 │   └── 健康心理学: SafeMode OSの適応的意義研究
 │
 └── 慶應義塾大学文学部
-    ├── 哲学: 西洋哲学とbunenjin思想の比較研究
+    ├── 哲学: 西洋哲学とHaQei思想の比較研究
     ├── 心理学: パーソナリティ測定尺度開発
-    └── 社会学: 現代社会におけるbunenjin現象分析
+    └── 社会学: 現代社会におけるHaQei現象分析
 ```
 
 #### 国際研究ネットワーク
@@ -457,7 +457,7 @@ Part IV: Future Directions
 │   └── ビズリーチ: 転職マッチングアルゴリズム改善
 │
 ├── 教育・EdTech企業
-│   ├── ベネッセ: 個別指導AIへのbunenjin統合
+│   ├── ベネッセ: 個別指導AIへのHaQei統合
 │   ├── Z会: 学習者適応システム開発
 │   └── リクルートマーケティング: スタディサプリ改善
 │
@@ -494,7 +494,7 @@ Week 3-4: コンテンツ制作開始
 ### **3ヶ月マイルストーン**
 ```
 📅 Q1 Goals（4-6月）
-├── 📚 書籍: 『bunenjin哲学入門』原稿完成・出版契約
+├── 📚 書籍: 『HaQei哲学入門』原稿完成・出版契約
 ├── 📄 論文: 国内3誌への投稿完了
 ├── 📺 YouTube: 5万登録者・100万再生突破
 ├── 🎙️ Podcast: 10万ダウンロード達成
@@ -511,7 +511,7 @@ Week 3-4: コンテンツ制作開始
 ├── 🎙️ Podcast: 100万ダウンロード・スポンサー獲得
 ├── 🎤 講演: 20回以上・TEDx登壇実現
 ├── 🤝 ネットワーク: 国内10大学・海外5大学連携
-└── 🏆 権威: bunenjin哲学・人格システム理論の第一人者認知
+└── 🏆 権威: HaQei哲学・人格システム理論の第一人者認知
 ```
 
 ---
@@ -524,7 +524,7 @@ Week 3-4: コンテンツ制作開始
 ```
 🏆 Unique Competitive Advantages
 ├── 技術的優位性: USEP技術による実証的裏付け
-├── 理論的独創性: bunenjin哲学の体系的完成度
+├── 理論的独創性: HaQei哲学の体系的完成度
 ├── 文化的独自性: 東洋思想の現代的実装
 ├── 実用的価値: 日常生活での具体的活用可能性
 └── 統合性: 哲学・心理学・AI技術の融合
@@ -545,7 +545,7 @@ Week 3-4: コンテンツ制作開始
 
 ### **最終推奨アクション**
 
-**HaQeiの学術・コンテンツ戦略は、思想的リーダーシップ確立のために完璧に設計されています。既存の強力な技術基盤（USEP）と独創的理論（bunenjin哲学・Triple OS）を活用し、段階的実行により確実に業界・学術界での権威的地位を獲得できます。**
+**HaQeiの学術・コンテンツ戦略は、思想的リーダーシップ確立のために完璧に設計されています。既存の強力な技術基盤（USEP）と独創的理論（HaQei哲学・Triple OS）を活用し、段階的実行により確実に業界・学術界での権威的地位を獲得できます。**
 
 **Immediate Action Items:**
 1. **今週**: 書籍企画・YouTube開設
@@ -553,7 +553,7 @@ Week 3-4: コンテンツ制作開始
 3. **今月**: 出版社交渉・国際共同研究準備
 4. **来月**: 本格的コンテンツ制作・配信開始
 
-このロードマップに従い実行することで、HaQeiは確実に「bunenjin哲学」「人格システム理論」分野でのグローバル思想的リーダーとなります。
+このロードマップに従い実行することで、HaQeiは確実に「HaQei哲学」「人格システム理論」分野でのグローバル思想的リーダーとなります。
 
 ---
 

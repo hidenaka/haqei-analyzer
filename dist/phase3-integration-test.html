@@ -111,11 +111,11 @@
     <script src="./js/pages/future-simulator/scenario-animations.js"></script>
     <script src="./js/pages/future-simulator/Phase3IntegrationController.js"></script>
     
-    <!-- bunenjin Philosophy Systems -->
-    <script src="./js/bunenjin/ContradictionAcceptanceSystem.js"></script>
-    <script src="./js/bunenjin/DynamicBunenjinSystem.js"></script>
-    <script src="./js/bunenjin/IntegratedGuidanceSystem.js"></script>
-    <script src="./js/bunenjin/BunenjinValidationSystem.js"></script>
+    <!-- HaQei Philosophy Systems -->
+    <script src="./js/HaQei/ContradictionAcceptanceSystem.js"></script>
+    <script src="./js/HaQei/DynamicHaQeiSystem.js"></script>
+    <script src="./js/HaQei/IntegratedGuidanceSystem.js"></script>
+    <script src="./js/HaQei/HaQeiValidationSystem.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -168,19 +168,19 @@
                     }
                 });
                 
-                // bunenjin Philosophy Components Check
-                const bunenjinComponents = {
+                // HaQei Philosophy Components Check
+                const HaQeiComponents = {
                     'ContradictionAcceptanceSystem': window.ContradictionAcceptanceSystem,
-                    'DynamicBunenjinSystem': window.DynamicBunenjinSystem,
+                    'DynamicHaQeiSystem': window.DynamicHaQeiSystem,
                     'IntegratedGuidanceSystem': window.IntegratedGuidanceSystem,
-                    'BunenjinValidationSystem': window.BunenjinValidationSystem
+                    'HaQeiValidationSystem': window.HaQeiValidationSystem
                 };
                 
-                Object.entries(bunenjinComponents).forEach(([name, component]) => {
+                Object.entries(HaQeiComponents).forEach(([name, component]) => {
                     if (component) {
-                        logStatus(`bunenjin ${name}: loaded successfully`, 'success');
+                        logStatus(`HaQei ${name}: loaded successfully`, 'success');
                     } else {
-                        logStatus(`bunenjin ${name}: NOT FOUND (optional)`, 'warning');
+                        logStatus(`HaQei ${name}: NOT FOUND (optional)`, 'warning');
                     }
                 });
                 
@@ -222,7 +222,7 @@
                         displayFormat: 'comprehensive',
                         scenarioCount: 8,
                         contradictionMode: 'full_acceptance',
-                        bunenjinMode: 'active',
+                        HaQeiMode: 'active',
                         diversityLevel: 'high',
                         animationEnabled: true,
                         contradictionVisualization: true,
@@ -239,7 +239,7 @@
                     if (results.success) {
                         logStatus('✨ Phase 3 Integration Test PASSED!', 'success');
                         logStatus(`Scenarios generated: ${results.phase3Results?.scenarios?.length || 0}`, 'info');
-                        logStatus(`bunenjin compliance: ${results.bunenjinCompliance?.overall_compliance || 'N/A'}`, 'info');
+                        logStatus(`HaQei compliance: ${results.HaQeiCompliance?.overall_compliance || 'N/A'}`, 'info');
                         logStatus(`Performance grade: ${results.technicalDetails?.performance_grade || 'N/A'}`, 'info');
                     } else {
                         logStatus('❌ Phase 3 Integration Test FAILED', 'error');

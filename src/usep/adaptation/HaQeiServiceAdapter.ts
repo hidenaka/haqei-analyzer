@@ -25,7 +25,7 @@ import {
 
 // HaQei特化型定義
 export interface HaQeiServiceConfig extends ServiceConfig {
-    bunenjinIntegration: boolean;
+    HaQeiIntegration: boolean;
     tripleOSAnalysis: boolean;
     iChingMapping: boolean;
     philosophicalDepth: 'basic' | 'intermediate' | 'advanced';
@@ -58,7 +58,7 @@ export interface HexagramGuidance {
 
 /**
  * HaQei特化USEP統合システム
- * Triple OS + bunenjin哲学 + I Ching統合
+ * Triple OS + HaQei哲学 + I Ching統合
  */
 export class HaQeiServiceAdapter {
     private virtualUserGenerator: VirtualUserGenerator;
@@ -88,7 +88,7 @@ export class HaQeiServiceAdapter {
         // 仮想ユーザー生成
         const users = await this.virtualUserGenerator.generateUsers(count, {
             serviceName: 'HaQei Analyzer',
-            description: 'bunenjin哲学統合型自己理解システム',
+            description: 'HaQei哲学統合型自己理解システム',
             serviceType: 'philosophy-tech',
             targetAudience: 'self-development seekers',
             primaryGoals: ['self-understanding', 'strategic-guidance', 'personal-growth']
@@ -132,7 +132,7 @@ export class HaQeiServiceAdapter {
             // Step 3: 改善分析
             const analysis = await this.improvementEngine.analyzeAndSuggest(experiences, {
                 serviceName: 'HaQei Analyzer',
-                description: 'bunenjin哲学統合システム',
+                description: 'HaQei哲学統合システム',
                 serviceType: 'philosophy-tech',
                 targetAudience: 'self-development seekers',
                 primaryGoals: ['self-understanding', 'strategic-guidance']
@@ -181,8 +181,8 @@ export class HaQeiServiceAdapter {
                 distribution: 'normal'
             },
             {
-                name: 'bunenjin-resonance',
-                description: 'bunenjin哲学との共鳴度',
+                name: 'HaQei-resonance',
+                description: 'HaQei哲学との共鳴度',
                 min: 0,
                 max: 100,
                 distribution: 'normal'
@@ -196,11 +196,11 @@ export class HaQeiServiceAdapter {
     static async createHaQeiDemo(scale: 'small' | 'medium' | 'large' = 'medium'): Promise<HaQeiServiceAdapter> {
         const config: HaQeiServiceConfig = {
             serviceName: 'HaQei Analyzer Demo',
-            description: 'bunenjin哲学統合デモンストレーション',
+            description: 'HaQei哲学統合デモンストレーション',
             serviceType: 'philosophy-tech',
             targetAudience: 'demo users',
             primaryGoals: ['demonstration', 'validation'],
-            bunenjinIntegration: true,
+            HaQeiIntegration: true,
             tripleOSAnalysis: true,
             iChingMapping: true,
             philosophicalDepth: 'intermediate'

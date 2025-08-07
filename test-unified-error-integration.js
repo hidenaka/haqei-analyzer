@@ -79,8 +79,8 @@ const __dirname = dirname(__filename);
     // 6. 易経統合テスト
     await runTest('易経統合テスト', 'iching-status');
     
-    // 7. bunenjin分人思想テスト
-    await runTest('分人システムテスト', 'bunenjin-status');
+    // 7. HaQei分人思想テスト
+    await runTest('分人システムテスト', 'HaQei-status');
     
     // 8. Triple OS統合テスト
     await runTest('Triple OSテスト', 'tripleos-status');

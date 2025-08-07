@@ -175,7 +175,7 @@ interface Year3RevenueModel {
   intellectualEcosystem: {
     amount: 150_000_000;   // ¥150M
     sources: ["USEP licensing", "Philosophy certification", "Academic partnerships"];
-    thoughtLeadershipValue: "Global bunenjin philosophy standard";
+    thoughtLeadershipValue: "Global HaQei philosophy standard";
   };
 }
 ```
@@ -236,7 +236,7 @@ Key Success Metrics:
 
 Why Tier 1:
   ✅ 90% Future Simulator provides shocking accuracy for viral content
-  ✅ bunenjin philosophy creates unique talking points
+  ✅ HaQei philosophy creates unique talking points
   ✅ Eastern wisdom + AI fusion has global appeal
   ✅ Low execution risk with immediate measurable impact
 ```
@@ -266,7 +266,7 @@ Partnership Priority Ranking:
 
 Why Tier 2:
   ✅ USEP technology provides compelling partnership value
-  ✅ bunenjin philosophy differentiates from existing solutions
+  ✅ HaQei philosophy differentiates from existing solutions
   ✅ Partnership validation accelerates subsequent partnerships
   ⚠️ Requires relationship building and contract negotiation time
 ```
@@ -286,7 +286,7 @@ Financial Impact:
   - International Expansion: Thought leadership recognition
   
 Implementation Strategy:
-  - Book Publishing: 『bunenjin哲学入門』 (3 months)
+  - Book Publishing: 『HaQei哲学入門』 (3 months)
   - Academic Papers: 2 papers in psychology journals (6 months)  
   - University Partnerships: 3 research collaborations (4 months)
   - YouTube Channel: Weekly thought leadership content (ongoing)
@@ -344,7 +344,7 @@ Priority Actions:
   Layer 1 Viral Campaign: ¥8M
     - Shock-value marketing using 90% accuracy
     - Influencer partnerships in self-development space
-    - SEO optimization for bunenjin philosophy keywords
+    - SEO optimization for HaQei philosophy keywords
     
 Expected Results:
   - Revenue Impact: ¥60M (Quarter 1)
@@ -384,7 +384,7 @@ Priority Actions:
   International Expansion: ¥7M
     - South Korea market entry
     - Taiwan and Singapore localization
-    - Cultural adaptation of bunenjin philosophy
+    - Cultural adaptation of HaQei philosophy
     
   Enterprise Scaling: ¥5M
     - B2B sales team development
@@ -409,7 +409,7 @@ Expected Results:
 Conditions:
   - All strategic layers execute perfectly
   - No major competitive threats
-  - Strong market reception of bunenjin philosophy
+  - Strong market reception of HaQei philosophy
   
 Financial Results:
   Year 1: ¥400M revenue (25% above projection)
@@ -475,7 +475,7 @@ Risk: Slower Freemium Conversion Than Expected
     - Personalized conversion funnels
     - Psychological pricing research
 
-Risk: Cultural Misunderstanding of bunenjin Philosophy
+Risk: Cultural Misunderstanding of HaQei Philosophy
   Probability: 25%
   Impact: -20% international expansion
   Mitigation Investment: ¥2M
@@ -503,7 +503,7 @@ Priority 1: USEP Automation System (¥2M immediate allocation)
 Priority 2: Viral Marketing Campaign Launch (¥3M immediate allocation)
   - Create shock-value content highlighting 90% accuracy
   - Partner with 5 top self-development influencers
-  - Launch "bunenjin philosophy challenge" viral campaign
+  - Launch "HaQei philosophy challenge" viral campaign
   - Target: 10,000 new users in first month
 
 Priority 3: Partnership Pipeline Development (¥1M immediate allocation)
@@ -584,7 +584,7 @@ interface StrategicKPIs {
 
 #### **Investment Thesis Summary**
 1. **Technical Supremacy**: USEP platform provides 5+ year competitive lead
-2. **Cultural Positioning**: bunenjin philosophy creates unique global market position  
+2. **Cultural Positioning**: HaQei philosophy creates unique global market position  
 3. **Market Timing**: Perfect convergence of AI maturity and Eastern wisdom revival
 4. **Execution Certainty**: 90% of technical infrastructure already completed
 5. **Scalability**: Platform model enables exponential growth with minimal marginal costs

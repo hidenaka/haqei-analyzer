@@ -6,7 +6,7 @@
  * - Triple OS Architecture完全統合
  * - Vue 3 Composition API最適化
  * - リアルタイム更新・通知システム統合
- * - bunenjin哲学準拠のプライバシー制御
+ * - HaQei哲学準拠のプライバシー制御
  * - Row Level Security (RLS) 完全統合
  * - Supabase Storage管理システム
  * 
@@ -35,7 +35,7 @@ interface SupabaseConfig {
  * HAQEI拡張Supabase設定を環境変数から取得
  * 
  * 目的：
- * - bunenjin哲学に基づくプライバシー制御統合
+ * - HaQei哲学に基づくプライバシー制御統合
  * - Triple OS Architecture設定の動的管理
  * - オフライン対応とローカルストレージフォールバック
  * - 易経64卦システム統合設定
@@ -66,7 +66,7 @@ interface HAQEISupabaseConfig extends SupabaseConfig {
   enableIChingIntegration: boolean
   hexagramCacheTTL: number
   
-  // bunenjin哲学・プライバシー制御
+  // HaQei哲学・プライバシー制御
   defaultPrivacyLevel: 'maximum' | 'high' | 'medium' | 'low'
   enableOfflineMode: boolean
   enableLocalStorageFallback: boolean
@@ -137,7 +137,7 @@ function getSupabaseConfig(): HAQEISupabaseConfig {
     enableIChingIntegration: import.meta.env.VITE_ENABLE_ICHING_INTEGRATION !== 'false',
     hexagramCacheTTL: Number(import.meta.env.VITE_HEXAGRAM_CACHE_TTL) || 3600000,
     
-    // bunenjin哲学・プライバシー制御
+    // HaQei哲学・プライバシー制御
     defaultPrivacyLevel: import.meta.env.VITE_DEFAULT_PRIVACY_LEVEL as any || 'maximum',
     enableOfflineMode: import.meta.env.VITE_ENABLE_OFFLINE_MODE !== 'false',
     enableLocalStorageFallback: import.meta.env.VITE_ENABLE_LOCALSTORAGE_FALLBACK !== 'false',
@@ -191,13 +191,13 @@ function getSupabaseConfig(): HAQEISupabaseConfig {
  * HAQEI最適化Supabaseクライアントの初期化
  * 
  * 目的：
- * - bunenjin哲学に基づくプライバシー重視の接続管理
+ * - HaQei哲学に基づくプライバシー重視の接続管理
  * - Triple OS Architecture最適化
  * - オフライン対応とフェイルセーフ機能
  * - 易経64卦システム統合最適化
  * 
  * 設定オプション：
- * - auth: bunenjin哲学に基づく認証制御
+ * - auth: HaQei哲学に基づく認証制御
  * - realtime: Triple OS相互作用のリアルタイム同期
  * - retry: 接続障害時の自動復旧
  * - performance: HAQEI分析に最適化されたパフォーマンス設定
@@ -244,7 +244,7 @@ export function getSupabaseClient() {
           autoRefreshToken: config.enableAuth,
           persistSession: config.enableAuth,
           detectSessionInUrl: config.enableAuth,
-          // bunenjin哲学：プライバシー最優先
+          // HaQei哲学：プライバシー最優先
           storage: config.enableAuth ? undefined : null
         },
         realtime: {
@@ -802,7 +802,7 @@ if (import.meta.env.DEV) {
   testSupabaseConnection().then(({ success, details }) => {
     if (success) {
       console.log('📊 HAQEI Database fully operational')
-      console.log('✨ bunenjin philosophy compliance verified')
+      console.log('✨ HaQei philosophy compliance verified')
     } else {
       console.warn('⚠️ HAQEI Database connection issues detected:', details)
       console.log('💾 localStorage fallback will be used')

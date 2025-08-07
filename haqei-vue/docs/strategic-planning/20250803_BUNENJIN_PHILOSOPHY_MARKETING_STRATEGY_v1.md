@@ -1,11 +1,11 @@
-# 🧠 bunenjin哲学マーケティング戦略
+# 🧠 HaQei哲学マーケティング戦略
 
 ## 🌟 Philosophy-Driven Marketing Framework
 
 ### Core Philosophy Positioning
-**bunenjin (分人) = Revolutionary Identity Concept**
+**HaQei (分人) = Revolutionary Identity Concept**
 - **Traditional View**: "Discover your true self"
-- **bunenjin Innovation**: "Navigate your multiple selves strategically"
+- **HaQei Innovation**: "Navigate your multiple selves strategically"
 - **Market Disruption**: From static identity to dynamic strategic navigation
 
 ### Philosophical Value Propositions
@@ -13,7 +13,7 @@
 **1. 多面的自己の戦略的活用**
 ```
 従来: "本当の自分を見つけよう"
-bunenjin: "状況に応じて最適な自分を戦略的に選択しよう"
+HaQei: "状況に応じて最適な自分を戦略的に選択しよう"
 
 Marketing Message: 
 "あなたは一つの人格ではない。複数の'分人'を持つ戦略的存在だ。"
@@ -45,17 +45,17 @@ Marketing Message:
 
 **Persona 1: The Strategic Professional (30-45歳)**
 - **Pain Point**: キャリア・人生の重要決断で迷う
-- **bunenjin Solution**: 状況別最適人格の戦略的選択
+- **HaQei Solution**: 状況別最適人格の戦略的選択
 - **Message**: "複雑な決断も、分人思考なら明確になる"
 
 **Persona 2: The Relationship Navigator (25-40歳)**
 - **Pain Point**: 人間関係の複雑さ・役割葛藤
-- **bunenjin Solution**: 関係性別人格適応戦略
+- **HaQei Solution**: 関係性別人格適応戦略
 - **Message**: "相手に応じて、最適な'あなた'を選ぶ技術"
 
 **Persona 3: The Life Optimizer (28-50歳)**
 - **Pain Point**: 自己理解不足・潜在能力未活用
-- **bunenjin Solution**: 多面的自己分析・能力最大化
+- **HaQei Solution**: 多面的自己分析・能力最大化
 - **Message**: "すべての'あなた'の可能性を解放する"
 
 ### Psychological Triggers
@@ -63,7 +63,7 @@ Marketing Message:
 **1. Recognition (認識)**
 ```
 "なぜ場面によって違う自分になるのか？"
-→ bunenjin思想による科学的説明
+→ HaQei思想による科学的説明
 ```
 
 **2. Liberation (解放)**
@@ -84,7 +84,7 @@ Marketing Message:
 
 **Tier 1: Philosophy Introduction**
 ```
-📚 "bunenjin思想とは何か？"
+📚 "HaQei思想とは何か？"
 ├── 基本概念解説動画シリーズ
 ├── 哲学的背景・学術的根拠
 ├── 従来の自己啓発との違い
@@ -102,7 +102,7 @@ Marketing Message:
 
 **Tier 3: Advanced Strategy**
 ```
-🎯 "人生戦略としてのbunenjin"
+🎯 "人生戦略としてのHaQei"
 ├── キャリア戦略への統合
 ├── 長期的人生設計
 ├── 社会貢献・価値創造
@@ -122,7 +122,7 @@ Marketing Message:
 
 **LinkedIn/Professional**
 ```
-💼 キャリア戦略としてのbunenjin
+💼 キャリア戦略としてのHaQei
 ├── "複数人格でリーダーシップを発揮"
 ├── "チーム分析にTriple OS応用"
 ├── "意思決定力を高める東洋的知恵"
@@ -182,7 +182,7 @@ Content Focus:
 ## 💡 Thought Leadership Strategy
 
 ### Philosophy Innovation Leadership
-**Position**: bunenjin思想の現代的再定義者
+**Position**: HaQei思想の現代的再定義者
 ```
 Leadership Areas:
 ├── 学術会議・哲学シンポジウム
@@ -214,9 +214,9 @@ Leadership Areas:
 ### Brand Awareness Metrics
 ```
 📈 Awareness KPIs
-├── bunenjin概念認知度: 0% → 25%
+├── HaQei概念認知度: 0% → 25%
 ├── Brand mention volume: 100 → 10,000/月
-├── Organic search "bunenjin": Top 3 results
+├── Organic search "HaQei": Top 3 results
 └── Social media engagement: 5% → 15%
 ```
 
@@ -296,5 +296,5 @@ CTA: "あなたの人生戦略を見つける"
 ---
 
 *Philosophy Integration Researcher Agent*
-*bunenjin Marketing Revolution Initiative*
+*HaQei Marketing Revolution Initiative*
 *Mission: 哲学的価値の世界的普及*

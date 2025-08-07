@@ -151,10 +151,10 @@
         </div>
       </section>
 
-      <!-- ユニバーサル bunenjin コンテンツ -->
-      <section class="bunenjin-universal" :aria-label="translate('sections.bunenjinCore')">
+      <!-- ユニバーサル HaQei コンテンツ -->
+      <section class="HaQei-universal" :aria-label="translate('sections.HaQeiCore')">
         <div class="multifaceted-presentation">
-          <h2 class="universal-title">{{ translate('bunenjin.title') }}</h2>
+          <h2 class="universal-title">{{ translate('HaQei.title') }}</h2>
           
           <!-- 4つの柱の文化的表現 -->
           <div class="pillars-grid">
@@ -631,13 +631,13 @@ const basicTrigrams = ref([
   { id: 'dui', symbol: '☱', meaning: '兌・沢' }
 ])
 
-// bunenjin 4つの柱の文化的表現
+// HaQei 4つの柱の文化的表現
 const culturalPillars = ref<CulturalPillar[]>([
   {
     id: 'multifaceted',
     icon: '🎭',
-    titleKey: 'bunenjin.pillars.multifaceted.title',
-    descriptionKey: 'bunenjin.pillars.multifaceted.description',
+    titleKey: 'HaQei.pillars.multifaceted.title',
+    descriptionKey: 'HaQei.pillars.multifaceted.description',
     culturalExamples: {
       'east-asian': ['陰陽の両面性', '中庸の思想', '表と裏の文化'],
       'western': ['Cognitive flexibility', 'Multiple perspectives', 'Paradoxical thinking'],
@@ -654,8 +654,8 @@ const culturalPillars = ref<CulturalPillar[]>([
   {
     id: 'harmony',
     icon: '⚖️',
-    titleKey: 'bunenjin.pillars.harmony.title',
-    descriptionKey: 'bunenjin.pillars.harmony.description',
+    titleKey: 'HaQei.pillars.harmony.title',
+    descriptionKey: 'HaQei.pillars.harmony.description',
     culturalExamples: {
       'east-asian': ['和を以て貴しとなす', '中道の実践', '調和の美学'],
       'western': ['Work-life balance', 'Emotional regulation', 'Conflict resolution'],
@@ -672,8 +672,8 @@ const culturalPillars = ref<CulturalPillar[]>([
   {
     id: 'change',
     icon: '🌊',
-    titleKey: 'bunenjin.pillars.change.title',
-    descriptionKey: 'bunenjin.pillars.change.description',
+    titleKey: 'HaQei.pillars.change.title',
+    descriptionKey: 'HaQei.pillars.change.description',
     culturalExamples: {
       'east-asian': ['無常の受容', '変化こそ不変', '流水の智慧'],
       'western': ['Adaptation strategies', 'Growth mindset', 'Resilience building'],
@@ -690,8 +690,8 @@ const culturalPillars = ref<CulturalPillar[]>([
   {
     id: 'strategy',
     icon: '🧭',
-    titleKey: 'bunenjin.pillars.strategy.title',
-    descriptionKey: 'bunenjin.pillars.strategy.description',
+    titleKey: 'HaQei.pillars.strategy.title',
+    descriptionKey: 'HaQei.pillars.strategy.description',
     culturalExamples: {
       'east-asian': ['兵法の智慧', '先を読む力', '状況判断'],
       'western': ['Strategic planning', 'Decision frameworks', 'Goal optimization'],
@@ -1251,7 +1251,7 @@ watch(currentCulture, () => {
   color: var(--wabi-grey);
 }
 
-/* bunenjin柱のグリッド */
+/* HaQei柱のグリッド */
 .pillars-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

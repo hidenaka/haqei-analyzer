@@ -166,6 +166,396 @@ class BundleOptimizer {
       if (contentLength) {
         const size = parseInt(contentLength);
         this.bundleMetrics.totalSize += size;
-        console.log(`📜 Script size estimated: ${scriptUrl} (${this.formatBytes(size)})`);\n        return size;
+        console.log(`📜 Script size estimated: ${scriptUrl} (${this.formatBytes(size)})`);
+        return size;
       }
-    } catch (error) {\n      console.warn(`⚠️ Could not estimate size for: ${scriptUrl}`);\n    }\n    \n    return 0;\n  }\n  \n  /**\n   * Monitor memory usage impact\n   */\n  monitorMemoryUsage() {\n    if (!('memory' in performance)) {\n      console.warn('⚠️ Memory monitoring not available in this browser');\n      return;\n    }\n    \n    const trackMemory = () => {\n      const memory = performance.memory;\n      \n      this.bundleMetrics.memoryUsage.set(Date.now(), {\n        used: memory.usedJSHeapSize,\n        total: memory.totalJSHeapSize,\n        limit: memory.jsHeapSizeLimit\n      });\n      \n      // Keep only last 100 entries\n      if (this.bundleMetrics.memoryUsage.size > 100) {\n        const entries = Array.from(this.bundleMetrics.memoryUsage.entries());\n        const toKeep = entries.slice(-50);\n        this.bundleMetrics.memoryUsage.clear();\n        toKeep.forEach(([time, data]) => {\n          this.bundleMetrics.memoryUsage.set(time, data);\n        });\n      }\n    };\n    \n    // Track memory every 5 seconds\n    setInterval(trackMemory, 5000);\n    trackMemory(); // Initial measurement\n  }\n  \n  /**\n   * Setup Performance Observer for detailed metrics\n   */\n  setupPerformanceObserver() {\n    try {\n      this.performanceObserver = new PerformanceObserver((list) => {\n        const entries = list.getEntries();\n        \n        entries.forEach(entry => {\n          if (entry.entryType === 'resource' && entry.name.includes('.js')) {\n            this.trackResourcePerformance(entry);\n          }\n        });\n      });\n      \n      this.performanceObserver.observe({ entryTypes: ['resource', 'navigation'] });\n      console.log('📊 PerformanceObserver setup complete');\n      \n    } catch (error) {\n      console.warn('⚠️ PerformanceObserver setup failed:', error);\n    }\n  }\n  \n  /**\n   * Track resource performance metrics\n   */\n  trackResourcePerformance(entry) {\n    const metrics = {\n      url: entry.name,\n      duration: entry.duration,\n      transferSize: entry.transferSize || 0,\n      encodedBodySize: entry.encodedBodySize || 0,\n      decodedBodySize: entry.decodedBodySize || 0,\n      startTime: entry.startTime,\n      responseEnd: entry.responseEnd\n    };\n    \n    this.analysisResults.performance.loadTimes[entry.name] = metrics;\n    \n    // Update total bundle size with actual transfer size\n    if (metrics.transferSize > 0) {\n      this.bundleMetrics.totalSize += metrics.transferSize;\n    }\n  }\n  \n  /**\n   * Perform comprehensive bundle analysis\n   */\n  performAnalysis() {\n    console.log('🔍 Performing bundle optimization analysis...');\n    \n    const analysis = {\n      timestamp: Date.now(),\n      bundleSize: this.bundleMetrics.totalSize,\n      moduleCount: this.bundleMetrics.loadedModules.size,\n      optimization: this.analyzeOptimizations(),\n      performance: this.analyzePerformance(),\n      recommendations: []\n    };\n    \n    // Generate recommendations\n    analysis.recommendations = this.generateRecommendations(analysis);\n    \n    this.analysisResults = analysis;\n    \n    if (this.options.enableReporting) {\n      this.generateReport(analysis);\n    }\n    \n    return analysis;\n  }\n  \n  /**\n   * Analyze potential optimizations\n   */\n  analyzeOptimizations() {\n    const duplicates = this.findDuplicateCode();\n    const unused = this.findUnusedModules();\n    const heavyModules = this.findHeavyModules();\n    \n    return {\n      duplicates,\n      unused,\n      heavyModules,\n      totalWaste: duplicates.totalSize + unused.totalSize\n    };\n  }\n  \n  /**\n   * Find duplicate code across modules\n   */\n  findDuplicateCode() {\n    const duplicates = [];\n    let totalSize = 0;\n    \n    // This is a simplified duplicate detection\n    // In a real implementation, you'd use AST analysis\n    const modules = Array.from(this.bundleMetrics.loadedModules.entries());\n    \n    for (let i = 0; i < modules.length; i++) {\n      for (let j = i + 1; j < modules.length; j++) {\n        const [path1, data1] = modules[i];\n        const [path2, data2] = modules[j];\n        \n        // Simple heuristic: similar file sizes might indicate duplicates\n        if (Math.abs(data1.estimatedSize - data2.estimatedSize) < 1024 && \n            data1.estimatedSize > 5120) { // Only check files > 5KB\n          duplicates.push({\n            modules: [path1, path2],\n            estimatedDuplication: Math.min(data1.estimatedSize, data2.estimatedSize) * 0.3,\n            confidence: 'low'\n          });\n          \n          totalSize += Math.min(data1.estimatedSize, data2.estimatedSize) * 0.3;\n        }\n      }\n    }\n    \n    return { duplicates, totalSize };\n  }\n  \n  /**\n   * Find potentially unused modules\n   */\n  findUnusedModules() {\n    const unused = [];\n    let totalSize = 0;\n    const currentTime = Date.now();\n    const unusedThreshold = 300000; // 5 minutes\n    \n    this.bundleMetrics.loadedModules.forEach((data, path) => {\n      if (currentTime - data.timestamp > unusedThreshold) {\n        // Check if module has been accessed recently\n        // This is a simplified check - real implementation would track usage\n        unused.push({\n          path,\n          size: data.estimatedSize,\n          lastAccessed: data.timestamp,\n          reason: 'Not accessed in 5+ minutes'\n        });\n        \n        totalSize += data.estimatedSize;\n      }\n    });\n    \n    return { unused, totalSize };\n  }\n  \n  /**\n   * Find heavy modules that impact performance\n   */\n  findHeavyModules() {\n    const heavyThreshold = 100 * 1024; // 100KB\n    const heavy = [];\n    \n    this.bundleMetrics.loadedModules.forEach((data, path) => {\n      if (data.estimatedSize > heavyThreshold) {\n        heavy.push({\n          path,\n          size: data.estimatedSize,\n          loadTime: data.loadTime,\n          impactScore: (data.estimatedSize / 1024) + (data.loadTime / 10)\n        });\n      }\n    });\n    \n    // Sort by impact score\n    heavy.sort((a, b) => b.impactScore - a.impactScore);\n    \n    return heavy;\n  }\n  \n  /**\n   * Analyze performance metrics\n   */\n  analyzePerformance() {\n    const loadTimes = Array.from(this.bundleMetrics.loadTimes.values());\n    const memoryEntries = Array.from(this.bundleMetrics.memoryUsage.values());\n    \n    return {\n      averageLoadTime: loadTimes.length > 0 ? \n        loadTimes.reduce((a, b) => a + b, 0) / loadTimes.length : 0,\n      slowestLoad: loadTimes.length > 0 ? Math.max(...loadTimes) : 0,\n      fastestLoad: loadTimes.length > 0 ? Math.min(...loadTimes) : 0,\n      currentMemoryUsage: memoryEntries.length > 0 ? \n        memoryEntries[memoryEntries.length - 1].used : 0,\n      memoryGrowthRate: this.calculateMemoryGrowthRate(memoryEntries)\n    };\n  }\n  \n  /**\n   * Calculate memory growth rate\n   */\n  calculateMemoryGrowthRate(entries) {\n    if (entries.length < 2) return 0;\n    \n    const first = entries[0];\n    const last = entries[entries.length - 1];\n    const timeDiff = (entries.length - 1) * 5000; // 5 second intervals\n    \n    return ((last.used - first.used) / timeDiff) * 1000; // bytes per second\n  }\n  \n  /**\n   * Generate optimization recommendations\n   */\n  generateRecommendations(analysis) {\n    const recommendations = [];\n    \n    // Bundle size recommendations\n    if (analysis.bundleSize > this.options.maxBundleSize) {\n      recommendations.push({\n        type: 'size',\n        priority: 'high',\n        message: `Bundle size (${this.formatBytes(analysis.bundleSize)}) exceeds target (${this.formatBytes(this.options.maxBundleSize)})`,\n        suggestion: 'Consider additional code splitting or removing unused modules'\n      });\n    }\n    \n    // Heavy modules recommendations\n    if (analysis.optimization.heavyModules.length > 0) {\n      const heaviest = analysis.optimization.heavyModules[0];\n      recommendations.push({\n        type: 'performance',\n        priority: 'medium',\n        message: `Heavy module detected: ${heaviest.path} (${this.formatBytes(heaviest.size)})`,\n        suggestion: 'Consider lazy loading or splitting this module'\n      });\n    }\n    \n    // Duplicate code recommendations\n    if (analysis.optimization.duplicates.totalSize > 50 * 1024) {\n      recommendations.push({\n        type: 'optimization',\n        priority: 'medium',\n        message: `Potential duplicate code: ${this.formatBytes(analysis.optimization.duplicates.totalSize)} wasted`,\n        suggestion: 'Review modules for shared utilities that can be extracted'\n      });\n    }\n    \n    // Memory usage recommendations\n    if (analysis.performance.memoryGrowthRate > 1024) { // 1KB/sec growth\n      recommendations.push({\n        type: 'memory',\n        priority: 'high',\n        message: `High memory growth rate: ${this.formatBytes(analysis.performance.memoryGrowthRate)}/sec`,\n        suggestion: 'Check for memory leaks and implement cleanup'\n      });\n    }\n    \n    return recommendations;\n  }\n  \n  /**\n   * Generate comprehensive report\n   */\n  generateReport(analysis) {\n    console.log('📊 Bundle Optimization Report - Phase 2');\n    console.log('='.repeat(50));\n    console.log(`📦 Total Bundle Size: ${this.formatBytes(analysis.bundleSize)}`);\n    console.log(`📄 Loaded Modules: ${analysis.moduleCount}`);\n    console.log(`⚡ Average Load Time: ${analysis.performance.averageLoadTime.toFixed(0)}ms`);\n    console.log(`🧠 Memory Usage: ${this.formatBytes(analysis.performance.currentMemoryUsage)}`);\n    \n    if (analysis.optimization.totalWaste > 0) {\n      console.log(`♻️ Potential Savings: ${this.formatBytes(analysis.optimization.totalWaste)}`);\n    }\n    \n    if (analysis.recommendations.length > 0) {\n      console.log('\\n🎯 Recommendations:');\n      analysis.recommendations.forEach((rec, index) => {\n        console.log(`${index + 1}. [${rec.priority.toUpperCase()}] ${rec.message}`);\n        console.log(`   💡 ${rec.suggestion}`);\n      });\n    }\n    \n    console.log('='.repeat(50));\n    \n    // Store report for external access\n    window.bundleOptimizationReport = analysis;\n  }\n  \n  /**\n   * Get current optimization status\n   */\n  getOptimizationStatus() {\n    const currentSize = this.bundleMetrics.totalSize;\n    const targetSize = this.options.maxBundleSize;\n    const savings = Math.max(0, currentSize - targetSize);\n    \n    return {\n      currentSize: this.formatBytes(currentSize),\n      targetSize: this.formatBytes(targetSize),\n      isOptimized: currentSize <= targetSize,\n      potentialSavings: this.formatBytes(savings),\n      optimizationPercentage: targetSize > 0 ? \n        Math.max(0, ((targetSize - currentSize) / targetSize * 100)).toFixed(1) + '%' : '0%'\n    };\n  }\n  \n  /**\n   * Format bytes for display\n   */\n  formatBytes(bytes) {\n    if (bytes === 0) return '0 B';\n    const k = 1024;\n    const sizes = ['B', 'KB', 'MB', 'GB'];\n    const i = Math.floor(Math.log(bytes) / Math.log(k));\n    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];\n  }\n  \n  /**\n   * Export optimization data\n   */\n  exportData() {\n    return {\n      metrics: {\n        totalSize: this.bundleMetrics.totalSize,\n        moduleCount: this.bundleMetrics.loadedModules.size,\n        loadedModules: Array.from(this.bundleMetrics.loadedModules.entries())\n      },\n      analysis: this.analysisResults,\n      status: this.getOptimizationStatus(),\n      timestamp: Date.now()\n    };\n  }\n}\n\n// Global initialization\nif (!window.bundleOptimizer) {\n  window.bundleOptimizer = new BundleOptimizer({\n    enableMonitoring: true,\n    enableAnalysis: true,\n    enableReporting: true\n  });\n  \n  console.log('🎯 BundleOptimizer initialized for Phase 2 monitoring');\n  \n  // Debug functions\n  window.getBundleReport = () => window.bundleOptimizer.performAnalysis();\n  window.getBundleStatus = () => window.bundleOptimizer.getOptimizationStatus();\n  window.exportBundleData = () => window.bundleOptimizer.exportData();\n}\n\n// Export for ES6 modules\nif (typeof module !== 'undefined' && module.exports) {\n  module.exports = BundleOptimizer;\n}\n
+    } catch (error) {
+      console.warn(`⚠️ Could not estimate size for: ${scriptUrl}`);
+    }
+    
+    return 0;
+  }
+  
+  /**
+   * Monitor memory usage impact
+   */
+  monitorMemoryUsage() {
+    if (!('memory' in performance)) {
+      console.warn('⚠️ Memory monitoring not available in this browser');
+      return;
+    }
+    
+    const trackMemory = () => {
+      const memory = performance.memory;
+      
+      this.bundleMetrics.memoryUsage.set(Date.now(), {
+        used: memory.usedJSHeapSize,
+        total: memory.totalJSHeapSize,
+        limit: memory.jsHeapSizeLimit
+      });
+      
+      // Keep only last 100 entries
+      if (this.bundleMetrics.memoryUsage.size > 100) {
+        const entries = Array.from(this.bundleMetrics.memoryUsage.entries());
+        const toKeep = entries.slice(-50);
+        this.bundleMetrics.memoryUsage.clear();
+        toKeep.forEach(([time, data]) => {
+          this.bundleMetrics.memoryUsage.set(time, data);
+        });
+      }
+    };
+    
+    // Track memory every 5 seconds
+    setInterval(trackMemory, 5000);
+    trackMemory(); // Initial measurement
+  }
+  
+  /**
+   * Setup Performance Observer for detailed metrics
+   */
+  setupPerformanceObserver() {
+    try {
+      this.performanceObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        
+        entries.forEach(entry => {
+          if (entry.entryType === 'resource' && entry.name.includes('.js')) {
+            this.trackResourcePerformance(entry);
+          }
+        });
+      });
+      
+      this.performanceObserver.observe({ entryTypes: ['resource', 'navigation'] });
+      console.log('📊 PerformanceObserver setup complete');
+      
+    } catch (error) {
+      console.warn('⚠️ PerformanceObserver setup failed:', error);
+    }
+  }
+  
+  /**
+   * Track resource performance metrics
+   */
+  trackResourcePerformance(entry) {
+    const metrics = {
+      url: entry.name,
+      duration: entry.duration,
+      transferSize: entry.transferSize || 0,
+      encodedBodySize: entry.encodedBodySize || 0,
+      decodedBodySize: entry.decodedBodySize || 0,
+      startTime: entry.startTime,
+      responseEnd: entry.responseEnd
+    };
+    
+    this.analysisResults.performance.loadTimes[entry.name] = metrics;
+    
+    // Update total bundle size with actual transfer size
+    if (metrics.transferSize > 0) {
+      this.bundleMetrics.totalSize += metrics.transferSize;
+    }
+  }
+  
+  /**
+   * Perform comprehensive bundle analysis
+   */
+  performAnalysis() {
+    console.log('🔍 Performing bundle optimization analysis...');
+    
+    const analysis = {
+      timestamp: Date.now(),
+      bundleSize: this.bundleMetrics.totalSize,
+      moduleCount: this.bundleMetrics.loadedModules.size,
+      optimization: this.analyzeOptimizations(),
+      performance: this.analyzePerformance(),
+      recommendations: []
+    };
+    
+    // Generate recommendations
+    analysis.recommendations = this.generateRecommendations(analysis);
+    
+    this.analysisResults = analysis;
+    
+    if (this.options.enableReporting) {
+      this.generateReport(analysis);
+    }
+    
+    return analysis;
+  }
+  
+  /**
+   * Analyze potential optimizations
+   */
+  analyzeOptimizations() {
+    const duplicates = this.findDuplicateCode();
+    const unused = this.findUnusedModules();
+    const heavyModules = this.findHeavyModules();
+    
+    return {
+      duplicates,
+      unused,
+      heavyModules,
+      totalWaste: duplicates.totalSize + unused.totalSize
+    };
+  }
+  
+  /**
+   * Find duplicate code across modules
+   */
+  findDuplicateCode() {
+    const duplicates = [];
+    let totalSize = 0;
+    
+    // This is a simplified duplicate detection
+    // In a real implementation, you'd use AST analysis
+    const modules = Array.from(this.bundleMetrics.loadedModules.entries());
+    
+    for (let i = 0; i < modules.length; i++) {
+      for (let j = i + 1; j < modules.length; j++) {
+        const [path1, data1] = modules[i];
+        const [path2, data2] = modules[j];
+        
+        // Simple heuristic: similar file sizes might indicate duplicates
+        if (Math.abs(data1.estimatedSize - data2.estimatedSize) < 1024 && 
+            data1.estimatedSize > 5120) { // Only check files > 5KB
+          duplicates.push({
+            modules: [path1, path2],
+            estimatedDuplication: Math.min(data1.estimatedSize, data2.estimatedSize) * 0.3,
+            confidence: 'low'
+          });
+          
+          totalSize += Math.min(data1.estimatedSize, data2.estimatedSize) * 0.3;
+        }
+      }
+    }
+    
+    return { duplicates, totalSize };
+  }
+  
+  /**
+   * Find potentially unused modules
+   */
+  findUnusedModules() {
+    const unused = [];
+    let totalSize = 0;
+    const currentTime = Date.now();
+    const unusedThreshold = 300000; // 5 minutes
+    
+    this.bundleMetrics.loadedModules.forEach((data, path) => {
+      if (currentTime - data.timestamp > unusedThreshold) {
+        // Check if module has been accessed recently
+        // This is a simplified check - real implementation would track usage
+        unused.push({
+          path,
+          size: data.estimatedSize,
+          lastAccessed: data.timestamp,
+          reason: 'Not accessed in 5+ minutes'
+        });
+        
+        totalSize += data.estimatedSize;
+      }
+    });
+    
+    return { unused, totalSize };
+  }
+  
+  /**
+   * Find heavy modules that impact performance
+   */
+  findHeavyModules() {
+    const heavyThreshold = 100 * 1024; // 100KB
+    const heavy = [];
+    
+    this.bundleMetrics.loadedModules.forEach((data, path) => {
+      if (data.estimatedSize > heavyThreshold) {
+        heavy.push({
+          path,
+          size: data.estimatedSize,
+          loadTime: data.loadTime,
+          impactScore: (data.estimatedSize / 1024) + (data.loadTime / 10)
+        });
+      }
+    });
+    
+    // Sort by impact score
+    heavy.sort((a, b) => b.impactScore - a.impactScore);
+    
+    return heavy;
+  }
+  
+  /**
+   * Analyze performance metrics
+   */
+  analyzePerformance() {
+    const loadTimes = Array.from(this.bundleMetrics.loadTimes.values());
+    const memoryEntries = Array.from(this.bundleMetrics.memoryUsage.values());
+    
+    return {
+      averageLoadTime: loadTimes.length > 0 ? 
+        loadTimes.reduce((a, b) => a + b, 0) / loadTimes.length : 0,
+      slowestLoad: loadTimes.length > 0 ? Math.max(...loadTimes) : 0,
+      fastestLoad: loadTimes.length > 0 ? Math.min(...loadTimes) : 0,
+      currentMemoryUsage: memoryEntries.length > 0 ? 
+        memoryEntries[memoryEntries.length - 1].used : 0,
+      memoryGrowthRate: this.calculateMemoryGrowthRate(memoryEntries)
+    };
+  }
+  
+  /**
+   * Calculate memory growth rate
+   */
+  calculateMemoryGrowthRate(entries) {
+    if (entries.length < 2) return 0;
+    
+    const first = entries[0];
+    const last = entries[entries.length - 1];
+    const timeDiff = (entries.length - 1) * 5000; // 5 second intervals
+    
+    return ((last.used - first.used) / timeDiff) * 1000; // bytes per second
+  }
+  
+  /**
+   * Generate optimization recommendations
+   */
+  generateRecommendations(analysis) {
+    const recommendations = [];
+    
+    // Bundle size recommendations
+    if (analysis.bundleSize > this.options.maxBundleSize) {
+      recommendations.push({
+        type: 'size',
+        priority: 'high',
+        message: `Bundle size (${this.formatBytes(analysis.bundleSize)}) exceeds target (${this.formatBytes(this.options.maxBundleSize)})`,
+        suggestion: 'Consider additional code splitting or removing unused modules'
+      });
+    }
+    
+    // Heavy modules recommendations
+    if (analysis.optimization.heavyModules.length > 0) {
+      const heaviest = analysis.optimization.heavyModules[0];
+      recommendations.push({
+        type: 'performance',
+        priority: 'medium',
+        message: `Heavy module detected: ${heaviest.path} (${this.formatBytes(heaviest.size)})`,
+        suggestion: 'Consider lazy loading or splitting this module'
+      });
+    }
+    
+    // Duplicate code recommendations
+    if (analysis.optimization.duplicates.totalSize > 50 * 1024) {
+      recommendations.push({
+        type: 'optimization',
+        priority: 'medium',
+        message: `Potential duplicate code: ${this.formatBytes(analysis.optimization.duplicates.totalSize)} wasted`,
+        suggestion: 'Review modules for shared utilities that can be extracted'
+      });
+    }
+    
+    // Memory usage recommendations
+    if (analysis.performance.memoryGrowthRate > 1024) { // 1KB/sec growth
+      recommendations.push({
+        type: 'memory',
+        priority: 'high',
+        message: `High memory growth rate: ${this.formatBytes(analysis.performance.memoryGrowthRate)}/sec`,
+        suggestion: 'Check for memory leaks and implement cleanup'
+      });
+    }
+    
+    return recommendations;
+  }
+  
+  /**
+   * Generate comprehensive report
+   */
+  generateReport(analysis) {
+    console.log('📊 Bundle Optimization Report - Phase 2');
+    console.log('='.repeat(50));
+    console.log(`📦 Total Bundle Size: ${this.formatBytes(analysis.bundleSize)}`);
+    console.log(`📄 Loaded Modules: ${analysis.moduleCount}`);
+    console.log(`⚡ Average Load Time: ${analysis.performance.averageLoadTime.toFixed(0)}ms`);
+    console.log(`🧠 Memory Usage: ${this.formatBytes(analysis.performance.currentMemoryUsage)}`);
+    
+    if (analysis.optimization.totalWaste > 0) {
+      console.log(`♻️ Potential Savings: ${this.formatBytes(analysis.optimization.totalWaste)}`);
+    }
+    
+    if (analysis.recommendations.length > 0) {
+      console.log('\
+🎯 Recommendations:');
+      analysis.recommendations.forEach((rec, index) => {
+        console.log(`${index + 1}. [${rec.priority.toUpperCase()}] ${rec.message}`);
+        console.log(`   💡 ${rec.suggestion}`);
+      });
+    }
+    
+    console.log('='.repeat(50));
+    
+    // Store report for external access
+    window.bundleOptimizationReport = analysis;
+  }
+  
+  /**
+   * Get current optimization status
+   */
+  getOptimizationStatus() {
+    const currentSize = this.bundleMetrics.totalSize;
+    const targetSize = this.options.maxBundleSize;
+    const savings = Math.max(0, currentSize - targetSize);
+    
+    return {
+      currentSize: this.formatBytes(currentSize),
+      targetSize: this.formatBytes(targetSize),
+      isOptimized: currentSize <= targetSize,
+      potentialSavings: this.formatBytes(savings),
+      optimizationPercentage: targetSize > 0 ? 
+        Math.max(0, ((targetSize - currentSize) / targetSize * 100)).toFixed(1) + '%' : '0%'
+    };
+  }
+  
+  /**
+   * Format bytes for display
+   */
+  formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  /**
+   * Export optimization data
+   */
+  exportData() {
+    return {
+      metrics: {
+        totalSize: this.bundleMetrics.totalSize,
+        moduleCount: this.bundleMetrics.loadedModules.size,
+        loadedModules: Array.from(this.bundleMetrics.loadedModules.entries())
+      },
+      analysis: this.analysisResults,
+      status: this.getOptimizationStatus(),
+      timestamp: Date.now()
+    };
+  }
+}
+
+// Global initialization
+if (!window.bundleOptimizer) {
+  window.bundleOptimizer = new BundleOptimizer({
+    enableMonitoring: true,
+    enableAnalysis: true,
+    enableReporting: true
+  });
+  
+  console.log('🎯 BundleOptimizer initialized for Phase 2 monitoring');
+  
+  // Debug functions
+  window.getBundleReport = () => window.bundleOptimizer.performAnalysis();
+  window.getBundleStatus = () => window.bundleOptimizer.getOptimizationStatus();
+  window.exportBundleData = () => window.bundleOptimizer.exportData();
+}
+
+// Export for ES6 modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = BundleOptimizer;
+}

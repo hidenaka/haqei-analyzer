@@ -1,13 +1,13 @@
 /**
  * Accessibility WCAG 2.1 AA Compliance CSS
- * HAQEI Analyzer - bunenjin哲学アクセシビリティ統合
+ * HAQEI Analyzer - HaQei哲学アクセシビリティ統合
  * 
  * 目的:
  * - WCAG 2.1 AA完全準拠
  * - 色コントラスト比4.5:1以上保証
  * - キーボードナビゲーション完全対応
  * - スクリーンリーダー最適化
- * - bunenjin哲学との調和
+ * - HaQei哲学との調和
  * 
  * 作成日: 2025-08-05
  * バージョン: v1.0.0-wcag-compliance
@@ -39,11 +39,11 @@
   --wcag-error: #fc8181;                /* エラー: 4.7:1 */
   --wcag-info: #63b3ed;                 /* 情報: 4.8:1 */
   
-  /* bunenjin哲学色 - 高コントラスト版 */
-  --bunenjin-harmony: #81c784;          /* 調和: 5.3:1 */
-  --bunenjin-integration: #64b5f6;      /* 統合: 4.9:1 */
-  --bunenjin-flexibility: #ffb74d;      /* 柔軟性: 4.8:1 */
-  --bunenjin-authenticity: #f06292;     /* 真正性: 4.6:1 */
+  /* HaQei哲学色 - 高コントラスト版 */
+  --HaQei-harmony: #81c784;          /* 調和: 5.3:1 */
+  --HaQei-integration: #64b5f6;      /* 統合: 4.9:1 */
+  --HaQei-flexibility: #ffb74d;      /* 柔軟性: 4.8:1 */
+  --HaQei-authenticity: #f06292;     /* 真正性: 4.6:1 */
   
   /* フォーカス指標 */
   --wcag-focus-outline: #90cdf4;        /* フォーカス輪郭: 5.2:1 */
@@ -200,7 +200,7 @@
 }
 
 .wcag-compliant a:visited {
-  color: var(--bunenjin-authenticity);
+  color: var(--HaQei-authenticity);
 }
 
 /* ========================================
@@ -356,19 +356,19 @@
 }
 
 /* ========================================
-   8. bunenjin哲学アクセシビリティ統合
+   8. HaQei哲学アクセシビリティ統合
 ======================================== */
 
 /* 分人表示の高コントラスト */
-.wcag-compliant .bunenjin-persona {
+.wcag-compliant .HaQei-persona {
   background-color: var(--wcag-bg-secondary);
-  border: 2px solid var(--bunenjin-harmony);
+  border: 2px solid var(--HaQei-harmony);
   border-radius: 8px;
   padding: 16px;
   margin: 12px 0;
 }
 
-.wcag-compliant .bunenjin-persona:focus-within {
+.wcag-compliant .HaQei-persona:focus-within {
   border-color: var(--wcag-focus-outline);
   box-shadow: var(--wcag-focus-shadow);
 }
@@ -376,7 +376,7 @@
 /* 調和度インジケーター */
 .wcag-compliant .harmony-indicator {
   background-color: var(--wcag-bg-secondary);
-  border: 2px solid var(--bunenjin-harmony);
+  border: 2px solid var(--HaQei-harmony);
 }
 
 .wcag-compliant .harmony-value {
@@ -387,14 +387,14 @@
 /* Triple OSインジケーター */
 .wcag-compliant .triple-os-display {
   background-color: var(--wcag-bg-secondary);
-  border: 2px solid var(--bunenjin-integration);
+  border: 2px solid var(--HaQei-integration);
 }
 
 /* I Ching要素 */
 .wcag-compliant .iching-element {
   background-color: var(--wcag-bg-tertiary);
   color: var(--wcag-text-primary);
-  border: 2px solid var(--bunenjin-flexibility);
+  border: 2px solid var(--HaQei-flexibility);
 }
 
 /* ========================================

@@ -1,6 +1,6 @@
 /**
  * Jest Configuration for HAQEI Future Simulator I Ching Integration
- * Following bunenjin philosophy with multi-persona testing approaches
+ * Following HaQei philosophy with multi-persona testing approaches
  */
 
 module.exports = {
@@ -77,7 +77,7 @@ module.exports = {
     url: 'http://localhost:8080'
   },
   
-  // Bunenjin philosophy: Test multiple personas
+  // HaQei philosophy: Test multiple personas
   globals: {
     'BUNENJIN_TEST_PERSONAS': [
       'analytical_thinker',
@@ -95,11 +95,11 @@ module.exports = {
   // Fail fast on coverage threshold violations
   coverageFailure: true,
   
-  // Custom reporters for bunenjin philosophy alignment
+  // Custom reporters for HaQei philosophy alignment
   reporters: [
     'default',
-    ['<rootDir>/tests/reporters/bunenjin-reporter.js', {
-      outputFile: 'test-results/bunenjin-philosophy-compliance.json'
+    ['<rootDir>/tests/reporters/HaQei-reporter.js', {
+      outputFile: 'test-results/HaQei-philosophy-compliance.json'
     }],
     ['<rootDir>/tests/reporters/iching-authenticity-reporter.js', {
       outputFile: 'test-results/iching-authenticity-validation.json'  

@@ -104,7 +104,7 @@ const reportPath = '/Users/hideakimacbookair/Desktop/haqei-analyzer/docs/reports
 const fileName = `${new Date().toISOString().split('T')[0]}_REPORT_CTO統合分析_v1.0.md`;
 ```
 
-### bunenjin-strategy-navigator エージェント
+### HaQei-strategy-navigator エージェント
 ```javascript
 // 戦略分析レポート生成時
 const analysisPath = '/Users/hideakimacbookair/Desktop/haqei-analyzer/docs/analysis/';

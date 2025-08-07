@@ -149,8 +149,8 @@ showNotImplementedMessage(osType, hexagramId) {
 console.error(`❌ [インターフェース互換性] データ読み込み失敗: エンジンOS ${engineOS.hexagramId}, インターフェースOS ${interfaceOS.hexagramId}`);
 
 compatibilityContent.innerHTML = `
-  <div class="bunenjin-compatibility-result">
-      <div class="bunenjin-harmony-header">
+  <div class="HaQei-compatibility-result">
+      <div class="HaQei-harmony-header">
           <div class="harmony-type-badge harmony-error">
               <span class="harmony-icon">❌</span>
               <span class="harmony-label">データ読み込み失敗</span>
@@ -158,7 +158,7 @@ compatibilityContent.innerHTML = `
           <div class="compatibility-score">--</div>
       </div>
       
-      <div class="bunenjin-relationship-explanation">
+      <div class="HaQei-relationship-explanation">
           <h5>🤝 エンジンOSとインターフェースOSの関係</h5>
           <p>データの読み込みに失敗しました。しばらく後にお試しください。</p>
           

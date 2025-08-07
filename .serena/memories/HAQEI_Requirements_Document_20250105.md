@@ -1,7 +1,7 @@
 # HAQEI Analyzer エラー改善要件定義書
 
 ## 概要
-HAQEI analyzerはbunenjin philosophyと易経統合に基づく人格分析システムです。
+HAQEI analyzerはHaQei philosophyと易経統合に基づく人格分析システムです。
 現在、技術的エラーとアーキテクチャ問題により品質低下が発生しています。
 
 ## 機能要件
@@ -16,11 +16,11 @@ HAQEI analyzerはbunenjin philosophyと易経統合に基づく人格分析シ�
    - import path正規化
 
 3. **TypeScript型定義修正**
-   - bunenjin Philosophy型安全性
+   - HaQei Philosophy型安全性
    - I Ching統合の型定義
    - Vue 3互換性確保
 
-4. **bunenjin Philosophy準拠確認**
+4. **HaQei Philosophy準拠確認**
    - アイデンティティ固定化言語の完全除去
    - 複数分人サポート機能
    - 戦略的ナビゲーション重視
@@ -39,5 +39,5 @@ HAQEI analyzerはbunenjin philosophyと易経統合に基づく人格分析シ�
 ## 受入基準
 - エラーゼロ達成
 - 全テスト合格率100%
-- bunenjin準拠度98%以上
+- HaQei準拠度98%以上
 - I Ching正確性96%以上

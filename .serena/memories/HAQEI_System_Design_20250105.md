@@ -12,10 +12,10 @@ Presentation Layer
 Application Layer (Use Cases)
 ├── AnalyzeTripleOSUseCase
 ├── GenerateInsightUseCase
-└── ValidateBunenjinUseCase
+└── ValidateHaQeiUseCase
 
 Domain Layer
-├── Bunenjin Philosophy
+├── HaQei Philosophy
 ├── I Ching Interpretation
 └── Business Logic Core
 
@@ -39,7 +39,7 @@ Infrastructure Layer
 
 ### Application層
 - AnalyzeTripleOSUseCase: Triple OS分析
-- BunenjinValidationUseCase: 哲学準拠検証
+- HaQeiValidationUseCase: 哲学準拠検証
 
 ### Presentation層
 - TripleOSVisualization: WCAG 2.1 AA準拠UI

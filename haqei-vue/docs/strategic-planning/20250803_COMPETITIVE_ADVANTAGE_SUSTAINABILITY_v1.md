@@ -3,7 +3,7 @@
 ## 🎯 競争優位の本質
 
 ### Unique Value Architecture
-**Core Differentiation**: 世界で唯一のbunenjin哲学×I Ching×AI統合システム
+**Core Differentiation**: 世界で唯一のHaQei哲学×I Ching×AI統合システム
 **Sustainable Moat**: 3,000年の古典知恵と最先端技術の完全融合による模倣困難性
 **Strategic Position**: 東洋哲学と西洋技術の架橋者・新パラダイム創造者
 
@@ -67,7 +67,7 @@
 **Moat 1: 哲学的authenticity (模倣困難)**
 ```
 🏛️ Philosophy Authenticity Moat:
-├── bunenjin思想の現代的再解釈・体系化
+├── HaQei思想の現代的再解釈・体系化
 ├── I Ching 3,000年知恵の科学的統合
 ├── 東洋哲学の深層理解・文化的文脈
 ├── 学術的厳密性・専門家監修
@@ -291,7 +291,7 @@
 - Market share: 60%+ in philosophy-tech category
 - Brand recognition: Top-of-mind for life strategy
 - Academic integration: 1000+ universities curriculum
-- Cultural impact: bunenjin concept mainstream adoption
+- Cultural impact: HaQei concept mainstream adoption
 - Technology standard: Industry benchmark establishment
 ```
 

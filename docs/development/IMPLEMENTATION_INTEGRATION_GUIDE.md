@@ -133,8 +133,8 @@ class IntegratedAnalysisEngine {
 ```html
 <!-- 新しい表示エリア -->
 <div id="adaptive-display-container" class="adaptive-container">
-  <div id="bunenjin-philosophy-panel" class="philosophy-panel">
-    <h3>🎭 分かれた演技（bunenjin）</h3>
+  <div id="HaQei-philosophy-panel" class="philosophy-panel">
+    <h3>🎭 分かれた演技（HaQei）</h3>
     <div id="multiple-perspectives"></div>
   </div>
   
@@ -158,8 +158,8 @@ function displayAdaptiveResults(analysisResult) {
   
   const adaptive = analysisResult.adaptiveAnalysis;
   
-  // bunenjin哲学パネルの表示
-  displayBunenjinPhilosophy(adaptive.bunenjinIntegration);
+  // HaQei哲学パネルの表示
+  displayBunenjinPhilosophy(adaptive.HaQeiIntegration);
   
   // パターン比較の表示
   displayPatternComparison(adaptive.patternDisplays);
@@ -168,11 +168,11 @@ function displayAdaptiveResults(analysisResult) {
   displayAdaptiveGuidance(adaptive.integratedDisplay, adaptive.displaySettings);
 }
 
-function displayBunenjinPhilosophy(bunenjinData) {
+function displayBunenjinPhilosophy(HaQeiData) {
   const container = document.getElementById('multiple-perspectives');
   
-  if (bunenjinData.dividedPerformance) {
-    const performanceHtml = bunenjinData.dividedPerformance.performances
+  if (HaQeiData.dividedPerformance) {
+    const performanceHtml = HaQeiData.dividedPerformance.performances
       .map(perf => `
         <div class="performance-card">
           <h4>${perf.role}</h4>
@@ -183,9 +183,9 @@ function displayBunenjinPhilosophy(bunenjinData) {
       `).join('');
     
     container.innerHTML = `
-      <div class="bunenjin-concept">${bunenjinData.dividedPerformance.concept}</div>
+      <div class="HaQei-concept">${HaQeiData.dividedPerformance.concept}</div>
       <div class="performances">${performanceHtml}</div>
-      <div class="bunenjin-note">${bunenjinData.dividedPerformance.bunenjinNote}</div>
+      <div class="HaQei-note">${HaQeiData.dividedPerformance.HaQeiNote}</div>
     `;
   }
 }
@@ -337,7 +337,7 @@ class OrthodoxyValidator {
     // パターンの適用妥当性チェック
     this.validatePatternApplications(analysisResult, validationResult);
     
-    // bunenjin哲学との整合性チェック
+    // HaQei哲学との整合性チェック
     this.validateBunenjinIntegration(analysisResult, validationResult);
     
     return validationResult;
@@ -401,7 +401,7 @@ class UsabilityMonitor {
 
 ### 品質保証
 - [ ] 易経正統性の検証
-- [ ] bunenjin哲学の実装確認
+- [ ] HaQei哲学の実装確認
 - [ ] 文化的適切性の検証
 - [ ] 多言語対応の準備
 - [ ] アクセシビリティの確認
@@ -437,7 +437,7 @@ class UsabilityMonitor {
 ### 定性的指標
 - 易経専門家による正統性認定
 - ユーザーからの「役に立った」フィードバック
-- bunenjin哲学の理解促進効果
+- HaQei哲学の理解促進効果
 - 文化的適切性の評価
 
 この統合ガイドに従って段階的に実装することで、古典易経の深い知恵と現代的なユーザビリティを両立した、世界最高水準のHAQEI Future Simulatorが実現されます。

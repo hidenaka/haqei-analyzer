@@ -6,7 +6,7 @@
  * 
  * 特徴:
  * - ローカルサーバー自動起動・停止
- * - bunenjin哲学に基づく多角度検証
+ * - HaQei哲学に基づく多角度検証
  * - Triple OS Architecture動作確認
  * - 易経64卦システム正確性チェック
  * - レスポンシブ・アクセシビリティテスト
@@ -84,10 +84,10 @@ class HAQEIAutoValidator {
   }
 
   /**
-   * bunenjin哲学整合性検証
+   * HaQei哲学整合性検証
    */
   async validatePhilosophyCompliance() {
-    console.log('🎯 bunenjin哲学整合性を検証中...');
+    console.log('🎯 HaQei哲学整合性を検証中...');
     
     const tests = [
       {
@@ -133,7 +133,7 @@ class HAQEIAutoValidator {
       status: philosophy_score >= 80 ? 'PASS' : 'FAIL'
     };
 
-    console.log(`📊 bunenjin哲学整合性: ${philosophy_score.toFixed(1)}%`);
+    console.log(`📊 HaQei哲学整合性: ${philosophy_score.toFixed(1)}%`);
     return this.validationResults.philosophy_compliance;
   }
 
@@ -358,7 +358,7 @@ class HAQEIAutoValidator {
     console.log('');
     
     console.log('📋 詳細結果:');
-    console.log(`  🎭 bunenjin哲学整合性: ${this.validationResults.philosophy_compliance?.score.toFixed(1)}% (${this.validationResults.philosophy_compliance?.status})`);
+    console.log(`  🎭 HaQei哲学整合性: ${this.validationResults.philosophy_compliance?.score.toFixed(1)}% (${this.validationResults.philosophy_compliance?.status})`);
     console.log(`  🏗️ Triple OSアーキテクチャ: ${this.validationResults.triple_os_architecture?.score.toFixed(1)}% (${this.validationResults.triple_os_architecture?.status})`);
     console.log(`  📿 易経システム正確性: ${this.validationResults.iching_accuracy?.score.toFixed(1)}% (${this.validationResults.iching_accuracy?.status})`);
     console.log(`  ♿ UI/UXアクセシビリティ: ${this.validationResults.ui_responsiveness?.score.toFixed(1)}% (${this.validationResults.ui_responsiveness?.status})`);
@@ -380,7 +380,7 @@ class HAQEIAutoValidator {
   // === シミュレーション関数（実際の実装では Playwright MCP tools を使用） ===
 
   async simulatePhilosophyCheck(test) {
-    // bunenjin哲学検証シミュレーション
+    // HaQei哲学検証シミュレーション
     await new Promise(resolve => setTimeout(resolve, 100));
     return {
       passed: Math.random() > 0.2, // 80%成功率

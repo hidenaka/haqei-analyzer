@@ -15,7 +15,7 @@ const testArchitecture = {
   unit: '個別機能テスト (60テストケース)',
   integration: 'システム統合テスト (25テストケース)', 
   performance: 'パフォーマンステスト (15テストケース)',
-  philosophy: 'bunenjin哲学一貫性テスト (10テストケース)',
+  philosophy: 'HaQei哲学一貫性テスト (10テストケース)',
   ml: 'ML統合品質テスト (20テストケース)',
   total: '130テストケース'
 };
@@ -491,7 +491,7 @@ describe('チャート・UI機能', () => {
     expect(mockChart.destroy).toHaveBeenCalled();
   });
 
-  test('UT-05-08: 色彩設定bunenjin哲学準拠', () => {
+  test('UT-05-08: 色彩設定HaQei哲学準拠', () => {
     const colors = {
       engine: 'rgba(239, 68, 68, 0.8)',    // 赤 - 価値観
       interface: 'rgba(59, 130, 246, 0.8)', // 青 - 社会的
@@ -818,7 +818,7 @@ describe('スケーラビリティテスト', () => {
 
 ---
 
-## 🧘 Philosophy Tests - bunenjin哲学一貫性 (10テストケース)
+## 🧘 Philosophy Tests - HaQei哲学一貫性 (10テストケース)
 
 ### PH-01: Triple OS整合性テスト (6テスト)
 ```javascript
@@ -1197,7 +1197,7 @@ describe('ML統合品質保証', () => {
 ### フェーズ3: REFACTORフェーズ（最適化）
 1. コード品質向上
 2. パフォーマンス最適化
-3. bunenjin哲学整合性強化
+3. HaQei哲学整合性強化
 4. 保守性向上
 
 ### 品質基準
@@ -1208,4 +1208,4 @@ describe('ML統合品質保証', () => {
 
 ---
 
-**この包括的テストケース設計書により、Future SimulatorのTDD品質向上を系統的に実施し、A級品質判定の達成とbunenjin哲学との完全な統合を実現します。**
+**この包括的テストケース設計書により、Future SimulatorのTDD品質向上を系統的に実施し、A級品質判定の達成とHaQei哲学との完全な統合を実現します。**

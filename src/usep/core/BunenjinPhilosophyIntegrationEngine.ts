@@ -1,18 +1,18 @@
 /**
- * BunenjinPhilosophyIntegrationEngine.ts - bunenjin哲学統合エンジン
- * USEP (Universal Service Evolution Platform) bunenjin哲学統合システム
+ * BunenjinPhilosophyIntegrationEngine.ts - HaQei哲学統合エンジン
+ * USEP (Universal Service Evolution Platform) HaQei哲学統合システム
  * 
- * bunenjin (文人) 哲学の三大核心:
+ * HaQei (文人) 哲学の三大核心:
  * 1. 多面性受容 (Tamen-sei Juyō) - 複数のペルソナ・側面の調和的受け入れ
  * 2. 調和追求 (Chōwa Tsuikyū) - 全体的バランスと美的調和の追求
  * 3. 変化適応 (Henka Tekiō) - 状況変化への柔軟で知的な適応
  * 
  * 機能概要:
- * - 全USEPコンポーネントのbunenjin要素統一管理
- * - ユーザーのbunenjinアライメント評価・最適化
+ * - 全USEPコンポーネントのHaQei要素統一管理
+ * - ユーザーのHaQeiアライメント評価・最適化
  * - I Ching（易経）統合による深層洞察
  * - 和の美学と日本文化要素の統合
- * - 1000万ユーザー対応の大規模bunenjin処理
+ * - 1000万ユーザー対応の大規模HaQei処理
  */
 
 import { EnhancedVirtualUser, ServiceConfig } from './AutoScalingVirtualUserGenerator';
@@ -20,7 +20,7 @@ import { PersonaDimensions } from './PersonaDimensions';
 import { TripleOSProfile } from './TripleOSArchitectureIntegration';
 import { GeneratedScenario } from './AutomaticScenarioEngine';
 
-// bunenjin核心概念定義
+// HaQei核心概念定義
 export interface BunenjinCorePhilosophy {
   // 多面性受容 - 複数のペルソナ・側面の調和的受け入れ
   multifacetedAcceptance: {
@@ -71,10 +71,10 @@ export interface IChinggIntegration {
     guidance: string; // 指導
     future: string; // 未来の方向性
   };
-  bunenjinAlignment: number; // bunenjin哲学との整合性 (0-1)
+  HaQeiAlignment: number; // HaQei哲学との整合性 (0-1)
 }
 
-// bunenjin文化要素
+// HaQei文化要素
 export interface BunenjinCulturalElements {
   // 日本的美学
   japanesseAesthetics: {
@@ -104,14 +104,14 @@ export interface BunenjinCulturalElements {
   };
 }
 
-// bunenjin統合プロファイル
+// HaQei統合プロファイル
 export interface BunenjinIntegratedProfile {
   userId: string;
   timestamp: number;
   corePhilosophy: BunenjinCorePhilosophy;
   iChingIntegration: IChinggIntegration;
   culturalElements: BunenjinCulturalElements;
-  overallAlignment: number; // 総合的bunenjinアライメント (0-1)
+  overallAlignment: number; // 総合的HaQeiアライメント (0-1)
   developmentAreas: string[]; // 発展領域
   strengths: string[]; // 強み
   evolutionPath: {
@@ -121,7 +121,7 @@ export interface BunenjinIntegratedProfile {
   };
 }
 
-// bunenjin進化設定
+// HaQei進化設定
 export interface BunenjinEvolutionConfig {
   targetAlignment: number; // 目標アライメント (0-1)
   evolutionSpeed: 'gradual' | 'moderate' | 'accelerated';
@@ -131,7 +131,7 @@ export interface BunenjinEvolutionConfig {
   contextualSensitivity: number; // 文脈的感受性 (0-1)
 }
 
-// bunenjin分析結果
+// HaQei分析結果
 export interface BunenjinAnalysisResult {
   userId: string;
   analysisId: string;
@@ -152,7 +152,7 @@ export interface BunenjinAnalysisResult {
 }
 
 /**
- * bunenjin哲学統合エンジン - 日本文人思想の現代的実装
+ * HaQei哲学統合エンジン - 日本文人思想の現代的実装
  */
 export class BunenjinPhilosophyIntegrationEngine {
   private iChingHexagrams: Map<number, any> = new Map();
@@ -220,14 +220,14 @@ export class BunenjinPhilosophyIntegrationEngine {
   }
 
   /**
-   * ユーザーのbunenjinプロファイル統合生成
+   * ユーザーのHaQeiプロファイル統合生成
    */
   async generateBunenjinProfile(user: EnhancedVirtualUser, config?: BunenjinEvolutionConfig): Promise<BunenjinIntegratedProfile> {
-    console.log(`🎭 Generating bunenjin profile for user: ${user.id}`);
+    console.log(`🎭 Generating HaQei profile for user: ${user.id}`);
 
     const timestamp = Date.now();
 
-    // bunenjin核心哲学の評価
+    // HaQei核心哲学の評価
     const corePhilosophy = await this.evaluateCorePhilosophy(user);
     
     // I Ching統合
@@ -263,12 +263,12 @@ export class BunenjinPhilosophyIntegrationEngine {
     }
     this.evolutionTracking.get(user.id)!.push(profile);
 
-    console.log(`✅ bunenjin profile generated - Alignment: ${(overallAlignment * 100).toFixed(1)}%`);
+    console.log(`✅ HaQei profile generated - Alignment: ${(overallAlignment * 100).toFixed(1)}%`);
     return profile;
   }
 
   /**
-   * bunenjin核心哲学評価
+   * HaQei核心哲学評価
    */
   private async evaluateCorePhilosophy(user: EnhancedVirtualUser): Promise<BunenjinCorePhilosophy> {
     // 多面性受容の評価
@@ -646,7 +646,7 @@ export class BunenjinPhilosophyIntegrationEngine {
     const hexagramNumber = this.selectHexagramForUser(user, corePhilosophy);
     const primaryHexagram = this.iChingHexagrams.get(hexagramNumber)!;
     
-    // 変爻の決定（bunenjin特性に基づく）
+    // 変爻の決定（HaQei特性に基づく）
     const changingLines = this.determineChangingLines(corePhilosophy);
     
     // 二次卦の生成（変爻がある場合）
@@ -656,8 +656,8 @@ export class BunenjinPhilosophyIntegrationEngine {
     // 解釈生成
     const interpretation = this.generateIChinggInterpretation(user, primaryHexagram, secondaryHexagram);
     
-    // bunenjinアライメント計算
-    const bunenjinAlignment = this.calculateIChinggBunenjinAlignment(primaryHexagram, corePhilosophy);
+    // HaQeiアライメント計算
+    const HaQeiAlignment = this.calculateIChinggBunenjinAlignment(primaryHexagram, corePhilosophy);
 
     return {
       primaryHexagram: {
@@ -670,7 +670,7 @@ export class BunenjinPhilosophyIntegrationEngine {
       changingLines,
       secondaryHexagram,
       interpretation,
-      bunenjinAlignment
+      HaQeiAlignment
     };
   }
 
@@ -750,7 +750,7 @@ export class BunenjinPhilosophyIntegrationEngine {
   private generateIChinggInterpretation(user: EnhancedVirtualUser, primaryHexagram: any, secondaryHexagram?: any): any {
     return {
       present: `現在の状況は「${primaryHexagram.chineseName}」の影響下にあります。${primaryHexagram.meaning}の時期です。`,
-      guidance: `bunenjin哲学に従い、多面性を受け入れながら調和を追求し、変化に適応することが重要です。`,
+      guidance: `HaQei哲学に従い、多面性を受け入れながら調和を追求し、変化に適応することが重要です。`,
       future: secondaryHexagram ? 
         `将来的には「${secondaryHexagram.chineseName}」への変化が予想されます。` :
         `現在の状態を維持しながら、内的な成長を続けてください。`
@@ -767,19 +767,19 @@ export class BunenjinPhilosophyIntegrationEngine {
   }
 
   /**
-   * I ChingとbunenjinアライメントRSSO計算
+   * I ChingとHaQeiアライメントRSSO計算
    */
   private calculateIChinggBunenjinAlignment(hexagram: any, corePhilosophy: BunenjinCorePhilosophy): number {
-    // 卦の特性とbunenjin哲学の整合性を評価
+    // 卦の特性とHaQei哲学の整合性を評価
     let alignment = 0.5;
 
     // 卦の性質に基づく調整
     if (hexagram.name.includes('Creative') || hexagram.name.includes('Receptive')) {
-      alignment += 0.2; // 創造性と受容性はbunenjinと調和
+      alignment += 0.2; // 創造性と受容性はHaQeiと調和
     }
     
     if (hexagram.name.includes('Harmony') || hexagram.name.includes('Peace')) {
-      alignment += 0.3; // 調和と平和はbunenjin核心
+      alignment += 0.3; // 調和と平和はHaQei核心
     }
 
     return Math.min(1, alignment);
@@ -1189,10 +1189,10 @@ export class BunenjinPhilosophyIntegrationEngine {
   }
 
   /**
-   * 大規模bunenjin分析実行
+   * 大規模HaQei分析実行
    */
   async executeMassiveBunenjinAnalysis(users: EnhancedVirtualUser[], config?: BunenjinEvolutionConfig): Promise<BunenjinAnalysisResult[]> {
-    console.log(`🎭 Starting massive bunenjin analysis for ${users.length.toLocaleString()} users`);
+    console.log(`🎭 Starting massive HaQei analysis for ${users.length.toLocaleString()} users`);
     
     const results: BunenjinAnalysisResult[] = [];
     const batchSize = 1000;
@@ -1217,15 +1217,15 @@ export class BunenjinPhilosophyIntegrationEngine {
       results.push(...batchResults.filter(r => r !== null) as BunenjinAnalysisResult[]);
     }
 
-    console.log(`✅ Massive bunenjin analysis completed: ${results.length} users analyzed`);
+    console.log(`✅ Massive HaQei analysis completed: ${results.length} users analyzed`);
     return results;
   }
 
   /**
-   * bunenjin分析生成
+   * HaQei分析生成
    */
   private generateBunenjinAnalysis(user: EnhancedVirtualUser, profile: BunenjinIntegratedProfile): BunenjinAnalysisResult {
-    const analysisId = `bunenjin-analysis-${user.id}-${Date.now()}`;
+    const analysisId = `HaQei-analysis-${user.id}-${Date.now()}`;
     
     // 推奨事項生成
     const recommendations = this.generateRecommendations(profile);
@@ -1266,7 +1266,7 @@ export class BunenjinPhilosophyIntegrationEngine {
 
     // アライメント状況に基づく推奨
     if (profile.overallAlignment < 0.5) {
-      recommendations.immediate.push('bunenjin基礎概念の学習');
+      recommendations.immediate.push('HaQei基礎概念の学習');
       recommendations.immediate.push('日本文化入門書籍の読書');
     }
 
@@ -1327,7 +1327,7 @@ export class BunenjinPhilosophyIntegrationEngine {
     }
 
     if (profile.overallAlignment < 0.3) {
-      risks.push('bunenjin理念との根本的な不調和');
+      risks.push('HaQei理念との根本的な不調和');
     }
 
     return risks;

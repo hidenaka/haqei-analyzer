@@ -12,7 +12,7 @@
 - [x] **並列エージェント12個対応** - 大規模タスク並列処理
 - [x] **24時間メモリ持続性** - クロスセッション記憶保持
 - [x] **87専門MCPツール統合** - 全機能利用可能
-- [x] **HAQEIプロジェクト特化設定** - bunenjin哲学・Triple OS統合
+- [x] **HAQEIプロジェクト特化設定** - HaQei哲学・Triple OS統合
 
 ### 📊 パフォーマンス実績
 - **成功率**: 85.5% (過去24時間)
@@ -36,7 +36,7 @@ CLAUDE_FLOW_PERF_MONITORING=true
 1. **Claude Flow** - AI協調orchestration (87ツール)
 2. **Ruv Swarm** - 分散エージェント協調
 3. **Playwright** - E2Eテスト自動化
-4. **Cipher** - bunenjin哲学記憶管理
+4. **Cipher** - HaQei哲学記憶管理
 5. **Tsumiki** - 構造化品質管理
 6. **Serena** - セマンティックコード分析
 
@@ -68,7 +68,7 @@ npm run mcp:resume
 - ✅ USEP 自動改善システム
 - ✅ パフォーマンス最適化
 - ✅ 本番環境デプロイ準備
-- ✅ bunenjin哲学統合
+- ✅ HaQei哲学統合
 - ✅ Triple OS アーキテクチャ
 - ✅ I-Ching統合システム
 

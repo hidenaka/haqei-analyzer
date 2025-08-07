@@ -252,7 +252,7 @@ const dissonanceManagement = {
 
 ---
 
-## 5. Integration Strategy with bunenjin Philosophy
+## 5. Integration Strategy with HaQei Philosophy
 
 ### 5.1 Philosophical Alignment Requirements
 
@@ -260,8 +260,8 @@ const dissonanceManagement = {
 **Implementation:** Emphasize adaptability over consistency
 
 ```javascript
-// bunenjin philosophy integration
-const bunenjinPrinciples = {
+// HaQei philosophy integration
+const HaQeiPrinciples = {
     strategic_multiplicity: 'Multiple OS patterns as strategic tools',
     situational_wisdom: 'Context-appropriate OS selection',
     evolutionary_mindset: 'Continuous adaptation and growth',
@@ -442,7 +442,7 @@ class CognitiveABTestFramework {
 ### 8.1 Implementation Risks
 
 **High Risk:** Over-complexity leading to analysis paralysis
-**Mitigation:** Maintain bunenjin principle of strategic simplicity
+**Mitigation:** Maintain HaQei principle of strategic simplicity
 
 **Medium Risk:** Cultural misalignment with Western psychology
 **Mitigation:** A/B test cultural adaptation variants

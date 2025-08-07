@@ -2,7 +2,7 @@
 
 ## 🌟 概要
 
-HAQEIアナライザーの統一エラーハンドリングシステムは、bunenjin哲学、易経の変化原理、Triple OS Architectureを統合した世界最高水準のエラー処理システムです。
+HAQEIアナライザーの統一エラーハンドリングシステムは、HaQei哲学、易経の変化原理、Triple OS Architectureを統合した世界最高水準のエラー処理システムです。
 
 ### 🎯 核心設計思想
 
@@ -53,7 +53,7 @@ try {
     const result = await errorSystemIntegrator.handleError(error, {
         context: 'user-action',
         userInitiated: true,
-        bunenjinPersona: 'empathetic'
+        HaQeiPersona: 'empathetic'
     });
     
     console.log('エラー処理結果:', result);
@@ -67,7 +67,7 @@ errorSystemIntegrator.handleError(new Error('カスタムエラー'), {
 });
 ```
 
-### 3. bunenjin分人の活用
+### 3. HaQei分人の活用
 
 ```javascript
 // 分人の設定
@@ -76,7 +76,7 @@ const personaManager = {
         // analytical: 分析的・論理的アプローチ
         // empathetic: 共感的・感情配慮アプローチ  
         // pragmatic: 実用的・効率重視アプローチ
-        window.bunenjinPersona = { activePersona: persona };
+        window.HaQeiPersona = { activePersona: persona };
     }
 };
 
@@ -136,7 +136,7 @@ personaManager.setPersona('pragmatic');
     border-radius: 16px;
 }
 
-/* bunenjin分人別カスタマイズ */
+/* HaQei分人別カスタマイズ */
 .haqei-error-notification.empathetic {
     background: linear-gradient(135deg, #fef7f0, #fed7aa);
     color: #92400e;
@@ -162,7 +162,7 @@ const unifiedErrorHandler = new UnifiedErrorHandler({
     maxErrorHistory: 200,                    // エラー履歴の最大件数
     maxRetryAttempts: 3,                     // 最大再試行回数
     gracefulDegradationEnabled: true,        // グレースフルデグラデーション有効
-    bunenjinModeEnabled: true,               // bunenjin分人モード有効
+    HaQeiModeEnabled: true,               // HaQei分人モード有効
     tripleOSIntegrationEnabled: true,        // Triple OS統合有効
     performanceOptimized: true,              // パフォーマンス最適化有効
     userFriendlyMessages: true,              // ユーザーフレンドリーメッセージ有効
@@ -181,7 +181,7 @@ const degradationManager = new GracefulDegradationManager({
     maxDegradationLevel: 5,                  // 最大縮退レベル
     userNotificationEnabled: true,           // ユーザー通知有効
     performanceMonitoring: true,             // パフォーマンス監視有効
-    bunenjinAdaptation: true                 // bunenjin適応有効
+    HaQeiAdaptation: true                 // HaQei適応有効
 });
 ```
 
@@ -195,7 +195,7 @@ const errorUI = new UserFriendlyErrorUI({
     soundEnabled: false,                     // 音声有効
     hapticEnabled: false,                    // ハプティック有効
     accessibilityMode: false,                // アクセシビリティモード
-    bunenjinPersonalization: true,           // bunenjin個人化有効
+    HaQeiPersonalization: true,           // HaQei個人化有効
     autoHideTimeout: 8000,                   // 自動非表示時間（ミリ秒）
     maxConcurrentNotifications: 3            // 最大同時通知数
 });
@@ -248,7 +248,7 @@ console.log('ログメトリクス:', logMetrics);
 
 ```javascript
 const testSuite = new ErrorTestSuite({
-    bunenjinPersonaTesting: true,            // bunenjin分人テスト有効
+    HaQeiPersonaTesting: true,            // HaQei分人テスト有効
     tripleOSIntegrationTesting: true,        // Triple OS統合テスト有効
     stressTestingEnabled: true,              // ストレステスト有効
     detailedReporting: true                  // 詳細レポート有効
@@ -285,7 +285,7 @@ async function simulateError(type) {
     } catch (error) {
         await errorSystemIntegrator.handleError(error, { 
             testCase: type,
-            bunenjinPersona: getCurrentPersona() 
+            HaQeiPersona: getCurrentPersona() 
         });
     }
 }
@@ -296,7 +296,7 @@ await simulateError('network');
 await simulateError('storage');
 ```
 
-## 🎭 bunenjin分人システム詳細
+## 🎭 HaQei分人システム詳細
 
 ### 分人別エラー対応特性
 
@@ -376,13 +376,13 @@ class BunenjinPersonaManager {
     notifySystemComponents(persona) {
         // すべてのエラーシステムコンポーネントに通知
         if (window.errorSystemIntegrator) {
-            window.errorSystemIntegrator.bunenjinIntegration.currentPersona = persona;
+            window.errorSystemIntegrator.HaQeiIntegration.currentPersona = persona;
         }
     }
 }
 
 // グローバル分人管理
-window.bunenjinPersona = new BunenjinPersonaManager();
+window.HaQeiPersona = new BunenjinPersonaManager();
 ```
 
 ## ⚡ パフォーマンス最適化
@@ -588,7 +588,7 @@ async hideNotification(notificationId: string): Promise<void>
 // テーマ設定
 setTheme(theme: 'harmony' | 'minimal' | 'technical'): void
 
-// bunenjin分人設定
+// HaQei分人設定
 setBunenjinPersona(persona: 'analytical' | 'empathetic' | 'pragmatic'): void
 ```
 
@@ -615,7 +615,7 @@ throw error;
 ### 2. 分人に応じたエラー設計
 
 ```javascript
-// bunenjin分人を考慮したエラー設計
+// HaQei分人を考慮したエラー設計
 const createPersonaAwareError = (baseError, context) => {
     const persona = getCurrentPersona();
     
@@ -666,7 +666,7 @@ logger.error('データベース接続エラー', {
         connectionPool: 'main',
         retryAttempt: 2
     },
-    bunenjin: {
+    HaQei: {
         activePersona: getCurrentPersona(),
         userEmotionalState: 'frustrated'
     },
@@ -704,10 +704,10 @@ logger.error('データベース接続エラー', {
 - GitHub Issues: [HAQEIアナライザー リポジトリ](https://github.com/haqei/analyzer)
 - 技術文書: [開発者ドキュメント](https://docs.haqei.com)
 
-### bunenjin哲学についてのご質問
+### HaQei哲学についてのご質問
 - 哲学的サポート: philosophy@haqei.com
-- bunenjin研究会: [研究会ページ](https://bunenjin.org)
+- HaQei研究会: [研究会ページ](https://HaQei.org)
 
 ---
 
-*このシステムは、bunenjin哲学の「人は複数の分人を持つ存在である」という理念に基づき、エラーという困難な状況においても、それぞれの分人が適切に対応できる調和的なシステムを目指しています。*
+*このシステムは、HaQei哲学の「人は複数の分人を持つ存在である」という理念に基づき、エラーという困難な状況においても、それぞれの分人が適切に対応できる調和的なシステムを目指しています。*

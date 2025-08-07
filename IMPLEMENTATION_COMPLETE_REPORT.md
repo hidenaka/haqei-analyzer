@@ -118,7 +118,7 @@ Switch by complexityLevel:
 └── Level 5: generateComprehensivePaths() → 92% accuracy
     ├── IChingTransformationEngine Integration
     ├── FutureBranchingSystem Integration
-    ├── bunenjin Philosophy Integration
+    ├── HaQei Philosophy Integration
     └── convertTransformationToPaths()
         ↓
     8 High-Quality Scenarios
@@ -284,5 +284,5 @@ $ wc -l public/future_simulator.html
 
 **🌟 実装完了日**: 2025-08-04  
 **🚀 システムバージョン**: 5.0.0-comprehensive  
-**💫 bunenjin哲学**: 完全統合対応  
+**💫 HaQei哲学**: 完全統合対応  
 **⭐ 実装者**: HAQEI Programmer Agent

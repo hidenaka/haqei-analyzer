@@ -4,7 +4,7 @@
  * 目的：
  * - ペルソナベース自動シナリオ生成
  * - Triple OS Architecture統合シナリオ
- * - bunenjin哲学適応型体験設計
+ * - HaQei哲学適応型体験設計
  * - 100万ユーザー対応スケーラブル生成
  * - リアルタイム適応とA/Bテスト
  * - 品質保証付きシナリオ最適化
@@ -29,7 +29,7 @@ export interface GeneratedScenario {
   // ペルソナ適応
   targetPersonaTypes: string[];
   tripleOSAlignment: TripleOSScenarioAlignment;
-  bunenjinElements: BunenjinScenarioElements;
+  HaQeiElements: BunenjinScenarioElements;
   
   // シナリオ構成
   steps: ScenarioStep[];
@@ -82,7 +82,7 @@ export interface TripleOSScenarioAlignment {
 }
 
 /**
- * bunenjinシナリオ要素
+ * HaQeiシナリオ要素
  */
 export interface BunenjinScenarioElements {
   complexityAcceptanceRequired: number;
@@ -193,7 +193,7 @@ export interface DecisionOption {
   description: string;
   consequence: string;
   tripleOSImpact: TripleOSImpact;
-  bunenjinAlignment: number;
+  HaQeiAlignment: number;
   nextStepId?: string;
 }
 
@@ -214,7 +214,7 @@ export interface DecisionWeightingFactors {
   personalityWeight: number;
   contextualWeight: number;
   historicalWeight: number;
-  bunenjinPhilosophyWeight: number;
+  HaQeiPhilosophyWeight: number;
 }
 
 /**
@@ -403,7 +403,7 @@ export interface ScenarioGenerationConfig {
   realTimeOptimization: boolean;
   abTestingEnabled: boolean;
   personalizedContentLevel: number; // 0-1
-  bunenjinPhilosophyIntegration: boolean;
+  HaQeiPhilosophyIntegration: boolean;
   tripleOSIntegration: boolean;
 }
 
@@ -530,8 +530,8 @@ export class AutomaticScenarioEngine {
     }
     
     // 複雑度受容レベル
-    if (user.bunenjinAlignment) {
-      const complexity = user.bunenjinAlignment.complexityAcceptance;
+    if (user.HaQeiAlignment) {
+      const complexity = user.HaQeiAlignment.complexityAcceptance;
       if (complexity > 0.7) factors.push('high-complexity');
       else if (complexity < 0.3) factors.push('low-complexity');
       else factors.push('mid-complexity');
@@ -636,7 +636,7 @@ export class AutomaticScenarioEngine {
         
         targetPersonaTypes: this.extractPersonaTypes(clusterProfile),
         tripleOSAlignment: this.generateTripleOSAlignment(clusterProfile),
-        bunenjinElements: this.generateBunenjinElements(clusterProfile),
+        HaQeiElements: this.generateBunenjinElements(clusterProfile),
         
         steps,
         decisionPoints,

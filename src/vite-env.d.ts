@@ -112,7 +112,7 @@ declare global {
     HAQEI_CONFIG?: {
       apiBaseUrl: string
       version: string
-      bunenjinMode: boolean
+      HaQeiMode: boolean
       ichingMode: boolean
     }
     
@@ -123,8 +123,8 @@ declare global {
     workbox?: any
   }
   
-  // bunenjin philosophy namespace
-  namespace bunenjin {
+  // HaQei philosophy namespace
+  namespace HaQei {
     interface MultipleDividual {
       id: string
       name: string

@@ -48,8 +48,8 @@
       </p>
       
       <div class="philosophy-section">
-        <div class="bunenjin-wisdom">
-          <h3>bunenjin哲学からの洞察</h3>
+        <div class="HaQei-wisdom">
+          <h3>HaQei哲学からの洞察</h3>
           <p>
             迷いもまた一つの「個」の状態です。Multiple Dividualsの概念では、
             どこにいても常に新しい発見があります。道に迷うことで、
@@ -248,7 +248,7 @@ onMounted(() => {
   margin: 3rem 0;
 }
 
-.bunenjin-wisdom,
+.HaQei-wisdom,
 .iching-wisdom {
   background: #f8fafc;
   border-radius: 12px;
@@ -257,7 +257,7 @@ onMounted(() => {
   border-left: 4px solid #3b82f6;
 }
 
-.bunenjin-wisdom h3,
+.HaQei-wisdom h3,
 .iching-wisdom h3 {
   color: #1f2937;
   font-size: 1.25rem;
@@ -265,7 +265,7 @@ onMounted(() => {
   margin-bottom: 1rem;
 }
 
-.bunenjin-wisdom p,
+.HaQei-wisdom p,
 .iching-wisdom p {
   color: #4b5563;
   line-height: 1.7;

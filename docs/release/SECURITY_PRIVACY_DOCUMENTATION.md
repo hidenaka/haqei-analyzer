@@ -2,7 +2,7 @@
 
 ## セキュリティ概要
 
-HAQEI は**bunenjin哲学**に基づき、世界最高レベルのプライバシー保護とセキュリティを実装しています。
+HAQEI は**HaQei哲学**に基づき、世界最高レベルのプライバシー保護とセキュリティを実装しています。
 
 ## プライバシー・セキュリティアーキテクチャ
 
@@ -23,7 +23,7 @@ Layer 3: Database Security (RLS)
 ├── ユーザー分離保証
 └── 管理者権限最小化
 
-Layer 4: bunenjin Philosophy
+Layer 4: HaQei Philosophy
 ├── プライバシー・バイ・デザイン
 ├── データ最小化原則
 └── ユーザー完全制御
@@ -179,7 +179,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
 
-## bunenjin哲学セキュリティ実装
+## HaQei哲学セキュリティ実装
 
 ### 1. プライバシー・バイ・デザイン
 
@@ -435,7 +435,7 @@ interface DataBreachResponse {
   notifyAffectedUsers(): Promise<void>
   provideRemediation(): Promise<void>
   
-  // bunenjin哲学に基づく追加対応
+  // HaQei哲学に基づく追加対応
   providefullTransparency(): Promise<void>
   enhanceUserControls(): Promise<void>
   improvePrivacyMeasures(): Promise<void>
@@ -526,7 +526,7 @@ interface SecurityMetrics {
   incident_response_time: number
   encryption_coverage: number
   
-  // bunenjin指標
+  // HaQei指標
   privacy_satisfaction_score: number
   user_control_utilization: number
   transparency_engagement: number
@@ -561,4 +561,4 @@ interface SecurityMetrics {
 **プライバシー責任者**: Data Protection Officer  
 **最終更新**: 2025-08-03  
 **準拠法**: GDPR, CCPA, 個人情報保護法  
-**セキュリティレベル**: 最高（bunenjin準拠）
+**セキュリティレベル**: 最高（HaQei準拠）

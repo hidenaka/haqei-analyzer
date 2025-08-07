@@ -20,12 +20,12 @@ export const haqeiDemoConfig: ServiceConfig = {
     'future-simulator',
     'os-analysis',
     'strategic-cockpit',
-    'bunenjin-navigation',
+    'HaQei-navigation',
     'iching-integration'
   ],
   customSettings: {
     tripleOSEnabled: true,
-    bunenjinPhilosophy: true,
+    HaQeiPhilosophy: true,
     ichingSystem: true,
     sevenStageNavigation: true,
     gapVisualization: true
@@ -172,7 +172,7 @@ export const haqeiTouchPoints = [
     name: 'ランディングページ',
     criticalityLevel: 0.9,
     haqeiSpecific: {
-      bunenjinResonance: true,
+      HaQeiResonance: true,
       tripleOSIntroduction: true
     }
   },

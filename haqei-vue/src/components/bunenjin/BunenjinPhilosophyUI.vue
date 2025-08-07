@@ -1,34 +1,34 @@
 <template>
-  <div class="bunenjin-philosophy-ui" :class="[themeClass, { 'high-contrast': highContrast }]">
+  <div class="HaQei-philosophy-ui" :class="[themeClass, { 'high-contrast': highContrast }]">
     <!-- 1. 多面性受容インターフェース - Multi-faceted Acceptance Interface -->
-    <section class="bunenjin-multifaceted zen-entrance" aria-label="多面性受容インターフェース">
+    <section class="HaQei-multifaceted zen-entrance" aria-label="多面性受容インターフェース">
       <div class="facet-primary os-element-eastern zen-float">
-        <h3 class="facet-title">{{ translate('bunenjin.facets.primary') }}</h3>
-        <p class="facet-description">{{ translate('bunenjin.facets.primaryDesc') }}</p>
+        <h3 class="facet-title">{{ translate('HaQei.facets.primary') }}</h3>
+        <p class="facet-description">{{ translate('HaQei.facets.primaryDesc') }}</p>
         <div class="facet-indicator">
           <div class="indicator-dot" :style="{ backgroundColor: currentFacet.primaryColor }"></div>
         </div>
       </div>
       
       <div class="facet-secondary os-element-eastern zen-float">
-        <h3 class="facet-title">{{ translate('bunenjin.facets.secondary') }}</h3>
-        <p class="facet-description">{{ translate('bunenjin.facets.secondaryDesc') }}</p>
+        <h3 class="facet-title">{{ translate('HaQei.facets.secondary') }}</h3>
+        <p class="facet-description">{{ translate('HaQei.facets.secondaryDesc') }}</p>
         <div class="facet-indicator">
           <div class="indicator-dot" :style="{ backgroundColor: currentFacet.secondaryColor }"></div>
         </div>
       </div>
       
       <div class="facet-tertiary os-element-eastern zen-float">
-        <h3 class="facet-title">{{ translate('bunenjin.facets.tertiary') }}</h3>
-        <p class="facet-description">{{ translate('bunenjin.facets.tertiaryDesc') }}</p>
+        <h3 class="facet-title">{{ translate('HaQei.facets.tertiary') }}</h3>
+        <p class="facet-description">{{ translate('HaQei.facets.tertiaryDesc') }}</p>
         <div class="facet-indicator">
           <div class="indicator-dot" :style="{ backgroundColor: currentFacet.tertiaryColor }"></div>
         </div>
       </div>
       
       <div class="facet-quaternary os-element-eastern zen-float">
-        <h3 class="facet-title">{{ translate('bunenjin.facets.quaternary') }}</h3>
-        <p class="facet-description">{{ translate('bunenjin.facets.quaternaryDesc') }}</p>
+        <h3 class="facet-title">{{ translate('HaQei.facets.quaternary') }}</h3>
+        <p class="facet-description">{{ translate('HaQei.facets.quaternaryDesc') }}</p>
         <div class="facet-indicator">
           <div class="indicator-dot" :style="{ backgroundColor: currentFacet.quaternaryColor }"></div>
         </div>
@@ -41,8 +41,8 @@
         <div class="harmony-side harmony-side--left change-adaptive">
           <div class="harmony-element">
             <span class="harmony-icon">☯</span>
-            <h4>{{ translate('bunenjin.harmony.balance') }}</h4>
-            <p>{{ translate('bunenjin.harmony.balanceDesc') }}</p>
+            <h4>{{ translate('HaQei.harmony.balance') }}</h4>
+            <p>{{ translate('HaQei.harmony.balanceDesc') }}</p>
           </div>
         </div>
         
@@ -62,8 +62,8 @@
         <div class="harmony-side harmony-side--right change-adaptive">
           <div class="harmony-element">
             <span class="harmony-icon">🌸</span>
-            <h4>{{ translate('bunenjin.harmony.acceptance') }}</h4>
-            <p>{{ translate('bunenjin.harmony.acceptanceDesc') }}</p>
+            <h4>{{ translate('HaQei.harmony.acceptance') }}</h4>
+            <p>{{ translate('HaQei.harmony.acceptanceDesc') }}</p>
           </div>
         </div>
       </div>
@@ -305,11 +305,11 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 /**
- * BunenjinPhilosophyUI - bunenjin哲学完全統合UIコンポーネント
+ * HaQeiPhilosophyUI - HaQei哲学完全統合UIコンポーネント
  * 
  * 目的：
  * - 東洋的美意識と現代UI/UXの完全融合
- * - bunenjin哲学の4つの柱の視覚的表現
+ * - HaQei哲学の4つの柱の視覚的表現
  * - 文化的適応性と包摂的アクセシビリティ
  * - 世界最高レベルの易経診断体験
  * 
@@ -400,7 +400,7 @@ const translate = (key: string, params?: Record<string, any>) => {
 }
 
 // テーマとアクセシビリティ状態
-const themeClass = ref('bunenjin-theme')
+const themeClass = ref('HaQei-theme')
 const highContrast = ref(false)
 const reducedMotion = ref(false)
 const largeFontSize = ref(false)
@@ -492,8 +492,8 @@ const currentFeedback = ref('')
 const disclosureLayers = ref<DisclosureLayer[]>([
   {
     id: 'philosophy',
-    title: 'bunenjin哲学の理解',
-    content: 'bunenjin哲学は、人間の多面性を受容し、調和を追求する東洋的思想です。',
+    title: 'HaQei哲学の理解',
+    content: 'HaQei哲学は、人間の多面性を受容し、調和を追求する東洋的思想です。',
     expanded: false,
     subItems: [
       {
@@ -634,7 +634,7 @@ const isMobile = computed(() => {
 
 <style scoped>
 /* コンポーネント固有のスタイル */
-.bunenjin-philosophy-ui {
+.HaQei-philosophy-ui {
   padding: var(--ma-transcendent) var(--ma-social);
   background: var(--paper-texture);
   min-height: 100vh;
@@ -843,7 +843,7 @@ const isMobile = computed(() => {
 
 /* レスポンシブ調整 */
 @media (max-width: 768px) {
-  .bunenjin-multifaceted {
+  .HaQei-multifaceted {
     grid-template-areas: 
       "primary"
       "secondary"

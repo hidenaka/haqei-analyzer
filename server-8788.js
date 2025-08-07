@@ -4,7 +4,7 @@
  * 目的：
  * - localhost:8788でのFuture Simulatorアクセス提供
  * - クリーンURL（/future_simulator）対応
- * - bunenjin哲学に基づく調和的サーバー管理
+ * - HaQei哲学に基づく調和的サーバー管理
  * 
  * 処理内容：
  * 1. Express静的ファイルサーバー起動
@@ -21,7 +21,7 @@
  * - public/future_simulator.htmlが存在
  * - ポート8788が利用可能
  * 
- * bunenjin哲学統合：
+ * HaQei哲学統合：
  * - Engine OS: 効率的なルーティング処理
  * - Interface OS: ユーザーフレンドリーなURL設計  
  * - Safe Mode OS: 堅牢なエラーハンドリング
@@ -49,6 +49,9 @@ app.use(express.static('public', {
         res.set('Cache-Control', 'public, max-age=300'); // 5分キャッシュ
     }
 }));
+
+// CRITICAL: assets配信設定追加 - H384H64database.js必須
+app.use('/assets', express.static('public/assets'));
 
 // Future Simulator クリーンURL ルーティング
 app.get('/future_simulator', (req, res) => {
@@ -108,7 +111,7 @@ const server = app.listen(PORT, () => {
 │  Public Files: /[filename]              │
 └─────────────────────────────────────────┘
 
-bunenjin哲学統合 ✓
+HaQei哲学統合 ✓
 Triple OS Architecture対応 ✓
 Tsumikiワークフロー品質A級 ✓
 `);

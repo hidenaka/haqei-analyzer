@@ -3,7 +3,7 @@
 ## 🎯 Technical Vision 2025-2030
 
 ### 技術的使命
-**Mission**: bunenjin哲学×AI技術の継続的革新による人類の意識進化支援
+**Mission**: HaQei哲学×AI技術の継続的革新による人類の意識進化支援
 **Vision**: 世界最先端の哲学的AI統合プラットフォームの構築
 **Goal**: 技術と哲学の完全融合による新しい人間理解パラダイムの創造
 
@@ -16,7 +16,7 @@
 ├── Supabase 統合・認証システム
 ├── IndexedDB オフライン対応
 ├── Chart.js データ可視化
-├── bunenjin哲学エンジン完成
+├── HaQei哲学エンジン完成
 ├── Triple OS Architecture実装
 ├── I Ching統合診断システム
 └── 7段階ナビゲーション完成
@@ -46,7 +46,7 @@ interface PhilosophyAIEngine {
   
   // 哲学的推論特化
   philosophicalReasoning: {
-    bunenjinLogic: BunenjinInferenceEngine;
+    HaQeiLogic: BunenjinInferenceEngine;
     iChingIntegration: YiJingAISystem;
     westernPhilosophy: WesternPhilosophyAI;
     culturalAdaptation: CulturalContextAI;
@@ -60,7 +60,7 @@ interface PhilosophyAIEngine {
 interface NeuralPatternSystem {
   personalityModeling: {
     tripleOSDetection: TripleOSNeuralNet;
-    bunenjinClassification: BunenjinDeepLearning;
+    HaQeiClassification: BunenjinDeepLearning;
     dynamicAdaptation: AdaptivePersonalityAI;
   };
   
@@ -135,7 +135,7 @@ interface ConsciousnessInterface {
 // AR/VR哲学的体験システム
 interface ARPhilosophyPlatform {
   visualizations: {
-    bunenjinMapping: AR3DBunenjinSpace;
+    HaQeiMapping: AR3DBunenjinSpace;
     iChingHexagrams: InteractiveHexagramAR;
     philosophicalConcepts: ConceptVisualizationAR;
   };
@@ -213,7 +213,7 @@ interface UniversalConsciousnessPlatform {
 **1. Philosophy-AI Fusion Research**
 ```
 🧠 Research Priorities:
-├── bunenjin思想の数学的モデル化
+├── HaQei思想の数学的モデル化
 ├── I Ching卦象のAI表現系
 ├── 東洋哲学×西洋論理学統合
 └── 意識・認知の計算モデル

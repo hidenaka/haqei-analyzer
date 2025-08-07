@@ -219,7 +219,7 @@ JavaScript総容量: 776.21KB
 - **ESLint**: Clean (0 errors)
 - **Tree-shaking**: 100%適用
 - **Type Safety**: TypeScript対応
-- **bunenjin哲学**: 統合維持
+- **HaQei哲学**: 統合維持
 
 ### パフォーマンステスト
 ```bash
@@ -320,8 +320,8 @@ npm run size:check       # サイズチェック
 - ✅ **品質保証**: Bundle Analyzer導入
 - ✅ **継続運用**: 自動化ツール完備
 
-### bunenjin哲学との統合
-分人（bunenjin）哲学に基づく動的リソース管理により、必要な機能のみを適切なタイミングでロードする効率的なシステムを実現。Triple OS Architectureの独立性を保ちながら、劇的なパフォーマンス改善を達成しました。
+### HaQei哲学との統合
+分人（HaQei）哲学に基づく動的リソース管理により、必要な機能のみを適切なタイミングでロードする効率的なシステムを実現。Triple OS Architectureの独立性を保ちながら、劇的なパフォーマンス改善を達成しました。
 
 **次のPhaseへの準備完了です！** 🚀
 

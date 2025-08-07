@@ -10,7 +10,7 @@
  * - ローカルストレージ最適化 (IndexedDB/Dexie.js)
  * - データ同期・マイグレーション
  * - Triple OS データモデリング
- * - bunenjin哲学に基づくデータプライバシー保護
+ * - HaQei哲学に基づくデータプライバシー保護
  * 
  * 対象タスク: TASK-033～045（データ層統合）
  */
@@ -26,7 +26,7 @@ const AGENT_INFO = {
     version: '1.0.0',
     specialization: 'Database Architecture & Data Integration',
     targetTasks: ['TASK-033', 'TASK-034', 'TASK-035', 'TASK-036', 'TASK-037', 'TASK-038', 'TASK-039', 'TASK-040', 'TASK-041', 'TASK-042', 'TASK-043', 'TASK-044', 'TASK-045'],
-    philosophy: 'bunenjin哲学統合データアーキテクチャ',
+    philosophy: 'HaQei哲学統合データアーキテクチャ',
     tsumikiIntegrated: true
 };
 
@@ -60,7 +60,7 @@ program
                 specifications: [
                     'Triple OS データモデル設計',
                     '易経64卦関連データ構造',
-                    'ユーザープライバシー保護 (bunenjin哲学)',
+                    'ユーザープライバシー保護 (HaQei哲学)',
                     'オフライン対応・データ同期',
                     'Row Level Security実装',
                     'リアルタイムサブスクリプション'
@@ -88,7 +88,7 @@ program
                 haqeiSpecific: {
                     tripleOS: 'Engine/Interface/SafeMode分離設計',
                     iching: '64卦関連データベース統合',
-                    privacy: 'bunenjin哲学に基づくプライバシー設計'
+                    privacy: 'HaQei哲学に基づくプライバシー設計'
                 }
             });
 
@@ -290,7 +290,7 @@ program
                     'パフォーマンス最適化',
                     'プライバシー分離'
                 ],
-                bunenjinIntegration: '易経哲学に基づく調和的データ設計'
+                HaQeiIntegration: '易経哲学に基づく調和的データ設計'
             });
 
             console.log('\n🏗️ Phase 2: データベーススキーマ設計 (/kairo-design)');
@@ -345,18 +345,18 @@ program
 program
     .command('privacy-design')
     .alias('privacy')
-    .description('bunenjin哲学に基づくプライバシー設計')
+    .description('HaQei哲学に基づくプライバシー設計')
     .option('--local-first', 'ローカルファースト原則', true)
     .option('--zero-trust', 'ゼロトラスト原則', true)
     .option('--encryption', '暗号化レベル', 'AES-256')
     .option('--anonymization', 'データ匿名化', true)
     .action(async (options) => {
         try {
-            console.log('🔒 プライバシー設計開始 (bunenjin哲学ベース)...\n');
+            console.log('🔒 プライバシー設計開始 (HaQei哲学ベース)...\n');
 
             console.log('📋 Phase 1: プライバシー要件定義 (/kairo-requirements)');
             const privacyRequirements = await executeTsumikiCommand('kairo-requirements', {
-                philosophy: 'bunenjin - 個人データの尊厳と自主性',
+                philosophy: 'HaQei - 個人データの尊厳と自主性',
                 principles: [
                     'ユーザー主権',
                     'データ最小化',
@@ -408,13 +408,13 @@ program
             console.log(`🔐 暗号化: ${options.encryption}`);
             console.log(`👤 匿名化: ${options.anonymization ? '✅ 有効' : '❌ 無効'}`);
 
-            await saveDesignDocument('privacy-design-bunenjin.md', {
+            await saveDesignDocument('privacy-design-HaQei.md', {
                 requirements: privacyRequirements,
                 design: privacyDesign
             });
 
             console.log('\n✅ プライバシー設計完了！');
-            console.log('📄 設計書: ./docs/implementation/privacy-design-bunenjin.md');
+            console.log('📄 設計書: ./docs/implementation/privacy-design-HaQei.md');
 
         } catch (error) {
             console.error(`❌ プライバシー設計エラー: ${error.message}`);
@@ -478,7 +478,7 @@ program
                 haqeiValidation: [
                     'Triple OSデータ独立性',
                     '易経64卦マッピング正確性',
-                    'bunenjinプライバシー哲学準拠'
+                    'HaQeiプライバシー哲学準拠'
                 ]
             });
 
@@ -564,7 +564,7 @@ program.on('--help', () => {
     console.log('  💾 ローカルストレージ - IndexedDB/Dexie.js最適化、キャッシュ戦略');
     console.log('  🔄 データ同期 - オフライン対応、マイグレーション、整合性保証');
     console.log('  🎯 Triple OS - Engine/Interface/SafeMode データモデリング');
-    console.log('  🔒 プライバシー - bunenjin哲学に基づくデータ保護設計');
+    console.log('  🔒 プライバシー - HaQei哲学に基づくデータ保護設計');
     console.log('');
     console.log('Tsumikiフロー統合:');
     console.log('  📋 /kairo-requirements → 要件定義');
@@ -604,7 +604,7 @@ async function executeTsumikiCommand(command, parameters) {
         status: 'completed',
         aiOptimized: true,
         haqeiDatabaseSpecialized: true,
-        bunenjinPhilosophyIntegrated: true
+        HaQeiPhilosophyIntegrated: true
     };
     
     console.log(`   ✅ /${command} 完了 (データベース特化設計)`);

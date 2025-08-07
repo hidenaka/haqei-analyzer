@@ -1,10 +1,10 @@
 /**
  * HAQEI Scenarios Display UI System - Phase 3 Implementation
- * 8シナリオ美しい表示システム - bunenjin哲学準拠
+ * 8シナリオ美しい表示システム - HaQei哲学準拠
  * 
  * 実装日: 2025年8月6日
  * 担当: HAQEI Programming Agent  
- * 目的: 8シナリオを美しく表示し、矛盾受容とbunenjin哲学を視覚化
+ * 目的: 8シナリオを美しく表示し、矛盾受容とHaQei哲学を視覚化
  */
 
 class ScenariosDisplayUI {
@@ -15,7 +15,7 @@ class ScenariosDisplayUI {
         this.currentScenarios = null;
         this.selectedScenario = null;
         this.contradictionVisualizationEnabled = true;
-        this.bunenjinModeActive = true;
+        this.HaQeiModeActive = true;
         
         // UI State Management
         this.displayStates = {
@@ -31,7 +31,7 @@ class ScenariosDisplayUI {
             fadeInDuration: 600,
             scaleUpDuration: 400,
             contradictionPulseInterval: 3000,
-            bunenjinTransitionDuration: 800
+            HaQeiTransitionDuration: 800
         };
 
         console.log('🎨 ScenariosDisplayUI Phase 3 initialized');
@@ -43,7 +43,7 @@ class ScenariosDisplayUI {
      */
     async displayEightScenarios(scenariosResult, options = {}) {
         try {
-            console.log('🎭 Displaying eight scenarios with bunenjin philosophy...');
+            console.log('🎭 Displaying eight scenarios with HaQei philosophy...');
             
             if (!scenariosResult || !scenariosResult.scenarios) {
                 throw new Error('シナリオデータが必要です');
@@ -58,8 +58,8 @@ class ScenariosDisplayUI {
             // Step 2: レスポンシブレイアウトの設定
             this.setupResponsiveLayout();
 
-            // Step 3: bunenjin哲学ヘッダーの表示
-            await this.displayBunenjinPhilosophyHeader(scenariosResult);
+            // Step 3: HaQei哲学ヘッダーの表示
+            await this.displayHaQeiPhilosophyHeader(scenariosResult);
 
             // Step 4: 8シナリオカードの並列生成
             const scenarioCards = await this.generateScenarioCards(scenariosResult.scenarios);
@@ -111,7 +111,7 @@ class ScenariosDisplayUI {
 
         // コンテナの初期化
         container.innerHTML = '';
-        container.classList.add('phase3-scenarios', 'bunenjin-philosophy');
+        container.classList.add('phase3-scenarios', 'HaQei-philosophy');
         
         this.displayContainer = container;
 
@@ -149,15 +149,15 @@ class ScenariosDisplayUI {
     }
 
     /**
-     * P3-004: bunenjin哲学ヘッダーの表示
+     * P3-004: HaQei哲学ヘッダーの表示
      */
-    async displayBunenjinPhilosophyHeader(scenariosResult) {
+    async displayHaQeiPhilosophyHeader(scenariosResult) {
         const headerHTML = `
-            <div class="bunenjin-philosophy-header fade-in-up">
+            <div class="HaQei-philosophy-header fade-in-up">
                 <div class="philosophy-introduction">
                     <div class="header-icon">🎭</div>
                     <h2 class="philosophy-title">
-                        8つの可能性 - bunenjin 視点分析
+                        8つの可能性 - HaQei 視点分析
                     </h2>
                     <div class="philosophy-subtitle">
                         ${scenariosResult.sourceHexagram.name} から導かれる多様なアプローチ
@@ -168,7 +168,7 @@ class ScenariosDisplayUI {
                     <div class="explanation-card">
                         <div class="card-icon">💡</div>
                         <div class="card-content">
-                            <h4>bunenjin哲学とは</h4>
+                            <h4>HaQei哲学とは</h4>
                             <p>人は複数の「分人」を持ち、状況に応じて異なる側面を表現します。
                             ここでは8つの異なる視点から、あなたの状況への対応策を提示します。</p>
                         </div>
@@ -194,7 +194,7 @@ class ScenariosDisplayUI {
         this.displayContainer.innerHTML += headerHTML;
         
         // ヘッダーアニメーション
-        await this.animateElement('.bunenjin-philosophy-header', 'fadeInUp', 600);
+        await this.animateElement('.HaQei-philosophy-header', 'fadeInUp', 600);
     }
 
     /**
@@ -236,8 +236,8 @@ class ScenariosDisplayUI {
         // 成功確率に基づく視覚的表現
         const probabilityClass = this.getProbabilityClass(scenario.success_probability);
         
-        // bunenjin矛盾要素の表示
-        const contradictions = scenario.bunenjin_contradictions || [];
+        // HaQei矛盾要素の表示
+        const contradictions = scenario.HaQei_contradictions || [];
         const hasContradictions = contradictions.length > 0;
 
         card.innerHTML = `
@@ -291,10 +291,29 @@ class ScenariosDisplayUI {
             </div>
 
             <div class="card-footer">
-                <button class="expand-button" data-scenario="${scenario.id}">
-                    詳細を見る <span class="expand-icon">→</span>
-                </button>
-                <div class="bunenjin-badge" title="bunenjin哲学準拠">
+                <div class="action-buttons">
+                    <button class="expand-button" data-scenario="${scenario.id}" 
+                            aria-label="${scenario.title}の詳細を表示" 
+                            role="button" 
+                            tabindex="0">
+                        詳細を見る <span class="expand-icon">→</span>
+                    </button>
+                    <button class="save-button" data-scenario="${scenario.id}" 
+                            aria-label="${scenario.title}を保存" 
+                            role="button" 
+                            tabindex="0" 
+                            title="ローカルストレージに保存">
+                        <span class="save-icon">💾</span> 保存
+                    </button>
+                    <button class="share-button" data-scenario="${scenario.id}" 
+                            aria-label="${scenario.title}を共有" 
+                            role="button" 
+                            tabindex="0" 
+                            title="クリップボードにコピー">
+                        <span class="share-icon">📤</span> 共有
+                    </button>
+                </div>
+                <div class="HaQei-badge" title="HaQei哲学準拠">
                     <span class="badge-icon">🎭</span>
                     <span class="badge-text">分人視点</span>
                 </div>
@@ -434,11 +453,11 @@ class ScenariosDisplayUI {
                     </div>
                 </div>
                 
-                <div class="bunenjin-principle">
+                <div class="HaQei-principle">
                     <div class="principle-icon">🎭</div>
                     <div class="principle-content">
-                        <h4>bunenjin原理</h4>
-                        <p>${holisticGuidance.meta_guidance?.bunenjin_principle}</p>
+                        <h4>HaQei原理</h4>
+                        <p>${holisticGuidance.meta_guidance?.HaQei_principle}</p>
                     </div>
                 </div>
                 
@@ -484,7 +503,7 @@ class ScenariosDisplayUI {
                     <h4>哲学的洞察</h4>
                 </div>
                 <div class="insight-content">
-                    <p><strong>bunenjin的真理:</strong> ${holisticGuidance.philosophical_insight?.bunenjin_truth}</p>
+                    <p><strong>HaQei的真理:</strong> ${holisticGuidance.philosophical_insight?.HaQei_truth}</p>
                     <p><strong>統合の道:</strong> ${holisticGuidance.philosophical_insight?.integration_path}</p>
                 </div>
             </div>
@@ -497,15 +516,37 @@ class ScenariosDisplayUI {
     }
 
     /**
-     * P3-011: インタラクティブ機能の有効化
+     * P3-011: インタラクティブ機能の有効化（改善版）
      */
     enableInteractiveFeatures() {
+        // インタラクティブ要素のキャッシュ
+        this.interactiveElements = {
+            cards: this.displayContainer.querySelectorAll('.scenario-card'),
+            expandButtons: this.displayContainer.querySelectorAll('.expand-button'),
+            saveButtons: this.displayContainer.querySelectorAll('.save-button'),
+            shareButtons: this.displayContainer.querySelectorAll('.share-button')
+        };
+
         // シナリオカードクリック
         this.displayContainer.addEventListener('click', (e) => {
             if (e.target.matches('.expand-button') || e.target.closest('.expand-button')) {
                 const button = e.target.closest('.expand-button');
                 const scenarioId = button.getAttribute('data-scenario');
                 this.expandScenarioDetails(scenarioId);
+            }
+
+            // 保存ボタンクリック
+            if (e.target.matches('.save-button') || e.target.closest('.save-button')) {
+                const button = e.target.closest('.save-button');
+                const scenarioId = button.getAttribute('data-scenario');
+                this.saveScenarioToStorage(scenarioId);
+            }
+
+            // 共有ボタンクリック
+            if (e.target.matches('.share-button') || e.target.closest('.share-button')) {
+                const button = e.target.closest('.share-button');
+                const scenarioId = button.getAttribute('data-scenario');
+                this.shareScenarioToClipboard(scenarioId);
             }
 
             if (e.target.matches('.scenario-card') || e.target.closest('.scenario-card')) {
@@ -517,8 +558,11 @@ class ScenariosDisplayUI {
         // ホバー効果
         this.setupHoverEffects();
         
-        // キーボードナビゲーション
+        // キーボードナビゲーション（アクセシビリティ改善）
         this.enableKeyboardNavigation();
+        
+        // フォーカス管理
+        this.setupFocusManagement();
         
         // スワイプジェスチャー（モバイル）
         if (window.innerWidth < 768) {
@@ -536,7 +580,7 @@ class ScenariosDisplayUI {
                 <div class="scenarios-loading">
                     <div class="loading-spinner"></div>
                     <div class="loading-text">8つのシナリオを生成中...</div>
-                    <div class="loading-subtitle">bunenjin哲学に基づく多視点分析</div>
+                    <div class="loading-subtitle">HaQei哲学に基づく多視点分析</div>
                 </div>
             `;
         }
@@ -620,6 +664,126 @@ class ScenariosDisplayUI {
         return { success: false, fallback: true };
     }
 
+    /**
+     * 保存機能の実装
+     */
+    async saveScenarioToStorage(scenarioId) {
+        try {
+            const scenario = this.currentScenarios.scenarios.find(s => s.id === scenarioId);
+            if (!scenario) throw new Error('シナリオが見つかりません');
+            
+            const savedScenarios = this.getSavedScenarios();
+            const saveData = {
+                id: scenarioId,
+                title: scenario.title,
+                subtitle: scenario.subtitle,
+                saved_at: new Date().toISOString(),
+                data: scenario
+            };
+            
+            savedScenarios[scenarioId] = saveData;
+            localStorage.setItem('haqei_saved_scenarios', JSON.stringify(savedScenarios));
+            
+            // 保存成功フィードバック
+            this.showSaveSuccessModal(scenario.title);
+            
+            console.log('✅ Scenario saved successfully:', scenarioId);
+            
+        } catch (error) {
+            console.error('❌ Error saving scenario:', error);
+            this.showErrorModal('保存に失敗しました: ' + error.message);
+        }
+    }
+
+    /**
+     * 共有機能の実装
+     */
+    async shareScenarioToClipboard(scenarioId) {
+        try {
+            const scenario = this.currentScenarios.scenarios.find(s => s.id === scenarioId);
+            if (!scenario) throw new Error('シナリオが見つかりません');
+            
+            const shareText = this.formatScenarioForSharing(scenario);
+            
+            if (navigator.clipboard) {
+                await navigator.clipboard.writeText(shareText);
+                this.showShareSuccessModal(scenario.title);
+            } else {
+                // Fallback for older browsers
+                this.fallbackCopyToClipboard(shareText);
+                this.showShareSuccessModal(scenario.title);
+            }
+            
+            console.log('✅ Scenario shared successfully:', scenarioId);
+            
+        } catch (error) {
+            console.error('❌ Error sharing scenario:', error);
+            this.showErrorModal('共有に失敗しました: ' + error.message);
+        }
+    }
+
+    /**
+     * フォーカス管理の設定（アクセシビリティ改善）
+     */
+    setupFocusManagement() {
+        // カード要素にフォーカス可能属性を追加
+        this.displayContainer.querySelectorAll('.scenario-card').forEach((card, index) => {
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('role', 'article');
+            card.setAttribute('aria-labelledby', `scenario-title-${index}`);
+            card.setAttribute('aria-describedby', `scenario-subtitle-${index}`);
+            
+            // タイトルにIDを設定
+            const title = card.querySelector('.scenario-title');
+            const subtitle = card.querySelector('.scenario-subtitle');
+            if (title) title.id = `scenario-title-${index}`;
+            if (subtitle) subtitle.id = `scenario-subtitle-${index}`;
+        });
+        
+        // フォーカストラップの実装
+        this.setupFocusTrap();
+    }
+
+    /**
+     * キーボードナビゲーションの実装
+     */
+    enableKeyboardNavigation() {
+        this.displayContainer.addEventListener('keydown', (e) => {
+            const focusedElement = document.activeElement;
+            const cards = Array.from(this.displayContainer.querySelectorAll('.scenario-card'));
+            const currentIndex = cards.indexOf(focusedElement);
+            
+            switch(e.key) {
+                case 'ArrowDown':
+                case 'ArrowRight':
+                    e.preventDefault();
+                    this.focusNextCard(cards, currentIndex);
+                    break;
+                    
+                case 'ArrowUp':
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    this.focusPreviousCard(cards, currentIndex);
+                    break;
+                    
+                case 'Enter':
+                case ' ':
+                    e.preventDefault();
+                    if (focusedElement.classList.contains('scenario-card')) {
+                        this.selectScenarioCard(focusedElement);
+                    } else if (focusedElement.matches('button')) {
+                        focusedElement.click();
+                    }
+                    break;
+                    
+                case 'Escape':
+                    e.preventDefault();
+                    this.closeModal();
+                    break;
+            }
+        });
+    }
+
     // 簡略化実装メソッド
     adjustLayoutForContent() { /* レイアウト調整 */ }
     generateContradictionNetwork() { return '<div class="network-placeholder">矛盾ネットワーク表示</div>'; }
@@ -634,10 +798,136 @@ class ScenariosDisplayUI {
         });
         card.classList.add('selected');
         this.selectedScenario = card.getAttribute('data-scenario-id');
+        
+        // アクセシビリティ: 選択状態を読み上げに通知
+        card.setAttribute('aria-selected', 'true');
     }
-    setupHoverEffects() { /* ホバー効果設定 */ }
-    enableKeyboardNavigation() { /* キーボードナビゲーション */ }
+    setupHoverEffects() { 
+        this.displayContainer.querySelectorAll('.scenario-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.setAttribute('aria-expanded', 'true');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.setAttribute('aria-expanded', 'false');
+            });
+        });
+    }
     enableSwipeGestures() { /* スワイプジェスチャー */ }
+    
+    // 新規ユーティリティメソッド
+    getSavedScenarios() {
+        try {
+            const saved = localStorage.getItem('haqei_saved_scenarios');
+            return saved ? JSON.parse(saved) : {};
+        } catch (error) {
+            console.error('Error loading saved scenarios:', error);
+            return {};
+        }
+    }
+    
+    formatScenarioForSharing(scenario) {
+        return `🎭 HAQEI シナリオ分析結果\n\n` +
+               `【${scenario.title}】\n` +
+               `${scenario.subtitle}\n\n` +
+               `主要アプローチ: ${scenario.core_approach?.primary}\n` +
+               `実施期間: ${scenario.timeline}\n` +
+               `成功確率: ${this.formatProbability(scenario.success_probability)}\n\n` +
+               `Generated by HAQEI Analyzer - HaQei philosophy`;
+    }
+    
+    fallbackCopyToClipboard(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+    }
+    
+    showSaveSuccessModal(title) {
+        this.showModal('保存完了', `「${title}」を保存しました`);
+    }
+    
+    showShareSuccessModal(title) {
+        this.showModal('共有完了', `「${title}」をクリップボードにコピーしました`);
+    }
+    
+    showErrorModal(message) {
+        this.showModal('エラー', message);
+    }
+    
+    showModal(title, message) {
+        // 既存モーダルがあれば削除
+        const existingModal = document.querySelector('.haqei-modal');
+        if (existingModal) existingModal.remove();
+        
+        const modal = document.createElement('div');
+        modal.className = 'haqei-modal';
+        modal.innerHTML = `
+            <div class="modal-backdrop">
+                <div class="modal-content" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+                    <h3 id="modal-title">${title}</h3>
+                    <p>${message}</p>
+                    <button class="modal-close" aria-label="閉じる">閉じる</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // モーダルクローズ処理
+        modal.querySelector('.modal-close').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-backdrop')) {
+                modal.remove();
+            }
+        });
+        
+        // 3秒後に自動クローズ
+        setTimeout(() => {
+            if (document.contains(modal)) {
+                modal.remove();
+            }
+        }, 3000);
+    }
+    
+    closeModal() {
+        const modal = document.querySelector('.haqei-modal');
+        if (modal) modal.remove();
+    }
+    
+    focusNextCard(cards, currentIndex) {
+        const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % cards.length : 0;
+        cards[nextIndex].focus();
+    }
+    
+    focusPreviousCard(cards, currentIndex) {
+        const prevIndex = currentIndex > 0 ? currentIndex - 1 : cards.length - 1;
+        cards[prevIndex].focus();
+    }
+    
+    setupFocusTrap() {
+        // モーダル表示時のフォーカストラップ実装
+        document.addEventListener('keydown', (e) => {
+            const modal = document.querySelector('.haqei-modal');
+            if (modal && e.key === 'Tab') {
+                const focusableElements = modal.querySelectorAll('[tabindex]:not([tabindex="-1"]), button, input, select, textarea');
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+                
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        });
+    }
 }
 
 // グローバル利用のためのエクスポート

@@ -12,13 +12,13 @@ Future Simulatorのデザイン全面改修をウォーターフォール型エ�
 
 ### 2. 要件定義書
 - 場所: `/docs/FUTURE_SIMULATOR_REQUIREMENTS_v2.md`
-- bunenjin哲学の実現
+- HaQei哲学の実現
 - 目標: ユーザー完了率85%、品質テスト95%
 
 ### 3. UI/UXデザイン仕様書
 - 場所: `/docs/FUTURE_SIMULATOR_DESIGN_SPEC_v2.md`
 - 八卦カラーシステム
-- bunenjin美学（一・簡・和・静）の実装
+- HaQei美学（一・簡・和・静）の実装
 - WCAG 2.1 AA準拠
 
 ### 4. 技術設計書
@@ -39,7 +39,7 @@ Future Simulatorのデザイン全面改修をウォーターフォール型エ�
 - 動的キーワード生成システム
 - 統合分析エンジン（384爻変換）
 - インテリジェントキャッシュ
-- bunenjin哲学の具現化
+- HaQei哲学の具現化
 
 ## 成功指標
 - ユーザー完了率: 69% → 85%

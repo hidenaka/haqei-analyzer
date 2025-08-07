@@ -1,14 +1,14 @@
 /**
- * HAQEI マルチデバイス状態同期システム - bunenjin哲学的連続性保持
+ * HAQEI マルチデバイス状態同期システム - HaQei哲学的連続性保持
  * 
  * 目的：
  * - デバイス間での診断状態のシームレスな同期
- * - bunenjin哲学に基づく一貫した体験の提供
+ * - HaQei哲学に基づく一貫した体験の提供
  * - Triple OS分析の連続性保持
  * - 易経64卦解釈の一貫性維持
  * - オフライン対応と競合解決
  * 
- * bunenjin哲学の統合：
+ * HaQei哲学の統合：
  * - 分人（複数人格）の連続性をデバイス間で保持
  * - コンテキストによる人格変化を考慮した同期
  * - プライバシーを重視した最小限データ共有
@@ -146,14 +146,14 @@ interface ChangeRecord {
 
 // 競合解決
 interface ConflictResolution {
-  strategy: 'last_write_wins' | 'merge' | 'manual' | 'bunenjin_context'
+  strategy: 'last_write_wins' | 'merge' | 'manual' | 'HaQei_context'
   priority: 'server' | 'local' | 'newest' | 'context_aware'
 }
 
 /**
  * マルチデバイス状態同期システム
  * 
- * bunenjin哲学に基づく連続的体験を複数デバイス間で実現
+ * HaQei哲学に基づく連続的体験を複数デバイス間で実現
  */
 export function useMultiDeviceSync(userId: string) {
   const supabase = useSupabase()
@@ -215,7 +215,7 @@ export function useMultiDeviceSync(userId: string) {
   
   // 競合解決設定
   const conflictResolution = reactive<ConflictResolution>({
-    strategy: 'bunenjin_context',
+    strategy: 'HaQei_context',
     priority: 'context_aware'
   })
 
@@ -566,8 +566,8 @@ export function useMultiDeviceSync(userId: string) {
     conflicts.value.push(conflict)
     syncState.conflictCount++
 
-    // bunenjin哲学に基づく自動解決
-    if (conflictResolution.strategy === 'bunenjin_context') {
+    // HaQei哲学に基づく自動解決
+    if (conflictResolution.strategy === 'HaQei_context') {
       resolveBunenjinConflict(conflict)
     } else {
       // 他の解決戦略
@@ -576,7 +576,7 @@ export function useMultiDeviceSync(userId: string) {
   }
 
   /**
-   * bunenjin哲学に基づく競合解決
+   * HaQei哲学に基づく競合解決
    * 
    * 考慮要素：
    * - コンテキスト（どの分人が活動中か）
@@ -597,7 +597,7 @@ export function useMultiDeviceSync(userId: string) {
       // ローカルデータを保持（リモートに送信）
       syncLocalChange(conflict.localData)
     } else {
-      // 統合的解決（bunenjin的統合）
+      // 統合的解決（HaQei的統合）
       const mergedData = mergeByBunenjinPrinciples(conflict.remoteData, conflict.localData)
       applyMergedChange(mergedData)
     }
@@ -607,7 +607,7 @@ export function useMultiDeviceSync(userId: string) {
   }
 
   /**
-   * bunenjinコンテキストの抽出
+   * HaQeiコンテキストの抽出
    */
   function extractBunenjinContext(data: any): any {
     return {
@@ -620,7 +620,7 @@ export function useMultiDeviceSync(userId: string) {
   }
 
   /**
-   * bunenjinコンテキストの分析
+   * HaQeiコンテキストの分析
    */
   function analyzeBunenjinContext(remote: any, local: any): any {
     // 時間的文脈の考慮
@@ -644,7 +644,7 @@ export function useMultiDeviceSync(userId: string) {
   }
 
   /**
-   * bunenjin原則による統合
+   * HaQei原則による統合
    */
   function mergeByBunenjinPrinciples(remoteData: any, localData: any): any {
     // 複数分人の知見を統合
@@ -666,7 +666,7 @@ export function useMultiDeviceSync(userId: string) {
       insights: mergedInsights,
       tripleOS: mergedTripleOS,
       lastMerged: new Date().toISOString(),
-      mergeReason: 'bunenjin_integration'
+      mergeReason: 'HaQei_integration'
     }
   }
 

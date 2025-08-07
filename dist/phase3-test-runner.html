@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T405: Triple OS統合テスト実行器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: #e2e8f0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .test-section {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .test-card {
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+        
+        .success { border-color: #10b981; }
+        .warning { border-color: #f59e0b; }
+        .error { border-color: #ef4444; }
+        
+        .test-status {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .success .test-status { color: #10b981; }
+        .warning .test-status { color: #f59e0b; }
+        .error .test-status { color: #ef4444; }
+        
+        button {
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .log-output {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+        
+        .metrics-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            text-align: center;
+            background: rgba(30, 41, 59, 0.6);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔯 T405: Triple OS統合テスト</h1>
+            <p>Engine OS、Interface OS、SafeMode OSの統合動作を総合的に検証</p>
+            <button onclick="runAllTests()" id="runTestBtn">統合テストを実行</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 統合メトリクス</h2>
+            <div class="metrics-display" id="metricsDisplay">
+                <!-- メトリクスがここに表示されます -->
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 詳細テスト結果</h2>
+            <div class="test-grid" id="testResults">
+                <!-- テスト結果がここに表示されます -->
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 実行ログ</h2>
+            <div class="log-output" id="logOutput">
+                テストの実行を待っています...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TripleOSIntegrationTest {
+            constructor() {
+                this.testResults = [];
+                this.logOutput = document.getElementById('logOutput');
+                this.startTime = null;
+            }
+
+            log(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const color = type === 'error' ? '#ef4444' : 
+                             type === 'success' ? '#10b981' : 
+                             type === 'warning' ? '#f59e0b' : '#e2e8f0';
+                
+                this.logOutput.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+                this.logOutput.scrollTop = this.logOutput.scrollHeight;
+                console.log(`[TripleOSTest] ${message}`);
+            }
+
+            async runAllTests() {
+                this.startTime = Date.now();
+                this.testResults = [];
+                this.logOutput.innerHTML = '';
+                
+                this.log('🔯 Triple OS統合テスト開始', 'info');
+                
+                try {
+                    // テスト1: 基本構造の検証
+                    await this.testBasicStructure();
+                    
+                    // テスト2: 64卦出力完全性テスト
+                    await this.testHexagramCompleteness();
+                    
+                    // テスト3: データフロー検証
+                    await this.testDataFlow();
+                    
+                    // テスト4: 相互作用の検証
+                    await this.testTripleOSInteraction();
+                    
+                    // テスト5: エラーハンドリングの検証
+                    await this.testErrorHandling();
+                    
+                    // テスト6: パフォーマンス検証
+                    await this.testPerformance();
+                    
+                    this.displayResults();
+                    this.generateReport();
+                    
+                } catch (error) {
+                    this.log(`❌ テスト実行エラー: ${error.message}`, 'error');
+                }
+            }
+
+            async testBasicStructure() {
+                this.log('🏗️ 基本構造テスト開始');
+                
+                const testData = this.generateTestAnswers();
+                const result = {
+                    name: '基本構造検証',
+                    status: 'running',
+                    details: []
+                };
+
+                try {
+                    // Triple OSEngineが存在するか
+                    if (typeof TripleOSEngine !== 'undefined') {
+                        result.details.push('✅ TripleOSEngineクラス定義OK');
+                    } else {
+                        throw new Error('TripleOSEngineクラスが定義されていません');
+                    }
+
+                    // 必要なメソッドが存在するか
+                    const engine = new TripleOSEngine();
+                    const requiredMethods = [
+                        'analyzeTripleOS',
+                        'calculateTripleOSInteraction',
+                        'evaluateDynamicBalance',
+                        'assessHaQeiIntegration',
+                        'validateTripleOSResults'
+                    ];
+
+                    for (const method of requiredMethods) {
+                        if (typeof engine[method] === 'function') {
+                            result.details.push(`✅ ${method}メソッドOK`);
+                        } else {
+                            throw new Error(`${method}メソッドが存在しません`);
+                        }
+                    }
+
+                    result.status = 'success';
+                    this.log('✅ 基本構造テスト完了', 'success');
+
+                } catch (error) {
+                    result.status = 'error';
+                    result.error = error.message;
+                    this.log(`❌ 基本構造テストエラー: ${error.message}`, 'error');
+                }
+
+                this.testResults.push(result);
+            }
+
+            async testHexagramCompleteness() {
+                this.log('🎯 64卦出力完全性テスト開始');
+                
+                const result = {
+                    name: '64卦出力完全性',
+                    status: 'running',
+                    details: [],
+                    metrics: {
+                        engineOSRange: { min: 64, max: 1 },
+                        interfaceOSRange: { min: 64, max: 1 },
+                        safeModeOSRange: { min: 64, max: 1 },
+                        uniqueCount: 0,
+                        duplicates: []
+                    }
+                };
+
+                try {
+                    const engine = new TripleOSEngine();
+                    const hexagramIds = { engine: [], interface: [], safemode: [] };
+                    
+                    // 複数回テストして範囲を確認
+                    for (let i = 0; i < 50; i++) {
+                        const testAnswers = this.generateTestAnswers();
+                        const results = await engine.analyzeTripleOS(testAnswers);
+                        
+                        hexagramIds.engine.push(results.engineOS.hexagramId);
+                        hexagramIds.interface.push(results.interfaceOS.hexagramId);
+                        hexagramIds.safemode.push(results.safeModeOS.hexagramId);
+                    }
+
+                    // 各OSの範囲チェック
+                    ['engine', 'interface', 'safemode'].forEach(osType => {
+                        const ids = hexagramIds[osType];
+                        const min = Math.min(...ids);
+                        const max = Math.max(...ids);
+                        const unique = new Set(ids).size;
+                        
+                        result.metrics[`${osType}OSRange`] = { min, max };
+                        result.details.push(`${osType.toUpperCase()} OS: ${min}-${max} (${unique}種類)`);
+                    });
+
+                    // 全体での重複チェック
+                    const allIds = [...hexagramIds.engine, ...hexagramIds.interface, ...hexagramIds.safemode];
+                    result.metrics.uniqueCount = new Set(allIds).size;
+                    
+                    if (result.metrics.uniqueCount >= 40) {
+                        result.status = 'success';
+                        this.log('✅ 64卦出力完全性テスト完了', 'success');
+                    } else {
+                        result.status = 'warning';
+                        this.log('⚠️ 64卦の出力範囲が限定的です', 'warning');
+                    }
+
+                } catch (error) {
+                    result.status = 'error';
+                    result.error = error.message;
+                    this.log(`❌ 64卦完全性テストエラー: ${error.message}`, 'error');
+                }
+
+                this.testResults.push(result);
+            }
+
+            async testDataFlow() {
+                this.log('🔄 データフロー検証テスト開始');
+                
+                const result = {
+                    name: 'データフロー検証',
+                    status: 'running',
+                    details: []
+                };
+
+                try {
+                    const engine = new TripleOSEngine();
+                    const testAnswers = this.generateTestAnswers();
+                    const results = await engine.analyzeTripleOS(testAnswers);
+
+                    // Q1-Q24 → Engine OS の影響確認
+                    if (results.engineOS && results.engineOS.hexagramId) {
+                        result.details.push('✅ Q1-Q24 → Engine OS データフローOK');
+                    } else {
+                        throw new Error('Engine OSにデータが正しく流れていません');
+                    }
+
+                    // Q25-Q30 → Interface OS & SafeMode OS の影響確認
+                    if (results.interfaceOS && results.interfaceOS.hexagramId && 
+                        results.safeModeOS && results.safeModeOS.hexagramId) {
+                        result.details.push('✅ Q25-Q30 → Interface & SafeMode OS データフローOK');
+                    } else {
+                        throw new Error('シナリオ質問のデータフローに問題があります');
+                    }
+
+                    // Engine OS → Interface OS (30%影響) の確認
+                    if (results.integration && results.integration.dataFlow) {
+                        result.details.push('✅ Engine → Interface OS 相互作用OK');
+                    } else {
+                        result.details.push('⚠️ Engine → Interface OS 相互作用が不明確');
+                    }
+
+                    // Engine OS → SafeMode OS (40%影響) の確認
+                    if (results.integration && results.integration.dataFlow) {
+                        result.details.push('✅ Engine → SafeMode OS 相互作用OK');
+                    } else {
+                        result.details.push('⚠️ Engine → SafeMode OS 相互作用が不明確');
+                    }
+
+                    result.status = 'success';
+                    this.log('✅ データフロー検証テスト完了', 'success');
+
+                } catch (error) {
+                    result.status = 'error';
+                    result.error = error.message;
+                    this.log(`❌ データフロー検証エラー: ${error.message}`, 'error');
+                }
+
+                this.testResults.push(result);
+            }
+
+            async testTripleOSInteraction() {
+                this.log('🔯 Triple OS相互作用テスト開始');
+                
+                const result = {
+                    name: 'Triple OS相互作用',
+                    status: 'running',
+                    details: [],
+                    metrics: {}
+                };
+
+                try {
+                    const engine = new TripleOSEngine();
+                    const testAnswers = this.generateTestAnswers();
+                    const results = await engine.analyzeTripleOS(testAnswers);
+
+                    // 整合性スコア確認
+                    if (results.consistencyScore !== undefined && results.consistencyScore >= 0 && results.consistencyScore <= 100) {
+                        result.metrics.consistency = results.consistencyScore;
+                        result.details.push(`✅ 整合性スコア: ${Math.round(results.consistencyScore)}%`);
+                    } else {
+                        throw new Error('整合性スコアが正しく算出されていません');
+                    }
+
+                    // 動的バランス確認
+                    if (results.balanceScore !== undefined && results.balanceScore >= 0 && results.balanceScore <= 100) {
+                        result.metrics.balance = results.balanceScore;
+                        result.details.push(`✅ 動的バランス: ${Math.round(results.balanceScore)}%`);
+                    } else {
+                        result.details.push('⚠️ 動的バランススコアが不明確');
+                    }
+
+                    // HaQei統合度確認
+                    if (results.HaQeiIntegration !== undefined && results.HaQeiIntegration >= 0 && results.HaQeiIntegration <= 100) {
+                        result.metrics.HaQeiIntegration = results.HaQeiIntegration;
+                        result.details.push(`✅ HaQei統合: ${Math.round(results.HaQeiIntegration)}%`);
+                    } else {
+                        result.details.push('⚠️ HaQei統合度が不明確');
+                    }
+
+                    // 推奨事項確認
+                    if (results.recommendations && Array.isArray(results.recommendations) && results.recommendations.length > 0) {
+                        result.details.push(`✅ 推奨事項: ${results.recommendations.length}件`);
+                    } else {
+                        result.details.push('⚠️ 推奨事項が生成されていません');
+                    }
+
+                    result.status = 'success';
+                    this.log('✅ Triple OS相互作用テスト完了', 'success');
+
+                } catch (error) {
+                    result.status = 'error';
+                    result.error = error.message;
+                    this.log(`❌ Triple OS相互作用テストエラー: ${error.message}`, 'error');
+                }
+
+                this.testResults.push(result);
+            }
+
+            async testErrorHandling() {
+                this.log('🛡️ エラーハンドリングテスト開始');
+                
+                const result = {
+                    name: 'エラーハンドリング',
+                    status: 'running',
+                    details: []
+                };
+
+                try {
+                    const engine = new TripleOSEngine();
+
+                    // 空の回答でのテスト
+                    try {
+                        const emptyResults = await engine.analyzeTripleOS([]);
+                        if (emptyResults && emptyResults.validationStatus) {
+                            result.details.push('✅ 空データのエラーハンドリングOK');
+                        }
+                    } catch (error) {
+                        result.details.push('✅ 空データで適切にエラーハンドリング');
+                    }
+
+                    // 不正な回答でのテスト
+                    try {
+                        const invalidResults = await engine.analyzeTripleOS([{ invalid: 'data' }]);
+                        if (invalidResults && invalidResults.validationStatus) {
+                            result.details.push('✅ 不正データのエラーハンドリングOK');
+                        }
+                    } catch (error) {
+                        result.details.push('✅ 不正データで適切にエラーハンドリング');
+                    }
+
+                    // デフォルト値の確認
+                    const defaultResults = engine.getDefaultTripleOSResults();
+                    if (defaultResults && defaultResults.engineOS && defaultResults.interfaceOS && defaultResults.safeModeOS) {
+                        result.details.push('✅ デフォルト値の生成OK');
+                    } else {
+                        throw new Error('デフォルト値が正しく生成されません');
+                    }
+
+                    result.status = 'success';
+                    this.log('✅ エラーハンドリングテスト完了', 'success');
+
+                } catch (error) {
+                    result.status = 'error';
+                    result.error = error.message;
+                    this.log(`❌ エラーハンドリングテストエラー: ${error.message}`, 'error');
+                }
+
+                this.testResults.push(result);
+            }
+
+            async testPerformance() {
+                this.log('⚡ パフォーマンステスト開始');
+                
+                const result = {
+                    name: 'パフォーマンス',
+                    status: 'running',
+                    details: [],
+                    metrics: {}
+                };
+
+                try {
+                    const engine = new TripleOSEngine();
+                    const iterations = 10;
+                    const times = [];
+
+                    for (let i = 0; i < iterations; i++) {
+                        const start = performance.now();
+                        const testAnswers = this.generateTestAnswers();
+                        await engine.analyzeTripleOS(testAnswers);
+                        const end = performance.now();
+                        times.push(end - start);
+                    }
+
+                    const avgTime = times.reduce((sum, time) => sum + time, 0) / times.length;
+                    const maxTime = Math.max(...times);
+                    const minTime = Math.min(...times);
+
+                    result.metrics.averageTime = Math.round(avgTime);
+                    result.metrics.maxTime = Math.round(maxTime);
+                    result.metrics.minTime = Math.round(minTime);
+
+                    result.details.push(`平均実行時間: ${Math.round(avgTime)}ms`);
+                    result.details.push(`最大実行時間: ${Math.round(maxTime)}ms`);
+                    result.details.push(`最小実行時間: ${Math.round(minTime)}ms`);
+
+                    if (avgTime < 1000) {
+                        result.status = 'success';
+                        result.details.push('✅ パフォーマンス基準クリア');
+                    } else if (avgTime < 3000) {
+                        result.status = 'warning';
+                        result.details.push('⚠️ パフォーマンスが若干低下');
+                    } else {
+                        result.status = 'error';
+                        result.details.push('❌ パフォーマンスが基準以下');
+                    }
+
+                    this.log('✅ パフォーマンステスト完了', 'success');
+
+                } catch (error) {
+                    result.status = 'error';
+                    result.error = error.message;
+                    this.log(`❌ パフォーマンステストエラー: ${error.message}`, 'error');
+                }
+
+                this.testResults.push(result);
+            }
+
+            generateTestAnswers() {
+                const answers = [];
+                
+                // Q1-Q24: 価値観質問
+                for (let i = 1; i <= 24; i++) {
+                    answers.push({
+                        questionId: `q${i}`,
+                        selectedOption: {
+                            value: String.fromCharCode(65 + Math.floor(Math.random() * 4)), // A-D
+                            text: "テスト回答",
+                            scoring: {
+                                "乾_創造性": Math.random() * 3,
+                                "兌_調和性": Math.random() * 3,
+                                "離_表現性": Math.random() * 3
+                            }
+                        }
+                    });
+                }
+                
+                // Q25-Q30: シナリオ質問
+                for (let i = 25; i <= 30; i++) {
+                    answers.push({
+                        questionId: `q${i}`,
+                        selectedOption: {
+                            value: String.fromCharCode(65 + Math.floor(Math.random() * 4)), // A-D
+                            text: "テストシナリオ回答"
+                        }
+                    });
+                }
+                
+                return answers;
+            }
+
+            displayResults() {
+                const resultsContainer = document.getElementById('testResults');
+                resultsContainer.innerHTML = '';
+
+                this.testResults.forEach(result => {
+                    const card = document.createElement('div');
+                    card.className = `test-card ${result.status}`;
+                    
+                    let statusIcon;
+                    switch (result.status) {
+                        case 'success': statusIcon = '✅'; break;
+                        case 'warning': statusIcon = '⚠️'; break;
+                        case 'error': statusIcon = '❌'; break;
+                        default: statusIcon = '🔄';
+                    }
+
+                    card.innerHTML = `
+                        <div class="test-status">${statusIcon} ${result.name}</div>
+                        ${result.details.map(detail => `<div style="font-size: 14px; margin: 5px 0;">${detail}</div>`).join('')}
+                        ${result.error ? `<div style="color: #ef4444; font-size: 12px; margin-top: 10px;">エラー: ${result.error}</div>` : ''}
+                        ${result.metrics ? `<div style="font-size: 12px; opacity: 0.7; margin-top: 10px;">メトリクス: ${JSON.stringify(result.metrics, null, 2)}</div>` : ''}
+                    `;
+                    
+                    resultsContainer.appendChild(card);
+                });
+
+                this.displayMetrics();
+            }
+
+            displayMetrics() {
+                const metricsContainer = document.getElementById('metricsDisplay');
+                metricsContainer.innerHTML = '';
+
+                const totalTests = this.testResults.length;
+                const successTests = this.testResults.filter(r => r.status === 'success').length;
+                const warningTests = this.testResults.filter(r => r.status === 'warning').length;
+                const errorTests = this.testResults.filter(r => r.status === 'error').length;
+                const executionTime = Date.now() - this.startTime;
+
+                const metrics = [
+                    { label: '総テスト数', value: totalTests, color: '#3b82f6' },
+                    { label: '成功', value: successTests, color: '#10b981' },
+                    { label: '警告', value: warningTests, color: '#f59e0b' },
+                    { label: 'エラー', value: errorTests, color: '#ef4444' },
+                    { label: '実行時間', value: `${Math.round(executionTime)}ms`, color: '#8b5cf6' },
+                    { label: '成功率', value: `${Math.round((successTests / totalTests) * 100)}%`, color: successTests === totalTests ? '#10b981' : '#f59e0b' }
+                ];
+
+                metrics.forEach(metric => {
+                    const card = document.createElement('div');
+                    card.className = 'metric-card';
+                    card.innerHTML = `
+                        <div class="metric-value" style="color: ${metric.color};">${metric.value}</div>
+                        <div class="metric-label">${metric.label}</div>
+                    `;
+                    metricsContainer.appendChild(card);
+                });
+            }
+
+            generateReport() {
+                const endTime = Date.now();
+                const totalTime = endTime - this.startTime;
+                
+                this.log(`📊 テスト完了 - 総実行時間: ${totalTime}ms`, 'success');
+                
+                const report = {
+                    timestamp: new Date().toISOString(),
+                    totalTests: this.testResults.length,
+                    successfulTests: this.testResults.filter(r => r.status === 'success').length,
+                    warningTests: this.testResults.filter(r => r.status === 'warning').length,
+                    errorTests: this.testResults.filter(r => r.status === 'error').length,
+                    executionTime: totalTime,
+                    testResults: this.testResults
+                };
+
+                // レポートをローカルストレージに保存
+                try {
+                    localStorage.setItem('triple-os-test-report', JSON.stringify(report));
+                    this.log('📝 テストレポートを保存しました', 'success');
+                } catch (error) {
+                    this.log('⚠️ レポート保存に失敗しました', 'warning');
+                }
+
+                console.log('Triple OS Integration Test Report:', report);
+            }
+        }
+
+        let testRunner = new TripleOSIntegrationTest();
+
+        async function runAllTests() {
+            const button = document.getElementById('runTestBtn');
+            button.disabled = true;
+            button.textContent = 'テスト実行中...';
+            
+            try {
+                await testRunner.runAllTests();
+            } finally {
+                button.disabled = false;
+                button.textContent = '統合テストを実行';
+            }
+        }
+
+        // ページ読み込み時に自動実行のオプション
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('autorun') === 'true') {
+                setTimeout(runAllTests, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

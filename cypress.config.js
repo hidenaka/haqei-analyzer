@@ -1,7 +1,7 @@
 /**
  * Cypress E2E Testing Configuration
  * HAQEI Future Simulator I Ching Integration
- * Following bunenjin philosophy with comprehensive testing scenarios
+ * Following HaQei philosophy with comprehensive testing scenarios
  */
 
 const { defineConfig } = require('cypress')
@@ -40,9 +40,9 @@ module.exports = defineConfig({
     chromeWebSecurity: false,
     
     setupNodeEvents(on, config) {
-      // Bunenjin philosophy: Multi-persona testing setup
+      // HaQei philosophy: Multi-persona testing setup
       on('task', {
-        'bunenjin:generatePersonaTestData': (persona) => {
+        'HaQei:generatePersonaTestData': (persona) => {
           const personas = {
             analytical_thinker: {
               preferredInputs: ['detailed_analysis', 'logical_sequences'],
@@ -102,7 +102,7 @@ module.exports = defineConfig({
     supportFile: 'tests/cypress/support/component.js'
   },
   
-  // Bunenjin philosophy configuration
+  // HaQei philosophy configuration
   env: {
     BUNENJIN_PHILOSOPHY_MODE: true,
     ICHING_AUTHENTICITY_CHECK: true,

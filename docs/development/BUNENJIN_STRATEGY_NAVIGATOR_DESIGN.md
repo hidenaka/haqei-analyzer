@@ -2,7 +2,7 @@
 
 ## 📋 概要
 
-HAQEIシステムにおける**bunenjin-strategy-navigator**エージェントは、分人思想のTriple OS Architecture（Engine/Interface/Safe Mode）を活用して、CTO・プログラマー・QAの3つの役割を分業し、組織的ワークフローを最適化する革新的なシステムです。
+HAQEIシステムにおける**HaQei-strategy-navigator**エージェントは、分人思想のTriple OS Architecture（Engine/Interface/Safe Mode）を活用して、CTO・プログラマー・QAの3つの役割を分業し、組織的ワークフローを最適化する革新的なシステムです。
 
 ## 🎯 設計思想
 
@@ -31,7 +31,7 @@ BunenjinStrategyNavigator/
 ├── BunenjinStrategyNavigator.js      # コアエンジン
 ├── OrganizationalWorkflowController.js # ワークフロー制御
 ├── organizational-workflow.css       # 専用スタイル
-└── bunenjin_workflow.html            # フロントエンド
+└── HaQei_workflow.html            # フロントエンド
 ```
 
 ### クラス階層

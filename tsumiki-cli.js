@@ -45,7 +45,7 @@ program
                 feature: featureName,
                 description: description,
                 projectType: 'HAQEI Triple OSシステム',
-                philosophy: 'bunenjin哲学統合',
+                philosophy: 'HaQei哲学統合',
                 qualityStandards: 'A級判定基準'
             });
             
@@ -77,7 +77,7 @@ program
                 tasks: tasks,
                 testFirst: true,
                 qualityStandards: 'A級判定基準',
-                integrationPoints: ['Triple OS', '易経64卦', 'bunenjin哲学']
+                integrationPoints: ['Triple OS', '易経64卦', 'HaQei哲学']
             });
             
             console.log('\\n✅ Tsumiki新機能開発フロー完了！');
@@ -110,7 +110,7 @@ program
                     'データ完全性検証',
                     '統計的有効性検証',
                     'Triple OS整合性検証',
-                    'bunenjin哲学一貫性検証'
+                    'HaQei哲学一貫性検証'
                 ],
                 qualityStandards: {
                     requirementsCoverage: '100%',
@@ -233,7 +233,7 @@ program
             console.log('   - 開発効率: 30-50%向上達成');
             
             console.log('\\n🎯 統合開発環境:');
-            console.log('   🧠 Cipher: bunenjin哲学・プロジェクト記憶');
+            console.log('   🧠 Cipher: HaQei哲学・プロジェクト記憶');
             console.log('   🔍 Serena: セマンティックコード分析');
             console.log('   🎯 Tsumiki: AI駆動標準開発フロー');
             console.log('   = 世界最高レベル開発環境完成');

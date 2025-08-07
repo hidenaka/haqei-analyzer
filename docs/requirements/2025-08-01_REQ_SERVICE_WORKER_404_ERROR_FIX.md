@@ -2,7 +2,7 @@
 
 **作成日**: 2025年8月1日  
 **フェーズ**: Tsumiki `/kairo-requirements`  
-**プロジェクト**: HAQEI Analyzer（bunenjin哲学統合）  
+**プロジェクト**: HAQEI Analyzer（HaQei哲学統合）  
 **対象システム**: Service Worker（haqei-sw.js）・Triple OS Architecture  
 
 ---
@@ -18,7 +18,7 @@
 ### 1.2 影響範囲
 - **ユーザー体験**: 診断完了後の結果画面アクセス失敗
 - **Triple OS Architecture**: Engine/Interface/Safe Mode OSの結果表示が阻害
-- **bunenjin哲学**: 分析結果の可視化が不可能 → 自己理解プロセスの中断
+- **HaQei哲学**: 分析結果の可視化が不可能 → 自己理解プロセスの中断
 
 ### 1.3 技術的詳細
 ```javascript
@@ -67,7 +67,7 @@ function handleRouting(request, pathname) {
 - **復旧性**: エラー発生時の自動復旧機能
 - **ログ**: 詳細な実行トレース記録
 
-#### 2.2.3 bunenjin哲学適合性
+#### 2.2.3 HaQei哲学適合性
 - **プライバシー**: ローカルファースト（外部通信最小化）
 - **適応性**: 易経的変化への対応（動的ルート解決）
 - **透明性**: ユーザーが理解可能なエラーメッセージ
@@ -127,7 +127,7 @@ function handleRouting(request, pathname) {
 
 #### 3.2.3 エラーハンドリング統合
 ```javascript
-// bunenjin哲学統合エラー処理
+// HaQei哲学統合エラー処理
 async function handleFetch(request) {
   try {
     // Phase 1: URL正規化（統計的品質保証）
@@ -177,7 +177,7 @@ async function handleFetch(request) {
 #### 4.2.3 Refactor Phase（最適化）
 - [ ] コードの可読性向上
 - [ ] パフォーマンス最適化
-- [ ] bunenjin哲学との整合性確保
+- [ ] HaQei哲学との整合性確保
 
 ---
 
@@ -257,7 +257,7 @@ async function getResultsFallback() {
 - **ユーザー体験**: エラー画面0件
 
 ### 7.2 定性指標
-- **bunenjin哲学適合性**: 分析結果の確実な可視化
+- **HaQei哲学適合性**: 分析結果の確実な可視化
 - **Triple OS統合**: 3つのOSデータの完全表示
 - **易経的智慧**: 古代の智慧と現代技術の調和
 
@@ -281,14 +281,14 @@ async function getResultsFallback() {
 - [ ] Interface OS: UIコンポーネントの正常動作
 - [ ] Safe Mode OS: エラー時の保護機能動作
 
-### 8.3 bunenjin哲学適合性
+### 8.3 HaQei哲学適合性
 - [ ] プライバシーファースト: ローカル完結処理
 - [ ] 透明性: ユーザー理解可能なエラーメッセージ
 - [ ] 適応性: 変化に対応する柔軟なキャッシュ戦略
 
 ---
 
-**この要件定義書は、HAQEIプロジェクトの「分析結果の確実な可視化」という核心機能を支える重要な基盤修正を定義しています。bunenjin哲学に基づく自己理解の旅路において、技術的障壁を取り除き、ユーザーが自身の多面性を発見できる環境を提供することが最終目標です。**
+**この要件定義書は、HAQEIプロジェクトの「分析結果の確実な可視化」という核心機能を支える重要な基盤修正を定義しています。HaQei哲学に基づく自己理解の旅路において、技術的障壁を取り除き、ユーザーが自身の多面性を発見できる環境を提供することが最終目標です。**
 
 ---
 

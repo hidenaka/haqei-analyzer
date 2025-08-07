@@ -38,7 +38,7 @@ class HAQEIConfigurationManager {
         maxErrorHistory: 200,
         maxRetryAttempts: 3,
         gracefulDegradationEnabled: true,
-        bunenjinModeEnabled: true,
+        HaQeiModeEnabled: true,
         tripleOSIntegrationEnabled: true,
         userFriendlyMessages: true,
         autoRecoveryEnabled: true,

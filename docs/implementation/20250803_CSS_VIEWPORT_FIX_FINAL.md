@@ -239,7 +239,7 @@ const viewportTests = [
 - 操作性の顕著な改善
 - アクセシビリティの完全確保
 
-### bunenjin哲学適合度: **98%**
+### HaQei哲学適合度: **98%**
 - **調和性**: 技術的完璧さと美的調和の実現
 - **実用性**: 全ユーザーが快適に利用可能
 - **持続性**: 将来の拡張に対応する堅牢な基盤
@@ -284,4 +284,4 @@ const viewportTests = [
 ---
 
 *「真の品質とは、ユーザーが気づかないほど自然で、しかし確実に美しい体験を提供することである」*  
-- bunenjin design philosophy
+- HaQei design philosophy

@@ -76,7 +76,7 @@ npm run dev:swarm:resume "ユーザー認証機能実装（続き）" 6
 ### 利用可能なサービス
 
 1. **Serena** - セマンティックコード分析とファイル監視
-2. **Cipher** - bunenjin哲学とプロジェクト記憶管理
+2. **Cipher** - HaQei哲学とプロジェクト記憶管理
 3. **Claude Flow** - AI協調オーケストレーション（87専門ツール）
 4. **Ruv Swarm** - 分散エージェント協調システム
 5. **Tsumiki** - AI駆動開発フレームワーク
@@ -84,7 +84,7 @@ npm run dev:swarm:resume "ユーザー認証機能実装（続き）" 6
 
 ### 🎨 HAQEI固有の機能
 
-- **bunenjin哲学** の自動適用
+- **HaQei哲学** の自動適用
 - **Triple OS Architecture** の維持
 - **易経64卦システム** の統合
 - **ユーザー主権** とプライバシーファースト設計

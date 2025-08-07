@@ -25,14 +25,14 @@
             <div class="test-result pending" id="test-2">2. 3列カードレイアウトの動作</div>
             <div class="test-result pending" id="test-3">3. 64卦情報の正確表示</div>
             <div class="test-result pending" id="test-4">4. スコア可視化の動作</div>
-            <div class="test-result pending" id="test-5">5. bunenjin哲学準拠（参考として表現）</div>
+            <div class="test-result pending" id="test-5">5. HaQei哲学準拠（参考として表現）</div>
             <div class="test-result pending" id="test-6">6. レスポンシブデザイン</div>
             <div class="test-result pending" id="test-7">7. パフォーマンス測定</div>
         </div>
 
         <h2>🎯 テスト実行</h2>
         <button onclick="startResultsTest()">結果表示テスト開始</button>
-        <button onclick="testBunenjinPhilosophy()">bunenjin哲学準拠テスト</button>
+        <button onclick="testHaQeiPhilosophy()">HaQei哲学準拠テスト</button>
         <button onclick="testResponsiveDesign()">レスポンシブテスト</button>
         <button onclick="testPerformance()">パフォーマンステスト</button>
         
@@ -91,15 +91,15 @@
             }
         }
 
-        async function testBunenjinPhilosophy() {
-            log('🎌 bunenjin哲学準拠テスト開始');
+        async function testHaQeiPhilosophy() {
+            log('🎌 HaQei哲学準拠テスト開始');
             
             try {
                 // emergency_haqei.htmlの内容を確認
                 const response = await fetch('/emergency_haqei.html');
                 const html = await response.text();
                 
-                // bunenjin哲学の要素を確認
+                // HaQei哲学の要素を確認
                 const checks = [
                     { pattern: /参考として/g, name: '「参考として」表現' },
                     { pattern: /決定論/g, name: '決定論的表現の回避', invert: true },
@@ -123,14 +123,14 @@
                 
                 if (philosophyScore >= checks.length * 0.75) {
                     setTestResult('test-5', 'pass');
-                    log('✅ bunenjin哲学準拠テスト: 合格 (' + philosophyScore + '/' + checks.length + ')');
+                    log('✅ HaQei哲学準拠テスト: 合格 (' + philosophyScore + '/' + checks.length + ')');
                 } else {
                     setTestResult('test-5', 'fail');
-                    log('❌ bunenjin哲学準拠テスト: 不合格 (' + philosophyScore + '/' + checks.length + ')');
+                    log('❌ HaQei哲学準拠テスト: 不合格 (' + philosophyScore + '/' + checks.length + ')');
                 }
                 
             } catch (error) {
-                log('❌ bunenjin哲学テストエラー: ' + error.message);
+                log('❌ HaQei哲学テストエラー: ' + error.message);
                 setTestResult('test-5', 'fail');
             }
         }
@@ -216,7 +216,7 @@
         
         // 初期メッセージ
         log('🧪 T104 結果表示検証テストスイート準備完了');
-        log('📋 テスト対象: Triple OS結果表示、bunenjin哲学準拠、UI/UX、パフォーマンス');
+        log('📋 テスト対象: Triple OS結果表示、HaQei哲学準拠、UI/UX、パフォーマンス');
         log('🎯 テストを開始するには上記のボタンをクリックしてください');
     </script>
 </body>

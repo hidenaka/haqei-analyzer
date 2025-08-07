@@ -10,14 +10,14 @@
 |----------|----------|------|----------|------|--------|
 | T001 | 統合HTMLファイル作成 | 単一ファイルでの基本構造 | 1.5h | base-template-generator | 最高 |
 | T002 | Critical CSS実装 | Above-the-fold スタイル | 1h | coder | 最高 |
-| T003 | 30問質問データ作成 | bunenjin準拠の質問セット | 2h | haqei-iching-expert | 最高 |
+| T003 | 30問質問データ作成 | HaQei準拠の質問セット | 2h | haqei-iching-expert | 最高 |
 | T004 | 基本JavaScript実装 | 状態管理とナビゲーション | 1.5h | haqei-programmer | 最高 |
 
 ## Phase 2: 機能実装（8時間）
 
 | タスクID | タスク名 | 詳細 | 見積時間 | 担当 | 優先度 |
 |----------|----------|------|----------|------|--------|
-| T101 | ウェルカム画面実装 | bunenjin説明と開始UI | 2h | haqei-programmer | 最高 |
+| T101 | ウェルカム画面実装 | HaQei説明と開始UI | 2h | haqei-programmer | 最高 |
 | T102 | 質問フロー実装 | 30問の表示とナビゲーション | 3h | haqei-programmer | 最高 |
 | T103 | Triple OS計算ロジック | 簡素化された分析エンジン | 2h | haqei-iching-expert | 高 |
 | T104 | 結果表示実装 | Triple OS結果の基本表示 | 1h | coder | 高 |
@@ -36,7 +36,7 @@
 | タスクID | タスク名 | 詳細 | 見積時間 | 担当 | 優先度 |
 |----------|----------|------|----------|------|--------|
 | T301 | ユーザビリティテスト | 実際のユーザー体験確認 | 2h | haqei-qa-tester | 最高 |
-| T302 | bunenjin準拠チェック | 哲学準拠度98%以上確認 | 1h | bunenjin-strategy-navigator | 高 |
+| T302 | HaQei準拠チェック | 哲学準拠度98%以上確認 | 1h | HaQei-strategy-navigator | 高 |
 | T303 | 最終動作確認 | 全機能統合テスト | 1h | haqei-reporter | 高 |
 
 ## 成功指標

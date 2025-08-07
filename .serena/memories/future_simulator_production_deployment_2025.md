@@ -62,6 +62,6 @@ function initializeSampleData() {
 - タスク表: 20250806_タスク表_Future_Simulator本番環境準備.md
 
 ## 注意事項
-- bunenjin哲学の遵守
+- HaQei哲学の遵守
 - 易経（I Ching）要素の正確な実装
 - エンタープライズレベルのセキュリティ基準

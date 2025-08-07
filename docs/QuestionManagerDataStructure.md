@@ -1,12 +1,12 @@
 # QuestionManager データ構造定義
 
-HAQEIアナライザーのbunenjin哲学に準拠した質問データ管理システムのデータ構造を定義します。
+HAQEIアナライザーのHaQei哲学に準拠した質問データ管理システムのデータ構造を定義します。
 
 ## 目次
 
 1. [基本データ構造](#基本データ構造)
 2. [I Ching 8次元構造](#i-ching-8次元構造)
-3. [bunenjin分人構造](#bunenjin分人構造)
+3. [HaQei分人構造](#HaQei分人構造)
 4. [Triple OS Architecture構造](#triple-os-architecture構造)
 5. [キャッシュ構造](#キャッシュ構造)
 6. [パフォーマンス構造](#パフォーマンス構造)
@@ -24,7 +24,7 @@ class QuestionManager {
     this.config = {
       enableCaching: boolean,              // キャッシング有効化
       cacheTimeout: number,                // キャッシュタイムアウト（ms）
-      enableBunenjinMode: boolean,         // bunenjin分人モード
+      enableBunenjinMode: boolean,         // HaQei分人モード
       enableIChing8Dimensions: boolean,    // I Ching 8次元モード
       enableTripleOSMode: boolean,         // Triple OSモード
       enableErrorRecovery: boolean,        // エラー回復機能
@@ -57,9 +57,9 @@ const ProcessedQuestion = {
   type: string,                  // タイプ ('multiple-choice' | 'scenario-choice' | 'unknown')
   difficulty: number,            // 難易度 (0.0-1.0)
   
-  // bunenjin分類
-  bunenjinPersona: string,       // 最適分人 ('analyticalSelf' | 'emotionalSelf' | 'pragmaticSelf' | 'creativeSelf')
-  bunenjinWeight: number,        // bunenjin重要度 (0.0-1.0)
+  // HaQei分類
+  HaQeiPersona: string,       // 最適分人 ('analyticalSelf' | 'emotionalSelf' | 'pragmaticSelf' | 'creativeSelf')
+  HaQeiWeight: number,        // HaQei重要度 (0.0-1.0)
   
   // I Ching 8次元分析
   ichingDimensions: Map,         // 次元別データ Map<string, DimensionData>
@@ -103,8 +103,8 @@ const OptionData = {
   // I Ching分析
   ichingImpact: Map,             // I Ching影響度 Map<string, ImpactData>
   
-  // bunenjin適合度
-  bunenjinAlignment: {           // 分人適合度
+  // HaQei適合度
+  HaQeiAlignment: {           // 分人適合度
     analyticalSelf: number,      // 分析型分人適合度
     emotionalSelf: number,       // 感情型分人適合度
     pragmaticSelf: number,       // 実用型分人適合度
@@ -218,7 +218,7 @@ const DimensionData = {
 };
 ```
 
-## bunenjin分人構造
+## HaQei分人構造
 
 ### 分人システム
 
@@ -251,7 +251,7 @@ const BunenjinPersonas = {
 };
 ```
 
-### bunenjin分析レポート構造
+### HaQei分析レポート構造
 
 ```javascript
 const BunenjinAnalysisReport = {
@@ -348,7 +348,7 @@ const SystemStatistics = {
   totalQuestions: number,       // 総質問数
   categories: string[],         // カテゴリ一覧
   ichingDimensions: string[],   // I Ching次元一覧
-  bunenjinPersonas: string[],   // bunenjin分人一覧
+  HaQeiPersonas: string[],   // HaQei分人一覧
   tripleOSModes: string[],      // Triple OSモード一覧
   performanceMetrics: PerformanceMetrics, // パフォーマンス統計
   errorCount: number,           // エラー数
@@ -430,7 +430,7 @@ const question1 = questionManager.getQuestionById('q1');
 const questionsArray = questionManager.getQuestionsArray();
 ```
 
-### bunenjin分人別検索
+### HaQei分人別検索
 
 ```javascript
 // 分析型分人の質問取得
@@ -455,11 +455,11 @@ const relatedQuestions = questionManager.getRelatedQuestionsByIChing8('q1');
 
 ```javascript
 const searchResults = questionManager.searchQuestions({
-  bunenjinPersona: 'analyticalSelf',
+  HaQeiPersona: 'analyticalSelf',
   ichingDimension: '乾_創造性',
   minDifficulty: 0.3,
   maxDifficulty: 0.8,
-  sortBy: 'bunenjinWeight',
+  sortBy: 'HaQeiWeight',
   sortOrder: 'desc',
   limit: 5
 });
@@ -474,8 +474,8 @@ const stats = questionManager.getSystemStatistics();
 // ヘルスチェック実行
 const health = questionManager.performHealthCheck();
 
-// bunenjin分析レポート
-const bunenjinReport = questionManager.getBunenjinAnalysisReport();
+// HaQei分析レポート
+const HaQeiReport = questionManager.getBunenjinAnalysisReport();
 
 // I Ching次元分析レポート
 const ichingReport = questionManager.getIChing8DimensionReport();
@@ -483,4 +483,4 @@ const ichingReport = questionManager.getIChing8DimensionReport();
 
 ---
 
-この データ構造定義により、HAQEIアナライザーのQuestionManagerシステムの全体像と詳細な実装指針を提供しています。bunenjin哲学・I Ching 8次元・Triple OS Architectureの統合により、世界最高水準の質問データ管理システムを実現できます。
+この データ構造定義により、HAQEIアナライザーのQuestionManagerシステムの全体像と詳細な実装指針を提供しています。HaQei哲学・I Ching 8次元・Triple OS Architectureの統合により、世界最高水準の質問データ管理システムを実現できます。

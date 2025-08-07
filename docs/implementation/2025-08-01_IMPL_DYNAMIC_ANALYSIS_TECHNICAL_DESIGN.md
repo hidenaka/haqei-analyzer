@@ -89,7 +89,7 @@ class DynamicKeywordGenerator {
 
 ```javascript
 /**
- * 統合分析エンジン - bunenjin哲学に基づく7段階包括分析
+ * 統合分析エンジン - HaQei哲学に基づく7段階包括分析
  * 
  * 目的：
  * - ユーザー入力の多次元的分析と易経マッピング

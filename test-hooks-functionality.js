@@ -70,7 +70,7 @@ function testHelloFunction(name = "World") {
  * HAQEI固有機能テスト関数
  * 
  * 目的：
- * - bunenjin哲学との整合性テスト
+ * - HaQei哲学との整合性テスト
  * - Triple OSアーキテクチャ対応確認
  * - プロジェクト固有Hooks動作確認
  * 
@@ -79,7 +79,7 @@ function testHelloFunction(name = "World") {
  * 
  * 処理内容：
  * 1. 指定されたOS種別の妥当性確認
- * 2. bunenjin哲学に基づく処理実行
+ * 2. HaQei哲学に基づく処理実行
  * 3. テスト結果の生成と返却
  * 
  * 出力：
@@ -90,7 +90,7 @@ function testHelloFunction(name = "World") {
  * 
  * 前提条件：
  * - osType が有効な値であること
- * - bunenjin哲学システムが初期化済み
+ * - HaQei哲学システムが初期化済み
  * 
  * エラー処理：
  * - 無効なosType指定時のエラーメッセージ
@@ -112,9 +112,9 @@ function testHaqeiSpecificFunction(osType = "engine") {
         const result = {
             osType,
             status: "success",
-            message: `${osType} OS test completed successfully with bunenjin philosophy integration`,
+            message: `${osType} OS test completed successfully with HaQei philosophy integration`,
             timestamp: new Date().toISOString(),
-            bunenjinAlignment: true,
+            HaQeiAlignment: true,
             tripleOSArchitecture: "verified"
         };
         

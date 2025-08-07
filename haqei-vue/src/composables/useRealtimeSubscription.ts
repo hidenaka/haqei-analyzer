@@ -1,14 +1,14 @@
 /**
- * HAQEI リアルタイムサブスクリプション管理 - bunenjin協調診断システム
+ * HAQEI リアルタイムサブスクリプション管理 - HaQei協調診断システム
  * 
  * 目的：
- * - bunenjin哲学に基づく協調的診断体験の実現
+ * - HaQei哲学に基づく協調的診断体験の実現
  * - 複数デバイス間でのリアルタイム状態同期
  * - Triple OS分析の協調的進行管理
  * - 易経64卦に基づく共鳴的な気づきの共有
  * - メモリ効率的なサブスクリプション管理
  * 
- * bunenjin哲学の統合：
+ * HaQei哲学の統合：
  * - 個人の複数人格（分人）間の協調
  * - 他者との建設的な相互作用
  * - リアルタイムでの気づきと洞察の共有
@@ -36,7 +36,7 @@ import type {
   RealtimeChannel 
 } from '@/types/supabase'
 
-// bunenjin協調診断の設定
+// HaQei協調診断の設定
 interface BunenjinCollaborationConfig {
   // 協調レベル設定
   collaborationLevel: 'individual' | 'pairs' | 'small_group' | 'community'
@@ -172,13 +172,13 @@ interface SubscriptionManager {
 /**
  * リアルタイムサブスクリプション管理システム
  * 
- * bunenjin哲学に基づく協調的診断体験を実現する核となるcomposable
+ * HaQei哲学に基づく協調的診断体験を実現する核となるcomposable
  */
 export function useRealtimeSubscription(userId: string, config?: Partial<BunenjinCollaborationConfig>) {
   const supabase = useSupabase()
   const realtime = useSupabaseRealtime()
   
-  // デフォルト設定（bunenjin哲学に基づく）
+  // デフォルト設定（HaQei哲学に基づく）
   const defaultConfig: BunenjinCollaborationConfig = {
     collaborationLevel: 'small_group',
     allowMutualSupport: true,
@@ -232,7 +232,7 @@ export function useRealtimeSubscription(userId: string, config?: Partial<Bunenji
    * 協調診断セッションの開始
    * 
    * 目的：
-   * - bunenjin哲学に基づく協調的診断の初期化
+   * - HaQei哲学に基づく協調的診断の初期化
    * - リアルタイム同期の開始
    * - 参加者間の相互作用環境準備
    */
@@ -422,7 +422,7 @@ export function useRealtimeSubscription(userId: string, config?: Partial<Bunenji
     const collaboratorData = {
       session_id: sessionId,
       user_id: userId,
-      display_name: `bunenjin_${userId.slice(-6)}`, // 匿名化された表示名
+      display_name: `HaQei_${userId.slice(-6)}`, // 匿名化された表示名
       avatar_color: generateAvatarColor(userId),
       current_phase: 'initial',
       progress_percentage: 0,
@@ -912,7 +912,7 @@ export function useRealtimeSubscription(userId: string, config?: Partial<Bunenji
   }
 
   function extractTags(text: string): string[] {
-    const keywords = ['分人', 'bunenjin', 'triple', 'os', '易経', '卦', '陰陽', '調和', '成長', '洞察']
+    const keywords = ['分人', 'HaQei', 'triple', 'os', '易経', '卦', '陰陽', '調和', '成長', '洞察']
     return keywords.filter(keyword => text.toLowerCase().includes(keyword.toLowerCase()))
   }
 

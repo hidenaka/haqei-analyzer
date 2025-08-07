@@ -5,12 +5,12 @@
 ### プロジェクト情報
 - **作成日**: 2025-08-05
 - **バージョン**: v2.0.0 - 統一エラーハンドリング
-- **対象システム**: HAQEIアナライザー（易経・bunenjin・Triple OS）
+- **対象システム**: HAQEIアナライザー（易経・HaQei・Triple OS）
 - **設計方針**: HAQEI哲学準拠、グレースフルデグラデーション、統一性
 
 ### 設計目標
 1. **統一性**: 全システム横断的な一貫したエラーハンドリング
-2. **哲学準拠**: 易経・bunenjin・Triple OS哲学との整合性
+2. **哲学準拠**: 易経・HaQei・Triple OS哲学との整合性
 3. **復旧力**: グレースフルデグラデーションによる継続運用
 4. **ユーザビリティ**: 直感的で分かりやすいエラーコミュニケーション
 5. **拡張性**: 将来の機能追加に対応できる柔軟な設計
@@ -104,7 +104,7 @@ interface ErrorPropagation {
 
 type ErrorSource = 
   | 'iching-engine'      // 易経エンジン
-  | 'bunenjin-logic'     // bunenjin哲学
+  | 'HaQei-logic'     // HaQei哲学
   | 'triple-os'          // Triple OS
   | 'cache-system'       // キャッシュシステム
   | 'ui-interaction'     // UI操作
@@ -131,7 +131,7 @@ type ErrorSource =
 - **Impact**: 主要機能の一部停止、機能制限
 - **Examples**:
   - 卦計算エンジンのエラー
-  - bunenjin哲学ロジックの不整合
+  - HaQei哲学ロジックの不整合
   - 重要データの読み込み失敗
 - **Recovery**: フォールバック機能による継続運用
 
@@ -160,7 +160,7 @@ interface InputError {
   field: string;
   providedValue: any;
   expectedFormat: string;
-  bunenjinGuidance: string; // bunenjin哲学による指導
+  HaQeiGuidance: string; // HaQei哲学による指導
 }
 ```
 
@@ -209,7 +209,7 @@ interface IChingIntegrityError {
 }
 ```
 
-#### **2.4.2 bunenjin整合性エラー**
+#### **2.4.2 HaQei整合性エラー**
 ```typescript
 interface BunenjinIntegrityError {
   personaConflict: string;
@@ -254,7 +254,7 @@ flowchart TD
     
     subgraph "Philosophy Integration"
         Validate --> IChingCheck[易経原理チェック]
-        Validate --> BunenjinCheck[bunenjin整合性チェック]
+        Validate --> BunenjinCheck[HaQei整合性チェック]
         Validate --> TripleOSCheck[Triple OS整合性チェック]
     end
 ```
@@ -304,7 +304,7 @@ class ErrorClassifier {
   private assessPhilosophyImpact(error: CapturedError): PhilosophyImpact {
     return {
       ichingViolation: this.checkIChingViolation(error),
-      bunenjinInconsistency: this.checkBunenjinInconsistency(error),
+      HaQeiInconsistency: this.checkBunenjinInconsistency(error),
       tripleOSDisruption: this.checkTripleOSDisruption(error)
     };
   }
@@ -316,7 +316,7 @@ class ErrorClassifier {
 class RecoveryStrategyManager {
   private strategies = new Map<ErrorPattern, RecoveryStrategy>([
     ['iching-calculation-error', new IChingFallbackStrategy()],
-    ['bunenjin-navigation-error', new BunenjinGuidanceStrategy()],
+    ['HaQei-navigation-error', new BunenjinGuidanceStrategy()],
     ['triple-os-state-error', new TripleOSResetStrategy()],
     ['cache-corruption-error', new CacheRecoveryStrategy()],
     ['network-failure-error', new OfflineModeStrategy()]
@@ -446,7 +446,7 @@ interface HAQEIErrorMessage {
   philosophical: string;       // 哲学的解釈
   guidance: string;           // 具体的指導
   metaphor: string;           // 易経メタファー
-  bunenjinPerspective: string; // bunenjin観点
+  HaQeiPerspective: string; // HaQei観点
   tripleOSContext: string;    // Triple OS文脈
 }
 
@@ -456,7 +456,7 @@ const messageTemplates = {
     philosophical: '記憶と現在の調和が乱れています',
     guidance: 'データを再読み込みして新しい流れを作りましょう',
     metaphor: '風雷益（42番）- 損して益を得る時です',
-    bunenjinPerspective: '現在の状況に適応した新しい分人で対応します',
+    HaQeiPerspective: '現在の状況に適応した新しい分人で対応します',
     tripleOSContext: 'Safe Mode OSが安全な復旧を支援します'
   }
 };
@@ -537,7 +537,7 @@ class RecoveryGuidanceUI {
   private showPhilosophicalEncouragement(stepIndex: number): void {
     const encouragements = [
       '易経64番「火水未済」- まだ完成していないからこそ可能性があります',
-      'bunenjin哲学 - この困難も新しい分人を発見する機会です',
+      'HaQei哲学 - この困難も新しい分人を発見する機会です',
       'Triple OS - Interface OSが新しい調和を見つけています'
     ];
 
@@ -786,7 +786,7 @@ class ErrorTestScenarioGenerator {
         name: 'Persona navigation conflict',
         error: new Error('Conflicting persona states'),
         context: { operation: 'persona-transition', fromPersona: 'A', toPersona: 'B' },
-        expectedClassification: 'bunenjin-navigation-error',
+        expectedClassification: 'HaQei-navigation-error',
         expectedRecoveryStrategy: 'BunenjinGuidanceStrategy',
         philosophyExpectation: 'Should provide persona guidance'
       }
@@ -1066,7 +1066,7 @@ describe('Error Handling Performance', () => {
 
 #### **Phase 3: Philosophy Integration (Week 5-6)**
 1. 易経整合性チェック強化
-2. bunenjin ナビゲーション統合
+2. HaQei ナビゲーション統合
 3. Triple OS アーキテクチャ統合
 4. 哲学的ガイダンス生成
 
@@ -1094,7 +1094,7 @@ describe('Error Handling Performance', () => {
 
 #### **8.2.2 Philosophy Alignment Checklist**
 - [ ] 易経原理との整合性確認
-- [ ] bunenjin哲学との一貫性
+- [ ] HaQei哲学との一貫性
 - [ ] Triple OS アーキテクチャ準拠
 - [ ] 序卦伝論理の維持
 - [ ] 変化の原理への対応
@@ -1250,7 +1250,7 @@ class ErrorLogMigration {
       ...errorLog,
       philosophyGuidance,
       ichingInterpretation: await this.generateIChingInterpretation(errorLog),
-      bunenjinPerspective: await this.generateBunenjinPerspective(errorLog),
+      HaQeiPerspective: await this.generateBunenjinPerspective(errorLog),
       tripleOSContext: await this.generateTripleOSContext(errorLog)
     };
   }
@@ -1286,7 +1286,7 @@ class ErrorLogMigration {
 #### **10.2.2 哲学的整合性指標**
 - **哲学的ガイダンス有用性**: > 80%
 - **易経メタファー理解度**: > 70%
-- **bunenjin 適用性**: > 75%
+- **HaQei 適用性**: > 75%
 - **Triple OS 体感**: > 85%
 
 ---
@@ -1304,7 +1304,7 @@ class ErrorLogMigration {
 
 #### **11.1.2 Philosophy Integration References**
 - 易経64卦システム完全マップ
-- bunenjin哲学実装ガイド
+- HaQei哲学実装ガイド
 - Triple OS アーキテクチャ仕様
 - 序卦伝論理実装パターン
 
@@ -1342,7 +1342,7 @@ abstract class CustomErrorHandler extends BaseErrorHandler {
     "enableAnalytics": true,
     "philosophySettings": {
       "ichingValidation": true,
-      "bunenjinGuidance": true,
+      "HaQeiGuidance": true,
       "tripleOSIntegration": true
     },
     "notifications": {
@@ -1370,4 +1370,4 @@ abstract class CustomErrorHandler extends BaseErrorHandler {
 
 ---
 
-*この設計書は HAQEIアナライザーの哲学的整合性を保ちながら、世界最高水準のエラーハンドリングシステムの実現を目指しています。易経の変化の原理、bunenjin哲学の柔軟性、Triple OS アーキテクチャの安定性を統合した、革新的なエラーハンドリングソリューションです。*
+*この設計書は HAQEIアナライザーの哲学的整合性を保ちながら、世界最高水準のエラーハンドリングシステムの実現を目指しています。易経の変化の原理、HaQei哲学の柔軟性、Triple OS アーキテクチャの安定性を統合した、革新的なエラーハンドリングソリューションです。*

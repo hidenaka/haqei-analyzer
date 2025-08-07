@@ -74,7 +74,7 @@ Risk Level: MEDIUM
 
 Why Second Priority:
   ✅ 90% Future Simulator provides shocking accuracy content
-  ✅ bunenjin philosophy creates unique viral talking points
+  ✅ HaQei philosophy creates unique viral talking points
   ✅ Immediate user acquisition impact
   ✅ Amplifies effectiveness of Layer 5 automation
 
@@ -382,9 +382,9 @@ interface Tier3KPIs {
   
   sustainability: {
     brandEquity: number;             // Target: ¥500M brand valuation
-    culturalImpact: number;          // Target: 1M people impacted by bunenjin
+    culturalImpact: number;          // Target: 1M people impacted by HaQei
     academicInfluence: number;       // Target: 10 university partnerships
-    thoughtLeadership: number;       // Target: Global bunenjin philosophy recognition
+    thoughtLeadership: number;       // Target: Global HaQei philosophy recognition
   };
 }
 ```

@@ -18,7 +18,7 @@
 ### 2. 精度管理システム
 - **ファイル**: `/src/composables/useFutureSimulatorPrecision.ts`
 - **機能**: 90%+精度維持・継続監視
-- **特徴**: bunenjin哲学統合・Triple OS最適化
+- **特徴**: HaQei哲学統合・Triple OS最適化
 
 ### 3. 精度最適化エンジン
 - **ファイル**: `/src/utils/precisionOptimizer.ts`
@@ -27,7 +27,7 @@
 
 ## 🔧 核心技術仕様
 
-### bunenjin哲学統合システム
+### HaQei哲学統合システム
 ```typescript
 interface BunenjinWeights {
   multiplicityAcceptance: 0.85    // 多面性受容度
@@ -102,7 +102,7 @@ interface TripleOSWeights {
 
 ## 💡 技術的イノベーション
 
-### 1. bunenjin哲学の実装
+### 1. HaQei哲学の実装
 - **多面性受容**: 矛盾する予測を同時に受け入れ
 - **調和追求**: 対立する要素間の最適バランス発見
 - **文脈適応**: 状況に応じた動的パラメータ調整
@@ -156,7 +156,7 @@ interface TripleOSWeights {
 - **競合比較**: +6-16ポイント優位
 
 ### 革新性
-- bunenjin哲学の実用化: **世界初**
+- HaQei哲学の実用化: **世界初**
 - Triple OS統合診断: **独自技術**
 - 自動精度回復: **特許申請レベル**
 
@@ -165,7 +165,7 @@ interface TripleOSWeights {
 HAQEIのFuture Simulatorは、Day 3の91.3%精度を基盤として、世界最高レベルの易経診断精度を実現・維持するシステムを完成させました。
 
 ### 主要成功要因
-1. **bunenjin哲学**: 多面性受容による柔軟な予測
+1. **HaQei哲学**: 多面性受容による柔軟な予測
 2. **Triple OS統合**: 人格システムの総合的活用
 3. **自動品質管理**: 継続的精度維持メカニズム
 4. **包括的テスト**: 1000+ケースでの検証完了

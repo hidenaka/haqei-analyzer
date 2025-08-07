@@ -4,7 +4,7 @@
  * 
  * 実装日: 2025年8月6日
  * 担当: HAQEI Programming Agent  
- * 目的: 易経分析結果の美しく分かりやすい表示とbunenjin哲学準拠のUI
+ * 目的: 易経分析結果の美しく分かりやすい表示とHaQei哲学準拠のUI
  */
 
 class IChingResultsDisplay {
@@ -51,8 +51,8 @@ class IChingResultsDisplay {
             // メイン結果の構築と表示
             await this.buildMainResults();
             
-            // bunenjin解釈の表示
-            await this.displayBunenjinInterpretation();
+            // HaQei解釈の表示
+            await this.displayHaQeiInterpretation();
             
             // インタラクティブ要素の追加
             if (this.options.enableInteraction) {
@@ -91,7 +91,7 @@ class IChingResultsDisplay {
                 <div class="results-body" id="results-body">
                     <div class="classical-interpretation" id="classical-interpretation"></div>
                     <div class="modern-interpretation" id="modern-interpretation"></div>
-                    <div class="bunenjin-perspectives" id="bunenjin-perspectives"></div>
+                    <div class="HaQei-perspectives" id="HaQei-perspectives"></div>
                 </div>
                 
                 <div class="results-actions" id="results-actions">
@@ -297,26 +297,26 @@ class IChingResultsDisplay {
     }
 
     /**
-     * P2-014: bunenjin解釈表示（Phase 2の核心機能）
+     * P2-014: HaQei解釈表示（Phase 2の核心機能）
      */
-    async displayBunenjinInterpretation() {
-        const bunenjinContainer = document.getElementById('bunenjin-perspectives');
-        if (!bunenjinContainer) return;
+    async displayHaQeiInterpretation() {
+        const HaQeiContainer = document.getElementById('HaQei-perspectives');
+        if (!HaQeiContainer) return;
         
-        const interpretation = this.currentResults.bunenjinInterpretation;
+        const interpretation = this.currentResults.HaQeiInterpretation;
         if (!interpretation) {
-            bunenjinContainer.innerHTML = '<div class="no-bunenjin">bunenjin解釈が利用できません</div>';
+            HaQeiContainer.innerHTML = '<div class="no-HaQei">HaQei解釈が利用できません</div>';
             return;
         }
         
-        bunenjinContainer.innerHTML = `
-            <div class="interpretation-section bunenjin-section">
+        HaQeiContainer.innerHTML = `
+            <div class="interpretation-section HaQei-section">
                 <h3 class="section-title">
                     <span class="title-icon">👥</span>
-                    bunenjin哲学による多視点解釈
+                    HaQei哲学による多視点解釈
                 </h3>
                 
-                <div class="bunenjin-intro">
+                <div class="HaQei-intro">
                     <p class="philosophy-explanation">
                         人間は一つの統一された自己ではなく、状況に応じて異なる「分人」を表現します。
                         以下は、あなたの異なる分人の視点からの解釈です。
@@ -341,7 +341,7 @@ class IChingResultsDisplay {
         
         // インタラクティブタブ機能
         if (this.options.enableInteraction) {
-            this.setupBunenjinTabs();
+            this.setupHaQeiTabs();
         }
     }
 
@@ -458,8 +458,8 @@ class IChingResultsDisplay {
                 </div>
                 
                 <div class="philosophical-note">
-                    <p class="bunenjin-note">
-                        💡 <strong>bunenjin哲学から</strong>: 
+                    <p class="HaQei-note">
+                        💡 <strong>HaQei哲学から</strong>: 
                         これらの視点は同時に存在し得ます。矛盾を恐れず、状況に応じて適切な分人を発揮してください。
                     </p>
                 </div>
@@ -748,7 +748,7 @@ class IChingResultsDisplay {
                     </div>
                     
                     <div class="metadata">
-                        <p><small>HAQEI マルチバース・アナライザー | bunenjin Philosophy Compliant</small></p>
+                        <p><small>HAQEI マルチバース・アナライザー | HaQei Philosophy Compliant</small></p>
                     </div>
                 </body>
             </html>
@@ -892,7 +892,7 @@ class IChingResultsDisplay {
             '<p>状況に応じた適切な行動をとってください</p>';
     }
     generateTimingGuidance() { return '適切なタイミングを見極めることが重要です'; }
-    setupBunenjinTabs() { /* タブ機能設定 */ }
+    setupHaQeiTabs() { /* タブ機能設定 */ }
     addReadAloudButton() { /* 読み上げ機能 */ }
     setupKeyboardNavigation() { /* キーボードナビゲーション */ }
     setupAccessibilityFeatures() { /* アクセシビリティ */ }

@@ -367,11 +367,11 @@ export class AutomatedTestingQualityAssuranceSystem {
       testFunction: this.testScenarioGenerationQuality.bind(this)
     });
 
-    // bunenjin統合テストケース
+    // HaQei統合テストケース
     usepIntegrationSuite.testCases.push({
-      id: 'bunenjin-integration-test',
-      name: 'bunenjin哲学統合テスト',
-      description: 'bunenjin哲学統合の正確性・調和性検証',
+      id: 'HaQei-integration-test',
+      name: 'HaQei哲学統合テスト',
+      description: 'HaQei哲学統合の正確性・調和性検証',
       category: 'quality',
       priority: 'high',
       componentType: 'BUNENJIN_ENGINE',
@@ -1794,7 +1794,7 @@ async function optimizePerformance() {
   }
 
   private async testBunenjinIntegration(testData: any): Promise<any> {
-    // bunenjin統合テストのシミュレーション
+    // HaQei統合テストのシミュレーション
     const startTime = Date.now();
     
     const profiles = [];

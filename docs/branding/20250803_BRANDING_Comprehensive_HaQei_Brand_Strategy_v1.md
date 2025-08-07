@@ -10,15 +10,15 @@
 ## 🎯 エグゼクティブサマリー
 
 ### HaQei独自価値提案の明確化
-**「世界初：bunenjin哲学×易経×AI融合による深層自己理解プラットフォーム」**
+**「世界初：HaQei哲学×易経×AI融合による深層自己理解プラットフォーム」**
 
-HaQeiは単なる性格診断ツールではなく、古代の智慧（易経）と最新AI技術、そして独自のbunenjin哲学を融合した革新的な自己改善プラットフォームです。Triple OS理論（Engine OS・Interface OS・SafeMode OS）による3つの人格システム分析により、ユーザーの深層心理と行動パターンを解明し、具体的な人生戦略を提供します。
+HaQeiは単なる性格診断ツールではなく、古代の智慧（易経）と最新AI技術、そして独自のHaQei哲学を融合した革新的な自己改善プラットフォームです。Triple OS理論（Engine OS・Interface OS・SafeMode OS）による3つの人格システム分析により、ユーザーの深層心理と行動パターンを解明し、具体的な人生戦略を提供します。
 
 ### 戦略ゴール
 - **認知度向上**: ターゲット層での認知率を6ヶ月で30%達成
 - **ブランド差別化**: 競合との明確な差別化ポイント確立  
 - **有機的成長**: 営業依存からブランド牽引型成長への転換
-- **プレミアム価値**: bunenjin哲学による高付加価値サービス確立
+- **プレミアム価値**: HaQei哲学による高付加価値サービス確立
 
 ---
 
@@ -29,7 +29,7 @@ HaQeiは単なる性格診断ツールではなく、古代の智慧（易経）
 #### 圧倒的差別化要素
 ```typescript
 const UNIQUE_VALUE_PROPS = {
-  bunenjinPhilosophy: {
+  HaQeiPhilosophy: {
     description: '古代智慧と現代技術の融合思想',
     differentiation: '他社にない哲学的深度',
     userBenefit: '表面的分析を超越した本質的理解'
@@ -63,10 +63,10 @@ const UNIQUE_VALUE_PROPS = {
 | ミイダス | 適性検査 | 浅い | 低い | なし |
 | ストレングス・ファインダー | 強み発見 | 中程度 | 中程度 | 西洋心理学 |
 | エニアグラム | 性格分類 | 深い | 高い | 西洋哲学 |
-| **HaQei** | **Triple OS×易経×AI** | **最深** | **最高** | **bunenjin哲学** |
+| **HaQei** | **Triple OS×易経×AI** | **最深** | **最高** | **HaQei哲学** |
 
 #### HaQeiの競合優位性
-1. **哲学的深度**: bunenjin思想による本質的洞察
+1. **哲学的深度**: HaQei思想による本質的洞察
 2. **技術革新**: AI×古代智慧の世界初融合
 3. **継続価値**: 自己進化型プラットフォーム
 4. **文化的共鳴**: 東洋思想による文化的親和性
@@ -159,7 +159,7 @@ SNSでは表面的な自己表現が溢れ、仕事では役割に縛られ、
 現代のAI技術を融合させることで、
 表面を超えた「真の自己理解」が可能になると確信しました。
 
-bunenjin哲学は、この融合を支える思想です。
+HaQei哲学は、この融合を支える思想です。
 驚き（外界への開放性）、慣れ（経験の蓄積）、分かる（深い理解）
 という3段階を通じて、人は真の成長を遂げるのです。
 
@@ -188,7 +188,7 @@ const NARRATIVE_STRATEGY = {
     story: 'HaQei独自アプローチの紹介',
     content: [
       '「易経×AI融合の革新性」',
-      '「bunenjin哲学の深い洞察」',
+      '「HaQei哲学の深い洞察」',
       '「Triple OS理論の多角的分析」'
     ],
     goal: '差別化価値の理解促進'
@@ -238,9 +238,9 @@ const OWNED_MEDIA_STRATEGY = {
     },
     
     pillar2: {
-      theme: 'bunenjin哲学の実践',
+      theme: 'HaQei哲学の実践',
       content: [
-        '日常で活かすbunenjin思考法',
+        '日常で活かすHaQei思考法',
         '驚き→慣れ→分かるの実践例',
         '古代智慧の現代活用術'
       ],
@@ -273,7 +273,7 @@ const THOUGHT_LEADERSHIP = {
     topics: [
       '古代智慧×現代技術の融合論',
       '東洋哲学的AI開発アプローチ',
-      'bunenjin哲学による技術倫理'
+      'HaQei哲学による技術倫理'
     ],
     tactics: [
       '専門メディアへの寄稿',
@@ -285,7 +285,7 @@ const THOUGHT_LEADERSHIP = {
   contentStrategy: {
     whitepapers: [
       '「AI時代の自己理解：易経的アプローチの可能性」',
-      '「bunenjin哲学による持続可能な技術発展」',
+      '「HaQei哲学による持続可能な技術発展」',
       '「Triple OS理論：新しい人格分析フレームワーク」'
     ],
     researchReports: [
@@ -303,7 +303,7 @@ const THOUGHT_LEADERSHIP = {
 const MEDIA_HOOKS = {
   uniquenessAngles: [
     '世界初：5000年の易経とAIの融合プラットフォーム',
-    '日本発：bunenjin哲学による新しい技術観',
+    '日本発：HaQei哲学による新しい技術観',
     '従来の16型性格診断を超える384パターン分析'
   ],
   
@@ -422,7 +422,7 @@ const MICRO_INFLUENCERS = {
     {
       expertise: '東洋哲学・スピリチュアル',
       count: 25,
-      approach: 'bunenjin哲学の実践的活用',
+      approach: 'HaQei哲学の実践的活用',
       totalReach: 1250000
     }
   ]
@@ -489,7 +489,7 @@ const VIRAL_CAMPAIGN_1 = {
   },
   incentives: [
     '最も深い洞察をシェアした人にプレミアム1年無料',
-    '毎月抽選でbunenjin哲学書籍プレゼント',
+    '毎月抽選でHaQei哲学書籍プレゼント',
     'インフルエンサーからの「いいね」獲得チャンス'
   ],
   expectedOutcome: {
@@ -550,7 +550,7 @@ const NEWSJACKING_STRATEGY = {
     },
     {
       trigger: 'AI倫理に関する議論',
-      response: 'bunenjin哲学によるAI開発倫理の提言'
+      response: 'HaQei哲学によるAI開発倫理の提言'
     }
   ]
 }
@@ -586,7 +586,7 @@ const PREMIUM_EXPERIENCE_DESIGN = {
     ],
     experience: {
       emotion: '驚き・発見',
-      content: 'bunenjin哲学「驚き」段階の体現',
+      content: 'HaQei哲学「驚き」段階の体現',
       value: '他では得られない深い洞察の一端'
     },
     optimizations: [
@@ -604,7 +604,7 @@ const PREMIUM_EXPERIENCE_DESIGN = {
     ],
     experience: {
       emotion: '理解・共感',
-      content: 'bunenjin哲学「慣れ」段階の実現',
+      content: 'HaQei哲学「慣れ」段階の実現',
       value: '継続的学びと成長の機会'
     }
   },
@@ -617,7 +617,7 @@ const PREMIUM_EXPERIENCE_DESIGN = {
     ],
     experience: {
       emotion: '確信・決断',
-      content: 'bunenjin哲学「分かる」段階の到達',
+      content: 'HaQei哲学「分かる」段階の到達',
       value: '人生戦略の明確化と実行支援'
     }
   }
@@ -633,7 +633,7 @@ const BRAND_TOUCHPOINT_OPTIMIZATION = {
     designPrinciples: [
       '古代と現代の調和したビジュアル',
       '直感的でありながら深みのあるUI',
-      'bunenjin哲学を体現したUX設計'
+      'HaQei哲学を体現したUX設計'
     ],
     keyElements: {
       hero: '「5000年の智慧で、あなたの本質を照らす」',
@@ -649,14 +649,14 @@ const BRAND_TOUCHPOINT_OPTIMIZATION = {
       imagery: '自然・宇宙・古典美術の融合'
     },
     contentStrategy: {
-      educational: '易経・bunenjin哲学の日常活用術',
+      educational: '易経・HaQei哲学の日常活用術',
       inspirational: '深い自己理解による人生変革事例',
       interactive: 'ユーザー参加型コンテンツ・チャレンジ'
     }
   },
   
   customerSupport: {
-    philosophy: 'bunenjin思想に基づく誠実な対応',
+    philosophy: 'HaQei思想に基づく誠実な対応',
     approach: [
       '相手の本質を理解しようとする姿勢',
       '表面的解決ではなく根本的支援',
@@ -887,7 +887,7 @@ const BRAND_AWARENESS_KPIS = {
     organicSearchVolume: {
       baseline: 500, // 月間
       month6Target: 5000, // 月間
-      keywords: ['HaQei', 'bunenjin', 'Triple OS']
+      keywords: ['HaQei', 'HaQei', 'Triple OS']
     },
     
     socialMentions: {
@@ -993,7 +993,7 @@ const MEASUREMENT_SYSTEM = {
 const COMPETITIVE_DIFFERENTIATION = {
   coreAdvantages: {
     philosophicalDepth: {
-      description: 'bunenjin哲学による本質的洞察',
+      description: 'HaQei哲学による本質的洞察',
       competitiveMoat: '模倣困難な思想的基盤',
       marketingFocus: '表面的分析との明確な差別化',
       proof: '利用者の人生変革事例・証言'
@@ -1015,7 +1015,7 @@ const COMPETITIVE_DIFFERENTIATION = {
   },
   
   defensiveStrategy: {
-    intellectualProperty: 'bunenjin哲学・Triple OS理論の体系化',
+    intellectualProperty: 'HaQei哲学・Triple OS理論の体系化',
     networkEffects: 'ユーザー体験共有コミュニティ構築',
     dataAdvantage: '継続利用による個人化精度向上',
     brandLoyalty: '深い自己理解による強い愛着形成'
@@ -1115,7 +1115,7 @@ const IMPLEMENTATION_PRIORITY = {
 ```typescript
 const BRANDING_RISKS = {
   philosophicalMisunderstanding: {
-    risk: 'bunenjin哲学の誤解・軽視',
+    risk: 'HaQei哲学の誤解・軽視',
     probability: 'MEDIUM',
     impact: 'HIGH',
     mitigation: [
@@ -1228,7 +1228,7 @@ const SUCCESS_METRICS_6MONTHS = {
 const QUALITATIVE_SUCCESS = {
   brandPerception: [
     '「深い自己理解のリーダー」として認知',
-    'bunenjin哲学×AI融合の第一人者地位確立',
+    'HaQei哲学×AI融合の第一人者地位確立',
     '信頼性・権威性の獲得'
   ],
   
@@ -1252,7 +1252,7 @@ const QUALITATIVE_SUCCESS = {
 ```typescript
 const LONG_TERM_VISION = {
   marketLeadership: {
-    domesticMarket: 'bunenjin哲学的自己理解の国内標準',
+    domesticMarket: 'HaQei哲学的自己理解の国内標準',
     globalExpansion: '東洋思想×AI融合の世界的リーダー',
     industryInfluence: '業界標準・トレンド創出者としての地位'
   },
@@ -1260,7 +1260,7 @@ const LONG_TERM_VISION = {
   platformEvolution: {
     aiAdvancement: '自己進化AI推奨システムの完成',
     holisticIntegration: '人生全領域統合支援プラットフォーム',
-    communityEcosystem: 'グローバルbunenjinコミュニティ構築'
+    communityEcosystem: 'グローバルHaQeiコミュニティ構築'
   },
   
   socialImpact: {
@@ -1280,7 +1280,7 @@ const LONG_TERM_VISION = {
 #### 最優先アクション
 1. **ブランドメッセージング完成** - 統一コミュニケーション基盤確立
 2. **インフルエンサー連携開始** - 最短認知拡大ルート構築  
-3. **コンテンツ制作開始** - bunenjin哲学教育コンテンツ
+3. **コンテンツ制作開始** - HaQei哲学教育コンテンツ
 4. **PR戦略実行** - メディア関係構築・話題創出
 5. **効果測定システム構築** - データドリブン改善基盤
 
@@ -1305,4 +1305,4 @@ const LONG_TERM_VISION = {
 
 ---
 
-**この包括的ブランディング・PR戦略により、HaQeiは「営業しなくても選ばれるブランド」として市場をリードし、bunenjin哲学×易経×AI融合による深層自己理解の新しいスタンダードを確立します。**
+**この包括的ブランディング・PR戦略により、HaQeiは「営業しなくても選ばれるブランド」として市場をリードし、HaQei哲学×易経×AI融合による深層自己理解の新しいスタンダードを確立します。**

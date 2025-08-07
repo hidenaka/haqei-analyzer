@@ -74,7 +74,7 @@ async function showResultsView(result, insights) {
 **確認内容:**
 - [✅] 30問の回答データがすべて保存: `localStorage.getItem('haqei_answers')`
 - [✅] 分析結果が正しく計算: UltraAnalysisEngine による計算
-- [✅] bunenjin分人分析が適切に実行: PersonalStrategyAI 統合
+- [✅] HaQei分人分析が適切に実行: PersonalStrategyAI 統合
 - [✅] Triple OS Architectureの分析結果が表示: TripleOSStrategicView
 
 **データフロー:**

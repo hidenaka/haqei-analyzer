@@ -2,7 +2,7 @@
  * 易経包括的変化システム - IChingTransformationEngine.js
  * 
  * 世界最高水準の易経AI実装 - 5つの変化原理統合エンジン
- * bunenjin哲学完全対応・Triple OS Architecture統合
+ * HaQei哲学完全対応・Triple OS Architecture統合
  * 
  * Author: HAQEI Domain Expert Team
  * Created: 2025-08-04
@@ -11,7 +11,7 @@
 class IChingTransformationEngine {
   constructor() {
     this.engineVersion = "5.0.0-comprehensive-ultra-performance";
-    this.philosophyAlignment = "bunenjin-triple-os";
+    this.philosophyAlignment = "HaQei-triple-os";
     
     // 🚀 Ultra-Performance Enhancement - 2025-08-04
     this.cacheManager = new CacheManager({
@@ -37,8 +37,8 @@ class IChingTransformationEngine {
     // 包括的変化システム初期化
     this.initializeTransformationSystems();
     
-    // bunenjin哲学統合
-    this.initializeBunenjinIntegration();
+    // HaQei哲学統合
+    this.initializeHaQeiIntegration();
     
     // Initialize performance systems
     this.initializePerformanceSystems();
@@ -210,10 +210,10 @@ class IChingTransformationEngine {
   }
 
   /**
-   * 🔹 5. bunenjin哲学統合システム
+   * 🔹 5. HaQei哲学統合システム
    * Triple OS対応と分人間調和理論
    */
-  initializeBunenjinIntegration() {
+  initializeHaQeiIntegration() {
     // Triple OS Architecture対応
     this.tripleOS = {
       engine: {
@@ -228,13 +228,13 @@ class IChingTransformationEngine {
       },
       safeMode: {
         role: "Philosophical alignment check",
-        responsibility: "bunenjin consistency",
+        responsibility: "HaQei consistency",
         validation: true
       }
     };
 
     // 分人間調和システム
-    this.bunenjinPersonas = {
+    this.HaQeiPersonas = {
       analyticSelf: { approach: "logical_analysis", weight: 0.4 },
       intuitiveSelf: { approach: "spiritual_insight", weight: 0.3 },
       socialSelf: { approach: "relational_harmony", weight: 0.3 }
@@ -243,13 +243,13 @@ class IChingTransformationEngine {
     // 統一self概念の適切な拒否
     this.rejectUnifiedSelf = () => {
       return {
-        philosophy: "bunenjin_multiplicity",
+        philosophy: "HaQei_multiplicity",
         rejection: "unified_self_concept",
         explanation: "人間は状況に応じて異なる分人を表出する複数存在である"
       };
     };
 
-    console.log("✅ bunenjin哲学統合完了");
+    console.log("✅ HaQei哲学統合完了");
   }
 
   /**
@@ -369,8 +369,8 @@ class IChingTransformationEngine {
     const elementalResult = this.calculateFiveElementsTransformation(hexagram, timeContext);
     const sequenceResult = this.calculateSequenceTransformation(hexagram);
 
-    // bunenjin分人対応
-    const bunenjinAnalysis = this.calculateBunenjinHarmony(
+    // HaQei分人対応
+    const HaQeiAnalysis = this.calculateHaQeiHarmony(
       [basicResult, relationalResult, elementalResult, sequenceResult],
       personalContext
     );
@@ -390,7 +390,7 @@ class IChingTransformationEngine {
         relational: relationalResult,
         elemental: elementalResult,
         sequence: sequenceResult,
-        bunenjin: bunenjinAnalysis,
+        HaQei: HaQeiAnalysis,
         temporal: timeInfluence
       },
       final_transformation: this.synthesizeFinalTransformation(
@@ -538,7 +538,7 @@ class IChingTransformationEngine {
 
   validatePhilosophicalCompliance(result) {
     return {
-      bunenjin_alignment: true,
+      HaQei_alignment: true,
       triple_os_compliance: true,
       iching_authenticity: result.authenticity >= 70,
       overall_score: 98

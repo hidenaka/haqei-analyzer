@@ -2,9 +2,9 @@
 
 ## 概要
 
-HAQEI Analyzerプロジェクトの標準ワークフロー、品質基準、bunenjin哲学との整合性維持に関する包括的ガイドです。本指示書は、全ての開発者・コントリビューター・AIエージェントが遵守すべき作業標準を定義し、高品質で一貫性のある開発プロセスを保証します。
+HAQEI Analyzerプロジェクトの標準ワークフロー、品質基準、HaQei哲学との整合性維持に関する包括的ガイドです。本指示書は、全ての開発者・コントリビューター・AIエージェントが遵守すべき作業標準を定義し、高品質で一貫性のある開発プロセスを保証します。
 
-## bunenjin哲学の基本原則
+## HaQei哲学の基本原則
 
 ### 1. 個人主権の尊重 (Individual Sovereignty)
 
@@ -89,7 +89,7 @@ function generateExplanation(analysisResult) {
 graph TD
     A[要件受理] --> B[要件分析]
     B --> C[技術調査]
-    C --> D[bunenjin哲学整合性チェック]
+    C --> D[HaQei哲学整合性チェック]
     D --> E[実装プラン作成]
     E --> F[プラン承認]
     F --> G[実装開始]
@@ -118,7 +118,7 @@ graph TD
 - [ ] 要求の背景と目的の明確化
 - [ ] 機能要件の詳細定義
 - [ ] 非機能要件の特定
-- [ ] bunenjin哲学との整合性確認
+- [ ] HaQei哲学との整合性確認
 - [ ] 受入基準の定義
 ```
 
@@ -137,11 +137,11 @@ graph TD
 - [ ] 依存関係の分析
 ```
 
-**フェーズ3: bunenjin哲学整合性チェック**
+**フェーズ3: HaQei哲学整合性チェック**
 ```markdown
-目的: 実装計画のbunenjin哲学適合性確認
+目的: 実装計画のHaQei哲学適合性確認
 成果物: 哲学整合性チェックレポート
-担当エージェント: bunenjin-strategy-navigator
+担当エージェント: HaQei-strategy-navigator
 期間: 1時間
 
 チェックポイント:
@@ -177,7 +177,7 @@ graph TD
 チェックポイント:
 - [ ] コーディング標準の遵守
 - [ ] テスト駆動開発の実践
-- [ ] bunenjin哲学の実装
+- [ ] HaQei哲学の実装
 - [ ] パフォーマンス考慮
 - [ ] セキュリティ考慮
 ```
@@ -193,7 +193,7 @@ graph TD
 - [ ] 機能テストの完了
 - [ ] 性能テストの完了
 - [ ] セキュリティテストの完了
-- [ ] bunenjin哲学整合性の確認
+- [ ] HaQei哲学整合性の確認
 - [ ] ユーザビリティテストの完了
 ```
 
@@ -263,7 +263,7 @@ graph TD
  * @param {Object} userResponses - ユーザー回答データ
  * @param {Object} options - 分析オプション
  * @returns {Object} 分析結果オブジェクト
- * @bunenjin 個人主権を尊重し、選択肢を提供する分析
+ * @HaQei 個人主権を尊重し、選択肢を提供する分析
  */
 function analyzeHexagrams(userResponses, options = {}) {
     // 実装
@@ -285,8 +285,8 @@ function robustFunction(input) {
     }
 }
 
-// 3. bunenjin哲学の実装
-function bunenjinCompliantFunction(data) {
+// 3. HaQei哲学の実装
+function HaQeiCompliantFunction(data) {
     const result = analyzeData(data);
     
     return {
@@ -332,7 +332,7 @@ describe('HexagramAnalyzer', () => {
     });
 });
 
-// 2. bunenjin哲学準拠テスト
+// 2. HaQei哲学準拠テスト
 describe('Bunenjin Philosophy Compliance', () => {
     test('should never force user decisions', () => {
         const result = anyAnalysisFunction(testData);
@@ -344,7 +344,7 @@ describe('Bunenjin Philosophy Compliance', () => {
 
 // 3. 統合テスト
 describe('Full Analysis Flow', () => {
-    test('should complete analysis with all bunenjin principles', async () => {
+    test('should complete analysis with all HaQei principles', async () => {
         const result = await performFullAnalysis(testUserData);
         
         validateBunenjinCompliance(result);
@@ -360,7 +360,7 @@ describe('Full Analysis Flow', () => {
 - 関数: 85%以上
 - 行: 80%以上
 
-#### C. bunenjin哲学遵守チェックリスト
+#### C. HaQei哲学遵守チェックリスト
 
 **個人主権の尊重:**
 - [ ] ユーザーに複数の選択肢を提供している
@@ -395,10 +395,10 @@ describe('Full Analysis Flow', () => {
 #!/bin/bash
 # .git/hooks/pre-commit
 
-echo "Running bunenjin philosophy compliance check..."
+echo "Running HaQei philosophy compliance check..."
 
-# bunenjin哲学チェック
-node .claude/hooks/bunenjin-check.js
+# HaQei哲学チェック
+node .claude/hooks/HaQei-check.js
 
 if [ $? -ne 0 ]; then
     echo "Bunenjin philosophy compliance check failed. Commit aborted."
@@ -425,18 +425,18 @@ name: HAQEI Quality Pipeline
 on: [push, pull_request]
 
 jobs:
-  bunenjin-compliance:
+  HaQei-compliance:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Check bunenjin philosophy compliance
+      - name: Check HaQei philosophy compliance
         run: |
-          node .claude/hooks/bunenjin-check.js
+          node .claude/hooks/HaQei-check.js
           node .claude/hooks/quality-gate.js
 
   automated-documentation:
     runs-on: ubuntu-latest
-    needs: bunenjin-compliance
+    needs: HaQei-compliance
     steps:
       - name: Generate documentation
         run: |
@@ -450,8 +450,8 @@ jobs:
 ```json
 // .vscode/settings.json
 {
-    "haqei.bunenjinCheck.enable": true,
-    "haqei.bunenjinCheck.onSave": true,
+    "haqei.HaQeiCheck.enable": true,
+    "haqei.HaQeiCheck.onSave": true,
     "haqei.autoDocumentation.enable": true,
     "haqei.qualityGate.enforce": true,
     
@@ -467,7 +467,7 @@ jobs:
 
 ### 1. 一般的な問題と解決策
 
-#### bunenjin哲学違反の修正
+#### HaQei哲学違反の修正
 
 **問題: 強制的な決定実装**
 ```javascript
@@ -601,7 +601,7 @@ class RobustAnalyzer {
 **週次レビュー (毎週金曜):**
 - ワークフロー遵守状況の確認
 - 品質メトリクスの分析
-- bunenjin哲学整合性の評価
+- HaQei哲学整合性の評価
 - 改善提案の収集
 
 **月次レビュー (月末):**
@@ -614,7 +614,7 @@ class RobustAnalyzer {
 - 戦略的方向性の確認
 - 大規模プロセス改善
 - 技術スタック見直し
-- bunenjin哲学の進化
+- HaQei哲学の進化
 
 ### 2. メトリクス収集と分析
 
@@ -627,7 +627,7 @@ const qualityMetrics = {
         documentationCoverage: calculateDocCoverage()
     },
     
-    bunenjinCompliance: {
+    HaQeiCompliance: {
         userSovereignty: calculateSovereigntyScore(),
         transparency: calculateTransparencyScore(),
         iChingIntegration: calculateIChingScore()
@@ -656,9 +656,9 @@ class ContinuousLearning {
     identifyImprovementOpportunities(feedback) {
         const opportunities = [];
         
-        if (feedback.bunenjinScore < 90) {
+        if (feedback.HaQeiScore < 90) {
             opportunities.push({
-                area: 'bunenjin philosophy implementation',
+                area: 'HaQei philosophy implementation',
                 priority: 'high',
                 action: 'Review and strengthen philosophy integration'
             });
@@ -684,7 +684,7 @@ class ContinuousLearning {
 - チーム間調整
 - 最終責任
 
-**bunenjin Strategy Navigator:**
+**HaQei Strategy Navigator:**
 - 哲学整合性の監督
 - 戦略的方向性の指導
 - 文化的価値の維持
@@ -704,7 +704,7 @@ class ContinuousLearning {
 
 ### 昨日の成果
 - 完了タスク: [具体的な成果]
-- bunenjin哲学整合性: [スコア/コメント]
+- HaQei哲学整合性: [スコア/コメント]
 - 品質メトリクス: [関連する数値]
 
 ### 今日の予定
@@ -715,7 +715,7 @@ class ContinuousLearning {
 ### ブロッカー
 - 技術的課題: [具体的な問題]
 - プロセス課題: [ワークフロー関連]
-- 哲学的整合性課題: [bunenjin関連]
+- 哲学的整合性課題: [HaQei関連]
 ```
 
 **意思決定プロセス:**
@@ -741,7 +741,7 @@ graph TD
 - 包括的なテストカバレッジ
 - 継続的な品質改善
 
-**2. bunenjin哲学の確実な実装**
+**2. HaQei哲学の確実な実装**
 - 個人主権の技術的保証
 - 易経的思考の体系的実装
 - 透明性と説明可能性の確保
@@ -756,9 +756,9 @@ graph TD
 - 保守しやすいコードベース
 - 拡張可能なプロセス
 
-### bunenjin哲学の実現
+### HaQei哲学の実現
 
-このワークフローシステム自体が bunenjin哲学を体現しています：
+このワークフローシステム自体が HaQei哲学を体現しています：
 
 - **個人主権**: 開発者の創造性を尊重しつつ品質を保証
 - **透明性**: 全プロセスの可視化と説明
@@ -770,5 +770,5 @@ HAQEI Analyzerプロジェクトは、この包括的なワークフローガイ
 ---
 **作成日時**: 2025年7月30日 (JST)  
 **作成者**: HAQEI Reporter Agent  
-**承認**: HAQEI CTO & bunenjin Strategy Navigator  
+**承認**: HAQEI CTO & HaQei Strategy Navigator  
 **版数**: v1.0 (初版)

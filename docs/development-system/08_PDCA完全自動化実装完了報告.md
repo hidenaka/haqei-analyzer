@@ -150,7 +150,7 @@ output/pdca/
 - 非同期処理によるパフォーマンス最適化
 
 ### 🎯 HAQEIドメイン特化設計
-- bunenjin哲学的整合性チェック
+- HaQei哲学的整合性チェック
 - 易経（I Ching）要素の適切性評価
 - Triple OS概念の理解度測定
 

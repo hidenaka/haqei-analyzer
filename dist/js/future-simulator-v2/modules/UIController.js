@@ -1,7 +1,7 @@
 /**
  * UIController.js - Advanced UI Control Module
  * 
- * bunenjin哲学による効率的なUI制御システム
+ * HaQei哲学による効率的なUI制御システム
  * イベント駆動アーキテクチャとCSS-in-JS排除
  * 
  * Author: HAQEI Programmer Agent

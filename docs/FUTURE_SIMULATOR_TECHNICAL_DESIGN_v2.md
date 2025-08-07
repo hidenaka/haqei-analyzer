@@ -2,7 +2,7 @@
 
 **プロジェクト**: HAQEI Future Simulator  
 **作成日**: 2025年8月5日  
-**設計哲学**: bunenjin（分人）自然流設計  
+**設計哲学**: HaQei（分人）自然流設計  
 **技術責任者**: System Architecture Designer  
 **バージョン**: 2.0.0-stable
 
@@ -23,7 +23,7 @@
 
 ## 1. システムアーキテクチャ設計
 
-### 1.1 bunenjin哲学アーキテクチャ原則
+### 1.1 HaQei哲学アーキテクチャ原則
 
 #### 🌊 自然流設計原則
 ```
@@ -230,7 +230,7 @@ class ProgressiveDisclosureSystem {
 
   async progressToNextStage(data) {
     // 段階的進行処理
-    // bunenjin原則に従った自然な流れ
+    // HaQei原則に従った自然な流れ
   }
 
   async animateTransition(fromStage, toStage) {
@@ -284,7 +284,7 @@ sequenceDiagram
     Engine->>UI: 分析結果返却
     UI->>User: 結果表示
 
-    Note over Engine: bunenjin原則に基づく<br/>自然で直感的な処理フロー
+    Note over Engine: HaQei原則に基づく<br/>自然で直感的な処理フロー
 ```
 
 ### 3.2 データ変換パイプライン
@@ -309,7 +309,7 @@ class InputProcessingPipeline {
     for (const stage of this.stages) {
       data = await stage.process(data);
       
-      // bunenjin原則: 各段階での品質チェック
+      // HaQei原則: 各段階での品質チェック
       if (!this.validateStageOutput(data)) {
         throw new ProcessingError(`Stage ${stage.name} failed validation`);
       }
@@ -366,7 +366,7 @@ class MultiLayerCacheSystem {
     for (const [name, cache] of Object.entries(this.layers)) {
       const result = await cache.get(key);
       if (result) {
-        // bunenjin原則: 見つかったデータを上位層にも保存
+        // HaQei原則: 見つかったデータを上位層にも保存
         await this.promoteToUpperLayers(key, result, name);
         return result;
       }
@@ -432,7 +432,7 @@ class ApplicationStateManager {
     this.middleware = [];
   }
 
-  // bunenjin原則: 状態変更の自然な流れ
+  // HaQei原則: 状態変更の自然な流れ
   async setState(path, value, options = {}) {
     const oldState = this.deepClone(this.state);
     
@@ -497,7 +497,7 @@ class StateTransitionManager {
       throw new TransitionError(`Transition ${key} condition not met`);
     }
     
-    // bunenjin原則: 自然で美しい遷移
+    // HaQei原則: 自然で美しい遷移
     await this.executeTransition(from, to, transition.effect, payload);
   }
 
@@ -540,7 +540,7 @@ class PerformanceOptimizer {
   }
 
   async optimizeRendering() {
-    // bunenjin原則: 必要最小限のレンダリング
+    // HaQei原則: 必要最小限のレンダリング
     const strategy = {
       // 仮想化によるDOM最適化
       virtualization: {
@@ -705,7 +705,7 @@ class SecurityManager {
   }
 
   async encryptSensitiveData(data) {
-    // bunenjin原則: 必要最小限の暗号化
+    // HaQei原則: 必要最小限の暗号化
     if (this.isSensitive(data)) {
       return await this.encryptor.encrypt(data);
     }
@@ -896,7 +896,7 @@ class QualityAssuranceSystem {
   }
 
   async performAutomatedTesting() {
-    // bunenjin原則: 自然な品質保証
+    // HaQei原則: 自然な品質保証
     const testSuites = [
       new FunctionalTestSuite(),
       new PerformanceTestSuite(),
@@ -1059,8 +1059,8 @@ class MonitoringSystem {
 
 ### アーキテクチャ決定記録（ADR）
 
-#### ADR-001: bunenjin哲学の技術的実装
-- **決定**: 全コンポーネントでbunenjin原則を技術的に実装
+#### ADR-001: HaQei哲学の技術的実装
+- **決定**: 全コンポーネントでHaQei原則を技術的に実装
 - **根拠**: 自然で直感的なUXの実現
 - **影響**: 開発速度よりも品質と美しさを優先
 
@@ -1077,7 +1077,7 @@ class MonitoringSystem {
 ### 技術標準・ガイドライン
 
 - **コーディング標準**: ESLint + Prettier + TypeScript strict mode
-- **命名規約**: bunenjin原則に基づく直感的命名
+- **命名規約**: HaQei原則に基づく直感的命名
 - **ドキュメント標準**: JSDoc + 設計意図の明文化
 - **品質基準**: 80%以上のテストカバレッジ、Core Web Vitals準拠
 
@@ -1085,4 +1085,4 @@ class MonitoringSystem {
 
 **設計完了日**: 2025年8月5日  
 **次期レビュー予定**: 実装フェーズ完了後  
-**bunenjin哲学適用度**: 100%（全コンポーネント対応）
+**HaQei哲学適用度**: 100%（全コンポーネント対応）

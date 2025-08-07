@@ -43,7 +43,7 @@ HaQeiの¥2,980価格設定から始まり、エンタープライズレベル�
 ├─────────────────────────────────────────────────────────────┤
 │ Layer 2: HaQei Core・分析エンジン層                           │
 │ ├─ Triple OS Architecture (Engine/Interface/SafeMode)      │
-│ ├─ bunenjin哲学・易経64卦統合システム                          │
+│ ├─ HaQei哲学・易経64卦統合システム                          │
 │ └─ Vue3 + Supabase統合基盤                                │
 ├─────────────────────────────────────────────────────────────┤
 │ Layer 1: データ・インフラストラクチャ層                           │
@@ -106,7 +106,7 @@ interface HaQeiIntegratedDatabase {
 
 #### 1.3 Row Level Security (RLS) 実装
 ```sql
--- bunenjin哲学準拠のプライバシー制御
+-- HaQei哲学準拠のプライバシー制御
 CREATE POLICY user_data_access ON users
 FOR ALL TO authenticated
 USING (
@@ -141,7 +141,7 @@ USING (
 interface EngineOSIntegration {
   // Core Analysis Engine
   personalityAnalysis: {
-    bunenjinPhilosophy: BunenjinAnalyzer;
+    HaQeiPhilosophy: BunenjinAnalyzer;
     ichingHexagram: HexagramAnalyzer;
     statisticalEngine: StatisticalAnalyzer;
   };
@@ -236,7 +236,7 @@ interface USEPIntegratedSystem {
     // HaQeiペルソナ統合
     personaIntegration: {
       tripeOSMapping: TripleOSPersonaMapper;
-      bunenjinPersona: BunenjinPersonaGenerator;
+      HaQeiPersona: BunenjinPersonaGenerator;
       ichingPersona: IChingPersonaAdapter;
     };
   };
@@ -284,7 +284,7 @@ interface MarketingAutomationIntegration {
   leadManagement: {
     // パートナー経由リード
     partnerLeadCapture: PartnerLeadCapturer;
-    leadScoring: HaQeiLeadScorer;  // bunenjin哲学ベース
+    leadScoring: HaQeiLeadScorer;  // HaQei哲学ベース
     nurturingCampaigns: AutomatedNurturingEngine;
   };
   
@@ -1021,7 +1021,7 @@ interface BusinessRiskManagement {
     impact: 'High',
     mitigation: [
       '継続的技術革新・特許取得',
-      'bunenjin哲学による差別化強化',
+      'HaQei哲学による差別化強化',
       '顧客ロックイン効果向上',
       'パートナー排他契約強化'
     ];
@@ -1154,7 +1154,7 @@ interface FinancialRiskManagement {
 
 ---
 
-*この統合戦略アーキテクチャ設計書は、HaQeiの技術的優位性を最大限活用し、戦略的パートナーシップによる急速な成長を実現するための包括的な実装計画です。bunenjin哲学・易経思想・Triple OS Architectureという独自の技術基盤を核とし、営業レス販売システム・USEP・パートナーシップ戦略を統合した革新的なアプローチにより、3年間で売上500億円規模への成長と、アジア太平洋地域でのマーケットリーダーシップ確立を目指します。*
+*この統合戦略アーキテクチャ設計書は、HaQeiの技術的優位性を最大限活用し、戦略的パートナーシップによる急速な成長を実現するための包括的な実装計画です。HaQei哲学・易経思想・Triple OS Architectureという独自の技術基盤を核とし、営業レス販売システム・USEP・パートナーシップ戦略を統合した革新的なアプローチにより、3年間で売上500億円規模への成長と、アジア太平洋地域でのマーケットリーダーシップ確立を目指します。*
 
 **機密レベル**: 極秘  
 **最終更新**: 2025年8月3日 17:20  

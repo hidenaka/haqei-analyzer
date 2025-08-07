@@ -2,14 +2,14 @@
  * useSupabase.ts - HaQei Vue3 Supabase統合コンポーザブル
  * 
  * Day 4 TASK-037完了: RLS (Row Level Security) 完全統合
- * bunenjin哲学準拠の最高レベルプライバシー保護
+ * HaQei哲学準拠の最高レベルプライバシー保護
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { ref, reactive, computed } from 'vue'
 import type { Ref } from 'vue'
 
-// bunenjin Privacy Configuration
+// HaQei Privacy Configuration
 export interface BunenjinPrivacyConfig {
   privacyLevel: 'maximum' | 'high' | 'medium' | 'low'
   engineOSDataSharing: boolean
@@ -48,7 +48,7 @@ export interface Database {
           updated_at?: string
         }
       }
-      bunenjin_privacy_config: {
+      HaQei_privacy_config: {
         Row: BunenjinPrivacyConfig & {
           id: string
           user_id: string
@@ -176,7 +176,7 @@ export function useSupabase() {
         },
         global: {
           headers: {
-            'X-Privacy-Level': 'maximum', // bunenjin default
+            'X-Privacy-Level': 'maximum', // HaQei default
             'Cache-Control': 'max-age=3600', // 1時間キャッシュ
             'Connection': 'keep-alive'
           },
@@ -224,13 +224,13 @@ export function useSupabase() {
     }
   }
 
-  // bunenjinプライバシー設定読み込み
+  // HaQeiプライバシー設定読み込み
   const loadPrivacyConfig = async (userId: string) => {
     try {
       if (!state.client) return
 
       const { data, error } = await state.client
-        .from('bunenjin_privacy_config')
+        .from('HaQei_privacy_config')
         .select('*')
         .eq('user_id', userId)
         .single()
@@ -253,7 +253,7 @@ export function useSupabase() {
           retentionDays: data.retention_days || 2555
         }
       } else {
-        // デフォルトのbunenjin設定作成
+        // デフォルトのHaQei設定作成
         await createDefaultPrivacyConfig(userId)
       }
 
@@ -284,12 +284,12 @@ export function useSupabase() {
       }
 
       const { error } = await state.client
-        .from('bunenjin_privacy_config')
+        .from('HaQei_privacy_config')
         .insert(defaultConfig)
 
       if (error) throw error
 
-      console.log('✅ Default bunenjin privacy config created')
+      console.log('✅ Default HaQei privacy config created')
       await loadPrivacyConfig(userId)
 
     } catch (error) {
@@ -457,7 +457,7 @@ export function useSupabase() {
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
-        table: 'bunenjin_privacy_config',
+        table: 'HaQei_privacy_config',
         filter: `user_id=eq.${state.user.id}`
       }, callback)
       .subscribe()

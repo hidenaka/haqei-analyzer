@@ -6,7 +6,7 @@
 **HAQEIアナライザー エラーハンドリング統一と強化プロジェクト (HAQEI Error Handling Unification & Enhancement Project)**
 
 ### プロジェクト目的
-易経メタファー×bunenjin哲学×Triple OS Architectureの複雑なシステムにおいて、統一的で堅牢なエラーハンドリング機構を構築し、ユーザーエクスペリエンスの向上と system reliability の確保を実現する。
+易経メタファー×HaQei哲学×Triple OS Architectureの複雑なシステムにおいて、統一的で堅牢なエラーハンドリング機構を構築し、ユーザーエクスペリエンスの向上と system reliability の確保を実現する。
 
 ### プロジェクト背景
 - **現状の課題**: 現在のシステムには2,538箇所のtry-catch文と765箇所のError生成が存在し、エラーハンドリングが非統一
@@ -18,7 +18,7 @@
 - **堅牢性向上**: システム全体のエラー回復率 95%以上
 - **ユーザビリティ**: エラー発生からの回復時間 30秒以内
 - **保守性向上**: エラーハンドリングコードの重複率 20%以下
-- **哲学的整合性**: bunenjin哲学に基づくエラー分類適用率 100%
+- **哲学的整合性**: HaQei哲学に基づくエラー分類適用率 100%
 
 ---
 
@@ -29,7 +29,7 @@
 #### 1.1.1 HAQEI哲学ベースの分類
 ```typescript
 interface HAQEIErrorCategory {
-  // bunenjin哲学に基づく分人レベルでの分類
+  // HaQei哲学に基づく分人レベルでの分類
   personaLevel: 'engine' | 'interface' | 'safemode' | 'integrated';
   
   // 易経メタファーによる象徴的分類
@@ -65,7 +65,7 @@ interface TechnicalErrorCategory {
 #### 1.2.2 グレースフルデグラデーション
 ```typescript
 interface GracefulDegradation {
-  // bunenjin哲学的アプローチ
+  // HaQei哲学的アプローチ
   personaFallback: {
     engineOS: () => BasicValueSystemEngine;
     interfaceOS: () => SafeModeCommunication;
@@ -195,7 +195,7 @@ interface GracefulDegradation {
 
 ### 3.2 哲学的制約
 
-#### 3.2.1 bunenjin哲学整合性
+#### 3.2.1 HaQei哲学整合性
 - **分人思想尊重**: 複数人格の平等な扱い
 - **統合性回避**: 単一人格への統合回避
 - **多様性容認**: 矛盾を含む多様性の受容
@@ -238,7 +238,7 @@ interface ErrorDisplayUI {
     layout: 'overlay' | 'inline' | 'sidebar' | 'notification';
   };
   
-  // bunenjin哲学的表現
+  // HaQei哲学的表現
   philosophicalMetaphor: {
     personaRepresentation: string;
     metaphoricalExplanation: string;
@@ -511,7 +511,7 @@ interface RecoveryStrategy {
 | 項目 | 説明 | 期限 | 依存関係 |
 |------|------|------|----------|
 | ユーザーフレンドリー通知 | わかりやすいエラーメッセージ | Week 3 | UI設計完了 |
-| HAQEI哲学的分類実装 | bunenjin/易経ベース分類 | Week 3 | 分類体系設計 |
+| HAQEI哲学的分類実装 | HaQei/易経ベース分類 | Week 3 | 分類体系設計 |
 | グレースフルデグラデーション | 段階的機能縮退 | Week 4 | 依存関係分析 |
 | 構造化ログ実装 | 詳細なエラー情報記録 | Week 4 | ログ形式標準化 |
 
@@ -928,7 +928,7 @@ describe('多言語対応', () => {
 
 ### 12.1 プロジェクトの意義
 
-本プロジェクトは、HAQEIアナライザーシステムの根幹をなすエラーハンドリング機構を、bunenjin哲学と易経の知恵に基づいて統一・強化することで、システムの堅牢性向上とユーザー体験の革新を同時に実現する重要な取り組みです。
+本プロジェクトは、HAQEIアナライザーシステムの根幹をなすエラーハンドリング機構を、HaQei哲学と易経の知恵に基づいて統一・強化することで、システムの堅牢性向上とユーザー体験の革新を同時に実現する重要な取り組みです。
 
 ### 12.2 期待される効果
 
@@ -943,7 +943,7 @@ describe('多言語対応', () => {
 
 ---
 
-**文書作成者**: bunenjin-strategy-navigator (Requirements Analyst Agent)  
+**文書作成者**: HaQei-strategy-navigator (Requirements Analyst Agent)  
 **作成日**: 2025年1月5日  
 **バージョン**: 1.0.0  
 **次回レビュー予定**: 2025年1月12日  

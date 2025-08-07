@@ -1,14 +1,14 @@
 /**
- * HAQEI 協調的診断体験システム - bunenjin哲学の実現
+ * HAQEI 協調的診断体験システム - HaQei哲学の実現
  * 
  * 目的：
- * - bunenjin哲学に基づく複数人での診断支援
+ * - HaQei哲学に基づく複数人での診断支援
  * - 相互理解と気づきの共有
  * - Triple OS分析の協調的進行
  * - 易経的共鳴による深い洞察の創発
  * - プライバシーを保持した建設的相互作用
  * 
- * bunenjin哲学の核心：
+ * HaQei哲学の核心：
  * - 個人の複数人格（分人）の相互理解
  * - 他者との関係性で現れる異なる自己の発見
  * - 社会的文脈での人格の動的変化
@@ -166,7 +166,7 @@ interface FacilitationGuideline {
 /**
  * 協調的診断体験システム
  * 
- * bunenjin哲学を実践する相互支援・相互理解プラットフォーム
+ * HaQei哲学を実践する相互支援・相互理解プラットフォーム
  */
 export function useCollaborativeDiagnosis(userId: string, config?: Partial<BunenjinCollaborationConfig>) {
   const supabase = useSupabase()
@@ -250,7 +250,7 @@ export function useCollaborativeDiagnosis(userId: string, config?: Partial<Bunen
         shareProgress: true,
         receiveSupport: true,
         offerSupport: true,
-        shareInsights: false, // デフォルトは非共有（bunenjin哲学：段階的開示）
+        shareInsights: false, // デフォルトは非共有（HaQei哲学：段階的開示）
         allowMentoring: true,
         communicationStyle: 'encouraging'
       },

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Console Error Checker</title>
+</head>
+<body>
+    <h1>Future Simulator エラーチェック</h1>
+    <div id="status">チェック中...</div>
+    <div id="errors" style="color: red; white-space: pre-wrap;"></div>
+    <div id="logs" style="color: green; white-space: pre-wrap;"></div>
+    
+    <script>
+        const statusEl = document.getElementById('status');
+        const errorsEl = document.getElementById('errors');
+        const logsEl = document.getElementById('logs');
+        
+        // Console errors and logs capture
+        const originalError = console.error;
+        const originalLog = console.log;
+        const errors = [];
+        const logs = [];
+        
+        console.error = function(...args) {
+            errors.push(args.join(' '));
+            originalError.apply(console, args);
+        };
+        
+        console.log = function(...args) {
+            logs.push(args.join(' '));
+            originalLog.apply(console, args);
+        };
+        
+        // Open Future Simulator in iframe
+        const iframe = document.createElement('iframe');
+        iframe.src = 'http://localhost:8788/future_simulator.html';
+        iframe.style.width = '100%';
+        iframe.style.height = '600px';
+        iframe.style.border = '2px solid #333';
+        
+        iframe.onload = function() {
+            setTimeout(() => {
+                statusEl.textContent = 'チェック完了';
+                
+                if (errors.length > 0) {
+                    errorsEl.textContent = 'エラー:\n' + errors.join('\n');
+                } else {
+                    errorsEl.textContent = 'エラーなし';
+                }
+                
+                if (logs.length > 0) {
+                    logsEl.textContent = 'ログ (最初の10件):\n' + logs.slice(0, 10).join('\n');
+                }
+                
+                // Try to get console from iframe
+                try {
+                    const iframeWindow = iframe.contentWindow;
+                    const iframeConsole = iframeWindow.console;
+                    
+                    // Check if critical functions exist
+                    const checks = [
+                        'BinaryTreeFutureEngine',
+                        'AuthenticIChingEngine', 
+                        'TextToIChingEngine',
+                        'EightScenariosGenerator'
+                    ];
+                    
+                    const results = [];
+                    checks.forEach(name => {
+                        if (iframeWindow[name]) {
+                            results.push(`✅ ${name} loaded`);
+                        } else {
+                            results.push(`❌ ${name} NOT loaded`);
+                        }
+                    });
+                    
+                    const resultsDiv = document.createElement('div');
+                    resultsDiv.style.marginTop = '20px';
+                    resultsDiv.innerHTML = '<h3>クラス読み込み状態:</h3><pre>' + results.join('\n') + '</pre>';
+                    document.body.appendChild(resultsDiv);
+                    
+                } catch(e) {
+                    console.error('iframe access error:', e);
+                }
+            }, 3000);
+        };
+        
+        document.body.appendChild(iframe);
+    </script>
+</body>
+</html>

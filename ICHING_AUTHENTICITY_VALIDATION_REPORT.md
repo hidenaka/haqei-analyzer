@@ -326,7 +326,7 @@ Future Simulator
 
 ### Expert Panel Requirements
 1. **Classical I Ching Scholar**: PhD in Chinese philosophy or equivalent
-2. **bunenjin Philosophy Specialist**: Expert in Hirai Naoki's work
+2. **HaQei Philosophy Specialist**: Expert in Hirai Naoki's work
 3. **Cultural Sensitivity Advisor**: East Asian studies background
 4. **Technology Integration Expert**: Understanding of AI ethics
 

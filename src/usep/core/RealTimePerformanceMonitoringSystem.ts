@@ -152,7 +152,7 @@ export interface AutoOptimizationConfig {
     // ロードバランシング
     loadBalancing: {
       enabled: boolean;
-      algorithm: 'round_robin' | 'least_connections' | 'weighted' | 'bunenjin_harmony';
+      algorithm: 'round_robin' | 'least_connections' | 'weighted' | 'HaQei_harmony';
       healthCheckInterval: number; // ms
       failoverTimeout: number; // ms
     };
@@ -367,7 +367,7 @@ export class RealTimePerformanceMonitoringSystem {
         },
         loadBalancing: {
           enabled: true,
-          algorithm: 'bunenjin_harmony',
+          algorithm: 'HaQei_harmony',
           healthCheckInterval: 30000, // 30秒
           failoverTimeout: 5000 // 5秒
         },
@@ -460,7 +460,7 @@ export class RealTimePerformanceMonitoringSystem {
       };
     });
 
-    // bunenjin統合エンジン監視
+    // HaQei統合エンジン監視
     this.performanceCollectors.set('BUNENJIN_ENGINE', async (): Promise<PerformanceMetrics> => {
       const startTime = performance.now();
       const testResult = await this.executeBunenjinEngineTest();
@@ -468,7 +468,7 @@ export class RealTimePerformanceMonitoringSystem {
       
       return {
         timestamp: Date.now(),
-        componentId: 'bunenjin-engine',
+        componentId: 'HaQei-engine',
         componentType: 'BUNENJIN_ENGINE',
         responseTime,
         throughput: testResult.throughput,

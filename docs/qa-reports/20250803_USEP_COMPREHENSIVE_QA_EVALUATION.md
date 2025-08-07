@@ -33,7 +33,7 @@ The USEP system demonstrates **solid architecture and implementation quality** w
 export interface HaQeiServiceConfig extends ServiceConfig {
   serviceType: 'haqei';
   domainKnowledge: HaQeiDomainKnowledge;
-  bunenjinPhilosophy: BunenjinPhilosophyConfig;
+  HaQeiPhilosophy: BunenjinPhilosophyConfig;
   tripleOSConfig: TripleOSConfig;
   iChingSystem: IChingSystemConfig;
 }

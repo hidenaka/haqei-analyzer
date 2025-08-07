@@ -11,7 +11,7 @@
 ## 1. システム概要
 
 ### 1.1 プロジェクト概要
-HAQEIアナライザーのos_analyzer機能は、古代易経の叡智と現代AI技術を融合した革新的な人格分析システムです。bunenjin（分人）哲学に基づくTriple OS Architecture（Engine/Interface/SafeMode）により、深層心理分析と実践的行動指針を提供します。
+HAQEIアナライザーのos_analyzer機能は、古代易経の叡智と現代AI技術を融合した革新的な人格分析システムです。HaQei（分人）哲学に基づくTriple OS Architecture（Engine/Interface/SafeMode）により、深層心理分析と実践的行動指針を提供します。
 
 ### 1.2 技術的特徴
 - **205ファイル構成**: 高度にモジュール化された大規模システム
@@ -46,7 +46,7 @@ HAQEI OS Analyzer (205ファイル構成)
 │   ├── LazyLoadingStrategy.js - 動的読み込み戦略
 │   ├── WebWorkerManager.js - バックグラウンド処理
 │   └── CircuitBreakerSystem.js - 障害対応システム
-└── bunenjin哲学統合 (Philosophy Integration)
+└── HaQei哲学統合 (Philosophy Integration)
     ├── BridgeStorageManager.js - 哲学統合ストレージ
     └── HarmoniousTransitionManager.js - 調和的画面遷移
 ```
@@ -92,7 +92,7 @@ class TripleOSEngine {
 - **Triple OS計算**: Engine/Interface/SafeMode三層計算アルゴリズム
 - **仮想人格統合**: VirtualPersonalityシステムとの連携
 - **易経ウルトラシンク**: IChingUltraSyncLogicによる高精度変換
-- **bunenjin哲学実装**: 分人思想に基づく人格分析
+- **HaQei哲学実装**: 分人思想に基づく人格分析
 
 **パフォーマンス指標**:
 - 計算時間: <500ms (目標達成)
@@ -326,14 +326,14 @@ class PerformanceOptimizer {
 
 ### 7.1 UnifiedErrorHandler.js - 統一エラーシステム
 
-**bunenjin哲学統合**:
+**HaQei哲学統合**:
 ```javascript
 class UnifiedErrorHandler {
   constructor(options = {}) {
-    this.philosophyAlignment = "bunenjin-triple-os-harmony";
+    this.philosophyAlignment = "HaQei-triple-os-harmony";
     
-    // bunenjin分人システム
-    this.bunenjinPersonas = {
+    // HaQei分人システム
+    this.HaQeiPersonas = {
       analyticalSelf: { approach: 'logical-analysis' },
       emotionalSelf: { approach: 'empathetic-response' },
       pragmaticSelf: { approach: 'practical-solution' }
@@ -366,7 +366,7 @@ class UnifiedErrorHandler {
 
 ---
 
-## 8. bunenjin哲学統合技術
+## 8. HaQei哲学統合技術
 
 ### 8.1 BridgeStorageManager.js - 哲学統合ストレージ
 
@@ -381,7 +381,7 @@ class BridgeStorageManager {
       dataTransferred: 0,
       successRate: 0
     };
-    console.log('🌉 BridgeStorageManager initialized with bunenjin philosophy');
+    console.log('🌉 BridgeStorageManager initialized with HaQei philosophy');
   }
 }
 ```
@@ -558,7 +558,7 @@ HAQEI OS Analyzerは、205ファイル構成の大規模プロダクションシ
 - **高可用性**: 障害対応・自動復旧システム
 - **高拡張性**: モジュール化設計による柔軟性
 
-### 14.2 bunenjin哲学統合
+### 14.2 HaQei哲学統合
 - **分人思想**: 状況別アプローチの実装
 - **Triple OS Architecture**: 3層人格分析システム
 - **調和原理**: ユーザー体験の継続性維持
@@ -570,13 +570,13 @@ HAQEI OS Analyzerは、205ファイル構成の大規模プロダクションシ
 - **モバイル最適化**: スマートフォン体験向上
 - **API化**: 外部システム連携強化
 
-本技術設計書は、実装チームが確実に開発・保守できるレベルの詳細仕様を提供し、bunenjin哲学に基づくコード品質とプロダクション環境での安定動作を両立したシステム実現を支援します。
+本技術設計書は、実装チームが確実に開発・保守できるレベルの詳細仕様を提供し、HaQei哲学に基づくコード品質とプロダクション環境での安定動作を両立したシステム実現を支援します。
 
 ---
 
 **技術設計書情報**
 - **文書作成者**: HAQEI Programmer Agent
-- **レビュー**: bunenjin Strategy Navigator  
+- **レビュー**: HaQei Strategy Navigator  
 - **承認**: HAQEI CTO Agent
 - **最終更新**: 2025年8月5日
 - **次回レビュー予定**: 2025年9月5日

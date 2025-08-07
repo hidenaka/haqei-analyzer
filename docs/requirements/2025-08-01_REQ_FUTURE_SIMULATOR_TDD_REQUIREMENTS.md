@@ -15,7 +15,7 @@
 - **パフォーマンス**: 現在2.1秒 → 目標1.5秒以内
 - **コードベース**: 4,938行、50個関数、4個クラス
 
-### bunenjin哲学統合状況
+### HaQei哲学統合状況
 - ✅ Triple OS Architecture準拠
 - ✅ 易経64卦システム統合
 - ✅ 仮想人格構築アプローチ
@@ -100,7 +100,7 @@ const performanceTargets = {
 };
 ```
 
-### R4. bunenjin哲学統合深化
+### R4. HaQei哲学統合深化
 **優先度**: 中
 **目的**: 哲学的整合性と実装品質の両立
 
@@ -141,7 +141,7 @@ const ichingIntegration = {
 1. **Unit Tests**: 個別関数・クラステスト
 2. **Integration Tests**: システム統合テスト
 3. **Performance Tests**: パフォーマンステスト
-4. **Philosophy Tests**: bunenjin哲学一貫性テスト
+4. **Philosophy Tests**: HaQei哲学一貫性テスト
 
 ### 品質ゲート
 ```javascript
@@ -168,7 +168,7 @@ const qualityGates = {
 - ✅ パフォーマンス: ≤1.5秒
 - ✅ 総合満足度: ≥4.0
 - ✅ 信頼区間下限: ≥3.5
-- ✅ bunenjin哲学整合性: A級
+- ✅ HaQei哲学整合性: A級
 
 ### 継続品質保証
 ```javascript
@@ -191,4 +191,4 @@ const continuousQuality = {
 5. **REFACTOR: 最適化・哲学統合**
 6. **最終品質検証**
 
-**この要件定義書はTsumikiワークフローの第1段階として、Future Simulatorの継続的品質向上とbunenjin哲学深化を目的としています。**
+**この要件定義書はTsumikiワークフローの第1段階として、Future Simulatorの継続的品質向上とHaQei哲学深化を目的としています。**

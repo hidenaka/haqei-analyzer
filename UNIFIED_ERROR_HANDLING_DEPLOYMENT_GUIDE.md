@@ -83,8 +83,8 @@ window.HAQEI_ERROR_SYSTEM_CONFIG = {
         maxConcurrentNotifications: 2       // 同時通知数制限
     },
     
-    // bunenjin設定
-    bunenjin: {
+    // HaQei設定
+    HaQei: {
         enableAdaptation: true,             // 分人適応有効
         defaultPersona: 'pragmatic',        // デフォルト分人
         enablePersonaLearning: true,        // 分人学習有効
@@ -893,4 +893,4 @@ fi
 
 ---
 
-*このデプロイメントガイドは、HAQEIアナライザー統一エラーハンドリングシステムの安全で効率的なプロダクション環境への展開を支援するために作成されました。bunenjin哲学に基づく調和的なシステム運用を目指しています。*
+*このデプロイメントガイドは、HAQEIアナライザー統一エラーハンドリングシステムの安全で効率的なプロダクション環境への展開を支援するために作成されました。HaQei哲学に基づく調和的なシステム運用を目指しています。*

@@ -72,7 +72,7 @@
 | 3.2.3 | validateIntegration実装 | haqei-programmer | 2h | Medium | - |
 | 3.2.4 | optimizePerformance実装 | perf-analyzer | 3h | Medium | 3.2.1-3.2.3 |
 | 3.2.5 | generateReport実装 | haqei-reporter | 2h | Medium | 3.2.4 |
-| 3.3 | 7段階処理システム実装 | bunenjin-strategy-navigator | 20h | High | Phase 2 |
+| 3.3 | 7段階処理システム実装 | HaQei-strategy-navigator | 20h | High | Phase 2 |
 | 3.3.1 | Stage 1: 初期入力処理 | haqei-programmer | 3h | High | - |
 | 3.3.2 | Stage 2: データ分析 | haqei-programmer | 3h | High | 3.3.1 |
 | 3.3.3 | Stage 3: 易経変換 | haqei-iching-expert | 3h | High | 3.3.2 |
@@ -130,7 +130,7 @@
 | system-architect | 3 | 6h | アーキテクチャ |
 | production-validator | 4 | 13h | 本番検証 |
 | haqei-iching-expert | 1 | 3h | 易経実装 |
-| bunenjin-strategy-navigator | 1 | 20h | 7段階システム |
+| HaQei-strategy-navigator | 1 | 20h | 7段階システム |
 | code-analyzer | 2 | 2h | コード分析 |
 | tester | 3 | 5h | テスト実行 |
 | haqei-reporter | 4 | 6h | ドキュメント |

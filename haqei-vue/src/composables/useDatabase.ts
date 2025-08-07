@@ -4,7 +4,7 @@
  * 目的：
  * - Triple OS Architecture完全対応の統合CRUD操作
  * - 易経64卦システムとの深い統合
- * - bunenjin哲学準拠のプライバシー制御
+ * - HaQei哲学準拠のプライバシー制御
  * - Vue 3 Composition API最適化
  * - オフライン対応とローカルストレージフォールバック
  * 
@@ -96,7 +96,7 @@ export function useDatabase() {
      * 新規ユーザーの作成または取得
      * 
      * 目的：
-     * - bunenjin哲学に基づく匿名ユーザー作成
+     * - HaQei哲学に基づく匿名ユーザー作成
      * - プライバシー最優先のユーザー管理
      * - ローカルストレージベースのフォールバック
      */
@@ -323,7 +323,7 @@ export function useDatabase() {
      * 目的：
      * - Triple OS分析結果の保存
      * - 易経64卦解釈の統合
-     * - bunenjin哲学的洞察の生成
+     * - HaQei哲学的洞察の生成
      */
     async completeSession(
       analysisData: AnalysisData,

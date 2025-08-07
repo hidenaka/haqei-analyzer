@@ -2,7 +2,7 @@
  * HaqeiPersonaAdapter - HaQei特化ペルソナ適応システム
  * 
  * 目的：
- * - HaQei Triple OS・bunenjin哲学の統合
+ * - HaQei Triple OS・HaQei哲学の統合
  * - 易経64卦システムとの対応
  * - HaQei特有の人格モデリング
  * - 既存エンジンとの互換性確保
@@ -18,7 +18,7 @@ import { FeedbackBatch } from './VirtualUserGenerator';
 interface HaqeiDimension extends PersonaDimension {
   haqeiSpecific: boolean;
   tripleOSMapping?: string;
-  bunenjinFactor?: string;
+  HaQeiFactor?: string;
 }
 
 /**
@@ -36,13 +36,13 @@ interface TripleOSType {
 export class HaqeiPersonaAdapter {
   private tripleOSTypes: Map<string, TripleOSType>;
   private hexagramProfiles: Map<number, any>;
-  private bunenjinFactors: string[];
+  private HaQeiFactors: string[];
   private evolutionHistory: any[];
 
   constructor() {
     this.tripleOSTypes = this.initializeTripleOSTypes();
     this.hexagramProfiles = this.initializeHexagramProfiles();
-    this.bunenjinFactors = this.initializeBunenjinFactors();
+    this.HaQeiFactors = this.initializeBunenjinFactors();
     this.evolutionHistory = [];
   }
 
@@ -97,9 +97,9 @@ export class HaqeiPersonaAdapter {
         ]
       },
       {
-        name: 'bunenjinAlignment',
+        name: 'HaQeiAlignment',
         type: 'composite',
-        description: 'bunenjin哲学との整合性',
+        description: 'HaQei哲学との整合性',
         required: true,
         haqeiSpecific: true,
         components: [
@@ -111,7 +111,7 @@ export class HaqeiPersonaAdapter {
             min: 0,
             max: 1,
             distribution: 'normal',
-            bunenjinFactor: 'complexity'
+            HaQeiFactor: 'complexity'
           },
           {
             name: 'paradoxTolerance',
@@ -121,7 +121,7 @@ export class HaqeiPersonaAdapter {
             min: 0,
             max: 1,
             distribution: 'normal',
-            bunenjinFactor: 'paradox'
+            HaQeiFactor: 'paradox'
           },
           {
             name: 'strategicThinking',
@@ -131,7 +131,7 @@ export class HaqeiPersonaAdapter {
             min: 0,
             max: 1,
             distribution: 'skewed',
-            bunenjinFactor: 'strategy'
+            HaQeiFactor: 'strategy'
           },
           {
             name: 'selfAwarenessDepth',
@@ -141,7 +141,7 @@ export class HaqeiPersonaAdapter {
             min: 0,
             max: 1,
             distribution: 'normal',
-            bunenjinFactor: 'awareness'
+            HaQeiFactor: 'awareness'
           }
         ]
       },
@@ -246,8 +246,8 @@ export class HaqeiPersonaAdapter {
     // Triple OSプロファイルの生成
     const tripleOS = this.generateTripleOSProfile(user);
     
-    // bunenjin整合性の計算
-    const bunenjinAlignment = this.calculateBunenjinAlignment(user);
+    // HaQei整合性の計算
+    const HaQeiAlignment = this.calculateBunenjinAlignment(user);
     
     // 易経共鳴の設定
     const ichingResonance = this.determineIchingResonance(user);
@@ -258,7 +258,7 @@ export class HaqeiPersonaAdapter {
     // 統合プロファイルの作成
     const haqeiProfile: HaqeiPersonaProfile = {
       tripleOS,
-      bunenjinAlignment,
+      HaQeiAlignment,
       ichingAffinity: {
         primaryHexagram: ichingResonance.primaryHexagram,
         resonanceLevel: ichingResonance.resonanceLevel,
@@ -284,8 +284,8 @@ export class HaqeiPersonaAdapter {
       this.adjustTripleOSConsistency(adjusted);
     }
     
-    // bunenjin哲学との整合性
-    if (adjusted.haqeiSpecific?.bunenjinAlignment) {
+    // HaQei哲学との整合性
+    if (adjusted.haqeiSpecific?.HaQeiAlignment) {
       this.adjustBunenjinConsistency(adjusted);
     }
     
@@ -311,7 +311,7 @@ export class HaqeiPersonaAdapter {
     // Triple OSパターンの更新
     this.updateTripleOSPatterns(insights);
     
-    // bunenjin理解度の調整
+    // HaQei理解度の調整
     this.adjustBunenjinUnderstanding(insights);
     
     // 易経マッピングの改善
@@ -323,7 +323,7 @@ export class HaqeiPersonaAdapter {
       insights,
       adjustments: {
         tripleOS: 'updated',
-        bunenjin: 'refined',
+        HaQei: 'refined',
         iching: 'improved'
       }
     });
@@ -420,7 +420,7 @@ export class HaqeiPersonaAdapter {
   }
 
   /**
-   * bunenjin要因の初期化
+   * HaQei要因の初期化
    */
   private initializeBunenjinFactors(): string[] {
     return [
@@ -614,7 +614,7 @@ export class HaqeiPersonaAdapter {
   }
 
   /**
-   * bunenjin整合性の計算
+   * HaQei整合性の計算
    */
   private calculateBunenjinAlignment(user: VirtualUser): any {
     return {
@@ -895,15 +895,15 @@ export class HaqeiPersonaAdapter {
   }
 
   /**
-   * bunenjin整合性の調整
+   * HaQei整合性の調整
    */
   private adjustBunenjinConsistency(profile: any): void {
-    const bunenjin = profile.haqeiSpecific.bunenjinAlignment;
+    const HaQei = profile.haqeiSpecific.HaQeiAlignment;
     
     // 極端に低い値の底上げ
-    Object.keys(bunenjin).forEach(key => {
-      if (bunenjin[key] < 0.2) {
-        bunenjin[key] = 0.2;
+    Object.keys(HaQei).forEach(key => {
+      if (HaQei[key] < 0.2) {
+        HaQei[key] = 0.2;
       }
     });
   }
@@ -926,7 +926,7 @@ export class HaqeiPersonaAdapter {
   private analyzeHaqeiFeedback(feedbackData: FeedbackBatch): any {
     const insights = {
       tripleOSBalance: this.analyzeTripleOSBalance(feedbackData),
-      bunenjinUnderstanding: this.analyzeBunenjinUnderstanding(feedbackData),
+      HaQeiUnderstanding: this.analyzeBunenjinUnderstanding(feedbackData),
       ichingRelevance: this.analyzeIchingRelevance(feedbackData),
       engagementPatterns: this.analyzeEngagementPatterns(feedbackData)
     };
@@ -951,10 +951,10 @@ export class HaqeiPersonaAdapter {
   }
 
   /**
-   * bunenjin理解度の分析
+   * HaQei理解度の分析
    */
   private analyzeBunenjinUnderstanding(feedbackData: FeedbackBatch): any {
-    // bunenjin哲学の理解度と受容度を分析
+    // HaQei哲学の理解度と受容度を分析
     const understanding = {
       averageComplexityAcceptance: 0,
       confusionPoints: [],
@@ -1010,13 +1010,13 @@ export class HaqeiPersonaAdapter {
   }
 
   /**
-   * bunenjin理解度の調整
+   * HaQei理解度の調整
    */
   private adjustBunenjinUnderstanding(insights: any): void {
     // 理解度に基づく説明の調整
-    if (insights.bunenjinUnderstanding.averageComplexityAcceptance < 0.5) {
+    if (insights.HaQeiUnderstanding.averageComplexityAcceptance < 0.5) {
       // より分かりやすい説明への調整
-      console.log('bunenjin説明をより平易に調整');
+      console.log('HaQei説明をより平易に調整');
     }
   }
 
@@ -1038,7 +1038,7 @@ export class HaqeiPersonaAdapter {
     return {
       tripleOSTypes: this.tripleOSTypes.size,
       hexagramProfiles: this.hexagramProfiles.size,
-      bunenjinFactors: this.bunenjinFactors.length,
+      HaQeiFactors: this.HaQeiFactors.length,
       evolutionCount: this.evolutionHistory.length
     };
   }

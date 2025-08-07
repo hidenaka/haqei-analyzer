@@ -85,14 +85,14 @@ export class PersonalityOS {
   private readonly hexagramId: number;
   private readonly matchPercentage: number;
   private readonly characteristics: Characteristic[];
-  private readonly bunenjinAlignment: BunenjinAlignment;
+  private readonly HaQeiAlignment: BunenjinAlignment;
   
   constructor(data: PersonalityOSData) {
     this.validateBunenjinPhilosophy(data);
     this.hexagramId = data.hexagramId;
     this.matchPercentage = data.matchPercentage;
     this.characteristics = data.characteristics;
-    this.bunenjinAlignment = this.calculateAlignment(data);
+    this.HaQeiAlignment = this.calculateAlignment(data);
   }
   
   private validateBunenjinPhilosophy(data: PersonalityOSData): void {
@@ -401,7 +401,7 @@ export class AnalyzeTripleOSUseCase {
         v-for="insight in visibleInsights"
         :key="insight.id"
         :insight="insight"
-        :bunenjin-mode="bunenjinMode"
+        :HaQei-mode="HaQeiMode"
       />
     </TransitionGroup>
     
@@ -425,7 +425,7 @@ const props = defineProps<{
 
 const store = useTripleOSStore();
 const { accessibilityClasses, updateSettings } = useAccessibility();
-const { bunenjinMode, validateContent } = useBunenjinPhilosophy();
+const { HaQeiMode, validateContent } = useBunenjinPhilosophy();
 
 const tripleOS = computed(() => [
   { type: 'engine', ...props.result.engineOS },
@@ -541,7 +541,7 @@ export class HAQEIEventBus implements IEventBus {
       )
     );
     
-    // 4. bunenjin philosophy適用
+    // 4. HaQei philosophy適用
     if (this.requiresBunenjinProcessing(event)) {
       await this.applyBunenjinPhilosophy(processedEvent);
     }

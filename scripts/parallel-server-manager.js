@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
  * HAQEIプロジェクト 並行サーバー管理システム
- * Tsumikiワークフロー準拠 | bunenjin哲学統合版
+ * Tsumikiワークフロー準拠 | HaQei哲学統合版
  * 
  * 目的:
  * - 複数開発サーバーの調和的並行実行
- * - bunenjin分人思想に基づくサーバー人格管理
+ * - HaQei分人思想に基づくサーバー人格管理
  * - Triple OS Architecture準拠の統合運用
  * 
  * 管理対象サーバー:
@@ -13,7 +13,7 @@
  * - Future Simulator: ポート8788 (Interface OS) 
  * - Cipher Integration: ポート3001 (Safe Mode OS)
  * 
- * bunenjin分人マッピング:
+ * HaQei分人マッピング:
  * - 各サーバーを独立した「分人」として認識・管理
  * - 相互作用による創発的システム構築
  * - 易経的変化対応による継続的最適化
@@ -28,7 +28,7 @@ const execAsync = promisify(exec);
 
 class ParallelServerManager {
   constructor() {
-    // bunenjin分人定義（各サーバーの人格特性）
+    // HaQei分人定義（各サーバーの人格特性）
     this.serverPersonalities = {
       'os-analyzer': {
         name: 'OS Analyzer',
@@ -82,7 +82,7 @@ class ParallelServerManager {
         uptime: 0,
         errorRate: 0,
         responseTime: 0,
-        bunenjinCompliance: 0
+        HaQeiCompliance: 0
       }
     };
 
@@ -90,11 +90,11 @@ class ParallelServerManager {
   }
 
   /**
-   * 全サーバーの並行起動（bunenjin調和システム）
+   * 全サーバーの並行起動（HaQei調和システム）
    */
   async startAllServers() {
     console.log('🚀 HAQEIプロジェクト 並行サーバー管理システム 起動中...');
-    console.log('🔄 bunenjin分人思想に基づく調和的サーバー管理を開始します\n');
+    console.log('🔄 HaQei分人思想に基づく調和的サーバー管理を開始します\n');
 
     this.systemState.startTime = new Date();
 
@@ -328,7 +328,7 @@ class ParallelServerManager {
       uptime: Math.floor(uptime / 1000), // 秒
       errorRate: this.calculateErrorRate(),
       responseTime: this.calculateAverageResponseTime(),
-      bunenjinCompliance: this.systemState.harmony
+      HaQeiCompliance: this.systemState.harmony
     };
   }
 
@@ -407,7 +407,7 @@ class ParallelServerManager {
         isHealthy: info.isHealthy,
         interactions: info.interactions
       })),
-      bunenjinAnalysis: {
+      HaQeiAnalysis: {
         totalPersonalities: Object.keys(this.serverPersonalities).length,
         activePersonalities: this.activeProcesses.size,
         harmonyLevel: this.systemState.harmony,
@@ -450,7 +450,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const manager = new ParallelServerManager();
   
   console.log('🎭 HAQEIプロジェクト 並行サーバー管理システム');
-  console.log('🔄 bunenjin分人思想 × Triple OS Architecture');
+  console.log('🔄 HaQei分人思想 × Triple OS Architecture');
   console.log('⚡ Tsumikiワークフロー準拠版\n');
   
   manager.startAllServers().catch(error => {

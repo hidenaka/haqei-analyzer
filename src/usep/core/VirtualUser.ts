@@ -153,7 +153,7 @@ export interface HaqeiPersonaProfile {
       defensePatterns: string[];
     };
   };
-  bunenjinAlignment: {
+  HaQeiAlignment: {
     complexityAcceptance: number;
     paradoxTolerance: number;
     strategicThinking: number;
@@ -856,7 +856,7 @@ export class VirtualUser {
     }
     
     // HaQei理解度による反応
-    const understanding = this.haqeiSpecific.bunenjinAlignment.complexityAcceptance;
+    const understanding = this.haqeiSpecific.HaQeiAlignment.complexityAcceptance;
     
     if (understanding > 0.7) {
       return {

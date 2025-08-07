@@ -243,9 +243,9 @@ class Phase2TestSuite {
             validation.issues.push('No hexagram selected');
         }
 
-        if (!result.bunenjinInterpretation) {
+        if (!result.HaQeiInterpretation) {
             validation.passed = false;
-            validation.issues.push('No bunenjin interpretation');
+            validation.issues.push('No HaQei interpretation');
         }
 
         // 卦番号の妥当性チェック
@@ -269,9 +269,9 @@ class Phase2TestSuite {
             }
         }
 
-        // bunenjin準拠チェック
-        if (result.bunenjinCompliance !== true) {
-            validation.issues.push('bunenjin compliance not confirmed');
+        // HaQei準拠チェック
+        if (result.HaQeiCompliance !== true) {
+            validation.issues.push('HaQei compliance not confirmed');
         }
 
         // 処理時間チェック（10秒以内）

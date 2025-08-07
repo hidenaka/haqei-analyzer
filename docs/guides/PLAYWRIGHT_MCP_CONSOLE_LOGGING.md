@@ -105,7 +105,7 @@ playwright_console_logs({
 
 // 3. 特定の問題を調査
 playwright_console_logs({
-  search: "bunenjin",
+  search: "HaQei",
   type: "error"
 })
 ```
@@ -137,7 +137,7 @@ npx @playwright/mcp --version
 ## 🎉 統合された機能
 
 現在のHAQEI MCP環境には以下が含まれます:
-- ✅ **Cipher** - bunenjin哲学とプロジェクト記憶
+- ✅ **Cipher** - HaQei哲学とプロジェクト記憶
 - ✅ **Tsumiki** - AI駆動開発フレームワーク  
 - ✅ **Serena** - セマンティックコード分析、ファイル監視
 - ✅ **Playwright** - ブラウザ自動化 & **コンソールログ取得**

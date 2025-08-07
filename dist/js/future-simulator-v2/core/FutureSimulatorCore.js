@@ -1,7 +1,7 @@
 /**
  * FutureSimulatorCore.js - Future Simulator Core Engine
  * 
- * bunenjin哲学による簡潔で効率的なコア機能
+ * HaQei哲学による簡潔で効率的なコア機能
  * kuromoji.js統合と非同期処理最適化
  * 
  * Author: HAQEI Programmer Agent
@@ -30,7 +30,7 @@ export class FutureSimulatorCore {
   }
 
   /**
-   * 非同期初期化 - bunenjin哲学による最適化
+   * 非同期初期化 - HaQei哲学による最適化
    */
   async initialize() {
     if (this.initialized) {

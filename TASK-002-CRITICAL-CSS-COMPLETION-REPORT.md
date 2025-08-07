@@ -77,9 +77,9 @@ Extract and create critical CSS for os_analyzer.html to optimize first paint per
   - SafeMode emphasis box ✅
   - Responsive layout ✅
 
-## 🎨 bunenjin Philosophy Integration
+## 🎨 HaQei Philosophy Integration
 
-The critical CSS maintains the bunenjin philosophy through:
+The critical CSS maintains the HaQei philosophy through:
 - **Harmony**: Balanced spacing using clamp() functions
 - **Essential Beauty**: Only necessary styles for first view
 - **Responsive Wisdom**: Adaptive design principles
@@ -130,6 +130,6 @@ TASK-002 has been successfully implemented with:
 - Async loading for non-critical CSS
 - Complete welcome screen coverage
 - Performance optimizations applied
-- bunenjin philosophy preserved
+- HaQei philosophy preserved
 
 The welcome screen now renders immediately with critical styles while additional CSS loads progressively in the background.

@@ -10,7 +10,7 @@ HAQEIアナライザーのFuture Simulatorにおいて、機械的確率論理�
 - **品質**: 世界水準のI Ching実装標準達成
 - **統合性**: 既存システムとの完全な互換性
 - **性能**: 2秒以内の応答時間維持
-- **哲学性**: bunenjin哲学の完全統合
+- **哲学性**: HaQei哲学の完全統合
 
 ### ドキュメント構成
 本設計書は、要件定義書に基づき、システムアーキテクチャから実装詳細まで網羅する。
@@ -47,7 +47,7 @@ HAQEIアナライザーのFuture Simulatorにおいて、機械的確率論理�
 │ Integration     │    │                 │    │                 │
 │                 │    ├─────────────────┤    │ DataPersistence │
 ├─────────────────┤    │                 │    │ Manager         │
-│                 │    │ bunenjin        │◄──►│                 │
+│                 │    │ HaQei        │◄──►│                 │
 │ Legacy Support  │    │ Philosophy      │    │ 暗号化永続化    │
 │                 │    │ Integration     │    │                 │
 │ 【削除予定】    │    │                 │    │                 │
@@ -73,7 +73,7 @@ HAQEIアナライザーのFuture Simulatorにおいて、機械的確率論理�
 #### 1.2.1 Primary Components (新規実装)
 - **Authentic8ScenariosSystem**: 8変化パターン生成コア
 - **AuthenticIChingEngine**: 正統易経計算エンジン
-- **bunenjin Philosophy Integration**: 哲学統合レイヤー
+- **HaQei Philosophy Integration**: 哲学統合レイヤー
 
 #### 1.2.2 Supporting Components (既存活用)
 - **H384_DATABASE**: 384爻完全データベース
@@ -86,7 +86,7 @@ HAQEIアナライザーのFuture Simulatorにおいて、機械的確率論理�
 ### 1.3 Integration Architecture
 
 ```
-bunenjin Philosophy Framework
+HaQei Philosophy Framework
 ├── Engine OS Integration    ─┐
 ├── Interface OS Integration ─┼── Triple OS Architecture
 └── Safe Mode OS Integration ─┘
@@ -134,7 +134,7 @@ class Authentic8ScenariosSystem {
       responseTimeout: 2000,      // 2秒以内応答
       authenticityLevel: 0.95,    // 95%正統性
       visualizationMode: 'elegant',
-      bunenjinMode: true,
+      HaQeiMode: true,
       ...options
     };
     
@@ -192,7 +192,7 @@ generateOrthodoxyPattern(hexagram, line, baseData) {
     name: '正統変化',
     description: '爻辞に従う古典的変化',
     hexagramTransformation: this.engine.orthodoxTransformation(hexagram, line),
-    bunenjinAlignment: this.calculateBunenjinAlignment('orthodox', baseData),
+    HaQeiAlignment: this.calculateBunenjinAlignment('orthodox', baseData),
     confidenceLevel: 0.95,
     timeFrame: 'medium',
     actions: this.generateOrthodoxyActions(hexagram, line, baseData)
@@ -208,7 +208,7 @@ generateContradictionPattern(hexagram, line, baseData) {
     name: '逆行変化',
     description: '爻辞に逆らう変化パターン',
     hexagramTransformation: this.engine.contradictionTransformation(hexagram, line),
-    bunenjinAlignment: this.calculateBunenjinAlignment('contradiction', baseData),
+    HaQeiAlignment: this.calculateBunenjinAlignment('contradiction', baseData),
     confidenceLevel: 0.75,
     timeFrame: 'short',
     risks: this.analyzeContradictionRisks(hexagram, line, baseData)
@@ -255,7 +255,7 @@ class AuthenticIChingEngineIntegrator {
 }
 ```
 
-### 2.3 bunenjin Philosophy Integration Layer
+### 2.3 HaQei Philosophy Integration Layer
 
 #### 2.3.1 Triple OS Architecture 統合
 
@@ -322,7 +322,7 @@ User Input
                   │
                   ▼
 ┌─────────────────────────────────────────┐
-│       bunenjin Philosophy Layer         │
+│       HaQei Philosophy Layer         │
 │  • Triple OS分析                       │  
 │  • 分人的変化解釈                      │
 │  • 戦略ナビゲーション                  │
@@ -366,8 +366,8 @@ const TransformationPatternSchema = {
     symbolInterpretation: String // 象辞解釈
   },
   
-  // bunenjin統合分析
-  bunenjinAlignment: {
+  // HaQei統合分析
+  HaQeiAlignment: {
     engineOSScore: Number,       // Engine OS適合度 (0-1)
     interfaceOSScore: Number,    // Interface OS適合度 (0-1)
     safeModeOSScore: Number,     // Safe Mode OS適合度 (0-1)
@@ -437,7 +437,7 @@ Request Input
       │ (<1500ms)
       ▼
 ┌─────────────────┐
-│ bunenjin        │
+│ HaQei        │
 │ Integration     │
 └─────┬───────────┘
       │ (<2000ms - Target)
@@ -504,7 +504,7 @@ class DataCompatibilityManager {
     return {
       // 新形式に変換
       transformationPatterns: this.convertProbabilisticToPattern(legacyData.scenarios),
-      bunenjinAnalysis: this.extractBunenjinElements(legacyData.analysis),
+      HaQeiAnalysis: this.extractBunenjinElements(legacyData.analysis),
       authenticityMetadata: {
         migrationTimestamp: new Date(),
         legacyDataVersion: legacyData.version,
@@ -593,7 +593,7 @@ class HAQEISystemIntegrator {
       ...pattern,
       haqeiStageIntegration: {
         stage: 3,
-        tripleOSRecommendation: pattern.bunenjinAlignment,
+        tripleOSRecommendation: pattern.HaQeiAlignment,
         navigationPath: this.calculateNavigationPath(pattern),
         strategicImplications: this.analyzeStrategicImplications(pattern)
       }
@@ -825,7 +825,7 @@ class FutureSimulatorAPI {
       baseLineData: input.baseData,
       options: {
         authenticityLevel: this.authenticityRequirement,
-        bunenjinMode: true,
+        HaQeiMode: true,
         responseTimeout: 2000
       }
     };
@@ -853,13 +853,13 @@ class FutureSimulatorAPI {
   }
   
   /**
-   * bunenjin統合分析API
+   * HaQei統合分析API
    * @param {Object} pattern - 変化パターン
    * @param {Object} userContext - ユーザーコンテキスト
-   * @returns {Promise<Object>} bunenjin分析結果
+   * @returns {Promise<Object>} HaQei分析結果
    */
   async analyzeBunenjinIntegration(pattern, userContext) {
-    const endpoint = `${this.baseURL}/analysis/bunenjin`;
+    const endpoint = `${this.baseURL}/analysis/HaQei`;
     const payload = { pattern, userContext };
     
     return await this.secureRequest('POST', endpoint, payload);
@@ -939,9 +939,9 @@ class HAQEIIntegrationAPI {
   // Triple OS統合データ送信
   async sendToTripleOS(transformationData) {
     const payload = {
-      engineOSData: transformationData.bunenjinAlignment.engineOSScore,
-      interfaceOSData: transformationData.bunenjinAlignment.interfaceOSScore,
-      safeModeOSData: transformationData.bunenjinAlignment.safeModeOSScore,
+      engineOSData: transformationData.HaQeiAlignment.engineOSScore,
+      interfaceOSData: transformationData.HaQeiAlignment.interfaceOSScore,
+      safeModeOSData: transformationData.HaQeiAlignment.safeModeOSScore,
       sourceModule: 'future_simulator_v2',
       timestamp: new Date().toISOString()
     };
@@ -1101,8 +1101,8 @@ class EnhancedDataPersistenceManager extends DataPersistenceManager {
         ]
       },
       
-      // bunenjin分析結果
-      bunenjinAnalyses: {
+      // HaQei分析結果
+      HaQeiAnalyses: {
         keyPath: 'analysisId',
         indexes: [
           { name: 'userId', keyPath: 'userId' },
@@ -1153,7 +1153,7 @@ class EnhancedDataPersistenceManager extends DataPersistenceManager {
       metricId: this.generateMetricId(),
       calculationTime: metrics.calculationTime,
       authenticityLevel: metrics.authenticityLevel,
-      bunenjinIntegrationTime: metrics.bunenjinTime,
+      HaQeiIntegrationTime: metrics.HaQeiTime,
       cacheHitRatio: metrics.cacheHitRatio,
       memoryUsage: metrics.memoryUsage,
       date: new Date(),
@@ -1224,8 +1224,8 @@ class DataMigrationManager {
       // 易経データ推定
       hexagramTransformation: this.estimateHexagramData(legacyScenario),
       
-      // bunenjin データ生成
-      bunenjinAlignment: this.generateBunenjinData(legacyScenario),
+      // HaQei データ生成
+      HaQeiAlignment: this.generateBunenjinData(legacyScenario),
       
       // 信頼度計算
       confidenceLevel: this.calculateNewConfidence(legacyScenario.probability),
@@ -1743,7 +1743,7 @@ Testing Pyramid:
 │     • Component Integration            │
 │     • API Integration                  │
 │     • Database Integration             │
-│     • bunenjin Philosophy Integration  │
+│     • HaQei Philosophy Integration  │
 └─────────────────────────────────────────┘
 ┌─────────────────────────────────────────┐
 │              Unit Tests                 │
@@ -1983,8 +1983,8 @@ class IntegrationTestSuite {
   constructor() {
     this.integrationPoints = [
       'authentic8scenarios_h384database',
-      'authentic8scenarios_bunenjin',
-      'bunenjin_tripleos',
+      'authentic8scenarios_HaQei',
+      'HaQei_tripleos',
       'system_haqei7stage',
       'data_persistence',
       'visualization_chartjs',
@@ -1993,7 +1993,7 @@ class IntegrationTestSuite {
   }
   
   /**
-   * bunenjin統合テスト
+   * HaQei統合テスト
    */
   async testBunenjinIntegration() {
     const testScenario = this.createBunenjinTestScenario();
@@ -2002,17 +2002,17 @@ class IntegrationTestSuite {
     const tripleOSResult = await this.testTripleOSIntegration(testScenario);
     
     // 分人概念実装テスト
-    const bunenjinConceptResult = await this.testBunenjinConcept(testScenario);
+    const HaQeiConceptResult = await this.testBunenjinConcept(testScenario);
     
     // HAQEI 7-Stage Navigation統合テスト
     const navigationResult = await this.testNavigationIntegration(testScenario);
     
     return {
       tripleOSIntegration: tripleOSResult,
-      bunenjinConcept: bunenjinConceptResult,
+      HaQeiConcept: HaQeiConceptResult,
       navigationIntegration: navigationResult,
       overallSuccess: tripleOSResult.success && 
-                      bunenjinConceptResult.success && 
+                      HaQeiConceptResult.success && 
                       navigationResult.success
     };
   }
@@ -2060,7 +2060,7 @@ class IntegrationTestSuite {
 2. **性能**: 2秒以内応答時間を実現する並列処理・キャッシュ戦略
 3. **統合性**: 既存システムとの完全互換性を保つ移行戦略
 4. **品質**: 世界水準のI Ching実装標準を満たす設計
-5. **哲学性**: bunenjin哲学の完全統合とTriple OS Architecture連携
+5. **哲学性**: HaQei哲学の完全統合とTriple OS Architecture連携
 
 #### 🏗️ アーキテクチャの優位性
 - **モジュラー設計**: 各コンポーネントの独立性と相互運用性
@@ -2099,7 +2099,7 @@ class IntegrationTestSuite {
    - 基本テスト環境構築
 
 3. **中期統合項目** (3-6週間):
-   - bunenjin Philosophy統合
+   - HaQei Philosophy統合
    - レガシーシステム置換
    - 包括的テスト実施
 
@@ -2127,7 +2127,7 @@ class IntegrationTestSuite {
 - I Ching Implementation Best Practices
 
 ### 哲学参考文献  
-- bunenjin Philosophy Framework
+- HaQei Philosophy Framework
 - Triple OS Architecture Documentation
 - Classical I Ching Literature (朱熹『周易本義』等)
 

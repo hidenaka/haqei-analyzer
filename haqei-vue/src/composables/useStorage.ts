@@ -2,7 +2,7 @@
  * HAQEI Supabase Storage Composable
  * 
  * 目的：
- * - bunenjin哲学に基づくユーザーデータ管理
+ * - HaQei哲学に基づくユーザーデータ管理
  * - Supabase Storageの完全統合
  * - ファイルアップロード・ダウンロード・管理機能
  * - プライバシー保護ファイル処理
@@ -81,7 +81,7 @@ export function useStorage() {
    * 3. ストレージ使用量の計算
    * 4. セキュリティポリシーの適用
    * 
-   * bunenjin哲学統合：
+   * HaQei哲学統合：
    * - ユーザー主権のファイル管理
    * - データ所有権の明確化
    * - 透明性の確保

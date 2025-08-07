@@ -1,5 +1,5 @@
-/* 東洋的美意識統合スタイルシート - bunenjin哲学完全対応 */
-/* Eastern Aesthetics Integration for bunenjin Philosophy */
+/* 東洋的美意識統合スタイルシート - HaQei哲学完全対応 */
+/* Eastern Aesthetics Integration for HaQei Philosophy */
 
 /* === 1. 余白（間）の美学 - Ma (Space) Aesthetics === */
 :root {
@@ -53,7 +53,7 @@
 }
 
 /* === 3. 自然調和色彩システム - Natural Harmony Colors === */
-.bunenjin-theme {
+.HaQei-theme {
   /* 四季の色彩 - Four seasons palette */
   --spring-fresh: #66bb6a;    /* 春の新緑 */
   --summer-deep: #2e7d32;     /* 夏の深緑 */
@@ -74,10 +74,10 @@
   --water-black: #212121;     /* 水 - 黒 */
 }
 
-/* === 4. bunenjin哲学UI要素 - Bunenjin Philosophy UI Elements === */
+/* === 4. HaQei哲学UI要素 - HaQei Philosophy UI Elements === */
 
 /* 多面性受容インターフェース - Multi-faceted Acceptance Interface */
-.bunenjin-multifaceted {
+.HaQei-multifaceted {
   display: grid;
   grid-template-areas: 
     "primary secondary"
@@ -89,7 +89,7 @@
   position: relative;
 }
 
-.bunenjin-multifaceted::before {
+.HaQei-multifaceted::before {
   content: '';
   position: absolute;
   top: 0;
@@ -572,19 +572,19 @@
 }
 
 /* === 11. 文化的適応性支援 - Cultural Adaptability Support === */
-[lang="en"] .bunenjin-theme {
+[lang="en"] .HaQei-theme {
   font-family: 'Georgia', 'Times New Roman', serif;
 }
 
-[lang="ja"] .bunenjin-theme {
+[lang="ja"] .HaQei-theme {
   font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
 }
 
-[lang="zh"] .bunenjin-theme {
+[lang="zh"] .HaQei-theme {
   font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
-[lang="ko"] .bunenjin-theme {
+[lang="ko"] .HaQei-theme {
   font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
 }
 

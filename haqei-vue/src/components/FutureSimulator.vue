@@ -145,7 +145,7 @@
           @click="optimizeAlgorithm"
         >
           <span v-if="isOptimizing" class="loading-spinner small"></span>
-          {{ isOptimizing ? '最適化中...' : 'bunenjin哲学アルゴリズム最適化' }}
+          {{ isOptimizing ? '最適化中...' : 'HaQei哲学アルゴリズム最適化' }}
         </button>
         
         <button
@@ -394,7 +394,7 @@ const runSimulation = async () => {
   const startTime = Date.now()
 
   try {
-    // Simulate future prediction with bunenjin philosophy and Triple OS integration
+    // Simulate future prediction with HaQei philosophy and Triple OS integration
     const result = await performFutureSimulation(
       inputScenario.value,
       predictionPeriod.value,
@@ -438,7 +438,7 @@ const performFutureSimulation = async (
   // Simulate API call delay
   await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000))
 
-  // bunenjin philosophy: Accept multiple possibilities and contradictions
+  // HaQei philosophy: Accept multiple possibilities and contradictions
   const scenarios = [
     {
       id: '1',
@@ -474,19 +474,19 @@ const performFutureSimulation = async (
     id: Date.now().toString(),
     accuracy: Math.max(0.7, Math.min(0.98, accuracy)),
     confidence: Math.max(0.75, Math.min(0.99, confidence)),
-    prediction: `${scenario}について分析した結果、${period === 'short' ? '短期的には' : period === 'medium' ? '中期的には' : '長期的には'}以下の展開が予想されます。bunenjin哲学に基づき、複数の可能性を同時に受け入れながら、Triple OSシステムによる多角的分析を実施しました。`,
+    prediction: `${scenario}について分析した結果、${period === 'short' ? '短期的には' : period === 'medium' ? '中期的には' : '長期的には'}以下の展開が予想されます。HaQei哲学に基づき、複数の可能性を同時に受け入れながら、Triple OSシステムによる多角的分析を実施しました。`,
     scenarios: scenarios.sort((a, b) => b.probability - a.probability)
   }
 }
 
 const optimizeAlgorithm = async () => {
   isOptimizing.value = true
-  optimizationProgress.value = { active: true, status: 'bunenjin哲学アルゴリズム解析中...', percentage: 0 }
+  optimizationProgress.value = { active: true, status: 'HaQei哲学アルゴリズム解析中...', percentage: 0 }
 
   try {
     // Simulate optimization process
     const steps = [
-      { status: 'bunenjin哲学アルゴリズム解析中...', duration: 1000 },
+      { status: 'HaQei哲学アルゴリズム解析中...', duration: 1000 },
       { status: '多面性受容アルゴリズム最適化中...', duration: 1500 },
       { status: '調和追求ロジック改善中...', duration: 1200 },
       { status: '精度向上パラメータ調整中...', duration: 800 },
@@ -503,7 +503,7 @@ const optimizeAlgorithm = async () => {
     const improvement = 0.02 + Math.random() * 0.03
     updatePrecision(Math.min(0.98, currentPrecision.value + improvement))
 
-    addAlert('success', '最適化完了', `bunenjin哲学アルゴリズムの最適化が完了しました。精度が ${formatPercentage(improvement)} 向上しました。`)
+    addAlert('success', '最適化完了', `HaQei哲学アルゴリズムの最適化が完了しました。精度が ${formatPercentage(improvement)} 向上しました。`)
 
   } catch (error) {
     addAlert('error', '最適化エラー', 'アルゴリズムの最適化中にエラーが発生しました')

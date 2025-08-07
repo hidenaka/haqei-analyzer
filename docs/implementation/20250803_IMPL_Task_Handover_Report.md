@@ -20,7 +20,7 @@
 - データベーススキーマ（15テーブル）の設計と実装
 
 #### 2. リアルタイム機能（TASK-039完了）
-- `useRealtimeSubscription.ts` - bunenjin協調診断システム
+- `useRealtimeSubscription.ts` - HaQei協調診断システム
 - `useRealtimeProgress.ts` - リアルタイムプログレス表示
 - `useCollaborativeDiagnosis.ts` - 協調診断機能
 - `useMultiDeviceSync.ts` - マルチデバイス同期

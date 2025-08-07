@@ -39,7 +39,7 @@
 | T401 | Unit test追加 | Coverage 80%以上 | 4h | tester |
 | T402 | Integration test | E2Eシナリオ実行 | 3h | haqei-qa-tester |
 | T403 | Performance test | 負荷テスト実施 | 2h | performance-benchmarker |
-| T404 | bunenjin検証 | 哲学準拠確認 | 2h | bunenjin-strategy-navigator |
+| T404 | HaQei検証 | 哲学準拠確認 | 2h | HaQei-strategy-navigator |
 | T405 | I Ching検証 | 易経正確性確認 | 2h | haqei-iching-expert |
 
 ## マイルストーン
@@ -54,4 +54,4 @@
 - テスト合格率: 100%
 - バンドルサイズ: 3MB以下
 - 初期ローディング: 3秒以内
-- bunenjin準拠度: 98%以上
+- HaQei準拠度: 98%以上

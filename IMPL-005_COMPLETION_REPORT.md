@@ -82,7 +82,7 @@ IMPL-005完了により、IMPL-006 (CSS設計統一)に移行可能
 
 ---
 **完了日**: 2025-08-05  
-**実装者**: Claude Code + bunenjin-strategy-navigator  
+**実装者**: Claude Code + HaQei-strategy-navigator  
 **品質確認**: 完了
 **次フェーズ**: IMPL-006 CSS設計統一 準備完了
 

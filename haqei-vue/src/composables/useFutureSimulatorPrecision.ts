@@ -6,7 +6,7 @@
  * - リアルタイム精度モニタリング
  * - 自動精度回復システム
  * - 品質劣化予防アルゴリズム
- * - bunenjin哲学統合精度向上
+ * - HaQei哲学統合精度向上
  */
 
 import { ref, computed, onMounted, onUnmounted } from 'vue'
@@ -139,7 +139,7 @@ export function useFutureSimulatorPrecision() {
   const triggerAutoRecovery = async () => {
     console.log('🔧 自動精度回復システム起動')
     
-    // bunenjin哲学による多面的アプローチ
+    // HaQei哲学による多面的アプローチ
     const recoveryStrategies = [
       { name: '多面性受容アルゴリズム調整', improvement: 0.02 },
       { name: '調和追求ロジック最適化', improvement: 0.015 },
@@ -225,7 +225,7 @@ export function useFutureSimulatorPrecision() {
     const recommendations: string[] = []
     
     if (accuracy < targetPrecision.value) {
-      recommendations.push('bunenjin哲学アルゴリズムの多面性パラメータを調整してください')
+      recommendations.push('HaQei哲学アルゴリズムの多面性パラメータを調整してください')
       recommendations.push('Triple OS統合の重み付けを見直してください')
     }
     

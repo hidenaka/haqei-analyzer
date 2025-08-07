@@ -1,9 +1,9 @@
 <template>
-  <div class="bunenjin-translator" :class="{ rtl: isRTL }">
+  <div class="HaQei-translator" :class="{ rtl: isRTL }">
     <div class="translator-header">
       <h3 class="title">
         <IconTranslate class="icon" />
-        {{ t('bunenjin.translator.title') }}
+        {{ t('HaQei.translator.title') }}
       </h3>
       <div class="language-badges">
         <span class="badge source">{{ sourceLanguage.flag }} {{ sourceLanguage.name }}</span>
@@ -14,7 +14,7 @@
 
     <!-- 64卦名称翻訳 -->
     <div class="hexagram-translation-section">
-      <h4 class="section-title">{{ t('bunenjin.translator.hexagrams') }}</h4>
+      <h4 class="section-title">{{ t('HaQei.translator.hexagrams') }}</h4>
       <div class="hexagram-grid">
         <div
           v-for="hexagram in translatedHexagrams"
@@ -28,12 +28,12 @@
           </div>
           <div class="hexagram-names">
             <div class="original">
-              <span class="label">{{ t('bunenjin.translator.original') }}</span>
+              <span class="label">{{ t('HaQei.translator.original') }}</span>
               <span class="name">{{ hexagram.original.name }}</span>
               <span class="reading">{{ hexagram.original.reading }}</span>
             </div>
             <div class="translated">
-              <span class="label">{{ t('bunenjin.translator.translated') }}</span>
+              <span class="label">{{ t('HaQei.translator.translated') }}</span>
               <span class="name" :class="{ placeholder: hexagram.isTranslating }">
                 {{ hexagram.isTranslating ? '...' : hexagram.translated.name }}
               </span>
@@ -56,9 +56,9 @@
       </div>
     </div>
 
-    <!-- bunenjin哲学概念翻訳 -->
+    <!-- HaQei哲学概念翻訳 -->
     <div class="philosophy-translation-section">
-      <h4 class="section-title">{{ t('bunenjin.translator.concepts') }}</h4>
+      <h4 class="section-title">{{ t('HaQei.translator.concepts') }}</h4>
       <div class="concepts-grid">
         <div
           v-for="concept in translatedConcepts"
@@ -100,7 +100,7 @@
                 </span>
               </div>
               <div v-if="concept.translated.culturalAdaptation" class="cultural-adaptation">
-                <h6>{{ t('bunenjin.translator.culturalAdaptation') }}</h6>
+                <h6>{{ t('HaQei.translator.culturalAdaptation') }}</h6>
                 <p>{{ concept.translated.culturalAdaptation }}</p>
               </div>
             </div>
@@ -109,15 +109,15 @@
           <div class="concept-quality">
             <div class="quality-metrics">
               <div class="metric">
-                <span class="label">{{ t('bunenjin.translator.accuracy') }}</span>
+                <span class="label">{{ t('HaQei.translator.accuracy') }}</span>
                 <span class="value">{{ Math.round(concept.quality.accuracy * 100) }}%</span>
               </div>
               <div class="metric">
-                <span class="label">{{ t('bunenjin.translator.cultural') }}</span>
+                <span class="label">{{ t('HaQei.translator.cultural') }}</span>
                 <span class="value">{{ Math.round(concept.quality.culturalAdaptation * 100) }}%</span>
               </div>
               <div class="metric">
-                <span class="label">{{ t('bunenjin.translator.fluency') }}</span>
+                <span class="label">{{ t('HaQei.translator.fluency') }}</span>
                 <span class="value">{{ Math.round(concept.quality.fluency * 100) }}%</span>
               </div>
             </div>
@@ -128,7 +128,7 @@
 
     <!-- 地域別哲学表現統合 -->
     <div class="regional-expressions-section">
-      <h4 class="section-title">{{ t('bunenjin.translator.regionalExpressions') }}</h4>
+      <h4 class="section-title">{{ t('HaQei.translator.regionalExpressions') }}</h4>
       <div class="expressions-tabs">
         <button
           v-for="region in availableRegions"
@@ -150,7 +150,7 @@
           <div class="expression-header">
             <h6 class="concept-name">{{ expression.concept }}</h6>
             <div class="similarity-score">
-              <span class="label">{{ t('bunenjin.translator.similarity') }}</span>
+              <span class="label">{{ t('HaQei.translator.similarity') }}</span>
               <div class="score-bar">
                 <div 
                   class="score-fill" 
@@ -162,15 +162,15 @@
           </div>
           
           <div class="expression-comparison">
-            <div class="bunenjin-expression">
-              <h7>bunenjin</h7>
-              <p>{{ expression.bunenjin }}</p>
+            <div class="HaQei-expression">
+              <h7>HaQei</h7>
+              <p>{{ expression.HaQei }}</p>
             </div>
             <div class="regional-expression">
               <h7>{{ getRegionName(selectedRegion) }}</h7>
               <p>{{ expression.regional }}</p>
               <div class="cultural-context">
-                <strong>{{ t('bunenjin.translator.context') }}:</strong>
+                <strong>{{ t('HaQei.translator.context') }}:</strong>
                 {{ expression.culturalContext }}
               </div>
             </div>
@@ -181,7 +181,7 @@
 
     <!-- 翻訳統計とパフォーマンス -->
     <div class="translation-stats-section">
-      <h4 class="section-title">{{ t('bunenjin.translator.statistics') }}</h4>
+      <h4 class="section-title">{{ t('HaQei.translator.statistics') }}</h4>
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-icon">
@@ -189,7 +189,7 @@
           </div>
           <div class="stat-content">
             <span class="stat-value">{{ translationStats.totalTranslations }}</span>
-            <span class="stat-label">{{ t('bunenjin.translator.totalTranslations') }}</span>
+            <span class="stat-label">{{ t('HaQei.translator.totalTranslations') }}</span>
           </div>
         </div>
         
@@ -199,7 +199,7 @@
           </div>
           <div class="stat-content">
             <span class="stat-value">{{ translationStats.averageTime }}ms</span>
-            <span class="stat-label">{{ t('bunenjin.translator.averageTime') }}</span>
+            <span class="stat-label">{{ t('HaQei.translator.averageTime') }}</span>
           </div>
         </div>
         
@@ -209,7 +209,7 @@
           </div>
           <div class="stat-content">
             <span class="stat-value">{{ Math.round(translationStats.averageQuality * 100) }}%</span>
-            <span class="stat-label">{{ t('bunenjin.translator.averageQuality') }}</span>
+            <span class="stat-label">{{ t('HaQei.translator.averageQuality') }}</span>
           </div>
         </div>
         
@@ -219,7 +219,7 @@
           </div>
           <div class="stat-content">
             <span class="stat-value">{{ translationStats.supportedLanguages }}</span>
-            <span class="stat-label">{{ t('bunenjin.translator.supportedLanguages') }}</span>
+            <span class="stat-label">{{ t('HaQei.translator.supportedLanguages') }}</span>
           </div>
         </div>
       </div>
@@ -227,7 +227,7 @@
 
     <!-- ネイティブ校正ワークフロー -->
     <div v-if="showNativeReview" class="native-review-section">
-      <h4 class="section-title">{{ t('bunenjin.translator.nativeReview') }}</h4>
+      <h4 class="section-title">{{ t('HaQei.translator.nativeReview') }}</h4>
       <div class="review-workflow">
         <div class="workflow-steps">
           <div
@@ -314,7 +314,7 @@ interface ConceptTranslation {
 
 interface RegionalExpression {
   concept: string
-  bunenjin: string
+  HaQei: string
   regional: string
   similarity: number
   culturalContext: string
@@ -371,12 +371,12 @@ const sourceLanguage = computed(() => SUPPORTED_LOCALES[props.sourceLocale])
 const targetLanguage = computed(() => SUPPORTED_LOCALES[props.targetLocale || currentLocale.value])
 
 const availableRegions = computed(() => [
-  { code: 'East Asia', name: t('bunenjin.translator.regions.eastAsia') },
-  { code: 'Southeast Asia', name: t('bunenjin.translator.regions.southeastAsia') },
-  { code: 'South Asia', name: t('bunenjin.translator.regions.southAsia') },
-  { code: 'Middle East', name: t('bunenjin.translator.regions.middleEast') },
-  { code: 'Europe', name: t('bunenjin.translator.regions.europe') },
-  { code: 'Africa', name: t('bunenjin.translator.regions.africa') }
+  { code: 'East Asia', name: t('HaQei.translator.regions.eastAsia') },
+  { code: 'Southeast Asia', name: t('HaQei.translator.regions.southeastAsia') },
+  { code: 'South Asia', name: t('HaQei.translator.regions.southAsia') },
+  { code: 'Middle East', name: t('HaQei.translator.regions.middleEast') },
+  { code: 'Europe', name: t('HaQei.translator.regions.europe') },
+  { code: 'Africa', name: t('HaQei.translator.regions.africa') }
 ])
 
 // メソッド
@@ -398,14 +398,14 @@ function getRegionalExpressions(region: string): RegionalExpression[] {
     'East Asia': [
       {
         concept: '多面性受容',
-        bunenjin: '矛盾する複数の側面を同時に受け入れる',
+        HaQei: '矛盾する複数の側面を同時に受け入れる',
         regional: '陰陽調和・中庸の道',
         similarity: 0.85,
         culturalContext: '儒教・道教の中庸思想との共通点'
       },
       {
         concept: '変化受容',
-        bunenjin: '流動的な状況への適応',
+        HaQei: '流動的な状況への適応',
         regional: '易の変化思想・無常観',
         similarity: 0.92,
         culturalContext: '仏教の無常観と易経の変化原理'
@@ -414,7 +414,7 @@ function getRegionalExpressions(region: string): RegionalExpression[] {
     'Middle East': [
       {
         concept: '調和追求',
-        bunenjin: '対立要素間のバランス',
+        HaQei: '対立要素間のバランス',
         regional: 'タワーズン（均衡）',
         similarity: 0.78,
         culturalContext: 'イスラム哲学における中道と均衡の概念'
@@ -441,7 +441,7 @@ async function initializeTranslations(): Promise<void> {
     isTranslating: false
   }))
 
-  // bunenjin概念の翻訳初期化
+  // HaQei概念の翻訳初期化
   translatedConcepts.value = [
     {
       key: 'multifaceted',
@@ -527,7 +527,7 @@ async function translateAllContent(): Promise<void> {
     }
   }
 
-  // bunenjin概念翻訳
+  // HaQei概念翻訳
   for (const concept of translatedConcepts.value) {
     try {
       concept.translated.description = await translateText(
@@ -586,14 +586,14 @@ function initializeReviewWorkflow(): void {
   reviewWorkflow.value = [
     {
       id: 'ai-translation',
-      title: t('bunenjin.translator.workflow.aiTranslation'),
-      description: t('bunenjin.translator.workflow.aiTranslationDesc'),
+      title: t('HaQei.translator.workflow.aiTranslation'),
+      description: t('HaQei.translator.workflow.aiTranslationDesc'),
       status: 'completed'
     },
     {
       id: 'cultural-review',
-      title: t('bunenjin.translator.workflow.culturalReview'),
-      description: t('bunenjin.translator.workflow.culturalReviewDesc'),
+      title: t('HaQei.translator.workflow.culturalReview'),
+      description: t('HaQei.translator.workflow.culturalReviewDesc'),
       status: 'active',
       assignee: {
         name: 'Cultural Expert',
@@ -603,8 +603,8 @@ function initializeReviewWorkflow(): void {
     },
     {
       id: 'native-review',
-      title: t('bunenjin.translator.workflow.nativeReview'),
-      description: t('bunenjin.translator.workflow.nativeReviewDesc'),
+      title: t('HaQei.translator.workflow.nativeReview'),
+      description: t('HaQei.translator.workflow.nativeReviewDesc'),
       status: 'pending',
       assignee: {
         name: 'Native Speaker',
@@ -614,8 +614,8 @@ function initializeReviewWorkflow(): void {
     },
     {
       id: 'final-approval',
-      title: t('bunenjin.translator.workflow.finalApproval'),
-      description: t('bunenjin.translator.workflow.finalApprovalDesc'),
+      title: t('HaQei.translator.workflow.finalApproval'),
+      description: t('HaQei.translator.workflow.finalApprovalDesc'),
       status: 'pending'
     }
   ]
@@ -650,7 +650,7 @@ function generateCulturalAdaptation(conceptKey: string, locale: SupportedLocale)
     }
   }
   
-  return adaptations[conceptKey]?.[locale] || t('bunenjin.translator.culturalAdaptationDefault')
+  return adaptations[conceptKey]?.[locale] || t('HaQei.translator.culturalAdaptationDefault')
 }
 
 // ライフサイクル
@@ -665,7 +665,7 @@ watch([() => props.targetLocale, currentLocale], () => {
 </script>
 
 <style scoped lang="scss">
-.bunenjin-translator {
+.HaQei-translator {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
@@ -1114,7 +1114,7 @@ watch([() => props.targetLocale, currentLocale], () => {
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
 
-  .bunenjin-expression,
+  .HaQei-expression,
   .regional-expression {
     h7 {
       display: block;
@@ -1293,7 +1293,7 @@ watch([() => props.targetLocale, currentLocale], () => {
 
 // レスポンシブ対応
 @media (max-width: 768px) {
-  .bunenjin-translator {
+  .HaQei-translator {
     padding: 1rem;
   }
 

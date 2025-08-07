@@ -1,6 +1,6 @@
 /**
  * Prettier Configuration for HAQEI Project
- * Consistent code formatting following bunenjin philosophy
+ * Consistent code formatting following HaQei philosophy
  */
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
   tabWidth: 2,
   useTabs: false,
   
-  // Line length for readability (bunenjin philosophy: clear communication)
+  // Line length for readability (HaQei philosophy: clear communication)
   printWidth: 80,
   
   // Vue.js specific

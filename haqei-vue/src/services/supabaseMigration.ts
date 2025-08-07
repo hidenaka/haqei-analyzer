@@ -4,7 +4,7 @@
  * 目的：
  * - ローカルストレージからSupabaseへの安全なデータ移行
  * - Triple OS Architecture完全対応
- * - bunenjin哲学準拠のプライバシー保護
+ * - HaQei哲学準拠のプライバシー保護
  * - Vue 3 + TypeScript最適化
  * - 段階的移行とロールバック機能
  * 
@@ -319,7 +319,7 @@ export function useSupabaseMigration() {
    * 
    * 目的：
    * - ローカルユーザープロフィールのSupabase移行
-   * - bunenjin哲学準拠のプライバシー設定移行
+   * - HaQei哲学準拠のプライバシー設定移行
    * - 認証との統合準備
    */
   async function migrateUserData(): Promise<HAQEIOperationResult<HAQEIUser>> {

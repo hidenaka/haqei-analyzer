@@ -27,7 +27,7 @@ testPages: [
   { name: 'os-analyzer', url: '/os_analyzer.html' },            // OS分析
   { name: 'results', url: '/results.html' },                   // 結果画面
   { name: 'cockpit', url: '/cockpit.html' },                   // 戦略コックピット
-  { name: 'bunenjin-philosophy', url: '/bunenjin-philosophy.html' }, // bunenjin哲学
+  { name: 'HaQei-philosophy', url: '/HaQei-philosophy.html' }, // HaQei哲学
   { name: 'strategic-dashboard', url: '/strategic-dashboard.html' }   // 戦略ダッシュボード
 ]
 ```

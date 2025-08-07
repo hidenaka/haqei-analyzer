@@ -3,7 +3,7 @@
  * 
  * 目的：
  * - localStorageに保存されたHAQEIデータの安全なSupabase移行
- * - bunenjin哲学準拠のプライバシー保護移行
+ * - HaQei哲学準拠のプライバシー保護移行
  * - Triple OS Architectureデータの完全移行
  * - Vue3統合とリアクティブ進捗管理
  * 
@@ -62,7 +62,7 @@ export interface MigrationOptions {
   timeoutMs: number
   dryRun: boolean
   
-  // プライバシー設定（bunenjin哲学準拠）
+  // プライバシー設定（HaQei哲学準拠）
   privacyLevel: Database['public']['Enums']['privacy_level']
   anonymizeData: boolean
   excludeSensitiveData: boolean
@@ -796,7 +796,7 @@ export class HAQEIDataMigrationService {
       try {
         const userData = item.value
         
-        // bunenjin哲学準拠のプライバシー設定
+        // HaQei哲学準拠のプライバシー設定
         const user: Partial<HAQEIUser> = {
           id: userData.id || userData.user_id || crypto.randomUUID(),
           email: options.anonymizeData ? null : userData.email,

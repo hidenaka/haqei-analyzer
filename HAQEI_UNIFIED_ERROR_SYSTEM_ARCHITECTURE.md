@@ -6,7 +6,7 @@ HAQEIアナライザーの統一エラーハンドリングシステムは、既
 
 ### 🎯 設計思想
 
-- **bunenjin哲学統合**: 分人思想に基づく状況適応型エラー対応
+- **HaQei哲学統合**: 分人思想に基づく状況適応型エラー対応
 - **易経変化原理**: エラーから学び調和を保つ自己修復システム
 - **Triple OS統合**: Engine/Interface/Safe Modeでの包括的処理
 - **0ダウンタイム移行**: 段階的統合による継続的サービス提供
@@ -89,7 +89,7 @@ HAQEIアナライザーの統一エラーハンドリングシステムは、既
 ┌─────────────────────────────────────────────────────┐
 │                UnifiedErrorHandler                  │
 ├─────────────────────────────────────────────────────┤
-│ bunenjin分人システム:                                │
+│ HaQei分人システム:                                │
 │ ├── analyticalSelf (分析的分人) → 論理的アプローチ    │
 │ ├── emotionalSelf (感情的分人) → 共感的アプローチ     │
 │ └── pragmaticSelf (実用的分人) → 実践的アプローチ     │
@@ -151,7 +151,7 @@ HAQEIアナライザーの統一エラーハンドリングシステムは、既
 graph TD
     A[エラー発生] --> B{エラー種別判定}
     
-    B -->|JavaScript Error| C[bunenjin分人選択]
+    B -->|JavaScript Error| C[HaQei分人選択]
     B -->|Network Error| D[ネットワーク回復戦略]
     B -->|Resource Error| E[リソース代替戦略]
     B -->|HAQEI特化Error| F[易経変化適応]
@@ -284,7 +284,7 @@ class GlobalErrorSystemInitializer {
 ### 3. UnifiedErrorHandler
 
 **責任範囲:**
-- bunenjin哲学に基づくエラー分類と対応
+- HaQei哲学に基づくエラー分類と対応
 - 易経原理による回復戦略実行
 - Triple OS統合による包括的処理
 - ユーザーフレンドリーな通知とUI
@@ -292,7 +292,7 @@ class GlobalErrorSystemInitializer {
 **主要機能:**
 ```javascript
 class UnifiedErrorHandler {
-    // bunenjin分人システム
+    // HaQei分人システム
     selectBunenjinApproach(classifiedError) {
         // 状況に応じた分人選択
     }

@@ -4,7 +4,7 @@
 **作成者**: 易経エキスパートエージェント  
 **作成日**: 2025-08-04  
 **対象**: Future Simulator 根本的リニューアル  
-**哲学基盤**: bunenjin哲学 + 易経正統教義
+**哲学基盤**: HaQei哲学 + 易経正統教義
 
 ---
 
@@ -12,13 +12,13 @@
 
 ### 根本理念
 - **易経の伝統的智慧を100%尊重**した実装
-- bunenjin哲学の「分人間調和」理論との完全統合
+- HaQei哲学の「分人間調和」理論との完全統合
 - **H384_DATA**を活用した384爻の完全実装
 - 現代的UI/UXと古典易経の完璧な融合
 
 ### 品質基準
 - 易経的正確性: **98%以上**
-- bunenjin哲学整合性: **98%以上**
+- HaQei哲学整合性: **98%以上**
 - ユーザビリティ: **A級品質**
 - 技術的実装: **世界最高水準**
 
@@ -289,7 +289,7 @@ class H384DataIntegrator {
 }
 ```
 
-### 2. bunenjin哲学統合
+### 2. HaQei哲学統合
 ```javascript
 class BunenjinPhilosophyIntegrator {
   // 分人間調和理論の実装
@@ -415,7 +415,7 @@ class TransformationPatternGenerator {
       },
       timeline: this.calculateOptimalTimeline(transformation),
       guidance: transformation.lineText,
-      bunenjinAlignment: this.getBunenjinAlignment(transformation),
+      HaQeiAlignment: this.getBunenjinAlignment(transformation),
       confidence: 0.92
     };
   }
@@ -437,7 +437,7 @@ class TransformationPatternGenerator {
 3. **時間概念統合システム**
 
 ### Phase 3: 高度機能（1週間）
-1. **bunenjin哲学統合**
+1. **HaQei哲学統合**
 2. **8パターン変化システム**
 3. **品質検証・最適化**
 
@@ -461,7 +461,7 @@ class IChingAccuracyValidator {
 }
 ```
 
-### bunenjin哲学整合性検証
+### HaQei哲学整合性検証
 ```javascript
 class BunenjinAlignmentValidator {
   validatePhilosophicalConsistency(analysis) {
@@ -484,7 +484,7 @@ class BunenjinAlignmentValidator {
 - **序卦伝論理**に基づく変化予測
 - **時間概念**を統合した実用的ガイダンス
 
-### 2. bunenjin哲学との完璧な融合
+### 2. HaQei哲学との完璧な融合
 - **分人間調和理論**の実装
 - **統一self概念の適切な拒否**
 - **状況依存的人格**の認識と対応

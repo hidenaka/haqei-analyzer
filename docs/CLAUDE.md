@@ -65,7 +65,7 @@ CLAUDE.mdの「UI/UX担当役割定義」を参照し、プロジェクトの哲
 
 ### **ドキュメント作成場所の統一**
 
-**すべてのドキュメント担当agents（bunenjin-strategy-navigator等）は、以下のディレクトリにドキュメントを作成してください：**
+**すべてのドキュメント担当agents（HaQei-strategy-navigator等）は、以下のディレクトリにドキュメントを作成してください：**
 
 ```
 /Users/hideakimacbookair/Desktop/haqei-analyzer/docs/code-explanations/
@@ -86,7 +86,7 @@ docs/code-explanations/20250730_診断システム_全体構成.md
 ```
 
 #### **対象agents**
-- bunenjin-strategy-navigator
+- HaQei-strategy-navigator
 - general-purpose（ドキュメント作成時）
 - その他すべてのドキュメント作成担当agents
 

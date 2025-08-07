@@ -170,7 +170,7 @@ npx claude-flow sparc run integration "integrate authentication with user manage
 **ABSOLUTE DECISION FRAMEWORK:**
 
 ### 🧠 USE HAQEI DOMAIN AGENTS FOR:
-- **bunenjin philosophy** implementation and validation
+- **HaQei philosophy** implementation and validation
 - **I Ching (易経)** hexagram interpretation and logic
 - **Triple OS Architecture** (Engine/Interface/Safe Mode)
 - **7-Stage Navigation System** design and flow
@@ -183,12 +183,12 @@ npx claude-flow sparc run integration "integrate authentication with user manage
 
 **HAQEI Domain Agents:**
 - `haqei-cto` - High-level HAQEI project decisions
-- `haqei-programmer` - bunenjin-compliant coding
+- `haqei-programmer` - HaQei-compliant coding
 - `haqei-requirements-analyst` - I Ching-aware specifications
 - `haqei-qa-tester` - Philosophy-aligned testing
 - `haqei-reporter` - HAQEI progress communication
 - `haqei-iching-expert` - 易経 validation and interpretation
-- `bunenjin-strategy-navigator` - Philosophy framework implementation
+- `HaQei-strategy-navigator` - Philosophy framework implementation
 
 ### ⚡ USE MCP SWARM FOR:
 - **General coding** (REST APIs, databases, UI components)
@@ -205,7 +205,7 @@ npx claude-flow sparc run integration "integrate authentication with user manage
 
 ```
 TASK ANALYSIS:
-├── Does it involve bunenjin philosophy? → HAQEI Agents
+├── Does it involve HaQei philosophy? → HAQEI Agents
 ├── Does it need I Ching knowledge? → HAQEI Agents  
 ├── Does it involve Triple OS concepts? → HAQEI Agents
 ├── Is it general programming? → MCP Swarm
@@ -219,7 +219,7 @@ TASK ANALYSIS:
 **HAQEI Agent Usage:**
 ```javascript
 // Philosophy-heavy task
-Task("Implement 7-stage navigation with bunenjin philosophy", "...", "bunenjin-strategy-navigator")
+Task("Implement 7-stage navigation with HaQei philosophy", "...", "HaQei-strategy-navigator")
 Task("Validate hexagram interpretation logic", "...", "haqei-iching-expert")
 Task("Review philosophy-code alignment", "...", "haqei-qa-tester")
 ```

@@ -21,7 +21,7 @@
 3. **AutoImprovementEngine** - AI駆動自動改善・学習システム
 
 #### ✅ Service Adaptation Engine (HaQei統合完了)
-4. **HaQeiServiceAdapter** - bunenjin哲学・Triple OS・易経システム完全統合
+4. **HaQeiServiceAdapter** - HaQei哲学・Triple OS・易経システム完全統合
 
 ---
 
@@ -41,7 +41,7 @@
 - 3段階処理戦略（sequential→parallel→distributed）
 - HaQei TripleOSEngine/VirtualPersonaEngine活用
 - 統計的妥当性保証（StatisticalEngine統合）
-- bunenjin哲学による調和的ペルソナ生成
+- HaQei哲学による調和的ペルソナ生成
 ```
 
 #### 1.2 ExperienceSimulator (`/src/usep/core/ExperienceSimulator.ts`)
@@ -70,7 +70,7 @@
 🚀 技術的革新:
 - 5パターン改善機会検出（統計・行動・コンバージョン・OS調和・AI洞察）
 - Claude AI統合深層分析
-- HaQei bunenjin哲学整合性考慮
+- HaQei HaQei哲学整合性考慮
 - 自動コード生成・品質検証・ロールバック機能
 ```
 
@@ -80,13 +80,13 @@
 ```typescript
 📊 主要機能:
 ✓ USEP Core EngineのHaQei特化適応
-✓ bunenjin哲学・Triple OS・易経システム完全統合
+✓ HaQei哲学・Triple OS・易経システム完全統合
 ✓ HaQei既存30+エンジン群最大活用
 ✓ 哲学的調和度最適化
 
 🚀 技術的革新:
-- HaQeiVirtualUser型（Triple OS・bunenjin・易経統合）
-- 調和度計算アルゴリズム（bunenjin哲学ベース）
+- HaQeiVirtualUser型（Triple OS・HaQei・易経統合）
+- 調和度計算アルゴリズム（HaQei哲学ベース）
 - OS間相互作用最適化システム
 - 哲学的洞察自動抽出・統合機能
 ```
@@ -108,7 +108,7 @@
 - **Vue3+TypeScript基盤** → 最新フロントエンド環境
 - **Cipher統合** → 継続記憶・学習システム
 - **Supabase統合** → 分散データベース基盤
-- **bunenjin哲学体系** → 人間理解の深遠な智慧
+- **HaQei哲学体系** → 人間理解の深遠な智慧
 - **易経64卦システム** → 変化の原理・調和の智慧
 
 ---
@@ -119,7 +119,7 @@
 - **汎用自己改善プラットフォーム**: 任意サービス対応
 - **100万人スケール仮想ユーザー**: 業界最大規模
 - **AI完全自動化**: 発見→生成→実装→測定の全自動化
-- **哲学統合**: bunenjin思想のシステム化実現
+- **哲学統合**: HaQei思想のシステム化実現
 
 ### 2. HaQei固有の技術的差別化
 - **Triple OS人格モデル**: 他に類を見ない深層人格理解
@@ -143,7 +143,7 @@
 - **拡張性**: プラグイン型設計（A級）
 - **保守性**: モジュール化・ドキュメント化（A級）
 
-### bunenjin哲学整合性
+### HaQei哲学整合性
 - **多面性受容**: ✅ 複数ペルソナ・OS受容設計
 - **調和追求**: ✅ バランス・ハーモニー最適化
 - **変化受容**: ✅ 動的進化・適応システム
@@ -163,7 +163,7 @@
 - **診断精度向上**: 仮想ユーザーによる徹底検証
 - **UX最適化**: 大規模体験シミュレーションによる改善
 - **コンバージョン向上**: A/Bテスト最適化
-- **満足度向上**: bunenjin哲学による深層理解
+- **満足度向上**: HaQei哲学による深層理解
 
 ### 中長期戦略効果
 - **技術的護城河**: 他社追随困難な技術優位
@@ -210,7 +210,7 @@
 - **パフォーマンス**: 継続的監視・最適化
 
 ### 哲学的整合性保証
-- **bunenjin原則遵守**: 全実装で哲学的検証
+- **HaQei原則遵守**: 全実装で哲学的検証
 - **調和度測定**: 定量的評価システム
 - **文化的配慮**: 多様性・包括性確保
 - **倫理的AI**: 透明性・説明可能性重視

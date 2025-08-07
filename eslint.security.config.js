@@ -1,6 +1,6 @@
 /**
  * ESLint Security Configuration for HAQEI Project
- * Enhanced security scanning with bunenjin philosophy compliance
+ * Enhanced security scanning with HaQei philosophy compliance
  */
 
 import js from '@eslint/js'
@@ -45,7 +45,7 @@ export default [
       'no-new-func': 'error',
       'no-script-url': 'error',
       
-      // Bunenjin philosophy: Avoid single-identity assumptions
+      // HaQei philosophy: Avoid single-identity assumptions
       'no-console': ['warn', { 
         allow: ['warn', 'error', 'info'] 
       }],

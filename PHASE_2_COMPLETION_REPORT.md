@@ -187,7 +187,7 @@ find public/js -name "*.js" -exec wc -c {} \; | awk '{sum += $1} END {printf "%.
 
 ## 🎯 Bunenjin Philosophy Alignment
 
-### Phase 2 maintains bunenjin principles:
+### Phase 2 maintains HaQei principles:
 
 1. **Simplicity (簡潔)**: Clean modular architecture with clear separation
 2. **Efficiency (効率)**: Optimal resource utilization through intelligent loading

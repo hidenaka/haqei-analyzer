@@ -4,7 +4,7 @@
  * 
  * 実装日: 2025年8月6日
  * 担当: HAQEI Programming Agent  
- * 目的: テキスト入力から適切な易経卦を選択し、bunenjin哲学準拠の解釈を提供
+ * 目的: テキスト入力から適切な易経卦を選択し、HaQei哲学準拠の解釈を提供
  */
 
 class TextToIChingEngine {
@@ -18,7 +18,7 @@ class TextToIChingEngine {
         // Performance optimization
         this.analysisCache = new Map();
         this.hexagramDatabase = this.initializeHexagramDatabase();
-        this.bunenjinMapping = this.initializeBunenjinMapping();
+        this.HaQeiMapping = this.initializeHaQeiMapping();
         this.contextualWeights = this.initializeContextualWeights();
         
         console.log('🎯 TextToIChingEngine Phase 2 initialized');
@@ -47,8 +47,8 @@ class TextToIChingEngine {
             // Step 3: 易経卦選択アルゴリズム
             const selectedHexagram = await this.selectOptimalHexagram(contextualAnalysis, dynamicKeywords);
             
-            // Step 4: bunenjin哲学統合解釈
-            const bunenjinInterpretation = await this.generateBunenjinInterpretation(
+            // Step 4: HaQei哲学統合解釈
+            const HaQeiInterpretation = await this.generateHaQeiInterpretation(
                 selectedHexagram, 
                 contextualAnalysis, 
                 inputText
@@ -57,7 +57,7 @@ class TextToIChingEngine {
             // Step 5: 適応的結果生成
             const adaptiveResults = await this.generateAdaptiveResults(
                 selectedHexagram,
-                bunenjinInterpretation,
+                HaQeiInterpretation,
                 contextualAnalysis,
                 options
             );
@@ -71,7 +71,7 @@ class TextToIChingEngine {
                 
                 // Core Results
                 selectedHexagram,
-                bunenjinInterpretation,
+                HaQeiInterpretation,
                 contextualAnalysis: this.sanitizeForOutput(contextualAnalysis),
                 dynamicKeywords: this.sanitizeForOutput(dynamicKeywords),
                 adaptiveResults,
@@ -79,13 +79,13 @@ class TextToIChingEngine {
                 // Quality Metrics
                 confidence: this.calculateOverallConfidence(contextualAnalysis, selectedHexagram),
                 authenticity: this.calculateIChingAuthenticity(selectedHexagram, contextualAnalysis),
-                philosophical_alignment: this.calculateBunenjinAlignment(bunenjinInterpretation),
+                philosophical_alignment: this.calculateHaQeiAlignment(HaQeiInterpretation),
                 
                 // Metadata
                 analysisType: 'text_to_iching_phase2',
                 engineVersion: '2.0.0',
                 supportedLanguages: ['japanese', 'english'],
-                bunenjinCompliance: true
+                HaQeiCompliance: true
             };
 
             // Cache successful results
@@ -128,15 +128,15 @@ class TextToIChingEngine {
             // I Ching特化キーワード
             const ichingKeywords = this.extractIChingSpecificKeywords(inputText);
             
-            // bunenjin視点キーワード
-            const bunenjinKeywords = this.extractBunenjinKeywords(inputText);
+            // HaQei視点キーワード
+            const HaQeiKeywords = this.extractHaQeiKeywords(inputText);
 
             return {
                 basic: basicKeywords,
                 morphological: morphologicalKeywords,
                 iching_specific: ichingKeywords,
-                bunenjin_aspects: bunenjinKeywords,
-                combined_score: this.calculateCombinedKeywordScore(basicKeywords, morphologicalKeywords, ichingKeywords, bunenjinKeywords)
+                HaQei_aspects: HaQeiKeywords,
+                combined_score: this.calculateCombinedKeywordScore(basicKeywords, morphologicalKeywords, ichingKeywords, HaQeiKeywords)
             };
 
         } catch (error) {
@@ -233,12 +233,12 @@ class TextToIChingEngine {
     }
 
     /**
-     * P2-005: bunenjin哲学統合解釈
+     * P2-005: HaQei哲学統合解釈
      */
-    async generateBunenjinInterpretation(hexagram, contextualAnalysis, originalText) {
+    async generateHaQeiInterpretation(hexagram, contextualAnalysis, originalText) {
         try {
             // 分人側面の識別
-            const identifiedAspects = this.identifyBunenjinAspects(contextualAnalysis, originalText);
+            const identifiedAspects = this.identifyHaQeiAspects(contextualAnalysis, originalText);
             
             // 各分人の解釈生成
             const aspectInterpretations = {};
@@ -270,23 +270,23 @@ class TextToIChingEngine {
                 triple_os_integration: tripleOSIntegration,
                 unified_guidance: unifiedGuidance,
                 
-                // bunenjin Philosophy Compliance
+                // HaQei Philosophy Compliance
                 multiplicity_acknowledgment: true,
                 contradiction_acceptance: this.identifyPhilosophicalContradictions(aspectInterpretations),
                 integration_approach: 'harmonious_coexistence',
-                authenticity_preservation: this.validateBunenjinAuthenticity(aspectInterpretations)
+                authenticity_preservation: this.validateHaQeiAuthenticity(aspectInterpretations)
             };
 
         } catch (error) {
-            console.error('❌ Error in generateBunenjinInterpretation:', error);
-            return this.generateFallbackBunenjinInterpretation(hexagram);
+            console.error('❌ Error in generateHaQeiInterpretation:', error);
+            return this.generateFallbackHaQeiInterpretation(hexagram);
         }
     }
 
     /**
      * P2-006: 適応的結果生成
      */
-    async generateAdaptiveResults(hexagram, bunenjinInterpretation, contextualAnalysis, options) {
+    async generateAdaptiveResults(hexagram, HaQeiInterpretation, contextualAnalysis, options) {
         try {
             const userLevel = options.userLevel || 'intermediate';
             const displayFormat = options.displayFormat || 'comprehensive';
@@ -295,7 +295,7 @@ class TextToIChingEngine {
             // レベル別適応
             const adaptedContent = this.adaptContentToUserLevel(
                 hexagram,
-                bunenjinInterpretation,
+                HaQeiInterpretation,
                 userLevel
             );
             
@@ -309,7 +309,7 @@ class TextToIChingEngine {
             // 実用的アドバイス生成
             const practicalAdvice = this.generatePracticalAdvice(
                 hexagram,
-                bunenjinInterpretation,
+                HaQeiInterpretation,
                 contextualAnalysis
             );
             
@@ -331,13 +331,13 @@ class TextToIChingEngine {
                 personalization_score: this.calculatePersonalizationScore(adaptedContent),
                 
                 // Interactive Elements
-                interactive_elements: this.generateInteractiveElements(hexagram, bunenjinInterpretation),
-                sharing_ready_summary: this.generateSharingSummary(hexagram, bunenjinInterpretation)
+                interactive_elements: this.generateInteractiveElements(hexagram, HaQeiInterpretation),
+                sharing_ready_summary: this.generateSharingSummary(hexagram, HaQeiInterpretation)
             };
 
         } catch (error) {
             console.error('❌ Error in generateAdaptiveResults:', error);
-            return this.generateBasicResults(hexagram, bunenjinInterpretation);
+            return this.generateBasicResults(hexagram, HaQeiInterpretation);
         }
     }
 
@@ -377,7 +377,7 @@ class TextToIChingEngine {
         };
     }
 
-    initializeBunenjinMapping() {
+    initializeHaQeiMapping() {
         return {
             personal_self: {
                 characteristics: ['内省', '自己成長', '個人的価値観'],
@@ -509,8 +509,8 @@ class TextToIChingEngine {
         };
     }
 
-    extractBunenjinKeywords(inputText) {
-        const bunenjinPatterns = {
+    extractHaQeiKeywords(inputText) {
+        const HaQeiPatterns = {
             multiplicity: /複数|いろんな|様々な|多様|多面的|色々/g,
             context_switching: /場面|状況|立場|環境|場合|時と場合/g,
             role_flexibility: /役割|キャラ|性格|面|側面|振る舞い/g,
@@ -519,20 +519,20 @@ class TextToIChingEngine {
         };
 
         const matches = {};
-        Object.entries(bunenjinPatterns).forEach(([aspect, pattern]) => {
+        Object.entries(HaQeiPatterns).forEach(([aspect, pattern]) => {
             const found = inputText.match(pattern);
             if (found) {
                 matches[aspect] = {
                     indicators: found,
                     strength: found.length,
-                    bunenjin_relevance: this.calculateBunenjinRelevance(aspect, found.length)
+                    HaQei_relevance: this.calculateHaQeiRelevance(aspect, found.length)
                 };
             }
         });
 
         return {
             detected_aspects: matches,
-            bunenjin_score: this.calculateBunenjinScore(matches),
+            HaQei_score: this.calculateHaQeiScore(matches),
             dominant_personas: this.identifyDominantPersonas(matches, inputText)
         };
     }
@@ -555,10 +555,10 @@ class TextToIChingEngine {
             keywords.iching_specific.suggested_hexagram_themes.forEach(h => candidates.add(h));
         }
 
-        // bunenjin適合候補
-        if (keywords.bunenjin_aspects?.dominant_personas) {
-            keywords.bunenjin_aspects.dominant_personas.forEach(persona => {
-                this.bunenjinMapping[persona.name]?.suitable_hexagrams?.forEach(h => candidates.add(h));
+        // HaQei適合候補
+        if (keywords.HaQei_aspects?.dominant_personas) {
+            keywords.HaQei_aspects.dominant_personas.forEach(persona => {
+                this.HaQeiMapping[persona.name]?.suitable_hexagrams?.forEach(h => candidates.add(h));
             });
         }
 
@@ -574,7 +574,7 @@ class TextToIChingEngine {
                 emotional_fit: 0,
                 situational_fit: 0,
                 keyword_alignment: 0,
-                bunenjin_compatibility: 0,
+                HaQei_compatibility: 0,
                 classical_authenticity: 0
             };
 
@@ -587,8 +587,8 @@ class TextToIChingEngine {
             // キーワード整合性
             scoring.keyword_alignment = this.calculateKeywordAlignment(hexagram, keywords);
             
-            // bunenjin互換性
-            scoring.bunenjin_compatibility = this.calculateBunenjinCompatibility(hexagram, keywords.bunenjin_aspects);
+            // HaQei互換性
+            scoring.HaQei_compatibility = this.calculateHaQeiCompatibility(hexagram, keywords.HaQei_aspects);
             
             // 古典的真正性
             scoring.classical_authenticity = this.calculateClassicalAuthenticity(hexagram, contextualAnalysis);
@@ -598,7 +598,7 @@ class TextToIChingEngine {
                 scoring.emotional_fit * this.contextualWeights.emotional +
                 scoring.situational_fit * this.contextualWeights.situational +
                 scoring.keyword_alignment * this.contextualWeights.relational +
-                scoring.bunenjin_compatibility * this.contextualWeights.philosophical +
+                scoring.HaQei_compatibility * this.contextualWeights.philosophical +
                 scoring.classical_authenticity * 0.3
             );
 
@@ -680,18 +680,18 @@ class TextToIChingEngine {
         return Math.min(authenticity, 1.0);
     }
 
-    calculateBunenjinAlignment(bunenjinInterpretation) {
-        if (!bunenjinInterpretation.multiplicity_acknowledgment) {
+    calculateHaQeiAlignment(HaQeiInterpretation) {
+        if (!HaQeiInterpretation.multiplicity_acknowledgment) {
             return 0.3;
         }
         
         let alignment = 0.7;
         
-        if (bunenjinInterpretation.contradiction_acceptance) {
+        if (HaQeiInterpretation.contradiction_acceptance) {
             alignment += 0.15;
         }
         
-        if (bunenjinInterpretation.authenticity_preservation > 0.8) {
+        if (HaQeiInterpretation.authenticity_preservation > 0.8) {
             alignment += 0.15;
         }
         
@@ -739,7 +739,7 @@ class TextToIChingEngine {
             error_message: error.message,
             
             selectedHexagram: this.getDefaultHexagram(),
-            bunenjinInterpretation: this.generateFallbackBunenjinInterpretation(),
+            HaQeiInterpretation: this.generateFallbackHaQeiInterpretation(),
             
             confidence: 0.3,
             authenticity: 0.5,
@@ -781,7 +781,7 @@ class TextToIChingEngine {
             basic: { primary: [{ keyword: '状況分析', relevance: 0.7 }] },
             morphological: { tokens: [] },
             iching_specific: { categories: {} },
-            bunenjin_aspects: { detected_aspects: {} }
+            HaQei_aspects: { detected_aspects: {} }
         }; 
     }
     
@@ -796,21 +796,21 @@ class TextToIChingEngine {
     calculateIChingRelevance() { return 0.7; }
     calculateOverallIChingAlignment() { return 0.8; }
     suggestHexagramThemes(matches) { return Object.keys(matches).length > 0 ? [1, 2, 49] : [2]; }
-    calculateBunenjinRelevance() { return 0.6; }
-    calculateBunenjinScore() { return 0.7; }
+    calculateHaQeiRelevance() { return 0.6; }
+    calculateHaQeiScore() { return 0.7; }
     identifyDominantPersonas(matches, text) { 
         return [{ name: 'personal_self', strength: 0.8 }]; 
     }
     calculateEmotionalFit() { return Math.random() * 80 + 20; }
     calculateSituationalFit() { return Math.random() * 80 + 20; }
     calculateKeywordAlignment() { return Math.random() * 80 + 20; }
-    calculateBunenjinCompatibility() { return Math.random() * 80 + 20; }
+    calculateHaQeiCompatibility() { return Math.random() * 80 + 20; }
     calculateClassicalAuthenticity() { return Math.random() * 80 + 20; }
     generateSelectionReasoning(hexagram, scoring) { 
         return `${hexagram.name}が選択されました（総合スコア: ${Math.round(Object.values(scoring).reduce((a,b) => a+b, 0)/5)}）`; 
     }
     determineChangingLines() { return []; }
-    identifyBunenjinAspects() { return [{ name: 'personal_self', strength: 0.8 }]; }
+    identifyHaQeiAspects() { return [{ name: 'personal_self', strength: 0.8 }]; }
     generateAspectSpecificInterpretation(hexagram, aspect) { 
         return `${aspect.name}の視点からの${hexagram.name}の解釈`; 
     }
@@ -828,8 +828,8 @@ class TextToIChingEngine {
         }; 
     }
     identifyPhilosophicalContradictions() { return []; }
-    validateBunenjinAuthenticity() { return 0.8; }
-    generateFallbackBunenjinInterpretation(hexagram) { 
+    validateHaQeiAuthenticity() { return 0.8; }
+    generateFallbackHaQeiInterpretation(hexagram) { 
         return {
             unified_guidance: {
                 primary_message: hexagram ? `${hexagram.name}の基本的指導` : '基本的指導',

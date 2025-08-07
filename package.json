@@ -1,39 +1,33 @@
 {
   "name": "haqei-analyzer",
-  "version": "2.0.0-modular",
-  "description": "Future Simulator v2.0 - Complete Modular JavaScript System with bunenjin Philosophy",
+  "version": "1.0.0",
+  "description": "HAQEI Triple OS Analysis System - Visual & Behavior Testing",
+  "main": "emergency_haqei.html",
   "type": "module",
   "scripts": {
+    "build": "echo 'Build complete - static files ready'",
     "start": "node cipher-server.js",
     "dev": "node cipher-server.js --dev",
-    "test": "node --test",
-    "build": "npm run build:css && npm run build:js",
-    "build:css": "echo 'CSS already optimized in future-simulator-v2.css'",
-    "build:js": "echo 'JavaScript modules optimized for ES6'",
-    "serve": "python3 -m http.server 8000",
+    "cipher:start": "node cipher-server.js",
     "claude": "claude-mcp-exec",
     "mcp:setup": "./start-mcp-environment.sh",
     "mcp:generate": "node generate-mcp-config.js",
     "mcp:start": "npm run mcp:generate && echo '✅ MCP設定生成完了'",
     "mcp:claude": "npm run mcp:setup && claude --mcp-config claude-mcp-config.json",
-    "mcp:claude:unsafe": "npm run mcp:setup && claude --mcp-config claude-mcp-config.json --dangerously-skip-permissions --interactive",
+    "mcp:claude:unsafe": "npm run mcp:setup && claude --mcp-config claude-mcp-config.json --dangerously-skip-permissions",
+    "mcp:unsafe": "npm run mcp:claude:unsafe",
     "mcp:resume": "npm run mcp:setup && claude -r --mcp-config claude-mcp-config.json",
     "mcp:resume:unsafe": "npm run mcp:setup && claude -r --mcp-config claude-mcp-config.json --dangerously-skip-permissions",
-    "cipher:start": "node cipher-server.js",
-    "cipher:stop": "pkill -f cipher-server.js",
-    "cipher:test": "node -e \"console.log('Cipher configuration test: OK')\"",
-    "claude:start": "claude --mcp-config claude-mcp-config.json --dangerously-skip-permissions",
+    "test:behavior": "node .visual-behavior-tests/behavior-test.js",
+    "test:e2e": "npx playwright test",
+    "test:all": "npm run test:behavior && npm run test:e2e",
+    "test:visual": "node .visual-behavior-tests/visual-test.js",
+    "test:performance": "node .visual-behavior-tests/performance-test.js",
+    "test:accessibility": "node .visual-behavior-tests/accessibility-test.js",
     "pdca:evaluate": "node tests/pdca-evaluation.js",
     "pdca:evaluate:15": "node tests/pdca-evaluation.js --users=15",
     "pdca:evaluate:20": "node tests/pdca-evaluation.js --users=20",
-    "pdca:evaluate:30": "node tests/pdca-evaluation.js --users=30",
-    "performance:test": "node tests/performance-test.js",
-    "lint": "echo 'ESLint configuration needed for v2.0'",
-    "format": "prettier --write 'dist/js/future-simulator-v2/**/*.js'",
-    "validate": "node tests/module-validation.js",
-    "analyze:bundle": "node scripts/bundle-analyzer.cjs",
-    "build:optimized": "vite build && npm run analyze:bundle",
-    "size:check": "node scripts/bundle-analyzer.cjs"
+    "pdca:evaluate:30": "node tests/pdca-evaluation.js --users=30"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -43,67 +37,22 @@
     "helmet": "^7.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "claude-talk-to-figma-mcp": "^0.6.1",
     "eslint": "^8.0.0",
+    "playwright": "^1.54.2",
     "prettier": "^3.0.0",
-    "rollup-plugin-analyzer": "^4.0.0",
-    "vite-bundle-analyzer": "^1.1.0",
-    "webpack-bundle-analyzer": "^4.10.2"
+    "puppeteer": "^24.16.0",
+    "ts-node": "^10.9.2"
   },
   "keywords": [
-    "future-simulator",
+    "haqei",
+    "triple-os",
     "i-ching",
-    "bunenjin",
-    "javascript",
-    "es6-modules",
-    "performance",
-    "ai-analysis",
-    "scenario-generation"
+    "haqei-philosophy",
+    "visual-testing",
+    "behavior-testing"
   ],
-  "author": "HAQEI Programmer Agent",
-  "license": "MIT",
-  "homepage": "https://github.com/haqei/analyzer#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/haqei/analyzer.git"
-  },
-  "bugs": {
-    "url": "https://github.com/haqei/analyzer/issues"
-  },
-  "engines": {
-    "node": ">=16.0.0"
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead",
-    "not ie 11"
-  ],
-  "moduleDirectories": [
-    "dist/js/future-simulator-v2"
-  ],
-  "main": "dist/js/future-simulator-v2/app.js",
-  "files": [
-    "dist/",
-    "README.md",
-    "package.json"
-  ],
-  "performance": {
-    "targets": {
-      "initialLoad": "1500ms",
-      "analysis": "3000ms",
-      "memory": "50MB"
-    }
-  },
-  "features": {
-    "v2": {
-      "modularSystem": true,
-      "es6Modules": true,
-      "eventDriven": true,
-      "cssInJsEliminated": true,
-      "kuromojiIntegrated": true,
-      "localStorageSupport": true,
-      "performanceOptimized": true,
-      "bunenjinPhilosophy": true
-    }
-  }
+  "author": "HAQEI Development Team",
+  "license": "MIT"
 }

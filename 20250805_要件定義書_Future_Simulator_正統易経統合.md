@@ -3,10 +3,10 @@
 ## 📋 Executive Summary
 
 ### プロジェクト概要
-HAQEIアナライザーのFuture Simulatorにおいて、現在の機械的確率論理（ProbabilisticSituationModeler）を正統易経理論に基づく8変化パターンシステム（Authentic8ScenariosSystem）に置換する。これにより、世界水準の易経実装とbunenjin哲学の完全統合を実現し、ユーザーに真の戦略的価値を提供する。
+HAQEIアナライザーのFuture Simulatorにおいて、現在の機械的確率論理（ProbabilisticSituationModeler）を正統易経理論に基づく8変化パターンシステム（Authentic8ScenariosSystem）に置換する。これにより、世界水準の易経実装とHaQei哲学の完全統合を実現し、ユーザーに真の戦略的価値を提供する。
 
 ### 戦略的重要性
-- **哲学的一貫性**: bunenjin哲学との完全な調和
+- **哲学的一貫性**: HaQei哲学との完全な調和
 - **文化的敬意**: 正統易経理論の真摯な実装
 - **ユーザー価値**: 表面的な占いから本質的な戦略ナビゲーションへ
 - **技術的卓越性**: 世界水準のI Ching実装標準達成
@@ -24,7 +24,7 @@ HAQEIアナライザーのFuture Simulatorにおいて、現在の機械的確�
 ### 現行システムの問題点
 
 #### ProbabilisticSituationModeler.js の課題
-1. **哲学的不整合**: bunenjin哲学との乖離
+1. **哲学的不整合**: HaQei哲学との乖離
 2. **表面的分析**: 固定されたA-Eグレードによる機械的評価
 3. **文化的誤解**: 易経の深い変化理論を無視
 4. **戦略的価値不足**: 真の意思決定支援に至らない
@@ -91,7 +91,7 @@ generateScenarios() {
 - [ ] 時中概念の適切な実装
 - [ ] データベース完全性100%
 
-### FR-003: bunenjin多重人格調和システム
+### FR-003: HaQei多重人格調和システム
 **優先度**: 高  
 **概要**: Triple OS Architectureとの完全統合
 
@@ -360,7 +360,7 @@ generateScenarios() {
 - [ ] 爻辞位置解釈の正確性
 - [ ] 時中概念の適切な実装
 - [ ] 序卦伝論理の古典準拠性
-- [ ] bunenjin哲学との整合性
+- [ ] HaQei哲学との整合性
 
 ### 文化的敬意要件
 - **古典的権威**: 朱熹『周易本義』準拠
@@ -370,7 +370,7 @@ generateScenarios() {
 
 ---
 
-## 👥 bunenjin Philosophy Integration
+## 👥 HaQei Philosophy Integration
 
 ### 戦略ナビゲーション要件
 - **アイデンティティ固定の拒否**: 「真の自己」概念の排除
@@ -415,7 +415,7 @@ generateScenarios() {
 ### 承認プロセス
 1. **CTO承認**: 技術要件・スケジュール承認
 2. **I Ching専門家承認**: 正統性検証承認  
-3. **bunenjin哲学専門家承認**: 哲学統合承認
+3. **HaQei哲学専門家承認**: 哲学統合承認
 4. **プロジェクト開始**: 設計書作成開始
 
 ### 次段階成果物

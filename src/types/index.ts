@@ -1,7 +1,7 @@
 /**
  * HAQEI Analyzer - 完全型定義システム
  * TypeScript Strict Mode準拠の包括的型定義
- * bunenjin philosophy & I Ching 統合型システム
+ * HaQei philosophy & I Ching 統合型システム
  */
 
 // ====================================
@@ -26,7 +26,7 @@ export interface HAQEIError extends Error {
   category: ErrorCategory;
   severity: SeverityLevel;
   context?: Record<string, unknown>;
-  bunenjinGuidance?: string;
+  HaQeiGuidance?: string;
   ichingHexagram?: number;
   timestamp: Date;
 }
@@ -76,7 +76,7 @@ export interface TransformationPattern {
 }
 
 // ====================================
-// bunenjin Philosophy 型定義
+// HaQei Philosophy 型定義
 // ====================================
 
 /** Multiple Dividuals概念 */
@@ -89,7 +89,7 @@ export interface MultipleDividual {
   manifestationStrength: number; // 0-1
 }
 
-/** bunenjin哲学コア */
+/** HaQei哲学コア */
 export interface BunenjinPhilosophy {
   multipleDividuals: MultipleDividual[];
   fixedIdentityLanguage: boolean;
@@ -104,7 +104,7 @@ export interface BunenjinPhilosophy {
   };
 }
 
-/** bunenjinアライメント評価 */
+/** HaQeiアライメント評価 */
 export interface BunenjinAlignment {
   score: number; // 0-100
   strengths: string[];
@@ -127,7 +127,7 @@ export interface PersonalityOS extends TimestampedEntity {
   hexagramName: string;
   matchPercentage: number;
   characteristics: Characteristic[];
-  bunenjinAlignment: BunenjinAlignment;
+  HaQeiAlignment: BunenjinAlignment;
   systemRecommendations: string[];
   compatibilityMatrix: CompatibilityScore[];
 }
@@ -171,7 +171,7 @@ export interface Question extends TimestampedEntity {
     step: number;
   };
   required: boolean;
-  bunenjinContext?: string;
+  HaQeiContext?: string;
   ichingConnection?: number;
 }
 
@@ -344,7 +344,7 @@ export interface DiagnosisSession extends Session {
 /** ルートメタ情報 */
 export interface RouteMeta {
   requiresAuth?: boolean;
-  bunenjinLevel?: 'public' | 'basic' | 'advanced' | 'expert';
+  HaQeiLevel?: 'public' | 'basic' | 'advanced' | 'expert';
   ichingRequired?: boolean;
   title?: string;
   description?: string;
@@ -448,7 +448,7 @@ export default {
   YaoLine,
   TransformationPattern,
   
-  // bunenjin types
+  // HaQei types
   BunenjinPhilosophy,
   MultipleDividual,
   BunenjinAlignment,

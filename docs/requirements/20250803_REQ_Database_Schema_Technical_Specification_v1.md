@@ -10,7 +10,7 @@
 
 ## 📊 Executive Summary
 
-HAQEIプロジェクトにおける、Vue 3 + TypeScript + Supabase統合に最適化されたエンタープライズグレードのデータベーススキーマ設計仕様書です。既存の542行のPostgreSQL統合スキーマを基盤として、10万ユーザー対応・bunenjin哲学・易経64卦システムの完全統合を実現します。
+HAQEIプロジェクトにおける、Vue 3 + TypeScript + Supabase統合に最適化されたエンタープライズグレードのデータベーススキーマ設計仕様書です。既存の542行のPostgreSQL統合スキーマを基盤として、10万ユーザー対応・HaQei哲学・易経64卦システムの完全統合を実現します。
 
 ### **🎯 核心成果物**
 - **統合スキーマ**: 易経64卦 + Triple OS + RLS + 最適化インデックス
@@ -49,7 +49,7 @@ HAQEIプロジェクトにおける、Vue 3 + TypeScript + Supabase統合に最�
 ### **技術的制約**
 - **PostgreSQL 14+**: Supabase互換性必須
 - **TypeScript型安全性**: 100%型カバレッジ
-- **bunenjin哲学遵守**: ユーザー主権・プライバシー最優先
+- **HaQei哲学遵守**: ユーザー主権・プライバシー最優先
 - **易経64卦システム**: 古典的正確性の保持
 
 ### **ビジネス要件**
@@ -83,7 +83,7 @@ users → engine_os_profiles (価値観)
       → safe_mode_os_profiles (防御系)
 - 1:1関係の適切な実装
 - JSONB活用による柔軟性
-- bunenjin哲学の技術的具現化
+- HaQei哲学の技術的具現化
 ```
 
 **3. Row Level Security (高度実装)**
@@ -294,7 +294,7 @@ ON engine_os_profiles USING GIN (core_values)
 WHERE analysis_confidence >= 80;
 ```
 
-### **3. bunenjin哲学強化のためのプライバシー拡張**
+### **3. HaQei哲学強化のためのプライバシー拡張**
 
 #### **データ最小化原則の技術実装**
 ```sql

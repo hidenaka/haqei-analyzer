@@ -190,7 +190,7 @@ class ProductionDeploymentTester {
       { pattern: /async initialize/, name: 'Initialize method' },
       { pattern: /showCurrentQuestion/, name: 'Show question method' },
       { pattern: /handleAnswer/, name: 'Answer handling' },
-      { pattern: /bunenjin/, name: 'bunenjin philosophy reference' }
+      { pattern: /HaQei/, name: 'HaQei philosophy reference' }
     ];
     
     let passCount = 0;
@@ -202,7 +202,7 @@ class ProductionDeploymentTester {
     
     this.results.integrationTests.push({
       name: 'QuestionManager v2.0',
-      status: passCount >= checks.length - 1 ? 'PASS' : 'PARTIAL', // bunenjinは必須ではない
+      status: passCount >= checks.length - 1 ? 'PASS' : 'PARTIAL', // HaQeiは必須ではない
       message: `${passCount}/${checks.length} checks passed`
     });
   }

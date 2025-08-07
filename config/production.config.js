@@ -1,6 +1,6 @@
 /**
  * HAQEIアナライザー本番環境設定
- * bunenjin哲学に基づく企業レベル運用設定
+ * HaQei哲学に基づく企業レベル運用設定
  */
 
 export const productionConfig = {
@@ -10,7 +10,7 @@ export const productionConfig = {
  version: '1.0.0',
  buildTimestamp: new Date().toISOString(),
  maintenanceMode: false,
- philosophy: 'bunenjin' // 分人哲学遵守
+ philosophy: 'HaQei' // 分人哲学遵守
  },
 
  // パフォーマンス設定
@@ -123,8 +123,8 @@ export const productionConfig = {
  maintenancePageRedirect: '/maintenance'
  },
 
- // bunenjin哲学実装設定
- bunenjin: {
+ // HaQei哲学実装設定
+ HaQei: {
  enableUserSovereignty: true, // ユーザー主権
  enableTransparency: true, // 透明性
  enableHarmony: true, // 調和

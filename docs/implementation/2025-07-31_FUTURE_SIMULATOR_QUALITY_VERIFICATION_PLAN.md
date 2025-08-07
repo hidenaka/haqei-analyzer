@@ -95,7 +95,7 @@ const errorCases = {
 };
 ```
 
-### Phase 2: 易経的整合性確認（bunenjin-strategy-navigator）
+### Phase 2: 易経的整合性確認（HaQei-strategy-navigator）
 
 #### 2.1 哲学的妥当性評価
 - **コンテキスト分類の易経的整合性**: 8分類が易経の世界観と調和しているか
@@ -216,7 +216,7 @@ const performanceTargets = {
 
 ### Step 2: 自動テスト実行
 1. haqei-qa-tester による基本動作テスト
-2. bunenjin-strategy-navigator による哲学的妥当性評価
+2. HaQei-strategy-navigator による哲学的妥当性評価
 3. general-purpose による統合・パフォーマンステスト
 
 ### Step 3: 手動検証実行

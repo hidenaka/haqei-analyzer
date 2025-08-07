@@ -4,7 +4,7 @@
 **作成日**: 2025年8月3日  
 **対象プロジェクト**: HAQEI Analyzer  
 **実装者**: Programmer Agent  
-**哲学**: bunenjin - ユーザー主権・ローカルファースト・プライバシーファースト
+**哲学**: HaQei - ユーザー主権・ローカルファースト・プライバシーファースト
 
 ---
 
@@ -83,7 +83,7 @@ python -m http.server 8000
 - 八卦・爻システム保護
 - 卦間関係性データ保護
 
-#### bunenjin哲学原則実装
+#### HaQei哲学原則実装
 - **ユーザー主権**: データの外部送信防止
 - **ローカルファースト**: オフライン処理優先
 - **プライバシーファースト**: 個人情報保護
@@ -110,7 +110,7 @@ python -m http.server 8000
 {
   "version": "1.0.0",
   "project": "haqei-analyzer",
-  "philosophy": "bunenjin",
+  "philosophy": "HaQei",
   "permissions": {
     "deny": [/* 基本拒否パターン */],
     "allow_with_confirmation": [/* 確認付き許可パターン */],
@@ -126,7 +126,7 @@ python -m http.server 8000
   "haqei_specific": {
     "triple_os_protection": {/* Triple OS保護設定 */},
     "iching_data_protection": {/* 易経データ保護設定 */},
-    "bunenjin_philosophy": {/* bunenjin原則設定 */},
+    "HaQei_philosophy": {/* HaQei原則設定 */},
     "cipher_integration": {/* Cipher統合設定 */}
   }
 }
@@ -267,7 +267,7 @@ tail -f ~/.claude/logs/security.log
 
 ---
 
-## 🌟 bunenjin哲学の技術的実装
+## 🌟 HaQei哲学の技術的実装
 
 ### ユーザー主権の実現
 - データの完全なローカル制御
@@ -300,7 +300,7 @@ tail -f ~/.claude/logs/security.log
 
 ### 年次レビュー
 - セキュリティ監査の実施
-- bunenjin哲学の実装評価
+- HaQei哲学の実装評価
 - システム全体の最適化
 
 ---
@@ -312,7 +312,7 @@ tail -f ~/.claude/logs/security.log
 - ✅ HAQEI固有保護: 完全実装
 - ✅ Cipher + Serena統合: 完全実装
 - ✅ パフォーマンス要件: 全項目達成
-- ✅ bunenjin哲学実装: 完全適合
+- ✅ HaQei哲学実装: 完全適合
 
 ### エンドツーエンドテスト
 - ✅ セキュリティチェック: 正常動作
@@ -344,6 +344,6 @@ tail -f ~/.claude/logs/security.log
 **実装完了日**: 2025年8月3日  
 **品質検証**: ✅ 完了  
 **運用開始**: ✅ 可能  
-**bunenjin哲学適合性**: ✅ 完全適合
+**HaQei哲学適合性**: ✅ 完全適合
 
-*この実装により、HAQEIプロジェクトは世界最高レベルのセキュアな開発環境を獲得し、bunenjin哲学に基づく持続可能な発展基盤を確立しました。*
+*この実装により、HAQEIプロジェクトは世界最高レベルのセキュアな開発環境を獲得し、HaQei哲学に基づく持続可能な発展基盤を確立しました。*

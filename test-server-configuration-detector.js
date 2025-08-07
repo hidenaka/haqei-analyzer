@@ -5,7 +5,7 @@
  * テスト対象：
  * - ServerConfigurationDetector.js（539行）
  * - 開発サーバー並行実行機能
- * - bunenjin哲学との統合性
+ * - HaQei哲学との統合性
  */
 
 // テスト環境セットアップ
@@ -180,8 +180,8 @@ async function runTDDTestSuite() {
     TestHelpers.assertGreaterThan(pythonCommands.length, 0, 'Should have at least one command');
   });
 
-  // Test 6: bunenjin哲学統合テスト
-  await runner.runTest('bunenjin philosophy integration', async () => {
+  // Test 6: HaQei哲学統合テスト
+  await runner.runTest('HaQei philosophy integration', async () => {
     const detector = TestHelpers.createDetector({
       enableAutoDetection: true,
       includeConfigTemplates: true

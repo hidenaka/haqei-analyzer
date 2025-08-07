@@ -1,17 +1,17 @@
-# bunenjin RLS Policies Implementation - Complete
+# HaQei RLS Policies Implementation - Complete
 
 ## 🚨 IMPLEMENTATION COMPLETE
 
 **Agent**: Coder Agent  
 **Date**: 2025-08-03  
 **Task**: Implement comprehensive RLS SQL policies and audit logging  
-**Philosophy**: bunenjin (文人) - Privacy-first, Maximum Security by Default  
+**Philosophy**: HaQei (文人) - Privacy-first, Maximum Security by Default  
 
 ## ✅ Implementation Summary
 
 ### Core Implementation Features
 
-1. **bunenjin Philosophy Foundation**
+1. **HaQei Philosophy Foundation**
    - ✅ Privacy-first design with `privacy_level = 'maximum'` by default
    - ✅ Complete user data isolation (zero trust architecture)
    - ✅ Triple OS Architecture protection (Engine/Interface/SafeMode data sovereignty)
@@ -40,17 +40,17 @@
    - ✅ `get_privacy_summary()`: Comprehensive privacy status reporting
 
 5. **Enhanced Security Architecture**
-   - ✅ bunenjin-compliant security roles
+   - ✅ HaQei-compliant security roles
    - ✅ Function-level permission controls
    - ✅ Automatic privacy configuration creation
    - ✅ Privacy access matrix enforcement
 
 ## 📋 Database Tables with RLS Protection
 
-| Table | RLS Enabled | bunenjin Policies | Audit Triggers |
+| Table | RLS Enabled | HaQei Policies | Audit Triggers |
 |-------|-------------|-------------------|-----------------|
 | `users` | ✅ | ✅ Complete | ✅ Active |
-| `bunenjin_privacy_config` | ✅ | ✅ Complete | ✅ Active |
+| `HaQei_privacy_config` | ✅ | ✅ Complete | ✅ Active |
 | `engine_os_profiles` | ✅ | ✅ Complete | ✅ Active |
 | `interface_os_profiles` | ✅ | ✅ Complete | ✅ Active |
 | `safe_mode_os_profiles` | ✅ | ✅ Complete | ✅ Active |
@@ -66,10 +66,10 @@
 ### 1. Privacy Level Hierarchy
 
 ```sql
--- bunenjin privacy levels (strictest to most permissive)
+-- HaQei privacy levels (strictest to most permissive)
 CREATE TYPE privacy_level_enum AS ENUM ('maximum', 'high', 'medium', 'low');
 
--- Default: 'maximum' (bunenjin principle)
+-- Default: 'maximum' (HaQei principle)
 ```
 
 ### 2. Triple OS Data Protection
@@ -91,7 +91,7 @@ CREATE TYPE privacy_level_enum AS ENUM ('maximum', 'high', 'medium', 'low');
 ### 3. Data Sharing Controls
 
 ```sql
--- bunenjin privacy configuration
+-- HaQei privacy configuration
 engine_os_data_sharing BOOLEAN DEFAULT FALSE,
 interface_os_data_sharing BOOLEAN DEFAULT FALSE,
 safe_mode_os_data_sharing BOOLEAN DEFAULT FALSE, -- Always FALSE
@@ -111,20 +111,20 @@ allow_wisdom_sharing BOOLEAN DEFAULT FALSE
 
 ### User Isolation Policy
 ```sql
-CREATE POLICY bunenjin_users_select ON users
+CREATE POLICY HaQei_users_select ON users
     FOR SELECT
     USING (
         id = auth.user_id() OR
         -- Limited access based on privacy level
         (privacy_level IN ('low', 'medium') AND 
-         id IN (SELECT user_id FROM bunenjin_privacy_config 
+         id IN (SELECT user_id FROM HaQei_privacy_config 
                 WHERE privacy_level = users.privacy_level))
     );
 ```
 
 ### Safe Mode OS Protection
 ```sql
-CREATE POLICY bunenjin_safe_mode_os_select ON safe_mode_os_profiles
+CREATE POLICY HaQei_safe_mode_os_select ON safe_mode_os_profiles
     FOR SELECT
     USING (
         user_id = auth.user_id()
@@ -134,12 +134,12 @@ CREATE POLICY bunenjin_safe_mode_os_select ON safe_mode_os_profiles
 
 ### Privacy-Aware Analysis Results
 ```sql
-CREATE POLICY bunenjin_analysis_results_select ON analysis_results
+CREATE POLICY HaQei_analysis_results_select ON analysis_results
     FOR SELECT
     USING (
         user_id = auth.user_id() OR
         -- Very limited aggregated access for wisdom contribution
-        (user_id IN (SELECT user_id FROM bunenjin_privacy_config 
+        (user_id IN (SELECT user_id FROM HaQei_privacy_config 
                    WHERE allow_wisdom_sharing = TRUE 
                    AND privacy_level = 'low'
                    AND created_at < NOW() - INTERVAL '6 months'))
@@ -163,7 +163,7 @@ CREATE POLICY bunenjin_analysis_results_select ON analysis_results
 7. ✅ Security role verification
 8. ✅ Performance benchmarking
 
-## 📊 bunenjin Philosophy Compliance
+## 📊 HaQei Philosophy Compliance
 
 ### Core Principles Implemented
 - ✅ **Privacy by Design**: Built-in, not bolt-on
@@ -178,7 +178,7 @@ CREATE POLICY bunenjin_analysis_results_select ON analysis_results
 - **RLS Policies**: 25+ comprehensive policies
 - **Audit Triggers**: 8 comprehensive triggers
 - **Privacy Functions**: 3 management functions
-- **Security Roles**: 4 bunenjin-compliant roles
+- **Security Roles**: 4 HaQei-compliant roles
 - **Privacy Levels**: 4-tier hierarchy system
 
 ## 🚀 Deployment Instructions
@@ -202,10 +202,10 @@ SELECT schemaname, tablename, rowsecurity
 FROM pg_tables 
 WHERE schemaname = 'public' AND rowsecurity = true;
 
--- Check bunenjin policies
+-- Check HaQei policies
 SELECT schemaname, tablename, policyname, cmd, qual
 FROM pg_policies 
-WHERE policyname LIKE 'bunenjin_%';
+WHERE policyname LIKE 'HaQei_%';
 ```
 
 ## ⚠️ Important Notes
@@ -247,5 +247,5 @@ WHERE policyname LIKE 'bunenjin_%';
 
 ---
 
-**bunenjin Philosophy Implementation: COMPLETE** ✅  
+**HaQei Philosophy Implementation: COMPLETE** ✅  
 *Privacy-first, Maximum Security by Default - 文人*

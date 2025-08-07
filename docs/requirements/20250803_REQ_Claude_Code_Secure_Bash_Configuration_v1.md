@@ -34,7 +34,7 @@ Claude Codeにおけるセキュアbash設定システムを実装し、HAQEIプ
 {
   "version": "1.0.0",
   "project": "haqei-analyzer",
-  "philosophy": "bunenjin",
+  "philosophy": "HaQei",
   "permissions": {
     "deny": [
       // 拒否コマンドパターン配列
@@ -147,7 +147,7 @@ Claude Codeにおけるセキュアbash設定システムを実装し、HAQEIプ
     "bagua_relationships": "read_only",
     "yao_mappings": "read_only"
   },
-  "bunenjin_philosophy": {
+  "HaQei_philosophy": {
     "user_sovereignty": "enforced",
     "local_first": "enforced",
     "privacy_first": "enforced"
@@ -223,7 +223,7 @@ check_haqei_protection() {
     # Triple OSデータ保護
     # 易経データ保護
     # Cipher記憶保護
-    # bunenjin哲学原則遵守確認
+    # HaQei哲学原則遵守確認
 }
 
 # パス保護チェック
@@ -261,7 +261,7 @@ log_security_event() {
 #### 2.2.3 HAQEI固有チェック機能
 - **データ分類**: Triple OS・易経・Cipher・設定ファイル
 - **アクセス制御**: 読み取り専用・保護・禁止
-- **bunenjin原則**: ユーザー主権・ローカルファースト・プライバシーファースト
+- **HaQei原則**: ユーザー主権・ローカルファースト・プライバシーファースト
 - **開発ツール**: 許可ポート・サーバー・外部アクセス制御
 
 #### 2.2.4 ログ・レポート機能
@@ -373,7 +373,7 @@ protected_safemode_files=(
 - 法則データ: 論理整合性確認必須
 ```
 
-### 3.3 bunenjin哲学原則保護
+### 3.3 HaQei哲学原則保護
 
 #### 3.3.1 ユーザー主権原則
 ```bash
@@ -474,7 +474,7 @@ cipher_integration:
 
 #### 4.1.2 哲学原則適用
 ```yaml
-bunenjin_security:
+HaQei_security:
   principles:
     user_sovereignty:
       - security_transparency: "full_disclosure"
@@ -577,7 +577,7 @@ quality_security:
 - **成果物**:
   - Triple OS データ保護
   - 易経データ保護
-  - bunenjin原則適用
+  - HaQei原則適用
 - **検証項目**:
   - データ保護機能動作確認
   - 原則違反検出精度
@@ -619,7 +619,7 @@ test_basic_deny_patterns() {
 test_haqei_protection() {
     # Triple OS保護機能テスト
     # 易経データ保護テスト
-    # bunenjin原則適用テスト
+    # HaQei原則適用テスト
 }
 
 test_performance() {
@@ -713,7 +713,7 @@ test_data_protection() {
 - **カスタマイズ性**: プロジェクト固有要件への対応
 - **サポート性**: 問題解決の迅速性
 
-#### 6.2.2 bunenjin哲学適合性
+#### 6.2.2 HaQei哲学適合性
 - **ユーザー主権**: 完全なユーザー制御の実現
 - **ローカルファースト**: オフライン完結性の保証
 - **プライバシーファースト**: 個人情報保護の徹底
@@ -731,7 +731,7 @@ test_data_protection() {
 - 新脅威への対応策検討
 - 設定最適化と自動化推進
 - ツール統合効果の深化
-- bunenjin哲学の更なる実装
+- HaQei哲学の更なる実装
 
 ---
 
@@ -740,7 +740,7 @@ test_data_protection() {
 ### 7.1 参照資料
 - [Claude Code セキュアbash設定](https://wasabeef.jp/blog/claude-code-secure-bash)
 - HAQEI Analyzer CLAUDE.md
-- bunenjin哲学原典
+- HaQei哲学原典
 - Triple OS Architecture仕様書
 
 ### 7.2 設定ファイル
@@ -790,4 +790,4 @@ test_data_protection() {
 
 ---
 
-*この要件定義書は、HAQEIプロジェクトのbunenjin哲学に基づき、ユーザー主権・ローカルファースト・プライバシーファーストの原則を最優先として策定されています。*
+*この要件定義書は、HAQEIプロジェクトのHaQei哲学に基づき、ユーザー主権・ローカルファースト・プライバシーファーストの原則を最優先として策定されています。*

@@ -178,7 +178,7 @@
 ### 必要なテストagents
 1. **haqei-qa-tester**: 基本動作・エラーケース検証
 2. **general-purpose**: 包括的統合テスト
-3. **bunenjin-strategy-navigator**: 易経的整合性確認
+3. **HaQei-strategy-navigator**: 易経的整合性確認
 
 ### テストデータセット
 - **基本テスト**: 各コンテキスト2-3件ずつ

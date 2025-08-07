@@ -29,7 +29,7 @@ class DynamicKeywordGenerator {
 ```
 
 ### 2. 統合分析エンジン7段階処理完全実装
-**目的**: bunenjin哲学に基づく包括的分析プロセスの実装
+**目的**: HaQei哲学に基づく包括的分析プロセスの実装
 
 **7段階処理フロー**:
 1. **前処理・正規化**: テキスト清浄化、文字コード統一
@@ -69,7 +69,7 @@ class IntegratedAnalysisEngine {
 - **Interface OS**: 社会的コンテキストの考慮
 - **Safe Mode OS**: 防御メカニズムの統合
 
-### bunenjin哲学統合
+### HaQei哲学統合
 - 複数人格の動的相互作用
 - 易経64卦の深層メタファー活用
 - 陰陽バランスの動的調整

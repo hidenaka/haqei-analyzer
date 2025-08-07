@@ -7,7 +7,7 @@
  * - 全USEPコンポーネントとの統合連携
  * - リアルタイム負荷バランシング (<100ms応答時間維持)
  * - Triple OS Architecture対応並列実行
- * - bunenjin哲学統合並列処理
+ * - HaQei哲学統合並列処理
  * - メモリ効率化並列処理 (5MB目標)
  */
 
@@ -44,7 +44,7 @@ export interface ParallelProcessingConfig {
   timeoutMs: number; // タイムアウト (デフォルト: 5000ms)
   memoryLimitMB: number; // メモリ制限 (デフォルト: 512MB per worker)
   priorityQueueEnabled: boolean; // 優先度キュー有効
-  loadBalancingStrategy: 'round_robin' | 'least_loaded' | 'dynamic' | 'bunenjin_harmony';
+  loadBalancingStrategy: 'round_robin' | 'least_loaded' | 'dynamic' | 'HaQei_harmony';
   autoScaling: {
     enabled: boolean;
     minWorkers: number;
@@ -131,7 +131,7 @@ export class WebWorkerParallelProcessingSystem {
       timeoutMs: 5000,
       memoryLimitMB: 512,
       priorityQueueEnabled: true,
-      loadBalancingStrategy: 'bunenjin_harmony',
+      loadBalancingStrategy: 'HaQei_harmony',
       autoScaling: {
         enabled: true,
         minWorkers: 4,
@@ -946,8 +946,8 @@ class LoadBalancer {
         return this.leastLoadedSelection(activeWorkers);
       case 'dynamic':
         return this.dynamicSelection(activeWorkers, message);
-      case 'bunenjin_harmony':
-        return this.bunenjinHarmonySelection(activeWorkers, message);
+      case 'HaQei_harmony':
+        return this.HaQeiHarmonySelection(activeWorkers, message);
       default:
         return activeWorkers[0][0]; // デフォルトは最初のワーカー
     }
@@ -982,8 +982,8 @@ class LoadBalancer {
     }
   }
 
-  private bunenjinHarmonySelection(workers: [string, WorkerState][], message: WorkerMessage): string {
-    // bunenjin哲学に基づく調和的選択
+  private HaQeiHarmonySelection(workers: [string, WorkerState][], message: WorkerMessage): string {
+    // HaQei哲学に基づく調和的選択
     // 多面性受容: 複数の指標を総合的に判断
     // 調和追求: 全体的なバランスを重視
     // 変化適応: 状況に応じて柔軟に対応
@@ -997,7 +997,7 @@ class LoadBalancer {
       const reliabilityScore = state.successCount / (state.successCount + state.errorCount + 1);
       const capacityScore = state.capabilities.includes(message.type) ? 1 : 0.5;
       
-      // bunenjin調和スコア (三つの要素の調和)
+      // HaQei調和スコア (三つの要素の調和)
       const harmonyScore = (loadScore + reliabilityScore + capacityScore) / 3;
       
       if (harmonyScore > bestScore) {

@@ -67,7 +67,7 @@ function generateAllPaths(startHex, startLine, complexityLevel = 5, options = {}
 - **特徴**: 哲学的正統性の確保
 
 #### レベル5: 包括変化システム（92%精度）
-- **実装**: 5原理完全統合 + bunenjin哲学
+- **実装**: 5原理完全統合 + HaQei哲学
 - **拡張**: IChingTransformationEngine統合
 - **特徴**: 世界最高水準の易経AI実装
 
@@ -190,7 +190,7 @@ generateAllPaths() (メイン関数)
 └── レベル5: generateComprehensivePaths() → 92%精度
     ├── IChingTransformationEngine統合
     ├── FutureBranchingSystem統合
-    ├── bunenjin哲学統合
+    ├── HaQei哲学統合
     └── Triple OS Architecture対応
 ```
 
@@ -268,4 +268,4 @@ generateAllPaths() (メイン関数)
 **実装者**: HAQEI Programmer Agent  
 **完成日**: 2025-08-04  
 **バージョン**: 5.0.0-comprehensive  
-**哲学統合**: bunenjin完全対応
+**哲学統合**: HaQei完全対応

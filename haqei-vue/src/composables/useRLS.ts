@@ -2,7 +2,7 @@
  * HAQEI Row Level Security (RLS) Composable
  * 
  * 目的：
- * - bunenjin哲学に基づくデータプライバシー制御
+ * - HaQei哲学に基づくデータプライバシー制御
  * - Row Level Securityの完全統合管理
  * - ユーザー主権の技術的実現
  * - 監査証跡・アクセス制御の透明性確保
@@ -63,7 +63,7 @@ export function useRLS() {
    * 3. データアクセス権限マトリックスの初期化
    * 4. 監査ログ記録の開始
    * 
-   * bunenjin哲学統合：
+   * HaQei哲学統合：
    * - ユーザー主権の技術的具現化
    * - 透明性・可視性の確保
    * - データ最小化原則の実装
@@ -149,7 +149,7 @@ export function useRLS() {
    * 
    * 目的：
    * - ユーザーのデータアクセス履歴の透明性確保
-   * - bunenjin哲学に基づく完全な可視性提供
+   * - HaQei哲学に基づく完全な可視性提供
    * - セキュリティインシデントの早期検出
    */
   const getAuditHistory = async (days = 30, includeDetails = false) => {
@@ -246,7 +246,7 @@ export function useRLS() {
   ) => {
     const permissions: Record<string, boolean> = {}
     
-    // bunenjin哲学に基づく段階的アクセス制御
+    // HaQei哲学に基づく段階的アクセス制御
     switch (privacyLevel) {
       case 'maximum':
         // 最高レベル：自分のデータのみ完全制御

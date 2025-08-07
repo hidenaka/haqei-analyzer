@@ -1,7 +1,7 @@
 /**
  * ScenarioGenerator.js - Advanced Scenario Generation Module
  * 
- * bunenjin哲学による効率的なシナリオ生成システム
+ * HaQei哲学による効率的なシナリオ生成システム
  * I Ching統合と確率的未来予測
  * 
  * Author: HAQEI Programmer Agent

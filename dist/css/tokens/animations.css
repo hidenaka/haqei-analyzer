@@ -1,6 +1,6 @@
 /**
  * HAQEI Future Simulator - Animation Design Tokens
- * bunenjin哲学による自然で美しいアニメーション設計
+ * HaQei哲学による自然で美しいアニメーション設計
  * 
  * Animation Philosophy:
  * - 自然な動きの模倣
@@ -11,10 +11,10 @@
 
 :root {
   /* ===== イージング関数 ===== */
-  /* bunenjin調和イージング */
-  --ease-bunenjin: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --ease-bunenjin-in: cubic-bezier(0.25, 0.46, 0.45, 0.8);
-  --ease-bunenjin-out: cubic-bezier(0.25, 0.8, 0.45, 0.94);
+  /* HaQei調和イージング */
+  --ease-HaQei: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-HaQei-in: cubic-bezier(0.25, 0.46, 0.45, 0.8);
+  --ease-HaQei-out: cubic-bezier(0.25, 0.8, 0.45, 0.94);
 
   /* 自然的イージング */
   --ease-natural: cubic-bezier(0.4, 0, 0.2, 1);
@@ -98,11 +98,11 @@
   --transition-backdrop: backdrop-filter var(--duration-normal) var(--ease-natural);
 
   /* 特定要素のトランジション */
-  --transition-button: all var(--duration-hover) var(--ease-bunenjin);
+  --transition-button: all var(--duration-hover) var(--ease-HaQei);
   --transition-input: border-color, box-shadow var(--duration-focus) var(--ease-natural);
   --transition-card: transform, box-shadow var(--duration-normal) var(--ease-gentle);
-  --transition-modal: opacity, transform var(--duration-modal) var(--ease-bunenjin);
-  --transition-drawer: transform var(--duration-slow) var(--ease-bunenjin-out);
+  --transition-modal: opacity, transform var(--duration-modal) var(--ease-HaQei);
+  --transition-drawer: transform var(--duration-slow) var(--ease-HaQei-out);
 
   /* ===== アニメーション反復 ===== */
   --iteration-once: 1;
@@ -604,53 +604,53 @@
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+  animation: fadeInUp var(--duration-normal) var(--ease-HaQei) var(--fill-both);
 }
 
 .animate-fade-in-down {
-  animation: fadeInDown var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+  animation: fadeInDown var(--duration-normal) var(--ease-HaQei) var(--fill-both);
 }
 
 .animate-fade-in-left {
-  animation: fadeInLeft var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+  animation: fadeInLeft var(--duration-normal) var(--ease-HaQei) var(--fill-both);
 }
 
 .animate-fade-in-right {
-  animation: fadeInRight var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+  animation: fadeInRight var(--duration-normal) var(--ease-HaQei) var(--fill-both);
 }
 
 /* ===== スライドアニメーション ===== */
 .animate-slide-in-up {
-  animation: slideInUp var(--duration-slow) var(--ease-bunenjin-out) var(--fill-both);
+  animation: slideInUp var(--duration-slow) var(--ease-HaQei-out) var(--fill-both);
 }
 
 .animate-slide-in-down {
-  animation: slideInDown var(--duration-slow) var(--ease-bunenjin-out) var(--fill-both);
+  animation: slideInDown var(--duration-slow) var(--ease-HaQei-out) var(--fill-both);
 }
 
 .animate-slide-in-left {
-  animation: slideInLeft var(--duration-slow) var(--ease-bunenjin-out) var(--fill-both);
+  animation: slideInLeft var(--duration-slow) var(--ease-HaQei-out) var(--fill-both);
 }
 
 .animate-slide-in-right {
-  animation: slideInRight var(--duration-slow) var(--ease-bunenjin-out) var(--fill-both);
+  animation: slideInRight var(--duration-slow) var(--ease-HaQei-out) var(--fill-both);
 }
 
 .animate-slide-out-up {
-  animation: slideOutUp var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+  animation: slideOutUp var(--duration-normal) var(--ease-HaQei) var(--fill-both);
 }
 
 .animate-slide-out-down {
-  animation: slideOutDown var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+  animation: slideOutDown var(--duration-normal) var(--ease-HaQei) var(--fill-both);
 }
 
 /* ===== スケールアニメーション ===== */
 .animate-scale-in {
-  animation: scaleIn var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+  animation: scaleIn var(--duration-normal) var(--ease-HaQei) var(--fill-both);
 }
 
 .animate-scale-out {
-  animation: scaleOut var(--duration-normal) var(--ease-bunenjin) var(--fill-both);
+  animation: scaleOut var(--duration-normal) var(--ease-HaQei) var(--fill-both);
 }
 
 .animate-scale-in-center {
@@ -671,7 +671,7 @@
 }
 
 .animate-rotate-in {
-  animation: rotateIn var(--duration-slow) var(--ease-bunenjin) var(--fill-both);
+  animation: rotateIn var(--duration-slow) var(--ease-HaQei) var(--fill-both);
 }
 
 .animate-spin {
@@ -692,7 +692,7 @@
 }
 
 .animate-bounce-in {
-  animation: bounceIn var(--duration-slow) var(--ease-bunenjin) var(--fill-both);
+  animation: bounceIn var(--duration-slow) var(--ease-HaQei) var(--fill-both);
 }
 
 /* ===== 八卦エネルギーアニメーション ===== */
@@ -753,7 +753,7 @@
 .staggered-animation {
   opacity: 0;
   transform: translateY(1rem);
-  animation: fadeInUp var(--duration-normal) var(--ease-bunenjin) var(--fill-forwards);
+  animation: fadeInUp var(--duration-normal) var(--ease-HaQei) var(--fill-forwards);
 }
 
 .staggered-animation:nth-child(1) { animation-delay: var(--delay-stagger-1); }
@@ -901,7 +901,7 @@
 .ease-in { transition-timing-function: var(--ease-in); }
 .ease-out { transition-timing-function: var(--ease-out); }
 .ease-in-out { transition-timing-function: var(--ease-in-out); }
-.ease-bunenjin { transition-timing-function: var(--ease-bunenjin); }
+.ease-HaQei { transition-timing-function: var(--ease-HaQei); }
 
 .delay-none { transition-delay: var(--delay-none); }
 .delay-fast { transition-delay: var(--delay-fast); }

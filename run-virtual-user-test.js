@@ -115,7 +115,7 @@ function simulateUserExperience(userProfile) {
 function generateFeedback(profile, scores) {
   const feedbackTemplates = {
     positive: [
-      'bunenjin哲学の統合が素晴らしく、東洋思想に親しみを感じました。',
+      'HaQei哲学の統合が素晴らしく、東洋思想に親しみを感じました。',
       'Triple OS分析は非常に興味深く、自己理解が深まりました。',
       '文化的配慮が行き届いており、安心して使用できました。',
       'Future Simulatorの精度に驚きました。実用的です。',

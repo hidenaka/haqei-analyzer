@@ -1,0 +1,659 @@
+{
+  "timestamp": "2025-08-06T22:02:14.905Z",
+  "errors": [
+    {
+      "type": "error",
+      "text": "A bad HTTP response code (404) was received when fetching the script.",
+      "timestamp": "2025-08-06T22:01:55.724Z"
+    }
+  ],
+  "warnings": [
+    {
+      "type": "warning",
+      "text": "Hexagram 34 not found, using default",
+      "timestamp": "2025-08-06T22:02:11.514Z"
+    },
+    {
+      "type": "warning",
+      "text": "Hexagram 47 not found, using default",
+      "timestamp": "2025-08-06T22:02:11.515Z"
+    },
+    {
+      "type": "warning",
+      "text": "Hexagram 47 not found, using default",
+      "timestamp": "2025-08-06T22:02:11.515Z"
+    },
+    {
+      "type": "warning",
+      "text": "Hexagram 34 not found, using default",
+      "timestamp": "2025-08-06T22:02:11.515Z"
+    },
+    {
+      "type": "warning",
+      "text": "Hexagram 47 not found, using default",
+      "timestamp": "2025-08-06T22:02:11.515Z"
+    },
+    {
+      "type": "warning",
+      "text": "Hexagram 47 not found, using default",
+      "timestamp": "2025-08-06T22:02:11.515Z"
+    },
+    {
+      "type": "warning",
+      "text": "Hexagram 34 not found, using default",
+      "timestamp": "2025-08-06T22:02:11.515Z"
+    },
+    {
+      "type": "warning",
+      "text": "Hexagram 47 not found, using default",
+      "timestamp": "2025-08-06T22:02:11.515Z"
+    }
+  ],
+  "networkErrors": [],
+  "cssState": {
+    "resultsScreen": {
+      "exists": true,
+      "active": true,
+      "computedStyle": {
+        "display": "flex",
+        "visibility": "visible",
+        "opacity": "1",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "color": "rgb(241, 245, 249)",
+        "zIndex": "auto"
+      },
+      "innerHTML": "\n            <div class=\"container\">\n                <div class=\"result-header\">\n                    <h2 id=\"results-title\" class=\"result-title\">Triple OS分析結果</h2>\n                    <p style=\"color: var(--primary-200);\">あなたの三重人格システム - HaQei哲学による戦略的理解</p>\n                </div>\n                \n                <!-- 4層ナビゲーションタブ -->\n                <div class=\"complexity-tabs\">\n                    <button class=\"tab-btn active\" data-layer=\"basic\">基本層</button>\n                    <button class=\"ta"
+    },
+    "body": {
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "color": "rgb(241, 245, 249)",
+      "overflow": "visible"
+    },
+    "html": {
+      "backgroundColor": "rgba(0, 0, 0, 0)"
+    },
+    "allScreens": [
+      {
+        "id": "welcome-screen",
+        "active": false,
+        "display": "none",
+        "visibility": "visible"
+      },
+      {
+        "id": "question-screen",
+        "active": false,
+        "display": "none",
+        "visibility": "visible"
+      },
+      {
+        "id": "analysis-screen",
+        "active": false,
+        "display": "none",
+        "visibility": "visible"
+      },
+      {
+        "id": "results-screen",
+        "active": true,
+        "display": "flex",
+        "visibility": "visible"
+      },
+      {
+        "id": "error-screen",
+        "active": false,
+        "display": "none",
+        "visibility": "visible"
+      }
+    ]
+  },
+  "jsState": {
+    "analyzer": true,
+    "state": {
+      "currentQuestion": 29,
+      "answers": [
+        {
+          "questionId": "q1",
+          "selectedOption": {
+            "value": "C",
+            "text": "みんなで話し合って最適な方法を見つける",
+            "scoring": {
+              "兌_調和性": 2.5,
+              "坤_受容性": 1.5,
+              "乾_創造性": -0.5
+            }
+          },
+          "timestamp": 1754517720840
+        },
+        {
+          "questionId": "q2",
+          "selectedOption": {
+            "value": "A",
+            "text": "すぐに新しい形として具現化してみたくなる",
+            "scoring": {
+              "乾_創造性": 3,
+              "震_行動性": 2,
+              "艮_安定性": -1
+            }
+          },
+          "timestamp": 1754517721030
+        },
+        {
+          "questionId": "q3",
+          "selectedOption": {
+            "value": "C",
+            "text": "深く研究して新しい発見をすること",
+            "scoring": {
+              "坎_探求性": 2.5,
+              "乾_創造性": 1.5,
+              "兌_調和性": -0.5
+            }
+          },
+          "timestamp": 1754517721491
+        },
+        {
+          "questionId": "q4",
+          "selectedOption": {
+            "value": "C",
+            "text": "周りと協力してチームで進める",
+            "scoring": {
+              "兌_調和性": 2.5,
+              "坤_受容性": 1.5,
+              "震_行動性": 1
+            }
+          },
+          "timestamp": 1754517721951
+        },
+        {
+          "questionId": "q5",
+          "selectedOption": {
+            "value": "A",
+            "text": "即座に問題解決に向けて動き出す",
+            "scoring": {
+              "震_行動性": 3,
+              "乾_創造性": 1.5,
+              "坤_受容性": -1
+            }
+          },
+          "timestamp": 1754517722411
+        },
+        {
+          "questionId": "q6",
+          "selectedOption": {
+            "value": "E",
+            "text": "自分にとって本当に価値があるか考える",
+            "scoring": {
+              "坎_探求性": 2,
+              "艮_安定性": 1.5,
+              "巽_適応性": 1
+            }
+          },
+          "timestamp": 1754517722871
+        },
+        {
+          "questionId": "q7",
+          "selectedOption": {
+            "value": "A",
+            "text": "深く掘り下げて徹底的に理解したくなる",
+            "scoring": {
+              "坎_探求性": 3,
+              "艮_安定性": 1,
+              "震_行動性": -0.5
+            }
+          },
+          "timestamp": 1754517723321
+        },
+        {
+          "questionId": "q8",
+          "selectedOption": {
+            "value": "D",
+            "text": "まず行動してみて、やりながら解決策を見つける",
+            "scoring": {
+              "震_行動性": 3,
+              "巽_適応性": 1.5,
+              "坎_探求性": -0.5
+            }
+          },
+          "timestamp": 1754517723779
+        },
+        {
+          "questionId": "q9",
+          "selectedOption": {
+            "value": "C",
+            "text": "学んだことをみんなと共有したい",
+            "scoring": {
+              "兌_調和性": 2.5,
+              "離_表現性": 1.5,
+              "坎_探求性": 1
+            }
+          },
+          "timestamp": 1754517723930
+        },
+        {
+          "questionId": "q10",
+          "selectedOption": {
+            "value": "A",
+            "text": "確実性が高く、リスクの少ない選択肢",
+            "scoring": {
+              "艮_安定性": 3,
+              "坤_受容性": 1,
+              "乾_創造性": -1.5
+            }
+          },
+          "timestamp": 1754517724081
+        },
+        {
+          "questionId": "q11",
+          "selectedOption": {
+            "value": "C",
+            "text": "みんなと一緒に成長していきたい",
+            "scoring": {
+              "兌_調和性": 2.5,
+              "坤_受容性": 2,
+              "艮_安定性": 0.5
+            }
+          },
+          "timestamp": 1754517724241
+        },
+        {
+          "questionId": "q12",
+          "selectedOption": {
+            "value": "E",
+            "text": "変化に合わせて適応し続けることが大切",
+            "scoring": {
+              "巽_適応性": 3,
+              "艮_安定性": -1,
+              "乾_創造性": 1
+            }
+          },
+          "timestamp": 1754517724400
+        },
+        {
+          "questionId": "q13",
+          "selectedOption": {
+            "value": "B",
+            "text": "相手の話をじっくり聞いて理解しようとする",
+            "scoring": {
+              "坤_受容性": 3,
+              "兌_調和性": 1.5,
+              "震_行動性": -0.5
+            }
+          },
+          "timestamp": 1754517724550
+        },
+        {
+          "questionId": "q14",
+          "selectedOption": {
+            "value": "D",
+            "text": "問題の原因を分析して根本的な解決を図る",
+            "scoring": {
+              "坎_探求性": 2.5,
+              "艮_安定性": 1.5,
+              "坤_受容性": 0.5
+            }
+          },
+          "timestamp": 1754517724700
+        },
+        {
+          "questionId": "q15",
+          "selectedOption": {
+            "value": "B",
+            "text": "どんな時も変わらずそばにいること",
+            "scoring": {
+              "坤_受容性": 3,
+              "艮_安定性": 2,
+              "震_行動性": -0.5
+            }
+          },
+          "timestamp": 1754517725160
+        },
+        {
+          "questionId": "q16",
+          "selectedOption": {
+            "value": "C",
+            "text": "みんなで協力して乗り越える方法を探す",
+            "scoring": {
+              "兌_調和性": 2.5,
+              "坤_受容性": 2,
+              "巽_適応性": 1.5
+            }
+          },
+          "timestamp": 1754517725311
+        },
+        {
+          "questionId": "q17",
+          "selectedOption": {
+            "value": "E",
+            "text": "安定した基盤を提供して支える",
+            "scoring": {
+              "艮_安定性": 2.5,
+              "坤_受容性": 2,
+              "巽_適応性": -0.5
+            }
+          },
+          "timestamp": 1754517725761
+        },
+        {
+          "questionId": "q18",
+          "selectedOption": {
+            "value": "B",
+            "text": "どんな状況でも対応できる大切な能力",
+            "scoring": {
+              "巽_適応性": 3,
+              "震_行動性": 1,
+              "艮_安定性": -0.5
+            }
+          },
+          "timestamp": 1754517726209
+        },
+        {
+          "questionId": "q19",
+          "selectedOption": {
+            "value": "E",
+            "text": "相手の気持ちに寄り添いながら伝える",
+            "scoring": {
+              "坤_受容性": 2.5,
+              "兌_調和性": 2,
+              "離_表現性": 0.5
+            }
+          },
+          "timestamp": 1754517726361
+        },
+        {
+          "questionId": "q20",
+          "selectedOption": {
+            "value": "D",
+            "text": "控えめに振る舞って目立たないようにする",
+            "scoring": {
+              "坤_受容性": 2.5,
+              "艮_安定性": 1.5,
+              "離_表現性": -1
+            }
+          },
+          "timestamp": 1754517726519
+        },
+        {
+          "questionId": "q21",
+          "selectedOption": {
+            "value": "D",
+            "text": "行動で示して周りを動かす力",
+            "scoring": {
+              "震_行動性": 2.5,
+              "離_表現性": 1.5,
+              "坤_受容性": -0.5
+            }
+          },
+          "timestamp": 1754517726670
+        },
+        {
+          "questionId": "q22",
+          "selectedOption": {
+            "value": "C",
+            "text": "冷静に分析して客観的な解決策を提示する",
+            "scoring": {
+              "坎_探求性": 2.5,
+              "艮_安定性": 1.5,
+              "兌_調和性": 0.5
+            }
+          },
+          "timestamp": 1754517726819
+        },
+        {
+          "questionId": "q23",
+          "selectedOption": {
+            "value": "C",
+            "text": "深く理解し合えること",
+            "scoring": {
+              "坎_探求性": 2,
+              "坤_受容性": 2,
+              "兌_調和性": 1.5
+            }
+          },
+          "timestamp": 1754517727270
+        },
+        {
+          "questionId": "q24",
+          "selectedOption": {
+            "value": "D",
+            "text": "困った時に支え合えることが大切",
+            "scoring": {
+              "坤_受容性": 2.5,
+              "兌_調和性": 2,
+              "震_行動性": 0.5
+            }
+          },
+          "timestamp": 1754517727420
+        },
+        {
+          "questionId": "q25",
+          "selectedOption": {
+            "value": "E",
+            "text": "まずは小さな成功を目指し、チームの結束を高めながら進める",
+            "scoring": {
+              "巽_適応性": 2,
+              "兌_調和性": 2,
+              "艮_安定性": 2
+            }
+          },
+          "timestamp": 1754517727870
+        },
+        {
+          "questionId": "q26",
+          "selectedOption": {
+            "value": "B",
+            "text": "問題を正直に説明し、理解を求めながら進める",
+            "scoring": {
+              "兌_調和性": 2.5,
+              "坤_受容性": 2,
+              "離_表現性": 1.5
+            }
+          },
+          "timestamp": 1754517728010
+        },
+        {
+          "questionId": "q27",
+          "selectedOption": {
+            "value": "E",
+            "text": "状況に合わせて、必要に応じて自分を調整する",
+            "scoring": {
+              "巽_適応性": 3,
+              "兌_調和性": 1.5,
+              "坤_受容性": 1
+            }
+          },
+          "timestamp": 1754517728341
+        },
+        {
+          "questionId": "q28",
+          "selectedOption": {
+            "value": "A",
+            "text": "直感を信じて、素早く決断する",
+            "scoring": {
+              "離_表現性": 2.5,
+              "震_行動性": 2.5,
+              "乾_創造性": 1.5
+            }
+          },
+          "timestamp": 1754517728790
+        },
+        {
+          "questionId": "q29",
+          "selectedOption": {
+            "value": "D",
+            "text": "責任を取り、より確実な方法に変更する",
+            "scoring": {
+              "艮_安定性": 2.5,
+              "坤_受容性": 2,
+              "震_行動性": 1
+            }
+          },
+          "timestamp": 1754517729241
+        },
+        {
+          "questionId": "q30",
+          "selectedOption": {
+            "value": "C",
+            "text": "真理の探求と深い理解",
+            "scoring": {
+              "坎_探求性": 3,
+              "艮_安定性": 1.5,
+              "兌_調和性": 0.5
+            }
+          },
+          "timestamp": 1754517729700
+        }
+      ],
+      "userVector": {},
+      "tripleOSResults": {
+        "engineOS": {
+          "hexagramId": 47,
+          "hexagramName": "乾為天",
+          "description": "あなたの心の奥底には、天を翔ける龍のような壮大なエネルギーが宿っています。新しい道を切り開き、人々を導くことに最も価値を見出すあなたは、生まれながらのリーダーです。",
+          "catchphrase": "天翔ける龍のような、天性のリーダー",
+          "primaryTrigram": "坤",
+          "secondaryTrigram": "兌",
+          "trigramEnergies": {
+            "乾": 20.408163265306122,
+            "兌": 79.59183673469387,
+            "離": 10.204081632653061,
+            "震": 46.93877551020408,
+            "巽": 38.775510204081634,
+            "坎": 61.224489795918366,
+            "艮": 51.02040816326531,
+            "坤": 100
+          }
+        },
+        "interfaceOS": {
+          "hexagramId": 34,
+          "hexagramName": "乾為天",
+          "catchphrase": "天翔ける龍のような、天性のリーダー",
+          "upperTrigram": "乾",
+          "lowerTrigram": "震",
+          "socialPatterns": {
+            "Q25_leadership": 0.5,
+            "Q26_interpersonal": 0.45,
+            "Q27_family": 0.4,
+            "Q28_emergency": 0.5,
+            "Q29_competition": 0.45,
+            "Q30_community": 0.4
+          },
+          "interfaceVector": {
+            "外向_主導性": 0.4,
+            "外向_調和性": 0.3400000000000001,
+            "外向_表現性": 0.28500000000000003,
+            "外向_行動性": 0.38,
+            "内向_適応性": 0.29500000000000004,
+            "内向_分析性": 0.28500000000000003,
+            "内向_安定性": 0.28,
+            "内向_支援性": 0.24
+          },
+          "socialStyle": "適応型サポーター",
+          "description": "大きな力の発揮 - 強力なリーダーシップ",
+          "leadership": "控えめな創造的リーダーシップ - 革新と変化をもたらす",
+          "communication": "直接的なコミュニケーション（行動の基盤）",
+          "conflictResolution": "迅速対応 - 素早い判断で解決",
+          "adaptability": "高い適応力",
+          "engineOSInfluence": "Engine OS情報不足により影響不明",
+          "trigramEnergies": {
+            "乾": 0.4,
+            "兌": 0.3400000000000001,
+            "離": 0.28500000000000003,
+            "震": 0.38,
+            "巽": 0.29500000000000004,
+            "坎": 0.28500000000000003,
+            "艮": 0.28,
+            "坤": 0.24
+          },
+          "type": "Interface OS"
+        },
+        "safeModeOS": {
+          "hexagramId": 47,
+          "hexagramName": "乾為天",
+          "description": "困窮忍耐型防御: 忍耐・調和を主軸とした防御システム。中程度のストレス状況で適切に作動し、坤の包容的受容力と兌の調和的解決力を組み合わせて対応する。",
+          "catchphrase": "天翔ける龍のような、天性のリーダー",
+          "primaryDefense": "坤",
+          "secondaryDefense": "兌",
+          "defensiveType": "忍耐・調和",
+          "stressResponse": "苦境での精神力による持久戦",
+          "activationTrigger": "一般的なストレス状況",
+          "defensiveStrength": 0.5,
+          "trigramEnergies": {
+            "乾": 8.16326530612245,
+            "兌": 31.83673469387755,
+            "離": 4.081632653061225,
+            "震": 18.775510204081634,
+            "巽": 15.510204081632654,
+            "坎": 24.48979591836735,
+            "艮": 20.408163265306126,
+            "坤": 40
+          },
+          "type": "Safe Mode OS"
+        },
+        "integration": {
+          "consistency": 70.42500000000001,
+          "balance": null,
+          "integration": 72.625,
+          "dataFlow": {
+            "isValid": true,
+            "engineInfluence": {
+              "valid": true,
+              "score": 85
+            },
+            "scenarioInfluence": {
+              "valid": true,
+              "score": 80
+            },
+            "engineToInterface": {
+              "valid": true,
+              "influenceRate": 0.3
+            },
+            "engineToSafeMode": {
+              "valid": true,
+              "influenceRate": 0.4
+            }
+          },
+          "recommendations": [
+            {
+              "type": "integration",
+              "priority": "medium",
+              "title": "HaQei哲学の深化",
+              "description": "易経原理をより深く理解し、日常生活での実践を増やしましょう",
+              "action": "易経学習と瞑想的実践の継続を推奨"
+            }
+          ],
+          "timestamp": 1754517731514,
+          "status": "success"
+        },
+        "consistencyScore": 70.42500000000001,
+        "balanceScore": null,
+        "HaQeiIntegration": 72.625,
+        "recommendations": [
+          {
+            "type": "integration",
+            "priority": "medium",
+            "title": "HaQei哲学の深化",
+            "description": "易経原理をより深く理解し、日常生活での実践を増やしましょう",
+            "action": "易経学習と瞑想的実践の継続を推奨"
+          }
+        ],
+        "validationStatus": "completed",
+        "timestamp": 1754517731514
+      },
+      "isAnalyzing": false
+    },
+    "answers": 30,
+    "currentScreen": "unknown"
+  },
+  "domElements": {
+    "osCards": 6,
+    "engineOSElements": 0,
+    "interfaceOSElements": 0,
+    "safeModeOSElements": 0,
+    "canvasElements": 2,
+    "resultContent": 31030
+  },
+  "diagnosis": {
+    "cssIssue": true,
+    "jsError": true,
+    "contentMissing": false,
+    "displayNone": false
+  }
+}
