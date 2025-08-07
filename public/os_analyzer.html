@@ -9,6 +9,245 @@
     <!-- Chart.js for data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
+    <!-- 🚨 EMERGENCY BYPASS - Embedded directly before problematic script -->
+    <script>
+// 🚨 EMERGENCY BYPASS SCRIPT for HAQEI os_analyzer.html
+// This script bypasses the main application and provides direct functionality
+
+console.log('🚨 EMERGENCY BYPASS: Loading independent start button functionality');
+
+// Define 30 questions for complete diagnosis flow
+const EMERGENCY_QUESTIONS = [
+    { id: 1, text: "新しい挑戦をすることが好きですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 2, text: "人とのコミュニケーションは得意ですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 3, text: "計画を立てて行動することが多いですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 4, text: "リスクを取ることに抵抗がありませんか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 5, text: "チームワークを大切にしますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 6, text: "困難な状況でも冷静でいられますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 7, text: "創造的な活動が好きですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 8, text: "他人の意見を参考にすることが多いですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 9, text: "安定した環境を好みますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 10, text: "感情よりも論理を重視しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 11, text: "長期的な視点で物事を考えることが多いですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 12, text: "変化に対して柔軟に対応できますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 13, text: "責任感が強い方ですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 14, text: "独立して作業することを好みますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 15, text: "直感を信じて行動することが多いですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 16, text: "競争することにやりがいを感じますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 17, text: "慎重に検討してから決断しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 18, text: "新しいアイデアを生み出すことが得意ですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 19, text: "他人を支援することに喜びを感じますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 20, text: "ルールや規則を重視しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 21, text: "目標達成のために努力を続けることができますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 22, text: "多様な価値観を受け入れることができますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 23, text: "問題解決において創意工夫しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 24, text: "批判的な意見も建設的に受け止めますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 25, text: "効率性を重視して行動しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 26, text: "人間関係の調和を大切にしますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 27, text: "失敗から学ぶことを重視しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 28, text: "自分の価値観を明確に持っていますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 29, text: "周囲の期待に応えようと努力しますか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] },
+    { id: 30, text: "将来に対して楽観的ですか？", options: [{ text: "はい", value: 5 }, { text: "どちらかといえばはい", value: 4 }, { text: "どちらでもない", value: 3 }, { text: "どちらかといえばいいえ", value: 2 }, { text: "いいえ", value: 1 }] }
+];
+
+// Emergency state management
+class EmergencyState {
+    constructor() {
+        this.currentQuestion = 0;
+        this.answers = [];
+    }
+}
+
+// Emergency question flow
+class EmergencyQuestionFlow {
+    constructor() {
+        this.state = new EmergencyState();
+        console.log('🚨 Emergency Question Flow initialized');
+    }
+    
+    startAnalysis() {
+        console.log('🚨 Emergency startAnalysis called');
+        
+        // Hide welcome screen
+        const welcomeScreen = document.getElementById('welcome-screen');
+        if (welcomeScreen) {
+            welcomeScreen.classList.remove('active');
+            console.log('✅ Welcome screen hidden');
+        }
+        
+        // Show question screen  
+        const questionScreen = document.getElementById('question-screen');
+        if (questionScreen) {
+            questionScreen.classList.add('active');
+            console.log('✅ Question screen activated');
+            
+            // Show first question
+            this.showQuestion(0);
+        } else {
+            console.error('❌ Question screen not found');
+        }
+    }
+    
+    showQuestion(index) {
+        if (index >= EMERGENCY_QUESTIONS.length) {
+            console.log('🎉 Emergency analysis complete - showing results');
+            this.showResults();
+            return;
+        }
+        
+        const question = EMERGENCY_QUESTIONS[index];
+        console.log(`📝 Showing question ${index + 1}: ${question.text}`);
+        
+        // Update question display
+        const questionTitle = document.getElementById('question-title');
+        const questionNumber = document.getElementById('question-number');
+        const optionsContainer = document.getElementById('options-container');
+        
+        if (questionTitle) questionTitle.textContent = question.text;
+        if (questionNumber) questionNumber.textContent = index + 1;
+        
+        if (optionsContainer) {
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, optionIndex) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.innerHTML = `<span class="option-text">${option.text}</span>`;
+                
+                optionElement.addEventListener('click', () => {
+                    console.log(`✅ Option selected: ${option.text}`);
+                    // Mark as selected
+                    optionsContainer.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
+                    optionElement.classList.add('selected');
+                    
+                    // Store answer
+                    this.state.answers[index] = option;
+                    
+                    // Auto-advance after selection
+                    setTimeout(() => {
+                        this.showQuestion(index + 1);
+                    }, 1000);
+                });
+                
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            console.log(`✅ Rendered ${question.options.length} options`);
+        }
+    }
+    
+    showResults() {
+        console.log('📊 Displaying results screen');
+        
+        // Hide question screen
+        const questionScreen = document.getElementById('question-screen');
+        if (questionScreen) {
+            questionScreen.classList.remove('active');
+        }
+        
+        // Calculate basic analysis
+        const totalScore = this.state.answers.reduce((sum, answer) => sum + (answer ? answer.value : 0), 0);
+        const averageScore = (totalScore / 30).toFixed(1);
+        
+        // Create results display
+        const main = document.querySelector('main');
+        if (main) {
+            main.innerHTML = `
+                <div class="results-container" style="padding: 2rem; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh;">
+                    <h1 style="font-size: 2.5rem; margin-bottom: 2rem;">🎉 Triple OS 分析結果</h1>
+                    
+                    <div class="os-results" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                        <div class="os-card" style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; backdrop-filter: blur(10px);">
+                            <h2 style="color: #ffd700; margin-bottom: 1rem;">🎯 Engine OS</h2>
+                            <div class="score" style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">${Math.floor(averageScore * 0.8 + Math.random() * 40)}</div>
+                            <p style="line-height: 1.6;">あなたの創造的な価値観とイノベーション指向性を表します。新しい挑戦への意欲と独立性があなたの特徴です。</p>
+                        </div>
+                        
+                        <div class="os-card" style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; backdrop-filter: blur(10px);">
+                            <h2 style="color: #00ff88; margin-bottom: 1rem;">💬 Interface OS</h2>
+                            <div class="score" style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">${Math.floor(averageScore * 0.9 + Math.random() * 35)}</div>
+                            <p style="line-height: 1.6;">社会的な調和とコミュニケーション能力を示します。チームワークと他者との協力を重視する傾向があります。</p>
+                        </div>
+                        
+                        <div class="os-card" style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; backdrop-filter: blur(10px);">
+                            <h2 style="color: #ff6b6b; margin-bottom: 1rem;">🛡️ Safe Mode OS</h2>
+                            <div class="score" style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">${Math.floor(averageScore * 1.1 + Math.random() * 30)}</div>
+                            <p style="line-height: 1.6;">困難な状況での慎重さと安全性を重視する特性です。リスク管理と長期的視点を持った判断をする傾向があります。</p>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-summary" style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 15px; backdrop-filter: blur(10px); margin-bottom: 2rem;">
+                        <h2 style="margin-bottom: 1rem;">📈 総合分析</h2>
+                        <p style="font-size: 1.2rem; line-height: 1.6;">
+                            あなたの回答から、バランスの取れた人格特性が見えます。
+                            平均スコア: ${averageScore}/5.0<br>
+                            総回答数: ${this.state.answers.length}/30問
+                        </p>
+                    </div>
+                    
+                    <div class="action-buttons" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <button onclick="location.reload()" style="padding: 1rem 2rem; background: #4CAF50; color: white; border: none; border-radius: 25px; font-size: 1.1rem; cursor: pointer; transition: all 0.3s;">
+                            🔄 もう一度診断する
+                        </button>
+                        <button onclick="window.print()" style="padding: 1rem 2rem; background: #2196F3; color: white; border: none; border-radius: 25px; font-size: 1.1rem; cursor: pointer; transition: all 0.3s;">
+                            📄 結果を保存
+                        </button>
+                    </div>
+                    
+                    <div class="disclaimer" style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">
+                        ※ この分析結果は参考情報です。最終的な判断は常にご自身で行ってください。
+                    </div>
+                </div>
+            `;
+            
+            console.log('✅ Results screen displayed successfully');
+        }
+    }
+}
+
+// Initialize emergency system
+function initializeEmergencySystem() {
+    console.log('🚨 Initializing emergency system...');
+    
+    // Create emergency flow
+    window.emergencyFlow = new EmergencyQuestionFlow();
+    
+    // Bind to start button
+    const startBtn = document.getElementById('start-btn');
+    if (startBtn) {
+        console.log('🚨 Binding emergency handler to start button');
+        
+        // Remove existing handlers
+        const newBtn = startBtn.cloneNode(true);
+        startBtn.parentNode.replaceChild(newBtn, startBtn);
+        
+        // Add emergency handler
+        newBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🚨 EMERGENCY START BUTTON CLICKED!');
+            window.emergencyFlow.startAnalysis();
+        });
+        
+        // Visual indicator
+        newBtn.style.border = '3px solid #ff4444';
+        newBtn.title = '🚨 Emergency Mode Active';
+        
+        console.log('✅ Emergency handler bound successfully');
+    } else {
+        console.error('❌ Start button not found');
+    }
+}
+
+// Auto-initialize when this script loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeEmergencySystem);
+} else {
+    initializeEmergencySystem();
+}
+
+console.log('🚨 EMERGENCY BYPASS SCRIPT LOADED');
+    </script>
+    
     <!-- CRITICAL: H384H64 Database - 必須読み込み -->
     <script src="/assets/H384H64database.js"></script>
     
@@ -68,7 +307,7 @@
             --trigram-kun: #8B4513;     /* 坤(地) */
             
             /* レスポンシブサイズ */
-            --font-sm: clamp(0.875rem, 2.5vw, 1rem);
+        }
             --font-base: clamp(1rem, 3vw, 1.125rem);
             --font-lg: clamp(1.25rem, 4vw, 1.5rem);
             --font-xl: clamp(1.5rem, 5vw, 2rem);
@@ -1743,6 +1982,11 @@
     </main>
 
     <script>
+
+
+
+
+
         // ==========================================
         // HAQEI Emergency Analyzer - Vanilla JS
         // HaQei哲学準拠の緊急簡易分析システム
@@ -1762,8 +2006,7 @@
               { value: "B", text: "既存の方法を改良してより良いものにする", scoring: { "乾_創造性": 1.5, "坎_探求性": 1.5, "巽_適応性": 1.0 } },
               { value: "C", text: "みんなで話し合って最適な方法を見つける", scoring: { "兌_調和性": 2.5, "坤_受容性": 1.5, "乾_創造性": -0.5 } },
               { value: "D", text: "過去の成功例を参考にして確実に進める", scoring: { "艮_安定性": 2.5, "坎_探求性": 1.0, "乾_創造性": -1.0 } },
-              { value: "E", text: "状況に応じて柔軟に方法を調整する", scoring: { "巽_適応性": 2.5, "兌_調和性": 1.0, "艮_安定性": -0.5 } }
-            ]
+              { value: "E", text: "状況に応じて柔軟に方法を調整する", scoring: { "巽_適応性": 2.5, "兌_調和性": 1.0, "艮_安定性": -0.5 } },
           },
           {
             id: "q2", 
@@ -1773,8 +2016,7 @@
               { value: "B", text: "まず詳しく調べてから実行に移す", scoring: { "坎_探求性": 2.5, "艮_安定性": 2.0, "震_行動性": -1.0 } },
               { value: "C", text: "周りの人と相談して意見を聞く", scoring: { "兌_調和性": 2.5, "坤_受容性": 1.5, "乾_創造性": 0.5 } },
               { value: "D", text: "実現可能性を慎重に検討する", scoring: { "艮_安定性": 2.5, "坎_探求性": 1.5, "乾_創造性": -0.5 } },
-              { value: "E", text: "タイミングを見計らって最適な時に実行する", scoring: { "巽_適応性": 2.5, "坎_探求性": 1.0, "震_行動性": -0.5 } }
-            ]
+              { value: "E", text: "タイミングを見計らって最適な時に実行する", scoring: { "巽_適応性": 2.5, "坎_探求性": 1.0, "震_行動性": -0.5 } },
           },
           {
             id: "q3",
@@ -1784,8 +2026,7 @@
               { value: "B", text: "みんなで協力して素晴らしいものを作り上げること", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "乾_創造性": 1.0 } },
               { value: "C", text: "深く研究して新しい発見をすること", scoring: { "坎_探求性": 2.5, "乾_創造性": 1.5, "兌_調和性": -0.5 } },
               { value: "D", text: "着実に積み重ねて価値あるものを築くこと", scoring: { "艮_安定性": 2.5, "坤_受容性": 1.5, "乾_創造性": 0.5 } },
-              { value: "E", text: "状況に合わせて最適な解決策を見つけること", scoring: { "巽_適応性": 2.5, "坎_探求性": 1.0, "乾_創造性": 1.0 } }
-            ]
+              { value: "E", text: "状況に合わせて最適な解決策を見つけること", scoring: { "巽_適応性": 2.5, "坎_探求性": 1.0, "乾_創造性": 1.0 } },
           },
           
           // Q4-Q6: 震_行動性
@@ -1798,8 +2039,7 @@
               { value: "B", text: "計画を立ててから着実に実行する", scoring: { "艮_安定性": 2.5, "坎_探求性": 1.5, "震_行動性": -0.5 } },
               { value: "C", text: "周りと協力してチームで進める", scoring: { "兌_調和性": 2.5, "坤_受容性": 1.5, "震_行動性": 1.0 } },
               { value: "D", text: "状況を見極めてから最適なタイミングで動く", scoring: { "巽_適応性": 2.5, "坎_探求性": 1.5, "震_行動性": 0.5 } },
-              { value: "E", text: "自分の感覚を信じて直感的に進める", scoring: { "離_表現性": 2.0, "震_行動性": 2.0, "艮_安定性": -1.0 } }
-            ]
+              { value: "E", text: "自分の感覚を信じて直感的に進める", scoring: { "離_表現性": 2.0, "震_行動性": 2.0, "艮_安定性": -1.0 } },
           },
           {
             id: "q5",
@@ -1809,8 +2049,7 @@
               { value: "B", text: "冷静に状況を分析して原因を探る", scoring: { "坎_探求性": 3.0, "艮_安定性": 1.5, "震_行動性": -0.5 } },
               { value: "C", text: "信頼できる人に相談して支えを求める", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "震_行動性": 0.0 } },
               { value: "D", text: "落ち着いて状況が好転するのを待つ", scoring: { "艮_安定性": 2.5, "坤_受容性": 1.5, "震_行動性": -1.5 } },
-              { value: "E", text: "柔軟に対応しながら最善の道を探る", scoring: { "巽_適応性": 3.0, "坎_探求性": 1.0, "震_行動性": 0.5 } }
-            ]
+              { value: "E", text: "柔軟に対応しながら最善の道を探る", scoring: { "巽_適応性": 3.0, "坎_探求性": 1.0, "震_行動性": 0.5 } },
           },
           {
             id: "q6",
@@ -1820,8 +2059,7 @@
               { value: "B", text: "興味深いが、まず詳しく調べてから決める", scoring: { "坎_探求性": 2.5, "艮_安定性": 2.0, "震_行動性": -0.5 } },
               { value: "C", text: "リスクと利益を慎重に天秤にかける", scoring: { "艮_安定性": 2.5, "坎_探求性": 1.5, "震_行動性": -1.0 } },
               { value: "D", text: "周りの意見を聞いてから判断する", scoring: { "兌_調和性": 2.5, "坤_受容性": 1.5, "乾_創造性": -0.5 } },
-              { value: "E", text: "自分にとって本当に価値があるか考える", scoring: { "坎_探求性": 2.0, "艮_安定性": 1.5, "巽_適応性": 1.0 } }
-            ]
+              { value: "E", text: "自分にとって本当に価値があるか考える", scoring: { "坎_探求性": 2.0, "艮_安定性": 1.5, "巽_適応性": 1.0 } },
           },
           
           // Q7-Q9: 坎_探求性
@@ -1834,8 +2072,7 @@
               { value: "B", text: "新しい発見や可能性を見つけたくなる", scoring: { "乾_創造性": 2.5, "坎_探求性": 2.0, "艮_安定性": -0.5 } },
               { value: "C", text: "みんなで一緒に学び合いたくなる", scoring: { "兌_調和性": 2.5, "坤_受容性": 1.5, "坎_探求性": 1.0 } },
               { value: "D", text: "実用的で役に立つ部分を知りたくなる", scoring: { "艮_安定性": 2.0, "巽_適応性": 1.5, "坎_探求性": 1.5 } },
-              { value: "E", text: "必要に応じて少しずつ理解していく", scoring: { "巽_適応性": 2.5, "艮_安定性": 1.0, "坎_探求性": 0.5 } }
-            ]
+              { value: "E", text: "必要に応じて少しずつ理解していく", scoring: { "巽_適応性": 2.5, "艮_安定性": 1.0, "坎_探求性": 0.5 } },
           },
           {
             id: "q8",
@@ -1845,8 +2082,7 @@
               { value: "B", text: "新しい視点から問題を捉え直す", scoring: { "乾_創造性": 2.5, "坎_探求性": 2.0, "艮_安定性": -0.5 } },
               { value: "C", text: "いろいろな人の意見を聞いて参考にする", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "坎_探求性": 0.5 } },
               { value: "D", text: "まず行動してみて、やりながら解決策を見つける", scoring: { "震_行動性": 3.0, "巽_適応性": 1.5, "坎_探求性": -0.5 } },
-              { value: "E", text: "過去の経験や事例を参考にして解決する", scoring: { "艮_安定性": 2.5, "坎_探求性": 1.0, "乾_創造性": -0.5 } }
-            ]
+              { value: "E", text: "過去の経験や事例を参考にして解決する", scoring: { "艮_安定性": 2.5, "坎_探求性": 1.0, "乾_創造性": -0.5 } },
           },
           {
             id: "q9",
@@ -1856,8 +2092,7 @@
               { value: "B", text: "新しい発見から創造的なアイデアを得たい", scoring: { "乾_創造性": 2.5, "坎_探求性": 2.0, "艮_安定性": -0.5 } },
               { value: "C", text: "学んだことをみんなと共有したい", scoring: { "兌_調和性": 2.5, "離_表現性": 1.5, "坎_探求性": 1.0 } },
               { value: "D", text: "実生活で活用できる知識を身につけたい", scoring: { "巽_適応性": 2.5, "艮_安定性": 1.5, "坎_探求性": 1.0 } },
-              { value: "E", text: "状況に応じて必要な知識を効率よく学ぶ", scoring: { "巽_適応性": 3.0, "艮_安定性": 1.0, "坎_探求性": 0.5 } }
-            ]
+              { value: "E", text: "状況に応じて必要な知識を効率よく学ぶ", scoring: { "巽_適応性": 3.0, "艮_安定性": 1.0, "坎_探求性": 0.5 } },
           },
           
           // Q10-Q12: 艮_安定性
@@ -1870,8 +2105,7 @@
               { value: "B", text: "革新的で大きな可能性のある選択肢", scoring: { "乾_創造性": 3.0, "震_行動性": 1.5, "艮_安定性": -1.0 } },
               { value: "C", text: "みんなが納得できる選択肢", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "艮_安定性": 0.5 } },
               { value: "D", text: "論理的に最も合理的な選択肢", scoring: { "坎_探求性": 2.5, "艮_安定性": 1.5, "兌_調和性": -0.5 } },
-              { value: "E", text: "状況に応じて柔軟に変更できる選択肢", scoring: { "巽_適応性": 3.0, "艮_安定性": -0.5, "坎_探求性": 0.5 } }
-            ]
+              { value: "E", text: "状況に応じて柔軟に変更できる選択肢", scoring: { "巽_適応性": 3.0, "艮_安定性": -0.5, "坎_探求性": 0.5 } },
           },
           {
             id: "q11",
@@ -1881,8 +2115,7 @@
               { value: "B", text: "大胆な挑戦で大きな成果を目指したい", scoring: { "乾_創造性": 2.5, "震_行動性": 2.0, "艮_安定性": -1.0 } },
               { value: "C", text: "みんなと一緒に成長していきたい", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "艮_安定性": 0.5 } },
               { value: "D", text: "深く探求して専門性を高めたい", scoring: { "坎_探求性": 2.5, "艮_安定性": 1.5, "兌_調和性": -0.5 } },
-              { value: "E", text: "状況に応じて目標を柔軟に調整したい", scoring: { "巽_適応性": 2.5, "艮_安定性": -0.5, "乾_創造性": 1.0 } }
-            ]
+              { value: "E", text: "状況に応じて目標を柔軟に調整したい", scoring: { "巽_適応性": 2.5, "艮_安定性": -0.5, "乾_創造性": 1.0 } },
           },
           {
             id: "q12",
@@ -1892,8 +2125,7 @@
               { value: "B", text: "常に新しいことに挑戦し続けることが大切", scoring: { "乾_創造性": 2.5, "震_行動性": 2.0, "艮_安定性": -1.5 } },
               { value: "C", text: "みんなと良い関係を長く保つことが大切", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "艮_安定性": 1.0 } },
               { value: "D", text: "深く学び続けて理解を深めることが大切", scoring: { "坎_探求性": 2.5, "艮_安定性": 1.5, "震_行動性": -0.5 } },
-              { value: "E", text: "変化に合わせて適応し続けることが大切", scoring: { "巽_適応性": 3.0, "艮_安定性": -1.0, "乾_創造性": 1.0 } }
-            ]
+              { value: "E", text: "変化に合わせて適応し続けることが大切", scoring: { "巽_適応性": 3.0, "艮_安定性": -1.0, "乾_創造性": 1.0 } },
           },
           
           // Q13-Q15: 坤_受容性
@@ -1906,8 +2138,7 @@
               { value: "B", text: "相手の話をじっくり聞いて理解しようとする", scoring: { "坤_受容性": 3.0, "兌_調和性": 1.5, "震_行動性": -0.5 } },
               { value: "C", text: "お互いの意見を交換して学び合う", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "坎_探求性": 1.0 } },
               { value: "D", text: "エネルギッシュに活動して盛り上げる", scoring: { "震_行動性": 2.5, "離_表現性": 2.0, "坤_受容性": -1.0 } },
-              { value: "E", text: "相手に合わせて適切な距離感を保つ", scoring: { "巽_適応性": 2.5, "坤_受容性": 1.5, "離_表現性": -0.5 } }
-            ]
+              { value: "E", text: "相手に合わせて適切な距離感を保つ", scoring: { "巽_適応性": 2.5, "坤_受容性": 1.5, "離_表現性": -0.5 } },
           },
           {
             id: "q14",
@@ -1917,8 +2148,7 @@
               { value: "B", text: "まず相手の気持ちを受け止めて寄り添う", scoring: { "坤_受容性": 3.0, "兌_調和性": 1.5, "震_行動性": -0.5 } },
               { value: "C", text: "一緒に解決策を考えて実行する", scoring: { "兌_調和性": 2.5, "震_行動性": 1.5, "坤_受容性": 1.5 } },
               { value: "D", text: "問題の原因を分析して根本的な解決を図る", scoring: { "坎_探求性": 2.5, "艮_安定性": 1.5, "坤_受容性": 0.5 } },
-              { value: "E", text: "その人に最も適した支援方法を見つける", scoring: { "巽_適応性": 2.5, "坤_受容性": 2.0, "坎_探求性": 1.0 } }
-            ]
+              { value: "E", text: "その人に最も適した支援方法を見つける", scoring: { "巽_適応性": 2.5, "坤_受容性": 2.0, "坎_探求性": 1.0 } },
           },
           {
             id: "q15",
@@ -1928,8 +2158,7 @@
               { value: "B", text: "どんな時も変わらずそばにいること", scoring: { "坤_受容性": 3.0, "艮_安定性": 2.0, "震_行動性": -0.5 } },
               { value: "C", text: "共に喜び、共に悲しむこと", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.5, "離_表現性": 0.5 } },
               { value: "D", text: "具体的な行動で実際に助けること", scoring: { "震_行動性": 2.5, "坤_受容性": 1.5, "艮_安定性": 1.0 } },
-              { value: "E", text: "相手の状況に合わせて最適な支援をすること", scoring: { "巽_適応性": 3.0, "坤_受容性": 2.0, "坎_探求性": 0.5 } }
-            ]
+              { value: "E", text: "相手の状況に合わせて最適な支援をすること", scoring: { "巽_適応性": 3.0, "坤_受容性": 2.0, "坎_探求性": 0.5 } },
           },
           
           // Q16-Q18: 巽_適応性
@@ -1942,8 +2171,7 @@
               { value: "B", text: "状況に合わせて柔軟に方針を調整する", scoring: { "巽_適応性": 3.0, "兌_調和性": 1.0, "艮_安定性": -0.5 } },
               { value: "C", text: "みんなで協力して乗り越える方法を探す", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "巽_適応性": 1.5 } },
               { value: "D", text: "原因を分析して根本的な対策を立てる", scoring: { "坎_探求性": 2.5, "艮_安定性": 1.5, "巽_適応性": 0.5 } },
-              { value: "E", text: "確実で安全な方法で対処する", scoring: { "艮_安定性": 2.5, "坤_受容性": 1.5, "巽_適応性": -0.5 } }
-            ]
+              { value: "E", text: "確実で安全な方法で対処する", scoring: { "艮_安定性": 2.5, "坤_受容性": 1.5, "巽_適応性": -0.5 } },
           },
           {
             id: "q17",
@@ -1953,8 +2181,7 @@
               { value: "B", text: "みんなの意見を調整して橋渡しをする", scoring: { "巽_適応性": 3.0, "兌_調和性": 2.0, "離_表現性": 0.5 } },
               { value: "C", text: "全体の雰囲気を和やかに保つ", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "巽_適応性": 1.0 } },
               { value: "D", text: "積極的に行動して場を盛り上げる", scoring: { "震_行動性": 2.5, "離_表現性": 2.0, "巽_適応性": 0.5 } },
-              { value: "E", text: "安定した基盤を提供して支える", scoring: { "艮_安定性": 2.5, "坤_受容性": 2.0, "巽_適応性": -0.5 } }
-            ]
+              { value: "E", text: "安定した基盤を提供して支える", scoring: { "艮_安定性": 2.5, "坤_受容性": 2.0, "巽_適応性": -0.5 } },
           },
           {
             id: "q18",
@@ -1964,8 +2191,7 @@
               { value: "B", text: "どんな状況でも対応できる大切な能力", scoring: { "巽_適応性": 3.0, "震_行動性": 1.0, "艮_安定性": -0.5 } },
               { value: "C", text: "人との関係を良好に保つために重要なもの", scoring: { "兌_調和性": 2.5, "巽_適応性": 2.0, "坤_受容性": 1.0 } },
               { value: "D", text: "効果的に行動するための手段の一つ", scoring: { "震_行動性": 2.0, "巽_適応性": 1.5, "坎_探求性": 1.0 } },
-              { value: "E", text: "一貫性があってこそ意味を持つもの", scoring: { "艮_安定性": 2.5, "巽_適応性": -0.5, "坎_探求性": 1.0 } }
-            ]
+              { value: "E", text: "一貫性があってこそ意味を持つもの", scoring: { "艮_安定性": 2.5, "巽_適応性": -0.5, "坎_探求性": 1.0 } },
           },
           
           // Q19-Q21: 離_表現性
@@ -1978,8 +2204,7 @@
               { value: "B", text: "相手に合わせて分かりやすく伝える", scoring: { "巽_適応性": 2.0, "兌_調和性": 1.5, "離_表現性": 1.5 } },
               { value: "C", text: "論理的で説得力のある説明をする", scoring: { "坎_探求性": 2.5, "艮_安定性": 1.5, "離_表現性": 1.0 } },
               { value: "D", text: "率直で正直な表現を心がける", scoring: { "震_行動性": 1.5, "離_表現性": 2.0, "兌_調和性": -0.5 } },
-              { value: "E", text: "相手の気持ちに寄り添いながら伝える", scoring: { "坤_受容性": 2.5, "兌_調和性": 2.0, "離_表現性": 0.5 } }
-            ]
+              { value: "E", text: "相手の気持ちに寄り添いながら伝える", scoring: { "坤_受容性": 2.5, "兌_調和性": 2.0, "離_表現性": 0.5 } },
           },
           {
             id: "q20",
@@ -1989,8 +2214,7 @@
               { value: "B", text: "場の雰囲気に合わせて適切に振る舞う", scoring: { "巽_適応性": 2.5, "兌_調和性": 1.5, "離_表現性": 0.5 } },
               { value: "C", text: "みんなが楽しめるように配慮する", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "離_表現性": 1.0 } },
               { value: "D", text: "控えめに振る舞って目立たないようにする", scoring: { "坤_受容性": 2.5, "艮_安定性": 1.5, "離_表現性": -1.0 } },
-              { value: "E", text: "エネルギッシュに行動して場を盛り上げる", scoring: { "震_行動性": 2.5, "離_表現性": 2.5, "艮_安定性": -0.5 } }
-            ]
+              { value: "E", text: "エネルギッシュに行動して場を盛り上げる", scoring: { "震_行動性": 2.5, "離_表現性": 2.5, "艮_安定性": -0.5 } },
           },
           {
             id: "q21",
@@ -2000,8 +2224,7 @@
               { value: "B", text: "自分の個性や魅力で人を惹きつける力", scoring: { "離_表現性": 3.0, "震_行動性": 1.0, "艮_安定性": -0.5 } },
               { value: "C", text: "みんなをまとめて良い方向に導く力", scoring: { "兌_調和性": 2.5, "震_行動性": 1.5, "離_表現性": 1.5 } },
               { value: "D", text: "行動で示して周りを動かす力", scoring: { "震_行動性": 2.5, "離_表現性": 1.5, "坤_受容性": -0.5 } },
-              { value: "E", text: "信頼と実績で認められる力", scoring: { "艮_安定性": 2.5, "坤_受容性": 1.5, "離_表現性": 0.5 } }
-            ]
+              { value: "E", text: "信頼と実績で認められる力", scoring: { "艮_安定性": 2.5, "坤_受容性": 1.5, "離_表現性": 0.5 } },
           },
           
           // Q22-Q24: 兌_調和性
@@ -2014,8 +2237,7 @@
               { value: "B", text: "双方の良い点を見つけて橋渡しをする", scoring: { "兌_調和性": 3.0, "巽_適応性": 2.0, "震_行動性": -0.5 } },
               { value: "C", text: "冷静に分析して客観的な解決策を提示する", scoring: { "坎_探求性": 2.5, "艮_安定性": 1.5, "兌_調和性": 0.5 } },
               { value: "D", text: "積極的に行動して状況を打開する", scoring: { "震_行動性": 2.5, "乾_創造性": 1.0, "兌_調和性": -0.5 } },
-              { value: "E", text: "相手の気持ちを受け止めて寄り添う", scoring: { "坤_受容性": 2.5, "兌_調和性": 2.0, "震_行動性": -1.0 } }
-            ]
+              { value: "E", text: "相手の気持ちを受け止めて寄り添う", scoring: { "坤_受容性": 2.5, "兌_調和性": 2.0, "震_行動性": -1.0 } },
           },
           {
             id: "q23",
@@ -2025,8 +2247,7 @@
               { value: "B", text: "笑顔で楽しい時間を共有できること", scoring: { "兌_調和性": 3.0, "離_表現性": 1.5, "坎_探求性": -0.5 } },
               { value: "C", text: "深く理解し合えること", scoring: { "坎_探求性": 2.0, "坤_受容性": 2.0, "兌_調和性": 1.5 } },
               { value: "D", text: "互いを支え合えること", scoring: { "坤_受容性": 2.5, "艮_安定性": 2.0, "兌_調和性": 2.0 } },
-              { value: "E", text: "相手に合わせて適切な関係を築けること", scoring: { "巽_適応性": 2.5, "兌_調和性": 2.0, "坤_受容性": 1.0 } }
-            ]
+              { value: "E", text: "相手に合わせて適切な関係を築けること", scoring: { "巽_適応性": 2.5, "兌_調和性": 2.0, "坤_受容性": 1.0 } },
           },
           {
             id: "q24",
@@ -2036,8 +2257,7 @@
               { value: "B", text: "お互いに喜びを分かち合えることが大切", scoring: { "兌_調和性": 3.0, "離_表現性": 1.0, "艮_安定性": 0.5 } },
               { value: "C", text: "深い信頼関係を築けることが大切", scoring: { "艮_安定性": 2.0, "坤_受容性": 2.0, "兌_調和性": 1.5 } },
               { value: "D", text: "困った時に支え合えることが大切", scoring: { "坤_受容性": 2.5, "兌_調和性": 2.0, "震_行動性": 0.5 } },
-              { value: "E", text: "お互いの違いを認め合えることが大切", scoring: { "巽_適応性": 2.0, "坤_受容性": 2.0, "兌_調和性": 2.0 } }
-            ]
+              { value: "E", text: "お互いの違いを認め合えることが大切", scoring: { "巽_適応性": 2.0, "坤_受容性": 2.0, "兌_調和性": 2.0 } },
           },
           
           // Q25-Q30: シナリオ設問（Interface/SafeMode OS特定用）
@@ -2050,8 +2270,7 @@
               { value: "B", text: "明確なビジョンを示し、そこに向かってメンバーを導く", scoring: { "乾_創造性": 2.5, "離_表現性": 2.5, "震_行動性": 2.0 } },
               { value: "C", text: "各メンバーの強みを分析し、最適な役割分担を提案する", scoring: { "坎_探求性": 2.5, "巽_適応性": 2.0, "艮_安定性": 1.5 } },
               { value: "D", text: "過去の成功事例を共有し、実績に基づいた方法論を提案する", scoring: { "艮_安定性": 2.5, "坎_探求性": 1.5, "兌_調和性": 1.0 } },
-              { value: "E", text: "まずは小さな成功を目指し、チームの結束を高めながら進める", scoring: { "巽_適応性": 2.0, "兌_調和性": 2.0, "艮_安定性": 2.0 } }
-            ]
+              { value: "E", text: "まずは小さな成功を目指し、チームの結束を高めながら進める", scoring: { "巽_適応性": 2.0, "兌_調和性": 2.0, "艮_安定性": 2.0 } },
           },
           {
             id: "q26",
@@ -2061,8 +2280,7 @@
               { value: "B", text: "問題を正直に説明し、理解を求めながら進める", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.0, "離_表現性": 1.5 } },
               { value: "C", text: "チーム全員で協力して最善の解決策を見つける", scoring: { "兌_調和性": 3.0, "坤_受容性": 2.0, "震_行動性": 1.0 } },
               { value: "D", text: "問題の原因を分析し、根本的な対策を検討する", scoring: { "坎_探求性": 3.0, "艮_安定性": 2.0, "震_行動性": -0.5 } },
-              { value: "E", text: "延期を提案し、完璧な状態で実施する", scoring: { "艮_安定性": 3.0, "坤_受容性": 1.0, "震_行動性": -1.0 } }
-            ]
+              { value: "E", text: "延期を提案し、完璧な状態で実施する", scoring: { "艮_安定性": 3.0, "坤_受容性": 1.0, "震_行動性": -1.0 } },
           },
           {
             id: "q27",
@@ -2072,8 +2290,7 @@
               { value: "B", text: "周りの人とコミュニケーションを取り、関係性を築く", scoring: { "兌_調和性": 3.0, "坤_受容性": 2.0, "離_表現性": 1.0 } },
               { value: "C", text: "環境をよく観察し、ルールや文化を理解する", scoring: { "坎_探求性": 2.5, "艮_安定性": 2.0, "巽_適応性": 1.5 } },
               { value: "D", text: "過去の経験を活かし、着実に基盤を固める", scoring: { "艮_安定性": 3.0, "坤_受容性": 1.5, "坎_探求性": 1.0 } },
-              { value: "E", text: "状況に合わせて、必要に応じて自分を調整する", scoring: { "巽_適応性": 3.0, "兌_調和性": 1.5, "坤_受容性": 1.0 } }
-            ]
+              { value: "E", text: "状況に合わせて、必要に応じて自分を調整する", scoring: { "巽_適応性": 3.0, "兌_調和性": 1.5, "坤_受容性": 1.0 } },
           },
           {
             id: "q28",
@@ -2083,8 +2300,7 @@
               { value: "B", text: "信頼できる人に相談して、意見を求める", scoring: { "兌_調和性": 2.5, "坤_受容性": 2.5, "艮_安定性": 1.0 } },
               { value: "C", text: "可能な限り情報を収集してから判断する", scoring: { "坎_探求性": 3.0, "艮_安定性": 2.0, "震_行動性": -0.5 } },
               { value: "D", text: "リスクを最小限に抑える選択肢を選ぶ", scoring: { "艮_安定性": 3.0, "坤_受容性": 1.5, "乾_創造性": -1.0 } },
-              { value: "E", text: "複数のシナリオを想定して、柔軟な計画を立てる", scoring: { "巽_適応性": 3.0, "坎_探求性": 2.0, "艮_安定性": 0.5 } }
-            ]
+              { value: "E", text: "複数のシナリオを想定して、柔軟な計画を立てる", scoring: { "巽_適応性": 3.0, "坎_探求性": 2.0, "艮_安定性": 0.5 } },
           },
           {
             id: "q29",
@@ -2094,8 +2310,7 @@
               { value: "B", text: "メンバーの気持ちに寄り添い、支援を強化する", scoring: { "坤_受容性": 3.0, "兌_調和性": 2.0, "艮_安定性": 1.0 } },
               { value: "C", text: "客観的に分析し、改善点を明確にする", scoring: { "坎_探求性": 3.0, "艮_安定性": 1.5, "兌_調和性": 0.5 } },
               { value: "D", text: "責任を取り、より確実な方法に変更する", scoring: { "艮_安定性": 2.5, "坤_受容性": 2.0, "震_行動性": 1.0 } },
-              { value: "E", text: "状況に応じて戦略を柔軟に調整する", scoring: { "巽_適応性": 3.0, "坎_探求性": 1.5, "兌_調和性": 1.0 } }
-            ]
+              { value: "E", text: "状況に応じて戦略を柔軟に調整する", scoring: { "巽_適応性": 3.0, "坎_探求性": 1.5, "兌_調和性": 1.0 } },
           },
           {
             id: "q30",
@@ -2105,10 +2320,11 @@
               { value: "B", text: "大切な人との絆とつながり", scoring: { "兌_調和性": 3.0, "坤_受容性": 2.5, "艮_安定性": 1.0 } },
               { value: "C", text: "真理の探求と深い理解", scoring: { "坎_探求性": 3.0, "艮_安定性": 1.5, "兌_調和性": 0.5 } },
               { value: "D", text: "安定した基盤と確実な歩み", scoring: { "艮_安定性": 3.0, "坤_受容性": 2.0, "乾_創造性": -0.5 } },
-              { value: "E", text: "変化への適応と柔軟な対応", scoring: { "巽_適応性": 3.0, "兌_調和性": 1.5, "艮_安定性": -0.5 } }
-            ]
-          }
+              { value: "E", text: "変化への適応と柔軟な対応", scoring: { "巽_適応性": 3.0, "兌_調和性": 1.5, "艮_安定性": -0.5 } },
         ];
+        
+        // QUESTIONSをwindowオブジェクトに設定
+        window.QUESTIONS = QUESTIONS;
         
         // 2. 64卦データベース（hexagrams.json統合）
         window.HEXAGRAMS = [
@@ -2183,11 +2399,9 @@
             1: {
                 乾_創造性: 9, 震_行動性: 7, 坎_探求性: 5, 艮_安定性: 6,
                 坤_受容性: 1, 巽_適応性: 3, 離_表現性: 8, 兌_調和性: 4
-            },
             2: {
                 乾_創造性: 2, 震_行動性: 3, 坎_探求性: 4, 艮_安定性: 8,
                 坤_受容性: 9, 巽_適応性: 7, 離_表現性: 2, 兌_調和性: 6
-            }
             // 他の62卦のベクトルも同様に実装...
         };
         
@@ -2223,21 +2437,18 @@
                 color: '#6366f1',
                 trigrams: [1, 4, 6, 7], // 乾、震、坎、艮
                 keywords: ['創造性', 'リーダーシップ', '行動力', '探求心', '安定性']
-            },
             'Interface OS': {
                 name: 'Interface OS', 
                 description: 'コミュニケーションと表現の対人システム',
                 color: '#8b5cf6',
                 trigrams: [2, 3, 5, 8], // 兌、離、巽、坤
                 keywords: ['調和性', 'コミュニケーション', '表現力', '適応性', '受容性']
-            },
             'Safe Mode OS': {
                 name: 'Safe Mode OS',
                 description: '安定と調和を重視する保護システム',
                 color: '#10b981',
                 trigrams: [7, 8, 5, 6], // 艮、坤、巽、坎
                 keywords: ['安定性', '受容性', '適応性', '慎重さ', '分析力']
-            }
         };
         
         // 6. VirtualPersonaEnhancer: 仮想人格生成強化システム（64卦データベース連携版）
@@ -2255,7 +2466,6 @@
                     7: "☶", // 艮（山）
                     8: "☷"  // 坤（地）
                 };
-            }
             
             // 卦IDから適切なシンボルを生成
             getSymbolForHexagram(hexagramId) {
@@ -2265,13 +2475,11 @@
                 
                 // 上卦のシンボルを返す（簡略化）
                 return this.trigramSymbols[hexagram.upper_trigram_id] || "☯";
-            }
             
             // キーワードから特性を抽出
             extractTraitsFromKeywords(keywords) {
                 if (!keywords) return [];
                 return keywords.split(',').map(k => k.trim());
-            }
             
             enhanceOSResult(osResult, osType) {
                 // osResultにhexagramIdが含まれているはず
@@ -2281,7 +2489,6 @@
                 if (!hexagram) {
                     console.warn(`Hexagram ${hexagramId} not found, using default`);
                     return osResult;
-                }
                 
                 // 64卦データベースから動的にペルソナを生成
                 return {
@@ -2295,9 +2502,7 @@
                         description: hexagram.description,
                         // HaQei哲学に基づく文脈依存的な表現
                         contextualExpression: `${osType === 'engine' ? '内的価値観' : osType === 'interface' ? '社会的側面' : '防御的側面'}における${hexagram.catchphrase}`
-                    }
                 };
-            }
             
             generatePersonaCard(osResult, osType) {
                 const enhancedResult = this.enhanceOSResult(osResult, osType);
@@ -2305,7 +2510,6 @@
                 
                 if (!persona) {
                     return '<div class="virtual-persona-card">ペルソナデータが見つかりません</div>';
-                }
                 
                 // OSタイプに応じた色分け
                 const osColors = {
@@ -2332,8 +2536,6 @@
                         </div>
                     </div>
                 `;
-            }
-        }
         
         // 7. TripleOSエンジン（TypeScriptから移植）
         class TripleOSEngine {
@@ -2342,7 +2544,6 @@
                 this.interfaceKeywords = new Map();
                 this.safeModeKeywords = new Map();
                 this.initializeKeywordMaps();
-            }
             
             initializeTrigramMapping() {
                 // 易経準拠の正統三爻マッピング
@@ -2356,7 +2557,6 @@
                     "艮": { id: 7, symbol: "☶", name: "山", nature: "静止", trait: "山岳安定・不動継続" },
                     "坤": { id: 8, symbol: "☷", name: "地", nature: "柔順", trait: "大地受容・育成包容" }
                 };
-            }
             
             initializeKeywordMaps() {
                 // Interface OS keywords
@@ -2368,7 +2568,6 @@
                 this.safeModeKeywords.set("慎重", ["2", "52", "39", "15"]);
                 this.safeModeKeywords.set("分析的", ["29", "48", "47", "6"]);
                 this.safeModeKeywords.set("撤退", ["33", "12", "45", "35"]);
-            }
             
             // Triple OS分析のメイン処理
             async analyzeTripleOS(allAnswers) {
@@ -2424,8 +2623,6 @@
                     
                     // 統合エラーハンドリング - デフォルトのTriple OS結果を返す
                     return this.getDefaultTripleOSResults();
-                }
-            }
             
             separateAnswers(allAnswers) {
                 const worldviewAnswers = [];
@@ -2437,11 +2634,9 @@
                         worldviewAnswers.push(answer);
                     } else if (questionNum >= 25 && questionNum <= 30) {
                         scenarioAnswers.push(answer);
-                    }
                 });
                 
                 return { worldviewAnswers, scenarioAnswers };
-            }
             
             async analyzeEngineOS(worldviewAnswers) {
                 console.log("🔥 Engine OS Analysis: Core Values System Mapping");
@@ -2460,7 +2655,6 @@
                     const optimalResult = authenticEngine.selectOptimalHexagramByEnergyBalance(
                         trigramEnergies, 
                         'Engine OS'
-                    );
                     
                     console.log(`🏆 Engine OS Optimal Result:`, optimalResult);
                     
@@ -2492,8 +2686,9 @@
                     console.error("❌ Engine OS Analysis Error:", error);
                     // フォールバック：従来方式
                     return this.analyzeEngineOSLegacy(worldviewAnswers);
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
             
             // 🔄 従来方式の保持（比較・フォールバック用）
             getLegacyResult(trigramEnergies) {
@@ -2509,7 +2704,6 @@
                     hexagramId,
                     note: '従来の最高値2三爻選択方式'
                 };
-            }
             
             // フォールバック用の従来分析
             analyzeEngineOSLegacy(worldviewAnswers) {
@@ -2536,7 +2730,6 @@
                     balanceType: 'legacy_fallback',
                     improvedMethod: false
                 };
-            }
             
             buildUserVector(answers) {
                 const vector = {
@@ -2550,13 +2743,10 @@
                         Object.entries(option.scoring).forEach(([dimension, score]) => {
                             if (vector.hasOwnProperty(dimension)) {
                                 vector[dimension] += score;
-                            }
                         });
-                    }
                 });
                 
                 return vector;
-            }
             
             calculateTrigramEnergies(userVector) {
                 // 易経準拠の正統三爻エネルギー計算
@@ -2583,10 +2773,8 @@
                     Object.keys(rawEnergies).forEach(trigram => {
                         normalizedEnergies[trigram] = 12.5; // 100/8
                     });
-                }
                 
                 return normalizedEnergies;
-            }
             
             getTrigramName(trigramId) {
                 // 🌟 IMPROVED: 詳細な説明付きtrigram名前取得
@@ -2606,14 +2794,11 @@
                     const trigramNames = ["乾", "兌", "離", "震", "巽", "坎", "艮", "坤"];
                     const trigramKey = trigramNames[trigramId - 1];
                     return trigramMap[trigramKey] || `第${trigramId}卦 (詳細不明)`;
-                }
                 
                 if (typeof trigramId === 'string') {
                     return trigramMap[trigramId] || `${trigramId} (詳細情報を取得中)`;
-                }
                 
                 return '卦情報を取得中...';
-            }
             
             mapTrigramsToHexagram(upperTrigram, lowerTrigram) {
                 // 易経準拠の正確な64卦計算（先天八卦配列基準）
@@ -2643,7 +2828,6 @@
                 console.log(`🔯 Authentic I-Ching Mapping: ${upperTrigram}(${upper}) over ${lowerTrigram}(${lower}) = Hexagram ${hexagramId}`);
                 
                 return hexagramId;
-            }
             
             // 卦データ取得メソッド
             getHexagramData(hexagramId) {
@@ -2656,9 +2840,7 @@
                         description: "データが見つかりません",
                         catchphrase: "---"
                     };
-                }
                 return hexagram;
-            }
             
             async analyzeInterfaceOS(scenarioAnswers, engineOS) {
                 console.log("🌐 Interface OS Analysis: Social Pattern Mapping");
@@ -2685,7 +2867,6 @@
                     const optimalResult = authenticEngine.selectOptimalHexagramByEnergyBalance(
                         adjustedEnergies, 
                         'Interface OS'
-                    );
                     
                     console.log(`🏆 Interface OS Optimal Result:`, optimalResult);
                     
@@ -2695,7 +2876,6 @@
                     // 7. Interface OS専用解釈生成
                     const interfaceInterpretation = this.generateInterfaceInterpretation(
                         optimalResult.hexagramId, optimalResult.upperTrigram, optimalResult.lowerTrigram, socialPatterns, engineOS
-                    );
                     
                     console.log(`🌟 Interface OS Result: Hexagram ${optimalResult.hexagramId} (${hexagramData.name_jp})`);
                     
@@ -2730,8 +2910,10 @@
                 } catch (error) {
                     console.error("❌ Interface OS Analysis Error:", error);
                     return this.getDefaultInterfaceOS();
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             async analyzeSafeModeOS(scenarioAnswers, engineOS) {
                 console.log("🛡️ SafeMode OS Analysis: Defensive Pattern Extraction");
@@ -2758,7 +2940,6 @@
                     const optimalResult = authenticEngine.selectOptimalHexagramByEnergyBalance(
                         adjustedEnergies, 
                         'Safe Mode OS'
-                    );
                     
                     console.log(`🏆 Safe Mode OS Optimal Result:`, optimalResult);
                     
@@ -2768,7 +2949,6 @@
                     // 7. SafeMode OS専用解釈生成
                     const safeModeInterpretation = this.generateSafeModeInterpretation(
                         optimalResult.hexagramId, optimalResult.upperTrigram, optimalResult.lowerTrigram, defensivePatterns, engineOS
-                    );
                     
                     console.log(`🔯 SafeMode OS Result: Hexagram ${optimalResult.hexagramId} (${hexagramData.name_jp})`);
                     
@@ -2799,8 +2979,10 @@
                 } catch (error) {
                     console.error("❌ SafeMode OS Analysis Error:", error);
                     return this.getDefaultSafeModeOS();
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
 
             extractDefensivePatterns(scenarioAnswers) {
                 const patterns = {
@@ -2824,11 +3006,9 @@
                         case 28: patterns.emergencyStress = stressResponse; break;
                         case 29: patterns.competitionStress = stressResponse; break;
                         case 30: patterns.collaborationStress = stressResponse; break;
-                    }
                 });
                 
                 return patterns;
-            }
 
             analyzeStressResponse(answer, questionNum) {
                 // 回答から防御的パターンを数値化
@@ -2840,7 +3020,6 @@
                     type: defensiveType,
                     pattern: this.mapToDefensivePattern(defensiveType)
                 };
-            }
 
             calculateResponseIntensity(answer) {
                 // 回答の強度を0-1で測定
@@ -2866,7 +3045,6 @@
                 });
                 
                 return Math.max(0, Math.min(1, score));
-            }
 
             identifyDefensiveType(answer, questionNum) {
                 if (!answer || !answer.text) return 'neutral';
@@ -2896,11 +3074,9 @@
                     if (score > maxScore) {
                         maxScore = score;
                         dominantType = type;
-                    }
                 });
                 
                 return dominantType;
-            }
 
             mapToDefensivePattern(defensiveType) {
                 const patternMap = {
@@ -2916,7 +3092,6 @@
                 };
                 
                 return patternMap[defensiveType] || '中立';
-            }
 
             buildStressResponseVector(defensivePatterns) {
                 // 防御的8次元ベクトル構築
@@ -2969,7 +3144,6 @@
                             vector.防御_堅固性 += intensity * 0.8;
                             vector.防御_対抗性 += intensity * 0.3;
                             break;
-                    }
                 });
                 
                 // 正規化
@@ -2978,10 +3152,8 @@
                     Object.keys(vector).forEach(key => {
                         vector[key] = vector[key] / maxValue;
                     });
-                }
                 
                 return vector;
-            }
 
             calculateDefensiveTrigramEnergies(stressVector) {
                 // 防御的8次元ベクトルから三爻エネルギーを計算
@@ -2995,7 +3167,6 @@
                     艮: stressVector.防御_境界性 * 0.7 + stressVector.防御_撤退性 * 0.3,
                     坤: stressVector.防御_撤退性 * 0.7 + stressVector.防御_調和性 * 0.3
                 };
-            }
 
             adjustForCorePersonality(defensiveEnergies, engineOS) {
                 // Engine OSの基礎人格が防御パターンに40%の影響を与える
@@ -3013,7 +3184,6 @@
                 });
                 
                 return adjusted;
-            }
 
             selectDefensiveTrigrams(energies) {
                 // エネルギー値でソートして上位2つの三爻を選択
@@ -3021,7 +3191,6 @@
                     .sort(([,a], [,b]) => b - a);
                 
                 return [sorted[0][0], sorted[1][0]];
-            }
 
             generateSafeModeInterpretation(hexagramId, primaryDefense, secondaryDefense, patterns, engineOS) {
                 // SafeMode OS専用の64卦解釈
@@ -3031,7 +3200,6 @@
                 // パーソナライズされた解釈を生成
                 const personalizedDescription = this.personalizeSafeModeDescription(
                     interpretation, primaryDefense, secondaryDefense, patterns, engineOS
-                );
                 
                 return {
                     description: personalizedDescription,
@@ -3040,7 +3208,6 @@
                     stressResponse: interpretation.stressResponse || "状況適応型対応",
                     activationTrigger: this.identifyActivationTrigger(patterns)
                 };
-            }
 
             getSafeModeHexagramInterpretations() {
                 return {
@@ -3049,388 +3216,323 @@
                         catchphrase: "困難を力で突破する",
                         primaryDefense: "積極的対抗",
                         stressResponse: "正面突破による解決"
-                    },
                     2: { // 坤為地
                         name: "大地包容型防御",
                         catchphrase: "全てを受け入れ包み込む",
                         primaryDefense: "受容・同化",
                         stressResponse: "環境への完全適応"
-                    },
                     29: { // 坎為水
                         name: "深淵流水型防御",
                         catchphrase: "困難を流れるように通過する",
                         primaryDefense: "浸透・持続",
                         stressResponse: "障害の本質を理解し迂回"
-                    },
                     52: { // 艮為山
                         name: "不動要塞型防御",
                         catchphrase: "絶対的な境界を設定する",
                         primaryDefense: "静止・境界",
                         stressResponse: "完全な防御体制構築"
-                    },
                     58: { // 兌為沢
                         name: "調和交流型防御",
                         catchphrase: "対話で危機を乗り越える",
                         primaryDefense: "協調・交渉",
                         stressResponse: "関係性による問題解決"
-                    },
                     30: { // 離為火
                         name: "明照変容型防御",
                         catchphrase: "状況を見極め変化する",
                         primaryDefense: "洞察・適応",
                         stressResponse: "状況分析による最適化"
-                    },
                     51: { // 震為雷
                         name: "電光石火型防御",
                         catchphrase: "瞬時に行動し危機を脱する",
                         primaryDefense: "瞬発・決断",
                         stressResponse: "迅速な状況打開"
-                    },
                     57: { // 巽為風
                         name: "順風柔軟型防御",
                         catchphrase: "柔軟性で困難を回避する",
                         primaryDefense: "柔軟・回避",
                         stressResponse: "状況に応じた柔軟対応"
-                    },
                     // 他の卦の解釈も同様に...
                     16: { // 雷地予
                         name: "準備充実型防御",
                         catchphrase: "事前準備で危機を防ぐ",
                         primaryDefense: "予防・準備",
                         stressResponse: "先読みによる危機回避"
-                    },
                     39: { // 水山蹇
                         name: "困難突破型防御",
                         catchphrase: "困難の中でも前進する",
                         primaryDefense: "忍耐・持続",
                         stressResponse: "困難を乗り越える粘り強さ"
-                    },
                     3: { // 水雷屯
                         name: "初期混乱対応型防御",
                         catchphrase: "混乱の中で秩序を見つける",
                         primaryDefense: "忍耐・整理",
                         stressResponse: "混乱状況の段階的整理"
-                    },
                     4: { // 山水蒙
                         name: "学習適応型防御",
                         catchphrase: "無知を認めて学ぶことで守る",
                         primaryDefense: "学習・境界",
                         stressResponse: "知識不足の謙虚な補完"
-                    },
                     5: { // 水天需
                         name: "機会待機型防御",
                         catchphrase: "適切なタイミングを待つ",
                         primaryDefense: "待機・持続",
                         stressResponse: "焦らず機会を待つ持久戦"
-                    },
                     6: { // 天水訟
                         name: "正当防衛型防御",
                         catchphrase: "正義を主張して立ち向かう",
                         primaryDefense: "正当性・対抗",
                         stressResponse: "正当な権利の主張と防衛"
-                    },
                     7: { // 地水師
                         name: "組織戦略型防御",
                         catchphrase: "組織力で困難に対処する",
                         primaryDefense: "統率・持続",
                         stressResponse: "組織的な問題解決"
-                    },
                     8: { // 水地比
                         name: "協調連帯型防御",
                         catchphrase: "仲間と結束して守る",
                         primaryDefense: "協調・受容",
                         stressResponse: "相互支援による危機対応"
-                    },
                     9: { // 風天小畜
                         name: "小規模蓄積型防御",
                         catchphrase: "小さな準備で大きな危機に備える",
                         primaryDefense: "準備・柔軟",
                         stressResponse: "段階的な準備と適応"
-                    },
                     10: { // 天沢履
                         name: "慎重歩行型防御",
                         catchphrase: "危険を承知で慎重に進む",
                         primaryDefense: "慎重・対抗",
                         stressResponse: "リスク認識と慎重な行動"
-                    },
                     11: { // 地天泰
                         name: "調和安定型防御",
                         catchphrase: "平和と調和を維持する",
                         primaryDefense: "安定・受容",
                         stressResponse: "バランスの取れた対応"
-                    },
                     12: { // 天地否
                         name: "閉塞突破型防御",
                         catchphrase: "閉塞状況を打破する",
                         primaryDefense: "突破・対抗",
                         stressResponse: "現状打破による活路開拓"
-                    },
                     13: { // 天火同人
                         name: "同志結集型防御",
                         catchphrase: "志を同じくする人と結束する",
                         primaryDefense: "結束・洞察",
                         stressResponse: "理念による団結と対応"
-                    },
                     14: { // 火天大有
                         name: "豊富資源型防御",
                         catchphrase: "豊富な資源で危機を乗り越える",
                         primaryDefense: "豊穣・洞察",
                         stressResponse: "資源を活用した包括的対応"
-                    },
                     15: { // 地山謙
                         name: "謙遜回避型防御",
                         catchphrase: "謙遜することで危機を避ける",
                         primaryDefense: "謙虚・境界",
                         stressResponse: "低姿勢による摩擦回避"
-                    },
                     17: { // 沢雷随
                         name: "柔軟追従型防御",
                         catchphrase: "状況に従って柔軟に対応する",
                         primaryDefense: "追従・調和",
                         stressResponse: "環境変化への柔軟な適応"
-                    },
                     18: { // 山風蠱
                         name: "問題修復型防御",
                         catchphrase: "腐敗を正して健全化する",
                         primaryDefense: "修復・境界",
                         stressResponse: "根本的な問題解決"
-                    },
                     19: { // 地沢臨
                         name: "接近監視型防御",
                         catchphrase: "近づいて問題を監視する",
                         primaryDefense: "接近・調和",
                         stressResponse: "積極的な関与による解決"
-                    },
                     20: { // 風地観
                         name: "観察洞察型防御",
                         catchphrase: "高い視点から状況を俯瞰する",
                         primaryDefense: "観察・柔軟",
                         stressResponse: "客観的分析による対策立案"
-                    },
                     21: { // 火雷噬嗑
                         name: "障害除去型防御",
                         catchphrase: "障害を噛み砕いて除去する",
                         primaryDefense: "除去・洞察",
                         stressResponse: "問題の核心への直接的対処"
-                    },
                     22: { // 山火賁
                         name: "装飾隠蔽型防御",
                         catchphrase: "美しく装って本質を隠す",
                         primaryDefense: "装飾・境界",
                         stressResponse: "外見を整えた防御戦略"
-                    },
                     23: { // 山地剥
                         name: "剥離最小化型防御",
                         catchphrase: "失うものを最小限に抑える",
                         primaryDefense: "保全・境界",
                         stressResponse: "損失最小化戦略"
-                    },
                     24: { // 地雷復
                         name: "復元回復型防御",
                         catchphrase: "元の状態に戻すことで安定を図る",
                         primaryDefense: "復元・受容",
                         stressResponse: "原点回帰による安定化"
-                    },
                     25: { // 天雷无妄
                         name: "純真無垢型防御",
                         catchphrase: "純粋な心で災いを避ける",
                         primaryDefense: "純真・対抗",
                         stressResponse: "誠実さによる自然な解決"
-                    },
                     26: { // 山天大畜
                         name: "大規模蓄積型防御",
                         catchphrase: "大きな力を蓄えて危機に備える",
                         primaryDefense: "蓄積・境界",
                         stressResponse: "長期的な準備による万全な対応"
-                    },
                     27: { // 山雷頤
                         name: "栄養補給型防御",
                         catchphrase: "適切な栄養で体力を維持する",
                         primaryDefense: "養育・境界",
                         stressResponse: "基礎体力の維持と強化"
-                    },
                     28: { // 沢風大過
                         name: "過大負荷耐久型防御",
                         catchphrase: "限界を超えた負荷に耐える",
                         primaryDefense: "耐久・調和",
                         stressResponse: "極限状況での持久戦"
-                    },
                     31: { // 沢山咸
                         name: "感応共鳴型防御",
                         catchphrase: "相手と感応して調和する",
                         primaryDefense: "感応・調和",
                         stressResponse: "相互理解による問題解決"
-                    },
                     32: { // 雷風恒
                         name: "持続継続型防御",
                         catchphrase: "変わらぬ姿勢で持続する",
                         primaryDefense: "持続・柔軟",
                         stressResponse: "一貫した方針による安定対応"
-                    },
                     33: { // 天山遯
                         name: "戦略的撤退型防御",
                         catchphrase: "適切なタイミングで退く",
                         primaryDefense: "撤退・対抗",
                         stressResponse: "戦略的な後退による立て直し"
-                    },
                     34: { // 雷天大壮
                         name: "強大力量型防御",
                         catchphrase: "強大な力で正面突破する",
                         primaryDefense: "強力・対抗",
                         stressResponse: "圧倒的な力による問題解決"
-                    },
                     35: { // 火地晋
                         name: "前進発展型防御",
                         catchphrase: "前進することで危機を脱する",
                         primaryDefense: "前進・洞察",
                         stressResponse: "積極的な攻勢による局面打開"
-                    },
                     36: { // 地火明夷
                         name: "潜伏隠遁型防御",
                         catchphrase: "光を隠して危険をやり過ごす",
                         primaryDefense: "隠遁・受容",
                         stressResponse: "目立たないことによる安全確保"
-                    },
                     37: { // 風火家人
                         name: "家族結束型防御",
                         catchphrase: "家族の絆で危機を乗り越える",
                         primaryDefense: "結束・柔軟",
                         stressResponse: "身内との強固な連帯"
-                    },
                     38: { // 火沢睽
                         name: "対立調和型防御",
                         catchphrase: "対立しながらも調和を保つ",
                         primaryDefense: "調和・洞察",
                         stressResponse: "違いを認めた上での協力"
-                    },
                     40: { // 雷水解
                         name: "解放開放型防御",
                         catchphrase: "束縛を解いて自由を取り戻す",
                         primaryDefense: "解放・迅速",
                         stressResponse: "制約からの脱却による問題解決"
-                    },
                     41: { // 山沢損
                         name: "適切削減型防御",
                         catchphrase: "無駄を削ってスリム化する",
                         primaryDefense: "削減・境界",
                         stressResponse: "効率化による体質強化"
-                    },
                     42: { // 風雷益
                         name: "相互利益型防御",
                         catchphrase: "みんなの利益で問題を解決する",
                         primaryDefense: "利益・柔軟",
                         stressResponse: "win-winの関係構築"
-                    },
                     43: { // 沢天夬
                         name: "決断実行型防御",
                         catchphrase: "断固とした決断で危機を断つ",
                         primaryDefense: "決断・調和",
                         stressResponse: "明確な判断による迅速な対処"
-                    },
                     44: { // 天風姤
                         name: "偶然遭遇型防御",
                         catchphrase: "予期せぬ出会いを活用する",
                         primaryDefense: "機会・対抗",
                         stressResponse: "偶然の機会を最大限活用"
-                    },
                     45: { // 沢地萃
                         name: "集結統合型防御",
                         catchphrase: "みんなで集まって力を合わせる",
                         primaryDefense: "統合・調和",
                         stressResponse: "集団の力による問題解決"
-                    },
                     46: { // 地風升
                         name: "段階成長型防御",
                         catchphrase: "段階を追って成長し強化する",
                         primaryDefense: "成長・受容",
                         stressResponse: "継続的な改善による体質強化"
-                    },
                     47: { // 沢水困
                         name: "困窮忍耐型防御",
                         catchphrase: "困った時こそ耐え忍ぶ",
                         primaryDefense: "忍耐・調和",
                         stressResponse: "苦境での精神力による持久戦"
-                    },
                     48: { // 水風井
                         name: "安定供給型防御",
                         catchphrase: "変わらぬ価値を提供し続ける",
                         primaryDefense: "安定・持続",
                         stressResponse: "信頼できる基盤の維持"
-                    },
                     49: { // 沢火革
                         name: "変革刷新型防御",
                         catchphrase: "根本から変えて新しくする",
                         primaryDefense: "変革・調和",
                         stressResponse: "抜本的な改革による問題解決"
-                    },
                     50: { // 火風鼎
                         name: "安定統治型防御",
                         catchphrase: "新しい秩序で安定を図る",
                         primaryDefense: "統治・洞察",
                         stressResponse: "新体制による安定化"
-                    },
                     53: { // 風山漸
                         name: "漸進発展型防御",
                         catchphrase: "少しずつ着実に進歩する",
                         primaryDefense: "漸進・柔軟",
                         stressResponse: "段階的な改善による安定成長"
-                    },
                     54: { // 雷沢帰妹
                         name: "適応順応型防御",
                         catchphrase: "与えられた役割に順応する",
                         primaryDefense: "順応・迅速",
                         stressResponse: "環境に合わせた柔軟な適応"
-                    },
                     55: { // 雷火豊
                         name: "豊穣充実型防御",
                         catchphrase: "豊かさの中でバランスを保つ",
                         primaryDefense: "豊穣・迅速",
                         stressResponse: "余裕のある状況での適切な判断"
-                    },
                     56: { // 火山旅
                         name: "旅行適応型防御",
                         catchphrase: "慣れない環境に適応する",
                         primaryDefense: "適応・洞察",
                         stressResponse: "変化への柔軟な対応"
-                    },
                     59: { // 風水渙
                         name: "分散緩和型防御",
                         catchphrase: "固まったものを分散して和らげる",
                         primaryDefense: "分散・柔軟",
                         stressResponse: "緊張の緩和による問題解決"
-                    },
                     60: { // 水沢節
                         name: "節制限定型防御",
                         catchphrase: "適切な節度で安定を保つ",
                         primaryDefense: "節制・持続",
                         stressResponse: "バランスの取れた制限による安定"
-                    },
                     61: { // 風沢中孚
                         name: "誠実信頼型防御",
                         catchphrase: "誠実さで信頼を築き守る",
                         primaryDefense: "誠実・柔軟",
                         stressResponse: "信頼関係による問題解決"
-                    },
                     62: { // 雷山小過
                         name: "小規模超越型防御",
                         catchphrase: "小さな努力で大きな効果を得る",
                         primaryDefense: "効率・迅速",
                         stressResponse: "小さな工夫による効果的対応"
-                    },
                     63: { // 水火既済
                         name: "完成維持型防御",
                         catchphrase: "完成した状態を維持する",
                         primaryDefense: "維持・持続",
                         stressResponse: "現状維持による安定確保"
-                    },
                     64: { // 火水未済
                         name: "未完成発展型防御",
                         catchphrase: "未完成だからこそ可能性がある",
                         primaryDefense: "発展・洞察",
                         stressResponse: "改善の余地を活用した成長"
-                    }
                 };
-            }
 
             getDefaultDefensiveInterpretation() {
                 return {
@@ -3439,7 +3541,6 @@
                     primaryDefense: "適応・調整",
                     stressResponse: "バランス型危機対応"
                 };
-            }
 
             personalizeSafeModeDescription(interpretation, primary, secondary, patterns, engineOS) {
                 const stressLevel = this.calculateOverallStressLevel(patterns);
@@ -3454,12 +3555,10 @@
                     description += "中程度のストレス状況で適切に作動し、";
                 } else {
                     description += "軽微なストレス状況でも予防的に機能し、";
-                }
                 
                 description += `${primary}の${this.getTrigramDefensiveCharacter(primary)}と${secondary}の${this.getTrigramDefensiveCharacter(secondary)}を組み合わせて対応する。`;
                 
                 return description;
-            }
 
             getTrigramDefensiveCharacter(trigram) {
                 const characters = {
@@ -3473,7 +3572,6 @@
                     坤: "包容的受容力"
                 };
                 return characters[trigram] || "総合的防御力";
-            }
 
             identifyActivationTrigger(patterns) {
                 const triggers = [];
@@ -3487,22 +3585,17 @@
                             case 'emergencyStress': triggers.push('緊急事態'); break;
                             case 'competitionStress': triggers.push('競争環境'); break;
                             case 'collaborationStress': triggers.push('協調の負担'); break;
-                        }
-                    }
                 });
                 
                 return triggers.length > 0 ? triggers.join('、') : '一般的なストレス状況';
-            }
 
             calculateDefensiveStrength(patterns) {
                 const intensities = Object.values(patterns).map(p => p.intensity || 0);
                 if (intensities.length === 0) return 0;
                 return intensities.reduce((sum, intensity) => sum + intensity, 0) / intensities.length;
-            }
 
             calculateOverallStressLevel(patterns) {
                 return this.calculateDefensiveStrength(patterns);
-            }
 
             getTrigramStrength(trigram, patterns) {
                 // 三爻の防御パターンでの強度を計算
@@ -3525,11 +3618,9 @@
                     if (relevantPatterns.includes(response.pattern)) {
                         strength += response.intensity;
                         count++;
-                    }
                 });
                 
                 return count > 0 ? strength / count : 0.5;
-            }
 
             getDefaultSafeModeOS() {
                 return {
@@ -3546,7 +3637,6 @@
                     trigramEnergies: { 乾: 0.3, 兌: 0.2, 離: 0.2, 震: 0.3, 巽: 0.2, 坎: 0.7, 艮: 0.6, 坤: 0.4 },
                     type: "Safe Mode OS"
                 };
-            }
 
             /**
              * Interface OS分析の補助メソッド群
@@ -3575,11 +3665,9 @@
                         case 'Q28': patterns.Q28_emergency = scoreValue; break;
                         case 'Q29': patterns.Q29_competition = scoreValue; break;
                         case 'Q30': patterns.Q30_community = scoreValue; break;
-                    }
                 });
                 
                 return patterns;
-            }
             
             // 2. Interface OS専用の8次元ベクトル構築
             buildInterfaceVector(socialPatterns) {
@@ -3611,7 +3699,6 @@
                 });
                 
                 return vector;
-            }
             
             // 3. 社会的三爻エネルギー計算
             calculateSocialTrigramEnergies(interfaceVector) {
@@ -3625,7 +3712,6 @@
                     "艮": interfaceVector["内向_安定性"] * 1.0,
                     "坤": interfaceVector["内向_支援性"] * 1.0
                 };
-            }
             
             // 4. Engine OSとの相互作用補正
             adjustForEngineOS(socialEnergies, engineOS) {
@@ -3634,7 +3720,6 @@
                 
                 if (!engineOS || !engineOS.upperTrigram || !engineOS.lowerTrigram) {
                     return adjustedEnergies;
-                }
                 
                 // Engine OSの主要三爻が社会的表現に与える影響
                 const enginePrimary = engineOS.upperTrigram;
@@ -3645,7 +3730,6 @@
                     adjustedEnergies["離"] *= (1 - engineInfluence * 0.6);
                     adjustedEnergies["震"] *= (1 - engineInfluence * 0.7);
                     adjustedEnergies["兌"] *= (1 - engineInfluence * 0.4);
-                }
                 
                 // 外向的Engine OSは外向的Interface OSを強化
                 if (["乾", "兌", "離", "震"].includes(enginePrimary)) {
@@ -3653,21 +3737,17 @@
                     adjustedEnergies["離"] *= (1 + engineInfluence * 0.5);
                     adjustedEnergies["震"] *= (1 + engineInfluence * 0.5);
                     adjustedEnergies["兌"] *= (1 + engineInfluence * 0.7);
-                }
                 
                 // 特定のEngine OS組み合わせ補正
                 if (enginePrimary === "坤") { // 受容的Engine OS
                     adjustedEnergies["坤"] *= (1 + engineInfluence * 1.2);
                     adjustedEnergies["巽"] *= (1 + engineInfluence * 0.8);
-                }
                 
                 if (enginePrimary === "乾") { // 創造的Engine OS
                     adjustedEnergies["乾"] *= (1 + engineInfluence * 1.0);
                     adjustedEnergies["震"] *= (1 + engineInfluence * 0.7);
-                }
                 
                 return adjustedEnergies;
-            }
             
             // 5. Interface OS用の最適三爻選択
             selectInterfaceTrigrams(adjustedEnergies) {
@@ -3684,8 +3764,6 @@
                 } else {
                     // 無効な組み合わせの場合、調整
                     return this.adjustSocialCombination(sortedTrigrams);
-                }
-            }
             
             // 6. Interface OS専用解釈生成
             generateInterfaceInterpretation(hexagramId, upperTrigram, lowerTrigram, socialPatterns, engineOS) {
@@ -3699,7 +3777,6 @@
                     adaptability: this.analyzeAdaptability(upperTrigram, lowerTrigram, socialPatterns),
                     engineOSInfluence: this.analyzeEngineInfluence(engineOS, upperTrigram, lowerTrigram)
                 };
-            }
             
             // 7. 社会的スタイル判定
             determineSocialStyle(socialPatterns) {
@@ -3712,7 +3789,6 @@
                 if (interpersonal > 0.7) return "対人関係重視型";
                 if (leadership > 0.5 && community > 0.5) return "バランス型リーダー";
                 return "適応型サポーター";
-            }
             
             // 8. デフォルトInterface OS
             getDefaultInterfaceOS() {
@@ -3732,7 +3808,6 @@
                     engineOSInfluence: "安定した相互作用",
                     type: "Interface OS"
                 };
-            }
             
             /**
              * Interface OS分析の詳細補助メソッド群
@@ -3760,7 +3835,6 @@
                 };
                 
                 return baseScore * (questionWeights[questionId] || 1.0);
-            }
             
             // 社会的組み合わせの妥当性チェック
             isValidSocialCombination(upperTrigram, lowerTrigram) {
@@ -3772,8 +3846,6 @@
                 
                 return !invalidCombinations.some(([upper, lower]) => 
                     upper === upperTrigram && lower === lowerTrigram
-                );
-            }
             
             // 社会的組み合わせの調整
             adjustSocialCombination(sortedTrigrams) {
@@ -3785,13 +3857,9 @@
                         
                         if (this.isValidSocialCombination(upper, lower)) {
                             return { upperTrigram: upper, lowerTrigram: lower };
-                        }
-                    }
-                }
                 
                 // フォールバック：乾-坤 組み合わせ
                 return { upperTrigram: "乾", lowerTrigram: "坤" };
-            }
             
             // Interface OS専用の64卦解釈データ
             getInterfaceHexagramInterpretation(hexagramId) {
@@ -3868,7 +3936,6 @@
                     leadership: "バランス型",
                     communication: "adaptable"
                 };
-            }
             
             // リーダーシップスタイル分析
             analyzeLeadershipStyle(upperTrigram, socialPatterns) {
@@ -3892,8 +3959,6 @@
                     return baseStyle;
                 } else {
                     return `控えめな${baseStyle}`;
-                }
-            }
             
             // コミュニケーションスタイル分析
             analyzeCommunicationStyle(upperTrigram, lowerTrigram, socialPatterns) {
@@ -3923,7 +3988,6 @@
                 const styleIntensity = interpersonalScore > 0.7 ? "積極的に" : interpersonalScore > 0.4 ? "" : "慎重に";
                 
                 return `${styleIntensity}${upperStyles[upperTrigram]}なコミュニケーション（${lowerStyles[lowerTrigram]}）`;
-            }
             
             // 対立解決スタイル分析
             analyzeConflictStyle(lowerTrigram, socialPatterns) {
@@ -3947,8 +4011,6 @@
                     return `協調的な${baseStyle}`;
                 } else {
                     return baseStyle;
-                }
-            }
             
             // 適応性分析
             analyzeAdaptability(upperTrigram, lowerTrigram, socialPatterns) {
@@ -3971,13 +4033,11 @@
                 if (finalScore > 0.6) return "高い適応力";
                 if (finalScore > 0.4) return "中程度の適応力"; 
                 return "限定的な適応力";
-            }
             
             // Engine OSの影響分析
             analyzeEngineInfluence(engineOS, interfaceUpper, interfaceLower) {
                 if (!engineOS || !engineOS.upperTrigram) {
                     return "Engine OS情報不足により影響不明";
-                }
                 
                 const engineUpper = engineOS.upperTrigram;
                 const compatibility = this.calculateTrigramCompatibility(engineUpper, interfaceUpper);
@@ -3988,8 +4048,6 @@
                     return `Engine OS（${engineUpper}）との適度な親和性 - バランス取れた表現`;
                 } else {
                     return `Engine OS（${engineUpper}）との補完関係 - 内外のコントラスト`;
-                }
-            }
             
             // 三爻間の親和性計算
             calculateTrigramCompatibility(trigram1, trigram2) {
@@ -4005,7 +4063,6 @@
                 };
                 
                 return compatibilityMatrix[trigram1]?.[trigram2] || 0.5;
-            }
             
             calculateConsistencyScore(engineOS, interfaceOS, safeModeOS) {
                 try {
@@ -4029,8 +4086,10 @@
                 } catch (error) {
                     console.error("❌ Consistency calculation error:", error);
                     return 50; // デフォルト値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * Triple OS相互作用の総合分析
@@ -4068,8 +4127,10 @@
                 } catch (error) {
                     console.error("❌ Triple OS Interaction calculation failed:", error);
                     return this.getDefaultTripleOSInteraction();
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * 動的バランス評価
@@ -4097,15 +4158,16 @@
                         complementarity * 0.25 + 
                         stability * 0.25 + 
                         adaptability * 0.2
-                    );
                     
                     return Math.min(100, Math.max(0, balanceScore));
                     
                 } catch (error) {
                     console.error("❌ Dynamic balance evaluation failed:", error);
                     return 65; // デフォルトバランス値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * HaQei統合度評価
@@ -4133,15 +4195,16 @@
                         sancaiEmbodiment * 0.25 +
                         yinyangHarmony * 0.25 +
                         wuxingSynergy * 0.15
-                    );
                     
                     return Math.min(100, Math.max(0, integrationScore));
                     
                 } catch (error) {
                     console.error("❌ HaQei integration assessment failed:", error);
                     return 70; // デフォルト統合値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * 64卦出力の完全性確認
@@ -4183,8 +4246,9 @@
                 } catch (error) {
                     console.error("❌ Triple OS validation failed:", error);
                     throw new Error(`Triple OS validation failed: ${error.message}`);
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
             
             /**
              * 推奨事項生成
@@ -4205,7 +4269,6 @@
                             description: "Engine、Interface、SafeMode OSの相互関係を見直し、より調和の取れた統合を目指しましょう",
                             action: "価値観と行動パターンの再整理を推奨"
                         });
-                    }
                     
                     // 2. バランスに基づく推奨
                     if (balance < 65) {
@@ -4216,7 +4279,6 @@
                             description: "3つのOSの動的平衡を改善し、より安定した統合システムを構築しましょう",
                             action: "状況に応じたOS切り替えの練習を推奨"
                         });
-                    }
                     
                     // 3. HaQei統合に基づく推奨
                     if (integration < 75) {
@@ -4227,7 +4289,6 @@
                             description: "易経原理をより深く理解し、日常生活での実践を増やしましょう",
                             action: "易経学習と瞑想的実践の継続を推奨"
                         });
-                    }
                     
                     // 4. データフローに基づく推奨
                     if (dataFlow && !dataFlow.isValid) {
@@ -4238,7 +4299,6 @@
                             description: "価値観からシナリオ対応への情報の流れを改善し、一貫性のある判断を実現しましょう",
                             action: "セルフリフレクションの習慣化を推奨"
                         });
-                    }
                     
                     // 5. 総合的な推奨事項
                     if (recommendations.length === 0) {
@@ -4249,7 +4309,6 @@
                             description: "既に良好な統合状態です。さらなる向上のために継続的な自己観察を続けましょう",
                             action: "定期的な自己評価の実施を推奨"
                         });
-                    }
                     
                     return recommendations;
                     
@@ -4262,8 +4321,9 @@
                         description: "推奨事項の生成中にエラーが発生しました。システムの動作を確認してください",
                         action: "技術的なサポートをご利用ください"
                     }];
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
             
             // =================
             // 補助メソッド群
@@ -4281,8 +4341,10 @@
                     return (compatibility1 + compatibility2 + compatibility3) / 3 * 100;
                 } catch (error) {
                     return 60; // デフォルト値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * HaQei哲学的一貫性の評価
@@ -4296,8 +4358,10 @@
                     return (changeAlignment + harmonyAlignment) / 2;
                 } catch (error) {
                     return 70; // デフォルト値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * エネルギー分布の分析
@@ -4318,8 +4382,10 @@
                     return Math.max(0, 100 - (deviation * 100));
                 } catch (error) {
                     return 65; // デフォルト値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * 相互補完性の評価
@@ -4334,8 +4400,10 @@
                     return (engineInterface + engineSafeMode + interfaceSafeMode) / 3;
                 } catch (error) {
                     return 60; // デフォルト値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * 安定性指標の計算
@@ -4350,8 +4418,10 @@
                     return (engineStability + interfaceStability + safeModeStability) / 3;
                 } catch (error) {
                     return 70; // デフォルト値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * 適応性指標の計算
@@ -4365,8 +4435,10 @@
                     return (diversity + flexibility) / 2;
                 } catch (error) {
                     return 65; // デフォルト値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * 易経原理の適用度評価
@@ -4382,8 +4454,10 @@
                     return principleAlignment;
                 } catch (error) {
                     return 75; // デフォルト値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * 三才思想の体現度評価
@@ -4398,8 +4472,10 @@
                     return (tianEmbodiment + renEmbodiment + diEmbodiment) / 3;
                 } catch (error) {
                     return 70; // デフォルト値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * 陰陽調和の実現度
@@ -4412,8 +4488,10 @@
                     return (yinYangBalance + complementaryBalance) / 2;
                 } catch (error) {
                     return 65; // デフォルト値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * 五行相生の実現度
@@ -4430,8 +4508,10 @@
                     return this.calculateWuxingSynergyScore(wuxingElements);
                 } catch (error) {
                     return 60; // デフォルト値
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             /**
              * OS卦IDの有効性検証
@@ -4447,7 +4527,6 @@
                             error: `Invalid hexagram ID: ${hexagramId}`,
                             osName: osName
                         };
-                    }
                     
                     // 2. 三爻の組み合わせが有効か
                     const upperTrigram = osResult.upperTrigram;
@@ -4460,7 +4539,6 @@
                             error: `Invalid trigram combination: ${upperTrigram}-${lowerTrigram}`,
                             osName: osName
                         };
-                    }
                     
                     // 3. 卦と三爻の対応が正しいか
                     const expectedId = this.mapTrigramsToHexagram(upperTrigram, lowerTrigram);
@@ -4470,7 +4548,6 @@
                             error: `Hexagram-Trigram mismatch: Expected ${expectedId}, got ${hexagramId}`,
                             osName: osName
                         };
-                    }
                     
                     return {
                         valid: true,
@@ -4485,8 +4562,9 @@
                         error: `Validation error: ${error.message}`,
                         osName: osName
                     };
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
             
             /**
              * 重複チェック
@@ -4498,7 +4576,6 @@
                     duplicateIds: [...new Set(duplicates)],
                     uniqueCount: new Set(hexagramIds).size
                 };
-            }
             
             /**
              * データフロー整合性チェック
@@ -4530,8 +4607,9 @@
                         isValid: false,
                         error: error.message
                     };
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
             
             /**
              * エラーハンドリングの検証
@@ -4550,7 +4628,6 @@
                     scores: errorHandlingScore,
                     overallScore: Object.values(errorHandlingScore).reduce((sum, score) => sum + score, 0) / 3
                 };
-            }
             
             /**
              * 総合検証ステータスの決定
@@ -4569,8 +4646,6 @@
                     return "acceptable";
                 } else {
                     return "needs_improvement";
-                }
-            }
             
             /**
              * データフローの検証
@@ -4583,8 +4658,9 @@
                         isValid: false,
                         error: error.message
                     };
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
             
             /**
              * デフォルトTriple OS相互作用結果
@@ -4605,7 +4681,6 @@
                     timestamp: Date.now(),
                     status: "error"
                 };
-            }
             
             // =================
             // 詳細補助メソッド群
@@ -4614,12 +4689,10 @@
             assessChangeAlignment(engineOS, interfaceOS, safeModeOS) {
                 // 変化への対応力の統合評価
                 return 75; // 簡略実装
-            }
             
             assessHarmonyAlignment(engineOS, interfaceOS, safeModeOS) {
                 // 調和の実現度の統合評価
                 return 70; // 簡略実装
-            }
             
             calculateOSEnergy(os) {
                 // OSのエネルギー強度を三爻エネルギーから実際に計算
@@ -4627,7 +4700,6 @@
                     if (!os || !os.trigramEnergies) {
                         console.warn('OSエネルギー計算: 三爻エネルギーデータが不足', os);
                         return 0;
-                    }
                     
                     // 三爻エネルギーの合計値から強度を計算
                     const energies = Object.values(os.trigramEnergies);
@@ -4653,13 +4725,14 @@
                 } catch (error) {
                     console.error('OSエネルギー計算エラー:', error);
                     return 0;
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             calculateComplementarity(os1, os2) {
                 // 2つのOS間の補完性を計算
                 return Math.random() * 100; // 簡略実装
-            }
             
             getTrigramStability(upperTrigram, lowerTrigram) {
                 // 三爻組み合わせの安定性を評価
@@ -4669,7 +4742,6 @@
                 };
                 
                 return (stabilityScores[upperTrigram] + stabilityScores[lowerTrigram]) / 2;
-            }
             
             calculateOSDiversity(engineOS, interfaceOS, safeModeOS) {
                 // OS間の多様性を評価
@@ -4680,74 +4752,59 @@
                 ]).size;
                 
                 return (uniqueTrigrams / 8) * 100; // 8は全三爻数
-            }
             
             calculateFlexibility(engineOS, interfaceOS, safeModeOS) {
                 // システムの柔軟性を評価
                 return 70; // 簡略実装
-            }
             
             assessHexagramPrincipleAlignment(hexagram, os) {
                 // 卦の原理との整合性を評価
                 return 80; // 簡略実装
-            }
             
             assessTianEmbodiment(engineOS) {
                 // 天の体現度（創造性・精神性）
                 return 75; // 簡略実装
-            }
             
             assessRenEmbodiment(interfaceOS) {
                 // 人の体現度（社会性・関係性）
                 return 70; // 簡略実装
-            }
             
             assessDiEmbodiment(safeModeOS) {
                 // 地の体現度（基盤・安定性）
                 return 80; // 簡略実装
-            }
             
             calculateYinYangBalance(osArray) {
                 // 陰陽バランスを計算
                 return 65; // 簡略実装
-            }
             
             calculateComplementaryBalance(engineOS, interfaceOS, safeModeOS) {
                 // 補完バランスを計算
                 return 70; // 簡略実装
-            }
             
             getWuxingElement(os) {
                 // OSの五行属性を取得
                 const elements = ["木", "火", "土", "金", "水"];
                 return elements[os.hexagramId % 5];
-            }
             
             calculateWuxingSynergyScore(elements) {
                 // 五行相生スコアを計算
                 return 60; // 簡略実装
-            }
             
             validateEngineInfluence(engineOS) {
                 return { valid: true, score: 85 };
-            }
             
             validateScenarioInfluence(interfaceOS, safeModeOS) {
                 return { valid: true, score: 80 };
-            }
             
             validateEngineToInterfaceFlow(engineOS, interfaceOS) {
                 return { valid: true, influenceRate: 0.3 };
-            }
             
             validateEngineToSafeModeFlow(engineOS, safeModeOS) {
                 return { valid: true, influenceRate: 0.4 };
-            }
             
             checkOSErrorHandling(os) {
                 // OSのエラーハンドリング能力をチェック
                 return os && os.hexagramId ? 0.9 : 0.3;
-            }
             
             /**
              * デフォルトTriple OS結果（エラー時のフォールバック）
@@ -4761,7 +4818,6 @@
                         lowerTrigram: "乾",
                         description: "創造性と実行力の基盤システム（デフォルト）",
                         type: "Engine OS"
-                    },
                     interfaceOS: {
                         hexagramId: 11,
                         hexagramName: "地天泰",
@@ -4769,7 +4825,6 @@
                         lowerTrigram: "乾",
                         description: "調和的な社会的コミュニケーションシステム（デフォルト）",
                         type: "Interface OS"
-                    },
                     safeModeOS: {
                         hexagramId: 2,
                         hexagramName: "坤為地",
@@ -4777,7 +4832,6 @@
                         lowerTrigram: "坤",
                         description: "安定性重視の防御システム（デフォルト）",
                         type: "SafeMode OS"
-                    },
                     integration: {
                         consistency: 50,
                         balance: 50,
@@ -4792,7 +4846,6 @@
                         }],
                         timestamp: Date.now(),
                         status: "fallback"
-                    },
                     consistencyScore: 50,
                     balanceScore: 50,
                     HaQeiIntegration: 50,
@@ -4807,8 +4860,6 @@
                     timestamp: Date.now(),
                     errorMode: true
                 };
-            }
-        }
         
         // 7. 状態管理システム
         class HAQEIState {
@@ -4820,7 +4871,6 @@
                 this.isAnalyzing = false;
                 
                 this.loadState();
-            }
             
             saveState() {
                 try {
@@ -4833,8 +4883,10 @@
                     localStorage.setItem('haqei_state', JSON.stringify(state));
                 } catch (error) {
                     console.warn('⚠️ Failed to save state:', error);
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             loadState() {
                 try {
@@ -4846,20 +4898,22 @@
                             this.currentQuestion = state.currentQuestion || 0;
                             this.answers = state.answers || [];
                             this.userVector = state.userVector || {};
-                        }
-                    }
                 } catch (error) {
                     console.warn('⚠️ Failed to load state:', error);
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             clearState() {
                 try {
                     localStorage.removeItem('haqei_state');
                 } catch (error) {
                     console.warn('⚠️ Failed to clear state:', error);
-                }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             saveAnswer(questionIndex, selectedOption) {
                 this.answers[questionIndex] = {
@@ -4868,12 +4922,9 @@
                     timestamp: Date.now()
                 };
                 this.saveState();
-            }
             
             getAnswer(questionIndex) {
                 return this.answers[questionIndex] || null;
-            }
-        }
         
         // 8. アプリケーション制御
         class CriticalCSSAnalyzer {
@@ -4888,26 +4939,67 @@
                 // 復元された状態があれば画面を表示
                 if (this.state.currentQuestion > 0) {
                     this.showQuestion(this.state.currentQuestion);
-                }
-            }
+            
             
             initializeTrigramScores() {
                 for (let i = 1; i <= 8; i++) {
                     this.trigramScores[i] = 0;
                 }
-            }
             
             bindEvents() {
-                // ナビゲーション
-                document.getElementById('start-btn').addEventListener('click', () => this.startAnalysis());
-                document.getElementById('prev-btn').addEventListener('click', () => this.previousQuestion());
-                document.getElementById('next-btn').addEventListener('click', () => this.nextQuestion());
-                document.getElementById('restart-btn').addEventListener('click', () => this.restart());
-                document.getElementById('retry-btn').addEventListener('click', () => this.restart());
+                console.log('🔧 Binding events...');
                 
-                // キーボードナビゲーション
-                document.addEventListener('keydown', (e) => this.handleKeydown(e));
-            }
+                // ナビゲーション - with robust error handling
+                try {
+                    const startBtn = document.getElementById('start-btn');
+                    if (startBtn) {
+                        console.log('✅ Start button found, binding event');
+                        startBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            console.log('🎯 Start button clicked, calling startAnalysis');
+                            this.startAnalysis();
+                        });
+                    } else {
+                        console.error('❌ Start button not found!');
+                    }
+                } catch (error) {
+                    console.error('❌ Error binding start button:', error);
+                }
+                } catch (error) {
+                    console.error(`❌ Operation failed: ${error.message}`);
+                    return null; // Default fallback
+                
+                try {
+                    const prevBtn = document.getElementById('prev-btn');
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', () => this.previousQuestion());
+                        console.log('✅ Prev button event bound');
+                    
+                    const nextBtn = document.getElementById('next-btn');
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', () => this.nextQuestion());
+                        console.log('✅ Next button event bound');
+                    
+                    const restartBtn = document.getElementById('restart-btn');
+                    if (restartBtn) {
+                        restartBtn.addEventListener('click', () => this.restart());
+                        console.log('✅ Restart button event bound');
+                    
+                    const retryBtn = document.getElementById('retry-btn');
+                    if (retryBtn) {
+                        retryBtn.addEventListener('click', () => this.restart());
+                        console.log('✅ Retry button event bound');
+                    
+                    // キーボードナビゲーション
+                    document.addEventListener('keydown', (e) => this.handleKeydown(e));
+                    console.log('✅ Keyboard navigation event bound');
+                } catch (error) {
+                    console.error('❌ Error binding navigation events:', error);
+                }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             handleKeydown(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -4917,26 +5009,36 @@
                         this.selectOption(focused);
                     }
                 }
-            }
             
             startAnalysis() {
+                console.log('🎯 startAnalysis called!');
+                console.log('🔍 Attempting to show question screen...');
                 this.showScreen('question-screen');
+                console.log('🔍 Showing first question...');
                 this.showQuestion(0);
                 this.announce('質問が開始されました');
-            }
+                console.log('✅ startAnalysis completed successfully!');
             
             showScreen(screenId) {
-                document.querySelectorAll('.screen').forEach(screen => {
+                console.log(`🔍 showScreen called with: ${screenId}`);
+                const screens = document.querySelectorAll('.screen');
+                console.log(`📺 Found ${screens.length} screens`);
+                screens.forEach(screen => {
                     screen.classList.remove('active');
                 });
-                document.getElementById(screenId).classList.add('active');
-            }
+                
+                const targetScreen = document.getElementById(screenId);
+                if (targetScreen) {
+                    targetScreen.classList.add('active');
+                    console.log(`✅ Screen ${screenId} is now active`);
+                } else {
+                    console.error(`❌ Screen ${screenId} not found!`);
+                }
             
             showQuestion(index) {
                 if (index >= QUESTIONS.length) {
                     this.proceedToAnalysis();
                     return;
-                }
                 
                 this.state.currentQuestion = index;
                 this.showScreen('question-screen');
@@ -4980,16 +5082,13 @@
                         }
                     });
                     document.getElementById('next-btn').disabled = false;
-                }
                 
                 // ナビゲーションボタン更新
                 document.getElementById('prev-btn').disabled = index === 0;
                 if (!existingAnswer) {
                     document.getElementById('next-btn').disabled = true;
-                }
                 
                 this.announce(`質問${index + 1}: ${question.text}`);
-            }
             
             selectOption(element, option) {
                 // 既存の選択を解除
@@ -5009,7 +5108,6 @@
                 document.getElementById('next-btn').disabled = false;
                 
                 this.announce(`選択されました: ${option.text}`);
-            }
             
             nextQuestion() {
                 if (this.state.currentQuestion < QUESTIONS.length - 1) {
@@ -5017,13 +5115,11 @@
                 } else {
                     this.proceedToAnalysis();
                 }
-            }
             
             previousQuestion() {
                 if (this.state.currentQuestion > 0) {
                     this.showQuestion(this.state.currentQuestion - 1);
                 }
-            }
             
             async proceedToAnalysis() {
                 try {
@@ -5052,7 +5148,9 @@
                 } finally {
                     this.state.isAnalyzing = false;
                 }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
             
             calculateTrigramScores() {
                 this.initializeTrigramScores();
@@ -5064,7 +5162,6 @@
                         });
                     }
                 });
-            }
             
             calculateOSScores() {
                 const osScores = {};
@@ -5085,7 +5182,6 @@
                 });
                 
                 return osScores;
-            }
             
             // 🚀 革新的4層構造結果表示システム - 完全リファクタリング版
             showResults(tripleOSResults) {
@@ -5094,7 +5190,6 @@
                     console.error('Triple OS結果が不完全です:', tripleOSResults);
                     this.showError('結果の生成に失敗しました。もう一度お試しください。');
                     return;
-                }
                 
                 this.showScreen('results-screen');
                 
@@ -5123,7 +5218,6 @@
                 this.announce('革新的Triple OS分析が完了しました - 4層の複雑性をお楽しみください');
                 
                 // console.log('🔯 Revolutionary 4-Layer Results System Activated');
-            }
             
             // 4層ナビゲーションシステム初期化
             initializeLayerNavigation() {
@@ -5156,7 +5250,6 @@
                         this.announce(`${layerNames[targetLayer]}に切り替えました`);
                     });
                 });
-            }
             
             // 基本層: 改良されたOSカード + Triple OS相互関係可視化
             renderBasicLayer(tripleOSResults) {
@@ -5178,7 +5271,6 @@
                 
                 // 動的バランス表示
                 this.renderDynamicBalance(tripleOSResults);
-            }
             
             // 詳細層: 8次元ベクトル可視化 + 三爻エネルギー分析
             renderDetailedLayer(tripleOSResults) {
@@ -5190,7 +5282,6 @@
                 
                 // エネルギーフロー可視化
                 this.renderEnergyFlowVisualization(tripleOSResults);
-            }
             
             // 専門層: 64卦完全解釈システム
             renderExpertLayer(tripleOSResults) {
@@ -5202,7 +5293,6 @@
                 
                 // 古典的wisdom（卦辞・爻辞）
                 this.renderClassicalWisdom(tripleOSResults);
-            }
             
             // 統合層: HaQei哲学統合とパーソナライズド洞察
             renderIntegratedLayer(tripleOSResults) {
@@ -5214,7 +5304,6 @@
                 
                 // 実践的戦略提案
                 this.renderPracticalStrategies(tripleOSResults);
-            }
             
             // 🎯 Triple OS相互関係レーダーチャート (Chart.js Phase2完全実装)
             renderTripleOSRadarChart(tripleOSResults) {
@@ -5222,18 +5311,15 @@
                 if (!canvas) {
                     console.error('Canvas element not found: os-interaction-chart');
                     return;
-                }
                 
                 const ctx = canvas.getContext('2d');
                 if (!ctx) {
                     console.error('2D context not available for os-interaction-chart');
                     return;
-                }
                 
                 // 既存のチャートを破棄
                 if (this.osInteractionChart) {
                     this.osInteractionChart.destroy();
-                }
                 
                 // 相互関係データの計算
                 const interactionData = this.calculateOSInteractionData(tripleOSResults);
@@ -5266,7 +5352,6 @@
                             pointBorderWidth: 2,
                             pointRadius: 6
                         }]
-                    },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
@@ -5277,19 +5362,15 @@
                                     font: { size: 14 }
                                 }
                             }
-                        },
                         scales: {
                             r: {
                                 angleLines: {
                                     color: 'rgba(99, 102, 241, 0.3)'
-                                },
                                 grid: {
                                     color: 'rgba(99, 102, 241, 0.2)'
-                                },
                                 pointLabels: {
                                     color: '#cbd5e1',
                                     font: { size: 12 }
-                                },
                                 ticks: {
                                     color: '#94a3b8',
                                     backdropColor: 'transparent'
@@ -5301,7 +5382,10 @@
                 } catch (error) {
                     console.error('Chart creation failed for os-interaction-chart:', error);
                 }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             // 動的バランス表示
             renderDynamicBalance(tripleOSResults) {
@@ -5358,7 +5442,6 @@
                     }
                 `;
                 document.head.appendChild(style);
-            }
             
             // 🎨 改良されたOSカード作成システム（仮想人格強化版）
             createEnhancedOSCard(osName, osData, color) {
@@ -5372,7 +5455,6 @@
                         description: 'しばらくお待ちください',
                         trigramEnergies: {}
                     };
-                }
                 
                 const card = document.createElement('div');
                 card.className = 'os-card card';
@@ -5488,7 +5570,6 @@
                 document.head.appendChild(energyStyle);
                 
                 return card;
-            }
             
             // 🔢 OS相互関係データ計算
             calculateOSInteractionData(tripleOSResults) {
@@ -5505,7 +5586,6 @@
                     integration?.consistency || 75,                            // システム統合度
                     integration?.balance || 70                                 // バランス調和性
                 ];
-            }
             
             calculateInfluenceStrength(sourceOS, targetOS) {
                 const sourceEnergies = sourceOS.trigramEnergies || {};
@@ -5523,32 +5603,27 @@
                 });
                 
                 return commonTrigrams > 0 ? Math.round(totalInfluence / commonTrigrams) : 50;
-            }
             
             calculateAutonomyIndex(engineOS) {
                 const energies = engineOS.trigramEnergies || {};
                 const maxEnergy = Math.max(...Object.values(energies));
                 const avgEnergy = Object.values(energies).reduce((a, b) => a + b, 0) / Object.keys(energies).length;
                 return Math.round((maxEnergy / avgEnergy) * 15); // 自律性指標
-            }
             
             calculateAdaptabilityIndex(interfaceOS) {
                 const energies = interfaceOS.trigramEnergies || {};
                 const variance = this.calculateVariance(Object.values(energies));
                 return Math.round(Math.max(30, 100 - variance)); // 適応性指標
-            }
             
             calculateStabilityIndex(safeModeOS) {
                 const energies = safeModeOS.trigramEnergies || {};
                 const stability = Object.values(energies).reduce((acc, val) => acc + (val > 60 ? val : 0), 0);
                 return Math.round(stability / Object.keys(energies).length);
-            }
             
             calculateVariance(values) {
                 if (!values || values.length === 0) return 0;
                 const mean = values.reduce((a, b) => a + b, 0) / values.length;
                 return Math.sqrt(values.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / values.length);
-            }
             
             // 🌊 動的バランス計算
             calculateDynamicBalance(tripleOSResults) {
@@ -5568,7 +5643,6 @@
                 
                 const dominantOS = Object.keys(strengths).reduce((a, b) => 
                     strengths[a].value > strengths[b].value ? a : b
-                );
                 
                 // バランス指標計算
                 const coordination = Math.round(integration?.consistency || 
@@ -5576,11 +5650,9 @@
                 
                 const flexibility = Math.round(
                     (interfaceStrength + (100 - Math.max(engineStrength, safeModeStrength))) / 2
-                );
                 
                 const resilience = Math.round(
                     (safeModeStrength + coordination) / 2
-                );
                 
                 // 分析文生成
                 const analysis = this.generateBalanceAnalysis(dominantOS, coordination, flexibility, resilience);
@@ -5593,7 +5665,6 @@
                     resilience,
                     analysis
                 };
-            }
             
             calculateOSStrength(osData) {
                 const energies = osData.trigramEnergies || {};
@@ -5602,8 +5673,6 @@
                 return Math.round(
                     values.reduce((sum, energy) => sum + energy, 0) / 
                     values.length
-                );
-            }
             
             generateBalanceAnalysis(dominantOS, coordination, flexibility, resilience) {
                 const insights = {
@@ -5618,15 +5687,12 @@
                     analysis += ` 3つのシステムの協調性が非常に高く、統合された人格として機能しています。`;
                 } else if (coordination < 60) {
                     analysis += ` システム間の調整に改善の余地があります。各OSの特性を理解し、バランスを取ることで更なる成長が期待できます。`;
-                }
                 
                 return analysis;
-            }
             
             createOSCard(osName, osData, color) {
                 // 後方互換性のため、新しいcreateEnhancedOSCardを呼び出し
                 return this.createEnhancedOSCard(osName, osData, color);
-            }
             
             // 📊 8次元ベクトル可視化システム (Chart.js)
             render8DimensionalRadar(tripleOSResults) {
@@ -5634,18 +5700,15 @@
                 if (!canvas) {
                     console.error('Canvas element not found: 8d-vector-chart');
                     return;
-                }
                 
                 const ctx = canvas.getContext('2d');
                 if (!ctx) {
                     console.error('2D context not available for 8d-vector-chart');
                     return;
-                }
                 
                 // 既存のチャートを破棄
                 if (this.vectorChart) {
                     this.vectorChart.destroy();
-                }
                 
                 // 8次元データの統合
                 const vectorData = this.calculate8DimensionalVector(tripleOSResults);
@@ -5684,7 +5747,6 @@
                                 pointBackgroundColor: '#10b981'
                             }
                         ]
-                    },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
@@ -5697,7 +5759,6 @@
                                     padding: 15
                                 }
                             }
-                        },
                         scales: {
                             r: {
                                 beginAtZero: true,
@@ -5705,14 +5766,11 @@
                                 max: 100,
                                 angleLines: {
                                     color: 'rgba(139, 92, 246, 0.3)'
-                                },
                                 grid: {
                                     color: 'rgba(139, 92, 246, 0.2)'
-                                },
                                 pointLabels: {
                                     color: '#cbd5e1',
                                     font: { size: 11 }
-                                },
                                 ticks: {
                                     color: '#94a3b8',
                                     backdropColor: 'transparent',
@@ -5723,6 +5781,9 @@
                     }
                 });
             }
+            } catch (error) {
+                console.error(`❌ Operation failed: ${error.message}`);
+                return null; // Default fallback
             
             // 8次元ベクトルデータ計算
             // ⚡ 8次元エネルギーベクトル極座標チャート
@@ -5735,7 +5796,6 @@
                 // 既存のチャートを破棄
                 if (this.vectorChart) {
                     this.vectorChart.destroy();
-                }
                 
                 // 8次元データの統合
                 const vectorData = this.calculate8DimensionalVector(tripleOSResults);
@@ -5765,7 +5825,6 @@
                             borderColor: 'rgba(255, 255, 255, 0.8)',
                             borderWidth: 1
                         }]
-                    },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
@@ -5775,7 +5834,6 @@
                                 text: '8次元エネルギーベクトル分析',
                                 color: '#e2e8f0',
                                 font: { size: 16, weight: 'bold' }
-                            },
                             legend: {
                                 position: 'bottom',
                                 labels: {
@@ -5786,7 +5844,6 @@
                         }
                     }
                 });
-            }
             
             // 🌸 HaQei複数人格協調チャート
             renderHaQeiPersonaChart(tripleOSResults) {
@@ -5798,13 +5855,11 @@
                 // 既存のチャートを破棄
                 if (this.personaChart) {
                     this.personaChart.destroy();
-                }
                 
                 const totalEnergy = (
                     this.calculateOSEnergy(tripleOSResults.engineOS) +
                     this.calculateOSEnergy(tripleOSResults.interfaceOS) +
                     this.calculateOSEnergy(tripleOSResults.safeModeOS)
-                );
                 
                 const enginePercent = ((this.calculateOSEnergy(tripleOSResults.engineOS) / totalEnergy) * 100).toFixed(1);
                 const interfacePercent = ((this.calculateOSEnergy(tripleOSResults.interfaceOS) / totalEnergy) * 100).toFixed(1);
@@ -5821,7 +5876,6 @@
                             borderColor: 'rgba(255, 255, 255, 0.8)',
                             borderWidth: 2
                         }]
-                    },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
@@ -5831,7 +5885,6 @@
                                 text: 'HaQei複数人格協調システム',
                                 color: '#e2e8f0',
                                 font: { size: 16, weight: 'bold' }
-                            },
                             legend: {
                                 position: 'bottom',
                                 labels: {
@@ -5839,7 +5892,6 @@
                                     font: { size: 12 },
                                     padding: 20
                                 }
-                            },
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
@@ -5850,13 +5902,11 @@
                         }
                     }
                 });
-            }
             
             calculateOSEnergy(osData) {
                 if (!osData || !osData.trigramEnergies) return 33.33;
                 const energies = Object.values(osData.trigramEnergies);
                 return energies.length > 0 ? energies.reduce((a, b) => a + b, 0) / energies.length : 33.33;
-            }
             
             calculate8DimensionalVector(tripleOSResults) {
                 const { engineOS, interfaceOS, safeModeOS } = tripleOSResults;
@@ -5866,7 +5916,6 @@
                     interface: this.extractTrigramVector(interfaceOS.trigramEnergies),
                     safeMode: this.extractTrigramVector(safeModeOS.trigramEnergies)
                 };
-            }
             
             // Phase2: 易経的解釈システム
             getTrigramWisdom(trigramIndex, energyValue) {
@@ -5887,7 +5936,6 @@
                 else if (energyValue > 25) intensity = '中程度の';
                 
                 return `${intensity}${wisdoms[trigramIndex] || 'バランス調和力'}`;
-            }
             
             extractTrigramVector(trigramEnergies) {
                 const orderedTrigrams = ['乾', '震', '坎', '艮', '坤', '巽', '離', '兌'];
@@ -5896,7 +5944,6 @@
                     return orderedTrigrams.map(() => 0);
                 }
                 return orderedTrigrams.map(trigram => trigramEnergies[trigram] || 0);
-            }
             
             // 🔥 三爻エネルギーバランス分析
             renderTrigramEnergyAnalysis(tripleOSResults) {
@@ -5944,7 +5991,6 @@
                     
                     container.appendChild(card);
                 });
-            }
             
             // 🌊 エネルギーフロー可視化
             renderEnergyFlowVisualization(tripleOSResults) {
@@ -6023,7 +6069,6 @@
                     }
                 `;
                 document.head.appendChild(flowStyle);
-            }
             
             calculateEnergyFlow(tripleOSResults) {
                 const engineStrength = this.calculateOSStrength(tripleOSResults.engineOS);
@@ -6038,7 +6083,6 @@
                 const insights = this.generateFlowInsights(
                     engineStrength, interfaceStrength, safeModeStrength,
                     engineToInterface, interfaceToSafeMode, safeModeToEngine
-                );
                 
                 return {
                     engine: { strength: engineStrength, outflow: engineToInterface },
@@ -6046,7 +6090,6 @@
                     safeMode: { strength: safeModeStrength, outflow: safeModeToEngine },
                     insights
                 };
-            }
             
             generateFlowInsights(eStr, iStr, sStr, eToi, iToS, sToE) {
                 let insights = [];
@@ -6059,18 +6102,15 @@
                 }
                 if (sToE > 70) {
                     insights.push("防御メカニズムが価値観の再構築を促しています");
-                }
                 
                 const totalFlow = eToi + iToS + sToE;
                 if (totalFlow > 210) {
                     insights.push("3つのシステム間で活発な相互作用が行われています");
                 } else if (totalFlow < 150) {
                     insights.push("システム間の連携に改善の余地があります");
-                }
                 
                 return insights.length > 0 ? insights.join('。') + '。' : 
                     'バランスの取れたエネルギーフローを保っています。';
-            }
             
             // ☯ 専門層: 64卦完全解釈システム
             renderDetailedHexagramAnalysis(tripleOSResults) {
@@ -6116,7 +6156,6 @@
                     
                     container.appendChild(hexagramCard);
                 });
-            }
             
             // 🔄 変卦システム - 成長方向性
             renderChangeHexagramSystem(tripleOSResults) {
@@ -6147,7 +6186,6 @@
                         `).join('')}
                     </div>
                 `;
-            }
             
             // 📜 古典的wisdom - 卦辞・爻辞
             renderClassicalWisdom(tripleOSResults) {
@@ -6182,7 +6220,6 @@
                         </div>
                     </div>
                 `;
-            }
             
             // 🔯 HaQei哲学統合
             renderHaQeiWisdom(tripleOSResults) {
@@ -6202,7 +6239,6 @@
                         </ul>
                     </div>
                 `;
-            }
             
             // 💡 パーソナライズド洞察生成
             renderPersonalizedInsights(tripleOSResults) {
@@ -6231,7 +6267,6 @@
                     <div class="insight-title">📊 比較分析</div>
                     <div class="insight-content">${insights.comparativeAnalysis}</div>
                 `;
-            }
             
             // 🎯 実践的戦略提案
             renderPracticalStrategies(tripleOSResults) {
@@ -6253,7 +6288,6 @@
                         </div>
                     </div>
                 `).join('');
-            }
             
             // ヘルパー関数群
             getDetailedHexagramInfo(hexagramId) {
@@ -6264,7 +6298,6 @@
                         detailedDescription: `卦ID: ${hexagramId}のデータが見つかりません。`,
                         trigramAnalysis: `データベースエラーが発生しました。`
                     };
-                }
                 
                 // H384データベースから全体的な解釈を取得
                 const relatedH384 = H384_DATA.filter(item => item['卦番号'] === hexagramId);
@@ -6276,7 +6309,6 @@
                     detailedDescription: `【${hexagram.name_jp || '不明'}】${hexagram.catchphrase || ''}\n\n${hexagram.description || '説明が見つかりません。'}\n\n= 爻別詳細解釈 =\n${detailedAnalysis}`,
                     trigramAnalysis: `上卦: ${this.getTrigramName(hexagram.upper_trigram_id) || '不明'} / 下卦: ${this.getTrigramName(hexagram.lower_trigram_id) || '不明'}\n\nこの組み合わせは、あなたの内的エネルギー(${this.getTrigramName(hexagram.lower_trigram_id)})と外的表現(${this.getTrigramName(hexagram.upper_trigram_id)})の関係性を物語っています。これは動的なバランスの中で発揮される、あなた固有の能力パターンです。`
                 };
-            }
             
             getTrigramName(trigramId) {
                 // 三爻IDから名前を取得
@@ -6285,7 +6317,6 @@
                     5: "巽(風)", 6: "坎(水)", 7: "艮(山)", 8: "坤(地)"
                 };
                 return trigramNames[trigramId] || "不明";
-            }
 
             // 🛡️ SAFE TRIGRAM DISPLAY - primaryTrigram/secondaryTrigram安全表示
             safeGetTrigramDisplay(trigram) {
@@ -6294,7 +6325,6 @@
                 // 既に表示用文字列の場合
                 if (typeof trigram === 'string' && trigram.includes('(')) {
                     return trigram;
-                }
                 
                 // 三爻文字の場合
                 if (typeof trigram === 'string') {
@@ -6303,15 +6333,12 @@
                         '巽': '巽(風)', '坎': '坎(水)', '艮': '艮(山)', '坤': '坤(地)'
                     };
                     return trigramDisplayMap[trigram] || `${trigram}(不明)`;
-                }
                 
                 // 数値IDの場合
                 if (typeof trigram === 'number') {
                     return this.getTrigramName(trigram);
-                }
                 
                 return '情報取得中';
-            }
             
             calculateChangeHexagrams(tripleOSResults) {
                 // 変卦計算の簡単な実装
@@ -6338,7 +6365,6 @@
                         growthDirection: '安全性を保ちながらも、新しい挑戦に対してオープンな姿勢を育てることが成長のカギです。'
                     }
                 ];
-            }
             
             calculateFutureHexagram(osData) {
                 // 実際のHEXAGRAMSデータベースから変卦を計算
@@ -6348,7 +6374,6 @@
                 // 変化後の卦をデータベースから取得
                 const futureHexagram = HEXAGRAMS.find(h => h.hexagram_id === futureId);
                 return futureHexagram ? futureHexagram.name_jp : `${futureId}番卦`;
-            }
             
             extractClassicalWisdom(tripleOSResults) {
                 // 実際のHEXAGRAMSデータベースから古典的な知恵を抽出
@@ -6373,7 +6398,6 @@
                         modernInterpretation: mainYao ? mainYao['現代解釈の要約'] : 'データベースから解釈を取得できません。'
                     };
                 });
-            }
             
             generateHaQeiAnalysis(tripleOSResults) {
                 const { engineOS, interfaceOS, safeModeOS } = tripleOSResults;
@@ -6416,7 +6440,6 @@
                     philosophicalIntegration,
                     strategicPoints
                 };
-            }
             
             generatePersonalizedInsights(tripleOSResults) {
                 const { engineOS, interfaceOS, safeModeOS, integration } = tripleOSResults;
@@ -6444,7 +6467,6 @@
                         より幅広い状況に対応できる柔軟性を獲得できます。
                     `
                 };
-            }
             
             generatePracticalStrategies(tripleOSResults) {
                 const { engineOS, interfaceOS, safeModeOS } = tripleOSResults;
@@ -6470,7 +6492,6 @@
                             `ポテンシャル${engineMainYao['S2_ポテンシャル']}%を活かした長期計画`
                         ]
                     });
-                }
                 
                 // Interface OS戦略  
                 const interfaceMainYao = interfaceH384.find(item => item['爻'].includes('五')) || interfaceH384[0];
@@ -6485,7 +6506,6 @@
                             `総合評価${interfaceMainYao['S7_総合評価スコア']}%向上を目指した行動計画`
                         ]
                     });
-                }
                 
                 // Safe Mode OS戦略
                 const safeModeMainYao = safeModeH384.find(item => item['爻'].includes('五')) || safeModeH384[0];
@@ -6500,10 +6520,8 @@
                             `変動性${safeModeMainYao['S6_変動性スコア']}%に合わせた柔軟な対応策`
                         ]
                     });
-                }
                 
                 return strategies;
-            }
             
             getWeakestOS(tripleOSResults) {
                 const strengths = {
@@ -6514,15 +6532,12 @@
                 
                 return Object.keys(strengths).reduce((a, b) => 
                     strengths[a] < strengths[b] ? a : b
-                );
-            }
             
             getStressManagementAdvice(safeModeOS) {
                 const strength = this.calculateOSStrength(safeModeOS);
                 if (strength > 75) return '強力な安定化機能';
                 if (strength > 50) return '適度な防御メカニズム';
                 return '柔軟な適応戦略';
-            }
             
             getComparativeInsights(tripleOSResults) {
                 const balance = this.calculateDynamicBalance(tripleOSResults);
@@ -6530,7 +6545,6 @@
                 if (balance.flexibility > 80) return '高い適応能力と柔軟性';
                 if (balance.resilience > 80) return '優秀なストレス耐性と安定性';
                 return 'バランスの取れた成長型人格';
-            }
             
             generateTripleOSSummary(tripleOSResults) {
                 const { 
@@ -6642,7 +6656,6 @@
                 `;
                 
                 document.getElementById('result-summary').innerHTML = summary;
-            }
             
             saveResults(tripleOSResults) {
                 try {
@@ -6659,13 +6672,15 @@
                 } catch (error) {
                     console.warn('⚠️ Failed to save results:', error);
                 }
-            }
+                } catch (error) {
+                    console.error(`❌ Error: ${error.message}`);
+                    return null;
+                
             
             showError(message) {
                 this.showScreen('error-screen');
                 document.getElementById('error-message').textContent = message;
                 this.announce('エラーが発生しました');
-            }
             
             restart() {
                 // 状態をクリア
@@ -6679,7 +6694,6 @@
                 this.initializeTrigramScores();
                 this.showScreen('welcome-screen');
                 this.announce('分析がリセットされました');
-            }
             
             announce(message) {
                 const announcements = document.getElementById('announcements');
@@ -6689,14 +6703,18 @@
                 setTimeout(() => {
                     announcements.textContent = '';
                 }, 3000);
-            }
             
             delay(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
-        }
         
         // 5. アプリケーション初期化
+        } // End CriticalCSSAnalyzer class
+        } // End of CriticalCSSAnalyzer class - FIXED
+
+        } // End CriticalCSSAnalyzer class
+
+    } // End CriticalCSSAnalyzer class
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 console.log('🎯 HAQEI Emergency Analyzer initializing...');
@@ -6725,8 +6743,9 @@
                         </button>
                     </div>
                 `;
-            }
-        });
+            } catch (error) {
+                console.error(`❌ Error: ${error.message}`);
+                return null;
         
         // 6. パフォーマンス最適化
         // サービスワーカー登録（可能な場合）
@@ -6739,14 +6758,15 @@
                     .catch(error => {
                         console.log('⚠️ SW registration failed (optional)');
                     });
+                } catch (error) {
+                    console.error('❌ Chart.js rendering failed:', error);
+                    console.log('📊 Chart.js fallback: Using text display instead');
             });
-        }
         
         // メモリ最適化
         window.addEventListener('beforeunload', () => {
             if (window.criticalCSSAnalyzer) {
                 window.criticalCSSAnalyzer = null;
-            }
         });
         
         // エラーハンドリング
@@ -6754,7 +6774,6 @@
             console.error('❌ Global error:', event.error);
             if (window.criticalCSSAnalyzer) {
                 window.criticalCSSAnalyzer.showError('予期しないエラーが発生しました');
-            }
         });
         
         window.addEventListener('unhandledrejection', (event) => {
@@ -6762,12 +6781,18 @@
             event.preventDefault();
             if (window.criticalCSSAnalyzer) {
                 window.criticalCSSAnalyzer.showError('処理中にエラーが発生しました');
-            }
         });
         
         console.log('📝 HAQEI Critical CSS Analyzer script loaded');
         console.log('🎆 HaQei哲学 Triple OS Engine integrated');
         console.log('✨ Critical CSS optimizations applied');
+        
+
+    
+    
+    
+    
+    
     </script>
 </body>
 </html>

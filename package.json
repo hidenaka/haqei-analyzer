@@ -5,7 +5,9 @@
   "main": "emergency_haqei.html",
   "type": "module",
   "scripts": {
-    "build": "echo 'Build complete - static files ready'",
+    "build": "node scripts/build-production.cjs",
+    "build:production": "node scripts/build-production.cjs",
+    "build:simple": "echo 'Build complete - static files ready'",
     "start": "node cipher-server.js",
     "dev": "node cipher-server.js --dev",
     "cipher:start": "node cipher-server.js",
@@ -27,7 +29,10 @@
     "pdca:evaluate": "node tests/pdca-evaluation.js",
     "pdca:evaluate:15": "node tests/pdca-evaluation.js --users=15",
     "pdca:evaluate:20": "node tests/pdca-evaluation.js --users=20",
-    "pdca:evaluate:30": "node tests/pdca-evaluation.js --users=30"
+    "pdca:evaluate:30": "node tests/pdca-evaluation.js --users=30",
+    "deploy": "npm run build:production && npx wrangler pages publish dist",
+    "deploy:preview": "npm run build:production && npx wrangler pages publish dist --branch preview",
+    "serve:dist": "npx http-server dist -p 8789 -c-1"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -37,12 +42,17 @@
     "helmet": "^7.0.0"
   },
   "devDependencies": {
+    "@playwright/mcp": "^0.0.32",
     "@playwright/test": "^1.40.0",
     "claude-talk-to-figma-mcp": "^0.6.1",
+    "clean-css": "^5.3.3",
     "eslint": "^8.0.0",
+    "html-minifier-terser": "^7.2.0",
+    "http-server": "^14.1.1",
     "playwright": "^1.54.2",
     "prettier": "^3.0.0",
     "puppeteer": "^24.16.0",
+    "terser": "^5.43.1",
     "ts-node": "^10.9.2"
   },
   "keywords": [

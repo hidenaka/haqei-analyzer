@@ -1,11 +1,1 @@
-// Future Simulator Local Dev Configuration
-window.FUTURE_SIMULATOR_CONFIG = {
-  developmentMode: true,
-  debugMode: true,
-  localMode: true,
-  skipExternalAPIs: true,
-  useOfflineMode: true,
-  disableTracking: true
-};
-
-console.log("🔧 Local dev config loaded");
+window.FUTURE_SIMULATOR_CONFIG={developmentMode:!0,debugMode:!0,localMode:!0,skipExternalAPIs:!0,useOfflineMode:!0,disableTracking:!0},console.log("🔧 Local dev config loaded");

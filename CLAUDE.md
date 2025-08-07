@@ -8,6 +8,18 @@
 4. NEVER create duplicate CSS classes
 5. NEVER use absolute positioning without reason
 
+## 🚨 CRITICAL: CLAUDE ABSOLUTE REQUIREMENTS
+
+**絶対要件 (ABSOLUTE REQUIREMENTS)**:
+1. **要件が不明な場合は必ず確認する**: If any requirement is unclear or ambiguous, ALWAYS ask for clarification before proceeding
+2. **確認なしに推測で実装しない**: NEVER implement based on assumptions - always confirm understanding first
+3. **複数の解釈が可能な場合は選択肢を提示**: When multiple interpretations are possible, present options to the user
+
+### 🔍 CLARIFICATION PROTOCOL:
+- **不明な仕様**: "この要件について確認させてください..."
+- **選択肢の提示**: "実装方法として以下の選択肢があります: A) ... B) ..."
+- **前提条件の確認**: "実装前に以下の前提を確認させてください..."
+
 ## 🚨 CRITICAL: CONCURRENT EXECUTION
 
 **ABSOLUTE RULE**: ALL operations MUST be concurrent/parallel in a single message:

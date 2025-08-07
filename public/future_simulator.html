@@ -1081,6 +1081,13 @@
     
     <!-- Core System Assets - 最適化読み込み順序 -->
     <script src="./assets/H384H64database.js"></script>
+    <script src="./js/core/H384DatabaseConnector.js"></script>
+    <script src="./js/core/IChingChoiceLogic.js"></script>
+    <script src="./js/core/DynamicScenarioColorSystem.js"></script>
+    <script src="./js/core/IChingGuidanceEngine.js"></script>
+    <script src="./js/components/ThreeStageVisualizer.js"></script>
+    <script src="./js/components/EightScenariosDisplay.js"></script>
+    <script src="./js/future-simulator-integration.js"></script>
     <script src="./js/core/PerformanceOptimizer.js"></script>
     <script src="./js/core/IChingTransformationEngine.js"></script>
     <script src="./js/core/FutureBranchingSystem.js"></script>
@@ -1183,25 +1190,12 @@
     <script src="./js/future-simulator-ui-enhancements.js" defer></script>
   </head>
   <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-6" data-progressive-load>
-    <!-- Initial Loading Screen -->
-    <div id="initial-loading" class="loading-overlay" role="status" aria-live="polite">
-      <div class="loading-content">
-        <div class="loading-spinner" aria-hidden="true"></div>
-        <h1 class="text-2xl font-bold brand-text mb-2">HaQei マルチバース・アナライザー</h1>
-        <div class="loading-text" id="initial-loading-text">システムを初期化中...</div>
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div id="initial-loading-progress" class="progress-fill" style="width: 0%" 
-                 role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-          <div class="progress-percentage" id="initial-loading-percentage">0%</div>
-        </div>
-      </div>
-    </div>
+    <!-- Loading Screen Completely Removed -->
     
     <div
-      class="w-full max-w-7xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-8 opacity-0"
+      class="w-full max-w-7xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-8"
       id="main-container"
+      style="opacity: 1;"
     >
       <header class="text-center mb-8 relative">
         <a href="./" class="inline-block">
@@ -1596,35 +1590,63 @@
       document.addEventListener('DOMContentLoaded', ensureChartContainers);
     </script>
     
-    <!-- Fix Black Screen Issue -->
-    <script src="./fix-black-screen.js"></script>
+    <!-- 🚨 EMERGENCY FIX: Force Loading Screen Removal -->
     <script>
-      // Emergency fix for black screen
+      // 即座にローディング画面を除去
       (function() {
-        console.log('🚨 Emergency black screen fix activating...');
+        console.log('🚨 EMERGENCY: Force removing loading screen immediately...');
         
-        // Force remove loading screen after 2 seconds
-        setTimeout(function() {
+        function forceShowContent() {
+          // ローディング画面を即座に除去
           const loading = document.getElementById('initial-loading');
-          if (loading && loading.style.display !== 'none') {
-            console.log('⚡ Force removing loading screen...');
+          if (loading) {
             loading.style.display = 'none';
             loading.remove();
+            console.log('✅ Loading screen removed');
           }
           
+          // メインコンテナを表示
           const mainContainer = document.getElementById('main-container');
           if (mainContainer) {
             mainContainer.style.opacity = '1';
             mainContainer.classList.remove('opacity-0');
+            console.log('✅ Main container visible');
           }
           
-          // Show all hidden content
+          // すべての隠されたコンテンツを表示
           document.querySelectorAll('.progressive-load').forEach(el => {
             el.style.opacity = '1';
+            el.style.display = 'block';
           });
           
-          console.log('✅ Black screen fix applied');
-        }, 2000);
+          // 入力フォームを明示的に表示
+          const inputSection = document.getElementById('input-section');
+          if (inputSection) {
+            inputSection.style.display = 'block';
+            inputSection.style.opacity = '1';
+          }
+          
+          // 結果エリアを表示
+          const resultArea = document.getElementById('resultArea');
+          if (resultArea) {
+            resultArea.style.display = 'block';
+          }
+          
+          console.log('✅ All content forced visible');
+        }
+        
+        // DOM読み込み前でも実行
+        forceShowContent();
+        
+        // DOM読み込み後にも実行
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', forceShowContent);
+        } else {
+          setTimeout(forceShowContent, 100);
+        }
+        
+        // さらに保険として1秒後にも実行
+        setTimeout(forceShowContent, 1000);
       })();
     </script>
   </body>
