@@ -87,7 +87,11 @@ class PerformanceOptimizer {
     
     // パフォーマンス監視インターバル
     this.monitoringInterval = null;
-    this.monitoringFrequency = 5000; // 5 seconds
+    this.monitoringFrequency = 30000; // 30 seconds - 無限ループ防止
+    
+    // ボトルネック報告制御
+    this.lastReportedBottlenecks = new Set();
+    this.bottleneckReportCooldown = 60000; // 1 minute cooldown
     
     // 初期化
     this.initialize();
@@ -355,13 +359,50 @@ class PerformanceOptimizer {
    * パフォーマンス監視開始
    */
   startPerformanceMonitoring() {
+    // 既存の監視を停止
+    this.stopPerformanceMonitoring();
+    
     this.monitoringInterval = setInterval(() => {
       this.collectPerformanceMetrics();
       this.analyzeBottlenecks();
       this.performAutoOptimization();
     }, this.monitoringFrequency);
     
-    console.log("📊 パフォーマンス監視開始");
+    console.log("📊 パフォーマンス監視開始 - 間隔:", this.monitoringFrequency + "ms");
+  }
+
+  /**
+   * パフォーマンス監視停止
+   */
+  stopPerformanceMonitoring() {
+    if (this.monitoringInterval) {
+      clearInterval(this.monitoringInterval);
+      this.monitoringInterval = null;
+      console.log("🛑 パフォーマンス監視停止");
+    }
+  }
+
+  /**
+   * クリーンアップ
+   */
+  cleanup() {
+    this.stopPerformanceMonitoring();
+    
+    // Worker Pool クリーンアップ
+    if (this.workerPool) {
+      this.workerPool.forEach(worker => {
+        if (worker && worker.terminate) {
+          worker.terminate();
+        }
+      });
+      this.workerPool.clear();
+    }
+    
+    // キャッシュクリア
+    this.intelligentCache.clear();
+    this.lastReportedBottlenecks.clear();
+    
+    console.log("🧹 PerformanceOptimizer クリーンアップ完了");
   }
   
   /**
@@ -454,8 +495,30 @@ class PerformanceOptimizer {
     
     this.performanceMetrics.bottlenecks = bottlenecks;
     
+    // ボトルネック報告のスパム防止
     if (bottlenecks.length > 0) {
-      console.log("⚠️ パフォーマンスボトルネック検出:", bottlenecks);
+      const newBottlenecks = bottlenecks.filter(bottleneck => {
+        const bottleneckKey = `${bottleneck.type}_${bottleneck.severity}`;
+        return !this.lastReportedBottlenecks.has(bottleneckKey);
+      });
+      
+      if (newBottlenecks.length > 0) {
+        console.log("⚠️ 新規パフォーマンスボトルネック検出:", newBottlenecks);
+        
+        // 新しいボトルネックを記録
+        newBottlenecks.forEach(bottleneck => {
+          const bottleneckKey = `${bottleneck.type}_${bottleneck.severity}`;
+          this.lastReportedBottlenecks.add(bottleneckKey);
+        });
+        
+        // クールダウン後にクリア
+        setTimeout(() => {
+          newBottlenecks.forEach(bottleneck => {
+            const bottleneckKey = `${bottleneck.type}_${bottleneck.severity}`;
+            this.lastReportedBottlenecks.delete(bottleneckKey);
+          });
+        }, this.bottleneckReportCooldown);
+      }
     }
   }
   

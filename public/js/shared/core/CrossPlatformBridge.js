@@ -134,5 +134,3 @@ class CrossPlatformBridge {
 if (typeof window !== 'undefined') {
   window.CrossPlatformBridge = CrossPlatformBridge;
 }
-
-export { CrossPlatformBridge };

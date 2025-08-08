@@ -375,6 +375,150 @@ window.DynamicKeywordGenerator = {
             philosophy: 'haqei-fallback'
           }
         };
+      },
+
+      // ROOT CAUSE FIX: Add missing methods to engineOS context
+      inferReading(token) {
+        // 簡易読み推定（実際の実装ではより高度な処理が必要）
+        if (/[ひらがな]/.test(token)) return token;
+        if (/[カタカナ]/.test(token)) return token;
+        return token; // 漢字の読みは複雑なので、ここでは元のまま返す
+      },
+
+      inferPOS(token) {
+        // 簡易品詞推定
+        if (token.endsWith('する')) return '動詞';
+        if (token.endsWith('だ') || token.endsWith('である')) return '助動詞';
+        if (token.endsWith('な') || token.endsWith('の')) return '連体詞';
+        if (/[。、！？]/.test(token)) return '記号';
+        return '名詞'; // デフォルト
+      },
+
+      calculateTokenImportance(token) {
+        let importance = 0.5; // 基準値
+        
+        // 長さによる重要度調整
+        if (token.length >= 3) importance += 0.2;
+        if (token.length >= 5) importance += 0.1;
+        
+        // 漢字が含まれる場合の重要度アップ
+        if (/[一-龯]/.test(token)) importance += 0.2;
+        
+        // ひらがなのみの場合の重要度ダウン
+        if (/^[あ-ん]+$/.test(token) && token.length <= 2) importance -= 0.3;
+        
+        return Math.max(0.1, Math.min(importance, 1.0));
+      },
+
+      // ROOT CAUSE FIX: Add missing helper methods to engineOS context
+      getIntentKeywords(intent) {
+        const contextDatabase = {
+          intents: {
+            question: ['疑問', '質問', '理由', '方法', '時期', '場所', '対象'],
+            request: ['依頼', '要求', '希望', '必要', '欲求', '願い'],
+            decision: ['判断', '選択', '決定', '方針', '方向', '結論'],
+            future: ['予測', '計画', '目標', '見通し', '期待', '希望'],
+            problem: ['課題', '困難', '障害', '悩み', '心配', '対処'],
+            goal: ['目的', '理想', '達成', '成功', '実現', '完遂']
+          }
+        };
+        return contextDatabase.intents[intent] || [];
+      },
+
+      getEmotionKeywords(emotion) {
+        const contextDatabase = {
+          emotions: {
+            positive: ['喜び', '満足', '幸福', '楽しさ', '嬉しさ', '安心'],
+            negative: ['悲しみ', '不安', '心配', '辛さ', '苦しさ', '困惑'],
+            excited: ['興奮', '期待', 'わくわく', '楽しみ', '待望'],
+            calm: ['落ち着き', '平静', '穏やか', '安定', '静寂'],
+            anxious: ['不安', '緊張', '心配', '恐れ', '動揺'],
+            confident: ['自信', '確信', '信念', '決意', '意志']
+          }
+        };
+        return contextDatabase.emotions[emotion] || [];
+      },
+
+      getSemanticExpansions(word) {
+        // 基本的なセマンティック展開
+        const expansions = [];
+        
+        if (word.includes('問題')) expansions.push('課題', '困難', '解決');
+        if (word.includes('未来')) expansions.push('将来', '希望', '計画');
+        if (word.includes('成功')) expansions.push('達成', '成果', '結果');
+        if (word.includes('関係')) expansions.push('繋がり', '絆', '交流');
+        
+        return expansions;
+      },
+
+      getRelatedWords(word, context) {
+        const related = [];
+        
+        // コンテキストベースの関連語
+        if (context.domain === 'business' && word.includes('目標')) {
+          related.push('売上', '成果', 'KPI', '業績');
+        }
+        
+        if (context.domain === 'relationship' && word.includes('信頼')) {
+          related.push('理解', '尊重', '協力', '支援');
+        }
+        
+        return related;
+      },
+
+      getSynonyms(word) {
+        const synonymMap = {
+          '問題': ['課題', 'トラブル', '困難'],
+          '解決': ['対処', '解消', '改善'],
+          '未来': ['将来', '今後', 'これから'],
+          '成功': ['達成', '成果', '勝利']
+        };
+        
+        return synonymMap[word] || [];
+      },
+
+      getDomainKeywords(domain) {
+        const contextDatabase = {
+          domains: {
+            business: ['仕事', '会社', '職場', '業務', 'ビジネス', '企業', '組織'],
+            relationship: ['人間関係', '友人', '恋人', '家族', '仲間', '絆'],
+            health: ['健康', '体調', '病気', '治療', '予防', '運動'],
+            learning: ['学習', '勉強', '知識', 'スキル', '成長', '理解'],
+            hobby: ['趣味', '娯楽', '楽しみ', 'リラックス', '余暇']
+          }
+        };
+        return contextDatabase.domains[domain] || [];
+      },
+
+      getTimeframeKeywords(timeframe) {
+        const timeframes = {
+          past: ['経験', '学習', '反省', '記憶'],
+          present: ['現状', '状況', '対応', '行動'],
+          future: ['計画', '目標', '希望', '予測']
+        };
+        
+        return timeframes[timeframe] || [];
+      },
+
+      getSituationKeywords(situation) {
+        const situations = {
+          crisis: ['緊急', '対応', '解決', '支援'],
+          opportunity: ['チャンス', '可能性', '成長', '発展'],
+          routine: ['日常', '習慣', '継続', '安定']
+        };
+        
+        return situations[situation] || [];
+      },
+
+      calculateContextQuality(context) {
+        let quality = 0.3; // 基準値
+        
+        if (context.domain) quality += 0.2;
+        if (context.emotion && context.emotion !== 'neutral') quality += 0.2;
+        if (context.timeframe) quality += 0.1;
+        if (context.situation) quality += 0.2;
+        
+        return Math.min(quality, 1.0);
       }
     };
 
@@ -709,6 +853,35 @@ window.DynamicKeywordGenerator = {
       this.safeMode.activate();
       return this.safeMode.generateSafeKeywords(input);
     }
+  },
+
+  // CRITICAL: ROOT CAUSE FIX - Proper this binding and context delegation
+  async generateKeywords(input, context = {}) {
+    console.log('🔤 DynamicKeywordGenerator.generateKeywords called with:', input.substring(0, 50));
+    
+    // ROOT CAUSE FIX: Ensure proper initialization before use
+    if (!this.engineOS) {
+      await this.init();
+    }
+    
+    // ROOT CAUSE FIX: Direct delegation to engineOS with proper context binding
+    if (this.safeMode && this.safeMode.active) {
+      return this.safeMode.generateSafeKeywords(input);
+    }
+    
+    // ROOT CAUSE FIX: Use engineOS.generateKeywords directly with proper binding
+    const result = await this.engineOS.generateKeywords.call(this.engineOS, input, context);
+    const formattedResult = this.interfaceOS.formatGenerationResult(result);
+    
+    console.log('✅ Dynamic keywords generation complete');
+    console.log('🔤 Dynamic keywords generated:', {
+      original: formattedResult.display ? formattedResult.display.summary.input : input.substring(0, 30),
+      base: result.base ? result.base.slice(0, 3).map(k => k.word || k) : [],
+      expanded: result.expanded ? result.expanded.slice(0, 5).map(k => k.word || k) : [],
+      final: result.final ? result.final.slice(0, 4).map(k => k.word || k) : []
+    });
+    
+    return formattedResult;
   },
 
   getGenerationCapabilities() {

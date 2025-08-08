@@ -70,13 +70,19 @@ FutureSimulator.Core = {
     console.log('🎋 Initializing Authentic 386 System...');
     
     try {
-      if (typeof window.Authentic386Integration !== 'undefined') {
+      // 新しい386爻分析システムを優先
+      if (typeof window.Authentic386YaoAnalyzer !== 'undefined') {
+        this.authentic386Analyzer = new window.Authentic386YaoAnalyzer();
+        await this.authentic386Analyzer.initialize();
+        console.log('✅ Authentic 386爻 Analyzer initialized successfully');
+        this.useAuthentic386 = true;
+      } else if (typeof window.Authentic386Integration !== 'undefined') {
         this.authentic386Integration = new window.Authentic386Integration();
         this.authentic386Integration.initialize();
         console.log('✅ Authentic 386 System integrated successfully');
         this.useAuthentic386 = true;
       } else {
-        console.warn('⚠️ Authentic386Integration not available, using legacy system');
+        console.warn('⚠️ Authentic386 systems not available, using legacy system');
         this.useAuthentic386 = false;
       }
     } catch (error) {
@@ -217,7 +223,7 @@ FutureSimulator.Core = {
   },
   
   async startAnalysis() {
-    console.log('🔍 Starting advanced 512-pattern analysis...');
+    console.log('🔍 Starting advanced analysis with text interpretation...');
     
     const inputField = document.getElementById('situation-input') || 
                       document.querySelector('textarea[placeholder*="状況"]') ||
@@ -236,13 +242,84 @@ FutureSimulator.Core = {
     try {
       let analysisResult;
       
-      // 🎋 正統386爻システム優先分析
+      // 🎯 386爻分析システムを優先的に使用
+      let currentLine = 1; // デフォルト値
+      let situationHexagram = null;
+      let authenticAnalysis = null;
+      
+      // 新しい386爻分析システムを最優先
+      if (this.authentic386Analyzer && this.authentic386Analyzer.initialized) {
+        console.log('🎋 Using Authentic 386爻 Analysis System...');
+        authenticAnalysis = this.authentic386Analyzer.analyzeText(situation);
+        
+        if (authenticAnalysis) {
+          console.log('✅ 386爻 Analysis Result:', authenticAnalysis);
+          
+          // 卦と爻の情報を設定
+          if (authenticAnalysis.hexagram) {
+            situationHexagram = authenticAnalysis.hexagram;
+            currentLine = authenticAnalysis.hexagram.hexagram_id * 6 - 6 + 
+                         (authenticAnalysis.yao?.position || 1);
+          }
+          
+          // 特別な爻（用九・用六）の処理
+          if (authenticAnalysis.specialYao) {
+            console.log('🌟 Special Yao detected:', authenticAnalysis.specialYao.name);
+          }
+        }
+      }
+      // 既存の高度な分析エンジンをフォールバックとして使用
+      else if (window.IntegratedAnalysisEngine && window.MultiDimensionalContextAnalyzer) {
+        console.log('🔍 Using IntegratedAnalysisEngine for deep text analysis...');
+        
+        // 統合分析エンジンで深い分析
+        const integratedAnalysis = window.IntegratedAnalysisEngine && window.IntegratedAnalysisEngine.performAnalysis ? window.IntegratedAnalysisEngine.performAnalysis(situation) : null;
+        console.log('📊 Integrated analysis result:', integratedAnalysis);
+        
+        // 多次元コンテキスト分析
+        const contextAnalysis = window.MultiDimensionalContextAnalyzer && window.MultiDimensionalContextAnalyzer.analyzeContext 
+          ? window.MultiDimensionalContextAnalyzer.analyzeContext(situation) 
+          : null;
+        console.log('🌐 Multi-dimensional context:', contextAnalysis);
+        
+        // キーワード動的生成
+        if (window.DynamicKeywordGenerator && window.DynamicKeywordGenerator.generateKeywords) {
+          const dynamicKeywords = await window.DynamicKeywordGenerator.generateKeywords(situation);
+          console.log('🔤 Dynamic keywords generated:', dynamicKeywords);
+        }
+        
+        // H384データベースから最適な状況卦と爻を検索
+        if (window.h384db && integratedAnalysis) {
+          const matchResult = window.h384db.findBestMatch(integratedAnalysis.keywords || []);
+          if (matchResult) {
+            currentLine = matchResult.lineNumber;
+            situationHexagram = matchResult.hexagramData;
+            console.log(`✅ Found matching hexagram: ${situationHexagram['卦名']} ${situationHexagram['爻']}`);
+          }
+        }
+      }
+      
+      // Kuromojiが利用可能な場合は形態素解析も使用
+      if (window.tokenizer) {
+        console.log('📝 Using Kuromoji for morphological analysis...');
+        const tokens = window.tokenizer.tokenize(situation);
+        console.log('🔤 Morphological tokens:', tokens);
+      }
+      
+      // もし解析できなかった場合は、ランダムまたはデフォルトを使用
+      if (!situationHexagram) {
+        console.log('⚠️ Using fallback random selection...');
+        currentLine = Math.floor(Math.random() * 384) + 1;
+      }
+      
+      // 🏅 正統386爻システム優先分析
       if (this.useAuthentic386 && this.authentic386Integration) {
-        console.log('🎋 Using Authentic 386-Line Analysis System');
+        console.log('🏅 Using Authentic 386-Line Analysis System');
         analysisResult = this.authentic386Integration.analyzeWithAuthentic386(situation, {
           branchCount: 8,
           enableSpecialLines: true,
-          integrationMode: 'enhanced'
+          integrationMode: 'enhanced',
+          currentLine: currentLine
         });
         
         // 386爻結果表示
@@ -253,7 +330,8 @@ FutureSimulator.Core = {
         analysisResult = window.Extended512HexagramEngine.analyze512Pattern(situation, {
           detailed: true,
           include_yong_yao: true,
-          branch_count: 8
+          branch_count: 8,
+          currentLine: currentLine
         });
         
         // Enhanced display for 512-pattern results
@@ -261,21 +339,51 @@ FutureSimulator.Core = {
         
       } else if (window.BinaryTreeFutureEngine) {
         console.log('🌳 Using Binary Tree Future Analysis System');
+        console.log(`📍 Current line determined: ${currentLine}`);
         
-        // Generate random line number from 1-384 for demonstration
-        const currentLine = Math.floor(Math.random() * 384) + 1;
-        const context = { inputText: situation };
+        // 分析結果をコンテキストに含める
+        const context = { 
+          inputText: situation,
+          hexagramData: situationHexagram,
+          integratedAnalysis: window.IntegratedAnalysisEngine && window.IntegratedAnalysisEngine.performAnalysis ? window.IntegratedAnalysisEngine.performAnalysis(situation) : null,
+          contextAnalysis: window.MultiDimensionalContextAnalyzer ? window.MultiDimensionalContextAnalyzer.analyzeContext(situation) : null
+        };
         
         const binaryTreeEngine = new window.BinaryTreeFutureEngine();
-        const binaryResult = binaryTreeEngine.generateBinaryTreeFutures(currentLine, context);
         
-        // Display binary tree results
+        console.log('🔍 DEBUG: Calling generateBinaryTreeFutures with:', { currentLine, context });
+        const binaryResult = await binaryTreeEngine.generateBinaryTreeFutures(currentLine, context);
+        console.log('🔍 DEBUG: generateBinaryTreeFutures returned:', binaryResult);
+        
+        // 🎯 IChingGuidanceEngine による 3段階プロセス分析を追加
+        console.log('🎯 Calling IChingGuidanceEngine.performCompleteAnalysis for threeStageProcess...');
+        let completeAnalysis = null;
+        if (window.iChingGuidance && window.iChingGuidance.performCompleteAnalysis) {
+          try {
+            completeAnalysis = await window.iChingGuidance.performCompleteAnalysis(situation);
+            console.log('✅ IChingGuidanceEngine analysis completed:', {
+              hasThreeStageProcess: !!completeAnalysis?.threeStageProcess,
+              hasEightScenarios: !!completeAnalysis?.eightScenarios,
+              threeStageProcessStages: completeAnalysis?.threeStageProcess?.stages?.length
+            });
+          } catch (error) {
+            console.error('❌ IChingGuidanceEngine analysis failed:', error);
+          }
+        } else {
+          console.warn('⚠️ IChingGuidanceEngine not available');
+        }
+        
+        // Display binary tree results with context
         this.displayBinaryTreeResults(binaryResult);
+        
+        // 🔄 統合結果をFutureSimulatorIntegrationに渡す
+        if (completeAnalysis && window.futureSimulatorIntegration) {
+          console.log('🔄 Sending complete analysis to FutureSimulatorIntegration...');
+          window.futureSimulatorIntegration.displayResults(completeAnalysis);
+        }
         
       } else {
         console.log('⚡ Using Standard Analysis System');
-        // Fallback to standard system
-        // await new Promise(resolve => setTimeout(resolve, 2000));
         const scenarios = this.generateScenarios(situation);
         this.displayResults(scenarios);
       }
@@ -751,9 +859,11 @@ FutureSimulator.Core = {
     });
   },
 
-  // 🌳 Binary Tree Results Display System
+  // 🌳 Binary Tree Results Display System - BinaryTreeCompleteDisplay統合版
+
+
   displayBinaryTreeResults(binaryResult) {
-    console.log('🌳 Displaying Binary Tree results:', {
+    console.log('🌳 Displaying Binary Tree results with BinaryTreeCompleteDisplay:', {
       currentLine: binaryResult.currentLine,
       totalPaths: binaryResult.finalEightPaths?.length || 0,
       version: binaryResult.version
@@ -768,163 +878,155 @@ FutureSimulator.Core = {
     // Clear previous results
     resultsContainer.innerHTML = '';
     
-    // Create binary tree UI structure
-    const resultHTML = this.generateBinaryTreeHTML(binaryResult);
-    resultsContainer.innerHTML = resultHTML;
+    // BinaryTreeCompleteDisplayに直接渡す
+    // generateBinaryTreeHTMLはBinaryTreeCompleteDisplayを呼び出し、結果を表示
+    this.generateBinaryTreeHTML(binaryResult);
     
-    // Add interactive features
-    this.setupBinaryTreeInteractions(binaryResult);
-    
-    // Scroll to results
-    resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    
-    // Hide loading
-    this.hideLoading();
+    // 表示完了後の処理
+    setTimeout(() => {
+      // Scroll to results
+      const displayContainer = document.querySelector('.binary-tree-complete-analysis');
+      if (displayContainer) {
+        displayContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      
+      // Hide loading
+      this.hideLoading();
+    }, 200);
   },
 
-  // Binary Tree HTML生成
+  // Binary Tree HTML生成 - 完全にBinaryTreeCompleteDisplayに委譲
   generateBinaryTreeHTML(result) {
-    const currentLine = result.currentLine;
-    const currentLineData = result.currentLineData;
-    const finalPaths = result.finalEightPaths || [];
+    // 結果データを拡張して完全な構造にする
+    const enhancedResult = this.enhanceResultData(result);
     
-    return `
-      <div class="binary-tree-results fade-in">
-        <!-- Current Position Display -->
-        <div class="current-position-card bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 mb-6 border border-emerald-200">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-2xl font-bold text-gray-800">🎯 現在の状況（${currentLine}爻）</h2>
-            <span class="px-3 py-1 bg-emerald-600 text-white rounded-full text-sm font-medium">
-              二分木未来分岐システム
-            </span>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div class="text-center p-4 bg-white rounded-lg">
-              <div class="text-3xl mb-2">☯️</div>
-              <div class="font-semibold text-gray-700">${currentLineData?.hexagramName || '第' + Math.ceil(currentLine / 6) + '卦'}</div>
-              <div class="text-sm text-gray-500">${currentLineData?.lineName || '第' + (((currentLine - 1) % 6) + 1) + '爻'}</div>
-            </div>
-            <div class="text-center p-4 bg-white rounded-lg">
-              <div class="text-3xl mb-2">🌳</div>
-              <div class="font-semibold text-gray-700">分岐方式</div>
-              <div class="text-sm text-emerald-600">3段階段階的選択</div>
-            </div>
-            <div class="text-center p-4 bg-white rounded-lg">
-              <div class="text-3xl mb-2">🎯</div>
-              <div class="font-semibold text-gray-700">最終パターン</div>
-              <div class="text-sm text-emerald-600">${finalPaths.length}つの道筋</div>
-            </div>
-          </div>
-          
-          <div class="bg-white rounded-lg p-4">
-            <h3 class="font-semibold text-gray-800 mb-2">現在の位置づけ</h3>
-            <p class="text-gray-700">${currentLineData?.modernInterpretation || 'この位置から3段階の選択を経て、8つの未来の可能性に到達します'}</p>
-          </div>
-        </div>
-
-        <!-- Selection Process Guide -->
-        <div class="selection-guide mb-6">
-          <h2 class="text-2xl font-bold text-gray-800 mb-4">🌳 段階的選択プロセス</h2>
-          <div class="process-flow bg-white rounded-lg p-6 border border-gray-200">
-            <div class="flex items-center justify-center space-x-4 text-sm">
-              <div class="text-center">
-                <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-2">
-                  <span class="font-bold text-emerald-700">1</span>
-                </div>
-                <div class="font-medium">第1選択</div>
-                <div class="text-gray-500">テーマの方向</div>
-              </div>
-              <div class="text-2xl text-gray-400">→</div>
-              <div class="text-center">
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-                  <span class="font-bold text-blue-700">2</span>
-                </div>
-                <div class="font-medium">第2選択</div>
-                <div class="text-gray-500">実行方法</div>
-              </div>
-              <div class="text-2xl text-gray-400">→</div>
-              <div class="text-center">
-                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-2">
-                  <span class="font-bold text-purple-700">3</span>
-                </div>
-                <div class="font-medium">第3選択</div>
-                <div class="text-gray-500">最終調整</div>
-              </div>
-              <div class="text-2xl text-gray-400">→</div>
-              <div class="text-center">
-                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-2">
-                  <span class="font-bold text-orange-700">8</span>
-                </div>
-                <div class="font-medium">最終結果</div>
-                <div class="text-gray-500">8つの道筋</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Interactive Selection Interface -->
-        <div class="interactive-selection mb-6">
-          <div id="level-1-selection" class="selection-level active">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">🎯 第1段階：基本方針を選択</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button class="level1-option bg-green-50 hover:bg-green-100 border-2 border-green-200 rounded-lg p-4 transition-all duration-300" data-choice="progress">
-                <div class="text-3xl mb-2">🌱</div>
-                <div class="font-bold text-green-800">テーマを進む（順行型）</div>
-                <div class="text-sm text-green-600 mt-2">現在の方向性を継続・強化する道</div>
-              </button>
-              <button class="level1-option bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 rounded-lg p-4 transition-all duration-300" data-choice="transform">
-                <div class="text-3xl mb-2">🔄</div>
-                <div class="font-bold text-orange-800">テーマを転換（転換型）</div>
-                <div class="text-sm text-orange-600 mt-2">現在の方向性を変更・転換する道</div>
-              </button>
-            </div>
-          </div>
-
-          <div id="level-2-selection" class="selection-level hidden">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">🎯 第2段階：実行方法を選択</h3>
-            <div id="level-2-options" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Dynamic content will be filled by JavaScript -->
-            </div>
-          </div>
-
-          <div id="level-3-selection" class="selection-level hidden">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">🎯 第3段階：最終調整を選択</h3>
-            <div id="level-3-options" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Dynamic content will be filled by JavaScript -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Final Eight Patterns Display (Initially Hidden) -->
-        <div id="final-patterns-display" class="final-patterns hidden">
-          <h2 class="text-2xl font-bold text-gray-800 mb-6">🌸 到達した未来の道筋</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            ${finalPaths.map((path, index) => `
-              <div class="path-card bg-white rounded-lg p-4 border hover:shadow-lg transition-shadow cursor-pointer" data-path-index="${index}">
-                <div class="text-center mb-3">
-                  <div class="text-2xl mb-2">🎯</div>
-                  <h4 class="font-semibold text-gray-800">${path.title}</h4>
-                </div>
-                <div class="text-sm text-gray-600 mb-2">
-                  ${(path.fullDescription || '').substring(0, 80)}...
-                </div>
-                <div class="flex justify-between text-xs text-gray-500">
-                  <span>確率: ${Math.round((path.probability || 0.125) * 100)}%</span>
-                  <span>パス${path.pathIndex}</span>
-                </div>
-                <div class="mt-2 text-xs text-blue-600">
-                  経路: ${(path.route || []).join(' → ')}
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-
-        <!-- HaQei Philosophy Integration -->
-        ${result.HaQeiIntegration ? this.generateHaQeiIntegrationHTML(result.HaQeiIntegration) : ''}
-      </div>
-    `;
+    // BinaryTreeCompleteDisplayで直接表示（setTimeoutなし）
+    if (window.BinaryTreeCompleteDisplay) {
+      // 即座に実行し、HTMLはBinaryTreeCompleteDisplayが生成
+      window.BinaryTreeCompleteDisplay.display(enhancedResult);
+      
+      // BinaryTreeCompleteDisplayが処理を完了したことを示す
+      return '<div id="binary-tree-display-container"><!-- Rendered by BinaryTreeCompleteDisplay --></div>';
+    }
+    
+    // フォールバック（BinaryTreeCompleteDisplayが利用できない場合）
+    return '<div class="error-message">Display system not available</div>';
+  },
+  
+  // 結果データの拡張と正規化
+  enhanceResultData(result) {
+    // finalEightPathsが存在しない場合は生成
+    if (!result.finalEightPaths && result.branches) {
+      result.finalEightPaths = this.convertBranchesToPaths(result.branches);
+    }
+    
+    // 各パスに必要なフィールドを確保
+    if (result.finalEightPaths) {
+      result.finalEightPaths = result.finalEightPaths.map((path, index) => ({
+        ...path,
+        pathIndex: path.pathIndex || index + 1,
+        title: path.title || `パス${index + 1}`,
+        description: path.description || path.fullDescription || this.generatePathDescription(path),
+        probability: path.probability || (1/8),
+        route: path.route || ['開始', '中間', '終了']
+      }));
+    }
+    
+    return result;
+  },
+  
+  // ブランチデータをパスデータに変換
+  convertBranchesToPaths(branches) {
+    const paths = [];
+    let index = 1;
+    
+    // ブランチ構造を8つのパスに変換
+    if (branches && branches.level3) {
+      Object.entries(branches.level3).forEach(([l1Type, l2Branches]) => {
+        Object.entries(l2Branches).forEach(([l2Type, l3Options]) => {
+          Object.entries(l3Options).forEach(([optionKey, optionData]) => {
+            paths.push({
+              pathIndex: index++,
+              title: this.generatePathTitle(l1Type, l2Type, optionKey),
+              description: this.generatePathDescriptionFromBranch(l1Type, l2Type, optionKey),
+              probability: optionData.final_probability || (1/8),
+              route: this.generatePathRoute(l1Type, l2Type, optionKey)
+            });
+          });
+        });
+      });
+    }
+    
+    return paths.length > 0 ? paths : this.generateDefaultPaths();
+  },
+  
+  // パスタイトル生成
+  generatePathTitle(l1, l2, l3) {
+    const titles = {
+      'progress_continue_strengthen': '継続強化・突破型',
+      'progress_continue_moderate': '継続強化・安定型',
+      'progress_adjust_strengthen': '継続調整・革新型',
+      'progress_adjust_moderate': '継続調整・改善型',
+      'transform_complete_strengthen': '転換完全・飛躍型',
+      'transform_complete_moderate': '転換完全・段階型',
+      'transform_integrate_strengthen': '転換統合・融合型',
+      'transform_integrate_moderate': '転換統合・創造型'
+    };
+    const key = `${l1}_${l2}_${l3.replace('option_a', 'strengthen').replace('option_b', 'moderate')}`;
+    return titles[key] || `${l1}・${l2}・${l3}`;
+  },
+  
+  // パス説明生成
+  generatePathDescriptionFromBranch(l1, l2, l3) {
+    const descriptions = {
+      'progress_continue_strengthen': '現在の強みを最大限に活かし、既存の方向性をさらに推進する道',
+      'progress_continue_moderate': '安定性を重視しながら着実に前進する堅実な道',
+      'progress_adjust_strengthen': '基本路線を維持しながら革新的な改善を加える道',
+      'progress_adjust_moderate': '柔軟な調整により最適なバランスを保つ道',
+      'transform_complete_strengthen': '根本的な変革により飛躍的成長を達成する道',
+      'transform_complete_moderate': '計画的な転換により新たな可能性を開拓する道',
+      'transform_integrate_strengthen': '新旧の要素を創造的に統合し独自の価値を生み出す道',
+      'transform_integrate_moderate': '多様な要素をバランスよく統合する道'
+    };
+    const key = `${l1}_${l2}_${l3.replace('option_a', 'strengthen').replace('option_b', 'moderate')}`;
+    return descriptions[key] || '新たな可能性を探索する道';
+  },
+  
+  // パスルート生成
+  generatePathRoute(l1, l2, l3) {
+    const routeMap = {
+      'progress': '継続選択',
+      'transform': '転換選択',
+      'continue': '強化方向',
+      'adjust': '調整方向',
+      'complete': '完全転換',
+      'integrate': '統合方向',
+      'option_a': '積極推進',
+      'option_b': '着実進行'
+    };
+    return ['開始', routeMap[l1] || l1, routeMap[l2] || l2, routeMap[l3] || l3];
+  },
+  
+  // デフォルトパス生成
+  generateDefaultPaths() {
+    return [
+      { pathIndex: 1, title: '継続強化・突破型', description: '現在の強みを最大限に活かす道', probability: 0.135, route: ['開始', '継続選択', '強化方向', '積極推進'] },
+      { pathIndex: 2, title: '継続強化・安定型', description: '着実な成長を重視する道', probability: 0.115, route: ['開始', '継続選択', '強化方向', '着実進行'] },
+      { pathIndex: 3, title: '継続調整・革新型', description: '既存の枠組みを革新する道', probability: 0.130, route: ['開始', '継続選択', '調整方向', '積極推進'] },
+      { pathIndex: 4, title: '継続調整・改善型', description: '段階的な改善を重ねる道', probability: 0.120, route: ['開始', '継続選択', '調整方向', '着実進行'] },
+      { pathIndex: 5, title: '転換統合・融合型', description: '新旧の要素を統合する道', probability: 0.140, route: ['開始', '転換選択', '統合方向', '積極推進'] },
+      { pathIndex: 6, title: '転換統合・創造型', description: '全く新しい価値を創造する道', probability: 0.130, route: ['開始', '転換選択', '統合方向', '着実進行'] },
+      { pathIndex: 7, title: '転換段階・飛躍型', description: '大きな飛躍を目指す道', probability: 0.120, route: ['開始', '転換選択', '完全転換', '積極推進'] },
+      { pathIndex: 8, title: '転換段階・探索型', description: '新たな可能性を探索する道', probability: 0.110, route: ['開始', '転換選択', '完全転換', '着実進行'] }
+    ];
+  },
+  
+  // パス説明生成（フォールバック用）
+  generatePathDescription(path) {
+    if (path.route && path.route.length > 0) {
+      return `${path.route.join(' → ')}を通じて、新たな未来を切り開く道`;
+    }
+    return '未来への新たな可能性を探索する道';
   },
 
   // HaQei統合HTML生成

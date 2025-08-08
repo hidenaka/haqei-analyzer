@@ -678,6 +678,91 @@ window.MultiDimensionalContextAnalyzer = {
       perspectives: ['individual', 'collective', 'universal', 'relative'],
       paradigms: ['traditional', 'modern', 'postmodern', 'integral']
     };
+  },
+
+  // CRITICAL: Missing analyzeContext method implementation
+  analyzeContext(text) {
+    try {
+      console.log('🔍 MultiDimensionalContextAnalyzer.analyzeContext called with:', text.substring(0, 50));
+      
+      // Quick analysis for immediate use
+      const context = {
+        temporal: this.analyzeTemporalDimension(text),
+        spatial: this.analyzeSpatialDimension(text),
+        emotional: this.analyzeEmotionalDimension(text),
+        relational: this.analyzeRelationalDimension(text),
+        intentional: this.analyzeIntentionalDimension(text),
+        axiological: this.analyzeAxiologicalDimension(text),
+        philosophical: this.analyzePhilosophicalDimension(text),
+        timestamp: new Date().toISOString(),
+        confidence: 0.85
+      };
+      
+      console.log('✅ MultiDimensionalContextAnalyzer analysis complete');
+      return context;
+      
+    } catch (error) {
+      console.error('❌ MultiDimensionalContextAnalyzer.analyzeContext error:', error);
+      // Return fallback analysis instead of throwing
+      return {
+        temporal: { timeframe: 'present', urgency: 'medium' },
+        spatial: { scope: 'personal', context: 'general' },
+        emotional: { primary: 'neutral', intensity: 0.5 },
+        relational: { type: 'individual', complexity: 'medium' },
+        intentional: { primary: 'explore', clarity: 0.7 },
+        axiological: { values: ['growth'], alignment: 0.6 },
+        philosophical: { approach: 'pragmatic', perspective: 'individual' },
+        timestamp: new Date().toISOString(),
+        confidence: 0.5,
+        fallback: true
+      };
+    }
+  },
+  
+  // Helper methods for basic analysis
+  analyzeTemporalDimension(text) {
+    // Simple temporal analysis
+    if (text.includes('急') || text.includes('緊急')) return { timeframe: 'immediate', urgency: 'high' };
+    if (text.includes('将来') || text.includes('未来')) return { timeframe: 'future', urgency: 'medium' };
+    return { timeframe: 'present', urgency: 'medium' };
+  },
+  
+  analyzeSpatialDimension(text) {
+    // Simple spatial analysis
+    if (text.includes('職場') || text.includes('会社')) return { scope: 'workplace', context: 'professional' };
+    if (text.includes('家族') || text.includes('家庭')) return { scope: 'family', context: 'personal' };
+    return { scope: 'personal', context: 'general' };
+  },
+  
+  analyzeEmotionalDimension(text) {
+    // Simple emotional analysis
+    if (text.includes('悩み') || text.includes('困')) return { primary: 'concern', intensity: 0.7 };
+    if (text.includes('喜び') || text.includes('嬉し')) return { primary: 'joy', intensity: 0.8 };
+    return { primary: 'neutral', intensity: 0.5 };
+  },
+  
+  analyzeRelationalDimension(text) {
+    // Simple relational analysis
+    if (text.includes('同僚') || text.includes('チーム')) return { type: 'professional', complexity: 'medium' };
+    if (text.includes('友人') || text.includes('家族')) return { type: 'personal', complexity: 'medium' };
+    return { type: 'individual', complexity: 'low' };
+  },
+  
+  analyzeIntentionalDimension(text) {
+    // Simple intentional analysis
+    if (text.includes('どうすれば')) return { primary: 'solve', clarity: 0.8 };
+    if (text.includes('改善') || text.includes('向上')) return { primary: 'improve', clarity: 0.7 };
+    return { primary: 'explore', clarity: 0.6 };
+  },
+  
+  analyzeAxiologicalDimension(text) {
+    // Simple value analysis
+    return { values: ['growth', 'harmony'], alignment: 0.7 };
+  },
+  
+  analyzePhilosophicalDimension(text) {
+    // Simple philosophical analysis
+    return { approach: 'pragmatic', perspective: 'individual' };
   }
 };
 

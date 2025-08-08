@@ -19,6 +19,7 @@ console.log('🚀 Future Simulator Integration Loading...');
       this.guidanceEngine = null;
       this.visualizer = null;
       this.scenariosDisplay = null;
+      this.resultPageController = null;  // 新しい結果ページコントローラー
       
       // 現在の分析結果
       this.currentAnalysis = null;
@@ -113,6 +114,13 @@ console.log('🚀 Future Simulator Integration Loading...');
         }
       }
       
+      // 結果ページコントローラー初期化
+      if (window.ResultPageController) {
+        this.resultPageController = new window.ResultPageController();
+        this.resultPageController.initialize();
+        console.log('✅ ResultPageController initialized');
+      }
+      
       console.log('✅ Visualizers initialized');
     }
 
@@ -193,10 +201,45 @@ console.log('🚀 Future Simulator Integration Loading...');
     async displayResults(analysis) {
       console.log('📊 Displaying analysis results:', analysis);
       
-      // 1. 現在の状況表示
+      // 新しいResultPageControllerを使用
+      if (this.resultPageController) {
+        // 分析データをResultPageController用に整形
+        const resultData = {
+          currentHexagram: {
+            number: analysis.currentSituation?.hexagramNumber || 1,
+            name: analysis.currentSituation?.hexagramName
+          },
+          currentYao: {
+            position: analysis.currentSituation?.yaoPosition || 1,
+            name: analysis.currentSituation?.yaoName
+          },
+          theme: analysis.currentSituation?.theme,
+          themeDetail: analysis.currentSituation?.description,
+          scenarios: analysis.eightScenarios,
+          progressTheme: analysis.threeStageProcess?.progressTheme,
+          changeTheme: analysis.threeStageProcess?.changeTheme
+        };
+        
+        // ResultPageControllerで結果を表示
+        await this.resultPageController.displayResults(resultData);
+        
+        // choice1, choice2カードを更新（重複回避のため再度実行）
+        if (analysis.currentSituation) {
+          this.updateChoiceCards(analysis.currentSituation);
+        }
+      }
+      
+      // 1. 現在の状況表示（既存の表示も維持）
       this.displayCurrentSituation(analysis.currentSituation);
       
       // 2. 3段階プロセスの可視化
+      console.log('🎯 [CRITICAL DEBUG] threeStageProcess check:', {
+        hasVisualizer: !!this.visualizer,
+        hasThreeStageProcess: !!analysis.threeStageProcess,
+        threeStageProcessData: analysis.threeStageProcess,
+        stagesCount: analysis.threeStageProcess?.stages?.length
+      });
+      
       if (this.visualizer && analysis.threeStageProcess) {
         const container = document.getElementById('three-stage-visualizer');
         if (!container) {
@@ -236,15 +279,20 @@ console.log('🚀 Future Simulator Integration Loading...');
           this.scenariosDisplay.initialize('eight-scenarios-display');
         }
         
-        this.scenariosDisplay.displayScenarios(
-          analysis.eightScenarios,
-          analysis.threeStageProcess
-        );
-        
-        // アニメーション開始
-        setTimeout(() => {
-          this.scenariosDisplay.animateDisplay();
-        }, 100);
+        // 8つのシナリオ表示を有効化（動的データ表示のため）
+        if (analysis.eightScenarios && analysis.eightScenarios.length > 0) {
+          this.scenariosDisplay.displayScenarios(
+            analysis.eightScenarios,
+            analysis.threeStageProcess
+          );
+          
+          // アニメーション開始
+          setTimeout(() => {
+            this.scenariosDisplay.animateDisplay();
+          }, 100);
+        } else {
+          console.warn('⚠️ No eightScenarios data available for display');
+        }
       }
       
       // 4. 結果エリアを表示
@@ -252,6 +300,16 @@ console.log('🚀 Future Simulator Integration Loading...');
       if (resultArea) {
         resultArea.style.display = 'block';
         resultArea.scrollIntoView({ behavior: 'smooth' });
+      }
+      
+      // 分析完了フラグを設定
+      window.futureAnalysisCompleted = true;
+      
+      // I Ching simulator section を表示
+      const ichingSection = document.getElementById('iching-simulator-section');
+      if (ichingSection) {
+        ichingSection.style.display = 'block';
+        ichingSection.style.opacity = '1';
       }
     }
 
@@ -262,7 +320,14 @@ console.log('🚀 Future Simulator Integration Loading...');
       // タイトル更新
       const currentTitle = document.getElementById('currentTitle');
       if (currentTitle) {
-        currentTitle.textContent = `${situation['卦名']} ${situation['爻']}`;
+        // 卦の図形を生成
+        const hexagramVisual = this.generateHexagramVisual(situation['卦番号']);
+        currentTitle.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+            ${hexagramVisual}
+            <span>${situation['卦名']} ${situation['爻']}</span>
+          </div>
+        `;
       }
       
       // キーワード更新
@@ -292,6 +357,70 @@ console.log('🚀 Future Simulator Integration Loading...');
         }
         
         recommendedDirection.textContent = direction;
+      }
+      
+      // 選択カードの動的更新（ResultPageController使用時も実行）
+      this.updateChoiceCards(situation);
+    }
+    
+    /**
+     * 卦の図形を生成（陰陽の線）
+     */
+    generateHexagramVisual(hexagramNumber) {
+      // 64卦のバイナリ表現（下から上へ：初爻→上爻）
+      const hexagramStructures = {
+        1: '111111', 2: '000000', 3: '010001', 4: '100010',
+        5: '010111', 6: '111010', 7: '000010', 8: '010000',
+        // ... 簡略化のため一部のみ
+      };
+      
+      const structure = hexagramStructures[hexagramNumber] || '000000';
+      const lines = structure.split('').reverse(); // 上から下に表示
+      
+      let html = '<div style="display: flex; flex-direction: column; gap: 2px;">';
+      lines.forEach(line => {
+        if (line === '1') {
+          // 陽爻（実線）
+          html += '<div style="width: 40px; height: 4px; background: currentColor;"></div>';
+        } else {
+          // 陰爻（破線）
+          html += '<div style="display: flex; gap: 4px;"><div style="width: 18px; height: 4px; background: currentColor;"></div><div style="width: 18px; height: 4px; background: currentColor;"></div></div>';
+        }
+      });
+      html += '</div>';
+      
+      return html;
+    }
+    
+    /**
+     * 選択カードを動的に更新
+     */
+    updateChoiceCards(situation) {
+      const choice1 = document.getElementById('choice1');
+      const choice2 = document.getElementById('choice2');
+      
+      if (choice1 && situation) {
+        // テーマに従う選択肢
+        const followKeywords = situation['キーワード'] || [];
+        choice1.innerHTML = `
+          <h3 class="text-lg font-bold text-blue-300 mb-2">テーマに従う道</h3>
+          <p class="text-sm text-gray-300 mb-3">「${followKeywords.join('、')}」を受け入れて行動する</p>
+          <div class="text-xs bg-blue-500/20 text-blue-200 px-2 py-1 rounded">
+            ${situation['S5_主体性推奨スタンス'] === '能動' ? '積極的行動' : '慎重な観察'}
+          </div>
+        `;
+      }
+      
+      if (choice2 && situation) {
+        // テーマに従わない選択肢
+        const rejectKeywords = situation['キーワード'] || [];
+        choice2.innerHTML = `
+          <h3 class="text-lg font-bold text-emerald-300 mb-2">新たな道を探る</h3>
+          <p class="text-sm text-gray-300 mb-3">「${rejectKeywords.join('、')}」とは異なる選択を模索</p>
+          <div class="text-xs bg-emerald-500/20 text-emerald-200 px-2 py-1 rounded">
+            ${situation['S5_主体性推奨スタンス'] === '能動' ? '慎重な転換' : '積極的変革'}
+          </div>
+        `;
       }
     }
 

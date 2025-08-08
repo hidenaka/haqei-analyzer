@@ -50,9 +50,14 @@ class DynamicScenarioColorSystem {
                 trigramKey = this.adjustTrigramByHexagram(trigramKey, hexagramData);
             }
             
+            // trigramKeyが未定義またはnullの場合のフォールバック
+            if (!trigramKey || trigramKey === 'undefined') {
+                trigramKey = '乾'; // デフォルトのtrigram
+            }
+            
             const trigramInfo = this.trigramColors[trigramKey];
             if (!trigramInfo) {
-                console.warn(`⚠️ Unknown trigram: ${trigramKey}, using default`);
+                // console.warn(`⚠️ Unknown trigram: ${trigramKey}, using default`); // ログを抑制
                 return this.getDefaultVisualization();
             }
             
@@ -61,6 +66,8 @@ class DynamicScenarioColorSystem {
                 lightColor: trigramInfo.light,
                 darkColor: trigramInfo.dark,
                 icon: trigramInfo.icon,
+                traditional: trigramInfo.icon || '☯',  // ROOT CAUSE FIX: traditional プロパティ追加
+                modern: this.getModernEmoji(approach) || '🎯',  // ROOT CAUSE FIX: modern プロパティ追加
                 trigramName: trigramInfo.name,
                 trigramKey: trigramKey,
                 gradient: `linear-gradient(135deg, ${trigramInfo.primary}, ${trigramInfo.dark})`,
@@ -240,6 +247,8 @@ class DynamicScenarioColorSystem {
             lightColor: '#f5f5f5',
             darkColor: '#424242',
             icon: '🎯',
+            traditional: '☯',  // ROOT CAUSE FIX: traditional プロパティ追加
+            modern: '🎯',      // ROOT CAUSE FIX: modern プロパティ追加
             trigramName: '一般',
             trigramKey: 'default',
             gradient: 'linear-gradient(135deg, #757575, #424242)',

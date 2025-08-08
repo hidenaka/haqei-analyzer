@@ -68,5 +68,3 @@ class DiagnosisDataFormat {
 if (typeof window !== 'undefined') {
   window.DiagnosisDataFormat = DiagnosisDataFormat;
 }
-
-export { DiagnosisDataFormat };

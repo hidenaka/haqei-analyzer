@@ -121,5 +121,3 @@ class StorageManager {
 if (typeof window !== 'undefined') {
   window.StorageManager = StorageManager;
 }
-
-export { StorageManager };

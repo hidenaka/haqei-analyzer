@@ -177,12 +177,67 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       });
 
       if (bestMatch) {
-        this.currentHexagram = bestMatch['卦番号'];
-        this.currentYao = bestMatch['爻'];
-        console.log(`📍 状況卦: ${bestMatch['卦名']} ${bestMatch['爻']}`);
-        return bestMatch;
+        // フィールドの存在と値を確認
+        const hexagramNumber = bestMatch['卦番号'] || 1;
+        const hexagramName = bestMatch['卦名'] || '乾為天';
+        const yaoName = bestMatch['爻'] || '初九';
+        const serialNumber = bestMatch['通し番号'] || 1;
+        
+        this.currentHexagram = hexagramNumber;
+        this.currentYao = yaoName;
+        console.log(`📍 状況卦: ${hexagramName} ${yaoName}`);
+        
+        // 爻位置を通し番号から計算（H384データベースには爻位置フィールドがないため）
+        // 乾為天（卦番号1）と坤為地（卦番号2）だけ7つのエントリ（用九・用六を含む）
+        // その他の卦は6つのエントリ
+        let yaoPosition;
+        if (hexagramNumber === 1) {
+          // 乾為天: 通し番号1-7
+          yaoPosition = serialNumber;
+        } else if (hexagramNumber === 2) {
+          // 坤為地: 通し番号8-14
+          yaoPosition = serialNumber - 7;
+        } else {
+          // その他の卦: 各卦6つのエントリ
+          // 通し番号15から開始、(hexagramNumber-3)*6 + 14 + yaoPosition
+          const baseNumber = 14 + (hexagramNumber - 3) * 6;
+          yaoPosition = serialNumber - baseNumber + 1;
+        }
+        
+        // yaoPositionの範囲チェック
+        if (yaoPosition < 1 || yaoPosition > 7) {
+          yaoPosition = 1; // デフォルト値
+        }
+        
+        // H384データベースのデータをそのまま返す（加工せず、フィールドを追加）
+        return {
+          hexagramNumber: hexagramNumber,
+          hexagramName: hexagramName,
+          yaoPosition: yaoPosition > 6 ? 6 : yaoPosition, // 7番目は特殊なので6として扱う
+          yaoName: yaoName,
+          serialNumber: serialNumber,
+          theme: bestMatch['テーマ'] || '初期状態',
+          description: bestMatch['説明'] || '初期の状態です。',
+          keywords: bestMatch['キーワード'] || ['開始'],
+          modernInterpretation: bestMatch['現代解釈の要約'] || '新しい始まり。',
+          // 元のH384データベースのフィールドもそのまま含める
+          '卦名': hexagramName,
+          '爻': yaoName,
+          'キーワード': bestMatch['キーワード'] || ['開始'],
+          '現代解釈の要約': bestMatch['現代解釈の要約'] || '新しい始まり。',
+          'S1_基本スコア': bestMatch['S1_基本スコア'] || 50,
+          'S2_ポテンシャル': bestMatch['S2_ポテンシャル'] || 50,
+          'S3_安定性スコア': bestMatch['S3_安定性スコア'] || 50,
+          'S4_リスク': bestMatch['S4_リスク'] || -35,
+          'S5_主体性推奨スタンス': bestMatch['S5_主体性推奨スタンス'] || '中立',
+          'S6_変動性スコア': bestMatch['S6_変動性スコア'] || 50,
+          'S7_総合評価スコア': bestMatch['S7_総合評価スコア'] || 50,
+          rawData: bestMatch
+        };
       }
 
+      // データが見つからない場合はnullを返す（エラーを隠さない）
+      console.error('❌ No matching hexagram found for input');
       return null;
     }
 
@@ -261,8 +316,18 @@ console.log('☯️ IChingGuidanceEngine Loading...');
      * 3段階選択プロセスの生成
      */
     generateThreeStageProcess(situationHexagram) {
+      console.log('🎯 generateThreeStageProcess called with hexagram:', situationHexagram);
+      
+      // guidancePatternsが未初期化の場合、緊急初期化
+      if (!this.guidancePatterns) {
+        console.log('⚠️ guidancePatterns not initialized, emergency initialization...');
+        this.initializeGuidanceSystem();
+      }
+
       const process = {
         currentSituation: situationHexagram,
+        progressTheme: situationHexagram ? situationHexagram.卦名 : '現状分析',
+        changeTheme: situationHexagram ? `${situationHexagram.卦名}からの変化` : '変化の道',
         stages: []
       };
 
@@ -276,17 +341,31 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       };
 
       // 保守的選択
+      const conservativeData = this.guidancePatterns?.stage1?.conservative || {
+        name: '保守的選択',
+        keywords: ['安定', '継続', '忍耐'],
+        description: '現状を維持し、内なる力を蓄える',
+        iChingPrinciple: '潜龍勿用 - 力を秘めて時を待つ'
+      };
+      
       stage1.choices.push({
         id: 'conservative',
-        ...this.guidancePatterns.stage1.conservative,
+        ...conservativeData,
         compatibility: this.calculateChoiceCompatibility(situationHexagram, 'conservative'),
         outcome: this.predictOutcome(situationHexagram, 'conservative', 1)
       });
 
       // 進歩的選択
+      const progressiveData = this.guidancePatterns?.stage1?.progressive || {
+        name: '進歩的選択',
+        keywords: ['前進', '革新', '改革'],
+        description: '新しい道を切り開く',
+        iChingPrinciple: '見龍在田 - 才能を開花させる時'
+      };
+      
       stage1.choices.push({
         id: 'progressive',
-        ...this.guidancePatterns.stage1.progressive,
+        ...progressiveData,
         compatibility: this.calculateChoiceCompatibility(situationHexagram, 'progressive'),
         outcome: this.predictOutcome(situationHexagram, 'progressive', 1)
       });
@@ -303,17 +382,31 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       };
 
       // 協調的選択
+      const collaborativeData = this.guidancePatterns?.stage2?.collaborative || {
+        name: '協調的選択',
+        keywords: ['協力', '調和', '共生'],
+        description: '他者と共に歩む道',
+        iChingPrinciple: '群龍無首 - 皆で力を合わせる'
+      };
+      
       stage2.choices.push({
         id: 'collaborative',
-        ...this.guidancePatterns.stage2.collaborative,
+        ...collaborativeData,
         compatibility: this.calculateChoiceCompatibility(situationHexagram, 'collaborative'),
         outcome: this.predictOutcome(situationHexagram, 'collaborative', 2)
       });
 
       // 独立的選択
+      const independentData = this.guidancePatterns?.stage2?.independent || {
+        name: '独立的選択',
+        keywords: ['自立', '独創', '主導'],
+        description: '自らの力で道を切り開く',
+        iChingPrinciple: '飛龍在天 - 高い志を持って行動する'
+      };
+      
       stage2.choices.push({
         id: 'independent',
-        ...this.guidancePatterns.stage2.independent,
+        ...independentData,
         compatibility: this.calculateChoiceCompatibility(situationHexagram, 'independent'),
         outcome: this.predictOutcome(situationHexagram, 'independent', 2)
       });
@@ -330,23 +423,38 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       };
 
       // 慎重な選択
+      const cautiousData = this.guidancePatterns?.stage3?.cautious || {
+        name: '慎重な選択',
+        keywords: ['慎重', '準備', '観察'],
+        description: '時を見て確実に進む',
+        iChingPrinciple: '潜龍勿用 - 時機を待つ知恵'
+      };
+      
       stage3.choices.push({
         id: 'cautious',
-        ...this.guidancePatterns.stage3.cautious,
+        ...cautiousData,
         compatibility: this.calculateChoiceCompatibility(situationHexagram, 'cautious'),
         outcome: this.predictOutcome(situationHexagram, 'cautious', 3)
       });
 
       // 決断的選択
+      const decisiveData = this.guidancePatterns?.stage3?.decisive || {
+        name: '決断的選択',
+        keywords: ['決断', '迅速', '行動'],
+        description: '機を逃さず素早く行動',
+        iChingPrinciple: '亢龍有悔 - 勇気ある決断'
+      };
+      
       stage3.choices.push({
         id: 'decisive',
-        ...this.guidancePatterns.stage3.decisive,
+        ...decisiveData,
         compatibility: this.calculateChoiceCompatibility(situationHexagram, 'decisive'),
         outcome: this.predictOutcome(situationHexagram, 'decisive', 3)
       });
 
       process.stages.push(stage3);
 
+      console.log('✅ ThreeStageProcess generated successfully:', process);
       return process;
     }
 
@@ -688,6 +796,139 @@ console.log('☯️ IChingGuidanceEngine Loading...');
     }
 
     /**
+     * 緊急用3段階プロセス生成（フォールバック）
+     */
+    createEmergencyThreeStageProcess(situationHexagram) {
+      console.log('🆘 Creating emergency threeStageProcess...');
+      
+      const hexagramName = situationHexagram?.卦名 || '現状分析';
+      
+      const process = {
+        currentSituation: situationHexagram,
+        progressTheme: `${hexagramName}からの道筋`,
+        changeTheme: `${hexagramName}からの変化`,
+        stages: [
+          {
+            stageNumber: 1,
+            title: '第一段階：基本方針の選択',
+            description: '現在の状況に対する基本的な態度を決める',
+            choices: [
+              {
+                id: 'conservative',
+                name: '保守的選択',
+                keywords: ['安定', '継続', '忍耐'],
+                description: '現状を維持し、内なる力を蓄える',
+                iChingPrinciple: '潜龍勿用 - 力を秘めて時を待つ',
+                compatibility: 75,
+                outcome: {
+                  probability: 70,
+                  description: '着実な進歩が期待できる',
+                  nextStep: '慎重に準備を進める'
+                }
+              },
+              {
+                id: 'progressive',
+                name: '進歩的選択',
+                keywords: ['前進', '革新', '改革'],
+                description: '新しい道を切り開く',
+                iChingPrinciple: '見龍在田 - 才能を開花させる時',
+                compatibility: 65,
+                outcome: {
+                  probability: 60,
+                  description: '新しい可能性が開ける',
+                  nextStep: '勇気を持って前進する'
+                }
+              }
+            ],
+            iChingGuidance: {
+              principle: '時機を見極める',
+              advice: '現状をよく観察してから行動せよ',
+              warning: '焦りは禁物。準備を怠らず。'
+            }
+          },
+          {
+            stageNumber: 2,
+            title: '第二段階：実行方法の選択',
+            description: '選んだ方針をどのように実行するか',
+            choices: [
+              {
+                id: 'collaborative',
+                name: '協調的選択',
+                keywords: ['協力', '調和', '共生'],
+                description: '他者と共に歩む道',
+                iChingPrinciple: '群龍無首 - 皆で力を合わせる',
+                compatibility: 70,
+                outcome: {
+                  probability: 75,
+                  description: '協力により大きな成果が得られる',
+                  nextStep: 'チームワークを重視する'
+                }
+              },
+              {
+                id: 'independent',
+                name: '独立的選択',
+                keywords: ['自立', '独創', '主導'],
+                description: '自らの力で道を切り開く',
+                iChingPrinciple: '飛龍在天 - 高い志を持って行動する',
+                compatibility: 60,
+                outcome: {
+                  probability: 65,
+                  description: '独自の道が開ける',
+                  nextStep: '自信を持って進む'
+                }
+              }
+            ],
+            iChingGuidance: {
+              principle: '調和と独立のバランス',
+              advice: '他者との関係を大切にしながら、自分の道を歩め',
+              warning: '孤立は避け、適切な協力関係を築くべし'
+            }
+          },
+          {
+            stageNumber: 3,
+            title: '第三段階：タイミングの選択',
+            description: '行動のタイミングと速度を決める',
+            choices: [
+              {
+                id: 'cautious',
+                name: '慎重な選択',
+                keywords: ['慎重', '準備', '観察'],
+                description: '時を見て確実に進む',
+                iChingPrinciple: '潜龍勿用 - 時機を待つ知恵',
+                compatibility: 80,
+                outcome: {
+                  probability: 80,
+                  description: '着実で確実な成果を得られる',
+                  nextStep: '十分な準備で臨む'
+                }
+              },
+              {
+                id: 'decisive',
+                name: '決断的選択',
+                keywords: ['決断', '迅速', '行動'],
+                description: '機を逃さず素早く行動',
+                iChingPrinciple: '亢龍有悔 - 勇気ある決断',
+                compatibility: 55,
+                outcome: {
+                  probability: 55,
+                  description: '迅速な行動で機会を掴む',
+                  nextStep: '決断力を発揮する'
+                }
+              }
+            ],
+            iChingGuidance: {
+              principle: 'タイミングこそ全て',
+              advice: '機を見るに敏であれ。しかし焦りは禁物。',
+              warning: '時期を誤れば、良い計画も失敗に終わる'
+            }
+          }
+        ]
+      };
+
+      return process;
+    }
+
+    /**
      * 完全な分析実行
      */
     async performCompleteAnalysis(inputText) {
@@ -703,10 +944,28 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       }
 
       // 2. 3段階選択プロセスの生成
-      const process = this.generateThreeStageProcess(situationHexagram);
+      console.log('🎯 [CRITICAL DEBUG] Generating threeStageProcess...');
+      let process = this.generateThreeStageProcess(situationHexagram);
+      console.log('🎯 [CRITICAL DEBUG] threeStageProcess generated:', {
+        hasProcess: !!process,
+        stagesCount: process?.stages?.length,
+        processData: process
+      });
+
+      // フォールバック: processが生成されない場合は緊急データを作成
+      if (!process || !process.stages || process.stages.length === 0) {
+        console.warn('⚠️ threeStageProcess generation failed, creating emergency fallback data...');
+        process = this.createEmergencyThreeStageProcess(situationHexagram);
+        console.log('🆘 Emergency threeStageProcess created:', process);
+      }
 
       // 3. 8つの未来シナリオの生成
+      console.log('🎯 [CRITICAL DEBUG] Generating 8 scenarios...');
       const scenarios = this.generate8Scenarios(process);
+      console.log('🎯 [CRITICAL DEBUG] Scenarios generated:', {
+        hasScenarios: !!scenarios,
+        scenariosCount: scenarios?.length
+      });
 
       // 4. 結果の統合
       const result = {
