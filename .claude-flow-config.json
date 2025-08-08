@@ -13,7 +13,12 @@
       "swarmPresets": {
         "requirements": {
           "description": "要件定義・仕様策定用",
-          "agents": ["haqei-requirements-analyst", "haqei-cto", "researcher", "bunenjin-strategy-navigator"],
+          "agents": [
+            "haqei-requirements-analyst",
+            "haqei-cto",
+            "researcher",
+            "bunenjin-strategy-navigator"
+          ],
           "topology": "hierarchical",
           "maxAgents": 4,
           "hooks": {
@@ -23,7 +28,16 @@
         },
         "development": {
           "description": "並列開発実装用",
-          "agents": ["system-architect", "coder", "coder", "backend-dev", "mobile-dev", "tester", "task-orchestrator", "performance-benchmarker"],
+          "agents": [
+            "system-architect",
+            "coder",
+            "coder",
+            "backend-dev",
+            "mobile-dev",
+            "tester",
+            "task-orchestrator",
+            "performance-benchmarker"
+          ],
           "topology": "mesh",
           "maxAgents": 8,
           "hooks": {
@@ -33,7 +47,13 @@
         },
         "testing": {
           "description": "テスト・品質保証用",
-          "agents": ["tester", "haqei-qa-tester", "performance-benchmarker", "code-analyzer", "production-validator"],
+          "agents": [
+            "tester",
+            "haqei-qa-tester",
+            "performance-benchmarker",
+            "code-analyzer",
+            "production-validator"
+          ],
           "topology": "hierarchical",
           "maxAgents": 5,
           "playwrightRequired": true,
@@ -44,7 +64,13 @@
         },
         "quality": {
           "description": "品質チェック・レビュー用",
-          "agents": ["reviewer", "code-analyzer", "security-manager", "documenter", "haqei-reporter"],
+          "agents": [
+            "reviewer",
+            "code-analyzer",
+            "security-manager",
+            "documenter",
+            "haqei-reporter"
+          ],
           "topology": "star",
           "maxAgents": 5,
           "hooks": {
@@ -54,7 +80,12 @@
         },
         "bunenjin": {
           "description": "bunenjin哲学準拠開発用",
-          "agents": ["bunenjin-strategy-navigator", "haqei-iching-expert", "haqei-programmer", "haqei-requirements-analyst"],
+          "agents": [
+            "bunenjin-strategy-navigator",
+            "haqei-iching-expert",
+            "haqei-programmer",
+            "haqei-requirements-analyst"
+          ],
           "topology": "hierarchical",
           "maxAgents": 4,
           "hooks": {
@@ -64,7 +95,17 @@
         },
         "fullstack": {
           "description": "フルスタック統合開発用",
-          "agents": ["system-architect", "backend-dev", "mobile-dev", "coder", "coder", "api-docs", "cicd-engineer", "tester", "task-orchestrator"],
+          "agents": [
+            "system-architect",
+            "backend-dev",
+            "mobile-dev",
+            "coder",
+            "coder",
+            "api-docs",
+            "cicd-engineer",
+            "tester",
+            "task-orchestrator"
+          ],
           "topology": "hierarchical",
           "maxAgents": 10,
           "hooks": {
