@@ -20,6 +20,8 @@
     "mcp:unsafe": "npm run mcp:claude:unsafe",
     "mcp:resume": "npm run mcp:setup && claude -r --mcp-config claude-mcp-config.json",
     "mcp:resume:unsafe": "npm run mcp:setup && claude -r --mcp-config claude-mcp-config.json --dangerously-skip-permissions",
+    "dev:swarm": "node scripts/dev-swarm.js",
+    "dev:swarm:resume": "node scripts/dev-swarm.js --resume=true",
     "test:behavior": "node .visual-behavior-tests/behavior-test.js",
     "test:e2e": "npx playwright test",
     "test:all": "npm run test:behavior && npm run test:e2e",
