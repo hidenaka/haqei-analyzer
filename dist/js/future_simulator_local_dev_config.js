@@ -1,0 +1,1 @@
+window.FUTURE_SIMULATOR_CONFIG={developmentMode:!0,debugMode:!0,localMode:!0,skipExternalAPIs:!0,useOfflineMode:!0,disableTracking:!0},console.log("🔧 Local dev config loaded");

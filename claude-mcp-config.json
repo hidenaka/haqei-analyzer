@@ -1,0 +1,185 @@
+{
+  "mcpServers": {
+    "cipher": {
+      "command": "node",
+      "args": [
+        "cipher-server.js"
+      ],
+      "cwd": "/Users/nakanohideaki/Desktop/haqei-analyzer",
+      "env": {
+        "NODE_ENV": "development",
+        "CIPHER_PORT": "3001",
+        "CIPHER_PROJECT_PATH": "/Users/nakanohideaki/Desktop/haqei-analyzer",
+        "CIPHER_STORAGE_PATH": "/Users/nakanohideaki/Desktop/haqei-analyzer/.mcp-data/cipher-memory",
+        "CIPHER_LOG_PATH": "/Users/nakanohideaki/Desktop/haqei-analyzer/.mcp-data/logs"
+      },
+      "timeout": 30000,
+      "description": "Cipher Dual Memory Layer - HaQei哲学とプロジェクト記憶の継続管理（Git同期対応）"
+    },
+    "tsumiki": {
+      "command": "node",
+      "args": [
+        "tsumiki-cli.js"
+      ],
+      "cwd": "/Users/nakanohideaki/Desktop/haqei-analyzer",
+      "env": {
+        "NODE_ENV": "development",
+        "TSUMIKI_PROJECT_PATH": "/Users/nakanohideaki/Desktop/haqei-analyzer"
+      },
+      "timeout": 60000,
+      "description": "Tsumiki AI駆動開発フレームワーク - 構造化品質管理システム"
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide-assistant",
+        "--project",
+        "/Users/nakanohideaki/Desktop/haqei-analyzer"
+      ],
+      "cwd": "/Users/nakanohideaki/Desktop/haqei-analyzer",
+      "env": {
+        "SERENA_PROJECT_CONFIG": "/Users/nakanohideaki/Desktop/haqei-analyzer/.serena/project.yml"
+      },
+      "timeout": 45000,
+      "description": "Serena セマンティックコード分析とファイル監視システム"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp"
+      ],
+      "cwd": "/Users/nakanohideaki/Desktop/haqei-analyzer",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "timeout": 30000,
+      "description": "Playwright MCP - ブラウザ自動化とE2Eテスト"
+    },
+    "claude-flow": {
+      "command": "npx",
+      "args": [
+        "claude-flow@alpha",
+        "mcp",
+        "start"
+      ],
+      "type": "stdio",
+      "env": {
+        "NODE_ENV": "development",
+        "CLAUDE_FLOW_PROJECT_PATH": "/Users/nakanohideaki/Desktop/haqei-analyzer"
+      },
+      "timeout": 60000,
+      "description": "Claude Flow v2 - エンタープライズグレードAI orchestration、Hive-Mind Intelligence、87の専門MCPツール"
+    },
+    "ruv-swarm": {
+      "command": "npx",
+      "args": [
+        "ruv-swarm@latest",
+        "mcp",
+        "start"
+      ],
+      "type": "stdio",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "timeout": 30000,
+      "description": "Ruv Swarm - 分散エージェント協調システム"
+    }
+  },
+  "globalShortcuts": {
+    "cipher": {
+      "startMemoryLayer": "cipher:start",
+      "stopMemoryLayer": "cipher:stop",
+      "testConfiguration": "cipher:test"
+    },
+    "tsumiki": {
+      "requirements": "/kairo-requirements",
+      "design": "/kairo-design",
+      "tasks": "/kairo-tasks",
+      "implement": "/kairo-implement",
+      "tddRequirements": "/tdd-requirements",
+      "tddTestcases": "/tdd-testcases",
+      "tddRed": "/tdd-red",
+      "tddGreen": "/tdd-green",
+      "tddRefactor": "/tdd-refactor",
+      "tddVerifyComplete": "/tdd-verify-complete"
+    },
+    "serena": {
+      "analyzeProject": "serena:analyze",
+      "optimizeCode": "serena:optimize",
+      "watchFiles": "serena:watch"
+    },
+    "claudeFlow": {
+      "swarmInit": "mcp__claude-flow__swarm_init",
+      "agentSpawn": "mcp__claude-flow__agent_spawn",
+      "taskOrchestrate": "mcp__claude-flow__task_orchestrate",
+      "memoryUsage": "mcp__claude-flow__memory_usage",
+      "neuralStatus": "mcp__claude-flow__neural_status",
+      "githubSwarm": "mcp__claude-flow__github_swarm",
+      "repoAnalyze": "mcp__claude-flow__repo_analyze",
+      "prEnhance": "mcp__claude-flow__pr_enhance"
+    }
+  },
+  "integrationWorkflow": {
+    "quadrupleSystem": {
+      "description": "Cipher + Serena + Tsumiki + Claude Flow 四位一体運用",
+      "workflow": [
+        "1. Cipher（記憶・哲学）: HaQei哲学とプロジェクト記憶の継続",
+        "2. Serena（分析・最適化）: セマンティックコード分析とファイル監視",
+        "3. Tsumiki（構造化・品質）: 標準化されたAI駆動開発プロセス",
+        "4. Claude Flow（協調・並列）: Hive-Mind IntelligenceとSwarm協調実行"
+      ],
+      "feedbackLoop": "Cipher（記憶） → Claude Flow（協調） → Tsumiki（構造化） → Serena（最適化） → 統合フィードバック → Cipher（学習蓄積）",
+      "claudeFlowIntegration": {
+        "swarmCoordination": "87のMCPツールによる並列協調実行",
+        "neuralEnhancement": "27以上の認知モデルによる学習最適化",
+        "memoryPersistence": "SQLiteによる永続的な記憶管理",
+        "parallelExecution": "2.8-4.4倍の速度向上"
+      }
+    },
+    "developmentPhases": {
+      "planning": [
+        "cipher:start",
+        "mcp__claude-flow__swarm_init",
+        "/kairo-requirements",
+        "/kairo-design"
+      ],
+      "implementation": [
+        "mcp__claude-flow__agent_spawn",
+        "/kairo-tasks",
+        "/kairo-implement",
+        "serena:analyze"
+      ],
+      "testing": [
+        "mcp__claude-flow__task_orchestrate",
+        "/tdd-red",
+        "/tdd-green",
+        "/tdd-refactor"
+      ],
+      "validation": [
+        "/tdd-verify-complete",
+        "serena:optimize",
+        "playwright:test",
+        "mcp__claude-flow__neural_status"
+      ]
+    }
+  },
+  "projectSpecific": {
+    "haqeiAnalyzer": {
+      "HaQeiPhilosophy": true,
+      "tripleOSArchitecture": true,
+      "iChingIntegration": true,
+      "qualityStandard": "A級（Tsumiki標準）"
+    }
+  },
+  "metadata": {
+    "generatedBy": "generate-mcp-config.js",
+    "generatedAt": "2025-08-08T07:59:21.265Z",
+    "currentUser": "nakanohideaki",
+    "projectPath": "/Users/nakanohideaki/Desktop/haqei-analyzer"
+  }
+}

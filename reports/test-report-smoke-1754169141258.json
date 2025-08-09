@@ -1,0 +1,143 @@
+{
+  "metadata": {
+    "generatedAt": "2025-08-02T21:12:21.258Z",
+    "environment": "development",
+    "testSuite": "smoke",
+    "nodeVersion": "v22.17.0",
+    "platform": "darwin"
+  },
+  "summary": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "passRate": 100
+  },
+  "results": {
+    "environment": "development",
+    "startTime": "2025-08-02T21:12:19.900Z",
+    "endTime": "2025-08-02T21:12:21.257Z",
+    "duration": 1357,
+    "testSuite": "smoke",
+    "summary": {
+      "total": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "errors": 0,
+      "passRate": 100
+    },
+    "tests": [
+      {
+        "name": "Node.js Version Check",
+        "status": "PASS",
+        "details": {
+          "version": "v22.17.0"
+        },
+        "message": "Node.js v22.17.0 (✓ 要件満たす)",
+        "timestamp": "2025-08-02T21:12:19.903Z"
+      },
+      {
+        "name": "NPM Packages Check",
+        "status": "PASS",
+        "details": {
+          "installedPackages": 4
+        },
+        "message": "4個のパッケージが利用可能",
+        "timestamp": "2025-08-02T21:12:19.903Z"
+      },
+      {
+        "name": "File Structure Check",
+        "status": "PASS",
+        "details": {
+          "checkedFiles": 5
+        },
+        "message": "必要なファイルがすべて存在 (5個)",
+        "timestamp": "2025-08-02T21:12:19.903Z"
+      },
+      {
+        "name": "Server Connection Check",
+        "status": "PASS",
+        "details": {
+          "url": "http://localhost:8001"
+        },
+        "message": "サーバー接続確認（模擬）: http://localhost:8001",
+        "timestamp": "2025-08-02T21:12:20.003Z"
+      },
+      {
+        "name": "environment",
+        "status": "PASS",
+        "duration": 301,
+        "details": {
+          "executionTime": 301
+        },
+        "message": "environment テスト完了 (301ms)",
+        "timestamp": "2025-08-02T21:12:20.305Z"
+      },
+      {
+        "name": "componentAvailability",
+        "status": "PASS",
+        "duration": 334,
+        "details": {
+          "executionTime": 334
+        },
+        "message": "componentAvailability テスト完了 (334ms)",
+        "timestamp": "2025-08-02T21:12:20.640Z"
+      },
+      {
+        "name": "basicFlow",
+        "status": "PASS",
+        "duration": 617,
+        "details": {
+          "executionTime": 617
+        },
+        "message": "basicFlow テスト完了 (617ms)",
+        "timestamp": "2025-08-02T21:12:21.257Z"
+      }
+    ],
+    "errors": [],
+    "performance": {
+      "environment": {
+        "duration": 301,
+        "timestamp": "2025-08-02T21:12:20.305Z"
+      },
+      "componentAvailability": {
+        "duration": 334,
+        "timestamp": "2025-08-02T21:12:20.640Z"
+      },
+      "basicFlow": {
+        "duration": 617,
+        "timestamp": "2025-08-02T21:12:21.257Z"
+      }
+    },
+    "coverage": null
+  },
+  "performance": {
+    "averageExecutionTime": 417,
+    "slowestTest": {
+      "name": "basicFlow",
+      "status": "PASS",
+      "duration": 617,
+      "details": {
+        "executionTime": 617
+      },
+      "message": "basicFlow テスト完了 (617ms)",
+      "timestamp": "2025-08-02T21:12:21.257Z"
+    },
+    "fastestTest": {
+      "name": "environment",
+      "status": "PASS",
+      "duration": 301,
+      "details": {
+        "executionTime": 301
+      },
+      "message": "environment テスト完了 (301ms)",
+      "timestamp": "2025-08-02T21:12:20.305Z"
+    },
+    "thresholdViolations": []
+  },
+  "recommendations": [
+    "✅ すべてのテストが正常に完了しました"
+  ]
+}

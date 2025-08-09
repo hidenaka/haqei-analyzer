@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Fix Test</title>
+    <link rel="stylesheet" href="css/tailwind.css">
+    <style>
+        /* 🚨 CRITICAL FIX: w-full class missing from Tailwind */
+        .w-full {
+            width: 100% !important;
+        }
+        
+        /* Ensure visible dimensions */
+        .block {
+            display: block !important;
+        }
+        
+        .p-3 {
+            padding: 0.75rem !important;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1rem !important;
+        }
+        
+        /* Debugging styles */
+        #worryInput {
+            min-height: 100px !important;
+            min-width: 300px !important;
+            background-color: #374151 !important;
+            border: 2px solid #60a5fa !important;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white">
+    <div class="container">
+        <h1>CSS Fix Test - worryInput表示確認</h1>
+        
+        <textarea
+          id="worryInput"
+          class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 mb-4"
+          rows="4"
+          placeholder="テスト入力フィールド - 表示されるかテスト"
+        ></textarea>
+        
+        <button id="testBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg">
+            テストボタン
+        </button>
+        
+        <div id="debug-info" style="margin-top: 2rem; padding: 1rem; background: #1e293b; border: 1px solid #475569;">
+            <h3>デバッグ情報</h3>
+            <div id="element-info"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const worryInput = document.getElementById('worryInput');
+            const debugInfo = document.getElementById('element-info');
+            
+            if (worryInput) {
+                const style = getComputedStyle(worryInput);
+                debugInfo.innerHTML = `
+                    <p><strong>要素発見:</strong> ✅ 成功</p>
+                    <p><strong>Display:</strong> ${style.display}</p>
+                    <p><strong>Width:</strong> ${style.width}</p>
+                    <p><strong>Height:</strong> ${style.height}</p>
+                    <p><strong>Offset Width:</strong> ${worryInput.offsetWidth}px</p>
+                    <p><strong>Offset Height:</strong> ${worryInput.offsetHeight}px</p>
+                    <p><strong>Visibility:</strong> ${style.visibility}</p>
+                    <p><strong>Opacity:</strong> ${style.opacity}</p>
+                `;
+                
+                // 入力テスト
+                worryInput.addEventListener('input', () => {
+                    console.log('✅ Input working:', worryInput.value);
+                });
+            } else {
+                debugInfo.innerHTML = '<p><strong>要素発見:</strong> ❌ 失敗</p>';
+            }
+        });
+    </script>
+</body>
+</html>

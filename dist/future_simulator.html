@@ -1,0 +1,1779 @@
+<!doctype html> <html lang="ja"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width,initial-scale=1"> <title>HaQei マルチバース・アナライザー</title> <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"> <link href="./css/tailwind.css" rel="stylesheet"> <link rel="stylesheet" href="./css/quality-grade-enhancement.css"> <link rel="stylesheet" href="./css/future-branching-design.css"> <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet"> <style> /* Basic Reset and Body Styles for file:// protocol compatibility */
+      * {
+        box-sizing: border-box;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #0f172a;
+        color: #ffffff;
+        font-family: "Inter", "Noto Sans JP", sans-serif;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+      
+      /* HAQEI Card Styles */
+      .haqei-card {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        transition: all 0.3s ease;
+      }
+      
+      .haqei-card:hover {
+        border-color: #6366f1;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+      }
+      
+      /* HAQEI Button Styles */
+      .haqei-button,
+      button {
+        background-color: #2563eb;
+        color: #ffffff;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        font-weight: 500;
+      }
+      
+      .haqei-button:hover,
+      button:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      }
+      
+      /* HAQEI Input Styles */
+      .haqei-input,
+      input,
+      textarea {
+        background-color: #334155;
+        border: 1px solid #475569;
+        color: #ffffff;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        width: 100%;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+      
+      .haqei-input:focus,
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
+      
+      /* Container and Layout */
+      .max-w-7xl {
+        max-width: 80rem;
+      }
+      
+      .mx-auto {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      .w-full {
+        width: 100%;
+      }
+      
+      /* Background Colors */
+      .bg-gray-900 {
+        background-color: #111827;
+      }
+      
+      .bg-gray-800 {
+        background-color: #1f2937;
+      }
+      
+      .bg-gray-700 {
+        background-color: #374151;
+      }
+      
+      .bg-teal-600 {
+        background-color: #0d9488;
+      }
+      
+      .bg-teal-700 {
+        background-color: #0f766e;
+      }
+      
+      /* Text Colors */
+      .text-gray-200 {
+        color: #e5e7eb;
+      }
+      
+      .text-gray-300 {
+        color: #d1d5db;
+      }
+      
+      .text-gray-400 {
+        color: #9ca3af;
+      }
+      
+      .text-white {
+        color: #ffffff;
+      }
+      
+      .text-indigo-300 {
+        color: #a5b4fc;
+      }
+      
+      .text-yellow-300 {
+        color: #fde047;
+      }
+      
+      .text-blue-300 {
+        color: #93c5fd;
+      }
+      
+      .text-emerald-300 {
+        color: #6ee7b7;
+      }
+      
+      /* Padding and Margins */
+      .p-4 {
+        padding: 1rem;
+      }
+      
+      .p-6 {
+        padding: 1.5rem;
+      }
+      
+      .p-8 {
+        padding: 2rem;
+      }
+      
+      .py-3 {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+      }
+      
+      .px-6 {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+      
+      .mb-2 {
+        margin-bottom: 0.5rem;
+      }
+      
+      .mb-3 {
+        margin-bottom: 0.75rem;
+      }
+      
+      .mb-4 {
+        margin-bottom: 1rem;
+      }
+      
+      .mb-6 {
+        margin-bottom: 1.5rem;
+      }
+      
+      .mb-8 {
+        margin-bottom: 2rem;
+      }
+      
+      .mt-2 {
+        margin-top: 0.5rem;
+      }
+      
+      /* Border Radius */
+      .rounded-lg {
+        border-radius: 0.5rem;
+      }
+      
+      .rounded-xl {
+        border-radius: 0.75rem;
+      }
+      
+      .rounded-2xl {
+        border-radius: 1rem;
+      }
+      
+      /* Shadows */
+      .shadow-2xl {
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      }
+      
+      /* Flexbox */
+      .flex {
+        display: flex;
+      }
+      
+      .items-center {
+        align-items: center;
+      }
+      
+      .justify-center {
+        justify-content: center;
+      }
+      
+      .gap-2 {
+        gap: 0.5rem;
+      }
+      
+      /* Grid */
+      .grid {
+        display: grid;
+      }
+      
+      .grid-cols-1 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+      }
+      
+      .grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      
+      .grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      
+      .gap-4 {
+        gap: 1rem;
+      }
+      
+      .gap-8 {
+        gap: 2rem;
+      }
+      
+      /* Typography */
+      .text-sm {
+        font-size: 0.875rem;
+      }
+      
+      .text-base {
+        font-size: 1rem;
+      }
+      
+      .text-lg {
+        font-size: 1.125rem;
+      }
+      
+      .text-xl {
+        font-size: 1.25rem;
+      }
+      
+      .text-2xl {
+        font-size: 1.5rem;
+      }
+      
+      .text-3xl {
+        font-size: 1.875rem;
+      }
+      
+      .text-4xl {
+        font-size: 2.25rem;
+      }
+      
+      .font-bold {
+        font-weight: 700;
+      }
+      
+      .font-semibold {
+        font-weight: 600;
+      }
+      
+      .text-center {
+        text-align: center;
+      }
+      
+      /* Positioning */
+      .relative {
+        position: relative;
+      }
+      
+      .absolute {
+        position: absolute;
+      }
+      
+      .fixed {
+        position: fixed;
+      }
+      
+      .top-0 {
+        top: 0;
+      }
+      
+      .right-0 {
+        right: 0;
+      }
+      
+      .left-0 {
+        left: 0;
+      }
+      
+      .bottom-0 {
+        bottom: 0;
+      }
+      
+      /* Display */
+      .hidden {
+        display: none;
+      }
+      
+      .block {
+        display: block;
+      }
+      
+      /* Opacity */
+      .opacity-0 {
+        opacity: 0;
+      }
+      
+      .opacity-50 {
+        opacity: 0.5;
+      }
+      
+      /* Transitions */
+      .transition {
+        transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+      
+      .duration-300 {
+        transition-duration: 300ms;
+      }
+      
+      /* Animation keyframes */
+      .animate-spin {
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      
+      /* Card hover effects */
+      .card {
+        transition: all 0.3s ease-in-out;
+        cursor: pointer;
+      }
+      
+      .card:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 30px rgba(165, 180, 252, 0.4);
+      }
+      
+      /* Gradients */
+      .bg-gradient-to-br {
+        background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+      }
+      
+      .from-blue-900\/20 {
+        --tw-gradient-from: rgba(30, 58, 138, 0.2);
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(30, 58, 138, 0));
+      }
+      
+      .to-indigo-900\/20 {
+        --tw-gradient-to: rgba(49, 46, 129, 0.2);
+      }
+      
+      .from-emerald-900\/20 {
+        --tw-gradient-from: rgba(6, 78, 59, 0.2);
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(6, 78, 59, 0));
+      }
+      
+      .to-teal-900\/20 {
+        --tw-gradient-to: rgba(19, 78, 74, 0.2);
+      }
+      
+      /* Border styles */
+      .border {
+        border-width: 1px;
+      }
+      
+      .border-gray-600 {
+        border-color: #4b5563;
+      }
+      
+      .border-gray-700 {
+        border-color: #374151;
+      }
+      
+      .border-blue-500\/30 {
+        border-color: rgba(59, 130, 246, 0.3);
+      }
+      
+      .border-emerald-500\/30 {
+        border-color: rgba(16, 185, 129, 0.3);
+      }
+      
+      .hover\:border-blue-400:hover {
+        border-color: #60a5fa;
+      }
+      
+      .hover\:border-emerald-400:hover {
+        border-color: #34d399;
+      }
+      
+      /* Responsive design */
+      @media (max-width: 640px) {
+        .sm\:p-6 {
+          padding: 1.5rem;
+        }
+        
+        .sm\:text-4xl {
+          font-size: 2.25rem;
+        }
+        
+        .sm\:grid-cols-2 {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      
+      @media (min-width: 1024px) {
+        .lg\:col-span-1 {
+          grid-column: span 1 / span 1;
+        }
+        
+        .lg\:col-span-2 {
+          grid-column: span 2 / span 2;
+        }
+        
+        .lg\:grid-cols-3 {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        
+        .lg\:grid-cols-4 {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+      
+      /* Specific component styles */
+      .tracking-wider {
+        letter-spacing: 0.05em;
+      }
+      
+      .inline-block {
+        display: inline-block;
+      }
+      
+      .space-y-4 > * + * {
+        margin-top: 1rem;
+      }
+      
+      .space-y-3 > * + * {
+        margin-top: 0.75rem;
+      }
+      
+      /* SVG icon sizing */
+      .h-6 {
+        height: 1.5rem;
+      }
+      
+      .w-6 {
+        width: 1.5rem;
+      }
+      
+      .h-5 {
+        height: 1.25rem;
+      }
+      
+      .w-5 {
+        width: 1.25rem;
+      }
+      
+      .h-4 {
+        height: 1rem;
+      }
+      
+      .w-4 {
+        width: 1rem;
+      }
+      
+      /* Focus styles */
+      .focus\:ring-indigo-500:focus {
+        --tw-ring-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
+      
+      .focus\:border-indigo-500:focus {
+        border-color: #6366f1;
+      }
+      
+      /* Utility classes */
+      .min-h-screen {
+        min-height: 100vh;
+      }
+      
+      .items-start {
+        align-items: flex-start;
+      }
+      
+      /* Text truncation */
+      .truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      /* Background opacity utilities */
+      .bg-gray-900\/50 {
+        background-color: rgba(17, 24, 39, 0.5);
+      }
+      
+      .bg-gray-900\/30 {
+        background-color: rgba(17, 24, 39, 0.3);
+      }
+      
+      .bg-gray-800\/50 {
+        background-color: rgba(31, 41, 55, 0.5);
+      }
+      
+      /* Border opacity utilities */
+      .border-gray-600\/50 {
+        border-color: rgba(75, 85, 99, 0.5);
+      }
+      
+      .border-gray-700\/50 {
+        border-color: rgba(55, 65, 81, 0.5);
+      }
+      
+      /* Backdrop utilities for loading screen */
+      .backdrop-filter {
+        backdrop-filter: blur(10px);
+      }
+      
+      /* Z-index utilities */
+      .z-50 {
+        z-index: 50;
+      }
+      
+      .z-1000 {
+        z-index: 1000;
+      }
+      
+      .z-9999 {
+        z-index: 9999;
+      }
+      
+      /* Flex utilities */
+      .flex-wrap {
+        flex-wrap: wrap;
+      }
+      
+      .gap-3 {
+        gap: 0.75rem;
+      }
+      
+      /* Hover effects for buttons */
+      .hover\:bg-teal-700:hover {
+        background-color: #0f766e;
+      }
+      
+      .hover\:text-white:hover {
+        color: #ffffff;
+      }
+      
+      /* Transform utilities */
+      .transform {
+        transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+      }
+      
+      .-translate-x-1\/2 {
+        --tw-translate-x: -50%;
+      }
+      
+      .translate-x-1\/2 {
+        --tw-translate-x: 50%;
+      }
+      
+      /* Additional specific styles for the application */
+      .brand-text {
+        background: linear-gradient(45deg, #a5b4fc, #e0e7ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+      
+      /* Additional HAQEI component styles */
+      
+      /* Enhanced Progressive Loading Styles */
+      .skeleton {
+        background: linear-gradient(90deg, rgba(55, 65, 81, 0.1) 25%, rgba(75, 85, 99, 0.2) 37%, rgba(55, 65, 81, 0.1) 63%);
+        background-size: 400% 100%;
+        animation: skeleton-loading 1.5s ease-in-out infinite;
+      }
+      
+      @keyframes skeleton-loading {
+        0% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      .skeleton-text {
+        height: 1em;
+        border-radius: 4px;
+        margin: 0.5em 0;
+      }
+      
+      .skeleton-button {
+        height: 3em;
+        border-radius: 8px;
+        width: 100%;
+      }
+      
+      .skeleton-card {
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+      }
+      
+      .skeleton-chart {
+        height: 300px;
+        border-radius: 8px;
+      }
+      
+      .fade-in {
+        animation: fadeIn 0.6s ease-in-out;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(17, 24, 39, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+      
+      .loading-content {
+        text-align: center;
+        max-width: 400px;
+        padding: 2rem;
+        background: rgba(30, 41, 59, 0.8);
+        border-radius: 16px;
+        border: 1px solid rgba(99, 102, 241, 0.3);
+      }
+      
+      .loading-spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid rgba(165, 180, 252, 0.3);
+        border-left: 4px solid #a5b4fc;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+      
+      .loading-text {
+        color: #a5b4fc;
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+      
+      .progress-container {
+        margin-top: 1rem;
+      }
+      
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: rgba(55, 65, 81, 0.5);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+      }
+      
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1, #a855f7);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+        position: relative;
+      }
+      
+      .progress-percentage {
+        color: #cbd5e1;
+        font-size: 0.875rem;
+        text-align: center;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Enhanced Mobile Optimizations */
+      @media (max-width: 768px) {
+        .loading-content {
+          margin: 1rem;
+          padding: 1.5rem;
+        }
+        
+        .loading-text {
+          font-size: 1rem;
+        }
+      }
+      
+      /* Accessibility Enhancements */
+      @media (prefers-reduced-motion: reduce) {
+        .skeleton {
+          animation: none;
+        }
+        
+        .loading-spinner {
+          animation: none;
+          border-left-color: rgba(165, 180, 252, 0.8);
+        }
+        
+        .fade-in {
+          animation: none;
+        }
+      }
+      
+      .brand-text {
+        background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      
+      .card {
+        transition: all 0.3s ease-in-out;
+        cursor: pointer;
+      }
+      .card:hover,
+      .card.highlighted {
+        transform: scale(1.03);
+        box-shadow: 0 0 30px rgba(165, 180, 252, 0.4);
+      }
+      .rank-badge {
+        font-size: 0.75rem;
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 9999px;
+        line-height: 1;
+      }
+      .rank-s,
+      .rank-a,
+      .rank-b,
+      .rank-c {
+        background-color: rgba(74, 222, 128, 0.2);
+        color: #86efac;
+        border: 1px solid #22c55e;
+      }
+      .rank-d {
+        background-color: rgba(251, 191, 36, 0.2);
+        color: #fcd34d;
+        border: 1px solid #fbbf24;
+      }
+      .rank-e,
+      .rank-f,
+      .rank-g {
+        background-color: rgba(248, 113, 113, 0.2);
+        color: #fca5a5;
+        border: 1px solid #f87171;
+      }
+      .rank-h {
+        background-color: rgba(185, 28, 28, 0.2);
+        color: #fca5a5;
+        border: 1px solid #dc2626;
+      }
+
+      /* Data Export Styles removed as per user request */
+      
+      .progressive-load {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s ease;
+      }
+      
+      .progressive-load.loaded {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* 🌟 New Result Page Styles (2025-08-07 Renewal) */
+      .result-container {
+        padding: 2rem;
+        background: #1a1f2e;
+        min-height: 100vh;
+      }
+      
+      .result-layout {
+        display: grid;
+        grid-template-columns: 30% 70%;
+        gap: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      
+      /* Left Panel Styles */
+      .analysis-summary-panel {
+        background: #2d3748;
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: #f7fafc;
+      }
+      
+      .current-position-card {
+        background: rgba(45, 55, 72, 0.5);
+        border: 2px solid #ffd700;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      .hexagram-highlight {
+        color: #ffd700;
+        font-weight: bold;
+      }
+      
+      .panel-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        color: #cbd5e0;
+      }
+      
+      .theme-description {
+        margin-top: 0.5rem;
+      }
+      
+      .theme-description p {
+        margin: 0.5rem 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+      
+      .theme-detail {
+        color: #a0aec0;
+        font-size: 0.85rem;
+      }
+      
+      /* Score Display */
+      .score-display {
+        margin: 1.5rem 0;
+      }
+      
+      .score-item {
+        background: rgba(45, 55, 72, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      
+      .score-item label {
+        display: block;
+        font-size: 0.9rem;
+        color: #a0aec0;
+        margin-bottom: 0.5rem;
+      }
+      
+      .score-value {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+      }
+      
+      .score-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #f7fafc;
+      }
+      
+      .score-label {
+        font-size: 1rem;
+        color: #cbd5e0;
+      }
+      
+      .score-note {
+        font-size: 0.8rem;
+        color: #718096;
+        margin-top: 0.5rem;
+      }
+      
+      /* Current Graph */
+      .current-graph-container {
+        margin: 1.5rem 0;
+      }
+      
+      .current-graph-container h4 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        color: #cbd5e0;
+      }
+      
+      /* I Ching Interpretation */
+      .iching-interpretation {
+        background: rgba(45, 55, 72, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+      }
+      
+      .iching-interpretation h4 {
+        font-size: 0.9rem;
+        color: #ffd700;
+        margin-bottom: 1rem;
+      }
+      
+      .interpretation-content {
+        font-size: 0.85rem;
+        line-height: 1.6;
+        color: #cbd5e0;
+      }
+      
+      .stage-title {
+        font-weight: bold;
+        color: #f7fafc;
+        margin-bottom: 0.5rem;
+      }
+      
+      .stage-advice {
+        margin-top: 0.75rem;
+        padding: 0.5rem 0.75rem;
+        background-color: rgba(99, 102, 241, 0.1);
+        border-left: 3px solid #6366f1;
+        color: #e0e7ff;
+        font-size: 0.9rem;
+        border-radius: 0.25rem;
+      }
+      
+      /* Right Area Styles */
+      .detailed-results-area {
+        background: #2d3748;
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+      
+      .section-title {
+        font-size: 1.2rem;
+        color: #e2e8f0;
+        margin-bottom: 1rem;
+      }
+      
+      /* Future Branching Graph */
+      .future-branching-graph {
+        margin-bottom: 2rem;
+      }
+      
+      .graph-container {
+        background: rgba(26, 31, 46, 0.5);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      
+      /* Theme Boxes */
+      .theme-boxes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      
+      .theme-box {
+        border-radius: 8px;
+        padding: 1rem;
+      }
+      
+      .progress-theme {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+        border: 1px solid #10b981;
+      }
+      
+      .change-theme {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1));
+        border: 1px solid #8b5cf6;
+      }
+      
+      .theme-box h4 {
+        color: #f7fafc;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .theme-content {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: #cbd5e0;
+      }
+      
+      /* Eight Scenarios Grid */
+      .eight-scenarios-grid {
+        margin-top: 2rem;
+      }
+      
+      .scenarios-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 1rem;
+      }
+      
+      .scenario-card-new {
+        background: rgba(45, 55, 72, 0.5);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+      }
+      
+      .scenario-card-new:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      
+      .scenario-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+      
+      .scenario-rank {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      
+      .rank-s { color: #ffd700; }
+      .rank-a { color: #10b981; }
+      .rank-b { color: #3b82f6; }
+      .rank-c { color: #f59e0b; }
+      .rank-d { color: #ef4444; }
+      .rank-e { color: #8b5cf6; }
+      .rank-f { color: #6b7280; }
+      
+      .scenario-score {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #f7fafc;
+      }
+      
+      .scenario-name {
+        font-size: 0.9rem;
+        color: #cbd5e0;
+        margin: 0.5rem 0;
+      }
+      
+      .scenario-steps {
+        font-size: 0.8rem;
+        color: #a0aec0;
+        margin: 0.5rem 0;
+      }
+      
+      .scenario-mini-graph {
+        margin-top: 0.5rem;
+        height: 40px;
+      }
+      
+      /* Responsive Design */
+      @media (max-width: 1024px) {
+        .result-layout {
+          grid-template-columns: 1fr;
+        }
+        
+        .scenarios-grid {
+          grid-template-columns: repeat(2, 1fr);
+          grid-template-rows: repeat(4, 1fr);
+        }
+      }
+      
+      @media (max-width: 640px) {
+        .theme-boxes {
+          grid-template-columns: 1fr;
+        }
+        
+        .scenarios-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      
+      /* 🌟 Authentic I Ching System Styles */
+      .authentic-scenarios-container,
+      .authentic-choice-container,
+      .current-position-container {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1));
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+      }
+
+      .scenario-card, .choice-card {
+        background: rgba(17, 24, 39, 0.8);
+        border: 1px solid rgba(75, 85, 99, 0.5);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .scenario-card:hover, .choice-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        border-color: rgba(99, 102, 241, 0.7);
+      }
+
+      .scenario-card.selected, .choice-card.selected {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.2);
+      }
+
+      .hexagram-line {
+        display: flex;
+        align-items: center;
+        margin: 0.25rem 0;
+        font-family: monospace;
+      }
+
+      .hexagram-line.yang .line-symbol {
+        color: #fbbf24;
+      }
+
+      .hexagram-line.yin .line-symbol {
+        color: #93c5fd;
+      }
+
+      .hexagram-line.current {
+        background: rgba(245, 101, 101, 0.2);
+        border-radius: 4px;
+        padding: 0.25rem;
+      }
+
+      .transformation-visual {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 1rem 0;
+      }
+
+      .transformation-arrow {
+        font-size: 1.5rem;
+        color: #6366f1;
+        margin: 0 1rem;
+      }
+
+      .HaQei-analysis .persona-analysis {
+        background: rgba(31, 41, 55, 0.5);
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+      }
+
+      .fade-in {
+        opacity: 0;
+        animation: fadeInUp 0.6s ease forwards;
+      }
+
+      .fade-in.visible {
+        opacity: 1;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      /* Phase 6-10 Enhancement Styles */
+      .choice-selected {
+        border-color: #10b981 !important;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3)) !important;
+        transform: scale(1.02) !important;
+      }
+      
+      .animate-fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      
+      .animate-slide-up {
+        animation: slideUp 0.3s ease-out;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      
+      @keyframes slideUp {
+        from { 
+          opacity: 0; 
+          transform: translate(-50%, 20px); 
+        }
+        to { 
+          opacity: 1; 
+          transform: translate(-50%, 0); 
+        }
+      }
+      
+      #char-counter {
+        transition: color 0.3s ease;
+      }
+      
+      .export-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+      }
+      
+      .export-button:active {
+        transform: translateY(0);
+      }
+      
+      /* Input validation styles */
+      .input-valid {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+      }
+      
+      .input-invalid {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+      }
+      
+      /* Loading state improvements */
+      .loading button {
+        pointer-events: none;
+        opacity: 0.7;
+      }
+      
+      /* Scenario generation animations */
+      /* 3段階変化表示用スタイル */
+      .hexagram-transformation {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+      }
+      
+      .current-hexagram, .target-hexagram {
+        font-weight: 600;
+        color: #A5B4FC;
+      }
+      
+      .transform-arrow {
+        color: #10B981;
+        font-size: 1.2rem;
+      }
+      
+      .three-phase-container {
+        margin: 1.5rem 0;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+      }
+      
+      .three-phase-container h4 {
+        color: #F59E0B;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+      
+      .phase-block {
+        margin: 1rem 0;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        border-left: 3px solid;
+      }
+      
+      .phase-1 { border-left-color: #3B82F6; }
+      .phase-2 { border-left-color: #F59E0B; }
+      .phase-3 { border-left-color: #10B981; }
+      
+      .phase-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .phase-icon {
+        font-size: 1.2rem;
+      }
+      
+      .phase-name {
+        font-weight: 600;
+        color: #E0E7FF;
+      }
+      
+      .score-indicator {
+        margin: 0.5rem 0;
+        font-size: 0.9rem;
+        color: #A5B4FC;
+      }
+      
+      .score-indicator .positive {
+        color: #10B981;
+      }
+      
+      .score-indicator .negative {
+        color: #EF4444;
+      }
+      
+      .final-score {
+        font-weight: 600;
+        color: #FDE047;
+      }
+      
+      .phase-description {
+        font-size: 0.85rem;
+        line-height: 1.4;
+        color: #CBD5E1;
+        margin-top: 0.5rem;
+      }
+      
+      .scenario-card {
+        transition: all 0.3s ease;
+      }
+      
+      .scenario-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+      }
+      
+      /* Progress indicators */
+      .progress-indicator {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4);
+        border-radius: 2px;
+        transition: width 0.3s ease;
+      } </style> <script src="./assets/H384H64database.js"></script> <script src="./js/core/H384DatabaseConnector.js"></script> <script src="./js/core/IChingChoiceLogic.js"></script> <script src="./js/core/DynamicScenarioColorSystem.js"></script> <script src="./js/core/IChingGuidanceEngine.js"></script> <script src="./js/components/ThreeStageVisualizer.js"></script> <script src="./js/components/EightScenariosDisplay.js"></script> <script src="./js/components/ResultPageController.js"></script> <script src="./js/future-simulator-integration.js"></script> <script src="./js/core/PerformanceOptimizer.js"></script> <script src="./js/core/IChingTransformationEngine.js"></script> <script src="./js/core/FutureBranchingSystem.js"></script> <script src="./js/core/DataPersistenceManager.js"></script> <script src="./js/core/DataExportAPI.js"></script> <script> (function() {
+            console.log('🔍 H384_DATA読み込み順序確認を開始...');
+            
+            if (typeof H384_DATA === 'undefined') {
+                console.error('❌ H384_DATA変数が見つかりません');
+                console.warn('⚠️  フォールバック機能を試行中...');
+                
+                // フォールバック: window.H384_DATAを確認
+                if (typeof window.H384_DATA !== 'undefined') {
+                    console.log('✅ window.H384_DATAからのフォールバック成功');
+                    window.H384_DATA = window.H384_DATA;
+                } else {
+                    console.error('❌ フォールバック機能も利用できません');
+                }
+            } else {
+                console.log('✅ H384_DATA変数の存在確認: 成功');
+                
+                // window.H384_DATAへの代入確認
+                if (typeof window.H384_DATA === 'undefined') {
+                    console.warn('⚠️  window.H384_DATAが未設定 - 自動設定を試行');
+                    try {
+                        window.H384_DATA = H384_DATA;
+                        console.log('✅ window.H384_DATA自動設定: 成功');
+                    } catch (error) {
+                        console.error('❌ window.H384_DATA設定エラー:', error);
+                    }
+                }
+                
+                // データ完全性の基本確認
+                if (Array.isArray(window.H384_DATA) && window.H384_DATA.length === 386) {
+                    console.log('✅ H384_DATAデータ完全性確認: 成功 (386エントリ)');
+                    
+                    // 用九・用六エントリの確認
+                    const youkuu = window.H384_DATA.find(item => item['通し番号'] === 7);
+                    const yourikuu = window.H384_DATA.find(item => item['通し番号'] === 14);
+                    
+                    if (youkuu && yourikuu) {
+                        console.log('✅ 用九・用六エントリ確認: 成功');
+                        console.log(`   - 用九: ${youkuu['卦名']} (${youkuu['爻']})`);
+                        console.log(`   - 用六: ${yourikuu['卦名']} (${yourikuu['爻']})`);
+                    } else {
+                        console.warn('⚠️  用九・用六エントリに問題があります');
+                    }
+                } else {
+                    console.error('❌ H384_DATAデータ形式エラー:', {
+                        isArray: Array.isArray(window.H384_DATA),
+                        length: window.H384_DATA?.length
+                    });
+                }
+            }
+            
+            console.log('🏁 H384_DATA読み込み順序確認完了');
+        })(); </script> <script src="./js/keyword_expansion_engine.js"></script> <script src="./js/ml-integration.js" async defer="defer"></script> <script src="./js/core/DictionaryManager.js" defer="defer"></script> <script src="./js/core/OfflineDetector.js" defer="defer"></script> <script src="./js/core/OfflineKuromojiInitializer.js" defer="defer"></script> <script src="./js/core/offline-kuromoji-integration.js" defer="defer"></script> <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js" defer="defer"></script> <script src="./js/lib/chart.min.js"></script> <script src="./js/lib/chartjs-plugin-annotation.min.js"></script> <script src="./js/lib/ml-matrix.min.js"></script> <script src="./js/pages/future-simulator/DynamicKeywordGenerator.js"></script> <script src="./js/pages/future-simulator/IntegratedAnalysisEngine.js"></script> <script src="./js/pages/future-simulator/MultiDimensionalContextAnalyzer.js"></script> <script src="./js/pages/future-simulator/SituationalContextEngine.js"></script> <script src="./js/pages/future-simulator/HexagramMappingEngine.js"></script> <script src="./js/pages/future-simulator/MetaphorGenerationEngine.js"></script> <script src="./js/core/AuthenticIChingEngine.js"></script> <script src="./js/components/CurrentPositionDisplay.js"></script> <script src="./js/components/AuthenticChoiceSystem.js"></script> <script src="./js/components/Authentic8ScenariosSystem.js"></script> <script src="./js/components/Authentic386YaoAnalyzer.js"></script> <script src="./js/iching-situation-analyzer.js"></script> <script src="./js/yao-transformation-simulator.js"></script> <script src="./js/iching-metaphor-display.js"></script> <script src="./js/iching-future-simulator.js"></script> <script> function getIChingSimulator() {
+        if (window.ichingSimulator && window.ichingSimulator.isReady && window.ichingSimulator.isReady()) {
+          return window.ichingSimulator;
+        }
+        return null;
+      }
+      window.getIChingSimulator = getIChingSimulator; </script> <script src="./js/future-simulator-core.js"></script> <script src="./js/core/BinaryTreeFutureEngine.js"></script> <script src="./js/binary-tree-complete-display.js"></script> <script src="./js/pages/future-simulator/EightScenariosGenerator.js"></script> <script src="./js/pages/future-simulator/ScenariosDisplayUI.js"></script> <script src="./js/future-simulator-ui-enhancements.js" defer="defer"></script> </head> <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-6" data-progressive-load> <div class="w-full max-w-7xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-8" id="main-container" style="opacity: 1;"> <header class="text-center mb-8 relative"> <a href="./" class="inline-block"> <h1 class="text-3xl sm:text-4xl font-bold brand-text tracking-wider"> HaQei </h1> <p class="text-gray-400 mt-2 text-lg">マルチバース・アナライザー</p> </a> <button id="helpBtn" class="absolute top-0 right-0 p-2 text-gray-400 hover:text-white transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4 0 .863-.27 1.66-.744 2.25l-2.536 2.39c-.832.786-1.464 1.49-1.464 2.36h.001M12 18h.01"/> </svg> </button> </header> <div class="bg-gray-900/50 p-6 rounded-xl mb-4 relative progressive-load" id="input-section"> <div class="input-content" id="input-content" style="display: block;"> <h2 class="text-lg font-bold text-indigo-300 mb-3"> 1. AIによる状況推測 </h2> <div class="border border-gray-700 rounded-lg p-4 mb-4 text-sm text-gray-300 space-y-3"> <p class="text-base font-bold text-center text-indigo-300"> AIへの最高の「呪文」は、あなたの「ありのままの言葉」です </p> <p class="text-xs text-center text-gray-400"> 未来分岐図の精度を高める、たった一つの秘訣 </p> <p> これから、あなたの現状と課題をAIに入力していただきます。その際、どうか<strong>「上手な文章を書こう」としないでください。</strong>AIは、整えられた文章よりも、あなたの<strong>「生の言葉」</strong>を求めています。 </p> <p> 箇条書きでも、心のつぶやきでも、誰かに愚痴をこぼすような言葉でも構いません。他人に見せるための文章ではなく、<strong>あなた自身のための「思考のメモ」</strong>として、リラックスして入力してください。 </p> <p> なぜなら、AIはあなたが選ぶ一つ一つの単語、表現の揺れ、感情のニュアンスから、あなただけの「思考のクセ」や「心の動き」を読み取るからです。 </p> <div class="pt-2"> <p class="font-bold text-gray-200">【入力のヒント】</p> <div class="mt-2 p-3 rounded-lg bg-red-900/20 border border-red-800/50"> <p class="font-bold">悪い例 ❌</p> <p class="text-xs italic mt-1"> 「新規プロジェクトのマネジメントにおいて、人的リソースの不足がボトルネックとなり、計画に遅延が生じています。」 </p> <p class="text-xs text-gray-400 mt-1"> （これでは、AIは一般的なビジネス課題としてしか分析できません） </p> </div> <div class="mt-2 p-3 rounded-lg bg-emerald-900/20 border border-emerald-800/50"> <p class="font-bold">良い例 ⭕</p> <p class="text-xs italic mt-1"> 「新しい仕事、マジで人足りてない！Aさんは頑張ってくれてるけど、Bさんは全然やる気ないし…。このままだと絶対間に合わない。どうすりゃいいんだ…。焦る。」 </p> <p class="text-xs text-gray-400 mt-1"> （この方が、あなたの感情、人間関係への認識、切迫感が伝わり、よりパーソナライズされた分析が可能になります） </p> </div> </div> <p class="font-bold text-center pt-2"> あなたの「ありのままの言葉」こそが、あなただけの未来を読み解く、最も強力な鍵となります。<br>どうぞ、あなたの心をそのまま、AIにぶつけてみてください。 </p> </div> <div class="mb-6 text-center"> <h3 class="text-xl font-bold text-indigo-300 mb-2"> ✨ あなたの未来を読み解きます </h3> <p class="text-sm text-gray-400"> 古典易経の智慧で、8つの可能性を探ってみましょう </p> </div> <textarea id="worryInput" class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full p-3 mb-4" rows="4" placeholder="ここにあなたの「生の言葉」を入力してください..."></textarea> <button id="aiGuessBtn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 flex items-center justify-center gap-2"> <svg class="animate-spin h-5 w-5 text-white hidden" id="loadingSpinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path> </svg> <svg id="originalIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"> <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/> </svg> <span id="buttonText">分析実行</span> </button> </div> </div> <div id="resultsContainer" class="results-container" style="display: none; margin-top: 2rem;"> <div class="result-container"> <div class="result-layout"> <div class="analysis-summary-panel"> <div class="current-position-card"> <h3 class="panel-title">現在の状況</h3> <div class="hexagram-highlight"> <span id="currentHexagramInfo"></span> </div> <div class="theme-description" id="currentThemeDescription"> <p>現在の状況を示しています</p> </div> </div> <div id="three-stage-visualizer" class="three-stage-container" style="margin: 20px 0; padding: 20px; background: #f9f9f9; border-radius: 10px;"> <h4>🎨 三段階可視化</h4> <div class="visualizer-content"></div> </div> <div id="originalGraphsContainer" style="margin: 20px 0; display: none;"> <div style="margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px;"> <h4 style="color: #4338ca; margin-bottom: 15px;">📊 現在の位置分析</h4> <div style="height: 300px; position: relative;"> <canvas id="currentPositionChart"></canvas> </div> </div> <div style="margin-bottom: 20px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 12px;"> <h4 style="color: #4338ca; margin-bottom: 15px;">📈 未来分岐パスの詳細推移</h4> <div style="height: 400px; position: relative;"> <canvas id="futureBranchingChart"></canvas> </div> <div style="margin-top: 15px; padding: 12px; background: #f3f4f6; border-radius: 8px; font-size: 0.9em; color: #4b5563;"> <strong>説明:</strong> 各シナリオの現在地からフェーズ3までの詳細な推移を表示。易経データベース（H384）に基づいた分析結果。 </div> </div> </div> <div class="iching-interpretation"> <h4>易経的解釈</h4> <div class="interpretation-content" id="ichingInterpretation"> <div class="stage-title">現在の局面</div> <p>状況に応じた解釈が表示されます</p> <div class="stage-advice">適切な対応方法をお示しします</div> </div> </div> </div> <div class="detailed-results-area"> <h3 class="text-xl font-bold mb-4 text-center text-indigo-300"> 🌸 未来分析結果 </h3> <p class="text-center text-gray-400 mb-6">あなたの状況から導き出された可能性のあるシナリオです</p> <div id="scenarioCardsContainer" class="grid grid-cols-2 gap-4"> </div> </div> </div> </div> </div> </div> <script type="module"> // 🚀 Emergency Fix: Minimal Working ProgressiveLoader
+      class ProgressiveLoader {
+        constructor() {
+          this.progress = 0;
+          this.analysisHistory = [];
+          console.log('✅ ProgressiveLoader initialized');
+          this.init();
+        }
+
+        init() {
+          setTimeout(() => {
+            this.showInputForm();
+            this.initializeEventListeners();
+          }, 500);
+        }
+
+        showInputForm() {
+          const inputContent = document.getElementById('input-content');
+          const worryInput = document.getElementById('worryInput');
+          
+          if (inputContent) {
+            inputContent.style.display = 'block';
+            inputContent.style.opacity = '1';
+            
+            if (worryInput) {
+              setTimeout(() => {
+                worryInput.focus();
+              }, 300);
+            }
+          }
+        }
+
+        initializeEventListeners() {
+          const aiGuessBtn = document.getElementById('aiGuessBtn');
+          const worryInput = document.getElementById('worryInput');
+          
+          if (aiGuessBtn && worryInput) {
+            aiGuessBtn.addEventListener('click', () => {
+              const inputText = worryInput.value.trim();
+              if (inputText && inputText.length >= 10) {
+                analyzeWorry(inputText);
+              } else {
+                alert('10文字以上のテキストを入力してください');
+              }
+            });
+            console.log('✅ analyzeWorry button listener connected');
+          }
+        }
+
+        performAnalysis(inputText) {
+          const aiGuessBtn = document.getElementById('aiGuessBtn');
+          
+          if (aiGuessBtn) {
+            aiGuessBtn.disabled = true;
+            aiGuessBtn.textContent = '分析中...';
+          }
+
+          // 🚨 CRITICAL FIX: 古いシステム無効化 - BinaryTreeCompleteDisplayに委譲
+          console.log('🚨 ProgressiveLoader.performAnalysis() called but delegating to FutureSimulator.Core');
+          
+          setTimeout(() => {
+            // Binary Tree Analysis Systemに完全委譲
+            if (window.FutureSimulator && window.FutureSimulator.Core) {
+              console.log('✅ Delegating to FutureSimulator.Core.startAnalysis()');
+              // 入力フィールドに値を設定してからFutureSimulator.Coreの分析を実行
+              const situationInput = document.getElementById('situation-input') || 
+                                    document.querySelector('textarea[placeholder*="状況"]') ||
+                                    document.querySelector('textarea');
+              if (situationInput) {
+                situationInput.value = inputText;
+              }
+              window.FutureSimulator.Core.startAnalysis();
+            } else {
+              console.error('❌ FutureSimulator.Core not available - fallback disabled');
+            }
+            
+            if (aiGuessBtn) {
+              aiGuessBtn.disabled = false;
+              aiGuessBtn.textContent = '分析実行';
+            }
+          }, 100);
+        }
+
+        displayResults(inputText) {
+          // 🚨 CRITICAL FIX: 古いdisplayResults完全無効化
+          console.log('🚨 OLD displayResults() called but DISABLED - delegating to BinaryTreeCompleteDisplay');
+          
+          // Binary Tree Complete Display Systemが結果表示を完全に処理
+          // この関数はもはや結果を表示せず、ログのみ出力
+          console.log('✅ Results handled by BinaryTreeCompleteDisplay with H384 database integration');
+        }
+
+        // シナリオ推奨度を計算
+        calculateScenarioRecommendation(scenario, index) {
+          // シナリオごとに異なる推奨度を計算（簡易版）
+          const baseScores = [72, 68, 75, 71, 76, 73, 69, 74];
+          const finalScore = baseScores[index] || (65 + Math.random() * 15);
+          
+          let color = '#60A5FA'; // デフォルト青
+          if (finalScore >= 75) color = '#fbbf24'; // 金色
+          else if (finalScore >= 70) color = '#10b981'; // 緑
+          
+          return {
+            score: Math.round(finalScore),
+            color: color
+          };
+        }
+
+
+        // シナリオ推奨度の概要を表示
+        renderScenarioRecommendations(scenarios) {
+          return `
+            <div style="margin: 20px 0; padding: 15px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05)); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 10px;">
+              <h4 style="color: #A78BFA; margin: 0 0 10px 0;">
+                📊 シナリオ推奨度分析
+              </h4>
+              <p style="color: #E5E7EB; margin: 0 0 10px 0; font-size: 0.9rem;">
+                入力内容からAIが最適なシナリオを分析しました
+              </p>
+              <p style="color: #9CA3AF; margin: 0; font-size: 0.85rem;">
+                各シナリオには推奨度が表示されます。80%以上のシナリオは特におすすめです。
+              </p>
+            </div>
+          `;
+        }
+
+
+
+        generateEnhancedScenarios() {
+          // 🚨 CRITICAL FIX: 固定シナリオ無効化 - H384データベース連動に完全移行
+          console.log('🚨 OLD generateEnhancedScenarios() called but DISABLED');
+          console.log('✅ Using H384 database integrated BinaryTreeFutureEngine instead');
+          
+          // BinaryTreeCompleteDisplayが実際のH384データから動的生成するため
+          // この固定シナリオは使用しない
+          return [];
+        }
+
+        generateSimpleScenarios() {
+          // 🚨 CRITICAL FIX: 固定シナリオ完全無効化 - H384データベース統合済み
+          console.log('🚨 OLD generateSimpleScenarios() called but DISABLED - H384 database now provides dynamic scenarios');
+          return [];
+        }
+        
+      }
+      
+      // Initialize ProgressiveLoader when DOM is ready
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('🚀 Emergency fix loading...');
+        const loader = new ProgressiveLoader();
+      });
+      
+      // Also initialize immediately if DOM is already loaded
+      if (document.readyState !== 'loading') {
+        console.log('🚀 Emergency fix loading (immediate)...');
+        const loader = new ProgressiveLoader();
+      } </script> <script> // Legacy support functions
+      function ensureChartContainers() {
+        console.log('📊 Chart containers initialized');
+      }
+
+      // 🚨 CRITICAL: analyzeWorry 関数の復旧
+      function analyzeWorry(inputText) {
+        console.log('🌸 analyzeWorry 関数実行開始:', inputText);
+        
+        // 🎯 CRITICAL: ユーザー入力を真正なテキスト分析のためにグローバル保存
+        window.latestUserInput = inputText;
+        console.log('✅ User input stored for genuine text analysis:', inputText.substring(0, 50) + '...');
+        
+        // 結果コンテナを表示
+        const resultsContainer = document.getElementById('resultsContainer');
+        if (resultsContainer) {
+          resultsContainer.style.display = 'block';
+          console.log('✅ Results container displayed');
+        }
+
+        // Binary Tree Complete Display システムを呼び出し
+        if (window.BinaryTreeCompleteDisplay) {
+          try {
+            // 🌟 GENUINE TEXT ANALYSIS: 真正な分析を実行するためのデータ設定
+            const genuineAnalysisResult = {
+              inputText: inputText,
+              userInput: inputText, // 明示的にユーザー入力を設定
+              currentLine: null, // テキスト分析により決定
+              timestamp: new Date().toISOString(),
+              analysisMode: 'GENUINE_TEXT_ANALYSIS'
+            };
+            
+            // 分析完了フラグを設定
+            window.futureAnalysisCompleted = true;
+            
+            // Binary Tree Complete Display を実行（真正なテキスト分析モード）
+            window.BinaryTreeCompleteDisplay.display(genuineAnalysisResult);
+            console.log('✅ BinaryTreeCompleteDisplay.display() called with GENUINE TEXT ANALYSIS mode');
+          } catch (error) {
+            console.error('❌ BinaryTreeCompleteDisplay error:', error);
+          }
+        } else {
+          console.error('❌ BinaryTreeCompleteDisplay not available');
+        }
+
+        // スクロール
+        setTimeout(() => {
+          resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }, 500);
+      }
+      
+      // Initialize on DOM ready
+      document.addEventListener('DOMContentLoaded', ensureChartContainers); </script> <script> // 即座にローディング画面を除去
+      (function() {
+        console.log('🚨 EMERGENCY: Force removing loading screen immediately...');
+        
+        function forceShowContent() {
+          // ローディング画面を即座に除去
+          const loading = document.getElementById('initial-loading');
+          if (loading) {
+            loading.style.display = 'none';
+            loading.remove();
+            console.log('✅ Loading screen removed');
+          }
+          
+          // メインコンテナを表示
+          const mainContainer = document.getElementById('main-container');
+          if (mainContainer) {
+            mainContainer.style.opacity = '1';
+            mainContainer.classList.remove('opacity-0');
+            console.log('✅ Main container visible');
+          }
+          
+          // すべての隠されたコンテンツを表示
+          document.querySelectorAll('.progressive-load').forEach(el => {
+            el.style.opacity = '1';
+            el.style.display = 'block';
+          });
+          
+          // 入力フォームを明示的に表示
+          const inputSection = document.getElementById('input-section');
+          if (inputSection) {
+            inputSection.style.display = 'block';
+            inputSection.style.opacity = '1';
+          }
+          
+          // 結果エリアを表示
+          const resultArea = document.getElementById('resultArea');
+          if (resultArea) {
+            resultArea.style.display = 'block';
+          }
+          
+          console.log('✅ All content forced visible');
+        }
+        
+        // DOM読み込み前でも実行
+        forceShowContent();
+        
+        // DOM読み込み後にも実行
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', forceShowContent);
+        } else {
+          setTimeout(forceShowContent, 100);
+        }
+        
+        // さらに保険として1秒後にも実行
+        setTimeout(forceShowContent, 1000);
+      })(); </script> <script> // Initialize I Ching Future Simulator when ready
+    let ichingSimulator = null;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🎯 Initializing I Ching Future Simulator...');
+      
+      // Wait for all scripts to load
+      setTimeout(function() {
+        // Initialize I Ching Future Simulator
+        const ichingContainer = document.getElementById('iching-metaphor-container');
+        if (ichingContainer && window.IChingFutureSimulator) {
+          try {
+            ichingSimulator = new window.IChingFutureSimulator(ichingContainer.parentElement);
+          window.ichingSimulator = ichingSimulator;
+          ichingSimulator.init().then(initialized => {
+          
+          if (initialized) {
+            console.log('✅ I Ching Future Simulator initialized successfully');
+            
+            // Show the I Ching simulator section
+            const ichingSection = document.getElementById('iching-simulator-section');
+            if (ichingSection) {
+              ichingSection.style.display = 'block';
+              ichingSection.style.opacity = '1';
+            }
+            
+            // Add integration with existing analysis button
+            const aiGuessBtn = document.getElementById('aiGuessBtn');
+            const worryInput = document.getElementById('worryInput');
+            
+            if (aiGuessBtn && worryInput) {
+              console.log('✅ [DEBUG] I Ching event listener setup successful');
+              // Override existing click handler for integrated analysis
+              aiGuessBtn.addEventListener('click', (e) => {
+                console.log('🔍 [DEBUG] aiGuessBtn clicked!');
+                e.preventDefault();
+                const inputText = worryInput.value.trim();
+                console.log('🔍 [DEBUG] Input text:', inputText, 'length:', inputText.length);
+                
+                if (inputText && inputText.length >= 10) {
+                  console.log('🔍 [DEBUG] Starting I Ching integrated analysis...');
+                  
+                  // 🚨 CRITICAL: analyzeWorry関数を呼び出し
+                  analyzeWorry(inputText);
+                  
+                  // Show I Ching section and scroll to it
+                  const ichingSection = document.getElementById('iching-simulator-section');
+                  if (ichingSection) {
+                    ichingSection.style.display = 'block';
+                    setTimeout(() => {
+                      ichingSection.scrollIntoView({ behavior: 'smooth' });
+                    }, 500);
+                  }
+                  
+                  // Run I Ching analysis
+                  ichingSimulator.analyzeSituation(inputText);
+                } else {
+                  alert('10文字以上のテキストを入力してください');
+                }
+              }, { once: false });
+            }
+            
+          } else {
+            console.error('❌ Failed to initialize I Ching Future Simulator');
+          }
+          });
+          
+        } catch (error) {
+          console.error('❌ I Ching Future Simulator initialization error:', error);
+        }
+        } else {
+          console.error('❌ I Ching container not found or IChingFutureSimulator class not available');
+        }
+      }, 1000);
+      
+      // レガシーサポートコード削除完了 (2025-08-07)
+    });
+    
+    // Add global function for external access
+    window.getIChingSimulator = function() {
+      return ichingSimulator;
+    }; </script> </body> </html> 

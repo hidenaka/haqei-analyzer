@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>🚨 Emergency Bypass Test</title>
+</head>
+<body>
+    <h1>🚨 HAQEI Emergency Bypass Test</h1>
+    
+    <div style="background: #ffe6e6; border: 2px solid #ff4444; padding: 1rem; margin: 1rem 0; border-radius: 0.5rem;">
+        <strong>🚨 Emergency Mode Active</strong>
+        <p>Testing independent start button functionality that bypasses the main application.</p>
+    </div>
+    
+    <!-- Load the original os_analyzer.html content in iframe -->
+    <iframe id="main-frame" src="http://localhost:8788/os_analyzer.html" width="100%" height="500" style="border: 1px solid #ddd; border-radius: 0.5rem;"></iframe>
+    
+    <div style="margin: 1rem 0; text-align: center;">
+        <button onclick="injectEmergencyBypass()" style="padding: 1rem 2rem; background: #dc3545; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 1.1rem;">
+            🚨 Inject Emergency Bypass
+        </button>
+        <button onclick="testStartButton()" style="padding: 1rem 2rem; background: #28a745; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 1.1rem; margin-left: 1rem;">
+            🧪 Test Start Button
+        </button>
+    </div>
+    
+    <div id="test-log" style="background: #f8f9fa; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; height: 200px; overflow-y: auto; font-family: monospace; font-size: 0.9rem;">
+        <strong>Test Log:</strong><br>
+        <div id="log-content">Ready for testing...</div>
+    </div>
+    
+    <script>
+        let logs = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '🔍';
+            const color = type === 'success' ? 'green' : type === 'error' ? 'red' : 'blue';
+            
+            logs.push(`<span style="color: ${color};">${icon} [${timestamp}] ${message}</span>`);
+            document.getElementById('log-content').innerHTML = logs.join('<br>');
+            
+            // Auto-scroll
+            const logDiv = document.getElementById('test-log');
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function injectEmergencyBypass() {
+            log('Injecting emergency bypass script...', 'info');
+            
+            const iframe = document.getElementById('main-frame');
+            const iframeDoc = iframe.contentDocument;
+            
+            // Inject the emergency bypass script
+            const script = iframeDoc.createElement('script');
+            script.src = 'http://localhost:8788/emergency-bypass.js';
+            
+            script.onload = function() {
+                log('Emergency bypass script loaded successfully', 'success');
+                
+                // Wait a moment then check
+                setTimeout(() => {
+                    const iframeWin = iframe.contentWindow;
+                    if (iframeWin.emergencyFlow) {
+                        log('Emergency flow instance detected', 'success');
+                    } else {
+                        log('Emergency flow instance not found', 'error');
+                    }
+                }, 1000);
+            };
+            
+            script.onerror = function() {
+                log('Failed to load emergency bypass script', 'error');
+            };
+            
+            iframeDoc.head.appendChild(script);
+        }
+        
+        function testStartButton() {
+            log('Testing start button with emergency bypass...', 'info');
+            
+            const iframe = document.getElementById('main-frame');
+            const iframeDoc = iframe.contentDocument;
+            const startBtn = iframeDoc.getElementById('start-btn');
+            
+            if (startBtn) {
+                log('Start button found, clicking...', 'info');
+                startBtn.click();
+                
+                // Check result after delay
+                setTimeout(() => {
+                    const questionScreen = iframeDoc.getElementById('question-screen');
+                    const welcomeScreen = iframeDoc.getElementById('welcome-screen');
+                    
+                    const questionActive = questionScreen && questionScreen.classList.contains('active');
+                    const welcomeActive = welcomeScreen && welcomeScreen.classList.contains('active');
+                    
+                    log(`Question screen active: ${questionActive}`, questionActive ? 'success' : 'error');
+                    log(`Welcome screen active: ${welcomeActive}`, !questionActive ? 'info' : 'success');
+                    
+                    if (questionActive && !welcomeActive) {
+                        log('🎉 SUCCESS: Emergency bypass working!', 'success');
+                    } else {
+                        log('❌ Emergency bypass not working', 'error');
+                    }
+                }, 2000);
+            } else {
+                log('Start button not found', 'error');
+            }
+        }
+        
+        // Auto-start test
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('Page loaded, ready for emergency bypass test', 'info');
+            }, 1000);
+        });
+    </script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+    </style>
+</body>
+</html>

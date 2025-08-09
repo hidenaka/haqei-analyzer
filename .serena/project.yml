@@ -1,0 +1,65 @@
+name: "haqei-analyzer"
+description: "易経×AI×分人思想による革新的自己理解支援ツール"
+language: "javascript"
+
+# 言語サーバー設定
+language_servers:
+  javascript:
+    enabled: true
+    server_type: "typescript-language-server"
+    initialization_options:
+      preferences:
+        includePackageJsonAutoImports: "auto"
+        includeCompletionsForModuleExports: true
+        includeCompletionsWithInsertText: true
+
+  python:
+    enabled: true
+    server_type: "pyright"
+    settings:
+      python:
+        analysis:
+          typeCheckingMode: "basic"
+          autoImportCompletions: true
+
+# ファイル監視・除外設定
+file_handling:
+  watch_patterns:
+    - "**/*.js"
+    - "**/*.html"
+    - "**/*.css"
+    - "**/*.md"
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.json"
+    - "**/*.vue"
+    - "**/*.ts"
+  
+  ignore_patterns:
+    - "node_modules/**"
+    - ".git/**"
+    - "logs/**"
+    - "data/cipher-memory/**"
+    - "*.log"
+    - ".venv/**"
+    - "__pycache__/**"
+    - "dist/**"
+    - "build/**"
+
+# プロジェクト構造定義
+structure:
+  source_directories:
+    - "haqei-vue/src"
+    - "public/js"
+    - "agents"
+    - "functions"
+    - "scripts"
+  
+  documentation_directories:
+    - "docs"
+  
+  configuration_files:
+    - "package.json"
+    - "haqei-vue/package.json"
+    - "vite.config.ts"
+    - "haqei-vue/vite.config.ts"

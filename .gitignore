@@ -13,8 +13,8 @@
 # バックアップフォルダなど
 bk/
 
-# Ignore dictionary files
-public/dict/
+# Dictionary files are now tracked in Git (removed from LFS)
+# public/dict/
 
 作業用.html
 
@@ -23,3 +23,96 @@ public/dict/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Cipher Memory Layer
+.env.cipher
+data/cipher-memory/
+logs/
+*.log
+
+# MCP Data (Git同期用に.mcp-dataは追跡)
+# .mcp-data/cipher-memory/
+# .mcp-data/serena-memory/
+# ログファイルは除外
+.mcp-data/logs/*.log
+
+# Auto-generated validation reports
+*-validation-report-*.json
+phase5-*.json
+
+.DS_Store
+serena-mcp/
+
+# Database temporary files
+database/schema.sql.bak
+database/*.log
+
+# Test reports and logs
+*-validation-report-*.json
+*hook_test*.log
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Claude Flow generated files
+.claude/settings.local.json
+.mcp.json
+claude-flow.config.json
+.swarm/
+.hive-mind/
+memory/claude-flow-data.json
+memory/sessions/*
+!memory/sessions/README.md
+memory/agents/*
+!memory/agents/README.md
+coordination/memory_bank/*
+coordination/subtasks/*
+coordination/orchestration/*
+*.db
+*.db-journal
+*.db-wal
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+claude-flow
+claude-flow.bat
+claude-flow.ps1
+hive-mind-prompt-*.txt
+
+# セキュリティ: 機密ファイル
+*.env
+*.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.backup
+*.bak
+*secret*
+*private*
+config/secrets*
+.env.local
+.env.production
+
+# セキュリティ: レポートと一時ファイル
+security-reports/
+performance-reports/
+*.pkl
+.serena/cache/

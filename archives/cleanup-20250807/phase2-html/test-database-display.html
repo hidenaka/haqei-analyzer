@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>データベース表示テスト</title>
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+        }
+        .os-card {
+            margin: 10px;
+            padding: 15px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            border-radius: 8px;
+        }
+        .success {
+            color: #10b981;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .warning {
+            color: #f59e0b;
+        }
+        pre {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 HAQEI OS Analyzer - データベース表示テスト</h1>
+        
+        <div class="test-section">
+            <h2>📊 テスト1: HEXAGRAMSデータベース読み込み確認</h2>
+            <div id="database-test"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎯 テスト2: Triple OS結果表示テスト</h2>
+            <div id="triple-os-test"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📝 テスト3: 実際の表示確認</h2>
+            <div id="display-test"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>⚠️ 問題点レポート</h2>
+            <div id="issues-report"></div>
+        </div>
+    </div>
+
+    <!-- HEXAGRAMSデータベース読み込み -->
+    <script src="/assets/H384H64database.js"></script>
+    
+    <script>
+        // テスト実行
+        async function runTests() {
+            const results = {
+                database: [],
+                tripleOS: [],
+                display: [],
+                issues: []
+            };
+            
+            // テスト1: データベース確認
+            const dbTest = document.getElementById('database-test');
+            if (typeof HEXAGRAMS !== 'undefined') {
+                dbTest.innerHTML = `<p class="success">✅ HEXAGRAMSデータベース読み込み成功: ${HEXAGRAMS.length}卦</p>`;
+                
+                // サンプルデータ表示
+                const sample = HEXAGRAMS[0];
+                dbTest.innerHTML += `
+                    <h4>サンプルデータ（第1卦）:</h4>
+                    <pre>${JSON.stringify(sample, null, 2)}</pre>
+                `;
+                
+                // データ構造チェック
+                const hasRequiredFields = sample.hasOwnProperty('hexagram_id') &&
+                                         sample.hasOwnProperty('name_jp') &&
+                                         sample.hasOwnProperty('description') &&
+                                         sample.hasOwnProperty('catchphrase');
+                
+                if (hasRequiredFields) {
+                    dbTest.innerHTML += `<p class="success">✅ 必須フィールド確認OK</p>`;
+                } else {
+                    dbTest.innerHTML += `<p class="error">❌ 必須フィールドが不足</p>`;
+                    results.issues.push('データベース構造に必須フィールド不足');
+                }
+            } else {
+                dbTest.innerHTML = `<p class="error">❌ HEXAGRAMSデータベースが見つかりません</p>`;
+                results.issues.push('HEXAGRAMSデータベースが未定義');
+            }
+            
+            // テスト2: Triple OS結果シミュレーション
+            const tripleTest = document.getElementById('triple-os-test');
+            
+            // 模擬的なTriple OS結果
+            const mockTripleOS = {
+                engineOS: {
+                    hexagramId: 1,
+                    hexagramName: null, // データベースから取得すべき
+                    description: null, // データベースから取得すべき
+                    catchphrase: null, // データベースから取得すべき
+                    upperTrigram: "乾",
+                    lowerTrigram: "乾",
+                    type: "Engine OS"
+                },
+                interfaceOS: {
+                    hexagramId: 11,
+                    hexagramName: null,
+                    description: null,
+                    catchphrase: null,
+                    upperTrigram: "坤",
+                    lowerTrigram: "乾",
+                    type: "Interface OS"
+                },
+                safeModeOS: {
+                    hexagramId: 2,
+                    hexagramName: null,
+                    description: null,
+                    catchphrase: null,
+                    upperTrigram: "坤",
+                    lowerTrigram: "坤",
+                    type: "Safe Mode OS"
+                }
+            };
+            
+            // データベースから情報を補完
+            if (typeof HEXAGRAMS !== 'undefined') {
+                ['engineOS', 'interfaceOS', 'safeModeOS'].forEach(osType => {
+                    const os = mockTripleOS[osType];
+                    const hexagram = HEXAGRAMS.find(h => h.hexagram_id === os.hexagramId);
+                    
+                    if (hexagram) {
+                        os.hexagramName = hexagram.name_jp;
+                        os.description = hexagram.description;
+                        os.catchphrase = hexagram.catchphrase;
+                        
+                        tripleTest.innerHTML += `
+                            <div class="os-card">
+                                <h3>${osType}</h3>
+                                <p><strong>卦ID:</strong> ${os.hexagramId}</p>
+                                <p><strong>卦名:</strong> ${os.hexagramName || '<span class="error">未設定</span>'}</p>
+                                <p><strong>キャッチフレーズ:</strong> ${os.catchphrase || '<span class="error">未設定</span>'}</p>
+                                <p><strong>説明:</strong> ${os.description || '<span class="error">未設定</span>'}</p>
+                            </div>
+                        `;
+                        
+                        if (!os.hexagramName || !os.description || !os.catchphrase) {
+                            results.issues.push(`${osType}でデータベース値が正しく設定されていない`);
+                        }
+                    } else {
+                        tripleTest.innerHTML += `<p class="error">❌ ${osType}: 卦${os.hexagramId}がデータベースに見つかりません</p>`;
+                        results.issues.push(`${osType}の卦${os.hexagramId}が見つからない`);
+                    }
+                });
+            }
+            
+            // テスト3: 実際の表示関数テスト
+            const displayTest = document.getElementById('display-test');
+            
+            // createEnhancedOSCard相当の処理
+            const testCard = (osName, osData, color) => {
+                const hexagram = HEXAGRAMS ? HEXAGRAMS.find(h => h.hexagram_id === osData.hexagramId) : null;
+                
+                return `
+                    <div class="os-card" style="border-color: ${color};">
+                        <h3>${osName}</h3>
+                        <p>表示される卦名: ${osData.hexagramName || hexagram?.name_jp || '❌ 未設定'}</p>
+                        <p>表示される説明: ${osData.description || hexagram?.description || '❌ 未設定'}</p>
+                        <p>表示されるキャッチフレーズ: ${osData.catchphrase || hexagram?.catchphrase || '❌ 未設定'}</p>
+                        <p class="warning">⚠️ osData直接値: hexagramName=${osData.hexagramName}, description=${osData.description}, catchphrase=${osData.catchphrase}</p>
+                        <p class="success">✅ データベース値: name_jp=${hexagram?.name_jp}, description=${hexagram?.description}, catchphrase=${hexagram?.catchphrase}</p>
+                    </div>
+                `;
+            };
+            
+            displayTest.innerHTML = testCard('Engine OS', mockTripleOS.engineOS, '#6366f1');
+            displayTest.innerHTML += testCard('Interface OS', mockTripleOS.interfaceOS, '#8b5cf6');
+            displayTest.innerHTML += testCard('Safe Mode OS', mockTripleOS.safeModeOS, '#10b981');
+            
+            // 問題点レポート
+            const issuesReport = document.getElementById('issues-report');
+            if (results.issues.length > 0) {
+                issuesReport.innerHTML = '<h3 class="error">発見された問題:</h3><ul>';
+                results.issues.forEach(issue => {
+                    issuesReport.innerHTML += `<li class="error">${issue}</li>`;
+                });
+                issuesReport.innerHTML += '</ul>';
+                
+                issuesReport.innerHTML += `
+                    <h3 class="warning">推奨される修正:</h3>
+                    <ul>
+                        <li>calculateEngineOS, calculateInterfaceOS, calculateSafeModeOS関数で、hexagramName, description, catchphraseを正しく設定する</li>
+                        <li>getHexagramData関数の戻り値を正しくOSデータに反映する</li>
+                        <li>createEnhancedOSCard関数で、データベース値を優先的に使用する</li>
+                    </ul>
+                `;
+            } else {
+                issuesReport.innerHTML = '<p class="success">✅ 問題は検出されませんでした</p>';
+            }
+        }
+        
+        // ページ読み込み後にテスト実行
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

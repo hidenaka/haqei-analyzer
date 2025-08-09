@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEIプロジェクト TDD Test Runner - Tsumikiワークフロー準拠</title>
+    <style>
+        body {
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .test-controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .results-area {
+            background: #f1f3f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .tsumiki-badge {
+            display: inline-block;
+            background: #FF6B6B;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .HaQei-info {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #e17055;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 HAQEIプロジェクト TDD Test Runner</h1>
+        <div class="tsumiki-badge">Tsumikiワークフロー準拠</div>
+        <div class="tsumiki-badge">HaQei哲学統合</div>
+        <div class="tsumiki-badge">Triple OS Architecture</div>
+        
+        <div class="HaQei-info">
+            <h3>🔄 HaQei思想に基づくTDD approach</h3>
+            <p>このテストランナーは、HAQEIプロジェクトの核心であるHaQei哲学（分人思想）に基づき、複数の仮想人格（サーバー環境）を統合的にテストします。易経の変化の哲学を反映した継続的改善プロセスを実装しています。</p>
+        </div>
+        
+        <div class="status-card">
+            <h3>📋 テスト対象システム</h3>
+            <ul>
+                <li><strong>ServerConfigurationDetector.js</strong> (539行) - サーバー環境自動検出システム</li>
+                <li><strong>並行開発サーバー管理</strong> - OS Analyzer (8001) + Future Simulator (8788)</li>
+                <li><strong>Triple OS Architecture統合</strong> - Engine/Interface/Safe Mode OS連携</li>
+                <li><strong>HaQei哲学適合性</strong> - 易経64卦システムとの整合性</li>
+            </ul>
+        </div>
+        
+        <div class="test-controls">
+            <button class="btn" onclick="loadDependencies()">📦 Load Dependencies</button>
+            <button class="btn" onclick="runRedPhase()" id="redPhaseBtn" disabled>🔴 Run RED Phase</button>
+            <button class="btn" onclick="showSystemInfo()">ℹ️ System Info</button>
+            <button class="btn" onclick="clearResults()">🗑️ Clear Results</button>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+        
+        <div id="status" class="status-card">
+            <h3>📊 Test Status</h3>
+            <p>Ready to load dependencies and run TDD tests...</p>
+        </div>
+        
+        <div id="results" class="results-area">
+            <p>Test results will appear here...</p>
+        </div>
+    </div>
+
+    <script>
+        let testResults = null;
+        let dependenciesLoaded = false;
+
+        /**
+         * 依存関係の読み込み
+         */
+        async function loadDependencies() {
+            updateStatus('Loading dependencies...', '⏳');
+            updateProgress(10);
+
+            try {
+                // ServerConfigurationDetector.jsの読み込み
+                await loadScript('js/core/ServerConfigurationDetector.js');
+                updateProgress(50);
+
+                // TDDテストスイートの読み込み
+                await loadScript('test-server-configuration-detector.js');
+                updateProgress(80);
+
+                dependenciesLoaded = true;
+                document.getElementById('redPhaseBtn').disabled = false;
+                updateStatus('Dependencies loaded successfully! Ready to run RED phase.', '✅');
+                updateProgress(100);
+
+                // 2秒後に進行状況をリセット
+                setTimeout(() => updateProgress(0), 2000);
+
+            } catch (error) {
+                updateStatus(`Failed to load dependencies: ${error.message}`, '❌');
+                logToResults(`Error loading dependencies: ${error.message}`);
+                updateProgress(0);
+            }
+        }
+
+        /**
+         * スクリプト動的読み込みヘルパー
+         */
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = () => reject(new Error(`Failed to load ${src}`));
+                document.head.appendChild(script);
+            });
+        }
+
+        /**
+         * RED Phase実行（失敗するテストから開始）
+         */
+        async function runRedPhase() {
+            if (!dependenciesLoaded) {
+                alert('Please load dependencies first!');
+                return;
+            }
+
+            updateStatus('Running RED Phase - Tests are expected to fail initially...', '🔴');
+            logToResults('🚀 Starting TDD RED Phase execution...\n');
+            logToResults('========================================\n');
+
+            try {
+                updateProgress(20);
+                
+                // TDDテストスイート実行
+                if (typeof window.runTDDTestSuite !== 'function') {
+                    throw new Error('TDD Test Suite not loaded properly');
+                }
+
+                updateProgress(40);
+                logToResults('Executing comprehensive TDD test suite...\n');
+
+                // テスト実行
+                testResults = await window.runTDDTestSuite();
+                updateProgress(80);
+
+                // 結果分析
+                logToResults('\n📊 RED Phase Results Analysis:\n');
+                logToResults(`Total Tests: ${testResults.summary.total}\n`);
+                logToResults(`Passed: ${testResults.summary.passed}\n`);
+                logToResults(`Failed: ${testResults.summary.failed}\n`);
+                logToResults(`Success Rate: ${testResults.summary.successRate}\n`);
+                logToResults(`Tsumiki Compliant: ${testResults.tsumikiCompliant ? '✅' : '❌'}\n`);
+
+                // HaQei哲学的分析
+                logToResults('\n🔄 HaQei Philosophy Analysis:\n');
+                if (testResults.tsumikiCompliant) {
+                    logToResults('✨ All virtual personalities (server environments) are harmoniously integrated!\n');
+                    logToResults('The Triple OS Architecture maintains perfect balance.\n');
+                    updateStatus('RED Phase Complete: All tests passed! Ready for GREEN phase.', '✅');
+                } else {
+                    logToResults('⚡ Some virtual personalities need alignment - this is expected in RED phase.\n');
+                    logToResults('The system is ready for GREEN phase implementation to achieve harmony.\n');
+                    updateStatus(`RED Phase Complete: ${testResults.summary.failed} tests failed as expected. Proceed to GREEN phase.`, '🟡');
+                }
+
+                updateProgress(100);
+
+                // 次のステップガイダンス
+                logToResults('\n🎯 Next Steps (GREEN Phase):\n');
+                logToResults('1. Implement missing functionality to make failing tests pass\n');
+                logToResults('2. Ensure Triple OS Architecture integrity\n');
+                logToResults('3. Validate HaQei philosophy compliance\n');
+                logToResults('4. Achieve 100% Tsumiki quality standards\n');
+
+            } catch (error) {
+                updateStatus(`RED Phase Failed: ${error.message}`, '❌');
+                logToResults(`\n❌ RED Phase execution error: ${error.message}\n`);
+                updateProgress(0);
+            }
+        }
+
+        /**
+         * システム情報表示
+         */
+        function showSystemInfo() {
+            const info = {
+                userAgent: navigator.userAgent,
+                location: window.location.href,
+                timestamp: new Date().toISOString(),
+                screen: `${screen.width}x${screen.height}`,
+                colorDepth: screen.colorDepth,
+                language: navigator.language,
+                cookieEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine
+            };
+
+            logToResults('\n🖥️ System Information:\n');
+            logToResults('=========================\n');
+            Object.entries(info).forEach(([key, value]) => {
+                logToResults(`${key}: ${value}\n`);
+            });
+            logToResults('\n');
+        }
+
+        /**
+         * ステータス更新
+         */
+        function updateStatus(message, icon = '📊') {
+            document.getElementById('status').innerHTML = `
+                <h3>${icon} Test Status</h3>
+                <p>${message}</p>
+            `;
+        }
+
+        /**
+         * 進行状況更新
+         */
+        function updateProgress(percentage) {
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        /**
+         * 結果ログ出力
+         */
+        function logToResults(message) {
+            const resultsArea = document.getElementById('results');
+            resultsArea.textContent += message;
+            resultsArea.scrollTop = resultsArea.scrollHeight;
+        }
+
+        /**
+         * 結果クリア
+         */
+        function clearResults() {
+            document.getElementById('results').textContent = 'Test results cleared...\n';
+            updateProgress(0);
+            updateStatus('Ready to run tests...', '📊');
+        }
+
+        // 初期化
+        console.log('🚀 TDD Test Runner initialized');
+        console.log('Load dependencies first, then run RED phase tests');
+    </script>
+</body>
+</html>

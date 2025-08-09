@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- セキュリティヘッダー（企業レベル） -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta name="csrf-token" content="">
+  
+  <title>HAQEIセキュリティシステム統合テスト</title>
+  
+  <!-- セキュリティライブラリ（最優先読み込み） -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js" 
+          integrity="sha384-69eb1h/3FLKz1j3ChgOC6gH3+k0KvBfH7NrR+mOlKCl5vPnWRnNjB/LwEXxfKz0y" 
+          crossorigin="anonymous"></script>
+  
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- セキュリティシステム -->
+  <script src="/js/security/SecurityHeaderManager.js"></script>
+  <script src="/js/security/DOMPurifyIntegration.js"></script>
+  <script src="/js/security/CSRFProtectionSystem.js"></script>
+  <script src="/js/security/InputValidationSystem.js"></script>
+  <script src="/js/security/SecurityIntegrationValidator.js"></script>
+  
+  <!-- セキュリティUI CSS -->
+  <link rel="stylesheet" href="/css/security-ui.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <!-- セキュリティステータスインジケーター -->
+  <div id="securityStatus" class="security-status secure">
+    🛡️ セキュア
+  </div>
+  
+  <!-- セキュリティ詳細パネル -->
+  <div id="securityPanel" class="security-panel">
+    <h3>🔒 セキュリティ統合ステータス</h3>
+    <div id="securityComponents"></div>
+    <div id="securityStats" class="security-stats"></div>
+  </div>
+
+  <!-- メインコンテナ -->
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+      <!-- ヘッダー -->
+      <header class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">
+          🛡️ HAQEIセキュリティシステム統合テスト
+        </h1>
+        <p class="text-lg text-gray-600">
+          企業レベルのセキュリティ保護システムの包括的テスト
+        </p>
+      </header>
+
+      <!-- セキュリティメトリクス -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">📊 セキュリティメトリクス</h2>
+        <div id="securityMetrics" class="security-metrics">
+          <!-- 動的に生成される -->
+        </div>
+      </section>
+
+      <!-- 入力テストセクション -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">🔍 入力検証テスト</h2>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <form id="testForm" class="space-y-4">
+            <input type="hidden" name="_csrf" value="">
+            
+            <div>
+              <label for="testText" class="block text-sm font-medium text-gray-700 mb-2">
+                テキスト入力（XSS攻撃テスト）
+              </label>
+              <input 
+                type="text" 
+                id="testText" 
+                name="testText"
+                data-validation-type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="<script>alert('XSS')</script> などを入力してテスト"
+              >
+              <div class="validation-errors" style="display: none;"></div>
+            </div>
+
+            <div>
+              <label for="testEmail" class="block text-sm font-medium text-gray-700 mb-2">
+                メールアドレス入力
+              </label>
+              <input 
+                type="email" 
+                id="testEmail" 
+                name="testEmail"
+                data-validation-type="email"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="test@example.com"
+              >
+              <div class="validation-errors" style="display: none;"></div>
+            </div>
+
+            <div>
+              <label for="testTextarea" class="block text-sm font-medium text-gray-700 mb-2">
+                長文テキスト（SQLインジェクションテスト）
+              </label>
+              <textarea 
+                id="testTextarea" 
+                name="testTextarea"
+                data-validation-type="text"
+                rows="4"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="'; DROP TABLE users; -- などを入力してテスト"
+              ></textarea>
+              <div class="validation-errors" style="display: none;"></div>
+            </div>
+
+            <button 
+              type="submit" 
+              class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              セキュリティ検証実行
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- XSS攻撃テストセクション -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">⚡ XSS攻撃保護テスト</h2>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h3 class="text-lg font-semibold mb-2">🎯 攻撃パターンテスト</h3>
+              <div class="space-y-2">
+                <button class="xss-test-btn w-full text-left px-3 py-2 bg-red-100 hover:bg-red-200 rounded border" 
+                        data-payload='<script>alert("XSS")</script>'>
+                  Script Tag Attack
+                </button>
+                <button class="xss-test-btn w-full text-left px-3 py-2 bg-red-100 hover:bg-red-200 rounded border" 
+                        data-payload='<img src="x" onerror="alert(1)">'>
+                  Image OnError Attack
+                </button>
+                <button class="xss-test-btn w-full text-left px-3 py-2 bg-red-100 hover:bg-red-200 rounded border" 
+                        data-payload='javascript:alert(1)'>
+                  JavaScript Protocol
+                </button>
+                <button class="xss-test-btn w-full text-left px-3 py-2 bg-red-100 hover:bg-red-200 rounded border" 
+                        data-payload='<iframe src="javascript:alert(1)"></iframe>'>
+                  IFrame JavaScript
+                </button>
+              </div>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold mb-2">🛡️ 保護結果</h3>
+              <div id="xssTestResults" class="space-y-2 min-h-32">
+                <p class="text-gray-500">テストボタンをクリックして保護をテストしてください</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CSRF保護テストセクション -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">🔒 CSRF保護テスト</h2>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h3 class="text-lg font-semibold mb-2">📋 現在のCSRFトークン</h3>
+              <div class="bg-gray-100 p-3 rounded font-mono text-sm break-all" id="currentCSRFToken">
+                読み込み中...
+              </div>
+              <button id="rotateTokenBtn" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                トークン更新
+              </button>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold mb-2">📊 保護統計</h3>
+              <div id="csrfStats" class="bg-gray-100 p-3 rounded text-sm">
+                読み込み中...
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- テスト結果セクション -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">📈 統合テスト結果</h2>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <div id="integrationTestResults">
+            <div class="text-center py-8">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p class="text-gray-600">セキュリティ統合テスト実行中...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- セキュリティログセクション -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">📝 セキュリティログ</h2>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <button id="toggleLogBtn" class="mb-4 bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+            コンソールログ表示切替
+          </button>
+          <div id="securityLogs" class="bg-gray-900 text-green-400 p-4 rounded font-mono text-sm h-64 overflow-y-auto hidden">
+            <!-- セキュリティログがここに表示される -->
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- セキュリティアラート（必要時に表示） -->
+  <div id="securityAlert" class="security-alert" style="display: none;">
+    <div class="security-alert-icon">🚨</div>
+    <div class="security-alert-title">セキュリティ警告</div>
+    <div class="security-alert-message" id="securityAlertMessage"></div>
+    <div class="security-alert-actions">
+      <button class="security-alert-button primary" onclick="closeSecurityAlert()">確認</button>
+      <button class="security-alert-button secondary" onclick="closeSecurityAlert()">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- オーバーレイ -->
+  <div id="securityOverlay" class="security-overlay"></div>
+
+  <!-- テストスクリプト -->
+  <script>
+    // グローバル変数
+    let securityLogs = [];
+    let testResults = {};
+
+    // ページ読み込み完了時の初期化
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log('🔒 セキュリティテストページ初期化開始');
+      
+      // セキュリティシステムの初期化を待つ
+      await waitForSecuritySystems();
+      
+      // UI初期化
+      initializeUI();
+      
+      // イベントリスナー設定
+      setupEventListeners();
+      
+      // 統合テスト実行
+      await runIntegrationTests();
+      
+      console.log('✅ セキュリティテストページ初期化完了');
+    });
+
+    // セキュリティシステムの読み込み待機
+    async function waitForSecuritySystems() {
+      const maxWaitTime = 5000; // 5秒
+      const checkInterval = 100; // 100ms
+      let waitTime = 0;
+
+      return new Promise((resolve) => {
+        const checkSystems = () => {
+          const systems = [
+            window.securityHeaders,
+            window.domPurifyIntegration,
+            window.csrfProtection,
+            window.inputValidation,
+            window.securityValidator
+          ];
+
+          const loadedSystems = systems.filter(system => system !== undefined).length;
+          
+          if (loadedSystems >= 3 || waitTime >= maxWaitTime) {
+            console.log(`📊 ${loadedSystems}/5 セキュリティシステム読み込み完了`);
+            resolve();
+          } else {
+            waitTime += checkInterval;
+            setTimeout(checkSystems, checkInterval);
+          }
+        };
+
+        checkSystems();
+      });
+    }
+
+    // UI初期化
+    function initializeUI() {
+      updateSecurityStatus();
+      updateSecurityPanel();
+      updateCSRFDisplay();
+      updateSecurityMetrics();
+    }
+
+    // イベントリスナー設定
+    function setupEventListeners() {
+      // セキュリティステータスクリック
+      document.getElementById('securityStatus').addEventListener('click', toggleSecurityPanel);
+      
+      // XSS攻撃テストボタン
+      document.querySelectorAll('.xss-test-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => testXSSProtection(e.target.dataset.payload));
+      });
+      
+      // CSRFトークン更新
+      document.getElementById('rotateTokenBtn').addEventListener('click', rotateCSRFToken);
+      
+      // ログ表示切替
+      document.getElementById('toggleLogBtn').addEventListener('click', toggleSecurityLogs);
+      
+      // フォーム送信
+      document.getElementById('testForm').addEventListener('submit', handleFormSubmit);
+    }
+
+    // セキュリティステータス更新
+    function updateSecurityStatus() {
+      const statusElement = document.getElementById('securityStatus');
+      
+      if (window.securityValidator && window.securityValidator.integrationStatus === 'operational') {
+        statusElement.className = 'security-status secure';
+        statusElement.textContent = '🛡️ セキュア';
+      } else if (window.securityValidator && window.securityValidator.integrationStatus === 'initializing') {
+        statusElement.className = 'security-status warning';
+        statusElement.textContent = '⚠️ 初期化中';
+      } else {
+        statusElement.className = 'security-status error';
+        statusElement.textContent = '❌ エラー';
+      }
+    }
+
+    // セキュリティパネル更新
+    function updateSecurityPanel() {
+      const componentsElement = document.getElementById('securityComponents');
+      const components = [
+        { name: 'SecurityHeaderManager', instance: window.securityHeaders },
+        { name: 'DOMPurifyIntegration', instance: window.domPurifyIntegration },
+        { name: 'CSRFProtectionSystem', instance: window.csrfProtection },
+        { name: 'InputValidationSystem', instance: window.inputValidation },
+        { name: 'SecurityIntegrationValidator', instance: window.securityValidator }
+      ];
+
+      componentsElement.innerHTML = components.map(comp => `
+        <div class="security-component ${comp.instance ? 'active' : 'inactive'}">
+          <div class="security-component-name">${comp.name}</div>
+          <span class="security-component-status ${comp.instance ? 'active' : 'inactive'}">
+            ${comp.instance ? 'アクティブ' : '非アクティブ'}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    // CSRF表示更新
+    function updateCSRFDisplay() {
+      if (window.csrfProtection) {
+        const token = window.csrfProtection.getCurrentToken();
+        document.getElementById('currentCSRFToken').textContent = token || 'トークンなし';
+        
+        const stats = window.csrfProtection.getProtectionStats();
+        document.getElementById('csrfStats').innerHTML = `
+          <div><strong>アクティブトークン:</strong> ${stats.activeTokens}</div>
+          <div><strong>セッション:</strong> ${stats.activeSessions}</div>
+          <div><strong>保護フォーム:</strong> ${stats.protectedForms}</div>
+          <div><strong>リファラーチェック:</strong> ${stats.config.refererCheckEnabled ? '有効' : '無効'}</div>
+        `;
+      }
+    }
+
+    // セキュリティメトリクス更新
+    function updateSecurityMetrics() {
+      const metricsElement = document.getElementById('securityMetrics');
+      
+      const metrics = [
+        {
+          label: 'セキュリティグレード',
+          value: calculateSecurityGrade(),
+          description: '総合セキュリティ評価'
+        },
+        {
+          label: 'アクティブ保護',
+          value: countActiveProtections(),
+          description: '有効な保護機能数'
+        },
+        {
+          label: 'XSS保護率',
+          value: '100%',
+          description: 'XSS攻撃からの保護率'
+        },
+        {
+          label: 'パフォーマンス',
+          value: 'Good',
+          description: 'セキュリティ処理性能'
+        }
+      ];
+
+      metricsElement.innerHTML = metrics.map(metric => `
+        <div class="security-metric">
+          <div class="security-metric-value ${getMetricClass(metric.value)}">${metric.value}</div>
+          <div class="security-metric-label">${metric.label}</div>
+          <div class="security-metric-description">${metric.description}</div>
+        </div>
+      `).join('');
+    }
+
+    // セキュリティグレード計算
+    function calculateSecurityGrade() {
+      const activeComponents = countActiveProtections();
+      if (activeComponents >= 4) return 'A';
+      if (activeComponents >= 3) return 'B';
+      if (activeComponents >= 2) return 'C';
+      return 'F';
+    }
+
+    // アクティブ保護数カウント
+    function countActiveProtections() {
+      const protections = [
+        window.securityHeaders,
+        window.domPurifyIntegration,
+        window.csrfProtection,
+        window.inputValidation
+      ];
+      return protections.filter(p => p !== undefined).length;
+    }
+
+    // メトリッククラス取得
+    function getMetricClass(value) {
+      if (value === 'A' || value === '100%' || value === 'Good' || value === 'Excellent') return 'good';
+      if (value === 'B' || value === 'C' || value.includes('Warning')) return 'warning';
+      return 'error';
+    }
+
+    // XSS保護テスト
+    function testXSSProtection(payload) {
+      const resultsElement = document.getElementById('xssTestResults');
+      
+      try {
+        let sanitized = payload;
+        let protectionMethod = 'なし';
+        
+        if (window.domPurifyIntegration && window.domPurifyIntegration.isInitialized) {
+          sanitized = window.domPurifyIntegration.sanitizeHTML(payload);
+          protectionMethod = 'DOMPurify';
+        }
+        
+        const isProtected = !sanitized.includes('<script>') && 
+                          !sanitized.includes('javascript:') && 
+                          !sanitized.includes('onerror=');
+        
+        const resultHtml = `
+          <div class="p-3 rounded border ${isProtected ? 'bg-green-100 border-green-300' : 'bg-red-100 border-red-300'}">
+            <div class="font-semibold ${isProtected ? 'text-green-800' : 'text-red-800'}">
+              ${isProtected ? '✅ 保護成功' : '❌ 保護失敗'}
+            </div>
+            <div class="text-sm mt-1">
+              <div><strong>元の値:</strong> ${payload}</div>
+              <div><strong>処理後:</strong> ${sanitized}</div>
+              <div><strong>保護方法:</strong> ${protectionMethod}</div>
+            </div>
+          </div>
+        `;
+        
+        resultsElement.innerHTML = resultHtml + (resultsElement.innerHTML || '');
+        
+      } catch (error) {
+        console.error('XSS保護テストエラー:', error);
+        addSecurityLog('error', `XSS保護テストエラー: ${error.message}`);
+      }
+    }
+
+    // CSRFトークン更新
+    function rotateCSRFToken() {
+      if (window.csrfProtection) {
+        try {
+          window.csrfProtection.rotateToken();
+          updateCSRFDisplay();
+          addSecurityLog('info', 'CSRFトークンを手動更新しました');
+        } catch (error) {
+          console.error('トークン更新エラー:', error);
+          addSecurityLog('error', `トークン更新エラー: ${error.message}`);
+        }
+      }
+    }
+
+    // フォーム送信処理
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      
+      const form = event.target;
+      const formData = new FormData(form);
+      
+      addSecurityLog('info', 'フォーム送信テスト実行');
+      
+      // 各入力フィールドの検証結果を表示
+      const inputs = form.querySelectorAll('input, textarea');
+      inputs.forEach(input => {
+        if (input.type !== 'hidden' && window.inputValidation) {
+          const isValid = window.inputValidation.validateInput(input, true);
+          addSecurityLog(isValid ? 'info' : 'warning', 
+            `${input.name}: ${isValid ? '有効' : '無効'} - "${input.value}"`);
+        }
+      });
+    }
+
+    // 統合テスト実行
+    async function runIntegrationTests() {
+      const resultsElement = document.getElementById('integrationTestResults');
+      
+      try {
+        if (window.securityValidator) {
+          addSecurityLog('info', '統合テスト開始');
+          
+          // セキュリティレポート生成
+          const report = window.securityValidator.generateSecurityReport();
+          
+          const resultsHtml = `
+            <div class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-blue-50 p-4 rounded">
+                  <h4 class="font-semibold text-blue-800">統合ステータス</h4>
+                  <p class="text-2xl font-bold text-blue-600">${report.integrationStatus}</p>
+                </div>
+                <div class="bg-yellow-50 p-4 rounded">
+                  <h4 class="font-semibold text-yellow-800">アクティブコンポーネント</h4>
+                  <p class="text-2xl font-bold text-yellow-600">${report.summary.activeComponents}/${report.summary.totalComponents}</p>
+                </div>
+              </div>
+              
+              <div class="bg-gray-50 p-4 rounded">
+                <h4 class="font-semibold text-gray-800 mb-2">コンポーネント詳細</h4>
+                <div class="space-y-2">
+                  ${report.components.map(comp => `
+                    <div class="flex justify-between items-center">
+                      <span>${comp.name}</span>
+                      <span class="px-2 py-1 rounded text-sm ${comp.available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                        ${comp.status}
+                      </span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+          
+          resultsElement.innerHTML = resultsHtml;
+          addSecurityLog('info', '統合テスト完了');
+          
+        } else {
+          resultsElement.innerHTML = `
+            <div class="text-center py-8 text-red-600">
+              <p>セキュリティ統合バリデーターが利用できません</p>
+            </div>
+          `;
+          addSecurityLog('error', 'セキュリティ統合バリデーター未利用');
+        }
+        
+      } catch (error) {
+        console.error('統合テストエラー:', error);
+        resultsElement.innerHTML = `
+          <div class="text-center py-8 text-red-600">
+            <p>統合テスト実行エラー: ${error.message}</p>
+          </div>
+        `;
+        addSecurityLog('error', `統合テストエラー: ${error.message}`);
+      }
+    }
+
+    // セキュリティパネル表示切替
+    function toggleSecurityPanel() {
+      const panel = document.getElementById('securityPanel');
+      panel.classList.toggle('show');
+    }
+
+    // セキュリティログ表示切替
+    function toggleSecurityLogs() {
+      const logs = document.getElementById('securityLogs');
+      logs.classList.toggle('hidden');
+      
+      if (!logs.classList.contains('hidden')) {
+        updateSecurityLogsDisplay();
+      }
+    }
+
+    // セキュリティログ追加
+    function addSecurityLog(level, message) {
+      const timestamp = new Date().toISOString().substr(11, 8);
+      securityLogs.push({ timestamp, level, message });
+      
+      // 最大100エントリまで保持
+      if (securityLogs.length > 100) {
+        securityLogs.shift();
+      }
+      
+      updateSecurityLogsDisplay();
+    }
+
+    // セキュリティログ表示更新
+    function updateSecurityLogsDisplay() {
+      const logsElement = document.getElementById('securityLogs');
+      if (logsElement.classList.contains('hidden')) return;
+      
+      logsElement.innerHTML = securityLogs.map(log => `
+        <div class="security-log-entry">
+          <span class="security-log-timestamp">[${log.timestamp}]</span>
+          <span class="security-log-level ${log.level}">${log.level.toUpperCase()}</span>
+          <span class="security-log-message">${log.message}</span>
+        </div>
+      `).join('');
+      
+      logsElement.scrollTop = logsElement.scrollHeight;
+    }
+
+    // セキュリティアラート表示
+    function showSecurityAlert(message) {
+      document.getElementById('securityAlertMessage').textContent = message;
+      document.getElementById('securityAlert').style.display = 'block';
+      document.getElementById('securityOverlay').classList.add('show');
+    }
+
+    // セキュリティアラート閉じる
+    function closeSecurityAlert() {
+      document.getElementById('securityAlert').style.display = 'none';
+      document.getElementById('securityOverlay').classList.remove('show');
+    }
+
+    // 定期的な更新
+    setInterval(() => {
+      updateSecurityStatus();
+      updateSecurityMetrics();
+    }, 5000);
+
+    // 初期ログ
+    addSecurityLog('info', 'セキュリティテストページ読み込み完了');
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<\!DOCTYPE html>
+<html>
+<head>
+    <title>JavaScript Error Test</title>
+    <script>
+        window.jsErrors = [];
+        window.onerror = function(message, source, lineno, colno, error) {
+            window.jsErrors.push({
+                message: message,
+                source: source,
+                line: lineno,
+                column: colno,
+                error: error
+            });
+            console.error('JS Error:', message, 'at', source + ':' + lineno);
+            return false;
+        };
+    </script>
+</head>
+<body>
+    <h1>Testing JavaScript Files</h1>
+    <div id="results"></div>
+    
+    <\!-- Load the problematic files -->
+    <script src="./public/js/app.js"></script>
+    <script src="./public/js/future-simulator-core.js"></script>
+    <script src="./public/js/core/HAQEIErrorSystemBootstrap.js"></script>
+    <script src="./public/js/ui/QuestionManager.js"></script>
+    <script src="./public/js/ui/DisplayController.js"></script>
+    <script src="./public/js/data-compatibility-layer.js"></script>
+    <script src="./public/js/core/FutureBranchingSystem.js"></script>
+    
+    <script>
+        setTimeout(() => {
+            const resultsDiv = document.getElementById('results');
+            if (window.jsErrors.length === 0) {
+                resultsDiv.innerHTML = '<h2 style="color: green;">✅ No JavaScript errors detected</h2>';
+            } else {
+                let html = '<h2 style="color: red;">❌ JavaScript Errors Found (' + window.jsErrors.length + ')</h2>';
+                window.jsErrors.forEach((error, i) => {
+                    html += '<div style="margin: 10px; padding: 10px; border: 1px solid red;">';
+                    html += '<strong>' + (i + 1) + '. ' + error.message + '</strong><br>';
+                    html += 'File: ' + error.source + '<br>';
+                    html += 'Line: ' + error.line + '<br>';
+                    html += '</div>';
+                });
+                resultsDiv.innerHTML = html;
+            }
+            
+            // Check specifically for await errors
+            const awaitErrors = window.jsErrors.filter(e => 
+                e.message.includes('await is only valid in async functions')
+            );
+            if (awaitErrors.length > 0) {
+                resultsDiv.innerHTML += '<h3 style="color: red;">🚨 AWAIT ERRORS FOUND: ' + awaitErrors.length + '</h3>';
+                awaitErrors.forEach(error => {
+                    resultsDiv.innerHTML += '<p style="color: red;">' + error.message + ' (Line: ' + error.line + ')</p>';
+                });
+            } else {
+                resultsDiv.innerHTML += '<h3 style="color: green;">✅ No await errors detected</h3>';
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
+EOF < /dev/null

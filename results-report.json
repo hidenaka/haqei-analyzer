@@ -1,0 +1,162 @@
+{
+  "timestamp": "2025-07-30T01:21:42.405Z",
+  "testDuration": 11,
+  "results": {
+    "personalStrategyAI": {
+      "executionTime": 1,
+      "fileExists": true,
+      "fileSize": 26424,
+      "successRate": 100,
+      "checks": {
+        "hasMinLengthRelaxation": true,
+        "hasOptimalLength": true,
+        "hasEnhanceShortResponse": true,
+        "hasQualityAssessment": true,
+        "hasFirstPersonCheck": true,
+        "hasFallbackStrategy": true,
+        "hasTripleOSIntegration": true,
+        "hasSafemodeIntegration": true,
+        "hasErrorHandling": true
+      },
+      "codeQuality": {
+        "lines": 712,
+        "classes": 1,
+        "methods": 66,
+        "comments": 70
+      },
+      "fixes": {
+        "minLengthRelaxed": true,
+        "responseEnhancement": true,
+        "qualityAssessment": true,
+        "errorHandling": true
+      }
+    },
+    "tripleOSStrategicView": {
+      "executionTime": 2,
+      "fileExists": true,
+      "fileSize": 54546,
+      "visualizerFileExists": true,
+      "visualizerFileSize": 20674,
+      "successRate": 100,
+      "checks": {
+        "hasPersonalStrategyAI": true,
+        "hasConnectionsVisualizer": true,
+        "hasDataManager": true,
+        "hasCompatibilityLoader": true,
+        "hasAsyncInit": true,
+        "hasErrorHandling": true,
+        "visualizerFileExists": true,
+        "visualizerHasInit": true,
+        "visualizerHasSVG": true
+      },
+      "improvements": {
+        "visualizerIntegration": true,
+        "asyncInitialization": true,
+        "errorHandling": true,
+        "dataManagerIntegration": true
+      }
+    },
+    "storageManager": {
+      "executionTime": 1,
+      "fileExists": true,
+      "fileSize": 103726,
+      "successRate": 100,
+      "checks": {
+        "hasDataIntegrityCheck": true,
+        "hasMemoryManagement": true,
+        "hasPerformanceMetrics": true,
+        "hasCache": true,
+        "hasCleanup": true,
+        "hasCompression": true,
+        "hasErrorHandling": true,
+        "hasVersionManagement": true,
+        "hasBeforeUnload": true
+      },
+      "optimizations": {
+        "dataIntegrityProtection": true,
+        "memoryManagement": true,
+        "performanceMonitoring": true,
+        "caching": true,
+        "corruptionRecovery": true
+      }
+    },
+    "iChingUltraSyncLogic": {
+      "executionTime": 1,
+      "fileExists": true,
+      "fileSize": 89313,
+      "successRate": 100,
+      "checks": {
+        "hasAnalysisLevels": true,
+        "hasCache": true,
+        "hasParallelExecution": true,
+        "hasBatchProcessing": true,
+        "hasProgressTracking": true,
+        "hasPerformanceOptimization": true,
+        "hasMethodConfiguration": true,
+        "hasCacheManagement": true,
+        "hasErrorHandling": true
+      },
+      "optimizations": {
+        "multiLevelAnalysis": true,
+        "cachingSystem": true,
+        "parallelProcessing": true,
+        "batchOptimization": true,
+        "progressMonitoring": true
+      },
+      "analysisLevels": {
+        "essential": true,
+        "standard": true,
+        "comprehensive": false
+      }
+    },
+    "dataManager": {
+      "executionTime": 2,
+      "fileExists": true,
+      "fileSize": 65112,
+      "successRate": 100,
+      "checks": {
+        "hasCache": true,
+        "hasHexagramIndex": true,
+        "hasHexagramNameIndex": true,
+        "hasHexagramArray": true,
+        "hasPerformanceMetrics": true,
+        "hasCacheTimeout": true,
+        "hasErrorHandler": true,
+        "hasLogMessage": true,
+        "hasValidation": true
+      },
+      "optimizations": {
+        "multiLevelCaching": true,
+        "indexedSearch": true,
+        "arrayCache": true,
+        "performanceMonitoring": true,
+        "errorHandling": true
+      }
+    },
+    "overall": {
+      "overallSuccessRate": 100,
+      "validComponents": 5,
+      "totalComponents": 5,
+      "totalExecutionTime": 11,
+      "errorCount": 0,
+      "assessment": "excellent",
+      "performanceTargets": {
+        "aiResponseTime": "target: <5s",
+        "dataLoadTime": "target: <100ms",
+        "analysisTime": "target: <5s",
+        "searchTime": "target: <10ms"
+      },
+      "recommendations": [
+        "現在のパフォーマンスは良好です。継続的な監視を推奨します。"
+      ]
+    },
+    "errors": []
+  },
+  "summary": {
+    "overallSuccessRate": 100,
+    "validComponents": 5,
+    "totalComponents": 5,
+    "errorCount": 0,
+    "assessment": "excellent"
+  }
+}

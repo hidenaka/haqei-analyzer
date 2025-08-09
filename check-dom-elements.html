@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>🔍 DOM Elements Check</title>
+</head>
+<body>
+    <h1>🔍 HAQEI DOM Elements Verification</h1>
+    
+    <div id="results"></div>
+    
+    <iframe id="app-frame" src="http://localhost:8788/os_analyzer.html" width="100%" height="600" style="border: 1px solid #333; margin-top: 20px;"></iframe>
+    
+    <script>
+        function checkDOMElements() {
+            const iframe = document.getElementById('app-frame');
+            const doc = iframe.contentDocument;
+            const win = iframe.contentWindow;
+            
+            const results = [];
+            
+            // Check key elements
+            const elementsToCheck = [
+                'start-btn',
+                'question-screen', 
+                'progress-fill',
+                'question-number',
+                'question-title',
+                'options-container',
+                'prev-btn',
+                'next-btn'
+            ];
+            
+            elementsToCheck.forEach(id => {
+                const element = doc.getElementById(id);
+                results.push({
+                    id: id,
+                    found: !!element,
+                    classes: element ? element.className : 'N/A',
+                    visible: element ? getComputedStyle(element).display !== 'none' : false
+                });
+            });
+            
+            // Check if app instance exists
+            const appExists = !!win.criticalCSSAnalyzer;
+            results.push({
+                id: 'criticalCSSAnalyzer',
+                found: appExists,
+                type: appExists ? typeof win.criticalCSSAnalyzer : 'undefined',
+                hasStartAnalysis: appExists ? typeof win.criticalCSSAnalyzer.startAnalysis === 'function' : false
+            });
+            
+            // Check data arrays
+            const dataArrays = ['QUESTIONS', 'HEXAGRAMS', 'TRIPLE_OS'];
+            dataArrays.forEach(arr => {
+                const exists = !!win[arr];
+                results.push({
+                    id: arr,
+                    found: exists,
+                    length: exists ? win[arr].length || Object.keys(win[arr]).length : 0
+                });
+            });
+            
+            displayResults(results);
+        }
+        
+        function displayResults(results) {
+            const div = document.getElementById('results');
+            let html = '<h2>🔍 Diagnostic Results</h2>';
+            
+            results.forEach(result => {
+                const status = result.found ? '✅' : '❌';
+                html += `<div style="margin: 10px 0; padding: 10px; background: ${result.found ? '#d4edda' : '#f8d7da'}; border-radius: 5px;">`;
+                html += `<strong>${status} ${result.id}</strong><br>`;
+                
+                if (result.classes) html += `Classes: ${result.classes}<br>`;
+                if (result.hasOwnProperty('visible')) html += `Visible: ${result.visible}<br>`;
+                if (result.type) html += `Type: ${result.type}<br>`;
+                if (result.hasStartAnalysis !== undefined) html += `Has startAnalysis: ${result.hasStartAnalysis}<br>`;
+                if (result.length !== undefined) html += `Length: ${result.length}<br>`;
+                
+                html += '</div>';
+            });
+            
+            div.innerHTML = html;
+        }
+        
+        // Test clicking the start button
+        function testStartButton() {
+            const iframe = document.getElementById('app-frame');
+            const doc = iframe.contentDocument;
+            const startBtn = doc.getElementById('start-btn');
+            
+            if (startBtn) {
+                console.log('🔘 Clicking start button...');
+                startBtn.click();
+                
+                // Check after 1 second if question screen is active
+                setTimeout(() => {
+                    const questionScreen = doc.getElementById('question-screen');
+                    const isActive = questionScreen && questionScreen.classList.contains('active');
+                    
+                    const resultDiv = document.getElementById('results');
+                    resultDiv.innerHTML += `<div style="margin: 10px 0; padding: 10px; background: ${isActive ? '#d4edda' : '#f8d7da'}; border-radius: 5px;">
+                        <strong>${isActive ? '✅' : '❌'} Start Button Click Test</strong><br>
+                        Question screen active: ${isActive}
+                    </div>`;
+                }, 1000);
+            }
+        }
+        
+        // Wait for iframe to load
+        setTimeout(() => {
+            checkDOMElements();
+            
+            // Add test button
+            document.body.innerHTML += `
+                <div style="margin: 20px 0;">
+                    <button onclick="testStartButton()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        🧪 Test Start Button Click
+                    </button>
+                    <button onclick="checkDOMElements()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                        🔄 Refresh Check
+                    </button>
+                </div>
+            `;
+        }, 3000);
+    </script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+    </style>
+</body>
+</html>

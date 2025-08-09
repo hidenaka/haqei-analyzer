@@ -386,8 +386,101 @@
   {'通し番号': 384, '卦番号': 64, '卦名': '火水未済', '爻': '九四', 'キーワード': ['勝利', '吉', '困難の克服'], '現代解釈の要約': '長い困難や未解決の問題に対し、強い意志と断固たる行動力で立ち向かう。時間がかかっても、粘り強く努力を続ければ、必ずやそれを克服し、大きな成果と評価を得られる。', 'S1_基本スコア': 83, 'S2_ポテンシャル': 55, 'S3_安定性スコア': 40, 'S4_リスク': -55, 'S5_主体性推奨スタンス': '能動', 'S6_変動性スコア': 48, 'S7_総合評価スコア': 40},
   {'通し番号': 385, '卦番号': 64, '卦名': '火水未済', '爻': '六五', 'キーワード': ['信頼', '吉', '完成間近'], '現代解釈の要約': '物事がほぼ完成に近づき、理想的な状態となる。リーダーがその徳と能力で周囲を照らし、揺るぎない信頼と支持を得て、最高の幸運を掴む。', 'S1_基本スコア': 92, 'S2_ポテンシャル': 60, 'S3_安定性スコア': 76, 'S4_リスク': -35, 'S5_主体性推奨スタンス': '受動', 'S6_変動性スコア': 0, 'S7_総合評価スコア': 68},
   {'通し番号': 386, '卦番号': 64, '卦名': '火水未済', '爻': '上九', 'キーワード': ['問題なし', '慢心', '油断'], '現代解釈の要約': '目標が達成され、仲間とその喜びを分かち合う。しかし、その喜びに溺れ、節度を失うと（頭まで濡らす）、油断から新たな失敗を招く危険性がある。', 'S1_基本スコア': 25, 'S2_ポテンシャル': 55, 'S3_安定性スコア': 36, 'S4_リスク': -45, 'S5_主体性推奨スタンス': '能動', 'S6_変動性スコア': 44, 'S7_総合評価スコア': 42},
-]
+];
 
+/**
+ * H384_DATA グローバルスコープ統合システム
+ * 
+ * 目的：
+ * - window.H384_DATAへの明示的代入
+ * - Future Simulator全体でのアクセス保証
+ * - HaQei哲学に基づく386爻データ共有
+ * 
+ * 処理内容：
+ * 1. H384_DATA変数の存在確認
+ * 2. 386爻データ完全性検証
+ * 3. グローバルスコープへの安全な注入
+ * 4. アクセス可能性の確認
+ * 
+ * Triple OS統合：
+ * - Engine OS: 易経データの価値観的整合性維持
+ * - Interface OS: グローバルアクセス制御
+ * - Safe Mode OS: エラー処理とフェイルセーフ
+ */
+
+// H384_DATAをwindowオブジェクトに明示的に代入
+if (typeof window !== 'undefined' && typeof H384_DATA !== 'undefined') {
+    // データ完全性検証
+    if (Array.isArray(H384_DATA) && H384_DATA.length === 386) {
+        // 用九・用六エントリの存在確認
+        const youkuu = H384_DATA.find(item => item['通し番号'] === 7 && item['爻'] === '用九');
+        const yourikuu = H384_DATA.find(item => item['通し番号'] === 14 && item['爻'] === '用六');
+        
+        if (youkuu && yourikuu) {
+            // グローバルスコープに安全に注入
+            window.H384_DATA = H384_DATA;
+            console.log('✅ H384_DATA: 386爻データがグローバルスコープに正常設定されました');
+            console.log(`   - 総エントリ数: ${H384_DATA.length}`);
+            console.log(`   - 用九エントリ: 通し番号${youkuu['通し番号']} (${youkuu['卦名']})`);
+            console.log(`   - 用六エントリ: 通し番号${yourikuu['通し番号']} (${yourikuu['卦名']})`);
+        } else {
+            console.error('❌ H384_DATA: 用九・用六エントリが見つかりません');
+            window.H384_DATA = H384_DATA; // とりあえず設定
+        }
+    } else {
+        console.error('❌ H384_DATA: データ形式または長さが不正です', {
+            isArray: Array.isArray(H384_DATA),
+            length: H384_DATA?.length
+        });
+        window.H384_DATA = H384_DATA; // とりあえず設定
+    }
+} else {
+    console.error('❌ H384_DATA: window オブジェクトまたは H384_DATA が利用できません');
+}
+
+/**
+ * H384データ整合性検証関数
+ * 
+ * 目的：
+ * - 386爻データの完全性を自動検証
+ * - HaQei哲学に基づくデータ品質保証
+ * 
+ * 出力：
+ * - 検証結果オブジェクト（tests, passed）
+ */
+function validateH384DataIntegrity() {
+    const tests = {
+        windowExists: typeof window !== 'undefined',
+        h384Exists: typeof window.H384_DATA !== 'undefined',
+        isArray: Array.isArray(window.H384_DATA),
+        correctLength: window.H384_DATA?.length === 386,
+        hasYoukuu: window.H384_DATA?.some(item => item['通し番号'] === 7 && item['爻'] === '用九'),
+        hasYourikuu: window.H384_DATA?.some(item => item['通し番号'] === 14 && item['爻'] === '用六'),
+        allEntriesValid: window.H384_DATA?.every(item => 
+            item['通し番号'] && item['卦番号'] && item['卦名'] && item['爻']
+        )
+    };
+    
+    const passed = Object.values(tests).every(test => test);
+    
+    if (passed) {
+        console.log('✅ H384_DATA完全性検証: 全テスト合格');
+    } else {
+        console.warn('⚠️  H384_DATA完全性検証: 問題が検出されました', tests);
+    }
+    
+    return { tests, passed };
+}
+
+// 自動検証実行
+if (typeof window !== 'undefined') {
+    // DOMContentLoaded後に検証を実行
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', validateH384DataIntegrity);
+    } else {
+        validateH384DataIntegrity();
+    }
+}
 
         let H64_DATA = [
             {"卦番号":1,"名前":"乾為天","初爻変":44,"二爻変":13,"三爻変":10,"四爻変":9,"五爻変":14,"上爻変":43},
@@ -455,5 +548,179 @@
             {"卦番号":63,"名前":"水火既済","初爻変":63,"二爻変":62,"三爻変":49,"四爻変":36,"五爻変":37,"上爻変":64},
             {"卦番号":64,"名前":"火水未済","初爻変":64,"二爻変":62,"三爻変":63,"四爻変":49,"五爻変":37,"上爻変":63}
         ];
+
+/**
+ * setH384Data - データ検証機能付きH384_DATA設定関数
+ * 
+ * 目的：
+ * - 外部からのH384_DATAの安全な設定・更新
+ * - HaQei哲学に基づくデータ品質保証
+ * - Triple OS統合システムでの整合性維持
+ * 
+ * 入力：
+ * - data: Array - 386爻データ配列
+ * 
+ * 処理内容：
+ * 1. データ形式の基本検証（Array型、長さ386）
+ * 2. 必須フィールドの存在確認（通し番号、卦番号、卦名、爻）
+ * 3. 用九・用六エントリの完全性確認
+ * 4. window.H384_DATAへの安全な設定
+ * 5. 検証結果の詳細ログ出力
+ * 
+ * 出力：
+ * - boolean: 設定成功時true、失敗時false
+ * 
+ * 副作用：
+ * - window.H384_DATAの更新
+ * - コンソールログの出力
+ * 
+ * 前提条件：
+ * - window オブジェクトが利用可能
+ * - 入力データが386爻システムの仕様に準拠
+ * 
+ * エラー処理：
+ * - データ形式不正: false を返し、エラーログ出力
+ * - 必須フィールド欠損: false を返し、詳細ログ出力
+ * - 用九・用六欠損: 警告ログ出力するも設定継続
+ */
+window.setH384Data = function(data) {
+    // 基本検証: Array型および長さ386
+    if (!Array.isArray(data) || data.length !== 386) {
+        console.error('❌ setH384Data: データ形式エラー', {
+            isArray: Array.isArray(data),
+            length: data?.length,
+            expected: 386
+        });
+        return false;
+    }
+    
+    // 必須フィールド検証
+    const requiredFields = ['通し番号', '卦番号', '卦名', '爻'];
+    const invalidEntries = data.filter((item, index) => {
+        return !requiredFields.every(field => item.hasOwnProperty(field) && item[field] !== null && item[field] !== undefined);
+    });
+    
+    if (invalidEntries.length > 0) {
+        console.error('❌ setH384Data: 必須フィールド欠損エントリが検出されました', {
+            invalidCount: invalidEntries.length,
+            sampleInvalidEntry: invalidEntries[0],
+            requiredFields: requiredFields
+        });
+        return false;
+    }
+    
+    // 用九・用六エントリの存在確認
+    const youkuu = data.find(item => item['通し番号'] === 7 && item['爻'] === '用九');
+    const yourikuu = data.find(item => item['通し番号'] === 14 && item['爻'] === '用六');
+    
+    if (!youkuu || !yourikuu) {
+        console.warn('⚠️  setH384Data: 用九・用六エントリに問題があります', {
+            youkuu: !!youkuu,
+            yourikuu: !!yourikuu
+        });
+        // 警告のみで処理は継続
+    }
+    
+    // window.H384_DATAへの安全な設定
+    try {
+        window.H384_DATA = data;
+        
+        console.log('✅ setH384Data: H384_DATAが正常に設定されました');
+        console.log(`   - 総エントリ数: ${data.length}`);
+        console.log(`   - 用九エントリ: ${youkuu ? `通し番号${youkuu['通し番号']} (${youkuu['卦名']})` : '未検出'}`);
+        console.log(`   - 用六エントリ: ${yourikuu ? `通し番号${yourikuu['通し番号']} (${yourikuu['卦名']})` : '未検出'}`);
+        
+        // 設定後の整合性検証を実行
+        const validationResult = validateH384DataIntegrity();
+        if (!validationResult.passed) {
+            console.warn('⚠️  setH384Data: 設定後の整合性検証で問題が検出されました');
+        }
+        
+        return true;
+        
+    } catch (error) {
+        console.error('❌ setH384Data: データ設定中にエラーが発生しました', error);
+        return false;
+    }
+};
+
+/**
+ * ensureH384Data - H384_DATAフェイルセーフ機能
+ * 
+ * 目的：
+ * - H384_DATA読み込み失敗時の代替動作実装
+ * - システム全体の安定性確保
+ * - HaQei哲学に基づく段階的復旧処理
+ * 
+ * 処理内容：
+ * 1. window.H384_DATAの存在・形式確認
+ * 2. 不正な場合のフォールバックデータ提供
+ * 3. 最小限の386爻データで基本動作を保証
+ * 4. エラー状況の詳細ログ出力
+ * 
+ * 出力：
+ * - Array: 有効なH384_DATAまたはフォールバックデータ
+ * 
+ * 副作用：
+ * - window.H384_DATAの修正（必要時のみ）
+ * - 警告・エラーログの出力
+ * 
+ * 前提条件：
+ * - window オブジェクトが利用可能
+ * 
+ * フォールバック戦略：
+ * - レベル1: 既存データの修復試行
+ * - レベル2: 最小限の基本データ提供
+ * - レベル3: エラー状態での部分機能提供
+ */
+function ensureH384Data() {
+    // 基本的な存在確認
+    if (!window.H384_DATA || !Array.isArray(window.H384_DATA) || window.H384_DATA.length !== 386) {
+        console.warn('⚠️  ensureH384Data: H384_DATAに問題があります。フォールバックモードを開始します。');
+        console.warn(`   - 現在の状態: 存在=${!!window.H384_DATA}, 配列=${Array.isArray(window.H384_DATA)}, 長さ=${window.H384_DATA?.length}`);
+        
+        // フォールバック用最小限データ（主要エントリのみ）
+        const FALLBACK_H384_DATA = [
+            {'通し番号': 7, '卦番号': 1, '卦名': '乾為天', '爻': '用九', 'キーワード': ['協力', '吉', '自律'], '現代解釈の要約': 'フォールバックモード: 基本データが利用できないため、最小限の機能で動作しています。', 'S1_基本スコア': 50, 'S2_ポテンシャル': 25, 'S3_安定性スコア': 40, 'S4_リスク': -25, 'S5_主体性推奨スタンス': '中立', 'S6_変動性スコア': 40, 'S7_総合評価スコア': 40},
+            {'通し番号': 14, '卦番号': 2, '卦名': '坤為地', '爻': '用六', 'キーワード': ['堅実', '忍耐', '持続'], '現代解釈の要約': 'フォールバックモード: 基本データが利用できないため、最小限の機能で動作しています。', 'S1_基本スコア': 50, 'S2_ポテンシャル': 25, 'S3_安定性スコア': 40, 'S4_リスク': -25, 'S5_主体性推奨スタンス': '中立', 'S6_変動性スコア': 40, 'S7_総合評価スコア': 40}
+        ];
+        
+        // 386エントリを最小限データで埋める
+        while (FALLBACK_H384_DATA.length < 386) {
+            const entryNum = FALLBACK_H384_DATA.length + 1;
+            FALLBACK_H384_DATA.push({
+                '通し番号': entryNum,
+                '卦番号': Math.floor((entryNum - 1) / 6) + 1,
+                '卦名': 'フォールバック卦',
+                '爻': `フォールバック${entryNum}`,
+                'キーワード': ['フォールバック', 'データ不足', 'エラー'],
+                '現代解釈の要約': 'フォールバックモード: 本来のデータが利用できません。',
+                'S1_基本スコア': 25,
+                'S2_ポテンシャル': 25,
+                'S3_安定性スコア': 25,
+                'S4_リスク': -50,
+                'S5_主体性推奨スタンス': '受動',
+                'S6_変動性スコア': 50,
+                'S7_総合評価スコア': 25
+            });
+        }
+        
+        window.H384_DATA = FALLBACK_H384_DATA;
+        console.warn('⚠️  ensureH384Data: フォールバックデータを設定しました。正常なデータの復旧をお勧めします。');
+    }
+    
+    return window.H384_DATA;
+}
+
+// グローバルスコープでの関数公開
+if (typeof window !== 'undefined') {
+    window.ensureH384Data = ensureH384Data;
+    
+    // H64_DATAもグローバルスコープに設定
+    if (typeof H64_DATA !== 'undefined' && Array.isArray(H64_DATA)) {
+        window.H64_DATA = H64_DATA;
+        console.log('✅ H64_DATA: 64卦データがグローバルスコープに正常設定されました');
+    }
+}
 
      

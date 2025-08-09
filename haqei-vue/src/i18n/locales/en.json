@@ -1,0 +1,209 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "retry": "Retry",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "reset": "Reset",
+    "clear": "Clear",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "signup": "Sign Up",
+    "forgotPassword": "Forgot Password",
+    "resetPassword": "Reset Password",
+    "changePassword": "Change Password",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "rememberMe": "Remember Me"
+  },
+  "validation": {
+    "required": "{field} is required",
+    "minLength": "{field} must be at least {min} characters",
+    "maxLength": "{field} must not exceed {max} characters",
+    "email": "Please enter a valid email address",
+    "password": "Password must be at least 8 characters and contain uppercase, lowercase, and numbers",
+    "confirmPassword": "Passwords do not match",
+    "numeric": "{field} must be a number",
+    "positive": "{field} must be a positive number",
+    "url": "Please enter a valid URL",
+    "date": "Please enter a valid date",
+    "phoneNumber": "Please enter a valid phone number"
+  },
+  "errors": {
+    "network": {
+      "connectionFailed": "Internet connection failed",
+      "timeout": "Request timed out",
+      "serverError": "Server error occurred",
+      "notFound": "Requested resource not found",
+      "unauthorized": "Authentication required",
+      "forbidden": "Access forbidden",
+      "badRequest": "Bad request",
+      "rateLimited": "Rate limit exceeded. Please try again later",
+      "offline": "You are offline. Please check your internet connection"
+    },
+    "auth": {
+      "invalidCredentials": "Invalid email or password",
+      "sessionExpired": "Session expired. Please login again",
+      "accountLocked": "Account is locked. Please contact administrator",
+      "emailNotVerified": "Email address not verified",
+      "weakPassword": "Password is too weak. Please choose a stronger password",
+      "emailAlreadyExists": "This email address is already in use",
+      "invalidToken": "Invalid token",
+      "tokenExpired": "Token has expired"
+    },
+    "database": {
+      "connectionError": "Database connection error",
+      "queryError": "Database query error",
+      "constraintViolation": "Data constraint violation",
+      "duplicateKey": "Duplicate data exists",
+      "transactionFailed": "Transaction failed",
+      "migrationError": "Database migration error",
+      "backupError": "Database backup error",
+      "restoreError": "Database restore error"
+    },
+    "file": {
+      "uploadFailed": "File upload failed",
+      "downloadFailed": "File download failed",
+      "fileTooLarge": "File size exceeds limit (max: {maxSize})",
+      "invalidFileType": "Unsupported file type",
+      "fileNotFound": "File not found",
+      "permissionDenied": "File access permission denied",
+      "diskFull": "Disk space insufficient",
+      "corruptedFile": "File is corrupted"
+    },
+    "api": {
+      "invalidResponse": "Invalid API response",
+      "malformedData": "Malformed data format",
+      "versionMismatch": "API version mismatch",
+      "quotaExceeded": "API usage quota exceeded",
+      "serviceUnavailable": "Service unavailable",
+      "maintenanceMode": "Service is under maintenance. Please wait",
+      "deprecatedEndpoint": "This API endpoint is deprecated"
+    },
+    "sync": {
+      "syncFailed": "Data synchronization failed",
+      "conflictDetected": "Data conflict detected",
+      "outOfSync": "Data is out of sync",
+      "mergeFailed": "Data merge failed",
+      "versionConflict": "Version conflict occurred",
+      "lockTimeout": "Sync lock timeout",
+      "checksumMismatch": "Data integrity check failed"
+    },
+    "offline": {
+      "noConnection": "No internet connection",
+      "weakConnection": "Weak internet connection",
+      "dataNotAvailable": "Data not available offline",
+      "syncRequired": "Data sync required",
+      "offlineModeActive": "Offline mode active",
+      "storageQuotaExceeded": "Offline storage quota exceeded"
+    },
+    "validation": {
+      "invalidFormat": "Invalid input format",
+      "outOfRange": "Value out of allowed range",
+      "duplicateEntry": "Duplicate entry",
+      "referenceNotFound": "Referenced data not found",
+      "dependencyError": "Dependency error",
+      "businessRuleViolation": "Business rule violation"
+    },
+    "system": {
+      "unexpectedError": "An unexpected error occurred",
+      "configurationError": "Configuration error",
+      "permissionError": "Permission error",
+      "resourceNotFound": "Resource not found",
+      "serviceTimeout": "Service timeout",
+      "memoryError": "Memory error",
+      "diskError": "Disk error",
+      "criticalError": "Critical error occurred. Please contact administrator"
+    }
+  },
+  "offline": {
+    "title": "Offline Mode",
+    "message": "Checking internet connection...",
+    "retry": "Retry",
+    "dataAvailable": "Offline data available",
+    "syncWhenOnline": "Will sync when online",
+    "limitedFunctionality": "Some features are limited"
+  },
+  "sync": {
+    "status": {
+      "idle": "Sync idle",
+      "syncing": "Syncing...",
+      "success": "Sync complete",
+      "error": "Sync error",
+      "conflict": "Conflict resolution needed",
+      "paused": "Sync paused"
+    },
+    "actions": {
+      "syncNow": "Sync Now",
+      "pauseSync": "Pause Sync",
+      "resumeSync": "Resume Sync",
+      "resolveConflict": "Resolve Conflict",
+      "forceSync": "Force Sync"
+    },
+    "messages": {
+      "lastSync": "Last sync: {time}",
+      "nextSync": "Next sync: {time}",
+      "itemsToSync": "Items to sync: {count}",
+      "conflictsFound": "Conflicts: {count}",
+      "syncInProgress": "Syncing... {progress}%"
+    }
+  },
+  "network": {
+    "quality": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "poor": "Poor",
+      "weak": "Weak",
+      "offline": "Offline"
+    }
+  },
+  "haqei": {
+    "title": "HaQei Analyzer",
+    "subtitle": "Life Strategy Analysis Tool Based on I Ching",
+    "analysis": {
+      "quick": "Quick Analysis",
+      "detailed": "Detailed Analysis",
+      "strategic": "Strategic Analysis",
+      "hexagram": "Hexagram",
+      "interpretation": "Interpretation",
+      "advice": "Advice",
+      "timeline": "Timeline"
+    },
+    "stages": {
+      "1": "Initial Setup",
+      "2": "OS Analysis",
+      "3": "Integrated Analysis",
+      "4": "Strategy Planning",
+      "5": "Action Plan",
+      "6": "Monitoring",
+      "7": "Optimization"
+    }
+  },
+  "messages": {
+    "welcome": "Welcome to HaQei Analyzer",
+    "selectAnalysis": "Please select analysis type",
+    "analysisComplete": "Analysis completed",
+    "dataUpdated": "Data updated",
+    "changesSaved": "Changes saved",
+    "operationCancelled": "Operation cancelled",
+    "confirmDelete": "Are you sure you want to delete?",
+    "noDataAvailable": "No data available",
+    "loadingData": "Loading data..."
+  }
+}

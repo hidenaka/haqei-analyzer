@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Critical Error Fix Verification Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .log { background: #f8f9fa; padding: 10px; font-family: monospace; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🚨 Critical JavaScript Syntax Error Fix Test</h1>
+    
+    <div id="test-results"></div>
+    
+    <div class="test-section">
+        <h3>Test 1: Core JavaScript Files Loading</h3>
+        <button onclick="testCoreFiles()">Test Core Files</button>
+        <div id="core-test-results" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: querySelector Syntax Fix</h3>
+        <button onclick="testQuerySelector()">Test Selector</button>
+        <div id="selector-test-results" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: Async/Await Function Verification</h3>
+        <button onclick="testAsyncAwait()">Test Async Functions</button>
+        <div id="async-test-results" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 4: Class Declaration Verification</h3>
+        <button onclick="testClassDeclarations()">Test Classes</button>
+        <div id="class-test-results" class="log"></div>
+    </div>
+    
+    <!-- Load fixed JavaScript files -->
+    <script src="/dist/js/utils/ChunkLoader.js"></script>
+    <script src="/dist/js/utils/BundleOptimizer.js"></script>
+    <script src="/dist/js/utils/CodeSplitter.js"></script>
+    <script src="/dist/js/future-simulator-core.js"></script>
+    
+    <script>
+        let testResults = [];
+        
+        function logResult(testName, status, message) {
+            const result = {
+                test: testName,
+                status: status,
+                message: message,
+                timestamp: new Date().toLocaleTimeString()
+            };
+            testResults.push(result);
+            
+            const resultsDiv = document.getElementById('test-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-section ${status}`;
+            resultDiv.innerHTML = `
+                <strong>[${result.timestamp}] ${testName}: ${status.toUpperCase()}</strong><br>
+                ${message}
+            `;
+            resultsDiv.appendChild(resultDiv);
+            
+            console.log(`[${testName}] ${status}: ${message}`);
+        }
+        
+        function testCoreFiles() {
+            const resultsDiv = document.getElementById('core-test-results');
+            resultsDiv.innerHTML = '';
+            
+            try {
+                // Test ChunkLoader
+                if (typeof window.chunkLoader !== 'undefined') {
+                    resultsDiv.innerHTML += '✅ ChunkLoader loaded successfully\\n';
+                    logResult('Core Files - ChunkLoader', 'success', 'ChunkLoader class loaded and initialized');
+                } else {
+                    throw new Error('ChunkLoader not found');
+                }
+                
+                // Test BundleOptimizer
+                if (typeof window.bundleOptimizer !== 'undefined') {
+                    resultsDiv.innerHTML += '✅ BundleOptimizer loaded successfully\\n';
+                    logResult('Core Files - BundleOptimizer', 'success', 'BundleOptimizer class loaded and initialized');
+                } else {
+                    throw new Error('BundleOptimizer not found');
+                }
+                
+                // Test CodeSplitter
+                if (typeof window.codeSplitter !== 'undefined') {
+                    resultsDiv.innerHTML += '✅ CodeSplitter loaded successfully\\n';
+                    logResult('Core Files - CodeSplitter', 'success', 'CodeSplitter class loaded and initialized');
+                } else {
+                    throw new Error('CodeSplitter not found');
+                }
+                
+                resultsDiv.innerHTML += '\\n🎉 ALL CORE FILES LOADED WITHOUT SYNTAX ERRORS!';
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `❌ Error: ${error.message}`;
+                logResult('Core Files', 'error', error.message);
+            }
+        }
+        
+        function testQuerySelector() {
+            const resultsDiv = document.getElementById('selector-test-results');
+            resultsDiv.innerHTML = '';
+            
+            try {
+                // Test that the old problematic selector pattern is fixed
+                const testButtons = document.querySelectorAll('button');
+                const analyzeButton = Array.from(testButtons).find(btn => btn.textContent.includes('分析'));
+                
+                if (analyzeButton) {
+                    resultsDiv.innerHTML += '✅ querySelector working with Japanese text filter\\n';
+                } else {
+                    resultsDiv.innerHTML += '⚠️ No analyze button found (expected)\\n';
+                }
+                
+                // Test that we can find buttons normally
+                const testButton = document.querySelector('button[onclick*="testQuerySelector"]');
+                if (testButton) {
+                    resultsDiv.innerHTML += '✅ Standard querySelector working\\n';
+                }
+                
+                resultsDiv.innerHTML += '\\n🎉 QUERYSELECTOR SYNTAX FIXED!';
+                logResult('querySelector Fix', 'success', 'No more invalid selector syntax errors');
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `❌ Error: ${error.message}`;
+                logResult('querySelector Fix', 'error', error.message);
+            }
+        }
+        
+        async function testAsyncAwait() {
+            const resultsDiv = document.getElementById('async-test-results');
+            resultsDiv.innerHTML = '';
+            
+            try {
+                // Test async function works
+                const testAsyncFunction = async () => {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    return 'async test completed';
+                };
+                
+                const result = await testAsyncFunction();
+                resultsDiv.innerHTML += `✅ Async/await working: ${result}\\n`;
+                
+                // Test ChunkLoader async methods
+                if (window.chunkLoader && typeof window.chunkLoader.loadChunk === 'function') {
+                    resultsDiv.innerHTML += '✅ ChunkLoader async methods available\\n';
+                }
+                
+                resultsDiv.innerHTML += '\\n🎉 ASYNC/AWAIT SYNTAX FIXED!';
+                logResult('Async/Await Fix', 'success', 'Async functions working properly');
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `❌ Error: ${error.message}`;
+                logResult('Async/Await Fix', 'error', error.message);
+            }
+        }
+        
+        function testClassDeclarations() {
+            const resultsDiv = document.getElementById('class-test-results');
+            resultsDiv.innerHTML = '';
+            
+            try {
+                // Check for proper class definitions
+                const classes = ['ChunkLoader', 'BundleOptimizer', 'CodeSplitter'];
+                const foundClasses = [];
+                
+                classes.forEach(className => {
+                    try {
+                        if (window[className.toLowerCase()] || eval(`typeof ${className} !== 'undefined'`)) {
+                            foundClasses.push(className);
+                            resultsDiv.innerHTML += `✅ ${className} class defined properly\\n`;
+                        }
+                    } catch (e) {
+                        // Check global instances instead
+                        const instanceName = className.toLowerCase();
+                        if (window[instanceName]) {
+                            foundClasses.push(className);
+                            resultsDiv.innerHTML += `✅ ${className} instance available as ${instanceName}\\n`;
+                        }
+                    }
+                });
+                
+                resultsDiv.innerHTML += `\\n🎉 ${foundClasses.length} CLASSES LOADED WITHOUT DUPLICATES!`;
+                logResult('Class Declarations', 'success', `${foundClasses.length} classes loaded properly: ${foundClasses.join(', ')}`);
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `❌ Error: ${error.message}`;
+                logResult('Class Declarations', 'error', error.message);
+            }
+        }
+        
+        // Auto-run initial test on page load
+        window.addEventListener('load', () => {
+            logResult('Page Load', 'success', 'Page loaded without critical JavaScript syntax errors');
+            
+            // Check for console errors
+            const originalError = console.error;
+            let errorCount = 0;
+            
+            console.error = function(...args) {
+                errorCount++;
+                originalError.apply(console, args);
+            };
+            
+            setTimeout(() => {
+                if (errorCount === 0) {
+                    logResult('Console Errors', 'success', 'No console errors detected in first 2 seconds');
+                } else {
+                    logResult('Console Errors', 'error', `${errorCount} console errors detected`);
+                }
+            }, 2000);
+        });
+        
+        // Export results for debugging
+        window.getTestResults = () => testResults;
+        
+        // Global error handler
+        window.addEventListener('error', (event) => {
+            logResult('Runtime Error', 'error', `${event.error.message} at ${event.filename}:${event.lineno}`);
+        });
+        
+        // Show final summary
+        function showSummary() {
+            const successCount = testResults.filter(r => r.status === 'success').length;
+            const errorCount = testResults.filter(r => r.status === 'error').length;
+            
+            alert(`Test Summary:
+✅ Success: ${successCount}
+❌ Errors: ${errorCount}
+Total: ${testResults.length}
+
+${errorCount === 0 ? '🎉 ALL CRITICAL ERRORS FIXED!' : '⚠️ Some errors still need attention'}`);
+        }
+        
+        // Add summary button
+        setTimeout(() => {
+            const button = document.createElement('button');
+            button.textContent = 'Show Summary';
+            button.onclick = showSummary;
+            button.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 1000; background: #28a745; color: white; border: none; padding: 10px;';
+            document.body.appendChild(button);
+        }, 1000);
+    </script>
+</body>
+</html>

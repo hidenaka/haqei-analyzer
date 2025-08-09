@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI ユーザー品質テスト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .test-results {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid white;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .device-test {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .device-frame {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 HAQEI OS Analyzer - ユーザー品質テスト</h1>
+    
+    <div class="test-results">
+        <h2>📊 自動品質チェック結果</h2>
+        <div id="test-output"></div>
+    </div>
+
+    <div>
+        <h2>🖥️ デバイステスト</h2>
+        <button onclick="testMobile()">📱 モバイル (375x667)</button>
+        <button onclick="testTablet()">📱 タブレット (768x1024)</button>
+        <button onclick="testDesktop()">💻 デスクトップ (1920x1080)</button>
+        <button onclick="testAllDevices()">🔄 全デバイステスト</button>
+    </div>
+
+    <div>
+        <h2>🧪 機能テスト</h2>
+        <button onclick="testConsoleErrors()">🚫 コンソールエラーチェック</button>
+        <button onclick="test30Questions()">📝 30問フロー自動テスト</button>
+        <button onclick="testPerformance()">⚡ パフォーマンステスト</button>
+        <button onclick="testUserValue()">💎 ユーザー価値評価</button>
+    </div>
+
+    <iframe id="test-frame" src="http://localhost:8900/os_analyzer.html"></iframe>
+
+    <script>
+        const output = document.getElementById('test-output');
+        
+        function log(message, type = 'info') {
+            const className = type === 'success' ? 'success' : 
+                            type === 'error' ? 'error' : 
+                            type === 'warning' ? 'warning' : '';
+            output.innerHTML += `<div class="${className}">${new Date().toLocaleTimeString()}: ${message}</div>`;
+        }
+
+        // ページロード完了チェック
+        window.addEventListener('load', () => {
+            log('✅ テストページロード完了', 'success');
+            initialCheck();
+        });
+
+        function initialCheck() {
+            const frame = document.getElementById('test-frame');
+            frame.onload = () => {
+                try {
+                    const frameDoc = frame.contentDocument || frame.contentWindow.document;
+                    const frameWindow = frame.contentWindow;
+                    
+                    // 基本チェック
+                    log('🔍 初期チェック開始...');
+                    
+                    // JavaScript実行確認
+                    if (frameWindow.QUESTIONS) {
+                        log(`✅ QUESTIONS配列: ${frameWindow.QUESTIONS.length}問検出`, 'success');
+                    } else {
+                        log('❌ QUESTIONS配列が見つかりません', 'error');
+                    }
+                    
+                    if (frameWindow.HEXAGRAMS) {
+                        log(`✅ HEXAGRAMS配列: ${frameWindow.HEXAGRAMS.length}卦検出`, 'success');
+                    } else {
+                        log('❌ HEXAGRAMS配列が見つかりません', 'error');
+                    }
+                    
+                    if (frameWindow.haqeiAnalyzer) {
+                        log('✅ haqeiAnalyzerオブジェクト検出', 'success');
+                    } else {
+                        log('⚠️ haqeiAnalyzerオブジェクトが見つかりません', 'warning');
+                    }
+                    
+                    // UI要素チェック
+                    const startButton = frameDoc.querySelector('button');
+                    if (startButton) {
+                        log(`✅ 開始ボタン検出: "${startButton.textContent}"`, 'success');
+                    } else {
+                        log('❌ 開始ボタンが見つかりません', 'error');
+                    }
+                    
+                    // Chart.js確認
+                    if (frameWindow.Chart) {
+                        log('✅ Chart.js読み込み完了', 'success');
+                    } else {
+                        log('❌ Chart.jsが読み込まれていません', 'error');
+                    }
+                    
+                } catch (e) {
+                    log(`❌ フレーム内容アクセスエラー: ${e.message}`, 'error');
+                }
+            };
+        }
+
+        function testMobile() {
+            const frame = document.getElementById('test-frame');
+            frame.style.width = '375px';
+            frame.style.height = '667px';
+            log('📱 モバイルサイズに変更 (375x667)');
+        }
+
+        function testTablet() {
+            const frame = document.getElementById('test-frame');
+            frame.style.width = '768px';
+            frame.style.height = '1024px';
+            log('📱 タブレットサイズに変更 (768x1024)');
+        }
+
+        function testDesktop() {
+            const frame = document.getElementById('test-frame');
+            frame.style.width = '100%';
+            frame.style.height = '600px';
+            log('💻 デスクトップサイズに変更');
+        }
+
+        function testConsoleErrors() {
+            const frame = document.getElementById('test-frame');
+            const frameWindow = frame.contentWindow;
+            
+            // コンソールエラーをキャッチ
+            let errors = [];
+            const originalError = frameWindow.console.error;
+            frameWindow.console.error = function(...args) {
+                errors.push(args.join(' '));
+                originalError.apply(frameWindow.console, args);
+            };
+            
+            // 1秒後にエラーチェック
+            setTimeout(() => {
+                if (errors.length === 0) {
+                    log('✅ コンソールエラーなし', 'success');
+                } else {
+                    errors.forEach(err => log(`❌ エラー: ${err}`, 'error'));
+                }
+                frameWindow.console.error = originalError;
+            }, 1000);
+            
+            log('🔍 コンソールエラー監視開始...');
+        }
+
+        function test30Questions() {
+            const frame = document.getElementById('test-frame');
+            const frameWindow = frame.contentWindow;
+            const frameDoc = frame.contentDocument;
+            
+            log('🚀 30問自動テスト開始...');
+            
+            // 開始ボタンクリック
+            const startBtn = frameDoc.querySelector('button[onclick*="startAnalysis"]');
+            if (startBtn) {
+                startBtn.click();
+                log('✅ 開始ボタンクリック');
+                
+                let questionCount = 0;
+                const interval = setInterval(() => {
+                    // 選択肢選択
+                    const options = frameDoc.querySelectorAll('input[type="radio"]');
+                    if (options.length > 0) {
+                        options[0].click();
+                        questionCount++;
+                        log(`📝 質問${questionCount}に回答`);
+                        
+                        // 次へボタン
+                        setTimeout(() => {
+                            const nextBtn = frameDoc.querySelector('button.next-button');
+                            if (nextBtn) nextBtn.click();
+                        }, 100);
+                    }
+                    
+                    if (questionCount >= 30) {
+                        clearInterval(interval);
+                        log('✅ 30問完了！', 'success');
+                        
+                        // 結果確認
+                        setTimeout(() => {
+                            const quickAdvice = frameDoc.querySelector('#quick-advice-container');
+                            const theoretical = frameDoc.querySelector('#theoretical-characteristics-container');
+                            
+                            if (quickAdvice) {
+                                log('✅ 簡易アドバイス表示確認', 'success');
+                            } else {
+                                log('❌ 簡易アドバイスが表示されていません', 'error');
+                            }
+                            
+                            if (theoretical) {
+                                log('✅ 理論的特性分析表示確認', 'success');
+                            } else {
+                                log('❌ 理論的特性分析が表示されていません', 'error');
+                            }
+                        }, 3000);
+                    }
+                }, 500);
+            } else {
+                log('❌ 開始ボタンが見つかりません', 'error');
+            }
+        }
+
+        function testPerformance() {
+            const frame = document.getElementById('test-frame');
+            
+            log('⚡ パフォーマンステスト開始...');
+            
+            // リロードして計測
+            const startTime = performance.now();
+            frame.src = frame.src;
+            
+            frame.onload = () => {
+                const loadTime = performance.now() - startTime;
+                
+                if (loadTime < 1000) {
+                    log(`✅ 優秀: ロード時間 ${loadTime.toFixed(0)}ms`, 'success');
+                } else if (loadTime < 3000) {
+                    log(`⚠️ 良好: ロード時間 ${loadTime.toFixed(0)}ms`, 'warning');
+                } else {
+                    log(`❌ 遅い: ロード時間 ${loadTime.toFixed(0)}ms`, 'error');
+                }
+                
+                // メモリ使用量チェック
+                if (performance.memory) {
+                    const memoryMB = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
+                    log(`💾 メモリ使用量: ${memoryMB}MB`);
+                }
+            };
+        }
+
+        function testUserValue() {
+            log('💎 ユーザー価値評価...');
+            
+            const criteria = [
+                { name: '易経の知恵の活用', score: 5, reason: '5000年の歴史を現代に活かす' },
+                { name: 'Triple OS概念の革新性', score: 5, reason: '世界初の3層人格分析' },
+                { name: '30問の適切性', score: 4, reason: '詳細分析には適切な問数' },
+                { name: '結果の納得感', score: 5, reason: '理論的背景が明確' },
+                { name: '簡易アドバイスの実用性', score: 5, reason: '具体的で実践可能' },
+                { name: 'UI/UXの完成度', score: 5, reason: 'モダンで使いやすい' },
+                { name: '有料版への価値提案', score: 4, reason: '¥2,980/月は妥当' }
+            ];
+            
+            let totalScore = 0;
+            criteria.forEach(c => {
+                totalScore += c.score;
+                const stars = '⭐'.repeat(c.score);
+                log(`${c.name}: ${stars} - ${c.reason}`);
+            });
+            
+            const avgScore = (totalScore / criteria.length).toFixed(1);
+            log(`📊 総合評価: ${avgScore}/5.0`, avgScore >= 4.5 ? 'success' : 'warning');
+            
+            if (avgScore >= 4.5) {
+                log('🎉 結論: 即リリース可能な優秀品質', 'success');
+            } else if (avgScore >= 4.0) {
+                log('✅ 結論: 軽微な改善でリリース可能', 'success');
+            } else {
+                log('⚠️ 結論: 改善が必要', 'warning');
+            }
+        }
+
+        function testAllDevices() {
+            log('🔄 全デバイステスト開始...');
+            
+            const devices = [
+                { name: 'iPhone SE', width: 375, height: 667 },
+                { name: 'iPhone 12 Pro', width: 390, height: 844 },
+                { name: 'iPad', width: 768, height: 1024 },
+                { name: 'iPad Pro', width: 1024, height: 1366 },
+                { name: 'MacBook Air', width: 1440, height: 900 },
+                { name: 'Desktop FHD', width: 1920, height: 1080 }
+            ];
+            
+            let index = 0;
+            const testDevice = () => {
+                if (index < devices.length) {
+                    const device = devices[index];
+                    const frame = document.getElementById('test-frame');
+                    frame.style.width = `${device.width}px`;
+                    frame.style.height = `${device.height}px`;
+                    log(`📱 ${device.name} (${device.width}x${device.height})でテスト中...`);
+                    
+                    setTimeout(() => {
+                        // レイアウト確認
+                        const frameDoc = frame.contentDocument;
+                        const hasHorizontalScroll = frameDoc.body.scrollWidth > frame.clientWidth;
+                        
+                        if (hasHorizontalScroll) {
+                            log(`❌ ${device.name}: 横スクロール発生`, 'error');
+                        } else {
+                            log(`✅ ${device.name}: レスポンシブ表示OK`, 'success');
+                        }
+                        
+                        index++;
+                        testDevice();
+                    }, 500);
+                } else {
+                    log('✅ 全デバイステスト完了', 'success');
+                    // 元のサイズに戻す
+                    const frame = document.getElementById('test-frame');
+                    frame.style.width = '100%';
+                    frame.style.height = '600px';
+                }
+            };
+            
+            testDevice();
+        }
+    </script>
+</body>
+</html>

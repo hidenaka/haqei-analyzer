@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>HAQEI 30問テスト実行</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+        }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        #log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        .info { color: #60a5fa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 HAQEI 30問完全動作テスト</h1>
+        <p>このテストは30問すべてに自動回答し、結果表示までの動作を確認します。</p>
+        
+        <div>
+            <button onclick="runTest()">🚀 テスト開始</button>
+            <button onclick="clearLog()">🗑️ ログクリア</button>
+        </div>
+        
+        <div id="log"></div>
+    </div>
+
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type;
+            log.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function clearLog() {
+            log.innerHTML = '';
+        }
+        
+        async function runTest() {
+            addLog('テスト開始...', 'info');
+            
+            // 新しいウィンドウでos_analyzer.htmlを開く
+            const testWindow = window.open('/os_analyzer.html', 'test', 'width=1200,height=800');
+            
+            if (!testWindow) {
+                addLog('ポップアップがブロックされました。ポップアップを許可してください。', 'error');
+                return;
+            }
+            
+            // ページの読み込みを待つ
+            testWindow.onload = async () => {
+                addLog('ページ読み込み完了', 'success');
+                
+                try {
+                    // ウェルカム画面の確認
+                    const welcomeScreen = testWindow.document.getElementById('welcomeScreen');
+                    if (welcomeScreen) {
+                        addLog('✅ ウェルカム画面表示確認', 'success');
+                    }
+                    
+                    // スタートボタンをクリック
+                    const startButton = testWindow.document.getElementById('startButton');
+                    if (startButton) {
+                        startButton.click();
+                        addLog('✅ 分析開始', 'success');
+                    }
+                    
+                    // 30問に順次回答
+                    let questionCount = 0;
+                    const answerInterval = setInterval(() => {
+                        const questionContainer = testWindow.document.querySelector('.question-container');
+                        const answerButtons = testWindow.document.querySelectorAll('.answer-button');
+                        
+                        if (questionContainer && answerButtons.length > 0) {
+                            questionCount++;
+                            
+                            // 質問テキストを取得
+                            const questionText = testWindow.document.querySelector('.question-text');
+                            if (questionText) {
+                                addLog(`📝 質問 ${questionCount}/30: ${questionText.textContent.substring(0, 50)}...`, 'info');
+                            }
+                            
+                            // ランダムに回答を選択
+                            const randomIndex = Math.floor(Math.random() * answerButtons.length);
+                            answerButtons[randomIndex].click();
+                            addLog(`✅ 質問 ${questionCount} 回答完了`, 'success');
+                            
+                            // 30問完了したら結果を確認
+                            if (questionCount >= 30) {
+                                clearInterval(answerInterval);
+                                
+                                setTimeout(() => {
+                                    checkResults(testWindow);
+                                }, 2000);
+                            }
+                        }
+                    }, 1000);
+                    
+                } catch (error) {
+                    addLog(`エラー: ${error.message}`, 'error');
+                }
+            };
+        }
+        
+        function checkResults(testWindow) {
+            addLog('結果表示の確認中...', 'info');
+            
+            // 結果コンテナの確認
+            const resultsContainer = testWindow.document.getElementById('resultsContainer');
+            if (resultsContainer && resultsContainer.style.display !== 'none') {
+                addLog('✅ 結果表示成功！', 'success');
+                
+                // Chart.jsの確認
+                if (testWindow.Chart) {
+                    addLog('✅ Chart.js読み込み成功', 'success');
+                } else {
+                    addLog('❌ Chart.js未読み込み', 'error');
+                }
+                
+                // getHexagramData関数の確認
+                const engine = testWindow.tripleOSEngine || testWindow.engine;
+                if (engine && typeof engine.getHexagramData === 'function') {
+                    addLog('✅ getHexagramData関数存在確認', 'success');
+                } else {
+                    addLog('❌ getHexagramData関数が見つかりません', 'error');
+                }
+                
+                // エラーコンソールの確認
+                const errors = testWindow.document.querySelectorAll('.error-message');
+                if (errors.length > 0) {
+                    errors.forEach(error => {
+                        addLog(`⚠️ エラー: ${error.textContent}`, 'error');
+                    });
+                } else {
+                    addLog('✅ エラーメッセージなし', 'success');
+                }
+                
+                addLog('🎉 テスト完了！', 'success');
+            } else {
+                addLog('❌ 結果が表示されませんでした', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

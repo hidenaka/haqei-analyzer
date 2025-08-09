@@ -1,0 +1,57 @@
+{
+  "mcpServers": {
+    "serena": {
+      "command": "uv",
+      "args": [
+        "run",
+        "serena-mcp-server",
+        "--project",
+        "/Users/hideakimacbookair/Desktop/haqei-analyzer",
+        "--context",
+        "/Users/hideakimacbookair/Desktop/haqei-analyzer/serena-mcp/src/serena/resources/config/contexts/haqei-development.yml",
+        "--mode",
+        "interactive",
+        "editing",
+        "planning",
+        "--transport",
+        "stdio"
+      ],
+      "env": {
+        "PYTHONPATH": "/Users/hideakimacbookair/Desktop/haqei-analyzer/serena-mcp/src"
+      },
+      "cwd": "/Users/hideakimacbookair/Desktop/haqei-analyzer/serena-mcp",
+      "description": "HAQEI Analyzer Serena MCP Server - bunenjin哲学とTriple OSアーキテクチャ特化",
+      "disabled": false
+    },
+    "cipher": {
+      "command": "node",
+      "args": ["cipher-server.js"],
+      "cwd": "/Users/hideakimacbookair/Desktop/haqei-analyzer",
+      "description": "HAQEI Cipher Dual Memory Layer Server",
+      "disabled": false
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp"],
+      "cwd": "/Users/hideakimacbookair/Desktop/haqei-analyzer",
+      "description": "Playwright MCP Server for browser automation and web testing",
+      "disabled": false
+    }
+  },
+  "integrationSettings": {
+    "haqei": {
+      "philosophy": "bunenjin",
+      "architecture": "triple_os",
+      "memory_sharing": {
+        "cipher_serena_sync": true,
+        "shared_contexts": [
+          "bunenjin-philosophy",
+          "iching-logic",
+          "implementation-patterns",
+          "project-history"
+        ]
+      },
+      "development_mode": "philosophical_first"
+    }
+  }
+}

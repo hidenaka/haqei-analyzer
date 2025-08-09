@@ -1,0 +1,37 @@
+{
+  "visualDevelopment": {
+    "enabled": true,
+    "screenshotOnChange": true,
+    "autoValidation": true,
+    "requireStyleCheck": true
+  },
+  "htmlCssRules": {
+    "enforceExistingClasses": true,
+    "preventDuplicateStyles": true,
+    "requireResponsive": true,
+    "checkAccessibility": true
+  },
+  "workflow": {
+    "beforeChange": [
+      "readExistingStyles",
+      "checkDesignSystem",
+      "validateCurrentLayout"
+    ],
+    "afterChange": [
+      "captureScreenshot",
+      "compareWithBaseline",
+      "runVisualTests"
+    ]
+  },
+  "validation": {
+    "cssLinting": true,
+    "htmlValidation": true,
+    "crossBrowserCheck": true,
+    "mobileFirstApproach": true
+  },
+  "errorPrevention": {
+    "maxRetries": 2,
+    "testBeforeCommit": true,
+    "visualDiffThreshold": 0.1
+  }
+}

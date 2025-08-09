@@ -1,0 +1,35 @@
+name = "haqei-analyzer"
+compatibility_date = "2024-08-05"
+
+[env.production]
+name = "haqei-analyzer-production"
+compatibility_date = "2024-08-05"
+routes = [
+  { pattern = "haqei.com/*", zone_name = "haqei.com" },
+  { pattern = "www.haqei.com/*", zone_name = "haqei.com" }
+]
+
+[env.staging]
+name = "haqei-analyzer-staging"
+compatibility_date = "2024-08-05"
+routes = [
+  { pattern = "staging.haqei.com/*", zone_name = "haqei.com" }
+]
+
+[env.blue]
+name = "haqei-analyzer-blue"
+compatibility_date = "2024-08-05"
+routes = [
+  { pattern = "blue.haqei.com/*", zone_name = "haqei.com" }
+]
+
+# Build configuration
+[build]
+command = "npm run build"
+cwd = "."
+watch_dir = "."
+
+
+# Environment variables (these will be overridden by GitHub Actions secrets)
+[vars]
+NODE_ENV = "production"

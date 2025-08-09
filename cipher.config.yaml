@@ -1,0 +1,57 @@
+# Cipher Configuration for HAQEI Analyzer
+# Bunenjin Philosophy + Dual Memory Layer Integration
+
+server:
+  port: 3001
+  host: localhost
+  
+memory:
+  # Dual Memory Layer: Programming Concepts + Reasoning Steps
+  enabled: true
+  provider: local
+  persistent: true
+  
+  # HAQEI-specific memory contexts
+  contexts:
+    - name: "bunenjin-philosophy"
+      description: "Core bunenjin philosophy and Triple OS Architecture"
+      priority: high
+      
+    - name: "iching-logic"
+      description: "I Ching 易経 wisdom and hexagram relationships"
+      priority: high
+      
+    - name: "user-sovereignty"
+      description: "Privacy-first, local-storage, user control principles"
+      priority: high
+      
+    - name: "implementation-patterns"
+      description: "Code patterns, design decisions, and technical choices"
+      priority: medium
+      
+    - name: "project-history"
+      description: "Development history and decision rationale"
+      priority: medium
+
+storage:
+  type: file
+  path: "./data/cipher-memory"
+  
+llm:
+  provider: anthropic
+  # Environment variable: ANTHROPIC_API_KEY
+  
+embedding:
+  provider: local
+  model: "all-MiniLM-L6-v2"
+  
+logging:
+  level: info
+  file: "./logs/cipher.log"
+  
+# HAQEI Analyzer specific settings
+haqei:
+  project_type: "strategic_analyzer"
+  philosophy: "bunenjin"
+  architecture: "triple_os"
+  privacy_level: "maximum"

@@ -1,0 +1,582 @@
+[
+  {
+    "timestamp": "2025-08-05T09:42:21.990Z",
+    "scenarios": [
+      {
+        "name": "light_load",
+        "config": {
+          "name": "light_load",
+          "description": "軽量テスト - 短いテキスト処理",
+          "text": "仕事の悩みがある",
+          "targetTime": 1500,
+          "iterations": 3,
+          "priority": "high"
+        },
+        "runs": [
+          {
+            "timestamp": "2025-08-05T09:42:21.990Z",
+            "metrics": {
+              "initTime": 462.092583,
+              "analysisTime": 4.9344580000000065,
+              "mappingTime": 758.684,
+              "memoryUsage": {
+                "initial": 4766608,
+                "peak": 4754296,
+                "delta": -12312
+              },
+              "cpuUsage": {
+                "user": 2.149,
+                "system": 0.46,
+                "total": 2.609
+              },
+              "totalTime": 1225.8685420000002
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 1
+          },
+          {
+            "timestamp": "2025-08-05T09:42:23.317Z",
+            "metrics": {
+              "initTime": 287.09579099999996,
+              "analysisTime": 5.0755830000000515,
+              "mappingTime": 593.4383340000002,
+              "memoryUsage": {
+                "initial": 4761672,
+                "peak": 4605600,
+                "delta": -156072
+              },
+              "cpuUsage": {
+                "user": 4.464,
+                "system": 0.672,
+                "total": 5.136
+              },
+              "totalTime": 885.7332080000001
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 2
+          },
+          {
+            "timestamp": "2025-08-05T09:42:24.304Z",
+            "metrics": {
+              "initTime": 259.87983299999996,
+              "analysisTime": 4.858291999999892,
+              "mappingTime": 345.2242500000002,
+              "memoryUsage": {
+                "initial": 4608520,
+                "peak": 5124232,
+                "delta": 515712
+              },
+              "cpuUsage": {
+                "user": 1.831,
+                "system": 0.196,
+                "total": 2.027
+              },
+              "totalTime": 610.1281669999998
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 3
+          }
+        ],
+        "stats": {
+          "totalTime": {
+            "min": 610.1281669999998,
+            "max": 1225.8685420000002,
+            "avg": 907.2433056666667,
+            "median": 885.7332080000001,
+            "stddev": 251.8346886054519,
+            "p95": 1225.8685420000002,
+            "p99": 1225.8685420000002
+          },
+          "initTime": {
+            "min": 259.87983299999996,
+            "max": 462.092583,
+            "avg": 336.356069,
+            "median": 287.09579099999996,
+            "stddev": 89.60070798499527,
+            "p95": 462.092583,
+            "p99": 462.092583
+          },
+          "analysisTime": {
+            "min": 4.858291999999892,
+            "max": 5.0755830000000515,
+            "avg": 4.956110999999983,
+            "median": 4.9344580000000065,
+            "stddev": 0.09002030873462781,
+            "p95": 5.0755830000000515,
+            "p99": 5.0755830000000515
+          },
+          "mappingTime": {
+            "min": 345.2242500000002,
+            "max": 758.684,
+            "avg": 565.7821946666668,
+            "median": 593.4383340000002,
+            "stddev": 169.92329200678392,
+            "p95": 758.684,
+            "p99": 758.684
+          },
+          "memoryDelta": {
+            "min": -156072,
+            "max": 515712,
+            "avg": 115776
+          },
+          "cpuTotal": {
+            "min": 2.027,
+            "max": 5.136,
+            "avg": 3.2573333333333334
+          }
+        },
+        "performance": {
+          "overall": "good",
+          "details": {
+            "processingTime": "good",
+            "memoryUsage": "good",
+            "cpuUsage": "good"
+          },
+          "issues": []
+        }
+      },
+      {
+        "name": "medium_load",
+        "config": {
+          "name": "medium_load",
+          "description": "中量テスト - 標準的なテキスト処理",
+          "text": "新しいプロジェクトが始まったが、チームメンバーとのコミュニケーションがうまくいかない。技術的な課題も多く、スケジュールも厳しい。どのように進めるべきか悩んでいる。",
+          "targetTime": 3000,
+          "iterations": 5,
+          "priority": "high"
+        },
+        "runs": [
+          {
+            "timestamp": "2025-08-05T09:42:25.016Z",
+            "metrics": {
+              "initTime": 401.45533399999977,
+              "analysisTime": 41.23045900000034,
+              "mappingTime": 372.15599999999995,
+              "memoryUsage": {
+                "initial": 5173128,
+                "peak": 4710104,
+                "delta": -463024
+              },
+              "cpuUsage": {
+                "user": 3.32,
+                "system": 0.247,
+                "total": 3.567
+              },
+              "totalTime": 814.9266659999998
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 1
+          },
+          {
+            "timestamp": "2025-08-05T09:42:25.932Z",
+            "metrics": {
+              "initTime": 458.2584160000001,
+              "analysisTime": 41.24479199999951,
+              "mappingTime": 606.2312499999998,
+              "memoryUsage": {
+                "initial": 4713176,
+                "peak": 4979384,
+                "delta": 266208
+              },
+              "cpuUsage": {
+                "user": 0.639,
+                "system": 0.062,
+                "total": 0.701
+              },
+              "totalTime": 1105.8518749999998
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 2
+          },
+          {
+            "timestamp": "2025-08-05T09:42:27.139Z",
+            "metrics": {
+              "initTime": 226.81541599999946,
+              "analysisTime": 41.327541999999994,
+              "mappingTime": 780.2328749999997,
+              "memoryUsage": {
+                "initial": 4982256,
+                "peak": 4823576,
+                "delta": -158680
+              },
+              "cpuUsage": {
+                "user": 1.373,
+                "system": 0.154,
+                "total": 1.527
+              },
+              "totalTime": 1048.5132920000005
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 3
+          },
+          {
+            "timestamp": "2025-08-05T09:42:28.289Z",
+            "metrics": {
+              "initTime": 432.48741599999994,
+              "analysisTime": 40.54833400000007,
+              "mappingTime": 592.2699999999995,
+              "memoryUsage": {
+                "initial": 4826632,
+                "peak": 5173984,
+                "delta": 347352
+              },
+              "cpuUsage": {
+                "user": 1.225,
+                "system": 0.139,
+                "total": 1.364
+              },
+              "totalTime": 1065.4685410000002
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 4
+          },
+          {
+            "timestamp": "2025-08-05T09:42:29.455Z",
+            "metrics": {
+              "initTime": 398.0918750000001,
+              "analysisTime": 41.12483400000019,
+              "mappingTime": 565.1545830000005,
+              "memoryUsage": {
+                "initial": 5176936,
+                "peak": 4727080,
+                "delta": -449856
+              },
+              "cpuUsage": {
+                "user": 0.601,
+                "system": 0.038,
+                "total": 0.639
+              },
+              "totalTime": 1004.4558340000012
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 5
+          }
+        ],
+        "stats": {
+          "totalTime": {
+            "min": 814.9266659999998,
+            "max": 1105.8518749999998,
+            "avg": 1007.8432416000003,
+            "median": 1048.5132920000005,
+            "stddev": 101.79263236884377,
+            "p95": 1105.8518749999998,
+            "p99": 1105.8518749999998
+          },
+          "initTime": {
+            "min": 226.81541599999946,
+            "max": 458.2584160000001,
+            "avg": 383.4216913999999,
+            "median": 401.45533399999977,
+            "stddev": 81.33133802701435,
+            "p95": 458.2584160000001,
+            "p99": 458.2584160000001
+          },
+          "analysisTime": {
+            "min": 40.54833400000007,
+            "max": 41.327541999999994,
+            "avg": 41.09519220000002,
+            "median": 41.23045900000034,
+            "stddev": 0.28092567134979946,
+            "p95": 41.327541999999994,
+            "p99": 41.327541999999994
+          },
+          "mappingTime": {
+            "min": 372.15599999999995,
+            "max": 780.2328749999997,
+            "avg": 583.2089415999999,
+            "median": 592.2699999999995,
+            "stddev": 129.84595782562567,
+            "p95": 780.2328749999997,
+            "p99": 780.2328749999997
+          },
+          "memoryDelta": {
+            "min": -463024,
+            "max": 347352,
+            "avg": -91600
+          },
+          "cpuTotal": {
+            "min": 0.639,
+            "max": 3.567,
+            "avg": 1.5596
+          }
+        },
+        "performance": {
+          "overall": "good",
+          "details": {
+            "processingTime": "good",
+            "memoryUsage": "good",
+            "cpuUsage": "good"
+          },
+          "issues": []
+        }
+      },
+      {
+        "name": "heavy_load",
+        "config": {
+          "name": "heavy_load",
+          "description": "重量テスト - 長文複雑なテキスト処理",
+          "text": "人生の転機に立っている。現在の職場では10年働いているが、最近やりがいを感じなくなってきた。家族を養う責任もあり、転職には大きなリスクが伴う。しかし、このままでは自分の成長が止まってしまう気がする。新しい分野に挑戦したい気持ちと、安定を求める気持ちで葛藤している。年齢的にも最後のチャンスかもしれない。どのような選択をすべきか、深く悩んでいる。",
+          "targetTime": 5000,
+          "iterations": 3,
+          "priority": "medium"
+        },
+        "runs": [
+          {
+            "timestamp": "2025-08-05T09:42:30.561Z",
+            "metrics": {
+              "initTime": 223.38583300000028,
+              "analysisTime": 86.29304200000115,
+              "mappingTime": 729.0344160000004,
+              "memoryUsage": {
+                "initial": 4764856,
+                "peak": 5075064,
+                "delta": 310208
+              },
+              "cpuUsage": {
+                "user": 1.295,
+                "system": 0.066,
+                "total": 1.361
+              },
+              "totalTime": 1038.8248750000002
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 1
+          },
+          {
+            "timestamp": "2025-08-05T09:42:31.701Z",
+            "metrics": {
+              "initTime": 357.44737499999974,
+              "analysisTime": 86.55666700000074,
+              "mappingTime": 622.5869170000005,
+              "memoryUsage": {
+                "initial": 5091016,
+                "peak": 4572888,
+                "delta": -518128
+              },
+              "cpuUsage": {
+                "user": 1.166,
+                "system": 0.115,
+                "total": 1.281
+              },
+              "totalTime": 1066.7342499999995
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 2
+          },
+          {
+            "timestamp": "2025-08-05T09:42:32.869Z",
+            "metrics": {
+              "initTime": 325.32337499999994,
+              "analysisTime": 87.31116699999984,
+              "mappingTime": 366.2195840000004,
+              "memoryUsage": {
+                "initial": 4575888,
+                "peak": 4844144,
+                "delta": 268256
+              },
+              "cpuUsage": {
+                "user": 1.221,
+                "system": 0.128,
+                "total": 1.349
+              },
+              "totalTime": 778.9545419999995
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 3
+          }
+        ],
+        "stats": {
+          "totalTime": {
+            "min": 778.9545419999995,
+            "max": 1066.7342499999995,
+            "avg": 961.5045556666664,
+            "median": 1038.8248750000002,
+            "stddev": 129.5842426647568,
+            "p95": 1066.7342499999995,
+            "p99": 1066.7342499999995
+          },
+          "initTime": {
+            "min": 223.38583300000028,
+            "max": 357.44737499999974,
+            "avg": 302.0521943333333,
+            "median": 325.32337499999994,
+            "stddev": 57.15059141175405,
+            "p95": 357.44737499999974,
+            "p99": 357.44737499999974
+          },
+          "analysisTime": {
+            "min": 86.29304200000115,
+            "max": 87.31116699999984,
+            "avg": 86.72029200000058,
+            "median": 86.55666700000074,
+            "stddev": 0.43145064173034736,
+            "p95": 87.31116699999984,
+            "p99": 87.31116699999984
+          },
+          "mappingTime": {
+            "min": 366.2195840000004,
+            "max": 729.0344160000004,
+            "avg": 572.6136390000005,
+            "median": 622.5869170000005,
+            "stddev": 152.2752922951193,
+            "p95": 729.0344160000004,
+            "p99": 729.0344160000004
+          },
+          "memoryDelta": {
+            "min": -518128,
+            "max": 310208,
+            "avg": 20112
+          },
+          "cpuTotal": {
+            "min": 1.281,
+            "max": 1.361,
+            "avg": 1.3303333333333331
+          }
+        },
+        "performance": {
+          "overall": "good",
+          "details": {
+            "processingTime": "good",
+            "memoryUsage": "good",
+            "cpuUsage": "good"
+          },
+          "issues": []
+        }
+      },
+      {
+        "name": "stress_test",
+        "config": {
+          "name": "stress_test",
+          "description": "ストレステスト - 極端に長い文章での負荷テスト",
+          "text": "人生の転機に立っている。現在の職場では10年働いているが、最近やりがいを感じなくなってきた。家族を養う責任もあり、転職には大きなリスクが伴う。しかし、このままでは自分の成長が止まってしまう気がする。新しい分野に挑戦したい気持ちと、安定を求める気持ちで葛藤している。年齢的にも最後のチャンスかもしれない。どのような選択をすべきか、深く悩んでいる。同時に、現在の業界での経験や知識が他の分野でどれだけ活用できるかも不安である。新しい技術を学ぶ時間や体力があるかも心配だ。また、家族への影響も考慮しなければならない。子供たちの教育費や住宅ローンなどの固定費もある。一方で、このまま現状維持を続けていても、将来的により困難な状況に陥る可能性もある。市場の変化や技術の進歩により、現在のスキルが陳腐化するリスクもある。",
+          "targetTime": 8000,
+          "iterations": 2,
+          "priority": "low"
+        },
+        "runs": [
+          {
+            "timestamp": "2025-08-05T09:42:33.750Z",
+            "metrics": {
+              "initTime": 295.9775000000009,
+              "analysisTime": 178.21662500000093,
+              "mappingTime": 459.32524999999987,
+              "memoryUsage": {
+                "initial": 4882448,
+                "peak": 5126000,
+                "delta": 243552
+              },
+              "cpuUsage": {
+                "user": 0.503,
+                "system": 0.053,
+                "total": 0.556
+              },
+              "totalTime": 933.5687500000004
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 1
+          },
+          {
+            "timestamp": "2025-08-05T09:42:34.784Z",
+            "metrics": {
+              "initTime": 215.9927090000001,
+              "analysisTime": 178.23191599999882,
+              "mappingTime": 311.62183299999924,
+              "memoryUsage": {
+                "initial": 5129248,
+                "peak": 4608472,
+                "delta": -520776
+              },
+              "cpuUsage": {
+                "user": 2.656,
+                "system": 0.806,
+                "total": 3.462
+              },
+              "totalTime": 705.9336249999997
+            },
+            "success": true,
+            "errors": [],
+            "iteration": 2
+          }
+        ],
+        "stats": {
+          "totalTime": {
+            "min": 705.9336249999997,
+            "max": 933.5687500000004,
+            "avg": 819.7511875,
+            "median": 819.7511875,
+            "stddev": 113.81756250000035,
+            "p95": 933.5687500000004,
+            "p99": 933.5687500000004
+          },
+          "initTime": {
+            "min": 215.9927090000001,
+            "max": 295.9775000000009,
+            "avg": 255.9851045000005,
+            "median": 255.9851045000005,
+            "stddev": 39.992395500000384,
+            "p95": 295.9775000000009,
+            "p99": 295.9775000000009
+          },
+          "analysisTime": {
+            "min": 178.21662500000093,
+            "max": 178.23191599999882,
+            "avg": 178.22427049999988,
+            "median": 178.22427049999988,
+            "stddev": 0.007645499998943706,
+            "p95": 178.23191599999882,
+            "p99": 178.23191599999882
+          },
+          "mappingTime": {
+            "min": 311.62183299999924,
+            "max": 459.32524999999987,
+            "avg": 385.47354149999956,
+            "median": 385.47354149999956,
+            "stddev": 73.85170850000031,
+            "p95": 459.32524999999987,
+            "p99": 459.32524999999987
+          },
+          "memoryDelta": {
+            "min": -520776,
+            "max": 243552,
+            "avg": -138612
+          },
+          "cpuTotal": {
+            "min": 0.556,
+            "max": 3.462,
+            "avg": 2.0090000000000003
+          }
+        },
+        "performance": {
+          "overall": "good",
+          "details": {
+            "processingTime": "good",
+            "memoryUsage": "good",
+            "cpuUsage": "good"
+          },
+          "issues": []
+        }
+      }
+    ],
+    "summary": {
+      "totalScenarios": 4,
+      "successfulScenarios": 4,
+      "overallPerformance": "good",
+      "averageProcessingTime": 924.0855726083333,
+      "totalIssues": 0
+    },
+    "regressions": [],
+    "alerts": []
+  }
+]

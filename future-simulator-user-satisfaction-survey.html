@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Simulator ユーザー満足度調査</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #3b82f6;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #334155;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .section h2 {
+            color: #60a5fa;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        .question-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #f1f5f9;
+        }
+
+        .rating-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rating-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .rating-option:hover {
+            background: #475569;
+        }
+
+        .rating-option input[type="radio"] {
+            margin-bottom: 5px;
+            transform: scale(1.2);
+        }
+
+        .rating-label {
+            font-size: 12px;
+            text-align: center;
+            color: #cbd5e1;
+        }
+
+        .rating-number {
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 3px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .user-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .user-info input, .user-info select {
+            padding: 10px;
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-family: inherit;
+        }
+
+        .user-info input:focus, .user-info select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            display: none;
+        }
+
+        .test-result-display {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #22c55e;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stats-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: #334155;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .rating-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .rating-option {
+                min-width: 60px;
+            }
+
+            .user-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 Future Simulator ユーザー満足度調査</h1>
+        <p class="subtitle">実証的精度検証のための包括的フィードバック調査</p>
+
+        <form id="satisfactionSurvey">
+            <!-- ユーザー基本情報 -->
+            <div class="section">
+                <h2>👤 基本情報</h2>
+                <div class="user-info">
+                    <div>
+                        <label class="question-label">年齢層</label>
+                        <select name="ageGroup" required>
+                            <option value="">選択してください</option>
+                            <option value="20s">20代</option>
+                            <option value="30s">30代</option>
+                            <option value="40s">40代</option>
+                            <option value="50s">50代以上</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="question-label">職業</label>
+                        <select name="occupation" required>
+                            <option value="">選択してください</option>
+                            <option value="employee">会社員</option>
+                            <option value="selfemployed">自営業・フリーランス</option>
+                            <option value="professional">専門職</option>
+                            <option value="other">その他</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="question-label">相談内容の分類</label>
+                    <select name="consultationType" required>
+                        <option value="">選択してください</option>
+                        <option value="personal">個人的悩み・不安</option>
+                        <option value="relationship">人間関係</option>
+                        <option value="career">仕事・キャリア</option>
+                        <option value="life">人生・哲学</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Future Simulatorテスト結果記録 -->
+            <div class="section">
+                <h2>📊 テスト結果記録</h2>
+                <div class="question">
+                    <label class="question-label">選出された卦・爻</label>
+                    <input type="text" name="hexagramResult" placeholder="例: 3卦2爻" required>
+                </div>
+                <div class="question">
+                    <label class="question-label">信頼度</label>
+                    <input type="text" name="confidenceLevel" placeholder="例: 85%" required>
+                </div>
+                <div class="question">
+                    <label class="question-label">応答時間（体感）</label>
+                    <select name="responseTime" required>
+                        <option value="">選択してください</option>
+                        <option value="fast">2秒以内（非常に速い）</option>
+                        <option value="good">3秒以内（速い）</option>
+                        <option value="acceptable">5秒以内（普通）</option>
+                        <option value="slow">5秒超過（遅い）</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 5段階評価 -->
+            <div class="section">
+                <h2>⭐ 満足度評価</h2>
+                
+                <div class="question">
+                    <label class="question-label">1. 分析結果の納得度</label>
+                    <div class="rating-container">
+                        <div class="rating-option">
+                            <input type="radio" name="satisfaction" value="1" required>
+                            <div class="rating-number">1</div>
+                            <div class="rating-label">全く納得<br>できない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="satisfaction" value="2">
+                            <div class="rating-number">2</div>
+                            <div class="rating-label">あまり納得<br>できない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="satisfaction" value="3">
+                            <div class="rating-number">3</div>
+                            <div class="rating-label">どちらとも<br>言えない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="satisfaction" value="4">
+                            <div class="rating-number">4</div>
+                            <div class="rating-label">まあ納得<br>できる</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="satisfaction" value="5">
+                            <div class="rating-number">5</div>
+                            <div class="rating-label">非常に納得<br>できる</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label class="question-label">2. 具体的有用性</label>
+                    <div class="rating-container">
+                        <div class="rating-option">
+                            <input type="radio" name="usefulness" value="1" required>
+                            <div class="rating-number">1</div>
+                            <div class="rating-label">全く役に<br>立たない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="usefulness" value="2">
+                            <div class="rating-number">2</div>
+                            <div class="rating-label">あまり役に<br>立たない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="usefulness" value="3">
+                            <div class="rating-number">3</div>
+                            <div class="rating-label">どちらとも<br>言えない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="usefulness" value="4">
+                            <div class="rating-number">4</div>
+                            <div class="rating-label">まあ役に<br>立つ</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="usefulness" value="5">
+                            <div class="rating-number">5</div>
+                            <div class="rating-label">非常に役に<br>立つ</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label class="question-label">3. 説明の分かりやすさ</label>
+                    <div class="rating-container">
+                        <div class="rating-option">
+                            <input type="radio" name="clarity" value="1" required>
+                            <div class="rating-number">1</div>
+                            <div class="rating-label">全く理解<br>できない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="clarity" value="2">
+                            <div class="rating-number">2</div>
+                            <div class="rating-label">あまり理解<br>できない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="clarity" value="3">
+                            <div class="rating-number">3</div>
+                            <div class="rating-label">どちらとも<br>言えない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="clarity" value="4">
+                            <div class="rating-number">4</div>
+                            <div class="rating-label">まあ理解<br>できる</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="clarity" value="5">
+                            <div class="rating-number">5</div>
+                            <div class="rating-label">非常に理解<br>できる</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label class="question-label">4. システムの使いやすさ</label>
+                    <div class="rating-container">
+                        <div class="rating-option">
+                            <input type="radio" name="usability" value="1" required>
+                            <div class="rating-number">1</div>
+                            <div class="rating-label">非常に<br>使いにくい</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="usability" value="2">
+                            <div class="rating-number">2</div>
+                            <div class="rating-label">やや<br>使いにくい</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="usability" value="3">
+                            <div class="rating-number">3</div>
+                            <div class="rating-label">どちらとも<br>言えない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="usability" value="4">
+                            <div class="rating-number">4</div>
+                            <div class="rating-label">やや<br>使いやすい</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="usability" value="5">
+                            <div class="rating-number">5</div>
+                            <div class="rating-label">非常に<br>使いやすい</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label class="question-label">5. 総合的な価値</label>
+                    <div class="rating-container">
+                        <div class="rating-option">
+                            <input type="radio" name="overallValue" value="1" required>
+                            <div class="rating-number">1</div>
+                            <div class="rating-label">全く価値<br>がない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="overallValue" value="2">
+                            <div class="rating-number">2</div>
+                            <div class="rating-label">あまり価値<br>がない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="overallValue" value="3">
+                            <div class="rating-number">3</div>
+                            <div class="rating-label">どちらとも<br>言えない</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="overallValue" value="4">
+                            <div class="rating-number">4</div>
+                            <div class="rating-label">まあ価値<br>がある</div>
+                        </div>
+                        <div class="rating-option">
+                            <input type="radio" name="overallValue" value="5">
+                            <div class="rating-number">5</div>
+                            <div class="rating-label">非常に価値<br>がある</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 自由記述 -->
+            <div class="section">
+                <h2>💭 詳細フィードバック</h2>
+                
+                <div class="question">
+                    <label class="question-label">最も印象に残った点</label>
+                    <textarea name="impressivePoint" placeholder="どの部分が最も印象に残りましたか？"></textarea>
+                </div>
+
+                <div class="question">
+                    <label class="question-label">改善してほしい点</label>
+                    <textarea name="improvementPoint" placeholder="どの部分を改善してほしいですか？"></textarea>
+                </div>
+
+                <div class="question">
+                    <label class="question-label">他の人に推奨するか</label>
+                    <textarea name="recommendation" placeholder="他の人に推奨しますか？その理由もお聞かせください。"></textarea>
+                </div>
+
+                <div class="question">
+                    <label class="question-label">その他感想・要望</label>
+                    <textarea name="additionalComments" placeholder="その他、感想や要望があればお聞かせください。"></textarea>
+                </div>
+            </div>
+
+            <div class="submit-section">
+                <button type="submit" class="submit-btn" id="submitBtn">調査結果を送信</button>
+            </div>
+        </form>
+
+        <!-- 結果表示セクション -->
+        <div class="results-section" id="resultsSection">
+            <h2>📊 調査結果</h2>
+            <div id="surveyResults"></div>
+            
+            <div class="stats-display" id="statsDisplay">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalSurveys">0</div>
+                    <div class="stat-label">総回答数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgSatisfaction">-</div>
+                    <div class="stat-label">平均満足度</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgUsefulness">-</div>
+                    <div class="stat-label">平均有用性</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="overallScore">-</div>
+                    <div class="stat-label">総合スコア</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 調査結果の保存・管理システム
+        class SurveyManager {
+            constructor() {
+                this.storageKey = 'futureSimulatorSurveyResults';
+                this.loadResults();
+            }
+
+            loadResults() {
+                const stored = localStorage.getItem(this.storageKey);
+                this.results = stored ? JSON.parse(stored) : [];
+            }
+
+            saveResult(formData) {
+                const result = {
+                    id: Date.now(),
+                    timestamp: new Date().toISOString(),
+                    ...formData
+                };
+                
+                this.results.push(result);
+                localStorage.setItem(this.storageKey, JSON.stringify(this.results));
+                return result;
+            }
+
+            getStatistics() {
+                if (this.results.length === 0) {
+                    return {
+                        total: 0,
+                        avgSatisfaction: 0,
+                        avgUsefulness: 0,
+                        avgClarity: 0,
+                        avgUsability: 0,
+                        avgOverallValue: 0,
+                        overallScore: 0
+                    };
+                }
+
+                const totals = this.results.reduce((acc, result) => {
+                    acc.satisfaction += parseInt(result.satisfaction);
+                    acc.usefulness += parseInt(result.usefulness);
+                    acc.clarity += parseInt(result.clarity);
+                    acc.usability += parseInt(result.usability);
+                    acc.overallValue += parseInt(result.overallValue);
+                    return acc;
+                }, {
+                    satisfaction: 0,
+                    usefulness: 0,
+                    clarity: 0,
+                    usability: 0,
+                    overallValue: 0
+                });
+
+                const count = this.results.length;
+                const avgSatisfaction = (totals.satisfaction / count).toFixed(1);
+                const avgUsefulness = (totals.usefulness / count).toFixed(1);
+                const avgClarity = (totals.clarity / count).toFixed(1);
+                const avgUsability = (totals.usability / count).toFixed(1);
+                const avgOverallValue = (totals.overallValue / count).toFixed(1);
+                const overallScore = ((totals.satisfaction + totals.usefulness + totals.clarity + totals.usability + totals.overallValue) / (count * 5)).toFixed(1);
+
+                return {
+                    total: count,
+                    avgSatisfaction,
+                    avgUsefulness,
+                    avgClarity,
+                    avgUsability,
+                    avgOverallValue,
+                    overallScore
+                };
+            }
+
+            exportResults() {
+                return {
+                    exportDate: new Date().toISOString(),
+                    totalResults: this.results.length,
+                    statistics: this.getStatistics(),
+                    rawData: this.results
+                };
+            }
+        }
+
+        // メインアプリケーション
+        const surveyManager = new SurveyManager();
+        const form = document.getElementById('satisfactionSurvey');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultsSection = document.getElementById('resultsSection');
+
+        // フォーム送信処理
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const surveyData = {};
+            
+            for (let [key, value] of formData.entries()) {
+                surveyData[key] = value;
+            }
+
+            // 結果を保存
+            const savedResult = surveyManager.saveResult(surveyData);
+            
+            // 成功メッセージ表示
+            showSuccessMessage(savedResult);
+            
+            // 統計更新
+            updateStatistics();
+            
+            // フォームリセット
+            form.reset();
+        });
+
+        function showSuccessMessage(result) {
+            const message = `
+                <div class="test-result-display">
+                    <h3>✅ 調査回答ありがとうございました！</h3>
+                    <div class="result-item">
+                        <span>回答ID:</span>
+                        <span>${result.id}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>送信時刻:</span>
+                        <span>${new Date(result.timestamp).toLocaleString('ja-JP')}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>総合満足度:</span>
+                        <span>${result.overallValue}/5.0</span>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('surveyResults').innerHTML = message;
+            resultsSection.style.display = 'block';
+            
+            // 成功メッセージを3秒後に自動スクロール
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        }
+
+        function updateStatistics() {
+            const stats = surveyManager.getStatistics();
+            
+            document.getElementById('totalSurveys').textContent = stats.total;
+            document.getElementById('avgSatisfaction').textContent = stats.avgSatisfaction;
+            document.getElementById('avgUsefulness').textContent = stats.avgUsefulness;
+            document.getElementById('overallScore').textContent = stats.overallScore;
+        }
+
+        // 初期統計表示
+        updateStatistics();
+
+        // デバッグ用：結果エクスポート機能
+        window.exportSurveyResults = function() {
+            const results = surveyManager.exportResults();
+            const dataStr = JSON.stringify(results, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `future-simulator-survey-results-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        };
+
+        // コンソールでの結果確認機能
+        window.showSurveyStats = function() {
+            console.log('📊 Future Simulator 調査統計:', surveyManager.getStatistics());
+            console.log('📋 全調査結果:', surveyManager.results);
+        };
+
+        console.log('🔮 Future Simulator ユーザー満足度調査システム初期化完了');
+        console.log('💡 使用可能なコマンド:');
+        console.log('   - exportSurveyResults(): 結果をJSONファイルでダウンロード');
+        console.log('   - showSurveyStats(): コンソールで統計表示');
+    </script>
+</body>
+</html>

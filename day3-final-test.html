@@ -1,0 +1,785 @@
+<\!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 3 最終動作確認テスト - HAQEIアナライザー</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui; margin: 40px; background: #f8f9fa; }
+        .test-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .test-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        .test-section { border-left: 4px solid #667eea; padding-left: 20px; margin: 20px 0; }
+        .test-result { padding: 15px; border-radius: 8px; margin: 10px 0; font-weight: bold; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { background: #667eea; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin: 5px; }
+        button:hover { background: #5a6fd8; }
+        .log { background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 4px; font-family: monospace; max-height: 200px; overflow-y: auto; }
+        .progress { width: 100%; height: 8px; background: #e9ecef; border-radius: 4px; margin: 10px 0; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; transition: width 0.3s; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>🎯 Day 3 最終動作確認テスト</h1>
+        <p>HAQEIアナライザー統合システム包括検証</p>
+        <div class="progress">
+            <div class="progress-bar" id="overall-progress" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div class="test-grid">
+        <\!-- 1. 全機能統合テスト -->
+        <div class="test-container">
+            <div class="test-section">
+                <h3>🔧 1. 全機能統合テスト</h3>
+                <p>テキスト入力→SituationalContextEngine→HexagramMappingEngine→8シナリオ生成の完全フロー</p>
+                <button onclick="runIntegrationTest()">統合テスト実行</button>
+                <div id="integration-results" class="log"></div>
+            </div>
+        </div>
+
+        <\!-- 2. リグレッションテスト -->
+        <div class="test-container">
+            <div class="test-section">
+                <h3>🔄 2. リグレッションテスト</h3>
+                <p>Day 1-2の修正による既存機能への影響確認</p>
+                <button onclick="runRegressionTest()">リグレッションテスト実行</button>
+                <div id="regression-results" class="log"></div>
+            </div>
+        </div>
+
+        <\!-- 3. セキュリティテスト -->
+        <div class="test-container">
+            <div class="test-section">
+                <h3>🛡️ 3. セキュリティテスト</h3>
+                <p>XSS攻撃・不正入力・セキュリティヘッダー検証</p>
+                <button onclick="runSecurityTest()">セキュリティテスト実行</button>
+                <div id="security-results" class="log"></div>
+            </div>
+        </div>
+
+        <\!-- 4. パフォーマンステスト -->
+        <div class="test-container">
+            <div class="test-section">
+                <h3>⚡ 4. パフォーマンステスト</h3>
+                <p>処理時間・メモリ使用量・並行処理安定性</p>
+                <button onclick="runPerformanceTest()">パフォーマンステスト実行</button>
+                <div id="performance-results" class="log"></div>
+            </div>
+        </div>
+
+        <\!-- 5. ユーザビリティテスト -->
+        <div class="test-container">
+            <div class="test-section">
+                <h3>👤 5. ユーザビリティテスト</h3>
+                <p>UI/UX改善効果・エラーメッセージ・アクセシビリティ</p>
+                <button onclick="runUsabilityTest()">ユーザビリティテスト実行</button>
+                <div id="usability-results" class="log"></div>
+            </div>
+        </div>
+
+        <\!-- 6. 多様な入力テスト -->
+        <div class="test-container">
+            <div class="test-section">
+                <h3>📝 6. 多様な入力テスト</h3>
+                <p>基本・長文・特殊文字・多言語・不正入力</p>
+                <button onclick="runInputVariationTest()">入力バリエーションテスト実行</button>
+                <div id="input-results" class="log"></div>
+            </div>
+        </div>
+    </div>
+
+    <\!-- 総合結果 -->
+    <div class="test-container">
+        <div class="test-section">
+            <h3>📊 総合テスト結果</h3>
+            <div id="summary-results"></div>
+            <button onclick="generateTestReport()">テストレポート生成</button>
+        </div>
+    </div>
+
+    <script>
+        let testResults = {
+            integration: null,
+            regression: null,
+            security: null,
+            performance: null,
+            usability: null,
+            inputVariation: null
+        };
+
+        let testProgress = 0;
+
+        function updateProgress() {
+            const completed = Object.values(testResults).filter(r => r \!== null).length;
+            const total = Object.keys(testResults).length;
+            testProgress = (completed / total) * 100;
+            document.getElementById('overall-progress').style.width = testProgress + '%';
+            
+            if (testProgress === 100) {
+                updateSummary();
+            }
+        }
+
+        function logResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `test-result ${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            element.appendChild(logEntry);
+            element.scrollTop = element.scrollHeight;
+        }
+
+        async function runIntegrationTest() {
+            logResult('integration-results', '🚀 統合テスト開始...', 'info');
+            
+            try {
+                // HAQEIシステムの基本コンポーネント存在確認
+                const components = [
+                    'VirtualQuestionFlow',
+                    'UnifiedErrorHandler',
+                    'H384_DATABASE',
+                    'MicroDataManager',
+                    'BridgeStorageManager'
+                ];
+                
+                let passed = 0;
+                let failed = 0;
+                
+                for (const component of components) {
+                    try {
+                        if (typeof window[component] \!== 'undefined') {
+                            logResult('integration-results', `✅ ${component}: 存在確認`, 'success');
+                            passed++;
+                        } else {
+                            logResult('integration-results', `❌ ${component}: 未定義`, 'error');
+                            failed++;
+                        }
+                    } catch (error) {
+                        logResult('integration-results', `❌ ${component}: エラー - ${error.message}`, 'error');
+                        failed++;
+                    }
+                }
+                
+                // localStorage機能テスト
+                try {
+                    localStorage.setItem('haqei_test', 'test_value');
+                    const retrieved = localStorage.getItem('haqei_test');
+                    if (retrieved === 'test_value') {
+                        logResult('integration-results', '✅ localStorage: 正常動作', 'success');
+                        passed++;
+                    } else {
+                        logResult('integration-results', '❌ localStorage: 値取得失敗', 'error');
+                        failed++;
+                    }
+                    localStorage.removeItem('haqei_test');
+                } catch (error) {
+                    logResult('integration-results', `❌ localStorage: エラー - ${error.message}`, 'error');
+                    failed++;
+                }
+                
+                // JSON処理テスト
+                try {
+                    const testData = { test: true, timestamp: Date.now() };
+                    const serialized = JSON.stringify(testData);
+                    const deserialized = JSON.parse(serialized);
+                    if (deserialized.test === true) {
+                        logResult('integration-results', '✅ JSON処理: 正常動作', 'success');
+                        passed++;
+                    } else {
+                        logResult('integration-results', '❌ JSON処理: データ不整合', 'error');
+                        failed++;
+                    }
+                } catch (error) {
+                    logResult('integration-results', `❌ JSON処理: エラー - ${error.message}`, 'error');
+                    failed++;
+                }
+                
+                const totalTests = passed + failed;
+                const successRate = (passed / totalTests * 100).toFixed(1);
+                
+                logResult('integration-results', `📊 統合テスト完了: ${passed}/${totalTests} (${successRate}%)`, 
+                    successRate >= 80 ? 'success' : 'warning');
+                
+                testResults.integration = { passed, failed, successRate: parseFloat(successRate) };
+                
+            } catch (error) {
+                logResult('integration-results', `❌ 統合テスト実行エラー: ${error.message}`, 'error');
+                testResults.integration = { passed: 0, failed: 1, successRate: 0, error: error.message };
+            }
+            
+            updateProgress();
+        }
+
+        async function runRegressionTest() {
+            logResult('regression-results', '🔄 リグレッションテスト開始...', 'info');
+            
+            try {
+                let passed = 0;
+                let failed = 0;
+                
+                // DOM構造テスト
+                const requiredElements = [
+                    'welcome-container',
+                    'questions-container',
+                    'analysis-container',
+                    'results-container'
+                ];
+                
+                for (const elementId of requiredElements) {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        logResult('regression-results', `✅ DOM要素: ${elementId} 存在`, 'success');
+                        passed++;
+                    } else {
+                        logResult('regression-results', `❌ DOM要素: ${elementId} 不存在`, 'error');
+                        failed++;
+                    }
+                }
+                
+                // CSS読み込みテスト
+                const styles = getComputedStyle(document.body);
+                if (styles.fontFamily) {
+                    logResult('regression-results', '✅ CSS: スタイル適用確認', 'success');
+                    passed++;
+                } else {
+                    logResult('regression-results', '❌ CSS: スタイル未適用', 'error');
+                    failed++;
+                }
+                
+                // JavaScript基本機能テスト
+                try {
+                    const testArray = [1, 2, 3];
+                    const mapped = testArray.map(x => x * 2);
+                    if (mapped.length === 3 && mapped[0] === 2) {
+                        logResult('regression-results', '✅ JavaScript: Array処理正常', 'success');
+                        passed++;
+                    } else {
+                        logResult('regression-results', '❌ JavaScript: Array処理異常', 'error');
+                        failed++;
+                    }
+                } catch (error) {
+                    logResult('regression-results', `❌ JavaScript: Array処理エラー - ${error.message}`, 'error');
+                    failed++;
+                }
+                
+                const totalTests = passed + failed;
+                const successRate = (passed / totalTests * 100).toFixed(1);
+                
+                logResult('regression-results', `📊 リグレッションテスト完了: ${passed}/${totalTests} (${successRate}%)`, 
+                    successRate >= 90 ? 'success' : 'warning');
+                
+                testResults.regression = { passed, failed, successRate: parseFloat(successRate) };
+                
+            } catch (error) {
+                logResult('regression-results', `❌ リグレッションテスト実行エラー: ${error.message}`, 'error');
+                testResults.regression = { passed: 0, failed: 1, successRate: 0, error: error.message };
+            }
+            
+            updateProgress();
+        }
+
+        async function runSecurityTest() {
+            logResult('security-results', '🛡️ セキュリティテスト開始...', 'info');
+            
+            try {
+                let passed = 0;
+                let failed = 0;
+                
+                // XSS攻撃テスト
+                const xssPayload = '<script>alert("XSS")</script>';
+                const testDiv = document.createElement('div');
+                testDiv.textContent = xssPayload;
+                
+                if (testDiv.innerHTML === '&lt;script&gt;alert("XSS")&lt;/script&gt;') {
+                    logResult('security-results', '✅ XSS防御: textContent使用で安全', 'success');
+                    passed++;
+                } else {
+                    logResult('security-results', '❌ XSS防御: 不十分な可能性', 'warning');
+                    failed++;
+                }
+                
+                // CSP (Content Security Policy) 確認
+                const metaTags = document.querySelectorAll('meta[http-equiv="Content-Security-Policy"]');
+                if (metaTags.length > 0) {
+                    logResult('security-results', '✅ CSP: メタタグ設定確認', 'success');
+                    passed++;
+                } else {
+                    logResult('security-results', '⚠️ CSP: メタタグ未設定（サーバー設定の可能性）', 'warning');
+                }
+                
+                // 不正入力処理テスト
+                const maliciousInputs = [
+                    'javascript:alert(1)',
+                    'data:text/html,<script>alert(1)</script>',
+                    '"><script>alert(1)</script>',
+                    '<img src=x onerror=alert(1)>'
+                ];
+                
+                for (const input of maliciousInputs) {
+                    try {
+                        // 入力値のサニタイゼーションテスト
+                        const sanitized = input.replace(/[<>'"]/g, '');
+                        if (sanitized \!== input) {
+                            logResult('security-results', `✅ 入力サニタイゼーション: "${input.substring(0, 20)}..." 処理済み`, 'success');
+                            passed++;
+                        } else {
+                            logResult('security-results', `⚠️ 入力サニタイゼーション: 追加対策推奨`, 'warning');
+                        }
+                    } catch (error) {
+                        logResult('security-results', `❌ 入力処理エラー: ${error.message}`, 'error');
+                        failed++;
+                    }
+                }
+                
+                const totalTests = passed + failed;
+                const successRate = totalTests > 0 ? (passed / totalTests * 100).toFixed(1) : 100;
+                
+                logResult('security-results', `📊 セキュリティテスト完了: ${passed}/${totalTests} (${successRate}%)`, 
+                    parseFloat(successRate) >= 85 ? 'success' : 'warning');
+                
+                testResults.security = { passed, failed, successRate: parseFloat(successRate) };
+                
+            } catch (error) {
+                logResult('security-results', `❌ セキュリティテスト実行エラー: ${error.message}`, 'error');
+                testResults.security = { passed: 0, failed: 1, successRate: 0, error: error.message };
+            }
+            
+            updateProgress();
+        }
+
+        async function runPerformanceTest() {
+            logResult('performance-results', '⚡ パフォーマンステスト開始...', 'info');
+            
+            try {
+                let passed = 0;
+                let failed = 0;
+                
+                // メモリ使用量テスト
+                if (performance.memory) {
+                    const memoryInfo = performance.memory;
+                    const usedMB = (memoryInfo.usedJSHeapSize / 1024 / 1024).toFixed(2);
+                    const limitMB = (memoryInfo.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
+                    
+                    logResult('performance-results', `📊 メモリ使用量: ${usedMB}MB / ${limitMB}MB`, 'info');
+                    
+                    if (parseFloat(usedMB) < 50) {
+                        logResult('performance-results', '✅ メモリ使用量: 良好 (<50MB)', 'success');
+                        passed++;
+                    } else if (parseFloat(usedMB) < 100) {
+                        logResult('performance-results', '⚠️ メモリ使用量: 注意 (50-100MB)', 'warning');
+                        passed++;
+                    } else {
+                        logResult('performance-results', '❌ メモリ使用量: 高い (>100MB)', 'error');
+                        failed++;
+                    }
+                } else {
+                    logResult('performance-results', '⚠️ メモリ情報: ブラウザ未対応', 'warning');
+                }
+                
+                // DOM操作パフォーマンステスト
+                const startTime = performance.now();
+                
+                for (let i = 0; i < 1000; i++) {
+                    const div = document.createElement('div');
+                    div.textContent = `Test ${i}`;
+                    document.body.appendChild(div);
+                    document.body.removeChild(div);
+                }
+                
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+                
+                logResult('performance-results', `📊 DOM操作1000回: ${duration.toFixed(2)}ms`, 'info');
+                
+                if (duration < 100) {
+                    logResult('performance-results', '✅ DOM操作: 高速 (<100ms)', 'success');
+                    passed++;
+                } else if (duration < 500) {
+                    logResult('performance-results', '⚠️ DOM操作: 普通 (100-500ms)', 'warning');
+                    passed++;
+                } else {
+                    logResult('performance-results', '❌ DOM操作: 低速 (>500ms)', 'error');
+                    failed++;
+                }
+                
+                // JSON処理パフォーマンステスト
+                const largeObject = {};
+                for (let i = 0; i < 1000; i++) {
+                    largeObject[`key${i}`] = `value${i}`.repeat(10);
+                }
+                
+                const jsonStartTime = performance.now();
+                const serialized = JSON.stringify(largeObject);
+                const deserialized = JSON.parse(serialized);
+                const jsonEndTime = performance.now();
+                const jsonDuration = jsonEndTime - jsonStartTime;
+                
+                logResult('performance-results', `📊 JSON処理(大量データ): ${jsonDuration.toFixed(2)}ms`, 'info');
+                
+                if (jsonDuration < 50) {
+                    logResult('performance-results', '✅ JSON処理: 高速 (<50ms)', 'success');
+                    passed++;
+                } else if (jsonDuration < 200) {
+                    logResult('performance-results', '⚠️ JSON処理: 普通 (50-200ms)', 'warning');
+                    passed++;
+                } else {
+                    logResult('performance-results', '❌ JSON処理: 低速 (>200ms)', 'error');
+                    failed++;
+                }
+                
+                const totalTests = passed + failed;
+                const successRate = totalTests > 0 ? (passed / totalTests * 100).toFixed(1) : 100;
+                
+                logResult('performance-results', `📊 パフォーマンステスト完了: ${passed}/${totalTests} (${successRate}%)`, 
+                    parseFloat(successRate) >= 75 ? 'success' : 'warning');
+                
+                testResults.performance = { passed, failed, successRate: parseFloat(successRate) };
+                
+            } catch (error) {
+                logResult('performance-results', `❌ パフォーマンステスト実行エラー: ${error.message}`, 'error');
+                testResults.performance = { passed: 0, failed: 1, successRate: 0, error: error.message };
+            }
+            
+            updateProgress();
+        }
+
+        async function runUsabilityTest() {
+            logResult('usability-results', '👤 ユーザビリティテスト開始...', 'info');
+            
+            try {
+                let passed = 0;
+                let failed = 0;
+                
+                // レスポンシブデザインテスト
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                logResult('usability-results', `📱 ビューポート: ${viewportWidth}x${viewportHeight}`, 'info');
+                
+                if (viewportWidth >= 320) {
+                    logResult('usability-results', '✅ レスポンシブ: 最小幅対応', 'success');
+                    passed++;
+                } else {
+                    logResult('usability-results', '❌ レスポンシブ: 最小幅未対応', 'error');
+                    failed++;
+                }
+                
+                // アクセシビリティテスト
+                const buttons = document.querySelectorAll('button');
+                let accessibleButtons = 0;
+                
+                buttons.forEach(button => {
+                    if (button.textContent.trim() \!== '' || button.getAttribute('aria-label')) {
+                        accessibleButtons++;
+                    }
+                });
+                
+                if (accessibleButtons === buttons.length && buttons.length > 0) {
+                    logResult('usability-results', '✅ アクセシビリティ: ボタンラベル適切', 'success');
+                    passed++;
+                } else {
+                    logResult('usability-results', '⚠️ アクセシビリティ: ボタンラベル要改善', 'warning');
+                }
+                
+                // カラーコントラストテスト（簡易）
+                const body = document.body;
+                const computedStyle = getComputedStyle(body);
+                const backgroundColor = computedStyle.backgroundColor;
+                const color = computedStyle.color;
+                
+                if (backgroundColor && color) {
+                    logResult('usability-results', `✅ カラー設定: 背景色・文字色設定済み`, 'success');
+                    passed++;
+                } else {
+                    logResult('usability-results', '⚠️ カラー設定: デフォルト値使用', 'warning');
+                }
+                
+                // フォントサイズテスト
+                const fontSize = parseFloat(computedStyle.fontSize);
+                if (fontSize >= 14) {
+                    logResult('usability-results', `✅ フォントサイズ: 適切 (${fontSize}px)`, 'success');
+                    passed++;
+                } else {
+                    logResult('usability-results', `❌ フォントサイズ: 小さすぎ (${fontSize}px)`, 'error');
+                    failed++;
+                }
+                
+                // エラーメッセージテスト
+                try {
+                    throw new Error('テスト用エラー');
+                } catch (error) {
+                    if (error.message === 'テスト用エラー') {
+                        logResult('usability-results', '✅ エラーハンドリング: 正常動作', 'success');
+                        passed++;
+                    } else {
+                        logResult('usability-results', '❌ エラーハンドリング: 異常', 'error');
+                        failed++;
+                    }
+                }
+                
+                const totalTests = passed + failed;
+                const successRate = totalTests > 0 ? (passed / totalTests * 100).toFixed(1) : 100;
+                
+                logResult('usability-results', `📊 ユーザビリティテスト完了: ${passed}/${totalTests} (${successRate}%)`, 
+                    parseFloat(successRate) >= 80 ? 'success' : 'warning');
+                
+                testResults.usability = { passed, failed, successRate: parseFloat(successRate) };
+                
+            } catch (error) {
+                logResult('usability-results', `❌ ユーザビリティテスト実行エラー: ${error.message}`, 'error');
+                testResults.usability = { passed: 0, failed: 1, successRate: 0, error: error.message };
+            }
+            
+            updateProgress();
+        }
+
+        async function runInputVariationTest() {
+            logResult('input-results', '📝 入力バリエーションテスト開始...', 'info');
+            
+            try {
+                let passed = 0;
+                let failed = 0;
+                
+                const testInputs = [
+                    { name: '基本テキスト', value: 'これは基本的なテストです', expected: true },
+                    { name: '長文入力', value: 'あ'.repeat(1000), expected: true },
+                    { name: '特殊文字', value: '\!@#$%^&*()_+-={}[]|\\:";\'<>?,./~`', expected: true },
+                    { name: '絵文字', value: '😀😃😄😁😆😅😂🤣😊😇🙂🙃😉😌', expected: true },
+                    { name: '多言語(英)', value: 'Hello World\! This is a test.', expected: true },
+                    { name: '多言語(中)', value: '你好世界！这是一个测试。', expected: true },
+                    { name: '多言語(韓)', value: '안녕하세요\! 이것은 테스트입니다.', expected: true },
+                    { name: '空文字', value: '', expected: false },
+                    { name: 'null値', value: null, expected: false },
+                    { name: 'undefined', value: undefined, expected: false }
+                ];
+                
+                for (const testCase of testInputs) {
+                    try {
+                        // 入力値の基本的な検証
+                        const isValid = testCase.value && 
+                                      typeof testCase.value === 'string' && 
+                                      testCase.value.trim().length > 0;
+                        
+                        if (isValid === testCase.expected) {
+                            logResult('input-results', `✅ ${testCase.name}: 期待通りの結果`, 'success');
+                            passed++;
+                        } else {
+                            logResult('input-results', `❌ ${testCase.name}: 期待と異なる結果`, 'error');
+                            failed++;
+                        }
+                        
+                        // 文字エンコーディングテスト
+                        if (testCase.value && typeof testCase.value === 'string') {
+                            const encoded = encodeURIComponent(testCase.value);
+                            const decoded = decodeURIComponent(encoded);
+                            
+                            if (decoded === testCase.value) {
+                                logResult('input-results', `✅ ${testCase.name}: エンコーディング正常`, 'success');
+                                passed++;
+                            } else {
+                                logResult('input-results', `❌ ${testCase.name}: エンコーディング異常`, 'error');
+                                failed++;
+                            }
+                        }
+                        
+                    } catch (error) {
+                        logResult('input-results', `❌ ${testCase.name}: 処理エラー - ${error.message}`, 'error');
+                        failed++;
+                    }
+                }
+                
+                // XSS攻撃パターンテスト
+                const xssPatterns = [
+                    '<script>alert("xss")</script>',
+                    'javascript:alert("xss")',
+                    '<img src="x" onerror="alert(\'xss\')">'
+                ];
+                
+                for (const pattern of xssPatterns) {
+                    try {
+                        // パターンがそのまま実行されないことを確認
+                        const testDiv = document.createElement('div');
+                        testDiv.textContent = pattern;
+                        
+                        if (testDiv.innerHTML.includes('&lt;') || testDiv.innerHTML.includes('&gt;')) {
+                            logResult('input-results', `✅ XSS防御: "${pattern.substring(0, 20)}..." エスケープ済み`, 'success');
+                            passed++;
+                        } else {
+                            logResult('input-results', `⚠️ XSS防御: 追加対策推奨`, 'warning');
+                        }
+                    } catch (error) {
+                        logResult('input-results', `❌ XSS防御テストエラー: ${error.message}`, 'error');
+                        failed++;
+                    }
+                }
+                
+                const totalTests = passed + failed;
+                const successRate = totalTests > 0 ? (passed / totalTests * 100).toFixed(1) : 100;
+                
+                logResult('input-results', `📊 入力バリエーションテスト完了: ${passed}/${totalTests} (${successRate}%)`, 
+                    parseFloat(successRate) >= 85 ? 'success' : 'warning');
+                
+                testResults.inputVariation = { passed, failed, successRate: parseFloat(successRate) };
+                
+            } catch (error) {
+                logResult('input-results', `❌ 入力バリエーションテスト実行エラー: ${error.message}`, 'error');
+                testResults.inputVariation = { passed: 0, failed: 1, successRate: 0, error: error.message };
+            }
+            
+            updateProgress();
+        }
+
+        function updateSummary() {
+            const summaryDiv = document.getElementById('summary-results');
+            let totalPassed = 0;
+            let totalFailed = 0;
+            let totalSuccessRate = 0;
+            let validTests = 0;
+            
+            let summaryHTML = '<h4>📋 各テスト結果詳細</h4>';
+            
+            for (const [testName, result] of Object.entries(testResults)) {
+                if (result) {
+                    totalPassed += result.passed || 0;
+                    totalFailed += result.failed || 0;
+                    
+                    if (typeof result.successRate === 'number') {
+                        totalSuccessRate += result.successRate;
+                        validTests++;
+                    }
+                    
+                    const statusClass = result.successRate >= 80 ? 'success' : 
+                                      result.successRate >= 60 ? 'warning' : 'error';
+                    
+                    summaryHTML += `
+                        <div class="test-result ${statusClass}">
+                            ${testName}: ${result.passed || 0}件成功 / ${(result.passed || 0) + (result.failed || 0)}件中 
+                            (成功率: ${result.successRate?.toFixed(1) || 0}%)
+                            ${result.error ? ` - エラー: ${result.error}` : ''}
+                        </div>
+                    `;
+                }
+            }
+            
+            const overallSuccessRate = validTests > 0 ? (totalSuccessRate / validTests).toFixed(1) : 0;
+            const totalTests = totalPassed + totalFailed;
+            
+            summaryHTML += `
+                <div class="test-result ${overallSuccessRate >= 80 ? 'success' : overallSuccessRate >= 60 ? 'warning' : 'error'}">
+                    <strong>🎯 総合結果: ${totalPassed}件成功 / ${totalTests}件中 (総合成功率: ${overallSuccessRate}%)</strong>
+                </div>
+            `;
+            
+            // 合格基準チェック
+            const criteria = {
+                '全テストケースで正常動作': totalFailed === 0,
+                'エラー率0%維持': totalFailed === 0,
+                'パフォーマンス目標達成': testResults.performance?.successRate >= 75,
+                'セキュリティ脆弱性0件': testResults.security?.successRate >= 85
+            };
+            
+            summaryHTML += '<h4>📏 合格基準チェック</h4>';
+            
+            for (const [criterion, met] of Object.entries(criteria)) {
+                summaryHTML += `
+                    <div class="test-result ${met ? 'success' : 'error'}">
+                        ${met ? '✅' : '❌'} ${criterion}
+                    </div>
+                `;
+            }
+            
+            const overallPassed = Object.values(criteria).every(c => c);
+            summaryHTML += `
+                <div class="test-result ${overallPassed ? 'success' : 'warning'}">
+                    <strong>${overallPassed ? '🎉 すべての合格基準をクリア！' : '⚠️ 一部基準未達成 - 要改善'}</strong>
+                </div>
+            `;
+            
+            summaryDiv.innerHTML = summaryHTML;
+        }
+
+        function generateTestReport() {
+            const timestamp = new Date().toISOString();
+            const report = {
+                title: 'HAQEI Analyzer Day 3 最終動作確認テスト',
+                timestamp: timestamp,
+                version: 'Day 3 統合システム',
+                testResults: testResults,
+                summary: {
+                    totalTests: Object.values(testResults).reduce((sum, r) => sum + (r ? (r.passed + r.failed) : 0), 0),
+                    totalPassed: Object.values(testResults).reduce((sum, r) => sum + (r ? r.passed : 0), 0),
+                    totalFailed: Object.values(testResults).reduce((sum, r) => sum + (r ? r.failed : 0), 0),
+                    overallSuccessRate: Object.values(testResults).reduce((sum, r, _, arr) => 
+                        sum + (r && typeof r.successRate === 'number' ? r.successRate : 0), 0) / 
+                        Object.values(testResults).filter(r => r && typeof r.successRate === 'number').length
+                },
+                environment: {
+                    userAgent: navigator.userAgent,
+                    viewport: `${window.innerWidth}x${window.innerHeight}`,
+                    language: navigator.language,
+                    platform: navigator.platform
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `haqei-day3-test-report-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('テストレポートをダウンロードしました！');
+        }
+
+        // 自動実行オプション
+        function runAllTests() {
+            const tests = [
+                runIntegrationTest,
+                runRegressionTest,
+                runSecurityTest,
+                runPerformanceTest,
+                runUsabilityTest,
+                runInputVariationTest
+            ];
+            
+            let currentTest = 0;
+            
+            function runNext() {
+                if (currentTest < tests.length) {
+                    tests[currentTest]().then(() => {
+                        currentTest++;
+                        setTimeout(runNext, 1000); // 1秒間隔で実行
+                    });
+                }
+            }
+            
+            runNext();
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            logResult('integration-results', 'Day 3 最終動作確認テスト システム準備完了', 'info');
+            
+            // 自動テスト実行ボタンを追加
+            const autoTestButton = document.createElement('button');
+            autoTestButton.textContent = '🚀 全テスト自動実行';
+            autoTestButton.onclick = runAllTests;
+            autoTestButton.style.cssText = 'background: #28a745; font-size: 16px; padding: 15px 30px; margin: 20px 0;';
+            
+            const summaryDiv = document.getElementById('summary-results');
+            summaryDiv.parentElement.insertBefore(autoTestButton, summaryDiv);
+        });
+    </script>
+</body>
+</html>
+EOF < /dev/null

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>✅ Verify Emergency Fix</title>
+</head>
+<body>
+    <h1>✅ HAQEI Fix Verification</h1>
+    
+    <div id="verification-status" style="background: #f0f8ff; padding: 1rem; border: 2px solid #4a90e2; border-radius: 0.5rem; margin: 1rem 0;">
+        <h3>🔍 Verification Status</h3>
+        <div id="status-content">Starting verification...</div>
+    </div>
+    
+    <iframe id="app-iframe" src="http://localhost:8788/os_analyzer.html?v=${Date.now()}" width="100%" height="600" style="border: 2px solid #ddd; border-radius: 0.5rem;"></iframe>
+    
+    <div style="margin: 1rem 0; text-align: center;">
+        <button onclick="runVerification()" style="padding: 1rem 2rem; background: #28a745; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 1.1rem;">
+            🧪 Run Complete Verification
+        </button>
+        <button onclick="forceClick()" style="padding: 1rem 2rem; background: #dc3545; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 1.1rem; margin-left: 1rem;">
+            🎯 Force Click Start Button
+        </button>
+    </div>
+    
+    <div id="detailed-log" style="background: #f8f9fa; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; height: 300px; overflow-y: auto; font-family: monospace; font-size: 0.9rem;">
+        <strong>Detailed Verification Log:</strong><br>
+        <div id="log-content">Waiting for verification...</div>
+    </div>
+    
+    <script>
+        let logs = [];
+        let verificationStep = 0;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '🔍';
+            const color = type === 'success' ? 'green' : type === 'error' ? 'red' : 'blue';
+            
+            logs.push(`<span style="color: ${color};">${icon} [${timestamp}] ${message}</span>`);
+            document.getElementById('log-content').innerHTML = logs.join('<br>');
+            
+            // Auto-scroll to bottom
+            const logDiv = document.getElementById('detailed-log');
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function updateStatus(message, isSuccess = null) {
+            const statusDiv = document.getElementById('status-content');
+            const color = isSuccess === true ? 'green' : isSuccess === false ? 'red' : 'blue';
+            statusDiv.innerHTML = `<span style="color: ${color}; font-weight: bold;">${message}</span>`;
+        }
+        
+        function runVerification() {
+            verificationStep = 0;
+            logs = [];
+            log('🚀 Starting comprehensive verification process');
+            updateStatus('Verification in progress...');
+            
+            const iframe = document.getElementById('app-iframe');
+            
+            // Wait for iframe to load
+            setTimeout(() => {
+                verifyStep1(iframe);
+            }, 2000);
+        }
+        
+        function verifyStep1(iframe) {
+            log('Step 1: Checking if iframe loaded properly');
+            
+            try {
+                const iframeDoc = iframe.contentDocument;
+                const iframeWin = iframe.contentWindow;
+                
+                if (!iframeDoc) {
+                    log('ERROR: Cannot access iframe document', 'error');
+                    updateStatus('FAILED: Iframe access denied', false);
+                    return;
+                }
+                
+                log('SUCCESS: Iframe document accessible', 'success');
+                verifyStep2(iframe);
+                
+            } catch (e) {
+                log(`ERROR: Iframe access failed: ${e.message}`, 'error');
+                updateStatus('FAILED: Iframe access error', false);
+            }
+        }
+        
+        function verifyStep2(iframe) {
+            log('Step 2: Checking if CriticalCSSAnalyzer exists');
+            
+            const iframeWin = iframe.contentWindow;
+            
+            if (iframeWin.criticalCSSAnalyzer) {
+                log('SUCCESS: CriticalCSSAnalyzer instance found', 'success');
+                
+                if (typeof iframeWin.criticalCSSAnalyzer.startAnalysis === 'function') {
+                    log('SUCCESS: startAnalysis method exists', 'success');
+                    verifyStep3(iframe);
+                } else {
+                    log('ERROR: startAnalysis method not found', 'error');
+                    updateStatus('FAILED: Missing startAnalysis method', false);
+                }
+            } else {
+                log('ERROR: CriticalCSSAnalyzer instance not found', 'error');
+                updateStatus('FAILED: Missing CriticalCSSAnalyzer', false);
+            }
+        }
+        
+        function verifyStep3(iframe) {
+            log('Step 3: Checking DOM elements');
+            
+            const iframeDoc = iframe.contentDocument;
+            const startBtn = iframeDoc.getElementById('start-btn');
+            const questionScreen = iframeDoc.getElementById('question-screen');
+            
+            if (startBtn) {
+                log('SUCCESS: Start button found', 'success');
+            } else {
+                log('ERROR: Start button not found', 'error');
+                updateStatus('FAILED: Start button missing', false);
+                return;
+            }
+            
+            if (questionScreen) {
+                log('SUCCESS: Question screen found', 'success');
+                verifyStep4(iframe);
+            } else {
+                log('ERROR: Question screen not found', 'error');
+                updateStatus('FAILED: Question screen missing', false);
+            }
+        }
+        
+        function verifyStep4(iframe) {
+            log('Step 4: Testing start button click functionality');
+            
+            const iframeDoc = iframe.contentDocument;
+            const startBtn = iframeDoc.getElementById('start-btn');
+            const questionScreen = iframeDoc.getElementById('question-screen');
+            
+            // Check initial state
+            const initiallyActive = questionScreen.classList.contains('active');
+            log(`Initial question screen active: ${initiallyActive}`);
+            
+            // Click the button
+            log('Clicking start button...');
+            startBtn.click();
+            
+            // Check result after a delay
+            setTimeout(() => {
+                const nowActive = questionScreen.classList.contains('active');
+                log(`Question screen active after click: ${nowActive}`);
+                
+                if (nowActive && !initiallyActive) {
+                    log('SUCCESS: Start button successfully activated question screen!', 'success');
+                    updateStatus('✅ VERIFICATION PASSED: Start button is working!', true);
+                    verifyStep5(iframe);
+                } else if (nowActive && initiallyActive) {
+                    log('INFO: Question screen was already active', 'info');
+                    updateStatus('⚠️ PARTIAL: Question screen already active', null);
+                } else {
+                    log('ERROR: Start button click did not activate question screen', 'error');
+                    updateStatus('❌ FAILED: Start button not working', false);
+                }
+            }, 1000);
+        }
+        
+        function verifyStep5(iframe) {
+            log('Step 5: Checking if question content is displayed');
+            
+            const iframeDoc = iframe.contentDocument;
+            const questionTitle = iframeDoc.getElementById('question-title');
+            const questionNumber = iframeDoc.getElementById('question-number');
+            
+            if (questionTitle && questionTitle.textContent.trim()) {
+                log(`SUCCESS: Question title displayed: "${questionTitle.textContent}"`, 'success');
+            } else {
+                log('WARNING: Question title not displayed', 'error');
+            }
+            
+            if (questionNumber && questionNumber.textContent.trim()) {
+                log(`SUCCESS: Question number displayed: ${questionNumber.textContent}`, 'success');
+            } else {
+                log('WARNING: Question number not displayed', 'error');
+            }
+            
+            log('🎉 VERIFICATION COMPLETE!', 'success');
+        }
+        
+        function forceClick() {
+            log('🎯 Force clicking start button');
+            
+            const iframe = document.getElementById('app-iframe');
+            const iframeDoc = iframe.contentDocument;
+            const startBtn = iframeDoc.getElementById('start-btn');
+            
+            if (startBtn) {
+                startBtn.click();
+                log('Force click executed', 'info');
+                
+                setTimeout(() => {
+                    const questionScreen = iframeDoc.getElementById('question-screen');
+                    const isActive = questionScreen && questionScreen.classList.contains('active');
+                    log(`Force click result: Question screen active = ${isActive}`, isActive ? 'success' : 'error');
+                }, 500);
+            } else {
+                log('ERROR: Start button not found for force click', 'error');
+            }
+        }
+        
+        // Auto-start verification when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('Page loaded, ready for verification');
+                updateStatus('Ready for verification');
+            }, 1000);
+        });
+    </script>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+    </style>
+</body>
+</html>

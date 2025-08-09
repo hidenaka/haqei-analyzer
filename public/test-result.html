@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>HAQEI動作確認結果</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #00ff00; }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+    </style>
+</head>
+<body>
+    <h1>HAQEI 30問修正動作確認結果</h1>
+    <div id="results"></div>
+    
+    <script>
+        // os_analyzer.htmlを別ウィンドウで開いてテスト
+        const testWindow = window.open('/os_analyzer.html', 'test', 'width=1200,height=800');
+        const results = document.getElementById('results');
+        
+        testWindow.onload = () => {
+            const doc = testWindow.document;
+            const win = testWindow;
+            
+            // 修正確認項目
+            const checks = [];
+            
+            // 1. Chart.js確認
+            checks.push({
+                name: 'Chart.js読み込み',
+                result: typeof win.Chart !== 'undefined'
+            });
+            
+            // 2. getHexagramData関数確認
+            const engine = win.tripleOSEngine || win.engine;
+            checks.push({
+                name: 'getHexagramData関数',
+                result: engine && typeof engine.getHexagramData === 'function'
+            });
+            
+            // 3. 30問確認
+            const questions = doc.querySelectorAll('[id^="q"]').length;
+            checks.push({
+                name: '30問のデータ',
+                result: questions >= 30
+            });
+            
+            // 4. ServiceWorker確認
+            const swScript = Array.from(doc.scripts).find(s => s.src.includes('haqei-sw.js'));
+            checks.push({
+                name: 'ServiceWorker設定',
+                result: !!swScript || doc.documentElement.innerHTML.includes('/public/haqei-sw.js')
+            });
+            
+            // 結果表示
+            let html = '<h2>確認結果:</h2><ul>';
+            let allPassed = true;
+            
+            checks.forEach(check => {
+                const status = check.result ? '✅' : '❌';
+                const className = check.result ? 'success' : 'error';
+                html += `<li class="${className}">${status} ${check.name}: ${check.result ? 'OK' : 'NG'}</li>`;
+                if (!check.result) allPassed = false;
+            });
+            
+            html += '</ul>';
+            html += `<h2>総合判定: ${allPassed ? '<span class="success">✅ 動作確認完了 - 問題なし</span>' : '<span class="error">❌ 一部問題あり</span>'}</h2>`;
+            
+            results.innerHTML = html;
+            
+            // 30秒後に自動でウィンドウを閉じる
+            setTimeout(() => {
+                testWindow.close();
+            }, 30000);
+        };
+    </script>
+</body>
+</html>

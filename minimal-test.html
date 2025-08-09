@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>🧪 Minimal Function Test</title>
+</head>
+<body>
+    <h1>🧪 Minimal HAQEI Function Test</h1>
+    
+    <div id="test-results">
+        <p>Testing in progress...</p>
+    </div>
+    
+    <button id="test-btn" onclick="runTest()">Run Minimal Test</button>
+    
+    <script>
+        // Minimal test to replicate the core functionality
+        const QUESTIONS = [
+            {id: 1, text: "テスト質問", options: [{text: "はい", value: 1}, {text: "いいえ", value: 0}]}
+        ];
+        
+        class TestAnalyzer {
+            constructor() {
+                this.bindEvents();
+                console.log('TestAnalyzer initialized');
+            }
+            
+            bindEvents() {
+                const btn = document.getElementById('test-btn');
+                if (btn) {
+                    console.log('✅ Button found, binding events');
+                    // Don't use onclick in constructor, use addEventListener
+                    btn.removeAttribute('onclick');
+                    btn.addEventListener('click', () => this.startAnalysis());
+                } else {
+                    console.error('❌ Button not found');
+                }
+            }
+            
+            startAnalysis() {
+                console.log('✅ startAnalysis called successfully!');
+                document.getElementById('test-results').innerHTML = `
+                    <p style="color: green;">✅ SUCCESS: startAnalysis method works!</p>
+                    <p>Time: ${new Date().toLocaleTimeString()}</p>
+                `;
+            }
+        }
+        
+        function runTest() {
+            console.log('Direct function call test');
+            document.getElementById('test-results').innerHTML = `
+                <p style="color: blue;">📞 Direct function call works</p>
+                <p>Time: ${new Date().toLocaleTimeString()}</p>
+            `;
+        }
+        
+        // Initialize when DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, creating TestAnalyzer');
+            window.testAnalyzer = new TestAnalyzer();
+        });
+        
+        // Also test direct initialization
+        window.addEventListener('load', () => {
+            console.log('Window loaded');
+            document.getElementById('test-results').innerHTML += `<p>📋 Window load event fired</p>`;
+        });
+    </script>
+    
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 600px; margin: 0 auto; }
+        button { padding: 1rem 2rem; font-size: 1.2rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; cursor: pointer; margin: 1rem 0; }
+        button:hover { background: #2563eb; }
+        #test-results { background: #f1f5f9; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; }
+    </style>
+</body>
+</html>
