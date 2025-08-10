@@ -716,6 +716,12 @@ function ensureH384Data() {
 if (typeof window !== 'undefined') {
     window.ensureH384Data = ensureH384Data;
     
+    // H384_DATAをグローバルスコープに設定
+    if (typeof H384_DATA !== 'undefined' && Array.isArray(H384_DATA)) {
+        window.H384_DATA = H384_DATA;
+        console.log('✅ H384_DATA: 384爻データがグローバルスコープに正常設定されました');
+    }
+    
     // H64_DATAもグローバルスコープに設定
     if (typeof H64_DATA !== 'undefined' && Array.isArray(H64_DATA)) {
         window.H64_DATA = H64_DATA;
