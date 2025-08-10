@@ -323,6 +323,14 @@ console.log('🎯 EightScenariosDisplay Loading...');
       header.innerHTML = `
         <h2 class="three-stage-title">🎯 8つの未来シナリオ</h2>
         <p class="three-stage-subtitle">3段階の選択による可能性の全体像</p>
+        <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; border: 1px solid #6366f1;">
+          <div style="color: #fbbf24; font-weight: bold; margin-bottom: 0.5rem;">⚡ 386爻準拠システム</div>
+          <div style="color: #a5b4fc; font-size: 0.875rem; line-height: 1.5;">
+            <div>• <strong>386爻データ使用</strong>: 64卦×6爻 + 用九・用六による完全分析</div>
+            <div>• <strong>変化方式</strong>: 4基軸×2方式（進む/変わる）= 8パス生成</div>
+            <div>• <strong>時間的反復</strong>: 各パス2〜3ステップの段階的展開</div>
+          </div>
+        </div>
       `;
       return header;
     }
@@ -408,6 +416,12 @@ console.log('🎯 EightScenariosDisplay Loading...');
                    scenario.probability > 50 ? 'B' : 
                    scenario.probability > 40 ? 'C' : 'D';
       
+      // 変化方式を判定（8パスの内訳：4基軸×2方式）
+      const changeMethod = this.determineChangeMethod(index);
+      const methodLabel = changeMethod.type === 'advance' ? '爻が進む' : '爻が変わる';
+      const methodColor = changeMethod.type === 'advance' ? '#10b981' : '#f59e0b';
+      const axisLabel = changeMethod.axis; // 基軸（天地人時の4基軸）
+      
       card.innerHTML = `
         <div class="scenario-rank" style="${this.getRankStyle(scenario.probability)}">
           ${rank}ランク
@@ -424,6 +438,17 @@ console.log('🎯 EightScenariosDisplay Loading...');
           </span>
         </div>
         
+        <!-- 変化方式表示（爻が進む/爻が変わる） -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 0.5rem 0; padding: 0.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 0.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-weight: bold; color: ${methodColor};">${methodLabel}</span>
+            <span style="font-size: 0.75rem; color: #94a3b8;">(${axisLabel})</span>
+          </div>
+          <div style="font-size: 0.75rem; color: #a5b4fc;">
+            パス${index + 1}/8
+          </div>
+        </div>
+        
         <h3 class="scenario-title" style="color: ${visualization.color}">
           <span class="scenario-icon-set">
             <span class="traditional-icon">${visualization.traditional}</span>
@@ -431,6 +456,9 @@ console.log('🎯 EightScenariosDisplay Loading...');
           </span>
           シナリオ ${scenario.id}: ${scenario.title || scenario.description || '統合的変化'}
         </h3>
+        
+        <!-- 時間的反復ステップ表示 -->
+        ${this.renderTemporalSteps(scenario)}
         
         <!-- 3段階変化プロセス -->
         <div class="three-phase-container">
@@ -681,6 +709,28 @@ console.log('🎯 EightScenariosDisplay Loading...');
     }
     
     /**
+     * 変化方式の判定（4基軸×2方式 = 8パス）
+     * @param {number} index - シナリオのインデックス(0-7)
+     * @returns {Object} 変化方式情報
+     */
+    determineChangeMethod(index) {
+        // 4基軸：天（創造）、地（安定）、人（関係）、時（変化）
+        const axes = ['天基軸', '地基軸', '人基軸', '時基軸'];
+        const axisIndex = Math.floor(index / 2); // 0-1→天, 2-3→地, 4-5→人, 6-7→時
+        
+        // 2方式：爻が進む（advance） vs 爻が変わる（transform）
+        const isAdvance = index % 2 === 0;
+        
+        return {
+            type: isAdvance ? 'advance' : 'transform',
+            axis: axes[axisIndex],
+            description: isAdvance 
+                ? `${axes[axisIndex]}に沿って順次進展する`
+                : `${axes[axisIndex]}において質的変化を起こす`
+        };
+    }
+    
+    /**
      * 各フェーズの説明文生成
      */
     getPhase1Description(scenario) {
@@ -725,6 +775,36 @@ console.log('🎯 EightScenariosDisplay Loading...');
             return yaoOrder[currentIndex + 1];
         }
         return '変爻';
+    }
+    
+    /**
+     * 時間的反復ステップのレンダリング
+     */
+    renderTemporalSteps(scenario) {
+        // scenarioかpatternデータからtemporalStepsを取得
+        const steps = scenario.temporalSteps || scenario.pattern?.temporalSteps || [];
+        
+        if (!steps.length) {
+            return ''; // ステップがない場合は空を返す
+        }
+        
+        return `
+        <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(30, 41, 59, 0.5); border-radius: 0.5rem; border-left: 3px solid #fbbf24;">
+            <div style="font-size: 0.875rem; font-weight: bold; color: #fbbf24; margin-bottom: 0.5rem;">
+                ✨ 時間的反復ステップ (${steps.length}段階)
+            </div>
+            ${steps.map(step => `
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.5rem; align-items: flex-start;">
+                    <div style="min-width: 1.5rem; height: 1.5rem; background: #6366f1; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">
+                        ${step.step}
+                    </div>
+                    <div style="flex: 1; color: #e2e8f0; font-size: 0.875rem; line-height: 1.5;">
+                        ${step.description}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        `;
     }
     
     /**

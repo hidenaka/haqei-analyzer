@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>実際の64卦キーワード確認</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            padding: 20px; 
+            background: #1a1a1a; 
+            color: #fff; 
+            line-height: 1.6;
+        }
+        .hexagram { 
+            margin: 10px 0; 
+            padding: 10px; 
+            border: 1px solid #444; 
+            border-radius: 4px; 
+            background: rgba(0,0,0,0.3);
+        }
+        .keyword-match {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .keyword-nomatch {
+            color: #6b7280;
+        }
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 実際の64卦キーワードvsマッチング配列</h1>
+    <p>hardcoded特性の実際のキーワードが、衝突検出配列にマッチするかチェック</p>
+    
+    <button onclick="checkActualKeywords()">🎯 実際のキーワード確認</button>
+    
+    <div id="results"></div>
+
+    <script src="./public/assets/H384H64database.js"></script>
+    <script src="./public/js/core/TripleOSInteractionAnalyzer.js"></script>
+    <script>
+        function checkActualKeywords() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div>🔄 実際のキーワード分析中...</div>';
+            
+            try {
+                const analyzer = new TripleOSInteractionAnalyzer();
+                
+                // 現在の衝突検出配列
+                const speedFast = ['強大', '威力', '積極性', '勇猛', '衝撃', '活気', '決断', '処断', '勇敢', '攻撃', '雷', '電撃'];
+                const speedSlow = ['穏健', '慎重', '節制', '内省', '瞑想', '静観', '忍耐', '待機', '準備', '観察', '洞察', '謙遜', '段階的', '着実'];
+                const valueIndividual = ['個人', '独立', '自由', '創造', 'リーダーシップ', '自立', '主導', '独創性', '自己主張'];
+                const valueGroup = ['団結', '協調', '統合', '調和', '集合', '結集', '親和', '協力', '同志', '和解', '包容', '受容性'];
+                const timeChange = ['革新', '変革', '刷新', '改革', '腐敗', '再生', '変化対応', '改革力', '新秩序', '再編', '覚醒', '変化', '進歩'];
+                const timeStable = ['安定', '維持', '恒常', '永続', '持続', '継続', '不変', '保守', '現状維持', '忍耐', '堅実', '持続的', '永続的'];
+                const directionExpand = ['上昇', '発展', '向上', '進歩', '発達', '成長', '昇進', '拡散', '解放', '散開', '明晰性', '照明', '外向'];
+                const directionContract = ['潜伏', '退避', '内向', '収束', '戦略的撤退', '保身', '隠遁', '内省', '深い洞察', '深層', '閉塞', '断絶', '節制', '制限'];
+                
+                let html = '<h2>📊 全64卦の実際のキーワード分析</h2>';
+                let matchStats = {
+                    speedFast: 0, speedSlow: 0,
+                    valueIndividual: 0, valueGroup: 0,
+                    timeChange: 0, timeStable: 0,
+                    directionExpand: 0, directionContract: 0,
+                    total: 64
+                };
+                
+                for (let i = 1; i <= 64; i++) {
+                    const char = analyzer.getHexagramCharacteristics(i);
+                    const keywords = char.keywords || [];
+                    
+                    // マッチング確認
+                    const matchSpeedFast = keywords.some(k => speedFast.includes(k));
+                    const matchSpeedSlow = keywords.some(k => speedSlow.includes(k));
+                    const matchValueIndiv = keywords.some(k => valueIndividual.includes(k));
+                    const matchValueGroup = keywords.some(k => valueGroup.includes(k));
+                    const matchTimeChange = keywords.some(k => timeChange.includes(k));
+                    const matchTimeStable = keywords.some(k => timeStable.includes(k));
+                    const matchDirExpand = keywords.some(k => directionExpand.includes(k));
+                    const matchDirContract = keywords.some(k => directionContract.includes(k));
+                    
+                    // 統計更新
+                    if (matchSpeedFast) matchStats.speedFast++;
+                    if (matchSpeedSlow) matchStats.speedSlow++;
+                    if (matchValueIndiv) matchStats.valueIndividual++;
+                    if (matchValueGroup) matchStats.valueGroup++;
+                    if (matchTimeChange) matchStats.timeChange++;
+                    if (matchTimeStable) matchStats.timeStable++;
+                    if (matchDirExpand) matchStats.directionExpand++;
+                    if (matchDirContract) matchStats.directionContract++;
+                    
+                    const hasAnyMatch = matchSpeedFast || matchSpeedSlow || matchValueIndiv || matchValueGroup || 
+                                       matchTimeChange || matchTimeStable || matchDirExpand || matchDirContract;
+                    
+                    html += `
+                        <div class="hexagram" style="${hasAnyMatch ? 'border-color: #10b981;' : 'border-color: #ef4444;'}">
+                            <strong>${i}. ${char.name}</strong><br>
+                            キーワード: [${keywords.join(', ')}]<br>
+                            マッチ: 
+                            <span class="${matchSpeedFast ? 'keyword-match' : 'keyword-nomatch'}">Speed Fast</span> | 
+                            <span class="${matchSpeedSlow ? 'keyword-match' : 'keyword-nomatch'}">Speed Slow</span> | 
+                            <span class="${matchValueIndiv ? 'keyword-match' : 'keyword-nomatch'}">Value Individual</span> | 
+                            <span class="${matchValueGroup ? 'keyword-match' : 'keyword-nomatch'}">Value Group</span> | 
+                            <span class="${matchTimeChange ? 'keyword-match' : 'keyword-nomatch'}">Time Change</span> | 
+                            <span class="${matchTimeStable ? 'keyword-match' : 'keyword-nomatch'}">Time Stable</span> | 
+                            <span class="${matchDirExpand ? 'keyword-match' : 'keyword-nomatch'}">Dir Expand</span> | 
+                            <span class="${matchDirContract ? 'keyword-match' : 'keyword-nomatch'}">Dir Contract</span>
+                        </div>
+                    `;
+                }
+                
+                // 統計サマリー
+                html += `
+                    <div style="margin-top: 30px; padding: 20px; border: 2px solid #22d3ee; border-radius: 10px;">
+                        <h3>📈 マッチング統計</h3>
+                        <p><strong>Speed Fast マッチ:</strong> ${matchStats.speedFast}/64 (${(matchStats.speedFast/64*100).toFixed(1)}%)</p>
+                        <p><strong>Speed Slow マッチ:</strong> ${matchStats.speedSlow}/64 (${(matchStats.speedSlow/64*100).toFixed(1)}%)</p>
+                        <p><strong>Value Individual マッチ:</strong> ${matchStats.valueIndividual}/64 (${(matchStats.valueIndividual/64*100).toFixed(1)}%)</p>
+                        <p><strong>Value Group マッチ:</strong> ${matchStats.valueGroup}/64 (${(matchStats.valueGroup/64*100).toFixed(1)}%)</p>
+                        <p><strong>Time Change マッチ:</strong> ${matchStats.timeChange}/64 (${(matchStats.timeChange/64*100).toFixed(1)}%)</p>
+                        <p><strong>Time Stable マッチ:</strong> ${matchStats.timeStable}/64 (${(matchStats.timeStable/64*100).toFixed(1)}%)</p>
+                        <p><strong>Direction Expand マッチ:</strong> ${matchStats.directionExpand}/64 (${(matchStats.directionExpand/64*100).toFixed(1)}%)</p>
+                        <p><strong>Direction Contract マッチ:</strong> ${matchStats.directionContract}/64 (${(matchStats.directionContract/64*100).toFixed(1)}%)</p>
+                        
+                        <p style="color: #f59e0b; font-weight: bold; margin-top: 20px;">
+                            📝 結論: 実際の64卦キーワードと衝突検出配列のマッチング状況が判明
+                        </p>
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                
+            } catch (error) {
+                results.innerHTML = `
+                    <div style="color: #ef4444; padding: 20px;">
+                        ❌ 分析エラー: ${error.message}
+                    </div>
+                `;
+                console.error('キーワード分析エラー:', error);
+            }
+        }
+    </script>
+</body>
+</html>

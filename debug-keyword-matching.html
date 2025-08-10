@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>キーワードマッチング詳細デバッグ</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            padding: 20px; 
+            background: #1a1a1a; 
+            color: #fff; 
+            line-height: 1.6;
+        }
+        .debug-result { 
+            margin: 15px 0; 
+            padding: 15px; 
+            border: 1px solid #444; 
+            border-radius: 8px; 
+            background: rgba(0,0,0,0.3);
+        }
+        .pattern-header { 
+            font-weight: bold; 
+            color: #22d3ee; 
+            margin-bottom: 10px; 
+        }
+        .keyword-analysis {
+            background: rgba(59, 130, 246, 0.1);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+        }
+        .conflict-detected { 
+            color: #10b981; 
+            font-weight: bold; 
+        }
+        .no-conflict { 
+            color: #6b7280; 
+        }
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 キーワードマッチング詳細デバッグ</h1>
+    <p>なぜパターン27だけが特殊表現になり、他がgenericになるかを調査</p>
+    
+    <button onclick="runKeywordDebug()">🎯 キーワードマッチング詳細分析</button>
+    
+    <div id="results"></div>
+
+    <script src="./public/assets/H384H64database.js"></script>
+    <script src="./public/js/core/TripleOSInteractionAnalyzer.js"></script>
+    <script>
+        function runKeywordDebug() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div>🔄 キーワードマッチング分析中...</div>';
+            
+            try {
+                const analyzer = new TripleOSInteractionAnalyzer();
+                
+                // 固定パターン（30パターン）から特に注目すべきもの
+                const testPatterns = [
+                    [51, 59, 53],  // Pattern 1
+                    [56, 9, 59],   // Pattern 2  
+                    [45, 62, 53],  // Pattern 28 (これがPattern 27なのか？)
+                    [14, 11, 37],  // Pattern 29
+                    [48, 14, 9]    // Pattern 30
+                ];
+                
+                let html = '<h2>🔍 キーワードマッチング詳細分析</h2>';
+                
+                testPatterns.forEach(([e, iface, s], index) => {
+                    try {
+                        const engineOS = { hexagramId: e, name: `第${e}卦`, score: 0.5 };
+                        const interfaceOS = { hexagramId: iface, name: `第${iface}卦`, score: 0.5 };
+                        const safeModeOS = { hexagramId: s, name: `第${s}卦`, score: 0.5 };
+                        
+                        // 卦の特徴取得
+                        const char1 = analyzer.getHexagramCharacteristics(e);
+                        const char2 = analyzer.getHexagramCharacteristics(iface);
+                        const char3 = analyzer.getHexagramCharacteristics(s);
+                        
+                        // Engine-Interface間のキーワード組み合わせ分析
+                        const eiCombinations = analyzer.analyzeKeywordCombination(char1, char2);
+                        const esCombinations = analyzer.analyzeKeywordCombination(char1, char3);
+                        const isCombinations = analyzer.analyzeKeywordCombination(char2, char3);
+                        
+                        // 実際のペア分析結果
+                        const eiAnalysis = analyzer.analyzePair('engine-interface', engineOS, interfaceOS);
+                        const esAnalysis = analyzer.analyzePair('engine-safe', engineOS, safeModeOS);
+                        const isAnalysis = analyzer.analyzePair('interface-safe', interfaceOS, safeModeOS);
+                        
+                        html += `
+                            <div class="debug-result">
+                                <div class="pattern-header">
+                                    パターン ${index + 1}: Engine(${e}: ${char1.name}) × Interface(${iface}: ${char2.name}) × Safe(${s}: ${char3.name})
+                                </div>
+                                
+                                <div class="keyword-analysis">
+                                    <h4>卦の特徴データ:</h4>
+                                    <p><strong>Engine(${e}):</strong> ${char1.keywords?.join(', ') || '未定義'}</p>
+                                    <p><strong>Interface(${iface}):</strong> ${char2.keywords?.join(', ') || '未定義'}</p>
+                                    <p><strong>SafeMode(${s}):</strong> ${char3.keywords?.join(', ') || '未定義'}</p>
+                                </div>
+                                
+                                <div class="keyword-analysis">
+                                    <h4>Engine-Interface キーワード衝突検出:</h4>
+                                    <p>Speed conflict: <span class="${eiCombinations.speedConflict ? 'conflict-detected' : 'no-conflict'}">${eiCombinations.speedConflict}</span></p>
+                                    <p>Value conflict: <span class="${eiCombinations.valueConflict ? 'conflict-detected' : 'no-conflict'}">${eiCombinations.valueConflict}</span></p>
+                                    <p>Time conflict: <span class="${eiCombinations.timeConflict ? 'conflict-detected' : 'no-conflict'}">${eiCombinations.timeConflict}</span></p>
+                                    <p>Direction conflict: <span class="${eiCombinations.directionConflict ? 'conflict-detected' : 'no-conflict'}">${eiCombinations.directionConflict}</span></p>
+                                    <p><strong>実際の表現:</strong> 「${eiAnalysis.summary}」</p>
+                                </div>
+                                
+                                <div class="keyword-analysis">
+                                    <h4>Engine-Safe キーワード衝突検出:</h4>
+                                    <p>Speed conflict: <span class="${esCombinations.speedConflict ? 'conflict-detected' : 'no-conflict'}">${esCombinations.speedConflict}</span></p>
+                                    <p>Value conflict: <span class="${esCombinations.valueConflict ? 'conflict-detected' : 'no-conflict'}">${esCombinations.valueConflict}</span></p>
+                                    <p>Time conflict: <span class="${esCombinations.timeConflict ? 'conflict-detected' : 'no-conflict'}">${esCombinations.timeConflict}</span></p>
+                                    <p>Direction conflict: <span class="${esCombinations.directionConflict ? 'conflict-detected' : 'no-conflict'}">${esCombinations.directionConflict}</span></p>
+                                    <p><strong>実際の表現:</strong> 「${esAnalysis.summary}」</p>
+                                </div>
+                                
+                                <div class="keyword-analysis">
+                                    <h4>Interface-Safe キーワード衝突検出:</h4>
+                                    <p>Speed conflict: <span class="${isCombinations.speedConflict ? 'conflict-detected' : 'no-conflict'}">${isCombinations.speedConflict}</span></p>
+                                    <p>Value conflict: <span class="${isCombinations.valueConflict ? 'conflict-detected' : 'no-conflict'}">${isCombinations.valueConflict}</span></p>
+                                    <p>Time conflict: <span class="${isCombinations.timeConflict ? 'conflict-detected' : 'no-conflict'}">${isCombinations.timeConflict}</span></p>
+                                    <p>Direction conflict: <span class="${isCombinations.directionConflict ? 'conflict-detected' : 'no-conflict'}">${isCombinations.directionConflict}</span></p>
+                                    <p><strong>実際の表現:</strong> 「${isAnalysis.summary}」</p>
+                                </div>
+                            </div>
+                        `;
+                        
+                    } catch (error) {
+                        html += `
+                            <div class="debug-result">
+                                <div class="pattern-header">
+                                    パターン ${index + 1}: Engine(${e}) × Interface(${iface}) × SafeMode(${s})
+                                </div>
+                                <div style="color: #ef4444;">
+                                    ❌ 分析エラー: ${error.message}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                results.innerHTML = html;
+                
+            } catch (error) {
+                results.innerHTML = `
+                    <div style="color: #ef4444; padding: 20px;">
+                        ❌ システムエラー: ${error.message}
+                    </div>
+                `;
+                console.error('キーワード分析エラー:', error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -20,6 +20,7 @@
 ### 4. エラー継続
 - **API Error発生時も作業継続** - 停止禁止
 - **スクリーンショット失敗時は代替手段使用**
+- **スクリーンショットサイズ制限**: 8000px以下、fullPage使用禁止
 - **エラー後も指示受信継続**
 
 ### 5. 根本解決優先
@@ -61,7 +62,8 @@
 ### Playwright設定  
 詳細は `PLAYWRIGHT_CONFIG.md` を参照
 - Multi-instance concurrent setup
-- Screenshot size limits
+- **Screenshot size limits: 8000px max, width×height制限**
+- **fullPage禁止**: 通常スクリーンショットのみ使用
 - Error recovery protocols
 
 ### プロジェクト記憶

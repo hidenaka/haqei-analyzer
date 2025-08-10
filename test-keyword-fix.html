@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>キーワードマッチング修正テスト</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            padding: 20px; 
+            background: #1a1a1a; 
+            color: #fff; 
+            line-height: 1.6;
+        }
+        .test-result { 
+            margin: 15px 0; 
+            padding: 15px; 
+            border: 1px solid #444; 
+            border-radius: 8px; 
+            background: rgba(0,0,0,0.3);
+        }
+        .pattern-header { 
+            font-weight: bold; 
+            color: #22d3ee; 
+            margin-bottom: 10px; 
+        }
+        .conflict-detected { 
+            color: #10b981; 
+            font-weight: bold; 
+        }
+        .no-conflict { 
+            color: #6b7280; 
+        }
+        .special-expression {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 5px;
+            border-left: 3px solid #10b981;
+            margin: 5px 0;
+        }
+        .generic-expression {
+            background: rgba(239, 68, 68, 0.1);
+            padding: 5px;
+            border-left: 3px solid #ef4444;
+            margin: 5px 0;
+        }
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 キーワードマッチング修正テスト</h1>
+    <p>更新されたキーワード配列で特殊表現が正しく生成されるかテスト</p>
+    
+    <button onclick="testKeywordFix()">🎯 修正後テスト実行</button>
+    
+    <div id="results"></div>
+
+    <script src="./public/assets/H384H64database.js"></script>
+    <script src="./public/js/core/TripleOSInteractionAnalyzer.js"></script>
+    <script>
+        function testKeywordFix() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div>🔄 修正後テスト実行中...</div>';
+            
+            try {
+                const analyzer = new TripleOSInteractionAnalyzer();
+                
+                // テストパターン（今までgenericだったものが特殊表現になるかチェック）
+                const testPatterns = [
+                    { name: 'Pattern 1', pattern: [51, 59, 53] },  // 震為雷×風水渙×風山漸
+                    { name: 'Pattern 2', pattern: [56, 9, 59] },   // 火山旅×風天小畜×風水渙
+                    { name: 'Pattern 3', pattern: [43, 38, 61] },  // 沢天夬×火沢睽×風沢中孚
+                    { name: 'Pattern 4', pattern: [11, 36, 27] },  // 地天泰×地火明夷×山雷頤
+                    { name: 'Pattern 5', pattern: [25, 20, 8] },   // 天雷无妄×風地観×水地比
+                    { name: '参考：Pattern 27', pattern: [45, 62, 53] }, // 沢地萃×雷山小過×風山漸
+                ];
+                
+                let html = '<h2>🔍 修正後キーワードマッチング結果</h2>';
+                let specialCount = 0;
+                let genericCount = 0;
+                
+                testPatterns.forEach(({ name, pattern: [e, iface, s] }) => {
+                    try {
+                        const engineOS = { hexagramId: e, name: `第${e}卦`, score: 0.5 };
+                        const interfaceOS = { hexagramId: iface, name: `第${iface}卦`, score: 0.5 };
+                        const safeModeOS = { hexagramId: s, name: `第${s}卦`, score: 0.5 };
+                        
+                        // 卦の特徴取得
+                        const char1 = analyzer.getHexagramCharacteristics(e);
+                        const char2 = analyzer.getHexagramCharacteristics(iface);
+                        const char3 = analyzer.getHexagramCharacteristics(s);
+                        
+                        // キーワード組み合わせ分析
+                        const eiCombinations = analyzer.analyzeKeywordCombination(char1, char2);
+                        
+                        // Engine-Interface分析
+                        const eiAnalysis = analyzer.analyzePair('engine-interface', engineOS, interfaceOS);
+                        
+                        // 特殊表現か判定
+                        const hasSpecialConflict = eiCombinations.speedConflict || 
+                                                  eiCombinations.valueConflict || 
+                                                  eiCombinations.timeConflict || 
+                                                  eiCombinations.directionConflict;
+                        
+                        const isGeneric = eiAnalysis.summary.includes('アプローチの違いで迷いが生じやすい');
+                        
+                        if (hasSpecialConflict && !isGeneric) {
+                            specialCount++;
+                        } else if (isGeneric) {
+                            genericCount++;
+                        }
+                        
+                        html += `
+                            <div class="test-result">
+                                <div class="pattern-header">
+                                    ${name}: Engine(${e}: ${char1.name}) × Interface(${iface}: ${char2.name})
+                                </div>
+                                
+                                <div><strong>Engine キーワード:</strong> [${char1.keywords.join(', ')}]</div>
+                                <div><strong>Interface キーワード:</strong> [${char2.keywords.join(', ')}]</div>
+                                
+                                <div style="margin: 10px 0;">
+                                    <strong>衝突検出:</strong>
+                                    Speed: <span class="${eiCombinations.speedConflict ? 'conflict-detected' : 'no-conflict'}">${eiCombinations.speedConflict}</span> | 
+                                    Value: <span class="${eiCombinations.valueConflict ? 'conflict-detected' : 'no-conflict'}">${eiCombinations.valueConflict}</span> | 
+                                    Time: <span class="${eiCombinations.timeConflict ? 'conflict-detected' : 'no-conflict'}">${eiCombinations.timeConflict}</span> | 
+                                    Direction: <span class="${eiCombinations.directionConflict ? 'conflict-detected' : 'no-conflict'}">${eiCombinations.directionConflict}</span>
+                                </div>
+                                
+                                <div class="${hasSpecialConflict && !isGeneric ? 'special-expression' : 'generic-expression'}">
+                                    <strong>生成表現:</strong> 「${eiAnalysis.summary}」
+                                    ${hasSpecialConflict && !isGeneric ? ' ✅ 特殊表現' : ' ⚠️ 汎用表現'}
+                                </div>
+                            </div>
+                        `;
+                        
+                    } catch (error) {
+                        html += `
+                            <div class="test-result">
+                                <div class="pattern-header">${name}: エラー</div>
+                                <div style="color: #ef4444;">❌ ${error.message}</div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                // 結果サマリー
+                html += `
+                    <div class="test-result" style="border-color: #22d3ee;">
+                        <h3>📊 修正結果サマリー</h3>
+                        <p><strong>特殊表現生成:</strong> ${specialCount}/${testPatterns.length} パターン</p>
+                        <p><strong>汎用表現残存:</strong> ${genericCount}/${testPatterns.length} パターン</p>
+                        <p><strong>改善率:</strong> ${((specialCount / testPatterns.length) * 100).toFixed(1)}%</p>
+                        
+                        ${specialCount > 1 ? 
+                            '<p style="color: #10b981;">✅ 修正成功！複数パターンで特殊表現が生成されました</p>' : 
+                            '<p style="color: #f59e0b;">⚠️ さらなる調整が必要かもしれません</p>'
+                        }
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                
+            } catch (error) {
+                results.innerHTML = `
+                    <div style="color: #ef4444; padding: 20px;">
+                        ❌ テストエラー: ${error.message}
+                        <br>スタック: ${error.stack}
+                    </div>
+                `;
+                console.error('修正テストエラー:', error);
+            }
+        }
+    </script>
+</body>
+</html>

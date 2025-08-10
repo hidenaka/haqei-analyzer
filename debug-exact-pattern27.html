@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>パターン27正確なデバッグ</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            padding: 20px; 
+            background: #1a1a1a; 
+            color: #fff; 
+            line-height: 1.6;
+        }
+        .debug-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #444; 
+            border-radius: 8px; 
+            background: rgba(0,0,0,0.3);
+        }
+        .highlight { 
+            color: #22d3ee; 
+            font-weight: bold; 
+        }
+        .timeconflict {
+            color: #10b981;
+            font-weight: bold;
+        }
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 パターン27 (45, 62, 53) 正確なデバッグ</h1>
+    <p>「タイミングの見解が異なり調整が必要」という表現がどこで生成されているか</p>
+    
+    <button onclick="debugPattern27()">🎯 パターン27詳細調査</button>
+    
+    <div id="results"></div>
+
+    <script src="./public/assets/H384H64database.js"></script>
+    <script src="./public/js/core/TripleOSInteractionAnalyzer.js"></script>
+    <script>
+        function debugPattern27() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div>🔄 パターン27調査中...</div>';
+            
+            try {
+                const analyzer = new TripleOSInteractionAnalyzer();
+                
+                // パターン27 = 30パターンの28番目 = [45, 62, 53]
+                const [e, iface, s] = [45, 62, 53];
+                const engineOS = { hexagramId: e, name: `第${e}卦`, score: 0.5 };
+                const interfaceOS = { hexagramId: iface, name: `第${iface}卦`, score: 0.5 };
+                const safeModeOS = { hexagramId: s, name: `第${s}卦`, score: 0.5 };
+                
+                // 卦の特徴取得
+                const char1 = analyzer.getHexagramCharacteristics(e);  // 45: 沢地萃
+                const char2 = analyzer.getHexagramCharacteristics(iface);  // 62: 雷山小過
+                const char3 = analyzer.getHexagramCharacteristics(s);  // 53: 風山漸
+                
+                console.log('Engine 45:', char1);
+                console.log('Interface 62:', char2);
+                console.log('Safe 53:', char3);
+                
+                // 3つのペア分析
+                const eiAnalysis = analyzer.analyzePair('engine-interface', engineOS, interfaceOS);
+                const esAnalysis = analyzer.analyzePair('engine-safe', engineOS, safeModeOS);
+                const isAnalysis = analyzer.analyzePair('interface-safe', interfaceOS, safeModeOS);
+                
+                // 各ペアのキーワード組み合わせ分析
+                const eiCombinations = analyzer.analyzeKeywordCombination(char1, char2);
+                const esCombinations = analyzer.analyzeKeywordCombination(char1, char3);
+                const isCombinations = analyzer.analyzeKeywordCombination(char2, char3);
+                
+                console.log('EI Combinations:', eiCombinations);
+                console.log('ES Combinations:', esCombinations);
+                console.log('IS Combinations:', isCombinations);
+                
+                let html = `
+                    <div class="debug-section">
+                        <h2>🎯 パターン27: Engine(45: ${char1.name}) × Interface(62: ${char2.name}) × Safe(53: ${char3.name})</h2>
+                        
+                        <h3>卦の特徴:</h3>
+                        <div><strong>Engine 45 沢地萃:</strong> ${char1.keywords.join(', ')}</div>
+                        <div><strong>Interface 62 雷山小過:</strong> ${char2.keywords.join(', ')}</div>
+                        <div><strong>Safe 53 風山漸:</strong> ${char3.keywords.join(', ')}</div>
+                        
+                        <h3>Engine-Interface ペア分析:</h3>
+                        <div><strong>Speed Conflict:</strong> <span class="${eiCombinations.speedConflict ? 'timeconflict' : 'highlight'}">${eiCombinations.speedConflict}</span></div>
+                        <div><strong>Value Conflict:</strong> <span class="${eiCombinations.valueConflict ? 'timeconflict' : 'highlight'}">${eiCombinations.valueConflict}</span></div>
+                        <div><strong>Time Conflict:</strong> <span class="${eiCombinations.timeConflict ? 'timeconflict' : 'highlight'}">${eiCombinations.timeConflict}</span></div>
+                        <div><strong>Direction Conflict:</strong> <span class="${eiCombinations.directionConflict ? 'timeconflict' : 'highlight'}">${eiCombinations.directionConflict}</span></div>
+                        <div><strong>生成表現:</strong> 「${eiAnalysis.summary}」</div>
+                        
+                        <h3>Engine-Safe ペア分析:</h3>
+                        <div><strong>Speed Conflict:</strong> <span class="${esCombinations.speedConflict ? 'timeconflict' : 'highlight'}">${esCombinations.speedConflict}</span></div>
+                        <div><strong>Value Conflict:</strong> <span class="${esCombinations.valueConflict ? 'timeconflict' : 'highlight'}">${esCombinations.valueConflict}</span></div>
+                        <div><strong>Time Conflict:</strong> <span class="${esCombinations.timeConflict ? 'timeconflict' : 'highlight'}">${esCombinations.timeConflict}</span></div>
+                        <div><strong>Direction Conflict:</strong> <span class="${esCombinations.directionConflict ? 'timeconflict' : 'highlight'}">${esCombinations.directionConflict}</span></div>
+                        <div><strong>生成表現:</strong> 「${esAnalysis.summary}」</div>
+                        
+                        <h3>Interface-Safe ペア分析:</h3>
+                        <div><strong>Speed Conflict:</strong> <span class="${isCombinations.speedConflict ? 'timeconflict' : 'highlight'}">${isCombinations.speedConflict}</span></div>
+                        <div><strong>Value Conflict:</strong> <span class="${isCombinations.valueConflict ? 'timeconflict' : 'highlight'}">${isCombinations.valueConflict}</span></div>
+                        <div><strong>Time Conflict:</strong> <span class="${isCombinations.timeConflict ? 'timeconflict' : 'highlight'}">${isCombinations.timeConflict}</span></div>
+                        <div><strong>Direction Conflict:</strong> <span class="${isCombinations.directionConflict ? 'timeconflict' : 'highlight'}">${isCombinations.directionConflict}</span></div>
+                        <div><strong>生成表現:</strong> 「${isAnalysis.summary}」</div>
+                        
+                        <h3>探している表現「タイミングの見解が異なり調整が必要」の場所:</h3>
+                        <div>この表現はtimeConflict = trueの時にgenerateEngineInterfaceTensionで生成される</div>
+                        <div>Time Conflict検出条件: ['革新', '変革', '刷新', '改革'] vs ['安定', '維持', '恒常', '永続']</div>
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                
+            } catch (error) {
+                results.innerHTML = `
+                    <div style="color: #ef4444; padding: 20px;">
+                        ❌ 分析エラー: ${error.message}
+                        <br>スタック: ${error.stack}
+                    </div>
+                `;
+                console.error('パターン27分析エラー:', error);
+            }
+        }
+    </script>
+</body>
+</html>

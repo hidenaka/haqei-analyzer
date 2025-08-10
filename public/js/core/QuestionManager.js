@@ -439,14 +439,30 @@ class QuestionManager {
     // Save progress
     this.saveProgress();
     
-    // Auto-advance after selection (optional)
-    setTimeout(() => {
-      if (this.currentQuestionIndex < this.questions.length - 1) {
-        this.nextQuestion();
+    // Show confirmation and next button instead of auto-advance
+    this.showSelectionConfirmation();
+  }
+  
+  /**
+   * Show confirmation after selection
+   */
+  showSelectionConfirmation() {
+    const navigationContainer = this.container.querySelector('.question-navigation');
+    if (!navigationContainer) return;
+    
+    const nextButton = navigationContainer.querySelector('.next-button');
+    if (nextButton) {
+      nextButton.classList.remove('disabled');
+      nextButton.disabled = false;
+      nextButton.style.backgroundColor = '#10b981'; // Green to indicate ready
+      nextButton.style.animation = 'pulse 1s ease-in-out';
+      
+      if (this.currentQuestionIndex === this.questions.length - 1) {
+        nextButton.textContent = '結果を見る';
       } else {
-        this.completeQuestions();
+        nextButton.textContent = '次の質問へ';
       }
-    }, 500);
+    }
   }
   
   /**

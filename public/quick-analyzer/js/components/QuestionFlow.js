@@ -457,12 +457,8 @@ class QuestionFlow extends BaseComponent {
     // ナビゲーションの更新
     this.updateNavigation();
     
-    // 自動進行
-    if (this.options.autoAdvance && !this.isLastQuestion()) {
-      setTimeout(() => {
-        this.goToNextQuestion();
-      }, 1000);
-    }
+    // Show confirmation instead of auto-advance
+    this.showAdvanceConfirmation();
     
     // 回答変更イベントを発火
     this.emit('answerChanged', {
@@ -742,6 +738,22 @@ class QuestionFlow extends BaseComponent {
       } else {
         nextBtn.textContent = '次の質問 →';
       }
+    }
+  }
+  
+  /**
+   * Show confirmation after answer selection
+   */
+  showAdvanceConfirmation() {
+    const nextBtn = this.$('#next-question-btn');
+    if (nextBtn && this.canGoNext()) {
+      nextBtn.classList.remove('disabled');
+      nextBtn.disabled = false;
+      nextBtn.style.backgroundColor = '#10b981'; // Green to indicate ready
+      nextBtn.style.animation = 'pulse 1s ease-in-out';
+      
+      // Add visual feedback
+      nextBtn.classList.add('ready-to-advance');
     }
   }
 
