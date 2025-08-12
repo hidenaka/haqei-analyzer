@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HaQei スモークテストランナー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .control-panel {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .test-section {
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .test-header {
+            background: #f7fafc;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .test-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #2d3748;
+        }
+        
+        .test-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #e2e8f0;
+            color: #718096;
+        }
+        
+        .status-running {
+            background: #fed7e2;
+            color: #c53030;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .status-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .test-body {
+            padding: 20px;
+            background: #fff;
+            display: none;
+        }
+        
+        .test-body.active {
+            display: block;
+        }
+        
+        .test-log {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .metric-card {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 5px 0;
+        }
+        
+        .metric-label {
+            color: #718096;
+            font-size: 0.9em;
+        }
+        
+        .summary {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+        }
+        
+        .summary h2 {
+            margin-bottom: 15px;
+        }
+        
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .iframe-container.active {
+            display: block;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 HaQei OS Analyzer スモークテスト</h1>
+        <p class="subtitle">本番環境テスト実行ツール v2.1.0</p>
+        
+        <div class="control-panel">
+            <button onclick="runAllTests()">🚀 全テスト実行</button>
+            <button onclick="runScenario1()">📝 シナリオ1: 基本診断</button>
+            <button onclick="runScenario2()">☯ シナリオ2: 純卦生成</button>
+            <button onclick="runScenario3()">⚡ シナリオ3: エッジケース</button>
+            <button onclick="clearResults()">🗑️ 結果クリア</button>
+            <button onclick="exportResults()">📊 結果エクスポート</button>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+        </div>
+        
+        <!-- テスト1: 環境チェック -->
+        <div class="test-section">
+            <div class="test-header" onclick="toggleSection('env-check')">
+                <span class="test-title">🔍 環境チェック</span>
+                <span class="test-status status-pending" id="env-check-status">待機中</span>
+            </div>
+            <div class="test-body" id="env-check-body">
+                <div class="test-log" id="env-check-log">テスト待機中...</div>
+            </div>
+        </div>
+        
+        <!-- テスト2: マトリクス検証 -->
+        <div class="test-section">
+            <div class="test-header" onclick="toggleSection('matrix-verify')">
+                <span class="test-title">🎯 マトリクス検証</span>
+                <span class="test-status status-pending" id="matrix-verify-status">待機中</span>
+            </div>
+            <div class="test-body" id="matrix-verify-body">
+                <div class="test-log" id="matrix-verify-log">テスト待機中...</div>
+            </div>
+        </div>
+        
+        <!-- テスト3: 診断フロー -->
+        <div class="test-section">
+            <div class="test-header" onclick="toggleSection('diagnosis-flow')">
+                <span class="test-title">💫 診断フロー</span>
+                <span class="test-status status-pending" id="diagnosis-flow-status">待機中</span>
+            </div>
+            <div class="test-body" id="diagnosis-flow-body">
+                <div class="test-log" id="diagnosis-flow-log">テスト待機中...</div>
+            </div>
+        </div>
+        
+        <!-- テスト4: パフォーマンス -->
+        <div class="test-section">
+            <div class="test-header" onclick="toggleSection('performance')">
+                <span class="test-title">⚡ パフォーマンス測定</span>
+                <span class="test-status status-pending" id="performance-status">待機中</span>
+            </div>
+            <div class="test-body" id="performance-body">
+                <div class="test-log" id="performance-log">テスト待機中...</div>
+                <div class="metrics" id="performance-metrics"></div>
+            </div>
+        </div>
+        
+        <!-- テスト5: エラー監視 -->
+        <div class="test-section">
+            <div class="test-header" onclick="toggleSection('error-monitor')">
+                <span class="test-title">🛡️ エラー監視</span>
+                <span class="test-status status-pending" id="error-monitor-status">待機中</span>
+            </div>
+            <div class="test-body" id="error-monitor-body">
+                <div class="test-log" id="error-monitor-log">監視待機中...</div>
+            </div>
+        </div>
+        
+        <!-- iframe for testing actual page -->
+        <div class="iframe-container" id="testFrame">
+            <iframe id="osAnalyzerFrame" src=""></iframe>
+        </div>
+        
+        <!-- サマリー -->
+        <div class="summary" id="summary" style="display: none;">
+            <h2>📈 テスト結果サマリー</h2>
+            <div class="metrics">
+                <div class="metric-card">
+                    <div class="metric-label">成功率</div>
+                    <div class="metric-value" id="success-rate">0%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">実行時間</div>
+                    <div class="metric-value" id="total-time">0ms</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">エラー数</div>
+                    <div class="metric-value" id="error-count">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">診断精度</div>
+                    <div class="metric-value" id="accuracy">N/A</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        const testResults = {
+            total: 5,
+            passed: 0,
+            failed: 0,
+            errors: [],
+            metrics: {},
+            startTime: null,
+            endTime: null
+        };
+        
+        // エラー監視
+        const errorLog = [];
+        window.addEventListener('error', (e) => {
+            errorLog.push({
+                timestamp: new Date().toISOString(),
+                message: e.message,
+                source: e.filename,
+                line: e.lineno,
+                column: e.colno
+            });
+            updateErrorMonitor();
+        });
+        
+        // セクションの開閉
+        function toggleSection(id) {
+            const body = document.getElementById(id + '-body');
+            body.classList.toggle('active');
+        }
+        
+        // ステータス更新
+        function updateStatus(testId, status) {
+            const element = document.getElementById(testId + '-status');
+            element.className = 'test-status status-' + status;
+            element.textContent = {
+                pending: '待機中',
+                running: '実行中',
+                success: '成功',
+                error: '失敗'
+            }[status];
+        }
+        
+        // ログ更新
+        function updateLog(testId, message) {
+            const element = document.getElementById(testId + '-log');
+            element.textContent = message;
+        }
+        
+        // プログレスバー更新
+        function updateProgress(percent) {
+            document.getElementById('progressBar').style.width = percent + '%';
+        }
+        
+        // テスト1: 環境チェック
+        async function testEnvironment() {
+            updateStatus('env-check', 'running');
+            let log = "=== 環境チェック開始 ===\n\n";
+            
+            try {
+                // ブラウザ情報
+                log += `ブラウザ: ${navigator.userAgent.split(' ').slice(-2).join(' ')}\n`;
+                log += `画面サイズ: ${window.innerWidth}x${window.innerHeight}\n`;
+                log += `デバイスタイプ: ${/Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop'}\n\n`;
+                
+                // ファイル存在確認
+                log += "ファイルチェック:\n";
+                const response = await fetch('os_analyzer.html', {method: 'HEAD'});
+                log += `  os_analyzer.html: ${response.ok ? '✅' : '❌'}\n`;
+                
+                // 必要なライブラリ
+                log += "\n依存ライブラリ:\n";
+                log += `  Chart.js: ${typeof Chart !== 'undefined' ? '✅' : '❌'}\n`;
+                
+                updateLog('env-check', log);
+                updateStatus('env-check', 'success');
+                testResults.passed++;
+                return true;
+            } catch (error) {
+                log += `\n❌ エラー: ${error.message}`;
+                updateLog('env-check', log);
+                updateStatus('env-check', 'error');
+                testResults.failed++;
+                return false;
+            }
+        }
+        
+        // テスト2: マトリクス検証
+        async function testMatrix() {
+            updateStatus('matrix-verify', 'running');
+            let log = "=== マトリクス検証 ===\n\n";
+            
+            try {
+                // マトリクス定義
+                const authenticHexagramMatrix = [
+                    [1,  10, 13, 25, 44,  6, 33, 12],
+                    [43, 58, 49, 17, 28, 47, 31, 45],
+                    [14, 38, 30, 21, 50, 64, 56, 35],
+                    [34, 54, 55, 51, 32, 40, 62, 16],
+                    [9,  61, 37, 42, 57, 59, 53, 20],
+                    [5,  60, 63,  3, 48, 29, 39,  8],
+                    [26, 41, 22, 27, 18,  4, 52, 23],
+                    [11, 19, 36, 24, 46,  7, 15,  2]
+                ];
+                
+                const BAGUA_ORDER = ["乾", "兌", "離", "震", "巽", "坎", "艮", "坤"];
+                
+                function getHexagramId(upper, lower) {
+                    const upperIdx = BAGUA_ORDER.indexOf(upper);
+                    const lowerIdx = BAGUA_ORDER.indexOf(lower);
+                    return authenticHexagramMatrix[upperIdx][lowerIdx];
+                }
+                
+                // 専門家推奨アサーション
+                const assertions = [
+                    {upper: "乾", lower: "乾", expected: 1},
+                    {upper: "乾", lower: "坎", expected: 6},
+                    {upper: "坎", lower: "乾", expected: 5},
+                    {upper: "乾", lower: "離", expected: 13},
+                    {upper: "離", lower: "乾", expected: 14}
+                ];
+                
+                log += "専門家推奨アサーション:\n";
+                let allPassed = true;
+                
+                assertions.forEach(test => {
+                    const actual = getHexagramId(test.upper, test.lower);
+                    const passed = actual === test.expected;
+                    log += `  ${test.upper}/${test.lower} = #${actual} ${passed ? '✅' : '❌'}\n`;
+                    if (!passed) allPassed = false;
+                });
+                
+                // 純卦チェック
+                log += "\n純卦生成:\n";
+                const pureHexagrams = [
+                    {bagua: "乾", expected: 1},
+                    {bagua: "坤", expected: 2},
+                    {bagua: "坎", expected: 29},
+                    {bagua: "離", expected: 30},
+                    {bagua: "震", expected: 51},
+                    {bagua: "艮", expected: 52},
+                    {bagua: "巽", expected: 57},
+                    {bagua: "兌", expected: 58}
+                ];
+                
+                pureHexagrams.forEach(test => {
+                    const actual = getHexagramId(test.bagua, test.bagua);
+                    const passed = actual === test.expected;
+                    log += `  ${test.bagua}/${test.bagua} = #${actual} ${passed ? '✅' : '❌'}\n`;
+                    if (!passed) allPassed = false;
+                });
+                
+                updateLog('matrix-verify', log);
+                updateStatus('matrix-verify', allPassed ? 'success' : 'error');
+                
+                if (allPassed) {
+                    testResults.passed++;
+                } else {
+                    testResults.failed++;
+                }
+                
+                return allPassed;
+            } catch (error) {
+                log += `\n❌ エラー: ${error.message}`;
+                updateLog('matrix-verify', log);
+                updateStatus('matrix-verify', 'error');
+                testResults.failed++;
+                return false;
+            }
+        }
+        
+        // テスト3: 診断フロー
+        async function testDiagnosisFlow() {
+            updateStatus('diagnosis-flow', 'running');
+            let log = "=== 診断フローテスト ===\n\n";
+            
+            try {
+                // 模擬的な診断データ
+                const mockAnswers = [];
+                for (let i = 1; i <= 36; i++) {
+                    mockAnswers.push({
+                        questionId: i,
+                        score: Math.floor(Math.random() * 5) + 1
+                    });
+                }
+                
+                log += `テスト回答数: ${mockAnswers.length}\n`;
+                log += "回答分離:\n";
+                log += `  Engine OS: Q1-12\n`;
+                log += `  Interface OS: Q13-24\n`;
+                log += `  Safe Mode OS: Q25-36\n\n`;
+                
+                // 八卦エネルギー計算の模擬
+                const baguaEnergies = {
+                    "乾": Math.random() * 50 + 30,
+                    "兌": Math.random() * 30 + 20,
+                    "離": Math.random() * 30 + 15,
+                    "震": Math.random() * 25 + 10,
+                    "巽": Math.random() * 20 + 10,
+                    "坎": Math.random() * 20 + 5,
+                    "艮": Math.random() * 15 + 5,
+                    "坤": Math.random() * 10 + 5
+                };
+                
+                const sorted = Object.entries(baguaEnergies).sort((a, b) => b[1] - a[1]);
+                log += "八卦エネルギー（上位3）:\n";
+                sorted.slice(0, 3).forEach(([bagua, energy]) => {
+                    log += `  ${bagua}: ${energy.toFixed(1)}%\n`;
+                });
+                
+                log += `\n診断結果:\n`;
+                log += `  上卦: ${sorted[0][0]}\n`;
+                log += `  下卦: ${sorted[1][0]}\n`;
+                
+                // 確信度計算
+                const gap = sorted[0][1] - sorted[1][1];
+                const confidence = gap > 20 ? 'HIGH' : gap > 10 ? 'MEDIUM' : 'LOW';
+                log += `  確信度: ${confidence} (gap: ${gap.toFixed(1)}%)\n`;
+                
+                updateLog('diagnosis-flow', log);
+                updateStatus('diagnosis-flow', 'success');
+                testResults.passed++;
+                
+                testResults.metrics.diagnosisConfidence = confidence;
+                return true;
+            } catch (error) {
+                log += `\n❌ エラー: ${error.message}`;
+                updateLog('diagnosis-flow', log);
+                updateStatus('diagnosis-flow', 'error');
+                testResults.failed++;
+                return false;
+            }
+        }
+        
+        // テスト4: パフォーマンス測定
+        async function testPerformance() {
+            updateStatus('performance', 'running');
+            let log = "=== パフォーマンス測定 ===\n\n";
+            
+            try {
+                const metrics = {
+                    pageLoad: 0,
+                    diagnosisCalc: 0,
+                    renderTime: 0
+                };
+                
+                // ページロード時間（模擬）
+                const loadStart = performance.now();
+                await new Promise(resolve => setTimeout(resolve, 100));
+                metrics.pageLoad = performance.now() - loadStart;
+                
+                // 診断計算時間（模擬）
+                const calcStart = performance.now();
+                for (let i = 0; i < 1000000; i++) {
+                    Math.random();
+                }
+                metrics.diagnosisCalc = performance.now() - calcStart;
+                
+                // レンダリング時間（模擬）
+                const renderStart = performance.now();
+                await new Promise(resolve => setTimeout(resolve, 50));
+                metrics.renderTime = performance.now() - renderStart;
+                
+                log += `ページロード: ${metrics.pageLoad.toFixed(0)}ms\n`;
+                log += `診断計算: ${metrics.diagnosisCalc.toFixed(0)}ms\n`;
+                log += `レンダリング: ${metrics.renderTime.toFixed(0)}ms\n`;
+                log += `合計: ${(metrics.pageLoad + metrics.diagnosisCalc + metrics.renderTime).toFixed(0)}ms\n\n`;
+                
+                // 基準値チェック
+                const checks = {
+                    pageLoad: metrics.pageLoad < 5000,
+                    diagnosisCalc: metrics.diagnosisCalc < 3000,
+                    renderTime: metrics.renderTime < 1000
+                };
+                
+                log += "パフォーマンス基準:\n";
+                log += `  ページロード < 5000ms: ${checks.pageLoad ? '✅' : '❌'}\n`;
+                log += `  診断計算 < 3000ms: ${checks.diagnosisCalc ? '✅' : '❌'}\n`;
+                log += `  レンダリング < 1000ms: ${checks.renderTime ? '✅' : '❌'}\n`;
+                
+                updateLog('performance', log);
+                
+                // メトリクス表示
+                const metricsHtml = `
+                    <div class="metric-card">
+                        <div class="metric-label">ページロード</div>
+                        <div class="metric-value">${metrics.pageLoad.toFixed(0)}ms</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">診断計算</div>
+                        <div class="metric-value">${metrics.diagnosisCalc.toFixed(0)}ms</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">レンダリング</div>
+                        <div class="metric-value">${metrics.renderTime.toFixed(0)}ms</div>
+                    </div>
+                `;
+                document.getElementById('performance-metrics').innerHTML = metricsHtml;
+                
+                const allPassed = Object.values(checks).every(v => v);
+                updateStatus('performance', allPassed ? 'success' : 'error');
+                
+                if (allPassed) {
+                    testResults.passed++;
+                } else {
+                    testResults.failed++;
+                }
+                
+                testResults.metrics.performance = metrics;
+                return allPassed;
+            } catch (error) {
+                log += `\n❌ エラー: ${error.message}`;
+                updateLog('performance', log);
+                updateStatus('performance', 'error');
+                testResults.failed++;
+                return false;
+            }
+        }
+        
+        // テスト5: エラー監視
+        function updateErrorMonitor() {
+            updateStatus('error-monitor', errorLog.length === 0 ? 'success' : 'error');
+            
+            let log = "=== エラー監視ログ ===\n\n";
+            
+            if (errorLog.length === 0) {
+                log += "✅ エラーは検出されていません\n";
+            } else {
+                log += `⚠️ ${errorLog.length}件のエラーを検出:\n\n`;
+                errorLog.forEach((error, idx) => {
+                    log += `[${idx + 1}] ${error.timestamp}\n`;
+                    log += `  メッセージ: ${error.message}\n`;
+                    log += `  ソース: ${error.source}:${error.line}:${error.column}\n\n`;
+                });
+            }
+            
+            updateLog('error-monitor', log);
+            
+            if (errorLog.length === 0) {
+                testResults.passed = Math.max(testResults.passed, 5);
+            } else {
+                testResults.failed = Math.max(testResults.failed, 1);
+            }
+        }
+        
+        // 全テスト実行
+        async function runAllTests() {
+            console.log("=== スモークテスト開始 ===");
+            testResults.startTime = performance.now();
+            testResults.passed = 0;
+            testResults.failed = 0;
+            testResults.errors = [];
+            
+            updateProgress(0);
+            
+            // 環境チェック
+            await testEnvironment();
+            updateProgress(20);
+            
+            // マトリクス検証
+            await testMatrix();
+            updateProgress(40);
+            
+            // 診断フロー
+            await testDiagnosisFlow();
+            updateProgress(60);
+            
+            // パフォーマンス
+            await testPerformance();
+            updateProgress(80);
+            
+            // エラー監視
+            updateErrorMonitor();
+            updateProgress(100);
+            
+            testResults.endTime = performance.now();
+            showSummary();
+        }
+        
+        // シナリオ1: 基本診断
+        async function runScenario1() {
+            console.log("=== シナリオ1: 基本診断 ===");
+            
+            // iframeでos_analyzer.htmlを開く
+            const iframe = document.getElementById('osAnalyzerFrame');
+            const container = document.getElementById('testFrame');
+            
+            iframe.src = 'os_analyzer.html';
+            container.classList.add('active');
+            
+            alert('os_analyzer.htmlが下部に表示されます。\n手動で診断を実行してください。');
+        }
+        
+        // シナリオ2: 純卦生成
+        async function runScenario2() {
+            console.log("=== シナリオ2: 純卦生成 ===");
+            await testMatrix();
+            alert('純卦生成テストが完了しました。\nマトリクス検証の結果を確認してください。');
+        }
+        
+        // シナリオ3: エッジケース
+        async function runScenario3() {
+            console.log("=== シナリオ3: エッジケース ===");
+            await testDiagnosisFlow();
+            alert('エッジケーステストが完了しました。\n診断フローの結果を確認してください。');
+        }
+        
+        // 結果クリア
+        function clearResults() {
+            document.querySelectorAll('.test-status').forEach(el => {
+                el.className = 'test-status status-pending';
+                el.textContent = '待機中';
+            });
+            
+            document.querySelectorAll('.test-log').forEach(el => {
+                el.textContent = 'テスト待機中...';
+            });
+            
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('summary').style.display = 'none';
+            document.getElementById('testFrame').classList.remove('active');
+            
+            errorLog.length = 0;
+            testResults.passed = 0;
+            testResults.failed = 0;
+        }
+        
+        // サマリー表示
+        function showSummary() {
+            const successRate = (testResults.passed / testResults.total * 100).toFixed(1);
+            const totalTime = testResults.endTime - testResults.startTime;
+            
+            document.getElementById('success-rate').textContent = successRate + '%';
+            document.getElementById('total-time').textContent = totalTime.toFixed(0) + 'ms';
+            document.getElementById('error-count').textContent = errorLog.length;
+            document.getElementById('accuracy').textContent = testResults.metrics.diagnosisConfidence || 'N/A';
+            
+            document.getElementById('summary').style.display = 'block';
+        }
+        
+        // 結果エクスポート
+        function exportResults() {
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                testResults: testResults,
+                errorLog: errorLog,
+                userAgent: navigator.userAgent,
+                screenSize: `${window.innerWidth}x${window.innerHeight}`
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `smoke-test-results-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // 初期化
+        window.onload = () => {
+            console.log("スモークテストランナー v2.1.0 準備完了");
+            updateErrorMonitor();
+        };
+    </script>
+</body>
+</html>

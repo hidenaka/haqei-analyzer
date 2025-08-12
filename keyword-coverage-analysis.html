@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>キーワード網羅性分析</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            padding: 20px; 
+            background: #1a1a1a; 
+            color: #fff; 
+            line-height: 1.6;
+        }
+        .analysis-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #444; 
+            border-radius: 8px; 
+            background: rgba(0,0,0,0.3);
+        }
+        .covered-keyword {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin: 2px;
+            display: inline-block;
+        }
+        .uncovered-keyword {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin: 2px;
+            display: inline-block;
+        }
+        .coverage-stats {
+            background: rgba(59, 130, 246, 0.1);
+            padding: 15px;
+            border-left: 4px solid #3b82f6;
+            margin: 15px 0;
+        }
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 キーワード網羅性分析</h1>
+    <p>4軸アプローチの限界を明らかにし、全213キーワードの分布を分析</p>
+    
+    <button onclick="analyzeCoverage()">🔍 網羅性分析実行</button>
+    
+    <div id="results"></div>
+
+    <script src="./public/assets/H384H64database.js"></script>
+    <script src="./public/js/core/TripleOSInteractionAnalyzer.js"></script>
+    <script>
+        function analyzeCoverage() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div>🔄 キーワード網羅性分析中...</div>';
+            
+            try {
+                const analyzer = new TripleOSInteractionAnalyzer();
+                
+                // 全キーワード収集
+                const allKeywords = new Set();
+                for (let i = 1; i <= 64; i++) {
+                    const char = analyzer.getHexagramCharacteristics(i);
+                    if (char && char.keywords) {
+                        char.keywords.forEach(k => allKeywords.add(k));
+                    }
+                }
+                
+                const allKeywordsArray = Array.from(allKeywords).sort();
+                
+                // 現在の4軸でカバーされているキーワード
+                const coveredKeywords = new Set();
+                
+                // 4軸の定義（現在の実装）
+                const SPEED_FAST = ["始動","活気","決断","処断","強大","威力","勇猛","積極性","解放","自由","突破","革新","衝撃","覚醒","活動"];
+                const SPEED_SLOW = ["待機","忍耐","準備","慎重","謙遜","節制","内省","静止","瞑想","漸進","段階的","着実","穏健","調節","微調整"];
+                const VALUE_INDIVIDUAL = ["創造力","リーダーシップ","強い推進力","決断","処断","自由"];
+                const VALUE_GROUP = ["受容性","包容力","柔軟性","親和","協調","団結","相互支援","調和","協力","同志","統合","集合","結集"];
+                const TIME_CHANGE = ["腐敗","改革","再生","刷新","突破","革新","革命","変革","転換","変化","新秩序"];
+                const TIME_STABLE = ["蓄積","貯蔵","持続","継続","不変","永続","安定","静止","完成","達成","完璧"];
+                const DIRECTION_EXPAND = ["繁栄","豊かさ","明晰性","照明","進歩","昇進","向上","発展","解放","上昇","成長","発達","散開","分散","拡散"];
+                const DIRECTION_CONTRACT = ["閉塞","停滞","断絶","節制","深い洞察","内省","退避","戦略的撤退","保身","減少","困窮","我慢","制限"];
+                
+                // カバーされているキーワードをマーク
+                [...SPEED_FAST, ...SPEED_SLOW, ...VALUE_INDIVIDUAL, ...VALUE_GROUP, 
+                 ...TIME_CHANGE, ...TIME_STABLE, ...DIRECTION_EXPAND, ...DIRECTION_CONTRACT].forEach(k => {
+                    coveredKeywords.add(k);
+                });
+                
+                // 未カバーキーワード特定
+                const uncoveredKeywords = allKeywordsArray.filter(k => !coveredKeywords.has(k));
+                const coverageRate = ((coveredKeywords.size / allKeywords.size) * 100).toFixed(1);
+                
+                // 未カバーキーワードの意味分析
+                const uncoveredAnalysis = analyzeUncoveredKeywords(uncoveredKeywords);
+                
+                let html = `
+                    <div class="analysis-section">
+                        <h2>📈 網羅性統計</h2>
+                        <div class="coverage-stats">
+                            <p><strong>総キーワード数:</strong> ${allKeywords.size}個</p>
+                            <p><strong>4軸でカバー:</strong> ${coveredKeywords.size}個</p>
+                            <p><strong>未カバー:</strong> ${uncoveredKeywords.length}個</p>
+                            <p><strong>網羅率:</strong> ${coverageRate}%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h2>✅ 4軸でカバー済みキーワード (${coveredKeywords.size}個)</h2>
+                        <div>
+                            ${Array.from(coveredKeywords).sort().map(k => 
+                                `<span class="covered-keyword">${k}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h2>❌ 4軸で未カバーキーワード (${uncoveredKeywords.length}個)</h2>
+                        <div>
+                            ${uncoveredKeywords.map(k => 
+                                `<span class="uncovered-keyword">${k}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h2>🧠 未カバーキーワードの意味分析</h2>
+                        ${uncoveredAnalysis.map(category => `
+                            <div style="margin: 15px 0; padding: 10px; background: rgba(239, 68, 68, 0.05); border-left: 3px solid #ef4444;">
+                                <h4>${category.name} (${category.keywords.length}個)</h4>
+                                <p><strong>説明:</strong> ${category.description}</p>
+                                <p><strong>キーワード:</strong> ${category.keywords.join(', ')}</p>
+                                <p><strong>人間心理への影響:</strong> ${category.psychologicalImpact}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="analysis-section">
+                        <h2>💡 新しい軸の提案</h2>
+                        <div style="background: rgba(16, 185, 129, 0.1); padding: 15px; border-left: 4px solid #10b981;">
+                            <h4>現在の4軸の限界</h4>
+                            <p>• <strong>感情軸</strong>が欠如: 喜び、悲しみ、恐れ、希望などの感情的キーワードが未分類</p>
+                            <p>• <strong>関係性軸</strong>が不十分: 家族、結婚、対立、疎外などの人間関係キーワードが未分類</p>
+                            <p>• <strong>物質性軸</strong>が欠如: 豊かさ、困窮、資源、供給などの物質的キーワードが未分類</p>
+                            <p>• <strong>知的活動軸</strong>が欠如: 教育、学習、観察、理解などの認知的キーワードが未分類</p>
+                            
+                            <h4>提案: 8軸体系</h4>
+                            <p>1. スピード軸 (既存)</p>
+                            <p>2. 価値観軸 (既存)</p>
+                            <p>3. 時間軸 (既存)</p>
+                            <p>4. 方向性軸 (既存)</p>
+                            <p><strong>5. 感情軸</strong>: ポジティブ vs ネガティブ感情</p>
+                            <p><strong>6. 関係軸</strong>: 結合・統合 vs 分離・対立</p>
+                            <p><strong>7. 物質軸</strong>: 豊かさ・拡大 vs 制限・節約</p>
+                            <p><strong>8. 認知軸</strong>: 学習・理解 vs 直感・感応</p>
+                        </div>
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                
+            } catch (error) {
+                results.innerHTML = `
+                    <div style="color: #ef4444; padding: 20px;">
+                        ❌ 分析エラー: ${error.message}
+                    </div>
+                `;
+                console.error('網羅性分析エラー:', error);
+            }
+        }
+        
+        function analyzeUncoveredKeywords(uncovered) {
+            // 未カバーキーワードを意味のあるカテゴリで分析
+            const categories = [
+                {
+                    name: "感情・心理状態",
+                    keywords: uncovered.filter(k => ['喜び', '楽しみ', '楽観', '希望', '恐れ', '不安', '悲しみ', '絶望', '困難', '試練', '苦痛', '痛み'].includes(k)),
+                    description: "人間の基本的な感情状態や心理的体験",
+                    psychologicalImpact: "感情的な衝突や共鳴が心理的緊張や安らぎを生む"
+                },
+                {
+                    name: "人間関係・社会的結合",
+                    keywords: uncovered.filter(k => ['家族', '婚姻', '結合', '出会い', '対立', '分離', '疎外', '誤解', '信頼', '誠実', '親しみ', '温情', '包容'].includes(k)),
+                    description: "人と人との関係性や社会的な結びつき",
+                    psychologicalImpact: "関係性の違いが孤独感や所属感の葛藤を生む"
+                },
+                {
+                    name: "物質・資源・経済",
+                    keywords: uncovered.filter(k => ['豊かさ', '繁栄', '困窮', '資源', '供給', '犠牲', '節約', '減少', '増加', '利益', '損失'].includes(k)),
+                    description: "物質的な豊かさや資源の管理に関する概念",
+                    psychologicalImpact: "物質的価値観の違いが安心感vs不安感の葛藤を生む"
+                },
+                {
+                    name: "学習・認知・理解",
+                    keywords: uncovered.filter(k => ['教育', '学習', '啓発', '指導', '観察', '洞察', '理解', '客観性', '探求', '発見'].includes(k)),
+                    description: "知識の獲得や認知的な活動",
+                    psychologicalImpact: "学習アプローチの違いが混乱vs明確性の葛藤を生む"
+                },
+                {
+                    name: "文化・美・表現",
+                    keywords: uncovered.filter(k => ['文化', '文明', '装飾', '美化', '外見', '品格', '礼儀', '美徳', '尊敬'].includes(k)),
+                    description: "文化的価値や美的表現に関する概念",
+                    psychologicalImpact: "美的価値観の違いが表面性vs本質性の葛藤を生む"
+                },
+                {
+                    name: "生命・身体・生理",
+                    keywords: uncovered.filter(k => ['養育', '栄養', '成長', '発達', '生命', '身体', '健康', '病気', '治療', '回復'].includes(k)),
+                    description: "生命活動や身体的な状態に関する概念",
+                    psychologicalImpact: "身体的価値観の違いが活力vs疲労の葛藤を生む"
+                }
+            ];
+            
+            return categories.filter(cat => cat.keywords.length > 0);
+        }
+    </script>
+</body>
+</html>

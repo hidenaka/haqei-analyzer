@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Full Flow Test - 修正版統合テスト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .control-panel {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            background: #e6fffa;
+            border: 2px solid #38b2ac;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .progress {
+            background: #e2e8f0;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .log-container {
+            background: #1a202c;
+            color: #63b3ed;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 700px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .results {
+            background: #f0fff4;
+            border: 2px solid #38a169;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .error {
+            background: #fff5f5;
+            border: 2px solid #e53e3e;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .success {
+            color: #68d391;
+        }
+        
+        .warning {
+            color: #f6e05e;
+        }
+        
+        .danger {
+            color: #fc8181;
+        }
+        
+        .info {
+            color: #63b3ed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 HAQEI Full Flow Test - 完全自動テスト</h1>
+        
+        <div class="status" id="status">
+            <span>状態: 待機中...</span>
+            <span id="timer">経過時間: 0秒</span>
+        </div>
+        
+        <div class="progress">
+            <div class="progress-bar" id="progressBar">0%</div>
+        </div>
+        
+        <div class="control-panel">
+            <button onclick="startFullTest()">🎯 完全自動テスト開始</button>
+            <button onclick="loadOSAnalyzer()">1️⃣ OS Analyzer読み込み</button>
+            <button onclick="applyFixes()">2️⃣ 修正パッチ適用</button>
+            <button onclick="startQuestions()">3️⃣ 質問開始</button>
+            <button onclick="autoAnswer()">4️⃣ 自動回答（1問）</button>
+            <button onclick="autoComplete36()">5️⃣ 36問完全回答</button>
+            <button onclick="checkResults()">6️⃣ 結果確認</button>
+            <button onclick="forceResults()">🔧 強制結果表示</button>
+            <button onclick="clearAll()">🗑️ クリア</button>
+        </div>
+        
+        <div class="results" id="results">
+            <h3>✅ 診断結果</h3>
+            <div id="resultsContent"></div>
+        </div>
+        
+        <div class="error" id="error">
+            <h3>❌ エラー</h3>
+            <div id="errorContent"></div>
+        </div>
+        
+        <iframe id="testFrame" src="about:blank"></iframe>
+        
+        <div class="log-container" id="log">
+            <div class="info">📝 テストログ開始...</div>
+        </div>
+    </div>
+    
+    <script>
+        let testFrame = null;
+        let startTime = null;
+        let timerInterval = null;
+        let currentQuestion = 0;
+        
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log');
+            const entry = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString();
+            entry.innerHTML = `[${timestamp}] ${message}`;
+            entry.className = type;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // ステータス更新
+            document.querySelector('#status span').textContent = `状態: ${message}`;
+        }
+        
+        function updateProgress(current, total) {
+            const percentage = Math.round((current / total) * 100);
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = `${percentage}%`;
+            progressBar.textContent = `${percentage}% (${current}/${total})`;
+        }
+        
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById('timer').textContent = `経過時間: ${elapsed}秒`;
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+        
+        async function startFullTest() {
+            log('🚀 完全自動テスト開始', 'success');
+            startTimer();
+            
+            try {
+                // Step 1: Load OS Analyzer
+                await loadOSAnalyzer();
+                await delay(2000);
+                
+                // Step 2: Apply fixes
+                await applyFixes();
+                await delay(1000);
+                
+                // Step 3: Start questions
+                await startQuestions();
+                await delay(1000);
+                
+                // Step 4: Complete all 36 questions
+                await autoComplete36();
+                await delay(2000);
+                
+                // Step 5: Check results
+                await checkResults();
+                
+                log('✅ 完全自動テスト完了！', 'success');
+                stopTimer();
+                
+            } catch (error) {
+                log(`❌ テスト失敗: ${error.message}`, 'danger');
+                showError(error);
+                stopTimer();
+            }
+        }
+        
+        function loadOSAnalyzer() {
+            return new Promise((resolve, reject) => {
+                testFrame = document.getElementById('testFrame');
+                testFrame.src = 'os_analyzer.html';
+                log('📄 OS Analyzer読み込み中...');
+                
+                testFrame.onload = () => {
+                    log('✅ OS Analyzer読み込み完了', 'success');
+                    checkLoadedModules();
+                    resolve();
+                };
+                
+                testFrame.onerror = reject;
+            });
+        }
+        
+        function checkLoadedModules() {
+            try {
+                const win = testFrame.contentWindow;
+                const modules = {
+                    'CriticalCSSAnalyzer': typeof win.criticalCSSAnalyzer !== 'undefined',
+                    'H384_DATA': typeof win.H384_DATA !== 'undefined',
+                    'H64_DATA': typeof win.H64_DATA !== 'undefined',
+                    'TripleOSInteractionAnalyzer': typeof win.TripleOSInteractionAnalyzer !== 'undefined'
+                };
+                
+                for (const [module, loaded] of Object.entries(modules)) {
+                    if (loaded) {
+                        log(`✅ ${module} loaded`, 'success');
+                    } else {
+                        log(`⚠️ ${module} not loaded`, 'warning');
+                    }
+                }
+            } catch (error) {
+                log(`❌ モジュール確認エラー: ${error.message}`, 'danger');
+            }
+        }
+        
+        async function applyFixes() {
+            log('🔧 修正パッチ適用中...');
+            const win = testFrame.contentWindow;
+            
+            // fix-start-button.js の内容を注入
+            const startButtonFix = await fetch('fix-start-button.js').then(r => r.text());
+            win.eval(startButtonFix);
+            log('✅ Start button fix applied', 'success');
+            
+            // fix-results-display.js の内容を注入
+            const resultsDisplayFix = await fetch('fix-results-display.js').then(r => r.text());
+            win.eval(resultsDisplayFix);
+            log('✅ Results display fix applied', 'success');
+            
+            // auto-complete-questions.js の内容を注入
+            const autoCompleteScript = await fetch('auto-complete-questions.js').then(r => r.text());
+            win.eval(autoCompleteScript);
+            log('✅ Auto-complete script loaded', 'success');
+        }
+        
+        function startQuestions() {
+            return new Promise((resolve, reject) => {
+                try {
+                    const win = testFrame.contentWindow;
+                    
+                    // 手動でstartAnalysisを呼ぶ
+                    if (win.criticalCSSAnalyzer && win.criticalCSSAnalyzer.startAnalysis) {
+                        win.criticalCSSAnalyzer.startAnalysis();
+                        log('✅ 質問フロー開始', 'success');
+                        currentQuestion = 0;
+                        resolve();
+                    } else {
+                        // フォールバック: ボタンをクリック
+                        const startBtn = win.document.getElementById('start-btn');
+                        if (startBtn) {
+                            startBtn.click();
+                            log('✅ Start button clicked', 'success');
+                            resolve();
+                        } else {
+                            reject(new Error('Start button not found'));
+                        }
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+        
+        async function autoAnswer() {
+            const win = testFrame.contentWindow;
+            
+            // ラジオボタンを選択
+            const radios = win.document.querySelectorAll('input[type="radio"]:not(:checked)');
+            if (radios.length > 0) {
+                radios[0].click();
+                log(`✅ 質問 ${currentQuestion + 1} 回答選択`);
+                
+                await delay(100);
+                
+                // 次へボタンをクリック
+                const nextBtn = win.document.getElementById('next-btn');
+                if (nextBtn && !nextBtn.disabled) {
+                    nextBtn.click();
+                    currentQuestion++;
+                    log(`➡️ 次の質問へ`);
+                }
+            }
+        }
+        
+        async function autoComplete36() {
+            log('🤖 36問自動回答開始...');
+            const win = testFrame.contentWindow;
+            
+            if (win.autoComplete36Questions) {
+                const result = await win.autoComplete36Questions();
+                log(`✅ 自動回答完了: ${result.completedQuestions}問`, 'success');
+                updateProgress(result.completedQuestions, 36);
+                return result;
+            } else {
+                // フォールバック: 手動で36問回答
+                for (let i = 0; i < 36; i++) {
+                    await autoAnswer();
+                    updateProgress(i + 1, 36);
+                    await delay(50);
+                }
+            }
+        }
+        
+        function checkResults() {
+            const win = testFrame.contentWindow;
+            
+            // 現在の画面を確認
+            const activeScreen = win.document.querySelector('.screen.active');
+            if (activeScreen) {
+                log(`📍 現在の画面: ${activeScreen.id}`, 'info');
+            }
+            
+            // 結果要素を探す
+            const resultsScreen = win.document.getElementById('results-screen');
+            const isResultsVisible = resultsScreen && resultsScreen.classList.contains('active');
+            
+            if (isResultsVisible) {
+                log('✅ 結果画面表示成功！', 'success');
+                extractAndShowResults(win);
+            } else {
+                log('⚠️ 結果画面が表示されていません', 'warning');
+                
+                // LocalStorageを確認
+                const stored = win.localStorage.getItem('haqei_analysis_results');
+                if (stored) {
+                    log('💾 LocalStorageにデータあり', 'success');
+                    showResults(JSON.parse(stored));
+                } else {
+                    log('❌ 結果データが見つかりません', 'danger');
+                }
+            }
+        }
+        
+        function extractAndShowResults(win) {
+            const results = {
+                engineOS: null,
+                interfaceOS: null,
+                safeModeOS: null
+            };
+            
+            // OSカードを探す
+            const osCards = win.document.querySelectorAll('.os-card, .persona-card, [id*="os-card"]');
+            osCards.forEach(card => {
+                const text = card.textContent;
+                if (text.includes('Engine')) {
+                    results.engineOS = text.substring(0, 200);
+                } else if (text.includes('Interface')) {
+                    results.interfaceOS = text.substring(0, 200);
+                } else if (text.includes('Safe')) {
+                    results.safeModeOS = text.substring(0, 200);
+                }
+            });
+            
+            showResults(results);
+        }
+        
+        function showResults(results) {
+            const resultsDiv = document.getElementById('results');
+            const content = document.getElementById('resultsContent');
+            
+            content.innerHTML = `
+                <div style="display: grid; gap: 15px;">
+                    <div>
+                        <h4>🚀 Engine OS</h4>
+                        <p>${results.engineOS || 'データなし'}</p>
+                    </div>
+                    <div>
+                        <h4>🌐 Interface OS</h4>
+                        <p>${results.interfaceOS || 'データなし'}</p>
+                    </div>
+                    <div>
+                        <h4>🛡️ Safe Mode OS</h4>
+                        <p>${results.safeModeOS || 'データなし'}</p>
+                    </div>
+                </div>
+            `;
+            
+            resultsDiv.style.display = 'block';
+        }
+        
+        function forceResults() {
+            const win = testFrame.contentWindow;
+            if (win.forceShowResults) {
+                win.forceShowResults();
+                log('🔧 強制結果表示実行', 'warning');
+            } else {
+                log('❌ forceShowResults関数が見つかりません', 'danger');
+            }
+        }
+        
+        function showError(error) {
+            const errorDiv = document.getElementById('error');
+            const content = document.getElementById('errorContent');
+            
+            content.innerHTML = `
+                <p><strong>エラー:</strong> ${error.message}</p>
+                <pre>${error.stack}</pre>
+            `;
+            
+            errorDiv.style.display = 'block';
+        }
+        
+        function clearAll() {
+            testFrame.src = 'about:blank';
+            document.getElementById('log').innerHTML = '<div class="info">📝 テストログクリア</div>';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.querySelector('#status span').textContent = '状態: 待機中...';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressBar').textContent = '0%';
+            stopTimer();
+            currentQuestion = 0;
+            log('🗑️ クリア完了', 'info');
+        }
+        
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        // 初期化
+        window.onload = () => {
+            log('✅ テスト環境準備完了', 'success');
+        };
+    </script>
+</body>
+</html>
