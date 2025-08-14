@@ -1,0 +1,193 @@
+name: HAQEI Release Gates
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  release-gates:
+    runs-on: ubuntu-latest
+    name: 🚪 Production Release Gates
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with: 
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      # Gate 1: 重複HTML検出
+      - name: 🔍 Assert Single os_analyzer.html
+        run: |
+          echo "::group::HTML File Duplication Check"
+          bash scripts/assert-single-html.sh
+          echo "::endgroup::"
+
+      # Gate 2: プロベナンス照合（データ改変検出）
+      - name: 🔐 Provenance Hash Check
+        run: |
+          echo "::group::Data Provenance Verification"
+          if [ ! -f "data/source_manifest.json" ]; then
+            echo "❌ source_manifest.json not found"
+            exit 1
+          fi
+          
+          EXPECTED=$(jq -r '.palace_mapping.sha256' data/source_manifest.json)
+          ACTUAL=$(sha256sum data/eight_palaces.v1.json | cut -d' ' -f1)
+          
+          echo "Expected hash: $EXPECTED"
+          echo "Actual hash:   $ACTUAL"
+          
+          if [ "$EXPECTED" != "$ACTUAL" ]; then
+            echo "❌ Data integrity check failed: Eight Palaces mapping has been modified"
+            echo "   Expected: $EXPECTED"
+            echo "   Actual:   $ACTUAL"
+            exit 1
+          fi
+          
+          echo "✅ Data integrity verified"
+          echo "::endgroup::"
+
+      # Gate 3: Build & Server Start
+      - name: 🏗️ Build Application
+        run: |
+          echo "::group::Application Build"
+          npm run build
+          echo "✅ Build completed"
+          echo "::endgroup::"
+
+      - name: 🚀 Start Test Server
+        run: |
+          echo "::group::Server Startup"
+          npm run preview &
+          SERVER_PID=$!
+          echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+          echo "✅ Server started (PID: $SERVER_PID)"
+          echo "::endgroup::"
+
+      - name: ⏳ Wait for Server Health
+        run: |
+          echo "::group::Health Check Wait"
+          for i in {1..30}; do
+            if curl -s http://localhost:8788/health > /dev/null; then
+              echo "✅ Server is healthy"
+              break
+            fi
+            echo "⏳ Waiting for server... (attempt $i/30)"
+            sleep 2
+          done
+          
+          # Final health verification
+          HEALTH_RESPONSE=$(curl -s http://localhost:8788/health)
+          echo "Health response: $HEALTH_RESPONSE"
+          
+          if ! echo "$HEALTH_RESPONSE" | jq -e '.ok == true' > /dev/null; then
+            echo "❌ Server health check failed"
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      # Gate 4: E2E スモークテスト
+      - name: 🧪 E2E Smoke Tests
+        run: |
+          echo "::group::End-to-End Smoke Tests"
+          node test/smoke.e2e.spec.cjs
+          echo "::endgroup::"
+
+      # Gate 5: 八宮インバリアント
+      - name: 🏛️ Eight Palaces Invariants
+        run: |
+          echo "::group::Eight Palaces Data Invariants"
+          node test/eight-palaces.invariant.test.cjs
+          echo "::endgroup::"
+
+      # Gate 6: アプリケーションアクセス確認
+      - name: 🌐 Application Access Verification
+        run: |
+          echo "::group::Application Access Test"
+          
+          # Test main app access
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8788/os_analyzer.html)
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ Main application access failed (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "✅ Main application accessible (HTTP 200)"
+          
+          # Test root redirect
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8788/)
+          if [ "$STATUS" != "302" ]; then
+            echo "❌ Root redirect failed (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "✅ Root redirect working (HTTP 302)"
+          
+          echo "::endgroup::"
+
+      - name: 🧹 Cleanup
+        if: always()
+        run: |
+          if [ ! -z "$SERVER_PID" ]; then
+            kill $SERVER_PID || true
+            echo "🛑 Server stopped"
+          fi
+
+  security-gates:
+    runs-on: ubuntu-latest
+    name: 🔒 Security Gates
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔍 Sensitive File Check
+        run: |
+          echo "::group::Sensitive Files Detection"
+          
+          # Check for common sensitive files
+          SENSITIVE_FILES=(
+            ".env"
+            ".env.local" 
+            ".env.production"
+            "config/secrets.json"
+            "private_key.pem"
+            "id_rsa"
+          )
+          
+          for file in "${SENSITIVE_FILES[@]}"; do
+            if [ -f "$file" ]; then
+              echo "❌ Sensitive file detected: $file"
+              exit 1
+            fi
+          done
+          
+          # Check for API keys in tracked files
+          if git ls-files | xargs grep -l "ANTHROPIC_API_KEY\|OPENAI_API_KEY\|sk-" 2>/dev/null; then
+            echo "❌ Potential API keys found in tracked files"
+            exit 1
+          fi
+          
+          echo "✅ No sensitive files detected"
+          echo "::endgroup::"
+
+      - name: 🔐 Configuration Security Check
+        run: |
+          echo "::group::Configuration Security"
+          
+          # Check cipher.config.yaml for security issues
+          if [ -f "cipher.config.yaml" ]; then
+            if grep -i "password\|secret\|key" cipher.config.yaml | grep -v "# Environment variable"; then
+              echo "❌ Hardcoded secrets found in cipher.config.yaml"
+              exit 1
+            fi
+          fi
+          
+          echo "✅ Configuration security verified"
+          echo "::endgroup::"

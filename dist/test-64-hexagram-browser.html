@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>64卦統合テスト - Future Simulator</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { color: #28a745; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .info { color: #007bff; }
+        .results { background: #f8f9fa; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 10px 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        #testLog { height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; background: #000; color: #0f0; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 64卦完全統合テスト - Future Simulator V2.2.0</h1>
+        
+        <div class="test-section">
+            <h3>📋 テスト項目</h3>
+            <button class="btn-primary" onclick="testKingWenMapping()">1. KingWenMapping 64卦確認</button>
+            <button class="btn-primary" onclick="testEightScenarios()">2. EightScenariosGenerator統合</button>
+            <button class="btn-success" onclick="testFullIntegration()">3. フル統合テスト</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 テスト結果</h3>
+            <div id="testResults"></div>
+            <pre id="testLog"></pre>
+        </div>
+    </div>
+
+    <!-- Future Simulatorコンポーネント読み込み -->
+    <script src="/js/pages/future-simulator/EightScenariosGenerator.js"></script>
+    <script src="/js/iching/KingWenMapping.js"></script>
+    <script src="/js/iching/LineSelector.js"></script>
+    <script src="/js/iching/AdvanceProcessor.js"></script>
+    <script src="/js/iching/MultiLineInterpreter.js"></script>
+    <script src="/config/config-loader-adapter.js"></script>
+
+    <script>
+        const testLog = document.getElementById('testLog');
+        const testResults = document.getElementById('testResults');
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            testLog.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            testLog.scrollTop = testLog.scrollHeight;
+            console.log(message);
+        }
+        
+        function updateResults(section, status, details = '') {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `results ${status}`;
+            resultDiv.innerHTML = `<strong>${section}</strong>: ${status} ${details}`;
+            testResults.appendChild(resultDiv);
+        }
+
+        // 1. KingWenMapping 64卦確認テスト
+        async function testKingWenMapping() {
+            log('🧪 Testing KingWenMapping with 64 hexagrams...', 'info');
+            
+            try {
+                const kingWen = new KingWenMapping();
+                await kingWen.initialize();
+                
+                const count = kingWen.getAvailableHexagramCount();
+                log(`✅ KingWenMapping initialized: ${count} hexagrams`, 'success');
+                
+                if (count === 64) {
+                    log('✅ All 64 hexagrams loaded successfully!', 'success');
+                    updateResults('KingWenMapping', '✅ PASSED', `${count}/64 hexagrams`);
+                    
+                    // サンプルテスト
+                    const testHexagrams = [1, 2, 11, 12, 33, 63, 64];
+                    for (const num of testHexagrams) {
+                        const hex = kingWen.getHexagramData(num);
+                        if (hex) {
+                            log(`  ${num}: ${hex.name} [${hex.trigrams.join('+')}]`, 'info');
+                        } else {
+                            log(`  ❌ Missing hexagram ${num}`, 'error');
+                        }
+                    }
+                    
+                } else {
+                    log(`❌ Expected 64 hexagrams, got ${count}`, 'error');
+                    updateResults('KingWenMapping', '❌ FAILED', `${count}/64 hexagrams`);
+                }
+                
+            } catch (error) {
+                log(`❌ KingWenMapping test failed: ${error.message}`, 'error');
+                updateResults('KingWenMapping', '❌ ERROR', error.message);
+            }
+        }
+
+        // 2. EightScenariosGenerator統合テスト
+        async function testEightScenarios() {
+            log('🎯 Testing EightScenariosGenerator integration...', 'info');
+            
+            try {
+                const generator = new EightScenariosGenerator();
+                log('✅ EightScenariosGenerator instantiated', 'success');
+                
+                // v2.2.0 コンポーネント初期化
+                await generator.initializeV22Components();
+                log('✅ v2.2.0 components initialized', 'success');
+                
+                // KingWenMapping確認
+                if (generator.kingWenMapping) {
+                    const count = generator.kingWenMapping.getAvailableHexagramCount();
+                    log(`✅ Integrated KingWenMapping: ${count} hexagrams`, 'success');
+                    
+                    if (count === 64) {
+                        updateResults('EightScenarios Integration', '✅ PASSED', 'v2.2.0 + 64 hexagrams');
+                    } else {
+                        updateResults('EightScenarios Integration', '⚠️ PARTIAL', `${count}/64 hexagrams`);
+                    }
+                } else {
+                    log('❌ KingWenMapping not integrated', 'error');
+                    updateResults('EightScenarios Integration', '❌ FAILED', 'Missing KingWenMapping');
+                }
+                
+            } catch (error) {
+                log(`❌ EightScenarios test failed: ${error.message}`, 'error');
+                updateResults('EightScenarios Integration', '❌ ERROR', error.message);
+            }
+        }
+
+        // 3. フル統合テスト
+        async function testFullIntegration() {
+            log('🚀 Running full integration test...', 'info');
+            
+            try {
+                const generator = new EightScenariosGenerator();
+                await generator.initializeV22Components();
+                
+                // テスト用入力
+                const testInput = "新しいプロジェクトを開始すべきか迷っている";
+                log(`📝 Test input: "${testInput}"`, 'info');
+                
+                // 分析実行
+                const result = await generator.analyzeInputText(testInput);
+                
+                if (result && result.hexagram) {
+                    log(`✅ Analysis completed successfully`, 'success');
+                    log(`   Primary: ${result.hexagram.number} - ${result.hexagram.name}`, 'info');
+                    
+                    if (result.hexagram.trigrams) {
+                        log(`   Trigrams: ${result.hexagram.trigrams.join(' + ')}`, 'info');
+                    }
+                    
+                    // 変爻テスト
+                    if (generator.kingWenMapping && generator.advanceProcessor) {
+                        const transformed = generator.kingWenMapping.calculateTransformedHex(result.hexagram.number, 3);
+                        if (transformed) {
+                            const transformedData = generator.kingWenMapping.getHexagramData(transformed);
+                            log(`   Transformed: ${transformed} - ${transformedData.name}`, 'info');
+                        }
+                    }
+                    
+                    updateResults('Full Integration', '✅ PASSED', 'Complete end-to-end test');
+                    
+                } else {
+                    log('❌ Analysis failed - no result returned', 'error');
+                    updateResults('Full Integration', '❌ FAILED', 'Analysis returned no result');
+                }
+                
+            } catch (error) {
+                log(`❌ Full integration test failed: ${error.message}`, 'error');
+                updateResults('Full Integration', '❌ ERROR', error.message);
+            }
+        }
+        
+        // 初期化時にログ出力
+        log('🎯 64-Hexagram Integration Test Environment Ready', 'success');
+        log('Click buttons above to run individual tests', 'info');
+    </script>
+</body>
+</html>

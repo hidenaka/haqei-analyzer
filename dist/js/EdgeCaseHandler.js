@@ -1,1 +1,712 @@
-class EdgeCaseHandler{constructor(){this.validationRules={scores:{min:0,max:1,sumMin:.95,sumMax:1.05},vectors:{dimensionCount:8,minValue:0,maxValue:1,sumTolerance:.1},hexagram:{minId:1,maxId:64},confidence:{criticalThreshold:.3,warningThreshold:.5}},this.errorLog=[],this.recoveryStrategies=new Map,this.initializeRecoveryStrategies()}validateTripleOSResults(e){const r={isValid:!0,errors:[],warnings:[],corrections:{}},a=this.validateStructure(e);a.isValid||(r.isValid=!1,r.errors.push(...a.errors),e=this.applyStructureCorrections(e,a.corrections));const t=this.validateRanges(e);t.isValid||(r.warnings.push(...t.warnings),e=this.applyRangeCorrections(e,t.corrections));const s=this.validateConsistency(e);s.isValid||(r.warnings.push(...s.warnings),e=this.applyConsistencyCorrections(e,s.corrections));const n=this.detectExtremeValues(e);n.hasExtremes&&(r.warnings.push(...n.warnings),e=this.normalizeExtremeValues(e,n.extremes));const i=this.checkDataCompleteness(e);return i.isComplete||(e=this.fillMissingData(e,i.missing),r.warnings.push(...i.warnings)),{validation:r,correctedResults:e,requiresUserNotification:r.errors.length>0}}validateStructure(e){const r=[],a={};return["engineOS","interfaceOS","safeModeOS"].forEach(t=>{if(e&&e[t]){const s=e[t];s.hexagramId&&s.hexagramName||(r.push(`Incomplete data in ${t}`),a[t]={...s,hexagramId:s.hexagramId||1,hexagramName:s.hexagramName||"乾為天"}),s.baguaEnergies&&"object"==typeof s.baguaEnergies||(r.push(`Invalid baguaEnergies in ${t}`),a[t]={...s,baguaEnergies:this.getDefaultBaguaEnergies()})}else r.push(`Missing required field: ${t}`),a[t]=this.getDefaultOS(t)}),{isValid:0===r.length,errors:r,corrections:a}}validateRanges(e){const r=[],a={};return["engineOS","interfaceOS","safeModeOS"].forEach(t=>{const s=e[t];s&&((s.hexagramId<1||s.hexagramId>64)&&(r.push(`Invalid hexagram ID in ${t}: ${s.hexagramId}`),a[`${t}.hexagramId`]=Math.max(1,Math.min(64,s.hexagramId))),void 0!==s.strength&&(s.strength<0||s.strength>100)&&(r.push(`Invalid strength in ${t}: ${s.strength}`),a[`${t}.strength`]=Math.max(0,Math.min(100,s.strength))),s.baguaEnergies&&Object.entries(s.baguaEnergies).forEach(([e,n])=>{(n<0||n>100)&&(r.push(`Invalid bagua energy ${e} in ${t}: ${n}`),a[`${t}.baguaEnergies`]||(a[`${t}.baguaEnergies`]={...s.baguaEnergies}),a[`${t}.baguaEnergies`][e]=Math.max(0,Math.min(100,n)))}))}),{isValid:0===r.length,warnings:r,corrections:a}}validateConsistency(e){const r=[],a={},t=this.extractScores(e),s=t.engine+t.interface+t.safe;Math.abs(s-1)>this.validationRules.scores.sumTolerance&&(r.push(`Score sum inconsistency: ${s.toFixed(3)}`),a.normalizedScores={engine:t.engine/s,interface:t.interface/s,safe:t.safe/s});const n=[e.engineOS?.hexagramId,e.interfaceOS?.hexagramId,e.safeModeOS?.hexagramId].filter(Boolean);return new Set(n).size<n.length&&(r.push("Duplicate hexagrams detected across OS types"),a.hexagramDiversity=this.ensureHexagramDiversity(e)),["engineOS","interfaceOS","safeModeOS"].forEach(t=>{const s=e[t];if(!s?.baguaEnergies)return;const n=Object.values(s.baguaEnergies),i=n.reduce((e,r)=>e+r,0)/n.length,g=n.reduce((e,r)=>e+Math.pow(r-i,2),0)/n.length;g<1&&(r.push(`Suspicious uniform distribution in ${t}`),a[`${t}.redistributed`]=this.redistributeEnergies(s.baguaEnergies)),g>2e3&&(r.push(`Extreme variance in ${t} energies`),a[`${t}.smoothed`]=this.smoothEnergies(s.baguaEnergies))}),{isValid:0===r.length,warnings:r,corrections:a}}detectExtremeValues(e){const r=[],a=[];return["engineOS","interfaceOS","safeModeOS"].forEach(t=>{const s=e[t];if(!s?.baguaEnergies)return;Object.entries(s.baguaEnergies).forEach(([e,s])=>{s>95&&(r.push({osType:t,bagua:e,value:s,type:"high"}),a.push(`Extremely high value: ${t}.${e} = ${s}`)),s<5&&(r.push({osType:t,bagua:e,value:s,type:"low"}),a.push(`Extremely low value: ${t}.${e} = ${s}`))});const n=Object.values(s.baguaEnergies),i=n.filter(e=>e>80).length,g=n.filter(e=>e<20).length;i>6&&a.push(`Too many high values in ${t}`),g>6&&a.push(`Too many low values in ${t}`)}),{hasExtremes:r.length>0,extremes:r,warnings:a}}checkDataCompleteness(e){const r=[],a=[],t=["乾","震","坎","兌","離","巽","艮","坤"];return["engineOS","interfaceOS","safeModeOS"].forEach(s=>{const n=e[s];if(!n)return r.push({type:s,field:"entire"}),void a.push(`Entire ${s} is missing`);n.hexagramId||r.push({type:s,field:"hexagramId"}),n.hexagramName||r.push({type:s,field:"hexagramName"}),n.baguaEnergies?t.forEach(e=>{e in n.baguaEnergies||(r.push({type:s,field:`baguaEnergies.${e}`}),a.push(`Missing dimension ${e} in ${s}`))}):(r.push({type:s,field:"baguaEnergies"}),a.push(`Missing baguaEnergies in ${s}`))}),{isComplete:0===r.length,missing:r,warnings:a}}applyStructureCorrections(e,r){const a={...e};return Object.entries(r).forEach(([e,r])=>{a[e]=r}),a}applyRangeCorrections(e,r){const a=JSON.parse(JSON.stringify(e));return Object.entries(r).forEach(([e,r])=>{const t=e.split(".");let s=a;for(let a=0;a<t.length-1;a++)s=s[t[a]];s[t[t.length-1]]=r}),a}applyConsistencyCorrections(e,r){let a={...e};if(r.normalizedScores){const e=r.normalizedScores;a.engineOS&&(a.engineOS.normalizedScore=e.engine),a.interfaceOS&&(a.interfaceOS.normalizedScore=e.interface),a.safeModeOS&&(a.safeModeOS.normalizedScore=e.safe)}return r.hexagramDiversity&&(a=r.hexagramDiversity),["engineOS","interfaceOS","safeModeOS"].forEach(e=>{r[`${e}.redistributed`]&&(a[e].baguaEnergies=r[`${e}.redistributed`]),r[`${e}.smoothed`]&&(a[e].baguaEnergies=r[`${e}.smoothed`])}),a}normalizeExtremeValues(e,r){const a=JSON.parse(JSON.stringify(e));return r.forEach(e=>{const r=a[e.osType];r?.baguaEnergies&&("high"===e.type?r.baguaEnergies[e.bagua]=Math.min(90,e.value):"low"===e.type&&(r.baguaEnergies[e.bagua]=Math.max(10,e.value)))}),["engineOS","interfaceOS","safeModeOS"].forEach(e=>{const r=a[e];if(!r?.baguaEnergies)return;const t=Object.values(r.baguaEnergies).reduce((e,r)=>e+r,0);0!==t&&Math.abs(t-800)>10&&Object.keys(r.baguaEnergies).forEach(e=>{r.baguaEnergies[e]=r.baguaEnergies[e]/t*800})}),a}fillMissingData(e,r){const a=JSON.parse(JSON.stringify(e));return r.forEach(e=>{if("entire"===e.field)a[e.type]=this.getDefaultOS(e.type);else if("hexagramId"===e.field)a[e.type].hexagramId=this.getDefaultHexagramId(e.type);else if("hexagramName"===e.field)a[e.type].hexagramName=this.getHexagramName(a[e.type].hexagramId);else if("baguaEnergies"===e.field)a[e.type].baguaEnergies=this.getDefaultBaguaEnergies();else if(e.field.startsWith("baguaEnergies.")){const r=e.field.split(".")[1];a[e.type].baguaEnergies||(a[e.type].baguaEnergies={}),a[e.type].baguaEnergies[r]=50}}),a}initializeRecoveryStrategies(){this.recoveryStrategies.set("missingOS",e=>this.getDefaultOS(e)),this.recoveryStrategies.set("calculationError",e=>(this.logError("Calculation error",e),{synergy:.5,tension:.3,confidence:.4})),this.recoveryStrategies.set("renderError",e=>(this.logError("Render error",e),this.getFallbackDisplay()))}getDefaultOS(e){const r={engineOS:{hexagramId:1,hexagramName:"乾為天",strength:33,baguaEnergies:this.getDefaultBaguaEnergies()},interfaceOS:{hexagramId:2,hexagramName:"坤為地",strength:33,baguaEnergies:this.getDefaultBaguaEnergies()},safeModeOS:{hexagramId:52,hexagramName:"艮為山",strength:34,baguaEnergies:this.getDefaultBaguaEnergies()}};return r[e]||r.engineOS}getDefaultBaguaEnergies(){return{"乾":50,"震":50,"坎":50,"兌":50,"離":50,"巽":50,"艮":50,"坤":50}}ensureHexagramDiversity(e){const r={...e},a=new Set;return["engineOS","interfaceOS","safeModeOS"].forEach((e,t)=>{const s=r[e];if(s){if(a.has(s.hexagramId)){let e=s.hexagramId;for(;a.has(e);)e=e%64+1;s.hexagramId=e,s.hexagramName=this.getHexagramName(e)}a.add(s.hexagramId)}}),r}redistributeEnergies(e){const r=Object.keys(e),a={};return r.forEach((e,t)=>{const s=100/r.length,n=20*(Math.random()-.5);a[e]=Math.max(10,Math.min(90,s+n))}),a}smoothEnergies(e){const r=Object.values(e),a=r.reduce((e,r)=>e+r,0)/r.length,t={};return Object.entries(e).forEach(([e,r])=>{const s=r-a;t[e]=r-.5*s}),t}extractScores(e){const getScore=e=>e?void 0!==e.normalizedScore?e.normalizedScore:void 0!==e.strength?e.strength/100:.33:.33;return{engine:getScore(e.engineOS),interface:getScore(e.interfaceOS),safe:getScore(e.safeModeOS)}}getDefaultHexagramId(e){return{engineOS:1,interfaceOS:2,safeModeOS:52}[e]||1}getHexagramName(e){return{1:"乾為天",2:"坤為地",52:"艮為山"}[e]||`卦${e}`}getFallbackDisplay(){return'\n            <div class="error-fallback">\n                <h3>一時的な表示エラー</h3>\n                <p>データの表示中にエラーが発生しました。</p>\n                <p>ページを更新するか、もう一度お試しください。</p>\n            </div>\n        '}logError(e,r){const a={timestamp:(new Date).toISOString(),context:e,error:r.message||r,stack:r.stack};this.errorLog.push(a),"undefined"!=typeof console&&console.error(`[EdgeCaseHandler] ${e}:`,r),this.errorLog.length>100&&(this.errorLog=this.errorLog.slice(-50))}generateErrorReport(){return{totalErrors:this.errorLog.length,recentErrors:this.errorLog.slice(-10),errorsByContext:this.groupErrorsByContext(),timestamp:(new Date).toISOString()}}groupErrorsByContext(){const e={};return this.errorLog.forEach(r=>{e[r.context]||(e[r.context]=0),e[r.context]++}),e}}"undefined"!=typeof module&&module.exports&&(module.exports=EdgeCaseHandler);
+/**
+ * Edge Case Handler - Phase 2
+ * 異常値検出とフォールバック処理の実装
+ */
+
+class EdgeCaseHandler {
+    constructor() {
+        this.validationRules = {
+            // データ検証ルール
+            scores: {
+                min: 0,
+                max: 1,
+                sumMin: 0.95,
+                sumMax: 1.05
+            },
+            vectors: {
+                dimensionCount: 8,
+                minValue: 0,
+                maxValue: 1,
+                sumTolerance: 0.1
+            },
+            hexagram: {
+                minId: 1,
+                maxId: 64
+            },
+            confidence: {
+                criticalThreshold: 0.3,
+                warningThreshold: 0.5
+            }
+        };
+        
+        // エラーログ
+        this.errorLog = [];
+        
+        // リカバリー戦略
+        this.recoveryStrategies = new Map();
+        this.initializeRecoveryStrategies();
+    }
+    
+    /**
+     * Triple OS結果の包括的検証
+     */
+    validateTripleOSResults(results) {
+        const validation = {
+            isValid: true,
+            errors: [],
+            warnings: [],
+            corrections: {}
+        };
+        
+        // 1. 構造検証
+        const structureCheck = this.validateStructure(results);
+        if (!structureCheck.isValid) {
+            validation.isValid = false;
+            validation.errors.push(...structureCheck.errors);
+            results = this.applyStructureCorrections(results, structureCheck.corrections);
+        }
+        
+        // 2. 数値範囲検証
+        const rangeCheck = this.validateRanges(results);
+        if (!rangeCheck.isValid) {
+            validation.warnings.push(...rangeCheck.warnings);
+            results = this.applyRangeCorrections(results, rangeCheck.corrections);
+        }
+        
+        // 3. 論理的整合性検証
+        const consistencyCheck = this.validateConsistency(results);
+        if (!consistencyCheck.isValid) {
+            validation.warnings.push(...consistencyCheck.warnings);
+            results = this.applyConsistencyCorrections(results, consistencyCheck.corrections);
+        }
+        
+        // 4. 極端値検出
+        const extremeCheck = this.detectExtremeValues(results);
+        if (extremeCheck.hasExtremes) {
+            validation.warnings.push(...extremeCheck.warnings);
+            results = this.normalizeExtremeValues(results, extremeCheck.extremes);
+        }
+        
+        // 5. データ完全性チェック
+        const completenessCheck = this.checkDataCompleteness(results);
+        if (!completenessCheck.isComplete) {
+            results = this.fillMissingData(results, completenessCheck.missing);
+            validation.warnings.push(...completenessCheck.warnings);
+        }
+        
+        return {
+            validation,
+            correctedResults: results,
+            requiresUserNotification: validation.errors.length > 0
+        };
+    }
+    
+    /**
+     * 構造検証
+     */
+    validateStructure(results) {
+        const errors = [];
+        const corrections = {};
+        
+        // 必須フィールドの存在確認
+        const requiredFields = ['engineOS', 'interfaceOS', 'safeModeOS'];
+        
+        requiredFields.forEach(field => {
+            if (!results || !results[field]) {
+                errors.push(`Missing required field: ${field}`);
+                corrections[field] = this.getDefaultOS(field);
+            } else {
+                // サブフィールドの検証
+                const os = results[field];
+                if (!os.hexagramId || !os.hexagramName) {
+                    errors.push(`Incomplete data in ${field}`);
+                    corrections[field] = {
+                        ...os,
+                        hexagramId: os.hexagramId || 1,
+                        hexagramName: os.hexagramName || '乾為天'
+                    };
+                }
+                
+                if (!os.baguaEnergies || typeof os.baguaEnergies !== 'object') {
+                    errors.push(`Invalid baguaEnergies in ${field}`);
+                    corrections[field] = {
+                        ...os,
+                        baguaEnergies: this.getDefaultBaguaEnergies()
+                    };
+                }
+            }
+        });
+        
+        return {
+            isValid: errors.length === 0,
+            errors,
+            corrections
+        };
+    }
+    
+    /**
+     * 数値範囲検証
+     */
+    validateRanges(results) {
+        const warnings = [];
+        const corrections = {};
+        
+        ['engineOS', 'interfaceOS', 'safeModeOS'].forEach(osType => {
+            const os = results[osType];
+            if (!os) return;
+            
+            // Hexagram ID範囲チェック
+            if (os.hexagramId < 1 || os.hexagramId > 64) {
+                warnings.push(`Invalid hexagram ID in ${osType}: ${os.hexagramId}`);
+                corrections[`${osType}.hexagramId`] = Math.max(1, Math.min(64, os.hexagramId));
+            }
+            
+            // Strength範囲チェック
+            if (os.strength !== undefined) {
+                if (os.strength < 0 || os.strength > 100) {
+                    warnings.push(`Invalid strength in ${osType}: ${os.strength}`);
+                    corrections[`${osType}.strength`] = Math.max(0, Math.min(100, os.strength));
+                }
+            }
+            
+            // BaguaEnergies範囲チェック
+            if (os.baguaEnergies) {
+                Object.entries(os.baguaEnergies).forEach(([bagua, value]) => {
+                    if (value < 0 || value > 100) {
+                        warnings.push(`Invalid bagua energy ${bagua} in ${osType}: ${value}`);
+                        if (!corrections[`${osType}.baguaEnergies`]) {
+                            corrections[`${osType}.baguaEnergies`] = {...os.baguaEnergies};
+                        }
+                        corrections[`${osType}.baguaEnergies`][bagua] = Math.max(0, Math.min(100, value));
+                    }
+                });
+            }
+        });
+        
+        return {
+            isValid: warnings.length === 0,
+            warnings,
+            corrections
+        };
+    }
+    
+    /**
+     * 論理的整合性検証
+     */
+    validateConsistency(results) {
+        const warnings = [];
+        const corrections = {};
+        
+        // 1. 3つのOSの合計が適切か
+        const scores = this.extractScores(results);
+        const sum = scores.engine + scores.interface + scores.safe;
+        
+        if (Math.abs(sum - 1) > this.validationRules.scores.sumTolerance) {
+            warnings.push(`Score sum inconsistency: ${sum.toFixed(3)}`);
+            
+            // 正規化
+            corrections.normalizedScores = {
+                engine: scores.engine / sum,
+                interface: scores.interface / sum,
+                safe: scores.safe / sum
+            };
+        }
+        
+        // 2. 同一hexagramの重複チェック
+        const hexagrams = [
+            results.engineOS?.hexagramId,
+            results.interfaceOS?.hexagramId,
+            results.safeModeOS?.hexagramId
+        ].filter(Boolean);
+        
+        const uniqueHexagrams = new Set(hexagrams);
+        if (uniqueHexagrams.size < hexagrams.length) {
+            warnings.push('Duplicate hexagrams detected across OS types');
+            // 重複を解消する修正ロジック
+            corrections.hexagramDiversity = this.ensureHexagramDiversity(results);
+        }
+        
+        // 3. エネルギー分布の妥当性
+        ['engineOS', 'interfaceOS', 'safeModeOS'].forEach(osType => {
+            const os = results[osType];
+            if (!os?.baguaEnergies) return;
+            
+            const values = Object.values(os.baguaEnergies);
+            const mean = values.reduce((a, b) => a + b, 0) / values.length;
+            const variance = values.reduce((sum, v) => sum + Math.pow(v - mean, 2), 0) / values.length;
+            
+            // 分散が極端に小さい（全て同じ値）
+            if (variance < 1) {
+                warnings.push(`Suspicious uniform distribution in ${osType}`);
+                corrections[`${osType}.redistributed`] = this.redistributeEnergies(os.baguaEnergies);
+            }
+            
+            // 分散が極端に大きい
+            if (variance > 2000) {
+                warnings.push(`Extreme variance in ${osType} energies`);
+                corrections[`${osType}.smoothed`] = this.smoothEnergies(os.baguaEnergies);
+            }
+        });
+        
+        return {
+            isValid: warnings.length === 0,
+            warnings,
+            corrections
+        };
+    }
+    
+    /**
+     * 極端値検出
+     */
+    detectExtremeValues(results) {
+        const extremes = [];
+        const warnings = [];
+        
+        ['engineOS', 'interfaceOS', 'safeModeOS'].forEach(osType => {
+            const os = results[osType];
+            if (!os?.baguaEnergies) return;
+            
+            Object.entries(os.baguaEnergies).forEach(([bagua, value]) => {
+                // 極端に高い値
+                if (value > 95) {
+                    extremes.push({ osType, bagua, value, type: 'high' });
+                    warnings.push(`Extremely high value: ${osType}.${bagua} = ${value}`);
+                }
+                
+                // 極端に低い値
+                if (value < 5) {
+                    extremes.push({ osType, bagua, value, type: 'low' });
+                    warnings.push(`Extremely low value: ${osType}.${bagua} = ${value}`);
+                }
+            });
+            
+            // 全体的な偏り
+            const values = Object.values(os.baguaEnergies);
+            const highCount = values.filter(v => v > 80).length;
+            const lowCount = values.filter(v => v < 20).length;
+            
+            if (highCount > 6) {
+                warnings.push(`Too many high values in ${osType}`);
+            }
+            if (lowCount > 6) {
+                warnings.push(`Too many low values in ${osType}`);
+            }
+        });
+        
+        return {
+            hasExtremes: extremes.length > 0,
+            extremes,
+            warnings
+        };
+    }
+    
+    /**
+     * データ完全性チェック
+     */
+    checkDataCompleteness(results) {
+        const missing = [];
+        const warnings = [];
+        
+        const baguaDimensions = ['乾', '震', '坎', '兌', '離', '巽', '艮', '坤'];
+        
+        ['engineOS', 'interfaceOS', 'safeModeOS'].forEach(osType => {
+            const os = results[osType];
+            if (!os) {
+                missing.push({ type: osType, field: 'entire' });
+                warnings.push(`Entire ${osType} is missing`);
+                return;
+            }
+            
+            // 必須フィールド
+            if (!os.hexagramId) {
+                missing.push({ type: osType, field: 'hexagramId' });
+            }
+            if (!os.hexagramName) {
+                missing.push({ type: osType, field: 'hexagramName' });
+            }
+            
+            // Bagua energiesの完全性
+            if (!os.baguaEnergies) {
+                missing.push({ type: osType, field: 'baguaEnergies' });
+                warnings.push(`Missing baguaEnergies in ${osType}`);
+            } else {
+                baguaDimensions.forEach(dim => {
+                    if (!(dim in os.baguaEnergies)) {
+                        missing.push({ type: osType, field: `baguaEnergies.${dim}` });
+                        warnings.push(`Missing dimension ${dim} in ${osType}`);
+                    }
+                });
+            }
+        });
+        
+        return {
+            isComplete: missing.length === 0,
+            missing,
+            warnings
+        };
+    }
+    
+    /**
+     * 構造修正の適用
+     */
+    applyStructureCorrections(results, corrections) {
+        const corrected = { ...results };
+        
+        Object.entries(corrections).forEach(([field, value]) => {
+            corrected[field] = value;
+        });
+        
+        return corrected;
+    }
+    
+    /**
+     * 範囲修正の適用
+     */
+    applyRangeCorrections(results, corrections) {
+        const corrected = JSON.parse(JSON.stringify(results));
+        
+        Object.entries(corrections).forEach(([path, value]) => {
+            const parts = path.split('.');
+            let current = corrected;
+            
+            for (let i = 0; i < parts.length - 1; i++) {
+                current = current[parts[i]];
+            }
+            
+            current[parts[parts.length - 1]] = value;
+        });
+        
+        return corrected;
+    }
+    
+    /**
+     * 整合性修正の適用
+     */
+    applyConsistencyCorrections(results, corrections) {
+        let corrected = { ...results };
+        
+        if (corrections.normalizedScores) {
+            // スコアの正規化を適用
+            const scores = corrections.normalizedScores;
+            if (corrected.engineOS) corrected.engineOS.normalizedScore = scores.engine;
+            if (corrected.interfaceOS) corrected.interfaceOS.normalizedScore = scores.interface;
+            if (corrected.safeModeOS) corrected.safeModeOS.normalizedScore = scores.safe;
+        }
+        
+        if (corrections.hexagramDiversity) {
+            corrected = corrections.hexagramDiversity;
+        }
+        
+        // エネルギー再分配の適用
+        ['engineOS', 'interfaceOS', 'safeModeOS'].forEach(osType => {
+            if (corrections[`${osType}.redistributed`]) {
+                corrected[osType].baguaEnergies = corrections[`${osType}.redistributed`];
+            }
+            if (corrections[`${osType}.smoothed`]) {
+                corrected[osType].baguaEnergies = corrections[`${osType}.smoothed`];
+            }
+        });
+        
+        return corrected;
+    }
+    
+    /**
+     * 極端値の正規化
+     */
+    normalizeExtremeValues(results, extremes) {
+        const corrected = JSON.parse(JSON.stringify(results));
+        
+        extremes.forEach(extreme => {
+            const os = corrected[extreme.osType];
+            if (!os?.baguaEnergies) return;
+            
+            if (extreme.type === 'high') {
+                // 95以上を90に制限
+                os.baguaEnergies[extreme.bagua] = Math.min(90, extreme.value);
+            } else if (extreme.type === 'low') {
+                // 5以下を10に引き上げ
+                os.baguaEnergies[extreme.bagua] = Math.max(10, extreme.value);
+            }
+        });
+        
+        // 正規化後の合計を100%に調整
+        ['engineOS', 'interfaceOS', 'safeModeOS'].forEach(osType => {
+            const os = corrected[osType];
+            if (!os?.baguaEnergies) return;
+            
+            const values = Object.values(os.baguaEnergies);
+            const sum = values.reduce((a, b) => a + b, 0);
+            
+            if (sum !== 0 && Math.abs(sum - 800) > 10) {
+                // 比率を保ちながら正規化
+                Object.keys(os.baguaEnergies).forEach(key => {
+                    os.baguaEnergies[key] = (os.baguaEnergies[key] / sum) * 800;
+                });
+            }
+        });
+        
+        return corrected;
+    }
+    
+    /**
+     * 欠損データの補完
+     */
+    fillMissingData(results, missing) {
+        const filled = JSON.parse(JSON.stringify(results));
+        
+        missing.forEach(item => {
+            if (item.field === 'entire') {
+                filled[item.type] = this.getDefaultOS(item.type);
+            } else if (item.field === 'hexagramId') {
+                filled[item.type].hexagramId = this.getDefaultHexagramId(item.type);
+            } else if (item.field === 'hexagramName') {
+                filled[item.type].hexagramName = this.getHexagramName(filled[item.type].hexagramId);
+            } else if (item.field === 'baguaEnergies') {
+                filled[item.type].baguaEnergies = this.getDefaultBaguaEnergies();
+            } else if (item.field.startsWith('baguaEnergies.')) {
+                const dim = item.field.split('.')[1];
+                if (!filled[item.type].baguaEnergies) {
+                    filled[item.type].baguaEnergies = {};
+                }
+                filled[item.type].baguaEnergies[dim] = 50; // デフォルト値
+            }
+        });
+        
+        return filled;
+    }
+    
+    /**
+     * リカバリー戦略の初期化
+     */
+    initializeRecoveryStrategies() {
+        // データ欠損時の戦略
+        this.recoveryStrategies.set('missingOS', (type) => {
+            return this.getDefaultOS(type);
+        });
+        
+        // 計算エラー時の戦略
+        this.recoveryStrategies.set('calculationError', (error) => {
+            this.logError('Calculation error', error);
+            return {
+                synergy: 0.5,
+                tension: 0.3,
+                confidence: 0.4
+            };
+        });
+        
+        // レンダリングエラー時の戦略
+        this.recoveryStrategies.set('renderError', (error) => {
+            this.logError('Render error', error);
+            return this.getFallbackDisplay();
+        });
+    }
+    
+    /**
+     * デフォルトOS生成
+     */
+    getDefaultOS(type) {
+        const defaults = {
+            engineOS: {
+                hexagramId: 1,
+                hexagramName: '乾為天',
+                strength: 33,
+                baguaEnergies: this.getDefaultBaguaEnergies()
+            },
+            interfaceOS: {
+                hexagramId: 2,
+                hexagramName: '坤為地',
+                strength: 33,
+                baguaEnergies: this.getDefaultBaguaEnergies()
+            },
+            safeModeOS: {
+                hexagramId: 52,
+                hexagramName: '艮為山',
+                strength: 34,
+                baguaEnergies: this.getDefaultBaguaEnergies()
+            }
+        };
+        
+        return defaults[type] || defaults.engineOS;
+    }
+    
+    /**
+     * デフォルト八卦エネルギー
+     */
+    getDefaultBaguaEnergies() {
+        return {
+            '乾': 50,
+            '震': 50,
+            '坎': 50,
+            '兌': 50,
+            '離': 50,
+            '巽': 50,
+            '艮': 50,
+            '坤': 50
+        };
+    }
+    
+    /**
+     * Hexagram多様性の確保
+     */
+    ensureHexagramDiversity(results) {
+        const corrected = { ...results };
+        const usedIds = new Set();
+        
+        ['engineOS', 'interfaceOS', 'safeModeOS'].forEach((osType, index) => {
+            const os = corrected[osType];
+            if (!os) return;
+            
+            if (usedIds.has(os.hexagramId)) {
+                // 重複している場合、近い別の卦を選択
+                let newId = os.hexagramId;
+                while (usedIds.has(newId)) {
+                    newId = (newId % 64) + 1;
+                }
+                os.hexagramId = newId;
+                os.hexagramName = this.getHexagramName(newId);
+            }
+            
+            usedIds.add(os.hexagramId);
+        });
+        
+        return corrected;
+    }
+    
+    /**
+     * エネルギー再分配
+     */
+    redistributeEnergies(energies) {
+        const dimensions = Object.keys(energies);
+        const redistributed = {};
+        
+        dimensions.forEach((dim, i) => {
+            // ランダムな変動を加える
+            const base = 100 / dimensions.length;
+            const variation = (Math.random() - 0.5) * 20;
+            redistributed[dim] = Math.max(10, Math.min(90, base + variation));
+        });
+        
+        return redistributed;
+    }
+    
+    /**
+     * エネルギー平滑化
+     */
+    smoothEnergies(energies) {
+        const values = Object.values(energies);
+        const mean = values.reduce((a, b) => a + b, 0) / values.length;
+        const smoothed = {};
+        
+        Object.entries(energies).forEach(([key, value]) => {
+            // 平均に向けて収束
+            const diff = value - mean;
+            smoothed[key] = value - (diff * 0.5);
+        });
+        
+        return smoothed;
+    }
+    
+    /**
+     * スコア抽出
+     */
+    extractScores(results) {
+        const getScore = (os) => {
+            if (!os) return 0.33;
+            if (os.normalizedScore !== undefined) return os.normalizedScore;
+            if (os.strength !== undefined) return os.strength / 100;
+            return 0.33;
+        };
+        
+        return {
+            engine: getScore(results.engineOS),
+            interface: getScore(results.interfaceOS),
+            safe: getScore(results.safeModeOS)
+        };
+    }
+    
+    /**
+     * デフォルトHexagram ID取得
+     */
+    getDefaultHexagramId(type) {
+        const defaults = {
+            engineOS: 1,
+            interfaceOS: 2,
+            safeModeOS: 52
+        };
+        return defaults[type] || 1;
+    }
+    
+    /**
+     * Hexagram名取得
+     */
+    getHexagramName(id) {
+        // 簡略版：実際には完全な64卦マッピングが必要
+        const names = {
+            1: '乾為天',
+            2: '坤為地',
+            52: '艮為山'
+            // ... 他の61卦
+        };
+        return names[id] || `卦${id}`;
+    }
+    
+    /**
+     * フォールバック表示
+     */
+    getFallbackDisplay() {
+        return `
+            <div class="error-fallback">
+                <h3>一時的な表示エラー</h3>
+                <p>データの表示中にエラーが発生しました。</p>
+                <p>ページを更新するか、もう一度お試しください。</p>
+            </div>
+        `;
+    }
+    
+    /**
+     * エラーログ記録
+     */
+    logError(context, error) {
+        const errorEntry = {
+            timestamp: new Date().toISOString(),
+            context,
+            error: error.message || error,
+            stack: error.stack
+        };
+        
+        this.errorLog.push(errorEntry);
+        
+        // コンソールにも出力（開発環境）
+        if (typeof console !== 'undefined') {
+            console.error(`[EdgeCaseHandler] ${context}:`, error);
+        }
+        
+        // エラーログが100件を超えたら古いものを削除
+        if (this.errorLog.length > 100) {
+            this.errorLog = this.errorLog.slice(-50);
+        }
+    }
+    
+    /**
+     * エラーレポート生成
+     */
+    generateErrorReport() {
+        return {
+            totalErrors: this.errorLog.length,
+            recentErrors: this.errorLog.slice(-10),
+            errorsByContext: this.groupErrorsByContext(),
+            timestamp: new Date().toISOString()
+        };
+    }
+    
+    /**
+     * コンテキスト別エラー集計
+     */
+    groupErrorsByContext() {
+        const grouped = {};
+        
+        this.errorLog.forEach(entry => {
+            if (!grouped[entry.context]) {
+                grouped[entry.context] = 0;
+            }
+            grouped[entry.context]++;
+        });
+        
+        return grouped;
+    }
+}
+
+// Export
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = EdgeCaseHandler;
+}

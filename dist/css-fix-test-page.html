@@ -1,0 +1,208 @@
+<\!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Fix Verification Test</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            margin: 20px; 
+            background: #1a1a1a; 
+            color: #fff; 
+        }
+        .test-container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+        .test-result { 
+            background: #2a2a2a; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            border-left: 4px solid #00ff00;
+        }
+        .test-error { 
+            border-left-color: #ff0000; 
+        }
+        #screenshot-area {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #333;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 CSS w-full Fix Verification Test</h1>
+        <div id="test-status">⏳ Initializing test...</div>
+        <div id="screenshot-area"></div>
+        <div id="test-results"></div>
+        
+        <script>
+            async function runCSSFixTest() {
+                const statusEl = document.getElementById('test-status');
+                const resultsEl = document.getElementById('test-results');
+                
+                try {
+                    statusEl.innerHTML = '🚀 Loading Future Simulator page...';
+                    
+                    // Create iframe to load the target page
+                    const iframe = document.createElement('iframe');
+                    iframe.src = 'http://127.0.0.1:8083/future_simulator.html';
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.style.border = 'none';
+                    
+                    document.getElementById('screenshot-area').appendChild(iframe);
+                    
+                    // Wait for iframe to load
+                    await new Promise((resolve) => {
+                        iframe.onload = resolve;
+                        setTimeout(resolve, 5000); // Fallback timeout
+                    });
+                    
+                    statusEl.innerHTML = '📋 Testing worryInput element...';
+                    
+                    // Access iframe content
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    
+                    // Test 1: worryInput element
+                    const worryInput = iframeDoc.getElementById('worryInput');
+                    const test1Result = document.createElement('div');
+                    test1Result.className = 'test-result';
+                    
+                    if (worryInput) {
+                        const rect = worryInput.getBoundingClientRect();
+                        const computedStyle = iframe.contentWindow.getComputedStyle(worryInput);
+                        
+                        test1Result.innerHTML = `
+                            <h3>✅ Test 1: worryInput Element</h3>
+                            <ul>
+                                <li>Element found: ✅ YES</li>
+                                <li>Offset dimensions: ${worryInput.offsetWidth}x${worryInput.offsetHeight}</li>
+                                <li>Computed width: ${computedStyle.width}</li>
+                                <li>Display: ${computedStyle.display}</li>
+                                <li>Visibility: ${computedStyle.visibility}</li>
+                                <li>Classes: ${Array.from(worryInput.classList).join(', ')}</li>
+                                <li>Has w-full class: ${worryInput.classList.contains('w-full') ? '✅ YES' : '❌ NO'}</li>
+                            </ul>
+                        `;
+                        
+                        // Test input functionality
+                        worryInput.focus();
+                        worryInput.value = 'テスト入力';
+                        const inputWorks = worryInput.value === 'テスト入力';
+                        test1Result.innerHTML += `<li>Input functionality: ${inputWorks ? '✅ WORKING' : '❌ BROKEN'}</li>`;
+                        
+                    } else {
+                        test1Result.innerHTML = '<h3>❌ Test 1: worryInput Element NOT FOUND</h3>';
+                        test1Result.className += ' test-error';
+                    }
+                    
+                    resultsEl.appendChild(test1Result);
+                    
+                    // Test 2: aiGuessBtn element
+                    const aiGuessBtn = iframeDoc.getElementById('aiGuessBtn');
+                    const test2Result = document.createElement('div');
+                    test2Result.className = 'test-result';
+                    
+                    if (aiGuessBtn) {
+                        const btnRect = aiGuessBtn.getBoundingClientRect();
+                        const btnStyle = iframe.contentWindow.getComputedStyle(aiGuessBtn);
+                        
+                        test2Result.innerHTML = `
+                            <h3>✅ Test 2: aiGuessBtn Element</h3>
+                            <ul>
+                                <li>Element found: ✅ YES</li>
+                                <li>Offset dimensions: ${aiGuessBtn.offsetWidth}x${aiGuessBtn.offsetHeight}</li>
+                                <li>Display: ${btnStyle.display}</li>
+                                <li>Visibility: ${btnStyle.visibility}</li>
+                                <li>Classes: ${Array.from(aiGuessBtn.classList).join(', ')}</li>
+                            </ul>
+                        `;
+                    } else {
+                        test2Result.innerHTML = '<h3>❌ Test 2: aiGuessBtn Element NOT FOUND</h3>';
+                        test2Result.className += ' test-error';
+                    }
+                    
+                    resultsEl.appendChild(test2Result);
+                    
+                    // Test 3: Overall ghost element scan
+                    const allInputs = iframeDoc.querySelectorAll('input, textarea');
+                    const ghostElements = [];
+                    
+                    allInputs.forEach((element, index) => {
+                        const rect = element.getBoundingClientRect();
+                        const isGhost = rect.width === 0 || rect.height === 0;
+                        
+                        if (isGhost) {
+                            ghostElements.push({
+                                index,
+                                id: element.id || 'unnamed',
+                                classes: Array.from(element.classList).join(', '),
+                                dimensions: `${rect.width}x${rect.height}`
+                            });
+                        }
+                    });
+                    
+                    const test3Result = document.createElement('div');
+                    test3Result.className = 'test-result' + (ghostElements.length > 0 ? ' test-error' : '');
+                    test3Result.innerHTML = `
+                        <h3>Test 3: Ghost Elements Scan</h3>
+                        <p>Total inputs/textareas found: ${allInputs.length}</p>
+                        <p>Ghost elements (0 size): ${ghostElements.length}</p>
+                        ${ghostElements.length > 0 ? 
+                            '<ul>' + ghostElements.map(el => 
+                                `<li>ID: ${el.id}, Classes: ${el.classes}, Size: ${el.dimensions}</li>`
+                            ).join('') + '</ul>' 
+                            : '<p>✅ No ghost elements found\!</p>'}
+                    `;
+                    
+                    resultsEl.appendChild(test3Result);
+                    
+                    // Calculate final score
+                    const tests = [
+                        worryInput && worryInput.offsetWidth > 0,
+                        worryInput && worryInput.value === 'テスト入力',
+                        aiGuessBtn && aiGuessBtn.offsetWidth > 0,
+                        ghostElements.length === 0
+                    ];
+                    
+                    const passedTests = tests.filter(Boolean).length;
+                    const successRate = Math.round((passedTests / tests.length) * 100);
+                    
+                    const finalResult = document.createElement('div');
+                    finalResult.className = 'test-result';
+                    finalResult.style.borderLeft = `4px solid ${successRate >= 75 ? '#00ff00' : '#ff0000'}`;
+                    finalResult.innerHTML = `
+                        <h2>🎯 Final Test Results</h2>
+                        <p><strong>Success Rate: ${successRate}%</strong></p>
+                        <p>Tests passed: ${passedTests}/${tests.length}</p>
+                        <p>Status: ${successRate >= 75 ? '✅ CSS FIX SUCCESS' : '❌ CSS FIX INCOMPLETE'}</p>
+                    `;
+                    
+                    resultsEl.appendChild(finalResult);
+                    statusEl.innerHTML = `🏁 Test completed: ${successRate}% success rate`;
+                    
+                } catch (error) {
+                    console.error('Test execution error:', error);
+                    statusEl.innerHTML = '❌ Test failed: ' + error.message;
+                    
+                    const errorResult = document.createElement('div');
+                    errorResult.className = 'test-result test-error';
+                    errorResult.innerHTML = `<h3>❌ Test Execution Error</h3><p>${error.message}</p>`;
+                    resultsEl.appendChild(errorResult);
+                }
+            }
+            
+            // Start test when page loads
+            window.addEventListener('load', () => {
+                setTimeout(runCSSFixTest, 1000);
+            });
+        </script>
+    </div>
+</body>
+</html>
+EOF < /dev/null

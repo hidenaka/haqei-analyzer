@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HaQei戦略統合ダッシュボード - リアルタイムで戦略実行状況を可視化">
+    <title>戦略統合ダッシュボード | HaQei</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/strategic-dashboard.css">
+    <style>
+        /* ダッシュボード専用スタイル */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .refresh-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-change {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .metric-change.positive {
+            color: #10b981;
+        }
+
+        .metric-change.negative {
+            color: #ef4444;
+        }
+
+        .chart-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .activity-feed {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: start;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.success {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        .activity-icon.info {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        .activity-icon.warning {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .activity-content {
+            flex-grow: 1;
+        }
+
+        .activity-text {
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .grid-2-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-2-col {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav container">
+            <div class="nav-brand">HaQei</div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">ホーム</a></li>
+                <li><a href="os_analyzer.html" class="nav-link">分析</a></li>
+                <li><a href="cockpit.html" class="nav-link">コックピット</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Dashboard Content -->
+    <main class="dashboard-container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">戦略統合ダッシュボード</h1>
+            <button class="refresh-button" onclick="refreshDashboard()">
+                🔄 データ更新
+            </button>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">総ユーザー数</div>
+                <div class="metric-value" id="totalUsers">12,847</div>
+                <div class="metric-change positive">↑ 15.3% (先週比)</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">本日の診断完了数</div>
+                <div class="metric-value" id="todayDiagnosis">342</div>
+                <div class="metric-change positive">↑ 8.5% (昨日比)</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">有料転換率</div>
+                <div class="metric-value" id="conversionRate">8.7%</div>
+                <div class="metric-change positive">↑ 0.5pt (先月比)</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">平均診断精度</div>
+                <div class="metric-value" id="accuracyRate">89.6%</div>
+                <div class="metric-change negative">↓ 0.4pt (先週比)</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid-2-col">
+            <!-- User Growth Chart -->
+            <div class="chart-section">
+                <h3 class="chart-title">ユーザー成長推移</h3>
+                <div class="chart-container">
+                    <canvas id="userGrowthChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Conversion Funnel -->
+            <div class="chart-section">
+                <h3 class="chart-title">コンバージョンファネル</h3>
+                <div class="chart-container">
+                    <canvas id="conversionFunnelChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Triple OS Distribution -->
+        <div class="chart-section">
+            <h3 class="chart-title">Triple OS分布</h3>
+            <div class="chart-container">
+                <canvas id="tripleOSChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="activity-feed">
+            <h3 class="activity-title">リアルタイムアクティビティ</h3>
+            
+            <div class="activity-item">
+                <div class="activity-icon success">✅</div>
+                <div class="activity-content">
+                    <div class="activity-text">新規ユーザー登録: #12847</div>
+                    <div class="activity-time">2分前</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon info">📊</div>
+                <div class="activity-content">
+                    <div class="activity-text">OS分析完了: Engine OS主導型と判定</div>
+                    <div class="activity-time">5分前</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon success">💰</div>
+                <div class="activity-content">
+                    <div class="activity-text">プロフェッショナルレポート購入: ¥2,980</div>
+                    <div class="activity-time">8分前</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon warning">⚠️</div>
+                <div class="activity-content">
+                    <div class="activity-text">システムパフォーマンス低下検出</div>
+                    <div class="activity-time">15分前</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon info">🔄</div>
+                <div class="activity-content">
+                    <div class="activity-text">データ同期完了: 1,234件のレコード更新</div>
+                    <div class="activity-time">20分前</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Dashboard Scripts -->
+    <script>
+        // グローバル変数
+        let userGrowthChart = null;
+        let conversionFunnelChart = null;
+        let tripleOSChart = null;
+
+        // ダッシュボード初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            hideLoading();
+            
+            // 自動更新（30秒ごと）
+            setInterval(updateMetrics, 30000);
+        });
+
+        // ローディング制御
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // ダッシュボード初期化
+        function initializeDashboard() {
+            createUserGrowthChart();
+            createConversionFunnelChart();
+            createTripleOSChart();
+            updateMetrics();
+        }
+
+        // メトリクス更新
+        function updateMetrics() {
+            // シミュレートされた更新（実際の実装では APIから取得）
+            const metrics = {
+                totalUsers: 12847 + Math.floor(Math.random() * 50),
+                todayDiagnosis: 342 + Math.floor(Math.random() * 20),
+                conversionRate: (8.7 + (Math.random() * 0.5 - 0.25)).toFixed(1),
+                accuracyRate: (89.6 + (Math.random() * 0.4 - 0.2)).toFixed(1)
+            };
+
+            document.getElementById('totalUsers').textContent = metrics.totalUsers.toLocaleString();
+            document.getElementById('todayDiagnosis').textContent = metrics.todayDiagnosis;
+            document.getElementById('conversionRate').textContent = metrics.conversionRate + '%';
+            document.getElementById('accuracyRate').textContent = metrics.accuracyRate + '%';
+        }
+
+        // ユーザー成長チャート
+        function createUserGrowthChart() {
+            const ctx = document.getElementById('userGrowthChart').getContext('2d');
+            userGrowthChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['7/28', '7/29', '7/30', '7/31', '8/1', '8/2', '8/3'],
+                    datasets: [{
+                        label: '累計ユーザー数',
+                        data: [10234, 10678, 11123, 11567, 12012, 12456, 12847],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // コンバージョンファネルチャート
+        function createConversionFunnelChart() {
+            const ctx = document.getElementById('conversionFunnelChart').getContext('2d');
+            conversionFunnelChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['訪問者', 'クイック診断', 'OS分析', '有料購入'],
+                    datasets: [{
+                        label: 'ユーザー数',
+                        data: [15000, 12847, 3426, 1118],
+                        backgroundColor: [
+                            '#e0e7ff',
+                            '#c7d2fe',
+                            '#a5b4fc',
+                            '#4f46e5'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Triple OS分布チャート
+        function createTripleOSChart() {
+            const ctx = document.getElementById('tripleOSChart').getContext('2d');
+            tripleOSChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Engine OS主導', 'Interface OS主導', 'SafeMode OS主導', 'バランス型'],
+                    datasets: [{
+                        data: [35, 28, 22, 15],
+                        backgroundColor: [
+                            '#ef4444',
+                            '#3b82f6',
+                            '#10b981',
+                            '#f59e0b'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+
+        // ダッシュボード更新
+        function refreshDashboard() {
+            showLoading();
+            
+            // データ更新
+            updateMetrics();
+            
+            // チャート更新
+            if (userGrowthChart) {
+                const newData = userGrowthChart.data.datasets[0].data.map(d => d + Math.floor(Math.random() * 100));
+                userGrowthChart.data.datasets[0].data = newData;
+                userGrowthChart.update();
+            }
+
+            // アクティビティフィード更新
+            updateActivityFeed();
+            
+            setTimeout(hideLoading, 500);
+        }
+
+        // アクティビティフィード更新
+        function updateActivityFeed() {
+            // 実際の実装では WebSocket などでリアルタイム更新
+            console.log('Activity feed updated');
+        }
+    </script>
+</body>
+</html>

@@ -1,1 +1,570 @@
-class ResultsPageV2{constructor(){this.metricsCalculator=new MetricsCalculator,this.heroGenerator=new HeroGenerator,this.switchLensCalculator=new SwitchLensCalculator,this.payloadGenerator=new PayloadGenerator}async render(n){try{const e=this.metricsCalculator.calculate(n),t={scores:{engine:n.engineOS?.strength/100||.5,interface:n.interfaceOS?.strength/100||.5,safe:n.safeModeOS?.strength/100||.5},metrics:e,tripleOS:n};await this.renderZoneA(t),this.renderZoneB(t),this.renderZoneC(t),this.renderZoneD(t);const r=this.payloadGenerator.generate("full",t);this.savePayload(r)}catch(e){console.error("Results page rendering error:",e),this.showError(e)}}async renderZoneA(n){const e=document.getElementById("zone-a-container")||this.createZoneContainer("a"),t=this.heroGenerator.generate(n);e.innerHTML=`\n            <div class="zone-a-hero">\n                \x3c!-- HERO文（18-28字） --\x3e\n                <h1 class="hero-text" style="\n                    font-size: 2rem;\n                    font-weight: 700;\n                    background: linear-gradient(135deg, #6366f1, #8b5cf6);\n                    -webkit-background-clip: text;\n                    -webkit-text-fill-color: transparent;\n                    text-align: center;\n                    margin-bottom: 1.5rem;\n                ">\n                    ${t.text}\n                </h1>\n                \n                \x3c!-- 三角マップ --\x3e\n                <div class="triangle-map-container" style="\n                    width: 100%;\n                    max-width: 500px;\n                    height: 400px;\n                    margin: 0 auto;\n                    position: relative;\n                ">\n                    <canvas id="triple-os-triangle" style="width: 100%; height: 100%;"></canvas>\n                </div>\n                \n                \x3c!-- Whyバッジ（28-44字） --\x3e\n                <div class="why-badge" style="\n                    background: rgba(99, 102, 241, 0.1);\n                    border: 1px solid rgba(99, 102, 241, 0.3);\n                    border-radius: 20px;\n                    padding: 0.5rem 1rem;\n                    margin: 1rem auto;\n                    max-width: 600px;\n                    text-align: center;\n                ">\n                    <span class="calculation-basis" style="color: #94a3b8; font-size: 0.9rem;">\n                        ${t.why}\n                    </span>\n                </div>\n                \n                \x3c!-- タグ表示（最大4個） --\x3e\n                <div class="tags-container" style="\n                    display: flex;\n                    justify-content: center;\n                    gap: 0.5rem;\n                    flex-wrap: wrap;\n                    margin-top: 1rem;\n                ">\n                    ${t.tags.map(n=>`\n                        <span class="tag" style="\n                            background: rgba(139, 92, 246, 0.1);\n                            color: #8b5cf6;\n                            padding: 0.25rem 0.75rem;\n                            border-radius: 12px;\n                            font-size: 0.85rem;\n                        ">${n}</span>\n                    `).join("")}\n                </div>\n            </div>\n        `;const r=new TripleOSFingerprint("triple-os-triangle");r.draw(n),window.addEventListener("resize",()=>r.resize())}renderZoneB(n){const e=document.getElementById("zone-b-container")||this.createZoneContainer("b"),t=this.generateInsightPrimitives(n);e.innerHTML=`\n            <div class="zone-b-dynamics">\n                <h3 style="color: #cbd5e1; margin-bottom: 1rem;">相互作用の力学</h3>\n                \n                \x3c!-- 力学ステートメント --\x3e\n                <div class="insight-primitives" style="\n                    display: grid;\n                    gap: 1rem;\n                    margin-bottom: 1.5rem;\n                ">\n                    ${t.slice(0,2).map(n=>`\n                        <div style="\n                            background: rgba(99, 102, 241, 0.05);\n                            padding: 1rem;\n                            border-radius: 8px;\n                            border-left: 3px solid ${n.color};\n                        ">\n                            <p style="color: #e5e7eb; margin: 0;">\n                                ${n.text}\n                            </p>\n                        </div>\n                    `).join("")}\n                </div>\n                \n                \x3c!-- 8軸ミニバー（アコーディオン） --\x3e\n                <details class="bagua-details" style="\n                    background: rgba(15, 23, 42, 0.6);\n                    border: 1px solid rgba(99, 102, 241, 0.2);\n                    border-radius: 8px;\n                    padding: 0.5rem;\n                ">\n                    <summary style="cursor: pointer; color: #94a3b8; padding: 0.5rem;">\n                        詳細な8次元分析を見る\n                    </summary>\n                    <div class="bagua-bars" style="padding: 1rem;">\n                        ${this.render8DimensionBars(n)}\n                    </div>\n                </details>\n            </div>\n        `}renderZoneC(n){(document.getElementById("zone-c-container")||this.createZoneContainer("c")).innerHTML='\n            <div class="zone-c-switches">\n                <h3 style="color: #cbd5e1; margin-bottom: 1rem;">条件による変化シミュレーション</h3>\n                \n                \x3c!-- スライダー --\x3e\n                <div class="condition-sliders" style="display: grid; gap: 1.5rem;">\n                    \x3c!-- 不確実性 --\x3e\n                    <div class="slider-container">\n                        <label style="color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 0.5rem;">\n                            <span>不確実性</span>\n                            <span id="uncertainty-value">50%</span>\n                        </label>\n                        <input type="range" id="uncertainty-slider" \n                               min="0" max="100" value="50"\n                               style="width: 100%;">\n                        <div class="prediction" style="\n                            color: #cbd5e1;\n                            font-size: 0.85rem;\n                            margin-top: 0.5rem;\n                            padding: 0.5rem;\n                            background: rgba(99, 102, 241, 0.05);\n                            border-radius: 4px;\n                        ">\n                            <span id="uncertainty-prediction">\n                                通常の不確実性では、バランスを保ちます\n                            </span>\n                        </div>\n                    </div>\n                    \n                    \x3c!-- 時間圧力 --\x3e\n                    <div class="slider-container">\n                        <label style="color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 0.5rem;">\n                            <span>時間圧力</span>\n                            <span id="time-pressure-value">50%</span>\n                        </label>\n                        <input type="range" id="time-pressure-slider" \n                               min="0" max="100" value="50"\n                               style="width: 100%;">\n                        <div class="prediction" style="\n                            color: #cbd5e1;\n                            font-size: 0.85rem;\n                            margin-top: 0.5rem;\n                            padding: 0.5rem;\n                            background: rgba(99, 102, 241, 0.05);\n                            border-radius: 4px;\n                        ">\n                            <span id="time-pressure-prediction">\n                                適度な時間制約は、効率的な行動を促します\n                            </span>\n                        </div>\n                    </div>\n                    \n                    \x3c!-- 社会的リスク --\x3e\n                    <div class="slider-container">\n                        <label style="color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 0.5rem;">\n                            <span>社会的リスク</span>\n                            <span id="social-risk-value">50%</span>\n                        </label>\n                        <input type="range" id="social-risk-slider" \n                               min="0" max="100" value="50"\n                               style="width: 100%;">\n                        <div class="prediction" style="\n                            color: #cbd5e1;\n                            font-size: 0.85rem;\n                            margin-top: 0.5rem;\n                            padding: 0.5rem;\n                            background: rgba(99, 102, 241, 0.05);\n                            border-radius: 4px;\n                        ">\n                            <span id="social-risk-prediction">\n                                一般的な社会場面では、適度な調整で対応します\n                            </span>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        ',this.setupSwitchLenses(n)}renderZoneD(n){const e=document.getElementById("zone-d-container")||this.createZoneContainer("d"),t=n.metrics.confidence||.5,r=Math.round(100*t);e.innerHTML=`\n            <div class="zone-d-handoff">\n                <h3 style="color: #cbd5e1; margin-bottom: 1rem;">測定精度と次のステップ</h3>\n                \n                \x3c!-- Confidence表示 --\x3e\n                <div class="confidence-meter" style="\n                    background: rgba(15, 23, 42, 0.6);\n                    border: 1px solid rgba(99, 102, 241, 0.2);\n                    border-radius: 8px;\n                    padding: 1rem;\n                    margin-bottom: 1rem;\n                ">\n                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">\n                        <span style="color: #94a3b8;">測定確度</span>\n                        <span style="color: ${this.getConfidenceColor(t)}; font-weight: bold;">\n                            ${r}%\n                        </span>\n                    </div>\n                    <div style="\n                        background: rgba(99, 102, 241, 0.1);\n                        border-radius: 4px;\n                        height: 8px;\n                        overflow: hidden;\n                    ">\n                        <div style="\n                            width: ${r}%;\n                            height: 100%;\n                            background: ${this.getConfidenceColor(t)};\n                            transition: width 0.3s ease;\n                        "></div>\n                    </div>\n                </div>\n                \n                \x3c!-- Blindspots表示 --\x3e\n                ${n.metrics.blindspots?`\n                    <div class="blindspots" style="\n                        background: rgba(245, 158, 11, 0.05);\n                        border: 1px solid rgba(245, 158, 11, 0.2);\n                        border-radius: 8px;\n                        padding: 1rem;\n                        margin-bottom: 1rem;\n                    ">\n                        <h4 style="color: #f59e0b; margin-bottom: 0.5rem;">曖昧な領域</h4>\n                        <ul style="color: #e5e7eb; margin: 0; padding-left: 1.5rem;">\n                            ${n.metrics.blindspots.map(n=>`<li>${n}</li>`).join("")}\n                        </ul>\n                    </div>\n                `:""}\n                \n                \x3c!-- 反例入力 --\x3e\n                <div style="margin-bottom: 1rem;">\n                    <label style="color: #94a3b8; display: block; margin-bottom: 0.5rem;">\n                        異なると感じる点があれば教えてください（100字以内）\n                    </label>\n                    <textarea id="user-disagreement" \n                              placeholder="例：対人が弱いとあるが、親密な場では積極的"\n                              maxlength="100"\n                              style="\n                                  width: 100%;\n                                  height: 60px;\n                                  background: rgba(15, 23, 42, 0.6);\n                                  border: 1px solid rgba(99, 102, 241, 0.2);\n                                  border-radius: 4px;\n                                  color: #e5e7eb;\n                                  padding: 0.5rem;\n                                  resize: none;\n                              "></textarea>\n                </div>\n                \n                \x3c!-- ペイロードエクスポート --\x3e\n                <div style="display: flex; gap: 1rem; justify-content: center;">\n                    <button onclick="resultsPageV2.exportPayload('json')" style="\n                        padding: 0.75rem 1.5rem;\n                        background: rgba(99, 102, 241, 0.1);\n                        border: 1px solid rgba(99, 102, 241, 0.3);\n                        border-radius: 8px;\n                        color: #6366f1;\n                        cursor: pointer;\n                        transition: all 0.2s;\n                    ">\n                        JSONダウンロード\n                    </button>\n                    \n                    <button onclick="resultsPageV2.copyPayload()" style="\n                        padding: 0.75rem 1.5rem;\n                        background: rgba(139, 92, 246, 0.1);\n                        border: 1px solid rgba(139, 92, 246, 0.3);\n                        border-radius: 8px;\n                        color: #8b5cf6;\n                        cursor: pointer;\n                        transition: all 0.2s;\n                    ">\n                        クリップボードにコピー\n                    </button>\n                </div>\n            </div>\n        `}createZoneContainer(n){const e=document.createElement("div");e.id=`zone-${n}-container`,e.className=`zone-container zone-${n}`,e.style.cssText="\n            margin: 2rem 0;\n            padding: 1.5rem;\n            background: rgba(15, 23, 42, 0.4);\n            border: 1px solid rgba(99, 102, 241, 0.2);\n            border-radius: 12px;\n        ";const t=document.querySelector("#results-screen .results-content")||document.querySelector(".results-content");return t&&t.appendChild(e),e}generateInsightPrimitives(n){const e=[],{synergy_edges:t,tension:r}=n.metrics;return t.EI>.6?e.push({text:"創造性と対人調整が高いシナジーを生み出しています",color:"#6366f1"}):t.EI<.3&&e.push({text:"内的創造性と外的表現の間にギャップが存在します",color:"#f59e0b"}),t.IS>.6&&e.push({text:"対人配慮とリスク回避が協調的に機能しています",color:"#8b5cf6"}),t.ES<.3&&r>.5&&e.push({text:"創造的衝動と安全志向の間に緊張が生じやすい",color:"#ef4444"}),0===e.length&&e.push({text:"3つのOSがバランスよく機能しています",color:"#10b981"}),e}render8DimensionBars(n){return[{name:"乾_創造性",value:.7,color:"#E74C3C"},{name:"震_行動性",value:.5,color:"#F39C12"},{name:"坎_探求性",value:.8,color:"#3498DB"},{name:"兌_調和性",value:.6,color:"#2ECC71"},{name:"離_表現性",value:.4,color:"#E67E22"},{name:"巽_適応性",value:.7,color:"#9B59B6"},{name:"艮_安定性",value:.5,color:"#1ABC9C"},{name:"坤_受容性",value:.6,color:"#34495E"}].map(n=>`\n            <div style="margin-bottom: 0.75rem;">\n                <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">\n                    <span style="color: #94a3b8; font-size: 0.85rem;">${n.name}</span>\n                    <span style="color: #cbd5e1; font-size: 0.85rem;">${Math.round(100*n.value)}%</span>\n                </div>\n                <div style="\n                    background: rgba(99, 102, 241, 0.1);\n                    border-radius: 2px;\n                    height: 4px;\n                    overflow: hidden;\n                ">\n                    <div style="\n                        width: ${100*n.value}%;\n                        height: 100%;\n                        background: ${n.color};\n                    "></div>\n                </div>\n            </div>\n        `).join("")}setupSwitchLenses(n){const e={uncertainty:document.getElementById("uncertainty-slider"),timePressure:document.getElementById("time-pressure-slider"),socialRisk:document.getElementById("social-risk-slider")};Object.entries(e).forEach(([e,t])=>{t&&t.addEventListener("input",t=>{const r=t.target.value/100;document.getElementById(`${e.replace(/([A-Z])/g,"-$1").toLowerCase()}-value`).textContent=`${t.target.value}%`;const a=this.switchLensCalculator.getPrediction(e,r);document.getElementById(`${e.replace(/([A-Z])/g,"-$1").toLowerCase()}-prediction`).textContent=a,this.updateTriangleMap(n)})})}updateTriangleMap(n){const e=document.getElementById("uncertainty-slider").value/100,t=document.getElementById("time-pressure-slider").value/100,r=document.getElementById("social-risk-slider").value/100,a=this.switchLensCalculator.calculate(e,t,r,n.scores);new TripleOSFingerprint("triple-os-triangle").animateTransition(n.scores,a)}getConfidenceColor(n){return n>=.75?"#16A085":n>=.5?"#F39C12":"#E74C3C"}savePayload(n){localStorage.setItem("os_analyzer_payload",JSON.stringify(n)),localStorage.setItem("os_analyzer_timestamp",(new Date).toISOString())}exportPayload(n){const e=localStorage.getItem("os_analyzer_payload");if(e&&"json"===n){const n=new Blob([e],{type:"application/json"}),t=URL.createObjectURL(n),r=document.createElement("a");r.href=t,r.download=`os_analyzer_${(new Date).toISOString()}.json`,r.click()}}copyPayload(){const n=localStorage.getItem("os_analyzer_payload");n&&navigator.clipboard.writeText(n).then(()=>{alert("ペイロードをクリップボードにコピーしました")})}showError(n){console.error("Results page error:",n)}}const resultsPageV2=new ResultsPageV2;
+/**
+ * Results Page v2.1 Implementation
+ * Zone A-D統合実装
+ * Based on 20250812_OS_ANALYZER_RESULTS_PAGE_V2.1_IMPLEMENTATION_READY.md
+ */
+
+class ResultsPageV2 {
+    constructor() {
+        // v2.1仕様のメトリクス計算
+        this.metricsCalculator = new MetricsCalculator();
+        
+        // HERO文生成
+        this.heroGenerator = new HeroGenerator();
+        
+        // Switch Lenses
+        this.switchLensCalculator = new SwitchLensCalculator();
+        
+        // ペイロード生成
+        this.payloadGenerator = new PayloadGenerator();
+    }
+    
+    /**
+     * 結果画面の初期化と表示
+     */
+    async render(tripleOSResults) {
+        try {
+            // メトリクス計算
+            const metrics = this.metricsCalculator.calculate(tripleOSResults);
+            
+            // データ構造の準備
+            const data = {
+                scores: {
+                    engine: tripleOSResults.engineOS?.strength / 100 || 0.5,
+                    interface: tripleOSResults.interfaceOS?.strength / 100 || 0.5,
+                    safe: tripleOSResults.safeModeOS?.strength / 100 || 0.5
+                },
+                metrics: metrics,
+                tripleOS: tripleOSResults
+            };
+            
+            // Zone A: Triple OSフィンガープリント
+            await this.renderZoneA(data);
+            
+            // Zone B: 力学ステートメント
+            this.renderZoneB(data);
+            
+            // Zone C: Switch Lenses
+            this.renderZoneC(data);
+            
+            // Zone D: 不確かさとハンドオフ
+            this.renderZoneD(data);
+            
+            // ペイロード生成と保存
+            const payload = this.payloadGenerator.generate('full', data);
+            this.savePayload(payload);
+            
+        } catch (error) {
+            console.error('Results page rendering error:', error);
+            this.showError(error);
+        }
+    }
+    
+    /**
+     * Zone A: Triple OSフィンガープリント
+     */
+    async renderZoneA(data) {
+        const container = document.getElementById('zone-a-container') || this.createZoneContainer('a');
+        
+        // HERO文生成
+        const hero = this.heroGenerator.generate(data);
+        
+        container.innerHTML = `
+            <div class="zone-a-hero">
+                <!-- HERO文（18-28字） -->
+                <h1 class="hero-text" style="
+                    font-size: 2rem;
+                    font-weight: 700;
+                    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    text-align: center;
+                    margin-bottom: 1.5rem;
+                ">
+                    ${hero.text}
+                </h1>
+                
+                <!-- 三角マップ -->
+                <div class="triangle-map-container" style="
+                    width: 100%;
+                    max-width: 500px;
+                    height: 400px;
+                    margin: 0 auto;
+                    position: relative;
+                ">
+                    <canvas id="triple-os-triangle" style="width: 100%; height: 100%;"></canvas>
+                </div>
+                
+                <!-- Whyバッジ（28-44字） -->
+                <div class="why-badge" style="
+                    background: rgba(99, 102, 241, 0.1);
+                    border: 1px solid rgba(99, 102, 241, 0.3);
+                    border-radius: 20px;
+                    padding: 0.5rem 1rem;
+                    margin: 1rem auto;
+                    max-width: 600px;
+                    text-align: center;
+                ">
+                    <span class="calculation-basis" style="color: #94a3b8; font-size: 0.9rem;">
+                        ${hero.why}
+                    </span>
+                </div>
+                
+                <!-- タグ表示（最大4個） -->
+                <div class="tags-container" style="
+                    display: flex;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    flex-wrap: wrap;
+                    margin-top: 1rem;
+                ">
+                    ${hero.tags.map(tag => `
+                        <span class="tag" style="
+                            background: rgba(139, 92, 246, 0.1);
+                            color: #8b5cf6;
+                            padding: 0.25rem 0.75rem;
+                            border-radius: 12px;
+                            font-size: 0.85rem;
+                        ">${tag}</span>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        
+        // 三角マップ描画
+        const fingerprint = new TripleOSFingerprint('triple-os-triangle');
+        fingerprint.draw(data);
+        
+        // リサイズ対応
+        window.addEventListener('resize', () => fingerprint.resize());
+    }
+    
+    /**
+     * Zone B: 相互作用の力学
+     */
+    renderZoneB(data) {
+        const container = document.getElementById('zone-b-container') || this.createZoneContainer('b');
+        
+        // 力学ステートメント生成（最大2件×42字）
+        const insights = this.generateInsightPrimitives(data);
+        
+        container.innerHTML = `
+            <div class="zone-b-dynamics">
+                <h3 style="color: #cbd5e1; margin-bottom: 1rem;">相互作用の力学</h3>
+                
+                <!-- 力学ステートメント -->
+                <div class="insight-primitives" style="
+                    display: grid;
+                    gap: 1rem;
+                    margin-bottom: 1.5rem;
+                ">
+                    ${insights.slice(0, 2).map(insight => `
+                        <div style="
+                            background: rgba(99, 102, 241, 0.05);
+                            padding: 1rem;
+                            border-radius: 8px;
+                            border-left: 3px solid ${insight.color};
+                        ">
+                            <p style="color: #e5e7eb; margin: 0;">
+                                ${insight.text}
+                            </p>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <!-- 8軸ミニバー（アコーディオン） -->
+                <details class="bagua-details" style="
+                    background: rgba(15, 23, 42, 0.6);
+                    border: 1px solid rgba(99, 102, 241, 0.2);
+                    border-radius: 8px;
+                    padding: 0.5rem;
+                ">
+                    <summary style="cursor: pointer; color: #94a3b8; padding: 0.5rem;">
+                        詳細な8次元分析を見る
+                    </summary>
+                    <div class="bagua-bars" style="padding: 1rem;">
+                        ${this.render8DimensionBars(data)}
+                    </div>
+                </details>
+            </div>
+        `;
+    }
+    
+    /**
+     * Zone C: 条件反転（Switch Lenses）
+     */
+    renderZoneC(data) {
+        const container = document.getElementById('zone-c-container') || this.createZoneContainer('c');
+        
+        container.innerHTML = `
+            <div class="zone-c-switches">
+                <h3 style="color: #cbd5e1; margin-bottom: 1rem;">条件による変化シミュレーション</h3>
+                
+                <!-- スライダー -->
+                <div class="condition-sliders" style="display: grid; gap: 1.5rem;">
+                    <!-- 不確実性 -->
+                    <div class="slider-container">
+                        <label style="color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>不確実性</span>
+                            <span id="uncertainty-value">50%</span>
+                        </label>
+                        <input type="range" id="uncertainty-slider" 
+                               min="0" max="100" value="50"
+                               style="width: 100%;">
+                        <div class="prediction" style="
+                            color: #cbd5e1;
+                            font-size: 0.85rem;
+                            margin-top: 0.5rem;
+                            padding: 0.5rem;
+                            background: rgba(99, 102, 241, 0.05);
+                            border-radius: 4px;
+                        ">
+                            <span id="uncertainty-prediction">
+                                通常の不確実性では、バランスを保ちます
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- 時間圧力 -->
+                    <div class="slider-container">
+                        <label style="color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>時間圧力</span>
+                            <span id="time-pressure-value">50%</span>
+                        </label>
+                        <input type="range" id="time-pressure-slider" 
+                               min="0" max="100" value="50"
+                               style="width: 100%;">
+                        <div class="prediction" style="
+                            color: #cbd5e1;
+                            font-size: 0.85rem;
+                            margin-top: 0.5rem;
+                            padding: 0.5rem;
+                            background: rgba(99, 102, 241, 0.05);
+                            border-radius: 4px;
+                        ">
+                            <span id="time-pressure-prediction">
+                                適度な時間制約は、効率的な行動を促します
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- 社会的リスク -->
+                    <div class="slider-container">
+                        <label style="color: #94a3b8; display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>社会的リスク</span>
+                            <span id="social-risk-value">50%</span>
+                        </label>
+                        <input type="range" id="social-risk-slider" 
+                               min="0" max="100" value="50"
+                               style="width: 100%;">
+                        <div class="prediction" style="
+                            color: #cbd5e1;
+                            font-size: 0.85rem;
+                            margin-top: 0.5rem;
+                            padding: 0.5rem;
+                            background: rgba(99, 102, 241, 0.05);
+                            border-radius: 4px;
+                        ">
+                            <span id="social-risk-prediction">
+                                一般的な社会場面では、適度な調整で対応します
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // スライダーイベント設定
+        this.setupSwitchLenses(data);
+    }
+    
+    /**
+     * Zone D: 不確かさの自覚とハンドオフ
+     */
+    renderZoneD(data) {
+        const container = document.getElementById('zone-d-container') || this.createZoneContainer('d');
+        
+        const confidence = data.metrics.confidence || 0.5;
+        const confidencePercent = Math.round(confidence * 100);
+        
+        container.innerHTML = `
+            <div class="zone-d-handoff">
+                <h3 style="color: #cbd5e1; margin-bottom: 1rem;">測定精度と次のステップ</h3>
+                
+                <!-- Confidence表示 -->
+                <div class="confidence-meter" style="
+                    background: rgba(15, 23, 42, 0.6);
+                    border: 1px solid rgba(99, 102, 241, 0.2);
+                    border-radius: 8px;
+                    padding: 1rem;
+                    margin-bottom: 1rem;
+                ">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #94a3b8;">測定確度</span>
+                        <span style="color: ${this.getConfidenceColor(confidence)}; font-weight: bold;">
+                            ${confidencePercent}%
+                        </span>
+                    </div>
+                    <div style="
+                        background: rgba(99, 102, 241, 0.1);
+                        border-radius: 4px;
+                        height: 8px;
+                        overflow: hidden;
+                    ">
+                        <div style="
+                            width: ${confidencePercent}%;
+                            height: 100%;
+                            background: ${this.getConfidenceColor(confidence)};
+                            transition: width 0.3s ease;
+                        "></div>
+                    </div>
+                </div>
+                
+                <!-- Blindspots表示 -->
+                ${data.metrics.blindspots ? `
+                    <div class="blindspots" style="
+                        background: rgba(245, 158, 11, 0.05);
+                        border: 1px solid rgba(245, 158, 11, 0.2);
+                        border-radius: 8px;
+                        padding: 1rem;
+                        margin-bottom: 1rem;
+                    ">
+                        <h4 style="color: #f59e0b; margin-bottom: 0.5rem;">曖昧な領域</h4>
+                        <ul style="color: #e5e7eb; margin: 0; padding-left: 1.5rem;">
+                            ${data.metrics.blindspots.map(spot => `<li>${spot}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+                
+                <!-- 反例入力 -->
+                <div style="margin-bottom: 1rem;">
+                    <label style="color: #94a3b8; display: block; margin-bottom: 0.5rem;">
+                        異なると感じる点があれば教えてください（100字以内）
+                    </label>
+                    <textarea id="user-disagreement" 
+                              placeholder="例：対人が弱いとあるが、親密な場では積極的"
+                              maxlength="100"
+                              style="
+                                  width: 100%;
+                                  height: 60px;
+                                  background: rgba(15, 23, 42, 0.6);
+                                  border: 1px solid rgba(99, 102, 241, 0.2);
+                                  border-radius: 4px;
+                                  color: #e5e7eb;
+                                  padding: 0.5rem;
+                                  resize: none;
+                              "></textarea>
+                </div>
+                
+                <!-- ペイロードエクスポート -->
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button onclick="resultsPageV2.exportPayload('json')" style="
+                        padding: 0.75rem 1.5rem;
+                        background: rgba(99, 102, 241, 0.1);
+                        border: 1px solid rgba(99, 102, 241, 0.3);
+                        border-radius: 8px;
+                        color: #6366f1;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    ">
+                        JSONダウンロード
+                    </button>
+                    
+                    <button onclick="resultsPageV2.copyPayload()" style="
+                        padding: 0.75rem 1.5rem;
+                        background: rgba(139, 92, 246, 0.1);
+                        border: 1px solid rgba(139, 92, 246, 0.3);
+                        border-radius: 8px;
+                        color: #8b5cf6;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    ">
+                        クリップボードにコピー
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+    
+    // ========== ヘルパーメソッド ==========
+    
+    createZoneContainer(zone) {
+        const container = document.createElement('div');
+        container.id = `zone-${zone}-container`;
+        container.className = `zone-container zone-${zone}`;
+        container.style.cssText = `
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+        `;
+        
+        const resultsContent = document.querySelector('#results-screen .results-content') ||
+                              document.querySelector('.results-content');
+        if (resultsContent) {
+            resultsContent.appendChild(container);
+        }
+        
+        return container;
+    }
+    
+    generateInsightPrimitives(data) {
+        const insights = [];
+        const { synergy_edges, tension } = data.metrics;
+        
+        // Engine-Interface相互作用
+        if (synergy_edges.EI > 0.6) {
+            insights.push({
+                text: '創造性と対人調整が高いシナジーを生み出しています',
+                color: '#6366f1'
+            });
+        } else if (synergy_edges.EI < 0.3) {
+            insights.push({
+                text: '内的創造性と外的表現の間にギャップが存在します',
+                color: '#f59e0b'
+            });
+        }
+        
+        // Interface-Safe相互作用
+        if (synergy_edges.IS > 0.6) {
+            insights.push({
+                text: '対人配慮とリスク回避が協調的に機能しています',
+                color: '#8b5cf6'
+            });
+        }
+        
+        // Engine-Safe相互作用
+        if (synergy_edges.ES < 0.3 && tension > 0.5) {
+            insights.push({
+                text: '創造的衝動と安全志向の間に緊張が生じやすい',
+                color: '#ef4444'
+            });
+        }
+        
+        // デフォルト
+        if (insights.length === 0) {
+            insights.push({
+                text: '3つのOSがバランスよく機能しています',
+                color: '#10b981'
+            });
+        }
+        
+        return insights;
+    }
+    
+    render8DimensionBars(data) {
+        const dimensions = [
+            { name: '乾_創造性', value: 0.7, color: '#E74C3C' },
+            { name: '震_行動性', value: 0.5, color: '#F39C12' },
+            { name: '坎_探求性', value: 0.8, color: '#3498DB' },
+            { name: '兌_調和性', value: 0.6, color: '#2ECC71' },
+            { name: '離_表現性', value: 0.4, color: '#E67E22' },
+            { name: '巽_適応性', value: 0.7, color: '#9B59B6' },
+            { name: '艮_安定性', value: 0.5, color: '#1ABC9C' },
+            { name: '坤_受容性', value: 0.6, color: '#34495E' }
+        ];
+        
+        return dimensions.map(dim => `
+            <div style="margin-bottom: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                    <span style="color: #94a3b8; font-size: 0.85rem;">${dim.name}</span>
+                    <span style="color: #cbd5e1; font-size: 0.85rem;">${Math.round(dim.value * 100)}%</span>
+                </div>
+                <div style="
+                    background: rgba(99, 102, 241, 0.1);
+                    border-radius: 2px;
+                    height: 4px;
+                    overflow: hidden;
+                ">
+                    <div style="
+                        width: ${dim.value * 100}%;
+                        height: 100%;
+                        background: ${dim.color};
+                    "></div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    setupSwitchLenses(data) {
+        const sliders = {
+            uncertainty: document.getElementById('uncertainty-slider'),
+            timePressure: document.getElementById('time-pressure-slider'),
+            socialRisk: document.getElementById('social-risk-slider')
+        };
+        
+        Object.entries(sliders).forEach(([type, slider]) => {
+            if (!slider) return;
+            
+            slider.addEventListener('input', (e) => {
+                const value = e.target.value / 100;
+                
+                // 値表示更新
+                document.getElementById(`${type.replace(/([A-Z])/g, '-$1').toLowerCase()}-value`).textContent = 
+                    `${e.target.value}%`;
+                
+                // 予測更新
+                const prediction = this.switchLensCalculator.getPrediction(type, value);
+                document.getElementById(`${type.replace(/([A-Z])/g, '-$1').toLowerCase()}-prediction`).textContent = 
+                    prediction;
+                
+                // 三角マップ更新
+                this.updateTriangleMap(data);
+            });
+        });
+    }
+    
+    updateTriangleMap(data) {
+        const U = document.getElementById('uncertainty-slider').value / 100;
+        const T = document.getElementById('time-pressure-slider').value / 100;
+        const R = document.getElementById('social-risk-slider').value / 100;
+        
+        const adjusted = this.switchLensCalculator.calculate(U, T, R, data.scores);
+        
+        const fingerprint = new TripleOSFingerprint('triple-os-triangle');
+        fingerprint.animateTransition(data.scores, adjusted);
+    }
+    
+    getConfidenceColor(confidence) {
+        if (confidence >= 0.75) return '#16A085';
+        if (confidence >= 0.5) return '#F39C12';
+        return '#E74C3C';
+    }
+    
+    savePayload(payload) {
+        localStorage.setItem('os_analyzer_payload', JSON.stringify(payload));
+        localStorage.setItem('os_analyzer_timestamp', new Date().toISOString());
+    }
+    
+    exportPayload(format) {
+        const payload = localStorage.getItem('os_analyzer_payload');
+        if (!payload) return;
+        
+        if (format === 'json') {
+            const blob = new Blob([payload], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `os_analyzer_${new Date().toISOString()}.json`;
+            a.click();
+        }
+    }
+    
+    copyPayload() {
+        const payload = localStorage.getItem('os_analyzer_payload');
+        if (!payload) return;
+        
+        navigator.clipboard.writeText(payload).then(() => {
+            alert('ペイロードをクリップボードにコピーしました');
+        });
+    }
+    
+    showError(error) {
+        console.error('Results page error:', error);
+        // エラー表示実装
+    }
+}
+
+// グローバルインスタンス作成
+const resultsPageV2 = new ResultsPageV2();

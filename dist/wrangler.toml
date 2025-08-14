@@ -1,0 +1,12 @@
+# Cloudflare Pagesプロジェクトの設定ファイル
+
+name = "haqei-analyzer" # あなたのCloudflare上のプロジェクト名に合わせてください
+compatibility_date = "2025-06-17" # Wranglerがサポートする最新の互換性日付
+
+# ビルドした静的ファイルが出力されるディレクトリを指定します
+pages_build_output_dir = "public"
+
+# Analytics Engineとの接続設定
+[[analytics_engine_datasets]]
+binding = "ANALYTICS_ENGINE" # プログラム内で使う名前
+dataset = "haqei-stats"      # Cloudflareで作成したデータセット名

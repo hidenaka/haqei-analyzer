@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="HaQei - あなたの物語を読み解く、次世代の自己分析ツール。人格OSの特定から未来シミュレーションまで。" />
+    <title>HaQei - あなたの物語を読み解く、次世代の自己分析</title>
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/index.css" />
+    
+    <!-- Additional styles for cross-platform integration -->
+    <style>
+      .diagnosis-status {
+        margin: 1rem 0;
+        padding: 1rem;
+        background: linear-gradient(135deg, #059669, #047857);
+        border-radius: 8px;
+        color: white;
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+      }
+
+      .status-icon {
+        font-size: 1.25rem;
+      }
+
+      .diagnosis-overview {
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .diagnosis-overview > div {
+        margin-bottom: 0.5rem;
+      }
+
+      .primary-os {
+        font-size: 1rem;
+        color: #ecfdf5;
+      }
+
+      .quality-score {
+        color: #d1fae5;
+      }
+
+      .upgrade-hint {
+        color: #fef3c7;
+        font-style: italic;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid rgba(255,255,255,0.2);
+      }
+
+      .premium-upgrade {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+        color: white !important;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .premium-upgrade:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+      }
+
+      @media (max-width: 768px) {
+        .diagnosis-status {
+          margin: 0.75rem 0;
+          padding: 0.75rem;
+        }
+
+        .diagnosis-overview {
+          font-size: 0.85rem;
+        }
+      }
+    </style>
+  </head>
+  
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <nav class="nav container">
+        <div class="nav-brand brand-text">HaQei</div>
+        <ul class="nav-links">
+          <li><a href="#services" class="nav-link">サービス</a></li>
+          <li><a href="#contact" class="nav-link">お問い合わせ</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="container">
+          <h1 class="hero-title fade-in-up">
+            あなたの物語を読み解く<br />
+            次世代の自己分析
+          </h1>
+          <p class="hero-subtitle fade-in-up">
+            古代の易経の智慧と最新のテクノロジーが融合。<br>
+            <strong>HaQei哲学</strong>に基づく<strong>Triple OS分析</strong>で、
+            あなたの中の3つの人格システムを科学的に可視化します。
+          </p>
+          <div class="hero-actions fade-in-up">
+            <a href="quick_analyzer.html" class="hero-cta">
+              3分で診断を始める
+            </a>
+            <a href="HaQei-philosophy.html" class="hero-cta-secondary">
+              HaQei哲学とは？
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Services Section -->
+      <section id="services" class="services">
+        <div class="container">
+          <h2 class="services-title">HaQeiが提供する価値</h2>
+          
+          <div class="services-grid">
+            <!-- Quick Analyzer -->
+            <div class="service-card featured">
+              <span class="service-badge">まずはここから</span>
+              <h3 class="service-title">クイック診断</h3>
+              <p class="service-description">
+                たった<strong>3分で</strong>あなたの八卦アバターを発見。
+                シンプルな質問で、あなたの<strong>基本的な人格傾向</strong>を素早く把握できます。
+              </p>
+              <a href="quick_analyzer.html" class="service-link">
+                クイック診断を試す →
+              </a>
+            </div>
+
+            <!-- Main Service -->
+            <div class="service-card" id="os-analyzer-card">
+              <h3 class="service-title">人格OS分析</h3>
+              <p class="service-description">
+                複数の性格分析からあなたの<strong>人格OS</strong>を特定。
+                強み・弱みからエネルギーの充電方法までを網羅した、
+                <strong>OSの「取扱説明書」</strong>です。
+              </p>
+              <div class="diagnosis-status" id="diagnosis-status" style="display: none;">
+                <div class="status-indicator">
+                  <span class="status-icon">✅</span>
+                  <span class="status-text">診断完了済み</span>
+                </div>
+                <div class="diagnosis-summary" id="diagnosis-summary">
+                  <!-- 診断結果のサマリーが表示される -->
+                </div>
+              </div>
+              <a href="os_analyzer.html" class="service-link" id="os-analyzer-link">
+                詳細分析を受ける →
+              </a>
+            </div>
+
+            <!-- Future Simulator -->
+            <div class="service-card">
+              <h3 class="service-title">未来分岐シミュレーター</h3>
+              <p class="service-description">
+                あなたの課題と選択肢が、どのような<strong>展開シナリオ</strong>を生むか。
+                OSの力学に基づきシミュレーションし、あなたの<strong>戦略的な意思決定</strong>をサポートします。
+              </p>
+              <a href="future_simulator.html" class="service-link">
+                ツールを試す →
+              </a>
+            </div>
+
+            <!-- Library -->
+            <div class="service-card">
+              <h3 class="service-title">HaQei ライブラリ</h3>
+              <p class="service-description">
+                HaQeiの智慧の源泉である、<strong>易経「十翼」</strong>の解説を公開。
+                64卦の奥深い世界を探求し、あなたの自己分析をさらに深めます。
+              </p>
+              <a href="library.html" class="service-link">
+                ライブラリを探索する →
+              </a>
+            </div>
+
+            <!-- Strategic Cockpit -->
+            <div class="service-card">
+              <h3 class="service-title">戦略コックピット</h3>
+              <p class="service-description">
+                分析結果を統合的に管理し、あなたの<strong>人生戦略</strong>を可視化。
+                継続的な成長と意思決定をサポートする統合ダッシュボードです。
+              </p>
+              <a href="cockpit.html" class="service-link">
+                コックピットを見る →
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section id="contact" class="contact">
+        <div class="container">
+          <h2 class="contact-title">物語の主人公は、あなたです</h2>
+          <p class="contact-description">
+            他人や常識に振り回されるのは、もう終わりにしませんか。
+            ご質問や個別コンサルティングのご相談など、まずはお気軽にお声がけください。
+          </p>
+          <a href="mailto:info@haqei.example.com" class="contact-btn">
+            お問い合わせはこちら
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container footer-content">
+        <div class="footer-links">
+          <a href="terms.html" class="footer-link">利用規約</a>
+          <a href="privacy.html" class="footer-link">プライバシーポリシー</a>
+        </div>
+        <p class="footer-copyright">
+          &copy; 2025 HaQei. All Rights Reserved.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Cross-platform bridge scripts -->
+    <script src="js/shared/core/StorageManager.js"></script>
+    <script src="js/shared/core/DiagnosisDataFormat.js"></script>
+    <script src="js/shared/core/CrossPlatformBridge.js"></script>
+
+    <!-- JavaScript for enhanced interactions -->
+    <script>
+      // Smooth scrolling for navigation links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+
+      // Fade in animation on scroll
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('fade-in-up');
+          }
+        });
+      }, observerOptions);
+
+      // Observe service cards
+      document.querySelectorAll('.service-card').forEach(card => {
+        observer.observe(card);
+      });
+
+      // Add loading animation to CTA buttons
+      document.querySelectorAll('.hero-cta, .contact-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          this.style.opacity = '0.8';
+          this.style.transform = 'scale(0.98)';
+          setTimeout(() => {
+            this.style.opacity = '';
+            this.style.transform = '';
+          }, 150);
+        });
+      });
+
+      // 診断データの読み込みと表示
+      async function loadDiagnosisStatus() {
+        try {
+          console.log('🔍 Loading diagnosis status for index page...');
+
+          // CrossPlatformBridgeを初期化
+          if (typeof CrossPlatformBridge !== 'undefined') {
+            const bridge = new CrossPlatformBridge();
+            
+            // 診断データを読み込み
+            const loadResult = await bridge.loadDiagnosisForIndexPage();
+            
+            if (loadResult.hasData) {
+              // 診断完了状態を表示
+              displayDiagnosisStatus(loadResult);
+            } else {
+              console.log('ℹ️ No diagnosis data found');
+            }
+          } else {
+            console.warn('⚠️ CrossPlatformBridge not available');
+          }
+
+        } catch (error) {
+          console.error('❌ Failed to load diagnosis status:', error);
+        }
+      }
+
+      // 診断状態の表示
+      function displayDiagnosisStatus(loadResult) {
+        try {
+          const statusElement = document.getElementById('diagnosis-status');
+          const summaryElement = document.getElementById('diagnosis-summary');
+          const linkElement = document.getElementById('os-analyzer-link');
+
+          if (statusElement && summaryElement && linkElement) {
+            // ステータス表示
+            statusElement.style.display = 'block';
+
+            // サマリー内容の生成
+            const indexData = loadResult.indexPageData;
+            if (indexData && indexData.dashboard) {
+              summaryElement.innerHTML = `
+                <div class="diagnosis-overview">
+                  <div class="primary-os">
+                    <strong>主要人格OS:</strong> ${indexData.dashboard.primaryOS.name}
+                  </div>
+                  <div class="quality-score">
+                    <strong>分析品質:</strong> ${(indexData.dashboard.scores.quality * 100).toFixed(0)}%
+                  </div>
+                  <div class="upgrade-hint">
+                    ${loadResult.upgradeOptions?.available ? 
+                      '🚀 プロフェッショナルレポートで詳細戦略を取得できます' : 
+                      '詳細な戦略分析にアップグレードしませんか？'
+                    }
+                  </div>
+                </div>
+              `;
+
+              // リンクテキストを変更
+              linkElement.textContent = '結果を確認・管理する →';
+
+              // プレミアム誘導ボタンを追加
+              if (loadResult.upgradeOptions?.available) {
+                const upgradeButton = document.createElement('a');
+                upgradeButton.href = 'professional_report.html';
+                upgradeButton.className = 'service-link premium-upgrade';
+                upgradeButton.innerHTML = '🌟 プロフェッショナルレポート (¥2,980) →';
+                upgradeButton.style.cssText = `
+                  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+                  margin-top: 0.5rem;
+                  display: inline-block;
+                `;
+                
+                linkElement.parentNode.appendChild(upgradeButton);
+              }
+            }
+
+            console.log('✅ Diagnosis status displayed successfully');
+          }
+
+        } catch (error) {
+          console.error('❌ Failed to display diagnosis status:', error);
+        }
+      }
+
+      // ページ読み込み後に診断状態をチェック
+      document.addEventListener('DOMContentLoaded', function() {
+        // 少し遅延してからロード（他のスクリプトの読み込み完了を待つ）
+        setTimeout(loadDiagnosisStatus, 500);
+      });
+
+      // プラットフォーム間連携の状態をコンソールに表示
+      function checkCrossPlatformIntegration() {
+        try {
+          if (typeof CrossPlatformBridge !== 'undefined') {
+            const bridge = new CrossPlatformBridge();
+            const status = bridge.checkCrossPlatformStatus();
+            
+            console.log('🌉 Cross-platform status:', status);
+            
+            if (status.hasData) {
+              console.log('✅ Diagnosis data is available across platforms');
+              console.log('📊 Data quality:', (status.dataQuality * 100).toFixed(1) + '%');
+              console.log('🛠️ Available platforms:', status.platforms);
+            } else {
+              console.log('ℹ️ No diagnosis data found. Please complete OS analysis first.');
+            }
+          }
+        } catch (error) {
+          console.error('❌ Cross-platform check failed:', error);
+        }
+      }
+
+      // デバッグ用（開発時のみ）
+      if (window.location.search.includes('debug=true')) {
+        setTimeout(checkCrossPlatformIntegration, 1000);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>結果ページテスト - H384データ統合確認</title>
+  <script src="/assets/H384H64database.js"></script>
+  <script src="/js/lib/chart.min.js"></script>
+  <script src="/js/components/ResultPageController.js"></script>
+</head>
+<body>
+  <h1>H384データ統合テスト</h1>
+  
+  <button onclick="testResultPage()">テスト実行</button>
+  
+  <div id="output"></div>
+  
+  <script>
+    async function testResultPage() {
+      const output = document.getElementById('output');
+      output.innerHTML = '<h2>テスト開始...</h2>';
+      
+      // ResultPageControllerのインスタンス作成
+      const controller = new ResultPageController();
+      await controller.initialize();
+      
+      // テストデータ
+      const testData = {
+        currentHexagram: {
+          number: 20,  // 風地観
+          name: null   // H384から取得される
+        },
+        currentYao: {
+          position: 3,  // 六三
+          name: null    // H384から取得される
+        },
+        theme: '自己観察の時期',
+        themeDetail: '内省と外部観察のバランス'
+      };
+      
+      // H384データを読み込み
+      await controller.loadH384Data(testData);
+      
+      // 結果を表示
+      output.innerHTML = `
+        <h2>テスト結果</h2>
+        <h3>1. H384データ取得テスト</h3>
+        <p>通し番号: ${testData.h384Data ? testData.h384Data['通し番号'] : 'エラー'}</p>
+        <p>卦名: ${testData.h384Data ? testData.h384Data['卦名'] : 'エラー'}</p>
+        <p>爻: ${testData.h384Data ? testData.h384Data['爻'] : 'エラー'}</p>
+        
+        <h3>2. スコアデータ</h3>
+        <p>総合評価スコア: ${testData.overallScore || 'エラー'}</p>
+        <p>基本スコア: ${testData.currentGraph?.basic || 'エラー'}</p>
+        <p>ポテンシャル: ${testData.currentGraph?.potential || 'エラー'}</p>
+        <p>安定性: ${testData.currentGraph?.stability || 'エラー'}</p>
+        <p>リスク: ${testData.currentGraph?.risk || 'エラー'}</p>
+        <p>変動性: ${testData.currentGraph?.volatility || 'エラー'}</p>
+        
+        <h3>3. キーワードと解釈</h3>
+        <p>キーワード: ${testData.keywords ? testData.keywords.join('、') : 'エラー'}</p>
+        <p>現代解釈: ${testData.modernInterpretation || 'エラー'}</p>
+        
+        <h3>4. 生データ確認</h3>
+        <pre>${JSON.stringify(testData.h384Data, null, 2)}</pre>
+      `;
+    }
+  </script>
+</body>
+</html>

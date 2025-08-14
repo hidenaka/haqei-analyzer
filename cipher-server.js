@@ -10,6 +10,9 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import yaml from 'js-yaml';
 import http from 'http';
+import express from 'express';
+import cors from 'cors';
+import compression from 'compression';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -43,7 +46,7 @@ class HAQEICipherServer {
   getDefaultConfig() {
     return {
       server: { 
-        port: process.env.CIPHER_PORT || 3001, 
+        port: Number(process.env.PORT || process.env.CIPHER_PORT || 8788), 
         host: process.env.CIPHER_HOST || 'localhost' 
       },
       memory: { enabled: true, provider: 'local', persistent: true },
@@ -63,19 +66,76 @@ class HAQEICipherServer {
       // Initialize simplified memory system with HAQEI-specific context
       this.initializeMemoryContext();
       
-      // Create HTTP server
-      this.server = http.createServer((req, res) => {
-        this.handleRequest(req, res);
+      // Create Express app
+      const app = express();
+      
+      // Security and performance middleware
+      app.disable('x-powered-by');
+      app.use(compression());
+      app.use(cors());
+      
+      // Security headers
+      app.use((req, res, next) => {
+        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+        res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        res.setHeader('X-Frame-Options', 'DENY');
+        next();
+      });
+      
+      // API routes
+      app.get('/health', (req, res) => {
+        res.json({ 
+          status: 'healthy', 
+          timestamp: new Date().toISOString(),
+          version: 'v2.2.2',
+          ok: true 
+        });
+      });
+      
+      app.get('/memory', (req, res) => {
+        const memoryData = Array.from(this.memory.entries()).map(([key, value]) => ({ key, value }));
+        res.json({ memory: memoryData });
+      });
+      
+      // Static file serving (dist優先 → なければpublic)
+      const PUBLIC_DIR = join(__dirname, 'public');
+      const DIST_DIR = join(__dirname, 'dist');
+      
+      const staticOpts = { 
+        extensions: ['html'], 
+        maxAge: '1h',
+        index: false  // Disable directory index to prevent conflicts
+      };
+      
+      // First try dist, then public
+      app.use(express.static(DIST_DIR, staticOpts));
+      app.use(express.static(PUBLIC_DIR, staticOpts));
+      
+      // Root redirect to main app
+      app.get('/', (req, res) => {
+        res.redirect('/os_analyzer.html');
+      });
+      
+      // 404 fallback
+      app.use((req, res) => {
+        res.status(404).json({ 
+          error: 'Not found',
+          path: req.path,
+          message: 'HAQEI Static files or API endpoint not found'
+        });
       });
 
       const port = this.config.server.port;
       const host = this.config.server.host;
       
-      this.server.listen(port, host, () => {
-        this.logger.info(`🔮 HAQEI Cipher Server started on ${host}:${port}`);
+      this.server = app.listen(port, host, () => {
+        this.logger.info(`🔮 HAQEI App+API Server listening on http://${host}:${port}`);
         this.logger.info('📊 Dual Memory Layer: Programming Concepts + Reasoning Steps');
         this.logger.info('🎯 HaQei Philosophy Integration: Active');
         this.logger.info('🛡️  Privacy Level: Maximum (Local Storage Only)');
+        this.logger.info(`📁 Static Files: ${DIST_DIR} (priority) → ${PUBLIC_DIR}`);
+        this.logger.info(`🌐 Main App: http://${host}:${port}/os_analyzer.html`);
       });
       
       return true;
@@ -148,34 +208,6 @@ class HAQEICipherServer {
     this.logger.info('HAQEI context initialized in memory');
   }
 
-  handleRequest(req, res) {
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-      res.writeHead(200);
-      res.end();
-      return;
-    }
-
-    if (req.url === '/health') {
-      res.writeHead(200);
-      res.end(JSON.stringify({ status: 'healthy', timestamp: new Date().toISOString() }));
-      return;
-    }
-
-    if (req.url === '/memory' && req.method === 'GET') {
-      const memoryData = Array.from(this.memory.entries()).map(([key, value]) => ({ key, value }));
-      res.writeHead(200);
-      res.end(JSON.stringify({ memory: memoryData }));
-      return;
-    }
-
-    res.writeHead(404);
-    res.end(JSON.stringify({ error: 'Not found' }));
-  }
 
   async storeHaQeiContext(context) {
     try {

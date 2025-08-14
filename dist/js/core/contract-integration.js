@@ -1,1 +1,147 @@
-function showNotification(e,a="info"){const t=document.createElement("div");t.className=`fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${"success"===a?"bg-green-500":"error"===a?"bg-red-500":"bg-blue-500"} text-white`,t.textContent=e,document.body.appendChild(t),setTimeout(()=>{t.style.opacity="0",t.style.transition="opacity 0.5s",setTimeout(()=>t.remove(),500)},3e3)}window.saveFuturePathsContract=async function(e){try{const a={paths:e.map((e,a)=>({id:e.id||`P${a+1}`,title:e.title||e.name||"",analysis:e.analysis||e.description||"",advice:e.advice||e.recommendation||"",hexagram:{id:e.hexagramId||e.hexagram?.id||1,name:e.hexagramName||e.hexagram?.name||"乾為天",symbol:e.symbol||e.hexagram?.symbol||"☰☰"},risk:e.risk||.5,potential:e.potential||.5,recommendation:e.recommendation_score||.5,rationale:e.rationale||"",milestones:e.milestones||["Step 1","Step 2","Step 3"]})),created_at:(new Date).toISOString()};window.dataPersistenceManager||(window.dataPersistenceManager=new DataPersistenceManager);const t=await window.dataPersistenceManager.saveContractB(a);return t&&(console.log("✅ Future Paths契約保存成功"),showNotification("シナリオ分析結果を保存しました","success")),t}catch(a){return console.error("契約B保存エラー:",a),showNotification("保存に失敗しました","error"),!1}},window.saveTripleOSContract=async function(e){try{const a={version:"1.0",engine_os:{id:e.engineOS?.id||1,name:e.engineOS?.name||"乾為天",score:e.engineOS?.score||.5},interface_os:{id:e.interfaceOS?.id||2,name:e.interfaceOS?.name||"坤為地",score:e.interfaceOS?.score||.5},safe_mode_os:{id:e.safeModeOS?.id||29,name:e.safeModeOS?.name||"坎為水",score:e.safeModeOS?.score||.5},synergy:e.synergy||{matrix:[[0,0,0]],notes:""},strengths:e.strengths||[],risks:e.risks||[],raw_answers:e.answers||{},created_at:(new Date).toISOString()};window.dataPersistenceManager||(window.dataPersistenceManager=new DataPersistenceManager);const t=await window.dataPersistenceManager.saveContractA(a);return t&&(console.log("✅ Triple OS契約保存成功"),showNotification("OS分析結果を保存しました","success")),t}catch(a){return console.error("契約A保存エラー:",a),showNotification("保存に失敗しました","error"),!1}},window.loadContracts=async function(){try{window.dataPersistenceManager||(window.dataPersistenceManager=new DataPersistenceManager);const[e,a]=await Promise.all([window.dataPersistenceManager.loadContractA(),window.dataPersistenceManager.loadContractB()]);return{tripleOS:e,futurePaths:a}}catch(e){return console.error("契約読み込みエラー:",e),{tripleOS:null,futurePaths:null}}},console.log("✅ 契約統合モジュール読み込み完了");
+/**
+ * 契約統合モジュール - 契約A/B保存・読み込み機能
+ * DataPersistenceManagerと連携してデータ永続化を実現
+ */
+
+// 契約B保存用のグローバル関数
+window.saveFuturePathsContract = async function(scenarios) {
+    try {
+        // 契約B形式に変換
+        const contractB = {
+            paths: scenarios.map((scenario, index) => ({
+                id: scenario.id || `P${index + 1}`,
+                title: scenario.title || scenario.name || '',
+                analysis: scenario.analysis || scenario.description || '',
+                advice: scenario.advice || scenario.recommendation || '',
+                hexagram: {
+                    id: scenario.hexagramId || scenario.hexagram?.id || 1,
+                    name: scenario.hexagramName || scenario.hexagram?.name || '乾為天',
+                    symbol: scenario.symbol || scenario.hexagram?.symbol || '☰☰'
+                },
+                risk: scenario.risk || 0.5,
+                potential: scenario.potential || 0.5,
+                recommendation: scenario.recommendation_score || 0.5,
+                rationale: scenario.rationale || '',
+                milestones: scenario.milestones || ['Step 1', 'Step 2', 'Step 3']
+            })),
+            created_at: new Date().toISOString()
+        };
+        
+        // DataPersistenceManagerのインスタンスを取得または作成
+        if (!window.dataPersistenceManager) {
+            window.dataPersistenceManager = new DataPersistenceManager();
+        }
+        
+        // 契約B保存
+        const success = await window.dataPersistenceManager.saveContractB(contractB);
+        
+        if (success) {
+            console.log('✅ Future Paths契約保存成功');
+            // 保存成功通知を表示
+            showNotification('シナリオ分析結果を保存しました', 'success');
+        }
+        
+        return success;
+    } catch (error) {
+        console.error('契約B保存エラー:', error);
+        showNotification('保存に失敗しました', 'error');
+        return false;
+    }
+};
+
+// 契約A保存用のグローバル関数（OS Analyzer用）
+window.saveTripleOSContract = async function(osData) {
+    try {
+        // 契約A形式に変換
+        const contractA = {
+            version: "1.0",
+            engine_os: {
+                id: osData.engineOS?.id || 1,
+                name: osData.engineOS?.name || '乾為天',
+                score: osData.engineOS?.score || 0.5
+            },
+            interface_os: {
+                id: osData.interfaceOS?.id || 2,
+                name: osData.interfaceOS?.name || '坤為地',
+                score: osData.interfaceOS?.score || 0.5
+            },
+            safe_mode_os: {
+                id: osData.safeModeOS?.id || 29,
+                name: osData.safeModeOS?.name || '坎為水',
+                score: osData.safeModeOS?.score || 0.5
+            },
+            synergy: osData.synergy || {
+                matrix: [[0, 0, 0]],
+                notes: ''
+            },
+            strengths: osData.strengths || [],
+            risks: osData.risks || [],
+            raw_answers: osData.answers || {},
+            created_at: new Date().toISOString()
+        };
+        
+        // DataPersistenceManagerのインスタンスを取得または作成
+        if (!window.dataPersistenceManager) {
+            window.dataPersistenceManager = new DataPersistenceManager();
+        }
+        
+        // 契約A保存
+        const success = await window.dataPersistenceManager.saveContractA(contractA);
+        
+        if (success) {
+            console.log('✅ Triple OS契約保存成功');
+            showNotification('OS分析結果を保存しました', 'success');
+        }
+        
+        return success;
+    } catch (error) {
+        console.error('契約A保存エラー:', error);
+        showNotification('保存に失敗しました', 'error');
+        return false;
+    }
+};
+
+// 通知表示関数
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'error' ? 'bg-red-500' : 
+        'bg-blue-500'
+    } text-white`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.5s';
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+// 契約読み込み関数
+window.loadContracts = async function() {
+    try {
+        if (!window.dataPersistenceManager) {
+            window.dataPersistenceManager = new DataPersistenceManager();
+        }
+        
+        const [contractA, contractB] = await Promise.all([
+            window.dataPersistenceManager.loadContractA(),
+            window.dataPersistenceManager.loadContractB()
+        ]);
+        
+        return {
+            tripleOS: contractA,
+            futurePaths: contractB
+        };
+    } catch (error) {
+        console.error('契約読み込みエラー:', error);
+        return {
+            tripleOS: null,
+            futurePaths: null
+        };
+    }
+};
+
+console.log('✅ 契約統合モジュール読み込み完了');

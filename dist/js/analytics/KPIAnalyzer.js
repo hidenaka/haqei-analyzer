@@ -1,1 +1,753 @@
-class KPIAnalyzer{constructor(){this.sessionId=this.generateSessionId(),this.startTime=Date.now(),this.metrics=new Map,this.targets={completionRate:.75,disagreementRate:.2,handoffRate:.45,averageConfidence:70,mobileCompletionRate:.7,sessionDuration:300,touchTargetCompliance:.9,paradigmShiftScore:.6},this.trackingEvents=["session_start","question_start","question_answer","question_complete","analysis_start","analysis_complete","results_view","confidence_check","feedback_submit","handoff_complete","mobile_interaction","error_occurred","session_end"],this.storageKeys={sessions:"haqei_kpi_sessions",metrics:"haqei_kpi_metrics",goals:"haqei_kpi_goals",reports:"haqei_kpi_reports"},this.realtimeBuffer={events:[],maxSize:1e3,flushInterval:3e4},this.init()}init(){console.log("KPI Analyzer initializing..."),this.trackEvent("session_start",{sessionId:this.sessionId,timestamp:this.startTime,userAgent:navigator.userAgent,viewport:{width:window.innerWidth,height:window.innerHeight},device:this.detectDevice(),referrer:document.referrer}),this.setupEventListeners(),this.cleanupOldData(),this.startRealtimeProcessing(),console.log("KPI Analyzer initialized for session:",this.sessionId)}trackEvent(e,t={}){const s={id:this.generateEventId(),sessionId:this.sessionId,type:e,timestamp:Date.now(),data:{...t},url:window.location.href,userAgent:navigator.userAgent};return this.realtimeBuffer.events.push(s),this.realtimeBuffer.events.length>this.realtimeBuffer.maxSize&&this.realtimeBuffer.events.shift(),this.persistEvent(s),this.processEventRealtime(s),console.log(`KPI Event: ${e}`,t),s}calculateUserExperienceKPIs(){const e=this.getStoredSessions();if(0===e.length)return this.getEmptyKPIs();const t=e.filter(e=>e.events.some(e=>"analysis_complete"===e.type)).length/e.length,s=e.map(e=>{const t=e.events.find(e=>"session_start"===e.type);return(e.events.find(e=>"session_end"===e.type)||e.events[e.events.length-1]).timestamp-t.timestamp}),a=s.reduce((e,t)=>e+t,0)/s.length,n=this.calculateDropoffRates(e),i=this.calculateQuestionCompletionRates(e);return{completionRate:{value:t,target:this.targets.completionRate,status:t>=this.targets.completionRate?"success":"warning"},avgSessionDuration:{value:a/1e3,target:this.targets.sessionDuration,status:a<=1e3*this.targets.sessionDuration?"success":"warning"},dropoffAnalysis:n,questionCompletionRates:i}}calculateZoneDKPIs(){const e=this.getStoredSessions().filter(e=>e.events.some(e=>"confidence_check"===e.type||"feedback_submit"===e.type||"handoff_complete"===e.type));if(0===e.length)return this.getEmptyZoneDKPIs();const t=this.getEventsByType("feedback_submit"),s=t.filter(e=>"disagree"===e.data.type||"partial"===e.data.type).length/Math.max(t.length,1),a=this.getEventsByType("handoff_complete"),n=a.length/Math.max(e.length,1),i=this.getEventsByType("confidence_check").map(e=>e.data.confidence||0),r=i.length>0?i.reduce((e,t)=>e+t,0)/i.length:0,o=this.analyzeFeedbackQuality(t),l=this.analyzeHandoffDestinations(a);return{disagreementRate:{value:s,target:this.targets.disagreementRate,status:s>=this.targets.disagreementRate?"success":"warning"},handoffRate:{value:n,target:this.targets.handoffRate,status:n>=this.targets.handoffRate?"success":"warning"},avgConfidence:{value:r,target:this.targets.averageConfidence,status:r>=this.targets.averageConfidence?"success":"warning"},feedbackQuality:o,handoffDestinations:l}}calculateMobileKPIs(){const e=this.getStoredSessions().filter(e=>this.isMobileSession(e));if(0===e.length)return this.getEmptyMobileKPIs();const t=e.filter(e=>e.events.some(e=>"analysis_complete"===e.type)).length/e.length,s=this.analyzeTouchInteractions(e),a=this.analyzeMobilePerformance(e),n=this.analyzeDeviceTypes(e);return{mobileCompletionRate:{value:t,target:this.targets.mobileCompletionRate,status:t>=this.targets.mobileCompletionRate?"success":"warning"},touchInteractions:s,performanceMetrics:a,deviceAnalysis:n}}calculateParadigmShiftKPIs(){const e=this.getStoredSessions(),t=this.getEventsByType("feedback_submit").filter(e=>e.data.specificFeedback&&e.data.specificFeedback.length>20).length/Math.max(e.length,1),s=this.getEventsByType("confidence_check"),a=s.filter(e=>e.data.confidence<70&&!e.data.userConcern).length/Math.max(s.length,1),n=this.calculateRepeatUsage(),i=this.getEventsByType("handoff_complete").length/Math.max(e.length,1),r=.3*t+.2*a+.25*n+.25*i;return{paradigmShiftScore:{value:r,target:this.targets.paradigmShiftScore,status:r>=this.targets.paradigmShiftScore?"success":"warning"},feedbackEngagement:{value:t,description:"積極的なフィードバック提供率"},lowConfidenceAcceptance:{value:a,description:"低確信度結果の受容率"},repeatUsage:{value:n,description:"リピート利用率"},handoffWillingness:{value:i,description:"AI引き継ぎ意欲"}}}generateDashboardData(){const e=this.calculateUserExperienceKPIs(),t=this.calculateZoneDKPIs(),s=this.calculateMobileKPIs(),a=this.calculateParadigmShiftKPIs(),n=this.calculateOverallScore({userExperience:e,zoneD:t,mobile:s,paradigmShift:a}),i=this.calculateTrends(),r=this.generateAlerts({userExperience:e,zoneD:t,mobile:s,paradigmShift:a});return{timestamp:(new Date).toISOString(),sessionId:this.sessionId,overallScore:n,categories:{userExperience:e,zoneD:t,mobile:s,paradigmShift:a},trends:i,alerts:r,summary:this.generateSummary({userExperience:e,zoneD:t,mobile:s,paradigmShift:a})}}updateDashboardRealtime(){const e=this.generateDashboardData(),t=new CustomEvent("kpiDashboardUpdate",{detail:e});return document.dispatchEvent(t),e}generateWeeklyReport(){const e=new Date,t=new Date(e.getTime()-6048e5),s=this.getDataByDateRange(t,e),a=this.getDataByDateRange(new Date(t.getTime()-6048e5),t);return{reportType:"weekly",period:{start:t.toISOString(),end:e.toISOString()},current:this.analyzeDataPeriod(s),previous:this.analyzeDataPeriod(a),comparison:this.compareDataPeriods(s,a),recommendations:this.generateRecommendations(s),charts:this.generateChartData(s)}}generateMonthlyReport(){const e=new Date,t=new Date(e.getFullYear(),e.getMonth(),1),s=this.getDataByDateRange(t,e),a=new Date(t.getTime()-1),n=new Date(a.getFullYear(),a.getMonth(),1),i=this.getDataByDateRange(n,a);return{reportType:"monthly",period:{start:t.toISOString(),end:e.toISOString()},current:this.analyzeDataPeriod(s),previous:this.analyzeDataPeriod(i),comparison:this.compareDataPeriods(s,i),recommendations:this.generateRecommendations(s),charts:this.generateChartData(s),goals:this.evaluateMonthlyGoals(s)}}analyzeABTest(e){const t=this.getEventsByType("ab_test").filter(t=>t.data.testId===e);if(0===t.length)return{error:"No A/B test data found for test ID: "+e};const s=t.filter(e=>"A"===e.data.variant),a=t.filter(e=>"B"===e.data.variant);return{testId:e,totalSessions:t.length,variants:{A:this.analyzeVariantPerformance(s),B:this.analyzeVariantPerformance(a)},significance:this.calculateStatisticalSignificance(s,a),recommendation:this.generateABTestRecommendation(s,a)}}setupAlerts(e){this.alertConfig={completionRateThreshold:.6,disagreementRateThreshold:.15,handoffRateThreshold:.3,errorRateThreshold:.05,...e},this.alertInterval=setInterval(()=>{this.checkAlerts()},6e4)}exportData(e="json",t=null){const s=t?this.getDataByDateRange(t.start,t.end):this.getAllStoredData();switch(e){case"csv":return this.convertToCSV(s);case"excel":return this.convertToExcel(s);default:return JSON.stringify(s,null,2)}}anonymizeData(){const e=this.getStoredSessions().map(e=>({...e,sessionId:this.hashSessionId(e.sessionId),events:e.events.map(e=>({...e,sessionId:this.hashSessionId(e.sessionId),userAgent:this.anonymizeUserAgent(e.userAgent),url:this.anonymizeUrl(e.url)}))}));return localStorage.setItem(this.storageKeys.sessions,JSON.stringify(e)),e}setupEventListeners(){window.addEventListener("beforeunload",()=>{this.trackEvent("session_end",{duration:Date.now()-this.startTime}),this.flushRealtimeBuffer()}),window.addEventListener("error",e=>{this.trackEvent("error_occurred",{message:e.message,filename:e.filename,lineno:e.lineno,colno:e.colno})}),"performance"in window&&window.addEventListener("load",()=>{setTimeout(()=>{const e=performance.getEntriesByType("navigation")[0];this.trackEvent("performance_metrics",{loadTime:e.loadEventEnd-e.loadEventStart,domContentLoaded:e.domContentLoadedEventEnd-e.domContentLoadedEventStart,firstPaint:performance.getEntriesByType("paint")[0]?.startTime||0})},0)})}isMobileSession(e){const t=e.events.find(e=>"session_start"===e.type);return t?.data?.device?.category?.includes("mobile")||t?.data?.viewport?.width<768}generateSessionId(){return`kpi_${Date.now()}_${Math.random().toString(36).substr(2,9)}`}generateEventId(){return`evt_${Date.now()}_${Math.random().toString(36).substr(2,6)}`}detectDevice(){return{category:window.innerWidth<768?"mobile":"desktop",userAgent:navigator.userAgent,viewport:{width:window.innerWidth,height:window.innerHeight}}}persistEvent(e){try{const t=this.getStoredSessions();let s=t.find(e=>e.sessionId===this.sessionId);s||(s={sessionId:this.sessionId,startTime:this.startTime,events:[]},t.push(s)),s.events.push(e),t.length>100&&t.splice(0,t.length-100),localStorage.setItem(this.storageKeys.sessions,JSON.stringify(t))}catch(t){console.error("Failed to persist KPI event:",t)}}getStoredSessions(){try{return JSON.parse(localStorage.getItem(this.storageKeys.sessions)||"[]")}catch(e){return console.error("Failed to load KPI sessions:",e),[]}}getEventsByType(e){const t=this.getStoredSessions(),s=[];return t.forEach(t=>{s.push(...t.events.filter(t=>t.type===e))}),s}cleanupOldData(){const e=Date.now()-2592e6,t=this.getStoredSessions().filter(t=>t.startTime>=e);localStorage.setItem(this.storageKeys.sessions,JSON.stringify(t))}startRealtimeProcessing(){this.realtimeInterval=setInterval(()=>{this.flushRealtimeBuffer()},this.realtimeBuffer.flushInterval)}flushRealtimeBuffer(){this.realtimeBuffer.events.length>0&&(console.log(`Flushing ${this.realtimeBuffer.events.length} KPI events`),this.realtimeBuffer.events=[])}processEventRealtime(e){"error_occurred"===e.type&&console.warn("KPI Alert: Error occurred",e.data)}getEmptyKPIs(){return{completionRate:{value:0,target:this.targets.completionRate,status:"no-data"},avgSessionDuration:{value:0,target:this.targets.sessionDuration,status:"no-data"},dropoffAnalysis:{},questionCompletionRates:[]}}getEmptyZoneDKPIs(){return{disagreementRate:{value:0,target:this.targets.disagreementRate,status:"no-data"},handoffRate:{value:0,target:this.targets.handoffRate,status:"no-data"},avgConfidence:{value:0,target:this.targets.averageConfidence,status:"no-data"},feedbackQuality:{},handoffDestinations:{}}}getEmptyMobileKPIs(){return{mobileCompletionRate:{value:0,target:this.targets.mobileCompletionRate,status:"no-data"},touchInteractions:{},performanceMetrics:{},deviceAnalysis:{}}}calculateDropoffRates(e){return{analysis:"Detailed dropoff analysis would be implemented here"}}calculateQuestionCompletionRates(e){return[]}analyzeFeedbackQuality(e){return{analysis:"Feedback quality analysis would be implemented here"}}analyzeHandoffDestinations(e){return{analysis:"Handoff destination analysis would be implemented here"}}analyzeTouchInteractions(e){return{analysis:"Touch interaction analysis would be implemented here"}}analyzeMobilePerformance(e){return{analysis:"Mobile performance analysis would be implemented here"}}analyzeDeviceTypes(e){return{analysis:"Device type analysis would be implemented here"}}calculateRepeatUsage(){return 0}calculateOverallScore(e){return.75}calculateTrends(){return{trends:"Trend analysis would be implemented here"}}generateAlerts(e){return[]}generateSummary(e){return"KPI summary would be generated here"}destroy(){this.realtimeInterval&&clearInterval(this.realtimeInterval),this.alertInterval&&clearInterval(this.alertInterval),this.flushRealtimeBuffer(),this.trackEvent("session_end",{duration:Date.now()-this.startTime}),console.log("KPI Analyzer destroyed")}}"undefined"!=typeof window&&(window.kpiAnalyzer=new KPIAnalyzer),"undefined"!=typeof module&&module.exports&&(module.exports=KPIAnalyzer);
+/**
+ * KPI Analyzer - Comprehensive Performance Measurement System
+ * OS Analyzer の効果測定とパフォーマンス分析システム
+ * 
+ * @class KPIAnalyzer
+ * @version 1.0.0
+ * @date 2025-08-12
+ */
+
+class KPIAnalyzer {
+    constructor() {
+        this.sessionId = this.generateSessionId();
+        this.startTime = Date.now();
+        this.metrics = new Map();
+        
+        // KPI目標値
+        this.targets = {
+            completionRate: 0.75,           // 75%以上の完了率
+            disagreementRate: 0.20,         // 20%以上の不一致フィードバック率
+            handoffRate: 0.45,              // 45%以上のハンドオフ率
+            averageConfidence: 70,          // 70%以上の平均確信度
+            mobileCompletionRate: 0.70,     // 70%以上のモバイル完了率
+            sessionDuration: 300,           // 5分以内の平均セッション時間
+            touchTargetCompliance: 0.90,    // 90%以上のタッチターゲット適合率
+            paradigmShiftScore: 0.60        // 60%以上のパラダイムシフト効果
+        };
+        
+        // イベント追跡設定
+        this.trackingEvents = [
+            'session_start', 'question_start', 'question_answer', 'question_complete',
+            'analysis_start', 'analysis_complete', 'results_view',
+            'confidence_check', 'feedback_submit', 'handoff_complete',
+            'mobile_interaction', 'error_occurred', 'session_end'
+        ];
+        
+        // データストレージキー
+        this.storageKeys = {
+            sessions: 'haqei_kpi_sessions',
+            metrics: 'haqei_kpi_metrics', 
+            goals: 'haqei_kpi_goals',
+            reports: 'haqei_kpi_reports'
+        };
+        
+        // リアルタイム計算バッファ
+        this.realtimeBuffer = {
+            events: [],
+            maxSize: 1000,
+            flushInterval: 30000 // 30秒
+        };
+        
+        this.init();
+    }
+    
+    /**
+     * 初期化
+     */
+    init() {
+        console.log('KPI Analyzer initializing...');
+        
+        // セッション開始記録
+        this.trackEvent('session_start', {
+            sessionId: this.sessionId,
+            timestamp: this.startTime,
+            userAgent: navigator.userAgent,
+            viewport: { width: window.innerWidth, height: window.innerHeight },
+            device: this.detectDevice(),
+            referrer: document.referrer
+        });
+        
+        // イベントリスナー設定
+        this.setupEventListeners();
+        
+        // データクリーンアップ
+        this.cleanupOldData();
+        
+        // リアルタイム処理開始
+        this.startRealtimeProcessing();
+        
+        console.log('KPI Analyzer initialized for session:', this.sessionId);
+    }
+    
+    /**
+     * イベント追跡
+     */
+    trackEvent(eventType, data = {}) {
+        const event = {
+            id: this.generateEventId(),
+            sessionId: this.sessionId,
+            type: eventType,
+            timestamp: Date.now(),
+            data: { ...data },
+            url: window.location.href,
+            userAgent: navigator.userAgent
+        };
+        
+        // リアルタイムバッファに追加
+        this.realtimeBuffer.events.push(event);
+        
+        // バッファサイズ制限
+        if (this.realtimeBuffer.events.length > this.realtimeBuffer.maxSize) {
+            this.realtimeBuffer.events.shift();
+        }
+        
+        // LocalStorageに永続化
+        this.persistEvent(event);
+        
+        // リアルタイム分析
+        this.processEventRealtime(event);
+        
+        console.log(`KPI Event: ${eventType}`, data);
+        
+        return event;
+    }
+    
+    /**
+     * ユーザー体験指標の計算
+     */
+    calculateUserExperienceKPIs() {
+        const sessions = this.getStoredSessions();
+        
+        if (sessions.length === 0) {
+            return this.getEmptyKPIs();
+        }
+        
+        // 診断完了率
+        const completedSessions = sessions.filter(s => s.events.some(e => e.type === 'analysis_complete'));
+        const completionRate = completedSessions.length / sessions.length;
+        
+        // 平均セッション時間
+        const sessionDurations = sessions.map(s => {
+            const start = s.events.find(e => e.type === 'session_start');
+            const end = s.events.find(e => e.type === 'session_end') || 
+                      s.events[s.events.length - 1];
+            return end.timestamp - start.timestamp;
+        });
+        const avgSessionDuration = sessionDurations.reduce((a, b) => a + b, 0) / sessionDurations.length;
+        
+        // 離脱率分析
+        const dropoffAnalysis = this.calculateDropoffRates(sessions);
+        
+        // 質問完了率
+        const questionCompletionRates = this.calculateQuestionCompletionRates(sessions);
+        
+        return {
+            completionRate: {
+                value: completionRate,
+                target: this.targets.completionRate,
+                status: completionRate >= this.targets.completionRate ? 'success' : 'warning'
+            },
+            avgSessionDuration: {
+                value: avgSessionDuration / 1000, // 秒単位
+                target: this.targets.sessionDuration,
+                status: avgSessionDuration <= this.targets.sessionDuration * 1000 ? 'success' : 'warning'
+            },
+            dropoffAnalysis,
+            questionCompletionRates
+        };
+    }
+    
+    /**
+     * Zone D効果測定
+     */
+    calculateZoneDKPIs() {
+        const sessions = this.getStoredSessions();
+        const zoneDSessions = sessions.filter(s => 
+            s.events.some(e => e.type === 'confidence_check' || e.type === 'feedback_submit' || e.type === 'handoff_complete')
+        );
+        
+        if (zoneDSessions.length === 0) {
+            return this.getEmptyZoneDKPIs();
+        }
+        
+        // 不一致フィードバック率
+        const feedbackEvents = this.getEventsByType('feedback_submit');
+        const disagreementFeedbacks = feedbackEvents.filter(e => 
+            e.data.type === 'disagree' || e.data.type === 'partial'
+        );
+        const disagreementRate = disagreementFeedbacks.length / Math.max(feedbackEvents.length, 1);
+        
+        // ハンドオフ完了率
+        const handoffEvents = this.getEventsByType('handoff_complete');
+        const handoffRate = handoffEvents.length / Math.max(zoneDSessions.length, 1);
+        
+        // 平均確信度
+        const confidenceEvents = this.getEventsByType('confidence_check');
+        const confidenceValues = confidenceEvents.map(e => e.data.confidence || 0);
+        const avgConfidence = confidenceValues.length > 0 ? 
+            confidenceValues.reduce((a, b) => a + b, 0) / confidenceValues.length : 0;
+        
+        // フィードバック品質分析
+        const feedbackQuality = this.analyzeFeedbackQuality(feedbackEvents);
+        
+        // ハンドオフ先分析
+        const handoffDestinations = this.analyzeHandoffDestinations(handoffEvents);
+        
+        return {
+            disagreementRate: {
+                value: disagreementRate,
+                target: this.targets.disagreementRate,
+                status: disagreementRate >= this.targets.disagreementRate ? 'success' : 'warning'
+            },
+            handoffRate: {
+                value: handoffRate,
+                target: this.targets.handoffRate,
+                status: handoffRate >= this.targets.handoffRate ? 'success' : 'warning'
+            },
+            avgConfidence: {
+                value: avgConfidence,
+                target: this.targets.averageConfidence,
+                status: avgConfidence >= this.targets.averageConfidence ? 'success' : 'warning'
+            },
+            feedbackQuality,
+            handoffDestinations
+        };
+    }
+    
+    /**
+     * モバイル最適化効果測定
+     */
+    calculateMobileKPIs() {
+        const sessions = this.getStoredSessions();
+        const mobileSessions = sessions.filter(s => this.isMobileSession(s));
+        
+        if (mobileSessions.length === 0) {
+            return this.getEmptyMobileKPIs();
+        }
+        
+        // モバイル完了率
+        const mobileCompletedSessions = mobileSessions.filter(s => 
+            s.events.some(e => e.type === 'analysis_complete')
+        );
+        const mobileCompletionRate = mobileCompletedSessions.length / mobileSessions.length;
+        
+        // タッチインタラクション分析
+        const touchInteractions = this.analyzeTouchInteractions(mobileSessions);
+        
+        // パフォーマンス分析
+        const performanceMetrics = this.analyzeMobilePerformance(mobileSessions);
+        
+        // デバイス別分析
+        const deviceAnalysis = this.analyzeDeviceTypes(mobileSessions);
+        
+        return {
+            mobileCompletionRate: {
+                value: mobileCompletionRate,
+                target: this.targets.mobileCompletionRate,
+                status: mobileCompletionRate >= this.targets.mobileCompletionRate ? 'success' : 'warning'
+            },
+            touchInteractions,
+            performanceMetrics,
+            deviceAnalysis
+        };
+    }
+    
+    /**
+     * パラダイムシフト効果測定
+     */
+    calculateParadigmShiftKPIs() {
+        const sessions = this.getStoredSessions();
+        
+        // 反証歓迎度
+        const feedbackEvents = this.getEventsByType('feedback_submit');
+        const proactiveFeedbacks = feedbackEvents.filter(e => 
+            e.data.specificFeedback && e.data.specificFeedback.length > 20
+        );
+        const feedbackEngagement = proactiveFeedbacks.length / Math.max(sessions.length, 1);
+        
+        // 不確実性受容度
+        const confidenceEvents = this.getEventsByType('confidence_check');
+        const lowConfidenceAcceptance = confidenceEvents.filter(e => 
+            e.data.confidence < 70 && !e.data.userConcern
+        ).length / Math.max(confidenceEvents.length, 1);
+        
+        // 継続利用意向
+        const repeatSessions = this.calculateRepeatUsage();
+        
+        // AI引き継ぎ意欲
+        const handoffWillingness = this.getEventsByType('handoff_complete').length / Math.max(sessions.length, 1);
+        
+        // 総合パラダイムシフトスコア
+        const paradigmShiftScore = (
+            feedbackEngagement * 0.3 +
+            lowConfidenceAcceptance * 0.2 +
+            repeatSessions * 0.25 +
+            handoffWillingness * 0.25
+        );
+        
+        return {
+            paradigmShiftScore: {
+                value: paradigmShiftScore,
+                target: this.targets.paradigmShiftScore,
+                status: paradigmShiftScore >= this.targets.paradigmShiftScore ? 'success' : 'warning'
+            },
+            feedbackEngagement: {
+                value: feedbackEngagement,
+                description: '積極的なフィードバック提供率'
+            },
+            lowConfidenceAcceptance: {
+                value: lowConfidenceAcceptance,
+                description: '低確信度結果の受容率'
+            },
+            repeatUsage: {
+                value: repeatSessions,
+                description: 'リピート利用率'
+            },
+            handoffWillingness: {
+                value: handoffWillingness,
+                description: 'AI引き継ぎ意欲'
+            }
+        };
+    }
+    
+    /**
+     * 包括的KPIダッシュボードデータ生成
+     */
+    generateDashboardData() {
+        const userExperience = this.calculateUserExperienceKPIs();
+        const zoneD = this.calculateZoneDKPIs();
+        const mobile = this.calculateMobileKPIs();
+        const paradigmShift = this.calculateParadigmShiftKPIs();
+        
+        // 総合スコア計算
+        const overallScore = this.calculateOverallScore({
+            userExperience, zoneD, mobile, paradigmShift
+        });
+        
+        // トレンド分析
+        const trends = this.calculateTrends();
+        
+        // アラート生成
+        const alerts = this.generateAlerts({
+            userExperience, zoneD, mobile, paradigmShift
+        });
+        
+        return {
+            timestamp: new Date().toISOString(),
+            sessionId: this.sessionId,
+            overallScore,
+            categories: {
+                userExperience,
+                zoneD,
+                mobile,
+                paradigmShift
+            },
+            trends,
+            alerts,
+            summary: this.generateSummary({ userExperience, zoneD, mobile, paradigmShift })
+        };
+    }
+    
+    /**
+     * リアルタイムダッシュボード更新
+     */
+    updateDashboardRealtime() {
+        const dashboardData = this.generateDashboardData();
+        
+        // カスタムイベント発火
+        const event = new CustomEvent('kpiDashboardUpdate', {
+            detail: dashboardData
+        });
+        document.dispatchEvent(event);
+        
+        return dashboardData;
+    }
+    
+    /**
+     * 週次レポート生成
+     */
+    generateWeeklyReport() {
+        const endDate = new Date();
+        const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        const weeklyData = this.getDataByDateRange(startDate, endDate);
+        const previousWeekData = this.getDataByDateRange(
+            new Date(startDate.getTime() - 7 * 24 * 60 * 60 * 1000),
+            startDate
+        );
+        
+        return {
+            reportType: 'weekly',
+            period: { start: startDate.toISOString(), end: endDate.toISOString() },
+            current: this.analyzeDataPeriod(weeklyData),
+            previous: this.analyzeDataPeriod(previousWeekData),
+            comparison: this.compareDataPeriods(weeklyData, previousWeekData),
+            recommendations: this.generateRecommendations(weeklyData),
+            charts: this.generateChartData(weeklyData)
+        };
+    }
+    
+    /**
+     * 月次レポート生成
+     */
+    generateMonthlyReport() {
+        const endDate = new Date();
+        const startDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+        
+        const monthlyData = this.getDataByDateRange(startDate, endDate);
+        const previousMonthEnd = new Date(startDate.getTime() - 1);
+        const previousMonthStart = new Date(previousMonthEnd.getFullYear(), previousMonthEnd.getMonth(), 1);
+        const previousMonthData = this.getDataByDateRange(previousMonthStart, previousMonthEnd);
+        
+        return {
+            reportType: 'monthly',
+            period: { start: startDate.toISOString(), end: endDate.toISOString() },
+            current: this.analyzeDataPeriod(monthlyData),
+            previous: this.analyzeDataPeriod(previousMonthData),
+            comparison: this.compareDataPeriods(monthlyData, previousMonthData),
+            recommendations: this.generateRecommendations(monthlyData),
+            charts: this.generateChartData(monthlyData),
+            goals: this.evaluateMonthlyGoals(monthlyData)
+        };
+    }
+    
+    /**
+     * A/Bテスト結果分析
+     */
+    analyzeABTest(testId) {
+        const testEvents = this.getEventsByType('ab_test').filter(e => e.data.testId === testId);
+        
+        if (testEvents.length === 0) {
+            return { error: 'No A/B test data found for test ID: ' + testId };
+        }
+        
+        const variantA = testEvents.filter(e => e.data.variant === 'A');
+        const variantB = testEvents.filter(e => e.data.variant === 'B');
+        
+        return {
+            testId,
+            totalSessions: testEvents.length,
+            variants: {
+                A: this.analyzeVariantPerformance(variantA),
+                B: this.analyzeVariantPerformance(variantB)
+            },
+            significance: this.calculateStatisticalSignificance(variantA, variantB),
+            recommendation: this.generateABTestRecommendation(variantA, variantB)
+        };
+    }
+    
+    /**
+     * アラート設定と通知
+     */
+    setupAlerts(alertConfig) {
+        this.alertConfig = {
+            completionRateThreshold: 0.60,
+            disagreementRateThreshold: 0.15,
+            handoffRateThreshold: 0.30,
+            errorRateThreshold: 0.05,
+            ...alertConfig
+        };
+        
+        // アラートチェックのインターバル設定
+        this.alertInterval = setInterval(() => {
+            this.checkAlerts();
+        }, 60000); // 1分間隔
+    }
+    
+    /**
+     * データエクスポート
+     */
+    exportData(format = 'json', dateRange = null) {
+        const data = dateRange ? 
+            this.getDataByDateRange(dateRange.start, dateRange.end) :
+            this.getAllStoredData();
+        
+        switch (format) {
+            case 'csv':
+                return this.convertToCSV(data);
+            case 'excel':
+                return this.convertToExcel(data);
+            case 'json':
+            default:
+                return JSON.stringify(data, null, 2);
+        }
+    }
+    
+    /**
+     * データプライバシー管理
+     */
+    anonymizeData() {
+        const sessions = this.getStoredSessions();
+        const anonymizedSessions = sessions.map(session => ({
+            ...session,
+            sessionId: this.hashSessionId(session.sessionId),
+            events: session.events.map(event => ({
+                ...event,
+                sessionId: this.hashSessionId(event.sessionId),
+                userAgent: this.anonymizeUserAgent(event.userAgent),
+                url: this.anonymizeUrl(event.url)
+            }))
+        }));
+        
+        localStorage.setItem(this.storageKeys.sessions, JSON.stringify(anonymizedSessions));
+        return anonymizedSessions;
+    }
+    
+    /**
+     * ヘルパーメソッド群
+     */
+    
+    // イベントリスナー設定
+    setupEventListeners() {
+        // ページ離脱時
+        window.addEventListener('beforeunload', () => {
+            this.trackEvent('session_end', {
+                duration: Date.now() - this.startTime
+            });
+            this.flushRealtimeBuffer();
+        });
+        
+        // エラー監視
+        window.addEventListener('error', (e) => {
+            this.trackEvent('error_occurred', {
+                message: e.message,
+                filename: e.filename,
+                lineno: e.lineno,
+                colno: e.colno
+            });
+        });
+        
+        // パフォーマンス監視
+        if ('performance' in window) {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    const perfData = performance.getEntriesByType('navigation')[0];
+                    this.trackEvent('performance_metrics', {
+                        loadTime: perfData.loadEventEnd - perfData.loadEventStart,
+                        domContentLoaded: perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart,
+                        firstPaint: performance.getEntriesByType('paint')[0]?.startTime || 0
+                    });
+                }, 0);
+            });
+        }
+    }
+    
+    // セッション判定
+    isMobileSession(session) {
+        const startEvent = session.events.find(e => e.type === 'session_start');
+        return startEvent?.data?.device?.category?.includes('mobile') || 
+               startEvent?.data?.viewport?.width < 768;
+    }
+    
+    // ID生成
+    generateSessionId() {
+        return `kpi_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    
+    generateEventId() {
+        return `evt_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    }
+    
+    // デバイス検出
+    detectDevice() {
+        return {
+            category: window.innerWidth < 768 ? 'mobile' : 'desktop',
+            userAgent: navigator.userAgent,
+            viewport: { width: window.innerWidth, height: window.innerHeight }
+        };
+    }
+    
+    // データ永続化
+    persistEvent(event) {
+        try {
+            const sessions = this.getStoredSessions();
+            let currentSession = sessions.find(s => s.sessionId === this.sessionId);
+            
+            if (!currentSession) {
+                currentSession = {
+                    sessionId: this.sessionId,
+                    startTime: this.startTime,
+                    events: []
+                };
+                sessions.push(currentSession);
+            }
+            
+            currentSession.events.push(event);
+            
+            // 最新100セッションのみ保持
+            if (sessions.length > 100) {
+                sessions.splice(0, sessions.length - 100);
+            }
+            
+            localStorage.setItem(this.storageKeys.sessions, JSON.stringify(sessions));
+        } catch (e) {
+            console.error('Failed to persist KPI event:', e);
+        }
+    }
+    
+    // データ取得
+    getStoredSessions() {
+        try {
+            return JSON.parse(localStorage.getItem(this.storageKeys.sessions) || '[]');
+        } catch (e) {
+            console.error('Failed to load KPI sessions:', e);
+            return [];
+        }
+    }
+    
+    getEventsByType(eventType) {
+        const sessions = this.getStoredSessions();
+        const events = [];
+        sessions.forEach(session => {
+            events.push(...session.events.filter(e => e.type === eventType));
+        });
+        return events;
+    }
+    
+    // 古いデータクリーンアップ
+    cleanupOldData() {
+        const cutoffDate = Date.now() - (30 * 24 * 60 * 60 * 1000); // 30日前
+        const sessions = this.getStoredSessions();
+        const filteredSessions = sessions.filter(s => s.startTime >= cutoffDate);
+        localStorage.setItem(this.storageKeys.sessions, JSON.stringify(filteredSessions));
+    }
+    
+    // リアルタイム処理
+    startRealtimeProcessing() {
+        this.realtimeInterval = setInterval(() => {
+            this.flushRealtimeBuffer();
+        }, this.realtimeBuffer.flushInterval);
+    }
+    
+    flushRealtimeBuffer() {
+        if (this.realtimeBuffer.events.length > 0) {
+            console.log(`Flushing ${this.realtimeBuffer.events.length} KPI events`);
+            // リアルタイムバッファをクリア
+            this.realtimeBuffer.events = [];
+        }
+    }
+    
+    processEventRealtime(event) {
+        // リアルタイム処理（必要に応じて実装）
+        if (event.type === 'error_occurred') {
+            console.warn('KPI Alert: Error occurred', event.data);
+        }
+    }
+    
+    // 空のKPI構造
+    getEmptyKPIs() {
+        return {
+            completionRate: { value: 0, target: this.targets.completionRate, status: 'no-data' },
+            avgSessionDuration: { value: 0, target: this.targets.sessionDuration, status: 'no-data' },
+            dropoffAnalysis: {},
+            questionCompletionRates: []
+        };
+    }
+    
+    getEmptyZoneDKPIs() {
+        return {
+            disagreementRate: { value: 0, target: this.targets.disagreementRate, status: 'no-data' },
+            handoffRate: { value: 0, target: this.targets.handoffRate, status: 'no-data' },
+            avgConfidence: { value: 0, target: this.targets.averageConfidence, status: 'no-data' },
+            feedbackQuality: {},
+            handoffDestinations: {}
+        };
+    }
+    
+    getEmptyMobileKPIs() {
+        return {
+            mobileCompletionRate: { value: 0, target: this.targets.mobileCompletionRate, status: 'no-data' },
+            touchInteractions: {},
+            performanceMetrics: {},
+            deviceAnalysis: {}
+        };
+    }
+    
+    // 詳細分析メソッド（省略版）
+    calculateDropoffRates(sessions) {
+        // 各段階での離脱率を計算
+        return { analysis: 'Detailed dropoff analysis would be implemented here' };
+    }
+    
+    calculateQuestionCompletionRates(sessions) {
+        // 質問別の完了率を計算
+        return [];
+    }
+    
+    analyzeFeedbackQuality(feedbackEvents) {
+        // フィードバックの質を分析
+        return { analysis: 'Feedback quality analysis would be implemented here' };
+    }
+    
+    analyzeHandoffDestinations(handoffEvents) {
+        // ハンドオフ先の傾向を分析
+        return { analysis: 'Handoff destination analysis would be implemented here' };
+    }
+    
+    analyzeTouchInteractions(mobileSessions) {
+        // タッチインタラクションを分析
+        return { analysis: 'Touch interaction analysis would be implemented here' };
+    }
+    
+    analyzeMobilePerformance(mobileSessions) {
+        // モバイルパフォーマンスを分析
+        return { analysis: 'Mobile performance analysis would be implemented here' };
+    }
+    
+    analyzeDeviceTypes(mobileSessions) {
+        // デバイス種別を分析
+        return { analysis: 'Device type analysis would be implemented here' };
+    }
+    
+    calculateRepeatUsage() {
+        // リピート利用率を計算
+        return 0;
+    }
+    
+    calculateOverallScore(kpis) {
+        // 総合スコアを計算
+        return 0.75; // 仮の値
+    }
+    
+    calculateTrends() {
+        // トレンド分析
+        return { trends: 'Trend analysis would be implemented here' };
+    }
+    
+    generateAlerts(kpis) {
+        // アラート生成
+        return [];
+    }
+    
+    generateSummary(kpis) {
+        // サマリー生成
+        return 'KPI summary would be generated here';
+    }
+    
+    // クリーンアップ
+    destroy() {
+        if (this.realtimeInterval) {
+            clearInterval(this.realtimeInterval);
+        }
+        if (this.alertInterval) {
+            clearInterval(this.alertInterval);
+        }
+        this.flushRealtimeBuffer();
+        
+        this.trackEvent('session_end', {
+            duration: Date.now() - this.startTime
+        });
+        
+        console.log('KPI Analyzer destroyed');
+    }
+}
+
+// グローバル初期化
+if (typeof window !== 'undefined') {
+    window.kpiAnalyzer = new KPIAnalyzer();
+}
+
+// エクスポート
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = KPIAnalyzer;
+}

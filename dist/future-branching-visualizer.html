@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI 未来分岐ビジュアライザー</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌟</text></svg>">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link href="./css/tailwind.css" rel="stylesheet">
+    <link href="./css/future-branching-design.css" rel="stylesheet">
+    
+    <style>
+        /* Additional inline styles for immediate rendering */
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .main-header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 1.875rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header-subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+        
+        .content-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .demo-section {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #e2e8f0;
+        }
+        
+        .info-card {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .feature-card {
+            background: rgba(51, 65, 85, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-content {
+            text-align: center;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(99, 102, 241, 0.2);
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>未来分岐ビジュアライザーを起動中...</p>
+        </div>
+    </div>
+    
+    <!-- Main Header -->
+    <header class="main-header">
+        <h1 class="header-title">🌟 HAQEI 未来分岐ビジュアライザー</h1>
+        <p class="header-subtitle">あなたの選択が導く無限の可能性を可視化する</p>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <!-- Introduction Section -->
+        <section class="demo-section">
+            <h2 class="section-title">🎯 システム概要</h2>
+            <div class="info-card">
+                <p>未来分岐ビジュアライザーは、人生の重要な選択肢を美しく分かりやすく可視化するシステムです。</p>
+                <p class="mt-2">複雑な意思決定を、直感的なビジュアルで理解し、より良い選択ができるようサポートします。</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="font-semibold mb-1">3つのレイアウト</h3>
+                    <p class="text-sm text-secondary">クラシック、タイムライン、放射状から選択可能</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3 class="font-semibold mb-1">ペルソナ対応</h3>
+                    <p class="text-sm text-secondary">キャリア、恋愛、健康など様々なシナリオ</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="font-semibold mb-1">投票機能</h3>
+                    <p class="text-sm text-secondary">他のユーザーの選択傾向を可視化</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <h3 class="font-semibold mb-1">アニメーション</h3>
+                    <p class="text-sm text-secondary">滑らかな動きで体験を向上</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Main Visualizer Section -->
+        <section class="demo-section">
+            <h2 class="section-title">🌈 インタラクティブデモ</h2>
+            <div id="branching-container">
+                <!-- Future Branching System will be initialized here -->
+            </div>
+        </section>
+        
+        <!-- Examples Section -->
+        <section class="demo-section">
+            <h2 class="section-title">📚 使用例</h2>
+            
+            <div class="story-card mb-3">
+                <h3 class="font-semibold mb-2">キャリアの転換点</h3>
+                <div class="story-quote">
+                    「5年間同じ会社で働いてきたけど、成長が止まっている気がする...」
+                </div>
+                <div class="mt-2">
+                    <span class="persona-badge">25-35歳</span>
+                    <span class="persona-badge">キャリア迷子</span>
+                </div>
+            </div>
+            
+            <div class="story-card mb-3">
+                <h3 class="font-semibold mb-2">恋愛の岐路</h3>
+                <div class="story-quote">
+                    「3年付き合った彼との将来が見えない。このまま続けるべき？」
+                </div>
+                <div class="mt-2">
+                    <span class="persona-badge">20-30歳</span>
+                    <span class="persona-badge">恋愛悩み</span>
+                </div>
+            </div>
+            
+            <div class="story-card">
+                <h3 class="font-semibold mb-2">健康改善の決断</h3>
+                <div class="story-quote">
+                    「ストレスで体調を崩しがち。生活を根本から変えるべきか...」
+                </div>
+                <div class="mt-2">
+                    <span class="persona-badge">30-50歳</span>
+                    <span class="persona-badge">健康改善</span>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Technical Details Section -->
+        <section class="demo-section">
+            <h2 class="section-title">🔧 技術仕様</h2>
+            <div class="info-card">
+                <h3 class="font-semibold mb-2">カラーパレット体系</h3>
+                <div class="feature-grid">
+                    <div style="background: #4A90E2; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                        現在地点<br>#4A90E2
+                    </div>
+                    <div style="background: linear-gradient(135deg, #50C878, #228B22); padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                        安全選択<br>#50C878
+                    </div>
+                    <div style="background: linear-gradient(135deg, #FF6B6B, #DC143C); padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                        挑戦選択<br>#FF6B6B
+                    </div>
+                    <div style="background: linear-gradient(135deg, #9B59B6, #663399); padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                        創造選択<br>#9B59B6
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-card mt-3">
+                <h3 class="font-semibold mb-2">レスポンシブ対応</h3>
+                <ul class="list-disc list-inside text-sm">
+                    <li>モバイル (320px-768px): 縦型レイアウト自動切替</li>
+                    <li>タブレット (768px-1024px): 最適化グリッド表示</li>
+                    <li>デスクトップ (1024px+): フル機能表示</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Integration Section -->
+        <section class="demo-section">
+            <h2 class="section-title">🔗 HAQEI統合</h2>
+            <div class="info-card">
+                <p>この未来分岐ビジュアライザーは、HAQEI統合戦略システムの一部として動作します。</p>
+                <p class="mt-2">易経の知恵と現代のAI技術を組み合わせ、より深い洞察を提供します。</p>
+                <div class="mt-3">
+                    <a href="./future_simulator.html" class="haqei-button">
+                        メインシミュレーターへ →
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="./js/future-branching-core.js"></script>
+    <script>
+        // Initialize the Future Branching System
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Initializing Future Branching Visualizer...');
+            
+            // Hide loading overlay after a short delay
+            setTimeout(() => {
+                const loadingOverlay = document.getElementById('loading-overlay');
+                if (loadingOverlay) {
+                    loadingOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingOverlay.style.display = 'none';
+                    }, 500);
+                }
+            }, 1000);
+            
+            // Initialize the branching system
+            const container = document.getElementById('branching-container');
+            if (container) {
+                const branchingSystem = new FutureBranchingSystem();
+                await branchingSystem.init(container);
+                
+                // Load default scenario
+                setTimeout(() => {
+                    branchingSystem.createBranching({
+                        current: 'あなたは今、人生の大きな転換点に立っています',
+                        choices: [
+                            {
+                                type: 'safe',
+                                label: '安定を選ぶ',
+                                description: '現状を維持し、着実に前進'
+                            },
+                            {
+                                type: 'adventure',
+                                label: '挑戦を選ぶ',
+                                description: 'リスクを取って新しい道へ'
+                            },
+                            {
+                                type: 'creative',
+                                label: '創造を選ぶ',
+                                description: '独自の価値を創り出す'
+                            }
+                        ],
+                        outcomes: [
+                            {
+                                type: 'neutral',
+                                label: '着実な成長',
+                                description: '予定通りの成果を達成',
+                                timeframe: '3ヶ月後',
+                                icon: 'icon-growth'
+                            },
+                            {
+                                type: 'challenging',
+                                label: '新たな挑戦',
+                                description: '困難を乗り越えて大きく成長',
+                                timeframe: '3ヶ月後',
+                                icon: 'icon-learn'
+                            },
+                            {
+                                type: 'positive',
+                                label: '大きな成功',
+                                description: '想像を超える成果を実現',
+                                timeframe: '3ヶ月後',
+                                icon: 'icon-success'
+                            }
+                        ]
+                    });
+                }, 1500);
+                
+                console.log('✅ Future Branching Visualizer initialized successfully');
+            } else {
+                console.error('❌ Container element not found');
+            }
+        });
+    </script>
+</body>
+</html>

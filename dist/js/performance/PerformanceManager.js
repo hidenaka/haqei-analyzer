@@ -1,1 +1,474 @@
-class PerformanceManager{constructor(){this.metrics={loadTime:0,renderTime:0,memoryUsage:0,scriptLoadTime:0},this.optimizations={lazyLoading:!0,codesplitting:!0,imageOptimization:!0,cacheManagement:!0},this.performanceTargets={totalLoadTime:1500,firstPaint:800,interactive:1200,memoryLimit:50},this.init()}init(){console.log("🚀 Performance Manager initializing..."),this.startWebVitalsMonitoring(),this.optimizeResources(),this.startMemoryMonitoring(),this.implementLazyLoading(),console.log("✅ Performance Manager initialized")}startWebVitalsMonitoring(){new PerformanceObserver(e=>{for(const t of e.getEntries())console.log("📊 LCP:",Math.round(t.startTime),"ms"),this.metrics.renderTime=t.startTime,t.startTime>this.performanceTargets.firstPaint&&this.optimizeRendering()}).observe({entryTypes:["largest-contentful-paint"]}),new PerformanceObserver(e=>{for(const t of e.getEntries())console.log("⚡ FID:",Math.round(t.processingStart-t.startTime),"ms")}).observe({entryTypes:["first-input"]}),new PerformanceObserver(e=>{for(const t of e.getEntries())t.hadRecentInput||console.log("📐 CLS:",t.value)}).observe({entryTypes:["layout-shift"]})}optimizeResources(){this.inlineCriticalCSS(),this.preloadFonts(),this.optimizeScriptLoading(),this.optimizeImages()}inlineCriticalCSS(){const e=document.createElement("style");e.textContent="\n            /* Performance Critical CSS - Phase 4 */\n            body { \n                font-display: swap;\n                will-change: auto;\n            }\n            \n            .screen {\n                contain: layout style paint;\n            }\n            \n            .zone-d-integration {\n                content-visibility: auto;\n                contain-intrinsic-size: 0 400px;\n            }\n            \n            /* GPU加速最適化 */\n            .confidence-gauge, .mobile-component {\n                transform: translateZ(0);\n                backface-visibility: hidden;\n            }\n        ",document.head.insertBefore(e,document.head.firstChild)}preloadFonts(){["system-ui","-apple-system","BlinkMacSystemFont"].forEach(e=>{const t=document.createElement("link");t.rel="preconnect",t.href=e,document.head.appendChild(t)})}optimizeScriptLoading(){document.querySelectorAll("script[src]").forEach(e=>{(e.src.includes("zone-d")||e.src.includes("mobile")||e.src.includes("analytics"))&&(e.defer=!0),(e.src.includes("core")||e.src.includes("TripleOS"))&&(e.fetchPriority="high")})}optimizeImages(){document.querySelectorAll("img").forEach(e=>{if(e.loading="lazy",e.decoding="async","IntersectionObserver"in window){const t=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting){const n=e.target;n.classList.add("loaded"),t.unobserve(n)}})});t.observe(e)}})}implementLazyLoading(){window.loadZoneDWhenNeeded=()=>new Promise(e=>{window.zoneDIntegrator?e():setTimeout(()=>{console.log("📦 Zone D components loaded lazily"),e()},100)}),window.loadKPIDashboardWhenNeeded=()=>new Promise(e=>{window.KPIDashboard?e():setTimeout(()=>{console.log("📊 KPI Dashboard loaded lazily"),e()},50)})}startMemoryMonitoring(){"memory"in performance&&setInterval(()=>{const e=performance.memory,t=Math.round(e.usedJSHeapSize/1024/1024);this.metrics.memoryUsage=t,t>this.performanceTargets.memoryLimit&&(console.warn("⚠️ Memory usage high:",t,"MB"),this.performGarbageCollection())},1e4)}optimizeRendering(){console.log("🎨 Optimizing rendering..."),requestAnimationFrame(()=>{this.implementVirtualScrolling(),this.optimizeResizeHandlers(),this.applyCSSContainment()})}implementVirtualScrolling(){document.querySelectorAll(".question-list, .result-list").forEach(e=>{e.children.length>10&&(e.style.contain="layout style paint",e.style.contentVisibility="auto")})}optimizeResizeHandlers(){let e;window.addEventListener("resize",()=>{clearTimeout(e),e=setTimeout(()=>{window.mobileOptimizer&&window.mobileOptimizer.handleResize(),this.adjustZoneDLayout()},150)},{passive:!0})}applyCSSContainment(){[".zone-container",".zone-d-integration",".mobile-component",".kpi-dashboard"].forEach(e=>{document.querySelectorAll(e).forEach(e=>{e.style.contain="layout style paint"})})}adjustZoneDLayout(){const e=document.querySelector(".zone-d-integration");e&&window.innerWidth<768?e.style.gridTemplateColumns="1fr":e&&(e.style.gridTemplateColumns="1fr 1fr 1fr")}performGarbageCollection(){this.clearUnusedListeners(),this.clearExpiredCache(),window.gc&&window.gc()}clearUnusedListeners(){window.zoneDIntegrator&&window.zoneDIntegrator.cleanup&&window.zoneDIntegrator.cleanup(),window.kpiAnalyzer&&window.kpiAnalyzer.flushRealtimeBuffer&&window.kpiAnalyzer.flushRealtimeBuffer()}clearExpiredCache(){const e=Date.now();Object.keys(localStorage).forEach(t=>{if(t.startsWith("haqei_cache_"))try{const n=JSON.parse(localStorage.getItem(t));n.timestamp&&e-n.timestamp>864e5&&localStorage.removeItem(t)}catch(n){localStorage.removeItem(t)}})}generatePerformanceReport(){const e=performance.getEntriesByType("navigation")[0],t={timestamp:(new Date).toISOString(),loadTime:Math.round(e.loadEventEnd-e.loadEventStart),domContentLoaded:Math.round(e.domContentLoadedEventEnd-e.domContentLoadedEventStart),firstPaint:Math.round(performance.getEntriesByType("paint")[0]?.startTime||0),metrics:this.metrics,targets:this.performanceTargets,optimizations:this.optimizations,score:this.calculatePerformanceScore()};return console.log("📈 Performance Report:",t),t}calculatePerformanceScore(){const e=performance.getEntriesByType("navigation")[0];let t=100;e.loadEventEnd-e.loadEventStart>this.performanceTargets.totalLoadTime&&(t-=30);return(performance.getEntriesByType("paint")[0]?.startTime||0)>this.performanceTargets.firstPaint&&(t-=20),this.metrics.memoryUsage>this.performanceTargets.memoryLimit&&(t-=25),this.metrics.renderTime>this.performanceTargets.firstPaint&&(t-=25),Math.max(0,Math.min(100,t))}}"undefined"!=typeof window&&(window.PerformanceManager=PerformanceManager,"loading"===document.readyState?document.addEventListener("DOMContentLoaded",()=>{window.performanceManager=new PerformanceManager}):window.performanceManager=new PerformanceManager),"undefined"!=typeof module&&module.exports&&(module.exports=PerformanceManager);
+/**
+ * Performance Manager - Phase 4最適化システム
+ * ロード時間1.5秒以下、レンダリング最適化、メモリ管理
+ * 
+ * @class PerformanceManager
+ * @version 1.0.0
+ * @date 2025-08-12
+ */
+
+class PerformanceManager {
+    constructor() {
+        this.metrics = {
+            loadTime: 0,
+            renderTime: 0,
+            memoryUsage: 0,
+            scriptLoadTime: 0
+        };
+        
+        this.optimizations = {
+            lazyLoading: true,
+            codesplitting: true,
+            imageOptimization: true,
+            cacheManagement: true
+        };
+        
+        this.performanceTargets = {
+            totalLoadTime: 1500,    // 1.5秒以下
+            firstPaint: 800,        // 0.8秒以下
+            interactive: 1200,      // 1.2秒以下
+            memoryLimit: 50         // 50MB以下
+        };
+        
+        this.init();
+    }
+    
+    /**
+     * パフォーマンス監視開始
+     */
+    init() {
+        console.log('🚀 Performance Manager initializing...');
+        
+        // Core Web Vitals監視
+        this.startWebVitalsMonitoring();
+        
+        // リソース最適化
+        this.optimizeResources();
+        
+        // メモリ監視
+        this.startMemoryMonitoring();
+        
+        // 遅延ロード実装
+        this.implementLazyLoading();
+        
+        console.log('✅ Performance Manager initialized');
+    }
+    
+    /**
+     * Core Web Vitals監視
+     */
+    startWebVitalsMonitoring() {
+        // Largest Contentful Paint (LCP)
+        new PerformanceObserver((entryList) => {
+            for (const entry of entryList.getEntries()) {
+                console.log('📊 LCP:', Math.round(entry.startTime), 'ms');
+                this.metrics.renderTime = entry.startTime;
+                
+                if (entry.startTime > this.performanceTargets.firstPaint) {
+                    this.optimizeRendering();
+                }
+            }
+        }).observe({ entryTypes: ['largest-contentful-paint'] });
+        
+        // First Input Delay (FID)
+        new PerformanceObserver((entryList) => {
+            for (const entry of entryList.getEntries()) {
+                console.log('⚡ FID:', Math.round(entry.processingStart - entry.startTime), 'ms');
+            }
+        }).observe({ entryTypes: ['first-input'] });
+        
+        // Cumulative Layout Shift (CLS)
+        new PerformanceObserver((entryList) => {
+            for (const entry of entryList.getEntries()) {
+                if (!entry.hadRecentInput) {
+                    console.log('📐 CLS:', entry.value);
+                }
+            }
+        }).observe({ entryTypes: ['layout-shift'] });
+    }
+    
+    /**
+     * リソース最適化
+     */
+    optimizeResources() {
+        // Critical CSS inlining
+        this.inlineCriticalCSS();
+        
+        // Font preloading
+        this.preloadFonts();
+        
+        // Script defer/async optimization
+        this.optimizeScriptLoading();
+        
+        // Image lazy loading
+        this.optimizeImages();
+    }
+    
+    /**
+     * Critical CSS inline化
+     */
+    inlineCriticalCSS() {
+        // 既存のCritical CSSを最適化
+        const criticalStyles = `
+            /* Performance Critical CSS - Phase 4 */
+            body { 
+                font-display: swap;
+                will-change: auto;
+            }
+            
+            .screen {
+                contain: layout style paint;
+            }
+            
+            .zone-d-integration {
+                content-visibility: auto;
+                contain-intrinsic-size: 0 400px;
+            }
+            
+            /* GPU加速最適化 */
+            .confidence-gauge, .mobile-component {
+                transform: translateZ(0);
+                backface-visibility: hidden;
+            }
+        `;
+        
+        const style = document.createElement('style');
+        style.textContent = criticalStyles;
+        document.head.insertBefore(style, document.head.firstChild);
+    }
+    
+    /**
+     * フォントプリロード
+     */
+    preloadFonts() {
+        const fonts = [
+            'system-ui',
+            '-apple-system',
+            'BlinkMacSystemFont'
+        ];
+        
+        fonts.forEach(font => {
+            const link = document.createElement('link');
+            link.rel = 'preconnect';
+            link.href = font;
+            document.head.appendChild(link);
+        });
+    }
+    
+    /**
+     * スクリプトロード最適化
+     */
+    optimizeScriptLoading() {
+        const scripts = document.querySelectorAll('script[src]');
+        
+        scripts.forEach(script => {
+            // Phase 3コンポーネントは遅延ロード
+            if (script.src.includes('zone-d') || 
+                script.src.includes('mobile') || 
+                script.src.includes('analytics')) {
+                script.defer = true;
+            }
+            
+            // 重要なスクリプトは高優先度
+            if (script.src.includes('core') || 
+                script.src.includes('TripleOS')) {
+                script.fetchPriority = 'high';
+            }
+        });
+    }
+    
+    /**
+     * 画像最適化
+     */
+    optimizeImages() {
+        const images = document.querySelectorAll('img');
+        
+        images.forEach(img => {
+            // Lazy loading
+            img.loading = 'lazy';
+            
+            // Decode hint
+            img.decoding = 'async';
+            
+            // Intersection Observer for advanced lazy loading
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.classList.add('loaded');
+                            imageObserver.unobserve(img);
+                        }
+                    });
+                });
+                imageObserver.observe(img);
+            }
+        });
+    }
+    
+    /**
+     * 遅延ロード実装
+     */
+    implementLazyLoading() {
+        // Zone D components lazy loading
+        window.loadZoneDWhenNeeded = () => {
+            return new Promise((resolve) => {
+                if (window.zoneDIntegrator) {
+                    resolve();
+                    return;
+                }
+                
+                // Dynamic import simulation
+                setTimeout(() => {
+                    console.log('📦 Zone D components loaded lazily');
+                    resolve();
+                }, 100);
+            });
+        };
+        
+        // KPI Dashboard lazy loading
+        window.loadKPIDashboardWhenNeeded = () => {
+            return new Promise((resolve) => {
+                if (window.KPIDashboard) {
+                    resolve();
+                    return;
+                }
+                
+                setTimeout(() => {
+                    console.log('📊 KPI Dashboard loaded lazily');
+                    resolve();
+                }, 50);
+            });
+        };
+    }
+    
+    /**
+     * メモリ監視
+     */
+    startMemoryMonitoring() {
+        if ('memory' in performance) {
+            setInterval(() => {
+                const memory = performance.memory;
+                const usedMB = Math.round(memory.usedJSHeapSize / 1024 / 1024);
+                
+                this.metrics.memoryUsage = usedMB;
+                
+                if (usedMB > this.performanceTargets.memoryLimit) {
+                    console.warn('⚠️ Memory usage high:', usedMB, 'MB');
+                    this.performGarbageCollection();
+                }
+            }, 10000); // 10秒間隔
+        }
+    }
+    
+    /**
+     * レンダリング最適化
+     */
+    optimizeRendering() {
+        console.log('🎨 Optimizing rendering...');
+        
+        // Batch DOM updates
+        requestAnimationFrame(() => {
+            // Virtual scrolling for long lists
+            this.implementVirtualScrolling();
+            
+            // Debounced resize handlers
+            this.optimizeResizeHandlers();
+            
+            // CSS containment
+            this.applyCSSContainment();
+        });
+    }
+    
+    /**
+     * 仮想スクロール実装
+     */
+    implementVirtualScrolling() {
+        const longLists = document.querySelectorAll('.question-list, .result-list');
+        
+        longLists.forEach(list => {
+            if (list.children.length > 10) {
+                list.style.contain = 'layout style paint';
+                list.style.contentVisibility = 'auto';
+            }
+        });
+    }
+    
+    /**
+     * リサイズハンドラー最適化
+     */
+    optimizeResizeHandlers() {
+        let resizeTimeout;
+        
+        const optimizedResize = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                // Mobile optimizer resize
+                if (window.mobileOptimizer) {
+                    window.mobileOptimizer.handleResize();
+                }
+                
+                // Zone D responsive adjustments
+                this.adjustZoneDLayout();
+            }, 150);
+        };
+        
+        window.addEventListener('resize', optimizedResize, { passive: true });
+    }
+    
+    /**
+     * CSS containment適用
+     */
+    applyCSSContainment() {
+        const containmentElements = [
+            '.zone-container',
+            '.zone-d-integration',
+            '.mobile-component',
+            '.kpi-dashboard'
+        ];
+        
+        containmentElements.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                el.style.contain = 'layout style paint';
+            });
+        });
+    }
+    
+    /**
+     * Zone Dレイアウト調整
+     */
+    adjustZoneDLayout() {
+        const zoneD = document.querySelector('.zone-d-integration');
+        if (zoneD && window.innerWidth < 768) {
+            zoneD.style.gridTemplateColumns = '1fr';
+        } else if (zoneD) {
+            zoneD.style.gridTemplateColumns = '1fr 1fr 1fr';
+        }
+    }
+    
+    /**
+     * ガベージコレクション実行
+     */
+    performGarbageCollection() {
+        // Clear unused event listeners
+        this.clearUnusedListeners();
+        
+        // Clear cached data
+        this.clearExpiredCache();
+        
+        // Force garbage collection (Chrome DevTools)
+        if (window.gc) {
+            window.gc();
+        }
+    }
+    
+    /**
+     * 未使用イベントリスナー削除
+     */
+    clearUnusedListeners() {
+        // Zone D components cleanup
+        if (window.zoneDIntegrator && window.zoneDIntegrator.cleanup) {
+            window.zoneDIntegrator.cleanup();
+        }
+        
+        // KPI analyzer cleanup
+        if (window.kpiAnalyzer && window.kpiAnalyzer.flushRealtimeBuffer) {
+            window.kpiAnalyzer.flushRealtimeBuffer();
+        }
+    }
+    
+    /**
+     * 期限切れキャッシュ削除
+     */
+    clearExpiredCache() {
+        const now = Date.now();
+        const maxAge = 24 * 60 * 60 * 1000; // 24時間
+        
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('haqei_cache_')) {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    if (data.timestamp && (now - data.timestamp) > maxAge) {
+                        localStorage.removeItem(key);
+                    }
+                } catch (e) {
+                    localStorage.removeItem(key);
+                }
+            }
+        });
+    }
+    
+    /**
+     * パフォーマンスレポート生成
+     */
+    generatePerformanceReport() {
+        const navigation = performance.getEntriesByType('navigation')[0];
+        
+        const report = {
+            timestamp: new Date().toISOString(),
+            loadTime: Math.round(navigation.loadEventEnd - navigation.loadEventStart),
+            domContentLoaded: Math.round(navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart),
+            firstPaint: Math.round(performance.getEntriesByType('paint')[0]?.startTime || 0),
+            metrics: this.metrics,
+            targets: this.performanceTargets,
+            optimizations: this.optimizations,
+            score: this.calculatePerformanceScore()
+        };
+        
+        console.log('📈 Performance Report:', report);
+        return report;
+    }
+    
+    /**
+     * パフォーマンススコア計算
+     */
+    calculatePerformanceScore() {
+        const navigation = performance.getEntriesByType('navigation')[0];
+        const loadTime = navigation.loadEventEnd - navigation.loadEventStart;
+        
+        let score = 100;
+        
+        // ロード時間スコア
+        if (loadTime > this.performanceTargets.totalLoadTime) {
+            score -= 30;
+        }
+        
+        // First Paint スコア
+        const firstPaint = performance.getEntriesByType('paint')[0]?.startTime || 0;
+        if (firstPaint > this.performanceTargets.firstPaint) {
+            score -= 20;
+        }
+        
+        // メモリ使用量スコア
+        if (this.metrics.memoryUsage > this.performanceTargets.memoryLimit) {
+            score -= 25;
+        }
+        
+        // レンダリング時間スコア
+        if (this.metrics.renderTime > this.performanceTargets.firstPaint) {
+            score -= 25;
+        }
+        
+        return Math.max(0, Math.min(100, score));
+    }
+}
+
+// グローバル初期化
+if (typeof window !== 'undefined') {
+    window.PerformanceManager = PerformanceManager;
+    
+    // DOMロード後に自動初期化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.performanceManager = new PerformanceManager();
+        });
+    } else {
+        window.performanceManager = new PerformanceManager();
+    }
+}
+
+// エクスポート
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = PerformanceManager;
+}

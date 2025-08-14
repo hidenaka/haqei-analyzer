@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>H384キーワードベース進爻・変爻システム</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        /* H384データ表示エリア */
+        .h384-display {
+            background: linear-gradient(135deg, #f0f4ff, #e8ecff);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #667eea;
+        }
+        
+        .hex-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .hex-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .hex-name {
+            font-size: 32px;
+            color: #333;
+        }
+        
+        .line-info {
+            font-size: 24px;
+            color: #666;
+        }
+        
+        .keywords-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .keywords-title {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .keywords-list {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .keyword-tag {
+            background: #667eea;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .interpretation {
+            background: #fffbf0;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #f39c12;
+            margin-bottom: 20px;
+        }
+        
+        .interpretation-title {
+            font-weight: bold;
+            color: #f39c12;
+            margin-bottom: 10px;
+        }
+        
+        /* 選択肢表示 */
+        .choices-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .choice-card {
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .choice-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .choice-card.jin {
+            background: linear-gradient(to bottom, #e8f5e9, white);
+            border-color: #4CAF50;
+        }
+        
+        .choice-card.heng {
+            background: linear-gradient(to bottom, #fff3e0, white);
+            border-color: #FF9800;
+        }
+        
+        .choice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .choice-type-badge {
+            background: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 16px;
+            border: 2px solid;
+        }
+        
+        .jin .choice-type-badge {
+            color: #4CAF50;
+            border-color: #4CAF50;
+        }
+        
+        .heng .choice-type-badge {
+            color: #FF9800;
+            border-color: #FF9800;
+        }
+        
+        .choice-action {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        /* キーワード比較セクション */
+        .keyword-comparison {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .keyword-comparison-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        
+        .current-keywords {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .current-keyword {
+            background: #e0e0e0;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+        
+        .arrow {
+            font-size: 24px;
+            color: #666;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .next-keywords {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .next-keyword {
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .jin .next-keyword {
+            background: #c8e6c9;
+            color: #2E7D32;
+        }
+        
+        .heng .next-keyword {
+            background: #ffe0b2;
+            color: #E65100;
+        }
+        
+        /* 説明セクション */
+        .explanation-box {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .explanation-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .explanation-content {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* 次の状態表示 */
+        .next-state-display {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .next-state-header {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        
+        .next-state-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .next-hex-line {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .next-hex-name {
+            font-size: 18px;
+            color: #666;
+        }
+        
+        /* スコア表示 */
+        .scores-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .score-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .score-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        /* 結果表示 */
+        .results-container {
+            margin-top: 30px;
+        }
+        
+        .path-display {
+            background: #f0f4ff;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .path-item {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+        }
+        
+        .path-arrow {
+            display: inline-block;
+            margin: 0 10px;
+            color: #667eea;
+            font-size: 20px;
+        }
+        
+        .eight-patterns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .pattern-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            background: white;
+        }
+        
+        .pattern-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .pattern-keywords {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .pattern-final {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 H384キーワードベース進爻・変爻システム</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            384個の爻（64卦×6爻）それぞれのキーワードに基づいた選択システム
+        </p>
+        
+        <!-- 初期入力 -->
+        <div id="initialScreen">
+            <div style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin-bottom: 30px;">
+                <h2>悩みや状況を入力</h2>
+                <textarea id="worryInput" style="width: 100%; min-height: 120px; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;" placeholder="現在の悩みや状況を詳しく入力してください..."></textarea>
+                <div style="margin-top: 20px; display: flex; gap: 15px;">
+                    <button onclick="startSystem()" style="padding: 12px 30px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">分析開始</button>
+                    <button onclick="showAllPatterns()" style="padding: 12px 30px; background: #FF9800; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">8パターン一覧</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 選択画面 -->
+        <div id="choiceScreen" style="display: none;">
+            <!-- 現在の爻データ表示 -->
+            <div class="h384-display">
+                <div class="hex-info">
+                    <div>
+                        <span class="hex-number" id="hexNumber">-</span>
+                        <span class="hex-name" id="hexName">-</span>
+                    </div>
+                    <div class="line-info" id="lineInfo">-</div>
+                </div>
+                
+                <div class="keywords-section">
+                    <div class="keywords-title">384爻データベース キーワード</div>
+                    <div class="keywords-list" id="keywordsList">
+                        <!-- キーワードが表示される -->
+                    </div>
+                </div>
+                
+                <div class="interpretation">
+                    <div class="interpretation-title">現代解釈</div>
+                    <div id="interpretationText">-</div>
+                </div>
+                
+                <div class="scores-display">
+                    <div class="score-item">
+                        <div class="score-value" id="scoreBasic">-</div>
+                        <div class="score-label">基本スコア</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scorePotential">-</div>
+                        <div class="score-label">ポテンシャル</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreStability">-</div>
+                        <div class="score-label">安定性</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value" id="scoreRisk">-</div>
+                        <div class="score-label">リスク</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 選択肢 -->
+            <div class="choices-container">
+                <!-- 進爻選択 -->
+                <div class="choice-card jin" onclick="makeChoice('jin')">
+                    <div class="choice-header">
+                        <div class="choice-type-badge">進爻</div>
+                        <div class="choice-action">キーワードに沿って進む</div>
+                    </div>
+                    
+                    <div class="keyword-comparison">
+                        <div class="keyword-comparison-title">現在のキーワード</div>
+                        <div class="current-keywords" id="jinCurrentKeywords">
+                            <!-- 現在のキーワード -->
+                        </div>
+                        <div class="arrow">↓</div>
+                        <div class="keyword-comparison-title">次のキーワード（同じ卦・爻位+1）</div>
+                        <div class="next-keywords" id="jinNextKeywords">
+                            <!-- 次のキーワード -->
+                        </div>
+                    </div>
+                    
+                    <div class="explanation-box">
+                        <div class="explanation-title">なぜ進爻を選ぶか</div>
+                        <div class="explanation-content" id="jinExplanation">
+                            現在のキーワードテーマを深め、同じ卦内で成熟・発展させたい場合の選択です。
+                        </div>
+                    </div>
+                    
+                    <div class="next-state-display">
+                        <div class="next-state-header">次の状態</div>
+                        <div class="next-state-content">
+                            <div>
+                                <div class="next-hex-line" id="jinNextState">-</div>
+                                <div class="next-hex-name" id="jinNextName">-</div>
+                            </div>
+                            <div id="jinNextInterpretation" style="font-size: 14px; color: #666; max-width: 200px;">-</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 変爻選択 -->
+                <div class="choice-card heng" onclick="makeChoice('heng')">
+                    <div class="choice-header">
+                        <div class="choice-type-badge">変爻</div>
+                        <div class="choice-action">新しいテーマへ転換</div>
+                    </div>
+                    
+                    <div class="keyword-comparison">
+                        <div class="keyword-comparison-title">現在のキーワード</div>
+                        <div class="current-keywords" id="hengCurrentKeywords">
+                            <!-- 現在のキーワード -->
+                        </div>
+                        <div class="arrow">↓</div>
+                        <div class="keyword-comparison-title">次のキーワード（別の卦・同じ爻位）</div>
+                        <div class="next-keywords" id="hengNextKeywords">
+                            <!-- 次のキーワード -->
+                        </div>
+                    </div>
+                    
+                    <div class="explanation-box">
+                        <div class="explanation-title">なぜ変爻を選ぶか</div>
+                        <div class="explanation-content" id="hengExplanation">
+                            現在のキーワードテーマから離れ、全く新しい視点や方向性を探りたい場合の選択です。
+                        </div>
+                    </div>
+                    
+                    <div class="next-state-display">
+                        <div class="next-state-header">次の状態</div>
+                        <div class="next-state-content">
+                            <div>
+                                <div class="next-hex-line" id="hengNextState">-</div>
+                                <div class="next-hex-name" id="hengNextName">-</div>
+                            </div>
+                            <div id="hengNextInterpretation" style="font-size: 14px; color: #666; max-width: 200px;">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 結果画面 -->
+        <div id="resultsScreen" style="display: none;">
+            <div class="results-container">
+                <h2>分析結果</h2>
+                <div class="path-display" id="pathDisplay">
+                    <!-- パスが表示される -->
+                </div>
+                
+                <h3>8つの可能性パターン（384爻キーワードベース）</h3>
+                <div class="eight-patterns-grid" id="patternsGrid">
+                    <!-- 8パターンが表示される -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- H384データベース -->
+    <script src="assets/H384H64database.js"></script>
+    <!-- 3フェーズシステム -->
+    <script src="js/ThreePhaseSystem.js"></script>
+    
+    <script>
+        let threePhaseSystem = null;
+        let currentPhase = 0;
+        let decisionHistory = [];
+        
+        // H384データから爻情報を取得
+        function getH384Data(hexNum, lineNum) {
+            const index = (hexNum - 1) * 6 + lineNum - 1;
+            return H384_DATA[index] || null;
+        }
+        
+        // システム開始
+        function startSystem() {
+            const worryText = document.getElementById('worryInput').value;
+            if (!worryText) {
+                alert('悩みや状況を入力してください');
+                return;
+            }
+            
+            // 初期卦・爻を決定（簡易判定）
+            let initialHex = 1;
+            let initialLine = 1;
+            
+            if (worryText.includes('仕事') || worryText.includes('キャリア')) {
+                initialHex = 11; // 泰
+                initialLine = 1;
+            } else if (worryText.includes('人間関係')) {
+                initialHex = 13; // 同人
+                initialLine = 1;
+            } else if (worryText.includes('決断') || worryText.includes('迷')) {
+                initialHex = 3; // 屯
+                initialLine = 1;
+            }
+            
+            // システム初期化
+            threePhaseSystem = window.initThreePhaseSystem(initialHex, initialLine);
+            currentPhase = 0;
+            decisionHistory = [];
+            
+            // UI切り替え
+            document.getElementById('initialScreen').style.display = 'none';
+            document.getElementById('choiceScreen').style.display = 'block';
+            document.getElementById('resultsScreen').style.display = 'none';
+            
+            // 選択肢表示
+            displayChoices();
+        }
+        
+        // 選択肢表示（H384データベースのキーワード使用）
+        function displayChoices() {
+            const state = threePhaseSystem.manager.getCurrentState();
+            const currentData = getH384Data(state.hex, state.line);
+            
+            if (!currentData) return;
+            
+            // 現在の爻情報表示
+            document.getElementById('hexNumber').textContent = `卦${currentData['卦番号']}`;
+            document.getElementById('hexName').textContent = currentData['卦名'];
+            document.getElementById('lineInfo').textContent = currentData['爻'];
+            
+            // キーワード表示
+            const keywordsList = document.getElementById('keywordsList');
+            keywordsList.innerHTML = currentData['キーワード'].map(kw => 
+                `<span class="keyword-tag">${kw}</span>`
+            ).join('');
+            
+            // 解釈表示
+            document.getElementById('interpretationText').textContent = currentData['現代解釈の要約'];
+            
+            // スコア表示
+            document.getElementById('scoreBasic').textContent = currentData['S1_基本スコア'];
+            document.getElementById('scorePotential').textContent = currentData['S2_ポテンシャル'];
+            document.getElementById('scoreStability').textContent = currentData['S3_安定性スコア'];
+            document.getElementById('scoreRisk').textContent = currentData['S4_リスク'];
+            
+            // 進爻の情報
+            const jinNext = threePhaseSystem.manager.advanceLine(state.hex, state.line);
+            const jinData = getH384Data(jinNext.hex, jinNext.line);
+            
+            if (jinData) {
+                // 現在のキーワード
+                document.getElementById('jinCurrentKeywords').innerHTML = 
+                    currentData['キーワード'].map(kw => 
+                        `<span class="current-keyword">${kw}</span>`
+                    ).join('');
+                
+                // 次のキーワード
+                document.getElementById('jinNextKeywords').innerHTML = 
+                    jinData['キーワード'].map(kw => 
+                        `<span class="next-keyword">${kw}</span>`
+                    ).join('');
+                
+                // 説明
+                const jinKeywords = currentData['キーワード'].join('・');
+                document.getElementById('jinExplanation').textContent = 
+                    `現在の「${jinKeywords}」のテーマを深化させ、${jinData['キーワード'][0]}へと発展させます。同じ${currentData['卦名']}卦内での成熟プロセスです。`;
+                
+                // 次の状態
+                document.getElementById('jinNextState').textContent = 
+                    `卦${jinData['卦番号']}・${jinData['爻']}`;
+                document.getElementById('jinNextName').textContent = jinData['卦名'];
+                document.getElementById('jinNextInterpretation').textContent = 
+                    jinData['現代解釈の要約'].substring(0, 50) + '...';
+            }
+            
+            // 変爻の情報
+            const hengNext = threePhaseSystem.manager.changeHexagram(state.hex, state.line);
+            const hengData = getH384Data(hengNext.hex, hengNext.line);
+            
+            if (hengData) {
+                // 現在のキーワード
+                document.getElementById('hengCurrentKeywords').innerHTML = 
+                    currentData['キーワード'].map(kw => 
+                        `<span class="current-keyword">${kw}</span>`
+                    ).join('');
+                
+                // 次のキーワード
+                document.getElementById('hengNextKeywords').innerHTML = 
+                    hengData['キーワード'].map(kw => 
+                        `<span class="next-keyword">${kw}</span>`
+                    ).join('');
+                
+                // 説明
+                const currentKeywords = currentData['キーワード'].join('・');
+                const nextKeywords = hengData['キーワード'].join('・');
+                document.getElementById('hengExplanation').textContent = 
+                    `現在の「${currentKeywords}」から離れ、「${nextKeywords}」という全く新しいテーマへ転換します。${currentData['卦名']}から${hengData['卦名']}への変化です。`;
+                
+                // 次の状態
+                document.getElementById('hengNextState').textContent = 
+                    `卦${hengData['卦番号']}・${hengData['爻']}`;
+                document.getElementById('hengNextName').textContent = hengData['卦名'];
+                document.getElementById('hengNextInterpretation').textContent = 
+                    hengData['現代解釈の要約'].substring(0, 50) + '...';
+            }
+        }
+        
+        // 選択実行
+        function makeChoice(choice) {
+            const success = threePhaseSystem.makeChoice(choice);
+            
+            if (success) {
+                decisionHistory.push(choice === 'jin' ? '進' : '変');
+                currentPhase++;
+                
+                if (currentPhase >= 3) {
+                    showResults();
+                } else {
+                    displayChoices();
+                }
+            }
+        }
+        
+        // 結果表示
+        function showResults() {
+            document.getElementById('choiceScreen').style.display = 'none';
+            document.getElementById('resultsScreen').style.display = 'block';
+            
+            // パス表示
+            const states = threePhaseSystem.manager.states;
+            const pathDisplay = document.getElementById('pathDisplay');
+            
+            let pathHTML = '<h3>あなたの選択パス</h3><div>';
+            states.forEach((state, i) => {
+                const data = getH384Data(state.hex, state.line);
+                if (data) {
+                    const keywords = data['キーワード'].join('・');
+                    pathHTML += `<span class="path-item">卦${data['卦番号']}${data['爻']}<br><strong>${keywords}</strong></span>`;
+                    
+                    if (i < states.length - 1) {
+                        const action = decisionHistory[i] === '進' ? '進爻' : '変爻';
+                        pathHTML += `<span class="path-arrow">→${action}→</span>`;
+                    }
+                }
+            });
+            pathHTML += '</div>';
+            pathDisplay.innerHTML = pathHTML;
+            
+            // 8パターン表示
+            showAllPatterns(true);
+        }
+        
+        // 8パターン全表示
+        function showAllPatterns(fromResult = false) {
+            if (!fromResult) {
+                const worryText = document.getElementById('worryInput').value || '状況';
+                let initialHex = 1;
+                let initialLine = 1;
+                
+                if (worryText.includes('仕事')) initialHex = 11;
+                else if (worryText.includes('人間関係')) initialHex = 13;
+                else if (worryText.includes('決断')) initialHex = 3;
+                
+                threePhaseSystem = window.initThreePhaseSystem(initialHex, initialLine);
+                document.getElementById('resultsScreen').style.display = 'block';
+            }
+            
+            const allPaths = threePhaseSystem.manager.getAllPaths();
+            const grid = document.getElementById('patternsGrid');
+            
+            grid.innerHTML = allPaths.map((path, i) => {
+                const finalState = path.finalState;
+                const finalData = getH384Data(finalState.hex, finalState.line);
+                
+                // 各段階のキーワード取得
+                let keywordPath = path.path.map(state => {
+                    const data = getH384Data(state.hex, state.line);
+                    return data ? data['キーワード'][0] : '-';
+                });
+                
+                return `
+                    <div class="pattern-card">
+                        <div class="pattern-header">
+                            パターン${i+1}: ${path.pattern} (${path.patternDisplay})
+                        </div>
+                        <div class="pattern-keywords">
+                            <strong>キーワード変遷:</strong><br>
+                            ${keywordPath.join(' → ')}
+                        </div>
+                        <div class="pattern-final">
+                            <strong>最終状態:</strong><br>
+                            卦${finalData['卦番号']}・${finalData['爻']}<br>
+                            <strong>キーワード:</strong> ${finalData['キーワード'].join('・')}<br>
+                            <strong>スコア:</strong> ${finalData['S7_総合評価スコア']}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

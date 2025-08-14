@@ -1,0 +1,123 @@
+<\!DOCTYPE html>
+<html>
+<head>
+    <title>Quick I Ching Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .error { color: red; font-weight: bold; }
+        .success { color: green; font-weight: bold; }
+        .test-section { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Quick I Ching JavaScript Test</h1>
+    
+    <div class="test-section">
+        <h3>Test 1: Load JavaScript Files</h3>
+        <div id="test1-result">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: Await Error Check</h3>
+        <div id="test2-result">Testing...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: Core Function Test</h3>
+        <input type="text" id="test-input" placeholder="Enter situation for I Ching analysis" style="width: 300px;">
+        <button onclick="testIChingAnalysis()">Test Analysis</button>
+        <div id="test3-result"></div>
+    </div>
+    
+    <script>
+        let errorCount = 0;
+        let awaitErrors = [];
+        
+        window.onerror = function(message, source, lineno, colno, error) {
+            errorCount++;
+            if (message.includes('await is only valid in async functions')) {
+                awaitErrors.push(message + ' at ' + source + ':' + lineno);
+            }
+            console.error('JS Error:', message, 'at', source + ':' + lineno);
+        };
+        
+        // Test 1: Load core JavaScript files
+        function loadTestScript(src, callback) {
+            const script = document.createElement('script');
+            script.onload = callback;
+            script.onerror = () => callback(false);
+            script.src = src;
+            document.head.appendChild(script);
+        }
+        
+        let scriptsLoaded = 0;
+        let scriptsToLoad = [
+            './public/js/future-simulator-core.js',
+            './public/js/app.js'
+        ];
+        
+        function checkLoadComplete() {
+            scriptsLoaded++;
+            if (scriptsLoaded >= scriptsToLoad.length) {
+                setTimeout(() => {
+                    // Test 1 Results
+                    document.getElementById('test1-result').innerHTML = 
+                        errorCount === 0 ? 
+                        '<span class="success">✅ Scripts loaded without errors</span>' :
+                        '<span class="error">❌ ' + errorCount + ' JavaScript errors detected</span>';
+                    
+                    // Test 2 Results
+                    document.getElementById('test2-result').innerHTML = 
+                        awaitErrors.length === 0 ? 
+                        '<span class="success">✅ No await errors detected</span>' :
+                        '<span class="error">❌ ' + awaitErrors.length + ' await errors found:<br>' + 
+                        awaitErrors.join('<br>') + '</span>';
+                }, 1000);
+            }
+        }
+        
+        // Load scripts
+        scriptsToLoad.forEach(src => {
+            loadTestScript(src, checkLoadComplete);
+        });
+        
+        // Test 3: I Ching Analysis Test
+        function testIChingAnalysis() {
+            const input = document.getElementById('test-input').value;
+            const resultDiv = document.getElementById('test3-result');
+            
+            if (\!input) {
+                resultDiv.innerHTML = '<span class="error">Please enter a situation</span>';
+                return;
+            }
+            
+            resultDiv.innerHTML = 'Testing analysis...';
+            
+            try {
+                // Try to call I Ching analysis functions
+                if (typeof window.FutureSimulator \!== 'undefined' && window.FutureSimulator.Core) {
+                    resultDiv.innerHTML = '<span class="success">✅ FutureSimulator found</span>';
+                    
+                    // Test core initialization
+                    if (window.FutureSimulator.Core.initialized) {
+                        resultDiv.innerHTML += '<br><span class="success">✅ Core initialized</span>';
+                    } else {
+                        resultDiv.innerHTML += '<br><span class="error">❌ Core not initialized</span>';
+                    }
+                } else {
+                    resultDiv.innerHTML = '<span class="error">❌ FutureSimulator not found</span>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<span class="error">❌ Error testing analysis: ' + error.message + '</span>';
+            }
+        }
+        
+        // Auto-test after 3 seconds
+        setTimeout(() => {
+            document.getElementById('test-input').value = '仕事で重要な決断を迫られています';
+            testIChingAnalysis();
+        }, 3000);
+    </script>
+</body>
+</html>
+EOF < /dev/null
