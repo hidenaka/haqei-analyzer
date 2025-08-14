@@ -116,3 +116,22 @@ security-reports/
 performance-reports/
 *.pkl
 .serena/cache/
+
+# Test artifacts (added 2025-08-14)
+test/archive/
+test/screenshots/
+test/html/
+playwright-report*/
+test-results/
+
+# Documentation archives
+docs/archive/
+
+# Screenshot files
+*.png
+*.jpg
+*.jpeg
+
+# JSON test results
+*-test-report*.json
+*-verification*.json

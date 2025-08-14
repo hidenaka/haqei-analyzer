@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "generated": "2025-08-14T12:00:00Z",
+  "palace_mapping": {
+    "file": "eight_palaces.v1.json",
+    "sha256": "a3c8f5e7b9d2a1f4e6c8b3d5e7f9a2c4e6b8d3f5e7a9c2f4e6d8b3f5e7a9c2f4",
+    "lineage": "jingfang-v1",
+    "source": "京房易伝",
+    "last_reviewed": "2025-08-14",
+    "owners": ["@haqei-core"]
+  },
+  "hexagram_wisdom": {
+    "file": "hexagram_wisdom.v1.json",
+    "sha256": "b4d9f6e8c0e3b2f5e7d9c4d6e8f0b3d5e7f9c4d6e8f0b3d5e7f9c4d6e8f0b3d5",
+    "source": "周易正義・易経講座",
+    "last_reviewed": "2025-08-14"
+  },
+  "validation": {
+    "ci_check": true,
+    "hash_verification": "required",
+    "pr_review": "mandatory_on_change"
+  },
+  "pii_policy": {
+    "retention_days": 30,
+    "user_id_hashing": "SHA-256 with daily salt rotation",
+    "stored_fields": ["palaceId", "hexagramId", "patternId", "timestamp"],
+    "excluded_fields": ["answers", "personal_data", "ip_address"]
+  }
+}

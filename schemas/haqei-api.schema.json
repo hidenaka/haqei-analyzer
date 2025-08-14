@@ -1,0 +1,274 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HAQEI Triple OS API Schema",
+  "version": "2.2.2",
+  "description": "JSON Schema for HAQEI Triple OS analysis system",
+  
+  "definitions": {
+    "hexagramId": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64,
+      "description": "I-Ching hexagram ID (1-64)"
+    },
+    
+    "strength": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Strength value (0-100)"
+    },
+    
+    "palaceId": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 7,
+      "description": "Eight Palace ID (0-7)"
+    },
+    
+    "patternId": {
+      "type": "object",
+      "required": ["str", "int"],
+      "properties": {
+        "str": {
+          "type": "string",
+          "pattern": "^[0-7]{3}$",
+          "description": "512 pattern ID string format (000-777)"
+        },
+        "int": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 511,
+          "description": "512 pattern ID integer format (0-511)"
+        }
+      },
+      "description": "512 pattern ID in dual representation"
+    },
+    
+    "osType": {
+      "type": "string",
+      "enum": ["engineOS", "interfaceOS", "safeModeOS"],
+      "description": "Triple OS type"
+    },
+    
+    "osData": {
+      "type": "object",
+      "required": ["hexagramId", "strength", "name", "description"],
+      "properties": {
+        "hexagramId": { "$ref": "#/definitions/hexagramId" },
+        "strength": { "$ref": "#/definitions/strength" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "baguaEnergies": {
+          "type": "object",
+          "properties": {
+            "乾": { "$ref": "#/definitions/strength" },
+            "坤": { "$ref": "#/definitions/strength" },
+            "震": { "$ref": "#/definitions/strength" },
+            "巽": { "$ref": "#/definitions/strength" },
+            "坎": { "$ref": "#/definitions/strength" },
+            "離": { "$ref": "#/definitions/strength" },
+            "艮": { "$ref": "#/definitions/strength" },
+            "兌": { "$ref": "#/definitions/strength" }
+          }
+        }
+      }
+    },
+    
+    "palaceData": {
+      "type": "object",
+      "required": ["id", "name", "nature", "element", "hexagrams"],
+      "properties": {
+        "id": { "$ref": "#/definitions/palaceId" },
+        "name": {
+          "type": "string",
+          "enum": ["乾宮", "坤宮", "震宮", "巽宮", "坎宮", "離宮", "艮宮", "兌宮"]
+        },
+        "nature": { "type": "string" },
+        "element": {
+          "type": "string",
+          "enum": ["天", "地", "雷", "風", "水", "火", "山", "沢"]
+        },
+        "hexagrams": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/hexagramId" },
+          "minItems": 8,
+          "maxItems": 8
+        },
+        "strength": { "type": "string" },
+        "weakness": { "type": "string" },
+        "typicalBehavior": { "type": "string" },
+        "growthPath": { "type": "string" }
+      }
+    },
+    
+    "balancePattern": {
+      "type": "object",
+      "required": ["type", "description", "strength", "caution"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["外向的リーダー型", "内向的創造者型", "サポート特化型", "観察者型"]
+        },
+        "description": { "type": "string" },
+        "strength": { "type": "string" },
+        "caution": { "type": "string" }
+      }
+    },
+    
+    "growthStage": {
+      "type": "object",
+      "required": ["stage", "description", "nextStep", "timeline"],
+      "properties": {
+        "stage": {
+          "type": "string",
+          "enum": ["探索期", "成長期", "確立期", "成熟期"]
+        },
+        "description": { "type": "string" },
+        "nextStep": { "type": "string" },
+        "timeline": { "type": "string" }
+      }
+    },
+    
+    "qualityMetrics": {
+      "type": "object",
+      "required": ["consistency", "balance", "coverage"],
+      "properties": {
+        "consistency": { "$ref": "#/definitions/strength" },
+        "balance": { "$ref": "#/definitions/strength" },
+        "coverage": { "$ref": "#/definitions/strength" }
+      }
+    }
+  },
+  
+  "type": "object",
+  "oneOf": [
+    {
+      "$ref": "#/schemas/analysisRequest"
+    },
+    {
+      "$ref": "#/schemas/analysisResponse"
+    },
+    {
+      "$ref": "#/schemas/traceLog"
+    }
+  ],
+  
+  "schemas": {
+    "analysisRequest": {
+      "type": "object",
+      "required": ["answers"],
+      "properties": {
+        "requestId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "answers": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "minItems": 36,
+          "maxItems": 36
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "enableDebug": { "type": "boolean" },
+            "includeMetrics": { "type": "boolean" },
+            "language": {
+              "type": "string",
+              "enum": ["ja", "en", "zh"]
+            }
+          }
+        }
+      }
+    },
+    
+    "analysisResponse": {
+      "type": "object",
+      "required": ["requestId", "timestamp", "results"],
+      "properties": {
+        "requestId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "results": {
+          "type": "object",
+          "required": ["engineOS", "interfaceOS", "safeModeOS", "patternId", "palace_source", "advice"],
+          "properties": {
+            "engineOS": { "$ref": "#/definitions/osData" },
+            "interfaceOS": { "$ref": "#/definitions/osData" },
+            "safeModeOS": { "$ref": "#/definitions/osData" },
+            "patternId": { "$ref": "#/definitions/patternId" },
+            "palace_source": {
+              "type": "string",
+              "enum": ["jingfang-std-v1"],
+              "description": "Palace mapping source and version"
+            },
+            "palaces": {
+              "type": "object",
+              "properties": {
+                "engine": { "$ref": "#/definitions/palaceData" },
+                "interface": { "$ref": "#/definitions/palaceData" },
+                "safeMode": { "$ref": "#/definitions/palaceData" }
+              }
+            },
+            "balancePattern": { "$ref": "#/definitions/balancePattern" },
+            "growthStage": { "$ref": "#/definitions/growthStage" },
+            "qualityMetrics": { "$ref": "#/definitions/qualityMetrics" },
+            "advice": {
+              "type": "object",
+              "required": ["observation", "strengths", "growth", "practice", "cautions"],
+              "properties": {
+                "observation": { "type": "string" },
+                "strengths": { "type": "string" },
+                "growth": { "type": "string" },
+                "practice": { "type": "string" },
+                "cautions": { "type": "string" }
+              }
+            }
+          }
+        },
+        "debug": {
+          "type": "object",
+          "properties": {
+            "processingTime": { "type": "number" },
+            "memoryUsage": { "type": "number" },
+            "traceLog": { "$ref": "#/schemas/traceLog" }
+          }
+        }
+      }
+    },
+    
+    "traceLog": {
+      "type": "object",
+      "required": ["timestamp", "entries"],
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time" },
+        "requestId": { "type": "string" },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["step", "input", "output", "duration"],
+            "properties": {
+              "step": { "type": "string" },
+              "input": { "type": "object" },
+              "output": { "type": "object" },
+              "duration": { "type": "number" },
+              "error": { "type": "string" }
+            }
+          }
+        },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "totalSteps": { "type": "integer" },
+            "totalDuration": { "type": "number" },
+            "errors": { "type": "integer" },
+            "warnings": { "type": "integer" }
+          }
+        }
+      }
+    }
+  }
+}
