@@ -1416,6 +1416,8 @@
     
     <!-- Core System Assets - 最適化読み込み順序 -->
     <script src="./assets/H384H64database.js"></script>
+    <script src="./js/DataDrivenKeywordAnalyzer.js"></script>
+    <script src="./js/ThreePhaseSystem.js"></script>
     <script src="./js/core/H384DatabaseConnector.js"></script>
     <script src="./js/core/IChingChoiceLogic.js"></script>
     <script src="./js/core/DynamicScenarioColorSystem.js"></script>
@@ -1434,8 +1436,11 @@
     <script src="./js/core/charts.js"></script>
     <script src="./js/core/contract-integration.js"></script>
     
-    <!-- H384_DATA読み込み順序確認 -->
+    <!-- H384_DATA読み込み順序確認 & DataDrivenAnalyzer初期化 -->
     <script>
+        // グローバル変数としてDataDrivenAnalyzerを保持
+        let dataAnalyzer = null;
+        
         (function() {
             console.log('🔍 H384_DATA読み込み順序確認を開始...');
             
@@ -1467,6 +1472,19 @@
                 // データ完全性の基本確認
                 if (Array.isArray(window.H384_DATA) && window.H384_DATA.length === 386) {
                     console.log('✅ H384_DATAデータ完全性確認: 成功 (386エントリ)');
+                    
+                    // DataDrivenKeywordAnalyzerの初期化
+                    if (typeof DataDrivenKeywordAnalyzer !== 'undefined') {
+                        try {
+                            dataAnalyzer = new DataDrivenKeywordAnalyzer(window.H384_DATA);
+                            window.dataAnalyzer = dataAnalyzer; // グローバルアクセス用
+                            console.log('✅ DataDrivenKeywordAnalyzer初期化: 成功');
+                        } catch (error) {
+                            console.error('❌ DataDrivenKeywordAnalyzer初期化エラー:', error);
+                        }
+                    } else {
+                        console.warn('⚠️ DataDrivenKeywordAnalyzerクラスが見つかりません');
+                    }
                     
                     // 用九・用六エントリの確認
                     const youkuu = window.H384_DATA.find(item => item['通し番号'] === 7);
@@ -1938,21 +1956,22 @@
         console.log('📊 Chart containers initialized');
       }
       
-      // 進爻・変爻による8シナリオ動的生成（易経の正しい変化ロジック）
+      // 3フェーズ進爻・変爻システム（正しい2³=8パターン生成）
       function generateJingYaoHengYaoScenarios(inputText) {
-        console.log('🔮 進爻・変爻による動的生成開始:', inputText.substring(0, 30));
+        console.log('🔮 3フェーズシステムによる8パターン生成開始:', inputText.substring(0, 30));
         
         // 入力分析
         const analysis = analyzeInputForHexagram(inputText);
         
-        // 本卦選定
-        const baseHex = selectBaseHexagram(analysis);
-        console.log(`📊 選定された本卦: ${baseHex}番`);
+        // 初期卦・爻選定
+        const initial = selectInitialHexLine(analysis);
+        const initialInfo = getHexagramInfo(initial.hex, initial.line);
+        console.log(`📊 初期状態: ${initialInfo.hexName}・${initialInfo.lineName}「${initialInfo.keywords[0] || ''}」`);
         
-        // 進爻・変爻シナリオ生成
-        const scenarios = generateEightTransformationPaths(baseHex, analysis, inputText);
+        // 3フェーズシステムで8パターン生成
+        const scenarios = generateThreePhaseScenarios(initial.hex, initial.line, analysis, inputText);
         
-        console.log(`✅ 8つのシナリオ生成完了 (進爻: ${scenarios.filter(s => s.type === 'advance').length}, 変爻: ${scenarios.filter(s => s.type === 'change').length})`);
+        console.log(`✅ 8パターン生成完了 (JJJ, JJH, JHJ, JHH, HJJ, HJH, HHJ, HHH)`);
         return scenarios;
       }
       
@@ -1972,154 +1991,511 @@
         };
       }
       
-      // 本卦選定ロジック（易経64卦から適切な卦を選ぶ）
-      function selectBaseHexagram(analysis) {
-        // 状況に応じた卦の選定
-        if (analysis.hasDecision && analysis.hasWork) return 3;   // 屯（始まりの困難）
-        if (analysis.hasConflict && analysis.hasRelation) return 6; // 訟（争い）
-        if (analysis.hasWork && !analysis.hasConflict) return 11;  // 泰（安泰・調和）
-        if (analysis.hasRelation && analysis.emotion === 'negative') return 37; // 家人（家族）
-        if (analysis.hasChange && analysis.urgency === 'high') return 49; // 革（革命）
-        if (analysis.hasFuture && analysis.complexity === 'high') return 1; // 乾（創造）
+      // 初期卦・爻選定ロジック（384爻から適切な起点を選ぶ）
+      function selectInitialHexLine(analysis) {
+        let hex = 1;  // デフォルト：乾為天
+        let line = 1; // デフォルト：初九
         
-        // デフォルト: 複雑度と緊急度で判定
-        if (analysis.complexity === 'high' && analysis.urgency === 'high') return 51; // 震（雷）
-        if (analysis.complexity === 'high' && analysis.urgency === 'normal') return 2; // 坤（地）
+        // 状況に応じた卦の選定（易経の意味に基づく）
+        if (analysis.hasDecision && analysis.hasWork) {
+          hex = 3;   // 水雷屯 - 始まりの困難、起業の卦
+          line = 1;  // 初九 - 慎重な開始
+        }
+        else if (analysis.hasConflict && analysis.hasRelation) {
+          hex = 6;   // 天水訟 - 争訟、対立の卦
+          line = 2;  // 九二 - 中正の道
+        }
+        else if (analysis.hasWork && !analysis.hasConflict) {
+          hex = 11;  // 地天泰 - 安泰、上下和合の卦
+          line = 1;  // 初九 - 基礎からの成長
+        }
+        else if (analysis.hasRelation && analysis.emotion === 'negative') {
+          hex = 37;  // 風火家人 - 家族、内なる調和の卦
+          line = 1;  // 初九 - 家を整える
+        }
+        else if (analysis.hasChange && analysis.urgency === 'high') {
+          hex = 49;  // 沢火革 - 革命、大きな変革の卦
+          line = 3;  // 九三 - 変革の中心
+        }
+        else if (analysis.hasFuture && analysis.complexity === 'high') {
+          hex = 1;   // 乾為天 - 創造、純粋な陽の卦
+          line = 1;  // 初九 - 潜龍勿用
+        }
         
-        return 1; // 乾（創造力）
+        return { hex, line };
       }
       
-      // 8つの変化パス生成（進爻4つ + 変爻4つ）
-      function generateEightTransformationPaths(baseHex, analysis, inputText) {
+      // H384データベースから動的にテーマの継続性を説明する関数（進爻用）
+      function getThematicConnection(prevKeyword, nextKeyword) {
+        // キーワードの意味カテゴリを分析
+        const analyzeKeywordCategory = (keyword) => {
+          // 準備・開始系
+          if (['準備', '基礎固め', '学習', 'ポテンシャル', '始まり', '待機'].includes(keyword)) {
+            return 'preparation';
+          }
+          // 協力・関係系
+          if (['協力', '協力者', '出会い', '信頼', '公の場', 'パートナー', '信頼関係'].includes(keyword)) {
+            return 'cooperation';
+          }
+          // 成長・発展系
+          if (['チャンス到来', '成長', '発展', 'チャンス', '成果'].includes(keyword)) {
+            return 'growth';
+          }
+          // リーダーシップ系
+          if (['リーダー', 'リーダーシップ', '公明正大', '中核'].includes(keyword)) {
+            return 'leadership';
+          }
+          // 困難・試練系
+          if (['困難', 'リスクあり', '危機', '停滞', '危険'].includes(keyword)) {
+            return 'difficulty';
+          }
+          // 安定・成熟系
+          if (['安定', '吉', '問題なし', '安全第一', '休息'].includes(keyword)) {
+            return 'stability';
+          }
+          // 内省・慎重系
+          if (['内省', '慎重', '忍耐', '待機', '口を閉ざす'].includes(keyword)) {
+            return 'reflection';
+          }
+          // 変革・転換系
+          if (['改革', '革新', '転換点', '方針転換'].includes(keyword)) {
+            return 'transformation';
+          }
+          return 'other';
+        };
+        
+        const prevCategory = analyzeKeywordCategory(prevKeyword);
+        const nextCategory = analyzeKeywordCategory(nextKeyword);
+        
+        // カテゴリの組み合わせで関係性を動的生成
+        if (prevCategory === 'preparation' && nextCategory === 'cooperation') {
+          return `準備段階から協力関係の構築へと自然に発展`;
+        }
+        if (prevCategory === 'preparation' && nextCategory === 'growth') {
+          return `準備が整い、成長の機会が訪れる`;
+        }
+        if (prevCategory === 'cooperation' && nextCategory === 'stability') {
+          return `協力関係が安定し、信頼が深まる`;
+        }
+        if (prevCategory === 'cooperation' && nextCategory === 'leadership') {
+          return `協力から主導的立場への成長`;
+        }
+        if (prevCategory === 'growth' && nextCategory === 'leadership') {
+          return `成長を経てリーダーシップを発揮`;
+        }
+        if (prevCategory === 'difficulty' && nextCategory === 'reflection') {
+          return `困難に直面し、内省と慎重な対応へ`;
+        }
+        if (prevCategory === 'reflection' && nextCategory === 'growth') {
+          return `内省期間を経て成長の機会を掴む`;
+        }
+        if (prevCategory === 'stability' && nextCategory === 'growth') {
+          return `安定を基盤に更なる成長へ`;
+        }
+        
+        // 同じカテゴリ内での深化
+        if (prevCategory === nextCategory) {
+          return `「${prevKeyword}」から「${nextKeyword}」へ、同じテーマ内での深化と成熟`;
+        }
+        
+        // デフォルト：キーワードの直接比較
+        return `「${prevKeyword}」の段階から「${nextKeyword}」へと段階的に発展`;
+      }
+      
+      // H384データベースから動的にテーマの転換を説明する関数（変爻用）
+      function getThematicShift(prevKeyword, nextKeyword) {
+        // キーワードの対立概念を分析
+        const getOppositeTheme = (keyword) => {
+          const opposites = {
+            '準備': '即行動',
+            '協力': '独立',
+            '安定': '変革',
+            '信頼': '革新',
+            'ポテンシャル': '現実',
+            '学習': '実践',
+            '内省': '外向',
+            '忍耐': '積極',
+            '守り': '攻撃',
+            '受動': '能動'
+          };
+          return opposites[keyword] || null;
+        };
+        
+        // 意味的な距離を計算
+        const calculateSemanticDistance = (prev, next) => {
+          const prevCat = analyzeKeywordCategory(prev);
+          const nextCat = analyzeKeywordCategory(next);
+          
+          // 正反対のカテゴリ
+          const oppositeCategories = {
+            'preparation': 'transformation',
+            'cooperation': 'difficulty',
+            'stability': 'transformation',
+            'reflection': 'leadership'
+          };
+          
+          if (oppositeCategories[prevCat] === nextCat) {
+            return 'opposite';
+          }
+          if (prevCat !== nextCat) {
+            return 'different';
+          }
+          return 'similar';
+        };
+        
+        const distance = calculateSemanticDistance(prevKeyword, nextKeyword);
+        
+        // 距離に基づいた転換の説明を生成
+        if (distance === 'opposite') {
+          return `「${prevKeyword}」から正反対の「${nextKeyword}」へ、根本的な方向転換`;
+        }
+        if (distance === 'different') {
+          // カテゴリ分析を使用
+          const prevCat = analyzeKeywordCategory(prevKeyword);
+          const nextCat = analyzeKeywordCategory(nextKeyword);
+          
+          if (prevCat === 'preparation' && nextCat === 'transformation') {
+            return `準備段階を離れ、抜本的な変革へと舵を切る`;
+          }
+          if (prevCat === 'cooperation' && nextCat === 'difficulty') {
+            return `協力関係から困難な状況への転換`;
+          }
+          if (prevCat === 'stability' && nextCat === 'transformation') {
+            return `安定から脱却し、新たな変革へ挑戦`;
+          }
+          if (prevCat === 'reflection' && nextCat === 'leadership') {
+            return `内省的な状態から積極的なリーダーシップへの転換`;
+          }
+          
+          return `「${prevKeyword}」のテーマから離れ、「${nextKeyword}」という新しい方向性へ`;
+        }
+        
+        // デフォルト
+        return `「${prevKeyword}」から「${nextKeyword}」へ、質的に異なる展開`;
+      }
+      
+      // キーワードカテゴリ分析のヘルパー関数
+      function analyzeKeywordCategory(keyword) {
+        // 準備・開始系
+        if (['準備', '基礎固め', '学習', 'ポテンシャル', '始まり', '待機', '予兆', '初霜'].includes(keyword)) {
+          return 'preparation';
+        }
+        // 協力・関係系
+        if (['協力', '協力者', '出会い', '信頼', '公の場', 'パートナー', '信頼関係', '包容力'].includes(keyword)) {
+          return 'cooperation';
+        }
+        // 成長・発展系
+        if (['チャンス到来', '成長', '発展', 'チャンス', '成果', '吉'].includes(keyword)) {
+          return 'growth';
+        }
+        // リーダーシップ系
+        if (['リーダー', 'リーダーシップ', '公明正大', '中核', '勝利'].includes(keyword)) {
+          return 'leadership';
+        }
+        // 困難・試練系
+        if (['困難', 'リスクあり', '危機', '停滞', '危険', '凶', '絶望'].includes(keyword)) {
+          return 'difficulty';
+        }
+        // 安定・成熟系
+        if (['安定', '問題なし', '安全第一', '休息', '堅実', '持続'].includes(keyword)) {
+          return 'stability';
+        }
+        // 内省・慎重系
+        if (['内省', '慎重', '忍耐', '待機', '口を閉ざす', '内面の美徳'].includes(keyword)) {
+          return 'reflection';
+        }
+        // 変革・転換系
+        if (['改革', '革新', '転換点', '方針転換', '撤退', '再編'].includes(keyword)) {
+          return 'transformation';
+        }
+        return 'other';
+      }
+      
+      // H384データから卦名と爻名を取得する関数
+      function getHexagramInfo(hexNum, lineNum) {
+        // 64卦の正式名称
+        const hexagramNames = {
+          1: '乾為天', 2: '坤為地', 3: '水雷屯', 4: '山水蒙',
+          5: '水天需', 6: '天水訟', 7: '地水師', 8: '水地比',
+          9: '風天小畜', 10: '天沢履', 11: '地天泰', 12: '天地否',
+          13: '天火同人', 14: '火天大有', 15: '地山謙', 16: '雷地豫',
+          17: '沢雷随', 18: '山風蠱', 19: '地沢臨', 20: '風地観',
+          21: '火雷噬嗑', 22: '山火賁', 23: '山地剥', 24: '地雷復',
+          25: '天雷無妄', 26: '山天大畜', 27: '山雷頤', 28: '沢風大過',
+          29: '坎為水', 30: '離為火', 31: '沢山咸', 32: '雷風恒',
+          33: '天山遯', 34: '雷天大壮', 35: '火地晋', 36: '地火明夷',
+          37: '風火家人', 38: '火沢睽', 39: '水山蹇', 40: '雷水解',
+          41: '山沢損', 42: '風雷益', 43: '沢天夬', 44: '天風姤',
+          45: '沢地萃', 46: '地風升', 47: '沢水困', 48: '水風井',
+          49: '沢火革', 50: '火風鼎', 51: '震為雷', 52: '艮為山',
+          53: '風山漸', 54: '雷沢帰妹', 55: '雷火豊', 56: '火山旅',
+          57: '巽為風', 58: '兌為沢', 59: '風水渙', 60: '水沢節',
+          61: '風沢中孚', 62: '雷山小過', 63: '水火既済', 64: '火水未済'
+        };
+        
+        // 爻位の名称（陰陽と位置による）
+        const lineNames = ['初', '二', '三', '四', '五', '上'];
+        
+        // H384データから詳細情報を取得
+        if (typeof H384_DATA !== 'undefined') {
+          const index = (hexNum - 1) * 6 + lineNum - 1;
+          const entry = H384_DATA[index];
+          if (entry) {
+            return {
+              hexName: entry['卦名'] || hexagramNames[hexNum],
+              lineName: entry['爻'] || `${lineNames[lineNum - 1]}爻`,
+              keywords: entry['キーワード'] || [],
+              interpretation: entry['現代解釈の要約'] || ''
+            };
+          }
+        }
+        
+        // フォールバック
+        return {
+          hexName: hexagramNames[hexNum] || `卦${hexNum}`,
+          lineName: `${lineNames[lineNum - 1]}爻`,
+          keywords: [],
+          interpretation: ''
+        };
+      }
+      
+      // 3フェーズで8パターン生成（2³=8通り）
+      function generateThreePhaseScenarios(initialHex, initialLine, analysis, inputText) {
+        const patterns = ['JJJ', 'JJH', 'JHJ', 'JHH', 'HJJ', 'HJH', 'HHJ', 'HHH'];
         const scenarios = [];
         
-        // 進爻シナリオ（1,3,5,6爻の4段階）
-        [1, 3, 5, 6].forEach((line, index) => {
-          scenarios.push(generateAdvanceScenario(baseHex, line, analysis, inputText, index + 1));
-        });
-        
-        // 変爻シナリオ（重要な爻の変化による4つの転機）
-        const importantLines = selectImportantLines(baseHex, analysis);
-        importantLines.slice(0, 4).forEach((line, index) => {
-          scenarios.push(generateChangeScenario(baseHex, line, analysis, inputText, index + 1));
+        patterns.forEach((pattern, index) => {
+          const path = simulateThreePhaseJourney(initialHex, initialLine, pattern);
+          const scenario = createScenarioFromPath(path, pattern, analysis, inputText, index + 1);
+          scenarios.push(scenario);
         });
         
         return scenarios;
       }
       
-      // 進爻シナリオ生成
-      function generateAdvanceScenario(baseHex, line, analysis, inputText, order) {
-        const stageNames = {
-          1: { name: "萌芽期", iching: "潜龍勿用", description: "まだ動かずに力を蓄える時期" },
-          2: { name: "準備期", iching: "見龍在田", description: "準備を整え機会を窺う時期" },
-          3: { name: "実行期", iching: "君子終日乾乾", description: "積極的に行動を起こす時期" },
-          4: { name: "発展期", iching: "或躍在淵", description: "大きな変化の機会が来る時期" },
-          5: { name: "成熟期", iching: "飛龍在天", description: "力を存分に発揮する時期" },
-          6: { name: "完成期", iching: "亢龍有悔", description: "成果を得て次への転換を考える時期" }
-        };
+      // 3フェーズの旅をシミュレート
+      function simulateThreePhaseJourney(initialHex, initialLine, pattern) {
+        const states = [{ hex: initialHex, line: initialLine, phase: 0 }];
+        let currentHex = initialHex;
+        let currentLine = initialLine;
         
-        const stage = stageNames[line] || stageNames[1];
+        for (let i = 0; i < pattern.length; i++) {
+          const choice = pattern[i];
+          
+          if (choice === 'J') {
+            // 進爻：爻位+1（同じ卦）
+            currentLine = currentLine < 6 ? currentLine + 1 : 1;
+          } else {
+            // 変爻：卦変化（爻位保持）
+            currentHex = calculateTransformedHex(currentHex, currentLine);
+          }
+          
+          states.push({
+            hex: currentHex,
+            line: currentLine,
+            phase: i + 1,
+            choice: choice === 'J' ? '進爻' : '変爻'
+          });
+        }
+        
+        return states;
+      }
+      
+      // 変爻による卦変換計算
+      function calculateTransformedHex(hexNum, lineNum) {
+        // H384データベースとKingWenMappingが利用可能な場合
+        if (typeof window !== 'undefined' && window.kingWenMapping) {
+          return window.kingWenMapping.calculateTransformedHex(hexNum, lineNum) || ((hexNum % 64) + 1);
+        }
+        // フォールバック：簡易計算
+        return ((hexNum - 1 + lineNum * 7) % 64) + 1;
+      }
+      
+      // パスからシナリオを作成
+      function createScenarioFromPath(path, pattern, analysis, inputText, orderNum) {
+        const finalState = path[path.length - 1];
+        const interpretation = interpretPattern(pattern, analysis);
+        
+        // H384データベースからキーワード取得（可能な場合）
+        let keyword = '変化';
+        let theme = '未来への道';
+        
+        if (typeof H384_DATA !== 'undefined') {
+          const index = (finalState.hex - 1) * 6 + finalState.line - 1;
+          const h384Entry = H384_DATA[index];
+          if (h384Entry) {
+            keyword = h384Entry['キーワード'][0] || keyword;
+            theme = h384Entry['現代解釈の要約'] || theme;
+          }
+        }
         
         return {
-          type: 'advance',
-          line: line,
-          trigram: stage.iching,
-          title: `【進爻第${line}段階】${stage.name}: ${customizeForInput(stage.description, analysis)}`,
-          description: generateAdvanceDescription(stage, analysis, inputText),
-          risk: line <= 2 ? '低' : line <= 4 ? '中' : '高',
-          confidence: 65 + line * 4 + (analysis.textLength / 20),
-          timeframe: getTimeframe(line),
-          hexagram: baseHex
+          type: 'three-phase',
+          pattern: pattern,
+          patternName: getPatternName(pattern),
+          title: `【パターン${orderNum}】${interpretation.title}`,
+          description: generateThreePhaseDescription(path, pattern, analysis, inputText),
+          keyword: keyword,
+          theme: theme,
+          finalHex: finalState.hex,
+          finalLine: finalState.line,
+          path: path,
+          risk: interpretation.risk,
+          confidence: 70 + (orderNum * 2),
+          timeframe: interpretation.timeframe
         };
       }
       
-      // 変爻シナリオ生成  
-      function generateChangeScenario(baseHex, line, analysis, inputText, order) {
-        // 簡易変爻計算（実際のKingWenMappingがない場合）
-        const transformedHex = calculateSimpleTransformation(baseHex, line);
-        const transformation = getTransformationName(baseHex, transformedHex, line);
-        
-        return {
-          type: 'change',
-          line: line,
-          trigram: `変爻第${line}`,
-          title: `【変爻転機${order}】第${line}爻変化: ${transformation}`,
-          description: generateChangeDescription(baseHex, transformedHex, line, analysis, inputText),
-          risk: '中',
-          confidence: 70 + order * 3 + (analysis.complexity === 'high' ? 5 : 0),
-          timeframe: analysis.urgency === 'high' ? '短期' : '中期',
-          hexagram: transformedHex,
-          fromHex: baseHex
+      // パターンの解釈（より自然な日本語表現）
+      function interpretPattern(pattern, analysis) {
+        const interpretations = {
+          'JJJ': { 
+            title: '現在の道を着実に深めていく',
+            risk: '低',
+            timeframe: 'じっくりと時間をかけて'
+          },
+          'JJH': { 
+            title: '基盤を固めてから新境地へ',
+            risk: '低～中',
+            timeframe: '段階的な展開'
+          },
+          'JHJ': { 
+            title: '新しい視点を得て、そこから深める',
+            risk: '中',
+            timeframe: 'バランスの取れた変化'
+          },
+          'JHH': { 
+            title: '早めの方向転換で可能性を広げる',
+            risk: '中～高',
+            timeframe: '積極的な変革'
+          },
+          'HJJ': { 
+            title: '思い切った転換後、じっくり育てる',
+            risk: '中',
+            timeframe: '転機後の安定成長'
+          },
+          'HJH': { 
+            title: '柔軟に変化と深化を織り交ぜる',
+            risk: '高',
+            timeframe: 'ダイナミックな展開'
+          },
+          'HHJ': { 
+            title: '大胆な変革を経て、新たな定着へ',
+            risk: '高',
+            timeframe: '劇的変化からの収束'
+          },
+          'HHH': { 
+            title: '既成概念を打ち破り続ける革新の道',
+            risk: '最高',
+            timeframe: '連続的な革新'
+          }
         };
-      }
-      
-      // 重要な爻位選定
-      function selectImportantLines(baseHex, analysis) {
-        let lines = [5, 2, 4, 1]; // 5爻優先（君主の位置）
         
-        // 状況に応じて調整
-        if (analysis.hasWork) lines = [5, 2, 3, 4]; // 仕事は中・上爻重視
-        if (analysis.hasRelation) lines = [2, 5, 1, 3]; // 人間関係は下・上爻
-        if (analysis.urgency === 'high') lines = [4, 5, 3, 6]; // 緊急時は上爻優先
-        
-        return lines;
+        return interpretations[pattern] || { title: pattern, risk: '中', timeframe: '変化の過程' };
       }
       
-      // 入力に応じたカスタマイズ
-      function customizeForInput(baseDescription, analysis) {
-        if (analysis.hasWork) return baseDescription.replace(/時期/, "キャリアの時期");
-        if (analysis.hasRelation) return baseDescription.replace(/時期/, "関係性の時期");  
-        return baseDescription;
-      }
-      
-      // 時間軸設定
-      function getTimeframe(line) {
-        if (line <= 2) return "今すぐ～3ヶ月";
-        if (line <= 4) return "3ヶ月～1年";
-        return "1年～長期";
-      }
-      
-      // 簡易変爻計算
-      function calculateSimpleTransformation(hexNum, line) {
-        // 64卦の完全な変爻計算の代わりに簡易計算
-        return ((hexNum - 1 + line * 7) % 64) + 1;
-      }
-      
-      // 変化名生成
-      function getTransformationName(fromHex, toHex, line) {
-        const transformations = {
-          1: "基盤の変化", 2: "関係の変化", 3: "行動の変化",
-          4: "環境の変化", 5: "目標の変化", 6: "完成形の変化"
+      // パターン名の取得（わかりやすい日本語）
+      function getPatternName(pattern) {
+        const names = {
+          'JJJ': '着実成長',
+          'JJH': '成熟転機',
+          'JHJ': '新天地開拓',
+          'JHH': '早期転換',
+          'HJJ': '方向転換後の安定',
+          'HJH': '変化と成長の両立',
+          'HHJ': '激変からの着地',
+          'HHH': '完全革新'
         };
-        return transformations[line] || "状況の変化";
+        return names[pattern] || pattern;
       }
       
-      // 進爻説明生成
-      function generateAdvanceDescription(stage, analysis, inputText) {
-        let base = stage.description;
+      // 3フェーズ説明生成（自然な日本語表現）
+      function generateThreePhaseDescription(path, pattern, analysis, inputText) {
+        let descriptions = [];
         
+        // 各フェーズの説明を自然な文章で作成
+        for (let i = 1; i < path.length; i++) {
+          const state = path[i];
+          const prevState = path[i-1];
+          let phaseDesc = '';
+          
+          // 前後の卦情報とキーワードを取得
+          const prevInfo = getHexagramInfo(prevState.hex, prevState.line);
+          const nextInfo = getHexagramInfo(state.hex, state.line);
+          const prevKeyword = prevInfo.keywords[0] || '';
+          const nextKeyword = nextInfo.keywords[0] || '';
+          
+          // フェーズごとの自然な説明文
+          if (i === 1) {
+            phaseDesc = '第1段階では、';
+          } else if (i === 2) {
+            phaseDesc = '次の段階において、';
+          } else {
+            phaseDesc = '最終段階として、';
+          }
+          
+          if (state.choice === '進爻') {
+            // 進爻の場合：データ駆動型の説明生成
+            if (window.dataAnalyzer && prevState.hex && prevState.line && state.hex && state.line) {
+              // DataDrivenAnalyzerを使用
+              const connection = window.dataAnalyzer.generateJinConnection(
+                prevState.hex, prevInfo.lineName, state.hex, nextInfo.lineName
+              );
+              phaseDesc += connection;
+            } else if (prevKeyword && nextKeyword) {
+              // フォールバック：旧実装
+              phaseDesc += `【テーマ継続】現在の「${prevKeyword}」というテーマを維持し、${prevInfo.hexName}の卦の流れに沿って、`;
+              phaseDesc += `より成熟した「${nextKeyword}」（${nextInfo.lineName}）へと自然に発展していきます。`;
+              phaseDesc += `これは${getThematicConnection(prevKeyword, nextKeyword)}という関係です。`;
+            } else {
+              phaseDesc += `${prevInfo.hexName}の卦のテーマに沿って、${prevInfo.lineName}から${nextInfo.lineName}へと段階的に深まっていきます。`;
+            }
+          } else {
+            // 変爻の場合：データ駆動型の説明生成
+            if (window.dataAnalyzer && prevState.hex && prevState.line && state.hex && state.line) {
+              // DataDrivenAnalyzerを使用
+              const shift = window.dataAnalyzer.generateHengShift(
+                prevState.hex, prevInfo.lineName, state.hex, nextInfo.lineName
+              );
+              phaseDesc += shift;
+            } else if (prevKeyword && nextKeyword) {
+              // フォールバック：旧実装
+              phaseDesc += `【テーマ転換】「${prevKeyword}」というテーマから離れ、`;
+              phaseDesc += `${prevInfo.hexName}から${nextInfo.hexName}へと卦が変化することで、`;
+              phaseDesc += `「${nextKeyword}」という全く異なるテーマへの転換が起こります。`;
+              phaseDesc += `これは${getThematicShift(prevKeyword, nextKeyword)}という質的な変化です。`;
+            } else {
+              phaseDesc += `${prevInfo.hexName}のテーマから離れ、${nextInfo.hexName}という新しい卦のテーマへと転換します。`;
+            }
+          }
+          
+          descriptions.push(phaseDesc);
+        }
+        
+        // 全体の流れをまとめる
+        let summary = descriptions.join('');
+        
+        // パターンに応じた締めの言葉
+        if (pattern === 'JJJ') {
+          summary += 'このパスは一貫性を保ちながら着実に深化していく道筋です。';
+        } else if (pattern === 'HHH') {
+          summary += 'このパスは常に新しい変化を求め、革新的な展開を続ける道筋です。';
+        } else if (pattern.includes('J') && pattern.includes('H')) {
+          summary += 'このパスは深化と転換のバランスを取りながら進む道筋です。';
+        }
+        
+        // 入力に応じた補足（より自然な表現）
         if (analysis.hasWork) {
-          base += "。職場での立ち位置を見極め、適切なタイミングで行動することが重要です。";
+          summary += 'お仕事やキャリアの面では、この流れに沿って新たな成長の機会が訪れるでしょう。';
         }
         if (analysis.hasRelation) {
-          base += "。相手との関係性を慎重に見極め、段階的なアプローチを取ることが効果的です。";
+          summary += '人間関係においては、相手との距離感を調整しながら、より良い関係性を築いていけるでしょう。';
         }
-        
-        return base + `現在の状況「${inputText.substring(0, 20)}...」に最適な対応策を見つけましょう。`;
-      }
-      
-      // 変爻説明生成
-      function generateChangeDescription(fromHex, toHex, line, analysis, inputText) {
-        let desc = `第${line}爻の変化により、状況が根本的に転換します。`;
-        
         if (analysis.hasDecision) {
-          desc += "迷いが晴れ、明確な方向性が見えてきます。";
-        }
-        if (analysis.hasConflict) {
-          desc += "対立構造が変化し、新たな解決の糸口が見つかります。";
+          summary += '迷いや決断に関しては、このプロセスを通じて明確な答えが見えてくるはずです。';
         }
         
-        return desc + `「${inputText.substring(0, 30)}...」という状況から脱却する転機となるでしょう。`;
+        return summary;
       }
 
       // 8シナリオ生成関数（簡易動的生成版）
@@ -2257,23 +2633,29 @@
       
       // 動的生成されたシナリオの表示関数
       function displayDynamicScenarios(scenarios, worryText) {
-        console.log('🎨 動的シナリオ表示開始');
+        console.log('🎨 3フェーズシナリオ表示開始');
         
-        // シナリオ表示用のHTML生成（動的版）
+        // シナリオ表示用のHTML生成（3フェーズシステム版）
         const scenariosHTML = `
           <div class="scenarios-container" style="margin: 20px 0; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
             <h3 style="color: #A78BFA; margin-bottom: 20px; font-size: 1.5rem;">
-              🔮 易経の変化原理による8つの未来シナリオ
+              🔮 あなたの未来への8つの道筋
             </h3>
             <div class="scenarios-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
               ${scenarios.map((scenario, index) => {
-                // 動的生成データから情報を抽出
-                const trigram = scenario.trigram || scenario.hexagram?.name || `シナリオ${index + 1}`;
-                const title = scenario.title || scenario.direction || '未来の可能性';
-                const description = scenario.description || scenario.detail || scenario.interpretation || '';
-                const risk = scenario.riskLevel || scenario.risk || '中';
-                const color = scenario.color || getColorByIndex(index);
-                const confidence = scenario.confidence || scenario.score || 70;
+                // 3フェーズシステムデータから情報を抽出
+                const pattern = scenario.pattern || `パターン${index + 1}`;
+                const patternName = scenario.patternName || getPatternName(pattern);
+                const title = scenario.title || '未来の可能性';
+                const description = scenario.description || '';
+                const risk = scenario.risk || '中';
+                const color = getPatternColor(pattern);
+                const confidence = scenario.confidence || 70;
+                
+                // 最終状態の卦名と爻名を取得
+                const finalInfo = getHexagramInfo(scenario.finalHex, scenario.finalLine);
+                const finalState = `${finalInfo.hexName}・${finalInfo.lineName}`;
+                const keyword = scenario.keyword || finalInfo.keywords[0] || '';
                 
                 return `
                   <div class="scenario-card" style="
@@ -2286,17 +2668,21 @@
                     position: relative;
                   " onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                      <span style="color: ${color}; font-weight: bold;">${trigram}</span>
+                      <span style="color: ${color}; font-weight: bold; font-size: 0.9rem;">${pattern} ${patternName}</span>
                       <span style="
-                        background: ${risk === '高' ? '#EF4444' : risk === '中' ? '#F59E0B' : '#10B981'}22;
-                        color: ${risk === '高' ? '#EF4444' : risk === '中' ? '#F59E0B' : '#10B981'};
+                        background: ${risk === '最高' || risk === '高' ? '#EF4444' : risk.includes('中') ? '#F59E0B' : '#10B981'}22;
+                        color: ${risk === '最高' || risk === '高' ? '#EF4444' : risk.includes('中') ? '#F59E0B' : '#10B981'};
                         padding: 2px 8px;
                         border-radius: 4px;
                         font-size: 0.8rem;
                       ">リスク: ${risk}</span>
                     </div>
                     <h4 style="color: #E5E7EB; margin-bottom: 8px;">${title}</h4>
-                    <p style="color: #9CA3AF; font-size: 0.9rem; line-height: 1.4;">${description}</p>
+                    <div style="background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+                      <div style="color: #A78BFA; font-size: 0.85rem; margin-bottom: 4px;">最終到達点: ${finalState}</div>
+                      ${keyword ? `<div style="color: #F59E0B; font-size: 0.85rem;">キーワード: ${keyword}</div>` : ''}
+                    </div>
+                    <p style="color: #9CA3AF; font-size: 0.85rem; line-height: 1.4; max-height: 100px; overflow-y: auto;">${description.substring(0, 200)}${description.length > 200 ? '...' : ''}</p>
                     ${confidence ? `
                       <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1);">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -2313,9 +2699,10 @@
               }).join('')}
             </div>
             <div style="margin-top: 20px; padding: 15px; background: rgba(99, 102, 241, 0.1); border-radius: 8px; border-left: 4px solid #6366F1;">
-              <p style="color: #C7D2FE; font-size: 0.9rem;">
-                <strong>🌟 易経分析:</strong> "${worryText.substring(0, 50)}..." に対して、易経の変化原理に基づいた8つの可能性を導き出しました。
-                各シナリオは現在の状況から導かれる自然な変化の方向性を示しています。
+              <p style="color: #C7D2FE; font-size: 0.9rem; line-height: 1.6;">
+                <strong>🌟 易経の知恵による分析結果</strong><br>
+                あなたの状況「${worryText.substring(0, 40)}...」に対して、3つの転機における選択により8つの可能な未来の道筋を導き出しました。<br>
+                各パターンは、現在のテーマを深める「進爻」と、新しい視点へ転換する「変爻」の組み合わせで構成され、それぞれが独自の展開と結果をもたらします。
               </p>
             </div>
           </div>
@@ -2340,17 +2727,26 @@
         }
       }
       
-      // インデックスに基づいた色を取得
+      // パターンに基づいた色を取得
+      function getPatternColor(pattern) {
+        const colors = {
+          'JJJ': "#10B981", // 緑 - 安定成長
+          'JJH': "#3B82F6", // 青 - バランス型
+          'JHJ': "#8B5CF6", // 紫 - 転換深化
+          'JHH': "#EC4899", // ピンク - 変革加速
+          'HJJ': "#14B8A6", // ティール - 転換安定
+          'HJH': "#F59E0B", // オレンジ - 波動型
+          'HHJ': "#EF4444", // 赤 - 激変収束
+          'HHH': "#DC2626"  // 深紅 - 全面革新
+        };
+        return colors[pattern] || "#6B7280";
+      }
+      
+      // インデックスに基づいた色を取得（互換性のため残す）
       function getColorByIndex(index) {
         const colors = [
-          "#4A90E2", // 乾 - 青
-          "#8B7355", // 坤 - 茶
-          "#9B59B6", // 震 - 紫
-          "#1ABC9C", // 巽 - 緑
-          "#3498DB", // 坎 - 水色
-          "#E74C3C", // 離 - 赤
-          "#95A5A6", // 艮 - 灰
-          "#F39C12"  // 兌 - 橙
+          "#4A90E2", "#8B7355", "#9B59B6", "#1ABC9C",
+          "#3498DB", "#E74C3C", "#95A5A6", "#F39C12"
         ];
         return colors[index % 8];
       }

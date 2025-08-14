@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I Ching Future Simulator Enhanced - 高精度キーワード分析版</title>
+  
+  <!-- 外部CSS -->
+  <link rel="stylesheet" href="./css/nav-styles.css">
+  <link rel="stylesheet" href="./css/darkmode.css">
+  
+  <style>
+    /* 基本スタイル */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .simulator-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    
+    /* 精度インジケーター */
+    .accuracy-indicator {
+      background: linear-gradient(90deg, #10B981 0%, #3B82F6 100%);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    
+    /* 入力エリア */
+    .input-section {
+      margin-bottom: 30px;
+    }
+    
+    textarea {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 16px;
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-top: 10px;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+    }
+    
+    /* 結果表示エリア */
+    .results-section {
+      display: none;
+    }
+    
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .scenario-card {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 15px;
+      padding: 20px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .scenario-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .pattern-badge {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .hex-info {
+      background: #f3f4f6;
+      padding: 8px;
+      border-radius: 8px;
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    
+    .keyword-tag {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin: 2px;
+    }
+    
+    .category-label {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-size: 11px;
+      margin-left: 5px;
+    }
+    
+    .category-preparation { background: #dbeafe; color: #1e40af; }
+    .category-cooperation { background: #dcfce7; color: #166534; }
+    .category-growth { background: #fef3c7; color: #92400e; }
+    .category-leadership { background: #fce7f3; color: #9f1239; }
+    .category-difficulty { background: #fee2e2; color: #991b1b; }
+    .category-stability { background: #e0e7ff; color: #3730a3; }
+    .category-reflection { background: #f3e8ff; color: #6b21a8; }
+    .category-transformation { background: #ffedd5; color: #9a3412; }
+    
+    /* デバッグ情報 */
+    .debug-info {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="simulator-container">
+    <h1>🔮 I Ching Future Simulator Enhanced</h1>
+    <p class="subtitle">高精度キーワード分析システム v2.0</p>
+    
+    <div class="accuracy-indicator">
+      キーワード分類精度: 70%+ (頻出上位100対応)
+    </div>
+    
+    <div class="input-section">
+      <textarea id="userInput" placeholder="あなたの現在の状況や悩みを入力してください..."></textarea>
+      <button onclick="generateEnhancedScenarios()">8つの未来を見る</button>
+    </div>
+    
+    <div id="results" class="results-section">
+      <h2>あなたの8つの可能な未来</h2>
+      <div id="scenarioGrid" class="scenario-grid"></div>
+    </div>
+    
+    <div id="debugInfo" class="debug-info" style="display: none;"></div>
+  </div>
+  
+  <!-- データベース読み込み -->
+  <script src="./assets/H384H64database.js"></script>
+  <script src="./js/EnhancedKeywordAnalyzer.js"></script>
+  
+  <script>
+    // 拡張キーワードアナライザーのインスタンス
+    const analyzer = new EnhancedKeywordAnalyzer();
+    
+    // 拡張版シナリオ生成関数
+    function generateEnhancedScenarios() {
+      const userInput = document.getElementById('userInput').value;
+      if (!userInput) {
+        alert('状況を入力してください');
+        return;
+      }
+      
+      // 入力分析
+      const analysis = analyzeUserInput(userInput);
+      
+      // 初期卦・爻の選定
+      const { hex: initialHex, line: initialLine } = selectInitialHexLine(analysis);
+      
+      // 8パターン生成
+      const patterns = ['JJJ', 'JJH', 'JHJ', 'JHH', 'HJJ', 'HJH', 'HHJ', 'HHH'];
+      const scenarios = [];
+      
+      patterns.forEach((pattern, index) => {
+        const scenario = generateScenarioWithEnhancedAnalysis(
+          initialHex, 
+          initialLine, 
+          pattern, 
+          analysis,
+          index + 1
+        );
+        scenarios.push(scenario);
+      });
+      
+      // 結果表示
+      displayEnhancedScenarios(scenarios);
+      
+      // デバッグ情報表示
+      showDebugInfo(analysis, scenarios);
+    }
+    
+    // 拡張版シナリオ生成（高精度キーワード分析使用）
+    function generateScenarioWithEnhancedAnalysis(hex, line, pattern, analysis, scenarioNum) {
+      let currentHex = hex;
+      let currentLine = line;
+      const path = [];
+      
+      // 3フェーズの選択を実行
+      for (let phase = 0; phase < 3; phase++) {
+        const choice = pattern[phase];
+        const currentData = getH384Entry(currentHex, currentLine);
+        const currentKeyword = currentData?.['キーワード']?.[0] || '不明';
+        
+        path.push({
+          phase: phase + 1,
+          hex: currentHex,
+          line: currentLine,
+          hexName: currentData?.['卦名'] || '不明',
+          lineName: getLineName(currentLine),
+          keyword: currentKeyword,
+          category: analyzer.analyzeKeyword(currentKeyword),
+          choice: choice
+        });
+        
+        if (choice === 'J') {
+          // 進爻: 同じ卦内で爻が進む
+          currentLine = currentLine < 6 ? currentLine + 1 : 1;
+        } else {
+          // 変爻: 異なる卦へ変化
+          currentHex = ((currentHex - 1 + currentLine * 7) % 64) + 1;
+        }
+      }
+      
+      // 最終到達点
+      const finalData = getH384Entry(currentHex, currentLine);
+      const finalKeyword = finalData?.['キーワード']?.[0] || '不明';
+      
+      path.push({
+        phase: 'final',
+        hex: currentHex,
+        line: currentLine,
+        hexName: finalData?.['卦名'] || '不明',
+        lineName: getLineName(currentLine),
+        keyword: finalKeyword,
+        category: analyzer.analyzeKeyword(finalKeyword)
+      });
+      
+      // シナリオ説明生成
+      const description = generateEnhancedDescription(path, pattern);
+      
+      return {
+        number: scenarioNum,
+        pattern: pattern,
+        path: path,
+        description: description,
+        finalOutcome: finalData?.['現代解釈の要約'] || '不明',
+        accuracyScore: calculatePathAccuracy(path)
+      };
+    }
+    
+    // 拡張版説明文生成
+    function generateEnhancedDescription(path, pattern) {
+      let description = '';
+      
+      for (let i = 0; i < path.length - 1; i++) {
+        const current = path[i];
+        const next = path[i + 1];
+        
+        if (current.choice === 'J') {
+          // 進爻の説明（拡張版）
+          const connection = analyzer.getThematicConnection(
+            current.category,
+            next.category,
+            current.keyword,
+            next.keyword
+          );
+          description += `第${current.phase}段階: ${connection}\n`;
+        } else if (current.choice === 'H') {
+          // 変爻の説明（拡張版）
+          const shift = analyzer.getThematicShift(
+            current.category,
+            next.category,
+            current.keyword,
+            next.keyword
+          );
+          description += `第${current.phase}段階: ${shift}\n`;
+        }
+      }
+      
+      return description;
+    }
+    
+    // パスの精度スコア計算
+    function calculatePathAccuracy(path) {
+      let classifiedCount = 0;
+      let totalCount = 0;
+      
+      path.forEach(step => {
+        if (step.keyword && step.keyword !== '不明') {
+          totalCount++;
+          if (step.category !== 'other') {
+            classifiedCount++;
+          }
+        }
+      });
+      
+      return totalCount > 0 ? (classifiedCount / totalCount * 100).toFixed(0) : 0;
+    }
+    
+    // 結果表示（拡張版）
+    function displayEnhancedScenarios(scenarios) {
+      const grid = document.getElementById('scenarioGrid');
+      grid.innerHTML = '';
+      
+      scenarios.forEach(scenario => {
+        const card = document.createElement('div');
+        card.className = 'scenario-card';
+        
+        card.innerHTML = `
+          <span class="pattern-badge">${scenario.pattern} (精度: ${scenario.accuracyScore}%)</span>
+          <h3>シナリオ ${scenario.number}</h3>
+          ${scenario.path.map(step => {
+            if (step.phase === 'final') {
+              return `
+                <div class="hex-info" style="background: #fef3c7;">
+                  <strong>最終到達:</strong> ${step.hexName}・${step.lineName}
+                  <br><span class="keyword-tag">${step.keyword}</span>
+                  <span class="category-label category-${step.category}">${analyzer.getCategoryLabel(step.category)}</span>
+                </div>
+              `;
+            } else {
+              return `
+                <div class="hex-info">
+                  第${step.phase}段階: ${step.hexName}・${step.lineName}
+                  <br><span class="keyword-tag">${step.keyword}</span>
+                  <span class="category-label category-${step.category}">${analyzer.getCategoryLabel(step.category)}</span>
+                  ${step.choice === 'J' ? '→ 進爻' : '⇒ 変爻'}
+                </div>
+              `;
+            }
+          }).join('')}
+          <p style="margin-top: 10px; font-size: 13px; color: #666;">
+            ${scenario.description.substring(0, 150)}...
+          </p>
+        `;
+        
+        grid.appendChild(card);
+      });
+      
+      document.getElementById('results').style.display = 'block';
+    }
+    
+    // デバッグ情報表示
+    function showDebugInfo(analysis, scenarios) {
+      const stats = analyzer.getAccuracyStats(H384_DATA);
+      const debugDiv = document.getElementById('debugInfo');
+      
+      debugDiv.innerHTML = `
+        <strong>システム統計:</strong><br>
+        総キーワード数: ${stats.total}<br>
+        分類成功: ${stats.classified} (${stats.classificationRate}%)<br>
+        <br>
+        <strong>カテゴリ別分類数:</strong><br>
+        ${Object.entries(stats.categoryCount).map(([cat, count]) => 
+          `${analyzer.getCategoryLabel(cat)}: ${count}`
+        ).join(', ')}
+      `;
+      
+      debugDiv.style.display = 'block';
+    }
+    
+    // ヘルパー関数
+    function analyzeUserInput(input) {
+      return {
+        hasWork: input.includes('仕事') || input.includes('業務'),
+        hasRelationship: input.includes('恋愛') || input.includes('関係'),
+        hasConflict: input.includes('対立') || input.includes('争い'),
+        emotion: input.includes('不安') || input.includes('心配') ? 'negative' : 'neutral'
+      };
+    }
+    
+    function selectInitialHexLine(analysis) {
+      if (analysis.hasWork && !analysis.hasConflict) {
+        return { hex: 11, line: 1 }; // 地天泰・初九
+      }
+      if (analysis.hasRelationship) {
+        return { hex: 31, line: 1 }; // 沢山咸・初六
+      }
+      return { hex: 3, line: 1 }; // 水雷屯・初九（デフォルト）
+    }
+    
+    function getH384Entry(hex, line) {
+      const index = (hex - 1) * 6 + line - 1;
+      return H384_DATA[index];
+    }
+    
+    function getLineName(line) {
+      const names = ['初', '二', '三', '四', '五', '上'];
+      return names[line - 1] || '不明';
+    }
+  </script>
+</body>
+</html>

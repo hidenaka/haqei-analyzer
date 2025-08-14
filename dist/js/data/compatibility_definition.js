@@ -1,1 +1,0 @@
-const CompatibilityType={SYNERGY:"SYNERGY",HARMONY:"HARMONY",TENSION:"TENSION",CONFLICT:"CONFLICT",CHAOS:"CHAOS"};"undefined"!=typeof window&&(window.CompatibilityType=CompatibilityType);

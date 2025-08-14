@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>🔍 手動検証ツール</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #1e1e2e;
+            color: #cdd6f4;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #94e2d5;
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(148, 226, 213, 0.5);
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .test-box {
+            background: #313244;
+            border: 2px solid #45475a;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .test-box h2 {
+            color: #f9e2af;
+            margin-top: 0;
+            font-size: 20px;
+        }
+        button {
+            background: linear-gradient(135deg, #89b4fa, #b4befe);
+            color: #1e1e2e;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(137, 180, 250, 0.4);
+        }
+        .result {
+            background: #1e1e2e;
+            border: 1px solid #45475a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .success { color: #a6e3a1; }
+        .error { color: #f38ba8; }
+        .warning { color: #f9e2af; }
+        .info { color: #89dceb; }
+        .score-badge {
+            display: inline-block;
+            background: #45475a;
+            color: #cba6f7;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 0 3px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        .status-success { background: #a6e3a1; }
+        .status-error { background: #f38ba8; }
+        .status-warning { background: #f9e2af; }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        
+        iframe {
+            width: 100%;
+            height: 700px;
+            border: 2px solid #45475a;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .summary-box {
+            background: linear-gradient(135deg, #313244, #45475a);
+            border: 2px solid #89b4fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .summary-box h2 {
+            color: #94e2d5;
+            margin-top: 0;
+        }
+        .progress-bar {
+            background: #1e1e2e;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a6e3a1, #94e2d5);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1e1e2e;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Future Simulator DataDriven統合検証</h1>
+        
+        <div class="test-grid">
+            <!-- Test 1: 初期化 -->
+            <div class="test-box">
+                <h2><span class="status-indicator" id="status-1"></span>Test 1: 初期化確認</h2>
+                <button onclick="test1()">実行</button>
+                <div id="result-1" class="result"></div>
+            </div>
+            
+            <!-- Test 2: 進爻 -->
+            <div class="test-box">
+                <h2><span class="status-indicator" id="status-2"></span>Test 2: 進爻生成</h2>
+                <button onclick="test2()">実行</button>
+                <div id="result-2" class="result"></div>
+            </div>
+            
+            <!-- Test 3: 変爻 -->
+            <div class="test-box">
+                <h2><span class="status-indicator" id="status-3"></span>Test 3: 変爻生成</h2>
+                <button onclick="test3()">実行</button>
+                <div id="result-3" class="result"></div>
+            </div>
+            
+            <!-- Test 4: シナリオ -->
+            <div class="test-box">
+                <h2><span class="status-indicator" id="status-4"></span>Test 4: シナリオ生成</h2>
+                <button onclick="test4()">実行</button>
+                <div id="result-4" class="result"></div>
+            </div>
+        </div>
+        
+        <!-- サマリー -->
+        <div class="summary-box">
+            <h2>📊 検証結果サマリー</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress" style="width: 0%">0%</div>
+            </div>
+            <div id="summary"></div>
+        </div>
+        
+        <!-- iframe -->
+        <iframe src="./public/future_simulator.html" id="simulator"></iframe>
+    </div>
+    
+    <script>
+        let testResults = {
+            test1: false,
+            test2: false,
+            test3: false,
+            test4: false
+        };
+        
+        function updateProgress() {
+            const passed = Object.values(testResults).filter(r => r).length;
+            const total = Object.keys(testResults).length;
+            const percentage = Math.round((passed / total) * 100);
+            
+            document.getElementById('progress').style.width = percentage + '%';
+            document.getElementById('progress').textContent = percentage + '%';
+            
+            let summaryHtml = `<p>合格: ${passed}/${total}</p>`;
+            if (percentage === 100) {
+                summaryHtml += '<p class="success">✅ 完璧！DataDrivenAnalyzerが正常に動作しています。</p>';
+            } else if (percentage >= 75) {
+                summaryHtml += '<p class="warning">⚠️ ほぼ完成。一部修正が必要です。</p>';
+            } else if (percentage >= 50) {
+                summaryHtml += '<p class="warning">⚠️ 半分完成。追加作業が必要です。</p>';
+            } else {
+                summaryHtml += '<p class="error">❌ 統合に問題があります。</p>';
+            }
+            
+            document.getElementById('summary').innerHTML = summaryHtml;
+        }
+        
+        function test1() {
+            const frame = document.getElementById('simulator').contentWindow;
+            const result = document.getElementById('result-1');
+            const status = document.getElementById('status-1');
+            
+            try {
+                let html = '<p class="info">初期化状態を確認中...</p>';
+                
+                // H384_DATA
+                if (frame.H384_DATA) {
+                    html += `<p class="success">✅ H384_DATA: ${frame.H384_DATA.length} entries</p>`;
+                } else {
+                    html += '<p class="error">❌ H384_DATA not found</p>';
+                }
+                
+                // DataDrivenAnalyzer
+                if (frame.dataAnalyzer) {
+                    html += '<p class="success">✅ DataDrivenAnalyzer initialized</p>';
+                    html += `<p class="info">　- KeywordMap: ${frame.dataAnalyzer.keywordMap.size} entries</p>`;
+                    html += `<p class="info">　- HexagramRelations: ${frame.dataAnalyzer.hexagramRelations.size} hexagrams</p>`;
+                    testResults.test1 = true;
+                    status.className = 'status-indicator status-success';
+                } else {
+                    html += '<p class="error">❌ DataDrivenAnalyzer not initialized</p>';
+                    testResults.test1 = false;
+                    status.className = 'status-indicator status-error';
+                }
+                
+                result.innerHTML = html;
+            } catch (e) {
+                result.innerHTML = `<p class="error">❌ Error: ${e.message}</p>`;
+                testResults.test1 = false;
+                status.className = 'status-indicator status-error';
+            }
+            
+            updateProgress();
+        }
+        
+        function test2() {
+            const frame = document.getElementById('simulator').contentWindow;
+            const result = document.getElementById('result-2');
+            const status = document.getElementById('status-2');
+            
+            try {
+                if (!frame.dataAnalyzer) {
+                    result.innerHTML = '<p class="error">❌ DataDrivenAnalyzer not available</p>';
+                    testResults.test2 = false;
+                    status.className = 'status-indicator status-error';
+                    updateProgress();
+                    return;
+                }
+                
+                // 進爻テスト
+                const jin = frame.dataAnalyzer.generateJinConnection(11, '初九', 11, '九二');
+                
+                let html = '<p class="info">進爻生成テスト（地天泰・初九→九二）</p>';
+                html += `<div style="background: #1e1e2e; padding: 10px; border-radius: 5px; margin: 10px 0;">`;
+                html += jin.substring(0, 200) + '...';
+                html += '</div>';
+                
+                // スコア確認
+                if (jin.includes('スコア') || jin.includes('ポイント') || jin.includes('評価')) {
+                    html += '<p class="success">✅ スコアベース生成確認</p>';
+                    testResults.test2 = true;
+                    status.className = 'status-indicator status-success';
+                } else {
+                    html += '<p class="error">❌ スコア情報なし</p>';
+                    testResults.test2 = false;
+                    status.className = 'status-indicator status-error';
+                }
+                
+                result.innerHTML = html;
+            } catch (e) {
+                result.innerHTML = `<p class="error">❌ Error: ${e.message}</p>`;
+                testResults.test2 = false;
+                status.className = 'status-indicator status-error';
+            }
+            
+            updateProgress();
+        }
+        
+        function test3() {
+            const frame = document.getElementById('simulator').contentWindow;
+            const result = document.getElementById('result-3');
+            const status = document.getElementById('status-3');
+            
+            try {
+                if (!frame.dataAnalyzer) {
+                    result.innerHTML = '<p class="error">❌ DataDrivenAnalyzer not available</p>';
+                    testResults.test3 = false;
+                    status.className = 'status-indicator status-error';
+                    updateProgress();
+                    return;
+                }
+                
+                // 変爻テスト
+                const heng = frame.dataAnalyzer.generateHengShift(11, '初九', 18, '初六');
+                
+                let html = '<p class="info">変爻生成テスト（地天泰→山風蠱）</p>';
+                html += `<div style="background: #1e1e2e; padding: 10px; border-radius: 5px; margin: 10px 0;">`;
+                html += heng.substring(0, 200) + '...';
+                html += '</div>';
+                
+                // 変動性確認
+                if (heng.includes('変動性') || heng.includes('ポテンシャル') || heng.includes('転換')) {
+                    html += '<p class="success">✅ 変動性分析確認</p>';
+                    testResults.test3 = true;
+                    status.className = 'status-indicator status-success';
+                } else {
+                    html += '<p class="error">❌ 変動性情報なし</p>';
+                    testResults.test3 = false;
+                    status.className = 'status-indicator status-error';
+                }
+                
+                result.innerHTML = html;
+            } catch (e) {
+                result.innerHTML = `<p class="error">❌ Error: ${e.message}</p>`;
+                testResults.test3 = false;
+                status.className = 'status-indicator status-error';
+            }
+            
+            updateProgress();
+        }
+        
+        function test4() {
+            const frame = document.getElementById('simulator').contentWindow;
+            const result = document.getElementById('result-4');
+            const status = document.getElementById('status-4');
+            
+            try {
+                if (!frame.generateJingYaoHengYaoScenarios) {
+                    result.innerHTML = '<p class="error">❌ generateJingYaoHengYaoScenarios not found</p>';
+                    testResults.test4 = false;
+                    status.className = 'status-indicator status-error';
+                    updateProgress();
+                    return;
+                }
+                
+                // シナリオ生成テスト
+                const scenarios = frame.generateJingYaoHengYaoScenarios('テスト入力');
+                
+                let html = '<p class="info">シナリオ生成テスト</p>';
+                html += `<p>生成数: <span class="score-badge">${scenarios.length}</span></p>`;
+                
+                if (scenarios.length === 8) {
+                    html += '<p class="success">✅ 8シナリオ生成成功</p>';
+                    
+                    // 最初のシナリオの説明確認
+                    if (scenarios[0].description) {
+                        const desc = scenarios[0].description;
+                        const hasDataDriven = desc.includes('スコア') || 
+                                             desc.includes('ポイント') || 
+                                             desc.includes('評価') ||
+                                             desc.includes('安定性');
+                        
+                        if (hasDataDriven) {
+                            html += '<p class="success">✅ データ駆動型説明確認</p>';
+                            testResults.test4 = true;
+                            status.className = 'status-indicator status-success';
+                        } else {
+                            html += '<p class="warning">⚠️ データ駆動型説明が不明確</p>';
+                            testResults.test4 = false;
+                            status.className = 'status-indicator status-warning';
+                        }
+                    }
+                } else {
+                    html += '<p class="error">❌ シナリオ数が8個ではない</p>';
+                    testResults.test4 = false;
+                    status.className = 'status-indicator status-error';
+                }
+                
+                result.innerHTML = html;
+            } catch (e) {
+                result.innerHTML = `<p class="error">❌ Error: ${e.message}</p>`;
+                testResults.test4 = false;
+                status.className = 'status-indicator status-error';
+            }
+            
+            updateProgress();
+        }
+        
+        // 自動実行
+        window.onload = function() {
+            setTimeout(() => {
+                console.log('🔍 自動検証開始...');
+                test1();
+                setTimeout(() => test2(), 500);
+                setTimeout(() => test3(), 1000);
+                setTimeout(() => test4(), 1500);
+            }, 2000);
+        };
+    </script>
+</body>
+</html>

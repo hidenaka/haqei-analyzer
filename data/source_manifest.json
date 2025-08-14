@@ -22,8 +22,10 @@
   },
   "pii_policy": {
     "retention_days": 30,
-    "user_id_hashing": "SHA-256 with daily salt rotation",
+    "user_id_hashing": "HMAC-SHA256 with server-managed key",
+    "user_id_hashing_note": "継続追跡可能性を保ちつつ再識別耐性確保のため、サーバー管理鍵によるHMAC方式を採用",
+    "key_management": "Server-side key rotation every 90 days, secure key storage with HSM integration",
     "stored_fields": ["palaceId", "hexagramId", "patternId", "timestamp"],
-    "excluded_fields": ["answers", "personal_data", "ip_address"]
+    "excluded_fields": ["answers", "personal_data", "ip_address", "device_fingerprint"]
   }
 }

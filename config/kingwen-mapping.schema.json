@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "King Wen Hexagram Mapping",
+  "type": "object",
+  "required": ["version", "hexagrams", "metadata"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "SemVer"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["created", "sources", "validation"],
+      "additionalProperties": false,
+      "properties": {
+        "created": { "type": "string", "format": "date-time" },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["title", "edition", "priority"],
+            "additionalProperties": false,
+            "properties": {
+              "title": { "type": "string" },
+              "edition": { "type": "string" },
+              "priority": { "type": "integer", "minimum": 1, "maximum": 3 }
+            }
+          }
+        },
+        "validation": {
+          "type": "object",
+          "required": ["method", "confidence"],
+          "additionalProperties": false,
+          "properties": {
+            "method": { "type": "string" },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      }
+    },
+    "hexagrams": {
+      "type": "object",
+      "description": "King Wen順 1..64 の各卦定義",
+      "patternProperties": {
+        "^[1-9]$|^[1-5][0-9]$|^6[0-4]$": {
+          "type": "object",
+          "required": ["name", "lines", "trigrams"],
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "lines": {
+              "type": "array",
+              "items": { "type": "integer", "enum": [0, 1] },
+              "minItems": 6,
+              "maxItems": 6,
+              "description": "**順序は下から上（初爻=index0, 上爻=index5） / 1=陽, 0=陰**"
+            },
+            "trigrams": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "type": "string",
+                "enum": ["乾", "坤", "震", "坎", "艮", "巽", "離", "兌"]
+              },
+              "description": "下卦, 上卦の順"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

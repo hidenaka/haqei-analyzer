@@ -15,7 +15,7 @@
 class EightScenariosGenerator {
     constructor() {
         this.initialized = false;
-        this.version = "2.1.0-emergency-fix";
+        this.version = "2.2.0-iching-integration";
         this.philosophyAlignment = "haqei-eight-scenarios-integration";
         
         // 8シナリオ生成パラメーター
@@ -30,7 +30,13 @@ class EightScenariosGenerator {
             ichingIntegration: true
         };
         
-        // 易経統合システム
+        // v2.2.0 新しいI Ching統合クラス
+        this.kingWenMapping = null;
+        this.lineSelector = null;
+        this.advanceProcessor = null;
+        this.multiLineInterpreter = null;
+        
+        // 易経統合システム（後方互換性のため保持）
         this.ichingMapping = new Map();
         this.initializeIChingMapping();
         
@@ -38,8 +44,37 @@ class EightScenariosGenerator {
         this.scenarioCache = new Map();
         this.cacheTimeout = 1800000; // 30分
         
-        console.log('🎯 EightScenariosGenerator v2.1.0 initialized - HaQei統合8シナリオ生成システム');
-        this.initialized = true;
+        console.log('🎯 EightScenariosGenerator v2.2.0 initialized - HaQei統合8シナリオ生成システム (I Ching Integration)');
+        this.initializeV22Components();
+    }
+    
+    /**
+     * v2.2.0 コンポーネント初期化
+     */
+    async initializeV22Components() {
+        try {
+            // 動的インポートでv2.2.0クラスを読み込み
+            if (typeof window !== 'undefined') {
+                // ブラウザ環境
+                const { KingWenMapping } = await import('../../iching/KingWenMapping.js');
+                const { LineSelector } = await import('../../iching/LineSelector.js');
+                const { AdvanceProcessor } = await import('../../iching/AdvanceProcessor.js');
+                const { MultiLineInterpreter } = await import('../../iching/MultiLineInterpreter.js');
+                
+                this.kingWenMapping = new KingWenMapping();
+                this.lineSelector = new LineSelector();
+                this.advanceProcessor = new AdvanceProcessor();
+                this.multiLineInterpreter = new MultiLineInterpreter();
+                
+                await this.kingWenMapping.initialize();
+                console.log('✅ v2.2.0 I Ching components initialized successfully');
+            }
+            
+            this.initialized = true;
+        } catch (error) {
+            console.warn('⚠️ v2.2.0 components initialization failed, falling back to v2.1.0 behavior:', error.message);
+            this.initialized = true; // 後方互換性を保つ
+        }
     }
     
     /**
@@ -108,10 +143,11 @@ class EightScenariosGenerator {
     }
     
     /**
-     * 入力テキスト解析
+     * 入力テキスト解析 - v2.2.0強化版
      */
     analyzeInputText(inputText) {
-        const analysis = {
+        // 基本分析（v2.1.0互換）
+        const baseAnalysis = {
             originalText: inputText,
             wordCount: inputText.length,
             emotionalTone: this.detectEmotionalTone(inputText),
@@ -121,18 +157,77 @@ class EightScenariosGenerator {
             complexityLevel: this.assessComplexityLevel(inputText)
         };
         
-        console.log('📝 Text analysis completed:', analysis.keyThemes);
-        return analysis;
+        // v2.2.0 拡張: より詳細な分析
+        const enhancedAnalysis = {
+            ...baseAnalysis,
+            emotionalTone: {
+                type: baseAnalysis.emotionalTone,
+                intensity: this.calculateEmotionalIntensity(inputText)
+            },
+            keyThemes: baseAnalysis.keyThemes.map(theme => ({
+                name: theme,
+                score: this.calculateThemeScore(theme, inputText)
+            }))
+        };
+        
+        console.log('📝 Enhanced text analysis completed:', enhancedAnalysis.keyThemes);
+        return enhancedAnalysis;
     }
     
     /**
-     * 易経状況卦マッピング
+     * 感情強度計算
+     */
+    calculateEmotionalIntensity(text) {
+        const intensityWords = ['とても', '非常に', '極めて', '絶対に', '必ず'];
+        const count = intensityWords.reduce((acc, word) => acc + (text.includes(word) ? 1 : 0), 0);
+        return Math.min(0.3 + count * 0.2, 1.0);
+    }
+    
+    /**
+     * テーマスコア計算
+     */
+    calculateThemeScore(theme, text) {
+        const themePatterns = {
+            '仕事': ['仕事', '職場', '会社', '業務', 'キャリア'],
+            '人間関係': ['人間関係', '友人', '家族', '恋人', '同僚'],
+            '健康': ['健康', '病気', '体調', '医療', '運動'],
+            '学習': ['学習', '勉強', '教育', '成長', 'スキル'],
+            '財務': ['お金', '財務', '投資', '収入', '支出']
+        };
+        
+        const keywords = themePatterns[theme] || [theme];
+        const matchCount = keywords.reduce((acc, keyword) => acc + (text.includes(keyword) ? 1 : 0), 0);
+        return Math.min(matchCount * 0.2 + 0.3, 1.0);
+    }
+    
+    /**
+     * 易経状況卦マッピング - v2.2.0強化版
      */
     mapToSituationalHexagram(textAnalysis) {
-        // 感情的トーンと状況タイプから適切な卦を選択
-        const hexagramNumber = this.calculateOptimalHexagram(textAnalysis);
+        // v2.2.0: 新しいKingWenMappingクラスを使用
+        if (this.kingWenMapping && this.kingWenMapping.initialized) {
+            try {
+                // より正確な卦選択ロジック
+                const hexagramNumber = this.calculateOptimalHexagramV22(textAnalysis);
+                const hexData = this.kingWenMapping.getHexagramData(hexagramNumber);
+                
+                if (hexData) {
+                    return {
+                        number: hexagramNumber,
+                        name: hexData.name,
+                        lines: this.kingWenMapping.getLineConfiguration(hexagramNumber),
+                        keywords: hexData.keywords || ['変化', '選択', '発展'],
+                        situation: hexData.situation || '転換期の状況',
+                        guidance: hexData.guidance || '慎重な判断が必要'
+                    };
+                }
+            } catch (error) {
+                console.warn('⚠️ v2.2.0 hexagram mapping failed, falling back:', error.message);
+            }
+        }
         
-        // H384データベースから対応する卦データを取得
+        // フォールバック: 旧バージョンの動作
+        const hexagramNumber = this.calculateOptimalHexagram(textAnalysis);
         const hexagramData = this.getHexagramData(hexagramNumber);
         
         return {
@@ -145,9 +240,38 @@ class EightScenariosGenerator {
     }
     
     /**
-     * 8方向性の基本パターン生成
+     * v2.2.0 改良された卦計算
+     */
+    calculateOptimalHexagramV22(textAnalysis) {
+        // 利用可能な6卦から選択: 1, 2, 11, 12, 63, 64
+        const availableHexagrams = [1, 2, 11, 12, 63, 64];
+        
+        // テーマベース選択
+        const primaryTheme = textAnalysis.keyThemes[0]?.name || textAnalysis.keyThemes[0];
+        if (primaryTheme === '仕事' && textAnalysis.emotionalTone.type === 'positive') return 11; // 泰
+        if (primaryTheme === '仕事' && textAnalysis.emotionalTone.type === 'negative') return 12; // 否
+        if (textAnalysis.situationType === 'decision-making' && textAnalysis.urgencyLevel === 'high') return 1; // 乾
+        if (textAnalysis.complexityLevel === 'high') return 63; // 既済
+        if (textAnalysis.emotionalTone.type === 'neutral') return 64; // 未済
+        
+        // デフォルト
+        return 2; // 坤
+    }
+    
+    /**
+     * 8方向性の基本パターン生成 - v2.2.0強化版
      */
     generateBasePatterns(textAnalysis, hexagram) {
+        // v2.2.0: 新しいクラスを使用したパターン生成
+        if (this.lineSelector && this.advanceProcessor && this.multiLineInterpreter) {
+            try {
+                return this.generateV22Patterns(textAnalysis, hexagram);
+            } catch (error) {
+                console.warn('⚠️ v2.2.0 pattern generation failed, falling back:', error.message);
+            }
+        }
+        
+        // フォールバック: 旧バージョンのパターン生成
         const patterns = [
             {
                 id: 1,
@@ -229,6 +353,94 @@ class EightScenariosGenerator {
             relevanceScore: this.calculateRelevanceScore(pattern, textAnalysis, hexagram),
             contextualAdjustment: this.applyContextualAdjustment(pattern, textAnalysis)
         }));
+    }
+    
+    /**
+     * v2.2.0 新しいクラスを使用したパターン生成
+     */
+    generateV22Patterns(textAnalysis, hexagram) {
+        const patterns = [];
+        const hexagramNumber = hexagram.number;
+        
+        // 基本パターンテンプレート
+        const basePatterns = [
+            { id: 1, approach: 'proactive', title: '積極的前進', type: 'advance' },
+            { id: 2, approach: 'adaptive', title: '適応的前進', type: 'advance' },
+            { id: 3, approach: 'transformative', title: '段階的変革', type: 'transform' },
+            { id: 4, approach: 'decisive', title: '決断的変革', type: 'transform' },
+            { id: 5, approach: 'strengthening', title: '強化安定化', type: 'advance' },
+            { id: 6, approach: 'harmonizing', title: '調和安定化', type: 'advance' },
+            { id: 7, approach: 'integrative', title: '統合的発展', type: 'transform' },
+            { id: 8, approach: 'innovative', title: '革新的探索', type: 'transform' }
+        ];
+        
+        // 各パターンに対してv2.2.0クラスでの詳細生成
+        basePatterns.forEach(template => {
+            const startingLine = this.lineSelector.selectStartingLine({}, textAnalysis);
+            
+            if (template.type === 'advance') {
+                // 進爻パターン
+                const advanceChain = this.advanceProcessor.generateAdvanceChain(hexagramNumber, startingLine, 2);
+                patterns.push({
+                    ...template,
+                    direction: `${template.approach}_${template.type}`,
+                    description: this.generateAdvanceDescription(template, advanceChain),
+                    v22Data: {
+                        type: 'advance',
+                        startingLine,
+                        chain: advanceChain,
+                        stageName: this.advanceProcessor.getStageName(startingLine)
+                    }
+                });
+            } else {
+                // 変爻パターン
+                const linesToChange = this.lineSelector.selectLinesToChange(hexagramNumber, textAnalysis);
+                const transformHex = linesToChange.length > 0 ? 
+                    this.kingWenMapping.calculateTransformedHex(hexagramNumber, linesToChange[0]) : 
+                    hexagramNumber;
+                    
+                const interpretation = this.multiLineInterpreter.interpretMultipleChanges(
+                    hexagramNumber, linesToChange, transformHex
+                );
+                
+                patterns.push({
+                    ...template,
+                    direction: `${template.approach}_${template.type}`,
+                    description: this.generateTransformDescription(template, interpretation),
+                    v22Data: {
+                        type: 'transform',
+                        fromHex: hexagramNumber,
+                        toHex: transformHex,
+                        linesToChange,
+                        interpretation
+                    }
+                });
+            }
+        });
+        
+        // 関連度スコア計算
+        return patterns.map(pattern => ({
+            ...pattern,
+            relevanceScore: this.calculateRelevanceScore(pattern, textAnalysis, hexagram),
+            contextualAdjustment: this.applyContextualAdjustment(pattern, textAnalysis)
+        }));
+    }
+    
+    /**
+     * 進爻用の説明生成
+     */
+    generateAdvanceDescription(template, advanceChain) {
+        if (advanceChain.length > 0) {
+            return `${template.title}: ${advanceChain[0].description}を通じて段階的に発展する`;
+        }
+        return `${template.title}: 現在の段階から次のレベルへと着実に進歩する`;
+    }
+    
+    /**
+     * 変爻用の説明生成
+     */
+    generateTransformDescription(template, interpretation) {
+        return `${template.title}: ${interpretation.interpretation || '状況の本質的変化を通じて新しい可能性を開く'}`;
     }
     
     /**

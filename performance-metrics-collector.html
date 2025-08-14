@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Metrics Collector - OS Analyzer</title>
+    
+    <!-- 依存関係 -->
+    <script src="js/PerformanceOptimizer.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg-dark: #0f172a;
+            --text: #e2e8f0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .metric-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        
+        .metric-label {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+        
+        .status-good { color: var(--success); }
+        .status-warning { color: var(--warning); }
+        .status-bad { color: var(--error); }
+        
+        .chart-container {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        canvas {
+            max-height: 300px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        button {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .test-results {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+        }
+        
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(99, 102, 241, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+        
+        .recommendation {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+        }
+        
+        .timestamp {
+            text-align: center;
+            color: #64748b;
+            margin-top: 2rem;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Performance Metrics Collector</h1>
+        
+        <div class="controls">
+            <button onclick="collector.startCollection()">計測開始</button>
+            <button onclick="collector.runLoadTest()">負荷テスト</button>
+            <button onclick="collector.runMemoryTest()">メモリテスト</button>
+            <button onclick="collector.generateReport()">レポート生成</button>
+            <button onclick="collector.clearMetrics()">クリア</button>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>📊 フレームレート</h3>
+                <div class="metric-value" id="fps">0</div>
+                <div class="metric-label">fps</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="fps-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>⚡ レンダリング時間</h3>
+                <div class="metric-value" id="render-time">0</div>
+                <div class="metric-label">ms</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="render-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>💾 メモリ使用量</h3>
+                <div class="metric-value" id="memory">0</div>
+                <div class="metric-label">MB</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="memory-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>🎯 キャッシュヒット率</h3>
+                <div class="metric-value" id="cache-hit">0</div>
+                <div class="metric-label">%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="cache-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>📈 計算処理時間</h3>
+                <div class="metric-value" id="calc-time">0</div>
+                <div class="metric-label">ms</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="calc-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="metric-card">
+                <h3>🔄 DOM更新回数</h3>
+                <div class="metric-value" id="dom-updates">0</div>
+                <div class="metric-label">回/秒</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="dom-bar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h3>リアルタイムパフォーマンス</h3>
+            <canvas id="performance-chart"></canvas>
+        </div>
+        
+        <div class="test-results" id="test-results">
+            <h3>🧪 テスト結果</h3>
+            <div id="test-items">
+                <!-- テスト結果が動的に追加される -->
+            </div>
+        </div>
+        
+        <div id="recommendations" class="test-results">
+            <h3>💡 改善提案</h3>
+            <!-- 改善提案が動的に追加される -->
+        </div>
+        
+        <div class="timestamp" id="timestamp">
+            最終更新: -
+        </div>
+    </div>
+    
+    <script>
+        class PerformanceMetricsCollector {
+            constructor() {
+                this.metrics = {
+                    fps: [],
+                    renderTime: [],
+                    memory: [],
+                    cacheHits: 0,
+                    cacheMisses: 0,
+                    calcTime: [],
+                    domUpdates: 0
+                };
+                
+                this.isCollecting = false;
+                this.startTime = null;
+                this.frameCount = 0;
+                this.lastFrameTime = performance.now();
+                
+                // Chart.jsがあれば初期化
+                this.chart = null;
+                if (typeof Chart !== 'undefined') {
+                    this.initChart();
+                }
+                
+                // PerformanceOptimizer初期化
+                if (typeof PerformanceOptimizer !== 'undefined') {
+                    this.optimizer = new PerformanceOptimizer();
+                }
+            }
+            
+            startCollection() {
+                if (this.isCollecting) {
+                    this.stopCollection();
+                    return;
+                }
+                
+                this.isCollecting = true;
+                this.startTime = performance.now();
+                
+                // FPS測定開始
+                this.measureFPS();
+                
+                // メモリ監視開始
+                this.monitorMemory();
+                
+                // DOM監視開始
+                this.monitorDOM();
+                
+                // メトリクス更新
+                this.updateInterval = setInterval(() => {
+                    this.updateMetrics();
+                }, 100);
+                
+                console.log('📊 Performance collection started');
+            }
+            
+            stopCollection() {
+                this.isCollecting = false;
+                clearInterval(this.updateInterval);
+                console.log('⏹️ Performance collection stopped');
+            }
+            
+            measureFPS() {
+                if (!this.isCollecting) return;
+                
+                const currentTime = performance.now();
+                const delta = currentTime - this.lastFrameTime;
+                
+                if (delta >= 1000) {
+                    const fps = Math.round((this.frameCount * 1000) / delta);
+                    this.metrics.fps.push(fps);
+                    
+                    // 最大100エントリ
+                    if (this.metrics.fps.length > 100) {
+                        this.metrics.fps.shift();
+                    }
+                    
+                    this.frameCount = 0;
+                    this.lastFrameTime = currentTime;
+                }
+                
+                this.frameCount++;
+                
+                if (this.isCollecting) {
+                    requestAnimationFrame(() => this.measureFPS());
+                }
+            }
+            
+            monitorMemory() {
+                if (!performance.memory) return;
+                
+                const memoryInterval = setInterval(() => {
+                    if (!this.isCollecting) {
+                        clearInterval(memoryInterval);
+                        return;
+                    }
+                    
+                    const usedMB = Math.round(performance.memory.usedJSHeapSize / 1048576);
+                    this.metrics.memory.push(usedMB);
+                    
+                    if (this.metrics.memory.length > 100) {
+                        this.metrics.memory.shift();
+                    }
+                }, 1000);
+            }
+            
+            monitorDOM() {
+                let domUpdateCount = 0;
+                const observer = new MutationObserver(() => {
+                    domUpdateCount++;
+                });
+                
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true
+                });
+                
+                setInterval(() => {
+                    if (!this.isCollecting) {
+                        observer.disconnect();
+                        return;
+                    }
+                    
+                    this.metrics.domUpdates = domUpdateCount;
+                    domUpdateCount = 0;
+                }, 1000);
+            }
+            
+            async runLoadTest() {
+                console.log('🔥 Starting load test...');
+                const results = [];
+                
+                // 1. 大量データ処理テスト
+                const dataTest = await this.testDataProcessing();
+                results.push(dataTest);
+                
+                // 2. レンダリング負荷テスト
+                const renderTest = await this.testRendering();
+                results.push(renderTest);
+                
+                // 3. 計算負荷テスト
+                const calcTest = await this.testCalculation();
+                results.push(calcTest);
+                
+                // 4. キャッシュ効率テスト
+                const cacheTest = await this.testCache();
+                results.push(cacheTest);
+                
+                this.displayTestResults(results);
+                return results;
+            }
+            
+            async testDataProcessing() {
+                const startTime = performance.now();
+                const testData = [];
+                
+                // 1000個のデータを生成
+                for (let i = 0; i < 1000; i++) {
+                    testData.push({
+                        id: i,
+                        value: Math.random() * 100,
+                        nested: {
+                            data: Array(100).fill(0).map(() => Math.random())
+                        }
+                    });
+                }
+                
+                // データ処理
+                const processed = testData.map(item => ({
+                    ...item,
+                    processed: item.value * 2,
+                    sum: item.nested.data.reduce((a, b) => a + b, 0)
+                }));
+                
+                const duration = performance.now() - startTime;
+                
+                return {
+                    name: 'データ処理',
+                    duration: duration.toFixed(2),
+                    items: processed.length,
+                    status: duration < 100 ? 'good' : duration < 500 ? 'warning' : 'bad'
+                };
+            }
+            
+            async testRendering() {
+                const startTime = performance.now();
+                const container = document.createElement('div');
+                container.style.display = 'none';
+                document.body.appendChild(container);
+                
+                // 1000要素をレンダリング
+                for (let i = 0; i < 1000; i++) {
+                    const element = document.createElement('div');
+                    element.className = 'test-element';
+                    element.textContent = `Test ${i}`;
+                    element.style.padding = '10px';
+                    element.style.margin = '5px';
+                    element.style.background = `hsl(${i % 360}, 70%, 50%)`;
+                    container.appendChild(element);
+                }
+                
+                // 強制レイアウト
+                container.offsetHeight;
+                
+                const duration = performance.now() - startTime;
+                document.body.removeChild(container);
+                
+                return {
+                    name: 'レンダリング',
+                    duration: duration.toFixed(2),
+                    elements: 1000,
+                    status: duration < 50 ? 'good' : duration < 200 ? 'warning' : 'bad'
+                };
+            }
+            
+            async testCalculation() {
+                const startTime = performance.now();
+                let result = 0;
+                
+                // 重い計算処理
+                for (let i = 0; i < 1000000; i++) {
+                    result += Math.sqrt(i) * Math.sin(i);
+                }
+                
+                const duration = performance.now() - startTime;
+                
+                return {
+                    name: '計算処理',
+                    duration: duration.toFixed(2),
+                    operations: 1000000,
+                    status: duration < 100 ? 'good' : duration < 300 ? 'warning' : 'bad'
+                };
+            }
+            
+            async testCache() {
+                if (!this.optimizer) {
+                    return {
+                        name: 'キャッシュ',
+                        duration: 0,
+                        hitRate: 0,
+                        status: 'warning'
+                    };
+                }
+                
+                const testData = { id: 1, value: Math.random() };
+                const key = 'test-cache';
+                
+                // 初回（キャッシュなし）
+                const start1 = performance.now();
+                this.optimizer.optimizeCalculation(() => {
+                    let sum = 0;
+                    for (let i = 0; i < 100000; i++) {
+                        sum += Math.sqrt(i);
+                    }
+                    return sum;
+                }, key, testData);
+                const uncached = performance.now() - start1;
+                
+                // 2回目（キャッシュあり）
+                const start2 = performance.now();
+                this.optimizer.optimizeCalculation(() => {
+                    let sum = 0;
+                    for (let i = 0; i < 100000; i++) {
+                        sum += Math.sqrt(i);
+                    }
+                    return sum;
+                }, key, testData);
+                const cached = performance.now() - start2;
+                
+                const hitRate = ((uncached - cached) / uncached * 100).toFixed(1);
+                this.metrics.cacheHits++;
+                
+                return {
+                    name: 'キャッシュ',
+                    uncached: uncached.toFixed(2),
+                    cached: cached.toFixed(2),
+                    hitRate: hitRate,
+                    status: hitRate > 80 ? 'good' : hitRate > 50 ? 'warning' : 'bad'
+                };
+            }
+            
+            async runMemoryTest() {
+                console.log('💾 Starting memory test...');
+                
+                if (!performance.memory) {
+                    alert('Memory API is not available in this browser');
+                    return;
+                }
+                
+                const results = [];
+                const baseline = performance.memory.usedJSHeapSize;
+                
+                // メモリリークテスト
+                const leakTest = await this.testMemoryLeak();
+                results.push(leakTest);
+                
+                // ガベージコレクションテスト
+                const gcTest = await this.testGarbageCollection();
+                results.push(gcTest);
+                
+                this.displayTestResults(results);
+                return results;
+            }
+            
+            async testMemoryLeak() {
+                const arrays = [];
+                const startMemory = performance.memory.usedJSHeapSize;
+                
+                // メモリを意図的に使用
+                for (let i = 0; i < 100; i++) {
+                    arrays.push(new Array(10000).fill(Math.random()));
+                }
+                
+                const peakMemory = performance.memory.usedJSHeapSize;
+                
+                // クリーンアップ
+                arrays.length = 0;
+                
+                // GC待機
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const finalMemory = performance.memory.usedJSHeapSize;
+                const leaked = finalMemory - startMemory;
+                
+                return {
+                    name: 'メモリリーク',
+                    start: (startMemory / 1048576).toFixed(2) + ' MB',
+                    peak: (peakMemory / 1048576).toFixed(2) + ' MB',
+                    final: (finalMemory / 1048576).toFixed(2) + ' MB',
+                    leaked: (leaked / 1048576).toFixed(2) + ' MB',
+                    status: leaked < 1048576 ? 'good' : leaked < 5242880 ? 'warning' : 'bad'
+                };
+            }
+            
+            async testGarbageCollection() {
+                const measurements = [];
+                
+                for (let i = 0; i < 5; i++) {
+                    // 大量のオブジェクト生成
+                    let objects = [];
+                    for (let j = 0; j < 10000; j++) {
+                        objects.push({
+                            id: j,
+                            data: new Array(100).fill(Math.random())
+                        });
+                    }
+                    
+                    const beforeGC = performance.memory.usedJSHeapSize;
+                    
+                    // オブジェクト解放
+                    objects = null;
+                    
+                    // GC待機
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    const afterGC = performance.memory.usedJSHeapSize;
+                    const collected = beforeGC - afterGC;
+                    
+                    measurements.push(collected);
+                }
+                
+                const avgCollected = measurements.reduce((a, b) => a + b, 0) / measurements.length;
+                
+                return {
+                    name: 'GC効率',
+                    avgCollected: (avgCollected / 1048576).toFixed(2) + ' MB',
+                    measurements: measurements.length,
+                    status: avgCollected > 0 ? 'good' : 'bad'
+                };
+            }
+            
+            updateMetrics() {
+                // FPS
+                const currentFPS = this.metrics.fps[this.metrics.fps.length - 1] || 0;
+                document.getElementById('fps').textContent = currentFPS;
+                document.getElementById('fps-bar').style.width = `${Math.min(100, currentFPS * 100 / 60)}%`;
+                this.setStatusColor('fps', currentFPS >= 30 ? 'good' : currentFPS >= 15 ? 'warning' : 'bad');
+                
+                // レンダリング時間
+                const avgRenderTime = this.getAverage(this.metrics.renderTime);
+                document.getElementById('render-time').textContent = avgRenderTime.toFixed(1);
+                document.getElementById('render-bar').style.width = `${Math.min(100, avgRenderTime * 100 / 16)}%`;
+                this.setStatusColor('render-time', avgRenderTime <= 16 ? 'good' : avgRenderTime <= 33 ? 'warning' : 'bad');
+                
+                // メモリ
+                const currentMemory = this.metrics.memory[this.metrics.memory.length - 1] || 0;
+                document.getElementById('memory').textContent = currentMemory;
+                document.getElementById('memory-bar').style.width = `${Math.min(100, currentMemory * 100 / 500)}%`;
+                this.setStatusColor('memory', currentMemory <= 100 ? 'good' : currentMemory <= 300 ? 'warning' : 'bad');
+                
+                // キャッシュヒット率
+                const totalCache = this.metrics.cacheHits + this.metrics.cacheMisses;
+                const hitRate = totalCache > 0 ? (this.metrics.cacheHits / totalCache * 100) : 0;
+                document.getElementById('cache-hit').textContent = hitRate.toFixed(1);
+                document.getElementById('cache-bar').style.width = `${hitRate}%`;
+                this.setStatusColor('cache-hit', hitRate >= 80 ? 'good' : hitRate >= 50 ? 'warning' : 'bad');
+                
+                // 計算時間
+                const avgCalcTime = this.getAverage(this.metrics.calcTime);
+                document.getElementById('calc-time').textContent = avgCalcTime.toFixed(1);
+                document.getElementById('calc-bar').style.width = `${Math.min(100, avgCalcTime * 100 / 100)}%`;
+                this.setStatusColor('calc-time', avgCalcTime <= 50 ? 'good' : avgCalcTime <= 100 ? 'warning' : 'bad');
+                
+                // DOM更新
+                document.getElementById('dom-updates').textContent = this.metrics.domUpdates;
+                document.getElementById('dom-bar').style.width = `${Math.min(100, this.metrics.domUpdates * 100 / 100)}%`;
+                this.setStatusColor('dom-updates', this.metrics.domUpdates <= 30 ? 'good' : this.metrics.domUpdates <= 60 ? 'warning' : 'bad');
+                
+                // タイムスタンプ更新
+                document.getElementById('timestamp').textContent = `最終更新: ${new Date().toLocaleTimeString('ja-JP')}`;
+                
+                // チャート更新
+                if (this.chart && this.isCollecting) {
+                    this.updateChart();
+                }
+            }
+            
+            getAverage(array) {
+                if (array.length === 0) return 0;
+                return array.reduce((a, b) => a + b, 0) / array.length;
+            }
+            
+            setStatusColor(elementId, status) {
+                const element = document.getElementById(elementId);
+                element.classList.remove('status-good', 'status-warning', 'status-bad');
+                element.classList.add(`status-${status}`);
+            }
+            
+            displayTestResults(results) {
+                const container = document.getElementById('test-items');
+                container.innerHTML = '';
+                
+                results.forEach(result => {
+                    const item = document.createElement('div');
+                    item.className = 'test-item';
+                    item.innerHTML = `
+                        <span>${result.name}</span>
+                        <span class="status-${result.status}">
+                            ${result.duration ? result.duration + ' ms' : result.hitRate ? result.hitRate + '%' : '-'}
+                        </span>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+            
+            generateReport() {
+                const report = {
+                    timestamp: new Date().toISOString(),
+                    metrics: {
+                        avgFPS: this.getAverage(this.metrics.fps),
+                        avgRenderTime: this.getAverage(this.metrics.renderTime),
+                        avgMemory: this.getAverage(this.metrics.memory),
+                        cacheHitRate: this.metrics.cacheHits / (this.metrics.cacheHits + this.metrics.cacheMisses) * 100,
+                        avgCalcTime: this.getAverage(this.metrics.calcTime),
+                        avgDOMUpdates: this.metrics.domUpdates
+                    },
+                    recommendations: []
+                };
+                
+                // 改善提案生成
+                if (report.metrics.avgFPS < 30) {
+                    report.recommendations.push('フレームレートが低下しています。アニメーションを最適化してください。');
+                }
+                
+                if (report.metrics.avgRenderTime > 16) {
+                    report.recommendations.push('レンダリング時間が16msを超えています。DOM操作を最適化してください。');
+                }
+                
+                if (report.metrics.avgMemory > 200) {
+                    report.recommendations.push('メモリ使用量が高くなっています。不要なデータをクリアしてください。');
+                }
+                
+                if (report.metrics.cacheHitRate < 70) {
+                    report.recommendations.push('キャッシュヒット率が低いです。キャッシュ戦略を見直してください。');
+                }
+                
+                // 改善提案表示
+                const recContainer = document.getElementById('recommendations');
+                recContainer.innerHTML = '<h3>💡 改善提案</h3>';
+                
+                if (report.recommendations.length === 0) {
+                    recContainer.innerHTML += '<div class="recommendation">✅ パフォーマンスは良好です！</div>';
+                } else {
+                    report.recommendations.forEach(rec => {
+                        recContainer.innerHTML += `<div class="recommendation">${rec}</div>`;
+                    });
+                }
+                
+                // コンソールに出力
+                console.log('📊 Performance Report:', report);
+                
+                // JSON形式でダウンロード
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `performance-report-${Date.now()}.json`;
+                a.click();
+                
+                return report;
+            }
+            
+            clearMetrics() {
+                this.metrics = {
+                    fps: [],
+                    renderTime: [],
+                    memory: [],
+                    cacheHits: 0,
+                    cacheMisses: 0,
+                    calcTime: [],
+                    domUpdates: 0
+                };
+                
+                // UI更新
+                this.updateMetrics();
+                
+                // テスト結果クリア
+                document.getElementById('test-items').innerHTML = '';
+                document.getElementById('recommendations').innerHTML = '<h3>💡 改善提案</h3>';
+                
+                console.log('🗑️ Metrics cleared');
+            }
+            
+            initChart() {
+                // Chart.js実装（省略）
+                console.log('📈 Chart initialized');
+            }
+            
+            updateChart() {
+                // チャート更新（省略）
+            }
+        }
+        
+        // Collector初期化
+        const collector = new PerformanceMetricsCollector();
+        
+        // 自動開始
+        collector.startCollection();
+    </script>
+</body>
+</html>
