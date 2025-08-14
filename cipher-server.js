@@ -5,16 +5,17 @@
  * HaQei Philosophy + Dual Memory Layer
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import yaml from 'js-yaml';
-import http from 'http';
 import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
+import helmet from 'helmet';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class HAQEICipherServer {
   constructor() {
@@ -34,7 +35,7 @@ class HAQEICipherServer {
 
   loadConfig() {
     try {
-      const configPath = join(__dirname, 'cipher.config.yaml');
+      const configPath = path.join(__dirname, 'cipher.config.yaml');
       const configFile = readFileSync(configPath, 'utf8');
       return yaml.load(configFile);
     } catch (error) {
@@ -71,17 +72,32 @@ class HAQEICipherServer {
       
       // Security and performance middleware
       app.disable('x-powered-by');
-      app.use(compression());
-      app.use(cors());
       
-      // Security headers
-      app.use((req, res, next) => {
-        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-        res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-        res.setHeader('X-Frame-Options', 'DENY');
-        next();
-      });
+      // Helmet security headers with relaxed CSP for development
+      app.use(helmet({
+        contentSecurityPolicy: {
+          useDefaults: false, // Start with minimal restrictions
+          directives: {
+            "default-src": ["'self'"],
+            "img-src": ["'self'", "data:", "blob:"],
+            "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // TODO: gradual CSP hardening
+            "style-src": ["'self'", "'unsafe-inline'"],
+            "connect-src": ["'self'"],
+            "font-src": ["'self'", "data:"],
+            "frame-src": ["'none'"],
+            "object-src": ["'none'"],
+          }
+        },
+        referrerPolicy: { policy: "no-referrer" },
+        crossOriginOpenerPolicy: { policy: "same-origin" },
+        crossOriginResourcePolicy: { policy: "same-origin" }
+      }));
+      
+      // Compression (gzip + brotli if available)
+      app.use(compression());
+      
+      // CORS for development
+      app.use(cors());
       
       // API routes
       app.get('/health', (req, res) => {
@@ -93,18 +109,59 @@ class HAQEICipherServer {
         });
       });
       
+      app.get('/ready', async (req, res) => {
+        try {
+          // Readiness checks: dependencies and configuration
+          const eightPalacesPath = path.resolve(__dirname, 'data/eight_palaces.v1.json');
+          const manifestPath = path.resolve(__dirname, 'data/source_manifest.json');
+          
+          if (!existsSync(eightPalacesPath)) {
+            throw new Error('Eight Palaces data not found');
+          }
+          
+          if (!existsSync(manifestPath)) {
+            throw new Error('Source manifest not found');
+          }
+          
+          // Test main app file accessibility
+          const mainAppPath = path.resolve(__dirname, 'public/os_analyzer.html');
+          if (!existsSync(mainAppPath)) {
+            throw new Error('Main application file not found');
+          }
+          
+          res.json({ 
+            ready: true, 
+            timestamp: new Date().toISOString(),
+            checks: {
+              eight_palaces: 'ok',
+              manifest: 'ok',
+              main_app: 'ok',
+              memory: this.memory.size > 0 ? 'ok' : 'empty'
+            }
+          });
+        } catch (error) {
+          res.status(503).json({ 
+            ready: false, 
+            error: error.message,
+            timestamp: new Date().toISOString()
+          });
+        }
+      });
+      
       app.get('/memory', (req, res) => {
         const memoryData = Array.from(this.memory.entries()).map(([key, value]) => ({ key, value }));
         res.json({ memory: memoryData });
       });
       
       // Static file serving (dist優先 → なければpublic)
-      const PUBLIC_DIR = join(__dirname, 'public');
-      const DIST_DIR = join(__dirname, 'dist');
+      const PUBLIC_DIR = path.resolve(__dirname, 'public');
+      const DIST_DIR = path.resolve(__dirname, 'dist');
       
       const staticOpts = { 
         extensions: ['html'], 
         maxAge: '1h',
+        etag: true,
+        immutable: false,
         index: false  // Disable directory index to prevent conflicts
       };
       
@@ -117,13 +174,36 @@ class HAQEICipherServer {
         res.redirect('/os_analyzer.html');
       });
       
-      // 404 fallback
+      // 404 handler with graceful fallback
       app.use((req, res) => {
-        res.status(404).json({ 
-          error: 'Not found',
-          path: req.path,
-          message: 'HAQEI Static files or API endpoint not found'
-        });
+        const fallbackPath = path.join(PUBLIC_DIR, '404.html');
+        if (existsSync(fallbackPath)) {
+          res.status(404).sendFile(fallbackPath);
+        } else {
+          res.status(404).json({ 
+            error: 'Not found',
+            path: req.path,
+            message: 'HAQEI Static files or API endpoint not found',
+            suggestion: 'Try accessing /os_analyzer.html directly'
+          });
+        }
+      });
+      
+      // Global error handler
+      app.use((err, req, res, next) => {
+        console.error('Server error:', err);
+        this.logger.error(`Server error: ${err.message}`);
+        
+        const fallbackPath = path.join(PUBLIC_DIR, '500.html');
+        if (existsSync(fallbackPath)) {
+          res.status(500).sendFile(fallbackPath);
+        } else {
+          res.status(500).json({
+            error: 'Internal server error',
+            message: 'HAQEI server encountered an unexpected error',
+            timestamp: new Date().toISOString()
+          });
+        }
       });
 
       const port = this.config.server.port;
@@ -147,7 +227,7 @@ class HAQEICipherServer {
 
   ensureStorageDirectories() {
     const storagePath = this.config.storage.path;
-    const logPath = dirname(this.config.logging.file);
+    const logPath = path.dirname(this.config.logging.file);
     
     if (!existsSync(storagePath)) {
       mkdirSync(storagePath, { recursive: true });
@@ -161,7 +241,7 @@ class HAQEICipherServer {
   
   loadPersistentMemory() {
     try {
-      const memoryFile = join(this.config.storage.path, 'memory.json');
+      const memoryFile = path.join(this.config.storage.path, 'memory.json');
       if (existsSync(memoryFile)) {
         const data = JSON.parse(readFileSync(memoryFile, 'utf8'));
         Object.entries(data).forEach(([key, value]) => {
@@ -176,7 +256,7 @@ class HAQEICipherServer {
   
   savePersistentMemory() {
     try {
-      const memoryFile = join(this.config.storage.path, 'memory.json');
+      const memoryFile = path.join(this.config.storage.path, 'memory.json');
       const data = {};
       this.memory.forEach((value, key) => {
         data[key] = value;

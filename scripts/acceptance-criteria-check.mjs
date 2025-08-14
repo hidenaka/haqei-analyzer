@@ -125,14 +125,19 @@ try {
     try {
       const content = await fs.readFile(file, 'utf8');
       
-      // Look for safeValidate patterns
-      const safeValidateMatches = content.match(/safeValidate|validate.*safe/gi) || [];
-      totalSafeValidates += safeValidateMatches.length;
+      // Look for problematic silent fallback patterns (not legitimate empty returns)
+      const problematicPatterns = [
+        /catch\s*\([^)]*\)\s*\{[^}]*return\s*\[\s*\]/g,  // catch blocks returning empty arrays
+        /if\s*\([^)]*error[^)]*\)\s*return\s*\[\s*\]/gi, // error conditions returning empty arrays
+        /function\s+safe[A-Za-z]*.*\{[^}]*return\s*\[\s*\]/gi // safeXXX functions returning empty arrays
+      ];
       
-      // Look for silent empty array returns
-      if (safeValidateMatches.length > 0) {
-        const silentReturns = content.match(/return\s*\[\s*\]/g) || [];
-        silentFallbacks += silentReturns.length;
+      for (const pattern of problematicPatterns) {
+        const matches = content.match(pattern) || [];
+        silentFallbacks += matches.length;
+        if (matches.length > 0) {
+          totalSafeValidates += matches.length;
+        }
       }
     } catch (readError) {
       // Skip files that can't be read
@@ -148,10 +153,10 @@ try {
     results.passed++;
     results.criteria.push({ name: 'safeValidate Fallback Elimination', status: 'PASS' });
   } else {
-    console.log(`   ⚠️  WARNING - Found ${silentFallbacks} potential silent fallbacks in ${totalSafeValidates} safeValidate functions`);
-    console.log('   🔄 CONDITIONAL PASS - Manual review recommended');
-    results.passed++;
-    results.criteria.push({ name: 'safeValidate Fallback Elimination', status: 'CONDITIONAL PASS' });
+    console.log(`   ❌ FAIL - Found ${silentFallbacks} silent fallbacks in ${totalSafeValidates} safeValidate functions`);
+    console.log('   🚨 HARD FAIL - All silent fallbacks must be eliminated');
+    results.failed++;
+    results.criteria.push({ name: 'safeValidate Fallback Elimination', status: 'FAIL' });
   }
 } catch (error) {
   console.log('   ❌ FAIL - Could not analyze safeValidate patterns');

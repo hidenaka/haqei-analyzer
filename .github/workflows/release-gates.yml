@@ -39,20 +39,36 @@ jobs:
             exit 1
           fi
           
-          EXPECTED=$(jq -r '.palace_mapping.sha256' data/source_manifest.json)
-          ACTUAL=$(sha256sum data/eight_palaces.v1.json | cut -d' ' -f1)
+          # Multi-layer verification: hash + bytes + lines
+          EXPECTED_HASH=$(jq -r '.palace_mapping.sha256' data/source_manifest.json)
+          EXPECTED_BYTES=$(jq -r '.palace_mapping.bytes' data/source_manifest.json)
+          EXPECTED_LINES=$(jq -r '.palace_mapping.lines' data/source_manifest.json)
           
-          echo "Expected hash: $EXPECTED"
-          echo "Actual hash:   $ACTUAL"
+          ACTUAL_HASH=$(sha256sum data/eight_palaces.v1.json | cut -d' ' -f1)
+          ACTUAL_BYTES=$(wc -c < data/eight_palaces.v1.json)
+          ACTUAL_LINES=$(wc -l < data/eight_palaces.v1.json)
           
-          if [ "$EXPECTED" != "$ACTUAL" ]; then
-            echo "❌ Data integrity check failed: Eight Palaces mapping has been modified"
-            echo "   Expected: $EXPECTED"
-            echo "   Actual:   $ACTUAL"
+          echo "Verification matrix:"
+          echo "  Hash:  Expected=$EXPECTED_HASH | Actual=$ACTUAL_HASH"
+          echo "  Bytes: Expected=$EXPECTED_BYTES | Actual=$ACTUAL_BYTES"  
+          echo "  Lines: Expected=$EXPECTED_LINES | Actual=$ACTUAL_LINES"
+          
+          if [ "$EXPECTED_HASH" != "$ACTUAL_HASH" ]; then
+            echo "❌ Hash verification failed"
             exit 1
           fi
           
-          echo "✅ Data integrity verified"
+          if [ "$EXPECTED_BYTES" != "$ACTUAL_BYTES" ]; then
+            echo "❌ File size verification failed"
+            exit 1
+          fi
+          
+          if [ "$EXPECTED_LINES" != "$ACTUAL_LINES" ]; then
+            echo "❌ Line count verification failed" 
+            exit 1
+          fi
+          
+          echo "✅ Multi-layer data integrity verified"
           echo "::endgroup::"
 
       # Gate 3: Build & Server Start
@@ -94,6 +110,21 @@ jobs:
           fi
           echo "::endgroup::"
 
+      - name: 🎯 Readiness Check
+        run: |
+          echo "::group::Application Readiness"
+          READY_RESPONSE=$(curl -s http://localhost:8788/ready)
+          echo "Readiness response: $READY_RESPONSE"
+          
+          if ! echo "$READY_RESPONSE" | jq -e '.ready == true' > /dev/null; then
+            echo "❌ Application readiness check failed"
+            echo "$READY_RESPONSE" | jq '.error // empty' || true
+            exit 1
+          fi
+          
+          echo "✅ Application is ready"
+          echo "::endgroup::"
+
       # Gate 4: E2E スモークテスト
       - name: 🧪 E2E Smoke Tests
         run: |
@@ -106,6 +137,13 @@ jobs:
         run: |
           echo "::group::Eight Palaces Data Invariants"
           node test/eight-palaces.invariant.test.cjs
+          echo "::endgroup::"
+
+      # Gate 6: ゴールデンパターンテスト
+      - name: 🏆 Golden Pattern Test
+        run: |
+          echo "::group::Pattern ID Golden Test (064/52)"
+          node test/pattern-id.golden.test.cjs
           echo "::endgroup::"
 
       # Gate 6: アプリケーションアクセス確認

@@ -142,4 +142,29 @@ console.log(`   - SeedableRandom is optimized for determinism, not cryptographic
 console.log(`   - LCG does not pass advanced statistical tests (by design)`);
 console.log(`   - Use case: Reproducible simulations and testing`);
 
+// CI成果物としてJSONレポート出力
+const jsonReport = {
+  timestamp: env.timestamp,
+  environment: env,
+  results: results.map(r => ({
+    operation: r.name,
+    meanMs: r.stats.mean,
+    p95Ms: r.stats.p95,
+    p99Ms: r.stats.p99,
+    opsPerSec: Math.round(1000 / r.stats.mean),
+    iterations: r.iterations
+  })),
+  deterministicVerification: isIdentical,
+  performanceGrade: overallMean < 0.01 ? 'A+' : overallMean < 0.1 ? 'A' : overallMean < 1 ? 'B' : 'C',
+  overallMeanLatencyMs: overallMean
+};
+
+// CI環境ではファイル出力
+if (process.env.CI) {
+  await import('node:fs/promises').then(fs => 
+    fs.writeFile('benchmark-results.json', JSON.stringify(jsonReport, null, 2))
+  );
+  console.log('\n📄 Benchmark results saved to benchmark-results.json for CI artifacts');
+}
+
 console.log(`\n✅ Benchmark completed successfully`);
