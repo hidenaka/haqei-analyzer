@@ -1,0 +1,111 @@
+<\!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Future Simulator 簡易動作確認</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 30px;
+            font-size: 18px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            min-height: 200px;
+        }
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 10px;
+            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Future Simulator 簡易動作確認</h1>
+    
+    <textarea id="worryInput" data-testid="worryInput" 
+              placeholder="10文字以上入力してください">転職を検討していますが、タイミングが分からず悩んでいます</textarea>
+    
+    <button id="aiGuessBtn" data-testid="aiGuessBtn">分析開始</button>
+    
+    <div id="resultsContainer" data-testid="resultsContainer" style="display: none;">
+        <div id="results"></div>
+    </div>
+    
+    <div class="log" id="logArea"></div>
+    
+    <script>
+        // ログ出力関数
+        function log(msg) {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            logArea.textContent += `[${timestamp}] ${msg}\n`;
+            console.log(msg);
+        }
+        
+        log('ページ読み込み完了');
+        
+        // 簡易版のanalyzeWorry
+        window.analyzeWorry = function(inputText) {
+            log(`analyzeWorry呼び出し: "${inputText}"`);
+            
+            const resultsContainer = document.getElementById('resultsContainer');
+            const results = document.getElementById('results');
+            
+            // 8つのシナリオを生成
+            const scenarios = [];
+            for (let i = 1; i <= 8; i++) {
+                scenarios.push({
+                    id: i,
+                    title: `シナリオ${i}`,
+                    description: `これはシナリオ${i}の説明です。`,
+                    score: Math.floor(Math.random() * 50) + 50
+                });
+            }
+            
+            // 結果を表示
+            let html = '<h2>解析結果</h2><ol>';
+            scenarios.forEach(s => {
+                html += `<li><strong>${s.title}</strong> (スコア: ${s.score})<br>${s.description}</li>`;
+            });
+            html += '</ol>';
+            
+            results.innerHTML = html;
+            resultsContainer.style.display = 'block';
+            
+            log('analyzeWorry完了 - 8シナリオ生成');
+            return scenarios;
+        };
+    </script>
+</body>
+</html>
+EOF < /dev/null

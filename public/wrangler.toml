@@ -1,12 +1,58 @@
-# Cloudflare Pagesプロジェクトの設定ファイル
+# HAQEI Analyzer - Cloudflare Pages Configuration
+# T15: Enhanced cloud deployment with HaQei philosophy
 
-name = "haqei-analyzer" # あなたのCloudflare上のプロジェクト名に合わせてください
-compatibility_date = "2025-06-17" # Wranglerがサポートする最新の互換性日付
+name = "haqei-analyzer"
+compatibility_date = "2025-01-14"
 
-# ビルドした静的ファイルが出力されるディレクトリを指定します
+# Build configuration - Engine OS (core functionality)
 pages_build_output_dir = "public"
+build = { command = "echo 'Static deployment ready'", cwd = "." }
 
-# Analytics Engineとの接続設定
+# Environment variables for different deployment stages
+[env.production.vars]
+ENVIRONMENT = "production"
+HAQEI_PHILOSOPHY = "Triple OS Architecture"
+DEPLOYMENT_TIER = "edge"
+
+[env.staging.vars]
+ENVIRONMENT = "staging"
+HAQEI_PHILOSOPHY = "Triple OS Architecture"
+DEPLOYMENT_TIER = "edge-preview"
+
+# Analytics Engine configuration - Interface OS (user interaction tracking)
 [[analytics_engine_datasets]]
-binding = "ANALYTICS_ENGINE" # プログラム内で使う名前
-dataset = "haqei-stats"      # Cloudflareで作成したデータセット名
+binding = "ANALYTICS_ENGINE"
+dataset = "haqei-stats"
+
+# KV storage for persistent data - Safe Mode OS (data management)
+[[kv_namespaces]]
+binding = "HAQEI_STORAGE"
+id = "your-kv-namespace-id"
+preview_id = "your-preview-kv-namespace-id"
+
+# D1 Database binding for analytics (future expansion)
+# [[d1_databases]]
+# binding = "HAQEI_DB"
+# database_name = "haqei-analytics"
+# database_id = "your-database-id"
+
+# R2 storage for file uploads (future expansion)
+# [[r2_buckets]]
+# binding = "HAQEI_FILES"
+# bucket_name = "haqei-user-data"
+
+# Workers configuration for enhanced functionality
+[vars]
+SITE_NAME = "HAQEI Analyzer"
+PHILOSOPHY = "Strategic Life Navigation Through Triple OS Architecture"
+VERSION = "4.3.1"
+DEPLOYMENT_DATE = "2025-01-14"
+
+# Performance and security settings
+[limits]
+cpu_ms = 50
+
+# Custom domains (configure in Cloudflare dashboard)
+# routes = [
+#   { pattern = "haqei.example.com/*", custom_domain = true }
+# ]

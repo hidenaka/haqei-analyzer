@@ -9,7 +9,11 @@
 
 class KPIAnalyzer {
     constructor() {
-        this.sessionId = this.generateSessionId();
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.sessionId = this.generateSessionId();
         this.startTime = Date.now();
         this.metrics = new Map();
         
@@ -541,11 +545,11 @@ class KPIAnalyzer {
     
     // ID生成
     generateSessionId() {
-        return `kpi_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return `kpi_${Date.now()}_${this.rng.next().toString(36).substr(2, 9)}`;
     }
     
     generateEventId() {
-        return `evt_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+        return `evt_${Date.now()}_${this.rng.next().toString(36).substr(2, 6)}`;
     }
     
     // デバイス検出

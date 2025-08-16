@@ -9,7 +9,11 @@
  */
 
 class MetaphorGenerationEngine {
-  constructor() {
+  constructor(options = {}) {
+    
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); })();
     this.initialized = false;
     this.metaphorDatabase = null;
     this.generationRules = null;
@@ -800,7 +804,7 @@ class MetaphorGenerationEngine {
           }
         ];
         
-        const selected = safeMetaphors[Math.floor(Math.random() * safeMetaphors.length)];
+        const selected = safeMetaphors[Math.floor(this.rng.next() * safeMetaphors.length)];
         
         return {
           metaphor: selected,

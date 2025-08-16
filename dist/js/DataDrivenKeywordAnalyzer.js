@@ -5,9 +5,79 @@
  */
 
 class DataDrivenKeywordAnalyzer {
-    constructor(h384Data) {
-        this.h384Data = h384Data;
-        this.buildKeywordRelationMap();
+    constructor(h384Data, options = {}) {
+        
+        // v4.3.1 決定論的要件: SeedableRandom統合
+        this.rng = options.randomnessManager || window.randomnessManager || 
+                   (() => { throw new Error('RandomnessManager required for deterministic behavior'); })();
+                   
+        // P0-2: データ正規化とバリデーション
+        this.rawH384Data = h384Data;
+        this.h384Data = this.normalizeData(h384Data);
+        this.keywordMap = new Map();
+        this.hexagramRelations = new Map();
+        
+        console.log('🔍 DataDrivenKeywordAnalyzer 初期化');
+        console.log(`  📊 生データ: ${this.rawH384Data?.length || 0}件`);
+        console.log(`  🔧 正規化後: ${this.h384Data?.length || 0}件`);
+        
+        if (this.h384Data && this.h384Data.length > 0) {
+            this.buildKeywordRelationMap();
+        } else {
+            console.error('❌ H384データが不正です');
+            throw new Error('H384データが必要です');
+        }
+    }
+    
+    /**
+     * P0-2: データ正規化メソッド
+     * @param {Array} rawData - 生のH384データ
+     * @returns {Array} 正規化されたデータ
+     */
+    normalizeData(rawData) {
+        if (!rawData || !Array.isArray(rawData)) {
+            console.error('❌ Invalid H384 data:', typeof rawData);
+            return [];
+        }
+        
+        console.log('[P0-2] DataDrivenKeywordAnalyzer データ正規化開始...');
+        
+        const normalized = rawData.map((entry, index) => {
+            const normalizedEntry = { ...entry };
+            
+            // キーワード正規化: Array → String
+            if (entry['キーワード']) {
+                if (Array.isArray(entry['キーワード'])) {
+                    normalizedEntry['キーワード'] = entry['キーワード']
+                        .filter(kw => kw && typeof kw === 'string')
+                        .join(',');
+                } else if (typeof entry['キーワード'] !== 'string') {
+                    console.warn(`[P0-2] Entry ${index}: Non-string キーワード converted:`, entry['キーワード']);
+                    normalizedEntry['キーワード'] = String(entry['キーワード'] || '');
+                }
+            } else {
+                normalizedEntry['キーワード'] = '';
+            }
+            
+            // 必須フィールド検証
+            if (!normalizedEntry['卦番号'] || !normalizedEntry['爻']) {
+                console.warn(`[P0-2] Entry ${index}: Missing required fields`);
+                normalizedEntry['卦番号'] = normalizedEntry['卦番号'] || Math.floor(index / 6) + 1;
+                normalizedEntry['爻'] = normalizedEntry['爻'] || '初';
+            }
+            
+            return normalizedEntry;
+        });
+        
+        console.log('[P0-2] ✅ DataDrivenKeywordAnalyzer データ正規化完了:', normalized.length, '件');
+        
+        // データ品質チェック
+        const emptyKeywords = normalized.filter(entry => !entry['キーワード']).length;
+        if (emptyKeywords > 0) {
+            console.warn(`[P0-2] ⚠️ 空のキーワード: ${emptyKeywords}件`);
+        }
+        
+        return normalized;
     }
 
     /**
@@ -176,7 +246,7 @@ class DataDrivenKeywordAnalyzer {
         
         // 変爻オプション（サンプリング）
         for (let i = 0; i < 5; i++) {
-            const newHex = Math.floor(Math.random() * 64) + 1;
+            const newHex = Math.floor(this.rng.next() * 64) + 1;
             const hengKey = `${newHex}_${currentLine}`;
             const hengData = this.keywordMap.get(hengKey);
             if (hengData) {

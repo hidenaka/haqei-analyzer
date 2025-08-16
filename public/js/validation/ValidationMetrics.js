@@ -11,7 +11,11 @@
 
 class ValidationMetrics {
     constructor() {
-        this.sessionId = this.generateSessionId();
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.sessionId = this.generateSessionId();
         this.startTime = Date.now();
         this.events = [];
         this.currentMetrics = {
@@ -29,7 +33,7 @@ class ValidationMetrics {
      */
     generateSessionId() {
         const timestamp = Date.now();
-        const random = Math.random().toString(36).substr(2, 9);
+        const random = this.rng.next().toString(36).substr(2, 9);
         return `VAL-${timestamp}-${random}`;
     }
     

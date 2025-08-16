@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Bridge Test</title>
+</head>
+<body>
+    <h1>Simple Bridge Test</h1>
+    <div id="log"></div>
+    
+    <script>
+        function log(msg) {
+            console.log(msg);
+            document.getElementById('log').innerHTML += '<div>' + msg + '</div>';
+        }
+        
+        window.addEventListener('error', (e) => {
+            log('❌ ERROR: ' + e.message);
+        });
+        
+        log('✅ Base loaded');
+    </script>
+    
+    <!-- Just test the bridge -->
+    <script src="./js/core/SeedableRandom-bridge.js"></script>
+    
+    <script>
+        setTimeout(() => {
+            log('RandomnessManager: ' + !!window.randomnessManager);
+            log('SeedableRandom: ' + !!window.SeedableRandom);
+        }, 2000);
+    </script>
+    
+</body>
+</html>

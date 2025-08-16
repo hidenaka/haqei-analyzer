@@ -404,12 +404,13 @@
 
         // メトリクス更新
         function updateMetrics() {
-            // シミュレートされた更新（実際の実装では APIから取得）
+            // シミュレートされた更新（決定論的データ）
+            const timeBasedVariation = (Date.now() % 100000) / 2000; // 時間ベースの安定変動
             const metrics = {
-                totalUsers: 12847 + Math.floor(Math.random() * 50),
-                todayDiagnosis: 342 + Math.floor(Math.random() * 20),
-                conversionRate: (8.7 + (Math.random() * 0.5 - 0.25)).toFixed(1),
-                accuracyRate: (89.6 + (Math.random() * 0.4 - 0.2)).toFixed(1)
+                totalUsers: 12847 + Math.floor(timeBasedVariation % 50),
+                todayDiagnosis: 342 + Math.floor((timeBasedVariation * 0.4) % 20),
+                conversionRate: (8.7 + ((timeBasedVariation % 1000) / 2000 - 0.25)).toFixed(1),
+                accuracyRate: (89.6 + ((timeBasedVariation % 800) / 2000 - 0.2)).toFixed(1)
             };
 
             document.getElementById('totalUsers').textContent = metrics.totalUsers.toLocaleString();
@@ -521,9 +522,10 @@
             // データ更新
             updateMetrics();
             
-            // チャート更新
+            // チャート更新（決定論的変動）
             if (userGrowthChart) {
-                const newData = userGrowthChart.data.datasets[0].data.map(d => d + Math.floor(Math.random() * 100));
+                const variation = Math.floor((Date.now() % 10000) / 100); // 0-99の決定論的変動
+                const newData = userGrowthChart.data.datasets[0].data.map((d, i) => d + Math.floor((variation + i * 7) % 100));
                 userGrowthChart.data.datasets[0].data = newData;
                 userGrowthChart.update();
             }

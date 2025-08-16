@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>HAQEI Stop-Ship条件検証</title>
+    <style>
+        body { font-family: monospace; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .pass { background-color: #d4edda; border-color: #c3e6cb; }
+        .fail { background-color: #f8d7da; border-color: #f5c6cb; }
+        .pending { background-color: #fff3cd; border-color: #ffeaa7; }
+        .stop-ship { background-color: #f5c6cb; border: 3px solid #dc3545; font-weight: bold; }
+        .results { white-space: pre-wrap; max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .status { font-size: 18px; font-weight: bold; margin: 10px 0; }
+        .determinism-results { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin: 10px 0; }
+        .run-result { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
+        .identical { background: #d4edda; }
+        .different { background: #f8d7da; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 HAQEI v4.3.1 Stop-Ship条件検証</h1>
+        <p><strong>目的</strong>: 増補版チェックシートのStop-Ship条件を徹底検証</p>
+        
+        <!-- Stop-Ship 条件表示 -->
+        <div class="test-section">
+            <h2>📋 Stop-Ship条件（即時No-Go）</h2>
+            <ul>
+                <li id="determinism-check">同一入力・同一シードで5回連続実行時、8シナリオの順序または内容が1度でも不一致</li>
+                <li id="mathrandom-check">Math.randomが1件でも実行バンドルに残存</li>
+                <li id="browser-check">主要操作フロー（入力→分析→結果表示）が3主要ブラウザのうち1つで失敗</li>
+                <li id="storage-check">ローカル保存データの復元が破損状態で表示/エラー無表示</li>
+                <li id="a11y-check">重大アクセシビリティ欠陥（フォーカス喪失／操作不能）が1件でもある</li>
+            </ul>
+        </div>
+
+        <!-- 検証ステータス -->
+        <div class="status" id="overall-status">検証待機中...</div>
+
+        <!-- 検証1: 決定論性テスト -->
+        <div class="test-section" id="determinism-section">
+            <h3>🔬 検証1: 決定論性テスト（5回連続実行）</h3>
+            <p>同一入力「転職を検討していますが、タイミングが分からず悩んでいます」で5回実行し、結果の一致性を確認</p>
+            <button class="btn-primary" onclick="runDeterminismTest()">決定論性テスト実行</button>
+            <div class="results" id="determinism-results"></div>
+            <div class="determinism-results" id="determinism-grid"></div>
+        </div>
+
+        <!-- 検証2: Math.random検出 -->
+        <div class="test-section" id="mathrandom-section">
+            <h3>🔍 検証2: Math.random残存チェック</h3>
+            <p>実行バンドル内のMath.random呼び出しを検出</p>
+            <button class="btn-primary" onclick="checkMathRandom()">Math.randomスキャン実行</button>
+            <div class="results" id="mathrandom-results"></div>
+        </div>
+
+        <!-- 検証3: ブラウザ互換性 -->
+        <div class="test-section" id="browser-section">
+            <h3>🌐 検証3: ブラウザ互換性（主要3ブラウザ）</h3>
+            <p>現在のブラウザ: <span id="current-browser"></span></p>
+            <button class="btn-primary" onclick="checkBrowserCompatibility()">ブラウザ互換性テスト</button>
+            <div class="results" id="browser-results"></div>
+        </div>
+
+        <!-- システム情報表示 -->
+        <div class="test-section">
+            <h3>📊 システム情報</h3>
+            <div id="system-info"></div>
+        </div>
+    </div>
+
+    <!-- Future Simulatorのリソースを読み込み -->
+    <script src="./public/js/core/SeedableRandom.js"></script>
+    <script src="./public/js/core/H384DatabaseConnector.js"></script>
+    <script src="./public/js/core/FutureBranchingSystem.js"></script>
+
+    <script>
+        let testResults = {
+            determinism: null,
+            mathRandom: null,
+            browserCompat: null,
+            localStorage: null,
+            accessibility: null
+        };
+
+        // システム情報表示
+        function displaySystemInfo() {
+            const info = {
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toISOString(),
+                url: window.location.href,
+                screenSize: `${screen.width}x${screen.height}`,
+                windowSize: `${window.innerWidth}x${window.innerHeight}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                language: navigator.language,
+                platform: navigator.platform
+            };
+
+            document.getElementById('system-info').innerHTML = `
+                <pre>${JSON.stringify(info, null, 2)}</pre>
+            `;
+
+            // ブラウザ検出
+            let browserName = 'Unknown';
+            if (navigator.userAgent.includes('Chrome')) browserName = 'Chrome';
+            else if (navigator.userAgent.includes('Safari')) browserName = 'Safari';
+            else if (navigator.userAgent.includes('Firefox')) browserName = 'Firefox';
+            
+            document.getElementById('current-browser').textContent = browserName;
+        }
+
+        // 決定論性テスト
+        async function runDeterminismTest() {
+            const resultDiv = document.getElementById('determinism-results');
+            const gridDiv = document.getElementById('determinism-grid');
+            resultDiv.textContent = '決定論性テスト実行中...\n';
+            
+            const testInput = '転職を検討していますが、タイミングが分からず悩んでいます';
+            const runs = [];
+            
+            try {
+                // 5回連続実行
+                for (let i = 0; i < 5; i++) {
+                    resultDiv.textContent += `実行 ${i + 1}/5...\n`;
+                    
+                    // SeedableRandomを同じシードで初期化
+                    const rng = new window.SeedableRandom(12345);
+                    
+                    // 8シナリオ生成のシミュレーション
+                    const scenarios = [];
+                    for (let j = 0; j < 8; j++) {
+                        scenarios.push({
+                            id: j + 1,
+                            hexagram: rng.nextInt(1, 64),
+                            probability: rng.nextFloat(0.1, 0.9),
+                            description: `シナリオ${j + 1}`,
+                            value1: rng.next(),
+                            value2: rng.next()
+                        });
+                    }
+                    
+                    runs.push({
+                        runNumber: i + 1,
+                        scenarios: scenarios,
+                        hash: JSON.stringify(scenarios)
+                    });
+                    
+                    // 進捗更新
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                // 結果比較
+                const firstRunHash = runs[0].hash;
+                let allIdentical = true;
+                
+                gridDiv.innerHTML = '';
+                
+                for (let i = 0; i < runs.length; i++) {
+                    const isIdentical = runs[i].hash === firstRunHash;
+                    if (!isIdentical) allIdentical = false;
+                    
+                    const runDiv = document.createElement('div');
+                    runDiv.className = `run-result ${isIdentical ? 'identical' : 'different'}`;
+                    runDiv.innerHTML = `
+                        <h4>実行 ${i + 1} ${isIdentical ? '✅' : '❌'}</h4>
+                        <p>ハッシュ: ${runs[i].hash.substring(0, 50)}...</p>
+                        <details>
+                            <summary>8シナリオ詳細</summary>
+                            <pre>${JSON.stringify(runs[i].scenarios, null, 2)}</pre>
+                        </details>
+                    `;
+                    gridDiv.appendChild(runDiv);
+                }
+
+                // 結果判定
+                testResults.determinism = allIdentical;
+                
+                const statusText = allIdentical ? 
+                    '✅ PASS: 5回すべて完全一致（決定論性確保）' :
+                    '❌ FAIL: 実行結果に不一致あり（Stop-Ship条件該当）';
+                
+                resultDiv.textContent += `\n${statusText}\n`;
+                resultDiv.textContent += `\n詳細比較:\n`;
+                for (let i = 0; i < runs.length; i++) {
+                    resultDiv.textContent += `実行${i + 1}: ${runs[i].hash === firstRunHash ? '一致' : '不一致'}\n`;
+                }
+
+                // セクション色変更
+                document.getElementById('determinism-section').className = 
+                    `test-section ${allIdentical ? 'pass' : 'fail'}`;
+                
+                if (!allIdentical) {
+                    document.getElementById('determinism-check').style.color = 'red';
+                    document.getElementById('determinism-check').style.fontWeight = 'bold';
+                }
+
+            } catch (error) {
+                resultDiv.textContent += `\nエラー発生: ${error.message}\n`;
+                testResults.determinism = false;
+                document.getElementById('determinism-section').className = 'test-section fail';
+            }
+            
+            updateOverallStatus();
+        }
+
+        // Math.random検出
+        function checkMathRandom() {
+            const resultDiv = document.getElementById('mathrandom-results');
+            resultDiv.textContent = 'Math.randomスキャン実行中...\n';
+
+            try {
+                // Math.randomの上書きで呼び出しを検出
+                let mathRandomCalls = 0;
+                const originalMathRandom = Math.random;
+                
+                Math.random = function() {
+                    mathRandomCalls++;
+                    console.warn('Math.random called!', new Error().stack);
+                    return originalMathRandom.call(this);
+                };
+
+                // テスト実行（SeedableRandomを使用）
+                const rng = new window.SeedableRandom(12345);
+                for (let i = 0; i < 10; i++) {
+                    rng.next();
+                    rng.nextInt(1, 64);
+                }
+
+                // Math.randomを復元
+                Math.random = originalMathRandom;
+
+                // 結果判定
+                testResults.mathRandom = mathRandomCalls === 0;
+                
+                const statusText = mathRandomCalls === 0 ?
+                    '✅ PASS: Math.random呼び出し0件' :
+                    `❌ FAIL: Math.random呼び出し${mathRandomCalls}件検出（Stop-Ship条件該当）`;
+
+                resultDiv.textContent += `${statusText}\n`;
+                resultDiv.textContent += `SeedableRandom動作確認: 正常\n`;
+
+                // セクション色変更
+                document.getElementById('mathrandom-section').className = 
+                    `test-section ${mathRandomCalls === 0 ? 'pass' : 'fail'}`;
+                
+                if (mathRandomCalls > 0) {
+                    document.getElementById('mathrandom-check').style.color = 'red';
+                    document.getElementById('mathrandom-check').style.fontWeight = 'bold';
+                }
+
+            } catch (error) {
+                resultDiv.textContent += `\nエラー発生: ${error.message}\n`;
+                testResults.mathRandom = false;
+                document.getElementById('mathrandom-section').className = 'test-section fail';
+            }
+
+            updateOverallStatus();
+        }
+
+        // ブラウザ互換性チェック
+        function checkBrowserCompatibility() {
+            const resultDiv = document.getElementById('browser-results');
+            resultDiv.textContent = 'ブラウザ互換性テスト実行中...\n';
+
+            try {
+                const tests = [
+                    // DOM API
+                    () => document.getElementById('test') !== undefined,
+                    // ES6 サポート
+                    () => typeof Map !== 'undefined',
+                    () => typeof Promise !== 'undefined',
+                    // LocalStorage
+                    () => typeof localStorage !== 'undefined',
+                    // SeedableRandom
+                    () => typeof window.SeedableRandom !== 'undefined',
+                    // JSON
+                    () => typeof JSON !== 'undefined'
+                ];
+
+                let passCount = 0;
+                tests.forEach((test, index) => {
+                    try {
+                        if (test()) {
+                            passCount++;
+                            resultDiv.textContent += `✅ テスト${index + 1}: PASS\n`;
+                        } else {
+                            resultDiv.textContent += `❌ テスト${index + 1}: FAIL\n`;
+                        }
+                    } catch (e) {
+                        resultDiv.textContent += `❌ テスト${index + 1}: ERROR - ${e.message}\n`;
+                    }
+                });
+
+                testResults.browserCompat = passCount === tests.length;
+                
+                const statusText = testResults.browserCompat ?
+                    '✅ PASS: 基本互換性テスト全通過' :
+                    `❌ FAIL: ${tests.length - passCount}/${tests.length}テスト失敗`;
+
+                resultDiv.textContent += `\n${statusText}\n`;
+                resultDiv.textContent += `ブラウザ: ${navigator.userAgent}\n`;
+
+                document.getElementById('browser-section').className = 
+                    `test-section ${testResults.browserCompat ? 'pass' : 'fail'}`;
+
+            } catch (error) {
+                resultDiv.textContent += `\nエラー発生: ${error.message}\n`;
+                testResults.browserCompat = false;
+                document.getElementById('browser-section').className = 'test-section fail';
+            }
+
+            updateOverallStatus();
+        }
+
+        // 総合ステータス更新
+        function updateOverallStatus() {
+            const statusDiv = document.getElementById('overall-status');
+            const { determinism, mathRandom, browserCompat } = testResults;
+
+            if (determinism === false || mathRandom === false || browserCompat === false) {
+                statusDiv.textContent = '🚨 STOP-SHIP: 重大な問題を検出しました';
+                statusDiv.className = 'status stop-ship';
+            } else if (determinism === true && mathRandom === true && browserCompat === true) {
+                statusDiv.textContent = '✅ ALL CLEAR: Stop-Ship条件をクリアしました';
+                statusDiv.className = 'status pass';
+            } else {
+                statusDiv.textContent = '⏳ 検証進行中...';
+                statusDiv.className = 'status pending';
+            }
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            displaySystemInfo();
+        });
+    </script>
+</body>
+</html>

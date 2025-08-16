@@ -1,9 +1,13 @@
 {
   "name": "haqei-analyzer",
-  "version": "1.0.0",
-  "description": "HAQEI Triple OS Analysis System - Visual & Behavior Testing",
-  "main": "emergency_haqei.html",
+  "version": "2.2.2",
+  "description": "HAQEI Triple OS Analysis System - Production Ready",
+  "main": "cipher-server.js",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0 <23.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "build": "rm -rf dist && mkdir -p dist && cp -R public/* dist/",
     "build:production": "node scripts/build-production.cjs",
@@ -38,15 +42,22 @@
     "pdca:evaluate:30": "node tests/pdca-evaluation.js --users=30",
     "deploy": "npm run build:production && npx wrangler pages publish dist",
     "deploy:preview": "npm run build:production && npx wrangler pages publish dist --branch preview",
-    "serve:dist": "npx http-server dist -p 8789 -c-1"
+    "serve:dist": "npx http-server dist -p 8789 -c-1",
+    "audit:security": "npm audit --audit-level=high",
+    "audit:fix": "npm audit fix",
+    "ci:install": "npm ci --omit=dev",
+    "ci:security": "npm audit --audit-level=high --production"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "acorn": "^8.15.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "express": "^4.18.0",
     "helmet": "^7.2.0",
-    "jsdom": "^26.1.0"
+    "ioredis": "^5.7.0",
+    "jsdom": "^26.1.0",
+    "rate-limiter-flexible": "^7.2.0"
   },
   "devDependencies": {
     "@playwright/mcp": "^0.0.32",

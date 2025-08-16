@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Future Simulator デバッグテスト</title>
+    <style>
+        body { font-family: monospace; margin: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .pass { background: #d4edda; }
+        .fail { background: #f8d7da; }
+        button { padding: 10px 20px; margin: 5px; }
+        #log { background: #000; color: #0f0; padding: 10px; height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Future Simulator デバッグテスト</h1>
+    
+    <div class="test">
+        <h3>1. 基本要素確認</h3>
+        <button onclick="checkElements()">要素チェック</button>
+        <div id="elements-result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>2. イベントリスナー確認</h3>
+        <button onclick="checkEventListeners()">イベント確認</button>
+        <div id="events-result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>3. 関数存在確認</h3>
+        <button onclick="checkFunctions()">関数チェック</button>
+        <div id="functions-result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>4. 実際のテスト</h3>
+        <textarea id="worryInput" placeholder="テスト入力">転職を検討していますが、タイミングが分からず悩んでいます</textarea><br>
+        <button id="aiGuessBtn">分析開始</button>
+        <div id="test-result"></div>
+    </div>
+    
+    <h3>ログ</h3>
+    <div id="log"></div>
+    
+    <script src="public/js/core/SeedableRandom.js"></script>
+    
+    <script>
+        function log(msg) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += `[${new Date().toISOString()}] ${msg}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(msg);
+        }
+        
+        function checkElements() {
+            log('要素チェック開始...');
+            const result = document.getElementById('elements-result');
+            
+            const checks = [
+                { id: 'worryInput', name: 'worryInput (textarea)' },
+                { id: 'aiGuessBtn', name: 'aiGuessBtn (button)' }
+            ];
+            
+            let html = '<ul>';
+            checks.forEach(check => {
+                const element = document.getElementById(check.id);
+                const exists = element !== null;
+                html += `<li>${check.name}: ${exists ? '✅ 存在' : '❌ 不在'}</li>`;
+                log(`  ${check.name}: ${exists ? '存在' : '不在'}`);
+            });
+            html += '</ul>';
+            
+            result.innerHTML = html;
+        }
+        
+        function checkEventListeners() {
+            log('イベントリスナー確認...');
+            const result = document.getElementById('events-result');
+            
+            const aiGuessBtn = document.getElementById('aiGuessBtn');
+            if (aiGuessBtn) {
+                // テストクリックイベント追加
+                let clicked = false;
+                aiGuessBtn.addEventListener('click', () => {
+                    clicked = true;
+                    log('  テストクリックイベント発火！');
+                });
+                
+                // プログラム的にクリック
+                aiGuessBtn.click();
+                
+                result.innerHTML = clicked ? '✅ イベント発火確認' : '❌ イベント未発火';
+            } else {
+                result.innerHTML = '❌ ボタン要素が見つかりません';
+            }
+        }
+        
+        function checkFunctions() {
+            log('関数存在確認...');
+            const result = document.getElementById('functions-result');
+            
+            const functionsToCheck = [
+                'analyzeWorry',
+                'showUserMessage',
+                'SeedableRandom'
+            ];
+            
+            let html = '<ul>';
+            functionsToCheck.forEach(funcName => {
+                const exists = typeof window[funcName] !== 'undefined';
+                html += `<li>${funcName}: ${exists ? '✅ 定義済み' : '❌ 未定義'}</li>`;
+                log(`  ${funcName}: ${exists ? '定義済み' : '未定義'}`);
+            });
+            html += '</ul>';
+            
+            result.innerHTML = html;
+        }
+        
+        // 簡易版のanalyzeWorry実装
+        window.analyzeWorry = function(inputText) {
+            log(`analyzeWorry呼び出し: "${inputText}"`);
+            
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.innerHTML = `
+                <div style="margin-top: 10px; padding: 10px; border: 1px solid #28a745; background: #d4edda;">
+                    <h4>✅ 分析完了（テスト）</h4>
+                    <p>入力: ${inputText}</p>
+                    <p>文字数: ${inputText.length}</p>
+                    <p>タイムスタンプ: ${new Date().toISOString()}</p>
+                </div>
+            `;
+            
+            return true;
+        };
+        
+        // ボタンイベント設定
+        document.addEventListener('DOMContentLoaded', () => {
+            log('DOM読み込み完了');
+            
+            const aiGuessBtn = document.getElementById('aiGuessBtn');
+            const worryInput = document.getElementById('worryInput');
+            
+            if (aiGuessBtn && worryInput) {
+                aiGuessBtn.addEventListener('click', () => {
+                    const inputText = worryInput.value.trim();
+                    log(`ボタンクリック: "${inputText}"`);
+                    
+                    if (inputText && inputText.length >= 10) {
+                        analyzeWorry(inputText);
+                    } else {
+                        log('❌ 入力が短すぎます（10文字以上必要）');
+                    }
+                });
+                log('✅ イベントリスナー設定完了');
+            } else {
+                log('❌ 必要な要素が見つかりません');
+            }
+        });
+    </script>
+</body>
+</html>

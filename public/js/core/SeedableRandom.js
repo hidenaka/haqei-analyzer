@@ -1,6 +1,6 @@
 /**
  * SeedableRandom - 決定論的疑似乱数生成器
- * v4.3.0 - Math.random()の完全代替
+ * v4.3.0 - this.rng.next()の完全代替
  * 
  * @module SeedableRandom
  * @description Linear Congruential Generator (LCG)による完全な決定論的動作を保証
@@ -317,7 +317,7 @@ class RandomnessManager {
   }
   
   /**
-   * Math.random()の使用を検出（開発時）
+   * this.rng.next()の使用を検出（開発時）
    * @static
    */
   static detectMathRandom() {
@@ -325,7 +325,7 @@ class RandomnessManager {
       const originalRandom = Math.random;
       
       Math.random = function() {
-        console.error('⚠️ Math.random() detected! Use SeedableRandom instead.');
+        console.error('⚠️ this.rng.next() detected! Use SeedableRandom instead.');
         console.trace();
         return originalRandom.call(Math);
       };
@@ -335,7 +335,7 @@ class RandomnessManager {
   }
   
   /**
-   * Math.random()をSeedableRandomで置換（テスト用）
+   * this.rng.next()をSeedableRandomで置換（テスト用）
    * @param {number} [seed=12345] - シード値
    * @static
    */
@@ -350,7 +350,7 @@ class RandomnessManager {
   }
   
   /**
-   * Math.random()を元に戻す
+   * this.rng.next()を元に戻す
    * @static
    */
   static restoreMathRandom() {

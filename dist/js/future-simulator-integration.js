@@ -105,7 +105,7 @@ console.log('🚀 Future Simulator Integration Loading...');
       
       // 8シナリオ表示
       if (window.EightScenariosDisplay) {
-        this.scenariosDisplay = new window.EightScenariosDisplay();
+        this.scenariosDisplay = new window.EightScenariosDisplay({});
         
         // コンテナがあれば初期化
         const scenariosContainer = document.getElementById('eight-scenarios-display');

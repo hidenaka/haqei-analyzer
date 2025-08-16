@@ -6,7 +6,11 @@
 
 class TraceLogger {
     constructor() {
-        this.entries = [];
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.entries = [];
         this.startTime = null;
         this.requestId = null;
         this.enabled = false;
@@ -30,7 +34,7 @@ class TraceLogger {
      * リクエストIDの生成
      */
     generateRequestId() {
-        return `REQ-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        return `REQ-${Date.now()}-${this.rng.next().toString(36).substr(2, 9)}`;
     }
 
     /**

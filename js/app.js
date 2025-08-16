@@ -459,7 +459,7 @@ async function startRealDiagnosis() {
         console.log("🔄 Loading question components individually...");
         // Fallback loading for essential question components
         Promise.all([
-          loadScript('/js/shared/data/questions.js'),
+          loadScript('/assets/js/questions-full.js'),
           loadScript('/js/os-analyzer/core/PrecompiledQuestions.js'),
           loadScript('/js/os-analyzer/components/VirtualQuestionFlow-core.js'),
           loadScript('/js/os-analyzer/components/VirtualQuestionFlow-renderer.js'),

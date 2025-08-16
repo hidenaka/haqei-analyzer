@@ -5,7 +5,11 @@
 
 class HAQEIABTesting {
     constructor() {
-        this.testId = this.getOrCreateTestId();
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.testId = this.getOrCreateTestId();
         this.variant = this.assignVariant();
         this.events = [];
         this.startTime = Date.now();
@@ -18,7 +22,7 @@ class HAQEIABTesting {
     getOrCreateTestId() {
         let testId = localStorage.getItem('haqei_test_id');
         if (!testId) {
-            testId = 'test_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            testId = 'test_' + Date.now() + '_' + this.rng.next().toString(36).substr(2, 9);
             localStorage.setItem('haqei_test_id', testId);
         }
         return testId;
@@ -31,7 +35,7 @@ class HAQEIABTesting {
         let variant = localStorage.getItem('haqei_test_variant');
         if (!variant) {
             // 50/50 split
-            variant = Math.random() < 0.5 ? 'A' : 'B';
+            variant = this.rng.next() < 0.5 ? 'A' : 'B';
             localStorage.setItem('haqei_test_variant', variant);
         }
         return variant;

@@ -13,8 +13,12 @@
  */
 
 class EightScenariosGenerator {
-    constructor() {
-        this.initialized = false;
+    constructor(options = {}) {
+        
+        // v4.3.1 決定論的要件: SeedableRandom統合
+        this.rng = options.randomnessManager || window.randomnessManager || 
+                   (() => { throw new Error('RandomnessManager required for deterministic behavior'); })();
+    this.initialized = false;
         this.version = "2.2.0-iching-integration";
         this.philosophyAlignment = "haqei-eight-scenarios-integration";
         
@@ -502,8 +506,8 @@ class EightScenariosGenerator {
                     ].filter(k => k)
                 },
                 metrics: {
-                    risk: Math.random() * 0.5, // 0-0.5
-                    potential: 0.5 + Math.random() * 0.5, // 0.5-1.0
+                    risk: this.rng.next() * 0.5, // 0-0.5
+                    potential: 0.5 + this.rng.next() * 0.5, // 0.5-1.0
                     recommendation: pattern.relevanceScore || 0.5
                 },
                 display: {
@@ -514,6 +518,8 @@ class EightScenariosGenerator {
                 // 互換性のために旧フィールドも保持
                 title: pattern.title,
                 description: pattern.enhancedDescription || pattern.description,
+                // probabilityフィールドを追加（NaN対策）
+                probability: pattern.binaryTreeIntegration?.probability || pattern.relevanceScore || 0.5,
                 metadata: {
                     relevanceScore: pattern.relevanceScore,
                     energyType: pattern.energy,
@@ -818,11 +824,20 @@ class EightScenariosGenerator {
     
     // 品質向上メソッド群
     calculateSpecificity(scenario, textAnalysis) {
-        return textAnalysis.keyThemes.length * 0.2 + (scenario.practicalElements.actionSteps.length * 0.1);
+        const keyThemesLength = (textAnalysis && textAnalysis.keyThemes && Array.isArray(textAnalysis.keyThemes)) 
+            ? textAnalysis.keyThemes.length 
+            : 0;
+        const actionStepsLength = (scenario && scenario.practicalElements && Array.isArray(scenario.practicalElements.actionSteps)) 
+            ? scenario.practicalElements.actionSteps.length 
+            : 0;
+        return keyThemesLength * 0.2 + actionStepsLength * 0.1;
     }
     
     calculatePracticality(scenario) {
-        return scenario.practicalElements.actionSteps.length > 3 ? 0.8 : 0.6;
+        const actionStepsLength = (scenario && scenario.practicalElements && Array.isArray(scenario.practicalElements.actionSteps)) 
+            ? scenario.practicalElements.actionSteps.length 
+            : 0;
+        return actionStepsLength > 3 ? 0.8 : 0.6;
     }
     
     calculateUniqueness(scenario, allScenarios) {
@@ -830,15 +845,25 @@ class EightScenariosGenerator {
     }
     
     personalizeTitle(scenario, textAnalysis) {
-        return `${scenario.title} (${textAnalysis.keyThemes.join('・')}重視)`;
+        const keyThemes = (textAnalysis && textAnalysis.keyThemes && Array.isArray(textAnalysis.keyThemes)) 
+            ? textAnalysis.keyThemes 
+            : ['状況'];
+        return `${scenario.title} (${keyThemes.join('・')}重視)`;
     }
     
     contextualizeDescription(scenario, textAnalysis) {
-        return `${textAnalysis.keyThemes.join('・')}の文脈における${scenario.description}`;
+        const keyThemes = (textAnalysis && textAnalysis.keyThemes && Array.isArray(textAnalysis.keyThemes)) 
+            ? textAnalysis.keyThemes 
+            : ['現在の状況'];
+        return `${keyThemes.join('・')}の文脈における${scenario.description}`;
     }
     
     tailorGuidance(scenario, textAnalysis) {
-        return `${textAnalysis.emotionalTone === 'negative' ? '困難な状況から' : '現在の状況を活かして'}、${scenario.ichingIntegration.guidance}`;
+        const emotionalTone = (textAnalysis && textAnalysis.emotionalTone) ? textAnalysis.emotionalTone : 'neutral';
+        const ichingGuidance = (scenario && scenario.ichingIntegration && scenario.ichingIntegration.guidance) 
+            ? scenario.ichingIntegration.guidance 
+            : '状況に応じた適切な行動を取る';
+        return `${emotionalTone === 'negative' ? '困難な状況から' : '現在の状況を活かして'}、${ichingGuidance}`;
     }
     
     assignScenarioColor(scenario) {
@@ -964,7 +989,7 @@ class EightScenariosGenerator {
             });
             currentHex = newHex;
             // 次の変化のためにランダムな爻位を選択
-            currentLine = Math.floor(Math.random() * 6) + 1;
+            currentLine = Math.floor(this.rng.next() * 6) + 1;
         }
         return chain;
     }
@@ -1064,7 +1089,7 @@ class EightScenariosGenerator {
      */
     assessUrgencyLevel(text) {
         if (!text) return 0.5;
-        return Math.random();
+        return this.rng.next();
     }
     
     /**
@@ -1072,7 +1097,7 @@ class EightScenariosGenerator {
      */
     assessComplexityLevel(text) {
         if (!text) return 0.5;
-        return Math.random();
+        return this.rng.next();
     }
     
     /**
@@ -1080,7 +1105,7 @@ class EightScenariosGenerator {
      */
     calculateOptimalHexagram(textAnalysis) {
         // 簡易的なマッピング
-        return Math.floor(Math.random() * 64) + 1;
+        return Math.floor(this.rng.next() * 64) + 1;
     }
     
     /**

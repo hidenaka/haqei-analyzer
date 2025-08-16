@@ -5,7 +5,11 @@
 
 class EdgeCaseHandler {
     constructor() {
-        this.validationRules = {
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.validationRules = {
             // データ検証ルール
             scores: {
                 min: 0,
@@ -572,7 +576,7 @@ class EdgeCaseHandler {
         dimensions.forEach((dim, i) => {
             // ランダムな変動を加える
             const base = 100 / dimensions.length;
-            const variation = (Math.random() - 0.5) * 20;
+            const variation = (this.rng.next() - 0.5) * 20;
             redistributed[dim] = Math.max(10, Math.min(90, base + variation));
         });
         

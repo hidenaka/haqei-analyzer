@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DynamicKeywordGenerator Object Structure Debug</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .debug { background: #f0f0f0; padding: 10px; margin: 10px 0; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>DynamicKeywordGenerator Object Structure Debug</h1>
+    <div id="output"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            console.log(message);
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            document.getElementById('output').appendChild(div);
+        }
+
+        // Before loading
+        log('🔍 Before script load:', 'info');
+        log(`window.DynamicKeywordGenerator = ${typeof window.DynamicKeywordGenerator}`, 'info');
+    </script>
+
+    <!-- Load DynamicKeywordGenerator -->
+    <script src="./js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
+
+    <script>
+        // After loading - detailed inspection
+        log('<br>🔍 After script load:', 'info');
+        log(`window.DynamicKeywordGenerator = ${typeof window.DynamicKeywordGenerator}`, 'info');
+        
+        if (window.DynamicKeywordGenerator) {
+            log('<br>📋 DynamicKeywordGenerator properties:', 'info');
+            
+            // Get all properties
+            const props = Object.getOwnPropertyNames(window.DynamicKeywordGenerator);
+            log(`Total properties: ${props.length}`, 'info');
+            
+            props.forEach(prop => {
+                const type = typeof window.DynamicKeywordGenerator[prop];
+                const value = window.DynamicKeywordGenerator[prop];
+                
+                if (type === 'function') {
+                    log(`✅ ${prop}: ${type} (${value.length} parameters)`, 'success');
+                } else if (type === 'object' && value !== null) {
+                    const subProps = Object.getOwnPropertyNames(value);
+                    log(`📦 ${prop}: ${type} (${subProps.length} properties)`, 'info');
+                    
+                    // Check if this object has the missing methods
+                    if (subProps.includes('generateKeywords')) {
+                        log(`   🔧 Found generateKeywords in ${prop}`, 'success');
+                    }
+                    if (subProps.includes('generateTripleOSDiagnosticText')) {
+                        log(`   🔧 Found generateTripleOSDiagnosticText in ${prop}`, 'success');
+                    }
+                    if (subProps.includes('generateEnhancedTripleOSDiagnosticText')) {
+                        log(`   🔧 Found generateEnhancedTripleOSDiagnosticText in ${prop}`, 'success');
+                    }
+                } else {
+                    log(`📝 ${prop}: ${type} = ${value}`, 'info');
+                }
+            });
+
+            // Check specific missing methods
+            log('<br>🔧 Checking specific missing methods:', 'info');
+            
+            const missingMethods = [
+                'generateKeywords',
+                'generateTripleOSDiagnosticText', 
+                'generateEnhancedTripleOSDiagnosticText'
+            ];
+            
+            missingMethods.forEach(method => {
+                const exists = typeof window.DynamicKeywordGenerator[method] === 'function';
+                log(`${method}: ${exists ? '✅ EXISTS' : '❌ MISSING'}`, exists ? 'success' : 'error');
+                
+                if (!exists) {
+                    // Check if it exists in nested objects
+                    const nestedPaths = [
+                        ['engineOS', method],
+                        ['interfaceOS', method],
+                        ['safeMode', method]
+                    ];
+                    
+                    nestedPaths.forEach(([parent, methodName]) => {
+                        if (window.DynamicKeywordGenerator[parent] && 
+                            typeof window.DynamicKeywordGenerator[parent][methodName] === 'function') {
+                            log(`   🔧 Found ${methodName} in ${parent}`, 'success');
+                        }
+                    });
+                }
+            });
+            
+            // Test initialization
+            log('<br>🎯 Testing initialization...', 'info');
+            try {
+                if (typeof window.DynamicKeywordGenerator.init === 'function') {
+                    window.DynamicKeywordGenerator.init();
+                    log('✅ Initialization successful', 'success');
+                    
+                    // Check methods again after init
+                    log('<br>🔧 Checking methods after initialization:', 'info');
+                    missingMethods.forEach(method => {
+                        const exists = typeof window.DynamicKeywordGenerator[method] === 'function';
+                        log(`${method}: ${exists ? '✅ NOW EXISTS' : '❌ STILL MISSING'}`, exists ? 'success' : 'error');
+                    });
+                }
+            } catch (error) {
+                log(`❌ Initialization error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

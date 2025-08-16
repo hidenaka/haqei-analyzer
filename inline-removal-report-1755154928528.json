@@ -1,0 +1,61 @@
+{
+  "timestamp": "2025-08-14T07:02:08.515Z",
+  "testSuite": "Inline Removal Test",
+  "passed": 7,
+  "failed": 2,
+  "details": [
+    {
+      "test": "Clean HTML file",
+      "path": "public/os_analyzer_clean.html",
+      "passed": true
+    },
+    {
+      "test": "External CSS file",
+      "path": "public/css/os-analyzer.css",
+      "passed": true
+    },
+    {
+      "test": "External JS file",
+      "path": "public/js/os-analyzer-main.js",
+      "passed": true
+    },
+    {
+      "test": "Event handlers JS",
+      "path": "public/js/event-handlers.js",
+      "passed": true
+    },
+    {
+      "test": "No inline styles",
+      "styleTags": 0,
+      "styleAttributes": 0,
+      "passed": true
+    },
+    {
+      "test": "No inline scripts",
+      "inlineScriptCount": 0,
+      "passed": true
+    },
+    {
+      "test": "No inline event handlers",
+      "eventHandlerCount": 1,
+      "passed": false
+    },
+    {
+      "test": "Defer attributes",
+      "totalScripts": 14,
+      "deferScripts": 12,
+      "ratio": 0.8571428571428571,
+      "passed": true
+    },
+    {
+      "test": "CSP Readiness",
+      "checks": {
+        "No inline styles": true,
+        "No inline scripts": true,
+        "No inline event handlers": false,
+        "External files exist": true
+      },
+      "passed": false
+    }
+  ]
+}

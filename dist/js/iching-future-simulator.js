@@ -5,8 +5,12 @@
  */
 
 class IChingFutureSimulator {
-  constructor(container) {
-    this.container = container;
+  constructor(options = {}) {
+    
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.container = options.container;
     this.situationAnalyzer = null;
     this.transformationSimulator = null;
     this.metaphorDisplay = null;
@@ -173,7 +177,7 @@ class IChingFutureSimulator {
             id="situation-text" 
             name="situation" 
             rows="4" 
-            placeholder="例: 転職を考えているが、今の安定した職場を離れるべきか迷っています。新しい挑戦をしたい気持ちと、リスクを恐れる気持ちが混在しています..."
+            placeholder="例: 現在の職場環境、選択肢の詳細、制約条件、時間的制限などを客観的に記述"
             required
           ></textarea>
         </div>
@@ -206,8 +210,56 @@ class IChingFutureSimulator {
       </div>
     `;
 
-    // コンテナの最初に挿入
-    this.container.insertBefore(inputSection, this.container.firstChild);
+    // コンテナの最初に挿入（可視性を確保）
+    // this.containerが非表示の場合は、親要素または適切な表示領域を探す
+    let targetContainer = this.container;
+    
+    // 親要素が非表示の場合の対処
+    if (targetContainer) {
+      const computedStyle = window.getComputedStyle(targetContainer);
+      if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
+        // より適切な表示領域を探す
+        let parent = targetContainer.parentElement;
+        while (parent && parent !== document.body) {
+          const parentStyle = window.getComputedStyle(parent);
+          if (parentStyle.display !== 'none' && parentStyle.visibility !== 'hidden') {
+            targetContainer = parent;
+            break;
+          }
+          parent = parent.parentElement;
+        }
+        
+        // 最終的にbodyを使用
+        if (!parent || parent === document.body) {
+          targetContainer = document.body;
+        }
+      }
+    }
+    
+    // 入力セクションの可視性を強制確保
+    inputSection.style.display = 'block';
+    inputSection.style.visibility = 'visible';
+    inputSection.style.opacity = '1';
+    inputSection.style.position = 'relative';
+    inputSection.style.zIndex = '1000';
+    inputSection.style.minWidth = '400px';
+    inputSection.style.width = '100%';
+    
+    // resultsContainerを表示（入力欄が含まれているため）
+    const resultsContainer = document.getElementById('resultsContainer');
+    if (resultsContainer) {
+      resultsContainer.style.display = 'block';
+      resultsContainer.style.visibility = 'visible';
+    }
+    
+    console.log('🔧 [DEBUG] Inserting input section into:', targetContainer.id || targetContainer.className || 'unnamed container');
+    
+    if (targetContainer === document.body) {
+      // bodyに直接挿入する場合は上部に配置
+      document.body.insertBefore(inputSection, document.body.firstChild);
+    } else {
+      targetContainer.insertBefore(inputSection, targetContainer.firstChild);
+    }
 
     // サンプル例のイベント設定
     const exampleBtns = inputSection.querySelectorAll('.example-btn');
@@ -216,6 +268,46 @@ class IChingFutureSimulator {
         this.loadExampleSituation(btn.dataset.example);
       });
     });
+    
+    // 重要：フォームのイベントリスナーを設定（強制バインド）
+    const analysisForm = inputSection.querySelector('#situation-analysis-form');
+    if (analysisForm) {
+      // 既存のイベントリスナーを削除（競合回避）
+      analysisForm.onsubmit = null;
+      
+      // 新しいイベントリスナーを設定（capture phase使用）
+      analysisForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log('🎯 [DEBUG] Form submitted, calling handleSituationInput...');
+        this.handleSituationInput(event);
+      }, true);
+      
+      // ボタンクリック時のフォールバック処理も追加
+      const analyzeBtn = analysisForm.querySelector('.analyze-btn.primary');
+      if (analyzeBtn) {
+        analyzeBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          console.log('🎯 [DEBUG] Analyze button clicked, triggering analysis...');
+          // フォームデータを手動で取得
+          const formData = new FormData(analysisForm);
+          const mockEvent = { target: analysisForm, preventDefault: () => {} };
+          this.handleSituationInput(mockEvent);
+        });
+      }
+      
+      console.log('✅ [DEBUG] Form event listener attached with fallback');
+    }
+    
+    // クイック分析ボタンのイベント
+    const quickAnalysisBtn = inputSection.querySelector('#quick-analysis-btn');
+    if (quickAnalysisBtn) {
+      quickAnalysisBtn.addEventListener('click', () => {
+        console.log('🎯 [DEBUG] Quick analysis button clicked');
+        this.runQuickAnalysis();
+      });
+      console.log('✅ [DEBUG] Quick analysis button event listener attached');
+    }
     
     this.addInputSectionStyles();
   }
@@ -292,7 +384,9 @@ class IChingFutureSimulator {
       }
 
       .input-group textarea {
-        width: 100%;
+        width: 100% !important;
+        min-width: 300px !important;
+        min-height: 120px !important;
         padding: 1rem;
         background: rgba(51, 65, 85, 0.5);
         border: 1px solid rgba(148, 163, 184, 0.3);
@@ -302,6 +396,7 @@ class IChingFutureSimulator {
         line-height: 1.5;
         resize: vertical;
         font-family: inherit;
+        box-sizing: border-box !important;
       }
 
       .input-group textarea:focus {
@@ -486,7 +581,7 @@ class IChingFutureSimulator {
       '現在の状況に満足していないが、具体的にどう変えるべきか方向性が見えません。'
     ];
     
-    const randomSituation = quickSituations[Math.floor(Math.random() * quickSituations.length)];
+    const randomSituation = quickSituations[Math.floor(this.rng.next() * quickSituations.length)];
     await this.analyzeSituation(randomSituation);
   }
 
@@ -505,6 +600,13 @@ class IChingFutureSimulator {
       // ステータス更新
       this.updateStatus('分析中...', '🔄');
       
+      // 結果コンテナを表示
+      const resultsContainer = document.getElementById('resultsContainer');
+      if (resultsContainer) {
+        resultsContainer.style.display = 'block';
+        resultsContainer.style.visibility = 'visible';
+      }
+      
       // 状況分析実行
       console.log('🎯 [DEBUG] Calling situationAnalyzer.analyzeSituation...');
       const analysisResult = this.situationAnalyzer.analyzeSituation(situationText);
@@ -522,8 +624,16 @@ class IChingFutureSimulator {
         console.log('🎯 [DEBUG] Calling metaphorDisplay.displaySituationAnalysis...');
         this.metaphorDisplay.displaySituationAnalysis(this.currentAnalysis);
         
+        // 8つのシナリオ生成と表示
+        console.log('🎯 [DEBUG] Generating 8 scenarios...');
+        await this.generateAndDisplay8Scenarios(this.currentAnalysis);
+        
         // ステータス更新
-        this.updateStatus('分析完了 - テーマを選択してください', '✅');
+        this.updateStatus('分析完了 - 8つの未来シナリオを確認してください', '✅');
+        
+        // 分析完了フラグを設定（表示コンポーネント用）
+        window.futureAnalysisCompleted = true;
+        console.log('🎯 [DEBUG] futureAnalysisCompleted flag set to true');
         
         // 入力セクションを畳む
         this.collapsInputSection();
@@ -538,6 +648,69 @@ class IChingFutureSimulator {
       console.error('❌ Analysis error:', error);
       this.updateStatus('分析エラー', '❌');
       alert('分析中にエラーが発生しました。もう一度お試しください。');
+    }
+  }
+
+  /**
+   * 8つのシナリオ生成と表示
+   */
+  async generateAndDisplay8Scenarios(analysisContext) {
+    try {
+      console.log('🎯 [DEBUG] Starting 8 scenarios generation...');
+      
+      // EightScenariosGeneratorの確認
+      if (!window.haqeiScenariosGenerator) {
+        console.warn('⚠️ haqeiScenariosGenerator not available, using fallback');
+        return;
+      }
+      
+      // 8つのシナリオを生成
+      const scenarios = await window.haqeiScenariosGenerator.generateEightScenarios(analysisContext);
+      console.log('🎯 [DEBUG] Generated scenarios:', scenarios.length);
+      
+      if (scenarios && scenarios.length > 0) {
+        // EightScenariosDisplayの確認
+        if (!window.EightScenariosDisplay) {
+          console.warn('⚠️ EightScenariosDisplay not available');
+          return;
+        }
+        
+        // 表示システムを初期化
+        const scenariosDisplay = new window.EightScenariosDisplay({
+          randomnessManager: this.rng
+        });
+        
+        // コンテナを探す（存在しない場合は作成）
+        let displayContainer = document.getElementById('eight-scenarios-display-container');
+        if (!displayContainer) {
+          displayContainer = document.createElement('div');
+          displayContainer.id = 'eight-scenarios-display-container';
+          displayContainer.style.marginTop = '2rem';
+          this.container.appendChild(displayContainer);
+        }
+        
+        // 分析完了フラグを事前設定
+        window.futureAnalysisCompleted = true;
+        
+        // 初期化と表示
+        const initResult = scenariosDisplay.initialize('eight-scenarios-display-container');
+        if (initResult) {
+          scenariosDisplay.displayScenarios(scenarios);
+        } else {
+          console.warn('⚠️ EightScenariosDisplay initialization failed - attempting direct display');
+          // 初期化に失敗した場合は直接表示を試行
+          scenariosDisplay.container = displayContainer;
+          scenariosDisplay.setupStyles();
+          scenariosDisplay.displayScenarios(scenarios);
+        }
+        
+        console.log('✅ [DEBUG] 8 scenarios displayed successfully');
+      } else {
+        console.warn('⚠️ No scenarios generated');
+      }
+      
+    } catch (error) {
+      console.error('❌ [DEBUG] Error in generateAndDisplay8Scenarios:', error);
     }
   }
 
@@ -748,7 +921,40 @@ class IChingFutureSimulator {
            this.transformationSimulator && 
            this.metaphorDisplay;
   }
+
+  /**
+   * DOM要素にマウント（助言通り実装）
+   */
+  mount(element) {
+    if (!element) {
+      throw new Error('mount() requires a DOM element');
+    }
+    
+    this.container = element;
+    
+    // 初期表示（空でないプレースホルダ）
+    element.innerHTML = `
+      <div class="i-ching-placeholder">
+        <h4>🎯 I Ching Future Simulator</h4>
+        <p>分析を開始すると、8つの未来シナリオがここに表示されます</p>
+        <div class="status">初期化準備完了</div>
+      </div>
+    `;
+    
+    // 初期化実行
+    this.init().catch(error => {
+      console.error('[HAQEI][FATAL] Mount initialization failed:', error);
+      element.innerHTML = `
+        <div class="error fatal">
+          初期化で問題が発生: ${error?.message || error}
+        </div>
+      `;
+    });
+  }
 }
 
-// グローバルスコープに公開
+// Named exportに変更（助言通り）
+export { IChingFutureSimulator };
+
+// 後方互換性のためグローバルも維持
 window.IChingFutureSimulator = IChingFutureSimulator;

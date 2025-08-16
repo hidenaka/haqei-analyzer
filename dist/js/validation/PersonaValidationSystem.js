@@ -10,7 +10,11 @@
 
 class PersonaValidationSystem {
     constructor() {
-        this.personas = this.initializePersonas();
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.personas = this.initializePersonas();
         this.evaluationTasks = this.initializeEvaluationTasks();
         this.results = [];
         this.sessionId = this.generateSessionId();
@@ -22,7 +26,7 @@ class PersonaValidationSystem {
      * セッションID生成
      */
     generateSessionId() {
-        return `PERSONA-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        return `PERSONA-${Date.now()}-${this.rng.next().toString(36).substr(2, 9)}`;
     }
     
     /**
@@ -440,7 +444,7 @@ ${JSON.stringify(userBotResult, null, 2)}
         } else if (personaName === 'レッドチーム') {
             return scenarios[scenarios.length - 1]; // 最後の選択肢で批判
         } else {
-            return scenarios[Math.floor(Math.random() * scenarios.length)];
+            return scenarios[Math.floor(this.rng.next() * scenarios.length)];
         }
     }
     
@@ -449,7 +453,7 @@ ${JSON.stringify(userBotResult, null, 2)}
             persona: userBot.personaName,
             task_id: userBot.taskId,
             input_text: userBot.inputText,
-            picked_scenario_id: 'FUT-' + String(Math.floor(Math.random() * 8) + 1).padStart(3, '0'),
+            picked_scenario_id: 'FUT-' + String(Math.floor(this.rng.next() * 8) + 1).padStart(3, '0'),
             why: [
                 `${userBot.personaName}として適切と判断`,
                 '具体的で実行可能',
@@ -499,19 +503,19 @@ ${JSON.stringify(userBotResult, null, 2)}
     
     // Judge評価メソッド群
     evaluateIchingAccuracy(userResult) {
-        return 3 + Math.random() * 2; // 3-5の範囲
+        return 3 + this.rng.next() * 2; // 3-5の範囲
     }
     
     evaluateHaqeiAlignment(userResult) {
-        return 3 + Math.random() * 2;
+        return 3 + this.rng.next() * 2;
     }
     
     evaluateScenarioQuality(userResult) {
-        return 3 + Math.random() * 2;
+        return 3 + this.rng.next() * 2;
     }
     
     evaluateActionability(userResult) {
-        return 3 + Math.random() * 2;
+        return 3 + this.rng.next() * 2;
     }
     
     identifyBlockingIssues(userResult) {

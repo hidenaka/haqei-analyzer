@@ -5,7 +5,11 @@
 
 export class LineSelector {
     constructor() {
-        // 層別定義（下層・中層・上層）
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    // 層別定義（下層・中層・上層）
         this.layers = {
             lower: [1, 2],  // 下層：基礎・開始
             middle: [3, 4], // 中層：実行・展開
@@ -88,7 +92,7 @@ export class LineSelector {
         // 感情が混在している場合は変爻数を増やす
         if (textAnalysis.emotionalTone?.type === 'mixed') {
             const base = complexity === 'low' ? 2 : 3;
-            return Math.min(4, base + Math.floor(Math.random() * 2));
+            return Math.min(4, base + Math.floor(this.rng.next() * 2));
         }
         
         // デフォルト
@@ -132,7 +136,7 @@ export class LineSelector {
             }
             
             if (candidates.length > 0) {
-                const nextLine = candidates[Math.floor(Math.random() * candidates.length)];
+                const nextLine = candidates[Math.floor(this.rng.next() * candidates.length)];
                 selectedLines.add(nextLine);
             } else {
                 break;

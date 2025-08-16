@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS Analyzer - HAQEI Triple OS Analysis System</title>
+    
+    <!-- Critical CSS -->
+    <link rel="stylesheet" href="css/os-analyzer.css">
+    <link rel="stylesheet" href="css/result-visualizer.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+    
+    <!-- Browser Compatibility -->
+    <script src="js/core/BrowserCompatibility.js"></script>
+</head>
+<body>
+    <!-- Main App Container -->
+    <div id="app" role="application" aria-label="OS Analyzer Application">
+        
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen active" role="main" aria-labelledby="welcome-title">
+            <div class="container">
+                <h1 id="welcome-title" class="title">OS Analyzer</h1>
+                <p class="subtitle">あなたの内なる3つのOSを発見する</p>
+                
+                <div class="welcome-content" id="main-content">
+                    <div class="intro-section">
+                        <h2>Triple OS Analysisとは？</h2>
+                        <p>私たちの心は、コンピュータのように3つの異なるOS（オペレーティングシステム）が協調して動作しています。</p>
+                        
+                        <div class="os-cards" role="list">
+                            <div class="os-card" role="listitem">
+                                <div class="os-icon engine" aria-hidden="true">⚡</div>
+                                <h3>Engine OS</h3>
+                                <p>創造性・行動力・探求心を司る駆動システム</p>
+                            </div>
+                            
+                            <div class="os-card" role="listitem">
+                                <div class="os-icon interface" aria-hidden="true">🌐</div>
+                                <h3>Interface OS</h3>
+                                <p>コミュニケーション・表現・適応を担うシステム</p>
+                            </div>
+                            
+                            <div class="os-card" role="listitem">
+                                <div class="os-icon safemode" aria-hidden="true">🛡️</div>
+                                <h3>Safe Mode OS</h3>
+                                <p>安定性・受容性・回復力を支えるシステム</p>
+                            </div>
+                        </div>
+                        
+                        <p class="analysis-note">
+                            36の質問を通じて、あなたの3つのOSの特性と相互作用を分析し、
+                            64卦の易経の知恵と現代心理学を融合させた独自の洞察を提供します。
+                        </p>
+                    </div>
+                    
+                    <button id="start-btn" class="btn btn-primary" role="button" aria-label="分析を始める">
+                        分析を始める
+                    </button>
+                    
+                    <p class="time-estimate" aria-label="所要時間は約10分から15分です">所要時間: 約10-15分</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question Screen -->
+        <div id="question-screen" class="screen" role="main" aria-labelledby="question-heading" aria-hidden="true">
+            <div class="container">
+                <h2 id="question-heading" class="sr-only">質問画面</h2>
+                
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="36" aria-label="質問の進捗">
+                    <div id="progress-fill" class="progress-fill"></div>
+                    <span id="progress-text" class="progress-text" aria-live="polite" aria-atomic="true">0 / 36</span>
+                </div>
+                
+                <div class="question-content">
+                    <div id="question-category" class="question-category" aria-live="polite"></div>
+                    <h3 id="question-text" class="question-text" role="heading" aria-level="3"></h3>
+                    <div id="options-container" class="options-container" role="radiogroup" aria-labelledby="question-text"></div>
+                </div>
+                
+                <nav class="navigation" id="navigation" role="navigation" aria-label="質問ナビゲーション">
+                    <button id="prev-btn" class="btn btn-secondary" disabled aria-label="前の質問へ戻る" aria-disabled="true">前へ</button>
+                    <button id="next-btn" class="btn btn-primary" disabled aria-label="次の質問へ進む" aria-disabled="true">次へ</button>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen" role="main" aria-labelledby="results-title" aria-hidden="true">
+            <div class="container">
+                <h1 id="results-title" class="results-title">あなたのTriple OS分析結果</h1>
+                
+                <div id="hexagram-display" class="hexagram-display" role="img" aria-label="八卦の図"></div>
+                
+                <div class="os-results" role="region" aria-label="OS分析結果">
+                    <div class="os-result engine">
+                        <h2>Engine OS</h2>
+                        <div id="engine-os-result" aria-live="polite"></div>
+                    </div>
+                    
+                    <div class="os-result interface">
+                        <h2>Interface OS</h2>
+                        <div id="interface-os-result" aria-live="polite"></div>
+                    </div>
+                    
+                    <div class="os-result safemode">
+                        <h2>Safe Mode OS</h2>
+                        <div id="safemode-os-result" aria-live="polite"></div>
+                    </div>
+                </div>
+                
+                <div id="synergy-analysis" class="synergy-analysis" role="region" aria-label="OSシナジー分析">
+                    <h2>OS間のシナジー分析</h2>
+                    <div id="synergy-content" aria-live="polite"></div>
+                </div>
+                
+                <div class="chart-container" role="img" aria-label="結果チャート">
+                    <canvas id="results-chart"></canvas>
+                </div>
+                
+                <div class="results-actions" role="group" aria-label="結果アクション">
+                    <button id="restart-btn" class="btn btn-secondary" aria-label="もう一度分析する">もう一度分析する</button>
+                    <button id="save-btn" class="btn btn-primary" aria-label="結果を保存する">結果を保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Accessibility Module -->
+    <script src="js/accessibility.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="lib/chart.min.js"></script>
+    <script src="js/StatisticalValidator.js"></script>
+    <script src="js/VirtualPersonaDialogue.js"></script>
+    <script src="js/VirtualPersonaEnhancer.js"></script>
+    <script src="assets/H384H64database.js"></script>
+    <script src="js/core/ExpressionGenerator.js"></script>
+    <script src="js/core/KeywordAnalyzer.js"></script>
+    <script src="js/core/PatternMapper.js"></script>
+    <script src="js/result-visualizer.js"></script>
+    <script src="assets/js/questions-full.js"></script>
+    <script src="js/os-analyzer-main.js" defer></script>
+    <script src="js/event-handlers.js" defer></script>
+</body>
+</html>

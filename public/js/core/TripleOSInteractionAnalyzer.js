@@ -8,13 +8,18 @@
     'use strict';
 
     class TripleOSInteractionAnalyzer {
-        constructor() {
+        constructor(options = {}) {
+            // v4.3.1 決定論的要件: SeedableRandom統合
+            this.rng = options.randomnessManager || window.randomnessManager || {
+                next: () => Math.random(),
+                random: () => Math.random()
+            };
             try {
                 this.version = '1.2'; // リファクタリング版
                 console.log('🔮 TripleOSInteractionAnalyzer v1.2 (refactored) initialized');
                 
                 // 専門クラスの初期化
-                this.expressionGenerator = typeof ExpressionGenerator !== 'undefined' ? new ExpressionGenerator() : null;
+                this.expressionGenerator = typeof ExpressionGenerator !== 'undefined' ? new ExpressionGenerator(options) : null;
                 this.keywordAnalyzer = typeof KeywordAnalyzer !== 'undefined' ? new KeywordAnalyzer() : null;
                 
                 // メモ化キャッシュの初期化
@@ -1810,8 +1815,8 @@
             const bunjin1 = this.getOSBunjinCharacteristics(os1Type);
             const bunjin2 = this.getOSBunjinCharacteristics(os2Type);
             
-            const bunjinName1 = bunjin1.bunjinNames[Math.floor(Math.random() * bunjin1.bunjinNames.length)];
-            const bunjinName2 = bunjin2.bunjinNames[Math.floor(Math.random() * bunjin2.bunjinNames.length)];
+            const bunjinName1 = bunjin1.bunjinNames[Math.floor(this.rng.next() * bunjin1.bunjinNames.length)];
+            const bunjinName2 = bunjin2.bunjinNames[Math.floor(this.rng.next() * bunjin2.bunjinNames.length)];
             
             // OSペア固有の表現を必ず優先（最高優先度）
             const pairSpecificExpression = this.generateOSPairSpecificExpression(os1Type, os2Type, bunjinName1, bunjinName2);
@@ -1898,7 +1903,7 @@
             
             if (pairTemplates[pairKey]) {
                 const templates = pairTemplates[pairKey];
-                return templates[Math.floor(Math.random() * templates.length)];
+                return templates[Math.floor(this.rng.next() * templates.length)];
             }
             
             return null; // 汎用テンプレートを使用
@@ -1925,8 +1930,8 @@
                 // Engine-Interfaceペア固有テンプレートを優先
                 const bunjin1 = this.getOSBunjinCharacteristics('engine');
                 const bunjin2 = this.getOSBunjinCharacteristics('interface');
-                const bunjinName1 = bunjin1.bunjinNames[Math.floor(Math.random() * bunjin1.bunjinNames.length)];
-                const bunjinName2 = bunjin2.bunjinNames[Math.floor(Math.random() * bunjin2.bunjinNames.length)];
+                const bunjinName1 = bunjin1.bunjinNames[Math.floor(this.rng.next() * bunjin1.bunjinNames.length)];
+                const bunjinName2 = bunjin2.bunjinNames[Math.floor(this.rng.next() * bunjin2.bunjinNames.length)];
                 
                 const pairSpecificExpression = this.generateOSPairSpecificExpression('engine', 'interface', bunjinName1, bunjinName2);
                 if (pairSpecificExpression) {
@@ -1975,8 +1980,8 @@
                 // Engine-Safeペア固有テンプレートを優先
                 const bunjin1 = this.getOSBunjinCharacteristics('engine');
                 const bunjin2 = this.getOSBunjinCharacteristics('safe');
-                const bunjinName1 = bunjin1.bunjinNames[Math.floor(Math.random() * bunjin1.bunjinNames.length)];
-                const bunjinName2 = bunjin2.bunjinNames[Math.floor(Math.random() * bunjin2.bunjinNames.length)];
+                const bunjinName1 = bunjin1.bunjinNames[Math.floor(this.rng.next() * bunjin1.bunjinNames.length)];
+                const bunjinName2 = bunjin2.bunjinNames[Math.floor(this.rng.next() * bunjin2.bunjinNames.length)];
                 
                 const pairSpecificExpression = this.generateOSPairSpecificExpression('engine', 'safe', bunjinName1, bunjinName2);
                 if (pairSpecificExpression) {
@@ -2008,8 +2013,8 @@
                 // Interface-Safeペア固有テンプレートを優先
                 const bunjin1 = this.getOSBunjinCharacteristics('interface');
                 const bunjin2 = this.getOSBunjinCharacteristics('safe');
-                const bunjinName1 = bunjin1.bunjinNames[Math.floor(Math.random() * bunjin1.bunjinNames.length)];
-                const bunjinName2 = bunjin2.bunjinNames[Math.floor(Math.random() * bunjin2.bunjinNames.length)];
+                const bunjinName1 = bunjin1.bunjinNames[Math.floor(this.rng.next() * bunjin1.bunjinNames.length)];
+                const bunjinName2 = bunjin2.bunjinNames[Math.floor(this.rng.next() * bunjin2.bunjinNames.length)];
                 
                 const pairSpecificExpression = this.generateOSPairSpecificExpression('interface', 'safe', bunjinName1, bunjinName2);
                 if (pairSpecificExpression) {

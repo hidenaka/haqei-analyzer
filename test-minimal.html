@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal DynamicKeywordGenerator Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .info { color: blue; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>DynamicKeywordGenerator Loading Test</h1>
+    <div id="status">🔄 Testing...</div>
+    <div id="logs"></div>
+
+    <script>
+        const logDiv = document.getElementById('logs');
+        const statusDiv = document.getElementById('status');
+        
+        function log(message, type = 'info') {
+            console.log(message);
+            const logEntry = document.createElement('div');
+            logEntry.className = `log ${type}`;
+            logEntry.textContent = new Date().toISOString() + ' - ' + message;
+            logDiv.appendChild(logEntry);
+        }
+
+        // Capture all errors
+        window.addEventListener('error', function(event) {
+            log(`❌ ERROR: ${event.message}`, 'error');
+            log(`   File: ${event.filename}`, 'error');
+            log(`   Line: ${event.lineno}, Column: ${event.colno}`, 'error');
+            log(`   Stack: ${event.error ? event.error.stack : 'No stack'}`, 'error');
+            statusDiv.innerHTML = '❌ Loading Failed';
+        });
+
+        log('🔍 Starting DynamicKeywordGenerator test');
+        log('📱 User Agent: ' + navigator.userAgent);
+        
+        // Test before loading
+        log('🔧 Testing before script load');
+        if (typeof window.DynamicKeywordGenerator === 'undefined') {
+            log('✓ DynamicKeywordGenerator not yet defined (expected)', 'success');
+        } else {
+            log('⚠️ DynamicKeywordGenerator already defined', 'error');
+        }
+    </script>
+
+    <!-- Load the actual DynamicKeywordGenerator script -->
+    <script src="./js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
+
+    <script>
+        // Test after loading
+        setTimeout(() => {
+            log('🔧 Testing after script load');
+            
+            if (typeof window.DynamicKeywordGenerator !== 'undefined') {
+                log('✅ DynamicKeywordGenerator loaded successfully', 'success');
+                statusDiv.innerHTML = '✅ Loading Successful';
+                
+                // Test key methods exist
+                const methods = [
+                    'init',
+                    'generateDynamicKeywords', 
+                    'generateKeywords',
+                    'generateTripleOSDiagnosticText',
+                    'generateEnhancedTripleOSDiagnosticText'
+                ];
+                
+                methods.forEach(method => {
+                    if (typeof window.DynamicKeywordGenerator[method] === 'function') {
+                        log(`✓ Method ${method} exists`, 'success');
+                    } else {
+                        log(`❌ Method ${method} missing`, 'error');
+                    }
+                });
+                
+                // Test initialization
+                try {
+                    log('🔧 Testing initialization');
+                    if (typeof window.DynamicKeywordGenerator.init === 'function') {
+                        // Only initialize if not already initialized
+                        window.DynamicKeywordGenerator.init();
+                        log('✅ Initialization successful', 'success');
+                    }
+                } catch (initError) {
+                    log(`❌ Initialization failed: ${initError.message}`, 'error');
+                }
+                
+            } else {
+                log('❌ DynamicKeywordGenerator failed to load', 'error');
+                statusDiv.innerHTML = '❌ Loading Failed';
+            }
+        }, 100);
+    </script>
+</body>
+</html>

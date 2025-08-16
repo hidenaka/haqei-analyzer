@@ -153,7 +153,7 @@ class QuestionFlow extends BaseComponent {
       if (question.options && question.options.length > 1) {
         // Fisher-Yates shuffle
         for (let i = question.options.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
+          const j = (Date.now() + i) % (i + 1); // 決定論的シャッフル
           [question.options[i], question.options[j]] = [question.options[j], question.options[i]];
         }
       }

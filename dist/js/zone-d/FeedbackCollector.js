@@ -9,7 +9,11 @@
 
 class FeedbackCollector {
     constructor() {
-        this.feedbacks = [];
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.feedbacks = [];
         this.currentFeedback = null;
         this.storageKey = 'haqei_user_feedbacks';
         
@@ -465,7 +469,7 @@ class FeedbackCollector {
      * ID生成
      */
     generateId() {
-        return `fb_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return `fb_${Date.now()}_${this.rng.next().toString(36).substr(2, 9)}`;
     }
     
     /**

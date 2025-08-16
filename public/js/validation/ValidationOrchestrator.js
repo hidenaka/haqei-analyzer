@@ -10,7 +10,11 @@
 
 class ValidationOrchestrator {
     constructor() {
-        this.sessionId = this.generateSessionId();
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.sessionId = this.generateSessionId();
         this.metrics = null;
         this.evidencePanel = null;
         this.personaSystem = null;
@@ -380,9 +384,9 @@ class ValidationOrchestrator {
     
     // ユーザーテストシミュレーション
     async simulateUserTest(userId) {
-        const taskTime = 90 + Math.random() * 120; // 90-210秒
-        const taskSuccess = Math.random() > 0.2; // 80%成功率
-        const satisfaction = Math.ceil(Math.random() * 5); // 1-5
+        const taskTime = 90 + this.rng.next() * 120; // 90-210秒
+        const taskSuccess = this.rng.next() > 0.2; // 80%成功率
+        const satisfaction = Math.ceil(this.rng.next() * 5); // 1-5
         
         return {
             userId,

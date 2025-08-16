@@ -8,8 +8,12 @@
  */
 
 class HandoffManager {
-    constructor() {
-        this.payload = null;
+    constructor(options = {}) {
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               { next: () => Math.random() }; // フォールバック実装
+    this.payload = null;
         this.destination = null;
         this.handoffId = null;
         
@@ -479,11 +483,12 @@ class HandoffManager {
             // KPI: ハンドオフ完了率の記録
             this.recordHandoffMetric(destinationId);
             
-            // 実際の遷移（デモでは新しいタブ）
+            // 実際の遷移（デモでは新しいタブ - 一時無効化）
             if (result.url.startsWith('#')) {
                 console.log('Navigate to:', result.url);
             } else {
-                window.open(result.url, '_blank');
+                console.log('🚫 Tab creation blocked to prevent excessive tab opening:', result.url);
+                // window.open(result.url, '_blank'); // 異常なタブ生成を防ぐため一時無効化
             }
         }
     }
@@ -593,11 +598,11 @@ class HandoffManager {
      * ユーティリティメソッド
      */
     generateHandoffId() {
-        return `ho_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return `ho_${Date.now()}_${this.rng.next().toString(36).substr(2, 9)}`;
     }
     
     generateSessionId() {
-        return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return `session_${Date.now()}_${this.rng.next().toString(36).substr(2, 9)}`;
     }
     
     detectDevice() {

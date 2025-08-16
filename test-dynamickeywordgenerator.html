@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DynamicKeywordGenerator Test</title>
+</head>
+<body>
+    <h1>DynamicKeywordGenerator Test</h1>
+    <div id="output"></div>
+    <div id="error-log"></div>
+
+    <script>
+        // Error capturing
+        window.addEventListener('error', function(e) {
+            console.error('Script error:', e);
+            document.getElementById('error-log').innerHTML += `<div style="color:red">ERROR: ${e.message} at ${e.filename}:${e.lineno}</div>`;
+        });
+
+        console.log('Starting DynamicKeywordGenerator test...');
+    </script>
+
+    <!-- Load DynamicKeywordGenerator -->
+    <script src="./js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
+
+    <script>
+        // Test script
+        console.log('Testing DynamicKeywordGenerator...');
+        
+        if (typeof window.DynamicKeywordGenerator !== 'undefined') {
+            document.getElementById('output').innerHTML = '<div style="color:green">✅ DynamicKeywordGenerator loaded successfully</div>';
+            
+            // Test initialization
+            try {
+                window.DynamicKeywordGenerator.init();
+                document.getElementById('output').innerHTML += '<div style="color:green">✅ DynamicKeywordGenerator initialized</div>';
+                
+                // Test generateEnhancedTripleOSDiagnosticText method exists
+                if (typeof window.DynamicKeywordGenerator.generateEnhancedTripleOSDiagnosticText === 'function') {
+                    document.getElementById('output').innerHTML += '<div style="color:green">✅ generateEnhancedTripleOSDiagnosticText method exists</div>';
+                } else {
+                    document.getElementById('output').innerHTML += '<div style="color:red">❌ generateEnhancedTripleOSDiagnosticText method missing</div>';
+                }
+                
+            } catch (error) {
+                document.getElementById('output').innerHTML += `<div style="color:red">❌ Initialization error: ${error.message}</div>`;
+                console.error('Initialization error:', error);
+            }
+        } else {
+            document.getElementById('output').innerHTML = '<div style="color:red">❌ DynamicKeywordGenerator not loaded</div>';
+        }
+    </script>
+</body>
+</html>

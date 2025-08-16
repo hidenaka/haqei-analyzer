@@ -25,6 +25,19 @@ class FutureBranchingSystem {
     this.version = "4.0.0-comprehensive-branching";
     this.philosophyAlignment = "haqei-future-multiplicity";
     
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    if (options.randomnessManager) {
+      this.rng = options.randomnessManager.getGenerator ? 
+                 options.randomnessManager.getGenerator('deterministic') : 
+                 options.randomnessManager;
+    } else if (window.randomnessManager) {
+      this.rng = window.randomnessManager.getGenerator('deterministic');
+    } else if (window.SeedableRandom) {
+      this.rng = new window.SeedableRandom(12345);
+    } else {
+      throw new Error('RandomnessManager required for deterministic behavior');
+    }
+    
     // 易経64卦システム統合
     this.hexagramCount = 64;
     this.currentHexagrams = new Map();
@@ -654,7 +667,7 @@ class FutureBranchingSystem {
   calculateBranchProbabilities(scenarios) {
     return scenarios.map(scenario => ({
       ...scenario,
-      probability: Math.random() * 0.8 + 0.1 // 0.1-0.9の範囲
+      probability: this.rng.nextFloat(0.1, 0.9) // 0.1-0.9の範囲 (決定論的)
     }));
   }
 
@@ -671,7 +684,7 @@ class FutureBranchingSystem {
     return baseScenarios.map(scenario => ({
       ...scenario,
       timeHorizon: timeHorizon,
-      hexagram: Math.floor(Math.random() * 64) + 1
+      hexagram: this.rng.nextInt(1, 64) // 決定論的64卦選択
     }));
   }
 
@@ -682,9 +695,9 @@ class FutureBranchingSystem {
     return scenarios.map(scenario => ({
       ...scenario,
       evaluation: {
-        feasibility: Math.random() * 0.8 + 0.2,
-        desirability: Math.random() * 0.8 + 0.2,
-        risk: Math.random() * 0.6 + 0.1
+        feasibility: this.rng.nextFloat(0.2, 1.0), // 決定論的実現可能性
+        desirability: this.rng.nextFloat(0.2, 1.0), // 決定論的魅力度
+        risk: this.rng.nextFloat(0.1, 0.7) // 決定論的リスク評価
       }
     }));
   }

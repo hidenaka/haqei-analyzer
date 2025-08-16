@@ -14,6 +14,10 @@ class QuestionManager {
     this.displayController = options.displayController || null;
     this.storageManager = options.storageManager || null;
     
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    
     // 状態管理
     this.questions = [];
     this.currentIndex = 0;
@@ -115,7 +119,7 @@ class QuestionManager {
   shuffleQuestions(questions) {
     const shuffled = [...questions];
     for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = this.rng.nextInt(0, i); // 決定論的Fisher-Yatesシャッフル
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;

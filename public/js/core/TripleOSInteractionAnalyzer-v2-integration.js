@@ -29,7 +29,7 @@ class SeededRandom {
             console.log(`🔄 Calculating hexagram probabilities v2 for ${osType} OS`);
             
             // 乱数生成器の初期化
-            const rng = seed ? new SeededRandom(seed) : { next: () => Math.random() };
+            const rng = seed ? new SeededRandom(seed) : { next: () => this.rng.next() };
             
             // パラメータ設定
             const TEMPERATURE = {
@@ -109,7 +109,7 @@ class SeededRandom {
         
         // selectHexagramメソッドのv2版
         OriginalClass.prototype.selectHexagramV2 = function(probabilities, seed = null) {
-            const rng = seed ? new SeededRandom(seed) : { next: () => Math.random() };
+            const rng = seed ? new SeededRandom(seed) : { next: () => this.rng.next() };
             const rand = rng.next();
             
             let cumulative = 0;

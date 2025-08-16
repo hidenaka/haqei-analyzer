@@ -36,7 +36,7 @@ const CRITICAL_RESOURCES = [
   '/js/shared/core/MicroStorageManager.js',
   '/js/shared/core/BridgeStorageManager.js',
   '/js/shared/core/MicroDataManager.js',
-  '/js/shared/data/questions.js',
+  '/assets/js/questions-full.js',
   '/js/os-analyzer/components/WelcomeScreen.js',
   '/js/os-analyzer/components/HaqeiQuestionElement.js',
   '/js/os-analyzer/components/VirtualQuestionFlow.js',
@@ -309,16 +309,23 @@ function handleRouting(request, pathname) {
     
     console.log('🔄 Route redirect:', pathname, '→', newUrl.pathname);
     
-    return new Request(newUrl.toString(), {
+    // ナビゲーションモードの場合はmodeを調整
+    const requestInit = {
       method: request.method,
       headers: request.headers,
       body: request.body,
-      mode: request.mode,
       credentials: request.credentials,
       cache: request.cache,
       redirect: request.redirect,
       referrer: request.referrer
-    });
+    };
+    
+    // ナビゲーションモードは新しいRequestで使用不可なので除外
+    if (request.mode !== 'navigate') {
+      requestInit.mode = request.mode;
+    }
+    
+    return new Request(newUrl.toString(), requestInit);
   }
   
   // HTMLファイルへの直接アクセスで拡張子がない場合の補完

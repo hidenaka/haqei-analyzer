@@ -1,0 +1,39 @@
+{
+  "timestamp": "2025-08-14T04:31:13.025Z",
+  "testSuite": "Eight Palaces Invariant Test",
+  "tests": [
+    {
+      "name": "H64 Completeness",
+      "status": "passed",
+      "details": "H64 completeness verified: 64 hexagrams with unique numbers 1-64",
+      "metrics": {
+        "totalHexagrams": 64,
+        "uniqueCount": 64
+      }
+    },
+    {
+      "name": "H384 Completeness",
+      "status": "passed",
+      "details": "H384 completeness verified: 386 entries covering all 64 hexagrams",
+      "metrics": {
+        "totalEntries": 386,
+        "uniqueHexagrams": 64
+      }
+    },
+    {
+      "name": "Eight Palaces Structure",
+      "status": "failed",
+      "details": "Unique hexagrams in palaces: 50, expected 64",
+      "error": "Error: Unique hexagrams in palaces: 50, expected 64\n    at EightPalacesInvariantTest.testEightPalacesStructure (/Users/hideakimacbookair/Desktop/haqei-analyzer/test/eight-palaces.invariant.test.cjs:178:19)\n    at /Users/hideakimacbookair/Desktop/haqei-analyzer/test/eight-palaces.invariant.test.cjs:231:52\n    at EightPalacesInvariantTest.runTest (/Users/hideakimacbookair/Desktop/haqei-analyzer/test/eight-palaces.invariant.test.cjs:60:28)\n    at EightPalacesInvariantTest.runAllTests (/Users/hideakimacbookair/Desktop/haqei-analyzer/test/eight-palaces.invariant.test.cjs:239:22)\n    at Object.<anonymous> (/Users/hideakimacbookair/Desktop/haqei-analyzer/test/eight-palaces.invariant.test.cjs:266:28)\n    at Module._compile (node:internal/modules/cjs/loader:1730:14)\n    at Object..js (node:internal/modules/cjs/loader:1895:10)\n    at Module.load (node:internal/modules/cjs/loader:1465:32)\n    at Function._load (node:internal/modules/cjs/loader:1282:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)"
+    },
+    {
+      "name": "Data Quality",
+      "status": "passed",
+      "details": "Data quality verified: All required fields present",
+      "metrics": {
+        "h384SampleChecked": 10,
+        "h64FullyChecked": 64
+      }
+    }
+  ]
+}

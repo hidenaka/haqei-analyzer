@@ -1,0 +1,382 @@
+/**
+ * 易経未来分析システム - 客観的分析UI
+ * 384パターンによる状況分析ツール
+ */
+
+/* ========================================
+   カラーパレット（分析ツール用）
+   ======================================== */
+:root {
+  /* 分析的な配色 */
+  --analysis-primary: #2c3e50;      /* ダークグレー */
+  --analysis-accent: #3498db;       /* データブルー */
+  --analysis-success: #27ae60;      /* 良好グリーン */
+  --analysis-warning: #f39c12;      /* 注意オレンジ */
+  --analysis-danger: #e74c3c;       /* リスクレッド */
+  --analysis-bg: #1a1f2e;           /* 背景 */
+  --analysis-card: #232937;         /* カード背景 */
+  --analysis-border: #2e3545;       /* ボーダー */
+  --analysis-text: #e0e6ed;         /* テキスト */
+  --analysis-muted: #95a5a6;        /* 補助テキスト */
+}
+
+/* ========================================
+   ヘッダー統計表示
+   ======================================== */
+.analysis-header-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(52, 152, 219, 0.1);
+  border: 1px solid rgba(52, 152, 219, 0.3);
+  border-radius: 0.5rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--analysis-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.stat-value {
+  color: var(--analysis-accent);
+  font-weight: 700;
+}
+
+/* ========================================
+   入力セクション（データ収集）
+   ======================================== */
+.data-input-section {
+  background: var(--analysis-card);
+  border: 1px solid var(--analysis-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.data-input-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--analysis-text);
+  margin-bottom: 0.5rem;
+}
+
+.data-input-helper {
+  font-size: 0.75rem;
+  color: var(--analysis-muted);
+  margin-top: 0.25rem;
+}
+
+.data-input-field {
+  width: 100%;
+  min-height: 120px;
+  padding: 1rem;
+  background: var(--analysis-bg);
+  border: 2px solid var(--analysis-border);
+  border-radius: 0.5rem;
+  color: var(--analysis-text);
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.data-input-field:focus {
+  outline: none;
+  border-color: var(--analysis-accent);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* ========================================
+   分析ボタン
+   ======================================== */
+.analyze-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 300px;
+  margin: 1.5rem auto 0;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, var(--analysis-accent), #2980b9);
+  border: none;
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.analyze-button:hover {
+  background: linear-gradient(135deg, #2980b9, #21618c);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+}
+
+.analyze-button .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ========================================
+   スコア分布表示
+   ======================================== */
+.score-distribution {
+  background: var(--analysis-card);
+  border: 1px solid var(--analysis-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.score-distribution-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--analysis-text);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.score-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.score-label {
+  width: 120px;
+  font-size: 0.875rem;
+  color: var(--analysis-muted);
+}
+
+.score-progress {
+  flex: 1;
+  height: 24px;
+  background: var(--analysis-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 1rem;
+}
+
+.score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--analysis-accent), var(--analysis-success));
+  transition: width 0.8s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.5rem;
+}
+
+.score-percentage {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+/* ========================================
+   8シナリオマトリックス
+   ======================================== */
+.scenario-matrix {
+  background: var(--analysis-card);
+  border: 1px solid var(--analysis-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.matrix-card {
+  background: var(--analysis-bg);
+  border: 1px solid var(--analysis-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.matrix-card:hover {
+  border-color: var(--analysis-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+}
+
+.matrix-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.matrix-rank {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--analysis-accent);
+}
+
+.matrix-score {
+  font-size: 0.875rem;
+  color: var(--analysis-muted);
+}
+
+.matrix-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--analysis-text);
+  margin-bottom: 0.25rem;
+}
+
+.matrix-type {
+  font-size: 0.75rem;
+  color: var(--analysis-muted);
+}
+
+/* ========================================
+   時系列予測
+   ======================================== */
+.timeline-prediction {
+  background: var(--analysis-card);
+  border: 1px solid var(--analysis-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+}
+
+.timeline-phases {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin-top: 1.5rem;
+}
+
+.timeline-phases::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--analysis-border);
+  z-index: 0;
+}
+
+.phase-item {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  flex: 1;
+}
+
+.phase-dot {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 0.5rem;
+  background: var(--analysis-bg);
+  border: 2px solid var(--analysis-accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--analysis-accent);
+}
+
+.phase-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--analysis-text);
+}
+
+.phase-description {
+  font-size: 0.75rem;
+  color: var(--analysis-muted);
+  margin-top: 0.25rem;
+}
+
+/* ========================================
+   レスポンシブ対応
+   ======================================== */
+@media (max-width: 768px) {
+  .analysis-header-stats {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .matrix-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+  }
+  
+  .timeline-phases {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .timeline-phases::before {
+    display: none;
+  }
+}
+
+/* ========================================
+   アニメーション
+   ======================================== */
+@keyframes dataLoad {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.data-load-animation {
+  animation: dataLoad 0.6s ease-out;
+}
+
+/* ========================================
+   グラフ・チャート用
+   ======================================== */
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin: 1.5rem 0;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--analysis-border);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--analysis-muted);
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}

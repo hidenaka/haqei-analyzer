@@ -9,7 +9,11 @@
 
 class ZoneDIntegrator {
     constructor() {
-        this.confidenceMeter = null;
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.confidenceMeter = null;
         this.feedbackCollector = null;
         this.handoffManager = null;
         
@@ -544,7 +548,7 @@ class ZoneDIntegrator {
     }
     
     generateSessionId() {
-        return `zd_session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return `zd_session_${Date.now()}_${this.rng.next().toString(36).substr(2, 9)}`;
     }
 }
 

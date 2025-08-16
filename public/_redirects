@@ -1,0 +1,35 @@
+# HAQEI Analyzer - Netlify redirects
+# T15: Enhanced cloud deployment redirects
+
+# Primary routes - Engine OS (core functionality)
+/                     /os_analyzer_clean.html    200
+/index.html           /os_analyzer_clean.html    301
+/analyzer             /os_analyzer_clean.html    301
+/os-analyzer          /os_analyzer_clean.html    301
+
+# Interface OS (different experience versions)
+/clean                /os_analyzer_clean.html    301
+/optimized            /os_analyzer_optimized.html 301
+/a11y                 /os_analyzer_a11y.html     301
+/full                 /os_analyzer.html          301
+
+# Safe Mode OS (fallback and navigation)
+/future               /future_simulator.html     301
+/simulator            /future_simulator.html     301
+/philosophy           /haqei-philosophy.html     301
+
+# Professional services
+/professional         /professional_report.html  301
+/report               /professional_report.html  301
+/dashboard            /strategic-dashboard.html   301
+/library              /library.html              301
+
+# Legal and privacy
+/privacy              /privacy.html              301
+/terms                /terms.html                301
+
+# API routes (future expansion)
+/api/*                /api/:splat                200
+
+# 404 fallback - always return to main app (HaQei philosophy: no dead ends)
+/*                    /os_analyzer_clean.html    404

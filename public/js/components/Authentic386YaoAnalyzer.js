@@ -22,16 +22,19 @@ window.Authentic386YaoAnalyzer = class {
     console.log('🎋 Initializing Authentic 386爻 Analyzer...');
     
     try {
-      // 完全版386爻データを読み込む
-      const response = await fetch('/data/enhanced_hexagrams_complete.json');
+      // 卦データを読み込む
+      const response = await fetch('/data/hexagrams.json');
       this.hexagramData = await response.json();
       
       // データ検証
-      const yaoCount = this.hexagramData.reduce((sum, h) => sum + (h.six_lines?.length || 0), 0);
-      const specialCount = this.hexagramData.filter(h => h.special_yao).length;
+      if (!Array.isArray(this.hexagramData)) {
+        throw new Error('Hexagram data is not an array');
+      }
+      
+      const validHexagrams = this.hexagramData.filter(h => h.hexagram_id && h.name_jp).length;
       
       console.log(`✅ Loaded ${this.hexagramData.length} hexagrams`);
-      console.log(`✅ Total lines: ${yaoCount} regular + ${specialCount} special = ${yaoCount + specialCount}`);
+      console.log(`✅ Valid hexagrams: ${validHexagrams}`);
       
       // パフォーマンス最適化: インデックスマップ構築
       this.buildOptimizationMaps();

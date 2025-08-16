@@ -9,7 +9,11 @@
 
 class SecurityManager {
     constructor() {
-        this.securityLevel = 'high';
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.securityLevel = 'high';
         
         this.policies = {
             csp: {
@@ -729,7 +733,7 @@ class SecurityManager {
      * イベントID生成
      */
     generateEventId() {
-        return `sec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return `sec_${Date.now()}_${this.rng.next().toString(36).substr(2, 9)}`;
     }
     
     /**

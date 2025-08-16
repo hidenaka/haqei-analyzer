@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI v4.3.1 - 決定論性検証ハーネス</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', monospace;
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 8px;
+            color: white;
+        }
+        .verification-area {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .test-controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .run-result {
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 12px;
+            background: white;
+        }
+        .run-identical {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .run-different {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        .hash-display {
+            font-family: monospace;
+            font-size: 10px;
+            word-break: break-all;
+            margin: 5px 0;
+            padding: 5px;
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        .system-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-size: 12px;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-pending { background: #ffc107; }
+        .status-pass { background: #28a745; }
+        .status-fail { background: #dc3545; }
+        .log-area {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin: 20px 0;
+        }
+        .input-area {
+            margin: 15px 0;
+        }
+        .input-area textarea {
+            width: 100%;
+            height: 60px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: inherit;
+        }
+        .metrics-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            padding: 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 5px 0;
+        }
+        .detailed-scenarios {
+            margin: 20px 0;
+        }
+        .scenario-card {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 HAQEI v4.3.1 決定論性検証ハーネス</h1>
+            <p>SHA-256ハッシュによる機械的一致確認 + 監査証跡生成</p>
+        </div>
+
+        <!-- システム情報 -->
+        <div class="system-info" id="system-info">
+            <h3>📊 システム情報</h3>
+            <div id="system-details"></div>
+        </div>
+
+        <!-- テスト制御 -->
+        <div class="verification-area">
+            <h3>🎯 決定論性検証テスト</h3>
+            <div class="input-area">
+                <label for="test-input"><strong>検証用入力テキスト:</strong></label>
+                <textarea id="test-input" placeholder="検証用のテキストを入力してください...">転職を検討していますが、タイミングが分からず悩んでいます</textarea>
+            </div>
+            
+            <div class="test-controls">
+                <button class="btn btn-primary" onclick="runDeterminismTest()">
+                    🔬 5連一致テスト実行
+                </button>
+                <button class="btn btn-primary" onclick="runSingleTest()">
+                    ⚡ 単発テスト
+                </button>
+                <button class="btn btn-success" onclick="exportResults()">
+                    📄 監査証跡エクスポート
+                </button>
+                <button class="btn btn-danger" onclick="clearResults()">
+                    🗑️ 結果クリア
+                </button>
+            </div>
+
+            <!-- ステータス表示 -->
+            <div id="test-status">
+                <p><span class="status-indicator status-pending"></span>検証待機中...</p>
+            </div>
+        </div>
+
+        <!-- メトリクス表示 -->
+        <div class="metrics-display" id="metrics-display">
+            <div class="metric-card">
+                <div class="metric-value" id="total-runs">0</div>
+                <div>総実行回数</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="identical-runs">0</div>
+                <div>一致実行数</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="success-rate">0%</div>
+                <div>一致率</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="last-execution-time">-</div>
+                <div>最終実行時間</div>
+            </div>
+        </div>
+
+        <!-- 実行結果グリッド -->
+        <div class="results-grid" id="results-grid"></div>
+
+        <!-- 詳細ログ -->
+        <div class="log-area" id="log-area">監査ログが表示されます...\n</div>
+
+        <!-- 詳細シナリオ表示 -->
+        <div class="detailed-scenarios" id="detailed-scenarios">
+            <h3>📋 最新実行結果詳細</h3>
+            <div id="scenarios-display"></div>
+        </div>
+    </div>
+
+    <!-- SeedableRandom読み込み -->
+    <script src="./public/js/core/SeedableRandom.js"></script>
+    
+    <script>
+        // グローバル変数
+        let testResults = [];
+        let lastScenarios = null;
+        let totalRuns = 0;
+        let identicalRuns = 0;
+
+        // SHA-256ハッシュ計算関数
+        async function sha256Of(obj) {
+            const textEncoder = new TextEncoder();
+            const data = textEncoder.encode(JSON.stringify(obj, null, 0));
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+
+        // システム情報取得・表示
+        function displaySystemInfo() {
+            const systemInfo = {
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenResolution: `${screen.width}x${screen.height}`,
+                windowSize: `${window.innerWidth}x${window.innerHeight}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                appVersion: 'v4.3.1',
+                seedableRandomAvailable: typeof window.SeedableRandom !== 'undefined',
+                webCryptoAvailable: typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined'
+            };
+
+            const detailsDiv = document.getElementById('system-details');
+            detailsDiv.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
+                    <div><strong>タイムスタンプ:</strong> ${systemInfo.timestamp}</div>
+                    <div><strong>ブラウザ:</strong> ${getBrowserName()}</div>
+                    <div><strong>プラットフォーム:</strong> ${systemInfo.platform}</div>
+                    <div><strong>言語:</strong> ${systemInfo.language}</div>
+                    <div><strong>画面解像度:</strong> ${systemInfo.screenResolution}</div>
+                    <div><strong>タイムゾーン:</strong> ${systemInfo.timezone}</div>
+                    <div><strong>アプリバージョン:</strong> ${systemInfo.appVersion}</div>
+                    <div><strong>SeedableRandom:</strong> ${systemInfo.seedableRandomAvailable ? '✅ 利用可能' : '❌ 不可'}</div>
+                    <div><strong>WebCrypto:</strong> ${systemInfo.webCryptoAvailable ? '✅ 利用可能' : '❌ 不可'}</div>
+                </div>
+            `;
+
+            return systemInfo;
+        }
+
+        function getBrowserName() {
+            const userAgent = navigator.userAgent;
+            if (userAgent.includes('Chrome')) return 'Chrome';
+            if (userAgent.includes('Safari')) return 'Safari';
+            if (userAgent.includes('Firefox')) return 'Firefox';
+            if (userAgent.includes('Edge')) return 'Edge';
+            return 'Unknown';
+        }
+
+        // 8シナリオ生成（決定論的）
+        function generateEightScenariosDeterministic(inputText, seed = 12345) {
+            const rng = new window.SeedableRandom(seed);
+            const scenarios = [];
+
+            const scenarioTypes = [
+                '保守的', '革新的', '適応的', '変革的', 
+                '協調的', '独立的', '実用的', '理想的'
+            ];
+
+            for (let i = 0; i < 8; i++) {
+                const scenario = {
+                    id: i + 1,
+                    type: scenarioTypes[i],
+                    hexagram: rng.nextInt(1, 64),
+                    probability: rng.nextFloat(0.1, 0.9),
+                    score: rng.nextFloat(0.3, 1.0),
+                    description: `${scenarioTypes[i]}シナリオ: ${inputText}への対応`,
+                    metadata: {
+                        seed: seed,
+                        index: i,
+                        timestamp: Date.now()
+                    }
+                };
+                scenarios.push(scenario);
+            }
+
+            return scenarios;
+        }
+
+        // 単発テスト実行
+        async function runSingleTest() {
+            const inputText = document.getElementById('test-input').value.trim();
+            if (!inputText) {
+                logMessage('❌ 入力テキストが空です');
+                return;
+            }
+
+            updateStatus('⚡ 単発テスト実行中...', 'pending');
+            logMessage(`🚀 単発テスト開始: "${inputText}"`);
+
+            try {
+                const scenarios = generateEightScenariosDeterministic(inputText, 12345);
+                const hash = await sha256Of(scenarios);
+                
+                lastScenarios = scenarios;
+                displayDetailedScenarios(scenarios);
+                
+                logMessage(`✅ 8シナリオ生成完了`);
+                logMessage(`📊 ハッシュ: ${hash}`);
+                updateStatus('✅ 単発テスト完了', 'pass');
+
+            } catch (error) {
+                logMessage(`❌ エラー: ${error.message}`);
+                updateStatus('❌ 単発テスト失敗', 'fail');
+            }
+        }
+
+        // 5連一致テスト実行
+        async function runDeterminismTest() {
+            const inputText = document.getElementById('test-input').value.trim();
+            if (!inputText) {
+                logMessage('❌ 入力テキストが空です');
+                return;
+            }
+
+            clearResults();
+            updateStatus('🔬 5連一致テスト実行中...', 'pending');
+            logMessage(`🚀 決定論性検証開始: "${inputText}"`);
+            
+            const testRunId = `test_${Date.now()}`;
+            const runs = [];
+            const SEED = 12345;
+
+            try {
+                // 5回連続実行
+                for (let i = 0; i < 5; i++) {
+                    logMessage(`  実行 ${i + 1}/5...`);
+                    
+                    const startTime = performance.now();
+                    const scenarios = generateEightScenariosDeterministic(inputText, SEED);
+                    const endTime = performance.now();
+                    const hash = await sha256Of(scenarios);
+                    
+                    const runResult = {
+                        runNumber: i + 1,
+                        scenarios: scenarios,
+                        hash: hash,
+                        executionTime: Math.round(endTime - startTime),
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    runs.push(runResult);
+                    logMessage(`    ハッシュ: ${hash}`);
+                    logMessage(`    実行時間: ${runResult.executionTime}ms`);
+                }
+
+                // 結果分析
+                const firstHash = runs[0].hash;
+                const allIdentical = runs.every(run => run.hash === firstHash);
+                
+                totalRuns += 5;
+                if (allIdentical) identicalRuns += 5;
+
+                // 結果記録
+                const testResult = {
+                    testRunId: testRunId,
+                    inputText: inputText,
+                    seed: SEED,
+                    runs: runs,
+                    allIdentical: allIdentical,
+                    firstHash: firstHash,
+                    timestamp: new Date().toISOString(),
+                    systemInfo: displaySystemInfo()
+                };
+
+                testResults.push(testResult);
+                lastScenarios = runs[0].scenarios;
+
+                // UI更新
+                displayRunResults(runs, allIdentical);
+                displayDetailedScenarios(lastScenarios);
+                updateMetrics();
+
+                // 結果ログ
+                if (allIdentical) {
+                    logMessage(`✅ SUCCESS: 5回すべて完全一致`);
+                    logMessage(`🎯 決定論性確認: PASS`);
+                    updateStatus('✅ 決定論性確認: PASS', 'pass');
+                } else {
+                    logMessage(`❌ FAILED: 実行結果に不一致あり`);
+                    logMessage(`🚨 決定論性確認: FAIL`);
+                    updateStatus('❌ 決定論性確認: FAIL', 'fail');
+                    
+                    // 不一致詳細
+                    runs.forEach((run, index) => {
+                        const isIdentical = run.hash === firstHash;
+                        logMessage(`  実行${index + 1}: ${isIdentical ? '一致' : '不一致'}`);
+                    });
+                }
+
+            } catch (error) {
+                logMessage(`❌ テスト実行エラー: ${error.message}`);
+                updateStatus('❌ テスト実行エラー', 'fail');
+            }
+        }
+
+        // 実行結果表示
+        function displayRunResults(runs, allIdentical) {
+            const grid = document.getElementById('results-grid');
+            const firstHash = runs[0].hash;
+            
+            grid.innerHTML = '';
+            
+            runs.forEach((run, index) => {
+                const isIdentical = run.hash === firstHash;
+                const div = document.createElement('div');
+                div.className = `run-result ${isIdentical ? 'run-identical' : 'run-different'}`;
+                
+                div.innerHTML = `
+                    <h4>実行 ${run.runNumber} ${isIdentical ? '✅' : '❌'}</h4>
+                    <div><strong>実行時間:</strong> ${run.executionTime}ms</div>
+                    <div><strong>シナリオ数:</strong> ${run.scenarios.length}</div>
+                    <div class="hash-display">
+                        <strong>SHA-256:</strong><br>
+                        ${run.hash}
+                    </div>
+                    <div><strong>タイムスタンプ:</strong> ${new Date(run.timestamp).toLocaleTimeString()}</div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        // 詳細シナリオ表示
+        function displayDetailedScenarios(scenarios) {
+            const display = document.getElementById('scenarios-display');
+            display.innerHTML = '';
+            
+            scenarios.forEach(scenario => {
+                const div = document.createElement('div');
+                div.className = 'scenario-card';
+                div.innerHTML = `
+                    <h4>シナリオ ${scenario.id}: ${scenario.type}</h4>
+                    <div><strong>卦:</strong> ${scenario.hexagram}番</div>
+                    <div><strong>確率:</strong> ${(scenario.probability * 100).toFixed(1)}%</div>
+                    <div><strong>スコア:</strong> ${scenario.score.toFixed(3)}</div>
+                    <div><strong>説明:</strong> ${scenario.description}</div>
+                `;
+                display.appendChild(div);
+            });
+        }
+
+        // メトリクス更新
+        function updateMetrics() {
+            document.getElementById('total-runs').textContent = totalRuns;
+            document.getElementById('identical-runs').textContent = identicalRuns;
+            document.getElementById('success-rate').textContent = 
+                totalRuns > 0 ? `${Math.round(identicalRuns / totalRuns * 100)}%` : '0%';
+            document.getElementById('last-execution-time').textContent = 
+                new Date().toLocaleTimeString();
+        }
+
+        // ステータス更新
+        function updateStatus(message, type) {
+            const statusDiv = document.getElementById('test-status');
+            const indicator = statusDiv.querySelector('.status-indicator');
+            
+            indicator.className = `status-indicator status-${type}`;
+            statusDiv.innerHTML = `<p><span class="status-indicator status-${type}"></span>${message}</p>`;
+        }
+
+        // ログメッセージ追加
+        function logMessage(message) {
+            const logArea = document.getElementById('log-area');
+            const timestamp = new Date().toISOString();
+            logArea.textContent += `[${timestamp}] ${message}\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // 結果クリア
+        function clearResults() {
+            document.getElementById('results-grid').innerHTML = '';
+            document.getElementById('scenarios-display').innerHTML = '';
+            document.getElementById('log-area').textContent = '監査ログが表示されます...\n';
+        }
+
+        // 監査証跡エクスポート
+        function exportResults() {
+            if (testResults.length === 0) {
+                logMessage('❌ エクスポート可能な結果がありません');
+                return;
+            }
+
+            const exportData = {
+                exportTimestamp: new Date().toISOString(),
+                appVersion: 'v4.3.1',
+                systemInfo: displaySystemInfo(),
+                summary: {
+                    totalTests: testResults.length,
+                    totalRuns: totalRuns,
+                    identicalRuns: identicalRuns,
+                    successRate: totalRuns > 0 ? Math.round(identicalRuns / totalRuns * 100) : 0
+                },
+                testResults: testResults
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `HAQEI_v4.3.1_決定論性検証証跡_${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            logMessage(`📄 監査証跡エクスポート完了: ${a.download}`);
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            displaySystemInfo();
+            logMessage('🚀 HAQEI v4.3.1 決定論性検証ハーネス起動完了');
+            
+            if (typeof window.SeedableRandom === 'undefined') {
+                logMessage('❌ SeedableRandomが利用できません');
+                updateStatus('❌ SeedableRandom未利用', 'fail');
+            } else {
+                logMessage('✅ SeedableRandom利用可能');
+                updateStatus('✅ システム準備完了', 'pass');
+            }
+        });
+    </script>
+</body>
+</html>

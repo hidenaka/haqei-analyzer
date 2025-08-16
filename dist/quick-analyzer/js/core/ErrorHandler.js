@@ -196,7 +196,7 @@ class ErrorHandler {
    * @returns {string}
    */
   generateErrorId() {
-    return `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `err_${Date.now()}_${Date.now().toString(36).substr(-9)}`;
   }
 
   /**
@@ -207,7 +207,7 @@ class ErrorHandler {
     // セッションストレージからユーザーIDを取得、なければ生成
     let userId = sessionStorage.getItem('haqei_user_id');
     if (!userId) {
-      userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      userId = `user_${Date.now()}_${Date.now().toString(36).substr(-9)}`;
       sessionStorage.setItem('haqei_user_id', userId);
     }
     return userId;
@@ -221,7 +221,7 @@ class ErrorHandler {
     // セッションストレージからセッションIDを取得、なければ生成
     let sessionId = sessionStorage.getItem('haqei_session_id');
     if (!sessionId) {
-      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      sessionId = `session_${Date.now()}_${Date.now().toString(36).substr(-9)}`;
       sessionStorage.setItem('haqei_session_id', sessionId);
     }
     return sessionId;

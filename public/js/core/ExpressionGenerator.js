@@ -8,8 +8,14 @@
     'use strict';
 
     class ExpressionGenerator {
-        constructor() {
-            this.version = '1.0';
+        constructor(options = {}) {
+            
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || {
+        next: () => Math.random(),
+        random: () => Math.random()
+    };
+    this.version = '1.0';
             console.log('📝 ExpressionGenerator v1.0 initialized');
             
             // メモ化キャッシュ
@@ -90,7 +96,7 @@
                 
                 const templates = pairTemplates[pairKey];
                 if (templates && templates.length > 0) {
-                    const result = templates[Math.floor(Math.random() * templates.length)];
+                    const result = templates[Math.floor(this.rng.next() * templates.length)];
                     
                     // キャッシュ管理
                     if (this._expressionCache.size > this._MAX_CACHE_SIZE) {
@@ -117,8 +123,8 @@
                 const bunjin1 = this.getOSBunjinCharacteristics(os1Type);
                 const bunjin2 = this.getOSBunjinCharacteristics(os2Type);
                 
-                const bunjinName1 = bunjin1.bunjinNames[Math.floor(Math.random() * bunjin1.bunjinNames.length)];
-                const bunjinName2 = bunjin2.bunjinNames[Math.floor(Math.random() * bunjin2.bunjinNames.length)];
+                const bunjinName1 = bunjin1.bunjinNames[Math.floor(this.rng.next() * bunjin1.bunjinNames.length)];
+                const bunjinName2 = bunjin2.bunjinNames[Math.floor(this.rng.next() * bunjin2.bunjinNames.length)];
                 
                 // 1. OSペア固有テンプレート（最優先）
                 const pairSpecificExpression = this.generateOSPairSpecificExpression(os1Type, os2Type, bunjinName1, bunjinName2);

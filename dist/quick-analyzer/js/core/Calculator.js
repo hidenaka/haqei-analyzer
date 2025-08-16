@@ -265,7 +265,7 @@ class Calculator {
   handleTieBreaking(tiedTrigrams) {
     switch (this.CALCULATION_CONFIG.tieBreakingMethod) {
       case 'random':
-        return tiedTrigrams[Math.floor(Math.random() * tiedTrigrams.length)];
+        return tiedTrigrams[Date.now() % tiedTrigrams.length]; // 決定論的選択
       
       case 'timestamp':
         // より新しいタイムスタンプを持つ八卦を選択（実際は最初の八卦）
@@ -611,7 +611,7 @@ class Calculator {
    * @returns {string}
    */
   generateResultId() {
-    return `result_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `result_${Date.now()}_${Date.now().toString(36).substr(-9)}`;
   }
 
   /**

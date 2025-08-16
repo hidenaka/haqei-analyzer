@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Future Simulator 最小動作テスト</title>
+    <meta charset="UTF-8">
+    <style>
+        body { margin: 20px; font-family: sans-serif; }
+        .test-area { padding: 20px; border: 2px solid #007bff; margin: 20px 0; }
+        textarea { width: 100%; height: 60px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        #results { margin-top: 20px; padding: 20px; background: #f0f0f0; min-height: 100px; }
+        .scenario { margin: 10px 0; padding: 10px; background: white; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Future Simulator 最小動作テスト</h1>
+    
+    <div class="test-area">
+        <h2>実際のFuture Simulatorと同じ構造</h2>
+        <textarea id="worryInput" placeholder="10文字以上入力してください">転職を検討していますが、タイミングが分からず悩んでいます</textarea>
+        <br><br>
+        <button id="aiGuessBtn">分析開始</button>
+        
+        <div id="resultsContainer" style="display: none;">
+            <h3>分析結果</h3>
+            <div id="results"></div>
+        </div>
+    </div>
+    
+    <div id="log" style="background: #000; color: #0f0; padding: 10px; font-family: monospace; white-space: pre;"></div>
+    
+    <script>
+        function log(msg) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+            logDiv.textContent += `[${timestamp}] ${msg}\n`;
+            console.log(msg);
+        }
+        
+        log('ページ読み込み完了');
+        
+        // 簡易版の8シナリオ生成
+        function generateSimpleScenarios(inputText) {
+            log(`8シナリオ生成開始: "${inputText}"`);
+            
+            const scenarios = [
+                { id: 1, title: '積極的行動', description: 'リスクを取って前進する', probability: 0.8 },
+                { id: 2, title: '慎重検討', description: '情報収集を重視する', probability: 0.7 },
+                { id: 3, title: '協力依頼', description: '周囲の支援を求める', probability: 0.6 },
+                { id: 4, title: '現状維持', description: '様子を見る', probability: 0.5 },
+                { id: 5, title: '部分的変更', description: '小さな変化から始める', probability: 0.75 },
+                { id: 6, title: '全面改革', description: '大胆な転換を図る', probability: 0.4 },
+                { id: 7, title: '内省重視', description: '自己理解を深める', probability: 0.65 },
+                { id: 8, title: '外部委託', description: '専門家に相談する', probability: 0.55 }
+            ];
+            
+            log(`8シナリオ生成完了`);
+            return scenarios;
+        }
+        
+        // 結果表示
+        function displayResults(scenarios) {
+            log('結果表示開始');
+            
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsDiv = document.getElementById('results');
+            
+            resultsContainer.style.display = 'block';
+            
+            let html = '';
+            scenarios.forEach(scenario => {
+                html += `
+                    <div class="scenario">
+                        <strong>シナリオ${scenario.id}: ${scenario.title}</strong><br>
+                        ${scenario.description}<br>
+                        確率: ${(scenario.probability * 100).toFixed(0)}%
+                    </div>
+                `;
+            });
+            
+            resultsDiv.innerHTML = html;
+            log('結果表示完了');
+        }
+        
+        // analyzeWorry関数（Future Simulatorと同じ名前）
+        function analyzeWorry(inputText) {
+            log(`analyzeWorry呼び出し: "${inputText}"`);
+            
+            try {
+                // 8シナリオ生成
+                const scenarios = generateSimpleScenarios(inputText);
+                
+                // 結果表示
+                displayResults(scenarios);
+                
+                log('分析完了');
+                return true;
+                
+            } catch (error) {
+                log(`エラー発生: ${error.message}`);
+                return false;
+            }
+        }
+        
+        // イベントリスナー設定
+        document.addEventListener('DOMContentLoaded', () => {
+            log('DOM準備完了');
+            
+            const aiGuessBtn = document.getElementById('aiGuessBtn');
+            const worryInput = document.getElementById('worryInput');
+            
+            if (aiGuessBtn && worryInput) {
+                aiGuessBtn.addEventListener('click', () => {
+                    const inputText = worryInput.value.trim();
+                    log(`ボタンクリック: "${inputText}" (${inputText.length}文字)`);
+                    
+                    if (inputText && inputText.length >= 10) {
+                        analyzeWorry(inputText);
+                    } else {
+                        log('入力が短すぎます（10文字以上必要）');
+                        alert('10文字以上のテキストを入力してください');
+                    }
+                });
+                
+                log('イベントリスナー設定完了');
+            } else {
+                log('ERROR: 必要な要素が見つかりません');
+            }
+        });
+    </script>
+</body>
+</html>

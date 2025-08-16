@@ -1,0 +1,72 @@
+{
+  "timestamp": "2025-08-14T02:50:17.521Z",
+  "testSuite": "OS Analyzer Functionality Test",
+  "tests": [
+    {
+      "name": "Page Load & Basic Structure",
+      "status": "passed",
+      "details": "Page loaded in 1661ms, title: \"HaQei - Triple OS仮想人格生成システム | HaQei哲学による戦略的自己表現ツール\", status: 200",
+      "data": {
+        "loadTime": 1661,
+        "title": "HaQei - Triple OS仮想人格生成システム | HaQei哲学による戦略的自己表現ツール",
+        "status": 200,
+        "hasMainContainer": true
+      },
+      "timestamp": "2025-08-14T02:50:25.973Z"
+    },
+    {
+      "name": "Triple OS Components Display",
+      "status": "passed",
+      "details": "Triple OS components visible: 3/4, Start button: false",
+      "data": {
+        "engineOS": true,
+        "interfaceOS": true,
+        "safeModeOS": true,
+        "startButton": false
+      },
+      "timestamp": "2025-08-14T02:50:25.994Z"
+    },
+    {
+      "name": "Question Flow Initiation",
+      "status": "warning",
+      "details": "Question flow started: question=false, choices=false",
+      "data": {
+        "questionVisible": false,
+        "choicesVisible": false,
+        "totalChoices": 0
+      },
+      "timestamp": "2025-08-14T02:50:29.107Z"
+    },
+    {
+      "name": "Data Integrity (64 Hexagrams)",
+      "status": "warning",
+      "details": "Database loaded: false, Hexagram count: 0",
+      "data": {
+        "databaseLoaded": false,
+        "hexagramCount": 0,
+        "expectedCount": 64
+      },
+      "timestamp": "2025-08-14T02:50:29.114Z"
+    },
+    {
+      "name": "Analysis Logic Functions",
+      "status": "passed",
+      "details": "Analysis functions found: 1/4",
+      "data": {
+        "TripleOSInteractionAnalyzer": true
+      },
+      "timestamp": "2025-08-14T02:50:29.115Z"
+    },
+    {
+      "name": "Responsive Design",
+      "status": "failed",
+      "details": "page.evaluate: SyntaxError: Failed to execute 'querySelectorAll' on 'Document': 'button:visible' is not a valid selector.\n    at eval (eval at evaluate (:291:30), <anonymous>:4:39)\n    at UtilityScript.evaluate (<anonymous>:293:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "timestamp": "2025-08-14T02:50:30.175Z"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 1,
+    "warnings": 2
+  }
+}

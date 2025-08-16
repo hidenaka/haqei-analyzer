@@ -308,7 +308,11 @@ class HeroGenerator {
  */
 class SwitchLensCalculator {
     constructor(baseScores = null) {
-        this.baseScores = baseScores;
+        
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.baseScores = baseScores;
         
         // 係数行列（v2.1仕様準拠）
         this.matrix = [
@@ -546,7 +550,7 @@ class PayloadGenerator {
     
     generateUUID() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            const r = Math.random() * 16 | 0;
+            const r = this.rng.next() * 16 | 0;
             const v = c === 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
@@ -554,7 +558,7 @@ class PayloadGenerator {
     
     hashUserId() {
         // 簡略版：実際にはSHA256等を使用
-        return 'user_' + Math.random().toString(36).substr(2, 9);
+        return 'user_' + this.rng.next().toString(36).substr(2, 9);
     }
     
     generateChecksum(data) {
