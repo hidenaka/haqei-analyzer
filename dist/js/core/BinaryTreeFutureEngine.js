@@ -1440,8 +1440,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Node.js環境対応
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = BinaryTreeFutureEngine;
-}
+// グローバル公開
+window.BinaryTreeFutureEngine = BinaryTreeFutureEngine;
 
 console.log('🌳 BinaryTreeFutureEngine.js loaded successfully - 二分木型仮想螺旋統合段階的分岐システム');

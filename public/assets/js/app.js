@@ -95,10 +95,25 @@ function createFallbackElements() {
 function setupEventHandlers() {
     const startBtn = document.getElementById('start-btn');
     if (startBtn) {
-        startBtn.addEventListener('click', handleStartAnalysis, { once: false });
-        console.log('✅ Start button event handler attached');
+        // 重複バインド防止：既存のイベントリスナーをチェック
+        if (!startBtn.hasAttribute('data-app-handler-bound')) {
+            startBtn.addEventListener('click', handleStartAnalysis, { once: false });
+            startBtn.setAttribute('data-app-handler-bound', 'true');
+            console.log('✅ Start button event handler attached (app.js)');
+        } else {
+            console.log('ℹ️ Start button handler already bound, skipping (app.js)');
+        }
     } else {
         console.warn('⚠️ Start button not found');
+        // エラー画面を非表示にして、ウェルカム画面を表示
+        const errorContainer = document.getElementById('error-container');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        if (errorContainer) {
+            errorContainer.style.display = 'none';
+        }
+        if (welcomeScreen) {
+            welcomeScreen.style.display = 'block';
+        }
     }
     
     // Setup navigation handlers
@@ -460,7 +475,10 @@ window.selectAnswer = selectAnswer;
 
 /**
  * Display a specific question from the 36-question system
+ * DISABLED: This function conflicts with QuestionManager.displayQuestion
+ * QuestionManager provides the modern UI with option-label styling
  */
+/*
 function displayQuestion(questionIndex) {
     console.log(`🚀 [NEW SYSTEM] displayQuestion called with index: ${questionIndex}`);
     currentQuestionIndex = questionIndex;
@@ -528,6 +546,7 @@ function displayQuestion(questionIndex) {
     
     console.log(`✅ [NEW SYSTEM] Question ${questionIndex + 1}/${totalQuestions} fully displayed and setup complete`);
 }
+*/
 
 /**
  * Setup navigation handlers for questions
@@ -567,11 +586,17 @@ function setupQuestionNavigation(questionIndex) {
     // Next button handler
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
-            if (questionIndex + 1 < window.QUESTIONS.length) {
-                displayQuestion(questionIndex + 1);
+            // QuestionManagerを優先使用
+            if (window.QuestionManager && window.QuestionManager.handleNextButtonClick) {
+                window.QuestionManager.handleNextButtonClick();
             } else {
-                // All questions completed, start analysis
-                startAnalysis();
+                // フォールバック: 元の実装
+                if (questionIndex + 1 < window.QUESTIONS.length) {
+                    displayQuestion(questionIndex + 1);
+                } else {
+                    // All questions completed, start analysis
+                    startAnalysis();
+                }
             }
         });
     }
@@ -1067,13 +1092,12 @@ window.runBasicAnalysis = function() {
 window.HaqeiApp = {
     waitForDatasets,
     showFirstQuestion,
-    displayQuestion,
     selectAnswer,
     startAnalysis,
     runBasicAnalysis: window.runBasicAnalysis
 };
 
 // Export essential functions globally for HTML event handlers
-window.displayQuestion = displayQuestion;
+// Note: displayQuestion is provided by QuestionManager
 window.selectAnswer = selectAnswer;
 window.startAnalysis = startAnalysis;

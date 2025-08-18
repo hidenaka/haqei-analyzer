@@ -873,8 +873,7 @@ if (typeof window !== 'undefined') {
 }
 
 // Node.js環境対応
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = DataPersistenceManager;
-}
+// グローバル公開
+window.DataPersistenceManager = DataPersistenceManager;
 
 console.log("🧠 DataPersistenceManager.js読み込み完了 - HaQei哲学完全対応IndexedDBシステム");

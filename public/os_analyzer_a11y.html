@@ -134,14 +134,20 @@
     <script src="lib/chart.min.js"></script>
     <script src="js/StatisticalValidator.js"></script>
     <script src="js/VirtualPersonaDialogue.js"></script>
-    <script src="js/VirtualPersonaEnhancer.js"></script>
+    <script src="js/persona-enhancer/VirtualPersonaEnhancer.js"></script>
     <script src="assets/H384H64database.js"></script>
     <script src="js/core/ExpressionGenerator.js"></script>
     <script src="js/core/KeywordAnalyzer.js"></script>
     <script src="js/core/PatternMapper.js"></script>
     <script src="js/result-visualizer.js"></script>
     <script src="assets/js/questions-full.js"></script>
-    <script src="js/os-analyzer-main.js" defer></script>
+    <script src="js/os-analyzer/os-analyzer-main.js" defer></script>
     <script src="js/event-handlers.js" defer></script>
+
+    <!-- Live Region for announcements -->
+    <div id="announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Error Message Container -->
+    <div id="error-container" class="error-container" role="dialog" aria-modal="true" aria-labelledby="error-title" aria-describedby="error-description"></div>
 </body>
 </html>

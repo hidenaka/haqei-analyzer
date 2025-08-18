@@ -199,6 +199,7 @@ const errorHandler = new ComprehensiveErrorHandler();
 // グローバルアクセス用
 window.errorHandler = errorHandler;
 
-export { ComprehensiveErrorHandler };
+// グローバル公開
+window.ComprehensiveErrorHandler = ComprehensiveErrorHandler;
 
 console.log('✅ Error Handler Module loaded');

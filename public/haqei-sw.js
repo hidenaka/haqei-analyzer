@@ -32,15 +32,6 @@ const CRITICAL_RESOURCES = [
   '/future_simulator.html',
   '/cockpit.html',
   '/library.html',
-  '/js/shared/core/BaseComponent.js',
-  '/js/shared/core/MicroStorageManager.js',
-  '/js/shared/core/BridgeStorageManager.js',
-  '/js/shared/core/MicroDataManager.js',
-  '/assets/js/questions-full.js',
-  '/js/os-analyzer/components/WelcomeScreen.js',
-  '/js/os-analyzer/components/HaqeiQuestionElement.js',
-  '/js/os-analyzer/components/VirtualQuestionFlow.js',
-  '/js/os-analyzer/core/PrecompiledQuestions.js',
   '/js/core/DictionaryManager.js',
   '/js/app.js'
 ];
@@ -81,13 +72,7 @@ const KUROMOJI_RESOURCES = [
   'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js'
 ];
 
-// Import dictionary cache strategy
-try {
-  importScripts('./js/core/DictionaryCacheStrategy.js');
-  console.log('📚 Dictionary cache strategy loaded');
-} catch (error) {
-  console.warn('⚠️ Dictionary cache strategy not available:', error.message);
-}
+// Dictionary cache strategy removed - file not found
 
 // ネットワーク優先リソース
 const NETWORK_FIRST_RESOURCES = [

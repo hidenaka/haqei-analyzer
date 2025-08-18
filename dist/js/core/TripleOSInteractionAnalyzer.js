@@ -4,23 +4,44 @@
  * 変化は扱わない、型と相互作用による豊かさの言語化に集中
  */
 
-(function(global) {
-    'use strict';
+'use strict';
 
-    class TripleOSInteractionAnalyzer {
+class TripleOSInteractionAnalyzer {
         constructor(options = {}) {
+            const t0 = performance.now();
             // v4.3.1 決定論的要件: SeedableRandom統合
-            this.rng = options.randomnessManager || window.randomnessManager || {
-                next: () => Math.random(),
-                random: () => Math.random()
-            };
+            try {
+                this.rng = options.randomnessManager || window.randomnessManager || {
+                    next: () => Math.random(),
+                    random: () => Math.random()
+                };
+            } catch (e) {
+                console.error('RNG initialization error:', e);
+                this.rng = { next: Math.random, random: Math.random };
+            }
+
+            
             try {
                 this.version = '1.2'; // リファクタリング版
                 console.log('🔮 TripleOSInteractionAnalyzer v1.2 (refactored) initialized');
                 
                 // 専門クラスの初期化
+                try {
                 this.expressionGenerator = typeof ExpressionGenerator !== 'undefined' ? new ExpressionGenerator(options) : null;
-                this.keywordAnalyzer = typeof KeywordAnalyzer !== 'undefined' ? new KeywordAnalyzer() : null;
+            } catch (e) {
+                console.error('ExpressionGenerator initialization error:', e);
+                this.expressionGenerator = { 
+                    generate(){ return '分析情報'; },
+                    _getFallbackExpression(){ return '分析情報'; }
+                };
+            }
+                
+                try {
+                    this.keywordAnalyzer = typeof KeywordAnalyzer !== 'undefined' ? new KeywordAnalyzer() : null;
+                } catch (e) {
+                    console.error('KeywordAnalyzer initialization error:', e);
+                    this.keywordAnalyzer = { analyze(){ return []; } };
+                }
                 
                 // メモ化キャッシュの初期化
                 this._synergyCache = new Map();
@@ -31,11 +52,20 @@
                 this._hexagramCharCache = new Map();
                 this._MAX_CACHE_SIZE = 200; // キャッシュサイズ上限
                 
-                // 64卦の相互作用パターンDB
-                this.interactionPatterns = this.initializeInteractionPatterns();
+                try {
+                    // 64卦の相互作用パターンDB
+                    this.interactionPatterns = this.initializeInteractionPatterns();
+                    
+                    // 64卦の特徴データ
+                    this.hexagramCharacteristics = this.loadHexagramCharacteristics();
+                } catch (e) {
+                    console.error('Data initialization error:', e);
+                    this.interactionPatterns = {};
+                    this.hexagramCharacteristics = {};
+                    this._initializeFallbackData();
+                }
                 
-                // 64卦の特徴データ
-                this.hexagramCharacteristics = this.loadHexagramCharacteristics();
+                console.log('[TripleOSInteractionAnalyzer] init(ms)=', Math.round(performance.now()-t0));
             } catch (error) {
                 console.error('❌ TripleOSInteractionAnalyzer initialization error:', error);
                 // フォールバック初期化
@@ -2526,10 +2556,4 @@
     }
 
     // グローバル公開
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = TripleOSInteractionAnalyzer;
-    } else {
-        global.TripleOSInteractionAnalyzer = TripleOSInteractionAnalyzer;
-    }
-
-})(typeof window !== 'undefined' ? window : global);
+    window.TripleOSInteractionAnalyzer = TripleOSInteractionAnalyzer;

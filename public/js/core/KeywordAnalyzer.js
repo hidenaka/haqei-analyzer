@@ -4,8 +4,7 @@
  * 12軸キーワードシステムによる衝突検出
  */
 
-(function(global) {
-    'use strict';
+'use strict';
 
     class KeywordAnalyzer {
         constructor() {
@@ -220,10 +219,4 @@
     }
     
     // グローバル公開
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = KeywordAnalyzer;
-    } else {
-        global.KeywordAnalyzer = KeywordAnalyzer;
-    }
-    
-})(typeof window !== 'undefined' ? window : global);
+    window.KeywordAnalyzer = KeywordAnalyzer;

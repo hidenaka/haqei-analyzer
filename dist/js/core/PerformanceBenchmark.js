@@ -682,10 +682,6 @@ if (typeof window !== 'undefined') {
   window.ComponentBenchmark = ComponentBenchmark;
 }
 
-// ES6モジュールエクスポート
-export { 
-  PerformanceMeasurer,
-  ComponentBenchmark
-};
+// グローバル公開済み
 
 console.log('✅ Performance Benchmark System v4.3.0 loaded');

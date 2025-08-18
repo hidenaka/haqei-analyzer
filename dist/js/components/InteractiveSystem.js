@@ -770,4 +770,5 @@ class InteractiveSystem extends BaseComponent {
     }
 }
 
-export default InteractiveSystem;
+// グローバル公開
+window.InteractiveSystem = InteractiveSystem;

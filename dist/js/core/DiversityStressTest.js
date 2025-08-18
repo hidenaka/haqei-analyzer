@@ -755,10 +755,4 @@ if (typeof window !== 'undefined') {
   window.DiversityStressTestRunner = DiversityStressTestRunner;
 }
 
-// ES6モジュールエクスポート
-export { 
-  EnhancedDiversitySelector,
-  DiversityStressTestRunner
-};
-
 console.log('✅ Diversity Stress Test System v4.3.0 loaded');

@@ -307,6 +307,5 @@ if (typeof window !== 'undefined') {
     }
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = DynamicScenarioColorSystem;
-}
+// グローバル公開
+window.DynamicScenarioColorSystem = DynamicScenarioColorSystem;

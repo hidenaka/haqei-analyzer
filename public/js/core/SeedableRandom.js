@@ -369,11 +369,9 @@ if (typeof window !== 'undefined') {
   window.randomnessManager = randomnessManager;
 }
 
-// ES6モジュールエクスポート
-export { 
-  SeedableRandom, 
-  RandomnessManager,
-  randomnessManager
-};
+// グローバル公開
+window.SeedableRandom = SeedableRandom;
+window.RandomnessManager = RandomnessManager;
+window.randomnessManager = randomnessManager;
 
 console.log('✅ SeedableRandom v4.3.0 loaded');

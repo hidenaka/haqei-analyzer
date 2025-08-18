@@ -512,7 +512,4 @@ if (typeof window !== 'undefined') {
   window.ContextAwarePrimaryLineSelector = ContextAwarePrimaryLineSelector;
 }
 
-// ES6モジュールエクスポート
-export { ContextTypeSystem, ContextAwarePrimaryLineSelector };
-
 console.log('✅ Context Type Safety System v4.3.0 loaded');

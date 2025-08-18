@@ -512,11 +512,6 @@ if (typeof window !== 'undefined') {
   window.YongRealTimeMonitor = YongRealTimeMonitor;
 }
 
-// ES6モジュールエクスポート
-export { 
-  YongProbabilityCalculator, 
-  YongTelemetryCollector,
-  YongRealTimeMonitor
-};
+// グローバル公開済み
 
 console.log('✅ Yong Probability Monitor v4.3.0 loaded');

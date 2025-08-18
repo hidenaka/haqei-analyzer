@@ -585,8 +585,7 @@ if (typeof window !== 'undefined') {
   window.IChingTransformationEngine = IChingTransformationEngine;
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = IChingTransformationEngine;
-}
+// グローバル公開
+window.IChingTransformationEngine = IChingTransformationEngine;
 
 console.log("🌟 IChingTransformationEngine.js 読み込み完了 - 世界最高水準の易経AI実装");

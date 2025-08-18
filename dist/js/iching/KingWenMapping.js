@@ -5,7 +5,7 @@
 
 import { ConfigLoader } from '../../../config/config-loader-adapter.js';
 
-export class KingWenMapping {
+class KingWenMapping {
     constructor() {
         this.hexagramData = null;
         this.reverseMap = new Map();

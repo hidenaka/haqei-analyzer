@@ -5,7 +5,7 @@
  * 監査強化：0-1正規化の一貫性を物理的に保証
  */
 
-export class ScaleGuard {
+class ScaleGuard {
   constructor() {
     this.SCALE_MIN = 0.0;
     this.SCALE_MAX = 1.0;
@@ -116,7 +116,7 @@ export class ScaleGuard {
 /**
  * スケール違反専用エラークラス
  */
-export class ScaleViolationError extends Error {
+class ScaleViolationError extends Error {
   constructor(message, details = {}) {
     super(message);
     this.name = 'ScaleViolationError';
@@ -126,7 +126,7 @@ export class ScaleViolationError extends Error {
 }
 
 // シングルトンインスタンス
-export const scaleGuard = new ScaleGuard();
+const scaleGuard = new ScaleGuard();
 
 /**
  * 便利関数：寄与度計算の入り口で必ずスケールチェック
@@ -134,7 +134,7 @@ export const scaleGuard = new ScaleGuard();
  * @param {string} source - 計算元の識別子
  * @returns {Object} 検証済み寄与度
  */
-export function guaranteeScaledContributions(rawContributions, source = 'unknown') {
+function guaranteeScaledContributions(rawContributions, source = 'unknown') {
   return scaleGuard.enforceContributions(rawContributions, `explainability.${source}`);
 }
 
@@ -143,7 +143,7 @@ export function guaranteeScaledContributions(rawContributions, source = 'unknown
  * @param {any} value - チェック対象
  * @returns {boolean} スケール済みかどうか
  */
-export function isScaled(value) {
+function isScaled(value) {
   try {
     scaleGuard.enforceScaled(value);
     return true;
@@ -151,3 +151,10 @@ export function isScaled(value) {
     return false;
   }
 }
+
+// グローバル公開
+window.ScaleGuard = ScaleGuard;
+window.ScaleViolationError = ScaleViolationError;
+window.scaleGuard = scaleGuard;
+window.guaranteeScaledContributions = guaranteeScaledContributions;
+window.isScaled = isScaled;

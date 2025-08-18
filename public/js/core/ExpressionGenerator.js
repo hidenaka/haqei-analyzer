@@ -4,23 +4,111 @@
  * 平野思想（分人概念）に基づく個人内側面の表現生成
  */
 
-(function(global) {
-    'use strict';
+'use strict';
 
     class ExpressionGenerator {
         constructor(options = {}) {
+            const t0 = performance.now();
+            try {
+                // v4.3.1 決定論的要件: SeedableRandom統合
+                this.rng = options.randomnessManager || window.randomnessManager || {
+                    next: () => Math.random(),
+                    random: () => Math.random()
+                };
+                this.version = '1.0';
+                console.log('📝 ExpressionGenerator v1.0 initialized');
+                
+                // メモ化キャッシュ
+                this._expressionCache = new Map();
+                this._MAX_CACHE_SIZE = 100;
+                
+                console.log('[ExpressionGenerator] init(ms)=', Math.round(performance.now()-t0));
+            } catch (e) {
+                console.error('ExpressionGenerator initialization error:', e);
+                this.rng = { next: Math.random, random: Math.random };
+                this.version = '0.9';
+                this._expressionCache = new Map();
+            }
+        }
+        
+        /**
+         * 表現生成のメインメソッド
+         * @param {string} type - 生成する表現のタイプ
+         * @param {Object} data - 表現生成に使用するデータ
+         * @returns {string} - 生成された表現
+         */
+        generate(type, data) {
+            try {
+                return this._generateExpression(type, data);
+            } catch (e) {
+                console.error(`ExpressionGenerator error(${type})`, e);
+                return this._getFallbackExpression(type);
+            }
+        }
+        
+        /**
+         * 内部表現生成メソッド
+         * @private
+         */
+        _generateExpression(type, data) {
+            // キャッシュキーの生成
+            const cacheKey = `${type}:${JSON.stringify(data)}`;
             
-    // v4.3.1 決定論的要件: SeedableRandom統合
-    this.rng = options.randomnessManager || window.randomnessManager || {
-        next: () => Math.random(),
-        random: () => Math.random()
-    };
-    this.version = '1.0';
-            console.log('📝 ExpressionGenerator v1.0 initialized');
+            // キャッシュにあればそれを返す
+            if (this._expressionCache.has(cacheKey)) {
+                return this._expressionCache.get(cacheKey);
+            }
             
-            // メモ化キャッシュ
-            this._expressionCache = new Map();
-            this._MAX_CACHE_SIZE = 100;
+            // タイプに応じた表現生成
+            let result = '';
+            switch (type) {
+                case 'os_description':
+                    result = `${data.name || 'OS'}は${data.characteristics || '特徴的な性質'}を持ちます`;
+                    break;
+                case 'hexagram_meaning':
+                    result = `${data.name || '卦'}は${data.meaning || '象徴的な意味'}を表します`;
+                    break;
+                case 'interaction':
+                    result = `${data.first || 'A'}と${data.second || 'B'}は${data.relationship || '相互作用'}の関係です`;
+                    break;
+                default:
+                    result = `${type}に関する表現`;
+            }
+            
+            // キャッシュサイズ管理
+            if (this._expressionCache.size >= this._MAX_CACHE_SIZE) {
+                const firstKey = this._expressionCache.keys().next().value;
+                this._expressionCache.delete(firstKey);
+            }
+            
+            // 結果をキャッシュして返す
+            this._expressionCache.set(cacheKey, result);
+            return result;
+        }
+        
+        /**
+         * フォールバック表現を取得
+         * @private
+         */
+        _getFallbackExpression(type) {
+            try {
+                const fallback = {
+                    os_description: '個性的な特徴を持つ思考・行動パターン',
+                    hexagram_meaning: '易卦に基づく象徴的な意味',
+                    interaction: '相互に影響し合う関係性',
+                    synergy: '相乗効果のある組み合わせ',
+                    risk: '注意すべき相互作用',
+                    strength: '強みとなる特性',
+                    weakness: '課題となる側面',
+                    integration: '統合のヒント',
+                    summary: '分析結果の要約'
+                };
+                
+                return fallback[type] || '分析情報';
+            } catch (e) {
+                console.error(`Fallback expression error(${type})`, e);
+                return '分析情報';
+            }
         }
         
         /**
@@ -210,10 +298,4 @@
     }
     
     // グローバル公開
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = ExpressionGenerator;
-    } else {
-        global.ExpressionGenerator = ExpressionGenerator;
-    }
-    
-})(typeof window !== 'undefined' ? window : global);
+    window.ExpressionGenerator = ExpressionGenerator;
