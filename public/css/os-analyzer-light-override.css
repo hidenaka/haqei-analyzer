@@ -1,0 +1,230 @@
+/**
+ * OS Analyzer Light Theme Override
+ * 統一デザインシステムとの整合性確保
+ * ダークテーマからライトテーマへの移行
+ */
+
+/* ベース背景色の上書き */
+body,
+html {
+    background: #ffffff !important;
+    color: #030712 !important;
+}
+
+/* メインコンテナの背景修正 */
+.main-container,
+.screen,
+.question-screen,
+.welcome-screen,
+.results-screen {
+    background: #ffffff !important;
+    color: #030712 !important;
+}
+
+/* カード要素の背景修正 */
+.card,
+.question-card,
+.os-card,
+.result-card,
+.analysis-card {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 質問エリアの背景修正 */
+.question-container,
+.question-text,
+.question-area {
+    background: #ffffff !important;
+    color: #030712 !important;
+}
+
+/* オプションラベルの背景修正 */
+.option-label {
+    background: #ffffff !important;
+    border: 2px solid #e5e7eb !important;
+    color: #030712 !important;
+}
+
+.option-label:hover {
+    background: #f0f9ff !important;
+    border-color: #3b82f6 !important;
+}
+
+.option-label:has(input:checked) {
+    background: #dbeafe !important;
+    border-color: #3b82f6 !important;
+}
+
+/* ナビゲーションボタンの修正 */
+.nav-btn,
+.prev-btn,
+.next-btn,
+button {
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+.nav-btn:hover,
+.prev-btn:hover,
+.next-btn:hover,
+button:hover {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+}
+
+/* プログレスバーの背景修正 */
+.progress,
+.progress-bar-container {
+    background: #e5e7eb !important;
+}
+
+.progress-bar {
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%) !important;
+}
+
+/* ヘッダー/タイトルエリア */
+.header,
+.title-section,
+.hero-section {
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%) !important;
+    color: #ffffff !important;
+}
+
+/* テキストカラーの強化 */
+h1, h2, h3, h4, h5, h6 {
+    color: #030712 !important;
+}
+
+p, span, div, label {
+    color: #111827 !important;
+}
+
+/* リンクカラー */
+a {
+    color: #3b82f6 !important;
+}
+
+a:hover {
+    color: #2563eb !important;
+}
+
+/* フォーム要素 */
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #030712 !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus,
+select:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* ラジオボタンとチェックボックス */
+input[type="radio"],
+input[type="checkbox"] {
+    accent-color: #3b82f6 !important;
+}
+
+/* アラート/通知 */
+.alert,
+.notification,
+.message {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #030712 !important;
+}
+
+/* モーダル/オーバーレイ */
+.modal,
+.overlay {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #030712 !important;
+}
+
+/* シャドウ要素 */
+.shadow,
+.card-shadow {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* バリデーションパネルの修正 */
+.validation-panel {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(99, 102, 241, 0.05)) !important;
+    border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+
+/* 品質バッジの背景修正 */
+.quality-badge {
+    background: #ffffff !important;
+    border: 2px solid currentColor !important;
+}
+
+/* レコメンデーションの背景修正 */
+.recommendation {
+    background: #f9fafb !important;
+}
+
+/* 重要: ダークテーマ要素の無効化 */
+*[style*="background: rgba(15, 23, 42"],
+*[style*="background-color: rgba(15, 23, 42"],
+*[style*="background: rgb(15, 23, 42"],
+*[style*="background-color: rgb(15, 23, 42"] {
+    background: #ffffff !important;
+}
+
+/* グラデーション背景の調整 */
+.gradient-bg {
+    background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%) !important;
+}
+
+/* スクロールバーのスタイル */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+/* アニメーション要素の背景確保 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        background: #ffffff;
+    }
+    to {
+        opacity: 1;
+        background: #ffffff;
+    }
+}
+
+/* メディアクエリ対応 */
+@media (max-width: 768px) {
+    body {
+        background: #ffffff !important;
+    }
+    
+    .card,
+    .question-card {
+        background: #ffffff !important;
+    }
+}

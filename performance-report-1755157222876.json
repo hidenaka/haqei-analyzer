@@ -1,0 +1,43 @@
+{
+  "timestamp": "2025-08-14T07:40:22.860Z",
+  "testSuite": "Performance Test (T10)",
+  "passed": 4,
+  "failed": 1,
+  "details": [
+    {
+      "test": "File Sizes",
+      "passed": false
+    },
+    {
+      "test": "Critical CSS",
+      "hasInlineCriticalCSS": true,
+      "hasAsyncCSS": true,
+      "passed": true
+    },
+    {
+      "test": "Lazy Loading",
+      "checks": {
+        "Progressive script loading": true,
+        "Staggered module loading": true,
+        "Chart.js deferred": true,
+        "Heavy scripts deferred": true
+      },
+      "passed": true
+    },
+    {
+      "test": "Resource Hints",
+      "hints": {
+        "DNS Prefetch": true,
+        "Preconnect": true,
+        "Preload": true
+      },
+      "passed": true
+    },
+    {
+      "test": "Optimized HTML",
+      "size": 11041,
+      "estimatedInitialLoad": 13041,
+      "passed": true
+    }
+  ]
+}

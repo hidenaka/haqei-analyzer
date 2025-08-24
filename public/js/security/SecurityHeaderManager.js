@@ -9,6 +9,10 @@
 
 class SecurityHeaderManager {
   constructor() {
+    
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
     this.config = this.getSecurityConfig();
     this.nonce = this.generateNonce();
     this.violations = [];
@@ -712,7 +716,7 @@ class SecurityHeaderManager {
       return btoa(String.fromCharCode.apply(null, array));
     } else {
       // フォールバック
-      return btoa(Math.random().toString(36).substring(2) + Date.now().toString(36));
+      return btoa(this.rng.next().toString(36).substring(2) + Date.now().toString(36));
     }
   }
 

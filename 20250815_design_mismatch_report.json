@@ -1,0 +1,111 @@
+{
+  "timestamp": "2025-08-15T22:43:42.010Z",
+  "original": {
+    "displayFunctions": {
+      "displayAuthentic386Results": false,
+      "displayBinaryTreeResults": false,
+      "displayEightScenarios": false
+    },
+    "containers": {
+      "resultsContainer": "ref: <Node>",
+      "eightScenariosContainer": "ref: <Node>",
+      "futurePathsContainer": null,
+      "authentic386Container": null
+    },
+    "canvases": {
+      "threeStage": "ref: <Node>",
+      "currentPosition": "ref: <Node>",
+      "futureBranching": "ref: <Node>",
+      "scenarioComparison": "ref: <Node>"
+    },
+    "actualContainers": {
+      "resultsContainer": {
+        "exists": true,
+        "id": "resultsContainer",
+        "className": "results-container",
+        "parent": "main-container"
+      },
+      "eightScenariosContainer": {
+        "exists": true,
+        "id": "eight-scenarios-display-container",
+        "className": "eight-scenarios-container",
+        "parent": ""
+      },
+      "futurePathsContainer": {
+        "exists": false
+      },
+      "authentic386Container": {
+        "exists": false
+      }
+    },
+    "actualCanvases": {
+      "threeStage": {
+        "exists": true,
+        "id": "three-stage-canvas-1755297812341",
+        "parent": ""
+      },
+      "currentPosition": {
+        "exists": true,
+        "id": "currentPositionChart",
+        "parent": ""
+      },
+      "futureBranching": {
+        "exists": true,
+        "id": "futureBranchingChart",
+        "parent": ""
+      },
+      "scenarioComparison": {
+        "exists": true,
+        "id": "scenarioComparisonChart",
+        "parent": ""
+      }
+    }
+  },
+  "current": {
+    "domManagers": {
+      "SingleDOMManager": true,
+      "SafeDOMUpdater": false,
+      "DOMPreserver": false,
+      "FutureSimulatorDOMIntegration": false
+    },
+    "singleDOMState": {
+      "initialized": true,
+      "methods": [
+        "initialized",
+        "init",
+        "overrideDisplayFunctions",
+        "safeDisplayResults",
+        "ensureStructure",
+        "updateTextContent",
+        "updateScenarioCards",
+        "updateCharts",
+        "extractScenarios",
+        "getChartData"
+      ]
+    },
+    "expectedStructure": {
+      "scenariosCards": null,
+      "canvasContainer": null
+    },
+    "actualNewStructure": {
+      "scenariosCards": {
+        "exists": false
+      },
+      "canvasContainer": {
+        "exists": false
+      }
+    }
+  },
+  "mismatches": [
+    {
+      "type": "コンテナ構造不一致",
+      "issue": "元のeight-scenarios-display-containerは存在するが、新しいscenarios-cardsは存在しない"
+    }
+  ],
+  "recommendation": [
+    "元の設計構造（eight-scenarios-display-container）を維持",
+    "SingleDOMManagerを元の構造に適応させる",
+    "不要なDOM管理システムを削除",
+    "innerHTML操作を差分更新に置換"
+  ]
+}

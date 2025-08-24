@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI - 改善版結果画面モックアップ</title>
+    <style>
+        /* ==========================================================================
+           HAQEI 改善版デザイン - モックアップCSS
+           ========================================================================== */
+        
+        :root {
+            /* カラーパレット */
+            --primary-blue: #3b82f6;
+            --primary-blue-dark: #2563eb;
+            --secondary-blue: #6366f1;
+            --light-blue: #dbeafe;
+            --very-light-blue: #f0f9ff;
+            
+            /* グレースケール */
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #374151;
+            --gray-700: #1f2937;
+            --gray-900: #030712;
+            
+            /* スペーシング */
+            --spacing-sm: 0.75rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            
+            /* シャドウ */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-900);
+            background: var(--gray-50);
+            margin: 0;
+            padding: var(--spacing-lg);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        /* ヘッダー */
+        .header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: white;
+            padding: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 var(--spacing-sm) 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* メインコンテンツ */
+        .main-content {
+            padding: var(--spacing-xl);
+        }
+
+        /* ===== セクション1: メイン要約 ===== */
+        .primary-summary {
+            background: var(--very-light-blue);
+            border-radius: 12px;
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .four-line-summary {
+            background: var(--white);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .summary-line {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-sm);
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .summary-line:hover {
+            background: var(--gray-50);
+        }
+
+        .line-number {
+            background: var(--primary-blue);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .summary-line p {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* ===== Triple OS スコア概要 ===== */
+        .os-score-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .os-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .os-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .os-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .os-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--gray-900);
+        }
+
+        .os-score {
+            background: var(--primary-blue);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .hexagram-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-sm);
+            background: var(--gray-50);
+            border-radius: 6px;
+        }
+
+        .hexagram-symbol {
+            font-size: 1.5rem;
+        }
+
+        .hexagram-name {
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .traits {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .trait-tag {
+            background: var(--light-blue);
+            color: var(--primary-blue-dark);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* ===== キーアクション ===== */
+        .key-actions {
+            background: linear-gradient(135deg, var(--light-blue) 0%, var(--very-light-blue) 100%);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            border: 1px solid var(--gray-200);
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .action-item {
+            background: var(--white);
+            padding: var(--spacing-md);
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-blue);
+        }
+
+        .action-title {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+
+        .action-desc {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin: 0;
+        }
+
+        /* ===== 詳細分析セクション（折りたたみ） ===== */
+        .detailed-analysis {
+            margin-top: var(--spacing-xl);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .detailed-analysis summary {
+            background: var(--gray-100);
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            list-style: none;
+            transition: background-color 0.2s;
+        }
+
+        .detailed-analysis summary:hover {
+            background: var(--gray-200);
+        }
+
+        .detailed-analysis summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .detailed-analysis summary::before {
+            content: "▶";
+            margin-right: var(--spacing-sm);
+            transition: transform 0.2s;
+        }
+
+        .detailed-analysis[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .detailed-content {
+            padding: var(--spacing-xl);
+            background: var(--white);
+        }
+
+        /* 九宮構成説明 */
+        .nine-palace-explanation {
+            background: var(--very-light-blue);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+            border-left: 4px solid var(--secondary-blue);
+        }
+
+        .explanation-title {
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--spacing-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .explanation-text {
+            font-size: 0.95rem;
+            color: var(--gray-700);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* V3詳細カードスタイル */
+        .v3-detail-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            margin-bottom: var(--spacing-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .v3-card-header {
+            background: linear-gradient(135deg, var(--very-light-blue) 0%, var(--light-blue) 100%);
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .v3-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .hexagram-large {
+            font-size: 2rem;
+        }
+
+        .v3-title h4 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .v3-subtitle {
+            margin: 0.25rem 0 0 0;
+            color: var(--gray-600);
+            font-size: 0.95rem;
+            font-style: italic;
+        }
+
+        .v3-content {
+            padding: var(--spacing-lg);
+        }
+
+        .v3-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .v3-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .v3-section h5 {
+            margin: 0 0 var(--spacing-sm) 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-blue-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .v3-section p {
+            margin: 0 0 var(--spacing-sm) 0;
+            color: var(--gray-700);
+            line-height: 1.5;
+        }
+
+        .v3-example {
+            background: var(--gray-50);
+            border-left: 3px solid var(--primary-blue);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .v3-warning {
+            background: #fef3c7;
+            border-left: 3px solid #f59e0b;
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 0.9rem;
+            color: #92400e;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            body {
+                padding: var(--spacing-md);
+            }
+            
+            .header {
+                padding: var(--spacing-lg);
+            }
+            
+            .main-content {
+                padding: var(--spacing-lg);
+            }
+            
+            .os-score-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .nine-palace-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: var(--spacing-sm);
+            }
+            
+            .palace-cell {
+                padding: var(--spacing-sm);
+            }
+        }
+
+        /* デモ用の改善点ハイライト */
+        .improvement-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #10b981;
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .relative {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <h1>🎯 あなたの人格分析結果</h1>
+            <p class="subtitle">AI分析による包括的な自己理解レポート</p>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- ===== メイン要約セクション ===== -->
+            <section class="primary-summary relative">
+                <div class="improvement-badge">改善</div>
+                <h2 class="section-title">
+                    <span>🏆</span>
+                    あなたの特性　要約
+                </h2>
+
+                <!-- 4行要約 -->
+                <div class="four-line-summary">
+                    <div class="summary-line">
+                        <span class="line-number">1</span>
+                        <p>あなたは創造的で革新的なアイデアを生み出すことに長けており、新しい挑戦を恐れない探究心旺盛な性格です。</p>
+                    </div>
+                    <div class="summary-line">
+                        <span class="line-number">2</span>
+                        <p>社会的な場面では協調性を重視し、他者との調和を大切にしながらも、自分の価値観をしっかりと持っています。</p>
+                    </div>
+                    <div class="summary-line">
+                        <span class="line-number">3</span>
+                        <p>安定を求める一方で、変化への適応力も高く、バランスの取れた判断ができる慎重な思考タイプです。</p>
+                    </div>
+                    <div class="summary-line">
+                        <span class="line-number">4</span>
+                        <p>長期的な視点で物事を捉え、持続可能な成長と発展を重視する、責任感の強いリーダータイプです。</p>
+                    </div>
+                </div>
+
+                <!-- Triple OS スコア概要 -->
+                <div class="os-score-overview">
+                    <div class="os-card">
+                        <div class="os-header">
+                            <span class="os-name">🔧 Engine OS</span>
+                            <span class="os-score">85</span>
+                        </div>
+                        <div class="hexagram-info">
+                            <span class="hexagram-symbol">☰</span>
+                            <span class="hexagram-name">乾為天</span>
+                        </div>
+                        <div class="traits">
+                            <span class="trait-tag">創造的</span>
+                            <span class="trait-tag">リーダーシップ</span>
+                            <span class="trait-tag">革新的</span>
+                        </div>
+                    </div>
+
+                    <div class="os-card">
+                        <div class="os-header">
+                            <span class="os-name">🔗 Interface OS</span>
+                            <span class="os-score">78</span>
+                        </div>
+                        <div class="hexagram-info">
+                            <span class="hexagram-symbol">☱</span>
+                            <span class="hexagram-name">兌為澤</span>
+                        </div>
+                        <div class="traits">
+                            <span class="trait-tag">協調的</span>
+                            <span class="trait-tag">コミュニケーション</span>
+                            <span class="trait-tag">楽観的</span>
+                        </div>
+                    </div>
+
+                    <div class="os-card">
+                        <div class="os-header">
+                            <span class="os-name">🛡️ SafeMode OS</span>
+                            <span class="os-score">72</span>
+                        </div>
+                        <div class="hexagram-info">
+                            <span class="hexagram-symbol">☷</span>
+                            <span class="hexagram-name">坤為地</span>
+                        </div>
+                        <div class="traits">
+                            <span class="trait-tag">安定志向</span>
+                            <span class="trait-tag">慎重</span>
+                            <span class="trait-tag">支援的</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- キーアクション -->
+                <div class="key-actions">
+                    <h3 class="section-title">
+                        <span>💡</span>
+                        推奨アクション
+                    </h3>
+                    <div class="actions-grid">
+                        <div class="action-item">
+                            <div class="action-title">創造性の発揮</div>
+                            <p class="action-desc">新しいプロジェクトやアイデア創出に積極的に取り組む</p>
+                        </div>
+                        <div class="action-item">
+                            <div class="action-title">チームワーク強化</div>
+                            <p class="action-desc">協調性を活かした効果的なコミュニケーション</p>
+                        </div>
+                        <div class="action-item">
+                            <div class="action-title">安定基盤の構築</div>
+                            <p class="action-desc">長期的な計画立案と継続的な取り組み</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== 詳細分析セクション（折りたたみ） ===== -->
+            <details class="detailed-analysis">
+                <summary>🔍 詳細分析を見る（V3データベース詳細）</summary>
+                <div class="detailed-content">
+                    <!-- V3データベース詳細カード -->
+                    <h3 class="section-title">
+                        <span>📚</span>
+                        詳細特性分析（V3データベース）
+                    </h3>
+
+                    <!-- Engine OS詳細 -->
+                    <div class="v3-detail-card">
+                        <div class="v3-card-header">
+                            <div class="v3-title">
+                                <span class="hexagram-large">🚀 ☰</span>
+                                <div>
+                                    <h4>Engine OS: 乾為天「イノベーター」</h4>
+                                    <p class="v3-subtitle">革新追求エンジン</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="v3-content">
+                            <div class="v3-section">
+                                <h5>💫 通常の状態</h5>
+                                <p>頭の中で常に新しいアイデアや改善案が生まれている</p>
+                                <div class="v3-example">例：会議中も「この仕組み、根本から変えられないか」と考える</div>
+                            </div>
+                            <div class="v3-section">
+                                <h5>🔥 スーパーモード</h5>
+                                <p>困難な課題や、誰もが「不可能」と言う状況に直面した時</p>
+                                <div class="v3-example">全リソースを創造的解決に投入！ブレイクスルーモード</div>
+                            </div>
+                            <div class="v3-section">
+                                <h5>⚡ エネルギー補給法</h5>
+                                <p>新規プロジェクトの立ち上げ、未知の分野への挑戦</p>
+                                <div class="v3-warning">⚠️ ルーティンワークが続くとパフォーマンス低下</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interface OS詳細 -->
+                    <div class="v3-detail-card">
+                        <div class="v3-card-header">
+                            <div class="v3-title">
+                                <span class="hexagram-large">😊 ☱</span>
+                                <div>
+                                    <h4>Interface OS: 兌為澤「喜悦者」</h4>
+                                    <p class="v3-subtitle">喜び生成エンジン</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="v3-content">
+                            <div class="v3-section">
+                                <h5>💫 通常の状態</h5>
+                                <p>常に楽しいことを探している</p>
+                                <div class="v3-example">例：どんな状況でも楽しみを見つける</div>
+                            </div>
+                            <div class="v3-section">
+                                <h5>🔥 スーパーモード</h5>
+                                <p>みんなを喜ばせる時</p>
+                                <div class="v3-example">最高の喜びを提供、サプライズで感動を演出</div>
+                            </div>
+                            <div class="v3-section">
+                                <h5>🗣️ コミュニケーションスタイル</h5>
+                                <p>明るく楽観的、相手を元気づける話し方</p>
+                                <div class="v3-example">「きっと大丈夫！一緒に楽しくやりましょう」</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SafeMode OS詳細 -->
+                    <div class="v3-detail-card">
+                        <div class="v3-card-header">
+                            <div class="v3-title">
+                                <span class="hexagram-large">🌱 ☷</span>
+                                <div>
+                                    <h4>SafeMode OS: 坤為地「サポーター」</h4>
+                                    <p class="v3-subtitle">育成支援エンジン</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="v3-content">
+                            <div class="v3-section">
+                                <h5>💫 通常の状態</h5>
+                                <p>周囲の状況を観察し、必要なサポートを察知</p>
+                                <div class="v3-example">例：発言しづらそうな人に気づき、発言機会を作る</div>
+                            </div>
+                            <div class="v3-section">
+                                <h5>🔥 緊急時の対応</h5>
+                                <p>チームが危機に直面、関係性が崩れそうな時</p>
+                                <div class="v3-example">全力でチームを支え、調和を取り戻す</div>
+                            </div>
+                            <div class="v3-section">
+                                <h5>🛡️ ストレス対処法</h5>
+                                <p>じっくりと状況を見守り、段階的に問題解決</p>
+                                <div class="v3-example">急がず慌てず、着実に基盤を固めていく</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </main>
+    </div>
+</body>
+</html>

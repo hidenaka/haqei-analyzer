@@ -1,0 +1,149 @@
+# Netlify configuration
+# T15: Enhanced cloud static deployment configuration
+
+[build]
+  publish = "public"
+  command = "echo 'No build command needed for static deployment'"
+
+# Environment variables for build optimization
+[build.environment]
+  NODE_VERSION = "18"
+
+# Edge functions for enhanced performance
+[functions]
+  directory = "functions"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Enhanced Content Security Policy for cloud deployment
+    Content-Security-Policy = """
+      default-src 'self';
+      script-src 'self';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: https:;
+      font-src 'self' data:;
+      connect-src 'self' https://api.netlify.com;
+      frame-ancestors 'none';
+      base-uri 'self';
+      form-action 'self';
+      upgrade-insecure-requests
+    """
+    
+    # Enhanced security headers for production
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    
+    # Performance headers
+    X-DNS-Prefetch-Control = "on"
+    X-UA-Compatible = "IE=edge"
+
+# Enhanced caching strategy for static assets
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Encoding = "br, gzip"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Encoding = "br, gzip"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Encoding = "br, gzip"
+
+[[headers]]
+  for = "/lib/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Encoding = "br, gzip"
+
+# HTML files - no cache for main app files
+[[headers]]
+  for = "*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+# Service worker caching
+[[headers]]
+  for = "/haqei-sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# API endpoints (if any future expansion)
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
+
+# Enhanced redirect rules for HaQei philosophy versions
+[[redirects]]
+  from = "/"
+  to = "/os_analyzer_clean.html"
+  status = 200
+
+[[redirects]]
+  from = "/index.html"
+  to = "/os_analyzer_clean.html"
+  status = 301
+
+[[redirects]]
+  from = "/analyzer"
+  to = "/os_analyzer_clean.html"
+  status = 301
+
+[[redirects]]
+  from = "/os-analyzer"
+  to = "/os_analyzer_clean.html"
+  status = 301
+
+# Future Simulator access
+[[redirects]]
+  from = "/future"
+  to = "/future_simulator.html"
+  status = 301
+
+[[redirects]]
+  from = "/simulator"
+  to = "/future_simulator.html"
+  status = 301
+
+# Clean URLs for different versions
+[[redirects]]
+  from = "/clean"
+  to = "/os_analyzer_clean.html"
+  status = 301
+
+[[redirects]]
+  from = "/optimized"
+  to = "/os_analyzer_optimized.html"
+  status = 301
+
+[[redirects]]
+  from = "/a11y"
+  to = "/os_analyzer_a11y.html"
+  status = 301
+
+[[redirects]]
+  from = "/full"
+  to = "/os_analyzer.html"
+  status = 301
+
+# 404 fallback to main app
+[[redirects]]
+  from = "/*"
+  to = "/os_analyzer_clean.html"
+  status = 404

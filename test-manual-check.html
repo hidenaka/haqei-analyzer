@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BasicResultsTab 実装確認テスト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #f5f5f5;
+        }
+        h1 { color: #333; border-bottom: 3px solid #007bff; padding-bottom: 10px; }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .test-button:hover { background: #0056b3; }
+        .result-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+        }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .warning { background: #fff3cd; border-color: #ffeeba; color: #856404; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .hexagram-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .hexagram-card {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .hexagram-title { font-weight: bold; color: #007bff; margin-bottom: 10px; }
+        .trait-badge {
+            display: inline-block;
+            background: #e7f3ff;
+            color: #0066cc;
+            padding: 3px 8px;
+            border-radius: 3px;
+            margin: 2px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 BasicResultsTab 実装確認テスト</h1>
+    
+    <div class="test-section">
+        <h2>📋 テスト用データを生成して保存</h2>
+        <p>localStorageにテストデータを保存し、results.htmlで確認できるようにします。</p>
+        
+        <button class="test-button" onclick="generateAndSaveTestData('high')">
+            高スコアパターンで保存
+        </button>
+        <button class="test-button" onclick="generateAndSaveTestData('balanced')">
+            バランス型パターンで保存
+        </button>
+        <button class="test-button" onclick="generateAndSaveTestData('low')">
+            低スコアパターンで保存
+        </button>
+        
+        <div id="save-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎯 hexagram-human-traits.js の実装確認</h2>
+        <button class="test-button" onclick="checkHexagramTraits()">
+            64卦データを確認
+        </button>
+        <div id="traits-check-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 保存されたデータの確認</h2>
+        <button class="test-button" onclick="checkStoredData()">
+            localStorageデータを表示
+        </button>
+        <div id="stored-data-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🚀 結果ページへ移動</h2>
+        <button class="test-button" onclick="goToResults()">
+            results.htmlを開く
+        </button>
+        <p style="color: #666; font-size: 14px;">※ 上記でデータを保存してから移動してください</p>
+    </div>
+    
+    <!-- hexagram-human-traits.jsを読み込み -->
+    <script src="public/js/data/hexagram-human-traits.js"></script>
+    
+    <script>
+        // テストデータ生成関数
+        function generateAndSaveTestData(pattern) {
+            const patterns = {
+                high: {
+                    engine: { score: 85, hexagramId: 1 },    // 乾為天
+                    interface: { score: 75, hexagramId: 58 }, // 兌為澤
+                    safeMode: { score: 65, hexagramId: 2 }    // 坤為地
+                },
+                balanced: {
+                    engine: { score: 60, hexagramId: 30 },    // 離為火
+                    interface: { score: 60, hexagramId: 57 }, // 巽為風
+                    safeMode: { score: 60, hexagramId: 52 }   // 艮為山
+                },
+                low: {
+                    engine: { score: 40, hexagramId: 29 },    // 坎為水
+                    interface: { score: 35, hexagramId: 4 },  // 山水蒙
+                    safeMode: { score: 30, hexagramId: 3 }    // 水雷屯
+                }
+            };
+            
+            const selectedPattern = patterns[pattern];
+            
+            // 実際のデータ構造に合わせて生成
+            const testData = {
+                tripleOS: {
+                    engine: {
+                        score: selectedPattern.engine.score,
+                        hexagramId: selectedPattern.engine.hexagramId,
+                        name: 'Engine OS',
+                        hexagram: window.HEXAGRAM_ID_MAP?.[selectedPattern.engine.hexagramId] || '未定義',
+                        description: '論理的思考と分析力'
+                    },
+                    interface: {
+                        score: selectedPattern.interface.score,
+                        hexagramId: selectedPattern.interface.hexagramId,
+                        name: 'Interface OS',
+                        hexagram: window.HEXAGRAM_ID_MAP?.[selectedPattern.interface.hexagramId] || '未定義',
+                        description: '社会との関わり方'
+                    },
+                    safeMode: {
+                        score: selectedPattern.safeMode.score,
+                        hexagramId: selectedPattern.safeMode.hexagramId,
+                        name: 'SafeMode OS',
+                        hexagram: window.HEXAGRAM_ID_MAP?.[selectedPattern.safeMode.hexagramId] || '未定義',
+                        description: '安全性と慎重さ'
+                    }
+                },
+                personalityProfile: {
+                    engineCore: null,
+                    interfaceCore: null,
+                    safeModeCore: null
+                },
+                analysisTimestamp: new Date().toISOString(),
+                analysisVersion: '1.0.0'
+            };
+            
+            // localStorageに保存
+            localStorage.setItem('osAnalysisResult', JSON.stringify(testData));
+            
+            // 結果表示
+            const resultDiv = document.getElementById('save-result');
+            resultDiv.className = 'result-box success';
+            resultDiv.innerHTML = `✅ ${pattern}パターンのデータを保存しました！\n\n` +
+                `Engine OS: ${testData.tripleOS.engine.hexagram} (Score: ${testData.tripleOS.engine.score})\n` +
+                `Interface OS: ${testData.tripleOS.interface.hexagram} (Score: ${testData.tripleOS.interface.score})\n` +
+                `SafeMode OS: ${testData.tripleOS.safeMode.hexagram} (Score: ${testData.tripleOS.safeMode.score})`;
+        }
+        
+        // hexagram-human-traits.jsの確認
+        function checkHexagramTraits() {
+            const resultDiv = document.getElementById('traits-check-result');
+            
+            if (typeof window.HexagramHumanTraits === 'undefined') {
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = '❌ HexagramHumanTraitsが見つかりません';
+                return;
+            }
+            
+            const hexagrams = Object.keys(window.HexagramHumanTraits);
+            const hasGetFunction = typeof window.getHexagramTraits === 'function';
+            
+            let html = `<div class="result-box ${hexagrams.length === 64 ? 'success' : 'warning'}">`;
+            html += `📊 実装状況:\n`;
+            html += `- 実装済み卦数: ${hexagrams.length}/64\n`;
+            html += `- getHexagramTraits関数: ${hasGetFunction ? '✅ 利用可能' : '❌ 未実装'}\n`;
+            html += `</div>`;
+            
+            // サンプル表示
+            html += `<h3>実装済みの卦（サンプル）</h3>`;
+            html += `<div class="hexagram-display">`;
+            
+            [1, 2, 58, 30].forEach(id => {
+                if (window.getHexagramTraits) {
+                    const data = window.getHexagramTraits(id);
+                    if (data) {
+                        html += `<div class="hexagram-card">`;
+                        html += `<div class="hexagram-title">${data.name} (ID: ${id})</div>`;
+                        html += `<div>核心: ${data.core || '未定義'}</div>`;
+                        html += `<div>特性: `;
+                        if (data.traits && data.traits.length > 0) {
+                            data.traits.forEach(trait => {
+                                html += `<span class="trait-badge">${trait}</span>`;
+                            });
+                        }
+                        html += `</div>`;
+                        html += `<div style="margin-top: 10px; font-size: 12px; color: #666;">${data.description || ''}</div>`;
+                        html += `</div>`;
+                    }
+                }
+            });
+            
+            html += `</div>`;
+            resultDiv.innerHTML = html;
+        }
+        
+        // 保存データ確認
+        function checkStoredData() {
+            const resultDiv = document.getElementById('stored-data-result');
+            const data = localStorage.getItem('osAnalysisResult');
+            
+            if (!data) {
+                resultDiv.className = 'result-box warning';
+                resultDiv.innerHTML = '⚠️ localStorageにデータが保存されていません';
+                return;
+            }
+            
+            try {
+                const parsed = JSON.parse(data);
+                resultDiv.className = 'result-box success';
+                resultDiv.innerHTML = '✅ 保存されているデータ:\n\n' + JSON.stringify(parsed, null, 2);
+            } catch (e) {
+                resultDiv.className = 'result-box error';
+                resultDiv.innerHTML = '❌ データの解析に失敗: ' + e.message;
+            }
+        }
+        
+        // 結果ページへ移動
+        function goToResults() {
+            window.location.href = 'public/results.html';
+        }
+        
+        // ページロード時に自動チェック
+        window.addEventListener('DOMContentLoaded', () => {
+            // hexagram-human-traits.jsの読み込み確認
+            setTimeout(() => {
+                if (typeof window.HexagramHumanTraits !== 'undefined') {
+                    console.log('✅ HexagramHumanTraits loaded:', Object.keys(window.HexagramHumanTraits).length, 'hexagrams');
+                } else {
+                    console.error('❌ HexagramHumanTraits not loaded');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

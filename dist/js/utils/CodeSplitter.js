@@ -1,1 +1,548 @@
-class CodeSplitter{constructor(e={}){this.options={enableAnalysis:!0,enableSplitting:!0,enableOptimization:!0,analysisDepth:"medium",splitThreshold:51200,...e},this.analysis={modules:new Map,dependencies:new Map,duplicates:[],deadCode:[],opportunities:[]},this.strategies={byFeature:this.splitByFeature.bind(this),byRoute:this.splitByRoute.bind(this),bySize:this.splitBySize.bind(this),byUsage:this.splitByUsage.bind(this)},this.metrics={analysisTime:0,splitsIdentified:0,potentialSavings:0,optimizationScore:0},console.log("✂️ CodeSplitter initialized - Advanced splitting analysis ready")}async analyzeCodebase(){const e=performance.now();console.log("🔍 Analyzing codebase for splitting opportunities...");try{await this.analyzeLoadedModules(),this.buildDependencyGraph(),this.identifySplittingOpportunities(),this.calculateOptimizationPotential();const t=performance.now()-e;return this.metrics.analysisTime=t,console.log(`✅ Codebase analysis complete in ${t.toFixed(0)}ms`),this.generateAnalysisReport()}catch(t){throw console.error("❌ Codebase analysis failed:",t),t}}async analyzeLoadedModules(){const e=document.querySelectorAll("script[src]"),t=window.moduleLoader?Array.from(window.moduleLoader.loadedModules.keys()):[];e.forEach(e=>{this.analyzeScript(e.src)}),t.forEach(e=>{this.analyzeModule(e)}),console.log(`📊 Analyzed ${e.length} static scripts and ${t.length} dynamic modules`)}analyzeScript(e){const t={url:e,type:"static",size:0,dependencies:[],exports:[],functions:[],classes:[],splitOpportunities:[]};this.estimateModuleSize(t),this.identifyModuleType(t),this.analysis.modules.set(e,t)}analyzeModule(e){const t={url:e,type:"dynamic",size:0,dependencies:[],exports:[],functions:[],classes:[],splitOpportunities:[]};if(window.moduleLoader&&window.moduleLoader.loadedModules.has(e)){const i=window.moduleLoader.loadedModules.get(e);t.size=i.estimatedSize||0,t.loadTime=i.loadTime||0}this.identifyModuleType(t),this.analysis.modules.set(e,t)}estimateModuleSize(e){const t=performance.getEntriesByName(e.url);if(t.length>0){const i=t[0];e.size=i.transferSize||i.encodedBodySize||0,e.loadTime=i.duration||0}}identifyModuleType(e){const t=e.url;t.includes("/lib/")?(e.category="library",e.splitPriority="high"):t.includes("/components/")?(e.category="component",e.splitPriority="medium"):t.includes("/core/")?(e.category="core",e.splitPriority="low"):t.includes("/data/")?(e.category="data",e.splitPriority="high"):t.includes("/utils/")?(e.category="utility",e.splitPriority="medium"):(e.category="unknown",e.splitPriority="low"),e.size>this.options.splitThreshold&&(e.splitPriority="high")}buildDependencyGraph(){console.log("🕸️ Building dependency graph..."),this.analysis.modules.forEach((e,t)=>{const i=this.extractDependencies(e);this.analysis.dependencies.set(t,i)})}extractDependencies(e){const t=[];return Object.entries({BaseComponent:["/js/shared/core/BaseComponent.js"],StorageManager:["/js/shared/core/StorageManager.js","/js/shared/core/MicroStorageManager.js"],DataManager:["/js/shared/core/DataManager.js"],Calculator:["/js/os-analyzer/core/Calculator.js"],Chart:["/js/lib/chart.min.js"],VirtualQuestionFlow:["/js/os-analyzer/components/VirtualQuestionFlow-core.js","/js/os-analyzer/components/VirtualQuestionFlow-renderer.js"]}).forEach(([i,s])=>{(e.url.includes(i)||e.category===i.toLowerCase())&&t.push(...s)}),[...new Set(t)]}identifySplittingOpportunities(){console.log("🎯 Identifying splitting opportunities...");const e=[];this.analysis.modules.forEach((t,i)=>{const s=this.strategies.byFeature(t);e.push(...s);const o=this.strategies.bySize(t);e.push(...o);const n=this.strategies.byUsage(t);e.push(...n)}),this.analysis.opportunities=this.prioritizeOpportunities(e),this.metrics.splitsIdentified=this.analysis.opportunities.length}splitByFeature(e){const t=[];return Object.entries({"help-system":{trigger:"onDemand",priority:"high",estimatedSaving:"400KB"},chart:{trigger:"onResults",priority:"high",estimatedSaving:"200KB"},"analysis-engine":{trigger:"onAnalysis",priority:"medium",estimatedSaving:"800KB"},visualization:{trigger:"onResults",priority:"medium",estimatedSaving:"300KB"}}).forEach(([i,s])=>{(e.url.includes(i)||e.category===i)&&t.push({type:"feature",module:e.url,feature:i,...s,currentSize:e.size})}),t}splitBySize(e){const t=[];return e.size>this.options.splitThreshold&&t.push({type:"size",module:e.url,reason:"Large module",currentSize:e.size,priority:e.size>102400?"high":"medium",strategy:"chunk-splitting",estimatedSaving:Math.floor(.6*e.size)+"B"}),t}splitByUsage(e){const t=[];return Object.entries({debug:"development-only",test:"development-only",admin:"admin-only",advanced:"power-user",experimental:"optional"}).forEach(([i,s])=>{e.url.includes(i)&&t.push({type:"usage",module:e.url,usage:s,priority:"high",strategy:"conditional-loading",currentSize:e.size,estimatedSaving:e.size+"B"})}),t}prioritizeOpportunities(e){return e.filter(e=>e.currentSize>1024).sort((e,t)=>{const i={high:3,medium:2,low:1},s=i[e.priority]||0,o=i[t.priority]||0;return s!==o?o-s:t.currentSize-e.currentSize}).slice(0,20)}calculateOptimizationPotential(){let e=0,t=0;this.analysis.modules.forEach(e=>{t+=e.size}),this.analysis.opportunities.forEach(t=>{const i=t.estimatedSaving,s=parseInt(i)||0;e+=s}),this.metrics.potentialSavings=e,this.metrics.optimizationScore=t>0?Math.min(100,e/t*100):0}generateAnalysisReport(){const e={summary:{modulesAnalyzed:this.analysis.modules.size,splittingOpportunities:this.analysis.opportunities.length,potentialSavings:this.formatBytes(this.metrics.potentialSavings),optimizationScore:this.metrics.optimizationScore.toFixed(1)+"%"},opportunities:this.analysis.opportunities.map(e=>({...e,currentSize:this.formatBytes(e.currentSize),estimatedSaving:this.formatBytes(parseInt(e.estimatedSaving)||0)})),recommendations:this.generateRecommendations(),metrics:this.metrics};return console.log("📊 Code Splitting Analysis Report:"),console.log("=".repeat(50)),console.log(`📦 Modules Analyzed: ${e.summary.modulesAnalyzed}`),console.log(`✂️ Splitting Opportunities: ${e.summary.splittingOpportunities}`),console.log(`💾 Potential Savings: ${e.summary.potentialSavings}`),console.log(`🎯 Optimization Score: ${e.summary.optimizationScore}`),e.opportunities.length>0&&(console.log("🎯 Top Opportunities:"),e.opportunities.slice(0,5).forEach((e,t)=>{console.log(`${t+1}. ${e.module} (${e.currentSize} → save ${e.estimatedSaving})`)})),console.log("=".repeat(50)),e}generateRecommendations(){const e=[],t=this.analysis.opportunities.filter(e=>"high"===e.priority&&e.currentSize>51200);t.length>0&&e.push({type:"high-impact",message:`${t.length} high-impact splitting opportunities identified`,action:"Implement dynamic imports for these modules first",modules:t.map(e=>e.module)});const i=this.analysis.opportunities.filter(e=>e.module.includes("/lib/"));i.length>0&&e.push({type:"library-splitting",message:"Third-party libraries can be lazy loaded",action:"Move chart.js and other libraries to results bundle",modules:i.map(e=>e.module)});const s=this.analysis.opportunities.filter(e=>"feature"===e.type);return s.length>0&&e.push({type:"feature-splitting",message:"Feature-based code splitting opportunities",action:"Implement lazy loading for optional features",features:[...new Set(s.map(e=>e.feature))]}),e}formatBytes(e){if(0===e)return"0 B";const t=Math.floor(Math.log(e)/Math.log(1024));return parseFloat((e/Math.pow(1024,t)).toFixed(2))+" "+["B","KB","MB"][t]}exportAnalysis(){return{analysis:{modules:Array.from(this.analysis.modules.entries()),dependencies:Array.from(this.analysis.dependencies.entries()),opportunities:this.analysis.opportunities},metrics:this.metrics,timestamp:Date.now()}}}window.codeSplitter||(window.codeSplitter=new CodeSplitter({enableAnalysis:!0,splitThreshold:51200}),console.log("🎯 Global CodeSplitter initialized"),window.analyzeCodeSplitting=()=>window.codeSplitter.analyzeCodebase(),window.getCodeSplittingReport=()=>window.codeSplitter.generateAnalysisReport()),"undefined"!=typeof module&&module.exports&&(module.exports=CodeSplitter);
+/**
+ * CodeSplitter.js - Advanced Code Splitting Utility
+ * 
+ * Phase 2 Optimization: Runtime code analysis and splitting
+ * Identifies and manages code that can be split for better loading
+ * 
+ * Features:
+ * - Dead code detection
+ * - Duplicate code identification  
+ * - Dynamic import optimization
+ * - Module dependency analysis
+ */
+
+class CodeSplitter {
+  constructor(options = {}) {
+    this.options = {
+      enableAnalysis: true,
+      enableSplitting: true,
+      enableOptimization: true,
+      analysisDepth: 'medium', // light, medium, deep
+      splitThreshold: 50 * 1024, // 50KB
+      ...options
+    };
+    
+    // Analysis results
+    this.analysis = {
+      modules: new Map(),
+      dependencies: new Map(),
+      duplicates: [],
+      deadCode: [],
+      opportunities: []
+    };
+    
+    // Splitting strategies
+    this.strategies = {
+      byFeature: this.splitByFeature.bind(this),
+      byRoute: this.splitByRoute.bind(this),
+      bySize: this.splitBySize.bind(this),
+      byUsage: this.splitByUsage.bind(this)
+    };
+    
+    // Performance tracking
+    this.metrics = {
+      analysisTime: 0,
+      splitsIdentified: 0,
+      potentialSavings: 0,
+      optimizationScore: 0
+    };
+    
+    console.log('✂️ CodeSplitter initialized - Advanced splitting analysis ready');
+  }
+  
+  /**
+   * Analyze current codebase for splitting opportunities
+   */
+  async analyzeCodebase() {
+    const startTime = performance.now();
+    console.log('🔍 Analyzing codebase for splitting opportunities...');
+    
+    try {
+      // Step 1: Analyze loaded modules
+      await this.analyzeLoadedModules();
+      
+      // Step 2: Build dependency graph
+      this.buildDependencyGraph();
+      
+      // Step 3: Identify splitting opportunities
+      this.identifySplittingOpportunities();
+      
+      // Step 4: Calculate optimization potential
+      this.calculateOptimizationPotential();
+      
+      const analysisTime = performance.now() - startTime;
+      this.metrics.analysisTime = analysisTime;
+      
+      console.log(`✅ Codebase analysis complete in ${analysisTime.toFixed(0)}ms`);
+      return this.generateAnalysisReport();
+      
+    } catch (error) {
+      console.error('❌ Codebase analysis failed:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Analyze currently loaded modules
+   */
+  async analyzeLoadedModules() {
+    const scripts = document.querySelectorAll('script[src]');
+    const dynamicModules = window.moduleLoader ? 
+      Array.from(window.moduleLoader.loadedModules.keys()) : [];
+    
+    // Analyze static scripts
+    scripts.forEach(script => {
+      this.analyzeScript(script.src);
+    });
+    
+    // Analyze dynamic modules
+    dynamicModules.forEach(modulePath => {
+      this.analyzeModule(modulePath);
+    });
+    
+    console.log(`📊 Analyzed ${scripts.length} static scripts and ${dynamicModules.length} dynamic modules`);
+  }
+  
+  /**
+   * Analyze individual script
+   */
+  analyzeScript(scriptUrl) {
+    const moduleInfo = {
+      url: scriptUrl,
+      type: 'static',
+      size: 0,
+      dependencies: [],
+      exports: [],
+      functions: [],
+      classes: [],
+      splitOpportunities: []
+    };
+    
+    // Estimate size and analyze content if possible
+    this.estimateModuleSize(moduleInfo);
+    this.identifyModuleType(moduleInfo);
+    
+    this.analysis.modules.set(scriptUrl, moduleInfo);
+  }
+  
+  /**
+   * Analyze dynamic module
+   */
+  analyzeModule(modulePath) {
+    const moduleInfo = {
+      url: modulePath,
+      type: 'dynamic',
+      size: 0,
+      dependencies: [],
+      exports: [],
+      functions: [],
+      classes: [],
+      splitOpportunities: []
+    };
+    
+    // Get module data from ModuleLoader if available
+    if (window.moduleLoader && window.moduleLoader.loadedModules.has(modulePath)) {
+      const moduleData = window.moduleLoader.loadedModules.get(modulePath);
+      moduleInfo.size = moduleData.estimatedSize || 0;
+      moduleInfo.loadTime = moduleData.loadTime || 0;
+    }
+    
+    this.identifyModuleType(moduleInfo);
+    this.analysis.modules.set(modulePath, moduleInfo);
+  }
+  
+  /**
+   * Estimate module size
+   */
+  estimateModuleSize(moduleInfo) {
+    // Use Performance API if available
+    const resourceEntries = performance.getEntriesByName(moduleInfo.url);
+    if (resourceEntries.length > 0) {
+      const entry = resourceEntries[0];
+      moduleInfo.size = entry.transferSize || entry.encodedBodySize || 0;
+      moduleInfo.loadTime = entry.duration || 0;
+    }
+  }
+  
+  /**
+   * Identify module type and characteristics
+   */
+  identifyModuleType(moduleInfo) {
+    const url = moduleInfo.url;
+    
+    // Categorize by URL patterns
+    if (url.includes('/lib/')) {
+      moduleInfo.category = 'library';
+      moduleInfo.splitPriority = 'high'; // Libraries are good candidates
+    } else if (url.includes('/components/')) {
+      moduleInfo.category = 'component';
+      moduleInfo.splitPriority = 'medium';
+    } else if (url.includes('/core/')) {
+      moduleInfo.category = 'core';
+      moduleInfo.splitPriority = 'low'; // Core modules usually needed early
+    } else if (url.includes('/data/')) {
+      moduleInfo.category = 'data';
+      moduleInfo.splitPriority = 'high'; // Data can often be lazy loaded
+    } else if (url.includes('/utils/')) {
+      moduleInfo.category = 'utility';
+      moduleInfo.splitPriority = 'medium';
+    } else {
+      moduleInfo.category = 'unknown';
+      moduleInfo.splitPriority = 'low';
+    }
+    
+    // Size-based priority adjustment
+    if (moduleInfo.size > this.options.splitThreshold) {
+      moduleInfo.splitPriority = 'high';
+    }
+  }
+  
+  /**
+   * Build dependency graph
+   */
+  buildDependencyGraph() {
+    console.log('🕸️ Building dependency graph...');
+    
+    this.analysis.modules.forEach((moduleInfo, modulePath) => {
+      // Analyze dependencies based on common patterns
+      const dependencies = this.extractDependencies(moduleInfo);
+      this.analysis.dependencies.set(modulePath, dependencies);
+    });
+  }
+  
+  /**
+   * Extract dependencies from module
+   */
+  extractDependencies(moduleInfo) {
+    const dependencies = [];
+    
+    // Common dependency patterns in HAQEI codebase
+    const dependencyPatterns = {
+      'BaseComponent': ['/js/shared/core/BaseComponent.js'],
+      'StorageManager': ['/js/shared/core/StorageManager.js', '/js/shared/core/MicroStorageManager.js'],
+      'DataManager': ['/js/shared/core/DataManager.js'],
+      'Calculator': ['/js/os-analyzer/core/Calculator.js'],
+      'Chart': ['/js/lib/chart.min.js'],
+      'VirtualQuestionFlow': [
+        '/js/os-analyzer/components/VirtualQuestionFlow-core.js',
+        '/js/os-analyzer/components/VirtualQuestionFlow-renderer.js'
+      ]
+    };
+    
+    // Check for dependency patterns in URL
+    Object.entries(dependencyPatterns).forEach(([pattern, deps]) => {
+      if (moduleInfo.url.includes(pattern) || 
+          moduleInfo.category === pattern.toLowerCase()) {
+        dependencies.push(...deps);
+      }
+    });
+    
+    return [...new Set(dependencies)]; // Remove duplicates
+  }
+  
+  /**
+   * Identify splitting opportunities
+   */
+  identifySplittingOpportunities() {
+    console.log('🎯 Identifying splitting opportunities...');
+    
+    const opportunities = [];
+    
+    this.analysis.modules.forEach((moduleInfo, modulePath) => {
+      // Strategy 1: Split by feature
+      const featureOpportunities = this.strategies.byFeature(moduleInfo);
+      opportunities.push(...featureOpportunities);
+      
+      // Strategy 2: Split by size
+      const sizeOpportunities = this.strategies.bySize(moduleInfo);
+      opportunities.push(...sizeOpportunities);
+      
+      // Strategy 3: Split by usage patterns
+      const usageOpportunities = this.strategies.byUsage(moduleInfo);
+      opportunities.push(...usageOpportunities);
+    });
+    
+    // Deduplicate and prioritize
+    this.analysis.opportunities = this.prioritizeOpportunities(opportunities);
+    this.metrics.splitsIdentified = this.analysis.opportunities.length;
+  }
+  
+  /**
+   * Split by feature strategy
+   */
+  splitByFeature(moduleInfo) {
+    const opportunities = [];
+    
+    // Identify feature-based splitting opportunities
+    const featurePatterns = {
+      'help-system': {
+        trigger: 'onDemand',
+        priority: 'high',
+        estimatedSaving: '400KB'
+      },
+      'chart': {
+        trigger: 'onResults',
+        priority: 'high', 
+        estimatedSaving: '200KB'
+      },
+      'analysis-engine': {
+        trigger: 'onAnalysis',
+        priority: 'medium',
+        estimatedSaving: '800KB'
+      },
+      'visualization': {
+        trigger: 'onResults',
+        priority: 'medium',
+        estimatedSaving: '300KB'
+      }
+    };
+    
+    Object.entries(featurePatterns).forEach(([feature, config]) => {
+      if (moduleInfo.url.includes(feature) || 
+          moduleInfo.category === feature) {
+        opportunities.push({
+          type: 'feature',
+          module: moduleInfo.url,
+          feature,
+          ...config,
+          currentSize: moduleInfo.size
+        });
+      }
+    });
+    
+    return opportunities;
+  }
+  
+  /**
+   * Split by size strategy
+   */
+  splitBySize(moduleInfo) {
+    const opportunities = [];
+    
+    if (moduleInfo.size > this.options.splitThreshold) {
+      opportunities.push({
+        type: 'size',
+        module: moduleInfo.url,
+        reason: 'Large module',
+        currentSize: moduleInfo.size,
+        priority: moduleInfo.size > 100 * 1024 ? 'high' : 'medium',
+        strategy: 'chunk-splitting',
+        estimatedSaving: Math.floor(moduleInfo.size * 0.6) + 'B'
+      });
+    }
+    
+    return opportunities;
+  }
+  
+  /**
+   * Split by usage strategy
+   */
+  splitByUsage(moduleInfo) {
+    const opportunities = [];
+    
+    // Identify rarely used modules
+    const usagePatterns = {
+      'debug': 'development-only',
+      'test': 'development-only', 
+      'admin': 'admin-only',
+      'advanced': 'power-user',
+      'experimental': 'optional'
+    };
+    
+    Object.entries(usagePatterns).forEach(([pattern, usage]) => {
+      if (moduleInfo.url.includes(pattern)) {
+        opportunities.push({
+          type: 'usage',
+          module: moduleInfo.url,
+          usage,
+          priority: 'high',
+          strategy: 'conditional-loading',
+          currentSize: moduleInfo.size,
+          estimatedSaving: moduleInfo.size + 'B'
+        });
+      }
+    });
+    
+    return opportunities;
+  }
+  
+  /**
+   * Prioritize splitting opportunities
+   */
+  prioritizeOpportunities(opportunities) {
+    return opportunities
+      .filter(opp => opp.currentSize > 1024) // Only meaningful sizes
+      .sort((a, b) => {
+        // Sort by priority and potential savings
+        const priorityOrder = { high: 3, medium: 2, low: 1 };
+        const aPriority = priorityOrder[a.priority] || 0;
+        const bPriority = priorityOrder[b.priority] || 0;
+        
+        if (aPriority !== bPriority) {
+          return bPriority - aPriority;
+        }
+        
+        // Secondary sort by size
+        return b.currentSize - a.currentSize;
+      })
+      .slice(0, 20); // Keep top 20 opportunities
+  }
+  
+  /**
+   * Calculate optimization potential
+   */
+  calculateOptimizationPotential() {
+    let totalSavings = 0;
+    let totalSize = 0;
+    
+    this.analysis.modules.forEach((moduleInfo) => {
+      totalSize += moduleInfo.size;
+    });
+    
+    this.analysis.opportunities.forEach((opportunity) => {
+      const savingStr = opportunity.estimatedSaving;
+      const saving = parseInt(savingStr) || 0;
+      totalSavings += saving;
+    });
+    
+    this.metrics.potentialSavings = totalSavings;
+    this.metrics.optimizationScore = totalSize > 0 ? 
+      Math.min(100, (totalSavings / totalSize * 100)) : 0;
+  }
+  
+  /**
+   * Generate analysis report
+   */
+  generateAnalysisReport() {
+    const report = {
+      summary: {
+        modulesAnalyzed: this.analysis.modules.size,
+        splittingOpportunities: this.analysis.opportunities.length,
+        potentialSavings: this.formatBytes(this.metrics.potentialSavings),
+        optimizationScore: this.metrics.optimizationScore.toFixed(1) + '%'
+      },
+      opportunities: this.analysis.opportunities.map(opp => ({
+        ...opp,
+        currentSize: this.formatBytes(opp.currentSize),
+        estimatedSaving: this.formatBytes(parseInt(opp.estimatedSaving) || 0)
+      })),
+      recommendations: this.generateRecommendations(),
+      metrics: this.metrics
+    };
+    
+    console.log('📊 Code Splitting Analysis Report:');
+    console.log('=' .repeat(50));
+    console.log(`📦 Modules Analyzed: ${report.summary.modulesAnalyzed}`);
+    console.log(`✂️ Splitting Opportunities: ${report.summary.splittingOpportunities}`);
+    console.log(`💾 Potential Savings: ${report.summary.potentialSavings}`);
+    console.log(`🎯 Optimization Score: ${report.summary.optimizationScore}`);
+    
+    if (report.opportunities.length > 0) {
+      console.log('\
+🎯 Top Opportunities:');
+      report.opportunities.slice(0, 5).forEach((opp, i) => {
+        console.log(`${i + 1}. ${opp.module} (${opp.currentSize} → save ${opp.estimatedSaving})`);
+      });
+    }
+    
+    console.log('=' .repeat(50));
+    
+    return report;
+  }
+  
+  /**
+   * Generate recommendations
+   */
+  generateRecommendations() {
+    const recommendations = [];
+    
+    // High-impact opportunities
+    const highImpact = this.analysis.opportunities.filter(opp => 
+      opp.priority === 'high' && opp.currentSize > 50 * 1024
+    );
+    
+    if (highImpact.length > 0) {
+      recommendations.push({
+        type: 'high-impact',
+        message: `${highImpact.length} high-impact splitting opportunities identified`,
+        action: 'Implement dynamic imports for these modules first',
+        modules: highImpact.map(opp => opp.module)
+      });
+    }
+    
+    // Library splitting
+    const libraries = this.analysis.opportunities.filter(opp => 
+      opp.module.includes('/lib/')
+    );
+    
+    if (libraries.length > 0) {
+      recommendations.push({
+        type: 'library-splitting',
+        message: 'Third-party libraries can be lazy loaded',
+        action: 'Move chart.js and other libraries to results bundle',
+        modules: libraries.map(opp => opp.module)
+      });
+    }
+    
+    // Feature-based splitting
+    const features = this.analysis.opportunities.filter(opp => 
+      opp.type === 'feature'
+    );
+    
+    if (features.length > 0) {
+      recommendations.push({
+        type: 'feature-splitting',
+        message: 'Feature-based code splitting opportunities',
+        action: 'Implement lazy loading for optional features',
+        features: [...new Set(features.map(opp => opp.feature))]
+      });
+    }
+    
+    return recommendations;
+  }
+  
+  /**
+   * Format bytes for display
+   */
+  formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  /**
+   * Export analysis data
+   */
+  exportAnalysis() {
+    return {
+      analysis: {
+        modules: Array.from(this.analysis.modules.entries()),
+        dependencies: Array.from(this.analysis.dependencies.entries()),
+        opportunities: this.analysis.opportunities
+      },
+      metrics: this.metrics,
+      timestamp: Date.now()
+    };
+  }
+}
+
+// Global initialization
+if (!window.codeSplitter) {
+  window.codeSplitter = new CodeSplitter({
+    enableAnalysis: true,
+    splitThreshold: 50 * 1024
+  });
+  
+  console.log('🎯 Global CodeSplitter initialized');
+  
+  // Debug functions
+  window.analyzeCodeSplitting = () => window.codeSplitter.analyzeCodebase();
+  window.getCodeSplittingReport = () => window.codeSplitter.generateAnalysisReport();
+}
+
+// Export for ES6 modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = CodeSplitter;
+}

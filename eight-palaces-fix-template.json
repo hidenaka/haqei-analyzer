@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-08-14T06:37:09.171Z",
+  "analysis": {
+    "totalUnique": 60,
+    "duplicateCount": 4,
+    "missingCount": 4,
+    "isComplete": false
+  },
+  "duplicates": [
+    {
+      "hexagram": 37,
+      "palaceA": "離宮",
+      "palaceB": "巽宮"
+    },
+    {
+      "hexagram": 60,
+      "palaceA": "兌宮",
+      "palaceB": "坎宮"
+    },
+    {
+      "hexagram": 63,
+      "palaceA": "離宮",
+      "palaceB": "坎宮"
+    },
+    {
+      "hexagram": 8,
+      "palaceA": "乾宮",
+      "palaceB": "坤宮"
+    }
+  ],
+  "missing": [
+    14,
+    21,
+    41,
+    45
+  ],
+  "manualFixRequired": true,
+  "instructions": [
+    "1. Review the duplicates list below",
+    "2. Decide which palace each duplicate hexagram should belong to",
+    "3. Manually edit eight_palaces.v1.json",
+    "4. Run this tool again to verify",
+    "5. Repeat until all issues are resolved"
+  ]
+}

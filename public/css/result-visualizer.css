@@ -1,0 +1,135 @@
+/**
+ * T07: 結果可視化スタイル
+ * 宮名/position/hexagram表示用CSS
+ */
+
+.hexagram-detailed-info {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.hexagram-main {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.hexagram-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 0 0 8px 0;
+}
+
+.hexagram-number {
+    font-size: 16px;
+    color: #7f8c8d;
+    margin-left: 12px;
+}
+
+.pattern-id {
+    font-size: 14px;
+    color: #95a5a6;
+    margin-top: 8px;
+}
+
+.pattern-id code {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+.palace-info {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 20px 0;
+}
+
+.palace-name,
+.palace-position {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.palace-info .label {
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.palace-info .value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.hexagram-visual {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.hexagram-visual svg {
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 宮別カラーテーマ */
+.palace-qian { /* 乾宮 */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.palace-dui { /* 兌宮 */
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.palace-li { /* 離宮 */
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.palace-zhen { /* 震宮 */
+    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+.palace-xun { /* 巽宮 */
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.palace-kan { /* 坎宮 */
+    background: linear-gradient(135deg, #2af598 0%, #009efd 100%);
+}
+
+.palace-gen { /* 艮宮 */
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.palace-kun { /* 坤宮 */
+    background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .hexagram-detailed-info {
+        padding: 16px;
+    }
+    
+    .palace-info {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .hexagram-title {
+        font-size: 20px;
+    }
+    
+    .palace-info .value {
+        font-size: 16px;
+    }
+}

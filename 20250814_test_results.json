@@ -1,0 +1,35 @@
+{
+  "timestamp": "2025-08-14T06:52:22.971Z",
+  "checks": [
+    {
+      "test": "ページ読み込み",
+      "result": "SUCCESS",
+      "details": "ページが正常に読み込まれました"
+    },
+    {
+      "test": "worryInput存在",
+      "result": "SUCCESS",
+      "details": "worryInput要素を確認"
+    },
+    {
+      "test": "aiGuessBtn存在",
+      "result": "SUCCESS",
+      "details": "aiGuessBtn要素を確認"
+    },
+    {
+      "test": "テキスト入力",
+      "result": "SUCCESS",
+      "details": "テキストが正常に入力されました"
+    },
+    {
+      "test": "分析実行",
+      "result": "FAIL",
+      "details": "結果表示タイムアウト: page.waitForSelector: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.analysis-result, .scenario-card, #results-section') to be visible\u001b[22m\n"
+    },
+    {
+      "test": "コンソールエラー",
+      "result": "WARNING",
+      "details": "エラー検出: Access to fetch at 'file:///favicon.ico' from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app., Failed to load resource: net::ERR_FAILED, Failed to load resource: net::ERR_FILE_NOT_FOUND"
+    }
+  ]
+}

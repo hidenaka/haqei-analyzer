@@ -1,0 +1,1 @@
+class TripleOSInteractionAnalyzer{analyze(){return{}}}window.TripleOSInteractionAnalyzer=TripleOSInteractionAnalyzer;

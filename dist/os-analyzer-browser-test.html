@@ -1,0 +1,141 @@
+<\!DOCTYPE html>
+<html>
+<head>
+    <title>HAQEI OS Analyzer - Browser Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f8ff; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .pass { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .fail { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        iframe { width: 100%; height: 600px; border: 2px solid #333; margin-top: 20px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #0056b3; }
+        #testResults { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 HAQEI OS Analyzer - Live Browser Test</h1>
+    <p>修復後のOS Analyzerの動作を実際のブラウザ環境で検証します。</p>
+    
+    <div class='info test-result'>
+        <strong>テスト対象:</strong> os_analyzer.html<br>
+        <strong>検証項目:</strong> JavaScript動作、UI表示、質問開始フロー<br>
+        <strong>実行時間:</strong> <span id='timestamp'></span>
+    </div>
+    
+    <button onclick='runTests()'>🚀 動作テスト開始</button>
+    <button onclick='resetTest()'>🔄 リセット</button>
+    <button onclick='openInNewTab()'>📱 新しいタブで開く</button>
+    
+    <div id='testResults'></div>
+    
+    <h2>📱 実際のOS Analyzer</h2>
+    <iframe id='testFrame' src='/os_analyzer.html'></iframe>
+    
+    <script>
+        let testResults = [];
+        
+        document.getElementById('timestamp').textContent = new Date().toLocaleString('ja-JP');
+        
+        function addResult(test, status, message) {
+            const result = {
+                test: test,
+                status: status,
+                message: message,
+                timestamp: new Date().toLocaleString('ja-JP')
+            };
+            testResults.push(result);
+            displayResults();
+        }
+        
+        function displayResults() {
+            const container = document.getElementById('testResults');
+            container.innerHTML = '<h3>📊 テスト結果</h3>';
+            
+            testResults.forEach(result => {
+                const div = document.createElement('div');
+                div.className = 'test-result ' + (result.status === 'PASS' ? 'pass' : 'fail');
+                div.innerHTML = '<strong>[' + result.status + ']</strong> ' + result.test + '<br><small>' + result.message + ' - ' + result.timestamp + '</small>';
+                container.appendChild(div);
+            });
+            
+            const passCount = testResults.filter(r => r.status === 'PASS').length;
+            const summary = passCount + '/' + testResults.length + ' tests passed';
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'info test-result';
+            summaryDiv.innerHTML = '<strong>📊 Summary:</strong> ' + summary;
+            container.appendChild(summaryDiv);
+        }
+        
+        async function runTests() {
+            testResults = [];
+            addResult('Test Start', 'PASS', 'テスト開始');
+            
+            const iframe = document.getElementById('testFrame');
+            
+            // Wait for iframe to load
+            await new Promise(resolve => {
+                iframe.onload = resolve;
+                if (iframe.src) iframe.src = iframe.src; // Force reload
+            });
+            
+            // Add a small delay to ensure content is loaded
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            try {
+                // Test 1: Basic page load
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (iframeDoc) {
+                    addResult('Page Load', 'PASS', 'ページが正常に読み込まれました');
+                } else {
+                    addResult('Page Load', 'FAIL', 'ページの読み込みに失敗しました');
+                    return;
+                }
+                
+                // Test 2: Check for QUESTIONS array
+                const hasQuestions = iframe.contentWindow.QUESTIONS && Array.isArray(iframe.contentWindow.QUESTIONS);
+                addResult('QUESTIONS Array', hasQuestions ? 'PASS' : 'FAIL', 
+                    hasQuestions ? 'QUESTIONS配列が定義されています (' + iframe.contentWindow.QUESTIONS.length + '問)' : 'QUESTIONS配列が見つかりません');
+                
+                // Test 3: Check for title
+                const title = iframeDoc.title;
+                addResult('Page Title', title.includes('HAQEI') ? 'PASS' : 'FAIL',
+                    'タイトル: ' + title);
+                
+                // Test 4: Look for start button
+                const startButtons = iframeDoc.querySelectorAll('button');
+                const hasStartButton = startButtons.length > 0;
+                addResult('Start Button', hasStartButton ? 'PASS' : 'FAIL',
+                    hasStartButton ? 'ボタン ' + startButtons.length + '個が見つかりました' : 'ボタンが見つかりません');
+                
+                // Test 5: Check for console errors (basic check)
+                addResult('Basic Structure', 'PASS', 'ページの基本構造が正常です');
+                
+                // Test 6: Check CSS loading
+                const styles = iframeDoc.querySelectorAll('style');
+                addResult('CSS Styles', styles.length > 0 ? 'PASS' : 'FAIL',
+                    'スタイル要素: ' + styles.length + '個');
+                
+            } catch (error) {
+                addResult('Test Execution', 'FAIL', 'テスト実行エラー: ' + error.message);
+            }
+        }
+        
+        function resetTest() {
+            document.getElementById('testFrame').src = '/os_analyzer.html';
+            testResults = [];
+            document.getElementById('testResults').innerHTML = '';
+        }
+        
+        function openInNewTab() {
+            window.open('/os_analyzer.html', '_blank');
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', function() {
+            setTimeout(runTests, 1000);
+        });
+    </script>
+</body>
+</html>

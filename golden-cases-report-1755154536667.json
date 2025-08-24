@@ -1,0 +1,138 @@
+{
+  "timestamp": "2025-08-14T06:55:36.659Z",
+  "testSuite": "Golden Cases Regression Test",
+  "version": "1.0.0",
+  "totalTests": 19,
+  "passed": 17,
+  "failed": 2,
+  "details": [
+    {
+      "id": "GC001",
+      "name": "全YES - 最大活性パターン",
+      "passed": true
+    },
+    {
+      "id": "GC002",
+      "name": "全NO - 最小活性パターン",
+      "passed": true
+    },
+    {
+      "id": "GC003",
+      "name": "交互パターンA（YNYNYNYN）",
+      "passed": true
+    },
+    {
+      "id": "GC004",
+      "name": "交互パターンB（NYNYNYNY）",
+      "passed": true
+    },
+    {
+      "id": "GC005",
+      "name": "前半YES後半NO",
+      "passed": true
+    },
+    {
+      "id": "GC006",
+      "name": "前半NO後半YES",
+      "passed": true
+    },
+    {
+      "id": "GC007",
+      "name": "中央集中パターン",
+      "passed": true
+    },
+    {
+      "id": "GC008",
+      "name": "両端集中パターン",
+      "passed": false,
+      "failures": [
+        "hexagramId",
+        "palace"
+      ],
+      "expected": {
+        "patternId": "303",
+        "decimalId": 195,
+        "hexagramId": 26,
+        "palace": "艮宮",
+        "palacePosition": 3,
+        "element": "風",
+        "direction": "東南",
+        "binaryPattern": "11000011"
+      },
+      "actual": {
+        "patternId": "303",
+        "decimalId": 195,
+        "binaryPattern": "11000011",
+        "hexagramId": 25,
+        "palace": "巽宮",
+        "palacePosition": 3,
+        "element": "風",
+        "direction": "東南",
+        "patternGroup": 3,
+        "subPattern": 3,
+        "timestamp": "2025-08-14T06:55:36.664Z",
+        "error": null
+      }
+    },
+    {
+      "id": "GC009",
+      "name": "単一YESパターン（最初のみ）",
+      "passed": true
+    },
+    {
+      "id": "GC010",
+      "name": "単一YESパターン（最後のみ）",
+      "passed": true
+    },
+    {
+      "id": "GC011",
+      "name": "坎宮起点パターン",
+      "passed": true
+    },
+    {
+      "id": "GC012",
+      "name": "八宮境界テスト",
+      "passed": true
+    },
+    {
+      "id": "TC001",
+      "name": "バランス型Triple OS",
+      "passed": false,
+      "failures": [
+        "safeModeHexagram",
+        "safeModePalace"
+      ]
+    },
+    {
+      "id": "TC002",
+      "name": "エンジン優位型",
+      "passed": true
+    },
+    {
+      "id": "EC001",
+      "name": "不正な入力長",
+      "passed": true
+    },
+    {
+      "id": "EC002",
+      "name": "不正な値",
+      "passed": true
+    },
+    {
+      "id": "EC003",
+      "name": "null/undefined入力",
+      "passed": true
+    },
+    {
+      "id": "RC001",
+      "name": "8宮マッピング整合性",
+      "passed": true
+    },
+    {
+      "id": "RC002",
+      "name": "512パターン完全性",
+      "passed": true,
+      "errors": []
+    }
+  ]
+}

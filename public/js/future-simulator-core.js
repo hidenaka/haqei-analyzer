@@ -16,10 +16,16 @@ FutureSimulator.Core = {
   authentic386Integration: null,
   useAuthentic386: true,
   
+  // v4.3.1 決定論的要件: SeedableRandom統合
+  rng: null,
+  
   async init() {
     console.log('🚀 Future Simulator initializing...');
     
     try {
+      // Initialize deterministic random number generator
+      this.initRandomnessManager();
+      
       // Initialize components in proper order with error handling
       this.initKuromoji();
       this.init386System();
@@ -39,6 +45,25 @@ FutureSimulator.Core = {
     } catch (error) {
       console.error('❌ Initialization error:', error);
       this.showError('システムの初期化に失敗しました。ページを再読み込みしてください。');
+    }
+  },
+  
+  initRandomnessManager() {
+    console.log('🎲 Initializing RandomnessManager...');
+    
+    if (typeof window.randomnessManager !== 'undefined') {
+      this.rng = window.randomnessManager.getGenerator('deterministic');
+      console.log('✅ Using global RandomnessManager');
+    } else if (typeof window.SeedableRandom !== 'undefined') {
+      this.rng = new window.SeedableRandom(12345);
+      console.log('✅ Using direct SeedableRandom instance');
+    } else {
+      console.warn('⚠️ SeedableRandom not available, using fallback');
+      this.rng = {
+        next: () => 0.5,
+        nextInt: (min, max) => Math.floor((min + max) / 2),
+        nextFloat: (min, max) => (min + max) / 2
+      };
     }
   },
   
@@ -102,7 +127,9 @@ FutureSimulator.Core = {
       }
       
       // Initialize input field with error handling
-      const inputField = document.getElementById('situation-input') || 
+      const inputField = document.getElementById('worryInput') ||
+                      document.getElementById('worryInput') ||
+                      document.getElementById('situation-input') || 
                       document.querySelector('textarea[placeholder*="状況"]') ||
                       document.querySelector('textarea');
     
@@ -191,7 +218,8 @@ FutureSimulator.Core = {
     console.log('🔗 Setting up event listeners...');
     
     // Find analyze button
-    const analyzeButton = document.getElementById('analyze-button') ||
+    const analyzeButton = document.getElementById('aiGuessBtn') ||
+                         document.getElementById('analyze-button') ||
                          document.querySelector('button[onclick*="analyze"]') ||
                          document.querySelector('.analyze-btn') ||
                          Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.includes('分析'));
@@ -199,6 +227,13 @@ FutureSimulator.Core = {
     if (analyzeButton) {
       analyzeButton.onclick = () => this.startAnalysis();
       console.log('✅ Analyze button connected');
+    }
+    
+    // Setup input field listener
+    const inputField = document.getElementById('worryInput') || document.querySelector('textarea');
+    if (inputField) {
+      inputField.addEventListener('input', this.handleInputChange.bind(this));
+      console.log('✅ Input field listener connected');
     }
     
     // Setup any other buttons
@@ -214,7 +249,8 @@ FutureSimulator.Core = {
   
   handleInputChange(e) {
     const text = e.target.value.trim();
-    const button = document.querySelector('button[onclick*="analyze"]') ||
+    const button = document.getElementById('aiGuessBtn') ||
+                  document.querySelector('button[onclick*="analyze"]') ||
                   document.querySelector('.analyze-btn');
     
     if (button) {
@@ -225,12 +261,14 @@ FutureSimulator.Core = {
   async startAnalysis() {
     console.log('🔍 Starting advanced analysis with text interpretation...');
     
-    const inputField = document.getElementById('situation-input') || 
+    const inputField = document.getElementById('worryInput') ||
+                      document.getElementById('worryInput') ||
+                      document.getElementById('situation-input') || 
                       document.querySelector('textarea[placeholder*="状況"]') ||
                       document.querySelector('textarea');
     
     if (!inputField || !inputField.value.trim()) {
-      alert('状況を入力してください');
+      this.showUserMessage('状況を入力してください', 'warning');
       return;
     }
     
@@ -309,7 +347,7 @@ FutureSimulator.Core = {
       // もし解析できなかった場合は、ランダムまたはデフォルトを使用
       if (!situationHexagram) {
         console.log('⚠️ Using fallback random selection...');
-        currentLine = Math.floor(Math.random() * 384) + 1;
+        currentLine = Math.floor(this.rng.next() * 384) + 1;
       }
       
       // 🏅 正統386爻システム優先分析
@@ -373,19 +411,25 @@ FutureSimulator.Core = {
           console.warn('⚠️ IChingGuidanceEngine not available');
         }
         
-        // Display binary tree results with context
-        this.displayBinaryTreeResults(binaryResult);
-        
-        // 🔄 統合結果をFutureSimulatorIntegrationに渡す
-        if (completeAnalysis && window.futureSimulatorIntegration) {
-          console.log('🔄 Sending complete analysis to FutureSimulatorIntegration...');
+        // 🌟 新しい表示システムを使用
+        if (window.FutureSimulatorDisplay) {
+          console.log('🌟 Using new FutureSimulatorDisplay system');
+          const display = new window.FutureSimulatorDisplay();
+          
+          // 現在の卦と爻を取得
+          const hexagramIndex = situationHexagram?.hexagram_number || Math.floor(currentLine / 6) + 1;
+          const lineIndex = (currentLine % 6) || 0;
+          
+          // 表示実行
+          display.render('resultsContainer', hexagramIndex, lineIndex);
+        } else if (completeAnalysis && window.futureSimulatorIntegration) {
+          console.log('🔄 Fallback to FutureSimulatorIntegration...');
           window.futureSimulatorIntegration.displayResults(completeAnalysis);
         }
         
       } else {
         console.log('⚡ Using Standard Analysis System');
         const scenarios = this.generateScenarios(situation);
-        this.displayResults(scenarios);
       }
       
     } catch (error) {
@@ -412,12 +456,57 @@ FutureSimulator.Core = {
       return;
     }
     
-    // Clear previous results
-    resultsContainer.innerHTML = '';
+    // Canvas要素の詳細情報を保存
+    const canvasElements = Array.from(resultsContainer.querySelectorAll('canvas'));
+    const canvasData = canvasElements.map(canvas => ({
+      element: canvas,
+      id: canvas.id,
+      className: canvas.className,
+      parent: canvas.parentElement,
+      nextSibling: canvas.nextSibling,
+      context: canvas.getContext ? canvas.getContext('2d') : null
+    }));
     
-    // Create authentic 386-line UI structure
-    const resultHTML = this.generateAuthentic386HTML(analysisResult);
-    resultsContainer.innerHTML = resultHTML;
+    console.log(`🔧 Preserving ${canvasData.length} canvas elements`);
+    
+    // 新しいHTMLを仮想DOMで構築
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = this.generateAuthentic386HTML(analysisResult);
+    
+    // Canvas要素を新しい構造に移植
+    canvasData.forEach(data => {
+      let targetLocation = null;
+      
+      // IDで場所を特定
+      if (data.id) {
+        targetLocation = tempContainer.querySelector(`#${data.id}`);
+        if (targetLocation && targetLocation.tagName === 'CANVAS') {
+          // Canvas要素を置換
+          targetLocation.parentElement.replaceChild(data.element, targetLocation);
+          console.log(`✅ Canvas ${data.id} preserved by replacement`);
+          return;
+        }
+      }
+      
+      // 適切なコンテナを探す
+      targetLocation = tempContainer.querySelector('.score-visualization-container') ||
+                      tempContainer.querySelector('#eight-scenarios-display-container') ||
+                      tempContainer.querySelector('.chart-root');
+      
+      if (targetLocation) {
+        targetLocation.appendChild(data.element);
+        console.log(`✅ Canvas ${data.id || 'unnamed'} preserved in container`);
+      }
+    });
+    
+    // DOM全体を安全に置換
+    while (resultsContainer.firstChild) {
+      resultsContainer.removeChild(resultsContainer.firstChild);
+    }
+    
+    while (tempContainer.firstChild) {
+      resultsContainer.appendChild(tempContainer.firstChild);
+    }
     
     // Add interactive features
     this.setupAuthentic386Interactions(analysisResult);
@@ -617,7 +706,8 @@ FutureSimulator.Core = {
     if (window.currentAnalysisResult && window.currentAnalysisResult.eightScenarios) {
       const scenario = window.currentAnalysisResult.eightScenarios.scenarios[index];
       if (scenario) {
-        alert(`${scenario.name}\n\n${scenario.description || 'シナリオの詳細情報'}\n\n推奨: ${scenario.recommendation || '状況に応じて対応してください'}`);
+        const message = `${scenario.name}\n\n${scenario.description || 'シナリオの詳細情報'}\n\n推奨: ${scenario.recommendation || '状況に応じて対応してください'}`;
+        this.showUserMessage(message, 'info');
       }
     }
   },
@@ -638,12 +728,21 @@ FutureSimulator.Core = {
       return;
     }
     
-    // Clear previous results
-    resultsContainer.innerHTML = '';
+    // 新しい表示システムを使用
+    const canvases = Array.from(resultsContainer.querySelectorAll('canvas'));
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = this.generate512PatternHTML(analysisResult);
     
-    // Create enhanced UI structure
-    const resultHTML = this.generate512PatternHTML(analysisResult);
-    resultsContainer.innerHTML = resultHTML;
+    // Canvas要素を復元
+    canvases.forEach(canvas => {
+      const container = tempDiv.querySelector('.score-visualization-container') || tempDiv;
+      container.appendChild(canvas);
+    });
+    
+    resultsContainer.innerHTML = '';
+    while (tempDiv.firstChild) {
+      resultsContainer.appendChild(tempDiv.firstChild);
+    }
     
     // Add interactive features
     this.setup512PatternInteractions(analysisResult);
@@ -1354,7 +1453,7 @@ FutureSimulator.Core = {
     ];
     
     // Return random 4 scenarios
-    return baseScenarios.sort(() => Math.random() - 0.5).slice(0, 4);
+    return baseScenarios.sort(() => this.rng.next() - 0.5).slice(0, 4);
   },
   
   displayResults(scenarios) {
@@ -1492,10 +1591,36 @@ FutureSimulator.Core = {
         </div>
       `;
     } else {
-      alert(message);
+      this.showUserMessage(message, 'error');
     }
     
     this.hideLoading();
+  },
+  
+  // ユーザー通知機能
+  showUserMessage(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${type === 'warning' ? '#f59e0b' : type === 'error' ? '#ef4444' : '#3b82f6'};
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      max-width: 300px;
+      font-weight: 500;
+      line-height: 1.4;
+      white-space: pre-line;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 4000);
   },
 
   // Enhanced error handling for component loading

@@ -9,8 +9,26 @@ console.log('📚 H384DatabaseConnector Loading...');
   'use strict';
 
   class H384DatabaseConnector {
-    constructor() {
-      this.name = 'H384DatabaseConnector';
+    constructor(options = {}) {
+      
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    if (options.randomnessManager) {
+      this.rng = options.randomnessManager.getGenerator ? 
+                 options.randomnessManager.getGenerator('deterministic') : 
+                 options.randomnessManager;
+    } else if (window.randomnessManager) {
+      this.rng = window.randomnessManager.getGenerator('deterministic');
+    } else if (window.SeedableRandom) {
+      this.rng = new window.SeedableRandom(12345);
+    } else {
+      // フォールバック: 簡易決定論的生成器
+      this.rng = {
+        next: () => 0.5,
+        nextInt: (min, max) => Math.floor((min + max) / 2),
+        nextFloat: (min, max) => (min + max) / 2
+      };
+    }
+    this.name = 'H384DatabaseConnector';
       this.version = '2.0.0';
       this.database = null;
       this.isLoaded = false;
@@ -190,13 +208,13 @@ console.log('📚 H384DatabaseConnector Loading...');
             '爻': yaoNames[yaoNum - 1],
             'キーワード': ['変化', '転機', '選択'],
             '現代解釈の要約': `${hexagramNames[guaNum - 1]}の${yaoNames[yaoNum - 1]}の状態`,
-            'S1_基本スコア': 50 + Math.floor(Math.random() * 50),
-            'S2_ポテンシャル': 40 + Math.floor(Math.random() * 40),
-            'S3_安定性スコア': 30 + Math.floor(Math.random() * 50),
-            'S4_リスク': -(20 + Math.floor(Math.random() * 60)),
-            'S5_主体性推奨スタンス': Math.random() > 0.5 ? '能動' : '受動',
-            'S6_変動性スコア': 20 + Math.floor(Math.random() * 60),
-            'S7_総合評価スコア': 30 + Math.floor(Math.random() * 50)
+            'S1_基本スコア': 50 + Math.floor(this.rng.next() * 50),
+            'S2_ポテンシャル': 40 + Math.floor(this.rng.next() * 40),
+            'S3_安定性スコア': 30 + Math.floor(this.rng.next() * 50),
+            'S4_リスク': -(20 + Math.floor(this.rng.next() * 60)),
+            'S5_主体性推奨スタンス': this.rng.next() > 0.5 ? '能動' : '受動',
+            'S6_変動性スコア': 20 + Math.floor(this.rng.next() * 60),
+            'S7_総合評価スコア': 30 + Math.floor(this.rng.next() * 50)
           });
         }
       }

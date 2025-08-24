@@ -8,7 +8,10 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
     />
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Unified Design System (優先適用) -->
+    <link rel="stylesheet" href="css/haqei-unified-design.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,47 +19,80 @@
       rel="stylesheet"
     />
     <style>
+      /* 統一デザインシステムの強制適用 */
       body {
-        font-family: "Inter", "Noto Sans JP", sans-serif;
+        font-family: var(--font-sans), "Inter", "Noto Sans JP", sans-serif !important;
+        background: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
       }
+      
+      /* ダークモードの無効化 */
+      .bg-gray-900 { background: var(--bg-primary) !important; }
+      .bg-slate-950 { background: var(--bg-primary) !important; }
+      .text-gray-300 { color: var(--text-secondary) !important; }
+      .text-gray-400 { color: var(--text-tertiary) !important; }
+      .text-indigo-400 { color: var(--primary-blue) !important; }
+      .text-indigo-300 { color: var(--primary-blue-light) !important; }
+      .hover\:text-indigo-300:hover { color: var(--primary-blue-dark) !important; }
+      
       .brand-text {
-        background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
+        background: var(--gradient-primary);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
         color: transparent;
       }
+      
       .question-card {
-        background-color: rgba(31, 41, 55, 0.7);
-        border: 1px solid #374151;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        backdrop-filter: blur(10px);
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-6);
+        margin-bottom: var(--spacing-6);
+        box-shadow: var(--shadow-md);
       }
+      
       .option-label {
         display: block;
-        padding: 0.75rem 1.25rem;
-        border: 1px solid #4b5563;
-        border-radius: 0.5rem;
+        padding: var(--spacing-3) var(--spacing-5);
+        border: 1px solid var(--border-default);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        border-radius: var(--radius-lg);
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: var(--transition-all);
       }
+      
       .option-label:hover {
-        background-color: #4b5563;
-        border-color: #6366f1;
+        background-color: var(--bg-blue-light);
+        border-color: var(--primary-blue);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
       }
+      
       input[type="radio"]:checked + .option-label {
-        background-color: #4338ca;
-        border-color: #a5b4fc;
-        color: #e0e7ff;
+        background-color: var(--bg-blue-light);
+        border-color: var(--primary-blue);
+        color: var(--primary-blue-dark);
         font-weight: 600;
+      }
+      
+      /* ボタンのスタイル統一 */
+      .bg-indigo-600 {
+        background: var(--gradient-primary) !important;
+      }
+      .bg-amber-500 {
+        background: var(--gradient-secondary) !important;
+      }
+      .bg-gray-800 { 
+        background: var(--bg-primary) !important; 
+        border: 1px solid var(--border-default);
       }
     </style>
   </head>
-  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+  <body class="min-h-screen p-4 sm:p-8">
     <div
-      class="w-full max-w-2xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10"
+      class="w-full max-w-2xl mx-auto card shadow-2xl rounded-2xl p-6 sm:p-10"
     >
       <header class="text-center mb-10">
         <a

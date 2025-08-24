@@ -51,14 +51,16 @@
     "playwright": {
       "command": "npx",
       "args": [
-        "@playwright/mcp"
+        "@playwright/mcp",
+        "--isolated"
       ],
       "cwd": "/Users/hideakimacbookair/Desktop/haqei-analyzer",
       "env": {
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/hideakimacbookair/.cache/ms-playwright"
       },
       "timeout": 30000,
-      "description": "Playwright MCP - ブラウザ自動化とE2Eテスト"
+      "description": "Playwright MCP - ブラウザ自動化とE2Eテスト（独立インスタンス）"
     },
     "claude-flow": {
       "command": "npx",
@@ -178,7 +180,7 @@
   },
   "metadata": {
     "generatedBy": "generate-mcp-config.js",
-    "generatedAt": "2025-08-11T23:02:18.297Z",
+    "generatedAt": "2025-08-16T00:31:17.866Z",
     "currentUser": "hideakimacbookair",
     "projectPath": "/Users/hideakimacbookair/Desktop/haqei-analyzer"
   }

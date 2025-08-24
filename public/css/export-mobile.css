@@ -1,0 +1,616 @@
+/**
+ * export-mobile.css
+ * モバイル向けエクスポート機能のスタイル定義
+ * 
+ * 機能:
+ * - SNS共有カードのスタイル
+ * - LINE共有テキストプレビュー
+ * - QRコード表示
+ * - コピー通知
+ * - レスポンシブ対応
+ */
+
+/* ==========================================================================
+   モバイルエクスポートセクション
+   ========================================================================== */
+
+.mobile-export-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    color: white;
+}
+
+.mobile-export-section .section-title {
+    color: white;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.mobile-export-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ==========================================================================
+   エクスポートカード共通スタイル
+   ========================================================================== */
+
+.export-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: #333;
+}
+
+.export-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 0.25rem 0;
+}
+
+.card-subtitle {
+    font-size: 0.875rem;
+    color: #7f8c8d;
+    font-weight: 400;
+}
+
+.card-footer {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   SNS共有カード
+   ========================================================================== */
+
+.sns-card .card-preview {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-content {
+    text-align: center;
+    color: white;
+    width: 100%;
+}
+
+.preview-header {
+    margin-bottom: 1rem;
+}
+
+.preview-header h5 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.preview-date {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.preview-scores {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.os-score {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    backdrop-filter: blur(10px);
+}
+
+.os-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.score-value {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.preview-hexagram {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.os-hexagram {
+    font-size: 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.preview-total {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.total-label {
+    display: block;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    opacity: 0.9;
+}
+
+.total-score {
+    font-size: 2rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================================================
+   LINE共有カード
+   ========================================================================== */
+
+.line-card .line-text-preview {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    min-height: 150px;
+}
+
+.preview-text {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #2c3e50;
+    white-space: pre-line;
+    word-wrap: break-word;
+}
+
+/* ==========================================================================
+   QRコードカード
+   ========================================================================== */
+
+.qr-card .qr-code-container {
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 1rem;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.qr-placeholder {
+    color: #6c757d;
+}
+
+.qr-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.qr-placeholder p {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+/* QRコード生成後のスタイル */
+.qr-code-container img,
+.qr-code-container canvas {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   共有ボタン
+   ========================================================================== */
+
+.share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.share-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.share-btn:active {
+    transform: translateY(0);
+}
+
+.share-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-icon {
+    font-size: 1rem;
+}
+
+/* Instagram ボタン */
+.instagram-btn {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    color: white;
+}
+
+.instagram-btn:hover {
+    background: linear-gradient(45deg, #e6683c 0%, #dc2743 25%, #cc2366 50%, #bc1888 75%, #8b0a50 100%);
+}
+
+/* Twitter ボタン */
+.twitter-btn {
+    background: #1da1f2;
+    color: white;
+}
+
+.twitter-btn:hover {
+    background: #0d8bd9;
+}
+
+/* LINE ボタン */
+.line-btn {
+    background: #00c300;
+    color: white;
+}
+
+.line-btn:hover {
+    background: #00a000;
+}
+
+/* 画像保存ボタン */
+.save-image-btn {
+    background: #6c757d;
+    color: white;
+}
+
+.save-image-btn:hover {
+    background: #545b62;
+}
+
+/* テキストコピーボタン */
+.copy-text-btn {
+    background: #17a2b8;
+    color: white;
+}
+
+.copy-text-btn:hover {
+    background: #138496;
+}
+
+/* QRコード関連ボタン */
+.generate-qr-btn {
+    background: #28a745;
+    color: white;
+}
+
+.generate-qr-btn:hover {
+    background: #218838;
+}
+
+.save-qr-btn {
+    background: #ffc107;
+    color: #212529;
+}
+
+.save-qr-btn:hover {
+    background: #e0a800;
+}
+
+/* ==========================================================================
+   コピー通知
+   ========================================================================== */
+
+.copy-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    font-weight: 600;
+}
+
+.copy-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification-icon {
+    font-size: 1.25rem;
+}
+
+.notification-text {
+    font-size: 0.875rem;
+}
+
+/* ==========================================================================
+   レスポンシブ対応
+   ========================================================================== */
+
+/* タブレット */
+@media (max-width: 768px) {
+    .mobile-export-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .export-card {
+        padding: 1rem;
+    }
+    
+    .card-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .share-btn {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .preview-scores {
+        gap: 0.5rem;
+    }
+    
+    .os-score {
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .preview-hexagram {
+        gap: 0.5rem;
+    }
+    
+    .os-hexagram {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.25rem;
+    }
+}
+
+/* スマートフォン */
+@media (max-width: 480px) {
+    .mobile-export-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .mobile-export-section .section-title {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .export-card {
+        padding: 0.75rem;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .card-subtitle {
+        font-size: 0.8rem;
+    }
+    
+    .sns-card .card-preview {
+        padding: 1rem;
+        min-height: 180px;
+    }
+    
+    .preview-header h5 {
+        font-size: 1.25rem;
+    }
+    
+    .total-score {
+        font-size: 1.75rem;
+    }
+    
+    .preview-text {
+        font-size: 0.8rem;
+    }
+    
+    .qr-code-container {
+        padding: 1.5rem;
+        min-height: 150px;
+    }
+    
+    .qr-icon {
+        font-size: 2.5rem;
+    }
+    
+    .share-btn {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.8rem;
+    }
+    
+    .copy-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* 横向きスマートフォン */
+@media (max-width: 768px) and (orientation: landscape) {
+    .mobile-export-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .qr-card {
+        grid-column: 1 / -1;
+    }
+}
+
+/* 大画面対応 */
+@media (min-width: 1200px) {
+    .mobile-export-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .export-card {
+        padding: 2rem;
+    }
+    
+    .sns-card .card-preview {
+        min-height: 250px;
+    }
+    
+    .qr-code-container {
+        min-height: 250px;
+    }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+    .export-card {
+        background: #2c3e50;
+        color: #ecf0f1;
+    }
+    
+    .card-title {
+        color: #ecf0f1;
+    }
+    
+    .card-subtitle {
+        color: #bdc3c7;
+    }
+    
+    .line-text-preview {
+        background: #34495e;
+        border-color: #4a5f7a;
+    }
+    
+    .preview-text {
+        color: #ecf0f1;
+    }
+    
+    .qr-code-container {
+        background: #34495e;
+        border-color: #4a5f7a;
+    }
+    
+    .qr-placeholder {
+        color: #bdc3c7;
+    }
+}
+
+/* 印刷時の調整 */
+@media print {
+    .mobile-export-section {
+        background: white;
+        color: black;
+        box-shadow: none;
+    }
+    
+    .export-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .share-btn {
+        display: none;
+    }
+    
+    .copy-notification {
+        display: none;
+    }
+}
+
+/* アクセシビリティ対応 */
+@media (prefers-reduced-motion: reduce) {
+    .export-card,
+    .share-btn,
+    .copy-notification {
+        transition: none;
+    }
+    
+    .export-card:hover,
+    .share-btn:hover {
+        transform: none;
+    }
+}
+
+/* 高コントラストモード */
+@media (prefers-contrast: high) {
+    .export-card {
+        border: 2px solid #000;
+    }
+    
+    .share-btn {
+        border: 2px solid #000;
+    }
+    
+    .sns-card .card-preview {
+        border: 2px solid #000;
+    }
+}

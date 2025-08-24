@@ -4,7 +4,11 @@
  */
 
 class YaoTransformationSimulator {
-  constructor(ichingAnalyzer) {
+  constructor(ichingAnalyzer, options = {}) {
+    
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
     this.ichingAnalyzer = ichingAnalyzer;
     this.h384Data = null;
     this.transformationRules = this.initTransformationRules();
@@ -184,7 +188,7 @@ class YaoTransformationSimulator {
     if (emotion.dominant === 'stagnation') return 'up';
     if (currentYao === 6) return 'down'; // 上爻から下へ
     if (currentYao <= 3) return 'up'; // 下位から上位へ
-    return Math.random() > 0.5 ? 'up' : 'down';
+    return this.rng.next() > 0.5 ? 'up' : 'down';
   }
 
   /**
@@ -194,7 +198,7 @@ class YaoTransformationSimulator {
     // 創造的な変化は予測不可能
     if (pattern.primary === 'stagnation') return 'reverse';
     if (pattern.primary === 'completion') return 'reverse';
-    return ['up', 'down', 'reverse'][Math.floor(Math.random() * 3)];
+    return ['up', 'down', 'reverse'][Math.floor(this.rng.next() * 3)];
   }
 
   /**
@@ -215,8 +219,8 @@ class YaoTransformationSimulator {
         break;
       case 'stable':
         // 小幅な変化のみ
-        if (Math.random() < transformationPattern.intensity) {
-          newYao = currentYao + (Math.random() > 0.5 ? 1 : -1);
+        if (this.rng.next() < transformationPattern.intensity) {
+          newYao = currentYao + (this.rng.next() > 0.5 ? 1 : -1);
           newYao = Math.max(1, Math.min(6, newYao));
         }
         break;
@@ -1447,7 +1451,7 @@ class YaoTransformationSimulator {
     };
 
     const templates = secondaryTemplates[scenarioType] || secondaryTemplates.realistic;
-    const randomIndex = Math.floor(Math.random() * templates.length);
+    const randomIndex = Math.floor(this.rng.next() * templates.length);
     return templates[randomIndex];
   }
 

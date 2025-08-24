@@ -1,0 +1,205 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "name": "haqei-analyzer",
+  "description": "HAQEI Analyzer - Strategic Life Navigation Through HaQei Philosophy",
+  "public": false,
+  "trailingSlash": false,
+  
+  "build": {
+    "env": {
+      "NODE_VERSION": "18.x"
+    }
+  },
+
+  "buildCommand": "echo 'No build command needed for static deployment'",
+  "outputDirectory": "public",
+
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/os_analyzer_clean.html"
+    },
+    {
+      "src": "/index.html",
+      "status": 301,
+      "headers": { "Location": "/os_analyzer_clean.html" }
+    },
+    {
+      "src": "/analyzer",
+      "dest": "/os_analyzer_clean.html"
+    },
+    {
+      "src": "/os-analyzer",
+      "dest": "/os_analyzer_clean.html"
+    },
+    {
+      "src": "/clean",
+      "dest": "/os_analyzer_clean.html"
+    },
+    {
+      "src": "/optimized",
+      "dest": "/os_analyzer_optimized.html"
+    },
+    {
+      "src": "/a11y",
+      "dest": "/os_analyzer_a11y.html"
+    },
+    {
+      "src": "/full",
+      "dest": "/os_analyzer.html"
+    },
+    {
+      "src": "/future",
+      "dest": "/future_simulator.html"
+    },
+    {
+      "src": "/simulator",
+      "dest": "/future_simulator.html"
+    },
+    {
+      "src": "/philosophy",
+      "dest": "/haqei-philosophy.html"
+    },
+    {
+      "src": "/professional",
+      "dest": "/professional_report.html"
+    },
+    {
+      "src": "/report",
+      "dest": "/professional_report.html"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/strategic-dashboard.html"
+    },
+    {
+      "src": "/library",
+      "dest": "/library.html"
+    },
+    {
+      "src": "/privacy",
+      "dest": "/privacy.html"
+    },
+    {
+      "src": "/terms",
+      "dest": "/terms.html"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/os_analyzer_clean.html",
+      "status": 404
+    }
+  ],
+
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://vercel.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-DNS-Prefetch-Control",
+          "value": "on"
+        }
+      ]
+    },
+    {
+      "source": "/css/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/js/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/lib/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/*.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/haqei-sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ],
+
+  "functions": {
+    "public/api/analytics.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+
+  "regions": ["iad1", "hnd1", "fra1"],
+
+  "github": {
+    "enabled": true,
+    "autoJobCancelation": true
+  }
+}

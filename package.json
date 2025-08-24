@@ -1,17 +1,23 @@
 {
   "name": "haqei-analyzer",
-  "version": "1.0.0",
-  "description": "HAQEI Triple OS Analysis System - Visual & Behavior Testing",
-  "main": "emergency_haqei.html",
+  "version": "2.2.2",
+  "description": "HAQEI Triple OS Analysis System - Production Ready",
+  "main": "cipher-server.js",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0 <23.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
-    "build": "node scripts/build-production.cjs",
+    "build": "rm -rf dist && mkdir -p dist && cp -R public/* dist/",
     "build:production": "node scripts/build-production.cjs",
     "build:simple": "echo 'Build complete - static files ready'",
     "start": "node cipher-server.js",
-    "dev": "node cipher-server.js --dev",
+    "dev": "node cipher-server.js",
+    "preview": "PORT=8788 node cipher-server.js",
     "cipher:start": "node cipher-server.js",
     "claude": "claude-mcp-exec",
+    "mcp": "npm run mcp:unsafe",
     "mcp:setup": "./start-mcp-environment.sh",
     "mcp:generate": "node generate-mcp-config.js",
     "mcp:start": "npm run mcp:generate && echo '✅ MCP設定生成完了'",
@@ -20,6 +26,9 @@
     "mcp:unsafe": "npm run mcp:claude:unsafe",
     "mcp:resume": "npm run mcp:setup && claude -r --mcp-config claude-mcp-config.json",
     "mcp:resume:unsafe": "npm run mcp:setup && claude -r --mcp-config claude-mcp-config.json --dangerously-skip-permissions",
+    "kingwen:build": "node scripts/generate-kingwen.mjs",
+    "kingwen:verify": "node scripts/verify-kingwen.mjs",
+    "kingwen:all": "npm run kingwen:build && npm run kingwen:verify",
     "dev:swarm": "node scripts/dev-swarm.js",
     "dev:swarm:resume": "node scripts/dev-swarm.js --resume=true",
     "test:behavior": "node .visual-behavior-tests/behavior-test.js",
@@ -34,15 +43,25 @@
     "pdca:evaluate:30": "node tests/pdca-evaluation.js --users=30",
     "deploy": "npm run build:production && npx wrangler pages publish dist",
     "deploy:preview": "npm run build:production && npx wrangler pages publish dist --branch preview",
-    "serve:dist": "npx http-server dist -p 8789 -c-1"
+    "serve:dist": "npx http-server dist -p 8789 -c-1",
+    "audit:security": "npm audit --audit-level=high",
+    "audit:fix": "npm audit fix",
+    "ci:install": "npm ci --omit=dev",
+    "ci:security": "npm audit --audit-level=high --production",
+    "trae:check": "node .trae-check.cjs",
+    "trae:check-duplication": "node .trae-check.cjs check-duplication",
+    "trae:mandatory-read": "cat docs/TRAE_MANDATORY_READ.md"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "acorn": "^8.15.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "express": "^4.18.0",
-    "helmet": "^7.0.0",
-    "jsdom": "^26.1.0"
+    "helmet": "^7.2.0",
+    "ioredis": "^5.7.0",
+    "jsdom": "^26.1.0",
+    "rate-limiter-flexible": "^7.2.0"
   },
   "devDependencies": {
     "@playwright/mcp": "^0.0.32",

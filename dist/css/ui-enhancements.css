@@ -1,1 +1,192 @@
-.loading-container{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center}.progressive-loading{opacity:0;animation:fadeIn .5s ease forwards}@keyframes fadeIn{to{opacity:1}}.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:loading 1.5s infinite}@keyframes loading{0%{background-position:200% 0}100%{background-position:-200% 0}}.error-container{background:#fff5f5;border:1px solid #feb2b2;border-radius:8px;padding:16px;margin:16px 0}.error-title{color:#c53030;font-weight:700;margin-bottom:8px}.error-message{color:#742a2a}@media (max-width:768px){.hexagram-display{font-size:18px}.scenario-card{padding:12px}.button-group{flex-direction:column;gap:8px}}.focus-visible:focus{outline:3px solid #4299e1;outline-offset:2px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}@media (prefers-reduced-motion:reduce){*{animation-duration:0s!important;animation-iteration-count:1!important;transition-duration:0s!important}}@media (prefers-color-scheme:dark){body{background-color:#1a202c;color:#e2e8f0}.card{background-color:#2d3748;border-color:#4a5568}.error-container{background:#2d2024;border-color:#742a2a}}.quality-badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:16px;font-size:14px;font-weight:600;margin-left:8px}.quality-badge.grade-a{background:#10b981;color:#fff}.quality-badge.grade-b{background:#3b82f6;color:#fff}.quality-badge.grade-c{background:#f59e0b;color:#fff}.performance-indicator{position:fixed;bottom:20px;right:20px;background:rgba(0,0,0,.8);color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;display:none}.performance-indicator.visible{display:block}.toast-container{position:fixed;top:20px;right:20px;z-index:9999}.toast{background:#fff;box-shadow:0 4px 6px rgba(0,0,0,.1);border-radius:8px;padding:16px;margin-bottom:8px;min-width:300px;opacity:0;transform:translateX(100%);transition:all .3s ease}.toast.show{opacity:1;transform:translateX(0)}.toast.success{border-left:4px solid #10b981}.toast.error{border-left:4px solid #ef4444}.toast.info{border-left:4px solid #3b82f6}
+/* Future Simulator UI Enhancement Styles */
+/* Day 2 実装 - 統合版UI/UX強化 */
+
+/* プログレッシブローディング */
+.loading-container {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progressive-loading {
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+/* スケルトンスクリーン */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* エラー表示の改善 */
+.error-container {
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.error-title {
+    color: #c53030;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.error-message {
+    color: #742a2a;
+}
+
+/* レスポンシブ改善 */
+@media (max-width: 768px) {
+    .hexagram-display {
+        font-size: 18px;
+    }
+    
+    .scenario-card {
+        padding: 12px;
+    }
+    
+    .button-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+/* アクセシビリティ向上 */
+.focus-visible:focus {
+    outline: 3px solid #4299e1;
+    outline-offset: 2px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* アニメーション改善 */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1a202c;
+        color: #e2e8f0;
+    }
+    
+    .card {
+        background-color: #2d3748;
+        border-color: #4a5568;
+    }
+    
+    .error-container {
+        background: #2d2024;
+        border-color: #742a2a;
+    }
+}
+
+/* 品質グレード表示 */
+.quality-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.quality-badge.grade-a {
+    background: #10b981;
+    color: white;
+}
+
+.quality-badge.grade-b {
+    background: #3b82f6;
+    color: white;
+}
+
+.quality-badge.grade-c {
+    background: #f59e0b;
+    color: white;
+}
+
+/* パフォーマンスインジケーター */
+.performance-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    display: none;
+}
+
+.performance-indicator.visible {
+    display: block;
+}
+
+/* トースト通知 */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast {
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 8px;
+    min-width: 300px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast.success {
+    border-left: 4px solid #10b981;
+}
+
+.toast.error {
+    border-left: 4px solid #ef4444;
+}
+
+.toast.info {
+    border-left: 4px solid #3b82f6;
+}

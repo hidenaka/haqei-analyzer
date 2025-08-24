@@ -1,33 +1,54 @@
 {
-  "parser": "@typescript-eslint/parser",
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended"
-  ],
-  "parserOptions": {
-    "ecmaVersion": 2022,
-    "sourceType": "module"
-  },
   "env": {
     "browser": true,
-    "es2022": true,
+    "es2021": true,
     "node": true
   },
-  "rules": {
-    "no-console": "warn",
-    "no-unused-vars": "error",
-    "prefer-const": "error",
-    "no-var": "error",
-    "camelcase": ["error", { "properties": "never" }],
-    "max-lines": ["warn", 500],
-    "max-lines-per-function": ["warn", 50],
-    "complexity": ["warn", 10]
+  "extends": [
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module"
   },
-  "ignorePatterns": [
-    "node_modules/",
-    "dist/",
-    "archives/",
-    "*.min.js"
-  ]
+  "rules": {
+    "no-restricted-properties": [
+      "error",
+      {
+        "object": "Math",
+        "property": "random",
+        "message": "Math.random() is prohibited for deterministic behavior. Use SeedableRandom instead."
+      }
+    ],
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "Math.random",
+        "message": "Math.random() is prohibited. Use SeedableRandom from /public/js/core/SeedableRandom.js instead."
+      }
+    ],
+    "no-console": "off",
+    "no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "semi": ["error", "always"],
+    "quotes": ["warn", "single", { "avoidEscape": true }]
+  },
+  "overrides": [
+    {
+      "files": ["*.test.js", "test-*.js", "*-test.js"],
+      "env": {
+        "jest": true
+      }
+    }
+  ],
+  "globals": {
+    "SeedableRandom": "readonly",
+    "ContextTypeSystem": "readonly",
+    "ContextAwarePrimaryLineSelector": "readonly"
+  }
 }

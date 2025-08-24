@@ -8,8 +8,11 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
     />
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Unified Design System (優先適用) -->
+    <link rel="stylesheet" href="css/haqei-unified-design.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,37 +20,54 @@
       rel="stylesheet"
     />
     <style>
+      /* 統一デザインシステムの強制適用 */
       body {
-        font-family: "Inter", "Noto Sans JP", sans-serif;
+        font-family: var(--font-sans), "Inter", "Noto Sans JP", sans-serif !important;
+        background: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
       }
+      
+      /* ダークモードの無効化 */
+      .bg-gray-900 { background: var(--bg-primary) !important; }
+      .bg-gray-800 { background: var(--bg-primary) !important; }
+      .bg-gray-700 { background: var(--bg-tertiary) !important; }
+      .text-gray-300 { color: var(--text-secondary) !important; }
+      .text-gray-400 { color: var(--text-tertiary) !important; }
+      .text-red-300 { color: var(--error-text) !important; }
+      .text-red-400 { color: var(--error-text) !important; }
+      
       .brand-text {
-        background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
+        background: var(--gradient-primary);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
       }
+      
+      /* モジュールの統一デザイン */
       .module {
-        background: rgba(17, 24, 39, 0.5);
-        border: 1px solid rgba(55, 65, 81, 0.5);
-        backdrop-filter: blur(10px);
-        border-radius: 1rem;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-6);
+        margin-bottom: var(--spacing-8);
+        box-shadow: var(--shadow-md);
       }
+      
       .module-title {
         font-family: "Shippori Mincho", serif;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #c7d2fe;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid #4f46e5;
-        padding-bottom: 0.75rem;
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-bold);
+        color: var(--primary-blue);
+        margin-bottom: var(--spacing-6);
+        border-bottom: 1px solid var(--border-blue);
+        padding-bottom: var(--spacing-3);
       }
-      /* ▼▼▼ 新しいスタイルを追加 ▼▼▼ */
+      
+      /* サマリーカードの統一デザイン */
       .summary-card {
-        background-color: #1f2937;
-        border-radius: 0.75rem;
-        padding: 1.25rem;
+        background: var(--bg-secondary);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-5);
         border: 1px solid #374151;
       }
       .ai-title {
@@ -92,7 +112,7 @@
       /* ▲▲▲ ここまで ▲▲▲ */
     </style>
   </head>
-  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+  <body class="min-h-screen p-4 sm:p-8">
     <div class="w-full max-w-5xl mx-auto">
       <header class="text-center mb-12">
         <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">

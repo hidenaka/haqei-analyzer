@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Export Error Test</title>
+</head>
+<body>
+    <h1>Minimal Export Error Test</h1>
+    <div id="i-ching-container" data-testid="fs-container">
+        Container exists!
+    </div>
+    
+    <div id="log"></div>
+    
+    <script>
+        function log(msg) {
+            console.log(msg);
+            document.getElementById('log').innerHTML += '<div>' + msg + '</div>';
+        }
+        
+        // Track all errors
+        window.addEventListener('error', (e) => {
+            log('❌ ERROR: ' + e.message + ' in ' + e.filename + ':' + e.lineno);
+        });
+        
+        log('✅ Base page loaded');
+    </script>
+    
+    <!-- Start with just the bridge -->
+    <script>
+        log('Loading SeedableRandom bridge...');
+    </script>
+    <script src="./js/core/SeedableRandom-bridge.js"></script>
+    
+    <script>
+        setTimeout(() => {
+            log('RandomnessManager available: ' + !!window.randomnessManager);
+        }, 1000);
+    </script>
+    
+    <!-- Try ESM import -->
+    <script type="module">
+        try {
+            log('Testing ESM import...');
+            const { IChingFutureSimulator } = await import('./js/iching-future-simulator.js');
+            log('✅ ESM import successful');
+            
+            const container = document.getElementById('i-ching-container');
+            if (container) {
+                log('✅ Container found: ' + container.id);
+            } else {
+                log('❌ Container not found');
+            }
+            
+        } catch (error) {
+            log('❌ ESM import failed: ' + error.message);
+        }
+    </script>
+    
+</body>
+</html>

@@ -76,7 +76,7 @@ class ModuleLoader {
           '/js/os-analyzer/components/VirtualQuestionFlow-core.js',
           '/js/os-analyzer/components/VirtualQuestionFlow-renderer.js',
           '/js/os-analyzer/components/VirtualQuestionFlow-navigator.js',
-          '/js/shared/data/questions.js',
+          '/assets/js/questions-full.js',
           '/js/os-analyzer/core/PrecompiledQuestions.js'
         ],
         preload: false,

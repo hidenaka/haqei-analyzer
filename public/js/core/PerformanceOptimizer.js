@@ -1,23 +1,28 @@
 /**
- * HAQEI Performance Optimizer - Triple OS Architecture統合パフォーマンス最適化システム
+ * T4-3: OSアナライザー統一実装体制 - パフォーマンス最適化システム
  * 
- * 目的:
+ * 統一実装体制目標:
+ * - 結果生成: 2秒以内
+ * - チャート描画: 1秒以内  
+ * - 画面遷移: 300ms以内
+ * - モバイル応答性: 60fps
+ * 
+ * 旧システム統合:
  * - Triple OS Architecture (Engine/Interface/Safe Mode) 最適化
  * - HaQei哲学対応の並列処理最適化
  * - 易経64卦計算の高速化とメモリ効率化
  * - HAQEI 7-Stage Navigation System パフォーマンス向上
  * - リアルタイム分析とボトルネック自動解決
  * 
- * 特長:
- * - Web Workers活用による並列計算最適化
- * - IndexedDB操作の非同期最適化
- * - キャッシュシステムの智的管理
- * - メモリ使用量の動的調整
- * - バッテリー効率とCPU使用率の最適バランス
+ * T4-3統一機能:
+ * - ScreenManager統合パフォーマンス監視
+ * - 統一実装体制準拠のレンダリング最適化
+ * - OSアナライザー専用キャッシュシステム
+ * - アクセシビリティ対応パフォーマンス
  * 
- * @author HAQEI Performance Engineering Team
- * @date 2025-08-06
- * @version 2.5.0-triple-os-ultimate
+ * @author HAQEI Performance Engineering Team + OSAnalyzer Unified Implementation
+ * @date 2025-08-16 (T4-3 Integration)
+ * @version 2.5.0-triple-os-ultimate + T4-3-unified
  */
 
 class PerformanceOptimizer {
@@ -961,6 +966,267 @@ class PerformanceOptimizer {
     
     console.log("🔚 PerformanceOptimizer破棄完了");
   }
+  
+  /**
+   * T4-3: OSアナライザー統一実装体制 - ScreenManager統合最適化
+   */
+  integrateWithScreenManager() {
+    if (typeof ScreenManager !== 'undefined') {
+      console.log('🔗 [OSAnalyzer] Integrating PerformanceOptimizer with ScreenManager');
+      
+      // ScreenManager.switchToの最適化
+      const originalSwitchTo = ScreenManager.switchTo;
+      ScreenManager.switchTo = (screenName, options = {}) => {
+        const switchStartTime = performance.now();
+        
+        const result = originalSwitchTo.call(ScreenManager, screenName, options);
+        
+        const switchDuration = performance.now() - switchStartTime;
+        this.recordMetric('screen_switch', screenName, switchDuration);
+        
+        // パフォーマンス警告
+        if (switchDuration > 300) {
+          console.warn(`⚠️ [OSAnalyzer] Slow screen switch: ${screenName} took ${switchDuration.toFixed(2)}ms`);
+        }
+        
+        return result;
+      };
+      
+      // ScreenManager.renderOSAnalyzerRadarChartの最適化
+      if (ScreenManager.renderOSAnalyzerRadarChart) {
+        const originalRenderRadar = ScreenManager.renderOSAnalyzerRadarChart;
+        ScreenManager.renderOSAnalyzerRadarChart = (trigramScores) => {
+          return this.optimizeRender(() => {
+            return originalRenderRadar.call(ScreenManager, trigramScores);
+          }, 'radar_chart', trigramScores);
+        };
+      }
+      
+      console.log('✅ [OSAnalyzer] ScreenManager integration completed');
+    }
+  }
+  
+  /**
+   * T4-3: レンダリング最適化
+   */
+  optimizeRender(renderFunc, cacheKey = null, data = null) {
+    return new Promise((resolve) => {
+      // キャッシュチェック
+      if (cacheKey) {
+        const cached = this.getFromIntelligentCache('render', cacheKey);
+        if (cached) {
+          resolve(cached);
+          return;
+        }
+      }
+      
+      // パフォーマンス測定開始
+      const startTime = performance.now();
+      performance.mark(`render-${cacheKey}-start`);
+      
+      // requestAnimationFrame最適化
+      requestAnimationFrame(() => {
+        try {
+          const result = renderFunc();
+          
+          // キャッシュ保存
+          if (cacheKey) {
+            this.saveToIntelligentCache('render', cacheKey, result, 300000); // 5分
+          }
+          
+          // メトリクス記録
+          const duration = performance.now() - startTime;
+          performance.mark(`render-${cacheKey}-end`);
+          performance.measure(`render-${cacheKey}`, `render-${cacheKey}-start`, `render-${cacheKey}-end`);
+          
+          this.recordMetric('render', cacheKey || 'unknown', duration);
+          
+          console.log(`⚡ [OSAnalyzer] Optimized render ${cacheKey} completed in ${duration.toFixed(2)}ms`);
+          resolve(result);
+        } catch (error) {
+          console.error(`❌ [OSAnalyzer] Render error for ${cacheKey}:`, error);
+          resolve(null);
+        }
+      });
+    });
+  }
+  
+  /**
+   * T4-3: メトリクス記録
+   */
+  recordMetric(type, operation, duration) {
+    if (!this.performanceMetrics) {
+      this.performanceMetrics = new Map();
+    }
+    
+    const key = `${type}_${operation}`;
+    const existing = this.performanceMetrics.get(key) || [];
+    existing.push({
+      duration,
+      timestamp: Date.now()
+    });
+    
+    // 最新100件のみ保持
+    if (existing.length > 100) {
+      existing.shift();
+    }
+    
+    this.performanceMetrics.set(key, existing);
+  }
+  
+  /**
+   * T4-3: パフォーマンスレポート生成
+   */
+  generateUnifiedPerformanceReport() {
+    const report = {
+      timestamp: Date.now(),
+      version: this.version + '+T4-3-unified',
+      targets: {
+        resultGeneration: '2000ms',
+        chartRender: '1000ms',
+        screenSwitch: '300ms'
+      },
+      metrics: {},
+      recommendations: []
+    };
+    
+    // メトリクス分析
+    if (this.performanceMetrics) {
+      for (const [key, metrics] of this.performanceMetrics.entries()) {
+        const durations = metrics.map(m => m.duration);
+        const avg = durations.reduce((sum, d) => sum + d, 0) / durations.length;
+        const max = Math.max(...durations);
+        const min = Math.min(...durations);
+        
+        report.metrics[key] = {
+          average: avg.toFixed(2) + 'ms',
+          maximum: max.toFixed(2) + 'ms',
+          minimum: min.toFixed(2) + 'ms',
+          samples: durations.length
+        };
+        
+        // 推奨事項生成
+        if (key.includes('screen_switch') && avg > 300) {
+          report.recommendations.push(`画面遷移が遅いです: ${key} 平均${avg.toFixed(2)}ms (目標: 300ms以内)`);
+        }
+        if (key.includes('render_radar_chart') && avg > 1000) {
+          report.recommendations.push(`レーダーチャート描画が遅いです: 平均${avg.toFixed(2)}ms (目標: 1000ms以内)`);
+        }
+      }
+    }
+    
+    // キャッシュ統計
+    if (this.cacheStats && this.cacheStats.size > 0) {
+      report.cacheStats = {};
+      for (const [key, value] of this.cacheStats.entries()) {
+        report.cacheStats[key] = value;
+      }
+    }
+    
+    // メモリ情報
+    if (performance.memory) {
+      report.memory = {
+        used: (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2) + 'MB',
+        total: (performance.memory.totalJSHeapSize / 1024 / 1024).toFixed(2) + 'MB',
+        limit: (performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2) + 'MB'
+      };
+    }
+    
+    console.log('📊 [OSAnalyzer] Unified Performance Report:', report);
+    return report;
+  }
+  
+  /**
+   * T4-3: アクセシビリティ対応最適化
+   */
+  optimizeAccessibility() {
+    // フォーカス管理の最適化
+    const focusableElements = document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    
+    // フォーカストラップの最適化
+    focusableElements.forEach(el => {
+      if (!el.dataset.optimized) {
+        el.addEventListener('focus', this.throttle(() => {
+          // フォーカス状態の最適化
+          this.optimizeFocusVisibility(el);
+        }, 16), { passive: true });
+        
+        el.dataset.optimized = 'true';
+      }
+    });
+    
+    // スクリーンリーダー対応の最適化
+    this.optimizeScreenReaderPerformance();
+  }
+  
+  /**
+   * T4-3: フォーカス表示最適化
+   */
+  optimizeFocusVisibility(element) {
+    // GPU加速を使用したフォーカスリング
+    element.style.willChange = 'outline';
+    
+    // アニメーション終了後にwill-changeを削除
+    setTimeout(() => {
+      element.style.willChange = 'auto';
+    }, 200);
+  }
+  
+  /**
+   * T4-3: スクリーンリーダーパフォーマンス最適化
+   */
+  optimizeScreenReaderPerformance() {
+    // aria-live領域の最適化
+    const liveRegions = document.querySelectorAll('[aria-live]');
+    
+    liveRegions.forEach(region => {
+      // 不要な更新を防ぐためのデバウンス
+      if (!region.dataset.optimized) {
+        const originalTextContent = region.textContent;
+        
+        const observer = new MutationObserver(this.debounce(() => {
+          // 変更が実際にあった場合のみaria-liveを発火
+          if (region.textContent !== originalTextContent) {
+            // パフォーマンス最適化のため一時的にaria-liveを無効化
+            const ariaLive = region.getAttribute('aria-live');
+            region.removeAttribute('aria-live');
+            
+            requestAnimationFrame(() => {
+              region.setAttribute('aria-live', ariaLive);
+            });
+          }
+        }, 100));
+        
+        observer.observe(region, { childList: true, subtree: true });
+        region.dataset.optimized = 'true';
+      }
+    });
+  }
+  
+  /**
+   * T4-3: デバウンス（統一実装）
+   */
+  debounce(func, delay = 300) {
+    let timeoutId;
+    return function (...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+  }
+  
+  /**
+   * T4-3: スロットル（統一実装）
+   */
+  throttle(func, delay = 16) {
+    let lastCall = 0;
+    return function (...args) {
+      const now = Date.now();
+      if (now - lastCall >= delay) {
+        lastCall = now;
+        return func.apply(this, args);
+      }
+    };
+  }
 }
 
 // グローバル公開
@@ -971,6 +1237,16 @@ if (typeof window !== 'undefined') {
   if (!window.haqeiPerformanceOptimizer) {
     window.haqeiPerformanceOptimizer = new PerformanceOptimizer();
   }
+  
+  // T4-3: 統一実装体制の自動統合
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.haqeiPerformanceOptimizer) {
+      window.haqeiPerformanceOptimizer.integrateWithScreenManager();
+      window.haqeiPerformanceOptimizer.optimizeAccessibility();
+      
+      console.log('🚀 [OSAnalyzer] PerformanceOptimizer T4-3 integration completed');
+    }
+  });
 }
 
 // Node.js環境対応
@@ -978,4 +1254,4 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = PerformanceOptimizer;
 }
 
-console.log("⚡ PerformanceOptimizer.js読み込み完了 - Triple OS Architecture統合最適化システム");
+console.log("⚡ PerformanceOptimizer.js読み込み完了 - Triple OS Architecture統合最適化システム + T4-3 Unified Implementation");

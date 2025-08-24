@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI - 動的データ対応結果画面</title>
+    <style>
+        /* ==========================================================================
+           HAQEI 動的データ対応版デザイン
+           ========================================================================== */
+        
+        :root {
+            /* カラーパレット */
+            --primary-blue: #3b82f6;
+            --primary-blue-dark: #2563eb;
+            --secondary-blue: #6366f1;
+            --light-blue: #dbeafe;
+            --very-light-blue: #f0f9ff;
+            
+            /* Engine OS カラー */
+            --engine-color: #f59e0b;
+            --engine-light: #fef3c7;
+            --engine-dark: #d97706;
+            
+            /* Interface OS カラー */
+            --interface-color: #10b981;
+            --interface-light: #d1fae5;
+            --interface-dark: #059669;
+            
+            /* SafeMode OS カラー */
+            --safemode-color: #8b5cf6;
+            --safemode-light: #e9d5ff;
+            --safemode-dark: #7c3aed;
+            
+            /* グレースケール */
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #374151;
+            --gray-700: #1f2937;
+            --gray-900: #030712;
+            
+            /* スペーシング */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 0.75rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            
+            /* シャドウ */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-900);
+            background: var(--gray-50);
+            margin: 0;
+            padding: var(--spacing-lg);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        /* ヘッダー */
+        .header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: white;
+            padding: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 var(--spacing-sm) 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        /* メインコンテンツ */
+        .main-content {
+            padding: var(--spacing-xl);
+        }
+
+        /* スタイル省略（前のモックアップと同じ） */
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .os-detailed-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .os-detail-card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .os-card-header {
+            padding: var(--spacing-lg);
+            background: var(--gray-50);
+        }
+
+        .os-card-content {
+            padding: var(--spacing-lg);
+        }
+
+        /* 動的データ表示のためのクラス */
+        .dynamic-content {
+            color: var(--primary-blue-dark);
+            font-weight: 600;
+        }
+
+        .balance-bar {
+            height: 12px;
+            border-radius: 6px;
+            display: flex;
+            overflow: hidden;
+            background: var(--gray-200);
+        }
+
+        .balance-segment {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎯 動的データ対応テストページ</h1>
+        </header>
+
+        <main class="main-content">
+            <h2 class="section-title">
+                <span>📊</span>
+                このページは実際のデータに応じて動的に変化します
+            </h2>
+
+            <!-- データシミュレーター -->
+            <div style="background: var(--very-light-blue); padding: var(--spacing-lg); border-radius: 8px; margin-bottom: var(--spacing-xl);">
+                <h3>🔧 データシミュレーター</h3>
+                <p>以下のボタンをクリックすると、異なる診断結果パターンを確認できます</p>
+                
+                <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap; margin-top: var(--spacing-md);">
+                    <button onclick="loadPattern('innovator')" style="padding: 0.5rem 1rem; background: var(--primary-blue); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        パターン1: イノベーター型
+                    </button>
+                    <button onclick="loadPattern('supporter')" style="padding: 0.5rem 1rem; background: var(--interface-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        パターン2: サポーター型
+                    </button>
+                    <button onclick="loadPattern('balanced')" style="padding: 0.5rem 1rem; background: var(--safemode-color); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        パターン3: バランス型
+                    </button>
+                </div>
+            </div>
+
+            <!-- 動的コンテンツエリア -->
+            <div id="dynamicContent"></div>
+        </main>
+    </div>
+
+    <!-- V3データベースシミュレーション -->
+    <script>
+        // V3データベースの完全版（必要な卦のみ）
+        const v3Database = {
+            "乾為天": {
+                nickname: "イノベーター",
+                emoji: "🚀",
+                asEngineOS: {
+                    profile: {
+                        type: "革新追求エンジン",
+                        description: "常に『もっと良い方法はないか？』を追い求める"
+                    },
+                    normalState: {
+                        whatHappens: "頭の中で常に新しいアイデアや改善案が生まれている",
+                        example: "会議中も『この仕組み、根本から変えられないか』と考える",
+                        energyLevel: "🔋🔋🔋 (70%) - 常時アイデア生成中"
+                    },
+                    superMode: {
+                        when: "困難な課題や、誰もが『不可能』と言う状況に直面した時",
+                        whatHappens: "全リソースを創造的解決に投入！ブレイクスルーモード"
+                    },
+                    maintenance: {
+                        warning: "ルーティンワークが続くとパフォーマンス低下",
+                        tip: "定期的に新しいチャレンジを設定しよう"
+                    }
+                },
+                asInterfaceOS: {
+                    profile: {
+                        type: "リーダー型",
+                        description: "ビジョンを示し、人を導くタイプ"
+                    },
+                    howToTalk: {
+                        style: "明確で力強い",
+                        example: "『我々の目標はこれだ。一緒に達成しよう』",
+                        goodAt: "ビジョン提示、モチベーション喚起"
+                    }
+                },
+                asSafeModeOS: {
+                    profile: {
+                        type: "完璧主義型",
+                        description: "高い基準を維持しようとする"
+                    },
+                    stressResponse: {
+                        whatYouDo: "更なる努力で状況を打開しようとする",
+                        example: "問題発生 → 『もっと頑張れば解決できるはず』",
+                        goodPoint: "諦めない強さ",
+                        badPoint: "燃え尽きるリスク"
+                    }
+                },
+                osBalance: {
+                    idealBalance: "革新60% : リーダーシップ25% : 前進力15%"
+                }
+            },
+            "坤為地": {
+                nickname: "サポーター",
+                emoji: "🌱",
+                asEngineOS: {
+                    profile: {
+                        type: "育成支援エンジン",
+                        description: "他者の成長と組織の調和を原動力とする"
+                    },
+                    normalState: {
+                        whatHappens: "周囲の状況を観察し、必要なサポートを察知",
+                        example: "会議で発言しづらそうな人に気づき、発言機会を作る",
+                        energyLevel: "🔋🔋 (50%) - 省エネで持続的"
+                    },
+                    superMode: {
+                        when: "チームが危機に直面、関係性が崩れそうな時",
+                        whatHappens: "全力でチームを支え、調和を取り戻す"
+                    },
+                    maintenance: {
+                        warning: "自己犠牲が過ぎるとバーンアウトのリスク",
+                        tip: "他者を支えると同時に、自分のケアも忘れずに"
+                    }
+                },
+                asInterfaceOS: {
+                    profile: {
+                        type: "調和型",
+                        description: "チームの和を大切にするタイプ"
+                    },
+                    howToTalk: {
+                        style: "優しく包容力のある",
+                        example: "『みんなで協力すれば大丈夫』",
+                        goodAt: "チームビルディング、関係調整"
+                    }
+                },
+                asSafeModeOS: {
+                    profile: {
+                        type: "受容型",
+                        description: "状況を受け入れて適応する"
+                    },
+                    stressResponse: {
+                        whatYouDo: "周囲のサポートを求める",
+                        example: "困難 → 『みんなで乗り越えよう』",
+                        goodPoint: "柔軟性、協調性",
+                        badPoint: "主体性を失いがち"
+                    }
+                },
+                osBalance: {
+                    idealBalance: "支援40% : 共感35% : 自己保護25%"
+                }
+            },
+            "水雷屯": {
+                nickname: "パイオニア",
+                emoji: "🌱",
+                asEngineOS: {
+                    profile: {
+                        type: "開拓挑戦エンジン",
+                        description: "困難な状況でこそ力を発揮する開拓者精神"
+                    },
+                    normalState: {
+                        whatHappens: "新しい道を切り開く機会を常に探している",
+                        example: "『誰もやっていないなら、自分がやろう』と考える",
+                        energyLevel: "🔋🔋🔋 (65%) - 挑戦センサー起動中"
+                    },
+                    superMode: {
+                        when: "前例のない問題、未開拓の領域に出会った時",
+                        whatHappens: "困難を楽しみながら突破！パイオニアモード",
+                        example: "新市場開拓、新規事業立ち上げで本領発揮"
+                    },
+                    maintenance: {
+                        warning: "既存の枠組みに縛られると窒息する",
+                        tip: "小さくてもいいから『初めて』を作り続けよう"
+                    }
+                },
+                asInterfaceOS: {
+                    profile: {
+                        type: "先駆者ガイド型",
+                        description: "新しい道を示し、仲間を導くタイプ"
+                    },
+                    howToTalk: {
+                        style: "情熱的で説得力のある語り",
+                        example: "『この道は困難だけど、必ず価値がある』と伝える",
+                        goodAt: "モチベーション喚起、新規開拓への誘導"
+                    }
+                },
+                asSafeModeOS: {
+                    profile: {
+                        type: "試行錯誤型",
+                        description: "失敗を恐れず、何度でも挑戦する"
+                    },
+                    stressResponse: {
+                        whatYouDo: "別のアプローチを次々試す",
+                        example: "Aがダメならb、Bもダメならc...と柔軟に対応",
+                        goodPoint: "諦めない粘り強さ、柔軟な対応力",
+                        badPoint: "時に無謀な挑戦を続けてしまう"
+                    }
+                },
+                osBalance: {
+                    idealBalance: "開拓45% : 導き35% : 粘り強さ20%"
+                }
+            },
+            "山水蒙": {
+                nickname: "育成者",
+                emoji: "📚",
+                asEngineOS: {
+                    profile: {
+                        type: "教育啓発エンジン",
+                        description: "知識と経験を次世代に伝える使命感"
+                    },
+                    normalState: {
+                        whatHappens: "常に『どう教えたら伝わるか』を考えている",
+                        example: "相手のレベルに合わせて説明方法を変える",
+                        energyLevel: "🔋🔋🔋 (60%) - 教育モード常時ON"
+                    },
+                    superMode: {
+                        when: "誰かが成長の壁にぶつかっている時",
+                        whatHappens: "全力で導き、突破をサポート",
+                        example: "後輩の悩みに寄り添い、成長を全力支援"
+                    },
+                    maintenance: {
+                        warning: "教える相手がいないと意欲低下",
+                        tip: "常に誰かの成長に関わる機会を持とう"
+                    }
+                },
+                asInterfaceOS: {
+                    profile: {
+                        type: "メンター型",
+                        description: "相手の可能性を引き出すタイプ"
+                    },
+                    howToTalk: {
+                        style: "わかりやすく、段階的に説明",
+                        example: "『まずはここから始めてみよう』と導く",
+                        goodAt: "教育、指導、スキル伝承"
+                    }
+                },
+                asSafeModeOS: {
+                    profile: {
+                        type: "基本回帰型",
+                        description: "原点に戻って着実に対処"
+                    },
+                    stressResponse: {
+                        whatYouDo: "基礎から見直し、確実に解決",
+                        example: "問題発生 → マニュアル確認 → 手順通り対応",
+                        goodPoint: "確実性、ミスの少なさ",
+                        badPoint: "柔軟性に欠ける場合がある"
+                    }
+                },
+                osBalance: {
+                    idealBalance: "教育40% : 指導30% : 学習30%"
+                }
+            },
+            "水天需": {
+                nickname: "戦略家",
+                emoji: "♟️",
+                asEngineOS: {
+                    profile: {
+                        type: "戦略立案エンジン",
+                        description: "最適なタイミングと方法を見極める"
+                    },
+                    normalState: {
+                        whatHappens: "常に複数のシナリオを想定している",
+                        example: "『もしAなら○○、Bなら△△』と準備",
+                        energyLevel: "🔋🔋🔋 (55%) - 分析モード継続"
+                    },
+                    superMode: {
+                        when: "重要な決断、大きな勝負どころ",
+                        whatHappens: "全データを分析、最適解を導出",
+                        example: "重要な交渉で、相手の出方を全て想定済み"
+                    },
+                    maintenance: {
+                        warning: "急かされると判断ミスのリスク",
+                        tip: "時には直感も大切にしよう"
+                    }
+                },
+                asInterfaceOS: {
+                    profile: {
+                        type: "アドバイザー型",
+                        description: "的確な助言で方向性を示すタイプ"
+                    },
+                    howToTalk: {
+                        style: "論理的で説得力のある説明",
+                        example: "『データによると、この選択が最適です』",
+                        goodAt: "戦略提案、リスク分析、計画立案"
+                    }
+                },
+                asSafeModeOS: {
+                    profile: {
+                        type: "待機観察型",
+                        description: "最適なタイミングまで待つ"
+                    },
+                    stressResponse: {
+                        whatYouDo: "一旦距離を置いて状況分析",
+                        example: "感情的な対立 → 冷静に状況を観察",
+                        goodPoint: "冷静な判断力、客観性",
+                        badPoint: "行動が遅れることがある"
+                    }
+                },
+                osBalance: {
+                    idealBalance: "戦略50% : 助言30% : 観察20%"
+                }
+            },
+            "兌為澤": {
+                nickname: "喜悦者",
+                emoji: "😊",
+                asEngineOS: {
+                    profile: {
+                        type: "楽観推進エンジン",
+                        description: "ポジティブなエネルギーで前進する"
+                    },
+                    normalState: {
+                        whatHappens: "楽しみながら物事を進める",
+                        example: "『これ面白そう！やってみよう』",
+                        energyLevel: "🔋🔋🔋 (65%) - ハッピーモード"
+                    },
+                    superMode: {
+                        when: "チームの雰囲気が沈んでいる時",
+                        whatHappens: "明るさでチームを元気づける"
+                    },
+                    maintenance: {
+                        warning: "ネガティブな環境が続くと消耗",
+                        tip: "楽しい要素を見つけ続けよう"
+                    }
+                },
+                asInterfaceOS: {
+                    profile: {
+                        type: "喜び生成エンジン",
+                        description: "喜びと楽しさを生み出す"
+                    },
+                    howToTalk: {
+                        style: "明るく楽観的",
+                        example: "『きっと大丈夫！一緒に楽しくやりましょう』",
+                        goodAt: "モチベーション向上、雰囲気作り"
+                    }
+                },
+                asSafeModeOS: {
+                    profile: {
+                        type: "楽観維持型",
+                        description: "どんな時も希望を失わない"
+                    },
+                    stressResponse: {
+                        whatYouDo: "ポジティブな面を探す",
+                        example: "失敗 → 『これも良い経験！』",
+                        goodPoint: "立ち直りが早い",
+                        badPoint: "現実逃避になることも"
+                    }
+                },
+                osBalance: {
+                    idealBalance: "喜び45% : 社交35% : 楽観20%"
+                }
+            }
+        };
+
+        // データパターン定義（V3データベースの卦を使用）
+        const dataPatterns = {
+            innovator: {
+                engineOS: {
+                    hexagram: "乾為天",
+                    score: 92
+                },
+                interfaceOS: {
+                    hexagram: "兌為澤",
+                    score: 75
+                },
+                safeModeOS: {
+                    hexagram: "坤為地",
+                    score: 68
+                }
+            },
+            supporter: {
+                engineOS: {
+                    hexagram: "坤為地",
+                    score: 85
+                },
+                interfaceOS: {
+                    hexagram: "山水蒙",
+                    score: 88
+                },
+                safeModeOS: {
+                    hexagram: "水雷屯",
+                    score: 72
+                }
+            },
+            balanced: {
+                engineOS: {
+                    hexagram: "水天需",
+                    score: 80
+                },
+                interfaceOS: {
+                    hexagram: "水雷屯",
+                    score: 79
+                },
+                safeModeOS: {
+                    hexagram: "山水蒙",
+                    score: 81
+                }
+            }
+        };
+
+        // エネルギーレベルの動的説明生成
+        function generateEnergyDescription(level) {
+            // levelが既に数値として渡されている
+            
+            if (level >= 90) {
+                return {
+                    title: "⚡ エネルギー消費レベル：最大",
+                    desc: `現在${level}%のエネルギーで稼働中。この状態は短期間なら最高のパフォーマンスを発揮しますが、長続きすると疲労します。`
+                };
+            } else if (level >= 70) {
+                return {
+                    title: "🔥 エネルギー消費レベル：高め",
+                    desc: `現在${level}%のエネルギーで活動中。積極的な活動に適した状態ですが、定期的な休息も必要です。`
+                };
+            } else if (level >= 50) {
+                return {
+                    title: "🔋 エネルギー消費レベル：中程度",
+                    desc: `現在${level}%のエネルギーで稼働中。持続可能なペースで、長期的な活動に適しています。`
+                };
+            } else {
+                return {
+                    title: "🌱 エネルギー消費レベル：省エネモード",
+                    desc: `現在${level}%の省エネモードで活動中。無理をせず、着実に進むペースです。`
+                };
+            }
+        }
+
+        // バランス計算（スコアに基づく動的計算）
+        function calculateBalance(data) {
+            const total = data.engineOS.score + data.interfaceOS.score + data.safeModeOS.score;
+            return {
+                engine: Math.round((data.engineOS.score / total) * 100),
+                interface: Math.round((data.interfaceOS.score / total) * 100),
+                safeMode: Math.round((data.safeModeOS.score / total) * 100)
+            };
+        }
+
+        // バランス解釈の生成
+        function interpretBalance(balance, data) {
+            let dominant = 'engine';
+            let dominantValue = balance.engine;
+            
+            if (balance.interface > dominantValue) {
+                dominant = 'interface';
+                dominantValue = balance.interface;
+            }
+            if (balance.safeMode > dominantValue) {
+                dominant = 'safeMode';
+                dominantValue = balance.safeMode;
+            }
+
+            const interpretations = {
+                engine: {
+                    name: "革新・創造優勢型",
+                    desc: "新しいアイデアと変革を追求する傾向が強く表れています",
+                    advice: "創造性を活かしつつ、時には現実的な視点も取り入れましょう"
+                },
+                interface: {
+                    name: "社交・調和優勢型",
+                    desc: "人との関わりと調和を重視する傾向が強く表れています",
+                    advice: "協調性を活かしつつ、自己主張も大切にしましょう"
+                },
+                safeMode: {
+                    name: "安定・支援優勢型",
+                    desc: "安定と他者への支援を重視する傾向が強く表れています",
+                    advice: "支援力を活かしつつ、新しい挑戦も恐れずに"
+                }
+            };
+
+            // バランスの差を計算
+            const diff = Math.max(balance.engine, balance.interface, balance.safeMode) - 
+                         Math.min(balance.engine, balance.interface, balance.safeMode);
+            
+            const balanceLevel = diff < 10 ? "非常にバランスが取れています" :
+                                diff < 20 ? "適度なバランスです" :
+                                "特定の傾向が強く出ています";
+
+            return {
+                dominant: interpretations[dominant],
+                balanceLevel: balanceLevel,
+                distribution: `Engine(${balance.engine}%) : Interface(${balance.interface}%) : SafeMode(${balance.safeMode}%)`
+            };
+        }
+
+        // 動的コンテンツの生成
+        function generateDynamicContent(pattern) {
+            const data = dataPatterns[pattern];
+            const balance = calculateBalance(data);
+            const interpretation = interpretBalance(balance, data);
+            
+            // 各OSのV3データを取得（存在しない場合はデフォルトを使用）
+            const engineData = v3Database[data.engineOS.hexagram] || v3Database["乾為天"];
+            const interfaceData = v3Database[data.interfaceOS.hexagram] || v3Database["兌為澤"];
+            const safeData = v3Database[data.safeModeOS.hexagram] || v3Database["坤為地"];
+
+            return `
+                <section style="background: var(--very-light-blue); border-radius: 12px; padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+                    <h2 class="section-title">
+                        <span>📊</span>
+                        診断結果サマリー
+                    </h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                        <div style="background: white; padding: var(--spacing-md); border-radius: 8px; border-left: 4px solid var(--engine-color);">
+                            <h4 style="margin: 0 0 0.5rem 0;">Engine OS</h4>
+                            <div style="font-size: 1.5rem;">${engineData.emoji} ${data.engineOS.hexagram}</div>
+                            <div style="font-size: 0.9rem; color: var(--gray-600);">${engineData.nickname}</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--engine-color); margin-top: 0.5rem;">${data.engineOS.score}</div>
+                        </div>
+                        
+                        <div style="background: white; padding: var(--spacing-md); border-radius: 8px; border-left: 4px solid var(--interface-color);">
+                            <h4 style="margin: 0 0 0.5rem 0;">Interface OS</h4>
+                            <div style="font-size: 1.5rem;">${interfaceData.emoji} ${data.interfaceOS.hexagram}</div>
+                            <div style="font-size: 0.9rem; color: var(--gray-600);">${interfaceData.nickname}</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--interface-color); margin-top: 0.5rem;">${data.interfaceOS.score}</div>
+                        </div>
+                        
+                        <div style="background: white; padding: var(--spacing-md); border-radius: 8px; border-left: 4px solid var(--safemode-color);">
+                            <h4 style="margin: 0 0 0.5rem 0;">SafeMode OS</h4>
+                            <div style="font-size: 1.5rem;">${safeData.emoji} ${data.safeModeOS.hexagram}</div>
+                            <div style="font-size: 0.9rem; color: var(--gray-600);">${safeData.nickname}</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--safemode-color); margin-top: 0.5rem;">${data.safeModeOS.score}</div>
+                        </div>
+                    </div>
+
+                    <!-- 動的バランスバー -->
+                    <div style="background: white; padding: var(--spacing-lg); border-radius: 8px;">
+                        <h4 style="margin: 0 0 var(--spacing-md) 0;">バランス分析（スコアから自動計算）</h4>
+                        <div class="balance-bar">
+                            <div class="balance-segment" style="background: var(--engine-color); width: ${balance.engine}%;"></div>
+                            <div class="balance-segment" style="background: var(--interface-color); width: ${balance.interface}%;"></div>
+                            <div class="balance-segment" style="background: var(--safemode-color); width: ${balance.safeMode}%;"></div>
+                        </div>
+                        
+                        <div style="margin-top: var(--spacing-md); padding: var(--spacing-md); background: var(--gray-50); border-radius: 6px;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">📊 計算式</div>
+                            <div style="font-size: 0.9rem; color: var(--gray-700);">
+                                各OSのスコア合計: ${data.engineOS.score + data.interfaceOS.score + data.safeModeOS.score}<br>
+                                Engine OS: ${data.engineOS.score} ÷ 合計 = ${balance.engine}%<br>
+                                Interface OS: ${data.interfaceOS.score} ÷ 合計 = ${balance.interface}%<br>
+                                SafeMode OS: ${data.safeModeOS.score} ÷ 合計 = ${balance.safeMode}%
+                            </div>
+                        </div>
+
+                        <div style="margin-top: var(--spacing-md); padding: var(--spacing-md); background: var(--very-light-blue); border-radius: 6px;">
+                            <div style="font-weight: 600; color: var(--primary-blue-dark);">🎯 ${interpretation.dominant.name}</div>
+                            <p style="margin: 0.5rem 0; font-size: 0.95rem;">${interpretation.dominant.desc}</p>
+                            <p style="margin: 0.5rem 0; font-size: 0.95rem; color: var(--gray-600);">バランス状態: ${interpretation.balanceLevel}</p>
+                            <p style="margin: 0; font-size: 0.9rem; color: var(--gray-700);">💡 ${interpretation.dominant.advice}</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3つのOS詳細（動的データ） -->
+                <div style="display: grid; gap: var(--spacing-xl);">
+                    <!-- Engine OS詳細 -->
+                    <section style="background: white; border: 1px solid var(--gray-200); border-radius: 12px; padding: var(--spacing-lg); border-top: 4px solid var(--engine-color);">
+                        <h3 style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg);">
+                            ${engineData.emoji} Engine OS: ${data.engineOS.hexagram}「${engineData.nickname}」
+                            <span style="margin-left: auto; background: var(--engine-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 1rem;">スコア: ${data.engineOS.score}</span>
+                        </h3>
+                        
+                        <!-- 基本情報バー -->
+                        ${engineData.id ? `
+                            <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md); padding: var(--spacing-sm); background: linear-gradient(90deg, var(--engine-light) 0%, transparent 100%); border-radius: 6px; font-size: 0.85rem;">
+                                <span>📍 第${engineData.id}卦</span>
+                                <span>🎯 ${engineData.symbol || ''}</span>
+                                <span>🌊 ${engineData.element || ''}</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${engineData.asEngineOS ? `
+                            <!-- プロファイル -->
+                            <div style="background: var(--gray-50); padding: var(--spacing-md); border-radius: 8px; margin-bottom: var(--spacing-md);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">🔧 ${engineData.asEngineOS.profile.type}</div>
+                                <p style="margin: 0 0 0.5rem 0;">${engineData.asEngineOS.profile.description}</p>
+                                ${engineData.asEngineOS.profile.metaphor ? `
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--gray-600); font-style: italic;">
+                                        📖 ${engineData.asEngineOS.profile.metaphor}
+                                    </p>
+                                ` : ''}
+                            </div>
+
+                            <!-- 通常の状態 -->
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">💫 通常の状態</div>
+                                <p style="margin: 0 0 0.5rem 0;">${engineData.asEngineOS.normalState.whatHappens}</p>
+                                <div style="background: var(--engine-light); padding: var(--spacing-sm); border-radius: 6px; margin-bottom: 0.5rem;">
+                                    例: ${engineData.asEngineOS.normalState.example}
+                                </div>
+                                ${(() => {
+                                    const energyStr = engineData.asEngineOS.normalState.energyLevel;
+                                    const match = energyStr.match(/(\d+)%/);
+                                    const level = match ? parseInt(match[1]) : 50;
+                                    const energy = generateEnergyDescription(level);
+                                    return `
+                                        <div style="background: var(--gray-50); padding: var(--spacing-sm); border-radius: 6px;">
+                                            <div style="font-weight: 600; font-size: 0.9rem;">${energy.title}</div>
+                                            <div style="font-size: 0.85rem; color: var(--gray-600);">${energy.desc}</div>
+                                            <div style="font-size: 0.85rem; color: var(--gray-500); margin-top: 0.25rem;">
+                                                元のエネルギー: ${engineData.asEngineOS.normalState.energyLevel}
+                                            </div>
+                                        </div>
+                                    `;
+                                })()}
+                            </div>
+
+                            <!-- スーパーモード -->
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">🔥 スーパーモード</div>
+                                <p style="margin: 0 0 0.5rem 0;">発動条件: ${engineData.asEngineOS.superMode.when}</p>
+                                <p style="margin: 0 0 0.5rem 0;">${engineData.asEngineOS.superMode.whatHappens}</p>
+                                ${engineData.asEngineOS.superMode.example ? `
+                                    <div style="background: #fef3c7; padding: var(--spacing-sm); border-radius: 6px; margin-bottom: 0.5rem;">
+                                        例: ${engineData.asEngineOS.superMode.example}
+                                    </div>
+                                ` : ''}
+                                ${engineData.asEngineOS.superMode.energyLevel ? `
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--gray-600);">
+                                        エネルギー: ${engineData.asEngineOS.superMode.energyLevel}
+                                    </p>
+                                ` : ''}
+                            </div>
+
+                            <!-- 休息モード -->
+                            ${engineData.asEngineOS.restMode ? `
+                                <div style="margin-bottom: var(--spacing-md);">
+                                    <div style="font-weight: 600; margin-bottom: 0.5rem;">😴 休息モード</div>
+                                    <p style="margin: 0 0 0.5rem 0;">${engineData.asEngineOS.restMode.whatHappens}</p>
+                                    <p style="margin: 0 0 0.5rem 0;">休息方法: ${engineData.asEngineOS.restMode.howToRest}</p>
+                                    ${engineData.asEngineOS.restMode.note ? `
+                                        <p style="margin: 0; font-size: 0.9rem; color: var(--gray-600); font-style: italic;">
+                                            💭 ${engineData.asEngineOS.restMode.note}
+                                        </p>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+
+                            <!-- メンテナンス -->
+                            <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: var(--spacing-md); border-radius: 8px;">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">🔧 メンテナンス情報</div>
+                                <div style="display: grid; gap: var(--spacing-sm);">
+                                    ${engineData.asEngineOS.maintenance.whatYouNeed ? `
+                                        <div style="font-size: 0.9rem;">
+                                            <strong>必要なもの:</strong> ${engineData.asEngineOS.maintenance.whatYouNeed}
+                                        </div>
+                                    ` : ''}
+                                    ${engineData.asEngineOS.maintenance.howToCharge ? `
+                                        <div style="font-size: 0.9rem;">
+                                            <strong>充電方法:</strong> ${engineData.asEngineOS.maintenance.howToCharge}
+                                        </div>
+                                    ` : ''}
+                                    <div style="font-size: 0.9rem; color: #92400e;">
+                                        <strong>⚠️ 注意:</strong> ${engineData.asEngineOS.maintenance.warning}
+                                    </div>
+                                    <div style="font-size: 0.9rem; color: #059669;">
+                                        <strong>💡 ヒント:</strong> ${engineData.asEngineOS.maintenance.tip}
+                                    </div>
+                                </div>
+                            </div>
+                        ` : `
+                            <div style="background: var(--gray-50); padding: var(--spacing-md); border-radius: 8px;">
+                                <p style="margin: 0;">Engine OSとしての詳細データを表示</p>
+                            </div>
+                        `}
+                    </section>
+
+                    <!-- Interface OS詳細 -->
+                    <section style="background: white; border: 1px solid var(--gray-200); border-radius: 12px; padding: var(--spacing-lg); border-top: 4px solid var(--interface-color);">
+                        <h3 style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg);">
+                            ${interfaceData.emoji} Interface OS: ${data.interfaceOS.hexagram}「${interfaceData.nickname}」
+                            <span style="margin-left: auto; background: var(--interface-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 1rem;">スコア: ${data.interfaceOS.score}</span>
+                        </h3>
+                        
+                        ${interfaceData.asInterfaceOS ? `
+                            <!-- プロファイル -->
+                            <div style="background: var(--gray-50); padding: var(--spacing-md); border-radius: 8px; margin-bottom: var(--spacing-md);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">🔗 ${interfaceData.asInterfaceOS.profile.type}</div>
+                                <p style="margin: 0 0 0.5rem 0;">${interfaceData.asInterfaceOS.profile.description}</p>
+                                ${interfaceData.asInterfaceOS.profile.metaphor ? `
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--gray-600); font-style: italic;">
+                                        📖 ${interfaceData.asInterfaceOS.profile.metaphor}
+                                    </p>
+                                ` : ''}
+                            </div>
+
+                            <!-- コミュニケーションスタイル -->
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">🗣️ コミュニケーションスタイル</div>
+                                <div style="display: grid; gap: var(--spacing-sm);">
+                                    <div>
+                                        <span style="font-weight: 500;">話し方:</span> ${interfaceData.asInterfaceOS.howToTalk.style}
+                                    </div>
+                                    <div style="background: var(--interface-light); padding: var(--spacing-sm); border-radius: 6px;">
+                                        <strong>例:</strong> ${interfaceData.asInterfaceOS.howToTalk.example}
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm);">
+                                        <div style="background: #dcfce7; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <div style="font-size: 0.9rem; color: #166534;">
+                                                <strong>✅ 得意:</strong> ${interfaceData.asInterfaceOS.howToTalk.goodAt}
+                                            </div>
+                                        </div>
+                                        ${interfaceData.asInterfaceOS.howToTalk.notGoodAt ? `
+                                            <div style="background: #fee2e2; padding: var(--spacing-sm); border-radius: 6px;">
+                                                <div style="font-size: 0.9rem; color: #991b1b;">
+                                                    <strong>⚠️ 苦手:</strong> ${interfaceData.asInterfaceOS.howToTalk.notGoodAt}
+                                                </div>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 最適環境 -->
+                            ${interfaceData.asInterfaceOS.bestEnvironment ? `
+                                <div style="margin-bottom: var(--spacing-md); background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); padding: var(--spacing-md); border-radius: 8px;">
+                                    <div style="font-weight: 600; margin-bottom: 0.5rem;">🌟 最適環境</div>
+                                    <div style="display: grid; gap: var(--spacing-sm);">
+                                        <div style="font-size: 0.9rem;">
+                                            <strong>場所:</strong> ${interfaceData.asInterfaceOS.bestEnvironment.where}
+                                        </div>
+                                        <div style="font-size: 0.9rem;">
+                                            <strong>例:</strong> ${interfaceData.asInterfaceOS.bestEnvironment.example}
+                                        </div>
+                                        <div style="font-size: 0.9rem;">
+                                            <strong>相性の良い人:</strong> ${interfaceData.asInterfaceOS.bestEnvironment.withWho}
+                                        </div>
+                                        ${interfaceData.asInterfaceOS.bestEnvironment.avoid ? `
+                                            <div style="font-size: 0.9rem; color: #7c2d12;">
+                                                <strong>避けるべき環境:</strong> ${interfaceData.asInterfaceOS.bestEnvironment.avoid}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            <!-- 関係性のコツ -->
+                            ${interfaceData.asInterfaceOS.relationshipTips ? `
+                                <div style="background: var(--gray-50); padding: var(--spacing-md); border-radius: 8px;">
+                                    <div style="font-weight: 600; margin-bottom: 0.5rem;">💝 関係性のコツ</div>
+                                    <div style="display: grid; gap: var(--spacing-sm);">
+                                        <div style="font-size: 0.9rem;">
+                                            <strong>👍 強み:</strong> ${interfaceData.asInterfaceOS.relationshipTips.strength}
+                                        </div>
+                                        <div style="font-size: 0.9rem;">
+                                            <strong>⚠️ 弱み:</strong> ${interfaceData.asInterfaceOS.relationshipTips.weakness}
+                                        </div>
+                                        <div style="font-size: 0.9rem; background: #fef3c7; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>💡 アドバイス:</strong> ${interfaceData.asInterfaceOS.relationshipTips.advice}
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        ` : `
+                            <div style="background: var(--gray-50); padding: var(--spacing-md); border-radius: 8px;">
+                                <p style="margin: 0;">Interface OSとしての詳細データを表示</p>
+                            </div>
+                        `}
+                    </section>
+
+                    <!-- SafeMode OS詳細 -->
+                    <section style="background: white; border: 1px solid var(--gray-200); border-radius: 12px; padding: var(--spacing-lg); border-top: 4px solid var(--safemode-color);">
+                        <h3 style="display: flex; align-items: center; gap: var(--spacing-sm); margin-bottom: var(--spacing-lg);">
+                            ${safeData.emoji} SafeMode OS: ${data.safeModeOS.hexagram}「${safeData.nickname}」
+                            <span style="margin-left: auto; background: var(--safemode-color); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 1rem;">スコア: ${data.safeModeOS.score}</span>
+                        </h3>
+                        
+                        ${safeData.asSafeModeOS ? `
+                            <!-- プロファイル -->
+                            <div style="background: var(--gray-50); padding: var(--spacing-md); border-radius: 8px; margin-bottom: var(--spacing-md);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">🛡️ ${safeData.asSafeModeOS.profile.type}</div>
+                                <p style="margin: 0 0 0.5rem 0;">${safeData.asSafeModeOS.profile.description}</p>
+                                ${safeData.asSafeModeOS.profile.metaphor ? `
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--gray-600); font-style: italic;">
+                                        📖 ${safeData.asSafeModeOS.profile.metaphor}
+                                    </p>
+                                ` : ''}
+                            </div>
+
+                            <!-- ストレス対処法 -->
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem;">😰 ストレス対処法</div>
+                                <div style="display: grid; gap: var(--spacing-sm);">
+                                    <div>
+                                        <strong>対処方法:</strong> ${safeData.asSafeModeOS.stressResponse.whatYouDo}
+                                    </div>
+                                    <div style="background: var(--safemode-light); padding: var(--spacing-sm); border-radius: 6px;">
+                                        <strong>例:</strong> ${safeData.asSafeModeOS.stressResponse.example}
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm);">
+                                        <div style="background: #dcfce7; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <div style="font-size: 0.9rem; color: #166534;">
+                                                <strong>👍 良い点:</strong> ${safeData.asSafeModeOS.stressResponse.goodPoint}
+                                            </div>
+                                        </div>
+                                        <div style="background: #fee2e2; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <div style="font-size: 0.9rem; color: #991b1b;">
+                                                <strong>⚠️ 注意点:</strong> ${safeData.asSafeModeOS.stressResponse.badPoint}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 緊急モード -->
+                            ${safeData.asSafeModeOS.emergencyMode ? `
+                                <div style="margin-bottom: var(--spacing-md); background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); padding: var(--spacing-md); border-radius: 8px;">
+                                    <div style="font-weight: 600; margin-bottom: 0.5rem;">🚨 緊急モード</div>
+                                    <div style="display: grid; gap: var(--spacing-sm);">
+                                        <div style="font-size: 0.9rem;">
+                                            <strong>反応:</strong> ${safeData.asSafeModeOS.emergencyMode.whatHappens}
+                                        </div>
+                                        <div style="background: white; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>例:</strong> ${safeData.asSafeModeOS.emergencyMode.example}
+                                        </div>
+                                        ${safeData.asSafeModeOS.emergencyMode.recovery ? `
+                                            <div style="font-size: 0.9rem;">
+                                                <strong>回復プロセス:</strong> ${safeData.asSafeModeOS.emergencyMode.recovery}
+                                            </div>
+                                        ` : ''}
+                                        <div style="font-size: 0.9rem;">
+                                            <strong>⏱️ 回復時間:</strong> ${safeData.asSafeModeOS.emergencyMode.timeToRecover}
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            <!-- 回復方法 -->
+                            ${safeData.asSafeModeOS.howToRecover ? `
+                                <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); padding: var(--spacing-md); border-radius: 8px;">
+                                    <div style="font-weight: 600; margin-bottom: 0.5rem;">💚 回復方法</div>
+                                    <div style="display: grid; gap: var(--spacing-sm);">
+                                        <div style="font-size: 0.9rem;">
+                                            <strong>ベストな方法:</strong> ${safeData.asSafeModeOS.howToRecover.bestWay}
+                                        </div>
+                                        <div style="background: white; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>例:</strong> ${safeData.asSafeModeOS.howToRecover.example}
+                                        </div>
+                                        ${safeData.asSafeModeOS.howToRecover.environment ? `
+                                            <div style="font-size: 0.9rem;">
+                                                <strong>🏡 環境:</strong> ${safeData.asSafeModeOS.howToRecover.environment}
+                                            </div>
+                                        ` : ''}
+                                        ${safeData.asSafeModeOS.howToRecover.support ? `
+                                            <div style="font-size: 0.9rem;">
+                                                <strong>🤝 サポート:</strong> ${safeData.asSafeModeOS.howToRecover.support}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        ` : `
+                            <div style="background: var(--gray-50); padding: var(--spacing-md); border-radius: 8px;">
+                                <p style="margin: 0;">SafeMode OSとしての詳細データを表示</p>
+                            </div>
+                        `}
+                    </section>
+                </div>
+
+                <!-- OSバランス分析（全データ活用） -->
+                <section style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; padding: var(--spacing-xl); margin-top: var(--spacing-xl);">
+                    <h2 class="section-title">
+                        <span>⚖️</span>
+                        OSバランス総合分析
+                    </h2>
+                    
+                    <div style="display: grid; gap: var(--spacing-lg);">
+                        <!-- Engine OSバランス -->
+                        ${engineData.osBalance ? `
+                            <div style="background: white; padding: var(--spacing-md); border-radius: 8px; border-left: 4px solid var(--engine-color);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--engine-dark);">
+                                    🚀 Engine OSのバランス
+                                </div>
+                                <div style="display: grid; gap: var(--spacing-sm);">
+                                    <div style="font-size: 0.9rem;">
+                                        <strong>理想的なバランス:</strong> ${engineData.osBalance.idealBalance}
+                                    </div>
+                                    ${engineData.osBalance.whenBalanced ? `
+                                        <div style="font-size: 0.9rem; background: #dcfce7; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>✅ バランスが取れている時:</strong> ${engineData.osBalance.whenBalanced}
+                                        </div>
+                                    ` : ''}
+                                    ${engineData.osBalance.whenImbalanced ? `
+                                        <div style="font-size: 0.9rem; background: #fee2e2; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>⚠️ バランスが崩れた時:</strong> ${engineData.osBalance.whenImbalanced}
+                                        </div>
+                                    ` : ''}
+                                    ${engineData.osBalance.tip ? `
+                                        <div style="font-size: 0.9rem; background: #fef3c7; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>💡 ヒント:</strong> ${engineData.osBalance.tip}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Interface OSバランス -->
+                        ${interfaceData.osBalance ? `
+                            <div style="background: white; padding: var(--spacing-md); border-radius: 8px; border-left: 4px solid var(--interface-color);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--interface-dark);">
+                                    🔗 Interface OSのバランス
+                                </div>
+                                <div style="display: grid; gap: var(--spacing-sm);">
+                                    <div style="font-size: 0.9rem;">
+                                        <strong>理想的なバランス:</strong> ${interfaceData.osBalance.idealBalance}
+                                    </div>
+                                    ${interfaceData.osBalance.whenBalanced ? `
+                                        <div style="font-size: 0.9rem; background: #dcfce7; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>✅ バランスが取れている時:</strong> ${interfaceData.osBalance.whenBalanced}
+                                        </div>
+                                    ` : ''}
+                                    ${interfaceData.osBalance.whenImbalanced ? `
+                                        <div style="font-size: 0.9rem; background: #fee2e2; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>⚠️ バランスが崩れた時:</strong> ${interfaceData.osBalance.whenImbalanced}
+                                        </div>
+                                    ` : ''}
+                                    ${interfaceData.osBalance.tip ? `
+                                        <div style="font-size: 0.9rem; background: #fef3c7; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>💡 ヒント:</strong> ${interfaceData.osBalance.tip}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- SafeMode OSバランス -->
+                        ${safeData.osBalance ? `
+                            <div style="background: white; padding: var(--spacing-md); border-radius: 8px; border-left: 4px solid var(--safemode-color);">
+                                <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--safemode-dark);">
+                                    🛡️ SafeMode OSのバランス
+                                </div>
+                                <div style="display: grid; gap: var(--spacing-sm);">
+                                    <div style="font-size: 0.9rem;">
+                                        <strong>理想的なバランス:</strong> ${safeData.osBalance.idealBalance}
+                                    </div>
+                                    ${safeData.osBalance.whenBalanced ? `
+                                        <div style="font-size: 0.9rem; background: #dcfce7; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>✅ バランスが取れている時:</strong> ${safeData.osBalance.whenBalanced}
+                                        </div>
+                                    ` : ''}
+                                    ${safeData.osBalance.whenImbalanced ? `
+                                        <div style="font-size: 0.9rem; background: #fee2e2; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>⚠️ バランスが崩れた時:</strong> ${safeData.osBalance.whenImbalanced}
+                                        </div>
+                                    ` : ''}
+                                    ${safeData.osBalance.tip ? `
+                                        <div style="font-size: 0.9rem; background: #fef3c7; padding: var(--spacing-sm); border-radius: 6px;">
+                                            <strong>💡 ヒント:</strong> ${safeData.osBalance.tip}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </section>
+            `;
+        }
+
+        // パターンロード関数
+        function loadPattern(patternName) {
+            const content = generateDynamicContent(patternName);
+            document.getElementById('dynamicContent').innerHTML = content;
+        }
+
+        // 初期表示
+        window.onload = () => {
+            loadPattern('innovator');
+        };
+    </script>
+</body>
+</html>

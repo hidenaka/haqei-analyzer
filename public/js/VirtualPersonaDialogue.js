@@ -11,7 +11,11 @@ console.log('🎭 VirtualPersonaDialogue Loading...');
 
   class VirtualPersonaDialogue {
     constructor() {
-      this.name = 'VirtualPersonaDialogue';
+      
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.name = 'VirtualPersonaDialogue';
       this.version = '1.0.0';
       this.philosophy = 'haqei-persona-dialogue';
       
@@ -354,7 +358,7 @@ console.log('🎭 VirtualPersonaDialogue Loading...');
       
       const enhancer = enhancers[persona.name.includes('創造') ? 'engine' : 
                                persona.name.includes('調和') ? 'interface' : 'safemode'];
-      const randomEnhancer = enhancer[Math.floor(Math.random() * enhancer.length)];
+      const randomEnhancer = enhancer[Math.floor(this.rng.next() * enhancer.length)];
       
       return `${randomEnhancer}${message}`;
     }
@@ -371,7 +375,7 @@ console.log('🎭 VirtualPersonaDialogue Loading...');
       
       const softener = softeners[persona.name.includes('創造') ? 'engine' : 
                               persona.name.includes('調和') ? 'interface' : 'safemode'];
-      const randomSoftener = softener[Math.floor(Math.random() * softener.length)];
+      const randomSoftener = softener[Math.floor(this.rng.next() * softener.length)];
       
       return `${randomSoftener}、${message}`;
     }

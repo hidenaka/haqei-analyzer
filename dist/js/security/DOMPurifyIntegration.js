@@ -1,1 +1,411 @@
-class DOMPurifyIntegration{constructor(){this.isInitialized=!1,this.config=this.getSecurityConfig(),this.initDOMPurify()}getSecurityConfig(){return{ALLOWED_TAGS:["b","i","em","strong","span","div","p","br","ul","ol","li","h1","h2","h3","h4","h5","h6"],ALLOWED_ATTR:["class","id","data-question-id","data-answer-id","data-hexagram-id","style"],ALLOWED_STYLE_PROPS:["color","background-color","font-size","font-weight","text-align","margin","padding","border"],ALLOWED_URI_REGEXP:/^(?:(?:https?|ftp|mailto):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,FORBID_TAGS:["script","object","embed","form","input","textarea","select","button","iframe","frame","frameset","meta","link","style","base","title"],FORBID_ATTR:["onclick","onload","onerror","onmouseover","onmouseout","onfocus","onblur","onchange","onsubmit","href","src"]}}async initDOMPurify(){try{"undefined"==typeof DOMPurify&&await this.loadDOMPurifyLibrary(),this.setupSecurityHooks(),this.isInitialized=!0,console.log("✅ DOMPurify セキュリティシステム初期化完了")}catch(t){console.error("❌ DOMPurify初期化エラー:",t),this.isInitialized=!1}}async loadDOMPurifyLibrary(){return new Promise((t,e)=>{const i=document.createElement("script");i.src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js",i.integrity="sha384-69eb1h/3FLKz1j3ChgOC6gH3+k0KvBfH7NrR+mOlKCl5vPnWRnNjB/LwEXxfKz0y",i.crossOrigin="anonymous",i.onload=()=>{"undefined"!=typeof DOMPurify?t():e(new Error("DOMPurify failed to load"))},i.onerror=()=>e(new Error("Failed to load DOMPurify script")),document.head.appendChild(i)})}setupSecurityHooks(){"undefined"!=typeof DOMPurify&&(DOMPurify.addHook("beforeSanitizeElements",(t,e)=>{if("script"===e.tagName)return this.logSecurityViolation("SCRIPT_TAG_DETECTED",t),!1;const i=["onclick","onload","onerror","href","src"];for(const r of i)t.hasAttribute&&t.hasAttribute(r)&&(this.logSecurityViolation("DANGEROUS_ATTRIBUTE_DETECTED",t,r),t.removeAttribute(r))}),DOMPurify.addHook("beforeSanitizeAttributes",t=>{if(t.hasAttributes()){Array.from(t.attributes).forEach(t=>{t.name.startsWith("data-")&&(t.value=this.sanitizeDataAttribute(t.value))})}}),console.log("🔒 DOMPurify セキュリティフック設定完了"))}sanitizeHTML(t,e={}){if(!this.isInitialized)return console.warn("⚠️ DOMPurify未初期化 - フォールバック処理"),this.fallbackSanitize(t);try{const i={...this.config,...e,KEEP_CONTENT:!1,RETURN_DOM:!1,RETURN_DOM_FRAGMENT:!1,SANITIZE_DOM:!0},r=DOMPurify.sanitize(t,i);return this.validateSanitizedContent(r),r}catch(i){return console.error("❌ HTML サニタイゼーションエラー:",i),this.logSecurityViolation("SANITIZATION_ERROR",null,i.message),this.fallbackSanitize(t)}}safeSetTextContent(t,e){if(!t||"string"!=typeof e)return console.warn("⚠️ safeSetTextContent: 無効なパラメータ"),!1;try{return t.textContent=e,!0}catch(i){return console.error("❌ テキスト挿入エラー:",i),!1}}safeSetInnerHTML(t,e){if(!t||"string"!=typeof e)return console.warn("⚠️ safeSetInnerHTML: 無効なパラメータ"),!1;try{const i=this.sanitizeHTML(e);return t.innerHTML=i,this.validateInsertedContent(t),!0}catch(i){return console.error("❌ HTML挿入エラー:",i),!1}}safeSetAttribute(t,e,i){if(!t||"string"!=typeof e||"string"!=typeof i)return console.warn("⚠️ safeSetAttribute: 無効なパラメータ"),!1;if(!this.config.ALLOWED_ATTR.includes(e))return console.warn(`⚠️ 許可されていない属性: ${e}`),!1;try{const r=this.sanitizeAttributeValue(e,i);return t.setAttribute(e,r),!0}catch(r){return console.error("❌ 属性設定エラー:",r),!1}}sanitizeDataAttribute(t){return t.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/&/g,"&amp;")}sanitizeAttributeValue(t,e){switch(t){case"class":return e.replace(/[^a-zA-Z0-9_-\s]/g,"");case"id":return e.replace(/[^a-zA-Z0-9_-]/g,"");case"style":return this.sanitizeStyleAttribute(e);default:return this.sanitizeDataAttribute(e)}}sanitizeStyleAttribute(t){return t.replace(/javascript:/gi,"").replace(/expression\s*\(/gi,"").replace.replace(/behavior\s*:/gi,"").split(";").filter(t=>{const[e]=t.split(":").map(t=>t.trim());return this.config.ALLOWED_STYLE_PROPS.includes(e)}).join("; ")}fallbackSanitize(t){return"string"!=typeof t?"":t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/\//g,"&#x2F;")}validateSanitizedContent(t){const e=[/<script/i,/javascript:/i,/on\w+\s*=/i,/<iframe/i,/<object/i,/<embed/i];for(const i of e)if(i.test(t))throw this.logSecurityViolation("DANGEROUS_CONTENT_DETECTED",null,t),new Error("危険なコンテンツが検出されました")}validateInsertedContent(t){const e=t.querySelectorAll("script, object, embed, iframe");e.length>0&&(console.error("❌ 危険なタグが挿入されました"),e.forEach(t=>t.remove()));t.querySelectorAll('[onclick], [onload], [onerror], [href^="javascript:"]').forEach(t=>{["onclick","onload","onerror"].forEach(e=>{t.hasAttribute(e)&&t.removeAttribute(e)}),t.hasAttribute("href")&&t.getAttribute("href").startsWith("javascript:")&&t.removeAttribute("href")})}logSecurityViolation(t,e,i){const r={timestamp:(new Date).toISOString(),type:t,url:window.location.href,userAgent:navigator.userAgent,element:e?e.outerHTML:null,details:i};console.warn("🚨 セキュリティ違反検出:",r),window.SecurityLogger&&window.SecurityLogger.logViolation(r)}getSecurityStats(){return{isInitialized:this.isInitialized,libraryLoaded:"undefined"!=typeof DOMPurify,configuredRules:Object.keys(this.config).length,allowedTags:this.config.ALLOWED_TAGS.length,allowedAttributes:this.config.ALLOWED_ATTR.length,forbiddenTags:this.config.FORBID_TAGS.length,forbiddenAttributes:this.config.FORBID_ATTR.length}}}"undefined"!=typeof window&&(window.DOMPurifyIntegration=DOMPurifyIntegration,window.domPurifyIntegration=new DOMPurifyIntegration),"undefined"!=typeof module&&module.exports&&(module.exports=DOMPurifyIntegration),console.log("🔒 DOMPurifyIntegration.js 読み込み完了 - 企業レベルXSS保護");
+/**
+ * DOMPurify統合セキュリティシステム
+ * XSS攻撃からの包括的保護
+ * 
+ * Author: HAQEI Programmer Agent
+ * Created: 2025-08-05
+ * Security Level: Enterprise
+ */
+
+class DOMPurifyIntegration {
+  constructor() {
+    this.isInitialized = false;
+    this.config = this.getSecurityConfig();
+    this.initDOMPurify();
+  }
+
+  /**
+   * セキュリティ設定の定義
+   */
+  getSecurityConfig() {
+    return {
+      // 許可するHTMLタグ（最小限）
+      ALLOWED_TAGS: [
+        'b', 'i', 'em', 'strong', 'span', 'div', 'p', 'br',
+        'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'
+      ],
+      
+      // 許可する属性（ホワイトリスト）
+      ALLOWED_ATTR: [
+        'class', 'id', 'data-question-id', 'data-answer-id',
+        'data-hexagram-id', 'style'
+      ],
+      
+      // 許可するスタイル属性
+      ALLOWED_STYLE_PROPS: [
+        'color', 'background-color', 'font-size', 'font-weight',
+        'text-align', 'margin', 'padding', 'border'
+      ],
+      
+      // URI スキーマのホワイトリスト
+      ALLOWED_URI_REGEXP: /^(?:(?:https?|ftp|mailto):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+      
+      // 危険なタグの完全禁止
+      FORBID_TAGS: [
+        'script', 'object', 'embed', 'form', 'input', 'textarea',
+        'select', 'button', 'iframe', 'frame', 'frameset', 'meta',
+        'link', 'style', 'base', 'title'
+      ],
+      
+      // 危険な属性の完全禁止
+      FORBID_ATTR: [
+        'onclick', 'onload', 'onerror', 'onmouseover', 'onmouseout',
+        'onfocus', 'onblur', 'onchange', 'onsubmit', 'href', 'src'
+      ]
+    };
+  }
+
+  /**
+   * DOMPurifyの初期化
+   */
+  async initDOMPurify() {
+    try {
+      // DOMPurifyライブラリの動的読み込み
+      if (typeof DOMPurify === 'undefined') {
+        await this.loadDOMPurifyLibrary();
+      }
+
+      // セキュリティフックの設定
+      this.setupSecurityHooks();
+      
+      this.isInitialized = true;
+      console.log('✅ DOMPurify セキュリティシステム初期化完了');
+    } catch (error) {
+      console.error('❌ DOMPurify初期化エラー:', error);
+      this.isInitialized = false;
+    }
+  }
+
+  /**
+   * DOMPurifyライブラリの動的読み込み
+   */
+  async loadDOMPurifyLibrary() {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js';
+      script.integrity = 'sha384-69eb1h/3FLKz1j3ChgOC6gH3+k0KvBfH7NrR+mOlKCl5vPnWRnNjB/LwEXxfKz0y';
+      script.crossOrigin = 'anonymous';
+      
+      script.onload = () => {
+        if (typeof DOMPurify !== 'undefined') {
+          resolve();
+        } else {
+          reject(new Error('DOMPurify failed to load'));
+        }
+      };
+      
+      script.onerror = () => reject(new Error('Failed to load DOMPurify script'));
+      
+      document.head.appendChild(script);
+    });
+  }
+
+  /**
+   * セキュリティフックの設定
+   */
+  setupSecurityHooks() {
+    if (typeof DOMPurify === 'undefined') return;
+
+    // 危険なコンテンツの検出フック
+    DOMPurify.addHook('beforeSanitizeElements', (node, data) => {
+      // スクリプトタグの検出
+      if (data.tagName === 'script') {
+        this.logSecurityViolation('SCRIPT_TAG_DETECTED', node);
+        return false;
+      }
+
+      // 危険な属性の検出
+      const dangerousAttrs = ['onclick', 'onload', 'onerror', 'href', 'src'];
+      for (const attr of dangerousAttrs) {
+        if (node.hasAttribute && node.hasAttribute(attr)) {
+          this.logSecurityViolation('DANGEROUS_ATTRIBUTE_DETECTED', node, attr);
+          node.removeAttribute(attr);
+        }
+      }
+    });
+
+    // 属性値のサニタイゼーションフック
+    DOMPurify.addHook('beforeSanitizeAttributes', (node) => {
+      // data-*属性の検証
+      if (node.hasAttributes()) {
+        const attrs = Array.from(node.attributes);
+        attrs.forEach(attr => {
+          if (attr.name.startsWith('data-')) {
+            attr.value = this.sanitizeDataAttribute(attr.value);
+          }
+        });
+      }
+    });
+
+    console.log('🔒 DOMPurify セキュリティフック設定完了');
+  }
+
+  /**
+   * HTMLのサニタイゼーション（メインAPI）
+   */
+  sanitizeHTML(dirtyHTML, options = {}) {
+    if (!this.isInitialized) {
+      console.warn('⚠️ DOMPurify未初期化 - フォールバック処理');
+      return this.fallbackSanitize(dirtyHTML);
+    }
+
+    try {
+      const config = {
+        ...this.config,
+        ...options,
+        // 強制的にセキュリティ設定を適用
+        KEEP_CONTENT: false,
+        RETURN_DOM: false,
+        RETURN_DOM_FRAGMENT: false,
+        SANITIZE_DOM: true
+      };
+
+      const cleanHTML = DOMPurify.sanitize(dirtyHTML, config);
+      
+      // 追加検証
+      this.validateSanitizedContent(cleanHTML);
+      
+      return cleanHTML;
+    } catch (error) {
+      console.error('❌ HTML サニタイゼーションエラー:', error);
+      this.logSecurityViolation('SANITIZATION_ERROR', null, error.message);
+      return this.fallbackSanitize(dirtyHTML);
+    }
+  }
+
+  /**
+   * テキストコンテンツの安全な挿入
+   */
+  safeSetTextContent(element, text) {
+    if (!element || typeof text !== 'string') {
+      console.warn('⚠️ safeSetTextContent: 無効なパラメータ');
+      return false;
+    }
+
+    try {
+      // textContentを使用してXSS攻撃を防止
+      element.textContent = text;
+      return true;
+    } catch (error) {
+      console.error('❌ テキスト挿入エラー:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 安全なHTML挿入
+   */
+  safeSetInnerHTML(element, html) {
+    if (!element || typeof html !== 'string') {
+      console.warn('⚠️ safeSetInnerHTML: 無効なパラメータ');
+      return false;
+    }
+
+    try {
+      const sanitizedHTML = this.sanitizeHTML(html);
+      element.innerHTML = sanitizedHTML;
+      
+      // 挿入後の検証
+      this.validateInsertedContent(element);
+      
+      return true;
+    } catch (error) {
+      console.error('❌ HTML挿入エラー:', error);
+      return false;
+    }
+  }
+
+  /**
+   * 属性値の安全な設定
+   */
+  safeSetAttribute(element, name, value) {
+    if (!element || typeof name !== 'string' || typeof value !== 'string') {
+      console.warn('⚠️ safeSetAttribute: 無効なパラメータ');
+      return false;
+    }
+
+    // 属性名のホワイトリスト検証
+    if (!this.config.ALLOWED_ATTR.includes(name)) {
+      console.warn(`⚠️ 許可されていない属性: ${name}`);
+      return false;
+    }
+
+    try {
+      const sanitizedValue = this.sanitizeAttributeValue(name, value);
+      element.setAttribute(name, sanitizedValue);
+      return true;
+    } catch (error) {
+      console.error('❌ 属性設定エラー:', error);
+      return false;
+    }
+  }
+
+  /**
+   * data-*属性値のサニタイゼーション
+   */
+  sanitizeDataAttribute(value) {
+    return value
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/&/g, '&amp;');
+  }
+
+  /**
+   * 属性値のサニタイゼーション
+   */
+  sanitizeAttributeValue(name, value) {
+    switch (name) {
+      case 'class':
+        // CSS クラス名の検証
+        return value.replace(/[^a-zA-Z0-9_-\s]/g, '');
+      
+      case 'id':
+        // ID の検証
+        return value.replace(/[^a-zA-Z0-9_-]/g, '');
+      
+      case 'style':
+        // インラインスタイルの検証
+        return this.sanitizeStyleAttribute(value);
+      
+      default:
+        // 一般的な属性値のエスケープ
+        return this.sanitizeDataAttribute(value);
+    }
+  }
+
+  /**
+   * スタイル属性のサニタイゼーション
+   */
+  sanitizeStyleAttribute(styleValue) {
+    // 危険なCSSプロパティやjavascript:の除去
+    const cleanStyle = styleValue
+      .replace(/javascript:/gi, '')
+      .replace(/expression\s*\(/gi, '')
+      .replace//@import/gi, '')
+      .replace(/behavior\s*:/gi, '');
+
+    // 許可されたプロパティのみ通す
+    const declarations = cleanStyle.split(';');
+    const allowedDeclarations = declarations.filter(decl => {
+      const [property] = decl.split(':').map(s => s.trim());
+      return this.config.ALLOWED_STYLE_PROPS.includes(property);
+    });
+
+    return allowedDeclarations.join('; ');
+  }
+
+  /**
+   * フォールバック サニタイゼーション
+   */
+  fallbackSanitize(html) {
+    if (typeof html !== 'string') return '';
+
+    return html
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/\//g, '&#x2F;');
+  }
+
+  /**
+   * サニタイゼーション結果の検証
+   */
+  validateSanitizedContent(content) {
+    // 危険なパターンの残存チェック
+    const dangerousPatterns = [
+      /<script/i,
+      /javascript:/i,
+      /on\w+\s*=/i,
+      /<iframe/i,
+      /<object/i,
+      /<embed/i
+    ];
+
+    for (const pattern of dangerousPatterns) {
+      if (pattern.test(content)) {
+        this.logSecurityViolation('DANGEROUS_CONTENT_DETECTED', null, content);
+        throw new Error('危険なコンテンツが検出されました');
+      }
+    }
+  }
+
+  /**
+   * 挿入されたコンテンツの検証
+   */
+  validateInsertedContent(element) {
+    // 子要素の危険なタグをチェック
+    const dangerousTags = element.querySelectorAll('script, object, embed, iframe');
+    if (dangerousTags.length > 0) {
+      console.error('❌ 危険なタグが挿入されました');
+      dangerousTags.forEach(tag => tag.remove());
+    }
+
+    // 危険な属性をチェック
+    const elementsWithDangerousAttrs = element.querySelectorAll('[onclick], [onload], [onerror], [href^="javascript:"]');
+    elementsWithDangerousAttrs.forEach(elem => {
+      ['onclick', 'onload', 'onerror'].forEach(attr => {
+        if (elem.hasAttribute(attr)) {
+          elem.removeAttribute(attr);
+        }
+      });
+      
+      if (elem.hasAttribute('href') && elem.getAttribute('href').startsWith('javascript:')) {
+        elem.removeAttribute('href');
+      }
+    });
+  }
+
+  /**
+   * セキュリティ違反のログ記録
+   */
+  logSecurityViolation(type, element, details) {
+    const violation = {
+      timestamp: new Date().toISOString(),
+      type: type,
+      url: window.location.href,
+      userAgent: navigator.userAgent,
+      element: element ? element.outerHTML : null,
+      details: details
+    };
+
+    console.warn('🚨 セキュリティ違反検出:', violation);
+
+    // セキュリティログの永続化（実装環境に応じて）
+    if (window.SecurityLogger) {
+      window.SecurityLogger.logViolation(violation);
+    }
+  }
+
+  /**
+   * セキュリティ統計の取得
+   */
+  getSecurityStats() {
+    return {
+      isInitialized: this.isInitialized,
+      libraryLoaded: typeof DOMPurify !== 'undefined',
+      configuredRules: Object.keys(this.config).length,
+      allowedTags: this.config.ALLOWED_TAGS.length,
+      allowedAttributes: this.config.ALLOWED_ATTR.length,
+      forbiddenTags: this.config.FORBID_TAGS.length,
+      forbiddenAttributes: this.config.FORBID_ATTR.length
+    };
+  }
+}
+
+// グローバル利用可能化
+if (typeof window !== 'undefined') {
+  window.DOMPurifyIntegration = DOMPurifyIntegration;
+  
+  // 即座に初期化
+  window.domPurifyIntegration = new DOMPurifyIntegration();
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = DOMPurifyIntegration;
+}
+
+console.log('🔒 DOMPurifyIntegration.js 読み込み完了 - 企業レベルXSS保護');

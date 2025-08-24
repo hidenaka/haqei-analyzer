@@ -1,0 +1,133 @@
+{
+  "timestamp": "2025-08-18T22:33:06.551Z",
+  "identical": {
+    "type": "identical",
+    "file1": "public/js/emergency-bypass.js",
+    "file2": "public/emergency-bypass.js",
+    "usage1": [
+      "public/test-emergency-bypass.html",
+      "analyze-specific-duplications.mjs",
+      "archives/cleanup-20250807/phase2-html/test-emergency-bypass.html",
+      "dist/test-emergency-bypass.html",
+      "investigate-critical-duplications.mjs",
+      "lightweight-duplication-analysis.mjs"
+    ],
+    "usage2": [
+      "public/test-emergency-bypass.html",
+      "analyze-specific-duplications.mjs",
+      "archives/cleanup-20250807/phase2-html/test-emergency-bypass.html",
+      "dist/test-emergency-bypass.html",
+      "investigate-critical-duplications.mjs",
+      "lightweight-duplication-analysis.mjs"
+    ],
+    "recommendation": "public/emergency-bypass.jsを削除し、public/js/emergency-bypass.jsに統一"
+  },
+  "similar": [
+    {
+      "file1": "public/js/AdvanceProcessor.js",
+      "file2": "public/js/iching/AdvanceProcessor.js",
+      "functions1": 1,
+      "functions2": 1,
+      "commonFunctions": 1,
+      "usage1": 16,
+      "usage2": 16,
+      "recommendation": "統合を強く推奨 - ほぼ同じ機能"
+    },
+    {
+      "file1": "public/js/KingWenMapping.js",
+      "file2": "public/js/iching/KingWenMapping.js",
+      "functions1": 2,
+      "functions2": 2,
+      "commonFunctions": 2,
+      "usage1": 21,
+      "usage2": 21,
+      "recommendation": "統合を強く推奨 - ほぼ同じ機能"
+    },
+    {
+      "file1": "public/js/LineSelector.js",
+      "file2": "public/js/iching/LineSelector.js",
+      "functions1": 1,
+      "functions2": 1,
+      "commonFunctions": 1,
+      "usage1": 21,
+      "usage2": 21,
+      "recommendation": "統合を強く推奨 - ほぼ同じ機能"
+    },
+    {
+      "file1": "public/js/MultiLineInterpreter.js",
+      "file2": "public/js/iching/MultiLineInterpreter.js",
+      "functions1": 1,
+      "functions2": 1,
+      "commonFunctions": 1,
+      "usage1": 16,
+      "usage2": 16,
+      "recommendation": "統合を強く推奨 - ほぼ同じ機能"
+    }
+  ],
+  "largeFiles": [
+    {
+      "file": "public/js/os-analyzer-main.js",
+      "sizeKB": 367,
+      "lines": 7614,
+      "functions": 24,
+      "complexity": 321,
+      "recommendation": "行数が多すぎ - クラス/モジュール分割を推奨"
+    },
+    {
+      "file": "public/assets/H384H64database.js",
+      "sizeKB": 121,
+      "lines": 732,
+      "functions": 2,
+      "complexity": 18,
+      "recommendation": "サイズは大きいが構造は許容範囲"
+    },
+    {
+      "file": "public/js/binary-tree-complete-display.js",
+      "sizeKB": 104,
+      "lines": 2281,
+      "functions": 60,
+      "complexity": 118,
+      "recommendation": "関数数が多すぎ - 機能別ファイル分割を推奨"
+    },
+    {
+      "file": "public/js/core/ScreenManager.js",
+      "sizeKB": 63,
+      "lines": 1532,
+      "functions": 5,
+      "complexity": 72,
+      "recommendation": "行数が多すぎ - クラス/モジュール分割を推奨"
+    }
+  ],
+  "unusedFiles": [
+    {
+      "file": "public/assets/js/questions-full-backup-20250118.js",
+      "sizeKB": 28,
+      "usageCount": 1,
+      "status": "使用中 - 削除不可"
+    },
+    {
+      "file": "public/js/core/TripleOSInteractionAnalyzer.backup.20250111.js",
+      "sizeKB": 104,
+      "usageCount": 2,
+      "status": "使用中 - 削除不可"
+    },
+    {
+      "file": "public/future-simulator-test.js",
+      "sizeKB": 8,
+      "usageCount": 3,
+      "status": "使用中 - 削除不可"
+    },
+    {
+      "file": "public/test-console-check.js",
+      "sizeKB": 1,
+      "usageCount": 1,
+      "status": "使用中 - 削除不可"
+    },
+    {
+      "file": "public/test-core-logic.js",
+      "sizeKB": 6,
+      "usageCount": 1,
+      "status": "使用中 - 削除不可"
+    }
+  ]
+}

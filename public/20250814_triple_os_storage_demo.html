@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P1-1: Triple OS Storage Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { color: #A78BFA; margin-bottom: 20px; }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+        button {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #16a34a; }
+        button.error { background: #ef4444; }
+        button.error:hover { background: #dc2626; }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success { background: rgba(34, 197, 94, 0.2); }
+        .error { background: rgba(239, 68, 68, 0.2); }
+        #toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .toast-success { background: #22c55e; }
+        .toast-error { background: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 P1-1: Triple OS Storage Demo</h1>
+        
+        <div class="section">
+            <h3>仕様書準拠の保存機能テスト</h3>
+            <p>キー: <code>haqei.tripleOS.v1</code> | TTL: 24時間 | バージョン: v1</p>
+            
+            <button onclick="testSave()">✅ 保存テスト</button>
+            <button onclick="testRead()">📖 読み取りテスト</button>
+            <button onclick="testValidation()">🔍 バリデーションテスト</button>
+            <button onclick="testError()" class="error">❌ エラーテスト</button>
+            <button onclick="clearStorage()">🧹 ストレージクリア</button>
+        </div>
+        
+        <div class="section">
+            <h3>手動テスト用モックデータ</h3>
+            <button onclick="simulateOSAnalysis()">🎭 OS分析結果をシミュレート</button>
+            <p><small>※ 実際のOS Analyzerで発生する分析完了時のデータ保存をシミュレートします</small></p>
+        </div>
+        
+        <div class="section" id="results">
+            <h3>実行結果</h3>
+            <div id="output">テストを実行してください...</div>
+        </div>
+        
+        <div class="section">
+            <h3>DevTools Console 検証コマンド</h3>
+            <pre style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px;">
+// 保存データの確認
+JSON.parse(localStorage.getItem("haqei.tripleOS.v1"));
+
+// 時刻形式の確認
+const rec = JSON.parse(localStorage.getItem("haqei.tripleOS.v1"));
+new Date(rec.createdAt) &lt; new Date(rec.expiresAt);
+
+// 手動削除
+localStorage.removeItem("haqei.tripleOS.v1");
+            </pre>
+        </div>
+    </div>
+
+    <!-- Toast element -->
+    <div id="toast"></div>
+
+    <!-- P1-1: Triple OS Storage Module (ES Module) -->
+    <script type="module">
+        import { saveTripleOSResults, readTripleOSRaw, clearTripleOS, TRIPLE_OS_KEY } from './js/triple-os-storage.js';
+        
+        // グローバルスコープに関数をエクスポート
+        window.P1_STORAGE = {
+            saveTripleOSResults,
+            readTripleOSRaw, 
+            clearTripleOS,
+            TRIPLE_OS_KEY
+        };
+        
+        console.log('[P1-1] Triple OS Storage module loaded successfully');
+        showResult('✅ Triple OS Storage module loaded', 'success');
+        
+        // 失敗イベントのハンドリング
+        window.addEventListener('haqei:tripleos:save-error', (e) => {
+            const message = e.detail?.message || '保存エラー';
+            showToast(message, 'error');
+            showResult(`❌ Storage Error: ${message}`, 'error');
+        });
+        
+    </script>
+
+    <script>
+        // Toast表示関数
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = type === 'error' ? 'toast-error' : 'toast-success';
+            toast.style.opacity = '1';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 3000);
+        }
+        
+        // 結果表示関数
+        function showResult(message, type = 'success') {
+            const output = document.getElementById('output');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        // テスト関数群
+        function testSave() {
+            try {
+                if (!window.P1_STORAGE) {
+                    throw new Error('Storage module not loaded');
+                }
+                
+                const payload = {
+                    engineOS: "探求型",
+                    interfaceOS: "調整型", 
+                    safeModeOS: "防衛型",
+                    source: "demo-test"
+                };
+                
+                const saved = window.P1_STORAGE.saveTripleOSResults(payload, { ttlHours: 24 });
+                showResult(`✅ Save Success: ${JSON.stringify(saved, null, 2)}`, 'success');
+                showToast('OS結果を保存しました（24時間有効）', 'success');
+                
+            } catch (error) {
+                showResult(`❌ Save Error: ${error.message}`, 'error');
+                showToast('保存に失敗しました', 'error');
+            }
+        }
+        
+        function testRead() {
+            try {
+                if (!window.P1_STORAGE) {
+                    throw new Error('Storage module not loaded');
+                }
+                
+                const data = window.P1_STORAGE.readTripleOSRaw();
+                if (data) {
+                    showResult(`✅ Read Success: ${JSON.stringify(data, null, 2)}`, 'success');
+                    showToast('データ読み取り成功', 'success');
+                } else {
+                    showResult('📝 No data found in storage', 'success');
+                    showToast('保存されたデータが見つかりません', 'error');
+                }
+                
+            } catch (error) {
+                showResult(`❌ Read Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function testValidation() {
+            try {
+                const data = window.P1_STORAGE.readTripleOSRaw();
+                if (!data) {
+                    showResult('❌ Validation: No data to validate', 'error');
+                    return;
+                }
+                
+                const validations = {
+                    'version v1': data.version === 'v1',
+                    'engineOS string': typeof data.engineOS === 'string' && data.engineOS.length > 0,
+                    'interfaceOS string': typeof data.interfaceOS === 'string' && data.interfaceOS.length > 0,
+                    'safeModeOS string': typeof data.safeModeOS === 'string' && data.safeModeOS.length > 0,
+                    'valid createdAt': !isNaN(Date.parse(data.createdAt)),
+                    'valid expiresAt': !isNaN(Date.parse(data.expiresAt)),
+                    'createdAt < expiresAt': new Date(data.createdAt) < new Date(data.expiresAt)
+                };
+                
+                const allValid = Object.values(validations).every(v => v);
+                
+                showResult(`${allValid ? '✅' : '❌'} Validation: ${JSON.stringify(validations, null, 2)}`, allValid ? 'success' : 'error');
+                showToast(`バリデーション ${allValid ? '成功' : '失敗'}`, allValid ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult(`❌ Validation Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function testError() {
+            try {
+                // 意図的にエラーを発生させる（空文字列）
+                window.P1_STORAGE.saveTripleOSResults({
+                    engineOS: "",
+                    interfaceOS: "",
+                    safeModeOS: ""
+                });
+            } catch (error) {
+                showResult(`✅ Expected Error: ${error.message}`, 'success');
+                showToast('期待されたエラーが発生しました', 'success');
+            }
+        }
+        
+        function clearStorage() {
+            try {
+                window.P1_STORAGE.clearTripleOS();
+                showResult('✅ Storage cleared', 'success');
+                showToast('ストレージをクリアしました', 'success');
+            } catch (error) {
+                showResult(`❌ Clear Error: ${error.message}`, 'error');
+            }
+        }
+        
+        function simulateOSAnalysis() {
+            // OS Analyzer完了時のシミュレーション
+            const mockResults = {
+                engineOS: { hexagram: "創造型", name: "Engine創造" },
+                interfaceOS: { hexagram: "調和型", name: "Interface調和" },
+                safeModeOS: { hexagram: "安定型", name: "SafeMode安定" }
+            };
+            
+            try {
+                // OS Analyzerと同じロジックで型ラベルを抽出
+                const engineOS = mockResults?.engineOS?.hexagram || mockResults?.engineOS?.name || 'Unknown';
+                const interfaceOS = mockResults?.interfaceOS?.hexagram || mockResults?.interfaceOS?.name || 'Unknown';
+                const safeModeOS = mockResults?.safeModeOS?.hexagram || mockResults?.safeModeOS?.name || 'Unknown';
+                
+                const payload = {
+                    engineOS: engineOS,
+                    interfaceOS: interfaceOS,
+                    safeModeOS: safeModeOS,
+                    source: 'os-analyzer@simulation'
+                };
+                
+                const saved = window.P1_STORAGE.saveTripleOSResults(payload, { ttlHours: 24 });
+                showResult(`✅ OS Analysis Simulation: ${JSON.stringify(saved, null, 2)}`, 'success');
+                showToast('OS分析結果をシミュレート保存しました', 'success');
+                
+            } catch (error) {
+                showResult(`❌ Simulation Error: ${error.message}`, 'error');
+                showToast('シミュレーションに失敗しました', 'error');
+            }
+        }
+        
+        console.log('[P1-1] Demo page initialized');
+    </script>
+</body>
+</html>

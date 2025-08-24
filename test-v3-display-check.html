@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>V3データ表示確認テスト</title>
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .os-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .engine-os { border-color: #ff6b6b; background: #fff5f5; }
+        .interface-os { border-color: #4ecdc4; background: #f0ffff; }
+        .safemode-os { border-color: #45b7d1; background: #f0f8ff; }
+        .field-name {
+            font-weight: bold;
+            color: #333;
+            margin-right: 10px;
+        }
+        .field-value {
+            color: #666;
+        }
+        .description {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .char-count {
+            color: #999;
+            font-size: 0.9em;
+        }
+        .error {
+            color: red;
+            background: #ffeeee;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            color: green;
+            background: #eeffee;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        h1 { color: #333; }
+        h2 { color: #555; }
+        h3 { color: #777; }
+    </style>
+</head>
+<body>
+    <h1>V3データベース表示確認テスト</h1>
+    
+    <div class="test-section">
+        <h2>データベース読み込み状態</h2>
+        <div id="db-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>サンプルデータ表示テスト</h2>
+        <div id="sample-data"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>短い説明文チェック</h2>
+        <div id="short-check"></div>
+    </div>
+    
+    <script src="public/js/data/hexagram-human-traits-v3.js"></script>
+    <script>
+        // テストデータ
+        const testCases = [
+            { hexagram: '乾為天', osType: 'Engine' },
+            { hexagram: '坤為地', osType: 'Interface' },
+            { hexagram: '水雷屯', osType: 'SafeMode' },
+            { hexagram: '雷風恒', osType: 'Engine' },
+            { hexagram: '風澤中孚', osType: 'Interface' },
+            { hexagram: '火水未済', osType: 'SafeMode' }
+        ];
+        
+        function checkDatabase() {
+            const statusDiv = document.getElementById('db-status');
+            
+            if (typeof window.HexagramHumanTraitsV3 === 'undefined') {
+                statusDiv.innerHTML = '<div class="error">❌ HexagramHumanTraitsV3が読み込まれていません</div>';
+                return false;
+            }
+            
+            const hexagramCount = Object.keys(window.HexagramHumanTraitsV3).length;
+            statusDiv.innerHTML = `
+                <div class="success">
+                    ✅ HexagramHumanTraitsV3が正常に読み込まれました<br>
+                    総卦数: ${hexagramCount} / 64
+                </div>
+            `;
+            
+            return true;
+        }
+        
+        function displaySampleData() {
+            const container = document.getElementById('sample-data');
+            let html = '';
+            
+            testCases.forEach(test => {
+                const data = window.HexagramHumanTraitsV3[test.hexagram];
+                if (!data) {
+                    html += `<div class="error">❌ ${test.hexagram}のデータが見つかりません</div>`;
+                    return;
+                }
+                
+                let osData = null;
+                let cardClass = '';
+                
+                switch(test.osType) {
+                    case 'Engine':
+                        osData = data.asEngineOS;
+                        cardClass = 'engine-os';
+                        break;
+                    case 'Interface':
+                        osData = data.asInterfaceOS;
+                        cardClass = 'interface-os';
+                        break;
+                    case 'SafeMode':
+                        osData = data.asSafeModeOS;
+                        cardClass = 'safemode-os';
+                        break;
+                }
+                
+                html += `
+                    <div class="os-card ${cardClass}">
+                        <h3>${test.hexagram} - ${test.osType} OS</h3>
+                        <div>
+                            <span class="field-name">ニックネーム:</span>
+                            <span class="field-value">${data.nickname || '未定義'}</span>
+                        </div>
+                `;
+                
+                if (osData) {
+                    // ペルソナ/ストラテジー
+                    if (osData.persona) {
+                        html += `
+                            <div>
+                                <span class="field-name">ペルソナ:</span>
+                                <span class="field-value">${osData.persona}</span>
+                                <span class="char-count">(${osData.persona.length}文字)</span>
+                            </div>
+                        `;
+                    }
+                    if (osData.strategy) {
+                        html += `
+                            <div>
+                                <span class="field-name">ストラテジー:</span>
+                                <span class="field-value">${osData.strategy}</span>
+                                <span class="char-count">(${osData.strategy.length}文字)</span>
+                            </div>
+                        `;
+                    }
+                    
+                    // タイプ
+                    if (osData.type) {
+                        html += `
+                            <div>
+                                <span class="field-name">タイプ:</span>
+                                <span class="field-value">${osData.type}</span>
+                                <span class="char-count">(${osData.type.length}文字)</span>
+                            </div>
+                        `;
+                    }
+                    
+                    // 短い説明
+                    if (osData.shortDescription) {
+                        const isShort = osData.shortDescription.length < 10;
+                        html += `
+                            <div class="description">
+                                <span class="field-name">短い説明:</span>
+                                <span class="field-value ${isShort ? 'error' : ''}">${osData.shortDescription}</span>
+                                <span class="char-count">(${osData.shortDescription.length}文字)</span>
+                                ${isShort ? ' ⚠️ 10文字未満' : ' ✅'}
+                            </div>
+                        `;
+                    }
+                    
+                    // 詳細説明
+                    if (osData.description) {
+                        html += `
+                            <div class="description">
+                                <span class="field-name">詳細説明:</span>
+                                <span class="char-count">(${osData.description.length}文字)</span><br>
+                                <span class="field-value">${osData.description.substring(0, 100)}...</span>
+                            </div>
+                        `;
+                    }
+                } else {
+                    html += '<div class="error">OSデータが存在しません</div>';
+                }
+                
+                html += '</div>';
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function checkShortDescriptions() {
+            const container = document.getElementById('short-check');
+            const allHexagrams = Object.keys(window.HexagramHumanTraitsV3);
+            let shortFound = [];
+            
+            allHexagrams.forEach(hex => {
+                const data = window.HexagramHumanTraitsV3[hex];
+                
+                // 各OSのshortDescriptionをチェック
+                ['asEngineOS', 'asInterfaceOS', 'asSafeModeOS'].forEach(osKey => {
+                    if (data[osKey]?.shortDescription) {
+                        const desc = data[osKey].shortDescription;
+                        if (desc.length < 10) {
+                            shortFound.push({
+                                hexagram: hex,
+                                os: osKey.replace('as', '').replace('OS', ''),
+                                text: desc,
+                                length: desc.length
+                            });
+                        }
+                    }
+                });
+                
+                // その他のフィールドもチェック
+                ['persona', 'type', 'strategy'].forEach(field => {
+                    ['asEngineOS', 'asInterfaceOS', 'asSafeModeOS'].forEach(osKey => {
+                        if (data[osKey]?.[field]) {
+                            const text = data[osKey][field];
+                            if (text.length < 10 && !text.match(/^[乾坤水山風雷火澤天地為]/)) {
+                                shortFound.push({
+                                    hexagram: hex,
+                                    os: osKey.replace('as', '').replace('OS', ''),
+                                    field: field,
+                                    text: text,
+                                    length: text.length
+                                });
+                            }
+                        }
+                    });
+                });
+            });
+            
+            if (shortFound.length === 0) {
+                container.innerHTML = `
+                    <div class="success">
+                        ✅ すべての説明文が10文字以上です！<br>
+                        改善作業が成功しました。
+                    </div>
+                `;
+            } else {
+                let html = `
+                    <div class="error">
+                        ⚠️ ${shortFound.length}個の短い説明文が見つかりました
+                    </div>
+                    <ul>
+                `;
+                shortFound.slice(0, 10).forEach(item => {
+                    html += `<li>${item.hexagram} (${item.os}${item.field ? '/' + item.field : ''}): "${item.text}" (${item.length}文字)</li>`;
+                });
+                if (shortFound.length > 10) {
+                    html += `<li>... 他 ${shortFound.length - 10}個</li>`;
+                }
+                html += '</ul>';
+                container.innerHTML = html;
+            }
+        }
+        
+        // ページ読み込み時に実行
+        document.addEventListener('DOMContentLoaded', () => {
+            if (checkDatabase()) {
+                displaySampleData();
+                checkShortDescriptions();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>HAQEI Visual Test</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            padding: 20px;
+            margin: 0;
+            background: #f8f9fa;
+        }
+        .test-header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin: 0;
+            color: #1e293b;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .status-item {
+            padding: 10px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        .status-item.success {
+            border-left-color: #10b981;
+            background: #d1fae5;
+        }
+        .status-item.error {
+            border-left-color: #ef4444;
+            background: #fee2e2;
+        }
+        .test-button {
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-header">
+        <h1>🔍 HAQEI Results Page テスト</h1>
+        <div id="status-grid" class="status-grid"></div>
+    </div>
+    
+    <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+        <h2>テストアクション</h2>
+        <button class="test-button" onclick="testInitialization()">初期化テスト</button>
+        <button class="test-button" onclick="generateTestData()">テストデータ生成</button>
+        <button class="test-button" onclick="clearErrors()">エラークリア</button>
+        <button class="test-button" onclick="forceDisplay()">強制表示</button>
+        <button class="test-button" onclick="openResultsPage()">Results.html を開く</button>
+    </div>
+    
+    <div style="background: white; padding: 20px; border-radius: 12px;">
+        <h2>コンソール出力</h2>
+        <pre id="console-output" style="background: #1e293b; color: #e2e8f0; padding: 15px; border-radius: 8px; overflow-x: auto; min-height: 200px;"></pre>
+    </div>
+
+    <script>
+        const output = document.getElementById('console-output');
+        const statusGrid = document.getElementById('status-grid');
+        
+        function log(message) {
+            output.textContent += message + '\n';
+            console.log(message);
+        }
+        
+        function updateStatus(label, value, success = true) {
+            let item = document.getElementById(`status-${label}`);
+            if (!item) {
+                item = document.createElement('div');
+                item.id = `status-${label}`;
+                item.className = 'status-item';
+                statusGrid.appendChild(item);
+            }
+            item.className = `status-item ${success ? 'success' : 'error'}`;
+            item.innerHTML = `<strong>${label}:</strong> ${value}`;
+        }
+        
+        async function testInitialization() {
+            log('📍 初期化テスト開始...');
+            
+            // localStorageチェック
+            const hasData = localStorage.getItem('haqei_analysis_result');
+            updateStatus('LocalStorage', hasData ? 'データあり' : 'データなし', !!hasData);
+            
+            // ページ状態チェック
+            const response = await fetch('http://localhost:8012/public/results.html');
+            const html = await response.text();
+            updateStatus('HTML取得', response.ok ? 'OK' : 'エラー', response.ok);
+            
+            // 必要なJSファイル確認
+            const jsFiles = [
+                'js/shared/core/StorageManager.js',
+                'js/components/TabNavigator.js',
+                'js/components/tabs/BasicResultsTab.js'
+            ];
+            
+            for (const file of jsFiles) {
+                const res = await fetch(`http://localhost:8012/public/${file}`);
+                updateStatus(file.split('/').pop(), res.ok ? 'OK' : '404', res.ok);
+            }
+            
+            log('✅ 初期化テスト完了');
+        }
+        
+        function generateTestData() {
+            log('📝 テストデータ生成中...');
+            
+            const testData = {
+                engineOS: {
+                    name: 'クリエイティブ・エンジン',
+                    score: 85,
+                    hexagram: { symbol: '☰', name: '乾为天', number: 1 },
+                    traits: ['創造的', 'リーダーシップ', '革新的', '独立心', '先見性'],
+                    description: '強い創造性とリーダーシップ'
+                },
+                interfaceOS: {
+                    name: 'ハーモニー・インターフェース',
+                    score: 78,
+                    hexagram: { symbol: '☱', name: '兌为泽', number: 58 },
+                    traits: ['協調的', 'コミュニケーション', '楽観的', '柔軟性'],
+                    description: '人との調和を重視'
+                },
+                safeModeOS: {
+                    name: 'セキュリティ・ガーディアン',
+                    score: 72,
+                    hexagram: { symbol: '☷', name: '坤为地', number: 2 },
+                    traits: ['安定志向', '慎重', '保守的', '支援的'],
+                    description: '心の安全を守る'
+                }
+            };
+            
+            const dataToSave = {
+                result: testData,
+                timestamp: Date.now(),
+                version: '2025.08.19'
+            };
+            
+            localStorage.setItem('haqei_analysis_result', JSON.stringify(dataToSave));
+            localStorage.setItem('haqei_analyzer_analysis_result', JSON.stringify(testData));
+            
+            updateStatus('テストデータ', '生成完了', true);
+            log('✅ テストデータを保存しました');
+        }
+        
+        function clearErrors() {
+            log('🧹 エラー状態をクリア中...');
+            
+            // localStorageに強制的にエラーフラグをクリア
+            localStorage.setItem('haqei_error_cleared', 'true');
+            
+            updateStatus('エラー状態', 'クリア済み', true);
+            log('✅ エラー状態をクリアしました');
+        }
+        
+        function forceDisplay() {
+            log('💪 強制表示実行中...');
+            
+            // 新しいウィンドウで開いてコンソールコマンドを実行
+            const win = window.open('http://localhost:8012/public/results.html', '_blank');
+            
+            setTimeout(() => {
+                log('⚡ 5秒後に強制表示コマンドを実行してください:');
+                log('document.getElementById("loading-overlay").style.display = "none";');
+                log('document.getElementById("error-container").style.display = "none";');
+            }, 1000);
+        }
+        
+        function openResultsPage() {
+            window.open('http://localhost:8012/public/results.html', '_blank');
+            log('🌐 Results.htmlを新しいタブで開きました');
+        }
+        
+        // 初期チェック
+        testInitialization();
+    </script>
+</body>
+</html>

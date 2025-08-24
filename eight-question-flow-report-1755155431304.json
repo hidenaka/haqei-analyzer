@@ -1,0 +1,58 @@
+{
+  "timestamp": "2025-08-14T07:10:31.290Z",
+  "testSuite": "8 Question Flow Test",
+  "passed": 5,
+  "failed": 0,
+  "details": [
+    {
+      "test": "File exists",
+      "passed": true
+    },
+    {
+      "test": "Question structure",
+      "questionCount": 8,
+      "categories": {
+        "hasEngineOS": true,
+        "hasInterfaceOS": true,
+        "hasSafeMode": true,
+        "hasSynergy": true
+      },
+      "passed": true
+    },
+    {
+      "test": "PatternMapper integration",
+      "checks": {
+        "hasPatternMapperCheck": true,
+        "hasMapToHexagram": true,
+        "hasFallback": true
+      },
+      "passed": true
+    },
+    {
+      "test": "Flow control",
+      "methods": {
+        "hasStartFlow": true,
+        "hasNextQuestion": true,
+        "hasPreviousQuestion": true,
+        "hasShowResults": true,
+        "hasRestart": true
+      },
+      "passed": true
+    },
+    {
+      "test": "Result calculation",
+      "methods": {
+        "hasCalculateResults": true,
+        "hasDisplayHexagram": true,
+        "hasDisplayOSAnalysis": true,
+        "hasDisplaySynergy": true
+      },
+      "scores": {
+        "hasEngineScore": true,
+        "hasInterfaceScore": true,
+        "hasSafeModeScore": true
+      },
+      "passed": true
+    }
+  ]
+}

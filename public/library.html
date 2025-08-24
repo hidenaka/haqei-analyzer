@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HaQei Library</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Unified Design System (優先適用) -->
+    <link rel="stylesheet" href="css/haqei-unified-design.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,38 +16,73 @@
       rel="stylesheet"
     />
     <style>
+      /* 統一デザインシステムの強制適用 */
       body {
-        font-family: "Inter", "Noto Sans JP", sans-serif;
-        background-color: #111827;
+        font-family: var(--font-sans), "Inter", "Noto Sans JP", sans-serif !important;
+        background: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
         line-height: 1.75;
       }
+      
+      /* ダークモードの無効化 */
+      .bg-gray-900 { background: var(--bg-primary) !important; }
+      .bg-gray-800 { background: var(--bg-primary) !important; }
+      .text-gray-300 { color: var(--text-secondary) !important; }
+      .text-gray-400 { color: var(--text-tertiary) !important; }
+      .text-indigo-400 { color: var(--primary-blue) !important; }
+      .text-indigo-300 { color: var(--primary-blue-light) !important; }
+      
       .brand-text {
-        background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
+        background: var(--gradient-primary);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
         color: transparent;
       }
+      
       .mincho-font {
         font-family: "Shippori Mincho", serif;
       }
+      
+      /* カードの統一デザイン */
       .card {
-        background-color: #1f2937;
-        border: 1px solid #374151;
-        border-radius: 0.75rem;
+        background: var(--bg-primary) !important;
+        border: 1px solid var(--border-default) !important;
+        border-radius: var(--radius-xl) !important;
+        box-shadow: var(--shadow-md) !important;
       }
+      
       .section-title {
         font-family: "Shippori Mincho", serif;
-        border-bottom: 1px solid #4a5568;
-        padding-bottom: 0.75rem;
-        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-default);
+        padding-bottom: var(--spacing-3);
+        margin-bottom: var(--spacing-6);
+        color: var(--text-primary);
       }
+      
       .tab-btn {
-        transition: all 0.2s ease-in-out;
+        transition: var(--transition-all);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-default);
       }
+      
+      .tab-btn:hover {
+        background: var(--bg-blue-light);
+        border-color: var(--primary-blue);
+      }
+      
       .tab-btn.active {
-        background-color: #4f46e5;
-        color: #fff;
+        background: var(--gradient-primary);
+        color: white;
+        border-color: var(--primary-blue);
+      }
+      
+      /* エラーメッセージの統一 */
+      .error-box {
+        background: var(--error-bg) !important;
+        border: 1px solid var(--error-border) !important;
+        color: var(--error-text) !important;
       }
       .tab-btn:not(.active):hover {
         background-color: #374151;
@@ -112,7 +150,7 @@
       }
     </style>
   </head>
-  <body class="text-gray-300 min-h-screen p-4 sm:p-8">
+  <body class="min-h-screen p-4 sm:p-8">
     <div class="w-full max-w-5xl mx-auto space-y-10">
       <header class="text-center">
         <a

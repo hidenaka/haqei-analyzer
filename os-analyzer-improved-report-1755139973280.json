@@ -1,0 +1,104 @@
+{
+  "timestamp": "2025-08-14T02:52:37.752Z",
+  "testSuite": "OS Analyzer Improved Functionality Test",
+  "tests": [
+    {
+      "name": "Page Load and Basics",
+      "status": "passed",
+      "details": "Page loaded in 1448ms, Start button found: true, Triple OS elements: 0",
+      "data": {
+        "loadTime": 1448,
+        "title": "HaQei - Triple OS仮想人格生成システム | HaQei哲学による戦略的自己表現ツール",
+        "startButton": true,
+        "tripleOSElements": 0
+      },
+      "userValue": 85,
+      "timestamp": "2025-08-14T02:52:44.740Z"
+    },
+    {
+      "name": "Data Integrity and Security",
+      "status": "passed",
+      "details": "Data integrity: 100%, 64 hexagrams: 64, 384 lines: 386",
+      "data": {
+        "H384_DATA": true,
+        "H64_DATA": true,
+        "TripleOSAnalyzer": true,
+        "hexagramCount": 64,
+        "lineCount": 386,
+        "dataIntegrityScore": 100,
+        "cspViolations": 0
+      },
+      "userValue": 90,
+      "timestamp": "2025-08-14T02:52:44.748Z"
+    },
+    {
+      "name": "Analysis Flow Initiation",
+      "status": "warning",
+      "details": "Question interface initiated: false, Choice options: false",
+      "data": {
+        "questionElements": {
+          ".question-container": 0,
+          "#question-display": 0,
+          "[data-question]": 0,
+          "input[type=\"radio\"]": 0,
+          ".choice-option": 0,
+          "button[data-choice]": 0
+        },
+        "hasQuestionInterface": false,
+        "hasChoiceOptions": false
+      },
+      "userValue": 30,
+      "timestamp": "2025-08-14T02:52:47.653Z"
+    },
+    {
+      "name": "Triple OS Analysis Logic",
+      "status": "warning",
+      "details": "Analysis logic functionality: 40%, Analyzer exists: true",
+      "data": {
+        "analyzerExists": true,
+        "canCalculatePatterns": false,
+        "canGenerateHexagrams": false,
+        "hasValidMethods": false,
+        "functionalityScore": 40
+      },
+      "userValue": 80,
+      "timestamp": "2025-08-14T02:52:47.655Z"
+    },
+    {
+      "name": "User Experience Flow",
+      "status": "passed",
+      "details": "UX Score: 100%, Mobile usable: true, Responsive: true",
+      "data": {
+        "mobileUsability": {
+          "buttonVisible": true,
+          "noHorizontalScroll": true,
+          "touchFriendly": true
+        },
+        "desktopUsability": {
+          "properLayout": true,
+          "contentWidth": 1200
+        },
+        "uxScore": 100
+      },
+      "userValue": 100,
+      "timestamp": "2025-08-14T02:52:53.085Z"
+    },
+    {
+      "name": "Value Proposition",
+      "status": "failed",
+      "details": "page.evaluate: SyntaxError: Failed to execute 'querySelector' on 'Document': 'text=Triple OS, text=Engine OS, text=Interface OS, text=Safe Mode OS' is not a valid selector.\n    at eval (eval at evaluate (:291:30), <anonymous>:6:34)\n    at UtilityScript.evaluate (<anonymous>:293:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)",
+      "timestamp": "2025-08-14T02:52:53.091Z"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 1,
+    "warnings": 2
+  },
+  "userValueAssessment": {
+    "technicalQuality": 87.5,
+    "userExperience": 65,
+    "analysisAccuracy": 40,
+    "overallValue": 66
+  }
+}
