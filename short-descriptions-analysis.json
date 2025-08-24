@@ -1,0 +1,6852 @@
+{
+  "timestamp": "2025-08-22T11:34:08.179Z",
+  "statistics": {
+    "total": 1096,
+    "byCategory": [
+      {
+        "category": "profile",
+        "count": 113
+      },
+      {
+        "category": "whatHappens",
+        "count": 138
+      },
+      {
+        "category": "example",
+        "count": 68
+      },
+      {
+        "category": "howTo",
+        "count": 243
+      },
+      {
+        "category": "warning",
+        "count": 34
+      },
+      {
+        "category": "metaphor",
+        "count": 0
+      },
+      {
+        "category": "other",
+        "count": 500
+      }
+    ],
+    "byPattern": [
+      {
+        "pattern": "incomplete",
+        "count": 19
+      },
+      {
+        "pattern": "abstract",
+        "count": 52
+      },
+      {
+        "pattern": "repetitive",
+        "count": 67
+      },
+      {
+        "pattern": "contextMissing",
+        "count": 958
+      }
+    ]
+  },
+  "worstCases": [
+    {
+      "hexagram": "艮為山",
+      "hexId": 52,
+      "path": "asSafeModeOS.profile.metaphor",
+      "text": "岩になる",
+      "length": 4
+    },
+    {
+      "hexagram": "兌為澤",
+      "hexId": 58,
+      "path": "asEngineOS.profile.metaphor",
+      "text": "笑顔の泉",
+      "length": 4
+    },
+    {
+      "hexagram": "艮為山",
+      "hexId": 52,
+      "path": "asSafeModeOS.emergencyMode.whatHappens",
+      "text": "石化する",
+      "length": 4
+    },
+    {
+      "hexagram": "雷山小過",
+      "hexId": 62,
+      "path": "asSafeModeOS.emergencyMode.whatHappens",
+      "text": "確認地獄",
+      "length": 4
+    },
+    {
+      "hexagram": "風山漸",
+      "hexId": 53,
+      "path": "asSafeModeOS.emergencyMode.example",
+      "text": "原点回帰",
+      "length": 4
+    },
+    {
+      "hexagram": "艮為山",
+      "hexId": 52,
+      "path": "asEngineOS.restMode.howToRest",
+      "text": "そのまま",
+      "length": 4
+    },
+    {
+      "hexagram": "火山旅",
+      "hexId": 56,
+      "path": "asEngineOS.maintenance.howToCharge",
+      "text": "旅の感動",
+      "length": 4
+    },
+    {
+      "hexagram": "火山旅",
+      "hexId": 56,
+      "path": "asSafeModeOS.howToRecover.support",
+      "text": "旅の仲間",
+      "length": 4
+    },
+    {
+      "hexagram": "兌為澤",
+      "hexId": 58,
+      "path": "asEngineOS.maintenance.howToCharge",
+      "text": "人の笑顔",
+      "length": 4
+    },
+    {
+      "hexagram": "澤地萃",
+      "hexId": 45,
+      "path": "asSafeModeOS.stressResponse.goodPoint",
+      "text": "集団の力",
+      "length": 4
+    },
+    {
+      "hexagram": "水風井",
+      "hexId": 48,
+      "path": "asSafeModeOS.stressResponse.goodPoint",
+      "text": "自己保護",
+      "length": 4
+    },
+    {
+      "hexagram": "火澤睽",
+      "hexId": 38,
+      "path": "asSafeModeOS.profile.metaphor",
+      "text": "孤高の戦士",
+      "length": 5
+    },
+    {
+      "hexagram": "天風姤",
+      "hexId": 44,
+      "path": "asInterfaceOS.profile.metaphor",
+      "text": "社交界の蝶",
+      "length": 5
+    },
+    {
+      "hexagram": "天風姤",
+      "hexId": 44,
+      "path": "asSafeModeOS.profile.description",
+      "text": "悪縁を断つ",
+      "length": 5
+    },
+    {
+      "hexagram": "雷澤帰妹",
+      "hexId": 54,
+      "path": "asInterfaceOS.profile.metaphor",
+      "text": "優れた仲人",
+      "length": 5
+    },
+    {
+      "hexagram": "火山旅",
+      "hexId": 56,
+      "path": "asEngineOS.profile.metaphor",
+      "text": "永遠の旅人",
+      "length": 5
+    },
+    {
+      "hexagram": "火水未済",
+      "hexId": 64,
+      "path": "asEngineOS.profile.metaphor",
+      "text": "永遠の旅人",
+      "length": 5
+    },
+    {
+      "hexagram": "天雷無妄",
+      "hexId": 25,
+      "path": "asEngineOS.restMode.whatHappens",
+      "text": "無心になる",
+      "length": 5
+    },
+    {
+      "hexagram": "澤山咸",
+      "hexId": 31,
+      "path": "asEngineOS.restMode.whatHappens",
+      "text": "感覚を遮断",
+      "length": 5
+    },
+    {
+      "hexagram": "雷天大壮",
+      "hexId": 34,
+      "path": "asEngineOS.restMode.whatHappens",
+      "text": "力を蓄える",
+      "length": 5
+    }
+  ],
+  "template": {
+    "whatHappens": {
+      "before": "次の行動の準備",
+      "after": "次の行動に向けて心身の準備を整えている状態",
+      "principle": "「何が起きているか」を15-25文字で具体的に説明"
+    },
+    "example": {
+      "before": "問題 → 原点回帰",
+      "after": "困難に直面したら基本に立ち返って対処する",
+      "principle": "「→」形式から自然な文章へ変換"
+    },
+    "warning": {
+      "before": "急ぎすぎない",
+      "after": "焦って急ぎすぎると本来の良さを失う可能性がある",
+      "principle": "理由と結果を含む注意喚起"
+    }
+  },
+  "priorityPlan": {
+    "immediate": [
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "岩になる",
+        "length": 4
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "笑顔の泉",
+        "length": 4
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "石化する",
+        "length": 4
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "確認地獄",
+        "length": 4
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "原点回帰",
+        "length": 4
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asEngineOS.restMode.howToRest",
+        "text": "そのまま",
+        "length": 4
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "旅の感動",
+        "length": 4
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.howToRecover.support",
+        "text": "旅の仲間",
+        "length": 4
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "人の笑顔",
+        "length": 4
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "集団の力",
+        "length": 4
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "自己保護",
+        "length": 4
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "孤高の戦士",
+        "length": 5
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "社交界の蝶",
+        "length": 5
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asSafeModeOS.profile.description",
+        "text": "悪縁を断つ",
+        "length": 5
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "優れた仲人",
+        "length": 5
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "永遠の旅人",
+        "length": 5
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "永遠の旅人",
+        "length": 5
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "無心になる",
+        "length": 5
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "感覚を遮断",
+        "length": 5
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "力を蓄える",
+        "length": 5
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "自由を満喫",
+        "length": 5
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "源泉を補充",
+        "length": 5
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "革命的行動",
+        "length": 5
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "冒険心全開",
+        "length": 5
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "静かに観察",
+        "length": 5
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に拡散",
+        "length": 5
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に拡散",
+        "length": 5
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "一人で静養",
+        "length": 5
+      },
+      {
+        "hexagram": "天澤履",
+        "hexId": 10,
+        "path": "asSafeModeOS.howToRecover.environment",
+        "text": "動ける環境",
+        "length": 5
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "上昇の実感",
+        "length": 5
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "家族の笑顔",
+        "length": 5
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asSafeModeOS.howToRecover.environment",
+        "text": "温かい家庭",
+        "length": 5
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asSafeModeOS.howToRecover.support",
+        "text": "家族の愛情",
+        "length": 5
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asInterfaceOS.howToTalk.notGoodAt",
+        "text": "協調、妥協",
+        "length": 5
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asEngineOS.restMode.howToRest",
+        "text": "瞑想、静養",
+        "length": 5
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asSafeModeOS.howToRecover.bestWay",
+        "text": "完全な自由",
+        "length": 5
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asEngineOS.restMode.howToRest",
+        "text": "静観の時間",
+        "length": 5
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "決断の成功",
+        "length": 5
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asSafeModeOS.howToRecover.bestWay",
+        "text": "新しい決断",
+        "length": 5
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asSafeModeOS.howToRecover.support",
+        "text": "新しい仲間",
+        "length": 5
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "集結の成功",
+        "length": 5
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "成長の喜び",
+        "length": 5
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asInterfaceOS.howToTalk.notGoodAt",
+        "text": "要求、交渉",
+        "length": 5
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "革命の成功",
+        "length": 5
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "創造の喜び",
+        "length": 5
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asSafeModeOS.howToRecover.bestWay",
+        "text": "静かに充電",
+        "length": 5
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "静寂と安定",
+        "length": 5
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "収穫の喜び",
+        "length": 5
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.howToRecover.bestWay",
+        "text": "新たな豊作",
+        "length": 5
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.howToRecover.environment",
+        "text": "豊かな環境",
+        "length": 5
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.restMode.howToRest",
+        "text": "宿での休息",
+        "length": 5
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.howToRecover.environment",
+        "text": "新しい環境",
+        "length": 5
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "解放の実感",
+        "length": 5
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asEngineOS.maintenance.howToCharge",
+        "text": "節度の美徳",
+        "length": 5
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asEngineOS.restMode.note",
+        "text": "無を楽しむ",
+        "length": 5
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asEngineOS.restMode.note",
+        "text": "心身を癒す",
+        "length": 5
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "柔軟な人々",
+        "length": 5
+      },
+      {
+        "hexagram": "離為火",
+        "hexId": 30,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "灰から再生",
+        "length": 5
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "着実な前進",
+        "length": 5
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "頼れる強さ",
+        "length": 5
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "勝利で回復",
+        "length": 5
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "家族との絆",
+        "length": 5
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "進展が遅い",
+        "length": 5
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "自由な環境",
+        "length": 5
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "自由を守る",
+        "length": 5
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "他者を守る",
+        "length": 5
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "豊富な人脈",
+        "length": 5
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "確実な対処",
+        "length": 5
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "成長の機会",
+        "length": 5
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "疲れ果てる",
+        "length": 5
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "頼れる存在",
+        "length": 5
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "供給を制限",
+        "length": 5
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "信頼を失う",
+        "length": 5
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "根本的解決",
+        "length": 5
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "創造的昇華",
+        "length": 5
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "強力な防御",
+        "length": 5
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "機会も逃す",
+        "length": 5
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "時間が解決",
+        "length": 5
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "確実な対処",
+        "length": 5
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "誰かに頼る",
+        "length": 5
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.restMode.note",
+        "text": "休耕も必要",
+        "length": 5
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "余裕がある",
+        "length": 5
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "自由な環境",
+        "length": 5
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "定着しない",
+        "length": 5
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "柔軟な環境",
+        "length": 5
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "直面しない",
+        "length": 5
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "多様な人々",
+        "length": 5
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asEngineOS.restMode.note",
+        "text": "無駄を省く",
+        "length": 5
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "誠実な人々",
+        "length": 5
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "慎重な人々",
+        "length": 5
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "ミスを防ぐ",
+        "length": 5
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "完了も大切",
+        "length": 5
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "柔軟な対応",
+        "length": 5
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asSafeModeOS.emergencyMode.timeToRecover",
+        "text": "常に進行中",
+        "length": 5
+      }
+    ],
+    "high": [
+      {
+        "hexagram": "天地否",
+        "hexId": 12,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "次の変革の種を探す",
+        "length": 9
+      },
+      {
+        "hexagram": "天火同人",
+        "hexId": 13,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "感情のデトックス",
+        "length": 8
+      },
+      {
+        "hexagram": "火天大有",
+        "hexId": 14,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "次の統合機会を探る",
+        "length": 9
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "常に全体像を把握",
+        "length": 8
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "視点を変えて観察",
+        "length": 8
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に離れて観察",
+        "length": 8
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "次の決断に備える",
+        "length": 8
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "超高速決断モード",
+        "length": 8
+      },
+      {
+        "hexagram": "山火賁",
+        "hexId": 22,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "常に美しさを追求",
+        "length": 8
+      },
+      {
+        "hexagram": "山火賁",
+        "hexId": 22,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "美しいものに触れる",
+        "length": 9
+      },
+      {
+        "hexagram": "山火賁",
+        "hexId": 22,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "美の世界に逃げ込む",
+        "length": 9
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "徹底的に削ぎ落とす",
+        "length": 9
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "何もしない時間",
+        "length": 7
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "迷いなく本能に従う",
+        "length": 9
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "無心になる",
+        "length": 5
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "子供のように泣く",
+        "length": 8
+      },
+      {
+        "hexagram": "山天大畜",
+        "hexId": 26,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "知識の整理と体系化",
+        "length": 9
+      },
+      {
+        "hexagram": "山天大畜",
+        "hexId": 26,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "全知識を総動員",
+        "length": 7
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "徹底的な健康管理",
+        "length": 8
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "完全なリラックス",
+        "length": 8
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "健康第一で撤退",
+        "length": 7
+      },
+      {
+        "hexagram": "澤風大過",
+        "hexId": 28,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "全てを賭けて挑戦",
+        "length": 8
+      },
+      {
+        "hexagram": "澤風大過",
+        "hexId": 28,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "次の挑戦を計画",
+        "length": 7
+      },
+      {
+        "hexagram": "澤風大過",
+        "hexId": 28,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "全てを賭ける",
+        "length": 6
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "障害を避けて流れる",
+        "length": 9
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "静かに留まる",
+        "length": 6
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に流動化",
+        "length": 6
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "全感覚を研ぎ澄ます",
+        "length": 9
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "感覚を遮断",
+        "length": 5
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に感覚を閉じる",
+        "length": 9
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "淡々と継続する",
+        "length": 7
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "最小限の機能で継続",
+        "length": 9
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "常に退路を確保",
+        "length": 7
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "安全な場所で充電",
+        "length": 8
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に姿を消す",
+        "length": 7
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "力を蓄える",
+        "length": 5
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "全力で対処する",
+        "length": 7
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "一気に駆け上がる",
+        "length": 8
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "次の上昇を準備",
+        "length": 7
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "地位にしがみつく",
+        "length": 8
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "静かに内面を磨く",
+        "length": 8
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "隠れた才能が開花",
+        "length": 8
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "完全に内に籠る",
+        "length": 7
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に姿を消す",
+        "length": 7
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "家族を守るため全力",
+        "length": 9
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "家族との団らん",
+        "length": 7
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "家族全員で対処",
+        "length": 7
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "常に独自性を追求",
+        "length": 8
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "個性を全開に発揮",
+        "length": 8
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "自分らしさを再確認",
+        "length": 9
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に独立行動",
+        "length": 7
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "静かに力を蓄える",
+        "length": 8
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "石のように動かない",
+        "length": 9
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "制約を見つけて解く",
+        "length": 9
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "全ての鎖を断ち切る",
+        "length": 9
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "自由を満喫",
+        "length": 5
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "全てを捨てて逃げる",
+        "length": 9
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "全てを捧げて助ける",
+        "length": 9
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "静かに自分を回復",
+        "length": 8
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に自己犠牲",
+        "length": 7
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "非常に強い価値創造",
+        "length": 9
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "次の増幅対象を探す",
+        "length": 9
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "危機を最大の機会に",
+        "length": 9
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "常に決断の準備",
+        "length": 7
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "断固たる決定",
+        "length": 6
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "決断の結果を見守る",
+        "length": 9
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "全てを断ち切る",
+        "length": 7
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "縁を最大限に活かす",
+        "length": 9
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "既存の縁を深める",
+        "length": 8
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "全ての縁を見直す",
+        "length": 8
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "人や物を集める",
+        "length": 7
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "強力な求心力を発揮",
+        "length": 9
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "集めたものを整理",
+        "length": 8
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "全員で立ち向かう",
+        "length": 8
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "毎日少しずつ成長",
+        "length": 8
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "急成長を遂げる",
+        "length": 7
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "根を張る時間",
+        "length": 6
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "成長を一時停止",
+        "length": 7
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "困難を探して挑む",
+        "length": 8
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "次の困難に備える",
+        "length": 8
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "常に何かを提供",
+        "length": 7
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "無限の供給力",
+        "length": 6
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "源泉を補充",
+        "length": 5
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に供給停止",
+        "length": 7
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "常に変革の種を探す",
+        "length": 9
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "既存の体制を覆す",
+        "length": 8
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "次の革命を計画",
+        "length": 7
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "革命的行動",
+        "length": 5
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "素材を集める",
+        "length": 6
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "創造の世界に籠る",
+        "length": 8
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "どっしりと構える",
+        "length": 8
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "完全に不動の構え",
+        "length": 8
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "もともと動かない",
+        "length": 8
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "石化する",
+        "length": 4
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "計画的に段階を踏む",
+        "length": 9
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "次のレベルへ進化",
+        "length": 8
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "現在の段階を固める",
+        "length": 9
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "最初の段階まで戻る",
+        "length": 9
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "関係性を調整",
+        "length": 6
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "完璧な調和を作る",
+        "length": 8
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "自分の関係を見直す",
+        "length": 9
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "全ての関係を動員",
+        "length": 8
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "常に何かを生産",
+        "length": 7
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "非常に強い生産性",
+        "length": 8
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "次の豊作の準備",
+        "length": 7
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "全資源を投入",
+        "length": 6
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "次の目的地を探す",
+        "length": 8
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "冒険心全開",
+        "length": 5
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "一時的な滞在",
+        "length": 6
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に旅立つ",
+        "length": 6
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "静かに影響を広げる",
+        "length": 9
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "静かに観察",
+        "length": 5
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に拡散",
+        "length": 5
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "最高の喜びを提供",
+        "length": 8
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "静かな喜びを味わう",
+        "length": 9
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "過剰な明るさ",
+        "length": 6
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "固定観念を溶かす",
+        "length": 8
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "全てを流動化させる",
+        "length": 9
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "自分も溶ける",
+        "length": 6
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完全に拡散",
+        "length": 5
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "常に適量を心がける",
+        "length": 9
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "絶妙な調整力を発揮",
+        "length": 9
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "エネルギーを節約",
+        "length": 8
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "最小限モード",
+        "length": 6
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "誠実に人と向き合う",
+        "length": 9
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "絶対的な信頼を示す",
+        "length": 9
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "信頼関係を深める",
+        "length": 8
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "信頼の輪に守られる",
+        "length": 9
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "細部まで確認する",
+        "length": 8
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "完璧な精度で検証",
+        "length": 8
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "確認地獄",
+        "length": 4
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "常に完成を目指す",
+        "length": 8
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "完成の満足感に浸る",
+        "length": 9
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "完成への執念",
+        "length": 6
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asEngineOS.normalState.whatHappens",
+        "text": "常に次を求める",
+        "length": 7
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asEngineOS.superMode.whatHappens",
+        "text": "更なる高みを目指す",
+        "length": 9
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asEngineOS.restMode.whatHappens",
+        "text": "次の旅の準備",
+        "length": 6
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asSafeModeOS.emergencyMode.whatHappens",
+        "text": "全てを未完にする",
+        "length": 8
+      },
+      {
+        "hexagram": "山火賁",
+        "hexId": 22,
+        "path": "asEngineOS.profile.description",
+        "text": "物事を美しく整える",
+        "length": 9
+      },
+      {
+        "hexagram": "地雷復",
+        "hexId": 24,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "七転び八起きの精神",
+        "length": 9
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "裏表のない正直者",
+        "length": 8
+      },
+      {
+        "hexagram": "澤風大過",
+        "hexId": 28,
+        "path": "asEngineOS.profile.description",
+        "text": "常に限界に挑戦する",
+        "length": 9
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "水のような適応力",
+        "length": 8
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "心のレーダー",
+        "length": 6
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asSafeModeOS.profile.description",
+        "text": "感じないことで守る",
+        "length": 9
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "シャッターを下ろす",
+        "length": 9
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "変わらない安心感",
+        "length": 8
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "シェルターに避難",
+        "length": 8
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asInterfaceOS.profile.description",
+        "text": "力強さで周りを圧倒",
+        "length": 9
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "カリスマ的な存在感",
+        "length": 9
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asSafeModeOS.profile.description",
+        "text": "力で全てを解決",
+        "length": 7
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "壁を壊して進む",
+        "length": 7
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asSafeModeOS.profile.description",
+        "text": "獲得した地位を守る",
+        "length": 9
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "城を守る領主",
+        "length": 6
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "地下で輝く宝石",
+        "length": 7
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asInterfaceOS.profile.description",
+        "text": "目立たないが実力者",
+        "length": 9
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "能ある鷹は爪を隠す",
+        "length": 9
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asSafeModeOS.profile.description",
+        "text": "目立たず身を守る",
+        "length": 8
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "保護色で隠れる",
+        "length": 7
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "家族の絆という燃料",
+        "length": 9
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asInterfaceOS.profile.description",
+        "text": "職場も家族のように",
+        "length": 9
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asSafeModeOS.profile.description",
+        "text": "家族に守ってもらう",
+        "length": 9
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "家という城に籠る",
+        "length": 8
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "独自の道を切り開く",
+        "length": 9
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asInterfaceOS.profile.description",
+        "text": "群れない一匹狼",
+        "length": 7
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asSafeModeOS.profile.description",
+        "text": "一人で立ち向かう",
+        "length": 8
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "孤高の戦士",
+        "length": 5
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "岩に穴を開ける水滴",
+        "length": 9
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "聖人のような忍耐",
+        "length": 8
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asSafeModeOS.profile.description",
+        "text": "ひたすら耐えて守る",
+        "length": 9
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "城壁のような防御",
+        "length": 8
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "檻から解放された鳥",
+        "length": 9
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asInterfaceOS.profile.description",
+        "text": "みんなを自由にする",
+        "length": 9
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "解放の伝道師",
+        "length": 6
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "鎖を断ち切って逃走",
+        "length": 9
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "身代わりになる",
+        "length": 7
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asInterfaceOS.profile.description",
+        "text": "みんなの価値を増幅",
+        "length": 9
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asEngineOS.profile.description",
+        "text": "迷わず決めて実行",
+        "length": 8
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "明確な判断力",
+        "length": 6
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asInterfaceOS.profile.description",
+        "text": "明確な指示を出す",
+        "length": 8
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "不要なものを断つ",
+        "length": 8
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "縁を紡ぐ織り手",
+        "length": 7
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asInterfaceOS.profile.description",
+        "text": "広い人脈を作る",
+        "length": 7
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "社交界の蝶",
+        "length": 5
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asSafeModeOS.profile.description",
+        "text": "悪縁を断つ",
+        "length": 5
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "必要な縁だけ残す",
+        "length": 8
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "磁石のような求心力",
+        "length": 9
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asInterfaceOS.profile.description",
+        "text": "みんなを集める",
+        "length": 7
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asSafeModeOS.profile.description",
+        "text": "みんなで守る",
+        "length": 6
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "群れで身を守る",
+        "length": 7
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asEngineOS.profile.description",
+        "text": "一歩ずつ確実に成長",
+        "length": 9
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "成長を見守る園丁",
+        "length": 8
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asSafeModeOS.profile.description",
+        "text": "基本に戻って守る",
+        "length": 8
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "根っこに戻る",
+        "length": 6
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "逆境を糧にする",
+        "length": 7
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "戦友のような絆",
+        "length": 7
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asSafeModeOS.profile.description",
+        "text": "困難から逃げない",
+        "length": 8
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "枯れない井戸",
+        "length": 6
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.profile.description",
+        "text": "供給を止めて守る",
+        "length": 8
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "井戸に蓋をする",
+        "length": 7
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "革命の炎を燃やす",
+        "length": 8
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asInterfaceOS.profile.description",
+        "text": "みんなに変化を促す",
+        "length": 9
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "革命のリーダー",
+        "length": 7
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asSafeModeOS.profile.description",
+        "text": "全てを変えて守る",
+        "length": 8
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asInterfaceOS.profile.description",
+        "text": "創造的な関わり方",
+        "length": 8
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "強い防御反応を示す",
+        "length": 9
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asEngineOS.profile.description",
+        "text": "山のように動じない",
+        "length": 9
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asInterfaceOS.profile.description",
+        "text": "いつも同じ安心感",
+        "length": 8
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.profile.description",
+        "text": "動かないことで守る",
+        "length": 9
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "岩になる",
+        "length": 4
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asEngineOS.profile.description",
+        "text": "一段ずつ確実に上る",
+        "length": 9
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "階段を一歩ずつ上る",
+        "length": 9
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "段階的に教える先生",
+        "length": 9
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "安全な段階まで戻る",
+        "length": 9
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asEngineOS.profile.description",
+        "text": "人と人を調和させる",
+        "length": 9
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "縁結びの神様",
+        "length": 6
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "優れた仲人",
+        "length": 5
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asSafeModeOS.profile.description",
+        "text": "関係性で身を守る",
+        "length": 8
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "人間関係の盾",
+        "length": 6
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "実り豊かな大地",
+        "length": 7
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "豊作を分かち合う",
+        "length": 8
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.profile.description",
+        "text": "豊かさで守る",
+        "length": 6
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "備蓄で乗り切る",
+        "length": 7
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "永遠の旅人",
+        "length": 5
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asInterfaceOS.profile.description",
+        "text": "どこでも誰とでも",
+        "length": 8
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "世界を渡る自由人",
+        "length": 8
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.profile.description",
+        "text": "旅立つことで守る",
+        "length": 8
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "問題から旅立つ",
+        "length": 7
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "隙間から逃げる風",
+        "length": 8
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "笑顔の泉",
+        "length": 4
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asInterfaceOS.profile.description",
+        "text": "場を明るくする",
+        "length": 7
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "太陽のような明るさ",
+        "length": 9
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asSafeModeOS.profile.description",
+        "text": "笑顔で辛さを隠す",
+        "length": 8
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "涙を笑顔で隠す",
+        "length": 7
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "氷を溶かす春風",
+        "length": 7
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "アイスブレイカー",
+        "length": 8
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "霧のように消える",
+        "length": 8
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "ダムの水量調整",
+        "length": 7
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "優れた調停者",
+        "length": 6
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asSafeModeOS.profile.description",
+        "text": "制限をかけて守る",
+        "length": 8
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "安全弁のような働き",
+        "length": 9
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asEngineOS.profile.description",
+        "text": "深い信頼関係を築く",
+        "length": 9
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "心と心を繋ぐ橋",
+        "length": 7
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asSafeModeOS.profile.description",
+        "text": "信頼できる人に頼る",
+        "length": 9
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "信頼の絆で守られる",
+        "length": 9
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "鍵を何度も確認",
+        "length": 7
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "フィニッシャー",
+        "length": 7
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "未完成が許せない",
+        "length": 8
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asEngineOS.profile.metaphor",
+        "text": "永遠の旅人",
+        "length": 5
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asInterfaceOS.profile.metaphor",
+        "text": "未来を見る予言者",
+        "length": 8
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asSafeModeOS.profile.metaphor",
+        "text": "永遠に未完成",
+        "length": 6
+      }
+    ],
+    "medium": [
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "最重要から順に再開",
+        "length": 9
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "泣く、笑う、怒る",
+        "length": 8
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "体調不良なら即休む",
+        "length": 9
+      },
+      {
+        "hexagram": "澤風大過",
+        "hexId": 28,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "最後の大勝負に出る",
+        "length": 9
+      },
+      {
+        "hexagram": "離為火",
+        "hexId": 30,
+        "path": "asEngineOS.superMode.example",
+        "text": "寝食を忘れて没頭",
+        "length": 8
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "心を閉ざして防御",
+        "length": 8
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asSafeModeOS.stressResponse.example",
+        "text": "辛くても淡々と継続",
+        "length": 9
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "無理せず着実に",
+        "length": 7
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "最後まで頑張り抜く",
+        "length": 9
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "スポーツ、筋トレ",
+        "length": 8
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asInterfaceOS.bestEnvironment.example",
+        "text": "大企業、成長企業",
+        "length": 8
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "別の分野での成功",
+        "length": 8
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "家族総出で問題解決",
+        "length": 9
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "家族旅行、団らん",
+        "length": 8
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "一人で全てを背負う",
+        "length": 9
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "焦らずゆっくり回復",
+        "length": 9
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "しがらみを全て断つ",
+        "length": 9
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "関係も仕事も断つ",
+        "length": 8
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "次の目標を決める",
+        "length": 8
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asEngineOS.normalState.example",
+        "text": "人脈を広げ、繋げる",
+        "length": 9
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "人間関係の大整理",
+        "length": 8
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asSafeModeOS.stressResponse.example",
+        "text": "危機 → 全員集合",
+        "length": 9
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asEngineOS.superMode.example",
+        "text": "一気にレベルアップ",
+        "length": 9
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asSafeModeOS.stressResponse.example",
+        "text": "問題 → 原点回帰",
+        "length": 9
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "守りに入って様子見",
+        "length": 9
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asEngineOS.superMode.example",
+        "text": "絶体絶命から復活",
+        "length": 8
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asInterfaceOS.howToTalk.example",
+        "text": "『一緒に頑張ろう』",
+        "length": 9
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "最後まで諦めない",
+        "length": 8
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "問題を解決して前進",
+        "length": 9
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "井戸を閉じる",
+        "length": 6
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "自分のための時間",
+        "length": 8
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "既存の全てを否定",
+        "length": 8
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "ゼロから作り直す",
+        "length": 8
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "現実を忘れて創作",
+        "length": 8
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "作品を作り上げる",
+        "length": 8
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asEngineOS.superMode.example",
+        "text": "一瞬で状況を変える",
+        "length": 9
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "一人で静養",
+        "length": 5
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "完全に反応を止める",
+        "length": 9
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "時の流れに任せる",
+        "length": 8
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asEngineOS.normalState.example",
+        "text": "手順通りに進める",
+        "length": 8
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "原点回帰",
+        "length": 4
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "基礎から積み上げる",
+        "length": 9
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "信頼関係を取り戻す",
+        "length": 9
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.superMode.example",
+        "text": "通常の10倍の成果",
+        "length": 9
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "持てる全てで対処",
+        "length": 8
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "次の収穫を待つ",
+        "length": 7
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asInterfaceOS.howToTalk.example",
+        "text": "『世界は広いよ』",
+        "length": 8
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.stressResponse.example",
+        "text": "問題 → 旅に出る",
+        "length": 9
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "全てを捨てて旅へ",
+        "length": 8
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "旅先での出会い",
+        "length": 7
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "形を失って逃げる",
+        "length": 8
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "風の向きに従う",
+        "length": 7
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asSafeModeOS.stressResponse.example",
+        "text": "辛い → でも笑顔",
+        "length": 9
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "信頼できる人に本音",
+        "length": 9
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asEngineOS.superMode.example",
+        "text": "組織の硬直を打破",
+        "length": 8
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "存在感を消す",
+        "length": 6
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asEngineOS.superMode.example",
+        "text": "資源を最適配分",
+        "length": 7
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asInterfaceOS.howToTalk.example",
+        "text": "『ほどほどが一番』",
+        "length": 9
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "必要最小限だけ動く",
+        "length": 9
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asEngineOS.normalState.example",
+        "text": "約束は必ず守る",
+        "length": 7
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "仲間に全てを託す",
+        "length": 8
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "心を開いて話す",
+        "length": 7
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "何度確認しても不安",
+        "length": 9
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "チェックリスト完了",
+        "length": 9
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asEngineOS.normalState.example",
+        "text": "中途半端を許さない",
+        "length": 9
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "プロジェクト完了",
+        "length": 8
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asSafeModeOS.emergencyMode.example",
+        "text": "完成を避けて逃げる",
+        "length": 9
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asSafeModeOS.howToRecover.example",
+        "text": "次のプロジェクトへ",
+        "length": 9
+      },
+      {
+        "hexagram": "地天泰",
+        "hexId": 11,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "極端な状況は苦手",
+        "length": 8
+      },
+      {
+        "hexagram": "天火同人",
+        "hexId": 13,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "感情的に疲れやすい",
+        "length": 9
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "細部を見落としがち",
+        "length": 9
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "性急な判断のリスク",
+        "length": 9
+      },
+      {
+        "hexagram": "山天大畜",
+        "hexId": 26,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "知識の陳腐化に注意",
+        "length": 9
+      },
+      {
+        "hexagram": "澤風大過",
+        "hexId": 28,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "無謀になりすぎない",
+        "length": 9
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "停滞すると濁る",
+        "length": 7
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "刺激過多に注意",
+        "length": 7
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "マンネリに注意",
+        "length": 7
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "頂点での孤独",
+        "length": 6
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "表現の機会も必要",
+        "length": 8
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "孤立しないように",
+        "length": 8
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "我慢しすぎに注意",
+        "length": 8
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "自由すぎて迷子に",
+        "length": 8
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "自己犠牲しすぎない",
+        "length": 9
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "拡大しすぎに注意",
+        "length": 8
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "独断的にならない",
+        "length": 8
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "縁に振り回されない",
+        "length": 9
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "集めすぎに注意",
+        "length": 7
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "急ぎすぎない",
+        "length": 6
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "無理な困難は避ける",
+        "length": 9
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "枯渇しないように",
+        "length": 8
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "変革だけにならない",
+        "length": 9
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "固まりすぎに注意",
+        "length": 8
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "飛び級は危険",
+        "length": 6
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "おせっかいに注意",
+        "length": 8
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "豊作貧乏に注意",
+        "length": 7
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "根無し草にならない",
+        "length": 9
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "押し付けにならない",
+        "length": 9
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "空元気に注意",
+        "length": 6
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "散漫になりすぎない",
+        "length": 9
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "窮屈になりすぎない",
+        "length": 9
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "完璧主義の罠",
+        "length": 6
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asEngineOS.maintenance.warning",
+        "text": "完成を恐れない",
+        "length": 7
+      }
+    ],
+    "low": [
+      {
+        "hexagram": "山水蒙",
+        "hexId": 4,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "学ぶ意欲のある人々",
+        "length": 9
+      },
+      {
+        "hexagram": "水天需",
+        "hexId": 5,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "的確な判断と信頼性",
+        "length": 9
+      },
+      {
+        "hexagram": "天水訟",
+        "hexId": 6,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "理性的で公正な人々",
+        "length": 9
+      },
+      {
+        "hexagram": "天水訟",
+        "hexId": 6,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "公正な判断と説得力",
+        "length": 9
+      },
+      {
+        "hexagram": "水地比",
+        "hexId": 8,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "協調性のある仲間",
+        "length": 8
+      },
+      {
+        "hexagram": "水地比",
+        "hexId": 8,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "チームの力を活用",
+        "length": 8
+      },
+      {
+        "hexagram": "水地比",
+        "hexId": 8,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "仲間との絆で回復",
+        "length": 8
+      },
+      {
+        "hexagram": "風天小畜",
+        "hexId": 9,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "着実な進歩の実感",
+        "length": 8
+      },
+      {
+        "hexagram": "風天小畜",
+        "hexId": 9,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "絶対的な信頼性",
+        "length": 7
+      },
+      {
+        "hexagram": "風天小畜",
+        "hexId": 9,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "時にはリスクも必要",
+        "length": 9
+      },
+      {
+        "hexagram": "風天小畜",
+        "hexId": 9,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "想定外に弱い",
+        "length": 6
+      },
+      {
+        "hexagram": "風天小畜",
+        "hexId": 9,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "少しずつ立て直す",
+        "length": 8
+      },
+      {
+        "hexagram": "天澤履",
+        "hexId": 10,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "行動する機会と自由",
+        "length": 9
+      },
+      {
+        "hexagram": "天澤履",
+        "hexId": 10,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "行動派の仲間",
+        "length": 6
+      },
+      {
+        "hexagram": "天澤履",
+        "hexId": 10,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "説得力のある行動力",
+        "length": 9
+      },
+      {
+        "hexagram": "天澤履",
+        "hexId": 10,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "停滞を打破する力",
+        "length": 8
+      },
+      {
+        "hexagram": "天澤履",
+        "hexId": 10,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "時に無駄な動きも",
+        "length": 8
+      },
+      {
+        "hexagram": "天澤履",
+        "hexId": 10,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "動きながら回復",
+        "length": 7
+      },
+      {
+        "hexagram": "地天泰",
+        "hexId": 11,
+        "path": "asEngineOS.restMode.note",
+        "text": "内なる平和が大切",
+        "length": 8
+      },
+      {
+        "hexagram": "地天泰",
+        "hexId": 11,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "調和的な環境",
+        "length": 6
+      },
+      {
+        "hexagram": "地天泰",
+        "hexId": 11,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "決断が遅れることも",
+        "length": 9
+      },
+      {
+        "hexagram": "天地否",
+        "hexId": 12,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "変化を起こせる環境",
+        "length": 9
+      },
+      {
+        "hexagram": "天地否",
+        "hexId": 12,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "変化を恐れない人々",
+        "length": 9
+      },
+      {
+        "hexagram": "天地否",
+        "hexId": 12,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "変化を起こす推進力",
+        "length": 9
+      },
+      {
+        "hexagram": "天地否",
+        "hexId": 12,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "批判的に見られがち",
+        "length": 9
+      },
+      {
+        "hexagram": "天地否",
+        "hexId": 12,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "根本から変えて解決",
+        "length": 9
+      },
+      {
+        "hexagram": "天地否",
+        "hexId": 12,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "根本的な解決力",
+        "length": 7
+      },
+      {
+        "hexagram": "天火同人",
+        "hexId": 13,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "人の心に関わる環境",
+        "length": 9
+      },
+      {
+        "hexagram": "天火同人",
+        "hexId": 13,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "感情移入しすぎる",
+        "length": 8
+      },
+      {
+        "hexagram": "天火同人",
+        "hexId": 13,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "適度な距離感も必要",
+        "length": 9
+      },
+      {
+        "hexagram": "天火同人",
+        "hexId": 13,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "感情的な浄化力",
+        "length": 7
+      },
+      {
+        "hexagram": "天火同人",
+        "hexId": 13,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "感情の共有で回復",
+        "length": 8
+      },
+      {
+        "hexagram": "火天大有",
+        "hexId": 14,
+        "path": "asEngineOS.restMode.note",
+        "text": "部分より全体を見る",
+        "length": 9
+      },
+      {
+        "hexagram": "火天大有",
+        "hexId": 14,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "みんなをまとめる力",
+        "length": 9
+      },
+      {
+        "hexagram": "火天大有",
+        "hexId": 14,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "大局的な解決力",
+        "length": 7
+      },
+      {
+        "hexagram": "地山謙",
+        "hexId": 15,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "対立を避ける柔軟性",
+        "length": 9
+      },
+      {
+        "hexagram": "雷地豫",
+        "hexId": 16,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "楽しさと希望",
+        "length": 6
+      },
+      {
+        "hexagram": "雷地豫",
+        "hexId": 16,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "前向きな人々",
+        "length": 6
+      },
+      {
+        "hexagram": "雷地豫",
+        "hexId": 16,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "場を明るくする力",
+        "length": 8
+      },
+      {
+        "hexagram": "雷地豫",
+        "hexId": 16,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "軽く見られることも",
+        "length": 9
+      },
+      {
+        "hexagram": "雷地豫",
+        "hexId": 16,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "立ち直りの早さ",
+        "length": 7
+      },
+      {
+        "hexagram": "澤雷随",
+        "hexId": 17,
+        "path": "asEngineOS.restMode.note",
+        "text": "適応疲れをリセット",
+        "length": 9
+      },
+      {
+        "hexagram": "澤雷随",
+        "hexId": 17,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "多様性のある環境",
+        "length": 8
+      },
+      {
+        "hexagram": "澤雷随",
+        "hexId": 17,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "様々なタイプの人々",
+        "length": 9
+      },
+      {
+        "hexagram": "澤雷随",
+        "hexId": 17,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "本心が見えにくい",
+        "length": 8
+      },
+      {
+        "hexagram": "澤雷随",
+        "hexId": 17,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "無駄な対立を避ける",
+        "length": 9
+      },
+      {
+        "hexagram": "澤雷随",
+        "hexId": 17,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "主体性を失うことも",
+        "length": 9
+      },
+      {
+        "hexagram": "澤雷随",
+        "hexId": 17,
+        "path": "asSafeModeOS.emergencyMode.timeToRecover",
+        "text": "1週間（環境次第）",
+        "length": 9
+      },
+      {
+        "hexagram": "山風蠱",
+        "hexId": 18,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "解決すべき課題",
+        "length": 7
+      },
+      {
+        "hexagram": "山風蠱",
+        "hexId": 18,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "向上心のある人々",
+        "length": 8
+      },
+      {
+        "hexagram": "山風蠱",
+        "hexId": 18,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "批判的に見られがち",
+        "length": 9
+      },
+      {
+        "hexagram": "山風蠱",
+        "hexId": 18,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "根本的な解決力",
+        "length": 7
+      },
+      {
+        "hexagram": "山風蠱",
+        "hexId": 18,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "時間がかかる",
+        "length": 6
+      },
+      {
+        "hexagram": "山風蠱",
+        "hexId": 18,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "完全修復と共に回復",
+        "length": 9
+      },
+      {
+        "hexagram": "地澤臨",
+        "hexId": 19,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "思慮深い人々",
+        "length": 6
+      },
+      {
+        "hexagram": "地澤臨",
+        "hexId": 19,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "距離を感じさせる",
+        "length": 8
+      },
+      {
+        "hexagram": "地澤臨",
+        "hexId": 19,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "無駄な動きをしない",
+        "length": 9
+      },
+      {
+        "hexagram": "地澤臨",
+        "hexId": 19,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "機会を逃すことも",
+        "length": 8
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asEngineOS.restMode.note",
+        "text": "視野を広げ続ける",
+        "length": 8
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "広い視野と高い視点",
+        "length": 9
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "大局観のある人々",
+        "length": 8
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "現場感覚に欠ける",
+        "length": 8
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "現場の声も大切に",
+        "length": 8
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "距離を置いて客観視",
+        "length": 9
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "冷静な判断力",
+        "length": 6
+      },
+      {
+        "hexagram": "風地観",
+        "hexId": 20,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "他人事に見える",
+        "length": 7
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asEngineOS.restMode.note",
+        "text": "決断力を研ぎ澄ます",
+        "length": 9
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "決断の機会と権限",
+        "length": 8
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "時には熟考も必要",
+        "length": 8
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "実行力のある人々",
+        "length": 8
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "決断の速さと明確さ",
+        "length": 9
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "独断的に見られる",
+        "length": 8
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "即座に判断して行動",
+        "length": 9
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "迷いがない行動力",
+        "length": 8
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "後悔することも",
+        "length": 7
+      },
+      {
+        "hexagram": "火雷噬嗑",
+        "hexId": 21,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "行動の結果次第",
+        "length": 7
+      },
+      {
+        "hexagram": "山火賁",
+        "hexId": 22,
+        "path": "asEngineOS.restMode.note",
+        "text": "美的感覚を養う",
+        "length": 7
+      },
+      {
+        "hexagram": "山火賁",
+        "hexId": 22,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "美意識の高い人々",
+        "length": 8
+      },
+      {
+        "hexagram": "山火賁",
+        "hexId": 22,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "場を華やかにする力",
+        "length": 9
+      },
+      {
+        "hexagram": "山火賁",
+        "hexId": 22,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "表面的に見られがち",
+        "length": 9
+      },
+      {
+        "hexagram": "山火賁",
+        "hexId": 22,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "美しいものに没頭",
+        "length": 8
+      },
+      {
+        "hexagram": "山火賁",
+        "hexId": 22,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "創造的な昇華",
+        "length": 6
+      },
+      {
+        "hexagram": "山火賁",
+        "hexId": 22,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "美を通じて回復",
+        "length": 7
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asEngineOS.restMode.note",
+        "text": "無を楽しむ",
+        "length": 5
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "シンプルな環境",
+        "length": 7
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "効率性重視の環境",
+        "length": 8
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "効率を重視する人々",
+        "length": 9
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "無駄のない関係性",
+        "length": 8
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "冷たく感じられる",
+        "length": 8
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "時には余白も大切",
+        "length": 8
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "エネルギーの温存",
+        "length": 8
+      },
+      {
+        "hexagram": "山地剥",
+        "hexId": 23,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "少しずつ機能を回復",
+        "length": 9
+      },
+      {
+        "hexagram": "地雷復",
+        "hexId": 24,
+        "path": "asEngineOS.restMode.note",
+        "text": "次の飛躍への準備",
+        "length": 8
+      },
+      {
+        "hexagram": "地雷復",
+        "hexId": 24,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "再生と成長の環境",
+        "length": 8
+      },
+      {
+        "hexagram": "地雷復",
+        "hexId": 24,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "希望を与える存在",
+        "length": 8
+      },
+      {
+        "hexagram": "地雷復",
+        "hexId": 24,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "諦めない粘り強さ",
+        "length": 8
+      },
+      {
+        "hexagram": "地雷復",
+        "hexId": 24,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "時が来れば必ず復活",
+        "length": 9
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asEngineOS.superMode.when",
+        "text": "直感が強く働く時",
+        "length": 8
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asEngineOS.restMode.note",
+        "text": "頭を空っぽにする",
+        "length": 8
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "素直でいられる環境",
+        "length": 9
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "初心を忘れずに",
+        "length": 7
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "裏表のない人々",
+        "length": 7
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "騙されやすい",
+        "length": 6
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "素直に助けを求める",
+        "length": 9
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "素直さが人を動かす",
+        "length": 9
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "自力解決が苦手",
+        "length": 7
+      },
+      {
+        "hexagram": "天雷無妄",
+        "hexId": 25,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "泣いたらスッキリ",
+        "length": 8
+      },
+      {
+        "hexagram": "山天大畜",
+        "hexId": 26,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "学習機会と実践の場",
+        "length": 9
+      },
+      {
+        "hexagram": "山天大畜",
+        "hexId": 26,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "知識が活きる環境",
+        "length": 8
+      },
+      {
+        "hexagram": "山天大畜",
+        "hexId": 26,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "学ぶ意欲のある人々",
+        "length": 9
+      },
+      {
+        "hexagram": "山天大畜",
+        "hexId": 26,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "頼れる知識の宝庫",
+        "length": 8
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asEngineOS.restMode.note",
+        "text": "心身を癒す",
+        "length": 5
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "健康的な環境と習慣",
+        "length": 9
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "心の健康も大切に",
+        "length": 8
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "健康意識の高い人々",
+        "length": 9
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "みんなの健康を守る",
+        "length": 9
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "まず体調を整える",
+        "length": 8
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "健康的な対処法",
+        "length": 7
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "仕事が後回しになる",
+        "length": 9
+      },
+      {
+        "hexagram": "山雷頤",
+        "hexId": 27,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "体調回復と共に復帰",
+        "length": 9
+      },
+      {
+        "hexagram": "澤風大過",
+        "hexId": 28,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "大きな挑戦と冒険",
+        "length": 8
+      },
+      {
+        "hexagram": "澤風大過",
+        "hexId": 28,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "計算されたリスクを",
+        "length": 9
+      },
+      {
+        "hexagram": "澤風大過",
+        "hexId": 28,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "挑戦心のある人々",
+        "length": 8
+      },
+      {
+        "hexagram": "澤風大過",
+        "hexId": 28,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "みんなを高みに導く",
+        "length": 9
+      },
+      {
+        "hexagram": "澤風大過",
+        "hexId": 28,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "劇的な逆転の可能性",
+        "length": 9
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asEngineOS.restMode.note",
+        "text": "流れを止めて充電",
+        "length": 8
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "自由な流れと変化",
+        "length": 8
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "常に流れ続けよう",
+        "length": 8
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "流動的な環境",
+        "length": 6
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "柔軟な人々",
+        "length": 5
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "形を変えて逃げる",
+        "length": 8
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "直接対決を避ける",
+        "length": 8
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "逃げ癖がつく",
+        "length": 6
+      },
+      {
+        "hexagram": "坎為水",
+        "hexId": 29,
+        "path": "asSafeModeOS.emergencyMode.timeToRecover",
+        "text": "1週間（流れ次第）",
+        "length": 9
+      },
+      {
+        "hexagram": "離為火",
+        "hexId": 30,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "燃える対象と燃料",
+        "length": 8
+      },
+      {
+        "hexagram": "離為火",
+        "hexId": 30,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "適度に燃料補給を",
+        "length": 8
+      },
+      {
+        "hexagram": "離為火",
+        "hexId": 30,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "熱い心を持つ人々",
+        "length": 8
+      },
+      {
+        "hexagram": "離為火",
+        "hexId": 30,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "人を熱くさせる力",
+        "length": 8
+      },
+      {
+        "hexagram": "離為火",
+        "hexId": 30,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "溜め込まない",
+        "length": 6
+      },
+      {
+        "hexagram": "離為火",
+        "hexId": 30,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "周りを巻き込む",
+        "length": 7
+      },
+      {
+        "hexagram": "離為火",
+        "hexId": 30,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "灰から再生",
+        "length": 5
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asEngineOS.restMode.note",
+        "text": "感覚の休息が必要",
+        "length": 8
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "適度な刺激と休息",
+        "length": 8
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "感度調整を学ぼう",
+        "length": 8
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "繊細さが活きる環境",
+        "length": 9
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "感受性豊かな人々",
+        "length": 8
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "深い理解と共感",
+        "length": 7
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "感じすぎて疲れる",
+        "length": 8
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "感覚を麻痺させる",
+        "length": 8
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "一時的な保護",
+        "length": 6
+      },
+      {
+        "hexagram": "澤山咸",
+        "hexId": 31,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "少しずつ感覚を開く",
+        "length": 9
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asEngineOS.superMode.when",
+        "text": "長期戦が必要な時",
+        "length": 8
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "継続できる環境",
+        "length": 7
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "長期的視点の人々",
+        "length": 8
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "変わらない信頼感",
+        "length": 8
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "面白みに欠ける",
+        "length": 7
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "時にはサプライズも",
+        "length": 9
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "じっと耐えて続ける",
+        "length": 9
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "着実な前進",
+        "length": 5
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "無理をしすぎる",
+        "length": 7
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "継続しながら回復",
+        "length": 8
+      },
+      {
+        "hexagram": "雷風恒",
+        "hexId": 32,
+        "path": "asSafeModeOS.emergencyMode.timeToRecover",
+        "text": "長期戦（数ヶ月）",
+        "length": 8
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asEngineOS.superMode.when",
+        "text": "危険を察知した時",
+        "length": 8
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "安全な退路と避難所",
+        "length": 9
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "撤退も戦略の一つ",
+        "length": 8
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "独立性が保てる環境",
+        "length": 9
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "自立した人々",
+        "length": 6
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "その場から離れる",
+        "length": 8
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "無用な争いを避ける",
+        "length": 9
+      },
+      {
+        "hexagram": "天山遯",
+        "hexId": 33,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "責任放棄に見える",
+        "length": 8
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "力を発揮する機会",
+        "length": 8
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "力と技のバランスを",
+        "length": 9
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "力が評価される環境",
+        "length": 9
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "強さを求める人々",
+        "length": 8
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "頼れる強さ",
+        "length": 5
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "威圧的に感じられる",
+        "length": 9
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "優しさも強さの一つ",
+        "length": 9
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "より強い力で対抗",
+        "length": 8
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "負けない強さ",
+        "length": 6
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "激しくなりすぎる",
+        "length": 8
+      },
+      {
+        "hexagram": "雷天大壮",
+        "hexId": 34,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "勝利で回復",
+        "length": 5
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asEngineOS.superMode.when",
+        "text": "昇進や成長の機会",
+        "length": 8
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asEngineOS.restMode.note",
+        "text": "停滞は後退と感じる",
+        "length": 9
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "成長と昇進の機会",
+        "length": 8
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "成長機会のある環境",
+        "length": 9
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "向上心のある人々",
+        "length": 8
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "競争心が強すぎる",
+        "length": 8
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "地位と実績で対抗",
+        "length": 8
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "実績という強み",
+        "length": 7
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "過去にこだわる",
+        "length": 7
+      },
+      {
+        "hexagram": "火地晋",
+        "hexId": 35,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "地位回復で安心",
+        "length": 7
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asEngineOS.superMode.when",
+        "text": "真の実力が必要な時",
+        "length": 9
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asEngineOS.restMode.note",
+        "text": "外界から離れて充電",
+        "length": 9
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "内面を磨く時間",
+        "length": 7
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "内と外のバランスを",
+        "length": 9
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "本質を見る人々",
+        "length": 7
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "隠れた実力と深み",
+        "length": 8
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "存在感が薄い",
+        "length": 6
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "目立たないよう潜む",
+        "length": 9
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "批判を避ける",
+        "length": 6
+      },
+      {
+        "hexagram": "地火明夷",
+        "hexId": 36,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "チャンスも逃す",
+        "length": 7
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asEngineOS.superMode.when",
+        "text": "家族が危機に直面",
+        "length": 8
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asEngineOS.restMode.note",
+        "text": "家族が最高の充電",
+        "length": 8
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "家族との絆",
+        "length": 5
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "家族も個人も大切に",
+        "length": 9
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "深い信頼と絆",
+        "length": 6
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "プロ意識に欠ける",
+        "length": 8
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "家族に相談、頼る",
+        "length": 8
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "支え合いの力",
+        "length": 6
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "自立心が弱い",
+        "length": 6
+      },
+      {
+        "hexagram": "風火家人",
+        "hexId": 37,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "家族と共に回復",
+        "length": 7
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asEngineOS.restMode.note",
+        "text": "個性を磨く時間",
+        "length": 7
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "個性を発揮する場",
+        "length": 8
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "個性が活きる環境",
+        "length": 8
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "個性を尊重する人々",
+        "length": 9
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "唯一無二の存在感",
+        "length": 8
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "協調性に欠ける",
+        "length": 7
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "独自の方法で対処",
+        "length": 8
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "独立心の強さ",
+        "length": 6
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "孤立無援になる",
+        "length": 7
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "独自のペースで",
+        "length": 7
+      },
+      {
+        "hexagram": "火澤睽",
+        "hexId": 38,
+        "path": "asSafeModeOS.emergencyMode.timeToRecover",
+        "text": "自分次第（不定）",
+        "length": 8
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asEngineOS.restMode.note",
+        "text": "動かず待つのも休息",
+        "length": 9
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "忍耐の意味と目的",
+        "length": 8
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "忍耐が必要な環境",
+        "length": 8
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "忍耐強い人々",
+        "length": 6
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "進展が遅い",
+        "length": 5
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "時には決断も必要",
+        "length": 8
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "黙って耐える",
+        "length": 6
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "折れない強さ",
+        "length": 6
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "限界まで我慢する",
+        "length": 8
+      },
+      {
+        "hexagram": "水山蹇",
+        "hexId": 39,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "ゆっくりと回復",
+        "length": 7
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asEngineOS.restMode.note",
+        "text": "束縛から離れて充電",
+        "length": 9
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "自由と解放感",
+        "length": 6
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "自由な環境",
+        "length": 5
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "自由を愛する人々",
+        "length": 8
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "みんなを解放する",
+        "length": 8
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "秩序を乱すことも",
+        "length": 8
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "束縛から逃げ出す",
+        "length": 8
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "自由を守る",
+        "length": 5
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "責任も放棄する",
+        "length": 7
+      },
+      {
+        "hexagram": "雷水解",
+        "hexId": 40,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "自由を取り戻して",
+        "length": 8
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "感謝と意味の実感",
+        "length": 8
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "自分も大切にしよう",
+        "length": 9
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "奉仕の心を持つ人々",
+        "length": 9
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "無償の愛と献身",
+        "length": 7
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "利用されやすい",
+        "length": 7
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "他者を守る",
+        "length": 5
+      },
+      {
+        "hexagram": "山澤損",
+        "hexId": 41,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "自分が傷つく",
+        "length": 6
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asEngineOS.restMode.note",
+        "text": "常に成長を考える",
+        "length": 8
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "成長と拡大の機会",
+        "length": 8
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "質と量のバランスを",
+        "length": 9
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "成長志向の環境",
+        "length": 7
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "向上心のある人々",
+        "length": 8
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "みんなを成長させる",
+        "length": 9
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "プレッシャーになる",
+        "length": 9
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "休息も成長の一部",
+        "length": 8
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "前向きな転換力",
+        "length": 7
+      },
+      {
+        "hexagram": "風雷益",
+        "hexId": 42,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "成長と共に回復",
+        "length": 7
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asEngineOS.superMode.when",
+        "text": "重大な決断の時",
+        "length": 7
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asEngineOS.restMode.note",
+        "text": "次の決断に備える",
+        "length": 8
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "決定権と責任",
+        "length": 6
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "実行力のある人々",
+        "length": 8
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "迷いのない決定力",
+        "length": 8
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "独裁的に見える",
+        "length": 7
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "問題を切り捨てる",
+        "length": 8
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "素早い問題解決",
+        "length": 7
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "大切なものも切る",
+        "length": 8
+      },
+      {
+        "hexagram": "澤天夬",
+        "hexId": 43,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "新しく始める",
+        "length": 6
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asEngineOS.superMode.when",
+        "text": "運命的な出会いの時",
+        "length": 9
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asEngineOS.restMode.note",
+        "text": "新しい縁より深い縁",
+        "length": 9
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "新しい出会いと縁",
+        "length": 8
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "縁を大切に育てよう",
+        "length": 9
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "社交的な人々",
+        "length": 6
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "豊富な人脈",
+        "length": 5
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "表面的になりがち",
+        "length": 8
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "量より質も大切に",
+        "length": 8
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "問題のある縁を切る",
+        "length": 9
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "悪縁から身を守る",
+        "length": 8
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "孤立することも",
+        "length": 7
+      },
+      {
+        "hexagram": "天風姤",
+        "hexId": 44,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "新しい縁で回復",
+        "length": 7
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asEngineOS.restMode.note",
+        "text": "次の集結に備える",
+        "length": 8
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "集める対象と場",
+        "length": 7
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "質も考えて集めよう",
+        "length": 9
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "集団活動の環境",
+        "length": 7
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "みんなをまとめる力",
+        "length": 9
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "個が見えなくなる",
+        "length": 8
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "個人も大切にしよう",
+        "length": 9
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "仲間を集めて対処",
+        "length": 8
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "集団の力",
+        "length": 4
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "一人では弱い",
+        "length": 6
+      },
+      {
+        "hexagram": "澤地萃",
+        "hexId": 45,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "みんなで回復",
+        "length": 6
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asEngineOS.superMode.when",
+        "text": "成長の転機が来た時",
+        "length": 9
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asEngineOS.restMode.note",
+        "text": "見えない成長も大切",
+        "length": 9
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "成長の実感と環境",
+        "length": 8
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "着実な成長が最強",
+        "length": 8
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "成長できる環境",
+        "length": 7
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "成長意欲のある人々",
+        "length": 9
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "着実な信頼構築",
+        "length": 7
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "スピード感に欠ける",
+        "length": 9
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "時には飛躍も必要",
+        "length": 8
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "基礎から見直す",
+        "length": 7
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "確実な対処",
+        "length": 5
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "時間がかかる",
+        "length": 6
+      },
+      {
+        "hexagram": "地風升",
+        "hexId": 46,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "少しずつ成長再開",
+        "length": 8
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asEngineOS.superMode.when",
+        "text": "大きな困難に直面",
+        "length": 8
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asEngineOS.restMode.note",
+        "text": "困難がないと退屈",
+        "length": 8
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "困難も選んで挑もう",
+        "length": 9
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "困難を恐れない人々",
+        "length": 9
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "困難を通じた深い絆",
+        "length": 9
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "日常も大切にしよう",
+        "length": 9
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "成長の機会",
+        "length": 5
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "疲れ果てる",
+        "length": 5
+      },
+      {
+        "hexagram": "澤水困",
+        "hexId": 47,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "克服して回復",
+        "length": 6
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asEngineOS.superMode.when",
+        "text": "大きな需要がある時",
+        "length": 9
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asEngineOS.restMode.note",
+        "text": "与えるために蓄える",
+        "length": 9
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "供給源の確保",
+        "length": 6
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "源泉を大切に",
+        "length": 6
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "供給が必要な環境",
+        "length": 8
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "頼れる存在",
+        "length": 5
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "与えすぎて枯れる",
+        "length": 8
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "供給を制限",
+        "length": 5
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "自己保護",
+        "length": 4
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "信頼を失う",
+        "length": 5
+      },
+      {
+        "hexagram": "水風井",
+        "hexId": 48,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "少しずつ供給再開",
+        "length": 8
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asEngineOS.restMode.note",
+        "text": "静かに革命の準備",
+        "length": 8
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "変革すべき対象",
+        "length": 7
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "創造的な変革を",
+        "length": 7
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "変革が必要な環境",
+        "length": 8
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "変化を求める人々",
+        "length": 8
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "変化を起こす力",
+        "length": 7
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "過激に見られる",
+        "length": 7
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "段階的な変化も考慮",
+        "length": 9
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "根本から変える",
+        "length": 7
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "根本的解決",
+        "length": 5
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "リスクが大きい",
+        "length": 7
+      },
+      {
+        "hexagram": "澤火革",
+        "hexId": 49,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "新体制の確立",
+        "length": 6
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asEngineOS.restMode.note",
+        "text": "創造の準備期間",
+        "length": 7
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "創造の自由と素材",
+        "length": 8
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "創造的な人々",
+        "length": 6
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "新しい価値を生む",
+        "length": 8
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "現実離れすることも",
+        "length": 9
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "実現可能性も考慮",
+        "length": 8
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "創造活動に逃げる",
+        "length": 8
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "創造的昇華",
+        "length": 5
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "現実から目を背ける",
+        "length": 9
+      },
+      {
+        "hexagram": "火風鼎",
+        "hexId": 50,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "作品完成で満足",
+        "length": 7
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asEngineOS.restMode.note",
+        "text": "次の雷に備える",
+        "length": 7
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "瞬発力が必要な環境",
+        "length": 9
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "忘れられない存在",
+        "length": 8
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "威圧的に感じられる",
+        "length": 9
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "時には穏やかさも",
+        "length": 8
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "強力な防御",
+        "length": 5
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "周囲も巻き込む",
+        "length": 7
+      },
+      {
+        "hexagram": "震為雷",
+        "hexId": 51,
+        "path": "asSafeModeOS.emergencyMode.timeToRecover",
+        "text": "1週間（再充電）",
+        "length": 8
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asEngineOS.restMode.note",
+        "text": "常に休息状態",
+        "length": 6
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "動かない自由",
+        "length": 6
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "時には動くことも",
+        "length": 8
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "落ち着いた人々",
+        "length": 7
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "絶対的な安心感",
+        "length": 7
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "完全に動きを止める",
+        "length": 9
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "批判を受け流す",
+        "length": 7
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "機会も逃す",
+        "length": 5
+      },
+      {
+        "hexagram": "艮為山",
+        "hexId": 52,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "時間が解決",
+        "length": 5
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asEngineOS.restMode.note",
+        "text": "次の段階への準備",
+        "length": 8
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "明確な段階と目標",
+        "length": 8
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "一歩ずつ確実に",
+        "length": 7
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "段階的成長の環境",
+        "length": 8
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "着実に成長する人々",
+        "length": 9
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "着実な信頼構築",
+        "length": 7
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "遅いと感じられる",
+        "length": 8
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "時には飛躍も必要",
+        "length": 8
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "前の段階に戻る",
+        "length": 7
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "確実な対処",
+        "length": 5
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "後退と見られる",
+        "length": 7
+      },
+      {
+        "hexagram": "風山漸",
+        "hexId": 53,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "また一歩ずつ",
+        "length": 6
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asEngineOS.superMode.when",
+        "text": "関係修復が必要な時",
+        "length": 9
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asEngineOS.restMode.note",
+        "text": "自分との調和も大切",
+        "length": 9
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "調和する対象",
+        "length": 6
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "押し付けない調和を",
+        "length": 9
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "調和が必要な環境",
+        "length": 8
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "協調的な人々",
+        "length": 6
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "みんなを繋げる力",
+        "length": 8
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "八方美人に見える",
+        "length": 8
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "自分の立場も大切に",
+        "length": 9
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "誰かに頼る",
+        "length": 5
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "支援を得やすい",
+        "length": 7
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "自立性に欠ける",
+        "length": 7
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "関係修復と共に",
+        "length": 7
+      },
+      {
+        "hexagram": "雷澤帰妹",
+        "hexId": 54,
+        "path": "asSafeModeOS.emergencyMode.timeToRecover",
+        "text": "2週間（関係次第）",
+        "length": 9
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.superMode.when",
+        "text": "大豊作の時期",
+        "length": 6
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.restMode.note",
+        "text": "休耕も必要",
+        "length": 5
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "豊かな環境と資源",
+        "length": 8
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "質も量も大切に",
+        "length": 7
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "豊かさを求める人々",
+        "length": 9
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "みんなを豊かにする",
+        "length": 9
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "浪費的に見える",
+        "length": 7
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "持続可能な豊かさを",
+        "length": 9
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "蓄えを使って対処",
+        "length": 8
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "余裕がある",
+        "length": 5
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "依存的になる",
+        "length": 6
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "また蓄積から",
+        "length": 6
+      },
+      {
+        "hexagram": "雷火豊",
+        "hexId": 55,
+        "path": "asSafeModeOS.emergencyMode.timeToRecover",
+        "text": "収穫サイクル次第",
+        "length": 8
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.superMode.when",
+        "text": "新しい世界を発見",
+        "length": 8
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.restMode.note",
+        "text": "また旅立つために",
+        "length": 8
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "新しい目的地",
+        "length": 6
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "時には定住も",
+        "length": 6
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "自由な環境",
+        "length": 5
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "自由を愛する人々",
+        "length": 8
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "新しい風を運ぶ",
+        "length": 7
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "定着しない",
+        "length": 5
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "大切な場所も作ろう",
+        "length": 9
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "その場を離れる",
+        "length": 7
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "新しい視点を得る",
+        "length": 8
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "問題から逃げる",
+        "length": 7
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "新天地で再起",
+        "length": 6
+      },
+      {
+        "hexagram": "火山旅",
+        "hexId": 56,
+        "path": "asSafeModeOS.emergencyMode.timeToRecover",
+        "text": "旅の期間次第",
+        "length": 6
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asEngineOS.restMode.note",
+        "text": "次の浸透先を探す",
+        "length": 8
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "浸透できる隙間",
+        "length": 7
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "柔軟な環境",
+        "length": 5
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "開かれた心の人々",
+        "length": 8
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "自然に人を動かす",
+        "length": 8
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "影が薄いことも",
+        "length": 7
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "時には存在感も必要",
+        "length": 9
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "柔らかく回避",
+        "length": 6
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "摩擦を避ける",
+        "length": 6
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "直面しない",
+        "length": 5
+      },
+      {
+        "hexagram": "巽為風",
+        "hexId": 57,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "少しずつ集まる",
+        "length": 7
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asEngineOS.superMode.when",
+        "text": "みんなを喜ばせる時",
+        "length": 9
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asEngineOS.restMode.note",
+        "text": "充電も楽しく",
+        "length": 6
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "笑顔と喜びの共有",
+        "length": 8
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "本物の喜びを大切に",
+        "length": 9
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "明るい雰囲気の環境",
+        "length": 9
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "ポジティブな人々",
+        "length": 8
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "みんなを元気にする",
+        "length": 9
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "軽く見られることも",
+        "length": 9
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "真剣さも時には必要",
+        "length": 9
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "無理に笑顔を作る",
+        "length": 8
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "周りを心配させない",
+        "length": 9
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "本心が伝わらない",
+        "length": 8
+      },
+      {
+        "hexagram": "兌為澤",
+        "hexId": 58,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "本当の感情を出す",
+        "length": 8
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asEngineOS.restMode.note",
+        "text": "固まらないように",
+        "length": 8
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "流動性と柔軟性",
+        "length": 7
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "適度な集中も必要",
+        "length": 8
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "柔軟性が必要な環境",
+        "length": 9
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "多様な人々",
+        "length": 5
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "場を和ませる力",
+        "length": 7
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "注意を分散させる",
+        "length": 8
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "直接対決を避ける",
+        "length": 8
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "問題が解決しない",
+        "length": 8
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "少しずつ集まる",
+        "length": 7
+      },
+      {
+        "hexagram": "風水渙",
+        "hexId": 59,
+        "path": "asSafeModeOS.emergencyMode.timeToRecover",
+        "text": "2週間（ゆっくり）",
+        "length": 9
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asEngineOS.restMode.note",
+        "text": "無駄を省く",
+        "length": 5
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "規則正しい生活",
+        "length": 7
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "節度ある人々",
+        "length": 6
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "面白みに欠ける",
+        "length": 7
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "活動を制限する",
+        "length": 7
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "燃え尽きを防ぐ",
+        "length": 7
+      },
+      {
+        "hexagram": "水澤節",
+        "hexId": 60,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "消極的になる",
+        "length": 6
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asEngineOS.superMode.when",
+        "text": "信頼が試される時",
+        "length": 8
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asEngineOS.restMode.note",
+        "text": "絆を確認する",
+        "length": 6
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "信頼できる相手",
+        "length": 7
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "信頼が重要な環境",
+        "length": 8
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "誠実な人々",
+        "length": 5
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "絶対的な信頼感",
+        "length": 7
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "騙されやすい",
+        "length": 6
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "信頼できる人に相談",
+        "length": 9
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "支援を得やすい",
+        "length": 7
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "依存的になる",
+        "length": 6
+      },
+      {
+        "hexagram": "風澤中孚",
+        "hexId": 61,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "信頼関係の中で回復",
+        "length": 9
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asEngineOS.restMode.note",
+        "text": "準備を整える",
+        "length": 6
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "確認すべき対象",
+        "length": 7
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "慎重な人々",
+        "length": 5
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "ミスを防ぐ存在",
+        "length": 7
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "心配性に見える",
+        "length": 7
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "確認を繰り返す",
+        "length": 7
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "ミスを防ぐ",
+        "length": 5
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "時間がかかる",
+        "length": 6
+      },
+      {
+        "hexagram": "雷山小過",
+        "hexId": 62,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "確信を得て安心",
+        "length": 7
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asEngineOS.restMode.note",
+        "text": "次の目標を探す",
+        "length": 7
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "完成させる対象",
+        "length": 7
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "完了も大切",
+        "length": 5
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "完璧を求める人々",
+        "length": 8
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asInterfaceOS.relationshipTips.strength",
+        "text": "物事を完成させる力",
+        "length": 9
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "融通が利かない",
+        "length": 7
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asInterfaceOS.relationshipTips.advice",
+        "text": "過程も大切にしよう",
+        "length": 9
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "最後まで諦めない",
+        "length": 8
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "柔軟性を失う",
+        "length": 6
+      },
+      {
+        "hexagram": "水火既済",
+        "hexId": 63,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "完成と共に解放",
+        "length": 7
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asEngineOS.restMode.note",
+        "text": "休んでも探求は続く",
+        "length": 9
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asEngineOS.maintenance.whatYouNeed",
+        "text": "新しい挑戦と可能性",
+        "length": 9
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asEngineOS.maintenance.tip",
+        "text": "過程を楽しもう",
+        "length": 7
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asInterfaceOS.bestEnvironment.where",
+        "text": "革新的な環境",
+        "length": 6
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asInterfaceOS.bestEnvironment.withWho",
+        "text": "挑戦的な人々",
+        "length": 6
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asInterfaceOS.relationshipTips.weakness",
+        "text": "落ち着かない",
+        "length": 6
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asSafeModeOS.stressResponse.whatYouDo",
+        "text": "新しいことを始める",
+        "length": 9
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asSafeModeOS.stressResponse.goodPoint",
+        "text": "柔軟な対応",
+        "length": 5
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asSafeModeOS.stressResponse.badPoint",
+        "text": "何も完成しない",
+        "length": 7
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asSafeModeOS.emergencyMode.recovery",
+        "text": "新しいスタート",
+        "length": 7
+      },
+      {
+        "hexagram": "火水未済",
+        "hexId": 64,
+        "path": "asSafeModeOS.emergencyMode.timeToRecover",
+        "text": "常に進行中",
+        "length": 5
+      }
+    ]
+  }
+}

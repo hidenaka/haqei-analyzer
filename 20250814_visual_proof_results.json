@@ -1,0 +1,73 @@
+{
+  "timestamp": "2025-08-14T07:24:07.100Z",
+  "url": "file:///Users/hideakimacbookair/Desktop/haqei-analyzer/public/future_simulator.html",
+  "steps": [
+    {
+      "step": 1,
+      "action": "ページ読み込み",
+      "screenshot": "20250814_step1_initial.png",
+      "status": "SUCCESS"
+    },
+    {
+      "step": 2,
+      "action": "要素確認",
+      "elements": {
+        "worryInput": {
+          "exists": true,
+          "visible": true,
+          "placeholder": "現在の悩みや課題を具体的に入力してください（例：転職すべきか、新しいプロジェクトを始めるべきか等）"
+        },
+        "aiGuessBtn": {
+          "exists": true,
+          "visible": true,
+          "text": "分析実行",
+          "disabled": false
+        },
+        "resultsContainer": {
+          "exists": true,
+          "visible": false
+        }
+      },
+      "status": "SUCCESS"
+    },
+    {
+      "step": 3,
+      "action": "テキスト入力",
+      "inputText": "転職を検討していますが、タイミングが分からず悩んでいます。現在の会社での立場も安定していますが、新しいチャレンジをしたい気持ちもあります。",
+      "characterCount": 69,
+      "screenshot": "20250814_step3_input.png",
+      "status": "SUCCESS"
+    },
+    {
+      "step": 7,
+      "action": "結果確認",
+      "details": {
+        "containerVisible": true,
+        "containerContent": "\n        <div class=\"result-container\">\n          <div class=\"scenarios-container\" style=\"margin: 20px 0; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 12px;\">\n            <h3 s",
+        "scenarioCount": 18,
+        "chartCount": 3,
+        "hasContent": true,
+        "visibleTextSamples": [
+          "🔮 あなたの未来への8つの道筋",
+          "JJJ 着実成長",
+          "リスク: 低",
+          "【パターン1】現在の道を着実に深めていく",
+          "第1段階では、【テーマ継続】現在の「両者敗北」というテーマを維持し、坤為地の卦の流れに沿って、より成"
+        ]
+      },
+      "screenshot": "20250814_step6_results.png",
+      "status": "SUCCESS"
+    }
+  ],
+  "summary": {
+    "success": true,
+    "resultAppeared": true,
+    "scenarioCount": 18,
+    "screenshots": [
+      "20250814_step1_initial.png",
+      "20250814_step3_input.png",
+      "20250814_step5_processing.png",
+      "20250814_step6_results.png"
+    ]
+  }
+}

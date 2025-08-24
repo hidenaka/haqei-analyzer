@@ -1,0 +1,68 @@
+{
+  "timestamp": "2025-08-14T07:56:46.402Z",
+  "testSuite": "Basic E2E Test (T12)",
+  "passed": 7,
+  "failed": 1,
+  "details": [
+    {
+      "test": "File Structure",
+      "passed": true,
+      "missingFiles": []
+    },
+    {
+      "test": "HTML Validation",
+      "passed": true,
+      "issues": []
+    },
+    {
+      "test": "JavaScript Validation",
+      "passed": false,
+      "errors": [
+        "os-analyzer-main.js: Unexpected token 'if'",
+        "os-analyzer-main.js: Contains debug code",
+        "PatternMapper.js: Contains debug code"
+      ]
+    },
+    {
+      "test": "CSS Validation",
+      "passed": true
+    },
+    {
+      "test": "Resource Dependencies",
+      "checks": {
+        "Chart.js library": true,
+        "H384H64 database": true,
+        "Questions data": true,
+        "Pattern Mapper": true,
+        "Accessibility module": true
+      },
+      "passed": true
+    },
+    {
+      "test": "Static Server",
+      "passed": false
+    },
+    {
+      "test": "CSP Compliance",
+      "checks": {
+        "CSP header": true,
+        "script-src self": true,
+        "No unsafe-inline": false,
+        "X-Frame-Options": true,
+        "X-Content-Type-Options": true
+      },
+      "passed": true
+    },
+    {
+      "test": "Build Artifacts",
+      "passed": true,
+      "sizes": {
+        "Main HTML": "502.0KB",
+        "Optimized HTML": "11.2KB",
+        "A11y HTML": "7.6KB",
+        "Headers config": "1.6KB",
+        "Netlify config": "1.3KB"
+      }
+    }
+  ]
+}

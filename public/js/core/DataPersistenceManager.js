@@ -457,6 +457,121 @@ class DataPersistenceManager {
   }
   
   /**
+   * 契約A保存（Triple OS）
+   * @param {Object} data - Triple OSデータ
+   * @returns {boolean} 成功/失敗
+   */
+  async saveContractA(data) {
+    try {
+      // 契約検証
+      if (window.validateTripleOS) {
+        const validation = window.validateTripleOS(data);
+        if (!validation.valid) {
+          console.error('契約A検証失敗:', validation.errors);
+          return false;
+        }
+      }
+      
+      // タイムスタンプ追加
+      data.created_at = data.created_at || new Date().toISOString();
+      data.version = data.version || "1.0";
+      
+      // IndexedDBとlocalStorageに保存
+      await this.save('osAnalysis', data.created_at, data);
+      localStorage.setItem('haqei.triple_os@1', JSON.stringify(data));
+      
+      console.log('✅ 契約A（Triple OS）保存完了');
+      return true;
+    } catch (error) {
+      console.error('契約A保存エラー:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * 契約B保存（Future Paths）
+   * @param {Object} data - Future Pathsデータ
+   * @returns {boolean} 成功/失敗
+   */
+  async saveContractB(data) {
+    try {
+      // 契約検証
+      if (window.validateFuturePaths) {
+        const validation = window.validateFuturePaths(data);
+        if (!validation.valid) {
+          console.error('契約B検証失敗:', validation.errors);
+          return false;
+        }
+      }
+      
+      // タイムスタンプ追加
+      data.created_at = data.created_at || new Date().toISOString();
+      
+      // IndexedDBとlocalStorageに保存
+      await this.save('futureSimulation', data.created_at, data);
+      localStorage.setItem('haqei.future_paths@1', JSON.stringify(data));
+      
+      console.log('✅ 契約B（Future Paths）保存完了');
+      return true;
+    } catch (error) {
+      console.error('契約B保存エラー:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * 契約A読み込み
+   * @returns {Object|null} Triple OSデータ
+   */
+  async loadContractA() {
+    try {
+      // まずlocalStorageから試行
+      const stored = localStorage.getItem('haqei.triple_os@1');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      
+      // IndexedDBから最新取得
+      const all = await this.getAll('osAnalysis');
+      if (all && all.length > 0) {
+        // 最新のものを返す
+        return all.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('契約A読み込みエラー:', error);
+      return null;
+    }
+  }
+  
+  /**
+   * 契約B読み込み
+   * @returns {Object|null} Future Pathsデータ
+   */
+  async loadContractB() {
+    try {
+      // まずlocalStorageから試行
+      const stored = localStorage.getItem('haqei.future_paths@1');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      
+      // IndexedDBから最新取得
+      const all = await this.getAll('futureSimulation');
+      if (all && all.length > 0) {
+        // 最新のものを返す
+        return all.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('契約B読み込みエラー:', error);
+      return null;
+    }
+  }
+  
+  /**
    * IndexedDB操作実行
    */
   async performIndexedDBOperation(operation, storeName, data = null) {

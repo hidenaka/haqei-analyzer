@@ -1,1 +1,440 @@
-class ChunkLoader{constructor(t={}){this.options={chunkSize:65536,enableCaching:!0,enablePrefetch:!0,enableCompression:!1,maxConcurrentLoads:3,...t},this.chunks=new Map,this.loadingChunks=new Set,this.loadQueue=[],this.cache=new Map,this.dataRegistry={hexagrams:{totalChunks:8,chunkSize:8,loadedChunks:new Set,baseUrl:"/js/data/chunks/"},h384:{totalChunks:6,chunkSize:64,loadedChunks:new Set,baseUrl:"/js/data/h384-chunks/"},compatibility:{totalChunks:4,chunkSize:16,loadedChunks:new Set,baseUrl:"/js/data/compatibility/chunks/"}},this.stats={chunksLoaded:0,totalLoadTime:0,cacheHits:0,bytesLoaded:0,averageChunkSize:0},console.log("🧩 ChunkLoader initialized - Data chunking system ready")}async loadChunks(t,e=[]){if(!this.dataRegistry[t])throw new Error(`Unknown data type: ${t}`);this.dataRegistry[t];const a=performance.now();console.log(`🧩 Loading ${t} chunks:`,e);try{const s=e.map(e=>this.loadChunk(t,e)),o=await this.limitConcurrency(s,this.options.maxConcurrentLoads),n=performance.now()-a;return this.updateStats(o,n),console.log(`✅ Loaded ${o.length} ${t} chunks in ${n.toFixed(0)}ms`),o}catch(s){throw console.error(`❌ Failed to load ${t} chunks:`,s),s}}async loadChunk(t,e){const a=this.dataRegistry[t],s=`${t}_${e}`;if(this.options.enableCaching&&this.cache.has(s))return this.stats.cacheHits++,console.log(`📦 Chunk loaded from cache: ${s}`),this.cache.get(s);if(this.loadingChunks.has(s))return new Promise((t,e)=>{const checkLoaded=()=>{this.cache.has(s)?t(this.cache.get(s)):this.loadingChunks.has(s)?setTimeout(checkLoaded,50):e(new Error(`Chunk loading failed: ${s}`))};checkLoaded()});this.loadingChunks.add(s);try{const o=this.getChunkUrl(t,e),n=await this.fetchChunk(o);return this.options.enableCaching&&this.cache.set(s,n),a.loadedChunks.add(e),this.stats.chunksLoaded++,n}finally{this.loadingChunks.delete(s)}}getChunkUrl(t,e){return`${this.dataRegistry[t].baseUrl}${t}_chunk_${e}.js`}async fetchChunk(t){try{const e=await import(t);return e.default||e}catch(e){try{const e=await fetch(t);if(!e.ok)throw new Error(`HTTP ${e.status}: ${e.statusText}`);const a=e.headers.get("content-type");if(a&&a.includes("application/json"))return await e.json();{const t=await e.text();return this.parseJavaScriptChunk(t)}}catch(a){throw console.error(`Failed to fetch chunk: ${t}`,a),a}}}parseJavaScriptChunk(t){try{const e={data:null,module:{exports:{}},exports:{}},a=new Function("module","exports","data",t+"; return data || module.exports || exports;");return a(e.module,e.exports,e.data)}catch(e){throw console.error("Failed to parse JavaScript chunk:",e),e}}async limitConcurrency(t,e){const a=[],s=[];for(const o of t){const t=Promise.resolve(o).then(e=>(s.splice(s.indexOf(t),1),e));a.push(t),s.push(t),s.length>=e&&await Promise.race(s)}return Promise.all(a)}async prefetchChunks(t,e="normal"){if(!this.options.enablePrefetch)return;const a=this.dataRegistry[t],s=[];for(let n=0;n<a.totalChunks;n++)a.loadedChunks.has(n)||s.push(n);if(0===s.length)return;console.log(`🔄 Prefetching ${t} chunks:`,s.slice(0,3));const o=s.slice(0,3);"low"===e&&"requestIdleCallback"in window?requestIdleCallback(()=>{this.loadChunks(t,o).catch(t=>{console.warn("Prefetch failed:",t)})}):setTimeout(()=>{this.loadChunks(t,o).catch(t=>{console.warn("Prefetch failed:",t)})},"high"===e?100:1e3)}async getHexagrams(t=1,e=64){const a=this.dataRegistry.hexagrams.chunkSize,s=Math.floor((t-1)/a),o=Math.floor((e-1)/a),n=[];for(let h=s;h<=o;h++)n.push(h);return(await this.loadChunks("hexagrams",n)).flat().filter(a=>a.hexagram_id>=t&&a.hexagram_id<=e)}async getH384Lines(t){const e=6*(t-1),a=e+6-1,s=this.dataRegistry.h384.chunkSize,o=Math.floor(e/s),n=Math.floor(a/s),h=[];for(let i=o;i<=n;i++)h.push(i);return(await this.loadChunks("h384",h)).flat().filter(e=>Math.floor((e.lineId-1)/6)+1===t)}async getCompatibility(t,e){const a=Math.floor((t-1)/16);return(await this.loadChunks("compatibility",[a]))[0][`${t}_${e}`]||null}predictiveLoad(t){({welcome:["hexagrams"],questions:["hexagrams","h384"],analysis:["h384","compatibility"],results:["compatibility"]}[t]||[]).forEach(t=>{this.prefetchChunks(t,"low")})}cleanup(){if(this.cache.size<=50)return;const t=Array.from(this.cache.entries()),e=t.slice(0,t.length-50);e.forEach(([t])=>{this.cache.delete(t),console.log(`🧹 Cleaned up chunk: ${t}`)}),console.log(`🧹 Cleaned up ${e.length} cached chunks`)}updateStats(t,e){this.stats.totalLoadTime+=e,t.forEach(t=>{if(t){const e=JSON.stringify(t).length;this.stats.bytesLoaded+=e}}),this.stats.averageChunkSize=this.stats.bytesLoaded/this.stats.chunksLoaded}getStats(){return{...this.stats,cacheHitRatio:this.stats.chunksLoaded>0?(this.stats.cacheHits/this.stats.chunksLoaded*100).toFixed(1)+"%":"0%",averageLoadTime:this.stats.chunksLoaded>0?(this.stats.totalLoadTime/this.stats.chunksLoaded).toFixed(0)+"ms":"0ms",memoryUsage:this.formatBytes(this.stats.bytesLoaded),cachedChunks:this.cache.size}}formatBytes(t){if(0===t)return"0 B";const e=Math.floor(Math.log(t)/Math.log(1024));return parseFloat((t/Math.pow(1024,e)).toFixed(2))+" "+["B","KB","MB"][e]}debugInfo(){console.log("🧩 ChunkLoader Debug Info:"),console.log("Registry:",this.dataRegistry),console.log("Cache size:",this.cache.size),console.log("Loading chunks:",Array.from(this.loadingChunks)),console.log("Statistics:",this.getStats())}}window.chunkLoader||(window.chunkLoader=new ChunkLoader({enableCaching:!0,enablePrefetch:!0,maxConcurrentLoads:3}),console.log("🎯 Global ChunkLoader initialized for data optimization"),window.getChunkStats=()=>window.chunkLoader.getStats(),window.debugChunkLoader=()=>window.chunkLoader.debugInfo()),"undefined"!=typeof module&&module.exports&&(module.exports=ChunkLoader);
+/**
+ * ChunkLoader.js - Data Chunking and Lazy Loading System
+ * 
+ * Phase 2 Optimization: Split large data files into smaller chunks
+ * Load data progressively to reduce initial bundle size
+ * 
+ * Target: Reduce H384_DATABASE.js (296KB) and hexagram_details.js (204KB) impact
+ */
+
+class ChunkLoader {
+  constructor(options = {}) {
+    this.options = {
+      chunkSize: 64 * 1024, // 64KB per chunk
+      enableCaching: true,
+      enablePrefetch: true,
+      enableCompression: false, // Browser handles gzip
+      maxConcurrentLoads: 3,
+      ...options
+    };
+    
+    // Chunk management
+    this.chunks = new Map();
+    this.loadingChunks = new Set();
+    this.loadQueue = [];
+    this.cache = new Map();
+    
+    // Data registry
+    this.dataRegistry = {
+      hexagrams: {
+        totalChunks: 8,
+        chunkSize: 8, // 8 hexagrams per chunk
+        loadedChunks: new Set(),
+        baseUrl: '/js/data/chunks/'
+      },
+      h384: {
+        totalChunks: 6,
+        chunkSize: 64, // 64 lines per chunk
+        loadedChunks: new Set(),
+        baseUrl: '/js/data/h384-chunks/'
+      },
+      compatibility: {
+        totalChunks: 4,
+        chunkSize: 16, // 16 hexagram compatibility files per chunk
+        loadedChunks: new Set(),
+        baseUrl: '/js/data/compatibility/chunks/'
+      }
+    };
+    
+    // Performance tracking
+    this.stats = {
+      chunksLoaded: 0,
+      totalLoadTime: 0,
+      cacheHits: 0,
+      bytesLoaded: 0,
+      averageChunkSize: 0
+    };
+    
+    console.log('🧩 ChunkLoader initialized - Data chunking system ready');
+  }
+  
+  /**
+   * Load specific data chunks on demand
+   */
+  async loadChunks(dataType, indices = []) {
+    if (!this.dataRegistry[dataType]) {
+      throw new Error(`Unknown data type: ${dataType}`);
+    }
+    
+    const registry = this.dataRegistry[dataType];
+    const startTime = performance.now();
+    
+    console.log(`🧩 Loading ${dataType} chunks:`, indices);
+    
+    try {
+      // Load chunks in parallel with concurrency limit
+      const chunkPromises = indices.map(index => this.loadChunk(dataType, index));
+      const results = await this.limitConcurrency(chunkPromises, this.options.maxConcurrentLoads);
+      
+      const loadTime = performance.now() - startTime;
+      this.updateStats(results, loadTime);
+      
+      console.log(`✅ Loaded ${results.length} ${dataType} chunks in ${loadTime.toFixed(0)}ms`);
+      return results;
+      
+    } catch (error) {
+      console.error(`❌ Failed to load ${dataType} chunks:`, error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Load a single chunk
+   */
+  async loadChunk(dataType, index) {
+    const registry = this.dataRegistry[dataType];
+    const chunkId = `${dataType}_${index}`;
+    
+    // Check cache first
+    if (this.options.enableCaching && this.cache.has(chunkId)) {
+      this.stats.cacheHits++;
+      console.log(`📦 Chunk loaded from cache: ${chunkId}`);
+      return this.cache.get(chunkId);
+    }
+    
+    // Check if already loading
+    if (this.loadingChunks.has(chunkId)) {
+      return new Promise((resolve, reject) => {
+        const checkLoaded = () => {
+          if (this.cache.has(chunkId)) {
+            resolve(this.cache.get(chunkId));
+          } else if (!this.loadingChunks.has(chunkId)) {
+            reject(new Error(`Chunk loading failed: ${chunkId}`));
+          } else {
+            setTimeout(checkLoaded, 50);
+          }
+        };
+        checkLoaded();
+      });
+    }
+    
+    this.loadingChunks.add(chunkId);
+    
+    try {
+      const chunkUrl = this.getChunkUrl(dataType, index);
+      const chunk = await this.fetchChunk(chunkUrl);
+      
+      // Cache the chunk
+      if (this.options.enableCaching) {
+        this.cache.set(chunkId, chunk);
+      }
+      
+      registry.loadedChunks.add(index);
+      this.stats.chunksLoaded++;
+      
+      return chunk;
+      
+    } finally {
+      this.loadingChunks.delete(chunkId);
+    }
+  }
+  
+  /**
+   * Get chunk URL based on type and index
+   */
+  getChunkUrl(dataType, index) {
+    const registry = this.dataRegistry[dataType];
+    return `${registry.baseUrl}${dataType}_chunk_${index}.js`;
+  }
+  
+  /**
+   * Fetch and parse a chunk
+   */
+  async fetchChunk(url) {
+    try {
+      // Try dynamic import first (for ES6 modules)
+      const module = await import(url);
+      return module.default || module;
+      
+    } catch (importError) {
+      // Fallback to fetch for JSON or other formats
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          return await response.json();
+        } else {
+          // Assume JavaScript module as text
+          const text = await response.text();
+          return this.parseJavaScriptChunk(text);
+        }
+        
+      } catch (fetchError) {
+        console.error(`Failed to fetch chunk: ${url}`, fetchError);
+        throw fetchError;
+      }
+    }
+  }
+  
+  /**
+   * Parse JavaScript chunk from text
+   */
+  parseJavaScriptChunk(text) {
+    try {
+      // Create a safe evaluation context
+      const sandbox = {
+        data: null,
+        module: { exports: {} },
+        exports: {}
+      };
+      
+      // Execute the chunk code in sandbox
+      const func = new Function('module', 'exports', 'data', text + '; return data || module.exports || exports;');
+      const result = func(sandbox.module, sandbox.exports, sandbox.data);
+      
+      return result;
+      
+    } catch (error) {
+      console.error('Failed to parse JavaScript chunk:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Limit concurrent loading
+   */
+  async limitConcurrency(promises, limit) {
+    const results = [];
+    const executing = [];
+    
+    for (const promise of promises) {
+      const p = Promise.resolve(promise).then(result => {
+        executing.splice(executing.indexOf(p), 1);
+        return result;
+      });
+      
+      results.push(p);
+      executing.push(p);
+      
+      if (executing.length >= limit) {
+        await Promise.race(executing);
+      }
+    }
+    
+    return Promise.all(results);
+  }
+  
+  /**
+   * Prefetch chunks based on usage patterns
+   */
+  async prefetchChunks(dataType, priority = 'normal') {
+    if (!this.options.enablePrefetch) return;
+    
+    const registry = this.dataRegistry[dataType];
+    const unloadedChunks = [];
+    
+    for (let i = 0; i < registry.totalChunks; i++) {
+      if (!registry.loadedChunks.has(i)) {
+        unloadedChunks.push(i);
+      }
+    }
+    
+    if (unloadedChunks.length === 0) return;
+    
+    console.log(`🔄 Prefetching ${dataType} chunks:`, unloadedChunks.slice(0, 3));
+    
+    // Prefetch up to 3 chunks at a time
+    const toPrefetch = unloadedChunks.slice(0, 3);
+    
+    // Use requestIdleCallback if available for non-urgent prefetching
+    if (priority === 'low' && 'requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        this.loadChunks(dataType, toPrefetch).catch(error => {
+          console.warn('Prefetch failed:', error);
+        });
+      });
+    } else {
+      // Load immediately for normal/high priority
+      setTimeout(() => {
+        this.loadChunks(dataType, toPrefetch).catch(error => {
+          console.warn('Prefetch failed:', error);
+        });
+      }, priority === 'high' ? 100 : 1000);
+    }
+  }
+  
+  /**
+   * Get hexagrams by range (with chunking)
+   */
+  async getHexagrams(start = 1, end = 64) {
+    const chunkSize = this.dataRegistry.hexagrams.chunkSize;
+    const startChunk = Math.floor((start - 1) / chunkSize);
+    const endChunk = Math.floor((end - 1) / chunkSize);
+    
+    const chunksNeeded = [];
+    for (let i = startChunk; i <= endChunk; i++) {
+      chunksNeeded.push(i);
+    }
+    
+    const chunks = await this.loadChunks('hexagrams', chunksNeeded);
+    
+    // Combine chunks and filter by range
+    const allHexagrams = chunks.flat();
+    return allHexagrams.filter(h => h.hexagram_id >= start && h.hexagram_id <= end);
+  }
+  
+  /**
+   * Get H384 lines by hexagram ID
+   */
+  async getH384Lines(hexagramId) {
+    const linesPerHexagram = 6;
+    const startLine = (hexagramId - 1) * linesPerHexagram;
+    const endLine = startLine + linesPerHexagram - 1;
+    
+    const chunkSize = this.dataRegistry.h384.chunkSize;
+    const startChunk = Math.floor(startLine / chunkSize);
+    const endChunk = Math.floor(endLine / chunkSize);
+    
+    const chunksNeeded = [];
+    for (let i = startChunk; i <= endChunk; i++) {
+      chunksNeeded.push(i);
+    }
+    
+    const chunks = await this.loadChunks('h384', chunksNeeded);
+    
+    // Combine chunks and filter by hexagram
+    const allLines = chunks.flat();
+    return allLines.filter(line => {
+      const lineHexagramId = Math.floor((line.lineId - 1) / 6) + 1;
+      return lineHexagramId === hexagramId;
+    });
+  }
+  
+  /**
+   * Get compatibility data for hexagram pair
+   */
+  async getCompatibility(hexagram1, hexagram2) {
+    const chunkIndex = Math.floor((hexagram1 - 1) / 16);
+    const chunks = await this.loadChunks('compatibility', [chunkIndex]);
+    
+    const compatibilityData = chunks[0];
+    const key = `${hexagram1}_${hexagram2}`;
+    
+    return compatibilityData[key] || null;
+  }
+  
+  /**
+   * Intelligent preloading based on user context
+   */
+  predictiveLoad(context) {
+    const predictions = {
+      'welcome': ['hexagrams'], // Load first few hexagrams
+      'questions': ['hexagrams', 'h384'], // Prepare for analysis
+      'analysis': ['h384', 'compatibility'], // Load analysis data
+      'results': ['compatibility'] // Load relationship data
+    };
+    
+    const toPrefetch = predictions[context] || [];
+    
+    toPrefetch.forEach(dataType => {
+      this.prefetchChunks(dataType, 'low');
+    });
+  }
+  
+  /**
+   * Memory cleanup - remove old chunks
+   */
+  cleanup() {
+    const maxCacheSize = 50; // Keep max 50 chunks in memory
+    
+    if (this.cache.size <= maxCacheSize) return;
+    
+    // Remove oldest cached chunks (simple LRU)
+    const entries = Array.from(this.cache.entries());
+    const toRemove = entries.slice(0, entries.length - maxCacheSize);
+    
+    toRemove.forEach(([chunkId]) => {
+      this.cache.delete(chunkId);
+      console.log(`🧹 Cleaned up chunk: ${chunkId}`);
+    });
+    
+    console.log(`🧹 Cleaned up ${toRemove.length} cached chunks`);
+  }
+  
+  /**
+   * Update performance statistics
+   */
+  updateStats(results, loadTime) {
+    this.stats.totalLoadTime += loadTime;
+    
+    results.forEach(result => {
+      if (result) {
+        const size = JSON.stringify(result).length;
+        this.stats.bytesLoaded += size;
+      }
+    });
+    
+    this.stats.averageChunkSize = this.stats.bytesLoaded / this.stats.chunksLoaded;
+  }
+  
+  /**
+   * Get performance statistics
+   */
+  getStats() {
+    return {
+      ...this.stats,
+      cacheHitRatio: this.stats.chunksLoaded > 0 ? 
+        (this.stats.cacheHits / this.stats.chunksLoaded * 100).toFixed(1) + '%' : '0%',
+      averageLoadTime: this.stats.chunksLoaded > 0 ? 
+        (this.stats.totalLoadTime / this.stats.chunksLoaded).toFixed(0) + 'ms' : '0ms',
+      memoryUsage: this.formatBytes(this.stats.bytesLoaded),
+      cachedChunks: this.cache.size
+    };
+  }
+  
+  /**
+   * Format bytes for display
+   */
+  formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  /**
+   * Debug information
+   */
+  debugInfo() {
+    console.log('🧩 ChunkLoader Debug Info:');
+    console.log('Registry:', this.dataRegistry);
+    console.log('Cache size:', this.cache.size);
+    console.log('Loading chunks:', Array.from(this.loadingChunks));
+    console.log('Statistics:', this.getStats());
+  }
+}
+
+// Global initialization
+if (!window.chunkLoader) {
+  window.chunkLoader = new ChunkLoader({
+    enableCaching: true,
+    enablePrefetch: true,
+    maxConcurrentLoads: 3
+  });
+  
+  console.log('🎯 Global ChunkLoader initialized for data optimization');
+  
+  // Debug functions
+  window.getChunkStats = () => window.chunkLoader.getStats();
+  window.debugChunkLoader = () => window.chunkLoader.debugInfo();
+}
+
+// Export for ES6 modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = ChunkLoader;
+}

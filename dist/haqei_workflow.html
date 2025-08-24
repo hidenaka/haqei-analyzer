@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triple OS Strategy Navigator - Triple OS組織ワークフロー | HaQei Analyzer</title>
+    
+    <!-- メタ情報 -->
+    <meta name="description" content="Triple OS Architectureを活用した組織的ワークフローシステム。CTO・プログラマー・QAの3つの役割が協調する革新的な開発プロセス。">
+    <meta name="keywords" content="Triple OS, 組織ワークフロー, CTO, プログラマー, QA, HaQei">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/organizational-workflow.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <!-- ローディング画面 -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">
+                <h2>Triple OS Strategy Navigator</h2>
+                <p>Triple OS組織ワークフローシステム起動中...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- メインコンテナ -->
+    <div id="main-container" class="main-container" style="display: none;">
+        <!-- ヘッダー -->
+        <header class="main-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1 class="system-title">
+                        <span class="title-main">Triple OS Strategy Navigator</span>
+                        <span class="title-sub">Triple OS組織ワークフローシステム</span>
+                    </h1>
+                </div>
+                <nav class="header-nav">
+                    <a href="./index.html" class="nav-link">ホーム</a>
+                    <a href="./os_analyzer.html" class="nav-link">OS分析</a>
+                    <a href="./cockpit.html" class="nav-link">戦略コックピット</a>
+                    <a href="#" class="nav-link active">ワークフロー</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- システム説明セクション -->
+        <section class="system-intro">
+            <div class="intro-content">
+                <div class="intro-text">
+                    <h2 class="intro-title">Triple OSによる組織開発プロセス</h2>
+                    <p class="intro-description">
+                        HAQEIのTriple OS Architecture（Engine/Interface/SafeMode）を活用し、
+                        CTO・プログラマー・QAの3つの役割が最適に協調する革新的な組織ワークフローシステムです。
+                    </p>
+                    <div class="intro-features">
+                        <div class="feature-item">
+                            <div class="feature-icon">🎯</div>
+                            <div class="feature-text">
+                                <h4>CTO役割（Engine OS）</h4>
+                                <p>戦略立案と意思決定を担当</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⚡</div>
+                            <div class="feature-text">
+                                <h4>プログラマー役割（Interface OS）</h4>
+                                <p>実装と具体的構築を担当</p>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🛡️</div>
+                            <div class="feature-text">
+                                <h4>QA役割（SafeMode OS）</h4>
+                                <p>品質保証と安全性確保を担当</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="intro-visual">
+                    <div class="triple-os-diagram">
+                        <div class="os-circle engine">
+                            <div class="os-label">Engine OS</div>
+                            <div class="os-role">CTO</div>
+                        </div>
+                        <div class="os-circle interface">
+                            <div class="os-label">Interface OS</div>
+                            <div class="os-role">PROGRAMMER</div>
+                        </div>
+                        <div class="os-circle safemode">
+                            <div class="os-label">SafeMode OS</div>
+                            <div class="os-role">QA</div>
+                        </div>
+                        <div class="connection-lines">
+                            <div class="connection-line line-1"></div>
+                            <div class="connection-line line-2"></div>
+                            <div class="connection-line line-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ワークフローコントローラー -->
+        <main id="workflow-container" class="workflow-container">
+            <!-- OrganizationalWorkflowControllerがここにレンダリングされます -->
+        </main>
+
+        <!-- フッター -->
+        <footer class="main-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Triple OS思想について</h4>
+                    <p>HAQEIのTriple OS思想は、単一の「真の自己」を求めるのではなく、複数の人格システム（personality systems）の存在を認め、それらの統合的活用を目指す革新的なアプローチです。</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Triple OS Architecture</h4>
+                    <ul>
+                        <li><strong>Engine OS:</strong> 内なる価値観と核となる動機</li>
+                        <li><strong>Interface OS:</strong> 社会的表現と外面的行動</li>
+                        <li><strong>SafeMode OS:</strong> 防御機制とストレス対処</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>組織への応用</h4>
+                    <p>個人のTriple OS思想を組織レベルに応用し、異なる役割と責任を持つエージェントが協調することで、従来の組織運営を超えた効率性と創造性を実現します。</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 HaQei Analyzer - Triple OS Strategy Navigator. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScriptライブラリ -->
+    <script src="./js/shared/core/BaseComponent.js"></script>
+    <script src="./js/shared/core/DataManager.js"></script>
+    <script src="./js/shared/core/ErrorHandler.js"></script>
+    <script src="./js/core/TripleOSStrategyNavigator.js"></script>
+    <script src="./js/core/OrganizationalWorkflowController.js"></script>
+
+    <!-- メインアプリケーション -->
+    <script>
+        // アプリケーション初期化
+        class TripleOSWorkflowApp {
+            constructor() {
+                this.workflowController = null;
+                this.isInitialized = false;
+            }
+
+            async init() {
+                try {
+                    console.log("🚀 [TripleOSWorkflowApp] アプリケーション初期化開始");
+
+                    // ローディング表示
+                    this.showLoading();
+
+                    // エラーハンドラー初期化
+                    if (window.ErrorHandler) {
+                        window.ErrorHandler.init();
+                    }
+
+                    // システム初期化
+                    await this.initializeSystem();
+
+                    // ワークフローコントローラー初期化
+                    await this.initializeWorkflowController();
+
+                    // UI初期化完了
+                    this.hideLoading();
+                    this.isInitialized = true;
+
+                    console.log("✅ [TripleOSWorkflowApp] アプリケーション初期化完了");
+
+                } catch (error) {
+                    console.error("❌ [TripleOSWorkflowApp] 初期化エラー:", error);
+                    this.handleInitializationError(error);
+                }
+            }
+
+            async initializeSystem() {
+                // 必要なシステムコンポーネントの確認
+                const requiredComponents = [
+                    'BaseComponent',
+                    'TripleOSStrategyNavigator',
+                    'OrganizationalWorkflowController'
+                ];
+
+                for (const component of requiredComponents) {
+                    if (!window[component]) {
+                        throw new Error(`必須コンポーネントが見つかりません: ${component}`);
+                    }
+                }
+
+                console.log("✅ [TripleOSWorkflowApp] システムコンポーネント確認完了");
+            }
+
+            async initializeWorkflowController() {
+                try {
+                    // ワークフローコントローラーの初期化
+                    this.workflowController = new OrganizationalWorkflowController(
+                        'workflow-container',
+                        {
+                            autoPhaseTransition: false,
+                            communicationLogging: true,
+                            realTimeUpdates: true
+                        }
+                    );
+
+                    await this.workflowController.init();
+
+                    console.log("✅ [TripleOSWorkflowApp] ワークフローコントローラー初期化完了");
+
+                } catch (error) {
+                    console.error("❌ [TripleOSWorkflowApp] ワークフローコントローラー初期化エラー:", error);
+                    throw error;
+                }
+            }
+
+            showLoading() {
+                const loadingScreen = document.getElementById('loading-screen');
+                const mainContainer = document.getElementById('main-container');
+                
+                if (loadingScreen) loadingScreen.style.display = 'flex';
+                if (mainContainer) mainContainer.style.display = 'none';
+            }
+
+            hideLoading() {
+                const loadingScreen = document.getElementById('loading-screen');
+                const mainContainer = document.getElementById('main-container');
+                
+                setTimeout(() => {
+                    if (loadingScreen) {
+                        loadingScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                        }, 300);
+                    }
+                    if (mainContainer) {
+                        mainContainer.style.display = 'block';
+                        mainContainer.style.opacity = '0';
+                        requestAnimationFrame(() => {
+                            mainContainer.style.transition = 'opacity 0.5s ease';
+                            mainContainer.style.opacity = '1';
+                        });
+                    }
+                }, 1000); // 1秒後にフェードアウト開始
+            }
+
+            handleInitializationError(error) {
+                console.error("🚨 [TripleOSWorkflowApp] 致命的エラー:", error);
+                
+                // エラー表示
+                const loadingText = document.querySelector('.loading-text p');
+                if (loadingText) {
+                    loadingText.textContent = `エラーが発生しました: ${error.message}`;
+                    loadingText.style.color = '#ef4444';
+                }
+
+                // エラー詳細をコンソールに出力
+                console.error("エラー詳細:", error.stack);
+            }
+
+            // 公開メソッド
+            getWorkflowController() {
+                return this.workflowController;
+            }
+
+            isReady() {
+                return this.isInitialized && this.workflowController;
+            }
+        }
+
+        // アプリケーションインスタンス
+        let tripleOSApp;
+
+        // DOM読み込み完了後に初期化
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                tripleOSApp = new TripleOSWorkflowApp();
+                await tripleOSApp.init();
+
+                // グローバルアクセス用
+                window.tripleOSApp = tripleOSApp;
+
+                console.log("🎉 [TripleOSWorkflowApp] システム起動完了");
+
+            } catch (error) {
+                console.error("🚨 [TripleOSWorkflowApp] 起動失敗:", error);
+            }
+        });
+
+        // エラーハンドリング
+        window.addEventListener('error', (event) => {
+            console.error("🚨 [Global] 未処理エラー:", event.error);
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error("🚨 [Global] 未処理Promise拒否:", event.reason);
+        });
+    </script>
+
+    <!-- 追加のスタイル -->
+    <style>
+        /* ローディング画面 */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: #f1f5f9;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #475569;
+            border-top: 3px solid #06b6d4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #38bdf8;
+        }
+
+        .loading-text p {
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        /* ヘッダー */
+        .main-header {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #475569;
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .system-title {
+            margin: 0;
+        }
+
+        .title-main {
+            display: block;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #38bdf8;
+        }
+
+        .title-sub {
+            display: block;
+            font-size: 0.9rem;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 24px;
+        }
+
+        .nav-link {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #38bdf8;
+        }
+
+        /* システム紹介 */
+        .system-intro {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 60px 0;
+            color: #f1f5f9;
+        }
+
+        .intro-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .intro-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 20px;
+        }
+
+        .intro-description {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #cbd5e1;
+            margin-bottom: 40px;
+        }
+
+        .intro-features {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+            background: rgba(6, 182, 212, 0.1);
+            border: 2px solid #06b6d4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-text h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin: 0 0 4px 0;
+        }
+
+        .feature-text p {
+            color: #94a3b8;
+            margin: 0;
+        }
+
+        /* Triple OS図解 */
+        .triple-os-diagram {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+        }
+
+        .os-circle {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+        }
+
+        .os-circle:hover {
+            transform: scale(1.1);
+        }
+
+        .os-circle.engine {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
+        }
+
+        .os-circle.interface {
+            bottom: 60px;
+            left: 0;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .os-circle.safemode {
+            bottom: 60px;
+            right: 0;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .os-label {
+            font-size: 0.9rem;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .os-role {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .connection-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .connection-line {
+            position: absolute;
+            background: #475569;
+            height: 2px;
+        }
+
+        .connection-line.line-1 {
+            top: 60px;
+            left: 25%;
+            width: 25%;
+            transform: rotate(-30deg);
+        }
+
+        .connection-line.line-2 {
+            top: 60px;
+            right: 25%;
+            width: 25%;
+            transform: rotate(30deg);
+        }
+
+        .connection-line.line-3 {
+            bottom: 120px;
+            left: 25%;
+            width: 50%;
+        }
+
+        /* ワークフローコンテナ */
+        .workflow-container {
+            min-height: 600px;
+            padding: 0;
+        }
+
+        /* フッター */
+        .main-footer {
+            background: #0f172a;
+            color: #cbd5e1;
+            padding: 40px 0 20px;
+            border-top: 1px solid #475569;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section h4 {
+            color: #38bdf8;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+        }
+
+        .footer-section p {
+            line-height: 1.6;
+            color: #94a3b8;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section li {
+            margin-bottom: 8px;
+            color: #94a3b8;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 20px 0;
+            border-top: 1px solid #334155;
+            text-align: center;
+            color: #64748b;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .intro-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+
+            .intro-title {
+                font-size: 2rem;
+            }
+
+            .triple-os-diagram {
+                width: 300px;
+                height: 300px;
+            }
+
+            .os-circle {
+                width: 100px;
+                height: 100px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .header-nav {
+                justify-content: center;
+            }
+        }
+    </style>
+</body>
+</html>

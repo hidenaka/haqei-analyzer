@@ -1,0 +1,378 @@
+/* =========================================
+   詳細分析アコーディオン用 美しいデザインCSS
+   Figmaライクなモダンで読みやすいレイアウト
+   ========================================= */
+
+/* アコーディオン内部のコンテナ */
+.accordion-inner {
+    padding: 2rem !important;
+    background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+}
+
+/* メタ情報バー（卦番号、卦象、五行、スコア） */
+.os-meta-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, #f8faff 0%, #eef3ff 100%);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.05);
+}
+
+.os-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: #475569;
+}
+
+.os-meta-item strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.os-meta-divider {
+    width: 1px;
+    height: 20px;
+    background: #cbd5e1;
+    opacity: 0.5;
+}
+
+/* セクションヘッダー */
+.detail-section {
+    margin-bottom: 2.5rem;
+}
+
+.detail-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.detail-section-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.detail-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: -0.02em;
+}
+
+/* コンテンツカード */
+.detail-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.detail-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+/* ラベルと値のペア */
+.detail-field {
+    margin-bottom: 1rem;
+}
+
+.detail-field:last-child {
+    margin-bottom: 0;
+}
+
+.detail-label {
+    display: inline-block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.detail-value {
+    font-size: 1rem;
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+/* 特別な値のスタイル */
+.detail-value.highlight {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    border-left: 3px solid #f59e0b;
+    font-weight: 500;
+}
+
+.detail-value.example {
+    background: #f1f5f9;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+    font-style: italic;
+    color: #475569;
+    margin-top: 0.5rem;
+}
+
+/* メタファー（比喩）表現 */
+.detail-metaphor {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    border-left: 4px solid #0ea5e9;
+    font-style: italic;
+    color: #0c4a6e;
+    margin: 1rem 0;
+    position: relative;
+}
+
+.detail-metaphor::before {
+    content: '"';
+    position: absolute;
+    left: 1rem;
+    top: 0.5rem;
+    font-size: 2rem;
+    color: #0ea5e9;
+    opacity: 0.3;
+}
+
+/* 警告・注意事項 */
+.detail-warning {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    border-left: 4px solid #ef4444;
+    color: #7f1d1d;
+    margin: 1rem 0;
+}
+
+.detail-warning::before {
+    content: '⚠️ ';
+    font-size: 1.1rem;
+    margin-right: 0.5rem;
+}
+
+/* ヒント・アドバイス */
+.detail-tip {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    border-left: 4px solid #22c55e;
+    color: #14532d;
+    margin: 1rem 0;
+}
+
+.detail-tip::before {
+    content: '💡 ';
+    font-size: 1.1rem;
+    margin-right: 0.5rem;
+}
+
+/* リスト表示 */
+.detail-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+}
+
+.detail-list-item {
+    position: relative;
+    padding-left: 1.75rem;
+    margin-bottom: 0.75rem;
+    color: #334155;
+    line-height: 1.6;
+}
+
+.detail-list-item::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: #3b82f6;
+    font-weight: bold;
+}
+
+/* グリッドレイアウト（2カラム） */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.detail-grid-item {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+/* エネルギーレベル表示 */
+.energy-level {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.energy-bar {
+    flex: 1;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.energy-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+/* タグ・バッジ */
+.detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.detail-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: #eff6ff;
+    color: #1e40af;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid #bfdbfe;
+}
+
+/* プログレスインジケーター */
+.detail-progress {
+    margin-top: 1rem;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.progress-bar {
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+/* Engine OS専用カラー */
+.accordion-item.engine .detail-section-icon {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.accordion-item.engine .detail-card:hover {
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.accordion-item.engine .detail-tag {
+    background: #fef2f2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+/* Interface OS専用カラー */
+.accordion-item.interface .detail-section-icon {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+}
+
+.accordion-item.interface .detail-card:hover {
+    border-color: rgba(6, 182, 212, 0.2);
+}
+
+.accordion-item.interface .detail-tag {
+    background: #ecfeff;
+    color: #155e75;
+    border-color: #a5f3fc;
+}
+
+/* SafeMode OS専用カラー */
+.accordion-item.safemode .detail-section-icon {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.accordion-item.safemode .detail-card:hover {
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.accordion-item.safemode .detail-tag {
+    background: #ecfdf5;
+    color: #065f46;
+    border-color: #a7f3d0;
+}
+
+/* アニメーション */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.accordion-item.active .detail-section {
+    animation: slideIn 0.4s ease;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .accordion-inner {
+        padding: 1.5rem !important;
+    }
+    
+    .os-meta-bar {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .detail-section-header {
+        font-size: 1.1rem;
+    }
+}

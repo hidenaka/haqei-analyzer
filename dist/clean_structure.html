@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI - Triple OS分析システム</title>
+    <style>
+        /* TODO: 必要最小限のスタイルのみ追加 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- アプリケーションのルートコンテナ -->
+        <div class="container">
+            <h1>HAQEI システム構築中</h1>
+            <p>クリーンな構造から再構築します</p>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // HAQEI Core System - Clean Structure
+        // ==========================================
+        
+        // 1. データ層
+        // ==========================================
+        
+        // TODO: 質問データを外部から注入
+        const QUESTIONS_DATA = {
+            worldview: [],  // 25問を新規作成
+            scenario: []    // 5問を移植
+        };
+        
+        // TODO: 64卦データベースを外部から注入
+        const HEXAGRAMS_DATA = [];
+        
+        // 2. ロジック層
+        // ==========================================
+        
+        /**
+         * 診断コアエンジン
+         */
+        class DiagnosticEngine {
+            constructor() {
+                this.scores = {};
+                this.answers = {};
+            }
+            
+            // TODO: calculateScores等のコアロジックを移植
+        }
+        
+        /**
+         * Triple OS分析エンジン
+         */
+        class TripleOSAnalyzer {
+            constructor() {
+                this.engineOS = null;
+                this.interfaceOS = null;
+                this.safeModeOS = null;
+            }
+            
+            // TODO: Triple OS判定ロジックを移植
+        }
+        
+        /**
+         * HaQei哲学統合システム
+         */
+        class HaQeiPhilosophy {
+            constructor() {
+                this.hexagrams = HEXAGRAMS_DATA;
+            }
+            
+            // TODO: 易経統合ロジックを移植
+        }
+        
+        // 3. UI層
+        // ==========================================
+        
+        /**
+         * UIコントローラー
+         */
+        class UIController {
+            constructor() {
+                this.currentScreen = 'welcome';
+            }
+            
+            // TODO: 画面制御ロジックを移植
+        }
+        
+        // 4. アプリケーション初期化
+        // ==========================================
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('HAQEI System - Clean Structure Loaded');
+            
+            // TODO: アプリケーション初期化
+            const app = {
+                engine: new DiagnosticEngine(),
+                analyzer: new TripleOSAnalyzer(),
+                philosophy: new HaQeiPhilosophy(),
+                ui: new UIController()
+            };
+            
+            window.HAQEI = app;
+        });
+    </script>
+</body>
+</html>

@@ -8,8 +8,11 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
     />
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Unified Design System (優先適用) -->
+    <link rel="stylesheet" href="css/haqei-unified-design.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,37 +20,54 @@
       rel="stylesheet"
     />
     <style>
+      /* 統一デザインシステムの強制適用 */
       body {
-        font-family: "Inter", "Noto Sans JP", sans-serif;
+        font-family: var(--font-sans), "Inter", "Noto Sans JP", sans-serif !important;
+        background: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
       }
+      
+      /* ダークモードの無効化 */
+      .bg-gray-900 { background: var(--bg-primary) !important; }
+      .bg-gray-800 { background: var(--bg-primary) !important; }
+      .bg-gray-700 { background: var(--bg-tertiary) !important; }
+      .text-gray-300 { color: var(--text-secondary) !important; }
+      .text-gray-400 { color: var(--text-tertiary) !important; }
+      .text-red-300 { color: var(--error-text) !important; }
+      .text-red-400 { color: var(--error-text) !important; }
+      
       .brand-text {
-        background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
+        background: var(--gradient-primary);
         -webkit-background-clip: text;
         background-clip: text;
         -webkit-text-fill-color: transparent;
       }
+      
+      /* モジュールの統一デザイン */
       .module {
-        background: rgba(17, 24, 39, 0.5);
-        border: 1px solid rgba(55, 65, 81, 0.5);
-        backdrop-filter: blur(10px);
-        border-radius: 1rem;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-6);
+        margin-bottom: var(--spacing-8);
+        box-shadow: var(--shadow-md);
       }
+      
       .module-title {
         font-family: "Shippori Mincho", serif;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #c7d2fe;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid #4f46e5;
-        padding-bottom: 0.75rem;
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-bold);
+        color: var(--primary-blue);
+        margin-bottom: var(--spacing-6);
+        border-bottom: 1px solid var(--border-blue);
+        padding-bottom: var(--spacing-3);
       }
-      /* ▼▼▼ 新しいスタイルを追加 ▼▼▼ */
+      
+      /* サマリーカードの統一デザイン */
       .summary-card {
-        background-color: #1f2937;
-        border-radius: 0.75rem;
-        padding: 1.25rem;
+        background: var(--bg-secondary);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-5);
         border: 1px solid #374151;
       }
       .ai-title {
@@ -92,7 +112,7 @@
       /* ▲▲▲ ここまで ▲▲▲ */
     </style>
   </head>
-  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+  <body class="min-h-screen p-4 sm:p-8">
     <div class="w-full max-w-5xl mx-auto">
       <header class="text-center mb-12">
         <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">
@@ -669,6 +689,176 @@
             plugins: { legend: { display: false }, tooltip: { enabled: true } },
           },
         });
+      }
+    </script>
+    
+    <!-- 契約統合機能 -->
+    <script src="./js/core/DataPersistenceManager.js"></script>
+    <script src="./js/core/types.js"></script>
+    <script src="./js/core/storage.js"></script>
+    <script src="./js/core/charts.js"></script>
+    <script src="./js/core/contract-integration.js"></script>
+    
+    <!-- Cockpit統合スクリプト -->
+    <script>
+      // 契約データ読み込みと統合表示
+      (async function() {
+        console.log('🚀 Cockpit初期化開始');
+        
+        // 契約データ読み込み
+        const contracts = await window.loadContracts();
+        
+        if (contracts.tripleOS) {
+          console.log('✅ Triple OS契約データ読み込み成功:', contracts.tripleOS);
+          // PersonaカードにTriple OSデータを表示
+          displayTripleOS(contracts.tripleOS);
+        } else {
+          console.log('⚠️ Triple OSデータが見つかりません');
+          showEmptyState('tripleOS');
+        }
+        
+        if (contracts.futurePaths) {
+          console.log('✅ Future Paths契約データ読み込み成功:', contracts.futurePaths);
+          // シナリオ分析にFuture Pathsデータを表示
+          displayFuturePaths(contracts.futurePaths);
+        } else {
+          console.log('⚠️ Future Pathsデータが見つかりません');
+          showEmptyState('futurePaths');
+        }
+        
+        // 統合分析の実行
+        if (contracts.tripleOS && contracts.futurePaths) {
+          performIntegratedAnalysis(contracts.tripleOS, contracts.futurePaths);
+        }
+      })();
+      
+      // Triple OS表示関数
+      function displayTripleOS(data) {
+        const container = document.getElementById('persona-summary');
+        if (!container) return;
+        
+        const html = `
+          <div class="summary-card">
+            <h3 class="text-xl font-bold text-indigo-300 mb-4">Triple OS Analysis</h3>
+            <div class="mb-3 p-2 bg-indigo-900 bg-opacity-30 rounded text-xs text-indigo-300">
+              <strong>⚡ 64卦準拠</strong> - 3OS間の相互作用を分析
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="os-profile-card">
+                <div class="text-sm text-gray-400">Engine OS</div>
+                <div class="text-lg font-bold text-yellow-400">${data.engine_os.name}</div>
+                <div class="text-sm text-gray-500">Score: ${Math.round(data.engine_os.score * 100)}%</div>
+                <div class="text-xs text-gray-600 mt-1">${data.engine_os.hexagram || ''}</div>
+              </div>
+              <div class="os-profile-card">
+                <div class="text-sm text-gray-400">Interface OS</div>
+                <div class="text-lg font-bold text-blue-400">${data.interface_os.name}</div>
+                <div class="text-sm text-gray-500">Score: ${Math.round(data.interface_os.score * 100)}%</div>
+                <div class="text-xs text-gray-600 mt-1">${data.interface_os.hexagram || ''}</div>
+              </div>
+              <div class="os-profile-card">
+                <div class="text-sm text-gray-400">Safe Mode OS</div>
+                <div class="text-lg font-bold text-green-400">${data.safe_mode_os.name}</div>
+                <div class="text-sm text-gray-500">Score: ${Math.round(data.safe_mode_os.score * 100)}%</div>
+                <div class="text-xs text-gray-600 mt-1">${data.safe_mode_os.hexagram || ''}</div>
+              </div>
+            </div>
+            ${data.interactions ? `
+            <div class="mt-4 p-3 bg-gray-800 rounded">
+              <div class="text-sm font-bold text-indigo-300 mb-2">3OS相互作用</div>
+              <div class="grid grid-cols-3 gap-2 text-xs">
+                <div>
+                  <div class="text-green-400">強み</div>
+                  <div class="text-gray-400">${data.interactions.strengths?.slice(0, 2).join(', ') || 'N/A'}</div>
+                </div>
+                <div>
+                  <div class="text-yellow-400">弱み</div>
+                  <div class="text-gray-400">${data.interactions.weaknesses?.slice(0, 2).join(', ') || 'N/A'}</div>
+                </div>
+                <div>
+                  <div class="text-red-400">衝突</div>
+                  <div class="text-gray-400">${data.interactions.conflicts?.slice(0, 2).join(', ') || 'N/A'}</div>
+                </div>
+              </div>
+            </div>
+            ` : ''}
+          </div>
+        `;
+        container.innerHTML = html;
+      }
+      
+      // Future Paths表示関数
+      function displayFuturePaths(data) {
+        const container = document.getElementById('scenario-analysis');
+        if (!container) return;
+        
+        const topPaths = data.paths.slice(0, 3);
+        const html = `
+          <div class="summary-card">
+            <h3 class="text-xl font-bold text-indigo-300 mb-4">Top 3 Future Scenarios</h3>
+            <div class="mb-3 p-2 bg-indigo-900 bg-opacity-30 rounded text-xs text-indigo-300">
+              <strong>✨ 386爻準拠</strong> - 8パス（4基軸×2方式）で展開
+            </div>
+            <div class="space-y-3">
+              ${topPaths.map((path, i) => {
+                const pathIndex = path.index || i;
+                const axis = ['天基軸', '地基軸', '人基軸', '時基軸'][Math.floor(pathIndex / 2)];
+                const method = pathIndex % 2 === 0 ? '爻が進む' : '爻が変わる';
+                return `
+                <div class="flex items-center justify-between p-3 bg-gray-800 rounded">
+                  <div class="flex-1">
+                    <div class="text-sm font-bold text-yellow-${5-i}00">Path ${pathIndex+1}: ${path.title}</div>
+                    <div class="text-xs text-gray-400 mt-1">${path.hexagram.name} ${path.hexagram.symbol}</div>
+                    <div class="text-xs text-indigo-400 mt-1">${axis} - ${method}</div>
+                  </div>
+                  <div class="flex gap-2">
+                    <div class="text-xs">
+                      <div class="text-gray-500">Risk</div>
+                      <div class="text-red-400">${Math.round(path.risk * 100)}%</div>
+                    </div>
+                    <div class="text-xs">
+                      <div class="text-gray-500">Potential</div>
+                      <div class="text-green-400">${Math.round(path.potential * 100)}%</div>
+                    </div>
+                  </div>
+                </div>`;
+              }
+              `).join('')}
+            </div>
+          </div>
+        `;
+        container.innerHTML = html;
+      }
+      
+      // 統合分析関数
+      function performIntegratedAnalysis(tripleOS, futurePaths) {
+        const container = document.getElementById('integrated-insights');
+        if (!container) return;
+        
+        // 簡易的な統合分析（実際はLLMで生成）
+        const html = `
+          <div class="ai-text">
+            <strong>統合分析結果：</strong><br>
+            あなたのTriple OS構成（${tripleOS.engine_os.name} × ${tripleOS.interface_os.name} × ${tripleOS.safe_mode_os.name}）と、
+            識別された${futurePaths.paths.length}つの未来パスを統合分析しました。
+            最も推奨される道は「${futurePaths.paths[0].title}」で、
+            あなたの${tripleOS.engine_os.name}の特性を最大限に活かせる選択となります。
+          </div>
+        `;
+        container.innerHTML = html;
+      }
+      
+      // 空状態表示関数
+      function showEmptyState(type) {
+        const containerId = type === 'tripleOS' ? 'persona-summary' : 'scenario-analysis';
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        container.innerHTML = `
+          <div class="loading-text">
+            <span>データが見つかりません。先に${type === 'tripleOS' ? 'OS Analyzer' : 'Future Simulator'}を実行してください。</span>
+          </div>
+        `;
       }
     </script>
   </body>

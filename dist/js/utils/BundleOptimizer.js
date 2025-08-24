@@ -1,1 +1,561 @@
-class BundleOptimizer{constructor(e={}){this.options={enableMonitoring:!0,enableAnalysis:!0,enableReporting:!0,analysisInterval:3e4,maxBundleSize:3145728,warningThreshold:2621440,...e},this.bundleMetrics={totalSize:0,loadedModules:new Map,loadTimes:new Map,memoryUsage:new Map,duplicateDetection:new Map},this.performanceObserver=null,this.memoryObserver=null,this.analysisResults={bundleSize:0,optimization:{duplicates:[],unused:[],heavyModules:[],suggestions:[]},performance:{loadTimes:{},memoryImpact:{},cacheEfficiency:0}},console.log("🔧 BundleOptimizer initialized - Phase 2 monitoring active"),this.options.enableMonitoring&&this.startMonitoring()}startMonitoring(){this.options.enableMonitoring&&(console.log("📊 Starting bundle optimization monitoring..."),this.monitorScriptLoading(),this.monitorMemoryUsage(),setInterval(()=>{this.performAnalysis()},this.options.analysisInterval),"PerformanceObserver"in window&&this.setupPerformanceObserver())}monitorScriptLoading(){const e=window.import||(async e=>import(e));window.import=async t=>{const i=performance.now();try{const o=await e(t),s=performance.now()-i;return this.trackModuleLoad(t,s,o),o}catch(o){throw this.trackLoadError(t,o),o}};document.querySelectorAll("script[src]").forEach(e=>{this.estimateScriptSize(e.src)})}trackModuleLoad(e,t,i){const o=this.estimateModuleSize(i);this.bundleMetrics.loadedModules.set(e,{loadTime:t,estimatedSize:o,timestamp:Date.now(),module:i}),this.bundleMetrics.loadTimes.set(e,t),this.bundleMetrics.totalSize+=o,this.bundleMetrics.totalSize>this.options.warningThreshold&&console.warn(`⚠️ Bundle size approaching limit: ${this.formatBytes(this.bundleMetrics.totalSize)}`),console.log(`📦 Module tracked: ${e} (${this.formatBytes(o)}, ${t.toFixed(0)}ms)`)}estimateModuleSize(e){try{const t=JSON.stringify(e);return new Blob([t]).size}catch(t){return 10240}}async estimateScriptSize(e){try{const t=(await fetch(e,{method:"HEAD"})).headers.get("content-length");if(t){const i=parseInt(t);return this.bundleMetrics.totalSize+=i,console.log(`📜 Script size estimated: ${e} (${this.formatBytes(i)})`),i}}catch(t){console.warn(`⚠️ Could not estimate size for: ${e}`)}return 0}monitorMemoryUsage(){if(!("memory"in performance))return void console.warn("⚠️ Memory monitoring not available in this browser");const trackMemory=()=>{const e=performance.memory;if(this.bundleMetrics.memoryUsage.set(Date.now(),{used:e.usedJSHeapSize,total:e.totalJSHeapSize,limit:e.jsHeapSizeLimit}),this.bundleMetrics.memoryUsage.size>100){const e=Array.from(this.bundleMetrics.memoryUsage.entries()).slice(-50);this.bundleMetrics.memoryUsage.clear(),e.forEach(([e,t])=>{this.bundleMetrics.memoryUsage.set(e,t)})}};setInterval(trackMemory,5e3),trackMemory()}setupPerformanceObserver(){try{this.performanceObserver=new PerformanceObserver(e=>{e.getEntries().forEach(e=>{"resource"===e.entryType&&e.name.includes(".js")&&this.trackResourcePerformance(e)})}),this.performanceObserver.observe({entryTypes:["resource","navigation"]}),console.log("📊 PerformanceObserver setup complete")}catch(e){console.warn("⚠️ PerformanceObserver setup failed:",e)}}trackResourcePerformance(e){const t={url:e.name,duration:e.duration,transferSize:e.transferSize||0,encodedBodySize:e.encodedBodySize||0,decodedBodySize:e.decodedBodySize||0,startTime:e.startTime,responseEnd:e.responseEnd};this.analysisResults.performance.loadTimes[e.name]=t,t.transferSize>0&&(this.bundleMetrics.totalSize+=t.transferSize)}performAnalysis(){console.log("🔍 Performing bundle optimization analysis...");const e={timestamp:Date.now(),bundleSize:this.bundleMetrics.totalSize,moduleCount:this.bundleMetrics.loadedModules.size,optimization:this.analyzeOptimizations(),performance:this.analyzePerformance(),recommendations:[]};return e.recommendations=this.generateRecommendations(e),this.analysisResults=e,this.options.enableReporting&&this.generateReport(e),e}analyzeOptimizations(){const e=this.findDuplicateCode(),t=this.findUnusedModules();return{duplicates:e,unused:t,heavyModules:this.findHeavyModules(),totalWaste:e.totalSize+t.totalSize}}findDuplicateCode(){const e=[];let t=0;const i=Array.from(this.bundleMetrics.loadedModules.entries());for(let o=0;o<i.length;o++)for(let s=o+1;s<i.length;s++){const[n,a]=i[o],[r,l]=i[s];Math.abs(a.estimatedSize-l.estimatedSize)<1024&&a.estimatedSize>5120&&(e.push({modules:[n,r],estimatedDuplication:.3*Math.min(a.estimatedSize,l.estimatedSize),confidence:"low"}),t+=.3*Math.min(a.estimatedSize,l.estimatedSize))}return{duplicates:e,totalSize:t}}findUnusedModules(){const e=[];let t=0;const i=Date.now();return this.bundleMetrics.loadedModules.forEach((o,s)=>{i-o.timestamp>3e5&&(e.push({path:s,size:o.estimatedSize,lastAccessed:o.timestamp,reason:"Not accessed in 5+ minutes"}),t+=o.estimatedSize)}),{unused:e,totalSize:t}}findHeavyModules(){const e=[];return this.bundleMetrics.loadedModules.forEach((t,i)=>{t.estimatedSize>102400&&e.push({path:i,size:t.estimatedSize,loadTime:t.loadTime,impactScore:t.estimatedSize/1024+t.loadTime/10})}),e.sort((e,t)=>t.impactScore-e.impactScore),e}analyzePerformance(){const e=Array.from(this.bundleMetrics.loadTimes.values()),t=Array.from(this.bundleMetrics.memoryUsage.values());return{averageLoadTime:e.length>0?e.reduce((e,t)=>e+t,0)/e.length:0,slowestLoad:e.length>0?Math.max(...e):0,fastestLoad:e.length>0?Math.min(...e):0,currentMemoryUsage:t.length>0?t[t.length-1].used:0,memoryGrowthRate:this.calculateMemoryGrowthRate(t)}}calculateMemoryGrowthRate(e){if(e.length<2)return 0;const t=e[0],i=e[e.length-1],o=5e3*(e.length-1);return(i.used-t.used)/o*1e3}generateRecommendations(e){const t=[];if(e.bundleSize>this.options.maxBundleSize&&t.push({type:"size",priority:"high",message:`Bundle size (${this.formatBytes(e.bundleSize)}) exceeds target (${this.formatBytes(this.options.maxBundleSize)})`,suggestion:"Consider additional code splitting or removing unused modules"}),e.optimization.heavyModules.length>0){const i=e.optimization.heavyModules[0];t.push({type:"performance",priority:"medium",message:`Heavy module detected: ${i.path} (${this.formatBytes(i.size)})`,suggestion:"Consider lazy loading or splitting this module"})}return e.optimization.duplicates.totalSize>51200&&t.push({type:"optimization",priority:"medium",message:`Potential duplicate code: ${this.formatBytes(e.optimization.duplicates.totalSize)} wasted`,suggestion:"Review modules for shared utilities that can be extracted"}),e.performance.memoryGrowthRate>1024&&t.push({type:"memory",priority:"high",message:`High memory growth rate: ${this.formatBytes(e.performance.memoryGrowthRate)}/sec`,suggestion:"Check for memory leaks and implement cleanup"}),t}generateReport(e){console.log("📊 Bundle Optimization Report - Phase 2"),console.log("=".repeat(50)),console.log(`📦 Total Bundle Size: ${this.formatBytes(e.bundleSize)}`),console.log(`📄 Loaded Modules: ${e.moduleCount}`),console.log(`⚡ Average Load Time: ${e.performance.averageLoadTime.toFixed(0)}ms`),console.log(`🧠 Memory Usage: ${this.formatBytes(e.performance.currentMemoryUsage)}`),e.optimization.totalWaste>0&&console.log(`♻️ Potential Savings: ${this.formatBytes(e.optimization.totalWaste)}`),e.recommendations.length>0&&(console.log("🎯 Recommendations:"),e.recommendations.forEach((e,t)=>{console.log(`${t+1}. [${e.priority.toUpperCase()}] ${e.message}`),console.log(`   💡 ${e.suggestion}`)})),console.log("=".repeat(50)),window.bundleOptimizationReport=e}getOptimizationStatus(){const e=this.bundleMetrics.totalSize,t=this.options.maxBundleSize,i=Math.max(0,e-t);return{currentSize:this.formatBytes(e),targetSize:this.formatBytes(t),isOptimized:e<=t,potentialSavings:this.formatBytes(i),optimizationPercentage:t>0?Math.max(0,(t-e)/t*100).toFixed(1)+"%":"0%"}}formatBytes(e){if(0===e)return"0 B";const t=Math.floor(Math.log(e)/Math.log(1024));return parseFloat((e/Math.pow(1024,t)).toFixed(2))+" "+["B","KB","MB","GB"][t]}exportData(){return{metrics:{totalSize:this.bundleMetrics.totalSize,moduleCount:this.bundleMetrics.loadedModules.size,loadedModules:Array.from(this.bundleMetrics.loadedModules.entries())},analysis:this.analysisResults,status:this.getOptimizationStatus(),timestamp:Date.now()}}}window.bundleOptimizer||(window.bundleOptimizer=new BundleOptimizer({enableMonitoring:!0,enableAnalysis:!0,enableReporting:!0}),console.log("🎯 BundleOptimizer initialized for Phase 2 monitoring"),window.getBundleReport=()=>window.bundleOptimizer.performAnalysis(),window.getBundleStatus=()=>window.bundleOptimizer.getOptimizationStatus(),window.exportBundleData=()=>window.bundleOptimizer.exportData()),"undefined"!=typeof module&&module.exports&&(module.exports=BundleOptimizer);
+/**
+ * BundleOptimizer.js - JavaScript Bundle Size Optimization Utility
+ * 
+ * Phase 2 Implementation: Advanced code splitting and bundle analysis
+ * Provides runtime bundle size monitoring and optimization recommendations
+ * 
+ * Key Features:
+ * - Real-time bundle size monitoring
+ * - Dead code detection
+ * - Duplicate code analysis
+ * - Memory usage optimization
+ * - Loading performance tracking
+ */
+
+class BundleOptimizer {
+  constructor(options = {}) {
+    this.options = {
+      enableMonitoring: true,
+      enableAnalysis: true,
+      enableReporting: true,
+      analysisInterval: 30000, // 30 seconds
+      maxBundleSize: 3 * 1024 * 1024, // 3MB target
+      warningThreshold: 2.5 * 1024 * 1024, // 2.5MB warning
+      ...options
+    };
+    
+    // Bundle tracking
+    this.bundleMetrics = {
+      totalSize: 0,
+      loadedModules: new Map(),
+      loadTimes: new Map(),
+      memoryUsage: new Map(),
+      duplicateDetection: new Map()
+    };
+    
+    // Performance monitoring
+    this.performanceObserver = null;
+    this.memoryObserver = null;
+    
+    // Analysis results
+    this.analysisResults = {
+      bundleSize: 0,
+      optimization: {
+        duplicates: [],
+        unused: [],
+        heavyModules: [],
+        suggestions: []
+      },
+      performance: {
+        loadTimes: {},
+        memoryImpact: {},
+        cacheEfficiency: 0
+      }
+    };
+    
+    console.log('🔧 BundleOptimizer initialized - Phase 2 monitoring active');
+    
+    if (this.options.enableMonitoring) {
+      this.startMonitoring();
+    }
+  }
+  
+  /**
+   * Start bundle monitoring and analysis
+   */
+  startMonitoring() {
+    if (!this.options.enableMonitoring) return;
+    
+    console.log('📊 Starting bundle optimization monitoring...');
+    
+    // Monitor script loading
+    this.monitorScriptLoading();
+    
+    // Monitor memory usage
+    this.monitorMemoryUsage();
+    
+    // Periodic analysis
+    setInterval(() => {
+      this.performAnalysis();
+    }, this.options.analysisInterval);
+    
+    // Monitor Performance API
+    if ('PerformanceObserver' in window) {
+      this.setupPerformanceObserver();
+    }
+  }
+  
+  /**
+   * Monitor script loading and track bundle size
+   */
+  monitorScriptLoading() {
+    // Override dynamic import to track module loading
+    const originalImport = window.import || (async (path) => import(path));
+    
+    window.import = async (modulePath) => {
+      const startTime = performance.now();
+      
+      try {
+        const module = await originalImport(modulePath);
+        const loadTime = performance.now() - startTime;
+        
+        // Track module loading
+        this.trackModuleLoad(modulePath, loadTime, module);
+        
+        return module;
+      } catch (error) {
+        this.trackLoadError(modulePath, error);
+        throw error;
+      }
+    };
+    
+    // Monitor static script tags
+    const scripts = document.querySelectorAll('script[src]');
+    scripts.forEach(script => {
+      this.estimateScriptSize(script.src);
+    });
+  }
+  
+  /**
+   * Track individual module loading
+   */
+  trackModuleLoad(modulePath, loadTime, module) {
+    // Estimate module size
+    const estimatedSize = this.estimateModuleSize(module);
+    
+    this.bundleMetrics.loadedModules.set(modulePath, {
+      loadTime,
+      estimatedSize,
+      timestamp: Date.now(),
+      module
+    });
+    
+    this.bundleMetrics.loadTimes.set(modulePath, loadTime);
+    this.bundleMetrics.totalSize += estimatedSize;
+    
+    // Check bundle size warning
+    if (this.bundleMetrics.totalSize > this.options.warningThreshold) {
+      console.warn(`⚠️ Bundle size approaching limit: ${this.formatBytes(this.bundleMetrics.totalSize)}`);
+    }
+    
+    console.log(`📦 Module tracked: ${modulePath} (${this.formatBytes(estimatedSize)}, ${loadTime.toFixed(0)}ms)`);
+  }
+  
+  /**
+   * Estimate module size from content
+   */
+  estimateModuleSize(module) {
+    try {
+      // Estimate based on module content
+      const moduleString = JSON.stringify(module);
+      return new Blob([moduleString]).size;
+    } catch (error) {
+      // Fallback estimation
+      return 10240; // 10KB default estimate
+    }
+  }
+  
+  /**
+   * Estimate script size from URL
+   */
+  async estimateScriptSize(scriptUrl) {
+    try {
+      const response = await fetch(scriptUrl, { method: 'HEAD' });
+      const contentLength = response.headers.get('content-length');
+      
+      if (contentLength) {
+        const size = parseInt(contentLength);
+        this.bundleMetrics.totalSize += size;
+        console.log(`📜 Script size estimated: ${scriptUrl} (${this.formatBytes(size)})`);
+        return size;
+      }
+    } catch (error) {
+      console.warn(`⚠️ Could not estimate size for: ${scriptUrl}`);
+    }
+    
+    return 0;
+  }
+  
+  /**
+   * Monitor memory usage impact
+   */
+  monitorMemoryUsage() {
+    if (!('memory' in performance)) {
+      console.warn('⚠️ Memory monitoring not available in this browser');
+      return;
+    }
+    
+    const trackMemory = () => {
+      const memory = performance.memory;
+      
+      this.bundleMetrics.memoryUsage.set(Date.now(), {
+        used: memory.usedJSHeapSize,
+        total: memory.totalJSHeapSize,
+        limit: memory.jsHeapSizeLimit
+      });
+      
+      // Keep only last 100 entries
+      if (this.bundleMetrics.memoryUsage.size > 100) {
+        const entries = Array.from(this.bundleMetrics.memoryUsage.entries());
+        const toKeep = entries.slice(-50);
+        this.bundleMetrics.memoryUsage.clear();
+        toKeep.forEach(([time, data]) => {
+          this.bundleMetrics.memoryUsage.set(time, data);
+        });
+      }
+    };
+    
+    // Track memory every 5 seconds
+    setInterval(trackMemory, 5000);
+    trackMemory(); // Initial measurement
+  }
+  
+  /**
+   * Setup Performance Observer for detailed metrics
+   */
+  setupPerformanceObserver() {
+    try {
+      this.performanceObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        
+        entries.forEach(entry => {
+          if (entry.entryType === 'resource' && entry.name.includes('.js')) {
+            this.trackResourcePerformance(entry);
+          }
+        });
+      });
+      
+      this.performanceObserver.observe({ entryTypes: ['resource', 'navigation'] });
+      console.log('📊 PerformanceObserver setup complete');
+      
+    } catch (error) {
+      console.warn('⚠️ PerformanceObserver setup failed:', error);
+    }
+  }
+  
+  /**
+   * Track resource performance metrics
+   */
+  trackResourcePerformance(entry) {
+    const metrics = {
+      url: entry.name,
+      duration: entry.duration,
+      transferSize: entry.transferSize || 0,
+      encodedBodySize: entry.encodedBodySize || 0,
+      decodedBodySize: entry.decodedBodySize || 0,
+      startTime: entry.startTime,
+      responseEnd: entry.responseEnd
+    };
+    
+    this.analysisResults.performance.loadTimes[entry.name] = metrics;
+    
+    // Update total bundle size with actual transfer size
+    if (metrics.transferSize > 0) {
+      this.bundleMetrics.totalSize += metrics.transferSize;
+    }
+  }
+  
+  /**
+   * Perform comprehensive bundle analysis
+   */
+  performAnalysis() {
+    console.log('🔍 Performing bundle optimization analysis...');
+    
+    const analysis = {
+      timestamp: Date.now(),
+      bundleSize: this.bundleMetrics.totalSize,
+      moduleCount: this.bundleMetrics.loadedModules.size,
+      optimization: this.analyzeOptimizations(),
+      performance: this.analyzePerformance(),
+      recommendations: []
+    };
+    
+    // Generate recommendations
+    analysis.recommendations = this.generateRecommendations(analysis);
+    
+    this.analysisResults = analysis;
+    
+    if (this.options.enableReporting) {
+      this.generateReport(analysis);
+    }
+    
+    return analysis;
+  }
+  
+  /**
+   * Analyze potential optimizations
+   */
+  analyzeOptimizations() {
+    const duplicates = this.findDuplicateCode();
+    const unused = this.findUnusedModules();
+    const heavyModules = this.findHeavyModules();
+    
+    return {
+      duplicates,
+      unused,
+      heavyModules,
+      totalWaste: duplicates.totalSize + unused.totalSize
+    };
+  }
+  
+  /**
+   * Find duplicate code across modules
+   */
+  findDuplicateCode() {
+    const duplicates = [];
+    let totalSize = 0;
+    
+    // This is a simplified duplicate detection
+    // In a real implementation, you'd use AST analysis
+    const modules = Array.from(this.bundleMetrics.loadedModules.entries());
+    
+    for (let i = 0; i < modules.length; i++) {
+      for (let j = i + 1; j < modules.length; j++) {
+        const [path1, data1] = modules[i];
+        const [path2, data2] = modules[j];
+        
+        // Simple heuristic: similar file sizes might indicate duplicates
+        if (Math.abs(data1.estimatedSize - data2.estimatedSize) < 1024 && 
+            data1.estimatedSize > 5120) { // Only check files > 5KB
+          duplicates.push({
+            modules: [path1, path2],
+            estimatedDuplication: Math.min(data1.estimatedSize, data2.estimatedSize) * 0.3,
+            confidence: 'low'
+          });
+          
+          totalSize += Math.min(data1.estimatedSize, data2.estimatedSize) * 0.3;
+        }
+      }
+    }
+    
+    return { duplicates, totalSize };
+  }
+  
+  /**
+   * Find potentially unused modules
+   */
+  findUnusedModules() {
+    const unused = [];
+    let totalSize = 0;
+    const currentTime = Date.now();
+    const unusedThreshold = 300000; // 5 minutes
+    
+    this.bundleMetrics.loadedModules.forEach((data, path) => {
+      if (currentTime - data.timestamp > unusedThreshold) {
+        // Check if module has been accessed recently
+        // This is a simplified check - real implementation would track usage
+        unused.push({
+          path,
+          size: data.estimatedSize,
+          lastAccessed: data.timestamp,
+          reason: 'Not accessed in 5+ minutes'
+        });
+        
+        totalSize += data.estimatedSize;
+      }
+    });
+    
+    return { unused, totalSize };
+  }
+  
+  /**
+   * Find heavy modules that impact performance
+   */
+  findHeavyModules() {
+    const heavyThreshold = 100 * 1024; // 100KB
+    const heavy = [];
+    
+    this.bundleMetrics.loadedModules.forEach((data, path) => {
+      if (data.estimatedSize > heavyThreshold) {
+        heavy.push({
+          path,
+          size: data.estimatedSize,
+          loadTime: data.loadTime,
+          impactScore: (data.estimatedSize / 1024) + (data.loadTime / 10)
+        });
+      }
+    });
+    
+    // Sort by impact score
+    heavy.sort((a, b) => b.impactScore - a.impactScore);
+    
+    return heavy;
+  }
+  
+  /**
+   * Analyze performance metrics
+   */
+  analyzePerformance() {
+    const loadTimes = Array.from(this.bundleMetrics.loadTimes.values());
+    const memoryEntries = Array.from(this.bundleMetrics.memoryUsage.values());
+    
+    return {
+      averageLoadTime: loadTimes.length > 0 ? 
+        loadTimes.reduce((a, b) => a + b, 0) / loadTimes.length : 0,
+      slowestLoad: loadTimes.length > 0 ? Math.max(...loadTimes) : 0,
+      fastestLoad: loadTimes.length > 0 ? Math.min(...loadTimes) : 0,
+      currentMemoryUsage: memoryEntries.length > 0 ? 
+        memoryEntries[memoryEntries.length - 1].used : 0,
+      memoryGrowthRate: this.calculateMemoryGrowthRate(memoryEntries)
+    };
+  }
+  
+  /**
+   * Calculate memory growth rate
+   */
+  calculateMemoryGrowthRate(entries) {
+    if (entries.length < 2) return 0;
+    
+    const first = entries[0];
+    const last = entries[entries.length - 1];
+    const timeDiff = (entries.length - 1) * 5000; // 5 second intervals
+    
+    return ((last.used - first.used) / timeDiff) * 1000; // bytes per second
+  }
+  
+  /**
+   * Generate optimization recommendations
+   */
+  generateRecommendations(analysis) {
+    const recommendations = [];
+    
+    // Bundle size recommendations
+    if (analysis.bundleSize > this.options.maxBundleSize) {
+      recommendations.push({
+        type: 'size',
+        priority: 'high',
+        message: `Bundle size (${this.formatBytes(analysis.bundleSize)}) exceeds target (${this.formatBytes(this.options.maxBundleSize)})`,
+        suggestion: 'Consider additional code splitting or removing unused modules'
+      });
+    }
+    
+    // Heavy modules recommendations
+    if (analysis.optimization.heavyModules.length > 0) {
+      const heaviest = analysis.optimization.heavyModules[0];
+      recommendations.push({
+        type: 'performance',
+        priority: 'medium',
+        message: `Heavy module detected: ${heaviest.path} (${this.formatBytes(heaviest.size)})`,
+        suggestion: 'Consider lazy loading or splitting this module'
+      });
+    }
+    
+    // Duplicate code recommendations
+    if (analysis.optimization.duplicates.totalSize > 50 * 1024) {
+      recommendations.push({
+        type: 'optimization',
+        priority: 'medium',
+        message: `Potential duplicate code: ${this.formatBytes(analysis.optimization.duplicates.totalSize)} wasted`,
+        suggestion: 'Review modules for shared utilities that can be extracted'
+      });
+    }
+    
+    // Memory usage recommendations
+    if (analysis.performance.memoryGrowthRate > 1024) { // 1KB/sec growth
+      recommendations.push({
+        type: 'memory',
+        priority: 'high',
+        message: `High memory growth rate: ${this.formatBytes(analysis.performance.memoryGrowthRate)}/sec`,
+        suggestion: 'Check for memory leaks and implement cleanup'
+      });
+    }
+    
+    return recommendations;
+  }
+  
+  /**
+   * Generate comprehensive report
+   */
+  generateReport(analysis) {
+    console.log('📊 Bundle Optimization Report - Phase 2');
+    console.log('='.repeat(50));
+    console.log(`📦 Total Bundle Size: ${this.formatBytes(analysis.bundleSize)}`);
+    console.log(`📄 Loaded Modules: ${analysis.moduleCount}`);
+    console.log(`⚡ Average Load Time: ${analysis.performance.averageLoadTime.toFixed(0)}ms`);
+    console.log(`🧠 Memory Usage: ${this.formatBytes(analysis.performance.currentMemoryUsage)}`);
+    
+    if (analysis.optimization.totalWaste > 0) {
+      console.log(`♻️ Potential Savings: ${this.formatBytes(analysis.optimization.totalWaste)}`);
+    }
+    
+    if (analysis.recommendations.length > 0) {
+      console.log('\
+🎯 Recommendations:');
+      analysis.recommendations.forEach((rec, index) => {
+        console.log(`${index + 1}. [${rec.priority.toUpperCase()}] ${rec.message}`);
+        console.log(`   💡 ${rec.suggestion}`);
+      });
+    }
+    
+    console.log('='.repeat(50));
+    
+    // Store report for external access
+    window.bundleOptimizationReport = analysis;
+  }
+  
+  /**
+   * Get current optimization status
+   */
+  getOptimizationStatus() {
+    const currentSize = this.bundleMetrics.totalSize;
+    const targetSize = this.options.maxBundleSize;
+    const savings = Math.max(0, currentSize - targetSize);
+    
+    return {
+      currentSize: this.formatBytes(currentSize),
+      targetSize: this.formatBytes(targetSize),
+      isOptimized: currentSize <= targetSize,
+      potentialSavings: this.formatBytes(savings),
+      optimizationPercentage: targetSize > 0 ? 
+        Math.max(0, ((targetSize - currentSize) / targetSize * 100)).toFixed(1) + '%' : '0%'
+    };
+  }
+  
+  /**
+   * Format bytes for display
+   */
+  formatBytes(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  /**
+   * Export optimization data
+   */
+  exportData() {
+    return {
+      metrics: {
+        totalSize: this.bundleMetrics.totalSize,
+        moduleCount: this.bundleMetrics.loadedModules.size,
+        loadedModules: Array.from(this.bundleMetrics.loadedModules.entries())
+      },
+      analysis: this.analysisResults,
+      status: this.getOptimizationStatus(),
+      timestamp: Date.now()
+    };
+  }
+}
+
+// Global initialization
+if (!window.bundleOptimizer) {
+  window.bundleOptimizer = new BundleOptimizer({
+    enableMonitoring: true,
+    enableAnalysis: true,
+    enableReporting: true
+  });
+  
+  console.log('🎯 BundleOptimizer initialized for Phase 2 monitoring');
+  
+  // Debug functions
+  window.getBundleReport = () => window.bundleOptimizer.performAnalysis();
+  window.getBundleStatus = () => window.bundleOptimizer.getOptimizationStatus();
+  window.exportBundleData = () => window.bundleOptimizer.exportData();
+}
+
+// Export for ES6 modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = BundleOptimizer;
+}

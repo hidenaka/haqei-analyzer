@@ -1,0 +1,1 @@
+window.DataBox={initialized:true};

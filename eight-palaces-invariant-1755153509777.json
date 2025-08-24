@@ -1,0 +1,43 @@
+{
+  "timestamp": "2025-08-14T06:38:29.770Z",
+  "testSuite": "Eight Palaces Invariant Test",
+  "tests": [
+    {
+      "name": "H64 Completeness",
+      "status": "passed",
+      "details": "H64 completeness verified: 64 hexagrams with unique numbers 1-64",
+      "metrics": {
+        "totalHexagrams": 64,
+        "uniqueCount": 64
+      }
+    },
+    {
+      "name": "H384 Completeness",
+      "status": "passed",
+      "details": "H384 completeness verified: 386 entries covering all 64 hexagrams",
+      "metrics": {
+        "totalEntries": 386,
+        "uniqueHexagrams": 64
+      }
+    },
+    {
+      "name": "Eight Palaces Structure",
+      "status": "passed",
+      "details": "Eight Palaces structure verified: 8 palaces × 8 hexagrams = 64 total",
+      "metrics": {
+        "palaces": 8,
+        "totalHexagrams": 64,
+        "uniqueHexagrams": 64
+      }
+    },
+    {
+      "name": "Data Quality",
+      "status": "passed",
+      "details": "Data quality verified: All required fields present",
+      "metrics": {
+        "h384SampleChecked": 10,
+        "h64FullyChecked": 64
+      }
+    }
+  ]
+}

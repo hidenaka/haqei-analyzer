@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>アコーディオン動作テスト</title>
+    <style>
+        .detail-content {
+            display: none;
+            background: #f0f0f0;
+            padding: 20px;
+            margin: 20px;
+        }
+        .detail-content.active {
+            display: block;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>シンプルなアコーディオンテスト</h1>
+    
+    <button onclick="toggleDetail()">詳細を表示</button>
+    
+    <div id="detail-content" class="detail-content">
+        <!-- ここにコンテンツが入る -->
+    </div>
+    
+    <script src="public/js/data/hexagram-human-traits-v3.js"></script>
+    <script>
+        function toggleDetail() {
+            console.log('toggleDetail called');
+            const content = document.getElementById('detail-content');
+            const button = document.querySelector('button');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                button.textContent = '詳細を表示';
+            } else {
+                content.classList.add('active');
+                button.textContent = '詳細を非表示';
+                
+                if (!content.innerHTML.trim()) {
+                    console.log('Loading content...');
+                    loadContent();
+                }
+            }
+        }
+        
+        function loadContent() {
+            const content = document.getElementById('detail-content');
+            
+            if (typeof window.HexagramHumanTraitsV3 === 'undefined') {
+                content.innerHTML = '<p>データベースが読み込まれていません</p>';
+                console.error('HexagramHumanTraitsV3 is undefined');
+                return;
+            }
+            
+            const data = window.HexagramHumanTraitsV3['乾為天'];
+            
+            if (!data) {
+                content.innerHTML = '<p>データが見つかりません</p>';
+                console.error('Data not found');
+                return;
+            }
+            
+            content.innerHTML = `
+                <h2>乾為天のデータ</h2>
+                <p>ニックネーム: ${data.nickname}</p>
+                <p>ID: ${data.id}</p>
+                <p>Symbol: ${data.symbol}</p>
+                <p>Element: ${data.element}</p>
+                ${data.asEngineOS ? `
+                    <h3>Engine OSとしてのデータ</h3>
+                    ${data.asEngineOS.profile ? `
+                        <p>タイプ: ${data.asEngineOS.profile.type}</p>
+                        <p>説明: ${data.asEngineOS.profile.description}</p>
+                    ` : '<p>profileデータなし</p>'}
+                ` : '<p>asEngineOSデータなし</p>'}
+            `;
+            
+            console.log('Content loaded successfully');
+        }
+    </script>
+</body>
+</html>

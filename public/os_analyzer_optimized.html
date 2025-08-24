@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS Analyzer - HAQEI Triple OS Analysis System</title>
+    
+    <!-- Critical Resource Loader (inline for immediate execution) -->
+    <script>
+        !function(){"use strict";const e='\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }\n        .loading-overlay {\n            position: fixed;\n            top: 0;\n            left: 0;\n            right: 0;\n            bottom: 0;\n            background: rgba(255, 255, 255, 0.95);\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            z-index: 9999;\n        }\n        .loading-overlay.hidden { display: none; }\n        .spinner {\n            width: 50px;\n            height: 50px;\n            border: 3px solid #f3f3f3;\n            border-top: 3px solid #4a90e2;\n            border-radius: 50%;\n            animation: spin 1s linear infinite;\n        }\n        @keyframes spin {\n            0% { transform: rotate(0deg); }\n            100% { transform: rotate(360deg); }\n        }\n        #welcome-screen {\n            min-height: 100vh;\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n        }\n        .container {\n            max-width: 1200px;\n            margin: 0 auto;\n            padding: 20px;\n        }\n        .title {\n            font-size: 3rem;\n            color: white;\n            text-align: center;\n            margin-bottom: 1rem;\n        }\n        .subtitle {\n            font-size: 1.5rem;\n            color: rgba(255, 255, 255, 0.9);\n            text-align: center;\n            margin-bottom: 2rem;\n        }\n        .btn {\n            display: inline-block;\n            padding: 12px 32px;\n            background: white;\n            color: #764ba2;\n            border: none;\n            border-radius: 25px;\n            font-size: 1.1rem;\n            font-weight: 600;\n            cursor: pointer;\n            transition: transform 0.2s;\n        }\n        .btn:hover { transform: translateY(-2px); }\n        .screen:not(#welcome-screen) { display: none; }\n        .screen.active { display: block; }\n    ';const t=document.createElement("style");t.textContent=e,t.id="critical-css",document.head.appendChild(t)}();
+    </script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="css/os-analyzer.css" as="style">
+    <link rel="preload" href="js/core/BrowserCompatibility.js" as="script">
+    
+    <!-- Non-critical CSS (loaded asynchronously) -->
+    <link rel="preload" href="css/os-analyzer.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="css/result-visualizer.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="css/accessibility.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="css/os-analyzer.css">
+        <link rel="stylesheet" href="css/result-visualizer.css">
+        <link rel="stylesheet" href="css/accessibility.css">
+    </noscript>
+    
+    <!-- Browser Compatibility Check (Critical) -->
+    <script src="js/core/BrowserCompatibility.js"></script>
+    
+    <!-- Resource hints -->
+    <link rel="dns-prefetch" href="/">
+    <link rel="preconnect" href="/">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+    
+    <!-- Main App Container -->
+    <div id="app">
+        <!-- Welcome Screen (Above the fold) -->
+        <div id="welcome-screen" class="screen active">
+            <div class="container">
+                <h1 class="title">OS Analyzer</h1>
+                <p class="subtitle">あなたの内なる3つのOSを発見する</p>
+                
+                <div class="welcome-content">
+                    <div class="intro-section">
+                        <h2>Triple OS Analysisとは？</h2>
+                        <p>私たちの心は、コンピュータのように3つの異なるOS（オペレーティングシステム）が協調して動作しています。</p>
+                        
+                        <div class="os-cards">
+                            <div class="os-card">
+                                <div class="os-icon engine">⚡</div>
+                                <h3>Engine OS</h3>
+                                <p>創造性・行動力・探求心を司る駆動システム</p>
+                            </div>
+                            
+                            <div class="os-card">
+                                <div class="os-icon interface">🌐</div>
+                                <h3>Interface OS</h3>
+                                <p>コミュニケーション・表現・適応を担うシステム</p>
+                            </div>
+                            
+                            <div class="os-card">
+                                <div class="os-icon safemode">🛡️</div>
+                                <h3>Safe Mode OS</h3>
+                                <p>安定性・受容性・回復力を支えるシステム</p>
+                            </div>
+                        </div>
+                        
+                        <p class="analysis-note">
+                            36の質問を通じて、あなたの3つのOSの特性と相互作用を分析し、
+                            64卦の易経の知恵と現代心理学を融合させた独自の洞察を提供します。
+                        </p>
+                    </div>
+                    
+                    <button id="start-btn" class="btn btn-primary">
+                        分析を始める
+                    </button>
+                    
+                    <p class="time-estimate">所要時間: 約10-15分</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question Screen (Lazy loaded) -->
+        <div id="question-screen" class="screen">
+            <div class="container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                    <span id="progress-text" class="progress-text">0 / 36</span>
+                </div>
+                
+                <div class="question-content">
+                    <div id="question-category" class="question-category"></div>
+                    <h2 id="question-text" class="question-text"></h2>
+                    <div id="options-container" class="options-container"></div>
+                </div>
+                
+                <div class="navigation">
+                    <button id="prev-btn" class="btn btn-secondary" disabled>前へ</button>
+                    <button id="next-btn" class="btn btn-primary" disabled>次へ</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Screen (Lazy loaded) -->
+        <div id="results-screen" class="screen">
+            <div class="container">
+                <h1 class="results-title">あなたのTriple OS分析結果</h1>
+                
+                <div id="hexagram-display" class="hexagram-display"></div>
+                
+                <div class="os-results">
+                    <div class="os-result engine">
+                        <h3>Engine OS</h3>
+                        <div id="engine-os-result"></div>
+                    </div>
+                    
+                    <div class="os-result interface">
+                        <h3>Interface OS</h3>
+                        <div id="interface-os-result"></div>
+                    </div>
+                    
+                    <div class="os-result safemode">
+                        <h3>Safe Mode OS</h3>
+                        <div id="safemode-os-result"></div>
+                    </div>
+                </div>
+                
+                <div id="synergy-analysis" class="synergy-analysis">
+                    <h3>OS間のシナジー分析</h3>
+                    <div id="synergy-content"></div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="results-chart"></canvas>
+                </div>
+                
+                <div class="results-actions">
+                    <button id="restart-btn" class="btn btn-secondary">もう一度分析する</button>
+                    <button id="save-btn" class="btn btn-primary">結果を保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Deferred Scripts -->
+    <script>
+        // Load accessibility module
+        const accessibilityScript = document.createElement('script');
+        accessibilityScript.src = 'js/accessibility.js';
+        accessibilityScript.defer = true;
+        document.body.appendChild(accessibilityScript);
+        
+        // Load non-critical resources after initial paint
+        window.addEventListener('load', function() {
+            // Load Chart.js when needed
+            function loadChartJS() {
+                if (!window.Chart) {
+                    const script = document.createElement('script');
+                    script.src = 'lib/chart.min.js';
+                    script.async = true;
+                    document.body.appendChild(script);
+                }
+            }
+            
+            // Load heavy modules progressively
+            const modules = [
+                'js/StatisticalValidator.js',
+                'js/VirtualPersonaDialogue.js',
+                'js/VirtualPersonaEnhancer.js',
+                'assets/H384H64database.js',
+                'js/core/ExpressionGenerator.js',
+                'js/core/KeywordAnalyzer.js',
+                'js/core/PatternMapper.js',
+                'js/result-visualizer.js',
+                'assets/js/questions-full.js',
+                'assets/js/app.js'
+            ];
+            
+            // Load main application logic first
+            const mainScript = document.createElement('script');
+            mainScript.src = 'js/os-analyzer-main.js';
+            mainScript.defer = true;
+            mainScript.onload = function() {
+                // Then load other modules
+                modules.forEach((src, index) => {
+                    setTimeout(() => {
+                        const script = document.createElement('script');
+                        script.src = src;
+                        script.defer = true;
+                        document.body.appendChild(script);
+                    }, index * 50); // Stagger loading
+                });
+                
+                // Load Chart.js when approaching results
+                setTimeout(loadChartJS, 2000);
+            };
+            document.body.appendChild(mainScript);
+            
+            // Hide loading overlay
+            setTimeout(() => {
+                const overlay = document.querySelector('.loading-overlay');
+                if (overlay) overlay.classList.add('hidden');
+            }, 300);
+        });
+    </script>
+    
+    <!-- Event Handlers -->
+    <script src="js/event-handlers.js" defer></script>
+</body>
+</html>

@@ -23,16 +23,21 @@ class QuestionManager {
     this.displayController = options.displayController || null;
     this.storageManager = options.storageManager || null;
     
+    // v4.3.1 決定論的要件: SeedableRandom統合 (UI版統合)
+    this.rng = options.randomnessManager || window.randomnessManager || null;
+    
     // Event handlers
     this.onProgress = options.onProgress || null;
     this.onComplete = options.onComplete || null;
     this.onError = options.onError || null;
     
-    // Question data management
+    // Question data management (UI版統合: Map使用)
     this.questions = [];
     this.currentQuestionIndex = 0;
-    this.answers = [];
+    this.currentIndex = 0; // UI版互換性
+    this.answers = new Map(); // UI版統合: Map使用
     this.questionStates = new Map();
+    this.renderedQuestions = new Map(); // UI版統合
     
     // Performance tracking
     this.performanceMetrics = {
@@ -175,6 +180,17 @@ class QuestionManager {
       // Use fallback questions
       this.questions = this.getFallbackQuestions();
     }
+  }
+  
+  /**
+   * UI版統合: 質問をシャッフルする（決定論的）
+   */
+  shuffleQuestions(questions) {
+    if (!this.rng) {
+      console.warn('⚠️ RandomnessManager not available, using original order');
+      return questions;
+    }
+    return [...questions].sort(() => this.rng.random() - 0.5);
   }
   
   /**
@@ -350,21 +366,25 @@ class QuestionManager {
     if (Array.isArray(question.options)) {
       // Array format options
       question.options.forEach((option, index) => {
+        const questionName = `q${this.currentQuestionIndex + 1}`;
         html += `
-          <button class="option-button" data-value="${option.value}" data-index="${index}">
-            <span class="option-label">${option.value}</span>
+          <label class="option-label" data-value="${option.value}" data-index="${index}">
+            <input type="radio" name="${questionName}" value="${option.value}" style="display: none;">
+            <span class="option-indicator">${option.value}</span>
             <span class="option-text">${this.escapeHtml(option.text)}</span>
-          </button>
+          </label>
         `;
       });
     } else if (typeof question.options === 'object') {
       // Object format options
       Object.entries(question.options).forEach(([key, text]) => {
+        const questionName = `q${this.currentQuestionIndex + 1}`;
         html += `
-          <button class="option-button" data-value="${key}">
-            <span class="option-label">${key}</span>
+          <label class="option-label" data-value="${key}">
+            <input type="radio" name="${questionName}" value="${key}" style="display: none;">
+            <span class="option-indicator">${key}</span>
             <span class="option-text">${this.escapeHtml(text)}</span>
-          </button>
+          </label>
         `;
       });
     }
@@ -391,10 +411,15 @@ class QuestionManager {
    */
   bindQuestionEvents(element, question) {
     // Option selection
-    const optionButtons = element.querySelectorAll('.option-button');
-    optionButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        this.selectOption(question.id, button.dataset.value);
+    const optionLabels = element.querySelectorAll('.option-label');
+    optionLabels.forEach(label => {
+      label.addEventListener('click', () => {
+        // Update radio button state
+        const radioInput = label.querySelector('input[type="radio"]');
+        if (radioInput) {
+          radioInput.checked = true;
+        }
+        this.selectOption(question.id, label.dataset.value);
       });
     });
     
@@ -412,41 +437,80 @@ class QuestionManager {
   }
   
   /**
-   * Select an option
+   * Select an option (Core版 + UI版統合)
    */
   selectOption(questionId, value) {
     console.log(`📝 Option selected: ${questionId} = ${value}`);
     
-    // Store answer
-    this.answers[this.currentQuestionIndex] = {
+    // Store answer (UI版統合: Map使用)
+    const answerData = {
       questionId: questionId,
       value: value,
       timestamp: Date.now()
     };
     
+    this.answers.set(questionId, answerData);
+    // 互換性のため配列形式も保持
+    this.answers[this.currentQuestionIndex] = answerData;
+    
     // Update UI
-    const activeButton = this.container.querySelector(`[data-value="${value}"]`);
-    if (activeButton) {
+    const activeLabel = this.container.querySelector(`[data-value="${value}"]`);
+    if (activeLabel) {
       // Remove previous selections
-      this.container.querySelectorAll('.option-button').forEach(btn => {
-        btn.classList.remove('selected');
+      this.container.querySelectorAll('.option-label').forEach(label => {
+        label.classList.remove('selected');
+        const radioInput = label.querySelector('input[type="radio"]');
+        if (radioInput) {
+          radioInput.checked = false;
+        }
       });
       
       // Mark current selection
-      activeButton.classList.add('selected');
+      activeLabel.classList.add('selected');
+      const radioInput = activeLabel.querySelector('input[type="radio"]');
+      if (radioInput) {
+        radioInput.checked = true;
+      }
     }
     
     // Save progress
     this.saveProgress();
     
-    // Auto-advance after selection (optional)
-    setTimeout(() => {
-      if (this.currentQuestionIndex < this.questions.length - 1) {
-        this.nextQuestion();
+    // Show confirmation and next button instead of auto-advance
+    this.showSelectionConfirmation();
+  }
+  
+  /**
+   * UI版統合: 特定の質問にジャンプ
+   */
+  async jumpToQuestion(index) {
+    if (index >= 0 && index < this.questions.length) {
+      this.currentQuestionIndex = index;
+      this.currentIndex = index; // UI版互換性
+      await this.showCurrentQuestion();
+    }
+  }
+  
+  /**
+   * Show confirmation after selection
+   */
+  showSelectionConfirmation() {
+    const navigationContainer = this.container.querySelector('.question-navigation');
+    if (!navigationContainer) return;
+    
+    const nextButton = navigationContainer.querySelector('.next-button');
+    if (nextButton) {
+      nextButton.classList.remove('disabled');
+      nextButton.disabled = false;
+      nextButton.style.backgroundColor = '#10b981'; // Green to indicate ready
+      nextButton.style.animation = 'pulse 1s ease-in-out';
+      
+      if (this.currentQuestionIndex === this.questions.length - 1) {
+        nextButton.textContent = '結果を見る';
       } else {
-        this.completeQuestions();
+        nextButton.textContent = '次の質問へ';
       }
-    }, 500);
+    }
   }
   
   /**

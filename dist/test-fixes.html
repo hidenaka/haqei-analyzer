@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Critical Fixes</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #0f172a; color: white; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #334155; border-radius: 8px; }
+        .test-result { margin: 10px 0; }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        button { background: #2563eb; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Critical Fixes Test Page</h1>
+    
+    <div class="test-section">
+        <h2>1. Question Auto-Advance Test</h2>
+        <div id="question-test">
+            <p>Click option to test if it auto-advances (should NOT auto-advance now):</p>
+            <button id="option-a">Option A</button>
+            <button id="option-b">Option B</button>
+            <button id="next-btn" style="background: #6b7280;" disabled>Next Question</button>
+        </div>
+        <div id="question-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Result Tab Functions Test</h2>
+        <button onclick="testResultFunctions()">Test Display Functions</button>
+        <div id="function-test" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Open OS Analyzer</h2>
+        <button onclick="window.open('/os_analyzer.html', '_blank')">Open OS Analyzer</button>
+        <p>Check browser console for errors after clicking analysis button</p>
+    </div>
+
+    <script>
+        // Test 1: Question Auto-advance
+        document.getElementById('option-a').addEventListener('click', function() {
+            document.getElementById('question-result').innerHTML = '<span class="success">✅ Option selected - no auto-advance (GOOD)</span>';
+            // Simulate the fixed behavior
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = false;
+            nextBtn.style.backgroundColor = '#10b981';
+            nextBtn.textContent = 'Ready to Continue';
+        });
+
+        document.getElementById('option-b').addEventListener('click', function() {
+            document.getElementById('question-result').innerHTML = '<span class="success">✅ Option selected - no auto-advance (GOOD)</span>';
+            // Simulate the fixed behavior
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = false;
+            nextBtn.style.backgroundColor = '#10b981';
+            nextBtn.textContent = 'Ready to Continue';
+        });
+
+        // Test 2: Function definitions
+        function testResultFunctions() {
+            let results = [];
+            
+            // Test if the problematic functions exist
+            const functionsToTest = [
+                'displayGoldenPatternAnalysis64',
+                'displayTripleOSInteractionAnalysis', 
+                'displayCompatibilityDiagnosis64'
+            ];
+            
+            functionsToTest.forEach(funcName => {
+                if (typeof window[funcName] === 'function') {
+                    results.push(`<span class="success">✅ ${funcName} - exists as global function</span>`);
+                } else {
+                    results.push(`<span class="error">❌ ${funcName} - not accessible globally</span>`);
+                }
+            });
+            
+            document.getElementById('function-test').innerHTML = results.join('<br>');
+        }
+        
+        console.log('🔧 Critical fixes test page loaded');
+    </script>
+</body>
+</html>

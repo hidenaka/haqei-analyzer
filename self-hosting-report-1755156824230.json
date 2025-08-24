@@ -1,0 +1,34 @@
+{
+  "timestamp": "2025-08-14T07:33:44.225Z",
+  "testSuite": "Self-Hosting Test (T09)",
+  "passed": 5,
+  "failed": 0,
+  "details": [
+    {
+      "test": "Chart.js",
+      "path": "public/lib/chart.min.js",
+      "passed": true
+    },
+    {
+      "test": "No CDN References",
+      "foundCDNs": [],
+      "passed": true
+    },
+    {
+      "test": "CSP No CDN",
+      "passed": true
+    },
+    {
+      "test": "File Sizes",
+      "totalSize": 205222,
+      "passed": true
+    },
+    {
+      "test": "HTML References",
+      "references": {
+        "Chart.js local": true
+      },
+      "passed": true
+    }
+  ]
+}

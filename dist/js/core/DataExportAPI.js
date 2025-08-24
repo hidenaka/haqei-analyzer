@@ -1,1 +1,231 @@
-console.log("📊 DataExportAPI Loading..."),window.DataExportAPI={init(){console.log("🔧 DataExportAPI initializing..."),this.setupExportMethods(),this.validateStorageAccess(),console.log("✅ DataExportAPI initialized successfully")},setupExportMethods(){this.exportFormats={json:this.exportAsJSON.bind(this),csv:this.exportAsCSV.bind(this),text:this.exportAsText.bind(this),iching:this.exportAsIChingFormat.bind(this)}},validateStorageAccess(){try{const e="_dataexport_test";localStorage.setItem(e,"test"),localStorage.removeItem(e),this.storageAvailable=!0}catch(e){console.warn("⚠️ LocalStorage not available, using memory storage"),this.storageAvailable=!1,this.memoryStorage=new Map}},exportAsIChingFormat(e){const t={timestamp:(new Date).toISOString(),hexagram:e.hexagram||"乾",analysis:e.analysis||{},scenarios:e.scenarios||[],haqei_philosophy:{harmony:this.calculateHarmonyIndex(e),balance:this.calculateBalanceScore(e),wisdom:this.extractWisdomElements(e)}};return this.generateDownload(JSON.stringify(t,null,2),"haqei-iching-analysis.json","application/json")},exportAsJSON(e){const t={...e,exported_at:(new Date).toISOString(),format_version:"1.0",haqei_signature:this.generateHaQeiSignature(e)};return this.generateDownload(JSON.stringify(t,null,2),"haqei-analysis.json","application/json")},exportAsCSV(e){const t=this.convertToCSV(e);return this.generateDownload(t,"haqei-analysis.csv","text/csv")},exportAsText(e){const t=this.convertToText(e);return this.generateDownload(t,"haqei-analysis.txt","text/plain")},convertToCSV(e){let t="Category,Value,Timestamp\n";return e.hexagram&&(t+=`Hexagram,${e.hexagram},${(new Date).toISOString()}\n`),e.scenarios&&e.scenarios.forEach((e,a)=>{t+=`Scenario ${a+1},"${e.replace(/"/g,'""')}",${(new Date).toISOString()}\n`}),e.analysis&&Object.entries(e.analysis).forEach(([e,a])=>{t+=`${e},"${String(a).replace(/"/g,'""')}",${(new Date).toISOString()}\n`}),t},convertToText(e){let t="=== HAQEI Analysis Report ===\n\n";return t+=`Generated: ${(new Date).toLocaleString("ja-JP")}\n\n`,e.hexagram&&(t+=`易経卦象: ${e.hexagram}\n\n`),e.scenarios&&(t+="--- 8つのシナリオ ---\n",e.scenarios.forEach((e,a)=>{t+=`${a+1}. ${e}\n`}),t+="\n"),e.analysis&&(t+="--- 分析結果 ---\n",Object.entries(e.analysis).forEach(([e,a])=>{t+=`${e}: ${a}\n`})),t+="\n--- HaQei Philosophy Signature ---\n",t+=this.generateHaQeiSignature(e),t},generateDownload(e,t,a){try{const n=new Blob([e],{type:a}),o=URL.createObjectURL(n),r=document.createElement("a");return r.href=o,r.download=t,document.body.appendChild(r),r.click(),document.body.removeChild(r),URL.revokeObjectURL(o),console.log(`✅ Data exported as ${t}`),!0}catch(n){return console.error("❌ Export failed:",n),!1}},generateHaQeiSignature(e){const t=this.calculateHarmonyIndex(e),a=this.calculateBalanceScore(e),n=this.extractWisdomElements(e);return`Harmony: ${t.toFixed(2)} | Balance: ${a.toFixed(2)} | Wisdom Elements: ${n.length}`},calculateHarmonyIndex(e){let t=.5;return e.scenarios&&8===e.scenarios.length&&(t+=.2),e.analysis&&Object.keys(e.analysis).length>0&&(t+=.2),e.hexagram&&(t+=.1),Math.min(t,1)},calculateBalanceScore(e){const t=[e.scenarios?.length||0,Object.keys(e.analysis||{}).length,e.hexagram?1:0],a=this.calculateVariance(t);return Math.max(0,1-a/10)},calculateVariance(e){const t=e.reduce((e,t)=>e+t,0)/e.length;return e.reduce((e,a)=>e+Math.pow(a-t,2),0)/e.length},extractWisdomElements(e){const t=[];return e.hexagram&&t.push("hexagram_wisdom"),e.scenarios?.length>=8&&t.push("complete_scenarios"),e.analysis?.depth>.7&&t.push("deep_analysis"),t},async exportData(e,t="json"){if(!this.exportFormats[t])return console.error(`❌ Unsupported format: ${t}`),!1;try{return await this.exportFormats[t](e)}catch(a){return console.error("❌ Export error:",a),!1}}},document.addEventListener("DOMContentLoaded",()=>{window.DataExportAPI.init()}),console.log("✅ DataExportAPI loaded successfully");
+/**
+ * DataExportAPI - HaQei哲学準拠データエクスポートシステム
+ * Triple OS Architecture準拠の安全なデータ出力機能
+ */
+
+console.log('📊 DataExportAPI Loading...');
+
+window.DataExportAPI = {
+  // Triple OS Architecture準拠の初期化
+  init() {
+    console.log('🔧 DataExportAPI initializing...');
+    this.setupExportMethods();
+    this.validateStorageAccess();
+    console.log('✅ DataExportAPI initialized successfully');
+  },
+
+  // HaQei理論に基づく調和的データエクスポート
+  setupExportMethods() {
+    this.exportFormats = {
+      json: this.exportAsJSON.bind(this),
+      csv: this.exportAsCSV.bind(this),
+      text: this.exportAsText.bind(this),
+      iching: this.exportAsIChingFormat.bind(this)
+    };
+  },
+
+  // ストレージアクセス検証（Safe Mode準拠）
+  validateStorageAccess() {
+    try {
+      const testKey = '_dataexport_test';
+      localStorage.setItem(testKey, 'test');
+      localStorage.removeItem(testKey);
+      this.storageAvailable = true;
+    } catch (e) {
+      console.warn('⚠️ LocalStorage not available, using memory storage');
+      this.storageAvailable = false;
+      this.memoryStorage = new Map();
+    }
+  },
+
+  // 易経卦象データとしてエクスポート
+  exportAsIChingFormat(data) {
+    const ichingData = {
+      timestamp: new Date().toISOString(),
+      hexagram: data.hexagram || '乾',
+      analysis: data.analysis || {},
+      scenarios: data.scenarios || [],
+      haqei_philosophy: {
+        harmony: this.calculateHarmonyIndex(data),
+        balance: this.calculateBalanceScore(data),
+        wisdom: this.extractWisdomElements(data)
+      }
+    };
+
+    return this.generateDownload(JSON.stringify(ichingData, null, 2), 'haqei-iching-analysis.json', 'application/json');
+  },
+
+  // JSON形式エクスポート
+  exportAsJSON(data) {
+    const exportData = {
+      ...data,
+      exported_at: new Date().toISOString(),
+      format_version: '1.0',
+      haqei_signature: this.generateHaQeiSignature(data)
+    };
+
+    return this.generateDownload(JSON.stringify(exportData, null, 2), 'haqei-analysis.json', 'application/json');
+  },
+
+  // CSV形式エクスポート
+  exportAsCSV(data) {
+    const csvData = this.convertToCSV(data);
+    return this.generateDownload(csvData, 'haqei-analysis.csv', 'text/csv');
+  },
+
+  // テキスト形式エクスポート
+  exportAsText(data) {
+    const textData = this.convertToText(data);
+    return this.generateDownload(textData, 'haqei-analysis.txt', 'text/plain');
+  },
+
+  // CSVデータ変換
+  convertToCSV(data) {
+    let csv = 'Category,Value,Timestamp\n';
+    
+    if (data.hexagram) csv += `Hexagram,${data.hexagram},${new Date().toISOString()}\n`;
+    if (data.scenarios) {
+      data.scenarios.forEach((scenario, index) => {
+        csv += `Scenario ${index + 1},"${scenario.replace(/"/g, '""')}",${new Date().toISOString()}\n`;
+      });
+    }
+    if (data.analysis) {
+      Object.entries(data.analysis).forEach(([key, value]) => {
+        csv += `${key},"${String(value).replace(/"/g, '""')}",${new Date().toISOString()}\n`;
+      });
+    }
+
+    return csv;
+  },
+
+  // テキストデータ変換
+  convertToText(data) {
+    let text = '=== HAQEI Analysis Report ===\n\n';
+    text += `Generated: ${new Date().toLocaleString('ja-JP')}\n\n`;
+    
+    if (data.hexagram) {
+      text += `易経卦象: ${data.hexagram}\n\n`;
+    }
+    
+    if (data.scenarios) {
+      text += '--- 8つのシナリオ ---\n';
+      data.scenarios.forEach((scenario, index) => {
+        text += `${index + 1}. ${scenario}\n`;
+      });
+      text += '\n';
+    }
+    
+    if (data.analysis) {
+      text += '--- 分析結果 ---\n';
+      Object.entries(data.analysis).forEach(([key, value]) => {
+        text += `${key}: ${value}\n`;
+      });
+    }
+
+    text += '\n--- HaQei Philosophy Signature ---\n';
+    text += this.generateHaQeiSignature(data);
+
+    return text;
+  },
+
+  // ダウンロード生成
+  generateDownload(content, filename, mimeType) {
+    try {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      console.log(`✅ Data exported as ${filename}`);
+      return true;
+    } catch (error) {
+      console.error('❌ Export failed:', error);
+      return false;
+    }
+  },
+
+  // HaQei哲学署名生成
+  generateHaQeiSignature(data) {
+    const harmony = this.calculateHarmonyIndex(data);
+    const balance = this.calculateBalanceScore(data);
+    const wisdom = this.extractWisdomElements(data);
+    
+    return `Harmony: ${harmony.toFixed(2)} | Balance: ${balance.toFixed(2)} | Wisdom Elements: ${wisdom.length}`;
+  },
+
+  // 調和指数計算
+  calculateHarmonyIndex(data) {
+    let harmonyScore = 0.5; // 基準値
+    
+    if (data.scenarios && data.scenarios.length === 8) {
+      harmonyScore += 0.2; // 完全な8卦システム
+    }
+    
+    if (data.analysis && Object.keys(data.analysis).length > 0) {
+      harmonyScore += 0.2; // 分析の深度
+    }
+    
+    if (data.hexagram) {
+      harmonyScore += 0.1; // 易経統合
+    }
+    
+    return Math.min(harmonyScore, 1.0);
+  },
+
+  // バランススコア計算
+  calculateBalanceScore(data) {
+    const elements = [
+      data.scenarios?.length || 0,
+      Object.keys(data.analysis || {}).length,
+      data.hexagram ? 1 : 0
+    ];
+    
+    const variance = this.calculateVariance(elements);
+    return Math.max(0, 1 - variance / 10); // 分散を逆転してスコア化
+  },
+
+  // 分散計算
+  calculateVariance(arr) {
+    const mean = arr.reduce((sum, val) => sum + val, 0) / arr.length;
+    return arr.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / arr.length;
+  },
+
+  // 知恵要素抽出
+  extractWisdomElements(data) {
+    const wisdomElements = [];
+    
+    if (data.hexagram) wisdomElements.push('hexagram_wisdom');
+    if (data.scenarios?.length >= 8) wisdomElements.push('complete_scenarios');
+    if (data.analysis?.depth > 0.7) wisdomElements.push('deep_analysis');
+    
+    return wisdomElements;
+  },
+
+  // 公開APIメソッド
+  async exportData(data, format = 'json') {
+    if (!this.exportFormats[format]) {
+      console.error(`❌ Unsupported format: ${format}`);
+      return false;
+    }
+    
+    try {
+      return await this.exportFormats[format](data);
+    } catch (error) {
+      console.error('❌ Export error:', error);
+      return false;
+    }
+  }
+};
+
+// 自動初期化（DOMContentLoadedで）
+document.addEventListener('DOMContentLoaded', () => {
+  window.DataExportAPI.init();
+});
+
+console.log('✅ DataExportAPI loaded successfully');

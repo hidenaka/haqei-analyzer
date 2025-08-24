@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>64卦マトリクス方向テスト</title>
+</head>
+<body>
+    <h1>64卦マトリクス方向検証</h1>
+    <pre id="output"></pre>
+
+    <script>
+        // 現在のマトリクス（問題のあるもの）
+        const MATRIX = [
+            [1,  43, 14, 34,  9,  5, 26, 11],  // 行0
+            [10, 58, 38, 54, 61, 60, 41, 19],  // 行1
+            [13, 49, 30, 55, 37, 63, 22, 36],  // 行2
+            [25, 17, 21, 51, 42,  3, 27, 24],  // 行3
+            [44, 28, 50, 32, 57, 48, 18, 46],  // 行4
+            [6,  47, 64, 40, 59, 29,  4,  7],  // 行5
+            [33, 31, 56, 62, 53, 39, 52, 15],  // 行6
+            [12, 45, 35, 16, 20,  8, 23,  2]   // 行7
+        ];
+        
+        const BAGUA_ORDER = ["乾", "兌", "離", "震", "巽", "坎", "艮", "坤"];
+        
+        function getHexagramId(upperBagua, lowerBagua) {
+            const upperIndex = BAGUA_ORDER.indexOf(upperBagua);
+            const lowerIndex = BAGUA_ORDER.indexOf(lowerBagua);
+            return MATRIX[upperIndex][lowerIndex];
+        }
+        
+        let output = "=== 現在の実装テスト ===\n\n";
+        
+        // 専門家が指摘した重要なテストケース
+        const criticalTests = [
+            ["乾", "乾", 1, "乾為天"],
+            ["乾", "坎", 6, "天水訟"],
+            ["坎", "乾", 5, "水天需"],
+            ["乾", "離", 13, "天火同人"],  // ここが問題！
+            ["離", "乾", 14, "火天大有"]   // ここが問題！
+        ];
+        
+        output += "【現在の実装】matrix[upperIndex][lowerIndex]\n\n";
+        
+        criticalTests.forEach(([upper, lower, expected, name]) => {
+            const actual = getHexagramId(upper, lower);
+            const status = actual === expected ? "✅" : "❌";
+            output += `${status} ${upper}/${lower} = #${actual} (期待: #${expected} ${name})\n`;
+        });
+        
+        output += "\n【問題の確認】\n";
+        output += "乾=0, 離=2 なので:\n";
+        output += `MATRIX[0][2] = ${MATRIX[0][2]} (現在は14が入っている)\n`;
+        output += `MATRIX[2][0] = ${MATRIX[2][0]} (現在は13が入っている)\n`;
+        output += "\n";
+        
+        // 正しい期待値
+        output += "【正しい期待値】\n";
+        output += "天火同人 (#13) = 上:乾(天)/下:離(火) → MATRIX[乾][離] = MATRIX[0][2] = 13であるべき\n";
+        output += "火天大有 (#14) = 上:離(火)/下:乾(天) → MATRIX[離][乾] = MATRIX[2][0] = 14であるべき\n";
+        output += "\n";
+        
+        output += "【結論】\n";
+        output += "現在のマトリクス配列は実際には [下卦][上卦] の順序になっている！\n";
+        output += "修正方法:\n";
+        output += "1. マトリクスを転置する\n";
+        output += "2. または getHexagramId で matrix[lowerIndex][upperIndex] とする\n";
+        
+        document.getElementById('output').textContent = output;
+    </script>
+</body>
+</html>

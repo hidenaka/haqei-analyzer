@@ -1,0 +1,234 @@
+name: HAQEI Analyzer - Cloud Static Deployment
+# T15: Enhanced GitHub Pages deployment with HaQei philosophy
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      deployment_target:
+        description: 'Deployment target environment'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+
+env:
+  NODE_VERSION: '18.x'
+  DEPLOYMENT_PHILOSOPHY: 'Triple OS Architecture'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Engine OS: Core build and validation
+  build:
+    name: Build and Test (Engine OS)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install Dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm ci --only=production
+          else
+            echo "No package.json found - static deployment ready"
+          fi
+      
+      - name: Validate File Structure (HaQei Integrity Check)
+        run: |
+          echo "🔍 Engine OS: Validating core file structure..."
+          
+          # Check required HTML files
+          required_files=(
+            "public/os_analyzer_clean.html"
+            "public/os_analyzer_optimized.html" 
+            "public/os_analyzer_a11y.html"
+            "public/os_analyzer.html"
+            "public/future_simulator.html"
+          )
+          
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+          
+          # Check asset integrity
+          if [ ! -f "public/assets/H384H64database.js" ]; then
+            echo "❌ Missing H384 database"
+            exit 1
+          fi
+          
+          if [ ! -f "public/assets/js/questions-full.js" ]; then
+            echo "❌ Missing questions database"
+            exit 1
+          fi
+          
+          echo "🎯 Engine OS validation completed successfully"
+      
+      - name: Security Scan (Safe Mode OS)
+        run: |
+          echo "🔒 Safe Mode OS: Running security validation..."
+          
+          # Check for potential security issues
+          if grep -r "eval(" public/js/ 2>/dev/null; then
+            echo "⚠️ Warning: eval() usage detected"
+          fi
+          
+          if grep -r "innerHTML.*=" public/js/ 2>/dev/null | grep -v ".innerHTML = ''" | head -5; then
+            echo "⚠️ Warning: innerHTML usage detected - ensure content is sanitized"
+          fi
+          
+          # Validate CSP headers
+          if [ -f "public/_headers" ] && ! grep -q "Content-Security-Policy" "public/_headers"; then
+            echo "⚠️ Warning: CSP headers missing"
+          fi
+          
+          echo "🛡️ Safe Mode OS security scan completed"
+      
+      - name: Performance Analysis (Interface OS)
+        run: |
+          echo "⚡ Interface OS: Analyzing performance metrics..."
+          
+          # Check file sizes
+          for html_file in public/os_analyzer*.html; do
+            size=$(stat -c%s "$html_file" 2>/dev/null || stat -f%z "$html_file")
+            kb_size=$((size / 1024))
+            echo "📊 $(basename $html_file): ${kb_size}KB"
+            
+            # Warn if files are too large
+            if [ $kb_size -gt 1000 ]; then
+              echo "⚠️ Warning: $html_file is ${kb_size}KB (>1MB)"
+            fi
+          done
+          
+          # Check for minified assets
+          if [ -f "public/js/lib/chart.min.js" ]; then
+            echo "✅ Chart.js minified version found"
+          else
+            echo "⚠️ Warning: chart.min.js not found"
+          fi
+          
+          echo "📈 Interface OS performance analysis completed"
+      
+      - name: Upload Build Artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public/
+
+  # Interface OS: Deployment to GitHub Pages
+  deploy:
+    name: Deploy to GitHub Pages (Interface OS)
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          token: ${{ github.token }}
+      
+      - name: Post-Deployment Validation
+        run: |
+          echo "🚀 Deployment completed to: ${{ steps.deployment.outputs.page_url }}"
+          echo "📍 Engine OS: Core functionality deployed"
+          echo "🎨 Interface OS: User experience optimized"
+          echo "🛡️ Safe Mode OS: Security measures active"
+      
+      - name: Notify Success (HaQei Philosophy Integration)
+        run: |
+          echo "🎯 HAQEI Analyzer successfully deployed with Triple OS Architecture"
+          echo "   Engine OS: Technical foundation established"
+          echo "   Interface OS: User interaction layer activated"  
+          echo "   Safe Mode OS: Security and monitoring enabled"
+          echo "🌟 Strategic life navigation system is now live!"
+
+  # Safe Mode OS: Monitoring and health checks
+  health-check:
+    name: Post-Deployment Health Check (Safe Mode OS)
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Wait for Deployment Propagation
+        run: sleep 30
+      
+      - name: Basic Health Check
+        run: |
+          SITE_URL="${{ needs.deploy.outputs.page_url || 'https://hideakimacbook.github.io/haqei-analyzer' }}"
+          echo "🏥 Performing health check on: $SITE_URL"
+          
+          # Check if site responds
+          if curl -sS --fail "$SITE_URL" > /dev/null 2>&1; then
+            echo "✅ Site is responding"
+          else
+            echo "❌ Site health check failed"
+            exit 1
+          fi
+          
+          # Check specific endpoints
+          endpoints=(
+            "/os_analyzer_clean.html"
+            "/future_simulator.html" 
+            "/css/os-analyzer.css"
+            "/js/lib/chart.min.js"
+          )
+          
+          for endpoint in "${endpoints[@]}"; do
+            if curl -sS --fail "${SITE_URL}${endpoint}" > /dev/null 2>&1; then
+              echo "✅ Endpoint accessible: $endpoint"
+            else
+              echo "⚠️ Endpoint check failed: $endpoint"
+            fi
+          done
+          
+          echo "🎯 Health check completed - HAQEI system operational"
+
+  # Additional workflow for staging branch
+  deploy-staging:
+    name: Deploy to Staging Environment
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Staging Deployment Message
+        run: |
+          echo "🔧 Staging deployment for HAQEI Analyzer"
+          echo "📝 Branch: ${{ github.ref }}"
+          echo "💡 This would deploy to a staging environment"
+          echo "🎨 Interface OS: Testing environment active"

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI - 包括的結果画面モックアップ</title>
+    <style>
+        /* ==========================================================================
+           HAQEI 包括的改善版デザイン - V3データベースフル活用
+           ========================================================================== */
+        
+        :root {
+            /* カラーパレット */
+            --primary-blue: #3b82f6;
+            --primary-blue-dark: #2563eb;
+            --secondary-blue: #6366f1;
+            --light-blue: #dbeafe;
+            --very-light-blue: #f0f9ff;
+            
+            /* Engine OS カラー */
+            --engine-color: #f59e0b;
+            --engine-light: #fef3c7;
+            --engine-dark: #d97706;
+            
+            /* Interface OS カラー */
+            --interface-color: #10b981;
+            --interface-light: #d1fae5;
+            --interface-dark: #059669;
+            
+            /* SafeMode OS カラー */
+            --safemode-color: #8b5cf6;
+            --safemode-light: #e9d5ff;
+            --safemode-dark: #7c3aed;
+            
+            /* グレースケール */
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #374151;
+            --gray-700: #1f2937;
+            --gray-900: #030712;
+            
+            /* スペーシング */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 0.75rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            
+            /* シャドウ */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-900);
+            background: var(--gray-50);
+            margin: 0;
+            padding: var(--spacing-lg);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        /* ヘッダー */
+        .header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: white;
+            padding: var(--spacing-xl);
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0 0 var(--spacing-sm) 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* メインコンテンツ */
+        .main-content {
+            padding: var(--spacing-xl);
+        }
+
+        /* Triple OS 概念説明 */
+        .triple-os-explanation {
+            background: linear-gradient(135deg, var(--very-light-blue) 0%, var(--light-blue) 100%);
+            border-radius: 12px;
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .explanation-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .os-concepts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .os-concept {
+            background: var(--white);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .os-concept.engine {
+            border-left: 4px solid var(--engine-color);
+        }
+
+        .os-concept.interface {
+            border-left: 4px solid var(--interface-color);
+        }
+
+        .os-concept.safemode {
+            border-left: 4px solid var(--safemode-color);
+        }
+
+        .concept-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .concept-icon {
+            font-size: 1.5rem;
+        }
+
+        .concept-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .concept-desc {
+            font-size: 0.95rem;
+            color: var(--gray-600);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* ===== メイン要約セクション ===== */
+        .primary-summary {
+            background: var(--very-light-blue);
+            border-radius: 12px;
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .four-line-summary {
+            background: var(--white);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .summary-line {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-sm);
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .summary-line:hover {
+            background: var(--gray-50);
+        }
+
+        .line-number {
+            background: var(--primary-blue);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .summary-line p {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* ===== Triple OS 詳細カード ===== */
+        .os-detailed-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .os-detail-card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .os-detail-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .os-detail-card.engine {
+            border-top: 4px solid var(--engine-color);
+        }
+
+        .os-detail-card.interface {
+            border-top: 4px solid var(--interface-color);
+        }
+
+        .os-detail-card.safemode {
+            border-top: 4px solid var(--safemode-color);
+        }
+
+        .os-card-header {
+            padding: var(--spacing-lg);
+            background: var(--gray-50);
+        }
+
+        .os-card-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .os-name-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .os-emoji {
+            font-size: 2rem;
+        }
+
+        .os-info h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .os-nickname {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            font-style: italic;
+        }
+
+        .os-score-badge {
+            background: var(--primary-blue);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .engine .os-score-badge {
+            background: var(--engine-color);
+        }
+
+        .interface .os-score-badge {
+            background: var(--interface-color);
+        }
+
+        .safemode .os-score-badge {
+            background: var(--safemode-color);
+        }
+
+        .hexagram-display {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            background: var(--white);
+            padding: var(--spacing-sm);
+            border-radius: 6px;
+            margin-top: var(--spacing-sm);
+        }
+
+        .hexagram-symbol {
+            font-size: 1.5rem;
+        }
+
+        .hexagram-name {
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .os-card-content {
+            padding: var(--spacing-lg);
+        }
+
+        .os-mode-section {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .os-mode-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .mode-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: var(--spacing-sm);
+            font-size: 1rem;
+        }
+
+        .mode-description {
+            color: var(--gray-700);
+            margin-bottom: var(--spacing-sm);
+            line-height: 1.5;
+        }
+
+        .mode-example {
+            background: var(--gray-50);
+            border-left: 3px solid var(--primary-blue);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            border-radius: 0 4px 4px 0;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .engine .mode-example {
+            border-left-color: var(--engine-color);
+        }
+
+        .interface .mode-example {
+            border-left-color: var(--interface-color);
+        }
+
+        .safemode .mode-example {
+            border-left-color: var(--safemode-color);
+        }
+
+        .energy-level {
+            background: var(--gray-50);
+            border-radius: 4px;
+            padding: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .energy-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 0.25rem;
+        }
+
+        .energy-description {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            line-height: 1.4;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border-left: 3px solid #f59e0b;
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 0.9rem;
+            color: #92400e;
+            border-radius: 0 4px 4px 0;
+            margin-top: var(--spacing-sm);
+        }
+
+        .tip-box {
+            background: var(--interface-light);
+            border-left: 3px solid var(--interface-color);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 0.9rem;
+            color: var(--interface-dark);
+            border-radius: 0 4px 4px 0;
+            margin-top: var(--spacing-sm);
+        }
+
+        /* バランス分析 */
+        .balance-analysis {
+            background: var(--gray-50);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+        }
+
+        .balance-title {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-lg);
+            color: var(--gray-900);
+        }
+
+        .balance-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .balance-bar {
+            height: 8px;
+            border-radius: 4px;
+            display: flex;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .balance-segment {
+            height: 100%;
+        }
+
+        .balance-segment.engine {
+            background: var(--engine-color);
+        }
+
+        .balance-segment.interface {
+            background: var(--interface-color);
+        }
+
+        .balance-segment.safemode {
+            background: var(--safemode-color);
+        }
+
+        .balance-legend {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .balance-description {
+            text-align: center;
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            body {
+                padding: var(--spacing-md);
+            }
+            
+            .header {
+                padding: var(--spacing-lg);
+            }
+            
+            .main-content {
+                padding: var(--spacing-lg);
+            }
+            
+            .os-concepts {
+                grid-template-columns: 1fr;
+            }
+            
+            .os-detailed-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <h1>🎯 あなたの人格分析結果</h1>
+            <p class="subtitle">Triple OS システム - 完全分析レポート</p>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- Triple OS 概念説明 -->
+            <section class="triple-os-explanation">
+                <h2 class="explanation-title">
+                    <span>🔍</span>
+                    Triple OS システムとは？
+                </h2>
+                <div class="os-concepts">
+                    <div class="os-concept engine">
+                        <div class="concept-header">
+                            <span class="concept-icon">🔧</span>
+                            <h3 class="concept-title">Engine OS</h3>
+                        </div>
+                        <p class="concept-desc">あなたの内側にある「動機・価値観システム」。何に情熱を感じ、どんな時にエネルギーが湧くか、何を大切にして生きているかを表します。</p>
+                    </div>
+                    <div class="os-concept interface">
+                        <div class="concept-header">
+                            <span class="concept-icon">🔗</span>
+                            <h3 class="concept-title">Interface OS</h3>
+                        </div>
+                        <p class="concept-desc">あなたの「社会との関わり方システム」。他の人とどうコミュニケーションを取り、どんな環境で力を発揮し、どう人間関係を築くかを表します。</p>
+                    </div>
+                    <div class="os-concept safemode">
+                        <div class="concept-header">
+                            <span class="concept-icon">🛡️</span>
+                            <h3 class="concept-title">SafeMode OS</h3>
+                        </div>
+                        <p class="concept-desc">あなたの「危機対処・回復システム」。ストレスを感じた時やピンチの時にどう対応し、どうやって回復するかを表します。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== メイン要約セクション ===== -->
+            <section class="primary-summary">
+                <h2 class="section-title">
+                    <span>🏆</span>
+                    あなたの特性　4行要約
+                </h2>
+
+                <!-- 4行要約 -->
+                <div class="four-line-summary">
+                    <div class="summary-line">
+                        <span class="line-number">1</span>
+                        <p>あなたは創造的で革新的なアイデアを生み出すことに長けており、新しい挑戦を恐れない探究心旺盛な性格です。</p>
+                    </div>
+                    <div class="summary-line">
+                        <span class="line-number">2</span>
+                        <p>社会的な場面では明るく楽観的で、周囲の人を元気づける自然な魅力を持っています。</p>
+                    </div>
+                    <div class="summary-line">
+                        <span class="line-number">3</span>
+                        <p>困難な状況では、周囲を支えながら調和を保とうとする、思いやり深い対処をします。</p>
+                    </div>
+                    <div class="summary-line">
+                        <span class="line-number">4</span>
+                        <p>革新・喜び・支援のバランスが取れた、チームに貢献できるリーダータイプです。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== Triple OS 詳細分析カード ===== -->
+            <section class="os-detailed-cards">
+                <!-- Engine OS詳細カード -->
+                <div class="os-detail-card engine">
+                    <div class="os-card-header">
+                        <div class="os-card-title">
+                            <div class="os-name-section">
+                                <span class="os-emoji">🚀</span>
+                                <div class="os-info">
+                                    <h3>Engine OS</h3>
+                                    <div class="os-nickname">「イノベーター」</div>
+                                </div>
+                            </div>
+                            <div class="os-score-badge">85</div>
+                        </div>
+                        <div class="hexagram-display">
+                            <span class="hexagram-symbol">☰</span>
+                            <span class="hexagram-name">乾為天 - 革新追求エンジン</span>
+                        </div>
+                    </div>
+                    <div class="os-card-content">
+                        <div class="os-mode-section">
+                            <div class="mode-title">
+                                <span>💫</span>
+                                通常の状態
+                            </div>
+                            <div class="mode-description">
+                                頭の中で常に新しいアイデアや改善案が生まれています。「もっと良い方法はないか？」を常に追求しています。
+                            </div>
+                            <div class="mode-example">
+                                例：会議中も「この仕組み、根本から変えられないか」と考えている
+                            </div>
+                            <div class="energy-level">
+                                <div class="energy-title">🔋 エネルギー消費レベル：中程度（70%）</div>
+                                <div class="energy-description">このOSはアイデア生成のために常時エネルギーを使用しているため、適度な刺激と休息のバランスが必要です</div>
+                            </div>
+                        </div>
+
+                        <div class="os-mode-section">
+                            <div class="mode-title">
+                                <span>🔥</span>
+                                スーパーモード
+                            </div>
+                            <div class="mode-description">
+                                困難な課題や、誰もが「不可能」と言う状況に直面した時に全力発動！
+                            </div>
+                            <div class="mode-example">
+                                例：予算削減でも品質向上を求められた時、全く新しいアプローチを生み出す
+                            </div>
+                            <div class="energy-level">
+                                <div class="energy-title">⚡ エネルギー消費レベル：最大（100%）</div>
+                                <div class="energy-description">困難な課題に集中する時は全力投球。この状態が続くと疲労するため、達成後は必ず休息が必要</div>
+                            </div>
+                        </div>
+
+                        <div class="os-mode-section">
+                            <div class="mode-title">
+                                <span>⚡</span>
+                                エネルギー補給法
+                            </div>
+                            <div class="mode-description">
+                                新規プロジェクトの立ち上げ、未知の分野への挑戦で充電されます。
+                            </div>
+                            <div class="mode-example">
+                                充電方法：最新技術の記事を読む、新しいサービスを試す
+                            </div>
+                            <div class="warning-box">
+                                ⚠️ ルーティンワークが続くとパフォーマンス低下
+                            </div>
+                            <div class="tip-box">
+                                💡 定期的に新しいチャレンジを設定しよう
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interface OS詳細カード -->
+                <div class="os-detail-card interface">
+                    <div class="os-card-header">
+                        <div class="os-card-title">
+                            <div class="os-name-section">
+                                <span class="os-emoji">😊</span>
+                                <div class="os-info">
+                                    <h3>Interface OS</h3>
+                                    <div class="os-nickname">「喜悦者」</div>
+                                </div>
+                            </div>
+                            <div class="os-score-badge">78</div>
+                        </div>
+                        <div class="hexagram-display">
+                            <span class="hexagram-symbol">☱</span>
+                            <span class="hexagram-name">兌為澤 - 喜び生成エンジン</span>
+                        </div>
+                    </div>
+                    <div class="os-card-content">
+                        <div class="os-mode-section">
+                            <div class="mode-title">
+                                <span>💫</span>
+                                通常の状態
+                            </div>
+                            <div class="mode-description">
+                                常に楽しいことを探し、どんな状況でも明るい面を見つけようとします。
+                            </div>
+                            <div class="mode-example">
+                                例：困難な状況でも「この経験から学べることがある」と前向きに捉える
+                            </div>
+                            <div class="energy-level">
+                                <div class="energy-title">😊 エネルギー消費レベル：やや高め（75%）</div>
+                                <div class="energy-description">他者を元気づけるために積極的にエネルギーを使用。人との関わりで充電もするが、消耗も激しい</div>
+                            </div>
+                        </div>
+
+                        <div class="os-mode-section">
+                            <div class="mode-title">
+                                <span>🔥</span>
+                                スーパーモード
+                            </div>
+                            <div class="mode-description">
+                                みんなを喜ばせる時、最高のパフォーマンスを発揮します。
+                            </div>
+                            <div class="mode-example">
+                                例：チームの士気が下がった時、サプライズ企画で全員を元気にする
+                            </div>
+                            <div class="energy-level">
+                                <div class="energy-title">🌟 エネルギー消費レベル：非常に高い（95%）</div>
+                                <div class="energy-description">全力で人を喜ばせる時は大量のエネルギーを消費。達成感と満足感も大きいが、燃え尽きないよう注意</div>
+                            </div>
+                        </div>
+
+                        <div class="os-mode-section">
+                            <div class="mode-title">
+                                <span>🗣️</span>
+                                コミュニケーションスタイル
+                            </div>
+                            <div class="mode-description">
+                                明るく楽観的、相手を元気づける話し方が得意です。
+                            </div>
+                            <div class="mode-example">
+                                話し方：「きっと大丈夫！一緒に楽しくやりましょう」
+                            </div>
+                            <div class="tip-box">
+                                💡 得意：モチベーション向上、雰囲気作り、ポジティブな提案
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SafeMode OS詳細カード -->
+                <div class="os-detail-card safemode">
+                    <div class="os-card-header">
+                        <div class="os-card-title">
+                            <div class="os-name-section">
+                                <span class="os-emoji">🌱</span>
+                                <div class="os-info">
+                                    <h3>SafeMode OS</h3>
+                                    <div class="os-nickname">「サポーター」</div>
+                                </div>
+                            </div>
+                            <div class="os-score-badge">72</div>
+                        </div>
+                        <div class="hexagram-display">
+                            <span class="hexagram-symbol">☷</span>
+                            <span class="hexagram-name">坤為地 - 育成支援エンジン</span>
+                        </div>
+                    </div>
+                    <div class="os-card-content">
+                        <div class="os-mode-section">
+                            <div class="mode-title">
+                                <span>💫</span>
+                                通常の状態
+                            </div>
+                            <div class="mode-description">
+                                周囲の状況を静かに観察し、必要なサポートを察知します。
+                            </div>
+                            <div class="mode-example">
+                                例：会議で発言しづらそうな人に気づき、自然に発言機会を作る
+                            </div>
+                            <div class="energy-level">
+                                <div class="energy-title">🌱 エネルギー消費レベル：低め（50%）</div>
+                                <div class="energy-description">省エネで持続的に動作。無理をせず、長期的に安定した支援を提供できるため疲れにくい</div>
+                            </div>
+                        </div>
+
+                        <div class="os-mode-section">
+                            <div class="mode-title">
+                                <span>🚨</span>
+                                緊急時の対応
+                            </div>
+                            <div class="mode-description">
+                                チームが危機に直面したり、関係性が崩れそうな時に全力で支えます。
+                            </div>
+                            <div class="mode-example">
+                                例：プロジェクトメンバー間の対立を調整し、チームを再結束させる
+                            </div>
+                            <div class="energy-level">
+                                <div class="energy-title">🚨 エネルギー消費レベル：高い（90%）</div>
+                                <div class="energy-description">緊急時は全エネルギーを投入。チームを守るために限界まで頑張るが、この状態が長く続くと疲弊する</div>
+                            </div>
+                        </div>
+
+                        <div class="os-mode-section">
+                            <div class="mode-title">
+                                <span>🛡️</span>
+                                ストレス対処・回復法
+                            </div>
+                            <div class="mode-description">
+                                一旦すべてを受け入れ、静かな環境でじっくりと充電します。
+                            </div>
+                            <div class="mode-example">
+                                回復方法：瞑想、読書、自然の中での散歩、一人時間
+                            </div>
+                            <div class="warning-box">
+                                ⚠️ 自己犠牲が過ぎるとバーンアウトのリスク
+                            </div>
+                            <div class="tip-box">
+                                💡 他者を支えると同時に、自分のケアも忘れずに
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- バランス分析 -->
+            <section class="balance-analysis">
+                <h3 class="balance-title">🎯 Triple OS バランス分析</h3>
+                
+                <!-- バランス算出の説明 -->
+                <div class="balance-explanation" style="background: var(--very-light-blue); border-radius: 8px; padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); border-left: 4px solid var(--primary-blue);">
+                    <h4 style="margin: 0 0 var(--spacing-sm) 0; color: var(--gray-900);">📊 バランスの算出方法</h4>
+                    <p style="margin: 0; color: var(--gray-700); line-height: 1.5;">
+                        このバランスは、各OSのスコア（Engine: 85、Interface: 78、SafeMode: 72）と、各OSが示す行動パターンや心理的傾向の分析から算出されています。V3データベースの「理想的バランス」の指標を参考に、あなたの実際の特性に合わせて調整した結果です。
+                    </p>
+                </div>
+
+                <div class="balance-visual">
+                    <div class="balance-bar">
+                        <div class="balance-segment engine" style="width: 40%;"></div>
+                        <div class="balance-segment interface" style="width: 35%;"></div>
+                        <div class="balance-segment safemode" style="width: 25%;"></div>
+                    </div>
+                </div>
+
+                <div class="balance-legend">
+                    <div class="legend-item">
+                        <div class="legend-color engine" style="background: var(--engine-color);"></div>
+                        <span>革新・創造 (40%) - Engine OSが優勢</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color interface" style="background: var(--interface-color);"></div>
+                        <span>社交・喜び (35%) - Interface OSがバランス</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color safemode" style="background: var(--safemode-color);"></div>
+                        <span>支援・安定 (25%) - SafeMode OSが適度に機能</span>
+                    </div>
+                </div>
+
+                <div class="balance-description">
+                    <p><strong>あなたの現在のバランス状態</strong></p>
+                    <p>Engine OS（革新追求）が最も強く、新しいアイデアや挑戦に対する意欲が高い状態です。Interface OS（社交・喜び）も活発で、人との関わりを楽しむ特性があります。SafeMode OS（支援・安定）は適度に機能し、無理をしすぎず、必要な時にはブレーキをかける役割を果たしています。</p>
+                    
+                    <div class="tip-box" style="margin-top: var(--spacing-md); text-align: left;">
+                        <strong>💡 このバランスの特徴</strong><br>
+                        • 新規プロジェクトや改革に積極的<br>
+                        • チームを明るい雰囲気で引っ張る<br>
+                        • 必要な時は立ち止まって調整できる<br>
+                        • 持続可能な成長を実現しやすい
+                    </div>
+
+                    <div class="warning-box" style="margin-top: var(--spacing-md); text-align: left;">
+                        <strong>⚠️ 注意すべき点</strong><br>
+                        Engine OSが強いため、時に理想を追いすぎる傾向があります。定期的にSafeMode OSの「休息・自己ケア」を意識的に取り入れることで、より健全なバランスを保てます。
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

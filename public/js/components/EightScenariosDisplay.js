@@ -9,8 +9,12 @@ console.log('🎯 EightScenariosDisplay Loading...');
   'use strict';
 
   class EightScenariosDisplay {
-    constructor() {
-      this.name = 'EightScenariosDisplay';
+    constructor(options = {}) {
+      
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
+    this.name = 'EightScenariosDisplay';
       this.version = '2.0.0';
       this.container = null;
       this.scenarios = [];
@@ -305,6 +309,9 @@ console.log('🎯 EightScenariosDisplay Loading...');
       // ヘッダー追加
       mainContainer.appendChild(this.createHeader());
       
+      // スコア比較グラフ追加（新機能）
+      mainContainer.appendChild(this.createScoreComparisonChart(scenarios));
+      
       // 3段階セレクター追加
       mainContainer.appendChild(this.createStageSelector());
       
@@ -323,8 +330,44 @@ console.log('🎯 EightScenariosDisplay Loading...');
       header.innerHTML = `
         <h2 class="three-stage-title">🎯 8つの未来シナリオ</h2>
         <p class="three-stage-subtitle">3段階の選択による可能性の全体像</p>
+        <div style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; border: 1px solid #6366f1;">
+          <div style="color: #fbbf24; font-weight: bold; margin-bottom: 0.5rem;">⚡ 386爻準拠システム</div>
+          <div style="color: #a5b4fc; font-size: 0.875rem; line-height: 1.5;">
+            <div>• <strong>386爻データ使用</strong>: 64卦×6爻 + 用九・用六による完全分析</div>
+            <div>• <strong>変化方式</strong>: 4基軸×2方式（進む/変わる）= 8パス生成</div>
+            <div>• <strong>時間的反復</strong>: 各パス2〜3ステップの段階的展開</div>
+          </div>
+        </div>
       `;
       return header;
+    }
+    
+    /**
+     * スコア比較チャート作成
+     */
+    createScoreComparisonChart(scenarios) {
+      // ScoreVisualizationクラスを動的に読み込み
+      if (!window.ScoreVisualization) {
+        const script = document.createElement('script');
+        script.src = '/js/components/ScoreVisualization.js';
+        document.head.appendChild(script);
+        
+        // 読み込み完了まで待機メッセージ
+        const placeholder = document.createElement('div');
+        placeholder.className = 'score-chart-placeholder';
+        placeholder.innerHTML = '<p style="color: #94A3B8; text-align: center;">📊 グラフ読み込み中...</p>';
+        
+        script.onload = () => {
+          const visualization = new window.ScoreVisualization();
+          const chart = visualization.createComparisonChart(scenarios);
+          placeholder.replaceWith(chart);
+        };
+        
+        return placeholder;
+      }
+      
+      const visualization = new window.ScoreVisualization();
+      return visualization.createComparisonChart(scenarios);
     }
 
     /**
@@ -408,6 +451,12 @@ console.log('🎯 EightScenariosDisplay Loading...');
                    scenario.probability > 50 ? 'B' : 
                    scenario.probability > 40 ? 'C' : 'D';
       
+      // 変化方式を判定（8パスの内訳：4基軸×2方式）
+      const changeMethod = this.determineChangeMethod(index);
+      const methodLabel = changeMethod.type === 'advance' ? '爻が進む' : '爻が変わる';
+      const methodColor = changeMethod.type === 'advance' ? '#10b981' : '#f59e0b';
+      const axisLabel = changeMethod.axis; // 基軸（天地人時の4基軸）
+      
       card.innerHTML = `
         <div class="scenario-rank" style="${this.getRankStyle(scenario.probability)}">
           ${rank}ランク
@@ -424,6 +473,17 @@ console.log('🎯 EightScenariosDisplay Loading...');
           </span>
         </div>
         
+        <!-- 変化方式表示（爻が進む/爻が変わる） -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 0.5rem 0; padding: 0.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 0.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-weight: bold; color: ${methodColor};">${methodLabel}</span>
+            <span style="font-size: 0.75rem; color: #94a3b8;">(${axisLabel})</span>
+          </div>
+          <div style="font-size: 0.75rem; color: #a5b4fc;">
+            パス${index + 1}/8
+          </div>
+        </div>
+        
         <h3 class="scenario-title" style="color: ${visualization.color}">
           <span class="scenario-icon-set">
             <span class="traditional-icon">${visualization.traditional}</span>
@@ -431,6 +491,9 @@ console.log('🎯 EightScenariosDisplay Loading...');
           </span>
           シナリオ ${scenario.id}: ${scenario.title || scenario.description || '統合的変化'}
         </h3>
+        
+        <!-- 時間的反復ステップ表示 -->
+        ${this.renderTemporalSteps(scenario)}
         
         <!-- 3段階変化プロセス -->
         <div class="three-phase-container">
@@ -607,9 +670,9 @@ console.log('🎯 EightScenariosDisplay Loading...');
             },
             phase2: {
                 description: this.getPhase2Description(scenario),
-                heavenBalance: Math.round(30 + Math.random() * 40),
-                humanBalance: Math.round(30 + Math.random() * 40),
-                earthBalance: Math.round(30 + Math.random() * 40),
+                heavenBalance: Math.round(30 + this.rng.next() * 40),
+                humanBalance: Math.round(30 + this.rng.next() * 40),
+                earthBalance: Math.round(30 + this.rng.next() * 40),
                 timeframe: '3-6ヶ月'
             },
             phase3: {
@@ -628,18 +691,24 @@ console.log('🎯 EightScenariosDisplay Loading...');
     calculateScoreProgression(scenario, phases) {
         const baseScore = scenario.hexagramInfo?.score || 
                          scenario.score || 
-                         Math.round(50 + Math.random() * 30);
+                         Math.round(50 + this.rng.next() * 30);
         
         // 各フェーズでのスコア変化を易経原理に基づいて計算
         const phase1Change = this.calculatePhase1Change(scenario);
         const phase2Change = this.calculatePhase2Change(scenario);
         const phase3Change = this.calculatePhase3Change(scenario);
         
+        // NaN対策: 各値が数値であることを保証
+        const safeBaseScore = isNaN(baseScore) ? 50 : baseScore;
+        const safePhase1Change = isNaN(phase1Change) ? 0 : phase1Change;
+        const safePhase2Change = isNaN(phase2Change) ? 0 : phase2Change;
+        const safePhase3Change = isNaN(phase3Change) ? 0 : phase3Change;
+        
         return {
-            current: baseScore,
-            phase1: Math.min(100, Math.max(0, baseScore + phase1Change)),
-            phase2: Math.min(100, Math.max(0, baseScore + phase1Change + phase2Change)),
-            phase3: Math.min(100, Math.max(0, baseScore + phase1Change + phase2Change + phase3Change))
+            current: safeBaseScore,
+            phase1: Math.min(100, Math.max(0, safeBaseScore + safePhase1Change)),
+            phase2: Math.min(100, Math.max(0, safeBaseScore + safePhase1Change + safePhase2Change)),
+            phase3: Math.min(100, Math.max(0, safeBaseScore + safePhase1Change + safePhase2Change + safePhase3Change))
         };
     }
     
@@ -649,11 +718,11 @@ console.log('🎯 EightScenariosDisplay Loading...');
     calculatePhase1Change(scenario) {
         // 陽変・陰変による基礎的な変化
         if (scenario.route && scenario.route[0] === 'progress') {
-            return Math.round(10 + Math.random() * 15); // 陽的発展
+            return Math.round(10 + this.rng.next() * 15); // 陽的発展
         } else if (scenario.route && scenario.route[0] === 'transform') {
-            return Math.round(-5 + Math.random() * 20); // 転換による一時的調整
+            return Math.round(-5 + this.rng.next() * 20); // 転換による一時的調整
         }
-        return Math.round(-5 + Math.random() * 15);
+        return Math.round(-5 + this.rng.next() * 15);
     }
     
     /**
@@ -662,13 +731,13 @@ console.log('🎯 EightScenariosDisplay Loading...');
     calculatePhase2Change(scenario) {
         // 三才調和による中間調整
         if (scenario.route && scenario.route[1] === 'continue') {
-            return Math.round(5 + Math.random() * 10); // 継続的成長
+            return Math.round(5 + this.rng.next() * 10); // 継続的成長
         } else if (scenario.route && scenario.route[1] === 'adjust') {
-            return Math.round(0 + Math.random() * 10); // 調整期
+            return Math.round(0 + this.rng.next() * 10); // 調整期
         } else if (scenario.route && scenario.route[1] === 'complete') {
-            return Math.round(-10 + Math.random() * 30); // 大転換
+            return Math.round(-10 + this.rng.next() * 30); // 大転換
         }
-        return Math.round(0 + Math.random() * 10);
+        return Math.round(0 + this.rng.next() * 10);
     }
     
     /**
@@ -676,8 +745,34 @@ console.log('🎯 EightScenariosDisplay Loading...');
      */
     calculatePhase3Change(scenario) {
         // 最終到達点での安定化
-        const probabilityBonus = Math.round(scenario.probability * 20);
-        return probabilityBonus + Math.round(-5 + Math.random() * 10);
+        // probabilityが undefined またはNaNの場合のデフォルト値を設定
+        const probability = (scenario.probability !== undefined && !isNaN(scenario.probability)) 
+                          ? scenario.probability 
+                          : 0.5; // デフォルト50%
+        const probabilityBonus = Math.round(probability * 20);
+        return probabilityBonus + Math.round(-5 + this.rng.next() * 10);
+    }
+    
+    /**
+     * 変化方式の判定（4基軸×2方式 = 8パス）
+     * @param {number} index - シナリオのインデックス(0-7)
+     * @returns {Object} 変化方式情報
+     */
+    determineChangeMethod(index) {
+        // 4基軸：天（創造）、地（安定）、人（関係）、時（変化）
+        const axes = ['天基軸', '地基軸', '人基軸', '時基軸'];
+        const axisIndex = Math.floor(index / 2); // 0-1→天, 2-3→地, 4-5→人, 6-7→時
+        
+        // 2方式：爻が進む（advance） vs 爻が変わる（transform）
+        const isAdvance = index % 2 === 0;
+        
+        return {
+            type: isAdvance ? 'advance' : 'transform',
+            axis: axes[axisIndex],
+            description: isAdvance 
+                ? `${axes[axisIndex]}に沿って順次進展する`
+                : `${axes[axisIndex]}において質的変化を起こす`
+        };
     }
     
     /**
@@ -725,6 +820,36 @@ console.log('🎯 EightScenariosDisplay Loading...');
             return yaoOrder[currentIndex + 1];
         }
         return '変爻';
+    }
+    
+    /**
+     * 時間的反復ステップのレンダリング
+     */
+    renderTemporalSteps(scenario) {
+        // scenarioかpatternデータからtemporalStepsを取得
+        const steps = scenario.temporalSteps || scenario.pattern?.temporalSteps || [];
+        
+        if (!steps.length) {
+            return ''; // ステップがない場合は空を返す
+        }
+        
+        return `
+        <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(248, 250, 252, 0.8); border-radius: 0.5rem; border-left: 3px solid #fbbf24;">
+            <div style="font-size: 0.875rem; font-weight: bold; color: #fbbf24; margin-bottom: 0.5rem;">
+                ✨ 時間的反復ステップ (${steps.length}段階)
+            </div>
+            ${steps.map(step => `
+                <div style="display: flex; gap: 0.75rem; margin-bottom: 0.5rem; align-items: flex-start;">
+                    <div style="min-width: 1.5rem; height: 1.5rem; background: #6366f1; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">
+                        ${step.step}
+                    </div>
+                    <div style="flex: 1; color: #e2e8f0; font-size: 0.875rem; line-height: 1.5;">
+                        ${step.description}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        `;
     }
     
     /**

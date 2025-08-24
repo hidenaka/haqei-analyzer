@@ -1,0 +1,99 @@
+{
+  "version": "4.3.1",
+  "description": "目的関数定義 - Primitive指標のみ使用（total除外）",
+  "generatedAt": "2025-08-14T12:00:00.000Z",
+  "primitiveOnly": true,
+  "objectives": {
+    "growth": {
+      "weights": {
+        "basic": 0.2,
+        "potential": 0.4,
+        "stability": 0.1,
+        "safety": 0.1,
+        "volatility": 0.2
+      },
+      "scale": [0, 1],
+      "description": "成長重視（ポテンシャル最大化）",
+      "excludes": ["total"],
+      "priority": "potential"
+    },
+    "conservative": {
+      "weights": {
+        "basic": 0.1,
+        "potential": 0.1,
+        "stability": 0.4,
+        "safety": 0.4,
+        "volatility": 0.0
+      },
+      "scale": [0, 1],
+      "description": "保守型（安定性・安全性重視）",
+      "excludes": ["total"],
+      "priority": "safety"
+    },
+    "balanced": {
+      "weights": {
+        "basic": 0.2,
+        "potential": 0.2,
+        "stability": 0.2,
+        "safety": 0.2,
+        "volatility": 0.2
+      },
+      "scale": [0, 1],
+      "description": "バランス型（全次元均等）",
+      "excludes": ["total"],
+      "priority": "balance"
+    },
+    "aggressive": {
+      "weights": {
+        "basic": 0.3,
+        "potential": 0.3,
+        "stability": 0.1,
+        "safety": 0.1,
+        "volatility": 0.2
+      },
+      "scale": [0, 1],
+      "description": "積極型（基本・ポテンシャル重視）",
+      "excludes": ["total"],
+      "priority": "performance"
+    }
+  },
+  "primitiveIndicators": {
+    "basic": {
+      "description": "基本指標",
+      "range": [0, 100],
+      "type": "primitive"
+    },
+    "potential": {
+      "description": "ポテンシャル指標",
+      "range": [0, 100],
+      "type": "primitive"
+    },
+    "stability": {
+      "description": "安定性指標",
+      "range": [0, 100],
+      "type": "primitive"
+    },
+    "safety": {
+      "description": "安全性指標",
+      "range": [0, 100],
+      "type": "primitive"
+    },
+    "volatility": {
+      "description": "変動性指標",
+      "range": [0, 100],
+      "type": "primitive"
+    }
+  },
+  "excludedIndicators": {
+    "total": {
+      "reason": "他指標の線形結合のため二重計上リスク",
+      "replacedBy": "weighted combination of primitives",
+      "status": "deprecated"
+    }
+  },
+  "validation": {
+    "weightSumCheck": true,
+    "primitiveOnlyCheck": true,
+    "totalExclusionCheck": true
+  }
+}

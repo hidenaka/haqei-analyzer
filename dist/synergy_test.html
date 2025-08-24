@@ -1,0 +1,139 @@
+<\!DOCTYPE html>
+<html>
+<head>
+    <title>HAQEI シナジー計算テスト</title>
+</head>
+<body>
+    <h1>シナジー計算テスト</h1>
+    <div id="testResults"></div>
+    
+    <script src="assets/H384H64database.js"></script>
+    <script>
+        console.log("=== HAQEI Synergy Test Start ===");
+        
+        const testHex1 = {
+            hexagram_id: 1,
+            hexagram_name: "乾為天",
+            keywords: "リーダーシップ,創造性,積極性",
+            upper_trigram_id: 1,
+            lower_trigram_id: 1
+        };
+        
+        const testHex2 = {
+            hexagram_id: 2,
+            hexagram_name: "坤為地",
+            keywords: "協調性,安定性,受容性",
+            upper_trigram_id: 2,
+            lower_trigram_id: 2
+        };
+        
+        class SynergyTester {
+            constructor() {
+                console.log("SynergyTester initialized");
+                console.log("H384_DATA available:", typeof H384_DATA \!== 'undefined');
+                console.log("H384_DATA length:", H384_DATA ? H384_DATA.length : "undefined");
+            }
+            
+            getH384DataByHexagram(hexagramId) {
+                try {
+                    const h384Data = window.H384_DATA || [];
+                    return h384Data.filter(item => item.卦番号 === hexagramId);
+                } catch (error) {
+                    console.warn('H384 data access error:', error);
+                    return [];
+                }
+            }
+            
+            calculateKeywordSynergy(hex1Data, hex2Data) {
+                try {
+                    const keywords1 = hex1Data.keywords ? hex1Data.keywords.split(',').map(k => k.trim()) : [];
+                    const keywords2 = hex2Data.keywords ? hex2Data.keywords.split(',').map(k => k.trim()) : [];
+                    
+                    console.log("Keywords1:", keywords1);
+                    console.log("Keywords2:", keywords2);
+                    
+                    const extendedKeywords1 = new Set(keywords1);
+                    const extendedKeywords2 = new Set(keywords2);
+                    
+                    const intersection = new Set([...extendedKeywords1].filter(k => extendedKeywords2.has(k)));
+                    const union = new Set([...extendedKeywords1, ...extendedKeywords2]);
+                    
+                    if (union.size === 0) return 0.5;
+                    
+                    const jaccard = intersection.size / union.size;
+                    console.log("Jaccard similarity:", jaccard);
+                    
+                    return Math.min(1.0, jaccard + 0.3);
+                } catch (error) {
+                    console.warn('Keyword synergy calculation error:', error);
+                    return 0.5;
+                }
+            }
+            
+            calculateEnergySynergy(hex1Data, hex2Data) {
+                try {
+                    const h384Data1 = this.getH384DataByHexagram(hex1Data.hexagram_id);
+                    const h384Data2 = this.getH384DataByHexagram(hex2Data.hexagram_id);
+                    
+                    if (\!h384Data1 || \!h384Data2 || h384Data1.length === 0 || h384Data2.length === 0) {
+                        return 0.5;
+                    }
+                    
+                    let avg1 = 0, avg2 = 0;
+                    h384Data1.forEach(item => {
+                        if (typeof item.S7_総合評価スコア === 'number') {
+                            avg1 += item.S7_総合評価スコア;
+                        }
+                    });
+                    h384Data2.forEach(item => {
+                        if (typeof item.S7_総合評価スコア === 'number') {
+                            avg2 += item.S7_総合評価スコア;
+                        }
+                    });
+                    
+                    avg1 /= h384Data1.length;
+                    avg2 /= h384Data2.length;
+                    
+                    const diff = Math.abs(avg1 - avg2);
+                    const synergy = Math.max(0.1, 1 - (diff / 100));
+                    
+                    console.log("Energy synergy:", synergy);
+                    return synergy;
+                } catch (error) {
+                    console.warn('Energy synergy calculation error:', error);
+                    return 0.5;
+                }
+            }
+            
+            runTests() {
+                const results = [];
+                
+                const keywordSynergy = this.calculateKeywordSynergy(testHex1, testHex2);
+                results.push('Keyword Synergy: ' + keywordSynergy.toFixed(3));
+                
+                const energySynergy = this.calculateEnergySynergy(testHex1, testHex2);
+                results.push('Energy Synergy: ' + energySynergy.toFixed(3));
+                
+                const overallSynergy = (keywordSynergy * 0.5 + energySynergy * 0.5);
+                results.push('Overall Synergy: ' + overallSynergy.toFixed(3));
+                
+                return results;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const tester = new SynergyTester();
+                const results = tester.runTests();
+                
+                const resultDiv = document.getElementById('testResults');
+                resultDiv.innerHTML = '<h2>Test Results:</h2><ul>' + 
+                    results.map(r => '<li>' + r + '</li>').join('') + '</ul>';
+                
+                console.log("Test Complete");
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
+EOF < /dev/null

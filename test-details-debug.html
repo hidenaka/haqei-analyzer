@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>詳細表示デバッグテスト</title>
+</head>
+<body>
+    <h1>詳細表示デバッグ</h1>
+    <button onclick="testDetailLoad()">詳細をテスト</button>
+    <div id="output"></div>
+    
+    <script src="public/js/data/hexagram-human-traits-v3.js"></script>
+    <script>
+        function testDetailLoad() {
+            const output = document.getElementById('output');
+            
+            // V3データベースの確認
+            if (typeof window.HexagramHumanTraitsV3 === 'undefined') {
+                output.innerHTML = '<p style="color: red;">❌ HexagramHumanTraitsV3が定義されていません</p>';
+                return;
+            }
+            
+            const sampleData = {
+                engineOS: { hexagram: '乾為天', score: 92 },
+                interfaceOS: { hexagram: '坤為地', score: 75 },
+                safeModeOS: { hexagram: '水雷屯', score: 68 }
+            };
+            
+            try {
+                const engineData = window.HexagramHumanTraitsV3[sampleData.engineOS.hexagram];
+                const interfaceData = window.HexagramHumanTraitsV3[sampleData.interfaceOS.hexagram];
+                const safeData = window.HexagramHumanTraitsV3[sampleData.safeModeOS.hexagram];
+                
+                let html = '<h2>データ取得結果</h2>';
+                
+                // Engine OSデータ確認
+                html += '<h3>Engine OS: ' + sampleData.engineOS.hexagram + '</h3>';
+                if (engineData) {
+                    html += '<ul>';
+                    html += '<li>nickname: ' + (engineData.nickname || '未定義') + '</li>';
+                    html += '<li>id: ' + (engineData.id || '未定義') + '</li>';
+                    html += '<li>symbol: ' + (engineData.symbol || '未定義') + '</li>';
+                    html += '<li>element: ' + (engineData.element || '未定義') + '</li>';
+                    
+                    if (engineData.asEngineOS) {
+                        html += '<li>asEngineOS存在: ✅</li>';
+                        html += '<ul>';
+                        html += '<li>profile存在: ' + (engineData.asEngineOS.profile ? '✅' : '❌') + '</li>';
+                        html += '<li>normalState存在: ' + (engineData.asEngineOS.normalState ? '✅' : '❌') + '</li>';
+                        html += '<li>superMode存在: ' + (engineData.asEngineOS.superMode ? '✅' : '❌') + '</li>';
+                        html += '<li>maintenance存在: ' + (engineData.asEngineOS.maintenance ? '✅' : '❌') + '</li>';
+                        html += '</ul>';
+                    } else {
+                        html += '<li>asEngineOS存在: ❌</li>';
+                    }
+                    html += '</ul>';
+                } else {
+                    html += '<p style="color: red;">❌ データが見つかりません</p>';
+                }
+                
+                // Interface OSデータ確認
+                html += '<h3>Interface OS: ' + sampleData.interfaceOS.hexagram + '</h3>';
+                if (interfaceData) {
+                    html += '<ul>';
+                    html += '<li>nickname: ' + (interfaceData.nickname || '未定義') + '</li>';
+                    
+                    if (interfaceData.asInterfaceOS) {
+                        html += '<li>asInterfaceOS存在: ✅</li>';
+                        html += '<ul>';
+                        html += '<li>profile存在: ' + (interfaceData.asInterfaceOS.profile ? '✅' : '❌') + '</li>';
+                        html += '<li>howToTalk存在: ' + (interfaceData.asInterfaceOS.howToTalk ? '✅' : '❌') + '</li>';
+                        html += '<li>bestEnvironment存在: ' + (interfaceData.asInterfaceOS.bestEnvironment ? '✅' : '❌') + '</li>';
+                        html += '<li>relationshipTips存在: ' + (interfaceData.asInterfaceOS.relationshipTips ? '✅' : '❌') + '</li>';
+                        html += '</ul>';
+                    } else {
+                        html += '<li>asInterfaceOS存在: ❌</li>';
+                    }
+                    html += '</ul>';
+                } else {
+                    html += '<p style="color: red;">❌ データが見つかりません</p>';
+                }
+                
+                // SafeMode OSデータ確認
+                html += '<h3>SafeMode OS: ' + sampleData.safeModeOS.hexagram + '</h3>';
+                if (safeData) {
+                    html += '<ul>';
+                    html += '<li>nickname: ' + (safeData.nickname || '未定義') + '</li>';
+                    
+                    if (safeData.asSafeModeOS) {
+                        html += '<li>asSafeModeOS存在: ✅</li>';
+                        html += '<ul>';
+                        html += '<li>profile存在: ' + (safeData.asSafeModeOS.profile ? '✅' : '❌') + '</li>';
+                        html += '<li>stressResponse存在: ' + (safeData.asSafeModeOS.stressResponse ? '✅' : '❌') + '</li>';
+                        html += '<li>emergencyMode存在: ' + (safeData.asSafeModeOS.emergencyMode ? '✅' : '❌') + '</li>';
+                        html += '<li>howToRecover存在: ' + (safeData.asSafeModeOS.howToRecover ? '✅' : '❌') + '</li>';
+                        html += '</ul>';
+                    } else {
+                        html += '<li>asSafeModeOS存在: ❌</li>';
+                    }
+                    html += '</ul>';
+                } else {
+                    html += '<p style="color: red;">❌ データが見つかりません</p>';
+                }
+                
+                output.innerHTML = html;
+                
+            } catch (error) {
+                output.innerHTML = '<p style="color: red;">エラー: ' + error.message + '</p>';
+                console.error('詳細:', error);
+            }
+        }
+    </script>
+</body>
+</html>

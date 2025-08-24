@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>V3データ確認テスト</title>
+</head>
+<body>
+    <h1>V3データベース確認</h1>
+    <div id="result"></div>
+    
+    <script src="public/js/data/hexagram-human-traits-v3.js"></script>
+    <script>
+        // モックデータ
+        const mockData = {
+            engineOS: { hexagram: "乾為天" },
+            interfaceOS: { hexagram: "坤為地" },
+            safeModeOS: { hexagram: "水雷屯" }
+        };
+        
+        // データ取得テスト
+        function testV3Data() {
+            const result = document.getElementById('result');
+            let html = '<h2>データ取得テスト</h2>';
+            
+            // V3データが存在するか確認
+            if (typeof window.HexagramHumanTraitsV3 === 'undefined') {
+                html += '<p style="color: red;">❌ HexagramHumanTraitsV3が定義されていません</p>';
+                result.innerHTML = html;
+                return;
+            }
+            
+            html += '<p style="color: green;">✅ HexagramHumanTraitsV3が正しく読み込まれています</p>';
+            
+            // 各OSのデータを取得
+            const engineData = window.HexagramHumanTraitsV3[mockData.engineOS.hexagram];
+            const interfaceData = window.HexagramHumanTraitsV3[mockData.interfaceOS.hexagram];
+            const safeData = window.HexagramHumanTraitsV3[mockData.safeModeOS.hexagram];
+            
+            // Engine OSデータ確認
+            html += '<h3>Engine OS: 乾為天</h3>';
+            if (engineData) {
+                html += '<ul>';
+                html += `<li>ニックネーム: ${engineData.nickname || '未定義'}</li>`;
+                html += `<li>シンボル: ${engineData.symbol || '未定義'}</li>`;
+                html += `<li>要素: ${engineData.element || '未定義'}</li>`;
+                
+                if (engineData.asEngineOS) {
+                    html += '<li>Engine OS固有データ:';
+                    html += '<ul>';
+                    html += `<li>パーソナ: ${engineData.asEngineOS.persona || '未定義'}</li>`;
+                    html += `<li>タイプ: ${engineData.asEngineOS.type || '未定義'}</li>`;
+                    html += `<li>説明文字数: ${engineData.asEngineOS.description ? engineData.asEngineOS.description.length : 0}文字</li>`;
+                    html += '</ul></li>';
+                }
+                html += '</ul>';
+            } else {
+                html += '<p style="color: red;">❌ データが取得できません</p>';
+            }
+            
+            // Interface OSデータ確認
+            html += '<h3>Interface OS: 坤為地</h3>';
+            if (interfaceData) {
+                html += '<ul>';
+                html += `<li>ニックネーム: ${interfaceData.nickname || '未定義'}</li>`;
+                
+                if (interfaceData.asInterfaceOS) {
+                    html += '<li>Interface OS固有データ:';
+                    html += '<ul>';
+                    html += `<li>パーソナ: ${interfaceData.asInterfaceOS.persona || '未定義'}</li>`;
+                    html += `<li>タイプ: ${interfaceData.asInterfaceOS.type || '未定義'}</li>`;
+                    html += `<li>説明文字数: ${interfaceData.asInterfaceOS.description ? interfaceData.asInterfaceOS.description.length : 0}文字</li>`;
+                    html += '</ul></li>';
+                }
+                html += '</ul>';
+            } else {
+                html += '<p style="color: red;">❌ データが取得できません</p>';
+            }
+            
+            // SafeMode OSデータ確認
+            html += '<h3>SafeMode OS: 水雷屯</h3>';
+            if (safeData) {
+                html += '<ul>';
+                html += `<li>ニックネーム: ${safeData.nickname || '未定義'}</li>`;
+                
+                if (safeData.asSafeModeOS) {
+                    html += '<li>SafeMode OS固有データ:';
+                    html += '<ul>';
+                    html += `<li>ストラテジー: ${safeData.asSafeModeOS.strategy || '未定義'}</li>`;
+                    html += `<li>タイプ: ${safeData.asSafeModeOS.type || '未定義'}</li>`;
+                    html += `<li>説明文字数: ${safeData.asSafeModeOS.description ? safeData.asSafeModeOS.description.length : 0}文字</li>`;
+                    html += '</ul></li>';
+                }
+                html += '</ul>';
+            } else {
+                html += '<p style="color: red;">❌ データが取得できません</p>';
+            }
+            
+            // 64卦すべて存在するか確認
+            const expectedHexagrams = [
+                '乾為天', '坤為地', '水雷屯', '山水蒙', '水天需', '天水訟', '地水師', '水地比'
+            ];
+            
+            html += '<h3>データベース完全性チェック</h3>';
+            let missingCount = 0;
+            expectedHexagrams.forEach(hex => {
+                if (!window.HexagramHumanTraitsV3[hex]) {
+                    html += `<p style="color: red;">❌ ${hex}が見つかりません</p>`;
+                    missingCount++;
+                }
+            });
+            
+            if (missingCount === 0) {
+                html += '<p style="color: green;">✅ サンプル8卦すべて存在します</p>';
+            }
+            
+            // 総卦数
+            const totalCount = Object.keys(window.HexagramHumanTraitsV3).length;
+            html += `<p>総卦数: ${totalCount}/64</p>`;
+            
+            result.innerHTML = html;
+        }
+        
+        // ページ読み込み後に実行
+        document.addEventListener('DOMContentLoaded', testV3Data);
+    </script>
+</body>
+</html>

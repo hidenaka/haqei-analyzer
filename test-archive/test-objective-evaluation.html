@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客観的ロジック評価 - HaQei OS Analyzer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #ff6b6b;
+            margin-bottom: 40px;
+        }
+        .critical-issue {
+            background: #ff4444;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        .warning-issue {
+            background: #ff9800;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .ok-status {
+            background: #4caf50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .code-block {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .test-button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background: #1976d2;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background: #333;
+        }
+        .issue-table td.bad {
+            background: rgba(255, 68, 68, 0.3);
+        }
+        .issue-table td.good {
+            background: rgba(76, 175, 80, 0.3);
+        }
+        .issue-table td.warning {
+            background: rgba(255, 152, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 客観的ロジック評価レポート</h1>
+        
+        <div class="critical-issue">
+            <h2>🚨 致命的問題発見！</h2>
+            <p><strong>separateAnswers メソッドが修正されていません！</strong></p>
+            <div class="code-block">
+// 現在の実装（間違い）
+separateAnswers(allAnswers) {
+    if (questionNum >= 1 && questionNum <= 24) {
+        worldviewAnswers.push(answer);  // Q1-Q24全てEngine OSへ
+    } else if (questionNum >= 25 && questionNum <= 30) {
+        scenarioAnswers.push(answer);   // Q25-Q30がInterface OSへ（間違い！）
+    } else if (questionNum >= 31 && questionNum <= 36) {
+        defenseAnswers.push(answer);    // Q31-Q36がSafe Mode OSへ
+    }
+}
+            </div>
+            <p>⚠️ <strong>analyzeSocialPatternsは修正したが、そもそも渡される質問が間違っている！</strong></p>
+        </div>
+
+        <h2>📊 修正状況の客観的評価</h2>
+        <table class="issue-table">
+            <thead>
+                <tr>
+                    <th>修正項目</th>
+                    <th>期待される実装</th>
+                    <th>実際の状況</th>
+                    <th>評価</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>質問の分離（separateAnswers）</td>
+                    <td>Q1-12: Engine<br>Q13-24: Interface<br>Q25-36: SafeMode</td>
+                    <td class="bad">Q1-24: Engine<br>Q25-30: Interface<br>Q31-36: SafeMode</td>
+                    <td class="bad">❌ 未修正</td>
+                </tr>
+                <tr>
+                    <td>analyzeSocialPatterns</td>
+                    <td>Q13-Q24を処理</td>
+                    <td class="warning">メソッド内はQ13-Q24対応<br>しかし間違った質問を受け取る</td>
+                    <td class="warning">⚠️ 部分的</td>
+                </tr>
+                <tr>
+                    <td>buildInterfaceVector</td>
+                    <td>Q13-Q24パターン使用</td>
+                    <td class="warning">メソッド内はQ13-Q24対応<br>しかし存在しないデータ参照</td>
+                    <td class="warning">⚠️ 部分的</td>
+                </tr>
+                <tr>
+                    <td>キーワード重複防止</td>
+                    <td>matchedフラグで制御</td>
+                    <td class="good">正しく実装済み</td>
+                    <td class="good">✅ OK</td>
+                </tr>
+                <tr>
+                    <td>三爻重複処理</td>
+                    <td>第3位を使用</td>
+                    <td class="good">正しく実装済み</td>
+                    <td class="good">✅ OK</td>
+                </tr>
+                <tr>
+                    <td>64卦マトリックス</td>
+                    <td>正統配列使用</td>
+                    <td class="good">正しく実装済み</td>
+                    <td class="good">✅ OK</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="warning-issue">
+            <h2>⚠️ 実装の不整合</h2>
+            <p><strong>現在の動作フロー：</strong></p>
+            <ol>
+                <li>separateAnswers が Q25-Q30 を Interface OS用として分離（間違い）</li>
+                <li>analyzeInterfaceOS が Q25-Q30 の6問を受け取る</li>
+                <li>analyzeSocialPatterns が Q13-Q24（12問）を期待している</li>
+                <li>配列のインデックスが合わず、Q13-Q18のみ処理（Q19-Q24は undefined）</li>
+                <li>buildInterfaceVector が存在しない Q19_social, Q20_conflict 等を参照</li>
+            </ol>
+        </div>
+
+        <h2>🧪 動作検証</h2>
+        <button class="test-button" onclick="testDataFlow()">データフローをテスト</button>
+        <button class="test-button" onclick="testActualExecution()">実際の実行をシミュレート</button>
+        
+        <div id="test-results" style="margin-top: 20px;"></div>
+
+        <div class="critical-issue" style="margin-top: 40px;">
+            <h2>📝 必要な追加修正</h2>
+            <div class="code-block">
+// separateAnswers を修正する必要がある
+separateAnswers(allAnswers) {
+    allAnswers.forEach(answer => {
+        const questionNum = parseInt(answer.questionId.replace('q', ''));
+        if (questionNum >= 1 && questionNum <= 12) {
+            worldviewAnswers.push(answer);  // Engine OS
+        } else if (questionNum >= 13 && questionNum <= 24) {
+            scenarioAnswers.push(answer);   // Interface OS （修正必要）
+        } else if (questionNum >= 25 && questionNum <= 36) {
+            defenseAnswers.push(answer);    // Safe Mode OS （修正必要）
+        }
+    });
+}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function testDataFlow() {
+            const results = document.getElementById('test-results');
+            
+            let html = '<div class="code-block">';
+            html += '📋 データフローテスト結果:\n\n';
+            
+            // Q25-30が渡された場合のシミュレーション
+            html += '1. separateAnswers が Q25-30 を scenarioAnswers に格納\n';
+            html += '2. analyzeInterfaceOS(scenarioAnswers) 呼び出し\n';
+            html += '3. analyzeSocialPatterns 内で:\n';
+            html += '   - index 0: Q25 → Q13 として処理（Q13_leadership に格納）\n';
+            html += '   - index 1: Q26 → Q14 として処理（Q14_interpersonal に格納）\n';
+            html += '   - index 2: Q27 → Q15 として処理（Q15_family に格納）\n';
+            html += '   - index 3: Q28 → Q16 として処理（Q16_emergency に格納）\n';
+            html += '   - index 4: Q29 → Q17 として処理（Q17_competition に格納）\n';
+            html += '   - index 5: Q30 → Q18 として処理（Q18_community に格納）\n';
+            html += '   - index 6-11: 存在しない → Q19-Q24 は undefined\n\n';
+            
+            html += '<span style="color: #ff6b6b;">結果: Q25-30の回答がQ13-18として誤って処理される</span>\n';
+            html += '<span style="color: #ff6b6b;">Q19-24のパターンは常に0（undefined）になる</span>\n';
+            
+            html += '</div>';
+            results.innerHTML = html;
+        }
+        
+        function testActualExecution() {
+            const results = document.getElementById('test-results');
+            
+            let html = '<div class="code-block">';
+            html += '🔬 実行シミュレーション結果:\n\n';
+            
+            // 模擬的なパターンオブジェクト
+            const patterns = {
+                Q13_leadership: 0.8,     // 実際はQ25の値
+                Q14_interpersonal: 0.7,  // 実際はQ26の値
+                Q15_family: 0.6,         // 実際はQ27の値
+                Q16_emergency: 0.9,      // 実際はQ28の値
+                Q17_competition: 0.5,    // 実際はQ29の値
+                Q18_community: 0.7,      // 実際はQ30の値
+                Q19_social: undefined,   // 存在しない
+                Q20_conflict: undefined, // 存在しない
+                Q21_trust: undefined,    // 存在しない
+                Q22_expression: undefined,// 存在しない
+                Q23_cooperation: undefined,// 存在しない
+                Q24_adaptation: undefined  // 存在しない
+            };
+            
+            html += 'socialPatterns オブジェクト:\n';
+            for (const [key, value] of Object.entries(patterns)) {
+                const color = value === undefined ? '#ff6b6b' : '#4caf50';
+                html += `  <span style="color: ${color}">${key}: ${value}</span>\n`;
+            }
+            
+            html += '\nbuildInterfaceVector での計算:\n';
+            html += '  外向_主導性 = (0.8 * 0.8) + (0.9 * 0.5) + (undefined * 0.3)\n';
+            html += '  <span style="color: #ff6b6b;">→ NaN になる可能性！</span>\n';
+            
+            html += '</div>';
+            results.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

@@ -6,6 +6,10 @@
 
 class FutureBranchingSystem {
   constructor() {
+    
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
     this.currentState = null;
     this.choices = [];
     this.outcomes = [];
@@ -639,9 +643,9 @@ class FutureBranchingSystem {
   initializeVoting() {
     // Mock voting data
     this.votingData = {
-      0: Math.floor(Math.random() * 40) + 20,
-      1: Math.floor(Math.random() * 40) + 20,
-      2: Math.floor(Math.random() * 40) + 20
+      0: Math.floor(this.rng.next() * 40) + 20,
+      1: Math.floor(this.rng.next() * 40) + 20,
+      2: Math.floor(this.rng.next() * 40) + 20
     };
     
     // Normalize to 100%

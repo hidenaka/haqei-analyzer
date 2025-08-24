@@ -6,6 +6,10 @@
  */
 class DiagnosisDataFormat {
   constructor() {
+    
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
     this.formatVersion = '1.0.0';
     this.dataTypes = {
       QUICK: 'quick_analysis',
@@ -60,7 +64,7 @@ class DiagnosisDataFormat {
    * @returns {string} ユニークID
    */
   generateId() {
-    return `haqei_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `haqei_${Date.now()}_${this.rng.next().toString(36).substr(2, 9)}`;
   }
 }
 

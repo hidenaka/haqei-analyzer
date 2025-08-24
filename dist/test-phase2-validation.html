@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Phase 2 v2要件検証 - OS Analyzer</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #fff; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #444; }
+        .pass { color: #4ade80; }
+        .fail { color: #f87171; }
+        .info { color: #60a5fa; }
+        pre { background: #0a0a0a; padding: 10px; overflow-x: auto; font-size: 0.8rem; }
+        .contract-field { margin: 10px 0; padding: 10px; background: rgba(30, 41, 59, 0.5); }
+    </style>
+</head>
+<body>
+    <h1>HAQEI Phase 2 - OS Analyzer v2要件検証</h1>
+    <div id="results"></div>
+
+    <script src="./js/core/TripleOSInteractionAnalyzer.js"></script>
+    <script>
+        const results = document.getElementById('results');
+        
+        async function runTests() {
+            const analyzer = new TripleOSInteractionAnalyzer();
+            
+            // テスト用OS
+            const testOSes = {
+                engineOS: { hexagramId: 1, name: '乾為天', score: 0.82 },
+                interfaceOS: { hexagramId: 2, name: '坤為地', score: 0.74 },
+                safeModeOS: { hexagramId: 29, name: '坎為水', score: 0.65 }
+            };
+            
+            // Test 1: 契約A v1.1形式の分析
+            results.innerHTML += '<div class="test"><h3>Test 1: 契約A v1.1形式生成</h3>';
+            
+            const analysis = analyzer.analyze(
+                testOSes.engineOS,
+                testOSes.interfaceOS,
+                testOSes.safeModeOS
+            );
+            
+            // 必須フィールドチェック
+            const requiredFields = [
+                'version', 'engine_os', 'interface_os', 'safe_mode_os',
+                'synergy', 'interactions', 'strengths', 'risks', 'created_at'
+            ];
+            
+            const hasAllFields = requiredFields.every(field => analysis[field] !== undefined);
+            results.innerHTML += `<div class="${hasAllFields ? 'pass' : 'fail'}">✓ 必須フィールド: ${hasAllFields ? '完備' : '不足'}</div>`;
+            
+            // Test 2: interactions内のv2要件フィールド
+            results.innerHTML += '<h3>Test 2: v2要件フィールド確認</h3>';
+            
+            const v2Fields = {
+                'pair_insights': analysis.interactions?.pair_insights,
+                'affordances': analysis.interactions?.affordances,
+                'inner_conflicts': analysis.interactions?.inner_conflicts,
+                'integration_prompts': analysis.interactions?.integration_prompts
+            };
+            
+            for (const [field, value] of Object.entries(v2Fields)) {
+                const exists = value !== undefined;
+                results.innerHTML += `<div class="${exists ? 'pass' : 'fail'}">✓ ${field}: ${exists ? 'あり' : 'なし'}</div>`;
+            }
+            
+            // Test 3: affordances構造確認
+            results.innerHTML += '<h3>Test 3: Affordances構造</h3>';
+            
+            if (analysis.interactions?.affordances) {
+                const aff = analysis.interactions.affordances;
+                const osTypes = ['engine', 'interface', 'safe'];
+                let affOk = true;
+                
+                for (const osType of osTypes) {
+                    const hasThrivesContent = aff[osType]?.thrives_with?.length > 0;
+                    const hasStrugglesContent = aff[osType]?.struggles_with?.length > 0;
+                    
+                    if (!hasThrivesContent || !hasStrugglesContent) affOk = false;
+                    
+                    results.innerHTML += `<div class="contract-field">
+                        <strong>${osType} OS:</strong><br>
+                        強み場面: ${hasThrivesContent ? aff[osType].thrives_with.length + '個' : 'なし'}<br>
+                        弱み場面: ${hasStrugglesContent ? aff[osType].struggles_with.length + '個' : 'なし'}
+                    </div>`;
+                }
+                
+                results.innerHTML += `<div class="${affOk ? 'pass' : 'fail'}">✓ Affordances完全性: ${affOk ? '準拠' : '不完全'}</div>`;
+            }
+            
+            // Test 4: inner_conflicts内容確認
+            results.innerHTML += '<h3>Test 4: 内的葛藤テーマ</h3>';
+            
+            if (analysis.interactions?.inner_conflicts) {
+                const conflicts = analysis.interactions.inner_conflicts;
+                results.innerHTML += `<div class="info">葛藤数: ${conflicts.length}</div>`;
+                conflicts.forEach((conflict, i) => {
+                    results.innerHTML += `<div class="contract-field">${i+1}. ${conflict}</div>`;
+                });
+                
+                const hasContent = conflicts.length >= 3;
+                results.innerHTML += `<div class="${hasContent ? 'pass' : 'fail'}">✓ 葛藤テーマ充実度: ${hasContent ? '十分' : '不足'}</div>`;
+            }
+            
+            // Test 5: integration_prompts内容確認
+            results.innerHTML += '<h3>Test 5: 統合のヒント</h3>';
+            
+            if (analysis.interactions?.integration_prompts) {
+                const prompts = analysis.interactions.integration_prompts;
+                results.innerHTML += `<div class="info">ヒント数: ${prompts.length}</div>`;
+                
+                const hasQuestions = prompts.some(p => p.includes('？') || p.includes('?'));
+                const hasActionable = prompts.length >= 4;
+                
+                results.innerHTML += `<div class="${hasQuestions ? 'pass' : 'fail'}">✓ 問いかけ形式: ${hasQuestions ? 'あり' : 'なし'}</div>`;
+                results.innerHTML += `<div class="${hasActionable ? 'pass' : 'fail'}">✓ 実践的ヒント数: ${hasActionable ? '十分' : '不足'}</div>`;
+            }
+            
+            // Test 6: シナジー分析
+            results.innerHTML += '<h3>Test 6: シナジー分析</h3>';
+            
+            if (analysis.synergy) {
+                const hasMatrix = analysis.synergy.matrix && analysis.synergy.matrix.length === 3;
+                const hasNotes = analysis.synergy.notes && analysis.synergy.notes.length > 0;
+                
+                results.innerHTML += `<div class="${hasMatrix ? 'pass' : 'fail'}">✓ シナジーマトリックス: ${hasMatrix ? '3×3' : '不正'}</div>`;
+                results.innerHTML += `<div class="${hasNotes ? 'pass' : 'fail'}">✓ シナジー解説: ${hasNotes ? 'あり' : 'なし'}</div>`;
+                
+                if (hasNotes) {
+                    results.innerHTML += `<div class="contract-field">解説: ${analysis.synergy.notes}</div>`;
+                }
+            }
+            
+            // 契約A v1.1形式の出力
+            results.innerHTML += '<h3>契約A v1.1形式JSON（一部）</h3>';
+            const summary = {
+                version: analysis.version,
+                os_ids: {
+                    engine: analysis.engine_os.id,
+                    interface: analysis.interface_os.id,
+                    safe: analysis.safe_mode_os.id
+                },
+                v2_fields: {
+                    has_affordances: !!analysis.interactions?.affordances,
+                    has_inner_conflicts: !!analysis.interactions?.inner_conflicts,
+                    has_integration_prompts: !!analysis.interactions?.integration_prompts
+                },
+                created_at: analysis.created_at
+            };
+            
+            results.innerHTML += `<pre>${JSON.stringify(summary, null, 2)}</pre>`;
+            
+            results.innerHTML += '</div>';
+        }
+        
+        // テスト実行
+        runTests().catch(err => {
+            results.innerHTML += `<div class="fail">エラー: ${err.message}</div>`;
+        });
+    </script>
+</body>
+</html>

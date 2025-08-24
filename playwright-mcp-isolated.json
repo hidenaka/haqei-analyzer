@@ -1,0 +1,55 @@
+{
+  "mcpServers": {
+    "playwright-isolated-1": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp",
+        "--isolated",
+        "--port",
+        "9001"
+      ],
+      "cwd": "/Users/hideakimacbookair/Desktop/haqei-analyzer",
+      "env": {
+        "NODE_ENV": "development",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/hideakimacbookair/.cache/ms-playwright",
+        "PLAYWRIGHT_INSTANCE_ID": "instance-1"
+      },
+      "timeout": 30000,
+      "description": "Playwright MCP Instance 1 - Isolated for parallel execution"
+    },
+    "playwright-isolated-2": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp",
+        "--isolated",
+        "--port",
+        "9002"
+      ],
+      "cwd": "/Users/hideakimacbookair/Desktop/haqei-analyzer",
+      "env": {
+        "NODE_ENV": "development",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/hideakimacbookair/.cache/ms-playwright",
+        "PLAYWRIGHT_INSTANCE_ID": "instance-2"
+      },
+      "timeout": 30000,
+      "description": "Playwright MCP Instance 2 - Isolated for parallel execution"
+    },
+    "playwright-isolated-3": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp",
+        "--isolated",
+        "--port",
+        "9003"
+      ],
+      "cwd": "/Users/hideakimacbookair/Desktop/haqei-analyzer",
+      "env": {
+        "NODE_ENV": "development",
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/hideakimacbookair/.cache/ms-playwright",
+        "PLAYWRIGHT_INSTANCE_ID": "instance-3"
+      },
+      "timeout": 30000,
+      "description": "Playwright MCP Instance 3 - Isolated for parallel execution"
+    }
+  }
+}

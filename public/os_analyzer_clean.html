@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS Analyzer - HAQEI Triple OS Analysis System</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/os-analyzer.css">
+    <link rel="stylesheet" href="css/result-visualizer.css">
+    
+    <!-- Browser Compatibility Check (Critical) -->
+    <script src="js/core/BrowserCompatibility.js"></script>
+    
+    <!-- Self-hosted Libraries (T09 completed) -->
+    <script src="lib/chart.min.js" 
+            data-error-fallback="Chart.js failed to load"
+            id="chartjs-script">
+    </script>
+    
+    <!-- Core Dependencies (defer for performance) -->
+    <script src="js/StatisticalValidator.js" defer></script>
+    <script src="js/VirtualPersonaDialogue.js" defer></script>
+    <script src="js/VirtualPersonaEnhancer.js" defer></script>
+    
+    <!-- Data Sources -->
+    <script src="assets/H384H64database.js" defer></script>
+    
+    <!-- Core Modules -->
+    <script src="js/core/ExpressionGenerator.js" defer></script>
+    <script src="js/core/KeywordAnalyzer.js" defer></script>
+    <script src="js/core/TripleOSInteractionAnalyzer.js" defer></script>
+    <script src="js/core/TripleOSInteractionAnalyzer-v2-integration.js" defer></script>
+    <script src="js/core/PatternMapper.js" defer></script>
+    
+    <!-- Result Visualization (T07) -->
+    <script src="js/result-visualizer.js" defer></script>
+    
+    <!-- Application Files -->
+    <script src="assets/js/questions-full.js" defer></script>
+    <script src="assets/js/app.js" defer></script>
+    
+    <!-- Main Application Logic (previously inline) -->
+    <script src="js/os-analyzer-main.js" defer></script>
+    
+    <!-- Event Handlers (replacing inline handlers) -->
+    <script src="js/event-handlers.js"></script>
+</head>
+<body>
+    <!-- =================== -->
+    <!-- HaQei OS Analyzer -->
+    <!-- Triple OS Analysis System -->
+    <!-- =================== -->
+    
+    <div id="app">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen active">
+            <div class="container">
+                <h1 class="title">OS Analyzer</h1>
+                <p class="subtitle">あなたの内なる3つのOSを発見する</p>
+                
+                <div class="welcome-content">
+                    <div class="intro-section">
+                        <h2>Triple OS Analysisとは？</h2>
+                        <p>私たちの心は、コンピュータのように3つの異なるOS（オペレーティングシステム）が協調して動作しています。</p>
+                        
+                        <div class="os-cards">
+                            <div class="os-card">
+                                <div class="os-icon engine">⚡</div>
+                                <h3>Engine OS</h3>
+                                <p>創造性・行動力・探求心を司る駆動システム</p>
+                            </div>
+                            
+                            <div class="os-card">
+                                <div class="os-icon interface">🌐</div>
+                                <h3>Interface OS</h3>
+                                <p>コミュニケーション・表現・適応を担うシステム</p>
+                            </div>
+                            
+                            <div class="os-card">
+                                <div class="os-icon safemode">🛡️</div>
+                                <h3>Safe Mode OS</h3>
+                                <p>安定性・受容性・回復力を支えるシステム</p>
+                            </div>
+                        </div>
+                        
+                        <p class="analysis-note">
+                            36の質問を通じて、あなたの3つのOSの特性と相互作用を分析し、
+                            64卦の易経の知恵と現代心理学を融合させた独自の洞察を提供します。
+                        </p>
+                    </div>
+                    
+                    <button id="start-btn" class="btn btn-primary">
+                        分析を始める
+                    </button>
+                    
+                    <p class="time-estimate">所要時間: 約10-15分</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question Screen -->
+        <div id="question-screen" class="screen">
+            <div class="container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                    <span id="progress-text" class="progress-text">0 / 36</span>
+                </div>
+                
+                <div class="question-content">
+                    <div id="question-category" class="question-category"></div>
+                    <h2 id="question-text" class="question-text"></h2>
+                    
+                    <div id="options-container" class="options-container"></div>
+                </div>
+                
+                <div class="navigation">
+                    <button id="prev-btn" class="btn btn-secondary" disabled>前へ</button>
+                    <button id="next-btn" class="btn btn-primary" disabled>次へ</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Screen -->
+        <div id="results-screen" class="screen">
+            <div class="container">
+                <h1 class="results-title">あなたのTriple OS分析結果</h1>
+                
+                <!-- Hexagram Display -->
+                <div id="hexagram-display" class="hexagram-display">
+                    <div class="hexagram-container">
+                        <canvas id="hexagram-canvas" width="200" height="240"></canvas>
+                    </div>
+                    <div class="hexagram-info">
+                        <h2 id="hexagram-name"></h2>
+                        <p id="hexagram-description"></p>
+                    </div>
+                </div>
+                
+                <!-- OS Analysis Results -->
+                <div class="os-results">
+                    <div class="os-result engine">
+                        <h3>Engine OS</h3>
+                        <div id="engine-os-result"></div>
+                    </div>
+                    
+                    <div class="os-result interface">
+                        <h3>Interface OS</h3>
+                        <div id="interface-os-result"></div>
+                    </div>
+                    
+                    <div class="os-result safemode">
+                        <h3>Safe Mode OS</h3>
+                        <div id="safemode-os-result"></div>
+                    </div>
+                </div>
+                
+                <!-- Synergy Analysis -->
+                <div id="synergy-analysis" class="synergy-analysis">
+                    <h3>OS間のシナジー分析</h3>
+                    <div id="synergy-content"></div>
+                </div>
+                
+                <!-- Chart Display -->
+                <div class="chart-container">
+                    <canvas id="results-chart"></canvas>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="results-actions">
+                    <button id="restart-btn" class="btn btn-secondary">もう一度分析する</button>
+                    <button id="save-btn" class="btn btn-primary">結果を保存</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>分析中...</p>
+        </div>
+    </div>
+    
+    <!-- Error Message Container -->
+    <div id="error-container" class="error-container"></div>
+</body>
+</html>

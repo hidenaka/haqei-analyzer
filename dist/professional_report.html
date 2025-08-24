@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HaQeiプロフェッショナル 統合戦略レポート</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>易</text></svg>"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Inter", "Noto Sans JP", sans-serif;
+        line-height: 1.8;
+      }
+      .brand-text {
+        background: -webkit-linear-gradient(45deg, #a5b4fc, #e0e7ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .report-section {
+        margin-bottom: 4rem;
+        padding-top: 2.5rem;
+        border-top: 1px solid #374151;
+      }
+      .report-section:first-child {
+        padding-top: 0;
+        border-top: none;
+      }
+      .report-section h3 {
+        font-family: "Shippori Mincho", serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #c7d2fe;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #4f46e5;
+      }
+      .report-section h4 {
+        font-family: "Shippori Mincho", serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #a5b4fc;
+      }
+      .report-section p,
+      .report-section ul {
+        color: #d1d5db;
+      }
+      .report-section strong {
+        color: #fde047;
+        font-weight: 600;
+      }
+      .os-card {
+        background: #1f2937;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        border-left-width: 4px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      .os-card-title {
+        display: flex;
+        align-items: center;
+        color: #e5e7eb;
+      }
+      .os-card-content {
+        flex-grow: 1;
+      }
+      .step-item,
+      .scenario-item {
+        background: #111827;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        border-left: 3px solid #6366f1;
+      }
+      .what-title {
+        font-weight: bold;
+        font-size: 1.125rem; /* text-lg */
+        color: #93c5fd; /* blue-300 */
+      }
+      .how-list {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        margin-top: 0.5rem;
+      }
+      .stress-scenario-title {
+        font-weight: bold;
+        color: #fca5a5; /* red-300 */
+      }
+      #ai-report-content ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      #ai-report-content li {
+        margin-bottom: 0.5rem;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-200 min-h-screen p-4 sm:p-8">
+    <div
+      class="w-full max-w-5xl mx-auto bg-gray-800 shadow-2xl rounded-2xl p-6 sm:p-10"
+    >
+      <header class="text-center mb-12">
+        <a
+          href="cockpit.html"
+          class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block"
+          >← 戦略コックピットへ戻る</a
+        >
+        <h1 class="text-4xl sm:text-5xl font-bold brand-text tracking-wider">
+          HaQei Professional
+        </h1>
+        <p class="text-gray-400 mt-3 text-xl">
+          あなたのOSを使いこなすための『統合戦略書』
+        </p>
+      </header>
+
+      <div id="summary-container" class="hidden mb-16 space-y-12">
+        <div>
+          <h2
+            class="text-2xl font-bold text-center mb-8 text-indigo-300 border-b border-indigo-800 pb-4"
+          >
+            あなたの現在地と羅針盤
+          </h2>
+          <div class="bg-gray-900/50 p-6 rounded-xl space-y-4">
+            <div>
+              <h3 class="font-semibold text-gray-400 text-sm">
+                あなたのパーソナルデータ:
+              </h3>
+              <p id="profile-summary" class="text-gray-200"></p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-400 text-sm">
+                あなたが解決したい課題:
+              </h3>
+              <p
+                id="worry-summary"
+                class="text-gray-200 whitespace-pre-wrap"
+              ></p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-semibold mb-6 text-gray-300">
+            人格OSプロファイル - あなたの才能の源泉
+          </h3>
+          <div id="os-summary" class="grid md:grid-cols-3 gap-6"></div>
+        </div>
+
+        <div>
+          <h3 class="text-xl font-semibold mb-6 text-gray-300">
+            選択した未来へのルート - 総合評価スコアの推移
+          </h3>
+          <div class="bg-gray-900/50 p-6 rounded-xl">
+            <canvas id="selected-path-chart" style="height: 250px"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="loading-indicator"
+        class="flex flex-col justify-center items-center py-16"
+      >
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-300"
+        ></div>
+        <p class="ml-4 text-gray-400 mt-4">
+          AIがあなただけの統合戦略書を生成しています...
+        </p>
+      </div>
+
+      <div id="ai-report-content" class="hidden"></div>
+    </div>
+
+    <script type="module">
+      let HAQEI_DATA = null;
+
+      function getHexagramById(id) {
+        if (!HAQEI_DATA) return { name: "不明", reading: "", catchphrase: "" };
+        const osData = HAQEI_DATA.hexagrams_master.find(
+          (h) => h.hexagram_id === id
+        );
+        return (
+          osData || { name: "不明", reading: "", catchphrase: "解説準備中" }
+        );
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const summaryContainer = document.getElementById("summary-container");
+        const osSummaryContainer = document.getElementById("os-summary");
+        const profileSummaryEl = document.getElementById("profile-summary");
+        const worrySummaryEl = document.getElementById("worry-summary");
+        const outputContainer = document.getElementById("ai-report-content");
+        const loadingIndicator = document.getElementById("loading-indicator");
+
+        try {
+          const response = await fetch("/api/data");
+          if (!response.ok)
+            throw new Error("データベースの読み込みに失敗しました。");
+          HAQEI_DATA = (await response.json()).HAQEI_DATA;
+        } catch (error) {
+          loadingIndicator.innerHTML = `<p class="text-red-400 text-center">${error.message}</p>`;
+          return;
+        }
+
+        const storedData = localStorage.getItem("haqeiProfessionalData");
+
+        if (!storedData) {
+          loadingIndicator.style.display = "none";
+          outputContainer.innerHTML =
+            '<div class="text-center p-8 bg-red-900/20 rounded-lg"><p class="text-red-300 font-bold text-lg">エラー: 分析データが見つかりません。</p><p class="text-gray-400 mt-4">お手数ですが、戦略コックピットページから操作をやり直してください。</p><a href="cockpit.html" class="inline-block mt-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg">コックピットへ戻る</a></div>';
+          outputContainer.classList.remove("hidden");
+          return;
+        }
+
+        try {
+          const requestPayload = JSON.parse(storedData);
+          const { profile, worry, analysis, selectedFuture } = requestPayload;
+
+          // --- サマリーセクションの描画 ---
+          let profileText = `MBTI: <strong>${
+            profile.mbti
+          }</strong> | エニアグラム: <strong>${
+            profile.enneagram.join(", ") || "未入力"
+          }</strong>`;
+          if (profile.sf && profile.sf.length > 0) {
+            profileText += ` | SF: <strong>${profile.sf
+              .slice(0, 3)
+              .join(", ")}...</strong>`;
+          }
+          profileSummaryEl.innerHTML = profileText;
+          worrySummaryEl.textContent = worry;
+
+          const osList = analysis.hexagram_candidates.slice(0, 3);
+          const osMap = {
+            engine: osList[0],
+            interface: osList[1],
+            safe_mode: osList[2],
+          };
+          const osColors = {
+            engine: "#fde047",
+            interface: "#a5b4fc",
+            safe_mode: "#6ee7b7",
+          };
+          const osIcons = { engine: "🔥", interface: "🎭", safe_mode: "🛡️" };
+          const osRoles = {
+            engine: "あなたを内側から突き動かす「魂のエンジン」",
+            interface: "世界と接続するための「ペルソナ」や「得意なスタイル」",
+            safe_mode: "ストレス時に立ち返る「心の安全地帯」",
+          };
+
+          osSummaryContainer.innerHTML = Object.entries(osMap)
+            .map(([key, os]) => {
+              const hexInfo = getHexagramById(os.hexagram_id);
+              return `
+                <div class="os-card" style="border-color: ${osColors[key]};">
+                    <div class="os-card-content">
+                        <h4 class="os-card-title text-lg font-bold"><span class="mr-2">${
+                          osIcons[key]
+                        }</span>${
+                key === "engine"
+                  ? "エンジンOS"
+                  : key === "interface"
+                  ? "インターフェースOS"
+                  : "セーフモードOS"
+              }</h4>
+                        <p class="text-xl font-semibold mt-1" style="color: ${
+                          osColors[key]
+                        };">${hexInfo.name}</p>
+                        <p class="text-xs text-gray-400 mt-2">${
+                          osRoles[key]
+                        }</p>
+                        <div class="mt-4 pt-3 border-t border-gray-600/50">
+                          <p class="text-sm font-semibold mb-1 text-gray-300">OSの特性:</p>
+                          <p class="text-sm">${
+                            hexInfo.catchphrase || "解説準備中"
+                          }</p>
+                        </div>
+                    </div>
+                </div>`;
+            })
+            .join("");
+
+          // 選択シナリオのグラフ
+          const path = selectedFuture.path;
+          const ctx = document
+            .getElementById("selected-path-chart")
+            .getContext("2d");
+          new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: path.map((p, i) => (i === 0 ? "現在地" : `フェーズ${i}`)),
+              datasets: [
+                {
+                  label: "総合評価スコア",
+                  data: path.map((p) => p.S7_総合評価スコア),
+                  borderColor: "#6ee7b7",
+                  backgroundColor: "rgba(74, 222, 128, 0.1)",
+                  fill: true,
+                  tension: 0.2,
+                  pointBackgroundColor: "#fff",
+                  pointBorderColor: "#6ee7b7",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: { beginAtZero: true, max: 100, ticks: { color: "#9ca3af" } },
+                x: { ticks: { color: "#9ca3af" } },
+              },
+            },
+          });
+
+          summaryContainer.classList.remove("hidden");
+          // --- サマリー描画完了 ---
+
+          // --- AIにレポート生成を依頼 ---
+          const response = await fetch("/api/professional-ai", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestPayload),
+          });
+
+          if (!response.ok) {
+            const errorResult = await response
+              .json()
+              .catch(() => ({
+                error: "サーバーから不明なエラーが返されました。",
+              }));
+            throw new Error(
+              errorResult.error || `サーバーエラー: ${response.status}`
+            );
+          }
+
+          const result = await response.json();
+
+          if (result.success) {
+            outputContainer.innerHTML = result.report;
+            outputContainer.classList.remove("hidden");
+          } else {
+            throw new Error(
+              result.error || "AIによるレポート生成に失敗しました。"
+            );
+          }
+        } catch (e) {
+          console.error("レポート生成プロセスでエラーが発生しました: ", e);
+          outputContainer.innerHTML = `<div class="text-center p-8 bg-red-900/20 rounded-lg"><p class="text-red-300 font-bold text-lg">エラー: レポートの生成に失敗しました。</p><p class="text-gray-400 mt-4">${e.message}</p></div>`;
+          outputContainer.classList.remove("hidden");
+        } finally {
+          loadingIndicator.style.display = "none";
+        }
+      });
+    </script>
+  </body>
+</html>

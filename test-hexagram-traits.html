@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>64卦データ確認テスト</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border: 1px solid #ddd; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+        .hexagram-grid { 
+            display: grid; 
+            grid-template-columns: repeat(8, 1fr); 
+            gap: 10px; 
+            margin: 20px 0;
+        }
+        .hexagram-card {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+        .hexagram-name { font-weight: bold; }
+        .hexagram-core { color: #007bff; font-size: 0.9em; }
+        .missing { background: #ffcccc; }
+    </style>
+</head>
+<body>
+    <h1>64卦データ完全性テスト</h1>
+    
+    <div id="test-results"></div>
+    
+    <h2>全64卦の実装状況</h2>
+    <div id="hexagram-grid" class="hexagram-grid"></div>
+    
+    <script src="public/js/data/hexagram-human-traits.js"></script>
+    <script>
+        // 期待される64卦のリスト
+        const expected64Hexagrams = [
+            "乾為天", "坤為地", "水雷屯", "山水蒙", "水天需", "天水訟", "地水師", "水地比",
+            "風天小畜", "天澤履", "地天泰", "天地否", "天火同人", "火天大有", "地山謙", "雷地豫",
+            "澤雷隨", "山風蠱", "地澤臨", "風地観", "火雷噬嗑", "山火賁", "山地剥", "地雷復",
+            "天雷無妄", "山天大畜", "山雷頤", "澤風大過", "坎為水", "離為火", "澤山咸", "雷風恒",
+            "天山遯", "雷天大壮", "火地晋", "地火明夷", "風火家人", "火澤睽", "水山蹇", "雷水解",
+            "山澤損", "風雷益", "澤天夬", "天風姤", "澤地萃", "地風升", "澤水困", "水風井",
+            "澤火革", "火風鼎", "震為雷", "艮為山", "風山漸", "雷澤帰妹", "雷火豊", "火山旅",
+            "巽為風", "兌為澤", "風水渙", "水澤節", "風澤中孚", "雷山小過", "水火既済", "火水未済"
+        ];
+        
+        const resultsDiv = document.getElementById('test-results');
+        const gridDiv = document.getElementById('hexagram-grid');
+        
+        // Test 1: Check if HexagramHumanTraits exists
+        const test1 = document.createElement('div');
+        test1.className = 'test-result';
+        if (typeof HexagramHumanTraits !== 'undefined') {
+            test1.className += ' success';
+            test1.innerHTML = '✅ HexagramHumanTraits オブジェクトが存在します';
+        } else {
+            test1.className += ' error';
+            test1.innerHTML = '❌ HexagramHumanTraits オブジェクトが見つかりません';
+        }
+        resultsDiv.appendChild(test1);
+        
+        // Test 2: Check window.getHexagramTraits function
+        const test2 = document.createElement('div');
+        test2.className = 'test-result';
+        if (typeof window.getHexagramTraits === 'function') {
+            test2.className += ' success';
+            test2.innerHTML = '✅ window.getHexagramTraits 関数が存在します';
+        } else {
+            test2.className += ' error';
+            test2.innerHTML = '❌ window.getHexagramTraits 関数が見つかりません';
+        }
+        resultsDiv.appendChild(test2);
+        
+        // Test 3: Count implemented hexagrams
+        const implementedHexagrams = Object.keys(HexagramHumanTraits || {});
+        const test3 = document.createElement('div');
+        test3.className = 'test-result';
+        if (implementedHexagrams.length === 64) {
+            test3.className += ' success';
+            test3.innerHTML = `✅ 64卦すべて実装済み (${implementedHexagrams.length}/64)`;
+        } else {
+            test3.className += ' error';
+            test3.innerHTML = `❌ 実装済み: ${implementedHexagrams.length}/64卦`;
+        }
+        resultsDiv.appendChild(test3);
+        
+        // Test 4: Check each hexagram
+        let missingCount = 0;
+        let dataIncompleteCount = 0;
+        
+        expected64Hexagrams.forEach((hexagramName, index) => {
+            const card = document.createElement('div');
+            card.className = 'hexagram-card';
+            
+            const hexagramData = HexagramHumanTraits[hexagramName];
+            
+            if (!hexagramData) {
+                card.className += ' missing';
+                card.innerHTML = `
+                    <div class="hexagram-name">${index + 1}. ${hexagramName}</div>
+                    <div style="color: red;">❌ 未実装</div>
+                `;
+                missingCount++;
+            } else {
+                // Check data completeness
+                const hasPersonality = hexagramData.personality && hexagramData.personality.core;
+                const hasTraits = hexagramData.traits && hexagramData.traits.strengths;
+                const hasBehavioral = hexagramData.behavioral && hexagramData.behavioral.work;
+                const hasGrowth = hexagramData.growth && hexagramData.growth.advice;
+                
+                if (!hasPersonality || !hasTraits || !hasBehavioral || !hasGrowth) {
+                    dataIncompleteCount++;
+                    card.style.background = '#fff3cd';
+                }
+                
+                card.innerHTML = `
+                    <div class="hexagram-name">${index + 1}. ${hexagramName}</div>
+                    <div class="hexagram-core">${hexagramData.personality?.core || '未定義'}</div>
+                    <div style="font-size: 0.8em; color: #666;">
+                        ${hasPersonality ? '✓' : '✗'} 性格
+                        ${hasTraits ? '✓' : '✗'} 特性
+                        ${hasBehavioral ? '✓' : '✗'} 行動
+                        ${hasGrowth ? '✓' : '✗'} 成長
+                    </div>
+                `;
+            }
+            
+            gridDiv.appendChild(card);
+        });
+        
+        // Test 5: Summary of missing data
+        const test5 = document.createElement('div');
+        test5.className = 'test-result';
+        if (missingCount === 0 && dataIncompleteCount === 0) {
+            test5.className += ' success';
+            test5.innerHTML = '✅ すべての卦が完全なデータを持っています';
+        } else {
+            test5.className += ' error';
+            test5.innerHTML = `⚠️ 未実装: ${missingCount}卦, データ不完全: ${dataIncompleteCount}卦`;
+        }
+        resultsDiv.appendChild(test5);
+        
+        // Test 6: Test getHexagramTraits function with various inputs
+        const test6 = document.createElement('div');
+        test6.className = 'test-result';
+        try {
+            const test1Result = window.getHexagramTraits(1);  // By ID
+            const test58Result = window.getHexagramTraits(58); // By ID
+            const testNameResult = window.getHexagramTraits("坤為地"); // By name
+            
+            if (test1Result && test1Result.name === "乾為天" &&
+                test58Result && test58Result.name === "兌為澤" &&
+                testNameResult && testNameResult.name === "坤為地") {
+                test6.className += ' success';
+                test6.innerHTML = '✅ getHexagramTraits関数が正しく動作しています';
+            } else {
+                test6.className += ' error';
+                test6.innerHTML = '❌ getHexagramTraits関数の動作に問題があります';
+            }
+        } catch (e) {
+            test6.className += ' error';
+            test6.innerHTML = '❌ getHexagramTraits関数でエラー: ' + e.message;
+        }
+        resultsDiv.appendChild(test6);
+        
+        // Final summary
+        const summary = document.createElement('div');
+        summary.style.marginTop = '20px';
+        summary.style.padding = '15px';
+        summary.style.background = missingCount === 0 ? '#d4edda' : '#f8d7da';
+        summary.style.border = '1px solid ' + (missingCount === 0 ? '#c3e6cb' : '#f5c6cb');
+        summary.innerHTML = `
+            <h3>テスト結果サマリー</h3>
+            <ul>
+                <li>実装済み卦数: ${64 - missingCount}/64</li>
+                <li>完全なデータを持つ卦: ${64 - missingCount - dataIncompleteCount}/64</li>
+                <li>window.getHexagramTraits: ${typeof window.getHexagramTraits === 'function' ? '✅ 利用可能' : '❌ 利用不可'}</li>
+                <li>総合評価: ${missingCount === 0 ? '✅ 完全実装' : '⚠️ 部分実装'}</li>
+            </ul>
+        `;
+        resultsDiv.appendChild(summary);
+    </script>
+</body>
+</html>

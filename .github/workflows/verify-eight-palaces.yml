@@ -1,0 +1,227 @@
+name: Eight Palaces Verification
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'public/os_analyzer.html'
+      - 'verify-eight-palaces.cjs'
+      - '.github/workflows/verify-eight-palaces.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'public/os_analyzer.html'
+      - 'verify-eight-palaces.cjs'
+
+jobs:
+  verify-mapping:
+    runs-on: ubuntu-latest
+    
+    name: Verify Eight Palaces Mapping
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run Eight Palaces verification
+      run: |
+        echo "Running Eight Palaces mapping verification..."
+        node verify-eight-palaces.cjs
+        
+    - name: Check verification results
+      run: |
+        # Run verification and capture exit code
+        if node verify-eight-palaces.cjs | grep -q "すべての八宮マッピングが正しく実装されています"; then
+          echo "✅ Eight Palaces mapping is correct!"
+          exit 0
+        else
+          echo "❌ Eight Palaces mapping has errors!"
+          exit 1
+        fi
+        
+    - name: Generate verification report
+      if: always()
+      run: |
+        echo "# Eight Palaces Verification Report" > verification-report.md
+        echo "## Timestamp: $(date)" >> verification-report.md
+        echo "## Branch: ${{ github.ref_name }}" >> verification-report.md
+        echo "## Commit: ${{ github.sha }}" >> verification-report.md
+        echo "" >> verification-report.md
+        echo "### Verification Output:" >> verification-report.md
+        echo '```' >> verification-report.md
+        node verify-eight-palaces.cjs >> verification-report.md 2>&1
+        echo '```' >> verification-report.md
+        
+    - name: Upload verification report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: verification-report
+        path: verification-report.md
+        
+    - name: Comment on PR (if applicable)
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('verification-report.md', 'utf8');
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: report
+          });
+
+  quality-metrics:
+    runs-on: ubuntu-latest
+    
+    name: Verify Quality Metrics
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Create quality metrics verification script
+      run: |
+        cat << 'EOF' > verify-quality-metrics.cjs
+        const fs = require('fs');
+        const path = require('path');
+        
+        // Read the implementation
+        const htmlPath = path.join(__dirname, 'public', 'os_analyzer.html');
+        const htmlContent = fs.readFileSync(htmlPath, 'utf8');
+        
+        // Check for quality metrics functions
+        const requiredFunctions = [
+          'calculateQualityMetrics',
+          'calculateVariance',
+          'calculateConsistency',
+          'calculateBalance',
+          'calculateCoverage'
+        ];
+        
+        let allFound = true;
+        requiredFunctions.forEach(func => {
+          if (!htmlContent.includes(func)) {
+            console.log(`❌ Missing function: ${func}`);
+            allFound = false;
+          }
+        });
+        
+        if (allFound) {
+          console.log('✅ All quality metrics functions are implemented');
+          process.exit(0);
+        } else {
+          console.log('❌ Some quality metrics functions are missing');
+          process.exit(1);
+        }
+        EOF
+        
+    - name: Run quality metrics verification
+      run: node verify-quality-metrics.cjs
+
+  provenance-check:
+    runs-on: ubuntu-latest
+    
+    name: Verify Data Provenance
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Calculate SHA-256 hashes
+      run: |
+        echo "Calculating hashes for critical data files..."
+        sha256sum data/eight_palaces.v1.json > /tmp/current_hashes.txt
+        sha256sum data/source_manifest.json >> /tmp/current_hashes.txt
+        
+    - name: Verify manifest integrity
+      run: |
+        # Extract expected hash from manifest
+        EXPECTED_HASH=$(jq -r '.palace_mapping.sha256' data/source_manifest.json)
+        ACTUAL_HASH=$(sha256sum data/eight_palaces.v1.json | cut -d' ' -f1)
+        
+        if [ "$EXPECTED_HASH" != "$ACTUAL_HASH" ]; then
+          echo "❌ Hash mismatch detected!"
+          echo "Expected: $EXPECTED_HASH"
+          echo "Actual: $ACTUAL_HASH"
+          echo "Data integrity check failed. Manual review required."
+          exit 1
+        else
+          echo "✅ Data integrity verified"
+        fi
+        
+    - name: Check for unauthorized changes
+      run: |
+        # List of protected files
+        PROTECTED_FILES=(
+          "data/eight_palaces.v1.json"
+          "data/source_manifest.json"
+        )
+        
+        for file in "${PROTECTED_FILES[@]}"; do
+          if git diff HEAD^ HEAD --name-only | grep -q "$file"; then
+            echo "⚠️ Protected file modified: $file"
+            echo "This change requires explicit review and manifest update."
+          fi
+        done
+
+  documentation-check:
+    runs-on: ubuntu-latest
+    
+    name: Verify Documentation
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Check required documentation files
+      run: |
+        required_docs=(
+          "20250814_DECISION_RULES_SPECIFICATION.md"
+          "20250814_EIGHT_PALACES_IMPLEMENTATION_REPORT.md"
+          "20250814_EXPERT_FEEDBACK_RESPONSE.md"
+        )
+        
+        all_found=true
+        for doc in "${required_docs[@]}"; do
+          if [ -f "$doc" ]; then
+            echo "✅ Found: $doc"
+          else
+            echo "❌ Missing: $doc"
+            all_found=false
+          fi
+        done
+        
+        if [ "$all_found" = true ]; then
+          echo "✅ All required documentation is present"
+          exit 0
+        else
+          echo "❌ Some documentation is missing"
+          exit 1
+        fi
+        
+    - name: Validate documentation content
+      run: |
+        # Check for essential sections in decision rules
+        if grep -q "八宮配列の出典と系統" "20250814_DECISION_RULES_SPECIFICATION.md"; then
+          echo "✅ Documentation includes source references"
+        else
+          echo "⚠️ Documentation may be missing source references"
+        fi

@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI診断結果 - 美しいアコーディオンデザイン版</title>
+    
+    <!-- 既存のスタイル（変更なし） -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            /* カラーパレット */
+            --primary-blue: #3b82f6;
+            --primary-blue-dark: #2563eb;
+            --primary-blue-light: #60a5fa;
+            --secondary-cyan: #06b6d4;
+            --engine-color: #ef4444;
+            --interface-color: #06b6d4;
+            --safemode-color: #10b981;
+            
+            /* グレースケール */
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* スペーシング */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            --spacing-3xl: 4rem;
+            
+            /* シャドウ */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
+            color: var(--gray-800);
+            line-height: 1.6;
+        }
+        
+        /* ヒーローセクション */
+        .hero-section {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            padding: var(--spacing-3xl) var(--spacing-lg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 背景パターン */
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(147, 197, 253, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        /* 装飾的な円形要素 */
+        .hero-decoration {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.1;
+        }
+        
+        .hero-decoration-1 {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 5%;
+            background: radial-gradient(circle, rgba(96, 165, 250, 0.8) 0%, transparent 70%);
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .hero-decoration-2 {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            right: 10%;
+            background: radial-gradient(circle, rgba(147, 197, 253, 0.8) 0%, transparent 70%);
+            animation: float 15s infinite ease-in-out reverse;
+        }
+        
+        .hero-decoration-3 {
+            width: 150px;
+            height: 150px;
+            bottom: 20%;
+            left: 15%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.8) 0%, transparent 70%);
+            animation: float 25s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+        
+        .hero-container {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-bottom: var(--spacing-lg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+        
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: var(--spacing-lg);
+            line-height: 1.2;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto var(--spacing-2xl);
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .hero-traits {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-lg);
+            margin: var(--spacing-2xl) auto;
+            max-width: 800px;
+        }
+        
+        .trait-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+            padding: var(--spacing-lg);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .trait-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .trait-emoji {
+            font-size: 2rem;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .trait-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .trait-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .trait-desc {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        .hero-scroll {
+            margin-top: var(--spacing-3xl);
+        }
+        
+        .scroll-button {
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary-blue);
+            border: 2px solid transparent;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .scroll-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .scroll-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            background: white;
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        .scroll-button:hover::before {
+            left: 100%;
+        }
+        
+        /* サマリーセクション */
+        .summary-section {
+            padding: var(--spacing-3xl) var(--spacing-lg);
+            background: white;
+        }
+        
+        .summary-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .summary-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+        
+        .summary-badge {
+            display: inline-block;
+            background: var(--primary-blue-light);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .summary-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .summary-subtitle {
+            font-size: 1.1rem;
+            color: var(--gray-600);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .summary-content {
+            background: var(--gray-50);
+            border-radius: 16px;
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .key-points {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .key-point {
+            background: white;
+            padding: var(--spacing-lg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+        
+        .key-point:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .key-point-icon {
+            font-size: 2rem;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .key-point-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: var(--spacing-xs);
+        }
+        
+        .key-point-desc {
+            font-size: 0.95rem;
+            color: var(--gray-600);
+        }
+        
+        /* 詳細セクション */
+        .detail-section {
+            padding: var(--spacing-2xl) var(--spacing-lg);
+            background: var(--gray-50);
+        }
+        
+        .detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .detail-header {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+        
+        .detail-toggle {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: var(--spacing-lg) auto;
+            display: block;
+        }
+        
+        .detail-toggle:hover {
+            background: var(--primary-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .detail-content {
+            display: none;
+            margin-top: var(--spacing-2xl);
+        }
+        
+        .detail-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* アコーディオン */
+        .accordion-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: var(--spacing-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .accordion-header {
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.3s ease;
+            border-top: 4px solid transparent;
+        }
+        
+        .accordion-item.engine .accordion-header {
+            border-top-color: var(--engine-color);
+        }
+        
+        .accordion-item.interface .accordion-header {
+            border-top-color: var(--interface-color);
+        }
+        
+        .accordion-item.safemode .accordion-header {
+            border-top-color: var(--safemode-color);
+        }
+        
+        .accordion-header:hover {
+            background: var(--gray-50);
+        }
+        
+        .accordion-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        
+        .accordion-item.active .accordion-content {
+            max-height: 5000px;
+        }
+        
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 1.75rem;
+            }
+            
+            .hero-traits {
+                grid-template-columns: 1fr;
+            }
+            
+            .key-points {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    
+    <!-- 新しい美しいアコーディオンデザインCSS -->
+    <link rel="stylesheet" href="public/css/accordion-detail-design.css">
+</head>
+<body>
+    <!-- ヒーローセクション -->
+    <section class="hero-section">
+        <!-- 装飾的な背景要素 -->
+        <div class="hero-decoration hero-decoration-1"></div>
+        <div class="hero-decoration hero-decoration-2"></div>
+        <div class="hero-decoration hero-decoration-3"></div>
+        
+        <div class="hero-container">
+            <div class="hero-badge">診断結果</div>
+            <h1 class="hero-title" id="hero-title">
+                新しいアイデアで周りを支える<br>
+                革新的なサポーター
+            </h1>
+            <p class="hero-subtitle" id="hero-subtitle">
+                常に「もっと良い方法はないか？」を考えながら、
+                チームの成長と調和を支える、創造的な支援者タイプです
+            </p>
+            
+            <div class="hero-traits" id="hero-traits">
+                <div class="trait-card">
+                    <div class="trait-emoji">🚀</div>
+                    <div class="trait-label">原動力</div>
+                    <div class="trait-value" id="engine-name">革新追求</div>
+                    <div class="trait-desc" id="engine-score">スコア: 92</div>
+                </div>
+                <div class="trait-card">
+                    <div class="trait-emoji">💬</div>
+                    <div class="trait-label">人との関わり</div>
+                    <div class="trait-value" id="interface-name">情熱共有</div>
+                    <div class="trait-desc" id="interface-score">スコア: 75</div>
+                </div>
+                <div class="trait-card">
+                    <div class="trait-emoji">🛡️</div>
+                    <div class="trait-label">ストレス対処</div>
+                    <div class="trait-value" id="safemode-name">衝撃転換</div>
+                    <div class="trait-desc" id="safemode-score">スコア: 68</div>
+                </div>
+            </div>
+            
+            <div class="hero-scroll">
+                <button class="scroll-button" onclick="scrollToSummary()">
+                    詳しい分析を見る ↓
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- サマリーセクション -->
+    <section class="summary-section" id="summary-section">
+        <div class="summary-container">
+            <div class="summary-header">
+                <div class="summary-badge">あなたの特性</div>
+                <h2 class="summary-title">3つのOSが織りなす独自の個性</h2>
+                <p class="summary-subtitle">
+                    Engine OS、Interface OS、SafeMode OSの組み合わせが、
+                    あなただけの特別な才能と可能性を生み出しています
+                </p>
+            </div>
+            
+            <div class="summary-content">
+                <div class="key-points" id="key-points">
+                    <div class="key-point">
+                        <div class="key-point-icon">💡</div>
+                        <div class="key-point-title">強み</div>
+                        <div class="key-point-desc">革新的な発想力と実行力</div>
+                    </div>
+                    <div class="key-point">
+                        <div class="key-point-icon">🎯</div>
+                        <div class="key-point-title">適職</div>
+                        <div class="key-point-desc">プロダクトマネージャー</div>
+                    </div>
+                    <div class="key-point">
+                        <div class="key-point-icon">⚡</div>
+                        <div class="key-point-title">成長機会</div>
+                        <div class="key-point-desc">チーム連携の強化</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 詳細分析セクション -->
+    <section class="detail-section">
+        <div class="detail-container">
+            <div class="detail-header">
+                <h2 class="summary-title">詳細分析レポート</h2>
+                <p class="summary-subtitle">各OSの詳しい特性と活用方法</p>
+                <button class="detail-toggle" onclick="toggleDetail()">
+                    詳細を表示 ▼
+                </button>
+            </div>
+            
+            <div class="detail-content" id="detail-content">
+                <!-- アコーディオンコンテンツがここに動的に挿入される -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- V3データベース読み込み -->
+    <script src="public/js/data/hexagram-human-traits-v3.js"></script>
+    
+    <script>
+        // サンプルデータ
+        const sampleData = {
+            engineOS: { hexagram: '乾為天', score: 92 },
+            interfaceOS: { hexagram: '坤為地', score: 75 },
+            safeModeOS: { hexagram: '水雷屯', score: 68 }
+        };
+        
+        // 詳細表示切り替え
+        function toggleDetail() {
+            const content = document.getElementById('detail-content');
+            const button = document.querySelector('.detail-toggle');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                button.textContent = '詳細を表示 ▼';
+            } else {
+                content.classList.add('active');
+                button.textContent = '詳細を非表示 ▲';
+                if (!content.innerHTML) {
+                    loadDetailContent();
+                }
+            }
+        }
+        
+        // アコーディオン切り替え
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            item.classList.toggle('active');
+        }
+        
+        // スムーズスクロール
+        function scrollToSummary() {
+            document.getElementById('summary-section').scrollIntoView({ 
+                behavior: 'smooth' 
+            });
+        }
+        
+        // 詳細コンテンツの読み込み
+        function loadDetailContent() {
+            const container = document.getElementById('detail-content');
+            const engineData = window.HexagramHumanTraitsV3[sampleData.engineOS.hexagram];
+            const interfaceData = window.HexagramHumanTraitsV3[sampleData.interfaceOS.hexagram];
+            const safeData = window.HexagramHumanTraitsV3[sampleData.safeModeOS.hexagram];
+            
+            container.innerHTML = `
+                <div class="accordion-item engine">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <div class="accordion-title">
+                            🚀 原動力の詳細：${sampleData.engineOS.hexagram}「${engineData.nickname}」
+                        </div>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            ${generateOSDetailBeautiful(engineData, 'engine', sampleData.engineOS.score)}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item interface">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <div class="accordion-title">
+                            💬 人との関わり方：${sampleData.interfaceOS.hexagram}「${interfaceData.nickname}」
+                        </div>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            ${generateOSDetailBeautiful(interfaceData, 'interface', sampleData.interfaceOS.score)}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item safemode">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <div class="accordion-title">
+                            🛡️ ストレス対処法：${sampleData.safeModeOS.hexagram}「${safeData.nickname}」
+                        </div>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            ${generateOSDetailBeautiful(safeData, 'safemode', sampleData.safeModeOS.score)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 美しいOS詳細生成関数
+        function generateOSDetailBeautiful(data, type, score) {
+            let html = `
+                <!-- メタ情報バー -->
+                <div class="os-meta-bar">
+                    <div class="os-meta-item">
+                        <strong>第${data.id || '?'}卦</strong>
+                    </div>
+                    <div class="os-meta-divider"></div>
+                    <div class="os-meta-item">
+                        <strong>卦象:</strong> ${data.symbol || ''}
+                    </div>
+                    <div class="os-meta-divider"></div>
+                    <div class="os-meta-item">
+                        <strong>五行:</strong> ${data.element || ''}
+                    </div>
+                    <div class="os-meta-divider"></div>
+                    <div class="os-meta-item">
+                        <strong>スコア:</strong> ${score}
+                    </div>
+                </div>
+            `;
+            
+            if (type === 'engine' && data.asEngineOS) {
+                const os = data.asEngineOS;
+                html += `
+                    <!-- プロフィール -->
+                    <div class="detail-section">
+                        <div class="detail-section-header">
+                            <div class="detail-section-icon">👤</div>
+                            <h3 class="detail-section-title">プロフィール</h3>
+                        </div>
+                        <div class="detail-card">
+                            ${os.profile ? `
+                                <div class="detail-field">
+                                    <div class="detail-label">タイプ</div>
+                                    <div class="detail-value highlight">${os.profile.type || os.type || ''}</div>
+                                </div>
+                                ${os.profile.description ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">説明</div>
+                                        <div class="detail-value">${os.profile.description}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.profile.metaphor ? `
+                                    <div class="detail-metaphor">${os.profile.metaphor}</div>
+                                ` : ''}
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <!-- 通常状態 -->
+                    ${os.normalState ? `
+                        <div class="detail-section">
+                            <div class="detail-section-header">
+                                <div class="detail-section-icon">⚡</div>
+                                <h3 class="detail-section-title">通常の状態</h3>
+                            </div>
+                            <div class="detail-card">
+                                <div class="detail-field">
+                                    <div class="detail-label">どんな状態</div>
+                                    <div class="detail-value">${os.normalState.whatHappens || ''}</div>
+                                </div>
+                                ${os.normalState.example ? `
+                                    <div class="detail-value example">
+                                        例: ${os.normalState.example}
+                                    </div>
+                                ` : ''}
+                                ${os.normalState.energyLevel ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">エネルギーレベル</div>
+                                        <div class="energy-level">
+                                            <div class="energy-bar">
+                                                <div class="energy-fill" style="width: ${parseEnergyLevel(os.normalState.energyLevel)}%"></div>
+                                            </div>
+                                            <span>${os.normalState.energyLevel}</span>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- スーパーモード -->
+                    ${os.superMode ? `
+                        <div class="detail-section">
+                            <div class="detail-section-header">
+                                <div class="detail-section-icon">🚀</div>
+                                <h3 class="detail-section-title">スーパーモード</h3>
+                            </div>
+                            <div class="detail-card">
+                                ${os.superMode.when ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">発動条件</div>
+                                        <div class="detail-value highlight">${os.superMode.when}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.superMode.whatHappens ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">どうなるか</div>
+                                        <div class="detail-value">${os.superMode.whatHappens}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.superMode.example ? `
+                                    <div class="detail-value example">
+                                        例: ${os.superMode.example}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- セルフケア -->
+                    ${os.maintenance ? `
+                        <div class="detail-section">
+                            <div class="detail-section-header">
+                                <div class="detail-section-icon">🌿</div>
+                                <h3 class="detail-section-title">セルフケア</h3>
+                            </div>
+                            <div class="detail-grid">
+                                ${os.maintenance.whatYouNeed ? `
+                                    <div class="detail-grid-item">
+                                        <div class="detail-label">必要なもの</div>
+                                        <div class="detail-value">${os.maintenance.whatYouNeed}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.maintenance.howToCharge ? `
+                                    <div class="detail-grid-item">
+                                        <div class="detail-label">充電方法</div>
+                                        <div class="detail-value">${os.maintenance.howToCharge}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ${os.maintenance.warning ? `
+                                <div class="detail-warning">${os.maintenance.warning}</div>
+                            ` : ''}
+                            ${os.maintenance.tip ? `
+                                <div class="detail-tip">${os.maintenance.tip}</div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                `;
+            } else if (type === 'interface' && data.asInterfaceOS) {
+                const os = data.asInterfaceOS;
+                html += `
+                    <!-- プロフィール -->
+                    <div class="detail-section">
+                        <div class="detail-section-header">
+                            <div class="detail-section-icon">👤</div>
+                            <h3 class="detail-section-title">プロフィール</h3>
+                        </div>
+                        <div class="detail-card">
+                            ${os.profile ? `
+                                <div class="detail-field">
+                                    <div class="detail-label">タイプ</div>
+                                    <div class="detail-value highlight">${os.profile.type || os.type || ''}</div>
+                                </div>
+                                ${os.profile.description ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">説明</div>
+                                        <div class="detail-value">${os.profile.description}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.profile.metaphor ? `
+                                    <div class="detail-metaphor">${os.profile.metaphor}</div>
+                                ` : ''}
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <!-- コミュニケーションスタイル -->
+                    ${os.howToTalk ? `
+                        <div class="detail-section">
+                            <div class="detail-section-header">
+                                <div class="detail-section-icon">💬</div>
+                                <h3 class="detail-section-title">コミュニケーションスタイル</h3>
+                            </div>
+                            <div class="detail-card">
+                                ${os.howToTalk.style ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">話し方</div>
+                                        <div class="detail-value">${os.howToTalk.style}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.howToTalk.example ? `
+                                    <div class="detail-value example">
+                                        例: ${os.howToTalk.example}
+                                    </div>
+                                ` : ''}
+                                <div class="detail-grid">
+                                    ${os.howToTalk.goodAt ? `
+                                        <div class="detail-grid-item">
+                                            <div class="detail-label">得意</div>
+                                            <div class="detail-value">${os.howToTalk.goodAt}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${os.howToTalk.notGoodAt ? `
+                                        <div class="detail-grid-item">
+                                            <div class="detail-label">苦手</div>
+                                            <div class="detail-value">${os.howToTalk.notGoodAt}</div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- 最適環境 -->
+                    ${os.bestEnvironment ? `
+                        <div class="detail-section">
+                            <div class="detail-section-header">
+                                <div class="detail-section-icon">🏠</div>
+                                <h3 class="detail-section-title">最適な環境</h3>
+                            </div>
+                            <div class="detail-card">
+                                ${os.bestEnvironment.where ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">場所</div>
+                                        <div class="detail-value">${os.bestEnvironment.where}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.bestEnvironment.example ? `
+                                    <div class="detail-value example">
+                                        例: ${os.bestEnvironment.example}
+                                    </div>
+                                ` : ''}
+                                ${os.bestEnvironment.withWho ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">相性の良い人</div>
+                                        <div class="detail-value">${os.bestEnvironment.withWho}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.bestEnvironment.avoid ? `
+                                    <div class="detail-warning">
+                                        避けるべき環境: ${os.bestEnvironment.avoid}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- 関係性のコツ -->
+                    ${os.relationshipTips ? `
+                        <div class="detail-section">
+                            <div class="detail-section-header">
+                                <div class="detail-section-icon">🤝</div>
+                                <h3 class="detail-section-title">関係性のコツ</h3>
+                            </div>
+                            <div class="detail-grid">
+                                ${os.relationshipTips.strength ? `
+                                    <div class="detail-grid-item">
+                                        <div class="detail-label">強み</div>
+                                        <div class="detail-value">${os.relationshipTips.strength}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.relationshipTips.weakness ? `
+                                    <div class="detail-grid-item">
+                                        <div class="detail-label">弱み</div>
+                                        <div class="detail-value">${os.relationshipTips.weakness}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ${os.relationshipTips.advice ? `
+                                <div class="detail-tip">${os.relationshipTips.advice}</div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                `;
+            } else if (type === 'safemode' && data.asSafeModeOS) {
+                const os = data.asSafeModeOS;
+                html += `
+                    <!-- プロフィール -->
+                    <div class="detail-section">
+                        <div class="detail-section-header">
+                            <div class="detail-section-icon">👤</div>
+                            <h3 class="detail-section-title">プロフィール</h3>
+                        </div>
+                        <div class="detail-card">
+                            ${os.profile ? `
+                                <div class="detail-field">
+                                    <div class="detail-label">タイプ</div>
+                                    <div class="detail-value highlight">${os.profile.type || os.type || ''}</div>
+                                </div>
+                                ${os.profile.description ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">説明</div>
+                                        <div class="detail-value">${os.profile.description}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.profile.metaphor ? `
+                                    <div class="detail-metaphor">${os.profile.metaphor}</div>
+                                ` : ''}
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <!-- ストレス対処法 -->
+                    ${os.stressResponse ? `
+                        <div class="detail-section">
+                            <div class="detail-section-header">
+                                <div class="detail-section-icon">🛡️</div>
+                                <h3 class="detail-section-title">ストレス対処法</h3>
+                            </div>
+                            <div class="detail-card">
+                                ${os.stressResponse.whatYouDo ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">対処方法</div>
+                                        <div class="detail-value">${os.stressResponse.whatYouDo}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.stressResponse.example ? `
+                                    <div class="detail-value example">
+                                        例: ${os.stressResponse.example}
+                                    </div>
+                                ` : ''}
+                                <div class="detail-grid">
+                                    ${os.stressResponse.goodPoint ? `
+                                        <div class="detail-grid-item">
+                                            <div class="detail-label">良い点</div>
+                                            <div class="detail-value">${os.stressResponse.goodPoint}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${os.stressResponse.badPoint ? `
+                                        <div class="detail-grid-item">
+                                            <div class="detail-label">注意点</div>
+                                            <div class="detail-value">${os.stressResponse.badPoint}</div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- 緊急モード -->
+                    ${os.emergencyMode ? `
+                        <div class="detail-section">
+                            <div class="detail-section-header">
+                                <div class="detail-section-icon">🚨</div>
+                                <h3 class="detail-section-title">緊急モード</h3>
+                            </div>
+                            <div class="detail-card">
+                                ${os.emergencyMode.whatHappens ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">反応</div>
+                                        <div class="detail-value">${os.emergencyMode.whatHappens}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.emergencyMode.example ? `
+                                    <div class="detail-value example">
+                                        例: ${os.emergencyMode.example}
+                                    </div>
+                                ` : ''}
+                                ${os.emergencyMode.recovery ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">回復方法</div>
+                                        <div class="detail-value">${os.emergencyMode.recovery}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.emergencyMode.timeToRecover ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">回復時間</div>
+                                        <div class="detail-progress">
+                                            <div class="progress-header">
+                                                <span>回復まで</span>
+                                                <span>${os.emergencyMode.timeToRecover}</span>
+                                            </div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: 60%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- 回復方法 -->
+                    ${os.howToRecover ? `
+                        <div class="detail-section">
+                            <div class="detail-section-header">
+                                <div class="detail-section-icon">💚</div>
+                                <h3 class="detail-section-title">回復方法</h3>
+                            </div>
+                            <div class="detail-card">
+                                ${os.howToRecover.bestWay ? `
+                                    <div class="detail-field">
+                                        <div class="detail-label">ベストな方法</div>
+                                        <div class="detail-value highlight">${os.howToRecover.bestWay}</div>
+                                    </div>
+                                ` : ''}
+                                ${os.howToRecover.example ? `
+                                    <div class="detail-value example">
+                                        例: ${os.howToRecover.example}
+                                    </div>
+                                ` : ''}
+                                <div class="detail-grid">
+                                    ${os.howToRecover.environment ? `
+                                        <div class="detail-grid-item">
+                                            <div class="detail-label">環境</div>
+                                            <div class="detail-value">${os.howToRecover.environment}</div>
+                                        </div>
+                                    ` : ''}
+                                    ${os.howToRecover.support ? `
+                                        <div class="detail-grid-item">
+                                            <div class="detail-label">サポート</div>
+                                            <div class="detail-value">${os.howToRecover.support}</div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+            }
+            
+            return html;
+        }
+        
+        // エネルギーレベルをパーセンテージに変換
+        function parseEnergyLevel(level) {
+            if (level.includes('高') || level.includes('100')) return 90;
+            if (level.includes('中') || level.includes('70')) return 70;
+            if (level.includes('低') || level.includes('30')) return 30;
+            return 50;
+        }
+        
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            // V3データが利用可能か確認
+            if (typeof window.HexagramHumanTraitsV3 !== 'undefined') {
+                console.log('V3データベースが正常に読み込まれました');
+            } else {
+                console.error('V3データベースの読み込みに失敗しました');
+            }
+        });
+    </script>
+</body>
+</html>

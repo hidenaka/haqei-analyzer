@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>64×64×64 組み合わせ検証</title>
+    <style>
+        body { 
+            font-family: monospace; 
+            padding: 20px; 
+            background: #1a1a1a; 
+            color: #fff; 
+        }
+        .test-section { 
+            margin: 30px 0; 
+            padding: 20px; 
+            border: 1px solid #444; 
+            border-radius: 8px;
+        }
+        .random-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .os-display {
+            padding: 15px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 5px;
+        }
+        .os-display h3 {
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 8px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .interaction-detail {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 5px;
+        }
+        .keyword-highlight {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+        .energy-pattern {
+            color: #10b981;
+            font-style: italic;
+        }
+        .combination-summary {
+            padding: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid #3b82f6;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔮 64×64×64 組み合わせ検証ツール</h1>
+    <p>262,144通りの組み合わせから任意の組み合わせを選んで、それぞれの特徴が正しく表現されているか確認</p>
+
+    <div class="test-section">
+        <h2>📊 ランダム組み合わせテスト</h2>
+        <button onclick="generateRandomCombination()">🎲 ランダム生成 (1-64から選択)</button>
+        <button onclick="generateSpecificPattern()">🎯 特定パターン生成</button>
+        <button onclick="generateExtremeCase()">⚡ 極端なケース生成</button>
+        
+        <div class="random-selector" id="os-display"></div>
+        <div id="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 統計分析</h2>
+        <button onclick="analyzeMultipleCombinations(10)">10組合せ分析</button>
+        <button onclick="analyzeMultipleCombinations(100)">100組合せ分析</button>
+        <div id="statistics"></div>
+    </div>
+
+    <script src="./assets/H384H64database.js"></script>
+    <script src="./js/core/TripleOSInteractionAnalyzer.js"></script>
+    <script>
+        let currentCombination = null;
+        
+        function generateRandomCombination() {
+            // 1-64の中からランダムに3つ選択
+            const engineId = Math.floor(Math.random() * 64) + 1;
+            const interfaceId = Math.floor(Math.random() * 64) + 1;
+            const safeId = Math.floor(Math.random() * 64) + 1;
+            
+            analyzeCombination(engineId, interfaceId, safeId);
+        }
+        
+        function generateSpecificPattern() {
+            // 特定のパターン（相性の良い組み合わせ）
+            const patterns = [
+                [1, 2, 29],  // 乾・坤・坎
+                [11, 12, 63], // 泰・否・既済
+                [3, 4, 5],    // 屯・蒙・需
+                [13, 14, 15], // 同人・大有・謙
+                [61, 62, 63], // 中孚・小過・既済
+            ];
+            const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+            analyzeCombination(...pattern);
+        }
+        
+        function generateExtremeCase() {
+            // 極端なケース（同じ卦、対極の卦など）
+            const extremeCases = [
+                [1, 1, 1],    // すべて同じ（乾）
+                [2, 2, 2],    // すべて同じ（坤）
+                [1, 2, 64],   // 始まりと終わり
+                [63, 64, 1],  // 完成・未完・創造
+                [29, 30, 52], // 水・火・山
+            ];
+            const extreme = extremeCases[Math.floor(Math.random() * extremeCases.length)];
+            analyzeCombination(...extreme);
+        }
+        
+        function analyzeCombination(engineId, interfaceId, safeId) {
+            const analyzer = new TripleOSInteractionAnalyzer();
+            
+            // OSデータを作成
+            const engineOS = {
+                hexagramId: engineId,
+                name: H64_DATA[engineId - 1].名前,
+                score: Math.random() * 0.4 + 0.6
+            };
+            
+            const interfaceOS = {
+                hexagramId: interfaceId,
+                name: H64_DATA[interfaceId - 1].名前,
+                score: Math.random() * 0.4 + 0.5
+            };
+            
+            const safeModeOS = {
+                hexagramId: safeId,
+                name: H64_DATA[safeId - 1].名前,
+                score: Math.random() * 0.4 + 0.4
+            };
+            
+            currentCombination = { engineOS, interfaceOS, safeModeOS };
+            
+            // 表示
+            displayOSInfo();
+            
+            // 分析実行
+            const analysis = analyzer.analyze(engineOS, interfaceOS, safeModeOS);
+            displayResult(analysis);
+        }
+        
+        function displayOSInfo() {
+            const { engineOS, interfaceOS, safeModeOS } = currentCombination;
+            const analyzer = new TripleOSInteractionAnalyzer();
+            
+            const engineChar = analyzer.getHexagramCharacteristics(engineOS.hexagramId);
+            const interfaceChar = analyzer.getHexagramCharacteristics(interfaceOS.hexagramId);
+            const safeChar = analyzer.getHexagramCharacteristics(safeModeOS.hexagramId);
+            
+            document.getElementById('os-display').innerHTML = `
+                <div class="os-display">
+                    <h3>⚡ Engine OS</h3>
+                    <strong>${engineOS.name} (${engineOS.hexagramId})</strong><br>
+                    キーワード: <span class="keyword-highlight">${engineChar.keywords.join(', ')}</span><br>
+                    強み: ${engineChar.strength}<br>
+                    弱み: ${engineChar.weakness}<br>
+                    エネルギー: <span class="energy-pattern">${engineChar.energy}</span><br>
+                    スコア: ${engineOS.score.toFixed(2)}
+                </div>
+                <div class="os-display">
+                    <h3>🔄 Interface OS</h3>
+                    <strong>${interfaceOS.name} (${interfaceOS.hexagramId})</strong><br>
+                    キーワード: <span class="keyword-highlight">${interfaceChar.keywords.join(', ')}</span><br>
+                    強み: ${interfaceChar.strength}<br>
+                    弱み: ${interfaceChar.weakness}<br>
+                    エネルギー: <span class="energy-pattern">${interfaceChar.energy}</span><br>
+                    スコア: ${interfaceOS.score.toFixed(2)}
+                </div>
+                <div class="os-display">
+                    <h3>🛡️ SafeMode OS</h3>
+                    <strong>${safeModeOS.name} (${safeModeOS.hexagramId})</strong><br>
+                    キーワード: <span class="keyword-highlight">${safeChar.keywords.join(', ')}</span><br>
+                    強み: ${safeChar.strength}<br>
+                    弱み: ${safeChar.weakness}<br>
+                    エネルギー: <span class="energy-pattern">${safeChar.energy}</span><br>
+                    スコア: ${safeModeOS.score.toFixed(2)}
+                </div>
+            `;
+        }
+        
+        function displayResult(analysis) {
+            const { interactions, synergy } = analysis;
+            
+            let html = '<h3>🔍 分析結果</h3>';
+            
+            // 組み合わせの要約
+            html += `<div class="combination-summary">
+                <strong>組み合わせID:</strong> ${analysis.engine_os.id}-${analysis.interface_os.id}-${analysis.safe_mode_os.id}<br>
+                <strong>組み合わせ総数:</strong> 64×64×64 = 262,144通りの中の1つ<br>
+                <strong>シナジー評価:</strong> ${synergy.notes}
+            </div>`;
+            
+            // ペア間相互作用
+            html += '<div class="interaction-detail">';
+            html += '<h4>📊 ペア間相互作用</h4>';
+            interactions.pair_insights.forEach(pair => {
+                html += `<div style="margin: 5px 0;">
+                    <strong>${pair.pair}:</strong> ${pair.summary}
+                    <span style="float: right; background: ${getCategoryColor(pair.category)}; padding: 2px 8px; border-radius: 4px;">
+                        ${pair.category}
+                    </span>
+                </div>`;
+            });
+            html += '</div>';
+            
+            // アフォーダンス
+            html += '<div class="interaction-detail">';
+            html += '<h4>💡 アフォーダンス（強み/弱みの発現）</h4>';
+            ['engine', 'interface', 'safe'].forEach(osType => {
+                const osName = osType === 'engine' ? 'Engine OS' : 
+                              osType === 'interface' ? 'Interface OS' : 'SafeMode OS';
+                html += `<strong>${osName}:</strong><br>`;
+                html += '✨ 強みが出る: <ul>';
+                interactions.affordances[osType].thrives_with.forEach(t => {
+                    html += `<li>${t}</li>`;
+                });
+                html += '</ul>';
+                html += '⚠️ 弱みが出る: <ul>';
+                interactions.affordances[osType].struggles_with.forEach(s => {
+                    html += `<li>${s}</li>`;
+                });
+                html += '</ul>';
+            });
+            html += '</div>';
+            
+            // 内的葛藤
+            html += '<div class="interaction-detail">';
+            html += `<h4>⚡ 内的葛藤（${interactions.inner_conflicts.length}個）</h4>`;
+            html += '<ol>';
+            interactions.inner_conflicts.forEach(conflict => {
+                html += `<li>${conflict}</li>`;
+            });
+            html += '</ol>';
+            html += '</div>';
+            
+            // 統合プロンプト
+            html += '<div class="interaction-detail">';
+            html += '<h4>🌟 統合のヒント</h4>';
+            html += '<ol>';
+            interactions.integration_prompts.forEach(prompt => {
+                html += `<li>${prompt}</li>`;
+            });
+            html += '</ol>';
+            html += '</div>';
+            
+            document.getElementById('result').innerHTML = html;
+        }
+        
+        function getCategoryColor(category) {
+            const colors = {
+                'SYNERGY': '#10b981',
+                'HARMONY': '#3b82f6',
+                'TENSION': '#f59e0b',
+                'CONFLICT': '#ef4444'
+            };
+            return colors[category] || '#6b7280';
+        }
+        
+        function analyzeMultipleCombinations(count) {
+            const statistics = {
+                totalCombinations: count,
+                uniqueKeywords: new Set(),
+                energyPatterns: {},
+                synergyTypes: { SYNERGY: 0, HARMONY: 0, TENSION: 0, CONFLICT: 0 },
+                conflictCounts: {}
+            };
+            
+            const analyzer = new TripleOSInteractionAnalyzer();
+            
+            for (let i = 0; i < count; i++) {
+                const engineId = Math.floor(Math.random() * 64) + 1;
+                const interfaceId = Math.floor(Math.random() * 64) + 1;
+                const safeId = Math.floor(Math.random() * 64) + 1;
+                
+                const engineOS = {
+                    hexagramId: engineId,
+                    name: `第${engineId}卦`,
+                    score: Math.random()
+                };
+                
+                const interfaceOS = {
+                    hexagramId: interfaceId,
+                    name: `第${interfaceId}卦`,
+                    score: Math.random()
+                };
+                
+                const safeModeOS = {
+                    hexagramId: safeId,
+                    name: `第${safeId}卦`,
+                    score: Math.random()
+                };
+                
+                const analysis = analyzer.analyze(engineOS, interfaceOS, safeModeOS);
+                
+                // 統計収集
+                const engineChar = analyzer.getHexagramCharacteristics(engineId);
+                const interfaceChar = analyzer.getHexagramCharacteristics(interfaceId);
+                const safeChar = analyzer.getHexagramCharacteristics(safeId);
+                
+                // キーワード収集
+                [...engineChar.keywords, ...interfaceChar.keywords, ...safeChar.keywords].forEach(k => {
+                    statistics.uniqueKeywords.add(k);
+                });
+                
+                // エネルギーパターン集計
+                [engineChar.energy, interfaceChar.energy, safeChar.energy].forEach(e => {
+                    statistics.energyPatterns[e] = (statistics.energyPatterns[e] || 0) + 1;
+                });
+                
+                // シナジータイプ集計
+                analysis.interactions.pair_insights.forEach(pair => {
+                    statistics.synergyTypes[pair.category]++;
+                });
+                
+                // 葛藤数集計
+                const conflictCount = analysis.interactions.inner_conflicts.length;
+                statistics.conflictCounts[conflictCount] = (statistics.conflictCounts[conflictCount] || 0) + 1;
+            }
+            
+            // 統計表示
+            let html = `<h3>📊 ${count}組合せの統計分析</h3>`;
+            html += '<div class="interaction-detail">';
+            html += `<strong>ユニークキーワード数:</strong> ${statistics.uniqueKeywords.size}個<br>`;
+            html += `<strong>理論上の組み合わせ総数:</strong> 64×64×64 = 262,144通り<br>`;
+            html += `<strong>サンプリング率:</strong> ${(count / 262144 * 100).toFixed(4)}%<br>`;
+            html += '</div>';
+            
+            html += '<div class="interaction-detail">';
+            html += '<strong>エネルギーパターン出現頻度（上位5）:</strong><br>';
+            const sortedEnergy = Object.entries(statistics.energyPatterns)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            sortedEnergy.forEach(([pattern, count]) => {
+                html += `${pattern}: ${count}回<br>`;
+            });
+            html += '</div>';
+            
+            html += '<div class="interaction-detail">';
+            html += '<strong>シナジータイプ分布:</strong><br>';
+            Object.entries(statistics.synergyTypes).forEach(([type, count]) => {
+                const percentage = (count / (count * 3) * 100).toFixed(1);
+                html += `${type}: ${count}回<br>`;
+            });
+            html += '</div>';
+            
+            html += '<div class="interaction-detail">';
+            html += '<strong>内的葛藤数の分布:</strong><br>';
+            Object.entries(statistics.conflictCounts)
+                .sort((a, b) => a[0] - b[0])
+                .forEach(([count, freq]) => {
+                    html += `${count}個の葛藤: ${freq}組合せ<br>`;
+                });
+            html += '</div>';
+            
+            document.getElementById('statistics').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

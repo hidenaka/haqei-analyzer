@@ -1,0 +1,277 @@
+/* ============================================
+   HAQEI Results Blue Theme - 青基調デザイン（白背景版）
+   ============================================ */
+
+/* 基本背景とテキスト - 白背景＋青基調 */
+body {
+    background: #ffffff !important;
+    color: #030712 !important;
+}
+
+#virtual-persona-container {
+    min-height: 100vh;
+    background: #ffffff !important;
+    color: #030712 !important;
+}
+
+/* ローディングオーバーレイ - 白背景 */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(8px);
+}
+
+.loading-overlay .haqei-loading-spinner {
+    color: #2563eb;
+}
+
+/* エラーコンテナ - 白背景 */
+.error-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.98) !important;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    padding: 2rem;
+}
+
+/* OSカード - 青基調デザイン（白背景版） */
+.os-card {
+    background: #ffffff !important;
+    border: 2px solid #2563eb !important;
+    color: #030712 !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
+}
+
+.os-card:hover {
+    background: #f8fafc !important;
+    border-color: #1d4ed8 !important;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.25) !important;
+}
+
+/* OSカードヘッダー */
+.os-card-header {
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.os-label {
+    color: #2563eb !important;
+    font-weight: 600;
+}
+
+/* スコア表示 */
+.score-value {
+    color: #1d4ed8 !important;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+/* 人物像プロファイル */
+.personality-profile-container {
+    background: #ffffff !important;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+/* 段階的開示ステージ */
+.psychological-preparation-stage {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(59, 130, 246, 0.03));
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+}
+
+.personality-overview-stage {
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.detailed-personality-profile {
+    background: rgba(15, 23, 42, 0.7);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+/* ボタンスタイル - 青基調 */
+.proceed-button,
+.detailed-analysis-button {
+    background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
+    color: white !important;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.proceed-button:hover,
+.detailed-analysis-button:hover {
+    background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* タブナビゲーション - 青系グラデーション統一 */
+.tab-navigation {
+    background: #ffffff !important;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.tab-button {
+    background: transparent !important;
+    color: #6b7280 !important;
+    border: none;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    background: rgba(59, 130, 246, 0.1) !important;
+    color: #2563eb !important;
+}
+
+.tab-button.active {
+    background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    position: relative;
+}
+
+.tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #1d4ed8;
+}
+
+/* テキストカラー調整 - WCAG準拠 */
+h1, h2, h3, h4, h5, h6 {
+    color: #030712 !important;
+}
+
+p {
+    color: #030712 !important;
+}
+
+/* リンク */
+a {
+    color: #2563eb !important;
+}
+
+a:hover {
+    color: #1d4ed8 !important;
+}
+
+/* 強調表示 */
+.highlight {
+    background: rgba(37, 99, 235, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #030712;
+}
+
+/* スクロールバー */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2563eb;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #1d4ed8;
+}
+
+/* 開発モードパネル - 白背景＋青枠 */
+.dev-panel {
+    background: #ffffff !important;
+    border: 2px solid #2563eb !important;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.2) !important;
+    color: #030712 !important;
+}
+
+.dev-panel h3 {
+    color: #1e40af !important;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.dev-panel button {
+    background: #f8fafc !important;
+    color: #1e40af !important;
+    border: 1px solid #dbeafe !important;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dev-panel button:hover {
+    background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.dev-panel select {
+    background: #ffffff !important;
+    color: #030712 !important;
+    border: 1px solid #dbeafe !important;
+    border-radius: 6px;
+    padding: 8px 12px;
+}
+
+.dev-panel .close-button {
+    background: transparent !important;
+    color: #ef4444 !important;
+    border: 1px solid #fee2e2 !important;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.dev-panel .close-button:hover {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}

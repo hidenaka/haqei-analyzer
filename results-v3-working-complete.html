@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI Triple OS 完全分析 - 動作確認版</title>
+    <style>
+        /* まず基本的な表示を確認 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .debug-info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2, h3 {
+            margin-bottom: 10px;
+        }
+        
+        .field {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .label {
+            font-weight: bold;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .value {
+            color: #333;
+        }
+        
+        .error {
+            color: red;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .success {
+            color: green;
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-info" id="debug">
+        <strong>デバッグ情報:</strong>
+        <div id="debug-content">データベース読み込み中...</div>
+    </div>
+    
+    <h1>HAQEI Triple OS 分析結果</h1>
+    
+    <div id="main-content">
+        <!-- データがここに表示される -->
+    </div>
+
+    <script>
+        // グローバルスコープで定義
+        window.HexagramHumanTraitsV3 = {
+            "天雷无妄": {
+                "id": 25,
+                "symbol": "☰☳",
+                "element": "天と雷の純粋な動き",
+                "nickname": "革新を生み出すイノベーター",
+                "emoji": "⚡",
+                "asEngineOS": {
+                    "profile": {
+                        "type": "純粋な革新エンジン",
+                        "description": "既成概念にとらわれない自由な発想",
+                        "metaphor": "雷のような閃きで新しい道を切り開く"
+                    },
+                    "normalState": {
+                        "whatHappens": "常に新しいアイデアが湧き出ている",
+                        "example": "日常の中でも『もっと良い方法がある』と考える",
+                        "energyLevel": "🔋🔋🔋🔋 (80%) - 高速回転中"
+                    },
+                    "superMode": {
+                        "when": "制約や限界に直面した時",
+                        "whatHappens": "全く新しい解決策を生み出す",
+                        "example": "予算がない→新しいビジネスモデルを発明",
+                        "energyLevel": "🔋🔋🔋🔋🔋 (100%) - ブレイクスルーモード"
+                    },
+                    "restMode": {
+                        "whatHappens": "アイデアを整理している",
+                        "howToRest": "散歩しながら考えを巡らせる",
+                        "note": "完全に思考を止めることは苦手"
+                    },
+                    "maintenance": {
+                        "whatYouNeed": "新しい刺激と挑戦",
+                        "howToCharge": "未知の分野に触れる、異業種交流",
+                        "warning": "ルーティンワークが続くと消耗する",
+                        "tip": "定期的に新しいプロジェクトを始めよう"
+                    }
+                },
+                "asInterfaceOS": {
+                    "profile": {
+                        "type": "直感的コミュニケーター",
+                        "description": "素直で率直な関わり方",
+                        "metaphor": "子供のような純粋さで人と接する"
+                    },
+                    "howToTalk": {
+                        "style": "ストレートで分かりやすい",
+                        "example": "『これいいね！やってみよう！』と即座に反応",
+                        "goodAt": "アイデアの共有、ブレインストーミング",
+                        "notGoodAt": "政治的な駆け引き、建前の会話"
+                    },
+                    "bestEnvironment": {
+                        "where": "自由で創造的な環境",
+                        "example": "スタートアップ、研究開発部門",
+                        "withWho": "新しいことに挑戦する仲間",
+                        "avoid": "形式的で堅い組織"
+                    },
+                    "relationshipTips": {
+                        "strength": "純粋な熱意で人を巻き込む力",
+                        "weakness": "細かい配慮が苦手",
+                        "advice": "時には相手のペースに合わせることも大切"
+                    }
+                },
+                "asSafeModeOS": {
+                    "profile": {
+                        "type": "前進突破型",
+                        "description": "困難を新しい挑戦として捉える",
+                        "metaphor": "壁を壊して進む bulldozer"
+                    },
+                    "stressResponse": {
+                        "whatYouDo": "より大胆な解決策を模索",
+                        "example": "行き詰まり→全く新しいアプローチを試す",
+                        "goodPoint": "イノベーションが生まれる",
+                        "badPoint": "リスクを軽視しがち"
+                    },
+                    "emergencyMode": {
+                        "whatHappens": "独力で突破しようとする",
+                        "example": "チーム崩壊→自分一人で全部やる",
+                        "recovery": "新しい目標を見つける",
+                        "timeToRecover": "1-2日（新しい刺激があれば即回復）"
+                    },
+                    "howToRecover": {
+                        "bestWay": "全く新しいことに挑戦",
+                        "example": "失敗→別分野の勉強を始める",
+                        "environment": "制約のない自由な空間",
+                        "support": "可能性を信じてくれる人"
+                    }
+                },
+                "osBalance": {
+                    "idealBalance": "革新70% : 直感20% : 突破10%",
+                    "whenBalanced": "革新的なアイデアを実現できる",
+                    "whenImbalanced": "アイデア倒れや暴走のリスク",
+                    "tip": "アイデア→検証→実行のサイクルを回そう"
+                }
+            },
+            "坤為地": {
+                "id": 2,
+                "symbol": "☷☷",
+                "element": "地の受容的な包容力",
+                "nickname": "仲間を支援するサポーター",
+                "emoji": "🌱",
+                "asEngineOS": {
+                    "profile": {
+                        "type": "育成サポートエンジン",
+                        "description": "他者の成長を自分の喜びとする",
+                        "metaphor": "大地のように全てを受け入れ育む"
+                    },
+                    "normalState": {
+                        "whatHappens": "周囲の状況を観察し、必要なサポートを提供",
+                        "example": "困っている人を見つけると自然に手を差し伸べる",
+                        "energyLevel": "🔋🔋🔋 (60%) - 安定稼働"
+                    },
+                    "superMode": {
+                        "when": "誰かが本当に困っている時",
+                        "whatHappens": "全身全霊でサポートする",
+                        "example": "チームメンバーの危機→徹夜で支援",
+                        "energyLevel": "🔋🔋🔋🔋 (90%) - 献身モード"
+                    },
+                    "restMode": {
+                        "whatHappens": "静かに内省している",
+                        "howToRest": "一人で読書や瞑想",
+                        "note": "定期的な一人時間が必要"
+                    },
+                    "maintenance": {
+                        "whatYouNeed": "感謝と成長の実感",
+                        "howToCharge": "誰かの成長を見守る",
+                        "warning": "自己犠牲が過ぎるとバーンアウト",
+                        "tip": "自分のケアも忘れずに"
+                    }
+                },
+                "asInterfaceOS": {
+                    "profile": {
+                        "type": "共感的ファシリテーター",
+                        "description": "全員の声を大切にする",
+                        "metaphor": "優れたカウンセラーのような存在"
+                    },
+                    "howToTalk": {
+                        "style": "傾聴と共感ベース",
+                        "example": "『なるほど、その気持ちよく分かります』",
+                        "goodAt": "信頼関係構築、チームビルディング",
+                        "notGoodAt": "強い主張、厳しい指摘"
+                    },
+                    "bestEnvironment": {
+                        "where": "協調性を重視する環境",
+                        "example": "教育、医療、福祉、人事",
+                        "withWho": "互いを尊重し合える仲間",
+                        "avoid": "競争が激しい環境"
+                    },
+                    "relationshipTips": {
+                        "strength": "深い信頼関係を築く力",
+                        "weakness": "NOと言えない",
+                        "advice": "時には自分の意見も大切に"
+                    }
+                },
+                "asSafeModeOS": {
+                    "profile": {
+                        "type": "受容忍耐型",
+                        "description": "じっと耐えて状況改善を待つ",
+                        "metaphor": "嵐が過ぎるのを待つ大地"
+                    },
+                    "stressResponse": {
+                        "whatYouDo": "黙って受け入れ続ける",
+                        "example": "理不尽な要求→黙って対応",
+                        "goodPoint": "状況を悪化させない",
+                        "badPoint": "ストレスを溜め込む"
+                    },
+                    "emergencyMode": {
+                        "whatHappens": "完全に引きこもる",
+                        "example": "限界突破→連絡が取れなくなる",
+                        "recovery": "信頼できる人との対話",
+                        "timeToRecover": "1週間以上必要"
+                    },
+                    "howToRecover": {
+                        "bestWay": "自然の中でゆっくり過ごす",
+                        "example": "温泉旅行、森林浴",
+                        "environment": "静かで平和な場所",
+                        "support": "そっと見守ってくれる人"
+                    }
+                },
+                "osBalance": {
+                    "idealBalance": "サポート50% : 共感35% : 忍耐15%",
+                    "whenBalanced": "チームの要として機能",
+                    "whenImbalanced": "自己犠牲や依存のリスク",
+                    "tip": "支える→共感→時には休む"
+                }
+            },
+            "水雷屯": {
+                "id": 3,
+                "symbol": "☵☳",
+                "element": "水と雷の困難な始まり",
+                "nickname": "困難を乗り越える開拓者",
+                "emoji": "🌊",
+                "asEngineOS": {
+                    "profile": {
+                        "type": "困難突破エンジン",
+                        "description": "困難があるほど燃える",
+                        "metaphor": "岩を砕いて進む激流"
+                    },
+                    "normalState": {
+                        "whatHappens": "次の課題を探している",
+                        "example": "『何か面白い問題はないか』",
+                        "energyLevel": "🔋🔋🔋 (70%) - 待機中"
+                    },
+                    "superMode": {
+                        "when": "大きな困難に直面",
+                        "whatHappens": "全エネルギーを集中",
+                        "example": "不可能と言われた案件に挑戦",
+                        "energyLevel": "🔋🔋🔋🔋🔋 (100%) - 限界突破"
+                    },
+                    "restMode": {
+                        "whatHappens": "次の戦いに備える",
+                        "howToRest": "トレーニングや準備",
+                        "note": "休息も次への準備"
+                    },
+                    "maintenance": {
+                        "whatYouNeed": "挑戦する価値のある困難",
+                        "howToCharge": "難題への挑戦",
+                        "warning": "簡単すぎると退屈する",
+                        "tip": "適度な困難を見つけよう"
+                    }
+                },
+                "asInterfaceOS": {
+                    "profile": {
+                        "type": "困難共有型",
+                        "description": "一緒に困難を乗り越える",
+                        "metaphor": "戦友のような関係性"
+                    },
+                    "howToTalk": {
+                        "style": "現実的で率直",
+                        "example": "『大変だけど、一緒に頑張ろう』",
+                        "goodAt": "危機管理、問題解決",
+                        "notGoodAt": "楽観的な雰囲気作り"
+                    },
+                    "bestEnvironment": {
+                        "where": "挑戦的なプロジェクト",
+                        "example": "スタートアップ、危機管理チーム",
+                        "withWho": "困難を共に乗り越える仲間",
+                        "avoid": "ぬるま湯的な環境"
+                    },
+                    "relationshipTips": {
+                        "strength": "信頼できる戦友になれる",
+                        "weakness": "平和な時の関係構築が苦手",
+                        "advice": "困難がない時も関係を大切に"
+                    }
+                },
+                "asSafeModeOS": {
+                    "profile": {
+                        "type": "成長転換型",
+                        "description": "困難を成長機会に変える",
+                        "metaphor": "雨を糧に育つ新芽"
+                    },
+                    "stressResponse": {
+                        "whatYouDo": "困難の意味を見出す",
+                        "example": "失敗→学びの機会として捉える",
+                        "goodPoint": "成長し続ける",
+                        "badPoint": "無理をしすぎる"
+                    },
+                    "emergencyMode": {
+                        "whatHappens": "孤独に戦い続ける",
+                        "example": "助けを求めずに限界まで頑張る",
+                        "recovery": "小さな成功体験",
+                        "timeToRecover": "3-5日"
+                    },
+                    "howToRecover": {
+                        "bestWay": "段階的な課題クリア",
+                        "example": "小さな目標から達成していく",
+                        "environment": "支援的だが甘くない環境",
+                        "support": "共に戦ってくれる仲間"
+                    }
+                },
+                "osBalance": {
+                    "idealBalance": "突破60% : 共闘25% : 成長15%",
+                    "whenBalanced": "困難を力に変える",
+                    "whenImbalanced": "消耗や孤立のリスク",
+                    "tip": "挑戦→協力→成長のサイクル"
+                }
+            }
+        };
+        
+        // デバッグ情報を更新
+        function updateDebug(message, isError = false) {
+            const debugContent = document.getElementById('debug-content');
+            if (isError) {
+                debugContent.innerHTML = `<span style="color: red;">❌ ${message}</span>`;
+            } else {
+                debugContent.innerHTML = `<span style="color: green;">✅ ${message}</span>`;
+            }
+        }
+        
+        // データ表示
+        function displayData() {
+            const mainContent = document.getElementById('main-content');
+            
+            try {
+                // データベース確認
+                if (!window.HexagramHumanTraitsV3) {
+                    updateDebug('データベースが見つかりません', true);
+                    return;
+                }
+                
+                // テスト用の診断結果
+                const results = {
+                    engineOS: '天雷无妄',
+                    interfaceOS: '坤為地',
+                    safeModeOS: '水雷屯'
+                };
+                
+                // データ取得
+                const engineData = window.HexagramHumanTraitsV3[results.engineOS];
+                const interfaceData = window.HexagramHumanTraitsV3[results.interfaceOS];
+                const safeData = window.HexagramHumanTraitsV3[results.safeModeOS];
+                
+                if (!engineData || !interfaceData || !safeData) {
+                    updateDebug('データが不完全です', true);
+                    return;
+                }
+                
+                updateDebug('データベース正常に読み込まれました');
+                
+                // HTML生成
+                let html = '';
+                
+                // Engine OS
+                html += `
+                    <div class="section">
+                        <h2>🚀 Engine OS: ${results.engineOS}</h2>
+                        <div class="field">
+                            <div class="label">ニックネーム</div>
+                            <div class="value">${engineData.nickname}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">要素</div>
+                            <div class="value">${engineData.element}</div>
+                        </div>
+                        
+                        <h3>プロフィール</h3>
+                        <div class="field">
+                            <div class="label">タイプ</div>
+                            <div class="value">${engineData.asEngineOS.profile.type}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">説明</div>
+                            <div class="value">${engineData.asEngineOS.profile.description}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">メタファー</div>
+                            <div class="value">${engineData.asEngineOS.profile.metaphor}</div>
+                        </div>
+                        
+                        <h3>通常状態</h3>
+                        <div class="field">
+                            <div class="label">何が起きているか</div>
+                            <div class="value">${engineData.asEngineOS.normalState.whatHappens}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">例</div>
+                            <div class="value">${engineData.asEngineOS.normalState.example}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">エネルギーレベル</div>
+                            <div class="value">${engineData.asEngineOS.normalState.energyLevel}</div>
+                        </div>
+                        
+                        <h3>スーパーモード</h3>
+                        <div class="field">
+                            <div class="label">発動条件</div>
+                            <div class="value">${engineData.asEngineOS.superMode.when}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">何が起きるか</div>
+                            <div class="value">${engineData.asEngineOS.superMode.whatHappens}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">例</div>
+                            <div class="value">${engineData.asEngineOS.superMode.example}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">エネルギーレベル</div>
+                            <div class="value">${engineData.asEngineOS.superMode.energyLevel}</div>
+                        </div>
+                        
+                        <h3>メンテナンス</h3>
+                        <div class="field">
+                            <div class="label">必要なもの</div>
+                            <div class="value">${engineData.asEngineOS.maintenance.whatYouNeed}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">充電方法</div>
+                            <div class="value">${engineData.asEngineOS.maintenance.howToCharge}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">警告</div>
+                            <div class="value">${engineData.asEngineOS.maintenance.warning}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">ヒント</div>
+                            <div class="value">${engineData.asEngineOS.maintenance.tip}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Interface OS
+                html += `
+                    <div class="section">
+                        <h2>💬 Interface OS: ${results.interfaceOS}</h2>
+                        <div class="field">
+                            <div class="label">ニックネーム</div>
+                            <div class="value">${interfaceData.nickname}</div>
+                        </div>
+                        
+                        <h3>プロフィール</h3>
+                        <div class="field">
+                            <div class="label">タイプ</div>
+                            <div class="value">${interfaceData.asInterfaceOS.profile.type}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">説明</div>
+                            <div class="value">${interfaceData.asInterfaceOS.profile.description}</div>
+                        </div>
+                        
+                        <h3>コミュニケーション</h3>
+                        <div class="field">
+                            <div class="label">スタイル</div>
+                            <div class="value">${interfaceData.asInterfaceOS.howToTalk.style}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">例</div>
+                            <div class="value">${interfaceData.asInterfaceOS.howToTalk.example}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">得意</div>
+                            <div class="value">${interfaceData.asInterfaceOS.howToTalk.goodAt}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">苦手</div>
+                            <div class="value">${interfaceData.asInterfaceOS.howToTalk.notGoodAt}</div>
+                        </div>
+                        
+                        <h3>最適環境</h3>
+                        <div class="field">
+                            <div class="label">環境</div>
+                            <div class="value">${interfaceData.asInterfaceOS.bestEnvironment.where}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">例</div>
+                            <div class="value">${interfaceData.asInterfaceOS.bestEnvironment.example}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">相性の良い人</div>
+                            <div class="value">${interfaceData.asInterfaceOS.bestEnvironment.withWho}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">避けるべき環境</div>
+                            <div class="value">${interfaceData.asInterfaceOS.bestEnvironment.avoid}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // SafeMode OS
+                html += `
+                    <div class="section">
+                        <h2>🛡️ SafeMode OS: ${results.safeModeOS}</h2>
+                        <div class="field">
+                            <div class="label">ニックネーム</div>
+                            <div class="value">${safeData.nickname}</div>
+                        </div>
+                        
+                        <h3>プロフィール</h3>
+                        <div class="field">
+                            <div class="label">タイプ</div>
+                            <div class="value">${safeData.asSafeModeOS.profile.type}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">説明</div>
+                            <div class="value">${safeData.asSafeModeOS.profile.description}</div>
+                        </div>
+                        
+                        <h3>ストレス反応</h3>
+                        <div class="field">
+                            <div class="label">何をするか</div>
+                            <div class="value">${safeData.asSafeModeOS.stressResponse.whatYouDo}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">例</div>
+                            <div class="value">${safeData.asSafeModeOS.stressResponse.example}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">良い点</div>
+                            <div class="value">${safeData.asSafeModeOS.stressResponse.goodPoint}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">悪い点</div>
+                            <div class="value">${safeData.asSafeModeOS.stressResponse.badPoint}</div>
+                        </div>
+                        
+                        <h3>回復方法</h3>
+                        <div class="field">
+                            <div class="label">最良の方法</div>
+                            <div class="value">${safeData.asSafeModeOS.howToRecover.bestWay}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">例</div>
+                            <div class="value">${safeData.asSafeModeOS.howToRecover.example}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">環境</div>
+                            <div class="value">${safeData.asSafeModeOS.howToRecover.environment}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">サポート</div>
+                            <div class="value">${safeData.asSafeModeOS.howToRecover.support}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // OSバランス
+                html += `
+                    <div class="section">
+                        <h2>⚖️ OSバランス</h2>
+                        <div class="field">
+                            <div class="label">理想バランス</div>
+                            <div class="value">${engineData.osBalance.idealBalance}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">バランスが取れている時</div>
+                            <div class="value">${engineData.osBalance.whenBalanced}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">バランスが崩れている時</div>
+                            <div class="value">${engineData.osBalance.whenImbalanced}</div>
+                        </div>
+                        <div class="field">
+                            <div class="label">ヒント</div>
+                            <div class="value">${engineData.osBalance.tip}</div>
+                        </div>
+                    </div>
+                `;
+                
+                mainContent.innerHTML = html;
+                
+            } catch (error) {
+                updateDebug('エラー: ' + error.message, true);
+                console.error(error);
+            }
+        }
+        
+        // ページ読み込み時に実行
+        window.addEventListener('DOMContentLoaded', displayData);
+    </script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+/* 心理的安全性を重視したスタイリング */
+/* 企画書: 20250819_基本結果タブUI構成改善企画書.md に基づく実装 */
+
+:root {
+    --comfort-primary: #E8F4F8;    /* 安心感のあるライトブルー */
+    --warmth-accent: #F0E6D2;      /* 温かみのあるクリーム */
+    --hope-highlight: #D4F2E7;     /* 希望を表すライトグリーン */
+    --gentle-text: #4A5568;        /* 優しい文字色 */
+    --soft-border: #E2E8F0;        /* 柔らかなボーダー */
+    --comfort-gradient: linear-gradient(135deg, #E8F4F8 0%, #F0E6D2 100%);
+    --hope-gradient: linear-gradient(135deg, #81C784 0%, #66BB6A 100%);
+}
+
+/* 段階的開示システム - 心理的準備段階 */
+.psychological-preparation-stage {
+    background: var(--comfort-gradient);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.comfort-zone {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.gentle-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    animation: gentlePulse 3s infinite;
+    display: block;
+}
+
+@keyframes gentlePulse {
+    0%, 100% { 
+        transform: scale(1); 
+        opacity: 0.8; 
+    }
+    50% { 
+        transform: scale(1.05); 
+        opacity: 1; 
+    }
+}
+
+.preparation-title {
+    color: var(--gentle-text);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-family: 'Shippori Mincho', serif;
+}
+
+.preparation-message {
+    color: var(--gentle-text);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+.preparation-message p {
+    margin-bottom: 0.8rem;
+}
+
+.proceed-button.gentle {
+    background: var(--hope-gradient);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(129,199,132,0.2);
+}
+
+.proceed-button.gentle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(129,199,132,0.3);
+}
+
+.proceed-button.gentle:active {
+    transform: translateY(0);
+}
+
+/* 段階的開示システム - 概要表示段階 */
+.personality-overview-stage {
+    background: linear-gradient(135deg, #F8FAFC 0%, #EDF2F7 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.core-identity-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border-left: 4px solid var(--hope-highlight);
+}
+
+.identity-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.essence-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.identity-header h4 {
+    color: var(--gentle-text);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.primary-trait {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2D3748;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.essence-summary {
+    color: var(--gentle-text);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.strength-highlights {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    border-left: 4px solid var(--warmth-accent);
+}
+
+.strengths-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.strength-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+.strengths-header h4 {
+    color: var(--gentle-text);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.top-strengths {
+    display: grid;
+    gap: 1rem;
+}
+
+.strength-item {
+    padding: 1rem;
+    background: var(--hope-highlight);
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.strength-item:hover {
+    transform: translateY(-2px);
+}
+
+.strength-name {
+    display: block;
+    font-weight: 600;
+    color: #2D3748;
+    margin-bottom: 0.3rem;
+}
+
+.strength-description {
+    display: block;
+    color: var(--gentle-text);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.overview-actions {
+    text-align: center;
+    padding-top: 1rem;
+}
+
+.detailed-analysis-button {
+    background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(102,126,234,0.2);
+}
+
+.detailed-analysis-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+}
+
+/* 未実装メッセージ */
+.not-implemented-message {
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #FFF5F5 0%, #FED7D7 100%);
+    border-radius: 12px;
+    margin: 1rem 0;
+}
+
+.message-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.not-implemented-message h4 {
+    color: #C53030;
+    margin-bottom: 0.5rem;
+}
+
+.not-implemented-message p {
+    color: #744210;
+    margin: 0;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .psychological-preparation-stage,
+    .personality-overview-stage {
+        padding: 1.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    .comfort-zone {
+        max-width: 100%;
+    }
+    
+    .preparation-title {
+        font-size: 1.3rem;
+    }
+    
+    .proceed-button.gentle {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .core-identity-section,
+    .strength-highlights {
+        padding: 1rem;
+    }
+}
+
+/* アニメーション効果 */
+.personality-profile-container {
+    transition: all 0.3s ease;
+}
+
+.fade-transition {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.fade-transition.active {
+    opacity: 1;
+}

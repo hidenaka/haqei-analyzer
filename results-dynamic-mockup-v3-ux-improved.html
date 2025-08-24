@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI - UX改善版 結果画面</title>
+    <style>
+        /* ==========================================================================
+           HAQEI UX改善版デザイン - 階層的情報設計
+           ========================================================================== */
+        
+        :root {
+            /* カラーパレット */
+            --primary-blue: #3b82f6;
+            --primary-blue-dark: #2563eb;
+            --secondary-blue: #6366f1;
+            --light-blue: #dbeafe;
+            --very-light-blue: #f0f9ff;
+            
+            /* Engine OS カラー */
+            --engine-color: #f59e0b;
+            --engine-light: #fef3c7;
+            --engine-dark: #d97706;
+            
+            /* Interface OS カラー */
+            --interface-color: #10b981;
+            --interface-light: #d1fae5;
+            --interface-dark: #059669;
+            
+            /* SafeMode OS カラー */
+            --safemode-color: #8b5cf6;
+            --safemode-light: #e9d5ff;
+            --safemode-dark: #7c3aed;
+            
+            /* グレースケール */
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #374151;
+            --gray-700: #1f2937;
+            --gray-900: #030712;
+            
+            /* スペーシング */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 0.75rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            
+            /* シャドウ */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-900);
+            background: var(--gray-50);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--white);
+        }
+
+        /* ==========================================================================
+           レベル1: インスタント・インサイト (5秒で理解)
+           ========================================================================== */
+        
+        .instant-insight {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: white;
+            padding: var(--spacing-xl) var(--spacing-lg);
+            text-align: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .instant-insight h1 {
+            font-size: 2.5rem;
+            margin: 0 0 var(--spacing-lg) 0;
+            font-weight: 700;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .personality-visual {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: var(--spacing-xl);
+            margin: var(--spacing-lg) 0;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .personality-bars {
+            display: grid;
+            gap: var(--spacing-md);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .personality-bar {
+            display: grid;
+            grid-template-columns: 120px 1fr 60px;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .bar-label {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .bar-track {
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .one-liner {
+            background: white;
+            color: var(--gray-900);
+            padding: var(--spacing-lg) var(--spacing-xl);
+            border-radius: 100px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: var(--spacing-xl) 0;
+            box-shadow: var(--shadow-lg);
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: var(--spacing-xl);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .scroll-indicator button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-indicator button:hover {
+            background: white;
+            color: var(--primary-blue);
+            transform: scale(1.05);
+        }
+
+        /* ==========================================================================
+           レベル2: クイック・サマリー (30秒で要点把握)
+           ========================================================================== */
+        
+        .quick-summary {
+            padding: var(--spacing-xl);
+            background: var(--very-light-blue);
+        }
+
+        .summary-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .summary-header h2 {
+            font-size: 1.75rem;
+            color: var(--gray-900);
+            margin: 0 0 var(--spacing-sm) 0;
+        }
+
+        .summary-subtitle {
+            color: var(--gray-600);
+            font-size: 1.1rem;
+        }
+
+        .three-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .point-card {
+            background: white;
+            border-radius: 12px;
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .point-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .point-card h3 {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin: 0 0 var(--spacing-md) 0;
+            font-size: 1.25rem;
+        }
+
+        .strength-card { border-top: 4px solid var(--engine-color); }
+        .watchout-card { border-top: 4px solid var(--safemode-color); }
+        .growth-card { border-top: 4px solid var(--interface-color); }
+
+        .weekly-action {
+            background: white;
+            border-radius: 12px;
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, var(--light-blue) 0%, var(--very-light-blue) 100%);
+            border-radius: 8px;
+            padding: var(--spacing-lg);
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .action-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-blue-dark);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .action-detail {
+            color: var(--gray-700);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .expected-result {
+            background: white;
+            padding: var(--spacing-sm);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--gray-600);
+        }
+
+        .detail-navigation {
+            text-align: center;
+            padding: var(--spacing-lg);
+        }
+
+        .show-details-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: var(--spacing-md) var(--spacing-xl);
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .show-details-btn:hover {
+            background: var(--primary-blue-dark);
+            transform: scale(1.05);
+        }
+
+        /* ==========================================================================
+           レベル3: ディテール・アナリシス (詳細分析)
+           ========================================================================== */
+        
+        .detailed-analysis {
+            padding: var(--spacing-xl);
+            background: var(--gray-50);
+            display: none;
+        }
+
+        .detailed-analysis.active {
+            display: block;
+        }
+
+        .detail-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .detail-header h2 {
+            font-size: 1.5rem;
+            color: var(--gray-900);
+            margin: 0 0 var(--spacing-sm) 0;
+        }
+
+        /* 折りたたみ式詳細セクション */
+        .collapsible-section {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: var(--spacing-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .collapsible-header {
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.3s ease;
+        }
+
+        .collapsible-header:hover {
+            background: var(--gray-50);
+        }
+
+        .collapsible-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .collapsible-indicator {
+            transition: transform 0.3s ease;
+            font-size: 1.5rem;
+        }
+
+        .collapsible-section.expanded .collapsible-indicator {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .collapsible-section.expanded .collapsible-content {
+            max-height: 2000px;
+        }
+
+        .collapsible-inner {
+            padding: 0 var(--spacing-lg) var(--spacing-lg) var(--spacing-lg);
+        }
+
+        .engine-header { border-top: 4px solid var(--engine-color); }
+        .interface-header { border-top: 4px solid var(--interface-color); }
+        .safemode-header { border-top: 4px solid var(--safemode-color); }
+
+        /* OS Details Styling */
+        .os-info-bar {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            padding: var(--spacing-sm);
+            background: var(--gray-50);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .os-subsection {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .os-subsection h4 {
+            font-size: 1.1rem;
+            margin: 0 0 var(--spacing-sm) 0;
+            color: var(--gray-900);
+        }
+
+        /* データシミュレーターの改善 */
+        .data-simulator {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            right: var(--spacing-lg);
+            background: white;
+            padding: var(--spacing-md);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+        }
+
+        .simulator-title {
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .pattern-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+
+        .pattern-btn {
+            padding: 0.5rem;
+            background: var(--gray-100);
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .pattern-btn:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .pattern-btn.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .instant-insight h1 {
+                font-size: 1.75rem;
+            }
+            
+            .three-points {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-simulator {
+                bottom: var(--spacing-sm);
+                right: var(--spacing-sm);
+                left: var(--spacing-sm);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ==========================================================================
+             レベル1: インスタント・インサイト (5秒で理解)
+             ========================================================================== -->
+        <section class="instant-insight" id="instant-section">
+            <h1 id="main-title">あなたのタイプを分析中...</h1>
+            
+            <div class="personality-visual">
+                <div class="personality-bars" id="personality-bars">
+                    <!-- 動的に生成 -->
+                </div>
+            </div>
+            
+            <div class="one-liner" id="one-liner">
+                <!-- 動的に生成 -->
+            </div>
+            
+            <div class="scroll-indicator">
+                <button onclick="scrollToSummary()">
+                    ↓ もっと詳しく見る
+                </button>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             レベル2: クイック・サマリー (30秒で要点把握)
+             ========================================================================== -->
+        <section class="quick-summary" id="summary-section">
+            <div class="summary-header">
+                <h2>あなたの3つのポイント</h2>
+                <p class="summary-subtitle">強み・注意点・成長のヒントを簡潔にまとめました</p>
+            </div>
+            
+            <div class="three-points" id="three-points">
+                <!-- 動的に生成 -->
+            </div>
+            
+            <div class="weekly-action">
+                <h3>📅 今週試してみよう</h3>
+                <div class="action-card" id="weekly-action">
+                    <!-- 動的に生成 -->
+                </div>
+            </div>
+            
+            <div class="detail-navigation">
+                <button class="show-details-btn" onclick="toggleDetails()">
+                    詳細分析を見る →
+                </button>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             レベル3: ディテール・アナリシス (詳細分析)
+             ========================================================================== -->
+        <section class="detailed-analysis" id="detail-section">
+            <div class="detail-header">
+                <h2>詳細分析レポート</h2>
+                <p class="summary-subtitle">あなたの特性を3つの観点から深く分析しました</p>
+            </div>
+            
+            <div id="detailed-content">
+                <!-- 動的に生成される折りたたみ式コンテンツ -->
+            </div>
+        </section>
+    </div>
+
+    <!-- データシミュレーター -->
+    <div class="data-simulator">
+        <div class="simulator-title">🔧 パターン選択</div>
+        <div class="pattern-buttons">
+            <button class="pattern-btn active" onclick="loadPattern('innovator')">
+                イノベーター型
+            </button>
+            <button class="pattern-btn" onclick="loadPattern('supporter')">
+                サポーター型
+            </button>
+            <button class="pattern-btn" onclick="loadPattern('balanced')">
+                バランス型
+            </button>
+            <button class="pattern-btn" onclick="loadPattern('revolutionary')">
+                革命型
+            </button>
+            <button class="pattern-btn" onclick="loadPattern('stabilizer')">
+                安定型
+            </button>
+        </div>
+    </div>
+
+    <!-- V3データベースとロジック -->
+    <script src="public/js/data/hexagram-human-traits-v3.js"></script>
+    <script>
+        // データパターン定義
+        const dataPatterns = {
+            innovator: {
+                engineOS: { hexagram: "乾為天", score: 92 },
+                interfaceOS: { hexagram: "離為火", score: 75 },
+                safeModeOS: { hexagram: "震為雷", score: 68 }
+            },
+            supporter: {
+                engineOS: { hexagram: "坤為地", score: 85 },
+                interfaceOS: { hexagram: "山水蒙", score: 88 },
+                safeModeOS: { hexagram: "艮為山", score: 72 }
+            },
+            balanced: {
+                engineOS: { hexagram: "水天需", score: 80 },
+                interfaceOS: { hexagram: "巽為風", score: 79 },
+                safeModeOS: { hexagram: "坎為水", score: 81 }
+            },
+            revolutionary: {
+                engineOS: { hexagram: "澤火革", score: 89 },
+                interfaceOS: { hexagram: "火風鼎", score: 86 },
+                safeModeOS: { hexagram: "天水訟", score: 73 }
+            },
+            stabilizer: {
+                engineOS: { hexagram: "艮為山", score: 77 },
+                interfaceOS: { hexagram: "水火既済", score: 82 },
+                safeModeOS: { hexagram: "兌為澤", score: 78 }
+            }
+        };
+
+        // メインタイプ判定関数
+        function determineMainType(data) {
+            const engineData = window.HexagramHumanTraitsV3[data.engineOS.hexagram];
+            const interfaceData = window.HexagramHumanTraitsV3[data.interfaceOS.hexagram];
+            
+            // スコアの高い方を優先して組み合わせ
+            if (data.engineOS.score > 85) {
+                return `${engineData.nickname}型${interfaceData.nickname}`;
+            } else if (data.interfaceOS.score > 85) {
+                return `${interfaceData.nickname}寄りの${engineData.nickname}`;
+            } else {
+                return `バランス型${engineData.nickname}`;
+            }
+        }
+
+        // ワンライナー生成
+        function generateOneLiner(data) {
+            const engineData = window.HexagramHumanTraitsV3[data.engineOS.hexagram];
+            const interfaceData = window.HexagramHumanTraitsV3[data.interfaceOS.hexagram];
+            
+            // Engine OSとInterface OSの特徴を組み合わせ
+            return `${engineData.emoji} ${engineData.asEngineOS.profile.description.split('』')[0]}』を原動力に、${interfaceData.asInterfaceOS.profile.description}`;
+        }
+
+        // 動的コンテンツ生成
+        function generateDynamicContent(pattern) {
+            const data = dataPatterns[pattern];
+            const engineData = window.HexagramHumanTraitsV3[data.engineOS.hexagram];
+            const interfaceData = window.HexagramHumanTraitsV3[data.interfaceOS.hexagram];
+            const safeData = window.HexagramHumanTraitsV3[data.safeModeOS.hexagram];
+            
+            // レベル1: インスタント・インサイト
+            const mainType = determineMainType(data);
+            document.getElementById('main-title').innerHTML = `あなたは「${mainType}」タイプ`;
+            
+            // パーソナリティバー
+            const bars = [
+                { label: '原動力', value: data.engineOS.score, color: 'var(--engine-color)' },
+                { label: '社交性', value: data.interfaceOS.score, color: 'var(--interface-color)' },
+                { label: '安定性', value: data.safeModeOS.score, color: 'var(--safemode-color)' }
+            ];
+            
+            document.getElementById('personality-bars').innerHTML = bars.map(bar => `
+                <div class="personality-bar">
+                    <div class="bar-label">${bar.label}</div>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width: ${bar.value}%; background: ${bar.color};">
+                            ${bar.value}%
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // ワンライナー
+            document.getElementById('one-liner').innerHTML = generateOneLiner(data);
+            
+            // レベル2: クイック・サマリー
+            document.getElementById('three-points').innerHTML = `
+                <div class="point-card strength-card">
+                    <h3>✨ あなたの強み</h3>
+                    <p>${engineData.asEngineOS.profile.description}</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--gray-600);">
+                        ${engineData.asEngineOS.normalState.example}
+                    </p>
+                </div>
+                
+                <div class="point-card watchout-card">
+                    <h3>⚠️ 気をつけること</h3>
+                    <p>${safeData.asSafeModeOS.stressResponse.badPoint}</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--gray-600);">
+                        ${engineData.asEngineOS.maintenance.warning}
+                    </p>
+                </div>
+                
+                <div class="point-card growth-card">
+                    <h3>🌱 成長のヒント</h3>
+                    <p>${interfaceData.asInterfaceOS.relationshipTips.advice}</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--gray-600);">
+                        ${engineData.osBalance.tip}
+                    </p>
+                </div>
+            `;
+            
+            // 今週のアクション
+            document.getElementById('weekly-action').innerHTML = `
+                <div class="action-title">${engineData.asEngineOS.maintenance.tip}</div>
+                <div class="action-detail">
+                    ${interfaceData.asInterfaceOS.relationshipTips.advice}
+                </div>
+                <div class="expected-result">
+                    <strong>期待される効果：</strong> ${engineData.osBalance.whenBalanced}
+                </div>
+            `;
+            
+            // レベル3: 詳細分析（折りたたみ式）
+            document.getElementById('detailed-content').innerHTML = `
+                <!-- Engine OS詳細 -->
+                <div class="collapsible-section engine-header">
+                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-title">
+                            ${engineData.emoji} あなたの原動力：${data.engineOS.hexagram}「${engineData.nickname}」
+                        </div>
+                        <div class="collapsible-indicator">▼</div>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="collapsible-inner">
+                            <div class="os-info-bar">
+                                <span>📍 第${engineData.id}卦</span>
+                                <span>卦象: ${engineData.symbol}</span>
+                                <span>五行: ${engineData.element}</span>
+                                <span>スコア: ${data.engineOS.score}</span>
+                            </div>
+                            
+                            <div class="os-subsection">
+                                <h4>🔧 ${engineData.asEngineOS.profile.type}</h4>
+                                <p>${engineData.asEngineOS.profile.description}</p>
+                                <p style="font-style: italic; color: var(--gray-600);">
+                                    ${engineData.asEngineOS.profile.metaphor}
+                                </p>
+                            </div>
+                            
+                            <div class="os-subsection">
+                                <h4>💫 通常の状態</h4>
+                                <p>${engineData.asEngineOS.normalState.whatHappens}</p>
+                                <div style="background: var(--engine-light); padding: var(--spacing-sm); border-radius: 6px; margin: 0.5rem 0;">
+                                    例: ${engineData.asEngineOS.normalState.example}
+                                </div>
+                                <p>エネルギーレベル: ${engineData.asEngineOS.normalState.energyLevel}</p>
+                            </div>
+                            
+                            <div class="os-subsection">
+                                <h4>🔥 スーパーモード</h4>
+                                <p><strong>発動条件:</strong> ${engineData.asEngineOS.superMode.when}</p>
+                                <p>${engineData.asEngineOS.superMode.whatHappens}</p>
+                                ${engineData.asEngineOS.superMode.example ? `
+                                    <div style="background: #fef3c7; padding: var(--spacing-sm); border-radius: 6px;">
+                                        例: ${engineData.asEngineOS.superMode.example}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            
+                            ${engineData.asEngineOS.restMode ? `
+                                <div class="os-subsection">
+                                    <h4>😴 休息モード</h4>
+                                    <p>${engineData.asEngineOS.restMode.whatHappens}</p>
+                                    <p><strong>休息方法:</strong> ${engineData.asEngineOS.restMode.howToRest}</p>
+                                    ${engineData.asEngineOS.restMode.note ? `
+                                        <p style="font-style: italic; color: var(--gray-600);">
+                                            ${engineData.asEngineOS.restMode.note}
+                                        </p>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                            
+                            <div class="os-subsection">
+                                <h4>🔧 セルフケア方法</h4>
+                                <p><strong>必要なもの:</strong> ${engineData.asEngineOS.maintenance.whatYouNeed}</p>
+                                <p><strong>充電方法:</strong> ${engineData.asEngineOS.maintenance.howToCharge}</p>
+                                <p style="color: #92400e;"><strong>⚠️ 注意:</strong> ${engineData.asEngineOS.maintenance.warning}</p>
+                                <p style="color: #059669;"><strong>💡 ヒント:</strong> ${engineData.asEngineOS.maintenance.tip}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Interface OS詳細 -->
+                <div class="collapsible-section interface-header">
+                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-title">
+                            ${interfaceData.emoji} 人との関わり方：${data.interfaceOS.hexagram}「${interfaceData.nickname}」
+                        </div>
+                        <div class="collapsible-indicator">▼</div>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="collapsible-inner">
+                            <div class="os-info-bar">
+                                <span>📍 第${interfaceData.id}卦</span>
+                                <span>卦象: ${interfaceData.symbol}</span>
+                                <span>五行: ${interfaceData.element}</span>
+                                <span>スコア: ${data.interfaceOS.score}</span>
+                            </div>
+                            
+                            <div class="os-subsection">
+                                <h4>🔗 ${interfaceData.asInterfaceOS.profile.type}</h4>
+                                <p>${interfaceData.asInterfaceOS.profile.description}</p>
+                                ${interfaceData.asInterfaceOS.profile.metaphor ? `
+                                    <p style="font-style: italic; color: var(--gray-600);">
+                                        ${interfaceData.asInterfaceOS.profile.metaphor}
+                                    </p>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="os-subsection">
+                                <h4>🗣️ コミュニケーションスタイル</h4>
+                                <p><strong>話し方:</strong> ${interfaceData.asInterfaceOS.howToTalk.style}</p>
+                                <div style="background: var(--interface-light); padding: var(--spacing-sm); border-radius: 6px; margin: 0.5rem 0;">
+                                    例: ${interfaceData.asInterfaceOS.howToTalk.example}
+                                </div>
+                                <p><strong>得意なこと:</strong> ${interfaceData.asInterfaceOS.howToTalk.goodAt}</p>
+                                ${interfaceData.asInterfaceOS.howToTalk.notGoodAt ? `
+                                    <p><strong>苦手なこと:</strong> ${interfaceData.asInterfaceOS.howToTalk.notGoodAt}</p>
+                                ` : ''}
+                            </div>
+                            
+                            ${interfaceData.asInterfaceOS.bestEnvironment ? `
+                                <div class="os-subsection">
+                                    <h4>🌟 最適環境</h4>
+                                    <p><strong>場所:</strong> ${interfaceData.asInterfaceOS.bestEnvironment.where}</p>
+                                    <p><strong>例:</strong> ${interfaceData.asInterfaceOS.bestEnvironment.example}</p>
+                                    <p><strong>相性の良い人:</strong> ${interfaceData.asInterfaceOS.bestEnvironment.withWho}</p>
+                                    ${interfaceData.asInterfaceOS.bestEnvironment.avoid ? `
+                                        <p><strong>避けるべき環境:</strong> ${interfaceData.asInterfaceOS.bestEnvironment.avoid}</p>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                            
+                            ${interfaceData.asInterfaceOS.relationshipTips ? `
+                                <div class="os-subsection">
+                                    <h4>💝 関係性のコツ</h4>
+                                    <p><strong>強み:</strong> ${interfaceData.asInterfaceOS.relationshipTips.strength}</p>
+                                    <p><strong>弱み:</strong> ${interfaceData.asInterfaceOS.relationshipTips.weakness}</p>
+                                    <div style="background: #fef3c7; padding: var(--spacing-sm); border-radius: 6px;">
+                                        <strong>💡 アドバイス:</strong> ${interfaceData.asInterfaceOS.relationshipTips.advice}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SafeMode OS詳細 -->
+                <div class="collapsible-section safemode-header">
+                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-title">
+                            ${safeData.emoji} ストレス対処法：${data.safeModeOS.hexagram}「${safeData.nickname}」
+                        </div>
+                        <div class="collapsible-indicator">▼</div>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="collapsible-inner">
+                            <div class="os-info-bar">
+                                <span>📍 第${safeData.id}卦</span>
+                                <span>卦象: ${safeData.symbol}</span>
+                                <span>五行: ${safeData.element}</span>
+                                <span>スコア: ${data.safeModeOS.score}</span>
+                            </div>
+                            
+                            <div class="os-subsection">
+                                <h4>🛡️ ${safeData.asSafeModeOS.profile.type}</h4>
+                                <p>${safeData.asSafeModeOS.profile.description}</p>
+                                ${safeData.asSafeModeOS.profile.metaphor ? `
+                                    <p style="font-style: italic; color: var(--gray-600);">
+                                        ${safeData.asSafeModeOS.profile.metaphor}
+                                    </p>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="os-subsection">
+                                <h4>😰 ストレス対処法</h4>
+                                <p><strong>対処方法:</strong> ${safeData.asSafeModeOS.stressResponse.whatYouDo}</p>
+                                <div style="background: var(--safemode-light); padding: var(--spacing-sm); border-radius: 6px; margin: 0.5rem 0;">
+                                    例: ${safeData.asSafeModeOS.stressResponse.example}
+                                </div>
+                                <p style="color: #166534;"><strong>良い点:</strong> ${safeData.asSafeModeOS.stressResponse.goodPoint}</p>
+                                <p style="color: #991b1b;"><strong>注意点:</strong> ${safeData.asSafeModeOS.stressResponse.badPoint}</p>
+                            </div>
+                            
+                            ${safeData.asSafeModeOS.emergencyMode ? `
+                                <div class="os-subsection">
+                                    <h4>🚨 緊急モード</h4>
+                                    <p><strong>反応:</strong> ${safeData.asSafeModeOS.emergencyMode.whatHappens}</p>
+                                    <p><strong>例:</strong> ${safeData.asSafeModeOS.emergencyMode.example}</p>
+                                    ${safeData.asSafeModeOS.emergencyMode.recovery ? `
+                                        <p><strong>回復プロセス:</strong> ${safeData.asSafeModeOS.emergencyMode.recovery}</p>
+                                    ` : ''}
+                                    <p><strong>回復時間:</strong> ${safeData.asSafeModeOS.emergencyMode.timeToRecover}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${safeData.asSafeModeOS.howToRecover ? `
+                                <div class="os-subsection">
+                                    <h4>💚 回復方法</h4>
+                                    <p><strong>ベストな方法:</strong> ${safeData.asSafeModeOS.howToRecover.bestWay}</p>
+                                    <p><strong>例:</strong> ${safeData.asSafeModeOS.howToRecover.example}</p>
+                                    ${safeData.asSafeModeOS.howToRecover.environment ? `
+                                        <p><strong>環境:</strong> ${safeData.asSafeModeOS.howToRecover.environment}</p>
+                                    ` : ''}
+                                    ${safeData.asSafeModeOS.howToRecover.support ? `
+                                        <p><strong>サポート:</strong> ${safeData.asSafeModeOS.howToRecover.support}</p>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- OSバランス分析 -->
+                <div class="collapsible-section">
+                    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-title">
+                            ⚖️ OSバランス総合分析
+                        </div>
+                        <div class="collapsible-indicator">▼</div>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="collapsible-inner">
+                            <h4>📊 現在のOS構成</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                                <div style="padding: var(--spacing-sm); background: var(--engine-light); border-radius: 6px;">
+                                    <strong>原動力:</strong> ${data.engineOS.hexagram}「${engineData.nickname}」
+                                </div>
+                                <div style="padding: var(--spacing-sm); background: var(--interface-light); border-radius: 6px;">
+                                    <strong>関わり方:</strong> ${data.interfaceOS.hexagram}「${interfaceData.nickname}」
+                                </div>
+                                <div style="padding: var(--spacing-sm); background: var(--safemode-light); border-radius: 6px;">
+                                    <strong>守り方:</strong> ${data.safeModeOS.hexagram}「${safeData.nickname}」
+                                </div>
+                            </div>
+                            
+                            ${engineData.osBalance ? `
+                                <div class="os-subsection">
+                                    <h4>原動力のバランス</h4>
+                                    <p><strong>理想:</strong> ${engineData.osBalance.idealBalance}</p>
+                                    <p><strong>バランスが取れている時:</strong> ${engineData.osBalance.whenBalanced}</p>
+                                    <p><strong>バランスが崩れた時:</strong> ${engineData.osBalance.whenImbalanced}</p>
+                                    <p><strong>ヒント:</strong> ${engineData.osBalance.tip}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${interfaceData.osBalance ? `
+                                <div class="os-subsection">
+                                    <h4>関わり方のバランス</h4>
+                                    <p><strong>理想:</strong> ${interfaceData.osBalance.idealBalance}</p>
+                                    <p><strong>バランスが取れている時:</strong> ${interfaceData.osBalance.whenBalanced}</p>
+                                    <p><strong>バランスが崩れた時:</strong> ${interfaceData.osBalance.whenImbalanced}</p>
+                                    <p><strong>ヒント:</strong> ${interfaceData.osBalance.tip}</p>
+                                </div>
+                            ` : ''}
+                            
+                            ${safeData.osBalance ? `
+                                <div class="os-subsection">
+                                    <h4>守り方のバランス</h4>
+                                    <p><strong>理想:</strong> ${safeData.osBalance.idealBalance}</p>
+                                    <p><strong>バランスが取れている時:</strong> ${safeData.osBalance.whenBalanced}</p>
+                                    <p><strong>バランスが崩れた時:</strong> ${safeData.osBalance.whenImbalanced}</p>
+                                    <p><strong>ヒント:</strong> ${safeData.osBalance.tip}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ユーティリティ関数
+        function scrollToSummary() {
+            document.getElementById('summary-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleDetails() {
+            const detailSection = document.getElementById('detail-section');
+            detailSection.classList.toggle('active');
+            
+            if (detailSection.classList.contains('active')) {
+                detailSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function toggleCollapsible(header) {
+            const section = header.parentElement;
+            section.classList.toggle('expanded');
+        }
+
+        function loadPattern(patternName) {
+            // ボタンのアクティブ状態を更新
+            document.querySelectorAll('.pattern-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // コンテンツを生成
+            generateDynamicContent(patternName);
+            
+            // トップにスクロール
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 初期表示
+        window.onload = () => {
+            generateDynamicContent('innovator');
+        };
+    </script>
+</body>
+</html>

@@ -11,33 +11,51 @@ export default defineConfig({
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // 画像サイズを抑制するための設定
+    viewport: { width: 1280, height: 720 },
+    deviceScaleFactor: 1, // Retinaディスプレイでの2倍化を防ぐ
   },
 
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        deviceScaleFactor: 1,
+      },
     },
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: { 
+        ...devices['Desktop Firefox'],
+        deviceScaleFactor: 1,
+      },
     },
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: { 
+        ...devices['Desktop Safari'],
+        deviceScaleFactor: 1,
+      },
     },
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      use: { 
+        ...devices['Pixel 5'],
+        deviceScaleFactor: 1,
+      },
     },
     {
       name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      use: { 
+        ...devices['iPhone 12'],
+        deviceScaleFactor: 1,
+      },
     },
   ],
 
   webServer: {
-    command: 'npm run dev',
+    command: 'npx http-server public -p 5173 -c-1',
     port: 5173,
     reuseExistingServer: !process.env.CI,
   },

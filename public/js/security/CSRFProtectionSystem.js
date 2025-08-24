@@ -9,6 +9,10 @@
 
 class CSRFProtectionSystem {
   constructor() {
+    
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
     this.tokenStore = new Map();
     this.sessionTokens = new Map();
     this.config = this.getSecurityConfig();
@@ -211,7 +215,7 @@ class CSRFProtectionSystem {
     } else {
       // フォールバック（セキュリティレベルは低い）
       console.warn('⚠️ Crypto API利用不可 - フォールバック乱数生成');
-      return Math.random().toString(36).substring(2) + Date.now().toString(36);
+      return this.rng.next().toString(36).substring(2) + Date.now().toString(36);
     }
   }
 

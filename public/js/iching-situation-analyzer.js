@@ -4,7 +4,11 @@
  */
 
 class IChingSituationAnalyzer {
-  constructor() {
+  constructor(options = {}) {
+    
+    // v4.3.1 決定論的要件: SeedableRandom統合
+    this.rng = options.randomnessManager || window.randomnessManager || 
+               (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
     this.h384Data = null;
     this.hexagramMapping = this.initHexagramMapping();
     this.keywordDatabase = this.initKeywordDatabase();
@@ -327,7 +331,7 @@ class IChingSituationAnalyzer {
         console.log('🎯 [DEBUG] Stagnation pattern -> position 6');
         break;
       default:
-        position = Math.floor(Math.random() * 6) + 1; // ランダム選択
+        position = Math.floor(this.rng.next() * 6) + 1; // ランダム選択
         console.log('🎯 [DEBUG] Default/random pattern -> position', position);
         break;
     }

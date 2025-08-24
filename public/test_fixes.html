@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修正項目動作確認テスト</title>
+    <script src="./lib/chart.min.js?v=20250819"></script>
+    <script src="./js/core/KeywordAnalyzer.js?v=20250819"></script>
+    <script src="./js/EnhancedKeywordAnalyzer.js?v=20250819"></script>
+    <script src="./js/DataDrivenKeywordAnalyzer.js?v=20250819"></script>
+    <script src="./js/core/QuestionManager.js?v=20250819"></script>
+    <script src="./js/core/TripleOSInteractionAnalyzer.js?v=20250819"></script>
+</head>
+<body>
+    <h1>🔧 修正項目動作確認テスト</h1>
+    <div id="test-results"></div>
+    
+    <script>
+        const results = document.getElementById('test-results');
+        
+        function addResult(test, status, message) {
+            const div = document.createElement('div');
+            div.innerHTML = `<p><strong>${test}:</strong> ${status} - ${message}</p>`;
+            div.style.color = status === '✅ PASS' ? 'green' : 'red';
+            results.appendChild(div);
+        }
+        
+        // Test 1: TripleOSInteractionAnalyzer修復確認
+        try {
+            const tripleOS = new TripleOSInteractionAnalyzer();
+            addResult('TripleOSInteractionAnalyzer修復', '✅ PASS', 'クラスが正常に初期化されました');
+        } catch (e) {
+            addResult('TripleOSInteractionAnalyzer修復', '❌ FAIL', e.message);
+        }
+        
+        // Test 2: Chart.js統一確認
+        try {
+            if (typeof Chart !== 'undefined') {
+                addResult('Chart.js統一', '✅ PASS', 'Chart.jsが正常に読み込まれました');
+            } else {
+                addResult('Chart.js統一', '❌ FAIL', 'Chart.jsが読み込まれていません');
+            }
+        } catch (e) {
+            addResult('Chart.js統一', '❌ FAIL', e.message);
+        }
+        
+        // Test 3: KeywordAnalyzer階層確認
+        try {
+            const base = new KeywordAnalyzer();
+            const enhanced = new EnhancedKeywordAnalyzer();
+            
+            if (enhanced instanceof KeywordAnalyzer) {
+                addResult('KeywordAnalyzer階層', '✅ PASS', '継承関係が正しく設定されています');
+            } else {
+                addResult('KeywordAnalyzer階層', '❌ FAIL', '継承関係が正しくありません');
+            }
+        } catch (e) {
+            addResult('KeywordAnalyzer階層', '❌ FAIL', e.message);
+        }
+        
+        // Test 4: QuestionManager統合確認
+        try {
+            const qm = new QuestionManager();
+            if (qm.version && qm.shuffleQuestions) {
+                addResult('QuestionManager統合', '✅ PASS', 'UI版機能が統合されています');
+            } else {
+                addResult('QuestionManager統合', '❌ FAIL', 'UI版機能が統合されていません');
+            }
+        } catch (e) {
+            addResult('QuestionManager統合', '❌ FAIL', e.message);
+        }
+        
+        console.log('🔧 修正項目動作確認テスト完了');
+    </script>
+</body>
+</html>

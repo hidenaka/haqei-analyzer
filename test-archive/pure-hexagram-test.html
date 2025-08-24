@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>純卦出現率検証テスト</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        
+        h1 {
+            color: #2d3748;
+            text-align: center;
+        }
+        
+        .control-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #5a67d8;
+        }
+        
+        .results {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .metric {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .warning {
+            color: #e53e3e;
+        }
+        
+        .success {
+            color: #38a169;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+        }
+        
+        .pure-row {
+            background: #fef5e7;
+        }
+        
+        #chart {
+            margin: 20px 0;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>🔬 純卦出現率検証テスト</h1>
+    
+    <div class="control-panel">
+        <button onclick="runTest(100)">100回テスト</button>
+        <button onclick="runTest(1000)">1000回テスト</button>
+        <button onclick="runTest(10000)">10000回テスト</button>
+        <button onclick="clearResults()">クリア</button>
+    </div>
+    
+    <div class="results" id="results" style="display: none;">
+        <h2>📊 テスト結果</h2>
+        
+        <div class="metric">
+            <div class="metric-card">
+                <div>テスト回数</div>
+                <div class="metric-value" id="totalTests">0</div>
+            </div>
+            <div class="metric-card">
+                <div>純卦出現数</div>
+                <div class="metric-value" id="pureCount">0</div>
+            </div>
+            <div class="metric-card">
+                <div>純卦出現率</div>
+                <div class="metric-value" id="pureRate">0%</div>
+            </div>
+            <div class="metric-card">
+                <div>理論値との乖離</div>
+                <div class="metric-value" id="deviation">0%</div>
+            </div>
+        </div>
+        
+        <h3>純卦別出現数</h3>
+        <table id="pureTable">
+            <thead>
+                <tr>
+                    <th>純卦</th>
+                    <th>卦番号</th>
+                    <th>出現数</th>
+                    <th>出現率</th>
+                    <th>理論値</th>
+                    <th>乖離</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        
+        <h3>エネルギー分布</h3>
+        <canvas id="chart"></canvas>
+        
+        <h3>統計的検定</h3>
+        <div id="statistics"></div>
+    </div>
+
+    <script>
+        const BAGUA_ORDER = ["乾", "兌", "離", "震", "巽", "坎", "艮", "坤"];
+        const PURE_HEXAGRAMS = {
+            "乾": { id: 1, name: "乾為天" },
+            "坤": { id: 2, name: "坤為地" },
+            "坎": { id: 29, name: "坎為水" },
+            "離": { id: 30, name: "離為火" },
+            "震": { id: 51, name: "震為雷" },
+            "艮": { id: 52, name: "艮為山" },
+            "巽": { id: 57, name: "巽為風" },
+            "兌": { id: 58, name: "兌為沢" }
+        };
+        
+        let testResults = [];
+        let chart = null;
+        
+        // 現在の診断ロジックをシミュレート
+        function simulateDiagnosis() {
+            // Step 1: ランダムな生エネルギー生成
+            const rawEnergies = {};
+            BAGUA_ORDER.forEach(bagua => {
+                rawEnergies[bagua] = Math.random() * 100;
+            });
+            
+            // Step 2: Z-score標準化
+            const values = Object.values(rawEnergies);
+            const mean = values.reduce((a, b) => a + b, 0) / values.length;
+            const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
+            const std = Math.sqrt(variance);
+            
+            const zScored = {};
+            Object.entries(rawEnergies).forEach(([key, value]) => {
+                zScored[key] = std > 0 ? (value - mean) / std : 0;
+            });
+            
+            // Step 3: ReLU活性化（問題のある実装）
+            const activated = {};
+            Object.entries(zScored).forEach(([key, value]) => {
+                activated[key] = Math.max(0.01, value);  // ← これが問題
+            });
+            
+            // Step 4: L1正規化
+            const sum = Object.values(activated).reduce((a, b) => a + b, 0);
+            const normalized = {};
+            Object.entries(activated).forEach(([key, value]) => {
+                normalized[key] = sum > 0 ? value / sum : 0.125;
+            });
+            
+            // Step 5: OS別重み付け（Engineの例）
+            const weights = {
+                "乾": 1.2, "兌": 0.9, "離": 1.1, "震": 1.0,
+                "巽": 0.9, "坎": 1.1, "艮": 1.0, "坤": 0.8
+            };
+            
+            const weighted = {};
+            Object.entries(normalized).forEach(([key, value]) => {
+                weighted[key] = value * (weights[key] || 1.0);
+            });
+            
+            // 再正規化
+            const finalSum = Object.values(weighted).reduce((a, b) => a + b, 0);
+            const finalEnergies = {};
+            Object.entries(weighted).forEach(([key, value]) => {
+                finalEnergies[key] = (value / finalSum) * 100;
+            });
+            
+            // Step 6: 上位2つを選択
+            const sorted = Object.entries(finalEnergies).sort((a, b) => b[1] - a[1]);
+            const upper = sorted[0][0];
+            const lower = sorted[1][0];
+            
+            return {
+                upper,
+                lower,
+                isPure: upper === lower,
+                energies: finalEnergies,
+                gap: sorted[0][1] - sorted[1][1]
+            };
+        }
+        
+        // テスト実行
+        function runTest(count) {
+            testResults = [];
+            const pureCountByBagua = {};
+            BAGUA_ORDER.forEach(b => pureCountByBagua[b] = 0);
+            
+            for (let i = 0; i < count; i++) {
+                const result = simulateDiagnosis();
+                testResults.push(result);
+                
+                if (result.isPure) {
+                    pureCountByBagua[result.upper]++;
+                }
+            }
+            
+            displayResults(count, pureCountByBagua);
+        }
+        
+        // 結果表示
+        function displayResults(totalCount, pureCountByBagua) {
+            document.getElementById('results').style.display = 'block';
+            
+            const totalPure = Object.values(pureCountByBagua).reduce((a, b) => a + b, 0);
+            const pureRate = (totalPure / totalCount) * 100;
+            const theoreticalRate = 12.5; // 8/64
+            const deviation = pureRate - theoreticalRate;
+            
+            // メトリクス更新
+            document.getElementById('totalTests').textContent = totalCount;
+            document.getElementById('pureCount').textContent = totalPure;
+            document.getElementById('pureRate').textContent = pureRate.toFixed(2) + '%';
+            document.getElementById('pureRate').className = 
+                pureRate > 15 ? 'metric-value warning' : 'metric-value success';
+            document.getElementById('deviation').textContent = 
+                (deviation > 0 ? '+' : '') + deviation.toFixed(2) + '%';
+            document.getElementById('deviation').className = 
+                Math.abs(deviation) > 5 ? 'metric-value warning' : 'metric-value success';
+            
+            // テーブル更新
+            const tbody = document.querySelector('#pureTable tbody');
+            tbody.innerHTML = '';
+            
+            BAGUA_ORDER.forEach(bagua => {
+                const count = pureCountByBagua[bagua];
+                const rate = (count / totalCount) * 100;
+                const theoreticalIndividual = 1.5625; // 1/64
+                const individualDeviation = rate - theoreticalIndividual;
+                
+                const row = tbody.insertRow();
+                row.className = 'pure-row';
+                row.innerHTML = `
+                    <td>${bagua}為${bagua}</td>
+                    <td>#${PURE_HEXAGRAMS[bagua].id}</td>
+                    <td>${count}</td>
+                    <td>${rate.toFixed(3)}%</td>
+                    <td>1.563%</td>
+                    <td class="${Math.abs(individualDeviation) > 1 ? 'warning' : 'success'}">
+                        ${individualDeviation > 0 ? '+' : ''}${individualDeviation.toFixed(3)}%
+                    </td>
+                `;
+            });
+            
+            // グラフ更新
+            updateChart(pureCountByBagua, totalCount);
+            
+            // 統計的検定
+            performStatisticalTest(totalCount, totalPure);
+        }
+        
+        // グラフ更新
+        function updateChart(pureCountByBagua, totalCount) {
+            const ctx = document.getElementById('chart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: BAGUA_ORDER.map(b => `${b}為${b}`),
+                    datasets: [{
+                        label: '実測値 (%)',
+                        data: BAGUA_ORDER.map(b => (pureCountByBagua[b] / totalCount) * 100),
+                        backgroundColor: 'rgba(102, 126, 234, 0.5)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: '理論値 (%)',
+                        data: BAGUA_ORDER.map(() => 1.5625),
+                        type: 'line',
+                        borderColor: 'rgba(229, 62, 62, 1)',
+                        borderDash: [5, 5],
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '出現率 (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 統計的検定
+        function performStatisticalTest(n, k) {
+            const p = 0.125; // 理論確率 (8/64)
+            const expected = n * p;
+            const stdDev = Math.sqrt(n * p * (1 - p));
+            
+            // Z検定
+            const z = (k - expected) / stdDev;
+            const pValue = 2 * (1 - normalCDF(Math.abs(z)));
+            
+            // カイ二乗検定
+            const chiSquare = Math.pow(k - expected, 2) / expected + 
+                             Math.pow((n - k) - (n - expected), 2) / (n - expected);
+            
+            const statsDiv = document.getElementById('statistics');
+            statsDiv.innerHTML = `
+                <div class="metric">
+                    <div class="metric-card">
+                        <div>期待値</div>
+                        <div class="metric-value">${expected.toFixed(1)}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div>標準偏差</div>
+                        <div class="metric-value">${stdDev.toFixed(2)}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div>Z値</div>
+                        <div class="metric-value ${Math.abs(z) > 1.96 ? 'warning' : 'success'}">
+                            ${z.toFixed(3)}
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div>p値</div>
+                        <div class="metric-value ${pValue < 0.05 ? 'warning' : 'success'}">
+                            ${pValue.toFixed(4)}
+                        </div>
+                    </div>
+                </div>
+                <p>${pValue < 0.05 ? '⚠️ 統計的に有意な差があります（純卦が異常に多い）' : 
+                                     '✅ 統計的に有意な差はありません'}</p>
+            `;
+        }
+        
+        // 正規分布の累積分布関数（近似）
+        function normalCDF(x) {
+            const t = 1 / (1 + 0.2316419 * Math.abs(x));
+            const d = 0.3989423 * Math.exp(-x * x / 2);
+            const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+            return x > 0 ? 1 - p : p;
+        }
+        
+        // 結果クリア
+        function clearResults() {
+            document.getElementById('results').style.display = 'none';
+            testResults = [];
+            if (chart) {
+                chart.destroy();
+                chart = null;
+            }
+        }
+    </script>
+</body>
+</html>

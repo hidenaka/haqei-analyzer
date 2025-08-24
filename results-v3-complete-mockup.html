@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI診断結果 - V3完全版モックアップ</title>
+    
+    <style>
+        /* Phase 1: 基本的なレイアウトとデータ表示 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1, h2, h3, h4 {
+            margin-bottom: 1rem;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .os-section {
+            margin-bottom: 3rem;
+        }
+        
+        .field-group {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .field-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .field-value {
+            color: #333;
+            font-size: 1rem;
+        }
+        
+        .energy-level {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #e3f2fd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .example-box {
+            background: #fff3e0;
+            padding: 0.75rem;
+            border-left: 3px solid #ff9800;
+            margin: 0.5rem 0;
+        }
+        
+        .warning-box {
+            background: #ffebee;
+            padding: 0.75rem;
+            border-left: 3px solid #f44336;
+            margin: 0.5rem 0;
+        }
+        
+        .tip-box {
+            background: #e8f5e9;
+            padding: 0.75rem;
+            border-left: 3px solid #4caf50;
+            margin: 0.5rem 0;
+        }
+        
+        .balance-info {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+        
+        .profile-card {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        /* アコーディオン基本スタイル */
+        .accordion-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        
+        .accordion-header {
+            padding: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+            transition: background 0.3s;
+        }
+        
+        .accordion-header:hover {
+            background: #f0f0f0;
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .accordion-item.active .accordion-content {
+            max-height: none;
+        }
+        
+        .accordion-inner {
+            padding: 1.5rem;
+        }
+        
+        /* OS別カラー */
+        .engine-os {
+            border-top: 4px solid #ff6b6b;
+        }
+        
+        .interface-os {
+            border-top: 4px solid #4dabf7;
+        }
+        
+        .safemode-os {
+            border-top: 4px solid #51cf66;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HAQEI Triple OS 完全分析結果</h1>
+        
+        <!-- 基本情報セクション -->
+        <div class="section">
+            <h2>📊 診断結果サマリー</h2>
+            <div id="summary-content">
+                <!-- サマリー情報がここに表示される -->
+            </div>
+        </div>
+        
+        <!-- Engine OS詳細 -->
+        <div class="section">
+            <h2>🚀 Engine OS - 原動力の詳細分析</h2>
+            <div id="engine-os-content" class="os-section">
+                <!-- Engine OSの全データがここに表示される -->
+            </div>
+        </div>
+        
+        <!-- Interface OS詳細 -->
+        <div class="section">
+            <h2>💬 Interface OS - 人との関わり方の詳細分析</h2>
+            <div id="interface-os-content" class="os-section">
+                <!-- Interface OSの全データがここに表示される -->
+            </div>
+        </div>
+        
+        <!-- SafeMode OS詳細 -->
+        <div class="section">
+            <h2>🛡️ SafeMode OS - ストレス対処法の詳細分析</h2>
+            <div id="safemode-os-content" class="os-section">
+                <!-- SafeMode OSの全データがここに表示される -->
+            </div>
+        </div>
+        
+        <!-- OSバランス分析 -->
+        <div class="section">
+            <h2>⚖️ Triple OS バランス分析</h2>
+            <div id="balance-content" class="balance-info">
+                <!-- バランス情報がここに表示される -->
+            </div>
+        </div>
+    </div>
+
+    <!-- V3データベース読み込み -->
+    <script src="public/js/data/hexagram-human-traits-v3.js"></script>
+    
+    <script>
+        // サンプルデータ（実際の診断結果）
+        const userResult = {
+            engineOS: { hexagram: '天雷无妄', score: 82 },
+            interfaceOS: { hexagram: '坤為地', score: 75 },
+            safeModeOS: { hexagram: '水雷屯', score: 68 }
+        };
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.HexagramHumanTraitsV3 === 'undefined') {
+                console.error('V3データベースが読み込まれていません');
+                return;
+            }
+            
+            // 各OSのデータ取得
+            const engineData = window.HexagramHumanTraitsV3[userResult.engineOS.hexagram];
+            const interfaceData = window.HexagramHumanTraitsV3[userResult.interfaceOS.hexagram];
+            const safeData = window.HexagramHumanTraitsV3[userResult.safeModeOS.hexagram];
+            
+            if (!engineData || !interfaceData || !safeData) {
+                console.error('データが見つかりません');
+                return;
+            }
+            
+            // サマリー表示
+            displaySummary(engineData, interfaceData, safeData);
+            
+            // Engine OS詳細表示
+            displayEngineOS(engineData, userResult.engineOS.score);
+            
+            // Interface OS詳細表示
+            displayInterfaceOS(interfaceData, userResult.interfaceOS.score);
+            
+            // SafeMode OS詳細表示
+            displaySafeModeOS(safeData, userResult.safeModeOS.score);
+            
+            // バランス分析表示
+            displayBalance(engineData, interfaceData, safeData);
+        });
+        
+        // サマリー表示関数
+        function displaySummary(engine, inter, safe) {
+            const container = document.getElementById('summary-content');
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <div class="profile-card">
+                        <h3>${engine.emoji} Engine OS</h3>
+                        <strong>${engine.nickname}</strong>
+                        <p style="margin-top: 0.5rem;">${engine.element}</p>
+                        <div class="field-value">${userResult.engineOS.hexagram} (${userResult.engineOS.score}%)</div>
+                    </div>
+                    <div class="profile-card">
+                        <h3>${inter.emoji} Interface OS</h3>
+                        <strong>${inter.nickname}</strong>
+                        <p style="margin-top: 0.5rem;">${inter.element}</p>
+                        <div class="field-value">${userResult.interfaceOS.hexagram} (${userResult.interfaceOS.score}%)</div>
+                    </div>
+                    <div class="profile-card">
+                        <h3>${safe.emoji} SafeMode OS</h3>
+                        <strong>${safe.nickname}</strong>
+                        <p style="margin-top: 0.5rem;">${safe.element}</p>
+                        <div class="field-value">${userResult.safeModeOS.hexagram} (${userResult.safeModeOS.score}%)</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Engine OS詳細表示
+        function displayEngineOS(data, score) {
+            const container = document.getElementById('engine-os-content');
+            const os = data.asEngineOS;
+            
+            container.innerHTML = `
+                <div class="accordion-item engine-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>プロフィール</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">タイプ</div>
+                                <div class="field-value">${os.profile.type}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">説明</div>
+                                <div class="field-value">${os.profile.description}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">メタファー</div>
+                                <div class="field-value" style="font-style: italic;">"${os.profile.metaphor}"</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item engine-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>通常状態</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">何が起きているか</div>
+                                <div class="field-value">${os.normalState.whatHappens}</div>
+                            </div>
+                            <div class="example-box">
+                                <strong>例:</strong> ${os.normalState.example}
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">エネルギーレベル</div>
+                                <div class="energy-level">${os.normalState.energyLevel}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item engine-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>スーパーモード</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">発動条件</div>
+                                <div class="field-value">${os.superMode.when}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">何が起きるか</div>
+                                <div class="field-value">${os.superMode.whatHappens}</div>
+                            </div>
+                            <div class="example-box">
+                                <strong>例:</strong> ${os.superMode.example}
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">エネルギーレベル</div>
+                                <div class="energy-level">${os.superMode.energyLevel}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item engine-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>休息モード</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">休息時の状態</div>
+                                <div class="field-value">${os.restMode.whatHappens}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">休み方</div>
+                                <div class="field-value">${os.restMode.howToRest}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">注意点</div>
+                                <div class="field-value">${os.restMode.note}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item engine-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>メンテナンス</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">必要なもの</div>
+                                <div class="field-value">${os.maintenance.whatYouNeed}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">充電方法</div>
+                                <div class="field-value">${os.maintenance.howToCharge}</div>
+                            </div>
+                            <div class="warning-box">
+                                <strong>警告:</strong> ${os.maintenance.warning}
+                            </div>
+                            <div class="tip-box">
+                                <strong>ヒント:</strong> ${os.maintenance.tip}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Interface OS詳細表示
+        function displayInterfaceOS(data, score) {
+            const container = document.getElementById('interface-os-content');
+            const os = data.asInterfaceOS;
+            
+            container.innerHTML = `
+                <div class="accordion-item interface-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>プロフィール</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">タイプ</div>
+                                <div class="field-value">${os.profile.type}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">説明</div>
+                                <div class="field-value">${os.profile.description}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">メタファー</div>
+                                <div class="field-value" style="font-style: italic;">"${os.profile.metaphor}"</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item interface-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>コミュニケーション方法</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">スタイル</div>
+                                <div class="field-value">${os.howToTalk.style}</div>
+                            </div>
+                            <div class="example-box">
+                                <strong>例:</strong> ${os.howToTalk.example}
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">得意なこと</div>
+                                <div class="field-value">${os.howToTalk.goodAt}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">苦手なこと</div>
+                                <div class="field-value">${os.howToTalk.notGoodAt}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item interface-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>最適な環境</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">理想的な環境</div>
+                                <div class="field-value">${os.bestEnvironment.where}</div>
+                            </div>
+                            <div class="example-box">
+                                <strong>例:</strong> ${os.bestEnvironment.example}
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">相性の良い人</div>
+                                <div class="field-value">${os.bestEnvironment.withWho}</div>
+                            </div>
+                            <div class="warning-box">
+                                <strong>避けるべき環境:</strong> ${os.bestEnvironment.avoid}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item interface-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>関係性のヒント</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">強み</div>
+                                <div class="field-value">${os.relationshipTips.strength}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">弱み</div>
+                                <div class="field-value">${os.relationshipTips.weakness}</div>
+                            </div>
+                            <div class="tip-box">
+                                <strong>アドバイス:</strong> ${os.relationshipTips.advice}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // SafeMode OS詳細表示
+        function displaySafeModeOS(data, score) {
+            const container = document.getElementById('safemode-os-content');
+            const os = data.asSafeModeOS;
+            
+            container.innerHTML = `
+                <div class="accordion-item safemode-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>プロフィール</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">タイプ</div>
+                                <div class="field-value">${os.profile.type}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">説明</div>
+                                <div class="field-value">${os.profile.description}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">メタファー</div>
+                                <div class="field-value" style="font-style: italic;">"${os.profile.metaphor}"</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item safemode-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>ストレス反応</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">ストレス時の行動</div>
+                                <div class="field-value">${os.stressResponse.whatYouDo}</div>
+                            </div>
+                            <div class="example-box">
+                                <strong>例:</strong> ${os.stressResponse.example}
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">良い点</div>
+                                <div class="field-value">${os.stressResponse.goodPoint}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">注意点</div>
+                                <div class="field-value">${os.stressResponse.badPoint}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item safemode-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>緊急モード</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">緊急時の反応</div>
+                                <div class="field-value">${os.emergencyMode.whatHappens}</div>
+                            </div>
+                            <div class="example-box">
+                                <strong>例:</strong> ${os.emergencyMode.example}
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">回復方法</div>
+                                <div class="field-value">${os.emergencyMode.recovery}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">回復時間</div>
+                                <div class="field-value">${os.emergencyMode.timeToRecover}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item safemode-os">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <h3>回復方法</h3>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            <div class="field-group">
+                                <div class="field-label">最良の回復方法</div>
+                                <div class="field-value">${os.howToRecover.bestWay}</div>
+                            </div>
+                            <div class="example-box">
+                                <strong>例:</strong> ${os.howToRecover.example}
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">理想的な環境</div>
+                                <div class="field-value">${os.howToRecover.environment}</div>
+                            </div>
+                            <div class="field-group">
+                                <div class="field-label">必要なサポート</div>
+                                <div class="field-value">${os.howToRecover.support}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // バランス分析表示
+        function displayBalance(engine, inter, safe) {
+            const container = document.getElementById('balance-content');
+            const balance = engine.osBalance; // どのOSのバランス情報も同じ構造と仮定
+            
+            if (balance) {
+                container.innerHTML = `
+                    <div class="field-group">
+                        <div class="field-label">理想的なバランス</div>
+                        <div class="field-value" style="font-size: 1.2rem; font-weight: bold;">${balance.idealBalance}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">バランスが取れている時</div>
+                        <div class="field-value">${balance.whenBalanced}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">バランスが崩れている時</div>
+                        <div class="field-value">${balance.whenImbalanced}</div>
+                    </div>
+                    <div class="tip-box">
+                        <strong>ヒント:</strong> ${balance.tip}
+                    </div>
+                `;
+            }
+        }
+        
+        // アコーディオン切り替え
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            item.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

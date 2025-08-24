@@ -1,0 +1,58 @@
+{
+  "version": "2.2.0",
+  "description": "Authoritative I Ching transformation test cases with sources",
+  "fixtures": [
+    {
+      "id": "tai-to-lin",
+      "from": 11,
+      "line": 3,
+      "to": 19,
+      "description": "泰三爻変→臨",
+      "source": {
+        "title": "周易正義",
+        "edition": "四部叢刊本",
+        "page": "巻二"
+      }
+    },
+    {
+      "id": "tai-to-pi-upper",
+      "from": 11,
+      "line": 6,
+      "to": 12,
+      "description": "泰上爻変→否（極転の典型）",
+      "source": {
+        "title": "易経大全",
+        "edition": "文淵閣四庫全書",
+        "page": "第38冊"
+      }
+    },
+    {
+      "id": "qian-to-gou",
+      "from": 1,
+      "line": 1,
+      "to": 44,
+      "description": "乾初爻変→姤",
+      "source": {
+        "title": "周易本義",
+        "edition": "朱熹",
+        "page": "上経"
+      }
+    },
+    {
+      "id": "kun-to-bo",
+      "from": 2,
+      "line": 6,
+      "to": 23,
+      "description": "坤上爻変→剥",
+      "source": {
+        "title": "周易本義",
+        "edition": "朱熹",
+        "page": "上経"
+      }
+    }
+  ],
+  "notes": {
+    "priority": "主要原典（周易正義）を優先、副原典は参考記載",
+    "discrepancies": "流派差がある場合は備考欄に記載"
+  }
+}

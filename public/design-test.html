@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HaQei デザインシステム テストページ</title>
+    
+    <!-- 統一デザインCSS -->
+    <link rel="stylesheet" href="/css/haqei-unified-design.css">
+    
+    <style>
+        /* テスト用の追加スタイル */
+        .test-section {
+            margin-bottom: var(--spacing-10);
+            padding: var(--spacing-6);
+            background: white;
+            border-radius: var(--radius-lg);
+        }
+        
+        .test-title {
+            font-size: var(--text-xl);
+            color: var(--primary-600);
+            margin-bottom: var(--spacing-4);
+            padding-bottom: var(--spacing-2);
+            border-bottom: 2px solid var(--primary-100);
+        }
+        
+        .color-swatch {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-base);
+            margin-right: var(--spacing-2);
+            border: 2px solid var(--neutral-200);
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-4);
+            margin-top: var(--spacing-4);
+        }
+    </style>
+</head>
+<body>
+    <!-- ナビゲーションバー -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                🔯 HaQei デザインシステム
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link">ホーム</a></li>
+                <li><a href="/os_analyzer.html" class="nav-link">OS分析</a></li>
+                <li><a href="#" class="nav-link active">デザインテスト</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container" style="padding-top: var(--spacing-8);">
+        <h1 class="text-center mb-6">HaQei 統一デザインシステム テストページ</h1>
+        <p class="text-center text-muted mb-6">
+            OS Analyzerの青色基調デザインが正しく適用されているか確認できます
+        </p>
+        
+        <!-- カラーパレット -->
+        <section class="test-section">
+            <h2 class="test-title">📎 カラーパレット</h2>
+            
+            <h3 class="mb-3">Primary Colors (青色系)</h3>
+            <div>
+                <span class="color-swatch" style="background: var(--primary-50);"></span>
+                <span class="color-swatch" style="background: var(--primary-100);"></span>
+                <span class="color-swatch" style="background: var(--primary-200);"></span>
+                <span class="color-swatch" style="background: var(--primary-300);"></span>
+                <span class="color-swatch" style="background: var(--primary-400);"></span>
+                <span class="color-swatch" style="background: var(--primary-500);"></span>
+                <span class="color-swatch" style="background: var(--primary-600);"></span>
+                <span class="color-swatch" style="background: var(--primary-700);"></span>
+            </div>
+            
+            <h3 class="mt-5 mb-3">Indigo Accent (OS Analyzer用)</h3>
+            <div>
+                <span class="color-swatch" style="background: var(--indigo-50);"></span>
+                <span class="color-swatch" style="background: var(--indigo-200);"></span>
+                <span class="color-swatch" style="background: var(--indigo-400);"></span>
+                <span class="color-swatch" style="background: var(--indigo-500);"></span>
+                <span class="color-swatch" style="background: var(--indigo-600);"></span>
+                <span class="color-swatch" style="background: var(--indigo-700);"></span>
+            </div>
+            
+            <h3 class="mt-5 mb-3">Triple OS Colors</h3>
+            <div>
+                <span class="color-swatch" style="background: var(--engine-color);"></span>
+                <span class="color-swatch" style="background: var(--interface-color);"></span>
+                <span class="color-swatch" style="background: var(--safe-color);"></span>
+            </div>
+        </section>
+        
+        <!-- ボタン -->
+        <section class="test-section">
+            <h2 class="test-title">🔘 ボタンスタイル</h2>
+            
+            <h3 class="mb-3">サイズバリエーション</h3>
+            <div class="mb-4">
+                <button class="btn btn-primary btn-sm">小サイズ</button>
+                <button class="btn btn-primary">標準サイズ</button>
+                <button class="btn btn-primary btn-lg">大サイズ</button>
+            </div>
+            
+            <h3 class="mb-3">スタイルバリエーション</h3>
+            <div class="mb-4">
+                <button class="btn btn-primary">プライマリ</button>
+                <button class="btn btn-secondary">セカンダリ</button>
+                <button class="btn btn-ghost">ゴースト</button>
+                <button class="btn btn-primary" disabled>無効状態</button>
+            </div>
+        </section>
+        
+        <!-- カードレイアウト -->
+        <section class="test-section">
+            <h2 class="test-title">📋 カードレイアウト</h2>
+            
+            <div class="grid grid-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🧠 Engine OS</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>内発的動機を司るシステム。創造性と探求心の源泉です。</p>
+                        <div class="progress-bar mt-3">
+                            <div class="progress-fill" style="width: 75%;"></div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-primary btn-sm">詳細を見る</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>💬 Interface OS</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>社会的側面を管理。対人関係と表現力を調整します。</p>
+                        <div class="progress-bar mt-3">
+                            <div class="progress-fill" style="width: 60%;"></div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-secondary btn-sm">詳細を見る</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🛡️ Safe Mode OS</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>危機管理システム。安定性と保護機能を提供します。</p>
+                        <div class="progress-bar mt-3">
+                            <div class="progress-fill" style="width: 45%;"></div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-ghost btn-sm">詳細を見る</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- フォーム要素 -->
+        <section class="test-section">
+            <h2 class="test-title">📝 フォーム要素</h2>
+            
+            <div class="demo-grid">
+                <div>
+                    <h3 class="mb-3">テキスト入力</h3>
+                    <div class="form-group">
+                        <label class="form-label">お名前</label>
+                        <input type="text" class="form-input" placeholder="山田太郎">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">メールアドレス</label>
+                        <input type="email" class="form-input" placeholder="email@example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">メッセージ</label>
+                        <textarea class="form-textarea" rows="3" placeholder="ご意見をお聞かせください"></textarea>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="mb-3">選択肢（OS Analyzerスタイル）</h3>
+                    <div class="form-group">
+                        <label class="form-label">質問: あなたの思考パターンは？</label>
+                        
+                        <label class="option-label">
+                            <input type="radio" name="q1" value="1">
+                            <span class="option-text">創造的で革新的</span>
+                        </label>
+                        
+                        <label class="option-label selected">
+                            <input type="radio" name="q1" value="2" checked>
+                            <span class="option-text">論理的で分析的</span>
+                        </label>
+                        
+                        <label class="option-label">
+                            <input type="radio" name="q1" value="3">
+                            <span class="option-text">直感的で感覚的</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- プログレスインジケーター -->
+        <section class="test-section">
+            <h2 class="test-title">📊 プログレスバー</h2>
+            
+            <div>
+                <p class="mb-2">基本のプログレスバー (25%)</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 25%;"></div>
+                </div>
+                
+                <p class="mb-2 mt-4">アニメーション付き (50%)</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 50%;"></div>
+                </div>
+                
+                <p class="mb-2 mt-4">完了状態 (100%)</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 100%;"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- タイポグラフィ -->
+        <section class="test-section">
+            <h2 class="test-title">📖 タイポグラフィ</h2>
+            
+            <h1>見出し1 - HaQei Analysis System</h1>
+            <h2>見出し2 - Triple OS Architecture</h2>
+            <h3>見出し3 - Engine OS Details</h3>
+            <h4>見出し4 - Interface Configuration</h4>
+            
+            <p class="mt-4">
+                通常のパラグラフです。HaQei分析システムは、古代の叡智である易経と
+                現代の心理学を融合させた革新的なアプローチです。
+                <strong>強調テキスト</strong>や<em>イタリック</em>、
+                <a href="#">リンク</a>も含まれています。
+            </p>
+            
+            <p class="text-primary">プライマリカラーのテキスト</p>
+            <p class="text-muted">ミュートされたテキスト</p>
+        </section>
+        
+        <!-- アニメーション -->
+        <section class="test-section">
+            <h2 class="test-title">✨ アニメーション効果</h2>
+            
+            <div class="demo-grid">
+                <div class="card fade-in">
+                    <h3>フェードイン効果</h3>
+                    <p>ページ読み込み時にフェードインします</p>
+                </div>
+                
+                <div class="card slide-in">
+                    <h3>スライドイン効果</h3>
+                    <p>左からスライドインします</p>
+                </div>
+                
+                <div class="card" style="transition: all 0.3s;">
+                    <h3>ホバー効果</h3>
+                    <p>マウスを乗せると浮き上がります</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- レスポンシブテスト -->
+        <section class="test-section">
+            <h2 class="test-title">📱 レスポンシブデザイン</h2>
+            <p class="text-muted mb-4">ブラウザの幅を変更して、レスポンシブ対応を確認してください</p>
+            
+            <div class="grid grid-4">
+                <div class="card">
+                    <p>Grid 1</p>
+                </div>
+                <div class="card">
+                    <p>Grid 2</p>
+                </div>
+                <div class="card">
+                    <p>Grid 3</p>
+                </div>
+                <div class="card">
+                    <p>Grid 4</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- フッター -->
+    <footer style="background: var(--neutral-100); padding: var(--spacing-8); margin-top: var(--spacing-10);">
+        <div class="container text-center">
+            <p class="text-muted">© 2025 HaQei Analyzer - Unified Design System Test Page</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Triple OS v3 テスト - あなたの3つのモード</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* ヘッダー */
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .main-title {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+        
+        /* 説明カード */
+        .intro-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .intro-title {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .os-explanation {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .os-explain-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid;
+        }
+        .os-explain-item.engine { border-color: #ff6b6b; }
+        .os-explain-item.interface { border-color: #4ecdc4; }
+        .os-explain-item.safemode { border-color: #45b7d1; }
+        .os-explain-emoji {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        .os-explain-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .os-explain-text {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        
+        /* OS選択エリア */
+        .selector-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .selector-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .os-selectors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .os-selector-item {
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .os-selector-item.engine { background: linear-gradient(135deg, #ff6b6b20 0%, #ff6b6b10 100%); }
+        .os-selector-item.interface { background: linear-gradient(135deg, #4ecdc420 0%, #4ecdc410 100%); }
+        .os-selector-item.safemode { background: linear-gradient(135deg, #45b7d120 0%, #45b7d110 100%); }
+        .selector-label {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        .selector-description {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        .os-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .os-select:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        .generate-button {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 30px auto 0;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+        }
+        .generate-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+        }
+        
+        /* 結果表示エリア */
+        .result-area {
+            display: none;
+        }
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .result-title {
+            font-size: 1.6em;
+            color: #333;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .personality-summary {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .personality-emoji {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        .personality-text {
+            font-size: 1.15em;
+            color: #444;
+            line-height: 1.8;
+        }
+        
+        /* OS詳細カード */
+        .os-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .os-detail-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border-top: 4px solid;
+        }
+        .os-detail-card.engine { border-color: #ff6b6b; }
+        .os-detail-card.interface { border-color: #4ecdc4; }
+        .os-detail-card.safemode { border-color: #45b7d1; }
+        .os-detail-title {
+            font-size: 1.15em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .os-detail-emoji {
+            font-size: 1.4em;
+        }
+        .detail-section {
+            margin-bottom: 15px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        .detail-content {
+            color: #666;
+            line-height: 1.6;
+        }
+        .energy-bar {
+            display: flex;
+            gap: 3px;
+            margin-top: 5px;
+        }
+        .energy-unit {
+            width: 20px;
+            height: 8px;
+            background: #ddd;
+            border-radius: 2px;
+        }
+        .energy-unit.filled { background: #ffd700; }
+        
+        /* 日常生活 */
+        .daily-life-card {
+            background: #f0f8ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #4169e1;
+        }
+        .daily-life-title {
+            font-size: 1.25em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .daily-scenarios {
+            display: grid;
+            gap: 15px;
+        }
+        .scenario-item {
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+        .scenario-time {
+            font-weight: bold;
+            color: #4169e1;
+            margin-bottom: 5px;
+        }
+        .scenario-text {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        /* アドバイス */
+        .advice-card {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #4caf50;
+        }
+        .advice-title {
+            font-size: 1.25em;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .advice-content {
+            display: grid;
+            gap: 15px;
+        }
+        .advice-item {
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+        .advice-label {
+            font-weight: bold;
+            color: #4caf50;
+            margin-bottom: 8px;
+        }
+        .advice-text {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .main-title { font-size: 1.8em; }
+            .os-selectors { grid-template-columns: 1fr; }
+            .os-details { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <div class="header">
+            <h1 class="main-title">🎮 Triple OS v3 - あなたの3つのモード</h1>
+            <p class="subtitle">誰もが持っている3つのOS（モード）を理解して、自分の「取扱説明書」を手に入れよう</p>
+        </div>
+        
+        <!-- 説明カード -->
+        <div class="intro-card">
+            <h2 class="intro-title">💡 3つのOSって何？</h2>
+            <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+                コンピュータにOSがあるように、あなたにも3つの「人格OS」があります。<br>
+                状況に応じて自動的に切り替わり、あなたの行動や思考をコントロールしています。
+            </p>
+            <div class="os-explanation">
+                <div class="os-explain-item engine">
+                    <div class="os-explain-emoji">🔥</div>
+                    <div class="os-explain-title">Engine OS（エンジン）</div>
+                    <div class="os-explain-text">
+                        あなたの心のエンジン<br>
+                        何があなたを動かすのか<br>
+                        情熱と原動力の源
+                    </div>
+                </div>
+                <div class="os-explain-item interface">
+                    <div class="os-explain-emoji">🌐</div>
+                    <div class="os-explain-title">Interface OS（インターフェース）</div>
+                    <div class="os-explain-text">
+                        人との接し方モード<br>
+                        どう周りと関わるか<br>
+                        社会的なつながり方
+                    </div>
+                </div>
+                <div class="os-explain-item safemode">
+                    <div class="os-explain-emoji">🛡️</div>
+                    <div class="os-explain-title">SafeMode OS（セーフモード）</div>
+                    <div class="os-explain-text">
+                        ピンチの時の守り方<br>
+                        ストレスへの対処法<br>
+                        自己防衛と回復方法
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- OS選択エリア -->
+        <div class="selector-card">
+            <h2 class="selector-title">🎯 あなたの3つのOSを選んでみよう</h2>
+            <div class="os-selectors">
+                <div class="os-selector-item engine">
+                    <div class="selector-label">🔥</div>
+                    <div class="selector-description">あなたを動かすエンジンは？</div>
+                    <select class="os-select" id="engine-select">
+                        <option value="1">🚀 イノベーター（革新を追求）</option>
+                        <option value="2">🌱 サポーター（みんなを支える）</option>
+                        <option value="58">🎉 エンターテイナー（楽しさを創造）</option>
+                    </select>
+                </div>
+                <div class="os-selector-item interface">
+                    <div class="selector-label">🌐</div>
+                    <div class="selector-description">人とのつながり方は？</div>
+                    <select class="os-select" id="interface-select">
+                        <option value="58">🎉 ムードメーカー（場を盛り上げる）</option>
+                        <option value="1">🚀 ビジョナリーリーダー（方向を示す）</option>
+                        <option value="2">🌱 ファシリテーター（みんなの声を聞く）</option>
+                    </select>
+                </div>
+                <div class="os-selector-item safemode">
+                    <div class="selector-label">🛡️</div>
+                    <div class="selector-description">ピンチの時の守り方は？</div>
+                    <select class="os-select" id="safemode-select">
+                        <option value="2">🌱 受容統合型（受け止めて消化）</option>
+                        <option value="1">🚀 前進突破型（攻めで解決）</option>
+                        <option value="58">🎉 ポジティブ転換型（楽しさで上書き）</option>
+                    </select>
+                </div>
+            </div>
+            <button class="generate-button" onclick="analyzePersonality()">
+                🔍 あなたの性格を分析する
+            </button>
+        </div>
+        
+        <!-- 結果表示エリア -->
+        <div class="result-area" id="result-area">
+            <div class="result-card">
+                <h2 class="result-title">✨ あなたの統合プロファイル</h2>
+                <div class="personality-summary" id="personality-summary"></div>
+                
+                <!-- OS詳細 -->
+                <div class="os-details" id="os-details"></div>
+                
+                <!-- 日常生活 -->
+                <div class="daily-life-card">
+                    <div class="daily-life-title">
+                        <span>📅</span>
+                        <span>日常での行動パターン</span>
+                    </div>
+                    <div class="daily-scenarios" id="daily-scenarios"></div>
+                </div>
+                
+                <!-- アドバイス -->
+                <div class="advice-card">
+                    <div class="advice-title">
+                        <span>💡</span>
+                        <span>成長のためのアドバイス</span>
+                    </div>
+                    <div class="advice-content" id="advice-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- v3データベース読み込み -->
+    <script src="public/js/data/hexagram-human-traits-v3.js"></script>
+    
+    <script>
+        function analyzePersonality() {
+            const engineId = parseInt(document.getElementById('engine-select').value);
+            const interfaceId = parseInt(document.getElementById('interface-select').value);
+            const safemodeId = parseInt(document.getElementById('safemode-select').value);
+            
+            // 性格分析を実行
+            const personality = window.getMyPersonality({
+                engine: engineId,
+                interface: interfaceId,
+                safeMode: safemodeId
+            });
+            
+            // 各OSの詳細情報を取得
+            const engineInfo = window.getMyOSInfo(engineId, 'engine');
+            const interfaceInfo = window.getMyOSInfo(interfaceId, 'interface');
+            const safemodeInfo = window.getMyOSInfo(safemodeId, 'safemode');
+            
+            // 結果を表示
+            displayResults(personality, engineInfo, interfaceInfo, safemodeInfo);
+            
+            // 結果エリアを表示してスクロール
+            document.getElementById('result-area').style.display = 'block';
+            document.getElementById('result-area').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function displayResults(personality, engine, interface_, safemode) {
+            // 総合的な性格
+            const summaryHtml = `
+                <div class="personality-emoji">
+                    ${engine.emoji}${interface_.emoji}${safemode.emoji}
+                </div>
+                <div class="personality-text">
+                    ${personality.summary}
+                </div>
+            `;
+            document.getElementById('personality-summary').innerHTML = summaryHtml;
+            
+            // OS詳細
+            let osDetailsHtml = '';
+            osDetailsHtml += createOSDetailCard(engine, 'engine', '心のエンジン');
+            osDetailsHtml += createOSDetailCard(interface_, 'interface', '人との接し方');
+            osDetailsHtml += createOSDetailCard(safemode, 'safemode', 'ピンチの時');
+            document.getElementById('os-details').innerHTML = osDetailsHtml;
+            
+            // 日常生活
+            const dailyHtml = `
+                <div class="scenario-item">
+                    <div class="scenario-time">🌟 普段の状態</div>
+                    <div class="scenario-text">${personality.dailyLife.normalDay}</div>
+                </div>
+                <div class="scenario-item">
+                    <div class="scenario-time">👥 人と接する時</div>
+                    <div class="scenario-text">${personality.dailyLife.withPeople}</div>
+                </div>
+                <div class="scenario-item">
+                    <div class="scenario-time">😰 プレッシャーを感じた時</div>
+                    <div class="scenario-text">${personality.dailyLife.underPressure}</div>
+                </div>
+            `;
+            document.getElementById('daily-scenarios').innerHTML = dailyHtml;
+            
+            // アドバイス
+            const adviceHtml = `
+                <div class="advice-item">
+                    <div class="advice-label">💪 あなたの強み</div>
+                    <div class="advice-text">${personality.advice.strength}</div>
+                </div>
+                <div class="advice-item">
+                    <div class="advice-label">🌟 成長のポイント</div>
+                    <div class="advice-text">${personality.advice.improvement}</div>
+                </div>
+                <div class="advice-item">
+                    <div class="advice-label">⚖️ 理想のバランス</div>
+                    <div class="advice-text">${personality.advice.balance}</div>
+                </div>
+            `;
+            document.getElementById('advice-content').innerHTML = adviceHtml;
+        }
+        
+        function createOSDetailCard(osInfo, type, label) {
+            const typeClass = type === 'interface' ? 'interface' : type;
+            const data = osInfo.data;
+            
+            let energyBar = '';
+            if (type === 'engine' && data.normalState) {
+                const energyMatch = data.normalState.energyLevel.match(/🔋/g);
+                const energyCount = energyMatch ? energyMatch.length : 0;
+                for (let i = 0; i < 5; i++) {
+                    energyBar += `<div class="energy-unit ${i < energyCount ? 'filled' : ''}"></div>`;
+                }
+            }
+            
+            let html = `
+                <div class="os-detail-card ${typeClass}">
+                    <div class="os-detail-title">
+                        <span class="os-detail-emoji">${osInfo.emoji}</span>
+                        <span>${label}</span>
+                    </div>
+            `;
+            
+            if (type === 'engine') {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-label">タイプ</div>
+                        <div class="detail-content">${data.profile.description}</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">通常時</div>
+                        <div class="detail-content">
+                            ${data.normalState.example}
+                            <div class="energy-bar">${energyBar}</div>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">メンテナンス</div>
+                        <div class="detail-content">${data.maintenance.tip}</div>
+                    </div>
+                `;
+            } else if (type === 'interface') {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-label">スタイル</div>
+                        <div class="detail-content">${data.profile.description}</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">得意なこと</div>
+                        <div class="detail-content">${data.howToTalk.goodAt}</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">コツ</div>
+                        <div class="detail-content">${data.relationshipTips.advice}</div>
+                    </div>
+                `;
+            } else if (type === 'safemode') {
+                html += `
+                    <div class="detail-section">
+                        <div class="detail-label">守り方</div>
+                        <div class="detail-content">${data.profile.description}</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">対処法</div>
+                        <div class="detail-content">${data.stressResponse.example}</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">回復方法</div>
+                        <div class="detail-content">${data.howToRecover.example}</div>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            return html;
+        }
+    </script>
+</body>
+</html>

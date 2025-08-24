@@ -1,1 +1,929 @@
-window.Authentic386YaoAnalyzer=class{constructor(){this.hexagramData=null,this.initialized=!1,this.debugMode=!0,this.keywordHexagramMap=null,this.emotionHexagramMap=null,this.patternHexagramMap=null,this.timePhaseHexagramMap=null}async initialize(){console.log("🎋 Initializing Authentic 386爻 Analyzer...");try{const e=await fetch("/data/enhanced_hexagrams_complete.json");this.hexagramData=await e.json();const t=this.hexagramData.reduce((e,t)=>e+(t.six_lines?.length||0),0),n=this.hexagramData.filter(e=>e.special_yao).length;return console.log(`✅ Loaded ${this.hexagramData.length} hexagrams`),console.log(`✅ Total lines: ${t} regular + ${n} special = ${t+n}`),this.buildOptimizationMaps(),console.log("🚀 Performance optimization maps built"),this.initialized=!0,!0}catch(e){return console.error("❌ Failed to initialize 386爻 data:",e),!1}}buildOptimizationMaps(){this.keywordHexagramMap=new Map([["creation",[1,3]],["receptive",[2]],["difficulty",[3,39]],["learning",[4]],["waiting",[5]],["conflict",[6]],["harmony",[11,13]],["change",[49]],["completion",[63]],["continuation",[64]]]),this.emotionHexagramMap=new Map([["anxiety",[4,29]],["joy",[58,16]],["anger",[31,21]],["sadness",[45,47]],["calm",[52,60]]]),this.patternHexagramMap=new Map([["high-sensitivity",[31,61]],["seeking-balance",[60,15]],["self-improvement",[15,42]]]),this.timePhaseHexagramMap=new Map([["beginning",[3,1]],["developing",[46,53]],["completion",[63]],["transition",[49,17]]]),this.hexagramWeights=new Float32Array(65),this.hexagramWeights.fill(5),[1,2,31,15,60,49].forEach(e=>this.hexagramWeights[e]=8),this.contextualWeights=new Map([["emotional-high",new Map([[31,1.5],[21,1.3],[58,1.2]])],["emotional-calm",new Map([[52,1.5],[60,1.3],[2,1.2]])],["time-beginning",new Map([[1,1.4],[3,1.6],[4,1.3]])],["time-transition",new Map([[49,1.6],[17,1.3],[18,1.2]])],["time-completion",new Map([[63,1.5],[14,1.3],[11,1.2]])],["personality-sensitive",new Map([[31,1.6],[61,1.4],[37,1.2]])],["personality-balanced",new Map([[15,1.5],[60,1.4],[11,1.3]])],["personality-creative",new Map([[1,1.4],[42,1.3],[25,1.2]])],["wuxing-wood-peak",new Map([[1,1.3],[34,1.2],[51,1.1]])],["wuxing-fire-peak",new Map([[30,1.3],[14,1.2],[21,1.1]])],["wuxing-earth-stable",new Map([[2,1.3],[15,1.2],[52,1.1]])],["wuxing-metal-refined",new Map([[10,1.3],[58,1.2],[43,1.1]])],["wuxing-water-deep",new Map([[29,1.3],[5,1.2],[48,1.1]])]]),this.wuxingHexagramMap=new Map([["wood",[1,3,18,34,42,51,57]],["fire",[13,14,21,30,35,38,49,55,56]],["earth",[2,7,8,15,16,20,23,24,33,52]],["metal",[10,26,28,41,43,58]],["water",[5,6,29,39,47,48,60,63,64]]]),this.wuxingRelations=new Map([["wood",{generates:"fire",generatedBy:"water"}],["fire",{generates:"earth",generatedBy:"wood"}],["earth",{generates:"metal",generatedBy:"fire"}],["metal",{generates:"water",generatedBy:"earth"}],["water",{generates:"wood",generatedBy:"metal"}],["wood",{controls:"earth",controlledBy:"metal"}],["fire",{controls:"metal",controlledBy:"water"}],["earth",{controls:"water",controlledBy:"wood"}],["metal",{controls:"wood",controlledBy:"fire"}],["water",{controls:"fire",controlledBy:"earth"}]])}analyzeText(e){if(!this.initialized)return console.error("❌ Analyzer not initialized"),null;const t=this.validateAndCleanInput(e);if(!t)return null;console.log("🔍 Analyzing text with 386爻 system:",t.substring(0,50));const n=this.performDeepAnalysis(t),i=this.selectOptimalHexagram(n),a=this.selectOptimalYao(t,i,n);return{hexagram:i,yao:a,specialYao:this.checkSpecialYao(i,n),analysis:n,confidence:this.calculateConfidence(i,a,n)}}validateAndCleanInput(e){if(!e)return console.warn("⚠️ Empty or null input text"),null;"string"!=typeof e&&(console.warn("⚠️ Input is not a string, converting..."),e=String(e));const t=e.trim();if(0===t.length)return console.warn("⚠️ Input text is empty after trimming"),null;if(t.length>1e4)return console.warn("⚠️ Input text too long, truncating to 10000 characters"),t.substring(0,1e4);if(t.length<2)return console.warn("⚠️ Input text too short for meaningful analysis"),null;return t.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g,"").replace(/\s+/g," ")}performDeepAnalysis(e){const t={originalText:e,keywords:[],emotions:[],timePhase:null,intensity:0,patterns:[]},n={creation:/創造|リーダー|始める|開拓|革新/g,receptive:/受容|育む|支える|包容|母性/g,difficulty:/困難|苦労|問題|壁|試練/g,learning:/学ぶ|教育|成長|啓蒙|未熟/g,waiting:/待つ|準備|忍耐|時機|タイミング/g,conflict:/争い|対立|議論|衝突|訴訟/g,harmony:/調和|協力|親密|仲間|チーム/g,change:/変化|変革|革命|転換|改革/g,completion:/完成|達成|成功|完了|終了/g,continuation:/継続|未完|途中|進行|まだ/g};for(const[a,s]of Object.entries(n)){const n=e.match(s);n&&t.keywords.push({type:a,count:n.length,words:n})}const i={anxiety:/不安|心配|恐れ|怖い/g,joy:/喜び|嬉しい|楽しい|幸せ/g,anger:/怒り|イライラ|むかつく|腹立つ/g,sadness:/悲しい|寂しい|辛い|苦しい/g,calm:/静か|落ち着|平穏|安心/g};for(const[a,s]of Object.entries(i)){const n=e.match(s);n&&t.emotions.push({type:a,intensity:n.length})}return/始め|初め|最初|スタート|新しい/.test(e)?t.timePhase="beginning":/途中|進行中|まだ|継続/.test(e)?t.timePhase="developing":/完成|達成|終わり|完了/.test(e)?t.timePhase="completion":/転換|変化|岐路|選択/.test(e)&&(t.timePhase="transition"),t.intensity=Math.min((t.keywords.reduce((e,t)=>e+t.count,0)+t.emotions.reduce((e,t)=>e+t.intensity,0))/10,1),e.includes("敏感")&&e.includes("影響")&&t.patterns.push("high-sensitivity"),/ニュートラル|バランス|中庸/.test(e)&&t.patterns.push("seeking-balance"),/自分.*性格|自己.*改善/.test(e)&&t.patterns.push("self-improvement"),t.wuxing=this.analyzeWuxingCharacteristics(e),t}analyzeWuxingCharacteristics(e){const t={wood:0,fire:0,earth:0,metal:0,water:0};/成長|発展|創造|芽生え|伸びる|拡大|前進|向上/.test(e)&&(t.wood+=3),/春|青|緑|東|朝|新しい|始まり/.test(e)&&(t.wood+=2),/怒り|イライラ|肝|目|筋肉/.test(e)&&(t.wood+=1),/情熱|熱意|明るい|輝く|発散|表現|喜び|興奮/.test(e)&&(t.fire+=3),/夏|赤|南|昼|活発|積極的/.test(e)&&(t.fire+=2),/心|血|舌|笑/.test(e)&&(t.fire+=1),/安定|中庸|バランス|調和|受容|包容|土台|基盤/.test(e)&&(t.earth+=3),/晩夏|黄|中央|夕方|穏やか|謙虚/.test(e)&&(t.earth+=2),/脾|胃|口|思考/.test(e)&&(t.earth+=1),/収束|規律|清浄|整理|潔白|正義|完成|終了/.test(e)&&(t.metal+=3),/秋|白|西|夜|冷静|理性的/.test(e)&&(t.metal+=2),/肺|鼻|皮膚|悲しみ/.test(e)&&(t.metal+=1),/流動|智恵|柔軟|深い|静か|内向|蓄積|忍耐/.test(e)&&(t.water+=3),/冬|黒|北|深夜|寒い|暗い/.test(e)&&(t.water+=2),/腎|耳|骨|恐れ/.test(e)&&(t.water+=1);const n=Object.entries(t).sort(([,e],[,t])=>t-e)[0];return{dominant:n[0],score:n[1],allScores:t}}applyDynamicWeights(e,t){this.determineActiveContexts(t).forEach(t=>{const n=this.contextualWeights.get(t);n&&n.forEach((t,n)=>{n<=64&&(e[n]*=t)})})}determineActiveContexts(e){const t=[];if(e.emotions.reduce((e,t)=>e+t.intensity,0)>=3?t.push("emotional-high"):e.emotions.some(e=>"calm"===e.type)&&t.push("emotional-calm"),e.timePhase)switch(e.timePhase){case"beginning":t.push("time-beginning");break;case"transition":t.push("time-transition");break;case"completion":t.push("time-completion")}if(e.patterns.forEach(e=>{switch(e){case"high-sensitivity":t.push("personality-sensitive");break;case"seeking-balance":t.push("personality-balanced");break;case"self-improvement":t.push("personality-creative")}}),e.wuxing&&e.wuxing.score>=3){e.wuxing.dominant;switch(e.wuxing.dominant){case"wood":t.push("wuxing-wood-peak");break;case"fire":t.push("wuxing-fire-peak");break;case"earth":t.push("wuxing-earth-stable");break;case"metal":t.push("wuxing-metal-refined");break;case"water":t.push("wuxing-water-deep")}}return t}selectOptimalHexagram(e){const t=new Float32Array(65);t.fill(0);for(let s=1;s<=64;s++)t[s]=this.hexagramWeights[s];if(this.applyDynamicWeights(t,e),e.keywords.forEach(e=>{const n=this.keywordHexagramMap.get(e.type);n&&n.forEach(n=>{n<=64&&(t[n]+=15*e.count)})}),e.emotions.forEach(e=>{const n=this.emotionHexagramMap.get(e.type);n&&n.forEach(n=>{n<=64&&(t[n]+=8*e.intensity)})}),e.timePhase){const n=this.timePhaseHexagramMap.get(e.timePhase);n&&n.forEach(e=>{e<=64&&(t[e]+=12)})}if(e.patterns.forEach(e=>{const n=this.patternHexagramMap.get(e);n&&n.forEach(e=>{e<=64&&(t[e]+=25)})}),e.wuxing&&e.wuxing.score>0){const n=e.wuxing.dominant,i=this.wuxingHexagramMap.get(n);if(i){i.forEach(n=>{n<=64&&(t[n]+=10*e.wuxing.score)});const a=this.wuxingRelations.get(n);if(a){const n=a.generates,i=this.wuxingHexagramMap.get(n);i&&i.forEach(n=>{n<=64&&(t[n]+=5*e.wuxing.score)});const s=a.controls,o=this.wuxingHexagramMap.get(s);o&&o.forEach(n=>{n<=64&&(t[n]-=3*e.wuxing.score)})}}}let n=0,i=1;for(let s=1;s<=64;s++)t[s]>n&&(n=t[s],i=s);const a=this.hexagramData.find(e=>e.hexagram_id===i);if(this.debugMode){console.log(`🎯 Selected hexagram: ${a.name_jp} (ID: ${i})`);const e=[];for(let n=1;n<=64;n++)if(t[n]>5){const i=this.hexagramData.find(e=>e.hexagram_id===n);i&&e.push({name:i.name_jp,id:n,score:t[n]})}e.sort((e,t)=>t.score-e.score),console.log("Top scores:",e.slice(0,3).map(e=>`${e.name}(${e.id}): ${e.score}`))}return a}selectOptimalYao(e,t,n){if(!t||!t.six_lines||!Array.isArray(t.six_lines)||0===t.six_lines.length)return console.warn(`⚠️ Invalid hexagram data for yao selection: ${t?.name_jp||"unknown"}`),null;if(!e||"string"!=typeof e)return console.warn("⚠️ Invalid text input for yao selection"),null;const i={};t.six_lines.forEach(a=>{if(!a||"object"!=typeof a||"number"!=typeof a.position)return void console.warn("⚠️ Invalid yao line data, skipping");let s=0;if(1===t.hexagram_id&&((e.includes("潜")||e.includes("隠")||e.includes("準備"))&&1===a.position&&(s+=20),(e.includes("現れ")||e.includes("見える"))&&2===a.position&&(s+=20),(e.includes("警戒")||e.includes("注意"))&&3===a.position&&(s+=20),(e.includes("躍")||e.includes("飛躍"))&&4===a.position&&(s+=20),(e.includes("飛")||e.includes("頂点")||e.includes("リーダー"))&&5===a.position&&(s+=25),(e.includes("高慢")||e.includes("傲慢")||e.includes("過ぎ"))&&6===a.position&&(s+=20)),5===t.hexagram_id&&(e.includes("酒")||e.includes("食")||e.includes("楽しみ"))&&5===a.position&&(s+=25),49===t.hexagram_id&&(e.includes("虎")||e.includes("大胆")||e.includes("変革"))&&5===a.position&&(s+=25),a.meaning){a.meaning.split(/[、。,]/).filter(e=>e.length>0).forEach(t=>{e.includes(t.trim())&&(s+=8)})}if(n.timePhase)switch(n.timePhase){case"beginning":1===a.position&&(s+=15),2===a.position&&(s+=10);break;case"developing":3===a.position&&(s+=15),4===a.position&&(s+=15);break;case"completion":5===a.position&&(s+=15),6===a.position&&(s+=10);break;case"transition":4===a.position&&(s+=15)}const o=n.emotions.reduce((e,t)=>e+t.intensity,0);o>2?a.position>=3&&a.position<=4&&(s+=10):0===o&&(1!==a.position&&6!==a.position||(s+=5)),n.patterns.includes("high-sensitivity")&&(2!==a.position&&5!==a.position||(s+=8)),n.patterns.includes("seeking-balance")&&(3!==a.position&&4!==a.position||(s+=8)),s+=3,i[a.position]=s});const a=Object.entries(i).sort(([,e],[,t])=>t-e),s=a[0]?.[0],o=t.six_lines.find(e=>e.position==s);return this.debugMode&&(console.log(`📍 Selected yao: Position ${s} - ${o?.name}`),console.log("Top yao scores:",a.slice(0,3).map(([e,t])=>`${e}爻: ${t}`))),o}checkSpecialYao(e,t){if(!e||!t)return null;if(1===e.hexagram_id&&e.special_yao){const n=this.checkYangPeakConditions(t);if(n.shouldUseYongJiu)return this.debugMode&&console.log("🐉 用九 detected:",n.reason),e.special_yao}if(2===e.hexagram_id&&e.special_yao){const n=this.checkYinCompletionConditions(t);if(n.shouldUseYongLiu)return this.debugMode&&console.log("☷ 用六 detected:",n.reason),e.special_yao}return null}checkYangPeakConditions(e){const t={shouldUseYongJiu:!1,reason:"",confidence:0};let n=0,i=0;["すべて","完全","極","頂点","成功","達成"].some(t=>e.originalText.includes(t))&&(n+=3);["謙虚","謙遜","慎む","バランス","調和"].some(t=>e.originalText.includes(t))&&(i+=3),!e.wuxing||"wood"!==e.wuxing.dominant&&"fire"!==e.wuxing.dominant||e.wuxing.score>=3&&(n+=2);return e.emotions.some(e=>e.intensity>=3)&&(n+=1),"completion"!==e.timePhase&&"transition"!==e.timePhase||(n+=2),n>=4&&i>=2&&(t.shouldUseYongJiu=!0,t.reason=`陽の極致（${n}点）+ バランス求心（${i}点）`,t.confidence=Math.min(10*(n+i),100)),t}checkYinCompletionConditions(e){const t={shouldUseYongLiu:!1,reason:"",confidence:0};let n=0,i=0;["静か","深い","持続","継続","永続","安定"].some(t=>e.originalText.includes(t))&&(n+=3);["正しい","正しく","貞","純粋","清廉"].some(t=>e.originalText.includes(t))&&(i+=3),!e.wuxing||"metal"!==e.wuxing.dominant&&"water"!==e.wuxing.dominant||e.wuxing.score>=3&&(n+=2);return e.emotions.some(e=>"calm"===e.type)&&(n+=2),e.patterns.includes("seeking-balance")&&(i+=2),n>=4&&i>=2&&(t.shouldUseYongLiu=!0,t.reason=`陰の完成（${n}点）+ 持続性（${i}点）`,t.confidence=Math.min(10*(n+i),100)),t}calculateConfidence(e,t,n){let i=50;return e&&6===e.six_lines?.length&&(i+=10),t&&t.meaning&&(i+=10),n.keywords.length>0&&(i+=10),n.emotions.length>0&&(i+=10),n.timePhase&&(i+=10),n.patterns.length>0&&(i+=10),i+=20*n.intensity,Math.min(Math.max(i,0),100)}createFutureContext(e){return{currentHexagram:e.hexagram,currentYao:e.yao,specialYao:e.specialYao,keywords:e.analysis.keywords.map(e=>e.words).flat(),emotions:e.analysis.emotions,timePhase:e.analysis.timePhase,patterns:e.analysis.patterns,confidence:e.confidence}}};
+/**
+ * Authentic 386爻 Text Analyzer
+ * 完全な64卦×6爻＋用九・用六を使用した正確なテキスト分析
+ * 
+ * CLAUDE.md準拠：指示範囲厳守、根本解決優先
+ */
+
+window.Authentic386YaoAnalyzer = class {
+  constructor() {
+    this.hexagramData = null;
+    this.initialized = false;
+    this.debugMode = true;
+    
+    // パフォーマンス最適化: インデックスマップ初期化
+    this.keywordHexagramMap = null;
+    this.emotionHexagramMap = null;
+    this.patternHexagramMap = null;
+    this.timePhaseHexagramMap = null;
+  }
+  
+  async initialize() {
+    console.log('🎋 Initializing Authentic 386爻 Analyzer...');
+    
+    try {
+      // 卦データを読み込む
+      const response = await fetch('/data/hexagrams.json');
+      this.hexagramData = await response.json();
+      
+      // データ検証
+      if (!Array.isArray(this.hexagramData)) {
+        throw new Error('Hexagram data is not an array');
+      }
+      
+      const validHexagrams = this.hexagramData.filter(h => h.hexagram_id && h.name_jp).length;
+      
+      console.log(`✅ Loaded ${this.hexagramData.length} hexagrams`);
+      console.log(`✅ Valid hexagrams: ${validHexagrams}`);
+      
+      // パフォーマンス最適化: インデックスマップ構築
+      this.buildOptimizationMaps();
+      console.log('🚀 Performance optimization maps built');
+      
+      this.initialized = true;
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to initialize 386爻 data:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * パフォーマンス最適化: インデックスマップ構築
+   */
+  buildOptimizationMaps() {
+    // キーワード→卦IDマッピング（O(1)検索用）
+    this.keywordHexagramMap = new Map([
+      ['creation', [1, 3]], // 乾為天, 水雷屯
+      ['receptive', [2]], // 坤為地
+      ['difficulty', [3, 39]], // 水雷屯, 水山蹇
+      ['learning', [4]], // 山水蒙
+      ['waiting', [5]], // 水天需
+      ['conflict', [6]], // 天水訟
+      ['harmony', [11, 13]], // 地天泰, 天火同人
+      ['change', [49]], // 沢火革
+      ['completion', [63]], // 水火既済
+      ['continuation', [64]] // 火水未済
+    ]);
+    
+    // 感情→卦IDマッピング
+    this.emotionHexagramMap = new Map([
+      ['anxiety', [4, 29]], // 山水蒙, 坎為水
+      ['joy', [58, 16]], // 兌為沢, 雷地豫
+      ['anger', [31, 21]], // 沢山咸, 火雷噬嗑
+      ['sadness', [45, 47]], // 沢地萃, 沢水困
+      ['calm', [52, 60]] // 艮為山, 水沢節
+    ]);
+    
+    // パターン→卦IDマッピング
+    this.patternHexagramMap = new Map([
+      ['high-sensitivity', [31, 61]], // 沢山咸, 風沢中孚
+      ['seeking-balance', [60, 15]], // 水沢節, 地山謙
+      ['self-improvement', [15, 42]] // 地山謙, 風雷益
+    ]);
+    
+    // 時期→卦IDマッピング
+    this.timePhaseHexagramMap = new Map([
+      ['beginning', [3, 1]], // 水雷屯, 乾為天
+      ['developing', [46, 53]], // 地風升, 風山漸
+      ['completion', [63]], // 水火既済
+      ['transition', [49, 17]] // 沢火革, 沢雷随
+    ]);
+    
+    // 卦ID→重要度マッピング（動的重み調整用）
+    this.hexagramWeights = new Float32Array(65); // 0-64のインデックス
+    this.hexagramWeights.fill(5); // 基礎点
+    
+    // 重要卦への加重
+    [1, 2, 31, 15, 60, 49].forEach(id => this.hexagramWeights[id] = 8);
+    
+    // 動的重み調整システム: コンテキスト別重み
+    this.contextualWeights = new Map([
+      // 感情的状況での重み調整
+      ['emotional-high', new Map([[31, 1.5], [21, 1.3], [58, 1.2]])], // 沢山咸, 火雷噬嗑, 兌為沢
+      ['emotional-calm', new Map([[52, 1.5], [60, 1.3], [2, 1.2]])],  // 艮為山, 水沢節, 坤為地
+      
+      // 時期的状況での重み調整
+      ['time-beginning', new Map([[1, 1.4], [3, 1.6], [4, 1.3]])],   // 乾為天, 水雷屯, 山水蒙
+      ['time-transition', new Map([[49, 1.6], [17, 1.3], [18, 1.2]])], // 沢火革, 沢雷随, 山風蛊
+      ['time-completion', new Map([[63, 1.5], [14, 1.3], [11, 1.2]])], // 水火既済, 火天大有, 地天泰
+      
+      // 性格的傾向での重み調整
+      ['personality-sensitive', new Map([[31, 1.6], [61, 1.4], [37, 1.2]])], // 沢山咸, 風沢中孚, 風火家人
+      ['personality-balanced', new Map([[15, 1.5], [60, 1.4], [11, 1.3]])],   // 地山謙, 水沢節, 地天泰
+      ['personality-creative', new Map([[1, 1.4], [42, 1.3], [25, 1.2]])],    // 乾為天, 風雷益, 天雷無妄
+      
+      // 五行状態での重み調整
+      ['wuxing-wood-peak', new Map([[1, 1.3], [34, 1.2], [51, 1.1]])],  // 木行極致時
+      ['wuxing-fire-peak', new Map([[30, 1.3], [14, 1.2], [21, 1.1]])], // 火行極致時
+      ['wuxing-earth-stable', new Map([[2, 1.3], [15, 1.2], [52, 1.1]])], // 土行安定時
+      ['wuxing-metal-refined', new Map([[10, 1.3], [58, 1.2], [43, 1.1]])], // 金行精錬時
+      ['wuxing-water-deep', new Map([[29, 1.3], [5, 1.2], [48, 1.1]])] // 水行深化時
+    ]);
+    
+    // 五行理論統合: 卦の五行分類
+    this.wuxingHexagramMap = new Map([
+      // 木行（生長・発展・創造力）
+      ['wood', [1, 3, 18, 34, 42, 51, 57]], // 乾為天, 水雷屯, 山風蠱, 雷天大壮, 風雷益, 震為雷, 巽為風
+      
+      // 火行（発散・明智・情熱）  
+      ['fire', [13, 14, 21, 30, 35, 38, 49, 55, 56]], // 天火同人, 火天大有, 火雷噬嗑, 離為火, 火地晋, 火沢睽, 沢火革, 雷火豊, 火山旅
+      
+      // 土行（安定・中庸・受容）
+      ['earth', [2, 7, 8, 15, 16, 20, 23, 24, 33, 52]], // 坤為地, 地水師, 水地比, 地山謙, 雷地豫, 風地観, 山地剥, 地雷復, 天山遯, 艮為山
+      
+      // 金行（収束・規律・清浄）
+      ['metal', [10, 26, 28, 41, 43, 58]], // 天沢履, 山天大畜, 沢風大過, 山沢損, 天沢夬, 兌為沢
+      
+      // 水行（流動・智恵・柔軟）
+      ['water', [5, 6, 29, 39, 47, 48, 60, 63, 64]] // 水天需, 天水訟, 坎為水, 水山蹇, 沢水困, 水風井, 水沢節, 水火既済, 火水未済
+    ]);
+    
+    // 五行相生相克関係
+    this.wuxingRelations = new Map([
+      // 相生（生じる関係） - ボーナス
+      ['wood', { generates: 'fire', generatedBy: 'water' }],
+      ['fire', { generates: 'earth', generatedBy: 'wood' }], 
+      ['earth', { generates: 'metal', generatedBy: 'fire' }],
+      ['metal', { generates: 'water', generatedBy: 'earth' }],
+      ['water', { generates: 'wood', generatedBy: 'metal' }],
+      
+      // 相克（抑制する関係） - ペナルティ
+      ['wood', { controls: 'earth', controlledBy: 'metal' }],
+      ['fire', { controls: 'metal', controlledBy: 'water' }],
+      ['earth', { controls: 'water', controlledBy: 'wood' }],
+      ['metal', { controls: 'wood', controlledBy: 'fire' }],
+      ['water', { controls: 'fire', controlledBy: 'earth' }]
+    ]);
+  }
+  
+  /**
+   * テキストから状況卦と爻を精密判定
+   */
+  analyzeText(text) {
+    if (!this.initialized) {
+      console.error('❌ Analyzer not initialized');
+      return null;
+    }
+    
+    // エラー処理強化: 入力検証
+    const validatedText = this.validateAndCleanInput(text);
+    if (!validatedText) {
+      return null;
+    }
+    
+    console.log('🔍 Analyzing text with 386爻 system:', validatedText.substring(0, 50));
+    
+    // 1. テキストの深層分析
+    const analysis = this.performDeepAnalysis(validatedText);
+    
+    // 2. 最適な卦を選択
+    const hexagram = this.selectOptimalHexagram(analysis);
+    
+    // 3. その卦の文脈で最適な爻を選択
+    const yao = this.selectOptimalYao(validatedText, hexagram, analysis);
+    
+    // 4. 特別な爻の判定（用九・用六）
+    const specialYao = this.checkSpecialYao(hexagram, analysis);
+    
+    return {
+      hexagram: hexagram,
+      yao: yao,
+      specialYao: specialYao,
+      analysis: analysis,
+      confidence: this.calculateConfidence(hexagram, yao, analysis)
+    };
+  }
+  
+  /**
+   * 入力検証とクリーニング（エラー処理強化）
+   */
+  validateAndCleanInput(text) {
+    // null/undefined チェック
+    if (!text) {
+      console.warn('⚠️ Empty or null input text');
+      return null;
+    }
+    
+    // 型チェック
+    if (typeof text !== 'string') {
+      console.warn('⚠️ Input is not a string, converting...');
+      text = String(text);
+    }
+    
+    // 空文字・空白のみチェック
+    const trimmed = text.trim();
+    if (trimmed.length === 0) {
+      console.warn('⚠️ Input text is empty after trimming');
+      return null;
+    }
+    
+    // 長さ制限チェック（パフォーマンス保護）
+    if (trimmed.length > 10000) {
+      console.warn('⚠️ Input text too long, truncating to 10000 characters');
+      return trimmed.substring(0, 10000);
+    }
+    
+    // 最小長チェック
+    if (trimmed.length < 2) {
+      console.warn('⚠️ Input text too short for meaningful analysis');
+      return null;
+    }
+    
+    // 特殊文字のクリーニング（制御文字除去）
+    const cleaned = trimmed.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '');
+    
+    // 重複空白の正規化
+    const normalized = cleaned.replace(/\s+/g, ' ');
+    
+    return normalized;
+  }
+  
+  /**
+   * テキストの深層分析
+   */
+  performDeepAnalysis(text) {
+    const analysis = {
+      originalText: text, // 原文を保存
+      keywords: [],
+      emotions: [],
+      timePhase: null,
+      intensity: 0,
+      patterns: []
+    };
+    
+    // キーワード抽出
+    const keywordPatterns = {
+      creation: /創造|リーダー|始める|開拓|革新/g,
+      receptive: /受容|育む|支える|包容|母性/g,
+      difficulty: /困難|苦労|問題|壁|試練/g,
+      learning: /学ぶ|教育|成長|啓蒙|未熟/g,
+      waiting: /待つ|準備|忍耐|時機|タイミング/g,
+      conflict: /争い|対立|議論|衝突|訴訟/g,
+      harmony: /調和|協力|親密|仲間|チーム/g,
+      change: /変化|変革|革命|転換|改革/g,
+      completion: /完成|達成|成功|完了|終了/g,
+      continuation: /継続|未完|途中|進行|まだ/g
+    };
+    
+    for (const [key, pattern] of Object.entries(keywordPatterns)) {
+      const matches = text.match(pattern);
+      if (matches) {
+        analysis.keywords.push({ type: key, count: matches.length, words: matches });
+      }
+    }
+    
+    // 感情分析
+    const emotionPatterns = {
+      anxiety: /不安|心配|恐れ|怖い/g,
+      joy: /喜び|嬉しい|楽しい|幸せ/g,
+      anger: /怒り|イライラ|むかつく|腹立つ/g,
+      sadness: /悲しい|寂しい|辛い|苦しい/g,
+      calm: /静か|落ち着|平穏|安心/g
+    };
+    
+    for (const [emotion, pattern] of Object.entries(emotionPatterns)) {
+      const matches = text.match(pattern);
+      if (matches) {
+        analysis.emotions.push({ type: emotion, intensity: matches.length });
+      }
+    }
+    
+    // 時期・段階の判定
+    if (/始め|初め|最初|スタート|新しい/.test(text)) {
+      analysis.timePhase = 'beginning';
+    } else if (/途中|進行中|まだ|継続/.test(text)) {
+      analysis.timePhase = 'developing';
+    } else if (/完成|達成|終わり|完了/.test(text)) {
+      analysis.timePhase = 'completion';
+    } else if (/転換|変化|岐路|選択/.test(text)) {
+      analysis.timePhase = 'transition';
+    }
+    
+    // 強度計算
+    analysis.intensity = Math.min(
+      (analysis.keywords.reduce((sum, k) => sum + k.count, 0) + 
+       analysis.emotions.reduce((sum, e) => sum + e.intensity, 0)) / 10,
+      1.0
+    );
+    
+    // パターン認識
+    if (text.includes('敏感') && text.includes('影響')) {
+      analysis.patterns.push('high-sensitivity');
+    }
+    if (/ニュートラル|バランス|中庸/.test(text)) {
+      analysis.patterns.push('seeking-balance');
+    }
+    if (/自分.*性格|自己.*改善/.test(text)) {
+      analysis.patterns.push('self-improvement');
+    }
+    
+    // 五行理論統合: テキストの五行特性判定
+    analysis.wuxing = this.analyzeWuxingCharacteristics(text);
+    
+    return analysis;
+  }
+  
+  /**
+   * 五行特性分析（テキストの五行属性判定）
+   */
+  analyzeWuxingCharacteristics(text) {
+    const wuxingScores = {
+      wood: 0, // 木行: 成長、発展、創造
+      fire: 0, // 火行: 情熱、発散、明智
+      earth: 0, // 土行: 安定、中庸、受容
+      metal: 0, // 金行: 収束、規律、清浄
+      water: 0  // 水行: 流動、智恵、柔軟
+    };
+    
+    // 木行特性の検出
+    if (/成長|発展|創造|芽生え|伸びる|拡大|前進|向上/.test(text)) {
+      wuxingScores.wood += 3;
+    }
+    if (/春|青|緑|東|朝|新しい|始まり/.test(text)) {
+      wuxingScores.wood += 2;
+    }
+    if (/怒り|イライラ|肝|目|筋肉/.test(text)) {
+      wuxingScores.wood += 1;
+    }
+    
+    // 火行特性の検出
+    if (/情熱|熱意|明るい|輝く|発散|表現|喜び|興奮/.test(text)) {
+      wuxingScores.fire += 3;
+    }
+    if (/夏|赤|南|昼|活発|積極的/.test(text)) {
+      wuxingScores.fire += 2;
+    }
+    if (/心|血|舌|笑/.test(text)) {
+      wuxingScores.fire += 1;
+    }
+    
+    // 土行特性の検出
+    if (/安定|中庸|バランス|調和|受容|包容|土台|基盤/.test(text)) {
+      wuxingScores.earth += 3;
+    }
+    if (/晩夏|黄|中央|夕方|穏やか|謙虚/.test(text)) {
+      wuxingScores.earth += 2;
+    }
+    if (/脾|胃|口|思考/.test(text)) {
+      wuxingScores.earth += 1;
+    }
+    
+    // 金行特性の検出
+    if (/収束|規律|清浄|整理|潔白|正義|完成|終了/.test(text)) {
+      wuxingScores.metal += 3;
+    }
+    if (/秋|白|西|夜|冷静|理性的/.test(text)) {
+      wuxingScores.metal += 2;
+    }
+    if (/肺|鼻|皮膚|悲しみ/.test(text)) {
+      wuxingScores.metal += 1;
+    }
+    
+    // 水行特性の検出
+    if (/流動|智恵|柔軟|深い|静か|内向|蓄積|忍耐/.test(text)) {
+      wuxingScores.water += 3;
+    }
+    if (/冬|黒|北|深夜|寒い|暗い/.test(text)) {
+      wuxingScores.water += 2;
+    }
+    if (/腎|耳|骨|恐れ/.test(text)) {
+      wuxingScores.water += 1;
+    }
+    
+    // 最高スコアの五行を特定
+    const dominantWuxing = Object.entries(wuxingScores)
+      .sort(([,a], [,b]) => b - a)[0];
+    
+    return {
+      dominant: dominantWuxing[0],
+      score: dominantWuxing[1],
+      allScores: wuxingScores
+    };
+  }
+  
+  /**
+   * 動的重み調整システム（コンテキスト依存スコアリング）
+   */
+  applyDynamicWeights(scores, analysis) {
+    const contexts = this.determineActiveContexts(analysis);
+    
+    contexts.forEach(context => {
+      const weightMap = this.contextualWeights.get(context);
+      if (weightMap) {
+        weightMap.forEach((multiplier, hexagramId) => {
+          if (hexagramId <= 64) {
+            scores[hexagramId] *= multiplier; // 動的重み適用
+          }
+        });
+      }
+    });
+  }
+  
+  /**
+   * アクティブなコンテキストの特定
+   */
+  determineActiveContexts(analysis) {
+    const contexts = [];
+    
+    // 感情レベルによるコンテキスト
+    const emotionIntensity = analysis.emotions.reduce((sum, e) => sum + e.intensity, 0);
+    if (emotionIntensity >= 3) {
+      contexts.push('emotional-high');
+    } else if (analysis.emotions.some(e => e.type === 'calm')) {
+      contexts.push('emotional-calm');
+    }
+    
+    // 時期によるコンテキスト
+    if (analysis.timePhase) {
+      switch (analysis.timePhase) {
+        case 'beginning':
+          contexts.push('time-beginning');
+          break;
+        case 'transition':
+          contexts.push('time-transition');
+          break;
+        case 'completion':
+          contexts.push('time-completion');
+          break;
+      }
+    }
+    
+    // パターンによるコンテキスト
+    analysis.patterns.forEach(pattern => {
+      switch (pattern) {
+        case 'high-sensitivity':
+          contexts.push('personality-sensitive');
+          break;
+        case 'seeking-balance':
+          contexts.push('personality-balanced');
+          break;
+        case 'self-improvement':
+          contexts.push('personality-creative');
+          break;
+      }
+    });
+    
+    // 五行状態によるコンテキスト
+    if (analysis.wuxing && analysis.wuxing.score >= 3) {
+      const wuxingContext = `wuxing-${analysis.wuxing.dominant}`;
+      switch (analysis.wuxing.dominant) {
+        case 'wood':
+          contexts.push('wuxing-wood-peak');
+          break;
+        case 'fire':
+          contexts.push('wuxing-fire-peak');
+          break;
+        case 'earth':
+          contexts.push('wuxing-earth-stable');
+          break;
+        case 'metal':
+          contexts.push('wuxing-metal-refined');
+          break;
+        case 'water':
+          contexts.push('wuxing-water-deep');
+          break;
+      }
+    }
+    
+    return contexts;
+  }
+  
+  /**
+   * 最適な卦を選択（高速化版 O(n²)→O(n)）
+   */
+  selectOptimalHexagram(analysis) {
+    // パフォーマンス最適化: 固定配列で高速スコア計算
+    const scores = new Float32Array(65); // 0-64のインデックス
+    scores.fill(0);
+    
+    // 基礎点追加（すべての卦）+ 動的重み調整
+    for (let i = 1; i <= 64; i++) {
+      scores[i] = this.hexagramWeights[i]; // 事前計算済み重み
+    }
+    
+    // 動的重み調整システム適用
+    this.applyDynamicWeights(scores, analysis);
+    
+    // 高速キーワードマッチング（O(1)検索）
+    analysis.keywords.forEach(keyword => {
+      const hexagramIds = this.keywordHexagramMap.get(keyword.type);
+      if (hexagramIds) {
+        hexagramIds.forEach(id => {
+          if (id <= 64) {
+            scores[id] += keyword.count * 15; // 主要卦
+          }
+        });
+      }
+    });
+    
+    // 高速感情マッチング（O(1)検索）
+    analysis.emotions.forEach(emotion => {
+      const hexagramIds = this.emotionHexagramMap.get(emotion.type);
+      if (hexagramIds) {
+        hexagramIds.forEach(id => {
+          if (id <= 64) {
+            scores[id] += emotion.intensity * 8;
+          }
+        });
+      }
+    });
+    
+    // 高速時期マッチング（O(1)検索）
+    if (analysis.timePhase) {
+      const hexagramIds = this.timePhaseHexagramMap.get(analysis.timePhase);
+      if (hexagramIds) {
+        hexagramIds.forEach(id => {
+          if (id <= 64) {
+            scores[id] += 12;
+          }
+        });
+      }
+    }
+    
+    // 高速パターンマッチング（O(1)検索）
+    analysis.patterns.forEach(pattern => {
+      const hexagramIds = this.patternHexagramMap.get(pattern);
+      if (hexagramIds) {
+        hexagramIds.forEach(id => {
+          if (id <= 64) {
+            scores[id] += 25; // パターンは高配点
+          }
+        });
+      }
+    });
+    
+    // 五行理論統合: 五行相性によるスコア調整
+    if (analysis.wuxing && analysis.wuxing.score > 0) {
+      const dominantWuxing = analysis.wuxing.dominant;
+      const wuxingHexagrams = this.wuxingHexagramMap.get(dominantWuxing);
+      
+      if (wuxingHexagrams) {
+        // 同一五行の卦にボーナス
+        wuxingHexagrams.forEach(id => {
+          if (id <= 64) {
+            scores[id] += analysis.wuxing.score * 10; // 五行一致ボーナス
+          }
+        });
+        
+        // 相生関係の卦にボーナス
+        const relation = this.wuxingRelations.get(dominantWuxing);
+        if (relation) {
+          const generatedWuxing = relation.generates;
+          const generatedHexagrams = this.wuxingHexagramMap.get(generatedWuxing);
+          if (generatedHexagrams) {
+            generatedHexagrams.forEach(id => {
+              if (id <= 64) {
+                scores[id] += analysis.wuxing.score * 5; // 相生ボーナス
+              }
+            });
+          }
+          
+          // 相克関係の卦にペナルティ
+          const controlledWuxing = relation.controls;
+          const controlledHexagrams = this.wuxingHexagramMap.get(controlledWuxing);
+          if (controlledHexagrams) {
+            controlledHexagrams.forEach(id => {
+              if (id <= 64) {
+                scores[id] -= analysis.wuxing.score * 3; // 相克ペナルティ
+              }
+            });
+          }
+        }
+      }
+    }
+    
+    // 最高スコアの卦を検索（線形探索で十分高速）
+    let maxScore = 0;
+    let selectedId = 1;
+    for (let i = 1; i <= 64; i++) {
+      if (scores[i] > maxScore) {
+        maxScore = scores[i];
+        selectedId = i;
+      }
+    }
+    
+    const selectedHexagram = this.hexagramData.find(h => h.hexagram_id === selectedId);
+    
+    if (this.debugMode) {
+      console.log(`🎯 Selected hexagram: ${selectedHexagram.name_jp} (ID: ${selectedId})`);
+      
+      // トップ3スコア表示（デバッグ用）
+      const topScores = [];
+      for (let i = 1; i <= 64; i++) {
+        if (scores[i] > 5) { // 基礎点より高いもののみ
+          const h = this.hexagramData.find(hex => hex.hexagram_id === i);
+          if (h) topScores.push({ name: h.name_jp, id: i, score: scores[i] });
+        }
+      }
+      topScores.sort((a, b) => b.score - a.score);
+      console.log('Top scores:', topScores.slice(0, 3).map(s => `${s.name}(${s.id}): ${s.score}`));
+    }
+    
+    return selectedHexagram;
+  }
+  
+  /**
+   * 最適な爻を選択（卦固有の文脈で）
+   */
+  selectOptimalYao(text, hexagram, analysis) {
+    // エラー処理強化: nullセーフティ
+    if (!hexagram || !hexagram.six_lines || !Array.isArray(hexagram.six_lines) || hexagram.six_lines.length === 0) {
+      console.warn(`⚠️ Invalid hexagram data for yao selection: ${hexagram?.name_jp || 'unknown'}`);
+      return null;
+    }
+    
+    // 入力テキスト検証
+    if (!text || typeof text !== 'string') {
+      console.warn('⚠️ Invalid text input for yao selection');
+      return null;
+    }
+    
+    const yaoScores = {};
+    
+    hexagram.six_lines.forEach(line => {
+      // 爻データの検証
+      if (!line || typeof line !== 'object' || typeof line.position !== 'number') {
+        console.warn('⚠️ Invalid yao line data, skipping');
+        return; // continue to next iteration
+      }
+      
+      let score = 0;
+      
+      // 特定のキーワードマッチング（卦に応じて）
+      if (hexagram.hexagram_id === 1) { // 乾為天
+        if (text.includes('潜') || text.includes('隠') || text.includes('準備')) {
+          if (line.position === 1) score += 20; // 初九：潜龍
+        }
+        if (text.includes('現れ') || text.includes('見える')) {
+          if (line.position === 2) score += 20; // 九二：見龍在田
+        }
+        if (text.includes('警戒') || text.includes('注意')) {
+          if (line.position === 3) score += 20; // 九三：君子終日乾乾
+        }
+        if (text.includes('躍') || text.includes('飛躍')) {
+          if (line.position === 4) score += 20; // 九四：或躍在淵
+        }
+        if (text.includes('飛') || text.includes('頂点') || text.includes('リーダー')) {
+          if (line.position === 5) score += 25; // 九五：飛龍在天
+        }
+        if (text.includes('高慢') || text.includes('傲慢') || text.includes('過ぎ')) {
+          if (line.position === 6) score += 20; // 上九：亢龍有悔
+        }
+      }
+      
+      if (hexagram.hexagram_id === 5) { // 水天需
+        if (text.includes('酒') || text.includes('食') || text.includes('楽しみ')) {
+          if (line.position === 5) score += 25; // 九五：需于酒食
+        }
+      }
+      
+      if (hexagram.hexagram_id === 49) { // 沢火革
+        if (text.includes('虎') || text.includes('大胆') || text.includes('変革')) {
+          if (line.position === 5) score += 25; // 九五：大人虎変
+        }
+      }
+      
+      // 爻の意味とテキストの関連性
+      if (line.meaning) {
+        const meaningWords = line.meaning.split(/[、。,]/).filter(w => w.length > 0);
+        meaningWords.forEach(word => {
+          if (text.includes(word.trim())) {
+            score += 8;
+          }
+        });
+      }
+      
+      // 時期による爻位置の重み付け（改善版）
+      if (analysis.timePhase) {
+        switch (analysis.timePhase) {
+          case 'beginning':
+            if (line.position === 1) score += 15;
+            if (line.position === 2) score += 10;
+            break;
+          case 'developing':
+            if (line.position === 3) score += 15;
+            if (line.position === 4) score += 15;
+            break;
+          case 'completion':
+            if (line.position === 5) score += 15;
+            if (line.position === 6) score += 10;
+            break;
+          case 'transition':
+            if (line.position === 4) score += 15; // 転換点
+            break;
+        }
+      }
+      
+      // 感情の強度による爻位置の調整
+      const emotionIntensity = analysis.emotions.reduce((sum, e) => sum + e.intensity, 0);
+      if (emotionIntensity > 2) {
+        // 感情が強い時は中間の爻
+        if (line.position >= 3 && line.position <= 4) score += 10;
+      } else if (emotionIntensity === 0) {
+        // 感情が弱い時は初爻か上爻
+        if (line.position === 1 || line.position === 6) score += 5;
+      }
+      
+      // パターンによる爻選択
+      if (analysis.patterns.includes('high-sensitivity')) {
+        if (line.position === 2 || line.position === 5) score += 8; // 感応しやすい位置
+      }
+      if (analysis.patterns.includes('seeking-balance')) {
+        if (line.position === 3 || line.position === 4) score += 8; // 中庸の位置
+      }
+      
+      // 基礎点
+      score += 3;
+      
+      yaoScores[line.position] = score;
+    });
+    
+    // 最高スコアの爻を選択
+    const sortedYao = Object.entries(yaoScores).sort(([,a], [,b]) => b - a);
+    const selectedPosition = sortedYao[0]?.[0];
+    
+    const selectedYao = hexagram.six_lines.find(l => l.position == selectedPosition);
+    
+    if (this.debugMode) {
+      console.log(`📍 Selected yao: Position ${selectedPosition} - ${selectedYao?.name}`);
+      console.log('Top yao scores:', sortedYao.slice(0, 3).map(([pos, score]) => `${pos}爻: ${score}`));
+    }
+    
+    return selectedYao;
+  }
+  
+  /**
+   * 特別な爻（用九・用六）のチェック（精密化版）
+   */
+  checkSpecialYao(hexagram, analysis) {
+    // エラー処理強化
+    if (!hexagram || !analysis) {
+      return null;
+    }
+    
+    // 乾為天の用九チェック（精密化）
+    if (hexagram.hexagram_id === 1 && hexagram.special_yao) {
+      const yangConditions = this.checkYangPeakConditions(analysis);
+      if (yangConditions.shouldUseYongJiu) {
+        if (this.debugMode) {
+          console.log('🐉 用九 detected:', yangConditions.reason);
+        }
+        return hexagram.special_yao;
+      }
+    }
+    
+    // 坤為地の用六チェック（精密化）
+    if (hexagram.hexagram_id === 2 && hexagram.special_yao) {
+      const yinConditions = this.checkYinCompletionConditions(analysis);
+      if (yinConditions.shouldUseYongLiu) {
+        if (this.debugMode) {
+          console.log('☷ 用六 detected:', yinConditions.reason);
+        }
+        return hexagram.special_yao;
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * 陽の極致状態判定（用九のための精密判定）
+   */
+  checkYangPeakConditions(analysis) {
+    const conditions = {
+      shouldUseYongJiu: false,
+      reason: '',
+      confidence: 0
+    };
+    
+    let yangScore = 0;
+    let balanceScore = 0;
+    
+    // 極致状態のキーワード検出
+    const peakKeywords = ['すべて', '完全', '極', '頂点', '成功', '達成'];
+    const hasYangPeak = peakKeywords.some(keyword => 
+      analysis.originalText.includes(keyword)
+    );
+    if (hasYangPeak) yangScore += 3;
+    
+    // 謙虚・バランス要素の検出
+    const humilityKeywords = ['謙虚', '謙遜', '慎む', 'バランス', '調和'];
+    const hasHumility = humilityKeywords.some(keyword => 
+      analysis.originalText.includes(keyword)
+    );
+    if (hasHumility) balanceScore += 3;
+    
+    // 五行理論: 木行・火行の極致（陽の性質）
+    if (analysis.wuxing && (analysis.wuxing.dominant === 'wood' || analysis.wuxing.dominant === 'fire')) {
+      if (analysis.wuxing.score >= 3) yangScore += 2;
+    }
+    
+    // 感情の極致状態
+    const hasIntenseEmotion = analysis.emotions.some(e => e.intensity >= 3);
+    if (hasIntenseEmotion) yangScore += 1;
+    
+    // 時期判定：完成期かつ転換点
+    if (analysis.timePhase === 'completion' || analysis.timePhase === 'transition') {
+      yangScore += 2;
+    }
+    
+    // 判定条件
+    if (yangScore >= 4 && balanceScore >= 2) {
+      conditions.shouldUseYongJiu = true;
+      conditions.reason = `陽の極致（${yangScore}点）+ バランス求心（${balanceScore}点）`;
+      conditions.confidence = Math.min((yangScore + balanceScore) * 10, 100);
+    }
+    
+    return conditions;
+  }
+  
+  /**
+   * 陰の完成状態判定（用六のための精密判定）
+   */
+  checkYinCompletionConditions(analysis) {
+    const conditions = {
+      shouldUseYongLiu: false,
+      reason: '',
+      confidence: 0
+    };
+    
+    let yinScore = 0;
+    let persistenceScore = 0;
+    
+    // 陰的特質のキーワード検出
+    const yinKeywords = ['静か', '深い', '持続', '継続', '永続', '安定'];
+    const hasYinNature = yinKeywords.some(keyword => 
+      analysis.originalText.includes(keyword)
+    );
+    if (hasYinNature) yinScore += 3;
+    
+    // 正しさ・貞節の要素検出
+    const righteousnessKeywords = ['正しい', '正しく', '貞', '純粋', '清廉'];
+    const hasRighteousness = righteousnessKeywords.some(keyword => 
+      analysis.originalText.includes(keyword)
+    );
+    if (hasRighteousness) persistenceScore += 3;
+    
+    // 五行理論: 金行・水行の完成（陰の性質）
+    if (analysis.wuxing && (analysis.wuxing.dominant === 'metal' || analysis.wuxing.dominant === 'water')) {
+      if (analysis.wuxing.score >= 3) yinScore += 2;
+    }
+    
+    // 感情の安定状態
+    const hasCalmEmotion = analysis.emotions.some(e => e.type === 'calm');
+    if (hasCalmEmotion) yinScore += 2;
+    
+    // 継続性パターン
+    if (analysis.patterns.includes('seeking-balance')) {
+      persistenceScore += 2;
+    }
+    
+    // 判定条件
+    if (yinScore >= 4 && persistenceScore >= 2) {
+      conditions.shouldUseYongLiu = true;
+      conditions.reason = `陰の完成（${yinScore}点）+ 持続性（${persistenceScore}点）`;
+      conditions.confidence = Math.min((yinScore + persistenceScore) * 10, 100);
+    }
+    
+    return conditions;
+  }
+  
+  /**
+   * 信頼度計算
+   */
+  calculateConfidence(hexagram, yao, analysis) {
+    let confidence = 50; // 基準値
+    
+    // データの充実度
+    if (hexagram && hexagram.six_lines?.length === 6) confidence += 10;
+    if (yao && yao.meaning) confidence += 10;
+    
+    // 分析の充実度
+    if (analysis.keywords.length > 0) confidence += 10;
+    if (analysis.emotions.length > 0) confidence += 10;
+    if (analysis.timePhase) confidence += 10;
+    if (analysis.patterns.length > 0) confidence += 10;
+    
+    // 強度による調整
+    confidence += analysis.intensity * 20;
+    
+    return Math.min(Math.max(confidence, 0), 100);
+  }
+  
+  /**
+   * 未来シナリオ生成用のコンテキスト作成
+   */
+  createFutureContext(result) {
+    return {
+      currentHexagram: result.hexagram,
+      currentYao: result.yao,
+      specialYao: result.specialYao,
+      keywords: result.analysis.keywords.map(k => k.words).flat(),
+      emotions: result.analysis.emotions,
+      timePhase: result.analysis.timePhase,
+      patterns: result.analysis.patterns,
+      confidence: result.confidence
+    };
+  }
+};

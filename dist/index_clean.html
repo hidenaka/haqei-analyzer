@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI - Triple OS Analysis System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app"></div>
+    
+    <!-- モジュール読み込み -->
+    <script src="data.js"></script>
+    <script src="core_logic.js"></script>
+    <script src="ui_components.js"></script>
+    <script src="persona_enhancer.js"></script>
+    
+    <script>
+        // ==========================================
+        // HAQEI Application - Clean Architecture
+        // ==========================================
+        
+        class HAQEIApplication {
+            constructor() {
+                this.currentStep = 0;
+                this.answers = {};
+                this.questions = [];
+                this.init();
+            }
+            
+            init() {
+                // 質問データの準備（TODO: WORLDVIEW_QUESTIONSを新規作成）
+                this.questions = [
+                    // ...WORLDVIEW_QUESTIONS (25問 - 作成予定),
+                    ...SCENARIO_QUESTIONS
+                ];
+                
+                // UIコンポーネント初期化
+                this.resultsDisplay = new ResultsDisplay();
+                this.questionDisplay = new QuestionDisplay();
+                this.animationController = new AnimationController();
+                this.modalController = new ModalController();
+                
+                // アプリケーション開始
+                this.start();
+            }
+            
+            start() {
+                this.showWelcomeScreen();
+            }
+            
+            showWelcomeScreen() {
+                const appContainer = document.getElementById('app');
+                appContainer.innerHTML = `
+                    <div class="welcome-screen">
+                        <h1>HAQEI Triple OS分析</h1>
+                        <p>あなたの思考と行動のオペレーティングシステムを解析します</p>
+                        <button onclick="HAQEI.startAnalysis()">分析を開始</button>
+                    </div>
+                `;
+            }
+            
+            startAnalysis() {
+                if (this.questions.length === 0) {
+                    this.showError('質問データの準備中です');
+                    return;
+                }
+                
+                this.currentStep = 0;
+                this.showQuestion();
+            }
+            
+            showQuestion() {
+                if (this.currentStep >= this.questions.length) {
+                    this.showResults();
+                    return;
+                }
+                
+                const question = this.questions[this.currentStep];
+                const appContainer = document.getElementById('app');
+                
+                appContainer.innerHTML = `
+                    <div class="question-screen">
+                        ${this.questionDisplay.displayProgress(this.currentStep + 1, this.questions.length)}
+                        ${this.questionDisplay.displayQuestion(question, this.currentStep + 1)}
+                        <div class="navigation">
+                            ${this.currentStep > 0 ? '<button onclick="HAQEI.previousQuestion()">戻る</button>' : ''}
+                            <button onclick="HAQEI.nextQuestion()">次へ</button>
+                        </div>
+                    </div>
+                `;
+                
+                this.animationController.fadeIn(appContainer.querySelector('.question-card'));
+            }
+            
+            nextQuestion() {
+                const question = this.questions[this.currentStep];
+                const selectedOption = document.querySelector(`input[name="q${question.id}"]:checked`);
+                
+                if (!selectedOption) {
+                    this.showError('選択してください');
+                    return;
+                }
+                
+                this.answers[question.id] = selectedOption.value;
+                this.currentStep++;
+                this.showQuestion();
+            }
+            
+            previousQuestion() {
+                if (this.currentStep > 0) {
+                    this.currentStep--;
+                    this.showQuestion();
+                }
+            }
+            
+            showResults() {
+                // スコア計算
+                const scores = calculateScores(this.answers, this.questions);
+                
+                // Triple OS判定
+                const engineOS = calculateEngineOS(scores);
+                const interfaceOS = calculateInterfaceOS(scores);
+                const safeModeOS = calculateSafeModeOS(scores);
+                
+                // 64卦マッピング
+                const hexagram = this.findHexagram(engineOS, interfaceOS);
+                
+                // ペルソナ生成
+                const personaEnhancer = new VirtualPersonaEnhancer(scores, hexagram);
+                const persona = personaEnhancer.generateVirtualPersona();
+                
+                // 結果表示
+                const appContainer = document.getElementById('app');
+                appContainer.innerHTML = `
+                    <div class="results-screen">
+                        <h1>分析結果</h1>
+                        ${this.resultsDisplay.createTabSystem()}
+                    </div>
+                `;
+                
+                // タブコンテンツ設定
+                this.setupResultTabs(scores, engineOS, interfaceOS, safeModeOS, persona, hexagram);
+            }
+            
+            setupResultTabs(scores, engineOS, interfaceOS, safeModeOS, persona, hexagram) {
+                // ペルソナタブ
+                document.getElementById('persona-content').innerHTML = `
+                    <h2>${persona.summary}</h2>
+                    <div class="persona-details">
+                        <h3>強み</h3>
+                        <ul>${persona.strengths.map(s => `<li>${s}</li>`).join('')}</ul>
+                        <h3>課題</h3>
+                        <ul>${persona.challenges.map(c => `<li>${c}</li>`).join('')}</ul>
+                    </div>
+                `;
+                
+                // Triple OSタブ
+                document.getElementById('os-content').innerHTML = 
+                    this.resultsDisplay.displayTripleOS(engineOS, interfaceOS, safeModeOS);
+                
+                // アドバイスタブ
+                document.getElementById('advice-content').innerHTML = `
+                    <h3>成長への道</h3>
+                    <p>${persona.growth.focus}</p>
+                    <p>推奨期間: ${persona.growth.timeline}</p>
+                    <p>実践方法: ${persona.growth.method}</p>
+                `;
+                
+                // 相性タブ
+                document.getElementById('compatibility-content').innerHTML = `
+                    <h3>理想的な関係性</h3>
+                    <p>${persona.relationships.style}</p>
+                    <h3>相性の良いタイプ</h3>
+                    <ul>${persona.relationships.compatibility.map(c => `<li>${c}</li>`).join('')}</ul>
+                `;
+                
+                // タブ切り替えイベント
+                this.setupTabEvents();
+            }
+            
+            setupTabEvents() {
+                const tabButtons = document.querySelectorAll('.tab-button');
+                const contentPanels = document.querySelectorAll('.content-panel');
+                
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const targetTab = button.dataset.tab;
+                        
+                        // ボタンのアクティブ状態切り替え
+                        tabButtons.forEach(b => b.classList.remove('active'));
+                        button.classList.add('active');
+                        
+                        // コンテンツ表示切り替え
+                        contentPanels.forEach(panel => panel.classList.remove('active'));
+                        document.getElementById(`${targetTab}-content`).classList.add('active');
+                    });
+                });
+            }
+            
+            findHexagram(engineOS, interfaceOS) {
+                // TODO: 正確な64卦マッピング実装
+                return HEXAGRAMS[0]; // 仮実装
+            }
+            
+            showError(message) {
+                this.modalController.showModal('エラー', `<p>${message}</p>`);
+            }
+        }
+        
+        // グローバルインスタンス
+        const HAQEI = new HAQEIApplication();
+        
+        // デバッグ用
+        console.log('HAQEI Application initialized');
+        console.log('Current questions:', HAQEI.questions.length);
+    </script>
+</body>
+</html>

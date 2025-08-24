@@ -1,0 +1,1122 @@
+/* データドリブン分析のスタイル */
+
+/* キーワードタグ */
+.extracted-keywords {
+    margin: 16px 0;
+}
+
+.keywords-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1E293B;
+    margin-bottom: 8px;
+}
+
+.keyword-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.keyword-tag {
+    padding: 4px 10px;
+    background: #F0F9FF;
+    color: #0369A1;
+    border-radius: 12px;
+    font-size: 12px;
+    border: 1px solid #BAE6FD;
+}
+
+/* 傾向分析 */
+.tendency-analysis {
+    background: #F8FAFC;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 16px 0;
+}
+
+.tendency-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.tendency-list {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #475569;
+}
+
+.tendency-item {
+    margin-bottom: 4px;
+}
+
+/* 強みのシナリオ */
+.strength-scenarios {
+    background: #FEF3C7;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 16px 0;
+}
+
+.scenarios-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #92400E;
+    margin-bottom: 8px;
+}
+
+.scenario-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.scenario-item {
+    font-size: 13px;
+    color: #78350F;
+    padding: 6px 8px;
+    background: white;
+    border-radius: 4px;
+}
+
+/* スコア分析 */
+.score-analysis {
+    margin: 16px 0;
+}
+
+.score-progress-container {
+    width: 100%;
+    height: 8px;
+    background: #E5E7EB;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #6366F1 0%, #8B5CF6 100%);
+    transition: width 0.3s ease;
+}
+
+/* 統合分析 */
+.overall-pattern {
+    background: #EEF2FF;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.pattern-description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #4C1D95;
+}
+
+/* 行動パターン */
+.behavior-patterns {
+    margin: 16px 0;
+}
+
+.pattern-list {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.pattern-list li {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+/* データに基づく強み */
+.data-driven-strengths {
+    margin-top: 20px;
+}
+
+.strength-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.strength-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+}
+
+.strength-icon {
+    font-size: 20px;
+}
+
+.strength-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1F2937;
+}
+
+/* 相互作用の可視化 */
+.interaction-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.interaction-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bar-label {
+    min-width: 80px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.bar-fill {
+    height: 20px;
+    background: linear-gradient(90deg, #3B82F6 0%, #8B5CF6 100%);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.bar-value {
+    min-width: 30px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1F2937;
+    text-align: right;
+}
+
+/* 統合分析結果 */
+.summary-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.summary-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #E5E7EB;
+    padding-bottom: 8px;
+}
+
+.os-interaction {
+    margin: 20px 0;
+}
+
+.os-interaction h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 12px;
+}
+
+/* TripleOSInteractionAnalyzer スタイル */
+.triple-os-interaction-details {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    color: white;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.interaction-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.interaction-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.interaction-icon {
+    font-size: 1.2em;
+}
+
+.interaction-subtitle {
+    opacity: 0.9;
+    margin: 0;
+    font-size: 0.95em;
+}
+
+/* シナジーマトリックス */
+.synergy-matrix-section {
+    margin: 20px 0;
+}
+
+.matrix-title {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.matrix-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.matrix-cell {
+    padding: 8px;
+    text-align: center;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.matrix-cell.header {
+    background: rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+    font-size: 0.8em;
+}
+
+.matrix-cell.value {
+    background: rgba(255, 255, 255, 0.1);
+    font-weight: 500;
+}
+
+/* 相互作用の洞察 */
+.interaction-insights-section {
+    margin: 20px 0;
+}
+
+.insights-title {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.pair-insights,
+.affordances,
+.inner-conflicts,
+.integration-prompts {
+    margin: 15px 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.pair-insights h6,
+.affordances h6,
+.inner-conflicts h6,
+.integration-prompts h6 {
+    margin: 0 0 10px 0;
+    font-size: 1em;
+    font-weight: 600;
+    color: #ffd700;
+}
+
+.insight-item {
+    margin: 10px 0;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.insight-item:last-child {
+    border-bottom: none;
+}
+
+.insight-item strong {
+    color: #ffd700;
+}
+
+.insight-item p {
+    margin: 5px 0 0 0;
+    line-height: 1.4;
+}
+
+/* 強みとリスク */
+.strengths-risks-section {
+    margin: 20px 0;
+}
+
+.strengths-risks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.strengths-panel,
+.risks-panel {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.panel-title {
+    margin: 0 0 12px 0;
+    font-size: 1em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.strengths-panel .panel-title {
+    color: #90ee90;
+}
+
+.risks-panel .panel-title {
+    color: #ffcccb;
+}
+
+.strengths-list,
+.risks-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.strength-item,
+.risk-item {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    line-height: 1.4;
+}
+
+.strength-item:last-child,
+.risk-item:last-child {
+    border-bottom: none;
+}
+
+.strength-item::before {
+    content: "✓ ";
+    color: #90ee90;
+    font-weight: bold;
+}
+
+.risk-item::before {
+    content: "⚠ ";
+    color: #ffcccb;
+    font-weight: bold;
+}
+
+/* 6爻発展段階 Styles */
+.development-stages-section {
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+    border-radius: 15px;
+    border: 1px solid #b3d9ff;
+}
+
+.development-stages-section .section-title {
+    color: #2c5aa0;
+    font-size: 1.4em;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.development-stages-section .section-description {
+    color: #5a6c7d;
+    margin-bottom: 25px;
+    font-size: 1.05em;
+}
+
+.stages-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.os-stages-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid #e1ecf4;
+    box-shadow: 0 2px 8px rgba(44, 90, 160, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.os-stages-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(44, 90, 160, 0.15);
+}
+
+.os-stages-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f8ff;
+}
+
+.os-stages-header .hexagram-symbol {
+    font-size: 2.5em;
+    color: #2c5aa0;
+    font-weight: bold;
+}
+
+.os-info .os-name {
+    color: #2c5aa0;
+    font-size: 1.3em;
+    margin: 0 0 5px 0;
+    font-weight: 600;
+}
+
+.os-info .hexagram-name {
+    color: #5a6c7d;
+    margin: 0;
+    font-size: 1.05em;
+}
+
+.stages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.stage-item {
+    background: #f8fbff;
+    border: 1px solid #e1ecf4;
+    border-radius: 10px;
+    padding: 15px;
+    transition: all 0.2s ease;
+}
+
+.stage-item:hover {
+    background: #f0f8ff;
+    border-color: #b3d9ff;
+    transform: translateY(-1px);
+}
+
+.stage-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.stage-number {
+    background: linear-gradient(135deg, #2c5aa0, #4a7bc8);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.stage-title {
+    color: #2c5aa0;
+    font-weight: 600;
+    font-size: 1.05em;
+}
+
+.stage-content {
+    color: #495057;
+}
+
+.stage-description {
+    margin: 0 0 10px 0;
+    line-height: 1.5;
+    font-size: 0.95em;
+}
+
+.stage-advice {
+    background: #e6f3ff;
+    padding: 10px;
+    border-radius: 8px;
+    border-left: 3px solid #2c5aa0;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.stage-advice strong {
+    color: #2c5aa0;
+}
+
+/* OS別カラーテーマ */
+.os-stages-card.interfaceos {
+    border-left: 4px solid #007bff;
+}
+
+.os-stages-card.interfaceos .os-stages-header .hexagram-symbol {
+    color: #007bff;
+}
+
+.os-stages-card.interfaceos .os-info .os-name {
+    color: #007bff;
+}
+
+.os-stages-card.safemodos {
+    border-left: 4px solid #28a745;
+}
+
+.os-stages-card.safemodos .os-stages-header .hexagram-symbol {
+    color: #28a745;
+}
+
+.os-stages-card.safemodos .os-info .os-name {
+    color: #28a745;
+}
+
+.os-stages-card.creativeos {
+    border-left: 4px solid #fd7e14;
+}
+
+.os-stages-card.creativeos .os-stages-header .hexagram-symbol {
+    color: #fd7e14;
+}
+
+.os-stages-card.creativeos .os-info .os-name {
+    color: #fd7e14;
+}
+
+/* 履歴比較 Styles */
+.historical-comparison-section {
+    margin: 25px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #fff8e1 0%, #fff3c4 100%);
+    border-radius: 12px;
+    border: 1px solid #ffcc02;
+    box-shadow: 0 2px 8px rgba(255, 204, 2, 0.1);
+}
+
+.historical-comparison-section .section-title {
+    color: #f57c00;
+    font-size: 1.3em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.comparison-date {
+    color: #bf360c;
+    font-size: 0.9em;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.comparison-item {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #ffcc02;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comparison-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 204, 2, 0.2);
+}
+
+.os-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.os-info .os-name {
+    font-weight: 600;
+    color: #f57c00;
+    font-size: 1.05em;
+}
+
+.os-info .os-description {
+    font-size: 0.85em;
+    color: #bf360c;
+}
+
+.change-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 1.1em;
+}
+
+.change-indicator.positive {
+    background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+    color: #2e7d32;
+    border: 1px solid #4caf50;
+}
+
+.change-indicator.negative {
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    color: #c62828;
+    border: 1px solid #f44336;
+}
+
+.change-indicator.neutral {
+    background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+    color: #616161;
+    border: 1px solid #9e9e9e;
+}
+
+.change-arrow {
+    font-size: 1.2em;
+}
+
+.change-value {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.change-unit {
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.comparison-summary {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #f57c00;
+    margin-top: 15px;
+}
+
+.summary-text {
+    color: #5d4037;
+    line-height: 1.5;
+    margin: 0;
+    font-size: 1.05em;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+    .keyword-tags {
+        gap: 4px;
+    }
+    
+    .strength-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .scenario-examples {
+        font-size: 12px;
+    }
+    
+    .interaction-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    
+    .bar-label {
+        min-width: auto;
+    }
+    
+    .summary-container {
+        padding: 16px;
+    }
+    
+    .summary-title {
+        font-size: 16px;
+    }
+    
+    .triple-os-interaction-details {
+        padding: 15px;
+        margin: 15px 0;
+    }
+    
+    .matrix-grid {
+        font-size: 0.8em;
+    }
+    
+    .strengths-risks-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stages-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .os-stages-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .stage-header {
+        justify-content: center;
+    }
+    
+    .comparison-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .comparison-item {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .change-indicator {
+        justify-content: center;
+    }
+}
+
+/* 包括的レポート表示スタイル */
+.comprehensive-report-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 24px 0;
+    color: white;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.comprehensive-report-section .section-title {
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.comprehensive-report-section .section-icon {
+    font-size: 28px;
+}
+
+/* 品質指標カード */
+.quality-metrics-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.quality-metrics-card .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: white;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.metric-item {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.metric-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.metric-item.overall {
+    background: rgba(255, 215, 0, 0.2);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.metric-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    opacity: 0.9;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #FFD700;
+}
+
+.metric-description {
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+/* ベンチマークカード */
+.benchmark-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.benchmark-card .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: white;
+}
+
+.benchmark-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.benchmark-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.benchmark-label {
+    min-width: 80px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.benchmark-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.benchmark-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10B981, #34D399);
+    border-radius: 4px;
+    transition: width 0.8s ease;
+}
+
+.benchmark-value {
+    min-width: 50px;
+    text-align: right;
+    font-weight: 600;
+    color: #FFD700;
+}
+
+/* 信頼性カード */
+.reliability-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.reliability-card .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: white;
+}
+
+.reliability-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.reliability-score {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.score-label {
+    font-weight: 500;
+}
+
+.score-value {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.score-value.high-reliability {
+    background: rgba(16, 185, 129, 0.3);
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.5);
+}
+
+.score-value.medium-reliability {
+    background: rgba(245, 158, 11, 0.3);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.5);
+}
+
+.score-value.low-reliability {
+    background: rgba(239, 68, 68, 0.3);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.reliability-factors h5 {
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.reliability-factors ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.reliability-factors li {
+    margin-bottom: 4px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* 推奨事項カード */
+.recommendations-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.recommendations-card .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: white;
+}
+
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.recommendation-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recommendation-priority {
+    font-size: 16px;
+    margin-top: 2px;
+}
+
+.recommendation-content {
+    flex: 1;
+}
+
+.recommendation-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: white;
+}
+
+.recommendation-description {
+    font-size: 14px;
+    margin: 0;
+    opacity: 0.9;
+    line-height: 1.5;
+}
+
+/* エラーメッセージ */
+.comprehensive-report-section .error-message {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    color: #FEE2E2;
+    font-weight: 500;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .comprehensive-report-section {
+        padding: 16px;
+        margin: 16px 0;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .benchmark-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .benchmark-label {
+        min-width: auto;
+        text-align: center;
+    }
+    
+    .benchmark-value {
+        text-align: center;
+    }
+    
+    .reliability-score {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .recommendation-item {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .recommendation-priority {
+        align-self: flex-start;
+    }
+}

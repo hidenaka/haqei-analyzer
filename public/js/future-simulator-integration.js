@@ -105,7 +105,7 @@ console.log('🚀 Future Simulator Integration Loading...');
       
       // 8シナリオ表示
       if (window.EightScenariosDisplay) {
-        this.scenariosDisplay = new window.EightScenariosDisplay();
+        this.scenariosDisplay = new window.EightScenariosDisplay({});
         
         // コンテナがあれば初期化
         const scenariosContainer = document.getElementById('eight-scenarios-display');
@@ -349,11 +349,11 @@ console.log('🚀 Future Simulator Integration Loading...');
         let direction = '';
         
         if (stance === '能動') {
-          direction = '積極的に行動を起こし、主体的に状況を切り開いていくことが推奨されます。';
+          direction = '積極的に行動を起こし、主体的に状況を切り開くという選択肢があります。';
         } else if (stance === '受動') {
-          direction = '状況を慎重に観察し、適切なタイミングを待つことが推奨されます。';
+          direction = '状況を慎重に観察し、適切なタイミングを待つという道筋が考えられます。';
         } else {
-          direction = 'バランスを保ちながら、状況に応じて柔軟に対応することが推奨されます。';
+          direction = 'バランスを保ちながら、状況に応じた柔軟な対応という選択肢があります。';
         }
         
         recommendedDirection.textContent = direction;
@@ -492,25 +492,25 @@ console.log('🚀 Future Simulator Integration Loading...');
     generateActionRecommendation(scenario) {
       const recommendations = {
         'conservative,collaborative,cautious': 
-          '現状を基盤に、信頼できる仲間と共に慎重に進めていきましょう。急がず、着実な一歩を重視してください。',
+          '現状を基盤に、信頼できる仲間と共に慎重に進むという選択肢があります。着実な一歩を重視する道筋も考えられます。',
         'conservative,collaborative,decisive': 
-          '既存の枠組みを活用しながら、チームで迅速な意思決定を行いましょう。協力関係を大切にしてください。',
+          '既存の枠組みを活用しながら、チームで迅速な意思決定を行うという選択肢があります。協力関係を重視する方向性も見えています。',
         'conservative,independent,cautious': 
-          '自分のペースを保ちながら、独自の道を慎重に開拓していきましょう。焦る必要はありません。',
+          '自分のペースを保ちながら、独自の道を慎重に開拓する道筋があります。焦らない進め方も可能です。',
         'conservative,independent,decisive': 
-          '既存の資源を活用しつつ、独自の判断で素早く行動しましょう。自信を持って進んでください。',
+          '既存の資源を活用しつつ、独自の判断で素早く行動する道筋があります。自信を持って進むという選択肢も考えられます。',
         'progressive,collaborative,cautious': 
-          '新しい可能性を仲間と共に慎重に探求していきましょう。革新と安全性のバランスを重視してください。',
+          '新しい可能性を仲間と共に慎重に探求する道筋があります。革新と安全性のバランスを重視する選択肢も考えられます。',
         'progressive,collaborative,decisive': 
-          'チーム一丸となって、大胆な変革を迅速に実行しましょう。勢いを大切にしてください。',
+          'チーム一丸となって、大胆な変革を迅速に実行する選択肢があります。勢いを重視する方向性も見えています。',
         'progressive,independent,cautious': 
-          '独自の革新的アイデアを、計画的に実現していきましょう。準備を怠らないでください。',
+          '独自の革新的アイデアを、計画的に実現する道筋があります。十分な準備を行う選択肢も考えられます。',
         'progressive,independent,decisive': 
-          '自分の直感を信じて、革新的な道を迷わず進みましょう。今がその時です。'
+          '自分の直感を信じて、革新的な道を進むという選択肢があります。今が好機であるという見方もできます。'
       };
       
       const key = scenario.path.join(',');
-      return recommendations[key] || '状況をよく観察し、最適なタイミングで行動を起こしましょう。';
+      return recommendations[key] || '状況をよく観察し、適切なタイミングで行動を起こすという選択肢があります。';
     }
 
     /**
