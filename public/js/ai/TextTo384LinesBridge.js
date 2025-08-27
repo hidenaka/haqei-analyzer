@@ -1683,16 +1683,32 @@ class TextTo384LinesBridge {
             score *= 0.95;
         }
         
-        // 8. 探索ノイズの追加（D-3-2, D-3-3: 多様性確保・Phase 3強化）
+        // 8. 探索ノイズの追加（D-3-2, D-3-3, E-3: 多様性確保・Phase 3強化・追加ノイズ）
         // テキストとlineIdから決定論的なノイズを生成
         const noiseBase = text.charCodeAt(0) + text.charCodeAt(text.length - 1);
+        
+        // 使用頻度を先に取得（E-3で必要）
+        const usageCount = this.lineUsageCount[lineId] || 0;
         
         // D-3-3: より強力な探索ノイズ実装（0-0.2の範囲）
         const primaryNoise = ((lineId * noiseBase * 13) % 200) / 1000; // 0-0.2に増強
         const secondaryNoise = ((lineId * text.length * 7) % 100) / 1000; // 0-0.1の追加ノイズ
         const tertiaryNoise = ((Math.abs(lineId - 192) * noiseBase) % 50) / 1000; // 0-0.05の位置依存ノイズ
         
-        const totalNoise = primaryNoise + secondaryNoise + tertiaryNoise;
+        // E-3: 追加ノイズパラメータ設計（未使用爻への探索促進）
+        // 未使用爻により高いノイズを付与
+        const unusedBonus = (usageCount === 0) ? 0.15 : 0; // 未使用爻に15%ボーナス
+        const rareBonus = (usageCount === 1) ? 0.08 : 0; // 低使用爻に8%ボーナス
+        
+        // 爻位置による追加ノイズ（位置別の未使用率を考慮）
+        const positionExplorationNoise = this.getPositionExplorationNoise(lineData.position, lineId);
+        
+        // 卦単位での探索ノイズ（特定卦への偏り防止）
+        const hexagramId = Math.ceil(lineId / 6);
+        const hexagramNoise = ((hexagramId * noiseBase * 11) % 100) / 1000; // 0-0.1
+        
+        const totalNoise = primaryNoise + secondaryNoise + tertiaryNoise + 
+                          unusedBonus + rareBonus + positionExplorationNoise + hexagramNoise;
         score += totalNoise;
         
         // D-3-2: セッション経過時間による多様性ボーナス
@@ -1700,28 +1716,44 @@ class TextTo384LinesBridge {
         const timeBonus = Math.min(0.05, sessionDuration / (1000 * 60 * 60)); // 最大0.05（1時間で最大）
         score += timeBonus * ((lineId % 10) / 10); // lineIdによって異なる時間ボーナス
         
-        // 9. 使用頻度ペナルティ（D-3-4, D-3-5: Phase 3強化）
+        // 9. 使用頻度ペナルティ（D-3-4, D-3-5, E-4: Phase 3強化・動的閾値調整）
         if (!this.lineUsageCount) {
             this.lineUsageCount = {}; // D-3-4: 初期化
         }
         
-        const usageCount = this.lineUsageCount[lineId] || 0;
+        // usageCountは既に上で取得済み
         
-        // D-3-5: より強力な使用頻度ペナルティ実装
+        // D-3-5, E-4: より強力な使用頻度ペナルティと動的閾値調整
         if (usageCount > 0) {
-            // 1回目から段階的ペナルティ（従来は2回目から）
+            // E-4: 動的閾値調整機能実装
+            const totalAnalyses = this.stats.totalAnalyses || 1;
+            const coverageRate = Object.keys(this.lineUsageCount).length / 384;
+            
+            // カバー率に応じてペナルティを動的に調整
+            let penaltyMultiplier = 1.0;
+            if (coverageRate < 0.08) {
+                // 8%未満：より厳しいペナルティで新規探索促進
+                penaltyMultiplier = 0.8;
+            } else if (coverageRate < 0.13) {
+                // 8-13%：標準ペナルティ
+                penaltyMultiplier = 1.0;
+            } else {
+                // 13%以上：ペナルティを緩和してバランス重視
+                penaltyMultiplier = 1.2;
+            }
+            
             let penalty = 1.0;
             
             if (usageCount === 1) {
-                penalty = 0.95; // 1回使用: 5%減
+                penalty = 0.95 * penaltyMultiplier;
             } else if (usageCount === 2) {
-                penalty = 0.85; // 2回使用: 15%減
+                penalty = 0.85 * penaltyMultiplier;
             } else if (usageCount === 3) {
-                penalty = 0.70; // 3回使用: 30%減
+                penalty = 0.70 * penaltyMultiplier;
             } else if (usageCount === 4) {
-                penalty = 0.50; // 4回使用: 50%減
+                penalty = 0.50 * penaltyMultiplier;
             } else {
-                penalty = Math.max(0.3, 0.5 - (usageCount - 4) * 0.1); // 5回以上: さらに減少（最小30%）
+                penalty = Math.max(0.2, (0.5 - (usageCount - 4) * 0.1) * penaltyMultiplier);
             }
             
             score *= penalty;
@@ -1930,6 +1962,29 @@ class TextTo384LinesBridge {
     }
     
     /**
+     * E-3: 位置別探索ノイズ（位置ごとの未使用率を考慮）
+     */
+    getPositionExplorationNoise(position, lineId) {
+        // 位置別の未使用率に基づく追加ノイズ
+        // 分析結果から、各位置の未使用傾向を反映
+        const positionNoiseFactors = {
+            1: 0.08,  // 1爻：比較的バランス良い
+            2: 0.05,  // 2爻：既に偏りがあるので控えめ
+            3: 0.10,  // 3爻：未使用が多いので高め
+            4: 0.12,  // 4爻：最も未使用が多い
+            5: 0.06,  // 5爻：改善されたので控えめ
+            6: 0.09   // 6爻：まだ改善余地あり
+        };
+        
+        const baseFactor = positionNoiseFactors[position] || 0.08;
+        
+        // lineIdを使った決定論的なノイズ生成
+        const noise = ((lineId * position * 17) % 100) / 1000 * baseFactor;
+        
+        return noise;
+    }
+    
+    /**
      * 強化された位置調整（テキスト内容に基づく動的調整）
      */
     getEnhancedPositionAdjustment(position, text) {
@@ -2001,13 +2056,16 @@ class TextTo384LinesBridge {
     
     /**
      * 特殊爻（用九・用六）のチェック
+     * E-5: 用九・用六への条件緩和
      */
     checkSpecialLines(analysis, text) {
-        // Phase 4: 用九・用六の活用強化
+        // Phase 4, E-5: 用九・用六の活用強化と条件大幅緩和
         const yangKeywords = ['極限', '究極', '最大', '頂点', '限界突破', '超越',
-                            '無限', '全力', '極致', '最高峰', '絶対'];
+                            '無限', '全力', '極致', '最高峰', '絶対', '完全',
+                            '最強', '最高', '頂上', '至高', '極上', '超'];
         const yinKeywords = ['受容', '包容', '柔軟', '適応', '流れ', '委ねる',
-                           '従順', '謙虚', '内省', '調和', '融合'];
+                           '従順', '謙虚', '内省', '調和', '融合', '静寂',
+                           '深淵', '底', '無限小', '消失', '空', '無'];
         
         let yangCount = 0;
         let yinCount = 0;
@@ -2020,28 +2078,40 @@ class TextTo384LinesBridge {
             if (text.includes(keyword)) yinCount++;
         }
         
-        // 用九（陽の極致）- 条件をさらに緩和
+        // E-5: 使用頻度に基づく追加ボーナス
+        const line385Usage = this.lineUsageCount[385] || 0;
+        const line386Usage = this.lineUsageCount[386] || 0;
+        
+        // 未使用または低使用の場合、選択確率を上げる
+        const yang385Bonus = (line385Usage === 0) ? 0.15 : 
+                            (line385Usage === 1) ? 0.08 : 0;
+        const yin386Bonus = (line386Usage === 0) ? 0.15 : 
+                           (line386Usage === 1) ? 0.08 : 0;
+        
+        // 用九（陽の極致）- E-5: 条件を大幅に緩和
         if ((analysis.energy && analysis.energy.direction === 'expanding' && 
-             analysis.energy.intensity > 0.7) || yangCount >= 2 ||
+             analysis.energy.intensity > 0.6) || yangCount >= 1 ||
             (text.includes('リーダー') && text.includes('極')) ||
-            text.includes('全陽')) {
+            text.includes('全陽') || text.includes('最') || 
+            text.includes('完全') || text.includes('究極')) {
             return {
                 lineId: 385,
-                score: 0.8,  // スコアを上げて選ばれやすく
+                score: 0.85 + yang385Bonus,  // E-5: スコア増加+使用頻度ボーナス
                 hexagramId: 1,
                 hexagramName: '乾為天',
                 position: 7
             };
         }
         
-        // 用六（陰の極致）- 条件をさらに緩和
+        // 用六（陰の極致）- E-5: 条件を大幅に緩和
         if ((analysis.energy && analysis.energy.direction === 'contracting' && 
-             analysis.energy.intensity > 0.7) || yinCount >= 2 ||
+             analysis.energy.intensity > 0.6) || yinCount >= 1 ||
             (text.includes('受け入れ') && text.includes('全')) ||
-            text.includes('全陰')) {
+            text.includes('全陰') || text.includes('無') || 
+            text.includes('空') || text.includes('静寂')) {
             return {
                 lineId: 386,
-                score: 0.8,  // スコアを上げて選ばれやすく
+                score: 0.85 + yin386Bonus,  // E-5: スコア増加+使用頻度ボーナス
                 hexagramId: 2,
                 hexagramName: '坤為地',
                 position: 7
