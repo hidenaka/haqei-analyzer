@@ -630,19 +630,35 @@ class TextTo384LinesBridge {
      * 時間フェーズの割り当て
      */
     assignTemporalPhase(lineId, hexagramId, linePosition) {
-        // 位置ごとに複数のフェーズを割り当て（多様性確保）
+        // D-2-4: 改良版 - より適切な位置対応
+        // D-2-5: 複数フェーズ割り当て実装
         const phasesByPosition = {
-            1: ['beginning', 'early_develop'],
-            2: ['early_develop', 'developing'],
-            3: ['developing', 'transition'],
-            4: ['transition', 'developing'],
-            5: ['mature', 'mature', 'mature'],  // 5爻は主にmatureフェーズ
+            1: ['beginning'],      // 1爻: 始まりのみ
+            2: ['cooperation'],    // 2爻: 協力・関係性
+            3: ['challenge'],      // 3爻: 困難・試練
+            4: ['transition'],     // 4爻: 変化・転換
+            5: ['mature'],         // 5爻: 成熟・リーダーシップ
+            6: ['completion']      // 6爻: 完成・終了
+        };
+        
+        // D-2-5: 副次的フェーズも考慮（lineIdによる多様性）
+        const secondaryPhases = {
+            1: ['beginning', 'cooperation'],
+            2: ['cooperation', 'beginning'],
+            3: ['challenge', 'transition'],
+            4: ['transition', 'challenge'],
+            5: ['mature', 'transition'],
             6: ['completion', 'mature']
         };
         
         // lineIdに基づいて決定論的に選択
-        const options = phasesByPosition[linePosition] || ['developing'];
-        const selectedPhase = options[lineId % options.length];
+        const primaryOptions = phasesByPosition[linePosition] || ['transition'];
+        const secondaryOptions = secondaryPhases[linePosition] || primaryOptions;
+        
+        // 奇数lineIdは主フェーズ、偶数lineIdは副フェーズを優先
+        const selectedPhase = (lineId % 2 === 1) 
+            ? primaryOptions[0]
+            : secondaryOptions[lineId % secondaryOptions.length];
         
         // 卦による修正係数（-1.0 ~ 1.0）
         const hexagramModifiers = {
@@ -1420,26 +1436,68 @@ class TextTo384LinesBridge {
      * 時間フェーズの検出（決定論的）
      */
     detectTemporalPhase(text) {
+        // D-2-2: フェーズ定義の見直し - より均等な分布を目指す
         const phases = {
-            'beginning': ['始', '新', '初', 'スタート', '開始', '第一歩', '着手', '始まり', '立ち上げ'], // 1爻
-            'early_develop': ['準備', '計画', '構想', '検討', '模索', '試行', '基礎'], // 1-2爻
-            'developing': ['成長', '発展', '進行', '途中', '継続', '進む', '実行中'], // 3-4爻
-            'transition': ['変化', '転換', '移行', '岐路', '転機', '変更', '調整'], // 3-4爻
-            'mature': ['成熟', '完成', '達成', '成功', '安定', '確立', '充実',
-                      'リーダー', '責任', '統率', '指導', '管理', '権限', '中心'], // 5爻
-            'completion': ['終', '完了', '結果', '終了', '締結', '最後', '極致'] // 6爻
+            'beginning': {
+                keywords: ['始', '新', '初', 'スタート', '開始', '第一歩', '着手', '始まり', '立ち上げ', '起動', '創始'],
+                primaryPosition: 1,
+                secondaryPosition: null
+            },
+            'cooperation': {
+                keywords: ['協力', '関係', '内面', '相談', '支援', '協調', '協働', '連携', '共同', 'チーム'],
+                primaryPosition: 2,
+                secondaryPosition: null
+            },
+            'challenge': {
+                keywords: ['困難', '試練', '挑戦', '問題', '課題', '葛藤', '苦労', '壁', '障害', '逆境'],
+                primaryPosition: 3,
+                secondaryPosition: null
+            },
+            'transition': {
+                keywords: ['変化', '転換', '移行', '岐路', '転機', '変更', '調整', '選択', '決断', '分岐'],
+                primaryPosition: 4,
+                secondaryPosition: null
+            },
+            'mature': {
+                keywords: ['成熟', '完成', '達成', '成功', '安定', '確立', '充実', 'リーダー', '責任', '統率',
+                         '指導', '管理', '権限', '中心', '主導', '統括', '決定', '判断', '方向', '戦略'],
+                primaryPosition: 5,
+                secondaryPosition: null
+            },
+            'completion': {
+                keywords: ['終', '完了', '結果', '終了', '締結', '最後', '極致', '完結', '成就', '到達'],
+                primaryPosition: 6,
+                secondaryPosition: null
+            }
         };
         
-        // キーワードマッチング
-        for (const [phase, keywords] of Object.entries(phases)) {
-            for (const keyword of keywords) {
+        // D-2-1: 改修 - 複数のフェーズを検出し、優先度を設定
+        const detectedPhases = [];
+        
+        for (const [phase, data] of Object.entries(phases)) {
+            let matchCount = 0;
+            for (const keyword of data.keywords) {
                 if (text.includes(keyword)) {
-                    return phase;
+                    matchCount++;
                 }
+            }
+            
+            if (matchCount > 0) {
+                detectedPhases.push({
+                    phase,
+                    score: matchCount,
+                    position: data.primaryPosition
+                });
             }
         }
         
-        // デフォルトを決定論的ランダム化
+        // 最も多くマッチしたフェーズを返す
+        if (detectedPhases.length > 0) {
+            detectedPhases.sort((a, b) => b.score - a.score);
+            return detectedPhases[0].phase;
+        }
+        
+        // デフォルトを決定論的ランダム化（ただし均等に分布）
         const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const phaseKeys = Object.keys(phases);
         return phaseKeys[hash % phaseKeys.length];
