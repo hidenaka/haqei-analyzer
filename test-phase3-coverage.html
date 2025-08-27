@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>D-3-9/10: Phase 3カバー率検証（300サンプル）</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .success { color: #4ec9b0; }
+        .warning { color: #dcdcaa; }
+        .error { color: #f48771; }
+        .info { color: #9cdcfe; }
+        .result-box {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        pre {
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background: #2d2d30;
+            border: 1px solid #3e3e42;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .coverage-chart {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 2px;
+            margin: 20px 0;
+        }
+        .line-cell {
+            width: 100%;
+            height: 20px;
+            background: #2d2d30;
+            border: 1px solid #3e3e42;
+            cursor: pointer;
+            position: relative;
+        }
+        .line-cell.used {
+            background: #4ec9b0;
+        }
+        .line-cell:hover::after {
+            content: attr(data-info);
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #3e3e42;
+            padding: 5px 10px;
+            border-radius: 3px;
+            white-space: nowrap;
+            z-index: 10;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 D-3-9/10: Phase 3 カバー率検証（300サンプル）</h1>
+    <div id="status">テスト準備中...</div>
+    <div id="progress-container" style="display: none;">
+        <div style="width: 100%; height: 20px; background: #2d2d30; border-radius: 10px; overflow: hidden;">
+            <div id="progress-fill" style="height: 100%; background: linear-gradient(90deg, #4ec9b0, #569cd6); width: 0%; transition: width 0.3s;"></div>
+        </div>
+        <span id="progress-text">0/300</span>
+    </div>
+    <div id="results"></div>
+
+    <script type="module">
+        import { TextTo384LinesBridge } from './public/js/ai/TextTo384LinesBridge.js';
+        
+        // Phase 3用の多様なテストサンプル生成
+        function generatePhase3Samples() {
+            const samples = [];
+            
+            // カテゴリごとに多様なテキストを生成
+            const categories = {
+                // ビジネス（50個）
+                business: [
+                    "新規事業の立ち上げ", "マーケティング戦略", "財務分析", "人事評価",
+                    "製品開発", "品質管理", "営業活動", "顧客対応", "競合分析", "市場調査",
+                    "プロジェクト管理", "リスク管理", "投資判断", "事業計画", "組織改革",
+                    "業務改善", "コスト削減", "売上拡大", "利益最適化", "資金調達",
+                    "M&A戦略", "グローバル展開", "デジタル変革", "イノベーション", "起業準備",
+                    "事業承継", "IPO準備", "アライアンス", "ブランディング", "CSR活動",
+                    "サプライチェーン", "在庫管理", "生産管理", "物流最適化", "品質保証",
+                    "カスタマーサポート", "マーケットリサーチ", "商品企画", "価格戦略", "販促活動",
+                    "広告戦略", "PR活動", "SNSマーケティング", "データ分析", "KPI管理",
+                    "予算編成", "決算処理", "監査対応", "コンプライアンス", "内部統制"
+                ],
+                // 人生・キャリア（50個）
+                life: [
+                    "転職を考える", "キャリアチェンジ", "スキルアップ", "資格取得", "留学準備",
+                    "独立開業", "フリーランス", "副業開始", "定年後の生活", "セカンドキャリア",
+                    "結婚準備", "子育て", "教育方針", "家族関係", "介護問題",
+                    "健康管理", "ダイエット", "運動習慣", "メンタルケア", "ストレス解消",
+                    "趣味探し", "習い事", "ボランティア", "社会貢献", "生きがい探し",
+                    "人間関係", "友人関係", "恋愛相談", "パートナーシップ", "コミュニケーション",
+                    "自己啓発", "自己分析", "目標設定", "習慣形成", "時間管理",
+                    "資産形成", "投資計画", "貯蓄計画", "保険見直し", "相続対策",
+                    "住宅購入", "引っ越し", "リフォーム", "老後準備", "終活",
+                    "学び直し", "大学院進学", "研究活動", "論文執筆", "学会発表"
+                ],
+                // 感情・心理（50個）
+                emotion: [
+                    "不安を感じる", "心配事がある", "ストレスが溜まる", "イライラする", "落ち込む",
+                    "悲しみに暮れる", "怒りを覚える", "嫉妬する", "焦りを感じる", "緊張する",
+                    "喜びに満ちる", "幸せを感じる", "感謝の気持ち", "希望を持つ", "楽しみにする",
+                    "安心する", "満足する", "充実感", "達成感", "解放感",
+                    "後悔する", "反省する", "申し訳ない", "恥ずかしい", "困惑する",
+                    "驚く", "感動する", "興奮する", "期待する", "憧れる",
+                    "寂しさを感じる", "孤独感", "疎外感", "無力感", "絶望感",
+                    "自信を持つ", "誇りに思う", "勇気が出る", "やる気になる", "前向きになる",
+                    "冷静になる", "落ち着く", "リラックス", "穏やかな気持ち", "平和な心",
+                    "複雑な気持ち", "葛藤する", "迷う", "悩む", "考え込む"
+                ],
+                // 日常生活（50個）
+                daily: [
+                    "朝の準備", "通勤時間", "仕事開始", "会議参加", "ランチタイム",
+                    "午後の作業", "残業", "退社時刻", "帰宅", "夕食準備",
+                    "家事全般", "掃除", "洗濯", "買い物", "料理",
+                    "入浴", "就寝前", "週末の過ごし方", "休日の計画", "外出準備",
+                    "友人との約束", "家族との時間", "一人の時間", "趣味の時間", "運動の時間",
+                    "読書", "映画鑑賞", "音楽鑑賞", "ゲーム", "SNS",
+                    "ニュースチェック", "メールチェック", "スケジュール確認", "ToDoリスト", "日記",
+                    "勉強時間", "仕事の準備", "資料作成", "レポート作成", "プレゼン準備",
+                    "電話対応", "来客対応", "外出", "出張", "会食",
+                    "健康チェック", "薬の服用", "通院", "検査", "リハビリ"
+                ],
+                // 哲学・思考（50個）
+                philosophy: [
+                    "人生の意味", "存在意義", "自己実現", "幸福とは", "成功の定義",
+                    "正義について", "善悪の基準", "道徳観", "倫理観", "価値観",
+                    "真理の探求", "知識と智慧", "理性と感情", "意識と無意識", "自由意志",
+                    "運命論", "因果関係", "偶然と必然", "時間の概念", "空間認識",
+                    "美の本質", "芸術の価値", "創造性", "想像力", "インスピレーション",
+                    "愛の形", "友情の意味", "信頼関係", "共感能力", "利他主義",
+                    "死生観", "生きる意味", "死の恐怖", "永遠性", "輪廻転生",
+                    "宗教観", "信仰心", "スピリチュアル", "瞑想", "悟り",
+                    "科学と哲学", "論理と直感", "分析と統合", "部分と全体", "ミクロとマクロ",
+                    "変化と不変", "流動性", "相対性", "絶対性", "パラドックス"
+                ],
+                // 自然・環境（50個）
+                nature: [
+                    "春の訪れ", "夏の暑さ", "秋の紅葉", "冬の寒さ", "季節の変わり目",
+                    "朝日を浴びる", "夕日を見る", "月明かり", "星空を眺める", "虹を見る",
+                    "雨の日", "晴れの日", "曇り空", "雪の日", "台風接近",
+                    "海を見る", "山に登る", "森を歩く", "川のせせらぎ", "湖畔で",
+                    "花を愛でる", "鳥の声", "虫の音", "風の音", "波の音",
+                    "新緑の季節", "紅葉狩り", "桜の開花", "梅雨入り", "初雪",
+                    "環境問題", "地球温暖化", "エコ活動", "リサイクル", "省エネ",
+                    "自然災害", "防災対策", "避難準備", "復興支援", "ボランティア",
+                    "ガーデニング", "家庭菜園", "収穫", "種まき", "水やり",
+                    "ペットの世話", "動物愛護", "野生動物", "生態系", "biodiversity"
+                ]
+            };
+            
+            // 各カテゴリから50個ずつ、計300個のサンプルを作成
+            Object.entries(categories).forEach(([category, texts]) => {
+                texts.forEach(text => {
+                    samples.push(text);
+                });
+            });
+            
+            return samples;
+        }
+        
+        async function runPhase3Test() {
+            const statusEl = document.getElementById('status');
+            const progressContainer = document.getElementById('progress-container');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const resultsEl = document.getElementById('results');
+            
+            try {
+                statusEl.innerHTML = '<span class="warning">TextTo384LinesBridge初期化中...</span>';
+                const bridge = new TextTo384LinesBridge();
+                await bridge.initialize();
+                
+                // lineUsageCountをリセット（公平なテストのため）
+                bridge.lineUsageCount = {};
+                
+                statusEl.innerHTML = '<span class="info">テスト実行中（300サンプル）...</span>';
+                progressContainer.style.display = 'block';
+                
+                const samples = generatePhase3Samples();
+                const results = {
+                    lineUsage: new Map(),
+                    determinismCheck: new Map(),
+                    processingTimes: [],
+                    totalSamples: samples.length
+                };
+                
+                // テスト実行
+                for (let i = 0; i < samples.length; i++) {
+                    const text = samples[i];
+                    const startTime = performance.now();
+                    
+                    // 第1回実行
+                    const result1 = await bridge.analyzeText(text);
+                    const processingTime = performance.now() - startTime;
+                    results.processingTimes.push(processingTime);
+                    
+                    // 使用された爻を記録
+                    const lineId = result1.line_384_id;
+                    results.lineUsage.set(lineId, (results.lineUsage.get(lineId) || 0) + 1);
+                    
+                    // D-3-10: 決定論性の維持確認（同じテキストで2回実行）
+                    if (i < 10) { // 最初の10個だけ決定論性チェック
+                        const result2 = await bridge.analyzeText(text);
+                        results.determinismCheck.set(text, result1.line_384_id === result2.line_384_id);
+                    }
+                    
+                    // プログレスバー更新
+                    if ((i + 1) % 10 === 0) {
+                        const progress = ((i + 1) / samples.length * 100);
+                        progressFill.style.width = `${progress}%`;
+                        progressText.textContent = `${i + 1}/${samples.length}`;
+                    }
+                }
+                
+                // 結果計算
+                const uniqueLines = results.lineUsage.size;
+                const coverageRate = (uniqueLines / 384) * 100;
+                const maxUsage = Math.max(...results.lineUsage.values());
+                const avgTime = results.processingTimes.reduce((a, b) => a + b, 0) / results.processingTimes.length;
+                
+                // 決定論性チェック結果
+                let determinismPass = true;
+                results.determinismCheck.forEach((isSame, text) => {
+                    if (!isSame) determinismPass = false;
+                });
+                
+                // 結果表示
+                let html = '';
+                
+                // メトリクスカード
+                html += '<div class="metric-grid">';
+                
+                // カバー率（D-3-9）
+                const coverageSuccess = coverageRate >= 8;
+                html += `<div class="metric-card">
+                    <div class="info">カバー率</div>
+                    <div class="metric-value ${coverageSuccess ? 'success' : 'error'}">${coverageRate.toFixed(1)}%</div>
+                    <div>${coverageSuccess ? '✅ 目標達成 (≥8%)' : '❌ 未達成 (<8%)'}</div>
+                </div>`;
+                
+                // ユニーク爻数
+                html += `<div class="metric-card">
+                    <div class="info">ユニーク爻数</div>
+                    <div class="metric-value ${uniqueLines >= 31 ? 'success' : 'warning'}">${uniqueLines}/384</div>
+                    <div>${uniqueLines >= 31 ? '✅ 良好' : '⚠️ 要改善'}</div>
+                </div>`;
+                
+                // 最大使用頻度
+                const maxUsageSuccess = maxUsage <= 10;
+                html += `<div class="metric-card">
+                    <div class="info">最大使用頻度</div>
+                    <div class="metric-value ${maxUsageSuccess ? 'success' : 'warning'}">${maxUsage}回</div>
+                    <div>${maxUsageSuccess ? '✅ 適切' : '⚠️ 偏りあり'}</div>
+                </div>`;
+                
+                // 決定論性（D-3-10）
+                html += `<div class="metric-card">
+                    <div class="info">決定論性</div>
+                    <div class="metric-value ${determinismPass ? 'success' : 'error'}">${determinismPass ? '✅' : '❌'}</div>
+                    <div>${determinismPass ? '維持されている' : '破壊されている'}</div>
+                </div>`;
+                
+                html += '</div>';
+                
+                // カバレッジマップ（どの爻が使われたか視覚化）
+                html += '<div class="result-box">';
+                html += '<h3>📊 爻使用マップ（緑=使用済み、グレー=未使用）</h3>';
+                html += '<div class="coverage-chart">';
+                for (let i = 1; i <= 384; i++) {
+                    const used = results.lineUsage.has(i);
+                    const usageCount = results.lineUsage.get(i) || 0;
+                    const hexagramId = Math.ceil(i / 6);
+                    const position = ((i - 1) % 6) + 1;
+                    html += `<div class="line-cell ${used ? 'used' : ''}" 
+                             data-info="爻${i} (${hexagramId}卦${position}爻) 使用:${usageCount}回"></div>`;
+                }
+                html += '</div>';
+                html += '</div>';
+                
+                // Phase 3タスク達成状況
+                html += '<div class="result-box">';
+                html += '<h3>✅ D-3タスク達成状況</h3>';
+                html += '<pre>';
+                
+                const tasks = [
+                    { id: 'D-3-1', desc: 'calculateLineScore修正開始', done: true },
+                    { id: 'D-3-2', desc: '探索ノイズ機能設計', done: true },
+                    { id: 'D-3-3', desc: 'ノイズ生成ロジック実装', done: true },
+                    { id: 'D-3-4', desc: 'lineUsageCount追跡実装', done: true },
+                    { id: 'D-3-5', desc: '使用頻度ペナルティ実装', done: true },
+                    { id: 'D-3-6', desc: 'セマンティックベクトル改善', done: true },
+                    { id: 'D-3-7', desc: '爻固有パターン強化', done: true },
+                    { id: 'D-3-8', desc: '次元別重み付け実装', done: true },
+                    { id: 'D-3-9', desc: `カバー率測定（目標8%）`, done: coverageSuccess },
+                    { id: 'D-3-10', desc: `決定論性の維持確認`, done: determinismPass }
+                ];
+                
+                tasks.forEach(task => {
+                    const status = task.done ? '✅' : '❌';
+                    const color = task.done ? 'success' : 'error';
+                    html += `<span class="${color}">${status} ${task.id}: ${task.desc}</span>\n`;
+                });
+                
+                html += '\n<span class="info">総合判定: ';
+                if (coverageSuccess && determinismPass) {
+                    html += '<span class="success">Phase 3完了 - カバー率向上成功！</span>';
+                } else {
+                    html += '<span class="warning">追加調整が必要</span>';
+                }
+                html += '</span>';
+                
+                html += '</pre></div>';
+                
+                // パフォーマンス
+                html += `<div class="result-box">
+                    <h3>⚡ パフォーマンス</h3>
+                    <pre>平均処理時間: <span class="${avgTime < 20 ? 'success' : 'warning'}">${avgTime.toFixed(2)}ms</span>
+総処理時間: ${(results.processingTimes.reduce((a, b) => a + b, 0) / 1000).toFixed(2)}秒</pre>
+                </div>`;
+                
+                resultsEl.innerHTML = html;
+                statusEl.innerHTML = '<span class="success">✅ テスト完了</span>';
+                progressContainer.style.display = 'none';
+                
+            } catch (error) {
+                statusEl.innerHTML = `<span class="error">エラー: ${error.message}</span>`;
+                console.error(error);
+            }
+        }
+        
+        runPhase3Test();
+    </script>
+</body>
+</html>

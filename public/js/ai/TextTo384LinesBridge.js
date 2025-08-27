@@ -753,6 +753,7 @@ class TextTo384LinesBridge {
      * セマンティックベクトルの生成（656次元）- koudo_shishinデータ活用版
      */
     generateSemanticVectors(lineId) {
+        // D-3-6: セマンティックベクトル改善
         const vector = new Float32Array(656);
         const lineData = this.koudoShishinData ? this.koudoShishinData[lineId - 1] : null;
         
@@ -760,6 +761,17 @@ class TextTo384LinesBridge {
             // データがない場合は基本的なベクトル生成
             const hexagramId = Math.ceil(lineId / 6);
             const position = ((lineId - 1) % 6) + 1;
+            
+            // D-3-7: 爻固有パターン強化
+            // より多様な初期値を設定
+            for (let i = 0; i < 656; i++) {
+                // lineIdに基づく固有パターン
+                const pattern1 = Math.sin(lineId * i * 0.01) * 0.5;
+                const pattern2 = Math.cos(lineId * i * 0.02) * 0.3;
+                const pattern3 = Math.sin((lineId + position) * i * 0.015) * 0.2;
+                vector[i] = pattern1 + pattern2 + pattern3;
+            }
+            
             this.encodeHexagramVector(vector, 0, hexagramId);
             this.encodePositionVector(vector, 100, position);
             this.encodeRelationshipVector(vector, 400, lineId);
@@ -774,14 +786,18 @@ class TextTo384LinesBridge {
         // shin特徴を前半328次元に展開
         if (shinAnalysis.vector && shinAnalysis.vector.length > 0) {
             for (let i = 0; i < 328; i++) {
-                vector[i] = shinAnalysis.vector[i % shinAnalysis.vector.length] || 0;
+                // D-3-8: 次元別重み付け実装
+                const weight = 1.0 + (i / 328) * 0.2; // 後半の次元ほど重要度を上げる
+                vector[i] = (shinAnalysis.vector[i % shinAnalysis.vector.length] || 0) * weight;
             }
         }
         
         // hen特徴を後半328次元に展開
         if (henAnalysis.vector && henAnalysis.vector.length > 0) {
             for (let i = 0; i < 328; i++) {
-                vector[i + 328] = henAnalysis.vector[i % henAnalysis.vector.length] || 0;
+                // D-3-8: 次元別重み付け実装
+                const weight = 1.2 - (i / 328) * 0.2; // 前半の次元ほど重要度を上げる
+                vector[i + 328] = (henAnalysis.vector[i % henAnalysis.vector.length] || 0) * weight;
             }
         }
         
@@ -1264,6 +1280,12 @@ class TextTo384LinesBridge {
         
         const selectedLine = lineScores[0];
         
+        // D-3-4: lineUsageCountの更新
+        if (!this.lineUsageCount) {
+            this.lineUsageCount = {};
+        }
+        this.lineUsageCount[selectedLine.lineId] = (this.lineUsageCount[selectedLine.lineId] || 0) + 1;
+        
         // 統計更新
         const processingTime = performance.now() - startTime;
         this.updateDebugStats(selectedLine.lineId, processingTime);
@@ -1661,24 +1683,48 @@ class TextTo384LinesBridge {
             score *= 0.95;
         }
         
-        // 8. 探索ノイズの追加（多様性確保・Phase 3強化）
+        // 8. 探索ノイズの追加（D-3-2, D-3-3: 多様性確保・Phase 3強化）
         // テキストとlineIdから決定論的なノイズを生成
         const noiseBase = text.charCodeAt(0) + text.charCodeAt(text.length - 1);
-        const enhancedNoise = ((lineId * noiseBase * 13) % 150) / 1000; // 0-0.15のノイズに増強
-        score += enhancedNoise;
         
-        // 追加: テキスト長による微調整
-        const lengthNoise = ((text.length * lineId) % 50) / 2000; // 0-0.025
-        score += lengthNoise;
+        // D-3-3: より強力な探索ノイズ実装（0-0.2の範囲）
+        const primaryNoise = ((lineId * noiseBase * 13) % 200) / 1000; // 0-0.2に増強
+        const secondaryNoise = ((lineId * text.length * 7) % 100) / 1000; // 0-0.1の追加ノイズ
+        const tertiaryNoise = ((Math.abs(lineId - 192) * noiseBase) % 50) / 1000; // 0-0.05の位置依存ノイズ
         
-        // 9. 使用頻度ペナルティ（Phase 3強化）
-        if (this.lineUsageCount) {
-            if (this.lineUsageCount[lineId] > 1) {
-                // 2回以上使用で段階的ペナルティ
-                const usageCount = this.lineUsageCount[lineId];
-                const penalty = Math.max(0.7, 1 - (usageCount * 0.05)); // 使用回数が増えるほど強いペナルティ
-                score *= penalty;
+        const totalNoise = primaryNoise + secondaryNoise + tertiaryNoise;
+        score += totalNoise;
+        
+        // D-3-2: セッション経過時間による多様性ボーナス
+        const sessionDuration = Date.now() - this.sessionStartTime;
+        const timeBonus = Math.min(0.05, sessionDuration / (1000 * 60 * 60)); // 最大0.05（1時間で最大）
+        score += timeBonus * ((lineId % 10) / 10); // lineIdによって異なる時間ボーナス
+        
+        // 9. 使用頻度ペナルティ（D-3-4, D-3-5: Phase 3強化）
+        if (!this.lineUsageCount) {
+            this.lineUsageCount = {}; // D-3-4: 初期化
+        }
+        
+        const usageCount = this.lineUsageCount[lineId] || 0;
+        
+        // D-3-5: より強力な使用頻度ペナルティ実装
+        if (usageCount > 0) {
+            // 1回目から段階的ペナルティ（従来は2回目から）
+            let penalty = 1.0;
+            
+            if (usageCount === 1) {
+                penalty = 0.95; // 1回使用: 5%減
+            } else if (usageCount === 2) {
+                penalty = 0.85; // 2回使用: 15%減
+            } else if (usageCount === 3) {
+                penalty = 0.70; // 3回使用: 30%減
+            } else if (usageCount === 4) {
+                penalty = 0.50; // 4回使用: 50%減
+            } else {
+                penalty = Math.max(0.3, 0.5 - (usageCount - 4) * 0.1); // 5回以上: さらに減少（最小30%）
             }
+            
+            score *= penalty;
         }
         
         return Math.max(0, Math.min(1, score)); // 0-1に正規化
