@@ -895,22 +895,42 @@ class TextTo384LinesBridge {
     }
     
     /**
-     * 爻位置のエンコード（100次元）- 改善版
+     * 爻位置のエンコード（100次元）- F-1/F-2/F-3: 均等分布最適化版
      */
     encodePositionVector(vector, offset, position) {
-        // 位置による特性値（D-1-4: 5爻を0.8に強化）
-        const positionWeights = [0.5, 0.4, 0.45, 0.5, 0.8, 0.4]; // D-1-4: 5爻を0.65→0.8に変更
+        // F-1: 現状分析に基づく位置別重み
+        // F-2: 理想分布モデル（各位置16.67%）を目指す
+        // F-3: 位置別重みの微調整
+        
+        // 分析結果に基づく新しい重み配分
+        // 目標：全位置を0.5に近づけて均等化
+        const positionWeights = [
+            0.50,  // 1爻: 標準（既に良好）
+            0.48,  // 2爻: やや抑制（過多傾向あり）
+            0.52,  // 3爻: やや強化（不足傾向）
+            0.55,  // 4爻: 強化（最も不足）
+            0.50,  // 5爻: 標準に戻す（十分改善済み）
+            0.45   // 6爻: やや抑制（過多傾向あり）
+        ];
+        
         const weight = positionWeights[position - 1];
         
+        // F-3: より均等な分布を実現する新しいエンコーディング
         for (let i = 0; i < 100; i++) {
-            // より分散したガウシアン分布
-            const center = (position - 1) * 16.67; // 100を6で分割
-            const sigma = 15; // より広いシグマで分散を増やす
+            // 位置ごとの中心をより均等に配置
+            const center = (position - 1) * 16.67;
+            const sigma = 12; // シグマを調整して重なりを制御
             const distance = Math.abs(i - center);
             
-            // 位置固有のノイズを追加して多様性を確保
-            const noise = Math.sin(position * i * 0.1) * 0.1;
-            vector[offset + i] = weight * Math.exp(-(distance * distance) / (2 * sigma * sigma)) + noise;
+            // 基本ガウシアン分布
+            const gaussian = Math.exp(-(distance * distance) / (2 * sigma * sigma));
+            
+            // F-3: 位置固有パターンを追加（決定論的だが多様性を保つ）
+            const pattern1 = Math.sin(position * i * 0.1) * 0.08;
+            const pattern2 = Math.cos(position * i * 0.15) * 0.05;
+            
+            // 最終値の計算（重みを適用）
+            vector[offset + i] = weight * gaussian + pattern1 + pattern2;
         }
     }
     
@@ -1286,6 +1306,15 @@ class TextTo384LinesBridge {
         }
         this.lineUsageCount[selectedLine.lineId] = (this.lineUsageCount[selectedLine.lineId] || 0) + 1;
         
+        // F-5: 位置分布の追跡
+        if (!this.positionDistribution) {
+            this.positionDistribution = [0, 0, 0, 0, 0, 0];
+        }
+        const lineData = this.lines384[selectedLine.lineId];
+        if (lineData && lineData.position >= 1 && lineData.position <= 6) {
+            this.positionDistribution[lineData.position - 1]++;
+        }
+        
         // 統計更新
         const processingTime = performance.now() - startTime;
         this.updateDebugStats(selectedLine.lineId, processingTime);
@@ -1630,6 +1659,40 @@ class TextTo384LinesBridge {
     }
     
     /**
+     * F-5: バランシングアルゴリズム実装
+     * 位置分布の偏りを動的に補正
+     */
+    getPositionBalancingFactor(position) {
+        // 現在の分布状況を確認
+        if (!this.positionDistribution) {
+            this.positionDistribution = [0, 0, 0, 0, 0, 0];
+        }
+        
+        const totalAnalyses = this.stats.totalAnalyses || 1;
+        
+        // 各位置の現在の選択率を計算
+        const currentRates = this.positionDistribution.map(count => count / totalAnalyses);
+        const idealRate = 1 / 6; // 16.67%
+        
+        // 偏差を計算
+        const deviations = currentRates.map(rate => rate - idealRate);
+        
+        // バランシング係数を計算（偏りが大きいほど強い補正）
+        let factor = 1.0;
+        const deviation = deviations[position - 1];
+        
+        if (deviation > 0.05) {
+            // 過多：ペナルティ
+            factor = 0.8 - (deviation * 0.5);
+        } else if (deviation < -0.05) {
+            // 不足：ボーナス
+            factor = 1.2 - (deviation * 0.5);
+        }
+        
+        return Math.max(0.5, Math.min(1.5, factor));
+    }
+    
+    /**
      * 個別の爻スコア計算（384個それぞれに対して実行・同期処理）
      */
     calculateLineScore(lineId, lineData, analysis, text) {
@@ -1667,20 +1730,14 @@ class TextTo384LinesBridge {
         // 7. 基本ウェイト適用
         score *= lineData.base_weight || 1.0;
         
-        // 7.5. Phase 2追加: 位置別調整（マイルドに）
-        // D-1-6: 決定・判断系の特別処理追加
-        const isDecisionText = this.isDecisionRelatedText(text);
+        // 7.5. F-5: バランシングアルゴリズムを適用
+        const balancingFactor = this.getPositionBalancingFactor(lineData.position);
+        score *= balancingFactor;
         
-        if (lineData.position === 5) {
-            // 5爻に適度なボーナス
-            score *= 1.05;
-            // D-1-6: 決定・判断系テキストで5爻に追加ボーナス
-            if (isDecisionText) {
-                score *= 1.2;  // 決定系テキストの場合、さらに20%ボーナス
-            }
-        } else if (lineData.position === 2 || lineData.position === 3) {
-            // 2爻と3爻に軽いペナルティ
-            score *= 0.95;
+        // 7.6. 決定・判断系の特別処理（維持）
+        const isDecisionText = this.isDecisionRelatedText(text);
+        if (lineData.position === 5 && isDecisionText) {
+            score *= 1.1;  // 決定系テキストで5爻に小ボーナス（F-5で調整）
         }
         
         // 8. 探索ノイズの追加（D-3-2, D-3-3, E-3: 多様性確保・Phase 3強化・追加ノイズ）
@@ -1986,41 +2043,64 @@ class TextTo384LinesBridge {
     
     /**
      * 強化された位置調整（テキスト内容に基づく動的調整）
+     * F-4: キーワード配分の最適化
      */
     getEnhancedPositionAdjustment(position, text) {
-        // テキストの特徴に基づいた位置優先度
+        // F-4: より均等なキーワード配分（各位置20-25個程度に統一）
         const adjustments = {
-            1: ['始', '新', '初', '基礎', '準備', '第一歩', '着手', 'スタート'],
-            2: ['協力', '関係', '内面', '相談', '支援'],  // 適度に復元
-            3: ['困難', '試練', '挑戦', '問題'],  // 適度に復元
-            4: ['変化', '転換', '決断', '外部', '環境', '選択', '岐路'],
-            5: [
-                // 既存17個
-                'リーダーシップ', '決断', '成熟', '統率', '指導',
-                '権威', '頂点', '支配', '君主', '統治',
-                '最高', '絶頂', '完成間近', '最終段階', '決定的',
-                '主導', '極致',
-                // 新規30個（D-1-2）
-                '統括', '総括', '監督', '指揮', '采配',
-                '統制', '管理職', '経営者', '円熟', '熟練',
-                '老練', '達人', 'マスター', 'エキスパート', 'プロフェッショナル',
-                'ベテラン', '最終判断', '裁定', '決裁', '承認',
-                '認可', '批准', '決着', '重鎮', '要職',
-                '高位', '上級', '幹部', '役員', 'トップ',
-                // 既存の短縮形も維持
-                'リーダー', '責任', '管理', '権限', '中心',
-                '決定', '判断', '方向', '戦略', '全体', 
-                '統合', 'マネジメント', '上位', '達成', '成功',
-                '安定', '確立', '充実', '最適', '理想', 
-                '完璧'
+            1: [
+                // 基本キーワード
+                '始', '新', '初', '基礎', '準備', '第一歩', '着手', 'スタート',
+                // F-4: 追加キーワード
+                '開始', '始動', '起動', '創始', '開幕', '出発', '発端', '起点',
+                '序章', '導入', 'イントロ', '立ち上げ', '発足', '誕生', '生成'
             ],
-            6: ['完成', '終了', '極限', '最終', '完了', '結果']  // 適度に復元
+            2: [
+                // 基本キーワード
+                '協力', '関係', '内面', '相談', '支援',
+                // F-4: 追加キーワード
+                'チーム', '協調', '連携', 'パートナー', '協働', '共同', '補佐',
+                '助力', '援助', 'サポート', '協議', '話し合い', '検討', '内部',
+                '仲間', '同僚', '協同', '共有', '分担', '配分'
+            ],
+            3: [
+                // 基本キーワード
+                '困難', '試練', '挑戦', '問題',
+                // F-4: 追加キーワード
+                '壁', '障害', '逆境', '苦労', '葛藤', '対立', '摩擦', '抵抗',
+                '課題', '難題', '難関', '苦難', '危機', '窮地', 'トラブル',
+                '争い', '衝突', '紛争', '混乱', 'ピンチ', '苦境'
+            ],
+            4: [
+                // 基本キーワード
+                '変化', '転換', '決断', '外部', '環境', '選択', '岐路',
+                // F-4: 追加キーワード
+                '移行', '転機', '変更', '調整', '適応', '改変', '修正', '転職',
+                '方向転換', '路線変更', 'シフト', '切り替え', '変革', '改革',
+                '分岐', '判断', '選定', '採択', '決定'
+            ],
+            5: [
+                // F-4: 数を調整（25個程度に削減）
+                'リーダーシップ', '統率', '指導', '権威', '管理',
+                '統括', '監督', '指揮', '経営', '責任',
+                '決定', '判断', '戦略', '方針', '計画',
+                '主導', '中心', '核心', '要', '重要',
+                'トップ', '上級', '幹部', '役員', '成熟'
+            ],
+            6: [
+                // 基本キーワード
+                '完成', '終了', '極限', '最終', '完了', '結果',
+                // F-4: 追加キーワード
+                '締結', '終結', '完結', '達成', '成就', '極致', '頂点', '絶頂',
+                '最後', '終末', '終焉', 'ゴール', '到達', '結実', '成果',
+                'フィナーレ', '大団円', '締め', '仕上げ', '総仕上げ'
+            ]
         };
         
         let maxAdjustment = 0;
         let bestPosition = 0;
         
-        // 各位置のキーワードマッチング数を計算
+        // F-4: 各位置のキーワードマッチング数を計算（より均等な重み付け）
         for (const [pos, keywords] of Object.entries(adjustments)) {
             let matches = 0;
             for (const keyword of keywords) {
@@ -2030,8 +2110,17 @@ class TextTo384LinesBridge {
             }
             
             if (matches > 0) {
-                // D-1-1: 5爻の場合はボーナスを0.25に増加（従来0.05）
-                const multiplier = (parseInt(pos) === 5) ? 0.25 : 0.05;
+                // F-4: 全位置により均等なボーナス（位置による差を縮小）
+                const positionMultipliers = {
+                    1: 0.08,  // 標準
+                    2: 0.07,  // やや抑制
+                    3: 0.09,  // やや強化
+                    4: 0.10,  // 強化
+                    5: 0.08,  // 標準に戻す（既に十分）
+                    6: 0.07   // やや抑制
+                };
+                
+                const multiplier = positionMultipliers[parseInt(pos)] || 0.08;
                 const adjustment = matches * multiplier;
                 if (adjustment > maxAdjustment) {
                     maxAdjustment = adjustment;
