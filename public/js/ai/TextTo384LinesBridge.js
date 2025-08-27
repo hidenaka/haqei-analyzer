@@ -1409,6 +1409,7 @@ class TextTo384LinesBridge {
     
     /**
      * テキストの包括的分析
+     * G-4/G-5/G-6: コンテキスト理解改善
      */
     async performComprehensiveAnalysis(text) {
         const analysis = {
@@ -1417,7 +1418,12 @@ class TextTo384LinesBridge {
             energy: null,
             emotion: null,
             semantic_vectors: null,
-            context: null
+            context: null,
+            // G-4: 追加の分析情報
+            textLength: text.length,
+            sentenceCount: this.countSentences(text),
+            complexityScore: this.calculateComplexity(text),
+            domainHints: this.detectDomain(text)
         };
         
         // パターンマッチング分析
@@ -1439,16 +1445,99 @@ class TextTo384LinesBridge {
             analysis.keywords = semanticResult.keywords || [];
             analysis.semantic_vectors = semanticResult.vectors || null;
         } else {
-            // 簡易キーワード抽出
-            analysis.keywords = this.extractKeywords(text);
+            // G-5: 強化されたキーワード抽出
+            analysis.keywords = this.extractEnhancedKeywords(text);
             // テキストから656次元ベクトルを生成
             analysis.semantic_vectors = this.generateTextVector656(text);
         }
         
-        // コンテキスト分析
-        analysis.context = this.analyzeContext(text);
+        // G-6: 強化されたコンテキスト分析
+        analysis.context = this.analyzeEnhancedContext(text, analysis);
         
         return analysis;
+    }
+    
+    /**
+     * G-4: 文の数をカウント
+     */
+    countSentences(text) {
+        const sentences = text.split(/[。！？.!?]+/).filter(s => s.trim().length > 0);
+        return sentences.length;
+    }
+    
+    /**
+     * G-4: テキストの複雑度を計算
+     */
+    calculateComplexity(text) {
+        const charCount = text.length;
+        const uniqueChars = new Set(text).size;
+        const diversity = uniqueChars / Math.max(1, charCount);
+        
+        // 漢字の割合も考慮
+        const kanjiCount = (text.match(/[\u4E00-\u9FAF]/g) || []).length;
+        const kanjiRatio = kanjiCount / Math.max(1, charCount);
+        
+        return diversity * 0.5 + kanjiRatio * 0.5;
+    }
+    
+    /**
+     * G-4: ドメインヒントを検出
+     */
+    detectDomain(text) {
+        const domains = {
+            business: ['会議', '報告', '予算', '売上', '戦略', '経営', 'プロジェクト'],
+            personal: ['私', '自分', '気持ち', '感情', '思い', '心'],
+            technical: ['システム', 'データ', 'プログラム', '開発', '技術', 'AI'],
+            academic: ['研究', '論文', '分析', '考察', '実験', '理論'],
+            creative: ['創造', 'アイデア', 'デザイン', '芸術', '表現', '作品']
+        };
+        
+        const hints = [];
+        for (const [domain, keywords] of Object.entries(domains)) {
+            const count = keywords.filter(kw => text.includes(kw)).length;
+            if (count > 0) {
+                hints.push({ domain, strength: count / keywords.length });
+            }
+        }
+        
+        return hints;
+    }
+    
+    /**
+     * G-5: 強化されたキーワード抽出
+     */
+    extractEnhancedKeywords(text) {
+        const keywords = this.extractKeywords(text);
+        
+        // 重要度でソート
+        const weightedKeywords = keywords.map(keyword => {
+            const frequency = (text.match(new RegExp(keyword, 'g')) || []).length;
+            const position = text.indexOf(keyword) / Math.max(1, text.length);
+            const importance = frequency * (1 - position * 0.5); // 前の方にあるほど重要
+            
+            return { keyword, importance };
+        });
+        
+        weightedKeywords.sort((a, b) => b.importance - a.importance);
+        return weightedKeywords.slice(0, 10).map(item => item.keyword);
+    }
+    
+    /**
+     * G-6: 強化されたコンテキスト分析
+     */
+    analyzeEnhancedContext(text, analysis) {
+        const context = this.analyzeContext(text);
+        
+        // 追加のコンテキスト情報
+        context.enhanced = {
+            complexity: analysis.complexityScore,
+            domains: analysis.domainHints,
+            temporalStrength: analysis.temporal ? analysis.temporal.confidence : 0,
+            emotionalIntensity: analysis.emotion ? analysis.emotion.intensity : 0,
+            keywordDensity: analysis.keywords.length / Math.max(1, analysis.sentenceCount)
+        };
+        
+        return context;
     }
     
     /**
@@ -1896,6 +1985,7 @@ class TextTo384LinesBridge {
     
     /**
      * セマンティック類似度計算（656次元・決定論的）
+     * G-1/G-2/G-3: セマンティック分析強化
      */
     calculateSemanticSimilarity(vector1, vector2) {
         // Math.random()は一切使用禁止！
@@ -1907,33 +1997,46 @@ class TextTo384LinesBridge {
             return 0;
         }
         
-        // 重要な次元により重みを付ける
-        const dimensionWeights = new Float32Array(656);
-        for (let i = 0; i < 656; i++) {
-            // 位置ベクトル（100-199）とテキストベクトル（200-299）を重視
-            if (i >= 100 && i < 300) {
-                dimensionWeights[i] = 1.2;
-            } else {
-                dimensionWeights[i] = 1.0;
+        // G-1: セグメントベースの重み付け分析
+        const segments = {
+            hexagram: { start: 0, end: 100, weight: 1.0 },      // 卦特性
+            position: { start: 100, end: 200, weight: 1.5 },    // 位置特性（重要）
+            text: { start: 200, end: 300, weight: 1.8 },        // テキスト特性（最重要）
+            change: { start: 300, end: 400, weight: 1.0 },      // 変化特性
+            temporal: { start: 400, end: 500, weight: 0.8 },    // 時間特性
+            context: { start: 500, end: 656, weight: 1.2 }      // コンテキスト
+        };
+        
+        // G-2: セグメント別の類似度計算
+        let totalDotProduct = 0;
+        let totalNorm1 = 0;
+        let totalNorm2 = 0;
+        
+        for (const [segmentName, segment] of Object.entries(segments)) {
+            for (let i = segment.start; i < segment.end; i++) {
+                const weight = segment.weight;
+                const v1 = vector1[i] || 0;
+                const v2 = vector2[i] || 0;
+                
+                // G-3: 重み付き計算
+                totalDotProduct += v1 * v2 * weight;
+                totalNorm1 += v1 * v1 * weight;
+                totalNorm2 += v2 * v2 * weight;
             }
         }
         
-        // 実際のコサイン類似度計算
-        let dotProduct = 0;
-        let norm1 = 0;
-        let norm2 = 0;
-        
-        for (let i = 0; i < 656; i++) {
-            const weight = dimensionWeights[i];
-            dotProduct += vector1[i] * vector2[i] * weight;
-            norm1 += vector1[i] * vector1[i] * weight;
-            norm2 += vector2[i] * vector2[i] * weight;
-        }
+        const norm1 = Math.sqrt(totalNorm1);
+        const norm2 = Math.sqrt(totalNorm2);
         
         if (norm1 === 0 || norm2 === 0) return 0;
         
-        const similarity = dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
-        return Math.max(0, Math.min(1, similarity));
+        // G-3: 強調された類似度計算
+        const similarity = totalDotProduct / (norm1 * norm2);
+        
+        // 非線形変換で差を強調（高い類似度をより高く）
+        const enhancedSimilarity = Math.pow(Math.max(0, similarity), 0.8);
+        
+        return Math.max(0, Math.min(1, enhancedSimilarity));
     }
     
     /**
