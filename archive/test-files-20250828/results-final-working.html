@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI診断結果 - 完全動作版</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        /* ヒーローセクション */
+        .hero-section {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* サマリーセクション */
+        .summary-section {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary-card h2 {
+            color: #1e40af;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        /* 詳細ボタン */
+        .detail-toggle {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .detail-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+        
+        /* 詳細コンテンツ */
+        .detail-content {
+            display: none;
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .detail-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* アコーディオン */
+        .accordion-item {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .accordion-header {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+            border-top: 3px solid transparent;
+        }
+        
+        .accordion-header:hover {
+            background: #f8f9fa;
+        }
+        
+        .accordion-item.engine .accordion-header {
+            border-top-color: #ef4444;
+        }
+        
+        .accordion-item.interface .accordion-header {
+            border-top-color: #3b82f6;
+        }
+        
+        .accordion-item.safemode .accordion-header {
+            border-top-color: #10b981;
+        }
+        
+        .accordion-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .accordion-icon {
+            transition: transform 0.3s ease;
+            color: #64748b;
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .accordion-item.active .accordion-content {
+            max-height: 3000px;
+        }
+        
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+        
+        .accordion-inner {
+            padding: 2rem;
+            background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+        }
+        
+        /* メタ情報バー */
+        .os-meta-bar {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, #f8faff 0%, #eef3ff 100%);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+        
+        .os-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: #475569;
+        }
+        
+        .os-meta-item strong {
+            color: #1e293b;
+            font-weight: 600;
+        }
+        
+        /* セクション */
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+        
+        .detail-section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .detail-section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .detail-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .detail-field {
+            margin-bottom: 1rem;
+        }
+        
+        .detail-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            font-size: 1rem;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        
+        /* 個性セクション */
+        .personality-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .personality-overview {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        
+        .personality-type {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .personality-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        
+        .os-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .os-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .os-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .os-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .os-card-icon {
+            font-size: 1.5rem;
+        }
+        
+        .os-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .os-card-subtitle {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .os-card-description {
+            font-size: 0.95rem;
+            color: #475569;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .os-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .os-tag {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .trait-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .trait-card {
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+        
+        .trait-card.strength {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .trait-card.weakness {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .trait-card.opportunity {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+        }
+        
+        .trait-card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .trait-list {
+            list-style: none;
+        }
+        
+        .trait-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .trait-list li::before {
+            content: '✓';
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- ヒーローセクション -->
+    <section class="hero-section">
+        <h1 class="hero-title">あなたのTriple OS分析結果</h1>
+        <p class="hero-subtitle">独自の個性と可能性を発見しました</p>
+    </section>
+
+    <!-- サマリーセクション -->
+    <section class="summary-section">
+        <!-- 独自の個性セクション -->
+        <div class="personality-section">
+            <h2>🌟 独自の個性</h2>
+            
+            <div class="personality-overview">
+                <div class="personality-type">革新的サポーター型</div>
+                <div class="personality-description">
+                    あなたは、強い信念と革新的な思考を持ちながら、同時に他者への深い理解と
+                    サポート精神を兼ね備えた稀有な人材です。困難な状況でも前向きな解決策を
+                    見出し、周囲に希望と活力を与える存在として輝いています。
+                </div>
+            </div>
+            
+            <h3 style="margin-bottom: 1rem;">3つのOSの相互作用</h3>
+            <div class="os-cards">
+                <div class="os-card">
+                    <div class="os-card-header">
+                        <span class="os-card-icon">🚀</span>
+                        <span class="os-card-title">Engine OS</span>
+                    </div>
+                    <div class="os-card-subtitle">天雷无妄</div>
+                    <div class="os-card-description">
+                        純粋な情熱と直感的な行動力で、新しい可能性を切り開く原動力となります。
+                    </div>
+                    <div class="os-tags">
+                        <span class="os-tag">直感的</span>
+                        <span class="os-tag">革新的</span>
+                        <span class="os-tag">行動力</span>
+                    </div>
+                </div>
+                
+                <div class="os-card">
+                    <div class="os-card-header">
+                        <span class="os-card-icon">💬</span>
+                        <span class="os-card-title">Interface OS</span>
+                    </div>
+                    <div class="os-card-subtitle">坤為地</div>
+                    <div class="os-card-description">
+                        優しさと包容力で他者と深い信頼関係を築き、協調的な環境を作り出します。
+                    </div>
+                    <div class="os-tags">
+                        <span class="os-tag">共感力</span>
+                        <span class="os-tag">協調性</span>
+                        <span class="os-tag">包容力</span>
+                    </div>
+                </div>
+                
+                <div class="os-card">
+                    <div class="os-card-header">
+                        <span class="os-card-icon">🛡️</span>
+                        <span class="os-card-title">SafeMode OS</span>
+                    </div>
+                    <div class="os-card-subtitle">水雷屯</div>
+                    <div class="os-card-description">
+                        困難な状況でも冷静さを保ち、着実に前進する強さと柔軟性を発揮します。
+                    </div>
+                    <div class="os-tags">
+                        <span class="os-tag">忍耐力</span>
+                        <span class="os-tag">柔軟性</span>
+                        <span class="os-tag">成長力</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="trait-cards">
+                <div class="trait-card strength">
+                    <div class="trait-card-title">
+                        <span>💪</span>
+                        <span>強み</span>
+                    </div>
+                    <ul class="trait-list">
+                        <li>直感と論理のバランス</li>
+                        <li>困難を成長機会に変える力</li>
+                        <li>他者を巻き込む求心力</li>
+                    </ul>
+                </div>
+                
+                <div class="trait-card weakness">
+                    <div class="trait-card-title">
+                        <span>⚠️</span>
+                        <span>注意点</span>
+                    </div>
+                    <ul class="trait-list">
+                        <li>理想と現実のギャップ</li>
+                        <li>他者への過度な配慮</li>
+                        <li>完璧主義の傾向</li>
+                    </ul>
+                </div>
+                
+                <div class="trait-card opportunity">
+                    <div class="trait-card-title">
+                        <span>🌱</span>
+                        <span>成長機会</span>
+                    </div>
+                    <ul class="trait-list">
+                        <li>リーダーシップの開発</li>
+                        <li>戦略的思考の強化</li>
+                        <li>自己肯定感の向上</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 詳細分析セクション -->
+        <div class="summary-card">
+            <h2>📊 詳細分析レポート</h2>
+            <p>あなたのTriple OSの詳細な分析結果をご覧いただけます。</p>
+            <br>
+            <button class="detail-toggle" onclick="toggleDetail()">詳細を表示 ▼</button>
+            
+            <div class="detail-content" id="detail-content">
+                <!-- アコーディオンコンテンツがここに動的に挿入される -->
+            </div>
+        </div>
+    </section>
+
+    <!-- V3データベース読み込み -->
+    <script src="public/js/data/hexagram-human-traits-v3.js"></script>
+    
+    <script>
+        // サンプルデータ
+        const sampleData = {
+            engineOS: { hexagram: '天雷无妄', score: 82 },
+            interfaceOS: { hexagram: '坤為地', score: 75 },
+            safeModeOS: { hexagram: '水雷屯', score: 68 }
+        };
+        
+        // 詳細表示切り替え
+        function toggleDetail() {
+            const content = document.getElementById('detail-content');
+            const button = document.querySelector('.detail-toggle');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                button.textContent = '詳細を表示 ▼';
+            } else {
+                content.classList.add('active');
+                button.textContent = '詳細を非表示 ▲';
+                
+                // 初回のみコンテンツを生成
+                if (!content.dataset.loaded) {
+                    loadDetailContent();
+                    content.dataset.loaded = 'true';
+                }
+            }
+        }
+        
+        // アコーディオン切り替え
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            item.classList.toggle('active');
+        }
+        
+        // 詳細コンテンツの読み込み
+        function loadDetailContent() {
+            const container = document.getElementById('detail-content');
+            
+            if (typeof window.HexagramHumanTraitsV3 === 'undefined') {
+                container.innerHTML = '<p style="color: red;">データベースの読み込みに失敗しました</p>';
+                return;
+            }
+            
+            const engineData = window.HexagramHumanTraitsV3[sampleData.engineOS.hexagram];
+            const interfaceData = window.HexagramHumanTraitsV3[sampleData.interfaceOS.hexagram];
+            const safeData = window.HexagramHumanTraitsV3[sampleData.safeModeOS.hexagram];
+            
+            if (!engineData || !interfaceData || !safeData) {
+                container.innerHTML = '<p style="color: red;">データの取得に失敗しました</p>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="accordion-item engine">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <div class="accordion-title">
+                            🚀 原動力の詳細：${sampleData.engineOS.hexagram}「${engineData.nickname}」
+                        </div>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            ${generateOSDetail(engineData, 'engine', sampleData.engineOS.score)}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item interface">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <div class="accordion-title">
+                            💬 人との関わり方：${sampleData.interfaceOS.hexagram}「${interfaceData.nickname}」
+                        </div>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            ${generateOSDetail(interfaceData, 'interface', sampleData.interfaceOS.score)}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item safemode">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <div class="accordion-title">
+                            🛡️ ストレス対処法：${sampleData.safeModeOS.hexagram}「${safeData.nickname}」
+                        </div>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            ${generateOSDetail(safeData, 'safemode', sampleData.safeModeOS.score)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // OS詳細生成
+        function generateOSDetail(data, type, score) {
+            const osData = type === 'engine' ? data.asEngineOS :
+                          type === 'interface' ? data.asInterfaceOS :
+                          data.asSafeModeOS;
+            
+            if (!osData) return '<p>データが見つかりません</p>';
+            
+            return `
+                <div class="os-meta-bar">
+                    <div class="os-meta-item">
+                        <strong>卦番号:</strong> ${data.number || 'N/A'}
+                    </div>
+                    <div class="os-meta-item">
+                        <strong>五行:</strong> ${data.element || 'N/A'}
+                    </div>
+                    <div class="os-meta-item">
+                        <strong>スコア:</strong> ${score}%
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <div class="detail-section-header">
+                        <div class="detail-section-title">📋 基本情報</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-field">
+                            <div class="detail-label">プロフィール</div>
+                            <div class="detail-value">${osData.profile || 'N/A'}</div>
+                        </div>
+                        <div class="detail-field">
+                            <div class="detail-label">認知パターン</div>
+                            <div class="detail-value">${osData.cognition || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <div class="detail-section-header">
+                        <div class="detail-section-title">💡 行動特性</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-field">
+                            <div class="detail-label">行動パターン</div>
+                            <div class="detail-value">${osData.action || 'N/A'}</div>
+                        </div>
+                        <div class="detail-field">
+                            <div class="detail-label">意思決定</div>
+                            <div class="detail-value">${osData.decision || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <div class="detail-section-header">
+                        <div class="detail-section-title">🎯 成長のヒント</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-field">
+                            <div class="detail-label">アドバイス</div>
+                            <div class="detail-value">${osData.advice || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Day 4 - セマンティックベクトル分析</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            padding: 20px; 
+            background: #1e1e1e; 
+            color: #d4d4d4;
+        }
+        h1 { color: #4ec9b0; }
+        .analysis { 
+            background: #2d2d30; 
+            padding: 15px; 
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .segment {
+            margin: 10px 0;
+            padding: 10px;
+            background: #252526;
+            border-radius: 3px;
+        }
+        .weight-high { color: #f48771; }
+        .weight-medium { color: #dcdcaa; }
+        .weight-low { color: #569cd6; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #3c3c3c;
+        }
+        th { background: #252526; }
+    </style>
+</head>
+<body>
+    <h1>Day 4 - セマンティックベクトル分析</h1>
+    
+    <div class="analysis">
+        <h2>📊 現在のベクトル構成（656次元）</h2>
+        <table>
+            <tr><th>セグメント</th><th>範囲</th><th>次元数</th><th>現在の重み</th><th>役割</th></tr>
+            <tr><td>Hexagram</td><td>0-100</td><td>100</td><td class="weight-medium">1.0</td><td>卦の特性</td></tr>
+            <tr><td>Position</td><td>100-200</td><td>100</td><td class="weight-high">1.5</td><td>爻位置の特性</td></tr>
+            <tr><td>Text</td><td>200-300</td><td>100</td><td class="weight-high">1.8</td><td>テキスト分析（最重要）</td></tr>
+            <tr><td>Change</td><td>300-400</td><td>100</td><td class="weight-medium">1.0</td><td>変化・動線</td></tr>
+            <tr><td>Temporal</td><td>400-500</td><td>100</td><td class="weight-low">0.8</td><td>時間的要素</td></tr>
+            <tr><td>Context</td><td>500-656</td><td>156</td><td class="weight-medium">1.2</td><td>文脈情報</td></tr>
+        </table>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script type="module">
+        import { TextTo384LinesBridge } from './public/js/ai/TextTo384LinesBridge.js';
+        
+        async function analyzeVectors() {
+            const bridge = new TextTo384LinesBridge();
+            await bridge.initialize();
+            
+            // テストケース
+            const testCases = [
+                { text: "リーダーシップを発揮する", expectedPosition: 5 },
+                { text: "協力して進める", expectedPosition: 2 },
+                { text: "困難に直面する", expectedPosition: 3 },
+                { text: "変化の時期", expectedPosition: 4 },
+                { text: "完成に向けて", expectedPosition: 6 },
+                { text: "新しく始める", expectedPosition: 1 }
+            ];
+            
+            const results = {
+                vectorAnalysis: [],
+                similarityScores: [],
+                coverageImpact: {}
+            };
+            
+            // 各テストケースのベクトル分析
+            for (const testCase of testCases) {
+                const analysis = await bridge.performComprehensiveAnalysis(testCase.text);
+                const result = await bridge.analyzeText(testCase.text);
+                
+                results.vectorAnalysis.push({
+                    text: testCase.text,
+                    expected: testCase.expectedPosition,
+                    actual: result.line_position,
+                    vector: analysis.semantic_vectors,
+                    match: result.line_position === testCase.expectedPosition
+                });
+            }
+            
+            // カバー率への影響分析
+            const uniqueLines = new Set();
+            const testSamples = generateTestSamples();
+            
+            for (const sample of testSamples) {
+                const result = await bridge.analyzeText(sample);
+                const lineKey = `${result.hexagram_number}-${result.line_position}`;
+                uniqueLines.add(lineKey);
+            }
+            
+            results.coverageImpact = {
+                uniqueLines: uniqueLines.size,
+                coverageRate: ((uniqueLines.size / 384) * 100).toFixed(2)
+            };
+            
+            displayAnalysis(results);
+        }
+        
+        function generateTestSamples() {
+            // 簡易的な100サンプル生成
+            const templates = [
+                "新たな", "協力の", "困難な", "変化する", "完成した",
+                "リーダーとして", "チームで", "問題を", "転換期の", "最終的な"
+            ];
+            const nouns = [
+                "挑戦", "関係", "試練", "決断", "段階",
+                "責任", "作業", "局面", "選択", "結果"
+            ];
+            
+            const samples = [];
+            for (const template of templates) {
+                for (const noun of nouns) {
+                    samples.push(template + noun);
+                    if (samples.length >= 100) break;
+                }
+                if (samples.length >= 100) break;
+            }
+            return samples;
+        }
+        
+        function displayAnalysis(results) {
+            let html = '';
+            
+            // ベクトル精度分析
+            html += '<div class="analysis">';
+            html += '<h2>🎯 ベクトル精度分析</h2>';
+            
+            const matches = results.vectorAnalysis.filter(r => r.match).length;
+            const accuracy = ((matches / results.vectorAnalysis.length) * 100).toFixed(1);
+            
+            html += `<p>精度: ${accuracy}% (${matches}/${results.vectorAnalysis.length})</p>`;
+            html += '<table>';
+            html += '<tr><th>テキスト</th><th>期待位置</th><th>実際位置</th><th>判定</th></tr>';
+            
+            for (const item of results.vectorAnalysis) {
+                const matchClass = item.match ? 'weight-high' : 'weight-low';
+                const matchText = item.match ? '✅' : '❌';
+                html += '<tr>';
+                html += `<td>${item.text}</td>`;
+                html += `<td>${item.expected}爻</td>`;
+                html += `<td>${item.actual}爻</td>`;
+                html += `<td class="${matchClass}">${matchText}</td>`;
+                html += '</tr>';
+            }
+            html += '</table>';
+            html += '</div>';
+            
+            // カバー率分析
+            html += '<div class="analysis">';
+            html += '<h2>📈 カバー率への影響</h2>';
+            html += `<p>ユニーク爻数: ${results.coverageImpact.uniqueLines}個</p>`;
+            html += `<p>カバー率: ${results.coverageImpact.coverageRate}%</p>`;
+            html += '</div>';
+            
+            // 改善提案
+            html += '<div class="analysis">';
+            html += '<h2>💡 Day 4 改善提案</h2>';
+            html += '<h3>セグメント重み調整案</h3>';
+            html += '<ul>';
+            html += '<li><strong>Text (200-300)</strong>: 1.8 → 2.0（テキスト分析をさらに重視）</li>';
+            html += '<li><strong>Position (100-200)</strong>: 1.5 → 1.3（位置への依存を軽減）</li>';
+            html += '<li><strong>Context (500-656)</strong>: 1.2 → 1.5（文脈情報を強化）</li>';
+            html += '</ul>';
+            
+            html += '<h3>追加改善策</h3>';
+            html += '<ul>';
+            html += '<li>TF-IDF重みの動的調整</li>';
+            html += '<li>未使用爻への追加ボーナス（0.15→0.20）</li>';
+            html += '<li>使用頻度ペナルティの段階的強化</li>';
+            html += '<li>セグメント内での非線形変換強化</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            document.getElementById('results').innerHTML = html;
+        }
+        
+        analyzeVectors();
+    </script>
+</body>
+</html>

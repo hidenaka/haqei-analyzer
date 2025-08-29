@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Day 6 - 卦単位バランシング（Task 6-4）</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            padding: 20px; 
+            background: #1e1e1e; 
+            color: #d4d4d4;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        h1 { color: #4ec9b0; }
+        h2 { color: #569cd6; }
+        h3 { color: #dcdcaa; }
+        
+        .balance-section {
+            background: #2d2d30;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .hexagram-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            margin: 20px 0;
+        }
+        
+        .hexagram-cell {
+            background: #252526;
+            padding: 10px;
+            text-align: center;
+            border-radius: 3px;
+            position: relative;
+            min-height: 60px;
+        }
+        
+        .hexagram-cell.used {
+            background: #1a472a;
+            border: 1px solid #4ec9b0;
+        }
+        
+        .hexagram-cell.hot {
+            background: #5a1e1e;
+            border: 2px solid #f48771;
+        }
+        
+        .hexagram-id {
+            font-size: 0.8em;
+            color: #808080;
+        }
+        
+        .hexagram-name {
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+        
+        .hexagram-count {
+            font-weight: bold;
+            color: #4ec9b0;
+        }
+        
+        .heatmap-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #3c3c3c;
+        }
+        
+        th { background: #252526; }
+        
+        .chart-container {
+            margin: 20px 0;
+        }
+        
+        .distribution-bar {
+            height: 30px;
+            background: linear-gradient(to right, #4ec9b0, #569cd6);
+            border-radius: 3px;
+            margin: 5px 0;
+        }
+        
+        .good { color: #4ec9b0; }
+        .warning { color: #dcdcaa; }
+        .bad { color: #f48771; }
+    </style>
+</head>
+<body>
+    <h1>Day 6 - 卦単位バランシング（Task 6-4）</h1>
+    
+    <div id="analysis"></div>
+    
+    <script type="module">
+        // 64卦の基本データ
+        const hexagramNames = [
+            '乾為天', '坤為地', '水雷屯', '山水蒙', '水天需', '天水訟', '地水師', '水地比',
+            '風天小畜', '天澤履', '地天泰', '天地否', '天火同人', '火天大有', '地山謙', '雷地豫',
+            '澤雷随', '山風蠱', '地澤臨', '風地観', '火雷噬嗑', '山火賁', '山地剝', '地雷復',
+            '天雷無妄', '山天大畜', '山雷頤', '澤風大過', '坎為水', '離為火', '澤山咸', '雷風恒',
+            '天山遯', '雷天大壮', '火地晋', '地火明夷', '風火家人', '火澤睽', '水山蹇', '雷水解',
+            '山澤損', '風雷益', '澤天夬', '天風姤', '澤地萃', '地風升', '澤水困', '水風井',
+            '澤火革', '火風鼎', '震為雷', '艮為山', '風山漸', '雷澤帰妹', '雷火豊', '火山旅',
+            '巽為風', '兌為澤', '風水渙', '水澤節', '風澤中孚', '雷山小過', '水火既済', '火水未済'
+        ];
+        
+        async function analyzeHexagramBalance() {
+            // 動的にTextTo384LinesBridgeをロード
+            const script = document.createElement('script');
+            script.src = './public/js/ai/TextTo384LinesBridge.js';
+            await new Promise(resolve => {
+                script.onload = resolve;
+                document.head.appendChild(script);
+            });
+            
+            const bridge = new window.TextTo384LinesBridge();
+            await bridge.initialize();
+            
+            // 100個のテストサンプルで卦分布を測定
+            const testSamples = generateTestSamples();
+            
+            // 卦ごとの使用統計
+            const hexagramStats = {};
+            for (let i = 1; i <= 64; i++) {
+                hexagramStats[i] = {
+                    id: i,
+                    name: hexagramNames[i - 1],
+                    count: 0,
+                    positions: [0, 0, 0, 0, 0, 0, 0],
+                    lines: []
+                };
+            }
+            
+            let html = '';
+            
+            // テスト実行
+            html += '<div class="balance-section">';
+            html += '<h2>📊 卦単位での使用分布測定中...</h2>';
+            html += '<div id="progress"></div>';
+            html += '</div>';
+            
+            document.getElementById('analysis').innerHTML = html;
+            
+            for (let i = 0; i < testSamples.length; i++) {
+                const result = await bridge.analyzeText(testSamples[i]);
+                const hexagramId = result.hexagram_number;
+                const position = result.line_position;
+                
+                hexagramStats[hexagramId].count++;
+                hexagramStats[hexagramId].positions[position]++;
+                hexagramStats[hexagramId].lines.push(`${position}爻`);
+                
+                // プログレス更新
+                if (i % 10 === 0) {
+                    document.getElementById('progress').innerText = `${i + 1}/${testSamples.length} 完了`;
+                }
+            }
+            
+            // 分析結果の表示
+            html = '';
+            
+            // サマリー
+            html += '<div class="balance-section">';
+            html += '<h2>📈 卦単位バランシング分析結果</h2>';
+            
+            // 使用された卦の数
+            const usedHexagrams = Object.values(hexagramStats).filter(h => h.count > 0);
+            const unusedHexagrams = Object.values(hexagramStats).filter(h => h.count === 0);
+            
+            html += `<p>使用された卦: <span class="good">${usedHexagrams.length}/64</span>`;
+            html += ` (カバー率: ${((usedHexagrams.length / 64) * 100).toFixed(1)}%)</p>`;
+            html += `<p>未使用の卦: <span class="warning">${unusedHexagrams.length}個</span></p>`;
+            
+            html += '</div>';
+            
+            // ヒートマップ
+            html += '<div class="balance-section">';
+            html += '<h2>🗺️ 卦使用ヒートマップ</h2>';
+            
+            html += '<div class="heatmap-legend">';
+            html += '<div class="legend-item"><div class="legend-color" style="background: #252526;"></div><span>未使用</span></div>';
+            html += '<div class="legend-item"><div class="legend-color" style="background: #1a472a;"></div><span>使用済</span></div>';
+            html += '<div class="legend-item"><div class="legend-color" style="background: #5a1e1e;"></div><span>高頻度</span></div>';
+            html += '</div>';
+            
+            html += '<div class="hexagram-grid">';
+            for (let i = 1; i <= 64; i++) {
+                const stat = hexagramStats[i];
+                let className = 'hexagram-cell';
+                if (stat.count > 3) className += ' hot';
+                else if (stat.count > 0) className += ' used';
+                
+                html += `<div class="${className}">`;
+                html += `<div class="hexagram-id">#${i}</div>`;
+                html += `<div class="hexagram-name">${stat.name}</div>`;
+                if (stat.count > 0) {
+                    html += `<div class="hexagram-count">${stat.count}回</div>`;
+                }
+                html += '</div>';
+            }
+            html += '</div>';
+            html += '</div>';
+            
+            // ホットスポット（使用頻度が高い卦）
+            const hotspots = Object.values(hexagramStats)
+                .filter(h => h.count > 0)
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 10);
+            
+            html += '<div class="balance-section">';
+            html += '<h2>🔥 ホットスポット（高頻度卦 TOP10）</h2>';
+            html += '<table>';
+            html += '<tr><th>順位</th><th>卦番号</th><th>卦名</th><th>使用回数</th><th>主な爻</th></tr>';
+            
+            for (let i = 0; i < hotspots.length; i++) {
+                const h = hotspots[i];
+                const mainPosition = h.positions.indexOf(Math.max(...h.positions));
+                html += '<tr>';
+                html += `<td>${i + 1}</td>`;
+                html += `<td>#${h.id}</td>`;
+                html += `<td>${h.name}</td>`;
+                html += `<td class="${h.count > 3 ? 'bad' : 'warning'}">${h.count}回</td>`;
+                html += `<td>${mainPosition}爻が中心</td>`;
+                html += '</tr>';
+            }
+            html += '</table>';
+            html += '</div>';
+            
+            // コールドスポット（未使用または低頻度）
+            const coldspots = Object.values(hexagramStats)
+                .filter(h => h.count === 0)
+                .slice(0, 10);
+            
+            if (coldspots.length > 0) {
+                html += '<div class="balance-section">';
+                html += '<h2>❄️ コールドスポット（未使用卦）</h2>';
+                html += '<p>以下の卦が全く選択されていません：</p>';
+                html += '<div style="display: flex; flex-wrap: wrap; gap: 10px;">';
+                for (const h of coldspots) {
+                    html += `<div class="hexagram-cell">`;
+                    html += `<div class="hexagram-id">#${h.id}</div>`;
+                    html += `<div class="hexagram-name">${h.name}</div>`;
+                    html += '</div>';
+                }
+                if (unusedHexagrams.length > 10) {
+                    html += `<div style="padding: 20px;">他${unusedHexagrams.length - 10}個...</div>`;
+                }
+                html += '</div>';
+                html += '</div>';
+            }
+            
+            // 改善提案
+            html += '<div class="balance-section">';
+            html += '<h2>💡 卦単位バランシング改善提案</h2>';
+            
+            const avgUsage = testSamples.length / 64;
+            const overusedCount = Object.values(hexagramStats).filter(h => h.count > avgUsage * 2).length;
+            const underusedCount = unusedHexagrams.length;
+            
+            html += '<h3>現状の問題点</h3>';
+            html += '<ul>';
+            if (overusedCount > 5) {
+                html += `<li class="bad">過度に使用されている卦: ${overusedCount}個</li>`;
+            }
+            if (underusedCount > 20) {
+                html += `<li class="warning">未使用の卦が多すぎる: ${underusedCount}/64</li>`;
+            }
+            html += '</ul>';
+            
+            html += '<h3>推奨される調整</h3>';
+            html += '<ol>';
+            html += '<li>高頻度卦への追加ペナルティ実装</li>';
+            html += '<li>未使用卦への探索ボーナス増加</li>';
+            html += '<li>卦ごとのキーワード再配分</li>';
+            html += '<li>セマンティックベクトルの卦別調整</li>';
+            html += '</ol>';
+            
+            html += '</div>';
+            
+            document.getElementById('analysis').innerHTML = html;
+        }
+        
+        function generateTestSamples() {
+            // 多様なテストサンプルを生成
+            const samples = [];
+            
+            // カテゴリ別サンプル
+            const categories = {
+                beginning: ['新しい始まり', '開始', '着手', '立ち上げ', '創始'],
+                cooperation: ['協力関係', 'チーム作業', '連携', '共同作業', 'パートナーシップ'],
+                challenge: ['困難克服', '問題解決', '試練', '障害', '逆境'],
+                change: ['変化対応', '転換期', '移行', '調整', '適応'],
+                leadership: ['リーダーシップ', '統率', '指導', '管理', '責任'],
+                completion: ['完成段階', '終了', '達成', '結果', '完了'],
+                decision: ['決断', '判断', '選択', '決定', '方針'],
+                planning: ['計画', '戦略', '企画', '設計', '構想']
+            };
+            
+            for (const [category, words] of Object.entries(categories)) {
+                for (const word of words) {
+                    samples.push(word);
+                    // 組み合わせも追加
+                    if (samples.length < 100) {
+                        samples.push(word + 'について');
+                        samples.push(word + 'の時期');
+                    }
+                }
+            }
+            
+            // 100個になるまで追加のサンプル
+            const additionalWords = [
+                '成長', '発展', '安定', '調和', '創造', '革新', '改善', '最適化',
+                '分析', '評価', '検討', '実行', '展開', '推進', '促進', '強化'
+            ];
+            
+            while (samples.length < 100) {
+                const word = additionalWords[samples.length % additionalWords.length];
+                samples.push(word);
+            }
+            
+            return samples.slice(0, 100);
+        }
+        
+        analyzeHexagramBalance();
+    </script>
+</body>
+</html>

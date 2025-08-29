@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAQEI診断結果 - V3美しいデザイン版</title>
+    
+    <style>
+        /* ================================
+           Phase 2: Figmaライクな美しいデザイン
+           ================================ */
+        
+        /* CSS変数定義 */
+        :root {
+            /* カラーパレット */
+            --primary-blue: #3b82f6;
+            --primary-blue-dark: #2563eb;
+            --primary-blue-light: #60a5fa;
+            --primary-blue-bg: #eff6ff;
+            
+            --engine-red: #ef4444;
+            --engine-red-light: #fca5a5;
+            --engine-red-bg: #fef2f2;
+            
+            --interface-blue: #3b82f6;
+            --interface-blue-light: #93c5fd;
+            --interface-blue-bg: #eff6ff;
+            
+            --safemode-green: #10b981;
+            --safemode-green-light: #86efac;
+            --safemode-green-bg: #f0fdf4;
+            
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* 間隔 */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            --spacing-3xl: 4rem;
+            
+            /* 影 */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            
+            /* アニメーション */
+            --transition-fast: 150ms ease;
+            --transition-base: 250ms ease;
+            --transition-slow: 350ms ease;
+        }
+        
+        /* リセット & ベーススタイル */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
+            color: var(--gray-800);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        /* ヒーローセクション */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+            color: white;
+            padding: var(--spacing-3xl) var(--spacing-xl);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: var(--spacing-md);
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* コンテナ */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--spacing-xl);
+        }
+        
+        /* セクション */
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: var(--spacing-2xl);
+            margin-bottom: var(--spacing-2xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--gray-100);
+        }
+        
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-blue-light) 0%, var(--primary-blue) 100%);
+            color: white;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        
+        .section-subtitle {
+            font-size: 1rem;
+            color: var(--gray-500);
+            margin-top: var(--spacing-xs);
+        }
+        
+        /* サマリーカード */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, white 0%, var(--gray-50) 100%);
+            border-radius: 16px;
+            padding: var(--spacing-lg);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+        
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+        }
+        
+        .summary-card.engine::before {
+            background: linear-gradient(90deg, var(--engine-red) 0%, var(--engine-red-light) 100%);
+        }
+        
+        .summary-card.interface::before {
+            background: linear-gradient(90deg, var(--interface-blue) 0%, var(--interface-blue-light) 100%);
+        }
+        
+        .summary-card.safemode::before {
+            background: linear-gradient(90deg, var(--safemode-green) 0%, var(--safemode-green-light) 100%);
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--gray-200);
+        }
+        
+        .summary-card-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .summary-card-emoji {
+            font-size: 2rem;
+        }
+        
+        .summary-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+        
+        .summary-card-nickname {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .summary-card-element {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .summary-card-hexagram {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--gray-50);
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .summary-card-score {
+            display: inline-block;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        /* アコーディオン */
+        .accordion-container {
+            margin-top: var(--spacing-xl);
+        }
+        
+        .accordion-item {
+            background: white;
+            border: 2px solid var(--gray-100);
+            border-radius: 16px;
+            margin-bottom: var(--spacing-md);
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+        
+        .accordion-item:hover {
+            border-color: var(--gray-200);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .accordion-item.active {
+            border-color: var(--primary-blue-light);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .accordion-header {
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+            transition: background var(--transition-fast);
+            user-select: none;
+        }
+        
+        .accordion-header:hover {
+            background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-50) 100%);
+        }
+        
+        .accordion-title {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+        
+        .accordion-icon {
+            color: var(--gray-400);
+            transition: transform var(--transition-base);
+            font-size: 1.25rem;
+        }
+        
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+            color: var(--primary-blue);
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-slow);
+        }
+        
+        .accordion-item.active .accordion-content {
+            max-height: 2000px;
+        }
+        
+        .accordion-inner {
+            padding: var(--spacing-xl);
+            background: linear-gradient(180deg, white 0%, var(--gray-50) 100%);
+        }
+        
+        /* フィールドグループ */
+        .field-group {
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--gray-100);
+            transition: all var(--transition-fast);
+        }
+        
+        .field-group:hover {
+            border-color: var(--gray-200);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .field-label {
+            font-weight: 600;
+            color: var(--gray-500);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .field-value {
+            color: var(--gray-800);
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+        
+        /* 特殊ボックス */
+        .example-box {
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            padding: var(--spacing-lg);
+            border-left: 4px solid #fb923c;
+            border-radius: 8px;
+            margin: var(--spacing-md) 0;
+            position: relative;
+        }
+        
+        .example-box::before {
+            content: '💡';
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+            font-size: 1.5rem;
+            opacity: 0.5;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            padding: var(--spacing-lg);
+            border-left: 4px solid var(--engine-red);
+            border-radius: 8px;
+            margin: var(--spacing-md) 0;
+            position: relative;
+        }
+        
+        .warning-box::before {
+            content: '⚠️';
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+            font-size: 1.5rem;
+            opacity: 0.5;
+        }
+        
+        .tip-box {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            padding: var(--spacing-lg);
+            border-left: 4px solid var(--safemode-green);
+            border-radius: 8px;
+            margin: var(--spacing-md) 0;
+            position: relative;
+        }
+        
+        .tip-box::before {
+            content: '✨';
+            position: absolute;
+            top: var(--spacing-md);
+            right: var(--spacing-md);
+            font-size: 1.5rem;
+            opacity: 0.5;
+        }
+        
+        /* エネルギーレベル */
+        .energy-level {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: linear-gradient(135deg, var(--primary-blue-bg) 0%, white 100%);
+            border: 2px solid var(--primary-blue-light);
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--primary-blue-dark);
+        }
+        
+        .energy-level-bar {
+            display: flex;
+            gap: 2px;
+            margin-left: var(--spacing-sm);
+        }
+        
+        .energy-level-segment {
+            width: 24px;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 2px;
+            transition: background var(--transition-fast);
+        }
+        
+        .energy-level-segment.active {
+            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+        }
+        
+        /* バランス分析 */
+        .balance-container {
+            background: linear-gradient(135deg, var(--primary-blue-bg) 0%, white 100%);
+            border-radius: 20px;
+            padding: var(--spacing-2xl);
+            border: 2px solid var(--primary-blue-light);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .balance-container::before {
+            content: '⚖️';
+            position: absolute;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            font-size: 3rem;
+            opacity: 0.1;
+        }
+        
+        .balance-visual {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: var(--spacing-xl) 0;
+            padding: var(--spacing-xl);
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .balance-item {
+            text-align: center;
+        }
+        
+        .balance-percentage {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .balance-label {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin-top: var(--spacing-xs);
+        }
+        
+        /* OS別カラーテーマ */
+        .engine-theme {
+            --theme-color: var(--engine-red);
+            --theme-color-light: var(--engine-red-light);
+            --theme-color-bg: var(--engine-red-bg);
+        }
+        
+        .interface-theme {
+            --theme-color: var(--interface-blue);
+            --theme-color-light: var(--interface-blue-light);
+            --theme-color-bg: var(--interface-blue-bg);
+        }
+        
+        .safemode-theme {
+            --theme-color: var(--safemode-green);
+            --theme-color-light: var(--safemode-green-light);
+            --theme-color-bg: var(--safemode-green-bg);
+        }
+        
+        .os-section {
+            border-top: 4px solid var(--theme-color);
+        }
+        
+        .os-section .accordion-item {
+            border-color: var(--theme-color-light);
+        }
+        
+        .os-section .accordion-item.active {
+            background: var(--theme-color-bg);
+            box-shadow: 0 0 0 3px rgba(var(--theme-color), 0.1);
+        }
+        
+        .os-section .section-icon {
+            background: linear-gradient(135deg, var(--theme-color-light) 0%, var(--theme-color) 100%);
+        }
+        
+        /* メタファー表示 */
+        .metaphor-text {
+            font-style: italic;
+            color: var(--gray-600);
+            background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: 12px;
+            border-left: 3px solid var(--primary-blue);
+            position: relative;
+            quotes: "「" "」";
+        }
+        
+        .metaphor-text::before {
+            content: open-quote;
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            position: absolute;
+            left: var(--spacing-sm);
+            top: var(--spacing-xs);
+        }
+        
+        .metaphor-text::after {
+            content: close-quote;
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+            position: absolute;
+            right: var(--spacing-sm);
+            bottom: var(--spacing-xs);
+        }
+        
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 1.75rem;
+            }
+            
+            .container {
+                padding: var(--spacing-md);
+            }
+            
+            .section {
+                padding: var(--spacing-lg);
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .balance-visual {
+                flex-direction: column;
+                gap: var(--spacing-xl);
+            }
+        }
+        
+        /* アニメーション */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .section {
+            animation: slideIn 0.5s ease forwards;
+        }
+        
+        .section:nth-child(2) { animation-delay: 0.1s; }
+        .section:nth-child(3) { animation-delay: 0.2s; }
+        .section:nth-child(4) { animation-delay: 0.3s; }
+        .section:nth-child(5) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <!-- ヒーローセクション -->
+    <div class="hero-section">
+        <h1 class="hero-title">🎯 HAQEI Triple OS 完全分析レポート</h1>
+        <p class="hero-subtitle">あなたの個性を構成する3つのOSを徹底解析しました</p>
+    </div>
+    
+    <div class="container">
+        <!-- サマリーセクション -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <div>
+                    <h2 class="section-title">診断結果サマリー</h2>
+                    <p class="section-subtitle">あなたのTriple OS構成</p>
+                </div>
+            </div>
+            
+            <div class="summary-grid" id="summary-content">
+                <!-- サマリーカードがここに表示される -->
+            </div>
+        </div>
+        
+        <!-- Engine OS詳細 -->
+        <div class="section engine-theme os-section">
+            <div class="section-header">
+                <div class="section-icon">🚀</div>
+                <div>
+                    <h2 class="section-title">Engine OS - 原動力の詳細分析</h2>
+                    <p class="section-subtitle">あなたを突き動かす内なるエネルギー</p>
+                </div>
+            </div>
+            
+            <div class="accordion-container" id="engine-os-content">
+                <!-- Engine OSの詳細がここに表示される -->
+            </div>
+        </div>
+        
+        <!-- Interface OS詳細 -->
+        <div class="section interface-theme os-section">
+            <div class="section-header">
+                <div class="section-icon">💬</div>
+                <div>
+                    <h2 class="section-title">Interface OS - 人との関わり方の詳細分析</h2>
+                    <p class="section-subtitle">他者との関係性を築くあなたのスタイル</p>
+                </div>
+            </div>
+            
+            <div class="accordion-container" id="interface-os-content">
+                <!-- Interface OSの詳細がここに表示される -->
+            </div>
+        </div>
+        
+        <!-- SafeMode OS詳細 -->
+        <div class="section safemode-theme os-section">
+            <div class="section-header">
+                <div class="section-icon">🛡️</div>
+                <div>
+                    <h2 class="section-title">SafeMode OS - ストレス対処法の詳細分析</h2>
+                    <p class="section-subtitle">困難に直面した時のあなたの対処メカニズム</p>
+                </div>
+            </div>
+            
+            <div class="accordion-container" id="safemode-os-content">
+                <!-- SafeMode OSの詳細がここに表示される -->
+            </div>
+        </div>
+        
+        <!-- OSバランス分析 -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">⚖️</div>
+                <div>
+                    <h2 class="section-title">Triple OS バランス分析</h2>
+                    <p class="section-subtitle">3つのOSの調和とバランス状態</p>
+                </div>
+            </div>
+            
+            <div class="balance-container" id="balance-content">
+                <!-- バランス分析がここに表示される -->
+            </div>
+        </div>
+    </div>
+
+    <!-- V3データベース読み込み -->
+    <script src="public/js/data/hexagram-human-traits-v3.js"></script>
+    
+    <script>
+        // サンプルデータ
+        const userResult = {
+            engineOS: { hexagram: '天雷无妄', score: 82 },
+            interfaceOS: { hexagram: '坤為地', score: 75 },
+            safeModeOS: { hexagram: '水雷屯', score: 68 }
+        };
+        
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.HexagramHumanTraitsV3 === 'undefined') {
+                console.error('V3データベースが読み込まれていません');
+                return;
+            }
+            
+            const engineData = window.HexagramHumanTraitsV3[userResult.engineOS.hexagram];
+            const interfaceData = window.HexagramHumanTraitsV3[userResult.interfaceOS.hexagram];
+            const safeData = window.HexagramHumanTraitsV3[userResult.safeModeOS.hexagram];
+            
+            if (!engineData || !interfaceData || !safeData) {
+                console.error('データが見つかりません');
+                return;
+            }
+            
+            displaySummary(engineData, interfaceData, safeData);
+            displayEngineOS(engineData, userResult.engineOS.score);
+            displayInterfaceOS(interfaceData, userResult.interfaceOS.score);
+            displaySafeModeOS(safeData, userResult.safeModeOS.score);
+            displayBalance(engineData);
+        });
+        
+        // サマリー表示
+        function displaySummary(engine, inter, safe) {
+            const container = document.getElementById('summary-content');
+            container.innerHTML = `
+                <div class="summary-card engine">
+                    <div class="summary-card-header">
+                        <span class="summary-card-emoji">${engine.emoji}</span>
+                        <span class="summary-card-title">Engine OS</span>
+                    </div>
+                    <div class="summary-card-nickname">${engine.nickname}</div>
+                    <div class="summary-card-element">${engine.element}</div>
+                    <div class="summary-card-hexagram">
+                        <span>${userResult.engineOS.hexagram}</span>
+                        <span class="summary-card-score">${userResult.engineOS.score}%</span>
+                    </div>
+                </div>
+                
+                <div class="summary-card interface">
+                    <div class="summary-card-header">
+                        <span class="summary-card-emoji">${inter.emoji}</span>
+                        <span class="summary-card-title">Interface OS</span>
+                    </div>
+                    <div class="summary-card-nickname">${inter.nickname}</div>
+                    <div class="summary-card-element">${inter.element}</div>
+                    <div class="summary-card-hexagram">
+                        <span>${userResult.interfaceOS.hexagram}</span>
+                        <span class="summary-card-score">${userResult.interfaceOS.score}%</span>
+                    </div>
+                </div>
+                
+                <div class="summary-card safemode">
+                    <div class="summary-card-header">
+                        <span class="summary-card-emoji">${safe.emoji}</span>
+                        <span class="summary-card-title">SafeMode OS</span>
+                    </div>
+                    <div class="summary-card-nickname">${safe.nickname}</div>
+                    <div class="summary-card-element">${safe.element}</div>
+                    <div class="summary-card-hexagram">
+                        <span>${userResult.safeModeOS.hexagram}</span>
+                        <span class="summary-card-score">${userResult.safeModeOS.score}%</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Engine OS表示
+        function displayEngineOS(data, score) {
+            const container = document.getElementById('engine-os-content');
+            const os = data.asEngineOS;
+            
+            container.innerHTML = `
+                ${createAccordionItem('プロフィール', `
+                    <div class="field-group">
+                        <div class="field-label">タイプ</div>
+                        <div class="field-value">${os.profile.type}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">説明</div>
+                        <div class="field-value">${os.profile.description}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">メタファー</div>
+                        <div class="metaphor-text">${os.profile.metaphor}</div>
+                    </div>
+                `, true)}
+                
+                ${createAccordionItem('通常状態', `
+                    <div class="field-group">
+                        <div class="field-label">何が起きているか</div>
+                        <div class="field-value">${os.normalState.whatHappens}</div>
+                    </div>
+                    <div class="example-box">
+                        <strong>例:</strong> ${os.normalState.example}
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">エネルギーレベル</div>
+                        <div class="energy-level">
+                            ${os.normalState.energyLevel}
+                            ${createEnergyBar(os.normalState.energyLevel)}
+                        </div>
+                    </div>
+                `)}
+                
+                ${createAccordionItem('スーパーモード', `
+                    <div class="field-group">
+                        <div class="field-label">発動条件</div>
+                        <div class="field-value">${os.superMode.when}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">何が起きるか</div>
+                        <div class="field-value">${os.superMode.whatHappens}</div>
+                    </div>
+                    <div class="example-box">
+                        <strong>例:</strong> ${os.superMode.example}
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">エネルギーレベル</div>
+                        <div class="energy-level">
+                            ${os.superMode.energyLevel}
+                            ${createEnergyBar(os.superMode.energyLevel)}
+                        </div>
+                    </div>
+                `)}
+                
+                ${createAccordionItem('休息モード', `
+                    <div class="field-group">
+                        <div class="field-label">休息時の状態</div>
+                        <div class="field-value">${os.restMode.whatHappens}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">休み方</div>
+                        <div class="field-value">${os.restMode.howToRest}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">注意点</div>
+                        <div class="field-value">${os.restMode.note}</div>
+                    </div>
+                `)}
+                
+                ${createAccordionItem('メンテナンス', `
+                    <div class="field-group">
+                        <div class="field-label">必要なもの</div>
+                        <div class="field-value">${os.maintenance.whatYouNeed}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">充電方法</div>
+                        <div class="field-value">${os.maintenance.howToCharge}</div>
+                    </div>
+                    <div class="warning-box">
+                        <strong>警告:</strong> ${os.maintenance.warning}
+                    </div>
+                    <div class="tip-box">
+                        <strong>ヒント:</strong> ${os.maintenance.tip}
+                    </div>
+                `)}
+            `;
+        }
+        
+        // Interface OS表示
+        function displayInterfaceOS(data, score) {
+            const container = document.getElementById('interface-os-content');
+            const os = data.asInterfaceOS;
+            
+            container.innerHTML = `
+                ${createAccordionItem('プロフィール', `
+                    <div class="field-group">
+                        <div class="field-label">タイプ</div>
+                        <div class="field-value">${os.profile.type}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">説明</div>
+                        <div class="field-value">${os.profile.description}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">メタファー</div>
+                        <div class="metaphor-text">${os.profile.metaphor}</div>
+                    </div>
+                `, true)}
+                
+                ${createAccordionItem('コミュニケーション方法', `
+                    <div class="field-group">
+                        <div class="field-label">スタイル</div>
+                        <div class="field-value">${os.howToTalk.style}</div>
+                    </div>
+                    <div class="example-box">
+                        <strong>例:</strong> ${os.howToTalk.example}
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">得意なこと</div>
+                        <div class="field-value">${os.howToTalk.goodAt}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">苦手なこと</div>
+                        <div class="field-value">${os.howToTalk.notGoodAt}</div>
+                    </div>
+                `)}
+                
+                ${createAccordionItem('最適な環境', `
+                    <div class="field-group">
+                        <div class="field-label">理想的な環境</div>
+                        <div class="field-value">${os.bestEnvironment.where}</div>
+                    </div>
+                    <div class="example-box">
+                        <strong>例:</strong> ${os.bestEnvironment.example}
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">相性の良い人</div>
+                        <div class="field-value">${os.bestEnvironment.withWho}</div>
+                    </div>
+                    <div class="warning-box">
+                        <strong>避けるべき環境:</strong> ${os.bestEnvironment.avoid}
+                    </div>
+                `)}
+                
+                ${createAccordionItem('関係性のヒント', `
+                    <div class="field-group">
+                        <div class="field-label">強み</div>
+                        <div class="field-value">${os.relationshipTips.strength}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">弱み</div>
+                        <div class="field-value">${os.relationshipTips.weakness}</div>
+                    </div>
+                    <div class="tip-box">
+                        <strong>アドバイス:</strong> ${os.relationshipTips.advice}
+                    </div>
+                `)}
+            `;
+        }
+        
+        // SafeMode OS表示
+        function displaySafeModeOS(data, score) {
+            const container = document.getElementById('safemode-os-content');
+            const os = data.asSafeModeOS;
+            
+            container.innerHTML = `
+                ${createAccordionItem('プロフィール', `
+                    <div class="field-group">
+                        <div class="field-label">タイプ</div>
+                        <div class="field-value">${os.profile.type}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">説明</div>
+                        <div class="field-value">${os.profile.description}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">メタファー</div>
+                        <div class="metaphor-text">${os.profile.metaphor}</div>
+                    </div>
+                `, true)}
+                
+                ${createAccordionItem('ストレス反応', `
+                    <div class="field-group">
+                        <div class="field-label">ストレス時の行動</div>
+                        <div class="field-value">${os.stressResponse.whatYouDo}</div>
+                    </div>
+                    <div class="example-box">
+                        <strong>例:</strong> ${os.stressResponse.example}
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">良い点</div>
+                        <div class="field-value">${os.stressResponse.goodPoint}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">注意点</div>
+                        <div class="field-value">${os.stressResponse.badPoint}</div>
+                    </div>
+                `)}
+                
+                ${createAccordionItem('緊急モード', `
+                    <div class="field-group">
+                        <div class="field-label">緊急時の反応</div>
+                        <div class="field-value">${os.emergencyMode.whatHappens}</div>
+                    </div>
+                    <div class="example-box">
+                        <strong>例:</strong> ${os.emergencyMode.example}
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">回復方法</div>
+                        <div class="field-value">${os.emergencyMode.recovery}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">回復時間</div>
+                        <div class="field-value">${os.emergencyMode.timeToRecover}</div>
+                    </div>
+                `)}
+                
+                ${createAccordionItem('回復方法', `
+                    <div class="field-group">
+                        <div class="field-label">最良の回復方法</div>
+                        <div class="field-value">${os.howToRecover.bestWay}</div>
+                    </div>
+                    <div class="example-box">
+                        <strong>例:</strong> ${os.howToRecover.example}
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">理想的な環境</div>
+                        <div class="field-value">${os.howToRecover.environment}</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label">必要なサポート</div>
+                        <div class="field-value">${os.howToRecover.support}</div>
+                    </div>
+                `)}
+            `;
+        }
+        
+        // バランス分析表示
+        function displayBalance(data) {
+            const container = document.getElementById('balance-content');
+            const balance = data.osBalance;
+            
+            // バランスのパーセンテージを抽出
+            const matches = balance.idealBalance.match(/(\d+)%/g);
+            const percentages = matches ? matches.map(m => parseInt(m)) : [60, 25, 15];
+            
+            container.innerHTML = `
+                <div class="balance-visual">
+                    <div class="balance-item">
+                        <div class="balance-percentage">${percentages[0]}%</div>
+                        <div class="balance-label">Engine OS</div>
+                    </div>
+                    <div class="balance-item">
+                        <div class="balance-percentage">${percentages[1]}%</div>
+                        <div class="balance-label">Interface OS</div>
+                    </div>
+                    <div class="balance-item">
+                        <div class="balance-percentage">${percentages[2]}%</div>
+                        <div class="balance-label">SafeMode OS</div>
+                    </div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-label">理想的なバランス</div>
+                    <div class="field-value" style="font-size: 1.2rem; font-weight: bold;">${balance.idealBalance}</div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-label">バランスが取れている時</div>
+                    <div class="field-value">${balance.whenBalanced}</div>
+                </div>
+                
+                <div class="field-group">
+                    <div class="field-label">バランスが崩れている時</div>
+                    <div class="field-value">${balance.whenImbalanced}</div>
+                </div>
+                
+                <div class="tip-box">
+                    <strong>ヒント:</strong> ${balance.tip}
+                </div>
+            `;
+        }
+        
+        // アコーディオンアイテム作成
+        function createAccordionItem(title, content, isOpen = false) {
+            return `
+                <div class="accordion-item ${isOpen ? 'active' : ''}">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <div class="accordion-title">${title}</div>
+                        <span class="accordion-icon">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-inner">
+                            ${content}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // エネルギーバー作成
+        function createEnergyBar(energyText) {
+            const batteryCount = (energyText.match(/🔋/g) || []).length;
+            let html = '<div class="energy-level-bar">';
+            for (let i = 0; i < 5; i++) {
+                html += `<div class="energy-level-segment ${i < batteryCount ? 'active' : ''}"></div>`;
+            }
+            html += '</div>';
+            return html;
+        }
+        
+        // アコーディオン切り替え
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            item.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

@@ -12,15 +12,15 @@ import { chromium } from 'playwright';
   console.log('3. 意味的妥当性: 選ばれた爻がテキストと意味的に一致するか\n');
   
   try {
-    await page.goto('http://localhost:8080/test/384-accuracy/test-384-accuracy-final.html', {
+    await page.goto('http://localhost:8089/test/384-accuracy/test-384-accuracy-final.html', {
       waitUntil: 'domcontentloaded'
     });
     
     await page.waitForTimeout(2000);
     
     const testResults = await page.evaluate(async () => {
-      // TextTo384LinesBridgeを初期化
-      const bridge = new TextTo384LinesBridge();
+      // TextTo384LinesBridgeを初期化 - window経由でアクセス
+      const bridge = new window.TextTo384LinesBridge();
       await bridge.initialize();
       
       // Test 1: 一貫性テスト

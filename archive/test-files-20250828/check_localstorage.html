@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LocalStorage Check</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .data-item { margin: 10px; padding: 10px; border: 1px solid #ddd; }
+        .key { font-weight: bold; color: #3b82f6; }
+        pre { background: #f0f9ff; padding: 10px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>LocalStorage データ確認</h1>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        // localStorageのすべてのキーを取得
+        const keys = Object.keys(localStorage);
+        
+        if (keys.length === 0) {
+            output.innerHTML = '<p>LocalStorageにデータがありません</p>';
+        } else {
+            keys.forEach(key => {
+                if (key.includes('haqei')) {
+                    const div = document.createElement('div');
+                    div.className = 'data-item';
+                    
+                    const value = localStorage.getItem(key);
+                    let displayValue = value;
+                    
+                    try {
+                        const parsed = JSON.parse(value);
+                        displayValue = JSON.stringify(parsed, null, 2);
+                    } catch (e) {
+                        // JSONでない場合はそのまま表示
+                    }
+                    
+                    div.innerHTML = `
+                        <div class="key">${key}</div>
+                        <pre>${displayValue.substring(0, 500)}${displayValue.length > 500 ? '...' : ''}</pre>
+                        <small>データサイズ: ${value.length} 文字</small>
+                    `;
+                    
+                    output.appendChild(div);
+                }
+            });
+        }
+        
+        // テストデータを生成して保存
+        const testBtn = document.createElement('button');
+        testBtn.textContent = 'テストデータを生成';
+        testBtn.style.padding = '10px 20px';
+        testBtn.style.marginTop = '20px';
+        testBtn.style.background = '#3b82f6';
+        testBtn.style.color = 'white';
+        testBtn.style.border = 'none';
+        testBtn.style.borderRadius = '8px';
+        testBtn.style.cursor = 'pointer';
+        
+        testBtn.onclick = function() {
+            const testData = {
+                engineOS: {
+                    name: 'クリエイティブ・エンジン',
+                    score: 85,
+                    hexagram: { symbol: '☰', name: '乾为天', number: 1 },
+                    traits: ['創造的', 'リーダーシップ', '革新的', '独立心'],
+                    description: 'あなたの内なる創造性とリーダーシップの源泉。新しいアイデアを生み出し、変革を推進する力。'
+                },
+                interfaceOS: {
+                    name: 'ハーモニー・インターフェース',
+                    score: 78,
+                    hexagram: { symbol: '☱', name: '兌为泽', number: 58 },
+                    traits: ['協調的', 'コミュニケーション', '楽観的', '柔軟性'],
+                    description: '人との調和を重視し、円滑なコミュニケーションを実現する社会的な側面。'
+                },
+                safeModeOS: {
+                    name: 'セキュリティ・ガーディアン',
+                    score: 72,
+                    hexagram: { symbol: '☷', name: '坤为地', number: 2 },
+                    traits: ['安定志向', '慎重', '保守的', '支援的'],
+                    description: '心の安全を守り、リスクを管理する防御的な側面。安定した基盤を提供。'
+                },
+                timestamp: new Date().toISOString(),
+                version: '2.0'
+            };
+            
+            localStorage.setItem('haqei_analyzer_analysis_result', JSON.stringify(testData));
+            alert('テストデータを保存しました。ページをリロードしてください。');
+            location.reload();
+        };
+        
+        document.body.appendChild(testBtn);
+    </script>
+</body>
+</html>

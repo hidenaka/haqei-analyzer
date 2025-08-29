@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HaQei統一CSS デザイン候補</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .design-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .design-candidate {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .design-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid;
+        }
+        
+        .design-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .mock-container {
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .mock-card {
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid;
+        }
+        
+        .mock-header {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .mock-content {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .mock-section {
+            border-radius: 8px;
+            padding: 12px;
+            margin: 8px 0;
+            font-size: 0.85rem;
+        }
+        
+        .color-palette {
+            display: flex;
+            gap: 8px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        
+        .color-swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* 候補1: Vercel Style - モノクロ＋アクセント */
+        .vercel-style {
+            background: #000;
+            color: white;
+        }
+        
+        .vercel-style .design-title {
+            color: white;
+            border-color: #0070f3;
+        }
+        
+        .vercel-style .mock-container {
+            background: #111;
+        }
+        
+        .vercel-style .mock-card {
+            background: #1a1a1a;
+            border-color: #0070f3;
+            color: white;
+        }
+        
+        .vercel-style .mock-header {
+            color: #0070f3;
+        }
+        
+        .vercel-style .mock-section {
+            background: #222;
+            color: #e5e5e5;
+        }
+        
+        /* 候補2: Linear Style - 紫グラデーション */
+        .linear-style .design-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-color: #667eea;
+        }
+        
+        .linear-style .mock-container {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .linear-style .mock-card {
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+        
+        .linear-style .mock-header {
+            color: #5a67d8;
+        }
+        
+        .linear-style .mock-section {
+            background: linear-gradient(135deg, #667eea10, #764ba210);
+            color: #4a5568;
+        }
+        
+        /* 候補3: Tailwind Style - 緑青系 */
+        .tailwind-style .design-title {
+            color: #059669;
+            border-color: #10b981;
+        }
+        
+        .tailwind-style .mock-container {
+            background: #ecfdf5;
+        }
+        
+        .tailwind-style .mock-card {
+            background: white;
+            border-color: #10b981;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.1);
+        }
+        
+        .tailwind-style .mock-header {
+            color: #047857;
+        }
+        
+        .tailwind-style .mock-section {
+            background: #f0fdf4;
+            color: #374151;
+            border: 1px solid #bbf7d0;
+        }
+        
+        /* 候補4: Stripe Style - 青紫系 */
+        .stripe-style .design-title {
+            color: #635bff;
+            border-color: #635bff;
+        }
+        
+        .stripe-style .mock-container {
+            background: #f7f9fc;
+        }
+        
+        .stripe-style .mock-card {
+            background: white;
+            border-color: #635bff;
+            box-shadow: 0 6px 16px rgba(99, 91, 255, 0.12);
+        }
+        
+        .stripe-style .mock-header {
+            color: #424770;
+        }
+        
+        .stripe-style .mock-section {
+            background: #f6f9fc;
+            color: #525f7f;
+            border: 1px solid #e6ebf1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 HaQei 統一CSS デザイン候補</h1>
+        
+        <div class="design-grid">
+            <!-- 候補1: Vercel Style -->
+            <div class="design-candidate vercel-style">
+                <h2 class="design-title">候補1: Vercel Style</h2>
+                <p class="design-desc">モダンでミニマル。黒背景に青アクセント。開発者向けサービスで人気</p>
+                
+                <div class="color-palette">
+                    <div class="color-swatch" style="background: #000;"></div>
+                    <div class="color-swatch" style="background: #0070f3;"></div>
+                    <div class="color-swatch" style="background: #111;"></div>
+                    <div class="color-swatch" style="background: #e5e5e5;"></div>
+                </div>
+                
+                <div class="mock-container">
+                    <div class="mock-card">
+                        <div class="mock-header">🚀 Engine OS - 革新追求エンジン</div>
+                        <div class="mock-content">
+                            常に『もっと良い方法はないか？』を追い求める
+                            <div class="mock-section">
+                                普段のあなた: 頭の中で常に新しいアイデアが生まれている
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mock-card">
+                        <div class="mock-header">🤝 Interface OS - ビジョナリーリーダー型</div>
+                        <div class="mock-content">
+                            『こちらに向かおう』と明確な方向性を示すタイプ
+                            <div class="mock-section">
+                                話し方: ストレートかつビジョナリー
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 候補2: Linear Style -->
+            <div class="design-candidate linear-style">
+                <h2 class="design-title">候補2: Linear Style</h2>
+                <p class="design-desc">美しいグラデーション。紫系でエレガント。プロダクト管理ツールで人気</p>
+                
+                <div class="color-palette">
+                    <div class="color-swatch" style="background: #667eea;"></div>
+                    <div class="color-swatch" style="background: #764ba2;"></div>
+                    <div class="color-swatch" style="background: #5a67d8;"></div>
+                    <div class="color-swatch" style="background: #f5f7fa;"></div>
+                </div>
+                
+                <div class="mock-container">
+                    <div class="mock-card">
+                        <div class="mock-header">🚀 Engine OS - 革新追求エンジン</div>
+                        <div class="mock-content">
+                            常に『もっと良い方法はないか？』を追い求める
+                            <div class="mock-section">
+                                普段のあなた: 頭の中で常に新しいアイデアが生まれている
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mock-card">
+                        <div class="mock-header">🤝 Interface OS - ビジョナリーリーダー型</div>
+                        <div class="mock-content">
+                            『こちらに向かおう』と明確な方向性を示すタイプ
+                            <div class="mock-section">
+                                話し方: ストレートかつビジョナリー
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 候補3: Tailwind Style -->
+            <div class="design-candidate tailwind-style">
+                <h2 class="design-title">候補3: Tailwind Style</h2>
+                <p class="design-desc">フレッシュな緑青系。ナチュラルで親しみやすい。成長感のあるブランドに最適</p>
+                
+                <div class="color-palette">
+                    <div class="color-swatch" style="background: #059669;"></div>
+                    <div class="color-swatch" style="background: #10b981;"></div>
+                    <div class="color-swatch" style="background: #047857;"></div>
+                    <div class="color-swatch" style="background: #ecfdf5;"></div>
+                </div>
+                
+                <div class="mock-container">
+                    <div class="mock-card">
+                        <div class="mock-header">🚀 Engine OS - 革新追求エンジン</div>
+                        <div class="mock-content">
+                            常に『もっと良い方法はないか？』を追い求める
+                            <div class="mock-section">
+                                普段のあなた: 頭の中で常に新しいアイデアが生まれている
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mock-card">
+                        <div class="mock-header">🤝 Interface OS - ビジョナリーリーダー型</div>
+                        <div class="mock-content">
+                            『こちらに向かおう』と明確な方向性を示すタイプ
+                            <div class="mock-section">
+                                話し方: ストレートかつビジョナリー
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 候補4: Stripe Style -->
+            <div class="design-candidate stripe-style">
+                <h2 class="design-title">候補4: Stripe Style</h2>
+                <p class="design-desc">洗練された青紫系。信頼性と先進性を兼ね備えた金融系デザイン</p>
+                
+                <div class="color-palette">
+                    <div class="color-swatch" style="background: #635bff;"></div>
+                    <div class="color-swatch" style="background: #424770;"></div>
+                    <div class="color-swatch" style="background: #525f7f;"></div>
+                    <div class="color-swatch" style="background: #f7f9fc;"></div>
+                </div>
+                
+                <div class="mock-container">
+                    <div class="mock-card">
+                        <div class="mock-header">🚀 Engine OS - 革新追求エンジン</div>
+                        <div class="mock-content">
+                            常に『もっと良い方法はないか？』を追い求める
+                            <div class="mock-section">
+                                普段のあなた: 頭の中で常に新しいアイデアが生まれている
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mock-card">
+                        <div class="mock-header">🤝 Interface OS - ビジョナリーリーダー型</div>
+                        <div class="mock-content">
+                            『こちらに向かおう』と明確な方向性を示すタイプ
+                            <div class="mock-section">
+                                話し方: ストレートかつビジョナリー
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 詳細スタイル比較 -->
+        <div style="background: white; border-radius: 16px; padding: 30px; margin-top: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+            <h2 style="text-align: center; color: #1e293b; margin-bottom: 30px;">📊 詳細比較表</h2>
+            
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e2e8f0;">
+                        <th style="text-align: left; padding: 15px; color: #374151;">特徴</th>
+                        <th style="text-align: center; padding: 15px; color: #374151;">Vercel</th>
+                        <th style="text-align: center; padding: 15px; color: #374151;">Linear</th>
+                        <th style="text-align: center; padding: 15px; color: #374151;">Tailwind</th>
+                        <th style="text-align: center; padding: 15px; color: #374151;">Stripe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px; font-weight: 500;">印象</td>
+                        <td style="padding: 12px; text-align: center;">モダン・クール</td>
+                        <td style="padding: 12px; text-align: center;">エレガント・美しい</td>
+                        <td style="padding: 12px; text-align: center;">フレッシュ・親しみやすい</td>
+                        <td style="padding: 12px; text-align: center;">洗練・信頼感</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px; font-weight: 500;">ユーザー層</td>
+                        <td style="padding: 12px; text-align: center;">開発者・テック系</td>
+                        <td style="padding: 12px; text-align: center;">デザイナー・クリエイター</td>
+                        <td style="padding: 12px; text-align: center;">一般ユーザー・若年層</td>
+                        <td style="padding: 12px; text-align: center;">ビジネス・プロフェッショナル</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px; font-weight: 500;">視認性</td>
+                        <td style="padding: 12px; text-align: center;">高コントラスト</td>
+                        <td style="padding: 12px; text-align: center;">柔らかい</td>
+                        <td style="padding: 12px; text-align: center;">明るく読みやすい</td>
+                        <td style="padding: 12px; text-align: center;">バランス良好</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px; font-weight: 500;">トレンド</td>
+                        <td style="padding: 12px; text-align: center;">🔥 2024年最新</td>
+                        <td style="padding: 12px; text-align: center;">🎨 デザイン業界人気</td>
+                        <td style="padding: 12px; text-align: center;">🌱 成長中ブランド</td>
+                        <td style="padding: 12px; text-align: center;">💼 金融・SaaS定番</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 12px; font-weight: 500;">HaQei適合度</td>
+                        <td style="padding: 12px; text-align: center;">⭐⭐⭐⭐ (革新性)</td>
+                        <td style="padding: 12px; text-align: center;">⭐⭐⭐⭐⭐ (美しさ)</td>
+                        <td style="padding: 12px; text-align: center;">⭐⭐⭐⭐⭐ (親しみやすさ)</td>
+                        <td style="padding: 12px; text-align: center;">⭐⭐⭐⭐ (信頼性)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px; padding: 20px; background: #f1f5f9; border-radius: 12px;">
+            <h3 style="color: #374151; margin-bottom: 10px;">💡 推奨</h3>
+            <p style="color: #64748b; margin: 0;">個人的には<strong>Linear Style（候補2）</strong>または<strong>Tailwind Style（候補3）</strong>がHaQeiの世界観に最も適していると思います。どちらがお好みでしょうか？</p>
+        </div>
+    </div>
+</body>
+</html>

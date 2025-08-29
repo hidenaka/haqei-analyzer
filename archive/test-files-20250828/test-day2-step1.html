@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Day 2 Step 1 - 第1弾キーワード効果測定</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            padding: 20px; 
+            background: #1e1e1e; 
+            color: #d4d4d4; 
+        }
+        h1 { color: #4ec9b0; }
+        .summary { 
+            background: #2d2d30; 
+            padding: 15px; 
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .good { color: #4ec9b0; }
+        .warning { color: #dcdcaa; }
+        .bad { color: #f48771; }
+        .result {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        .yao5 { 
+            background: #1e3a1e; 
+            color: #4ec9b0; 
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #3c3c3c;
+        }
+        th {
+            background: #252526;
+        }
+    </style>
+</head>
+<body>
+    <h1>Day 2 Step 1 - 第1弾キーワード効果測定</h1>
+    <div class="summary">
+        <p>追加キーワード: 司令, 総括, 采配, 裁量, 決裁, 施策, 運営, 制御, 調整, 権限</p>
+        <p>合計キーワード数: 35個（25個→35個）</p>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script type="module">
+        import { TextTo384LinesBridge } from './public/js/ai/TextTo384LinesBridge.js';
+        
+        const testSamples = [
+            // 基本的な5爻テスト
+            "リーダーシップを発揮する",
+            "経営判断を下す時期",
+            "統率力が求められる",
+            "管理責任を果たす",
+            "最終決定を行う",
+            
+            // 新キーワードテスト
+            "司令塔として指示を出す",
+            "総括的な視点で判断",
+            "采配を振るう時期",
+            "裁量権を行使する",
+            "決裁権限を持つ",
+            "新たな施策を実行",
+            "組織の運営を担う",
+            "全体を制御する立場",
+            "各部署の調整役",
+            "権限を委譲する",
+            
+            // 混合テスト
+            "リーダーとして采配を振るう",
+            "経営者として決裁する",
+            "総括的な管理責任",
+            "施策の最終判断",
+            "権限を持って制御する",
+            
+            // コントロール（他の爻）
+            "新しい挑戦を始める",
+            "協力関係を築く",
+            "困難に直面する",
+            "変化の時期",
+            "完成に向けて仕上げる"
+        ];
+        
+        async function runTest() {
+            const bridge = new TextTo384LinesBridge();
+            await bridge.initialize();
+            
+            const results = {
+                total: testSamples.length,
+                yao5Count: 0,
+                positions: [0, 0, 0, 0, 0, 0, 0],
+                details: []
+            };
+            
+            for (const text of testSamples) {
+                const result = await bridge.analyzeText(text);
+                results.positions[result.line_position]++;
+                if (result.line_position === 5) {
+                    results.yao5Count++;
+                }
+                results.details.push({
+                    text: text,
+                    position: result.line_position,
+                    hexagram: result.hexagram_number
+                });
+            }
+            
+            displayResults(results);
+        }
+        
+        function displayResults(results) {
+            const rate = ((results.yao5Count / results.total) * 100).toFixed(1);
+            const rateClass = parseFloat(rate) >= 5 ? 'good' : 
+                             parseFloat(rate) >= 2 ? 'warning' : 'bad';
+            
+            let html = `<div class="summary">`;
+            html += `<h2 class="${rateClass}">5爻選択率: ${rate}% (${results.yao5Count}/${results.total})</h2>`;
+            html += `<p>目標: 2-3% → 実際: ${rate}%</p>`;
+            html += `</div>`;
+            
+            // 位置別分布
+            html += `<h3>位置別分布</h3>`;
+            html += `<table>`;
+            html += `<tr><th>位置</th><th>回数</th><th>割合</th></tr>`;
+            for (let i = 1; i <= 6; i++) {
+                const count = results.positions[i];
+                const percent = ((count / results.total) * 100).toFixed(1);
+                const rowClass = i === 5 ? 'yao5' : '';
+                html += `<tr class="${rowClass}">`;
+                html += `<td>${i}爻</td>`;
+                html += `<td>${count}</td>`;
+                html += `<td>${percent}%</td>`;
+                html += `</tr>`;
+            }
+            html += `</table>`;
+            
+            // 詳細結果
+            html += `<h3>詳細結果</h3>`;
+            html += `<table>`;
+            html += `<tr><th>テキスト</th><th>位置</th><th>卦</th></tr>`;
+            for (const detail of results.details) {
+                const rowClass = detail.position === 5 ? 'yao5' : '';
+                html += `<tr class="${rowClass}">`;
+                html += `<td>${detail.text}</td>`;
+                html += `<td>${detail.position}爻</td>`;
+                html += `<td>${detail.hexagram}</td>`;
+                html += `</tr>`;
+            }
+            html += `</table>`;
+            
+            // 評価
+            html += `<div class="summary">`;
+            html += `<h3>評価</h3>`;
+            if (parseFloat(rate) >= 2) {
+                html += `<p class="good">✅ 第1弾キーワード追加により改善が見られます</p>`;
+                html += `<p>次のステップ: 第2弾キーワード追加でさらに改善</p>`;
+            } else {
+                html += `<p class="warning">⚠️ まだ改善が不十分です</p>`;
+                html += `<p>次のステップ: 位置重みの調整も必要</p>`;
+            }
+            html += `</div>`;
+            
+            document.getElementById('results').innerHTML = html;
+            
+            console.log('テスト結果:', results);
+        }
+        
+        runTest();
+    </script>
+</body>
+</html>
