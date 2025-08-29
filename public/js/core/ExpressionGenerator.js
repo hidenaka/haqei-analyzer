@@ -11,9 +11,9 @@
         constructor(options = {}) {
             
     // v4.3.1 決定論的要件: SeedableRandom統合
-    this.rng = options.randomnessManager || window.randomnessManager || {
-        next: () => Math.random(),
-        random: () => Math.random()
+    this.rng = options.randomnessManager || window.randomnessManager || window.seedableRandom || {
+        next: () => 0.5,
+        random: () => 0.5
     };
     this.version = '1.0';
             console.log('📝 ExpressionGenerator v1.0 initialized');

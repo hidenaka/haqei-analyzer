@@ -24,7 +24,7 @@ window.saveFuturePathsContract = async function(scenarios) {
                 rationale: scenario.rationale || '',
                 milestones: scenario.milestones || ['Step 1', 'Step 2', 'Step 3']
             })),
-            created_at: new Date().toISOString()
+            createdAt: new Date().toISOString()
         };
         
         // DataPersistenceManagerのインスタンスを取得または作成

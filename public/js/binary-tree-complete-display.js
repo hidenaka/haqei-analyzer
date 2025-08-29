@@ -842,9 +842,10 @@ window.BinaryTreeCompleteDisplay = {
         const path = [];
         const endpoint = branchingData.phase4[endpointIndex];
         
-        // 確率から基本スコアを計算
+        // 確率から基本スコアを計算（決定論RNG使用）
         const calculateScore = (probability) => {
-            const randomFactor = (this.rng && this.rng.next) ? this.rng.next() : Math.random();
+            const rng = window.seedableRandom || this.rng || { next: () => 0.5 }; // フォールバック
+            const randomFactor = rng.next();
             return Math.max(10, Math.min(100, probability * 100 + randomFactor * 20 - 10));
         };
         

@@ -11,8 +11,8 @@ class HandoffManager {
     constructor(options = {}) {
         
     // v4.3.1 決定論的要件: SeedableRandom統合
-    this.rng = options.randomnessManager || window.randomnessManager || 
-               { next: () => Math.random() }; // フォールバック実装
+    this.rng = options.randomnessManager || window.randomnessManager || window.seedableRandom ||
+               { next: () => 0.5 }; // 決定論的フォールバック実装
     this.payload = null;
         this.destination = null;
         this.handoffId = null;

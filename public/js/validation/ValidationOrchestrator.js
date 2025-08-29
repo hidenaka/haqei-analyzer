@@ -9,7 +9,7 @@
  */
 
 class ValidationOrchestrator {
-    constructor() {
+    constructor(options = {}) {
         
     // v4.3.1 決定論的要件: SeedableRandom統合
     this.rng = options.randomnessManager || window.randomnessManager || 
