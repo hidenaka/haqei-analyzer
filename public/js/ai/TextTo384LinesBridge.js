@@ -476,6 +476,11 @@ class AdvancedJapaneseAnalyzer {
         return hash;
     }
 
+    // Alias for hashSeed to support legacy code
+    hashString(input) {
+        return this.hashSeed(input);
+    }
+
     detectBias(selections) {
         if (selections.length < 5) return false;
         const recent = selections.slice(-5);
