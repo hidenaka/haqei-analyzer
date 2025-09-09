@@ -344,8 +344,8 @@ console.log('🚀 Future Simulator Integration Loading...');
         block.style.cssText = 'margin:1rem 0;padding:1rem;border:1px solid rgba(99,102,241,.35);border-radius:12px;background:rgba(17,24,39,.6)';
         host.insertBefore(block, host.firstChild || null);
       }
-      const hexName = situation['卦名'];
-      const yaoName = situation['爻'];
+      const hexName = situation['卦名'] || situation.hexagramName || (situation.hexagram && situation.hexagram.name) || '';
+      const yaoName = situation['爻'] || situation.yaoName || (situation.yao && situation.yao.name) || '';
       if (!document.getElementById('now-main-reason')) {
         block.innerHTML = `
           <div style="color:#cbd5e1;font-weight:700;margin-bottom:.25rem;">現在の状況</div>
@@ -358,8 +358,8 @@ console.log('🚀 Future Simulator Integration Loading...');
         if (titleEls && titleEls[1]) titleEls[1].textContent = `${hexName} ${yaoName}`;
       }
       // 主理由 = 行状態テキスト（h384-line-states）
-      const hex = situation['卦番号'];
-      const line = this.parseLinePosition(situation['爻']);
+      const hex = situation['卦番号'] || situation.hexagramNumber || (situation.hexagram && situation.hexagram.number) || 0;
+      const line = Number.isFinite(situation.yaoPosition) ? situation.yaoPosition : this.parseLinePosition(yaoName);
       const text = await this.getLineStateText(hex, line);
       const main = document.getElementById('now-main-reason');
       if (main) main.textContent = text || '（未登録）';
@@ -368,6 +368,10 @@ console.log('🚀 Future Simulator Integration Loading...');
       ['currentKeywords','recommendedDirection','overall-score','overall-label','currentPositionChart'].forEach(id=>{
         const el = document.getElementById(id); if (el) el.style.display='none';
       });
+
+      // 視認性向上: ホストを表示してスクロール
+      host.style.display = 'block';
+      try { block.scrollIntoView({ behavior: 'smooth' }); } catch {}
     }
 
     // 爻名 → 爻位（1..6）
