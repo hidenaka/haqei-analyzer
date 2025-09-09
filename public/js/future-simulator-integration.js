@@ -335,11 +335,17 @@ console.log('🚀 Future Simulator Integration Loading...');
         }
       }
       
-      // 4. 結果エリアを表示
-      const resultArea = document.getElementById('resultArea');
-      if (resultArea) {
-        resultArea.style.display = 'block';
-        resultArea.scrollIntoView({ behavior: 'smooth' });
+      // 4. 結果エリアを表示（resultsContainer優先）
+      const resultsContainer = document.getElementById('resultsContainer');
+      if (resultsContainer) {
+        resultsContainer.style.display = 'block';
+        try { resultsContainer.scrollIntoView({ behavior: 'smooth' }); } catch {}
+      } else {
+        const resultArea = document.getElementById('resultArea');
+        if (resultArea) {
+          resultArea.style.display = 'block';
+          try { resultArea.scrollIntoView({ behavior: 'smooth' }); } catch {}
+        }
       }
       
       // 分析完了フラグを設定
