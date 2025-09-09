@@ -46,9 +46,9 @@ console.log('☯️ IChingGuidanceEngine Loading...');
 
       // チューニング定数（容易に調整可能）
       this.tuning = {
-        wKw: 36,   // 語義一致
+        wKw: 28,   // 語義一致（抑制）
         wSum: 7,    // 要約一致
-        wCat: 18,   // カテゴリ一致
+        wCat: 22,   // カテゴリ一致（強化）
         wPhrase: 10,// 句一致ブースト
         wS1: 0.05,  // S1補助
         wS5: 6,     // 受動/能動補助
@@ -63,6 +63,7 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         { has:'resource',   favors:['cooperation','foundation'], w:8 },
         { has:'morale',     favors:['cooperation','acceptance'], w:8 },
         { has:'danger',     favors:['reform','retreat'], w:6 },
+        { has:'danger',     favors:['foundation'], w:3 },
         { has:'speed',      favors:['decision','foundation'], w:6 },
         { has:'quality',     favors:['foundation','acceptance'], w:6 },
         { has:'compliance',  favors:['foundation','retreat'], w:6 },
@@ -73,8 +74,9 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         { has:'innovation',   favors:['reform','decision'], w:6 },
         { has:'conflict',     favors:['cooperation','acceptance'], w:7 },
         { has:'delegation',   favors:['acceptance','cooperation'], w:5 },
-        { has:'ownership',    favors:['decision','reform'], w:5 },
+        { has:'ownership',    favors:['decision','foundation'], w:6 },
         { has:'priority',     favors:['decision','retreat'], w:5 },
+        { has:'priority',     favors:['foundation'], w:3 },
         { has:'measurement',  favors:['foundation','decision'], w:4 },
         { has:'scalability',  favors:['foundation','reform'], w:5 },
         { has:'reliability',  favors:['foundation','retreat'], w:5 },
@@ -610,6 +612,16 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         });
       } catch {}
       score += catBoost;
+
+      // 軽微なプライヤ: 協力カテゴリ検出時に「同人/比」を微増強
+      try {
+        if (inputCats.has('cooperation')) {
+          const hname = String(e['卦名']||'');
+          if (hname.includes('同人') || hname.includes('比')) {
+            score += 3; // +2〜+4の中庸
+          }
+        }
+      } catch {}
 
       return { score, reasons: { matchKw, matchSum, matchCat, phraseBoost, catBoost } };
     }

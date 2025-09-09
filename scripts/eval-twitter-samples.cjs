@@ -73,6 +73,8 @@ async function main() {
   console.log('🔬 Twitter-like Samples Evaluation');
   console.log(`H384 entries: ${sandbox.window.H384_DATA.length}`);
 
+  let total=0, catHitAll=0, catHitAny=0;
+
   for (const s of samples) {
     const text = s.text.trim();
     const semantics = engine.getSemantics(text);
@@ -90,6 +92,24 @@ async function main() {
     if (t1) console.log(`  Top1: ${t1.hexagramName} ${t1.yaoName} (score=${t1.score}) reasons: ${formatReasons(t1.reasons)}`);
     if (t2) console.log(`  Top2: ${t2.hexagramName} ${t2.yaoName} (score=${t2.score}) reasons: ${formatReasons(t2.reasons)}`);
     if (t3) console.log(`  Top3: ${t3.hexagramName} ${t3.yaoName} (score=${t3.score}) reasons: ${formatReasons(t3.reasons)}`);
+
+    if (Array.isArray(s.expectCategories) && s.expectCategories.length) {
+      total++;
+      const cats = new Set(semantics.categories||[]);
+      const required = new Set(s.expectCategories);
+      const allHit = Array.from(required).every(c => cats.has(c));
+      const anyHit = Array.from(required).some(c => cats.has(c));
+      if (allHit) catHitAll++;
+      if (anyHit) catHitAny++;
+      console.log(`  catMatch: all=${allHit} any=${anyHit}`);
+    }
+  }
+
+  if (total>0) {
+    console.log('\n📊 Category Detection Summary');
+    console.log(`  Samples: ${total}`);
+    console.log(`  All-required hit: ${(catHitAll/total*100).toFixed(1)}% (${catHitAll}/${total})`);
+    console.log(`  Any-required hit: ${(catHitAny/total*100).toFixed(1)}% (${catHitAny}/${total})`);
   }
 }
 
