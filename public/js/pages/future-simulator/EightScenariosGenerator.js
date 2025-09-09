@@ -17,8 +17,8 @@ class EightScenariosGenerator {
         
         // v4.3.1 決定論的要件: SeedableRandom統合
         this.rng = options.randomnessManager || window.randomnessManager || 
-                   (() => { throw new Error('RandomnessManager required for deterministic behavior'); });
-        this.initialized = false;
+                   (() => { throw new Error('RandomnessManager required for deterministic behavior'); })();
+    this.initialized = false;
         this.version = "2.2.0-iching-integration";
         this.philosophyAlignment = "haqei-eight-scenarios-integration";
         

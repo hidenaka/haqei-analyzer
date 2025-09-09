@@ -92,8 +92,8 @@ class HexagramDetailsFallback {
       const enhancedContext = this.integrateOSAnalysisContext(osAnalysisContext, hexagramId);
       
       // フォールバック生成
-      const upperTrigramId = hexagramData.upperTrigramId;
-      const lowerTrigramId = hexagramData.lowerTrigramId;
+      const upperTrigramId = hexagramData.upper_trigram_id;
+      const lowerTrigramId = hexagramData.lower_trigram_id;
       
       return this.generateFallbackDetails(hexagramId, hexagramData, upperTrigramId, lowerTrigramId, enhancedContext);
       
@@ -519,7 +519,7 @@ class HexagramDetailsFallback {
   // 公開メソッド：外部から使用（os_analyzer統合対応）
   getHexagramDetails(hexagramId, osAnalysisContext = null) {
     // hexagrams_masterからデータ取得
-    const hexagramData = window.hexagrams_master?.find(h => h.hexagramId === hexagramId);
+    const hexagramData = window.hexagrams_master?.find(h => h.hexagram_id === hexagramId);
     if (!hexagramData) {
       console.warn(`⚠️ 卦${hexagramId}のデータが見つかりません`);
       return this.generateBasicFallback(hexagramId, null, osAnalysisContext);

@@ -167,12 +167,11 @@ class DevModeManager {
      * プロファイルに応じた36問の回答を生成
      */
     generateAnswers(profileType) {
-        const rng = window.seedableRandom || { next: () => 0.5 }; // 決定論RNG使用
         const answerPatterns = {
-            balanced: () => 3 + Math.floor(rng.next() * 3), // 3-5
-            innovative: () => rng.next() > 0.7 ? 5 : 4,     // 主に4-5
-            stable: () => rng.next() > 0.3 ? 2 : 3,         // 主に2-3
-            stressed: () => rng.next() > 0.5 ? 1 : 2        // 主に1-2
+            balanced: () => 3 + Math.floor(Math.random() * 3), // 3-5
+            innovative: () => Math.random() > 0.7 ? 5 : 4,     // 主に4-5
+            stable: () => Math.random() > 0.3 ? 2 : 3,         // 主に2-3
+            stressed: () => Math.random() > 0.5 ? 1 : 2        // 主に1-2
         };
         
         const pattern = answerPatterns[profileType] || answerPatterns.balanced;

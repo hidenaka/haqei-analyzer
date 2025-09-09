@@ -182,7 +182,7 @@ class FutureSimulatorDisplay {
       '卦名': `卦${hexagramIndex}`,
       '爻': `爻${lineIndex + 1}`,
       'キーワード': ['変化', '調整', '発展'],
-      'S7_総合評価スコア': 50 + Math.floor((window.seedableRandom?.next() || 0.5) * 30),
+      'S7_総合評価スコア': 50 + Math.floor(Math.random() * 30),
       '現代解釈の要約': '状況は変化の中にあります'
     };
   }

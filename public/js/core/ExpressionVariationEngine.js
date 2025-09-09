@@ -433,17 +433,17 @@ class ContentDiversificationEngine {
     let transformed = text;
     
     // HaQei導入部の変更
-    if (this.rng.next() < intensity) {
+    if (Math.random() < intensity) {
       transformed = transformed.replace(/HaQei[^、]*?では?[、]/g, `${templates.introduction}、`);
     }
     
     // 接続詞の変更
-    if (this.rng.next() < intensity * 0.8) {
+    if (Math.random() < intensity * 0.8) {
       transformed = transformed.replace(/[、。]([^。]*?)予測され/g, `。${templates.transition}$1予測され`);
     }
     
     // 結論部の変更
-    if (this.rng.next() < intensity * 0.9) {
+    if (Math.random() < intensity * 0.9) {
       transformed = transformed.replace(/予測されます$/, templates.conclusion);
       transformed = transformed.replace(/見込まれます$/, templates.conclusion);
     }
@@ -474,7 +474,7 @@ class ContentDiversificationEngine {
       '多角的な検討の結果、',
       '包括的な評価として、'
     ];
-    const randomExpansion = expansions[Math.floor(this.rng.next() * expansions.length)];
+    const randomExpansion = expansions[Math.floor(Math.random() * expansions.length)];
     return text.replace('HaQei', `${randomExpansion}HaQei`);
   }
 
@@ -497,7 +497,7 @@ class ContentDiversificationEngine {
     };
     
     Object.entries(alternativeExpressions).forEach(([original, alternative]) => {
-      if (this.rng.next() < 0.6) {
+      if (Math.random() < 0.6) {
         text = text.replace(new RegExp(original, 'g'), alternative);
       }
     });
@@ -570,7 +570,7 @@ class EmotionalCareExpansion {
   applyEncouragement(text) {
     Object.entries(this.carePatterns.encouragement.neutral).forEach((word, index) => {
       const positiveWord = this.carePatterns.encouragement.positive[index];
-      if (positiveWord && this.rng.next() < 0.4) {
+      if (positiveWord && Math.random() < 0.4) {
         text = text.replace(new RegExp(word, 'g'), positiveWord);
       }
     });

@@ -786,23 +786,21 @@ async function performTripleOSAnalysis(formattedAnswers) {
         });
         
         // Create OS objects for existing TripleOSInteractionAnalyzer
-        const rng = window.seedableRandom || { next: () => 0.5 };
-        
         const engineOS = {
             score: (trigramScores['乾_創造性'] + trigramScores['震_行動性'] + trigramScores['坎_探求性']) / 3,
-            hexagramId: Math.floor(rng.next() * 64) + 1, // Temporary - should use proper mapping
+            hexagramId: Math.floor(Math.random() * 64) + 1, // Temporary - should use proper mapping
             name: 'Engine OS'
         };
         
         const interfaceOS = {
             score: (trigramScores['兌_調和性'] + trigramScores['離_表現性'] + trigramScores['巽_適応性']) / 3,
-            hexagramId: Math.floor(rng.next() * 64) + 1, // Temporary - should use proper mapping
+            hexagramId: Math.floor(Math.random() * 64) + 1, // Temporary - should use proper mapping
             name: 'Interface OS'
         };
         
         const safeModeOS = {
             score: (trigramScores['艮_安定性'] + trigramScores['坤_受容性']) / 2,
-            hexagramId: Math.floor(rng.next() * 64) + 1, // Temporary - should use proper mapping
+            hexagramId: Math.floor(Math.random() * 64) + 1, // Temporary - should use proper mapping
             name: 'Safe Mode OS'
         };
         
@@ -1326,10 +1324,9 @@ class DevModeManager {
     generateMockAnswers(baseScore, profileType) {
         const mockAnswers = {};
         const variance = 15;
-        const rng = window.seedableRandom || { next: () => 0.5 };
         
         for (let i = 1; i <= 30; i++) {
-            const randomVariance = (rng.next() - 0.5) * variance;
+            const randomVariance = (Math.random() - 0.5) * variance;
             let score = Math.max(1, Math.min(5, Math.round((baseScore + randomVariance) / 20)));
             
             // プロファイルタイプに応じた調整

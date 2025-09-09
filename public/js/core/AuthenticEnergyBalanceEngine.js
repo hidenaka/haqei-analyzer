@@ -211,7 +211,7 @@ class AuthenticEnergyBalanceEngine {
                 
                 // HEXAGRAMS配列からデータを取得（グローバル変数）
                 const hexagramData = window.HEXAGRAMS ? 
-                    window.HEXAGRAMS.find(h => h.hexagramId === hexagramId) : null;
+                    window.HEXAGRAMS.find(h => h.hexagram_id === hexagramId) : null;
                 
                 candidates.push({
                     hexagramId,

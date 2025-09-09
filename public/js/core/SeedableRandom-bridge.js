@@ -14,18 +14,9 @@ class FallbackRandomnessManager {
     }
     
     getGenerator(type = 'default') {
-        // 決定論的フォールバック実装（Math.random使用禁止）
-        let counter = 0;
         return {
-            next: () => {
-                counter++;
-                return (counter * 0.618033988749) % 1; // 黄金比ベース
-            },
-            nextInt: (min, max) => {
-                counter++;
-                const val = (counter * 0.618033988749) % 1;
-                return Math.floor(val * (max - min + 1)) + min;
-            },
+            next: () => Math.random(),
+            nextInt: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
             seed: 12345,
             fallback: true
         };

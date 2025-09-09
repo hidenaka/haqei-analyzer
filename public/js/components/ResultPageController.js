@@ -337,92 +337,33 @@ class ResultPageController {
    */
   async updateIChingInterpretation(data) {
     try {
-      // 新しいI Ching解釈セクションの要素を取得
-      const sectionElement = document.getElementById('ichingInterpretationSection');
-      const resultsElement = document.getElementById('ichingInterpretationResults');
-      const loadingElement = document.getElementById('ichingInterpretationLoading');
-      const errorElement = document.getElementById('ichingInterpretationError');
-      const stageTitleElement = document.getElementById('ichingStageTitle');
-      const stageDescriptionElement = document.getElementById('ichingStageDescription');
-      const confidenceElement = document.getElementById('ichingConfidence');
-      
-      if (!sectionElement || !resultsElement) {
-        console.warn('⚠️ I Ching interpretation elements not found');
-        return;
-      }
-      
-      // ローディング表示
-      if (loadingElement) loadingElement.style.display = 'block';
-      if (resultsElement) resultsElement.style.display = 'none';
-      if (errorElement) errorElement.style.display = 'none';
-      
-      // セクションを表示
-      sectionElement.style.display = 'block';
+      // ROOT CAUSE FIX: HTML実際のID要素と連携
+      const contentElement = document.getElementById('ichingInterpretation');
+      if (!contentElement) return;
       
       // H384データから解釈を取得
       if (data.h384Data) {
         const keywords = data.h384Data['キーワード'] || [];
         const interpretation = data.h384Data['現代解釈の要約'] || '';
         const stance = data.h384Data['S5_主体性推奨スタンス'] || '中立';
-        const confidence = data.h384Data['信頼度'] || '中';
         
-        // 内容を更新
-        if (stageTitleElement) {
-          stageTitleElement.textContent = keywords.length > 0 ? keywords.join('・') : '現在の状況';
-        }
-        if (stageDescriptionElement) {
-          stageDescriptionElement.textContent = interpretation || '詳細な解釈を読み込み中...';
-        }
-        if (confidenceElement) {
-          confidenceElement.textContent = confidence;
-        }
-        
-        // ローディングを隠して結果を表示
-        if (loadingElement) loadingElement.style.display = 'none';
-        if (resultsElement) resultsElement.style.display = 'block';
-        
+        contentElement.innerHTML = `
+          <p class="stage-title">
+            ${keywords.length > 0 ? keywords.join('・') : '現在の状況'}
+          </p>
+          <p class="stage-description">${interpretation}</p>
+          <p class="stage-advice">推奨スタンス: ${stance === '能動' ? '積極的に行動する' : stance === '受動' ? '状況を見守る' : 'バランスを保つ'}</p>
+        `;
       } else if (data.ichingInterpretation) {
         // フォールバック
-        if (stageTitleElement) {
-          stageTitleElement.textContent = data.ichingInterpretation.title || '現在の状況';
-        }
-        if (stageDescriptionElement) {
-          stageDescriptionElement.textContent = data.ichingInterpretation.description || '詳細な解釈を読み込み中...';
-        }
-        if (confidenceElement) {
-          confidenceElement.textContent = '中';
-        }
-        
-        // ローディングを隠して結果を表示
-        if (loadingElement) loadingElement.style.display = 'none';
-        if (resultsElement) resultsElement.style.display = 'block';
-      } else {
-        // エラー表示
-        if (loadingElement) loadingElement.style.display = 'none';
-        if (errorElement) {
-          errorElement.style.display = 'block';
-          const errorMessageElement = document.getElementById('ichingInterpretationErrorMessage');
-          if (errorMessageElement) {
-            errorMessageElement.textContent = '易経解釈データが見つかりません';
-          }
-        }
+        contentElement.innerHTML = `
+          <p class="stage-title">${data.ichingInterpretation.title || '現在の状況'}</p>
+          <p class="stage-description">${data.ichingInterpretation.description || '詳細な解釈を読み込み中...'}</p>
+        `;
       }
       
     } catch (error) {
       console.error('❌ Failed to update I Ching interpretation:', error);
-      
-      // エラー表示
-      const loadingElement = document.getElementById('ichingInterpretationLoading');
-      const errorElement = document.getElementById('ichingInterpretationError');
-      
-      if (loadingElement) loadingElement.style.display = 'none';
-      if (errorElement) {
-        errorElement.style.display = 'block';
-        const errorMessageElement = document.getElementById('ichingInterpretationErrorMessage');
-        if (errorMessageElement) {
-          errorMessageElement.textContent = `エラーが発生しました: ${error.message}`;
-        }
-      }
     }
   }
 

@@ -66,8 +66,7 @@ class SafeDOMUpdater {
   preserveCanvasElements(container) {
     const canvases = container.querySelectorAll('canvas');
     canvases.forEach(canvas => {
-      const rng = window.seedableRandom || { next: () => 0.5 };
-      const key = canvas.id || canvas.className || rng.next().toString();
+      const key = canvas.id || canvas.className || Math.random().toString();
       this.preservedElements.set(key, {
         element: canvas,
         parent: canvas.parentElement,

@@ -223,8 +223,6 @@ window.OfflineKuromojiInitializer = {
       console.error('❌ Kuromoji.js initialization failed:', error);
       this.kuromojiStatus.loading = false;
       this.kuromojiStatus.error = error.message;
-      // フォールバック可視化
-      if (window.hudManager) window.hudManager.showFallbackMode(true);
     }
   },
   
@@ -484,8 +482,7 @@ window.OfflineKuromojiInitializer = {
             pos: token.pos,
             basic_form: token.basic_form || token.surface_form,
             reading: token.reading || '*',
-            position: token.word_position,
-            weight: this.calculateWeight(token.pos) // 重要語句の重み付け
+            position: token.word_position
           });
         }
       }
@@ -496,14 +493,6 @@ window.OfflineKuromojiInitializer = {
       analysis_info: analysis.analysis,
       haqei_enhancement: analysis.analysis.haqei_enhanced
     };
-  },
-  
-  // 重み付け計算
-  calculateWeight(pos) {
-    if (pos.includes('名詞')) return 1.0;
-    if (pos.includes('動詞')) return 0.8;
-    if (pos.includes('形容詞')) return 0.7;
-    return 0.5;
   },
   
   // 公開API - 品詞分析

@@ -2176,16 +2176,6 @@
                         分析を始める
                     </button>
                     
-                    <!-- スモークテストボタン -->
-                    <div class="smoke-test-section" style="margin-top: var(--space-md);">
-                        <button id="smoke-test-btn" class="btn btn-outline" style="margin-right: var(--space-sm);">
-                            🧪 スモークテスト実行
-                        </button>
-                        <div id="smoke-test-results" class="smoke-test-results" style="display: none; margin-top: var(--space-sm); padding: var(--space-sm); background: var(--surface-100); border-radius: var(--radius-md); font-size: 0.9em;">
-                            <!-- テスト結果がここに表示される -->
-                        </div>
-                    </div>
-                    
                     <div class="disclaimer">
                         <p class="disclaimer-text">
                             <strong>重要な注意事項：</strong> この仮想人格生成は、あなたの人格を決定づけるものではありません。創造的な表現として生成される象徴的な描写を、一つのインスピレーション源として楽しんでください。生成結果はメタファー・物語として捉え、常にご自身の判断を最優先してください。
@@ -3628,8 +3618,8 @@
                 // ヘキサグラムにマッピング
                 const hexagramId = this.mapTrigramsToHexagram(upperBagua, lowerBagua);
                 const hexagram = (typeof H64_DATA !== 'undefined' && H64_DATA) ?
-                    H64_DATA.find(h => h.hexagramId === hexagramId) || H64_DATA[0] :
-                    { hexagramId: hexagramId, name: `卦${hexagramId}`, description: '' };
+                    H64_DATA.find(h => h.hexagram_id === hexagramId) || H64_DATA[0] :
+                    { hexagram_id: hexagramId, name: `卦${hexagramId}`, description: '' };
                 
                 return {
                     hexagramId,
@@ -3784,7 +3774,7 @@
             // 卦データ取得メソッド
             getHexagramData(hexagramId) {
                 const hexagram = (typeof H64_DATA !== 'undefined' && H64_DATA) ?
-                    H64_DATA.find(h => h.hexagramId === hexagramId) : null;
+                    H64_DATA.find(h => h.hexagram_id === hexagramId) : null;
                 if (!hexagram) {
                     console.warn(`Hexagram ${hexagramId} not found, using default`);
                     return HEXAGRAMS[0] || {
@@ -10196,106 +10186,6 @@
                 // Triple OS データ復元機能
                 if (window.criticalCSSAnalyzer && typeof window.criticalCSSAnalyzer.checkAndRestoreTripleOSData === 'function') {
                     window.criticalCSSAnalyzer.checkAndRestoreTripleOSData();
-                }
-                
-                // スモークテストボタンのイベントハンドラー
-                const smokeTestBtn = document.getElementById('smoke-test-btn');
-                const smokeTestResults = document.getElementById('smoke-test-results');
-                
-                if (smokeTestBtn && smokeTestResults) {
-                    smokeTestBtn.addEventListener('click', async () => {
-                        try {
-                            smokeTestBtn.disabled = true;
-                            smokeTestBtn.textContent = '🧪 テスト実行中...';
-                            smokeTestResults.style.display = 'block';
-                            smokeTestResults.innerHTML = '<div style="color: #6366f1;">📊 スモークテストを実行しています...</div>';
-                            
-                            // integration.smoke.jsを動的にインポート
-                            const smokeModule = await import('./js/integration.smoke.js');
-                            const { DeterminismSmokeTest, PerformanceSmokeTest, FiveLineHealthSmokeTest } = smokeModule;
-                            
-                            const results = [];
-                            
-                            // 決定論性テスト
-                            const determinismTest = new DeterminismSmokeTest();
-                            const determinismResult = await determinismTest.run();
-                            results.push({
-                                name: '決定論性テスト',
-                                status: determinismResult.passed ? 'PASS' : 'FAIL',
-                                details: determinismResult.details || determinismResult.message
-                            });
-                            
-                            // 性能テスト
-                            const performanceTest = new PerformanceSmokeTest();
-                            const performanceResult = await performanceTest.run();
-                            results.push({
-                                name: '性能テスト',
-                                status: performanceResult.passed ? 'PASS' : 'FAIL',
-                                details: performanceResult.details || performanceResult.message
-                            });
-                            
-                            // 5爻健全性テスト
-                            const fiveLineTest = new FiveLineHealthSmokeTest();
-                            const fiveLineResult = await fiveLineTest.run();
-                            results.push({
-                                name: '5爻健全性テスト',
-                                status: fiveLineResult.passed ? 'PASS' : 'FAIL',
-                                details: fiveLineResult.details || fiveLineResult.message
-                            });
-                            
-                            // 結果表示
-                            const passCount = results.filter(r => r.status === 'PASS').length;
-                            const totalCount = results.length;
-                            const allPassed = passCount === totalCount;
-                            
-                            let resultHtml = `
-                                <div style="margin-bottom: var(--space-sm); font-weight: bold; color: ${allPassed ? '#22c55e' : '#ef4444'};">
-                                    📊 テスト結果: ${passCount}/${totalCount} 通過 ${allPassed ? '✅' : '❌'}
-                                </div>
-                            `;
-                            
-                            results.forEach(result => {
-                                const statusColor = result.status === 'PASS' ? '#22c55e' : '#ef4444';
-                                const statusIcon = result.status === 'PASS' ? '✅' : '❌';
-                                resultHtml += `
-                                    <div style="margin-bottom: var(--space-xs); padding: var(--space-xs); border-left: 3px solid ${statusColor}; background: rgba(${result.status === 'PASS' ? '34, 197, 94' : '239, 68, 68'}, 0.1);">
-                                        <div style="font-weight: bold; color: ${statusColor};">
-                                            ${statusIcon} ${result.name}: ${result.status}
-                                        </div>
-                                        <div style="font-size: 0.85em; color: var(--text-600); margin-top: 2px;">
-                                            ${result.details}
-                                        </div>
-                                    </div>
-                                `;
-                            });
-                            
-                            smokeTestResults.innerHTML = resultHtml;
-                            
-                            // トースト通知
-                            if (window.criticalCSSAnalyzer && typeof window.criticalCSSAnalyzer.showToast === 'function') {
-                                window.criticalCSSAnalyzer.showToast(
-                                    `スモークテスト完了: ${passCount}/${totalCount} 通過`,
-                                    allPassed ? 'success' : 'error'
-                                );
-                            }
-                            
-                        } catch (error) {
-                            console.error('❌ Smoke test failed:', error);
-                            smokeTestResults.innerHTML = `
-                                <div style="color: #ef4444; font-weight: bold;">❌ テスト実行エラー</div>
-                                <div style="font-size: 0.85em; color: var(--text-600); margin-top: 2px;">
-                                    ${error.message || 'スモークテストの実行中にエラーが発生しました'}
-                                </div>
-                            `;
-                            
-                            if (window.criticalCSSAnalyzer && typeof window.criticalCSSAnalyzer.showToast === 'function') {
-                                window.criticalCSSAnalyzer.showToast('スモークテスト実行エラー', 'error');
-                            }
-                        } finally {
-                            smokeTestBtn.disabled = false;
-                            smokeTestBtn.textContent = '🧪 スモークテスト実行';
-                        }
-                    });
                 }
                 
             } catch (error) {

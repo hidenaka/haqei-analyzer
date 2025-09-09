@@ -3,7 +3,7 @@
  * Playwrightを使用して実際の動作を検証
  */
 
-import { test, expect } from '@playwright/test';
+const { test, expect } = require('@playwright/test');
 
 test.describe('SummaryGenerator実装検証', () => {
     let page;

@@ -31,7 +31,7 @@ window.Authentic386YaoAnalyzer = class {
         throw new Error('Hexagram data is not an array');
       }
       
-      const validHexagrams = this.hexagramData.filter(h => h.hexagramId && h.name_jp).length;
+      const validHexagrams = this.hexagramData.filter(h => h.hexagram_id && h.name_jp).length;
       
       console.log(`✅ Loaded ${this.hexagramData.length} hexagrams`);
       console.log(`✅ Valid hexagrams: ${validHexagrams}`);
@@ -603,7 +603,7 @@ window.Authentic386YaoAnalyzer = class {
       }
     }
     
-    const selectedHexagram = this.hexagramData.find(h => h.hexagramId === selectedId);
+    const selectedHexagram = this.hexagramData.find(h => h.hexagram_id === selectedId);
     
     if (this.debugMode) {
       console.log(`🎯 Selected hexagram: ${selectedHexagram.name_jp} (ID: ${selectedId})`);
@@ -612,7 +612,7 @@ window.Authentic386YaoAnalyzer = class {
       const topScores = [];
       for (let i = 1; i <= 64; i++) {
         if (scores[i] > 5) { // 基礎点より高いもののみ
-          const h = this.hexagramData.find(hex => hex.hexagramId === i);
+          const h = this.hexagramData.find(hex => hex.hexagram_id === i);
           if (h) topScores.push({ name: h.name_jp, id: i, score: scores[i] });
         }
       }
@@ -651,7 +651,7 @@ window.Authentic386YaoAnalyzer = class {
       let score = 0;
       
       // 特定のキーワードマッチング（卦に応じて）
-      if (hexagram.hexagramId === 1) { // 乾為天
+      if (hexagram.hexagram_id === 1) { // 乾為天
         if (text.includes('潜') || text.includes('隠') || text.includes('準備')) {
           if (line.position === 1) score += 20; // 初九：潜龍
         }
@@ -672,13 +672,13 @@ window.Authentic386YaoAnalyzer = class {
         }
       }
       
-      if (hexagram.hexagramId === 5) { // 水天需
+      if (hexagram.hexagram_id === 5) { // 水天需
         if (text.includes('酒') || text.includes('食') || text.includes('楽しみ')) {
           if (line.position === 5) score += 25; // 九五：需于酒食
         }
       }
       
-      if (hexagram.hexagramId === 49) { // 沢火革
+      if (hexagram.hexagram_id === 49) { // 沢火革
         if (text.includes('虎') || text.includes('大胆') || text.includes('変革')) {
           if (line.position === 5) score += 25; // 九五：大人虎変
         }
@@ -763,7 +763,7 @@ window.Authentic386YaoAnalyzer = class {
     }
     
     // 乾為天の用九チェック（精密化）
-    if (hexagram.hexagramId === 1 && hexagram.special_yao) {
+    if (hexagram.hexagram_id === 1 && hexagram.special_yao) {
       const yangConditions = this.checkYangPeakConditions(analysis);
       if (yangConditions.shouldUseYongJiu) {
         if (this.debugMode) {
@@ -774,7 +774,7 @@ window.Authentic386YaoAnalyzer = class {
     }
     
     // 坤為地の用六チェック（精密化）
-    if (hexagram.hexagramId === 2 && hexagram.special_yao) {
+    if (hexagram.hexagram_id === 2 && hexagram.special_yao) {
       const yinConditions = this.checkYinCompletionConditions(analysis);
       if (yinConditions.shouldUseYongLiu) {
         if (this.debugMode) {

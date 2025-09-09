@@ -40,7 +40,7 @@ class HexagramDynamicsInjector {
 
   // 単一の卦に力学データを追加
   addDynamicsToHexagram(hexagramData) {
-    const hexagramId = hexagramData.hexagramId;
+    const hexagramId = hexagramData.hexagram_id;
     
     // 三爻卦の組み合わせを取得
     const trigramInfo = this.hexagramTrigramMapping[hexagramId];
@@ -147,7 +147,7 @@ if (typeof window !== 'undefined') {
     
     // テスト用の卦データ
     const testHexagram = {
-      hexagramId: 1,
+      hexagram_id: 1,
       name_jp: "乾為天",
       reading: "けんいてん"
     };

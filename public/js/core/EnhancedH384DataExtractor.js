@@ -451,8 +451,7 @@ class H384InferenceEngine {
     if (hexPattern.stability === 'high') baseScore += 10;
     if (lineIndex === 1 || lineIndex === 4) baseScore += 5; // 良いポジション
     
-    const rng = window.seedableRandom || { next: () => 0.5 };
-    return Math.min(100, Math.max(0, baseScore + Math.floor(rng.next() * 20) - 10));
+    return Math.min(100, Math.max(0, baseScore + Math.floor(Math.random() * 20) - 10));
   }
 
   generateInferredStance(hexagramIndex, lineIndex) {

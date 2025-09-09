@@ -1268,8 +1268,8 @@
                 // ヘキサグラムにマッピング
                 const hexagramId = this.mapTrigramsToHexagram(upperBagua, lowerBagua);
                 const hexagram = (typeof H64_DATA !== 'undefined' && H64_DATA) ?
-                    H64_DATA.find(h => h.hexagramId === hexagramId) || H64_DATA[0] :
-                    { hexagramId: hexagramId, name: `卦${hexagramId}`, description: '' };
+                    H64_DATA.find(h => h.hexagram_id === hexagramId) || H64_DATA[0] :
+                    { hexagram_id: hexagramId, name: `卦${hexagramId}`, description: '' };
                 
                 return {
                     hexagramId,
@@ -1424,11 +1424,11 @@
             // 卦データ取得メソッド
             getHexagramData(hexagramId) {
                 const hexagram = (typeof H64_DATA !== 'undefined' && H64_DATA) ?
-                    H64_DATA.find(h => h.hexagramId === hexagramId) : null;
+                    H64_DATA.find(h => h.hexagram_id === hexagramId) : null;
                 if (!hexagram) {
                     console.warn(`Hexagram ${hexagramId} not found, using default`);
                     return HEXAGRAMS[0] || {
-                        hexagramId: hexagramId,
+                        hexagram_id: hexagramId,
                         name_jp: `卦${hexagramId}`,
                         description: "データが見つかりません",
                         catchphrase: "---"
@@ -1513,7 +1513,7 @@
                 
                 return {
                     ...hexagramData,
-                    hexagramId: hexagramId,
+                    hexagram_id: hexagramId,
                     upperBagua: upperName,
                     lowerBagua: lowerName,
                     name_jp: hexagramData?.name_jp || defaultName,

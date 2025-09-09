@@ -296,7 +296,7 @@ FutureSimulator.Core = {
           // 卦と爻の情報を設定
           if (authenticAnalysis.hexagram) {
             situationHexagram = authenticAnalysis.hexagram;
-            currentLine = authenticAnalysis.hexagram.hexagramId * 6 - 6 + 
+            currentLine = authenticAnalysis.hexagram.hexagram_id * 6 - 6 + 
                          (authenticAnalysis.yao?.position || 1);
           }
           
