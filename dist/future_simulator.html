@@ -1541,12 +1541,14 @@
     <script src="./js/core/DynamicScenarioColorSystem.js?v=20250909"></script>
     <script src="./js/core/IChingGuidanceEngine.js?v=20250909"></script>
     <!-- ThreeStageVisualizer.js - 無効化 -->
-    <script src="./js/components/ScoreVisualization.js"></script>
-    <script src="./js/components/EightScenariosDisplay.js?v=20250909"></script>
+    <!-- Removed legacy UI: ScoreVisualization / EightScenariosDisplay -->
+    <!-- <script src="./js/components/ScoreVisualization.js"></script> -->
+    <!-- <script src="./js/components/EightScenariosDisplay.js?v=20250909"></script> -->
     <!-- New: EightBranches display (進/変 8分岐) -->
     <script src="./js/core/BranchGenerator.js?v=20250909"></script>
     <script src="./js/components/EightBranchesDisplay.js?v=20250909"></script>
-    <script src="./js/components/ResultPageController.js?v=20250909"></script>
+    <!-- Removed legacy controller: ResultPageController (not used in minimal mode) -->
+    <!-- <script src="./js/components/ResultPageController.js?v=20250909"></script> -->
     <script src="./js/future-simulator-integration.js?v=20250909"></script>
     <script src="./js/core/PerformanceOptimizer.js"></script>
     <script src="./js/core/IChingTransformationEngine.js"></script>
@@ -3421,107 +3423,7 @@
         setTimeout(forceShowContent, 1000);
       })();
     </script>
-  <!-- P0-1: IChingFutureSimulator ESM Mount (専門家助言対応) -->
-  <script type="module">
-    // P0-1: Named export ESM import + mount() 実装
-    import { IChingFutureSimulator } from './js/iching-future-simulator.js';
-    
-    // Error handling utilities
-    function showError(message) {
-      // UIノイズ回避のため、致命的でない初期化エラーは黙殺
-      console.warn('[HAQEI][WARN]', message);
-    }
-    
-    function showErrorPanel(error) {
-      console.error('[HAQEI][ERROR]', error);
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'error';
-      errorDiv.style.cssText = `
-        background: #dc2626; color: white; padding: 0.5rem; 
-        border-radius: 0.25rem; margin: 0.5rem; font-size: 0.875rem;
-      `;
-      errorDiv.textContent = `エラー: ${error?.message || error}`;
-      document.getElementById('i-ching-container')?.appendChild(errorDiv);
-    }
-    
-    let ichingSimulator = null;
-    
-    window.addEventListener('DOMContentLoaded', () => {
-      console.log('[HAQEI][P0-1] ESM mount initialization starting...');
-      
-      const el = document.getElementById('i-ching-container');
-      if (!el) { console.warn('[HAQEI][WARN] i-ching-container not found (mount skipped)'); return; }
-      
-      try {
-        console.log('[HAQEI][P0-1] Creating IChingFutureSimulator with options...');
-        
-        const sim = new IChingFutureSimulator({
-          rng: window.randomnessManager?.getGenerator?.('deterministic'),
-          datasets: window.H384,
-          onError: (e) => showErrorPanel(e)
-        });
-        
-        console.log('[HAQEI][P0-1] Mounting to #i-ching-container...');
-        sim.mount(el);
-        
-        // Global exposure for compatibility
-        ichingSimulator = sim;
-        window.ichingSimulator = sim;
-        
-        console.log('[HAQEI][P0-1] ✅ ESM mount successful');
-        
-        // Integration with existing analysis button (preserved functionality)
-        setTimeout(() => {
-          const aiGuessBtn = document.getElementById('aiGuessBtn');
-          const worryInput = document.getElementById('worryInput');
-          
-          if (aiGuessBtn && worryInput) {
-            console.log('[HAQEI][P0-1] Setting up integrated analysis button...');
-            
-            aiGuessBtn.addEventListener('click', (e) => {
-              e.preventDefault();
-              const inputText = worryInput.value.trim();
-              
-              if (inputText && inputText.length >= 10) {
-                console.log('[HAQEI][P0-1] Running integrated analysis...');
-                // analyzeWorry 呼び出しは停止（新UIに委譲）
-                
-                // Show I Ching section
-                const ichingSection = document.getElementById('iching-simulator-section');
-                if (ichingSection) {
-                  ichingSection.style.display = 'block';
-                  setTimeout(() => ichingSection.scrollIntoView({ behavior: 'smooth' }), 500);
-                }
-                
-                // Run I Ching analysis if ready
-                if (sim.isReady && sim.isReady()) {
-                  sim.analyzeSituation(inputText);
-                } else {
-                  console.warn('[HAQEI][P0-1] Simulator not ready, analysis queued');
-                }
-              } else {
-                alert('10文字以上のテキストを入力してください');
-              }
-            }, { once: false });
-          }
-        }, 1000);
-        
-      } catch (error) {
-        showFatal(`初期化エラー: ${error?.message || error}`);
-      }
-    });
-    
-    // Add global function for external access
-    window.getIChingSimulator = function() {
-      return ichingSimulator;
-    };
-    
-    // 観測用情報表示
-    document.addEventListener('DOMContentLoaded', () => {
-      // 旧デバッグモニタは無効化（UIノイズ対策）
-    });
-  </script>
-
+  <!-- Removed unused ESM mount for IChingFutureSimulator -->
   <!-- 🔧 Future Simulator v4.3.1 実装 - 無効化（古い表示システム） -->
   
   <!-- 🛡️ SafeDOMUpdater（Canvas保護システム） - 無効化 -->

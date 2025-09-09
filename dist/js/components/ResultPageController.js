@@ -81,14 +81,29 @@ class ResultPageController {
         resultArea.style.display = 'block';
       }
       
-      // 各要素の更新
+      // 各要素の更新（EightBranchesモードでは数値/グラフ/旧8シナリオを抑止）
+      const minimalMode = (window.HAQEI_CONFIG && window.HAQEI_CONFIG.useEightBranches) !== false;
       await this.updateCurrentPosition(analysisData);
-      await this.updateScores(analysisData);
-      await this.renderCurrentGraph(analysisData);
-      await this.updateIChingInterpretation(analysisData);
-      await this.renderFutureBranchingGraph(analysisData);
-      await this.updateThemeBoxes(analysisData);
-      await this.renderEightScenarios(analysisData);
+      if (!minimalMode) {
+        await this.updateScores(analysisData);
+        await this.renderCurrentGraph(analysisData);
+        await this.updateIChingInterpretation(analysisData);
+        await this.renderFutureBranchingGraph(analysisData);
+        await this.updateThemeBoxes(analysisData);
+        await this.renderEightScenarios(analysisData);
+      } else {
+        // EightBranchesモードでは、不要要素を明示的に非表示
+        const hideById = (id) => { const el = document.getElementById(id); if (el) el.style.display = 'none'; };
+        hideById('overall-score');
+        hideById('overall-label');
+        hideById('transition-score');
+        hideById('transition-label');
+        hideById('currentPositionChart');
+        hideById('futureBranchingChart');
+        hideById('ichingInterpretation');
+        // 旧8シナリオ領域（存在すれば）
+        hideById('eight-scenarios-display');
+      }
       
       console.log('✅ Results displayed successfully');
       
@@ -190,9 +205,12 @@ class ResultPageController {
         if (hexagramInfoElement) {
           hexagramInfoElement.textContent = `${hexagramName} ${yaoName}`;
         }
-        
-        if (themeDescElement) {
+        // EightBranchesモードでは主理由は別ブロック(now-main-reason)が担うため、ここでは記述しない
+        const minimalMode = (window.HAQEI_CONFIG && window.HAQEI_CONFIG.useEightBranches) !== false;
+        if (!minimalMode && themeDescElement) {
           themeDescElement.innerHTML = `<p>${modernInterp}</p>`;
+        } else if (themeDescElement) {
+          themeDescElement.style.display = 'none';
         }
       }
       
