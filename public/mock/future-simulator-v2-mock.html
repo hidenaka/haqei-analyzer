@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Future Simulator V2 Mock</title>
+    <link rel="stylesheet" href="../css/haqei-unified-design.css" />
+    <style>
+      /* Base reset to light theme per unified design */
+      .fsv2 { margin:0; padding:0; font-family: var(--font-family); color: var(--gray-900); }
+      .fsv2 .container { max-width: 1120px; margin: 24px auto; padding: 0 16px; }
+      .fsv2 h1 { margin: 0 0 12px; font-size: 22px; color: var(--gray-900); }
+      .fsv2 h2 { margin: 24px 0 12px; font-size: 18px; color: var(--gray-800); position: relative; }
+      .fsv2 h2::after { content:''; display:block; width: 56px; height: 3px; background: var(--gradient-primary); border-radius: 2px; margin-top: 6px; }
+      .fsv2 .panel { background: var(--white); border:1px solid var(--gray-200); border-radius: var(--radius-lg); padding: var(--spacing-lg); box-shadow: var(--shadow-md); }
+      .fsv2 .row { display:flex; gap:12px; align-items:flex-start; margin: 10px 0; }
+      .fsv2 .label { width: 160px; min-width:160px; color: var(--gray-500); font-size: 13px; }
+      .fsv2 .value { flex:1; color: var(--gray-900); font-weight:600; }
+      .fsv2 .value.long { font-weight:400; line-height: 1.9; white-space: pre-wrap; }
+      .fsv2 .value.long p { margin: 0 0 8px; }
+      .fsv2 .value.long p:last-child { margin: 0; }
+      .fsv2 .badge { display:inline-block; font-size: 12px; padding: 2px 8px; border-radius:9999px; background: var(--very-light-blue); border:1px solid var(--gray-200); color: var(--primary-blue); }
+      .fsv2 .grid { display:grid; grid-template-columns: 1fr; gap: 12px; }
+      @media (min-width:768px) { .fsv2 .grid { grid-template-columns: 1fr 1fr; } }
+      /* Featured only: 3カラムに */
+      .fsv2 #fsv2-featured { display:grid; grid-template-columns: 1fr; gap:12px; }
+      @media (min-width:768px) { .fsv2 #fsv2-featured { grid-template-columns: 1fr 1fr 1fr; } }
+      /* use global .card from unified design; only adjust title color/spacing here */
+      .fsv2 .card-title { display:flex; align-items:center; gap:8px; font-size:16px; font-weight:700; color: var(--primary-blue); }
+      /* buttons rely on unified .btn; provide a subtle default */
+      .fsv2 .btn { border: 1px solid var(--gray-300); background: var(--white); color: var(--primary-blue); }
+      .fsv2 .btn:hover { background: var(--light-blue); }
+      .fsv2 .muted { color: var(--gray-500); font-size: 13px; }
+      .fsv2 .name { font-size: 18px; font-weight:700; color: var(--primary-blue-dark); }
+      .fsv2 .ok { color: #16a34a; font-weight:700; }
+      .fsv2 canvas { background: var(--white); border:1px solid var(--gray-200); border-radius: var(--radius-md); }
+      .fsv2 .small { font-size: 12px; color: var(--gray-500); }
+      .fsv2 .section-title { margin: 16px 0 6px; font-size:14px; color: var(--primary-blue); font-weight:700; position: relative; padding-left: 10px; }
+      .fsv2 .section-title::before { content:''; position:absolute; left:0; top: 0.2em; width:4px; height:1.2em; border-radius:4px; background: var(--gradient-primary); }
+      /* Modal overlay */
+      .fsv2 .modal-backdrop { position: fixed; inset: 0; background: rgba(2,6,23,0.45); z-index: 50; display: none; }
+      .fsv2 .modal-backdrop.show { display: block; }
+      .fsv2 .modal-panel { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); width: min(980px, calc(100% - 24px)); background: var(--white); border:1px solid var(--gray-200); border-radius: var(--radius-xl); z-index: 60; display: none; box-shadow: var(--shadow-xl); max-height: calc(100vh - 48px); flex-direction: column; }
+      .fsv2 .modal-panel.show { display: flex; }
+      .fsv2 .modal-head { display:flex; align-items:center; justify-content: space-between; padding: 12px 14px; border-bottom:1px solid var(--gray-200); }
+      .fsv2 .modal-title { font-size: 16px; font-weight: 700; color: var(--primary-blue); }
+      .fsv2 .modal-close { background: transparent; border: none; color: var(--gray-500); font-size: 20px; cursor: pointer; padding: 4px 8px; }
+      .fsv2 .modal-body { padding: 12px 14px 16px; overflow-y: auto; }
+      .fsv2 .headline { color: var(--primary-blue-dark); font-size: 14px; margin:6px 0 8px; }
+      .fsv2 .badges { display:flex; gap:6px; flex-wrap: wrap; margin:6px 0 6px; }
+      .fsv2 .badge2 { display:inline-block; font-size: 12px; padding: 2px 8px; border-radius:9999px; background: var(--gray-50); border:1px solid var(--gray-200); color: var(--gray-700); }
+      .fsv2 .timeline { display:flex; flex-direction: column; gap: 12px; }
+      .fsv2 .phase { background: var(--white); border:1px solid var(--gray-200); border-radius: var(--radius-md); padding: 10px; }
+      .fsv2 .phase .rowline { display:flex; gap:8px; align-items:center; flex-wrap: wrap; margin-bottom:6px; }
+      .fsv2 .phase .rowline.header { background: var(--gray-50); border:1px solid var(--gray-200); border-radius: var(--radius-md); padding:6px 8px; }
+      .fsv2 .tag { display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:2px 8px; border-radius:9999px; border:1px solid var(--gray-200); }
+      .fsv2 .tag.keep { color: var(--primary-blue); background: var(--light-blue); border-color: var(--primary-blue); }
+      .fsv2 .tag.reframe { color:#b45309; background:#fffbeb; border-color:#fcd34d; }
+      .fsv2 .tag.struct { color: var(--accent-blue); background:#f5f3ff; border-color:#ddd6fe; }
+      .fsv2 .kv { font-size:12px; color: var(--gray-700); display:inline-block; margin-right:10px; }
+      .fsv2 .kv .label { color: var(--gray-500); margin-right:3px; }
+      .fsv2 .diff { font-size:12px; color: var(--gray-700); margin-top:4px; }
+      .fsv2 .more-toggle { font-size:12px; color: var(--primary-blue); cursor:pointer; user-select:none; margin-top:6px; }
+      .fsv2 .more-body { display:none; margin-top:6px; }
+      .fsv2 .more-body.show { display:block; }
+      .fsv2 .legend { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:6px 0 10px; }
+      /* timeline steps */
+      .fsv2 .timeline-steps { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:8px 0 10px; }
+      .fsv2 .timeline-steps .step { display:flex; align-items:center; gap:6px; background: var(--gray-50); border:1px solid var(--gray-200); border-radius:9999px; padding:4px 8px; }
+      .fsv2 .timeline-steps .num { width:20px; height:20px; border-radius:50%; background: var(--primary-blue); color:#fff; font-size:12px; display:flex; align-items:center; justify-content:center; font-weight:700; }
+      .fsv2 .timeline-steps .label { font-size:12px; color: var(--gray-700); }
+      .fsv2 .timeline-steps .arrow { color: var(--gray-400); }
+      /* detail sections */
+      .fsv2 .sec-label { font-size:12px; color: var(--gray-500); font-weight:600; margin:8px 0 4px; }
+      .overview { display:grid; grid-template-columns: 1fr; gap:8px; margin:6px 0 10px; }
+      @media (min-width:768px) { .overview { grid-template-columns: 1fr 1fr 1fr; } }
+      .fsv2 .mini { background: var(--white); border:1px solid var(--gray-200); border-radius: var(--radius-md); padding:8px; }
+      .fsv2 .mini .top { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:4px; }
+      .fsv2 .mini .route { font-size:12px; color: var(--gray-500); margin-top:4px; }
+      .fsv2 .micro { font-size:12px; color: var(--gray-500); }
+      .fsv2 .chip { display:inline-block; padding:2px 6px; border:1px solid var(--gray-200); border-radius:999px; font-size:12px; color: var(--gray-700); background: var(--gray-50); }
+      .fsv2 .help { background: var(--white); border:1px solid var(--gray-200); border-radius: var(--radius-lg); padding:10px; color: var(--gray-800); }
+      .fsv2 .help .title { font-weight:700; color: var(--primary-blue); margin-bottom:4px; }
+      .fsv2 .help .close { float:right; cursor:pointer; color: var(--gray-500); }
+      .fsv2 .chip { display:inline-block; font-size: 12px; padding: 2px 8px; border-radius:9999px; background: var(--very-light-blue); border:1px solid var(--gray-200); color: var(--primary-blue); }
+      .fsv2 .pill { display:inline-block; font-size: 12px; padding: 2px 8px; border-radius:9999px; background:#ecfdf5; border:1px solid #d1fae5; color: #047857; }
+      .fsv2 .muted2 { color: var(--gray-500); font-size: 13px; }
+      .fsv2 .cols { display:grid; grid-template-columns: 1fr; gap: 8px; margin-top: 8px; }
+      @media (min-width:768px) { .fsv2 .cols { grid-template-columns: 1fr 1fr; } }
+
+      /* minimal utilities for inline-style removal */
+      .fsv2 .mb-10 { margin-bottom: 10px; }
+      .fsv2 .mb-8 { margin-bottom: 8px; }
+      .fsv2 .mb-6 { margin-bottom: 6px; }
+      .fsv2 .mt-16 { margin-top: 16px; }
+      .fsv2 .m-0 { margin: 0; }
+      .fsv2 .text-accent { color: var(--primary-blue); }
+      .fsv2 .flex-between-center { display:flex; justify-content:space-between; align-items:center; }
+    </style>
+  </head>
+  <body>
+    <div class="fsv2">
+    <div class="container">
+      <h1>Future Simulator V2（モック）</h1>
+      <div id="mock-status" class="small mb-10 text-accent">読み込み中...</div>
+
+      <!-- 単発結果 -->
+      <section class="card" id="fsv2-single">
+        <div class="flex-between-center mb-6">
+          <h2 class="m-0">現状分析結果（386爻マッピング）</h2>
+          <div id="fsv2-badges" class="small"></div>
+        </div>
+        <div class="row"><div class="label">入力テキスト</div><div id="fsv2-usertext" class="value"></div></div>
+        <div class="row"><div class="label">フルネーム</div><div id="fsv2-name" class="value"></div></div>
+        <div class="row"><div class="label">卦 / 爻位</div><div id="fsv2-hex" class="value"></div></div>
+        <div class="section-title">現代解釈</div>
+        <div class="row"><div class="label">厚い説明</div><div id="fsv2-modern" class="value long"></div></div>
+        <div class="section-title">テーマ / キーワード</div>
+        <div class="row"><div class="label">テーマ</div><div id="fsv2-theme" class="value long"></div></div>
+        <div class="row"><div class="label">キーワード</div><div id="fsv2-keywords" class="value long"></div></div>
+        <div class="section-title">深める / 変える</div>
+        <div class="row"><div class="label">深める</div><div id="fsv2-shin" class="value long"></div></div>
+        <div class="row"><div class="label">変える</div><div id="fsv2-hen" class="value long"></div></div>
+        <div class="row"><div class="label">爻辞</div><div id="fsv2-yaoci" class="value"></div></div>
+        <div class="row"><div class="label">信頼度</div><div id="fsv2-conf" class="value"></div></div>
+      </section>
+
+      <!-- 比較（折れ線グラフ） -->
+      <!-- 推奨3カード -->
+      <section class="card mt-16">
+        <h2 class="m-0 mb-8">おすすめ（3つの方向性）</h2>
+        <div id="fsv2-featured" class="grid"></div>
+      </section>
+
+      <!-- 比較（折れ線グラフ） -->
+      <section class="card mt-16">
+        <div class="flex-between-center mb-6">
+          <h2 class="m-0">パターン比較（基礎スコアの推移）</h2>
+          <span class="small">x軸: フェーズ（起点→1→2→3）/ y軸: スコア</span>
+        </div>
+        <canvas id="fsv2-linechart" width="1024" height="360"></canvas>
+      </section>
+
+      <!-- 8通りの詳細 -->
+      <section class="card mt-16">
+        <h2 class="m-0 mb-8">3フェーズ × 進爻/変爻 = 8通り</h2>
+        <div id="fsv2-patterns" class="grid"></div>
+      </section>
+    </div>
+
+    <script src="../lib/chart.min.js"></script>
+    <!-- DB wrappers (file:// 環境のCORS回避用) -->
+    <script src="../data/narratives.v1.js"></script>
+    <script src="../data/narratives_chain.v1.js"></script>
+    <script src="../assets/H384H64database.js"></script>
+    <!-- Optional plain-language overrides (incremental) -->
+    <script src="../assets/H384H64database.plain.js"></script>
+    <script src="./future-simulator-v2-mock.js"></script>
+    <!-- Modal containers -->
+    <div id="fsv2-modal-backdrop" class="modal-backdrop" aria-hidden="true"></div>
+    <div id="fsv2-modal" class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="fsv2-modal-title">
+      <div class="modal-head">
+        <div id="fsv2-modal-title" class="modal-title"></div>
+        <button id="fsv2-modal-close" class="modal-close" aria-label="閉じる">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="fsv2-modal-summary" class="muted2 mb-8"></div>
+        <div id="fsv2-modal-timeline" class="timeline"></div>
+      </div>
+    </div>
+    <script>
+      // 簡易ヘルスチェック（描画後にOK表示）
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          const name = document.getElementById('fsv2-name')?.textContent?.trim();
+          const chart = document.getElementById('fsv2-linechart');
+          const patterns = document.getElementById('fsv2-patterns');
+          const ok = name && chart && patterns;
+          const el = document.getElementById('mock-status');
+          if (el) el.textContent = ok ? '✅ モック描画完了。' : '⚠️ モック描画に失敗。ブラウザのコンソールを確認してください。';
+        }, 200);
+      });
+    </script>
+    </div>
+  </body>
+</html>
