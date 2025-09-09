@@ -468,33 +468,30 @@ console.log('🎯 EightScenariosDisplay Loading...');
         })();
         right.innerHTML = snippet;
 
-        // 理由ブロック（選定理由/カテゴリ/フレーム）
+        // 理由（システムの理解）: 行状態辞書を直接提示
         const reason = document.createElement('div');
-        reason.style.cssText = 'flex-basis:100%;display:flex;gap:.5rem;flex-wrap:wrap;color:#94a3b8;margin-top:.25rem;';
-        const reasons = cs && cs.reasons ? cs.reasons : null;
-        const mkChip = (text) => `<span style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.35);color:#c7d2fe;padding:.1rem .45rem;border-radius:999px;font-size:.75rem;">${text}</span>`;
-        let chips = '';
-        if (reasons) {
-          const kw = (reasons.matchKw||[]).slice(0,4).map(k=>mkChip(`語:${k}`)).join('');
-          const cat = (reasons.matchCat||[]).slice(0,3).map(c=>mkChip(`類:${c}`)).join('');
-          const pb = (reasons.phraseBoost||0) ? mkChip(`句+${reasons.phraseBoost}`) : '';
-          const cb = (reasons.catBoost||0) ? mkChip(`誘+${reasons.catBoost}`) : '';
-          chips = kw + cat + pb + cb;
-        } else {
-          // フォールバック: カテゴリ/フレームをEngineから取得
-          try {
-            if (window.iChingGuidance && this.userInputText) {
-              const sem = window.iChingGuidance.getSemantics(this.userInputText);
-              const cats = (sem.categories||[]).slice(0,4).map(c=>mkChip(`類:${c}`)).join('');
-              const fr = (sem.frames||[]).slice(0,2).map(f=>mkChip(`枠:${f}`)).join('');
-              chips = cats + fr;
-            }
-          } catch {}
+        reason.style.cssText = 'flex-basis:100%;display:block;color:#cbd5e1;margin-top:.25rem;';
+        let lineText = '';
+        try {
+          const hex = Number(cs.hexagramNumber || cs['卦番号']);
+          const yaoName = String(cs.yaoName || cs['爻'] || '');
+          const lineMap = { '初九':1,'九二':2,'九三':3,'九四':4,'九五':5,'上九':6,'初六':1,'六二':2,'六三':3,'六四':4,'六五':5,'上六':6 };
+          const line = lineMap[yaoName];
+          if (Number.isFinite(hex) && Number.isFinite(line)) {
+            lineText = this._getLineState(hex, line) || '';
+          }
+        } catch {}
+
+        if (lineText) {
+          const summary = document.createElement('div');
+          summary.style.cssText = 'background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.25);border-radius:8px;padding:.5rem .6rem;';
+          summary.innerHTML = `<span style="color:#a5b4fc;font-weight:700;">理由（システムの理解）</span><br/>${this._normalizeJa(lineText)}`;
+          reason.appendChild(summary);
         }
 
         bar.appendChild(left);
         bar.appendChild(right);
-        if (chips) { reason.innerHTML = `<span style="color:#a5b4fc;font-weight:700;">理由</span> ${chips}`; bar.appendChild(reason); }
+        if (lineText) bar.appendChild(reason);
 
         // 詳細な理由（文脈→解釈の明示）
         const detailWrap = document.createElement('div');
