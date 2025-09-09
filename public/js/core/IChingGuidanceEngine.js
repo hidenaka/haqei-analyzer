@@ -123,6 +123,8 @@ console.log('☯️ IChingGuidanceEngine Loading...');
 
         // H384索引の前計算（レキシコン読み込み後に実施）
         this.buildH384Index();
+        // 価値観テキスト（現代解釈の要約）に基づくTF-IDF索引を構築
+        this.buildTfidfIndex();
         
         this.isInitialized = true;
         console.log('✅ IChingGuidanceEngine initialized successfully');
@@ -149,6 +151,72 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         console.warn('H384 index build failed:', e.message);
         this._h384Index = null;
       }
+    }
+
+    // 現代解釈の要約を基にしたTF-IDF索引
+    buildTfidfIndex() {
+      try {
+        const data = window.H384_DATA || (this.h384db && this.h384db.getDatabaseData && this.h384db.getDatabaseData()) || [];
+        const docs = data.map(e => String(e['現代解釈の要約'] || ''));
+        const tokenized = docs.map(txt => this.normalizeTokens(String(txt).split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u)));
+        const df = new Map();
+        tokenized.forEach(docTokens => {
+          const uniq = new Set(docTokens);
+          uniq.forEach(t => df.set(t, (df.get(t)||0)+1));
+        });
+        const N = tokenized.length || 1;
+        this._tfidf = { idf:new Map(), vectors:[], vocabSize: df.size };
+        df.forEach((d, term) => {
+          const idf = Math.log((N + 1) / (d + 1)) + 1; // smoothed IDF
+          this._tfidf.idf.set(term, idf);
+        });
+        // build per-doc tf-idf
+        tokenized.forEach((docTokens, i) => {
+          const tf = new Map();
+          docTokens.forEach(t => tf.set(t, (tf.get(t)||0)+1));
+          const vec = new Map();
+          let norm = 0;
+          tf.forEach((f, t) => {
+            const idf = this._tfidf.idf.get(t) || 0;
+            const w = (f / docTokens.length) * idf;
+            if (w>0) { vec.set(t, w); norm += w*w; }
+          });
+          this._tfidf.vectors[i] = { vec, norm: Math.sqrt(norm) };
+        });
+        console.log('✅ TF-IDF index built for value-state texts');
+      } catch (e) {
+        console.warn('TF-IDF index build failed:', e.message);
+        this._tfidf = null;
+      }
+    }
+
+    _computeTfidfSimilarity(inputTokens, docIndex) {
+      try {
+        if (!this._tfidf || !this._tfidf.vectors[docIndex]) return { sim:0, top:[] };
+        const idf = this._tfidf.idf;
+        const doc = this._tfidf.vectors[docIndex];
+        // input vector
+        const tf = new Map();
+        inputTokens.forEach(t => tf.set(t, (tf.get(t)||0)+1));
+        const inVec = new Map();
+        let inNorm = 0;
+        tf.forEach((f, t) => {
+          const w = (f / inputTokens.length) * (idf.get(t)||0);
+          if (w>0) { inVec.set(t, w); inNorm += w*w; }
+        });
+        inNorm = Math.sqrt(inNorm) || 1e-9;
+        const docNorm = doc.norm || 1e-9;
+        // dot product
+        let dot = 0;
+        const contrib = [];
+        inVec.forEach((w, t) => {
+          const dw = doc.vec.get(t);
+          if (dw) { const c = w*dw; dot += c; contrib.push([t, c]); }
+        });
+        contrib.sort((a,b)=> b[1]-a[1]);
+        const sim = dot / (inNorm * docNorm);
+        return { sim, top: contrib.slice(0,5).map(x=>x[0]) };
+      } catch { return { sim:0, top:[] }; }
     }
 
     async loadExternalLexicon(url) {
@@ -588,6 +656,19 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       score += (e['S4_リスク'] || 0) * (this.tuning.wS4||0.02);
       score += (e['S7_総合評価スコア'] || 0) * (this.tuning.wS7||0.05);
 
+      // 価値観テキストの意味近接（TF-IDFコサイン類似度）
+      try {
+        const inTokens = this.normalizeTokens(String(analysis.rawText||'').split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u));
+        const simRes = this._computeTfidfSimilarity(inTokens, idxEntry.idx || 0);
+        // 重み（調整可）
+        const wSim = (this.tuning && this.tuning.wSim) ? this.tuning.wSim : 24;
+        score += (simRes.sim || 0) * wSim * 100; // 0..1 → 0..100換算
+        // reasonsに追加
+        if (!this._tmpReasons) this._tmpReasons = {};
+        this._tmpReasons.tfidfSim = simRes.sim;
+        this._tmpReasons.tfidfTerms = simRes.top;
+      } catch {}
+
       // ブリッジングルール: 入力カテゴリ/フレームから“打ち手”カテゴリへの誘導
       let catBoost = 0;
       (this.bridging||[]).forEach(rule => {
@@ -632,7 +713,9 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         }
       } catch {}
 
-      return { score, reasons: { matchKw, matchSum, matchCat, phraseBoost, catBoost } };
+      const extra = this._tmpReasons || {};
+      this._tmpReasons = null;
+      return { score, reasons: { matchKw, matchSum, matchCat, phraseBoost, catBoost, tfidfSim: extra.tfidfSim, tfidfTerms: extra.tfidfTerms } };
     }
 
     setTuning(params={}) {

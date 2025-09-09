@@ -68,13 +68,15 @@ console.log('🎯 EightScenariosDisplay Loading...');
         const rs = cs.reasons || {};
         const kw = (rs.matchKw||[]).slice(0,6).join('、');
         const mcat = (rs.matchCat||[]).slice(0,6).join('、');
+        const sim = (typeof rs.tfidfSim === 'number' && rs.tfidfSim>0) ? `・意味近接(TF‑IDF): ${(rs.tfidfSim*100).toFixed(1)}%` : '';
+        const simTerms = (rs.tfidfTerms&&rs.tfidfTerms.length) ? `・近接語: ${rs.tfidfTerms.join('、')}` : '';
         const frameLine = frames.length ? `・認識した文脈: ${frames.join('、')}` : '';
         const catLine = cats.length ? `・検出カテゴリ: ${cats.join('、')}` : '';
         const kwLine = kw ? `・キーワード一致: ${kw}` : '';
         const catMatchLine = mcat ? `・カテゴリ一致: ${mcat}` : '';
         const bridgeBlock = bridgeLines ? `・ブリッジ誘導:<br/>${bridgeLines}` : '';
         const resultLine = `・現在地: ${cs.hexagramName || ''} ${cs.yaoName || ''}`;
-        const parts = [frameLine, catLine, kwLine, catMatchLine, bridgeBlock, resultLine].filter(Boolean);
+        const parts = [frameLine, catLine, kwLine, catMatchLine, sim, simTerms, bridgeBlock, resultLine].filter(Boolean);
         if (!parts.length) return '';
         return parts.join('<br/>');
       } catch { return ''; }
