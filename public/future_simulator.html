@@ -1592,18 +1592,7 @@
                 if (Array.isArray(window.H384_DATA) && window.H384_DATA.length === 386) {
                     console.log('✅ H384_DATAデータ完全性確認: 成功 (386エントリ)');
                     
-                    // DataDrivenKeywordAnalyzerの初期化
-                    if (typeof DataDrivenKeywordAnalyzer !== 'undefined') {
-                        try {
-                            dataAnalyzer = new DataDrivenKeywordAnalyzer(window.H384_DATA, {});
-                            window.dataAnalyzer = dataAnalyzer; // グローバルアクセス用
-                            console.log('✅ DataDrivenKeywordAnalyzer初期化: 成功');
-                        } catch (error) {
-                            console.error('DataDrivenKeywordAnalyzer initialization error:', error);
-                        }
-                    } else {
-                        console.warn('⚠️ DataDrivenKeywordAnalyzerクラスが見つかりません');
-                    }
+                    // DataDrivenKeywordAnalyzerは廃止（IChingGuidanceEngineに統合）
                     
                     // 用九・用六エントリの確認
                     const youkuu = window.H384_DATA.find(item => item['通し番号'] === 7);
@@ -1646,8 +1635,7 @@
     <script src="./js/core/ExpressionQualityValidator.js"></script>
     
     <!-- 🌟 New Display System -->
-    <script src="./js/future-simulator-expression.js"></script>
-    <script src="./js/future-simulator-display.js"></script>
+    <!-- Removed old display stack: future-simulator-expression/display -->
     
     <!-- Dynamic Analysis Components -->
     <script src="./js/pages/future-simulator/DynamicKeywordGenerator.js"></script>
@@ -1661,8 +1649,7 @@
     <script src="./js/core/AuthenticIChingEngine.js"></script>
     <script src="./js/components/CurrentPositionDisplay.js"></script>
     <script src="./js/components/AuthenticChoiceSystem.js"></script>
-    <script src="./js/components/Authentic8ScenariosSystem.js"></script>
-    <script src="./js/components/Authentic386YaoAnalyzer.js"></script>
+    <!-- Removed old authentic systems to avoid conflicts -->
     
     <!-- I Ching Integration System -->
     <script src="./js/iching-situation-analyzer.js"></script>
@@ -1682,8 +1669,7 @@
     </script>
     
     <!-- Future Simulator Core & Binary Tree System -->
-    <script src="./js/future-simulator-core.js"></script>
-    <script src="./js/core/BinaryTreeFutureEngine.js"></script>
+    <!-- Removed old core/binary-tree systems (EightScenariosDisplay is authoritative) -->
     <!-- binary-tree-complete-display.js - 無効化（innerHTML問題のため） -->
     
     <!-- v2.2.0: KingWenMapping 64卦統合システム (ES Module Dynamic Loader) -->
@@ -1699,7 +1685,7 @@
     <!-- 8シナリオ生成システム（旧ロジック）削除：新UI(EightScenariosDisplay)を使用 -->
     
     <!-- Future Simulator UI Enhancement System -->
-    <script src="./js/future-simulator-ui-enhancements.js" defer></script>
+    <!-- Removed UI enhancements tied to old display system -->
     <!-- Dev Diagnostics -->
     <script src="./js/dev/Diagnostics.js"></script>
   </head>

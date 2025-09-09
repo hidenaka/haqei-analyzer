@@ -272,11 +272,8 @@ console.log('🚀 Future Simulator Integration Loading...');
           const newContainer = document.createElement('div');
           newContainer.id = 'three-stage-visualizer';
           newContainer.style.marginTop = '2rem';
-          
-          const resultArea = document.getElementById('resultArea');
-          if (resultArea) {
-            resultArea.appendChild(newContainer);
-          }
+          const mount = document.getElementById('resultsContainer') || document.body;
+          mount.appendChild(newContainer);
           
           this.visualizer.initialize('three-stage-visualizer');
         }
@@ -295,11 +292,8 @@ console.log('🚀 Future Simulator Integration Loading...');
           const newContainer = document.createElement('div');
           newContainer.id = 'eight-scenarios-display';
           newContainer.style.marginTop = '2rem';
-          
-          const resultArea = document.getElementById('resultArea');
-          if (resultArea) {
-            resultArea.appendChild(newContainer);
-          }
+          const mount = document.getElementById('resultsContainer') || document.body;
+          mount.appendChild(newContainer);
           
           this.scenariosDisplay.initialize('eight-scenarios-display');
         }
