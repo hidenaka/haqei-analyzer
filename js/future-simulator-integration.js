@@ -18,7 +18,10 @@ console.log('🚀 Future Simulator Integration Loading...');
       this.h384db = null;
       this.guidanceEngine = null;
       this.visualizer = null;
-      this.scenariosDisplay = null;
+      this.scenariosDisplay = null; // 旧UI
+      this.branchesDisplay = null;  // 新UI
+      this.branchGenerator = null;  // 新ユーティリティ
+      this._lineStatesCache = null; // Nowの主理由用
       
       // 現在の分析結果
       this.currentAnalysis = null;
@@ -102,14 +105,22 @@ console.log('🚀 Future Simulator Integration Loading...');
         }
       }
       
-      // 8シナリオ表示
-      if (window.EightScenariosDisplay) {
-        this.scenariosDisplay = new window.EightScenariosDisplay();
-        
-        // コンテナがあれば初期化
-        const scenariosContainer = document.getElementById('eight-scenarios-display');
-        if (scenariosContainer) {
-          this.scenariosDisplay.initialize('eight-scenarios-display');
+      // 8シナリオ表示 or 8分岐表示（フィーチャーフラグ）
+      const useEightBranches = (window.HAQEI_CONFIG && window.HAQEI_CONFIG.useEightBranches) !== false;
+      if (useEightBranches) {
+        if (window.EightBranchesDisplay) {
+          this.branchesDisplay = new window.EightBranchesDisplay();
+        }
+        if (window.BranchGenerator) {
+          this.branchGenerator = new window.BranchGenerator();
+        }
+      } else {
+        if (window.EightScenariosDisplay) {
+          this.scenariosDisplay = new window.EightScenariosDisplay();
+          const scenariosContainer = document.getElementById('eight-scenarios-display');
+          if (scenariosContainer) {
+            this.scenariosDisplay.initialize('eight-scenarios-display');
+          }
         }
       }
       
@@ -193,8 +204,8 @@ console.log('🚀 Future Simulator Integration Loading...');
     async displayResults(analysis) {
       console.log('📊 Displaying analysis results:', analysis);
       
-      // 1. 現在の状況表示
-      this.displayCurrentSituation(analysis.currentSituation);
+      // 1. 現在の状況表示（主理由＝行状態テキスト）
+      await this.displayCurrentSituation(analysis.currentSituation);
       
       // 2. 3段階プロセスの可視化
       if (this.visualizer && analysis.threeStageProcess) {
@@ -219,8 +230,33 @@ console.log('🚀 Future Simulator Integration Loading...');
         );
       }
       
-      // 3. 8つのシナリオ表示
-      if (this.scenariosDisplay && analysis.eightScenarios) {
+      // 3. 8分岐または従来8シナリオ表示
+      const useEightBranches = (window.HAQEI_CONFIG && window.HAQEI_CONFIG.useEightBranches) !== false;
+      if (useEightBranches && this.branchesDisplay && this.branchGenerator) {
+        // コンテナ確保
+        let container = document.getElementById('eight-branches-display');
+        if (!container) {
+          container = document.createElement('div');
+          container.id = 'eight-branches-display';
+          container.style.marginTop = '2rem';
+          const resultArea = document.getElementById('resultArea');
+          if (resultArea) resultArea.appendChild(container);
+        }
+        this.branchesDisplay.initialize('eight-branches-display');
+
+        // 現在の卦と爻位を抽出
+        const startHex = analysis.currentSituation['卦番号'];
+        const yaoName = analysis.currentSituation['爻'];
+        const startLine = this.parseLinePosition(yaoName);
+
+        // 8分岐を生成して描画
+        try {
+          const branches = await this.branchGenerator.generateEightBranches(startHex, startLine);
+          this.branchesDisplay.displayBranches(branches);
+        } catch (e) {
+          console.error('❌ EightBranches の生成に失敗:', e);
+        }
+      } else if (this.scenariosDisplay && analysis.eightScenarios) {
         const container = document.getElementById('eight-scenarios-display');
         if (!container) {
           // コンテナを作成
@@ -258,41 +294,52 @@ console.log('🚀 Future Simulator Integration Loading...');
     /**
      * 現在の状況表示
      */
-    displayCurrentSituation(situation) {
-      // タイトル更新
+    async displayCurrentSituation(situation) {
+      // タイトル（卦名+爻名）はそのまま
       const currentTitle = document.getElementById('currentTitle');
       if (currentTitle) {
         currentTitle.textContent = `${situation['卦名']} ${situation['爻']}`;
       }
-      
-      // キーワード更新
-      const currentKeywords = document.getElementById('currentKeywords');
-      if (currentKeywords && situation['キーワード']) {
-        currentKeywords.textContent = situation['キーワード'].join(' / ');
-      }
-      
-      // サマリー更新
+      // 主理由 = 行状態テキスト のみ
       const currentSummary = document.getElementById('currentSummary');
       if (currentSummary) {
-        currentSummary.textContent = situation['現代解釈の要約'];
+        const hex = situation['卦番号'];
+        const line = this.parseLinePosition(situation['爻']);
+        const text = await this.getLineStateText(hex, line);
+        currentSummary.textContent = text || '';
       }
-      
-      // 推奨方向性更新
+      // 余計な要素は非表示
+      const currentKeywords = document.getElementById('currentKeywords');
+      if (currentKeywords) currentKeywords.style.display = 'none';
       const recommendedDirection = document.getElementById('recommendedDirection');
-      if (recommendedDirection) {
-        const stance = situation['S5_主体性推奨スタンス'];
-        let direction = '';
-        
-        if (stance === '能動') {
-          direction = '積極的に行動を起こし、主体的に状況を切り開いていくことが推奨されます。';
-        } else if (stance === '受動') {
-          direction = '状況を慎重に観察し、適切なタイミングを待つことが推奨されます。';
-        } else {
-          direction = 'バランスを保ちながら、状況に応じて柔軟に対応することが推奨されます。';
+      if (recommendedDirection) recommendedDirection.style.display = 'none';
+    }
+
+    // 爻名 → 爻位（1..6）
+    parseLinePosition(yaoName) {
+      const map = { '初九':1,'初六':1,'九二':2,'六二':2,'九三':3,'六三':3,'九四':4,'六四':4,'九五':5,'六五':5,'上九':6,'上六':6 };
+      return map[yaoName] || 1;
+    }
+
+    // 行状態テキストの取得（キャッシュ）
+    async getLineStateText(hex, line) {
+      if (!this._lineStatesCache) {
+        try {
+          const res = await fetch('/data/h384-line-states.json', { cache: 'no-cache' });
+          if (res.ok) {
+            this._lineStatesCache = await res.json();
+          } else {
+            this._lineStatesCache = {};
+          }
+        } catch (_) {
+          this._lineStatesCache = {};
         }
-        
-        recommendedDirection.textContent = direction;
       }
+      const key = `${hex}-${line}`;
+      const v = this._lineStatesCache[key];
+      if (typeof v === 'string') return v;
+      if (v && typeof v.text === 'string') return v.text;
+      return '（未登録）';
     }
 
     /**
