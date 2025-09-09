@@ -355,7 +355,8 @@ console.log('🎯 EightScenariosDisplay Loading...');
     _ensureLineStatesLoaded() {
       if (this._lineStatesLoading || this.lineStates) return;
       this._lineStatesLoading = true;
-      fetch('/data/h384-line-states.json').then(r=>r.json()).then(json=>{
+      const url = `/data/h384-line-states.json?v=${encodeURIComponent(this.version || '1.0.0')}`;
+      fetch(url).then(r=>r.json()).then(json=>{
         this.lineStates = json;
       }).catch(()=>{
         this.lineStates = null;

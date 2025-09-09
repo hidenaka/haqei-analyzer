@@ -117,7 +117,9 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         // 行動指針システム初期化
         this.initializeGuidanceSystem();
         // 外部レキシコンの読み込み（任意）
-        await this.loadExternalLexicon('/data/semantic-lexicon.json');
+        // cache-busting for dev/refresh safety
+        const lexiconUrl = `/data/semantic-lexicon.json?v=${encodeURIComponent(this.version || '1.0.0')}`;
+        await this.loadExternalLexicon(lexiconUrl);
 
         // H384索引の前計算（レキシコン読み込み後に実施）
         this.buildH384Index();
