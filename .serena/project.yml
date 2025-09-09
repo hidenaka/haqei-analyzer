@@ -14,15 +14,21 @@ serena:
       - config_tools
       - workflow_tools
   logging:
-    # .serena に記録を残すルール
-    activity_log: ".serena/activity.ndjson"
+    # 記録対象は「コード作成/修正/方針決定」に限定
+    decisions_log: ".serena/decisions.ndjson"
     policy:
-      - on: "git-commit"
-        action: "append-entry"
-      - on: "deploy"
-        action: "append-entry"
-      - on: "future-simulator.analysis"
-        action: "append-entry"
+      - on: "session_start"
+        action: "append-decision-entry"
+      - on: "decision"
+        action: "append-decision-entry"
+      - on: "session_end"
+        action: "append-decision-entry"
     redaction:
-      remove_keys: ["apiKey", "token", "password"]
-
+      remove_keys: ["apiKey", "token", "password", "authorization"]
+  enforcement:
+    # どのエージェントを開いても最初に Serena チェックを行う
+    require_serena_check_on_session_start: true
+    checklist:
+      - "project.yml が存在し最新化されている"
+      - ".serena/decisions.ndjson に本セッションの start 記録がある"
+      - "本セッションの目的/方針/暫定プランが記載されている"
