@@ -335,8 +335,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
       compareTray.style.cssText = 'margin:.5rem 0;display:none;';
       mainContainer.appendChild(compareTray);
 
-      // 3段階セレクター追加
-      mainContainer.appendChild(this.createStageSelector());
+      // 3段階セレクターは現在非表示（要望により一旦撤去）
       
       // おすすめ計算と表示
       this._updateRecommendations(scenarios);
