@@ -720,15 +720,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
       header.className = 'three-stage-header';
       header.innerHTML = `
         <h2 class="three-stage-title">🎯 8つの未来シナリオ</h2>
-        <p class="three-stage-subtitle">3段階の選択による可能性の全体像</p>
-        <div style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; border: 1px solid #6366f1;">
-          <div style="color: #fbbf24; font-weight: bold; margin-bottom: 0.5rem;">⚡ 386爻準拠システム</div>
-          <div style="color: #a5b4fc; font-size: 0.875rem; line-height: 1.5;">
-            <div>• <strong>386爻データ使用</strong>: 64卦×6爻 + 用九・用六による完全分析</div>
-            <div>• <strong>変化方式</strong>: 4基軸×2方式（進む/変わる）= 8パス生成</div>
-            <div>• <strong>時間的反復</strong>: 各パス2〜3ステップの段階的展開</div>
-          </div>
-        </div>
+        <p class="three-stage-subtitle">あなたの状況に基づく選択肢の全体像</p>
       `;
       return header;
     }
