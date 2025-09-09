@@ -613,6 +613,13 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       } catch {}
       score += catBoost;
 
+      // ミニブースト: 所有権/優先度の言及がある場合、基盤（foundation）をわずかに加点
+      try {
+        if (inputCats.has('ownership') || inputCats.has('priority')) {
+          if (eCats.has('foundation')) score += 2;
+        }
+      } catch {}
+
       // 軽微なプライヤ: 協力カテゴリ検出時に「同人/比」を微増強
       try {
         if (inputCats.has('cooperation')) {
