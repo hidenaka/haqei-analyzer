@@ -1,0 +1,72 @@
+{
+  "audit_metadata": {
+    "timestamp": "2025-08-31T10:30:00.000Z",
+    "database_path": "/Users/hideakimacbookair/Desktop/haqei-analyzer/public/data/authoring/narratives_chain_complete_final.json",
+    "total_entries": 3072,
+    "audit_type": "品質検証"
+  },
+  "critical_issues": {
+    "template_dependency": {
+      "severity": "致命的",
+      "issue": "全エントリーがテンプレートベース",
+      "details": {
+        "unique_chain_long": 48,
+        "total_entries": 3072,
+        "uniqueness_ratio": "1.56%",
+        "重複率": "100%"
+      }
+    },
+    "repetitive_phrases": {
+      "severity": "致命的",
+      "common_phrases": {
+        "飛躍か静観か": 512,
+        "状況に応じて": 2304,
+        "柔軟性と安定性のバランス": 2000
+      }
+    },
+    "triad_quality": {
+      "severity": "重大",
+      "issues": [
+        "状況完成段階: 450回使用",
+        "状況上昇段階: 450回使用",
+        "状況開始段階: 449回使用"
+      ]
+    },
+    "hexagram_differentiation": {
+      "severity": "致命的",
+      "issue": "異なる卦で同一内容",
+      "example": "乾為天と坤為地で同じchain_long使用"
+    }
+  },
+  "positive_findings": {
+    "sample_compliance": {
+      "地天泰 六五 | HHH": "完全一致 ✅",
+      "水天需 初九 | JJJ": "完全一致 ✅"
+    },
+    "structural_completeness": {
+      "total_entries": "3072 ✅",
+      "all_fields_present": "100% ✅",
+      "pattern_distribution": "均等 ✅"
+    }
+  },
+  "quality_metrics": {
+    "content_uniqueness": 1.56,
+    "template_independence": 0,
+    "hexagram_specificity": 0,
+    "narrative_variety": 1.56,
+    "overall_score": 5
+  },
+  "recommendations": {
+    "immediate": [
+      "全3072エントリーの内容を個別に書き直す",
+      "テンプレート表現を完全排除",
+      "各卦の特性を反映した独自内容作成"
+    ],
+    "critical": [
+      "chain_longを3072個の完全ユニークな内容に",
+      "triadを卦・爻位・パターンごとに差別化",
+      "易経の伝統的意味を正確に反映"
+    ]
+  },
+  "conclusion": "現状のデータベースは品質基準を満たしていません。サンプル2件のみ正しく、残り3070件は低品質なテンプレート生成です。"
+}
