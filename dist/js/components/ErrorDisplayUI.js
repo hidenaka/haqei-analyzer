@@ -124,7 +124,7 @@ class ErrorDisplayUI {
             }
 
             .haqei-error-card {
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
                 border: 2px solid #4a90e2;
                 border-radius: 16px;
                 max-width: 600px;

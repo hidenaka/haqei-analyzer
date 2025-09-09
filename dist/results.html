@@ -11,621 +11,1178 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Existing Styles -->
-    <link rel="stylesheet" href="css/main.css">
+    <!-- CSS読み込み順序修正 -->
+    <link rel="stylesheet" href="css/haqei-unified-design.css">
     <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="css/interactive-ui.css">
+    <link rel="stylesheet" href="css/results.css">
+    <link rel="stylesheet" href="css/detailed-analysis.css">
+    <link rel="stylesheet" href="css/insights-enhanced.css">
+    <link rel="stylesheet" href="css/export-mobile.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/results-personality.css">
+    <link rel="stylesheet" href="css/psychological-safety.css">
+    <!-- 青基調デザイン復活 -->
+    <link rel="stylesheet" href="css/results-blue-theme.css">
     
-    <!-- New Style for Virtual Persona -->
-    <link rel="stylesheet" href="css/virtual-persona-results.css">
+    <!-- Chart.js CDN for Phase 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     
-    <!-- Ultra-Sync Engaging Loading Experience -->
-    <link rel="stylesheet" href="css/ultra-sync-engaging.css">
+    <!-- Image Size Validator -->
+    <script src="js/utils/ImageSizeValidator.js"></script>
     
-    <!-- VP Main Container Fix -->
-    <link rel="stylesheet" href="css/vp-main-container-fix.css">
-    
-    <!-- Construction View Disable - 構築演出ビューを完全無効化 -->
-    <link rel="stylesheet" href="css/construction-view-disable.css">
-    
-    <!-- Emergency CSS fixes for view display -->
+    <!-- V3統合デザインスタイル -->
     <style>
-        /* Emergency fix for main content display */
-        #virtual-persona-container {
+        /* ==========================================
+           Figmaライクな美しいデザイン - V3統合版
+           ========================================== */
+        
+        :root {
+            /* カラーシステム */
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+            --primary-bg: #eff6ff;
+            
+            --engine: #ef4444;
+            --engine-light: #fca5a5;
+            --engine-bg: #fef2f2;
+            
+            --interface: #3b82f6;
+            --interface-light: #93c5fd;
+            --interface-bg: #eff6ff;
+            
+            --safemode: #10b981;
+            --safemode-light: #86efac;
+            --safemode-bg: #f0fdf4;
+            
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            
+            /* 影 */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            
+            /* アニメーション */
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 50%, #f8fafc 100%);
+            color: var(--gray-800);
+            line-height: 1.6;
             min-height: 100vh;
-            background: #0F172A;
-            color: #F1F5F9;
         }
         
-        /* Ensure views are visible when active */
-        .vp-view.active {
-            display: block !important;
-            opacity: 1 !important;
-            visibility: visible !important;
+        /* ヒーローセクション */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
         
-        /* Force container visibility */
-        .vp-main-content {
-            display: block !important;
-            min-height: 80vh;
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
         }
         
-        /* Loading overlay fix */
-        .loading-overlay:not(.active) {
-            display: none !important;
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         
-        /* Debug styles for troubleshooting */
-        .debug-visible {
-            border: 2px solid #ff00ff !important;
-            background: rgba(255, 0, 255, 0.1) !important;
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            letter-spacing: -0.02em;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        /* コンテナ */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* サマリーグリッド */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s var(--ease);
+            cursor: pointer;
+        }
+        
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+        }
+        
+        .summary-card.engine::before {
+            background: linear-gradient(90deg, var(--engine) 0%, var(--engine-light) 100%);
+        }
+        
+        .summary-card.interface::before {
+            background: linear-gradient(90deg, var(--interface) 0%, var(--interface-light) 100%);
+        }
+        
+        .summary-card.safemode::before {
+            background: linear-gradient(90deg, var(--safemode) 0%, var(--safemode-light) 100%);
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-2xl);
+        }
+        
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-emoji {
+            font-size: 2.5rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gray-50);
+            border-radius: 15px;
+        }
+        
+        .summary-info h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 5px;
+        }
+        
+        .summary-info p {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--gray-900);
+        }
+        
+        .summary-card h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .summary-card p {
+            color: var(--gray-600);
+            margin-bottom: 20px;
+        }
+        
+        /* エラーメッセージコンテナ */
+        .error-message-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .error-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: var(--shadow-2xl);
+        }
+        
+        .error-content h2 {
+            color: var(--engine);
+            margin-bottom: 20px;
+        }
+        
+        .error-content p {
+            color: var(--gray-600);
+            margin-bottom: 30px;
+        }
+        
+        .btn-primary {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s var(--ease);
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        /* レスポンシブ */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2rem; }
+            .container { padding: 20px 15px; }
+            .summary-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* アニメーション */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .summary-card {
+            animation: slideIn 0.6s var(--ease) forwards;
+            opacity: 0;
+        }
+        
+        .summary-card:nth-child(1) { animation-delay: 0.1s; }
+        .summary-card:nth-child(2) { animation-delay: 0.2s; }
+        .summary-card:nth-child(3) { animation-delay: 0.3s; }
+        
+        /* V3詳細セクションのスタイル */
+        .os-details-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+        
+        .detail-item {
+            margin-bottom: 20px;
+        }
+        
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .detail-item h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .detail-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--gray-600);
+            background: var(--gray-50);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        
+        .detail-content strong {
+            color: var(--gray-800);
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        
+        /* OSバランス表示 */
+        .balance-chart {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 8px;
+        }
+        
+        .simple-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-label {
+            width: 60px;
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+        
+        .chart-value {
+            height: 20px;
+            background: linear-gradient(90deg, #4a90e2, #357abd);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .chart-percent {
+            font-size: 12px;
+            color: var(--gray-600);
+            margin-left: 5px;
+        }
+        
+        .balance-info p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        
+        .balance-info strong {
+            color: var(--primary);
+            margin-right: 8px;
+        }
+        
+        /* モバイル対応 */
+        @media (max-width: 768px) {
+            .os-details-section {
+                margin-top: 20px;
+                padding-top: 20px;
+            }
+            
+            .detail-item h4 {
+                font-size: 13px;
+            }
+            
+            .detail-content {
+                font-size: 13px;
+                padding: 10px;
+            }
         }
     </style>
-    
-    <!-- Chart.js for visualizations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
-    <!-- 
-    仮想人格対話型自己理解プラットフォーム
-    
-    概要：
-    このページは、ユーザーの診断結果から構築された仮想人格（3つのOS）との
-    対話を通じて、深い自己理解を促進するインタラクティブなプラットフォームです。
-    
-    主要機能：
-    1. 仮想人格の段階的構築演出
-    2. 3つのOS間の相互作用可視化
-    3. 内部対話の再生・シミュレーション
-    4. 易経メタファーによる深い洞察
-    5. 実践的な自己理解ガイダンス
-    -->
-    
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay active">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <h2 class="loading-title">あなたの回答を分析中...</h2>
-            <p class="loading-description">実際の回答データを使用して、最新の分析結果を生成しています</p>
+    <!-- 新実装: V3統合デザイン -->
+    <!-- ヒーローセクション -->
+    <div class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">HAQEI Triple OS 診断結果</div>
+            <h1 class="hero-title">あなたの個性を構成する<br>3つのOSを完全解析</h1>
+            <p class="hero-subtitle">64卦の叡智が明らかにする、あなただけの個性パターン</p>
         </div>
     </div>
     
-    <!-- Main Container -->
-    <div id="virtual-persona-container" class="virtual-persona-container">
-        <!-- VirtualPersonaResultsViewがここに動的にコンテンツを生成 -->
-    </div>
-    
-    <!-- Error Display -->
-    <div id="error-container" class="error-container" style="display: none;">
-        <div class="error-content">
-            <h2>エラーが発生しました</h2>
-            <p id="error-message"></p>
-            <button onclick="location.reload()" class="error-retry-button">再読み込み</button>
+    <div class="container">
+        <!-- サマリーセクション -->
+        <div class="summary-grid" id="summary-grid">
+            <!-- Engine OS Card -->
+            <div class="summary-card engine" id="engine-os-card">
+                <div class="summary-header">
+                    <div class="summary-emoji" id="engine-emoji">🚀</div>
+                    <div class="summary-info">
+                        <h3>ENGINE OS</h3>
+                        <p id="engine-hexagram-name">読み込み中...</p>
+                    </div>
+                </div>
+                <h2 id="engine-nickname">読み込み中...</h2>
+                <p id="engine-description">読み込み中...</p>
+                
+                <!-- ⭐️ V3詳細データセクション ⭐️ -->
+                <div class="os-details-section">
+                    <!-- 通常状態 -->
+                    <div class="detail-item">
+                        <h4>💡 通常状態</h4>
+                        <div id="engine-normal-state" class="detail-content"></div>
+                    </div>
+                    
+                    <!-- スーパーモード -->
+                    <div class="detail-item">
+                        <h4>🚀 スーパーモード</h4>
+                        <div id="engine-super-mode" class="detail-content"></div>
+                    </div>
+                    
+                    <!-- 休息モード -->
+                    <div class="detail-item">
+                        <h4>😴 休息モード</h4>
+                        <div id="engine-rest-mode" class="detail-content"></div>
+                    </div>
+                    
+                    <!-- メンテナンス -->
+                    <div class="detail-item">
+                        <h4>🔧 メンテナンス</h4>
+                        <div id="engine-maintenance" class="detail-content"></div>
+                    </div>
+                    
+                    <!-- OSバランス分析 -->
+                    <div class="detail-item">
+                        <h4>⚖️ OSバランス分析</h4>
+                        <div id="engine-os-balance" class="detail-content">
+                            <div class="balance-chart" id="engine-balance-chart">
+                                <!-- OSアナライザーの計算結果を可視化 -->
+                            </div>
+                            <div class="balance-info">
+                                <p><strong>理想的なバランス：</strong><span id="engine-ideal-balance"></span></p>
+                                <p><strong>現在の状態：</strong><span id="engine-current-balance"></span></p>
+                                <p><strong>バランスが取れている時：</strong><span id="engine-when-balanced"></span></p>
+                                <p><strong>バランスが崩れている時：</strong><span id="engine-when-imbalanced"></span></p>
+                                <p><strong>調整のヒント：</strong><span id="engine-balance-tip"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Interface OS Card -->
+            <div class="summary-card interface" id="interface-os-card">
+                <div class="summary-header">
+                    <div class="summary-emoji" id="interface-emoji">🌐</div>
+                    <div class="summary-info">
+                        <h3>INTERFACE OS</h3>
+                        <p id="interface-hexagram-name">読み込み中...</p>
+                    </div>
+                </div>
+                <h2 id="interface-nickname">読み込み中...</h2>
+                <p id="interface-description">読み込み中...</p>
+                
+                <!-- ⭐️ V3詳細データセクション ⭐️ -->
+                <div class="os-details-section">
+                    <!-- コミュニケーションスタイル -->
+                    <div class="detail-item">
+                        <h4>💬 コミュニケーションスタイル</h4>
+                        <div id="interface-how-to-talk" class="detail-content"></div>
+                    </div>
+                    
+                    <!-- 最適環境 -->
+                    <div class="detail-item">
+                        <h4>🌟 最適環境</h4>
+                        <div id="interface-best-environment" class="detail-content"></div>
+                    </div>
+                    
+                    <!-- 対人モード -->
+                    <div class="detail-item">
+                        <h4>👥 対人モード</h4>
+                        <div id="interface-social-mode" class="detail-content"></div>
+                    </div>
+                    
+                    <!-- OSバランス分析 -->
+                    <div class="detail-item">
+                        <h4>⚖️ OSバランス分析</h4>
+                        <div id="interface-os-balance" class="detail-content">
+                            <div class="balance-chart" id="interface-balance-chart">
+                                <!-- OSアナライザーの計算結果を可視化 -->
+                            </div>
+                            <div class="balance-info">
+                                <p><strong>理想的なバランス：</strong><span id="interface-ideal-balance"></span></p>
+                                <p><strong>現在の状態：</strong><span id="interface-current-balance"></span></p>
+                                <p><strong>バランスが取れている時：</strong><span id="interface-when-balanced"></span></p>
+                                <p><strong>バランスが崩れている時：</strong><span id="interface-when-imbalanced"></span></p>
+                                <p><strong>調整のヒント：</strong><span id="interface-balance-tip"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Safe Mode OS Card -->
+            <div class="summary-card safemode" id="safemode-os-card">
+                <div class="summary-header">
+                    <div class="summary-emoji" id="safemode-emoji">🛡️</div>
+                    <div class="summary-info">
+                        <h3>SAFE MODE OS</h3>
+                        <p id="safemode-hexagram-name">読み込み中...</p>
+                    </div>
+                </div>
+                <h2 id="safemode-nickname">読み込み中...</h2>
+                <p id="safemode-description">読み込み中...</p>
+                
+                <!-- ⭐️ V3詳細データセクション ⭐️ -->
+                <div class="os-details-section">
+                    <!-- ストレス反応 -->
+                    <div class="detail-item">
+                        <h4>⚡ ストレス反応</h4>
+                        <div id="safemode-stress-response" class="detail-content"></div>
+                    </div>
+                    
+                    <!-- 緊急モード -->
+                    <div class="detail-item">
+                        <h4>🚨 緊急モード</h4>
+                        <div id="safemode-emergency" class="detail-content"></div>
+                    </div>
+                    
+                    <!-- 回復方法 -->
+                    <div class="detail-item">
+                        <h4>💚 回復方法</h4>
+                        <div id="safemode-recovery" class="detail-content"></div>
+                    </div>
+                    
+                    <!-- OSバランス分析 -->
+                    <div class="detail-item">
+                        <h4>⚖️ OSバランス分析</h4>
+                        <div id="safemode-os-balance" class="detail-content">
+                            <div class="balance-chart" id="safemode-balance-chart">
+                                <!-- OSアナライザーの計算結果を可視化 -->
+                            </div>
+                            <div class="balance-info">
+                                <p><strong>理想的なバランス：</strong><span id="safemode-ideal-balance"></span></p>
+                                <p><strong>現在の状態：</strong><span id="safemode-current-balance"></span></p>
+                                <p><strong>バランスが取れている時：</strong><span id="safemode-when-balanced"></span></p>
+                                <p><strong>バランスが崩れている時：</strong><span id="safemode-when-imbalanced"></span></p>
+                                <p><strong>調整のヒント：</strong><span id="safemode-balance-tip"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <!-- データファイル -->
-    <script type="text/javascript" src="./js/shared/data/questions.js"></script>
-    <script type="text/javascript" src="./js/shared/data/vectors.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/data/hexagrams.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/data/hexagram_details.js"></script>
-    <script type="text/javascript" src="./js/data/data_box.js"></script>
-    
-    <!-- ユーティリティ -->
-    <script type="text/javascript" src="./js/shared/utils/validators.js"></script>
-    <script type="text/javascript" src="./js/shared/utils/animations.js"></script>
-    
-    <!-- 基盤ライブラリ -->
-    <script type="text/javascript" src="./js/shared/core/BaseComponent.js"></script>
-    <script type="text/javascript" src="./js/shared/core/StorageManager.js"></script>
-    <script type="text/javascript" src="./js/shared/core/SimpleStorageManager.js"></script>
-    <script type="text/javascript" src="./js/shared/core/DataManager.js"></script>
-    <script type="text/javascript" src="./js/shared/core/ErrorHandler.js"></script>
-    
-    <!-- 仮想人格関連エンジン -->
-    <script type="text/javascript" src="./js/os-analyzer/core/Calculator.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/core/IChingUltraSyncLogic.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/core/TripleOSEngine.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/core/UltraAnalysisEngine.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/core/PersonalityOS.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/core/VirtualPersonality.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/core/OSRelationshipEngine.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/core/IchingMetaphorEngine.js"></script>
-    
-    <!-- UI/UXコンポーネント -->
-    <script type="text/javascript" src="./js/os-analyzer/components/PersonalityConstructionView.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/components/DialoguePlayer.js"></script>
-    <script type="text/javascript" src="./js/os-analyzer/components/OSVoiceSwitcher.js"></script>
-    
-    <!-- 新規作成：仮想人格結果表示ビュー -->
-    <script type="text/javascript" src="./js/components/VirtualPersonaResultsView.js"></script>
-    
-    <!-- Ultra-Sync Performance Optimizer -->
-    <script type="text/javascript" src="./js/performance-ultra-sync.js"></script>
-    
-    <script>
-        /**
-         * 仮想人格対話型自己理解プラットフォーム - 初期化スクリプト
-         * 
-         * 目的：
-         * - 診断結果の読み込み
-         * - 仮想人格の構築
-         * - インタラクティブUIの初期化
-         * 
-         * 処理フロー：
-         * 1. localStorageから診断結果を取得
-         * 2. 必要なデータの検証
-         * 3. VirtualPersonaResultsViewの初期化
-         * 4. 仮想人格構築プロセスの開始
-         */
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('🚀 仮想人格対話型自己理解プラットフォーム - 初期化開始');
-            
-            const loadingOverlay = document.getElementById('loading-overlay');
-            const errorContainer = document.getElementById('error-container');
-            const errorMessage = document.getElementById('error-message');
-            
-            try {
-                // 🔧 修正: 実際の回答データを取得して分析を再実行
-                const storageManager = new StorageManager();
-                
-                // DataManagerを最初に初期化
-                const dataManager = new DataManager();
-                await dataManager.loadData();
-                console.log('✅ DataManager initialized');
-                
-                // 保存されている回答データを取得
-                const userAnswers = storageManager.getAnswers() || [];
-                console.log('📝 Retrieved user answers for re-analysis:', userAnswers.length);
-                
-                let analysisResult = null;
-                let insights = null;
-                
-                // 回答データが存在する場合は再分析を実行
-                if (userAnswers.length > 0) {
-                    console.log('🔄 Running fresh analysis with actual user answers...');
-                    
-                    
-                    // UltraAnalysisEngineを初期化（app.jsと同じ方式）
-                    let analysisEngine = null;
-                    
-                    if (typeof UltraAnalysisEngine !== 'undefined') {
-                        analysisEngine = new UltraAnalysisEngine(dataManager);
-                        console.log('✅ UltraAnalysisEngine initialized');
-                    } else {
-                        console.warn('⚠️ UltraAnalysisEngine not available, using TripleOSEngine');
-                        analysisEngine = new TripleOSEngine(dataManager);
-                    }
-                    
-                    // 実際の回答データで分析実行
-                    try {
-                        // 🔍 デバッグ: 回答データの詳細確認
-                        console.log('🔍 Detailed user answers analysis:');
-                        userAnswers.forEach((answer, index) => {
-                            console.log(`Answer ${index + 1}:`, {
-                                questionId: answer.questionId,
-                                selectedValue: answer.selectedValue,
-                                innerChoice: answer.innerChoice,
-                                outerChoice: answer.outerChoice,
-                                scoring_tags: answer.scoring_tags
-                            });
-                        });
-                        
-                        analysisResult = await analysisEngine.analyzeTripleOS(userAnswers);
-                        
-                        // 🔍 デバッグ: 分析結果の詳細確認
-                        console.log('🔍 Analysis result details:');
-                        console.log('- Engine OS:', {
-                            name: analysisResult.engineOS?.name,
-                            hexagramId: analysisResult.engineOS?.hexagramId,
-                            activation: analysisResult.engineOS?.activation,
-                            similarity: analysisResult.engineOS?.similarity
-                        });
-                        console.log('- Interface OS:', {
-                            name: analysisResult.interfaceOS?.name,
-                            hexagramId: analysisResult.interfaceOS?.hexagramId,
-                            activation: analysisResult.interfaceOS?.activation
-                        });
-                        console.log('- SafeMode OS:', {
-                            name: analysisResult.safeModeOS?.name,
-                            hexagramId: analysisResult.safeModeOS?.hexagramId,
-                            activation: analysisResult.safeModeOS?.activation
-                        });
-                        console.log('- Consistency Score:', analysisResult.consistencyScore);
-                        
-                        if (typeof analysisEngine.generateInsights === 'function') {
-                            insights = await analysisEngine.generateInsights(analysisResult);
-                            console.log('🔍 Generated insights:', insights);
-                        }
-                        console.log('✅ Fresh analysis completed with user data');
-                        
-                        // 新しい分析結果を保存
-                        storageManager.saveAnalysisResult(analysisResult);
-                        if (insights) storageManager.saveInsights(insights);
-                    } catch (analysisError) {
-                        console.error('❌ Fresh analysis failed:', analysisError);
-                        // フォールバック: 保存されている結果を使用
-                        analysisResult = storageManager.getAnalysisResult();
-                        insights = storageManager.getInsights();
-                    }
-                } else {
-                    console.log('📚 No user answers found, using stored analysis result');
-                    // フォールバック: 保存されている結果を使用
-                    analysisResult = storageManager.getAnalysisResult();
-                    insights = storageManager.getInsights();
-                }
-                
-                // SimpleStorageManagerも初期化（フォールバック用）
-                const simpleStorageManager = new SimpleStorageManager();
-                
-                console.log('📊 診断結果の取得完了:', {
-                    hasAnalysisResult: !!analysisResult,
-                    hasInsights: !!insights
-                });
-                
-                // SimpleStorageManagerでの取得試行
-                if (!analysisResult) {
-                    console.log('🔄 StorageManagerで取得失敗 - SimpleStorageManagerで試行中...');
-                    
-                    analysisResult = simpleStorageManager.getAnalysisResult();
-                    if (analysisResult) {
-                        console.log('✅ SimpleStorageManagerで分析結果取得成功');
-                        
-                        // 文字列として保存されている場合のパース処理
-                        if (typeof analysisResult === 'string') {
-                            try {
-                                analysisResult = JSON.parse(analysisResult);
-                                console.log('🔄 文字列からパース成功');
-                            } catch (e) {
-                                console.warn('⚠️ パース失敗:', e);
-                            }
-                        }
-                    }
-                }
-                
-                if (!insights) {
-                    console.log('🔄 インサイト不足 - SimpleStorageManagerで試行中...');
-                    
-                    insights = simpleStorageManager.getInsights();
-                    if (insights) {
-                        console.log('✅ SimpleStorageManagerでインサイト取得成功');
-                    }
-                }
-                
-                // 直接localStorageからのフォールバック取得
-                if (!analysisResult) {
-                    console.log('🔄 SimpleStorageManagerでも失敗 - 直接localStorage確認中...');
-                    
-                    // 様々なキーでの取得を試行
-                    const keysToTry = [
-                        'haqei_analyzer_analysis_result',
-                        'haqei_analysis_result', 
-                        'haqei_emergency_result',
-                        'haqei_results_latest_result'
-                    ];
-                    
-                    for (const key of keysToTry) {
-                        const data = localStorage.getItem(key);
-                        if (data) {
-                            try {
-                                console.log(`🔍 ${key} のデータ解析を試行中...`);
-                                let parsed = JSON.parse(data);
-                                
-                                // valueプロパティがある場合の展開
-                                if (parsed.value) {
-                                    console.log('📦 valueプロパティを展開中...');
-                                    // valueが文字列の場合、再度パース
-                                    if (typeof parsed.value === 'string') {
-                                        try {
-                                            parsed = JSON.parse(parsed.value);
-                                            console.log('✅ value文字列のパース成功');
-                                        } catch (e) {
-                                            console.log('⚠️ value文字列のパース失敗、そのまま使用');
-                                            parsed = parsed.value;
-                                        }
-                                    } else {
-                                        parsed = parsed.value;
-                                    }
-                                }
-                                
-                                // resultプロパティがある場合
-                                if (parsed.result) {
-                                    analysisResult = parsed.result;
-                                    if (parsed.insights) insights = parsed.insights;
-                                    console.log(`✅ ${key}のresultから取得成功`);
-                                    break;
-                                }
-                                // 直接Triple OSデータがある場合
-                                else if (parsed.engineOS && parsed.interfaceOS && parsed.safeModeOS) {
-                                    analysisResult = parsed;
-                                    console.log(`✅ ${key}から直接取得成功`);
-                                    break;
-                                }
-                            } catch (parseError) {
-                                console.warn(`⚠️ ${key}の解析失敗:`, parseError);
-                            }
-                        }
-                    }
-                }
-                
-                // インサイトが不足している場合のフォールバック
-                if (!insights) {
-                    console.log('🔄 インサイト不足 - 直接localStorage確認中...');
-                    const directInsights = localStorage.getItem('haqei_insights');
-                    
-                    if (directInsights) {
-                        try {
-                            const parsed = JSON.parse(directInsights);
-                            insights = parsed.insights || parsed;
-                            console.log('✅ 直接localStorageインサイト取得成功');
-                        } catch (parseError) {
-                            console.warn('⚠️ インサイト解析失敗:', parseError);
-                        }
-                    }
-                }
-                
-                // 診断結果の検証
-                if (!analysisResult) {
-                    // LocalStorageの状態をデバッグ
-                    const storageKeys = Object.keys(localStorage).filter(k => k.includes('haqei'));
-                    console.log('🔍 LocalStorage HAQEIキー:', storageKeys);
-                    storageKeys.forEach(key => {
-                        const value = localStorage.getItem(key);
-                        console.log(`📋 ${key}:`, value?.substring(0, 100) + '...');
-                        if (value) {
-                            try {
-                                const parsed = JSON.parse(value);
-                                console.log(`  → Parsed type:`, typeof parsed);
-                                console.log(`  → Keys:`, Object.keys(parsed).slice(0, 5));
-                            } catch (e) {
-                                console.log(`  → Parse error:`, e.message);
-                            }
-                        }
-                    });
-                    
-                    throw new Error('診断結果が見つかりません。先に診断を完了してください。');
-                }
-                
-                // Triple OSデータの検証
-                console.log('📊 分析結果の詳細確認:');
-                console.log('analysisResult:', analysisResult);
-                console.log('analysisResult type:', typeof analysisResult);
-                
-                // 各OSプロパティの存在確認
-                if (analysisResult) {
-                    console.log('engineOS exists:', !!analysisResult.engineOS);
-                    console.log('interfaceOS exists:', !!analysisResult.interfaceOS);
-                    console.log('safeModeOS exists:', !!analysisResult.safeModeOS);
-                    
-                    // 各OSの詳細
-                    if (analysisResult.engineOS) {
-                        console.log('engineOS name:', analysisResult.engineOS.name);
-                        console.log('engineOS description:', analysisResult.engineOS.description?.substring(0, 50) + '...');
-                    }
-                    if (analysisResult.interfaceOS) {
-                        console.log('interfaceOS name:', analysisResult.interfaceOS.name);
-                        console.log('interfaceOS description:', analysisResult.interfaceOS.description?.substring(0, 50) + '...');
-                    }
-                    if (analysisResult.safeModeOS) {
-                        console.log('safeModeOS name:', analysisResult.safeModeOS.name);
-                        console.log('safeModeOS description:', analysisResult.safeModeOS.description?.substring(0, 50) + '...');
-                    }
-                }
-                
-                // 文字列の場合はパースを試みる
-                if (typeof analysisResult === 'string') {
-                    try {
-                        console.log('🔄 文字列として保存されているため、JSON.parseを実行');
-                        analysisResult = JSON.parse(analysisResult);
-                        console.log('✅ パース成功:', analysisResult);
-                    } catch (e) {
-                        console.error('❌ JSON.parse失敗:', e);
-                    }
-                }
-                
-                if (!analysisResult.engineOS || !analysisResult.interfaceOS || !analysisResult.safeModeOS) {
-                    console.error('❌ Triple OSデータが不完全:', analysisResult);
-                    throw new Error('Triple OSデータが不完全です。診断をやり直してください。');
-                }
-                
-                // DataManager は上で初期化済み
-                console.log('📚 DataManager already initialized above');
-                
-                // Ultra-Sync最適化の初期化
-                console.log('🚀 HAQEI Ultra-Sync Mode - 高速化バージョンで初期化中...');
-                
-                // Ultra-Sync Optimizerの初期化
-                const ultraSyncOptimizer = new HaqeiUltraSyncOptimizer();
-                
-                console.log('📊 初期化パラメータ:', {
-                    hasAnalysisResult: !!analysisResult,
-                    analysisResultType: typeof analysisResult,
-                    hasInsights: !!insights,
-                    hasDataManager: !!dataManager,
-                    containerExists: !!document.getElementById('virtual-persona-container'),
-                    ultraSyncEnabled: true
-                });
-                
-                // コンテナの存在確認
-                const container = document.getElementById('virtual-persona-container');
-                if (!container) {
-                    console.error('❌ コンテナ要素が見つかりません: virtual-persona-container');
-                    throw new Error('表示コンテナが見つかりません');
-                }
-                
-                // virtualPersonaViewを外側のスコープで宣言
-                let virtualPersonaView;
-                
-                try {
-                    // Ultra-Sync最適化処理を実行
-                    console.log('⚡ Ultra-Sync最適化処理を開始...');
-                    const optimizedResult = await ultraSyncOptimizer.optimizeVirtualPersonalityConstruction(
-                        analysisResult, 
-                        insights, 
-                        dataManager
-                    );
-                    
-                    // 最適化されたデータでVirtualPersonaResultsViewを初期化
-                    virtualPersonaView = new VirtualPersonaResultsView('virtual-persona-container', {
-                        analysisResult: optimizedResult.tripleOS || analysisResult,
-                        insights: insights,
-                        dataManager: dataManager,
-                        enableAnimation: true,
-                        animationSpeed: 2.0, // 高速化
-                        optimizedData: optimizedResult,
-                        ultraSyncMode: true
-                    });
-                    
-                    console.log('✅ Ultra-Sync VirtualPersonaResultsView インスタンス作成成功');
-                    
-                    // 高速初期化と表示
-                    await virtualPersonaView.init();
-                    console.log('✅ Ultra-Sync VirtualPersonaResultsView 初期化完了');
-                } catch (viewError) {
-                    console.error('❌ VirtualPersonaResultsView 初期化エラー:', viewError);
-                    console.error('エラースタック:', viewError.stack);
-                    
-                    // 必要なクラスが定義されているか確認
-                    console.log('🔍 クラス存在チェック:');
-                    console.log('- BaseComponent:', typeof BaseComponent);
-                    console.log('- StorageManager:', typeof StorageManager);
-                    console.log('- DataManager:', typeof DataManager);
-                    console.log('- TripleOSEngine:', typeof TripleOSEngine);
-                    console.log('- VirtualPersonality:', typeof VirtualPersonality);
-                    console.log('- PersonalityConstructionView:', typeof PersonalityConstructionView);
-                    console.log('- OSRelationshipEngine:', typeof OSRelationshipEngine);
-                    console.log('- IchingMetaphorEngine:', typeof IchingMetaphorEngine);
-                    console.log('- VirtualPersonaResultsView:', typeof VirtualPersonaResultsView);
-                    
-                    throw viewError;
-                }
-                
-                // ローディング画面を非表示し、メインビューを表示
-                setTimeout(async () => {
-                    loadingOverlay.classList.remove('active');
-                    loadingOverlay.style.display = 'none';
-                    console.log('✅ ローディング画面を非表示にしました');
-                    
-                    // デバッグ: virtualPersonaViewの状態確認
-                    console.log('🔍 virtualPersonaView state check:', {
-                        exists: !!virtualPersonaView,
-                        isInitialized: virtualPersonaView?.isInitialized,
-                        currentView: virtualPersonaView?.currentView,
-                        hasContainer: !!virtualPersonaView?.container,
-                        containerHtml: virtualPersonaView?.container?.innerHTML?.substring(0, 200)
-                    });
-                    
-                    // メインビューに切り替え
-                    if (virtualPersonaView && typeof virtualPersonaView.switchToMainView === 'function') {
-                        try {
-                            await virtualPersonaView.switchToMainView();
-                            console.log('✅ メインビューに切り替えました');
-                            
-                            // 追加デバッグ: ビュー切り替え後の状態
-                            const mainView = document.querySelector('#main-view');
-                            const activeViews = document.querySelectorAll('.vp-view.active');
-                            console.log('🔍 View switch debug:', {
-                                mainViewExists: !!mainView,
-                                mainViewActive: mainView?.classList.contains('active'),
-                                mainViewDisplay: window.getComputedStyle(mainView)?.display,
-                                activeViewsCount: activeViews.length,
-                                activeViewIds: Array.from(activeViews).map(v => v.id)
-                            });
-                            
-                            // 強制的にメインビューを表示
-                            if (mainView && !mainView.classList.contains('active')) {
-                                console.log('🔧 Force activating main view...');
-                                // 全ビューを非アクティブ化
-                                document.querySelectorAll('.vp-view').forEach(v => v.classList.remove('active'));
-                                // メインビューをアクティブ化
-                                mainView.classList.add('active');
-                                // メインビューの初期化を強制実行
-                                if (virtualPersonaView.initializeMainView) {
-                                    await virtualPersonaView.initializeMainView();
-                                    console.log('✅ メインビュー初期化完了');
-                                }
-                            }
-                            
-                        } catch (error) {
-                            console.error('❌ メインビュー切り替えエラー:', error);
-                            
-                            // エラー時のフォールバック: 直接メインビューを表示
-                            console.log('🔧 Attempting fallback main view display...');
-                            const mainView = document.querySelector('#main-view');
-                            if (mainView) {
-                                document.querySelectorAll('.vp-view').forEach(v => v.classList.remove('active'));
-                                mainView.classList.add('active');
-                                mainView.innerHTML = `
-                                    <div class="vp-main-container" style="padding: 2rem; text-align: center;">
-                                        <h2 style="color: #F1F5F9; margin-bottom: 1rem;">あなたの仮想人格</h2>
-                                        <p style="color: #CBD5E1; margin-bottom: 2rem;">データの処理が完了しました。詳細な分析結果を準備中です...</p>
-                                        <div style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 12px;">
-                                            <p style="color: #94A3B8;">仮想人格の構築が完了しています。しばらくお待ちください。</p>
-                                        </div>
-                                    </div>
-                                `;
-                                console.log('✅ フォールバック表示完了');
-                            }
-                        }
-                    } else {
-                        console.error('❌ virtualPersonaView が無効または switchToMainView メソッドがありません');
-                        
-                        // virtualPersonaView が存在しない場合の緊急表示
-                        const container = document.getElementById('virtual-persona-container');
-                        if (container) {
-                            container.innerHTML = `
-                                <div style="min-height: 100vh; background: #0F172A; color: #F1F5F9; padding: 2rem;">
-                                    <nav style="background: #1E293B; padding: 1rem; border-radius: 12px; margin-bottom: 2rem;">
-                                        <h1 style="color: #F1F5F9; margin: 0;">HAQEI 仮想人格対話プラットフォーム</h1>
-                                        <p style="color: #CBD5E1; margin: 0.5rem 0 0;">あなたの内なる3つのOSとの対話</p>
-                                    </nav>
-                                    <main style="background: #1E293B; padding: 2rem; border-radius: 12px; text-align: center;">
-                                        <h2 style="color: #F1F5F9; margin-bottom: 1rem;">🎭 仮想人格構築完了</h2>
-                                        <p style="color: #CBD5E1; margin-bottom: 2rem;">あなたの診断結果から仮想人格が構築されました。</p>
-                                        <div style="background: rgba(107, 70, 193, 0.2); padding: 2rem; border-radius: 12px; border: 1px solid rgba(107, 70, 193, 0.3);">
-                                            <h3 style="color: #9F7AEA; margin-bottom: 1rem;">💫 処理完了</h3>
-                                            <p style="color: #CBD5E1;">Ultra-Sync システムにより高速処理が完了しました。<br>詳細な分析結果とインタラクティブな機能を準備しています。</p>
-                                        </div>
-                                    </main>
-                                </div>
-                            `;
-                            console.log('✅ 緊急フォールバック表示完了');
-                        }
-                    }
-                }, 1000); // タイミングを1秒に延長してvirtualPersonaViewの初期化を確実に待つ
-                
-                // グローバル参照の設定（アクションボタンから呼び出すため）
-                window.virtualPersonaView = virtualPersonaView;
-                
-                console.log('✅ 仮想人格対話型プラットフォーム初期化完了');
-                
-            } catch (error) {
-                console.error('❌ 初期化エラー:', error);
-                
-                // エラー表示
-                loadingOverlay.classList.remove('active');
-                errorContainer.style.display = 'flex';
-                
-                if (error.message.includes('診断結果が見つかりません')) {
-                    errorMessage.innerHTML = `
-                        <p>${error.message}</p>
-                        <a href="os_analyzer.html" class="error-link">診断を開始する</a>
-                    `;
-                } else {
-                    errorMessage.textContent = error.message;
-                }
-            }
-        });
         
-        // グローバルエラーハンドリング
-        window.addEventListener('error', (event) => {
-            console.error('❌ グローバルエラー:', event.error);
-            // 必要に応じてエラー通知を表示
-        });
+        <!-- 詳細セクション -->
+        <div id="detail-sections">
+            <!-- 各OSの詳細セクション -->
+            <div class="detail-section" id="engine-detail" style="display: none;">
+                <h3>Engine OS 詳細分析</h3>
+                <div class="detail-content">
+                    <p>詳細な分析結果をここに表示</p>
+                </div>
+            </div>
+            
+            <div class="detail-section" id="interface-detail" style="display: none;">
+                <h3>Interface OS 詳細分析</h3>
+                <div class="detail-content">
+                    <p>詳細な分析結果をここに表示</p>
+                </div>
+            </div>
+            
+            <div class="detail-section" id="safemode-detail" style="display: none;">
+                <h3>Safe Mode OS 詳細分析</h3>
+                <div class="detail-content">
+                    <p>詳細な分析結果をここに表示</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 必要なJavaScriptファイルの読み込み -->
+    <script src="js/data/data_box.js"></script>
+    <script src="js/shared/data/vectors.js"></script>
+    <script src="js/os-analyzer/data/iching_relationships.js"></script>
+    <script src="js/shared/core/StorageManager.js"></script>
+    <script src="js/core/TripleOSInteractionAnalyzer.js"></script>
+    <script src="js/core/AuthenticIChingEngine.js"></script>
+    <script src="js/core/InsightEngine.js"></script>
+    <script src="js/core/ComprehensiveReportGenerator.js"></script>
+    
+    <!-- データベースファイル -->
+    <script src="assets/H384H64database.js"></script>
+    <script src="js/data/hexagram-human-traits.js"></script>
+    <!-- V3データベース -->
+    <script src="js/data/hexagram-human-traits-v3.js"></script>
+    
+    <!-- HexagramExtractor -->
+    <script src="js/core/HexagramExtractor.js"></script>
+    <script src="js/core/SummaryGenerator.js"></script>
+    
+    <!-- タブシステム -->
+    <script src="js/components/TabNavigator.js"></script>
+    <script src="js/components/BaseTabView.js"></script>
+    <script src="js/tabs/BasicResultsTab.js"></script>
+    <!-- VirtualPersonaResultsView -->
+    <script src="js/components/VirtualPersonaResultsView.js"></script>
+    
+    <!-- 開発モードマネージャー -->
+    <script src="js/dev-mode-manager.js"></script>
+    
+    <!-- 開発用テストデータ設定（最終的に削除） -->
+    <script>
+        // 開発環境でのみ実行
+        if (!localStorage.getItem('osAnalysisResult')) {
+            const devTestData = {
+                engineOS: "乾為天",      // 革新的なイノベーター
+                interfaceOS: "坤為地",    // サポーター型
+                safeModeOS: "水雷屯",     // 新たな始まりを模索
+                timestamp: new Date().toISOString(),
+                // 36問の回答データ（省略可）
+                answers: []
+            };
+            localStorage.setItem('osAnalysisResult', JSON.stringify(devTestData));
+            console.log('🔧 開発用テストデータを設定しました:', devTestData);
+            console.log('ℹ️ ブラウザをリロードして結果を確認してください');
+        }
     </script>
     
-    <!-- VP View Fix - 根本的な表示問題の解決 -->
-    <!-- VP view fix integrated into VirtualQuestionFlow v2.0 -->
+    <!-- V3データ連携処理 -->
+    <script>
+        // エラー表示関数
+        function showErrorMessage(message) {
+            const errorContainer = document.createElement('div');
+            errorContainer.className = 'error-message-container';
+            errorContainer.innerHTML = `
+                <div class="error-content">
+                    <h2>⚠️ エラー</h2>
+                    <p>${message}</p>
+                    <a href="os_analyzer.html" class="btn-primary">OS Analyzerへ移動</a>
+                </div>
+            `;
+            document.body.appendChild(errorContainer);
+        }
+        
+        // OSバランス表示（OSアナライザーの計算結果を基に）
+        function displayOSBalance(osType, hexagramName, calculationVector) {
+            const osData = HexagramHumanTraitsV3[hexagramName];
+            if (!osData || !osData.osBalance) return;
+            
+            const prefix = osType === 'engine' ? 'engine' : 
+                          osType === 'interface' ? 'interface' : 'safemode';
+            
+            // V3データベースから情報取得
+            const balanceData = osData.osBalance;
+            
+            // 理想的なバランス
+            const idealBalanceEl = document.getElementById(`${prefix}-ideal-balance`);
+            if (idealBalanceEl) {
+                idealBalanceEl.textContent = balanceData.idealBalance || '情報を準備中...';
+            }
+            
+            // 現在のバランス（OSアナライザーの計算結果から生成）
+            const currentBalanceEl = document.getElementById(`${prefix}-current-balance`);
+            if (currentBalanceEl && calculationVector) {
+                // 計算結果を見やすい形式に変換
+                const topThree = Object.entries(calculationVector)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 3)
+                    .map(([key, value]) => `${key.split('_')[1]} ${Math.round(value * 100)}%`)
+                    .join(' : ');
+                currentBalanceEl.textContent = topThree;
+            }
+            
+            // バランスが取れている時
+            const whenBalancedEl = document.getElementById(`${prefix}-when-balanced`);
+            if (whenBalancedEl) {
+                whenBalancedEl.textContent = balanceData.whenBalanced || '情報を準備中...';
+            }
+            
+            // バランスが崩れている時
+            const whenImbalancedEl = document.getElementById(`${prefix}-when-imbalanced`);
+            if (whenImbalancedEl) {
+                whenImbalancedEl.textContent = balanceData.whenImbalanced || '情報を準備中...';
+            }
+            
+            // 調整のヒント
+            const tipEl = document.getElementById(`${prefix}-balance-tip`);
+            if (tipEl) {
+                tipEl.textContent = balanceData.tip || '情報を準備中...';
+            }
+            
+            // 簡易チャート表示
+            displayBalanceChart(`${prefix}-balance-chart`, calculationVector);
+        }
+        
+        // 簡易バランスチャート
+        function displayBalanceChart(elementId, vector) {
+            const chartEl = document.getElementById(elementId);
+            if (!chartEl || !vector) return;
+            
+            // 簡易的なバーチャート表示
+            const maxValue = Math.max(...Object.values(vector));
+            let chartHTML = '<div class="simple-chart">';
+            
+            Object.entries(vector).forEach(([key, value]) => {
+                const percentage = (value / maxValue) * 100;
+                const label = key.split('_')[1];
+                chartHTML += `
+                    <div class="chart-bar">
+                        <span class="chart-label">${label}</span>
+                        <div class="chart-value" style="width: ${percentage}%"></div>
+                        <span class="chart-percent">${Math.round(value * 100)}%</span>
+                    </div>
+                `;
+            });
+            
+            chartHTML += '</div>';
+            chartEl.innerHTML = chartHTML;
+        }
+        
+        // Engine OSの表示更新
+        function updateEngineOSDisplay(hexagramName, data) {
+            // 基本情報の更新
+            document.getElementById('engine-hexagram-name').textContent = hexagramName;
+            document.getElementById('engine-emoji').textContent = data.emoji || '🚀';
+            document.getElementById('engine-nickname').textContent = data.nickname || '分析中...';
+            
+            // Engine OS固有の説明を表示
+            if (data.asEngineOS && data.asEngineOS.profile) {
+                document.getElementById('engine-description').textContent = 
+                    data.asEngineOS.profile.description || '詳細情報を読み込み中...';
+            } else {
+                document.getElementById('engine-description').textContent = '詳細情報を準備中...';
+            }
+            
+            // ⭐️ V3詳細データの表示を追加 ⭐️
+            if (data.asEngineOS) {
+                const os = data.asEngineOS;
+                
+                // 通常状態
+                if (os.normalState) {
+                    const normalStateEl = document.getElementById('engine-normal-state');
+                    if (normalStateEl) {
+                        normalStateEl.innerHTML = `
+                            ${os.normalState.whatHappens ? `<strong>どんな時：</strong>${os.normalState.whatHappens}<br>` : ''}
+                            ${os.normalState.example ? `<strong>具体例：</strong>${os.normalState.example}<br>` : ''}
+                            ${os.normalState.energyLevel ? `<strong>エネルギー：</strong>${os.normalState.energyLevel}` : ''}
+                        `.trim() || '<span style="color: #999;">情報を準備中...</span>';
+                    }
+                }
+                
+                // スーパーモード
+                if (os.superMode) {
+                    const superModeEl = document.getElementById('engine-super-mode');
+                    if (superModeEl) {
+                        superModeEl.innerHTML = `
+                            ${os.superMode.when ? `<strong>発動条件：</strong>${os.superMode.when}<br>` : ''}
+                            ${os.superMode.whatHappens ? `<strong>どうなる：</strong>${os.superMode.whatHappens}<br>` : ''}
+                            ${os.superMode.example ? `<strong>具体例：</strong>${os.superMode.example}<br>` : ''}
+                            ${os.superMode.energyLevel ? `<strong>エネルギー：</strong>${os.superMode.energyLevel}` : ''}
+                        `.trim() || '<span style="color: #999;">情報を準備中...</span>';
+                    }
+                }
+                
+                // 休息モード
+                if (os.restMode) {
+                    const restModeEl = document.getElementById('engine-rest-mode');
+                    if (restModeEl) {
+                        restModeEl.innerHTML = `
+                            ${os.restMode.whatHappens ? `<strong>状態：</strong>${os.restMode.whatHappens}<br>` : ''}
+                            ${os.restMode.howToRest ? `<strong>休息方法：</strong>${os.restMode.howToRest}<br>` : ''}
+                            ${os.restMode.note ? `<strong>注意：</strong>${os.restMode.note}` : ''}
+                        `.trim() || '<span style="color: #999;">情報を準備中...</span>';
+                    }
+                }
+                
+                // メンテナンス
+                if (os.maintenance) {
+                    const maintenanceEl = document.getElementById('engine-maintenance');
+                    if (maintenanceEl) {
+                        maintenanceEl.innerHTML = `
+                            ${os.maintenance.whatYouNeed ? `<strong>必要なもの：</strong>${os.maintenance.whatYouNeed}<br>` : ''}
+                            ${os.maintenance.howToCharge ? `<strong>充電方法：</strong>${os.maintenance.howToCharge}<br>` : ''}
+                            ${os.maintenance.warning ? `<strong>警告：</strong>${os.maintenance.warning}<br>` : ''}
+                            ${os.maintenance.tip ? `<strong>ヒント：</strong>${os.maintenance.tip}` : ''}
+                        `.trim() || '<span style="color: #999;">情報を準備中...</span>';
+                    }
+                }
+                
+                // OSバランス表示を追加
+                const calculationData = JSON.parse(localStorage.getItem('osCalculationVectors') || '{}');
+                if (calculationData.engine) {
+                    displayOSBalance('engine', hexagramName, calculationData.engine);
+                }
+            }
+        }
+        
+        // Interface OSの表示更新
+        function updateInterfaceOSDisplay(hexagramName, data) {
+            // 基本情報の更新
+            document.getElementById('interface-hexagram-name').textContent = hexagramName;
+            document.getElementById('interface-emoji').textContent = data.emoji || '🌐';
+            document.getElementById('interface-nickname').textContent = data.nickname || '分析中...';
+            
+            // Interface OS固有の説明を表示
+            if (data.asInterfaceOS && data.asInterfaceOS.profile) {
+                document.getElementById('interface-description').textContent = 
+                    data.asInterfaceOS.profile.description || '詳細情報を読み込み中...';
+            } else {
+                document.getElementById('interface-description').textContent = '詳細情報を準備中...';
+            }
+            
+            // ⭐️ V3詳細データの表示を追加 ⭐️
+            if (data.asInterfaceOS) {
+                const os = data.asInterfaceOS;
+                
+                // コミュニケーションスタイル
+                if (os.howToTalk) {
+                    const howToTalkEl = document.getElementById('interface-how-to-talk');
+                    if (howToTalkEl) {
+                        howToTalkEl.innerHTML = `
+                            ${os.howToTalk.style ? `<strong>スタイル：</strong>${os.howToTalk.style}<br>` : ''}
+                            ${os.howToTalk.example ? `<strong>具体例：</strong>${os.howToTalk.example}<br>` : ''}
+                            ${os.howToTalk.goodAt ? `<strong>得意分野：</strong>${os.howToTalk.goodAt}<br>` : ''}
+                            ${os.howToTalk.notGoodAt ? `<strong>苦手分野：</strong>${os.howToTalk.notGoodAt}` : ''}
+                        `.trim() || '<span style="color: #999;">情報を準備中...</span>';
+                    }
+                }
+                
+                // 最適環境（修正版）
+                if (os.bestEnvironment) {
+                    const bestEnvEl = document.getElementById('interface-best-environment');
+                    if (bestEnvEl) {
+                        bestEnvEl.innerHTML = `
+                            ${os.bestEnvironment.where ? `<strong>理想的な環境：</strong>${os.bestEnvironment.where}<br>` : ''}
+                            ${os.bestEnvironment.example ? `<strong>具体例：</strong>${os.bestEnvironment.example}<br>` : ''}
+                            ${os.bestEnvironment.withWho ? `<strong>相性の良い人：</strong>${os.bestEnvironment.withWho}<br>` : ''}
+                            ${os.bestEnvironment.avoid ? `<strong>避けたい環境：</strong>${os.bestEnvironment.avoid}` : ''}
+                            ${os.bestEnvironment.workplace ? `<strong>職場環境：</strong>${os.bestEnvironment.workplace}<br>` : ''}
+                            ${os.bestEnvironment.relationships ? `<strong>人間関係：</strong>${os.bestEnvironment.relationships}<br>` : ''}
+                            ${os.bestEnvironment.communication ? `<strong>コミュニケーション：</strong>${os.bestEnvironment.communication}` : ''}
+                        `.trim() || '<span style="color: #999;">情報を準備中...</span>';
+                    }
+                }
+                
+                // 対人モード（修正版）
+                if (os.socialMode) {
+                    const socialModeEl = document.getElementById('interface-social-mode');
+                    if (socialModeEl) {
+                        socialModeEl.innerHTML = `
+                            ${os.socialMode.inGroup ? `<strong>グループ内：</strong>${os.socialMode.inGroup}<br>` : ''}
+                            ${os.socialMode.oneOnOne ? `<strong>1対1：</strong>${os.socialMode.oneOnOne}<br>` : ''}
+                            ${os.socialMode.publicSpeaking ? `<strong>公の場：</strong>${os.socialMode.publicSpeaking}` : ''}
+                        `.trim() || '<span style="color: #999;">情報を準備中...</span>';
+                    }
+                } else if (os.relationshipTips) {
+                    // socialModeがない場合はrelationshipTipsを表示
+                    const socialModeEl = document.getElementById('interface-social-mode');
+                    if (socialModeEl) {
+                        socialModeEl.innerHTML = `
+                            ${os.relationshipTips.strength ? `<strong>強み：</strong>${os.relationshipTips.strength}<br>` : ''}
+                            ${os.relationshipTips.weakness ? `<strong>弱み：</strong>${os.relationshipTips.weakness}<br>` : ''}
+                            ${os.relationshipTips.advice ? `<strong>アドバイス：</strong>${os.relationshipTips.advice}` : ''}
+                        `.trim() || '<span style="color: #999;">情報を準備中...</span>';
+                    }
+                }
+                
+                // OSバランス表示を追加
+                const calculationData = JSON.parse(localStorage.getItem('osCalculationVectors') || '{}');
+                if (calculationData.interface) {
+                    displayOSBalance('interface', hexagramName, calculationData.interface);
+                }
+            }
+        }
+        
+        // Safe Mode OSの表示更新
+        function updateSafeModeOSDisplay(hexagramName, data) {
+            // 基本情報の更新
+            document.getElementById('safemode-hexagram-name').textContent = hexagramName;
+            document.getElementById('safemode-emoji').textContent = data.emoji || '🛡️';
+            document.getElementById('safemode-nickname').textContent = data.nickname || '分析中...';
+            
+            // Safe Mode OS固有の説明を表示
+            if (data.asSafeModeOS && data.asSafeModeOS.profile) {
+                document.getElementById('safemode-description').textContent = 
+                    data.asSafeModeOS.profile.description || '詳細情報を読み込み中...';
+            } else {
+                document.getElementById('safemode-description').textContent = '詳細情報を準備中...';
+            }
+            
+            // ⭐️ V3詳細データの表示を追加 ⭐️
+            if (data.asSafeModeOS) {
+                const os = data.asSafeModeOS;
+                
+                // ストレス反応（修正版）
+                if (os.stressResponse) {
+                    const stressEl = document.getElementById('safemode-stress-response');
+                    if (stressEl) {
+                        // フィールド名の違いに対応
+                        const initial = os.stressResponse.initial || os.stressResponse.whatYouDo;
+                        const continued = os.stressResponse.continued || os.stressResponse.goodPoint;
+                        const example = os.stressResponse.example || os.stressResponse.badPoint;
+                        
+                        stressEl.innerHTML = `
+                            ${initial ? `<strong>初期反応：</strong>${initial}<br>` : ''}
+                            ${continued ? `<strong>継続すると：</strong>${continued}<br>` : ''}
+                            ${example ? `<strong>具体例：</strong>${example}` : ''}
+                        `.trim() || '<span style="color: #999;">情報を準備中...</span>';
+                    }
+                }
+                
+                // 緊急モード（修正版）
+                if (os.emergencyMode) {
+                    const emergencyEl = document.getElementById('safemode-emergency');
+                    if (emergencyEl) {
+                        // フィールド名の違いに対応
+                        const trigger = os.emergencyMode.trigger || os.emergencyMode.whatHappens;
+                        const behavior = os.emergencyMode.behavior || os.emergencyMode.example;
+                        const impact = os.emergencyMode.impact || os.emergencyMode.recovery;
+                        const timeToRecover = os.emergencyMode.timeToRecover;
+                        
+                        emergencyEl.innerHTML = `
+                            ${trigger ? `<strong>発動条件：</strong>${trigger}<br>` : ''}
+                            ${behavior ? `<strong>行動パターン：</strong>${behavior}<br>` : ''}
+                            ${impact ? `<strong>影響：</strong>${impact}` : ''}
+                            ${timeToRecover ? `<br><strong>回復時間：</strong>${timeToRecover}` : ''}
+                        `.trim() || '<span style="color: #999;">情報を準備中...</span>';
+                    }
+                }
+                
+                // 回復方法（修正版）
+                if (os.howToRecover) {
+                    const recoveryEl = document.getElementById('safemode-recovery');
+                    if (recoveryEl) {
+                        // フィールド名の違いに対応
+                        const shortTerm = os.howToRecover.shortTerm || os.howToRecover.bestWay;
+                        const longTerm = os.howToRecover.longTerm || os.howToRecover.example;
+                        const support = os.howToRecover.support || os.howToRecover.environment;
+                        
+                        recoveryEl.innerHTML = `
+                            ${shortTerm ? `<strong>短期的：</strong>${shortTerm}<br>` : ''}
+                            ${longTerm ? `<strong>長期的：</strong>${longTerm}<br>` : ''}
+                            ${support ? `<strong>サポート：</strong>${support}` : ''}
+                        `.trim() || '<span style="color: #999;">情報を準備中...</span>';
+                    }
+                }
+                
+                // OSバランス表示を追加
+                const calculationData = JSON.parse(localStorage.getItem('osCalculationVectors') || '{}');
+                if (calculationData.safemode) {
+                    displayOSBalance('safemode', hexagramName, calculationData.safemode);
+                }
+            }
+        }
+        
+        // Triple OSの結果表示
+        function displayTripleOSResults(analysisData) {
+            console.log('分析データを表示:', analysisData);
+            
+            // V3データベースが読み込まれているか確認
+            if (typeof HexagramHumanTraitsV3 === 'undefined') {
+                console.error('V3データベースが読み込まれていません');
+                showErrorMessage('データベースの読み込みに失敗しました。ページを再読み込みしてください。');
+                return;
+            }
+            
+            // Engine OS データ表示
+            if (analysisData.engineOS) {
+                const engineData = HexagramHumanTraitsV3[analysisData.engineOS];
+                if (engineData) {
+                    updateEngineOSDisplay(analysisData.engineOS, engineData);
+                } else {
+                    console.warn('Engine OS データが見つかりません:', analysisData.engineOS);
+                    updateEngineOSDisplay(analysisData.engineOS, {
+                        nickname: '情報取得中...',
+                        emoji: '🚀'
+                    });
+                }
+            }
+            
+            // Interface OS データ表示
+            if (analysisData.interfaceOS) {
+                const interfaceData = HexagramHumanTraitsV3[analysisData.interfaceOS];
+                if (interfaceData) {
+                    updateInterfaceOSDisplay(analysisData.interfaceOS, interfaceData);
+                } else {
+                    console.warn('Interface OS データが見つかりません:', analysisData.interfaceOS);
+                    updateInterfaceOSDisplay(analysisData.interfaceOS, {
+                        nickname: '情報取得中...',
+                        emoji: '🌐'
+                    });
+                }
+            }
+            
+            // Safe Mode OS データ表示
+            if (analysisData.safeModeOS) {
+                const safeModeData = HexagramHumanTraitsV3[analysisData.safeModeOS];
+                if (safeModeData) {
+                    updateSafeModeOSDisplay(analysisData.safeModeOS, safeModeData);
+                } else {
+                    console.warn('Safe Mode OS データが見つかりません:', analysisData.safeModeOS);
+                    updateSafeModeOSDisplay(analysisData.safeModeOS, {
+                        nickname: '情報取得中...',
+                        emoji: '🛡️'
+                    });
+                }
+            }
+            
+            // 改善版デバッグモード
+            if (window.location.hash === '#debug') {
+                console.group('🔍 V3データ構造・計算結果確認');
+                
+                // localStorageからOS情報取得
+                const osResult = JSON.parse(localStorage.getItem('osAnalysisResult') || '{}');
+                const calculationData = JSON.parse(localStorage.getItem('osCalculationVectors') || '{}');
+                
+                // OS名の一覧
+                const osNames = {
+                    engine: osResult.engineOS,
+                    interface: osResult.interfaceOS,
+                    safemode: osResult.safeModeOS
+                };
+                
+                // 各OSのデータ構造と計算結果を確認
+                Object.entries(osNames).forEach(([osType, hexName]) => {
+                    if (!hexName) return;
+                    
+                    const data = HexagramHumanTraitsV3[hexName];
+                    const calcVector = calculationData[osType];
+                    
+                    console.group(`📊 ${osType.toUpperCase()} OS: ${hexName}`);
+                    
+                    // V3データ構造の確認
+                    console.log('V3データ構造:', {
+                        profile: data?.profile ? '✅' : '❌',
+                        asEngineOS: data?.asEngineOS ? '✅' : '❌',
+                        asInterfaceOS: data?.asInterfaceOS ? '✅' : '❌',
+                        asSafeModeOS: data?.asSafeModeOS ? '✅' : '❌',
+                        osBalance: data?.osBalance ? '✅' : '❌'
+                    });
+                    
+                    // 計算ベクトルの確認
+                    if (calcVector) {
+                        console.log('計算ベクトル:', calcVector);
+                        console.log('上位3要素:', 
+                            Object.entries(calcVector)
+                                .sort((a, b) => b[1] - a[1])
+                                .slice(0, 3)
+                                .map(([k, v]) => `${k}: ${(v * 100).toFixed(1)}%`)
+                        );
+                    } else {
+                        console.warn('⚠️ 計算ベクトルが見つかりません');
+                    }
+                    
+                    // 期待値と実際の表示値の比較
+                    const osSpecificData = osType === 'engine' ? data?.asEngineOS :
+                                           osType === 'interface' ? data?.asInterfaceOS :
+                                           data?.asSafeModeOS;
+                    
+                    if (osSpecificData) {
+                        console.log('詳細フィールド状態:', {
+                            normalState: osSpecificData.normalState ? '✅' : '❌',
+                            superMode: osSpecificData.superMode ? '✅' : '❌',
+                            bestEnvironment: osSpecificData.bestEnvironment ? '✅' : '❌',
+                            stressResponse: osSpecificData.stressResponse ? '✅' : '❌',
+                            osBalance: data?.osBalance ? '✅' : '❌'
+                        });
+                    }
+                    
+                    console.groupEnd();
+                });
+                
+                // データ整合性チェック
+                console.group('🔍 データ整合性チェック');
+                if (!calculationData || Object.keys(calculationData).length === 0) {
+                    console.warn('⚠️ OSアナライザーの計算結果が保存されていません');
+                    console.log('→ OS Analyzerを実行して計算結果を保存してください');
+                } else {
+                    console.log('✅ 計算結果が正常に保存されています');
+                }
+                console.groupEnd();
+                
+                console.groupEnd();
+            }
+        }
+        
+        // ページロード時の処理
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('ページ読み込み完了 - データ取得開始');
+            
+            // localStorageからデータ取得
+            const savedDataStr = localStorage.getItem('osAnalysisResult');
+            
+            if (!savedDataStr) {
+                console.error('分析結果が見つかりません');
+                showErrorMessage('分析結果が見つかりません。OS Analyzerで分析を実行してください。');
+                return;
+            }
+            
+            try {
+                const analysisData = JSON.parse(savedDataStr);
+                console.log('取得した分析データ:', analysisData);
+                
+                // V3データベースの読み込みを待つ
+                if (typeof HexagramHumanTraitsV3 === 'undefined') {
+                    // データベースが読み込まれるまで待機
+                    let retryCount = 0;
+                    const maxRetries = 10;
+                    const checkInterval = setInterval(() => {
+                        retryCount++;
+                        if (typeof HexagramHumanTraitsV3 !== 'undefined') {
+                            clearInterval(checkInterval);
+                            displayTripleOSResults(analysisData);
+                        } else if (retryCount >= maxRetries) {
+                            clearInterval(checkInterval);
+                            console.error('V3データベースの読み込みタイムアウト');
+                            showErrorMessage('データベースの読み込みに失敗しました。');
+                        }
+                    }, 200);
+                } else {
+                    // すぐに表示
+                    displayTripleOSResults(analysisData);
+                }
+                
+            } catch (error) {
+                console.error('データのパースに失敗:', error);
+                showErrorMessage('データの読み込みに失敗しました。');
+            }
+        });
+    </script>
 </body>
 </html>
