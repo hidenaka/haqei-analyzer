@@ -28,6 +28,58 @@ console.log('🎯 EightScenariosDisplay Loading...');
       this.compareSelected = [];
     }
 
+    _buildDetailedReasons(cs) {
+      try {
+        if (!cs) return '';
+        const ig = window.iChingGuidance;
+        const input = String(this.userInputText||'');
+        const sem = (ig && input) ? ig.getSemantics(input) : { keywords:[], categories:[], frames:[] };
+        const frames = Array.isArray(sem.frames) ? sem.frames : [];
+        const cats = Array.isArray(sem.categories) ? sem.categories : [];
+        // 候補（現在地）のカテゴリを推定
+        let entryCats = [];
+        try {
+          const e = cs.rawData || {};
+          const kw = Array.isArray(e['キーワード']) ? e['キーワード'] : String(e['キーワード']||'').split(/[、,\s]+/).filter(Boolean);
+          const summary = String(e['現代解釈の要約']||'');
+          const tokens = kw.concat(summary.split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u).filter(Boolean));
+          const norm = ig && ig.normalizeTokens ? ig.normalizeTokens(tokens) : tokens.map(s=>String(s).toLowerCase());
+          const set = new Set(norm);
+          entryCats = ig && ig.detectCategories ? Array.from(ig.detectCategories(set)) : [];
+        } catch {}
+        // ブリッジング誘導の明示化
+        let bridgeLines = '';
+        try {
+          const bridging = (ig && ig.bridging) ? ig.bridging : [];
+          const hasCats = new Set(cats);
+          const entrySet = new Set(entryCats);
+          const matched = [];
+          bridging.forEach(rule => {
+            if (hasCats.has(rule.has)) {
+              const favored = (rule.favors||[]).filter(f => entrySet.has(f));
+              if (favored.length) matched.push({ has: rule.has, favors: favored, w: rule.w });
+            }
+          });
+          if (matched.length) {
+            bridgeLines = matched.map(m => `・「${m.has}」の文脈 → 「${m.favors.join('／')}」を優先（+${m.w}）`).join('<br/>');
+          }
+        } catch {}
+        // キーワード/カテゴリ一致
+        const rs = cs.reasons || {};
+        const kw = (rs.matchKw||[]).slice(0,6).join('、');
+        const mcat = (rs.matchCat||[]).slice(0,6).join('、');
+        const frameLine = frames.length ? `・認識した文脈: ${frames.join('、')}` : '';
+        const catLine = cats.length ? `・検出カテゴリ: ${cats.join('、')}` : '';
+        const kwLine = kw ? `・キーワード一致: ${kw}` : '';
+        const catMatchLine = mcat ? `・カテゴリ一致: ${mcat}` : '';
+        const bridgeBlock = bridgeLines ? `・ブリッジ誘導:<br/>${bridgeLines}` : '';
+        const resultLine = `・現在地: ${cs.hexagramName || ''} ${cs.yaoName || ''}`;
+        const parts = [frameLine, catLine, kwLine, catMatchLine, bridgeBlock, resultLine].filter(Boolean);
+        if (!parts.length) return '';
+        return parts.join('<br/>');
+      } catch { return ''; }
+    }
+
     /**
      * 初期化
      */
@@ -441,6 +493,27 @@ console.log('🎯 EightScenariosDisplay Loading...');
         bar.appendChild(left);
         bar.appendChild(right);
         if (chips) { reason.innerHTML = `<span style="color:#a5b4fc;font-weight:700;">理由</span> ${chips}`; bar.appendChild(reason); }
+
+        // 詳細な理由（文脈→解釈の明示）
+        const detailWrap = document.createElement('div');
+        detailWrap.style.cssText = 'flex-basis:100%;margin-top:.25rem;';
+        const details = this._buildDetailedReasons(cs);
+        if (details) {
+          const toggleId = `reason-details-${Date.now().toString(36)}`;
+          detailWrap.innerHTML = `
+            <button type="button" aria-expanded="false" aria-controls="${toggleId}" style="font-size:.8rem;color:#c7d2fe;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.35);padding:.2rem .5rem;border-radius:6px;cursor:pointer;">詳細理由を表示</button>
+            <div id="${toggleId}" style="display:none;margin-top:.4rem;border-left:2px solid rgba(99,102,241,.35);padding-left:.6rem;color:#cbd5e1;font-size:.85rem;line-height:1.5;">${details}</div>
+          `;
+          const btn = detailWrap.querySelector('button');
+          const panel = detailWrap.querySelector(`#${toggleId}`);
+          btn.addEventListener('click', () => {
+            const vis = panel.style.display === 'none';
+            panel.style.display = vis ? 'block' : 'none';
+            btn.textContent = vis ? '詳細理由を隠す' : '詳細理由を表示';
+            btn.setAttribute('aria-expanded', String(vis));
+          });
+          bar.appendChild(detailWrap);
+        }
         return bar;
       } catch {
         return document.createElement('div');
