@@ -1918,11 +1918,32 @@
               setTimeout(updateButtonState, 10);
             });
             
-            // クリック時の分析は FutureSimulatorIntegration 側のハンドラに委譲
+            // クリック時の分析実行（入力が十分な場合にProgressiveLoader経由で実行）
             aiGuessBtn.addEventListener('click', () => {
               const inputText = worryInput.value.trim();
               if (!(inputText && inputText.length >= 10)) {
                 showUserMessage('10文字以上で具体的な状況を入力してください', 'warning');
+                return;
+              }
+              // 入力が有効な場合は分析を実行
+              try {
+                // ProgressiveLoaderのインスタンスメソッドを利用
+                if (typeof this.performAnalysis === 'function') {
+                  this.performAnalysis(inputText);
+                } else if (window.FutureSimulator && window.FutureSimulator.Core && typeof window.FutureSimulator.Core.startAnalysis === 'function') {
+                  // フォールバック: 直接Coreへ委譲
+                  const situationInput = document.getElementById('situation-input') ||
+                                        document.querySelector('textarea[placeholder*="状況"]') ||
+                                        document.querySelector('textarea');
+                  if (situationInput) situationInput.value = inputText;
+                  window.FutureSimulator.Core.startAnalysis();
+                } else {
+                  console.error('分析実行先が見つかりません');
+                  showUserMessage('内部エラー: 分析を開始できませんでした', 'error');
+                }
+              } catch (e) {
+                console.error('分析開始時のエラー:', e);
+                showUserMessage('分析開始時にエラーが発生しました', 'error');
               }
             });
             
@@ -1940,12 +1961,21 @@
             aiGuessBtn.textContent = '分析中...';
           }
 
-          // System delegation to FutureSimulator.Core
-          console.log('ProgressiveLoader.performAnalysis() delegating to FutureSimulator.Core');
+          // Integration-first delegation
+          console.log('ProgressiveLoader.performAnalysis() trying FutureSimulatorIntegration first');
           
           setTimeout(() => {
-            // Binary Tree Analysis Systemに完全委譲
-            if (window.FutureSimulator && window.FutureSimulator.Core) {
+            // 1) Integrationがあれば優先利用
+            if (window.futureSimulator && typeof window.futureSimulator.performAnalysis === 'function') {
+              console.log('✅ Delegating to FutureSimulatorIntegration.performAnalysis()');
+              try {
+                window.futureSimulator.performAnalysis();
+              } catch (e) {
+                console.error('Integration performAnalysis failed, falling back to Core:', e);
+              }
+            }
+            // 2) Coreがあればフォールバックで実行
+            else if (window.FutureSimulator && window.FutureSimulator.Core) {
               console.log('✅ Delegating to FutureSimulator.Core.startAnalysis()');
               // 入力フィールドに値を設定してからFutureSimulator.Coreの分析を実行
               const situationInput = document.getElementById('situation-input') || 
