@@ -25,6 +25,9 @@ console.log('🚀 Future Simulator Integration Loading...');
       
       // 現在の分析結果
       this.currentAnalysis = null;
+
+      // グローバル委譲のデバウンス
+      this._clickBusy = false;
     }
 
     /**
@@ -131,13 +134,16 @@ console.log('🚀 Future Simulator Integration Loading...');
      * イベントリスナー設定
      */
     setupEventListeners() {
-      // 分析ボタン
+      // 直接バインド（存在する場合）
       const analyzeBtn = document.getElementById('aiGuessBtn');
       if (analyzeBtn) {
         analyzeBtn.addEventListener('click', async () => {
           await this.performAnalysis();
         });
       }
+
+      // DOM置換に強いグローバル委譲
+      this.setupGlobalDelegates();
       
       // エンターキーでも分析実行
       const worryInput = document.getElementById('worryInput');
@@ -157,6 +163,40 @@ console.log('🚀 Future Simulator Integration Loading...');
           this.handleScenarioSelection(e.detail);
         });
       }
+    }
+
+    /**
+     * DOM置換に耐えるグローバル委譲
+     */
+    setupGlobalDelegates() {
+      // クリック委譲（分析ボタン）
+      document.addEventListener('click', async (e) => {
+        const el = e.target && (e.target.closest ? e.target.closest('#aiGuessBtn') : null);
+        if (!el) return;
+        if (this._clickBusy) return;
+        this._clickBusy = true;
+        try {
+          await this.performAnalysis();
+        } finally {
+          setTimeout(() => { this._clickBusy = false; }, 300);
+        }
+      }, true);
+
+      // Enterキーでも分析実行
+      document.addEventListener('keypress', async (e) => {
+        const input = e.target && e.target.id === 'worryInput';
+        if (!input) return;
+        if (e.key === 'Enter' && e.shiftKey === false) {
+          e.preventDefault();
+          if (this._clickBusy) return;
+          this._clickBusy = true;
+          try {
+            await this.performAnalysis();
+          } finally {
+            setTimeout(() => { this._clickBusy = false; }, 300);
+          }
+        }
+      }, true);
     }
 
     /**
