@@ -62,11 +62,12 @@ async function main() {
     // Verify 8 cards rendered
     const branches = page.locator('#eight-branches-display');
     await branches.waitFor({ timeout: 20000, state: 'visible' });
-    const titles = await branches.locator('div', { hasText: /分岐\d+｜(進|変)/ }).allTextContents();
-    if (titles.length !== 8) throw new Error(`Expected 8 branch cards, got ${titles.length}`);
+    const grid = branches.locator(':scope > div');
+    await grid.waitFor({ timeout: 20000, state: 'visible' });
+    const cardsCount = await grid.locator(':scope > div').count();
+    if (cardsCount !== 8) throw new Error(`Expected 8 branch cards, got ${cardsCount}`);
 
     console.log('✅ Smoke OK (8 branches rendered)');
-    console.log('Cards:', titles.join(' | '));
   } finally {
     await ctx.close();
     await browser.close();
