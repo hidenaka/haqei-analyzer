@@ -1363,14 +1363,32 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         scenariosCount: scenarios?.length
       });
 
-      // 4. 結果の統合
+      // 4. ランキング（理由付与用）
+      let topCandidates = [];
+      try {
+        topCandidates = await this.rankCandidates(inputText, 3);
+      } catch {}
+
+      // 5. 結果の統合
       const result = {
         inputText: inputText,
         currentSituation: situationHexagram,
         threeStageProcess: process,
         eightScenarios: scenarios,
+        topCandidates,
         timestamp: new Date().toISOString()
       };
+
+      // currentSituationにreasonsを付与（Top1が一致する場合）
+      try {
+        if (topCandidates && topCandidates.length) {
+          const t1 = topCandidates[0];
+          if (Number(t1.hexagramNumber) === Number(situationHexagram.hexagramNumber)
+              && String(t1.yaoName) === String(situationHexagram.yaoName)) {
+            result.currentSituation.reasons = t1.reasons;
+          }
+        }
+      } catch {}
 
       console.log('✅ Complete analysis performed:', result);
       return result;

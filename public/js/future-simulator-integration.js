@@ -327,7 +327,9 @@ console.log('🚀 Future Simulator Integration Loading...');
           try { if (typeof this.scenariosDisplay.setUserInput === 'function') { this.scenariosDisplay.setUserInput(analysis.inputText || ''); } } catch {}
           this.scenariosDisplay.displayScenarios(
             scenariosToShow,
-            analysis.threeStageProcess
+            analysis.threeStageProcess,
+            analysis.currentSituation,
+            analysis.topCandidates || []
           );
           
           // アニメーション開始

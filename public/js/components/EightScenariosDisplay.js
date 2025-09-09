@@ -295,7 +295,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
     /**
      * 8つのシナリオを表示
      */
-    displayScenarios(scenarios, threeStageProcess) {
+    displayScenarios(scenarios, threeStageProcess, currentSituation = null, topCandidates = []) {
       if (!this.container) return;
       
       // 動的色システムを適用
@@ -303,6 +303,8 @@ console.log('🎯 EightScenariosDisplay Loading...');
       
       this.scenarios = scenarios;
       this.threeStageProcess = threeStageProcess;
+      this.currentSituation = currentSituation || (threeStageProcess && threeStageProcess.currentSituation) || null;
+      this.topCandidates = Array.isArray(topCandidates) ? topCandidates : [];
       
       // コンテナをクリア
       this.container.innerHTML = '';
@@ -317,8 +319,9 @@ console.log('🎯 EightScenariosDisplay Loading...');
       // 現在地の固定要約バー（入力と現在地の要旨を表示）
       mainContainer.appendChild(this.createCurrentSummaryBar());
 
-      // 行状態辞書のロード
+      // 外部辞書のロード
       this._ensureLineStatesLoaded();
+      this._ensureScenarioCopyLoaded();
 
       // 意図トグル
       mainContainer.appendChild(this.createIntentToggle());
@@ -371,6 +374,16 @@ console.log('🎯 EightScenariosDisplay Loading...');
       } catch { return ''; }
     }
 
+    _ensureScenarioCopyLoaded() {
+      if (this._copyLoading || this.copyDict) return;
+      this._copyLoading = true;
+      const url = `/data/scenario-copy.json?v=${encodeURIComponent(this.version || '1.0.0')}`;
+      fetch(url).then(r=> r.ok ? r.json() : Promise.reject(new Error('copy not found')))
+        .then(json => { this.copyDict = json || {}; })
+        .catch(()=>{ this.copyDict = null; })
+        .finally(()=>{ this._copyLoading = false; });
+    }
+
     // 現在地の固定要約ヘッダー（1–2行）
     createCurrentSummaryBar() {
       try {
@@ -378,7 +391,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
         bar.id = 'current-summary-bar';
         bar.style.cssText = 'position:sticky;top:0;z-index:30;background:rgba(2,6,23,.85);backdrop-filter:blur(6px);border:1px solid rgba(99,102,241,.25);border-radius:10px;padding:.5rem .75rem;margin:.5rem 0;color:#cbd5e1;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;';
 
-        const cs = this.threeStageProcess && this.threeStageProcess.currentSituation ? this.threeStageProcess.currentSituation : {};
+        const cs = this.currentSituation || (this.threeStageProcess && this.threeStageProcess.currentSituation) || {};
         const name = (cs.hexagramName && cs.yaoName) ? `${String(cs.hexagramName).trim()} ${String(cs.yaoName).trim()}` : '現在の状況';
         const s0 = this._getCurrentBaseScoreFromH384();
         // threeStageProcessにスコアがない場合もあるので、表示は名称中心に
@@ -402,8 +415,33 @@ console.log('🎯 EightScenariosDisplay Loading...');
         })();
         right.innerHTML = snippet;
 
+        // 理由ブロック（選定理由/カテゴリ/フレーム）
+        const reason = document.createElement('div');
+        reason.style.cssText = 'flex-basis:100%;display:flex;gap:.5rem;flex-wrap:wrap;color:#94a3b8;margin-top:.25rem;';
+        const reasons = cs && cs.reasons ? cs.reasons : null;
+        const mkChip = (text) => `<span style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.35);color:#c7d2fe;padding:.1rem .45rem;border-radius:999px;font-size:.75rem;">${text}</span>`;
+        let chips = '';
+        if (reasons) {
+          const kw = (reasons.matchKw||[]).slice(0,4).map(k=>mkChip(`語:${k}`)).join('');
+          const cat = (reasons.matchCat||[]).slice(0,3).map(c=>mkChip(`類:${c}`)).join('');
+          const pb = (reasons.phraseBoost||0) ? mkChip(`句+${reasons.phraseBoost}`) : '';
+          const cb = (reasons.catBoost||0) ? mkChip(`誘+${reasons.catBoost}`) : '';
+          chips = kw + cat + pb + cb;
+        } else {
+          // フォールバック: カテゴリ/フレームをEngineから取得
+          try {
+            if (window.iChingGuidance && this.userInputText) {
+              const sem = window.iChingGuidance.getSemantics(this.userInputText);
+              const cats = (sem.categories||[]).slice(0,4).map(c=>mkChip(`類:${c}`)).join('');
+              const fr = (sem.frames||[]).slice(0,2).map(f=>mkChip(`枠:${f}`)).join('');
+              chips = cats + fr;
+            }
+          } catch {}
+        }
+
         bar.appendChild(left);
         bar.appendChild(right);
+        if (chips) { reason.innerHTML = `<span style="color:#a5b4fc;font-weight:700;">理由</span> ${chips}`; bar.appendChild(reason); }
         return bar;
       } catch {
         return document.createElement('div');
@@ -815,6 +853,13 @@ console.log('🎯 EightScenariosDisplay Loading...');
       const sign = net>0?'+':'';
       const netCol = net>0?'#34D399': net<0?'#F87171':'#94a3b8';
 
+      // 外部コピー辞書
+      const combo = scenario.path || scenario.route || scenario.combo;
+      const key = Array.isArray(combo) ? combo.join(',') : null;
+      const cpy = (this.copyDict && key) ? this.copyDict[key] : null;
+      const displayTitle = (cpy && cpy.title) ? cpy.title : (scenario.title || scenario.description || '統合的変化');
+      const displayDesc = (cpy && cpy.description) ? cpy.description : (scenario.description || '');
+
       card.innerHTML = `
         <!-- 見出し帯（タイプ / スパークライン / 合計差分 / アクション / 比較） -->
         <div class="visual-summary" style="display:flex;align-items:center;gap:.5rem;margin:.25rem 0 .35rem;flex-wrap:wrap;">
@@ -851,8 +896,9 @@ console.log('🎯 EightScenariosDisplay Loading...');
             <span class="traditional-icon">${visualization.traditional}</span>
             <span class="modern-emoji">${visualization.modern}</span>
           </span>
-          シナリオ ${scenario.id}: ${scenario.title || scenario.description || '統合的変化'}
+          シナリオ ${scenario.id}: ${displayTitle}
         </h3>
+        ${displayDesc ? `<div class="scenario-description">${this._normalizeJa(displayDesc)}</div>` : ''}
         
         <!-- 時間的反復ステップ表示 -->
         ${this.renderTemporalSteps(scenario)}
