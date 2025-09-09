@@ -210,8 +210,24 @@ window.OfflineKuromojiInitializer = {
     this.kuromojiStatus.loading = true;
     
     try {
-      // 辞書パス設定
+      // 辞書パス設定（ローカル /dict/ が利用可能なら優先、なければCDN）
       this.kuromojiStatus.dictPath = 'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/';
+      try {
+        if (location.protocol.startsWith('http')) {
+          const res = await fetch('./dict/unk.dat.gz', { method: 'HEAD', cache: 'no-cache' });
+          if (res.ok) {
+            this.kuromojiStatus.dictPath = './dict/';
+            console.log('📚 Using local Kuromoji dict path:', this.kuromojiStatus.dictPath);
+          } else {
+            console.log('ℹ️ Local dict not found (HTTP status), using CDN');
+          }
+        } else {
+          // file:// などではCDNを優先（XHR制約回避）。必要に応じてfallback analyzerが動作
+          console.log('ℹ️ Non-HTTP protocol detected; using CDN dict path');
+        }
+      } catch (e) {
+        console.log('ℹ️ Local dict probe failed; using CDN:', e.message);
+      }
       
       // トークナイザー構築
       const tokenizer = await this.buildTokenizer();

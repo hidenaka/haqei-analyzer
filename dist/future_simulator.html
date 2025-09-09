@@ -3324,7 +3324,8 @@
       (async () => {
         try {
           const key = `${hexNumForState}-${yaoPosForState}`;
-          const res = await fetch('/data/h384-line-states.json', { cache: 'no-cache' });
+          // Use relative path to work under file:// and sub-path hosting
+          const res = await fetch('./data/h384-line-states.json', { cache: 'no-cache' });
           let txt = '（未登録）';
           if (res.ok) {
             const map = await res.json();

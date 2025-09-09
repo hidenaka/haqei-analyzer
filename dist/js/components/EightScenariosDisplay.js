@@ -411,7 +411,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
     _ensureLineStatesLoaded() {
       if (this._lineStatesLoading || this.lineStates) return;
       this._lineStatesLoading = true;
-      const url = `/data/h384-line-states.json?v=${encodeURIComponent(this.version || '1.0.0')}`;
+      const url = `./data/h384-line-states.json?v=${encodeURIComponent(this.version || '1.0.0')}`;
       fetch(url).then(r=>r.json()).then(json=>{
         this.lineStates = json;
       }).catch(()=>{
@@ -430,7 +430,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
     _ensureScenarioCopyLoaded() {
       if (this._copyLoading || this.copyDict) return;
       this._copyLoading = true;
-      const url = `/data/scenario-copy.json?v=${encodeURIComponent(this.version || '1.0.0')}`;
+      const url = `./data/scenario-copy.json?v=${encodeURIComponent(this.version || '1.0.0')}`;
       fetch(url).then(r=> r.ok ? r.json() : Promise.reject(new Error('copy not found')))
         .then(json => { this.copyDict = json || {}; })
         .catch(()=>{ this.copyDict = null; })
