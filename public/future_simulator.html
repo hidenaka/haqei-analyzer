@@ -1696,12 +1696,12 @@
     <script src="./js/validation/PersonaValidationSystem.js"></script>
     <script src="./js/validation/ValidationOrchestrator.js"></script>
     
-    <!-- 8シナリオ生成システム -->
-    <script src="./js/pages/future-simulator/EightScenariosGenerator.js"></script>
-    <script src="./js/pages/future-simulator/ScenariosDisplayUI.js"></script>
+    <!-- 8シナリオ生成システム（旧ロジック）削除：新UI(EightScenariosDisplay)を使用 -->
     
     <!-- Future Simulator UI Enhancement System -->
     <script src="./js/future-simulator-ui-enhancements.js" defer></script>
+    <!-- Dev Diagnostics -->
+    <script src="./js/dev/Diagnostics.js"></script>
   </head>
   <body class="min-h-screen p-4 sm:p-6" data-progressive-load>
     <!-- Loading Screen Completely Removed -->
@@ -1712,7 +1712,7 @@
       style="opacity: 1;"
     >
       <header class="text-center mb-8 relative">
-        <a href="./" class="inline-block">
+        <div class="inline-block">
           <h1 class="text-3xl sm:text-4xl font-bold brand-text tracking-wider">
             易経未来分析システム
           </h1>
@@ -1722,7 +1722,7 @@
             <span>🗃️ 伝統的な易経パターン活用</span>
             <span>⏱️ 複数の展開パターンを提示</span>
           </div>
-        </a>
+        </div>
         <button
           id="helpBtn"
           class="absolute top-0 right-0 p-2 text-gray-400 hover:text-white transition-colors"
@@ -1741,6 +1741,14 @@
               d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4 0 .863-.27 1.66-.744 2.25l-2.536 2.39c-.832.786-1.464 1.49-1.464 2.36h.001M12 18h.01"
             />
           </svg>
+        </button>
+        <button
+          id="diagBtn"
+          class="absolute top-0 right-10 p-2 text-gray-400 hover:text-white transition-colors"
+          title="Run IChing diagnostics (console)"
+          onclick="window.runIChingDiagnostics && window.runIChingDiagnostics()"
+        >
+          🧪
         </button>
       </header>
 
@@ -1919,12 +1927,10 @@
               setTimeout(updateButtonState, 10);
             });
             
-            // クリックイベント
+            // クリック時の分析は FutureSimulatorIntegration 側のハンドラに委譲
             aiGuessBtn.addEventListener('click', () => {
               const inputText = worryInput.value.trim();
-              if (inputText && inputText.length >= 10) {
-                analyzeWorry(inputText);
-              } else {
+              if (!(inputText && inputText.length >= 10)) {
                 showUserMessage('10文字以上で具体的な状況を入力してください', 'warning');
               }
             });
@@ -2573,43 +2579,8 @@
       }
 
       // 8シナリオ生成関数（高度分析版）
+      // 旧8シナリオ生成は削除（新UI/EightScenariosDisplay を使用）
       async function generateAndDisplay8Scenarios(worryText) {
-        console.log('🎯 8シナリオ生成開始（高度版）:', worryText);
-        
-        try {
-          // EightScenariosGeneratorを使用
-          if (window.EightScenariosGenerator) {
-            const generator = new window.EightScenariosGenerator();
-            const analysis = window.integratedAnalysisResult;
-            
-            if (analysis && analysis.iching) {
-              const scenarios = await generator.generateScenarios(
-                analysis.iching,
-                analysis.context || {}
-              );
-              
-              if (scenarios && scenarios.length > 0) {
-                console.log('✅ EightScenariosGenerator成功:', scenarios.length, '個');
-                displayDynamicScenarios(scenarios, worryText);
-                return;
-              }
-            }
-          }
-        } catch (error) {
-          console.log('⚠️ EightScenariosGeneratorエラー:', error);
-        }
-        
-        // 高度生成が失敗した場合、動的生成システムを使用
-        const scenarios = generateJingYaoHengYaoScenarios(worryText);
-        
-        if (scenarios && scenarios.length === 8) {
-          console.log('✅ 動的生成成功: 8個のシナリオ');
-          displayDynamicScenarios(scenarios, worryText);
-          return;
-        }
-        
-        // フォールバック: 固定テンプレート（動的生成が失敗した場合）
-        console.log('⚠️ 動的生成失敗、固定テンプレートを使用');
         const fallbackScenarios = [
           { 
             trigram: "乾(天)", 
@@ -3212,6 +3183,24 @@
             }
           }
           
+          // 4.9 最新ロジックにアップグレード: IChingGuidanceEngine を優先
+          try {
+            if (window.iChingGuidance && typeof window.iChingGuidance.performCompleteAnalysis === 'function') {
+              const gRes = await window.iChingGuidance.performCompleteAnalysis(inputText);
+              const s = gRes && gRes.currentSituation;
+              if (s && s.hexagramName && s.yaoName) {
+                ichingAnalysis = {
+                  hexagram: { name: s.hexagramName, number: s.hexagramNumber },
+                  yao: { name: s.yaoName, position: s.yaoPosition },
+                  source: 'IChingGuidanceEngine'
+                };
+                console.log('🧭 Upgraded to IChingGuidanceEngine result:', ichingAnalysis.hexagram.name, ichingAnalysis.yao.name);
+              }
+            }
+          } catch (e) {
+            console.warn('IChingGuidanceEngine analysis failed, keeping fallback:', e.message);
+          }
+
           // 5. 分析結果を統合
           window.integratedAnalysisResult = {
             input: inputText,
@@ -3241,17 +3230,15 @@
             console.log(`📊 動的分析結果: ${ichingAnalysis.hexagram.name} - ${ichingAnalysis.yao?.name || '初爻'}`);
           }
           
-          // 6. 8シナリオ生成を実行（高度版）
-          await generateAndDisplay8Scenarios(inputText);
+          // 現在の状況（最新ロジック）を表示
+          renderCurrentStatusBlockLatest(ichingAnalysis);
+
+          // 8シナリオ（従来HTML生成）は無効化。新UI（EightScenariosDisplay）側で表示。
           
         } catch (error) {
           console.error('❌ analyzeWorry エラー:', error);
           // エラー時は8シナリオ生成だけでも試みる
-          try {
-            await generateAndDisplay8Scenarios(inputText);
-          } catch (subError) {
-            console.error('❌ フォールバックも失敗:', subError);
-          }
+          // 旧8シナリオ生成は無効化
         }
         
         // 結果コンテナを表示
@@ -3264,8 +3251,88 @@
         }
       }
       
-      // Initialize on DOM ready
-      document.addEventListener('DOMContentLoaded', ensureChartContainers);
+  // Initialize on DOM ready
+  document.addEventListener('DOMContentLoaded', ensureChartContainers);
+  // 旧 analyzeWorry を無効化（新ロジックに一本化）
+  function analyzeWorry() { console.warn('analyzeWorry: deprecated'); }
+
+  // 現在の状況（最新ロジックの出力）をカードで表示
+  function renderCurrentStatusBlockLatest(ichingAnalysis) {
+    try {
+      if (!ichingAnalysis || !ichingAnalysis.hexagram) return;
+      const hexName = String(ichingAnalysis.hexagram.name || '').trim();
+      const yaoName = String(ichingAnalysis.yao?.name || '').trim();
+
+      // 可能なら H384_DATA からキーワードとスコアを補強（用九/用六にも対応）
+      let keywordsText = '';
+      let basicScore = '';
+      try {
+        const hexNum = Number(ichingAnalysis.hexagram.number || ichingAnalysis.hexagramNum || 0);
+        const targetYaoName = yaoName;
+        if (window.H384_DATA && Number.isFinite(hexNum)) {
+          // 卦番号一致かつ爻名一致のエントリを検索
+          const entry = window.H384_DATA.find(e => Number(e['卦番号']) === hexNum && String(e['爻']) === targetYaoName);
+          if (entry) {
+            const kw = entry['キーワード'];
+            if (Array.isArray(kw)) keywordsText = kw.join('、'); else if (typeof kw === 'string') keywordsText = kw;
+            const s1 = Number(entry['S1_基本スコア']);
+            if (Number.isFinite(s1)) basicScore = `${Math.round(s1)}/100`;
+          }
+        }
+      } catch {}
+
+      const container = document.getElementById('resultsContainer') || document.getElementById('resultArea') || document.body;
+      let block = document.getElementById('current-status-block');
+      if (!block) {
+        block = document.createElement('div');
+        block.id = 'current-status-block';
+        block.style.cssText = 'margin:1rem 0;padding:1rem;border:1px solid rgba(99,102,241,.35);border-radius:12px;background:rgba(17,24,39,.6)';
+        if (container.firstChild) container.insertBefore(block, container.firstChild);
+        else container.appendChild(block);
+      }
+      block.innerHTML = `
+        <div style="color:#cbd5e1;font-weight:700;margin-bottom:.25rem;">現在の状況</div>
+        <div style="color:#e5e7eb;margin-bottom:.25rem;">${hexName} ${yaoName}</div>
+        ${keywordsText ? `<div style=\"color:#94a3b8;\">キーワード: ${keywordsText}</div>` : ''}
+        ${basicScore ? `<div style=\"color:#94a3b8;\">スコア: ${basicScore}</div>` : ''}
+        <div id="current-status-reasons" style="margin-top:.5rem;color:#a5b4fc;font-size:.9rem;"></div>
+      `;
+
+      // 選定理由（Top2と一致理由）
+      try {
+        if (window.iChingGuidance && typeof window.iChingGuidance.rankCandidates === 'function') {
+          const input = (window.integratedAnalysisResult && window.integratedAnalysisResult.input) || '';
+          window.iChingGuidance.rankCandidates(input, 2).then(list => {
+            const el = document.getElementById('current-status-reasons');
+            if (!el || !list || !list.length) return;
+            const top = list[0];
+            const alt = list[1];
+            const mk = arr => (arr && arr.length) ? arr.slice(0,5).join('、') : '—';
+            // 検出カテゴリ
+            let catsHtml = '';
+            try {
+              if (window.iChingGuidance && typeof window.iChingGuidance.getSemantics === 'function') {
+                const sem = window.iChingGuidance.getSemantics(input);
+                const cats = sem && sem.categories ? sem.categories.slice(0,8).join('、') : '';
+                if (cats) catsHtml = `<div style=\"color:#94a3b8;\">検出カテゴリ: ${cats}</div>`;
+              }
+            } catch {}
+            const html = `
+              <div style="margin-top:.25rem;">
+                <div style="color:#cbd5e1;">選定理由</div>
+                <div style="color:#94a3b8;">一致キーワード: ${mk(top.reasons && top.reasons.matchKeywords)}</div>
+                <div style="color:#94a3b8;">一致カテゴリ: ${mk(top.reasons && top.reasons.matchCat)}</div>
+                ${catsHtml}
+                ${alt ? `<div style=\"color:#94a3b8;margin-top:.25rem;\">代替候補: ${alt.hexagramName} ${alt.yaoName}</div>` : ''}
+              </div>`;
+            el.innerHTML = html;
+          }).catch(()=>{});
+        }
+      } catch {}
+    } catch (e) {
+      console.warn('renderCurrentStatusBlockLatest failed:', e.message);
+    }
+  }
     </script>
     
     <!-- Loading Screen Management -->
@@ -3334,15 +3401,8 @@
     
     // Error handling utilities
     function showError(message) {
-      console.error('[HAQEI][ERROR]', message);
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'error';
-      errorDiv.style.cssText = `
-        background: #dc2626; color: white; padding: 1rem; 
-        border-radius: 0.5rem; margin: 1rem; font-family: monospace;
-      `;
-      errorDiv.textContent = `エラー: ${message}`;
-      document.body.appendChild(errorDiv);
+      // UIノイズ回避のため、致命的でない初期化エラーは黙殺
+      console.warn('[HAQEI][WARN]', message);
     }
     
     function showErrorPanel(error) {
@@ -3363,7 +3423,7 @@
       console.log('[HAQEI][P0-1] ESM mount initialization starting...');
       
       const el = document.getElementById('i-ching-container');
-      if (!el) return showError('システムの初期化でエラーが発生しました');
+      if (!el) { console.warn('[HAQEI][WARN] i-ching-container not found (mount skipped)'); return; }
       
       try {
         console.log('[HAQEI][P0-1] Creating IChingFutureSimulator with options...');
@@ -3397,11 +3457,7 @@
               
               if (inputText && inputText.length >= 10) {
                 console.log('[HAQEI][P0-1] Running integrated analysis...');
-                
-                // Call existing analysis function
-                if (typeof analyzeWorry === 'function') {
-                  analyzeWorry(inputText);
-                }
+                // analyzeWorry 呼び出しは停止（新UIに委譲）
                 
                 // Show I Ching section
                 const ichingSection = document.getElementById('iching-simulator-section');
@@ -3435,40 +3491,7 @@
     
     // 観測用情報表示
     document.addEventListener('DOMContentLoaded', () => {
-      const monitorDiv = document.createElement('div');
-      monitorDiv.id = 'haqei-monitor';
-      monitorDiv.style.cssText = `
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(0,0,0,0.8);
-        color: #0f0;
-        font-family: monospace;
-        font-size: 11px;
-        padding: 5px 10px;
-        z-index: 9999;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      `;
-      
-      function updateMonitor() {
-        const config = window.HAQEI_CONFIG || {};
-        monitorDiv.innerHTML = `
-          <span>システム準備完了</span>
-          <span>分析機能: 利用可能</span>
-          <span>安全な分析環境: 確保済み</span>
-          <span>品質保証: ${config.featureFlags?.enableAnalysis ? '有効' : '無効'} 
-                         Sharing=${config.featureFlags?.enableSharing ? '✓' : '✗'}
-                         Animation=${config.featureFlags?.enableAnimation ? '✓' : '✗'}</span>
-          <span>${new Date().toLocaleTimeString()}</span>
-        `;
-      }
-      
-      updateMonitor();
-      setInterval(updateMonitor, 1000);
-      document.body.appendChild(monitorDiv);
+      // 旧デバッグモニタは無効化（UIノイズ対策）
     });
   </script>
 
