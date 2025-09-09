@@ -459,6 +459,33 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         // 追加後に再検出
         analysis.keywords = this.normalizeTokens(analysis.keywords);
         analysis.categories = this.detectCategories(new Set(analysis.keywords));
+
+        // 追加強化: レキシコン語彙と代表句を生文から直接抽出（日本語分かち無し対策）
+        try {
+          const rawLower = String(text||'').toLowerCase();
+          const directHits = new Set();
+          // synonyms terms
+          Object.keys(this.semanticLexicon||{}).forEach(cat => {
+            (this.semanticLexicon[cat]||[]).forEach(term => {
+              const t = String(term||'').toLowerCase().trim();
+              if (t && rawLower.includes(t)) directHits.add(t);
+            });
+          });
+          // phrase patterns
+          Object.keys(this.phrasePatterns||{}).forEach(cat => {
+            (this.phrasePatterns[cat]||[]).forEach(term => {
+              const t = String(term||'').toLowerCase().trim();
+              if (t && rawLower.includes(t)) directHits.add(t);
+            });
+          });
+          // alias keys
+          const aliasMap = this.aliasMap || new Map();
+          aliasMap.forEach((v, k) => { if (rawLower.includes(String(k))) directHits.add(String(v)); });
+          if (directHits.size) {
+            analysis.keywords = this.normalizeTokens([...analysis.keywords, ...Array.from(directHits)]);
+            analysis.categories = this.detectCategories(new Set(analysis.keywords));
+          }
+        } catch {}
       } catch {}
 
       // 2) 感情スコア（維持）
