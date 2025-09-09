@@ -18,6 +18,16 @@ const suspiciousPatterns = [
   /ますます。$/,      // 二重語尾の一例
 ];
 
+// モダンさの観点で避けたい語感（比喩や文語が強い語）
+const archaicHints = [
+  '鼎',
+  '黄牛',
+  '雲上',
+  /[^階]段に/, // 「段に」→「段階に」推奨（ただし「段階」は許容）
+  /[^階]段なので/,
+  /[^階]段とな/,
+];
+
 function loadJSON(p) {
   return JSON.parse(fs.readFileSync(p, 'utf8'));
 }
@@ -52,6 +62,15 @@ function validateEntry(key, value) {
   // 不審パターン
   for (const re of suspiciousPatterns) {
     if (re.test(value)) warnings.push(`表現要確認: ${re.toString()}`);
+  }
+
+  // モダンさチェック（参考警告）
+  for (const h of archaicHints) {
+    if (typeof h === 'string') {
+      if (value.includes(h)) warnings.push(`古風/比喩強: ${h}`);
+    } else if (h.test(value)) {
+      warnings.push(`古風/比喩強: ${h}`);
+    }
   }
 
   // 句読点過多（目安）
@@ -92,4 +111,3 @@ function main() {
 if (require.main === module) {
   try { main(); } catch (e) { console.error(e); process.exit(1); }
 }
-
