@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>現在の5爻選択率測定</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .success { color: #4ec9b0; }
+        .warning { color: #dcdcaa; }
+        .error { color: #f48771; }
+        pre {
+            background: #252526;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #3e3e42;
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 現在の5爻選択率測定（C-3）</h1>
+    <div id="status">テスト実行中...</div>
+    <div id="results"></div>
+
+    <script type="module">
+        import { TextTo384LinesBridge } from './public/js/ai/TextTo384LinesBridge.js';
+        
+        async function measureCurrent5Yao() {
+            const statusEl = document.getElementById('status');
+            const resultsEl = document.getElementById('results');
+            
+            try {
+                statusEl.innerHTML = '初期化中...';
+                const bridge = new TextTo384LinesBridge();
+                await bridge.initialize();
+                
+                // テストサンプル（5爻が選ばれやすそうなもの）
+                const samples = [
+                    "リーダーシップを発揮する",
+                    "決断を下す時が来た",
+                    "最高の成果を目指す",
+                    "成熟した判断力",
+                    "統率力を示す",
+                    "指導者として行動",
+                    "最終決定を行う",
+                    "権威ある立場",
+                    "頂点に立つ",
+                    "完璧を追求する"
+                ];
+                
+                // 100回テスト（各サンプル10回）
+                const positionCount = [0, 0, 0, 0, 0, 0, 0];
+                let total = 0;
+                
+                for (const text of samples) {
+                    for (let i = 0; i < 10; i++) {
+                        const result = await bridge.analyzeText(`${text}${i}`);
+                        const position = result.line_position;
+                        
+                        if (position <= 6) {
+                            positionCount[position - 1]++;
+                        } else {
+                            positionCount[6]++; // 用九・用六
+                        }
+                        total++;
+                    }
+                }
+                
+                // 結果表示
+                let html = '<h2>測定結果（100サンプル）</h2>';
+                html += '<pre>';
+                
+                positionCount.slice(0, 6).forEach((count, idx) => {
+                    const percentage = (count / total * 100).toFixed(1);
+                    const bar = '█'.repeat(Math.round(percentage / 2));
+                    const colorClass = idx === 4 ? (percentage >= 10 ? 'success' : 'error') : '';
+                    html += `${idx + 1}爻: ${count}個 (${percentage}%) <span class="${colorClass}">${bar}</span>\n`;
+                });
+                
+                const line5Percentage = (positionCount[4] / total * 100).toFixed(1);
+                html += '\n';
+                html += `<span class="${line5Percentage >= 10 ? 'success' : 'error'}">`;
+                html += `5爻選択率: ${line5Percentage}%`;
+                html += line5Percentage >= 10 ? ' ✅ 目標達成' : ' ❌ 要改善';
+                html += '</span>';
+                
+                html += '</pre>';
+                
+                resultsEl.innerHTML = html;
+                statusEl.innerHTML = '<span class="success">測定完了</span>';
+                
+            } catch (error) {
+                statusEl.innerHTML = `<span class="error">エラー: ${error.message}</span>`;
+                console.error(error);
+            }
+        }
+        
+        measureCurrent5Yao();
+    </script>
+</body>
+</html>

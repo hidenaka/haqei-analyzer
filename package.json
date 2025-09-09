@@ -50,7 +50,13 @@
     "ci:security": "npm audit --audit-level=high --production",
     "trae:check": "node .trae-check.cjs",
     "trae:check-duplication": "node .trae-check.cjs check-duplication",
-    "trae:mandatory-read": "cat docs/TRAE_MANDATORY_READ.md"
+    "trae:mandatory-read": "cat docs/TRAE_MANDATORY_READ.md",
+    "db:migrate:dev": "wrangler d1 migrations apply haqei-analyzer-db --local",
+    "db:seed:koudo-shishin": "node scripts/seed-koudo-shishin.mjs",
+    "db:seed:hexagrams": "node scripts/seed-hexagrams.mjs",
+    "db:seed:yaoci": "node scripts/seed-yaoci.mjs",
+    "db:seed:h384": "node scripts/seed-h384.mjs",
+    "db:seed": "npm run db:seed:koudo-shishin && npm run db:seed:hexagrams && npm run db:seed:yaoci && npm run db:seed:h384"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -61,7 +67,8 @@
     "helmet": "^7.2.0",
     "ioredis": "^5.7.0",
     "jsdom": "^26.1.0",
-    "rate-limiter-flexible": "^7.2.0"
+    "rate-limiter-flexible": "^7.2.0",
+    "toml": "^3.0.0"
   },
   "devDependencies": {
     "@playwright/mcp": "^0.0.32",
@@ -71,7 +78,7 @@
     "eslint": "^8.0.0",
     "html-minifier-terser": "^7.2.0",
     "http-server": "^14.1.1",
-    "playwright": "^1.54.2",
+    "playwright": "1.55.0",
     "prettier": "^3.0.0",
     "puppeteer": "^24.16.0",
     "terser": "^5.43.1",

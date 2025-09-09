@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Phase 1 ベースライン検証</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            padding: 20px; 
+            background: #1e1e1e; 
+            color: #d4d4d4; 
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1, h2 { color: #4ec9b0; }
+        .section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            background: #2d2d30; 
+            border-radius: 5px; 
+        }
+        .metric { 
+            display: inline-block; 
+            margin: 10px 20px 10px 0;
+            padding: 5px 10px;
+            background: #252526;
+            border-radius: 3px;
+        }
+        .good { color: #4ec9b0; }
+        .warning { color: #f48771; }
+        .bad { color: #f14c4c; }
+        .bar {
+            display: inline-block;
+            background: #007acc;
+            height: 20px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        .position-stat {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        .position-label {
+            width: 50px;
+        }
+        .position-count {
+            width: 100px;
+        }
+        .progress {
+            background: #252526;
+            height: 30px;
+            border-radius: 3px;
+            margin: 10px 0;
+            padding: 5px;
+        }
+        #status {
+            color: #f48771;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #3c3c3c;
+        }
+        th {
+            background: #252526;
+            color: #4ec9b0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Phase 1 ベースライン検証</h1>
+    <div id="status">初期化中...</div>
+    <div class="progress">
+        <div id="progressBar"></div>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script type="module">
+        import { TextTo384LinesBridge } from './public/js/ai/TextTo384LinesBridge.js';
+        
+        async function loadTestData() {
+            const response = await fetch('test-samples-200-categorized.json');
+            return await response.json();
+        }
+        
+        async function verifyBaseline() {
+            const statusEl = document.getElementById('status');
+            const resultsEl = document.getElementById('results');
+            
+            try {
+                statusEl.textContent = 'テストデータ読み込み中...';
+                const testData = await loadTestData();
+                
+                statusEl.textContent = 'Bridge初期化中...';
+                const bridge = new TextTo384LinesBridge();
+                await bridge.initialize();
+                
+                // 結果収集
+                const results = {
+                    totalSamples: 0,
+                    positionCounts: [0, 0, 0, 0, 0, 0, 0], // index 0は未使用
+                    uniqueLines: new Set(),
+                    categoryResults: {},
+                    timestamp: new Date().toISOString()
+                };
+                
+                let processedCount = 0;
+                const totalSamples = Object.values(testData.samples).flat().length;
+                
+                // カテゴリ別テスト
+                for (const [category, samples] of Object.entries(testData.samples)) {
+                    statusEl.textContent = `テスト中: ${category} (${samples.length}サンプル)`;
+                    
+                    const categoryStats = {
+                        total: samples.length,
+                        positionDistribution: [0, 0, 0, 0, 0, 0, 0],
+                        lines: []
+                    };
+                    
+                    for (const text of samples) {
+                        const result = await bridge.analyzeText(text);
+                        const lineKey = `${result.hexagram_number}-${result.line_position}`;
+                        
+                        results.uniqueLines.add(lineKey);
+                        results.positionCounts[result.line_position]++;
+                        categoryStats.positionDistribution[result.line_position]++;
+                        categoryStats.lines.push({
+                            text: text.substring(0, 20) + '...',
+                            hexagram: result.hexagram_number,
+                            position: result.line_position,
+                            line: lineKey
+                        });
+                        
+                        results.totalSamples++;
+                        processedCount++;
+                        
+                        // プログレスバー更新
+                        const progress = (processedCount / totalSamples * 100).toFixed(0);
+                        document.getElementById('progressBar').style.width = progress + '%';
+                    }
+                    
+                    results.categoryResults[category] = categoryStats;
+                }
+                
+                // 統計計算
+                const stats = calculateStatistics(results);
+                
+                // レポート表示
+                displayReport(results, stats);
+                
+                statusEl.textContent = '✅ 検証完了';
+                statusEl.className = 'good';
+                
+                // コンソールにも出力
+                console.log('検証結果:', { results, stats });
+                
+            } catch (error) {
+                statusEl.textContent = 'エラー: ' + error.message;
+                statusEl.className = 'bad';
+                console.error(error);
+            }
+        }
+        
+        function calculateStatistics(results) {
+            const total = results.totalSamples;
+            const positions = results.positionCounts.slice(1); // index 0を除外
+            
+            // 位置別パーセンテージ
+            const positionPercentages = positions.map(count => 
+                ((count / total) * 100).toFixed(2)
+            );
+            
+            // カバー率
+            const coverageRate = ((results.uniqueLines.size / 384) * 100).toFixed(2);
+            
+            // 5爻選択率
+            const yao5Rate = ((results.positionCounts[5] / total) * 100).toFixed(2);
+            
+            // 偏り計算
+            const expectedCount = total / 6;
+            const variance = positions.reduce((sum, count) => 
+                sum + Math.pow(count - expectedCount, 2), 0) / 6;
+            const stdDev = Math.sqrt(variance);
+            const biasScore = (stdDev / expectedCount * 100).toFixed(2);
+            
+            // χ²検定
+            const chiSquare = positions.reduce((sum, count) => 
+                sum + Math.pow(count - expectedCount, 2) / expectedCount, 0);
+            
+            return {
+                coverageRate: parseFloat(coverageRate),
+                uniqueLines: results.uniqueLines.size,
+                yao5Rate: parseFloat(yao5Rate),
+                positionPercentages: positionPercentages.map(p => parseFloat(p)),
+                biasScore: parseFloat(biasScore),
+                chiSquare: chiSquare.toFixed(2),
+                maxPosition: positions.indexOf(Math.max(...positions)) + 1,
+                minPosition: positions.indexOf(Math.min(...positions)) + 1
+            };
+        }
+        
+        function displayReport(results, stats) {
+            const resultsEl = document.getElementById('results');
+            
+            // 主要指標
+            let html = '<div class="section">';
+            html += '<h2>📊 主要指標</h2>';
+            
+            // カバー率
+            const coverageClass = stats.coverageRate >= 10 ? 'good' : 
+                                  stats.coverageRate >= 5 ? 'warning' : 'bad';
+            html += `<div class="metric ${coverageClass}">
+                カバー率: ${stats.coverageRate}% (${stats.uniqueLines}/384爻)
+                → 目標: 10-15%
+            </div><br>`;
+            
+            // 5爻選択率
+            const yao5Class = stats.yao5Rate >= 5 ? 'good' : 
+                             stats.yao5Rate >= 2 ? 'warning' : 'bad';
+            html += `<div class="metric ${yao5Class}">
+                5爻選択率: ${stats.yao5Rate}%
+                → 目標: 5-10%
+            </div><br>`;
+            
+            // ユニーク爻数
+            const uniqueClass = stats.uniqueLines >= 40 ? 'good' : 
+                               stats.uniqueLines >= 22 ? 'warning' : 'bad';
+            html += `<div class="metric ${uniqueClass}">
+                ユニーク爻: ${stats.uniqueLines}個
+                → 目標: 40-60個
+            </div><br>`;
+            
+            // 偏りスコア
+            html += `<div class="metric">
+                偏りスコア: ${stats.biasScore}% (χ²=${stats.chiSquare})
+            </div>`;
+            html += '</div>';
+            
+            // 位置別分布
+            html += '<div class="section">';
+            html += '<h2>📈 位置別分布</h2>';
+            const positions = results.positionCounts.slice(1);
+            positions.forEach((count, i) => {
+                const percentage = stats.positionPercentages[i];
+                const barWidth = percentage * 3;
+                const posClass = i === 4 ? 'warning' : ''; // 5爻を強調
+                html += `<div class="position-stat ${posClass}">
+                    <span class="position-label">${i + 1}爻:</span>
+                    <span class="position-count">${count}個 (${percentage}%)</span>
+                    <span class="bar" style="width: ${barWidth}px"></span>
+                </div>`;
+            });
+            html += '</div>';
+            
+            // カテゴリ別結果
+            html += '<div class="section">';
+            html += '<h2>📋 カテゴリ別5爻選択率</h2>';
+            html += '<table>';
+            html += '<tr><th>カテゴリ</th><th>サンプル数</th><th>5爻選択数</th><th>選択率</th></tr>';
+            
+            for (const [category, data] of Object.entries(results.categoryResults)) {
+                const yao5Count = data.positionDistribution[5];
+                const rate = ((yao5Count / data.total) * 100).toFixed(1);
+                const rateClass = parseFloat(rate) >= 5 ? 'good' : 
+                                 parseFloat(rate) >= 2 ? 'warning' : 'bad';
+                html += `<tr>
+                    <td>${category}</td>
+                    <td>${data.total}</td>
+                    <td>${yao5Count}</td>
+                    <td class="${rateClass}">${rate}%</td>
+                </tr>`;
+            }
+            html += '</table>';
+            html += '</div>';
+            
+            // 達成状況
+            const targetAchieved = 
+                stats.coverageRate >= 10 && 
+                stats.yao5Rate >= 5 && 
+                stats.uniqueLines >= 40;
+            
+            html += '<div class="section">';
+            if (targetAchieved) {
+                html += '<h2 class="good">🎉 Phase 1の目標を達成しています！</h2>';
+            } else {
+                html += '<h2 class="warning">⚠️ 改善が必要です</h2>';
+                html += '<p>Day 2以降のタスクを実行してください:</p>';
+                html += '<ul>';
+                if (stats.yao5Rate < 5) {
+                    html += '<li>5爻キーワード拡張と重み調整</li>';
+                }
+                if (stats.coverageRate < 10) {
+                    html += '<li>未使用爻へのマッピング強化</li>';
+                }
+                if (stats.biasScore > 30) {
+                    html += '<li>位置偏りの是正</li>';
+                }
+                html += '</ul>';
+            }
+            html += '</div>';
+            
+            resultsEl.innerHTML = html;
+        }
+        
+        // 実行
+        verifyBaseline();
+    </script>
+</body>
+</html>

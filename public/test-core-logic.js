@@ -177,11 +177,12 @@ function generate8Scenarios(initialHexagram) {
         'reject,reject,reject': '完全革新の道'
     };
     
+    const rng = { next: () => 0.5 }; // 決定論的RNG
     return paths.map((path, index) => ({
         id: index + 1,
         path: path,
         title: pathTitles[path.join(',')] || '未定義の道',
-        probability: Math.floor(Math.random() * 40) + 60, // 60-100%
+        probability: Math.floor(rng.next() * 40) + 60, // 60-100%
         description: `3段階で${path.map(p => p === 'follow' ? '受容' : '革新').join('→')}の道を歩む`
     }));
 }

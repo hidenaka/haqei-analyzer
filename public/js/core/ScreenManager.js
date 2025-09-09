@@ -773,10 +773,11 @@ class ScreenManager {
         const interfaceWords = OS_TITLE_PATTERNS.interface[interfaceCategory + '社交'] || ['適応的'];
         const safeModeWords = OS_TITLE_PATTERNS.safeMode[safeModeCategory + '安定'] || ['現実的'];
         
-        // ランダム選択で統合タイトル生成
-        const selectedEngine = engineWords[Math.floor(Math.random() * engineWords.length)];
-        const selectedInterface = interfaceWords[Math.floor(Math.random() * interfaceWords.length)];
-        const selectedSafeMode = safeModeWords[Math.floor(Math.random() * safeModeWords.length)];
+        // ランダム選択で統合タイトル生成（決定論RNG使用）
+        const rng = window.seedableRandom || { next: () => 0.5 }; // フォールバック
+        const selectedEngine = engineWords[Math.floor(rng.next() * engineWords.length)];
+        const selectedInterface = interfaceWords[Math.floor(rng.next() * interfaceWords.length)];
+        const selectedSafeMode = safeModeWords[Math.floor(rng.next() * safeModeWords.length)];
         
         // メインタイトル生成
         const mainTitle = `${selectedEngine}×${selectedInterface}タイプ`;

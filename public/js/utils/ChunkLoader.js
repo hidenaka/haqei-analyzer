@@ -284,7 +284,7 @@ class ChunkLoader {
     
     // Combine chunks and filter by range
     const allHexagrams = chunks.flat();
-    return allHexagrams.filter(h => h.hexagram_id >= start && h.hexagram_id <= end);
+    return allHexagrams.filter(h => h.hexagramId >= start && h.hexagramId <= end);
   }
   
   /**

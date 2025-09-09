@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Day 5: Phase 4 統合テスト（500サンプル）</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .success { color: #4ec9b0; }
+        .error { color: #f48771; }
+        .warning { color: #dcdcaa; }
+        .info { color: #9cdcfe; }
+        .result-box {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .metric-card {
+            background: #2d2d30;
+            border: 1px solid #3e3e42;
+            padding: 10px;
+            border-radius: 3px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #969696;
+        }
+        pre {
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #2d2d30;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ec9b0, #569cd6);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Day 5: Phase 4 大規模統合テスト</h1>
+    <div id="status">初期化中...</div>
+    <div id="progress-container" style="display: none;">
+        <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+        </div>
+        <span id="progress-text">0/500</span>
+    </div>
+    <div id="results"></div>
+
+    <script type="module">
+        import { TextTo384LinesBridge } from './public/js/ai/TextTo384LinesBridge.js';
+        
+        // 包括的なテストサンプル生成
+        function generateComprehensiveSamples() {
+            const samples = [];
+            
+            // 1. 易経的な表現（50個）
+            const iching = [
+                "乾為天の初爻", "坤為地の変化", "水雷屯の困難",
+                "山水蒙の学び", "水天需の待機", "天水訟の争い",
+                "地水師の統率", "水地比の親和", "風天小畜の蓄積",
+                "天沢履の実践", "地天泰の調和", "天地否の閉塞"
+            ];
+            iching.forEach(i => {
+                for (let j = 1; j <= 4; j++) {
+                    samples.push(`${i}について考える${j}`);
+                }
+            });
+            
+            // 2. 極限・超越的表現（用九・用六期待）（20個）
+            const extreme = [
+                "極限まで力を発揮する", "究極の選択を迫られる",
+                "限界を突破する瞬間", "全力で取り組む",
+                "完全に受け入れる", "すべてを包容する",
+                "絶対的な確信を持つ", "無限の可能性",
+                "全陽の状態", "全陰の状態"
+            ];
+            extreme.forEach(e => {
+                samples.push(e);
+                samples.push(`${e}時`);
+            });
+            
+            // 3. ビジネスシナリオ（80個）
+            const business = {
+                startup: ["起業準備", "資金調達", "製品開発", "市場参入"],
+                growth: ["顧客獲得", "売上拡大", "組織拡大", "新規事業"],
+                management: ["人材管理", "予算管理", "プロジェクト管理", "リスク管理"],
+                strategy: ["競争戦略", "成長戦略", "撤退戦略", "提携戦略"]
+            };
+            Object.entries(business).forEach(([category, items]) => {
+                items.forEach(item => {
+                    for (let i = 1; i <= 5; i++) {
+                        samples.push(`${item}の段階${i}`);
+                    }
+                });
+            });
+            
+            // 4. 人生の転換点（60個）
+            const life = [
+                "新しい仕事を始める", "結婚を決意する", "子供が生まれる",
+                "転職を考える", "独立を決める", "引退を迎える",
+                "新天地に移る", "大きな決断をする", "人生を振り返る",
+                "次のステージへ進む", "困難を乗り越える", "成功を収める"
+            ];
+            life.forEach(l => {
+                for (let i = 1; i <= 5; i++) {
+                    samples.push(`${l}（その${i}）`);
+                }
+            });
+            
+            // 5. 感情の機微（60個）
+            const emotions = [
+                "深い喜びを感じる", "悲しみに暮れる", "怒りが込み上げる",
+                "不安に襲われる", "希望に満ちる", "絶望の淵に立つ",
+                "平穏を取り戻す", "興奮が高まる", "冷静さを保つ",
+                "感謝の気持ち", "後悔の念", "期待と不安"
+            ];
+            emotions.forEach(e => {
+                for (let i = 1; i <= 5; i++) {
+                    samples.push(`${e}瞬間${i}`);
+                }
+            });
+            
+            // 6. 自然との対話（50個）
+            const nature = [
+                "朝日を浴びて", "夕日を見つめて", "星空の下で",
+                "雨音を聞きながら", "風を感じて", "波の音に包まれて",
+                "山頂に立って", "森の中を歩いて", "川のせせらぎ", "花の香り"
+            ];
+            nature.forEach(n => {
+                for (let i = 1; i <= 5; i++) {
+                    samples.push(`${n}思う${i}`);
+                }
+            });
+            
+            // 7. 哲学的思索（50個）
+            const philosophy = [
+                "存在の意味を問う", "真理を探求する", "美について考える",
+                "正義とは何か", "幸福の本質", "時間の概念", "空間の認識",
+                "意識の起源", "自由意志", "運命と選択"
+            ];
+            philosophy.forEach(p => {
+                for (let i = 1; i <= 5; i++) {
+                    samples.push(`${p}（考察${i}）`);
+                }
+            });
+            
+            // 8. 日常の決断（50個）
+            const daily = [
+                "今日の予定を決める", "何を食べるか選ぶ", "どの道を通るか",
+                "誰に連絡するか", "何を優先するか", "どう伝えるか",
+                "いつ実行するか", "どこで会うか", "何を買うか", "どう過ごすか"
+            ];
+            daily.forEach(d => {
+                for (let i = 1; i <= 5; i++) {
+                    samples.push(`${d}${i}`);
+                }
+            });
+            
+            // 9. 関係性の変化（30個）
+            const relations = [
+                "出会いの瞬間", "信頼が生まれる", "誤解が生じる",
+                "和解する", "別れを決める", "再会する"
+            ];
+            relations.forEach(r => {
+                for (let i = 1; i <= 5; i++) {
+                    samples.push(`${r}時${i}`);
+                }
+            });
+            
+            // 10. ランダムな組み合わせ（50個）
+            for (let i = 0; i < 50; i++) {
+                const words = ["進む", "止まる", "変わる", "続ける", "始める"];
+                const contexts = ["仕事", "人生", "関係", "計画", "目標"];
+                const word = words[i % words.length];
+                const context = contexts[Math.floor(i / words.length) % contexts.length];
+                samples.push(`${context}を${word}べきか${i+1}`);
+            }
+            
+            return samples;
+        }
+        
+        async function runTest() {
+            const statusEl = document.getElementById('status');
+            const progressContainer = document.getElementById('progress-container');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const resultsEl = document.getElementById('results');
+            
+            try {
+                statusEl.innerHTML = '<span class="warning">TextTo384LinesBridge初期化中...</span>';
+                const bridge = new TextTo384LinesBridge();
+                await bridge.initialize();
+                
+                statusEl.innerHTML = '<span class="success">✅ 初期化完了</span>';
+                progressContainer.style.display = 'block';
+                
+                const samples = generateComprehensiveSamples();
+                const totalSamples = samples.length;
+                
+                console.log(`Total samples: ${totalSamples}`);
+                
+                // 統計収集
+                const stats = {
+                    lineFrequency: new Map(),
+                    positionCount: [0, 0, 0, 0, 0, 0, 0], // 7番目は用九・用六
+                    hexagramCoverage: new Set(),
+                    specialLinesCount: 0,
+                    processingTimes: [],
+                    startTime: Date.now()
+                };
+                
+                // テスト実行
+                for (let i = 0; i < samples.length; i++) {
+                    const text = samples[i];
+                    const testStart = performance.now();
+                    
+                    const result = await bridge.analyzeText(text);
+                    
+                    const processingTime = performance.now() - testStart;
+                    stats.processingTimes.push(processingTime);
+                    
+                    const lineId = result.line_384_id;
+                    const position = result.line_position;
+                    const hexagramId = result.hexagram_id;
+                    
+                    // 統計更新
+                    stats.lineFrequency.set(lineId, (stats.lineFrequency.get(lineId) || 0) + 1);
+                    
+                    if (position <= 6) {
+                        stats.positionCount[position - 1]++;
+                    } else {
+                        stats.positionCount[6]++; // 用九・用六
+                        stats.specialLinesCount++;
+                    }
+                    
+                    stats.hexagramCoverage.add(hexagramId);
+                    
+                    // プログレスバー更新
+                    if ((i + 1) % 10 === 0) {
+                        const progress = ((i + 1) / totalSamples * 100);
+                        progressFill.style.width = `${progress}%`;
+                        progressText.textContent = `${i + 1}/${totalSamples}`;
+                    }
+                }
+                
+                const totalTime = Date.now() - stats.startTime;
+                
+                // 結果表示
+                let html = '';
+                
+                // メトリクスカード
+                html += '<div class="metric-grid">';
+                
+                const coverage = (stats.lineFrequency.size / 384) * 100;
+                html += `<div class="metric-card">
+                    <div class="metric-label">カバー率</div>
+                    <div class="metric-value ${coverage >= 13 ? 'success' : 'warning'}">${coverage.toFixed(1)}%</div>
+                </div>`;
+                
+                html += `<div class="metric-card">
+                    <div class="metric-label">ユニーク爻数</div>
+                    <div class="metric-value">${stats.lineFrequency.size}</div>
+                </div>`;
+                
+                html += `<div class="metric-card">
+                    <div class="metric-label">処理時間</div>
+                    <div class="metric-value">${(totalTime / 1000).toFixed(1)}秒</div>
+                </div>`;
+                
+                html += '</div>';
+                
+                // Phase 4特有：用九・用六の使用状況
+                html += '<div class="result-box">';
+                html += '<h3>🌟 特殊爻（用九・用六）の活用</h3>';
+                html += '<pre>';
+                html += `用九・用六使用回数: <span class="${stats.specialLinesCount > 0 ? 'success' : 'warning'}">${stats.specialLinesCount}回</span>\n`;
+                html += `使用率: ${(stats.specialLinesCount / totalSamples * 100).toFixed(2)}%\n`;
+                
+                const line385Count = stats.lineFrequency.get(385) || 0;
+                const line386Count = stats.lineFrequency.get(386) || 0;
+                html += `  用九（385）: ${line385Count}回\n`;
+                html += `  用六（386）: ${line386Count}回\n`;
+                
+                html += '</pre></div>';
+                
+                // 爻位置分布
+                html += '<div class="result-box">';
+                html += '<h3>📊 爻位置分布</h3>';
+                html += '<pre>';
+                
+                stats.positionCount.slice(0, 6).forEach((count, idx) => {
+                    const percentage = (count / totalSamples * 100).toFixed(1);
+                    const bar = '█'.repeat(Math.round(percentage / 2));
+                    html += `${idx + 1}爻: ${count}個 (${percentage}%) ${bar}\n`;
+                });
+                
+                if (stats.positionCount[6] > 0) {
+                    const percentage = (stats.positionCount[6] / totalSamples * 100).toFixed(1);
+                    html += `特殊: ${stats.positionCount[6]}個 (${percentage}%)\n`;
+                }
+                
+                html += '</pre></div>';
+                
+                // パフォーマンス統計
+                const avgTime = stats.processingTimes.reduce((a, b) => a + b, 0) / stats.processingTimes.length;
+                const minTime = Math.min(...stats.processingTimes);
+                const maxTime = Math.max(...stats.processingTimes);
+                
+                html += '<div class="result-box">';
+                html += '<h3>⚡ パフォーマンス統計</h3>';
+                html += '<pre>';
+                html += `平均処理時間: ${avgTime.toFixed(2)}ms\n`;
+                html += `最小処理時間: ${minTime.toFixed(2)}ms\n`;
+                html += `最大処理時間: ${maxTime.toFixed(2)}ms\n`;
+                html += `スループット: ${(totalSamples / (totalTime / 1000)).toFixed(0)}件/秒\n`;
+                html += '</pre></div>';
+                
+                // 卦カバー率
+                html += '<div class="result-box">';
+                html += '<h3>📈 卦カバー率</h3>';
+                html += '<pre>';
+                html += `使用された卦: ${stats.hexagramCoverage.size}/64卦 (${(stats.hexagramCoverage.size / 64 * 100).toFixed(1)}%)\n`;
+                html += '</pre></div>';
+                
+                // 総合評価
+                html += '<div class="result-box">';
+                html += '<h3>🎯 Phase 4 総合評価</h3>';
+                html += '<pre>';
+                
+                const achievements = [];
+                if (coverage >= 13) achievements.push('✅ カバー率目標達成');
+                if (stats.specialLinesCount > 0) achievements.push('✅ 用九・用六の活用成功');
+                if (avgTime < 10) achievements.push('✅ 高速処理（<10ms）');
+                if (stats.hexagramCoverage.size >= 32) achievements.push('✅ 50%以上の卦をカバー');
+                
+                achievements.forEach(a => html += `${a}\n`);
+                
+                html += `\n<span style="font-size: 1.2em;">総合判定: `;
+                if (achievements.length >= 3) {
+                    html += '<span class="success">優秀</span>';
+                } else if (achievements.length >= 2) {
+                    html += '<span class="warning">良好</span>';
+                } else {
+                    html += '<span class="error">要改善</span>';
+                }
+                html += '</span>';
+                
+                html += '</pre></div>';
+                
+                resultsEl.innerHTML = html;
+                progressContainer.style.display = 'none';
+                
+            } catch (error) {
+                statusEl.innerHTML = `<span class="error">エラー: ${error.message}</span>`;
+                console.error(error);
+            }
+        }
+        
+        // 実行
+        runTest();
+    </script>
+</body>
+</html>

@@ -265,7 +265,8 @@ class FutureSimulatorExpression {
     const analysisFactors = this.analyzeMultiDimensionalFactors(scenarioPhases);
     
     // シナリオ固有の特徴を追加
-    const scenarioId = scenarioPhases[0]?.scenarioId || scenarioPhases[0]?.id || Math.random();
+    const rng = window.seedableRandom || { next: () => 0.5 };
+    const scenarioId = scenarioPhases[0]?.scenarioId || scenarioPhases[0]?.id || rng.next();
     const scenarioSpecific = this.addScenarioSpecificFactors(scenarioId, totalChange, volatility);
     
     // 5タイプ分類判定
@@ -288,8 +289,9 @@ class FutureSimulatorExpression {
    */
   addScenarioSpecificFactors(scenarioId, totalChange, volatility) {
     // シナリオIDに基づく特徴付け
+    const rng = window.seedableRandom || { next: () => 0.5 };
     const idBased = typeof scenarioId === 'number' ? scenarioId : 
-                    (typeof scenarioId === 'string' ? scenarioId.charCodeAt(0) : Math.random() * 8);
+                    (typeof scenarioId === 'string' ? scenarioId.charCodeAt(0) : rng.next() * 8);
     
     const scenarioIndex = Math.floor(idBased) % 8;
     

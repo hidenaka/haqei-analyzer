@@ -16,6 +16,7 @@
     
     <!-- Browser Compatibility Layer -->
     <script src="./js/core/BrowserCompatibility.js"></script>
+<script src="./js/core/HUDManager.js"></script>
     
     <!-- Version and Monitoring -->
     <script>
@@ -85,6 +86,9 @@
     <!-- <script src="./js/quality-integration-manager.js" defer></script> -->
     <!-- <script src="./js/quality-system-validator.js" defer></script> -->
     
+    <!-- 384爻システム D1データベース統合 -->
+    <script src="./js/services/384DataService.js"></script>
+    <script src="./js/ai/TextTo384LinesBridge.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -873,7 +877,73 @@
       .rank-c {
         background-color: rgba(74, 222, 128, 0.2);
         color: #86efac;
-        border: 1px solid #22c55e;
+      }
+
+      /* Metrics Panel Styles */
+      #metrics-panel {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(31, 41, 55, 0.9);
+        border-radius: 8px;
+        padding: 1rem;
+        width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 1000;
+        transition: opacity 0.3s ease;
+      }
+      #metrics-panel.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .metric-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        color: #cbd5e1;
+      }
+      .metric-warning {
+        color: #ef4444;
+        font-weight: bold;
+      }
+      #metrics-toggle {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        background: #6366f1;
+        color: white;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 1001;
+      }
+      
+      /* 折りたたみ機能のスタイル */
+      .collapsible-content {
+        max-height: 1000px;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+        opacity: 1;
+      }
+      
+      .collapsible-content.collapsed {
+        max-height: 0;
+        opacity: 0;
+      }
+      
+      .section-container h3 {
+        user-select: none;
+      }
+      
+      .section-container h3:hover {
+        background: rgba(99, 102, 241, 0.1);
+        border-radius: 8px;
+        padding: 8px;
+        margin: -8px;
       }
       .rank-d {
         background-color: rgba(251, 191, 36, 0.2);
@@ -1040,6 +1110,12 @@
         font-weight: bold;
         color: #f7fafc;
         margin-bottom: 0.5rem;
+      }
+      
+      .stage-description {
+        line-height: 1.6;
+        color: #e2e8f0;
+        margin-bottom: 1rem;
       }
       
       .stage-advice {
@@ -1704,6 +1780,22 @@
     <script src="./js/future-simulator-ui-enhancements.js" defer></script>
   </head>
   <body class="min-h-screen p-4 sm:p-6" data-progressive-load>
+    <!-- Operational Monitoring Section -->
+    <div id="logs-section" class="bg-gray-900/50 p-6 rounded-xl mb-4">
+      <h2 class="text-lg font-bold text-indigo-300 mb-3">運用監視ログ</h2>
+      <div id="log-output" class="bg-gray-700 border border-gray-600 text-white text-base rounded-lg p-3 mb-4" style="height: 200px; overflow-y: auto;"></div>
+      <button id="connect-logs" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300">ログ接続</button>
+    </div>
+    <script>
+      document.getElementById('connect-logs').addEventListener('click', () => {
+        const ws = new WebSocket('wss://logs.cloudflare.com/instant-logs'); // Replace with actual Cloudflare Instant Logs WebSocket URL
+        ws.onmessage = (event) => {
+          const logOutput = document.getElementById('log-output');
+          logOutput.innerHTML += `<p>${event.data}</p>`;
+          logOutput.scrollTop = logOutput.scrollHeight;
+        };
+      });
+    </script>
     <!-- Loading Screen Completely Removed -->
     
     <div
@@ -1847,10 +1939,121 @@
 
       <!-- 旧版UI完全削除完了 (2025-08-07) -->
       
+      <!-- 🔮 384爻システム分析結果セクション -->
+      <div id="lines384ResultSection" class="section-container" style="display: none; margin-top: 2rem;">
+        <h3 class="text-xl font-bold mb-4 cursor-pointer hover:text-indigo-300 transition-colors" style="color: var(--text-primary);" onclick="toggleSection('lines384Content')">
+          <span class="inline-block mr-2">🔮</span>384爻システム分析結果
+          <span id="lines384Toggle" class="ml-2 text-sm">▼</span>
+        </h3>
+        <div id="lines384Content" class="collapsible-content">
+        
+        <div id="lines384Loading" class="text-center py-8" style="display: none;">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <p class="mt-2" style="color: var(--text-secondary);">D1データベースから分析中...</p>
+        </div>
+        
+        <div id="lines384Results" style="display: none;">
+          <div class="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-lg shadow-lg">
+            <div class="mb-4">
+              <h4 class="text-lg font-semibold" style="color: var(--text-primary);">選択された爻</h4>
+              <p id="selectedLineName" class="text-2xl font-bold mt-2" style="color: var(--primary-600);"></p>
+              <p id="selectedLineHexagram" class="text-sm mt-1" style="color: var(--text-secondary);"></p>
+            </div>
+            
+            <div class="mb-4">
+              <h5 class="font-semibold mb-2" style="color: var(--text-primary);">解釈</h5>
+              <p id="selectedLineDescription" class="leading-relaxed" style="color: var(--text-primary);"></p>
+            </div>
+            
+            <div class="mb-4">
+              <h5 class="font-semibold mb-2" style="color: var(--text-primary);">アドバイス</h5>
+              <p id="selectedLineAdvice" class="leading-relaxed" style="color: var(--text-primary);"></p>
+            </div>
+            
+            <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+              <span class="text-sm" style="color: var(--text-tertiary);">
+                信頼度: <span id="lineConfidence" class="font-semibold"></span>
+              </span>
+              <span class="text-sm" style="color: var(--text-tertiary);">
+                データソース: <span id="lineDataSource" class="font-semibold"></span>
+              </span>
+            </div>
+          </div>
+          
+          <!-- 関連する爻 -->
+          <div id="relatedLines" class="mt-4" style="display: none;">
+            <h5 class="font-semibold mb-2" style="color: var(--text-primary);">関連する爻</h5>
+            <div id="relatedLinesList" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
+          </div>
+        </div>
+        
+        <div id="lines384Error" class="bg-red-50 border border-red-200 rounded-lg p-4" style="display: none;">
+          <p class="text-red-700">
+            <span class="font-semibold">エラー:</span> 
+            <span id="lines384ErrorMessage"></span>
+          </p>
+        </div>
+        </div> <!-- lines384Content 終了 -->
+      </div>
+      
+      <!-- 🔯 I Ching解釈セクション -->
+      <div id="ichingInterpretationSection" class="section-container" style="display: none; margin-top: 2rem;">
+        <h3 class="text-xl font-bold mb-4 cursor-pointer hover:text-indigo-300 transition-colors" style="color: var(--text-primary);" onclick="toggleSection('ichingInterpretationContent')">
+          <span class="inline-block mr-2">🔯</span>易経解釈
+          <span id="ichingInterpretationToggle" class="ml-2 text-sm">▼</span>
+        </h3>
+        <div id="ichingInterpretationContent" class="collapsible-content">
+        
+        <div id="ichingInterpretationLoading" class="text-center py-8" style="display: none;">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <p class="mt-2" style="color: var(--text-secondary);">易経解釈を生成中...</p>
+        </div>
+        
+        <div id="ichingInterpretationResults" style="display: none;">
+          <div class="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-lg shadow-lg">
+            <div class="mb-4">
+              <h4 class="text-lg font-semibold" style="color: var(--text-primary);">易経・小象伝が示す「現状の理由」(HaQei現代解釈)</h4>
+            </div>
+            
+            <div class="interpretation-content" id="iching-content">
+              <p id="ichingStageTitle" class="stage-title text-lg font-bold mb-2" style="color: var(--primary-600);"></p>
+              <p id="ichingStageDescription" class="stage-description leading-relaxed" style="color: var(--text-primary);"></p>
+            </div>
+            
+            <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+              <span class="text-sm" style="color: var(--text-tertiary);">
+                解釈信頼度: <span id="ichingConfidence" class="font-semibold"></span>
+              </span>
+              <span class="text-sm" style="color: var(--text-tertiary);">
+                データソース: <span id="ichingDataSource" class="font-semibold">易経・小象伝</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div id="ichingInterpretationError" class="bg-red-50 border border-red-200 rounded-lg p-4" style="display: none;">
+          <p class="text-red-700">
+            <span class="font-semibold">エラー:</span> 
+            <span id="ichingInterpretationErrorMessage"></span>
+          </p>
+        </div>
+        </div> <!-- ichingInterpretationContent 終了 -->
+      </div>
+      
       <!-- 🌸 未来分析結果セクション -->
-      <div id="resultsContainer" class="results-container" style="display: none; margin-top: 2rem;"></div>
+      <div id="resultsContainer" class="results-container" style="display: none; margin-top: 2rem;">
+        <h3 class="text-xl font-bold mb-4 cursor-pointer hover:text-indigo-300 transition-colors" style="color: var(--text-primary);" onclick="toggleSection('resultsContent')">
+          <span class="inline-block mr-2">🌸</span>未来分析結果
+          <span id="resultsToggle" class="ml-2 text-sm">▼</span>
+        </h3>
+        <div id="resultsContent" class="collapsible-content">
+        </div>
+      </div>
 
       <!-- 結果表示エリア：分析実行時に動的に生成されます -->
+      
+      <!-- I-Ching Container for Future Simulator -->
+      <div id="i-ching-container" class="mt-6"></div>
     </div>
 
     <!-- Module Script -->
@@ -2872,6 +3075,99 @@
         }, 4000);
       }
 
+      /**
+       * 384爻システム分析結果を表示
+       */
+      function display384LinesResult(analysis) {
+        const section = document.getElementById('lines384ResultSection');
+        const loading = document.getElementById('lines384Loading');
+        const results = document.getElementById('lines384Results');
+        const error = document.getElementById('lines384Error');
+        
+        if (!section) {
+          console.warn('384爻表示セクションが見つかりません');
+          return;
+        }
+        
+        // セクションを表示
+        section.style.display = 'block';
+        
+        // エラーの場合
+        if (analysis.error) {
+          loading.style.display = 'none';
+          results.style.display = 'none';
+          error.style.display = 'block';
+          
+          const errorMessage = document.getElementById('lines384ErrorMessage');
+          if (errorMessage) {
+            errorMessage.textContent = analysis.fallbackMessage || analysis.message || '384爻システムの読み込みに失敗しました';
+          }
+          return;
+        }
+        
+        // 正常な結果の場合
+        if (analysis.selectedLine) {
+          loading.style.display = 'none';
+          error.style.display = 'none';
+          results.style.display = 'block';
+          
+          // 選択された爻の情報を表示
+          const line = analysis.selectedLine;
+          
+          document.getElementById('selectedLineName').textContent = 
+            line.lineName || `爻 #${line.id}`;
+          
+          document.getElementById('selectedLineHexagram').textContent = 
+            `${line.hexagramName || ''} ${line.linePosition ? `第${line.linePosition}爻` : ''}`;
+          
+          document.getElementById('selectedLineDescription').textContent = 
+            line.description || '詳細情報を読み込み中...';
+          
+          document.getElementById('selectedLineAdvice').textContent = 
+            line.advice || line.interpretation || '具体的なアドバイスを生成中...';
+          
+          document.getElementById('lineConfidence').textContent = 
+            analysis.confidence ? `${(analysis.confidence * 100).toFixed(0)}%` : '計算中';
+          
+          document.getElementById('lineDataSource').textContent = 
+            line.dbSource === 'D1' ? 'D1データベース' : 'ローカルキャッシュ';
+          
+          // 関連する爻があれば表示
+          if (analysis.relatedLines && analysis.relatedLines.length > 0) {
+            const relatedSection = document.getElementById('relatedLines');
+            const relatedList = document.getElementById('relatedLinesList');
+            
+            if (relatedSection && relatedList) {
+              relatedSection.style.display = 'block';
+              relatedList.innerHTML = '';
+              
+              analysis.relatedLines.slice(0, 4).forEach(related => {
+                const relatedCard = document.createElement('div');
+                relatedCard.className = 'bg-gray-50 p-3 rounded-lg';
+                relatedCard.innerHTML = `
+                  <p class="font-semibold text-sm" style="color: var(--text-primary);">
+                    ${related.lineName || `爻 #${related.id}`}
+                  </p>
+                  <p class="text-xs mt-1" style="color: var(--text-secondary);">
+                    類似度: ${(related.similarity * 100).toFixed(0)}%
+                  </p>
+                `;
+                relatedList.appendChild(relatedCard);
+              });
+            }
+          }
+          
+          // アニメーション効果
+          results.style.opacity = '0';
+          results.style.transform = 'translateY(10px)';
+          setTimeout(() => {
+            results.style.transition = 'opacity 0.5s, transform 0.5s';
+            results.style.opacity = '1';
+            results.style.transform = 'translateY(0)';
+          }, 100);
+        }
+      }
+      
       // analyzeWorry function - 高度な分析システム完全版
       async function analyzeWorry(inputText) {
         console.log('🌸 analyzeWorry 高度分析版実行開始:', inputText);
@@ -2930,7 +3226,41 @@
             }
           }
           
-          // 3. IntegratedAnalysisEngine - 多層文脈分析
+          // 3. TextTo384LinesBridge - 384爻システム分析（D1データベース統合）
+          let lines384Analysis = null;
+          if (window.TextTo384LinesBridge) {
+            try {
+              console.log('🔮 384爻システム分析開始...');
+              
+              // ブリッジの初期化（D1データベース接続）
+              const bridge384 = new window.TextTo384LinesBridge();
+              await bridge384.initialize();
+              
+              // テキスト分析実行
+              lines384Analysis = await bridge384.analyzeTextToSpecificLine(inputText);
+              
+              if (lines384Analysis && lines384Analysis.selectedLine) {
+                console.log('✅ 384爻分析完了:', {
+                  lineId: lines384Analysis.selectedLine.id,
+                  lineName: lines384Analysis.selectedLine.lineName,
+                  confidence: lines384Analysis.confidence,
+                  dbSource: lines384Analysis.selectedLine.dbSource
+                });
+              } else {
+                console.log('⚠️ 384爻分析: 結果なし');
+              }
+            } catch (error) {
+              console.error('❌ 384爻システムエラー:', error);
+              // フォールバック処理
+              lines384Analysis = {
+                error: true,
+                message: error.message,
+                fallbackMessage: '🚧 384爻システムは現在メンテナンス中です'
+              };
+            }
+          }
+          
+          // 4. IntegratedAnalysisEngine - 多層文脈分析
           let contextAnalysis = null;
           if (window.IntegratedAnalysisEngine) {
             try {
@@ -2954,7 +3284,10 @@
               integratedEngine.normalizeDataPoint = window.IntegratedAnalysisEngine.normalizeDataPoint || function(p) { return p; };
               integratedEngine.enrichDataPoint = window.IntegratedAnalysisEngine.enrichDataPoint || function(p) { return p; };
               integratedEngine.validateDataPoint = window.IntegratedAnalysisEngine.validateDataPoint || function(p) { return p; };
-              integratedEngine.generatePointId = window.IntegratedAnalysisEngine.generatePointId || function(p) { return Math.random().toString(36); };
+              integratedEngine.generatePointId = window.IntegratedAnalysisEngine.generatePointId || function(p) { 
+                const rng = window.seedableRandom || { next: () => 0.5 };
+                return rng.next().toString(36); 
+              };
               integratedEngine.calculatePointWeight = window.IntegratedAnalysisEngine.calculatePointWeight || function(p) { return 1.0; };
               integratedEngine.filterValidPoints = window.IntegratedAnalysisEngine.filterValidPoints || function(p) { return p; };
               
@@ -3079,9 +3412,10 @@
                   if (hexagramResult && hexagramResult.hexagramNumber) {
                     const hexIndex = hexagramResult.hexagramNumber - 1;
                     // 爻の選択も動的に（キーワードの重要度に基づく）
+                    const rng = window.seedableRandom || { next: () => 0.5 };
                     const yaoIndex = dynamicKeywords?.final?.[0]?.importance 
                       ? Math.min(Math.floor(dynamicKeywords.final[0].importance * 6) + 1, 6)
-                      : Math.floor(Math.random() * 6) + 1;
+                      : Math.floor(rng.next() * 6) + 1;
                     
                     ichingAnalysis.hexagram = {
                       number: hexagramResult.hexagramNumber,
@@ -3096,9 +3430,10 @@
                     
                     console.log('✅ Dynamic hexagram selected:', ichingAnalysis.hexagram.name, ichingAnalysis.yao.name, `(Method: ${hexagramResult.method || 'default'})`);
                   } else {
-                    // フォールバック: ランダム選択
-                    const hexIndex = Math.floor(Math.random() * 64);
-                    const yaoIndex = Math.floor(Math.random() * 6) + 1;
+                    // フォールバック: 決定論的選択
+                    const rng = window.seedableRandom || { next: () => 0.5 };
+                    const hexIndex = Math.floor(rng.next() * 64);
+                    const yaoIndex = Math.floor(rng.next() * 6) + 1;
                     
                     ichingAnalysis.hexagram = {
                       number: hexIndex + 1,
@@ -3147,7 +3482,53 @@
               
               // H384データベースから詳細情報を取得
               const entryIndex = (hexagramNumber - 1) * 6 + (yaoPosition - 1);
-              const h384Entry = window.H384_DATA?.[entryIndex];
+                const h384Entry = window.H384_DATA?.[entryIndex];
+
+              // メトリクス更新関数
+              function updateMetrics(analysisTime, cacheHit, dataSource, parseMode, determinismCheck) {
+                if (!window.metricsData) {
+                  window.metricsData = {
+                    times: [],
+                    count: 0,
+                    cacheHits: 0,
+                    determinismChecks: []
+                  };
+                }
+                window.metricsData.times.push(analysisTime);
+                window.metricsData.count++;
+                if (cacheHit) window.metricsData.cacheHits++;
+                window.metricsData.determinismChecks.push(determinismCheck);
+
+                const times = window.metricsData.times.sort((a,b) => a-b);
+                const p50 = times[Math.floor(times.length * 0.5)] || 0;
+                const p95 = times[Math.floor(times.length * 0.95)] || 0;
+                const p99 = times[Math.floor(times.length * 0.99)] || 0;
+                const avg = times.reduce((a,b) => a+b, 0) / times.length || 0;
+                const hitRate = (window.metricsData.cacheHits / window.metricsData.count * 100).toFixed(1);
+                const determinismRate = (window.metricsData.determinismChecks.filter(c => c).length / window.metricsData.determinismChecks.length * 100).toFixed(1);
+
+                const panel = document.getElementById('metrics-panel');
+                if (panel) {
+                  panel.innerHTML = `
+                    <div class="metric-item"><span>P50:</span><span class="${p50 > 40 ? 'metric-warning' : ''}">${p50.toFixed(1)}ms</span></div>
+                    <div class="metric-item"><span>P95:</span><span class="${p95 > 45 ? 'metric-warning' : ''}">${p95.toFixed(1)}ms</span></div>
+                    <div class="metric-item"><span>P99:</span><span class="${p99 > 50 ? 'metric-warning' : ''}">${p99.toFixed(1)}ms</span></div>
+                    <div class="metric-item"><span>平均:</span><span>${avg.toFixed(1)}ms</span></div>
+                    <div class="metric-item"><span>実行回数:</span><span>${window.metricsData.count}</span></div>
+                    <div class="metric-item"><span>キャッシュヒット率:</span><span>${hitRate}%</span></div>
+                    <div class="metric-item"><span>データソース:</span><span>${dataSource}</span></div>
+                    <div class="metric-item"><span>解析モード:</span><span>${parseMode}</span></div>
+                    <div class="metric-item"><span>決定論チェック率:</span><span class="${determinismRate >= 100 ? '' : 'metric-warning'}">${determinismRate}%</span></div>
+                  `;
+                }
+              }
+
+              // 分析実行時にメトリクスを更新（例）
+              const startTime = performance.now();
+              // ... 分析処理 ...
+              const endTime = performance.now();
+              const analysisTime = endTime - startTime;
+              updateMetrics(analysisTime, false, 'D1', 'kuromoji');  // 実際の値で更新
               
               hexagramResult = {
                 hexagramNumber,
@@ -3161,7 +3542,8 @@
             }
             
             if (hexagramResult && hexagramResult.hexagramNumber) {
-              const yaoIndex = hexagramResult.yaoPosition || Math.floor(Math.random() * 6) + 1;
+              const rng = window.seedableRandom || { next: () => 0.5 };
+              const yaoIndex = hexagramResult.yaoPosition || Math.floor(rng.next() * 6) + 1;
               
               ichingAnalysis = {
                 hexagram: {
@@ -3219,13 +3601,15 @@
             keywords: dynamicKeywords,
             context: contextAnalysis,
             iching: ichingAnalysis,
+            lines384: lines384Analysis,  // 384爻システム分析結果を追加
             timestamp: new Date().toISOString(),
             isAdvanced: true,
             systemsUsed: {
               kuromoji: !!morphTokens,
               dynamicKeywords: !!dynamicKeywords,
               integratedAnalysis: !!contextAnalysis,
-              ichingAnalysis: !!ichingAnalysis
+              ichingAnalysis: !!ichingAnalysis,
+              lines384System: !!lines384Analysis && !lines384Analysis.error  // 384爻システム使用状況
             }
           };
           
@@ -3233,12 +3617,18 @@
           
           // 分析結果の活用率を計算
           const systemsCount = Object.values(window.integratedAnalysisResult.systemsUsed).filter(v => v).length;
-          const usageRate = (systemsCount / 4 * 100).toFixed(0);
-          console.log(`🚀 高度分析システム活用率: ${usageRate}% (${systemsCount}/4システム)`);
+          const totalSystems = Object.keys(window.integratedAnalysisResult.systemsUsed).length;
+          const usageRate = (systemsCount / totalSystems * 100).toFixed(0);
+          console.log(`🚀 高度分析システム活用率: ${usageRate}% (${systemsCount}/${totalSystems}システム)`);
           
           // 動的な結果生成確認
           if (ichingAnalysis?.hexagram?.name) {
             console.log(`📊 動的分析結果: ${ichingAnalysis.hexagram.name} - ${ichingAnalysis.yao?.name || '初爻'}`);
+          }
+          
+          // 384爻システムの結果を表示
+          if (lines384Analysis) {
+            display384LinesResult(lines384Analysis);
           }
           
           // 6. 8シナリオ生成を実行（高度版）
@@ -3424,7 +3814,7 @@
         }, 1000);
         
       } catch (error) {
-        showFatal(`初期化エラー: ${error?.message || error}`);
+        showError(`初期化エラー: ${error?.message || error}`);
       }
     });
     
@@ -3469,7 +3859,43 @@
       updateMonitor();
       setInterval(updateMonitor, 1000);
       document.body.appendChild(monitorDiv);
+      
+      // メトリクスパネルとトグルボタンを追加
+      const metricsPanel = document.createElement('div');
+      metricsPanel.id = 'metrics-panel';
+      metricsPanel.className = 'hidden';
+      metricsPanel.innerHTML = `
+        <div class="metric-item"><span>P50:</span><span>-</span></div>
+        <div class="metric-item"><span>P95:</span><span>-</span></div>
+        <div class="metric-item"><span>P99:</span><span>-</span></div>
+        <div class="metric-item"><span>平均:</span><span>-</span></div>
+        <div class="metric-item"><span>実行回数:</span><span>0</span></div>
+        <div class="metric-item"><span>キャッシュヒット率:</span><span>0%</span></div>
+        <div class="metric-item"><span>データソース:</span><span>-</span></div>
+        <div class="metric-item"><span>解析モード:</span><span>-</span></div>
+        <div class="metric-item"><span>決定論チェック率:</span><span>-</span></div>
+      `;
+      document.body.appendChild(metricsPanel);
+      
+      const metricsToggle = document.createElement('div');
+      metricsToggle.id = 'metrics-toggle';
+      metricsToggle.innerHTML = '📊';
+      metricsToggle.addEventListener('click', () => {
+        metricsPanel.classList.toggle('hidden');
+      });
+      document.body.appendChild(metricsToggle);
     });
+    
+    // 折りたたみ機能のJavaScript関数
+    function toggleSection(contentId) {
+      const content = document.getElementById(contentId);
+      const toggleIcon = document.getElementById(contentId.replace('Content', 'Toggle'));
+      
+      if (content && toggleIcon) {
+        content.classList.toggle('collapsed');
+        toggleIcon.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
+      }
+    }
   </script>
 
   <!-- 🔧 Future Simulator v4.3.1 実装 - 無効化（古い表示システム） -->

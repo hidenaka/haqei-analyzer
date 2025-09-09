@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Day 6 - 測定と効果確認（Task 6-5）</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            padding: 20px; 
+            background: #1e1e1e; 
+            color: #d4d4d4;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 { color: #4ec9b0; }
+        h2 { color: #569cd6; }
+        h3 { color: #dcdcaa; }
+        
+        .measurement-section {
+            background: #2d2d30;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .metric-box {
+            background: #252526;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .metric-title {
+            font-size: 0.9em;
+            color: #808080;
+            margin-bottom: 10px;
+        }
+        
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .metric-change {
+            font-size: 0.9em;
+        }
+        
+        .improved { color: #4ec9b0; }
+        .degraded { color: #f48771; }
+        .maintained { color: #dcdcaa; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #3c3c3c;
+        }
+        
+        th { 
+            background: #252526;
+            font-weight: bold;
+        }
+        
+        .position-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 150px;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .position-bar {
+            flex: 1;
+            background: linear-gradient(to top, #4ec9b0, #569cd6);
+            border-radius: 3px 3px 0 0;
+            position: relative;
+            min-height: 5px;
+        }
+        
+        .position-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+        }
+        
+        .position-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .chi-square-indicator {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .chi-good { background: #1a472a; color: #4ec9b0; }
+        .chi-warning { background: #4a4a1e; color: #dcdcaa; }
+        .chi-bad { background: #5a1e1e; color: #f48771; }
+    </style>
+</head>
+<body>
+    <h1>Day 6 - 測定と効果確認（Task 6-5）</h1>
+    
+    <div id="results"></div>
+    
+    <script type="module">
+        // Day 6-2の調整効果を実測定
+        async function measureAdjustmentEffects() {
+            // TextTo384LinesBridgeを動的にロード
+            const script = document.createElement('script');
+            script.src = './public/js/ai/TextTo384LinesBridge.js';
+            await new Promise(resolve => {
+                script.onload = resolve;
+                document.head.appendChild(script);
+            });
+            
+            const bridge = new window.TextTo384LinesBridge();
+            await bridge.initialize();
+            
+            let html = '';
+            
+            // 200サンプルでの大規模測定
+            const testSamples = generateComprehensiveTestSamples();
+            
+            // 測定結果の初期化
+            const measurements = {
+                positionDistribution: [0, 0, 0, 0, 0, 0, 0],
+                hexagramUsage: {},
+                uniqueLines: new Set(),
+                processingTimes: [],
+                categories: {
+                    beginning: { total: 0, positions: [0,0,0,0,0,0,0] },
+                    cooperation: { total: 0, positions: [0,0,0,0,0,0,0] },
+                    challenge: { total: 0, positions: [0,0,0,0,0,0,0] },
+                    change: { total: 0, positions: [0,0,0,0,0,0,0] },
+                    leadership: { total: 0, positions: [0,0,0,0,0,0,0] },
+                    completion: { total: 0, positions: [0,0,0,0,0,0,0] }
+                }
+            };
+            
+            // 測定実行
+            html += '<div class="measurement-section">';
+            html += '<h2>📊 200サンプル測定実行中...</h2>';
+            html += '<div id="progress">0/200 完了</div>';
+            html += '</div>';
+            
+            document.getElementById('results').innerHTML = html;
+            
+            for (let i = 0; i < testSamples.length; i++) {
+                const sample = testSamples[i];
+                const startTime = performance.now();
+                const result = await bridge.analyzeText(sample.text);
+                const endTime = performance.now();
+                
+                // データ収集
+                measurements.positionDistribution[result.line_position]++;
+                measurements.uniqueLines.add(`${result.hexagram_number}-${result.line_position}`);
+                measurements.processingTimes.push(endTime - startTime);
+                
+                // 卦使用統計
+                if (!measurements.hexagramUsage[result.hexagram_number]) {
+                    measurements.hexagramUsage[result.hexagram_number] = 0;
+                }
+                measurements.hexagramUsage[result.hexagram_number]++;
+                
+                // カテゴリ別統計
+                if (sample.category && measurements.categories[sample.category]) {
+                    measurements.categories[sample.category].total++;
+                    measurements.categories[sample.category].positions[result.line_position]++;
+                }
+                
+                // プログレス更新
+                if ((i + 1) % 20 === 0) {
+                    document.getElementById('progress').innerText = `${i + 1}/200 完了`;
+                }
+            }
+            
+            // 分析と表示
+            displayMeasurementResults(measurements, testSamples.length);
+        }
+        
+        function displayMeasurementResults(measurements, totalSamples) {
+            let html = '';
+            
+            // サマリー
+            html += '<div class="measurement-section">';
+            html += '<h2>📈 Day 6-2 調整効果の実測定結果</h2>';
+            
+            // 主要指標の比較
+            html += '<div class="comparison-grid">';
+            
+            // カバー率
+            const coverageRate = (measurements.uniqueLines.size / 384) * 100;
+            html += '<div class="metric-box">';
+            html += '<div class="metric-title">カバー率</div>';
+            html += `<div class="metric-value ${coverageRate >= 12 ? 'improved' : 'maintained'}">${coverageRate.toFixed(1)}%</div>`;
+            html += '<div class="metric-change">目標: 12-13%</div>';
+            html += '</div>';
+            
+            // ユニーク爻数
+            html += '<div class="metric-box">';
+            html += '<div class="metric-title">ユニーク爻数</div>';
+            html += `<div class="metric-value ${measurements.uniqueLines.size >= 45 ? 'improved' : 'maintained'}">${measurements.uniqueLines.size}個</div>`;
+            html += '<div class="metric-change">目標: 45-50個</div>';
+            html += '</div>';
+            
+            // 平均処理時間
+            const avgTime = measurements.processingTimes.reduce((a, b) => a + b, 0) / measurements.processingTimes.length;
+            html += '<div class="metric-box">';
+            html += '<div class="metric-title">平均処理時間</div>';
+            html += `<div class="metric-value ${avgTime <= 15 ? 'improved' : 'maintained'}">${avgTime.toFixed(1)}ms</div>`;
+            html += '<div class="metric-change">目標: <15ms</div>';
+            html += '</div>';
+            
+            html += '</div>';
+            html += '</div>';
+            
+            // 位置分布の詳細
+            html += '<div class="measurement-section">';
+            html += '<h2>🎯 位置分布の実測定</h2>';
+            
+            // グラフ表示
+            html += '<div class="position-chart">';
+            const maxCount = Math.max(...measurements.positionDistribution.slice(1));
+            for (let i = 1; i <= 6; i++) {
+                const count = measurements.positionDistribution[i];
+                const percentage = ((count / totalSamples) * 100).toFixed(1);
+                const height = (count / maxCount) * 100;
+                
+                html += `<div class="position-bar" style="height: ${height}%;">`;
+                html += `<div class="position-value">${percentage}%</div>`;
+                html += `<div class="position-label">${i}爻</div>`;
+                html += '</div>';
+            }
+            html += '</div>';
+            
+            // 詳細テーブル
+            html += '<table>';
+            html += '<tr><th>爻位置</th><th>選択回数</th><th>選択率</th><th>Day5終了時</th><th>変化</th><th>評価</th></tr>';
+            
+            const day5Rates = [0, 15, 16.5, 17, 17, 7.5, 15]; // Day5終了時の推定値
+            
+            for (let i = 1; i <= 6; i++) {
+                const count = measurements.positionDistribution[i];
+                const rate = ((count / totalSamples) * 100);
+                const previousRate = day5Rates[i];
+                const change = rate - previousRate;
+                
+                let evalClass = 'maintained';
+                let evalText = '維持';
+                
+                if (i === 5) {
+                    if (rate <= 7) {
+                        evalClass = 'improved';
+                        evalText = '✅ 改善';
+                    } else if (rate <= 8) {
+                        evalClass = 'maintained';
+                        evalText = '⚠️ やや高';
+                    } else {
+                        evalClass = 'degraded';
+                        evalText = '❌ 高すぎ';
+                    }
+                } else if (i === 1 || i === 6) {
+                    if (change > 0.5) {
+                        evalClass = 'improved';
+                        evalText = '✅ 改善';
+                    }
+                } else {
+                    if (Math.abs(rate - 16.67) < 2) {
+                        evalClass = 'improved';
+                        evalText = '✅ 良好';
+                    }
+                }
+                
+                html += '<tr>';
+                html += `<td>${i}爻</td>`;
+                html += `<td>${count}</td>`;
+                html += `<td><strong>${rate.toFixed(1)}%</strong></td>`;
+                html += `<td>${previousRate.toFixed(1)}%</td>`;
+                html += `<td class="${change > 0 ? 'improved' : change < 0 ? 'degraded' : 'maintained'}">${change >= 0 ? '+' : ''}${change.toFixed(1)}%</td>`;
+                html += `<td class="${evalClass}">${evalText}</td>`;
+                html += '</tr>';
+            }
+            
+            html += '</table>';
+            
+            // χ²検定
+            const chiSquare = calculateChiSquare(measurements.positionDistribution.slice(1), totalSamples);
+            let chiClass = 'chi-bad';
+            let chiEval = '要改善';
+            if (chiSquare < 6) {
+                chiClass = 'chi-good';
+                chiEval = '✅ 良好なバランス';
+            } else if (chiSquare < 8) {
+                chiClass = 'chi-warning';
+                chiEval = '⚠️ やや偏りあり';
+            }
+            
+            html += `<div class="chi-square-indicator ${chiClass}">`;
+            html += `χ²値: ${chiSquare.toFixed(2)} - ${chiEval}`;
+            html += '</div>';
+            
+            html += '</div>';
+            
+            // カテゴリ別分析
+            html += '<div class="measurement-section">';
+            html += '<h2>📊 カテゴリ別の効果確認</h2>';
+            html += '<table>';
+            html += '<tr><th>カテゴリ</th><th>サンプル数</th><th>主要爻</th><th>5爻選択率</th><th>評価</th></tr>';
+            
+            for (const [category, data] of Object.entries(measurements.categories)) {
+                if (data.total === 0) continue;
+                
+                const mainPosition = data.positions.indexOf(Math.max(...data.positions.slice(1))) || 1;
+                const pos5Rate = ((data.positions[5] / data.total) * 100).toFixed(1);
+                
+                let evalClass = 'maintained';
+                let evalText = '標準';
+                
+                if (category === 'leadership' && parseFloat(pos5Rate) > 20) {
+                    evalClass = 'improved';
+                    evalText = '✅ 適切';
+                } else if (category === 'beginning' && mainPosition === 1) {
+                    evalClass = 'improved';
+                    evalText = '✅ 適切';
+                } else if (parseFloat(pos5Rate) > 15) {
+                    evalClass = 'degraded';
+                    evalText = '⚠️ 5爻偏り';
+                }
+                
+                html += '<tr>';
+                html += `<td>${category}</td>`;
+                html += `<td>${data.total}</td>`;
+                html += `<td>${mainPosition}爻</td>`;
+                html += `<td>${pos5Rate}%</td>`;
+                html += `<td class="${evalClass}">${evalText}</td>`;
+                html += '</tr>';
+            }
+            
+            html += '</table>';
+            html += '</div>';
+            
+            // 卦使用の分散度
+            html += '<div class="measurement-section">';
+            html += '<h2>🗺️ 卦使用の分散度</h2>';
+            
+            const usedHexagrams = Object.keys(measurements.hexagramUsage).length;
+            const hexagramEntropy = calculateEntropy(measurements.hexagramUsage, totalSamples);
+            
+            html += `<p>使用された卦数: <span class="${usedHexagrams >= 40 ? 'improved' : 'maintained'}">${usedHexagrams}/64</span></p>`;
+            html += `<p>エントロピー: <span class="${hexagramEntropy >= 4.5 ? 'improved' : 'maintained'}">${hexagramEntropy.toFixed(2)}</span> (高いほど分散)</p>`;
+            
+            // 最も使用された卦TOP5
+            const topHexagrams = Object.entries(measurements.hexagramUsage)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            html += '<h3>使用頻度TOP5</h3>';
+            html += '<ol>';
+            for (const [hexId, count] of topHexagrams) {
+                const rate = ((count / totalSamples) * 100).toFixed(1);
+                html += `<li>第${hexId}卦: ${count}回 (${rate}%)</li>`;
+            }
+            html += '</ol>';
+            
+            html += '</div>';
+            
+            // 総合評価
+            html += '<div class="measurement-section">';
+            html += '<h2>✅ Day 6-2 調整の総合評価</h2>';
+            
+            html += '<h3>改善された点</h3>';
+            html += '<ul>';
+            
+            if (coverageRate >= 12) {
+                html += '<li class="improved">カバー率が目標の12%以上を達成</li>';
+            }
+            if (measurements.uniqueLines.size >= 45) {
+                html += '<li class="improved">ユニーク爻数が45個以上に増加</li>';
+            }
+            if (measurements.positionDistribution[5] / totalSamples <= 0.07) {
+                html += '<li class="improved">5爻の過度な選択が抑制された</li>';
+            }
+            if (chiSquare < 8) {
+                html += '<li class="improved">位置バランスが改善（χ²値減少）</li>';
+            }
+            
+            html += '</ul>';
+            
+            html += '<h3>課題と推奨事項</h3>';
+            html += '<ul>';
+            
+            if (usedHexagrams < 40) {
+                html += '<li class="degraded">卦の使用が偏っている（40卦未満）→ 卦レベルの調整が必要</li>';
+            }
+            if (measurements.positionDistribution[5] / totalSamples > 0.08) {
+                html += '<li class="degraded">5爻がまだやや高め → 追加の微調整を検討</li>';
+            }
+            
+            html += '</ul>';
+            
+            html += '</div>';
+            
+            document.getElementById('results').innerHTML = html;
+        }
+        
+        function generateComprehensiveTestSamples() {
+            const samples = [];
+            
+            // カテゴリごとのサンプル
+            const categories = {
+                beginning: [
+                    '新しい始まり', '開始', '着手', '立ち上げ', '創始',
+                    '初めて', 'スタート', '第一歩', '起動', '始動'
+                ],
+                cooperation: [
+                    '協力関係', 'チーム作業', '連携', '共同作業', 'パートナーシップ',
+                    '協調', '支援', '助け合い', '協働', 'サポート'
+                ],
+                challenge: [
+                    '困難克服', '問題解決', '試練', '障害', '逆境',
+                    '苦労', '葛藤', '対立', '危機', 'トラブル'
+                ],
+                change: [
+                    '変化対応', '転換期', '移行', '調整', '適応',
+                    '変更', '転機', '岐路', '選択', '決断'
+                ],
+                leadership: [
+                    'リーダーシップ', '統率', '指導', '管理', '責任',
+                    '主導', '統括', '監督', '経営', '戦略'
+                ],
+                completion: [
+                    '完成段階', '終了', '達成', '結果', '完了',
+                    '締結', '完結', '成就', '到達', 'ゴール'
+                ]
+            };
+            
+            // 各カテゴリから均等にサンプリング
+            for (const [category, words] of Object.entries(categories)) {
+                for (const word of words) {
+                    samples.push({ text: word, category });
+                    samples.push({ text: word + 'について', category });
+                    samples.push({ text: word + 'の時期', category });
+                }
+            }
+            
+            // 追加のランダムサンプル
+            const additionalPhrases = [
+                '成長の機会', '発展の可能性', '安定を求める', '調和を保つ',
+                '創造的な活動', '革新的なアプローチ', '改善の余地', '最適化',
+                '分析と評価', '実行計画', '展開戦略', '推進力',
+                '日常業務', '定常作業', '通常運用', '標準手順'
+            ];
+            
+            for (const phrase of additionalPhrases) {
+                samples.push({ text: phrase, category: null });
+            }
+            
+            // 200サンプルになるまで調整
+            return samples.slice(0, 200);
+        }
+        
+        function calculateChiSquare(distribution, total) {
+            const expected = total / 6;
+            let chiSquare = 0;
+            
+            for (const observed of distribution) {
+                chiSquare += Math.pow(observed - expected, 2) / expected;
+            }
+            
+            return chiSquare;
+        }
+        
+        function calculateEntropy(hexagramUsage, total) {
+            let entropy = 0;
+            
+            for (const count of Object.values(hexagramUsage)) {
+                if (count > 0) {
+                    const p = count / total;
+                    entropy -= p * Math.log2(p);
+                }
+            }
+            
+            return entropy;
+        }
+        
+        measureAdjustmentEffects();
+    </script>
+</body>
+</html>

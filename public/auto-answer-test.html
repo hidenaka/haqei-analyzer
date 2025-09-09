@@ -33,7 +33,8 @@
                             const radios = win.document.querySelectorAll('input[type="radio"]');
                             if (radios.length > 0) {
                                 // Select random option
-                                radios[Math.floor(Math.random() * radios.length)].click();
+                                const rng = win.seedableRandom || { next: () => 0.5 };
+                                radios[Math.floor(rng.next() * radios.length)].click();
                                 
                                 // Click next button
                                 setTimeout(() => {

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>D-2-6/7/8: Phase 2偏り是正検証（200サンプル）</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .success { color: #4ec9b0; }
+        .warning { color: #dcdcaa; }
+        .error { color: #f48771; }
+        .info { color: #9cdcfe; }
+        .result-box {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        pre {
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .metric-card {
+            background: #2d2d30;
+            border: 1px solid #3e3e42;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #2d2d30;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ec9b0, #569cd6);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔬 D-2-6/7/8: Phase 2 偏り是正検証（200サンプル）</h1>
+    <div id="status">テスト準備中...</div>
+    <div id="progress-container" style="display: none;">
+        <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+        </div>
+        <span id="progress-text">0/200</span>
+    </div>
+    <div id="results"></div>
+
+    <script type="module">
+        import { TextTo384LinesBridge } from './public/js/ai/TextTo384LinesBridge.js';
+        
+        // Phase 2用のバランスの取れたテストサンプル生成
+        function generatePhase2Samples() {
+            const samples = [];
+            
+            // 各爻位置に対応するテキスト（各20個）
+            const positionTexts = {
+                // 1爻: 始まり
+                1: [
+                    "新しい始まり", "初めての挑戦", "スタート地点", "第一歩を踏み出す", "起動する",
+                    "創始する時", "開始の合図", "着手する", "始まりの段階", "新規事業",
+                    "初期段階", "出発点", "新たなスタート", "始動する", "立ち上げ",
+                    "初心に帰る", "新規開拓", "最初の一歩", "開始準備", "始まりの時"
+                ],
+                // 2爻: 協力・関係
+                2: [
+                    "協力関係を築く", "チームワーク", "内面的な成長", "相談する", "支援を求める",
+                    "協調する", "協働作業", "連携を強める", "共同で進める", "関係性構築",
+                    "パートナーシップ", "相互支援", "協力体制", "連帯感", "支え合う",
+                    "内省する", "関係改善", "協力者を得る", "チーム結成", "協調性"
+                ],
+                // 3爻: 困難・試練
+                3: [
+                    "困難に直面", "試練の時", "挑戦的な課題", "問題解決", "壁にぶつかる",
+                    "葛藤する", "苦労する", "障害を乗り越える", "逆境に立つ", "課題克服",
+                    "難しい局面", "試練を受ける", "困難な道", "挑戦が必要", "問題に取り組む",
+                    "葛藤の中", "苦労の末", "障害除去", "逆境からの学び", "課題に向き合う"
+                ],
+                // 4爻: 変化・転換
+                4: [
+                    "変化の時期", "転換点", "移行期", "岐路に立つ", "転機を迎える",
+                    "変更する", "調整が必要", "選択の時", "決断する", "分岐点",
+                    "方向転換", "環境変化", "新たな局面", "転職を考える", "変革期",
+                    "移行する", "岐路での選択", "転機を活かす", "変更を決める", "調整期間"
+                ],
+                // 5爻: 成熟・リーダーシップ
+                5: [
+                    "リーダーとして", "成熟した判断", "統率する", "指導的立場", "管理責任",
+                    "権限を持つ", "中心的役割", "主導する", "統括業務", "決定権",
+                    "判断を下す", "方向性を示す", "戦略立案", "トップの立場", "経営判断",
+                    "役員として", "幹部の責任", "上級管理職", "高位の決断", "要職に就く"
+                ],
+                // 6爻: 完成・終了
+                6: [
+                    "完成する", "終了段階", "結果が出る", "最終局面", "完了する",
+                    "締結する", "最後の仕上げ", "極致に達する", "完結する", "成就する",
+                    "到達点", "終わりを迎える", "結論を出す", "最終段階", "完了報告",
+                    "終結する", "最後の詰め", "極限まで", "完成形", "終了宣言"
+                ]
+            };
+            
+            // 各位置から均等に選択（合計120個）
+            Object.entries(positionTexts).forEach(([pos, texts]) => {
+                texts.forEach(text => {
+                    samples.push(text);
+                });
+            });
+            
+            // ミックステキスト（均等性テスト用・80個）
+            const neutralTexts = [
+                "日常業務", "通常作業", "定例会議", "報告書作成", "データ分析",
+                "プレゼン準備", "メール処理", "資料確認", "スケジュール調整", "打ち合わせ",
+                "企画立案", "予算管理", "進捗確認", "品質チェック", "顧客対応",
+                "市場調査", "競合分析", "戦略会議", "人事評価", "教育研修"
+            ];
+            
+            // 各テキストを4回ずつ使用
+            neutralTexts.forEach(text => {
+                for (let i = 0; i < 4; i++) {
+                    samples.push(`${text}${i + 1}`);
+                }
+            });
+            
+            return samples;
+        }
+        
+        async function runPhase2Test() {
+            const statusEl = document.getElementById('status');
+            const progressContainer = document.getElementById('progress-container');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const resultsEl = document.getElementById('results');
+            
+            try {
+                statusEl.innerHTML = '<span class="warning">TextTo384LinesBridge初期化中...</span>';
+                const bridge = new TextTo384LinesBridge();
+                await bridge.initialize();
+                
+                statusEl.innerHTML = '<span class="info">テスト実行中（200サンプル）...</span>';
+                progressContainer.style.display = 'block';
+                
+                const samples = generatePhase2Samples();
+                const results = {
+                    positionCount: [0, 0, 0, 0, 0, 0, 0],
+                    temporalPhaseCount: {},
+                    processingTimes: [],
+                    totalSamples: samples.length
+                };
+                
+                // テスト実行
+                for (let i = 0; i < samples.length; i++) {
+                    const text = samples[i];
+                    const startTime = performance.now();
+                    const result = await bridge.analyzeText(text);
+                    const processingTime = performance.now() - startTime;
+                    
+                    results.processingTimes.push(processingTime);
+                    
+                    const position = result.line_position;
+                    if (position <= 6) {
+                        results.positionCount[position - 1]++;
+                    } else {
+                        results.positionCount[6]++;
+                    }
+                    
+                    // プログレスバー更新
+                    if ((i + 1) % 10 === 0) {
+                        const progress = ((i + 1) / samples.length * 100);
+                        progressFill.style.width = `${progress}%`;
+                        progressText.textContent = `${i + 1}/${samples.length}`;
+                    }
+                }
+                
+                // 結果表示
+                let html = '';
+                
+                // メトリクスカード
+                html += '<div class="metric-grid">';
+                
+                // 2爻の偏り確認（D-2-6）
+                const line2Percentage = (results.positionCount[1] / results.totalSamples * 100);
+                const line2Success = line2Percentage <= 20;
+                html += `<div class="metric-card">
+                    <div class="info">2爻選択率</div>
+                    <div class="metric-value ${line2Success ? 'success' : 'error'}">${line2Percentage.toFixed(1)}%</div>
+                    <div>${line2Success ? '✅ 目標達成 (≤20%)' : '❌ 偏りあり (>20%)'}</div>
+                </div>`;
+                
+                // 6爻の偏り確認（D-2-7）
+                const line6Percentage = (results.positionCount[5] / results.totalSamples * 100);
+                const line6Success = line6Percentage <= 20;
+                html += `<div class="metric-card">
+                    <div class="info">6爻選択率</div>
+                    <div class="metric-value ${line6Success ? 'success' : 'error'}">${line6Percentage.toFixed(1)}%</div>
+                    <div>${line6Success ? '✅ 目標達成 (≤20%)' : '❌ 偏りあり (>20%)'}</div>
+                </div>`;
+                
+                // 全体バランス（D-2-8）
+                const maxPercentage = Math.max(...results.positionCount.slice(0, 6)) / results.totalSamples * 100;
+                const minPercentage = Math.min(...results.positionCount.slice(0, 6)) / results.totalSamples * 100;
+                const balanceScore = maxPercentage - minPercentage;
+                const balanceSuccess = balanceScore <= 15; // 最大と最小の差が15%以内
+                
+                html += `<div class="metric-card">
+                    <div class="info">バランススコア</div>
+                    <div class="metric-value ${balanceSuccess ? 'success' : 'warning'}">${balanceScore.toFixed(1)}%</div>
+                    <div>最大差: ${balanceSuccess ? '✅ 良好' : '⚠️ 要改善'}</div>
+                </div>`;
+                
+                html += '</div>';
+                
+                // 爻位置分布詳細
+                html += '<div class="result-box">';
+                html += '<h3>📊 爻位置分布（目標: 各20%±5%）</h3>';
+                html += '<pre>';
+                
+                results.positionCount.slice(0, 6).forEach((count, idx) => {
+                    const percentage = (count / results.totalSamples * 100).toFixed(1);
+                    const bar = '█'.repeat(Math.round(percentage));
+                    const isInRange = percentage >= 15 && percentage <= 25;
+                    const colorClass = isInRange ? 'success' : (percentage >= 10 && percentage <= 30 ? 'warning' : 'error');
+                    html += `${idx + 1}爻: ${count.toString().padStart(3)}個 (${percentage.padStart(5)}%) `;
+                    html += `<span class="${colorClass}">${bar}</span>`;
+                    html += isInRange ? ' ✅' : (percentage >= 10 && percentage <= 30 ? ' ⚠️' : ' ❌');
+                    html += '\n';
+                });
+                
+                html += '</pre></div>';
+                
+                // Phase 2タスク達成状況
+                html += '<div class="result-box">';
+                html += '<h3>✅ D-2タスク達成状況</h3>';
+                html += '<pre>';
+                
+                const tasks = [
+                    { id: 'D-2-1', desc: 'detectTemporalPhase改修開始', done: true },
+                    { id: 'D-2-2', desc: 'フェーズ定義の見直し', done: true },
+                    { id: 'D-2-3', desc: '爻位置マッピング作成', done: true },
+                    { id: 'D-2-4', desc: 'assignTemporalPhase改良', done: true },
+                    { id: 'D-2-5', desc: '複数フェーズ割り当て実装', done: true },
+                    { id: 'D-2-6', desc: `2爻偏り確認（≤20%）`, done: line2Success },
+                    { id: 'D-2-7', desc: `6爻偏り確認（≤20%）`, done: line6Success },
+                    { id: 'D-2-8', desc: `全体バランス測定`, done: true },
+                    { id: 'D-2-9', desc: `調整と再テスト`, done: balanceSuccess }
+                ];
+                
+                tasks.forEach(task => {
+                    const status = task.done ? '✅' : '❌';
+                    const color = task.done ? 'success' : 'error';
+                    html += `<span class="${color}">${status} ${task.id}: ${task.desc}</span>\n`;
+                });
+                
+                html += '\n<span class="info">総合判定: ';
+                if (line2Success && line6Success && balanceSuccess) {
+                    html += '<span class="success">Phase 2完了 - 偏り是正成功！</span>';
+                } else {
+                    html += '<span class="warning">追加調整が必要</span>';
+                }
+                html += '</span>';
+                
+                html += '</pre></div>';
+                
+                // 平均処理時間
+                const avgTime = results.processingTimes.reduce((a, b) => a + b, 0) / results.processingTimes.length;
+                html += `<div class="result-box">
+                    <h3>⚡ パフォーマンス</h3>
+                    <pre>平均処理時間: <span class="${avgTime < 20 ? 'success' : 'warning'}">${avgTime.toFixed(2)}ms</span></pre>
+                </div>`;
+                
+                resultsEl.innerHTML = html;
+                statusEl.innerHTML = '<span class="success">✅ テスト完了</span>';
+                progressContainer.style.display = 'none';
+                
+            } catch (error) {
+                statusEl.innerHTML = `<span class="error">エラー: ${error.message}</span>`;
+                console.error(error);
+            }
+        }
+        
+        runPhase2Test();
+    </script>
+</body>
+</html>

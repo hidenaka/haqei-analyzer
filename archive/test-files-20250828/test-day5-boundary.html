@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Day 5 - 境界値テスト（Task 5-9）</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            padding: 20px; 
+            background: #1e1e1e; 
+            color: #d4d4d4;
+        }
+        h1 { color: #4ec9b0; }
+        h2 { color: #569cd6; }
+        .test-group {
+            background: #2d2d30;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .pass { color: #4ec9b0; }
+        .fail { color: #f48771; }
+        .warning { color: #dcdcaa; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #3c3c3c;
+        }
+        th { background: #252526; }
+        .input-hex {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #9cdcfe;
+        }
+        .performance-metric {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #1a472a;
+            border-radius: 3px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Day 5 - 境界値テスト（Task 5-9）</h1>
+    
+    <div id="results"></div>
+    
+    <script type="module">
+        import { TextTo384LinesBridge } from './public/js/ai/TextTo384LinesBridge.js';
+        
+        // 境界値テストケース
+        const boundaryTests = [
+            // 最小値テスト
+            { category: '最小値', text: '', label: '空文字列' },
+            { category: '最小値', text: ' ', label: '半角スペース1文字' },
+            { category: '最小値', text: '　', label: '全角スペース1文字' },
+            { category: '最小値', text: '\n', label: '改行1文字' },
+            { category: '最小値', text: '\t', label: 'タブ1文字' },
+            
+            // 最大値テスト
+            { category: '最大値', text: 'あ'.repeat(500), label: '500文字（同一文字）' },
+            { category: '最大値', text: 'あいうえお'.repeat(100), label: '500文字（パターン）' },
+            { category: '最大値', text: '漢字熟語文章'.repeat(125), label: '500文字（漢字）' },
+            
+            // 特殊パターン
+            { category: '特殊パターン', text: '0', label: '数字0' },
+            { category: '特殊パターン', text: '00000', label: '数字0の連続' },
+            { category: '特殊パターン', text: 'null', label: 'null文字列' },
+            { category: '特殊パターン', text: 'undefined', label: 'undefined文字列' },
+            { category: '特殊パターン', text: 'true', label: 'true文字列' },
+            { category: '特殊パターン', text: 'false', label: 'false文字列' },
+            
+            // Unicode境界
+            { category: 'Unicode', text: '\u0000', label: 'NUL文字' },
+            { category: 'Unicode', text: '\uFFFF', label: 'Unicode最大値' },
+            { category: 'Unicode', text: '👍🏻👍🏼👍🏽👍🏾👍🏿', label: '肌色修飾子付き絵文字' },
+            { category: 'Unicode', text: '𠮷野家', label: 'サロゲートペア文字' },
+            
+            // 混合境界
+            { category: '混合', text: '\n\n\n\n\n', label: '改行のみ5個' },
+            { category: '混合', text: '　　　　　', label: '全角スペースのみ5個' },
+            { category: '混合', text: '!!!!!!', label: '記号のみ' },
+            { category: '混合', text: '１２３４５６７８９０', label: '全角数字のみ' },
+            { category: '混合', text: 'ＡＢＣＤＥＦＧＨＩＪ', label: '全角英字のみ' }
+        ];
+        
+        async function runBoundaryTests() {
+            const bridge = new TextTo384LinesBridge();
+            await bridge.initialize();
+            
+            let html = '';
+            const results = {
+                total: 0,
+                passed: 0,
+                failed: 0,
+                errors: [],
+                performanceMetrics: {
+                    totalTime: 0,
+                    maxTime: 0,
+                    minTime: Infinity
+                }
+            };
+            
+            // カテゴリごとにグループ化
+            const grouped = {};
+            for (const test of boundaryTests) {
+                if (!grouped[test.category]) {
+                    grouped[test.category] = [];
+                }
+                grouped[test.category].push(test);
+            }
+            
+            // カテゴリごとにテスト実行
+            for (const [category, tests] of Object.entries(grouped)) {
+                html += `<div class="test-group">`;
+                html += `<h2>${category}テスト</h2>`;
+                html += '<table>';
+                html += '<tr><th>テストケース</th><th>入力</th><th>処理時間</th><th>結果</th><th>詳細</th></tr>';
+                
+                for (const test of tests) {
+                    results.total++;
+                    const startTime = performance.now();
+                    
+                    try {
+                        const result = await bridge.analyzeText(test.text);
+                        const endTime = performance.now();
+                        const processingTime = endTime - startTime;
+                        
+                        // パフォーマンス統計更新
+                        results.performanceMetrics.totalTime += processingTime;
+                        results.performanceMetrics.maxTime = Math.max(results.performanceMetrics.maxTime, processingTime);
+                        results.performanceMetrics.minTime = Math.min(results.performanceMetrics.minTime, processingTime);
+                        
+                        if (result && result.hexagram_number && result.line_position) {
+                            results.passed++;
+                            html += '<tr>';
+                            html += `<td>${test.label}</td>`;
+                            html += `<td class="input-hex">${displayInput(test.text)}</td>`;
+                            html += `<td>${processingTime.toFixed(2)}ms</td>`;
+                            html += `<td class="pass">✅ 成功</td>`;
+                            html += `<td>${result.hexagram_number}卦${result.line_position}爻</td>`;
+                            html += '</tr>';
+                        } else {
+                            throw new Error('不完全な結果');
+                        }
+                    } catch (error) {
+                        results.failed++;
+                        results.errors.push({
+                            test: test.label,
+                            error: error.message
+                        });
+                        
+                        html += '<tr>';
+                        html += `<td>${test.label}</td>`;
+                        html += `<td class="input-hex">${displayInput(test.text)}</td>`;
+                        html += `<td>-</td>`;
+                        html += `<td class="fail">❌ 失敗</td>`;
+                        html += `<td>${error.message}</td>`;
+                        html += '</tr>';
+                    }
+                }
+                
+                html += '</table>';
+                html += '</div>';
+            }
+            
+            // サマリー
+            const successRate = ((results.passed / results.total) * 100).toFixed(1);
+            const avgTime = (results.performanceMetrics.totalTime / results.total).toFixed(2);
+            
+            let summaryHtml = '<div class="test-group">';
+            summaryHtml += '<h2>📊 境界値テスト結果サマリー</h2>';
+            
+            // 成功率
+            const rateClass = successRate >= 95 ? 'pass' : successRate >= 90 ? 'warning' : 'fail';
+            summaryHtml += `<p class="${rateClass}" style="font-size: 1.5em;">成功率: ${successRate}% (${results.passed}/${results.total})</p>`;
+            
+            // パフォーマンスメトリクス
+            summaryHtml += '<h3>パフォーマンス指標</h3>';
+            summaryHtml += '<div>';
+            summaryHtml += `<span class="performance-metric">平均処理時間: ${avgTime}ms</span>`;
+            summaryHtml += `<span class="performance-metric">最大処理時間: ${results.performanceMetrics.maxTime.toFixed(2)}ms</span>`;
+            summaryHtml += `<span class="performance-metric">最小処理時間: ${results.performanceMetrics.minTime.toFixed(2)}ms</span>`;
+            summaryHtml += '</div>';
+            
+            // エラーサマリー
+            if (results.errors.length > 0) {
+                summaryHtml += '<h3>エラー詳細</h3>';
+                summaryHtml += '<ul>';
+                for (const err of results.errors) {
+                    summaryHtml += `<li class="fail">${err.test}: ${err.error}</li>`;
+                }
+                summaryHtml += '</ul>';
+            }
+            
+            // 改善評価
+            summaryHtml += '<h3>Day 5 境界値処理の評価</h3>';
+            if (successRate >= 95) {
+                summaryHtml += '<p class="pass">✅ 境界値処理は非常に安定しています。エッジケース対応が成功しました。</p>';
+            } else if (successRate >= 90) {
+                summaryHtml += '<p class="warning">⚠️ 境界値処理は概ね良好ですが、一部改善の余地があります。</p>';
+            } else {
+                summaryHtml += '<p class="fail">❌ 境界値処理にまだ問題があります。追加の改善が必要です。</p>';
+            }
+            
+            summaryHtml += '</div>';
+            
+            document.getElementById('results').innerHTML = summaryHtml + html;
+        }
+        
+        function displayInput(text) {
+            if (text === '') return '[空文字列]';
+            if (text === ' ') return '[半角スペース]';
+            if (text === '　') return '[全角スペース]';
+            if (text === '\n') return '[改行]';
+            if (text === '\t') return '[タブ]';
+            if (text === '\u0000') return '[NUL]';
+            if (text === '\uFFFF') return '[U+FFFF]';
+            
+            // 長いテキストは省略
+            if (text.length > 20) {
+                return text.substring(0, 10) + '...' + text.substring(text.length - 10) + ` (${text.length}文字)`;
+            }
+            
+            return text;
+        }
+        
+        runBoundaryTests();
+    </script>
+</body>
+</html>
