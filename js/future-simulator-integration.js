@@ -233,14 +233,14 @@ console.log('🚀 Future Simulator Integration Loading...');
       // 3. 8分岐または従来8シナリオ表示
       const useEightBranches = (window.HAQEI_CONFIG && window.HAQEI_CONFIG.useEightBranches) !== false;
       if (useEightBranches && this.branchesDisplay && this.branchGenerator) {
-        // コンテナ確保
+        // コンテナ確保（resultsContainer → resultArea → body の順で追加）
         let container = document.getElementById('eight-branches-display');
         if (!container) {
           container = document.createElement('div');
           container.id = 'eight-branches-display';
           container.style.marginTop = '2rem';
-          const resultArea = document.getElementById('resultArea');
-          if (resultArea) resultArea.appendChild(container);
+          const host = document.getElementById('resultsContainer') || document.getElementById('resultArea') || document.body;
+          host.appendChild(container);
         }
         this.branchesDisplay.initialize('eight-branches-display');
 
@@ -295,24 +295,39 @@ console.log('🚀 Future Simulator Integration Loading...');
      * 現在の状況表示
      */
     async displayCurrentSituation(situation) {
-      // タイトル（卦名+爻名）はそのまま
-      const currentTitle = document.getElementById('currentTitle');
-      if (currentTitle) {
-        currentTitle.textContent = `${situation['卦名']} ${situation['爻']}`;
+      // 既存のNowブロックがなければ最小構成で生成（resultsContainer優先）
+      const host = document.getElementById('resultsContainer') || document.getElementById('resultArea') || document.body;
+      let block = document.getElementById('current-status-block');
+      if (!block) {
+        block = document.createElement('div');
+        block.id = 'current-status-block';
+        block.style.cssText = 'margin:1rem 0;padding:1rem;border:1px solid rgba(99,102,241,.35);border-radius:12px;background:rgba(17,24,39,.6)';
+        host.insertBefore(block, host.firstChild || null);
       }
-      // 主理由 = 行状態テキスト のみ
-      const currentSummary = document.getElementById('currentSummary');
-      if (currentSummary) {
-        const hex = situation['卦番号'];
-        const line = this.parseLinePosition(situation['爻']);
-        const text = await this.getLineStateText(hex, line);
-        currentSummary.textContent = text || '';
+      const hexName = situation['卦名'];
+      const yaoName = situation['爻'];
+      if (!document.getElementById('now-main-reason')) {
+        block.innerHTML = `
+          <div style="color:#cbd5e1;font-weight:700;margin-bottom:.25rem;">現在の状況</div>
+          <div style="color:#e5e7eb;margin-bottom:.25rem;">${hexName} ${yaoName}</div>
+          <div id="now-main-reason" style="color:#a5b4fc;font-size:.95rem;line-height:1.5;">読み込み中...</div>
+        `;
+      } else {
+        // 既存のタイトルだけ更新
+        const titleEls = block.querySelectorAll('div');
+        if (titleEls && titleEls[1]) titleEls[1].textContent = `${hexName} ${yaoName}`;
       }
-      // 余計な要素は非表示
-      const currentKeywords = document.getElementById('currentKeywords');
-      if (currentKeywords) currentKeywords.style.display = 'none';
-      const recommendedDirection = document.getElementById('recommendedDirection');
-      if (recommendedDirection) recommendedDirection.style.display = 'none';
+      // 主理由 = 行状態テキスト（h384-line-states）
+      const hex = situation['卦番号'];
+      const line = this.parseLinePosition(situation['爻']);
+      const text = await this.getLineStateText(hex, line);
+      const main = document.getElementById('now-main-reason');
+      if (main) main.textContent = text || '（未登録）';
+
+      // 旧UI要素があれば隠す
+      ['currentKeywords','recommendedDirection','overall-score','overall-label','currentPositionChart'].forEach(id=>{
+        const el = document.getElementById(id); if (el) el.style.display='none';
+      });
     }
 
     // 爻名 → 爻位（1..6）
