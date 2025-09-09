@@ -20,19 +20,20 @@ console.log('🎯 EightScenariosDisplay Loading...');
       this.scenarios = [];
       this.selectedScenario = null;
       this.threeStageProcess = null;
+      // 分析入力テキスト（現在地バーに表示）
+      this.userInputText = '';
     }
 
     /**
      * 初期化
      */
     initialize(containerId) {
-      // 分析実行前は初期化をスキップ
+      // 解析前でもコンテナとスタイルは初期化しておく（後続のdisplayScenariosで描画可能に）
       if (!window.futureAnalysisCompleted) {
-        console.log('⏳ EightScenariosDisplay waiting for analysis completion');
-        return false;
+        console.log('⏳ EightScenariosDisplay initializing before analysis completion');
+      } else {
+        console.log('🔄 EightScenariosDisplay initializing...');
       }
-      
-      console.log('🔄 EightScenariosDisplay initializing...');
       
       this.container = document.getElementById(containerId);
       if (!this.container) {
@@ -308,17 +309,62 @@ console.log('🎯 EightScenariosDisplay Loading...');
       
       // ヘッダー追加
       mainContainer.appendChild(this.createHeader());
-      
-      // スコア比較グラフ追加（新機能）
-      mainContainer.appendChild(this.createScoreComparisonChart(scenarios));
+
+      // 現在地の固定要約バー（入力と現在地の要旨を表示）
+      mainContainer.appendChild(this.createCurrentSummaryBar());
       
       // 3段階セレクター追加
       mainContainer.appendChild(this.createStageSelector());
       
       // シナリオグリッド追加
       mainContainer.appendChild(this.createScenarioGrid(scenarios));
+
+      // スコア比較グラフは末尾に配置（必要な時のみ参照）
+      mainContainer.appendChild(this.createScoreComparisonChart(scenarios));
       
       this.container.appendChild(mainContainer);
+    }
+
+    // 現在地の固定要約ヘッダー（1–2行）
+    createCurrentSummaryBar() {
+      try {
+        const bar = document.createElement('div');
+        bar.id = 'current-summary-bar';
+        bar.style.cssText = 'position:sticky;top:0;z-index:30;background:rgba(2,6,23,.85);backdrop-filter:blur(6px);border:1px solid rgba(99,102,241,.25);border-radius:10px;padding:.5rem .75rem;margin:.5rem 0;color:#cbd5e1;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;';
+
+        const cs = this.threeStageProcess && this.threeStageProcess.currentSituation ? this.threeStageProcess.currentSituation : {};
+        const name = (cs.hexagramName && cs.yaoName) ? `${String(cs.hexagramName).trim()} ${String(cs.yaoName).trim()}` : '現在の状況';
+        // threeStageProcessにスコアがない場合もあるので、表示は名称中心に
+        const left = document.createElement('div');
+        left.style.cssText = 'display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;';
+        left.innerHTML = `
+          <span style="color:#a5b4fc;font-weight:700;">Now</span>
+          <span style="color:#e5e7eb;">${name}</span>
+        `;
+
+        const right = document.createElement('div');
+        right.style.cssText = 'margin-left:auto;color:#c7d2fe;display:flex;gap:.35rem;align-items:center;';
+        const snippet = (() => {
+          const t = (this.userInputText||'').replace(/[\r\n]+/g,' ').trim();
+          if (!t) return '';
+          const max = 40;
+          const short = t.length > max ? t.slice(0,max) + '…' : t;
+          const safeTitle = t.replace(/"/g,'&quot;');
+          return `<span style="opacity:.7;color:#94a3b8;">入力</span><span title="${safeTitle}" style="max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e5e7eb;">「${short}」</span>`;
+        })();
+        right.innerHTML = snippet;
+
+        bar.appendChild(left);
+        bar.appendChild(right);
+        return bar;
+      } catch {
+        return document.createElement('div');
+      }
+    }
+
+    // 分析入力テキストを保持（現在地バーで表示）
+    setUserInput(text) {
+      try { this.userInputText = String(text || ''); } catch { this.userInputText = ''; }
     }
 
     /**
@@ -444,12 +490,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
       card.style.borderLeft = `4px solid ${visualization.color}`;
       card.style.setProperty('--scenario-color', visualization.color);
       
-      // ランク表示（確率に基づく）
-      const rankClass = this.getRankClass(scenario.probability);
-      const rank = scenario.probability > 70 ? 'S' : 
-                   scenario.probability > 60 ? 'A' : 
-                   scenario.probability > 50 ? 'B' : 
-                   scenario.probability > 40 ? 'C' : 'D';
+      // ランク表示はノイズのため廃止
       
       // 変化方式を判定（8パスの内訳：4基軸×2方式）
       const changeMethod = this.determineChangeMethod(index);
@@ -458,10 +499,6 @@ console.log('🎯 EightScenariosDisplay Loading...');
       const axisLabel = changeMethod.axis; // 基軸（天地人時の4基軸）
       
       card.innerHTML = `
-        <div class="scenario-rank" style="${this.getRankStyle(scenario.probability)}">
-          ${rank}ランク
-        </div>
-        
         <!-- ヘッダー：卦変化表示 -->
         <div class="hexagram-transformation">
           <span class="current-hexagram">
@@ -885,13 +922,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
     /**
      * ランククラス取得
      */
-    getRankClass(probability) {
-      if (probability > 70) return 'rank-s';
-      if (probability > 60) return 'rank-a';
-      if (probability > 50) return 'rank-b';
-      if (probability > 40) return 'rank-c';
-      return 'rank-d';
-    }
+    getRankClass() { return ''; }
 
     /**
      * ステージ選択処理

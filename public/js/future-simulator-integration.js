@@ -281,6 +281,8 @@ console.log('🚀 Future Simulator Integration Loading...');
         
         // 8つのシナリオ表示を有効化（動的データ表示のため）
         if (analysis.eightScenarios && analysis.eightScenarios.length > 0) {
+          // 入力テキストを現在地バーに連携
+          try { if (typeof this.scenariosDisplay.setUserInput === 'function') { this.scenariosDisplay.setUserInput(analysis.inputText || ''); } } catch {}
           this.scenariosDisplay.displayScenarios(
             analysis.eightScenarios,
             analysis.threeStageProcess
