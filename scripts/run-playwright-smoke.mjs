@@ -1,4 +1,7 @@
 import { chromium } from 'playwright';
+import { logSerena } from './serena-logger.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const PORT = process.env.PORT || 8789;
 const BASE = `http://localhost:${PORT}`;
@@ -67,7 +70,27 @@ async function main() {
     const cardsCount = await grid.locator(':scope > div').count();
     if (cardsCount !== 8) throw new Error(`Expected 8 branch cards, got ${cardsCount}`);
 
+    // Screenshot artifacts
+    const artifactsDir = path.resolve(process.cwd(), 'artifacts');
+    fs.mkdirSync(artifactsDir, { recursive: true });
+    const screenshotPath = path.join(artifactsDir, 'eight-branches.png');
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+
     console.log('✅ Smoke OK (8 branches rendered)');
+    console.log('Screenshot:', screenshotPath);
+    // Serena log (success)
+    try {
+      await logSerena({
+        task: 'eight-branches-smoke',
+        status: 'success',
+        details: { port: PORT, screenshot: 'artifacts/eight-branches.png' }
+      });
+    } catch {}
+  } catch (e) {
+    try {
+      await logSerena({ task: 'eight-branches-smoke', status: 'failure', details: { error: e?.message || String(e) } });
+    } catch {}
+    throw e;
   } finally {
     await ctx.close();
     await browser.close();
