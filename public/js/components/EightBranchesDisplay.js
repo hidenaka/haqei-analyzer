@@ -130,6 +130,32 @@
       } catch {}
       return [];
     }
+    _getEntryFor(hex, line){
+      try {
+        const yaoNames = this._yaoCandidatesByLine(line);
+        const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+        return data.find(e => Number(e['卦番号']) === Number(hex) && (yaoNames||[]).includes(String(e['爻'])));
+      } catch { return null; }
+    }
+    _primaryKeywordFromEntry(entry){
+      if (!entry) return '';
+      const raw = Array.isArray(entry['キーワード']) ? entry['キーワード'] : (typeof entry['キーワード']==='string' ? entry['キーワード'].split(/、|,|\s+/).filter(Boolean): []);
+      const normalized = this._normalizeKeywords(raw);
+      return normalized[0] || '';
+    }
+    _featureTag(step){
+      try {
+        const entry = this._getEntryFor(step.hex, step.line);
+        if (!entry) return '';
+        const hex = String(entry['卦名']||'').trim();
+        const yao = String(entry['爻']||'').trim();
+        const key = this._primaryKeywordFromEntry(entry);
+        const left = (hex ? hex.replace(/為.*/, hex) : '') + (yao ? yao : '');
+        if (left && key) return `${left}:${key}`;
+        if (left) return left;
+        return key;
+      } catch { return ''; }
+    }
     _yaoCandidatesByLine(line){
       const n = Number(line);
       const map = {1:['初九','初六'],2:['九二','六二'],3:['九三','六三'],4:['九四','六四'],5:['九五','六五'],6:['上九','上六']};
@@ -343,6 +369,15 @@
       const __overview = document.createElement('div');
       __overview.style.marginBottom = '2px';
       __overview.textContent = `全体像: ${this._seriesNarrative(branch)}`;
+      const __traits = document.createElement('div');
+      try {
+        const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
+        const tags = steps.map(s => this._featureTag(s)).filter(Boolean);
+        if (tags.length) {
+          __traits.textContent = `特徴(卦・爻): ${tags.join(' → ')}`;
+          __traits.style.marginBottom = '2px';
+        }
+      } catch {}
       const __reason = document.createElement('div');
       __reason.textContent = `選ぶ理由: ${__tips.join(' / ')}`;
       const __next = document.createElement('div');
@@ -358,6 +393,7 @@
         __next.textContent = `次の一手: ${(__acts.length?__acts:__tips).join(' / ')}`;
       }
       __summaryWrap.appendChild(__overview);
+      if (__traits.textContent) __summaryWrap.appendChild(__traits);
       __summaryWrap.appendChild(__reason);
       __summaryWrap.appendChild(__next);
       // mount
