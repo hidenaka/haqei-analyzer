@@ -41,6 +41,35 @@
         '時期を待つ': '機を待つ'
       };
       this._stopWords = new Set(['吉','凶','問題なし','小さなサイン']);
+      this._actionMap = {
+        '伸びしろ': '伸びしろを活かす',
+        '土台づくり': '土台を固める',
+        'インプット': '情報を集める',
+        '好機': '好機をつかむ',
+        '表舞台': '表に立って動く',
+        '良縁': '協力者とつながる',
+        'リスク高め': 'リスクを先に潰す',
+        'ふり返り': 'いったん振り返る',
+        '地道な努力': '地道に積み上げる',
+        '好機を見極め': '好機を見極める',
+        '障害少': 'このまま押し進める',
+        '牽引役': '先頭に立って引っ張る',
+        'リーダーシップ': 'リーダーシップを発揮',
+        '公正・透明性': '透明性を担保する',
+        'やり過ぎ': '出力を抑える',
+        '慢心': '慢心を戒める',
+        '退き際': '退き際を見極める',
+        '協業': '協力者を巻き込む',
+        '追い風': '追い風を使う',
+        '自走': '自走を促す',
+        '兆し': '兆しを逃さない',
+        '初動注意': '初動を丁寧に',
+        '公正': '公正に進める',
+        '受け止め力': '相手を受け止める',
+        '安定基盤': '基盤を強化する',
+        '黙って支える': '縁の下で支える',
+        '機を待つ': '機を待つ'
+      };
     }
 
     initialize(containerId) {
@@ -117,6 +146,12 @@
       // Prefer impactful ordering: short, active words first
       normalized.sort((a,b)=> a.length - b.length);
       return normalized.slice(0,3);
+    }
+
+    _toActionPhrases(keywords){
+      const unique = Array.from(new Set(keywords||[]));
+      const mapped = unique.map(k => this._actionMap[k] || (k + 'を活かす'));
+      return mapped.slice(0, 2);
     }
 
     // --- UX helpers for intuitive understanding ---
@@ -227,15 +262,26 @@
       // Prefer data-driven modern keywords; fallback to generic tips
       const __kw = this._deriveQuickKeywords(branch);
       const __tips = __kw.length ? __kw : this._tips(branch.series);
-      const __tipsEl = document.createElement('div');
-      __tipsEl.style.fontSize = '.85em';
-      __tipsEl.style.color = '#cbd5e1';
-      __tipsEl.style.margin = '4px 0 6px';
-      __tipsEl.textContent = `3秒要約: ${__tips.join(' / ')}`;
+      // Summary block (action-oriented)
+      const __summaryWrap = document.createElement('div');
+      __summaryWrap.style.fontSize = '.85em';
+      __summaryWrap.style.color = '#cbd5e1';
+      __summaryWrap.style.margin = '4px 0 6px';
+      const __reason = document.createElement('div');
+      __reason.textContent = `選ぶ理由: ${__tips.join(' / ')}`;
+      const __next = document.createElement('div');
+      const __acts = this._toActionPhrases(__kw);
+      if (__kw.length) {
+        __next.textContent = `次の一手: ${(__acts.length?__acts:__tips).join(' / ')}`;
+      } else {
+        __next.textContent = `次の一手: ${__tips.join(' / ')}`;
+      }
+      __summaryWrap.appendChild(__reason);
+      __summaryWrap.appendChild(__next);
       // mount
       card.appendChild(__scoreWrap);
       card.appendChild(__chips);
-      card.appendChild(__tipsEl);
+      card.appendChild(__summaryWrap);
 
       const details = document.createElement('details');
       details.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
