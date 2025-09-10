@@ -42,8 +42,8 @@ console.log('🚀 Future Simulator Integration Loading...');
         // 易経ガイダンスエンジン初期化
         await this.initializeGuidanceEngine();
         
-        // ビジュアライザー初期化
-        this.initializeVisualizers();
+      // ビジュアライザー初期化
+      this.initializeVisualizers();
         
         // イベントリスナー設定
         this.setupEventListeners();
@@ -137,6 +137,14 @@ console.log('🚀 Future Simulator Integration Loading...');
         if (scenariosContainer) {
           this.scenariosDisplay.initialize('eight-scenarios-display');
         }
+      }
+
+      // 8分岐表示（EightBranchesDisplay）とユーティリティ
+      if (window.EightBranchesDisplay) {
+        this.branchesDisplay = new window.EightBranchesDisplay();
+      }
+      if (window.BranchGenerator) {
+        this.branchGenerator = new window.BranchGenerator();
       }
       
       // 結果ページコントローラー初期化
@@ -332,6 +340,29 @@ console.log('🚀 Future Simulator Integration Loading...');
           }, 100);
         } else {
           console.warn('⚠️ No eightScenarios data available for display');
+        }
+      } else if (this.branchesDisplay && this.branchGenerator) {
+        // フォールバック: EightBranchesDisplay + BranchGenerator で表示
+        try {
+          const startHex = analysis.currentSituation?.hexagramNumber;
+          const startLine = analysis.currentSituation?.yaoPosition;
+          if (Number.isFinite(startHex) && Number.isFinite(startLine) && startHex > 0 && startLine > 0) {
+            let container = document.getElementById('eight-branches-display');
+            if (!container) {
+              container = document.createElement('div');
+              container.id = 'eight-branches-display';
+              container.style.marginTop = '2rem';
+              const mount = document.getElementById('resultsContainer') || document.body;
+              mount.appendChild(container);
+            }
+            this.branchesDisplay.initialize('eight-branches-display');
+            const branches = await this.branchGenerator.generateEightBranches(startHex, startLine);
+            this.branchesDisplay.displayBranches(branches);
+          } else {
+            console.warn('EightBranches fallback skipped: invalid start hex/line');
+          }
+        } catch (e) {
+          console.warn('EightBranches fallback failed:', e?.message || e);
         }
       }
       
