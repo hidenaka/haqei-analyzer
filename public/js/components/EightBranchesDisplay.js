@@ -275,7 +275,7 @@
             <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
               <div style="font-weight:700;color:#c7d2fe;">Now 現在の状況</div>
               <div style="color:#e5e7eb;">${hexName || '卦未確定'} ${yao || (linePos?('第'+linePos+'爻'):'')}</div>
-              ${baseScore ? `<span style="margin-left:auto;color:#a5b4fc;font-size:.85em;">基礎スコア: ${baseScore}</span>` : ''}
+              ${baseScore ? `<span style=\"margin-left:auto;color:#a5b4fc;font-size:.85em;\">現在地点の土台の強さ: ${baseScore}</span>` : ''}
             </div>
             <div style="color:#a5b4fc;margin-top:4px;font-size:.95em;">${mainText || '（行状態テキスト未登録）'}</div>
           `;

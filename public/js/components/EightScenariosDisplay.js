@@ -978,7 +978,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
             </div>
             <div class="phase-content">
               <div class="score-indicator">
-                基礎スコア: ${scores.current} → ${scores.phase1}
+                現在地点の土台の強さ: ${scores.current} → ${scores.phase1}
                 <span class="${scores.phase1 > scores.current ? 'positive' : 'negative'}">
                   (${scores.phase1 > scores.current ? '+' : ''}${scores.phase1 - scores.current})
                 </span>
@@ -1002,7 +1002,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
             </div>
             <div class="phase-content">
               <div class="score-indicator">
-                基礎スコア: ${scores.phase1} → ${scores.phase2}
+                現在地点の土台の強さ: ${scores.phase1} → ${scores.phase2}
                 <span class="${scores.phase2 > scores.phase1 ? 'positive' : 'negative'}">
                   (${scores.phase2 > scores.phase1 ? '+' : ''}${scores.phase2 - scores.phase1})
                 </span>
