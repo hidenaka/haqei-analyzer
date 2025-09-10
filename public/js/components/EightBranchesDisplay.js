@@ -240,13 +240,23 @@
         this.container.appendChild(chartWrap);
         if (window.Chart) {
           const labels = ['Step1', 'Step2', 'Step3'];
-          const asNum = (series) => Array.from(series).filter(ch=>ch==='進'||ch==='変').map(ch => ch==='進' ? 1 : -1);
+          const getBasicScore = (hex, line) => {
+            try {
+              const candidates = {
+                1: ['初九','初六'], 2: ['九二','六二'], 3: ['九三','六三'],
+                4: ['九四','六四'], 5: ['九五','六五'], 6: ['上九','上六']
+              }[line] || [];
+              const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+              const found = data.find(e => Number(e['卦番号']) === Number(hex) && candidates.includes(String(e['爻'])));
+              const v = Number(found && found['S1_基本スコア']);
+              if (Number.isFinite(v)) return v;
+            } catch {}
+            return null;
+          };
           const toDataset = (b) => {
-            const vals = asNum(b.series);
-            const colors = {
-              '連続進行': '#10B981', '進み基調': '#3B82F6', '転換基調': '#F59E0B', '全面転換': '#EF4444', '折衷': '#A78BFA'
-            };
+            const colors = { '連続進行': '#10B981', '進み基調': '#3B82F6', '転換基調': '#F59E0B', '全面転換': '#EF4444', '折衷': '#A78BFA' };
             const badge = this._badge(b.series);
+            const vals = b.steps.map(s => getBasicScore(s.hex, s.line)).map((v,i) => v ?? (b.steps[i].action === '進' ? 70 : 55));
             return {
               label: `分岐${b.id}`,
               data: vals,
@@ -264,7 +274,7 @@
               responsive: true,
               plugins: { legend: { display: false } },
               scales: {
-                y: { min: -1.2, max: 1.2, grid: { color: 'rgba(148,163,184,.2)' } },
+                y: { min: 0, max: 100, grid: { color: 'rgba(148,163,184,.2)' } },
                 x: { grid: { display: false } }
               }
             }
