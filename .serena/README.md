@@ -22,6 +22,15 @@ Serena MCP 設定とログ運用
 - コンテキスト要約: `npm run serena:context:refresh -- --days 7`
 - 復元（ドライラン）: `npm run serena:restore -- --tag v2025-09-10-1`
 
+Git 連携（自動記録）
+- インストール: `npm run hooks:install`
+- 以後、`git push` 前に `.githooks/pre-push` が自動で直近コミットを `.serena/logs/YYYY/YYYY-MM-DD.ndjson` へ記録（要 Node）
+- 記録内容: 最終コミットSHA/メッセージ/変更ファイル一覧 + チェックポイント
+
+他エージェントへの引き継ぎ
+- 参照すべき場所: `.serena/index.json`（日付/セッション/チェックポイントの索引）、`.serena/logs/YYYY/*.ndjson`（詳細ログ）、`.serena/context.json`（直近要約）
+- 運用: セッション開始→決定を都度→セッション終了、または `git push` による自動記録
+
 注意
 - APIキーなどの機密情報は書かない
 - 大きなバイナリや長大テキストは格納しない

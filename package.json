@@ -33,6 +33,7 @@
     "serena:checkpoint": "node scripts/serena-checkpoint.mjs",
     "serena:context:refresh": "node scripts/serena-context.mjs --days 7",
     "serena:restore": "node scripts/serena-restore.mjs",
+    "hooks:install": "git config core.hooksPath .githooks && chmod +x .githooks/* && echo '✅ Git hooks installed (.githooks)'",
     "kingwen:build": "node scripts/generate-kingwen.mjs",
     "kingwen:verify": "node scripts/verify-kingwen.mjs",
     "kingwen:all": "npm run kingwen:build && npm run kingwen:verify",

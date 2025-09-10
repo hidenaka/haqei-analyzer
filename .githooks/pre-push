@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Serena auto-log before git push
+
+set -euo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$ROOT_DIR"
+
+SESSION_ID="$(date +%Y%m%d)-prepush"
+
+# Gather info
+LAST_COMMIT_MSG="$(git log -1 --pretty=%B | tr '\n' ' ' | sed -e 's/  */ /g' -e 's/"/\\"/g')"
+LAST_COMMIT_SHA="$(git rev-parse HEAD)"
+CHANGED_FILES=$(git show --name-only --pretty="" "$LAST_COMMIT_SHA" | tr '\n' ',' | sed -e 's/,$//')
+
+# Ensure Serena structure exists, then record
+if ! command -v node >/dev/null 2>&1; then
+  echo "[serena] node not found; skipping Serena auto-log" >&2
+  exit 0
+fi
+
+node scripts/serena-session.mjs start --agent codex-cli --session_id "$SESSION_ID" --intent "pre-push auto log" --plan "git push: $LAST_COMMIT_SHA" >/dev/null 2>&1 || true
+node scripts/serena-session.mjs decision --agent codex-cli --session_id "$SESSION_ID" --type git --title "git push: $LAST_COMMIT_SHA" --intent "commit to remote" --plan "push refs" --decisions "auto-log before push" --changes "${CHANGED_FILES}" --details "{\"message\":\"$LAST_COMMIT_MSG\"}" >/dev/null 2>&1 || true
+node scripts/serena-checkpoint.mjs --tag "prepush-$(date +%Y%m%d-%H%M%S)" --note "auto" --session_id "$SESSION_ID" >/dev/null 2>&1 || true
+node scripts/serena-session.mjs end --agent codex-cli --session_id "$SESSION_ID" --summary "pushed $LAST_COMMIT_SHA" >/dev/null 2>&1 || true
+
+exit 0
