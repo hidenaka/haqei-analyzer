@@ -89,9 +89,11 @@
       return ['優先度で仕分け','進む/変えるの整理','負担分散'];
     }
 
-    _card(branch) {
+    _card(branch, idx) {
       const card = document.createElement('div');
-      card.style.border = '1px solid rgba(99,102,241,0.35)';
+      const __palette = ['#10B981','#3B82F6','#F59E0B','#EF4444','#A78BFA','#22C55E','#EAB308','#06B6D4'];
+      const __color = __palette[idx % __palette.length];
+      card.style.border = `1px solid ${__color}66`;
       card.style.borderRadius = '10px';
       card.style.padding = '12px 14px';
       card.style.background = 'rgba(17,24,39,0.35)';
@@ -101,7 +103,8 @@
 
       const title = document.createElement('div');
       const badge = this._badge(branch.series);
-      title.innerHTML = `分岐${branch.id}｜${branch.series} <span style="margin-left:8px;padding:2px 8px;border-radius:9999px;background:${badge.color}22;color:${badge.color};font-size:.8em;">${badge.label}</span>`;
+      const __numCirc = '①②③④⑤⑥⑦⑧'[ (branch.id-1) % 8 ] || String(branch.id);
+      title.innerHTML = `${__numCirc} 分岐${branch.id}｜${branch.series} <span style="margin-left:8px;padding:2px 8px;border-radius:9999px;background:${badge.color}22;color:${badge.color};font-size:.8em;">${badge.label}</span>`;
       title.style.fontWeight = '600';
       title.style.color = '#A5B4FC';
       title.style.marginBottom = '8px';
@@ -292,7 +295,7 @@
       grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
       grid.style.gap = '12px';
 
-      branches.forEach(b => grid.appendChild(this._card(b)));
+      branches.forEach((b, i) => grid.appendChild(this._card(b, i)));
       const heading = document.createElement('div');
       heading.textContent = '八分岐（進/変）の候補';
       heading.style.color = '#c7d2fe';
