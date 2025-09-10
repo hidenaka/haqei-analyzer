@@ -10,6 +10,37 @@
       this.container = null;
       this.version = '1.2.0';
       this._lineStates = null;
+      this._modernMap = {
+        'ポテンシャル': '伸びしろ',
+        '基礎固め': '土台づくり',
+        '学習': 'インプット',
+        'チャンス到来': '好機',
+        '公の場': '表舞台',
+        '出会い': '良縁',
+        'リスクあり': 'リスク高め',
+        '内省': 'ふり返り',
+        '努力': '地道な努力',
+        'タイミング': '好機を見極め',
+        '問題なし': '障害少',
+        'リーダー': '牽引役',
+        'リーダーシップ': 'リーダーシップ',
+        '公明正大': '公正・透明性',
+        '亢龍': 'やり過ぎ',
+        '傲慢': '慢心',
+        '引き際': '退き際',
+        '協力': '協業',
+        '吉': '追い風',
+        '自律': '自走',
+        '予兆': '兆し',
+        '初霜': '小さなサイン',
+        '始まりの注意': '初動注意',
+        '公正': '公正',
+        '受容性': '受け止め力',
+        '大地の徳': '安定基盤',
+        '才能を隠す': '黙って支える',
+        '時期を待つ': '機を待つ'
+      };
+      this._stopWords = new Set(['吉','凶','問題なし','小さなサイン']);
     }
 
     initialize(containerId) {
@@ -42,6 +73,50 @@
 
     _copy(text) {
       try { navigator.clipboard && navigator.clipboard.writeText(text); } catch {}
+    }
+
+    // --- Modern keyword helpers ---
+    _modernizeTerm(t){
+      const s = String(t||'').trim();
+      if (!s) return '';
+      return this._modernMap[s] || s;
+    }
+    _normalizeKeywords(list){
+      const out = [];
+      const seen = new Set();
+      (list||[]).forEach(x => {
+        const v = this._modernizeTerm(x);
+        if (!v || this._stopWords.has(v)) return;
+        if (!seen.has(v)) { seen.add(v); out.push(v); }
+      });
+      return out;
+    }
+    _getKeywordsFor(hex, yaoNames){
+      try {
+        const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+        const found = data.find(e => Number(e['卦番号']) === Number(hex) && (yaoNames||[]).includes(String(e['爻'])));
+        const kw = found && found['キーワード'];
+        if (Array.isArray(kw)) return kw;
+        if (typeof kw === 'string') return kw.split(/、|,|\s+/).filter(Boolean);
+      } catch {}
+      return [];
+    }
+    _deriveQuickKeywords(branch){
+      // Collect keywords from Step1 first, then Step2 if needed
+      const collectFromStep = (step) => {
+        const candidates = {1:['初九','初六'],2:['九二','六二'],3:['九三','六三'],4:['九四','六四'],5:['九五','六五'],6:['上九','上六']};
+        const yaoNames = candidates[Number(step.line)] || [];
+        return this._getKeywordsFor(step.hex, yaoNames);
+      };
+      let raw = [];
+      if (branch && Array.isArray(branch.steps) && branch.steps.length) {
+        raw = raw.concat(collectFromStep(branch.steps[0]));
+        if (raw.length < 3 && branch.steps[1]) raw = raw.concat(collectFromStep(branch.steps[1]));
+      }
+      const normalized = this._normalizeKeywords(raw);
+      // Prefer impactful ordering: short, active words first
+      normalized.sort((a,b)=> a.length - b.length);
+      return normalized.slice(0,3);
     }
 
     // --- UX helpers for intuitive understanding ---
@@ -149,7 +224,9 @@
       __chips.appendChild(__mkChip(__risk.label, __risk.color));
       __chips.appendChild(__mkChip(__eff.label, __eff.color));
       // 3-sec tips
-      const __tips = this._tips(branch.series);
+      // Prefer data-driven modern keywords; fallback to generic tips
+      const __kw = this._deriveQuickKeywords(branch);
+      const __tips = __kw.length ? __kw : this._tips(branch.series);
       const __tipsEl = document.createElement('div');
       __tipsEl.style.fontSize = '.85em';
       __tipsEl.style.color = '#cbd5e1';
