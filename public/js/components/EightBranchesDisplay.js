@@ -229,6 +229,50 @@
       if (!this.container) return;
       this.container.innerHTML = '';
 
+      // Comparison chart (wave/line) for intuitive overview
+      try {
+        const chartWrap = document.createElement('div');
+        chartWrap.style.margin = '8px 0 12px';
+        const canvas = document.createElement('canvas');
+        canvas.id = 'eight-branches-comparison';
+        canvas.height = 160;
+        chartWrap.appendChild(canvas);
+        this.container.appendChild(chartWrap);
+        if (window.Chart) {
+          const labels = ['Step1', 'Step2', 'Step3'];
+          const asNum = (series) => Array.from(series).filter(ch=>ch==='進'||ch==='変').map(ch => ch==='進' ? 1 : -1);
+          const toDataset = (b) => {
+            const vals = asNum(b.series);
+            const colors = {
+              '連続進行': '#10B981', '進み基調': '#3B82F6', '転換基調': '#F59E0B', '全面転換': '#EF4444', '折衷': '#A78BFA'
+            };
+            const badge = this._badge(b.series);
+            return {
+              label: `分岐${b.id}`,
+              data: vals,
+              borderColor: colors[badge.label] || '#94A3B8',
+              backgroundColor: (colors[badge.label] || '#94A3B8') + '55',
+              tension: 0.35,
+              pointRadius: 3,
+              fill: false
+            };
+          };
+          const cfg = {
+            type: 'line',
+            data: { labels, datasets: branches.map(toDataset) },
+            options: {
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: { min: -1.2, max: 1.2, grid: { color: 'rgba(148,163,184,.2)' } },
+                x: { grid: { display: false } }
+              }
+            }
+          };
+          new Chart(canvas.getContext('2d'), cfg);
+        }
+      } catch(e) { console.warn('Comparison chart error:', e?.message||e); }
+
       const grid = document.createElement('div');
       grid.style.display = 'grid';
       grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
