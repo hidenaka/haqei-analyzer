@@ -8,12 +8,39 @@
 import fs from 'fs';
 import path from 'path';
 
-const LOG_PATH = path.join(process.cwd(), '.serena', 'decisions.ndjson');
-
 function ensureSerenaStructure() {
   const dir = path.join(process.cwd(), '.serena');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  if (!fs.existsSync(LOG_PATH)) fs.writeFileSync(LOG_PATH, '', 'utf8');
+  const logs = path.join(dir, 'logs');
+  if (!fs.existsSync(logs)) fs.mkdirSync(logs, { recursive: true });
+  const indexPath = path.join(dir, 'index.json');
+  if (!fs.existsSync(indexPath)) fs.writeFileSync(indexPath, JSON.stringify({ dates: {}, lastUpdated: new Date().toISOString() }, null, 2), 'utf8');
+}
+
+function dateParts(d = new Date()) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return { y, m, day, ymdd: `${y}-${m}-${day}` };
+}
+
+function dailyLogPath(d = new Date()) {
+  const base = path.join(process.cwd(), '.serena', 'logs');
+  const { y, ymdd } = dateParts(d);
+  const dir = path.join(base, String(y));
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  return path.join(dir, `${ymdd}.ndjson`);
+}
+
+function readIndex() {
+  const indexPath = path.join(process.cwd(), '.serena', 'index.json');
+  try { return JSON.parse(fs.readFileSync(indexPath, 'utf8')); } catch { return { dates: {}, lastUpdated: new Date().toISOString() }; }
+}
+
+function writeIndex(index) {
+  const indexPath = path.join(process.cwd(), '.serena', 'index.json');
+  index.lastUpdated = new Date().toISOString();
+  fs.writeFileSync(indexPath, JSON.stringify(index, null, 2), 'utf8');
 }
 
 function parseKV(argv) {
@@ -38,8 +65,28 @@ function redact(obj, keys = ['apiKey','token','password','authorization']) {
 }
 
 function append(entry) {
-  fs.appendFileSync(LOG_PATH, JSON.stringify(entry) + '\n', 'utf8');
-  console.log(`📝 Serena recorded: ${entry.kind} (${entry.type || ''})`);
+  const now = new Date(entry.ts || Date.now());
+  const logFile = dailyLogPath(now);
+  const line = JSON.stringify(entry) + '\n';
+  fs.appendFileSync(logFile, line, 'utf8');
+
+  // Update index
+  const idx = readIndex();
+  const { ymdd } = dateParts(now);
+  if (!idx.dates[ymdd]) idx.dates[ymdd] = { file: logFile.replace(process.cwd() + path.sep, ''), sessions: {}, checkpoints: [] };
+  if (entry.kind === 'session') {
+    const sid = entry.session_id || 'adhoc';
+    const ds = idx.dates[ymdd].sessions;
+    if (!ds[sid]) ds[sid] = { first_ts: entry.ts, last_ts: entry.ts, count: 0 };
+    ds[sid].last_ts = entry.ts;
+    ds[sid].count = (ds[sid].count || 0) + 1;
+  }
+  if (entry.kind === 'checkpoint') {
+    idx.dates[ymdd].checkpoints.push({ tag: entry.tag, ts: entry.ts, session_id: entry.session_id || '', git: entry.git || '', note: entry.note || '' });
+  }
+  writeIndex(idx);
+
+  console.log(`📝 Serena recorded: ${entry.kind} (${entry.type || entry.tag || ''}) → ${path.relative(process.cwd(), logFile)}`);
 }
 
 function sessionId() {
@@ -115,4 +162,3 @@ async function main() {
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
-

@@ -3,22 +3,26 @@ Serena MCP 設定とログ運用
 目的
 - Serena/MCP 関連の設定・記録をリポジトリ直下の `.serena` に一元化します。
 
-ファイル構成
-- `.serena/project.yml`: Serena MCP の基本設定とログ方針
-- `.serena/activity.ndjson`: アクティビティログ（1行1JSON）
+ファイル構成（日付パーティション化）
+- `.serena/project.yml`: Serena MCP の基本設定とログ方針（決定ログに限定）
+- `.serena/index.json`: 日付→セッション/チェックポイントの簡易インデックス
+- `.serena/logs/YYYY/YYYY-MM-DD.ndjson`: 1日1ファイルのNDJSON（append-only）
+- `.serena/context.json`: 直近N日（既定7日）の要約
 
-運用ルール（ログ）
-- 次のイベントで `.serena/activity.ndjson` に追記します。
-  - git-commit: コミット後に記録
-  - deploy: デプロイ実行時
-  - future-simulator.analysis: 重要な分析実行や不具合修正の完了時
+運用ルール（決定ログのみ）
+- セッション開始/意思決定/セッション終了のみを記録（作業ログは記録しない）
+- 1ファイル=1日（NDJSON）に追記し、`.serena/index.json` を更新
+- 任意タイミングでチェックポイント（タグ付け）を記録し、ロールバック基点に利用
 
-追記方法
-- スクリプトで追記（推奨）: `npm run serena:log -- --event <name> --meta '{"key":"value"}'`
-- 直接追記: 1行に1JSONを追記（機密情報は含めない）
+コマンド
+- セッション開始: `npm run serena:session:start -- --intent "目的"`
+- 意思決定の記録: `npm run serena:decision -- --type implementation --title "..." --plan "..." --decisions "..."`
+- セッション終了: `npm run serena:session:end -- --summary "..."`
+- チェックポイント: `npm run serena:checkpoint -- --tag v2025-09-10-1 --note "説明"`
+- コンテキスト要約: `npm run serena:context:refresh -- --days 7`
+- 復元（ドライラン）: `npm run serena:restore -- --tag v2025-09-10-1`
 
 注意
 - APIキーなどの機密情報は書かない
 - 大きなバイナリや長大テキストは格納しない
 - 必要に応じて要約して記録
-
