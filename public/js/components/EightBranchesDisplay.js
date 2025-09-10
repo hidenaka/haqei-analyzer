@@ -253,26 +253,30 @@
             } catch {}
             return null;
           };
-          const toDataset = (b) => {
-            const colors = { '連続進行': '#10B981', '進み基調': '#3B82F6', '転換基調': '#F59E0B', '全面転換': '#EF4444', '折衷': '#A78BFA' };
-            const badge = this._badge(b.series);
+          const palette = ['#10B981','#3B82F6','#F59E0B','#EF4444','#A78BFA','#22C55E','#EAB308','#06B6D4'];
+          const dashes  = [[], [6,3], [2,3], [8,4], [1,4], [10,2,2,2], [4,4,1,4], [12,3]];
+          const shapes  = ['circle','triangle','rectRot','rectRounded','star','cross','dash','line'];
+          const toDataset = (b, idx) => {
             const vals = b.steps.map(s => getBasicScore(s.hex, s.line)).map((v,i) => v ?? (b.steps[i].action === '進' ? 70 : 55));
+            const color = palette[idx % palette.length];
             return {
               label: `分岐${b.id}`,
               data: vals,
-              borderColor: colors[badge.label] || '#94A3B8',
-              backgroundColor: (colors[badge.label] || '#94A3B8') + '55',
+              borderColor: color,
+              backgroundColor: color + '55',
               tension: 0.35,
               pointRadius: 3,
+              pointStyle: shapes[idx % shapes.length],
+              borderDash: dashes[idx % dashes.length],
               fill: false
             };
           };
           const cfg = {
             type: 'line',
-            data: { labels, datasets: branches.map(toDataset) },
+            data: { labels, datasets: branches.map((b,idx)=>toDataset(b,idx)) },
             options: {
               responsive: true,
-              plugins: { legend: { display: false } },
+              plugins: { legend: { display: true, position: 'top', labels: { color: '#cbd5e1', boxWidth: 16, boxHeight: 2 } } },
               scales: {
                 y: { min: 0, max: 100, grid: { color: 'rgba(148,163,184,.2)' } },
                 x: { grid: { display: false } }
