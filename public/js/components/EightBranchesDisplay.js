@@ -162,19 +162,63 @@
       normalized.sort((a,b)=> a.length - b.length);
       return normalized.slice(0,3);
     }
-    _seriesNarrative(series){
-      const s = String(series||'');
-      switch (s) {
-        case '進→進→進': return '序盤から終盤まで正攻法で押し切る構成';
-        case '進→進→変': return '押し切りつつ最後に微修正で仕上げる';
-        case '進→変→進': return '中盤で方針を切替え再加速する';
-        case '進→変→変': return '初手は進み、後半は路線転換で調整する';
-        case '変→進→進': return 'まず切替え、以降は前進で固める';
-        case '変→進→変': return '切替え→前進→微修正で整える';
-        case '変→変→進': return '段階的に切替えてから前進でまとめる';
-        case '変→変→変': return '三段階で順次切替えて新路線を築く';
-        default: return '三段構成で段階的に前進と転換を組み合わせる';
-      }
+    _getBasicScore(hex, line){
+      try {
+        const candidates = {1:['初九','初六'],2:['九二','六二'],3:['九三','六三'],4:['九四','六四'],5:['九五','六五'],6:['上九','上六']}[Number(line)] || [];
+        const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+        const found = data.find(e => Number(e['卦番号']) === Number(hex) && candidates.includes(String(e['爻'])));
+        const v = Number(found && found['S1_基本スコア']);
+        return Number.isFinite(v) ? v : null;
+      } catch { return null; }
+    }
+    _severityScore(text){
+      const t = String(text||'');
+      const HIGH = ['退く','退避','撤退','中止','治療','補強','再発防止','亀裂','損害','危険','深刻','崩れる','破綻','被害','断つ'];
+      const MED  = ['見直し','調整','修正','慎重','注意','警戒','停滞','迷い','課題','リスク','再検討'];
+      let s = 0;
+      HIGH.forEach(k => { if (t.includes(k)) s += 2; });
+      MED.forEach(k => { if (t.includes(k)) s += 1; });
+      return s; // 0:低, 1-2:中, >=3:高
+    }
+    _seriesNarrative(branch){
+      try {
+        const series = String(branch?.series||'');
+        const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
+        const actions = series.split('→');
+        const sScores = steps.map(s => this._getBasicScore(s.hex, s.line));
+        const lastText = steps[2]?.lineText || '';
+        const lastSeverity = this._severityScore(lastText);
+        const lastAction = actions[2] || '';
+        const d13 = (sScores[2] ?? sScores[1] ?? sScores[0] ?? 0) - (sScores[0] ?? 0);
+
+        // 1) 最終ステップが深刻: 一時退避・立て直し系
+        if (lastSeverity >= 3) {
+          if (lastAction === '変') return '最後は一時退避して立て直す構成';
+          return '最後は安全側に切り替えて被害拡大を防ぐ構成';
+        }
+        // 2) 最終ステップが中程度: 調整/修正の明示
+        if (lastSeverity >= 1) {
+          if (lastAction === '変') return '押し上げつつ最後は路線を調整して着地する';
+          return '前進を保ちつつ要所で慎重に調整して仕上げる';
+        }
+        // 3) スコアの趨勢: 仕上げのニュアンス
+        if (actions.join('') === '進→進→進') {
+          if (d13 >= 10) return '序盤から終盤まで加速しながら正攻法で押し切る構成';
+          if (d13 <= -10) return '正攻法で進むが、後半は無理せず守りを固める構成';
+          return '序盤から終盤まで正攻法で押し切る構成';
+        }
+        if (actions.join('') === '進→進→変') {
+          if (d13 <= -10) return '押し切り基調から最後は方向転換で安全に締める';
+          return '押し切りつつ最後は必要最小限の調整で仕上げる';
+        }
+        if (actions.join('') === '進→変→進') return '中盤で方針を切替えて再加速する構成';
+        if (actions.join('') === '進→変→変') return '初手は進み、後半は路線転換で再設計していく構成';
+        if (actions.join('') === '変→進→進') return 'まず切替え、以降は前進で成果を固める構成';
+        if (actions.join('') === '変→進→変') return '切替え→前進の後、最後に微修正で整える構成';
+        if (actions.join('') === '変→変→進') return '段階的に切替えた上で、最後は前進でまとめる構成';
+        if (actions.join('') === '変→変→変') return '三段階で順次切替えて新路線を築く構成';
+      } catch {}
+      return '三段構成で段階的に前進と転換を組み合わせる構成';
     }
 
     _toActionPhrases(keywords){
@@ -298,7 +342,7 @@
       __summaryWrap.style.margin = '4px 0 6px';
       const __overview = document.createElement('div');
       __overview.style.marginBottom = '2px';
-      __overview.textContent = `全体像: ${this._seriesNarrative(branch.series)}`;
+      __overview.textContent = `全体像: ${this._seriesNarrative(branch)}`;
       const __reason = document.createElement('div');
       __reason.textContent = `選ぶ理由: ${__tips.join(' / ')}`;
       const __next = document.createElement('div');
