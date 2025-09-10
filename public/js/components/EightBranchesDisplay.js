@@ -9,6 +9,7 @@
       this.name = 'EightBranchesDisplay';
       this.container = null;
       this.version = '1.2.0';
+      this._lineStates = null;
     }
 
     initialize(containerId) {
@@ -228,9 +229,59 @@
       return card;
     }
 
-    displayBranches(branches) {
+    async displayBranches(branches, currentSituation) {
       if (!this.container) return;
       this.container.innerHTML = '';
+
+      // NOW: current situation summary
+      try {
+        if (currentSituation) {
+          const now = document.createElement('div');
+          now.style.margin = '6px 0 10px';
+          now.style.padding = '10px 12px';
+          now.style.border = '1px solid rgba(99,102,241,.35)';
+          now.style.borderRadius = '10px';
+          now.style.background = 'rgba(17,24,39,.35)';
+          now.style.color = '#E5E7EB';
+
+          const hex = Number(currentSituation.hexagramNumber || currentSituation['卦番号']);
+          const hexName = String(currentSituation.hexagramName || currentSituation['卦名'] || '').trim();
+          const linePos = Number(currentSituation.yaoPosition || 0) || (function(n){return Number(n)||0})(0);
+          const yao = String(currentSituation.yaoName || currentSituation['爻'] || '').trim();
+
+          const lineKey = () => `${hex}-${linePos}`;
+          let mainText = '';
+          try {
+            if (!this._lineStates) {
+              const r = await fetch('./data/h384-line-states.json', { cache:'no-cache' });
+              this._lineStates = r.ok ? await r.json() : {};
+            }
+            const v = this._lineStates[lineKey()];
+            mainText = (typeof v === 'string') ? v : (v && v.text) || '';
+          } catch {}
+
+          // 基礎スコア
+          let baseScore = '';
+          try {
+            const candidates = {1:['初九','初六'],2:['九二','六二'],3:['九三','六三'],4:['九四','六四'],5:['九五','六五'],6:['上九','上六']};
+            const yaoNames = yao ? [yao] : (candidates[linePos] || []);
+            const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+            const found = data.find(e => Number(e['卦番号']) === hex && (yaoNames.includes(String(e['爻']))));
+            const v = Number(found && found['S1_基本スコア']);
+            if (Number.isFinite(v)) baseScore = `${v}`;
+          } catch {}
+
+          now.innerHTML = `
+            <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+              <div style="font-weight:700;color:#c7d2fe;">Now 現在の状況</div>
+              <div style="color:#e5e7eb;">${hexName || '卦未確定'} ${yao || (linePos?('第'+linePos+'爻'):'')}</div>
+              ${baseScore ? `<span style="margin-left:auto;color:#a5b4fc;font-size:.85em;">基礎スコア: ${baseScore}</span>` : ''}
+            </div>
+            <div style="color:#a5b4fc;margin-top:4px;font-size:.95em;">${mainText || '（行状態テキスト未登録）'}</div>
+          `;
+          this.container.appendChild(now);
+        }
+      } catch(e) { console.warn('NOW block error:', e?.message||e); }
 
       // Comparison chart (wave/line) for intuitive overview
       try {

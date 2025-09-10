@@ -357,7 +357,7 @@ console.log('🚀 Future Simulator Integration Loading...');
             }
             this.branchesDisplay.initialize('eight-branches-display');
             const branches = await this.branchGenerator.generateEightBranches(startHex, startLine);
-            this.branchesDisplay.displayBranches(branches);
+            this.branchesDisplay.displayBranches(branches, analysis.currentSituation);
           } else {
             console.warn('EightBranches fallback skipped: invalid start hex/line');
           }
