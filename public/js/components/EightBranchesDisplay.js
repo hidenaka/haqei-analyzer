@@ -130,22 +130,51 @@
       } catch {}
       return [];
     }
+    _yaoCandidatesByLine(line){
+      const n = Number(line);
+      const map = {1:['初九','初六'],2:['九二','六二'],3:['九三','六三'],4:['九四','六四'],5:['九五','六五'],6:['上九','上六']};
+      return map[n] || [];
+    }
     _deriveQuickKeywords(branch){
-      // Collect keywords from Step1 first, then Step2 if needed
-      const collectFromStep = (step) => {
-        const candidates = {1:['初九','初六'],2:['九二','六二'],3:['九三','六三'],4:['九四','六四'],5:['九五','六五'],6:['上九','上六']};
-        const yaoNames = candidates[Number(step.line)] || [];
-        return this._getKeywordsFor(step.hex, yaoNames);
-      };
+      // Backward-compatible: prioritize Step1/2 if aggregate fails
+      const collectFromStep = (step) => this._getKeywordsFor(step.hex, this._yaoCandidatesByLine(step.line));
+      try {
+        const steps = Array.isArray(branch?.steps) ? branch.steps : [];
+        if (!steps.length) return [];
+        // Weighted aggregation across 3 steps
+        const weights = [0.5, 0.35, 0.15];
+        const tally = new Map();
+        steps.slice(0,3).forEach((s,idx)=>{
+          const kws = this._normalizeKeywords(collectFromStep(s)).slice(0,3);
+          const w = weights[idx] ?? 0.1;
+          kws.forEach(k => tally.set(k, (tally.get(k)||0) + w));
+        });
+        const ranked = Array.from(tally.entries()).sort((a,b)=> b[1]-a[1]).map(([k])=>k);
+        if (ranked.length) return ranked.slice(0,3);
+      } catch {}
+      // Fallback
       let raw = [];
       if (branch && Array.isArray(branch.steps) && branch.steps.length) {
         raw = raw.concat(collectFromStep(branch.steps[0]));
         if (raw.length < 3 && branch.steps[1]) raw = raw.concat(collectFromStep(branch.steps[1]));
       }
       const normalized = this._normalizeKeywords(raw);
-      // Prefer impactful ordering: short, active words first
       normalized.sort((a,b)=> a.length - b.length);
       return normalized.slice(0,3);
+    }
+    _seriesNarrative(series){
+      const s = String(series||'');
+      switch (s) {
+        case '進→進→進': return '序盤から終盤まで正攻法で押し切る構成';
+        case '進→進→変': return '押し切りつつ最後に微修正で仕上げる';
+        case '進→変→進': return '中盤で方針を切替え再加速する';
+        case '進→変→変': return '初手は進み、後半は路線転換で調整する';
+        case '変→進→進': return 'まず切替え、以降は前進で固める';
+        case '変→進→変': return '切替え→前進→微修正で整える';
+        case '変→変→進': return '段階的に切替えてから前進でまとめる';
+        case '変→変→変': return '三段階で順次切替えて新路線を築く';
+        default: return '三段構成で段階的に前進と転換を組み合わせる';
+      }
     }
 
     _toActionPhrases(keywords){
@@ -267,15 +296,24 @@
       __summaryWrap.style.fontSize = '.85em';
       __summaryWrap.style.color = '#cbd5e1';
       __summaryWrap.style.margin = '4px 0 6px';
+      const __overview = document.createElement('div');
+      __overview.style.marginBottom = '2px';
+      __overview.textContent = `全体像: ${this._seriesNarrative(branch.series)}`;
       const __reason = document.createElement('div');
       __reason.textContent = `選ぶ理由: ${__tips.join(' / ')}`;
       const __next = document.createElement('div');
       const __acts = this._toActionPhrases(__kw);
-      if (__kw.length) {
-        __next.textContent = `次の一手: ${(__acts.length?__acts:__tips).join(' / ')}`;
+      // Stage-specific framing if possible
+      const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
+      if (__kw.length && steps.length === 3) {
+        const nowAct = (__acts[0] || __tips[0] || '').toString();
+        const midAct = (__acts[1] || __tips[1] || nowAct).toString();
+        const finAct = (__acts[2] || __tips[2] || midAct).toString();
+        __next.textContent = `次の一手: 今すぐ「${nowAct}」→ 次に「${midAct}」→ 仕上げ「${finAct}」`;
       } else {
-        __next.textContent = `次の一手: ${__tips.join(' / ')}`;
+        __next.textContent = `次の一手: ${(__acts.length?__acts:__tips).join(' / ')}`;
       }
+      __summaryWrap.appendChild(__overview);
       __summaryWrap.appendChild(__reason);
       __summaryWrap.appendChild(__next);
       // mount
