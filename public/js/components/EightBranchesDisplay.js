@@ -8,7 +8,7 @@
     constructor() {
       this.name = 'EightBranchesDisplay';
       this.container = null;
-      this.version = '1.1.0';
+      this.version = '1.2.0';
     }
 
     initialize(containerId) {
@@ -43,6 +43,52 @@
       try { navigator.clipboard && navigator.clipboard.writeText(text); } catch {}
     }
 
+    // --- UX helpers for intuitive understanding ---
+    _counts(series){
+      return {
+        prog: (series.match(/進/g) || []).length,
+        trans: (series.match(/変/g) || []).length
+      };
+    }
+    _emoji(series){
+      const { prog, trans } = this._counts(series);
+      if (prog === 3) return '🚀';
+      if (trans === 3) return '🔄';
+      if (prog === 2) return '➡️';
+      if (trans === 2) return '🧭';
+      return '⚖️';
+    }
+    _score(series){
+      const { prog, trans } = this._counts(series);
+      if (prog === 3) return 90;
+      if (prog === 2 && trans === 1) return 80;
+      if (prog === 1 && trans === 2) return 60;
+      if (trans === 3) return 50;
+      return 70;
+    }
+    _risk(series){
+      const { prog, trans } = this._counts(series);
+      if (prog === 3) return {label:'リスク低', color:'#10B981'};
+      if (trans === 3) return {label:'リスク高', color:'#EF4444'};
+      if (trans === 2) return {label:'リスク中', color:'#F59E0B'};
+      return {label:'リスク中', color:'#3B82F6'};
+    }
+    _effort(series){
+      const { prog, trans } = this._counts(series);
+      if (prog === 3) return {label:'手間 少', color:'#93C5FD'};
+      if (trans === 3) return {label:'手間 多', color:'#FCA5A5'};
+      if (trans === 2) return {label:'手間 中', color:'#FDE68A'};
+      return {label:'手間 中', color:'#A78BFA'};
+    }
+    _tips(series){
+      const { prog, trans } = this._counts(series);
+      if (prog === 3) return ['小さく確実に進む','協力者と進捗を共有','正攻法で実力を見せる'];
+      if (trans === 3) return ['原因の分解と収束計画','合意形成と安全策','段階的な再起動準備'];
+      if (prog === 2) return ['節目で見直し','根拠と透明性','小回りを効かせる'];
+      if (trans === 2) return ['変える範囲を明確化','影響ケア','段階的切替'];
+      return ['優先度で仕分け','進む/変えるの整理','負担分散'];
+    }
+
     _card(branch) {
       const card = document.createElement('div');
       card.style.border = '1px solid rgba(99,102,241,0.35)';
@@ -59,12 +105,56 @@
       title.style.fontWeight = '600';
       title.style.color = '#A5B4FC';
       title.style.marginBottom = '8px';
+      // intuitive emoji prefix
+      try { const em = this._emoji(branch.series); title.innerHTML = `${em} ` + title.innerHTML; } catch {}
 
       const summary = document.createElement('div');
       summary.textContent = this._summary(branch.series);
       summary.style.fontSize = '.9em';
       summary.style.color = '#cbd5e1';
       summary.style.margin = '6px 0 8px';
+      // recommendation score bar
+      const __score = this._score(branch.series);
+      const __scoreWrap = document.createElement('div');
+      __scoreWrap.style.margin = '6px 0 4px';
+      const __bar = document.createElement('div');
+      __bar.style.height = '6px';
+      __bar.style.background = 'rgba(148,163,184,.3)';
+      __bar.style.borderRadius = '6px';
+      const __fill = document.createElement('div');
+      __fill.style.height = '100%';
+      __fill.style.width = Math.max(10, Math.min(100, __score)) + '%';
+      __fill.style.borderRadius = '6px';
+      __fill.style.background = 'linear-gradient(90deg, #6366F1, #22C55E)';
+      __bar.appendChild(__fill);
+      const __label = document.createElement('div');
+      __label.textContent = `おすすめ度: ${__score}%`;
+      __label.style.fontSize = '.8em';
+      __label.style.color = '#94a3b8';
+      __label.style.marginTop = '4px';
+      __scoreWrap.appendChild(__bar);
+      __scoreWrap.appendChild(__label);
+      // risk/effort chips
+      const __chips = document.createElement('div');
+      __chips.style.display = 'flex';
+      __chips.style.gap = '8px';
+      __chips.style.margin = '6px 0 8px';
+      const __risk = this._risk(branch.series);
+      const __eff = this._effort(branch.series);
+      const __mkChip = (t,c)=>{const s=document.createElement('span'); s.textContent=t; s.style.padding='2px 8px'; s.style.borderRadius='9999px'; s.style.border=`1px solid ${c}66`; s.style.color=c; s.style.fontSize='.75em'; return s;};
+      __chips.appendChild(__mkChip(__risk.label, __risk.color));
+      __chips.appendChild(__mkChip(__eff.label, __eff.color));
+      // 3-sec tips
+      const __tips = this._tips(branch.series);
+      const __tipsEl = document.createElement('div');
+      __tipsEl.style.fontSize = '.85em';
+      __tipsEl.style.color = '#cbd5e1';
+      __tipsEl.style.margin = '4px 0 6px';
+      __tipsEl.textContent = `3秒要約: ${__tips.join(' / ')}`;
+      // mount
+      card.appendChild(__scoreWrap);
+      card.appendChild(__chips);
+      card.appendChild(__tipsEl);
 
       const details = document.createElement('details');
       details.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
