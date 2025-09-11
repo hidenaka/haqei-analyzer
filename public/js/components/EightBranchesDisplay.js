@@ -509,11 +509,19 @@
         } catch { return ''; }
       })();
       if (timeMemo) __ds.appendChild(mk('時機', timeMemo));
-      // influence words (bridge input -> branch)
+      // influence words (bridge input -> branch) with scoring
       try {
         const tags = (window.HAQEI_INPUT_TAGS||[]).map(String);
-        const infl = (__kw||[]).filter(k => tags.includes(k));
-        if (infl.length) __ds.appendChild(mk('影響語', infl.join(' / ')));
+        const tally = this._keywordTally(branch);
+        let scored = tags.map(t => [t, tally.get(t)||0]).filter(([,w])=>w>0);
+        if (!scored.length) {
+          const infl = (__kw||[]).filter(k => tags.includes(k));
+          if (infl.length) __ds.appendChild(mk('影響語', infl.join(' / ')));
+        } else {
+          scored.sort((a,b)=>b[1]-a[1]);
+          const top2 = scored.slice(0,2).map(([t])=>t);
+          __ds.appendChild(mk('影響語', top2.join(' / ')));
+        }
       } catch {}
       // confidence bar
       try {
@@ -532,6 +540,7 @@
         bar.appendChild(fill);
         const lbl = document.createElement('div');
         lbl.textContent = `確信度: ${conf}%`;
+        lbl.title = '算出: 活用率(使用システム/4) − フォールバック補正 − 欠損データ×5%';
         lbl.style.fontSize='.75em'; lbl.style.color='#94a3b8'; lbl.style.marginTop='2px';
         wrap.appendChild(bar); wrap.appendChild(lbl);
         __ds.appendChild(wrap);
@@ -746,16 +755,42 @@
           box.style.border='1px solid rgba(99,102,241,.35)'; box.style.borderRadius='10px'; box.style.padding='10px 12px'; box.style.margin='6px 0 10px';
           const h = document.createElement('div'); h.textContent='おすすめTOP3（簡易比較）'; h.style.color='#c7d2fe'; h.style.fontWeight='700'; h.style.marginBottom='4px';
           const explain = this._top3Explain(top);
+          this._topExplainCache = explain;
           const mk = (rank,item,sub)=>{ const d=document.createElement('div'); d.style.color='#cbd5e1'; d.style.fontSize='.9em'; d.textContent = `${rank}. 分岐${item.id}｜${item.series}｜${item.score}% - ${sub}`; return d; };
           box.appendChild(h);
           box.appendChild(mk(1,explain.a,explain.a.reason));
           box.appendChild(mk(2,explain.b,explain.b.reason));
           box.appendChild(mk(3,explain.c,explain.c.reason));
           this.container.appendChild(box);
+          // 上段固定グリッド（有効時）
+          const flag = (window.HAQEI_CONFIG?.featureFlags?.enableTop3Mode !== false);
+          if (flag) {
+            const topGrid = document.createElement('div');
+            topGrid.style.display='grid'; topGrid.style.gridTemplateColumns='repeat(auto-fill, minmax(280px, 1fr))'; topGrid.style.gap='12px';
+            topGrid.setAttribute('data-section','compare');
+            const topIds = new Set(top.map(t=>t.id));
+            top.forEach((b,i)=> topGrid.appendChild(this._card(b,i)));
+            // annotate first card with "なぜ他ではないか"
+            try {
+              const first = topGrid.firstElementChild;
+              if (first) {
+                const note = document.createElement('div');
+                note.style.marginTop='4px'; note.style.fontSize='.85em'; note.style.color='#cbd5e1';
+                note.textContent = `なぜ他ではないか: 2位→${explain.b.reason} ／ 3位→${explain.c.reason}`;
+                first.appendChild(note);
+              }
+            } catch {}
+            this.container.appendChild(topGrid);
+            // 残りを下段グリッドへ
+            branches.filter(b => !topIds.has(b.id)).forEach((b,i)=> grid.appendChild(this._card(b,i)));
+            // 後続でgridを見出しとともにappend
+          } else {
+            // フラグ無効時は通常どおり全カード
+            branches.forEach((b, i) => grid.appendChild(this._card(b, i)));
+          }
         }
       } catch {}
 
-      branches.forEach((b, i) => grid.appendChild(this._card(b, i)));
       const heading = document.createElement('div');
       heading.textContent = '選べる8つの進路（進む/変える）';
       heading.style.color = '#c7d2fe';
