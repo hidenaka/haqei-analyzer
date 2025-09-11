@@ -357,7 +357,21 @@ console.log('🚀 Future Simulator Integration Loading...');
             }
             this.branchesDisplay.initialize('eight-branches-display');
             const branches = await this.branchGenerator.generateEightBranches(startHex, startLine);
-          this.branchesDisplay.displayBranches(branches, analysis.currentSituation);
+            this.branchesDisplay.displayBranches(branches, analysis.currentSituation);
+            // Delayed verification and single retry if details wiped
+            try {
+              let retried = false;
+              setTimeout(() => {
+                try {
+                  const root = document.getElementById('eight-branches-display');
+                  const detailsCount = root ? root.querySelectorAll('details').length : 0;
+                  if (root && detailsCount === 0 && !retried) {
+                    retried = true;
+                    this.branchesDisplay.displayBranches(branches, analysis.currentSituation);
+                  }
+                } catch {}
+              }, 80);
+            } catch {}
           } else {
             console.warn('EightBranches fallback skipped: invalid start hex/line');
           }
