@@ -146,6 +146,20 @@ test('Future Simulator Complete User Flow', async ({ page }) => {
       await expect(page.locator('#eight-branches-display')).toContainText('詳細を見る');
       // Headline helper
       await expect(page.locator('#eight-branches-display')).toContainText('選べる8つの進路');
+
+      // Decision-support microcopy presence (improves understanding)
+      await expect(page.locator('#eight-branches-display')).toContainText('合う条件');
+      await expect(page.locator('#eight-branches-display')).toContainText('注意点');
+      await expect(page.locator('#eight-branches-display')).toContainText('成果イメージ');
+      // Optional timing memo if present
+      await page.locator('#eight-branches-display').waitFor({ state: 'visible' });
+      // There might not always be 時機, so do a soft check
+      const hasTiming = await page.locator('#eight-branches-display:has-text("時機")').count();
+      console.log(`Timing memo present: ${hasTiming > 0}`);
+
+      // Copy button exists on at least one card
+      const copyBtn = page.locator('#eight-branches-display button', { hasText: 'この分岐をコピー' });
+      await expect(copyBtn.first()).toBeVisible();
     }
     
     // Step 10: Check JavaScript console for errors

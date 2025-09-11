@@ -668,9 +668,10 @@
       return card;
     }
 
-  async displayBranches(branches, currentSituation) {
+    async displayBranches(branches, currentSituation) {
       if (!this.container) return;
       this.container.innerHTML = '';
+      try { console.log('EightBranchesDisplay: rendering', Array.isArray(branches)?branches.length:0, 'branches'); } catch {}
 
       // NOW: current situation summary
       try {
@@ -828,7 +829,25 @@
             // 後続でgridを見出しとともにappend
           } else {
             // フラグ無効時は通常どおり全カード
-            branches.forEach((b, i) => grid.appendChild(this._card(b, i)));
+      // Render all cards (robust): per-card try/catch to avoid stopping on one error
+      (Array.isArray(branches)?branches:[]).forEach((b, i) => {
+        try {
+          const el = this._card(b, i);
+          if (el) grid.appendChild(el);
+        } catch (e) {
+          console.warn('EightBranchesDisplay: card render error for id', b?.id||i+1, e?.message||e);
+          const fallback = document.createElement('div');
+          fallback.style.border = '1px solid rgba(99,102,241,.35)';
+          fallback.style.borderRadius = '10px';
+          fallback.style.padding = '12px 14px';
+          fallback.style.background = 'rgba(17,24,39,0.35)';
+          fallback.style.color = '#E5E7EB';
+          const head = document.createElement('div'); head.textContent = `分岐${b?.id||i+1}`; head.style.color='#A5B4FC'; head.style.fontWeight='600';
+          const body = document.createElement('div'); body.textContent = '（簡易表示: 描画でエラーが発生しました）'; body.style.fontSize='.9em'; body.style.color='#cbd5e1';
+          fallback.appendChild(head); fallback.appendChild(body);
+          grid.appendChild(fallback);
+        }
+      });
           }
         }
       } catch {}
