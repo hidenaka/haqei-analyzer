@@ -366,6 +366,26 @@
       if (trans === 3) return 50;
       return 70;
     }
+    _branchScore(branch){
+      try {
+        const base = this._score(branch?.series || '');
+        const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
+        const weights = [0.5, 0.3, 0.2];
+        let wsum = 0, acc = 0;
+        steps.forEach((s, i) => {
+          const v = this._getBasicScore(s?.hex, s?.line);
+          const w = weights[i] || 0;
+          if (Number.isFinite(v)) { acc += v * w; wsum += w; }
+        });
+        let combined = wsum ? Math.round(acc / wsum) : base;
+        const actions = String(branch?.series||'').split('→');
+        const pat = actions.join('');
+        if (pat === '進→進→進') combined += 5;
+        if (pat === '変→変→変') combined -= 5;
+        combined = Math.round((combined * 0.7) + (base * 0.3));
+        return Math.min(100, Math.max(0, combined));
+      } catch { return this._score(branch?.series || '') || 50; }
+    }
     _risk(series){
       const { prog, trans } = this._counts(series);
       if (prog === 3) return {label:'リスク低', color:'#10B981'};
