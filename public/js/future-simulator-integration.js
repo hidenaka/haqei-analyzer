@@ -358,14 +358,15 @@ console.log('🚀 Future Simulator Integration Loading...');
             this.branchesDisplay.initialize('eight-branches-display');
             const branches = await this.branchGenerator.generateEightBranches(startHex, startLine);
             this.branchesDisplay.displayBranches(branches, analysis.currentSituation);
-            // Delayed verification and single retry if details wiped
+            // Delayed verification and single retry if grid is empty
             try {
               let retried = false;
               setTimeout(() => {
                 try {
                   const root = document.getElementById('eight-branches-display');
-                  const detailsCount = root ? root.querySelectorAll('details').length : 0;
-                  if (root && detailsCount === 0 && !retried) {
+                  const grid = root ? root.querySelector('[data-role="branches-grid"]') : null;
+                  const cardCount = grid ? grid.childElementCount : 0;
+                  if (root && cardCount === 0 && !retried) {
                     retried = true;
                     this.branchesDisplay.displayBranches(branches, analysis.currentSituation);
                   }

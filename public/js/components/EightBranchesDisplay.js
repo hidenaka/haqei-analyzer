@@ -601,6 +601,7 @@
         __ev.style.marginTop = '6px';
         __ev.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
         __ev.setAttribute('data-section','evidence');
+        try { __ev.setAttribute('data-preserve','true'); } catch {}
         const __evsum = document.createElement('summary');
         __evsum.textContent = '根拠（引用と適用）';
         __evsum.style.cursor = 'pointer';
@@ -664,7 +665,7 @@
 
       details.appendChild(sum);
       details.appendChild(ul);
-      try { details.setAttribute('data-section', classic ? 'summary' : 'evidence'); } catch {}
+      try { details.setAttribute('data-section', classic ? 'summary' : 'evidence'); details.setAttribute('data-preserve','true'); } catch {}
       card.appendChild(title);
       card.appendChild(summary);
       card.appendChild(details);
@@ -816,7 +817,7 @@
       grid.style.display = 'grid';
       grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
       grid.style.gap = '12px';
-      try { grid.setAttribute('data-preserve','true'); } catch {}
+      try { grid.setAttribute('data-preserve','true'); grid.setAttribute('data-role','branches-grid'); } catch {}
       const __bottomCardNodes = [];
 
       // compare section: おすすめTOP3（簡易比較）— Classicでは無効
@@ -936,11 +937,11 @@
       };
 
       let __diag = await __appendDeferred();
-      if ((__diag.ccount === 0 || __diag.dcount === 0) && __bottomCardNodes.length) {
+      if ((__diag.ccount === 0) && __bottomCardNodes.length) {
         // retry with short delay(s)
         await new Promise(r => setTimeout(r, 70));
         __diag = await __appendDeferred();
-        if ((__diag.ccount === 0 || __diag.dcount === 0)) {
+        if ((__diag.ccount === 0)) {
           await new Promise(r => setTimeout(r, 110));
           __diag = await __appendDeferred();
         }
@@ -948,8 +949,7 @@
 
       // Final fallback: minimal cards to avoid blank UI
       try {
-        const finalDetails = this.container.querySelectorAll('details').length;
-        if ((!grid.childElementCount || !finalDetails) && Array.isArray(branches) && branches.length) {
+        if ((!grid.childElementCount) && Array.isArray(branches) && branches.length) {
           const frag2 = document.createDocumentFragment();
           branches.forEach((b,i)=>{
             const box = document.createElement('div');
