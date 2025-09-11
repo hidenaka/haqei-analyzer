@@ -3316,7 +3316,8 @@
         set('heroSubtitle', 'あなたの言葉から道を見つけます');
         set('guideHeading', '1. やさしく書いて、すぐ試す');
         set('guideLead1', 'AIは、あなたのそのままの言葉を使います');
-        set('guideLead2', 'うまく書かなくて大丈夫。感じたことをそのまま書いてください。');
+        // 初めての人向け一言（既存の小見出しに置換）
+        set('guideLead2', 'まず、今の気持ちと困っていることを一行で書いてみましょう');
         const list = document.getElementById('guideList');
         if (list) list.innerHTML = '<li>箇条書きでもOK。ていねいな文は不要です。</li>\n<li>今の気持ちや困りごとも、一緒に書いてください。</li>\n<li>むずかしい言葉は使わなくて大丈夫です。</li>';
         set('badLabel', '悪い例 ❌');
@@ -3327,6 +3328,9 @@
         set('heroMini', '📊 かんたん未来分析（384の型×8つの道）');
         set('heroMiniNote', '');
         const btn = document.getElementById('buttonText'); if (btn) btn.textContent = '分析を始める';
+        // 入力欄プレースホルダ（既存要素の属性のみ変更）
+        const wi = document.getElementById('worryInput');
+        if (wi) wi.setAttribute('placeholder','今の気持ちと困っていることを、一行でOK');
       }
     } catch {}
     const prefs = Object.assign({ summary:true, compare:true, evidence:false, learn:false }, loadPrefs());

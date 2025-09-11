@@ -12,10 +12,10 @@ test('Low reading level copy appears when flag is ON', async ({ page }) => {
   await expect(page.locator('#heroTitle')).toHaveText('未来の選択を、かんたんに');
   await expect(page.locator('#heroSubtitle')).toHaveText('あなたの言葉から道を見つけます');
   await expect(page.locator('#guideHeading')).toContainText('やさしく書いて');
+  await expect(page.locator('#guideLead2')).toContainText('今の気持ちと困っていることを一行');
   await expect(page.locator('#buttonText')).toHaveText('分析を始める');
   // toggles: 理由/ヒント 表示
   await page.locator('#viewToggles').evaluate(n => (n as HTMLElement).style.display = 'flex');
   await expect(page.locator('#viewToggles')).toContainText('理由');
   await expect(page.locator('#viewToggles')).toContainText('ヒント');
 });
-
