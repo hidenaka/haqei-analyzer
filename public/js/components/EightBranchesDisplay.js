@@ -662,7 +662,7 @@
           const lbl = document.createElement('div');
           const __easyLbl = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
           lbl.textContent = `${__easyLbl ? '自信度' : '確信度'}: ${conf}%`;
-          lbl.title = '算出: 活用率(使用システム/4) − フォールバック補正 − 欠損データ×5%';
+          lbl.title = __easyLbl ? '使えたデータの多さと、推測の少なさからの目安です' : '算出: 活用率(使用システム/4) − フォールバック補正 − 欠損データ×5%';
           lbl.style.fontSize='.75em'; lbl.style.color='#94a3b8'; lbl.style.marginTop='2px';
           wrap.appendChild(bar); wrap.appendChild(lbl);
           __ds.appendChild(wrap);
