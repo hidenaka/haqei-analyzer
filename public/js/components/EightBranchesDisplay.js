@@ -511,6 +511,33 @@
         } catch { return ''; }
       })();
       if (timeMemo) __ds.appendChild(mk('時機', timeMemo));
+      // influence words (bridge input -> branch)
+      try {
+        const tags = (window.HAQEI_INPUT_TAGS||[]).map(String);
+        const infl = (__kw||[]).filter(k => tags.includes(k));
+        if (infl.length) __ds.appendChild(mk('影響語', infl.join(' / ')));
+      } catch {}
+      // confidence bar
+      try {
+        const used = window.integratedAnalysisResult?.systemsUsed || {};
+        const usedCount = Object.values(used).filter(Boolean).length || 0;
+        const fallback = !!(global.futureSimulator?.branchGenerator?.usedFallback);
+        const missing = branch.steps.filter(st => !Number.isFinite(this._getBasicScore(st.hex, st.line))).length;
+        let conf = Math.round((usedCount/4)*100) - (fallback?10:0) - (missing*5);
+        conf = Math.max(10, Math.min(100, conf));
+        const wrap = document.createElement('div');
+        wrap.style.marginTop = '4px';
+        const bar = document.createElement('div');
+        bar.style.height = '4px'; bar.style.background='rgba(148,163,184,.3)'; bar.style.borderRadius='6px';
+        const fill = document.createElement('div');
+        fill.style.height='100%'; fill.style.width = conf+'%'; fill.style.borderRadius='6px'; fill.style.background = 'linear-gradient(90deg,#22C55E,#16A34A)';
+        bar.appendChild(fill);
+        const lbl = document.createElement('div');
+        lbl.textContent = `確信度: ${conf}%`;
+        lbl.style.fontSize='.75em'; lbl.style.color='#94a3b8'; lbl.style.marginTop='2px';
+        wrap.appendChild(bar); wrap.appendChild(lbl);
+        __ds.appendChild(wrap);
+      } catch {}
 
       // Evidence fold
       const __ev = document.createElement('details');
@@ -607,7 +634,7 @@
       return card;
     }
 
-    async displayBranches(branches, currentSituation) {
+  async displayBranches(branches, currentSituation) {
       if (!this.container) return;
       this.container.innerHTML = '';
 
@@ -724,6 +751,26 @@
       grid.style.display = 'grid';
       grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
       grid.style.gap = '12px';
+
+      // compare section: おすすめTOP3（簡易比較）
+      try {
+        const scored = branches.map(b => ({ b, s: this._branchScore(b) }));
+        scored.sort((x,y)=> y.s - x.s);
+        const top = scored.slice(0,3).map(x=>x.b);
+        if (top.length===3) {
+          const box = document.createElement('div');
+          box.setAttribute('data-section','compare');
+          box.style.border='1px solid rgba(99,102,241,.35)'; box.style.borderRadius='10px'; box.style.padding='10px 12px'; box.style.margin='6px 0 10px';
+          const h = document.createElement('div'); h.textContent='おすすめTOP3（簡易比較）'; h.style.color='#c7d2fe'; h.style.fontWeight='700'; h.style.marginBottom='4px';
+          const explain = this._top3Explain(top);
+          const mk = (rank,item,sub)=>{ const d=document.createElement('div'); d.style.color='#cbd5e1'; d.style.fontSize='.9em'; d.textContent = `${rank}. 分岐${item.id}｜${item.series}｜${item.score}% - ${sub}`; return d; };
+          box.appendChild(h);
+          box.appendChild(mk(1,explain.a,explain.a.reason));
+          box.appendChild(mk(2,explain.b,explain.b.reason));
+          box.appendChild(mk(3,explain.c,explain.c.reason));
+          this.container.appendChild(box);
+        }
+      } catch {}
 
       branches.forEach((b, i) => grid.appendChild(this._card(b, i)));
       const heading = document.createElement('div');

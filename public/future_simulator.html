@@ -3239,6 +3239,7 @@
             const { tags } = await extractTags(input);
             const nowBlock = document.getElementById('current-status-block');
             if (nowBlock && tags && tags.length) {
+              window.HAQEI_INPUT_TAGS = tags;
               const line = document.createElement('div');
               line.style.marginTop = '6px';
               line.style.display = 'flex';
