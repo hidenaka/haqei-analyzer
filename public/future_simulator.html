@@ -30,7 +30,9 @@
                 // Classicレイアウト（falseで拡張UIを既定ON）
                 layoutClassic: false,
                 // 上段固定Top3は既定OFF（Classic前提）
-                enableTop3Mode: false
+                enableTop3Mode: false,
+                // やさしい日本語（高校生レベル）コピーを有効化
+                lowReadingLevel: true
             }
         };
     </script>
@@ -1708,10 +1710,10 @@
     >
       <header class="text-center mb-8 relative">
         <div class="inline-block">
-          <h1 class="text-3xl sm:text-4xl font-bold brand-text tracking-wider">
+          <h1 class="text-3xl sm:text-4xl font-bold brand-text tracking-wider" id="heroTitle">
             易経未来分析システム
           </h1>
-          <p class="text-gray-400 mt-2 text-lg">384パターンによる状況分析ツール</p>
+          <p class="text-gray-400 mt-2 text-lg" id="heroSubtitle">384パターンによる状況分析ツール</p>
           <div class="flex justify-center gap-6 mt-3 text-sm text-gray-500">
             <span>📊 易経による未来分析</span>
             <span>🗃️ 伝統的な易経パターン活用</span>
@@ -1726,63 +1728,59 @@
         
         <!-- Actual Input Content -->
         <div class="input-content" id="input-content" style="display: block;">
-          <h2 class="text-lg font-bold text-indigo-300 mb-3">
+          <h2 class="text-lg font-bold text-indigo-300 mb-3" id="guideHeading">
             1. AIによる状況推測
           </h2>
         <div
           class="border border-gray-700 rounded-lg p-4 mb-4 text-sm text-gray-300 space-y-3"
         >
-          <p class="text-base font-bold text-center text-indigo-300">
-            AIへの最高の「呪文」は、あなたの「ありのままの言葉」です
+          <p class="text-base font-bold text-center text-indigo-300" id="guideLead1">
+            AIは、あなたのそのままの言葉を使います
           </p>
-          <p class="text-xs text-center text-gray-400">
-            未来分岐図の精度を高める、たった一つの秘訣
+          <p class="text-xs text-center text-gray-400" id="guideLead2">
+            うまく書かなくて大丈夫。感じたことをそのまま書いてください。
           </p>
-          <p>
-            これから、あなたの現状と課題をAIに入力していただきます。その際、どうか<strong>「上手な文章を書こう」としないでください。</strong>AIは、整えられた文章よりも、あなたの<strong>「生の言葉」</strong>を求めています。
-          </p>
-          <p>
-            箇条書きでも、心のつぶやきでも、誰かに愚痴をこぼすような言葉でも構いません。他人に見せるための文章ではなく、<strong>あなた自身のための「思考のメモ」</strong>として、リラックスして入力してください。
-          </p>
-          <p>
-            なぜなら、AIはあなたが選ぶ一つ一つの単語、表現の揺れ、感情のニュアンスから、あなただけの「思考のクセ」や「心の動き」を読み取るからです。
-          </p>
+          <ul class="list-disc pl-5 space-y-1 text-sm text-gray-300" id="guideList">
+            <li>箇条書きでもOK。ていねいな文は不要です。</li>
+            <li>今の気持ちや困りごとも、一緒に書いてください。</li>
+            <li>むずかしい言葉は使わなくて大丈夫です。</li>
+          </ul>
           <div class="pt-2">
             <p class="font-bold text-gray-200">【入力のヒント】</p>
             <div
               class="mt-2 p-3 rounded-lg bg-red-900/20 border border-red-800/50"
             >
-              <p class="font-bold">悪い例 ❌</p>
+              <p class="font-bold" id="badLabel">悪い例 ❌</p>
               <p class="text-xs italic mt-1">
                 「新規プロジェクトのマネジメントにおいて、人的リソースの不足がボトルネックとなり、計画に遅延が生じています。」
               </p>
-              <p class="text-xs text-gray-400 mt-1">
-                （これでは、AIは一般的なビジネス課題としてしか分析できません）
+              <p class="text-xs text-gray-400 mt-1" id="badNote">
+                （むずかしい言い方だと、あなたの今が伝わりにくい）
               </p>
             </div>
             <div
               class="mt-2 p-3 rounded-lg bg-emerald-900/20 border border-emerald-800/50"
             >
-              <p class="font-bold">良い例 ⭕</p>
+              <p class="font-bold" id="goodLabel">良い例 ⭕</p>
               <p class="text-xs italic mt-1">
                 「新しい仕事、マジで人足りてない！Aさんは頑張ってくれてるけど、Bさんは全然やる気ないし…。このままだと絶対間に合わない。どうすりゃいいんだ…。焦る。」
               </p>
-              <p class="text-xs text-gray-400 mt-1">
-                （この方が、あなたの感情、人間関係への認識、切迫感が伝わり、よりパーソナライズされた分析が可能になります）
+              <p class="text-xs text-gray-400 mt-1" id="goodNote">
+                （このほうが気持ちや急ぎ具合が伝わり、役立つ結果になります）
               </p>
             </div>
           </div>
-          <p class="font-bold text-center pt-2">
-            易経の384パターン（64卦×6爻）による客観的分析により、<br />現在の状況から導かれる8つの未来軌道を可視化します。
+          <p class="font-bold text-center pt-2" id="methodNote">
+            64×6＝384の型から、今に合う「8つの道」を見やすく出します。
           </p>
         </div>
         
         <!-- あなたの未来を読み解きます -->
         <div class="mb-6 text-center">
-          <h3 class="text-xl font-bold text-indigo-300 mb-2">
-            📊 易経384パターンによる状況分析
+          <h3 class="text-xl font-bold text-indigo-300 mb-2" id="heroMini">
+            📊 かんたん未来分析（384の型×8つの道）
           </h3>
-          <p class="text-sm text-gray-400">
+          <p class="text-sm text-gray-400" id="heroMiniNote">
             易経の知恵に基づく8つの未来可能性を分析
           </p>
         </div>
@@ -1814,7 +1812,7 @@
                 clip-rule="evenodd"
               />
             </svg>
-            <span id="buttonText">分析実行</span>
+            <span id="buttonText">分析を始める</span>
           </button>
         </div>
       </div>
@@ -3309,6 +3307,28 @@
   // expose for external calls
   try { window.applyViewToggles = applyViewToggles; } catch {}
   document.addEventListener('DOMContentLoaded', () => {
+    // Low reading level copy (friendly JP) if enabled
+    try {
+      const low = window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false;
+      if (low) {
+        const set = (id, text) => { const el=document.getElementById(id); if (el) el.textContent = text; };
+        set('heroTitle', '未来の選択を、かんたんに');
+        set('heroSubtitle', 'あなたの言葉から道を見つけます');
+        set('guideHeading', '1. やさしく書いて、すぐ試す');
+        set('guideLead1', 'AIは、あなたのそのままの言葉を使います');
+        set('guideLead2', 'うまく書かなくて大丈夫。感じたことをそのまま書いてください。');
+        const list = document.getElementById('guideList');
+        if (list) list.innerHTML = '<li>箇条書きでもOK。ていねいな文は不要です。</li>\n<li>今の気持ちや困りごとも、一緒に書いてください。</li>\n<li>むずかしい言葉は使わなくて大丈夫です。</li>';
+        set('badLabel', '悪い例 ❌');
+        set('badNote', '（むずかしい言い方だと、あなたの今が伝わりにくい）');
+        set('goodLabel', '良い例 ⭕');
+        set('goodNote', '（このほうが気持ちや急ぎ具合が伝わり、役立つ結果になります）');
+        set('methodNote', '64×6＝384の型から、今に合う「8つの道」を見やすく出します。');
+        set('heroMini', '📊 かんたん未来分析（384の型×8つの道）');
+        set('heroMiniNote', '');
+        const btn = document.getElementById('buttonText'); if (btn) btn.textContent = '分析を始める';
+      }
+    } catch {}
     const prefs = Object.assign({ summary:true, compare:true, evidence:false, learn:false }, loadPrefs());
     const cbS = document.getElementById('toggle-summary');
     const cbC = document.getElementById('toggle-compare');
