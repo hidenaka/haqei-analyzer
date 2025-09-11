@@ -119,9 +119,7 @@
       return '前進と転換を組み合わせたバランス型の道筋です。';
     }
 
-    _copy(text) {
-      try { navigator.clipboard && navigator.clipboard.writeText(text); } catch {}
-    }
+    // copy functionality removed per UX decision
 
     // --- Modern keyword helpers ---
     _modernizeTerm(t){
@@ -603,20 +601,6 @@
         foot.style.marginTop = '8px';
         ul.appendChild(foot);
       }
-      const copyBtn = document.createElement('button');
-      copyBtn.textContent = 'この分岐をコピー';
-      copyBtn.style.marginTop = '8px';
-      copyBtn.style.fontSize = '.85em';
-      copyBtn.style.padding = '6px 10px';
-      copyBtn.style.border = '1px solid rgba(99,102,241,0.5)';
-      copyBtn.style.borderRadius = '8px';
-      copyBtn.style.background = 'transparent';
-      copyBtn.style.color = '#c7d2fe';
-      copyBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const text = `分岐${branch.id}｜${branch.series}\n` + branch.steps.map((s,i)=>`Step${i+1} ${s.action==='進'?'進爻':'変爻'}: ${s.lineText||''}`).join('\n');
-        this._copy(text);
-      });
 
       details.appendChild(sum);
       details.appendChild(ul);
@@ -625,7 +609,6 @@
       card.appendChild(summary);
       card.appendChild(details);
       card.appendChild(__ev);
-      card.appendChild(copyBtn);
 
       card.addEventListener('click', () => {
         const ev = new CustomEvent('branchSelected', { detail: { id: branch.id, series: branch.series, steps: branch.steps } });
