@@ -655,11 +655,17 @@
 
       branches.forEach((b, i) => grid.appendChild(this._card(b, i)));
       const heading = document.createElement('div');
-      heading.textContent = '八分岐（進/変）の候補';
+      heading.textContent = '選べる8つの進路（進む/変える）';
       heading.style.color = '#c7d2fe';
       heading.style.fontWeight = '700';
-      heading.style.margin = '8px 0 6px';
+      heading.style.margin = '8px 0 2px';
       this.container.appendChild(heading);
+      const helper = document.createElement('div');
+      helper.textContent = '進=現行を深める / 変=路線を切り替える（各カードに特徴・合う条件・注意点・成果イメージを表示）';
+      helper.style.color = '#94a3b8';
+      helper.style.fontSize = '.9em';
+      helper.style.margin = '0 0 8px';
+      this.container.appendChild(helper);
       this.container.appendChild(grid);
     }
   }
