@@ -1821,13 +1821,22 @@
       <!-- 旧版UI完全削除完了 (2025-08-07) -->
       
       <!-- 🌸 未来分析結果セクション -->
-      <div id="resultsContainer" class="results-container" style="display: none; margin-top: 2rem;"></div>
+      <!-- View toggles toolbar (task-oriented, persona-neutral) -->
+      <div id="viewToggles" style="display:none;margin-top:1.5rem;gap:.5rem;align-items:center;color:#cbd5e1;">
+        <span style="color:#a5b4fc;font-weight:600;">表示:</span>
+        <label style="margin-right:.5rem;"><input type="checkbox" id="toggle-summary" checked> 要点</label>
+        <label style="margin-right:.5rem;"><input type="checkbox" id="toggle-compare"> 比較</label>
+        <label style="margin-right:.5rem;"><input type="checkbox" id="toggle-evidence"> 根拠</label>
+        <label style="margin-right:.5rem;"><input type="checkbox" id="toggle-learn"> 学び</label>
+      </div>
+      <div id="resultsContainer" class="results-container" style="display: none; margin-top: .75rem;"></div>
 
       <!-- 結果表示エリア：分析実行時に動的に生成されます -->
     </div>
 
     <!-- Module Script -->
     <script type="module">
+      import { extractTags } from './js/utils/InputTagExtractor.js';
       // 🚀 Emergency Fix: Minimal Working ProgressiveLoader
       class ProgressiveLoader {
         constructor() {
@@ -3224,6 +3233,26 @@
           
           // 現在の状況（最新ロジック）を表示
           renderCurrentStatusBlockLatest(ichingAnalysis);
+          // 入力→タグ抽出し、Nowブロックに表示
+          try {
+            const input = (window.integratedAnalysisResult && window.integratedAnalysisResult.input) || inputText || '';
+            const { tags } = await extractTags(input);
+            const nowBlock = document.getElementById('current-status-block');
+            if (nowBlock && tags && tags.length) {
+              const line = document.createElement('div');
+              line.style.marginTop = '6px';
+              line.style.display = 'flex';
+              line.style.flexWrap = 'wrap';
+              line.style.gap = '6px';
+              const label = document.createElement('span');
+              label.textContent = '入力要素:';
+              label.style.color = '#94a3b8';
+              label.style.fontSize = '.85em';
+              line.appendChild(label);
+              tags.forEach(t => { const chip=document.createElement('span'); chip.textContent=t; chip.style.padding='2px 8px'; chip.style.border='1px solid rgba(99,102,241,.45)'; chip.style.borderRadius='9999px'; chip.style.fontSize='.75em'; chip.style.color='#c7d2fe'; line.appendChild(chip); });
+              nowBlock.appendChild(line);
+            }
+          } catch {}
 
           // 8シナリオ（従来HTML生成）は無効化。新UI（EightScenariosDisplay）側で表示。
           
@@ -3235,13 +3264,53 @@
         
         // 結果コンテナを表示
         const resultsContainer = document.getElementById('resultsContainer');
+        const toggles = document.getElementById('viewToggles');
         if (resultsContainer) {
           resultsContainer.style.display = 'block';
+          if (toggles) toggles.style.display = 'flex';
+          applyViewToggles();
           setTimeout(() => {
             resultsContainer.scrollIntoView({ behavior: 'smooth' });
           }, 500);
         }
       }
+
+  // view toggles (persona-neutral)
+  function loadPrefs() {
+    try { return JSON.parse(localStorage.getItem('haqei_view_prefs')||'{}'); } catch { return {}; }
+  }
+  function savePrefs(p) { try { localStorage.setItem('haqei_view_prefs', JSON.stringify(p)); } catch {} }
+  function applyViewToggles() {
+    const prefs = Object.assign({ summary:true, compare:false, evidence:false, learn:false }, loadPrefs());
+    const root = document.getElementById('eight-branches-display');
+    if (!root) return;
+    const nodes = root.querySelectorAll('[data-section]');
+    nodes.forEach(n => {
+      const sec = n.getAttribute('data-section');
+      const on = prefs[sec] !== false; // default on for summary
+      n.style.display = on ? '' : 'none';
+    });
+    const cbS = document.getElementById('toggle-summary');
+    const cbC = document.getElementById('toggle-compare');
+    const cbE = document.getElementById('toggle-evidence');
+    const cbL = document.getElementById('toggle-learn');
+    if (cbS) cbS.checked = !!prefs.summary;
+    if (cbC) cbC.checked = !!prefs.compare;
+    if (cbE) cbE.checked = !!prefs.evidence;
+    if (cbL) cbL.checked = !!prefs.learn;
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const prefs = Object.assign({ summary:true, compare:false, evidence:false, learn:false }, loadPrefs());
+    const cbS = document.getElementById('toggle-summary');
+    const cbC = document.getElementById('toggle-compare');
+    const cbE = document.getElementById('toggle-evidence');
+    const cbL = document.getElementById('toggle-learn');
+    const update = () => { savePrefs(prefs); applyViewToggles(); };
+    if (cbS) cbS.addEventListener('change', e => { prefs.summary = !!e.target.checked; update(); });
+    if (cbC) cbC.addEventListener('change', e => { prefs.compare = !!e.target.checked; update(); });
+    if (cbE) cbE.addEventListener('change', e => { prefs.evidence = !!e.target.checked; update(); });
+    if (cbL) cbL.addEventListener('change', e => { prefs.learn = !!e.target.checked; update(); });
+  });
       
   // Initialize on DOM ready
   document.addEventListener('DOMContentLoaded', ensureChartContainers);

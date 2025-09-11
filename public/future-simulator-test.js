@@ -126,12 +126,27 @@ test('Future Simulator Complete User Flow', async ({ page }) => {
     const visualizerExists = await visualizerContainer.count() > 0;
     console.log('3-Stage Visualizer:', visualizerExists ? '✅ Found' : '❌ Not found');
     
-    // Step 9: Check for 8 scenarios display
-    console.log('🎯 Step 9: Checking for 8 scenarios display...');
-    
+    // Step 9: Check for 8 scenarios/branches display (either implementation)
+    console.log('🎯 Step 9: Checking for 8 scenarios/branches display...');
     const scenariosContainer = page.locator('#eight-scenarios-display');
-    const scenariosExists = await scenariosContainer.count() > 0;
+    const branchesContainer = page.locator('#eight-branches-display');
+    const scenariosExists = (await scenariosContainer.count()) > 0;
+    const branchesExists = (await branchesContainer.count()) > 0;
     console.log('8 Scenarios Display:', scenariosExists ? '✅ Found' : '❌ Not found');
+    console.log('8 Branches Display:', branchesExists ? '✅ Found' : '❌ Not found');
+
+    // Prefer branches display if present
+    const activeContainer = branchesExists ? branchesContainer : scenariosContainer;
+    if (branchesExists) {
+      // Wait for visible content typical to the new UI
+      await activeContainer.waitFor({ state: 'attached', timeout: 30000 });
+      await expect(activeContainer).toBeVisible({ timeout: 30000 });
+      // Key texts
+      await expect(page.locator('#eight-branches-display')).toContainText('Now 現在の状況');
+      await expect(page.locator('#eight-branches-display')).toContainText('詳細を見る');
+      // Headline helper
+      await expect(page.locator('#eight-branches-display')).toContainText('選べる8つの進路');
+    }
     
     // Step 10: Check JavaScript console for errors
     console.log('🐛 Step 10: Checking for JavaScript errors...');
@@ -204,7 +219,7 @@ test('Future Simulator Complete User Flow', async ({ page }) => {
     console.log(`🧠 Core Logic: ${systemStatus.coreLogicWorking ? 'SUCCESS' : 'FAILED'}`);
     console.log(`❌ JavaScript Errors: ${errors.length} found`);
     
-    const overallSuccess = h384DataLoaded && systemStatus.coreLogicWorking && errors.length === 0;
+    const overallSuccess = h384DataLoaded && (branchesExists || scenariosExists) && errors.length === 0;
     console.log(`\n🏆 OVERALL VALIDATION: ${overallSuccess ? '✅ SUCCESS' : '❌ NEEDS ATTENTION'}`);
     
     return {

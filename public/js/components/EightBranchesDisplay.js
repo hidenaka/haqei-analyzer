@@ -70,6 +70,25 @@
         '黙って支える': '縁の下で支える',
         '機を待つ': '機を待つ'
       };
+      // decision support dictionaries
+      this._avoidMap = {
+        'リスク高め': '短期で成果を急ぐ人',
+        '好機': '準備より即断を優先しがちな人は非推奨',
+        '土台づくり': '基盤整備に時間を割けない状況',
+        '合意形成': '独断で進めたい場合'
+      };
+      this._gainMap = {
+        '信頼': '関係の安定と支援の拡大',
+        '合意形成': '承認獲得と実行安定',
+        '好機': '短期の前進と波及効果',
+        '土台づくり': '再現性と継続性の向上'
+      };
+      this._lossMap = {
+        '信頼': '意思決定の速度低下',
+        '合意形成': '調整コストの増加',
+        '好機': '検討の深さの不足',
+        '土台づくり': '初動の目に見える成果が遅れる'
+      };
     }
 
     initialize(containerId) {
@@ -252,6 +271,19 @@
       const mapped = unique.map(k => this._actionMap[k] || (k + 'を活かす'));
       return mapped.slice(0, 2);
     }
+    _avoidPhrases(keys){
+      const out = [];
+      (keys||[]).forEach(k=>{ const v=this._avoidMap[k]; if(v && !out.includes(v)) out.push(v); });
+      return out.slice(0,1);
+    }
+    _tradeoff(keys){
+      const gains=[]; const losses=[];
+      (keys||[]).forEach(k=>{
+        const g=this._gainMap[k]; if(g && !gains.includes(g)) gains.push(g);
+        const l=this._lossMap[k]; if(l && !losses.includes(l)) losses.push(l);
+      });
+      return { gain: (gains[0]||'小さな前進を積み上げる'), loss: (losses[0]||'別案より初動負荷が増える') };
+    }
     // --- Decision support helpers ---
     _fitPhrases(keys){
       const map = {
@@ -357,10 +389,12 @@
       summary.textContent = this._summary(branch.series);
       summary.style.fontSize = '.9em';
       summary.style.color = '#cbd5e1';
+      summary.setAttribute('data-section','summary');
       summary.style.margin = '6px 0 8px';
       // recommendation score bar
       const __score = this._score(branch.series);
       const __scoreWrap = document.createElement('div');
+      __scoreWrap.setAttribute('data-section','summary');
       __scoreWrap.style.margin = '6px 0 4px';
       const __bar = document.createElement('div');
       __bar.style.height = '6px';
@@ -377,8 +411,14 @@
       __label.style.fontSize = '.8em';
       __label.style.color = '#94a3b8';
       __label.style.marginTop = '4px';
+      const __micro = document.createElement('div');
+      __micro.textContent = '指標（根拠: 入力語×状況一致×安定度）';
+      __micro.style.fontSize = '.75em';
+      __micro.style.color = '#64748b';
+      __micro.style.marginTop = '2px';
       __scoreWrap.appendChild(__bar);
       __scoreWrap.appendChild(__label);
+      __scoreWrap.appendChild(__micro);
       // risk/effort chips
       const __chips = document.createElement('div');
       __chips.style.display = 'flex';
@@ -398,6 +438,7 @@
       __summaryWrap.style.fontSize = '.85em';
       __summaryWrap.style.color = '#cbd5e1';
       __summaryWrap.style.margin = '4px 0 6px';
+      __summaryWrap.setAttribute('data-section','summary');
       const __overview = document.createElement('div');
       __overview.style.marginBottom = '2px';
       __overview.textContent = `全体像: ${this._seriesNarrative(branch)}`;
@@ -408,6 +449,8 @@
         if (tags.length) {
           __traits.textContent = `特徴(卦・爻): ${tags.join(' → ')}`;
           __traits.style.marginBottom = '2px';
+          __traits.setAttribute('data-section','learn');
+          __traits.title = '各ステップの卦・爻と主要語（短訳）';
         }
       } catch {}
       const __reason = document.createElement('div');
@@ -429,11 +472,12 @@
       __summaryWrap.appendChild(__reason);
       __summaryWrap.appendChild(__next);
 
-      // Decision support (fit/caution/outcome)
+      // Decision support (fit/caution/outcome + avoid/tradeoff)
       const __ds = document.createElement('div');
       __ds.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
       __ds.style.marginTop = '6px';
       __ds.style.paddingTop = '6px';
+      __ds.setAttribute('data-section','summary');
       const actions = String(branch.series||'').split('→');
       const lastText = steps[2]?.lineText || '';
       const lastSeverity = this._severityScore(lastText);
@@ -445,6 +489,11 @@
       const outcome = this._outcomePhrase(actions, d13, lastSeverity);
       const mk = (label,val)=>{ const d=document.createElement('div'); d.textContent = `${label}: ${val}`; d.style.fontSize='.84em'; d.style.color='#cbd5e1'; d.style.marginTop='2px'; return d; };
       if (fit.length) __ds.appendChild(mk('合う条件', fit.join(' / ')));
+      const avoid = this._avoidPhrases(__kw);
+      if (avoid.length) __ds.appendChild(mk('避けたい人', avoid.join(' / ')));
+      const to = this._tradeoff(__kw);
+      __ds.appendChild(mk('得るもの', to.gain));
+      __ds.appendChild(mk('失う可能性', to.loss));
       __ds.appendChild(mk('注意点', caution));
       __ds.appendChild(mk('成果イメージ', outcome));
 
@@ -462,10 +511,30 @@
         } catch { return ''; }
       })();
       if (timeMemo) __ds.appendChild(mk('時機', timeMemo));
+
+      // Evidence fold
+      const __ev = document.createElement('details');
+      __ev.style.marginTop = '6px';
+      __ev.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
+      __ev.setAttribute('data-section','evidence');
+      const __evsum = document.createElement('summary');
+      __evsum.textContent = '根拠（引用と適用）';
+      __evsum.style.cursor = 'pointer';
+      __evsum.style.padding = '6px 0';
+      const __evBody = document.createElement('div');
+      __evBody.style.fontSize = '.85em';
+      __evBody.style.color = '#cbd5e1';
+      const quote = (steps[1]?.lineText || steps[0]?.lineText || steps[2]?.lineText || '').trim().slice(0, 60);
+      const src = this._featureTag(steps[1] || steps[0] || steps[2] || {});
+      const apply = `今回は「${(__kw[0]||'状況')}」が効いています`;
+      __evBody.innerHTML = `<div>引用: 「${quote}…」 — ${src}</div><div>適用: ${apply}</div>`;
+      __ev.appendChild(__evsum);
+      __ev.appendChild(__evBody);
       // mount
       card.appendChild(__scoreWrap);
       card.appendChild(__chips);
       card.appendChild(__summaryWrap);
+      card.appendChild(__ds);
 
       const details = document.createElement('details');
       details.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
@@ -524,9 +593,11 @@
 
       details.appendChild(sum);
       details.appendChild(ul);
+      details.setAttribute('data-section','evidence');
       card.appendChild(title);
       card.appendChild(summary);
       card.appendChild(details);
+      card.appendChild(__ev);
       card.appendChild(copyBtn);
 
       card.addEventListener('click', () => {
@@ -594,6 +665,7 @@
       try {
         const chartWrap = document.createElement('div');
         chartWrap.style.margin = '8px 0 12px';
+        chartWrap.setAttribute('data-section','compare');
         const canvas = document.createElement('canvas');
         canvas.id = 'eight-branches-comparison';
         canvas.height = 160;
