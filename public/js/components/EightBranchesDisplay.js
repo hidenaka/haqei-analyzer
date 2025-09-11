@@ -671,7 +671,28 @@
     async displayBranches(branches, currentSituation) {
       if (!this.container) return;
       this.container.innerHTML = '';
+      try { this.container.setAttribute('data-preserve','true'); } catch {}
       try { console.log('EightBranchesDisplay: rendering', Array.isArray(branches)?branches.length:0, 'branches'); } catch {}
+
+      // Optional debug: observe childList changes and sample details count
+      try {
+        const dbg = !!(window.HAQEI_CONFIG?.debug?.observeEightBranches);
+        if (dbg) {
+          const obs = new MutationObserver((muts)=>{
+            try { console.debug('EightBranchesDisplay: mutation(count=', muts.length, ')'); } catch {}
+          });
+          obs.observe(this.container, { childList: true, subtree: true });
+          const sample = (t)=> setTimeout(()=>{
+            try {
+              const d = this.container.querySelectorAll('details').length;
+              console.debug(`EightBranchesDisplay: sample@${t}ms details=`, d);
+            } catch {}
+          }, t);
+          sample(0); sample(50); sample(100);
+          // auto-stop after short window
+          setTimeout(()=>{ try { obs.disconnect(); } catch {} }, 300);
+        }
+      } catch {}
 
       // NOW: current situation summary
       try {
@@ -786,6 +807,8 @@
       grid.style.display = 'grid';
       grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
       grid.style.gap = '12px';
+      try { grid.setAttribute('data-preserve','true'); } catch {}
+      const __bottomCardNodes = [];
 
       // compare section: おすすめTOP3（簡易比較）
       try {
@@ -811,8 +834,9 @@
             const topGrid = document.createElement('div');
             topGrid.style.display='grid'; topGrid.style.gridTemplateColumns='repeat(auto-fill, minmax(280px, 1fr))'; topGrid.style.gap='12px';
             topGrid.setAttribute('data-section','compare');
+            try { topGrid.setAttribute('data-preserve','true'); } catch {}
             const topIds = new Set(top.map(t=>t.id));
-            top.forEach((b,i)=> topGrid.appendChild(this._card(b,i)));
+            top.forEach((b,i)=> { try { const n = this._card(b,i); if (n) { try { n.setAttribute('data-preserve','true'); } catch {}; topGrid.appendChild(n); } } catch {}});
             // annotate first card with "なぜ他ではないか"
             try {
               const first = topGrid.firstElementChild;
@@ -824,8 +848,8 @@
               }
             } catch {}
             this.container.appendChild(topGrid);
-            // 残りを下段グリッドへ
-            branches.filter(b => !topIds.has(b.id)).forEach((b,i)=> grid.appendChild(this._card(b,i)));
+            // 残りを下段グリッドへ（遅延挿入のため保持）
+            branches.filter(b => !topIds.has(b.id)).forEach((b,i)=> { try { const n=this._card(b,i); if(n){ __bottomCardNodes.push(n); } } catch {} });
             // 後続でgridを見出しとともにappend
           } else {
             // フラグ無効時は通常どおり全カード
@@ -833,7 +857,7 @@
       (Array.isArray(branches)?branches:[]).forEach((b, i) => {
         try {
           const el = this._card(b, i);
-          if (el) grid.appendChild(el);
+          if (el) { __bottomCardNodes.push(el); }
         } catch (e) {
           console.warn('EightBranchesDisplay: card render error for id', b?.id||i+1, e?.message||e);
           const fallback = document.createElement('div');
@@ -845,7 +869,7 @@
           const head = document.createElement('div'); head.textContent = `分岐${b?.id||i+1}`; head.style.color='#A5B4FC'; head.style.fontWeight='600';
           const body = document.createElement('div'); body.textContent = '（簡易表示: 描画でエラーが発生しました）'; body.style.fontSize='.9em'; body.style.color='#cbd5e1';
           fallback.appendChild(head); fallback.appendChild(body);
-          grid.appendChild(fallback);
+          __bottomCardNodes.push(fallback);
         }
       });
           }
@@ -865,8 +889,54 @@
       helper.style.margin = '0 0 8px';
       this.container.appendChild(helper);
       this.container.appendChild(grid);
-      // Re-apply view toggles (if toolbar initialized earlier)
-      try { if (typeof window.applyViewToggles === 'function') window.applyViewToggles(); } catch {}
+
+      // Defer bottom-card insertion via rAF and self-diagnose; retry if wiped
+      const __appendDeferred = async () => {
+        try {
+          const frag = document.createDocumentFragment();
+          __bottomCardNodes.forEach(n => { if (n) { try { n.setAttribute('data-preserve','true'); } catch {}; frag.appendChild(n); } });
+          await new Promise(res => requestAnimationFrame(() => { try { grid.appendChild(frag); } catch {}; res(); }));
+          const ccount = grid.childElementCount;
+          const dcount = this.container.querySelectorAll('details').length;
+          try { console.debug('cards appended:', ccount, 'details:', dcount); } catch {}
+          // Re-apply view toggles after insertion
+          try { if (typeof window.applyViewToggles === 'function') window.applyViewToggles(); } catch {}
+          return { ccount, dcount };
+        } catch { return { ccount: grid.childElementCount, dcount: this.container.querySelectorAll('details').length }; }
+      };
+
+      let __diag = await __appendDeferred();
+      if ((__diag.ccount === 0 || __diag.dcount === 0) && __bottomCardNodes.length) {
+        // retry with short delay(s)
+        await new Promise(r => setTimeout(r, 70));
+        __diag = await __appendDeferred();
+        if ((__diag.ccount === 0 || __diag.dcount === 0)) {
+          await new Promise(r => setTimeout(r, 110));
+          __diag = await __appendDeferred();
+        }
+      }
+
+      // Final fallback: minimal cards to avoid blank UI
+      try {
+        const finalDetails = this.container.querySelectorAll('details').length;
+        if ((!grid.childElementCount || !finalDetails) && Array.isArray(branches) && branches.length) {
+          const frag2 = document.createDocumentFragment();
+          branches.forEach((b,i)=>{
+            const box = document.createElement('div');
+            box.style.border='1px solid rgba(99,102,241,.35)'; box.style.borderRadius='10px'; box.style.padding='10px 12px';
+            box.style.background='rgba(17,24,39,.35)'; box.style.color='#E5E7EB';
+            try { box.setAttribute('data-preserve','true'); } catch {}
+            const head=document.createElement('div'); head.textContent=`分岐${b?.id||i+1}｜${b?.series||''}`; head.style.color='#A5B4FC'; head.style.fontWeight='700';
+            const body=document.createElement('div'); body.textContent=(b?.steps||[]).map((s,idx)=>`Step${idx+1} ${s.action||''}: ${s.lineText||''}`).join(' / ');
+            body.style.fontSize='.85em'; body.style.color='#cbd5e1';
+            box.appendChild(head); box.appendChild(body);
+            frag2.appendChild(box);
+          });
+          grid.innerHTML = '';
+          grid.appendChild(frag2);
+          console.warn('EightBranchesDisplay: minimal fallback cards rendered');
+        }
+      } catch {}
     }
   }
 
