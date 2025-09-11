@@ -660,7 +660,8 @@
           fill.style.height='100%'; fill.style.width = conf+'%'; fill.style.borderRadius='6px'; fill.style.background = 'linear-gradient(90deg,#22C55E,#16A34A)';
           bar.appendChild(fill);
           const lbl = document.createElement('div');
-          lbl.textContent = `確信度: ${conf}%`;
+          const __easyLbl = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
+          lbl.textContent = `${__easyLbl ? '自信度' : '確信度'}: ${conf}%`;
           lbl.title = '算出: 活用率(使用システム/4) − フォールバック補正 − 欠損データ×5%';
           lbl.style.fontSize='.75em'; lbl.style.color='#94a3b8'; lbl.style.marginTop='2px';
           wrap.appendChild(bar); wrap.appendChild(lbl);
@@ -730,7 +731,8 @@
 
       if (global.futureSimulator?.branchGenerator?.usedFallback) {
         const foot = document.createElement('div');
-        foot.textContent = '※ 変爻先は推定を含みます';
+        const __easy = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
+        foot.textContent = __easy ? '※ 行き先は一部予測です' : '※ 変爻先は推定を含みます';
         foot.style.fontSize = '0.8em';
         foot.style.opacity = '0.75';
         foot.style.marginTop = '8px';
