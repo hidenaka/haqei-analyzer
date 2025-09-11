@@ -987,7 +987,7 @@
       heading.style.margin = '8px 0 2px';
       this.container.appendChild(heading);
       const helper = document.createElement('div');
-      helper.textContent = '進=現行を深める / 変=路線を切り替える（各カードに特徴・合う条件・注意点・成果イメージを表示）';
+      helper.textContent = '進=今のやり方で進める / 変=やり方を切り替える（カードに特徴・合う条件・注意点・成果を表示）';
       helper.style.color = '#94a3b8';
       helper.style.fontSize = '.9em';
       helper.style.margin = '0 0 8px';
