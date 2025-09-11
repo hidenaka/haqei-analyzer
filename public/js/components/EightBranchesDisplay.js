@@ -507,7 +507,8 @@
       __label.style.color = '#94a3b8';
       __label.style.marginTop = '4px';
       const __micro = document.createElement('div');
-      __micro.textContent = '指標（根拠: 入力語×状況一致×安定度）';
+      const __easy = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
+      __micro.textContent = __easy ? '目安' : '指標（根拠: 入力語×状況一致×安定度）';
       __micro.style.fontSize = '.75em';
       __micro.style.color = '#64748b';
       __micro.style.marginTop = '2px';
@@ -548,20 +549,20 @@
       __summaryWrap.setAttribute('data-section','summary');
       const __overview = document.createElement('div');
       __overview.style.marginBottom = '2px';
-      __overview.textContent = `全体像: ${this._short(this._seriesNarrative(branch), 90)}`;
+      __overview.textContent = (__easy ? 'ざっくり: ' : '全体像: ') + this._short(this._seriesNarrative(branch), 90);
       const __traits = document.createElement('div');
       try {
         const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
         const tags = steps.map(s => this._featureTag(s)).filter(Boolean);
         if (tags.length) {
-          __traits.textContent = `特徴(卦・爻): ${tags.join(' → ')}`;
+          __traits.textContent = (__easy ? '特徴: ' : '特徴(卦・爻): ') + tags.join(' → ');
           __traits.style.marginBottom = '2px';
           __traits.setAttribute('data-section','learn');
           __traits.title = '各ステップの卦・爻と主要語（短訳）';
         }
       } catch {}
       const __reason = document.createElement('div');
-      __reason.textContent = `選ぶ理由: ${this._short(__tips.join(' / '), 90)}`;
+      __reason.textContent = (__easy ? 'ここがいい: ' : '選ぶ理由: ') + this._short(__tips.join(' / '), 90);
       const __next = document.createElement('div');
       const __acts = this._toActionPhrases(__kw);
       // Stage-specific framing if possible
@@ -570,9 +571,9 @@
         const nowAct = (__acts[0] || __tips[0] || '').toString();
         const midAct = (__acts[1] || __tips[1] || nowAct).toString();
         const finAct = (__acts[2] || __tips[2] || midAct).toString();
-        __next.textContent = this._short(`次の一手: まず「${nowAct}」→ つぎ「${midAct}」→ 仕上げ「${finAct}」`, 100);
+        __next.textContent = this._short((__easy ? `次にやること: まず「${nowAct}」→ つぎ「${midAct}」→ 最後「${finAct}」` : `次の一手: まず「${nowAct}」→ つぎ「${midAct}」→ 仕上げ「${finAct}」`), 100);
       } else {
-        __next.textContent = this._short(`次の一手: ${(__acts.length?__acts:__tips).join(' / ')}`, 100);
+        __next.textContent = this._short((__easy ? '次にやること: ' : '次の一手: ') + (__acts.length?__acts:__tips).join(' / '), 100);
       }
       __summaryWrap.appendChild(__overview);
       if (__traits.textContent) __summaryWrap.appendChild(__traits);
@@ -598,16 +599,16 @@
       const outcome = this._outcomePhrase(actions, d13, lastSeverity);
       const mk = (label,val)=>{ const d=document.createElement('div'); d.textContent = `${label}: ${val}`; d.style.fontSize='.84em'; d.style.color='#cbd5e1'; d.style.marginTop='2px'; return d; };
       if (!fit.length) fit = this._fitFromSteps(branch);
-      if (fit.length) __ds.appendChild(mk('合う条件', fit.join(' / ')));
+      if (fit.length) __ds.appendChild(mk(__easy ? '向いている' : '合う条件', fit.join(' / ')));
       let avoid = this._avoidFromSteps(branch);
       if (!avoid.length) avoid = this._avoidPhrases(__kw);
-      if (avoid.length) __ds.appendChild(mk('避けたい人', avoid.join(' / ')));
+      if (avoid.length) __ds.appendChild(mk(__easy ? '向かない' : '避けたい人', avoid.join(' / ')));
       let to = this._tradeoffFromSteps(branch);
       if (!to || (!to.gain && !to.loss)) to = this._tradeoff(__kw);
-      __ds.appendChild(mk('得るもの', to.gain));
-      __ds.appendChild(mk('失う可能性', to.loss));
-      __ds.appendChild(mk('注意点', caution));
-      __ds.appendChild(mk('成果イメージ', outcome));
+      __ds.appendChild(mk(__easy ? '得られること' : '得るもの', to.gain));
+      __ds.appendChild(mk(__easy ? '気になる点' : '失う可能性', to.loss));
+      __ds.appendChild(mk(__easy ? '注意' : '注意点', caution));
+      __ds.appendChild(mk(__easy ? '結果のイメージ' : '成果イメージ', outcome));
 
       // Optional: 時機メモ（根拠がある場合のみ）
       const timeMemo = (() => {
@@ -675,8 +676,8 @@
         __ev.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
         __ev.setAttribute('data-section','evidence');
         try { __ev.setAttribute('data-preserve','true'); } catch {}
-        const __evsum = document.createElement('summary');
-        __evsum.textContent = '根拠（引用と適用）';
+      const __evsum = document.createElement('summary');
+      __evsum.textContent = __easy ? '理由（引用と使い方）' : '根拠（引用と適用）';
         __evsum.style.cursor = 'pointer';
         __evsum.style.padding = '6px 0';
         const __evBody = document.createElement('div');
@@ -698,7 +699,7 @@
       const details = document.createElement('details');
       details.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
       const sum = document.createElement('summary');
-      sum.textContent = '詳細を見る';
+      sum.textContent = __easy ? 'くわしく見る' : '詳細を見る';
       sum.style.cursor = 'pointer';
       sum.style.padding = '8px 0';
 
