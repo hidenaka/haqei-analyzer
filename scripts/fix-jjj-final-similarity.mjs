@@ -21,11 +21,34 @@ const phraseMap = new Map([
   ['落ち着く','静けさが続く']
 ]);
 
+const CANDIDATES = [
+  '歩調はほどよいまま',
+  '合いの静けさが保たれる',
+  '静かな余白が生まれる',
+  '輪郭がはっきりしたまま',
+  '息の合いはほどよく続く',
+  '静けさが保たれる'
+];
+
+function tokenize(s){
+  // 粗い分かち: 語の塊で重複を見抜く（かな漢字の連続、助詞は短いので無視）
+  return Array.from(String(s||'').split(/、|。|\s+/)).filter(t=>t && t.length>=2);
+}
+
 function distinctFinal(head, final, fallback){
+  // まず辞書置換を試す
   let nf = phraseMap.get(final) || phraseMap.get((head.split('、')[1]||'').trim()) || fallback || final;
-  if (norm(nf)===norm(final) || sim(head,nf)>=0.85){
-    const cands=['静かな集中が続く','歩調はほどよいまま','落ち着いた合いが保たれる','静けさが保たれる'];
-    nf = cands.find(c=> sim(head,c)<0.6 && norm(c)!==norm(final)) || '静かな集中が続く';
+  // ヘッドの主要語と候補の語の重なりを避ける
+  const headTokens = new Set(tokenize(head).map(norm));
+  const isDistinct = (cand)=> sim(head,cand) < 0.6 && !tokenize(cand).some(t=> headTokens.has(norm(t)));
+  if (!isDistinct(nf)){
+    // 句単位で被り語を含む部分を落とす
+    const cores = ['静かな集中','調和','ほどよさ','礼が保たれ','整い','かたよりなく','緊張','光が増す','声の合い'];
+    const parts = String(nf).split('、').map(s=>s.trim()).filter(Boolean);
+    const filtered = parts.filter(p=> !cores.some(c=> head.includes(c) && p.includes(c)));
+    if (filtered.length){ nf = filtered.join('、'); }
+    const pick = CANDIDATES.find(c=> isDistinct(c) && norm(c)!==norm(final));
+    nf = pick || '歩調はほどよいまま';
   }
   return nf;
 }
@@ -43,7 +66,12 @@ for (let h=1; h<=64; h++){
     const final = String(ez.next3?.final||'');
     if (!head || !final) continue;
     const s = sim(head, final);
-    if (norm(head)===norm(final) || s>=0.85){
+    const headTokens = new Set(tokenize(head).map(norm));
+    const finalTokens = tokenize(final).map(norm);
+    const tokenOverlap = finalTokens.some(t=> headTokens.has(t));
+    const cores = ['静かな集中','調和','ほどよさ','礼が保たれ','整い','かたよりなく','緊張','光が増す','声の合い'];
+    const coreOverlap = cores.some(c=> head.includes(c) && final.includes(c));
+    if (norm(head)===norm(final) || s>=0.7 || tokenOverlap || coreOverlap){
       const nf = distinctFinal(head, final, ez.outcome);
       ez.next3 = ez.next3 || {}; ez.next3.final = nf; it.easy = ez;
       it.meta = it.meta || {}; it.meta.easyCurated = { verified:true, by:'manual-fix', ts:new Date().toISOString(), style:'situation-v2' };
@@ -53,4 +81,3 @@ for (let h=1; h<=64; h++){
   if (fileChanged){ fs.writeFileSync(file, JSON.stringify(b,null,2)+'\n','utf8'); files++; }
 }
 console.log(JSON.stringify({ files, changed, edits: edits.slice(0,20) }, null, 2));
-
