@@ -327,7 +327,9 @@
     _avoidFromSteps(branch){
       const tags = this._stepTags(branch);
       if (!tags.length) return [];
-      return [`${tags[0]}への配慮が不得意な場合`];
+      // Step2の性質に配慮できないケースを優先して表現
+      const base = tags[1] || tags[0];
+      return base ? [`${base}への配慮が不得意な場合`] : [];
     }
     _tradeoffFromSteps(branch){
       const tags = this._stepTags(branch);
