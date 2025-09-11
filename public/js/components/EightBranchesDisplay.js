@@ -390,6 +390,7 @@
     }
 
     _card(branch, idx) {
+      const classic = (window.HAQEI_CONFIG?.featureFlags?.layoutClassic !== false);
       const card = document.createElement('div');
       const __palette = ['#10B981','#3B82F6','#F59E0B','#EF4444','#A78BFA','#22C55E','#EAB308','#06B6D4'];
       const __color = __palette[idx % __palette.length];
@@ -455,16 +456,18 @@
       const __mkChip = (t,c)=>{const s=document.createElement('span'); s.textContent=t; s.style.padding='2px 8px'; s.style.borderRadius='9999px'; s.style.border=`1px solid ${c}66`; s.style.color=c; s.style.fontSize='.75em'; return s;};
       __chips.appendChild(__mkChip(__risk.label, __risk.color));
       __chips.appendChild(__mkChip(__eff.label, __eff.color));
-      // effect types and difficulty (heuristics)
-      try {
-        const kw = this._deriveQuickKeywords(branch);
-        const types = this._effectTypes(kw);
-        const diff = this._difficultyHeuristics(kw);
-        const neutral = '#38BDF8';
-        types.forEach(t => __chips.appendChild(__mkChip(t, neutral)));
-        __chips.appendChild(__mkChip(`利害調整:${diff.negotiation}`, '#F59E0B'));
-        __chips.appendChild(__mkChip(`専門性:${diff.specialty}`, '#8B5CF6'));
-      } catch {}
+      // effect types and difficulty (heuristics) — Classicでは非表示
+      if (!classic) {
+        try {
+          const kw = this._deriveQuickKeywords(branch);
+          const types = this._effectTypes(kw);
+          const diff = this._difficultyHeuristics(kw);
+          const neutral = '#38BDF8';
+          types.forEach(t => __chips.appendChild(__mkChip(t, neutral)));
+          __chips.appendChild(__mkChip(`利害調整:${diff.negotiation}`, '#F59E0B'));
+          __chips.appendChild(__mkChip(`専門性:${diff.specialty}`, '#8B5CF6'));
+        } catch {}
+      }
       // 3-sec tips
       // Prefer data-driven modern keywords; fallback to generic tips
       const __kw = this._deriveQuickKeywords(branch);
@@ -547,65 +550,71 @@
         } catch { return ''; }
       })();
       if (timeMemo) __ds.appendChild(mk('時機', timeMemo));
-      // influence words (bridge input -> branch) with scoring and percentage
-      try {
-        const tags = (window.HAQEI_INPUT_TAGS||[]).map(String);
-        const tally = this._keywordTally(branch);
-        let scored = tags.map(t => [t, tally.get(t)||0]).filter(([,w])=>w>0);
-        if (!scored.length) {
-          const infl = (__kw||[]).filter(k => tags.includes(k));
-          if (infl.length) __ds.appendChild(mk('影響語', infl.join(' / ')));
-        } else {
-          scored.sort((a,b)=>b[1]-a[1]);
-          const top2 = scored.slice(0,2).map(([t])=>t);
-          const total = Array.from(tally.values()).reduce((a,b)=>a+b,0) || 1;
-          const wsum = scored.reduce((a, [,w])=>a+w, 0);
-          const pct = Math.round((wsum/total)*100);
-          __ds.appendChild(mk('影響語', top2.join(' / ')));
-          __ds.appendChild(mk('影響度', `${pct}%`));
-        }
-      } catch {}
-      // confidence bar
-      try {
-        const used = window.integratedAnalysisResult?.systemsUsed || {};
-        const usedCount = Object.values(used).filter(Boolean).length || 0;
-        const fallback = !!(global.futureSimulator?.branchGenerator?.usedFallback);
-        const missing = branch.steps.filter(st => !Number.isFinite(this._getBasicScore(st.hex, st.line))).length;
-        let conf = Math.round((usedCount/4)*100) - (fallback?10:0) - (missing*5);
-        conf = Math.max(10, Math.min(100, conf));
-        const wrap = document.createElement('div');
-        wrap.style.marginTop = '4px';
-        const bar = document.createElement('div');
-        bar.style.height = '4px'; bar.style.background='rgba(148,163,184,.3)'; bar.style.borderRadius='6px';
-        const fill = document.createElement('div');
-        fill.style.height='100%'; fill.style.width = conf+'%'; fill.style.borderRadius='6px'; fill.style.background = 'linear-gradient(90deg,#22C55E,#16A34A)';
-        bar.appendChild(fill);
-        const lbl = document.createElement('div');
-        lbl.textContent = `確信度: ${conf}%`;
-        lbl.title = '算出: 活用率(使用システム/4) − フォールバック補正 − 欠損データ×5%';
-        lbl.style.fontSize='.75em'; lbl.style.color='#94a3b8'; lbl.style.marginTop='2px';
-        wrap.appendChild(bar); wrap.appendChild(lbl);
-        __ds.appendChild(wrap);
-      } catch {}
+      // influence/impact と 確信度バー — Classicでは非表示
+      if (!classic) {
+        // influence words (bridge input -> branch) with scoring and percentage
+        try {
+          const tags = (window.HAQEI_INPUT_TAGS||[]).map(String);
+          const tally = this._keywordTally(branch);
+          let scored = tags.map(t => [t, tally.get(t)||0]).filter(([,w])=>w>0);
+          if (!scored.length) {
+            const infl = (__kw||[]).filter(k => tags.includes(k));
+            if (infl.length) __ds.appendChild(mk('影響語', infl.join(' / ')));
+          } else {
+            scored.sort((a,b)=>b[1]-a[1]);
+            const top2 = scored.slice(0,2).map(([t])=>t);
+            const total = Array.from(tally.values()).reduce((a,b)=>a+b,0) || 1;
+            const wsum = scored.reduce((a, [,w])=>a+w, 0);
+            const pct = Math.round((wsum/total)*100);
+            __ds.appendChild(mk('影響語', top2.join(' / ')));
+            __ds.appendChild(mk('影響度', `${pct}%`));
+          }
+        } catch {}
+        // confidence bar
+        try {
+          const used = window.integratedAnalysisResult?.systemsUsed || {};
+          const usedCount = Object.values(used).filter(Boolean).length || 0;
+          const fallback = !!(global.futureSimulator?.branchGenerator?.usedFallback);
+          const missing = branch.steps.filter(st => !Number.isFinite(this._getBasicScore(st.hex, st.line))).length;
+          let conf = Math.round((usedCount/4)*100) - (fallback?10:0) - (missing*5);
+          conf = Math.max(10, Math.min(100, conf));
+          const wrap = document.createElement('div');
+          wrap.style.marginTop = '4px';
+          const bar = document.createElement('div');
+          bar.style.height = '4px'; bar.style.background='rgba(148,163,184,.3)'; bar.style.borderRadius='6px';
+          const fill = document.createElement('div');
+          fill.style.height='100%'; fill.style.width = conf+'%'; fill.style.borderRadius='6px'; fill.style.background = 'linear-gradient(90deg,#22C55E,#16A34A)';
+          bar.appendChild(fill);
+          const lbl = document.createElement('div');
+          lbl.textContent = `確信度: ${conf}%`;
+          lbl.title = '算出: 活用率(使用システム/4) − フォールバック補正 − 欠損データ×5%';
+          lbl.style.fontSize='.75em'; lbl.style.color='#94a3b8'; lbl.style.marginTop='2px';
+          wrap.appendChild(bar); wrap.appendChild(lbl);
+          __ds.appendChild(wrap);
+        } catch {}
+      }
 
-      // Evidence fold
-      const __ev = document.createElement('details');
-      __ev.style.marginTop = '6px';
-      __ev.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
-      __ev.setAttribute('data-section','evidence');
-      const __evsum = document.createElement('summary');
-      __evsum.textContent = '根拠（引用と適用）';
-      __evsum.style.cursor = 'pointer';
-      __evsum.style.padding = '6px 0';
-      const __evBody = document.createElement('div');
-      __evBody.style.fontSize = '.85em';
-      __evBody.style.color = '#cbd5e1';
-      const quote = (steps[1]?.lineText || steps[0]?.lineText || steps[2]?.lineText || '').trim().slice(0, 60);
-      const src = this._featureTag(steps[1] || steps[0] || steps[2] || {});
-      const apply = `今回は「${(__kw[0]||'状況')}」が効いています`;
-      __evBody.innerHTML = `<div>引用: 「${quote}…」 — ${src}</div><div>適用: ${apply}</div>`;
-      __ev.appendChild(__evsum);
-      __ev.appendChild(__evBody);
+      // Evidence fold（根拠折りたたみ）— Classicでは非表示
+      let __ev = null;
+      if (!classic) {
+        __ev = document.createElement('details');
+        __ev.style.marginTop = '6px';
+        __ev.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
+        __ev.setAttribute('data-section','evidence');
+        const __evsum = document.createElement('summary');
+        __evsum.textContent = '根拠（引用と適用）';
+        __evsum.style.cursor = 'pointer';
+        __evsum.style.padding = '6px 0';
+        const __evBody = document.createElement('div');
+        __evBody.style.fontSize = '.85em';
+        __evBody.style.color = '#cbd5e1';
+        const quote = (steps[1]?.lineText || steps[0]?.lineText || steps[2]?.lineText || '').trim().slice(0, 60);
+        const src = this._featureTag(steps[1] || steps[0] || steps[2] || {});
+        const apply = `今回は「${(__kw[0]||'状況')}」が効いています`;
+        __evBody.innerHTML = `<div>引用: 「${quote}…」 — ${src}</div><div>適用: ${apply}</div>`;
+        __ev.appendChild(__evsum);
+        __ev.appendChild(__evBody);
+      }
       // mount
       card.appendChild(__scoreWrap);
       card.appendChild(__chips);
@@ -655,11 +664,11 @@
 
       details.appendChild(sum);
       details.appendChild(ul);
-      details.setAttribute('data-section','evidence');
+      try { details.setAttribute('data-section', classic ? 'summary' : 'evidence'); } catch {}
       card.appendChild(title);
       card.appendChild(summary);
       card.appendChild(details);
-      card.appendChild(__ev);
+      if (__ev) card.appendChild(__ev);
 
       card.addEventListener('click', () => {
         const ev = new CustomEvent('branchSelected', { detail: { id: branch.id, series: branch.series, steps: branch.steps } });
@@ -810,12 +819,13 @@
       try { grid.setAttribute('data-preserve','true'); } catch {}
       const __bottomCardNodes = [];
 
-      // compare section: おすすめTOP3（簡易比較）
+      // compare section: おすすめTOP3（簡易比較）— Classicでは無効
       try {
         const scored = branches.map(b => ({ b, s: this._branchScore(b) }));
         scored.sort((x,y)=> y.s - x.s);
         const top = scored.slice(0,3).map(x=>x.b);
-        if (top.length===3) {
+        const classic = (window.HAQEI_CONFIG?.featureFlags?.layoutClassic !== false);
+        if (!classic && top.length===3) {
           const box = document.createElement('div');
           box.setAttribute('data-section','compare');
           box.style.border='1px solid rgba(99,102,241,.35)'; box.style.borderRadius='10px'; box.style.padding='10px 12px'; box.style.margin='6px 0 10px';
@@ -873,6 +883,26 @@
         }
       });
           }
+        } else {
+          // Classic時またはTOP3が成立しない場合: 全カードを通常描画
+          (Array.isArray(branches)?branches:[]).forEach((b, i) => {
+            try {
+              const el = this._card(b, i);
+              if (el) { __bottomCardNodes.push(el); }
+            } catch (e) {
+              console.warn('EightBranchesDisplay: card render error for id', b?.id||i+1, e?.message||e);
+              const fallback = document.createElement('div');
+              fallback.style.border = '1px solid rgba(99,102,241,.35)';
+              fallback.style.borderRadius = '10px';
+              fallback.style.padding = '12px 14px';
+              fallback.style.background = 'rgba(17,24,39,0.35)';
+              fallback.style.color = '#E5E7EB';
+              const head = document.createElement('div'); head.textContent = `分岐${b?.id||i+1}`; head.style.color='#A5B4FC'; head.style.fontWeight='600';
+              const body = document.createElement('div'); body.textContent = '（簡易表示: 描画でエラーが発生しました）'; body.style.fontSize='.9em'; body.style.color='#cbd5e1';
+              fallback.appendChild(head); fallback.appendChild(body);
+              __bottomCardNodes.push(fallback);
+            }
+          });
         }
       } catch {}
 
