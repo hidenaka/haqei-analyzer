@@ -310,6 +310,31 @@
       const specLevel= hasSpec? '中〜高' : '中';
       return { negotiation: negLevel, specialty: specLevel };
     }
+    _stepTags(branch){
+      try {
+        const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
+        return steps.map(s => this._featureTag(s)).filter(Boolean);
+      } catch { return []; }
+    }
+    _fitFromSteps(branch){
+      const tags = this._stepTags(branch);
+      if (!tags.length) return [];
+      const out = [];
+      if (tags[0]) out.push(`${tags[0]}が活きる前提`);
+      if (tags[1]) out.push(`${tags[1]}の性質を活かす`);
+      return out.slice(0,2);
+    }
+    _avoidFromSteps(branch){
+      const tags = this._stepTags(branch);
+      if (!tags.length) return [];
+      return [`${tags[0]}への配慮が不得意な場合`];
+    }
+    _tradeoffFromSteps(branch){
+      const tags = this._stepTags(branch);
+      const gain = tags[0] ? `${tags[0]}を軸に前進` : '小さな前進を積み上げる';
+      const loss = tags[2] ? `${tags[2]}のため初動負荷が増える可能性` : '別案より初動負荷が増える';
+      return { gain, loss };
+    }
     _top3Explain(top){
       try {
         const annotate = (b) => {
@@ -559,14 +584,17 @@
       const s1 = this._getBasicScore(steps[0]?.hex, steps[0]?.line);
       const s3 = this._getBasicScore(steps[2]?.hex, steps[2]?.line);
       const d13 = (s3 ?? s1 ?? 0) - (s1 ?? 0);
-      const fit = this._fitPhrases(__kw);
+      let fit = this._fitPhrases(__kw);
       const caution = this._cautionPhrase(lastSeverity, actions[2]);
       const outcome = this._outcomePhrase(actions, d13, lastSeverity);
       const mk = (label,val)=>{ const d=document.createElement('div'); d.textContent = `${label}: ${val}`; d.style.fontSize='.84em'; d.style.color='#cbd5e1'; d.style.marginTop='2px'; return d; };
+      if (!fit.length) fit = this._fitFromSteps(branch);
       if (fit.length) __ds.appendChild(mk('合う条件', fit.join(' / ')));
-      const avoid = this._avoidPhrases(__kw);
+      let avoid = this._avoidPhrases(__kw);
+      if (!avoid.length) avoid = this._avoidFromSteps(branch);
       if (avoid.length) __ds.appendChild(mk('避けたい人', avoid.join(' / ')));
-      const to = this._tradeoff(__kw);
+      let to = this._tradeoff(__kw);
+      if (!to || (!to.gain && !to.loss)) to = this._tradeoffFromSteps(branch);
       __ds.appendChild(mk('得るもの', to.gain));
       __ds.appendChild(mk('失う可能性', to.loss));
       __ds.appendChild(mk('注意点', caution));
