@@ -919,9 +919,11 @@ console.log('🎯 EightScenariosDisplay Loading...');
       // 外部コピー辞書
       const combo = scenario.path || scenario.route || scenario.combo;
       const key = Array.isArray(combo) ? combo.join(',') : null;
-      const cpy = (this.copyDict && key) ? this.copyDict[key] : null;
-      const displayTitle = (cpy && cpy.title) ? cpy.title : (scenario.title || scenario.description || '統合的変化');
-      const displayDesc = (cpy && cpy.description) ? cpy.description : (scenario.description || '');
+      const low = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
+      const useEasy = !!(low && scenario.easy && scenario.title);
+      const cpy = (!useEasy && this.copyDict && key) ? this.copyDict[key] : null;
+      const displayTitle = useEasy ? (scenario.title || 'やさしいサマリ') : ((cpy && cpy.title) ? cpy.title : (scenario.title || scenario.description || '統合的変化'));
+      const displayDesc = useEasy ? (scenario.description || '') : ((cpy && cpy.description) ? cpy.description : (scenario.description || ''));
 
       card.innerHTML = `
         <!-- 見出し帯（タイプ / スパークライン / 合計差分 / アクション / 比較） -->

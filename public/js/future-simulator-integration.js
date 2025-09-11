@@ -98,7 +98,7 @@ console.log('🚀 Future Simulator Integration Loading...');
     async ensureScenarioDBProvider() {
       if (!this.useScenarioDB) return false;
       if (global.ScenarioDBProvider) {
-        if (!this.scenarioDB) this.scenarioDB = new global.ScenarioDBProvider({ basePath: '/data/scenario-db' });
+        if (!this.scenarioDB) this.scenarioDB = new global.ScenarioDBProvider({ basePath: '/data/scenario-db', preferEasy: true });
         return true;
       }
       // 動的ロード
@@ -109,7 +109,7 @@ console.log('🚀 Future Simulator Integration Loading...');
         s.onerror = () => resolve(false);
         document.head.appendChild(s);
       });
-      if (global.ScenarioDBProvider && !this.scenarioDB) this.scenarioDB = new global.ScenarioDBProvider({ basePath: '/data/scenario-db' });
+      if (global.ScenarioDBProvider && !this.scenarioDB) this.scenarioDB = new global.ScenarioDBProvider({ basePath: '/data/scenario-db', preferEasy: true });
       return !!this.scenarioDB;
     }
 
@@ -433,6 +433,22 @@ console.log('🚀 Future Simulator Integration Loading...');
           dbSeries: item.series,
           steps: Array.isArray(item.steps) ? item.steps : []
         };
+        // easy優先のタイトル/説明（lowReadingLevel=true または __easyPreferred）
+        try {
+          const low = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
+          if ((low || item.__easyPreferred) && item.easy) {
+            const ez = item.easy;
+            s.title = String(ez.oneLine||'').trim();
+            const parts = [];
+            if (ez.next3) parts.push(`まず: ${ez.next3.first}`);
+            if (ez.next3) parts.push(`つぎ: ${ez.next3.second}`);
+            if (ez.next3) parts.push(`最後: ${ez.next3.final}`);
+            if (Array.isArray(ez.why) && ez.why.length) parts.push(`ここがいい: ${ez.why.join('、')}`);
+            if (ez.caution) parts.push(`注意: ${ez.caution}`);
+            s.description = parts.join(' / ');
+            s.easy = ez;
+          }
+        } catch {}
         scenarios.push(s);
       });
       return scenarios;
