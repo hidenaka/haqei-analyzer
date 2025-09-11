@@ -3322,8 +3322,15 @@
           const disp = new window.EightBranchesDisplay();
           disp.initialize('eight-branches-display');
           const gen = new window.BranchGenerator();
+          const currentSituation = {
+            hexagramNumber: hexNumForState,
+            hexagramName: hexName,
+            yaoPosition: yaoPosForState,
+            yaoName: yaoName
+          };
           gen.generateEightBranches(hexNumForState, yaoPosForState).then(branches => {
-            disp.displayBranches(branches);
+            // Pass current situation to display for richer context (特徴/理由/一手 等)
+            disp.displayBranches(branches, currentSituation);
           }).catch(err => console.warn('EightBranches render failed:', err));
         }
       } catch (e) { console.warn('EightBranches auto-mount error:', e?.message || e); }
