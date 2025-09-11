@@ -865,6 +865,8 @@
       helper.style.margin = '0 0 8px';
       this.container.appendChild(helper);
       this.container.appendChild(grid);
+      // Re-apply view toggles (if toolbar initialized earlier)
+      try { if (typeof window.applyViewToggles === 'function') window.applyViewToggles(); } catch {}
     }
   }
 

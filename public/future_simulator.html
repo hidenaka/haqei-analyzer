@@ -3282,7 +3282,8 @@
   }
   function savePrefs(p) { try { localStorage.setItem('haqei_view_prefs', JSON.stringify(p)); } catch {} }
   function applyViewToggles() {
-    const prefs = Object.assign({ summary:true, compare:false, evidence:false, learn:false }, loadPrefs());
+    const prefs = Object.assign({ summary:true, compare:true, evidence:false, learn:false }, loadPrefs());
+    if (typeof prefs.compare !== 'boolean') prefs.compare = true; // ensure graph ON by default
     const root = document.getElementById('eight-branches-display');
     if (!root) return;
     const nodes = root.querySelectorAll('[data-section]');
@@ -3299,9 +3300,12 @@
     if (cbC) cbC.checked = !!prefs.compare;
     if (cbE) cbE.checked = !!prefs.evidence;
     if (cbL) cbL.checked = !!prefs.learn;
+    try { window.__haqei_view_prefs = prefs; } catch {}
   }
+  // expose for external calls
+  try { window.applyViewToggles = applyViewToggles; } catch {}
   document.addEventListener('DOMContentLoaded', () => {
-    const prefs = Object.assign({ summary:true, compare:false, evidence:false, learn:false }, loadPrefs());
+    const prefs = Object.assign({ summary:true, compare:true, evidence:false, learn:false }, loadPrefs());
     const cbS = document.getElementById('toggle-summary');
     const cbC = document.getElementById('toggle-compare');
     const cbE = document.getElementById('toggle-evidence');
@@ -3311,6 +3315,8 @@
     if (cbC) cbC.addEventListener('change', e => { prefs.compare = !!e.target.checked; update(); });
     if (cbE) cbE.addEventListener('change', e => { prefs.evidence = !!e.target.checked; update(); });
     if (cbL) cbL.addEventListener('change', e => { prefs.learn = !!e.target.checked; update(); });
+    // save defaults if empty
+    savePrefs(prefs);
   });
       
   // Initialize on DOM ready
