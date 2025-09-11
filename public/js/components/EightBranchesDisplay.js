@@ -310,6 +310,22 @@
       const specLevel= hasSpec? '中〜高' : '中';
       return { negotiation: negLevel, specialty: specLevel };
     }
+    _top3Explain(top){
+      try {
+        const annotate = (b) => {
+          const score = this._branchScore(b);
+          const reason = this._short(this._seriesNarrative(b), 80);
+          return { id: b?.id, series: b?.series, score, reason };
+        };
+        const a = top[0] ? annotate(top[0]) : { id:1, series:'', score:0, reason:'' };
+        const b = top[1] ? annotate(top[1]) : { id:2, series:'', score:0, reason:'' };
+        const c = top[2] ? annotate(top[2]) : { id:3, series:'', score:0, reason:'' };
+        return { a, b, c };
+      } catch {
+        const fallback = (i)=> ({ id: top[i]?.id || (i+1), series: top[i]?.series||'', score: this._branchScore(top[i]||{}), reason: '総合的に妥当' });
+        return { a: fallback(0), b: fallback(1), c: fallback(2) };
+      }
+    }
     // --- Decision support helpers ---
     _fitPhrases(keys){
       const map = {
