@@ -179,6 +179,11 @@
         return key;
       } catch { return ''; }
     }
+    _tagKeyOnly(tag){
+      const t = String(tag||'');
+      const i = t.indexOf(':');
+      return (i>=0) ? t.slice(i+1) : t;
+    }
     _yaoCandidatesByLine(line){
       const n = Number(line);
       const map = {1:['初九','初六'],2:['九二','六二'],3:['九三','六三'],4:['九四','六四'],5:['九五','六五'],6:['上九','上六']};
@@ -317,24 +322,24 @@
       } catch { return []; }
     }
     _fitFromSteps(branch){
-      const tags = this._stepTags(branch);
+      const tags = this._stepTags(branch).map(t=>this._tagKeyOnly(t));
       if (!tags.length) return [];
       const out = [];
-      if (tags[0]) out.push(`${tags[0]}が活きる前提`);
-      if (tags[1]) out.push(`${tags[1]}の性質を活かす`);
+      if (tags[0]) out.push(`今は「${tags[0]}」が強み`);
+      if (tags[1]) out.push(`途中は「${tags[1]}」に気を配れる`);
       return out.slice(0,2);
     }
     _avoidFromSteps(branch){
-      const tags = this._stepTags(branch);
+      const tags = this._stepTags(branch).map(t=>this._tagKeyOnly(t));
       if (!tags.length) return [];
-      // Step2の性質に配慮できないケースを優先して表現
+      // Step2を優先し、優しい表現に
       const base = tags[1] || tags[0];
-      return base ? [`${base}への配慮が不得意な場合`] : [];
+      return base ? [`「${base}」への気配りが苦手な人`] : [];
     }
     _tradeoffFromSteps(branch){
-      const tags = this._stepTags(branch);
-      const gain = tags[0] ? `${tags[0]}を軸に前進` : '小さな前進を積み上げる';
-      const loss = tags[2] ? `${tags[2]}のため初動負荷が増える可能性` : '別案より初動負荷が増える';
+      const tags = this._stepTags(branch).map(t=>this._tagKeyOnly(t));
+      const gain = tags[0] ? `「${tags[0]}」を伸ばせる` : '小さく前進を積み上げられる';
+      const loss = tags[2] ? `「${tags[2]}」に手間がかかるかも` : '別案より少し時間がかかるかも';
       return { gain, loss };
     }
     _top3Explain(top){
