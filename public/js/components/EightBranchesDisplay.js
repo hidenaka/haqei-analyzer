@@ -89,6 +89,12 @@
         '好機': '検討の深さの不足',
         '土台づくり': '初動の目に見える成果が遅れる'
       };
+      // effect type mapping (関係/構造/実行)
+      this._effectMap = {
+        関係: ['信頼','合意形成','協業','支援','関係','関係調整','連携','公正','透明性','支持'],
+        構造: ['制度','設計','基盤','土台づくり','整備','構造','仕組み','再発防止','補強'],
+        実行: ['好機','推進','前進','実行','実装','行動','成果','スピード']
+      };
     }
 
     initialize(containerId) {
@@ -282,6 +288,28 @@
       });
       return { gain: (gains[0]||'小さな前進を積み上げる'), loss: (losses[0]||'別案より初動負荷が増える') };
     }
+    _short(txt, max=80){
+      try { const t=String(txt||'').trim(); return (t.length>max) ? (t.slice(0,max-1)+'…') : t; } catch { return txt; }
+    }
+    _effectTypes(keys){
+      const counts = { 関係:0, 構造:0, 実行:0 };
+      const list = Array.from(new Set(keys||[]));
+      list.forEach(k=>{
+        Object.entries(this._effectMap).forEach(([type, arr])=>{ if (arr.includes(k)) counts[type]++; });
+      });
+      const ranked = Object.entries(counts).sort((a,b)=> b[1]-a[1]).filter(([,c])=>c>0).map(([t])=>t);
+      return ranked.slice(0,2);
+    }
+    _difficultyHeuristics(keys){
+      const set = new Set(keys||[]);
+      const negotiation = ['合意形成','関係調整','連携','協業','公正','透明性'];
+      const specialty  = ['制度','設計','基盤','補強','再発防止','専門','技術'];
+      const hasNeg = negotiation.some(w=>set.has(w));
+      const hasSpec= specialty.some(w=>set.has(w));
+      const negLevel = hasNeg ? '高' : '中';
+      const specLevel= hasSpec? '中〜高' : '中';
+      return { negotiation: negLevel, specialty: specLevel };
+    }
     // --- Decision support helpers ---
     _fitPhrases(keys){
       const map = {
@@ -427,6 +455,16 @@
       const __mkChip = (t,c)=>{const s=document.createElement('span'); s.textContent=t; s.style.padding='2px 8px'; s.style.borderRadius='9999px'; s.style.border=`1px solid ${c}66`; s.style.color=c; s.style.fontSize='.75em'; return s;};
       __chips.appendChild(__mkChip(__risk.label, __risk.color));
       __chips.appendChild(__mkChip(__eff.label, __eff.color));
+      // effect types and difficulty (heuristics)
+      try {
+        const kw = this._deriveQuickKeywords(branch);
+        const types = this._effectTypes(kw);
+        const diff = this._difficultyHeuristics(kw);
+        const neutral = '#38BDF8';
+        types.forEach(t => __chips.appendChild(__mkChip(t, neutral)));
+        __chips.appendChild(__mkChip(`利害調整:${diff.negotiation}`, '#F59E0B'));
+        __chips.appendChild(__mkChip(`専門性:${diff.specialty}`, '#8B5CF6'));
+      } catch {}
       // 3-sec tips
       // Prefer data-driven modern keywords; fallback to generic tips
       const __kw = this._deriveQuickKeywords(branch);
@@ -439,7 +477,7 @@
       __summaryWrap.setAttribute('data-section','summary');
       const __overview = document.createElement('div');
       __overview.style.marginBottom = '2px';
-      __overview.textContent = `全体像: ${this._seriesNarrative(branch)}`;
+      __overview.textContent = `全体像: ${this._short(this._seriesNarrative(branch), 90)}`;
       const __traits = document.createElement('div');
       try {
         const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
@@ -452,7 +490,7 @@
         }
       } catch {}
       const __reason = document.createElement('div');
-      __reason.textContent = `選ぶ理由: ${__tips.join(' / ')}`;
+      __reason.textContent = `選ぶ理由: ${this._short(__tips.join(' / '), 90)}`;
       const __next = document.createElement('div');
       const __acts = this._toActionPhrases(__kw);
       // Stage-specific framing if possible
@@ -461,9 +499,9 @@
         const nowAct = (__acts[0] || __tips[0] || '').toString();
         const midAct = (__acts[1] || __tips[1] || nowAct).toString();
         const finAct = (__acts[2] || __tips[2] || midAct).toString();
-        __next.textContent = `次の一手: まず「${nowAct}」→ つぎ「${midAct}」→ 仕上げ「${finAct}」`;
+        __next.textContent = this._short(`次の一手: まず「${nowAct}」→ つぎ「${midAct}」→ 仕上げ「${finAct}」`, 100);
       } else {
-        __next.textContent = `次の一手: ${(__acts.length?__acts:__tips).join(' / ')}`;
+        __next.textContent = this._short(`次の一手: ${(__acts.length?__acts:__tips).join(' / ')}`, 100);
       }
       __summaryWrap.appendChild(__overview);
       if (__traits.textContent) __summaryWrap.appendChild(__traits);
@@ -509,7 +547,7 @@
         } catch { return ''; }
       })();
       if (timeMemo) __ds.appendChild(mk('時機', timeMemo));
-      // influence words (bridge input -> branch) with scoring
+      // influence words (bridge input -> branch) with scoring and percentage
       try {
         const tags = (window.HAQEI_INPUT_TAGS||[]).map(String);
         const tally = this._keywordTally(branch);
@@ -520,7 +558,11 @@
         } else {
           scored.sort((a,b)=>b[1]-a[1]);
           const top2 = scored.slice(0,2).map(([t])=>t);
+          const total = Array.from(tally.values()).reduce((a,b)=>a+b,0) || 1;
+          const wsum = scored.reduce((a, [,w])=>a+w, 0);
+          const pct = Math.round((wsum/total)*100);
           __ds.appendChild(mk('影響語', top2.join(' / ')));
+          __ds.appendChild(mk('影響度', `${pct}%`));
         }
       } catch {}
       // confidence bar
