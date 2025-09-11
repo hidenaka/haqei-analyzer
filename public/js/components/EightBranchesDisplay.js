@@ -252,6 +252,38 @@
       const mapped = unique.map(k => this._actionMap[k] || (k + 'を活かす'));
       return mapped.slice(0, 2);
     }
+    // --- Decision support helpers ---
+    _fitPhrases(keys){
+      const map = {
+        '信頼': '信頼が資産として効いている',
+        '合意形成': '承認・利害調整が鍵になる',
+        '大衆の支持': '支持を広げやすい土壌がある',
+        '好機': '今が仕掛け時',
+        '土台づくり': '基盤整備を先に進めたい',
+        '協業': '外部/他部署と連携が必要',
+        '透明性': '透明性の担保が求められる',
+        '公正・透明性': '透明性の担保が求められる'
+      };
+      const out = [];
+      (keys||[]).forEach(k=>{ if(map[k] && !out.includes(map[k])) out.push(map[k]); });
+      return out.slice(0,2);
+    }
+    _cautionPhrase(lastSeverity, lastAction){
+      if (lastSeverity >= 3) return '被害最小化を最優先。拡大する施策は避ける';
+      if (lastSeverity >= 1) return (lastAction==='変') ? '終盤は調整コスト発生。余裕を確保' : '後半は慎重に微修正しつつ進める';
+      return '勢い任せにせず、根拠と合意を揃えて進める';
+    }
+    _outcomePhrase(actions, d13, lastSeverity){
+      const pat = actions.join('');
+      if (actions[2]==='変' && lastSeverity>=3) return 'ダメージを抑えて再起の下地を整える';
+      if (pat==='進→進→進') {
+        if (d13>=10) return '支持を束ねて成果に転換する';
+        if (d13<=-10) return '前進を維持しつつ守りを固める';
+        return '信頼を資本に前進を確定させる';
+      }
+      if (actions[2]==='変') return '軌道修正で合意を取り付けて着地する';
+      return '切替え後に前進へ繋ぎ成果をまとめる';
+    }
 
     // --- UX helpers for intuitive understanding ---
     _counts(series){
@@ -396,6 +428,25 @@
       if (__traits.textContent) __summaryWrap.appendChild(__traits);
       __summaryWrap.appendChild(__reason);
       __summaryWrap.appendChild(__next);
+
+      // Decision support (fit/caution/outcome)
+      const __ds = document.createElement('div');
+      __ds.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
+      __ds.style.marginTop = '6px';
+      __ds.style.paddingTop = '6px';
+      const actions = String(branch.series||'').split('→');
+      const lastText = steps[2]?.lineText || '';
+      const lastSeverity = this._severityScore(lastText);
+      const s1 = this._getBasicScore(steps[0]?.hex, steps[0]?.line);
+      const s3 = this._getBasicScore(steps[2]?.hex, steps[2]?.line);
+      const d13 = (s3 ?? s1 ?? 0) - (s1 ?? 0);
+      const fit = this._fitPhrases(__kw);
+      const caution = this._cautionPhrase(lastSeverity, actions[2]);
+      const outcome = this._outcomePhrase(actions, d13, lastSeverity);
+      const mk = (label,val)=>{ const d=document.createElement('div'); d.textContent = `${label}: ${val}`; d.style.fontSize='.84em'; d.style.color='#cbd5e1'; d.style.marginTop='2px'; return d; };
+      if (fit.length) __ds.appendChild(mk('合う条件', fit.join(' / ')));
+      __ds.appendChild(mk('注意点', caution));
+      __ds.appendChild(mk('成果イメージ', outcome));
       // mount
       card.appendChild(__scoreWrap);
       card.appendChild(__chips);
