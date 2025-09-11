@@ -420,7 +420,7 @@
         const nowAct = (__acts[0] || __tips[0] || '').toString();
         const midAct = (__acts[1] || __tips[1] || nowAct).toString();
         const finAct = (__acts[2] || __tips[2] || midAct).toString();
-        __next.textContent = `次の一手: 今すぐ「${nowAct}」→ 次に「${midAct}」→ 仕上げ「${finAct}」`;
+        __next.textContent = `次の一手: まず「${nowAct}」→ つぎ「${midAct}」→ 仕上げ「${finAct}」`;
       } else {
         __next.textContent = `次の一手: ${(__acts.length?__acts:__tips).join(' / ')}`;
       }
@@ -447,6 +447,21 @@
       if (fit.length) __ds.appendChild(mk('合う条件', fit.join(' / ')));
       __ds.appendChild(mk('注意点', caution));
       __ds.appendChild(mk('成果イメージ', outcome));
+
+      // Optional: 時機メモ（根拠がある場合のみ）
+      const timeMemo = (() => {
+        try {
+          const txt = (steps.map(s=>String(s.lineText||'').trim()).join(' '));
+          const urgent = /(今すぐ|急|速やか|早めに)/;
+          const waity  = /(待つ|時至る|しばらく|機を|熟す)/;
+          const longt  = /(長期|時間をかけ|数週|数か月|数ヶ月)/;
+          if (urgent.test(txt)) return '急ぎ目';
+          if (waity.test(txt))  return '待ち優先';
+          if (longt.test(txt))  return '時間をかける';
+          return '';
+        } catch { return ''; }
+      })();
+      if (timeMemo) __ds.appendChild(mk('時機', timeMemo));
       // mount
       card.appendChild(__scoreWrap);
       card.appendChild(__chips);
