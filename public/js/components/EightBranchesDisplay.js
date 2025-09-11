@@ -584,17 +584,19 @@
       const s1 = this._getBasicScore(steps[0]?.hex, steps[0]?.line);
       const s3 = this._getBasicScore(steps[2]?.hex, steps[2]?.line);
       const d13 = (s3 ?? s1 ?? 0) - (s1 ?? 0);
-      let fit = this._fitPhrases(__kw);
+      // 卦・爻に基づく内容を優先し、足りない場合にキーワード辞書へフォールバック
+      let fit = this._fitFromSteps(branch);
+      if (!fit.length) fit = this._fitPhrases(__kw);
       const caution = this._cautionPhrase(lastSeverity, actions[2]);
       const outcome = this._outcomePhrase(actions, d13, lastSeverity);
       const mk = (label,val)=>{ const d=document.createElement('div'); d.textContent = `${label}: ${val}`; d.style.fontSize='.84em'; d.style.color='#cbd5e1'; d.style.marginTop='2px'; return d; };
       if (!fit.length) fit = this._fitFromSteps(branch);
       if (fit.length) __ds.appendChild(mk('合う条件', fit.join(' / ')));
-      let avoid = this._avoidPhrases(__kw);
-      if (!avoid.length) avoid = this._avoidFromSteps(branch);
+      let avoid = this._avoidFromSteps(branch);
+      if (!avoid.length) avoid = this._avoidPhrases(__kw);
       if (avoid.length) __ds.appendChild(mk('避けたい人', avoid.join(' / ')));
-      let to = this._tradeoff(__kw);
-      if (!to || (!to.gain && !to.loss)) to = this._tradeoffFromSteps(branch);
+      let to = this._tradeoffFromSteps(branch);
+      if (!to || (!to.gain && !to.loss)) to = this._tradeoff(__kw);
       __ds.appendChild(mk('得るもの', to.gain));
       __ds.appendChild(mk('失う可能性', to.loss));
       __ds.appendChild(mk('注意点', caution));
