@@ -504,44 +504,56 @@
           if (easy.oneLine && typeof easy.oneLine === 'string') {
             summary.textContent = easy.oneLine;
           }
-          // Build next3 list
-          const list = document.createElement('ul');
-          list.style.listStyle = 'disc';
-          list.style.paddingInlineStart = '18px';
-          list.style.margin = '6px 0 0';
-          const mk = (label, text) => {
-            if (!text) return null;
-            const li = document.createElement('li');
-            li.style.lineHeight = '1.4';
-            li.textContent = `${label}: ${text}`;
-            li.style.fontSize = '.9em';
-            li.style.color = '#cbd5e1';
-            return li;
+          // Helper: truncate for readability
+          const truncate = (t, n=42) => {
+            try { const s=String(t||'').trim(); return s.length>n ? s.slice(0,n-1)+'…' : s; } catch { return t; }
           };
+          // Build next3 lines with icons and short text
           const n3 = easy.next3 || {};
-          const f1 = mk('いま', n3.first);
-          const f2 = mk('すぐ', n3.second);
-          const f3 = mk('この先', n3.final);
-          [f1,f2,f3].forEach(x => { if (x) list.appendChild(x); });
-
-          const meta = document.createElement('div');
-          meta.style.display = 'grid';
-          meta.style.gridTemplateColumns = '1fr';
-          meta.style.gap = '4px';
-          meta.style.marginTop = '8px';
-          const small = (label, text) => {
+          const makeLine = (icon, label, text) => {
             if (!text) return null;
-            const el = document.createElement('div');
-            el.style.fontSize = '.8em';
-            el.style.color = '#94a3b8';
-            el.textContent = `${label}: ${text}`;
-            return el;
+            const row = document.createElement('div');
+            row.style.display='flex'; row.style.alignItems='center'; row.style.gap='6px';
+            row.style.marginTop='4px'; row.style.fontSize='.9em'; row.style.color='#cbd5e1';
+            const ico = document.createElement('span'); ico.textContent = icon; ico.ariaHidden='true';
+            const lab = document.createElement('span'); lab.textContent = label; lab.style.color = '#A5B4FC'; lab.style.minWidth='3.5em'; lab.style.fontWeight='600';
+            const txt = document.createElement('span'); txt.textContent = truncate(text, 48); txt.title = String(text);
+            row.appendChild(ico); row.appendChild(lab); row.appendChild(txt);
+            return row;
           };
-          const fit = small('合う場面', (easy.fit||'').replace(/^合う場面:\s*/,''));
-          const avoid = small('合わない場面', (easy.avoid||'').replace(/^合わない場面:\s*/,''));
-          const caution = small('注意', easy.caution);
-          [fit, avoid, caution].forEach(x => { if (x) meta.appendChild(x); });
 
+          const linesWrap = document.createElement('div');
+          const L1 = makeLine('🕒','いま', n3.first);
+          const L2 = makeLine('▶','すぐ', n3.second);
+          const L3 = makeLine('🎯','この先', n3.final);
+          [L1,L2,L3].forEach(x=>{ if(x) linesWrap.appendChild(x); });
+
+          // Fit/Avoid as small chips, Caution as warning row
+          const chipsWrap = document.createElement('div');
+          chipsWrap.style.display='flex'; chipsWrap.style.flexWrap='wrap'; chipsWrap.style.gap='6px'; chipsWrap.style.marginTop='8px';
+          const chip = (text, kind) => {
+            if (!text) return null;
+            const s = document.createElement('span');
+            s.textContent = text;
+            s.style.fontSize='.75em'; s.style.padding='2px 6px'; s.style.borderRadius='9999px';
+            s.style.border='1px solid rgba(99,102,241,.35)';
+            s.style.background = kind==='avoid' ? 'rgba(239,68,68,.15)' : 'rgba(16,185,129,.15)';
+            s.style.color = kind==='avoid' ? '#FCA5A5' : '#86EFAC';
+            return s;
+          };
+          const fitTxt = (easy.fit||'').replace(/^合う場面:\s*/, '');
+          const avoidTxt = (easy.avoid||'').replace(/^合わない場面:\s*/, '');
+          const fitChip = chip(`向いている: ${truncate(fitTxt, 24)}`, 'fit');
+          const avoidChip = chip(`非推奨: ${truncate(avoidTxt, 24)}`, 'avoid');
+          [fitChip, avoidChip].forEach(x=>{ if(x) chipsWrap.appendChild(x); });
+
+          const cautionRow = document.createElement('div');
+          if (easy.caution){
+            cautionRow.style.marginTop='6px'; cautionRow.style.fontSize='.8em'; cautionRow.style.color='#FCA5A5';
+            cautionRow.textContent = `⚠ 注意: ${easy.caution}`;
+          }
+
+          // Mount easy block
           easyBlock.innerHTML = '';
           const hdr = document.createElement('div');
           hdr.textContent = 'やさしい指針';
@@ -549,8 +561,9 @@
           hdr.style.fontSize = '.9em';
           hdr.style.color = '#A5B4FC';
           easyBlock.appendChild(hdr);
-          if (list.childNodes.length) easyBlock.appendChild(list);
-          if (meta.childNodes.length) easyBlock.appendChild(meta);
+          if (linesWrap.childNodes.length) easyBlock.appendChild(linesWrap);
+          if (chipsWrap.childNodes.length) easyBlock.appendChild(chipsWrap);
+          if (easy.caution) easyBlock.appendChild(cautionRow);
           easyBlock.style.display = 'block';
         } catch {}
       };
