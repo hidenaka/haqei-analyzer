@@ -481,11 +481,95 @@
       try { const em = this._emoji(branch.series); title.innerHTML = `${em} ` + title.innerHTML; } catch {}
 
       const summary = document.createElement('div');
+      // Default summary (fallback)
       summary.textContent = this._summary(branch.series);
       summary.style.fontSize = '.9em';
       summary.style.color = '#cbd5e1';
       summary.setAttribute('data-section','summary');
       summary.style.margin = '6px 0 8px';
+
+      // Try to enrich with easy oneLine/next3/fit/avoid/caution
+      const easyBlock = document.createElement('div');
+      easyBlock.style.margin = '6px 0 8px';
+      easyBlock.style.padding = '8px 10px';
+      easyBlock.style.background = 'rgba(30,41,59,0.35)';
+      easyBlock.style.border = '1px dashed rgba(99,102,241,0.35)';
+      easyBlock.style.borderRadius = '8px';
+      easyBlock.style.display = 'none';
+
+      const applyEasyToDOM = (easy) => {
+        if (!easy) return;
+        try {
+          // Replace summary with oneLine if available
+          if (easy.oneLine && typeof easy.oneLine === 'string') {
+            summary.textContent = easy.oneLine;
+          }
+          // Build next3 list
+          const list = document.createElement('ul');
+          list.style.listStyle = 'disc';
+          list.style.paddingInlineStart = '18px';
+          list.style.margin = '6px 0 0';
+          const mk = (label, text) => {
+            if (!text) return null;
+            const li = document.createElement('li');
+            li.style.lineHeight = '1.4';
+            li.textContent = `${label}: ${text}`;
+            li.style.fontSize = '.9em';
+            li.style.color = '#cbd5e1';
+            return li;
+          };
+          const n3 = easy.next3 || {};
+          const f1 = mk('いま', n3.first);
+          const f2 = mk('すぐ', n3.second);
+          const f3 = mk('この先', n3.final);
+          [f1,f2,f3].forEach(x => { if (x) list.appendChild(x); });
+
+          const meta = document.createElement('div');
+          meta.style.display = 'grid';
+          meta.style.gridTemplateColumns = '1fr';
+          meta.style.gap = '4px';
+          meta.style.marginTop = '8px';
+          const small = (label, text) => {
+            if (!text) return null;
+            const el = document.createElement('div');
+            el.style.fontSize = '.8em';
+            el.style.color = '#94a3b8';
+            el.textContent = `${label}: ${text}`;
+            return el;
+          };
+          const fit = small('合う場面', (easy.fit||'').replace(/^合う場面:\s*/,''));
+          const avoid = small('合わない場面', (easy.avoid||'').replace(/^合わない場面:\s*/,''));
+          const caution = small('注意', easy.caution);
+          [fit, avoid, caution].forEach(x => { if (x) meta.appendChild(x); });
+
+          easyBlock.innerHTML = '';
+          const hdr = document.createElement('div');
+          hdr.textContent = 'やさしい指針';
+          hdr.style.fontWeight = '600';
+          hdr.style.fontSize = '.9em';
+          hdr.style.color = '#A5B4FC';
+          easyBlock.appendChild(hdr);
+          if (list.childNodes.length) easyBlock.appendChild(list);
+          if (meta.childNodes.length) easyBlock.appendChild(meta);
+          easyBlock.style.display = 'block';
+        } catch {}
+      };
+
+      try {
+        const start = (Array.isArray(branch?.steps) && branch.steps[0]) ? branch.steps[0] : null;
+        if (start && window.easyScenarioLoader) {
+          const keySig = String(branch.series||'');
+          const ready = window.easyScenarioLoader.getEasyIfReady(start.hex, start.line, keySig);
+          if (ready) {
+            applyEasyToDOM(ready);
+          } else {
+            // Load asynchronously and then render
+            window.easyScenarioLoader.getEasy(start.hex, start.line, keySig).then(ez => {
+              if (ez) applyEasyToDOM(ez);
+            }).catch(()=>{});
+          }
+        }
+      } catch {}
       // recommendation score bar
       const __score = this._score(branch.series);
       const __scoreWrap = document.createElement('div');
@@ -695,6 +779,8 @@
       card.appendChild(__scoreWrap);
       card.appendChild(__chips);
       card.appendChild(__summaryWrap);
+      // Mount easy block (after summary)
+      card.appendChild(easyBlock);
       card.appendChild(__ds);
 
       const details = document.createElement('details');
