@@ -902,8 +902,16 @@
 
           const hex = Number(currentSituation.hexagramNumber || currentSituation['卦番号']);
           const hexName = String(currentSituation.hexagramName || currentSituation['卦名'] || '').trim();
-          const linePos = Number(currentSituation.yaoPosition || 0) || (function(n){return Number(n)||0})(0);
+          let linePos = Number(currentSituation.yaoPosition || 0) || 0;
           const yao = String(currentSituation.yaoName || currentSituation['爻'] || '').trim();
+          // If numeric position is missing, derive from yaoName (e.g., 六二 -> 2)
+          if (!linePos && yao) {
+            const map = {
+              '初九':1,'九二':2,'九三':3,'九四':4,'九五':5,'上九':6,
+              '初六':1,'六二':2,'六三':3,'六四':4,'六五':5,'上六':6
+            };
+            linePos = map[yao] || 0;
+          }
 
           const lineKey = () => `${hex}-${linePos}`;
           let mainText = '';
