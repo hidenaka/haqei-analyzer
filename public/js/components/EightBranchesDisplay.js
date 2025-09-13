@@ -459,6 +459,7 @@
 
     _card(branch, idx) {
       const classic = (window.HAQEI_CONFIG?.featureFlags?.layoutClassic !== false);
+      const __easy = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
       const card = document.createElement('div');
       const __palette = ['#10B981','#3B82F6','#F59E0B','#EF4444','#A78BFA','#22C55E','#EAB308','#06B6D4'];
       const __color = __palette[idx % __palette.length];
@@ -609,7 +610,6 @@
           __label.style.color = '#94a3b8';
           __label.style.marginTop = '4px';
           const __micro = document.createElement('div');
-          const __easy = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
           __micro.textContent = __easy ? '目安（上のグラフの最終点）' : '指標: Chart最終点(S7)';
           __micro.style.fontSize = '.75em';
           __micro.style.color = '#64748b';
@@ -846,8 +846,7 @@
 
       if (global.futureSimulator?.branchGenerator?.usedFallback) {
         const foot = document.createElement('div');
-        const __easy = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
-        foot.textContent = __easy ? '※ 行き先は一部予測です' : '※ 変爻先は推定を含みます';
+          foot.textContent = __easy ? '※ 行き先は一部予測です' : '※ 変爻先は推定を含みます';
         foot.style.fontSize = '0.8em';
         foot.style.opacity = '0.75';
         foot.style.marginTop = '8px';
