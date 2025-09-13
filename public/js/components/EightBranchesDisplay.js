@@ -9,6 +9,17 @@
       this.name = 'EightBranchesDisplay';
       this.container = null;
       this.version = '1.2.0';
+      // Feature flags and runtime state
+      try {
+        const ff = (window.HAQEI_CONFIG && window.HAQEI_CONFIG.featureFlags) || {};
+        this.enableEvidence = ff.evidencePanel !== false;
+        this.enableCompare = ff.comparePanel !== false;
+        this.showBadges = ff.showBadges !== false;
+      } catch { this.enableEvidence = false; this.enableCompare = false; this.showBadges = false; }
+      this.displayMode = 'applied';
+      this._lastBranches = null;
+      this._lastSituation = null;
+      this._compare = new Map();
       this._lineStates = null;
       this._modernMap = {
         'ポテンシャル': '伸びしろ',
@@ -256,21 +267,21 @@
           return '前進を保ちつつ要所で慎重に調整して仕上げる';
         }
         // 3) スコアの趨勢: 仕上げのニュアンス
-        if (actions.join('') === '進→進→進') {
+        if (actions.join('→') === '進→進→進') {
           if (d13 >= 10) return '序盤から終盤まで加速しながら正攻法で押し切る構成';
           if (d13 <= -10) return '正攻法で進むが、後半は無理せず守りを固める構成';
           return '序盤から終盤まで正攻法で押し切る構成';
         }
-        if (actions.join('') === '進→進→変') {
+        if (actions.join('→') === '進→進→変') {
           if (d13 <= -10) return '押し切り基調から最後は方向転換で安全に締める';
           return '押し切りつつ最後は必要最小限の調整で仕上げる';
         }
-        if (actions.join('') === '進→変→進') return '中盤で方針を切替えて再加速する構成';
-        if (actions.join('') === '進→変→変') return '初手は進み、後半は路線転換で再設計していく構成';
-        if (actions.join('') === '変→進→進') return 'まず切替え、以降は前進で成果を固める構成';
-        if (actions.join('') === '変→進→変') return '切替え→前進の後、最後に微修正で整える構成';
-        if (actions.join('') === '変→変→進') return '段階的に切替えた上で、最後は前進でまとめる構成';
-        if (actions.join('') === '変→変→変') return '三段階で順次切替えて新路線を築く構成';
+        if (actions.join('→') === '進→変→進') return '中盤で方針を切替えて再加速する構成';
+        if (actions.join('→') === '進→変→変') return '初手は進み、後半は路線転換で再設計していく構成';
+        if (actions.join('→') === '変→進→進') return 'まず切替え、以降は前進で成果を固める構成';
+        if (actions.join('→') === '変→進→変') return '切替え→前進の後、最後に微修正で整える構成';
+        if (actions.join('→') === '変→変→進') return '段階的に切替えた上で、最後は前進でまとめる構成';
+        if (actions.join('→') === '変→変→変') return '三段階で順次切替えて新路線を築く構成';
       } catch {}
       return '三段構成で段階的に前進と転換を組み合わせる構成';
     }
@@ -427,13 +438,68 @@
         });
         let combined = wsum ? Math.round(acc / wsum) : base;
         const actions = String(branch?.series||'').split('→');
-        const pat = actions.join('');
+        const pat = actions.join('→');
         if (pat === '進→進→進') combined += 5;
         if (pat === '変→変→変') combined -= 5;
         combined = Math.round((combined * 0.7) + (base * 0.3));
         return Math.min(100, Math.max(0, combined));
       } catch { return this._score(branch?.series || '') || 50; }
     }
+    _evidenceForStep(hex, line){
+      try {
+        const yaoNames = this._yaoCandidatesByLine(line);
+        const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+        const entry = data.find(e => Number(e['卦番号']) === Number(hex) && yaoNames.includes(String(e['爻'])));
+        const S1 = Number(entry && entry['S1_基本スコア']);
+        const S7 = Number(entry && entry['S7_総合評価スコア']);
+        let keywords = [];
+        const raw = entry && (Array.isArray(entry['キーワード']) ? entry['キーワード'] : (typeof entry['キーワード']==='string' ? entry['キーワード'].split(/、|,|\s+/).filter(Boolean) : []));
+        if (raw && raw.length) keywords = this._normalizeKeywords(raw).slice(0,5);
+        return { S1, S7, keywords, hexName: entry && entry['卦名'], yaoName: entry && entry['爻'] };
+      } catch { return null; }
+    }
+
+    _renderComparePanel(){
+      try {
+        if (!this.enableCompare) return;
+        let panel = this.container.querySelector('#branches-compare-panel');
+        if (!panel) {
+          panel = document.createElement('div');
+          panel.id = 'branches-compare-panel';
+          panel.style.border='1px solid rgba(99,102,241,.35)';
+          panel.style.borderRadius='10px';
+          panel.style.padding='10px 12px';
+          panel.style.margin='8px 0 10px';
+          panel.style.background='rgba(17,24,39,.35)';
+          panel.style.color='#E5E7EB';
+          const h = document.createElement('div'); h.textContent='比較（最大2つ）'; h.style.color='#c7d2fe'; h.style.fontWeight='700'; h.style.marginBottom='4px';
+          panel.appendChild(h);
+          this.container.insertBefore(panel, this.container.querySelector('[data-role="branches-grid"]') || this.container.lastChild);
+        }
+        while (panel.childNodes.length > 1) panel.removeChild(panel.lastChild);
+        const items = Array.from(this._compare.values()).slice(0,2);
+        if (!items.length) {
+          const d = document.createElement('div'); d.style.fontSize='.85em'; d.style.color='#94a3b8'; d.textContent='カードの「比較に追加」を押すとここに表示されます。'; panel.appendChild(d); return;
+        }
+        const wrap = document.createElement('div'); wrap.style.display='grid'; wrap.style.gridTemplateColumns = `repeat(${items.length}, 1fr)`; wrap.style.gap='10px';
+        items.forEach((b, i) => {
+          const box = document.createElement('div'); box.style.border='1px solid rgba(99,102,241,.35)'; box.style.borderRadius='8px'; box.style.padding='8px 10px';
+          const title = document.createElement('div'); title.style.color='#A5B4FC'; title.style.fontWeight='700'; title.textContent = `分岐${b.id}｜${b.series}`; box.appendChild(title);
+          const mk = (label, txt) => { const r=document.createElement('div'); r.style.fontSize='.85em'; r.style.color='#cbd5e1'; r.style.marginTop='2px'; r.textContent = `${label}: ${txt}`; return r; };
+          box.appendChild(mk('ざっくり', this._seriesNarrative(b)));
+          const flavor = (()=>{ switch(b.series){case '進→進→進':return '勢い維持で押し切る';case '進→進→変':return '最後は微調整で締める';case '進→変→進':return '中盤の切替で再加速';case '進→変→変':return '後半は設計し直す';case '変→進→進':return '初手転換で安定化';case '変→進→変':return '締めに向けて整える';case '変→変→進':return '段階転換ののち前進';case '変→変→変':return '全面転換で新路線';default:return '';} })();
+          const tips = this._deriveQuickKeywords(b);
+          box.appendChild(mk('ここがいい', [flavor, ...tips].filter(Boolean).slice(0,4).join(' / ')));
+          const flow = b.series.split('→').map(t=>t==='進'?'前進':'切替').join(' → ');
+          box.appendChild(mk('流れ', flow));
+          const acts = this._toActionPhrases(tips); const actTxt = acts.length?acts.join(' / '):tips.join(' / ');
+          box.appendChild(mk('次にやること', actTxt));
+          wrap.appendChild(box);
+        });
+        panel.appendChild(wrap);
+      } catch {}
+    }
+
     _risk(series){
       const { prog, trans } = this._counts(series);
       if (prog === 3) return {label:'リスク低', color:'#10B981'};
@@ -470,8 +536,15 @@
       card.style.color = '#E5E7EB';
       card.style.boxShadow = '0 2px 6px rgba(0,0,0,0.25)';
       card.style.cursor = 'pointer';
+      // A11y: フォーカス可能・グループ化
+      try {
+        card.tabIndex = 0;
+        card.setAttribute('role', 'group');
+        card.setAttribute('aria-label', `分岐${branch.id} ${branch.series} の概要`);
+      } catch {}
 
       const title = document.createElement('div');
+      try { title.setAttribute('data-role','branch-title'); } catch {}
       const badge = this._badge(branch.series);
       const __numCirc = '①②③④⑤⑥⑦⑧'[ (branch.id-1) % 8 ] || String(branch.id);
       title.innerHTML = `${__numCirc} 分岐${branch.id}｜${branch.series} <span style="margin-left:8px;padding:2px 8px;border-radius:9999px;background:${badge.color}22;color:${badge.color};font-size:.8em;">${badge.label}</span>`;
@@ -488,6 +561,7 @@
       summary.style.color = '#cbd5e1';
       summary.setAttribute('data-section','summary');
       summary.style.margin = '6px 0 8px';
+      try { summary.setAttribute('aria-label', `まとめ: ${summary.textContent}`); } catch {}
 
       // Try to enrich with easy oneLine/next3/fit/avoid/caution
       const easyBlock = document.createElement('div');
@@ -497,6 +571,7 @@
       easyBlock.style.border = '1px dashed rgba(99,102,241,0.35)';
       easyBlock.style.borderRadius = '8px';
       easyBlock.style.display = 'none';
+      try { easyBlock.setAttribute('role','region'); easyBlock.setAttribute('aria-label','やさしい指針'); } catch {}
 
       const applyEasyToDOM = (easy) => {
         if (!easy) return;
@@ -540,6 +615,7 @@
             s.style.border='1px solid rgba(99,102,241,.35)';
             s.style.background = kind==='avoid' ? 'rgba(239,68,68,.15)' : 'rgba(16,185,129,.15)';
             s.style.color = kind==='avoid' ? '#FCA5A5' : '#86EFAC';
+            try { s.setAttribute('role','note'); s.setAttribute('aria-label', text); } catch {}
             return s;
           };
           const fitTxt = (easy.fit||'').replace(/^合う場面:\s*/, '');
@@ -552,6 +628,7 @@
           if (easy.caution){
             cautionRow.style.marginTop='6px'; cautionRow.style.fontSize='.8em'; cautionRow.style.color='#FCA5A5';
             cautionRow.textContent = `⚠ 注意: ${easy.caution}`;
+            try { cautionRow.setAttribute('role','note'); cautionRow.setAttribute('aria-label', `注意: ${easy.caution}`); } catch {}
           }
 
           // Mount easy block
@@ -586,14 +663,45 @@
       } catch {}
       // recommendation score bar — link to comparison chart metric (final S7). If S7 missing, skip rendering.
       const __scoreWrap = document.createElement('div');
-      __scoreWrap.setAttribute('data-section','summary');
+      __scoreWrap.setAttribute('data-section','score');
       __scoreWrap.style.margin = '6px 0 4px';
       ( () => {
         try {
           const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
           const last = steps[steps.length-1] || {};
           const s7 = this._getS7Score(last.hex, last.line);
-          if (!Number.isFinite(s7)) return; // do not append bar if we lack S7
+          if (!Number.isFinite(s7)) {
+            // S7が最終ステップで取得できない場合は、推定複合スコアの細メーターを表示
+            const est = Math.max(0, Math.min(100, Math.round(this._branchScore(branch))));
+            const wrap = document.createElement('div');
+            wrap.style.opacity = '.95';
+            const meter = document.createElement('div');
+            meter.style.height = '4px';
+            meter.style.background = 'rgba(148,163,184,.25)';
+            meter.style.borderRadius = '6px';
+            const fill = document.createElement('div');
+            fill.style.height = '100%';
+            fill.style.width = est + '%';
+            fill.style.borderRadius = '6px';
+            fill.style.background = 'linear-gradient(90deg, #94A3B8, #22C55E)';
+            meter.appendChild(fill);
+            const lab = document.createElement('div');
+            lab.textContent = `推定: ${est}%`;
+            lab.style.fontSize = '.75em';
+            lab.style.color = '#94a3b8';
+            lab.style.marginTop = '2px';
+            const note = document.createElement('div');
+            note.textContent = '推定のため評価バー非表示';
+            note.style.fontSize = '.7em';
+            note.style.color = '#64748b';
+            note.style.marginTop = '2px';
+            try { meter.setAttribute('role','meter'); meter.setAttribute('aria-valuenow', String(est)); meter.setAttribute('aria-valuemin','0'); meter.setAttribute('aria-valuemax','100'); } catch {}
+            wrap.appendChild(meter);
+            wrap.appendChild(lab);
+            wrap.appendChild(note);
+            __scoreWrap.appendChild(wrap);
+            return;
+          }
           const __bar = document.createElement('div');
           __bar.style.height = '6px';
           __bar.style.background = 'rgba(148,163,184,.3)';
@@ -609,6 +717,7 @@
           __label.style.fontSize = '.8em';
           __label.style.color = '#94a3b8';
           __label.style.marginTop = '4px';
+          try { __bar.setAttribute('role','meter'); __bar.setAttribute('aria-valuenow', String(Math.round(s7))); __bar.setAttribute('aria-valuemin','0'); __bar.setAttribute('aria-valuemax','100'); } catch {}
           const __micro = document.createElement('div');
           __micro.textContent = __easy ? '目安（上のグラフの最終点）' : '指標: Chart最終点(S7)';
           __micro.style.fontSize = '.75em';
@@ -646,6 +755,21 @@
       // Prefer data-driven modern keywords; fallback to generic tips
       const __kw = this._deriveQuickKeywords(branch);
       const __tips = __kw.length ? __kw : this._tips(branch.series);
+      // 系列固有フレーズで差分を強調
+      const __flavor = (() => {
+        const pat = String(branch.series||'');
+        switch (pat) {
+          case '進→進→進': return '勢い維持で押し切る';
+          case '進→進→変': return '最後は微調整で締める';
+          case '進→変→進': return '中盤の切替で再加速';
+          case '進→変→変': return '後半は設計し直す';
+          case '変→進→進': return '初手転換で安定化';
+          case '変→進→変': return '締めに向けて整える';
+          case '変→変→進': return '段階転換ののち前進';
+          case '変→変→変': return '全面転換で新路線';
+          default: return '';
+        }
+      })();
       // Summary block (action-oriented)
       const __summaryWrap = document.createElement('div');
       __summaryWrap.style.fontSize = '.85em';
@@ -667,7 +791,8 @@
         }
       } catch {}
       const __reason = document.createElement('div');
-      __reason.textContent = (__easy ? 'ここがいい: ' : '選ぶ理由: ') + this._short(__tips.join(' / '), 90);
+      const __reasonText = [__flavor, ...__tips].filter(Boolean);
+      __reason.textContent = (__easy ? 'ここがいい: ' : '選ぶ理由: ') + this._short(__reasonText.join(' / '), 96);
       const __next = document.createElement('div');
       const __acts = this._toActionPhrases(__kw);
       // Stage-specific framing if possible
@@ -683,6 +808,39 @@
       __summaryWrap.appendChild(__overview);
       if (__traits.textContent) __summaryWrap.appendChild(__traits);
       __summaryWrap.appendChild(__reason);
+      // 流れ（進/変を動詞に）
+      try {
+        const flowWords = String(branch.series||'').split('→').map(t => t==='進' ? '前進' : '切替').join(' → ');
+        const __flow = document.createElement('div');
+        __flow.style.fontSize = '.8em';
+        __flow.style.color = '#94a3b8';
+        __flow.style.marginTop = '2px';
+        __flow.textContent = `流れ: ${flowWords}`;
+        __summaryWrap.appendChild(__flow);
+      } catch {}
+      // 今とつながる根拠（入力タグ×分岐キーワードの交差）
+      try {
+        const tags = (window.HAQEI_INPUT_TAGS||[]).map(String);
+        let bridge = [];
+        if (tags.length) {
+          const set = new Set(__kw.map(String));
+          bridge = tags.filter(t => set.has(t)).slice(0,2);
+        }
+        if (!bridge.length) {
+          // ステップ特徴タグから抽出
+          const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
+          const fts = steps.map(s => this._tagKeyOnly(this._featureTag(s))).filter(Boolean);
+          bridge = Array.from(new Set(fts)).slice(0,2);
+        }
+        if (bridge.length) {
+          const __bridge = document.createElement('div');
+          __bridge.style.fontSize = '.8em';
+          __bridge.style.color = '#94a3b8';
+          __bridge.style.marginTop = '2px';
+          __bridge.textContent = `今とつながる: ${bridge.join(' / ')}`;
+          __summaryWrap.appendChild(__bridge);
+        }
+      } catch {}
       __summaryWrap.appendChild(__next);
 
       // Decision support (fit/caution/outcome + avoid/tradeoff)
@@ -729,6 +887,29 @@
         } catch { return ''; }
       })();
       if (timeMemo) __ds.appendChild(mk('時機', timeMemo));
+      // 比較ボタン
+      if (this.enableCompare) {
+        const cmp = document.createElement('button');
+        cmp.textContent = this._compare.has(branch.id) ? '比較から外す' : '比較に追加';
+        cmp.style.marginTop = '6px';
+        cmp.style.fontSize = '.85em';
+        cmp.style.padding = '4px 8px';
+        cmp.style.borderRadius = '8px';
+        cmp.style.background = this._compare.has(branch.id) ? 'rgba(239,68,68,.2)' : 'rgba(99,102,241,.2)';
+        cmp.style.color = '#E5E7EB';
+        cmp.style.border = '1px solid rgba(99,102,241,.35)';
+        cmp.onclick = (e) => {
+          e.stopPropagation();
+          if (this._compare.has(branch.id)) { this._compare.delete(branch.id); }
+          else {
+            if (this._compare.size >= 2) { const first = this._compare.keys().next().value; this._compare.delete(first); }
+            this._compare.set(branch.id, branch);
+          }
+          this._renderComparePanel();
+          this._rerender();
+        };
+        __ds.appendChild(cmp);
+      }
       // influence/impact と 確信度バー — Classicでは非表示
       if (!classic) {
         // influence words (bridge input -> branch) with scoring and percentage
@@ -870,6 +1051,8 @@
 
     async displayBranches(branches, currentSituation) {
       if (!this.container) return;
+      this._lastBranches = branches;
+      this._lastSituation = currentSituation;
       this.container.innerHTML = '';
       try { this.container.setAttribute('data-preserve','true'); } catch {}
       try { console.log('EightBranchesDisplay: rendering', Array.isArray(branches)?branches.length:0, 'branches'); } catch {}
@@ -940,14 +1123,51 @@
             if (Number.isFinite(v)) baseScore = `${v}`;
           } catch {}
 
-          now.innerHTML = `
-            <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
-              <div style="font-weight:700;color:#c7d2fe;">Now 現在の状況</div>
-              <div style="color:#e5e7eb;">${hexName || '卦未確定'} ${yao || (linePos?('第'+linePos+'爻'):'')}</div>
-              ${baseScore ? `<span style=\"margin-left:auto;color:#a5b4fc;font-size:.85em;\">現在地点の土台の強さ: ${baseScore}</span>` : ''}
-            </div>
-            <div style="color:#a5b4fc;margin-top:4px;font-size:.95em;">${mainText || '（行状態テキスト未登録）'}</div>
-          `;
+          // Header line
+          const headerLine = document.createElement('div');
+          headerLine.style.display = 'flex';
+          headerLine.style.alignItems = 'center';
+          headerLine.style.gap = '.75rem';
+          headerLine.style.flexWrap = 'wrap';
+          const h1 = document.createElement('div');
+          h1.textContent = 'Now 現在の状況';
+          h1.style.fontWeight = '700';
+          h1.style.color = '#c7d2fe';
+          const h2 = document.createElement('div');
+          h2.textContent = `${hexName || '卦未確定'} ${yao || (linePos?('第'+linePos+'爻'):'')}`;
+          h2.style.color = '#e5e7eb';
+          headerLine.appendChild(h1);
+          headerLine.appendChild(h2);
+          if (baseScore) {
+            const s = document.createElement('span');
+            s.textContent = `現在地点の土台の強さ: ${baseScore}`;
+            s.style.marginLeft = 'auto';
+            s.style.color = '#a5b4fc';
+            s.style.fontSize = '.85em';
+            headerLine.appendChild(s);
+          }
+          now.appendChild(headerLine);
+
+          // Main reason line with test-id compatibility (#now-main-reason)
+          const main = document.createElement('div');
+          main.style.color = '#a5b4fc';
+          main.style.marginTop = '4px';
+          main.style.fontSize = '.95em';
+          // 互換のため、既に他所で #now-main-reason が無ければ本要素にIDを付与
+          try {
+            if (!document.getElementById('now-main-reason')) {
+              main.id = 'now-main-reason';
+            }
+          } catch {}
+          main.textContent = mainText || '（行状態テキスト未登録）';
+          now.appendChild(main);
+          // Now補足（先の見方を短く）
+          const hint = document.createElement('div');
+          hint.style.color = '#94a3b8';
+          hint.style.fontSize = '.85em';
+          hint.style.marginTop = '2px';
+          hint.textContent = 'この先はNowから3手の代表的な道筋です。';
+          now.appendChild(hint);
           this.container.appendChild(now);
         }
       } catch(e) { console.warn('NOW block error:', e?.message||e); }
@@ -1036,6 +1256,15 @@
           box.appendChild(mk(1,explain.a,explain.a.reason));
           box.appendChild(mk(2,explain.b,explain.b.reason));
           box.appendChild(mk(3,explain.c,explain.c.reason));
+          // 常時表示: なぜ他ではないか（TOP3理由差分の固定行）
+          try {
+            const why = document.createElement('div');
+            why.style.marginTop='4px';
+            why.style.fontSize='.85em';
+            why.style.color='#cbd5e1';
+            why.textContent = `なぜ他ではないか: 2位→${explain.b.reason} ／ 3位→${explain.c.reason}`;
+            box.appendChild(why);
+          } catch {}
           this.container.appendChild(box);
           // 上段固定グリッド（有効時）
           const flag = (window.HAQEI_CONFIG?.featureFlags?.enableTop3Mode !== false);
@@ -1111,12 +1340,81 @@
       heading.style.fontWeight = '700';
       heading.style.margin = '8px 0 2px';
       this.container.appendChild(heading);
+      // モードトグル（現代解釈/根拠）
+      if (this.enableEvidence) {
+        const bar = document.createElement('div');
+        bar.id = 'display-mode-bar';
+        bar.style.display='flex'; bar.style.gap='8px'; bar.style.alignItems='center'; bar.style.margin='0 0 6px';
+        const lab = document.createElement('span'); lab.textContent='表示:'; lab.style.color='#94a3b8'; lab.style.fontSize='.9em';
+        const mkBtn = (text, key) => { const b=document.createElement('button'); b.textContent=text; b.style.fontSize='.85em'; b.style.padding='4px 8px'; b.style.borderRadius='8px'; b.style.border='1px solid rgba(99,102,241,.35)'; b.style.background = (this.displayMode===key)?'rgba(99,102,241,.25)':'rgba(30,41,59,.35)'; b.style.color='#E5E7EB'; b.onclick=()=>{ this.displayMode=key; this._rerender(); }; return b; };
+        bar.appendChild(lab);
+        bar.appendChild(mkBtn('現代解釈', 'applied'));
+        bar.appendChild(mkBtn('根拠', 'evidence'));
+        this.container.appendChild(bar);
+      }
+      // 凡例ピル（進/変）
+      const legend = document.createElement('div');
+      legend.style.display = 'flex';
+      legend.style.gap = '8px';
+      legend.style.flexWrap = 'wrap';
+      legend.style.alignItems = 'center';
+      legend.style.margin = '0 0 6px';
+      const pill = (label, desc, bg, fg) => {
+        const p = document.createElement('span');
+        p.textContent = `${label} = ${desc}`;
+        p.style.fontSize = '.8em';
+        p.style.padding = '2px 8px';
+        p.style.borderRadius = '9999px';
+        p.style.border = '1px solid rgba(99,102,241,.35)';
+        p.style.background = bg; p.style.color = fg;
+        p.setAttribute('role','note'); p.setAttribute('aria-label', `${label}は「${desc}」の意味`);
+        return p;
+      };
+      legend.appendChild(pill('進', '今のやり方で進める', 'rgba(16,185,129,.15)', '#86EFAC'));
+      legend.appendChild(pill('変', 'やり方を切り替える', 'rgba(239,68,68,.15)', '#FCA5A5'));
+      this.container.appendChild(legend);
+
+      // 読み方（10秒） 折りたたみ
+      const guide = document.createElement('details');
+      guide.style.margin = '0 0 8px';
+      guide.setAttribute('role','group');
+      guide.setAttribute('aria-label','読み方（10秒）');
+      const sum = document.createElement('summary');
+      sum.textContent = '読み方（10秒）';
+      sum.style.cursor = 'pointer';
+      sum.style.color = '#cbd5e1';
+      sum.style.fontSize = '.9em';
+      sum.style.outline = 'none';
+      const box = document.createElement('div');
+      box.style.marginTop = '4px';
+      box.style.padding = '8px 10px';
+      box.style.border = '1px dashed rgba(99,102,241,.35)';
+      box.style.borderRadius = '8px';
+      box.style.background = 'rgba(30,41,59,0.35)';
+      box.style.color = '#cbd5e1';
+      box.style.fontSize = '.9em';
+      box.innerHTML = [
+        '・これらはNow（現在）から3ステップの道筋です。',
+        '・タイトルの「進/変」は「進む/切り替える」の意味です。',
+        '・迷ったら「ざっくり → ここがいい → 次にやること」で判断。',
+        '・安全重視は進み基調、発想転換は転換基調を優先。',
+        '・おすすめ度が無い場合はテキスト比較を重視。'
+      ].join('<br>');
+      guide.appendChild(sum);
+      guide.appendChild(box);
+      this.container.appendChild(guide);
+
+      // 補助テキスト（短い説明）
       const helper = document.createElement('div');
-      helper.textContent = '進=今のやり方で進める / 変=やり方を切り替える（カードに特徴・合う条件・注意点・成果を表示）';
+      helper.textContent = 'カードには「ざっくり」「ここがいい」「次にやること」「注意」「結果イメージ」を表示します。';
       helper.style.color = '#94a3b8';
-      helper.style.fontSize = '.9em';
+      helper.style.fontSize = '.85em';
       helper.style.margin = '0 0 8px';
       this.container.appendChild(helper);
+      // 比較パネル（初期表示）
+      if (this.enableCompare) {
+        try { this._renderComparePanel(); } catch {}
+      }
       this.container.appendChild(grid);
 
       // Defer bottom-card insertion via rAF and self-diagnose; retry if wiped
@@ -1163,6 +1461,13 @@
           grid.innerHTML = '';
           grid.appendChild(frag2);
           console.warn('EightBranchesDisplay: minimal fallback cards rendered');
+        }
+      } catch {}
+
+      // evidenceモード時はdetailsを開く
+      try {
+        if (this.displayMode === 'evidence') {
+          this.container.querySelectorAll('details').forEach(d => { try { d.open = true; } catch {} });
         }
       } catch {}
     }

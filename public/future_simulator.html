@@ -34,10 +34,20 @@
                 // やさしい日本語（高校生レベル）コピーを有効化
                 lowReadingLevel: true,
                 // 自信度バーの表示切替（既定: 完全無効化）
-                showConfidenceBar: false
+                showConfidenceBar: false,
+                // 本番ログ抑止フラグ（必要時のみtrueに）
+                production: false,
+                // 透明性/比較の強化フラグ
+                evidencePanel: true,
+                comparePanel: true,
+                showBadges: true,
+                disclaimer: true
             }
         };
     </script>
+
+    <!-- Production console suppression (must load early) -->
+    <script src="./js/utils/console-suppressor.js"></script>
     
     
     
@@ -96,9 +106,9 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Preload lightweight data for fast Now rendering -->
-    <link rel="preload" href="./data/narratives-short.json" as="fetch" crossorigin>
-    <link rel="preload" href="./data/h384-line-states.json" as="fetch" crossorigin>
+    <!-- Prefetch lightweight data (avoid preload-unused warnings) -->
+    <link rel="prefetch" href="./data/narratives-short.json" crossorigin>
+    <link rel="prefetch" href="./data/h384-line-states.json" crossorigin>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@100..900&display=swap"
       rel="stylesheet"
@@ -1560,9 +1570,9 @@
     <script src="./js/scenario-easy-loader.js?v=20250912"></script>
     <script src="./js/core/BranchGenerator.js?v=20250911"></script>
     <script src="./js/components/EightBranchesDisplay.js?v=20250911"></script>
-    <!-- Removed legacy controller: ResultPageController (not used in minimal mode) -->
-    <!-- <script src="./js/components/ResultPageController.js?v=20250909"></script> -->
-    <script src="./js/future-simulator-integration.js?v=20250911"></script>
+  <!-- Removed legacy controller: ResultPageController (not used in minimal mode) -->
+  <!-- <script src="./js/components/ResultPageController.js?v=20250909"></script> -->
+  <script src="./js/future-simulator-integration.js?v=20250911"></script>
     <script src="./js/core/PerformanceOptimizer.js"></script>
     <script src="./js/core/IChingTransformationEngine.js"></script>
     <script src="./js/core/FutureBranchingSystem.js"></script>
@@ -1633,7 +1643,7 @@
             
             console.log('🏁 H384_DATA読み込み順序確認完了');
         })();
-    </script>
+  </script>
     <script src="./js/keyword_expansion_engine.js"></script>
     <script src="./js/ml-integration.js" async defer></script>
     <!-- Offline-First Dictionary System -->
@@ -1667,13 +1677,13 @@
     <script src="./js/core/AuthenticIChingEngine.js"></script>
     <script src="./js/components/CurrentPositionDisplay.js"></script>
     <script src="./js/components/AuthenticChoiceSystem.js"></script>
-    <!-- Removed old authentic systems to avoid conflicts -->
+  <!-- Removed old authentic systems to avoid conflicts -->
     
-    <!-- I Ching Integration System -->
+  <!-- I Ching Integration System -->
     <script src="./js/iching-situation-analyzer.js"></script>
     <script src="./js/yao-transformation-simulator.js"></script>
     <script src="./js/iching-metaphor-display.js"></script>
-    <!-- iching-future-simulator.js now loaded as ESM module below -->
+  <!-- iching-future-simulator.js now loaded as ESM module below -->
     
     <!-- Global I Ching Simulator Factory -->
     <script>
@@ -1684,7 +1694,25 @@
         return null;
       }
       window.getIChingSimulator = getIChingSimulator;
-    </script>
+  </script>
+  
+  <!-- Disclaimer (常時表示: 応用的助言の明示) -->
+  <div id="fs-disclaimer" style="max-width:80rem;margin:16px auto 24px;padding:10px 12px;border:1px solid rgba(99,102,241,.25);border-radius:10px;background:rgba(17,24,39,.35);color:#cbd5e1;display:none;">
+    <div style="font-weight:700;color:#c7d2fe;margin-bottom:4px;">ご利用上の注意</div>
+    <div style="font-size:.9em;line-height:1.6;">
+      本ページは易経の知見をもとに現代の意思決定支援として再構成した「応用的な助言」を表示します。健康・投資・法律など専門判断を要する領域では、最終判断はご自身で行い、必要に応じて専門家にご相談ください。
+    </div>
+  </div>
+  <script>
+    (function(){
+      try {
+        if (window.HAQEI_CONFIG?.featureFlags?.disclaimer !== false) {
+          const el = document.getElementById('fs-disclaimer');
+          if (el) el.style.display = 'block';
+        }
+      } catch {}
+    })();
+  </script>
     
     <!-- Future Simulator Core & Binary Tree System -->
     <!-- Removed old core/binary-tree systems (EightScenariosDisplay is authoritative) -->
@@ -3408,7 +3436,11 @@
         if (el && window.H384_DATA && Number.isFinite(hexNumForState)) {
           const entry = window.H384_DATA.find(e => Number(e['卦番号']) === hexNumForState && String(e['爻']) === yaoName);
           const summary = entry && typeof entry['現代解釈の要約'] === 'string' ? entry['現代解釈の要約'].trim() : '';
-          if (summary) el.textContent = summary;
+          if (summary) {
+            // マイクロタスク/短期タイマーで描画先行
+            Promise.resolve().then(() => { el.textContent = summary; });
+            setTimeout(() => { if (el.textContent !== summary) el.textContent = summary; }, 0);
+          }
         }
       } catch {}
 
@@ -3438,7 +3470,10 @@
               if (typeof v === 'string') txt = v; else if (v && typeof v.text === 'string') txt = v.text;
             }
           }
-          if (el) el.textContent = (txt && txt.trim()) ? txt : '（未登録）';
+          // 既存プレレンダーがある場合はそれを尊重し、未登録にはしない
+          if (el && txt && txt.trim()) {
+            el.textContent = txt.trim();
+          }
         } catch { if (el) el.textContent = '（未登録）'; }
       })();
 
