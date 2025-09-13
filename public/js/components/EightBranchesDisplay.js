@@ -583,36 +583,42 @@
           }
         }
       } catch {}
-      // recommendation score bar
-      // Use data-informed branch score instead of static pattern baseline
-      const __score = this._branchScore(branch);
+      // recommendation score bar — link to comparison chart metric (final S7). If S7 missing, skip rendering.
       const __scoreWrap = document.createElement('div');
       __scoreWrap.setAttribute('data-section','summary');
       __scoreWrap.style.margin = '6px 0 4px';
-      const __bar = document.createElement('div');
-      __bar.style.height = '6px';
-      __bar.style.background = 'rgba(148,163,184,.3)';
-      __bar.style.borderRadius = '6px';
-      const __fill = document.createElement('div');
-      __fill.style.height = '100%';
-      __fill.style.width = Math.max(10, Math.min(100, __score)) + '%';
-      __fill.style.borderRadius = '6px';
-      __fill.style.background = 'linear-gradient(90deg, #6366F1, #22C55E)';
-      __bar.appendChild(__fill);
-      const __label = document.createElement('div');
-      __label.textContent = `おすすめ度: ${__score}%`;
-      __label.style.fontSize = '.8em';
-      __label.style.color = '#94a3b8';
-      __label.style.marginTop = '4px';
-      const __micro = document.createElement('div');
-      const __easy = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
-      __micro.textContent = __easy ? '目安' : '指標（根拠: 入力語×状況一致×安定度）';
-      __micro.style.fontSize = '.75em';
-      __micro.style.color = '#64748b';
-      __micro.style.marginTop = '2px';
-      __scoreWrap.appendChild(__bar);
-      __scoreWrap.appendChild(__label);
-      __scoreWrap.appendChild(__micro);
+      ( () => {
+        try {
+          const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
+          const last = steps[steps.length-1] || {};
+          const s7 = this._getS7Score(last.hex, last.line);
+          if (!Number.isFinite(s7)) return; // do not append bar if we lack S7
+          const __bar = document.createElement('div');
+          __bar.style.height = '6px';
+          __bar.style.background = 'rgba(148,163,184,.3)';
+          __bar.style.borderRadius = '6px';
+          const __fill = document.createElement('div');
+          __fill.style.height = '100%';
+          __fill.style.width = Math.max(0, Math.min(100, Math.round(s7))) + '%';
+          __fill.style.borderRadius = '6px';
+          __fill.style.background = 'linear-gradient(90deg, #6366F1, #22C55E)';
+          __bar.appendChild(__fill);
+          const __label = document.createElement('div');
+          __label.textContent = `おすすめ度: ${Math.round(s7)}%`;
+          __label.style.fontSize = '.8em';
+          __label.style.color = '#94a3b8';
+          __label.style.marginTop = '4px';
+          const __micro = document.createElement('div');
+          const __easy = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
+          __micro.textContent = __easy ? '目安（上のグラフの最終点）' : '指標: Chart最終点(S7)';
+          __micro.style.fontSize = '.75em';
+          __micro.style.color = '#64748b';
+          __micro.style.marginTop = '2px';
+          __scoreWrap.appendChild(__bar);
+          __scoreWrap.appendChild(__label);
+          __scoreWrap.appendChild(__micro);
+        } catch {}
+      })();
       // risk/effort chips
       const __chips = document.createElement('div');
       __chips.style.display = 'flex';
@@ -959,7 +965,7 @@
         this.container.appendChild(chartWrap);
         if (window.Chart) {
           const labels = ['Step1', 'Step2', 'Step3'];
-          const getBasicScore = (hex, line) => {
+          const getS7 = (hex, line) => {
             try {
               const candidates = {
                 1: ['初九','初六'], 2: ['九二','六二'], 3: ['九三','六三'],
@@ -967,7 +973,7 @@
               }[line] || [];
               const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
               const found = data.find(e => Number(e['卦番号']) === Number(hex) && candidates.includes(String(e['爻'])));
-              const v = Number(found && found['S1_基本スコア']);
+              const v = Number(found && found['S7_総合評価スコア']);
               if (Number.isFinite(v)) return v;
             } catch {}
             return null;
@@ -976,7 +982,7 @@
           const dashes  = [[], [6,3], [2,3], [8,4], [1,4], [10,2,2,2], [4,4,1,4], [12,3]];
           const shapes  = ['circle','triangle','rectRot','rectRounded','star','cross','dash','line'];
           const toDataset = (b, idx) => {
-            const vals = b.steps.map(s => getBasicScore(s.hex, s.line)).map((v,i) => v ?? (b.steps[i].action === '進' ? 70 : 55));
+            const vals = b.steps.map(s => getS7(s.hex, s.line)).map((v,i) => v ?? (b.steps[i].action === '進' ? 70 : 55));
             const color = palette[idx % palette.length];
             return {
               label: `分岐${b.id}`,
