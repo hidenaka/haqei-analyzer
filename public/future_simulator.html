@@ -3402,7 +3402,17 @@
         <div id="current-status-reasons" style="display:none"></div>
       `;
 
-      // Now主理由＝ワンライン（あれば narratives.v1 の short）、なければ行状態テキスト
+      // 即時プレレンダー: H384_DATAの要約が取れれば先に表示（後でshortに差し替え）
+      try {
+        const el = document.getElementById('now-main-reason');
+        if (el && window.H384_DATA && Number.isFinite(hexNumForState)) {
+          const entry = window.H384_DATA.find(e => Number(e['卦番号']) === hexNumForState && String(e['爻']) === yaoName);
+          const summary = entry && typeof entry['現代解釈の要約'] === 'string' ? entry['現代解釈の要約'].trim() : '';
+          if (summary) el.textContent = summary;
+        }
+      } catch {}
+
+      // Now主理由＝ワンライン（あれば narratives-short の short）、なければ行状態テキスト（後置で上書き）
       (async () => {
         const el = document.getElementById('now-main-reason');
         try {
