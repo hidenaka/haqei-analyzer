@@ -3399,20 +3399,35 @@
         <div id="current-status-reasons" style="display:none"></div>
       `;
 
-      // Now主理由＝行状態テキスト
+      // Now主理由＝ワンライン（あれば narratives.v1 の short）、なければ行状態テキスト
       (async () => {
+        const el = document.getElementById('now-main-reason');
         try {
-          const key = `${hexNumForState}-${yaoPosForState}`;
-          const res = await fetch('./data/h384-line-states.json', { cache: 'no-cache' });
-          let txt = '（未登録）';
-          if (res.ok) {
-            const map = await res.json();
-            const v = map[key];
-            if (typeof v === 'string') txt = v; else if (v && typeof v.text === 'string') txt = v.text;
+          // 1) narratives.v1.json の short を優先
+          let txt = '';
+          const keyLabel = `${hexName} ${yaoName}`.trim();
+          try {
+            const nres = await fetch('./data/narratives.v1.json', { cache: 'no-cache' });
+            if (nres.ok) {
+              const narr = await nres.json();
+              const entry = narr[keyLabel];
+              if (entry && typeof entry.short === 'string' && entry.short.trim().length) {
+                txt = entry.short.trim();
+              }
+            }
+          } catch {}
+          // 2) 行状態テキスト（h384-line-states.json）
+          if (!txt) {
+            const key = `${hexNumForState}-${yaoPosForState}`;
+            const lres = await fetch('./data/h384-line-states.json', { cache: 'no-cache' });
+            if (lres.ok) {
+              const map = await lres.json();
+              const v = map[key];
+              if (typeof v === 'string') txt = v; else if (v && typeof v.text === 'string') txt = v.text;
+            }
           }
-          const el = document.getElementById('now-main-reason');
-          if (el) el.textContent = txt || '（未登録）';
-        } catch { const el = document.getElementById('now-main-reason'); if (el) el.textContent = '（未登録）'; }
+          if (el) el.textContent = (txt && txt.trim()) ? txt : '（未登録）';
+        } catch { if (el) el.textContent = '（未登録）'; }
       })();
 
       // 8分岐（進/変）の自動描画
