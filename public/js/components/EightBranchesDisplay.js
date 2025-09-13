@@ -624,7 +624,8 @@
       __chips.appendChild(__mkChip(__risk.label, __risk.color));
       __chips.appendChild(__mkChip(__eff.label, __eff.color));
       // effect types and difficulty (heuristics) — Classicでは非表示
-      if (!classic) {
+      // Confidence bar: completely feature-gated (default: off)
+      if (!classic && (window.HAQEI_CONFIG?.featureFlags?.showConfidenceBar === true)) {
         try {
           const kw = this._deriveQuickKeywords(branch);
           const types = this._effectTypes(kw);
