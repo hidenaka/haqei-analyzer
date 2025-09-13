@@ -484,6 +484,7 @@
         const wrap = document.createElement('div'); wrap.style.display='grid'; wrap.style.gridTemplateColumns = `repeat(${items.length}, 1fr)`; wrap.style.gap='10px';
         items.forEach((b, i) => {
           const box = document.createElement('div'); box.style.border='1px solid rgba(99,102,241,.35)'; box.style.borderRadius='8px'; box.style.padding='8px 10px';
+          try { box.setAttribute('data-test','compare-item'); } catch {}
           const title = document.createElement('div'); title.style.color='#A5B4FC'; title.style.fontWeight='700'; title.textContent = `分岐${b.id}｜${b.series}`; box.appendChild(title);
           const mk = (label, txt) => { const r=document.createElement('div'); r.style.fontSize='.85em'; r.style.color='#cbd5e1'; r.style.marginTop='2px'; r.textContent = `${label}: ${txt}`; return r; };
           box.appendChild(mk('ざっくり', this._seriesNarrative(b)));
@@ -542,6 +543,30 @@
         card.setAttribute('role', 'group');
         card.setAttribute('aria-label', `分岐${branch.id} ${branch.series} の概要`);
       } catch {}
+      // Badges (現代解釈 / 推定)
+      if (this.showBadges) {
+        const badgeWrap = document.createElement('div');
+        badgeWrap.style.display = 'flex';
+        badgeWrap.style.gap = '6px';
+        badgeWrap.style.flexWrap = 'wrap';
+        badgeWrap.style.marginBottom = '6px';
+        const mkBadge = (text, bg, fg) => {
+          const s = document.createElement('span');
+          s.textContent = text;
+          s.style.fontSize = '.75em';
+          s.style.padding = '2px 6px';
+          s.style.borderRadius = '9999px';
+          s.style.border = '1px solid rgba(99,102,241,.35)';
+          s.style.background = bg;
+          s.style.color = fg;
+          return s;
+        };
+        const applied = mkBadge('現代解釈', 'rgba(99,102,241,.15)', '#c7d2fe');
+        try { applied.setAttribute('data-test','badge-applied'); } catch {}
+        badgeWrap.appendChild(applied);
+        card.appendChild(badgeWrap);
+        card.__badgeWrap = badgeWrap;
+      }
 
       const title = document.createElement('div');
       try { title.setAttribute('data-role','branch-title'); } catch {}
@@ -700,6 +725,21 @@
             wrap.appendChild(lab);
             wrap.appendChild(note);
             __scoreWrap.appendChild(wrap);
+            // 推定バッジ追加
+            try {
+              if (card.__badgeWrap) {
+                const estBadge = document.createElement('span');
+                estBadge.textContent = '推定';
+                estBadge.style.fontSize = '.75em';
+                estBadge.style.padding = '2px 6px';
+                estBadge.style.borderRadius = '9999px';
+                estBadge.style.border = '1px solid rgba(99,102,241,.35)';
+                estBadge.style.background = 'rgba(148,163,184,.15)';
+                estBadge.style.color = '#cbd5e1';
+                estBadge.setAttribute('data-test','badge-estimated');
+                card.__badgeWrap.appendChild(estBadge);
+              }
+            } catch {}
             return;
           }
           const __bar = document.createElement('div');

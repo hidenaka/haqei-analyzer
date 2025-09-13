@@ -67,8 +67,8 @@ async function run() {
   // Check badges (現代解釈)
   let hasBadge = 0;
   try {
-    await branches.locator(':text("現代解釈")').first().waitFor({ state: 'visible', timeout: 3000 });
-    hasBadge = await branches.locator(':text("現代解釈")').count();
+    await branches.locator('[data-test="badge-applied"]').first().waitFor({ state: 'visible', timeout: 5000 });
+    hasBadge = await branches.locator('[data-test="badge-applied"]').count();
   } catch {}
   console.log(`Badges(現代解釈) count: ${hasBadge}`);
 
@@ -85,7 +85,7 @@ async function run() {
     await cmpButtons.nth(i).click().catch(()=>{});
     await page.waitForTimeout(100);
   }
-  const compareItems = comparePanel.locator('div', { hasText: '分岐' });
+  const compareItems = comparePanel.locator('[data-test="compare-item"]');
   const compareItemCount = await compareItems.count();
   console.log(`Compare items: ${compareItemCount}`);
 
@@ -95,8 +95,14 @@ async function run() {
   await evBtn.first().waitFor({ state: 'visible', timeout: 5000 }).catch(()=>{});
   if (await evBtn.count()) {
     await evBtn.first().click();
-    await page.waitForTimeout(300);
-    const openDetails = await branches.locator('details[open]').count();
+    // wait for details open with small polling window
+    let openDetails = 0;
+    const start = Date.now();
+    while (Date.now() - start < 5000) {
+      openDetails = await branches.locator('details[open]').count();
+      if (openDetails > 0) break;
+      await page.waitForTimeout(200);
+    }
     console.log(`Evidence mode details open: ${openDetails}`);
   } else {
     console.log('⚠️ Evidence toggle not found');
