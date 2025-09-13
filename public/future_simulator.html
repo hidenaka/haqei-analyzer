@@ -96,6 +96,9 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Preload lightweight data for fast Now rendering -->
+    <link rel="preload" href="./data/narratives-short.json" as="fetch" crossorigin>
+    <link rel="preload" href="./data/h384-line-states.json" as="fetch" crossorigin>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@100..900&display=swap"
       rel="stylesheet"
@@ -3407,19 +3410,18 @@
           let txt = '';
           const keyLabel = `${hexName} ${yaoName}`.trim();
           try {
-            const nres = await fetch('./data/narratives.v1.json', { cache: 'no-cache' });
+            // 軽量版（shortのみ）を優先
+            const nres = await fetch('./data/narratives-short.json', { cache: 'default' });
             if (nres.ok) {
               const narr = await nres.json();
-              const entry = narr[keyLabel];
-              if (entry && typeof entry.short === 'string' && entry.short.trim().length) {
-                txt = entry.short.trim();
-              }
+              const short = narr[keyLabel];
+              if (typeof short === 'string' && short.trim().length) txt = short.trim();
             }
           } catch {}
           // 2) 行状態テキスト（h384-line-states.json）
           if (!txt) {
             const key = `${hexNumForState}-${yaoPosForState}`;
-            const lres = await fetch('./data/h384-line-states.json', { cache: 'no-cache' });
+            const lres = await fetch('./data/h384-line-states.json', { cache: 'default' });
             if (lres.ok) {
               const map = await lres.json();
               const v = map[key];
