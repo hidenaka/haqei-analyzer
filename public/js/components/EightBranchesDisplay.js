@@ -584,7 +584,8 @@
         }
       } catch {}
       // recommendation score bar
-      const __score = this._score(branch.series);
+      // Use data-informed branch score instead of static pattern baseline
+      const __score = this._branchScore(branch);
       const __scoreWrap = document.createElement('div');
       __scoreWrap.setAttribute('data-section','summary');
       __scoreWrap.style.margin = '6px 0 4px';
@@ -747,8 +748,16 @@
           const usedCount = Object.values(used).filter(Boolean).length || 0;
           const fallback = !!(global.futureSimulator?.branchGenerator?.usedFallback);
           const missing = branch.steps.filter(st => !Number.isFinite(this._getBasicScore(st.hex, st.line))).length;
+          const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
+          const basicCount = steps.filter(st => Number.isFinite(this._getBasicScore(st.hex, st.line))).length;
+          // Show confidence only when一定の根拠がある（どれかが真）: 解析システムを1つ以上使用 / H384基本スコアが2段以上取得
+          const hasSignal = (usedCount > 0) || (basicCount >= 2);
+          if (!hasSignal) {
+            // 情報が少なすぎる場合は自信度を表示しない
+            throw new Error('insufficient-signal');
+          }
           let conf = Math.round((usedCount/4)*100) - (fallback?10:0) - (missing*5);
-          conf = Math.max(10, Math.min(100, conf));
+          conf = Math.max(0, Math.min(100, conf));
           const wrap = document.createElement('div');
           wrap.style.marginTop = '4px';
           const bar = document.createElement('div');
@@ -759,7 +768,7 @@
           const lbl = document.createElement('div');
           const __easyLbl = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
           lbl.textContent = `${__easyLbl ? '自信度' : '確信度'}: ${conf}%`;
-          lbl.title = __easyLbl ? '使えたデータの多さと、推測の少なさからの目安です' : '算出: 活用率(使用システム/4) − フォールバック補正 − 欠損データ×5%';
+          lbl.title = __easyLbl ? '使えたデータの多さと推測の少なさの目安（使用システム/4 − 推定/欠損の補正）' : '算出: 活用率(使用システム/4) − フォールバック補正 − 欠損データ×5%';
           lbl.style.fontSize='.75em'; lbl.style.color='#94a3b8'; lbl.style.marginTop='2px';
           wrap.appendChild(bar); wrap.appendChild(lbl);
           __ds.appendChild(wrap);
