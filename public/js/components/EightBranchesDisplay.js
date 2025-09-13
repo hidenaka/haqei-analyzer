@@ -1510,6 +1510,15 @@
           this.container.querySelectorAll('details').forEach(d => { try { d.open = true; } catch {} });
         }
       } catch {}
+
+      // evidenceモードのときはdetailsを確実にopen
+      try {
+        if (this.displayMode === 'evidence') {
+          // 次フレームでopenを適用（挿入直後の描画完了を待つ）
+          await new Promise(res => requestAnimationFrame(() => res()));
+          this.container.querySelectorAll('details').forEach(d => { try { d.open = true; } catch {} });
+        }
+      } catch {}
     }
   }
 
