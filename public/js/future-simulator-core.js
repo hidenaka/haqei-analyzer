@@ -260,6 +260,14 @@ FutureSimulator.Core = {
   
   async startAnalysis() {
     console.log('🔍 Starting advanced analysis with text interpretation...');
+    // Lazy init on demand to defer heavy boot until first use
+    try {
+      if (!this.initialized) {
+        await this.init();
+      }
+    } catch (e) {
+      console.warn('Init before analysis failed, continuing with best-effort:', e?.message || e);
+    }
     
     const inputField = document.getElementById('worryInput') ||
                       document.getElementById('worryInput') ||
@@ -1642,13 +1650,40 @@ FutureSimulator.Core = {
   }
 };
 
-// Auto-initialize when DOM is ready
+// Defer heavy initialization until user interaction or idle time
+FutureSimulator.Core.__initScheduled = false;
+FutureSimulator.Core.scheduleInitOnFirstInteraction = function () {
+  if (this.__initScheduled) return;
+  this.__initScheduled = true;
+  const self = this;
+  const kickoff = () => {
+    try {
+      listeners.forEach(({ t, f }) => window.removeEventListener(t, f, { passive: true }));
+    } catch (_) {}
+    setTimeout(() => self.init(), 0);
+  };
+  const listeners = [
+    { t: 'pointerdown', f: kickoff },
+    { t: 'touchstart', f: kickoff },
+    { t: 'keydown', f: kickoff },
+    { t: 'click', f: kickoff },
+    { t: 'focusin', f: kickoff }
+  ];
+  try { listeners.forEach(({ t, f }) => window.addEventListener(t, f, { passive: true })); } catch (_) {}
+  const ric = window.requestIdleCallback || function (cb) { return setTimeout(cb, 3000); };
+  ric(() => {
+    if (!self.initialized) {
+      try { self.init(); } catch (e) { /* noop */ }
+    }
+  }, { timeout: 5000 });
+};
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => FutureSimulator.Core.init(), 1000);
+    FutureSimulator.Core.scheduleInitOnFirstInteraction();
   });
 } else {
-  setTimeout(() => FutureSimulator.Core.init(), 1000);
+  FutureSimulator.Core.scheduleInitOnFirstInteraction();
 }
 
 console.log('✅ Future Simulator Core loaded');
