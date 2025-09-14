@@ -29,6 +29,10 @@
       pairs.forEach(([re, rep]) => { t = t.replace(re, rep); });
       t = t.replace(/ください(?=。|$)/g, 'する局面です');
       t = t.replace(/必ず/g, '基本的に');
+      t = t.replace(/ですです/g, 'です');
+      t = t.replace(/です。です/g, 'です。');
+      t = t.replace(/。。+/g, '。');
+      t = t.replace(/\s+。/g, '。');
       return t;
     } catch { return String(text||''); }
   }
@@ -49,4 +53,3 @@
     }
   } catch (e) { try { console.warn('H384 neutralizer error:', e?.message||e); } catch {} }
 })(typeof window !== 'undefined' ? window : globalThis);
-

@@ -201,6 +201,11 @@
         t = t.replace(/ください(?=。|$)/g, 'する局面です');
         // 強い断定の和らげ
         t = t.replace(/必ず/g, '基本的に');
+        // 重複終止の整理
+        t = t.replace(/ですです/g, 'です');
+        t = t.replace(/です。です/g, 'です。');
+        t = t.replace(/。。+/g, '。');
+        t = t.replace(/\s+。/g, '。');
         return t;
       } catch { return String(text||''); }
     }
@@ -885,18 +890,27 @@
       const __tips = __kw.length ? __kw : this._tips(branch.series);
       // 系列固有フレーズで差分を強調
       const __flavor = (() => {
-        const pat = String(branch.series||'');
-        switch (pat) {
-          case '進→進→進': return '勢い維持で押し切る';
-          case '進→進→変': return '最後は微調整で締める';
-          case '進→変→進': return '中盤の切替で再加速';
-          case '進→変→変': return '後半は設計し直す';
-          case '変→進→進': return '初手転換で安定化';
-          case '変→進→変': return '締めに向けて整える';
-          case '変→変→進': return '段階転換ののち前進';
-          case '変→変→変': return '全面転換で新路線';
-          default: return '';
-        }
+        try {
+          const pat = String(branch.series||'');
+          const acts = pat.split('→');
+          const stepsLocal = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
+          const lastText = stepsLocal[2]?.lineText || '';
+          const sev = this._severityScore(lastText);
+          const lastAct = acts[2] || '';
+          if (sev >= 3) return lastAct === '変' ? '最後は安全側に切替えて立て直す' : '最後は守りに着地して被害を抑える';
+          if (sev >= 1) return lastAct === '変' ? '最後は慎重に調整して締める' : '慎重さを伴って仕上げる';
+          switch (pat) {
+            case '進→進→進': return '勢い維持で押し切る';
+            case '進→進→変': return '最後は微調整で締める';
+            case '進→変→進': return '中盤の切替で再加速';
+            case '進→変→変': return '後半は設計し直す';
+            case '変→進→進': return '初手転換で安定化';
+            case '変→進→変': return '締めに向けて整える';
+            case '変→変→進': return '段階転換ののち前進';
+            case '変→変→変': return '全面転換で新路線';
+            default: return '';
+          }
+        } catch { return ''; }
       })();
       // Summary block (action-oriented)
       const __summaryWrap = document.createElement('div');
