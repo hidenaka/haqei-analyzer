@@ -1860,6 +1860,16 @@
           fallback.style.color = '#E5E7EB';
           const head = document.createElement('div'); head.textContent = `分岐${b?.id||i+1}`; head.style.color='#A5B4FC'; head.style.fontWeight='600';
           const body = document.createElement('div'); body.textContent = '（簡易表示: 描画でエラーが発生しました）'; body.style.fontSize='.9em'; body.style.color='#cbd5e1';
+          try {
+            if (window.HAQEI_CONFIG?.debug?.showErrors) {
+              const pre = document.createElement('pre');
+              pre.textContent = String(e?.stack || e?.message || e);
+              pre.style.whiteSpace = 'pre-wrap'; pre.style.fontSize = '.75em'; pre.style.color = '#94a3b8'; pre.style.marginTop = '6px';
+              body.appendChild(pre);
+            } else {
+              fallback.title = String(e?.message || e);
+            }
+          } catch {}
           fallback.appendChild(head); fallback.appendChild(body);
           __bottomCardNodes.push(fallback);
         }
@@ -1881,6 +1891,16 @@
               fallback.style.color = '#E5E7EB';
               const head = document.createElement('div'); head.textContent = `分岐${b?.id||i+1}`; head.style.color='#A5B4FC'; head.style.fontWeight='600';
               const body = document.createElement('div'); body.textContent = '（簡易表示: 描画でエラーが発生しました）'; body.style.fontSize='.9em'; body.style.color='#cbd5e1';
+              try {
+                if (window.HAQEI_CONFIG?.debug?.showErrors) {
+                  const pre = document.createElement('pre');
+                  pre.textContent = String(e?.stack || e?.message || e);
+                  pre.style.whiteSpace = 'pre-wrap'; pre.style.fontSize = '.75em'; pre.style.color = '#94a3b8'; pre.style.marginTop = '6px';
+                  body.appendChild(pre);
+                } else {
+                  fallback.title = String(e?.message || e);
+                }
+              } catch {}
               fallback.appendChild(head); fallback.appendChild(body);
               __bottomCardNodes.push(fallback);
             }
