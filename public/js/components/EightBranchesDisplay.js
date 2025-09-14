@@ -15,6 +15,7 @@
         this.enableEvidence = ff.evidencePanel !== false;
         this.enableCompare = ff.comparePanel !== false;
         this.showBadges = ff.showBadges !== false;
+        this.showEndpointPreview = ff.showEndpointPreview !== false;
       } catch { this.enableEvidence = false; this.enableCompare = false; this.showBadges = false; }
       this.displayMode = 'applied';
       this.visualStrengthen = (window.HAQEI_CONFIG?.featureFlags?.visualStrengthen !== false);
@@ -861,14 +862,67 @@
           const stepsArr = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
           const last = stepsArr[2] || stepsArr[1] || stepsArr[0] || null;
           if (!last) return;
-          const endLine = await this._oneLinerForStep(last.hex, last.line);
-          if (endLine) {
-            const __end = document.createElement('div');
-            __end.style.color = '#a5b4fc';
-            __end.style.fontSize = '.85em';
-            __end.style.margin = '2px 0';
-            __end.textContent = '終点: ' + this._short(endLine, 60);
-            __summaryWrap.appendChild(__end);
+          if (this.showEndpointPreview) {
+            const info = await this._endpointInfoForStep(last.hex, last.line);
+            if (info && (info.title || info.summary || (info.keywords||[]).length)) {
+              const block = document.createElement('div');
+              try { block.setAttribute('data-test','endpoint-block'); block.setAttribute('role','group'); block.setAttribute('aria-label', `終点情報: ${info.title||''}`); } catch {}
+              block.style.margin = '4px 0';
+              block.style.padding = '6px 8px';
+              block.style.border = '1px dashed rgba(99,102,241,.35)';
+              block.style.borderRadius = '8px';
+              block.style.background = 'rgba(30,41,59,0.35)';
+              // title line
+              if (info.title) {
+                const t = document.createElement('div');
+                t.style.color = '#a5b4fc';
+                t.style.fontWeight = '600';
+                t.style.marginBottom = '2px';
+                t.textContent = `終点: ${info.title}`;
+                block.appendChild(t);
+              }
+              // meta row (S7 + keywords)
+              if ((info.s7!=null) || (info.keywords && info.keywords.length)) {
+                const meta = document.createElement('div');
+                meta.style.display='flex'; meta.style.gap='6px'; meta.style.flexWrap='wrap'; meta.style.alignItems='center';
+                if (info.s7!=null) {
+                  const pill = document.createElement('span');
+                  pill.textContent = `到達S7: ${info.s7}`;
+                  pill.style.fontSize = '.75em';
+                  pill.style.padding = '2px 6px';
+                  pill.style.borderRadius = '9999px';
+                  pill.style.border = '1px solid rgba(34,197,94,.35)';
+                  pill.style.background = 'rgba(34,197,94,.10)';
+                  pill.style.color = '#86EFAC';
+                  meta.appendChild(pill);
+                }
+                (info.keywords||[]).slice(0,3).forEach(k => {
+                  const chip=document.createElement('span');
+                  chip.textContent = k;
+                  chip.style.fontSize = '.75em'; chip.style.padding='1px 6px'; chip.style.border='1px solid rgba(148,163,184,.35)'; chip.style.borderRadius='9999px'; chip.style.color='#cbd5e1';
+                  meta.appendChild(chip);
+                });
+                block.appendChild(meta);
+              }
+              // summary text
+              if (info.summary) {
+                const s = document.createElement('div');
+                s.style.color = '#cbd5e1'; s.style.fontSize = '.85em'; s.style.marginTop = '2px';
+                s.textContent = this._short(info.summary, 90);
+                block.appendChild(s);
+              }
+              __summaryWrap.appendChild(block);
+            }
+          } else {
+            const endLine = await this._oneLinerForStep(last.hex, last.line);
+            if (endLine) {
+              const __end = document.createElement('div');
+              __end.style.color = '#a5b4fc';
+              __end.style.fontSize = '.85em';
+              __end.style.margin = '2px 0';
+              __end.textContent = '終点: ' + this._short(endLine, 60);
+              __summaryWrap.appendChild(__end);
+            }
           }
         } catch {}
       })();
@@ -1330,6 +1384,20 @@
         const svg = document.createElementNS(svgNS,'svg');
         svg.setAttribute('width',String(W)); svg.setAttribute('height',String(H)); svg.setAttribute('data-test','track-glyph');
         svg.setAttribute('role','img'); svg.setAttribute('aria-label', `経路: ${acts.join('→')}`);
+        // Gradient stroke（進→変の区間を色替え）
+        const gid = `grad_${branch.id || 0}_${acts.join('')}`;
+        const defs = document.createElementNS(svgNS,'defs');
+        const grad = document.createElementNS(svgNS,'linearGradient');
+        grad.setAttribute('id', gid); grad.setAttribute('x1','0'); grad.setAttribute('y1','0'); grad.setAttribute('x2','1'); grad.setAttribute('y2','0');
+        const stops = [];
+        const boundaries = [0, 0.333, 0.666, 1];
+        for (let i=0;i<3;i++){
+          const c = (acts[i]==='変') ? colorH : colorJ;
+          const s0 = boundaries[i], s1 = boundaries[i+1];
+          stops.push([s0, c],[s1, c]);
+        }
+        stops.forEach(([off, col])=>{ const st=document.createElementNS(svgNS,'stop'); st.setAttribute('offset', `${Math.round(off*100)}%`); st.setAttribute('stop-color', col); grad.appendChild(st); });
+        defs.appendChild(grad); svg.appendChild(defs);
         // 背景レール
         const rail = document.createElementNS(svgNS,'line');
         rail.setAttribute('x1',x[0]); rail.setAttribute('y1',yBase); rail.setAttribute('x2',x[3]); rail.setAttribute('y2',yBase);
@@ -1345,21 +1413,26 @@
         }
         path.setAttribute('d', d);
         path.setAttribute('fill','none');
-        path.setAttribute('stroke', colorJ);
+        path.setAttribute('stroke', `url(#${gid})`);
         path.setAttribute('stroke-width','3');
         path.setAttribute('stroke-linecap','round'); path.setAttribute('stroke-linejoin','round');
         if (est) path.setAttribute('stroke-dasharray','3 3');
         svg.appendChild(path);
-        // 変の区間にオレンジのハイライト
+        // 変ゲート（小菱形＆「変」ピル）
         for (let i=0;i<3;i++){
           if (acts[i] !== '変') continue;
-          const seg = document.createElementNS(svgNS,'path');
-          const yOff=-3; const xm=(x[i]+x[i+1])/2; const ym=yBase+yOff;
-          seg.setAttribute('d', `M ${x[i]} ${yBase} Q ${xm} ${ym} ${x[i+1]} ${yBase}`);
-          seg.setAttribute('fill','none'); seg.setAttribute('stroke', colorH); seg.setAttribute('stroke-width','2.5');
-          seg.setAttribute('stroke-linecap','round'); seg.setAttribute('stroke-linejoin','round');
-          if (est) seg.setAttribute('stroke-dasharray','3 3');
-          svg.appendChild(seg);
+          const xm=(x[i]+x[i+1])/2, ym=yBase-3;
+          const dsize=3; const diamond=document.createElementNS(svgNS,'polygon');
+          diamond.setAttribute('points', `${(xm).toFixed(1)},${(ym-dsize).toFixed(1)} ${(xm+dsize).toFixed(1)},${(ym).toFixed(1)} ${(xm).toFixed(1)},${(ym+dsize).toFixed(1)} ${(xm-dsize).toFixed(1)},${(ym).toFixed(1)}`);
+          diamond.setAttribute('fill', colorH); svg.appendChild(diamond);
+          // ピル
+          const pillW=12, pillH=10; const px=xm-pillW/2, py=ym-14;
+          const rect=document.createElementNS(svgNS,'rect'); rect.setAttribute('x',px.toFixed(1)); rect.setAttribute('y',py.toFixed(1)); rect.setAttribute('rx','4'); rect.setAttribute('ry','4'); rect.setAttribute('width',String(pillW)); rect.setAttribute('height',String(pillH)); rect.setAttribute('fill','rgba(245,158,11,.25)'); rect.setAttribute('stroke',colorH); rect.setAttribute('stroke-width','0.6'); svg.appendChild(rect);
+          const txt=document.createElementNS(svgNS,'text'); txt.setAttribute('x',(xm).toFixed(1)); txt.setAttribute('y',(py+pillH/2+3).toFixed(1)); txt.setAttribute('fill',colorH); txt.setAttribute('font-size','8'); txt.setAttribute('text-anchor','middle'); txt.textContent='変'; svg.appendChild(txt);
+        }
+        // 区間ラベル（進/変）
+        for (let i=0;i<3;i++){
+          const xm=(x[i]+x[i+1])/2; const lab=document.createElementNS(svgNS,'text'); lab.setAttribute('x',xm.toFixed(1)); lab.setAttribute('y',String(yBase+10)); lab.setAttribute('font-size','8'); lab.setAttribute('text-anchor','middle'); lab.setAttribute('fill', acts[i]==='変'? colorH : colorJ); lab.textContent = (acts[i]==='変' ? '変' : '進'); svg.appendChild(lab);
         }
         // ノード（Step1/2/3）
         for (let i=1;i<4;i++){
@@ -1404,6 +1477,23 @@
         }
       } catch {}
       return '';
+    }
+
+    async _endpointInfoForStep(hex, line){
+      try {
+        const yaoNames = this._yaoCandidatesByLine(line);
+        const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+        const entry = data.find(e => Number(e['卦番号']) === Number(hex) && (yaoNames||[]).includes(String(e['爻'])));
+        const title = entry ? `${String(entry['卦名']||'').trim()} ${String(entry['爻']||'').trim()}`.trim() : '';
+        const s7 = entry ? Number(entry['S7_総合評価スコア']) : null;
+        let keywords = [];
+        if (entry) {
+          const raw = Array.isArray(entry['キーワード']) ? entry['キーワード'] : (typeof entry['キーワード']==='string' ? entry['キーワード'].split(/、|,|\s+/).filter(Boolean) : []);
+          keywords = this._normalizeKeywords(raw).slice(0,3);
+        }
+        const summary = await this._oneLinerForStep(hex, line);
+        return { title, s7: (Number.isFinite(s7)? s7 : null), keywords, summary };
+      } catch { return null; }
     }
 
     _outcomeStamp(branch){
