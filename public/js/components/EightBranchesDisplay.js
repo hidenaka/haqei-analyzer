@@ -2044,20 +2044,23 @@
         }
       } catch {}
 
-      // evidenceモード時はdetailsを開く
+      // evidenceモード切替の明示反映（summaryを隠し、evidenceを開く）
       try {
-        if (this.displayMode === 'evidence') {
-          this.container.querySelectorAll('details').forEach(d => { try { d.open = true; } catch {} });
-        }
-      } catch {}
-
-      // evidenceモードのときはdetailsを確実にopen
-      try {
-        if (this.displayMode === 'evidence') {
-          // 次フレームでopenを適用（挿入直後の描画完了を待つ）
-          await new Promise(res => requestAnimationFrame(() => res()));
-          this.container.querySelectorAll('details').forEach(d => { try { d.open = true; } catch {} });
-        }
+        const applyMode = async () => {
+          const isEvidence = (this.displayMode === 'evidence');
+          const root = this.container;
+          // Show/Hide summary sections
+          root.querySelectorAll('[data-section="summary"]').forEach(el => {
+            try { el.style.display = isEvidence ? 'none' : ''; } catch {}
+          });
+          // Open/Close details and evidence sections
+          root.querySelectorAll('details').forEach(d => { try { d.open = isEvidence; } catch {} });
+          root.querySelectorAll('[data-section="evidence"]').forEach(d => {
+            try { if (d.tagName?.toLowerCase() === 'details') d.open = isEvidence; } catch {}
+          });
+        };
+        await new Promise(res => requestAnimationFrame(() => res()));
+        await applyMode();
       } catch {}
     }
   }
