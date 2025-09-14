@@ -1262,11 +1262,17 @@
         __ev.appendChild(__evsum);
         __ev.appendChild(__evBody);
       }
-      // mount
+      // mount（見出し直下に要約を配置）
+      // タイトルと要約（oneLine/seriesNarrative）はカード最上部に配置して視認性を向上
+      try { summary.style.marginTop = '2px'; summary.style.marginBottom = '6px'; } catch {}
+      card.appendChild(title);
+      card.appendChild(summary);
+
+      // その下にスコア/チップ/補足まとめ
       card.appendChild(__scoreWrap);
       card.appendChild(__chips);
       card.appendChild(__summaryWrap);
-      // Mount easy block (after summary)
+      // Mount easy block（補助ガイド）
       card.appendChild(easyBlock);
       if (__ds) card.appendChild(__ds);
 
@@ -1314,8 +1320,6 @@
       details.appendChild(sum);
       details.appendChild(ul);
       try { details.setAttribute('data-section', classic ? 'summary' : 'evidence'); details.setAttribute('data-preserve','true'); } catch {}
-      card.appendChild(title);
-      card.appendChild(summary);
       card.appendChild(details);
       if (__ev) card.appendChild(__ev);
 
