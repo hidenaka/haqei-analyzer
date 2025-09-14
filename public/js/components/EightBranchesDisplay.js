@@ -1266,7 +1266,7 @@
       card.appendChild(__summaryWrap);
       // Mount easy block (after summary)
       card.appendChild(easyBlock);
-      card.appendChild(__ds);
+      if (__ds) card.appendChild(__ds);
 
       const details = document.createElement('details');
       details.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
