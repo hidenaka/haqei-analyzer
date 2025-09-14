@@ -580,7 +580,8 @@
       // Visual spiral (mini glyph)
       try {
         if (this.visualStrengthen) {
-          const glyph = this._renderSpiralGlyph(branch);
+          const style = (window.HAQEI_CONFIG?.featureFlags?.visualStyle) || 'track';
+          const glyph = (style==='spiral') ? this._renderSpiralGlyph(branch) : this._renderTrackGlyph(branch);
           if (glyph) {
             glyph.style.float = 'left';
             glyph.style.marginRight = '8px';
@@ -1315,6 +1316,64 @@
       } catch {}
       // fallback heuristic
       return action==='進' ? 70 : 55;
+    }
+
+    _renderTrackGlyph(branch){
+      try {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const W=100, H=22; const yBase=11; const x = [8, 36, 64, 92];
+        const acts = String(branch.series||'').split('→');
+        const s7s = (Array.isArray(branch.steps) ? branch.steps.slice(0,3) : []).map(s => this._getS7Value(s.hex, s.line, s.action));
+        const est = s7s.some(v => v==null);
+        const colorJ = '#22C55E', colorH='#F59E0B';
+        const wrap = document.createElement('div');
+        const svg = document.createElementNS(svgNS,'svg');
+        svg.setAttribute('width',String(W)); svg.setAttribute('height',String(H)); svg.setAttribute('data-test','track-glyph');
+        svg.setAttribute('role','img'); svg.setAttribute('aria-label', `経路: ${acts.join('→')}`);
+        // 背景レール
+        const rail = document.createElementNS(svgNS,'line');
+        rail.setAttribute('x1',x[0]); rail.setAttribute('y1',yBase); rail.setAttribute('x2',x[3]); rail.setAttribute('y2',yBase);
+        rail.setAttribute('stroke','rgba(203,213,225,.4)'); rail.setAttribute('stroke-width','2'); rail.setAttribute('stroke-linecap','round');
+        svg.appendChild(rail);
+        // 連続パス（J/Hで上下に少しバンプ）
+        const path = document.createElementNS(svgNS,'path');
+        let d = `M ${x[0]} ${yBase}`;
+        for (let i=0;i<3;i++){
+          const yOff = (acts[i]==='変') ? -3 : 0; // 変で少し上にバンプ
+          const xm = (x[i] + x[i+1]) / 2; const ym = yBase + yOff;
+          d += ` Q ${xm} ${ym} ${x[i+1]} ${yBase}`;
+        }
+        path.setAttribute('d', d);
+        path.setAttribute('fill','none');
+        path.setAttribute('stroke', colorJ);
+        path.setAttribute('stroke-width','3');
+        path.setAttribute('stroke-linecap','round'); path.setAttribute('stroke-linejoin','round');
+        if (est) path.setAttribute('stroke-dasharray','3 3');
+        svg.appendChild(path);
+        // 変の区間にオレンジのハイライト
+        for (let i=0;i<3;i++){
+          if (acts[i] !== '変') continue;
+          const seg = document.createElementNS(svgNS,'path');
+          const yOff=-3; const xm=(x[i]+x[i+1])/2; const ym=yBase+yOff;
+          seg.setAttribute('d', `M ${x[i]} ${yBase} Q ${xm} ${ym} ${x[i+1]} ${yBase}`);
+          seg.setAttribute('fill','none'); seg.setAttribute('stroke', colorH); seg.setAttribute('stroke-width','2.5');
+          seg.setAttribute('stroke-linecap','round'); seg.setAttribute('stroke-linejoin','round');
+          if (est) seg.setAttribute('stroke-dasharray','3 3');
+          svg.appendChild(seg);
+        }
+        // ノード（Step1/2/3）
+        for (let i=1;i<4;i++){
+          const c = document.createElementNS(svgNS,'circle'); c.setAttribute('cx',x[i]); c.setAttribute('cy',yBase); c.setAttribute('r','2.5');
+          c.setAttribute('fill','#E2E8F0'); svg.appendChild(c);
+        }
+        // 矢頭（終点）
+        const tri = document.createElementNS(svgNS,'polygon');
+        const tx = x[3], ty = yBase; const w=4, h=6;
+        tri.setAttribute('points', `${tx},${ty} ${tx-6},${ty-3} ${tx-6},${ty+3}`);
+        tri.setAttribute('fill', colorJ); if (est) tri.setAttribute('opacity','0.7');
+        svg.appendChild(tri);
+        wrap.appendChild(svg); return wrap;
+      } catch { return null; }
     }
 
     async _oneLinerForStep(hex, line){
