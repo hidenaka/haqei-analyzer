@@ -118,6 +118,16 @@
       return true;
     }
 
+    _rerender(){
+      try {
+        if (!this.container) return;
+        // 再描画（最終描画時のデータを使用）
+        this.displayBranches(this._lastBranches || [], this._lastSituation || null);
+      } catch (e) {
+        try { console.warn('EightBranchesDisplay _rerender error:', e?.message||e); } catch {}
+      }
+    }
+
     _badge(series) {
       const cProg = (series.match(/進/g) || []).length;
       const cTrans = (series.match(/変/g) || []).length;
