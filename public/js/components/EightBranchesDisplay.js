@@ -516,14 +516,14 @@
           try { box.setAttribute('data-test','compare-item'); } catch {}
           const title = document.createElement('div'); title.style.color='#A5B4FC'; title.style.fontWeight='700'; title.textContent = `分岐${b.id}｜${b.series}`; box.appendChild(title);
           const mk = (label, txt) => { const r=document.createElement('div'); r.style.fontSize='.85em'; r.style.color='#cbd5e1'; r.style.marginTop='2px'; r.textContent = `${label}: ${txt}`; return r; };
-          box.appendChild(mk('ざっくり', this._seriesNarrative(b)));
+          box.appendChild(mk('全体像', this._seriesNarrative(b)));
           const flavor = (()=>{ switch(b.series){case '進→進→進':return '勢い維持で押し切る';case '進→進→変':return '最後は微調整で締める';case '進→変→進':return '中盤の切替で再加速';case '進→変→変':return '後半は設計し直す';case '変→進→進':return '初手転換で安定化';case '変→進→変':return '締めに向けて整える';case '変→変→進':return '段階転換ののち前進';case '変→変→変':return '全面転換で新路線';default:return '';} })();
           const tips = this._deriveQuickKeywords(b);
-          box.appendChild(mk('ここがいい', [flavor, ...tips].filter(Boolean).slice(0,4).join(' / ')));
+          box.appendChild(mk('強みが現れやすい点', [flavor, ...tips].filter(Boolean).slice(0,4).join(' / ')));
           const flow = b.series.split('→').map(t=>t==='進'?'前進':'切替').join(' → ');
           box.appendChild(mk('流れ', flow));
           const acts = this._toActionPhrases(tips); const actTxt = acts.length?acts.join(' / '):tips.join(' / ');
-          box.appendChild(mk('次にやること', actTxt));
+          box.appendChild(mk('移行の観点', actTxt));
           wrap.appendChild(box);
         });
         panel.appendChild(wrap);
@@ -715,8 +715,8 @@
           const cautionRow = document.createElement('div');
           if (easy.caution){
             cautionRow.style.marginTop='6px'; cautionRow.style.fontSize='.8em'; cautionRow.style.color='#FCA5A5';
-            cautionRow.textContent = `⚠ 注意: ${easy.caution}`;
-            try { cautionRow.setAttribute('role','note'); cautionRow.setAttribute('aria-label', `注意: ${easy.caution}`); } catch {}
+            cautionRow.textContent = `⚠ 留意: ${easy.caution}`;
+            try { cautionRow.setAttribute('role','note'); cautionRow.setAttribute('aria-label', `留意: ${easy.caution}`); } catch {}
           }
 
           // Mount easy block
@@ -816,7 +816,7 @@
           __fill.style.background = 'linear-gradient(90deg, #6366F1, #22C55E)';
           __bar.appendChild(__fill);
           const __label = document.createElement('div');
-          __label.textContent = `おすすめ度: ${Math.round(s7)}%`;
+          __label.textContent = `適合度: ${Math.round(s7)}%`;
           __label.style.fontSize = '.8em';
           __label.style.color = '#94a3b8';
           __label.style.marginTop = '4px';
@@ -881,7 +881,7 @@
       __summaryWrap.setAttribute('data-section','summary');
       const __overview = document.createElement('div');
       __overview.style.marginBottom = '2px';
-      __overview.textContent = (__easy ? 'ざっくり: ' : '全体像: ') + this._short(this._seriesNarrative(branch), 90);
+      __overview.textContent = '全体像: ' + this._short(this._toNeutralJapanese(this._seriesNarrative(branch)), 90);
 
       // 終点の一行（Step3のNow相当を短く） — 非同期で後置
       (async () => {
@@ -966,7 +966,7 @@
       } catch {}
       const __reason = document.createElement('div');
       const __reasonText = [__flavor, ...__tips].filter(Boolean);
-      __reason.textContent = (__easy ? 'ここがいい: ' : '選ぶ理由: ') + this._short(__reasonText.join(' / '), 96);
+      __reason.textContent = '強みが現れやすい点: ' + this._short(this._toNeutralJapanese(__reasonText.join(' / ')), 96);
 
       // Visual effects (関係/構造/実行) icons
       try {
@@ -998,9 +998,10 @@
         const nowAct = (__acts[0] || __tips[0] || '').toString();
         const midAct = (__acts[1] || __tips[1] || nowAct).toString();
         const finAct = (__acts[2] || __tips[2] || midAct).toString();
-        __next.textContent = this._short((__easy ? `次にやること: まず「${nowAct}」→ つぎ「${midAct}」→ 最後「${finAct}」` : `次の一手: まず「${nowAct}」→ つぎ「${midAct}」→ 仕上げ「${finAct}」`), 100);
+        __next.textContent = this._short(`移行の観点: まず「${nowAct}」が焦点になりやすい → つぎ「${midAct}」→ 終盤「${finAct}」`, 110);
       } else {
-        __next.textContent = this._short((__easy ? '次にやること: ' : '次の一手: ') + (__acts.length?__acts:__tips).join(' / '), 100);
+        const items = (__acts.length?__acts:__tips).map(t=>`「${t}」が焦点`).join(' / ');
+        __next.textContent = this._short(`移行の観点: ${items}`, 110);
       }
       __summaryWrap.appendChild(__overview);
       if (__traits.textContent) __summaryWrap.appendChild(__traits);
@@ -1100,8 +1101,8 @@
       if (!to || (!to.gain && !to.loss)) to = this._tradeoff(__kw);
       __ds.appendChild(mk(__easy ? '得られること' : '得るもの', to.gain));
       __ds.appendChild(mk(__easy ? '気になる点' : '失う可能性', to.loss));
-      __ds.appendChild(mk(__easy ? '注意' : '注意点', caution));
-      __ds.appendChild(mk(__easy ? '結果のイメージ' : '成果イメージ', outcome));
+      __ds.appendChild(mk('留意点', caution));
+      __ds.appendChild(mk('到達時の様子', outcome));
 
       // Optional: 時機メモ（根拠がある場合のみ）
       const timeMemo = (() => {
@@ -1757,7 +1758,7 @@
           const box = document.createElement('div');
           box.setAttribute('data-section','compare');
           box.style.border='1px solid rgba(99,102,241,.35)'; box.style.borderRadius='10px'; box.style.padding='10px 12px'; box.style.margin='6px 0 10px';
-          const h = document.createElement('div'); h.textContent='おすすめTOP3（簡易比較）'; h.style.color='#c7d2fe'; h.style.fontWeight='700'; h.style.marginBottom='4px';
+          const h = document.createElement('div'); h.textContent='比較TOP3（簡易）'; h.style.color='#c7d2fe'; h.style.fontWeight='700'; h.style.marginBottom='4px';
           const explain = this._top3Explain(top);
           this._topExplainCache = explain;
           const mk = (rank,item,sub)=>{ const d=document.createElement('div'); d.style.color='#cbd5e1'; d.style.fontSize='.9em'; d.textContent = `${rank}. 分岐${item.id}｜${item.series}｜${item.score}% - ${sub}`; return d; };
@@ -1903,11 +1904,11 @@
       box.style.color = '#cbd5e1';
       box.style.fontSize = '.9em';
       box.innerHTML = [
-        '・これらはNow（現在）から3ステップの道筋です。',
-        '・タイトルの「進/変」は「進む/切り替える」の意味です。',
-        '・迷ったら「ざっくり → ここがいい → 次にやること」で判断。',
-        '・安全重視は進み基調、発想転換は転換基調を優先。',
-        '・おすすめ度が無い場合はテキスト比較を重視。'
+        '・これはNow（現在）から3ステップの推移を概観します。',
+        '・タイトルの「進/変」は「前進/切替」を表します。',
+        '・読み順の目安: 「全体像 → 強みが現れやすい点 → 移行の観点」。',
+        '・安全重視は進み基調、発想転換は転換基調に寄りやすいです。',
+        '・適合度が無い場合はテキストの比較観察を重視してください。'
       ].join('<br>');
       guide.appendChild(sum);
       guide.appendChild(box);
@@ -1915,7 +1916,7 @@
 
       // 補助テキスト（短い説明）
       const helper = document.createElement('div');
-      helper.textContent = 'カードには「ざっくり」「ここがいい」「次にやること」「注意」「結果イメージ」を表示します。';
+      helper.textContent = 'カードには「全体像」「強みが現れやすい点」「移行の観点」「留意点」「到達時の様子」を表示します。';
       helper.style.color = '#94a3b8';
       helper.style.fontSize = '.85em';
       helper.style.margin = '0 0 8px';
