@@ -854,11 +854,12 @@
       __overview.style.marginBottom = '2px';
       __overview.textContent = (__easy ? 'ざっくり: ' : '全体像: ') + this._short(this._seriesNarrative(branch), 90);
 
-      // 終点の一行（Step3のNow相当を短く）
-      try {
-        const stepsArr = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
-        const last = stepsArr[2] || stepsArr[1] || stepsArr[0] || null;
-        if (last) {
+      // 終点の一行（Step3のNow相当を短く） — 非同期で後置
+      (async () => {
+        try {
+          const stepsArr = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
+          const last = stepsArr[2] || stepsArr[1] || stepsArr[0] || null;
+          if (!last) return;
           const endLine = await this._oneLinerForStep(last.hex, last.line);
           if (endLine) {
             const __end = document.createElement('div');
@@ -868,8 +869,8 @@
             __end.textContent = '終点: ' + this._short(endLine, 60);
             __summaryWrap.appendChild(__end);
           }
-        }
-      } catch {}
+        } catch {}
+      })();
       const __traits = document.createElement('div');
       try {
         const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
@@ -888,7 +889,15 @@
       // Visual effects (関係/構造/実行) icons
       try {
         if (this.visualStrengthen) {
-          const types = this._effectTypes(__kw);
+          let types = this._effectTypes(__kw);
+          // フォールバック: 少なくとも1種は出す
+          if (!types || types.length === 0) {
+            const prog = String(branch.series||'').split('→').filter(a=>a==='進').length;
+            const trans= String(branch.series||'').split('→').filter(a=>a==='変').length;
+            if (prog >= 2) types = ['実行'];
+            else if (trans >= 2) types = ['構造'];
+            else types = ['関係'];
+          }
           if (types && types.length) {
             const row = document.createElement('div');
             row.style.display = 'flex'; row.style.gap='6px'; row.style.alignItems='center'; row.style.margin='2px 0';
@@ -1197,7 +1206,7 @@
         const clockwise = moreProg; // 進み基調=時計回り
         const s7s = (Array.isArray(branch.steps) ? branch.steps.slice(0,3) : []).map(s => this._getS7Value(s.hex, s.line, s.action));
         const estimated = s7s.some(v => v == null);
-        const rBase = [10, 18, 26];
+        const rBase = [12, 20, 28];
         const r = rBase.map((rb, i) => {
           const v = s7s[i];
           if (v == null) return rb; // 推定時は補正なし
@@ -1206,7 +1215,7 @@
         const wBase = 2;
         const strokeW = wBase + (Math.max(...(s7s.filter(x=>x!=null)))||60)/100; // 太さ微調整
         // 角度
-        const seg = Math.PI * 0.9; // 各セグメントの角度
+        const seg = Math.PI * 0.9; // 各セグメントの角度（変＝接線方向に使う）
         const start0 = clockwise ? -Math.PI/2 : -Math.PI/2 + seg;
         const starts = [start0, clockwise ? start0+seg : start0-seg, clockwise ? start0+2*seg : start0-2*seg];
         // path作成
@@ -1219,6 +1228,15 @@
         svg.setAttribute('data-test','spiral-glyph');
         svg.setAttribute('role','img');
         svg.setAttribute('aria-label', `螺旋: ${series}`);
+        // 背景リング（Now/Step1/2/3）
+        try {
+          [10, 18, 26].forEach(R => {
+            const ring = document.createElementNS(svgNS,'circle');
+            ring.setAttribute('cx', String(cx)); ring.setAttribute('cy', String(cy)); ring.setAttribute('r', String(R));
+            ring.setAttribute('fill','none'); ring.setAttribute('stroke','rgba(203,213,225,.25)'); ring.setAttribute('stroke-width','0.5');
+            svg.appendChild(ring);
+          });
+        } catch {}
         // Now center
         const c = document.createElementNS(svgNS, 'circle');
         c.setAttribute('cx', String(cx)); c.setAttribute('cy', String(cy)); c.setAttribute('r', '2');
@@ -1226,50 +1244,78 @@
         // 各セグメント
         const colorOf = a => a==='進' ? '#10B981' : '#F59E0B';
         for (let i=0;i<3;i++){
-          const a0 = starts[i];
-          const a1 = clockwise ? a0 + seg : a0 - seg;
-          const R = r[i];
-          const x0 = cx + R*Math.cos(a0), y0 = cy + R*Math.sin(a0);
-          const x1 = cx + R*Math.cos(a1), y1 = cy + R*Math.sin(a1);
-          const largeArc = seg > Math.PI ? 1 : 0;
-          const sweep = clockwise ? 1 : 0;
+          const act = acts[i];
+          const ang = starts[i];
+          const Rcurr = r[i];
           const path = document.createElementNS(svgNS, 'path');
-          path.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${R} ${R} 0 ${largeArc} ${sweep} ${x1.toFixed(1)} ${y1.toFixed(1)}`);
           path.setAttribute('fill','none');
-          path.setAttribute('stroke', colorOf(acts[i]));
+          path.setAttribute('stroke', colorOf(act));
           path.setAttribute('stroke-width', String(strokeW));
-          if (estimated) {
-            path.setAttribute('stroke-dasharray','3 3');
-            path.classList.add('is-estimated');
+          if (estimated) { path.setAttribute('stroke-dasharray','3 3'); path.classList.add('is-estimated'); }
+
+          if (act === '進'){
+            // 放射: 前ステップの半径→今の半径へ直線（外向き）
+            const Rprev = i>0 ? r[i-1] : Math.max(6, Rcurr-6);
+            const x0 = cx + Rprev*Math.cos(ang), y0 = cy + Rprev*Math.sin(ang);
+            const x1 = cx + Rcurr*Math.cos(ang), y1 = cy + Rcurr*Math.sin(ang);
+            path.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} L ${x1.toFixed(1)} ${y1.toFixed(1)}`);
+            svg.appendChild(path);
+            // 矢頭（外向き）
+            if (i===2){
+              const tri = document.createElementNS(svgNS, 'polygon');
+              const tipX = x1, tipY = y1; const a = ang; const w=4, h=6;
+              const ortho = a + Math.PI/2;
+              const p1x = tipX, p1y = tipY;
+              const p2x = tipX - h*Math.cos(a) + w*Math.cos(ortho);
+              const p2y = tipY - h*Math.sin(a) + w*Math.sin(ortho);
+              const p3x = tipX - h*Math.cos(a) - w*Math.cos(ortho);
+              const p3y = tipY - h*Math.sin(a) - w*Math.sin(ortho);
+              tri.setAttribute('points', `${p1x.toFixed(1)},${p1y.toFixed(1)} ${p2x.toFixed(1)},${p2y.toFixed(1)} ${p3x.toFixed(1)},${p3y.toFixed(1)}`);
+              tri.setAttribute('fill', colorOf(act)); if (estimated) tri.setAttribute('opacity','0.6'); svg.appendChild(tri);
+            }
+          } else {
+            // 接線: 半径一定で角度のみ移動（横移動）
+            const a0 = ang; const a1 = clockwise ? a0 + seg : a0 - seg;
+            const x0 = cx + Rcurr*Math.cos(a0), y0 = cy + Rcurr*Math.sin(a0);
+            const x1 = cx + Rcurr*Math.cos(a1), y1 = cy + Rcurr*Math.sin(a1);
+            const largeArc = seg > Math.PI ? 1 : 0; const sweep = clockwise ? 1 : 0;
+            path.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${Rcurr} ${Rcurr} 0 ${largeArc} ${sweep} ${x1.toFixed(1)} ${y1.toFixed(1)}`);
+            svg.appendChild(path);
+            // ピボット（開始点に小菱形）
+            try {
+              const dsize=3; const px=x0, py=y0; const t1=a0+Math.PI/4, t2=a0-Math.PI/4;
+              const pA = `${(px).toFixed(1)},${(py-dsize).toFixed(1)}`;
+              const pB = `${(px+dsize).toFixed(1)},${(py).toFixed(1)}`;
+              const pC = `${(px).toFixed(1)},${(py+dsize).toFixed(1)}`;
+              const pD = `${(px-dsize).toFixed(1)},${(py).toFixed(1)}`;
+              const diamond = document.createElementNS(svgNS,'polygon');
+              diamond.setAttribute('points', `${pA} ${pB} ${pC} ${pD}`);
+              diamond.setAttribute('fill', colorOf(act)); if (estimated) diamond.setAttribute('opacity','0.6');
+              svg.appendChild(diamond);
+            } catch {}
+            // 矢頭（横向き）
+            if (i===2){
+              const tri = document.createElementNS(svgNS, 'polygon');
+              const a=a1; const tipX=x1, tipY=y1; const w=4,h=6; const ortho=a+Math.PI/2;
+              const p1x=tipX, p1y=tipY;
+              const p2x=tipX - h*Math.cos(a) + w*Math.cos(ortho);
+              const p2y=tipY - h*Math.sin(a) + w*Math.sin(ortho);
+              const p3x=tipX - h*Math.cos(a) - w*Math.cos(ortho);
+              const p3y=tipY - h*Math.sin(a) - w*Math.sin(ortho);
+              tri.setAttribute('points', `${p1x.toFixed(1)},${p1y.toFixed(1)} ${p2x.toFixed(1)},${p2y.toFixed(1)} ${p3x.toFixed(1)},${p3y.toFixed(1)}`);
+              tri.setAttribute('fill', colorOf(act)); if (estimated) tri.setAttribute('opacity','0.6'); svg.appendChild(tri);
+            }
           }
-          svg.appendChild(path);
-          // ステップ番号（中点付近に小さく）
+          // ステップ番号（中点付近）
           try {
-            const mid = (a0 + a1) / 2;
-            const tx = cx + (R+1)*Math.cos(mid);
-            const ty = cy + (R+1)*Math.sin(mid);
+            const a0 = ang, a1 = (acts[i]==='進') ? ang : (clockwise ? ang+seg : ang-seg);
+            const mid = (a0 + a1) / 2; const Rm = acts[i]==='進' ? r[i] - 2 : r[i];
+            const tx = cx + (Rm+1)*Math.cos(mid); const ty = cy + (Rm+1)*Math.sin(mid);
             const t = document.createElementNS(svgNS,'text');
             t.setAttribute('x', tx.toFixed(1)); t.setAttribute('y', ty.toFixed(1));
             t.setAttribute('fill', '#cbd5e1'); t.setAttribute('font-size','7'); t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle');
-            t.textContent = String(i+1);
-            svg.appendChild(t);
+            t.textContent = String(i+1); svg.appendChild(t);
           } catch {}
-          // 矢頭（最終セグメントの終端に）
-          if (i===2){
-            const tri = document.createElementNS(svgNS, 'polygon');
-            const ang = a1 + (clockwise?Math.PI/2:-Math.PI/2);
-            const tipX = x1, tipY = y1;
-            const w = 4, h = 6;
-            const p1x = tipX, p1y = tipY;
-            const p2x = tipX - h*Math.cos(a1) + w*Math.cos(ang);
-            const p2y = tipY - h*Math.sin(a1) + w*Math.sin(ang);
-            const p3x = tipX - h*Math.cos(a1) - w*Math.cos(ang);
-            const p3y = tipY - h*Math.sin(a1) - w*Math.sin(ang);
-            tri.setAttribute('points', `${p1x.toFixed(1)},${p1y.toFixed(1)} ${p2x.toFixed(1)},${p2y.toFixed(1)} ${p3x.toFixed(1)},${p3y.toFixed(1)}`);
-            tri.setAttribute('fill', colorOf(acts[i]));
-            if (estimated) tri.setAttribute('opacity','0.6');
-            svg.appendChild(tri);
-          }
         }
         wrap.appendChild(svg);
         return wrap;
