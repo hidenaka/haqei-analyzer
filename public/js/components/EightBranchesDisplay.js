@@ -592,6 +592,27 @@
       // intuitive emoji prefix
       try { const em = this._emoji(branch.series); title.innerHTML = `${em} ` + title.innerHTML; } catch {}
 
+      // Outcome stamp (top-right)
+      try {
+        if (this.visualStrengthen) {
+          const st = this._outcomeStamp(branch);
+          if (st && st.text) {
+            const stamp = document.createElement('span');
+            stamp.textContent = st.text;
+            stamp.setAttribute('data-test','outcome-stamp');
+            stamp.style.float = 'right';
+            stamp.style.marginLeft = '8px';
+            stamp.style.padding = '2px 8px';
+            stamp.style.borderRadius = '9999px';
+            stamp.style.fontSize = '.75em';
+            stamp.style.border = '1px solid rgba(99,102,241,.35)';
+            stamp.style.background = st.bg;
+            stamp.style.color = st.fg;
+            card.appendChild(stamp);
+          }
+        }
+      } catch {}
+
       const summary = document.createElement('div');
       // Default summary (fallback)
       summary.textContent = this._summary(branch.series);
@@ -832,6 +853,23 @@
       const __overview = document.createElement('div');
       __overview.style.marginBottom = '2px';
       __overview.textContent = (__easy ? 'ざっくり: ' : '全体像: ') + this._short(this._seriesNarrative(branch), 90);
+
+      // 終点の一行（Step3のNow相当を短く）
+      try {
+        const stepsArr = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
+        const last = stepsArr[2] || stepsArr[1] || stepsArr[0] || null;
+        if (last) {
+          const endLine = await this._oneLinerForStep(last.hex, last.line);
+          if (endLine) {
+            const __end = document.createElement('div');
+            __end.style.color = '#a5b4fc';
+            __end.style.fontSize = '.85em';
+            __end.style.margin = '2px 0';
+            __end.textContent = '終点: ' + this._short(endLine, 60);
+            __summaryWrap.appendChild(__end);
+          }
+        }
+      } catch {}
       const __traits = document.createElement('div');
       try {
         const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
@@ -846,6 +884,21 @@
       const __reason = document.createElement('div');
       const __reasonText = [__flavor, ...__tips].filter(Boolean);
       __reason.textContent = (__easy ? 'ここがいい: ' : '選ぶ理由: ') + this._short(__reasonText.join(' / '), 96);
+
+      // Visual effects (関係/構造/実行) icons
+      try {
+        if (this.visualStrengthen) {
+          const types = this._effectTypes(__kw);
+          if (types && types.length) {
+            const row = document.createElement('div');
+            row.style.display = 'flex'; row.style.gap='6px'; row.style.alignItems='center'; row.style.margin='2px 0';
+            row.setAttribute('data-test','visual-effects');
+            const iconOf = t => t==='関係' ? '🤝' : (t==='構造' ? '🏗' : '🏃');
+            types.slice(0,2).forEach(t => { const s=document.createElement('span'); s.textContent = iconOf(t); s.setAttribute('aria-label', t); row.appendChild(s); });
+            __summaryWrap.appendChild(row);
+          }
+        }
+      } catch {}
       const __next = document.createElement('div');
       const __acts = this._toActionPhrases(__kw);
       // Stage-specific framing if possible
@@ -871,6 +924,28 @@
         __flow.textContent = `流れ: ${flowWords}`;
         __summaryWrap.appendChild(__flow);
       } catch {}
+
+      // Sparkline (S7 trend)
+      try {
+        if (this.visualStrengthen) {
+          const s7s = (Array.isArray(branch.steps) ? branch.steps.slice(0,3) : []).map(s => this._getS7Value(s.hex, s.line, s.action));
+          const anyMissing = s7s.some(v => v==null);
+          const svgNS='http://www.w3.org/2000/svg';
+          const w=60,h=20,pad=4; const min=0,max=100;
+          const ys = s7s.map(v => v==null ? 60 : v).map(v => {
+            const t = (v-min)/(max-min); return h - (pad + (h-2*pad)*t);
+          });
+          const xs = [pad, w/2, w-pad];
+          const sv = document.createElementNS(svgNS,'svg');
+          sv.setAttribute('width',String(w)); sv.setAttribute('height',String(h)); sv.setAttribute('data-test','visual-spark');
+          const pl = document.createElementNS(svgNS,'polyline');
+          pl.setAttribute('fill','none'); pl.setAttribute('stroke', anyMissing?'#94a3b8':'#22C55E'); pl.setAttribute('stroke-width','1.5');
+          if (anyMissing) pl.setAttribute('stroke-dasharray','3 2');
+          pl.setAttribute('points', `${xs[0]},${ys[0]} ${xs[1]},${ys[1]} ${xs[2]},${ys[2]}`);
+          sv.appendChild(pl);
+          __summaryWrap.appendChild(sv);
+        }
+      } catch {}
       // 今とつながる根拠（入力タグ×分岐キーワードの交差）
       try {
         const tags = (window.HAQEI_INPUT_TAGS||[]).map(String);
@@ -892,6 +967,17 @@
           __bridge.style.marginTop = '2px';
           __bridge.textContent = `今とつながる: ${bridge.join(' / ')}`;
           __summaryWrap.appendChild(__bridge);
+          // visual badges (1〜3個)
+          if (this.visualStrengthen) {
+            const dotWrap = document.createElement('div');
+            dotWrap.setAttribute('data-test','now-link-badges');
+            dotWrap.style.display='inline-flex'; dotWrap.style.gap='4px'; dotWrap.style.marginLeft='6px';
+            const cnt = Math.min(3, bridge.length);
+            for (let i=0;i<cnt;i++){
+              const d=document.createElement('span'); d.style.display='inline-block'; d.style.width='6px'; d.style.height='6px'; d.style.borderRadius='9999px'; d.style.background='#A5B4FC'; dotWrap.appendChild(d);
+            }
+            __bridge.appendChild(dotWrap);
+          }
         }
       } catch {}
       __summaryWrap.appendChild(__next);
@@ -1157,6 +1243,17 @@
             path.classList.add('is-estimated');
           }
           svg.appendChild(path);
+          // ステップ番号（中点付近に小さく）
+          try {
+            const mid = (a0 + a1) / 2;
+            const tx = cx + (R+1)*Math.cos(mid);
+            const ty = cy + (R+1)*Math.sin(mid);
+            const t = document.createElementNS(svgNS,'text');
+            t.setAttribute('x', tx.toFixed(1)); t.setAttribute('y', ty.toFixed(1));
+            t.setAttribute('fill', '#cbd5e1'); t.setAttribute('font-size','7'); t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle');
+            t.textContent = String(i+1);
+            svg.appendChild(t);
+          } catch {}
           // 矢頭（最終セグメントの終端に）
           if (i===2){
             const tri = document.createElementNS(svgNS, 'polygon');
@@ -1190,6 +1287,55 @@
       } catch {}
       // fallback heuristic
       return action==='進' ? 70 : 55;
+    }
+
+    async _oneLinerForStep(hex, line){
+      // line-states → H384要約 → キーワード の順で返す
+      try {
+        if (!this._lineStates) {
+          const r = await fetch('./data/h384-line-states.json', { cache:'no-cache' });
+          this._lineStates = r.ok ? await r.json() : {};
+        }
+      } catch {}
+      try {
+        const key = `${Number(hex)}-${Number(line)}`;
+        const v = this._lineStates && this._lineStates[key];
+        const txt = (typeof v === 'string') ? v : (v && v.text) || '';
+        if (txt && txt.trim()) return txt.trim();
+      } catch {}
+      try {
+        const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+        const candidates = {1:['初九','初六'],2:['九二','六二'],3:['九三','六三'],4:['九四','六四'],5:['九五','六五'],6:['上九','上六']};
+        const yao = candidates[Number(line)] || [];
+        const entry = data.find(e => Number(e['卦番号']) === Number(hex) && yao.includes(String(e['爻'])));
+        if (entry) {
+          const sum = (typeof entry['現代解釈の要約'] === 'string') ? entry['現代解釈の要約'].trim() : '';
+          if (sum) return sum;
+          const kwRaw = Array.isArray(entry['キーワード']) ? entry['キーワード'] : (typeof entry['キーワード']==='string' ? entry['キーワード'].split(/、|,|\s+/).filter(Boolean) : []);
+          const kw = (kwRaw || []).slice(0,3).join('、');
+          if (kw) return `キーワード: ${kw}`;
+        }
+      } catch {}
+      return '';
+    }
+
+    _outcomeStamp(branch){
+      try {
+        const series = String(branch.series||'');
+        const acts = series.split('→');
+        const steps = Array.isArray(branch.steps)?branch.steps.slice(0,3):[];
+        const lastText = steps[2]?.lineText || '';
+        const sev = this._severityScore(lastText);
+        const prog = acts.filter(a=>a==='進').length;
+        const trans= acts.filter(a=>a==='変').length;
+        let text=''; let bg='rgba(34,197,94,.15)'; let fg='#86EFAC';
+        if (trans===3) { text='大転換'; bg='rgba(245,158,11,.15)'; fg='#FBBF24'; }
+        else if (prog===3) { text='前進'; bg='rgba(16,185,129,.15)'; fg='#86EFAC'; }
+        else if (trans===2) { text='転換'; bg='rgba(245,158,11,.15)'; fg='#FBBF24'; }
+        else { text='調整'; bg='rgba(59,130,246,.15)'; fg='#93C5FD'; }
+        if (sev>=3) { text='安全優先'; bg='rgba(148,163,184,.15)'; fg='#CBD5E1'; }
+        return { text, bg, fg };
+      } catch { return { text:'', bg:'', fg:'' }; }
     }
 
     async displayBranches(branches, currentSituation) {
