@@ -1113,12 +1113,15 @@
       } catch {}
       __summaryWrap.appendChild(__next);
 
-      // Decision support (fit/caution/outcome + avoid/tradeoff)
-      const __ds = document.createElement('div');
-      __ds.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
-      __ds.style.marginTop = '6px';
-      __ds.style.paddingTop = '6px';
-      __ds.setAttribute('data-section','summary');
+      // Decision support (fit/caution/outcome + avoid/tradeoff) — optional
+      let __ds = null;
+      if (this.showDecisionSupport) {
+        __ds = document.createElement('div');
+        __ds.style.borderTop = '1px dashed rgba(99,102,241,0.35)';
+        __ds.style.marginTop = '6px';
+        __ds.style.paddingTop = '6px';
+        __ds.setAttribute('data-section','summary');
+      }
       const actions = String(branch.series||'').split('→');
       const lastText = steps[2]?.lineText || '';
       const lastSeverity = this._severityScore(lastText);
@@ -1126,22 +1129,24 @@
       const s3 = this._getBasicScore(steps[2]?.hex, steps[2]?.line);
       const d13 = (s3 ?? s1 ?? 0) - (s1 ?? 0);
       // 卦・爻に基づく内容を優先し、足りない場合にキーワード辞書へフォールバック
-      let fit = this._fitFromSteps(branch);
-      if (!fit.length) fit = this._fitPhrases(__kw);
-      const caution = this._cautionPhrase(lastSeverity, actions[2]);
-      const outcome = this._outcomePhrase(actions, d13, lastSeverity);
-      const mk = (label,val)=>{ const d=document.createElement('div'); d.textContent = `${label}: ${val}`; d.style.fontSize='.84em'; d.style.color='#cbd5e1'; d.style.marginTop='2px'; return d; };
-      if (!fit.length) fit = this._fitFromSteps(branch);
-      if (fit.length) __ds.appendChild(mk(__easy ? '向いている' : '合う条件', fit.join(' / ')));
-      let avoid = this._avoidFromSteps(branch);
-      if (!avoid.length) avoid = this._avoidPhrases(__kw);
-      if (avoid.length) __ds.appendChild(mk(__easy ? '向かない' : '避けたい人', avoid.join(' / ')));
-      let to = this._tradeoffFromSteps(branch);
-      if (!to || (!to.gain && !to.loss)) to = this._tradeoff(__kw);
-      __ds.appendChild(mk(__easy ? '得られること' : '得るもの', to.gain));
-      __ds.appendChild(mk(__easy ? '気になる点' : '失う可能性', to.loss));
-      __ds.appendChild(mk('留意点', caution));
-      __ds.appendChild(mk('到達時の様子', outcome));
+      if (this.showDecisionSupport && __ds) {
+        let fit = this._fitFromSteps(branch);
+        if (!fit.length) fit = this._fitPhrases(__kw);
+        const caution = this._cautionPhrase(lastSeverity, actions[2]);
+        const outcome = this._outcomePhrase(actions, d13, lastSeverity);
+        const mk = (label,val)=>{ const d=document.createElement('div'); d.textContent = `${label}: ${val}`; d.style.fontSize='.84em'; d.style.color='#cbd5e1'; d.style.marginTop='2px'; return d; };
+        if (!fit.length) fit = this._fitFromSteps(branch);
+        if (fit.length) __ds.appendChild(mk(__easy ? '向いている' : '合う条件', fit.join(' / ')));
+        let avoid = this._avoidFromSteps(branch);
+        if (!avoid.length) avoid = this._avoidPhrases(__kw);
+        if (avoid.length) __ds.appendChild(mk(__easy ? '向かない' : '避けたい人', avoid.join(' / ')));
+        let to = this._tradeoffFromSteps(branch);
+        if (!to || (!to.gain && !to.loss)) to = this._tradeoff(__kw);
+        __ds.appendChild(mk(__easy ? '得られること' : '得るもの', to.gain));
+        __ds.appendChild(mk(__easy ? '気になる点' : '失う可能性', to.loss));
+        __ds.appendChild(mk('留意点', caution));
+        __ds.appendChild(mk('到達時の様子', outcome));
+      }
 
       // Optional: 時機メモ（根拠がある場合のみ）
       const timeMemo = (() => {
@@ -1156,7 +1161,7 @@
           return '';
         } catch { return ''; }
       })();
-      if (timeMemo) __ds.appendChild(mk('時機', timeMemo));
+      if (this.showDecisionSupport && __ds && timeMemo) __ds.appendChild(mk('時機', timeMemo));
       // 比較ボタン
       if (this.enableCompare) {
         const cmp = document.createElement('button');
