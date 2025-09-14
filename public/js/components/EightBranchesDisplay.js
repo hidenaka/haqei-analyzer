@@ -17,6 +17,7 @@
         this.showBadges = ff.showBadges !== false;
       } catch { this.enableEvidence = false; this.enableCompare = false; this.showBadges = false; }
       this.displayMode = 'applied';
+      this.visualStrengthen = (window.HAQEI_CONFIG?.featureFlags?.visualStrengthen !== false);
       this._lastBranches = null;
       this._lastSituation = null;
       this._compare = new Map();
@@ -576,6 +577,18 @@
       title.style.fontWeight = '600';
       title.style.color = '#A5B4FC';
       title.style.marginBottom = '8px';
+      // Visual spiral (mini glyph)
+      try {
+        if (this.visualStrengthen) {
+          const glyph = this._renderSpiralGlyph(branch);
+          if (glyph) {
+            glyph.style.float = 'left';
+            glyph.style.marginRight = '8px';
+            glyph.style.marginTop = '2px';
+            card.appendChild(glyph);
+          }
+        }
+      } catch {}
       // intuitive emoji prefix
       try { const em = this._emoji(branch.series); title.innerHTML = `${em} ` + title.innerHTML; } catch {}
 
@@ -1087,6 +1100,96 @@
         this.container.dispatchEvent(ev);
       });
       return card;
+    }
+
+    _renderSpiralGlyph(branch){
+      try {
+        const size = 60, cx = 30, cy = 30;
+        const series = String(branch.series||'');
+        const acts = series.split('→');
+        const moreProg = (acts.filter(a=>a==='進').length >= 2);
+        const clockwise = moreProg; // 進み基調=時計回り
+        const s7s = (Array.isArray(branch.steps) ? branch.steps.slice(0,3) : []).map(s => this._getS7Value(s.hex, s.line, s.action));
+        const estimated = s7s.some(v => v == null);
+        const rBase = [10, 18, 26];
+        const r = rBase.map((rb, i) => {
+          const v = s7s[i];
+          if (v == null) return rb; // 推定時は補正なし
+          return rb + Math.round((v-60)/40*3); // 60±40の範囲を±3px程度で微調整
+        });
+        const wBase = 2;
+        const strokeW = wBase + (Math.max(...(s7s.filter(x=>x!=null)))||60)/100; // 太さ微調整
+        // 角度
+        const seg = Math.PI * 0.9; // 各セグメントの角度
+        const start0 = clockwise ? -Math.PI/2 : -Math.PI/2 + seg;
+        const starts = [start0, clockwise ? start0+seg : start0-seg, clockwise ? start0+2*seg : start0-2*seg];
+        // path作成
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const wrap = document.createElement('div');
+        const svg = document.createElementNS(svgNS, 'svg');
+        svg.setAttribute('width', String(size));
+        svg.setAttribute('height', String(size));
+        svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+        svg.setAttribute('data-test','spiral-glyph');
+        svg.setAttribute('role','img');
+        svg.setAttribute('aria-label', `螺旋: ${series}`);
+        // Now center
+        const c = document.createElementNS(svgNS, 'circle');
+        c.setAttribute('cx', String(cx)); c.setAttribute('cy', String(cy)); c.setAttribute('r', '2');
+        c.setAttribute('fill', '#cbd5e1'); svg.appendChild(c);
+        // 各セグメント
+        const colorOf = a => a==='進' ? '#10B981' : '#F59E0B';
+        for (let i=0;i<3;i++){
+          const a0 = starts[i];
+          const a1 = clockwise ? a0 + seg : a0 - seg;
+          const R = r[i];
+          const x0 = cx + R*Math.cos(a0), y0 = cy + R*Math.sin(a0);
+          const x1 = cx + R*Math.cos(a1), y1 = cy + R*Math.sin(a1);
+          const largeArc = seg > Math.PI ? 1 : 0;
+          const sweep = clockwise ? 1 : 0;
+          const path = document.createElementNS(svgNS, 'path');
+          path.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${R} ${R} 0 ${largeArc} ${sweep} ${x1.toFixed(1)} ${y1.toFixed(1)}`);
+          path.setAttribute('fill','none');
+          path.setAttribute('stroke', colorOf(acts[i]));
+          path.setAttribute('stroke-width', String(strokeW));
+          if (estimated) {
+            path.setAttribute('stroke-dasharray','3 3');
+            path.classList.add('is-estimated');
+          }
+          svg.appendChild(path);
+          // 矢頭（最終セグメントの終端に）
+          if (i===2){
+            const tri = document.createElementNS(svgNS, 'polygon');
+            const ang = a1 + (clockwise?Math.PI/2:-Math.PI/2);
+            const tipX = x1, tipY = y1;
+            const w = 4, h = 6;
+            const p1x = tipX, p1y = tipY;
+            const p2x = tipX - h*Math.cos(a1) + w*Math.cos(ang);
+            const p2y = tipY - h*Math.sin(a1) + w*Math.sin(ang);
+            const p3x = tipX - h*Math.cos(a1) - w*Math.cos(ang);
+            const p3y = tipY - h*Math.sin(a1) - w*Math.sin(ang);
+            tri.setAttribute('points', `${p1x.toFixed(1)},${p1y.toFixed(1)} ${p2x.toFixed(1)},${p2y.toFixed(1)} ${p3x.toFixed(1)},${p3y.toFixed(1)}`);
+            tri.setAttribute('fill', colorOf(acts[i]));
+            if (estimated) tri.setAttribute('opacity','0.6');
+            svg.appendChild(tri);
+          }
+        }
+        wrap.appendChild(svg);
+        return wrap;
+      } catch { return null; }
+    }
+
+    _getS7Value(hex, line, action){
+      try {
+        const candidates = {1:['初九','初六'],2:['九二','六二'],3:['九三','六三'],4:['九四','六四'],5:['九五','六五'],6:['上九','上六']};
+        const yao = candidates[line] || [];
+        const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+        const entry = data.find(e => Number(e['卦番号']) === Number(hex) && yao.includes(String(e['爻'])));
+        const v = Number(entry && entry['S7_総合評価スコア']);
+        if (Number.isFinite(v)) return v;
+      } catch {}
+      // fallback heuristic
+      return action==='進' ? 70 : 55;
     }
 
     async displayBranches(branches, currentSituation) {
