@@ -1241,81 +1241,63 @@
         const c = document.createElementNS(svgNS, 'circle');
         c.setAttribute('cx', String(cx)); c.setAttribute('cy', String(cy)); c.setAttribute('r', '2');
         c.setAttribute('fill', '#cbd5e1'); svg.appendChild(c);
-        // 各セグメント
-        const colorOf = a => a==='進' ? '#10B981' : '#F59E0B';
+        const colorOf = a => a==='進' ? '#22C55E' : '#F59E0B';
+        // まず接線（変）を描画 → 次に放射（進）を重ねて見やすく
         for (let i=0;i<3;i++){
-          const act = acts[i];
-          const ang = starts[i];
-          const Rcurr = r[i];
+          if (acts[i] !== '変') continue;
+          const a0 = starts[i]; const a1 = clockwise ? a0 + seg : a0 - seg; const Rcurr = r[i];
+          const x0 = cx + Rcurr*Math.cos(a0), y0 = cy + Rcurr*Math.sin(a0);
+          const x1 = cx + Rcurr*Math.cos(a1), y1 = cy + Rcurr*Math.sin(a1);
           const path = document.createElementNS(svgNS, 'path');
-          path.setAttribute('fill','none');
-          path.setAttribute('stroke', colorOf(act));
-          path.setAttribute('stroke-width', String(strokeW));
+          path.setAttribute('fill','none'); path.setAttribute('stroke', colorOf('変')); path.setAttribute('stroke-width', String(strokeW));
           if (estimated) { path.setAttribute('stroke-dasharray','3 3'); path.classList.add('is-estimated'); }
-
-          if (act === '進'){
-            // 放射: 前ステップの半径→今の半径へ直線（外向き）
-            const Rprev = i>0 ? r[i-1] : Math.max(6, Rcurr-6);
-            const x0 = cx + Rprev*Math.cos(ang), y0 = cy + Rprev*Math.sin(ang);
-            const x1 = cx + Rcurr*Math.cos(ang), y1 = cy + Rcurr*Math.sin(ang);
-            path.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} L ${x1.toFixed(1)} ${y1.toFixed(1)}`);
-            svg.appendChild(path);
-            // 矢頭（外向き）
-            if (i===2){
-              const tri = document.createElementNS(svgNS, 'polygon');
-              const tipX = x1, tipY = y1; const a = ang; const w=4, h=6;
-              const ortho = a + Math.PI/2;
-              const p1x = tipX, p1y = tipY;
-              const p2x = tipX - h*Math.cos(a) + w*Math.cos(ortho);
-              const p2y = tipY - h*Math.sin(a) + w*Math.sin(ortho);
-              const p3x = tipX - h*Math.cos(a) - w*Math.cos(ortho);
-              const p3y = tipY - h*Math.sin(a) - w*Math.sin(ortho);
-              tri.setAttribute('points', `${p1x.toFixed(1)},${p1y.toFixed(1)} ${p2x.toFixed(1)},${p2y.toFixed(1)} ${p3x.toFixed(1)},${p3y.toFixed(1)}`);
-              tri.setAttribute('fill', colorOf(act)); if (estimated) tri.setAttribute('opacity','0.6'); svg.appendChild(tri);
-            }
-          } else {
-            // 接線: 半径一定で角度のみ移動（横移動）
-            const a0 = ang; const a1 = clockwise ? a0 + seg : a0 - seg;
-            const x0 = cx + Rcurr*Math.cos(a0), y0 = cy + Rcurr*Math.sin(a0);
-            const x1 = cx + Rcurr*Math.cos(a1), y1 = cy + Rcurr*Math.sin(a1);
-            const largeArc = seg > Math.PI ? 1 : 0; const sweep = clockwise ? 1 : 0;
-            path.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${Rcurr} ${Rcurr} 0 ${largeArc} ${sweep} ${x1.toFixed(1)} ${y1.toFixed(1)}`);
-            svg.appendChild(path);
-            // ピボット（開始点に小菱形）
-            try {
-              const dsize=3; const px=x0, py=y0; const t1=a0+Math.PI/4, t2=a0-Math.PI/4;
-              const pA = `${(px).toFixed(1)},${(py-dsize).toFixed(1)}`;
-              const pB = `${(px+dsize).toFixed(1)},${(py).toFixed(1)}`;
-              const pC = `${(px).toFixed(1)},${(py+dsize).toFixed(1)}`;
-              const pD = `${(px-dsize).toFixed(1)},${(py).toFixed(1)}`;
-              const diamond = document.createElementNS(svgNS,'polygon');
-              diamond.setAttribute('points', `${pA} ${pB} ${pC} ${pD}`);
-              diamond.setAttribute('fill', colorOf(act)); if (estimated) diamond.setAttribute('opacity','0.6');
-              svg.appendChild(diamond);
-            } catch {}
-            // 矢頭（横向き）
-            if (i===2){
-              const tri = document.createElementNS(svgNS, 'polygon');
-              const a=a1; const tipX=x1, tipY=y1; const w=4,h=6; const ortho=a+Math.PI/2;
-              const p1x=tipX, p1y=tipY;
-              const p2x=tipX - h*Math.cos(a) + w*Math.cos(ortho);
-              const p2y=tipY - h*Math.sin(a) + w*Math.sin(ortho);
-              const p3x=tipX - h*Math.cos(a) - w*Math.cos(ortho);
-              const p3y=tipY - h*Math.sin(a) - w*Math.sin(ortho);
-              tri.setAttribute('points', `${p1x.toFixed(1)},${p1y.toFixed(1)} ${p2x.toFixed(1)},${p2y.toFixed(1)} ${p3x.toFixed(1)},${p3y.toFixed(1)}`);
-              tri.setAttribute('fill', colorOf(act)); if (estimated) tri.setAttribute('opacity','0.6'); svg.appendChild(tri);
-            }
+          path.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} A ${Rcurr} ${Rcurr} 0 0 ${clockwise?1:0} ${x1.toFixed(1)} ${y1.toFixed(1)}`);
+          svg.appendChild(path);
+          // ピボット
+          const dsize=3; const px=x0, py=y0; const diamond=document.createElementNS(svgNS,'polygon');
+          diamond.setAttribute('points', `${(px).toFixed(1)},${(py-dsize).toFixed(1)} ${(px+dsize).toFixed(1)},${(py).toFixed(1)} ${(px).toFixed(1)},${(py+dsize).toFixed(1)} ${(px-dsize).toFixed(1)},${(py).toFixed(1)}`);
+          diamond.setAttribute('fill', colorOf('変')); if (estimated) diamond.setAttribute('opacity','0.6'); svg.appendChild(diamond);
+          // 最終矢頭
+          if (i===2){
+            const tri = document.createElementNS(svgNS, 'polygon'); const a=a1; const tipX=x1, tipY=y1; const w=4,h=6; const ortho=a+Math.PI/2;
+            const p1x=tipX, p1y=tipY;
+            const p2x=tipX - h*Math.cos(a) + w*Math.cos(ortho);
+            const p2y=tipY - h*Math.sin(a) + w*Math.sin(ortho);
+            const p3x=tipX - h*Math.cos(a) - w*Math.cos(ortho);
+            const p3y=tipY - h*Math.sin(a) - w*Math.sin(ortho);
+            tri.setAttribute('points', `${p1x.toFixed(1)},${p1y.toFixed(1)} ${p2x.toFixed(1)},${p2y.toFixed(1)} ${p3x.toFixed(1)},${p3y.toFixed(1)}`);
+            tri.setAttribute('fill', colorOf('変')); if (estimated) tri.setAttribute('opacity','0.6'); svg.appendChild(tri);
           }
-          // ステップ番号（中点付近）
-          try {
-            const a0 = ang, a1 = (acts[i]==='進') ? ang : (clockwise ? ang+seg : ang-seg);
-            const mid = (a0 + a1) / 2; const Rm = acts[i]==='進' ? r[i] - 2 : r[i];
-            const tx = cx + (Rm+1)*Math.cos(mid); const ty = cy + (Rm+1)*Math.sin(mid);
-            const t = document.createElementNS(svgNS,'text');
-            t.setAttribute('x', tx.toFixed(1)); t.setAttribute('y', ty.toFixed(1));
-            t.setAttribute('fill', '#cbd5e1'); t.setAttribute('font-size','7'); t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle');
-            t.textContent = String(i+1); svg.appendChild(t);
-          } catch {}
+        }
+        for (let i=0;i<3;i++){
+          if (acts[i] !== '進') continue;
+          const ang = starts[i]; const Rcurr = r[i];
+          // 放射線を長め・太めで描画（視認性向上）
+          const Rstart = Math.max(6, Rcurr - 12); // 12pxの長さを確保
+          const x0 = cx + Rstart*Math.cos(ang), y0 = cy + Rstart*Math.sin(ang);
+          const x1 = cx + Rcurr*Math.cos(ang), y1 = cy + Rcurr*Math.sin(ang);
+          const path = document.createElementNS(svgNS, 'path');
+          path.setAttribute('fill','none'); path.setAttribute('stroke', colorOf('進'));
+          path.setAttribute('stroke-width', String(Math.max(2.5, strokeW)));
+          if (estimated) { path.setAttribute('stroke-dasharray','3 3'); path.classList.add('is-estimated'); }
+          path.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} L ${x1.toFixed(1)} ${y1.toFixed(1)}`);
+          svg.appendChild(path);
+          if (i===2){
+            const tri = document.createElementNS(svgNS, 'polygon');
+            const a = ang; const tipX = x1, tipY = y1; const w=4, h=6; const ortho = a + Math.PI/2;
+            tri.setAttribute('points', `${tipX.toFixed(1)},${tipY.toFixed(1)} ${(tipX - h*Math.cos(a) + w*Math.cos(ortho)).toFixed(1)},${(tipY - h*Math.sin(a) + w*Math.sin(ortho)).toFixed(1)} ${(tipX - h*Math.cos(a) - w*Math.cos(ortho)).toFixed(1)},${(tipY - h*Math.sin(a) - w*Math.sin(ortho)).toFixed(1)}`);
+            tri.setAttribute('fill', colorOf('進')); if (estimated) tri.setAttribute('opacity','0.6'); svg.appendChild(tri);
+          }
+        }
+        // ステップ番号（最後に重ねる）
+        for (let i=0;i<3;i++){
+          const a0 = starts[i]; const a1 = (acts[i]==='進') ? a0 : (clockwise ? a0+seg : a0-seg);
+          const mid = (a0 + a1) / 2; const Rm = acts[i]==='進' ? r[i] - 4 : r[i];
+          const tx = cx + (Rm+1)*Math.cos(mid); const ty = cy + (Rm+1)*Math.sin(mid);
+          const t = document.createElementNS(svgNS,'text');
+          t.setAttribute('x', tx.toFixed(1)); t.setAttribute('y', ty.toFixed(1));
+          t.setAttribute('fill', '#cbd5e1'); t.setAttribute('font-size','7'); t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle'); t.textContent = String(i+1);
+          svg.appendChild(t);
         }
         wrap.appendChild(svg);
         return wrap;
