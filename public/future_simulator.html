@@ -13,7 +13,33 @@
     
     <!-- Load critical path scripts -->
     <link href="./css/tailwind.css" rel="stylesheet">
-    
+
+    <!-- Production console suppression (must load very early) -->
+    <script src="./js/utils/console-suppressor.js"></script>
+
+    <!-- file:// ガード（CORS対策・起動案内） -->
+    <script>
+      (function(){
+        try {
+          if (location.protocol === 'file:') {
+            window.__HAQEI_FILE_MODE__ = true;
+            console.warn('Running from file:// — dynamic fetch/import will be blocked by browser. Start a local server.');
+            document.addEventListener('DOMContentLoaded', function(){
+              const note = document.createElement('div');
+              note.id = 'file-mode-warning';
+              note.style.cssText = 'position:sticky;top:0;z-index:9999;margin:0;padding:10px 12px;background:#b91c1c;color:#fff;font-weight:600;border-bottom:1px solid rgba(255,255,255,.2)';
+              note.textContent = 'ローカルファイルからの直接実行では分析機能は動作しません。ターミナルで `npm run serve:dist` などを実行し、http://localhost:8789 から開いてください。';
+              document.body.insertBefore(note, document.body.firstChild);
+              const btn = document.getElementById('aiGuessBtn');
+              if (btn) { btn.disabled = true; btn.title = 'ローカルサーバから開いてください'; }
+              // prefetchリンクを削除
+              document.querySelectorAll('link[rel="prefetch"]').forEach(el=>el.remove());
+            });
+          }
+        } catch {}
+      })();
+    </script>
+
     <!-- Browser Compatibility Layer -->
     <script src="./js/core/BrowserCompatibility.js"></script>
     
@@ -47,8 +73,7 @@
         };
     </script>
 
-    <!-- Production console suppression (must load early) -->
-    <script src="./js/utils/console-suppressor.js"></script>
+    
     
     
     
@@ -1570,7 +1595,7 @@
     <!-- Easy scenario loader (curated, plain-ja guidance) -->
     <script src="./js/scenario-easy-loader.js?v=20250912"></script>
     <script src="./js/core/BranchGenerator.js?v=20250911"></script>
-    <script src="./js/components/EightBranchesDisplay.js?v=20250911"></script>
+    <script src="./js/components/EightBranchesDisplay.js?v=20250914"></script>
   <!-- Removed legacy controller: ResultPageController (not used in minimal mode) -->
   <!-- <script src="./js/components/ResultPageController.js?v=20250909"></script> -->
   <script src="./js/future-simulator-integration.js?v=20250911"></script>
