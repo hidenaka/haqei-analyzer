@@ -1151,6 +1151,22 @@
             const v = this._lineStates[lineKey()];
             mainText = (typeof v === 'string') ? v : (v && v.text) || '';
           } catch {}
+          // Fallback: H384_DATA から該当爻の「現代解釈の要約」やキーワードを表示
+          if (!mainText || !mainText.trim()) {
+            try {
+              const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+              const entry = data.find(e => Number(e['卦番号']) === hex && (String(e['爻']) === (yao || '')));
+              if (entry) {
+                const sum = (typeof entry['現代解釈の要約'] === 'string') ? entry['現代解釈の要約'].trim() : '';
+                if (sum) mainText = sum;
+                else {
+                  const kwRaw = Array.isArray(entry['キーワード']) ? entry['キーワード'] : (typeof entry['キーワード']==='string' ? entry['キーワード'].split(/、|,|\s+/).filter(Boolean) : []);
+                  const kw = (kwRaw || []).slice(0,3).join('、');
+                  if (kw) mainText = `キーワード: ${kw}`;
+                }
+              }
+            } catch {}
+          }
 
           // 基礎スコア
           let baseScore = '';
