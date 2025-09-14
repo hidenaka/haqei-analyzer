@@ -74,19 +74,19 @@ class DataCompatibilityLayer {
   async loadAllData() {
     const loadTasks = [
       // Hexagrams data (data_box.js replacement)
-      this.loadDataFile('./data/hexagrams.json', 'hexagrams_master'),
+      this.loadDataFile('/data/hexagrams.json', 'hexagrams_master'),
       
       // AI themes data (ai_theme_database.js replacement) 
-      this.loadDataFile('./data/ai_themes.json', 'futureThemeMap'),
+      this.loadDataFile('/data/ai_themes.json', 'futureThemeMap'),
       
       // Koudo Shishin data (koudo_shishin_database.js replacement)
-      this.loadDataFile('./data/koudo_shishin.json', 'koudoShishinData'),
+      this.loadDataFile('/data/koudo_shishin.json', 'koudoShishinData'),
       
       // Bible data (bible.js replacement)
-      this.loadDataFile('./data/bible.json', 'BIBLE_DATA'),
+      this.loadDataFile('/data/bible.json', 'BIBLE_DATA'),
       
       // H384 database (H384_DATABASE.js replacement - partial)
-      this.loadDataFile('./data/h384.json', 'H384_DATA_JSON', (data) => {
+      this.loadDataFile('/data/h384.json', 'H384_DATA_JSON', (data) => {
         // Create a simplified H384_DATA structure for compatibility
         return {
           version: data.version,

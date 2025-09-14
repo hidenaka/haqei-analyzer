@@ -1043,6 +1043,47 @@ console.log('🎯 EightScenariosDisplay Loading...');
             </div>
           </div>
         </div>
+
+        <!-- 卦と爻の変化（明示） -->
+        ${(() => {
+          try {
+            const steps = Array.isArray(scenario.steps) ? scenario.steps : [];
+            const yaoMap = {1:'初九',2:'九二',3:'九三',4:'九四',5:'九五',6:'上九'};
+            const yaoAlt = {1:'初六',2:'六二',3:'六三',4:'六四',5:'六五',6:'上六'};
+            const getHexName = (h) => {
+              try {
+                const id = Number(h);
+                if (window.H64_DATA && Number.isFinite(id)) {
+                  const e = window.H64_DATA[id-1];
+                  const n = e && (e['卦名'] || e['name_jp']);
+                  return n ? String(n).trim() : `卦${id}`;
+                }
+              } catch {}
+              return `卦${h}`;
+            };
+            const getYao = (line, hex) => {
+              // 陽陰は不明のため、表示は九側を既定。必要ならH384から補う
+              const m = (line>=1 && line<=6) ? (yaoMap[line] || yaoAlt[line] || '') : '';
+              return m || `爻${line}`;
+            };
+            const rows = (steps.length ? steps : [{hex: scenario.hexagramInfo?.number||'', line: scenario.hexagramInfo?.lineNumber||'', action:''},{hex: '' ,line:'',action:''},{hex: scenario.finalHex, line: scenario.finalLine, action:''}])
+              .slice(0,3)
+              .map((st,i)=>{
+                const label = i===0? 'Step1': (i===1? 'Step2':'Step3');
+                const hex = getHexName(st.hex);
+                const yao = getYao(st.line, st.hex);
+                const act = st.action === '変' ? '変' : '進';
+                return `<div style=\"display:flex;gap:.5rem;align-items:center;\"><span style=\"min-width:46px;color:#94a3b8;\">${label}</span><span>${hex} ${yao}</span><span style=\"color:#a5b4fc;opacity:.9;\">（${act}）</span></div>`;
+              })
+              .join('');
+            return `
+              <div class=\"phase-block\" style=\"margin-top:.4rem;border:1px dashed rgba(148,163,184,.35);border-radius:8px;padding:.5rem .6rem;background:rgba(15,23,42,.35);\">
+                <div style=\"font-weight:700;color:#c7d2fe;margin-bottom:.25rem;\">卦と爻の変化</div>
+                ${rows}
+              </div>
+            `;
+          } catch { return ''; }
+        })()}
         
         <!-- 実現可能性 -->
         <div class="scenario-probability">

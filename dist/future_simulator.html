@@ -13,7 +13,33 @@
     
     <!-- Load critical path scripts -->
     <link href="./css/tailwind.css" rel="stylesheet">
-    
+
+    <!-- Production console suppression (must load very early) -->
+    <script src="./js/utils/console-suppressor.js"></script>
+
+    <!-- file:// ガード（CORS対策・起動案内） -->
+    <script>
+      (function(){
+        try {
+          if (location.protocol === 'file:') {
+            window.__HAQEI_FILE_MODE__ = true;
+            console.warn('Running from file:// — dynamic fetch/import will be blocked by browser. Start a local server.');
+            document.addEventListener('DOMContentLoaded', function(){
+              const note = document.createElement('div');
+              note.id = 'file-mode-warning';
+              note.style.cssText = 'position:sticky;top:0;z-index:9999;margin:0;padding:10px 12px;background:#b91c1c;color:#fff;font-weight:600;border-bottom:1px solid rgba(255,255,255,.2)';
+              note.textContent = 'ローカルファイルからの直接実行では分析機能は動作しません。ターミナルで `npm run serve:dist` などを実行し、http://localhost:8789 から開いてください。';
+              document.body.insertBefore(note, document.body.firstChild);
+              const btn = document.getElementById('aiGuessBtn');
+              if (btn) { btn.disabled = true; btn.title = 'ローカルサーバから開いてください'; }
+              // prefetchリンクを削除
+              document.querySelectorAll('link[rel="prefetch"]').forEach(el=>el.remove());
+            });
+          }
+        } catch {}
+      })();
+    </script>
+
     <!-- Browser Compatibility Layer -->
     <script src="./js/core/BrowserCompatibility.js"></script>
     
@@ -26,10 +52,39 @@
             featureFlags: {
                 enableAnalysis: true,
                 enableSharing: false,
-                enableAnimation: false
+                enableAnimation: false,
+                // Classicレイアウト（falseで拡張UIを既定ON）
+                layoutClassic: false,
+                // 上段固定Top3は既定OFF（Classic前提）
+                enableTop3Mode: false,
+                // やさしい日本語（高校生レベル）コピーを有効化
+                lowReadingLevel: true,
+                // 自信度バーの表示切替（既定: 完全無効化）
+                showConfidenceBar: false,
+                // 本番ログ抑止フラグ（必要時のみtrueに）
+                production: false,
+                // 透明性/比較の強化フラグ
+                evidencePanel: true,
+                comparePanel: true,
+                showBadges: true,
+                disclaimer: true,
+                visualStrengthen: true,
+                visualStyle: 'track', // 'track' | 'spiral'
+                // 見出し最小化と周辺装飾の抑制
+                minimalCardHeader: true,
+                titleEmoji: false,
+                showOutcomeStamp: false,
+                // 既定は非表示（必要時のみtrue）
+                showConfidenceBar: false,
+                // 決定支援系（非表示）
+                showDecisionSupport: false,
+                showEasyChips: false,
+                showEasyCaution: false
             }
         };
     </script>
+
+    
     
     
     
@@ -88,6 +143,9 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Prefetch lightweight data (avoid preload-unused warnings) -->
+    <link rel="prefetch" href="./data/narratives-short.json" crossorigin>
+    <link rel="prefetch" href="./data/h384-line-states.json" crossorigin>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@100..900&display=swap"
       rel="stylesheet"
@@ -1474,6 +1532,8 @@
     
     <!-- Core System Assets - 最適化読み込み順序 -->
     <script src="./assets/H384H64database.js"></script>
+    <!-- H384要約の文体を状況説明調へ正規化（起動時一回） -->
+    <script src="./js/utils/h384-neutralizer.js"></script>
     
     <!-- P0-2: Direct RandomnessManager Implementation (Final Solution) -->
     <script>
@@ -1545,11 +1605,13 @@
     <!-- <script src="./js/components/ScoreVisualization.js"></script> -->
     <!-- <script src="./js/components/EightScenariosDisplay.js?v=20250909"></script> -->
     <!-- New: EightBranches display (進/変 8分岐) -->
-    <script src="./js/core/BranchGenerator.js?v=20250909"></script>
-    <script src="./js/components/EightBranchesDisplay.js?v=20250909"></script>
-    <!-- Removed legacy controller: ResultPageController (not used in minimal mode) -->
-    <!-- <script src="./js/components/ResultPageController.js?v=20250909"></script> -->
-    <script src="./js/future-simulator-integration.js?v=20250909"></script>
+    <!-- Easy scenario loader (curated, plain-ja guidance) -->
+    <script src="./js/scenario-easy-loader.js?v=20250912"></script>
+    <script src="./js/core/BranchGenerator.js?v=20250911"></script>
+    <script src="./js/components/EightBranchesDisplay.js?v=20250914"></script>
+  <!-- Removed legacy controller: ResultPageController (not used in minimal mode) -->
+  <!-- <script src="./js/components/ResultPageController.js?v=20250909"></script> -->
+  <script src="./js/future-simulator-integration.js?v=20250911"></script>
     <script src="./js/core/PerformanceOptimizer.js"></script>
     <script src="./js/core/IChingTransformationEngine.js"></script>
     <script src="./js/core/FutureBranchingSystem.js"></script>
@@ -1620,7 +1682,7 @@
             
             console.log('🏁 H384_DATA読み込み順序確認完了');
         })();
-    </script>
+  </script>
     <script src="./js/keyword_expansion_engine.js"></script>
     <script src="./js/ml-integration.js" async defer></script>
     <!-- Offline-First Dictionary System -->
@@ -1654,13 +1716,13 @@
     <script src="./js/core/AuthenticIChingEngine.js"></script>
     <script src="./js/components/CurrentPositionDisplay.js"></script>
     <script src="./js/components/AuthenticChoiceSystem.js"></script>
-    <!-- Removed old authentic systems to avoid conflicts -->
+  <!-- Removed old authentic systems to avoid conflicts -->
     
-    <!-- I Ching Integration System -->
+  <!-- I Ching Integration System -->
     <script src="./js/iching-situation-analyzer.js"></script>
     <script src="./js/yao-transformation-simulator.js"></script>
     <script src="./js/iching-metaphor-display.js"></script>
-    <!-- iching-future-simulator.js now loaded as ESM module below -->
+  <!-- iching-future-simulator.js now loaded as ESM module below -->
     
     <!-- Global I Ching Simulator Factory -->
     <script>
@@ -1671,7 +1733,25 @@
         return null;
       }
       window.getIChingSimulator = getIChingSimulator;
-    </script>
+  </script>
+  
+  <!-- Disclaimer (常時表示: 応用的助言の明示) -->
+  <div id="fs-disclaimer" style="max-width:80rem;margin:16px auto 24px;padding:10px 12px;border:1px solid rgba(99,102,241,.25);border-radius:10px;background:rgba(17,24,39,.35);color:#cbd5e1;display:none;">
+    <div style="font-weight:700;color:#c7d2fe;margin-bottom:4px;">ご利用上の注意</div>
+    <div style="font-size:.9em;line-height:1.6;">
+      本ページは易経の知見をもとに現代の意思決定支援として再構成した「応用的な助言」を表示します。健康・投資・法律など専門判断を要する領域では、最終判断はご自身で行い、必要に応じて専門家にご相談ください。
+    </div>
+  </div>
+  <script>
+    (function(){
+      try {
+        if (window.HAQEI_CONFIG?.featureFlags?.disclaimer !== false) {
+          const el = document.getElementById('fs-disclaimer');
+          if (el) el.style.display = 'block';
+        }
+      } catch {}
+    })();
+  </script>
     
     <!-- Future Simulator Core & Binary Tree System -->
     <!-- Removed old core/binary-tree systems (EightScenariosDisplay is authoritative) -->
@@ -1704,43 +1784,17 @@
     >
       <header class="text-center mb-8 relative">
         <div class="inline-block">
-          <h1 class="text-3xl sm:text-4xl font-bold brand-text tracking-wider">
+          <h1 class="text-3xl sm:text-4xl font-bold brand-text tracking-wider" id="heroTitle">
             易経未来分析システム
           </h1>
-          <p class="text-gray-400 mt-2 text-lg">384パターンによる状況分析ツール</p>
+          <p class="text-gray-400 mt-2 text-lg" id="heroSubtitle">384パターンによる状況分析ツール</p>
           <div class="flex justify-center gap-6 mt-3 text-sm text-gray-500">
             <span>📊 易経による未来分析</span>
             <span>🗃️ 伝統的な易経パターン活用</span>
             <span>⏱️ 複数の展開パターンを提示</span>
           </div>
         </div>
-        <button
-          id="helpBtn"
-          class="absolute top-0 right-0 p-2 text-gray-400 hover:text-white transition-colors"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.79 4 4 0 .863-.27 1.66-.744 2.25l-2.536 2.39c-.832.786-1.464 1.49-1.464 2.36h.001M12 18h.01"
-            />
-          </svg>
-        </button>
-        <button
-          id="diagBtn"
-          class="absolute top-0 right-10 p-2 text-gray-400 hover:text-white transition-colors"
-          title="Run IChing diagnostics (console)"
-          onclick="window.runIChingDiagnostics && window.runIChingDiagnostics()"
-        >
-          🧪
-        </button>
+        <!-- Removed non-functional help/diagnostic buttons -->
       </header>
 
       <!-- Input Section with Skeleton -->      
@@ -1748,63 +1802,59 @@
         
         <!-- Actual Input Content -->
         <div class="input-content" id="input-content" style="display: block;">
-          <h2 class="text-lg font-bold text-indigo-300 mb-3">
+          <h2 class="text-lg font-bold text-indigo-300 mb-3" id="guideHeading">
             1. AIによる状況推測
           </h2>
         <div
           class="border border-gray-700 rounded-lg p-4 mb-4 text-sm text-gray-300 space-y-3"
         >
-          <p class="text-base font-bold text-center text-indigo-300">
-            AIへの最高の「呪文」は、あなたの「ありのままの言葉」です
+          <p class="text-base font-bold text-center text-indigo-300" id="guideLead1">
+            AIは、あなたのそのままの言葉を使います
           </p>
-          <p class="text-xs text-center text-gray-400">
-            未来分岐図の精度を高める、たった一つの秘訣
+          <p class="text-xs text-center text-gray-400" id="guideLead2">
+            うまく書かなくて大丈夫。感じたことをそのまま書いてください。
           </p>
-          <p>
-            これから、あなたの現状と課題をAIに入力していただきます。その際、どうか<strong>「上手な文章を書こう」としないでください。</strong>AIは、整えられた文章よりも、あなたの<strong>「生の言葉」</strong>を求めています。
-          </p>
-          <p>
-            箇条書きでも、心のつぶやきでも、誰かに愚痴をこぼすような言葉でも構いません。他人に見せるための文章ではなく、<strong>あなた自身のための「思考のメモ」</strong>として、リラックスして入力してください。
-          </p>
-          <p>
-            なぜなら、AIはあなたが選ぶ一つ一つの単語、表現の揺れ、感情のニュアンスから、あなただけの「思考のクセ」や「心の動き」を読み取るからです。
-          </p>
+          <ul class="list-disc pl-5 space-y-1 text-sm text-gray-300" id="guideList">
+            <li>箇条書きでもOK。ていねいな文は不要です。</li>
+            <li>今の気持ちや困りごとも、一緒に書いてください。</li>
+            <li>むずかしい言葉は使わなくて大丈夫です。</li>
+          </ul>
           <div class="pt-2">
             <p class="font-bold text-gray-200">【入力のヒント】</p>
             <div
               class="mt-2 p-3 rounded-lg bg-red-900/20 border border-red-800/50"
             >
-              <p class="font-bold">悪い例 ❌</p>
+              <p class="font-bold" id="badLabel">悪い例 ❌</p>
               <p class="text-xs italic mt-1">
                 「新規プロジェクトのマネジメントにおいて、人的リソースの不足がボトルネックとなり、計画に遅延が生じています。」
               </p>
-              <p class="text-xs text-gray-400 mt-1">
-                （これでは、AIは一般的なビジネス課題としてしか分析できません）
+              <p class="text-xs text-gray-400 mt-1" id="badNote">
+                （むずかしい言い方だと、あなたの今が伝わりにくい）
               </p>
             </div>
             <div
               class="mt-2 p-3 rounded-lg bg-emerald-900/20 border border-emerald-800/50"
             >
-              <p class="font-bold">良い例 ⭕</p>
+              <p class="font-bold" id="goodLabel">良い例 ⭕</p>
               <p class="text-xs italic mt-1">
                 「新しい仕事、マジで人足りてない！Aさんは頑張ってくれてるけど、Bさんは全然やる気ないし…。このままだと絶対間に合わない。どうすりゃいいんだ…。焦る。」
               </p>
-              <p class="text-xs text-gray-400 mt-1">
-                （この方が、あなたの感情、人間関係への認識、切迫感が伝わり、よりパーソナライズされた分析が可能になります）
+              <p class="text-xs text-gray-400 mt-1" id="goodNote">
+                （このほうが気持ちや急ぎ具合が伝わり、役立つ結果になります）
               </p>
             </div>
           </div>
-          <p class="font-bold text-center pt-2">
-            易経の384パターン（64卦×6爻）による客観的分析により、<br />現在の状況から導かれる8つの未来軌道を可視化します。
+          <p class="font-bold text-center pt-2" id="methodNote">
+            64×6＝384の型から、今に合う「8つの道」を見やすく出します。
           </p>
         </div>
         
         <!-- あなたの未来を読み解きます -->
         <div class="mb-6 text-center">
-          <h3 class="text-xl font-bold text-indigo-300 mb-2">
-            📊 易経384パターンによる状況分析
+          <h3 class="text-xl font-bold text-indigo-300 mb-2" id="heroMini">
+            📊 あなたに合う8つの道
           </h3>
-          <p class="text-sm text-gray-400">
+          <p class="text-sm text-gray-400" id="heroMiniNote">
             易経の知恵に基づく8つの未来可能性を分析
           </p>
         </div>
@@ -1836,7 +1886,7 @@
                 clip-rule="evenodd"
               />
             </svg>
-            <span id="buttonText">分析実行</span>
+            <span id="buttonText">分析を始める</span>
           </button>
         </div>
       </div>
@@ -1847,13 +1897,22 @@
       <!-- 旧版UI完全削除完了 (2025-08-07) -->
       
       <!-- 🌸 未来分析結果セクション -->
-      <div id="resultsContainer" class="results-container" style="display: none; margin-top: 2rem;"></div>
+      <!-- View toggles toolbar (task-oriented, persona-neutral) -->
+      <div id="viewToggles" style="display:none;margin-top:1.5rem;gap:.5rem;align-items:center;color:#cbd5e1;">
+        <span style="color:#a5b4fc;font-weight:600;">表示:</span>
+        <label style="margin-right:.5rem;"><input type="checkbox" id="toggle-summary" checked> 要点</label>
+        <label style="margin-right:.5rem;"><input type="checkbox" id="toggle-compare"> 比較</label>
+        <label style="margin-right:.5rem;"><input type="checkbox" id="toggle-evidence"> 理由</label>
+        <label style="margin-right:.5rem;"><input type="checkbox" id="toggle-learn"> ヒント</label>
+      </div>
+      <div id="resultsContainer" class="results-container" style="display: none; margin-top: .75rem;"></div>
 
       <!-- 結果表示エリア：分析実行時に動的に生成されます -->
     </div>
 
     <!-- Module Script -->
     <script type="module">
+      import { extractTags } from './js/utils/InputTagExtractor.js';
       // 🚀 Emergency Fix: Minimal Working ProgressiveLoader
       class ProgressiveLoader {
         constructor() {
@@ -1925,13 +1984,10 @@
                 showUserMessage('10文字以上で具体的な状況を入力してください', 'warning');
                 return;
               }
-              // 入力が有効な場合は分析を実行
               try {
-                // ProgressiveLoaderのインスタンスメソッドを利用
                 if (typeof this.performAnalysis === 'function') {
                   this.performAnalysis(inputText);
                 } else if (window.FutureSimulator && window.FutureSimulator.Core && typeof window.FutureSimulator.Core.startAnalysis === 'function') {
-                  // フォールバック: 直接Coreへ委譲
                   const situationInput = document.getElementById('situation-input') ||
                                         document.querySelector('textarea[placeholder*="状況"]') ||
                                         document.querySelector('textarea');
@@ -3253,6 +3309,27 @@
           
           // 現在の状況（最新ロジック）を表示
           renderCurrentStatusBlockLatest(ichingAnalysis);
+          // 入力→タグ抽出し、Nowブロックに表示
+          try {
+            const input = (window.integratedAnalysisResult && window.integratedAnalysisResult.input) || inputText || '';
+            const { tags } = await extractTags(input);
+            const nowBlock = document.getElementById('current-status-block');
+            if (nowBlock && tags && tags.length) {
+              window.HAQEI_INPUT_TAGS = tags;
+              const line = document.createElement('div');
+              line.style.marginTop = '6px';
+              line.style.display = 'flex';
+              line.style.flexWrap = 'wrap';
+              line.style.gap = '6px';
+              const label = document.createElement('span');
+              label.textContent = '入力要素:';
+              label.style.color = '#94a3b8';
+              label.style.fontSize = '.85em';
+              line.appendChild(label);
+              tags.forEach(t => { const chip=document.createElement('span'); chip.textContent=t; chip.style.padding='2px 8px'; chip.style.border='1px solid rgba(99,102,241,.45)'; chip.style.borderRadius='9999px'; chip.style.fontSize='.75em'; chip.style.color='#c7d2fe'; line.appendChild(chip); });
+              nowBlock.appendChild(line);
+            }
+          } catch {}
 
           // 8シナリオ（従来HTML生成）は無効化。新UI（EightScenariosDisplay）側で表示。
           
@@ -3264,13 +3341,85 @@
         
         // 結果コンテナを表示
         const resultsContainer = document.getElementById('resultsContainer');
+        const toggles = document.getElementById('viewToggles');
         if (resultsContainer) {
           resultsContainer.style.display = 'block';
+          if (toggles) toggles.style.display = 'flex';
+          applyViewToggles();
           setTimeout(() => {
             resultsContainer.scrollIntoView({ behavior: 'smooth' });
           }, 500);
         }
       }
+
+  // view toggles (persona-neutral)
+  function loadPrefs() {
+    try { return JSON.parse(localStorage.getItem('haqei_view_prefs')||'{}'); } catch { return {}; }
+  }
+  function savePrefs(p) { try { localStorage.setItem('haqei_view_prefs', JSON.stringify(p)); } catch {} }
+  function applyViewToggles() {
+    const prefs = Object.assign({ summary:true, compare:true, evidence:false, learn:false }, loadPrefs());
+    if (typeof prefs.compare !== 'boolean') prefs.compare = true; // ensure graph ON by default
+    const root = document.getElementById('eight-branches-display');
+    if (!root) return;
+    const nodes = root.querySelectorAll('[data-section]');
+    nodes.forEach(n => {
+      const sec = n.getAttribute('data-section');
+      const on = prefs[sec] !== false; // default on for summary
+      n.style.display = on ? '' : 'none';
+    });
+    const cbS = document.getElementById('toggle-summary');
+    const cbC = document.getElementById('toggle-compare');
+    const cbE = document.getElementById('toggle-evidence');
+    const cbL = document.getElementById('toggle-learn');
+    if (cbS) cbS.checked = !!prefs.summary;
+    if (cbC) cbC.checked = !!prefs.compare;
+    if (cbE) cbE.checked = !!prefs.evidence;
+    if (cbL) cbL.checked = !!prefs.learn;
+    try { window.__haqei_view_prefs = prefs; } catch {}
+  }
+  // expose for external calls
+  try { window.applyViewToggles = applyViewToggles; } catch {}
+  document.addEventListener('DOMContentLoaded', () => {
+    // Low reading level copy (friendly JP) if enabled
+    try {
+      const low = window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false;
+      if (low) {
+        const set = (id, text) => { const el=document.getElementById(id); if (el) el.textContent = text; };
+        set('heroTitle', '未来の選択を、かんたんに');
+        set('heroSubtitle', 'あなたの言葉から道を見つけます');
+        set('guideHeading', '1. やさしく書いて、すぐ試す');
+        set('guideLead1', 'AIは、あなたのそのままの言葉を使います');
+        // 初めての人向け一言（既存の小見出しに置換）
+        set('guideLead2', 'まず、今の気持ちと困っていることを一行で書いてみましょう');
+        const list = document.getElementById('guideList');
+        if (list) list.innerHTML = '<li>箇条書きでもOK。ていねいな文は不要です。</li>\n<li>今の気持ちや困りごとも、一緒に書いてください。</li>\n<li>むずかしい言葉は使わなくて大丈夫です。</li>';
+        set('badLabel', '悪い例 ❌');
+        set('badNote', '（むずかしい言い方だと、あなたの今が伝わりにくい）');
+        set('goodLabel', '良い例 ⭕');
+        set('goodNote', '（このほうが気持ちや急ぎ具合が伝わり、役立つ結果になります）');
+        set('methodNote', '64×6＝384の型から、今に合う「8つの道」を見やすく出します。');
+        set('heroMini', '📊 あなたに合う8つの道');
+        set('heroMiniNote', '');
+        const btn = document.getElementById('buttonText'); if (btn) btn.textContent = '分析を始める';
+        // 入力欄プレースホルダ（既存要素の属性のみ変更）
+        const wi = document.getElementById('worryInput');
+        if (wi) wi.setAttribute('placeholder','今の気持ちと困っていることを、一行でOK');
+      }
+    } catch {}
+    const prefs = Object.assign({ summary:true, compare:true, evidence:false, learn:false }, loadPrefs());
+    const cbS = document.getElementById('toggle-summary');
+    const cbC = document.getElementById('toggle-compare');
+    const cbE = document.getElementById('toggle-evidence');
+    const cbL = document.getElementById('toggle-learn');
+    const update = () => { savePrefs(prefs); applyViewToggles(); };
+    if (cbS) cbS.addEventListener('change', e => { prefs.summary = !!e.target.checked; update(); });
+    if (cbC) cbC.addEventListener('change', e => { prefs.compare = !!e.target.checked; update(); });
+    if (cbE) cbE.addEventListener('change', e => { prefs.evidence = !!e.target.checked; update(); });
+    if (cbL) cbL.addEventListener('change', e => { prefs.learn = !!e.target.checked; update(); });
+    // save defaults if empty
+    savePrefs(prefs);
+  });
       
   // Initialize on DOM ready
   document.addEventListener('DOMContentLoaded', ensureChartContainers);
@@ -3320,21 +3469,51 @@
         <div id="current-status-reasons" style="display:none"></div>
       `;
 
-      // Now主理由＝行状態テキスト
-      (async () => {
-        try {
-          const key = `${hexNumForState}-${yaoPosForState}`;
-          // Use relative path to work under file:// and sub-path hosting
-          const res = await fetch('./data/h384-line-states.json', { cache: 'no-cache' });
-          let txt = '（未登録）';
-          if (res.ok) {
-            const map = await res.json();
-            const v = map[key];
-            if (typeof v === 'string') txt = v; else if (v && typeof v.text === 'string') txt = v.text;
+      // 即時プレレンダー: H384_DATAの要約が取れれば先に表示（後でshortに差し替え）
+      try {
+        const el = document.getElementById('now-main-reason');
+        if (el && window.H384_DATA && Number.isFinite(hexNumForState)) {
+          const entry = window.H384_DATA.find(e => Number(e['卦番号']) === hexNumForState && String(e['爻']) === yaoName);
+          const summary = entry && typeof entry['現代解釈の要約'] === 'string' ? entry['現代解釈の要約'].trim() : '';
+          if (summary) {
+            // マイクロタスク/短期タイマーで描画先行
+            Promise.resolve().then(() => { el.textContent = summary; });
+            setTimeout(() => { if (el.textContent !== summary) el.textContent = summary; }, 0);
           }
-          const el = document.getElementById('now-main-reason');
-          if (el) el.textContent = txt || '（未登録）';
-        } catch { const el = document.getElementById('now-main-reason'); if (el) el.textContent = '（未登録）'; }
+        }
+      } catch {}
+
+      // Now主理由＝ワンライン（あれば narratives-short の short）、なければ行状態テキスト（後置で上書き）
+      (async () => {
+        const el = document.getElementById('now-main-reason');
+        try {
+          // 1) narratives.v1.json の short を優先
+          let txt = '';
+          const keyLabel = `${hexName} ${yaoName}`.trim();
+          try {
+            // 軽量版（shortのみ）を優先
+            const nres = await fetch('./data/narratives-short.json', { cache: 'default' });
+            if (nres.ok) {
+              const narr = await nres.json();
+              const short = narr[keyLabel];
+              if (typeof short === 'string' && short.trim().length) txt = short.trim();
+            }
+          } catch {}
+          // 2) 行状態テキスト（h384-line-states.json）
+          if (!txt) {
+            const key = `${hexNumForState}-${yaoPosForState}`;
+            const lres = await fetch('./data/h384-line-states.json', { cache: 'default' });
+            if (lres.ok) {
+              const map = await lres.json();
+              const v = map[key];
+              if (typeof v === 'string') txt = v; else if (v && typeof v.text === 'string') txt = v.text;
+            }
+          }
+          // 既存プレレンダーがある場合はそれを尊重し、未登録にはしない
+          if (el && txt && txt.trim()) {
+            el.textContent = txt.trim();
+          }
+        } catch { if (el) el.textContent = '（未登録）'; }
       })();
 
       // 8分岐（進/変）の自動描画
@@ -3352,8 +3531,15 @@
           const disp = new window.EightBranchesDisplay();
           disp.initialize('eight-branches-display');
           const gen = new window.BranchGenerator();
+          const currentSituation = {
+            hexagramNumber: hexNumForState,
+            hexagramName: hexName,
+            yaoPosition: yaoPosForState,
+            yaoName: yaoName
+          };
           gen.generateEightBranches(hexNumForState, yaoPosForState).then(branches => {
-            disp.displayBranches(branches);
+            // Pass current situation to display for richer context (特徴/理由/一手 等)
+            disp.displayBranches(branches, currentSituation);
           }).catch(err => console.warn('EightBranches render failed:', err));
         }
       } catch (e) { console.warn('EightBranches auto-mount error:', e?.message || e); }

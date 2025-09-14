@@ -1557,7 +1557,7 @@
       return '';
     }
 
-    async _endpointInfoForStep(hex, line){
+  async _endpointInfoForStep(hex, line){
       try {
         const yaoNames = this._yaoCandidatesByLine(line);
         const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
@@ -1569,12 +1569,12 @@
           const raw = Array.isArray(entry['キーワード']) ? entry['キーワード'] : (typeof entry['キーワード']==='string' ? entry['キーワード'].split(/、|,|\s+/).filter(Boolean) : []);
           keywords = this._normalizeKeywords(raw).slice(0,3);
         }
-        const summary = this._toNeutralJapanese(await this._oneLinerForStep(hex, line));
+        const summary = this._toNeutralJapanese(this._toPersonalPerspective(await this._oneLinerForStep(hex, line)));
         return { title, s7: (Number.isFinite(s7)? s7 : null), keywords, summary };
       } catch { return null; }
-    }
+  }
 
-    _outcomeStamp(branch){
+  _outcomeStamp(branch){
       try {
         const series = String(branch.series||'');
         const acts = series.split('→');
@@ -1647,30 +1647,38 @@
 
           const lineKey = () => `${hex}-${linePos}`;
           let mainText = '';
-          try {
-            if (!this._lineStates) {
-              const r = await fetch('./data/h384-line-states.json', { cache:'no-cache' });
-              this._lineStates = r.ok ? await r.json() : {};
+      try {
+        if (!this._lineStates) {
+          const r = await fetch('./data/h384-line-states.json', { cache:'no-cache' });
+          this._lineStates = r.ok ? await r.json() : {};
+        }
+        if (!window.H384_PERSONAL) {
+          try { const pr = await fetch('/assets/H384H64database.personal.json', { cache:'no-cache' }); if (pr.ok) window.H384_PERSONAL = await pr.json(); } catch {}
+        }
+        const v = this._lineStates[lineKey()];
+        mainText = (typeof v === 'string') ? v : (v && v.text) || '';
+      } catch {}
+      // Fallback: H384_DATA から該当爻の「現代解釈の要約」やキーワードを表示
+      if (!mainText || !mainText.trim()) {
+        try {
+          const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+          const entry = data.find(e => Number(e['卦番号']) === hex && (String(e['爻']) === (yao || '')));
+          if (entry) {
+            // personalized override
+            const linePos2 = linePos || Number(String(yao).match(/[一二三四五上]/) ? {'初':1,'九':0}[String(yao)[0]] : 0);
+            const serial = (hex>0 && linePos? ((hex-1)*6 + linePos) : null);
+            const override = (serial && window.H384_PERSONAL && window.H384_PERSONAL[String(serial)]) || null;
+            const sumBase = (typeof entry['現代解釈の要約'] === 'string') ? entry['現代解釈の要約'].trim() : '';
+            const sum = (override && override['現代解釈の要約_plain']) ? override['現代解釈の要約_plain'] : sumBase;
+            if (sum) mainText = sum;
+            else {
+              const kwRaw = Array.isArray(entry['キーワード']) ? entry['キーワード'] : (typeof entry['キーワード']==='string' ? entry['キーワード'].split(/、|,|\s+/).filter(Boolean) : []);
+              const kw = (kwRaw || []).slice(0,3).join('、');
+              if (kw) mainText = `キーワード: ${kw}`;
             }
-            const v = this._lineStates[lineKey()];
-            mainText = (typeof v === 'string') ? v : (v && v.text) || '';
-          } catch {}
-          // Fallback: H384_DATA から該当爻の「現代解釈の要約」やキーワードを表示
-          if (!mainText || !mainText.trim()) {
-            try {
-              const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
-              const entry = data.find(e => Number(e['卦番号']) === hex && (String(e['爻']) === (yao || '')));
-              if (entry) {
-                const sum = (typeof entry['現代解釈の要約'] === 'string') ? entry['現代解釈の要約'].trim() : '';
-                if (sum) mainText = sum;
-                else {
-                  const kwRaw = Array.isArray(entry['キーワード']) ? entry['キーワード'] : (typeof entry['キーワード']==='string' ? entry['キーワード'].split(/、|,|\s+/).filter(Boolean) : []);
-                  const kw = (kwRaw || []).slice(0,3).join('、');
-                  if (kw) mainText = `キーワード: ${kw}`;
-                }
-              }
-            } catch {}
           }
+        } catch {}
+      }
 
           // 基礎スコア
           let baseScore = '';
@@ -1719,7 +1727,8 @@
               main.id = 'now-main-reason';
             }
           } catch {}
-          main.textContent = this._toNeutralJapanese(mainText || '（行状態テキスト未登録）');
+          const personalizedMain = this._toPersonalPerspective(mainText || '（行状態テキスト未登録）');
+          main.textContent = this._toNeutralJapanese(personalizedMain);
           now.appendChild(main);
           // Now補足（先の見方を短く）
           const hint = document.createElement('div');
@@ -2063,8 +2072,33 @@
         await applyMode();
       } catch {}
     }
-  }
 
+    // チーム前提の文面を個人視点へ穏やかに置換
+    _toPersonalPerspective(text){
+      try {
+        let t = String(text||'');
+        const rules = [
+          [/組織|チーム|部門|部署|社内横断|部門横断/g, '関係資源'],
+          [/周囲|関係者|メンバー|人々|大衆|皆/g, '必要な相手'],
+          [/仲間と共に|皆で|協働|共創/g, '自分のペースで周囲を活用し'],
+          [/協力を得て/g, '必要な支援や資源を整えて'],
+          [/合意形成/g, '自分の中の納得と優先順位付け'],
+          [/リーダーシップ/g, '自己決定と自己管理'],
+          [/信頼を得て/g, '一貫性を積み重ねて'],
+          [/求心力/g, '軸の明確さ'],
+          [/評価|称賛|支持/g, '手応え'],
+          [/関係を丁寧に整え/g, '自分の作業環境を整え'],
+          [/協力関係/g, '関係資源の使い方'],
+          [/周囲の信頼/g, '自分への信頼と一貫性'],
+          [/目標を共有/g, '目的を自分の言葉で明確にし'],
+          [/メンバー/g, '関係資源']
+        ];
+        rules.forEach(([a,b])=>{ t = t.replace(a,b); });
+        return t;
+      } catch { return String(text||''); }
+    }
+
+  }
   if (typeof window !== 'undefined') {
     global.EightBranchesDisplay = EightBranchesDisplay;
   }

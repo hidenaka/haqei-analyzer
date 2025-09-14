@@ -17,11 +17,23 @@ const SERENA_SESSION = opt['serena-session'] || `easy-${new Date().toISOString()
 
 const PHRASES_PATH = path.resolve('scripts/easy-phrase-map.json');
 const PHRASES = JSON.parse(fs.readFileSync(PHRASES_PATH, 'utf8'));
+const MODERN_PATH = path.resolve('scripts/modernize-ja-map.json');
+const MODERN = fs.existsSync(MODERN_PATH) ? JSON.parse(fs.readFileSync(MODERN_PATH,'utf8')) : { replace:{}, patterns:[] };
 const EASY_VERSION = PHRASES.version || `v${new Date().toISOString().slice(0,10)}`;
 
 function ensureDirSync(p){ if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true }); }
 function safeSlice(s, max){ const str = String(s||'').trim(); return str.length>max ? (str.slice(0, max-1) + '…') : str; }
 function applyNgReplace(s){ let t = String(s||''); for (const [k,v] of Object.entries(PHRASES.ngReplace||{})) t=t.replaceAll(k,v); return t; }
+function modernizeJa(s){
+  let t = String(s||'');
+  // simple replaces first
+  for (const [k,v] of Object.entries(MODERN.replace||{})) t = t.replaceAll(k, v);
+  // regex patterns
+  for (const p of (MODERN.patterns||[])){
+    try { const re = new RegExp(p.find, 'g'); t = t.replace(re, p.replace); } catch {}
+  }
+  return t;
+}
 function nonEmpty(s){ return String(s||'').trim().length>0; }
 
 function triadFromSig(sig){ const s = String(sig||'').toUpperCase(); return s.replace(/[^JH]/g,''); }
@@ -49,23 +61,47 @@ function inferTagsFromSteps(steps=[]) {
   return Array.from(new Set(tags));
 }
 
-function buildNext3(tags){
-  const verbs = pickActionVerbs(tags);
-  const [a,b,c] = [verbs[0], verbs[1]||verbs[0], verbs[2]||verbs[1]||verbs[0]];
-  return { first: safeSlice(applyNgReplace(a), 25), second: safeSlice(applyNgReplace(b), 25), final: safeSlice(applyNgReplace(c), 25) };
+function deriveActionFromLineText(txt){
+  const s = String(txt||'');
+  const rules = [
+    { re: /(礼|節度|慎|謙)/, out: '礼を守る' },
+    { re: /(危|災|険)/, out: '危ない所を避ける' },
+    { re: /(助け|支え|協|友)/, out: '味方と進める' },
+    { re: /(待|機|時機)/, out: '機を待つ' },
+    { re: /(整|備|準)/, out: '先に整える' },
+    { re: /(試|験|小さ)/, out: '小さく試す' },
+    { re: /(誠|信)/, out: '誠実に伝える' },
+    { re: /(公正|公平|中道)/, out: 'かたよりなく進む' },
+    { re: /(和|合意)/, out: '合意をとる' }
+  ];
+  for (const r of rules){ if (r.re.test(s)) return r.out; }
+  return PHRASES.actionVerbMap?.['デフォルト'] || '手を動かす';
 }
 
-function buildWhy(tags){
+function buildNext3FromSteps(steps){
+  const a = deriveActionFromLineText(steps?.[0]?.lineText);
+  const b = deriveActionFromLineText(steps?.[1]?.lineText);
+  const c = deriveActionFromLineText(steps?.[2]?.lineText);
+  return {
+    first: safeSlice(applyNgReplace(modernizeJa(a)), 25),
+    second: safeSlice(applyNgReplace(modernizeJa(b)), 25),
+    final: safeSlice(applyNgReplace(modernizeJa(c)), 25)
+  };
+}
+
+function buildWhyFromSteps(steps){
+  const a = deriveActionFromLineText(steps?.[0]?.lineText);
+  const b = deriveActionFromLineText(steps?.[1]?.lineText);
   const why = [];
-  if (tags[0]) why.push(safeSlice(applyNgReplace(`今は『${tags[0]}』が強み`), 25));
-  if (tags[1]) why.push(safeSlice(applyNgReplace(`途中は『${tags[1]}』に配慮`), 25));
-  return why.slice(0,2);
+  if (a) why.push(safeSlice(applyNgReplace(modernizeJa(`初手は『${a}』が効く`)), 25));
+  if (b && why.length<2) why.push(safeSlice(applyNgReplace(modernizeJa(`途中は『${b}』で支える`)), 25));
+  return why;
 }
 
 function buildCaution(finalAction, prob){
   const cautious = (Number(prob||0) < 0.5);
-  if (finalAction === 'H' || finalAction === '変') return safeSlice(applyNgReplace('急がず合意をとって進める'), 25);
-  return safeSlice(applyNgReplace(cautious ? '安全を優先する' : '焦らず手早く進める'), 25);
+  if (finalAction === 'H' || finalAction === '変') return safeSlice(applyNgReplace(modernizeJa('急がず合意をとって進める')), 25);
+  return safeSlice(applyNgReplace(modernizeJa(cautious ? '安全を優先する' : '焦らず手早く進める')), 25);
 }
 
 function buildOutcome(triad){
@@ -79,12 +115,15 @@ function buildOutcome(triad){
     HHJ: '軸を変えて、道を開く',
     HHH: 'やり方を変え、きれいに締める'
   };
-  return safeSlice(applyNgReplace(map[triad] || '進めながら、向きを整える'), 25);
+  return safeSlice(applyNgReplace(modernizeJa(map[triad] || '進めながら、向きを整える')), 25);
 }
 
-function buildFitAvoid(tags){
-  const fit = safeSlice(applyNgReplace(tags[0] ? `向いている: 今は『${tags[0]}』が強み` : '向いている: 今ある強みを活かせる'), 25);
-  const avoid = safeSlice(applyNgReplace(tags.includes('リスク高め') ? '向かない: 危ない所への気配りが苦手' : '向かない: 気配りが面倒だと感じる'), 25);
+function buildFitAvoidFromSteps(steps){
+  const a = deriveActionFromLineText(steps?.[0]?.lineText);
+  const b = deriveActionFromLineText(steps?.[1]?.lineText);
+  const fit = safeSlice(applyNgReplace(modernizeJa(a ? `向いている: 初手は『${a}』` : '向いている: 今ある強みを活かせる')), 25);
+  const risk = /危|災|険/.test(String(steps?.[1]?.lineText||'')) || /危|災|険/.test(String(steps?.[2]?.lineText||''));
+  const avoid = safeSlice(applyNgReplace(modernizeJa(risk ? '向かない: 危ない所の気配りが苦手' : (b ? `向かない: 『${b}』が苦手` : '向かない: 気配りが面倒だと感じる'))), 25);
   return { fit, avoid };
 }
 
@@ -107,9 +146,8 @@ function buildEasy(item){
   const pathSig = String(item.pathSig||'').toUpperCase();
   const triad = triadFromSig(pathSig);
   const steps = Array.isArray(item.steps) ? item.steps : [];
-  const tags = inferTagsFromSteps(steps);
-  const next3 = buildNext3(tags);
-  const why = buildWhy(tags);
+  const next3 = buildNext3FromSteps(steps);
+  const why = buildWhyFromSteps(steps);
   const probPct = Math.round(((item.probability ?? 0.5) * 100));
   const finalAction = (steps[2]?.action || (pathSig.endsWith('H')?'H':'J'));
   const out = {
@@ -118,7 +156,7 @@ function buildEasy(item){
     why,
     caution: buildCaution(finalAction, item.probability),
     outcome: buildOutcome(triad),
-    ...buildFitAvoid(tags),
+    ...buildFitAvoidFromSteps(steps),
     confidenceLabel: confidenceLabelFromPct(probPct),
     hints: pickHints()
   };
@@ -222,6 +260,8 @@ async function convertOneBundle(inPath, outPath, sampleKeys=null){
   keys.forEach(key => {
     const item = items[key];
     if (!item) return;
+    // Skip if already curated and verified
+    if (item?.meta?.easyCurated?.verified) { count++; ok++; return; }
     const easy = enforceLimits(buildEasy({ ...item, pathSig: item.pathSig || key.split('_')[2] }));
     const val = validateEasy(easy);
     if (!item.meta) item.meta = {};
@@ -299,4 +339,3 @@ run().catch(async (e)=>{
   await serenaAppend('checkpoint', { title:'converter error', error: e?.message||String(e) });
   process.exit(1);
 });
-

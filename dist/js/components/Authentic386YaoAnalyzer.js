@@ -23,7 +23,7 @@ window.Authentic386YaoAnalyzer = class {
     
     try {
       // 卦データを読み込む
-      const response = await fetch('./data/hexagrams.json');
+      const response = await fetch('/data/hexagrams.json');
       this.hexagramData = await response.json();
       
       // データ検証

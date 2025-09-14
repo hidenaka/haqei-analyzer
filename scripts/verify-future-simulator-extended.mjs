@@ -89,6 +89,15 @@ async function run() {
   const compareItemCount = await compareItems.count();
   console.log(`Compare items: ${compareItemCount}`);
 
+  // Visual elements quick check
+  try {
+    const spirals = await branches.locator('[data-test="spiral-glyph"]').count();
+    const stamps  = await branches.locator('[data-test="outcome-stamp"]').count();
+    const effects = await branches.locator('[data-test="visual-effects"]').count();
+    const sparks  = await branches.locator('[data-test="visual-spark"]').count();
+    console.log(`Visuals — spiral:${spirals} stamp:${stamps} effects:${effects} spark:${sparks}`);
+  } catch {}
+
   // Toggle to Evidence mode
   await page.locator('#display-mode-bar').first().waitFor({ state: 'visible', timeout: 5000 }).catch(()=>{});
   const evBtn = page.locator('#display-mode-bar button', { hasText: '根拠' });

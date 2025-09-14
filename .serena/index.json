@@ -54,7 +54,167 @@
         }
       },
       "checkpoints": []
+    },
+    "2025-09-14": {
+      "file": ".serena/logs/2025/2025-09-14.ndjson",
+      "sessions": {},
+      "checkpoints": [
+        {
+          "tag": "future-simulator_P1-P3_completed",
+          "ts": "2025-09-13T22:03:46.589Z",
+          "session_id": "",
+          "git": "f4aeb11",
+          "note": "P1: log suppression, deferred init, Now pre-render; P2: prefetch & S7 label; P3: A11y; extras: reading guide, series flavor, bridge, flow, compare panel, evidence toggle, disclaimer; tests updated"
+        },
+        {
+          "tag": "future-simulator_tests_hardened",
+          "ts": "2025-09-13T22:07:27.208Z",
+          "session_id": "",
+          "git": "a46fe27",
+          "note": "Add data-test attributes for badges/compare, featureFlags init, improved Playwright waits/selectors, evidence toggle bar id"
+        },
+        {
+          "tag": "future-simulator_testids_evidence_open",
+          "ts": "2025-09-13T22:09:41.158Z",
+          "session_id": "",
+          "git": "642440c",
+          "note": "Add data-test for badges and compare-item; ensure details open after render with rAF; improve Playwright selectors"
+        },
+        {
+          "tag": "future-simulator_now_fallback",
+          "ts": "2025-09-14T01:38:11.315Z",
+          "session_id": "",
+          "git": "0d15bef",
+          "note": "Now main reason: add H384_DATA fallback (summary/keywords) when h384-line-states missing to avoid '未登録'"
+        },
+        {
+          "tag": "future-simulator_spiral_glyph_V1",
+          "ts": "2025-09-14T01:45:27.172Z",
+          "session_id": "",
+          "git": "8a38ff9",
+          "note": "Added spiral mini-glyph SVG per card (color=進/変, radius/thickness≈S7, dashed=estimated), feature flag visualStrengthen on"
+        },
+        {
+          "tag": "future-simulator_spiral_numbers_end_oneliner",
+          "ts": "2025-09-14T02:53:16.222Z",
+          "session_id": "",
+          "git": "44e2495",
+          "note": "Spiral glyph with step numbers; add per-card '終点' one-liner using line-states→H384 fallback; improves immediate comprehension"
+        },
+        {
+          "tag": "future-simulator_spiral_radial_tangential",
+          "ts": "2025-09-14T03:04:33.003Z",
+          "session_id": "",
+          "git": "ca98af7",
+          "note": "Spiral redesigned: progress=radial outward, change=tangential lateral with pivot; background rings + step numbers; effects icons fallback"
+        },
+        {
+          "tag": "future-simulator_spiral_progress_visibility",
+          "ts": "2025-09-14T03:08:19.457Z",
+          "session_id": "",
+          "git": "4a45c90",
+          "note": "Spiral visibility: draw change arcs first, then thicker and longer progress radial lines (#22C55E); step labels and rings on top"
+        },
+        {
+          "tag": "future-simulator_track_glyph",
+          "ts": "2025-09-14T03:14:05.757Z",
+          "session_id": "",
+          "git": "edc23d5",
+          "note": "Switch default visual to metro-track glyph (continuous path with J/H bumps), spiral available via visualStyle='spiral'"
+        },
+        {
+          "tag": "future-simulator_endpoint_preview",
+          "ts": "2025-09-14T03:27:55.021Z",
+          "session_id": "",
+          "git": "47712fc",
+          "note": "カードに『終点』ブロックを追加: H384から卦・爻/S7/要約/キーワードを表示（非同期・フォールバック付き）。featureFlags.showEndpointPreviewでON/OFF可能。"
+        },
+        {
+          "tag": "future-simulator_endpoint_neutral_tone",
+          "ts": "2025-09-14T03:30:53.988Z",
+          "session_id": "",
+          "git": "b3c9483",
+          "note": "終点テキストを助言調から状況説明調へ自動正規化。代表的な推奨表現を軽量置換し、I Chingの『状況を述べる』性質に整合。"
+        },
+        {
+          "tag": "future-simulator_neutral_copy_unification",
+          "ts": "2025-09-14T03:32:53.575Z",
+          "session_id": "",
+          "git": "67a0bff",
+          "note": "カード内・比較・ヘルプの文言を助言調→状況説明調へ統一。『ここがいい/次にやること/注意/おすすめ度』→『強みが現れやすい点/移行の観点/留意点/適合度』。ラベルと説明文を全面更新。"
+        },
+        {
+          "tag": "future-simulator_now_neutral_tone",
+          "ts": "2025-09-14T03:37:08.478Z",
+          "session_id": "",
+          "git": "493e911",
+          "note": "NOW（現在の状況）の本文も助言調→状況説明調に正規化。『〜すれば良いです／〜していけば良いです』等を『〜する局面です／〜していきやすい局面です』へ。"
+        },
+        {
+          "tag": "data-neutralization_pass",
+          "ts": "2025-09-14T03:41:07.713Z",
+          "session_id": "",
+          "git": "3a9f30b",
+          "note": "データ源の文体統一: 1) H384_DATA『現代解釈の要約』を起動時に中立化するh384-neutralizer.jsを追加・読み込み、2) h384-line-states.jsonを正規化スクリプトで一括置換。助言調→状況説明調へ。"
+        },
+        {
+          "tag": "evidence-toggle_fix",
+          "ts": "2025-09-14T03:48:35.066Z",
+          "session_id": "",
+          "git": "47af666",
+          "note": "根拠表示のトグルが反応しない問題を修正。EightBranchesDisplayに欠落していた _rerender() を実装し、displayModeと比較操作で再描画するように。"
+        },
+        {
+          "tag": "header_minimization",
+          "ts": "2025-09-14T03:54:48.338Z",
+          "session_id": "",
+          "git": "a8b378c",
+          "note": "カード見出しの簡素化: minimalCardHeaderを導入（既定ON）。絵文字/スタンプ/ラベルを抑制し、見出しは『分岐N｜進→…』のみ。自信度バーはfeatureFlagで明示制御。"
+        },
+        {
+          "tag": "flavor_consistency_fix",
+          "ts": "2025-09-14T04:01:06.348Z",
+          "session_id": "",
+          "git": "619f073",
+          "note": "フレーバー文の文脈出し分け（最終Severity/アクション）で『全体像: 一時退避』と『強み: 微調整で締める』の齟齬を解消。中立化処理に重複『です』除去を追加。line-states再正規化。"
+        },
+        {
+          "tag": "card-decisionsupport_removed",
+          "ts": "2025-09-14T07:19:22.390Z",
+          "session_id": "",
+          "git": "1f879d7",
+          "note": "カード内の決定支援表示（向いている/向かない/得られること/気になる点/留意点/到達時の様子）を既定OFFに。featureFlags.showDecisionSupport=false、やさしい指針のフィット/非推奨チップと留意行も既定OFF。"
+        },
+        {
+          "tag": "fallback-debug-info",
+          "ts": "2025-09-14T07:27:13.972Z",
+          "session_id": "",
+          "git": "fcc2d80",
+          "note": "カード描画失敗時の簡易表示にエラー詳細（HAQEI_CONFIG.debug.showErrors=true時）を表示。通常はtitleに格納。ユーザーからの『（簡易表示: 描画でエラー）』報告に対応した調査補助。"
+        },
+        {
+          "tag": "fix-null-append",
+          "ts": "2025-09-14T07:36:26.916Z",
+          "session_id": "",
+          "git": "1570225",
+          "note": "EightBranchesDisplay: __dsがnullのときにcard.appendChildしないようガードを追加。『appendChild』関連の実行時エラーでカードが全滅する問題を修正。"
+        },
+        {
+          "tag": "fix-compare-into-summary",
+          "ts": "2025-09-14T07:45:15.439Z",
+          "session_id": "",
+          "git": "3d0209b",
+          "note": "比較ボタン/影響語/確信度バーが__ds未生成時にnull.appendChildで落ちる問題を修正。__ds||__summaryWrapへフォールバックして安全に追加。"
+        },
+        {
+          "tag": "card-summary_on_top",
+          "ts": "2025-09-14T07:47:26.503Z",
+          "session_id": "",
+          "git": "8e73706",
+          "note": "カードのレイアウトを改善：タイトル直下に要約（easy.oneLineがあればそれ、なければseriesNarrative）を配置して視認性を向上。"
+        }
+      ]
     }
   },
-  "lastUpdated": "2025-09-11T20:21:49.085Z"
+  "lastUpdated": "2025-09-14T07:47:26.507Z"
 }

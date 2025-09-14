@@ -29,9 +29,13 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         resonance: ['感応','共鳴','通じ合う','響き合う','シナジー','共感','交感','呼応'],
         danger: ['危険','リスク','不安','焦る','間に合わない','切迫','緊急','逼迫','停滞','詰まる','行き詰まり','閉塞'],
         resource: ['人手不足','工数不足','リソース不足','時間不足','予算不足','手が回らない','足りない'],
-        morale: ['やる気がない','疲れ','消耗','士気低下','不満','摩擦','対立','温度差','通じない']
+        morale: ['やる気がない','疲れ','消耗','士気低下','不満','摩擦','対立','温度差','通じない'],
+        // 追加カテゴリ（現場入力をより拾う）
+        gradual: ['漸進','段階的','一歩ずつ','積み重ね','淡々と','継続','ルーティン','粘り強く','少しずつ','段階','進みながら','徐々に'],
+        communication: ['発信','発信活動','情報発信','広報','コミュニケーション','共有','伝える','届ける','表現','メッセージ','告知','説明'],
+        uncertainty: ['迷い','迷って','悩み','不確実','わからない','確信がない','決めきれない','逡巡']
       };
-      this.categoryOrder = ['cooperation','foundation','reform','retreat','acceptance','decision','resonance','danger','resource','morale'];
+      this.categoryOrder = ['cooperation','foundation','reform','retreat','acceptance','decision','resonance','danger','resource','morale','gradual','communication','uncertainty'];
       this._h384Index = null;
       this.stopwords = new Set(['です','ます','する','した','して','ある','いる','なる','こと','もの','よう','ため','的','的な','それ','これ','あれ','その','この','あの','そして','また','ので','から','へ','に','で','を','が','は','と','や','も','にて']);
       this.phrasePatterns = {
@@ -41,21 +45,37 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         retreat: ['いったん離れる','距離を取る','安全第一'],
         acceptance: ['受け止める','寄り添う','謙虚に受容'],
         resource: ['人手不足','工数不足','時間不足','予算不足'],
-        morale: ['やる気がない','士気低下','温度差','対立がある']
+        morale: ['やる気がない','士気低下','温度差','対立がある'],
+        gradual: ['一歩ずつ進む','段階的に進める','少しずつ改善','地道に続ける','淡々と続ける'],
+        communication: ['発信活動','発信を続ける','情報発信','伝え直す','メッセージを整える'],
+        uncertainty: ['本当にこれでいいのか','迷っている','決めきれない','方向性に迷う']
       };
 
       // チューニング定数（容易に調整可能）
       this.tuning = {
-        wKw: 28,   // 語義一致（抑制）
-        wSum: 7,    // 要約一致
-        wCat: 22,   // カテゴリ一致（強化）
-        wPhrase: 10,// 句一致ブースト
-        wS1: 0.05,  // S1補助
-        wS5: 6,     // 受動/能動補助
-        wS6: 2,     // 変動×緊急
-        wS3: 2,     // 安定×複雑
-        wS4: 0.02,  // リスク
-        wS7: 0.05   // 総合
+        // 意味一致を強化
+        wKw: 36,
+        wSum: 9,
+        wCat: 26,
+        wPhrase: 14,
+        wSim: 32,
+
+        // 数値寄与は控えめに
+        wS1: 0.02,
+        wS5: 4,
+        wS6: 1,
+        wS3: 1,
+        wS4: 0.01,
+        wS7: 0.03,
+
+        // セマンティック・ドミナンス（意味優越）
+        minSemanticCore: 24,
+        numericCapRatio: 0.35,
+        numericCapConst: 6,
+
+        // 行位プライヤ & 協力ゲート
+        linePriorWeight: 6,
+        coopGatePenalty: 8
       };
 
       // ブリッジング設定（カテゴリ → 推奨カテゴリと重み）
@@ -64,6 +84,7 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         { has:'morale',     favors:['cooperation','acceptance'], w:8 },
         { has:'danger',     favors:['reform','retreat'], w:6 },
         { has:'danger',     favors:['foundation'], w:3 },
+        { has:'gradual',    favors:['foundation'], w:6 },
         { has:'speed',      favors:['decision','foundation'], w:6 },
         { has:'quality',     favors:['foundation','acceptance'], w:6 },
         { has:'compliance',  favors:['foundation','retreat'], w:6 },
@@ -491,7 +512,7 @@ console.log('☯️ IChingGuidanceEngine Loading...');
     /**
      * テキスト分析
      */
-    analyzeText(text) {
+  analyzeText(text) {
       const analysis = {
         length: text.length,
         emotionScore: 0,
@@ -502,6 +523,9 @@ console.log('☯️ IChingGuidanceEngine Loading...');
 
       // 1) 入力キーワード抽出（形態素解析があれば使用）
       try {
+        // 0) 口語・フィラーの簡易除去と表記ゆれの正規化
+        const cleaned = this._stripFillersAndNormalize(String(text||''));
+        analysis.rawText = cleaned;
         if (global.OfflineKuromojiInitializer && global.OfflineKuromojiInitializer.initialized) {
           // 同期APIがなければ簡易トークナイズにフォールバック
           const tokens = (global.OfflineKuromojiInitializer.lastTokens
@@ -510,13 +534,13 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         }
         if (analysis.keywords.length === 0) {
           // 簡易分割（記号・空白・英数で分割）
-          const rough = String(text).split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u).filter(Boolean);
+          const rough = String(cleaned).split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u).filter(Boolean);
           analysis.keywords = this.normalizeTokens(rough);
         }
         // 同義語展開＋カテゴリ検出
         analysis.keywords = this.expandTokens(analysis.keywords);
         analysis.categories = this.detectCategories(new Set(analysis.keywords));
-        analysis.rawText = String(text||'');
+        analysis.rawText = String(cleaned||'');
 
         // 補助規則: リソース不足/士気低下が強い場合の誘導語追加（問題→打ち手に繋がる語）
         const cats = analysis.categories;
@@ -563,8 +587,9 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       // 2) 感情スコア（維持）
       const positiveWords = ['希望', '成功', '良い', '楽しい', '嬉しい', '前向き'];
       const negativeWords = ['不安', '心配', '困難', '問題', '失敗', '悩み', '焦る'];
-      positiveWords.forEach(word => { if (text.includes(word)) analysis.emotionScore += 10; });
-      negativeWords.forEach(word => { if (text.includes(word)) analysis.emotionScore -= 10; });
+      const base = analysis.rawText || String(text||'');
+      positiveWords.forEach(word => { if (base.includes(word)) analysis.emotionScore += 10; });
+      negativeWords.forEach(word => { if (base.includes(word)) analysis.emotionScore -= 10; });
 
       // 3) 緊急度スコア（維持）
       const urgentWords = ['急ぐ', '至急', '緊急', 'すぐ', '今すぐ', '締切', '間に合わない'];
@@ -574,6 +599,61 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       analysis.complexityScore = Math.min(100, text.length / 5);
 
       return analysis;
+    }
+
+    // 口語フィラー除去＆表記ゆれ正規化
+    _stripFillersAndNormalize(s) {
+      try {
+        let t = String(s||'');
+        // フィラー類（例）
+        const fillers = [
+          'えっと','あの','その','まじで','なんか','ていうか','っていうか','まぁ','まあ','みたいな','てか','とか','かなぁ','かなー','かな',
+          'ですね','ですかね','だし','とかで','的な','っぽい','みたいな感じ','ちょっと','ボソッと'
+        ];
+        fillers.forEach(f=>{ t = t.split(f).join(''); });
+        // よくある表記の正規化
+        const pairs = [
+          ['やってく','やっていく'],
+          ['やってくうち','やっていくうち'],
+          ['進まない','停滞'],
+          ['進まなかった','停滞'],
+          ['迷ってる','迷い'],
+          ['悩んでる','悩み'],
+          ['発信活動','発信'],
+          ['情報発信','発信']
+        ];
+        pairs.forEach(([a,b])=>{ t = t.split(a).join(b); });
+        return t;
+      } catch { return String(s||''); }
+    }
+
+    // 入力分析から好ましい行位（1..6）セットを推定
+    _preferLinesFromAnalysis(analysis) {
+      try {
+        const preferred = new Set();
+        const cats = analysis.categories || new Set();
+        const urg = Number(analysis.urgencyScore||0);
+        const emo = Number(analysis.emotionScore||0);
+
+        if (cats.has('reform')) { preferred.add(4); }             // 変革→四
+        if (cats.has('decision')) { preferred.add(5); if (urg>30) preferred.add(5); }
+        if (cats.has('foundation') || cats.has('acceptance')) { preferred.add(1); preferred.add(2); preferred.add(3); }
+        if (cats.has('gradual')) { preferred.add(2); preferred.add(3); }
+        if (cats.has('uncertainty')) { preferred.add(2); preferred.add(3); }
+
+        // ネガ感情が強い時は上爻を避け、下中位を優先
+        if (emo < 0) { preferred.add(2); preferred.add(3); }
+
+        // デフォルト（何も取れない時）
+        if (preferred.size === 0) { preferred.add(2); preferred.add(3); preferred.add(4); }
+        return preferred;
+      } catch { return new Set([2,3,4]); }
+    }
+
+    // 爻名から行位（1..6）へ
+    _linePosFromYaoName(yaoName) {
+      const map = { '初九':1,'九二':2,'九三':3,'九四':4,'九五':5,'上九':6,'初六':1,'六二':2,'六三':3,'六四':4,'六五':5,'上六':6 };
+      return map[String(yaoName||'').trim()] || 0;
     }
 
     normalizeTokens(arr) {
@@ -589,10 +669,14 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       try {
         const out = new Set(tokens);
         const map = this.semanticLexicon;
-        // カタカナ・英略語の単純マッピング
+        // カタカナ・英略語・複合語の単純マッピング
         const alias = this.aliasMap || new Map([
           ['シナジー','共鳴'],['アライン','合意形成'],['リソース','リソース不足'],['モラル','士気低下'],['スタック','詰まる'],
-          ['アジャイル','刷新'],['リファクタ','リファクタ'],['ドキュメンテーション','ドキュメント']
+          ['アジャイル','刷新'],['リファクタ','リファクタ'],['ドキュメンテーション','ドキュメント'],
+          // 日本語の代表的な複合表現
+          ['発信活動','発信'],['情報発信','発信'],
+          ['進まない','停滞'],['進まなかった','停滞'],
+          ['迷っている','迷い'],['悩んでいます','悩み']
         ]);
         tokens.forEach(t => { const v = alias.get(t); if (v) out.add(v); });
         Object.keys(map).forEach(cat => {
@@ -638,36 +722,64 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       let matchSum = []; sumSet.forEach(k => { if (inputKw.has(k)) matchSum.push(k); });
       let matchCat = []; eCats.forEach(c => { if (inputCats.has(c)) matchCat.push(c); });
 
-      let score = 0;
-      score += matchKw.length * (this.tuning.wKw||36);     // 語義一致（強）
-      score += matchSum.length * (this.tuning.wSum||7);     // 要約一致
-      score += matchCat.length * (this.tuning.wCat||18);    // カテゴリ一致
-      // 句一致によるカテゴリ補強
+      // 意味核（セマンティック・コア）
       let phraseBoost = 0;
       phraseCats.forEach(c => { if (eCats.has(c)) phraseBoost += (this.tuning.wPhrase||10); });
-      score += phraseBoost;
+      const wKw = (this.tuning.wKw ?? 36);
+      const wSum = (this.tuning.wSum ?? 9);
+      const wCat = (this.tuning.wCat ?? 26);
+      const wSim = (this.tuning.wSim ?? 24);
 
-      // 補助（弱）
-      score += (e['S1_基本スコア'] || 0) * (this.tuning.wS1||0.05);
-      if (analysis.emotionScore > 0 && e['S5_主体性推奨スタンス'] === '能動') score += (this.tuning.wS5||6);
-      else if (analysis.emotionScore < 0 && e['S5_主体性推奨スタンス'] === '受動') score += (this.tuning.wS5||6);
-      if (analysis.urgencyScore > 30 && (e['S6_変動性スコア'] || 0) > 50) score += (this.tuning.wS6||2);
-      if (analysis.complexityScore > 50 && (e['S3_安定性スコア'] || 0) > 50) score += (this.tuning.wS3||2);
-      score += (e['S4_リスク'] || 0) * (this.tuning.wS4||0.02);
-      score += (e['S7_総合評価スコア'] || 0) * (this.tuning.wS7||0.05);
+      let semanticCore = 0;
+      semanticCore += matchKw.length * wKw;
+      semanticCore += matchSum.length * wSum;
+      semanticCore += matchCat.length * wCat;
+      semanticCore += phraseBoost;
 
       // 価値観テキストの意味近接（TF-IDFコサイン類似度）
       try {
         const inTokens = this.normalizeTokens(String(analysis.rawText||'').split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u));
         const simRes = this._computeTfidfSimilarity(inTokens, idxEntry.idx || 0);
-        // 重み（調整可）
-        const wSim = (this.tuning && this.tuning.wSim) ? this.tuning.wSim : 24;
-        score += (simRes.sim || 0) * wSim * 100; // 0..1 → 0..100換算
-        // reasonsに追加
+        semanticCore += (simRes.sim || 0) * wSim * 100; // 0..1 → 0..100換算
         if (!this._tmpReasons) this._tmpReasons = {};
         this._tmpReasons.tfidfSim = simRes.sim;
         this._tmpReasons.tfidfTerms = simRes.top;
       } catch {}
+
+      // 数値寄与（キャップ適用）
+      let numericAdd = 0;
+      numericAdd += (e['S1_基本スコア'] || 0) * (this.tuning.wS1 ?? 0.02);
+      if (analysis.emotionScore > 0 && e['S5_主体性推奨スタンス'] === '能動') numericAdd += (this.tuning.wS5 ?? 4);
+      else if (analysis.emotionScore < 0 && e['S5_主体性推奨スタンス'] === '受動') numericAdd += (this.tuning.wS5 ?? 4);
+      if (analysis.urgencyScore > 30 && (e['S6_変動性スコア'] || 0) > 50) numericAdd += (this.tuning.wS6 ?? 1);
+      if (analysis.complexityScore > 50 && (e['S3_安定性スコア'] || 0) > 50) numericAdd += (this.tuning.wS3 ?? 1);
+      numericAdd += (e['S4_リスク'] || 0) * (this.tuning.wS4 ?? 0.01);
+      numericAdd += (e['S7_総合評価スコア'] || 0) * (this.tuning.wS7 ?? 0.03);
+
+      // 行位プライヤ（望ましい行位ならボーナス）
+      try {
+        const preferred = this._preferLinesFromAnalysis(analysis);
+        const pos = this._linePosFromYaoName(e['爻']);
+        if (pos && preferred.has(pos)) numericAdd += (this.tuning.linePriorWeight ?? 6);
+      } catch {}
+
+      // 協力ゲート：入力側に協力/コミュニケーション要素がほぼ無いのに、同人/比/萃に偏るのを抑制
+      try {
+        const name = String(e['卦名']||'');
+        const lacksCoop = !(inputCats && (inputCats.has('cooperation') || inputCats.has('communication')));
+        if (lacksCoop && (name.includes('同人') || name.includes('比') || name.includes('萃'))) {
+          numericAdd -= (this.tuning.coopGatePenalty ?? 8);
+        }
+      } catch {}
+
+      // セマンティック・ドミナンス適用：意味核が弱い時は数値寄与を強く制限
+      const minCore = (this.tuning.minSemanticCore ?? 24);
+      const capRatio = (this.tuning.numericCapRatio ?? 0.35);
+      const capConst = (this.tuning.numericCapConst ?? 6);
+      const numericCap = Math.max(0, semanticCore * capRatio + capConst);
+      const numericFinal = (semanticCore < minCore) ? Math.min(numericAdd, capConst) : Math.min(numericAdd, numericCap);
+
+      let score = semanticCore + numericFinal;
 
       // ブリッジングルール: 入力カテゴリ/フレームから“打ち手”カテゴリへの誘導
       let catBoost = 0;
