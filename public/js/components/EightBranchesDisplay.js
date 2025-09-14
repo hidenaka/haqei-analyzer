@@ -1162,7 +1162,7 @@
         } catch { return ''; }
       })();
       if (this.showDecisionSupport && __ds && timeMemo) __ds.appendChild(mk('時機', timeMemo));
-      // 比較ボタン
+      // 比較ボタン（__dsが無い場合は__summaryWrapに付ける）
       if (this.enableCompare) {
         const cmp = document.createElement('button');
         cmp.textContent = this._compare.has(branch.id) ? '比較から外す' : '比較に追加';
@@ -1183,7 +1183,10 @@
           this._renderComparePanel();
           this._rerender();
         };
-        __ds.appendChild(cmp);
+        try {
+          const target = __ds || __summaryWrap;
+          target.appendChild(cmp);
+        } catch {}
       }
       // influence/impact と 確信度バー — Classicでは非表示
       if (!classic && this.enableConfidenceBar) {
@@ -1194,15 +1197,14 @@
           let scored = tags.map(t => [t, tally.get(t)||0]).filter(([,w])=>w>0);
           if (!scored.length) {
             const infl = (__kw||[]).filter(k => tags.includes(k));
-            if (infl.length) __ds.appendChild(mk('影響語', infl.join(' / ')));
+            if (infl.length) { const target = __ds || __summaryWrap; target.appendChild(mk('影響語', infl.join(' / '))); }
           } else {
             scored.sort((a,b)=>b[1]-a[1]);
             const top2 = scored.slice(0,2).map(([t])=>t);
             const total = Array.from(tally.values()).reduce((a,b)=>a+b,0) || 1;
             const wsum = scored.reduce((a, [,w])=>a+w, 0);
             const pct = Math.round((wsum/total)*100);
-            __ds.appendChild(mk('影響語', top2.join(' / ')));
-            __ds.appendChild(mk('影響度', `${pct}%`));
+            { const target = __ds || __summaryWrap; target.appendChild(mk('影響語', top2.join(' / '))); target.appendChild(mk('影響度', `${pct}%`)); }
           }
         } catch {}
         // confidence bar
@@ -1234,7 +1236,7 @@
           lbl.title = __easyLbl ? '使えたデータの多さと推測の少なさの目安（使用システム/4 − 推定/欠損の補正）' : '算出: 活用率(使用システム/4) − フォールバック補正 − 欠損データ×5%';
           lbl.style.fontSize='.75em'; lbl.style.color='#94a3b8'; lbl.style.marginTop='2px';
           wrap.appendChild(bar); wrap.appendChild(lbl);
-          __ds.appendChild(wrap);
+          { const target = __ds || __summaryWrap; target.appendChild(wrap); }
         } catch {}
       }
 
