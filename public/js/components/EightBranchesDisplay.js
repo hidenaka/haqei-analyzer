@@ -156,6 +156,33 @@
       });
       return out;
     }
+    _toNeutralJapanese(text){
+      try {
+        let t = String(text||'').trim();
+        if (!t) return t;
+        // 語尾や推奨表現を状況説明寄りに置換（軽量ルール）
+        const pairs = [
+          [/しましょう(?=。|$)/g, 'する局面です'],
+          [/すべき(?=。|$)/g, 'が求められやすい局面です'],
+          [/したほうがいい|した方がいい/g, 'しやすい局面です'],
+          [/するのがよい|するのが良い/g, 'となりやすいです'],
+          [/のがよい|のが良い/g, 'であることが多いです'],
+          [/おすすめです/g, '選ばれがちです'],
+          [/推奨されます/g, '適合しやすいです'],
+          [/望ましいでしょう/g, '望ましい傾向があります'],
+          [/が良いでしょう/g, 'が適している傾向です'],
+          [/しまうと良い/g, 'しやすい'],
+          [/心がけましょう/g, '心がける局面です'],
+          [/が望ましい/g, 'が望まれる傾向です'],
+        ];
+        pairs.forEach(([re, rep]) => { t = t.replace(re, rep); });
+        // 命令調の簡易弱体化
+        t = t.replace(/ください(?=。|$)/g, 'する局面です');
+        // 強い断定の和らげ
+        t = t.replace(/必ず/g, '基本的に');
+        return t;
+      } catch { return String(text||''); }
+    }
     _getKeywordsFor(hex, yaoNames){
       try {
         const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
@@ -1491,7 +1518,7 @@
           const raw = Array.isArray(entry['キーワード']) ? entry['キーワード'] : (typeof entry['キーワード']==='string' ? entry['キーワード'].split(/、|,|\s+/).filter(Boolean) : []);
           keywords = this._normalizeKeywords(raw).slice(0,3);
         }
-        const summary = await this._oneLinerForStep(hex, line);
+        const summary = this._toNeutralJapanese(await this._oneLinerForStep(hex, line));
         return { title, s7: (Number.isFinite(s7)? s7 : null), keywords, summary };
       } catch { return null; }
     }
