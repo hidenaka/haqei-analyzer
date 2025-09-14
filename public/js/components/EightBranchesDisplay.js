@@ -16,7 +16,11 @@
         this.enableCompare = ff.comparePanel !== false;
         this.showBadges = ff.showBadges !== false;
         this.showEndpointPreview = ff.showEndpointPreview !== false;
-      } catch { this.enableEvidence = false; this.enableCompare = false; this.showBadges = false; }
+        this.minimalCardHeader = ff.minimalCardHeader !== false; // 既定ON
+        this.titleEmoji = ff.titleEmoji === true; // 既定OFF
+        this.showOutcomeStamp = ff.showOutcomeStamp === true; // 既定OFF
+        this.enableConfidenceBar = ff.showConfidenceBar === true; // 既定OFF（既存フラグを尊重）
+      } catch { this.enableEvidence = false; this.enableCompare = false; this.showBadges = false; this.minimalCardHeader = true; this.titleEmoji = false; this.showOutcomeStamp = false; this.enableConfidenceBar = false; }
       this.displayMode = 'applied';
       this.visualStrengthen = (window.HAQEI_CONFIG?.featureFlags?.visualStrengthen !== false);
       this._lastBranches = null;
@@ -618,7 +622,11 @@
       try { title.setAttribute('data-role','branch-title'); } catch {}
       const badge = this._badge(branch.series);
       const __numCirc = '①②③④⑤⑥⑦⑧'[ (branch.id-1) % 8 ] || String(branch.id);
-      title.innerHTML = `${__numCirc} 分岐${branch.id}｜${branch.series} <span style="margin-left:8px;padding:2px 8px;border-radius:9999px;background:${badge.color}22;color:${badge.color};font-size:.8em;">${badge.label}</span>`;
+      if (this.minimalCardHeader) {
+        title.textContent = `${__numCirc} 分岐${branch.id}｜${branch.series}`;
+      } else {
+        title.innerHTML = `${__numCirc} 分岐${branch.id}｜${branch.series} <span style=\"margin-left:8px;padding:2px 8px;border-radius:9999px;background:${badge.color}22;color:${badge.color};font-size:.8em;\">${badge.label}</span>`;
+      }
       title.style.fontWeight = '600';
       title.style.color = '#A5B4FC';
       title.style.marginBottom = '8px';
@@ -635,12 +643,12 @@
           }
         }
       } catch {}
-      // intuitive emoji prefix
-      try { const em = this._emoji(branch.series); title.innerHTML = `${em} ` + title.innerHTML; } catch {}
+      // intuitive emoji prefix（既定OFF or minimal時は非表示）
+      try { if (this.titleEmoji && !this.minimalCardHeader) { const em = this._emoji(branch.series); title.innerHTML = `${em} ` + title.innerHTML; } } catch {}
 
       // Outcome stamp (top-right)
       try {
-        if (this.visualStrengthen) {
+        if (this.visualStrengthen && this.showOutcomeStamp && !this.minimalCardHeader) {
           const st = this._outcomeStamp(branch);
           if (st && st.text) {
             const stamp = document.createElement('span');
@@ -1159,7 +1167,7 @@
         __ds.appendChild(cmp);
       }
       // influence/impact と 確信度バー — Classicでは非表示
-      if (!classic) {
+      if (!classic && this.enableConfidenceBar) {
         // influence words (bridge input -> branch) with scoring and percentage
         try {
           const tags = (window.HAQEI_INPUT_TAGS||[]).map(String);
