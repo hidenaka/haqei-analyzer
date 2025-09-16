@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 
 test('Future Simulator: 基本UIとデータ表示', async ({ page }) => {
   // 1) ページ表示
-  await page.goto('http://localhost:8788/public/future-simulator.html', { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto('http://localhost:8788/public/futuresimulator.html', { waitUntil: 'networkidle', timeout: 30000 });
   await expect(page.locator('text=Future Simulator')).toBeVisible();
 
   // 2) コア要素の存在
@@ -86,4 +86,3 @@ test('Future Simulator: 基本UIとデータ表示', async ({ page }) => {
   const firstRadio = page.locator('#patternGrid .pattern-item').first();
   await expect(firstRadio).toHaveAttribute('role','radio');
 });
-
