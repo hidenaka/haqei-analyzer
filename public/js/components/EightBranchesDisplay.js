@@ -517,42 +517,8 @@
     _renderComparePanel(){
       try {
         if (!this.enableCompare) return;
-        let panel = this.container.querySelector('#branches-compare-panel');
-        if (!panel) {
-          panel = document.createElement('div');
-          panel.id = 'branches-compare-panel';
-          panel.style.border='1px solid rgba(99,102,241,.35)';
-          panel.style.borderRadius='10px';
-          panel.style.padding='10px 12px';
-          panel.style.margin='8px 0 10px';
-          panel.style.background='rgba(17,24,39,.35)';
-          panel.style.color='#E5E7EB';
-          const h = document.createElement('div'); h.textContent='比較（最大2つ）'; h.style.color='#c7d2fe'; h.style.fontWeight='700'; h.style.marginBottom='4px';
-          panel.appendChild(h);
-          this.container.insertBefore(panel, this.container.querySelector('[data-role="branches-grid"]') || this.container.lastChild);
-        }
-        while (panel.childNodes.length > 1) panel.removeChild(panel.lastChild);
-        const items = Array.from(this._compare.values()).slice(0,2);
-        if (!items.length) {
-          const d = document.createElement('div'); d.style.fontSize='.85em'; d.style.color='#94a3b8'; d.textContent='カードの「比較に追加」を押すとここに表示されます。'; panel.appendChild(d); return;
-        }
-        const wrap = document.createElement('div'); wrap.style.display='grid'; wrap.style.gridTemplateColumns = `repeat(${items.length}, 1fr)`; wrap.style.gap='10px';
-        items.forEach((b, i) => {
-          const box = document.createElement('div'); box.style.border='1px solid rgba(99,102,241,.35)'; box.style.borderRadius='8px'; box.style.padding='8px 10px';
-          try { box.setAttribute('data-test','compare-item'); } catch {}
-          const title = document.createElement('div'); title.style.color='#A5B4FC'; title.style.fontWeight='700'; title.textContent = `分岐${b.id}｜${b.series}`; box.appendChild(title);
-          const mk = (label, txt) => { const r=document.createElement('div'); r.style.fontSize='.85em'; r.style.color='#cbd5e1'; r.style.marginTop='2px'; r.textContent = `${label}: ${txt}`; return r; };
-          box.appendChild(mk('全体像', this._seriesNarrative(b)));
-          const flavor = (()=>{ switch(b.series){case '進→進→進':return '勢い維持で押し切る';case '進→進→変':return '最後は微調整で締める';case '進→変→進':return '中盤の切替で再加速';case '進→変→変':return '後半は設計し直す';case '変→進→進':return '初手転換で安定化';case '変→進→変':return '締めに向けて整える';case '変→変→進':return '段階転換ののち前進';case '変→変→変':return '全面転換で新路線';default:return '';} })();
-          const tips = this._deriveQuickKeywords(b);
-          box.appendChild(mk('強みが現れやすい点', [flavor, ...tips].filter(Boolean).slice(0,4).join(' / ')));
-          const flow = b.series.split('→').map(t=>t==='進'?'前進':'切替').join(' → ');
-          box.appendChild(mk('流れ', flow));
-          const acts = this._toActionPhrases(tips); const actTxt = acts.length?acts.join(' / '):tips.join(' / ');
-          box.appendChild(mk('移行の観点', actTxt));
-          wrap.appendChild(box);
-        });
-        panel.appendChild(wrap);
+        // 比較機能は不要のため非表示
+        return;
       } catch {}
     }
 
@@ -992,20 +958,8 @@
           }
         } catch {}
       })();
-      const __traits = document.createElement('div');
-      try {
-        const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
-        const tags = steps.map(s => this._featureTag(s)).filter(Boolean);
-        if (tags.length) {
-          __traits.textContent = (__easy ? '特徴: ' : '特徴(卦・爻): ') + tags.join(' → ');
-          __traits.style.marginBottom = '2px';
-          __traits.setAttribute('data-section','learn');
-          __traits.title = '各ステップの卦・爻と主要語（短訳）';
-        }
-      } catch {}
-      const __reason = document.createElement('div');
-      const __reasonText = [__flavor, ...__tips].filter(Boolean);
-      __reason.textContent = '強みが現れやすい点: ' + this._short(this._toNeutralJapanese(__reasonText.join(' / ')), 96);
+      const __traits = document.createElement('div'); // 特徴行は非表示
+      // 強みが現れやすい点は削除
 
       // Visual effects (関係/構造/実行) icons
       try {
@@ -1056,61 +1010,53 @@
         __summaryWrap.appendChild(__flow);
       } catch {}
 
-      // Sparkline (S7 trend)
+      // Sparkline (S1 trend) — 指定によりS1_基本スコアを可視化
       try {
         if (this.visualStrengthen) {
-          const s7s = (Array.isArray(branch.steps) ? branch.steps.slice(0,3) : []).map(s => this._getS7Value(s.hex, s.line, s.action));
-          const anyMissing = s7s.some(v => v==null);
+          const s1s = (Array.isArray(branch.steps) ? branch.steps.slice(0,3) : []).map(s => this._getS1Value(s.hex, s.line, s.action));
+          const anyMissing = s1s.some(v => v==null);
           const svgNS='http://www.w3.org/2000/svg';
           const w=60,h=20,pad=4; const min=0,max=100;
-          const ys = s7s.map(v => v==null ? 60 : v).map(v => {
+          const ys = s1s.map(v => v==null ? 60 : v).map(v => {
             const t = (v-min)/(max-min); return h - (pad + (h-2*pad)*t);
           });
           const xs = [pad, w/2, w-pad];
           const sv = document.createElementNS(svgNS,'svg');
           sv.setAttribute('width',String(w)); sv.setAttribute('height',String(h)); sv.setAttribute('data-test','visual-spark');
           const pl = document.createElementNS(svgNS,'polyline');
-          pl.setAttribute('fill','none'); pl.setAttribute('stroke', anyMissing?'#94a3b8':'#22C55E'); pl.setAttribute('stroke-width','1.5');
+          pl.setAttribute('fill','none'); pl.setAttribute('stroke', anyMissing?'#94a3b8':'#3B82F6'); pl.setAttribute('stroke-width','1.5');
           if (anyMissing) pl.setAttribute('stroke-dasharray','3 2');
           pl.setAttribute('points', `${xs[0]},${ys[0]} ${xs[1]},${ys[1]} ${xs[2]},${ys[2]}`);
           sv.appendChild(pl);
           __summaryWrap.appendChild(sv);
+          // 検証用: S1値を埋め込み
+          const marker = document.createElement('span');
+          marker.setAttribute('data-test','s1-values');
+          marker.style.display = 'none';
+          marker.textContent = s1s.map(v => (v==null? '' : String(v))).join(',');
+          __summaryWrap.appendChild(marker);
         }
       } catch {}
-      // 今とつながる根拠（入力タグ×分岐キーワードの交差）
+      // 「今とつながる」行は非表示（全体像／強みが現れやすい点に置き換え方針）
+      // 以前のロジックは保持するがDOMへは追加しない
       try {
-        const tags = (window.HAQEI_INPUT_TAGS||[]).map(String);
-        let bridge = [];
-        if (tags.length) {
-          const set = new Set(__kw.map(String));
-          bridge = tags.filter(t => set.has(t)).slice(0,2);
-        }
-        if (!bridge.length) {
-          // ステップ特徴タグから抽出
-          const steps = Array.isArray(branch?.steps) ? branch.steps.slice(0,3) : [];
-          const fts = steps.map(s => this._tagKeyOnly(this._featureTag(s))).filter(Boolean);
-          bridge = Array.from(new Set(fts)).slice(0,2);
-        }
-        if (bridge.length) {
-          const __bridge = document.createElement('div');
-          __bridge.style.fontSize = '.8em';
-          __bridge.style.color = '#94a3b8';
-          __bridge.style.marginTop = '2px';
-          __bridge.textContent = `今とつながる: ${bridge.join(' / ')}`;
-          __summaryWrap.appendChild(__bridge);
-          // visual badges (1〜3個)
-          if (this.visualStrengthen) {
-            const dotWrap = document.createElement('div');
-            dotWrap.setAttribute('data-test','now-link-badges');
-            dotWrap.style.display='inline-flex'; dotWrap.style.gap='4px'; dotWrap.style.marginLeft='6px';
-            const cnt = Math.min(3, bridge.length);
-            for (let i=0;i<cnt;i++){
-              const d=document.createElement('span'); d.style.display='inline-block'; d.style.width='6px'; d.style.height='6px'; d.style.borderRadius='9999px'; d.style.background='#A5B4FC'; dotWrap.appendChild(d);
-            }
-            __bridge.appendChild(dotWrap);
-          }
-        }
+        /* no-op: replaced by 強みが現れやすい点 */
       } catch {}
+      // scenario-db-easy-detailed から Now×triad の詳細を表示
+      ;(async () => {
+        try {
+          const triad = this._triadFromSeries(String(branch.series||''));
+          const step0 = (Array.isArray(branch.steps) ? branch.steps[0] : null);
+          if (!step0 || !triad) return;
+          const det = await this._getDetailedDetail(step0.hex, step0.line, triad);
+          if (det) {
+            const d = document.createElement('div');
+            d.style.fontSize = '.85em'; d.style.color = '#cbd5e1'; d.style.marginTop = '2px';
+            d.textContent = '到達時の様子: ' + this._short(det, 110);
+            __summaryWrap.appendChild(d);
+          }
+        } catch {}
+      })();
       __summaryWrap.appendChild(__next);
 
       // Decision support (fit/caution/outcome + avoid/tradeoff) — optional
@@ -1129,7 +1075,7 @@
       const s3 = this._getBasicScore(steps[2]?.hex, steps[2]?.line);
       const d13 = (s3 ?? s1 ?? 0) - (s1 ?? 0);
       // 卦・爻に基づく内容を優先し、足りない場合にキーワード辞書へフォールバック
-      if (this.showDecisionSupport && __ds) {
+      if (false && this.showDecisionSupport && __ds) {
         let fit = this._fitFromSteps(branch);
         if (!fit.length) fit = this._fitPhrases(__kw);
         const caution = this._cautionPhrase(lastSeverity, actions[2]);
@@ -1161,9 +1107,9 @@
           return '';
         } catch { return ''; }
       })();
-      if (this.showDecisionSupport && __ds && timeMemo) __ds.appendChild(mk('時機', timeMemo));
+      if (false && this.showDecisionSupport && __ds && timeMemo) __ds.appendChild(mk('時機', timeMemo));
       // 比較ボタン（__dsが無い場合は__summaryWrapに付ける）
-      if (this.enableCompare) {
+      if (false && this.enableCompare) {
         const cmp = document.createElement('button');
         cmp.textContent = this._compare.has(branch.id) ? '比較から外す' : '比較に追加';
         cmp.style.marginTop = '6px';
@@ -1450,13 +1396,52 @@
       return action==='進' ? 70 : 55;
     }
 
+    _getS1Value(hex, line, action){
+      try {
+        const candidates = {1:['初九','初六'],2:['九二','六二'],3:['九三','六三'],4:['九四','六四'],5:['九五','六五'],6:['上九','上六']};
+        const yao = candidates[line] || [];
+        const data = (window.H384_DATA && Array.isArray(window.H384_DATA)) ? window.H384_DATA : [];
+        const entry = data.find(e => Number(e['卦番号']) === Number(hex) && yao.includes(String(e['爻'])));
+        const v = Number(entry && entry['S1_基本スコア']);
+        if (Number.isFinite(v)) return v;
+      } catch {}
+      // fallback heuristic
+      return action==='進' ? 60 : 50;
+    }
+
+    _triadFromSeries(series){
+      try {
+        const parts = String(series||'').split('→');
+        if (parts.length !== 3) return null;
+        return parts.map(p => (p==='進' ? 'J' : 'H')).join('');
+      } catch { return null; }
+    }
+
+    async _getDetailedDetail(hex, line, triad){
+      try {
+        const h = Number(hex);
+        const url = `./data/scenario-db-easy-detailed/hex-${h}.json`;
+        window.__DETAILED_CACHE = window.__DETAILED_CACHE || new Map();
+        let data = window.__DETAILED_CACHE.get(h);
+        if (!data){
+          const res = await fetch(url, { credentials: 'same-origin' });
+          if (!res.ok) throw new Error(`Failed to fetch ${url}`);
+          data = await res.json();
+          window.__DETAILED_CACHE.set(h, data);
+        }
+        const key = `${h}_${Math.max(1,Math.min(6,Number(line||1)))}_${String(triad||'')}`;
+        const entry = data?.items?.[key];
+        return entry?.detail || '';
+      } catch { return ''; }
+    }
+
     _renderTrackGlyph(branch){
       try {
         const svgNS = 'http://www.w3.org/2000/svg';
         const W=100, H=22; const yBase=11; const x = [8, 36, 64, 92];
         const acts = String(branch.series||'').split('→');
-        const s7s = (Array.isArray(branch.steps) ? branch.steps.slice(0,3) : []).map(s => this._getS7Value(s.hex, s.line, s.action));
-        const est = s7s.some(v => v==null);
+        const s1s = (Array.isArray(branch.steps) ? branch.steps.slice(0,3) : []).map(s => this._getS1Value(s.hex, s.line, s.action));
+        const est = s1s.some(v => v==null);
         const colorJ = '#22C55E', colorH='#F59E0B';
         const wrap = document.createElement('div');
         const svg = document.createElementNS(svgNS,'svg');
