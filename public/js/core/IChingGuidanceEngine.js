@@ -17,6 +17,109 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       this.currentYao = null;
       this.choiceHistory = [];
       this.isInitialized = false;
+
+      // 意味ベース強化: 同義語辞書とカテゴリ語彙（最小版）
+      this.semanticLexicon = {
+        cooperation: ['協力','連携','合意','信頼','仲間','チーム','公','共同','共創','協調','配慮','調整','合意形成','横断','社内横断'],
+        foundation: ['基盤','整備','土台','持続','維持','仕組み','整える','安定','段取り','手順','運用','体制','インフラ','標準化','定着','ルール','ワークフロー','オンボーディング','ドキュメント'],
+        reform: ['改革','刷新','改編','再編','再設計','転換','変革','抜本','見直し','リファクタ','再構築','構造改革','方針転換','モデルチェンジ','刷新する'],
+        retreat: ['退避','撤退','距離','身を引く','安全第一','離れる','様子見','クールダウン','回避'],
+        acceptance: ['受容','受け入れ','順応','慎重','静観','従う','任せる','育む','寄り添う','受け止める','包む','謙虚','柔軟'],
+        decision: ['決断','断行','決める','はっきり','思い切る','断固','決裁','意思決定','腹をくくる','選び取る','一手','踏み切る','判断'],
+        resonance: ['感応','共鳴','通じ合う','響き合う','シナジー','共感','交感','呼応'],
+        danger: ['危険','リスク','不安','焦る','間に合わない','切迫','緊急','逼迫','停滞','詰まる','行き詰まり','閉塞'],
+        resource: ['人手不足','工数不足','リソース不足','時間不足','予算不足','手が回らない','足りない'],
+        morale: ['やる気がない','疲れ','消耗','士気低下','不満','摩擦','対立','温度差','通じない'],
+        // 追加カテゴリ（現場入力をより拾う）
+        gradual: ['漸進','段階的','一歩ずつ','積み重ね','淡々と','継続','ルーティン','粘り強く','少しずつ','段階','進みながら','徐々に'],
+        communication: ['発信','発信活動','情報発信','広報','コミュニケーション','共有','伝える','届ける','表現','メッセージ','告知','説明'],
+        uncertainty: ['迷い','迷って','悩み','不確実','わからない','確信がない','決めきれない','逡巡']
+      };
+      this.categoryOrder = ['cooperation','foundation','reform','retreat','acceptance','decision','resonance','danger','resource','morale','gradual','communication','uncertainty'];
+      this._h384Index = null;
+      this.stopwords = new Set(['です','ます','する','した','して','ある','いる','なる','こと','もの','よう','ため','的','的な','それ','これ','あれ','その','この','あの','そして','また','ので','から','へ','に','で','を','が','は','と','や','も','にて']);
+      this.phrasePatterns = {
+        cooperation: ['公の場','合意形成','部門横断','社内横断','関係調整','関係構築'],
+        foundation: ['体制整備','標準化','基盤整備','運用定着','土台作り'],
+        reform: ['構造改革','方針転換','再構築','抜本改革'],
+        retreat: ['いったん離れる','距離を取る','安全第一'],
+        acceptance: ['受け止める','寄り添う','謙虚に受容'],
+        resource: ['人手不足','工数不足','時間不足','予算不足'],
+        morale: ['やる気がない','士気低下','温度差','対立がある'],
+        gradual: ['一歩ずつ進む','段階的に進める','少しずつ改善','地道に続ける','淡々と続ける'],
+        communication: ['発信活動','発信を続ける','情報発信','伝え直す','メッセージを整える'],
+        uncertainty: ['本当にこれでいいのか','迷っている','決めきれない','方向性に迷う']
+      };
+
+      // チューニング定数（容易に調整可能）
+      this.tuning = {
+        // 意味一致を強化
+        wKw: 36,
+        wSum: 9,
+        wCat: 26,
+        wPhrase: 14,
+        wSim: 32,
+
+        // 数値寄与は控えめに
+        wS1: 0.02,
+        wS5: 4,
+        wS6: 1,
+        wS3: 1,
+        wS4: 0.01,
+        wS7: 0.03,
+
+        // セマンティック・ドミナンス（意味優越）
+        minSemanticCore: 24,
+        numericCapRatio: 0.35,
+        numericCapConst: 6,
+
+        // 行位プライヤ & 協力ゲート
+        linePriorWeight: 6,
+        coopGatePenalty: 8
+      };
+
+      // ブリッジング設定（カテゴリ → 推奨カテゴリと重み）
+      this.bridging = [
+        { has:'resource',   favors:['cooperation','foundation'], w:8 },
+        { has:'morale',     favors:['cooperation','acceptance'], w:8 },
+        { has:'danger',     favors:['reform','retreat'], w:6 },
+        { has:'danger',     favors:['foundation'], w:3 },
+        { has:'gradual',    favors:['foundation'], w:6 },
+        { has:'speed',      favors:['decision','foundation'], w:6 },
+        { has:'quality',     favors:['foundation','acceptance'], w:6 },
+        { has:'compliance',  favors:['foundation','retreat'], w:6 },
+        { has:'cost',        favors:['foundation','reform'], w:5 },
+        { has:'schedule',    favors:['decision','foundation'], w:6 },
+        { has:'communication', favors:['cooperation','acceptance'], w:6 },
+        { has:'learning',     favors:['foundation','acceptance'], w:5 },
+        { has:'innovation',   favors:['reform','decision'], w:6 },
+        { has:'conflict',     favors:['cooperation','acceptance'], w:7 },
+        { has:'delegation',   favors:['acceptance','cooperation'], w:5 },
+        { has:'ownership',    favors:['decision','foundation'], w:6 },
+        { has:'priority',     favors:['decision','retreat'], w:5 },
+        { has:'priority',     favors:['foundation'], w:3 },
+        { has:'measurement',  favors:['foundation','decision'], w:4 },
+        { has:'scalability',  favors:['foundation','reform'], w:5 },
+        { has:'reliability',  favors:['foundation','retreat'], w:5 },
+        { has:'maintenance',  favors:['foundation','acceptance'], w:5 },
+        { has:'techdebt',     favors:['reform','foundation'], w:6 },
+        { has:'sales',        favors:['decision','cooperation'], w:6 },
+        { has:'marketing',    favors:['decision','reform'], w:6 },
+        { has:'cs',           favors:['acceptance','cooperation'], w:6 },
+        { has:'legal',        favors:['compliance','foundation'], w:6 },
+        { has:'hr',           favors:['cooperation','learning'], w:6 },
+        { has:'product',      favors:['decision','reform'], w:6 },
+        { has:'engineering',  favors:['foundation','quality'], w:6 },
+        { has:'operations',   favors:['foundation','maintenance'], w:6 },
+        { has:'finance',      favors:['foundation','reform'], w:6 },
+        { has:'procurement',  favors:['foundation','decision'], w:6 },
+        { has:'supplychain',  favors:['foundation','decision'], w:6 },
+        { has:'healthcare',   favors:['compliance','quality'], w:6 },
+        { has:'education',    favors:['learning','foundation'], w:6 },
+        { has:'public',       favors:['compliance','cooperation'], w:6 },
+        { has:'manufacturing',favors:['quality','foundation'], w:6 },
+        { has:'itcloud',      favors:['scalability','reliability'], w:6 }
+      ];
     }
 
     /**
@@ -34,6 +137,15 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         
         // 行動指針システム初期化
         this.initializeGuidanceSystem();
+        // 外部レキシコンの読み込み（任意）
+        // cache-busting for dev/refresh safety
+        const lexiconUrl = `/data/semantic-lexicon.json?v=${encodeURIComponent(this.version || '1.0.0')}`;
+        await this.loadExternalLexicon(lexiconUrl);
+
+        // H384索引の前計算（レキシコン読み込み後に実施）
+        this.buildH384Index();
+        // 価値観テキスト（現代解釈の要約）に基づくTF-IDF索引を構築
+        this.buildTfidfIndex();
         
         this.isInitialized = true;
         console.log('✅ IChingGuidanceEngine initialized successfully');
@@ -42,6 +154,167 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         console.error('❌ IChingGuidanceEngine initialization failed:', error);
         return false;
       }
+    }
+
+    buildH384Index() {
+      try {
+        const data = window.H384_DATA || (this.h384db && this.h384db.getDatabaseData && this.h384db.getDatabaseData()) || [];
+        this._h384Index = data.map((e, i) => {
+          const kw = Array.isArray(e['キーワード']) ? e['キーワード'] : typeof e['キーワード']==='string' ? e['キーワード'].split(/[、,\s]+/) : [];
+          const kwNorm = this.normalizeTokens(kw);
+          const summary = String(e['現代解釈の要約'] || '');
+          const sumTokens = this.normalizeTokens(summary.split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u));
+          const categories = this.detectCategories(new Set([...kwNorm, ...sumTokens]));
+          return { idx: i, entry: e, kwSet: new Set(kwNorm), sumSet: new Set(sumTokens), categories };
+        });
+        console.log('✅ H384 index built:', this._h384Index.length);
+      } catch (e) {
+        console.warn('H384 index build failed:', e.message);
+        this._h384Index = null;
+      }
+    }
+
+    // 現代解釈の要約を基にしたTF-IDF索引
+    buildTfidfIndex() {
+      try {
+        const data = window.H384_DATA || (this.h384db && this.h384db.getDatabaseData && this.h384db.getDatabaseData()) || [];
+        const docs = data.map(e => String(e['現代解釈の要約'] || ''));
+        const tokenized = docs.map(txt => this.normalizeTokens(String(txt).split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u)));
+        const df = new Map();
+        tokenized.forEach(docTokens => {
+          const uniq = new Set(docTokens);
+          uniq.forEach(t => df.set(t, (df.get(t)||0)+1));
+        });
+        const N = tokenized.length || 1;
+        this._tfidf = { idf:new Map(), vectors:[], vocabSize: df.size };
+        df.forEach((d, term) => {
+          const idf = Math.log((N + 1) / (d + 1)) + 1; // smoothed IDF
+          this._tfidf.idf.set(term, idf);
+        });
+        // build per-doc tf-idf
+        tokenized.forEach((docTokens, i) => {
+          const tf = new Map();
+          docTokens.forEach(t => tf.set(t, (tf.get(t)||0)+1));
+          const vec = new Map();
+          let norm = 0;
+          tf.forEach((f, t) => {
+            const idf = this._tfidf.idf.get(t) || 0;
+            const w = (f / docTokens.length) * idf;
+            if (w>0) { vec.set(t, w); norm += w*w; }
+          });
+          this._tfidf.vectors[i] = { vec, norm: Math.sqrt(norm) };
+        });
+        console.log('✅ TF-IDF index built for value-state texts');
+      } catch (e) {
+        console.warn('TF-IDF index build failed:', e.message);
+        this._tfidf = null;
+      }
+    }
+
+    _computeTfidfSimilarity(inputTokens, docIndex) {
+      try {
+        if (!this._tfidf || !this._tfidf.vectors[docIndex]) return { sim:0, top:[] };
+        const idf = this._tfidf.idf;
+        const doc = this._tfidf.vectors[docIndex];
+        // input vector
+        const tf = new Map();
+        inputTokens.forEach(t => tf.set(t, (tf.get(t)||0)+1));
+        const inVec = new Map();
+        let inNorm = 0;
+        tf.forEach((f, t) => {
+          const w = (f / inputTokens.length) * (idf.get(t)||0);
+          if (w>0) { inVec.set(t, w); inNorm += w*w; }
+        });
+        inNorm = Math.sqrt(inNorm) || 1e-9;
+        const docNorm = doc.norm || 1e-9;
+        // dot product
+        let dot = 0;
+        const contrib = [];
+        inVec.forEach((w, t) => {
+          const dw = doc.vec.get(t);
+          if (dw) { const c = w*dw; dot += c; contrib.push([t, c]); }
+        });
+        contrib.sort((a,b)=> b[1]-a[1]);
+        const sim = dot / (inNorm * docNorm);
+        return { sim, top: contrib.slice(0,5).map(x=>x[0]) };
+      } catch { return { sim:0, top:[] }; }
+    }
+
+    async loadExternalLexicon(url) {
+      try {
+        if (!url) return;
+        const res = await fetch(url, { credentials: 'same-origin' });
+        if (!res.ok) return;
+        const json = await res.json();
+        // synonyms
+        if (json && json.synonyms) {
+          Object.keys(json.synonyms).forEach(cat => {
+            const arr = Array.isArray(json.synonyms[cat]) ? json.synonyms[cat] : [];
+            if (!this.semanticLexicon[cat]) this.semanticLexicon[cat] = [];
+            const merged = new Set([...
+              this.semanticLexicon[cat].map(s=>String(s).toLowerCase().trim()),
+              ...arr.map(s=>String(s).toLowerCase().trim())
+            ]);
+            this.semanticLexicon[cat] = Array.from(merged);
+            if (!this.categoryOrder.includes(cat)) this.categoryOrder.push(cat);
+          });
+        }
+        // phrases
+        if (json && json.phrases) {
+          Object.keys(json.phrases).forEach(cat => {
+            const arr = Array.isArray(json.phrases[cat]) ? json.phrases[cat] : [];
+            if (!this.phrasePatterns[cat]) this.phrasePatterns[cat] = [];
+            const merged = new Set([...
+              this.phrasePatterns[cat].map(s=>String(s).toLowerCase().trim()),
+              ...arr.map(s=>String(s).toLowerCase().trim())
+            ]);
+            this.phrasePatterns[cat] = Array.from(merged);
+            if (!this.categoryOrder.includes(cat)) this.categoryOrder.push(cat);
+          });
+        }
+        // aliases
+        if (json && json.aliases) {
+          const map = new Map();
+          Object.keys(json.aliases).forEach(k => {
+            map.set(String(k).toLowerCase().trim(), String(json.aliases[k]).toLowerCase().trim());
+          });
+          // 既存aliasにマージ（存在しなければ新規）
+          this.aliasMap = map;
+        }
+        // frames
+        if (json && json.frames) {
+          this.frames = json.frames; // { frameName: [patterns] }
+        }
+        console.log('✅ External semantic lexicon loaded:', url);
+      } catch (e) {
+        console.warn('External lexicon load failed:', e.message);
+      }
+    }
+
+    // 公開API: 入力テキストの語義とカテゴリ（デバッグ/UX用）
+    getSemantics(inputText) {
+      try {
+        const analysis = this.analyzeText(String(inputText||''));
+        const frames = this.detectFrames(analysis, String(inputText||''));
+        return {
+          keywords: analysis.keywords || [],
+          categories: Array.from(analysis.categories || new Set()),
+          frames: Array.from(frames)
+        };
+      } catch (e) { return { keywords: [], categories: [] }; }
+    }
+
+    detectFrames(analysis, rawText) {
+      const fset = new Set();
+      try {
+        const txt = String(rawText||'').toLowerCase();
+        const frames = this.frames || {};
+        Object.keys(frames).forEach(name => {
+          const patterns = frames[name] || [];
+          if (patterns.some(p => txt.includes(String(p).toLowerCase()))) fset.add(name);
+        });
+      } catch {}
+      return fset;
     }
 
     /**
@@ -164,58 +437,45 @@ console.log('☯️ IChingGuidanceEngine Loading...');
       // テキスト分析によるスコア計算
       const analysis = this.analyzeText(inputText);
       
-      // 最適な卦・爻の選択
+      // 最適な卦・爻の選択（意味×補助スコア）
       let bestMatch = null;
-      let highestScore = 0;
-
-      data.forEach(entry => {
-        const score = this.calculateMatchScore(analysis, entry);
+      let highestScore = -Infinity;
+      let altMatch = null;
+      const index = this._h384Index || data.map(e => ({ entry: e, kwSet: null, sumSet: null, categories: null }));
+      for (const idxEntry of index) {
+        const { score } = this.scoreEntry(analysis, idxEntry);
         if (score > highestScore) {
+          altMatch = bestMatch;
           highestScore = score;
-          bestMatch = entry;
+          bestMatch = idxEntry.entry;
         }
-      });
+      }
 
       if (bestMatch) {
         // フィールドの存在と値を確認
         const hexagramNumber = bestMatch['卦番号'] || 1;
         const hexagramName = bestMatch['卦名'] || '乾為天';
         const yaoName = bestMatch['爻'] || '初九';
-        const serialNumber = bestMatch['通し番号'] || 1;
         
         this.currentHexagram = hexagramNumber;
         this.currentYao = yaoName;
         console.log(`📍 状況卦: ${hexagramName} ${yaoName}`);
         
-        // 爻位置を通し番号から計算（H384データベースには爻位置フィールドがないため）
-        // 乾為天（卦番号1）と坤為地（卦番号2）だけ7つのエントリ（用九・用六を含む）
-        // その他の卦は6つのエントリ
-        let yaoPosition;
-        if (hexagramNumber === 1) {
-          // 乾為天: 通し番号1-7
-          yaoPosition = serialNumber;
-        } else if (hexagramNumber === 2) {
-          // 坤為地: 通し番号8-14
-          yaoPosition = serialNumber - 7;
-        } else {
-          // その他の卦: 各卦6つのエントリ
-          // 通し番号15から開始、(hexagramNumber-3)*6 + 14 + yaoPosition
-          const baseNumber = 14 + (hexagramNumber - 3) * 6;
-          yaoPosition = serialNumber - baseNumber + 1;
-        }
-        
-        // yaoPositionの範囲チェック
-        if (yaoPosition < 1 || yaoPosition > 7) {
-          yaoPosition = 1; // デフォルト値
+        // 爻位置は爻名から決定（用九/用六にも対応）
+        const posMap = { '初九':1,'九二':2,'九三':3,'九四':4,'九五':5,'上九':6,'初六':1,'六二':2,'六三':3,'六四':4,'六五':5,'上六':6,'用九':7,'用六':7 };
+        let yaoPosition = posMap[yaoName];
+        if (!yaoPosition) {
+          // 不明な場合は安全側
+          yaoPosition = 1;
         }
         
         // H384データベースのデータをそのまま返す（加工せず、フィールドを追加）
-        return {
+        const result = {
           hexagramNumber: hexagramNumber,
           hexagramName: hexagramName,
-          yaoPosition: yaoPosition > 6 ? 6 : yaoPosition, // 7番目は特殊なので6として扱う
+          yaoPosition: yaoPosition,
           yaoName: yaoName,
-          serialNumber: serialNumber,
+          serialNumber: bestMatch['通し番号'] || null,
           theme: bestMatch['テーマ'] || '初期状態',
           description: bestMatch['説明'] || '初期の状態です。',
           keywords: bestMatch['キーワード'] || ['開始'],
@@ -234,6 +494,14 @@ console.log('☯️ IChingGuidanceEngine Loading...');
           'S7_総合評価スコア': bestMatch['S7_総合評価スコア'] || 50,
           rawData: bestMatch
         };
+        if (altMatch) {
+          result.alternative = {
+            hexagramNumber: altMatch['卦番号'],
+            hexagramName: altMatch['卦名'],
+            yaoName: altMatch['爻']
+          };
+        }
+        return result;
       }
 
       // データが見つからない場合はnullを返す（エラーを隠さない）
@@ -244,7 +512,7 @@ console.log('☯️ IChingGuidanceEngine Loading...');
     /**
      * テキスト分析
      */
-    analyzeText(text) {
+  analyzeText(text) {
       const analysis = {
         length: text.length,
         emotionScore: 0,
@@ -253,28 +521,345 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         keywords: []
       };
 
-      // 感情スコア計算
+      // 1) 入力キーワード抽出（形態素解析があれば使用）
+      try {
+        // 0) 口語・フィラーの簡易除去と表記ゆれの正規化
+        const cleaned = this._stripFillersAndNormalize(String(text||''));
+        analysis.rawText = cleaned;
+        if (global.OfflineKuromojiInitializer && global.OfflineKuromojiInitializer.initialized) {
+          // 同期APIがなければ簡易トークナイズにフォールバック
+          const tokens = (global.OfflineKuromojiInitializer.lastTokens
+            || []).map(t => t.basic_form || t.surface_form).filter(Boolean);
+          if (tokens.length) analysis.keywords = this.normalizeTokens(tokens);
+        }
+        if (analysis.keywords.length === 0) {
+          // 簡易分割（記号・空白・英数で分割）
+          const rough = String(cleaned).split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u).filter(Boolean);
+          analysis.keywords = this.normalizeTokens(rough);
+        }
+        // 同義語展開＋カテゴリ検出
+        analysis.keywords = this.expandTokens(analysis.keywords);
+        analysis.categories = this.detectCategories(new Set(analysis.keywords));
+        analysis.rawText = String(cleaned||'');
+
+        // 補助規則: リソース不足/士気低下が強い場合の誘導語追加（問題→打ち手に繋がる語）
+        const cats = analysis.categories;
+        if (cats && cats.has('resource')) {
+          // 人手不足→協力/基盤の語を追加して意味一致を促進
+          analysis.keywords.push('協力','連携','基盤','整備');
+        }
+        if (cats && cats.has('morale')) {
+          // 士気・対立→関係改善/受容の語を追加
+          analysis.keywords.push('協力','受容','配慮');
+        }
+        // 追加後に再検出
+        analysis.keywords = this.normalizeTokens(analysis.keywords);
+        analysis.categories = this.detectCategories(new Set(analysis.keywords));
+
+        // 追加強化: レキシコン語彙と代表句を生文から直接抽出（日本語分かち無し対策）
+        try {
+          const rawLower = String(text||'').toLowerCase();
+          const directHits = new Set();
+          // synonyms terms
+          Object.keys(this.semanticLexicon||{}).forEach(cat => {
+            (this.semanticLexicon[cat]||[]).forEach(term => {
+              const t = String(term||'').toLowerCase().trim();
+              if (t && rawLower.includes(t)) directHits.add(t);
+            });
+          });
+          // phrase patterns
+          Object.keys(this.phrasePatterns||{}).forEach(cat => {
+            (this.phrasePatterns[cat]||[]).forEach(term => {
+              const t = String(term||'').toLowerCase().trim();
+              if (t && rawLower.includes(t)) directHits.add(t);
+            });
+          });
+          // alias keys
+          const aliasMap = this.aliasMap || new Map();
+          aliasMap.forEach((v, k) => { if (rawLower.includes(String(k))) directHits.add(String(v)); });
+          if (directHits.size) {
+            analysis.keywords = this.normalizeTokens([...analysis.keywords, ...Array.from(directHits)]);
+            analysis.categories = this.detectCategories(new Set(analysis.keywords));
+          }
+        } catch {}
+      } catch {}
+
+      // 2) 感情スコア（維持）
       const positiveWords = ['希望', '成功', '良い', '楽しい', '嬉しい', '前向き'];
-      const negativeWords = ['不安', '心配', '困難', '問題', '失敗', '悩み'];
-      
-      positiveWords.forEach(word => {
-        if (text.includes(word)) analysis.emotionScore += 10;
-      });
-      
-      negativeWords.forEach(word => {
-        if (text.includes(word)) analysis.emotionScore -= 10;
-      });
+      const negativeWords = ['不安', '心配', '困難', '問題', '失敗', '悩み', '焦る'];
+      const base = analysis.rawText || String(text||'');
+      positiveWords.forEach(word => { if (base.includes(word)) analysis.emotionScore += 10; });
+      negativeWords.forEach(word => { if (base.includes(word)) analysis.emotionScore -= 10; });
 
-      // 緊急度スコア
-      const urgentWords = ['急ぐ', '至急', '緊急', 'すぐ', '今すぐ', '締切'];
-      urgentWords.forEach(word => {
-        if (text.includes(word)) analysis.urgencyScore += 15;
-      });
+      // 3) 緊急度スコア（維持）
+      const urgentWords = ['急ぐ', '至急', '緊急', 'すぐ', '今すぐ', '締切', '間に合わない'];
+      urgentWords.forEach(word => { if (text.includes(word)) analysis.urgencyScore += 15; });
 
-      // 複雑度スコア
+      // 4) 複雑度（維持）
       analysis.complexityScore = Math.min(100, text.length / 5);
 
       return analysis;
+    }
+
+    // 口語フィラー除去＆表記ゆれ正規化
+    _stripFillersAndNormalize(s) {
+      try {
+        let t = String(s||'');
+        // フィラー類（例）
+        const fillers = [
+          'えっと','あの','その','まじで','なんか','ていうか','っていうか','まぁ','まあ','みたいな','てか','とか','かなぁ','かなー','かな',
+          'ですね','ですかね','だし','とかで','的な','っぽい','みたいな感じ','ちょっと','ボソッと'
+        ];
+        fillers.forEach(f=>{ t = t.split(f).join(''); });
+        // よくある表記の正規化
+        const pairs = [
+          ['やってく','やっていく'],
+          ['やってくうち','やっていくうち'],
+          ['進まない','停滞'],
+          ['進まなかった','停滞'],
+          ['迷ってる','迷い'],
+          ['悩んでる','悩み'],
+          ['発信活動','発信'],
+          ['情報発信','発信']
+        ];
+        pairs.forEach(([a,b])=>{ t = t.split(a).join(b); });
+        return t;
+      } catch { return String(s||''); }
+    }
+
+    // 入力分析から好ましい行位（1..6）セットを推定
+    _preferLinesFromAnalysis(analysis) {
+      try {
+        const preferred = new Set();
+        const cats = analysis.categories || new Set();
+        const urg = Number(analysis.urgencyScore||0);
+        const emo = Number(analysis.emotionScore||0);
+
+        if (cats.has('reform')) { preferred.add(4); }             // 変革→四
+        if (cats.has('decision')) { preferred.add(5); if (urg>30) preferred.add(5); }
+        if (cats.has('foundation') || cats.has('acceptance')) { preferred.add(1); preferred.add(2); preferred.add(3); }
+        if (cats.has('gradual')) { preferred.add(2); preferred.add(3); }
+        if (cats.has('uncertainty')) { preferred.add(2); preferred.add(3); }
+
+        // ネガ感情が強い時は上爻を避け、下中位を優先
+        if (emo < 0) { preferred.add(2); preferred.add(3); }
+
+        // デフォルト（何も取れない時）
+        if (preferred.size === 0) { preferred.add(2); preferred.add(3); preferred.add(4); }
+        return preferred;
+      } catch { return new Set([2,3,4]); }
+    }
+
+    // 爻名から行位（1..6）へ
+    _linePosFromYaoName(yaoName) {
+      const map = { '初九':1,'九二':2,'九三':3,'九四':4,'九五':5,'上九':6,'初六':1,'六二':2,'六三':3,'六四':4,'六五':5,'上六':6 };
+      return map[String(yaoName||'').trim()] || 0;
+    }
+
+    normalizeTokens(arr) {
+      try {
+        const normed = arr.map(s => String(s).toLowerCase().trim())
+          .filter(s => s.length > 0 && s !== ' ' && !this.stopwords.has(s));
+        return Array.from(new Set(normed))
+          .slice(0, 200);
+      } catch { return []; }
+    }
+
+    expandTokens(tokens) {
+      try {
+        const out = new Set(tokens);
+        const map = this.semanticLexicon;
+        // カタカナ・英略語・複合語の単純マッピング
+        const alias = this.aliasMap || new Map([
+          ['シナジー','共鳴'],['アライン','合意形成'],['リソース','リソース不足'],['モラル','士気低下'],['スタック','詰まる'],
+          ['アジャイル','刷新'],['リファクタ','リファクタ'],['ドキュメンテーション','ドキュメント'],
+          // 日本語の代表的な複合表現
+          ['発信活動','発信'],['情報発信','発信'],
+          ['進まない','停滞'],['進まなかった','停滞'],
+          ['迷っている','迷い'],['悩んでいます','悩み']
+        ]);
+        tokens.forEach(t => { const v = alias.get(t); if (v) out.add(v); });
+        Object.keys(map).forEach(cat => {
+          const set = new Set(map[cat]);
+          for (const t of tokens) {
+            if (set.has(t)) { map[cat].forEach(w => out.add(w)); break; }
+          }
+        });
+        return Array.from(out).slice(0, 300);
+      } catch { return tokens; }
+    }
+
+    detectCategories(tokenSet) {
+      const cats = new Set();
+      try {
+        for (const cat of this.categoryOrder) {
+          const list = this.semanticLexicon[cat]||[];
+          for (const w of list) { if (tokenSet.has(w)) { cats.add(cat); break; } }
+        }
+      } catch {}
+      return cats;
+    }
+
+    scoreEntry(analysis, idxEntry) {
+      const inputKw = new Set(analysis.keywords || []);
+      const inputCats = analysis.categories || new Set();
+      // 句パターンの検出
+      let phraseCats = new Set();
+      try {
+        const raw = String((analysis.rawText || '')).toLowerCase();
+        for (const cat of Object.keys(this.phrasePatterns)) {
+          const arr = this.phrasePatterns[cat] || [];
+          if (arr.some(p => raw.includes(p))) phraseCats.add(cat);
+        }
+      } catch {}
+      const e = idxEntry.entry;
+      const kwSet = idxEntry.kwSet || new Set(this.normalizeTokens(Array.isArray(e['キーワード'])?e['キーワード']:String(e['キーワード']||'').split(/[、,\s]+/)));
+      const sumSet = idxEntry.sumSet || new Set(this.normalizeTokens(String(e['現代解釈の要約']||'').split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u)));
+      const eCats = idxEntry.categories || this.detectCategories(new Set([...kwSet, ...sumSet]));
+
+      // 類似度
+      let matchKw = []; kwSet.forEach(k => { if (inputKw.has(k)) matchKw.push(k); });
+      let matchSum = []; sumSet.forEach(k => { if (inputKw.has(k)) matchSum.push(k); });
+      let matchCat = []; eCats.forEach(c => { if (inputCats.has(c)) matchCat.push(c); });
+
+      // 意味核（セマンティック・コア）
+      let phraseBoost = 0;
+      phraseCats.forEach(c => { if (eCats.has(c)) phraseBoost += (this.tuning.wPhrase||10); });
+      const wKw = (this.tuning.wKw ?? 36);
+      const wSum = (this.tuning.wSum ?? 9);
+      const wCat = (this.tuning.wCat ?? 26);
+      const wSim = (this.tuning.wSim ?? 24);
+
+      let semanticCore = 0;
+      semanticCore += matchKw.length * wKw;
+      semanticCore += matchSum.length * wSum;
+      semanticCore += matchCat.length * wCat;
+      semanticCore += phraseBoost;
+
+      // 価値観テキストの意味近接（TF-IDFコサイン類似度）
+      try {
+        const inTokens = this.normalizeTokens(String(analysis.rawText||'').split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u));
+        const simRes = this._computeTfidfSimilarity(inTokens, idxEntry.idx || 0);
+        semanticCore += (simRes.sim || 0) * wSim * 100; // 0..1 → 0..100換算
+        if (!this._tmpReasons) this._tmpReasons = {};
+        this._tmpReasons.tfidfSim = simRes.sim;
+        this._tmpReasons.tfidfTerms = simRes.top;
+      } catch {}
+
+      // 数値寄与（キャップ適用）
+      let numericAdd = 0;
+      numericAdd += (e['S1_基本スコア'] || 0) * (this.tuning.wS1 ?? 0.02);
+      if (analysis.emotionScore > 0 && e['S5_主体性推奨スタンス'] === '能動') numericAdd += (this.tuning.wS5 ?? 4);
+      else if (analysis.emotionScore < 0 && e['S5_主体性推奨スタンス'] === '受動') numericAdd += (this.tuning.wS5 ?? 4);
+      if (analysis.urgencyScore > 30 && (e['S6_変動性スコア'] || 0) > 50) numericAdd += (this.tuning.wS6 ?? 1);
+      if (analysis.complexityScore > 50 && (e['S3_安定性スコア'] || 0) > 50) numericAdd += (this.tuning.wS3 ?? 1);
+      numericAdd += (e['S4_リスク'] || 0) * (this.tuning.wS4 ?? 0.01);
+      numericAdd += (e['S7_総合評価スコア'] || 0) * (this.tuning.wS7 ?? 0.03);
+
+      // 行位プライヤ（望ましい行位ならボーナス）
+      try {
+        const preferred = this._preferLinesFromAnalysis(analysis);
+        const pos = this._linePosFromYaoName(e['爻']);
+        if (pos && preferred.has(pos)) numericAdd += (this.tuning.linePriorWeight ?? 6);
+      } catch {}
+
+      // 協力ゲート：入力側に協力/コミュニケーション要素がほぼ無いのに、同人/比/萃に偏るのを抑制
+      try {
+        const name = String(e['卦名']||'');
+        const lacksCoop = !(inputCats && (inputCats.has('cooperation') || inputCats.has('communication')));
+        if (lacksCoop && (name.includes('同人') || name.includes('比') || name.includes('萃'))) {
+          numericAdd -= (this.tuning.coopGatePenalty ?? 8);
+        }
+      } catch {}
+
+      // セマンティック・ドミナンス適用：意味核が弱い時は数値寄与を強く制限
+      const minCore = (this.tuning.minSemanticCore ?? 24);
+      const capRatio = (this.tuning.numericCapRatio ?? 0.35);
+      const capConst = (this.tuning.numericCapConst ?? 6);
+      const numericCap = Math.max(0, semanticCore * capRatio + capConst);
+      const numericFinal = (semanticCore < minCore) ? Math.min(numericAdd, capConst) : Math.min(numericAdd, numericCap);
+
+      let score = semanticCore + numericFinal;
+
+      // ブリッジングルール: 入力カテゴリ/フレームから“打ち手”カテゴリへの誘導
+      let catBoost = 0;
+      (this.bridging||[]).forEach(rule => {
+        if (inputCats.has(rule.has)) {
+          rule.favors.forEach(f => { if (eCats.has(f)) catBoost += rule.w; });
+        }
+      });
+      // フレームの誘導
+      try {
+        const frames = this.detectFrames(analysis, analysis.rawText || '');
+        frames.forEach(fr => {
+          const mapping = {
+            resource_shortage:['cooperation','foundation'],
+            collaboration_intent:['cooperation','decision'],
+            reform_intent:['reform','decision'],
+            retreat_intent:['retreat','foundation'],
+            acceptance_intent:['acceptance','foundation'],
+            decision_intent:['decision','reform'],
+            risk_alert:['reform','retreat'],
+            schedule_pressure:['decision','foundation']
+          };
+          const favors = mapping[fr] || [];
+          favors.forEach(f => { if (eCats.has(f)) catBoost += Math.max(4, (this.tuning.wPhrase||10)-2); });
+        });
+      } catch {}
+      score += catBoost;
+
+      // ミニブースト: 所有権/優先度の言及がある場合、基盤（foundation）をわずかに加点
+      try {
+        if (inputCats.has('ownership') || inputCats.has('priority')) {
+          if (eCats.has('foundation')) score += 2;
+        }
+      } catch {}
+
+      // 軽微なプライヤ: 協力カテゴリ検出時に「同人/比」を微増強
+      try {
+        if (inputCats.has('cooperation')) {
+          const hname = String(e['卦名']||'');
+          if (hname.includes('同人') || hname.includes('比')) {
+            score += 3; // +2〜+4の中庸
+          }
+        }
+      } catch {}
+
+      const extra = this._tmpReasons || {};
+      this._tmpReasons = null;
+      return { score, reasons: { matchKw, matchSum, matchCat, phraseBoost, catBoost, tfidfSim: extra.tfidfSim, tfidfTerms: extra.tfidfTerms } };
+    }
+
+    setTuning(params={}) {
+      try { Object.assign(this.tuning, params); } catch {}
+      return this.tuning;
+    }
+
+    getTuning() { return this.tuning; }
+
+    /**
+     * 入力文に対する上位候補（卦・爻）をスコア順に返す
+     */
+    async rankCandidates(inputText, topN = 3) {
+      if (!this.isInitialized) await this.initialize();
+      const data = window.H384_DATA || (this.h384db && this.h384db.getDatabaseData && this.h384db.getDatabaseData()) || [];
+      if (!data || data.length === 0) return [];
+      const analysis = this.analyzeText(inputText || '');
+      const index = this._h384Index || data.map(e => ({ entry: e, kwSet: null, sumSet: null, categories: null }));
+      const scored = [];
+      for (const idxEntry of index) {
+        const r = this.scoreEntry(analysis, idxEntry);
+        scored.push({ score: r.score, reasons: r.reasons, entry: idxEntry.entry });
+      }
+      scored.sort((a,b)=> b.score - a.score);
+      const out = scored.slice(0, Math.max(1, Math.min(topN, scored.length))).map(s => ({
+        hexagramNumber: s.entry['卦番号'],
+        hexagramName: s.entry['卦名'],
+        yaoName: s.entry['爻'],
+        score: s.score,
+        reasons: s.reasons
+      }));
+      return out;
     }
 
     /**
@@ -283,31 +868,37 @@ console.log('☯️ IChingGuidanceEngine Loading...');
     calculateMatchScore(analysis, entry) {
       let score = 0;
 
-      // 基本スコアを考慮
-      score += entry['S1_基本スコア'] * 0.3;
+      // A) 意味ベースの類似（最重要）
+      const inputKw = new Set(analysis.keywords || []);
+      const entryKwRaw = entry['キーワード'];
+      const entryKw = Array.isArray(entryKwRaw)
+        ? entryKwRaw
+        : typeof entryKwRaw === 'string'
+          ? entryKwRaw.split(/[、,\s]+/)
+          : [];
+      const entryKwSet = new Set(this.normalizeTokens(entryKw));
+      let overlap = 0;
+      entryKwSet.forEach(k => { if (inputKw.has(k)) overlap++; });
+      // 重要キーワードの重み（協力/公/仲間/連携→同人へのバイアス等を一般化）
+      const coopHints = ['協力','協調','合意','信頼','仲間','連携','公','チーム'];
+      const coopHits = coopHints.filter(w => inputKw.has(w)).length;
+      score += overlap * 30;      // 語義一致の重み
+      score += coopHits * 10;     // 関係性ヒントの追加重み
 
-      // 感情との適合性
-      if (analysis.emotionScore > 0 && entry['S5_主体性推奨スタンス'] === '能動') {
-        score += 20;
-      } else if (analysis.emotionScore < 0 && entry['S5_主体性推奨スタンス'] === '受動') {
-        score += 20;
+      // B) 文章要約への部分一致（ゆるい意味一致）
+      const summary = String(entry['現代解釈の要約'] || '');
+      if (summary) {
+        inputKw.forEach(k => { if (k && summary.includes(k)) score += 4; });
       }
 
-      // 緊急度との適合性
-      if (analysis.urgencyScore > 30 && entry['S6_変動性スコア'] > 50) {
-        score += 15;
-      }
-
-      // 複雑度との適合性
-      if (analysis.complexityScore > 50 && entry['S3_安定性スコア'] > 50) {
-        score += 10;
-      }
-
-      // リスクファクター
-      score += entry['S4_リスク'] * 0.1;
-
-      // 総合評価スコアを加味
-      score += entry['S7_総合評価スコア'] * 0.2;
+      // C) 既存スコア（重みを下げて補助指標に）
+      score += (entry['S1_基本スコア'] || 0) * 0.10;
+      if (analysis.emotionScore > 0 && entry['S5_主体性推奨スタンス'] === '能動') score += 8;
+      else if (analysis.emotionScore < 0 && entry['S5_主体性推奨スタンス'] === '受動') score += 8;
+      if (analysis.urgencyScore > 30 && entry['S6_変動性スコア'] > 50) score += 5;
+      if (analysis.complexityScore > 50 && entry['S3_安定性スコア'] > 50) score += 4;
+      score += (entry['S4_リスク'] || 0) * 0.05;
+      score += (entry['S7_総合評価スコア'] || 0) * 0.10;
 
       return score;
     }
@@ -967,14 +1558,32 @@ console.log('☯️ IChingGuidanceEngine Loading...');
         scenariosCount: scenarios?.length
       });
 
-      // 4. 結果の統合
+      // 4. ランキング（理由付与用）
+      let topCandidates = [];
+      try {
+        topCandidates = await this.rankCandidates(inputText, 3);
+      } catch {}
+
+      // 5. 結果の統合
       const result = {
         inputText: inputText,
         currentSituation: situationHexagram,
         threeStageProcess: process,
         eightScenarios: scenarios,
+        topCandidates,
         timestamp: new Date().toISOString()
       };
+
+      // currentSituationにreasonsを付与（Top1が一致する場合）
+      try {
+        if (topCandidates && topCandidates.length) {
+          const t1 = topCandidates[0];
+          if (Number(t1.hexagramNumber) === Number(situationHexagram.hexagramNumber)
+              && String(t1.yaoName) === String(situationHexagram.yaoName)) {
+            result.currentSituation.reasons = t1.reasons;
+          }
+        }
+      } catch {}
 
       console.log('✅ Complete analysis performed:', result);
       return result;

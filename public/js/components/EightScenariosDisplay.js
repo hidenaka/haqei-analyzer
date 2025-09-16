@@ -20,19 +20,78 @@ console.log('🎯 EightScenariosDisplay Loading...');
       this.scenarios = [];
       this.selectedScenario = null;
       this.threeStageProcess = null;
+      // 分析入力テキスト（現在地バーに表示）
+      this.userInputText = '';
+      // 意図・おすすめ・比較
+      this.userIntent = 'maintain';
+      this.recommendedIds = new Set();
+      this.compareSelected = [];
+    }
+
+    _buildDetailedReasons(cs) {
+      try {
+        if (!cs) return '';
+        const ig = window.iChingGuidance;
+        const input = String(this.userInputText||'');
+        const sem = (ig && input) ? ig.getSemantics(input) : { keywords:[], categories:[], frames:[] };
+        const frames = Array.isArray(sem.frames) ? sem.frames : [];
+        const cats = Array.isArray(sem.categories) ? sem.categories : [];
+        // 候補（現在地）のカテゴリを推定
+        let entryCats = [];
+        try {
+          const e = cs.rawData || {};
+          const kw = Array.isArray(e['キーワード']) ? e['キーワード'] : String(e['キーワード']||'').split(/[、,\s]+/).filter(Boolean);
+          const summary = String(e['現代解釈の要約']||'');
+          const tokens = kw.concat(summary.split(/[\s\p{P}\p{S}、。・…！？!?,，．。]+/u).filter(Boolean));
+          const norm = ig && ig.normalizeTokens ? ig.normalizeTokens(tokens) : tokens.map(s=>String(s).toLowerCase());
+          const set = new Set(norm);
+          entryCats = ig && ig.detectCategories ? Array.from(ig.detectCategories(set)) : [];
+        } catch {}
+        // ブリッジング誘導の明示化
+        let bridgeLines = '';
+        try {
+          const bridging = (ig && ig.bridging) ? ig.bridging : [];
+          const hasCats = new Set(cats);
+          const entrySet = new Set(entryCats);
+          const matched = [];
+          bridging.forEach(rule => {
+            if (hasCats.has(rule.has)) {
+              const favored = (rule.favors||[]).filter(f => entrySet.has(f));
+              if (favored.length) matched.push({ has: rule.has, favors: favored, w: rule.w });
+            }
+          });
+          if (matched.length) {
+            bridgeLines = matched.map(m => `・「${m.has}」の文脈 → 「${m.favors.join('／')}」を優先（+${m.w}）`).join('<br/>');
+          }
+        } catch {}
+        // キーワード/カテゴリ一致
+        const rs = cs.reasons || {};
+        const kw = (rs.matchKw||[]).slice(0,6).join('、');
+        const mcat = (rs.matchCat||[]).slice(0,6).join('、');
+        const sim = (typeof rs.tfidfSim === 'number' && rs.tfidfSim>0) ? `・意味近接(TF‑IDF): ${(rs.tfidfSim*100).toFixed(1)}%` : '';
+        const simTerms = (rs.tfidfTerms&&rs.tfidfTerms.length) ? `・近接語: ${rs.tfidfTerms.join('、')}` : '';
+        const frameLine = frames.length ? `・認識した文脈: ${frames.join('、')}` : '';
+        const catLine = cats.length ? `・検出カテゴリ: ${cats.join('、')}` : '';
+        const kwLine = kw ? `・キーワード一致: ${kw}` : '';
+        const catMatchLine = mcat ? `・カテゴリ一致: ${mcat}` : '';
+        const bridgeBlock = bridgeLines ? `・ブリッジ誘導:<br/>${bridgeLines}` : '';
+        const resultLine = `・現在地: ${cs.hexagramName || ''} ${cs.yaoName || ''}`;
+        const parts = [frameLine, catLine, kwLine, catMatchLine, sim, simTerms, bridgeBlock, resultLine].filter(Boolean);
+        if (!parts.length) return '';
+        return parts.join('<br/>');
+      } catch { return ''; }
     }
 
     /**
      * 初期化
      */
     initialize(containerId) {
-      // 分析実行前は初期化をスキップ
+      // 解析前でもコンテナとスタイルは初期化しておく（後続のdisplayScenariosで描画可能に）
       if (!window.futureAnalysisCompleted) {
-        console.log('⏳ EightScenariosDisplay waiting for analysis completion');
-        return false;
+        console.log('⏳ EightScenariosDisplay initializing before analysis completion');
+      } else {
+        console.log('🔄 EightScenariosDisplay initializing...');
       }
-      
-      console.log('🔄 EightScenariosDisplay initializing...');
       
       this.container = document.getElementById(containerId);
       if (!this.container) {
@@ -290,7 +349,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
     /**
      * 8つのシナリオを表示
      */
-    displayScenarios(scenarios, threeStageProcess) {
+    displayScenarios(scenarios, threeStageProcess, currentSituation = null, topCandidates = []) {
       if (!this.container) return;
       
       // 動的色システムを適用
@@ -298,6 +357,8 @@ console.log('🎯 EightScenariosDisplay Loading...');
       
       this.scenarios = scenarios;
       this.threeStageProcess = threeStageProcess;
+      this.currentSituation = currentSituation || (threeStageProcess && threeStageProcess.currentSituation) || null;
+      this.topCandidates = Array.isArray(topCandidates) ? topCandidates : [];
       
       // コンテナをクリア
       this.container.innerHTML = '';
@@ -308,18 +369,420 @@ console.log('🎯 EightScenariosDisplay Loading...');
       
       // ヘッダー追加
       mainContainer.appendChild(this.createHeader());
+
+      // 現在地の固定要約バー（入力と現在地の要旨を表示）
+      mainContainer.appendChild(this.createCurrentSummaryBar());
+
+      // 外部辞書のロード
+      this._ensureLineStatesLoaded();
+      this._ensureScenarioCopyLoaded();
+
+      // 意図トグル
+      mainContainer.appendChild(this.createIntentToggle());
+
+      // おすすめ（簡素カード）と比較トレイ
+      const recoPanel = document.createElement('div');
+      recoPanel.id = 'recommendations-panel';
+      mainContainer.appendChild(recoPanel);
+      const compareTray = document.createElement('div');
+      compareTray.id = 'compare-tray';
+      compareTray.style.cssText = 'margin:.5rem 0;display:none;';
+      mainContainer.appendChild(compareTray);
+
+      // 3段階セレクターは現在非表示（要望により一旦撤去）
       
-      // スコア比較グラフ追加（新機能）
-      mainContainer.appendChild(this.createScoreComparisonChart(scenarios));
-      
-      // 3段階セレクター追加
-      mainContainer.appendChild(this.createStageSelector());
-      
+      // おすすめ計算と表示
+      this._updateRecommendations(scenarios);
+      this._renderRecommendationsPanelCards(recoPanel, scenarios);
+
       // シナリオグリッド追加
-      mainContainer.appendChild(this.createScenarioGrid(scenarios));
+      const grid = this.createScenarioGrid(scenarios);
+      mainContainer.appendChild(grid);
+
+      // 比較トレイ初期描画
+      this._renderCompareTray(compareTray, scenarios);
+
+      // スコア比較グラフは末尾に配置（必要な時のみ参照）
+      mainContainer.appendChild(this.createScoreComparisonChart(scenarios));
       
       this.container.appendChild(mainContainer);
     }
+
+    _ensureLineStatesLoaded() {
+      if (this._lineStatesLoading || this.lineStates) return;
+      this._lineStatesLoading = true;
+      const url = `/data/h384-line-states.json?v=${encodeURIComponent(this.version || '1.0.0')}`;
+      fetch(url).then(r=>r.json()).then(json=>{
+        this.lineStates = json;
+      }).catch(()=>{
+        this.lineStates = null;
+      }).finally(()=>{ this._lineStatesLoading = false; });
+    }
+
+    _getLineState(hex, line) {
+      try {
+        if (!this.lineStates) return '';
+        const key = `${Number(hex)}-${Number(line)}`;
+        return this.lineStates[key] || '';
+      } catch { return ''; }
+    }
+
+    _ensureScenarioCopyLoaded() {
+      if (this._copyLoading || this.copyDict) return;
+      this._copyLoading = true;
+      const url = `/data/scenario-copy.json?v=${encodeURIComponent(this.version || '1.0.0')}`;
+      fetch(url).then(r=> r.ok ? r.json() : Promise.reject(new Error('copy not found')))
+        .then(json => { this.copyDict = json || {}; })
+        .catch(()=>{ this.copyDict = null; })
+        .finally(()=>{ this._copyLoading = false; });
+    }
+
+    // 現在地の固定要約ヘッダー（1–2行）
+    createCurrentSummaryBar() {
+      try {
+        const bar = document.createElement('div');
+        bar.id = 'current-summary-bar';
+        bar.style.cssText = 'position:sticky;top:0;z-index:30;background:rgba(2,6,23,.85);backdrop-filter:blur(6px);border:1px solid rgba(99,102,241,.25);border-radius:10px;padding:.5rem .75rem;margin:.5rem 0;color:#cbd5e1;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;';
+
+        const cs = this.currentSituation || (this.threeStageProcess && this.threeStageProcess.currentSituation) || {};
+        const name = (cs.hexagramName && cs.yaoName) ? `${String(cs.hexagramName).trim()} ${String(cs.yaoName).trim()}` : '現在の状況';
+        const s0 = this._getCurrentBaseScoreFromH384();
+        // threeStageProcessにスコアがない場合もあるので、表示は名称中心に
+        const left = document.createElement('div');
+        left.style.cssText = 'display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;';
+        left.innerHTML = `
+          <span style="color:#a5b4fc;font-weight:700;">Now</span>
+          <span style="color:#e5e7eb;">${name}</span>
+          ${Number.isFinite(s0) ? `<span style="color:#94a3b8;">現在地点の土台の強さ ${Math.round(s0)}</span>` : ''}
+        `;
+
+        const right = document.createElement('div');
+        right.style.cssText = 'margin-left:auto;color:#c7d2fe;display:flex;gap:.35rem;align-items:center;';
+        const snippet = (() => {
+          const t = (this.userInputText||'').replace(/[\r\n]+/g,' ').trim();
+          if (!t) return '';
+          const max = 40;
+          const short = t.length > max ? t.slice(0,max) + '…' : t;
+          const safeTitle = t.replace(/"/g,'&quot;');
+          return `<span style="opacity:.7;color:#94a3b8;">入力</span><span title="${safeTitle}" style="max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e5e7eb;">「${short}」</span>`;
+        })();
+        right.innerHTML = snippet;
+
+        // 理由（システムの理解）: 行状態辞書を直接提示
+        const reason = document.createElement('div');
+        reason.style.cssText = 'flex-basis:100%;display:block;color:#cbd5e1;margin-top:.25rem;';
+        let lineText = '';
+        try {
+          const hex = Number(cs.hexagramNumber || cs['卦番号']);
+          const yaoName = String(cs.yaoName || cs['爻'] || '');
+          const lineMap = { '初九':1,'九二':2,'九三':3,'九四':4,'九五':5,'上九':6,'初六':1,'六二':2,'六三':3,'六四':4,'六五':5,'上六':6 };
+          const line = lineMap[yaoName];
+          if (Number.isFinite(hex) && Number.isFinite(line)) {
+            lineText = this._getLineState(hex, line) || '';
+          }
+        } catch {}
+
+        if (lineText) {
+          const summary = document.createElement('div');
+          summary.style.cssText = 'background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.25);border-radius:8px;padding:.5rem .6rem;';
+          summary.innerHTML = `<span style="color:#a5b4fc;font-weight:700;">理由（システムの理解）</span><br/>${this._normalizeJa(lineText)}`;
+          reason.appendChild(summary);
+        }
+
+        bar.appendChild(left);
+        bar.appendChild(right);
+        if (lineText) bar.appendChild(reason);
+
+        // 詳細な理由（文脈→解釈の明示）
+        const detailWrap = document.createElement('div');
+        detailWrap.style.cssText = 'flex-basis:100%;margin-top:.25rem;';
+        const details = this._buildDetailedReasons(cs);
+        if (details) {
+          const toggleId = `reason-details-${Date.now().toString(36)}`;
+          detailWrap.innerHTML = `
+            <button type="button" aria-expanded="false" aria-controls="${toggleId}" style="font-size:.8rem;color:#c7d2fe;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.35);padding:.2rem .5rem;border-radius:6px;cursor:pointer;">詳細理由を表示</button>
+            <div id="${toggleId}" style="display:none;margin-top:.4rem;border-left:2px solid rgba(99,102,241,.35);padding-left:.6rem;color:#cbd5e1;font-size:.85rem;line-height:1.5;">${details}</div>
+          `;
+          const btn = detailWrap.querySelector('button');
+          const panel = detailWrap.querySelector(`#${toggleId}`);
+          btn.addEventListener('click', () => {
+            const vis = panel.style.display === 'none';
+            panel.style.display = vis ? 'block' : 'none';
+            btn.textContent = vis ? '詳細理由を隠す' : '詳細理由を表示';
+            btn.setAttribute('aria-expanded', String(vis));
+          });
+          bar.appendChild(detailWrap);
+        }
+        return bar;
+      } catch {
+        return document.createElement('div');
+      }
+    }
+
+    // 現在地（卦・爻）からH384_DATAのS1_基本スコアを取得
+    _getCurrentBaseScoreFromH384() {
+      try {
+        const cs = this.threeStageProcess && this.threeStageProcess.currentSituation ? this.threeStageProcess.currentSituation : {};
+        const hex = Number(cs.hexagramNumber || cs['卦番号']);
+        const yaoName = String(cs.yaoName || cs['爻'] || '');
+        const lineMap = { '初九':1,'九二':2,'九三':3,'九四':4,'九五':5,'上九':6,'初六':1,'六二':2,'六三':3,'六四':4,'六五':5,'上六':6 };
+        const line = lineMap[yaoName];
+        if (!window.H384_DATA || !Number.isFinite(hex) || !Number.isFinite(line)) return NaN;
+        const idx = (hex - 1) * 6 + (line - 1);
+        const entry = window.H384_DATA[idx];
+        const s0 = Number(entry && entry['S1_基本スコア']);
+        return s0;
+      } catch { return NaN; }
+    }
+
+  // 分析入力テキストを保持（現在地バーで表示）
+  setUserInput(text) {
+    try { this.userInputText = String(text || ''); } catch { this.userInputText = ''; }
+  }
+
+  // 軽い日本語正規化
+  _normalizeJa(s) {
+    try {
+      if (!s) return '';
+      let t = String(s);
+      const rules = [
+        [/素早らしい/g, '素早い'],
+        [/がちなになりがち/g, 'がち'],
+        [/です、/g, 'です。'],
+        [/、、+/g, '、'],
+        [/。。+/g, '。']
+      ];
+      for (const [a,b] of rules) t = t.replace(a,b);
+      return t.trim();
+    } catch { return String(s || ''); }
+  }
+
+  // 意図トグル
+  createIntentToggle() {
+    const wrap = document.createElement('div');
+    wrap.className = 'intent-toggle';
+    wrap.style.cssText = 'display:flex;gap:.5rem;align-items:center;justify-content:flex-start;margin:.5rem 0 0;';
+    const label = document.createElement('div');
+    label.textContent = 'あなたの意図:';
+    label.style.cssText = 'color:#cbd5e1;font-size:.9rem;';
+    const mkBtn = (key, text) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = text;
+      b.dataset.intent = key;
+      b.style.cssText = 'padding:.3rem .6rem;border-radius:999px;border:1px solid rgba(99,102,241,.35);background:rgba(99,102,241,.1);color:#c7d2fe;font-size:.85rem;cursor:pointer;';
+      const sync = () => {
+        if (this.userIntent === key) { b.style.background = 'rgba(99,102,241,.35)'; b.style.color = '#fff'; }
+        else { b.style.background = 'rgba(99,102,241,.1)'; b.style.color = '#c7d2fe'; }
+      };
+      b.addEventListener('click', () => {
+        this.userIntent = key;
+        Array.from(wrap.querySelectorAll('button[data-intent]')).forEach(btn => {
+          if (btn.dataset.intent === this.userIntent) { btn.style.background = 'rgba(99,102,241,.35)'; btn.style.color = '#fff'; }
+          else { btn.style.background = 'rgba(99,102,241,.1)'; btn.style.color = '#c7d2fe'; }
+        });
+        if (Array.isArray(this.scenarios) && this.scenarios.length) {
+          this._updateRecommendations(this.scenarios);
+          const panel = document.getElementById('recommendations-panel');
+          if (panel) this._renderRecommendationsPanelCards(panel, this.scenarios);
+        }
+        try { this.container && this.container.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch {}
+      });
+      setTimeout(sync, 0);
+      return b;
+    };
+    wrap.appendChild(label);
+    wrap.appendChild(mkBtn('maintain','安定志向'));
+    wrap.appendChild(mkBtn('improve','変革志向'));
+    wrap.appendChild(mkBtn('recovery','回復志向'));
+    return wrap;
+  }
+
+  _renderRecommendationsPanelCards(panelEl, scenarios) {
+    try {
+      const top = this._topRecommendations || [];
+      panelEl.innerHTML = '';
+      const header = document.createElement('div');
+      header.textContent = 'あなたへの候補';
+      header.style.cssText = 'margin:.35rem 0 .5rem;color:#cbd5e1;font-size:.9rem;';
+      panelEl.appendChild(header);
+      const list = document.createElement('div');
+      list.style.cssText = 'display:flex;gap:.75rem;flex-wrap:wrap;';
+      panelEl.appendChild(list);
+      top.forEach((id) => {
+        const s = scenarios.find(x => x.id === id);
+        if (!s) return;
+        const phases = this.calculateThreePhases(s);
+        const scores = this.calculateScoreProgression(s, phases);
+        const metrics = this._computeScenarioMetrics(s, scores);
+        const triadLocal = (s.route||[]).map(r=>r==='progress'?'J':'H').join('');
+        const decide = this._decideTypeAndAction(triadLocal, metrics, '');
+        const net = metrics.series.S3 - metrics.series.S0; const sign = net>0?'+':''; const col = net>0?'#34D399': net<0?'#F87171':'#94a3b8';
+        const mini = document.createElement('div');
+        mini.className = 'reco-mini-card';
+        mini.style.cssText = 'flex:1;min-width:260px;border:1px solid rgba(99,102,241,.35);border-radius:10px;padding:.5rem .75rem;background:rgba(17,24,39,.5);cursor:pointer;';
+        mini.innerHTML = `
+          <div style="display:flex;align-items:center;gap:.5rem;">
+            <span class="type-stamp" style="background:${decide.color}1A;border:1px solid ${decide.color}80;color:${decide.color};padding:.1rem .45rem;border-radius:999px;font-size:.75rem;font-weight:700;">${decide.type}</span>
+            <span class="sparkline">${this._buildSparkline([metrics.series.S0,metrics.series.S1,metrics.series.S2,metrics.series.S3])}</span>
+            <span style="margin-left:auto;color:${col};font-weight:700;">合計差分 ${sign}${net}</span>
+            <span class="action-chip" style="background:rgba(148,163,184,.15);border:1px solid rgba(148,163,184,.4);color:#E5E7EB;padding:.1rem .45rem;border-radius:999px;font-size:.75rem;">${decide.action}</span>
+          </div>`;
+        mini.addEventListener('click', () => {
+          const gridCard = this.container.querySelector(`[data-scenario-id="${s.id}"]`);
+          if (gridCard) { gridCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); this.selectScenario(s); }
+        });
+        list.appendChild(mini);
+      });
+    } catch { panelEl.innerHTML=''; }
+  }
+
+  _updateRecommendations(scenarios) {
+    try {
+      const scored = scenarios.map(s => {
+        const phases = this.calculateThreePhases(s);
+        const scores = this.calculateScoreProgression(s, phases);
+        const metrics = this._computeScenarioMetrics(s, scores);
+        const fits = this._computeIntentFits(s, metrics);
+        return { id: s.id, fits };
+      });
+      const key = this.userIntent || 'maintain';
+      scored.sort((a,b) => (b.fits[key]||0) - (a.fits[key]||0));
+      this._topRecommendations = scored.slice(0,2).map(x => x.id);
+      this.recommendedIds = new Set(this._topRecommendations);
+    } catch { this._topRecommendations = []; this.recommendedIds = new Set(); }
+  }
+
+  _computeIntentFits(scenario, metrics) {
+    const s0 = metrics.series.S0, s3 = metrics.series.S3;
+    const net = s3 - s0;
+    const prob = (typeof scenario.probability === 'number') ? (scenario.probability>1? scenario.probability/100 : scenario.probability) : 0.5;
+    const n = (v, m) => Math.max(0, Math.min(1, m ? v/m : v));
+    const improve = Math.max(0, 0.6*n(net, 100) + 0.2*Math.max(0, Math.min(1, prob)) - 0.2*n(metrics.maxDrawdown, 30));
+    const maintain = Math.max(0, 0.6*(1 - n(Math.abs(net), 100)) + 0.2*Math.max(0, Math.min(1, prob)) - 0.2*n(metrics.avgAbsDelta, 20));
+    const recovery = Math.max(0, 0.5*Math.max(0, Math.min(1, metrics.recoveryRatio)) + 0.3*(1 - n(metrics.maxDrawdown, 30)) - 0.2*n(metrics.osc, 3));
+    return { improve, maintain, recovery };
+  }
+
+  _buildSparkline(series) {
+    try {
+      const [S0,S1,S2,S3] = series;
+      const W = 120, H = 24, P = 6;
+      const xs = [P, W/3, (2*W)/3, W-P];
+      const clamp01 = v => Math.max(0, Math.min(100, v));
+      const ys = [S0,S1,S2,S3].map(s => H - Math.round((clamp01(s) / 100) * (H-2)) - 1);
+      const seg = (i, color) => `<line x1="${xs[i]}" y1="${ys[i]}" x2="${xs[i+1]}" y2="${ys[i+1]}" stroke="${color}" stroke-width="2" stroke-linecap="round" />`;
+      const lines = [];
+      const cUp = '#60A5FA', cDown = '#F87171';
+      lines.push(seg(0, ys[1] < ys[0] ? cUp : ys[1] > ys[0] ? cDown : '#94a3b8'));
+      lines.push(seg(1, ys[2] < ys[1] ? cUp : ys[2] > ys[1] ? cDown : '#94a3b8'));
+      lines.push(seg(2, ys[3] < ys[2] ? cUp : ys[3] > ys[2] ? cDown : '#94a3b8'));
+      const dots = [0,1,2,3].map(i => `<circle cx="${xs[i]}" cy="${ys[i]}" r="${i===3?2.8:1.8}" fill="${i===3?'#e5e7eb':'#cbd5e1'}" stroke="#64748b" stroke-width="0.5" />`).join('');
+      return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${lines.join('')}${dots}</svg>`;
+    } catch { return ''; }
+  }
+
+  _deriveKeywordFlags(kwsText) {
+    const has = (re) => new RegExp(re).test(kwsText||'');
+    return { cautious: has('慎重|警戒|危険回避'), reform: has('改革|断行|決断|突破'), coop: has('協力|合意|信頼|配慮') };
+  }
+
+  _decideTypeAndAction(triad, metrics, kwsText) {
+    const flags = this._deriveKeywordFlags(kwsText);
+    const net = (metrics?.series?.S3||0) - (metrics?.series?.S0||0);
+    const mostlyJ = (triad.match(/J/g)||[]).length >= 2;
+    const hasH = (triad.match(/H/g)||[]).length >= 1;
+    let type = 'バランス型';
+    let color = '#94a3b8';
+    if (metrics.recoveryRatio > 0.7 && (metrics.timeBelowStart>0 || metrics.maxDrawdown>0)) { type='回復安定型'; color='#10B981'; }
+    if (hasH && net > 0 && metrics.avgAbsDelta >= 2) { type='転換上振れ型'; color='#F59E0B'; }
+    if (mostlyJ && net >= 0 && metrics.avgAbsDelta < 3) { type='安定伸長型'; color='#60A5FA'; }
+    let action = '整える';
+    if (flags.reform) action = '切替';
+    else if (flags.cautious) action = '安全';
+    else if (flags.coop) action = '協調';
+    else if (net >= 5) action = '集中';
+    return { type, color, action };
+  }
+
+  _computeScenarioMetrics(scenario, fallbackScores) {
+    const triad = (scenario.route||[]).map(r=>r==='progress'?'J':'H').join('');
+    const clamp100 = v => Math.max(0, Math.min(100, Math.round(v || 0)));
+    const series = [fallbackScores.current, fallbackScores.phase1, fallbackScores.phase2, fallbackScores.phase3].map(clamp100);
+    const [S0,S1,S2,S3] = series;
+    const d1 = S1 - S0, d2 = S2 - S1, d3 = S3 - S2;
+    let peak = S0, maxDD = 0;
+    for (const s of series) { if (s > peak) peak = s; maxDD = Math.max(maxDD, peak - s); }
+    const avgAbsDelta = (Math.abs(d1)+Math.abs(d2)+Math.abs(d3))/3;
+    const osc = (Math.sign(d2) !== Math.sign(d1) ? 1 : 0) + (Math.sign(d3) !== Math.sign(d2) ? 1 : 0);
+    const timeBelowStart = [S1,S2,S3].filter(s => s < S0).length;
+    const timeBelow50 = [S0,S1,S2,S3].filter(s => s < 50).length;
+    const minS = Math.min(S0,S1,S2,S3);
+    const recoveryRatio = (S3 - minS) / Math.max(1, (S0 - minS));
+    const countJ = (triad.match(/J/g)||[]).length; const countH = (triad.match(/H/g)||[]).length;
+    const changeIntensity = countH + 0.5*countJ;
+    const n = (v, m) => Math.max(0, Math.min(1, v/m));
+    const D = 100 * Math.max(0, Math.min(1,
+      0.30*(1 - S3/100) + 0.25*n(maxDD, 30) + 0.15*n(avgAbsDelta, 20) + 0.08*n(osc, 3) + 0.07*n(timeBelowStart, 3) + 0.07*n(timeBelow50, 4) + 0.06*n(changeIntensity, 3) - 0.10*Math.max(0, Math.min(1, recoveryRatio))
+    ));
+    const difficulty = Math.round(D);
+    const difficultyLabel = difficulty >= 70 ? '高' : difficulty >= 40 ? '中' : '低';
+    return { series: { S0,S1,S2,S3, d1,d2,d3 }, maxDrawdown: Math.round(maxDD), avgAbsDelta: Math.round(avgAbsDelta*10)/10, osc, timeBelowStart, timeBelow50, recoveryRatio: Math.round(recoveryRatio*100)/100, changeIntensity, difficulty, difficultyLabel };
+  }
+
+  _toggleCompare(id, on) {
+    try {
+      if (on) {
+        if (this.compareSelected.includes(id)) return this._renderCompareTray(document.getElementById('compare-tray'), this.scenarios);
+        this.compareSelected.push(id);
+        while (this.compareSelected.length > 2) this.compareSelected.shift();
+      } else {
+        this.compareSelected = this.compareSelected.filter(x => x !== id);
+      }
+      this._renderCompareTray(document.getElementById('compare-tray'), this.scenarios);
+    } catch {}
+  }
+
+  _renderCompareTray(trayEl, scenarios) {
+    try {
+      if (!trayEl) return;
+      if (!this.compareSelected.length) { trayEl.style.display = 'none'; trayEl.innerHTML = ''; return; }
+      trayEl.style.display = 'block';
+      const head = document.createElement('div');
+      head.style.cssText = 'color:#cbd5e1;font-size:.9rem;margin-bottom:.25rem;display:flex;gap:.5rem;align-items:center;';
+      head.innerHTML = `比較中 (${this.compareSelected.length}/2)`;
+      const clearBtn = document.createElement('button');
+      clearBtn.textContent = 'クリア';
+      clearBtn.style.cssText = 'margin-left:.5rem;padding:.15rem .5rem;border:1px solid rgba(148,163,184,.4);border-radius:6px;background:rgba(148,163,184,.1);color:#e5e7eb;cursor:pointer;';
+      clearBtn.onclick = () => { this.compareSelected = []; this._renderCompareTray(trayEl, scenarios); };
+      head.appendChild(clearBtn);
+      const itemsWrap = document.createElement('div');
+      itemsWrap.style.cssText = 'display:flex;gap:.75rem;flex-wrap:wrap;';
+      const items = this.compareSelected.map(id => scenarios.find(s => s.id === id)).filter(Boolean);
+      items.forEach(s => {
+        const phases = this.calculateThreePhases(s);
+        const scores = this.calculateScoreProgression(s, phases);
+        const metrics = this._computeScenarioMetrics(s, scores);
+        const net = metrics.series.S3 - metrics.series.S0; const sign = net>0?'+':''; const col = net>0?'#34D399': net<0?'#F87171':'#94a3b8';
+        const card = document.createElement('div');
+        card.style.cssText = 'flex:1;min-width:260px;border:1px solid rgba(99,102,241,.35);border-radius:10px;padding:.5rem .75rem;background:rgba(17,24,39,.5)';
+        card.innerHTML = `
+          <div style=\"display:flex;align-items:center;gap:.5rem;\">
+            <div style=\"color:#a5b4fc;font-weight:700;\">シナリオ ${s.id}</div>
+            <div>${this._buildSparkline([metrics.series.S0,metrics.series.S1,metrics.series.S2,metrics.series.S3])}</div>
+            <div style=\"margin-left:auto;color:${col};font-weight:700;\">合計差分 ${sign}${net}</div>
+          </div>
+          <div style=\"display:flex;gap:.5rem;margin-top:.25rem;color:#cbd5e1;font-size:.85rem;\">
+            <div>難易度: <strong style=\"color:${metrics.difficulty>=70?'#F87171':metrics.difficulty>=40?'#FBBF24':'#34D399'}\">${metrics.difficultyLabel}</strong> (${metrics.difficulty})</div>
+            <div style=\"color:#94a3b8;\">一時後退: ▼${metrics.maxDrawdown}</div>
+          </div>`;
+        itemsWrap.appendChild(card);
+      });
+      trayEl.innerHTML = '';
+      trayEl.appendChild(head);
+      trayEl.appendChild(itemsWrap);
+    } catch {}
+  }
 
     /**
      * ヘッダー作成
@@ -329,15 +792,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
       header.className = 'three-stage-header';
       header.innerHTML = `
         <h2 class="three-stage-title">🎯 8つの未来シナリオ</h2>
-        <p class="three-stage-subtitle">3段階の選択による可能性の全体像</p>
-        <div style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; border: 1px solid #6366f1;">
-          <div style="color: #fbbf24; font-weight: bold; margin-bottom: 0.5rem;">⚡ 386爻準拠システム</div>
-          <div style="color: #a5b4fc; font-size: 0.875rem; line-height: 1.5;">
-            <div>• <strong>386爻データ使用</strong>: 64卦×6爻 + 用九・用六による完全分析</div>
-            <div>• <strong>変化方式</strong>: 4基軸×2方式（進む/変わる）= 8パス生成</div>
-            <div>• <strong>時間的反復</strong>: 各パス2〜3ステップの段階的展開</div>
-          </div>
-        </div>
+        <p class="three-stage-subtitle">あなたの状況に基づく選択肢の全体像</p>
       `;
       return header;
     }
@@ -444,12 +899,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
       card.style.borderLeft = `4px solid ${visualization.color}`;
       card.style.setProperty('--scenario-color', visualization.color);
       
-      // ランク表示（確率に基づく）
-      const rankClass = this.getRankClass(scenario.probability);
-      const rank = scenario.probability > 70 ? 'S' : 
-                   scenario.probability > 60 ? 'A' : 
-                   scenario.probability > 50 ? 'B' : 
-                   scenario.probability > 40 ? 'C' : 'D';
+      // ランク表示はノイズのため廃止
       
       // 変化方式を判定（8パスの内訳：4基軸×2方式）
       const changeMethod = this.determineChangeMethod(index);
@@ -457,11 +907,33 @@ console.log('🎯 EightScenariosDisplay Loading...');
       const methodColor = changeMethod.type === 'advance' ? '#10b981' : '#f59e0b';
       const axisLabel = changeMethod.axis; // 基軸（天地人時の4基軸）
       
+      // 視覚要約用のメトリクス
+      const scoresForMetrics = this.calculateScoreProgression(scenario, phases);
+      const metrics = this._computeScenarioMetrics(scenario, scoresForMetrics);
+      const triadLocal = (scenario.route||[]).map(r=>r==='progress'?'J':'H').join('');
+      const decide = this._decideTypeAndAction(triadLocal, metrics, '');
+      const net = (metrics.series.S3 - metrics.series.S0);
+      const sign = net>0?'+':'';
+      const netCol = net>0?'#34D399': net<0?'#F87171':'#94a3b8';
+
+      // 外部コピー辞書
+      const combo = scenario.path || scenario.route || scenario.combo;
+      const key = Array.isArray(combo) ? combo.join(',') : null;
+      const low = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
+      const useEasy = !!(low && scenario.easy && scenario.title);
+      const cpy = (!useEasy && this.copyDict && key) ? this.copyDict[key] : null;
+      const displayTitle = useEasy ? (scenario.title || 'やさしいサマリ') : ((cpy && cpy.title) ? cpy.title : (scenario.title || scenario.description || '統合的変化'));
+      const displayDesc = useEasy ? (scenario.description || '') : ((cpy && cpy.description) ? cpy.description : (scenario.description || ''));
+
       card.innerHTML = `
-        <div class="scenario-rank" style="${this.getRankStyle(scenario.probability)}">
-          ${rank}ランク
+        <!-- 見出し帯（タイプ / スパークライン / 合計差分 / アクション / 比較） -->
+        <div class="visual-summary" style="display:flex;align-items:center;gap:.5rem;margin:.25rem 0 .35rem;flex-wrap:wrap;">
+          <span class="type-stamp" style="background:${decide.color}1A;border:1px solid ${decide.color}80;color:${decide.color};padding:.15rem .5rem;border-radius:999px;font-size:.78rem;font-weight:700;">${decide.type}</span>
+          <span class="sparkline" style="display:inline-flex;align-items:center;">${this._buildSparkline([metrics.series.S0,metrics.series.S1,metrics.series.S2,metrics.series.S3])}</span>
+          <span style="color:${netCol};font-size:.85rem;font-weight:700;">合計差分 ${sign}${net}</span>
+          <span class="action-chip" style="margin-left:auto;background:rgba(148,163,184,.15);border:1px solid rgba(148,163,184,.4);color:#E5E7EB;padding:.15rem .5rem;border-radius:999px;font-size:.78rem;">${decide.action}</span>
+          <label style="margin-left:.25rem;display:inline-flex;align-items:center;gap:.25rem;color:#cbd5e1;font-size:.8rem;"><input type="checkbox" class="compare-toggle" data-id="${scenario.id}" style="accent-color:#6366F1;"/> 比較</label>
         </div>
-        
         <!-- ヘッダー：卦変化表示 -->
         <div class="hexagram-transformation">
           <span class="current-hexagram">
@@ -489,8 +961,9 @@ console.log('🎯 EightScenariosDisplay Loading...');
             <span class="traditional-icon">${visualization.traditional}</span>
             <span class="modern-emoji">${visualization.modern}</span>
           </span>
-          シナリオ ${scenario.id}: ${scenario.title || scenario.description || '統合的変化'}
+          シナリオ ${scenario.id}: ${displayTitle}
         </h3>
+        ${displayDesc ? `<div class="scenario-description">${this._normalizeJa(displayDesc)}</div>` : ''}
         
         <!-- 時間的反復ステップ表示 -->
         ${this.renderTemporalSteps(scenario)}
@@ -507,12 +980,19 @@ console.log('🎯 EightScenariosDisplay Loading...');
             </div>
             <div class="phase-content">
               <div class="score-indicator">
-                基礎スコア: ${scores.current} → ${scores.phase1}
+                現在地点の土台の強さ: ${scores.current} → ${scores.phase1}
                 <span class="${scores.phase1 > scores.current ? 'positive' : 'negative'}">
                   (${scores.phase1 > scores.current ? '+' : ''}${scores.phase1 - scores.current})
                 </span>
               </div>
-              <div class="phase-description">${phases.phase1.description}</div>
+              ${(() => {
+                try {
+                  const step = (scenario.steps && scenario.steps[0]) ? scenario.steps[0] : null;
+                  if (!step) return '';
+                  const st = this._getLineState(step.hex, step.line);
+                  return st ? `<div class=\"phase-description\"><strong>第1段階の状態:</strong> ${this._normalizeJa(st)}</div>` : '';
+                } catch { return ''; }
+              })()}
             </div>
           </div>
           
@@ -524,15 +1004,28 @@ console.log('🎯 EightScenariosDisplay Loading...');
             </div>
             <div class="phase-content">
               <div class="score-indicator">
-                基礎スコア: ${scores.phase1} → ${scores.phase2}
+                現在地点の土台の強さ: ${scores.phase1} → ${scores.phase2}
                 <span class="${scores.phase2 > scores.phase1 ? 'positive' : 'negative'}">
                   (${scores.phase2 > scores.phase1 ? '+' : ''}${scores.phase2 - scores.phase1})
                 </span>
               </div>
-              <div class="phase-description">${phases.phase2.description}</div>
+              ${(() => {
+                try {
+                  const step = (scenario.steps && scenario.steps[1]) ? scenario.steps[1] : null;
+                  if (!step) return '';
+                  const st = this._getLineState(step.hex, step.line);
+                  return st ? `<div class=\"phase-description\"><strong>第2段階の状態:</strong> ${this._normalizeJa(st)}</div>` : '';
+                } catch { return ''; }
+              })()}
             </div>
           </div>
-          
+              ${(() => {
+                try {
+                  const step = (scenario.steps && scenario.steps[2]) ? scenario.steps[2] : { hex: scenario.finalHex, line: scenario.finalLine };
+                  const st = this._getLineState(step.hex, step.line);
+                  return st ? `<div class=\"phase-description\"><strong>第3段階の状態:</strong> ${this._normalizeJa(st)}</div>` : '';
+                } catch { return ''; }
+              })()}
           <!-- フェーズ3：成爻期 -->
           <div class="phase-block phase-3">
             <div class="phase-header">
@@ -543,13 +1036,54 @@ console.log('🎯 EightScenariosDisplay Loading...');
               <div class="score-indicator final-score">
                 最終スコア: ${scores.phase3}点
                 <span class="${scores.phase3 > scores.current ? 'positive' : 'negative'}">
-                  (合計${scores.phase3 > scores.current ? '+' : ''}${scores.phase3 - scores.current})
+                  (合計差分${scores.phase3 > scores.current ? '+' : ''}${scores.phase3 - scores.current})
                 </span>
               </div>
               <div class="phase-description">${phases.phase3.description}</div>
             </div>
           </div>
         </div>
+
+        <!-- 卦と爻の変化（明示） -->
+        ${(() => {
+          try {
+            const steps = Array.isArray(scenario.steps) ? scenario.steps : [];
+            const yaoMap = {1:'初九',2:'九二',3:'九三',4:'九四',5:'九五',6:'上九'};
+            const yaoAlt = {1:'初六',2:'六二',3:'六三',4:'六四',5:'六五',6:'上六'};
+            const getHexName = (h) => {
+              try {
+                const id = Number(h);
+                if (window.H64_DATA && Number.isFinite(id)) {
+                  const e = window.H64_DATA[id-1];
+                  const n = e && (e['卦名'] || e['name_jp']);
+                  return n ? String(n).trim() : `卦${id}`;
+                }
+              } catch {}
+              return `卦${h}`;
+            };
+            const getYao = (line, hex) => {
+              // 陽陰は不明のため、表示は九側を既定。必要ならH384から補う
+              const m = (line>=1 && line<=6) ? (yaoMap[line] || yaoAlt[line] || '') : '';
+              return m || `爻${line}`;
+            };
+            const rows = (steps.length ? steps : [{hex: scenario.hexagramInfo?.number||'', line: scenario.hexagramInfo?.lineNumber||'', action:''},{hex: '' ,line:'',action:''},{hex: scenario.finalHex, line: scenario.finalLine, action:''}])
+              .slice(0,3)
+              .map((st,i)=>{
+                const label = i===0? 'Step1': (i===1? 'Step2':'Step3');
+                const hex = getHexName(st.hex);
+                const yao = getYao(st.line, st.hex);
+                const act = st.action === '変' ? '変' : '進';
+                return `<div style=\"display:flex;gap:.5rem;align-items:center;\"><span style=\"min-width:46px;color:#94a3b8;\">${label}</span><span>${hex} ${yao}</span><span style=\"color:#a5b4fc;opacity:.9;\">（${act}）</span></div>`;
+              })
+              .join('');
+            return `
+              <div class=\"phase-block\" style=\"margin-top:.4rem;border:1px dashed rgba(148,163,184,.35);border-radius:8px;padding:.5rem .6rem;background:rgba(15,23,42,.35);\">
+                <div style=\"font-weight:700;color:#c7d2fe;margin-bottom:.25rem;\">卦と爻の変化</div>
+                ${rows}
+              </div>
+            `;
+          } catch { return ''; }
+        })()}
         
         <!-- 実現可能性 -->
         <div class="scenario-probability">
@@ -574,8 +1108,59 @@ console.log('🎯 EightScenariosDisplay Loading...');
       card.addEventListener('click', () => {
         this.selectScenario(scenario);
       });
-      
+
+      // 比較トグル
+      const toggle = card.querySelector('input.compare-toggle');
+      if (toggle) {
+        toggle.addEventListener('click', (ev) => ev.stopPropagation());
+        toggle.addEventListener('change', (ev) => {
+          const checked = ev.target.checked;
+          const id = scenario.id;
+          this._toggleCompare(id, checked);
+        });
+      }
+
+      // 合う人/避ける人（簡潔テキスト）を追加
+      try {
+        const fit = this._composeFitTexts(scenario);
+        const box = document.createElement('div');
+        box.className = 'audience-fit';
+        box.style.cssText = 'margin:.75rem 0 .25rem;padding:.5rem;border:1px dashed rgba(148,163,184,.35);border-radius:8px;background:rgba(15,23,42,.35);';
+        box.innerHTML = `
+          <div style=\"color:#a7f3d0;font-size:.9rem;\">合う人: ${fit.fit}</div>
+          <div style=\"color:#fecaca;font-size:.9rem;\">避ける人: ${fit.avoid}</div>
+        `;
+        card.appendChild(box);
+      } catch {}
+
       return card;
+    }
+
+    // 合う人/避ける人の簡潔生成（スコア推移とルートの有無から）
+    _composeFitTexts(scenario) {
+      try {
+        const phases = this.calculateThreePhases(scenario);
+        const scores = this.calculateScoreProgression(scenario, phases);
+        const net = (scores.phase3 || 0) - (scores.current || 0);
+        const route = scenario.route || [];
+        const hasTransform = route.includes('transform') || route.includes('complete') || route.includes('adjust');
+        let fit = '';
+        let avoid = '';
+        if (hasTransform && net >= 0) {
+          fit = '一度切り替え、負荷を抑えて伸ばしたい人';
+          avoid = '現状維持で小さく積み上げたい人';
+        } else if (!hasTransform && net >= 0) {
+          fit = '負荷を増やさず、今の路線で伸ばしたい人';
+          avoid = '短期で大きな転換だけを狙う人';
+        } else if (net < 0) {
+          fit = 'まず体制を整え、安定を取り戻したい人';
+          avoid = 'すぐに大きく攻めたい人';
+        } else {
+          fit = '状況を見ながら着実に整えたい人';
+          avoid = '極端な打ち手を好む人';
+        }
+        return { fit: this._normalizeJa(fit), avoid: this._normalizeJa(avoid) };
+      } catch { return { fit: '', avoid: '' }; }
     }
 
     /**
@@ -689,6 +1274,17 @@ console.log('🎯 EightScenariosDisplay Loading...');
      * 基礎スコアの推移計算
      */
     calculateScoreProgression(scenario, phases) {
+        // 事前計算DBのseriesがあればそれを優先
+        if (scenario && scenario.dbSeries && typeof scenario.dbSeries.S0 === 'number') {
+            const s = scenario.dbSeries;
+            return {
+                current: Math.min(100, Math.max(0, s.S0)),
+                phase1: Math.min(100, Math.max(0, s.S1)),
+                phase2: Math.min(100, Math.max(0, s.S2)),
+                phase3: Math.min(100, Math.max(0, s.S3))
+            };
+        }
+
         const baseScore = scenario.hexagramInfo?.score || 
                          scenario.score || 
                          Math.round(50 + this.rng.next() * 30);
@@ -885,13 +1481,7 @@ console.log('🎯 EightScenariosDisplay Loading...');
     /**
      * ランククラス取得
      */
-    getRankClass(probability) {
-      if (probability > 70) return 'rank-s';
-      if (probability > 60) return 'rank-a';
-      if (probability > 50) return 'rank-b';
-      if (probability > 40) return 'rank-c';
-      return 'rank-d';
-    }
+    getRankClass() { return ''; }
 
     /**
      * ステージ選択処理

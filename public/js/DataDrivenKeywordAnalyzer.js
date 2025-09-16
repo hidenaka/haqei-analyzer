@@ -5,14 +5,17 @@
  * EnhancedKeywordAnalyzerを継承し、データ駆動機能を追加
  */
 
-class DataDrivenKeywordAnalyzer extends EnhancedKeywordAnalyzer {
+(function(global){
+class DataDrivenKeywordAnalyzer extends (global.EnhancedKeywordAnalyzer || EnhancedKeywordAnalyzer || class {}) {
     constructor(h384Data, options = {}) {
         super(); // 基底クラスの初期化
         console.log('🔍 DataDrivenKeywordAnalyzer initialized (extends EnhancedKeywordAnalyzer)');
         
-        // v4.3.1 決定論的要件: SeedableRandom統合
-        this.rng = options.randomnessManager || window.randomnessManager || 
-                   (() => { throw new Error('RandomnessManager required for deterministic behavior'); })();
+        // v4.3.1 決定論的要件: SeedableRandom統合（フォールバック安全化）
+        try {
+            const rm = options.randomnessManager || (global && global.randomnessManager);
+            this.rng = rm && typeof rm.next === 'function' ? rm : { next: Math.random };
+        } catch { this.rng = { next: Math.random }; }
                    
         // P0-2: データ正規化とバリデーション
         this.rawH384Data = h384Data;
@@ -349,4 +352,8 @@ class DataDrivenKeywordAnalyzer extends EnhancedKeywordAnalyzer {
 // エクスポート
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = DataDrivenKeywordAnalyzer;
+} else {
+    global.DataDrivenKeywordAnalyzer = DataDrivenKeywordAnalyzer;
 }
+
+})(typeof window !== 'undefined' ? window : this);

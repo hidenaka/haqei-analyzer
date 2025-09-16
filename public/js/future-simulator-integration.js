@@ -23,6 +23,10 @@ console.log('🚀 Future Simulator Integration Loading...');
       
       // 現在の分析結果
       this.currentAnalysis = null;
+
+      // 3072通りDB
+      this.scenarioDB = null;
+      this.useScenarioDB = !!(global.HAQEI_CONFIG && global.HAQEI_CONFIG.useScenarioDB);
     }
 
     /**
@@ -38,8 +42,8 @@ console.log('🚀 Future Simulator Integration Loading...');
         // 易経ガイダンスエンジン初期化
         await this.initializeGuidanceEngine();
         
-        // ビジュアライザー初期化
-        this.initializeVisualizers();
+      // ビジュアライザー初期化
+      this.initializeVisualizers();
         
         // イベントリスナー設定
         this.setupEventListeners();
@@ -89,6 +93,27 @@ console.log('🚀 Future Simulator Integration Loading...');
     }
 
     /**
+     * ScenarioDBProviderのロード
+     */
+    async ensureScenarioDBProvider() {
+      if (!this.useScenarioDB) return false;
+      if (global.ScenarioDBProvider) {
+        if (!this.scenarioDB) this.scenarioDB = new global.ScenarioDBProvider({ basePath: '/data/scenario-db', preferEasy: true });
+        return true;
+      }
+      // 動的ロード
+      await new Promise((resolve) => {
+        const s = document.createElement('script');
+        s.src = '/js/providers/ScenarioDBProvider.js';
+        s.onload = () => resolve(true);
+        s.onerror = () => resolve(false);
+        document.head.appendChild(s);
+      });
+      if (global.ScenarioDBProvider && !this.scenarioDB) this.scenarioDB = new global.ScenarioDBProvider({ basePath: '/data/scenario-db', preferEasy: true });
+      return !!this.scenarioDB;
+    }
+
+    /**
      * ビジュアライザー初期化
      */
     initializeVisualizers() {
@@ -112,6 +137,14 @@ console.log('🚀 Future Simulator Integration Loading...');
         if (scenariosContainer) {
           this.scenariosDisplay.initialize('eight-scenarios-display');
         }
+      }
+
+      // 8分岐表示（EightBranchesDisplay）とユーティリティ
+      if (window.EightBranchesDisplay) {
+        this.branchesDisplay = new window.EightBranchesDisplay();
+      }
+      if (window.BranchGenerator) {
+        this.branchGenerator = new window.BranchGenerator();
       }
       
       // 結果ページコントローラー初期化
@@ -228,8 +261,8 @@ console.log('🚀 Future Simulator Integration Loading...');
           this.updateChoiceCards(analysis.currentSituation);
         }
       }
-      
-      // 1. 現在の状況表示（既存の表示も維持）
+
+      // 1. 現在の状況表示（既存表示のみ）
       this.displayCurrentSituation(analysis.currentSituation);
       
       // 2. 3段階プロセスの可視化
@@ -247,11 +280,8 @@ console.log('🚀 Future Simulator Integration Loading...');
           const newContainer = document.createElement('div');
           newContainer.id = 'three-stage-visualizer';
           newContainer.style.marginTop = '2rem';
-          
-          const resultArea = document.getElementById('resultArea');
-          if (resultArea) {
-            resultArea.appendChild(newContainer);
-          }
+          const mount = document.getElementById('resultsContainer') || document.body;
+          mount.appendChild(newContainer);
           
           this.visualizer.initialize('three-stage-visualizer');
         }
@@ -262,28 +292,46 @@ console.log('🚀 Future Simulator Integration Loading...');
         );
       }
       
-      // 3. 8つのシナリオ表示
-      if (this.scenariosDisplay && analysis.eightScenarios) {
+      // 3. 8つのシナリオ表示（3072DB優先）
+      if (this.scenariosDisplay) {
         const container = document.getElementById('eight-scenarios-display');
         if (!container) {
           // コンテナを作成
           const newContainer = document.createElement('div');
           newContainer.id = 'eight-scenarios-display';
           newContainer.style.marginTop = '2rem';
-          
-          const resultArea = document.getElementById('resultArea');
-          if (resultArea) {
-            resultArea.appendChild(newContainer);
-          }
+          const mount = document.getElementById('resultsContainer') || document.body;
+          mount.appendChild(newContainer);
           
           this.scenariosDisplay.initialize('eight-scenarios-display');
         }
         
-        // 8つのシナリオ表示を有効化（動的データ表示のため）
-        if (analysis.eightScenarios && analysis.eightScenarios.length > 0) {
+        // 8つのシナリオ表示を有効化（DB→フォールバック）
+        let scenariosToShow = analysis.eightScenarios || [];
+        const startHex = analysis.currentSituation?.hexagramNumber;
+        const startLineName = analysis.currentSituation?.yaoName || '';
+        const lineMap = { '初九':1,'九二':2,'九三':3,'九四':4,'九五':5,'上九':6,'初六':1,'六二':2,'六三':3,'六四':4,'六五':5,'上六':6 };
+        const startLine = lineMap[startLineName];
+        if (this.useScenarioDB && startHex && startLine) {
+          const ok = await this.ensureScenarioDBProvider();
+          if (ok) {
+            try {
+              const dbItems = await this.scenarioDB.getAllForStart(startHex, startLine);
+              if (dbItems && dbItems.length) {
+                scenariosToShow = this.mapDbItemsToUIScenarios(dbItems, analysis.currentSituation);
+              }
+            } catch (e) { console.warn('ScenarioDB fallback used:', e.message); }
+          }
+        }
+
+        if (scenariosToShow && scenariosToShow.length > 0) {
+          // 入力テキストを現在地バーに連携
+          try { if (typeof this.scenariosDisplay.setUserInput === 'function') { this.scenariosDisplay.setUserInput(analysis.inputText || ''); } } catch {}
           this.scenariosDisplay.displayScenarios(
-            analysis.eightScenarios,
-            analysis.threeStageProcess
+            scenariosToShow,
+            analysis.threeStageProcess,
+            analysis.currentSituation,
+            analysis.topCandidates || []
           );
           
           // アニメーション開始
@@ -293,13 +341,57 @@ console.log('🚀 Future Simulator Integration Loading...');
         } else {
           console.warn('⚠️ No eightScenarios data available for display');
         }
+      } else if (this.branchesDisplay && this.branchGenerator) {
+        // フォールバック: EightBranchesDisplay + BranchGenerator で表示
+        try {
+          const startHex = analysis.currentSituation?.hexagramNumber;
+          const startLine = analysis.currentSituation?.yaoPosition;
+          if (Number.isFinite(startHex) && Number.isFinite(startLine) && startHex > 0 && startLine > 0) {
+            let container = document.getElementById('eight-branches-display');
+            if (!container) {
+              container = document.createElement('div');
+              container.id = 'eight-branches-display';
+              container.style.marginTop = '2rem';
+              const mount = document.getElementById('resultsContainer') || document.body;
+              mount.appendChild(container);
+            }
+            this.branchesDisplay.initialize('eight-branches-display');
+            const branches = await this.branchGenerator.generateEightBranches(startHex, startLine);
+            this.branchesDisplay.displayBranches(branches, analysis.currentSituation);
+            // Delayed verification and single retry if grid is empty
+            try {
+              let retried = false;
+              setTimeout(() => {
+                try {
+                  const root = document.getElementById('eight-branches-display');
+                  const grid = root ? root.querySelector('[data-role="branches-grid"]') : null;
+                  const cardCount = grid ? grid.childElementCount : 0;
+                  if (root && cardCount === 0 && !retried) {
+                    retried = true;
+                    this.branchesDisplay.displayBranches(branches, analysis.currentSituation);
+                  }
+                } catch {}
+              }, 80);
+            } catch {}
+          } else {
+            console.warn('EightBranches fallback skipped: invalid start hex/line');
+          }
+        } catch (e) {
+          console.warn('EightBranches fallback failed:', e?.message || e);
+        }
       }
       
-      // 4. 結果エリアを表示
-      const resultArea = document.getElementById('resultArea');
-      if (resultArea) {
-        resultArea.style.display = 'block';
-        resultArea.scrollIntoView({ behavior: 'smooth' });
+      // 4. 結果エリアを表示（resultsContainer優先）
+      const resultsContainer = document.getElementById('resultsContainer');
+      if (resultsContainer) {
+        resultsContainer.style.display = 'block';
+        try { resultsContainer.scrollIntoView({ behavior: 'smooth' }); } catch {}
+      } else {
+        const resultArea = document.getElementById('resultArea');
+        if (resultArea) {
+          resultArea.style.display = 'block';
+          try { resultArea.scrollIntoView({ behavior: 'smooth' }); } catch {}
+        }
       }
       
       // 分析完了フラグを設定
@@ -311,6 +403,71 @@ console.log('🚀 Future Simulator Integration Loading...');
         ichingSection.style.display = 'block';
         ichingSection.style.opacity = '1';
       }
+    }
+
+    
+
+    // DB→UIシナリオへのマッピング
+    mapDbItemsToUIScenarios(dbItems, currentSituation) {
+      const sigToRoute = (sig) => Array.from(String(sig)).map(ch => ch==='J' ? 'progress' : 'transform');
+      const sigOrder = ['JJJ','JJH','JHJ','JHH','HJJ','HJH','HHJ','HHH'];
+      // H384から名前取得
+      const startName = currentSituation?.hexagramName || '';
+      const startYao = currentSituation?.yaoName || '';
+      const startLineNumber = (() => { const m={ '初九':1,'九二':2,'九三':3,'九四':4,'九五':5,'上九':6,'初六':1,'六二':2,'六三':3,'六四':4,'六五':5,'上六':6 }; return m[startYao]||1; })();
+
+      const scenarios = [];
+      sigOrder.forEach((sig, idx) => {
+        const item = dbItems.find(x => x.pathSig === sig);
+        if (!item) return;
+        const s = {
+          id: idx+1,
+          path: sigToRoute(sig),
+          route: sigToRoute(sig),
+          probability: Math.round(((item.probability ?? 0.5) * 100)),
+          hexagramInfo: { name: startName, line: startYao, lineNumber: startLineNumber },
+          targetHexagram: { name: this.getHexName(item.finalHex) || '到達卦', line: this.getYaoName(item.finalLine) || '', lineNumber: item.finalLine },
+          finalHex: item.finalHex,
+          finalLine: item.finalLine,
+          // DBのseriesを優先利用できるように拡張フィールドで渡す
+          dbSeries: item.series,
+          steps: Array.isArray(item.steps) ? item.steps : []
+        };
+        // easy優先のタイトル/説明（lowReadingLevel=true または __easyPreferred）
+        try {
+          const low = (window.HAQEI_CONFIG?.featureFlags?.lowReadingLevel !== false);
+          if ((low || item.__easyPreferred) && item.easy) {
+            const ez = item.easy;
+            s.title = String(ez.oneLine||'').trim();
+            const parts = [];
+            if (ez.next3) parts.push(`まず: ${ez.next3.first}`);
+            if (ez.next3) parts.push(`つぎ: ${ez.next3.second}`);
+            if (ez.next3) parts.push(`最後: ${ez.next3.final}`);
+            if (Array.isArray(ez.why) && ez.why.length) parts.push(`ここがいい: ${ez.why.join('、')}`);
+            if (ez.caution) parts.push(`注意: ${ez.caution}`);
+            s.description = parts.join(' / ');
+            s.easy = ez;
+          }
+        } catch {}
+        scenarios.push(s);
+      });
+      return scenarios;
+    }
+
+    getHexName(hex) {
+      try {
+        const h = Number(hex);
+        if (!window.H64_DATA || !Number.isFinite(h)) return '';
+        const entry = window.H64_DATA[h-1];
+        return entry && entry['卦名'] ? String(entry['卦名']).trim() : '';
+      } catch { return ''; }
+    }
+
+    getYaoName(line) {
+      const map = {1:'初九',2:'九二',3:'九三',4:'九四',5:'九五',6:'上九'};
+      const alt = {1:'初六',2:'六二',3:'六三',4:'六四',5:'六五',6:'上六'};
+      // 陽/陰は不明のため九側を既定、H384ベースで必要なら後日拡張
+      return map[line] || alt[line] || '';
     }
 
     /**

@@ -1,65 +1,34 @@
-name: "haqei-analyzer"
-description: "易経×AI×分人思想による革新的自己理解支援ツール"
-language: "javascript"
+project:
+  name: "haqei-analyzer"
+  description: "HAQEI Analyzer + Serena MCP 設定"
+  context: "haqei-development"
+  architecture: "triple_os"
 
-# 言語サーバー設定
-language_servers:
-  javascript:
-    enabled: true
-    server_type: "typescript-language-server"
-    initialization_options:
-      preferences:
-        includePackageJsonAutoImports: "auto"
-        includeCompletionsForModuleExports: true
-        includeCompletionsWithInsertText: true
-
-  python:
-    enabled: true
-    server_type: "pyright"
-    settings:
-      python:
-        analysis:
-          typeCheckingMode: "basic"
-          autoImportCompletions: true
-
-# ファイル監視・除外設定
-file_handling:
-  watch_patterns:
-    - "**/*.js"
-    - "**/*.html"
-    - "**/*.css"
-    - "**/*.md"
-    - "**/*.yaml"
-    - "**/*.yml"
-    - "**/*.json"
-    - "**/*.vue"
-    - "**/*.ts"
-  
-  ignore_patterns:
-    - "node_modules/**"
-    - ".git/**"
-    - "logs/**"
-    - "data/cipher-memory/**"
-    - "*.log"
-    - ".venv/**"
-    - "__pycache__/**"
-    - "dist/**"
-    - "build/**"
-
-# プロジェクト構造定義
-structure:
-  source_directories:
-    - "haqei-vue/src"
-    - "public/js"
-    - "agents"
-    - "functions"
-    - "scripts"
-  
-  documentation_directories:
-    - "docs"
-  
-  configuration_files:
-    - "package.json"
-    - "haqei-vue/package.json"
-    - "vite.config.ts"
-    - "haqei-vue/vite.config.ts"
+serena:
+  modes: ["interactive", "editing", "planning"]
+  tools:
+    enabled:
+      - file_tools
+      - symbol_tools
+      - memory_tools
+      - config_tools
+      - workflow_tools
+  logging:
+    # 記録対象は「コード作成/修正/方針決定」に限定
+    decisions_log: ".serena/decisions.ndjson"
+    policy:
+      - on: "session_start"
+        action: "append-decision-entry"
+      - on: "decision"
+        action: "append-decision-entry"
+      - on: "session_end"
+        action: "append-decision-entry"
+    redaction:
+      remove_keys: ["apiKey", "token", "password", "authorization"]
+  enforcement:
+    # どのエージェントを開いても最初に Serena チェックを行う
+    require_serena_check_on_session_start: true
+    checklist:
+      - "project.yml が存在し最新化されている"
+      - ".serena/decisions.ndjson に本セッションの start 記録がある"
+      - "本セッションの目的/方針/暫定プランが記載されている"

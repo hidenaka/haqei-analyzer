@@ -81,14 +81,29 @@ class ResultPageController {
         resultArea.style.display = 'block';
       }
       
-      // 各要素の更新
+      // 各要素の更新（EightBranchesモードでは数値/グラフ/旧8シナリオを抑止）
+      const minimalMode = (window.HAQEI_CONFIG && window.HAQEI_CONFIG.useEightBranches) !== false;
       await this.updateCurrentPosition(analysisData);
-      await this.updateScores(analysisData);
-      await this.renderCurrentGraph(analysisData);
-      await this.updateIChingInterpretation(analysisData);
-      await this.renderFutureBranchingGraph(analysisData);
-      await this.updateThemeBoxes(analysisData);
-      await this.renderEightScenarios(analysisData);
+      if (!minimalMode) {
+        await this.updateScores(analysisData);
+        await this.renderCurrentGraph(analysisData);
+        await this.updateIChingInterpretation(analysisData);
+        await this.renderFutureBranchingGraph(analysisData);
+        await this.updateThemeBoxes(analysisData);
+        await this.renderEightScenarios(analysisData);
+      } else {
+        // EightBranchesモードでは、不要要素を明示的に非表示
+        const hideById = (id) => { const el = document.getElementById(id); if (el) el.style.display = 'none'; };
+        hideById('overall-score');
+        hideById('overall-label');
+        hideById('transition-score');
+        hideById('transition-label');
+        hideById('currentPositionChart');
+        hideById('futureBranchingChart');
+        hideById('ichingInterpretation');
+        // 旧8シナリオ領域（存在すれば）
+        hideById('eight-scenarios-display');
+      }
       
       console.log('✅ Results displayed successfully');
       
@@ -102,6 +117,13 @@ class ResultPageController {
    */
   async loadH384Data(analysisData) {
     try {
+      // Personalized overrides lazy-load
+      if (!window.H384_PERSONAL) {
+        try {
+          const r = await fetch('/assets/H384H64database.personal.json', { cache:'no-cache' });
+          if (r.ok) window.H384_PERSONAL = await r.json();
+        } catch {}
+      }
       // H384_DATAがグローバルに定義されているかチェック
       if (typeof H384_DATA === 'undefined') {
         console.warn('⚠️ H384_DATA not loaded, loading now...');
@@ -121,7 +143,13 @@ class ResultPageController {
         
         if (h384Entry) {
           // データを分析データに統合
-          analysisData.h384Data = h384Entry;
+          const serial = serialNumber;
+          const override = (window.H384_PERSONAL && window.H384_PERSONAL[String(serial)]) || null;
+          const merged = { ...h384Entry };
+          if (override && override['現代解釈の要約_plain']) {
+            merged['現代解釈の要約'] = override['現代解釈の要約_plain'];
+          }
+          analysisData.h384Data = merged;
           
           // スコアデータの統合
           analysisData.overallScore = h384Entry['S7_総合評価スコア'] || 50;
@@ -142,10 +170,10 @@ class ResultPageController {
           }
           
           // キーワードと解釈の追加
-          analysisData.keywords = h384Entry['キーワード'] || [];
-          analysisData.modernInterpretation = h384Entry['現代解釈の要約'] || '';
+          analysisData.keywords = merged['キーワード'] || [];
+          analysisData.modernInterpretation = merged['現代解釈の要約'] || '';
           
-          console.log('✅ H384 data loaded:', h384Entry);
+          console.log('✅ H384 data loaded:', merged);
         } else {
           console.warn(`⚠️ No H384 data found for serial number: ${serialNumber}`);
         }
@@ -190,15 +218,44 @@ class ResultPageController {
         if (hexagramInfoElement) {
           hexagramInfoElement.textContent = `${hexagramName} ${yaoName}`;
         }
-        
-        if (themeDescElement) {
-          themeDescElement.innerHTML = `<p>${modernInterp}</p>`;
+        // EightBranchesモードでは主理由は別ブロック(now-main-reason)が担うため、ここでは記述しない
+        const minimalMode = (window.HAQEI_CONFIG && window.HAQEI_CONFIG.useEightBranches) !== false;
+        if (!minimalMode && themeDescElement) {
+          const personalized = this._toPersonalPerspective(modernInterp);
+          themeDescElement.innerHTML = `<p>${personalized}</p>`;
+        } else if (themeDescElement) {
+          themeDescElement.style.display = 'none';
         }
       }
       
     } catch (error) {
       console.error('❌ Failed to update current position:', error);
     }
+  }
+
+  // 個人視点への軽い置換（EightBranchesDisplayに合わせる）
+  _toPersonalPerspective(text){
+    try {
+      let t = String(text||'');
+      const rules = [
+        [/組織|チーム|部門|部署|社内横断|部門横断/g, '関係資源'],
+        [/周囲|関係者|メンバー|人々|大衆|皆/g, '必要な相手'],
+        [/仲間と共に|皆で|協働|共創/g, '自分のペースで周囲を活用し'],
+        [/協力を得て/g, '必要な支援や資源を整えて'],
+        [/合意形成/g, '自分の中の納得と優先順位付け'],
+        [/リーダーシップ/g, '自己決定と自己管理'],
+        [/信頼を得て/g, '一貫性を積み重ねて'],
+        [/求心力/g, '軸の明確さ'],
+        [/評価|称賛|支持/g, '手応え'],
+        [/関係を丁寧に整え/g, '自分の作業環境を整え'],
+        [/協力関係/g, '関係資源の使い方'],
+        [/周囲の信頼/g, '自分への信頼と一貫性'],
+        [/目標を共有/g, '目的を自分の言葉で明確にし'],
+        [/メンバー/g, '関係資源']
+      ];
+      rules.forEach(([a,b])=>{ t = t.replace(a,b); });
+      return t;
+    } catch { return String(text||''); }
   }
 
   /**

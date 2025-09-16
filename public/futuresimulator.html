@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Future Simulator (詳細版対応)</title>
+    <link rel="icon" href="favicon.ico" />
+    <link rel="stylesheet" href="./css/index.css" />
+    <style>
+      :root { --bg:#0f172a; --panel:#111827; --panel-2:#1f2937; --border:#374151; --text:#e5e7eb; --muted:#9ca3af; --accent:#6366f1; --accent-2:#22c55e; }
+      body { background: var(--bg); color: var(--text); font-family: Inter, "Noto Sans JP", system-ui, -apple-system, sans-serif; margin: 0; }
+      .container { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+      h1 { margin: 0 0 12px; font-size: 22px; }
+      .muted { color: var(--muted); font-size: 13px; }
+      .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+      .panel-2 { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+      .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+      .grid { display: grid; gap: 12px; }
+      @media (min-width: 900px){ .grid-2 { grid-template-columns: 320px 1fr; } }
+      .label { width: 80px; color: var(--muted); font-size: 13px; }
+      select, input[type="number"], button { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 14px; }
+      button { cursor: pointer; }
+      button.primary { background: var(--accent); border-color: transparent; }
+      button.ghost { background: transparent; border-color: var(--border); }
+      .inline { display: inline-flex; gap: 8px; align-items: center; }
+      .pattern-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; }
+      .pattern-item { display: flex; align-items: center; justify-content: center; padding: 8px 6px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+      .pattern-item[aria-checked="true"] { outline: 2px solid var(--accent); }
+      .pattern-badge { display: inline-flex; gap: 2px; }
+      .badge-J, .badge-H { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+      .badge-J { background: #60a5fa; }
+      .badge-H { background: #f59e0b; }
+      .value { line-height: 1.9; white-space: pre-wrap; }
+      .one-line { font-size: 16px; }
+      .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.14), rgba(255,255,255,0.06)); background-size: 200% 100%; animation: shine 1.2s ease-in-out infinite; border-radius: 8px; }
+      .skeleton.line { height: 16px; margin: 8px 0; }
+      @keyframes shine { 0%{ background-position: 200% 0; } 100%{ background-position: -200% 0; } }
+      .keywords { display: flex; gap: 6px; flex-wrap: wrap; }
+      .kw { font-size: 12px; padding: 2px 8px; border-radius: 9999px; background: rgba(99,102,241,0.12); border:1px solid rgba(99,102,241,0.35); color:#c7d2fe; }
+      .result-meta { color: var(--muted); font-size: 13px; }
+      .fav-list { display:flex; gap:8px; flex-wrap: wrap; }
+      .fav { font-size: 12px; padding: 4px 8px; border-radius: 9999px; background: rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.35); color:#bbf7d0; cursor: pointer; }
+      .search-results { display: grid; gap: 8px; }
+      .search-item { background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 8px; cursor: pointer; }
+      .small { font-size: 12px; color: var(--muted); }
+      .header { display:flex; align-items:center; justify-content: space-between; gap: 12px; }
+      .mode-toggle { display: inline-flex; gap: 6px; background: var(--panel-2); padding: 4px; border-radius: 8px; border:1px solid var(--border); }
+      .mode-toggle button { padding: 6px 10px; border-radius: 6px; }
+      .mode-toggle button[aria-pressed="true"] { background: var(--accent); border-color: transparent; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div>
+          <h1>Future Simulator</h1>
+          <div class="muted">3072通りのoneLineに対応。hex/line/patternを即時表示。</div>
+        </div>
+        <div class="mode-toggle" role="group" aria-label="表示モード">
+          <button id="mode-detailed" aria-pressed="true">詳細</button>
+          <button id="mode-simple" aria-pressed="false">簡易</button>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top:16px;">
+        <section class="panel" aria-label="選択コントロール">
+          <div class="row">
+            <div class="label">hex</div>
+            <select id="hexSelect" aria-label="卦を選択"></select>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <div class="label">line</div>
+            <input id="lineSelect" type="number" min="1" max="6" step="1" value="1" aria-label="爻を選択" />
+            <div class="inline">
+              <button class="ghost" id="prevLine" aria-label="前の爻">◀︎</button>
+              <button class="ghost" id="nextLine" aria-label="次の爻">▶︎</button>
+            </div>
+          </div>
+          <div style="margin-top:12px;">
+            <div class="label" style="margin-bottom:6px;">パターン</div>
+            <div id="patternGrid" class="pattern-grid" role="radiogroup" aria-label="J/Hパターン"></div>
+            <div class="inline" style="margin-top:8px;">
+              <button id="prevPattern" class="ghost">Prev</button>
+              <button id="nextPattern" class="ghost">Next</button>
+            </div>
+          </div>
+
+          <div class="panel-2" style="margin-top:16px;">
+            <div class="row">
+              <input id="searchInput" type="text" placeholder="キーワード検索（読み込み済みから）" style="flex:1;" />
+              <button id="searchBtn" class="ghost">検索</button>
+            </div>
+            <div id="searchResults" class="search-results" style="margin-top:8px;"></div>
+          </div>
+
+          <div class="panel-2" style="margin-top:16px;">
+            <div class="row" style="justify-content: space-between;">
+              <div class="small">お気に入り</div>
+              <button id="favBtn" class="ghost">★ 追加</button>
+            </div>
+            <div id="favList" class="fav-list" style="margin-top:6px;"></div>
+          </div>
+        </section>
+
+        <section class="panel" aria-live="polite" aria-atomic="true">
+          <div id="status" class="small">読み込み待機中…</div>
+          <div id="keywords" class="keywords" style="margin:8px 0 6px;"></div>
+          <div id="oneLine" class="one-line value skeleton line" style="height: 24px;"></div>
+          <div id="meta" class="result-meta" style="margin-top:8px;"></div>
+        </section>
+      </div>
+
+      <div class="small" style="margin-top:10px;">ヒント: hex前後(±2)を先読み。ローカルに直近の選択を保存します。</div>
+    </div>
+
+    <script src="./js/scenario-easy-loader.js"></script>
+    <script src="./js/data-loader.js"></script>
+    <script src="./js/future-simulator.js"></script>
+  </body>
+  </html>
+

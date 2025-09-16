@@ -1,0 +1,57 @@
+name: E2E EightBranches
+
+on:
+  push:
+    branches: [ main, master, '**/eight-branches**', 'recovery/**' ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Start static server
+        run: |
+          nohup npx http-server dist -p 8789 -c-1 >/dev/null 2>&1 &
+          echo $! > server.pid
+          sleep 2
+
+      - name: Run smoke test
+        env:
+          PORT: 8789
+          SERENA_ENDPOINT: ${{ secrets.SERENA_ENDPOINT }}
+          SERENA_TOKEN: ${{ secrets.SERENA_TOKEN }}
+        run: node scripts/run-playwright-smoke.mjs
+
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then kill $(cat server.pid) || true; fi
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eight-branches-artifacts
+          path: artifacts/**
+          if-no-files-found: ignore
+

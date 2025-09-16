@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>3フェーズまとめ 手動レビュー</title>
+    <link rel="stylesheet" href="../css/haqei-unified-design.css" />
+    <style>
+      body { background: var(--white); }
+      .wrap { max-width: 1100px; margin: 16px auto; padding: 0 12px; }
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      textarea { width: 100%; min-height: 200px; font-size: 14px; line-height: 1.8; }
+      .toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+      .pill { display:inline-block; padding: 2px 8px; border-radius: 999px; border:1px solid var(--gray-200); background: var(--gray-50); font-size: 12px; color: var(--gray-700); }
+      .small { font-size: 12px; color: var(--gray-600); }
+      .ok { color:#16a34a; }
+      .warn { color:#f59e0b; }
+      .bad { color:#ef4444; }
+      .status-line { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+      .key { font-weight: 600; color: var(--primary-blue-dark); }
+      .footer { display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+      .muted { color: var(--gray-500); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">3フェーズまとめ 手動レビュー</div>
+        </div>
+        <div class="card-body">
+          <div class="toolbar">
+            <button class="btn btn-sm" id="prevBtn">前へ</button>
+            <button class="btn btn-sm" id="nextBtn">次へ</button>
+            <button class="btn btn-sm" id="markDoneBtn">確認済みにする</button>
+            <button class="btn btn-sm btn-secondary" id="exportBtn">変更をエクスポート</button>
+            <span class="pill" id="progressPill">0 / 0</span>
+            <select id="filterHex" class="form-control" style="max-width:220px"></select>
+            <select id="filterPos" class="form-control" style="max-width:120px">
+              <option value="">爻: すべて</option>
+              <option>初九</option><option>九二</option><option>九三</option><option>九四</option><option>九五</option><option>上六</option><option>上九</option><option>用九</option><option>用六</option>
+            </select>
+            <select id="filterPat" class="form-control" style="max-width:140px">
+              <option value="">パターン: すべて</option>
+              <option>JJJ</option><option>JJH</option><option>JHJ</option><option>JHH</option>
+              <option>HJJ</option><option>HJH</option><option>HHJ</option><option>HHH</option>
+            </select>
+            <label class="small"><input type="checkbox" id="onlyUndone"/> 未確認のみ</label>
+          </div>
+
+          <div class="status-line" style="margin-top:10px">
+            <span class="key" id="entryKey"></span>
+            <span class="pill" id="routePill"></span>
+            <span class="pill" id="patPill"></span>
+            <span id="qualityPill" class="pill"></span>
+            <span id="donePill" class="pill"></span>
+          </div>
+
+          <div class="grid-2" style="margin-top:12px">
+            <div>
+              <div class="small muted">本文（chain_long）</div>
+              <textarea id="bodyBox"></textarea>
+              <div class="footer small">
+                <span id="stats"></span>
+                <span id="guideline" class="muted">ガイド: 3〜6文 / 1文80字以内 / 接続の自然さ（まず→続いて→最後に）</span>
+              </div>
+            </div>
+            <div>
+              <div class="small muted">適する場面 / 注意点（任意）</div>
+              <textarea id="suitBox" style="min-height:80px" placeholder="例: 小さく始めて着実に伸ばしたい場面"></textarea>
+              <textarea id="cautionBox" style="min-height:80px; margin-top:8px" placeholder="例: 切替前に合意形成、影響範囲の可視化"></textarea>
+              <div style="margin-top:8px">
+                <button class="btn btn-sm" id="saveBtn">このエントリを保存（ブラウザ内）</button>
+                <span class="small" id="saveHint"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- data (file://対応) -->
+    <script src="../data/narratives_chain.v1.js"></script>
+    <script src="./narratives-review.js"></script>
+  </body>
+  </html>
+

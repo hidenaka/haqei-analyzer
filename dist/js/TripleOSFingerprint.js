@@ -71,14 +71,21 @@ class TripleOSFingerprint {
     setupCanvas() {
         if (!this.canvas) return;
         
-        // Retina対応
+        // Retina対応（最大サイズ制限付き）
+        const MAX_DIMENSION = 4000; // API制限の半分以下に設定
         const dpr = window.devicePixelRatio || 1;
         const rect = this.canvas.getBoundingClientRect();
         
-        this.canvas.width = rect.width * dpr;
-        this.canvas.height = rect.height * dpr;
+        // サイズを制限
+        const width = Math.min(rect.width * dpr, MAX_DIMENSION);
+        const height = Math.min(rect.height * dpr, MAX_DIMENSION);
         
-        this.ctx.scale(dpr, dpr);
+        this.canvas.width = width;
+        this.canvas.height = height;
+        
+        // スケール調整
+        const actualDpr = Math.min(dpr, MAX_DIMENSION / Math.max(rect.width, rect.height));
+        this.ctx.scale(actualDpr, actualDpr);
         
         // キャンバスサイズに応じて頂点座標を調整
         this.adjustVertices(rect.width, rect.height);

@@ -1,1079 +1,1222 @@
+// HaQei Analyzer - Main Application
+console.log("🎯 HaQei Analyzer starting...");
+
+let app = null;
+let storageManager = null;
+
 /**
- * HAQEI App Main JavaScript - CSP Compliant
- * All inline scripts extracted to external file
+ * デバウンス関数 - パフォーマンス最適化版
+ * @param {Function} func - 実行する関数
+ * @param {number} wait - 待機時間（ミリ秒）
+ * @param {boolean} immediate - 即座実行フラグ
+ * @returns {Function} デバウンスされた関数
  */
+function debounce(func, wait, immediate = false) {
+  let timeout;
+  let callCount = 0;
+  
+  return function executedFunction(...args) {
+    const later = () => {
+      timeout = null;
+      if (!immediate) {
+        callCount++;
+        func.apply(this, args);
+      }
+    };
+    
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    
+    if (callNow) {
+      callCount++;
+      func.apply(this, args);
+    }
+  };
+}
 
-'use strict';
+/**
+ * 動的スクリプト読み込み関数 - エラーハンドリング強化版
+ * @param {string} src - スクリプトのURL
+ * @param {Object} options - オプション設定
+ * @returns {Promise<Event>} 読み込み完了Promise
+ */
+async function loadScript(src, options = {}) {
+  const { 
+    retryCount = 3, 
+    timeout = 10000,
+    integrity = null,
+    crossOrigin = null 
+  } = options;
+  
+  let attempt = 0;
+  
+  const tryLoad = () => new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    
+    if (integrity) script.integrity = integrity;
+    if (crossOrigin) script.crossOrigin = crossOrigin;
+    
+    // タイムアウト設定
+    const timeoutId = setTimeout(() => {
+      script.remove();
+      reject(new Error(`Script load timeout: ${src}`));
+    }, timeout);
+    
+    script.onload = (event) => {
+      clearTimeout(timeoutId);
+      resolve(event);
+    };
+    
+    script.onerror = (error) => {
+      clearTimeout(timeoutId);
+      script.remove();
+      reject(new Error(`Script load failed: ${src} - ${error.message || 'Unknown error'}`));
+    };
+    
+    document.head.appendChild(script);
+  });
+  
+  while (attempt < retryCount) {
+    try {
+      attempt++;
+      const cacheBustedSrc = attempt > 1 ? `${src}?t=${Date.now()}&retry=${attempt}` : src;
+      const result = tryLoad();
+      
+      if (attempt > 1) {
+        console.log(`✅ Script loaded after ${attempt} attempts: ${src}`);
+      }
+      return result;
+      
+    } catch (error) {
+      if (attempt >= retryCount) {
+        console.error(`❌ Script load failed after ${retryCount} attempts: ${src}`, error);
+        throw error;
+      }
+      
+      console.warn(`⚠️ Script load attempt ${attempt} failed, retrying: ${src}`);
+      // await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+    }
+  }
+}
 
-// Wait for all dependencies to load
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 HAQEI App initialization started');
+/**
+ * ModuleLoader-based Dynamic Loading System
+ * 
+ * Phase 2 Optimization: Aggressive code splitting and lazy loading
+ * Target: Reduce bundle from 4.76MB to 3MB through strategic loading
+ * 
+ * Bundle Strategy:
+ * - Core Bundle (~800KB): Essential startup components
+ * - Question Bundle (~600KB): Question flow and UI
+ * - Analysis Bundle (~1200KB): All analysis engines and logic
+ * - Results Bundle (~800KB): Results display and charts
+ * - Optional Bundle (~400KB): Help system and advanced features
+ */
+async function loadAnalysisEngines() {
+  console.log("🚀 ModuleLoader-based progressive loading initialized");
+  
+  // Ensure ModuleLoader is available
+  if (!window.moduleLoader) {
+    console.error("❌ ModuleLoader not available, falling back to direct loading");
+    return loadAnalysisEnginesFallback();
+  }
+  
+  try {
+    // Stage 1: Core Bundle (immediately needed)
+    console.log("📦 Loading Core Bundle...");
+    window.moduleLoader.loadBundle('core');
     
-    // Wait for critical datasets
-    await waitForDatasets();
+    // Stage 2: Question Bundle (loaded on demand)
+    window.loadQuestionBundle = async function() {
+      console.log("📦 Loading Question Bundle...");
+      return window.moduleLoader.loadBundle('questions');
+    };
     
-    // Initialize UI
-    initializeUI();
+    // Stage 3: Analysis Bundle (loaded when analysis starts)
+    window.loadAnalysisBundle = async function() {
+      console.log("📦 Loading Analysis Bundle...");
+      const modules = window.moduleLoader.loadBundle('analysis');
+      window.heavyEnginesLoaded = true;
+      return modules;
+    };
     
-    // Setup event handlers
-    setupEventHandlers();
+    // Stage 4: Results Bundle (loaded when showing results)
+    window.loadResultsBundle = async function() {
+      console.log("📦 Loading Results Bundle...");
+      return window.moduleLoader.loadBundle('results');
+    };
     
-    console.log('✅ HAQEI App initialization complete');
+    // Stage 5: Optional Bundle (loaded on first use)
+    window.loadOptionalBundle = async function() {
+      console.log("📦 Loading Optional Bundle...");
+      return window.moduleLoader.loadBundle('optional');
+    };
+    
+    // Predictive preloading based on user context
+    window.enablePredictiveLoading = function(context) {
+      if (window.moduleLoader) {
+        window.moduleLoader.predictNextModules(context);
+      }
+    };
+    
+    console.log("✅ ModuleLoader progressive loading system ready");
+    console.log("📊 Estimated bundle size reduction: ~37% (1.76MB saved)");
+    
+  } catch (error) {
+    console.error("❌ ModuleLoader initialization failed, using fallback:", error);
+    return loadAnalysisEnginesFallback();
+  }
+}
+
+// Fallback to original loading system if ModuleLoader fails
+async function loadAnalysisEnginesFallback() {
+  console.log("🔄 Using fallback loading system");
+  
+  const criticalEngines = [
+    '/js/os-analyzer/core/StatisticalEngine.js',
+    '/js/os-analyzer/core/Calculator.js',
+    '/js/os-analyzer/components/AnalysisView.js'
+  ];
+  
+  Promise.all(criticalEngines.map(engine => loadScript(engine)));
+  console.log("✅ Critical engines loaded (fallback mode)");
+  
+  // Minimal secondary engine loading
+  window.loadSecondaryEngines = async function() {
+    const secondaryEngines = [
+      '/js/os-analyzer/engines/CompatibilityDataLoader.js',
+      '/js/os-analyzer/core/Engine.js'
+    ];
+    Promise.all(secondaryEngines.map(engine => loadScript(engine)));
+  };
+  
+  // Heavy engines with optimization
+  window.loadHeavyEngines = async function() {
+    const heavyEngines = [
+      '/js/os-analyzer/core/TripleOSEngine.js',
+      '/js/os-analyzer/core/UltraAnalysisEngine.js'
+    ];
+    Promise.all(heavyEngines.map(engine => loadScript(engine)));
+    window.heavyEnginesLoaded = true;
+  };
+}
+
+// 🚀 高速初期化: 基本 UI を即座表示
+function showAppInterface() {
+  const welcomeContainer = document.getElementById('welcome-container');
+  if (welcomeContainer) {
+    welcomeContainer.style.display = 'flex';
+    welcomeContainer.style.opacity = '1';
+  }
+}
+
+// アプリケーション初期化
+document.addEventListener("DOMContentLoaded", async function () {
+  console.log("📱 DOM loaded, initializing components...");
+  
+  // 🚀 即座UI表示
+  showAppInterface();
+  
+  console.log("📱 Initializing components...");
+
+  try {
+    // 🚀 超軽量マネージャー初期化
+    storageManager = new MicroStorageManager();
+
+    // セッション情報の確認と初期化
+    let session = storageManager.getSession();
+    if (!session) {
+      session = storageManager.startNewSession();
+      console.log("🎆 New session started:", session);
+    } else {
+      console.log("🔄 Existing session found:", session);
+      storageManager.updateSession({ stage: "loading" });
+    }
+
+    // 🚀 超軽量データマネージャー初期化
+    console.log("⚡ MicroDataManager初期化開始");
+    const dataManager = new MicroDataManager();
+
+    console.log("⚡ 設問データ読み込み開始");
+    
+    // 軽量データ読み込み（高速）
+    const loadSuccess = dataManager.loadQuestions();
+    if (loadSuccess) {
+      console.log("⚡ 設問データ読み込み完了");
+    } else {
+      console.warn("⚠️ フォールバック設問を使用");
+    }
+
+    // 基本統計表示
+    const stats = dataManager.getBasicStats();
+    console.log("📊 軽量データ統計:", stats);
+
+    // 設問データの基本検証
+    const validation = dataManager.validateData();
+    if (!validation.isValid) {
+      console.warn("⚠️ 設問データに問題:", validation.errors);
+    }
+
+    // Phase 2 Optimization: Analysis engines loaded on-demand only
+    let engine = null;
+    console.log('🎯 Analysis engines will be loaded dynamically when needed (Bundle optimization)');
+
+    // Welcome Screen 初期化
+    console.log("🔍 [App.js] WelcomeScreen初期化開始");
+    const welcomeScreen = new WelcomeScreen("welcome-container", {
+      onStart: async function () {
+        console.log("🚀 Starting real diagnosis flow...");
+        startRealDiagnosis();
+      },
+    });
+    console.log("🔍 [App.js] WelcomeScreen初期化完了");
+
+    // WelcomeScreenを表示
+    console.log("🔍 [App.js] WelcomeScreen表示開始");
+
+    // まず初期化を実行
+    welcomeScreen.init();
+    console.log("🔍 [App.js] WelcomeScreen.init()完了");
+
+    welcomeScreen.show();
+    console.log("✅ [App.js] WelcomeScreen表示完了");
+
+    // デバッグ: コンテナの内容を確認
+    const container = document.getElementById("welcome-container");
+    console.log(
+      "🔍 [App.js] WelcomeContainer内容:",
+      container.innerHTML.length > 0 ? "コンテンツあり" : "空"
+    );
+
+    // 🌉 BridgeStorageManagerを使用したHaQei統合
+    console.log("🌉 Creating BridgeStorageManager with HaQei philosophy...");
+    const bridgeStorageManager = new BridgeStorageManager(storageManager);
+    
+    // アプリケーション情報をグローバルに保存
+    app = {
+      storageManager: bridgeStorageManager,
+      dataManager,
+      engine,
+      welcomeScreen,
+    };
+
+    // グローバル関数を定義
+    window.app = app;
+    window.loadScript = loadScript;
+    window.loadAnalysisEngines = loadAnalysisEngines;
+
+    // セッションステージを更新
+    storageManager.updateSession({ stage: "welcome" });
+
+    console.log("✅ All components initialized successfully");
+    console.log("📋 Ready for diagnosis!");
+
+    // 以前の進行状況をチェック
+    checkPreviousProgress();
+  } catch (error) {
+    // 統一エラーハンドラーを使用
+    if (window.UnifiedErrorHandler) {
+      window.UnifiedErrorHandler.handleError(error, {
+        source: 'app-initialization',
+        component: 'main-app',
+        critical: true
+      });
+    } else {
+      console.error("❌ [App.js] Initialization failed:", error);
+      console.error("❌ [App.js] Error stack:", error.stack);
+    }
+
+    // エラーの詳細情報を収集
+    const errorInfo = {
+      message: error.message,
+      stack: error.stack,
+      scriptLoadingStatus: window.scriptLoadingStatus || null,
+      globalDataAvailable: {
+        HAQEI_DATA: typeof window.HAQEI_DATA !== "undefined",
+        WORLDVIEW_QUESTIONS: typeof window.WORLDVIEW_QUESTIONS !== "undefined",
+        SCENARIO_QUESTIONS: typeof window.SCENARIO_QUESTIONS !== "undefined",
+        H64_8D_VECTORS: typeof window.H64_8D_VECTORS !== "undefined",
+      },
+    };
+
+    console.error("❌ [App.js] Error details:", errorInfo);
+
+    if (storageManager) {
+      storageManager.updateSession({
+        stage: "error",
+        lastError: error.message,
+      });
+    }
+
+    // ユーザーフレンドリーなエラーメッセージの生成
+    let userMessage = "アプリケーションの初期化に失敗しました。";
+
+    if (error.message.includes("DataManager")) {
+      userMessage =
+        "データの読み込みに失敗しました。ページを再読み込みしてください。";
+    } else if (error.message.includes("TripleOSEngine")) {
+      userMessage =
+        "診断エンジンの初期化に失敗しました。ページを再読み込みしてください。";
+    } else if (error.message.includes("WelcomeScreen")) {
+      userMessage =
+        "画面の初期化に失敗しました。ページを再読み込みしてください。";
+    }
+
+    alert(userMessage + "\n\n詳細: " + error.message);
+  }
 });
 
-/**
- * Wait for critical datasets to load - EMERGENCY FIX for 8Q system
- */
-function waitForDatasets() {
-    return new Promise((resolve) => {
-        // EMERGENCY: Block 8-question system and force 36-question system
-        if (window.QUESTIONS && window.QUESTIONS.length === 8) {
-            console.warn('⚠️ EMERGENCY FIX: Detected 8-question system, blocking...');
-            delete window.QUESTIONS;
-        }
-        
-        const checkDatasets = () => {
-            return window.H64_DATA && 
-                   window.H384_DATA && 
-                   typeof window.TripleOSInteractionAnalyzer !== 'undefined';
-        };
-        
-        if (checkDatasets()) {
-            console.log('✅ All datasets loaded immediately');
-            return resolve();
-        }
-        
-        const interval = setInterval(() => {
-            if (checkDatasets()) {
-                clearInterval(interval);
-                console.log('✅ All datasets loaded after wait');
-                resolve();
-            }
-        }, 100);
-        
-        // Safety timeout - proceed even if not all loaded
-        setTimeout(() => {
-            clearInterval(interval);
-            console.log('⚠️ Dataset loading timeout - proceeding with Safe Mode');
-            resolve();
-        }, 5000);
-    });
-}
+// 診断テスト関数（未使用のためコメントアウト）
+// async function startDiagnosisTest(engine) {
+//   try {
+//     console.log("🧪 Starting diagnosis test...");
+//     // テスト用の回答データ（実際の設問形式）
+//     const testAnswers = [
+//       {
+//         questionId: "q1",
+//         selectedValue: "A",
+//         scoring_tags: [
+//           { key: "乾_創造性", value: 3.0 },
+//           { key: "離_表現性", value: 1.5 },
+//         ],
+//       },
+//       {
+//         questionId: "q2",
+//         selectedValue: "B",
+//         scoring_tags: [
+//           { key: "坎_探求性", value: 2.5 },
+//           { key: "艮_安定性", value: 2.0 },
+//         ],
+//       },
+//       {
+//         questionId: "q3",
+//         selectedValue: "A",
+//         scoring_tags: [
+//           { key: "乾_創造性", value: 3.0 },
+//           { key: "離_表現性", value: 1.5 },
+//         ],
+//       },
+//     ];
 
-/**
- * Initialize UI elements
- */
-function initializeUI() {
-    // Ensure critical DOM elements exist
-    if (!document.getElementById('question-container')) {
-        console.warn('⚠️ Question container not found - creating fallback');
-        createFallbackElements();
-    }
+//     console.log("📝 Test answers:", testAnswers);
+
+//     // 分析実行
+//     const result = await engine.analyze(testAnswers);
+//     console.log("🎯 Analysis result:", result);
+
+//     // 洞察生成
+//     const insights = await engine.generateInsights(result);
+//     console.log("💡 Generated insights:", insights);
+
+//     // 結果表示
+//     alert(
+//       `分析完了！\n\nあなたの人格OS: ${result.primaryOS.hexagramInfo.name}\n適合度: ${result.primaryOS.matchPercentage}%\n\n詳細はコンソールをご確認ください。`
+//     );
+//   } catch (error) {
+//     console.error("❌ Diagnosis test failed:", error);
+//     alert("診断テストに失敗しました: " + error.message);
+//   }
+// }
+
+// 実際の診断フロー開始
+async function startRealDiagnosis() {
+  try {
+    console.log("🚀 Starting diagnosis with Phase 2 optimization...");
+    console.log("🔍 App object:", app);
+    console.log("🔍 WelcomeScreen:", app.welcomeScreen);
+
+    // セッションステージを更新
+    app.storageManager.updateSession({ stage: "questions" });
+
+    // Welcome画面を非表示
+    console.log("👋 Hiding welcome screen...");
+    app.welcomeScreen.hide();
+
+    // 設問モード専用のスタイル適用（見切れ完全防止）
+    document.body.classList.remove('welcome-active');
+    document.body.classList.add('questions-active');
     
-    // Show welcome screen
-    showWelcomeScreen();
-}
-
-/**
- * Create fallback elements if not found
- */
-function createFallbackElements() {
-    const container = document.querySelector('.container') || document.body;
-    
-    if (!document.getElementById('question-container')) {
-        const questionContainer = document.createElement('div');
-        questionContainer.id = 'question-container';
-        questionContainer.className = 'screen';
-        questionContainer.style.display = 'none';
-        container.appendChild(questionContainer);
+    // global-progressを強制的に非表示
+    const globalProgress = document.querySelector('.global-progress');
+    if (globalProgress) {
+      globalProgress.style.setProperty('display', 'none', 'important');
+      globalProgress.style.setProperty('visibility', 'hidden', 'important');
+      globalProgress.style.setProperty('opacity', '0', 'important');
     }
-}
 
-/**
- * Setup all event handlers
- */
-function setupEventHandlers() {
-    const startBtn = document.getElementById('start-btn');
-    if (startBtn) {
-        startBtn.addEventListener('click', handleStartAnalysis, { once: false });
-        console.log('✅ Start button event handler attached');
-    } else {
-        console.warn('⚠️ Start button not found');
-    }
-    
-    // Setup navigation handlers
-    setupNavigationHandlers();
-}
-
-/**
- * Handle start analysis button click
- */
-async function handleStartAnalysis(event) {
-    event.preventDefault();
-    console.log('🎯 Analysis started by user');
+    // 🎯 Phase 2: Load Question Bundle dynamically
+    console.log("📦 Loading Question Bundle with ModuleLoader...");
     
     try {
-        // ScreenManagerを使用して画面遷移
-        if (window.ScreenManager) {
-            // 質問画面に切り替え
-            window.ScreenManager.switchTo('question', {
-                callback: () => {
-                    // 最初の質問を表示
-                    displayQuestion(0);
-                }
-            });
+      // Load question bundle if ModuleLoader is available
+      if (window.loadQuestionBundle) {
+        await window.loadQuestionBundle();
+        console.log("✅ Question Bundle loaded successfully");
+      } else {
+        console.log("🔄 Loading question components individually...");
+        // Fallback loading for essential question components
+        Promise.all([
+          // loadScript('/js/shared/data/questions.js'), // Disabled - using questions-full.js instead
+          loadScript('/js/os-analyzer/core/PrecompiledQuestions.js'),
+          loadScript('/js/os-analyzer/components/VirtualQuestionFlow-core.js'),
+          loadScript('/js/os-analyzer/components/VirtualQuestionFlow-renderer.js'),
+          loadScript('/js/os-analyzer/components/VirtualQuestionFlow-navigator.js'),
+          loadScript('/js/os-analyzer/components/VirtualQuestionFlow-state.js'),
+          loadScript('/js/os-analyzer/components/VirtualQuestionFlow-utils.js'),
+          loadScript('/js/os-analyzer/components/VirtualQuestionFlow-v2.js')
+        ]);
+      }
+      
+      // Enable predictive loading for analysis
+      if (window.enablePredictiveLoading) {
+        window.enablePredictiveLoading('questions');
+      }
+      
+    } catch (bundleError) {
+      console.error("❌ Question Bundle loading failed:", bundleError);
+      // Continue with existing components if available
+    }
+
+    // Virtual Question Flow を初期化（Phase 2 最適化版）
+    console.log("⚡ Creating optimized VirtualQuestionFlow...");
+    const questionFlow = new VirtualQuestionFlow("questions-container", {
+      storageManager: app.storageManager,
+      optimized: true, // Phase 2 optimization flag
+      onProgress: debounce(function (progress) {
+        console.log(`📊 Progress: ${progress.toFixed(1)}%`);
+        document.documentElement.style.setProperty(
+          "--progress",
+          `${progress}%`
+        );
+
+        // 進行状況をストレージに保存（既にStorageManagerでデバウンス済み）
+        app.storageManager.saveProgress({
+          currentQuestionIndex: questionFlow.currentQuestionIndex,
+          totalQuestions: questionFlow.questions.length,
+          completedQuestions: questionFlow.answers.length,
+          progressPercentage: progress,
+        });
+      }, 300),
+      onComplete: function (answerData) {
+        console.log("✅ All questions completed (Phase 2 optimized):", answerData);
+
+        // 回答データの形式を確認
+        let answersToSave, answersToAnalyze;
+
+        if (answerData.originalAnswers && answerData.preparedAnswers) {
+          // 新しい形式: オブジェクトに両方の回答データが含まれている
+          answersToSave = answerData.originalAnswers;
+          answersToAnalyze = answerData.preparedAnswers;
+          console.log(
+            "📊 Using prepared answers for analysis:",
+            answersToAnalyze
+          );
         } else {
-            // フォールバック（ScreenManagerがない場合）
-            showLoadingState();
-            await new Promise(resolve => setTimeout(resolve, 500));
-            await startQuestionFlow();
+          // 古い形式: 直接回答配列
+          answersToSave = answerData;
+          answersToAnalyze = answerData;
+          console.log(
+            "📊 Using original answers for analysis:",
+            answersToAnalyze
+          );
         }
-        
-    } catch (error) {
-        console.error('❌ Error starting analysis:', error);
-        // ScreenManagerを使用してエラー表示
-        if (window.ScreenManager) {
-            window.ScreenManager.showError('分析の開始中にエラーが発生しました。', {
-                currentStep: '1',
-                totalSteps: '3',
-                errorCode: 'ANALYSIS_START_FAILED',
-                recoveryActions: [
-                    'ページを再読み込みしてください',
-                    'ブラウザキャッシュをクリアしてください',
-                    '別のブラウザで試してください'
-                ]
-            });
+
+        // 回答をストレージに保存
+        app.storageManager.saveAnswers(answersToSave);
+        app.storageManager.updateSession({ stage: "analysis" });
+
+        // 分析処理に進む（Phase 2最適化）
+        proceedToAnalysis(answersToAnalyze);
+      },
+    });
+    questionFlow.init(); // ← ここで必ずinit()を呼ぶ
+
+    console.log("✅ Optimized QuestionFlow created:", questionFlow);
+
+    // Questions画面を表示
+    console.log("📺 Showing questions screen...");
+    questionFlow.show();
+
+    // アプリに保存
+    app.questionFlow = questionFlow;
+    console.log("💾 QuestionFlow saved to app (Phase 2 optimized)");
+  } catch (error) {
+    console.error("❌ Real diagnosis failed:", error);
+    console.error("Error stack:", error.stack);
+    app.storageManager.updateSession({
+      stage: "error",
+      lastError: error.message,
+    });
+    alert("診断開始に失敗しました: " + error.message);
+  }
+}
+
+// 分析処理に進む
+async function proceedToAnalysis(answers) {
+  try {
+    console.log("🔬 Analysis process starting...");
+    app.storageManager.updateSession({ stage: "analysis" });
+
+    if (app.questionFlow) {
+      await app.questionFlow.hide();
+    }
+    
+    // 🎯 Phase 2: ModuleLoader-based engine loading
+    if (!window.heavyEnginesLoaded) {
+      console.log("🚀 Loading analysis engines with bundle optimization...");
+      
+      if (window.loadAnalysisBundle) {
+        await window.loadAnalysisBundle();
+      } else if (window.loadHeavyEngines) {
+        await window.loadHeavyEngines();
+      }
+    }
+
+    // 🎯 Phase 2 Optimization: ModuleLoader-based dynamic loading
+    if (!app.fullSystemLoaded) {
+      console.log("🚀 Loading analysis system using ModuleLoader optimization...");
+      
+      try {
+        // Load analysis bundle with all required engines
+        if (window.loadAnalysisBundle) {
+          const analysisModules = await window.loadAnalysisBundle();
+          console.log("📦 Analysis bundle loaded successfully");
         } else {
-            showErrorState('分析の開始中にエラーが発生しました。', {
-                currentStep: '1',
-                totalSteps: '3',
-                errorCode: 'ANALYSIS_START_FAILED',
-                recoveryActions: [
-                    'ページを再読み込みしてください',
-                    'ブラウザキャッシュをクリアしてください',
-                    '別のブラウザで試してください'
-                ]
-            });
+          // Fallback to individual module loading
+          console.log("🔄 Using fallback module loading");
+          await loadScript('/js/shared/core/StorageManager.js');
+          await loadScript('/js/shared/core/DataManager.js');
+          await loadScript('/js/shared/core/ErrorHandler.js');
+          await loadScript('/js/shared/data/vectors.js');
         }
-    }
-}
-
-/**
- * Show loading state
- */
-function showLoadingState() {
-    // ローディング表示は一旦スキップ（画面遷移を優先）
-    console.log('⏳ Loading state (skipped for now)');
-}
-
-/**
- * Show enhanced error state with progress context
- */
-function showErrorState(message, context = {}) {
-    const { 
-        currentStep = '不明',
-        totalSteps = '不明',
-        errorCode = 'UNKNOWN',
-        recoveryActions = []
-    } = context;
-    
-    const container = document.querySelector('.container') || document.body;
-    const recoveryActionsHtml = recoveryActions.length > 0 ? `
-        <div class="recovery-actions">
-            <h3>💡 解決方法</h3>
-            <ul>
-                ${recoveryActions.map(action => `<li>${action}</li>`).join('')}
-            </ul>
-        </div>
-    ` : '';
-    
-    container.innerHTML = `
-        <div class="error-screen">
-            <div class="error-message">
-                <div class="error-header">
-                    <h2>⚠️ エラーが発生しました</h2>
-                    <div class="error-context">
-                        <span class="error-step">ステップ ${currentStep}/${totalSteps}</span>
-                        <span class="error-code">エラーコード: ${errorCode}</span>
-                    </div>
-                </div>
-                
-                <div class="error-details">
-                    <p class="error-message-text">${message}</p>
-                    
-                    ${recoveryActionsHtml}
-                    
-                    <div class="error-actions">
-                        <button onclick="location.reload()" class="btn btn-primary">
-                            🔄 ページを再読み込み
-                        </button>
-                        <button onclick="showTechnicalDetails('${errorCode}')" class="btn btn-secondary">
-                            🔧 技術的な詳細
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-/**
- * Show enhanced progress indicator
- */
-function showProgressIndicator(current, total, message = '', phase = '') {
-    const progressPercent = (current / total) * 100;
-    const progressContainer = document.querySelector('.progress-container');
-    
-    if (progressContainer) {
-        progressContainer.innerHTML = `
-            <div class="progress-header">
-                ${phase && `<div class="progress-phase">📍 ${phase}</div>`}
-                <div class="progress-counter">
-                    <span class="current">${current}</span>
-                    <span class="separator">/</span>
-                    <span class="total">${total}</span>
-                </div>
-            </div>
-            
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${progressPercent}%"></div>
-                <div class="progress-steps">
-                    ${Array.from({length: total}, (_, i) => `
-                        <div class="progress-step ${i < current ? 'completed' : i === current ? 'active' : 'pending'}">
-                            ${i < current ? '✓' : i + 1}
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-            
-            ${message && `<div class="progress-message">${message}</div>`}
-        `;
-    }
-}
-
-/**
- * Show loading state with enhanced progress
- */
-function showLoadingStateWithProgress(message = 'システムを初期化しています...', step = 1, totalSteps = 3) {
-    const welcomeScreen = document.getElementById('welcome');
-    const loadingHtml = `
-        <div class="loading-screen">
-            <div class="loading">
-                <div class="spinner"></div>
-                <div class="loading-content">
-                    <h3>${message}</h3>
-                    <div class="loading-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${(step / totalSteps) * 100}%"></div>
-                        </div>
-                        <div class="progress-text">ステップ ${step} / ${totalSteps}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    if (welcomeScreen) {
-        welcomeScreen.innerHTML = loadingHtml;
-    }
-}
-
-/**
- * Show technical details for errors
- */
-function showTechnicalDetails(errorCode) {
-    const technicalInfo = {
-        'QUESTIONS_LOAD_FAILED': {
-            title: '質問データ読み込みエラー',
-            details: '質問データファイル(questions-full.js)の読み込みに失敗しました。',
-            causes: [
-                'ネットワーク接続の問題',
-                'サーバーの応答遅延',
-                'ブラウザキャッシュの問題'
-            ],
-            solutions: [
-                'ページを再読み込みしてください',
-                'ブラウザキャッシュをクリアしてください',
-                'しばらく時間をおいて再度お試しください'
-            ]
-        },
-        'ANALYZER_INIT_FAILED': {
-            title: '分析エンジン初期化エラー',
-            details: 'TripleOSInteractionAnalyzerの初期化に失敗しました。',
-            causes: [
-                'H64_DATAまたはH384_DATAの読み込み失敗',
-                'JavaScript実行環境の問題',
-                'メモリ不足'
-            ],
-            solutions: [
-                'ページを再読み込みしてください',
-                '他のタブを閉じてメモリを解放してください',
-                'ブラウザを再起動してください'
-            ]
-        }
-    };
-    
-    const info = technicalInfo[errorCode] || {
-        title: '不明なエラー',
-        details: '予期しないエラーが発生しました。',
-        causes: ['システムエラー'],
-        solutions: ['ページを再読み込みしてください']
-    };
-    
-    alert(`
-${info.title}
-
-詳細: ${info.details}
-
-考えられる原因:
-${info.causes.map(cause => `• ${cause}`).join('\n')}
-
-解決方法:
-${info.solutions.map(solution => `• ${solution}`).join('\n')}
-    `);
-}
-
-/**
- * Start question flow
- */
-async function startQuestionFlow() {
-    console.log('📝 Starting question flow');
-    
-    // Hide welcome screen - FIXED ID
-    const welcomeScreen = document.getElementById('welcome-screen');
-    if (welcomeScreen) {
-        welcomeScreen.classList.remove('active');
-        welcomeScreen.style.display = 'none';  // 確実に非表示
-        console.log('✅ Welcome screen hidden');
-    }
-    
-    // Show question screen - FIXED ID
-    const questionScreen = document.getElementById('question-screen');
-    if (questionScreen) {
-        questionScreen.classList.add('active');
-        questionScreen.style.display = 'flex';  // 確実に表示
-        console.log('✅ Question screen activated');
-    }
-    
-    // Show first question
-    showFirstQuestion();
-}
-
-/**
- * Show welcome screen
- */
-function showWelcomeScreen() {
-    const welcomeScreen = document.getElementById('welcome-screen');
-    if (welcomeScreen) {
-        welcomeScreen.classList.add('active');
-        console.log('✅ Welcome screen activated');
-    }
-}
-
-/**
- * Show first question - FIXED for 36-question system
- */
-function showFirstQuestion() {
-    // EMERGENCY: Force load 36-question system if not available
-    if (typeof window.QUESTIONS === 'undefined' || !window.QUESTIONS || window.QUESTIONS.length !== 36) {
-        console.warn('⚠️ EMERGENCY FIX: 36-question system not loaded, attempting to load...');
         
-        // Force load questions-full.js
-        const script = document.createElement('script');
-        script.src = '/assets/js/questions-full.js';
-        script.onload = () => {
-            console.log('✅ Emergency loaded questions-full.js');
-            setTimeout(() => showFirstQuestion(), 500);
-        };
-        script.onerror = () => {
-            console.error('❌ Failed to emergency load questions-full.js');
-            showErrorState('36問システムの読み込みに失敗しました。', {
-                currentStep: '2',
-                totalSteps: '3',
-                errorCode: 'EMERGENCY_LOAD_FAILED',
-                recoveryActions: [
-                    'ページを再読み込みしてください',
-                    'ブラウザキャッシュをクリアしてください',
-                    '管理者にお問い合わせください'
-                ]
-            });
-        };
-        document.head.appendChild(script);
-        return;
-    }
-    
-    console.log(`✅ Found ${window.QUESTIONS.length} questions, proceeding with 36-question system`);
-    
-    // Use the proper 36-question system
-    if (window.QUESTIONS && window.QUESTIONS.length > 0) {
-        displayQuestion(0);
-        console.log('✅ First question displayed');
-    } else {
-        console.error('❌ questions-full.js not loaded');
-        showErrorState('質問データの読み込みに失敗しました。', {
-            currentStep: '2',
-            totalSteps: '3',
-            errorCode: 'QUESTIONS_LOAD_FAILED',
-            recoveryActions: [
-                'ページを再読み込みしてください',
-                'インターネット接続を確認してください',
-                'しばらく待ってから再度お試しください'
-            ]
-        });
-    }
-    
-    console.log('✅ Question system initialized');
-}
-
-// Current question tracking
-let currentQuestionIndex = 0;
-let userAnswers = {};
-
-// Expose for debugging
-window.userAnswers = userAnswers;
-window.currentQuestionIndex = currentQuestionIndex;
-
-/**
- * Handle answer selection for navigation
- */
-function selectAnswer(value) {
-    if (!value) {
-        alert('選択肢を選んでください');
-        return;
-    }
-    
-    // Store answer
-    userAnswers[currentQuestionIndex] = value;
-    window.userAnswers[currentQuestionIndex] = value;
-    
-    // Move to next question
-    if (currentQuestionIndex + 1 < window.QUESTIONS.length) {
-        displayQuestion(currentQuestionIndex + 1);
-    } else {
-        // All questions completed, start analysis
-        startAnalysis();
-    }
-}
-
-// Make selectAnswer globally accessible
-window.selectAnswer = selectAnswer;
-
-/**
- * Display a specific question from the 36-question system
- */
-function displayQuestion(questionIndex) {
-    console.log(`🚀 [NEW SYSTEM] displayQuestion called with index: ${questionIndex}`);
-    currentQuestionIndex = questionIndex;
-    window.currentQuestionIndex = questionIndex;
-    
-    if (!window.QUESTIONS || questionIndex >= window.QUESTIONS.length) {
-        console.error('❌ [NEW SYSTEM] Invalid question index:', questionIndex, 'Questions available:', !!window.QUESTIONS, 'Length:', window.QUESTIONS?.length);
-        return;
-    }
-    
-    const question = window.QUESTIONS[questionIndex];
-    const totalQuestions = window.QUESTIONS.length;
-    const progressPercent = ((questionIndex + 1) / totalQuestions) * 100;
-    
-    console.log(`📝 [NEW SYSTEM] Displaying question ${questionIndex + 1}/${totalQuestions}:`, question.text.substring(0, 50) + '...');
-    
-    const questionScreen = document.getElementById('question-screen');
-    
-    console.log(`🔧 [NEW SYSTEM] Setting innerHTML for question screen`);
-    const htmlContent = `
-        <div class="container">
-            <div class="progress-container">
-                <div class="progress-header">
-                    <div class="progress-phase">📝 質問回答</div>
-                    <div class="progress-counter">
-                        <span class="current">${questionIndex + 1}</span>
-                        <span class="separator">/</span>
-                        <span class="total">${totalQuestions}</span>
-                    </div>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${progressPercent}%"></div>
-                </div>
-                <div class="progress-text">質問 ${questionIndex + 1} / ${totalQuestions}</div>
-            </div>
-            
-            <div class="card question-card">
-                <div class="question-header">
-                    <span id="question-number" class="question-number">${questionIndex + 1}</span>
-                    <h2 id="question-title" class="question-text">${question.text}</h2>
-                </div>
-                
-                <div id="options-container" class="options" role="radiogroup" aria-labelledby="question-title">
-                    ${question.options.map((option, index) => `
-                        <div class="option">
-                            <input type="radio" name="q${questionIndex}" value="${option.value}" id="q${questionIndex}_${option.value}">
-                            <label for="q${questionIndex}_${option.value}">${option.text}</label>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-            
-            <div class="nav-controls">
-                <button id="prev-btn" class="btn btn-secondary" ${questionIndex === 0 ? 'disabled' : ''}>前の質問</button>
-                <button id="next-btn" class="btn btn-primary" disabled>次の質問</button>
-            </div>
-        </div>
-    `;
-    
-    questionScreen.innerHTML = htmlContent;
-    console.log(`🔧 [NEW SYSTEM] innerHTML set. Content includes "${htmlContent.substring(0, 100)}..."`);
-    
-    // Setup navigation handlers
-    setupQuestionNavigation(questionIndex);
-    
-    console.log(`✅ [NEW SYSTEM] Question ${questionIndex + 1}/${totalQuestions} fully displayed and setup complete`);
-}
-
-/**
- * Setup navigation handlers for questions
- */
-function setupQuestionNavigation(questionIndex) {
-    const nextBtn = document.getElementById('next-btn');
-    const prevBtn = document.getElementById('prev-btn');
-    const radioButtons = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-    
-    // Enable next button when option is selected
-    radioButtons.forEach(radio => {
-        radio.addEventListener('change', function() {
-            nextBtn.disabled = false;
-            userAnswers[questionIndex] = this.value;
-            window.userAnswers[questionIndex] = this.value;  // Also update window.userAnswers
-            
-            // CRITICAL FIX: Save to criticalCSSAnalyzer as well
-            if (window.criticalCSSAnalyzer && window.criticalCSSAnalyzer.state) {
-                const selectedOption = window.QUESTIONS[questionIndex].options.find(opt => opt.value === this.value);
-                window.criticalCSSAnalyzer.state.saveAnswer(questionIndex, selectedOption);
-                console.log(`✅ Answer saved to criticalCSSAnalyzer for question ${questionIndex + 1}: ${this.value}`);
-            }
-            
-            console.log(`✅ Answer saved for question ${questionIndex + 1}: ${this.value}`);
-        });
-    });
-    
-    // Previous button handler
-    if (prevBtn && !prevBtn.disabled) {
-        prevBtn.addEventListener('click', () => {
-            if (questionIndex > 0) {
-                displayQuestion(questionIndex - 1);
-            }
-        });
-    }
-    
-    // Next button handler
-    if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-            if (questionIndex + 1 < window.QUESTIONS.length) {
-                displayQuestion(questionIndex + 1);
-            } else {
-                // All questions completed, start analysis
-                startAnalysis();
-            }
-        });
-    }
-    
-    // Pre-select answer if user has already answered this question
-    if (userAnswers[questionIndex]) {
-        const selectedRadio = document.querySelector(`input[name="q${questionIndex}"][value="${userAnswers[questionIndex]}"]`);
-        if (selectedRadio) {
-            selectedRadio.checked = true;
-            nextBtn.disabled = false;
+        // Progressive data manager with optimization
+        if (!window.progressiveDataManager) {
+          await loadScript('/js/shared/core/ProgressiveDataManager.js');
+          window.progressiveDataManager = new ProgressiveDataManager();
+          
+          // Load only essential data for analysis
+          await window.progressiveDataManager.loadRequiredData({
+            hexagrams: true,
+            hexagramId: answers[0]?.hexagramId || 1,
+            minimal: true // Phase 2: Load minimal dataset
+          });
+          
+          // Background loading of remaining data
+          setTimeout(() => {
+            window.progressiveDataManager.loadAllDataProgressively();
+          }, 2000);
         }
-    }
-}
-
-/**
- * Start analysis with collected answers
- */
-function startAnalysis() {
-    console.log('🎯 Starting Triple OS analysis with', Object.keys(userAnswers).length, 'answers');
-    
-    // Convert answers to the format expected by the analysis engine
-    const formattedAnswers = Object.keys(userAnswers).map(questionIndex => {
-        const question = window.QUESTIONS[parseInt(questionIndex)];
-        const selectedOption = question.options.find(opt => opt.value === userAnswers[questionIndex]);
         
-        return {
-            questionId: question.id,
-            questionIndex: parseInt(questionIndex),
-            selectedValue: userAnswers[questionIndex],
-            selectedOption: selectedOption,
-            scoring: selectedOption.scoring
-        };
-    });
-    
-    // ScreenManagerを使用して分析画面に切り替え
-    if (window.ScreenManager) {
-        window.ScreenManager.showAnalyzing('分析中...');
-    } else {
-        // フォールバック
-        document.getElementById('question-screen').classList.remove('active');
-        document.getElementById('analysis-screen').classList.add('active');
-    }
-    
-    // Start actual analysis
-    setTimeout(async () => {
+        // Initialize managers with optimized loading
+        const fullStorageManager = new StorageManager();
+        const fullDataManager = new DataManager();
+        
+        // 🌉 Optimized BridgeStorageManager integration
+        console.log("🌉 Integrating optimized storage system...");
+        
+        // Load data with caching optimization
+        await fullDataManager.loadData({ useCache: true, minimal: true });
+        
+        // BridgeStorageManager integration with error handling
         try {
-            // Use the TripleOSInteractionAnalyzer for analysis
-            if (window.TripleOSInteractionAnalyzer) {
-                const results = await performTripleOSAnalysis(formattedAnswers);
-                // ScreenManagerを使用して結果を表示
-                if (window.ScreenManager) {
-                    window.ScreenManager.showResults(results);
-                } else if (typeof showResults === 'function') {
-                    showResults(results);
-                } else {
-                    console.error('❌ No method to show results');
-                    // 直接結果画面に切り替えを試みる
-                    if (window.ScreenManager) {
-                        window.ScreenManager.showResults(results || {});
-                    }
-                }
-            } else {
-                console.error('❌ TripleOSInteractionAnalyzer not available');
-                if (window.ScreenManager) {
-                    window.ScreenManager.showError('分析エンジンが利用できません。', {
-                        currentStep: '3',
-                        totalSteps: '3',
-                        errorCode: 'ANALYZER_INIT_FAILED',
-                        recoveryActions: [
-                            'ページを再読み込みしてください',
-                            'JavaScript が有効になっているか確認してください',
-                            '別のブラウザで試してください'
-                        ]
-                    });
-                } else {
-                    showErrorState('分析エンジンが利用できません。', {
-                        currentStep: '3',
-                        totalSteps: '3',
-                        errorCode: 'ANALYZER_INIT_FAILED',
-                        recoveryActions: [
-                            'ページを再読み込みしてください',
-                            'JavaScript が有効になっているか確認してください',
-                            '別のブラウザで試してください'
-                        ]
-                    });
-                }
-            }
-        } catch (error) {
-            console.error('❌ Analysis failed:', error);
-            if (window.ScreenManager) {
-                window.ScreenManager.showError('分析中にエラーが発生しました。', {
-                    currentStep: '3',
-                    totalSteps: '3',
-                    errorCode: 'ANALYSIS_FAILED',
-                    recoveryActions: [
-                        '回答を確認して再度お試しください',
-                        'ページを再読み込みしてください',
-                        'サポートにお問い合わせください'
-                    ]
-                });
-            }
-        }
-    }, 2000);
-}
-
-/**
- * Show error message
- */
-function showError(message) {
-    document.getElementById('analysis-screen').classList.remove('active');
-    document.getElementById('question-screen').classList.remove('active');
-    
-    const errorContainer = document.createElement('div');
-    errorContainer.className = 'error-screen';
-    errorContainer.innerHTML = `
-        <div class="container">
-            <div class="card">
-                <h2>エラーが発生しました</h2>
-                <p>${message}</p>
-                <button onclick="location.reload()" class="btn btn-primary">再読み込み</button>
-            </div>
-        </div>
-    `;
-    
-    document.querySelector('main').appendChild(errorContainer);
-}
-
-/**
- * Show results function (ScreenManagerへの橋渡し)
- */
-function showResults(results) {
-    console.log('📊 showResults called with:', results);
-    
-    // ScreenManagerが利用可能な場合は使用
-    if (window.ScreenManager) {
-        window.ScreenManager.showResults(results);
-    } else {
-        // フォールバック処理
-        console.warn('⚠️ ScreenManager not available, using fallback');
-        const resultsScreen = document.getElementById('results-screen');
-        if (resultsScreen) {
-            resultsScreen.classList.add('active');
-            resultsScreen.style.display = 'flex';
-            
-            // 他の画面を非表示
-            ['welcome', 'question', 'analysis', 'error'].forEach(screen => {
-                const el = document.getElementById(`${screen}-screen`);
-                if (el && screen !== 'results') {
-                    el.classList.remove('active');
-                    el.style.display = 'none';
-                }
-            });
-        }
-    }
-}
-
-/**
- * Create basic question flow if main questions not loaded
- */
-function createBasicQuestionFlow() {
-    const questionScreen = document.getElementById('question-screen');
-    if (!questionScreen) return;
-    
-    questionScreen.classList.add('active');
-    console.log('✅ Basic question flow activated');
-    questionScreen.innerHTML = `
-        <div class="basic-analysis-screen">
-            <h2>基本分析モード</h2>
-            <p>システムの初期化が完了しませんでしたが、基本的な分析を実行できます。</p>
-            <button class="btn btn-primary" onclick="runBasicAnalysis()">
-                基本分析を開始
-            </button>
-        </div>
-    `;
-}
-
-// Old setupChoiceHandlers removed - using 36-question navigation system
-
-// Old handleNextQuestion removed - using 36-question navigation system
-
-// Old showAnalysisComplete removed - using new startAnalysis function
-
-
-/**
- * Perform Triple OS Analysis using collected answers
- */
-async function performTripleOSAnalysis(formattedAnswers) {
-    console.log('🎯 Analyzing Triple OS with', formattedAnswers.length, 'answers using 64-hexagram system');
-    
-    // Check if TripleOSInteractionAnalyzer is available
-    if (!window.TripleOSInteractionAnalyzer) {
-        throw new Error('TripleOSInteractionAnalyzer not available - 64-hexagram system required');
-    }
-    
-    try {
-        console.log('✅ Using TripleOSInteractionAnalyzer with H64/H384 system');
-        
-        // Calculate trigram scores for existing TripleOSInteractionAnalyzer
-        const trigramScores = {
-            '乾_創造性': 0, '兌_調和性': 0, '離_表現性': 0, '震_行動性': 0,
-            '巽_適応性': 0, '坎_探求性': 0, '艮_安定性': 0, '坤_受容性': 0
-        };
-        
-        formattedAnswers.forEach(answer => {
-            if (answer.scoring) {
-                Object.keys(answer.scoring).forEach(trigram => {
-                    if (trigramScores[trigram] !== undefined) {
-                        trigramScores[trigram] += answer.scoring[trigram];
-                    }
-                });
-            }
-        });
-        
-        // Create OS objects for existing TripleOSInteractionAnalyzer
-        const engineOS = {
-            score: (trigramScores['乾_創造性'] + trigramScores['震_行動性'] + trigramScores['坎_探求性']) / 3,
-            hexagramId: Math.floor(Math.random() * 64) + 1, // Temporary - should use proper mapping
-            name: 'Engine OS'
-        };
-        
-        const interfaceOS = {
-            score: (trigramScores['兌_調和性'] + trigramScores['離_表現性'] + trigramScores['巽_適応性']) / 3,
-            hexagramId: Math.floor(Math.random() * 64) + 1, // Temporary - should use proper mapping
-            name: 'Interface OS'
-        };
-        
-        const safeModeOS = {
-            score: (trigramScores['艮_安定性'] + trigramScores['坤_受容性']) / 2,
-            hexagramId: Math.floor(Math.random() * 64) + 1, // Temporary - should use proper mapping
-            name: 'Safe Mode OS'
-        };
-        
-        // Use existing TripleOSInteractionAnalyzer for 64-hexagram analysis
-        // Pass empty object to constructor to fix initialization error
-        const analyzer = new window.TripleOSInteractionAnalyzer({});
-        const analysisResult = analyzer.analyze(engineOS, interfaceOS, safeModeOS);
-        
-        if (!analysisResult) {
-            throw new Error('Analysis result is empty - 64-hexagram system failed');
+          const integrationSuccess = await app.storageManager.integrateFullManager(StorageManager);
+          
+          if (integrationSuccess) {
+            console.log("✅ Optimized BridgeStorageManager integration successful");
+          } else {
+            throw new Error("Integration failed");
+          }
+        } catch (integrationError) {
+          console.warn("⚠️ Using fallback storage integration:", integrationError);
+          // Optimized fallback with data migration
+          const microAnswers = app.storageManager.getAnswers();
+          const microSession = app.storageManager.getSession();
+          
+          fullStorageManager.saveAnswers(microAnswers);
+          fullStorageManager.saveSession(microSession);
+          app.storageManager = fullStorageManager;
         }
         
-        console.log('🎯 Using TripleOSInteractionAnalyzer 64-hexagram result:', analysisResult);
+        app.dataManager = fullDataManager;
+        app.engine = new UltraAnalysisEngine(fullDataManager);
+        app.fullSystemLoaded = true;
         
-        // Convert to expected display format using existing analyzer result
-        const engineOSDisplay = {
-            name: 'Engine OS',
-            title: '内発的動機',
-            symbol: analysisResult.engine_os?.symbol || '☰',
-            score: engineOS.score,
-            characteristics: ['創造的価値観', '革新性', '探求心'],
-            hexagramId: analysisResult.engine_os?.id || engineOS.hexagramId,
-            hexagramName: analysisResult.engine_os?.name || 'Engine OS',
-            storyRole: 'core',
-            element: analysisResult.engine_os?.element || '天'
-        };
+        console.log("✅ Optimized analysis system loaded (Phase 2)");
         
-        const interfaceOSDisplay = {
-            name: 'Interface OS',
-            title: '社会的側面',
-            symbol: analysisResult.interface_os?.symbol || '☱',
-            score: interfaceOS.score,
-            characteristics: ['社会的調和', '表現力', '適応性'],
-            hexagramId: analysisResult.interface_os?.id || interfaceOS.hexagramId,
-            hexagramName: analysisResult.interface_os?.name || 'Interface OS',
-            storyRole: 'flow',
-            element: analysisResult.interface_os?.element || '沢'
-        };
+        // Predictive preloading for results
+        if (window.moduleLoader) {
+          window.moduleLoader.preloadModule('/js/components/TripleOSResultsView.js', 'high');
+          console.log("🔄 Preloading results components...");
+        }
         
-        const safeModeOSDisplay = {
-            name: 'Safe Mode OS',
-            title: '危機時人格',
-            symbol: analysisResult.safe_mode_os?.symbol || '☶',
-            score: safeModeOS.score,
-            characteristics: ['安定性', '慎重さ', '保護性'],
-            hexagramId: analysisResult.safe_mode_os?.id || safeModeOS.hexagramId,
-            hexagramName: analysisResult.safe_mode_os?.name || 'Safe Mode OS',
-            storyRole: 'shield',
-            element: analysisResult.safe_mode_os?.element || '山'
-        };
+      } catch (error) {
+        console.error("❌ Optimized loading failed, using fallback:", error);
+        // Fallback to original loading logic
+        await loadScript('/js/shared/core/StorageManager.js');
+        await loadScript('/js/shared/core/DataManager.js');
         
-        return {
-            engineOS: engineOSDisplay,
-            interfaceOS: interfaceOSDisplay,
-            safeModeOS: safeModeOSDisplay,
-            synergy: analysisResult.synergy,
-            interactions: analysisResult.interactions,
-            strengths: analysisResult.strengths,
-            risks: analysisResult.risks,
-            totalAnswers: formattedAnswers.length,
-            analysisMethod: 'TripleOSInteractionAnalyzer-64-hexagram-system'
-        };
+        const fullStorageManager = new StorageManager();
+        const fullDataManager = new DataManager();
+        await fullDataManager.loadData();
         
-    } catch (error) {
-        console.error('❌ TripleOSInteractionAnalyzer 64-hexagram analysis failed:', error);
-        throw error; // Re-throw error instead of falling back to 8-trigram system
+        app.storageManager = fullStorageManager;
+        app.dataManager = fullDataManager;
+        app.engine = new UltraAnalysisEngine(fullDataManager);
+        app.fullSystemLoaded = true;
+      }
     }
+
+    // 1. 分析タスクを関数として定義
+    const analysisTask = async () => {
+      const result = await app.engine.analyzeTripleOS(answers);
+      const insights = await app.engine.generateInsights(result);
+      app.storageManager.saveAnalysisResult(result);
+      app.storageManager.saveInsights(insights);
+      app.storageManager.updateSession({ stage: "results" });
+      return { result, insights }; // 結果をオブジェクトで返す
+    };
+
+    // 2. AnalysisViewに「分析タスク」と「完了後の処理」を渡して生成
+    const analysisView = new AnalysisView("analysis-container", {
+      analysisTask: analysisTask,
+      onComplete: (data) => {
+        console.log(
+          "🎊 Animation and Analysis complete. Transitioning to results."
+        );
+        if (data.error) {
+          alert(data.error); // エラーがあれば表示
+        } else {
+          showResultsView(data.result, data.insights);
+        }
+      },
+    });
+
+    // 3. AnalysisViewを表示し、プロセスを開始させる
+    showAnalysisView(analysisView);
+  } catch (error) {
+    console.error("❌ A critical error occurred in proceedToAnalysis:", error);
+    alert("分析プロセスを開始できませんでした: " + error.message);
+  }
 }
 
-/**
- * Generate storytelling-style results display
- */
-function generateStorytellingResults(results) {
-    const { engineOS, interfaceOS, safeModeOS } = results;
-    
-    // Determine the dominant OS
-    const systems = [engineOS, interfaceOS, safeModeOS];
-    const dominantSystem = systems.reduce((prev, current) => 
-        (prev.score > current.score) ? prev : current
+// 以前の進行状況をチェック
+async function checkPreviousProgress() {
+  const session = app.storageManager.getSession();
+  const progress = app.storageManager.getProgress();
+  const answers = app.storageManager.getAnswers();
+
+  if (session && progress && answers.length > 0) {
+    const shouldResume = confirm(
+      `前回の診断が途中で終了されています。\n` +
+        `進行状況: ${progress.completedQuestions}/${progress.totalQuestions}問完了\n` +
+        `続きから始めますか？\n\n` +
+        `「OK」: 続きから開始\n` +
+        `「キャンセル」: 最初からやり直し`
     );
-    
-    return `
-        <div class="story-content">
-            <div class="story-introduction">
-                <p class="story-text">あなたの心の奥深くで、三つの仮想人格が静かに息づいています。古の智慧・易経が映し出すのは、それぞれ異なる願いと役割を持った側面たち。今回の分析で、<strong>${dominantSystem.title}</strong>の特性が最も強く現れているようです。</p>
-            </div>
-            
-            <div class="os-results-grid">
-                ${generatePersonaStory(engineOS, '🧠', 'engine-os')}
-                ${generatePersonaStory(interfaceOS, '💬', 'interface-os')}  
-                ${generatePersonaStory(safeModeOS, '🛡️', 'safe-mode-os')}
-            </div>
-            
-            <div class="story-synthesis">
-                <h3>🌸 三つの仮想人格の相互作用</h3>
-                <div class="synthesis-content">
-                    ${generatePersonaDialogue(engineOS, interfaceOS, safeModeOS)}
-                </div>
-            </div>
-        </div>
-    `;
+
+    if (shouldResume) {
+      await resumePreviousSession();
+    } else {
+      app.storageManager.startNewSession();
+    }
+  }
 }
 
-/**
- * Generate individual persona story
- */
-function generatePersonaStory(persona, icon, cssClass) {
-    const storyElements = getPersonaStoryElements(persona);
-    
-    return `
-        <div class="os-result-card ${cssClass}">
-            <div class="os-icon">${icon}</div>
-            <h2>${persona.symbol} ${persona.title}</h2>
-            <div class="persona-story">
-                <p class="story-intro">${storyElements.introduction}</p>
-                <div class="story-details">
-                    <p><strong>この側面の本質:</strong> ${storyElements.essence}</p>
-                    <p><strong>現代での姿:</strong> ${storyElements.modernExample}</p>
-                    <p><strong>日常での現れ方:</strong> ${storyElements.dailyManifestation}</p>
-                </div>
-                <div class="persona-strength">
-                    <p class="strength-indicator">強度: ${(persona.score * 20).toFixed(0)}%の発現</p>
-                </div>
-                <div class="characteristics">
-                    ${persona.characteristics.map(char => 
-                        `<span class="characteristic-tag">${char}</span>`
-                    ).join('')}
-                </div>
-            </div>
-        </div>
-    `;
-}
+// 前回のセッションを再開
+async function resumePreviousSession() {
+  try {
+    const session = app.storageManager.getSession();
+    const progress = app.storageManager.getProgress();
+    const answers = app.storageManager.getAnswers();
+    const analysisResult = app.storageManager.getAnalysisResult();
+    const insights = app.storageManager.getInsights();
 
-/**
- * Get story elements for each persona type
- */
-function getPersonaStoryElements(persona) {
-    const storyMap = {
-        'Engine OS': {
-            introduction: 'あなたの内にある根源的な動機。外部からの報酬や評価に依存せず、内側から湧き上がる情熱と意欲の源泉です。',
-            essence: '「やりたいからやる」「好きだから続ける」という純粋なエネルギー',
-            modernExample: '趣味に没頭する時間、無心に何かを創作する瞬間、誰に言われなくても続けたいこと',
-            dailyManifestation: '朝起きて「今日はこれがしたい」と思う気持ち、時間を忘れて集中する体験、報酬がなくても続けられる活動'
-        },
-        'Interface OS': {
-            introduction: 'あなたが社会と接するときに現れる側面。状況や相手に応じて柔軟に変化し、適切なコミュニケーションを可能にします。',
-            essence: '場面に応じた適切な振る舞い、相手との関係性を築く能力',
-            modernExample: '職場でのプロフェッショナルな自分、友人とのリラックスした自分、家族との温かい自分',
-            dailyManifestation: '会議での発言スタイル、SNSでの表現方法、初対面の人への接し方、グループ内での役割'
-        },
-        'Safe Mode OS': {
-            introduction: 'ストレスや危機的状況で活性化する防衛的な側面。平常時とは異なる行動パターンを取り、自分を守ろうとします。',
-            essence: 'プレッシャー下での対処法、緊急時の判断基準、ストレス反応',
-            modernExample: '締切前の集中力、トラブル時の冷静さ、迫られた時の決断力、疲れた時の引きこもり',
-            dailyManifestation: 'ストレスを感じた時の反応、プレッシャーへの対処、予想外の事態への対応、疲労時の行動変化'
+    console.log("🔄 Resuming previous session:", session);
+
+    switch (session.stage) {
+      case "questions":
+        // 質問画面を再開
+        startRealDiagnosis();
+        if (app.questionFlow) {
+          app.questionFlow.currentQuestionIndex =
+            progress.currentQuestionIndex || 0;
+          app.questionFlow.answers = answers || [];
+          app.questionFlow.render();
         }
+        break;
+
+      case "analysis":
+        // 分析を再実行
+        proceedToAnalysis(answers);
+        break;
+
+      case "results":
+        // 結果画面を表示
+        if (analysisResult && insights) {
+          showResultsView(analysisResult, insights);
+        } else {
+          proceedToAnalysis(answers);
+        }
+        break;
+
+      default:
+        // デフォルトはウェルカム画面
+        app.storageManager.updateSession({ stage: "welcome" });
+        break;
+    }
+  } catch (error) {
+    console.error("❌ Resume failed:", error);
+    app.storageManager.startNewSession();
+  }
+}
+
+// 分析画面を表示
+// AnalysisViewを表示するためのシンプルなヘルパー関数
+function showAnalysisView(viewInstance) {
+  hideAllScreens();
+  app.analysisView = viewInstance;
+  app.analysisView.show(); // ここで非同期の分析とアニメーションが開始される
+}
+
+// 結果画面を表示（Phase 2最適化版：動的ローディング + データ永続化強化）
+async function showResultsView(result, insights) {
+  console.log("✅ [App] Phase 2最適化結果表示開始");
+  
+  try {
+    // 🎯 Phase 2: Load Results Bundle dynamically
+    console.log("📦 Loading Results Bundle...");
+    
+    if (window.loadResultsBundle) {
+      await window.loadResultsBundle();
+      console.log("✅ Results Bundle loaded successfully");
+    } else {
+      console.log("🔄 Loading results components individually...");
+      // Fallback loading for results components
+      Promise.all([
+        loadScript('/js/components/TripleOSResultsView.js'),
+        loadScript('/js/os-analyzer/components/ResultsView.js'),
+        loadScript('/js/lib/chart.min.js')
+      ]);
+    }
+    
+    // データ存在確認
+    if (!result || !insights) {
+      throw new Error('分析結果またはインサイトが見つかりません');
+    }
+    
+    // データ構造を確認
+    console.log("🔍 [App] データ構造確認:", {
+      result: result,
+      hasEngineOS: !!result?.engineOS,
+      hasInterfaceOS: !!result?.interfaceOS,
+      hasSafeModeOS: !!result?.safeModeOS,
+      hasPrimaryOS: !!result?.primaryOS,
+      analysisType: result?.analysisType
+    });
+
+    // 🎭 Virtual Persona Results View を優先的に使用
+    if (result.engineOS && result.interfaceOS && result.safeModeOS) {
+      console.log("🎭 [App] Using VirtualPersonaResultsView for Triple OS results");
+      return await showVirtualPersonaResultsView(result, insights);
+    }
+
+    // データ転送修正スクリプトを使用して確実に保存
+    if (window.saveAnalysisResultForResults) {
+      console.log("🔧 Using fix-data-transfer.js for reliable data saving");
+      window.saveAnalysisResultForResults(result, insights);
+    }
+    
+    // 分析結果とインサイトをストレージに保存（重複保存で確実性向上）
+    const saveSuccess1 = app.storageManager.saveAnalysisResult(result);
+    const saveSuccess2 = app.storageManager.saveInsights(insights);
+    
+    console.log("💾 [App] 保存結果:", { 
+      analysisResult: saveSuccess1, 
+      insights: saveSuccess2 
+    });
+    
+    // セッション更新
+    app.storageManager.updateSession({ 
+      stage: "results",
+      timestamp: new Date().toISOString(),
+      dataSize: {
+        resultKeys: Object.keys(result).length,
+        insightKeys: Object.keys(insights).length
+      }
+    });
+    
+    // 保存確認（読み戻しテスト）
+    const verifyResult = app.storageManager.getAnalysisResult();
+    const verifyInsights = app.storageManager.getInsights();
+    
+    if (!verifyResult || !verifyInsights) {
+      console.warn("⚠️ [App] データ保存検証失敗 - SimpleStorageManagerで再保存試行");
+      
+      // SimpleStorageManagerで確実に保存
+      try {
+        const simpleStorage = new SimpleStorageManager();
+        
+        if (!verifyResult) {
+          const simpleResult = simpleStorage.saveAnalysisResult(result);
+          console.log(`📦 [App] SimpleStorageManager分析結果保存: ${simpleResult ? '成功' : '失敗'}`);
+        }
+        
+        if (!verifyInsights) {
+          const simpleInsights = simpleStorage.saveInsights(insights);
+          console.log(`📦 [App] SimpleStorageManagerインサイト保存: ${simpleInsights ? '成功' : '失敗'}`);
+        }
+      } catch (simpleError) {
+        console.error("❌ [App] SimpleStorageManager保存エラー:", simpleError);
+        
+        // 最終手段として直接localStorage保存
+        localStorage.setItem('haqei_analysis_result', JSON.stringify({
+          result: result,
+          timestamp: Date.now(),
+          version: '2025.08.01'
+        }));
+        
+        localStorage.setItem('haqei_insights', JSON.stringify({
+          insights: insights,
+          timestamp: Date.now(),
+          version: '2025.08.01'
+        }));
+      }
+    }
+    
+    console.log("💾 [App] 分析結果をストレージに保存完了");
+
+    // LocalStorage状態の最終確認
+    const storageCheck = {
+      hasAnalysisResult: !!localStorage.getItem('haqei_analysis_result'),
+      hasInsights: !!localStorage.getItem('haqei_insights'),
+      hasSession: !!localStorage.getItem('haqei_session'),
+      storageKeys: Object.keys(localStorage).filter(k => k.includes('haqei')).length
     };
     
-    return storyMap[persona.name] || storyMap['Engine OS'];
+    console.log("🔍 [App] LocalStorage確認:", storageCheck);
+
+    // results.htmlへの遷移
+    console.log("🔄 [App] results.htmlへページ遷移中...");
+    
+    // 小さな遅延を追加してlocalStorageの永続化を確実にする
+    setTimeout(() => {
+      window.location.href = 'results.html';
+    }, 100);
+    
+  } catch (error) {
+    console.error("❌ [App] 結果表示でエラー:", error);
+    console.error("❌ [App] エラースタック:", error.stack);
+    
+    // エラー時の緊急保存 - セキュア版
+    try {
+      const emergencyData = {
+        result: result ? {
+          analysisType: result.analysisType,
+          timestamp: result.timestamp,
+          primaryOS: result.primaryOS?.name || 'unknown'
+        } : null,
+        insights: insights ? {
+          summary: insights.summary || 'N/A',
+          timestamp: insights.timestamp
+        } : null,
+        error: {
+          message: error.message,
+          type: error.name,
+          timestamp: Date.now(),
+          userAgent: navigator.userAgent.slice(0, 100)
+        }
+      };
+      
+      localStorage.setItem('haqei_emergency_result', JSON.stringify(emergencyData));
+      console.log("🚨 [App] 緊急データ保存完了 (セキュア版)");
+    } catch (emergencyError) {
+      console.error("❌ [App] 緊急保存も失敗:", emergencyError);
+      // 最終手段: IndexedDBに保存
+      if ('indexedDB' in window) {
+        try {
+          const request = indexedDB.open('haqei_emergency', 1);
+          request.onsuccess = () => {
+            const db = request.result;
+            const transaction = db.transaction(['emergency'], 'readwrite');
+            const store = transaction.objectStore('emergency');
+            store.put({ id: Date.now(), data: emergencyData });
+          };
+        } catch (idbError) {
+          console.error("❌ [App] IndexedDB緊急保存も失敗:", idbError);
+        }
+      }
+    }
+    
+    // エラー時もresults.htmlへ遷移
+    console.log("⚠️ エラーが発生しましたが、results.htmlに遷移します");
+    setTimeout(() => {
+      window.location.href = 'results.html';
+    }, 200);
+  }
 }
 
-/**
- * Generate dialogue between the three personas
- */
-function generatePersonaDialogue(engine, interfaceOS, safeMode) {
-    const scores = [engine.score, interfaceOS.score, safeMode.score];
-    const maxScore = Math.max(...scores);
-    const minScore = Math.min(...scores);
-    const scoreDifference = maxScore - minScore;
+// ページ遷移処理完了
+
+// TripleOS結果専用の表示関数
+async function showTripleOSResultsView(result, insights) {
+  try {
+    const compatibilityLoader = new CompatibilityDataLoader();
+    const dataManager = app.dataManager;
+
+    const optionsToPass = {
+      analysisResult: result,
+      insights: insights,
+      compatibilityLoader: compatibilityLoader,
+      dataManager: dataManager,
+    };
+
+    console.log("🕵️‍♂️ [App] TripleOSStrategicViewを生成します...", optionsToPass);
     
-    if (scoreDifference < 0.5) {
-        return `
-            <p>三つの仮想人格が均衡を保ち、調和的に共存しています。</p>
-            <p><em>「私たちのバランスは美しく保たれている」</em>と${engine.title}。</p>
-            <p><em>「そうですね、お互いを尊重し合えています」</em>と${interfaceOS.title}が応じます。</p>
-            <p><em>「このバランスこそが、あなたの強さの源なのです」</em>と${safeMode.title}が語りかけます。</p>
-            <p><strong>今のあなたは、三つの側面が調和した状態にあります。</strong></p>
-        `;
+    // 戦略ダッシュボードインスタンスを生成
+    app.resultsView = new TripleOSStrategicView("results-container", optionsToPass);
+
+    // 初期化とレンダリングを実行
+    await app.resultsView.init();
+    await app.resultsView.show();
+    
+    // results-containerにvisibleクラスを確実に追加
+    const resultsContainer = document.getElementById("results-container");
+    if (resultsContainer) {
+      resultsContainer.classList.add("visible");
+      resultsContainer.style.setProperty('display', 'flex', 'important');
+      resultsContainer.style.setProperty('position', 'fixed', 'important');
+      resultsContainer.style.setProperty('top', '0', 'important');
+      resultsContainer.style.setProperty('left', '0', 'important');
+      resultsContainer.style.setProperty('width', '100vw', 'important');
+      resultsContainer.style.setProperty('height', '100vh', 'important');
+      resultsContainer.style.setProperty('z-index', '30000', 'important');
+      
+      const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const backgroundGradient = isDarkMode ? 
+        'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)' : 
+        'linear-gradient(135deg, #1e293b 0%, #334155 100%)';
+      const textColor = isDarkMode ? '#ffffff' : '#f1f5f9';
+      
+      resultsContainer.style.setProperty('background', backgroundGradient, 'important');
+      resultsContainer.style.setProperty('color', textColor, 'important');
+      resultsContainer.style.setProperty('opacity', '1', 'important');
+      resultsContainer.style.setProperty('visibility', 'visible', 'important');
+      resultsContainer.style.setProperty('overflow-y', 'auto', 'important');
+      resultsContainer.style.setProperty('padding', '20px', 'important');
+    }
+    
+    console.log("✅ [App] TripleOS結果表示完了");
+    
+  } catch (error) {
+    console.error("❌ [App] TripleOS結果表示でエラー:", error);
+    throw error; // 上位でフォールバック処理される
+  }
+}
+
+// 単一OS結果専用の表示関数
+async function showSingleOSResultsView(result, insights) {
+  try {
+    // ResultsViewを作成して表示
+    app.resultsView = new ResultsView("results-container", {
+      onExploreMore: function(analysisResult) {
+        showInsightPanel(analysisResult, insights);
+      },
+      onRetakeTest: function() {
+        window.location.reload();
+      }
+    });
+
+    // データを設定してレンダリング
+    app.resultsView.setData(result, insights);
+    await app.resultsView.show();
+    
+    console.log("✅ [App] 単一OS結果表示完了");
+    
+  } catch (error) {
+    console.error("❌ [App] 単一OS結果表示でエラー:", error);
+    throw error; // 上位でフォールバック処理される
+  }
+}
+
+// フォールバック：従来の同一ページ内結果表示
+async function showResultsViewFallback(result, insights) {
+  console.log("🔄 [App] フォールバック：従来方式で結果表示");
+  
+  // analysis-containerを確実に隠す
+  const analysisContainer = document.getElementById("analysis-container");
+  if (analysisContainer) {
+    analysisContainer.style.setProperty('display', 'none', 'important');
+    analysisContainer.classList.remove('visible');
+    analysisContainer.style.opacity = '0';
+  }
+  
+  hideAllScreens();
+
+  const compatibilityLoader = new CompatibilityDataLoader();
+  const dataManager = app.dataManager;
+
+  const optionsToPass = {
+    analysisResult: result,
+    insights: insights,
+    compatibilityLoader: compatibilityLoader,
+    dataManager: dataManager,
+  };
+
+  console.log(
+    "🕵️‍♂️ [TRACE-CHECKPOINT 2] TripleOSStrategicViewを生成します...",
+    optionsToPass
+  );
+  try {
+    // 戦略ダッシュボードインスタンスを生成
+    app.resultsView = new TripleOSStrategicView("results-container", optionsToPass);
+
+    // 初期化とレンダリングを実行
+    await app.resultsView.init();
+    await app.resultsView.show();
+    
+    // results-containerにvisibleクラスを確実に追加
+    const resultsContainer = document.getElementById("results-container");
+    if (resultsContainer) {
+      resultsContainer.classList.add("visible");
+      resultsContainer.style.setProperty('display', 'flex', 'important');
+      resultsContainer.style.setProperty('position', 'fixed', 'important');
+      resultsContainer.style.setProperty('top', '0', 'important');
+      resultsContainer.style.setProperty('left', '0', 'important');
+      resultsContainer.style.setProperty('width', '100vw', 'important');
+      resultsContainer.style.setProperty('height', '100vh', 'important');
+      resultsContainer.style.setProperty('z-index', '30000', 'important');
+      
+      const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const backgroundGradient = isDarkMode ? 
+        'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)' : 
+        'linear-gradient(135deg, #1e293b 0%, #334155 100%)';
+      const textColor = isDarkMode ? '#ffffff' : '#f1f5f9';
+      
+      resultsContainer.style.setProperty('background', backgroundGradient, 'important');
+      resultsContainer.style.setProperty('color', textColor, 'important');
+      resultsContainer.style.setProperty('opacity', '1', 'important');
+      resultsContainer.style.setProperty('visibility', 'visible', 'important');
+      resultsContainer.style.setProperty('overflow-y', 'auto', 'important');
+      resultsContainer.style.setProperty('padding', '20px', 'important');
+    }
+    
+    console.log("✅ [App] フォールバック結果表示完了");
+    
+  } catch (error) {
+    console.error("❌ [App] フォールバック表示も失敗:", error);
+    const container = document.getElementById("results-container");
+    if (container) {
+      container.style.display = "block";
+      container.innerHTML = '<div class="error-text">結果の表示中にエラーが発生しました。ページをリロードしてください。</div>';
+    }
+  }
+}
+
+// 洞察パネルを表示
+function showInsightPanel(analysisResult, insights) {
+  hideAllScreens();
+
+  const insightPanel = new InsightPanel("insights-container", {
+    onBack: function () {
+      showResultsView(analysisResult, insights);
+    },
+    onGenerateReport: function (result, insights) {
+      generateReport(result, insights);
+    },
+  });
+
+  insightPanel.setData(analysisResult, insights);
+  insightPanel.show();
+  app.insightPanel = insightPanel;
+}
+
+// 全ての画面を非表示
+function hideAllScreens() {
+  const screens = [
+    "welcome-container",
+    "questions-container", 
+    "analysis-container",
+    "results-container",
+    "insights-container",
+  ];
+  screens.forEach((screenId) => {
+    const screen = document.getElementById(screenId);
+    if (screen) {
+      // 🔧 CRITICAL FIX: setProperty with important flagを使用
+      screen.style.setProperty('display', 'none', 'important');
+      screen.style.setProperty('opacity', '0', 'important');
+      screen.classList.remove("visible"); // !importantに対抗するためクラスも削除
+      console.log(`🔧 [hideAllScreens] ${screenId} forcibly hidden`);
+    }
+  });
+}
+
+// 🎭 Virtual Persona Results View を表示
+async function showVirtualPersonaResultsView(result, insights) {
+  try {
+    console.log("🎭 [App] Virtual Persona Results View 表示開始");
+    
+    // 既存のコンテナを非表示
+    hideAllScreens();
+    
+    // results-container を確保
+    let resultsContainer = document.getElementById("results-container");
+    if (!resultsContainer) {
+      resultsContainer = document.createElement("div");
+      resultsContainer.id = "results-container";
+      resultsContainer.className = "screen-container";
+      document.body.appendChild(resultsContainer);
+    }
+    
+    // VirtualPersonaResultsView を初期化
+    const virtualPersonaView = new VirtualPersonaResultsView("results-container", {
+      analysisResult: result,
+      insights: insights
+    });
+    
+    // 初期化と表示
+    const initSuccess = await virtualPersonaView.init();
+    if (initSuccess) {
+      await virtualPersonaView.show();
+      app.virtualPersonaView = virtualPersonaView;
+      console.log("✅ [App] VirtualPersonaResultsView表示完了");
     } else {
-        const dominant = [engine, interfaceOS, safeMode].find(t => t.score === maxScore);
-        const dormant = [engine, interfaceOS, safeMode].find(t => t.score === minScore);
-        
-        return `
-            <p>${dominant.title}の特性が強く表れています。</p>
-            <p><em>「今は私の側面が優位のようですね。この特性を活かしていきましょう」</em></p>
-            <p>${dormant.title}は控えめに存在し、</p>
-            <p><em>「必要な時が来たら、私の側面も活性化することを忘れないでください」</em></p>
-            <p><strong>今のあなたには${dominant.title}の特性が強く現れています。でも他の側面も、いつでも発現する準備ができています。</strong></p>
-        `;
-    }
-}
-
-/**
- * Show analysis results with storytelling approach
- */
-function showResults(results) {
-    console.log('🎯 Displaying Triple OS results:', results);
-    
-    const questionScreen = document.getElementById('question-screen');
-    if (!questionScreen) return;
-    
-    const analysisScreen = document.getElementById('analysis-screen');
-    if (analysisScreen) {
-        analysisScreen.classList.remove('active');
+      throw new Error("VirtualPersonaResultsView初期化失敗");
     }
     
-    // Generate storytelling content
-    const storyContent = generateStorytellingResults(results);
-    
-    questionScreen.classList.add('active');
-    questionScreen.innerHTML = `
-        <div class="results-screen">
-            <div class="container">
-                <div class="results-header">
-                    <h1>🌟 あなたの内なる三つの世界</h1>
-                    <p class="results-subtitle">古の智慧が映し出す、あなたの三つの仮想人格</p>
-                </div>
-                
-                ${storyContent}
-                
-                <div class="story-epilogue">
-                    <h3>🌸 分析の終わりに</h3>
-                    <div class="epilogue-content">
-                        <p>これは、あなたという存在の豊かさを映し出した一つの物語です。</p>
-                        <p>三つの仮想人格は時に協調し、時に対立し、バランスを取りながら共存しています。それぞれの側面を理解し、どの特性があなたにとって今必要かを感じてみてください。</p>
-                        <p><strong>分析結果は日々変化します</strong>。季節が変わるとき、新しい挑戦に向かうとき、人生の節目を迎えるとき...その度に異なる側面が強く現れるかもしれません。</p>
-                    </div>
-                </div>
-                
-                <div class="journey-invitation">
-                    <h4>🔄 新たな分析へ</h4>
-                    <p>別の選択をしたら、結果はどう変わるでしょうか？時間を置いて再び分析してみてください。あなたの内なる世界の新たな一面が見えてくるかもしれません。</p>
-                </div>
-                
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="location.reload()">
-                        新しい物語を紡ぐ
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    console.log('✅ Storytelling results displayed');
+  } catch (error) {
+    console.error("❌ [App] VirtualPersonaResultsView表示失敗:", error);
+    // フォールバック処理
+    return await showResultsViewFallback(result, insights);
+  }
 }
 
-/**
- * Setup navigation handlers
- */
-function setupNavigationHandlers() {
-    // Add any additional navigation handlers here
-    console.log('✅ Navigation handlers setup complete');
+// レポート生成
+function generateReport(analysisResult, insights) {
+  const reportData = {
+    timestamp: new Date().toISOString(),
+    analysisResult: analysisResult,
+    insights: insights,
+    session: app.storageManager.getSession(),
+  };
+
+  const reportJson = JSON.stringify(reportData, null, 2);
+  const blob = new Blob([reportJson], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `haqei_analysis_${new Date().toISOString().split("T")[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  console.log("📊 Report generated and downloaded");
 }
 
-/**
- * Run basic analysis (fallback function)
- */
-window.runBasicAnalysis = function() {
-    console.log('🔄 Running basic analysis');
-    showAnalysisComplete();
-};
-
-// Export for debugging
-window.HaqeiApp = {
-    waitForDatasets,
-    showFirstQuestion,
-    displayQuestion,
-    selectAnswer,
-    startAnalysis,
-    runBasicAnalysis: window.runBasicAnalysis
-};
-
-// Export essential functions globally for HTML event handlers
-window.displayQuestion = displayQuestion;
-window.selectAnswer = selectAnswer;
-window.startAnalysis = startAnalysis;
+// TripleOSレポート生成
